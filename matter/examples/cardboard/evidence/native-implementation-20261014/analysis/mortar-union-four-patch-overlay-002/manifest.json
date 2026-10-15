@@ -1,0 +1,64 @@
+{
+  "schema": "numi.cardboard.mortar-union-overlay.v1",
+  "evidence_class": "external source overlay; compilation and CPU admission only; native GPU tests not run",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-rationalized-paper-and-native-checkers-091",
+  "base_snapshot_manifest_sha256": "81614c67713b251dd0c4ccf019abcb3da8f2702c6762453a12558e8a1d632bdd",
+  "base_parent_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+  "base_file_sha256": {
+    "matter/src/metal/contact.metalinc": "ece2110ea3181ddd7527df9d1284b465ac5035279fa71232393491dd4cbf6632",
+    "matter/src/compiler_impl.cpp": "7fb4f135afcd0d4aab01f9ea8cedec9abf7dcddde91d51d94e11793d58b7b4e3",
+    "matter/tools/cardboard_full_contact_armijo_check.mm": "e8a9d5587b47280bc0250280f7fc28b18f2f339bd001137a4da114e5edf1fdf1"
+  },
+  "overlay_file_sha256": {
+    "matter/src/metal/contact.metalinc": "10b6e5ed205a5616cf5cde0896779122cd8bc920b716c8918ee50e6b20a6ac48",
+    "matter/src/compiler_impl.cpp": "9dc5cd30bc781704552936531120d28fd6bb95572d2793c7c4a0dd819143272c",
+    "matter/tools/cardboard_full_contact_armijo_check.mm": "057f3a9a483ecdff74832acec2ba075c0c26782a8863ac8b0828cda7b7283812"
+  },
+  "patch_file": "mortar-union-four-patch-092.patch",
+  "patch_sha256": "d5244584473c90854cf0954de5077f62dc33a8cae2875e5445ea9b6ed420ffb9",
+  "patch_apply_dry_run": {
+    "status": "PASS",
+    "command": "patch --dry-run -p1 -d <frozen-source-091> -i mortar-union-four-patch-092.patch",
+    "output": "patching file 'matter/src/metal/contact.metalinc'\npatching file 'matter/src/compiler_impl.cpp'\npatching file 'matter/tools/cardboard_full_contact_armijo_check.mm'"
+  },
+  "build": {
+    "status": "PASS",
+    "command": "cmake --build build-overlay --target numi-matter-cardboard-full-contact-armijo-check -j2",
+    "workdir": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-overlay-002/build-source/build-overlay",
+    "executable": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-overlay-002/build-source/build-overlay/matter/numi-matter-cardboard-full-contact-armijo-check",
+    "executable_sha256": "ed4684cf7e3be6e6ced35d7e93f6e1389cd29239b006000815c92a3166e0ca13",
+    "metallib": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-overlay-002/build-source/build-overlay/matter/shaders/NumiMatter.metallib",
+    "metallib_sha256": "dc052797134c0c6e21bc2a19b6199e6fff458258392e9b49483006d4c0f1e3f6",
+    "gpu_executed": false
+  },
+  "cpu_tests": {
+    "source_admission": {
+      "status": "PASS",
+      "command": "build-overlay/matter/numi-matter-cardboard-full-contact-armijo-check matter/materials/hajali2009_liner_hill_asymmetric_c1_transfer.nmatter --cpu-only",
+      "native_fem_transactions": 0,
+      "observed_output": "authored_newton_iterations=16 accurate_paper=false compensated_material_arithmetic=false\nipc_barrier_regularization=pass c1_floor_m=1e-09 below_floor_repulsion=true outside_support_exact_zero=true\narmijo_fp32_rounded_bound=pass base=3.43036e-05 alpha=1.6975e-08 bound_equals_base=true unchanged_rejected=true representable_descent_admitted=true\nauthored_line_search_budget=pass accepted=1,8,32 rejected=0,33\nprescribed_box_compiler_admission=pass nonunit_barrier_and_dynamic_box_rejected=true\nmortar_parent_pair_admission=pass distinct_dormant_pairs=3 accepted=true disjoint_same_pair_accepted=true fifth_same_pair_patch_rejected=true runtime_overlap_control_compiles_for_fail_closed_test=true self_contact_disabled_duplicate_pairs_accepted=true mixed_interface_mortar_pair_accepted=true physical_overlap_claim=false native_union_check_required=true\nsparse_private_sizing=pass P_above_65536=65537 flattened_u32_overflow=rejected dense_pair_limit=65536 private_budget_bytes=37748736 free_rigid_unknowns=rejected dormant_mixed_authored_scope=admitted inactive_unsupported_law=rejected\nselected_fem_preconditioner=scalar_diagonal selector=0\nlegacy_one_face_detached_tet_overlap=detected witness_tets=28,29 minimum_sat_overlap_m=4.47214e-06\nsplit_pad_cpu_geometry=pass interface_triangles=8 duplicated_interface_nodes=9 positive_gap_m=2.5e-05 old_one_face_overlap_rejected=true\nPASS full-contact source admission native_fem_transactions_executed=0 physical_validation=false synthetic_law=true nodes=36 tets=48 contact_pairs=72 deformable_capacity=18336",
+      "stdout_sha256": "7b3e60e3837b4ca8c814e973fd75dbb0b28aa24e864f41acef83b7fa56079a5f"
+    },
+    "paired_boundary_predicate": {
+      "status": "PASS",
+      "command": "/Users/home/.pyenv/versions/3.10.12/bin/python3 cpu_boundary_contract_check.py",
+      "script_sha256": "5b30eed3c108ece0817bf9198886b5f7d50333a408062c4440e1d636b9815c0f",
+      "result_sha256": "9b2e5542e3aa72fe0d669ca79b424f402d0e88dd27c924628188090014313c5a"
+    },
+    "shipping_hma_parent_pair_multiplicity": {
+      "status": "PASS",
+      "command": "xcrun --sdk macosx clang++ -std=c++20 -O2 -I <source091>/matter/tools -I <source091>/matter/include -I <source091>/include hma_parent_pair_multiplicity.cpp -o hma_parent_pair_multiplicity && ./hma_parent_pair_multiplicity",
+      "source_sha256": "2bb355bd1f51afedec33182d2dee9f0e3980546eb024393a5722c1120302d82d",
+      "binary_sha256": "5872878515dd88a92000e6d51eb46ae152198f5c753992476eb542b2caf525e7",
+      "stdout_sha256": "ecc66dc740c5cee73378638c1dd49c43ed47a95150b11f6490f2881b953c6558",
+      "report_sha256": "c429e6538aaadaddb7ed9b7cabdfb25412c912ada52dbe85c6af125514ee64d3",
+      "stdout": "nodes=528444 tets=1477728 starch_faces=97984 hma_patches=162851 hma_groups=9 total_mortar_records=260835 unique_parent_pairs=183033 max_multiplicity=4 max_pair=1052311,1073868\nmultiplicity_1=106021\nmultiplicity_2=76227\nmultiplicity_3=780\nmultiplicity_4=5\nmax_record_source=hma source_index=73358\nmax_record_source=hma source_index=73359\nmax_record_source=hma source_index=73360\nmax_record_source=hma source_index=73361"
+    }
+  },
+  "limitations": [
+    "Native private-sweep, four-patch CCD, shared-edge sliding, full shipping execution and GPU behavior remain unrun by this worker.",
+    "Native source run 301 reported an aggregate failure and did not capture the first pair/witness; its exact triggering pair remains a CPU reconstruction.",
+    "The shipping multiplicity count is for the exact default 300x200x200 mm design, literature2009 geometry, nxPerPitch=8, thicknessSlices=1, 16 subdivisions per band, zero engineering allowance, and current source091 builder. It is not a proof for other mesh resolutions, score coupons, or altered HMA footprints.",
+    "Four-patch admission is a bounded tested ceiling; capacity greater than four remains explicitly unsupported."
+  ]
+}

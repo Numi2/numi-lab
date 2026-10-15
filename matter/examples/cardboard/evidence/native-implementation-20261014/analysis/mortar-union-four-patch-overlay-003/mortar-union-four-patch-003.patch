@@ -1,0 +1,711 @@
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -1147,7 +1147,7 @@
+         alpha2 <= 1.0f + patchEdgeTolerance;
+ }
+ 
+-constant uint kMaxMortarPatchesPerPrimitivePair = 3u;
++constant uint kMaxMortarPatchesPerPrimitivePair = 4u;
+ constant uint kMaxMortarPartitionTriangles = 64u;
+ constant float kMortarPatchOverlapAreaTolerance = 1.0e-10f;
+ 
+@@ -1569,6 +1569,174 @@
+     return mortarBarycentricFromXY(barycentricXY);
+ }
+ 
++// A zero-area shared edge between two distinct mortar pages is not an
++// uncovered contact region when both page maps pair the same material edge.
++// Keep this exemption at the individual CCD witness: the surrounding cell
++// pair remains active so off-edge or sliding collisions are still tested.
++constant float kMortarPairedBoundaryBaryTolerance = 8.0e-6f;
++
++struct NMMortarPairedBoundary {
++    float2 left0;
++    float2 left1;
++    float2 right0;
++    float2 right1;
++    uint valid;
++};
++
++inline bool mortarBuildPairedBoundary(
++    thread const float3* leftA,
++    thread const float3* rightA,
++    thread const float3* leftB,
++    thread const float3* rightB,
++    thread NMMortarPairedBoundary& boundary
++) {
++    boundary.valid = 0u;
++    uint commonCount = 0u;
++    uint matchedA[2] = {NM_INVALID_INDEX, NM_INVALID_INDEX};
++    uint matchedB[2] = {NM_INVALID_INDEX, NM_INVALID_INDEX};
++    const float tolerance2 =
++        kMortarPairedBoundaryBaryTolerance *
++        kMortarPairedBoundaryBaryTolerance;
++    for (uint a = 0u; a < 3u; ++a) {
++        for (uint b = 0u; b < 3u; ++b) {
++            if (dot(leftA[a].xy - leftB[b].xy,
++                    leftA[a].xy - leftB[b].xy) > tolerance2 ||
++                dot(rightA[a].xy - rightB[b].xy,
++                    rightA[a].xy - rightB[b].xy) > tolerance2) continue;
++            bool duplicate = false;
++            for (uint prior = 0u; prior < commonCount; ++prior)
++                duplicate = duplicate ||
++                    (matchedA[prior] == a && matchedB[prior] == b);
++            if (duplicate) continue;
++            if (commonCount >= 2u) return true;
++            matchedA[commonCount] = a;
++            matchedB[commonCount] = b;
++            ++commonCount;
++        }
++    }
++    if (commonCount != 2u) return true;
++    const uint a0 = matchedA[0], a1 = matchedA[1];
++    const uint b0 = matchedB[0], b1 = matchedB[1];
++    if (dot(leftA[a1].xy - leftA[a0].xy,
++            leftA[a1].xy - leftA[a0].xy) <= tolerance2 ||
++        dot(rightA[a1].xy - rightA[a0].xy,
++            rightA[a1].xy - rightA[a0].xy) <= tolerance2 ||
++        dot(leftB[b1].xy - leftB[b0].xy,
++            leftB[b1].xy - leftB[b0].xy) <= tolerance2 ||
++        dot(rightB[b1].xy - rightB[b0].xy,
++            rightB[b1].xy - rightB[b0].xy) <= tolerance2) return true;
++    boundary.left0 = leftA[a0].xy;
++    boundary.left1 = leftA[a1].xy;
++    boundary.right0 = rightA[a0].xy;
++    boundary.right1 = rightA[a1].xy;
++    boundary.valid = 1u;
++    return true;
++}
++
++inline bool mortarBoundaryParameter(
++    const float2 point,
++    const float2 edge0,
++    const float2 edge1,
++    thread float& parameter
++) {
++    const float2 edge = edge1 - edge0;
++    const float edgeLength2 = dot(edge, edge);
++    const float tolerance = kMortarPairedBoundaryBaryTolerance;
++    if (!(edgeLength2 > tolerance * tolerance) || !isfinite(edgeLength2))
++        return false;
++    parameter = dot(point - edge0, edge) / edgeLength2;
++    if (!isfinite(parameter) || parameter < -tolerance ||
++        parameter > 1.0f + tolerance) return false;
++    const float2 nearest = edge0 + clamp(parameter, 0.0f, 1.0f) * edge;
++    const float2 error = point - nearest;
++    return dot(error, error) <= tolerance * tolerance;
++}
++
++inline bool mortarFeatureIsPairedBoundary(
++    const NMMortarPairedBoundary boundary,
++    const float3 leftBarycentric,
++    const float3 rightBarycentric
++) {
++    if (boundary.valid == 0u) return false;
++    float leftParameter, rightParameter;
++    if (!mortarBoundaryParameter(leftBarycentric.xy,
++            boundary.left0, boundary.left1, leftParameter) ||
++        !mortarBoundaryParameter(rightBarycentric.xy,
++            boundary.right0, boundary.right1, rightParameter)) return false;
++    return abs(leftParameter - rightParameter) <=
++        kMortarPairedBoundaryBaryTolerance;
++}
++
++inline bool mortarBoundaryWitnessIsNonApproaching(
++    const float3 relativeDisplacement,
++    const float3 normal
++) {
++    const float displacementLength = length(relativeDisplacement);
++    if (!isfinite(displacementLength) || !finite3(normal)) return false;
++    const float approachTolerance =
++        8.0f * kEpsilon * max(displacementLength, kGeometryFloor);
++    return dot(relativeDisplacement, normal) >= -approachTolerance;
++}
++
++// The non-approaching test at one CCD witness is not enough to dismiss a
++// later crossing: the opposing triangle/edge can rotate or deform after the
++// earliest boundary hit. Exempt only when every vertex in this feature query
++// has the exact same linear displacement, so their relative configuration is
++// invariant for the complete [0, 1] sweep. Equality is intentionally strict;
++// roundoff or any unresolved relative motion remains contact-eligible.
++inline bool mortarFeatureHasCommonTranslation(
++    const float3 displacement0,
++    const float3 displacement1,
++    const float3 displacement2,
++    const float3 displacement3
++) {
++    return finite3(displacement0) && finite3(displacement1) &&
++        finite3(displacement2) && finite3(displacement3) &&
++        all(displacement0 == displacement1) &&
++        all(displacement0 == displacement2) &&
++        all(displacement0 == displacement3);
++}
++
++inline bool mortarPairedBoundaryForFaceIDs(
++    const NMMortarPatchSet patchSet,
++    const uint faceA,
++    const uint faceB,
++    const NMContinuumSurfacePrimitiveGPU leftPrimitive,
++    const NMContinuumSurfacePrimitiveGPU rightPrimitive,
++    const uint gridNodeCount,
++    device const NMCohesiveFaceGPU* faces,
++    const uint faceBase,
++    thread NMMortarPairedBoundary& boundary
++) {
++    boundary.valid = 0u;
++    uint patchA = NM_INVALID_INDEX, patchB = NM_INVALID_INDEX;
++    for (uint patch = 0u; patch < patchSet.count; ++patch) {
++        if (patchSet.patch[patch].faceIndex == faceA) patchA = patch;
++        if (patchSet.patch[patch].faceIndex == faceB) patchB = patch;
++    }
++    if (patchA >= patchSet.count || patchB >= patchSet.count ||
++        patchA == patchB) return true;
++    const NMMortarPatchRef refA = patchSet.patch[patchA];
++    const NMMortarPatchRef refB = patchSet.patch[patchB];
++    const NMCohesiveFaceGPU sourceA = faces[faceBase + faceA];
++    const NMCohesiveFaceGPU sourceB = faces[faceBase + faceB];
++    float3 leftA[3], rightA[3], leftB[3], rightB[3];
++    if (!mortarPatchInPrimitiveCoordinates(sourceA,
++            refA.leftIsSideB != 0u, leftPrimitive, gridNodeCount,
++            leftA[0], leftA[1], leftA[2]) ||
++        !mortarPatchInPrimitiveCoordinates(sourceA,
++            refA.leftIsSideB == 0u, rightPrimitive, gridNodeCount,
++            rightA[0], rightA[1], rightA[2]) ||
++        !mortarPatchInPrimitiveCoordinates(sourceB,
++            refB.leftIsSideB != 0u, leftPrimitive, gridNodeCount,
++            leftB[0], leftB[1], leftB[2]) ||
++        !mortarPatchInPrimitiveCoordinates(sourceB,
++            refB.leftIsSideB == 0u, rightPrimitive, gridNodeCount,
++            rightB[0], rightB[1], rightB[2])) return false;
++    return mortarBuildPairedBoundary(
++        leftA, rightA, leftB, rightB, boundary);
++}
++
+ inline void considerMortarVertexTriangle(
+     const float3 pointStart,
+     const float3 pointFinish,
+@@ -1583,6 +1751,7 @@
+     const float3 pointBarycentric,
+     const NMMortarContactSubtriangle pointTriangle,
+     const NMMortarContactSubtriangle opposingTriangle,
++    const NMMortarPairedBoundary pairedBoundary,
+     thread NMMortarContactData& best
+ ) {
+     float toi, separation;
+@@ -1595,6 +1764,31 @@
+         triangleStart2, triangleFinish2,
+         thickness, toi, normal, barycentric, point, separation, certified);
+     if (!certified || !hit || !(toi < best.toi)) return;
++    const float3 opposingBarycentric =
++        mortarFeatureBarycentric(barycentric, opposingTriangle);
++    const float3 leftBarycentric = pointSide == 0u
++        ? pointBarycentric : opposingBarycentric;
++    const float3 rightBarycentric = pointSide == 0u
++        ? opposingBarycentric : pointBarycentric;
++    if (mortarFeatureIsPairedBoundary(
++            pairedBoundary, leftBarycentric, rightBarycentric)) {
++        const float3 pointDisplacement = pointFinish - pointStart;
++        const float3 triangleDisplacement0 = triangleFinish0 - triangleStart0;
++        const float3 triangleDisplacement1 = triangleFinish1 - triangleStart1;
++        const float3 triangleDisplacement2 = triangleFinish2 - triangleStart2;
++        if (mortarFeatureHasCommonTranslation(
++                pointDisplacement, triangleDisplacement0,
++                triangleDisplacement1, triangleDisplacement2)) {
++            const float3 opposingDisplacement =
++                barycentric.x * triangleDisplacement0 +
++                barycentric.y * triangleDisplacement1 +
++                barycentric.z * triangleDisplacement2;
++            const float3 relativeDisplacement =
++                pointDisplacement - opposingDisplacement;
++            if (mortarBoundaryWitnessIsNonApproaching(
++                    relativeDisplacement, normal)) return;
++        }
++    }
+     best.found = 1u;
+     best.kind = NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE;
+     best.positiveSide = pointSide;
+@@ -1627,6 +1821,7 @@
+     const uint2 leftEdge,
+     const NMMortarContactSubtriangle rightTriangle,
+     const uint2 rightEdge,
++    const NMMortarPairedBoundary pairedBoundary,
+     thread NMMortarContactData& best,
+     thread bool& certified
+ ) {
+@@ -1641,6 +1836,33 @@
+         localCertified);
+     certified = certified && localCertified;
+     if (!localCertified || !hit || !(toi < best.toi)) return;
++    const float3 leftBarycentric = mix(
++        mortarBarycentricFromXY(leftTriangle.bary[leftEdge.x]),
++        mortarBarycentricFromXY(leftTriangle.bary[leftEdge.y]),
++        parameters.x);
++    const float3 rightBarycentric = mix(
++        mortarBarycentricFromXY(rightTriangle.bary[rightEdge.x]),
++        mortarBarycentricFromXY(rightTriangle.bary[rightEdge.y]),
++        parameters.y);
++    if (mortarFeatureIsPairedBoundary(
++            pairedBoundary, leftBarycentric, rightBarycentric)) {
++        const float3 leftDisplacement0 = leftFinish0 - leftStart0;
++        const float3 leftDisplacement1 = leftFinish1 - leftStart1;
++        const float3 rightDisplacement0 = rightFinish0 - rightStart0;
++        const float3 rightDisplacement1 = rightFinish1 - rightStart1;
++        if (mortarFeatureHasCommonTranslation(
++                leftDisplacement0, leftDisplacement1,
++                rightDisplacement0, rightDisplacement1)) {
++            const float3 leftDisplacement = mix(
++                leftDisplacement0, leftDisplacement1, parameters.x);
++            const float3 rightDisplacement = mix(
++                rightDisplacement0, rightDisplacement1, parameters.y);
++            const float3 relativeDisplacement = leftDisplacement -
++                rightDisplacement;
++            if (mortarBoundaryWitnessIsNonApproaching(
++                    relativeDisplacement, normal)) return;
++        }
++    }
+     best.found = 1u;
+     best.kind = NM_DEFORMABLE_CONTACT_EDGE_EDGE;
+     best.positiveSide = 0u;
+@@ -1694,6 +1916,12 @@
+ inline bool findMortarComplementContact(
+     const NMMortarContactPartition leftPartition,
+     const NMMortarContactPartition rightPartition,
++    const NMMortarPatchSet patchSet,
++    const NMContinuumSurfacePrimitiveGPU leftPrimitive,
++    const NMContinuumSurfacePrimitiveGPU rightPrimitive,
++    const uint gridNodeCount,
++    device const NMCohesiveFaceGPU* faces,
++    const uint faceBase,
+     thread const float3* leftStart,
+     thread const float3* leftFinish,
+     thread const float3* rightStart,
+@@ -1728,6 +1956,17 @@
+                     leftStart, leftFinish, rightStart, rightFinish,
+                     thickness)) continue;
+ 
++            NMMortarPairedBoundary pairedBoundary{};
++            if (leftTriangle.coveredByCohesive != 0u &&
++                rightTriangle.coveredByCohesive != 0u &&
++                leftTriangle.coveredPatchIndex !=
++                    rightTriangle.coveredPatchIndex &&
++                !mortarPairedBoundaryForFaceIDs(
++                    patchSet, leftTriangle.coveredPatchIndex,
++                    rightTriangle.coveredPatchIndex, leftPrimitive,
++                    rightPrimitive, gridNodeCount, faces, faceBase,
++                    pairedBoundary)) return false;
++
+             float3 leftSubStart[3], leftSubFinish[3];
+             float3 rightSubStart[3], rightSubFinish[3];
+             for (uint localVertex = 0u; localVertex < 3u; ++localVertex) {
+@@ -1762,7 +2001,7 @@
+                         thickness, 0u,
+                         mortarBarycentricFromXY(
+                             leftTriangle.bary[leftVertex]), leftTriangle,
+-                        rightTriangle, best);
++                        rightTriangle, pairedBoundary, best);
+                 }
+             }
+             for (uint rightVertex = 0u; rightVertex < 3u; ++rightVertex) {
+@@ -1786,7 +2025,7 @@
+                         thickness, 1u,
+                         mortarBarycentricFromXY(
+                             rightTriangle.bary[rightVertex]), rightTriangle,
+-                        leftTriangle, best);
++                        leftTriangle, pairedBoundary, best);
+                 }
+             }
+             for (uint leftEdge = 0u; leftEdge < 3u; ++leftEdge)
+@@ -1802,7 +2041,8 @@
+                         rightSubStart[edges[rightEdge].y],
+                         rightSubFinish[edges[rightEdge].y],
+                         thickness, leftTriangle, edges[leftEdge],
+-                        rightTriangle, edges[rightEdge], best, certified);
++                        rightTriangle, edges[rightEdge], pairedBoundary,
++                        best, certified);
+                     allCertified = allCertified && certified;
+                 }
+         }
+@@ -1997,8 +2237,10 @@
+     }
+     NMMortarContactData sweep{};
+     const bool certified = validPartitions && findMortarComplementContact(
+-        leftPartition, rightPartition, start, finish, start + 3u, finish + 3u,
+-        collisionThickness, sweep);
++        leftPartition, rightPartition, mortarPatches, left, right,
++        dispatch.gridNodeCount, cohesiveFaces,
++        environment * dispatch.cohesiveFaceCount,
++        start, finish, start + 3u, finish + 3u, collisionThickness, sweep);
+     if (!validPartitions || !certified) {
+         recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+             left.nodesAndObject.w, slot,
+@@ -3093,7 +3335,9 @@
+             NMMortarContactData selected{};
+             const bool certified = validPartitions &&
+                 findMortarComplementContact(
+-                    leftPartition, rightPartition,
++                    leftPartition, rightPartition, mortarPatches,
++                    left, right, dispatch.gridNodeCount, cohesiveFaces,
++                    environment * dispatch.cohesiveFaceCount,
+                     start, finish, start + 3u, finish + 3u,
+                     thickness, selected);
+             if (!validPartitions || !certified) {
+--- a/matter/src/compiler_impl.cpp
++++ b/matter/src/compiler_impl.cpp
+@@ -2514,7 +2514,7 @@
+                 }
+             }
+             std::set<std::uint32_t> cohesiveIdentifiers;
+-            constexpr std::uint32_t maxMixedPatchesPerPrimitivePair = 3u;
++            constexpr std::uint32_t maxMixedPatchesPerPrimitivePair = 4u;
+             std::map<std::pair<std::uint64_t, std::uint64_t>, std::uint32_t>
+                 mixedPatchCountsByPrimitivePair;
+             for (const CohesiveInterfaceSource& interface :
+@@ -2702,7 +2702,7 @@
+                     std::uint32_t& pairCount = mixedPatchCountsByPrimitivePair[
+                         {canonicalPair.first, canonicalPair.second}];
+                     if (pairCount >= maxMixedPatchesPerPrimitivePair) {
+-                        error("same-object FEM self-contact supports at most three mixed-mode cohesive patches per canonical parent primitive pair; patch-capacity overflow is rejected before runtime");
++                        error("same-object FEM self-contact supports at most four mixed-mode cohesive patches per canonical parent primitive pair; patch-capacity overflow is rejected before runtime");
+                         return result;
+                     }
+                     ++pairCount;
+@@ -2906,7 +2906,7 @@
+                     std::uint32_t& pairCount = mixedPatchCountsByPrimitivePair[
+                         {canonicalPair.first, canonicalPair.second}];
+                     if (pairCount >= maxMixedPatchesPerPrimitivePair) {
+-                        error("same-object FEM self-contact supports at most three mixed-mode cohesive patches per canonical parent primitive pair; patch-capacity overflow is rejected before runtime");
++                        error("same-object FEM self-contact supports at most four mixed-mode cohesive patches per canonical parent primitive pair; patch-capacity overflow is rejected before runtime");
+                         return result;
+                     }
+                     ++pairCount;
+--- a/matter/tools/cardboard_full_contact_armijo_check.mm
++++ b/matter/tools/cardboard_full_contact_armijo_check.mm
+@@ -1078,8 +1078,9 @@
+     interface.cohesiveMaterialIndex = 0u;
+     interface.activationGapToleranceM = kActivationTolerance;
+     require(cohesivePatchTileCount == 0u || cohesivePatchTileCount == 1u ||
+-                cohesivePatchTileCount == 3u,
+-            "cohesive fixture supports zero, one, or a three-triangle partition");
++                cohesivePatchTileCount == 3u ||
++                (cohesivePatchTileCount == 4u && sameParentMortarUnion),
++            "cohesive fixture supports zero, one, three, or four mortar patches");
+     if (cohesivePatchTileCount == 0u) {
+         // Keep this identical full-contact world as a negative control for a
+         // tiled request with no authored cohesive faces.
+@@ -1091,40 +1092,82 @@
+             // triangle on one exact parent primitive pair. This exercises the
+             // bounded union path while preserving one independent face/history
+             // record per patch in both solver modes.
+-            const auto sideACenter = [&] {
+-                std::array<double, 3> center{};
+-                for (const auto& row : interface.sideAVertexBarycentric)
+-                    for (unsigned axis = 0u; axis < 3u; ++axis)
+-                        center[axis] += row[axis] / 3.0;
+-                return center;
+-            }();
+-            const auto sideBCenter = [&] {
+-                std::array<double, 3> center{};
+-                for (const auto& row : interface.sideBVertexBarycentric)
+-                    for (unsigned axis = 0u; axis < 3u; ++axis)
+-                        center[axis] += row[axis] / 3.0;
+-                return center;
+-            }();
+-            const std::array<std::array<unsigned, 3>, 3> tileVertices{{
+-                {{0u, 1u, 3u}}, {{1u, 2u, 3u}}, {{2u, 0u, 3u}}
+-            }};
+-            std::array<std::array<double, 3>, 4> sideA{};
+-            std::array<std::array<double, 3>, 4> sideB{};
+-            for (unsigned vertex = 0u; vertex < 3u; ++vertex) {
+-                sideA[vertex] = interface.sideAVertexBarycentric[vertex];
+-                sideB[vertex] = interface.sideBVertexBarycentric[vertex];
++            using TileMap = std::pair<
++                std::array<std::array<double, 3>, 3>,
++                std::array<std::array<double, 3>, 3>>;
++            std::vector<TileMap> tileMaps;
++            if (cohesivePatchTileCount == 3u) {
++                std::array<std::array<double, 3>, 4> sideA{};
++                std::array<std::array<double, 3>, 4> sideB{};
++                const auto sideACenter = [&] {
++                    std::array<double, 3> center{};
++                    for (const auto& row : interface.sideAVertexBarycentric)
++                        for (unsigned axis = 0u; axis < 3u; ++axis)
++                            center[axis] += row[axis] / 3.0;
++                    return center;
++                }();
++                const auto sideBCenter = [&] {
++                    std::array<double, 3> center{};
++                    for (const auto& row : interface.sideBVertexBarycentric)
++                        for (unsigned axis = 0u; axis < 3u; ++axis)
++                            center[axis] += row[axis] / 3.0;
++                    return center;
++                }();
++                for (unsigned vertex = 0u; vertex < 3u; ++vertex) {
++                    sideA[vertex] = interface.sideAVertexBarycentric[vertex];
++                    sideB[vertex] = interface.sideBVertexBarycentric[vertex];
++                }
++                sideA[3] = sideACenter;
++                sideB[3] = sideBCenter;
++                const std::array<std::array<unsigned, 3>, 3> tileVertices{{
++                    {{0u, 1u, 3u}}, {{1u, 2u, 3u}}, {{2u, 0u, 3u}}
++                }};
++                for (const auto& tile : tileVertices) {
++                    TileMap maps{};
++                    for (unsigned vertex = 0u; vertex < 3u; ++vertex) {
++                        maps.first[vertex] = sideA[tile[vertex]];
++                        maps.second[vertex] = sideB[tile[vertex]];
++                    }
++                    tileMaps.push_back(maps);
++                }
++            } else {
++                // Four midpoint subdivisions: the three corner triangles and
++                // the central triangle form a disjoint, area-conserving cover.
++                std::array<std::array<double, 3>, 6> sideA{};
++                std::array<std::array<double, 3>, 6> sideB{};
++                for (unsigned vertex = 0u; vertex < 3u; ++vertex) {
++                    sideA[vertex] = interface.sideAVertexBarycentric[vertex];
++                    sideB[vertex] = interface.sideBVertexBarycentric[vertex];
++                }
++                for (unsigned edge = 0u; edge < 3u; ++edge)
++                    for (unsigned axis = 0u; axis < 3u; ++axis) {
++                        sideA[3u + edge][axis] = 0.5 * (
++                            sideA[edge][axis] + sideA[(edge + 1u) % 3u][axis]);
++                        sideB[3u + edge][axis] = 0.5 * (
++                            sideB[edge][axis] + sideB[(edge + 1u) % 3u][axis]);
++                    }
++                const std::array<std::array<unsigned, 3>, 4> tileVertices{{
++                    {{0u, 3u, 5u}}, {{3u, 1u, 4u}},
++                    {{5u, 4u, 2u}}, {{3u, 4u, 5u}}
++                }};
++                for (const auto& tile : tileVertices) {
++                    TileMap maps{};
++                    for (unsigned vertex = 0u; vertex < 3u; ++vertex) {
++                        maps.first[vertex] = sideA[tile[vertex]];
++                        maps.second[vertex] = sideB[tile[vertex]];
++                    }
++                    tileMaps.push_back(maps);
++                }
+             }
+-            sideA[3] = sideACenter;
+-            sideB[3] = sideBCenter;
+             double areaFractionSum = 0.0;
+-            for (std::uint32_t tile = 0u; tile < tileVertices.size(); ++tile) {
++            for (std::uint32_t tile = 0u; tile < tileMaps.size(); ++tile) {
+                 CohesiveMortarPatchSource part = interface;
+                 part.stableIdentifier = kFaceId + tile;
+                 for (unsigned vertex = 0u; vertex < 3u; ++vertex) {
+                     part.sideAVertexBarycentric[vertex] =
+-                        sideA[tileVertices[tile][vertex]];
++                        tileMaps[tile].first[vertex];
+                     part.sideBVertexBarycentric[vertex] =
+-                        sideB[tileVertices[tile][vertex]];
++                        tileMaps[tile].second[vertex];
+                 }
+                 const auto& rows = part.sideAVertexBarycentric;
+                 const double determinantValue =
+@@ -1454,16 +1497,6 @@
+                 }),
+             "three-page distinct-parent mortar source did not compile dormant");
+ 
+-    const auto hasCapacityDiagnostic = [](const CompileResult& result) {
+-        return std::any_of(result.diagnostics.begin(), result.diagnostics.end(),
+-            [](const Diagnostic& diagnostic) {
+-                return diagnostic.severity == Diagnostic::Severity::error &&
+-                    diagnostic.message.find(
+-                        "supports at most three mixed-mode cohesive patches per canonical parent primitive pair")
+-                        != std::string::npos;
+-            });
+-    };
+-
+     MeshAndWorld disjoint = makeWorld(
+         bulk, false, true, kActivationGap, false, 3u, true);
+     const auto& disjointPatches =
+@@ -1501,16 +1534,27 @@
+             disjointAccepted.world.dispatch.cohesiveFaceCount == 3u,
+             "three disjoint same-parent patches were not admitted by bounded union support");
+ 
++    MeshAndWorld fourPatch = makeWorld(
++        bulk, false, true, kActivationGap, false, 4u, true);
++    require(fourPatch.world.objects.at(0u).femCohesiveMortarPatches.size() == 4u &&
++            compileMortarFixture(fourPatch.world).succeeded(),
++            "four disjoint same-parent patches were not admitted by bounded support");
+     MeshAndWorld overCapacity = makeWorld(
+-        bulk, false, true, kActivationGap, false, 3u, true);
+-    CohesiveMortarPatchSource fourth =
++        bulk, false, true, kActivationGap, false, 4u, true);
++    CohesiveMortarPatchSource fifth =
+         overCapacity.world.objects.at(0u).femCohesiveMortarPatches.front();
+-    fourth.stableIdentifier += 10u;
+-    overCapacity.world.objects.at(0u).femCohesiveMortarPatches.push_back(fourth);
++    fifth.stableIdentifier += 10u;
++    overCapacity.world.objects.at(0u).femCohesiveMortarPatches.push_back(fifth);
+     const CompileResult capacityRejected = compileMortarFixture(overCapacity.world);
+     require(!capacityRejected.succeeded() &&
+-            hasCapacityDiagnostic(capacityRejected),
+-            "fourth same-parent mortar patch was not rejected at explicit capacity");
++            std::any_of(capacityRejected.diagnostics.begin(), capacityRejected.diagnostics.end(),
++                [](const Diagnostic& diagnostic) {
++                    return diagnostic.severity == Diagnostic::Severity::error &&
++                        diagnostic.message.find(
++                            "supports at most four mixed-mode cohesive patches per canonical parent primitive pair")
++                            != std::string::npos;
++                }),
++            "fifth same-parent mortar patch was not rejected at explicit capacity");
+ 
+     MeshAndWorld overlapping = makeWorld(
+         bulk, false, true, kActivationGap, false, 3u, true);
+@@ -1579,7 +1623,7 @@
+     std::cout << "mortar_parent_pair_admission=pass"
+               << " distinct_dormant_pairs=3 accepted=true"
+               << " disjoint_same_pair_accepted=true"
+-              << " fourth_same_pair_patch_rejected=true"
++              << " fifth_same_pair_patch_rejected=true"
+               << " runtime_overlap_control_compiles_for_fail_closed_test=true"
+               << " self_contact_disabled_duplicate_pairs_accepted=true"
+               << " mixed_interface_mortar_pair_accepted=true"
+@@ -1955,6 +1999,9 @@
+     partialUncoveredCrossing,
+     partialCoveredCrossing,
+     threePatchCoveredCrossing,
++    fourPatchMatchedCrossing,
++    threePatchBoundarySeparating,
++    threePatchBoundarySlidingCrossing,
+     threePatchUncoveredCrossing,
+     threePatchCrossIdentityCrossing,
+     threePatchOverlapRejected,
+@@ -1971,14 +2018,21 @@
+         fixtureCase == PrivateSelfSweepCase::partialUncoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::threePatchCoveredCrossing ||
++        fixtureCase == PrivateSelfSweepCase::threePatchBoundarySeparating ||
++        fixtureCase == PrivateSelfSweepCase::threePatchBoundarySlidingCrossing ||
++        fixtureCase == PrivateSelfSweepCase::fourPatchMatchedCrossing ||
+         fixtureCase == PrivateSelfSweepCase::threePatchUncoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::threePatchCrossIdentityCrossing ||
+         fixtureCase == PrivateSelfSweepCase::threePatchOverlapRejected;
+     const bool threePatches =
+         fixtureCase == PrivateSelfSweepCase::threePatchCoveredCrossing ||
++        fixtureCase == PrivateSelfSweepCase::threePatchBoundarySeparating ||
++        fixtureCase == PrivateSelfSweepCase::threePatchBoundarySlidingCrossing ||
+         fixtureCase == PrivateSelfSweepCase::threePatchUncoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::threePatchCrossIdentityCrossing ||
+         fixtureCase == PrivateSelfSweepCase::threePatchOverlapRejected;
++    const bool fourPatches =
++        fixtureCase == PrivateSelfSweepCase::fourPatchMatchedCrossing;
+     const bool partialMortar =
+         fixtureCase == PrivateSelfSweepCase::partialUncoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing ||
+@@ -1992,7 +2046,8 @@
+     dispatch.objectCount = 1u;
+     dispatch.femNodeCount = 8u;
+     dispatch.tetrahedronCount = 2u;
+-    dispatch.cohesiveFaceCount = hasMortar ? (threePatches ? 3u : 1u) : 0u;
++    dispatch.cohesiveFaceCount = hasMortar
++        ? (fourPatches ? 4u : (threePatches ? 3u : 1u)) : 0u;
+     dispatch.deformableContactCapacity = 1u;
+     dispatch.numericalLimits = {1.0e-3f, 0.0f, 1.0e-8f, 1.0e20f};
+ 
+@@ -2014,24 +2069,48 @@
+         base[featureIndex + 1u].positionAndMass =
+             {point[0], point[1], point[2], 1.0f};
+         trial[featureIndex + 1u] = base[featureIndex + 1u];
+-        const float startZ = initiallyTouching ? 0.0f : 2.0e-4f;
+-        float endZ = 2.0e-4f;
++        const bool boundarySeparating =
++            fixtureCase == PrivateSelfSweepCase::threePatchBoundarySeparating;
++        const bool boundarySliding =
++            fixtureCase == PrivateSelfSweepCase::threePatchBoundarySlidingCrossing;
++        const float leftStartZ = boundarySeparating || boundarySliding
++            ? 0.0f : (initiallyTouching ? 0.0f : 2.0e-4f);
++        float leftEndZ = 2.0e-4f;
++        float rightStartZ = leftStartZ;
++        float rightEndZ = leftEndZ;
+         if (fixtureCase == PrivateSelfSweepCase::unbondedCrossing ||
+             fixtureCase == PrivateSelfSweepCase::fullyCoveredCrossing ||
+             fixtureCase == PrivateSelfSweepCase::partialUncoveredCrossing ||
+             fixtureCase == PrivateSelfSweepCase::threePatchCoveredCrossing ||
++            fixtureCase == PrivateSelfSweepCase::fourPatchMatchedCrossing ||
+             fixtureCase == PrivateSelfSweepCase::threePatchUncoveredCrossing ||
+             fixtureCase == PrivateSelfSweepCase::threePatchCrossIdentityCrossing ||
+             fixtureCase == PrivateSelfSweepCase::threePatchOverlapRejected)
+-            endZ = -2.0e-4f;
++            leftEndZ = rightEndZ = -2.0e-4f;
+         else if (fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing &&
+                  featureIndex == 0u)
+-            endZ = -2.0e-4f;
++            leftEndZ = rightEndZ = -2.0e-4f;
++        if (boundarySeparating) {
++            leftEndZ = 0.0f;
++            rightStartZ = 0.0f;
++            rightEndZ = 2.0e-4f;
++        } else if (boundarySliding) {
++            leftEndZ = 0.0f;
++            rightStartZ = 2.0e-4f;
++            rightEndZ = -2.0e-4f;
++        }
+         const float lateral = separatedMiss ? 2.0e-2f : 0.0f;
+         base[featureIndex + 5u].positionAndMass =
+-            {point[0] + lateral, point[1], startZ, 1.0f};
++            {point[0] + lateral, point[1], rightStartZ, 1.0f};
++        const float slideTangentX = -0.894427191f;
++        const float slideTangentY = 0.447213596f;
++        const float slideDistance = boundarySliding ? 5.0e-4f : 0.0f;
+         trial[featureIndex + 5u].positionAndMass =
+-            {point[0] + lateral, point[1], endZ, 1.0f};
++            {point[0] + lateral + slideDistance * slideTangentX,
++             point[1] + slideDistance * slideTangentY,
++             rightEndZ, 1.0f};
++        base[featureIndex + 1u].positionAndMass.z = leftStartZ;
++        trial[featureIndex + 1u].positionAndMass.z = leftEndZ;
+     }
+ 
+     std::vector<NMContinuumSurfacePrimitiveGPU> primitives(8u);
+@@ -2070,6 +2149,15 @@
+         const std::array<std::array<float, 3>, 4> fullVertices{{
+             {{1.0f, 0.0f, 0.0f}}, {{0.0f, 1.0f, 0.0f}},
+             {{0.0f, 0.0f, 1.0f}}, {{1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f}}
++        }};
++        const std::array<std::array<float, 3>, 6> fourVertices{{
++            {{1.0f, 0.0f, 0.0f}}, {{0.0f, 1.0f, 0.0f}},
++            {{0.0f, 0.0f, 1.0f}}, {{0.5f, 0.5f, 0.0f}},
++            {{0.0f, 0.5f, 0.5f}}, {{0.5f, 0.0f, 0.5f}}
++        }};
++        const std::array<std::array<unsigned, 3>, 4> fourTileVertices{{
++            {{0u, 3u, 5u}}, {{3u, 1u, 4u}},
++            {{5u, 4u, 2u}}, {{3u, 4u, 5u}}
+         }};
+         const std::array<std::array<float, 3>, 4> partialVertices{{
+             {{1.0f, 0.0f, 0.0f}}, {{0.35f, 0.65f, 0.0f}},
+@@ -2094,7 +2182,10 @@
+             for (std::uint32_t vertex = 0u; vertex < 3u; ++vertex) {
+                 std::array<float, 3> sideA{};
+                 std::array<float, 3> sideB{};
+-                if (!threePatches) {
++                if (fourPatches) {
++                    sideA = fourVertices[fourTileVertices[patchIndex][vertex]];
++                    sideB = sideA;
++                } else if (!threePatches) {
+                     const auto& values = partialMortar
+                         ? partialVertices : fullVertices;
+                     sideA = values[vertex];
+@@ -2525,6 +2616,21 @@
+         PrivateSelfSweepCase::threePatchCoveredCrossing);
+     require(threeCovered.code == NM_STATUS_SUCCESS,
+             "three matched mortar patches failed to preserve normal closure across their shared edges");
++    const NMMatterStatusGPU fourCovered = runPrivateSelfSweepKernelCase(
++        device, queue, pipeline,
++        PrivateSelfSweepCase::fourPatchMatchedCrossing);
++    require(fourCovered.code == NM_STATUS_SUCCESS,
++            "four matched mortar patches failed to preserve closure on shared boundaries");
++    const NMMatterStatusGPU sharedBoundarySeparating =
++        runPrivateSelfSweepKernelCase(device, queue, pipeline,
++            PrivateSelfSweepCase::threePatchBoundarySeparating);
++    require(sharedBoundarySeparating.code == NM_STATUS_SUCCESS,
++            "paired shared-edge separation was mistaken for an uncovered contact");
++    const NMMatterStatusGPU sharedBoundarySliding =
++        runPrivateSelfSweepKernelCase(device, queue, pipeline,
++            PrivateSelfSweepCase::threePatchBoundarySlidingCrossing);
++    require(sharedBoundarySliding.code == NM_STATUS_CONTACT_FAILURE,
++            "cross-patch collision during tangential slide was suppressed as a shared-edge duplicate");
+     const NMMatterStatusGPU threeUncovered = runPrivateSelfSweepKernelCase(
+         device, queue, pipeline,
+         PrivateSelfSweepCase::threePatchUncoveredCrossing);

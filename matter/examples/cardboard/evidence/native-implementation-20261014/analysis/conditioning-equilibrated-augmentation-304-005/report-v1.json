@@ -1,0 +1,4478 @@
+{
+  "schema": "numi.cardboard.conditioning-basis-equilibration-304.v1",
+  "binding": {
+    "source_run": "/Users/home/cardboard-implementation-20261014/solver/rationalized-paper-control2-newton63-capture-304",
+    "prediction_sha256": "6fd0e39606d2b05eb172a5ba76c2d589103f196604de1eb00999c74204ec00a1",
+    "receipt_sha256": "abd525c6de4a9932da3869a080fa00ef3a3307d76f0b70a834f9bc8a41910a3a",
+    "operator_capture_sha256": "609ebcc9751f7ba5a5d42154f1969d065bd779ea44e901c80bb3c925152089ab",
+    "operator_report_sha256": "9d55e082c17fa246a23a98e96ca17832fff8814d017f0bf69eaf1d2196408f6d",
+    "regional_manifest_sha256": "75fd9d878fdd22c01929fbb231046480d0daec9cefd77318d4703aff09ce8b00"
+  },
+  "operator": {
+    "shape": [
+      2538,
+      2538
+    ],
+    "nnz": 71046,
+    "rhs_norm_Ns": 0.00027888347802445374,
+    "relative_1e-6_absolute_gate_Ns": 2.788834780244537e-10,
+    "base26_RAP_diag_abs_min_median_mean_max": [
+      0.0011407651356360486,
+      0.009487837815100536,
+      0.016610892174883866,
+      0.06994463033635263
+    ],
+    "base26_RAP_condition2": 2047.8035909917232,
+    "graph_layout_header": "patches 27 patchNodes 2089 totalDofs 6267 matrixFloatCount 4721337 pivotCount 6267 metadataBytes 124476 deviceBytes 75783068",
+    "base_restart16_relative_residual": 0.9529044663320945
+  },
+  "augmentation": {
+    "online_restart16": {
+      "projected_q_norm_before_unit": 33.21726142464672,
+      "schur": {
+        "raw_qTAq_fp64": 0.0002414075183147245,
+        "raw_qTAq_fp32": 0.00024140739697031677,
+        "schur_pivot_fp64": -6.355662152249036e-09,
+        "schur_pivot_fp32_roundtrip": -6.597602234610818e-09,
+        "schur_sign_agrees": true,
+        "schur_abs_diff": 2.4194008236178184e-10,
+        "base_R_diag_abs_median": 0.009487837815100536,
+        "base_R_diag_abs_mean": 0.016610892174883866,
+        "equilibration_scale_to_median": 1221.8087315269167,
+        "equilibration_scale_to_mean": 1616.6502653608804,
+        "float32_product_qTAq_abs_diff": 1.213444077207207e-10
+      },
+      "scales": {
+        "unit_fp64": {
+          "basis_column_scale": 1.0,
+          "q_scaled_l2": 1.0,
+          "basis_column_max_abs": 0.6904372232515632,
+          "RAP_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 6.124233300649584e-09,
+            "singular_max_fp64": 0.07228457796983022,
+            "condition2_fp64": 11803041.200628845,
+            "singular_min_fp32stored": 6.127470208465987e-09,
+            "condition2_fp32stored": 11796805.697512984,
+            "symmetric_min_eigenvalue_fp64": -6.1242418657092436e-09,
+            "symmetric_max_eigenvalue_fp64": 0.07228457795575635,
+            "lu_min_abs_pivot_fp32": 6.339299751800809e-09,
+            "lu_max_abs_pivot_fp32": 0.06695709377527237,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "base_RAP_fp64_reference_maxabs_difference": 0.0,
+          "RAP_fp32_storage_only_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 6.127470208465987e-09,
+            "singular_max_fp64": 0.07228457546657263,
+            "condition2_fp64": 11796805.697512984,
+            "singular_min_fp32stored": 6.127470208465987e-09,
+            "condition2_fp32stored": 11796805.697512984,
+            "symmetric_min_eigenvalue_fp64": -6.127478787577926e-09,
+            "symmetric_max_eigenvalue_fp64": 0.0722845754524982,
+            "lu_min_abs_pivot_fp32": 6.339299751800809e-09,
+            "lu_max_abs_pivot_fp32": 0.06695709377527237,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "online_start_after_base_restart16": {
+            "norm_Ns": 0.0002657493117957305,
+            "relative_rhs": 0.9529044663320945,
+            "target_absolute_for_relative_1e-6_Ns": 2.788834780244537e-10
+          },
+          "online_after_restart16_cycles": [
+            {
+              "total_iterations": 32,
+              "absolute_true_residual_Ns": 6.520572779117484e-05,
+              "relative_true_residual": 0.2338099347192497,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 0.00026568502210018663,
+                  "relative_true_residual": 0.9526739410388815
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 0.00026541354567226105,
+                  "relative_true_residual": 0.9517005006979596
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 0.00026449987058306475,
+                  "relative_true_residual": 0.9484243113171166
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 0.0002634777848604035,
+                  "relative_true_residual": 0.9447593910073818
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 0.0002628415576141316,
+                  "relative_true_residual": 0.9424780538310861
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 0.00025991194705953674,
+                  "relative_true_residual": 0.9319732703446366
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 0.00025936828073314246,
+                  "relative_true_residual": 0.9300238313522463
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 0.0002480239250858108,
+                  "relative_true_residual": 0.8893460697017804
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 0.00021408434283564853,
+                  "relative_true_residual": 0.7676479953282735
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 0.00017067066055978378,
+                  "relative_true_residual": 0.6119783852696309
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 0.0001339841909019861,
+                  "relative_true_residual": 0.48043072272010956
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 0.00012348504240860473,
+                  "relative_true_residual": 0.4427836431306161
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 8.988347913655478e-05,
+                  "relative_true_residual": 0.32229761251282657
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 7.67293933213494e-05,
+                  "relative_true_residual": 0.27513065264705794
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 7.309828122747143e-05,
+                  "relative_true_residual": 0.26211047619343675
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 6.520572779117484e-05,
+                  "relative_true_residual": 0.2338099347192497
+                }
+              ]
+            },
+            {
+              "total_iterations": 48,
+              "absolute_true_residual_Ns": 2.0751345846978048e-05,
+              "relative_true_residual": 0.07440865982443921,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 6.517130804673782e-05,
+                  "relative_true_residual": 0.2336865149143877
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 6.495231561582206e-05,
+                  "relative_true_residual": 0.2329012678554115
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 6.47999325450724e-05,
+                  "relative_true_residual": 0.23235486377357376
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 6.45959731049258e-05,
+                  "relative_true_residual": 0.23162352091457256
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 6.458359323774447e-05,
+                  "relative_true_residual": 0.23157913009131897
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 6.428313878846562e-05,
+                  "relative_true_residual": 0.23050178247859124
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 6.41366644110209e-05,
+                  "relative_true_residual": 0.22997656535751146
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 6.327338000083301e-05,
+                  "relative_true_residual": 0.22688106319186438
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 5.890235616879088e-05,
+                  "relative_true_residual": 0.21120776528621052
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 5.082999740482316e-05,
+                  "relative_true_residual": 0.1822624910048137
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 4.318870157051479e-05,
+                  "relative_true_residual": 0.15486289068270948
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 4.0513052016759006e-05,
+                  "relative_true_residual": 0.14526874199842932
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 3.0446268953865343e-05,
+                  "relative_true_residual": 0.10917200678053678
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 2.467925594636591e-05,
+                  "relative_true_residual": 0.08849307288186474
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 2.2179254232791604e-05,
+                  "relative_true_residual": 0.07952874938990408
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 2.0751345846978048e-05,
+                  "relative_true_residual": 0.07440865982443921
+                }
+              ]
+            },
+            {
+              "total_iterations": 64,
+              "absolute_true_residual_Ns": 9.937915521787664e-06,
+              "relative_true_residual": 0.03563465140418345,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 2.0744525722655713e-05,
+                  "relative_true_residual": 0.07438420472092915
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 2.0706870474375382e-05,
+                  "relative_true_residual": 0.07424918328277487
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 2.05614902420021e-05,
+                  "relative_true_residual": 0.07372788946715293
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 2.0086127707303243e-05,
+                  "relative_true_residual": 0.0720233692206822
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 1.9549232286551375e-05,
+                  "relative_true_residual": 0.07009820884705552
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 1.8074101003774202e-05,
+                  "relative_true_residual": 0.06480879086780962
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 1.7070557374864735e-05,
+                  "relative_true_residual": 0.06121035744314661
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 1.5347061274681242e-05,
+                  "relative_true_residual": 0.05503037104742198
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 1.4779037649950659e-05,
+                  "relative_true_residual": 0.05299359343422549
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 1.4765719731530095e-05,
+                  "relative_true_residual": 0.05294583901537319
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 1.4684457527935132e-05,
+                  "relative_true_residual": 0.05265445494281857
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 1.434215849658685e-05,
+                  "relative_true_residual": 0.05142706408491243
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 1.4337548701357049e-05,
+                  "relative_true_residual": 0.05141053461797356
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 1.4325942199898013e-05,
+                  "relative_true_residual": 0.05136891687302412
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 1.2104340473565792e-05,
+                  "relative_true_residual": 0.043402859715140345
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 9.937915521787664e-06,
+                  "relative_true_residual": 0.03563465140418345
+                }
+              ]
+            },
+            {
+              "total_iterations": 80,
+              "absolute_true_residual_Ns": 3.6933199977988443e-06,
+              "relative_true_residual": 0.013243237010530247,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 9.914492963322739e-06,
+                  "relative_true_residual": 0.03555066450531498
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 9.800713014006316e-06,
+                  "relative_true_residual": 0.03514268067593071
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 9.506738763309514e-06,
+                  "relative_true_residual": 0.03408856928582883
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 9.130747708155259e-06,
+                  "relative_true_residual": 0.0327403680305315
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 8.699507764467384e-06,
+                  "relative_true_residual": 0.031194059347268224
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 7.681102164973286e-06,
+                  "relative_true_residual": 0.02754233495431297
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 7.173076049761898e-06,
+                  "relative_true_residual": 0.025720692027273596
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 6.348994236078102e-06,
+                  "relative_true_residual": 0.02276575966799078
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 6.083066748637437e-06,
+                  "relative_true_residual": 0.021812216312448767
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 6.050147684295901e-06,
+                  "relative_true_residual": 0.021694177536631973
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 5.895121269445978e-06,
+                  "relative_true_residual": 0.021138295144644846
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 5.710646515617759e-06,
+                  "relative_true_residual": 0.020476819050273837
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 5.700396891962122e-06,
+                  "relative_true_residual": 0.020440066698616997
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 5.64717468056233e-06,
+                  "relative_true_residual": 0.020249226381446522
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 4.42113726939436e-06,
+                  "relative_true_residual": 0.015852991007974646
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 3.6933199977988443e-06,
+                  "relative_true_residual": 0.013243237010530247
+                }
+              ]
+            },
+            {
+              "total_iterations": 96,
+              "absolute_true_residual_Ns": 1.5137217558306349e-06,
+              "relative_true_residual": 0.005427792878063236,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 3.6915781010915812e-06,
+                  "relative_true_residual": 0.013236991044582022
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 3.677151082773137e-06,
+                  "relative_true_residual": 0.013185259696347835
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 3.659705143127877e-06,
+                  "relative_true_residual": 0.0131227033205853
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 3.6417666346247905e-06,
+                  "relative_true_residual": 0.013058380727399937
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 3.639945538561789e-06,
+                  "relative_true_residual": 0.013051850774188288
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 3.606256725581627e-06,
+                  "relative_true_residual": 0.012931051889941701
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 3.6001056035660655e-06,
+                  "relative_true_residual": 0.012908995646025299
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 3.5318460473642107e-06,
+                  "relative_true_residual": 0.012664235516506727
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 3.2276792665892804e-06,
+                  "relative_true_residual": 0.011573576496726934
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 2.8165891506084836e-06,
+                  "relative_true_residual": 0.010099519593489552
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 2.5330381040193935e-06,
+                  "relative_true_residual": 0.009082782967147611
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 2.4471734970320246e-06,
+                  "relative_true_residual": 0.0087748959327646
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 2.028960914065338e-06,
+                  "relative_true_residual": 0.007275299807783628
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 1.7561861291542561e-06,
+                  "relative_true_residual": 0.006297203913242454
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 1.6307879881610146e-06,
+                  "relative_true_residual": 0.0058475604209799045
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 1.5137217558306349e-06,
+                  "relative_true_residual": 0.005427792878063236
+                }
+              ]
+            },
+            {
+              "total_iterations": 112,
+              "absolute_true_residual_Ns": 3.978512351210929e-07,
+              "relative_true_residual": 0.0014265858914962598,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 1.4890285705148024e-06,
+                  "relative_true_residual": 0.005339249858266031
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 1.449565261083374e-06,
+                  "relative_true_residual": 0.005197745206534859
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 1.4143397148498587e-06,
+                  "relative_true_residual": 0.005071436016463633
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 1.3748206186787508e-06,
+                  "relative_true_residual": 0.004929731328717151
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 1.3724216472033926e-06,
+                  "relative_true_residual": 0.0049211292720720175
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 1.3670468861528342e-06,
+                  "relative_true_residual": 0.004901856846582233
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 1.3615630112159892e-06,
+                  "relative_true_residual": 0.0048821931684909685
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 1.3614656509219809e-06,
+                  "relative_true_residual": 0.004881844061061952
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 1.3600190611384186e-06,
+                  "relative_true_residual": 0.004876656985105321
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 1.2774278243979384e-06,
+                  "relative_true_residual": 0.004580507362597966
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 1.1639510043905471e-06,
+                  "relative_true_residual": 0.004173610472143089
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 1.1141927907288532e-06,
+                  "relative_true_residual": 0.003995191104978818
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 9.290711232760281e-07,
+                  "relative_true_residual": 0.003331395354996839
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 7.08872193925978e-07,
+                  "relative_true_residual": 0.0025418221220829046
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 5.043223436600158e-07,
+                  "relative_true_residual": 0.0018083622136116455
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 3.978512351210929e-07,
+                  "relative_true_residual": 0.0014265858914962598
+                }
+              ]
+            },
+            {
+              "total_iterations": 128,
+              "absolute_true_residual_Ns": 7.31584289479936e-08,
+              "relative_true_residual": 0.0002623261494952338,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 3.830797020915334e-07,
+                  "relative_true_residual": 0.0013736192075815379
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 3.6250989236451445e-07,
+                  "relative_true_residual": 0.0012998614867128413
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 3.4351583471182105e-07,
+                  "relative_true_residual": 0.0012317539825062711
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 3.4062979724206736e-07,
+                  "relative_true_residual": 0.001221405440203953
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 3.133523131079956e-07,
+                  "relative_true_residual": 0.0011235958305157092
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 2.3136736723489933e-07,
+                  "relative_true_residual": 0.0008296202015044147
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 1.9551028106484217e-07,
+                  "relative_true_residual": 0.0007010464816696633
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 1.456934858883726e-07,
+                  "relative_true_residual": 0.0005224170571897326
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 1.392315253290589e-07,
+                  "relative_true_residual": 0.0004992462311333138
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 1.1575930446574309e-07,
+                  "relative_true_residual": 0.0004150812564650847
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 1.0148252700964191e-07,
+                  "relative_true_residual": 0.0003638886309383429
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 9.797486085347872e-08,
+                  "relative_true_residual": 0.00035131109790909824
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 9.120052604809722e-08,
+                  "relative_true_residual": 0.000327020183103498
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 8.296032896063936e-08,
+                  "relative_true_residual": 0.0002974730864241625
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 7.741199785061576e-08,
+                  "relative_true_residual": 0.0002775782860963457
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 7.31584289479936e-08,
+                  "relative_true_residual": 0.0002623261494952338
+                }
+              ]
+            }
+          ],
+          "R32_abs_gate_for_1e-6": 2.788834780244537e-10
+        },
+        "unit_fp32": {
+          "basis_column_scale": 1.0,
+          "q_scaled_l2": 0.9999999937449763,
+          "basis_column_max_abs": 0.6904371976852417,
+          "RAP_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 6.106022513990595e-09,
+            "singular_max_fp64": 0.07228454314210721,
+            "condition2_fp64": 11838237.244701149,
+            "singular_min_fp32stored": 6.106022513990595e-09,
+            "condition2_fp32stored": 11838237.244701149,
+            "symmetric_min_eigenvalue_fp64": -6.106031609287158e-09,
+            "symmetric_max_eigenvalue_fp64": 0.0722845431279282,
+            "lu_min_abs_pivot_fp32": 6.308220612538662e-09,
+            "lu_max_abs_pivot_fp32": 0.06695707142353058,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "base_RAP_fp64_reference_maxabs_difference": 3.540139963814637e-08,
+          "RAP_fp32_storage_only_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 6.127671792595632e-09,
+            "singular_max_fp64": 0.07228457546656968,
+            "condition2_fp64": 11796417.613932047,
+            "singular_min_fp32stored": 6.127671792595632e-09,
+            "condition2_fp32stored": 11796417.613932047,
+            "symmetric_min_eigenvalue_fp64": -6.127680422579686e-09,
+            "symmetric_max_eigenvalue_fp64": 0.07228457545249509,
+            "lu_min_abs_pivot_fp32": 6.331806634563009e-09,
+            "lu_max_abs_pivot_fp32": 0.06695709377527237,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "online_start_after_base_restart16": {
+            "norm_Ns": 0.0002657493117957305,
+            "relative_rhs": 0.9529044663320945,
+            "target_absolute_for_relative_1e-6_Ns": 2.788834780244537e-10
+          },
+          "online_after_restart16_cycles": [
+            {
+              "total_iterations": 32,
+              "absolute_true_residual_Ns": 6.535205422608392e-05,
+              "relative_true_residual": 0.23433462135879402,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 0.0002656760012241406,
+                  "relative_true_residual": 0.9526415946406296
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 0.00026541454576670055,
+                  "relative_true_residual": 0.9517040867635329
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 0.00026452243819950343,
+                  "relative_true_residual": 0.9485052326273302
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 0.0002634997513565734,
+                  "relative_true_residual": 0.9448381568644543
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 0.00026287950940627523,
+                  "relative_true_residual": 0.9426141385945596
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 0.0002600550816773452,
+                  "relative_true_residual": 0.9324865119996187
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 0.0002594089887146133,
+                  "relative_true_residual": 0.9301697990580395
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 0.00024750865635384873,
+                  "relative_true_residual": 0.8874984567287492
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 0.00021409924779906332,
+                  "relative_true_residual": 0.767701440457115
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 0.00016999864730928867,
+                  "relative_true_residual": 0.6095687292539519
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 0.00013431582654562573,
+                  "relative_true_residual": 0.48161987758144753
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 0.00012305688634629234,
+                  "relative_true_residual": 0.4412483924038776
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 8.957931372857841e-05,
+                  "relative_true_residual": 0.3212069584155276
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 7.697626608445712e-05,
+                  "relative_true_residual": 0.27601587096424374
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 7.328499870678845e-05,
+                  "relative_true_residual": 0.2627799940890098
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 6.535205422608392e-05,
+                  "relative_true_residual": 0.23433462135879402
+                }
+              ]
+            },
+            {
+              "total_iterations": 48,
+              "absolute_true_residual_Ns": 2.0768387282808963e-05,
+              "relative_true_residual": 0.07446976575997771,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 6.531750148908508e-05,
+                  "relative_true_residual": 0.2342107246789204
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 6.509958455340443e-05,
+                  "relative_true_residual": 0.2334293340521815
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 6.493800059184686e-05,
+                  "relative_true_residual": 0.2328499380883109
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 6.473619324751036e-05,
+                  "relative_true_residual": 0.2321263120572313
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 6.472618792219087e-05,
+                  "relative_true_residual": 0.23209043569269958
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 6.441636041267418e-05,
+                  "relative_true_residual": 0.23097947884537595
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 6.427301210210065e-05,
+                  "relative_true_residual": 0.23046547094648936
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 6.331287741484474e-05,
+                  "relative_true_residual": 0.2270226901333079
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 5.8893652654435345e-05,
+                  "relative_true_residual": 0.21117655686032175
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 5.079807647007676e-05,
+                  "relative_true_residual": 0.18214803124917484
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 4.34539549113352e-05,
+                  "relative_true_residual": 0.15581401673255438
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 4.0517315494730694e-05,
+                  "relative_true_residual": 0.14528402966624634
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 3.033822203201764e-05,
+                  "relative_true_residual": 0.10878458002218923
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 2.4733647378658854e-05,
+                  "relative_true_residual": 0.08868810570588946
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 2.2267249520563955e-05,
+                  "relative_true_residual": 0.07984427646377626
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 2.0768387282808963e-05,
+                  "relative_true_residual": 0.07446976575997771
+                }
+              ]
+            },
+            {
+              "total_iterations": 64,
+              "absolute_true_residual_Ns": 9.991337512801656e-06,
+              "relative_true_residual": 0.035826208076498424,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 2.0761910259921448e-05,
+                  "relative_true_residual": 0.0744465409245253
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 2.0725686168720868e-05,
+                  "relative_true_residual": 0.07431665122486585
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 2.0578226581690688e-05,
+                  "relative_true_residual": 0.0737879014112349
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 2.0116387201398398e-05,
+                  "relative_true_residual": 0.07213187150382033
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 1.9590541259669775e-05,
+                  "relative_true_residual": 0.07024633154478943
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 1.8140987515143828e-05,
+                  "relative_true_residual": 0.06504862763348479
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 1.7127919404823566e-05,
+                  "relative_true_residual": 0.061416042019246886
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 1.5285186785382866e-05,
+                  "relative_true_residual": 0.05480850602430666
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 1.4711513769778056e-05,
+                  "relative_true_residual": 0.05275147123806339
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 1.470453764744291e-05,
+                  "relative_true_residual": 0.05272645676827636
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 1.4610133289740513e-05,
+                  "relative_true_residual": 0.05238794851970195
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 1.4311964962917938e-05,
+                  "relative_true_residual": 0.05131879831785159
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 1.4305211286835612e-05,
+                  "relative_true_residual": 0.05129458147958578
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 1.4299712302321974e-05,
+                  "relative_true_residual": 0.05127486362267797
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 1.2134463567759843e-05,
+                  "relative_true_residual": 0.04351087290547861
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 9.991337512801656e-06,
+                  "relative_true_residual": 0.035826208076498424
+                }
+              ]
+            },
+            {
+              "total_iterations": 80,
+              "absolute_true_residual_Ns": 3.7732603346226305e-06,
+              "relative_true_residual": 0.013529881229793664,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 9.968250466370058e-06,
+                  "relative_true_residual": 0.035743424232166233
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 9.857407975366668e-06,
+                  "relative_true_residual": 0.03534597332618724
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 9.560257432638073e-06,
+                  "relative_true_residual": 0.034280472620180774
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 9.177891357982101e-06,
+                  "relative_true_residual": 0.03290941228571936
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 8.745006490410562e-06,
+                  "relative_true_residual": 0.031357205354573786
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 7.733505276169246e-06,
+                  "relative_true_residual": 0.02773023820181681
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 7.222739068358588e-06,
+                  "relative_true_residual": 0.025898770050928818
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 6.380128759973632e-06,
+                  "relative_true_residual": 0.02287739956905656
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 6.112143498785424e-06,
+                  "relative_true_residual": 0.02191647759875357
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 6.078073486989602e-06,
+                  "relative_true_residual": 0.02179431183964455
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 5.922782411710201e-06,
+                  "relative_true_residual": 0.021237480447625745
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 5.746693001363426e-06,
+                  "relative_true_residual": 0.020606071905269092
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 5.733117977611418e-06,
+                  "relative_true_residual": 0.020557395576903673
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 5.670663730052557e-06,
+                  "relative_true_residual": 0.020333451698975612
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 4.49703468845035e-06,
+                  "relative_true_residual": 0.016125138428085835
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 3.7732603346226305e-06,
+                  "relative_true_residual": 0.013529881229793664
+                }
+              ]
+            },
+            {
+              "total_iterations": 96,
+              "absolute_true_residual_Ns": 1.5216964407895848e-06,
+              "relative_true_residual": 0.005456387920750744,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 3.7714192821507895e-06,
+                  "relative_true_residual": 0.013523279718349233
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 3.756435522268636e-06,
+                  "relative_true_residual": 0.013469552046891983
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 3.7377012557353786e-06,
+                  "relative_true_residual": 0.013402376082700892
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 3.718758241409055e-06,
+                  "relative_true_residual": 0.013334451605924743
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 3.71701848104957e-06,
+                  "relative_true_residual": 0.013328213300336298
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 3.683188617813132e-06,
+                  "relative_true_residual": 0.013206908648386025
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 3.6761226799404777e-06,
+                  "relative_true_residual": 0.013181572124606604
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 3.598026644558112e-06,
+                  "relative_true_residual": 0.01290154106670536
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 3.283141281252502e-06,
+                  "relative_true_residual": 0.011772448136797195
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 2.8564048428703254e-06,
+                  "relative_true_residual": 0.010242287793828587
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 2.5787382258867482e-06,
+                  "relative_true_residual": 0.009246651125243902
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 2.4758409258308857e-06,
+                  "relative_true_residual": 0.008877689504481126
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 2.0392943515998764e-06,
+                  "relative_true_residual": 0.0073123526931239075
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 1.7680366453973498e-06,
+                  "relative_true_residual": 0.006339696628576615
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 1.6424548654919409e-06,
+                  "relative_true_residual": 0.005889394657319654
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 1.5216964407895848e-06,
+                  "relative_true_residual": 0.005456387920750744
+                }
+              ]
+            },
+            {
+              "total_iterations": 112,
+              "absolute_true_residual_Ns": 4.160475438470848e-07,
+              "relative_true_residual": 0.0014918328858857816,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 1.4963474704052843e-06,
+                  "relative_true_residual": 0.005365493434767326
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 1.458130195322929e-06,
+                  "relative_true_residual": 0.005228456721968569
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 1.4226693890032092e-06,
+                  "relative_true_residual": 0.005101303953468563
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 1.375032669911226e-06,
+                  "relative_true_residual": 0.00493049168653389
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 1.3721891526983607e-06,
+                  "relative_true_residual": 0.004920295610262151
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 1.3678904718242009e-06,
+                  "relative_true_residual": 0.004904881714449424
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 1.362026984664353e-06,
+                  "relative_true_residual": 0.004883856850583757
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 1.3615591936383845e-06,
+                  "relative_true_residual": 0.00488217947970011
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 1.3600736404425622e-06,
+                  "relative_true_residual": 0.004876852691586502
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 1.2788633709433332e-06,
+                  "relative_true_residual": 0.004585654840518006
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 1.174099416574779e-06,
+                  "relative_true_residual": 0.004209999907100373
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 1.1153441241423713e-06,
+                  "relative_true_residual": 0.003999319472215464
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 9.568401938316956e-07,
+                  "relative_true_residual": 0.003430967659359855
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 7.554662853951026e-07,
+                  "relative_true_residual": 0.002708895811062927
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 5.238276440564744e-07,
+                  "relative_true_residual": 0.001878302894696913
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 4.160475438470848e-07,
+                  "relative_true_residual": 0.0014918328858857816
+                }
+              ]
+            },
+            {
+              "total_iterations": 128,
+              "absolute_true_residual_Ns": 8.450202078074853e-08,
+              "relative_true_residual": 0.00030300117231519543,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 4.0174260577729945e-07,
+                  "relative_true_residual": 0.0014405392840879333
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 3.795987076699977e-07,
+                  "relative_true_residual": 0.0013611373121096577
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 3.6040899640655156e-07,
+                  "relative_true_residual": 0.0012923282474802946
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 3.5817656758682494e-07,
+                  "relative_true_residual": 0.0012843233673219552
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 3.3887709442042567e-07,
+                  "relative_true_residual": 0.0012151207264802953
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 2.521509422674346e-07,
+                  "relative_true_residual": 0.0009041444263877291
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 2.1714540662964673e-07,
+                  "relative_true_residual": 0.000778624134236473
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 1.630113636572813e-07,
+                  "relative_true_residual": 0.0005845142380323719
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 1.5596578078991622e-07,
+                  "relative_true_residual": 0.00055925070174376
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 1.321691587185635e-07,
+                  "relative_true_residual": 0.000473922512924822
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 1.148835434283728e-07,
+                  "relative_true_residual": 0.00041194101652124155
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 1.1123670329099625e-07,
+                  "relative_true_residual": 0.00039886444359834943
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 1.0205413133648477e-07,
+                  "relative_true_residual": 0.000365938247971564
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 9.424142211338386e-08,
+                  "relative_true_residual": 0.00033792400604355755
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 8.837944066899952e-08,
+                  "relative_true_residual": 0.00031690454126239066
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 8.450202078074853e-08,
+                  "relative_true_residual": 0.00030300117231519543
+                }
+              ]
+            }
+          ],
+          "R32_abs_gate_for_1e-6": 2.788834780244537e-10
+        },
+        "median_fp64": {
+          "basis_column_scale": 1221.8087315269167,
+          "q_scaled_l2": 1221.8087315269165,
+          "basis_column_max_abs": 843.582227939959,
+          "RAP_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 1.6832578658663036e-07,
+            "singular_max_fp64": 360.40095987743416,
+            "condition2_fp64": 2141091791.0189037,
+            "singular_min_fp32stored": 1.6826265375573244e-07,
+            "condition2_fp32stored": 2141895085.1384795,
+            "symmetric_min_eigenvalue_fp64": -1.683260223084011e-07,
+            "symmetric_max_eigenvalue_fp64": 360.40095987743337,
+            "lu_min_abs_pivot_fp32": 8.48033232614398e-05,
+            "lu_max_abs_pivot_fp32": 0.19105219841003418,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "base_RAP_fp64_reference_maxabs_difference": 0.0,
+          "RAP_fp32_storage_only_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 1.6826265375573244e-07,
+            "singular_max_fp64": 360.40095109176104,
+            "condition2_fp64": 2141895085.1384795,
+            "singular_min_fp32stored": 1.6826265375573244e-07,
+            "condition2_fp32stored": 2141895085.1384795,
+            "symmetric_min_eigenvalue_fp64": -1.6826288804861775e-07,
+            "symmetric_max_eigenvalue_fp64": 360.40095109176013,
+            "lu_min_abs_pivot_fp32": 8.48033232614398e-05,
+            "lu_max_abs_pivot_fp32": 0.19105219841003418,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "online_start_after_base_restart16": {
+            "norm_Ns": 0.0002657493117957305,
+            "relative_rhs": 0.9529044663320945,
+            "target_absolute_for_relative_1e-6_Ns": 2.788834780244537e-10
+          },
+          "online_after_restart16_cycles": [
+            {
+              "total_iterations": 32,
+              "absolute_true_residual_Ns": 6.520574960265075e-05,
+              "relative_true_residual": 0.23381001292924647,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 0.00026568502019947034,
+                  "relative_true_residual": 0.9526739342234318
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 0.00026541355203463853,
+                  "relative_true_residual": 0.951700523511708
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 0.00026449983038207453,
+                  "relative_true_residual": 0.948424167167343
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 0.00026347783934955375,
+                  "relative_true_residual": 0.9447595863905959
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 0.00026284162031818054,
+                  "relative_true_residual": 0.9424782786706835
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 0.00025991184019835337,
+                  "relative_true_residual": 0.9319728871696126
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 0.0002593682368865491,
+                  "relative_true_residual": 0.9300236741303354
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 0.00024802387281143884,
+                  "relative_true_residual": 0.8893458822601568
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 0.00021408412320314446,
+                  "relative_true_residual": 0.767647207786087
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 0.0001706695020106481,
+                  "relative_true_residual": 0.6119742310287848
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 0.0001339819317907191,
+                  "relative_true_residual": 0.48042262216398124
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 0.00012348407181551421,
+                  "relative_true_residual": 0.44278016284882454
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 8.988418159614323e-05,
+                  "relative_true_residual": 0.3223001313410965
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 7.672909400502672e-05,
+                  "relative_true_residual": 0.2751295793804564
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 7.309827210204928e-05,
+                  "relative_true_residual": 0.2621104434721647
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 6.520574960265075e-05,
+                  "relative_true_residual": 0.23381001292924647
+                }
+              ]
+            },
+            {
+              "total_iterations": 48,
+              "absolute_true_residual_Ns": 2.0751388950842076e-05,
+              "relative_true_residual": 0.07440881438312563,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 6.517133223278773e-05,
+                  "relative_true_residual": 0.23368660163895838
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 6.495233496145314e-05,
+                  "relative_true_residual": 0.23290133722356202
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 6.479996941771006e-05,
+                  "relative_true_residual": 0.23235499598878392
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 6.459600621147208e-05,
+                  "relative_true_residual": 0.23162363962560742
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 6.458362674214859e-05,
+                  "relative_true_residual": 0.23157925022896342
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 6.428319426188428e-05,
+                  "relative_true_residual": 0.23050198139112296
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 6.413668067553134e-05,
+                  "relative_true_residual": 0.2299766236776047
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 6.327338019028099e-05,
+                  "relative_true_residual": 0.22688106387117313
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 5.890238978503675e-05,
+                  "relative_true_residual": 0.21120788582488895
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 5.083010728883681e-05,
+                  "relative_true_residual": 0.18226288501888163
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 4.318956829354136e-05,
+                  "relative_true_residual": 0.1548659985148145
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 4.051358218907749e-05,
+                  "relative_true_residual": 0.14527064305159404
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 3.0446082937713232e-05,
+                  "relative_true_residual": 0.10917133977740906
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 2.467950645647999e-05,
+                  "relative_true_residual": 0.0884939711427293
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 2.217931956840696e-05,
+                  "relative_true_residual": 0.07952898366558014
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 2.0751388950842076e-05,
+                  "relative_true_residual": 0.07440881438312563
+                }
+              ]
+            },
+            {
+              "total_iterations": 64,
+              "absolute_true_residual_Ns": 9.937632637066678e-06,
+              "relative_true_residual": 0.035633637056818775,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 2.0744569235891974e-05,
+                  "relative_true_residual": 0.07438436074751262
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 2.0706915692621617e-05,
+                  "relative_true_residual": 0.07424934542305853
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 2.0561523082947608e-05,
+                  "relative_true_residual": 0.07372800722581595
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 2.0086140975597895e-05,
+                  "relative_true_residual": 0.07202341679716377
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 1.9549276178245958e-05,
+                  "relative_true_residual": 0.07009836623068717
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 1.8074240866138843e-05,
+                  "relative_true_residual": 0.06480929237605827
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 1.707065632802337e-05,
+                  "relative_true_residual": 0.06121071226215322
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 1.534717099017617e-05,
+                  "relative_true_residual": 0.05503076445722777
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 1.4779172809225578e-05,
+                  "relative_true_residual": 0.05299407807847862
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 1.4765836972449816e-05,
+                  "relative_true_residual": 0.05294625940929739
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 1.4684549983577942e-05,
+                  "relative_true_residual": 0.05265478646350766
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 1.4342029381604689e-05,
+                  "relative_true_residual": 0.05142660111384267
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 1.4337443409307532e-05,
+                  "relative_true_residual": 0.05141015706943514
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 1.432579342098922e-05,
+                  "relative_true_residual": 0.051368383392482904
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 1.2104472073267875e-05,
+                  "relative_true_residual": 0.043403331595737275
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 9.937632637066678e-06,
+                  "relative_true_residual": 0.035633637056818775
+                }
+              ]
+            },
+            {
+              "total_iterations": 80,
+              "absolute_true_residual_Ns": 3.692965285028812e-06,
+              "relative_true_residual": 0.013241965107395127,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 9.914214026653043e-06,
+                  "relative_true_residual": 0.03554966431458417
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 9.800431522997715e-06,
+                  "relative_true_residual": 0.03514167132603807
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 9.506522350554165e-06,
+                  "relative_true_residual": 0.03408779328878203
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 9.130546599734623e-06,
+                  "relative_true_residual": 0.03273964691064996
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 8.699341446601944e-06,
+                  "relative_true_residual": 0.031193462976817677
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 7.681037799814045e-06,
+                  "relative_true_residual": 0.027542104158427547
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 7.173076507876498e-06,
+                  "relative_true_residual": 0.025720693669947458
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 6.348802309051543e-06,
+                  "relative_true_residual": 0.02276507147008132
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 6.0827383772426605e-06,
+                  "relative_true_residual": 0.021811038862292513
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 6.049802873053525e-06,
+                  "relative_true_residual": 0.02169294113767131
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 5.894743981650176e-06,
+                  "relative_true_residual": 0.021136942293631677
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 5.710221497191216e-06,
+                  "relative_true_residual": 0.020475295050252203
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 5.69995977395705e-06,
+                  "relative_true_residual": 0.02043849931281068
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 5.646743725085387e-06,
+                  "relative_true_residual": 0.020247681092783326
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 4.420746040482584e-06,
+                  "relative_true_residual": 0.015851588167926367
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 3.692965285028812e-06,
+                  "relative_true_residual": 0.013241965107395127
+                }
+              ]
+            },
+            {
+              "total_iterations": 96,
+              "absolute_true_residual_Ns": 1.513746946538261e-06,
+              "relative_true_residual": 0.005427883205062183,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 3.691225578635859e-06,
+                  "relative_true_residual": 0.013235726995315928
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 3.676813590474844e-06,
+                  "relative_true_residual": 0.013184049541122135
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 3.659384128721646e-06,
+                  "relative_true_residual": 0.013121552250581064
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 3.641457934034244e-06,
+                  "relative_true_residual": 0.013057273811376323
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 3.6396341641019964e-06,
+                  "relative_true_residual": 0.013050734270399687
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 3.6059559513327796e-06,
+                  "relative_true_residual": 0.012929973395615043
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 3.599800889726651e-06,
+                  "relative_true_residual": 0.012907903025402618
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 3.5315353108710696e-06,
+                  "relative_true_residual": 0.012663121300292336
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 3.227429576357836e-06,
+                  "relative_true_residual": 0.011572681175737636
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 2.8164184715520957e-06,
+                  "relative_true_residual": 0.010098907584999137
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 2.5329850679713506e-06,
+                  "relative_true_residual": 0.009082592794361403
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 2.4471394441056053e-06,
+                  "relative_true_residual": 0.008774773828268984
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 2.02895626856652e-06,
+                  "relative_true_residual": 0.007275283150293371
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 1.7562301916195353e-06,
+                  "relative_true_residual": 0.006297361909211206
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 1.6308290501858624e-06,
+                  "relative_true_residual": 0.005847707658188572
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 1.513746946538261e-06,
+                  "relative_true_residual": 0.005427883205062183
+                }
+              ]
+            },
+            {
+              "total_iterations": 112,
+              "absolute_true_residual_Ns": 3.978355589730741e-07,
+              "relative_true_residual": 0.0014265296811100086,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 1.4890486458696022e-06,
+                  "relative_true_residual": 0.005339321843006547
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 1.4495833044554952e-06,
+                  "relative_true_residual": 0.005197809905140344
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 1.4143766422713012e-06,
+                  "relative_true_residual": 0.005071568428113488
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 1.3748473571963159e-06,
+                  "relative_true_residual": 0.004929827205739894
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 1.3724476741851024e-06,
+                  "relative_true_residual": 0.004921222597721476
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 1.3670783412742611e-06,
+                  "relative_true_residual": 0.0049019696360585036
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 1.3615946828018243e-06,
+                  "relative_true_residual": 0.0048823067341494985
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 1.3614968757614566e-06,
+                  "relative_true_residual": 0.004881956024810026
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 1.3600519803460619e-06,
+                  "relative_true_residual": 0.004876775024394979
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 1.277472758574551e-06,
+                  "relative_true_residual": 0.004580668484285529
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 1.1639977505499483e-06,
+                  "relative_true_residual": 0.004173778091106149
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 1.1142127311411616e-06,
+                  "relative_true_residual": 0.003995262605852408
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 9.291331617691514e-07,
+                  "relative_true_residual": 0.003331617808092887
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 7.089537303808258e-07,
+                  "relative_true_residual": 0.002542114489545564
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 5.043404356740015e-07,
+                  "relative_true_residual": 0.001808427086633575
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 3.978355589730741e-07,
+                  "relative_true_residual": 0.0014265296811100086
+                }
+              ]
+            },
+            {
+              "total_iterations": 128,
+              "absolute_true_residual_Ns": 7.316909474495332e-08,
+              "relative_true_residual": 0.0002623643941307184,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 3.8306191219621586e-07,
+                  "relative_true_residual": 0.0013735554178746555
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 3.6249306646456884e-07,
+                  "relative_true_residual": 0.001299801153630133
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 3.4350217045812074e-07,
+                  "relative_true_residual": 0.0012317049862236764
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 3.406195653081071e-07,
+                  "relative_true_residual": 0.0012213687512827134
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 3.1338965703361546e-07,
+                  "relative_true_residual": 0.001123729735635813
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 2.313681036290284e-07,
+                  "relative_true_residual": 0.0008296228420126812
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 1.9551987096035436e-07,
+                  "relative_true_residual": 0.0007010808684163438
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 1.4567665116112511e-07,
+                  "relative_true_residual": 0.0005223566924547302
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 1.3922016783085403e-07,
+                  "relative_true_residual": 0.0004992055062460408
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 1.1576327142131434e-07,
+                  "relative_true_residual": 0.0004150954808845424
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 1.0146764736189609e-07,
+                  "relative_true_residual": 0.0003638352765845776
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 9.79624697950816e-08,
+                  "relative_true_residual": 0.00035126666695720077
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 9.11850075494359e-08,
+                  "relative_true_residual": 0.00032696453800479497
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 8.295942280022505e-08,
+                  "relative_true_residual": 0.00029746983718035387
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 7.740869047099205e-08,
+                  "relative_true_residual": 0.0002775664267361314
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 7.316909474495332e-08,
+                  "relative_true_residual": 0.0002623643941307184
+                }
+              ]
+            }
+          ],
+          "R32_abs_gate_for_1e-6": 2.788834780244537e-10
+        },
+        "median_fp32": {
+          "basis_column_scale": 1221.8087315269167,
+          "q_scaled_l2": 1221.8087038484555,
+          "basis_column_max_abs": 843.5822143554688,
+          "RAP_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 1.7430079712509012e-07,
+            "singular_max_fp64": 360.40089006468975,
+            "condition2_fp64": 2067695019.2375858,
+            "singular_min_fp32stored": 1.7430079712509012e-07,
+            "condition2_fp32stored": 2067695019.2375858,
+            "symmetric_min_eigenvalue_fp64": -1.7430103162476777e-07,
+            "symmetric_max_eigenvalue_fp64": 360.4008900646892,
+            "lu_min_abs_pivot_fp32": 8.738511678529903e-05,
+            "lu_max_abs_pivot_fp32": 0.19105228781700134,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "base_RAP_fp64_reference_maxabs_difference": 6.804103855984067e-05,
+          "RAP_fp32_storage_only_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 1.6825737883918285e-07,
+            "singular_max_fp64": 360.4009510916922,
+            "condition2_fp64": 2141962234.156497,
+            "singular_min_fp32stored": 1.6825737883918285e-07,
+            "condition2_fp32stored": 2141962234.156497,
+            "symmetric_min_eigenvalue_fp64": -1.6825761272169014e-07,
+            "symmetric_max_eigenvalue_fp64": 360.4009510916914,
+            "lu_min_abs_pivot_fp32": 8.480725955450907e-05,
+            "lu_max_abs_pivot_fp32": 0.19105219841003418,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "online_start_after_base_restart16": {
+            "norm_Ns": 0.0002657493117957305,
+            "relative_rhs": 0.9529044663320945,
+            "target_absolute_for_relative_1e-6_Ns": 2.788834780244537e-10
+          },
+          "online_after_restart16_cycles": [
+            {
+              "total_iterations": 32,
+              "absolute_true_residual_Ns": 6.52435724040177e-05,
+              "relative_true_residual": 0.23394563516701714,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 0.00026566977190472564,
+                  "relative_true_residual": 0.9526192580021916
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 0.000265420524353552,
+                  "relative_true_residual": 0.9517255243434635
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 0.0002645301999134412,
+                  "relative_true_residual": 0.9485330640140898
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 0.00026343361246943306,
+                  "relative_true_residual": 0.9446010008751183
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 0.0002628048691005843,
+                  "relative_true_residual": 0.9423464988397069
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 0.0002600282040119454,
+                  "relative_true_residual": 0.9323901360307367
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 0.00025945113164331225,
+                  "relative_true_residual": 0.9303209120927645
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 0.0002482545014809538,
+                  "relative_true_residual": 0.890172853693347
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 0.00021417130422148284,
+                  "relative_true_residual": 0.7679598151121141
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 0.00016993715352126959,
+                  "relative_true_residual": 0.6093482293216694
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 0.0001335166797349584,
+                  "relative_true_residual": 0.4787543553342054
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 0.00012311893277239182,
+                  "relative_true_residual": 0.44147087394541246
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 8.987696037859633e-05,
+                  "relative_true_residual": 0.322274238026806
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 7.676670419060688e-05,
+                  "relative_true_residual": 0.2752644392360728
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 7.316779980551278e-05,
+                  "relative_true_residual": 0.26235975083148205
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 6.52435724040177e-05,
+                  "relative_true_residual": 0.23394563516701714
+                }
+              ]
+            },
+            {
+              "total_iterations": 48,
+              "absolute_true_residual_Ns": 2.0774470319930463e-05,
+              "relative_true_residual": 0.07449157787005534,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 6.520580539124152e-05,
+                  "relative_true_residual": 0.23381021297189925
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 6.498233893726394e-05,
+                  "relative_true_residual": 0.23300892328790448
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 6.483469084751408e-05,
+                  "relative_true_residual": 0.2324794975549935
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 6.462526630435311e-05,
+                  "relative_true_residual": 0.23172855832888917
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 6.461354209500334e-05,
+                  "relative_true_residual": 0.23168651851558497
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 6.432882805884213e-05,
+                  "relative_true_residual": 0.23066561172620448
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 6.41769635451591e-05,
+                  "relative_true_residual": 0.23012106704841
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 6.334337715350604e-05,
+                  "relative_true_residual": 0.22713205386785879
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 5.8840296814732574e-05,
+                  "relative_true_residual": 0.21098523738854547
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 5.0638130117952016e-05,
+                  "relative_true_residual": 0.18157450730556307
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 4.303199216535576e-05,
+                  "relative_true_residual": 0.15430097354703287
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 4.0418264577386324e-05,
+                  "relative_true_residual": 0.14492886012358994
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 3.0493639282429976e-05,
+                  "relative_true_residual": 0.10934186384378124
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 2.472956033763303e-05,
+                  "relative_true_residual": 0.08867345069278228
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 2.2201383207119377e-05,
+                  "relative_true_residual": 0.07960809784928408
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 2.0774470319930463e-05,
+                  "relative_true_residual": 0.07449157787005534
+                }
+              ]
+            },
+            {
+              "total_iterations": 64,
+              "absolute_true_residual_Ns": 9.869235517316268e-06,
+              "relative_true_residual": 0.035388383661978315,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 2.076572868250652e-05,
+                  "relative_true_residual": 0.07446023274525317
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 2.0725788600889053e-05,
+                  "relative_true_residual": 0.07431701851865073
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 2.0574299412909996e-05,
+                  "relative_true_residual": 0.0737738196563439
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 2.007571214844024e-05,
+                  "relative_true_residual": 0.07198602187068219
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 1.9538878906886203e-05,
+                  "relative_true_residual": 0.0700610844546802
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 1.8044905546722357e-05,
+                  "relative_true_residual": 0.0647041039309618
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 1.703724211390979e-05,
+                  "relative_true_residual": 0.06109089801445996
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 1.539217000743361e-05,
+                  "relative_true_residual": 0.05519211864563722
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 1.4798748220113518e-05,
+                  "relative_true_residual": 0.0530642701566419
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 1.478970516535689e-05,
+                  "relative_true_residual": 0.05303184423159002
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 1.4715852910227017e-05,
+                  "relative_true_residual": 0.05276703021086343
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 1.4338785455573502e-05,
+                  "relative_true_residual": 0.05141496928088445
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 1.4336787507823629e-05,
+                  "relative_true_residual": 0.051407805185814975
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 1.4323029337331809e-05,
+                  "relative_true_residual": 0.051358472143250816
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 1.2061272753413797e-05,
+                  "relative_true_residual": 0.04324843063078915
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 9.869235517316268e-06,
+                  "relative_true_residual": 0.035388383661978315
+                }
+              ]
+            },
+            {
+              "total_iterations": 80,
+              "absolute_true_residual_Ns": 3.6896106227826068e-06,
+              "relative_true_residual": 0.013229936204607594,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 9.84319746234819e-06,
+                  "relative_true_residual": 0.035295018306839586
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 9.72843285230385e-06,
+                  "relative_true_residual": 0.034883503752957415
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 9.441764071192406e-06,
+                  "relative_true_residual": 0.033855587781949956
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 9.074403155247538e-06,
+                  "relative_true_residual": 0.03253833184930322
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 8.643776995840801e-06,
+                  "relative_true_residual": 0.030994224028871573
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 7.643518313653839e-06,
+                  "relative_true_residual": 0.02740756952616469
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 7.114202315357348e-06,
+                  "relative_true_residual": 0.025509586891818467
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 6.287126976539012e-06,
+                  "relative_true_residual": 0.022543920568818095
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 6.000306353721051e-06,
+                  "relative_true_residual": 0.02151546013491311
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 5.957169290016974e-06,
+                  "relative_true_residual": 0.02136078240351916
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 5.8128441208467725e-06,
+                  "relative_true_residual": 0.020843271756446888
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 5.6216887891806575e-06,
+                  "relative_true_residual": 0.02015784093415431
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 5.614105903151461e-06,
+                  "relative_true_residual": 0.020130650775443897
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 5.562980319397405e-06,
+                  "relative_true_residual": 0.019947328392503835
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 4.283070040252291e-06,
+                  "relative_true_residual": 0.01535791962504402
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 3.6896106227826068e-06,
+                  "relative_true_residual": 0.013229936204607594
+                }
+              ]
+            },
+            {
+              "total_iterations": 96,
+              "absolute_true_residual_Ns": 1.5104857729928548e-06,
+              "relative_true_residual": 0.005416189527227599,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 3.68776475221829e-06,
+                  "relative_true_residual": 0.013223317416799177
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 3.673550327222284e-06,
+                  "relative_true_residual": 0.013172348370168315
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 3.656790407903657e-06,
+                  "relative_true_residual": 0.013112251875971703
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 3.639078837266755e-06,
+                  "relative_true_residual": 0.0130487430200066
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 3.6372905296983847e-06,
+                  "relative_true_residual": 0.01304233063738344
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 3.603164094237244e-06,
+                  "relative_true_residual": 0.012919962558417685
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 3.597365797430482e-06,
+                  "relative_true_residual": 0.012899171449357243
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 3.531493600605109e-06,
+                  "relative_true_residual": 0.012662971738668047
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 3.214749494572973e-06,
+                  "relative_true_residual": 0.01152721386489267
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 2.8109548277738806e-06,
+                  "relative_true_residual": 0.01007931645031838
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 2.5327124220565304e-06,
+                  "relative_true_residual": 0.00908161516055982
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 2.456080213309636e-06,
+                  "relative_true_residual": 0.008806832985259442
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 2.040554974338338e-06,
+                  "relative_true_residual": 0.007316872942037151
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 1.7708671526397188e-06,
+                  "relative_true_residual": 0.00634984605464667
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 1.637402492213939e-06,
+                  "relative_true_residual": 0.005871278226350736
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 1.5104857729928548e-06,
+                  "relative_true_residual": 0.005416189527227599
+                }
+              ]
+            },
+            {
+              "total_iterations": 112,
+              "absolute_true_residual_Ns": 3.956050757385032e-07,
+              "relative_true_residual": 0.0014185317772887744,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 1.4816246444411584e-06,
+                  "relative_true_residual": 0.00531270140108925
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 1.437837834866245e-06,
+                  "relative_true_residual": 0.005155693858422725
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 1.3942944047426005e-06,
+                  "relative_true_residual": 0.004999559008011018
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 1.3664989114700458e-06,
+                  "relative_true_residual": 0.004899891959000258
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 1.3635369182036151e-06,
+                  "relative_true_residual": 0.00488927105995162
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 1.3507992289272213e-06,
+                  "relative_true_residual": 0.004843597184372383
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 1.3499999554809573e-06,
+                  "relative_true_residual": 0.00484073120804447
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 1.3484926358856688e-06,
+                  "relative_true_residual": 0.004835326371565931
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 1.3412688567849061e-06,
+                  "relative_true_residual": 0.004809423872242793
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 1.2664416719577392e-06,
+                  "relative_true_residual": 0.004541114019836958
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 1.136948461253468e-06,
+                  "relative_true_residual": 0.004076786725794403
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 1.1095090011512666e-06,
+                  "relative_true_residual": 0.003978396314513763
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 8.637836982195114e-07,
+                  "relative_true_residual": 0.003097292476192408
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 6.591759515896615e-07,
+                  "relative_true_residual": 0.002363624967169486
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 5.269587864391719e-07,
+                  "relative_true_residual": 0.00188953031628846
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 3.956050757385032e-07,
+                  "relative_true_residual": 0.0014185317772887744
+                }
+              ]
+            },
+            {
+              "total_iterations": 128,
+              "absolute_true_residual_Ns": 7.332447036652383e-08,
+              "relative_true_residual": 0.0002629215286826508,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 3.7671727181798395e-07,
+                  "relative_true_residual": 0.0013508052699520326
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 3.5998329989827937e-07,
+                  "relative_true_residual": 0.001290801816042736
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 3.454143139404472e-07,
+                  "relative_true_residual": 0.0012385614106195267
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 3.369346171058882e-07,
+                  "relative_true_residual": 0.001208155533245122
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 3.3008553212696405e-07,
+                  "relative_true_residual": 0.0011835965847285534
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 2.5501996354162854e-07,
+                  "relative_true_residual": 0.0009144319532592291
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 2.1363548240233787e-07,
+                  "relative_true_residual": 0.0007660385043806911
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 1.4011732113946216e-07,
+                  "relative_true_residual": 0.0005024224530331483
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 1.3497542804811888e-07,
+                  "relative_true_residual": 0.0004839850284579556
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 1.2932026175519535e-07,
+                  "relative_true_residual": 0.00046370714633677933
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 1.0387901255476324e-07,
+                  "relative_true_residual": 0.0003724817737164576
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 9.507406695852015e-08,
+                  "relative_true_residual": 0.0003409096430953993
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 8.967359510201963e-08,
+                  "relative_true_residual": 0.00032154502567612357
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 8.416836431860551e-08,
+                  "relative_true_residual": 0.000301804771350511
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 7.717755242645962e-08,
+                  "relative_true_residual": 0.00027673762882321896
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 7.332447036652383e-08,
+                  "relative_true_residual": 0.0002629215286826508
+                }
+              ]
+            }
+          ],
+          "R32_abs_gate_for_1e-6": 2.788834780244537e-10
+        },
+        "mean_fp64": {
+          "basis_column_scale": 1616.6502653608804,
+          "q_scaled_l2": 1616.6502653608804,
+          "basis_column_max_abs": 1116.195520184669,
+          "RAP_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 25,
+            "rank_fp32stored_rtol1e-7": 25,
+            "singular_min_fp64": 1.6832706830254935e-07,
+            "singular_max_fp64": 630.9563847604587,
+            "condition2_fp64": 3748395258.8444314,
+            "singular_min_fp32stored": 1.6856701543208573e-07,
+            "condition2_fp32stored": 3743059513.2357235,
+            "symmetric_min_eigenvalue_fp64": -1.683273036034643e-07,
+            "symmetric_max_eigenvalue_fp64": 630.9563847604576,
+            "lu_min_abs_pivot_fp32": 0.0001122900503105484,
+            "lu_max_abs_pivot_fp32": 0.2527928948402405,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "base_RAP_fp64_reference_maxabs_difference": 0.0,
+          "RAP_fp32_storage_only_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 25,
+            "rank_fp32stored_rtol1e-7": 25,
+            "singular_min_fp64": 1.6856701543208573e-07,
+            "singular_max_fp64": 630.9563707308215,
+            "condition2_fp64": 3743059513.2357235,
+            "singular_min_fp32stored": 1.6856701543208573e-07,
+            "condition2_fp32stored": 3743059513.2357235,
+            "symmetric_min_eigenvalue_fp64": -1.6856725055454716e-07,
+            "symmetric_max_eigenvalue_fp64": 630.9563707308204,
+            "lu_min_abs_pivot_fp32": 0.0001122900503105484,
+            "lu_max_abs_pivot_fp32": 0.2527928948402405,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "online_start_after_base_restart16": {
+            "norm_Ns": 0.0002657493117957305,
+            "relative_rhs": 0.9529044663320945,
+            "target_absolute_for_relative_1e-6_Ns": 2.788834780244537e-10
+          },
+          "online_after_restart16_cycles": [
+            {
+              "total_iterations": 32,
+              "absolute_true_residual_Ns": 6.520539539880113e-05,
+              "relative_true_residual": 0.23380874285096095,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 0.00026568502019947104,
+                  "relative_true_residual": 0.9526739342234344
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 0.0002654135520346373,
+                  "relative_true_residual": 0.9517005235117035
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 0.0002644998312112007,
+                  "relative_true_residual": 0.948424170140363
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 0.00026347779509184373,
+                  "relative_true_residual": 0.9447594276945328
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 0.0002628416238894664,
+                  "relative_true_residual": 0.9424782914763393
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 0.0002599118549358404,
+                  "relative_true_residual": 0.9319729400142169
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 0.0002593682412422553,
+                  "relative_true_residual": 0.9300236897487083
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 0.00024802417538092767,
+                  "relative_true_residual": 0.8893469671917238
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 0.00021408545466385375,
+                  "relative_true_residual": 0.7676519820406205
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 0.00017066745629809048,
+                  "relative_true_residual": 0.6119668956621576
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 0.00013398307154318867,
+                  "relative_true_residual": 0.4804267090051152
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 0.000123485451065051,
+                  "relative_true_residual": 0.4427851084610443
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 8.98829075768595e-05,
+                  "relative_true_residual": 0.32229556305582996
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 7.672929550639353e-05,
+                  "relative_true_residual": 0.27513030190933563
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 7.309835769646774e-05,
+                  "relative_true_residual": 0.26211075039037685
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 6.520539539880113e-05,
+                  "relative_true_residual": 0.23380874285096095
+                }
+              ]
+            },
+            {
+              "total_iterations": 48,
+              "absolute_true_residual_Ns": 2.075118304625852e-05,
+              "relative_true_residual": 0.07440807606551351,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 6.517097757934557e-05,
+                  "relative_true_residual": 0.23368532994855684
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 6.495198560718022e-05,
+                  "relative_true_residual": 0.2329000845345343
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 6.479962767617753e-05,
+                  "relative_true_residual": 0.23235377059696455
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 6.459568155600158e-05,
+                  "relative_true_residual": 0.23162247549974094
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 6.458329721649812e-05,
+                  "relative_true_residual": 0.23157806863996142
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 6.42828649179012e-05,
+                  "relative_true_residual": 0.23050080045353058
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 6.413640346115484e-05,
+                  "relative_true_residual": 0.229975629662547
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 6.327303258337987e-05,
+                  "relative_true_residual": 0.22687981744774358
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 5.890211381601145e-05,
+                  "relative_true_residual": 0.2112068962753206
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 5.083042575028702e-05,
+                  "relative_true_residual": 0.1822640269346827
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 4.319013289208884e-05,
+                  "relative_true_residual": 0.15486802301103594
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 4.0513623074885655e-05,
+                  "relative_true_residual": 0.1452707896569378
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 3.0445396548457436e-05,
+                  "relative_true_residual": 0.1091688785729639
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 2.4679358997852884e-05,
+                  "relative_true_residual": 0.08849344239635769
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 2.2179204904620915e-05,
+                  "relative_true_residual": 0.07952857251255359
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 2.075118304625852e-05,
+                  "relative_true_residual": 0.07440807606551351
+                }
+              ]
+            },
+            {
+              "total_iterations": 64,
+              "absolute_true_residual_Ns": 9.93766233052977e-06,
+              "relative_true_residual": 0.03563374352946929,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 2.074436138165413e-05,
+                  "relative_true_residual": 0.0743836154389726
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 2.0706702431012883e-05,
+                  "relative_true_residual": 0.07424858072516302
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 2.056130353971713e-05,
+                  "relative_true_residual": 0.07372722000374014
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 2.0085936886771974e-05,
+                  "relative_true_residual": 0.07202268499036271
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 1.9549099537668613e-05,
+                  "relative_true_residual": 0.07009773284581047
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 1.807394455642406e-05,
+                  "relative_true_residual": 0.06480822989033168
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 1.7070304937977217e-05,
+                  "relative_true_residual": 0.06120945227339863
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 1.5346839435241907e-05,
+                  "relative_true_residual": 0.055029575591768215
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 1.4778784144254679e-05,
+                  "relative_true_residual": 0.052992684432022215
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 1.4765487584958716e-05,
+                  "relative_true_residual": 0.0529450066011584
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 1.4684217399940239e-05,
+                  "relative_true_residual": 0.052653593909398465
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 1.434198549883997e-05,
+                  "relative_true_residual": 0.05142644376223105
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 1.433736779520042e-05,
+                  "relative_true_residual": 0.051409885937894306
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 1.4325748557263805e-05,
+                  "relative_true_residual": 0.051368222523414095
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 1.2104099406865677e-05,
+                  "relative_true_residual": 0.043401995315779644
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 9.93766233052977e-06,
+                  "relative_true_residual": 0.03563374352946929
+                }
+              ]
+            },
+            {
+              "total_iterations": 80,
+              "absolute_true_residual_Ns": 3.6927704572420104e-06,
+              "relative_true_residual": 0.013241266508151522,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 9.91424661963797e-06,
+                  "relative_true_residual": 0.03554978118412825
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 9.800472835852179e-06,
+                  "relative_true_residual": 0.035141819462653254
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 9.5065308570164e-06,
+                  "relative_true_residual": 0.03408782379063282
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 9.13055012012565e-06,
+                  "relative_true_residual": 0.0327396595338109
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 8.699326633701292e-06,
+                  "relative_true_residual": 0.031193409861800764
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 7.681023109718325e-06,
+                  "relative_true_residual": 0.02754205148375559
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 7.173064163331822e-06,
+                  "relative_true_residual": 0.025720649405781063
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 6.348700255600585e-06,
+                  "relative_true_residual": 0.022764705534273
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 6.082601144002814e-06,
+                  "relative_true_residual": 0.021810546781367464
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 6.049656664128118e-06,
+                  "relative_true_residual": 0.021692416872388754
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 5.894575345089244e-06,
+                  "relative_true_residual": 0.02113633760897224
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 5.710089232177652e-06,
+                  "relative_true_residual": 0.020474820784029974
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 5.699832172704631e-06,
+                  "relative_true_residual": 0.020438041769562428
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 5.646612933407869e-06,
+                  "relative_true_residual": 0.020247212109541852
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 4.420556794128651e-06,
+                  "relative_true_residual": 0.01585090958217696
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 3.6927704572420104e-06,
+                  "relative_true_residual": 0.013241266508151522
+                }
+              ]
+            },
+            {
+              "total_iterations": 96,
+              "absolute_true_residual_Ns": 1.5137816868499157e-06,
+              "relative_true_residual": 0.005428007774333553,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 3.6910321880743824e-06,
+                  "relative_true_residual": 0.01323503354956989
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 3.6766291756041883e-06,
+                  "relative_true_residual": 0.013183388279752468
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 3.659205626751002e-06,
+                  "relative_true_residual": 0.01312091219125626
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 3.641283160536081e-06,
+                  "relative_true_residual": 0.013056647121335732
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 3.6394573972098973e-06,
+                  "relative_true_residual": 0.01305010043259276
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 3.605795039766697e-06,
+                  "relative_true_residual": 0.012929396410677743
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 3.5996462732713735e-06,
+                  "relative_true_residual": 0.012907348613013713
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 3.5313883324252777e-06,
+                  "relative_true_residual": 0.012662594275719804
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 3.2273649448822133e-06,
+                  "relative_true_residual": 0.011572449424914385
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 2.8164164173957893e-06,
+                  "relative_true_residual": 0.010098900219355531
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 2.5329988128946418e-06,
+                  "relative_true_residual": 0.009082642079903124
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 2.447150150234941e-06,
+                  "relative_true_residual": 0.008774812217525357
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 2.0289624878824677e-06,
+                  "relative_true_residual": 0.007275305451062107
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 1.7562542427500687e-06,
+                  "relative_true_residual": 0.006297448149997873
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 1.6308553101380998e-06,
+                  "relative_true_residual": 0.005847801819206727
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 1.5137816868499157e-06,
+                  "relative_true_residual": 0.005428007774333553
+                }
+              ]
+            },
+            {
+              "total_iterations": 112,
+              "absolute_true_residual_Ns": 3.978434987437892e-07,
+              "relative_true_residual": 0.0014265581509597515,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 1.4890892233515733e-06,
+                  "relative_true_residual": 0.005339467342776768
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 1.4496341886240214e-06,
+                  "relative_true_residual": 0.005197992361874198
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 1.41442058953425e-06,
+                  "relative_true_residual": 0.005071726010998139
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 1.3749020121605816e-06,
+                  "relative_true_residual": 0.004930023183517613
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 1.3724991377576105e-06,
+                  "relative_true_residual": 0.004921407132039797
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 1.367115604323918e-06,
+                  "relative_true_residual": 0.004902103251179488
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 1.3616304580696254e-06,
+                  "relative_true_residual": 0.004882435014491004
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 1.361530800524761e-06,
+                  "relative_true_residual": 0.004882077669747707
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 1.3600849326572365e-06,
+                  "relative_true_residual": 0.00487689318238486
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 1.2774287043957442e-06,
+                  "relative_true_residual": 0.004580510518029804
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 1.1640009972597792e-06,
+                  "relative_true_residual": 0.0041737897329210535
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 1.1142384991352772e-06,
+                  "relative_true_residual": 0.003995355002843072
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 9.291853278652904e-07,
+                  "relative_true_residual": 0.003331804861469116
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 7.088701520099904e-07,
+                  "relative_true_residual": 0.0025418148003297403
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 5.043369498656004e-07,
+                  "relative_true_residual": 0.0018084145874764869
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 3.978434987437892e-07,
+                  "relative_true_residual": 0.0014265581509597515
+                }
+              ]
+            },
+            {
+              "total_iterations": 128,
+              "absolute_true_residual_Ns": 7.315910164675891e-08,
+              "relative_true_residual": 0.0002623285616093184,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 3.830674328541816e-07,
+                  "relative_true_residual": 0.0013735752134466444
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 3.624740444765199e-07,
+                  "relative_true_residual": 0.0012997329459751524
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 3.434846457297979e-07,
+                  "relative_true_residual": 0.00123164214733323
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 3.4060098216598064e-07,
+                  "relative_true_residual": 0.001221302117209379
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 3.13345757087618e-07,
+                  "relative_true_residual": 0.0011235723224168282
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 2.3136206110572746e-07,
+                  "relative_true_residual": 0.0008296011751741013
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 1.9551530610249354e-07,
+                  "relative_true_residual": 0.0007010645000825394
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 1.4567919195653988e-07,
+                  "relative_true_residual": 0.0005223658030532955
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 1.3922620107982575e-07,
+                  "relative_true_residual": 0.0004992271398294086
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 1.1574072610731189e-07,
+                  "relative_true_residual": 0.00041501463954477516
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 1.0145377194394158e-07,
+                  "relative_true_residual": 0.0003637855231246279
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 9.794936113939421e-08,
+                  "relative_true_residual": 0.00035121966289736813
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 9.117456837262192e-08,
+                  "relative_true_residual": 0.00032692710596727187
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 8.29468047643286e-08,
+                  "relative_true_residual": 0.0002974245923491224
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 7.73984394000957e-08,
+                  "relative_true_residual": 0.00027752966919506453
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 7.315910164675891e-08,
+                  "relative_true_residual": 0.0002623285616093184
+                }
+              ]
+            }
+          ],
+          "R32_abs_gate_for_1e-6": 2.788834780244537e-10
+        },
+        "mean_fp32": {
+          "basis_column_scale": 1616.6502653608804,
+          "q_scaled_l2": 1616.6502826373533,
+          "basis_column_max_abs": 1116.195556640625,
+          "RAP_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 25,
+            "rank_fp32stored_rtol1e-7": 25,
+            "singular_min_fp64": 1.727424568050861e-07,
+            "singular_max_fp64": 630.9561876331883,
+            "condition2_fp64": 3652583153.57369,
+            "singular_min_fp32stored": 1.727424568050861e-07,
+            "condition2_fp32stored": 3652583153.57369,
+            "symmetric_min_eigenvalue_fp64": -1.7274273702483286e-07,
+            "symmetric_max_eigenvalue_fp64": 630.9561876331876,
+            "lu_min_abs_pivot_fp32": 0.00011540001287357882,
+            "lu_max_abs_pivot_fp32": 0.2527928650379181,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "base_RAP_fp64_reference_maxabs_difference": 0.00020367080742289545,
+          "RAP_fp32_storage_only_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 25,
+            "rank_fp32stored_rtol1e-7": 25,
+            "singular_min_fp64": 1.6862403010996964e-07,
+            "singular_max_fp64": 630.9563707309901,
+            "condition2_fp64": 3741793920.590715,
+            "singular_min_fp32stored": 1.6862403010996964e-07,
+            "condition2_fp32stored": 3741793920.590715,
+            "symmetric_min_eigenvalue_fp64": -1.6862426694627802e-07,
+            "symmetric_max_eigenvalue_fp64": 630.956370730989,
+            "lu_min_abs_pivot_fp32": 0.00011231553799007088,
+            "lu_max_abs_pivot_fp32": 0.2527928948402405,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "online_start_after_base_restart16": {
+            "norm_Ns": 0.0002657493117957305,
+            "relative_rhs": 0.9529044663320945,
+            "target_absolute_for_relative_1e-6_Ns": 2.788834780244537e-10
+          },
+          "online_after_restart16_cycles": [
+            {
+              "total_iterations": 32,
+              "absolute_true_residual_Ns": 6.518178090933646e-05,
+              "relative_true_residual": 0.2337240677399363,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 0.0002656782978442233,
+                  "relative_true_residual": 0.9526498296931288
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 0.0002654106373350923,
+                  "relative_true_residual": 0.9516900721950259
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 0.0002644723159673408,
+                  "relative_true_residual": 0.9483255079892209
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 0.00026342305188027345,
+                  "relative_true_residual": 0.9445631334860768
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 0.0002628444211709327,
+                  "relative_true_residual": 0.9424883217638491
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 0.0002599757362360277,
+                  "relative_true_residual": 0.9322020009131983
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 0.0002593123130116882,
+                  "relative_true_residual": 0.9298231463857123
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 0.00024837011530225286,
+                  "relative_true_residual": 0.890587413286902
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 0.00021445982290495123,
+                  "relative_true_residual": 0.7689943643278374
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 0.00016991826793432893,
+                  "relative_true_residual": 0.6092805107638171
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 0.00013385965608374824,
+                  "relative_true_residual": 0.47998417486750805
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 0.00012311868894184102,
+                  "relative_true_residual": 0.4414699996356379
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 8.986976248716286e-05,
+                  "relative_true_residual": 0.3222484283535889
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 7.69627873918474e-05,
+                  "relative_true_residual": 0.27596754005305024
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 7.339855261942058e-05,
+                  "relative_true_residual": 0.263187167412566
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 6.518178090933646e-05,
+                  "relative_true_residual": 0.2337240677399363
+                }
+              ]
+            },
+            {
+              "total_iterations": 48,
+              "absolute_true_residual_Ns": 2.0677329044636765e-05,
+              "relative_true_residual": 0.07414325578234393,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 6.5143101025679e-05,
+                  "relative_true_residual": 0.23358537223910758
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 6.491634316720917e-05,
+                  "relative_true_residual": 0.2327722804773577
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 6.476726294131656e-05,
+                  "relative_true_residual": 0.2322377194952993
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 6.455533850674211e-05,
+                  "relative_true_residual": 0.23147781634120904
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 6.454423765613591e-05,
+                  "relative_true_residual": 0.23143801172214434
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 6.427231786667416e-05,
+                  "relative_true_residual": 0.23046298160781856
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 6.410650605070561e-05,
+                  "relative_true_residual": 0.22986842571249225
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 6.32834855755592e-05,
+                  "relative_true_residual": 0.22691729902339436
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 5.889771413330229e-05,
+                  "relative_true_residual": 0.21119112021450723
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 5.079083268474887e-05,
+                  "relative_true_residual": 0.18212205701298412
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 4.326016778377414e-05,
+                  "relative_true_residual": 0.15511914900882331
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 4.045529918396394e-05,
+                  "relative_true_residual": 0.1450616561100713
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 3.034506207130267e-05,
+                  "relative_true_residual": 0.10880910653531752
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 2.4670788443513293e-05,
+                  "relative_true_residual": 0.08846271072877988
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 2.208984594367395e-05,
+                  "relative_true_residual": 0.07920815567904319
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 2.0677329044636765e-05,
+                  "relative_true_residual": 0.07414325578234393
+                }
+              ]
+            },
+            {
+              "total_iterations": 64,
+              "absolute_true_residual_Ns": 9.984331447816689e-06,
+              "relative_true_residual": 0.0358010862405453,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 2.066937265700482e-05,
+                  "relative_true_residual": 0.07411472634887478
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 2.063087553152675e-05,
+                  "relative_true_residual": 0.07397668616897321
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 2.048750073982125e-05,
+                  "relative_true_residual": 0.07346258331597835
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 2.0002681423164723e-05,
+                  "relative_true_residual": 0.07172415363168556
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 1.948700343091063e-05,
+                  "relative_true_residual": 0.06987507316300008
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 1.8058439357015287e-05,
+                  "relative_true_residual": 0.06475263247911675
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 1.6986537289466163e-05,
+                  "relative_true_residual": 0.06090908435951415
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 1.5261260895176182e-05,
+                  "relative_true_residual": 0.0547227143152525
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 1.460613660408028e-05,
+                  "relative_true_residual": 0.05237361749626326
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 1.460176029325553e-05,
+                  "relative_true_residual": 0.05235792524064543
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 1.4533521320352272e-05,
+                  "relative_true_residual": 0.05211323891721512
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 1.420017150821522e-05,
+                  "relative_true_residual": 0.050917937515717895
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 1.419647131599852e-05,
+                  "relative_true_residual": 0.05090466963680692
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 1.4180296554138591e-05,
+                  "relative_true_residual": 0.05084667135747353
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 1.2026500127388267e-05,
+                  "relative_true_residual": 0.04312374548890892
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 9.984331447816689e-06,
+                  "relative_true_residual": 0.0358010862405453
+                }
+              ]
+            },
+            {
+              "total_iterations": 80,
+              "absolute_true_residual_Ns": 3.6997615144676326e-06,
+              "relative_true_residual": 0.01326633453037767,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 9.959064049735038e-06,
+                  "relative_true_residual": 0.03571048425056497
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 9.84357541220256e-06,
+                  "relative_true_residual": 0.035296373531813995
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 9.548639304339863e-06,
+                  "relative_true_residual": 0.03423881318456089
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 9.184443956055143e-06,
+                  "relative_true_residual": 0.03293290811315043
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 8.729735861509572e-06,
+                  "relative_true_residual": 0.031302449049147724
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 7.694115831694986e-06,
+                  "relative_true_residual": 0.027588998409652406
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 7.106425202292544e-06,
+                  "relative_true_residual": 0.02548170028799419
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 6.417826298989877e-06,
+                  "relative_true_residual": 0.02301257265024188
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 6.225590685063098e-06,
+                  "relative_true_residual": 0.022323268230745496
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 6.202418867508607e-06,
+                  "relative_true_residual": 0.022240180420314292
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 6.073774538155514e-06,
+                  "relative_true_residual": 0.021778896983000687
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 5.8968311327897065e-06,
+                  "relative_true_residual": 0.021144426247698498
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 5.8882012176196e-06,
+                  "relative_true_residual": 0.021113481728391583
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 5.818399760809043e-06,
+                  "relative_true_residual": 0.020863192764323097
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 4.400641964007678e-06,
+                  "relative_true_residual": 0.01577950043932617
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 3.6997615144676326e-06,
+                  "relative_true_residual": 0.01326633453037767
+                }
+              ]
+            },
+            {
+              "total_iterations": 96,
+              "absolute_true_residual_Ns": 1.4640802040881527e-06,
+              "relative_true_residual": 0.00524979182868544,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 3.6972537347575463e-06,
+                  "relative_true_residual": 0.013257342317114083
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 3.6783987321809862e-06,
+                  "relative_true_residual": 0.013189733426440012
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 3.6568714181121865e-06,
+                  "relative_true_residual": 0.013112542356458763
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 3.635189859997259e-06,
+                  "relative_true_residual": 0.01303479820944613
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 3.6336689729223474e-06,
+                  "relative_true_residual": 0.013029344723690413
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 3.5959747889267506e-06,
+                  "relative_true_residual": 0.012894183672693007
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 3.589109787696867e-06,
+                  "relative_true_residual": 0.012869567652846605
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 3.513012256980939e-06,
+                  "relative_true_residual": 0.012596702686965567
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 3.1713890975017404e-06,
+                  "relative_true_residual": 0.011371735321027726
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 2.741799642002474e-06,
+                  "relative_true_residual": 0.009831344837724883
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 2.4520599886894487e-06,
+                  "relative_true_residual": 0.008792417557537924
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 2.3580253917443556e-06,
+                  "relative_true_residual": 0.008455235170071974
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 1.947618542425396e-06,
+                  "relative_true_residual": 0.0069836282745104755
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 1.7017514463817724e-06,
+                  "relative_true_residual": 0.006102016004808127
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 1.5751044722805819e-06,
+                  "relative_true_residual": 0.005647894538028064
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 1.4640802040881527e-06,
+                  "relative_true_residual": 0.00524979182868544
+                }
+              ]
+            },
+            {
+              "total_iterations": 112,
+              "absolute_true_residual_Ns": 3.8983151369457985e-07,
+              "relative_true_residual": 0.0013978293603337725,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 1.4407405680523405e-06,
+                  "relative_true_residual": 0.005166102267004896
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 1.3969138992024776e-06,
+                  "relative_true_residual": 0.005008951799862414
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 1.3587446846872212e-06,
+                  "relative_true_residual": 0.004872087419133809
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 1.3457521135602123e-06,
+                  "relative_true_residual": 0.004825499606836554
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 1.3451416712326079e-06,
+                  "relative_true_residual": 0.004823310727337745
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 1.3162145774845344e-06,
+                  "relative_true_residual": 0.004719586068017707
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 1.315175053437602e-06,
+                  "relative_true_residual": 0.004715858618638862
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 1.3143973953589908e-06,
+                  "relative_true_residual": 0.00471307014911704
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 1.2954888553290884e-06,
+                  "relative_true_residual": 0.004645269287754272
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 1.2009314142288605e-06,
+                  "relative_true_residual": 0.004306212123916346
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 1.027572209888265e-06,
+                  "relative_true_residual": 0.0036845933547851226
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 9.964822836619117e-07,
+                  "relative_true_residual": 0.003573113368783129
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 8.465012187445532e-07,
+                  "relative_true_residual": 0.003035322223965983
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 5.587442907830264e-07,
+                  "relative_true_residual": 0.0020035044554845703
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 4.6117632737823094e-07,
+                  "relative_true_residual": 0.0016536523807186346
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 3.8983151369457985e-07,
+                  "relative_true_residual": 0.0013978293603337725
+                }
+              ]
+            },
+            {
+              "total_iterations": 128,
+              "absolute_true_residual_Ns": 4.6732243975135046e-08,
+              "relative_true_residual": 0.0001675690661425176,
+              "within_restart": [
+                {
+                  "within_restart": 1,
+                  "absolute_true_residual_Ns": 3.675881577335182e-07,
+                  "relative_true_residual": 0.0013180707596499727
+                },
+                {
+                  "within_restart": 2,
+                  "absolute_true_residual_Ns": 3.2921308014993587e-07,
+                  "relative_true_residual": 0.001180468210171522
+                },
+                {
+                  "within_restart": 3,
+                  "absolute_true_residual_Ns": 2.9957032369932076e-07,
+                  "relative_true_residual": 0.0010741773798197292
+                },
+                {
+                  "within_restart": 4,
+                  "absolute_true_residual_Ns": 2.8443967918676174e-07,
+                  "relative_true_residual": 0.0010199230201863045
+                },
+                {
+                  "within_restart": 5,
+                  "absolute_true_residual_Ns": 2.643596374484134e-07,
+                  "relative_true_residual": 0.0009479214735884539
+                },
+                {
+                  "within_restart": 6,
+                  "absolute_true_residual_Ns": 1.997293845573177e-07,
+                  "relative_true_residual": 0.0007161750347211482
+                },
+                {
+                  "within_restart": 7,
+                  "absolute_true_residual_Ns": 1.7736245532328392e-07,
+                  "relative_true_residual": 0.0006359733340235092
+                },
+                {
+                  "within_restart": 8,
+                  "absolute_true_residual_Ns": 1.2203419531779653e-07,
+                  "relative_true_residual": 0.00043758130163270567
+                },
+                {
+                  "within_restart": 9,
+                  "absolute_true_residual_Ns": 9.83969221815405e-08,
+                  "relative_true_residual": 0.0003528244945830481
+                },
+                {
+                  "within_restart": 10,
+                  "absolute_true_residual_Ns": 8.222389910873496e-08,
+                  "relative_true_residual": 0.00029483245006549006
+                },
+                {
+                  "within_restart": 11,
+                  "absolute_true_residual_Ns": 7.247928201272559e-08,
+                  "relative_true_residual": 0.0002598909140338901
+                },
+                {
+                  "within_restart": 12,
+                  "absolute_true_residual_Ns": 6.674396516183411e-08,
+                  "relative_true_residual": 0.00023932563389783063
+                },
+                {
+                  "within_restart": 13,
+                  "absolute_true_residual_Ns": 6.501388785952342e-08,
+                  "relative_true_residual": 0.00023312204910834735
+                },
+                {
+                  "within_restart": 14,
+                  "absolute_true_residual_Ns": 6.188173927418228e-08,
+                  "relative_true_residual": 0.00022189101954887486
+                },
+                {
+                  "within_restart": 15,
+                  "absolute_true_residual_Ns": 5.696545870158253e-08,
+                  "relative_true_residual": 0.0002042625798599211
+                },
+                {
+                  "within_restart": 16,
+                  "absolute_true_residual_Ns": 4.6732243975135046e-08,
+                  "relative_true_residual": 0.0001675690661425176
+                }
+              ]
+            }
+          ],
+          "R32_abs_gate_for_1e-6": 2.788834780244537e-10
+        }
+      }
+    },
+    "native_captured_retrospective": {
+      "projected_q_norm_before_unit": 30.644899156637926,
+      "schur": {
+        "raw_qTAq_fp64": 0.0002414698697748254,
+        "raw_qTAq_fp32": 0.00024146991199813783,
+        "schur_pivot_fp64": -6.39606894184408e-09,
+        "schur_pivot_fp32_roundtrip": -6.501967808939229e-09,
+        "schur_sign_agrees": true,
+        "schur_abs_diff": 1.0589886709514926e-10,
+        "base_R_diag_abs_median": 0.009487837815100536,
+        "base_R_diag_abs_mean": 0.016610892174883866,
+        "equilibration_scale_to_median": 1217.9432644658928,
+        "equilibration_scale_to_mean": 1611.535628193295,
+        "float32_product_qTAq_abs_diff": 4.222331243864709e-11
+      },
+      "scales": {
+        "unit_fp64": {
+          "basis_column_scale": 1.0,
+          "q_scaled_l2": 1.0,
+          "basis_column_max_abs": 0.6904317512682557,
+          "RAP_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 6.162554904143128e-09,
+            "singular_max_fp64": 0.07228457894157904,
+            "condition2_fp64": 11729644.614278669,
+            "singular_min_fp32stored": 6.169662557521293e-09,
+            "condition2_fp32stored": 11716131.273695499,
+            "symmetric_min_eigenvalue_fp64": -6.1625635576370585e-09,
+            "symmetric_max_eigenvalue_fp64": 0.07228457892750514,
+            "lu_min_abs_pivot_fp32": 6.401417618207006e-09,
+            "lu_max_abs_pivot_fp32": 0.06695709377527237,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "base_RAP_fp64_reference_maxabs_difference": 0.0,
+          "RAP_fp32_storage_only_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 6.169662557521293e-09,
+            "singular_max_fp64": 0.07228457643832337,
+            "condition2_fp64": 11716131.273695499,
+            "singular_min_fp32stored": 6.169662557521293e-09,
+            "condition2_fp32stored": 11716131.273695499,
+            "symmetric_min_eigenvalue_fp64": -6.16967116540134e-09,
+            "symmetric_max_eigenvalue_fp64": 0.07228457642424875,
+            "lu_min_abs_pivot_fp32": 6.401417618207006e-09,
+            "lu_max_abs_pivot_fp32": 0.06695709377527237,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          }
+        },
+        "unit_fp32": {
+          "basis_column_scale": 1.0,
+          "q_scaled_l2": 1.000000011172703,
+          "basis_column_max_abs": 0.6904317736625671,
+          "RAP_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 6.370751460896947e-09,
+            "singular_max_fp64": 0.07228454411375929,
+            "condition2_fp64": 11346313.626804434,
+            "singular_min_fp32stored": 6.370751460896947e-09,
+            "condition2_fp32stored": 11346313.626804434,
+            "symmetric_min_eigenvalue_fp64": -6.370760825419289e-09,
+            "symmetric_max_eigenvalue_fp64": 0.07228454409958024,
+            "lu_min_abs_pivot_fp32": 6.6065521941993666e-09,
+            "lu_max_abs_pivot_fp32": 0.06695707142353058,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "base_RAP_fp64_reference_maxabs_difference": 3.540139963814637e-08,
+          "RAP_fp32_storage_only_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 6.172326696893675e-09,
+            "singular_max_fp64": 0.07228457643832666,
+            "condition2_fp64": 11711074.281713743,
+            "singular_min_fp32stored": 6.172326696893675e-09,
+            "condition2_fp32stored": 11711074.281713743,
+            "symmetric_min_eigenvalue_fp64": -6.1723353093059076e-09,
+            "symmetric_max_eigenvalue_fp64": 0.07228457642425211,
+            "lu_min_abs_pivot_fp32": 6.416487785543268e-09,
+            "lu_max_abs_pivot_fp32": 0.06695709377527237,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          }
+        },
+        "median_fp64": {
+          "basis_column_scale": 1217.9432644658928,
+          "q_scaled_l2": 1217.9432644658928,
+          "basis_column_max_abs": 840.9067010305627,
+          "RAP_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 1.6893597976258972e-07,
+            "singular_max_fp64": 358.21680098767536,
+            "condition2_fp64": 2120429298.075443,
+            "singular_min_fp32stored": 1.689919650362772e-07,
+            "condition2_fp32stored": 2119726749.7461736,
+            "symmetric_min_eigenvalue_fp64": -1.6893621724024543e-07,
+            "symmetric_max_eigenvalue_fp64": 358.2168009876746,
+            "lu_min_abs_pivot_fp32": 8.442395483143628e-05,
+            "lu_max_abs_pivot_fp32": 0.19045649468898773,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "base_RAP_fp64_reference_maxabs_difference": 0.0,
+          "RAP_fp32_storage_only_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 1.689919650362772e-07,
+            "singular_max_fp64": 358.21678877956685,
+            "condition2_fp64": 2119726749.7461736,
+            "singular_min_fp32stored": 1.689919650362772e-07,
+            "condition2_fp32stored": 2119726749.7461736,
+            "symmetric_min_eigenvalue_fp64": -1.6899220437319124e-07,
+            "symmetric_max_eigenvalue_fp64": 358.21678877956606,
+            "lu_min_abs_pivot_fp32": 8.442395483143628e-05,
+            "lu_max_abs_pivot_fp32": 0.19045649468898773,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          }
+        },
+        "median_fp32": {
+          "basis_column_scale": 1217.9432644658928,
+          "q_scaled_l2": 1217.9432566840985,
+          "basis_column_max_abs": 840.9066772460938,
+          "RAP_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 1.7039821006638373e-07,
+            "singular_max_fp64": 358.21709394064635,
+            "condition2_fp64": 2102235075.1283839,
+            "singular_min_fp32stored": 1.7039821006638373e-07,
+            "condition2_fp32stored": 2102235075.1283839,
+            "symmetric_min_eigenvalue_fp64": -1.7039850638387295e-07,
+            "symmetric_max_eigenvalue_fp64": 358.2170939406453,
+            "lu_min_abs_pivot_fp32": 8.506666927132756e-05,
+            "lu_max_abs_pivot_fp32": 0.19045640528202057,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "base_RAP_fp64_reference_maxabs_difference": 0.00030463143821179983,
+          "RAP_fp32_storage_only_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 1.6901446455562637e-07,
+            "singular_max_fp64": 358.2167887792395,
+            "condition2_fp64": 2119444567.7833834,
+            "singular_min_fp32stored": 1.6901446455562637e-07,
+            "condition2_fp32stored": 2119444567.7833834,
+            "symmetric_min_eigenvalue_fp64": -1.690146999390634e-07,
+            "symmetric_max_eigenvalue_fp64": 358.2167887792389,
+            "lu_min_abs_pivot_fp32": 8.442395483143628e-05,
+            "lu_max_abs_pivot_fp32": 0.19045649468898773,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          }
+        },
+        "mean_fp64": {
+          "basis_column_scale": 1611.535628193295,
+          "q_scaled_l2": 1611.5356281932952,
+          "basis_column_max_abs": 1112.6553660046852,
+          "RAP_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 25,
+            "rank_fp32stored_rtol1e-7": 25,
+            "singular_min_fp64": 1.689372707859817e-07,
+            "singular_max_fp64": 627.1324462802608,
+            "condition2_fp64": 3712220774.9806967,
+            "singular_min_fp32stored": 1.689541479478002e-07,
+            "condition2_fp32stored": 3711850085.024058,
+            "symmetric_min_eigenvalue_fp64": -1.6893750868373023e-07,
+            "symmetric_max_eigenvalue_fp64": 627.1324462802602,
+            "lu_min_abs_pivot_fp32": 0.00011237860599067062,
+            "lu_max_abs_pivot_fp32": 0.2520047128200531,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "base_RAP_fp64_reference_maxabs_difference": 0.0,
+          "RAP_fp32_storage_only_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 25,
+            "rank_fp32stored_rtol1e-7": 25,
+            "singular_min_fp64": 1.689541479478002e-07,
+            "singular_max_fp64": 627.1324684252094,
+            "condition2_fp64": 3711850085.024058,
+            "singular_min_fp32stored": 1.689541479478002e-07,
+            "condition2_fp32stored": 3711850085.024058,
+            "symmetric_min_eigenvalue_fp64": -1.6895438508454714e-07,
+            "symmetric_max_eigenvalue_fp64": 627.1324684252086,
+            "lu_min_abs_pivot_fp32": 0.00011237860599067062,
+            "lu_max_abs_pivot_fp32": 0.2520047128200531,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          }
+        },
+        "mean_fp32": {
+          "basis_column_scale": 1611.535628193295,
+          "q_scaled_l2": 1611.5356084358446,
+          "basis_column_max_abs": 1112.6553955078125,
+          "RAP_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 25,
+            "rank_fp32stored_rtol1e-7": 25,
+            "singular_min_fp64": 1.65581450007815e-07,
+            "singular_max_fp64": 627.1330177180631,
+            "condition2_fp64": 3787459390.4598866,
+            "singular_min_fp32stored": 1.65581450007815e-07,
+            "condition2_fp32stored": 3787459390.4598866,
+            "symmetric_min_eigenvalue_fp64": -1.6558174524469875e-07,
+            "symmetric_max_eigenvalue_fp64": 627.1330177180627,
+            "lu_min_abs_pivot_fp32": 0.00010940459469566122,
+            "lu_max_abs_pivot_fp32": 0.2520047724246979,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "base_RAP_fp64_reference_maxabs_difference": 0.0005605755384294753,
+          "RAP_fp32_storage_only_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 25,
+            "rank_fp32stored_rtol1e-7": 25,
+            "singular_min_fp64": 1.6902663725685385e-07,
+            "singular_max_fp64": 627.1324684252755,
+            "condition2_fp64": 3710258209.0199275,
+            "singular_min_fp32stored": 1.6902663725685385e-07,
+            "condition2_fp32stored": 3710258209.0199275,
+            "symmetric_min_eigenvalue_fp64": -1.6902687427133333e-07,
+            "symmetric_max_eigenvalue_fp64": 627.1324684252747,
+            "lu_min_abs_pivot_fp32": 0.00011240202729823068,
+            "lu_max_abs_pivot_fp32": 0.2520047128200531,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          }
+        }
+      }
+    },
+    "direct_solution_retrospective": {
+      "projected_q_norm_before_unit": 603.1529162586181,
+      "schur": {
+        "raw_qTAq_fp64": 0.00024076309745801116,
+        "raw_qTAq_fp32": 0.0002407631545793265,
+        "schur_pivot_fp64": -6.811116660395767e-09,
+        "schur_pivot_fp32_roundtrip": -6.852228986938035e-09,
+        "schur_sign_agrees": true,
+        "schur_abs_diff": 4.111232654226832e-11,
+        "base_R_diag_abs_median": 0.009487837815100536,
+        "base_R_diag_abs_mean": 0.016610892174883866,
+        "equilibration_scale_to_median": 1180.25124350523,
+        "equilibration_scale_to_mean": 1561.662997465004,
+        "float32_product_qTAq_abs_diff": 5.712131535460206e-11
+      },
+      "scales": {
+        "unit_fp64": {
+          "basis_column_scale": 1.0,
+          "q_scaled_l2": 0.9999999999999999,
+          "basis_column_max_abs": 0.6904247554295275,
+          "RAP_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 6.562747865418514e-09,
+            "singular_max_fp64": 0.07228458079380101,
+            "condition2_fp64": 11014377.251135085,
+            "singular_min_fp32stored": 6.561039922599713e-09,
+            "condition2_fp32stored": 11017244.08680294,
+            "symmetric_min_eigenvalue_fp64": -6.5627571162826e-09,
+            "symmetric_max_eigenvalue_fp64": 0.0722845807797267,
+            "lu_min_abs_pivot_fp32": 6.809797614693025e-09,
+            "lu_max_abs_pivot_fp32": 0.06695709377527237,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "base_RAP_fp64_reference_maxabs_difference": 0.0,
+          "RAP_fp32_storage_only_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 6.561039922599713e-09,
+            "singular_max_fp64": 0.0722845782905397,
+            "condition2_fp64": 11017244.08680294,
+            "singular_min_fp32stored": 6.561039922599713e-09,
+            "condition2_fp32stored": 11017244.08680294,
+            "symmetric_min_eigenvalue_fp64": -6.561049123856075e-09,
+            "symmetric_max_eigenvalue_fp64": 0.07228457827646469,
+            "lu_min_abs_pivot_fp32": 6.809797614693025e-09,
+            "lu_max_abs_pivot_fp32": 0.06695709377527237,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          }
+        },
+        "unit_fp32": {
+          "basis_column_scale": 1.0,
+          "q_scaled_l2": 0.9999999931042494,
+          "basis_column_max_abs": 0.6904247403144836,
+          "RAP_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 6.447154793650783e-09,
+            "singular_max_fp64": 0.07228454596614861,
+            "condition2_fp64": 11211852.092854215,
+            "singular_min_fp32stored": 6.447154793650783e-09,
+            "condition2_fp32stored": 11211852.092854215,
+            "symmetric_min_eigenvalue_fp64": -6.4471644105760005e-09,
+            "symmetric_max_eigenvalue_fp64": 0.07228454595196884,
+            "lu_min_abs_pivot_fp32": 6.694205190171942e-09,
+            "lu_max_abs_pivot_fp32": 0.06695707142353058,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "base_RAP_fp64_reference_maxabs_difference": 3.540139963814637e-08,
+          "RAP_fp32_storage_only_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 6.555197682468178e-09,
+            "singular_max_fp64": 0.07228457829054957,
+            "condition2_fp64": 11027063.071472898,
+            "singular_min_fp32stored": 6.555197682468178e-09,
+            "condition2_fp32stored": 11027063.071472898,
+            "symmetric_min_eigenvalue_fp64": -6.555206889440517e-09,
+            "symmetric_max_eigenvalue_fp64": 0.07228457827647446,
+            "lu_min_abs_pivot_fp32": 6.80388945184518e-09,
+            "lu_max_abs_pivot_fp32": 0.06695709377527237,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          }
+        },
+        "median_fp64": {
+          "basis_column_scale": 1180.25124350523,
+          "q_scaled_l2": 1180.25124350523,
+          "basis_column_max_abs": 814.8746761424941,
+          "RAP_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 1.8013092619498054e-07,
+            "singular_max_fp64": 335.405239075028,
+            "condition2_fp64": 1862008074.6821492,
+            "singular_min_fp32stored": 1.7993471939148207e-07,
+            "condition2_fp32stored": 1864038516.0820787,
+            "symmetric_min_eigenvalue_fp64": -1.80131180097513e-07,
+            "symmetric_max_eigenvalue_fp64": 335.4052390750272,
+            "lu_min_abs_pivot_fp32": 8.759120100876316e-05,
+            "lu_max_abs_pivot_fp32": 0.18093043565750122,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "base_RAP_fp64_reference_maxabs_difference": 0.0,
+          "RAP_fp32_storage_only_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 1.7993471939148207e-07,
+            "singular_max_fp64": 335.40524732614347,
+            "condition2_fp64": 1864038516.0820787,
+            "singular_min_fp32stored": 1.7993471939148207e-07,
+            "condition2_fp32stored": 1864038516.0820787,
+            "symmetric_min_eigenvalue_fp64": -1.7993497447209912e-07,
+            "symmetric_max_eigenvalue_fp64": 335.40524732614233,
+            "lu_min_abs_pivot_fp32": 8.759120100876316e-05,
+            "lu_max_abs_pivot_fp32": 0.18093043565750122,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          }
+        },
+        "median_fp32": {
+          "basis_column_scale": 1180.25124350523,
+          "q_scaled_l2": 1180.2512365587884,
+          "basis_column_max_abs": 814.8746948242188,
+          "RAP_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 1.9101432578424322e-07,
+            "singular_max_fp64": 335.40494217408775,
+            "condition2_fp64": 1755915116.8218572,
+            "singular_min_fp32stored": 1.9101432578424322e-07,
+            "condition2_fp32stored": 1755915116.8218572,
+            "symmetric_min_eigenvalue_fp64": -1.9101459457310295e-07,
+            "symmetric_max_eigenvalue_fp64": 335.40494217408684,
+            "lu_min_abs_pivot_fp32": 9.289899753639475e-05,
+            "lu_max_abs_pivot_fp32": 0.18093039095401764,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "base_RAP_fp64_reference_maxabs_difference": 0.00029099574288693475,
+          "RAP_fp32_storage_only_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 26,
+            "rank_fp32stored_rtol1e-7": 26,
+            "singular_min_fp64": 1.7994590212293582e-07,
+            "singular_max_fp64": 335.4052473260165,
+            "condition2_fp64": 1863922675.4765086,
+            "singular_min_fp32stored": 1.7994590212293582e-07,
+            "condition2_fp32stored": 1863922675.4765086,
+            "symmetric_min_eigenvalue_fp64": -1.7994615697585535e-07,
+            "symmetric_max_eigenvalue_fp64": 335.4052473260156,
+            "lu_min_abs_pivot_fp32": 8.766379323787987e-05,
+            "lu_max_abs_pivot_fp32": 0.18093045055866241,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          }
+        },
+        "mean_fp64": {
+          "basis_column_scale": 1561.662997465004,
+          "q_scaled_l2": 1561.6629974650043,
+          "basis_column_max_abs": 1078.2107930881184,
+          "RAP_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 25,
+            "rank_fp32stored_rtol1e-7": 25,
+            "singular_min_fp64": 1.8013239408273674e-07,
+            "singular_max_fp64": 587.1948815751673,
+            "condition2_fp64": 3259796132.534953,
+            "singular_min_fp32stored": 1.8023489141337908e-07,
+            "condition2_fp32stored": 3257942370.379306,
+            "symmetric_min_eigenvalue_fp64": -1.8013264783679937e-07,
+            "symmetric_max_eigenvalue_fp64": 587.1948815751663,
+            "lu_min_abs_pivot_fp32": 0.0001157536607934162,
+            "lu_max_abs_pivot_fp32": 0.23940019309520721,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "base_RAP_fp64_reference_maxabs_difference": 0.0,
+          "RAP_fp32_storage_only_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 25,
+            "rank_fp32stored_rtol1e-7": 25,
+            "singular_min_fp64": 1.8023489141337908e-07,
+            "singular_max_fp64": 587.194889356361,
+            "condition2_fp64": 3257942370.379306,
+            "singular_min_fp32stored": 1.8023489141337908e-07,
+            "condition2_fp32stored": 3257942370.379306,
+            "symmetric_min_eigenvalue_fp64": -1.802351434087165e-07,
+            "symmetric_max_eigenvalue_fp64": 587.1948893563598,
+            "lu_min_abs_pivot_fp32": 0.0001157536607934162,
+            "lu_max_abs_pivot_fp32": 0.23940019309520721,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          }
+        },
+        "mean_fp32": {
+          "basis_column_scale": 1561.662997465004,
+          "q_scaled_l2": 1561.6630151779466,
+          "basis_column_max_abs": 1078.2108154296875,
+          "RAP_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 25,
+            "rank_fp32stored_rtol1e-7": 25,
+            "singular_min_fp64": 1.8264850344450003e-07,
+            "singular_max_fp64": 587.1947672818038,
+            "condition2_fp64": 3214889562.236299,
+            "singular_min_fp32stored": 1.8264850344450003e-07,
+            "condition2_fp32stored": 3214889562.236299,
+            "symmetric_min_eigenvalue_fp64": -1.8264876915818752e-07,
+            "symmetric_max_eigenvalue_fp64": 587.194767281803,
+            "lu_min_abs_pivot_fp32": 0.00011710442049661651,
+            "lu_max_abs_pivot_fp32": 0.2394002377986908,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          },
+          "base_RAP_fp64_reference_maxabs_difference": 0.00011837124100111396,
+          "RAP_fp32_storage_only_metrics": {
+            "dimension": 27,
+            "rank_fp64_rtol1e-7": 25,
+            "rank_fp32stored_rtol1e-7": 25,
+            "singular_min_fp64": 1.801641154311198e-07,
+            "singular_max_fp64": 587.1948893565458,
+            "condition2_fp64": 3259222226.087756,
+            "singular_min_fp32stored": 1.801641154311198e-07,
+            "condition2_fp32stored": 3259222226.087756,
+            "symmetric_min_eigenvalue_fp64": -1.801643711632991e-07,
+            "symmetric_max_eigenvalue_fp64": 587.1948893565445,
+            "lu_min_abs_pivot_fp32": 0.00011574585369089618,
+            "lu_max_abs_pivot_fp32": 0.23940019309520721,
+            "lu_warning_count": 0,
+            "lu_warning_text": []
+          }
+        }
+      }
+    }
+  },
+  "limits": [
+    "A is the same captured offline FP64 operator; FP32 variant casts A/P and uses NumPy/SciPy float32 products, not Metal arithmetic parity.",
+    "FP64 RAP is an offline upper-precision control; it does not change the production operator.",
+    "Only the online_first_restart q is available at iteration16; captured-native and direct-solution q are retrospective controls.",
+    "Balanced-Schwarz patch factors are reconstructed from captured A and are stored/solved FP32 offline, not captured native factors.",
+    "No physical operator regularization, tolerance changes, rank-threshold changes, native qualification, or accepted physical step is claimed."
+  ]
+}

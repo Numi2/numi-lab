@@ -1,0 +1,213 @@
+{
+  "schema": "numi.cardboard.operator-capture-parity.v1",
+  "capture_off": "/Users/home/cardboard-implementation-20261014/solver/rationalized-paper-complete-coupon-cycle-303",
+  "capture_on": "/Users/home/cardboard-implementation-20261014/solver/rationalized-paper-control2-newton63-capture-304",
+  "receipts": [
+    {
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "execution_started": true,
+      "source_inputs_unchanged": true,
+      "changed_inputs": [],
+      "exit_code": 2,
+      "timed_out": false,
+      "termination_errors": [],
+      "wall_seconds": 694.7975390420179,
+      "finished_at_utc": "2026-10-15T10:49:02.056173+00:00"
+    },
+    {
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "execution_started": true,
+      "source_inputs_unchanged": true,
+      "changed_inputs": [],
+      "exit_code": 2,
+      "timed_out": false,
+      "termination_errors": [],
+      "wall_seconds": 671.0984800420119,
+      "finished_at_utc": "2026-10-15T11:01:54.178653+00:00"
+    }
+  ],
+  "files": [
+    {
+      "path": "accepted_step_000001_bent.obj",
+      "bytes_a": 61972,
+      "bytes_b": 61972,
+      "sha256_a": "92f5cf1a0861d7e9361b76f307ae8002cec31880aae56602feba5265a4c6e3c1",
+      "sha256_b": "92f5cf1a0861d7e9361b76f307ae8002cec31880aae56602feba5265a4c6e3c1",
+      "byte_identical": true
+    },
+    {
+      "path": "accepted_step_000001_held_reference.obj",
+      "bytes_a": 56470,
+      "bytes_b": 56470,
+      "sha256_a": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "sha256_b": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "byte_identical": true
+    },
+    {
+      "path": "accepted_step_000002_bent.obj",
+      "bytes_a": 61932,
+      "bytes_b": 61932,
+      "sha256_a": "178a6e310b2533c4282e32010af1d028a0ef15dbd0f8cba93886b41efbb63969",
+      "sha256_b": "178a6e310b2533c4282e32010af1d028a0ef15dbd0f8cba93886b41efbb63969",
+      "byte_identical": true
+    },
+    {
+      "path": "accepted_step_000002_held_reference.obj",
+      "bytes_a": 56470,
+      "bytes_b": 56470,
+      "sha256_a": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "sha256_b": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "byte_identical": true
+    },
+    {
+      "path": "accepted_step_000003_held_reference.obj",
+      "bytes_a": 56470,
+      "bytes_b": 56470,
+      "sha256_a": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "sha256_b": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "byte_identical": true
+    },
+    {
+      "path": "compiled.nmatterpack",
+      "bytes_a": 1984768,
+      "bytes_b": 1984768,
+      "sha256_a": "52326a01b384ed25483b4d09457ae60415e8516bcfa0a777329dbb77f96f09eb",
+      "sha256_b": "52326a01b384ed25483b4d09457ae60415e8516bcfa0a777329dbb77f96f09eb",
+      "byte_identical": true
+    },
+    {
+      "path": "initial.obj",
+      "bytes_a": 56470,
+      "bytes_b": 56470,
+      "sha256_a": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+      "sha256_b": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+      "byte_identical": true
+    },
+    {
+      "path": "manifest.json",
+      "bytes_a": 11560,
+      "bytes_b": 11560,
+      "sha256_a": "2b4a980586a240937ccadeb731dae72a4c41fb13206914c10139d0243122d322",
+      "sha256_b": "2b4a980586a240937ccadeb731dae72a4c41fb13206914c10139d0243122d322",
+      "byte_identical": true
+    },
+    {
+      "path": "material_state_000003_bent.json",
+      "bytes_a": 970592,
+      "bytes_b": 970592,
+      "sha256_a": "8432162c7b4ab4d260336989a996bd760c1e7c50cdd2bd8ee74161c4371f1a01",
+      "sha256_b": "8432162c7b4ab4d260336989a996bd760c1e7c50cdd2bd8ee74161c4371f1a01",
+      "byte_identical": true
+    },
+    {
+      "path": "mesh.json",
+      "bytes_a": 160425,
+      "bytes_b": 160425,
+      "sha256_a": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+      "sha256_b": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+      "byte_identical": true
+    },
+    {
+      "path": "observations.csv",
+      "bytes_a": 3620,
+      "bytes_b": 3620,
+      "sha256_a": "7e71535be7cad98d6e62ab2f11dc56691d7213e77b2939ff5292847fd0fb10ab",
+      "sha256_b": "7e71535be7cad98d6e62ab2f11dc56691d7213e77b2939ff5292847fd0fb10ab",
+      "byte_identical": true
+    },
+    {
+      "path": "rejected-conditioning-000003/AP.bin",
+      "bytes_a": 733824,
+      "bytes_b": 733824,
+      "sha256_a": "c74b8839dc239857dafcd8e868d8318fa811c749cc71e056ff084141cff5ab1d",
+      "sha256_b": "c74b8839dc239857dafcd8e868d8318fa811c749cc71e056ff084141cff5ab1d",
+      "byte_identical": true
+    },
+    {
+      "path": "rejected-conditioning-000003/P.bin",
+      "bytes_a": 366912,
+      "bytes_b": 366912,
+      "sha256_a": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+      "sha256_b": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+      "byte_identical": true
+    },
+    {
+      "path": "rejected-conditioning-000003/candidate_nodes.bin",
+      "bytes_a": 141120,
+      "bytes_b": 141120,
+      "sha256_a": "beb94edf32ae09921e6b56eeef1cb66736beead505b96a8dbbb03fae5b60dfc2",
+      "sha256_b": "beb94edf32ae09921e6b56eeef1cb66736beead505b96a8dbbb03fae5b60dfc2",
+      "byte_identical": true
+    },
+    {
+      "path": "rejected-conditioning-000003/effective_P.bin",
+      "bytes_a": 733824,
+      "bytes_b": 733824,
+      "sha256_a": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+      "sha256_b": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+      "byte_identical": true
+    },
+    {
+      "path": "rejected-conditioning-000003/factor_valid.bin",
+      "bytes_a": 8,
+      "bytes_b": 8,
+      "sha256_a": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+      "sha256_b": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+      "byte_identical": true
+    },
+    {
+      "path": "rejected-conditioning-000003/manifest.json",
+      "bytes_a": 1762,
+      "bytes_b": 1762,
+      "sha256_a": "75fd9d878fdd22c01929fbb231046480d0daec9cefd77318d4703aff09ce8b00",
+      "sha256_b": "75fd9d878fdd22c01929fbb231046480d0daec9cefd77318d4703aff09ce8b00",
+      "byte_identical": true
+    },
+    {
+      "path": "rejected-conditioning-000003/node_block_inverse.bin",
+      "bytes_a": 0,
+      "bytes_b": 0,
+      "sha256_a": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256_b": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "byte_identical": true
+    },
+    {
+      "path": "rejected-conditioning-000003/pivoted_RAP.bin",
+      "bytes_a": 5408,
+      "bytes_b": 5408,
+      "sha256_a": "1d0c7aafd77fb61229b56bf3ddf020963dbd44422a47c648aeab4ed8d1854a91",
+      "sha256_b": "1d0c7aafd77fb61229b56bf3ddf020963dbd44422a47c648aeab4ed8d1854a91",
+      "byte_identical": true
+    },
+    {
+      "path": "rejected-conditioning-000003/pivots.bin",
+      "bytes_a": 208,
+      "bytes_b": 208,
+      "sha256_a": "d96f9a408a0e2e577575e02f6bb6a304af5226c37af79fbe8b26989bf9d0ebb9",
+      "sha256_b": "d96f9a408a0e2e577575e02f6bb6a304af5226c37af79fbe8b26989bf9d0ebb9",
+      "byte_identical": true
+    },
+    {
+      "path": "rejected_step_diagnostic_000003_bent.obj",
+      "bytes_a": 61932,
+      "bytes_b": 61932,
+      "sha256_a": "178a6e310b2533c4282e32010af1d028a0ef15dbd0f8cba93886b41efbb63969",
+      "sha256_b": "178a6e310b2533c4282e32010af1d028a0ef15dbd0f8cba93886b41efbb63969",
+      "byte_identical": true
+    },
+    {
+      "path": "result.json",
+      "bytes_a": 698,
+      "bytes_b": 698,
+      "sha256_a": "fdcaab82028d95a15a4a70555b80d7671093745177dfe90119b2c86d1b268d31",
+      "sha256_b": "fdcaab82028d95a15a4a70555b80d7671093745177dfe90119b2c86d1b268d31",
+      "byte_identical": true
+    }
+  ],
+  "manifest_differences": [],
+  "production_payload_files": 21,
+  "production_payloads_byte_identical": true,
+  "complete_cycle": false,
+  "accepted_steps": 2,
+  "qualification": "Failed prefix only. Third loading step rejects in both runs; no complete loading/unloading/release history or convergence claim."
+}

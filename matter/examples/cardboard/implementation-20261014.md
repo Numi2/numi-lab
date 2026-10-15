@@ -1,5 +1,89 @@
 # Cardboard implementation and evidence ledger
 
+## Source095: retained failures and narrower numerical results
+
+Source095 builds all 66 targets and passes 71 selected CPU checks. No global
+certificate tolerance, restart ceiling, physical parameter or material history
+was relaxed. The scoped positive-epsilon Fischer–Burmeister value repair makes
+all 3,456 retained paper stress/tangent projections valid in native300. Default
+response words remain unchanged. Native315 completes 1,536 evaluations per
+policy, including nine basis actions and ten signed perturbation sizes at eight
+points. At two exact medium centers, accurate native matrices agree with the
+independent 90-digit matrices within 4.36e-8 in matrix norm and 4.98e-8 for the
+worst nonzero column. The exact-pair follow-up also checks all nine actions at the six selected liner
+points, which have one identical parameter/F/history state. Across these eight
+points (three unique states), the accurate-policy worst column error is5.18e-8.
+This remains selected material evidence, not a full solver gate.
+
+The independent 90-digit endpoint study resolves finite-step curvature at those
+two centers. Smaller FP64 steps give full-matrix errors 1.94e-7 and 7.22e-8 at
+1e-10; tet1634 still misses the every-column 1e-6 finite-difference gate (worst
+1.90e-6 there, 1.07e-6 at1e-11). Still smaller steps lose accuracy. All steps,
+endpoint branches and input-rounding errors are retained. Near-zero absolute
+noise floors remain unresolved; deterministic center repeats are not noise
+floor measurements. Native315 independently records substantial rounded-rate
+direction loss for the smallest liner perturbations, rather than assuming
+that nominal Hdot=H/dt was exactly realized.
+
+Actual coupon303/304 accepts two of27 controls and normally rejects control2.
+The selected control2/Newton63 operator agrees with independent assembly
+(A-action6.53e-5, captured AP1.00e-7, LU reconstruction1.25e-7), but native
+linear residual remains about0.952 of the RHS. The lossless 38,818,506-byte
+capture is restore-tested. Same-Newton augmentation is an offline conditioning
+experiment until native action, factor, reset and physical-run checks pass;
+older accepted-cross-Newton recycling remains disabled after its regression.
+
+The selected private contact trial now has a strict, complete capture: native312
+retains129 arrays/19,467,248 bytes, with validated extents and hashes. Corrected
+topology/status record types replace the failed307/310 instruments; those
+failures remain retained. Capture-on312 and capture-off313 have all11 nonlog
+production files and all32 Armijo records identical. The lossless package is
+restore-tested. The physical fixture still rejects. Independent replay reproduces the cohesive, rigid-contact FEM and deformable
+contact gather results bit-for-bit. This verifies gather assembly of captured
+forces. Independent contact constitutive response, full center-to-trial residual
+derivative and same-generation Jdelta comparison remain separate gates.
+
+Private CCD314 executes all14 declared cases and retains all12 exact input
+buffers per case. Nine pass; five as-authored expected-accept cases reject: partial covered
+crossing, three- and four-patch closure, common translation, and separation.
+A subsequent source audit identifies invalid initial geometry in the partial
+covered positive fixture; its correction is a separate versioned test.
+Collision/overlap negative controls still reject. The four-patch bound and
+conservative common-displacement rule therefore do not qualify mortar contact.
+Shipping CPU audits independently prove that recorded float clipping slivers
+have zero exact-rational overlap, but production Metal partition/complement
+arithmetic and runtime admission remain unresolved. No CPU audit overrides a
+native rejection.
+
+No complete coupon mesh/time/slower-loading series, matched corrugated damage
+or starch/hot-melt identification, fixture-free300x200x200mm assembly,
+capacity-derived mass, gravity crushing or drop prediction is qualified.
+
+## Earlier retained milestones
+
+Frozen source091 builds all 66 targets and passes 71 selected CPU checks. Its
+opt-in bilinear15 repair evaluates the same positive-epsilon Fischer–Burmeister
+residual with a rationalized value expression; authored derivative programs,
+physical parameters, production acceptance criteria and the default policy
+remain unchanged. Native300 accepts all 3,456 captured-point stress/tangent
+projections, including the six formerly rejected liners. All 26 prior medium
+action-norm nonpasses now meet 1e-3 against the retained FP64 reference. These
+are one-direction comparisons; zero directions, all-direction derivatives and
+the reference's near-yield root stopping remain separate qualifications.
+
+Source090's bounded mortar union accepts three-patch activation in299. All
+legacy/tiled transaction metadata and raw snapshots agree bytewise at each
+face count; rejected closure preserves all 18 recorded accepted-history
+vectors and an invalid certificate. Closure still fails the strict residual
+gate. Source091 repairs a host upload crash and checker output ownership,
+then private CCD301 fails matched closure across shared patch boundaries.
+This is not a completed contact or assembly result. The complete 27-control
+coupon303 normally rejects its third control after two acceptances and
+694.80 seconds. Its status10/FG32 failure is retained; no complete cycle or
+mesh/time convergence qualifies. The two-point reference audit's analytic
+matrices agree with90-digit calculations, but its FP64 finite-difference
+errors still exceed1e-6. Stable epsilon differences do not close that gate.
+
 Sources087/088 each build all65 targets and pass all71 selected CPU checks.
 Run287 establishes legacy/tiled parity on rejected prefixes only and exposes
 the unsupported multiple-patch contact lookup. Run289 captures the full
@@ -48,7 +132,7 @@ exists from which to execute the gravity or drop branches.
 
 | Verdict | Current evidence | Remaining qualification |
 | --- | --- | --- |
-| Solver correctness | Shared tested update fractions and rollback; selected exact-word material/element/assembled actions; native285 local accuracy on16 captured points; strict full-arena capture291 with same-source on/off history parity | Full coupon/contact trajectories remain failed. Recycling284 stays disabled. Selected accuracy is not all-direction or near-zero qualification. Actual first-force material capture293 times out; multi-patch contact union remains open |
+| Solver correctness | Shared tested fractions and rollback; exact-word material/element/assembled actions; native300 all 3,456 captured-point projections valid after scoped FB value repair; strict capture291 with on/off history parity;299 accepted activation and failed-prefix rollback parity | No completed coupon/contact qualification. Recycling284 stays disabled. One captured direction is not all-direction or near-zero qualification. Actual first-force capture293 times out; private shared-boundary CCD301 still fails |
 | Numerical convergence | Complete-history runners preserve duration, paths, rate, tolerances and failed cases | No complete 8/16/32, 2/4/8, 1/2/4 or timestep triplet has qualified. A first-control pass is not a complete coupon |
 | Component calibration | Versioned published curves, pixel uncertainty, bilinear tensile fits and explicit compression/shear assumptions; synthetic progressive-damage and interface laws execute transactionally | No matched corrugated damage or local starch/HMA fracture identification; source-grade transfer and Robertsson absolute-energy convention remain open |
 | Analogue validation | Separate ECT, scored-bend, pin and BCT series with source identities and transfer rules | Whole native source fixtures and held-out comparisons. Partial pin windows cannot supply full peaks or full work; unrelated grades cannot be labeled same grade |

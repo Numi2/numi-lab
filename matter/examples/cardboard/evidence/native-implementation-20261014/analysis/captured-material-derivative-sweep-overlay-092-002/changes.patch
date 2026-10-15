@@ -1,0 +1,75 @@
+--- a/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm
++++ b/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm
+@@ -8,6 +8,9 @@
+ #include <array>
+ #include <bit>
+ #include <cmath>
++#include <cerrno>
++#include <fcntl.h>
++#include <unistd.h>
+ #include <cctype>
+ #include <cstdint>
+ #include <filesystem>
+@@ -339,6 +342,29 @@
+          "selected trace high/low state packing sentinel was overwritten");
+     writeTrace(outdir/("tet1528-env0-"+policy+"-trace.json"),policy,world,row,data,captureHash);
+ }
++// Reserve evidence exclusively before dispatch; failures retain partial evidence.
++struct ExclusiveSweepOutput {
++    int descriptor = -1;
++    explicit ExclusiveSweepOutput(const std::filesystem::path& path) {
++        descriptor=::open(path.c_str(),O_WRONLY|O_CREAT|O_EXCL,0600);
++        need(descriptor>=0,"cannot exclusively create controlled sweep output: "+path.string());
++    }
++    ~ExclusiveSweepOutput(){if(descriptor>=0)::close(descriptor);}
++    ExclusiveSweepOutput(const ExclusiveSweepOutput&)=delete;
++    ExclusiveSweepOutput& operator=(const ExclusiveSweepOutput&)=delete;
++    void writeAll(const std::string& text) {
++        need(text.size()<=16u*1024u*1024u,"controlled sweep output exceeds bounded writer");
++        std::size_t written=0u;
++        while(written<text.size()) {
++            const auto count=::write(descriptor,text.data()+written,text.size()-written);
++            if(count<0&&errno==EINTR)continue;
++            need(count>0,"controlled sweep write failed; partial evidence retained");
++            written+=static_cast<std::size_t>(count);
++        }
++        const int saved=descriptor;descriptor=-1;
++        need(::close(saved)==0,"controlled sweep close failed; evidence retained");
++    }
++};
+ // Instrument-only controlled directions around immutable captured centers.
+ // Output records identify authored perturbations separately from capture data.
+ struct DerivativeSweepRecord {
+@@ -398,6 +424,7 @@
+ void runDerivativeSweep(Metal& metal,const CompiledWorld& world,const std::string& policy,
+                         const Capture& capture,const std::filesystem::path& outdir,
+                         const std::string& captureHash) {
++    ExclusiveSweepOutput evidence(outdir/("paper-derivative-sweep-"+policy+".jsonl"));
+     const auto samples=derivativeSweepRecords(capture);
+     std::vector<Record> rows;rows.reserve(samples.size());
+     for(const auto& sample:samples)rows.push_back(sample.row);
+@@ -413,10 +440,11 @@
+     metal.dispatch(metal.batch,buffers,static_cast<std::uint32_t>(rows.size()),8u);
+     const auto* result=static_cast<const float*>(buffers[7].contents);
+     std::copy(result,result+output.size(),output.begin());
+-    std::ofstream file(outdir/("paper-derivative-sweep-"+policy+".jsonl"));
+-    need(file.good(),"cannot write controlled derivative sweep");
++    std::ostringstream file;
+     file<<"{\"record\":\"header\",\"schema\":\"numi.cardboard.controlled-material-derivative-sweep.v1\","
+-        <<"\"policy\":\""<<policy<<"\",\"capture_sha256\":\""<<captureHash
++        <<"\"policy\":\""<<policy<<"\",\"compiled_local_iterations_liner\":"<<world.materials[0].localNewtonIterations
++        <<",\"compiled_local_iterations_medium\":"<<world.materials[1].localNewtonIterations
++        <<",\"capture_sha256\":\""<<captureHash
+         <<"\",\"base_snapshot_manifest_sha256\":\""<<kBaseSnapshotSHA
+         <<"\",\"rows\":"<<samples.size()<<",\"selected_points\":8,\"basis_order\":\"row_major_F_11_12_13_21_22_23_31_32_33\","
+         <<"\"epsilon_unit\":\"s\",\"basis_direction_unit\":\"per_s\","
+@@ -437,7 +465,8 @@
+     }
+     file<<"{\"record\":\"end\",\"rows\":"<<samples.size()
+         <<",\"status\":\"diagnostic_complete\",\"not_qualification\":true}\n";
+-    need(file.good(),"controlled derivative sweep write failed");
++    need(file.good(),"controlled derivative sweep formatting failed");
++    evidence.writeAll(file.str());
+ }
+ 
+ }

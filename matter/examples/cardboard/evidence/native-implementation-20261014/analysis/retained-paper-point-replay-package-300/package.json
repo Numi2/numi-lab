@@ -1,0 +1,116 @@
+{
+  "schema": "numi.cardboard.paper-point-replay-lossless-package.v1",
+  "created_at_utc": "2026-10-15T10:37:49.264034+00:00",
+  "entries": [
+    {
+      "restored_relative_path": "capture283/operator-capture",
+      "original_path": "/Users/home/cardboard-implementation-20261014/solver/recycle-source-default-first-control-283/operator-capture",
+      "bytes": 32822301,
+      "sha256": "4decb7be2fbfa93ad97c0f2f22cfaca974931269068bed90e98815b09066b870",
+      "compressed_filename": "payload-00.gz",
+      "compressed_bytes": 3477445,
+      "compressed_sha256": "10701a84e35a600cc48b2a6af0d0abbca4dd91476558b7f455f855947af037d6"
+    },
+    {
+      "restored_relative_path": "native300/prediction.json",
+      "original_path": "/Users/home/cardboard-implementation-20261014/native/rationalized-all-paper-entry-points-300/prediction.json",
+      "bytes": 101023,
+      "sha256": "9135d553ae4e1e35c722a432e61954edf4fb4279552a4e3921b15a602c367ea0",
+      "compressed_filename": "payload-01.gz",
+      "compressed_bytes": 40604,
+      "compressed_sha256": "2f7fc9ac47effd478f6ee772813c4198be937200fdd510d521c097ade3befe5b"
+    },
+    {
+      "restored_relative_path": "native300/receipt.json",
+      "original_path": "/Users/home/cardboard-implementation-20261014/native/rationalized-all-paper-entry-points-300/receipt.json",
+      "bytes": 306,
+      "sha256": "f2cada2db2780f17271fd53ab32f9b4d22200fdd3a9f8870265e31ec350ee5c2",
+      "compressed_filename": "payload-02.gz",
+      "compressed_bytes": 228,
+      "compressed_sha256": "d3b05a4f38e8d110e3404fd4ac91cd523ad8b80a08c8856256260ca483afde8a"
+    },
+    {
+      "restored_relative_path": "source091/source-build.json",
+      "original_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-091/source-build.json",
+      "bytes": 115121,
+      "sha256": "f841758f26b3f533cd69caa0ed2dd85b92ed8422c0c2f13d85fff3464fd5d56b",
+      "compressed_filename": "payload-03.gz",
+      "compressed_bytes": 44506,
+      "compressed_sha256": "fbafde329dd553ddb7eb55a75c58136932cc3aaa924edcdf3600a05e4d24ac58"
+    },
+    {
+      "restored_relative_path": "native300/paper-points-accurate.jsonl",
+      "original_path": "/Users/home/cardboard-implementation-20261014/native/rationalized-all-paper-entry-points-300/output/paper-points-accurate.jsonl",
+      "bytes": 5771302,
+      "sha256": "7c037b868e4f3d60e38ef0d030bfd75b29f4478660452623e92ca72a70a197fe",
+      "compressed_filename": "payload-04.gz",
+      "compressed_bytes": 224264,
+      "compressed_sha256": "5253b513e6be2bd3025e533bed885f471a20521936c5498601d982391cebde9e"
+    },
+    {
+      "restored_relative_path": "native300/paper-points-default.jsonl",
+      "original_path": "/Users/home/cardboard-implementation-20261014/native/rationalized-all-paper-entry-points-300/output/paper-points-default.jsonl",
+      "bytes": 5627599,
+      "sha256": "b9023ef51af1f0d8bf9199e576bfc47e4a707a9b82792ff150eefb6ac82e65cb",
+      "compressed_filename": "payload-05.gz",
+      "compressed_bytes": 214016,
+      "compressed_sha256": "4eaa91eb93b3eda2e03759fa3b99f102240810cfd98f834d472d826d4a72b9fa"
+    },
+    {
+      "restored_relative_path": "native300/tet1528-env0-accurate-trace.json",
+      "original_path": "/Users/home/cardboard-implementation-20261014/native/rationalized-all-paper-entry-points-300/output/tet1528-env0-accurate-trace.json",
+      "bytes": 95266,
+      "sha256": "771fe1d47d32f9d4d4911e40c71250ba891e767efae60091b5b060d8b6afc1e4",
+      "compressed_filename": "payload-06.gz",
+      "compressed_bytes": 2947,
+      "compressed_sha256": "61993ff3b2c4f6c758a9e42d20599b63f9643ad725cd0edd253bc69e72892478"
+    },
+    {
+      "restored_relative_path": "native300/tet1528-env0-default-trace.json",
+      "original_path": "/Users/home/cardboard-implementation-20261014/native/rationalized-all-paper-entry-points-300/output/tet1528-env0-default-trace.json",
+      "bytes": 93438,
+      "sha256": "9bd4b344a78c90e6f248d39d41c7a0ac8776dfb6ad455d7a569f1ee4b06382fe",
+      "compressed_filename": "payload-07.gz",
+      "compressed_bytes": 1691,
+      "compressed_sha256": "70676e05c14b9beb24f6a993ae8e4a89d4ba85cd53afc7ac28f486d19934f4a5"
+    }
+  ],
+  "policies": [
+    {
+      "policy": "default",
+      "summary": {
+        "record": "end",
+        "rows": 3456,
+        "direct_stress_valid_count": 3456,
+        "tangent_valid_count": 3456,
+        "tangent_projection_converged_count": 3456,
+        "status": "diagnostic_complete",
+        "not_qualification": true
+      },
+      "failures": [],
+      "original_capture_mismatches": {},
+      "output_sha256": "b9023ef51af1f0d8bf9199e576bfc47e4a707a9b82792ff150eefb6ac82e65cb"
+    },
+    {
+      "policy": "accurate",
+      "summary": {
+        "record": "end",
+        "rows": 3456,
+        "direct_stress_valid_count": 3456,
+        "tangent_valid_count": 3456,
+        "tangent_projection_converged_count": 3456,
+        "status": "diagnostic_complete",
+        "not_qualification": true
+      },
+      "failures": [],
+      "original_capture_mismatches": null,
+      "output_sha256": "7c037b868e4f3d60e38ef0d030bfd75b29f4478660452623e92ca72a70a197fe"
+    }
+  ],
+  "physical_steps": 0,
+  "physical_validation": false,
+  "accepted_checkpoint": false,
+  "exact_source288_candidate": false,
+  "scope": "All-row native entry-point comparison and default captured-word reproduction; independent accuracy and complete solver qualification remain separate.",
+  "restore_script_sha256": "b0e53e68a0e98314494f424fd4fbb19fbefd7f326803f1635fcb5f883aaf6ddd"
+}

@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/retained-paper-point-replay-package-300/restore.py",
+    "/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/tmp1y40svtn/restored"
+  ],
+  "exit_code": 0,
+  "package_sha256": "a0248e76200f3afe2c3cb1f82de657991c5de44687292bcf74dd0309ba265d8a",
+  "result": {
+    "restored_files": 8,
+    "all_exact_hashes_verified": true,
+    "physical_validation": false,
+    "accepted_checkpoint": false
+  }
+}

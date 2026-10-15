@@ -1,0 +1,43 @@
+{
+  "artifacts": {
+    "report.json": {
+      "bytes": 10035,
+      "sha256": "c1ec247e4a1908bdab3cc201c78c9489b7432f7a24d0dec072e8af49811e3dcb"
+    },
+    "cases.jsonl": {
+      "bytes": 109967,
+      "sha256": "76b2e058be62621ec628ea14cf9adeda67d4eb0c9d570724e9e8dbcd9b299e7c"
+    },
+    "README.md": {
+      "bytes": 473,
+      "sha256": "4796522c1b338a3a456d1d0a7f8c01f4d960f8f4194ec428051d6e2fdafa8abd"
+    }
+  },
+  "inputs": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/exhaustive-private-mortar-ccd-314/stdout.log",
+      "bytes": 111203,
+      "sha256": "87701986e51130cbbafd147f2b9fd307f8c9ff4ea1f018d14fef40def6086ea2"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/exhaustive-private-mortar-ccd-314/stderr.log",
+      "bytes": 147,
+      "sha256": "c01341f74e13ffa81d348ebe0051d82e4a9702157b45cdee3629b2fe26c88d98"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/exhaustive-private-mortar-ccd-314/prediction.json",
+      "bytes": 100378,
+      "sha256": "0ce063486939d77bc613a63b6e2ee662b6eff112758271a98068c8c07238d289"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/exhaustive-private-mortar-ccd-314/receipt.json",
+      "bytes": 306,
+      "sha256": "b142c6db26452d679c703381aef6b5897c1752cff65814a0650fe78d267895a1"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/exhaustive-private-mortar-ccd-314/inputs/external/source-build.json",
+      "bytes": 115136,
+      "sha256": "af05899b3df433c799b23f25622210a51cc5bb66287902a93d8c6363ecc67c4d"
+    }
+  ]
+}

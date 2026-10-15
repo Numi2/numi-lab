@@ -1,0 +1,22 @@
+{
+  "inputs": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-tangent-state-sensitivity-1634-001/report.json",
+      "sha256": "4df12fcf9ac76a4b38797a6e25b9342d47a1129341145fbdde0b519c2021b3c0"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-finer-fp64-fd-003/report.json",
+      "sha256": "d9cac569bac33f1b2affb8a367e2b91eafafb00169bdb2fa76b638a725976353"
+    }
+  ],
+  "artifacts": {
+    "report.json": {
+      "bytes": 30574,
+      "sha256": "8f29d3ec322a3d9eb271cfa3eb3feb2b922825666bee6b98aec75b8dbf80f096"
+    },
+    "README.md": {
+      "bytes": 391,
+      "sha256": "1fdbdce5c3918d9d44a5f177371fa6c900af46973c2be312e306d7a17760efba"
+    }
+  }
+}

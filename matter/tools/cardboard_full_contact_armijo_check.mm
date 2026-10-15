@@ -29,6 +29,7 @@
 #include <memory>
 #include <optional>
 #include <regex>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -788,7 +789,8 @@ MeshAndWorld makeWorld(const MaterialProgram& bulk,
                        const bool partialMortarPatch = false,
                        const double initialMortarGap = kActivationGap,
                        const bool highSparsePairDomain = false,
-                       const std::uint32_t cohesivePatchTileCount = 1u) {
+                       const std::uint32_t cohesivePatchTileCount = 1u,
+                       const bool sameParentMortarUnion = false) {
     MeshAndWorld result;
     WorldSource& source = result.world;
     source.environmentCount = kEnvironmentCount;
@@ -1076,72 +1078,185 @@ MeshAndWorld makeWorld(const MaterialProgram& bulk,
     interface.cohesiveMaterialIndex = 0u;
     interface.activationGapToleranceM = kActivationTolerance;
     require(cohesivePatchTileCount == 0u || cohesivePatchTileCount == 1u ||
-                cohesivePatchTileCount == 3u,
-            "cohesive fixture supports zero, one, or a three-triangle partition");
+                cohesivePatchTileCount == 3u ||
+                (cohesivePatchTileCount == 4u && sameParentMortarUnion),
+            "cohesive fixture supports zero, one, three, or four mortar patches");
     if (cohesivePatchTileCount == 0u) {
         // Keep this identical full-contact world as a negative control for a
         // tiled request with no authored cohesive faces.
     } else if (cohesivePatchTileCount == 1u) {
         pad.femCohesiveMortarPatches.push_back(interface);
     } else {
-        // Partition the authored integration triangle into three disjoint
-        // triangles around its centroid. This keeps the exact same mortar
-        // surface for both solver modes while forcing the tiled path to cross
-        // page boundaries when PAGE_FACES=1.
-        const auto sideACenter = [&] {
-            std::array<double, 3> center{};
-            for (const auto& row : interface.sideAVertexBarycentric)
-                for (unsigned axis = 0u; axis < 3u; ++axis)
-                    center[axis] += row[axis] / 3.0;
-            return center;
-        }();
-        const auto sideBCenter = [&] {
-            std::array<double, 3> center{};
-            for (const auto& row : interface.sideBVertexBarycentric)
-                for (unsigned axis = 0u; axis < 3u; ++axis)
-                    center[axis] += row[axis] / 3.0;
-            return center;
-        }();
-        const std::array<std::array<unsigned, 3>, 3> tileVertices{{
-            {{0u, 1u, 3u}}, {{1u, 2u, 3u}}, {{2u, 0u, 3u}}
-        }};
-        std::array<std::array<double, 3>, 4> sideA{};
-        std::array<std::array<double, 3>, 4> sideB{};
-        for (unsigned vertex = 0u; vertex < 3u; ++vertex) {
-            sideA[vertex] = interface.sideAVertexBarycentric[vertex];
-            sideB[vertex] = interface.sideBVertexBarycentric[vertex];
-        }
-        sideA[3] = sideACenter;
-        sideB[3] = sideBCenter;
-        double areaFractionSum = 0.0;
-        for (std::uint32_t tile = 0u; tile < tileVertices.size(); ++tile) {
-            CohesiveMortarPatchSource part = interface;
-            part.stableIdentifier = kFaceId + tile;
-            for (unsigned vertex = 0u; vertex < 3u; ++vertex) {
-                part.sideAVertexBarycentric[vertex] =
-                    sideA[tileVertices[tile][vertex]];
-                part.sideBVertexBarycentric[vertex] =
-                    sideB[tileVertices[tile][vertex]];
+        if (sameParentMortarUnion) {
+            // Three disjoint barycentric patches tile the authored integration
+            // triangle on one exact parent primitive pair. This exercises the
+            // bounded union path while preserving one independent face/history
+            // record per patch in both solver modes.
+            using TileMap = std::pair<
+                std::array<std::array<double, 3>, 3>,
+                std::array<std::array<double, 3>, 3>>;
+            std::vector<TileMap> tileMaps;
+            if (cohesivePatchTileCount == 3u) {
+                std::array<std::array<double, 3>, 4> sideA{};
+                std::array<std::array<double, 3>, 4> sideB{};
+                const auto sideACenter = [&] {
+                    std::array<double, 3> center{};
+                    for (const auto& row : interface.sideAVertexBarycentric)
+                        for (unsigned axis = 0u; axis < 3u; ++axis)
+                            center[axis] += row[axis] / 3.0;
+                    return center;
+                }();
+                const auto sideBCenter = [&] {
+                    std::array<double, 3> center{};
+                    for (const auto& row : interface.sideBVertexBarycentric)
+                        for (unsigned axis = 0u; axis < 3u; ++axis)
+                            center[axis] += row[axis] / 3.0;
+                    return center;
+                }();
+                for (unsigned vertex = 0u; vertex < 3u; ++vertex) {
+                    sideA[vertex] = interface.sideAVertexBarycentric[vertex];
+                    sideB[vertex] = interface.sideBVertexBarycentric[vertex];
+                }
+                sideA[3] = sideACenter;
+                sideB[3] = sideBCenter;
+                const std::array<std::array<unsigned, 3>, 3> tileVertices{{
+                    {{0u, 1u, 3u}}, {{1u, 2u, 3u}}, {{2u, 0u, 3u}}
+                }};
+                for (const auto& tile : tileVertices) {
+                    TileMap maps{};
+                    for (unsigned vertex = 0u; vertex < 3u; ++vertex) {
+                        maps.first[vertex] = sideA[tile[vertex]];
+                        maps.second[vertex] = sideB[tile[vertex]];
+                    }
+                    tileMaps.push_back(maps);
+                }
+            } else {
+                // Four midpoint subdivisions: the three corner triangles and
+                // the central triangle form a disjoint, area-conserving cover.
+                std::array<std::array<double, 3>, 6> sideA{};
+                std::array<std::array<double, 3>, 6> sideB{};
+                for (unsigned vertex = 0u; vertex < 3u; ++vertex) {
+                    sideA[vertex] = interface.sideAVertexBarycentric[vertex];
+                    sideB[vertex] = interface.sideBVertexBarycentric[vertex];
+                }
+                for (unsigned edge = 0u; edge < 3u; ++edge)
+                    for (unsigned axis = 0u; axis < 3u; ++axis) {
+                        sideA[3u + edge][axis] = 0.5 * (
+                            sideA[edge][axis] + sideA[(edge + 1u) % 3u][axis]);
+                        sideB[3u + edge][axis] = 0.5 * (
+                            sideB[edge][axis] + sideB[(edge + 1u) % 3u][axis]);
+                    }
+                const std::array<std::array<unsigned, 3>, 4> tileVertices{{
+                    {{0u, 3u, 5u}}, {{3u, 1u, 4u}},
+                    {{5u, 4u, 2u}}, {{3u, 4u, 5u}}
+                }};
+                for (const auto& tile : tileVertices) {
+                    TileMap maps{};
+                    for (unsigned vertex = 0u; vertex < 3u; ++vertex) {
+                        maps.first[vertex] = sideA[tile[vertex]];
+                        maps.second[vertex] = sideB[tile[vertex]];
+                    }
+                    tileMaps.push_back(maps);
+                }
             }
-            const auto& rows = part.sideAVertexBarycentric;
-            const double determinantValue =
-                (rows[1][0] - rows[0][0]) * (rows[2][1] - rows[0][1]) -
-                (rows[1][1] - rows[0][1]) * (rows[2][0] - rows[0][0]);
-            require(std::isfinite(determinantValue) &&
-                        std::abs(determinantValue) > 1.0e-12,
-                    "cohesive page-partition generated a degenerate integration triangle");
-            areaFractionSum += std::abs(determinantValue);
-            pad.femCohesiveMortarPatches.push_back(std::move(part));
+            double areaFractionSum = 0.0;
+            for (std::uint32_t tile = 0u; tile < tileMaps.size(); ++tile) {
+                CohesiveMortarPatchSource part = interface;
+                part.stableIdentifier = kFaceId + tile;
+                for (unsigned vertex = 0u; vertex < 3u; ++vertex) {
+                    part.sideAVertexBarycentric[vertex] =
+                        tileMaps[tile].first[vertex];
+                    part.sideBVertexBarycentric[vertex] =
+                        tileMaps[tile].second[vertex];
+                }
+                const auto& rows = part.sideAVertexBarycentric;
+                const double determinantValue =
+                    (rows[1][0] - rows[0][0]) * (rows[2][1] - rows[0][1]) -
+                    (rows[1][1] - rows[0][1]) * (rows[2][0] - rows[0][0]);
+                require(std::isfinite(determinantValue) &&
+                            std::abs(determinantValue) > 1.0e-12,
+                        "cohesive page-partition generated a degenerate integration triangle");
+                areaFractionSum += std::abs(determinantValue);
+                pad.femCohesiveMortarPatches.push_back(std::move(part));
+            }
+            const auto& original = interface.sideAVertexBarycentric;
+            const double originalAreaFraction = std::abs(
+                (original[1][0] - original[0][0]) *
+                    (original[2][1] - original[0][1]) -
+                (original[1][1] - original[0][1]) *
+                    (original[2][0] - original[0][0]));
+            require(std::abs(areaFractionSum - originalAreaFraction) <=
+                        1.0e-12 * std::max(1.0, originalAreaFraction),
+                    "cohesive page-partition does not conserve the authored mortar area");
+        } else {
+            // Exercise tiled paging over three neighboring interface faces,
+            // each with its own unique parent primitive pair. This remains the
+            // distinct-pair control for page-boundary parity.
+            std::vector<std::pair<Face, std::array<std::uint32_t, 2>>> pageFaces;
+            pageFaces.push_back({sideA, {firstTet, secondTet}});
+            for (const auto& [face, uses] : interfaceFaces) {
+                if (face == sideA) continue;
+                std::uint32_t lowerTet = NM_INVALID_INDEX;
+                std::uint32_t upperTet = NM_INVALID_INDEX;
+                for (const InterfaceFaceUse& use : uses) {
+                    if (use.upperHalf) upperTet = use.tetrahedron;
+                    else lowerTet = use.tetrahedron;
+                }
+                require(lowerTet < kLowerLayerTetCount &&
+                        upperTet >= kUpperLayerTetBegin &&
+                        upperTet < pad.tetrahedra.size(),
+                        "page parity face lacks a distinct lower/upper parent pair");
+                pageFaces.push_back({face, {lowerTet, upperTet}});
+                if (pageFaces.size() == 3u) break;
+            }
+            require(pageFaces.size() == 3u,
+                    "page parity fixture could not select three interface faces");
+            std::set<std::pair<std::uint32_t, std::uint32_t>> primitivePairs;
+            for (std::uint32_t tile = 0u; tile < pageFaces.size(); ++tile) {
+                Face orderedA = pageFaces[tile].first;
+                const auto& a0 = pad.femNodes.at(orderedA[0]);
+                const auto& a1 = pad.femNodes.at(orderedA[1]);
+                const auto& a2 = pad.femNodes.at(orderedA[2]);
+                const double signedAreaZ =
+                    (a1[0] - a0[0]) * (a2[1] - a0[1]) -
+                    (a1[1] - a0[1]) * (a2[0] - a0[0]);
+                require(std::isfinite(signedAreaZ) &&
+                        std::abs(signedAreaZ) > 1.0e-12,
+                        "page parity interface face has degenerate projected area");
+                if (signedAreaZ < 0.0) std::swap(orderedA[1], orderedA[2]);
+                std::array<std::uint32_t, 3> orderedB{};
+                for (unsigned local = 0u; local < 3u; ++local)
+                    orderedB[local] = upperNodeMap[orderedA[local]];
+                CohesiveMortarPatchSource part = interface;
+                part.stableIdentifier = kFaceId + tile;
+                part.sideANodes = orderedA;
+                part.sideBNodes = orderedB;
+                part.firstTetrahedron = pageFaces[tile].second[0];
+                part.secondTetrahedron = pageFaces[tile].second[1];
+                part.sideAVertexBarycentric = partialMortarPatch
+                    ? std::array<std::array<double, 3>, 3>{{
+                        {{0.7, 0.2, 0.1}}, {{0.2, 0.7, 0.1}}, {{0.2, 0.1, 0.7}}
+                      }}
+                    : std::array<std::array<double, 3>, 3>{{
+                        {{1.0, 0.0, 0.0}}, {{0.0, 1.0, 0.0}}, {{0.0, 0.0, 1.0}}
+                      }};
+                part.sideBVertexBarycentric = part.sideAVertexBarycentric;
+                const std::uint32_t primitiveA =
+                    4u * part.firstTetrahedron + oppositeCornerForFace(
+                        pad.tetrahedra[part.firstTetrahedron].nodes,
+                        part.sideANodes);
+                const std::uint32_t primitiveB =
+                    4u * part.secondTetrahedron + oppositeCornerForFace(
+                        pad.tetrahedra[part.secondTetrahedron].nodes,
+                        part.sideBNodes);
+                const auto pair = std::minmax(primitiveA, primitiveB);
+                require(primitivePairs.emplace(pair.first, pair.second).second,
+                        "page parity faces unexpectedly reuse a parent primitive pair");
+                pad.femCohesiveMortarPatches.push_back(std::move(part));
+            }
+            require(primitivePairs.size() == 3u,
+                    "multi-page parity fixture does not contain three distinct parent pairs");
         }
-        const auto& original = interface.sideAVertexBarycentric;
-        const double originalAreaFraction = std::abs(
-            (original[1][0] - original[0][0]) *
-                (original[2][1] - original[0][1]) -
-            (original[1][1] - original[0][1]) *
-                (original[2][0] - original[0][0]));
-        require(std::abs(areaFractionSum - originalAreaFraction) <=
-                    1.0e-12 * std::max(1.0, originalAreaFraction),
-                "cohesive page-partition does not conserve the authored mortar area");
     }
 
     if (highSparsePairDomain) {
@@ -1359,6 +1474,160 @@ void verifyPrescribedBoxCompilerAdmission(const MaterialProgram& bulk) {
             "compiler admitted a free dynamic BOX as endpoint-prescribed tooling");
     std::cout << "prescribed_box_compiler_admission=pass"
               << " nonunit_barrier_and_dynamic_box_rejected=true\n";
+}
+
+void verifyMortarParentPrimitivePairAdmission(const MaterialProgram& bulk) {
+    const auto compileMortarFixture = [](const WorldSource& source) {
+        CompileOptions options;
+        options.maximumRateExponent = 0u;
+        options.emitSpecializedMetal = false;
+        options.localMaterialNewtonIterations = 16u;
+        return compileWorld(source, options);
+    };
+    MeshAndWorld distinct = makeWorld(
+        bulk, false, true, kActivationGap, false, 3u, false);
+    const CompileResult accepted = compileMortarFixture(distinct.world);
+    require(accepted.succeeded() &&
+            accepted.world.dispatch.cohesiveFaceCount == 3u &&
+            std::all_of(accepted.world.fem.cohesiveFaces.begin(),
+                accepted.world.fem.cohesiveFaces.end(),
+                [](const NMCohesiveFaceGPU& face) {
+                    return (face.adjacency.w &
+                        NM_TOPOLOGY_COHESIVE_DORMANT) != 0u;
+                }),
+            "three-page distinct-parent mortar source did not compile dormant");
+
+    MeshAndWorld disjoint = makeWorld(
+        bulk, false, true, kActivationGap, false, 3u, true);
+    const auto& disjointPatches =
+        disjoint.world.objects.at(0u).femCohesiveMortarPatches;
+    require(disjointPatches.size() == 3u &&
+            std::all_of(disjointPatches.begin(), disjointPatches.end(),
+                [&](const CohesiveMortarPatchSource& patch) {
+                    const std::uint32_t primitiveA =
+                        4u * patch.firstTetrahedron + oppositeCornerForFace(
+                            disjoint.world.objects.at(0u).tetrahedra.at(
+                                patch.firstTetrahedron).nodes, patch.sideANodes);
+                    const std::uint32_t primitiveB =
+                        4u * patch.secondTetrahedron + oppositeCornerForFace(
+                            disjoint.world.objects.at(0u).tetrahedra.at(
+                                patch.secondTetrahedron).nodes, patch.sideBNodes);
+                    const std::uint32_t firstPrimitiveA =
+                        4u * disjointPatches.front().firstTetrahedron +
+                        oppositeCornerForFace(
+                            disjoint.world.objects.at(0u).tetrahedra.at(
+                                disjointPatches.front().firstTetrahedron).nodes,
+                            disjointPatches.front().sideANodes);
+                    const std::uint32_t firstPrimitiveB =
+                        4u * disjointPatches.front().secondTetrahedron +
+                        oppositeCornerForFace(
+                            disjoint.world.objects.at(0u).tetrahedra.at(
+                                disjointPatches.front().secondTetrahedron).nodes,
+                            disjointPatches.front().sideBNodes);
+                    const auto pair = std::minmax(primitiveA, primitiveB);
+                    const auto firstPair = std::minmax(firstPrimitiveA, firstPrimitiveB);
+                    return pair.first == firstPair.first && pair.second == firstPair.second;
+                }),
+            "disjoint union-control patches no longer share their authored parent pair");
+    const CompileResult disjointAccepted = compileMortarFixture(disjoint.world);
+    require(disjointAccepted.succeeded() &&
+            disjointAccepted.world.dispatch.cohesiveFaceCount == 3u,
+            "three disjoint same-parent patches were not admitted by bounded union support");
+
+    MeshAndWorld fourPatch = makeWorld(
+        bulk, false, true, kActivationGap, false, 4u, true);
+    require(fourPatch.world.objects.at(0u).femCohesiveMortarPatches.size() == 4u &&
+            compileMortarFixture(fourPatch.world).succeeded(),
+            "four disjoint same-parent patches were not admitted by bounded support");
+    MeshAndWorld overCapacity = makeWorld(
+        bulk, false, true, kActivationGap, false, 4u, true);
+    CohesiveMortarPatchSource fifth =
+        overCapacity.world.objects.at(0u).femCohesiveMortarPatches.front();
+    fifth.stableIdentifier += 10u;
+    overCapacity.world.objects.at(0u).femCohesiveMortarPatches.push_back(fifth);
+    const CompileResult capacityRejected = compileMortarFixture(overCapacity.world);
+    require(!capacityRejected.succeeded() &&
+            std::any_of(capacityRejected.diagnostics.begin(), capacityRejected.diagnostics.end(),
+                [](const Diagnostic& diagnostic) {
+                    return diagnostic.severity == Diagnostic::Severity::error &&
+                        diagnostic.message.find(
+                            "supports at most four mixed-mode cohesive patches per canonical parent primitive pair")
+                            != std::string::npos;
+                }),
+            "fifth same-parent mortar patch was not rejected at explicit capacity");
+
+    MeshAndWorld overlapping = makeWorld(
+        bulk, false, true, kActivationGap, false, 3u, true);
+    auto& overlapPatches =
+        overlapping.world.objects.at(0u).femCohesiveMortarPatches;
+    overlapPatches[1].sideAVertexBarycentric =
+        overlapPatches[0].sideAVertexBarycentric;
+    overlapPatches[1].sideBVertexBarycentric =
+        overlapPatches[0].sideBVertexBarycentric;
+    const CompileResult overlapAccepted = compileMortarFixture(overlapping.world);
+    require(overlapAccepted.succeeded(),
+            "runtime-overlap negative control should reach native fail-closed partition validation");
+
+    MeshAndWorld noSelfContact = makeWorld(
+        bulk, false, true, kActivationGap, false, 3u, true);
+    noSelfContact.world.objects.at(0u).deformableSelfContact = false;
+    const CompileResult noncontactAccepted = compileMortarFixture(noSelfContact.world);
+    require(noncontactAccepted.succeeded() &&
+            noncontactAccepted.world.dispatch.cohesiveFaceCount == 3u,
+            "duplicate parent mortar patches were rejected despite self-contact being disabled");
+
+    MeshAndWorld mixedInterfaceConflict = makeWorld(
+        bulk, false, true, kActivationGap, false, 1u);
+    const CohesiveMortarPatchSource& mortar =
+        mixedInterfaceConflict.world.objects.at(0u).femCohesiveMortarPatches.at(0u);
+    // Paired-node interfaces require coincident authored coordinates, while
+    // this fixture's standard mortar case has a small open gap. For this
+    // compile-only identity/capacity control, close the duplicated nodes
+    // exactly so both source representations refer to the same conforming
+    // parent face without introducing overlapping tetrahedron interiors.
+    auto& mixedInterfaceObject =
+        mixedInterfaceConflict.world.objects.at(0u);
+    for (unsigned node = 0u; node < 3u; ++node) {
+        mixedInterfaceObject.femNodes.at(mortar.sideBNodes[node]) =
+            mixedInterfaceObject.femNodes.at(mortar.sideANodes[node]);
+        mixedInterfaceObject.femReferenceNodes.at(mortar.sideBNodes[node]) =
+            mixedInterfaceObject.femReferenceNodes.at(mortar.sideANodes[node]);
+    }
+    CohesiveInterfaceSource pairedInterface;
+    pairedInterface.sideANodes = mortar.sideANodes;
+    pairedInterface.sideBNodes = mortar.sideBNodes;
+    pairedInterface.firstTetrahedron = mortar.firstTetrahedron;
+    pairedInterface.secondTetrahedron = mortar.secondTetrahedron;
+    pairedInterface.materialIndex = mortar.materialIndex;
+    pairedInterface.stableIdentifier = kFaceId + 100u;
+    pairedInterface.lawKind = CohesiveLawKind::mixedModeBilinear;
+    pairedInterface.cohesiveMaterialIndex = mortar.cohesiveMaterialIndex;
+    pairedInterface.activationGapToleranceM = mortar.activationGapToleranceM;
+    mixedInterfaceConflict.world.objects.at(0u).femCohesiveInterfaces.push_back(
+        pairedInterface);
+    const CompileResult mixedInterfaceAccepted = compileMortarFixture(
+        mixedInterfaceConflict.world);
+    if (!mixedInterfaceAccepted.succeeded()) {
+        for (const Diagnostic& diagnostic : mixedInterfaceAccepted.diagnostics)
+            if (diagnostic.severity == Diagnostic::Severity::error)
+                std::cerr << "MIXED_INTERFACE_DIAGNOSTIC: " << diagnostic.message << "\n";
+    }
+    require(mixedInterfaceAccepted.succeeded(),
+            "mixed-mode paired face plus mortar patch should share the bounded patch-set path");
+    mixedInterfaceConflict.world.objects.at(0u).deformableSelfContact = false;
+    const CompileResult noncontactMixedInterfaceAccepted = compileMortarFixture(
+        mixedInterfaceConflict.world);
+    require(noncontactMixedInterfaceAccepted.succeeded(),
+            "multiple mixed-mode faces on an exact pair were rejected in a noncontact world");
+
+    std::cout << "mortar_parent_pair_admission=pass"
+              << " distinct_dormant_pairs=3 accepted=true"
+              << " disjoint_same_pair_accepted=true"
+              << " fifth_same_pair_patch_rejected=true"
+              << " runtime_overlap_control_compiles_for_fail_closed_test=true"
+              << " self_contact_disabled_duplicate_pairs_accepted=true"
+              << " mixed_interface_mortar_pair_accepted=true"
+              << " physical_overlap_claim=false native_union_check_required=true\n";
 }
 
 MRBodyStateGPU bodyAt(const ToolPose pose, const float velocityZ) {
@@ -1729,21 +1998,111 @@ enum class PrivateSelfSweepCase {
     fullyCoveredCrossing,
     partialUncoveredCrossing,
     partialCoveredCrossing,
+    threePatchCoveredCrossing,
+    fourPatchMatchedCrossing,
+    threePatchBoundaryCommonTranslation,
+    threePatchBoundarySeparating,
+    threePatchBoundarySlidingCrossing,
+    threePatchUncoveredCrossing,
+    threePatchCrossIdentityCrossing,
+    threePatchOverlapRejected,
     initiallyTouchingSeparating,
 };
 
-NMMatterStatusGPU runPrivateSelfSweepKernelCase(
+struct PrivateSelfSweepRun {
+    NMMatterStatusGPU status{};
+    std::string inputBuffersJSON;
+};
+
+std::string privateSelfSweepHex(const void* bytes, const std::size_t count) {
+    const auto* values = static_cast<const std::uint8_t*>(bytes);
+    std::ostringstream stream;
+    stream << std::hex << std::setfill('0');
+    for (std::size_t index = 0u; index < count; ++index)
+        stream << std::setw(2) << static_cast<unsigned>(values[index]);
+    return stream.str();
+}
+
+std::string privateSelfSweepInputBuffersJSON(
+        const NMMatterDispatchGPU& dispatch,
+        const NMMixedSolverGPU& solver,
+        const std::vector<NMContinuumSurfacePrimitiveGPU>& primitives,
+        const NMDeformableContactCandidateGPU& candidate,
+        const std::uint32_t candidateCount,
+        const std::vector<NMFEMNodeStateGPU>& base,
+        const std::vector<NMFEMNodeStateGPU>& trial,
+        const std::vector<NMIncidenceRangeGPU>& ranges,
+        const std::vector<nm_uint4>& references,
+        const std::vector<NMCohesiveFaceGPU>& faces,
+        const NMMatterStatusGPU& initialStatus,
+        const std::vector<NMContinuumObjectGPU>& objects) {
+    std::ostringstream stream;
+    stream << "{\"byte_order\":\"little-endian\",\"fields\":[";
+    bool first = true;
+    const auto field = [&stream, &first](const char* name, const void* data,
+                                         const std::size_t bytes) {
+        if (!first) stream << ',';
+        first = false;
+        stream << "{\"name\":\"" << name << "\",\"byte_count\":"
+               << bytes << ",\"hex\":\""
+               << privateSelfSweepHex(data, bytes) << "\"}";
+    };
+    const std::uint16_t endianProbe = 1u;
+    require(*reinterpret_cast<const std::uint8_t*>(&endianProbe) == 1u,
+            "private self-sweep fixture input export requires little endian");
+    field("dispatch_buffer_0", &dispatch, sizeof(dispatch));
+    field("solver_buffer_1", &solver, sizeof(solver));
+    field("primitives_buffer_2", primitives.data(),
+          primitives.size() * sizeof(primitives.front()));
+    field("candidate_buffer_3", &candidate, sizeof(candidate));
+    field("candidate_count_buffer_4", &candidateCount, sizeof(candidateCount));
+    field("base_nodes_buffer_5", base.data(), base.size() * sizeof(base.front()));
+    field("trial_nodes_buffer_6", trial.data(), trial.size() * sizeof(trial.front()));
+    field("incidence_ranges_buffer_7", ranges.data(),
+          ranges.size() * sizeof(ranges.front()));
+    field("cohesive_references_buffer_8", references.data(),
+          references.size() * sizeof(references.front()));
+    field("cohesive_faces_buffer_9", faces.data(),
+          faces.size() * sizeof(faces.front()));
+    field("initial_status_buffer_10", &initialStatus, sizeof(initialStatus));
+    field("objects_buffer_11", objects.data(),
+          objects.size() * sizeof(objects.front()));
+    stream << "]}";
+    return stream.str();
+}
+
+PrivateSelfSweepRun runPrivateSelfSweepKernelCase(
         id<MTLDevice> device,
         id<MTLCommandQueue> queue,
         id<MTLComputePipelineState> pipeline,
-        const PrivateSelfSweepCase fixtureCase) {
+        const PrivateSelfSweepCase fixtureCase,
+        std::string* capturedInputBuffersJSON = nullptr) {
     const bool hasMortar =
         fixtureCase == PrivateSelfSweepCase::fullyCoveredCrossing ||
         fixtureCase == PrivateSelfSweepCase::partialUncoveredCrossing ||
-        fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing;
+        fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing ||
+        fixtureCase == PrivateSelfSweepCase::threePatchCoveredCrossing ||
+        fixtureCase == PrivateSelfSweepCase::threePatchBoundaryCommonTranslation ||
+        fixtureCase == PrivateSelfSweepCase::threePatchBoundarySeparating ||
+        fixtureCase == PrivateSelfSweepCase::threePatchBoundarySlidingCrossing ||
+        fixtureCase == PrivateSelfSweepCase::fourPatchMatchedCrossing ||
+        fixtureCase == PrivateSelfSweepCase::threePatchUncoveredCrossing ||
+        fixtureCase == PrivateSelfSweepCase::threePatchCrossIdentityCrossing ||
+        fixtureCase == PrivateSelfSweepCase::threePatchOverlapRejected;
+    const bool threePatches =
+        fixtureCase == PrivateSelfSweepCase::threePatchCoveredCrossing ||
+        fixtureCase == PrivateSelfSweepCase::threePatchBoundaryCommonTranslation ||
+        fixtureCase == PrivateSelfSweepCase::threePatchBoundarySeparating ||
+        fixtureCase == PrivateSelfSweepCase::threePatchBoundarySlidingCrossing ||
+        fixtureCase == PrivateSelfSweepCase::threePatchUncoveredCrossing ||
+        fixtureCase == PrivateSelfSweepCase::threePatchCrossIdentityCrossing ||
+        fixtureCase == PrivateSelfSweepCase::threePatchOverlapRejected;
+    const bool fourPatches =
+        fixtureCase == PrivateSelfSweepCase::fourPatchMatchedCrossing;
     const bool partialMortar =
         fixtureCase == PrivateSelfSweepCase::partialUncoveredCrossing ||
-        fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing;
+        fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing ||
+        fixtureCase == PrivateSelfSweepCase::threePatchUncoveredCrossing;
     const bool separatedMiss =
         fixtureCase == PrivateSelfSweepCase::separatedMiss;
     const bool initiallyTouching =
@@ -1753,7 +2112,8 @@ NMMatterStatusGPU runPrivateSelfSweepKernelCase(
     dispatch.objectCount = 1u;
     dispatch.femNodeCount = 8u;
     dispatch.tetrahedronCount = 2u;
-    dispatch.cohesiveFaceCount = hasMortar ? 1u : 0u;
+    dispatch.cohesiveFaceCount = hasMortar
+        ? (fourPatches ? 4u : (threePatches ? 3u : 1u)) : 0u;
     dispatch.deformableContactCapacity = 1u;
     dispatch.numericalLimits = {1.0e-3f, 0.0f, 1.0e-8f, 1.0e20f};
 
@@ -1775,20 +2135,55 @@ NMMatterStatusGPU runPrivateSelfSweepKernelCase(
         base[featureIndex + 1u].positionAndMass =
             {point[0], point[1], point[2], 1.0f};
         trial[featureIndex + 1u] = base[featureIndex + 1u];
-        const float startZ = initiallyTouching ? 0.0f : 2.0e-4f;
-        float endZ = 2.0e-4f;
+        const bool boundarySeparating =
+            fixtureCase == PrivateSelfSweepCase::threePatchBoundarySeparating;
+        const bool boundaryCommonTranslation =
+            fixtureCase == PrivateSelfSweepCase::threePatchBoundaryCommonTranslation;
+        const bool boundarySliding =
+            fixtureCase == PrivateSelfSweepCase::threePatchBoundarySlidingCrossing;
+        const float leftStartZ = boundaryCommonTranslation || boundarySeparating || boundarySliding
+            ? 0.0f : (initiallyTouching ? 0.0f : 2.0e-4f);
+        float leftEndZ = 2.0e-4f;
+        float rightStartZ = leftStartZ;
+        float rightEndZ = leftEndZ;
         if (fixtureCase == PrivateSelfSweepCase::unbondedCrossing ||
             fixtureCase == PrivateSelfSweepCase::fullyCoveredCrossing ||
-            fixtureCase == PrivateSelfSweepCase::partialUncoveredCrossing)
-            endZ = -2.0e-4f;
+            fixtureCase == PrivateSelfSweepCase::partialUncoveredCrossing ||
+            fixtureCase == PrivateSelfSweepCase::threePatchCoveredCrossing ||
+            fixtureCase == PrivateSelfSweepCase::fourPatchMatchedCrossing ||
+            fixtureCase == PrivateSelfSweepCase::threePatchUncoveredCrossing ||
+            fixtureCase == PrivateSelfSweepCase::threePatchCrossIdentityCrossing ||
+            fixtureCase == PrivateSelfSweepCase::threePatchOverlapRejected)
+            leftEndZ = rightEndZ = -2.0e-4f;
         else if (fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing &&
                  featureIndex == 0u)
-            endZ = -2.0e-4f;
+            leftEndZ = rightEndZ = -2.0e-4f;
+        if (boundaryCommonTranslation) {
+            // Both parent triangles share the exact same translation under
+            // linear endpoint interpolation, so their common boundary stays
+            // closed throughout the sweep.
+            leftEndZ = rightEndZ = 1.0e-4f;
+        } else if (boundarySeparating) {
+            leftEndZ = 0.0f;
+            rightStartZ = 0.0f;
+            rightEndZ = 2.0e-4f;
+        } else if (boundarySliding) {
+            leftEndZ = 0.0f;
+            rightStartZ = 2.0e-4f;
+            rightEndZ = -2.0e-4f;
+        }
         const float lateral = separatedMiss ? 2.0e-2f : 0.0f;
         base[featureIndex + 5u].positionAndMass =
-            {point[0] + lateral, point[1], startZ, 1.0f};
+            {point[0] + lateral, point[1], rightStartZ, 1.0f};
+        const float slideTangentX = -0.894427191f;
+        const float slideTangentY = 0.447213596f;
+        const float slideDistance = boundarySliding ? 5.0e-4f : 0.0f;
         trial[featureIndex + 5u].positionAndMass =
-            {point[0] + lateral, point[1], endZ, 1.0f};
+            {point[0] + lateral + slideDistance * slideTangentX,
+             point[1] + slideDistance * slideTangentY,
+             rightEndZ, 1.0f};
+        base[featureIndex + 1u].positionAndMass.z = leftStartZ;
+        trial[featureIndex + 1u].positionAndMass.z = leftEndZ;
     }
 
     std::vector<NMContinuumSurfacePrimitiveGPU> primitives(8u);
@@ -1816,52 +2211,97 @@ NMMatterStatusGPU runPrivateSelfSweepKernelCase(
     // covered-only crossing moves the x=1 corner through the lower face while
     // the complement remains separated by more than the CCD floor.
     std::vector<NMIncidenceRangeGPU> ranges(8u);
-    std::array<nm_uint4, 2> references{};
-    NMCohesiveFaceGPU face{};
-    std::vector<NMCohesiveFaceGPU> faces;
+    std::vector<nm_uint4> references(2u * dispatch.cohesiveFaceCount);
+    std::vector<NMCohesiveFaceGPU> faces(
+        std::max(1u, dispatch.cohesiveFaceCount));
     if (hasMortar) {
-        ranges[0u] = {0u, 1u, 0u, 0u};
-        references[0u] = {4u, 0u, 0u, 0u};
-        face.nodesAndFirst = {1u, 2u, 3u, 0u};
-        face.adjacency = {
-            1u, 0u, kFaceId,
-            NM_TOPOLOGY_ACTIVE | NM_TOPOLOGY_PAIRED_COHESIVE |
-                NM_TOPOLOGY_COHESIVE_MIXED_MODE |
-                NM_TOPOLOGY_COHESIVE_MORTAR
-        };
-        face.separatedNodes = {5u, 6u, 7u, 0u};
-        face.lawIdentity.x = NM_COHESIVE_LAW_MIXED_MODE_BILINEAR;
-        const std::array<nm_float4, 3> patchWeights = partialMortar
-            ? std::array<nm_float4, 3>{{
-                {1.0f, 0.0f, 0.0f, 0.0f},
-                {0.35f, 0.65f, 0.0f, 0.0f},
-                {0.35f, 0.0f, 0.65f, 0.0f},
-            }}
-            : std::array<nm_float4, 3>{{
-                {1.0f, 0.0f, 0.0f, 0.0f},
-                {0.0f, 1.0f, 0.0f, 0.0f},
-                {0.0f, 0.0f, 1.0f, 0.0f},
-            }};
-        for (std::size_t index = 0u; index < patchWeights.size(); ++index) {
-            face.mortarSideAVertexWeights[index] = patchWeights[index];
-            face.mortarSideBVertexWeights[index] = patchWeights[index];
+        ranges[0u] = {0u, dispatch.cohesiveFaceCount, 0u, 0u};
+        const std::array<std::array<unsigned, 3>, 3> sectorVertices{{
+            {{0u, 1u, 3u}}, {{1u, 2u, 3u}}, {{2u, 0u, 3u}}
+        }};
+        const std::array<std::array<float, 3>, 4> fullVertices{{
+            {{1.0f, 0.0f, 0.0f}}, {{0.0f, 1.0f, 0.0f}},
+            {{0.0f, 0.0f, 1.0f}}, {{1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f}}
+        }};
+        const std::array<std::array<float, 3>, 6> fourVertices{{
+            {{1.0f, 0.0f, 0.0f}}, {{0.0f, 1.0f, 0.0f}},
+            {{0.0f, 0.0f, 1.0f}}, {{0.5f, 0.5f, 0.0f}},
+            {{0.0f, 0.5f, 0.5f}}, {{0.5f, 0.0f, 0.5f}}
+        }};
+        const std::array<std::array<unsigned, 3>, 4> fourTileVertices{{
+            {{0u, 3u, 5u}}, {{3u, 1u, 4u}},
+            {{5u, 4u, 2u}}, {{3u, 4u, 5u}}
+        }};
+        const std::array<std::array<float, 3>, 4> partialVertices{{
+            {{1.0f, 0.0f, 0.0f}}, {{0.35f, 0.65f, 0.0f}},
+            {{0.35f, 0.0f, 0.65f}}, {{0.5666666667f, 0.2166666667f, 0.2166666667f}}
+        }};
+        for (std::uint32_t patchIndex = 0u;
+             patchIndex < dispatch.cohesiveFaceCount; ++patchIndex) {
+            NMCohesiveFaceGPU& face = faces[patchIndex];
+            face.nodesAndFirst = {1u, 2u, 3u, 0u};
+            face.adjacency = {
+                1u, 0u, kFaceId + patchIndex,
+                NM_TOPOLOGY_ACTIVE | NM_TOPOLOGY_PAIRED_COHESIVE |
+                    NM_TOPOLOGY_COHESIVE_MIXED_MODE |
+                    NM_TOPOLOGY_COHESIVE_MORTAR
+            };
+            face.separatedNodes = {5u, 6u, 7u, 0u};
+            face.lawIdentity.x = NM_COHESIVE_LAW_MIXED_MODE_BILINEAR;
+            references[patchIndex] = {4u, patchIndex, 0u, 0u};
+            const std::uint32_t sideBOffset =
+                fixtureCase == PrivateSelfSweepCase::threePatchCrossIdentityCrossing
+                    ? (patchIndex + 1u) % 3u : patchIndex;
+            for (std::uint32_t vertex = 0u; vertex < 3u; ++vertex) {
+                std::array<float, 3> sideA{};
+                std::array<float, 3> sideB{};
+                if (fourPatches) {
+                    sideA = fourVertices[fourTileVertices[patchIndex][vertex]];
+                    sideB = sideA;
+                } else if (!threePatches) {
+                    const auto& values = partialMortar
+                        ? partialVertices : fullVertices;
+                    sideA = values[vertex];
+                    sideB = values[vertex];
+                } else if (fixtureCase ==
+                           PrivateSelfSweepCase::threePatchOverlapRejected) {
+                    sideA = fullVertices[vertex];
+                    sideB = fullVertices[vertex];
+                } else {
+                    const auto& vertices = partialMortar
+                        ? partialVertices : fullVertices;
+                    const auto& sideASector = sectorVertices[patchIndex];
+                    const auto& sideBSector = sectorVertices[sideBOffset];
+                    sideA = vertices[sideASector[vertex]];
+                    sideB = vertices[sideBSector[vertex]];
+                }
+                face.mortarSideAVertexWeights[vertex] = {
+                    sideA[0], sideA[1], sideA[2], 0.0f};
+                face.mortarSideBVertexWeights[vertex] = {
+                    sideB[0], sideB[1], sideB[2], 0.0f};
+            }
         }
-        faces.push_back(face);
-    } else {
-        faces.push_back(NMCohesiveFaceGPU{});
     }
 
     const auto buffer = [device] (const auto& value) {
         using Element = typename std::decay_t<decltype(value)>::value_type;
-        return [device newBufferWithBytes:value.data()
+        const Element zero{};
+        const Element* bytes = value.empty() ? &zero : value.data();
+        return [device newBufferWithBytes:bytes
             length:std::max<std::size_t>(1u, value.size()) * sizeof(Element)
             options:MTLResourceStorageModeShared];
     };
+    const std::vector<NMContinuumObjectGPU> objects{object};
+    NMMatterStatusGPU initialStatus{};
+    const std::string inputBuffersJSON = privateSelfSweepInputBuffersJSON(
+        dispatch, solver, primitives, candidate, candidateCount, base, trial,
+        ranges, references, faces, initialStatus, objects);
+    if (capturedInputBuffersJSON != nullptr)
+        *capturedInputBuffersJSON = inputBuffersJSON;
     id<MTLBuffer> dispatchBuffer = [device newBufferWithBytes:&dispatch
         length:sizeof(dispatch) options:MTLResourceStorageModeShared];
     id<MTLBuffer> solverBuffer = [device newBufferWithBytes:&solver
         length:sizeof(solver) options:MTLResourceStorageModeShared];
-    const std::vector<NMContinuumObjectGPU> objects{object};
     id<MTLBuffer> primitiveBuffer = buffer(primitives);
     id<MTLBuffer> candidateBuffer = [device newBufferWithBytes:&candidate
         length:sizeof(candidate) options:MTLResourceStorageModeShared];
@@ -1870,10 +2310,8 @@ NMMatterStatusGPU runPrivateSelfSweepKernelCase(
     id<MTLBuffer> baseBuffer = buffer(base);
     id<MTLBuffer> trialBuffer = buffer(trial);
     id<MTLBuffer> rangeBuffer = buffer(ranges);
-    id<MTLBuffer> referenceBuffer = [device newBufferWithBytes:references.data()
-        length:sizeof(references) options:MTLResourceStorageModeShared];
+    id<MTLBuffer> referenceBuffer = buffer(references);
     id<MTLBuffer> faceBuffer = buffer(faces);
-    NMMatterStatusGPU initialStatus{};
     id<MTLBuffer> statusBuffer = [device newBufferWithBytes:&initialStatus
         length:sizeof(initialStatus) options:MTLResourceStorageModeShared];
     id<MTLBuffer> objectBuffer = buffer(objects);
@@ -1907,7 +2345,9 @@ NMMatterStatusGPU runPrivateSelfSweepKernelCase(
     [command waitUntilCompleted];
     require(command.status == MTLCommandBufferStatusCompleted,
             "private self-sweep native command did not complete");
-    return *static_cast<const NMMatterStatusGPU*>(statusBuffer.contents);
+    const NMMatterStatusGPU status =
+        *static_cast<const NMMatterStatusGPU*>(statusBuffer.contents);
+    return {status, inputBuffersJSON};
 }
 
 void verifyArmijoAlphaPublication() {
@@ -2203,7 +2643,56 @@ void verifyArmijoAlphaPublication() {
               << " physical_validation=false\n";
 }
 
-void verifyPrivateSelfSweepValidator() {
+std::string privateSelfSweepCaseName(const PrivateSelfSweepCase fixtureCase) {
+    switch (fixtureCase) {
+        case PrivateSelfSweepCase::unbondedCrossing: return "unbonded_crossing";
+        case PrivateSelfSweepCase::separatedMiss: return "separated_miss";
+        case PrivateSelfSweepCase::fullyCoveredCrossing: return "fully_covered_crossing";
+        case PrivateSelfSweepCase::partialUncoveredCrossing: return "partial_uncovered_crossing";
+        case PrivateSelfSweepCase::partialCoveredCrossing: return "partial_covered_crossing";
+        case PrivateSelfSweepCase::threePatchCoveredCrossing: return "three_patch_covered_crossing";
+        case PrivateSelfSweepCase::fourPatchMatchedCrossing: return "four_patch_matched_crossing";
+        case PrivateSelfSweepCase::threePatchBoundaryCommonTranslation: return "three_patch_boundary_common_translation";
+        case PrivateSelfSweepCase::threePatchBoundarySeparating: return "three_patch_boundary_separating";
+        case PrivateSelfSweepCase::threePatchBoundarySlidingCrossing: return "three_patch_boundary_sliding_crossing";
+        case PrivateSelfSweepCase::threePatchUncoveredCrossing: return "three_patch_uncovered_crossing";
+        case PrivateSelfSweepCase::threePatchCrossIdentityCrossing: return "three_patch_cross_identity_crossing";
+        case PrivateSelfSweepCase::threePatchOverlapRejected: return "three_patch_overlap_rejected";
+        case PrivateSelfSweepCase::initiallyTouchingSeparating: return "initially_touching_separating";
+    }
+    return "unknown";
+}
+
+std::string privateSelfSweepJsonEscape(const std::string& value) {
+    std::ostringstream escaped;
+    for (const unsigned char character : value) {
+        switch (character) {
+            case '"': escaped << "\\\""; break;
+            case '\\': escaped << "\\\\"; break;
+            case '\n': escaped << "\\n"; break;
+            case '\r': escaped << "\\r"; break;
+            case '\t': escaped << "\\t"; break;
+            default:
+                if (character < 0x20u)
+                    escaped << "\\u" << std::hex << std::setw(4)
+                            << std::setfill('0') << static_cast<unsigned>(character)
+                            << std::dec;
+                else
+                    escaped << static_cast<char>(character);
+        }
+    }
+    return escaped.str();
+}
+
+std::string privateSelfSweepJsonNumber(const float value) {
+    if (std::isnan(value)) return "\"nan\"";
+    if (std::isinf(value)) return value > 0.0f ? "\"+inf\"" : "\"-inf\"";
+    std::ostringstream number;
+    number << std::setprecision(9) << value;
+    return number.str();
+}
+
+void verifyPrivateSelfSweepValidator(const bool exhaustiveDiagnostics) {
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
     require(device != nil, "private self-sweep test requires a Metal device");
     const std::string metallibPath = NUMI_MATTER_METALLIB;
@@ -2230,37 +2719,117 @@ void verifyPrivateSelfSweepValidator() {
     id<MTLCommandQueue> queue = [device newCommandQueue];
     require(queue != nil, "private self-sweep test command queue unavailable");
 
-    const NMMatterStatusGPU crossing = runPrivateSelfSweepKernelCase(
-        device, queue, pipeline, PrivateSelfSweepCase::unbondedCrossing);
-    require(crossing.code == NM_STATUS_CONTACT_FAILURE,
-            "endpoint-clear triangle sweep crossing was not rejected by production validator");
-    const NMMatterStatusGPU miss = runPrivateSelfSweepKernelCase(
-        device, queue, pipeline, PrivateSelfSweepCase::separatedMiss);
-    require(miss.code == NM_STATUS_SUCCESS,
-            "separated triangle sweep miss was not admitted by production validator");
-    const NMMatterStatusGPU covered = runPrivateSelfSweepKernelCase(
-        device, queue, pipeline, PrivateSelfSweepCase::fullyCoveredCrossing);
-    require(covered.code == NM_STATUS_SUCCESS,
-            "fully covered active mortar parent pair duplicated self-contact rejection");
-    const NMMatterStatusGPU partialUncovered = runPrivateSelfSweepKernelCase(
-        device, queue, pipeline,
-        PrivateSelfSweepCase::partialUncoveredCrossing);
-    require(partialUncovered.code == NM_STATUS_CONTACT_FAILURE,
-            "crossing through the uncovered complement of a partial active mortar patch was admitted");
-    const NMMatterStatusGPU partialCovered = runPrivateSelfSweepKernelCase(
-        device, queue, pipeline, PrivateSelfSweepCase::partialCoveredCrossing);
-    require(partialCovered.code == NM_STATUS_SUCCESS,
-            "crossing confined to a partial active mortar patch duplicated self-contact rejection");
-    const NMMatterStatusGPU touchingSeparating = runPrivateSelfSweepKernelCase(
-        device, queue, pipeline,
-        PrivateSelfSweepCase::initiallyTouchingSeparating);
-    require(touchingSeparating.code == NM_STATUS_CONTACT_FAILURE,
-            "initially touching unbonded separating ray was not explicitly rejected as unsupported");
+    struct CaseExpectation {
+        PrivateSelfSweepCase fixtureCase;
+        std::uint32_t expectedCode;
+        const char* expectation;
+    };
+    const std::array<CaseExpectation, 14> cases{{
+        {PrivateSelfSweepCase::unbondedCrossing, NM_STATUS_CONTACT_FAILURE,
+         "reject unbonded swept crossing"},
+        {PrivateSelfSweepCase::separatedMiss, NM_STATUS_SUCCESS,
+         "accept separated miss"},
+        {PrivateSelfSweepCase::fullyCoveredCrossing, NM_STATUS_SUCCESS,
+         "exclude fully covered active mortar crossing from self-contact"},
+        {PrivateSelfSweepCase::partialUncoveredCrossing, NM_STATUS_CONTACT_FAILURE,
+         "reject crossing through partial-patch complement"},
+        {PrivateSelfSweepCase::partialCoveredCrossing, NM_STATUS_SUCCESS,
+         "exclude crossing confined to partial active mortar patch"},
+        {PrivateSelfSweepCase::threePatchCoveredCrossing, NM_STATUS_SUCCESS,
+         "accept closure across three matched mortar patches"},
+        {PrivateSelfSweepCase::fourPatchMatchedCrossing, NM_STATUS_SUCCESS,
+         "accept closure across four matched mortar patches"},
+        {PrivateSelfSweepCase::threePatchBoundaryCommonTranslation, NM_STATUS_SUCCESS,
+         "accept exact common translation over the whole sweep"},
+        {PrivateSelfSweepCase::threePatchBoundarySeparating, NM_STATUS_SUCCESS,
+         "accept paired shared-edge separation"},
+        {PrivateSelfSweepCase::threePatchBoundarySlidingCrossing, NM_STATUS_CONTACT_FAILURE,
+         "reject cross-patch collision during tangential slide"},
+        {PrivateSelfSweepCase::threePatchUncoveredCrossing, NM_STATUS_CONTACT_FAILURE,
+         "reject crossing through three-patch union complement"},
+        {PrivateSelfSweepCase::threePatchCrossIdentityCrossing, NM_STATUS_CONTACT_FAILURE,
+         "reject collision between different covered-patch identities"},
+        {PrivateSelfSweepCase::threePatchOverlapRejected, NM_STATUS_CONTACT_FAILURE,
+         "reject overlapping active same-parent patches closed"},
+        {PrivateSelfSweepCase::initiallyTouchingSeparating, NM_STATUS_CONTACT_FAILURE,
+         "reject unsupported initially touching unbonded sweep"},
+    }};
+    std::size_t passed = 0u;
+    std::vector<std::string> failures;
+    for (const CaseExpectation& expected : cases) {
+        const std::string name = privateSelfSweepCaseName(expected.fixtureCase);
+        std::string capturedInputBuffersJSON;
+        try {
+            const PrivateSelfSweepRun run = runPrivateSelfSweepKernelCase(
+                device, queue, pipeline, expected.fixtureCase,
+                &capturedInputBuffersJSON);
+            const NMMatterStatusGPU& actual = run.status;
+            const bool matched = actual.code == expected.expectedCode;
+            if (matched) ++passed;
+            else failures.push_back(name + ": status code mismatch");
+            if (exhaustiveDiagnostics) {
+                std::cout << std::setprecision(9)
+                    << "{\"schema\":\"numi.matter.private_self_sweep_case.v1\","
+                    << "\"case\":\"" << name << "\","
+                    << "\"expected\":{\"code\":" << expected.expectedCode
+                    << ",\"outcome\":\"" << expected.expectation << "\"},"
+                    << "\"actual\":{\"code\":" << actual.code
+                    << ",\"environment\":" << actual.environment
+                    << ",\"object_index\":" << actual.objectIndex
+                    << ",\"failing_index\":" << actual.failingIndex
+                    << ",\"completed_microsteps\":" << actual.completedMicrosteps
+                    << ",\"fgmres_iterations\":" << actual.fgmresIterations
+                    << ",\"contact_count\":" << actual.contactCount
+                    << ",\"event_count\":" << actual.eventCount
+                    << ",\"diagnostics\":["
+                    << privateSelfSweepJsonNumber(actual.diagnostics.x) << ','
+                    << privateSelfSweepJsonNumber(actual.diagnostics.y) << ','
+                    << privateSelfSweepJsonNumber(actual.diagnostics.z) << ','
+                    << privateSelfSweepJsonNumber(actual.diagnostics.w) << "]},\"passed\":"
+                    << (matched ? "true" : "false")
+                    << ",\"input_buffers\":" << run.inputBuffersJSON << "}\n";
+            } else {
+                require(matched, name + " failed: expected " + expected.expectation +
+                    ", observed status " + std::to_string(actual.code));
+            }
+        } catch (const std::exception& error) {
+            failures.push_back(name + ": execution error");
+            if (exhaustiveDiagnostics) {
+                std::cout << "{\"schema\":\"numi.matter.private_self_sweep_case.v1\","
+                    << "\"case\":\"" << name << "\",\"expected\":{\"code\":"
+                    << expected.expectedCode << ",\"outcome\":\""
+                    << expected.expectation << "\"},\"execution_error\":\""
+                    << privateSelfSweepJsonEscape(error.what())
+                    << "\",\"passed\":false,\"input_buffers\":"
+                    << (capturedInputBuffersJSON.empty()
+                        ? "null" : capturedInputBuffersJSON) << "}\n";
+            } else {
+                throw;
+            }
+        }
+    }
+    if (exhaustiveDiagnostics) {
+        std::cout << "{\"schema\":\"numi.matter.private_self_sweep_summary.v1\","
+            << "\"case_count\":" << cases.size()
+            << ",\"passed\":" << passed
+            << ",\"failed\":" << failures.size()
+            << ",\"direct_production_kernel\":true"
+            << ",\"runtime_transaction\":false}\n";
+        require(failures.empty(),
+            "private self-sweep exhaustive diagnostic found expected-gate failures; "
+            "see preceding JSONL case records");
+    }
     std::cout << "private_self_sweep_validator=pass"
               << " endpoint_clear_crossing=rejected separated_miss=accepted"
               << " fully_covered_mortar_crossing=excluded_from_self_contact"
               << " partial_uncovered_crossing=rejected"
               << " partial_covered_crossing=excluded_from_self_contact"
+              << " three_patch_matched_closure=accepted"
+              << " four_patch_matched_closure=accepted"
+              << " exact_common_translation=accepted"
+              << " three_patch_uncovered_complement=rejected"
+              << " cross_patch_identity_collision=rejected"
+              << " overlapping_active_patches=rejected_closed"
               << " initial_unbonded_touch_separating=rejected_unsupported"
               << " direct_production_kernel=true runtime_transaction=false\n";
 }
@@ -2692,10 +3261,12 @@ AcceptedRollbackSequence runAcceptedAndRollback(
         const bool aliasProductionSurfaceScratch = false,
         const bool aliasCohesiveCandidateScratch = false,
         const std::uint32_t cohesivePatchTileCount = 1u,
-        const bool exerciseClosureAndNonuniformShear = false) {
+        const bool exerciseClosureAndNonuniformShear = false,
+        const bool sameParentMortarUnion = false) {
     tiledParityCurrentStage = "geometry_build";
     MeshAndWorld source = makeWorld(
-        bulk, false, true, 5.0e-6, false, cohesivePatchTileCount);
+        bulk, false, true, 5.0e-6, false, cohesivePatchTileCount,
+        sameParentMortarUnion);
     verifyPartialMortarSource(source);
     std::unique_ptr<Fixture> run;
     std::string initializationTrace;
@@ -3007,7 +3578,8 @@ std::string tiledParityJsonEscape(const std::string& value) {
 AcceptedRollbackSequence runTiledSequence(
         const MaterialProgram& bulk,
         const std::uint32_t faceCount,
-        const bool tiled);
+        const bool tiled,
+        const bool sameParentMortarUnion = false);
 
 struct TiledParityDiagnosticArm {
     std::uint32_t faceCount = 0u;
@@ -3022,7 +3594,8 @@ TiledParityDiagnosticArm runTiledDiagnosticArm(
         const MaterialProgram& bulk,
         const std::uint32_t faceCount,
         const bool tiled,
-        const std::filesystem::path& outputRoot) {
+        const std::filesystem::path& outputRoot,
+        const bool sameParentMortarUnion = false) {
     TiledParityDiagnosticArm arm;
     arm.faceCount = faceCount;
     arm.label = tiled ? "tiled" : "legacy";
@@ -3043,7 +3616,8 @@ TiledParityDiagnosticArm runTiledDiagnosticArm(
     arm.transactionCount = nativeFEMTransactionsExecuted;
     tiledParityCurrentStage = "arm_start";
     try {
-        arm.sequence = runTiledSequence(bulk, faceCount, tiled);
+        arm.sequence = runTiledSequence(
+            bulk, faceCount, tiled, sameParentMortarUnion);
         arm.stage = "sequence_complete";
     } catch (const std::exception& error) {
         arm.stage = tiledParityCurrentStage;
@@ -3119,13 +3693,84 @@ void writeTiledParityDiagnosticSummary(
 AcceptedRollbackSequence runTiledSequence(
         const MaterialProgram& bulk,
         const std::uint32_t faceCount,
-        const bool tiled) {
+        const bool tiled,
+        const bool sameParentMortarUnion) {
     ScopedEnvironmentValue tiledMode(
         "NM_FEM_FULL_CONTACT_TILED_COHESIVE", tiled ? "1" : nullptr);
     ScopedEnvironmentValue pageFaces(
         "NM_FEM_FULL_CONTACT_TILED_COHESIVE_PAGE_FACES",
         tiled ? "1" : nullptr);
-    return runAcceptedAndRollback(bulk, false, false, faceCount, true);
+    return runAcceptedAndRollback(
+        bulk, false, false, faceCount, true, sameParentMortarUnion);
+}
+
+void runSameParentMortarUnionParity(const MaterialProgram& bulk) {
+    const bool retainDiagnostics = !diagnosticStateOutputPath.empty();
+    const std::filesystem::path outputRoot(diagnosticStateOutputPath);
+    std::vector<TiledParityDiagnosticArm> arms;
+    std::optional<AcceptedRollbackSequence> directLegacy, directTiled;
+    if (retainDiagnostics) {
+        if (!std::filesystem::create_directory(outputRoot))
+            throw std::runtime_error(
+                "union parity diagnostic output must name a new directory");
+        arms.reserve(2u);
+        arms.push_back(runTiledDiagnosticArm(bulk, 3u, false, outputRoot, true));
+        arms.push_back(runTiledDiagnosticArm(bulk, 3u, true, outputRoot, true));
+        writeTiledParityDiagnosticSummary(outputRoot, arms,
+            "failed_prefix_partial_comparison", "");
+        if (!arms[0].sequence.has_value() || !arms[1].sequence.has_value())
+            throw std::runtime_error(
+                "union parity retained both arms; complete transaction comparison unavailable");
+    } else {
+        directLegacy = runTiledSequence(bulk, 3u, false, true);
+        directTiled = runTiledSequence(bulk, 3u, true, true);
+    }
+    const AcceptedRollbackSequence& legacy = retainDiagnostics
+        ? *arms[0].sequence : *directLegacy;
+    const AcceptedRollbackSequence& tiled = retainDiagnostics
+        ? *arms[1].sequence : *directTiled;
+    try {
+    requireSnapshotOperatorParity(legacy.initial, tiled.initial,
+        "same-parent three-patch initial state");
+    requireSnapshotOperatorParity(legacy.activation.snapshot,
+        tiled.activation.snapshot,
+        "same-parent three-patch accepted activation");
+    require(legacy.closure.has_value() && tiled.closure.has_value(),
+        "same-parent union parity did not execute the matched compressive-closure step");
+    requireSnapshotOperatorParity(legacy.closure->snapshot,
+        tiled.closure->snapshot,
+        "same-parent three-patch compressive closure");
+    requireSnapshotOperatorParity(legacy.loaded.snapshot, tiled.loaded.snapshot,
+        "same-parent three-patch loaded contact generation");
+    requireSnapshotOperatorParity(legacy.rejected.snapshot, tiled.rejected.snapshot,
+        "same-parent three-patch rejected transaction");
+
+    for (const RuntimeStateSnapshot* snapshot : {
+             &legacy.activation.snapshot, &legacy.closure->snapshot,
+             &legacy.loaded.snapshot}) {
+        require(snapshot->cohesiveFaces.size() == 3u,
+            "same-parent union collapsed independent cohesive face records");
+        std::set<std::uint32_t> stableIDs;
+        for (const NMCohesiveFaceGPU& face : snapshot->cohesiveFaces) {
+            require(stableIDs.insert(face.adjacency.z).second &&
+                    (face.adjacency.w & NM_TOPOLOGY_COHESIVE_DORMANT) == 0u,
+                "same-parent union lost a distinct active cohesive face identity");
+        }
+    }
+    } catch (const std::exception& error) {
+        if (retainDiagnostics)
+            writeTiledParityDiagnosticSummary(outputRoot, arms,
+                "comparison_failed", error.what());
+        throw;
+    }
+    if (retainDiagnostics)
+        writeTiledParityDiagnosticSummary(outputRoot, arms,
+            "operator_parity_pass", "");
+    std::cout << "same_parent_mortar_union_contact=pass"
+              << " face_count=3 active_history_records=3"
+              << " matched_compressive_closure=true"
+              << " legacy_tiled_full_transaction_parity=true"
+              << " physical_validation=false synthetic_law=true\n";
 }
 
 void runTiledCohesiveParity(const MaterialProgram& bulk) {
@@ -5113,13 +5758,14 @@ int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
             require(argc >= 2,
-                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--sparse-free-body-parity|--sparse-free-body-overflow|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity|--cohesive-tiled-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--compensated-material-arithmetic] [--newton-iterations N] [--diagnostic-state-output DIR]");
+                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--private-self-sweep-diagnostic|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--sparse-free-body-parity|--sparse-free-body-overflow|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity|--cohesive-tiled-parity|--same-parent-mortar-union-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--compensated-material-arithmetic] [--newton-iterations N] [--diagnostic-state-output DIR]");
             bool cpuOnly = false;
             bool overflow = false;
             bool prescribedBoxOverflow = false;
             bool prescribedBoxSweepReject = false;
             bool prescribedBoxTranslation = false;
             bool privateSelfSweep = false;
+            bool privateSelfSweepDiagnostic = false;
             bool armijoAlphaPublication = false;
             bool sparsePrivateParity = false;
             bool sparsePrivateOverflow = false;
@@ -5130,6 +5776,7 @@ int main(int argc, const char* argv[]) {
             bool selfSurfaceScratchAliasParity = false;
             bool cohesiveScratchAliasParity = false;
             bool cohesiveTiledParity = false;
+            bool sameParentMortarUnionParity = false;
             for (int index = 2; index < argc; ++index) {
                 const std::string option(argv[index]);
                 if (option == "--cpu-only") cpuOnly = true;
@@ -5142,6 +5789,8 @@ int main(int argc, const char* argv[]) {
                     prescribedBoxTranslation = true;
                 else if (option == "--private-self-sweep")
                     privateSelfSweep = true;
+                else if (option == "--private-self-sweep-diagnostic")
+                    privateSelfSweepDiagnostic = true;
                 else if (option == "--armijo-alpha-publication")
                     armijoAlphaPublication = true;
                 else if (option == "--sparse-private-parity")
@@ -5162,6 +5811,8 @@ int main(int argc, const char* argv[]) {
                     cohesiveScratchAliasParity = true;
                 else if (option == "--cohesive-tiled-parity")
                     cohesiveTiledParity = true;
+                else if (option == "--same-parent-mortar-union-parity")
+                    sameParentMortarUnionParity = true;
                 else if (option == "--regional-contact-preconditioner")
                     regionalContactPreconditioner = true;
                 else if (option == "--extended-budget") extendedBudget = true;
@@ -5190,30 +5841,41 @@ int main(int argc, const char* argv[]) {
             }
             require(!(cpuOnly && (overflow || prescribedBoxOverflow ||
                                   prescribedBoxSweepReject || prescribedBoxTranslation ||
-                                  privateSelfSweep || armijoAlphaPublication ||
+                                  privateSelfSweep || privateSelfSweepDiagnostic ||
+                                  armijoAlphaPublication ||
                                   sparsePrivateParity ||
                                   sparsePrivateOverflow || sparsePrivateAdmission ||
                                   sparsePrivateHighPairAdmission ||
                                   sparseFreeBodyParity || sparseFreeBodyOverflow ||
                                   selfSurfaceScratchAliasParity ||
                                   cohesiveScratchAliasParity ||
-                                  cohesiveTiledParity)),
+                                  cohesiveTiledParity ||
+                                  sameParentMortarUnionParity)),
                     "CPU and overflow modes are exclusive");
             require(!armijoAlphaPublication ||
                         !(cpuOnly || overflow || prescribedBoxOverflow ||
                           prescribedBoxSweepReject || prescribedBoxTranslation ||
-                          privateSelfSweep || sparsePrivateParity ||
+                          privateSelfSweep || privateSelfSweepDiagnostic ||
+                          sparsePrivateParity ||
                           sparsePrivateOverflow || sparsePrivateAdmission ||
                           sparsePrivateHighPairAdmission || sparseFreeBodyParity ||
                           sparseFreeBodyOverflow || selfSurfaceScratchAliasParity ||
                           cohesiveScratchAliasParity || cohesiveTiledParity ||
+                          sameParentMortarUnionParity ||
                           regionalContactPreconditioner ||
                           extendedBudget || accuratePaper || compensatedMaterialArithmetic ||
                           authoredNewtonIterations != 0u ||
                           !diagnosticStateOutputPath.empty()),
                     "Armijo alpha publication mode must run alone");
-            require(!privateSelfSweep || !(overflow || prescribedBoxOverflow ||
-                                  prescribedBoxSweepReject || prescribedBoxTranslation),
+            require(!(privateSelfSweep && privateSelfSweepDiagnostic),
+                    "choose either strict or exhaustive private self-sweep mode");
+            require(!(privateSelfSweep || privateSelfSweepDiagnostic) ||
+                        !(overflow || prescribedBoxOverflow ||
+                          prescribedBoxSweepReject || prescribedBoxTranslation ||
+                          regionalContactPreconditioner || extendedBudget ||
+                          accuratePaper || compensatedMaterialArithmetic ||
+                          authoredNewtonIterations != 0u ||
+                          !diagnosticStateOutputPath.empty()),
                     "private self-sweep regression mode must run alone");
             require(!(overflow && (prescribedBoxOverflow || prescribedBoxTranslation)),
                     "choose only one overflow fixture mode");
@@ -5240,27 +5902,40 @@ int main(int argc, const char* argv[]) {
             require(!cohesiveTiledParity ||
                         !(overflow || prescribedBoxOverflow ||
                           prescribedBoxSweepReject || prescribedBoxTranslation ||
-                          privateSelfSweep || sparseModeCount != 0u ||
+                          privateSelfSweep || privateSelfSweepDiagnostic ||
+                          sparseModeCount != 0u ||
                           selfSurfaceScratchAliasParity ||
                           cohesiveScratchAliasParity || regionalContactPreconditioner ||
                           extendedBudget || accuratePaper ||
                           compensatedMaterialArithmetic ||
                           authoredNewtonIterations != 0u),
                     "tiled cohesive parity owns its solver and material settings");
+            require(!sameParentMortarUnionParity ||
+                        !(overflow || prescribedBoxOverflow ||
+                          prescribedBoxSweepReject || prescribedBoxTranslation ||
+                          privateSelfSweep || privateSelfSweepDiagnostic ||
+                          sparseModeCount != 0u ||
+                          selfSurfaceScratchAliasParity ||
+                          cohesiveScratchAliasParity || cohesiveTiledParity ||
+                          regionalContactPreconditioner || extendedBudget ||
+                          accuratePaper || compensatedMaterialArithmetic ||
+                          authoredNewtonIterations != 0u),
+                    "same-parent mortar union parity owns its solver and material settings");
             require(!selfSurfaceScratchAliasParity ||
                         !(overflow || prescribedBoxOverflow ||
                           prescribedBoxSweepReject || prescribedBoxTranslation ||
-                          privateSelfSweep || cohesiveScratchAliasParity),
+                          privateSelfSweep || privateSelfSweepDiagnostic ||
+                          cohesiveScratchAliasParity),
                     "surface scratch alias parity must run as its own full-contact sequence");
             require(!cohesiveScratchAliasParity ||
                         !(overflow || prescribedBoxOverflow ||
                           prescribedBoxSweepReject || prescribedBoxTranslation ||
-                          privateSelfSweep),
+                          privateSelfSweep || privateSelfSweepDiagnostic),
                     "cohesive scratch alias parity must run as its own full-contact sequence");
             require(sparseModeCount == 0u ||
                         !(overflow || prescribedBoxOverflow ||
                           prescribedBoxSweepReject || prescribedBoxTranslation ||
-                          privateSelfSweep),
+                          privateSelfSweep || privateSelfSweepDiagnostic),
                     "sparse private-contact modes must run separately");
             require(!(sparseFreeBodyParity && sparseFreeBodyOverflow),
                     "choose either free-body parity or its overflow control");
@@ -5271,6 +5946,7 @@ int main(int argc, const char* argv[]) {
             require(diagnosticStateOutputPath.empty() || sparsePrivateParity ||
                         sparsePrivateOverflow || selfSurfaceScratchAliasParity ||
                         cohesiveScratchAliasParity || cohesiveTiledParity ||
+                        sameParentMortarUnionParity ||
                         sparseFreeBodyParity || sparseFreeBodyOverflow,
                     "diagnostic state output is supported only for retained contact parity or overflow modes");
             require(!(cpuOnly && !diagnosticStateOutputPath.empty()),
@@ -5289,6 +5965,9 @@ int main(int argc, const char* argv[]) {
                 std::cout << "tiled_fixture_owned_numerics=accurate_paper,regional_contact,"
                              "fgmres256,restart16,line_search24,newton32"
                              " residual_tolerance_unchanged=1e-7\n";
+            }
+            if (sameParentMortarUnionParity) {
+                extendedBudget = true;
             }
             if (extendedBudget) std::cout <<
                 "authored_extended_budget=fgmres256,restart16,line_search24 relative_residual_unchanged=1e-7\n";
@@ -5313,6 +5992,7 @@ int main(int argc, const char* argv[]) {
             verifyArmijoRequiresResolvedDescent();
             verifyAuthoredLineSearchBudget(bulk);
             verifyPrescribedBoxCompilerAdmission(bulk);
+            verifyMortarParentPrimitivePairAdmission(bulk);
             verifySparsePrivateSizingAdmission();
             if (armijoAlphaPublication) {
                 verifyArmijoAlphaPublication();
@@ -5320,14 +6000,20 @@ int main(int argc, const char* argv[]) {
                           << " checks=" << checks << '\n';
                 return 0;
             }
-            if (privateSelfSweep) {
-                verifyPrivateSelfSweepValidator();
-                std::cout << "PASS private self-sweep validator fixture"
+            if (privateSelfSweep || privateSelfSweepDiagnostic) {
+                verifyPrivateSelfSweepValidator(privateSelfSweepDiagnostic);
+                std::cout << (privateSelfSweepDiagnostic
+                    ? "PRIVATE_SELF_SWEEP_DIAGNOSTIC_COMPLETE"
+                    : "PASS private self-sweep validator fixture")
                           << " checks=" << checks << '\n';
                 return 0;
             }
             if (cohesiveTiledParity) {
                 runTiledCohesiveParity(bulk);
+                return 0;
+            }
+            if (sameParentMortarUnionParity) {
+                runSameParentMortarUnionParity(bulk);
                 return 0;
             }
             MeshAndWorld source = makeWorld(

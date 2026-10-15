@@ -1,0 +1,137 @@
+{
+  "base_snapshot": "source-direct-projection-diagnostic-089",
+  "base_source_sha256": "b2ddeeef55abee4002caaeca4303fddf3fe410845fe624ab049475ad8e072dbc",
+  "created_at_local": "2026-10-15",
+  "evidence": {
+    "exact_source288_candidate": false,
+    "native294": "selected env0/tet1528, 16 local projection trace rows; compensated C++ replay reproduces the recorded direct FB row exactly at every iteration.",
+    "native296_summary": "six accurate-policy point failures; four adjacent selected controls pass; an independent allpoint FP64 comparison additionally finds 26 accurate-medium tangent norm rows above 1e-3.",
+    "patched_native_execution": false,
+    "physical_validation": false
+  },
+  "files": [
+    {
+      "bytes": 1363,
+      "path": "ERRATUM-288-compiled-budget.md",
+      "sha256": "b9bb5128d45c35078cac243d4d80e1dc1164a351ae35359438568129a128b0be"
+    },
+    {
+      "bytes": 4055,
+      "path": "README.md",
+      "sha256": "80fce303e6436e99c30c1aea26d2a30b15f37ea000a6c98780e00f454203c0cc"
+    },
+    {
+      "bytes": 3710,
+      "path": "compensated-replay-output.csv",
+      "sha256": "c1d0a63957d36f3fba0e2714cde2f41958a68e4d5a0229897cc59bab8b36421d"
+    },
+    {
+      "bytes": 73050,
+      "path": "constitutive_impl.cpp",
+      "sha256": "f907a680f2ddfd0d1082ad97dc117869f678ea8ff0deb638dea4634f27704260"
+    },
+    {
+      "bytes": 69392,
+      "path": "constitutive_impl.cpp.base",
+      "sha256": "b2ddeeef55abee4002caaeca4303fddf3fe410845fe624ab049475ad8e072dbc"
+    },
+    {
+      "bytes": 5837,
+      "path": "constitutive_impl.patch",
+      "sha256": "310aa54ede347e5f716f6e4023c294313169fcdaac1d8e25a9a878660c048980"
+    },
+    {
+      "bytes": 12649,
+      "path": "cpu-validation.json",
+      "sha256": "669889329ab78f471f002c5003f0760282ffd768e96ec3aeba817183e3dfb9d0"
+    },
+    {
+      "bytes": 101148,
+      "path": "inputs/native294/prediction.json",
+      "sha256": "94d14fc1d4451405dd85282b6741b99a8d9c7e7231fc78540deb9b36f0c59608"
+    },
+    {
+      "bytes": 306,
+      "path": "inputs/native294/receipt.json",
+      "sha256": "6e6bf995df41449f222bffebff6213c459f0158f027b3dfea3bbc47c775a6606"
+    },
+    {
+      "bytes": 115091,
+      "path": "inputs/native294/source-build.json",
+      "sha256": "966206a5f5b645669f9c75bc0ba5a2682eac4958ac529df6b3745a08298a4438"
+    },
+    {
+      "bytes": 101080,
+      "path": "inputs/native296/prediction.json",
+      "sha256": "e6ab3f0014ecaf9d5bfb0971bee454f1a743dcceaee2b85982da3e728cbdc614"
+    },
+    {
+      "bytes": 306,
+      "path": "inputs/native296/receipt.json",
+      "sha256": "9a609feabf2dea2e6ffa247cff7e202bd9de2ecfb63c9a2a8843e4324416e6cd"
+    },
+    {
+      "bytes": 115091,
+      "path": "inputs/native296/source-build.json",
+      "sha256": "966206a5f5b645669f9c75bc0ba5a2682eac4958ac529df6b3745a08298a4438"
+    },
+    {
+      "bytes": 15887,
+      "path": "inputs/source/hajali2009_liner_hill_bilinear_fit.nmatter",
+      "sha256": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a"
+    },
+    {
+      "bytes": 13914,
+      "path": "native294-trace-input.csv",
+      "sha256": "e62df2ec28f525d2d8097abae73f9ce6db260edb3c887fe14fdabc5f439acac5"
+    },
+    {
+      "bytes": 354308,
+      "path": "selected-evidence.json",
+      "sha256": "af30558b6a9ce2934f567e702210598562d127a90cdb0ca322b7efb02cc56b01"
+    },
+    {
+      "bytes": 14365,
+      "path": "validate_fb_rationalization.py",
+      "sha256": "89ae7544932a39febdbe9af609d776ab1638b64e501606272d181c33afb023c1"
+    }
+  ],
+  "limitations": [
+    "Run288 requested local budget 32 but compiled 16; see erratum.",
+    "Capture283 is not the exact run288 candidate.",
+    "The patch has no native Metal build or patched GPU point result.",
+    "The representative native294 accurate trace still failed the unchanged scaled-correction criterion; this value rewrite alone is not shown to recover convergence.",
+    "No calibration, physical test, or complete solver qualification is claimed."
+  ],
+  "overlay_patch_sha256": "310aa54ede347e5f716f6e4023c294313169fcdaac1d8e25a9a878660c048980",
+  "overlay_source_sha256": "f907a680f2ddfd0d1082ad97dc117869f678ea8ff0deb638dea4634f27704260",
+  "package_id": "bilinear15-fb-value-rationalization-001",
+  "schema": "numi.cardboard.external-diagnostic-overlay-package.v1",
+  "validation_commands": [
+    "python3 validate_fb_rationalization.py",
+    "clang++ -std=c++2b -fsyntax-only -I <source089>/include -I <source089>/matter/include -I <source089>/matter/src constitutive_impl.cpp"
+  ],
+  "validation_results": {
+    "all_16_direct_fb_values_match_trace_words": true,
+    "cpu_validation_status": "pass_cpu_arithmetic_checks",
+    "identity_derivative_90_digit_check": {
+      "cases": 5,
+      "eps_zero_policy": "not_transformed; accurate source admission requires positive epsilon",
+      "max_first_derivative_abs_error_decimal": "0.0",
+      "max_identity_abs_error_decimal": "1.22727336632e-91",
+      "precision_decimal_digits": 90
+    },
+    "independent_296_pointwise_issue": {
+      "interpretation": "A separate one-direction pointwise issue remains and is not addressed by this liner FB value patch.",
+      "report_path": "/Users/home/cardboard-implementation-20261014/analysis/retained-paper-allpoint-comparison-296-002/report.json",
+      "report_sha256": "bea9f2284f9585f8d107a4086780f5197ea2ef1855adfc08a4d839adb54976b2",
+      "stress_rows_over_1e_minus_3": 0,
+      "tangent_rows_over_1e_minus_3": 26,
+      "valid_accurate_rows": 3450,
+      "worst_accurate_tangent_relative_l2": 0.0020605136094891245,
+      "zero_direction_rows": 1728
+    },
+    "patch_applies_to_exact_base": true,
+    "patch_syntax_pass": true
+  }
+}

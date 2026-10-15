@@ -1,0 +1,2 @@
+{"record":"native_instrument","device":"Apple M4","base_snapshot_manifest_sha256":"769a5e34c1d919293cb263fd27fbd041a482d22016c2818eec41d44e47935752","capture_sha256":"4decb7be2fbfa93ad97c0f2f22cfaca974931269068bed90e98815b09066b870","execution_scope":"selected_then_all_points","paper_rows":3456,"steps":0,"physical_validation":false}
+{"record":"end","status":"diagnostic_complete","paper_rows_per_policy":3456,"execution_scope":"selected_then_all_points","selected_point":"env0/tet1528/liner","physical_steps":0,"physical_validation":false}

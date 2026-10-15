@@ -1,0 +1,81 @@
+{
+  "base_runtime_sha256": "2fbdf2c09e5e27fadf15f6503e56d3dc042215eabf1029b4ebd3aa08e143b2e3",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-selected-private-trial-repair-094",
+  "capture_array_limit": 192,
+  "capture_cap_bytes": 33554432,
+  "fresh_native_after_fix": false,
+  "invalid_detail_limits": {
+    "metadata_bytes": 131072,
+    "spec_count": 192
+  },
+  "overlay_runtime_sha256": "aa2486012ced87656933abc7c448188575ac332b747aba2315f550e3d548edd2",
+  "patch_replay": {
+    "dry_run": "PASS",
+    "replayed_output_matches_overlay": true,
+    "result": "PASS"
+  },
+  "patch_sha256": "f8e121a67e50cd89d6bfefc07deb666614c5203a16edbcf83b1cd3cd373272fd",
+  "preserved_native_parity": {
+    "armijo_record_count": 32,
+    "armijo_records_identical": true,
+    "both_exit_code": 1,
+    "capture_off_prediction_sha256": "5604b9f0b957c3a44ab411d982cd43250e694c2ea873fc7afcd4062350b5adbc",
+    "capture_off_receipt_sha256": "8d8fc4435cace71945ef2eb904010649a1d25b93e301c06575dc1fbd0d625430",
+    "capture_on_prediction_sha256": "a8fd3c5b7faac3fff6a3672dc6834064f4540bbc2bd78d1c4518c042a3b0351a",
+    "capture_on_receipt_sha256": "480584177f3917c5d846b45e8b4bbcec5a4b9a7f9011721d9641515b60cc05be",
+    "nonlog_production_files_byte_identical": true,
+    "physical_qualification": false,
+    "report": "/Users/home/cardboard-implementation-20261014/analysis/private-trial-layout-rejection-parity-310-311-001/report.json",
+    "report_sha256": "819a8951371dc2d6d52a31f45623d4ff12be1974ddf449aa82d19b4c926ec019"
+  },
+  "production_physics_changed": false,
+  "schema": "numi.matter.coupled_trial_capture_overlay_validation.v1",
+  "source291_crosswalk": {
+    "capture_manifest_sha256": "fd77314acad48353980cdd33a05e8cccadd3a7e607c9b098f55647f852acb3b7",
+    "capture_package_sha256": "15cf4f52a75917e321b1cb0d27ad7fa1f17e4b38a3aac9cb53314fcce35b586d",
+    "file": "/Users/home/cardboard-implementation-20261014/analysis/coupled-trial-capture-overlay-003/source291_capture_crosswalk.json",
+    "sha256": "5715f1fb935293969fe86bf18a21a277960b1612bb2e5a573607003cb0fe6d68",
+    "status": "PASS; two corrected schemas, 27 literal overlapping names checked"
+  },
+  "static_check": {
+    "array_limit": 192,
+    "base_sha256": "2fbdf2c09e5e27fadf15f6503e56d3dc042215eabf1029b4ebd3aa08e143b2e3",
+    "checks": 98,
+    "crosswalk_sha256": "5715f1fb935293969fe86bf18a21a277960b1612bb2e5a573607003cb0fe6d68",
+    "metadata_byte_limit": 131072,
+    "metadata_spec_limit": 192,
+    "native_or_physical_qualification": false,
+    "overlay_sha256": "aa2486012ced87656933abc7c448188575ac332b747aba2315f550e3d548edd2",
+    "payload_limit_bytes": 33554432,
+    "result": "PASS_STATIC_ONLY",
+    "schema": "numi.matter.coupled_trial_capture_overlay_003_static_check.v1",
+    "source291_direct_spec_names_checked": 27
+  },
+  "syntax_only": {
+    "argv": [
+      "/usr/bin/clang++",
+      "-DNUMI_MATTER_DEFAULT_METALLIB=\"/Users/home/numi-cardboard-20261006/build-cardboard-provenance-094/matter/shaders/NumiMatter.metallib\"",
+      "-I/Users/home/cardboard-implementation-20261014/snapshots/source-selected-private-trial-repair-094/matter/include",
+      "-I/Users/home/cardboard-implementation-20261014/snapshots/source-selected-private-trial-repair-094/matter/../include",
+      "-x",
+      "objective-c++",
+      "-O3",
+      "-DNDEBUG",
+      "-std=c++23",
+      "-arch",
+      "arm64",
+      "-fPIC",
+      "-fobjc-arc",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "/Users/home/cardboard-implementation-20261014/analysis/coupled-trial-capture-overlay-003/overlay/matter/src/runtime.mm",
+      "-I/Users/home/cardboard-implementation-20261014/snapshots/source-selected-private-trial-repair-094/matter/src",
+      "-fsyntax-only"
+    ],
+    "compile_commands_sha256": "4a43d1a4cea75fd7331afff8e1fc257323fe61459cb0b909a59443224eeef40e",
+    "exit_code": 0,
+    "output_bytes": 0,
+    "result": "PASS"
+  }
+}

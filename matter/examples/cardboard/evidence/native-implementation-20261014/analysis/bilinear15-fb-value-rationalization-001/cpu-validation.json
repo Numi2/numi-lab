@@ -1,0 +1,275 @@
+{
+  "independent_native296_fp64_comparison": {
+    "interpretation": "A separate one-direction pointwise issue remains and is not addressed by this liner FB value patch.",
+    "report_path": "/Users/home/cardboard-implementation-20261014/analysis/retained-paper-allpoint-comparison-296-002/report.json",
+    "report_sha256": "bea9f2284f9585f8d107a4086780f5197ea2ef1855adfc08a4d839adb54976b2",
+    "stress_rows_over_1e_minus_3": 0,
+    "tangent_rows_over_1e_minus_3": 26,
+    "valid_accurate_rows": 3450,
+    "worst_accurate_tangent_relative_l2": 0.0020605136094891245,
+    "zero_direction_rows": 1728
+  },
+  "native294_replay": {
+    "csv_native_fb_row12_matches_trace_f32_word_each_iteration": true,
+    "csv_parameters_match_capture_header_f32": true,
+    "csv_state_high_low_match_trace_f32_words": true,
+    "direct_compensated_value_matches_retained_trace_csv_exactly": true,
+    "iterations": 16,
+    "maximum_absolute_direct_value_difference": 0.0,
+    "maximum_absolute_rationalized_vs_direct_difference": 7.608823802714561e-15,
+    "patch_applies_to_exact_base_sha": true,
+    "patched_source_fsyntax_only_pass": true,
+    "per_iteration_values": [
+      {
+        "a_compensated": 0.0,
+        "a_plus_b_compensated": 0.3927851915359497,
+        "b_compensated": 0.3927851915359497,
+        "difference": -7.608823802714561e-15,
+        "iteration": 0,
+        "native_direct_residual": 8.881784197001252e-15,
+        "rationalized_selected_residual": 1.2729603942866915e-15
+      },
+      {
+        "a_compensated": 8.881784197001252e-16,
+        "a_plus_b_compensated": 0.3927852213382721,
+        "b_compensated": 0.3927852213382721,
+        "difference": 1.2729600766493362e-15,
+        "iteration": 1,
+        "native_direct_residual": -8.881784197001252e-15,
+        "rationalized_selected_residual": -7.608824120351916e-15
+      },
+      {
+        "a_compensated": 4.440892098500626e-16,
+        "a_plus_b_compensated": 0.3927852213382721,
+        "b_compensated": 0.3927852213382721,
+        "difference": 1.272960288407573e-15,
+        "iteration": 2,
+        "native_direct_residual": -4.440892098500626e-15,
+        "rationalized_selected_residual": -3.167931810093053e-15
+      },
+      {
+        "a_compensated": 4.423544863740858e-16,
+        "a_plus_b_compensated": 0.3927852213382721,
+        "b_compensated": 0.3927852213382721,
+        "difference": -9.30138526082972e-16,
+        "iteration": 3,
+        "native_direct_residual": -2.220446049250313e-15,
+        "rationalized_selected_residual": -3.150584575333285e-15
+      },
+      {
+        "a_compensated": 4.4230027626546153e-16,
+        "a_plus_b_compensated": 0.3927852213382721,
+        "b_compensated": 0.3927852213382721,
+        "difference": -9.295964249967292e-16,
+        "iteration": 4,
+        "native_direct_residual": -2.220446049250313e-15,
+        "rationalized_selected_residual": -3.1500424742470423e-15
+      },
+      {
+        "a_compensated": 4.4224606615683726e-16,
+        "a_plus_b_compensated": 0.3927852213382721,
+        "b_compensated": 0.3927852213382721,
+        "difference": -9.290543239104864e-16,
+        "iteration": 5,
+        "native_direct_residual": -2.220446049250313e-15,
+        "rationalized_selected_residual": -3.1495003731607995e-15
+      },
+      {
+        "a_compensated": 4.42191856048213e-16,
+        "a_plus_b_compensated": 0.3927852213382721,
+        "b_compensated": 0.3927852213382721,
+        "difference": -9.285122228242437e-16,
+        "iteration": 6,
+        "native_direct_residual": -2.220446049250313e-15,
+        "rationalized_selected_residual": -3.1489582720745568e-15
+      },
+      {
+        "a_compensated": 4.421376459395887e-16,
+        "a_plus_b_compensated": 0.3927852213382721,
+        "b_compensated": 0.3927852213382721,
+        "difference": -9.27970121738001e-16,
+        "iteration": 7,
+        "native_direct_residual": -2.220446049250313e-15,
+        "rationalized_selected_residual": -3.148416170988314e-15
+      },
+      {
+        "a_compensated": 4.4208343583096443e-16,
+        "a_plus_b_compensated": 0.3927852213382721,
+        "b_compensated": 0.3927852213382721,
+        "difference": -9.274280206517582e-16,
+        "iteration": 8,
+        "native_direct_residual": -2.220446049250313e-15,
+        "rationalized_selected_residual": -3.1478740699020713e-15
+      },
+      {
+        "a_compensated": 4.4202922572234016e-16,
+        "a_plus_b_compensated": 0.3927852213382721,
+        "b_compensated": 0.3927852213382721,
+        "difference": -9.268859195655154e-16,
+        "iteration": 9,
+        "native_direct_residual": -2.220446049250313e-15,
+        "rationalized_selected_residual": -3.1473319688158285e-15
+      },
+      {
+        "a_compensated": 4.419750156137159e-16,
+        "a_plus_b_compensated": 0.3927852213382721,
+        "b_compensated": 0.3927852213382721,
+        "difference": -9.263438184792727e-16,
+        "iteration": 10,
+        "native_direct_residual": -2.220446049250313e-15,
+        "rationalized_selected_residual": -3.1467898677295858e-15
+      },
+      {
+        "a_compensated": 4.419208055050916e-16,
+        "a_plus_b_compensated": 0.3927852213382721,
+        "b_compensated": 0.3927852213382721,
+        "difference": -9.2580171739303e-16,
+        "iteration": 11,
+        "native_direct_residual": -2.220446049250313e-15,
+        "rationalized_selected_residual": -3.146247766643343e-15
+      },
+      {
+        "a_compensated": 4.4186659539646733e-16,
+        "a_plus_b_compensated": 0.3927852213382721,
+        "b_compensated": 0.3927852213382721,
+        "difference": -9.252596163067872e-16,
+        "iteration": 12,
+        "native_direct_residual": -2.220446049250313e-15,
+        "rationalized_selected_residual": -3.1457056655571003e-15
+      },
+      {
+        "a_compensated": 4.4181238528784306e-16,
+        "a_plus_b_compensated": 0.3927852213382721,
+        "b_compensated": 0.3927852213382721,
+        "difference": -9.247175152205444e-16,
+        "iteration": 13,
+        "native_direct_residual": -2.220446049250313e-15,
+        "rationalized_selected_residual": -3.1451635644708575e-15
+      },
+      {
+        "a_compensated": 4.417581751792188e-16,
+        "a_plus_b_compensated": 0.3927852213382721,
+        "b_compensated": 0.3927852213382721,
+        "difference": -9.241754141343017e-16,
+        "iteration": 14,
+        "native_direct_residual": -2.220446049250313e-15,
+        "rationalized_selected_residual": -3.1446214633846148e-15
+      },
+      {
+        "a_compensated": 4.417039650705945e-16,
+        "a_plus_b_compensated": 0.3927852213382721,
+        "b_compensated": 0.3927852213382721,
+        "difference": -9.23633313048059e-16,
+        "iteration": 15,
+        "native_direct_residual": -2.220446049250313e-15,
+        "rationalized_selected_residual": -3.144079362298372e-15
+      }
+    ],
+    "positive_sum_branch_iterations": 16,
+    "representative_native_terminal_status": 7,
+    "stable_branch_values_finite": true
+  },
+  "native296_subset": {
+    "accurate_control_ids": [
+      "0:566",
+      "0:570",
+      "0:1526",
+      "0:1530"
+    ],
+    "accurate_failure_count": 6,
+    "all_six_failures_same_captured_local_problem": true,
+    "default_failures_in_subset": 0,
+    "failure_ids": [
+      "0:567",
+      "0:568",
+      "0:569",
+      "0:1527",
+      "0:1528",
+      "0:1529"
+    ],
+    "failure_point_input_equals_trace_capture_F_high_low": true
+  },
+  "real_arithmetic_identity_test": {
+    "cases": 5,
+    "eps_zero_policy": "not_transformed; accurate source admission requires positive epsilon",
+    "max_first_derivative_abs_error_decimal": "0.0",
+    "max_identity_abs_error_decimal": "1.22727336632e-91",
+    "precision_decimal_digits": 90
+  },
+  "schema": "numi.cardboard.bilinear15-fb-rationalization-cpu-check.v1",
+  "scope": {
+    "authored_jacobian_and_stopping_policy_unchanged": true,
+    "no_tolerance_or_constitutive_parameter_change": true,
+    "what_remains_unproven": [
+      "patched native Metal results for all six points",
+      "whether the local solver then satisfies the unchanged scaled-correction stop",
+      "complete nonlinear solver behavior or performance",
+      "material calibration or physical qualification",
+      "exact failed run 288 candidate identity (capture283 is not that candidate)"
+    ],
+    "what_this_establishes": "The source-ordered compensated FB value at the representative native trace suffers cancellation on the six captured failure inputs; the rationalized positive-sum formula is a high-precision identity with matching first derivatives."
+  },
+  "source_binding": {
+    "base_constitutive_sha256": "b2ddeeef55abee4002caaeca4303fddf3fe410845fe624ab049475ad8e072dbc",
+    "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-direct-projection-diagnostic-089",
+    "compensated_header_sha256": "f578310307a4698692fc57117340794ac4ce2d3813cdfcf705da6a018a5976aa",
+    "native_trace_csv_sha256": "e62df2ec28f525d2d8097abae73f9ce6db260edb3c887fe14fdabc5f439acac5",
+    "patched_constitutive_sha256": "f907a680f2ddfd0d1082ad97dc117869f678ea8ff0deb638dea4634f27704260",
+    "selected_evidence_sha256": "af30558b6a9ce2934f567e702210598562d127a90cdb0ca322b7efb02cc56b01",
+    "upstream": {
+      "accurate_points": {
+        "path": "/Users/home/cardboard-implementation-20261014/native/all-captured-paper-entry-points-296/output/paper-points-accurate.jsonl",
+        "sha256": "0b9119cc026fb9ad2c7f504a8b47dec8a962cab16cf02f50a6d6957f9a55da2b"
+      },
+      "accurate_trace294": {
+        "path": "/Users/home/cardboard-implementation-20261014/native/direct-liner-stress-projector-tangent-294/output/tet1528-env0-accurate-trace.json",
+        "sha256": "56c3d154d9c915bece73e89d5b3b4a2672fdeb73738b43036e36502c6288620b"
+      },
+      "allpoint_fp64_comparison": {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/retained-paper-allpoint-comparison-296-002/report.json",
+        "sha256": "bea9f2284f9585f8d107a4086780f5197ea2ef1855adfc08a4d839adb54976b2"
+      },
+      "capture": {
+        "path": "/Users/home/cardboard-implementation-20261014/solver/recycle-source-default-first-control-283/operator-capture",
+        "sha256": "4decb7be2fbfa93ad97c0f2f22cfaca974931269068bed90e98815b09066b870"
+      },
+      "default_points": {
+        "path": "/Users/home/cardboard-implementation-20261014/native/all-captured-paper-entry-points-296/output/paper-points-default.jsonl",
+        "sha256": "b9023ef51af1f0d8bf9199e576bfc47e4a707a9b82792ff150eefb6ac82e65cb"
+      },
+      "default_trace294": {
+        "path": "/Users/home/cardboard-implementation-20261014/native/direct-liner-stress-projector-tangent-294/output/tet1528-env0-default-trace.json",
+        "sha256": "9bd4b344a78c90e6f248d39d41c7a0ac8776dfb6ad455d7a569f1ee4b06382fe"
+      },
+      "liner_material_asset": {
+        "path": "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+        "sha256": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a"
+      },
+      "native294_prediction": {
+        "path": "/Users/home/cardboard-implementation-20261014/native/direct-liner-stress-projector-tangent-294/prediction.json",
+        "sha256": "94d14fc1d4451405dd85282b6741b99a8d9c7e7231fc78540deb9b36f0c59608"
+      },
+      "native294_receipt": {
+        "path": "/Users/home/cardboard-implementation-20261014/native/direct-liner-stress-projector-tangent-294/receipt.json",
+        "sha256": "6e6bf995df41449f222bffebff6213c459f0158f027b3dfea3bbc47c775a6606"
+      },
+      "native294_source_build": {
+        "path": "/Users/home/cardboard-implementation-20261014/native/direct-liner-stress-projector-tangent-294/inputs/external/source-build.json",
+        "sha256": "966206a5f5b645669f9c75bc0ba5a2682eac4958ac529df6b3745a08298a4438"
+      },
+      "native296_prediction": {
+        "path": "/Users/home/cardboard-implementation-20261014/native/all-captured-paper-entry-points-296/prediction.json",
+        "sha256": "e6ab3f0014ecaf9d5bfb0971bee454f1a743dcceaee2b85982da3e728cbdc614"
+      },
+      "native296_receipt": {
+        "path": "/Users/home/cardboard-implementation-20261014/native/all-captured-paper-entry-points-296/receipt.json",
+        "sha256": "9a609feabf2dea2e6ffa247cff7e202bd9de2ecfb63c9a2a8843e4324416e6cd"
+      },
+      "native296_source_build": {
+        "path": "/Users/home/cardboard-implementation-20261014/native/all-captured-paper-entry-points-296/inputs/external/source-build.json",
+        "sha256": "966206a5f5b645669f9c75bc0ba5a2682eac4958ac529df6b3745a08298a4438"
+      }
+    }
+  },
+  "status": "pass_cpu_arithmetic_checks"
+}

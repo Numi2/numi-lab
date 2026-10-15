@@ -1,0 +1,123 @@
+--- a/matter/src/constitutive_impl.cpp
++++ b/matter/src/constitutive_impl.cpp
+@@ -99,6 +99,76 @@
+             graph_.nodes[a].dimension != graph_.nodes[b].dimension ||
+             graph_.nodes[a].dimension != graph_.nodes[epsilon].dimension) return std::nullopt;
+         return Complementarity{a, b, epsilon, radius};
++    }
++
++    [[nodiscard]] std::uint32_t rationalizedComplementarityValue(
++        const std::uint32_t original,
++        const Complementarity& c
++    ) {
++        const Dimension valueDimension = graph_.nodes[c.a].dimension;
++        const Dimension squaredDimension = valueDimension * 2;
++        const std::uint32_t sum = binary(
++            ExprKind::add, c.a, c.b, valueDimension);
++        const std::uint32_t denominator = binary(
++            ExprKind::add,
++            c.radius,
++            sum,
++            valueDimension);
++        // Accurate bilinear-15 layout admission requires epsilon > 0. On the
++        // selected sum>=0 branch, denominator >= epsilon; on the unselected
++        // sum<0 branch this floor keeps eager SELECT evaluation finite.
++        const std::uint32_t safeDenominator = binary(
++            ExprKind::maximum, denominator, c.epsilon, valueDimension);
++        const std::uint32_t epsilonSquared = power(
++            c.epsilon, 2, squaredDimension);
++        const std::uint32_t twiceProduct = binary(
++            ExprKind::multiply,
++            graph_.constant(2.0),
++            binary(ExprKind::multiply, c.a, c.b, squaredDimension),
++            squaredDimension);
++        const std::uint32_t numerator = binary(
++            ExprKind::subtract, epsilonSquared, twiceProduct,
++            squaredDimension);
++        const std::uint32_t stableValue = binary(
++            ExprKind::divide, numerator, safeDenominator, valueDimension);
++        Expr branch;
++        branch.kind = ExprKind::selectNonnegative;
++        branch.dimension = graph_.nodes[original].dimension;
++        branch.arguments[0] = sum;
++        branch.arguments[1] = stableValue;
++        branch.arguments[2] = original;
++        return graph_.append(branch);
++    }
++
++    [[nodiscard]] std::uint32_t rationalizeComplementarityValues(
++        const std::uint32_t node,
++        std::unordered_map<std::uint32_t, std::uint32_t>& cache
++    ) {
++        if (node == NM_INVALID_INDEX || node >= graph_.nodes.size()) return node;
++        if (const auto found = cache.find(node); found != cache.end())
++            return found->second;
++        if (const auto c = complementarity(node)) {
++            const std::uint32_t result = rationalizedComplementarityValue(node, *c);
++            cache.emplace(node, result);
++            return result;
++        }
++        const Expr original = graph_.nodes[node];
++        Expr rewritten = original;
++        bool changed = false;
++        for (std::uint32_t slot = 0u; slot < original.arguments.size(); ++slot) {
++            const std::uint32_t argument = original.arguments[slot];
++            if (argument == NM_INVALID_INDEX) continue;
++            const std::uint32_t replacement =
++                rationalizeComplementarityValues(argument, cache);
++            if (replacement != argument) {
++                rewritten.arguments[slot] = replacement;
++                changed = true;
++            }
++        }
++        const std::uint32_t result = changed
++            ? graph_.append(rewritten) : node;
++        cache.emplace(node, result);
++        return result;
+     }
+ 
+     [[nodiscard]] std::uint32_t complementarityCoefficient(
+@@ -1071,6 +1141,7 @@
+ ) {
+     ConstitutiveCompileResult result;
+     result.program.material = material;
++    bool bilinear15AccurateLayout = false;
+     if (material.paperHillScalarInitializer || material.paperCompensatedArithmetic ||
+         material.paperHillAccurateProjection ||
+         material.genericCompensatedImplicitProjection ||
+@@ -1116,7 +1187,7 @@
+             "ep11","ep22","ep33","ep23","ep13","ep12","sbar11","sbar22",
+             "sbar33","sbar23","sbar13","sbar12","accumulated_multiplier",
+             "hardening_md_accumulation","hardening_cd_accumulation"};
+-        bool bilinear15AccurateLayout = material.genericBilinear15AccurateProjection &&
++        bilinear15AccurateLayout = material.genericBilinear15AccurateProjection &&
+             material.genericCompensatedImplicitProjection &&
+             !material.paperHillScalarInitializer &&
+             !material.paperHillAccurateProjection && material.hint==ConstitutiveHint::generic &&
+@@ -1341,15 +1412,24 @@
+                 update,
+                 material.internalState[state].dimension
+             );
++        }
++        const std::uint32_t authoredResidual = residual;
++        if (bilinear15AccurateLayout) {
++            std::unordered_map<std::uint32_t, std::uint32_t> valueRewriteCache;
++            residual = symbolic.rationalizeComplementarityValues(
++                authoredResidual, valueRewriteCache);
+         }
+         residualRoots.push_back(residual);
++        // The exact authored residual remains the source for both derivative
++        // programs. Its recognized FB derivative already uses the stable
++        // analytic coefficient; only the value program is rationalized.
+         residualDirectionRoots.push_back(symbolic.directional(
+-            residual, Symbolic::VariableDomain::deformation,
++            authoredResidual, Symbolic::VariableDomain::deformation,
+             result.diagnostics
+         ));
+         for (std::uint32_t candidate = 0u; candidate < stateCount; ++candidate) {
+             jacobianRoots.push_back(symbolic.derivative(
+-                residual, candidate, Symbolic::VariableDomain::candidateState,
++                authoredResidual, candidate, Symbolic::VariableDomain::candidateState,
+                 result.diagnostics
+             ));
+         }

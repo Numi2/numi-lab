@@ -1,0 +1,162 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -16181,6 +16181,14 @@
+                 };
+                 std::uint64_t phaseBytes = 0u;
+                 std::uint32_t present = 0u;
++                std::uint32_t invalidSpecCount = 0u;
++                std::uint64_t invalidMetadataBytes = 0u;
++                bool invalidMetadataTruncated = false;
++                std::vector<std::string> invalidSpecDetails;
++                constexpr std::size_t invalidSpecMetadataLimit = 192u;
++                constexpr std::uint64_t invalidSpecMetadataByteLimit = 128u * 1024u;
++                invalidSpecDetails.reserve(std::min(specs.size(),
++                    invalidSpecMetadataLimit));
+                 for (const auto& spec : specs) {
+                     id<MTLBuffer> source = spec.source == nullptr ? nil :
+                         (__bridge id<MTLBuffer>)spec.source;
+@@ -16195,20 +16203,112 @@
+                     }
+                     const std::uint64_t bytes =
+                         static_cast<std::uint64_t>(source.length);
+-                    if (spec.elementBytes == 0u ||
+-                        bytes % spec.elementBytes != 0u ||
+-                        bytes > femCoupledCaptureCapBytes ||
+-                        bytes > state.device.maxBufferLength ||
+-                        phaseBytes > femCoupledCaptureCapBytes - bytes ||
+-                        femCoupledTrialCaptureBytes >
+-                            femCoupledCaptureCapBytes - phaseBytes - bytes ||
+-                        source.device == nil ||
+-                        source.device.registryID != state.device.registryID) {
+-                        emitSkip("invalid_extent_or_aggregate_32_mib_bound");
+-                        return true;
++                    const std::uint64_t before = phaseBytes;
++                    const bool phaseAddOverflow =
++                        bytes > std::numeric_limits<std::uint64_t>::max() - phaseBytes;
++                    const std::uint64_t after = phaseAddOverflow
++                        ? std::numeric_limits<std::uint64_t>::max()
++                        : phaseBytes + bytes;
++                    const bool phaseOverCap = phaseAddOverflow ||
++                        after > femCoupledCaptureCapBytes;
++                    const bool aggregateOverCap = phaseAddOverflow ||
++                        femCoupledTrialCaptureBytes > femCoupledCaptureCapBytes ||
++                        after > femCoupledCaptureCapBytes -
++                            std::min(femCoupledTrialCaptureBytes,
++                                femCoupledCaptureCapBytes);
++                    const bool missingSourceDevice = source.device == nil;
++                    const bool deviceMismatch = !missingSourceDevice &&
++                        source.device.registryID != state.device.registryID;
++                    const bool badElementBytes = spec.elementBytes == 0u;
++                    const bool nonIntegralElementCount = !badElementBytes &&
++                        bytes % spec.elementBytes != 0u;
++                    const bool sourceOverCaptureCap =
++                        bytes > femCoupledCaptureCapBytes;
++                    const bool sourceOverDeviceMax =
++                        bytes > static_cast<std::uint64_t>(state.device.maxBufferLength);
++                    const bool invalid = badElementBytes ||
++                        nonIntegralElementCount || sourceOverCaptureCap ||
++                        sourceOverDeviceMax || phaseOverCap || aggregateOverCap ||
++                        missingSourceDevice || deviceMismatch;
++                    if (invalid) {
++                        ++invalidSpecCount;
++                        if (invalidSpecDetails.size() < invalidSpecMetadataLimit) {
++                            std::ostringstream detail;
++                            detail << "{\"name\":" << jsonQuoted(spec.name)
++                                << ",\"dtype\":" << jsonQuoted(spec.dtype)
++                                << ",\"required\":" << (spec.required ? "true" : "false")
++                                << ",\"source_bytes\":" << bytes
++                                << ",\"element_bytes\":" << spec.elementBytes
++                                << ",\"element_count_integral\":"
++                                << (badElementBytes || nonIntegralElementCount ? "false" : "true")
++                                << ",\"phase_bytes_before\":" << before
++                                << ",\"phase_bytes_after_saturating\":" << after
++                                << ",\"planned_bytes_before\":"
++                                << femCoupledTrialCaptureBytes
++                                << ",\"capture_cap_bytes\":"
++                                << femCoupledCaptureCapBytes
++                                << ",\"device_max_buffer_length\":"
++                                << static_cast<std::uint64_t>(state.device.maxBufferLength)
++                                << ",\"source_device_registry_id\":"
++                                << (missingSourceDevice ? 0u :
++                                    static_cast<std::uint64_t>(source.device.registryID))
++                                << ",\"expected_device_registry_id\":"
++                                << static_cast<std::uint64_t>(state.device.registryID)
++                                << ",\"failure_flags\":[";
++                            bool firstFlag = true;
++                            const auto flag = [&](const char* name, const bool set) {
++                                if (!set) return;
++                                if (!firstFlag) detail << ',';
++                                firstFlag = false;
++                                detail << jsonQuoted(name);
++                            };
++                            flag("zero_element_bytes", badElementBytes);
++                            flag("non_integral_element_count", nonIntegralElementCount);
++                            flag("source_over_capture_cap", sourceOverCaptureCap);
++                            flag("source_over_device_max_buffer_length", sourceOverDeviceMax);
++                            flag("phase_sum_overflow", phaseAddOverflow);
++                            flag("phase_sum_over_capture_cap", phaseOverCap && !phaseAddOverflow);
++                            flag("aggregate_sum_over_capture_cap", aggregateOverCap && !phaseAddOverflow);
++                            flag("source_device_missing", missingSourceDevice);
++                            flag("source_device_mismatch", deviceMismatch);
++                            detail << "]}";
++                            const std::string encoded = detail.str();
++                            if (invalidMetadataBytes <= invalidSpecMetadataByteLimit &&
++                                encoded.size() <= invalidSpecMetadataByteLimit - invalidMetadataBytes) {
++                                invalidMetadataBytes += encoded.size();
++                                invalidSpecDetails.emplace_back(encoded);
++                            } else {
++                                invalidMetadataTruncated = true;
++                            }
++                        } else {
++                            invalidMetadataTruncated = true;
++                        }
+                     }
+-                    phaseBytes += bytes;
++                    phaseBytes = after;
+                     ++present;
++                }
++                if (invalidSpecCount != 0u) {
++                    femCoupledTrialCaptureFailed = true;
++                    std::fprintf(stderr,
++                        "fem_coupled_trial_capture_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"trial\":%u,\"phase\":%s,\"reason\":\"invalid_extent_or_aggregate_32_mib_bound\",\"bytes_already_planned\":%llu,\"phase_bytes\":%llu,\"spec_count\":%lu,\"present_buffer_count\":%u,\"invalid_spec_count\":%u,\"invalid_specs_reported\":%lu,\"invalid_specs_truncated\":%s,\"invalid_specs\":[",
++                        femCoupledTrialCaptureRoot,
++                        femCoupledTrialCaptureIteration,
++                        femCoupledTrialCaptureTrial,
++                        jsonQuoted(phaseName).c_str(),
++                        static_cast<unsigned long long>(femCoupledTrialCaptureBytes),
++                        static_cast<unsigned long long>(phaseBytes),
++                        static_cast<unsigned long>(specs.size()),
++                        present,
++                        invalidSpecCount,
++                        static_cast<unsigned long>(invalidSpecDetails.size()),
++                        invalidMetadataTruncated ? "true" : "false");
++                    for (std::size_t index = 0u; index < invalidSpecDetails.size(); ++index) {
++                        std::fprintf(stderr, "%s%s",
++                            index == 0u ? "" : ",", invalidSpecDetails[index].c_str());
++                    }
++                    std::fprintf(stderr, "],\"metadata_limit_bytes\":%llu,\"physical_state_changed\":false}\n",
++                        static_cast<unsigned long long>(invalidSpecMetadataByteLimit));
++                    return true;
+                 }
+                 if (present == 0u) {
+                     emitSkip("phase_has_no_present_buffers");
+@@ -16346,7 +16446,7 @@
+                     push("fem_linearization_nodes", "record:NMFEMNodeStateGPU",
+                         sizeof(NMFEMNodeStateGPU), state.femCandidate, true);
+                     push("fem_topology_nodes_candidate",
+-                        "record:NMFEMNodeStateGPU", sizeof(NMFEMNodeStateGPU),
++                        "record:NMFEMTopologyNodeGPU", sizeof(NMFEMTopologyNodeGPU),
+                         state.femTopologyNodesCandidate);
+                     push("material_history_candidate_production", "float32",
+                         sizeof(float), state.femMaterialStateCandidate);
+@@ -16390,8 +16490,8 @@
+                         state.coupledGeneralizedOutput);
+                     push("coupled_point_jacobians", "float32",
+                         sizeof(float), state.coupledPointJacobians);
+-                    push("coupled_inverse_statuses", "record:NMMatterStatusGPU",
+-                        sizeof(NMMatterStatusGPU), state.coupledInverseStatuses);
++                    push("coupled_inverse_statuses", "record:MRInverseMassStatusGPU",
++                        sizeof(MRInverseMassStatusGPU), state.coupledInverseStatuses);
+                     push("contact_pairs", "record:NMContactPairGPU",
+                         sizeof(NMContactPairGPU), state.contactPairs);
+                     push("contact_histories_accepted", "float32x4",

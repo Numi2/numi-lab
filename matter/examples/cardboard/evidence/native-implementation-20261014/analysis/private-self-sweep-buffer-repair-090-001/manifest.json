@@ -1,0 +1,54 @@
+{
+  "schema": "numi.cardboard.private-sweep-buffer-repair.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-mortar-union-090",
+  "files": {
+    "matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "base_sha256": "46ee2b3f3833f1579c2c83f9392e3dfd1f431a8664557d8cf1cf3808e0c61942",
+      "overlay_sha256": "3b830b79e090179c93d7666917bb4736319fb48743791382122a0279520c2605"
+    }
+  },
+  "patch_sha256": "c12655cdacb4c3eead26603f225941d1f87105825e2f6974b42205b97a88c457",
+  "failed_run": "/Users/home/cardboard-implementation-20261014/native/bounded-mortar-union-private-ccd-297",
+  "crash_report": "/Users/home/Library/Logs/DiagnosticReports/numi-matter-cardboard-full-contact-armijo-check-2026-10-15-122338.ips",
+  "crash_report_sha256": "e671b331fe3153a5b9eb786a84238e53b24500c1d763b6784f20c78f4609d302",
+  "exception": {
+    "codes": "0x0000000000000001, 0x0000000000000000",
+    "rawCodes": [
+      1,
+      0
+    ],
+    "type": "EXC_BAD_ACCESS",
+    "signal": "SIGSEGV",
+    "subtype": "KERN_INVALID_ADDRESS at 0x0000000000000000"
+  },
+  "frames": [
+    {
+      "symbol": "_platform_memmove",
+      "symbolLocation": 420,
+      "imageIndex": 3
+    },
+    {
+      "symbol": "-[AGXG16GFamilyDevice newBufferWithBytes:length:options:]",
+      "symbolLocation": 116,
+      "imageIndex": 2
+    },
+    {
+      "symbol": "(anonymous namespace)::runPrivateSelfSweepKernelCase(id<MTLDevice>, id<MTLCommandQueue>, id<MTLComputePipelineState>, (anonymous namespace)::PrivateSelfSweepCase)",
+      "symbolLocation": 2448,
+      "imageIndex": 0
+    },
+    {
+      "symbol": "main",
+      "symbolLocation": 19296,
+      "imageIndex": 0
+    },
+    {
+      "symbol": "start",
+      "symbolLocation": 6992,
+      "imageIndex": 4
+    }
+  ],
+  "cause": "std::vector reference upload used sizeof(vector) and null data for zero count; 24 bytes is not element_count*sizeof(nm_uint4)",
+  "repair": "Use typed vector upload helper with live zero sentinel for empty values and actual element extent. No production Metal, physics, tolerance or world change.",
+  "native_retest": "PENDING"
+}

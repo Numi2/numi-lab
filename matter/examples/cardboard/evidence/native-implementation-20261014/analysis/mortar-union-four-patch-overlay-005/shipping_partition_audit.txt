@@ -1,0 +1,9 @@
+first_failure_side=left reason=patch_pair_overlap pair=39828,987823 records=2
+left_overlap stable=100158,100159 area=1.460882082e-09 error=
+record stable=100158 source=hma index=2173 left=0x1.440cf6p-2,0x1.51afcap-1,0x1.89374cp-6 left=0x1.8p-57,0x1.f9db22p-1,0x1.89374cp-7 left=0x1.440cf6p-2,0x1.569a16p-1,0x1.d7dbf4p-7 right=0x0p+0,0x1.99999ap-3,0x1.99999ap-1 right=0x1p-2,0x1.f006d6p-46,0x1.8p-1 right=0x1.99999ap-3,0x0p+0,0x1.99999ap-1
+record stable=100159 source=hma index=2174 left=0x1.440cf6p-2,0x1.51afcap-1,0x1.89374cp-6 left=0x0p+0,0x1.f3b646p-1,0x1.89374cp-6 left=0x1.8p-57,0x1.f9db22p-1,0x1.89374cp-7 right=0x0p+0,0x1.99999ap-3,0x1.99999ap-1 right=0x0p+0,0x1p-2,0x1.8p-1 right=0x1p-2,0x1.f006d6p-46,0x1.8p-1
+nodes=528444 tets=1477728 starch_faces=97984 hma_patches=162851 unique_parent_pairs=183033 max_multiplicity=4 audited_pairs=183033 partition_valid_pairs=148947 max_partition_cells=27 max_cell_pair=1035415,1629084 max_parent_area_error=0.0003281831741
+overlap_classification source_FP32_reject_pairs=34682 long_double_zero_clip_FP32_map_pairs_over_threshold=0 source_only_tolerance_sliver_pairs=34682 source_only_exact_shared_edge_proven_pairs=34185 source_only_unproven_pairs=497 FP32_patch_side_areas_at_or_below_native_floor=2
+failure_left:patch_area_invalid=1
+failure_left:patch_pair_overlap=21260
+failure_right:patch_pair_overlap=12825

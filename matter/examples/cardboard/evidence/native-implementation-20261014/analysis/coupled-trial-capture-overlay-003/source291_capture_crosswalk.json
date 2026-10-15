@@ -1,0 +1,64 @@
+{
+  "capture_arrays": {
+    "coupled_inverse_statuses": {
+      "byte_count": 96,
+      "count": 24,
+      "dtype": "uint32",
+      "element_bytes": 4,
+      "sha256": "2ea9ab9198d1638007400cd2c3bef1cc745b864b76011a0e1bc52180ac6452d4"
+    },
+    "fem_topology_nodes_accepted": {
+      "byte_count": 576,
+      "count": 36,
+      "dtype": "record:NMFEMTopologyNodeGPU",
+      "element_bytes": 16,
+      "sha256": "9648d4e9006170db48313ecb0aae4e8ba02b678082c85ce56e298664f84a422e"
+    },
+    "fem_topology_nodes_candidate": {
+      "byte_count": 576,
+      "count": 36,
+      "dtype": "record:NMFEMTopologyNodeGPU",
+      "element_bytes": 16,
+      "sha256": "9648d4e9006170db48313ecb0aae4e8ba02b678082c85ce56e298664f84a422e"
+    }
+  },
+  "evidence_scope": "diagnostic type/extent crosswalk only; capture 291 is not the failing trial capture",
+  "known_runtime_schema_corrections": [
+    {
+      "actual_count": 36,
+      "actual_type": "NMFEMTopologyNodeGPU/16",
+      "capture_291_bytes": 576,
+      "name": "fem_topology_nodes_candidate",
+      "prior_wrong_type": "NMFEMNodeStateGPU/80"
+    },
+    {
+      "actual_type": "MRInverseMassStatusGPU/48",
+      "capture_291_bytes": 96,
+      "capture_291_legacy_label": "uint32/4; this older whole-state label is not the C++ buffer element type",
+      "name": "coupled_inverse_statuses",
+      "prior_wrong_type": "NMMatterStatusGPU/48"
+    }
+  ],
+  "runtime_allocation_types": {
+    "coupled_inverse_statuses": {
+      "cpp_type": "MRInverseMassStatusGPU",
+      "element_bytes": 48,
+      "evidence": "candidate->coupledInverseStatuses uses privateScratch<MRInverseMassStatusGPU> in source 094",
+      "legacy_capture_label_caveat": "The retained full-state capture says uint32 \u00d7 24. The buffer is sourced from MRInverseMassStatusGPU scratch; 96 bytes are two 48-byte records. The trial-context correction uses the C++ buffer schema.",
+      "source_allocation_byte_count_for_291": 96,
+      "source_allocation_record_count_for_291": 2
+    },
+    "fem_topology_nodes_candidate": {
+      "cpp_type": "NMFEMTopologyNodeGPU",
+      "element_bytes": 16,
+      "evidence": "candidate->femTopologyNodesCandidate uploads a span<const NMFEMTopologyNodeGPU> in source 094"
+    }
+  },
+  "runtime_source094_sha256": "2fbdf2c09e5e27fadf15f6503e56d3dc042215eabf1029b4ebd3aa08e143b2e3",
+  "schema": "numi.matter.coupled_trial_capture_known_extent_crosswalk.v1",
+  "source_capture_manifest": "/Users/home/cardboard-implementation-20261014/analysis/retained-coupled-failure-capture-291/candidate-capture.coupled.json",
+  "source_capture_manifest_sha256": "fd77314acad48353980cdd33a05e8cccadd3a7e607c9b098f55647f852acb3b7",
+  "source_capture_package": "/Users/home/cardboard-implementation-20261014/analysis/retained-coupled-failure-capture-291/package.json",
+  "source_capture_package_sha256": "15cf4f52a75917e321b1cb0d27ad7fa1f17e4b38a3aac9cb53314fcce35b586d",
+  "source_capture_physics_fingerprint": "915f50b10edc2e46"
+}

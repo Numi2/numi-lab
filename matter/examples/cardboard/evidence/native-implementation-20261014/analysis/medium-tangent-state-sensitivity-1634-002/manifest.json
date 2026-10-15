@@ -1,0 +1,145 @@
+{
+  "schema": "numi.cardboard.medium-tangent-mp90-endpoint-fd.package.v1",
+  "classification": "Read-only CPU sensitivity package for two captured medium points; qualification false.",
+  "artifacts": {
+    "README.md": {
+      "bytes": 3392,
+      "sha256": "e9d38ef976b8fcae48ffef10177ce1abeebec67e03479dd1dff7b4133c3b9048"
+    },
+    "mp90_endpoint_fd.py": {
+      "bytes": 18099,
+      "sha256": "042cd63f87206f4cc8698e16d7ec75348637d1b219a0d0f7fc8b148f0d585913"
+    },
+    "common-epsilon-1e-7.py": {
+      "bytes": 3380,
+      "sha256": "7985327f43c9ee0d04c2fe0e8c927d823b5d7cc84bde0670f512c7a38b427fe1"
+    },
+    "summarize.py": {
+      "bytes": 12679,
+      "sha256": "cea23a76b376c65f7c94f415d1ab1ddce7f6ed076e98a44a470308bf493943fd"
+    },
+    "verify_package.py": {
+      "bytes": 4957,
+      "sha256": "70d38b1b65eed4d4d01df1e16d9b6ceee168317b687f73624a11bece3aa7a55c"
+    },
+    "report.json": {
+      "bytes": 3344399,
+      "sha256": "00e8de2ac631931ff4b1b26660c6f8fca0b3afe76aea11514d4777844d1ecd3a"
+    },
+    "common-epsilon-1e-7.json": {
+      "bytes": 437983,
+      "sha256": "8ef41a70265149390923f8789a13e9e10af5839c8c2c8db9a4c3900a0c3d3c4c"
+    },
+    "summary.json": {
+      "bytes": 262891,
+      "sha256": "a1f0489c5ba51ff05890bc276f1d6239dfaeee96a0f17d13259f348602861198"
+    }
+  },
+  "source_bindings": [
+    {
+      "role": "prior_report",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-tangent-state-sensitivity-1634-001/report.json",
+      "bytes": 134599,
+      "sha256": "4df12fcf9ac76a4b38797a6e25b9342d47a1129341145fbdde0b519c2021b3c0"
+    },
+    {
+      "role": "prior_manifest",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-tangent-state-sensitivity-1634-001/manifest.json",
+      "bytes": 8247,
+      "sha256": "98db21d6dcd1425db661081213bd5946bd7b9e2b3cf3f93273d08be7fa4cf50b"
+    },
+    {
+      "role": "prior_reference_equations",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-tangent-state-sensitivity-1634-001/replay.py",
+      "bytes": 34257,
+      "sha256": "3214549746cb872fbf089f59e96ce961b239bae3a724f5da7bbeed9f8b0497f0"
+    },
+    {
+      "role": "captured_operator_state",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/recycle-source-default-first-control-283/operator-capture",
+      "bytes": 32822301,
+      "sha256": "4decb7be2fbfa93ad97c0f2f22cfaca974931269068bed90e98815b09066b870"
+    },
+    {
+      "role": "capture_run_prediction",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/recycle-source-default-first-control-283/prediction.json",
+      "bytes": 101437,
+      "sha256": "13d71c00d26d51fc8002db80fecd4978c43165b9bc3c0b7cc7f242a70760da39"
+    },
+    {
+      "role": "capture_source_build_receipt",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/recycle-source-default-first-control-283/inputs/external/source-build.json",
+      "bytes": 113839,
+      "sha256": "a3d185edd518e1799d9742d117fb3674fcf5101b6f0c6da4b3152d37abda0a9e"
+    },
+    {
+      "role": "native300_accurate_points",
+      "path": "/Users/home/cardboard-implementation-20261014/native/rationalized-all-paper-entry-points-300/output/paper-points-accurate.jsonl",
+      "bytes": 5771302,
+      "sha256": "7c037b868e4f3d60e38ef0d030bfd75b29f4478660452623e92ca72a70a197fe"
+    },
+    {
+      "role": "native300_receipt",
+      "path": "/Users/home/cardboard-implementation-20261014/native/rationalized-all-paper-entry-points-300/receipt.json",
+      "bytes": 306,
+      "sha256": "f2cada2db2780f17271fd53ab32f9b4d22200fdd3a9f8870265e31ec350ee5c2"
+    },
+    {
+      "role": "native300_prediction",
+      "path": "/Users/home/cardboard-implementation-20261014/native/rationalized-all-paper-entry-points-300/prediction.json",
+      "bytes": 101023,
+      "sha256": "9135d553ae4e1e35c722a432e61954edf4fb4279552a4e3921b15a602c367ea0"
+    },
+    {
+      "role": "medium_material_asset_source085",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-accepted-correction-regional-recycle-085/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+      "bytes": 15906,
+      "sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9"
+    },
+    {
+      "role": "native306_controlled_sweep_root_report",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/controlled-material-sweep-306-001/report.json",
+      "bytes": 1521632,
+      "sha256": "7d6f20f64bd7ab5da592509b3ca1becab215ae82eea026e4eb03ad5b04a8fe88"
+    },
+    {
+      "role": "native306_accurate_raw_points",
+      "path": "/Users/home/cardboard-implementation-20261014/native/controlled-material-sweep-native-306/output/paper-derivative-sweep-accurate.jsonl",
+      "bytes": 1951738,
+      "sha256": "bac79e82367e3b8dc026d8654903d51b67d3511be99ac1cd067263fd595eddd5"
+    },
+    {
+      "role": "native306_default_raw_points",
+      "path": "/Users/home/cardboard-implementation-20261014/native/controlled-material-sweep-native-306/output/paper-derivative-sweep-default.jsonl",
+      "bytes": 1951737,
+      "sha256": "b1c6263c33a36576131c8be6f6f9a185a31f515e3d4092a142eeeb577822e99e"
+    },
+    {
+      "role": "native306_receipt",
+      "path": "/Users/home/cardboard-implementation-20261014/native/controlled-material-sweep-native-306/receipt.json",
+      "bytes": 305,
+      "sha256": "ca574ac4013d275cdb9aeabaa65cfc4a824e4bd640c58031fb7197b74418e4b3"
+    },
+    {
+      "role": "native306_prediction",
+      "path": "/Users/home/cardboard-implementation-20261014/native/controlled-material-sweep-native-306/prediction.json",
+      "bytes": 101144,
+      "sha256": "4cf56e2b9c3f7c26e2aaae6d037076a51f11e88354c3d1f3ba1ac29db569d9c1"
+    }
+  ],
+  "source_index": {
+    "capture_sha256": "4decb7be2fbfa93ad97c0f2f22cfaca974931269068bed90e98815b09066b870",
+    "native300_accurate_sha256": "7c037b868e4f3d60e38ef0d030bfd75b29f4478660452623e92ca72a70a197fe",
+    "medium_asset_sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+    "prior_recorded_frozen_source_manifest_sha256": "81614c67713b251dd0c4ccf019abcb3da8f2702c6762453a12558e8a1d632bdd",
+    "capture_source_build_source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-accepted-correction-regional-recycle-085"
+  },
+  "execution": {
+    "python": "3.10.12 (main, May 15 2025, 18:07:36) [Clang 17.0.0 (clang-1700.0.13.3)]",
+    "platform": "macOS-26.6-arm64-arm-64bit",
+    "numpy": "2.2.5",
+    "mpmath": "1.3.0",
+    "mp90_digits": 90,
+    "full_sweep_elapsed_seconds": 297.3603301048279
+  }
+}

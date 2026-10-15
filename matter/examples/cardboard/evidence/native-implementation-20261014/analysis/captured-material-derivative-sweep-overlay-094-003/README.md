@@ -1,0 +1,3 @@
+# Finer native material perturbations
+
+Adds1e-9 through1e-12 second basis perturbations after the independent MP90 endpoint sweep identified finite-step curvature at the former smallest steps. The low F word is formed from the small residual before adding the order-one high word, avoiding loss of the tiny increment in that intermediate FP64 sum. Actual high/low F and rounded Fdot words remain recorded. Unresolved realized directions cannot pass a derivative gate. The16MiB exclusive output guard, same accepted history, actual compiled local budgets and unchanged production equations remain in place. Expected1536 rows/policy; native execution pending.

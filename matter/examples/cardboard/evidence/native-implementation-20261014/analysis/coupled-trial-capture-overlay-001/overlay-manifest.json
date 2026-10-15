@@ -1,0 +1,47 @@
+{
+  "base_source": "source-direct-projection-diagnostic-089",
+  "files": {
+    "base_runtime": {
+      "bytes": 1525562,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-direct-projection-diagnostic-089/matter/src/runtime.mm",
+      "sha256": "a980ee59341429440e83984dd02073123c9647f19655a94260119a5d67aa5918"
+    },
+    "checker": {
+      "bytes": 5380,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupled-trial-capture-overlay-001/check_trial_capture_overlay.py",
+      "sha256": "70a07adc562846c52c2bef25ead090c5d5f5bc239fec957a64bd76d6f96506a8"
+    },
+    "overlay_runtime": {
+      "bytes": 1581629,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupled-trial-capture-overlay-001/overlay/matter/src/runtime.mm",
+      "sha256": "4b8dc05747e3224e8bc82692c795a56f3b3cfd7ad5ea067fd151c056fdcb31e4"
+    },
+    "patch": {
+      "bytes": 60821,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupled-trial-capture-overlay-001/runtime.patch",
+      "sha256": "e1b6edc9aed9dd552eeb0326fdde4e3c19deb363dd10ada61a645991af69940d"
+    },
+    "readme": {
+      "bytes": 3990,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupled-trial-capture-overlay-001/README.md",
+      "sha256": "529cd808f94b9ec2836d458881d2e9456748cc141a135f978541e68f0018599c"
+    },
+    "static_check": {
+      "bytes": 574,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupled-trial-capture-overlay-001/static-check.json",
+      "sha256": "6f108b690ee8436f94ecb0014d6e4dc6880cf851e35edcf46270c09ae0556e00"
+    }
+  },
+  "limits": {
+    "aggregate_readback_bytes": 33554432,
+    "array_count": 192
+  },
+  "schema": "numi.matter.coupled_armijo_trial_capture_overlay_manifest.v1",
+  "scope": "diagnostic_only_no_solver_or_physical_policy_changes",
+  "verification": {
+    "native_gpu_run": false,
+    "objcxx_syntax_only": "PASS",
+    "patch_reproduction": "PASS",
+    "portable_source_contract_checks": 19
+  }
+}

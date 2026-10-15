@@ -1,0 +1,8 @@
+{
+  "exit_code": 0,
+  "result": {
+    "restored_files": 2,
+    "samples_per_policy": 1536
+  },
+  "package_sha256": "3c6d6659404f652c7c6106fe901a6609770c0807ac89ddad656c1a8fee461bbb"
+}

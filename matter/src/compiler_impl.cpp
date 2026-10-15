@@ -2514,6 +2514,9 @@ CompileResult compileWorld(
                 }
             }
             std::set<std::uint32_t> cohesiveIdentifiers;
+            constexpr std::uint32_t maxMixedPatchesPerPrimitivePair = 4u;
+            std::map<std::pair<std::uint64_t, std::uint64_t>, std::uint32_t>
+                mixedPatchCountsByPrimitivePair;
             for (const CohesiveInterfaceSource& interface :
                  object.femCohesiveInterfaces) {
                 const auto error = [&](const std::string& detail) {
@@ -2689,6 +2692,21 @@ CompileResult compileWorld(
                         return std::ranges::find(pairedSideB, node) ==
                             pairedSideB.end();
                     });
+                if (interface.lawKind == CohesiveLawKind::mixedModeBilinear &&
+                    object.deformableSelfContact) {
+                    const std::uint64_t primitiveA =
+                        4ull * interface.firstTetrahedron + oppositeA;
+                    const std::uint64_t primitiveB =
+                        4ull * interface.secondTetrahedron + oppositeB;
+                    const auto canonicalPair = std::minmax(primitiveA, primitiveB);
+                    std::uint32_t& pairCount = mixedPatchCountsByPrimitivePair[
+                        {canonicalPair.first, canonicalPair.second}];
+                    if (pairCount >= maxMixedPatchesPerPrimitivePair) {
+                        error("same-object FEM self-contact supports at most four mixed-mode cohesive patches per canonical parent primitive pair; patch-capacity overflow is rejected before runtime");
+                        return result;
+                    }
+                    ++pairCount;
+                }
                 if (interface.lawKind == CohesiveLawKind::mixedModeBilinear) {
                     const auto unoriented = cross3(
                         subtract3(point(pairedSideA[1]), point(pairedSideA[0])),
@@ -2862,6 +2880,36 @@ CompileResult compileWorld(
                     !containsFace(tetB, patch.sideBNodes)) {
                     error("each parent-node triple must be a face of its declared tetrahedron");
                     return result;
+                }
+                const auto oppositeCorner = [](
+                    const TetrahedronSource& tet,
+                    const std::array<std::uint32_t, 3>& face) {
+                    for (std::uint32_t corner = 0u; corner < 4u; ++corner)
+                        if (std::ranges::find(face, tet.nodes[corner]) == face.end())
+                            return corner;
+                    return std::numeric_limits<std::uint32_t>::max();
+                };
+                const std::uint32_t oppositeA =
+                    oppositeCorner(tetA, patch.sideANodes);
+                const std::uint32_t oppositeB =
+                    oppositeCorner(tetB, patch.sideBNodes);
+                if (oppositeA >= 4u || oppositeB >= 4u) {
+                    error("parent primitive identity could not be derived from the authored face nodes");
+                    return result;
+                }
+                if (object.deformableSelfContact) {
+                    const std::uint64_t primitiveA =
+                        4ull * patch.firstTetrahedron + oppositeA;
+                    const std::uint64_t primitiveB =
+                        4ull * patch.secondTetrahedron + oppositeB;
+                    const auto canonicalPair = std::minmax(primitiveA, primitiveB);
+                    std::uint32_t& pairCount = mixedPatchCountsByPrimitivePair[
+                        {canonicalPair.first, canonicalPair.second}];
+                    if (pairCount >= maxMixedPatchesPerPrimitivePair) {
+                        error("same-object FEM self-contact supports at most four mixed-mode cohesive patches per canonical parent primitive pair; patch-capacity overflow is rejected before runtime");
+                        return result;
+                    }
+                    ++pairCount;
                 }
                 std::array<std::array<double, 3>, 3> mapA =
                     patch.sideAVertexBarycentric;

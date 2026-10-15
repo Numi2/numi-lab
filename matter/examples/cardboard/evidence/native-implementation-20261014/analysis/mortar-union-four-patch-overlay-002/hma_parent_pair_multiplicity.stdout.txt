@@ -1,0 +1,9 @@
+nodes=528444 tets=1477728 starch_faces=97984 hma_patches=162851 hma_groups=9 total_mortar_records=260835 unique_parent_pairs=183033 max_multiplicity=4 max_pair=1052311,1073868
+multiplicity_1=106021
+multiplicity_2=76227
+multiplicity_3=780
+multiplicity_4=5
+max_record_source=hma source_index=73358
+max_record_source=hma source_index=73359
+max_record_source=hma source_index=73360
+max_record_source=hma source_index=73361

@@ -1,0 +1,40 @@
+{
+  "schema": "numi.cardboard.bounded-fp64-derivative-prediction.v1",
+  "question": "Do smaller FP64 perturbations resolve the previously curvature-limited two medium matrices?",
+  "points": [
+    1634,
+    1638
+  ],
+  "epsilons": [
+    1e-08,
+    1e-09,
+    1e-10,
+    1e-11,
+    1e-12
+  ],
+  "stopping": "One complete declared epsilon sweep at both retained states; no failed point exclusion.",
+  "gate": "relative full-matrix error <=1e-6 against independent MP90; record actual realized input direction error and endpoint branches. Near-zero component and noise-floor gates remain separate.",
+  "interpretation": "Exploratory reference accuracy experiment motivated by separately retained MP90 endpoint sweep; no physical steps.",
+  "inputs": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-tangent-state-sensitivity-1634-001/report.json",
+      "sha256": "4df12fcf9ac76a4b38797a6e25b9342d47a1129341145fbdde0b519c2021b3c0"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-tangent-state-sensitivity-1634-001/manifest.json",
+      "sha256": "98db21d6dcd1425db661081213bd5946bd7b9e2b3cf3f93273d08be7fa4cf50b"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-tangent-state-sensitivity-1634-001/replay.py",
+      "sha256": "3214549746cb872fbf089f59e96ce961b239bae3a724f5da7bbeed9f8b0497f0"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/retained-paper-allpoint-reference-296-001/reference.npz",
+      "sha256": "b1c53a73565da713531a4ca85297ed12441d4088b6b0b98dd3f8fb603ee8411d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3"
+    }
+  ]
+}

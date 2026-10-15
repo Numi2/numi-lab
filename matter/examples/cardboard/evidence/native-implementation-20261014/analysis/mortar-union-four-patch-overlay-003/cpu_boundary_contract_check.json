@@ -1,0 +1,86 @@
+{
+  "schema": "numi.cardboard.mortar-boundary-contract-cpu.v1",
+  "evidence_class": "CPU float32 map and predicate checks; no Metal CCD execution",
+  "native301": {
+    "receipt_sha256": "661af1c33264ec9475cd1fc2caafeff9fcad469df7f0767e4b84b65ddc5a71f9",
+    "stderr": "FAIL full-contact residual Armijo fixture: three matched mortar patches failed to preserve normal closure across their shared edges",
+    "limitation": "native 301 did not capture the first pair/witness; the exact-pair attribution remains a CPU reconstruction"
+  },
+  "source091_hashes": {
+    "contact_metalinc": "ece2110ea3181ddd7527df9d1284b465ac5035279fa71232393491dd4cbf6632",
+    "checker": "e8a9d5587b47280bc0250280f7fc28b18f2f339bd001137a4da114e5edf1fdf1",
+    "common_metalinc": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182"
+  },
+  "predicate_constants": {
+    "paired_boundary_bary_tolerance": 8e-06,
+    "nonapproach_epsilon": 1.1920928955078125e-07,
+    "geometry_floor": 1e-12,
+    "source_values": "contact.metalinc kMortarPairedBoundaryBaryTolerance; common.metalinc kEpsilon and kGeometryFloor"
+  },
+  "checks": {
+    "three_patch_shared_edge_endpoints_and_interior": "PASS",
+    "different_edge_parameter_not_exempted": "PASS",
+    "off_edge_not_exempted": "PASS",
+    "separating_witness_nonapproaching": "PASS",
+    "exact_common_translation_gate": "PASS",
+    "linear_endpoint_later_crossing_counterexample": "PASS",
+    "tangential_witness_nonapproaching": "PASS",
+    "inward_normal_witness_remains_candidate": "PASS",
+    "positive_area_cyclic_mismatch_remains_candidate": "PASS",
+    "four_patch_tiling_area_and_shared_edge_count": "PASS"
+  },
+  "cross_identity_control": {
+    "left_patch_id": 0,
+    "right_patch_id": 2,
+    "positive_overlap_area_in_parent_barycentric": 0.1666666567325592,
+    "paired_shared_boundary_exists": true,
+    "interior_overlap_witness_exempted": false
+  },
+  "later_crossing_counterexample": {
+    "theta_rad": 0.17453292519943295,
+    "later_contact_t": 0.5708824738476331,
+    "edge_fraction": 0.4607016386514907,
+    "edge_cross_residual_m": 0.0,
+    "initial_local_normal_dot_m_per_step": 0.08,
+    "later_relative_normal_speed_m_per_step": -0.08029941100823963,
+    "within_edge_segment": true,
+    "endpoint_interpolation": "linear between authored start and end vertices",
+    "A": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "B_start": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "B_end": [
+      0.984807753012208,
+      0.0,
+      0.17364817766693033
+    ],
+    "B_at_contact": [
+      0.9913270124563051,
+      0.0,
+      0.0991327012456305
+    ],
+    "C": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "P_at_contact": [
+      0.4567059790781065,
+      0.0,
+      0.04567059790781065
+    ]
+  },
+  "four_patch": {
+    "cell_count": 4,
+    "total_barycentric_area": 0.5,
+    "paired_shared_edges": 3,
+    "capacity": 4
+  },
+  "verdict": "CPU contract checks pass for the narrow common-translation gate. The old local normal-dot predicate is not a whole-sweep proof; the retained linear-endpoint counterexample demonstrates later inward crossing. Metal/GPU validation not performed."
+}

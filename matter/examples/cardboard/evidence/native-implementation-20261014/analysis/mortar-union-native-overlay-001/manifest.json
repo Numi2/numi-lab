@@ -1,0 +1,105 @@
+{
+  "schema": "numi.cardboard.mortar_union_overlay.v1",
+  "package": "mortar-union-native-overlay-001",
+  "base": {
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-captured-point-and-contact-scope-086",
+    "parent_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+    "frozen_source_json_sha256": "769a5e34c1d919293cb263fd27fbd041a482d22016c2818eec41d44e47935752"
+  },
+  "patch": {
+    "path": "mortar-union.patch",
+    "sha256": "f4731f58c0e274f180f276dd41b036d9b1e20364994fe8aea70000c5c27a06b7",
+    "bytes": 72392,
+    "apply_check": "patch -p1 against the three touched files from base; exact output byte-equal to overlay"
+  },
+  "files": {
+    "matter/src/metal/contact.metalinc": {
+      "base_sha256": "9e4ce2d8213c83a9a3e58a64388562cb92638c892b21e612653e92400b654f1f",
+      "overlay_sha256": "ece2110ea3181ddd7527df9d1284b465ac5035279fa71232393491dd4cbf6632"
+    },
+    "matter/src/compiler_impl.cpp": {
+      "base_sha256": "46783699e8fe29c2bec502c987f86f6fc11dc0e832e56886c9cb553e2cc0d350",
+      "overlay_sha256": "7fb4f135afcd0d4aab01f9ea8cedec9abf7dcddde91d51d94e11793d58b7b4e3"
+    },
+    "matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "base_sha256": "6eb68eea4e258866f7c1b41c1c74cbc40ed27b9e06a31a6e1ad503aa8064123c",
+      "overlay_sha256": "46ee2b3f3833f1579c2c83f9392e3dfd1f431a8664557d8cf1cf3808e0c61942"
+    }
+  },
+  "implementation": {
+    "max_active_mixed_patches_per_canonical_parent_primitive_pair": 3,
+    "max_partition_triangles_per_parent_side": 64,
+    "overlap_area_tolerance_parent_barycentric": 1e-10,
+    "deterministic_patch_order": "stable authored face identifier ascending",
+    "contact_suppression": "only matching covered face identity on both parent sides",
+    "callers": [
+      "ordinary full-contact triangle-pair generation",
+      "private swept-CCD validator"
+    ],
+    "cohesive_history": "per-face authored history unchanged and independent",
+    "fail_closed": [
+      "fourth active mixed patch at a canonical pair",
+      "invalid barycentric mapping",
+      "positive-area overlap beyond threshold",
+      "partition clipping/cell capacity overflow"
+    ],
+    "per_thread_storage_estimate_bytes": 6552,
+    "per_thread_storage_estimate_basis": "two 64-cell output partitions + one temporary partition + up to 9 float3 mapped vertices + two 6-vertex clipping buffers + one 3-vertex covered polygon; excludes other kernel locals and compiler registers/spills",
+    "shipping_topology_note": "Default starch interface generator emits one paired patch per manifold paper/glue face pair. Optional HMA closure patch multiplicity was not inspected; the bound is not qualification for four-or-more patches."
+  },
+  "tests": {
+    "python_reference": {
+      "command": "python3 -m unittest -v test_mortar_union_partition.py",
+      "result": "PASS",
+      "tests": 14,
+      "evidence_sha256": "8ebacf42bf0139206d522b44c67d299d4dcdf9575e1c0e3a49df8ef2d52a7984"
+    },
+    "strict_cxx": {
+      "command": "clang++ -std=c++23 -fsyntax-only -Wall -Wextra -Wpedantic -Werror -I <source086>/matter/include -I <source086>/include -I <source086>/matter/src <overlay>/matter/src/compiler_impl.cpp",
+      "result": "PASS"
+    },
+    "strict_objcxx": {
+      "command": "clang++ -x objective-c++ -std=c++23 -fobjc-arc -fsyntax-only -Wall -Wextra -Wpedantic -Werror -Wno-unused-const-variable -Wno-unused-function -DNUMI_MATTER_METALLIB=\\\"\\\" -I <source086>/matter/include -I <source086>/include -I <source086>/matter/src -I <source086>/matter/tools <overlay>/matter/tools/cardboard_full_contact_armijo_check.mm",
+      "result": "PASS"
+    },
+    "metal_compile": {
+      "command": "xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <source086>/matter/include -I <source086>/include -I <source086>/matter/src -c <source086>/matter/src/matter_kernels.metal -o final-NumiMatter.air",
+      "result": "PASS",
+      "warnings": [
+        "fgmres.metalinc: sharedValid potentially uninitialized",
+        "fgmres.metalinc: refinementValid potentially uninitialized"
+      ],
+      "air_sha256": "c288a16e14d4b26a7d75a21aa88e615a628e8e0aa542cd32ce1960709e928421"
+    },
+    "cmake_target": {
+      "target": "numi-matter-cardboard-full-contact-armijo-check",
+      "result": "BUILT",
+      "binary_sha256": "f3553230426438044ff1a2bb4cf0442ed282d92da56920656e7be38a524f6efa",
+      "metallib_sha256": "3207952955064b8ea929ec03371be24164198a3a8e2d9f9632e15f83f7a66249",
+      "build_copy_extra_file": "bindings/swift/MetalRoboTaskRollout.swift",
+      "extra_file_sha256": "660bdb7207864f5262b30d66a6b478659990b4fa4c4086ca38884125f03ec4fc",
+      "note": "The out-of-tree full source copy needed a placeholder for an unrelated absent Swift binding to configure the project. This file is not part of the overlay."
+    },
+    "cpu_native_checker": {
+      "command": "build-full/matter/numi-matter-cardboard-full-contact-armijo-check build-source/matter/materials/nagasawa2013_medium_orthotropic.nmatter --cpu-only",
+      "result": "PASS",
+      "native_fem_transactions": 0,
+      "physical_validation": false,
+      "stdout_summary": "source admission pass; 36 nodes, 48 tets, 72 contact pairs"
+    },
+    "native_gpu": {
+      "result": "NOT_RUN",
+      "owner": "parent task"
+    }
+  },
+  "limits": [
+    "No GPU/native union transaction executed in this subtask.",
+    "CPU partition tests and CPU source admission do not qualify Metal runtime behavior.",
+    "Synthetic fixture only; no cardboard physical validation.",
+    "Optional HMA closure multiplicity and complex arbitrary patch arrangements remain unqualified."
+  ],
+  "analysis_sources": {
+    "python_reference_sha256": "47e0073d9c195167cd15ec3e45236eb8549688be36ee29c6967376e9696541d6",
+    "python_tests_sha256": "8ebacf42bf0139206d522b44c67d299d4dcdf9575e1c0e3a49df8ef2d52a7984"
+  }
+}

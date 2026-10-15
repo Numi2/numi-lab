@@ -1,0 +1,296 @@
+{
+  "schema": "numi.cardboard.mortar-failed-prefix-parity.v1",
+  "run": "/Users/home/cardboard-implementation-20261014/native/same-parent-mortar-original-four-arm-299",
+  "receipt": {
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": true,
+    "changed_inputs": [],
+    "exit_code": 1,
+    "timed_out": false,
+    "termination_errors": [],
+    "wall_seconds": 384.4446389590157,
+    "finished_at_utc": "2026-10-15T10:34:51.260401+00:00"
+  },
+  "interpretation": "Accepted activation followed by strict closure rejection in every arm. Compare only emitted failed prefixes; no complete-sequence parity, contact qualification, calibration or physical assembly.",
+  "paired_files": [
+    {
+      "face_count": 1,
+      "name": "arm-result.json",
+      "bytes_a": 820,
+      "bytes_b": 819,
+      "sha256_a": "998c3406495e3427983f532b1833b18fe2f380712062734864a754a26ab5bc5d",
+      "sha256_b": "5c6e3f68fa199330caca93e95b52ab1993793ab0f1d9c80054eb5f7e49253248",
+      "byte_identical": false
+    },
+    {
+      "face_count": 1,
+      "name": "fixture-activation.log",
+      "bytes_a": 36702,
+      "bytes_b": 36713,
+      "sha256_a": "c85ec925443747c8cd2b40a73621fa14f4d23bc5c20a8633786d9b4ed0f2f875",
+      "sha256_b": "042fc7775cd9796812aa4972075d247caf5de53b2f4dca9f88f6fdc6c1f93170",
+      "byte_identical": false
+    },
+    {
+      "face_count": 1,
+      "name": "fixture-closure.log",
+      "bytes_a": 38316,
+      "bytes_b": 38327,
+      "sha256_a": "3e2ae4752e99df381f37b52868e74fd6109627bce75664fc9882c41804d2e278",
+      "sha256_b": "30be4f84e6d34fa1e1424ef5b83f624bd8ef6f56dae6a4ab9aca0fd7edcd0cd9",
+      "byte_identical": false
+    },
+    {
+      "face_count": 1,
+      "name": "fixture-initialization.log",
+      "bytes_a": 0,
+      "bytes_b": 217,
+      "sha256_a": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256_b": "0dfa48ea5b1b4539bd005d687e593739a14bd2f8a72c59f2fd259d4fdeebcff1",
+      "byte_identical": false
+    },
+    {
+      "face_count": 1,
+      "name": "transaction-000000-after.bin",
+      "bytes_a": 936467,
+      "bytes_b": 936467,
+      "sha256_a": "fb3f23e35fd06d6a9b93a6ea4dcbd0c9419bb3e25a77d2cce52e1b1b0318d51e",
+      "sha256_b": "fb3f23e35fd06d6a9b93a6ea4dcbd0c9419bb3e25a77d2cce52e1b1b0318d51e",
+      "byte_identical": true,
+      "source_fingerprint_a": "0203f426e02d2ef7",
+      "source_fingerprint_b": "0203f426e02d2ef7",
+      "program_fingerprint_a": "cf1e34ae713bae73",
+      "program_fingerprint_b": "cf1e34ae713bae73",
+      "bytes_outside_fingerprint_fields_identical": true
+    },
+    {
+      "face_count": 1,
+      "name": "transaction-000000-before.bin",
+      "bytes_a": 936467,
+      "bytes_b": 936467,
+      "sha256_a": "7bb299e04439071958d8844908bc179f1646c3402aa55aae30799f6ffa994853",
+      "sha256_b": "7bb299e04439071958d8844908bc179f1646c3402aa55aae30799f6ffa994853",
+      "byte_identical": true,
+      "source_fingerprint_a": "0203f426e02d2ef7",
+      "source_fingerprint_b": "0203f426e02d2ef7",
+      "program_fingerprint_a": "cf1e34ae713bae73",
+      "program_fingerprint_b": "cf1e34ae713bae73",
+      "bytes_outside_fingerprint_fields_identical": true
+    },
+    {
+      "face_count": 1,
+      "name": "transaction-000000.json",
+      "bytes_a": 6581,
+      "bytes_b": 6581,
+      "sha256_a": "69ecf1c9f1d364cc48900c156a3c073533fc81f986768779de19afc9605d02ea",
+      "sha256_b": "69ecf1c9f1d364cc48900c156a3c073533fc81f986768779de19afc9605d02ea",
+      "byte_identical": true
+    },
+    {
+      "face_count": 1,
+      "name": "transaction-000001-after.bin",
+      "bytes_a": 936467,
+      "bytes_b": 936467,
+      "sha256_a": "1c1d5a6de63adf3d30c270fc50182e1fccdcf86d04f62ed7d658aa4dced2e76b",
+      "sha256_b": "1c1d5a6de63adf3d30c270fc50182e1fccdcf86d04f62ed7d658aa4dced2e76b",
+      "byte_identical": true,
+      "source_fingerprint_a": "0203f426e02d2ef7",
+      "source_fingerprint_b": "0203f426e02d2ef7",
+      "program_fingerprint_a": "cf1e34ae713bae73",
+      "program_fingerprint_b": "cf1e34ae713bae73",
+      "bytes_outside_fingerprint_fields_identical": true
+    },
+    {
+      "face_count": 1,
+      "name": "transaction-000001-before.bin",
+      "bytes_a": 936467,
+      "bytes_b": 936467,
+      "sha256_a": "fb3f23e35fd06d6a9b93a6ea4dcbd0c9419bb3e25a77d2cce52e1b1b0318d51e",
+      "sha256_b": "fb3f23e35fd06d6a9b93a6ea4dcbd0c9419bb3e25a77d2cce52e1b1b0318d51e",
+      "byte_identical": true,
+      "source_fingerprint_a": "0203f426e02d2ef7",
+      "source_fingerprint_b": "0203f426e02d2ef7",
+      "program_fingerprint_a": "cf1e34ae713bae73",
+      "program_fingerprint_b": "cf1e34ae713bae73",
+      "bytes_outside_fingerprint_fields_identical": true
+    },
+    {
+      "face_count": 1,
+      "name": "transaction-000001.json",
+      "bytes_a": 6694,
+      "bytes_b": 6694,
+      "sha256_a": "313f87d5016af738846906637e12560c52471725ff02e3842a0db73aa77870f2",
+      "sha256_b": "313f87d5016af738846906637e12560c52471725ff02e3842a0db73aa77870f2",
+      "byte_identical": true
+    },
+    {
+      "face_count": 3,
+      "name": "arm-result.json",
+      "bytes_a": 820,
+      "bytes_b": 819,
+      "sha256_a": "6e3042a674f4c3f85ec8354380f5e6197f2d8eab81039ba66ab989dda3e3daf9",
+      "sha256_b": "a5d47cee753a47212fa5c7330dda84ff74c39df7fd2eca451768e09761e232bc",
+      "byte_identical": false
+    },
+    {
+      "face_count": 3,
+      "name": "fixture-activation.log",
+      "bytes_a": 36705,
+      "bytes_b": 36716,
+      "sha256_a": "0b235fc1632af7fa1b47d3a8cb33b53aee6fd9685d4605906595ee8e300b4ecc",
+      "sha256_b": "d9f89d0bd531824e3cc00ef4d5cafe954d07d6fda1f371a4159ad633f841de68",
+      "byte_identical": false
+    },
+    {
+      "face_count": 3,
+      "name": "fixture-closure.log",
+      "bytes_a": 38313,
+      "bytes_b": 38324,
+      "sha256_a": "f757c4ca5f519ff7fff4437267f6ebaebb59581fa945210ecf0b852a6c787b08",
+      "sha256_b": "f3be5b33c444e7ac922fb39edd6c1c5825042003599d03c9d4acc20bfaa27631",
+      "byte_identical": false
+    },
+    {
+      "face_count": 3,
+      "name": "fixture-initialization.log",
+      "bytes_a": 0,
+      "bytes_b": 217,
+      "sha256_a": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256_b": "0762c5bf31305f552e8355e83c0f21caceb1e4e2887c2f1277c66d3af758382d",
+      "byte_identical": false
+    },
+    {
+      "face_count": 3,
+      "name": "transaction-000000-after.bin",
+      "bytes_a": 937235,
+      "bytes_b": 937235,
+      "sha256_a": "3c81180a3715382acc3a6426249a71ea126dd8c41436cd2aa389d55a4bc44270",
+      "sha256_b": "3c81180a3715382acc3a6426249a71ea126dd8c41436cd2aa389d55a4bc44270",
+      "byte_identical": true,
+      "source_fingerprint_a": "38adb834b6b0f7aa",
+      "source_fingerprint_b": "38adb834b6b0f7aa",
+      "program_fingerprint_a": "9a36e057d8c64d28",
+      "program_fingerprint_b": "9a36e057d8c64d28",
+      "bytes_outside_fingerprint_fields_identical": true
+    },
+    {
+      "face_count": 3,
+      "name": "transaction-000000-before.bin",
+      "bytes_a": 937235,
+      "bytes_b": 937235,
+      "sha256_a": "b00a371a7d3b1a745a4181f904bec000aac0902e1dbea6583ab3b66b404d3f28",
+      "sha256_b": "b00a371a7d3b1a745a4181f904bec000aac0902e1dbea6583ab3b66b404d3f28",
+      "byte_identical": true,
+      "source_fingerprint_a": "38adb834b6b0f7aa",
+      "source_fingerprint_b": "38adb834b6b0f7aa",
+      "program_fingerprint_a": "9a36e057d8c64d28",
+      "program_fingerprint_b": "9a36e057d8c64d28",
+      "bytes_outside_fingerprint_fields_identical": true
+    },
+    {
+      "face_count": 3,
+      "name": "transaction-000000.json",
+      "bytes_a": 6581,
+      "bytes_b": 6581,
+      "sha256_a": "3bd30dca3598f032ceefbd1899de539252a3ba10c2214ad0d78528e0133dde2c",
+      "sha256_b": "3bd30dca3598f032ceefbd1899de539252a3ba10c2214ad0d78528e0133dde2c",
+      "byte_identical": true
+    },
+    {
+      "face_count": 3,
+      "name": "transaction-000001-after.bin",
+      "bytes_a": 937235,
+      "bytes_b": 937235,
+      "sha256_a": "059626fea2906e6a9af079e98c1c11244a31076b75462c236634ffe6437bd78a",
+      "sha256_b": "059626fea2906e6a9af079e98c1c11244a31076b75462c236634ffe6437bd78a",
+      "byte_identical": true,
+      "source_fingerprint_a": "38adb834b6b0f7aa",
+      "source_fingerprint_b": "38adb834b6b0f7aa",
+      "program_fingerprint_a": "9a36e057d8c64d28",
+      "program_fingerprint_b": "9a36e057d8c64d28",
+      "bytes_outside_fingerprint_fields_identical": true
+    },
+    {
+      "face_count": 3,
+      "name": "transaction-000001-before.bin",
+      "bytes_a": 937235,
+      "bytes_b": 937235,
+      "sha256_a": "3c81180a3715382acc3a6426249a71ea126dd8c41436cd2aa389d55a4bc44270",
+      "sha256_b": "3c81180a3715382acc3a6426249a71ea126dd8c41436cd2aa389d55a4bc44270",
+      "byte_identical": true,
+      "source_fingerprint_a": "38adb834b6b0f7aa",
+      "source_fingerprint_b": "38adb834b6b0f7aa",
+      "program_fingerprint_a": "9a36e057d8c64d28",
+      "program_fingerprint_b": "9a36e057d8c64d28",
+      "bytes_outside_fingerprint_fields_identical": true
+    },
+    {
+      "face_count": 3,
+      "name": "transaction-000001.json",
+      "bytes_a": 6694,
+      "bytes_b": 6694,
+      "sha256_a": "074430f6942ebffa4ba75a46d812e97d05445b8070211808cd07992f94d5c176",
+      "sha256_b": "074430f6942ebffa4ba75a46d812e97d05445b8070211808cd07992f94d5c176",
+      "byte_identical": true
+    }
+  ],
+  "rollback": [
+    {
+      "face_count": 1,
+      "layout": "legacy",
+      "accepted_activation": true,
+      "rejected_closure": true,
+      "accepted_state_vectors": 18,
+      "changed_accepted_state_vectors": [],
+      "rejected_certificate_validity": [
+        0.982559144,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "face_count": 1,
+      "layout": "tiled",
+      "accepted_activation": true,
+      "rejected_closure": true,
+      "accepted_state_vectors": 18,
+      "changed_accepted_state_vectors": [],
+      "rejected_certificate_validity": [
+        0.982559144,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "face_count": 3,
+      "layout": "legacy",
+      "accepted_activation": true,
+      "rejected_closure": true,
+      "accepted_state_vectors": 18,
+      "changed_accepted_state_vectors": [],
+      "rejected_certificate_validity": [
+        0.979088187,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "face_count": 3,
+      "layout": "tiled",
+      "accepted_activation": true,
+      "rejected_closure": true,
+      "accepted_state_vectors": 18,
+      "changed_accepted_state_vectors": [],
+      "rejected_certificate_validity": [
+        0.979088187,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "schema": "numi.cardboard.mortar-union-checker-repair.v2",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-mortar-union-090",
+  "files": {
+    "matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "base_sha256": "46ee2b3f3833f1579c2c83f9392e3dfd1f431a8664557d8cf1cf3808e0c61942",
+      "overlay_sha256": "e8a9d5587b47280bc0250280f7fc28b18f2f339bd001137a4da114e5edf1fdf1"
+    }
+  },
+  "patch_sha256": "a0c187a4616f81cc1d9b1b97ec3f8ba237f9812c8b4126dabe4140fcc045cd75",
+  "prior_buffer_report": "/Users/home/cardboard-implementation-20261014/analysis/private-self-sweep-buffer-repair-090-001/manifest.json",
+  "prior_buffer_report_sha256": "d69e179213cdf839e24df12b7d0026b48aa041b9778da2cac8a8bb902268c142",
+  "failures": [
+    {
+      "run": 297,
+      "cause": "invalidhostbufferextent/empty-sourcepointer",
+      "code": -11
+    },
+    {
+      "run": 298,
+      "cause": "new union mode did not construct output owner or arm directories before retaining initialization trace",
+      "code": 1
+    }
+  ],
+  "repair": "Typed vector element extents and initialized empty sentinel; use existing diagnostic arm owner for both union arms, preserving failed prefixes and separate trace/snapshot containers. Production kernel, material parameters, solver budgets and acceptance unchanged.",
+  "native_retest": "PENDING"
+}

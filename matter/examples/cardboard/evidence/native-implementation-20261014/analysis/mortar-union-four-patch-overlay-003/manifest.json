@@ -1,0 +1,66 @@
+{
+  "schema": "numi.cardboard.mortar-union-whole-sweep-correction.v1",
+  "evidence_class": "external source overlay; CPU predicate/source-geometry checks, exact frozen-source patch dry-run, Metal shader compilation and checker host compilation; no GPU execution",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-rationalized-paper-and-native-checkers-091",
+  "base_snapshot_manifest_sha256": "81614c67713b251dd0c4ccf019abcb3da8f2702c6762453a12558e8a1d632bdd",
+  "base_parent_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+  "base_file_sha256": {
+    "matter/src/metal/contact.metalinc": "ece2110ea3181ddd7527df9d1284b465ac5035279fa71232393491dd4cbf6632",
+    "matter/src/compiler_impl.cpp": "7fb4f135afcd0d4aab01f9ea8cedec9abf7dcddde91d51d94e11793d58b7b4e3",
+    "matter/tools/cardboard_full_contact_armijo_check.mm": "e8a9d5587b47280bc0250280f7fc28b18f2f339bd001137a4da114e5edf1fdf1"
+  },
+  "overlay_file_sha256": {
+    "matter/src/metal/contact.metalinc": "c360df9e7ad53bf36ab5878eacaa150bb75c0d1fe04ce70e8b668b31e1c87be1",
+    "matter/src/compiler_impl.cpp": "9dc5cd30bc781704552936531120d28fd6bb95572d2793c7c4a0dd819143272c",
+    "matter/tools/cardboard_full_contact_armijo_check.mm": "057f3a9a483ecdff74832acec2ba075c0c26782a8863ac8b0828cda7b7283812"
+  },
+  "overlay_002_manifest_sha256": "e9848f8c9d7d76885d843d495ee39978f65954bbd885c3a95fa0ad02ceaae79d",
+  "overlay_002_patch_sha256": "d5244584473c90854cf0954de5077f62dc33a8cae2875e5445ea9b6ed420ffb9",
+  "overlay_002_manifested_contact_sha256": "10b6e5ed205a5616cf5cde0896779122cd8bc920b716c8918ee50e6b20a6ac48",
+  "overlay_002_stale_intermediate_contact_sha256": "6dfb38d8fa632397ba17c81788292bf8bf1b87548c9ace09edc5053088f32178",
+  "overlay_002_stale_intermediate_note": "The unmanifested modified-files/contact.metalinc differed from the manifest-bound build-source source; 003 was based on the manifest-bound build-source implementation, not that stale file.",
+  "patch_file": "mortar-union-four-patch-003.patch",
+  "patch_sha256": "afd97f4e9f00184cf7152487931f7b48214ef9f90c9103d9d57822cd814bdfe2",
+  "patch_apply_dry_run": {
+    "status": "PASS",
+    "command": "patch --dry-run -p1 -d <frozen source091> < mortar-union-four-patch-003.patch",
+    "output": "patching file matter/src/metal/contact.metalinc; matter/src/compiler_impl.cpp; matter/tools/cardboard_full_contact_armijo_check.mm",
+    "stdout_file": "patch-dry-run.txt",
+    "stdout_sha256": "ab335c974c9735a82524985dc1c2ca7e743cd62b034cafc45420f8ee603482c8"
+  },
+  "cpu_check": {
+    "status": "PASS",
+    "command": "/Users/home/.pyenv/versions/3.10.12/bin/python3 /Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-overlay-003/cpu_boundary_contract_check.py",
+    "script_sha256": "0a5293342fdd8980a916b2a1c18c84347c1f5c798f4e737ed2c6c79004a18ae0",
+    "result_file": "cpu_boundary_contract_check.json",
+    "result_sha256": "690c597b56f95a3dcaf091ab4c0c701ba714f7cb257b8fdcef51960911115686",
+    "stdout_file": "cpu-only-output.txt",
+    "stdout_sha256": "690c597b56f95a3dcaf091ab4c0c701ba714f7cb257b8fdcef51960911115686"
+  },
+  "native_validation": "NOT RUN; builds are compile-only, no GPU execution",
+  "limitations": [
+    "Exact common-displacement equality is intentionally conservative and may leave moving/deforming seam contacts active.",
+    "The linear endpoint counterexample is analytic geometry checked in CPU Python, not a native CCD execution.",
+    "Four-patch capacity and shipping multiplicity results are source-091 geometry observations only; they do not prove runtime admission.",
+    "Shipping partition audit is a separate exploratory artifact and is not part of this overlay\u2019s qualification."
+  ],
+  "metal_shader_build": {
+    "status": "PASS",
+    "command": "cmake --build build-overlay-003 --target numi_matter_shaders -- -j2",
+    "build_source": "build-source",
+    "build_source_contact_sha256": "c360df9e7ad53bf36ab5878eacaa150bb75c0d1fe04ce70e8b668b31e1c87be1",
+    "metallib_file": "build-overlay-003/matter/shaders/NumiMatter.metallib",
+    "metallib_sha256": "cd5fc4cf4c34c5649cfd109b0a390f8da9d56c6023e1cfaa6482e87a51ec8309",
+    "stdout_notes": "Rebuilt the shader target from exact overlay source. Two warnings are in unrelated fgmres.metalinc sharedValid/refinementValid variables."
+  },
+  "checker_host_build": {
+    "status": "PASS",
+    "command": "cmake --build build-overlay-003 --target numi-matter-cardboard-full-contact-armijo-check -- -j2",
+    "stdout_file": "build-host-output.txt",
+    "stdout_sha256": "973b644300fc4a663f24554223a954a7bc65b064641c423b1bae4f9d4f12e1c6",
+    "binary_file": "build-overlay-003/matter/numi-matter-cardboard-full-contact-armijo-check",
+    "binary_sha256": "cec775ff95270545376d277a7da5722934e175f01a1174682fc6810496a565eb",
+    "native_execution": "NOT RUN"
+  },
+  "README_sha256": "532835c8e9e917570b45de9e7b00727f421117416f5fe7035c026cef1307460a"
+}

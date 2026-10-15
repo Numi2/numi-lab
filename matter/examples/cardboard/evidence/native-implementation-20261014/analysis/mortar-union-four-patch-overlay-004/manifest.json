@@ -1,0 +1,49 @@
+{
+  "schema": "numi.cardboard.private-self-sweep-exhaustive-diagnostic.v1",
+  "evidence_class": "checker-only native direct-kernel diagnostic; host and shader compile passed; GPU execution not run",
+  "base_overlay": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-overlay-003",
+  "base_overlay_manifest_sha256": "9f0809a19bff6022c367d40dae5a1e254064ca3bd7b9054f90d5f1f78b8c4868",
+  "base_overlay_patch_sha256": "afd97f4e9f00184cf7152487931f7b48214ef9f90c9103d9d57822cd814bdfe2",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-rationalized-paper-and-native-checkers-091",
+  "base_snapshot_manifest_sha256": "81614c67713b251dd0c4ccf019abcb3da8f2702c6762453a12558e8a1d632bdd",
+  "patch_file": "private-self-sweep-diagnostic-004.patch",
+  "patch_sha256": "51884ae64ce1c5c05ddeebf98c50b5a026914637e366e9a6bae46c5f3bb72074",
+  "patch_scope": [
+    "matter/tools/cardboard_full_contact_armijo_check.mm"
+  ],
+  "base_checker_sha256": "057f3a9a483ecdff74832acec2ba075c0c26782a8863ac8b0828cda7b7283812",
+  "overlay_checker_sha256": "59d945b71bab4584cc057fe074bebe45afb8723f85cbb9f613749ab9458735dc",
+  "build_source_contact_shader_sha256": "c360df9e7ad53bf36ab5878eacaa150bb75c0d1fe04ce70e8b668b31e1c87be1",
+  "patch_apply_dry_run": {
+    "status": "PASS",
+    "command": "patch --dry-run -p1 -d <overlay-003 build-source> < private-self-sweep-diagnostic-004.patch",
+    "output_sha256": "6d13f5562dfb0e550b1e273d4e68edd4fe5aab73678a472f5806e9ec4d1ebcbf"
+  },
+  "build": {
+    "status": "PASS",
+    "configure_command": "cmake -S <overlay-004 build-source> -B <overlay-004 build-host> -DBUILD_TESTING=ON -DPython3_EXECUTABLE=/opt/homebrew/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "build_command": "cmake --build <overlay-004 build-host> --target numi-matter-cardboard-full-contact-armijo-check -j 4",
+    "stdout_sha256": "586ba7be771fa51e8ab40ed771a2426ccc831b7ddade1593d954fb677fb350c0",
+    "binary": "build-host/matter/numi-matter-cardboard-full-contact-armijo-check",
+    "binary_sha256": "b51647e154bc6b7c89378ab39ee230ef86f7fbb00fcdbce92b76afc2bb4abe4f",
+    "native_execution": "NOT RUN"
+  },
+  "diagnostic_contract": {
+    "new_flag": "--private-self-sweep-diagnostic",
+    "strict_flag_preserved": "--private-self-sweep",
+    "case_count": 14,
+    "case_records": "JSON Lines on stdout; each record reports expected/actual status, diagnostics and exact named input-buffer bytes as little-endian hex when fixture construction completes",
+    "continues_after_case_status_mismatch": true,
+    "continues_after_case_execution_exception": true,
+    "nonfinite_diagnostic_encoding": "JSON strings nan, +inf, -inf",
+    "aggregate_exit": "nonzero if any case status or execution differs from its expected result",
+    "runtime_transaction": false,
+    "native_linear_rotation_counterexample": "NOT INCLUDED; remains analytic CPU-only in overlay 003"
+  },
+  "limitations": [
+    "The existing three-patch matched-closure positive gate remains expected-success; diagnostic mode only postpones aggregate failure until all independent cases run.",
+    "No native GPU execution was performed for overlay 004.",
+    "The added exact common-translation positive uses the same linear displacement for both triangle parents; it does not test the 003 rotating-triangle counterexample."
+  ],
+  "readme_sha256": "f7813928b9b54fd7234aed3059b002701886b24087ee01399073369e141db519"
+}

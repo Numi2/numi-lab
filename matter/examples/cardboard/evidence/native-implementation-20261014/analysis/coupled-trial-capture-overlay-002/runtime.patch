@@ -1,0 +1,149 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -16214,7 +16214,9 @@
+                     emitSkip("phase_has_no_present_buffers");
+                     return true;
+                 }
+-                if (femCoupledTrialCaptureArrays.size() + present > 192u) {
++                constexpr std::size_t captureArrayLimit = 192u;
++                if (femCoupledTrialCaptureArrays.size() + present >
++                    captureArrayLimit) {
+                     emitSkip("array_count_exceeds_192");
+                     return true;
+                 }
+@@ -16291,8 +16293,10 @@
+                 return true;
+             };
+             const auto captureTrialResidualStage = [&] (
+-                    const char* arrayName, const char* phaseName) -> bool {
++                    const char* arrayName, const char* phaseName,
++                    const std::uint32_t trialIndex) -> bool {
+                 if (!femCoupledTrialCaptureSelected ||
++                    trialIndex != femCoupledTrialCaptureTrial ||
+                     femCoupledTrialCapturePhase == "pre") return true;
+                 return appendTrialCapturePhase(phaseName, {
+                     trialCaptureSpec(arrayName, "float32x4", sizeof(nm_float4),
+@@ -16444,11 +16448,17 @@
+                     state.femLineSearch, true);
+                 push("environment_line_search", "float32x4", sizeof(nm_float4),
+                     state.environmentLineSearch, true);
++                // These buffers are formed before the pre context is captured
++                // (copy accepted rigid state, prepare generalized candidate,
++                // then project the private primal candidate). Keep them in both
++                // snapshots for direct comparison.
++                push("rigid_states_trial", "record:NMRigidStateGPU",
++                    sizeof(NMRigidStateGPU), state.femArmijoRigidStates,
++                    femFreeRigidResidualArmijoEnabled);
++                push("rigid_candidate_trial", "float32",
++                    sizeof(float), state.femArmijoRigidCandidate,
++                    femFreeRigidResidualArmijoEnabled);
+                 if (postRebuild) {
+-                    push("rigid_states_trial", "record:NMRigidStateGPU",
+-                        sizeof(NMRigidStateGPU), state.femArmijoRigidStates);
+-                    push("rigid_candidate_trial", "float32",
+-                        sizeof(float), state.femArmijoRigidCandidate);
+                     push("fem_armijo_element_forces",
+                         "record:NMFEMElementVectorGPU",
+                         sizeof(NMFEMElementVectorGPU),
+@@ -16564,8 +16574,10 @@
+                 }
+                 return appendTrialCapturePhase(phaseName, specs);
+             };
+-            const auto captureTrialMeasurement = [&] () -> bool {
+-                if (!femCoupledTrialCaptureSelected) return true;
++            const auto captureTrialMeasurement = [&] (
++                    const std::uint32_t trialIndex) -> bool {
++                if (!femCoupledTrialCaptureSelected ||
++                    trialIndex != femCoupledTrialCaptureTrial) return true;
+                 if (femCoupledTrialCapturePhase == "pre") return true;
+                 return appendTrialCapturePhase(
+                     "armijo_measurement_before_decision", {
+@@ -16583,6 +16595,34 @@
+                 if (!femCoupledTrialCaptureSelected ||
+                     femCoupledTrialCaptureFailed ||
+                     femCoupledTrialCaptureFinalized) return true;
++                constexpr std::size_t preContextMaximum = 71u;
++                constexpr std::size_t postContextMaximum = 80u;
++                constexpr std::size_t postContextWithoutShared = 36u;
++                constexpr std::size_t residualStageMaximum = 5u * 5u;
++                constexpr std::size_t measurementMaximum = 4u;
++                constexpr std::size_t captureArrayLimit = 192u;
++                constexpr std::size_t prePhaseMaximum = preContextMaximum;
++                constexpr std::size_t postPhaseMaximum =
++                    postContextMaximum + residualStageMaximum + measurementMaximum;
++                constexpr std::size_t bothPhaseMaximum =
++                    preContextMaximum + postContextWithoutShared +
++                    residualStageMaximum + measurementMaximum;
++                static_assert(prePhaseMaximum == 71u && postPhaseMaximum == 109u &&
++                    bothPhaseMaximum == 136u && bothPhaseMaximum <= captureArrayLimit);
++                const std::size_t selectedPhaseMaximum =
++                    femCoupledTrialCapturePhase == "pre" ? prePhaseMaximum :
++                    femCoupledTrialCapturePhase == "post" ? postPhaseMaximum :
++                    bothPhaseMaximum;
++                if (femCoupledTrialCaptureArrays.size() > selectedPhaseMaximum) {
++                    femCoupledTrialCaptureFailed = true;
++                    std::fprintf(stderr,
++                        "fem_coupled_trial_capture_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"trial\":%u,\"reason\":\"selected_phase_array_count_exceeds_derived_bound\",\"array_count\":%lu,\"derived_phase_maximum\":%lu,\"physical_state_changed\":false}\n",
++                        femCoupledTrialCaptureRoot, femCoupledTrialCaptureIteration,
++                        femCoupledTrialCaptureTrial,
++                        static_cast<unsigned long>(femCoupledTrialCaptureArrays.size()),
++                        static_cast<unsigned long>(selectedPhaseMaximum));
++                    return true;
++                }
+                 if (!femCoupledTrialCaptureStarted ||
+                     femCoupledTrialCaptureSnapshot == nil ||
+                     femCoupledTrialCaptureBytes == 0u ||
+@@ -20422,7 +20462,7 @@
+                     });
+                     if (!captureTrialResidualStage(
+                             "residual_after_bulk_mechanical",
+-                            "after_bulk_mechanical_before_cohesive")) {
++                            "after_bulk_mechanical_before_cohesive", trialIndex)) {
+                         ownership->preDynamicsOpen = false;
+                         return diagnostics;
+                     }
+@@ -20453,7 +20493,7 @@
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                     if (!captureTrialResidualStage(
+                             "residual_after_cohesive",
+-                            "after_cohesive_before_rigid_contact")) {
++                            "after_cohesive_before_rigid_contact", trialIndex)) {
+                         ownership->preDynamicsOpen = false;
+                         return diagnostics;
+                     }
+@@ -20732,7 +20772,7 @@
+                     }
+                     if (!captureTrialResidualStage(
+                             "residual_after_rigid_contact",
+-                            "after_rigid_contact_before_deformable_rebuild")) {
++                            "after_rigid_contact_before_deformable_rebuild", trialIndex)) {
+                         ownership->preDynamicsOpen = false;
+                         return diagnostics;
+                     }
+@@ -20772,7 +20812,7 @@
+                     }
+                     if (!captureTrialResidualStage(
+                             "residual_after_deformable_contact",
+-                            "after_deformable_contact_before_free_body_terms")) {
++                            "after_deformable_contact_before_free_body_terms", trialIndex)) {
+                         ownership->preDynamicsOpen = false;
+                         return diagnostics;
+                     }
+@@ -20884,7 +20924,7 @@
+                     }
+                     if (!captureTrialResidualStage(
+                             "residual_before_armijo_measure",
+-                            "full_residual_before_armijo_measure")) {
++                            "full_residual_before_armijo_measure", trialIndex)) {
+                         ownership->preDynamicsOpen = false;
+                         return diagnostics;
+                     }
+@@ -20900,7 +20940,7 @@
+                     if (femCoupledTrialCaptureSelected &&
+                         trialIndex == femCoupledTrialCaptureTrial &&
+                         femCoupledTrialCapturePhase != "pre") {
+-                        if (!captureTrialMeasurement()) {
++                        if (!captureTrialMeasurement(trialIndex)) {
+                             diagnostics.message =
+                                 "failed to resume Matter at Armijo measurement capture";
+                             ownership->preDynamicsOpen = false;

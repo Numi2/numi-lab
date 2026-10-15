@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.retained-paper-allpoint-reference.v1",
+  "capture": "/Users/home/cardboard-implementation-20261014/solver/recycle-source-default-first-control-283/operator-capture",
+  "capture_sha256": "4decb7be2fbfa93ad97c0f2f22cfaca974931269068bed90e98815b09066b870",
+  "rows": 3456,
+  "equations_sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+  "reader_sha256": "0c67283a94258aff8a6198146edf7ef2c3093d3994d6b05aa28def42bcf46653",
+  "artifact": "reference.npz",
+  "artifact_sha256": "b1c53a73565da713531a4ca85297ed12441d4088b6b0b98dd3f8fb603ee8411d",
+  "elapsed_seconds": 0.5810487270355225,
+  "iterations_max": 14,
+  "scaled_residual_max": 3.797897450960883e-12,
+  "zero_direction_rows": 1728,
+  "classification": "Independent FP64 equations/complex-step implicit tangent, canonical FP32 operands plus captured low words. One captured direction perpoint. No Metal comparison, nearzero floor, FP64 finite-difference derivative gate, physical FEM trajectory, or convergence claim."
+}

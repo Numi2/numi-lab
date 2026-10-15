@@ -8,6 +8,9 @@
 #include <array>
 #include <bit>
 #include <cmath>
+#include <cerrno>
+#include <fcntl.h>
+#include <unistd.h>
 #include <cctype>
 #include <cstdint>
 #include <filesystem>
@@ -339,14 +342,147 @@ void runTrace(Metal& metal,const CompiledWorld& world,const std::string& policy,
          "selected trace high/low state packing sentinel was overwritten");
     writeTrace(outdir/("tet1528-env0-"+policy+"-trace.json"),policy,world,row,data,captureHash);
 }
+// Reserve evidence exclusively before dispatch; failures retain partial evidence.
+struct ExclusiveSweepOutput {
+    int descriptor = -1;
+    explicit ExclusiveSweepOutput(const std::filesystem::path& path) {
+        descriptor=::open(path.c_str(),O_WRONLY|O_CREAT|O_EXCL,0600);
+        need(descriptor>=0,"cannot exclusively create controlled sweep output: "+path.string());
+    }
+    ~ExclusiveSweepOutput(){if(descriptor>=0)::close(descriptor);}
+    ExclusiveSweepOutput(const ExclusiveSweepOutput&)=delete;
+    ExclusiveSweepOutput& operator=(const ExclusiveSweepOutput&)=delete;
+    void writeAll(const std::string& text) {
+        need(text.size()<=16u*1024u*1024u,"controlled sweep output exceeds bounded writer");
+        std::size_t written=0u;
+        while(written<text.size()) {
+            const auto count=::write(descriptor,text.data()+written,text.size()-written);
+            if(count<0&&errno==EINTR)continue;
+            need(count>0,"controlled sweep write failed; partial evidence retained");
+            written+=static_cast<std::size_t>(count);
+        }
+        const int saved=descriptor;descriptor=-1;
+        need(::close(saved)==0,"controlled sweep close failed; evidence retained");
+    }
+};
+// Instrument-only controlled directions around immutable captured centers.
+// Output records identify authored perturbations separately from capture data.
+struct DerivativeSweepRecord {
+    Record row;
+    const char* kind = "center_repeat";
+    int basis = -1;
+    int sign = 0;
+    unsigned repeat = 0;
+    double epsilon = 0.0;
+};
+std::vector<DerivativeSweepRecord> derivativeSweepRecords(const Capture& capture) {
+    constexpr std::array<unsigned,8> selected = {567u,568u,569u,1527u,1528u,1529u,1634u,1638u};
+    constexpr std::array<double,10> epsilons = {1e-3,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11,1e-12};
+    std::vector<DerivativeSweepRecord> records;
+    for (const auto tet : selected) {
+        const auto found = std::find_if(capture.rows.begin(),capture.rows.end(),[&](const Record& r) {
+            return r.env == 0u && r.tet == tet;
+        });
+        need(found != capture.rows.end(),"controlled derivative sweep point missing");
+        const Record center = *found;
+        for (unsigned repeat=0u;repeat<3u;++repeat) {
+            DerivativeSweepRecord record;record.row=center;record.repeat=repeat;
+            records.push_back(record);
+        }
+        for (unsigned basis=0u;basis<9u;++basis) {
+            Record directed=center;
+            for (unsigned j=0u;j<9u;++j) {
+                directed.input[27u+j]=j==basis?1.0f:0.0f;
+                directed.input[36u+j]=j==basis?1.0f/center.input[45u]:0.0f;
+            }
+            DerivativeSweepRecord action;action.row=directed;
+            action.kind="basis_action";action.basis=static_cast<int>(basis);
+            records.push_back(action);
+            for (const double epsilon : epsilons) for (const int sign : {-1,1}) {
+                DerivativeSweepRecord sample=action;
+                sample.kind="basis_perturbation";sample.sign=sign;sample.epsilon=epsilon;
+                const double targetF=double(center.input[basis])+double(center.input[9u+basis])+
+                    double(sign)*epsilon;
+                const float high=static_cast<float>(targetF);
+                sample.row.input[basis]=high;
+                // Form the residual before adding the order-one high word.
+                // This preserves sub-FP64-ULP perturbations when the high
+                // word stays unchanged; every realized input is still logged.
+                const double residualF=(double(center.input[basis])-double(high))+
+                    (double(center.input[9u+basis])+double(sign)*epsilon);
+                sample.row.input[9u+basis]=static_cast<float>(residualF);
+                // Preserve the captured FEM kinematic F/Fdot perturbation
+                // relationship; output retains every actually rounded word.
+                const double targetRate=double(center.input[18u+basis])+
+                    double(sign)*epsilon/double(center.input[45u]);
+                sample.row.input[18u+basis]=static_cast<float>(targetRate);
+                need(std::isfinite(sample.row.input[basis])&&
+                     std::isfinite(sample.row.input[9u+basis])&&
+                     std::isfinite(sample.row.input[18u+basis]),"nonfinite controlled perturbation");
+                records.push_back(sample);
+            }
+        }
+    }
+    need(records.size()==8u*(3u+9u*(1u+2u*epsilons.size())),"controlled sweep cardinality mismatch");
+    return records;
+}
+void runDerivativeSweep(Metal& metal,const CompiledWorld& world,const std::string& policy,
+                        const Capture& capture,const std::filesystem::path& outdir,
+                        const std::string& captureHash) {
+    ExclusiveSweepOutput evidence(outdir/("paper-derivative-sweep-"+policy+".jsonl"));
+    const auto samples=derivativeSweepRecords(capture);
+    std::vector<Record> rows;rows.reserve(samples.size());
+    for(const auto& sample:samples)rows.push_back(sample.row);
+    auto params=materialParameters(world);auto accepted=acceptedRows(rows);
+    auto inputs=inputRows(rows);auto ids=materialRows(rows);
+    std::vector<float> output(rows.size()*kOutputStride,0.0f);
+    std::vector<id<MTLBuffer>> buffers{buffer(metal.device,world.materials),
+        buffer(metal.device,world.scalarPrograms),buffer(metal.device,world.instructions),
+        buffer(metal.device,params),buffer(metal.device,accepted),buffer(metal.device,inputs),
+        buffer(metal.device,ids),buffer(metal.device,output)};
+    need(std::all_of(buffers.begin(),buffers.end(),[](id<MTLBuffer> b){return b!=nil;}),
+         "controlled derivative sweep allocation failed");
+    metal.dispatch(metal.batch,buffers,static_cast<std::uint32_t>(rows.size()),8u);
+    const auto* result=static_cast<const float*>(buffers[7].contents);
+    std::copy(result,result+output.size(),output.begin());
+    std::ostringstream file;
+    file<<"{\"record\":\"header\",\"schema\":\"numi.cardboard.controlled-material-derivative-sweep.v1\","
+        <<"\"policy\":\""<<policy<<"\",\"compiled_local_iterations_liner\":"<<world.materials[0].localNewtonIterations
+        <<",\"compiled_local_iterations_medium\":"<<world.materials[1].localNewtonIterations
+        <<",\"capture_sha256\":\""<<captureHash
+        <<"\",\"base_snapshot_manifest_sha256\":\""<<kBaseSnapshotSHA
+        <<"\",\"rows\":"<<samples.size()<<",\"selected_points\":8,\"basis_order\":\"row_major_F_11_12_13_21_22_23_31_32_33\","
+        <<"\"epsilon_unit\":\"s\",\"basis_direction_unit\":\"per_s\","
+        <<"\"rate_direction_rule\":\"Hdot=H/dt; actual rounded F and Fdot words recorded\","
+        <<"\"center_repeat_meaning\":\"same-batch nondeterminism observation only; not an absolute arithmetic noise floor\","
+        <<"\"original_capture_modified\":false,\"physical_steps\":0,\"physical_validation\":false}\n";
+    for(std::size_t i=0u;i<samples.size();++i) {
+        const auto& sample=samples[i];const auto* value=output.data()+i*kOutputStride;
+        file<<"{\"record\":\"controlled_sample\",\"kind\":\""<<sample.kind
+            <<"\",\"basis\":"<<sample.basis<<",\"sign\":"<<sample.sign
+            <<",\"repeat\":"<<sample.repeat<<",\"epsilon_s\":"<<std::setprecision(17)<<sample.epsilon
+            <<",\"point\":";inputRecordJSON(file,sample.row);
+        file<<",\"output_f32_bits\":";bitsArrayJSON(file,value,kOutputStride);
+        file<<",\"stress_valid\":"<<(value[0]==1.0f?"true":"false")
+            <<",\"tangent_valid\":"<<(value[1]==1.0f?"true":"false")
+            <<",\"projection_valid\":"<<(value[2]==1.0f?"true":"false")
+            <<",\"projection_failure\":";numberJSON(file,value[7]);file<<"}\n";
+    }
+    file<<"{\"record\":\"end\",\"rows\":"<<samples.size()
+        <<",\"status\":\"diagnostic_complete\",\"not_qualification\":true}\n";
+    need(file.good(),"controlled derivative sweep formatting failed");
+    evidence.writeAll(file.str());
+}
+
 }
 
 int main(int argc,char** argv){@autoreleasepool{try{
     const bool cpu=argc==7&&std::string(argv[1])=="--cpu-admission"&&std::string(argv[2])=="--expected-capture-sha256";
     const bool nativeSelected=argc==9&&std::string(argv[1])=="--native"&&std::string(argv[2])=="--selected-only"&&std::string(argv[3])=="--expected-capture-sha256";
     const bool nativeAll=argc==9&&std::string(argv[1])=="--native"&&std::string(argv[2])=="--all-points"&&std::string(argv[3])=="--expected-capture-sha256";
-    const bool native=nativeSelected||nativeAll;
-    need(cpu||native,"usage: capture-diagnostic --cpu-admission --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter | --native --selected-only|--all-points --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter OUTPUT_DIR");
+    const bool nativeSweep=argc==9&&std::string(argv[1])=="--native"&&std::string(argv[2])=="--derivative-sweep"&&std::string(argv[3])=="--expected-capture-sha256";
+    const bool native=nativeSelected||nativeAll||nativeSweep;
+    need(cpu||native,"usage: capture-diagnostic --cpu-admission --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter | --native --selected-only|--all-points|--derivative-sweep --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter OUTPUT_DIR");
     const std::string expectedCaptureSHA=argv[cpu?3:4];
     need(expectedCaptureSHA.size()==64u&&std::all_of(expectedCaptureSHA.begin(),expectedCaptureSHA.end(),[](unsigned char c){return std::isxdigit(c)!=0;}),
          "expected capture SHA must be exactly 64 hexadecimal characters");
@@ -360,6 +496,7 @@ int main(int argc,char** argv){@autoreleasepool{try{
     const CompiledWorld accurate=compileSources(linerPath,mediumPath,true);
     verifyParameters(defaults,capture);verifyParameters(accurate,capture);
     if(cpu){
+        need(derivativeSweepRecords(capture).size()==960u,"controlled sweep CPU admission failed");
         std::cout<<"{\"record\":\"cpu_admission\",\"schema\":\"numi.cardboard.bilinear15-capture-diagnostic.v1\",\"status\":\"pass\",\"capture_sha256\":\""<<capSHA
          <<"\",\"base_snapshot_manifest_sha256\":\""<<kBaseSnapshotSHA
          <<"\",\"liner_sha256\":\""<<linerSHA<<"\",\"medium_sha256\":\""<<mediumSHA
@@ -369,6 +506,12 @@ int main(int argc,char** argv){@autoreleasepool{try{
     }
     const std::filesystem::path outdir(argv[8]);std::filesystem::create_directories(outdir);
     Metal metal;
+    if(nativeSweep){
+        runDerivativeSweep(metal,defaults,"default",capture,outdir,capSHA);
+        runDerivativeSweep(metal,accurate,"accurate",capture,outdir,capSHA);
+        std::cout<<"{\"record\":\"end\",\"status\":\"controlled_derivative_diagnostic_complete\",\"physical_steps\":0,\"physical_validation\":false}\n";
+        return 0;
+    }
     std::cout<<"{\"record\":\"native_instrument\",\"device\":\""<<escaped([[metal.device name] UTF8String])
       <<"\",\"base_snapshot_manifest_sha256\":\""<<kBaseSnapshotSHA<<"\",\"capture_sha256\":\""<<capSHA
       <<"\",\"execution_scope\":\""<<(nativeAll?"selected_then_all_points":"selected_point_only")

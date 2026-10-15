@@ -1,0 +1,38 @@
+{
+  "base_runtime_sha256": "2fbdf2c09e5e27fadf15f6503e56d3dc042215eabf1029b4ebd3aa08e143b2e3",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-selected-private-trial-repair-094",
+  "files": {
+    "README.md": {
+      "bytes": 2843,
+      "sha256": "1a9b1b42ad23cd80960807f0d53c7a7c825ed0f6afae7b1b2f2bb4929ab1f01e"
+    },
+    "check_trial_capture_overlay.py": {
+      "bytes": 9080,
+      "sha256": "7a25dc6fff8ea2fd40175cb39614eb5bc6625dbabeae0ebcfae137d13c000349"
+    },
+    "overlay/matter/src/runtime.mm": {
+      "bytes": 1591421,
+      "sha256": "aa2486012ced87656933abc7c448188575ac332b747aba2315f550e3d548edd2"
+    },
+    "runtime-syntax.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runtime.patch": {
+      "bytes": 10653,
+      "sha256": "f8e121a67e50cd89d6bfefc07deb666614c5203a16edbcf83b1cd3cd373272fd"
+    },
+    "source291_capture_crosswalk.json": {
+      "bytes": 2962,
+      "sha256": "5715f1fb935293969fe86bf18a21a277960b1612bb2e5a573607003cb0fe6d68"
+    },
+    "validation.json": {
+      "bytes": 3935,
+      "sha256": "7a13ff519469871e42366e351bb41a0ba49b0122f56f0a45c8f6fb49ef772ac9"
+    }
+  },
+  "name": "coupled-trial-capture-overlay-003",
+  "native_result": "No post-fix native run. Runs 310/311 are retained failed-prefix instrumentation parity, not a physical pass.",
+  "schema": "numi.matter.coupled_trial_capture_overlay_manifest.v1",
+  "scope": "Diagnostic-only bounded per-spec failure detail plus two trial-capture schema corrections; 32 MiB and 192-array payload limits unchanged."
+}

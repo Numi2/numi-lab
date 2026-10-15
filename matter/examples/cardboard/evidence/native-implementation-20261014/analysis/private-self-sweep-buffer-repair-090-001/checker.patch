@@ -1,0 +1,23 @@
+--- a/matter/tools/cardboard_full_contact_armijo_check.mm
++++ b/matter/tools/cardboard_full_contact_armijo_check.mm
+@@ -2121,7 +2121,9 @@
+ 
+     const auto buffer = [device] (const auto& value) {
+         using Element = typename std::decay_t<decltype(value)>::value_type;
+-        return [device newBufferWithBytes:value.data()
++        const Element zero{};
++        const Element* bytes = value.empty() ? &zero : value.data();
++        return [device newBufferWithBytes:bytes
+             length:std::max<std::size_t>(1u, value.size()) * sizeof(Element)
+             options:MTLResourceStorageModeShared];
+     };
+@@ -2138,8 +2140,7 @@
+     id<MTLBuffer> baseBuffer = buffer(base);
+     id<MTLBuffer> trialBuffer = buffer(trial);
+     id<MTLBuffer> rangeBuffer = buffer(ranges);
+-    id<MTLBuffer> referenceBuffer = [device newBufferWithBytes:references.data()
+-        length:sizeof(references) options:MTLResourceStorageModeShared];
++    id<MTLBuffer> referenceBuffer = buffer(references);
+     id<MTLBuffer> faceBuffer = buffer(faces);
+     NMMatterStatusGPU initialStatus{};
+     id<MTLBuffer> statusBuffer = [device newBufferWithBytes:&initialStatus

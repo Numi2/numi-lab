@@ -1,0 +1,59 @@
+{
+  "schema": "numi.cardboard.observational-overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-rationalized-paper-and-native-checkers-091",
+  "destination": "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm",
+  "base_sha256": "27f1b7852668ccec459ee5d6060bf89da203358448aca0138c7e8ac53cdf9571",
+  "replacement_sha256": "d1c3718ee1b14cb288157ed9fb2b544793d1aba679055e42950616b5ebc9c692",
+  "patch_sha256": "8ebd32fabbda6f8e85d370441a7f95b16331634e9f7b547a3009cdc53debf91f",
+  "syntax_command": [
+    "/usr/bin/clang++",
+    "-fsyntax-only",
+    "-DNUMI_CARDBOARD_BASE_SNAPSHOT_SHA256=\"769a5e34c1d919293cb263fd27fbd041a482d22016c2818eec41d44e47935752\"",
+    "-DNUMI_CARDBOARD_PAPER_METALLIB=\"/Users/home/numi-cardboard-20261006/build-cardboard-provenance-091/matter/shaders/cardboard_bilinear15_capture_diagnostic.metallib\"",
+    "-I/Users/home/cardboard-implementation-20261014/snapshots/source-rationalized-paper-and-native-checkers-091/matter/include",
+    "-F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks",
+    "-O3",
+    "-DNDEBUG",
+    "-std=c++23",
+    "-arch",
+    "arm64",
+    "-fPIE",
+    "-fobjc-arc",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "/Users/home/cardboard-implementation-20261014/analysis/captured-material-derivative-sweep-overlay-091-001/cardboard_bilinear15_capture_diagnostic_check.mm"
+  ],
+  "syntax_exit": 0,
+  "selected_points": [
+    567,
+    568,
+    569,
+    1527,
+    1528,
+    1529,
+    1634,
+    1638
+  ],
+  "selected_environment": 0,
+  "rows_per_policy": 960,
+  "policies": [
+    "default",
+    "accurate"
+  ],
+  "epsilon_seconds": [
+    0.001,
+    0.0001,
+    1e-05,
+    1e-06,
+    1e-07,
+    1e-08
+  ],
+  "production_changes": false,
+  "shader_changes": false,
+  "original_capture_modified": false,
+  "native_executed": false,
+  "qualification": false,
+  "limitation": "Controlled constitutive point instrument only. Actual rounded input/output words retained. Repeats measure nondeterminism only. Independent branch, noise-floor and accuracy audit is required; no physical trajectory or assembly qualification."
+}

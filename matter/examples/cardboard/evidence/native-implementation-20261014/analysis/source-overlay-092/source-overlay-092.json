@@ -1,0 +1,26 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-trial-and-material-sweep-092",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-rationalized-paper-and-native-checkers-091",
+  "packages": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupled-trial-capture-overlay-001",
+      "manifest_sha256": "d8cefc05b0c53345b54e9b179c0c2709e2a8e2fc880e9a8fea77adf3e0048bc0"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-material-derivative-sweep-overlay-091-001",
+      "manifest_sha256": "71c32e254c3656f779b8429832eb38f1cb80d68f0c7566948208d872a30a32d7"
+    }
+  ],
+  "changed": {
+    "matter/src/runtime.mm": {
+      "before": "a980ee59341429440e83984dd02073123c9647f19655a94260119a5d67aa5918",
+      "after": "4b8dc05747e3224e8bc82692c795a56f3b3cfd7ad5ea067fd151c056fdcb31e4"
+    },
+    "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": {
+      "before": "27f1b7852668ccec459ee5d6060bf89da203358448aca0138c7e8ac53cdf9571",
+      "after": "d1c3718ee1b14cb288157ed9fb2b544793d1aba679055e42950616b5ebc9c692"
+    }
+  },
+  "scope": "Source091 plus observational selected private Armijo trial staging and controlled eight-point/nine-direction constitutive sweep. No shader, physical operator, solver policy, tolerance or history changes. Native on/off parity and new diagnostic validation remain separate; known private shared-boundary contact failure remains open."
+}

@@ -1,0 +1,636 @@
+{
+  "schema": "numi.cardboard.allpoint-fp64-comparison.v1",
+  "native": "native/rationalized-all-paper-entry-points-300",
+  "reference_sha256": "b1c53a73565da713531a4ca85297ed12441d4088b6b0b98dd3f8fb603ee8411d",
+  "classification": "One captured direction per material point; scalar norm comparison against independent FP64 complete implicit response. Not componentwise derivatives, perturbation/noise-floor qualification, element/assembly tests, or complete trajectory. Exact-zero reference rows are not relative-error gates. Failed native rows are excluded from numerical metrics and explicitly remain failures.",
+  "reference_warning": "Existing FP64 oracle evaluates both numpy.where arms and emitted unused-arm divide-by-zero/invalid warnings; returned arrays were all finite. Canonical oracle retained unchanged.",
+  "policies": {
+    "default": {
+      "input_sha256": "b9023ef51af1f0d8bf9199e576bfc47e4a707a9b82792ff150eefb6ac82e65cb",
+      "header": {
+        "record": "header",
+        "schema": "numi.cardboard.bilinear15-capture-diagnostic.v1",
+        "policy": "default",
+        "base_snapshot_manifest_sha256": "769a5e34c1d919293cb263fd27fbd041a482d22016c2818eec41d44e47935752",
+        "capture_sha256": "4decb7be2fbfa93ad97c0f2f22cfaca974931269068bed90e98815b09066b870",
+        "record_count": 3456,
+        "compiled_local_iterations_liner": 32,
+        "compiled_local_iterations_medium": 32,
+        "physical_validation": false,
+        "interpretation": "direct stress and tangent projection status comparison only; not a material calibration or full solver qualification"
+      },
+      "valid_rows": 3456,
+      "invalid_rows": [],
+      "zero_direction_rows": 1728,
+      "stress": {
+        "valid_nonzero_reference_rows": 1176,
+        "exact_zero_reference_rows": 2280,
+        "rows_above_1e_minus_3": 0,
+        "worst_rows": [
+          {
+            "key": [
+              0,
+              576,
+              1
+            ],
+            "metrics": {
+              "stress": {
+                "reference_norm": 83.13327129610994,
+                "native_norm": 83.13326341720128,
+                "absolute_l2": 7.931450287857706e-06,
+                "max_absolute": 7.900226179913261e-06,
+                "relative_l2": 9.540644995920957e-08
+              },
+              "tangent": {
+                "reference_norm": 598928147.9777133,
+                "native_norm": 598928137.5181112,
+                "absolute_l2": 16.056251128986247,
+                "max_absolute": 12.887796819210052,
+                "relative_l2": 2.6808309449472918e-08
+              },
+              "state": {
+                "reference_norm": 8.852440611055807e-06,
+                "native_norm": 8.852439697125932e-06,
+                "absolute_l2": 9.150109071635829e-13,
+                "max_absolute": 9.148881857586359e-13,
+                "relative_l2": 1.0336255811994112e-07
+              }
+            }
+          },
+          {
+            "key": [
+              0,
+              577,
+              1
+            ],
+            "metrics": {
+              "stress": {
+                "reference_norm": 83.13327129610994,
+                "native_norm": 83.13326341720128,
+                "absolute_l2": 7.931450287857706e-06,
+                "max_absolute": 7.900226179913261e-06,
+                "relative_l2": 9.540644995920957e-08
+              },
+              "tangent": {
+                "reference_norm": 599326782.7407168,
+                "native_norm": 599326772.170404,
+                "absolute_l2": 11.958606070322933,
+                "max_absolute": 8.24295324087143,
+                "relative_l2": 1.9953398404183305e-08
+              },
+              "state": {
+                "reference_norm": 8.852440611055807e-06,
+                "native_norm": 8.852439697125932e-06,
+                "absolute_l2": 9.150109071635829e-13,
+                "max_absolute": 9.148881857586359e-13,
+                "relative_l2": 1.0336255811994112e-07
+              }
+            }
+          },
+          {
+            "key": [
+              0,
+              578,
+              1
+            ],
+            "metrics": {
+              "stress": {
+                "reference_norm": 83.13327129610994,
+                "native_norm": 83.13326341720128,
+                "absolute_l2": 7.931450287857706e-06,
+                "max_absolute": 7.900226179913261e-06,
+                "relative_l2": 9.540644995920957e-08
+              },
+              "tangent": {
+                "reference_norm": 689027506.8735659,
+                "native_norm": 689027488.6023932,
+                "absolute_l2": 18.62950541917804,
+                "max_absolute": 17.492028951644897,
+                "relative_l2": 2.7037389992902692e-08
+              },
+              "state": {
+                "reference_norm": 8.852440611055807e-06,
+                "native_norm": 8.852439697125932e-06,
+                "absolute_l2": 9.150109071635829e-13,
+                "max_absolute": 9.148881857586359e-13,
+                "relative_l2": 1.0336255811994112e-07
+              }
+            }
+          }
+        ]
+      },
+      "tangent": {
+        "valid_nonzero_reference_rows": 1728,
+        "exact_zero_reference_rows": 1728,
+        "rows_above_1e_minus_3": 0,
+        "worst_rows": [
+          {
+            "key": [
+              0,
+              1718,
+              1
+            ],
+            "metrics": {
+              "stress": {
+                "reference_norm": 107.01066963793778,
+                "native_norm": 107.01066732512426,
+                "absolute_l2": 2.3134845539956785e-06,
+                "max_absolute": 2.277276109907689e-06,
+                "relative_l2": 2.161919518701427e-08
+              },
+              "tangent": {
+                "reference_norm": 2167109351.253559,
+                "native_norm": 2167109225.736075,
+                "absolute_l2": 126.3144672361854,
+                "max_absolute": 126.20155239105225,
+                "relative_l2": 5.8287075898186265e-08
+              },
+              "state": {
+                "reference_norm": 1.1395023652778057e-05,
+                "native_norm": 1.1395023587148744e-05,
+                "absolute_l2": 6.630332331140877e-14,
+                "max_absolute": 6.608161758135493e-14,
+                "relative_l2": 5.818620946455369e-09
+              }
+            }
+          },
+          {
+            "key": [
+              0,
+              407,
+              0
+            ],
+            "metrics": {
+              "stress": {
+                "reference_norm": 0.0,
+                "native_norm": 0.0,
+                "absolute_l2": 0.0,
+                "max_absolute": 0.0,
+                "relative_l2": null
+              },
+              "tangent": {
+                "reference_norm": 4404408850.014776,
+                "native_norm": 4404408601.258524,
+                "absolute_l2": 249.2912887046543,
+                "max_absolute": 249.28550052642822,
+                "relative_l2": 5.6600396828241314e-08
+              },
+              "state": {
+                "reference_norm": 0.0,
+                "native_norm": 0.0,
+                "absolute_l2": 0.0,
+                "max_absolute": 0.0,
+                "relative_l2": null
+              }
+            }
+          },
+          {
+            "key": [
+              0,
+              1016,
+              0
+            ],
+            "metrics": {
+              "stress": {
+                "reference_norm": 0.0,
+                "native_norm": 0.0,
+                "absolute_l2": 0.0,
+                "max_absolute": 0.0,
+                "relative_l2": null
+              },
+              "tangent": {
+                "reference_norm": 2183424330.609103,
+                "native_norm": 2183424448.0993505,
+                "absolute_l2": 117.61598144744254,
+                "max_absolute": 117.57566118240356,
+                "relative_l2": 5.3867670062388454e-08
+              },
+              "state": {
+                "reference_norm": 0.0,
+                "native_norm": 0.0,
+                "absolute_l2": 0.0,
+                "max_absolute": 0.0,
+                "relative_l2": null
+              }
+            }
+          }
+        ]
+      },
+      "state": {
+        "valid_nonzero_reference_rows": 1176,
+        "exact_zero_reference_rows": 2280,
+        "rows_above_1e_minus_3": 0,
+        "worst_rows": [
+          {
+            "key": [
+              0,
+              576,
+              1
+            ],
+            "metrics": {
+              "stress": {
+                "reference_norm": 83.13327129610994,
+                "native_norm": 83.13326341720128,
+                "absolute_l2": 7.931450287857706e-06,
+                "max_absolute": 7.900226179913261e-06,
+                "relative_l2": 9.540644995920957e-08
+              },
+              "tangent": {
+                "reference_norm": 598928147.9777133,
+                "native_norm": 598928137.5181112,
+                "absolute_l2": 16.056251128986247,
+                "max_absolute": 12.887796819210052,
+                "relative_l2": 2.6808309449472918e-08
+              },
+              "state": {
+                "reference_norm": 8.852440611055807e-06,
+                "native_norm": 8.852439697125932e-06,
+                "absolute_l2": 9.150109071635829e-13,
+                "max_absolute": 9.148881857586359e-13,
+                "relative_l2": 1.0336255811994112e-07
+              }
+            }
+          },
+          {
+            "key": [
+              0,
+              577,
+              1
+            ],
+            "metrics": {
+              "stress": {
+                "reference_norm": 83.13327129610994,
+                "native_norm": 83.13326341720128,
+                "absolute_l2": 7.931450287857706e-06,
+                "max_absolute": 7.900226179913261e-06,
+                "relative_l2": 9.540644995920957e-08
+              },
+              "tangent": {
+                "reference_norm": 599326782.7407168,
+                "native_norm": 599326772.170404,
+                "absolute_l2": 11.958606070322933,
+                "max_absolute": 8.24295324087143,
+                "relative_l2": 1.9953398404183305e-08
+              },
+              "state": {
+                "reference_norm": 8.852440611055807e-06,
+                "native_norm": 8.852439697125932e-06,
+                "absolute_l2": 9.150109071635829e-13,
+                "max_absolute": 9.148881857586359e-13,
+                "relative_l2": 1.0336255811994112e-07
+              }
+            }
+          },
+          {
+            "key": [
+              0,
+              578,
+              1
+            ],
+            "metrics": {
+              "stress": {
+                "reference_norm": 83.13327129610994,
+                "native_norm": 83.13326341720128,
+                "absolute_l2": 7.931450287857706e-06,
+                "max_absolute": 7.900226179913261e-06,
+                "relative_l2": 9.540644995920957e-08
+              },
+              "tangent": {
+                "reference_norm": 689027506.8735659,
+                "native_norm": 689027488.6023932,
+                "absolute_l2": 18.62950541917804,
+                "max_absolute": 17.492028951644897,
+                "relative_l2": 2.7037389992902692e-08
+              },
+              "state": {
+                "reference_norm": 8.852440611055807e-06,
+                "native_norm": 8.852439697125932e-06,
+                "absolute_l2": 9.150109071635829e-13,
+                "max_absolute": 9.148881857586359e-13,
+                "relative_l2": 1.0336255811994112e-07
+              }
+            }
+          }
+        ]
+      }
+    },
+    "accurate": {
+      "input_sha256": "7c037b868e4f3d60e38ef0d030bfd75b29f4478660452623e92ca72a70a197fe",
+      "header": {
+        "record": "header",
+        "schema": "numi.cardboard.bilinear15-capture-diagnostic.v1",
+        "policy": "accurate",
+        "base_snapshot_manifest_sha256": "769a5e34c1d919293cb263fd27fbd041a482d22016c2818eec41d44e47935752",
+        "capture_sha256": "4decb7be2fbfa93ad97c0f2f22cfaca974931269068bed90e98815b09066b870",
+        "record_count": 3456,
+        "compiled_local_iterations_liner": 16,
+        "compiled_local_iterations_medium": 16,
+        "physical_validation": false,
+        "interpretation": "direct stress and tangent projection status comparison only; not a material calibration or full solver qualification"
+      },
+      "valid_rows": 3456,
+      "invalid_rows": [],
+      "zero_direction_rows": 1728,
+      "stress": {
+        "valid_nonzero_reference_rows": 1176,
+        "exact_zero_reference_rows": 2280,
+        "rows_above_1e_minus_3": 0,
+        "worst_rows": [
+          {
+            "key": [
+              0,
+              576,
+              1
+            ],
+            "metrics": {
+              "stress": {
+                "reference_norm": 83.13327129610994,
+                "native_norm": 83.13326338631413,
+                "absolute_l2": 7.951144949480401e-06,
+                "max_absolute": 7.900226179913261e-06,
+                "relative_l2": 9.564335464629382e-08
+              },
+              "tangent": {
+                "reference_norm": 598928147.9777133,
+                "native_norm": 598927009.0044968,
+                "absolute_l2": 3536.980469287612,
+                "max_absolute": 2457.5954496264458,
+                "relative_l2": 5.905517183038166e-06
+              },
+              "state": {
+                "reference_norm": 8.852440611055807e-06,
+                "native_norm": 8.852440101066402e-06,
+                "absolute_l2": 5.102285093260531e-13,
+                "max_absolute": 5.079038708030335e-13,
+                "relative_l2": 5.7637044036062675e-08
+              }
+            }
+          },
+          {
+            "key": [
+              0,
+              577,
+              1
+            ],
+            "metrics": {
+              "stress": {
+                "reference_norm": 83.13327129610994,
+                "native_norm": 83.13326338631413,
+                "absolute_l2": 7.951144949480401e-06,
+                "max_absolute": 7.900226179913261e-06,
+                "relative_l2": 9.564335464629382e-08
+              },
+              "tangent": {
+                "reference_norm": 599326782.7407168,
+                "native_norm": 599325626.6639786,
+                "absolute_l2": 3567.676752270857,
+                "max_absolute": 2483.8644955456257,
+                "relative_l2": 5.952807141299273e-06
+              },
+              "state": {
+                "reference_norm": 8.852440611055807e-06,
+                "native_norm": 8.852440101066402e-06,
+                "absolute_l2": 5.102285093260531e-13,
+                "max_absolute": 5.079038708030335e-13,
+                "relative_l2": 5.7637044036062675e-08
+              }
+            }
+          },
+          {
+            "key": [
+              0,
+              578,
+              1
+            ],
+            "metrics": {
+              "stress": {
+                "reference_norm": 83.13327129610994,
+                "native_norm": 83.13326338631413,
+                "absolute_l2": 7.951144949480401e-06,
+                "max_absolute": 7.900226179913261e-06,
+                "relative_l2": 9.564335464629382e-08
+              },
+              "tangent": {
+                "reference_norm": 689027506.8735659,
+                "native_norm": 689026589.1440097,
+                "absolute_l2": 3471.2488325201984,
+                "max_absolute": 2408.095140516758,
+                "relative_l2": 5.037895871923674e-06
+              },
+              "state": {
+                "reference_norm": 8.852440611055807e-06,
+                "native_norm": 8.852440101066402e-06,
+                "absolute_l2": 5.102285093260531e-13,
+                "max_absolute": 5.079038708030335e-13,
+                "relative_l2": 5.7637044036062675e-08
+              }
+            }
+          }
+        ]
+      },
+      "tangent": {
+        "valid_nonzero_reference_rows": 1728,
+        "exact_zero_reference_rows": 1728,
+        "rows_above_1e_minus_3": 0,
+        "worst_rows": [
+          {
+            "key": [
+              0,
+              1634,
+              1
+            ],
+            "metrics": {
+              "stress": {
+                "reference_norm": 20.38111858765176,
+                "native_norm": 20.38111824120417,
+                "absolute_l2": 3.505328959603263e-07,
+                "max_absolute": 2.7645574363077685e-07,
+                "relative_l2": 1.719890370358291e-08
+              },
+              "tangent": {
+                "reference_norm": 252750148.47379953,
+                "native_norm": 252735810.0155548,
+                "absolute_l2": 14624.79801042746,
+                "max_absolute": 8717.461635828018,
+                "relative_l2": 5.786266832576555e-05
+              },
+              "state": {
+                "reference_norm": 2.1702820249634985e-06,
+                "native_norm": 2.170282003392002e-06,
+                "absolute_l2": 2.4806499684989362e-14,
+                "max_absolute": 2.073389271145705e-14,
+                "relative_l2": 1.1430081159800683e-08
+              }
+            }
+          },
+          {
+            "key": [
+              0,
+              676,
+              1
+            ],
+            "metrics": {
+              "stress": {
+                "reference_norm": 20.38111858765176,
+                "native_norm": 20.38111824120417,
+                "absolute_l2": 3.505328959603263e-07,
+                "max_absolute": 2.7645574363077685e-07,
+                "relative_l2": 1.719890370358291e-08
+              },
+              "tangent": {
+                "reference_norm": 288133713.9496515,
+                "native_norm": 288117715.57704514,
+                "absolute_l2": 16491.993532983604,
+                "max_absolute": 9822.400284036994,
+                "relative_l2": 5.7237292043739866e-05
+              },
+              "state": {
+                "reference_norm": 2.1702820249634985e-06,
+                "native_norm": 2.170282003392002e-06,
+                "absolute_l2": 2.4806499684989362e-14,
+                "max_absolute": 2.073389271145705e-14,
+                "relative_l2": 1.1430081159800683e-08
+              }
+            }
+          },
+          {
+            "key": [
+              0,
+              749,
+              1
+            ],
+            "metrics": {
+              "stress": {
+                "reference_norm": 20.381118587651756,
+                "native_norm": 20.38111824120417,
+                "absolute_l2": 3.505328959603263e-07,
+                "max_absolute": 2.7645574363077685e-07,
+                "relative_l2": 1.7198903703582914e-08
+              },
+              "tangent": {
+                "reference_norm": 411011793.58129114,
+                "native_norm": 410989296.0529413,
+                "absolute_l2": 23365.054530779315,
+                "max_absolute": 13933.907679021358,
+                "relative_l2": 5.6847649862285776e-05
+              },
+              "state": {
+                "reference_norm": 2.1702820249634985e-06,
+                "native_norm": 2.170282003392002e-06,
+                "absolute_l2": 2.4806499684989362e-14,
+                "max_absolute": 2.073389271145705e-14,
+                "relative_l2": 1.1430081159800683e-08
+              }
+            }
+          }
+        ]
+      },
+      "state": {
+        "valid_nonzero_reference_rows": 1176,
+        "exact_zero_reference_rows": 2280,
+        "rows_above_1e_minus_3": 0,
+        "worst_rows": [
+          {
+            "key": [
+              0,
+              576,
+              1
+            ],
+            "metrics": {
+              "stress": {
+                "reference_norm": 83.13327129610994,
+                "native_norm": 83.13326338631413,
+                "absolute_l2": 7.951144949480401e-06,
+                "max_absolute": 7.900226179913261e-06,
+                "relative_l2": 9.564335464629382e-08
+              },
+              "tangent": {
+                "reference_norm": 598928147.9777133,
+                "native_norm": 598927009.0044968,
+                "absolute_l2": 3536.980469287612,
+                "max_absolute": 2457.5954496264458,
+                "relative_l2": 5.905517183038166e-06
+              },
+              "state": {
+                "reference_norm": 8.852440611055807e-06,
+                "native_norm": 8.852440101066402e-06,
+                "absolute_l2": 5.102285093260531e-13,
+                "max_absolute": 5.079038708030335e-13,
+                "relative_l2": 5.7637044036062675e-08
+              }
+            }
+          },
+          {
+            "key": [
+              0,
+              577,
+              1
+            ],
+            "metrics": {
+              "stress": {
+                "reference_norm": 83.13327129610994,
+                "native_norm": 83.13326338631413,
+                "absolute_l2": 7.951144949480401e-06,
+                "max_absolute": 7.900226179913261e-06,
+                "relative_l2": 9.564335464629382e-08
+              },
+              "tangent": {
+                "reference_norm": 599326782.7407168,
+                "native_norm": 599325626.6639786,
+                "absolute_l2": 3567.676752270857,
+                "max_absolute": 2483.8644955456257,
+                "relative_l2": 5.952807141299273e-06
+              },
+              "state": {
+                "reference_norm": 8.852440611055807e-06,
+                "native_norm": 8.852440101066402e-06,
+                "absolute_l2": 5.102285093260531e-13,
+                "max_absolute": 5.079038708030335e-13,
+                "relative_l2": 5.7637044036062675e-08
+              }
+            }
+          },
+          {
+            "key": [
+              0,
+              578,
+              1
+            ],
+            "metrics": {
+              "stress": {
+                "reference_norm": 83.13327129610994,
+                "native_norm": 83.13326338631413,
+                "absolute_l2": 7.951144949480401e-06,
+                "max_absolute": 7.900226179913261e-06,
+                "relative_l2": 9.564335464629382e-08
+              },
+              "tangent": {
+                "reference_norm": 689027506.8735659,
+                "native_norm": 689026589.1440097,
+                "absolute_l2": 3471.2488325201984,
+                "max_absolute": 2408.095140516758,
+                "relative_l2": 5.037895871923674e-06
+              },
+              "state": {
+                "reference_norm": 8.852440611055807e-06,
+                "native_norm": 8.852440101066402e-06,
+                "absolute_l2": 5.102285093260531e-13,
+                "max_absolute": 5.079038708030335e-13,
+                "relative_l2": 5.7637044036062675e-08
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "full_report": {
+    "path": "report.json.gz",
+    "compressed_sha256": "8d2a9b65890244f117541d394fd7e92d29a62683777728a675dd4d21297abf3e",
+    "restored_sha256": "c09f18b2a14353e7e03b50a3e784016b2ab0df27dd8ed8cf00e1c241826270b8",
+    "restored_bytes": 6086525,
+    "compressed_bytes": 274248,
+    "restore_test": "PASS"
+  },
+  "reference_limit": "The original NumPy FP64 reference is retained unchanged. High precision replay subsequently identifies premature root stopping at near-yield medium points. These original comparisons are not FP64 derivative qualification; see medium-tangent-state-sensitivity-1634-001 and its erratum."
+}

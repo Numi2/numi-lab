@@ -1,0 +1,38 @@
+{
+  "schema": "numi.cardboard.worktree-reconciliation.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-contact-capture-and-resolved-material-sweep-095",
+  "rows": [
+    {
+      "path": "matter/src/compiler_impl.cpp",
+      "before": "46783699e8fe29c2bec502c987f86f6fc11dc0e832e56886c9cb553e2cc0d350",
+      "after": "9dc5cd30bc781704552936531120d28fd6bb95572d2793c7c4a0dd819143272c"
+    },
+    {
+      "path": "matter/src/constitutive_impl.cpp",
+      "before": "b2ddeeef55abee4002caaeca4303fddf3fe410845fe624ab049475ad8e072dbc",
+      "after": "f907a680f2ddfd0d1082ad97dc117869f678ea8ff0deb638dea4634f27704260"
+    },
+    {
+      "path": "matter/src/metal/contact.metalinc",
+      "before": "9e4ce2d8213c83a9a3e58a64388562cb92638c892b21e612653e92400b654f1f",
+      "after": "c360df9e7ad53bf36ab5878eacaa150bb75c0d1fe04ce70e8b668b31e1c87be1"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "before": "a980ee59341429440e83984dd02073123c9647f19655a94260119a5d67aa5918",
+      "after": "aa2486012ced87656933abc7c448188575ac332b747aba2315f550e3d548edd2"
+    },
+    {
+      "path": "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm",
+      "before": "27f1b7852668ccec459ee5d6060bf89da203358448aca0138c7e8ac53cdf9571",
+      "after": "1154df63e3acabe95ca4931d463ad928826992cd4d47dd5eba767a6c8ced7d8f"
+    },
+    {
+      "path": "matter/tools/cardboard_full_contact_armijo_check.mm",
+      "before": "6eb68eea4e258866f7c1b41c1c74cbc40ed27b9e06a31a6e1ad503aa8064123c",
+      "after": "59d945b71bab4584cc057fe074bebe45afb8723f85cbb9f613749ab9458735dc"
+    }
+  ],
+  "build_sha256": "af05899b3df433c799b23f25622210a51cc5bb66287902a93d8c6363ecc67c4d",
+  "scope": "66 target build,71 CPU checks. Native300 repaired all3456 retained projections,315 complete finer material sweep,312/313 full selected private-trial capture with production parity. Source095 conservatively rejects five positive private CCD fixtures; negative controls remain strict. No full solver, convergence, calibration, assembly, crush or impact completion. No tolerance or material-parameter relaxation."
+}

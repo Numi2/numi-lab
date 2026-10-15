@@ -1,0 +1,127 @@
+{
+  "base": {
+    "overlay004_build_source_cmake_sha256": "214313d74f3324fc4c861fe2135010151e43d51da1514156aca2f44b64082684",
+    "overlay004_build_source_contact_sha256": "c360df9e7ad53bf36ab5878eacaa150bb75c0d1fe04ce70e8b668b31e1c87be1",
+    "overlay004_directory": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-overlay-004",
+    "overlay004_manifest_sha256": "000a17e756f3d488c9687a02274f898fb021af544c2be791adb792685dfb21d2",
+    "overlay004_patch_file": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-overlay-004/private-self-sweep-diagnostic-004.patch",
+    "overlay004_patch_sha256": "51884ae64ce1c5c05ddeebf98c50b5a026914637e366e9a6bae46c5f3bb72074",
+    "source091_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-rationalized-paper-and-native-checkers-091",
+    "source091_snapshot_manifest": "/Users/home/cardboard-implementation-20261014/snapshots/source-rationalized-paper-and-native-checkers-091/frozen-source.json",
+    "source091_snapshot_manifest_sha256": "81614c67713b251dd0c4ccf019abcb3da8f2702c6762453a12558e8a1d632bdd"
+  },
+  "behavior": {
+    "exemption": "Only when two mapped FP32 triangles share exactly two identical full 3D barycentric vertices, projected endpoints are distinct, and third vertices lie strictly on opposite sides with both FP32 orientation magnitudes beyond a conservative 32-epsilon bound.",
+    "existing_clip_tolerance": 1e-07,
+    "existing_overlap_area_threshold": 1e-10,
+    "unresolved_cases": "All cases without this proof remain subject to unchanged overlap-area rejection."
+  },
+  "cpu_checks": {
+    "all_pass": true,
+    "assertions": 10,
+    "build": "PASS",
+    "compile_command": "clang++ -std=c++20 -O2 -ffp-contract=fast -Wall -Wextra -Werror -I build-source/matter/include mortar_shared_edge_guard_check.cpp -o mortar_shared_edge_guard_check",
+    "native_gpu_execution": "NOT RUN"
+  },
+  "files": {
+    "build_source_frozen_record": {
+      "path": "build-source/frozen-source.json",
+      "sha256": "81614c67713b251dd0c4ccf019abcb3da8f2702c6762453a12558e8a1d632bdd"
+    },
+    "cmake": {
+      "path": "build-source/matter/CMakeLists.txt",
+      "sha256": "08170dbb3112cb42dcdd2c46ec0bbc587dd3c950646c76b107430027c162435e"
+    },
+    "contact_shader": {
+      "path": "build-source/matter/src/metal/contact.metalinc",
+      "sha256": "a49f7548c315f38a6ff88c8c3fe05ff5f61af61eb9cd4f1ea31529119cfb022b"
+    },
+    "cpu_build_log": {
+      "path": "cpu-build-output.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cpu_check_output": {
+      "path": "cpu-check-output.txt",
+      "sha256": "89bd2cab7520323f8d41d3f60a992edd115c99556a33de320fc04ef95fd40fda"
+    },
+    "cpu_checker_binary": {
+      "path": "mortar_shared_edge_guard_check",
+      "sha256": "2b4dfb03b0389cf438a7785deb5b769a319434c82dd2dcbaf3946d7e0d4b9bc6"
+    },
+    "cpu_checker_source": {
+      "path": "mortar_shared_edge_guard_check.cpp",
+      "sha256": "7e6881006a195eee2bbe3bb159f3c6043664b7df9bc2ededd37959d0d11f058b"
+    },
+    "host_metal_build_log": {
+      "path": "build-output.txt",
+      "sha256": "70f3aef9caca7ee5232469edc054ce42eb07874b286297856d14ef9a59bdddd4"
+    },
+    "patch": {
+      "path": "exact-shared-edge-guard-005.patch",
+      "sha256": "e97d077e4688bcd8e29eea0ea2abf282e1bafda95701cf060d74203c0d6801d2"
+    },
+    "readme": {
+      "path": "README.md",
+      "sha256": "dfa20a3d1d4a606d883834d39781ce03428b2be63519b5aa08962729e705eb07"
+    },
+    "shared_guard_header": {
+      "path": "build-source/matter/include/numi/matter/mortar_shared_edge_guard.h",
+      "sha256": "5f4f75bed88cb4b78dfd502e6eb8c24ce31bada2546659386635d544fde31210"
+    },
+    "shipping_audit_binary": {
+      "path": "shipping_mortar_partition_audit_hex",
+      "sha256": "4a6a7c18e86d6e6d1f312a35c2b7b66e9ca89f16ddbb4f2065163293e0a0cb29"
+    },
+    "shipping_audit_output": {
+      "path": "shipping_partition_audit.txt",
+      "sha256": "c1037bfd890d28b70afa4e7e1410e4c34bd18127a08cb5c3db5bce474e8cf2a8"
+    },
+    "shipping_audit_source": {
+      "path": "shipping_mortar_partition_audit_hex.cpp",
+      "sha256": "de582968a550d76d3f755b36f31595057b1ea4baa71e1e1ceb12c6414f0777de"
+    }
+  },
+  "host_metal_build": {
+    "build": "cmake --build build-host --target numi-matter-cardboard-full-contact-armijo-check -j 4",
+    "configure": "cmake -S build-source -B build-host -DBUILD_TESTING=ON -DPython3_EXECUTABLE=/opt/homebrew/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "result": "PASS; host target linked and Metal library rebuilt; no GPU execution"
+  },
+  "limitations": [
+    "No native GPU run was performed for overlay 005.",
+    "The 497 remaining source FP32 rejects are not accepted by this overlay.",
+    "Long-double clipping cross-check is not exact rational or adaptive-predicate proof and is not used to suppress any reject.",
+    "Shipping audit output is source-bound CPU evidence only and does not establish successful shipping-scale runtime execution.",
+    "Contact geometry at GPU runtime and end-to-end transaction parity remain separate validation work."
+  ],
+  "overlay": "005",
+  "patch": {
+    "apply_dry_run": "PASS against overlay004/build-source",
+    "path": "exact-shared-edge-guard-005.patch",
+    "scope": [
+      "matter/src/metal/contact.metalinc",
+      "matter/CMakeLists.txt",
+      "matter/include/numi/matter/mortar_shared_edge_guard.h"
+    ],
+    "sha256": "e97d077e4688bcd8e29eea0ea2abf282e1bafda95701cf060d74203c0d6801d2"
+  },
+  "schema": "numi.cardboard.mortar-union-exact-shared-edge-overlay.v1",
+  "shipping_cpu_audit": {
+    "classification": "CPU partition/preflight only; not native runtime admission or physical qualification",
+    "exact_shared_edge_proven_pairs": 34185,
+    "hma_patches": 162851,
+    "long_double_zero_clip_above_threshold_crosscheck": 0,
+    "max_partition_cells": 27,
+    "max_patch_multiplicity": 4,
+    "nodes": 528444,
+    "patch_side_areas_at_or_below_native_floor": 2,
+    "result_sha256": "c1037bfd890d28b70afa4e7e1410e4c34bd18127a08cb5c3db5bce474e8cf2a8",
+    "source": "shipping_mortar_partition_audit_hex.cpp",
+    "source_fp32_rejected_pairs": 34682,
+    "source_sha256": "de582968a550d76d3f755b36f31595057b1ea4baa71e1e1ceb12c6414f0777de",
+    "starch_faces": 97984,
+    "tetrahedra": 1477728,
+    "unique_parent_pairs": 183033,
+    "unproven_pairs_still_rejected": 497
+  },
+  "status": "SEALED_EXTERNAL_OVERLAY_NO_GPU_EXECUTION"
+}

@@ -1,0 +1,9 @@
+{
+  "exit_code": 0,
+  "restored": {
+    "bytes": 38818506,
+    "sha256": "609ebcc9751f7ba5a5d42154f1969d065bd779ea44e901c80bb3c925152089ab",
+    "records": 5606
+  },
+  "package_sha256": "ffd1ffa230b78d1324755b99d4bcab5ec9108d98969b24e892b3c10679760d73"
+}

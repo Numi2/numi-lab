@@ -350,23 +350,20 @@ linearization. Final scratch exported after a rejected transaction is not
 automatically the selected Newton state. These CPU analyses do not qualify a
 physical coupon, material calibration or shipping-box trajectory.
 
-The published cardboard milestone adds bounded native graph-patch conditioning,
-shared FEM/rigid line-search fraction publication and exact-word FP64 replay.
-Source086 passes65 build targets and71 selected CPU checks. Its scoped local
-projection policy passes16 selected captured native material points against
-independent references. Default-disabled conditioning preserves the successful
-first coupon control byte for byte; opt-in accepted-correction recycling
-regresses that control and remains disabled. Ordered private cohesive pages
-have bounded accounting, but native parity and shipping-scale admission remain
-open. Coupled candidate readback still skips the failed fixture's reserved
-arena scope, and complete coupon trajectories remain failed. Dynamic grip,
-synthetic damage/bond transactions and smooth BOX derivative checks are bounded
-component evidence. Full loading/release convergence,
-calibrated corrugated failure, shipping-box assembly and crushing remain open. See
+The current source095 cardboard milestone builds66 targets and passes71 CPU
+checks. A scoped same-equation material-value repair makes all3,456 retained
+paper projections valid. All nine accurate native actions at eight selected points (three unique states)
+agree with independent90-digit matrices within5.18e-8 per nonzero column; complete derivative and
+near-zero gates remain separate. The actual failed private trial is retained
+as129 hash-checked arrays, with byte-identical capture-on/off production
+histories. Complete coupon303/304 still rejects after two of27 controls, and
+private contact314 passes9of14 cases while five valid mortar motions reject.
+No complete mesh/time series, matched damage/debonding calibration,
+fixture-free shipping assembly, capacity, crushing or impact is qualified. See
 [the solver evidence ledger](examples/cardboard/solver-progress-20261014.md)
 and [the source-bound archive](examples/cardboard/evidence/native-implementation-20261014/summary.json)
-for separate solver, convergence, calibration, analogue, assembly and impact
-verdicts. A passing prepared kernel or accepted prefix does not qualify a box.
+for six separate verdicts and all failed/timeout evidence. A diagnostic or
+accepted prefix does not qualify a box.
 
 The included elastic and damageable-viscoelastic materials compile into worlds containing both MPM and FEM objects, write versioned packages, emit specialized Metal and round-trip through `readPackage`. The portable stateful regression evaluates compiled elastic stress degradation, viscous stress/tangent, explicit state evolution and canonical fingerprint sensitivity. It also corrupts material-state offsets, scalar-program spans, sparse block lookup, tetrahedron topology, contact incidence and identification ownership and requires a precise rejection from the same validator used by production loading. Source-level audits additionally check shared-ABI sizes, kernel names, buffer bindings and delimiter balance.
 

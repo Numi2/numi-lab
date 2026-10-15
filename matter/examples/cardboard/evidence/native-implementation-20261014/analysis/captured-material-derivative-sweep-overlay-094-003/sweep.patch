@@ -1,0 +1,34 @@
+--- a/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm
++++ b/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm
+@@ -377,7 +377,7 @@
+ };
+ std::vector<DerivativeSweepRecord> derivativeSweepRecords(const Capture& capture) {
+     constexpr std::array<unsigned,8> selected = {567u,568u,569u,1527u,1528u,1529u,1634u,1638u};
+-    constexpr std::array<double,6> epsilons = {1e-3,1e-4,1e-5,1e-6,1e-7,1e-8};
++    constexpr std::array<double,10> epsilons = {1e-3,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11,1e-12};
+     std::vector<DerivativeSweepRecord> records;
+     for (const auto tet : selected) {
+         const auto found = std::find_if(capture.rows.begin(),capture.rows.end(),[&](const Record& r) {
+@@ -405,7 +405,12 @@
+                     double(sign)*epsilon;
+                 const float high=static_cast<float>(targetF);
+                 sample.row.input[basis]=high;
+-                sample.row.input[9u+basis]=static_cast<float>(targetF-double(high));
++                // Form the residual before adding the order-one high word.
++                // This preserves sub-FP64-ULP perturbations when the high
++                // word stays unchanged; every realized input is still logged.
++                const double residualF=(double(center.input[basis])-double(high))+
++                    (double(center.input[9u+basis])+double(sign)*epsilon);
++                sample.row.input[9u+basis]=static_cast<float>(residualF);
+                 // Preserve the captured FEM kinematic F/Fdot perturbation
+                 // relationship; output retains every actually rounded word.
+                 const double targetRate=double(center.input[18u+basis])+
+@@ -418,7 +423,7 @@
+             }
+         }
+     }
+-    need(records.size()==8u*(3u+9u*(1u+2u*6u)),"controlled sweep cardinality mismatch");
++    need(records.size()==8u*(3u+9u*(1u+2u*epsilons.size())),"controlled sweep cardinality mismatch");
+     return records;
+ }
+ void runDerivativeSweep(Metal& metal,const CompiledWorld& world,const std::string& policy,

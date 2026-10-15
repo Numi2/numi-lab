@@ -1,0 +1,1341 @@
+{
+  "armijo_status_by_phase": {
+    "after_bulk_mechanical_before_cohesive": {
+      "code": 0,
+      "completed_microsteps": 0,
+      "contact_count": 0,
+      "diagnostics": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "environment": 0,
+      "event_count": 0,
+      "failing_index": 0,
+      "fgmres_iterations": 0,
+      "object_index": 0,
+      "sha256": "17b0761f87b081d5cf10757ccc89f12be355c70e2e29df288b65b30710dcbcd1"
+    },
+    "after_cohesive_before_rigid_contact": {
+      "code": 0,
+      "completed_microsteps": 0,
+      "contact_count": 0,
+      "diagnostics": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "environment": 0,
+      "event_count": 0,
+      "failing_index": 0,
+      "fgmres_iterations": 0,
+      "object_index": 0,
+      "sha256": "17b0761f87b081d5cf10757ccc89f12be355c70e2e29df288b65b30710dcbcd1"
+    },
+    "after_deformable_contact_before_free_body_terms": {
+      "code": 0,
+      "completed_microsteps": 0,
+      "contact_count": 0,
+      "diagnostics": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "environment": 0,
+      "event_count": 0,
+      "failing_index": 0,
+      "fgmres_iterations": 0,
+      "object_index": 0,
+      "sha256": "17b0761f87b081d5cf10757ccc89f12be355c70e2e29df288b65b30710dcbcd1"
+    },
+    "after_rigid_contact_before_deformable_rebuild": {
+      "code": 0,
+      "completed_microsteps": 0,
+      "contact_count": 0,
+      "diagnostics": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "environment": 0,
+      "event_count": 0,
+      "failing_index": 0,
+      "fgmres_iterations": 0,
+      "object_index": 0,
+      "sha256": "17b0761f87b081d5cf10757ccc89f12be355c70e2e29df288b65b30710dcbcd1"
+    },
+    "armijo_measurement_before_decision": {
+      "code": 0,
+      "completed_microsteps": 0,
+      "contact_count": 0,
+      "diagnostics": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "environment": 0,
+      "event_count": 0,
+      "failing_index": 0,
+      "fgmres_iterations": 0,
+      "object_index": 0,
+      "sha256": "17b0761f87b081d5cf10757ccc89f12be355c70e2e29df288b65b30710dcbcd1"
+    },
+    "candidate_before_private_contact_rebuild": {
+      "code": 0,
+      "completed_microsteps": 0,
+      "contact_count": 0,
+      "diagnostics": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "environment": 0,
+      "event_count": 0,
+      "failing_index": 0,
+      "fgmres_iterations": 0,
+      "object_index": 0,
+      "sha256": "17b0761f87b081d5cf10757ccc89f12be355c70e2e29df288b65b30710dcbcd1"
+    },
+    "full_residual_before_armijo_measure": {
+      "code": 0,
+      "completed_microsteps": 0,
+      "contact_count": 0,
+      "diagnostics": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "environment": 0,
+      "event_count": 0,
+      "failing_index": 0,
+      "fgmres_iterations": 0,
+      "object_index": 0,
+      "sha256": "17b0761f87b081d5cf10757ccc89f12be355c70e2e29df288b65b30710dcbcd1"
+    },
+    "private_contact_rebuild_before_free_body_terms": {
+      "code": 0,
+      "completed_microsteps": 0,
+      "contact_count": 0,
+      "diagnostics": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "environment": 0,
+      "event_count": 0,
+      "failing_index": 0,
+      "fgmres_iterations": 0,
+      "object_index": 0,
+      "sha256": "17b0761f87b081d5cf10757ccc89f12be355c70e2e29df288b65b30710dcbcd1"
+    }
+  },
+  "audit_schema": "numi.matter.private_trial_term_audit.v1",
+  "candidate_and_history_identity_pre_vs_post": {
+    "arrays": {
+      "contact_histories_used_by_private_trial": {
+        "present_both": false
+      },
+      "deformable_histories_used_by_private_trial": {
+        "present_both": false
+      },
+      "fem_armijo_candidate_nodes": {
+        "changed_byte_count": 0,
+        "first_changed_byte": null,
+        "post_bytes": 2880,
+        "post_sha256": "a9b1faf1473ac87a9a98b1ea0fa26915c010c02e89255075ea1d393dcf8fbc9b",
+        "pre_bytes": 2880,
+        "pre_sha256": "a9b1faf1473ac87a9a98b1ea0fa26915c010c02e89255075ea1d393dcf8fbc9b",
+        "present_both": true,
+        "same_bytes": true,
+        "same_extent": true
+      },
+      "fem_armijo_cohesive_faces_trial": {
+        "present_both": false
+      },
+      "fem_fields_candidate": {
+        "changed_byte_count": 0,
+        "first_changed_byte": null,
+        "post_bytes": 1152,
+        "post_sha256": "bf0ea3c1a87e944dfdf376d42b34154b052d3c5d6f8c969f9a1c72af83df3144",
+        "pre_bytes": 1152,
+        "pre_sha256": "bf0ea3c1a87e944dfdf376d42b34154b052d3c5d6f8c969f9a1c72af83df3144",
+        "present_both": true,
+        "same_bytes": true,
+        "same_extent": true
+      },
+      "fem_solution_correction": {
+        "changed_byte_count": 0,
+        "first_changed_byte": null,
+        "post_bytes": 1248,
+        "post_sha256": "63e387d749a33273bc7ede76369b3010779a8b8dc835721a948b002a61aad05b",
+        "pre_bytes": 1248,
+        "pre_sha256": "63e387d749a33273bc7ede76369b3010779a8b8dc835721a948b002a61aad05b",
+        "present_both": true,
+        "same_bytes": true,
+        "same_extent": true
+      },
+      "learned_weights_candidate": {
+        "changed_byte_count": 0,
+        "first_changed_byte": null,
+        "post_bytes": 16,
+        "post_sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb",
+        "pre_bytes": 16,
+        "pre_sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb",
+        "present_both": true,
+        "same_bytes": true,
+        "same_extent": true
+      },
+      "rigid_candidate_trial": {
+        "changed_byte_count": 0,
+        "first_changed_byte": null,
+        "post_bytes": 24,
+        "post_sha256": "6b3a31799d6e1605e65840ce9cca0c3b11a62295ffa84889d1bcf18721e2073d",
+        "pre_bytes": 24,
+        "pre_sha256": "6b3a31799d6e1605e65840ce9cca0c3b11a62295ffa84889d1bcf18721e2073d",
+        "present_both": true,
+        "same_bytes": true,
+        "same_extent": true
+      },
+      "rigid_states_trial": {
+        "changed_byte_count": 0,
+        "first_changed_byte": null,
+        "post_bytes": 288,
+        "post_sha256": "3e644e16c6fd5cabafe696c5c8f36a3cea367819c81fa0016ca771ffea060509",
+        "pre_bytes": 288,
+        "pre_sha256": "3e644e16c6fd5cabafe696c5c8f36a3cea367819c81fa0016ca771ffea060509",
+        "present_both": true,
+        "same_bytes": true,
+        "same_extent": true
+      },
+      "tetrahedra_candidate": {
+        "changed_byte_count": 0,
+        "first_changed_byte": null,
+        "post_bytes": 4608,
+        "post_sha256": "f09bcf758d77196a2645c97b151ca9da4c6c728ab18be17d94d9f0de61e45f0b",
+        "pre_bytes": 4608,
+        "pre_sha256": "f09bcf758d77196a2645c97b151ca9da4c6c728ab18be17d94d9f0de61e45f0b",
+        "present_both": true,
+        "same_bytes": true,
+        "same_extent": true
+      }
+    },
+    "interpretation": "The two contexts bracket private contact rebuild. Equality is a diagnostic identity check; differing contact candidate arrays are expected, while changed input histories or candidate geometry require investigation.",
+    "post_phase": "private_contact_rebuild_before_free_body_terms",
+    "pre_accepted_vs_private_history_inputs": {
+      "contact_histories_used_by_private_trial": {
+        "accepted_bytes": 1152,
+        "accepted_sha256": "4ef3447c2581143c8ff43c7ded4badb046feac54deb7a06fe9063c6263bc44df",
+        "accepted_transaction_history_equals_private_input": false,
+        "interpretation": "At Newton iterations after zero, private input may be the current Newton-accepted working history rather than transaction-accepted bytes; inequality alone is not a mutation finding.",
+        "private_input_bytes": 1152,
+        "private_input_sha256": "bfe9aea58faaa7a48ec7536916d08762538adb5976cdbbd3412c6473ab68ffbc"
+      },
+      "deformable_histories_used_by_private_trial": {
+        "accepted_bytes": 880128,
+        "accepted_sha256": "6e7beb937ebb8b4f0c102f1f495ba8aa75e6e915c4b575a3fdd81a59dcb71a6e",
+        "accepted_transaction_history_equals_private_input": false,
+        "interpretation": "At Newton iterations after zero, private input may be the current Newton-accepted working history rather than transaction-accepted bytes; inequality alone is not a mutation finding.",
+        "private_input_bytes": 880128,
+        "private_input_sha256": "128d7ad7f486f32961c7bb9c4047927ee4827e339d4021af2c49c5c68b079b29"
+      }
+    },
+    "pre_phase": "candidate_before_private_contact_rebuild"
+  },
+  "candidate_geometry_pre_vs_post": {
+    "accepted_to_trial_geometry": {
+      "changed_position_component_min_displacement_over_ulp": 1.0,
+      "max_abs_delta_x_minus_dt_v_m": 1.9142874452160105e-10,
+      "max_abs_realized_delta_x_m": 2.0812370848943829e-07,
+      "position_components_changed": 96,
+      "position_components_total": 108,
+      "unchanged_position_component_max_abs_dt_v_m": 0.0
+    },
+    "candidate_position_update": {
+      "changed_word_count_vs_formula": 1,
+      "expected_formula": "reference mode: rest + (accepted_u + dt * trial_v); legacy mode: accepted_x + dt * trial_v",
+      "max_abs_actual_minus_recomputed_m": 8.881784197001252e-16
+    },
+    "candidate_velocity_update": {
+      "changed_word_count_vs_formula": 0,
+      "expected_formula": "fem_linearization_velocity + float32(alpha * fem_solution_correction.xyz)",
+      "max_abs_actual_minus_recomputed_m_per_s": 0.0
+    },
+    "pre_post_rebuild": {
+      "candidate_position_max_abs_m": 0.0020105752628296614,
+      "candidate_velocity_max_abs_m_per_s": 0.0020812370348721743,
+      "meaning": "These are pre/post private rebuild comparisons, not accepted-to-trial displacement. Accepted and linearization nodes are separately captured in the pre context.",
+      "node_records": 36,
+      "position_pre_post_delta_m": {
+        "max_abs": 0.0,
+        "nonfinite_count": 0,
+        "nonzero_count": 0,
+        "norm_l2": 0.0,
+        "scalar_count": 108
+      },
+      "position_words_changed": 0,
+      "pre_post_candidate_records_bitwise_equal": true,
+      "reference_displacement_mode_values": [
+        1.0
+      ],
+      "reference_displacement_pre_post_delta_m": {
+        "max_abs": 0.0,
+        "nonfinite_count": 0,
+        "nonzero_count": 0,
+        "norm_l2": 0.0,
+        "scalar_count": 108
+      },
+      "reference_displacement_words_changed": 0,
+      "velocity_pre_post_delta_m_per_s": {
+        "max_abs": 0.0,
+        "nonfinite_count": 0,
+        "nonzero_count": 0,
+        "norm_l2": 0.0,
+        "scalar_count": 108
+      },
+      "velocity_words_changed": 0
+    },
+    "timestep_seconds": 9.999999747378752e-05,
+    "trial_alpha_from_metrics_z": 2.384185791015625e-07
+  },
+  "causal_claim": false,
+  "dispatch_layout": {
+    "available": true,
+    "dispatch_sha256": "3b61936c220ceb15a44603e43548ecce336af465bf8b49c138657265c6dd8a17",
+    "environment_count": 1,
+    "expected_unknown_count": 78,
+    "fem_node_count": 36,
+    "mpm_active_node_capacity": 0,
+    "particle_count": 0,
+    "rigid_generalized_capacity": 6,
+    "tetrahedron_count": 48,
+    "unknown_count_manifest": 78
+  },
+  "limitations": [
+    "Residual checkpoints are cumulative FP32 buffers; per-term values are FP64 differences between adjacent serialized snapshots, not independent force evaluations.",
+    "The rigid generalized residual is reported from the final rebuilt block; the preceding checkpoint contains stale pre-clear rows and is not a valid baseline for a residual-term subtraction.",
+    "Cohesive and rigid/deformable FEM gathers are reconstructed from captured force/sample records and captured incidence order. Their narrowphase, CCD, constitutive response, and history evolution are not independently recomputed.",
+    "The bulk mechanical residual is still a cumulative checkpoint. Its independent recomputation is approximate because the selected capture omits the FEM element-to-node incidence order.",
+    "No standalone deformable TOI is exported; no TOI is inferred from endpoint samples.",
+    "A single failed trial does not establish physical validity or on/off diagnostic invariance."
+  ],
+  "line_search_metrics_by_phase": {
+    "after_bulk_mechanical_before_cohesive": {
+      "environment_line_search": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "fem_armijo_metrics": [
+        [
+          3.436030965531245e-06,
+          null,
+          2.384185791015625e-07,
+          0.0
+        ]
+      ],
+      "fem_line_search": [
+        [
+          0.0,
+          0.9999198913574219,
+          1.0,
+          12.0
+        ]
+      ]
+    },
+    "after_cohesive_before_rigid_contact": {
+      "environment_line_search": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "fem_armijo_metrics": [
+        [
+          3.436030965531245e-06,
+          null,
+          2.384185791015625e-07,
+          0.0
+        ]
+      ],
+      "fem_line_search": [
+        [
+          0.0,
+          0.9999198913574219,
+          1.0,
+          12.0
+        ]
+      ]
+    },
+    "after_deformable_contact_before_free_body_terms": {
+      "environment_line_search": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "fem_armijo_metrics": [
+        [
+          3.436030965531245e-06,
+          null,
+          2.384185791015625e-07,
+          0.0
+        ]
+      ],
+      "fem_line_search": [
+        [
+          0.0,
+          0.9999198913574219,
+          1.0,
+          12.0
+        ]
+      ]
+    },
+    "after_rigid_contact_before_deformable_rebuild": {
+      "environment_line_search": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "fem_armijo_metrics": [
+        [
+          3.436030965531245e-06,
+          null,
+          2.384185791015625e-07,
+          0.0
+        ]
+      ],
+      "fem_line_search": [
+        [
+          0.0,
+          0.9999198913574219,
+          1.0,
+          12.0
+        ]
+      ]
+    },
+    "armijo_measurement_before_decision": {
+      "environment_line_search": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "fem_armijo_metrics": [
+        [
+          3.436030965531245e-06,
+          3.4360307381575694e-06,
+          2.384185791015625e-07,
+          0.0
+        ]
+      ],
+      "fem_line_search": [
+        [
+          0.0,
+          0.9999198913574219,
+          1.0,
+          12.0
+        ]
+      ]
+    },
+    "candidate_before_private_contact_rebuild": {
+      "environment_line_search": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "fem_armijo_metrics": [
+        [
+          3.436030965531245e-06,
+          null,
+          2.384185791015625e-07,
+          0.0
+        ]
+      ],
+      "fem_line_search": [
+        [
+          0.0,
+          0.9999198913574219,
+          1.0,
+          12.0
+        ]
+      ]
+    },
+    "full_residual_before_armijo_measure": {
+      "environment_line_search": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "fem_armijo_metrics": [
+        [
+          3.436030965531245e-06,
+          null,
+          2.384185791015625e-07,
+          0.0
+        ]
+      ],
+      "fem_line_search": [
+        [
+          0.0,
+          0.9999198913574219,
+          1.0,
+          12.0
+        ]
+      ]
+    },
+    "private_contact_rebuild_before_free_body_terms": {
+      "environment_line_search": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "fem_armijo_metrics": [
+        [
+          3.436030965531245e-06,
+          null,
+          2.384185791015625e-07,
+          0.0
+        ]
+      ],
+      "fem_line_search": [
+        [
+          0.0,
+          0.9999198913574219,
+          1.0,
+          12.0
+        ]
+      ]
+    }
+  },
+  "measured_norm_crosscheck": {
+    "armijo_metrics_before_decision": [
+      3.436030965531245e-06,
+      3.4360307381575694e-06,
+      2.384185791015625e-07,
+      0.0
+    ],
+    "combined_norm_reconstructed_from_capture": 3.4360307180230648e-06,
+    "fem_free_xyz_norm_from_captured_final_residual": 2.862966265981404e-06,
+    "free_fem_node_count": 32,
+    "method": "Matches nm_fem_armijo_measure_trial row selection, accumulated in FP64 from captured FP32 residual words; the GPU reduction is FP32 and can differ by rounding.",
+    "rigid_generalized_x_norm_from_captured_final_residual": 1.89992927632862e-06,
+    "trial_norm_difference_vs_metric_y": -2.013450466940912e-14
+  },
+  "newton_center_operator_data_inventory": {
+    "absent": [
+      {
+        "quantity": "Newton-center residual vector R(x_k)",
+        "reason": "Only scalar Armijo norm metrics are captured for the center; the full residual vectors are trial-state checkpoints."
+      },
+      {
+        "quantity": "Production Jacobian action J(x_k) * delta",
+        "reason": "No operator product/action output or same-generation linearization tangent action is among the 129 arrays."
+      },
+      {
+        "quantity": "Explicit Newton-row map tying every correction/residual lane to constrained FEM DOFs and rigid generalized rows",
+        "reason": "The capture exposes dispatch/counts and node records but not a dedicated serialized row-index map; preserve production mapping when extending the capture."
+      },
+      {
+        "quantity": "Contact/operator generation token shared by the Newton-center tangent, correction, and trial residual",
+        "reason": "Capture phases identify trial construction/rebuild ordering, but do not bind an exported J*delta to the current contact branch/history generation."
+      }
+    ],
+    "comparison_readiness": {
+      "can_check_trial_residual_norm_and_trial_residual_stage_gathers": true,
+      "can_compare_full_trial_residual_to_center_residual_plus_alpha_Jdelta": false,
+      "reason": "R(x_k) and J(x_k)*delta are both missing as full vectors. Correction and scalar norms alone are insufficient to identify a derivative mismatch or quantify its contribution."
+    },
+    "limits": "This inventory only establishes whether the existing selected capture contains the vectors required for a derivative comparison; it does not identify a failing derivative layer.",
+    "present": [
+      {
+        "array": "fem_solution_correction",
+        "bytes": 1248,
+        "count": 78,
+        "dtype": "float32x4",
+        "meaning": "Captured solution correction; trial velocity update is independently consistent with linearization velocity plus alpha times correction.",
+        "phase": "candidate_before_private_contact_rebuild"
+      },
+      {
+        "array": "fem_linearization_nodes",
+        "bytes": 2880,
+        "count": 36,
+        "dtype": "record:NMFEMNodeStateGPU",
+        "meaning": "Newton linearization node state.",
+        "phase": "candidate_before_private_contact_rebuild"
+      },
+      {
+        "array": "fem_armijo_candidate_nodes",
+        "bytes": 2880,
+        "count": 36,
+        "dtype": "record:NMFEMNodeStateGPU",
+        "meaning": "Trial candidate before and after private contact rebuild; records are bitwise identical.",
+        "phase": "candidate_before_private_contact_rebuild and private_contact_rebuild_before_free_body_terms"
+      },
+      {
+        "array": "residual_after_bulk_mechanical",
+        "bytes": 1248,
+        "count": 78,
+        "dtype": "float32x4",
+        "meaning": "Trial-state cumulative residual checkpoint.",
+        "phase": "after_bulk_mechanical_before_cohesive"
+      },
+      {
+        "array": "residual_after_cohesive",
+        "bytes": 1248,
+        "count": 78,
+        "dtype": "float32x4",
+        "meaning": "Trial-state cumulative residual checkpoint.",
+        "phase": "after_cohesive_before_rigid_contact"
+      },
+      {
+        "array": "residual_after_rigid_contact",
+        "bytes": 1248,
+        "count": 78,
+        "dtype": "float32x4",
+        "meaning": "Trial-state cumulative residual checkpoint; generalized rigid slots here are stale scratch.",
+        "phase": "after_rigid_contact_before_deformable_rebuild"
+      },
+      {
+        "array": "residual_after_deformable_contact",
+        "bytes": 1248,
+        "count": 78,
+        "dtype": "float32x4",
+        "meaning": "Trial-state cumulative residual checkpoint.",
+        "phase": "after_deformable_contact_before_free_body_terms"
+      },
+      {
+        "array": "residual_before_armijo_measure",
+        "bytes": 1248,
+        "count": 78,
+        "dtype": "float32x4",
+        "meaning": "Full trial residual immediately before Armijo measurement.",
+        "phase": "full_residual_before_armijo_measure"
+      },
+      {
+        "array": "fem_armijo_metrics",
+        "bytes": 16,
+        "count": 1,
+        "dtype": "float32x4",
+        "meaning": "Scalar norm/line-search metrics only; no residual vector at Newton center.",
+        "phase": "candidate and each trial stage"
+      },
+      {
+        "array": "rigid_states_trial and rigid_candidate_trial",
+        "meaning": "Trial rigid state and candidate; pre/post copies match.",
+        "phase": "candidate_before_private_contact_rebuild and private_contact_rebuild_before_free_body_terms"
+      }
+    ],
+    "purpose": "Read-only inventory of what the exact 129-array capture can support for a same-history Newton residual-update comparison.",
+    "required_followup_capture": [
+      "Serialize the full Newton-center residual vector before any line-search trial, after the same production row masking/projection used by the solver.",
+      "Serialize the production J*delta vector from the exact accepted Newton linearization and correction, before line-search backtracking; include operator/history/contact-generation identity.",
+      "Serialize or hash the exact solver row map and constrained-DOF mask, including generalized rigid rows, and record alpha and the candidate velocity/position mapping.",
+      "Retain trial residual checkpoints, accepted/current working histories, contact feature IDs/active branches, and both pre/post private-rebuild phases so changed branches are separately labeled."
+    ],
+    "schema": "numi.cardboard.private_trial_derivative_availability.v1"
+  },
+  "observed_array_phases": [
+    "after_bulk_mechanical_before_cohesive",
+    "after_cohesive_before_rigid_contact",
+    "after_deformable_contact_before_free_body_terms",
+    "after_rigid_contact_before_deformable_rebuild",
+    "armijo_measurement_before_decision",
+    "candidate_before_private_contact_rebuild",
+    "full_residual_before_armijo_measure",
+    "private_contact_rebuild_before_free_body_terms"
+  ],
+  "producer_phase_order": [
+    "candidate_before_private_contact_rebuild",
+    "after_bulk_mechanical_before_cohesive",
+    "after_cohesive_before_rigid_contact",
+    "after_rigid_contact_before_deformable_rebuild",
+    "private_contact_rebuild_before_free_body_terms",
+    "after_deformable_contact_before_free_body_terms",
+    "full_residual_before_armijo_measure",
+    "armijo_measurement_before_decision"
+  ],
+  "residual_terms": {
+    "adjacent_checkpoint_deltas": {
+      "bulk_from_zero": {
+        "fem_node_rows": {
+          "all_float4": {
+            "max_abs": 9.542615089230821e-07,
+            "nonfinite_count": 0,
+            "nonzero_count": 96,
+            "norm_l2": 1.5429029931364642e-06,
+            "scalar_count": 144
+          },
+          "w": {
+            "max_abs": 0.0,
+            "nonfinite_count": 0,
+            "nonzero_count": 0,
+            "norm_l2": 0.0,
+            "scalar_count": 36
+          },
+          "xyz": {
+            "max_abs": 9.542615089230821e-07,
+            "nonfinite_count": 0,
+            "nonzero_count": 96,
+            "norm_l2": 1.5429029931364642e-06,
+            "scalar_count": 108
+          }
+        },
+        "meaning": "FEM node rows at this stage only. The rigid/middle rows are not reported because they can contain stale scratch until the final rigid-block clear/rebuild."
+      },
+      "cohesive_addition": {
+        "fem_node_rows": {
+          "all_float4": {
+            "max_abs": 1.0875416656119796e-07,
+            "nonfinite_count": 0,
+            "nonzero_count": 18,
+            "norm_l2": 2.424288222869603e-07,
+            "scalar_count": 144
+          },
+          "w": {
+            "max_abs": 0.0,
+            "nonfinite_count": 0,
+            "nonzero_count": 0,
+            "norm_l2": 0.0,
+            "scalar_count": 36
+          },
+          "xyz": {
+            "max_abs": 1.0875416656119796e-07,
+            "nonfinite_count": 0,
+            "nonzero_count": 18,
+            "norm_l2": 2.424288222869603e-07,
+            "scalar_count": 108
+          }
+        },
+        "meaning": "FEM node rows at this stage only. The rigid/middle rows are not reported because they can contain stale scratch until the final rigid-block clear/rebuild."
+      },
+      "deformable_contact_fem_addition": {
+        "fem_node_rows": {
+          "all_float4": {
+            "max_abs": 1.7485477599166188e-07,
+            "nonfinite_count": 0,
+            "nonzero_count": 31,
+            "norm_l2": 2.985191389205463e-07,
+            "scalar_count": 144
+          },
+          "w": {
+            "max_abs": 0.0,
+            "nonfinite_count": 0,
+            "nonzero_count": 0,
+            "norm_l2": 0.0,
+            "scalar_count": 36
+          },
+          "xyz": {
+            "max_abs": 1.7485477599166188e-07,
+            "nonfinite_count": 0,
+            "nonzero_count": 31,
+            "norm_l2": 2.985191389205463e-07,
+            "scalar_count": 108
+          }
+        },
+        "meaning": "FEM node rows at this stage only. The rigid/middle rows are not reported because they can contain stale scratch until the final rigid-block clear/rebuild."
+      },
+      "final_minus_deformable_fem_node_rows": {
+        "bitwise_equal": true,
+        "max_abs_by_component": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "meaning": "should be zero if the later generalized-body assembly wrote only its rigid block",
+        "stats": {
+          "max_abs": 0.0,
+          "nonfinite_count": 0,
+          "nonzero_count": 0,
+          "norm_l2": 0.0,
+          "scalar_count": 144
+        }
+      },
+      "post_deformable_rigid_block_net": {
+        "final_rebuilt_rows_sha256": "a2f219734ad05e95a93fd8f385b9a37676beba24ccd52d6bb695a9d7a9d567f4",
+        "meaning": "Not reported as a term: the rigid generalized block is cleared and rebuilt after the preceding checkpoint, so subtracting the stale scratch is not a physical residual contribution.",
+        "stale_preclear_rows_sha256": "2e77333484e933d05fa9ab63f45c18f8bee29967c644f894e0294bbc91167269"
+      },
+      "rigid_contact_fem_addition": {
+        "fem_node_rows": {
+          "all_float4": {
+            "max_abs": 2.911729666266183e-06,
+            "nonfinite_count": 0,
+            "nonzero_count": 15,
+            "norm_l2": 4.3876291422433544e-06,
+            "scalar_count": 144
+          },
+          "w": {
+            "max_abs": 0.0,
+            "nonfinite_count": 0,
+            "nonzero_count": 0,
+            "norm_l2": 0.0,
+            "scalar_count": 36
+          },
+          "xyz": {
+            "max_abs": 2.911729666266183e-06,
+            "nonfinite_count": 0,
+            "nonzero_count": 15,
+            "norm_l2": 4.3876291422433544e-06,
+            "scalar_count": 108
+          }
+        },
+        "meaning": "FEM node rows at this stage only. The rigid/middle rows are not reported because they can contain stale scratch until the final rigid-block clear/rebuild."
+      }
+    },
+    "checkpoint_stats": {
+      "bulk": {
+        "fem_middle_rows_unclassified": {
+          "max_abs": 0.0,
+          "nonfinite_count": 0,
+          "nonzero_count": 0,
+          "norm_l2": 0.0,
+          "scalar_count": 144
+        },
+        "fem_node_rows": {
+          "all_float4": {
+            "max_abs": 9.542615089230821e-07,
+            "nonfinite_count": 0,
+            "nonzero_count": 96,
+            "norm_l2": 1.5429029931364642e-06,
+            "scalar_count": 144
+          },
+          "w": {
+            "max_abs": 0.0,
+            "nonfinite_count": 0,
+            "nonzero_count": 0,
+            "norm_l2": 0.0,
+            "scalar_count": 36
+          },
+          "xyz": {
+            "max_abs": 9.542615089230821e-07,
+            "nonfinite_count": 0,
+            "nonzero_count": 96,
+            "norm_l2": 1.5429029931364642e-06,
+            "scalar_count": 108
+          }
+        },
+        "mpm_rows": {
+          "max_abs": null,
+          "nonfinite_count": 0,
+          "nonzero_count": 0,
+          "norm_l2": null,
+          "scalar_count": 0
+        },
+        "rigid_generalized_rows": {
+          "all_float4": {
+            "max_abs": 0.010001899674534798,
+            "nonfinite_count": 0,
+            "nonzero_count": 6,
+            "norm_l2": 0.0100018996745352,
+            "scalar_count": 24
+          },
+          "x_residual_component": {
+            "max_abs": 0.010001899674534798,
+            "nonfinite_count": 0,
+            "nonzero_count": 6,
+            "norm_l2": 0.0100018996745352,
+            "scalar_count": 6
+          }
+        },
+        "trailing_rows_unclassified": {
+          "max_abs": null,
+          "nonfinite_count": 0,
+          "nonzero_count": 0,
+          "norm_l2": null,
+          "scalar_count": 0
+        }
+      },
+      "cohesive": {
+        "fem_middle_rows_unclassified": {
+          "max_abs": 0.0,
+          "nonfinite_count": 0,
+          "nonzero_count": 0,
+          "norm_l2": 0.0,
+          "scalar_count": 144
+        },
+        "fem_node_rows": {
+          "all_float4": {
+            "max_abs": 9.542615089230821e-07,
+            "nonfinite_count": 0,
+            "nonzero_count": 96,
+            "norm_l2": 1.5577675784756235e-06,
+            "scalar_count": 144
+          },
+          "w": {
+            "max_abs": 0.0,
+            "nonfinite_count": 0,
+            "nonzero_count": 0,
+            "norm_l2": 0.0,
+            "scalar_count": 36
+          },
+          "xyz": {
+            "max_abs": 9.542615089230821e-07,
+            "nonfinite_count": 0,
+            "nonzero_count": 96,
+            "norm_l2": 1.5577675784756235e-06,
+            "scalar_count": 108
+          }
+        },
+        "mpm_rows": {
+          "max_abs": null,
+          "nonfinite_count": 0,
+          "nonzero_count": 0,
+          "norm_l2": null,
+          "scalar_count": 0
+        },
+        "rigid_generalized_rows": {
+          "all_float4": {
+            "max_abs": 0.010001899674534798,
+            "nonfinite_count": 0,
+            "nonzero_count": 6,
+            "norm_l2": 0.0100018996745352,
+            "scalar_count": 24
+          },
+          "x_residual_component": {
+            "max_abs": 0.010001899674534798,
+            "nonfinite_count": 0,
+            "nonzero_count": 6,
+            "norm_l2": 0.0100018996745352,
+            "scalar_count": 6
+          }
+        },
+        "trailing_rows_unclassified": {
+          "max_abs": null,
+          "nonfinite_count": 0,
+          "nonzero_count": 0,
+          "norm_l2": null,
+          "scalar_count": 0
+        }
+      },
+      "deformable": {
+        "fem_middle_rows_unclassified": {
+          "max_abs": 0.0,
+          "nonfinite_count": 0,
+          "nonzero_count": 0,
+          "norm_l2": 0.0,
+          "scalar_count": 144
+        },
+        "fem_node_rows": {
+          "all_float4": {
+            "max_abs": 1.9574681573431008e-06,
+            "nonfinite_count": 0,
+            "nonzero_count": 96,
+            "norm_l2": 2.862966265981404e-06,
+            "scalar_count": 144
+          },
+          "w": {
+            "max_abs": 0.0,
+            "nonfinite_count": 0,
+            "nonzero_count": 0,
+            "norm_l2": 0.0,
+            "scalar_count": 36
+          },
+          "xyz": {
+            "max_abs": 1.9574681573431008e-06,
+            "nonfinite_count": 0,
+            "nonzero_count": 96,
+            "norm_l2": 2.862966265981404e-06,
+            "scalar_count": 108
+          }
+        },
+        "mpm_rows": {
+          "max_abs": null,
+          "nonfinite_count": 0,
+          "nonzero_count": 0,
+          "norm_l2": null,
+          "scalar_count": 0
+        },
+        "rigid_generalized_rows": {
+          "all_float4": {
+            "max_abs": 0.010001899674534798,
+            "nonfinite_count": 0,
+            "nonzero_count": 6,
+            "norm_l2": 0.0100018996745352,
+            "scalar_count": 24
+          },
+          "x_residual_component": {
+            "max_abs": 0.010001899674534798,
+            "nonfinite_count": 0,
+            "nonzero_count": 6,
+            "norm_l2": 0.0100018996745352,
+            "scalar_count": 6
+          }
+        },
+        "trailing_rows_unclassified": {
+          "max_abs": null,
+          "nonfinite_count": 0,
+          "nonzero_count": 0,
+          "norm_l2": null,
+          "scalar_count": 0
+        }
+      },
+      "full": {
+        "fem_middle_rows_unclassified": {
+          "max_abs": 0.0,
+          "nonfinite_count": 0,
+          "nonzero_count": 0,
+          "norm_l2": 0.0,
+          "scalar_count": 144
+        },
+        "fem_node_rows": {
+          "all_float4": {
+            "max_abs": 1.9574681573431008e-06,
+            "nonfinite_count": 0,
+            "nonzero_count": 96,
+            "norm_l2": 2.862966265981404e-06,
+            "scalar_count": 144
+          },
+          "w": {
+            "max_abs": 0.0,
+            "nonfinite_count": 0,
+            "nonzero_count": 0,
+            "norm_l2": 0.0,
+            "scalar_count": 36
+          },
+          "xyz": {
+            "max_abs": 1.9574681573431008e-06,
+            "nonfinite_count": 0,
+            "nonzero_count": 96,
+            "norm_l2": 2.862966265981404e-06,
+            "scalar_count": 108
+          }
+        },
+        "mpm_rows": {
+          "max_abs": null,
+          "nonfinite_count": 0,
+          "nonzero_count": 0,
+          "norm_l2": null,
+          "scalar_count": 0
+        },
+        "rigid_generalized_rows": {
+          "all_float4": {
+            "max_abs": 1.899927156046033e-06,
+            "nonfinite_count": 0,
+            "nonzero_count": 6,
+            "norm_l2": 1.8999292763286199e-06,
+            "scalar_count": 24
+          },
+          "x_residual_component": {
+            "max_abs": 1.899927156046033e-06,
+            "nonfinite_count": 0,
+            "nonzero_count": 6,
+            "norm_l2": 1.89992927632862e-06,
+            "scalar_count": 6
+          }
+        },
+        "trailing_rows_unclassified": {
+          "max_abs": null,
+          "nonfinite_count": 0,
+          "nonzero_count": 0,
+          "norm_l2": null,
+          "scalar_count": 0
+        }
+      },
+      "rigid_contact": {
+        "fem_middle_rows_unclassified": {
+          "max_abs": 0.0,
+          "nonfinite_count": 0,
+          "nonzero_count": 0,
+          "norm_l2": 0.0,
+          "scalar_count": 144
+        },
+        "fem_node_rows": {
+          "all_float4": {
+            "max_abs": 1.9574681573431008e-06,
+            "nonfinite_count": 0,
+            "nonzero_count": 96,
+            "norm_l2": 2.8775942045658505e-06,
+            "scalar_count": 144
+          },
+          "w": {
+            "max_abs": 0.0,
+            "nonfinite_count": 0,
+            "nonzero_count": 0,
+            "norm_l2": 0.0,
+            "scalar_count": 36
+          },
+          "xyz": {
+            "max_abs": 1.9574681573431008e-06,
+            "nonfinite_count": 0,
+            "nonzero_count": 96,
+            "norm_l2": 2.8775942045658505e-06,
+            "scalar_count": 108
+          }
+        },
+        "mpm_rows": {
+          "max_abs": null,
+          "nonfinite_count": 0,
+          "nonzero_count": 0,
+          "norm_l2": null,
+          "scalar_count": 0
+        },
+        "rigid_generalized_rows": {
+          "all_float4": {
+            "max_abs": 0.010001899674534798,
+            "nonfinite_count": 0,
+            "nonzero_count": 6,
+            "norm_l2": 0.0100018996745352,
+            "scalar_count": 24
+          },
+          "x_residual_component": {
+            "max_abs": 0.010001899674534798,
+            "nonfinite_count": 0,
+            "nonzero_count": 6,
+            "norm_l2": 0.0100018996745352,
+            "scalar_count": 6
+          }
+        },
+        "trailing_rows_unclassified": {
+          "max_abs": null,
+          "nonfinite_count": 0,
+          "nonzero_count": 0,
+          "norm_l2": null,
+          "scalar_count": 0
+        }
+      }
+    },
+    "layout": {
+      "fem_node_row_count": 36,
+      "middle_reserved_rows_end": 72,
+      "mpm_rows_begin": 72,
+      "residual_row_count": 78,
+      "rigid_rows_begin": 72,
+      "rigid_rows_end": 78,
+      "unclassified_ranges": [
+        [
+          36,
+          72
+        ],
+        [
+          78,
+          78
+        ]
+      ]
+    },
+    "phase_for_residual": {
+      "bulk": "after_bulk_mechanical_before_cohesive",
+      "cohesive": "after_cohesive_before_rigid_contact",
+      "deformable": "after_deformable_contact_before_free_body_terms",
+      "full": "full_residual_before_armijo_measure",
+      "rigid_contact": "after_rigid_contact_before_deformable_rebuild"
+    }
+  },
+  "source_binding": {
+    "snapshot_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-contact-capture-and-resolved-material-sweep-095",
+    "source_file_sha256": {
+      "contact.metalinc": "c360df9e7ad53bf36ab5878eacaa150bb75c0d1fe04ce70e8b668b31e1c87be1",
+      "fem.metalinc": "f4b5cd60dbe7ace7a54636746a00b5e7186d6c1f4890eb0718c138af9c753ae4",
+      "fgmres.metalinc": "92d5e2b57cb392076962a43733bb51b8f30deef4579fc5151b66ae9415783669",
+      "reader.py": "adc508075d4e30508c110d00a3244eaa3eba0ba75ed900629e180df716e05d95",
+      "runtime.mm": "aa2486012ced87656933abc7c448188575ac332b747aba2315f550e3d548edd2",
+      "shared.h": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691"
+    },
+    "strict_reader_path": "/Users/home/cardboard-implementation-20261014/analysis/private-trial-reader-001/trial_capture_reader.py"
+  },
+  "source_capture": {
+    "accepted_checkpoint": false,
+    "adjacent_payload": "/Users/home/cardboard-implementation-20261014/native/corrected-private-trial-layout-312/private-trial.coupled.bin",
+    "array_count": 129,
+    "iteration": 12,
+    "manifest": "/Users/home/cardboard-implementation-20261014/native/corrected-private-trial-layout-312/private-trial.coupled.json",
+    "manifest_sha256": "fea8776aa57e3a1e11a2720b8a4acd747c3d30e19a1c85fafebdf43794cb1477",
+    "payload_bytes": 19467248,
+    "payload_sha256": "58206c37aa9cd897d490a7dd45979d887b0e2f44992fefad512e943fb10d17ff",
+    "phase_counts": {
+      "after_bulk_mechanical_before_cohesive": 5,
+      "after_cohesive_before_rigid_contact": 5,
+      "after_deformable_contact_before_free_body_terms": 5,
+      "after_rigid_contact_before_deformable_rebuild": 5,
+      "armijo_measurement_before_decision": 4,
+      "candidate_before_private_contact_rebuild": 67,
+      "full_residual_before_armijo_measure": 5,
+      "private_contact_rebuild_before_free_body_terms": 33
+    },
+    "physical_validation": false,
+    "root": 1201,
+    "schema": "numi.matter.coupled_armijo_trial_capture.v1",
+    "selected_phase": "both",
+    "trial": 22
+  },
+  "source_reconstructed_contact_and_cohesive_assembly": {
+    "armijo_norm_context": {
+      "armijo_metrics_before_decision": [
+        3.436030965531245e-06,
+        3.4360307381575694e-06,
+        2.384185791015625e-07,
+        0.0
+      ],
+      "combined_norm_reconstructed_from_capture": 3.4360307180230648e-06,
+      "fem_free_xyz_norm_from_captured_final_residual": 2.862966265981404e-06,
+      "free_fem_node_count": 32,
+      "method": "Matches nm_fem_armijo_measure_trial row selection, accumulated in FP64 from captured FP32 residual words; the GPU reduction is FP32 and can differ by rounding.",
+      "rigid_generalized_x_norm_from_captured_final_residual": 1.89992927632862e-06,
+      "trial_norm_difference_vs_metric_y": -2.013450466940912e-14
+    },
+    "cohesive": {
+      "cohesive_face_count": 1,
+      "cohesive_incidence_count": 6,
+      "comparison": "captured cumulative residual after the production gather vs source-reconstructed gather applied to captured pre-stage residual",
+      "dt_seconds_from_dispatch_and_scheduler": 9.999999747378752e-05,
+      "invalid_incidence_count": 0,
+      "invalid_incidence_examples": [],
+      "node_count": 36,
+      "observed_stage_delta_fp64_from_fp32_checkpoints": {
+        "max_abs": 1.0875416656119796e-07,
+        "nonfinite_count": 0,
+        "nonzero_count": 18,
+        "norm_l2": 2.424288222869603e-07,
+        "scalar_count": 108
+      },
+      "predicted_after_vs_captured_after": {
+        "bitwise_equal_xyz": true,
+        "max_abs_fp32_difference": 0.0,
+        "mismatch_locations_node_component": [],
+        "mismatched_float_words_xyz": 0
+      },
+      "reconstructed_stage_term_fp32": {
+        "max_abs": 1.0875416478484112e-07,
+        "nonfinite_count": 0,
+        "nonzero_count": 18,
+        "norm_l2": 2.4242881820678275e-07,
+        "scalar_count": 108
+      },
+      "source_equation": "node force is incidence-order sum(faceForces[face].node[slot].xyz); residual.xyz = fma(dt, force, residual.xyz)",
+      "stage_delta_difference_fp64": {
+        "max_abs": 7.105427357601002e-15,
+        "nonfinite_count": 0,
+        "nonzero_count": 14,
+        "norm_l2": 1.168859922026124e-14,
+        "scalar_count": 108
+      }
+    },
+    "deformable_contact": {
+      "active_contact_count": 100,
+      "active_prefix_unique_count": 100,
+      "comparison": "captured cumulative residual after the production gather vs source-reconstructed gather applied to captured pre-stage residual",
+      "incidence_visit_count": 402,
+      "invalid_incidence_count": 0,
+      "invalid_incidence_examples": [],
+      "node_count": 36,
+      "observed_stage_delta_fp64_from_fp32_checkpoints": {
+        "max_abs": 1.7485477599166188e-07,
+        "nonfinite_count": 0,
+        "nonzero_count": 31,
+        "norm_l2": 2.985191389205463e-07,
+        "scalar_count": 108
+      },
+      "predicted_after_vs_captured_after": {
+        "bitwise_equal_xyz": true,
+        "max_abs_fp32_difference": 0.0,
+        "mismatch_locations_node_component": [],
+        "mismatched_float_words_xyz": 0
+      },
+      "reconstructed_stage_term_fp32": {
+        "max_abs": 1.7485477599166188e-07,
+        "nonfinite_count": 0,
+        "nonzero_count": 33,
+        "norm_l2": 2.985191389219475e-07,
+        "scalar_count": 108
+      },
+      "scope": "Verifies the captured contact records and FEM residual gather; it does not independently rerun broadphase, narrowphase, CCD, contact-history update, or constitutive response.",
+      "source_equation": "per-node incidence order; impulse += timeScale * (weight * (Jn*n + Jt0*t0 + Jt1*t1) - mollifier.y * mollifierGradient); residual.xyz += impulse",
+      "stage_delta_difference_fp64": {
+        "max_abs": 4.440892098500626e-16,
+        "nonfinite_count": 0,
+        "nonzero_count": 24,
+        "norm_l2": 5.882930847662926e-16,
+        "scalar_count": 108
+      },
+      "unique_contact_slots_touched": 100,
+      "valid_active_contact_count": 100
+    },
+    "dt_seconds_reconstructed": 9.999999747378752e-05,
+    "final_rigid_generalized_x_rows": {
+      "preceding_deformable_checkpoint_rigid_rows": "stale pre-clear scratch; not a physical term or a valid baseline for subtraction",
+      "source": "runtime clears/rebuilds generalized body rows after deformable FEM residual assembly",
+      "stats": {
+        "max_abs": 1.899927156046033e-06,
+        "nonfinite_count": 0,
+        "nonzero_count": 6,
+        "norm_l2": 1.89992927632862e-06,
+        "scalar_count": 6
+      },
+      "values": [
+        -1.4927967750821836e-09,
+        1.6108614442345015e-09,
+        -1.899927156046033e-06,
+        -4.857767521571077e-10,
+        -1.7313213085401458e-09,
+        -3.1032742022797655e-13
+      ]
+    },
+    "rigid_contact": {
+      "comparison": "captured cumulative residual after the production gather vs source-reconstructed gather applied to captured pre-stage residual",
+      "invalid_incidence_count": 0,
+      "invalid_incidence_examples": [],
+      "node_count": 36,
+      "node_incidence_count": 72,
+      "observed_stage_delta_fp64_from_fp32_checkpoints": {
+        "max_abs": 2.911729666266183e-06,
+        "nonfinite_count": 0,
+        "nonzero_count": 15,
+        "norm_l2": 4.3876291422433544e-06,
+        "scalar_count": 108
+      },
+      "predicted_after_vs_captured_after": {
+        "bitwise_equal_xyz": true,
+        "max_abs_fp32_difference": 0.0,
+        "mismatch_locations_node_component": [],
+        "mismatched_float_words_xyz": 0
+      },
+      "reconstructed_stage_term_fp32": {
+        "max_abs": 2.911729552579345e-06,
+        "nonfinite_count": 0,
+        "nonzero_count": 15,
+        "norm_l2": 4.387629093495028e-06,
+        "scalar_count": 108
+      },
+      "source_equation": "node impulse is incidence-order sum(-sample.impulseAndNormal.xyz) over NM_CONTACT_VALID samples; residual.xyz = residual.xyz + impulse",
+      "stage_delta_difference_fp64": {
+        "max_abs": 1.1368683772161603e-13,
+        "nonfinite_count": 0,
+        "nonzero_count": 12,
+        "norm_l2": 1.271063822035598e-13,
+        "scalar_count": 108
+      },
+      "valid_sample_count": 5
+    },
+    "status": "SOURCE_RECONSTRUCTED_ASSEMBLY_ONLY_NOT_NARROWPHASE_OR_PHYSICAL_VALIDATION"
+  },
+  "status": "DIAGNOSTIC_ONLY_NOT_CHECKPOINT_OR_PHYSICAL_VALIDATION"
+}

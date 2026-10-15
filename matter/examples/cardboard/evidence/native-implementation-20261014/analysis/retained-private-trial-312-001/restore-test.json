@@ -1,0 +1,27 @@
+{
+  "exit_code": 0,
+  "result": {
+    "schema": "numi.matter.coupled_armijo_trial_capture.v1",
+    "root": 1201,
+    "iteration": 12,
+    "trial": 22,
+    "selected_phase": "both",
+    "array_count": 129,
+    "payload_bytes": 19467248,
+    "payload_sha256": "58206c37aa9cd897d490a7dd45979d887b0e2f44992fefad512e943fb10d17ff",
+    "adjacent_payload": "/private/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/tmpb2j43skm/restored/private-trial.coupled.bin",
+    "phase_counts": {
+      "after_bulk_mechanical_before_cohesive": 5,
+      "after_cohesive_before_rigid_contact": 5,
+      "after_deformable_contact_before_free_body_terms": 5,
+      "after_rigid_contact_before_deformable_rebuild": 5,
+      "armijo_measurement_before_decision": 4,
+      "candidate_before_private_contact_rebuild": 67,
+      "full_residual_before_armijo_measure": 5,
+      "private_contact_rebuild_before_free_body_terms": 33
+    },
+    "accepted_checkpoint": false,
+    "physical_validation": false
+  },
+  "package_sha256": "d8d18f3efae2d953c5d509e2105ce9af29f825c681457d940884ba26c69e6a65"
+}

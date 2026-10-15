@@ -1,0 +1,95 @@
+--- a/matter/tools/cardboard_full_contact_armijo_check.mm
++++ b/matter/tools/cardboard_full_contact_armijo_check.mm
+@@ -2121,7 +2121,9 @@
+ 
+     const auto buffer = [device] (const auto& value) {
+         using Element = typename std::decay_t<decltype(value)>::value_type;
+-        return [device newBufferWithBytes:value.data()
++        const Element zero{};
++        const Element* bytes = value.empty() ? &zero : value.data();
++        return [device newBufferWithBytes:bytes
+             length:std::max<std::size_t>(1u, value.size()) * sizeof(Element)
+             options:MTLResourceStorageModeShared];
+     };
+@@ -2138,8 +2140,7 @@
+     id<MTLBuffer> baseBuffer = buffer(base);
+     id<MTLBuffer> trialBuffer = buffer(trial);
+     id<MTLBuffer> rangeBuffer = buffer(ranges);
+-    id<MTLBuffer> referenceBuffer = [device newBufferWithBytes:references.data()
+-        length:sizeof(references) options:MTLResourceStorageModeShared];
++    id<MTLBuffer> referenceBuffer = buffer(references);
+     id<MTLBuffer> faceBuffer = buffer(faces);
+     NMMatterStatusGPU initialStatus{};
+     id<MTLBuffer> statusBuffer = [device newBufferWithBytes:&initialStatus
+@@ -3317,7 +3318,8 @@
+         const MaterialProgram& bulk,
+         const std::uint32_t faceCount,
+         const bool tiled,
+-        const std::filesystem::path& outputRoot) {
++        const std::filesystem::path& outputRoot,
++        const bool sameParentMortarUnion = false) {
+     TiledParityDiagnosticArm arm;
+     arm.faceCount = faceCount;
+     arm.label = tiled ? "tiled" : "legacy";
+@@ -3338,7 +3340,8 @@
+     arm.transactionCount = nativeFEMTransactionsExecuted;
+     tiledParityCurrentStage = "arm_start";
+     try {
+-        arm.sequence = runTiledSequence(bulk, faceCount, tiled);
++        arm.sequence = runTiledSequence(
++            bulk, faceCount, tiled, sameParentMortarUnion);
+         arm.stage = "sequence_complete";
+     } catch (const std::exception& error) {
+         arm.stage = tiledParityCurrentStage;
+@@ -3426,10 +3429,31 @@
+ }
+ 
+ void runSameParentMortarUnionParity(const MaterialProgram& bulk) {
+-    const AcceptedRollbackSequence legacy =
+-        runTiledSequence(bulk, 3u, false, true);
+-    const AcceptedRollbackSequence tiled =
+-        runTiledSequence(bulk, 3u, true, true);
++    const bool retainDiagnostics = !diagnosticStateOutputPath.empty();
++    const std::filesystem::path outputRoot(diagnosticStateOutputPath);
++    std::vector<TiledParityDiagnosticArm> arms;
++    std::optional<AcceptedRollbackSequence> directLegacy, directTiled;
++    if (retainDiagnostics) {
++        if (!std::filesystem::create_directory(outputRoot))
++            throw std::runtime_error(
++                "union parity diagnostic output must name a new directory");
++        arms.reserve(2u);
++        arms.push_back(runTiledDiagnosticArm(bulk, 3u, false, outputRoot, true));
++        arms.push_back(runTiledDiagnosticArm(bulk, 3u, true, outputRoot, true));
++        writeTiledParityDiagnosticSummary(outputRoot, arms,
++            "failed_prefix_partial_comparison", "");
++        if (!arms[0].sequence.has_value() || !arms[1].sequence.has_value())
++            throw std::runtime_error(
++                "union parity retained both arms; complete transaction comparison unavailable");
++    } else {
++        directLegacy = runTiledSequence(bulk, 3u, false, true);
++        directTiled = runTiledSequence(bulk, 3u, true, true);
++    }
++    const AcceptedRollbackSequence& legacy = retainDiagnostics
++        ? *arms[0].sequence : *directLegacy;
++    const AcceptedRollbackSequence& tiled = retainDiagnostics
++        ? *arms[1].sequence : *directTiled;
++    try {
+     requireSnapshotOperatorParity(legacy.initial, tiled.initial,
+         "same-parent three-patch initial state");
+     requireSnapshotOperatorParity(legacy.activation.snapshot,
+@@ -3457,6 +3481,15 @@
+                 "same-parent union lost a distinct active cohesive face identity");
+         }
+     }
++    } catch (const std::exception& error) {
++        if (retainDiagnostics)
++            writeTiledParityDiagnosticSummary(outputRoot, arms,
++                "comparison_failed", error.what());
++        throw;
++    }
++    if (retainDiagnostics)
++        writeTiledParityDiagnosticSummary(outputRoot, arms,
++            "operator_parity_pass", "");
+     std::cout << "same_parent_mortar_union_contact=pass"
+               << " face_count=3 active_history_records=3"
+               << " matched_compressive_closure=true"

@@ -1,0 +1,97 @@
+{
+  "schema": "numi.cardboard.regional-preconditioner-binding-audit.v2",
+  "correction_to": "../regional-preconditioner-binding-304-001/report.json; v1 had an advanced-indexing bug in its coarse-only rhs diagnostic, see this report for corrected values; all source measurements retained",
+  "source_run": "/Users/home/cardboard-implementation-20261014/solver/rationalized-paper-control2-newton63-capture-304",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/solver/rationalized-paper-control2-newton63-capture-304/inputs/source",
+  "prediction_sha256": "6fd0e39606d2b05eb172a5ba76c2d589103f196604de1eb00999c74204ec00a1",
+  "receipt_sha256": "abd525c6de4a9932da3869a080fa00ef3a3307d76f0b70a834f9bc8a41910a3a",
+  "operator_report_sha256": "9d55e082c17fa246a23a98e96ca17832fff8814d017f0bf69eaf1d2196408f6d",
+  "operator_capture_sha256": "609ebcc9751f7ba5a5d42154f1969d065bd779ea44e901c80bb3c925152089ab",
+  "regional_manifest_sha256": "75fd9d878fdd22c01929fbb231046480d0daec9cefd77318d4703aff09ce8b00",
+  "regional_manifest": {
+    "source_physics_fingerprint": "7618990651531117517",
+    "device_program_fingerprint": "1396380558273943204",
+    "control_step": 2,
+    "environment_count": 2,
+    "node_count": 882,
+    "mode_count": 26,
+    "accepted_physical_state": false,
+    "factor_valid": [
+      1,
+      1
+    ],
+    "node_block_inverse_declared_count": 0
+  },
+  "identity": {
+    "operator_selector": {
+      "root": 2,
+      "newton_iteration": 63,
+      "environment": 0
+    },
+    "prediction_run_fingerprints_match": true,
+    "candidate_nodes_all_environments_bitwise_match_operator_capture": true,
+    "basis_equals_effective_basis_bitwise_each_environment": [
+      true,
+      true
+    ],
+    "effective_P_exactly_zero_on_fixed_xyz_each_environment": [
+      true,
+      true
+    ]
+  },
+  "AP_replay": {
+    "scope": "A reconstructed from rich production tangent capture; applied to exact captured native effective_P. Compare against native AP export on free xyz rows.",
+    "native_AP_l2": 0.2987747321491732,
+    "A_times_native_effective_P_l2": 0.2987747324049535,
+    "absolute_difference_l2": 2.9917217905468297e-08,
+    "relative_difference_l2": 1.0013302560850806e-07,
+    "max_abs_difference": 4.193114442468948e-09,
+    "fixed_row_AP_max_abs": 0.0
+  },
+  "coarse_RAP": {
+    "formula": "effective_P^T A effective_P, via independently assembled rich-capture A times effective_P",
+    "relative_skew_norm": 2.8248922854181157e-05,
+    "symmetric_part_eigenvalue_min": 3.5298583254845476e-05,
+    "symmetric_part_eigenvalue_max": 0.07228456553790352,
+    "symmetric_part_condition_estimate": 2047.8035907568878,
+    "full_nonsymmetric_RAP_singular_value_min": 3.529858325766682e-05,
+    "full_nonsymmetric_RAP_singular_value_max": 0.0722845655519743,
+    "full_nonsymmetric_RAP_condition_estimate": 2047.8035909918326,
+    "native_pivoted_LU_reconstruction_relative_error": 1.249867973609401e-07,
+    "native_factor_valid": [
+      1,
+      1
+    ]
+  },
+  "coarse_only_probe": {
+    "rhs_norm_Ns": 0.00027888347802445374,
+    "rhs_after_coarse_residual_norm_Ns": 0.00026845812790070826,
+    "rhs_after_coarse_relative_norm": 0.9626175412125657,
+    "warning": "coarse-only correction is not the native graph-Schwarz preconditioner and can be nonnormal; do not attribute actual stagnation to this residual alone"
+  },
+  "observed_native_fgmres": {
+    "cycle0_true_residual_Ns": 0.000265761395,
+    "cycle1_true_residual_Ns": 0.000265578186,
+    "rhs_Ns": 0.000278883468,
+    "relative_residual_after_cycle0": 0.9529478276568191,
+    "relative_residual_after_cycle1": 0.9522908901864345,
+    "iterations_per_cycle": [
+      16,
+      16
+    ],
+    "terminal_status_code": 10,
+    "terminal_certificate_residual": 0.000278883119,
+    "terminal_certificate_correction": 0.000669149624
+  },
+  "failure_layer_assessment": {
+    "binding": "the RAP capture is exact candidate-node-bitwise bound to rich operator capture; AP has independent same-candidate full-A replay parity 1e-7; LU reconstructs P^TAP at 1.25e-7 and both factors marked valid",
+    "supported_conclusion": "No evidence that RAP construction/factorization or stale candidate generation caused the observed failure. The recorded FGMRES cycles made only ~0.05% true-residual progress relative to RHS across 32 iterations; failure is at linear correction/conditioning resolution, but captured graph patch factors are absent and exact preconditioner replay is not yet verified.",
+    "unresolved": "Tangent action parity 6.53e-5 is not itself a derivative qualification. Need graph patch layout/factors from the same generation or exact reconstruction and a same-matrix native-vs-offline preconditioner application comparison before blaming graph Schwarz."
+  },
+  "limitations": [
+    "rejected step, diagnostic only",
+    "regional legacy audit rejects graph selector export because it assumes nonzero 3x3 node-block arena; selector5 correctly reports no such arena",
+    "graph patch arrays/factors were not exported by rejected-conditioning-000003, so native graph-Schwarz application could not be independently replayed",
+    "no physical qualification"
+  ]
+}

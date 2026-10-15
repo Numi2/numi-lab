@@ -1,0 +1,46 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-contact-capture-and-resolved-material-sweep-095",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-selected-private-trial-repair-094",
+  "packages": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupled-trial-capture-overlay-003",
+      "manifest_sha256": "6c01229f2083e80913a88ef935e1a53581efdd6d5a78558682dab4d189679a92"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-overlay-003",
+      "manifest_sha256": "9f0809a19bff6022c367d40dae5a1e254064ca3bd7b9054f90d5f1f78b8c4868"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-overlay-004",
+      "manifest_sha256": "000a17e756f3d488c9687a02274f898fb021af544c2be791adb792685dfb21d2"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-material-derivative-sweep-overlay-094-003",
+      "manifest_sha256": "78fc042dfab8a22869269a8693bdc4363da478ee5ececcbb18139940c3fdf754"
+    }
+  ],
+  "changed": {
+    "matter/src/compiler_impl.cpp": {
+      "before": "7fb4f135afcd0d4aab01f9ea8cedec9abf7dcddde91d51d94e11793d58b7b4e3",
+      "after": "9dc5cd30bc781704552936531120d28fd6bb95572d2793c7c4a0dd819143272c"
+    },
+    "matter/src/metal/contact.metalinc": {
+      "before": "ece2110ea3181ddd7527df9d1284b465ac5035279fa71232393491dd4cbf6632",
+      "after": "c360df9e7ad53bf36ab5878eacaa150bb75c0d1fe04ce70e8b668b31e1c87be1"
+    },
+    "matter/src/runtime.mm": {
+      "before": "2fbdf2c09e5e27fadf15f6503e56d3dc042215eabf1029b4ebd3aa08e143b2e3",
+      "after": "aa2486012ced87656933abc7c448188575ac332b747aba2315f550e3d548edd2"
+    },
+    "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": {
+      "before": "d6926e42468c5e7635cb229f040ada441a2cb62cc925bf23c168ab8fc7db8075",
+      "after": "1154df63e3acabe95ca4931d463ad928826992cd4d47dd5eba767a6c8ced7d8f"
+    },
+    "matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "before": "e8a9d5587b47280bc0250280f7fc28b18f2f339bd001137a4da114e5edf1fdf1",
+      "after": "59d945b71bab4584cc057fe074bebe45afb8723f85cbb9f613749ab9458735dc"
+    }
+  },
+  "scope": "Source094 plus corrected topology-coordinate capture typing and bounded bad-spec diagnostics; conservative exact-common-displacement seam exception and four-patch mortar bound; exhaustive private-CCD diagnostic preserves strict aggregate failure; finer material epsilon sweep with small residual F-word formation. No tolerance/material/history change. Native qualification remains per case."
+}

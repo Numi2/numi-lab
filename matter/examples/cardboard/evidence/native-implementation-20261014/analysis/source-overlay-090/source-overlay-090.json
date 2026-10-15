@@ -1,0 +1,22 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-mortar-union-090",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-direct-projection-diagnostic-089",
+  "package": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-native-overlay-001",
+  "package_manifest_sha256": "4fa375d9747285d231eba32325c9f19fc0766912051334c34667f73eb212e389",
+  "changed": {
+    "matter/src/compiler_impl.cpp": {
+      "before": "46783699e8fe29c2bec502c987f86f6fc11dc0e832e56886c9cb553e2cc0d350",
+      "after": "7fb4f135afcd0d4aab01f9ea8cedec9abf7dcddde91d51d94e11793d58b7b4e3"
+    },
+    "matter/src/metal/contact.metalinc": {
+      "before": "9e4ce2d8213c83a9a3e58a64388562cb92638c892b21e612653e92400b654f1f",
+      "after": "ece2110ea3181ddd7527df9d1284b465ac5035279fa71232393491dd4cbf6632"
+    },
+    "matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "before": "6eb68eea4e258866f7c1b41c1c74cbc40ed27b9e06a31a6e1ad503aa8064123c",
+      "after": "46ee2b3f3833f1579c2c83f9392e3dfd1f431a8664557d8cf1cf3808e0c61942"
+    }
+  },
+  "scope": "Source089 plus bounded up-to-three same-parent mixed-cohesive patch union/complement shared by normal contact and private swept CCD. Independent per-face history and same-patch-only suppression; no physical parameters or global tolerance change. Source-derived 6.5KiB per-thread local estimate is not device allocation qualification."
+}

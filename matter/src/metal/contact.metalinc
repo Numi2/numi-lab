@@ -1147,13 +1147,20 @@ inline bool cohesivePatchContainsPrimitivePoint(
         alpha2 <= 1.0f + patchEdgeTolerance;
 }
 
+constant uint kMaxMortarPatchesPerPrimitivePair = 4u;
+constant uint kMaxMortarPartitionTriangles = 64u;
+constant float kMortarPatchOverlapAreaTolerance = 1.0e-10f;
+
 struct NMMortarContactSubtriangle {
-    float3 bary[3];
+    // Parent barycentrics satisfy w0+w1+w2=1; storing only w0,w1 halves the
+    // per-thread partition scratch without changing the reconstructed points.
+    float2 bary[3];
     uint coveredByCohesive;
+    uint coveredPatchIndex;
 };
 
 struct NMMortarContactPartition {
-    NMMortarContactSubtriangle triangle[10];
+    NMMortarContactSubtriangle triangle[kMaxMortarPartitionTriangles];
     uint count;
 };
 
@@ -1185,6 +1192,18 @@ inline float crossMortarBary2(const float3 a, const float3 b) {
     return crossMortarBary2(a.xy, b.xy);
 }
 
+inline float3 mortarBarycentricFromXY(const float2 barycentricXY);
+
+struct NMMortarPatchRef {
+    uint faceIndex;
+    uint leftIsSideB;
+};
+
+struct NMMortarPatchSet {
+    NMMortarPatchRef patch[kMaxMortarPatchesPerPrimitivePair];
+    uint count;
+};
+
 inline uint clipMortarBaryPolygon(
     thread const float3* input,
     const uint inputCount,
@@ -1194,8 +1213,8 @@ inline uint clipMortarBaryPolygon(
     const bool keepInside,
     thread float3* output
 ) {
+    if (inputCount < 3u || inputCount > 6u) return 7u;
     uint outputCount = 0u;
-    if (inputCount < 3u || inputCount > 6u) return 0u;
     const float2 edge = edgeEnd.xy - edgeStart.xy;
     constexpr float clipTolerance = 1.0e-7f;
     for (uint index = 0u; index < inputCount; ++index) {
@@ -1205,14 +1224,19 @@ inline uint clipMortarBaryPolygon(
             edge, (a - edgeStart).xy);
         const float sideB = orientation * crossMortarBary2(
             edge, (b - edgeStart).xy);
+        if (!isfinite(sideA) || !isfinite(sideB)) return 7u;
         const bool aInside = keepInside
             ? sideA >= -clipTolerance : sideA <= clipTolerance;
         const bool bInside = keepInside
             ? sideB >= -clipTolerance : sideB <= clipTolerance;
-        if (aInside && outputCount < 6u) output[outputCount++] = a;
-        if (aInside != bInside && outputCount < 6u) {
+        if (aInside) {
+            if (outputCount >= 6u) return 7u;
+            output[outputCount++] = a;
+        }
+        if (aInside != bInside) {
+            if (outputCount >= 6u) return 7u;
             const float denominator = sideA - sideB;
-            if (abs(denominator) <= 1.0e-20f) return 0u;
+            if (abs(denominator) <= 1.0e-20f) return 7u;
             const float fraction = clamp(sideA / denominator, 0.0f, 1.0f);
             const float2 xy = a.xy + fraction * (b.xy - a.xy);
             output[outputCount++] = float3(xy, 1.0f - xy.x - xy.y);
@@ -1263,89 +1287,182 @@ inline bool mortarPatchInPrimitiveCoordinates(
         all(isfinite(patch2));
 }
 
+inline float mortarPolygonArea2(thread const float3* polygon,
+                                const uint polygonCount) {
+    float twiceArea = 0.0f;
+    for (uint index = 0u; index < polygonCount; ++index)
+        twiceArea += crossMortarBary2(
+            polygon[index], polygon[(index + 1u) % polygonCount]);
+    return twiceArea;
+}
+
+inline float mortarTriangleIntersectionArea(
+    thread const float3* triangleA,
+    thread const float3* triangleB
+) {
+    const float signedAreaB = crossMortarBary2(
+        triangleB[1] - triangleB[0], triangleB[2] - triangleB[0]);
+    if (!isfinite(signedAreaB) || abs(signedAreaB) <= 1.0e-10f)
+        return INFINITY;
+    const float orientation = signedAreaB > 0.0f ? 1.0f : -1.0f;
+    float3 polygonA[6], polygonB[6];
+    for (uint vertexIndex = 0u; vertexIndex < 3u; ++vertexIndex)
+        polygonA[vertexIndex] = triangleA[vertexIndex];
+    uint polygonCount = 3u;
+    for (uint edge = 0u; edge < 3u; ++edge) {
+        const uint clipped = clipMortarBaryPolygon(
+            polygonA, polygonCount, triangleB[edge], triangleB[(edge + 1u) % 3u],
+            orientation, true, polygonB);
+        if (clipped > 6u) return INFINITY;
+        polygonCount = clipped;
+        for (uint vertexIndex = 0u; vertexIndex < polygonCount; ++vertexIndex)
+            polygonA[vertexIndex] = polygonB[vertexIndex];
+        if (polygonCount < 3u) return 0.0f;
+    }
+    const float twiceArea = abs(mortarPolygonArea2(polygonA, polygonCount));
+    return isfinite(twiceArea) ? 0.5f * twiceArea : INFINITY;
+}
+
 inline bool appendMortarPolygonTriangulation(
     thread NMMortarContactPartition& partition,
     thread const float3* polygon,
     const uint polygonCount,
-    const uint coveredByCohesive
+    const uint coveredByCohesive,
+    const uint coveredPatchIndex
 ) {
-    if (polygonCount < 3u || polygonCount > 6u) return polygonCount < 3u;
+    if (polygonCount < 3u) return true;
+    if (polygonCount > 6u) return false;
     for (uint polygonVertex = 1u; polygonVertex + 1u < polygonCount;
          ++polygonVertex) {
-        const float area2 = abs(crossMortarBary2(
+        const float signedArea2 = crossMortarBary2(
             polygon[polygonVertex] - polygon[0],
-            polygon[polygonVertex + 1u] - polygon[0]));
-        if (!(area2 > 1.0e-10f) || !isfinite(area2)) continue;
-        if (partition.count >= 10u) return false;
+            polygon[polygonVertex + 1u] - polygon[0]);
+        if (!isfinite(signedArea2)) return false;
+        if (abs(signedArea2) <= 1.0e-10f) continue;
+        if (partition.count >= kMaxMortarPartitionTriangles) return false;
         NMMortarContactSubtriangle triangle{};
-        triangle.bary[0] = polygon[0];
-        triangle.bary[1] = polygon[polygonVertex];
-        triangle.bary[2] = polygon[polygonVertex + 1u];
+        triangle.bary[0] = polygon[0].xy;
+        if (signedArea2 > 0.0f) {
+            triangle.bary[1] = polygon[polygonVertex].xy;
+            triangle.bary[2] = polygon[polygonVertex + 1u].xy;
+        } else {
+            triangle.bary[1] = polygon[polygonVertex + 1u].xy;
+            triangle.bary[2] = polygon[polygonVertex].xy;
+        }
         triangle.coveredByCohesive = coveredByCohesive;
+        triangle.coveredPatchIndex = coveredPatchIndex;
         partition.triangle[partition.count++] = triangle;
     }
     return true;
 }
 
 inline bool buildMortarContactPartition(
-    const NMCohesiveFaceGPU face,
-    const bool sideB,
+    const NMMortarPatchSet patchSet,
+    const bool forLeftPrimitive,
     const NMContinuumSurfacePrimitiveGPU primitive,
     const uint gridNodeCount,
+    device const NMCohesiveFaceGPU* faces,
+    const uint faceBase,
     thread NMMortarContactPartition& partition
 ) {
-    partition.count = 0u;
-    float3 patch[3];
-    if (!mortarPatchInPrimitiveCoordinates(face, sideB, primitive,
-            gridNodeCount, patch[0], patch[1], patch[2])) return false;
-    for (uint patchVertexIndex = 0u; patchVertexIndex < 3u;
-         ++patchVertexIndex) {
-        if (any(patch[patchVertexIndex] < float3(-1.0e-5f)) ||
-            any(patch[patchVertexIndex] > float3(1.00001f)) ||
-            abs(dot(patch[patchVertexIndex], float3(1.0f)) - 1.0f) > 1.0e-4f)
-            return false;
-    }
-    const float signedArea2 = crossMortarBary2(
-        patch[1] - patch[0], patch[2] - patch[0]);
-    if (!isfinite(signedArea2) || abs(signedArea2) <= 1.0e-10f)
-        return false;
-    const float orientation = signedArea2 > 0.0f ? 1.0f : -1.0f;
-    NMMortarContactSubtriangle covered{};
-    covered.bary[0] = patch[0];
-    covered.bary[1] = patch[1];
-    covered.bary[2] = patch[2];
-    covered.coveredByCohesive = 1u;
-    partition.triangle[partition.count++] = covered;
+    partition.count = 1u;
+    NMMortarContactSubtriangle parent{};
+    parent.bary[0] = float2(1.0f, 0.0f);
+    parent.bary[1] = float2(0.0f, 1.0f);
+    parent.bary[2] = float2(0.0f, 0.0f);
+    parent.coveredByCohesive = 0u;
+    parent.coveredPatchIndex = NM_INVALID_INDEX;
+    partition.triangle[0] = parent;
+    if (patchSet.count > kMaxMortarPatchesPerPrimitivePair) return false;
 
-    const float3 unit[3] = {
-        float3(1.0f, 0.0f, 0.0f),
-        float3(0.0f, 1.0f, 0.0f),
-        float3(0.0f, 0.0f, 1.0f),
-    };
-    for (uint outsideEdge = 0u; outsideEdge < 3u; ++outsideEdge) {
-        float3 polygonA[6], polygonB[6];
-        for (uint localVertex = 0u; localVertex < 3u; ++localVertex)
-            polygonA[localVertex] = unit[localVertex];
-        uint polygonCount = 3u;
-        for (uint edgeIndex = 0u; edgeIndex <= outsideEdge; ++edgeIndex) {
-            const uint next = (edgeIndex + 1u) % 3u;
-            const bool keepInside = edgeIndex != outsideEdge;
-            const uint clipped = clipMortarBaryPolygon(
-                polygonA, polygonCount, patch[edgeIndex], patch[next],
-                orientation, keepInside, polygonB);
-            polygonCount = clipped;
-            for (uint localVertex = 0u; localVertex < polygonCount;
-                 ++localVertex)
-                polygonA[localVertex] = polygonB[localVertex];
-            if (polygonCount < 3u) break;
+    float3 patchCoordinates[kMaxMortarPatchesPerPrimitivePair][3];
+    for (uint patchIndex = 0u; patchIndex < patchSet.count; ++patchIndex) {
+        const NMMortarPatchRef patchRef = patchSet.patch[patchIndex];
+        const NMCohesiveFaceGPU face = faces[faceBase + patchRef.faceIndex];
+        const bool sideB = forLeftPrimitive
+            ? patchRef.leftIsSideB != 0u
+            : patchRef.leftIsSideB == 0u;
+        if (!mortarPatchInPrimitiveCoordinates(
+                face, sideB, primitive, gridNodeCount,
+                patchCoordinates[patchIndex][0],
+                patchCoordinates[patchIndex][1],
+                patchCoordinates[patchIndex][2])) return false;
+        const float signedArea = crossMortarBary2(
+            patchCoordinates[patchIndex][1] - patchCoordinates[patchIndex][0],
+            patchCoordinates[patchIndex][2] - patchCoordinates[patchIndex][0]);
+        if (!isfinite(signedArea) || abs(signedArea) <= 1.0e-10f)
+            return false;
+        for (uint vertexIndex = 0u; vertexIndex < 3u; ++vertexIndex) {
+            const float3 bary = patchCoordinates[patchIndex][vertexIndex];
+            if (any(bary < float3(-1.0e-5f)) ||
+                any(bary > float3(1.00001f)) ||
+                abs(dot(bary, float3(1.0f)) - 1.0f) > 1.0e-4f)
+                return false;
         }
+        for (uint prior = 0u; prior < patchIndex; ++prior) {
+            const float overlap = mortarTriangleIntersectionArea(
+                patchCoordinates[prior], patchCoordinates[patchIndex]);
+            if (!isfinite(overlap) ||
+                overlap > kMortarPatchOverlapAreaTolerance) return false;
+        }
+
+        NMMortarContactPartition next{};
+        for (uint cell = 0u; cell < partition.count; ++cell) {
+            const NMMortarContactSubtriangle source = partition.triangle[cell];
+            if (source.coveredByCohesive != 0u) {
+                if (next.count >= kMaxMortarPartitionTriangles) return false;
+                next.triangle[next.count++] = source;
+            }
+        }
+        float3 coveredPolygon[3] = {
+            patchCoordinates[patchIndex][0],
+            patchCoordinates[patchIndex][1],
+            patchCoordinates[patchIndex][2]
+        };
         if (!appendMortarPolygonTriangulation(
-                partition, polygonA, polygonCount, 0u)) return false;
+                next, coveredPolygon, 3u, 1u, patchRef.faceIndex)) return false;
+
+        for (uint cell = 0u; cell < partition.count; ++cell) {
+            const NMMortarContactSubtriangle source = partition.triangle[cell];
+            if (source.coveredByCohesive != 0u) continue;
+            float3 insidePolygon[6], clippedPolygon[6];
+            uint insideCount = 3u;
+            for (uint vertexIndex = 0u; vertexIndex < 3u; ++vertexIndex)
+                insidePolygon[vertexIndex] =
+                    mortarBarycentricFromXY(source.bary[vertexIndex]);
+            const float orientation = signedArea > 0.0f ? 1.0f : -1.0f;
+            for (uint outsideEdge = 0u; outsideEdge < 3u; ++outsideEdge) {
+                const uint nextEdge = (outsideEdge + 1u) % 3u;
+                const uint outsideCount = clipMortarBaryPolygon(
+                    insidePolygon, insideCount,
+                    patchCoordinates[patchIndex][outsideEdge],
+                    patchCoordinates[patchIndex][nextEdge],
+                    orientation, false, clippedPolygon);
+                if (outsideCount > 6u) return false;
+                if (!appendMortarPolygonTriangulation(
+                        next, clippedPolygon, outsideCount, 0u,
+                        NM_INVALID_INDEX)) return false;
+                const uint intersectionCount = clipMortarBaryPolygon(
+                    insidePolygon, insideCount,
+                    patchCoordinates[patchIndex][outsideEdge],
+                    patchCoordinates[patchIndex][nextEdge],
+                    orientation, true, clippedPolygon);
+                if (intersectionCount > 6u) return false;
+                insideCount = intersectionCount;
+                for (uint vertexIndex = 0u; vertexIndex < insideCount; ++vertexIndex)
+                    insidePolygon[vertexIndex] = clippedPolygon[vertexIndex];
+                if (insideCount < 3u) break;
+            }
+        }
+        if (next.count == 0u ||
+            next.count > kMaxMortarPartitionTriangles) return false;
+        partition = next;
     }
-    return partition.count > 0u && partition.count <= 10u;
+    return partition.count > 0u &&
+        partition.count <= kMaxMortarPartitionTriangles;
 }
 
-inline bool activeMixedCohesiveFaceForPrimitivePair(
+inline bool activeMixedCohesivePatchesForPrimitivePair(
     const NMMatterDispatchGPU dispatch,
     const NMContinuumSurfacePrimitiveGPU left,
     const NMContinuumSurfacePrimitiveGPU right,
@@ -1353,12 +1470,9 @@ inline bool activeMixedCohesiveFaceForPrimitivePair(
     device const NMIncidenceRangeGPU* ranges,
     device const nm_uint4* references,
     device const NMCohesiveFaceGPU* faces,
-    thread bool& found,
-    thread bool& leftIsSideB,
-    thread NMCohesiveFaceGPU& selectedFace
+    thread NMMortarPatchSet& patches
 ) {
-    found = false;
-    leftIsSideB = false;
+    patches.count = 0u;
     if (left.identity.x >= 4u * dispatch.tetrahedronCount ||
         right.identity.x >= 4u * dispatch.tetrahedronCount ||
         dispatch.cohesiveFaceCount == 0u) return true;
@@ -1388,13 +1502,27 @@ inline bool activeMixedCohesiveFaceForPrimitivePair(
             ? face.nodesAndFirst.w : face.adjacency.x;
         if ((left.identity.x >> 2u) != leftParentTet ||
             (right.identity.x >> 2u) != rightParentTet) continue;
-        if (found) return false;
-        found = true;
-        leftIsSideB = currentLeftIsSideB;
-        selectedFace = face;
+        if (patches.count >= kMaxMortarPatchesPerPrimitivePair) return false;
+        patches.patch[patches.count++] = {reference.y,
+            currentLeftIsSideB ? 1u : 0u};
+    }
+    // Incidence is stable, but sort by the authored stable face ID so equal-TOI
+    // complement contacts have deterministic tie behavior independent of source
+    // file insertion order.
+    for (uint i = 1u; i < patches.count; ++i) {
+        NMMortarPatchRef value = patches.patch[i];
+        const uint valueID = faces[faceBase + value.faceIndex].adjacency.z;
+        uint j = i;
+        while (j > 0u && faces[faceBase + patches.patch[j - 1u].faceIndex]
+                    .adjacency.z > valueID) {
+            patches.patch[j] = patches.patch[j - 1u];
+            --j;
+        }
+        patches.patch[j] = value;
     }
     return true;
 }
+
 
 struct NMMortarContactData {
     uint found;
@@ -1419,13 +1547,194 @@ inline float3 mortarBaryPoint(
         barycentric.y * triangle[1] + barycentric.z * triangle[2];
 }
 
+inline float3 mortarBarycentricFromXY(const float2 barycentricXY) {
+    return float3(barycentricXY, 1.0f - barycentricXY.x - barycentricXY.y);
+}
+
+inline float3 mortarBaryPoint(
+    const float2 barycentricXY,
+    thread const float3* triangle
+) {
+    return mortarBaryPoint(
+        mortarBarycentricFromXY(barycentricXY), triangle);
+}
+
 inline float3 mortarFeatureBarycentric(
     const float3 localBarycentric,
     const NMMortarContactSubtriangle triangle
 ) {
-    return localBarycentric.x * triangle.bary[0] +
+    const float2 barycentricXY = localBarycentric.x * triangle.bary[0] +
         localBarycentric.y * triangle.bary[1] +
         localBarycentric.z * triangle.bary[2];
+    return mortarBarycentricFromXY(barycentricXY);
+}
+
+// A zero-area shared edge between two distinct mortar pages is not an
+// uncovered contact region when both page maps pair the same material edge.
+// Keep this exemption at the individual CCD witness: the surrounding cell
+// pair remains active so off-edge or sliding collisions are still tested.
+constant float kMortarPairedBoundaryBaryTolerance = 8.0e-6f;
+
+struct NMMortarPairedBoundary {
+    float2 left0;
+    float2 left1;
+    float2 right0;
+    float2 right1;
+    uint valid;
+};
+
+inline bool mortarBuildPairedBoundary(
+    thread const float3* leftA,
+    thread const float3* rightA,
+    thread const float3* leftB,
+    thread const float3* rightB,
+    thread NMMortarPairedBoundary& boundary
+) {
+    boundary.valid = 0u;
+    uint commonCount = 0u;
+    uint matchedA[2] = {NM_INVALID_INDEX, NM_INVALID_INDEX};
+    uint matchedB[2] = {NM_INVALID_INDEX, NM_INVALID_INDEX};
+    const float tolerance2 =
+        kMortarPairedBoundaryBaryTolerance *
+        kMortarPairedBoundaryBaryTolerance;
+    for (uint a = 0u; a < 3u; ++a) {
+        for (uint b = 0u; b < 3u; ++b) {
+            if (dot(leftA[a].xy - leftB[b].xy,
+                    leftA[a].xy - leftB[b].xy) > tolerance2 ||
+                dot(rightA[a].xy - rightB[b].xy,
+                    rightA[a].xy - rightB[b].xy) > tolerance2) continue;
+            bool duplicate = false;
+            for (uint prior = 0u; prior < commonCount; ++prior)
+                duplicate = duplicate ||
+                    (matchedA[prior] == a && matchedB[prior] == b);
+            if (duplicate) continue;
+            if (commonCount >= 2u) return true;
+            matchedA[commonCount] = a;
+            matchedB[commonCount] = b;
+            ++commonCount;
+        }
+    }
+    if (commonCount != 2u) return true;
+    const uint a0 = matchedA[0], a1 = matchedA[1];
+    const uint b0 = matchedB[0], b1 = matchedB[1];
+    if (dot(leftA[a1].xy - leftA[a0].xy,
+            leftA[a1].xy - leftA[a0].xy) <= tolerance2 ||
+        dot(rightA[a1].xy - rightA[a0].xy,
+            rightA[a1].xy - rightA[a0].xy) <= tolerance2 ||
+        dot(leftB[b1].xy - leftB[b0].xy,
+            leftB[b1].xy - leftB[b0].xy) <= tolerance2 ||
+        dot(rightB[b1].xy - rightB[b0].xy,
+            rightB[b1].xy - rightB[b0].xy) <= tolerance2) return true;
+    boundary.left0 = leftA[a0].xy;
+    boundary.left1 = leftA[a1].xy;
+    boundary.right0 = rightA[a0].xy;
+    boundary.right1 = rightA[a1].xy;
+    boundary.valid = 1u;
+    return true;
+}
+
+inline bool mortarBoundaryParameter(
+    const float2 point,
+    const float2 edge0,
+    const float2 edge1,
+    thread float& parameter
+) {
+    const float2 edge = edge1 - edge0;
+    const float edgeLength2 = dot(edge, edge);
+    const float tolerance = kMortarPairedBoundaryBaryTolerance;
+    if (!(edgeLength2 > tolerance * tolerance) || !isfinite(edgeLength2))
+        return false;
+    parameter = dot(point - edge0, edge) / edgeLength2;
+    if (!isfinite(parameter) || parameter < -tolerance ||
+        parameter > 1.0f + tolerance) return false;
+    const float2 nearest = edge0 + clamp(parameter, 0.0f, 1.0f) * edge;
+    const float2 error = point - nearest;
+    return dot(error, error) <= tolerance * tolerance;
+}
+
+inline bool mortarFeatureIsPairedBoundary(
+    const NMMortarPairedBoundary boundary,
+    const float3 leftBarycentric,
+    const float3 rightBarycentric
+) {
+    if (boundary.valid == 0u) return false;
+    float leftParameter, rightParameter;
+    if (!mortarBoundaryParameter(leftBarycentric.xy,
+            boundary.left0, boundary.left1, leftParameter) ||
+        !mortarBoundaryParameter(rightBarycentric.xy,
+            boundary.right0, boundary.right1, rightParameter)) return false;
+    return abs(leftParameter - rightParameter) <=
+        kMortarPairedBoundaryBaryTolerance;
+}
+
+inline bool mortarBoundaryWitnessIsNonApproaching(
+    const float3 relativeDisplacement,
+    const float3 normal
+) {
+    const float displacementLength = length(relativeDisplacement);
+    if (!isfinite(displacementLength) || !finite3(normal)) return false;
+    const float approachTolerance =
+        8.0f * kEpsilon * max(displacementLength, kGeometryFloor);
+    return dot(relativeDisplacement, normal) >= -approachTolerance;
+}
+
+// The non-approaching test at one CCD witness is not enough to dismiss a
+// later crossing: the opposing triangle/edge can rotate or deform after the
+// earliest boundary hit. Exempt only when every vertex in this feature query
+// has the exact same linear displacement, so their relative configuration is
+// invariant for the complete [0, 1] sweep. Equality is intentionally strict;
+// roundoff or any unresolved relative motion remains contact-eligible.
+inline bool mortarFeatureHasCommonTranslation(
+    const float3 displacement0,
+    const float3 displacement1,
+    const float3 displacement2,
+    const float3 displacement3
+) {
+    return finite3(displacement0) && finite3(displacement1) &&
+        finite3(displacement2) && finite3(displacement3) &&
+        all(displacement0 == displacement1) &&
+        all(displacement0 == displacement2) &&
+        all(displacement0 == displacement3);
+}
+
+inline bool mortarPairedBoundaryForFaceIDs(
+    const NMMortarPatchSet patchSet,
+    const uint faceA,
+    const uint faceB,
+    const NMContinuumSurfacePrimitiveGPU leftPrimitive,
+    const NMContinuumSurfacePrimitiveGPU rightPrimitive,
+    const uint gridNodeCount,
+    device const NMCohesiveFaceGPU* faces,
+    const uint faceBase,
+    thread NMMortarPairedBoundary& boundary
+) {
+    boundary.valid = 0u;
+    uint patchA = NM_INVALID_INDEX, patchB = NM_INVALID_INDEX;
+    for (uint patch = 0u; patch < patchSet.count; ++patch) {
+        if (patchSet.patch[patch].faceIndex == faceA) patchA = patch;
+        if (patchSet.patch[patch].faceIndex == faceB) patchB = patch;
+    }
+    if (patchA >= patchSet.count || patchB >= patchSet.count ||
+        patchA == patchB) return true;
+    const NMMortarPatchRef refA = patchSet.patch[patchA];
+    const NMMortarPatchRef refB = patchSet.patch[patchB];
+    const NMCohesiveFaceGPU sourceA = faces[faceBase + faceA];
+    const NMCohesiveFaceGPU sourceB = faces[faceBase + faceB];
+    float3 leftA[3], rightA[3], leftB[3], rightB[3];
+    if (!mortarPatchInPrimitiveCoordinates(sourceA,
+            refA.leftIsSideB != 0u, leftPrimitive, gridNodeCount,
+            leftA[0], leftA[1], leftA[2]) ||
+        !mortarPatchInPrimitiveCoordinates(sourceA,
+            refA.leftIsSideB == 0u, rightPrimitive, gridNodeCount,
+            rightA[0], rightA[1], rightA[2]) ||
+        !mortarPatchInPrimitiveCoordinates(sourceB,
+            refB.leftIsSideB != 0u, leftPrimitive, gridNodeCount,
+            leftB[0], leftB[1], leftB[2]) ||
+        !mortarPatchInPrimitiveCoordinates(sourceB,
+            refB.leftIsSideB == 0u, rightPrimitive, gridNodeCount,
+            rightB[0], rightB[1], rightB[2])) return false;
+    return mortarBuildPairedBoundary(
+        leftA, rightA, leftB, rightB, boundary);
 }
 
 inline void considerMortarVertexTriangle(
@@ -1442,6 +1751,7 @@ inline void considerMortarVertexTriangle(
     const float3 pointBarycentric,
     const NMMortarContactSubtriangle pointTriangle,
     const NMMortarContactSubtriangle opposingTriangle,
+    const NMMortarPairedBoundary pairedBoundary,
     thread NMMortarContactData& best
 ) {
     float toi, separation;
@@ -1454,6 +1764,31 @@ inline void considerMortarVertexTriangle(
         triangleStart2, triangleFinish2,
         thickness, toi, normal, barycentric, point, separation, certified);
     if (!certified || !hit || !(toi < best.toi)) return;
+    const float3 opposingBarycentric =
+        mortarFeatureBarycentric(barycentric, opposingTriangle);
+    const float3 leftBarycentric = pointSide == 0u
+        ? pointBarycentric : opposingBarycentric;
+    const float3 rightBarycentric = pointSide == 0u
+        ? opposingBarycentric : pointBarycentric;
+    if (mortarFeatureIsPairedBoundary(
+            pairedBoundary, leftBarycentric, rightBarycentric)) {
+        const float3 pointDisplacement = pointFinish - pointStart;
+        const float3 triangleDisplacement0 = triangleFinish0 - triangleStart0;
+        const float3 triangleDisplacement1 = triangleFinish1 - triangleStart1;
+        const float3 triangleDisplacement2 = triangleFinish2 - triangleStart2;
+        if (mortarFeatureHasCommonTranslation(
+                pointDisplacement, triangleDisplacement0,
+                triangleDisplacement1, triangleDisplacement2)) {
+            const float3 opposingDisplacement =
+                barycentric.x * triangleDisplacement0 +
+                barycentric.y * triangleDisplacement1 +
+                barycentric.z * triangleDisplacement2;
+            const float3 relativeDisplacement =
+                pointDisplacement - opposingDisplacement;
+            if (mortarBoundaryWitnessIsNonApproaching(
+                    relativeDisplacement, normal)) return;
+        }
+    }
     best.found = 1u;
     best.kind = NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE;
     best.positiveSide = pointSide;
@@ -1467,7 +1802,7 @@ inline void considerMortarVertexTriangle(
     for (uint corner = 0u; corner < 3u; ++corner) {
         best.featureSide[corner + 1u] = 1u - pointSide;
         best.featureBarycentric[corner + 1u] =
-            opposingTriangle.bary[corner];
+            mortarBarycentricFromXY(opposingTriangle.bary[corner]);
     }
     (void)pointTriangle;
 }
@@ -1486,6 +1821,7 @@ inline void considerMortarEdgeEdge(
     const uint2 leftEdge,
     const NMMortarContactSubtriangle rightTriangle,
     const uint2 rightEdge,
+    const NMMortarPairedBoundary pairedBoundary,
     thread NMMortarContactData& best,
     thread bool& certified
 ) {
@@ -1500,6 +1836,33 @@ inline void considerMortarEdgeEdge(
         localCertified);
     certified = certified && localCertified;
     if (!localCertified || !hit || !(toi < best.toi)) return;
+    const float3 leftBarycentric = mix(
+        mortarBarycentricFromXY(leftTriangle.bary[leftEdge.x]),
+        mortarBarycentricFromXY(leftTriangle.bary[leftEdge.y]),
+        parameters.x);
+    const float3 rightBarycentric = mix(
+        mortarBarycentricFromXY(rightTriangle.bary[rightEdge.x]),
+        mortarBarycentricFromXY(rightTriangle.bary[rightEdge.y]),
+        parameters.y);
+    if (mortarFeatureIsPairedBoundary(
+            pairedBoundary, leftBarycentric, rightBarycentric)) {
+        const float3 leftDisplacement0 = leftFinish0 - leftStart0;
+        const float3 leftDisplacement1 = leftFinish1 - leftStart1;
+        const float3 rightDisplacement0 = rightFinish0 - rightStart0;
+        const float3 rightDisplacement1 = rightFinish1 - rightStart1;
+        if (mortarFeatureHasCommonTranslation(
+                leftDisplacement0, leftDisplacement1,
+                rightDisplacement0, rightDisplacement1)) {
+            const float3 leftDisplacement = mix(
+                leftDisplacement0, leftDisplacement1, parameters.x);
+            const float3 rightDisplacement = mix(
+                rightDisplacement0, rightDisplacement1, parameters.y);
+            const float3 relativeDisplacement = leftDisplacement -
+                rightDisplacement;
+            if (mortarBoundaryWitnessIsNonApproaching(
+                    relativeDisplacement, normal)) return;
+        }
+    }
     best.found = 1u;
     best.kind = NM_DEFORMABLE_CONTACT_EDGE_EDGE;
     best.positiveSide = 0u;
@@ -1512,10 +1875,14 @@ inline void considerMortarEdgeEdge(
     best.featureSide[1] = 0u;
     best.featureSide[2] = 1u;
     best.featureSide[3] = 1u;
-    best.featureBarycentric[0] = leftTriangle.bary[leftEdge.x];
-    best.featureBarycentric[1] = leftTriangle.bary[leftEdge.y];
-    best.featureBarycentric[2] = rightTriangle.bary[rightEdge.x];
-    best.featureBarycentric[3] = rightTriangle.bary[rightEdge.y];
+    best.featureBarycentric[0] = mortarBarycentricFromXY(
+        leftTriangle.bary[leftEdge.x]);
+    best.featureBarycentric[1] = mortarBarycentricFromXY(
+        leftTriangle.bary[leftEdge.y]);
+    best.featureBarycentric[2] = mortarBarycentricFromXY(
+        rightTriangle.bary[rightEdge.x]);
+    best.featureBarycentric[3] = mortarBarycentricFromXY(
+        rightTriangle.bary[rightEdge.y]);
 }
 
 inline bool mortarSubtriangleMayOverlap(
@@ -1549,6 +1916,12 @@ inline bool mortarSubtriangleMayOverlap(
 inline bool findMortarComplementContact(
     const NMMortarContactPartition leftPartition,
     const NMMortarContactPartition rightPartition,
+    const NMMortarPatchSet patchSet,
+    const NMContinuumSurfacePrimitiveGPU leftPrimitive,
+    const NMContinuumSurfacePrimitiveGPU rightPrimitive,
+    const uint gridNodeCount,
+    device const NMCohesiveFaceGPU* faces,
+    const uint faceBase,
     thread const float3* leftStart,
     thread const float3* leftFinish,
     thread const float3* rightStart,
@@ -1570,12 +1943,29 @@ inline bool findMortarComplementContact(
              ++rightIndex) {
             const NMMortarContactSubtriangle rightTriangle =
                 rightPartition.triangle[rightIndex];
+            // Suppress ordinary contact only for the two sides of the same
+            // authored mortar patch. Two different covered patches can still
+            // meet after sliding; treating their Cartesian product as bonded
+            // would hide contact between independently integrated interfaces.
             if (leftTriangle.coveredByCohesive != 0u &&
-                rightTriangle.coveredByCohesive != 0u) continue;
+                rightTriangle.coveredByCohesive != 0u &&
+                leftTriangle.coveredPatchIndex ==
+                    rightTriangle.coveredPatchIndex) continue;
             if (!mortarSubtriangleMayOverlap(
                     leftTriangle, rightTriangle,
                     leftStart, leftFinish, rightStart, rightFinish,
                     thickness)) continue;
+
+            NMMortarPairedBoundary pairedBoundary{};
+            if (leftTriangle.coveredByCohesive != 0u &&
+                rightTriangle.coveredByCohesive != 0u &&
+                leftTriangle.coveredPatchIndex !=
+                    rightTriangle.coveredPatchIndex &&
+                !mortarPairedBoundaryForFaceIDs(
+                    patchSet, leftTriangle.coveredPatchIndex,
+                    rightTriangle.coveredPatchIndex, leftPrimitive,
+                    rightPrimitive, gridNodeCount, faces, faceBase,
+                    pairedBoundary)) return false;
 
             float3 leftSubStart[3], leftSubFinish[3];
             float3 rightSubStart[3], rightSubFinish[3];
@@ -1609,8 +1999,9 @@ inline bool findMortarComplementContact(
                         rightSubStart[1], rightSubFinish[1],
                         rightSubStart[2], rightSubFinish[2],
                         thickness, 0u,
-                        leftTriangle.bary[leftVertex], leftTriangle,
-                        rightTriangle, best);
+                        mortarBarycentricFromXY(
+                            leftTriangle.bary[leftVertex]), leftTriangle,
+                        rightTriangle, pairedBoundary, best);
                 }
             }
             for (uint rightVertex = 0u; rightVertex < 3u; ++rightVertex) {
@@ -1632,8 +2023,9 @@ inline bool findMortarComplementContact(
                         leftSubStart[1], leftSubFinish[1],
                         leftSubStart[2], leftSubFinish[2],
                         thickness, 1u,
-                        rightTriangle.bary[rightVertex], rightTriangle,
-                        leftTriangle, best);
+                        mortarBarycentricFromXY(
+                            rightTriangle.bary[rightVertex]), rightTriangle,
+                        leftTriangle, pairedBoundary, best);
                 }
             }
             for (uint leftEdge = 0u; leftEdge < 3u; ++leftEdge)
@@ -1649,7 +2041,8 @@ inline bool findMortarComplementContact(
                         rightSubStart[edges[rightEdge].y],
                         rightSubFinish[edges[rightEdge].y],
                         thickness, leftTriangle, edges[leftEdge],
-                        rightTriangle, edges[rightEdge], best, certified);
+                        rightTriangle, edges[rightEdge], pairedBoundary,
+                        best, certified);
                     allCertified = allCertified && certified;
                 }
         }
@@ -1802,13 +2195,10 @@ kernel void nm_contact_validate_armijo_deformable_sweep(
         solver.contactAcceptance.x * dispatch.numericalLimits.x,
         16.0f * kEpsilon * max(coordinateScale, 1.0e-12f));
 
-    bool mortarPair = false;
-    bool leftIsSideB = false;
-    NMCohesiveFaceGPU mortarFace{};
-    if (!activeMixedCohesiveFaceForPrimitivePair(
+    NMMortarPatchSet mortarPatches{};
+    if (!activeMixedCohesivePatchesForPrimitivePair(
             dispatch, left, right, environment, cohesiveSurfaceFaceRanges,
-            cohesiveSurfaceFaceRefs, cohesiveFaces,
-            mortarPair, leftIsSideB, mortarFace)) {
+            cohesiveSurfaceFaceRefs, cohesiveFaces, mortarPatches)) {
         recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
             left.nodesAndObject.w, slot,
             float4(float(candidate.identity.x), float(candidate.identity.y),
@@ -1818,13 +2208,14 @@ kernel void nm_contact_validate_armijo_deformable_sweep(
     NMMortarContactPartition leftPartition{};
     NMMortarContactPartition rightPartition{};
     bool validPartitions = true;
-    if (mortarPair) {
+    if (mortarPatches.count > 0u) {
+        const uint faceBase = environment * dispatch.cohesiveFaceCount;
         validPartitions = buildMortarContactPartition(
-                mortarFace, leftIsSideB, left, dispatch.gridNodeCount,
-                leftPartition) &&
+                mortarPatches, true, left, dispatch.gridNodeCount,
+                cohesiveFaces, faceBase, leftPartition) &&
             buildMortarContactPartition(
-                mortarFace, !leftIsSideB, right, dispatch.gridNodeCount,
-                rightPartition);
+                mortarPatches, false, right, dispatch.gridNodeCount,
+                cohesiveFaces, faceBase, rightPartition);
     } else {
         const float3 unit[3] = {
             float3(1.0f, 0.0f, 0.0f),
@@ -1834,16 +2225,22 @@ kernel void nm_contact_validate_armijo_deformable_sweep(
         leftPartition.count = 1u;
         rightPartition.count = 1u;
         for (uint featureIndex = 0u; featureIndex < 3u; ++featureIndex) {
-            leftPartition.triangle[0].bary[featureIndex] = unit[featureIndex];
-            rightPartition.triangle[0].bary[featureIndex] = unit[featureIndex];
+            leftPartition.triangle[0].bary[featureIndex] =
+                unit[featureIndex].xy;
+            rightPartition.triangle[0].bary[featureIndex] =
+                unit[featureIndex].xy;
         }
         leftPartition.triangle[0].coveredByCohesive = 0u;
+        leftPartition.triangle[0].coveredPatchIndex = NM_INVALID_INDEX;
         rightPartition.triangle[0].coveredByCohesive = 0u;
+        rightPartition.triangle[0].coveredPatchIndex = NM_INVALID_INDEX;
     }
     NMMortarContactData sweep{};
     const bool certified = validPartitions && findMortarComplementContact(
-        leftPartition, rightPartition, start, finish, start + 3u, finish + 3u,
-        collisionThickness, sweep);
+        leftPartition, rightPartition, mortarPatches, left, right,
+        dispatch.gridNodeCount, cohesiveFaces,
+        environment * dispatch.cohesiveFaceCount,
+        start, finish, start + 3u, finish + 3u, collisionThickness, sweep);
     if (!validPartitions || !certified) {
         recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
             left.nodesAndObject.w, slot,
@@ -1885,7 +2282,8 @@ inline bool contactFeatureCoveredFromMortarParent(
     const uint faceBase = environment * dispatch.cohesiveFaceCount;
     for (uint local = 0u; local < range.count; ++local) {
         const nm_uint4 reference = references[range.first + local];
-        if (reference.y >= dispatch.cohesiveFaceCount || reference.z > 1u)
+        if (reference.x != oppositePrimitive.identity.x ||
+            reference.y >= dispatch.cohesiveFaceCount || reference.z > 1u)
             continue;
         const NMCohesiveFaceGPU face = faces[faceBase + reference.y];
         const uint required = NM_TOPOLOGY_ACTIVE |
@@ -1894,18 +2292,23 @@ inline bool contactFeatureCoveredFromMortarParent(
             (face.adjacency.w & NM_TOPOLOGY_COHESIVE_DORMANT) != 0u ||
             face.lawIdentity.x != NM_COHESIVE_LAW_MIXED_MODE_BILINEAR)
             continue;
-        const bool leftIsSideB = reference.z == 1u;
-        const uint parentTet = leftIsSideB
+        const bool parentIsSideB = reference.z == 1u;
+        const uint parentTet = parentIsSideB
             ? face.adjacency.x : face.nodesAndFirst.w;
-        if ((parentPrimitive.identity.x >> 2u) != parentTet)
+        const uint oppositeTet = parentIsSideB
+            ? face.nodesAndFirst.w : face.adjacency.x;
+        if ((parentPrimitive.identity.x >> 2u) != parentTet ||
+            (oppositePrimitive.identity.x >> 2u) != oppositeTet)
             continue;
-        if (cohesivePatchContainsPrimitivePoint(
-                face, leftIsSideB, parentPrimitive, dispatch.gridNodeCount,
-                parentBarycentric) &&
-            cohesivePatchContainsPrimitivePoint(
-                face, !leftIsSideB, oppositePrimitive, dispatch.gridNodeCount,
-                oppositeBarycentric))
-            return true;
+        const bool parentCovered = cohesivePatchContainsPrimitivePoint(
+                face, parentIsSideB, parentPrimitive, dispatch.gridNodeCount,
+                parentBarycentric);
+        const bool oppositeCovered = cohesivePatchContainsPrimitivePoint(
+                face, !parentIsSideB, oppositePrimitive, dispatch.gridNodeCount,
+                oppositeBarycentric);
+        // Preserve patch identity: coverage by two different patches is not
+        // an authored cohesive pair and must remain eligible for contact.
+        if (parentCovered && oppositeCovered) return true;
     }
     return false;
 }
@@ -2905,15 +3308,13 @@ kernel void nm_contact_narrowphase_deformable(
             bestNegativeObject = trianglePrimitive.nodesAndObject.w;
         }
     } else {
-        bool mortarPair = false;
-        bool leftIsSideB = false;
-        NMCohesiveFaceGPU mortarFace{};
+        NMMortarPatchSet mortarPatches{};
         if (leftKind == NM_CONTINUUM_SURFACE_TRIANGLE &&
             rightKind == NM_CONTINUUM_SURFACE_TRIANGLE) {
-            if (!activeMixedCohesiveFaceForPrimitivePair(
+            if (!activeMixedCohesivePatchesForPrimitivePair(
                     dispatch, left, right, environment,
                     cohesiveSurfaceFaceRanges, cohesiveSurfaceFaceRefs,
-                    cohesiveFaces, mortarPair, leftIsSideB, mortarFace)) {
+                    cohesiveFaces, mortarPatches)) {
                 recordFailure(statuses[environment],
                     NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
                     float4(float(candidate.identity.x),
@@ -2921,19 +3322,22 @@ kernel void nm_contact_narrowphase_deformable(
                 return;
             }
         }
-        if (mortarPair) {
+        if (mortarPatches.count > 0u) {
             NMMortarContactPartition leftPartition{};
             NMMortarContactPartition rightPartition{};
+            const uint faceBase = environment * dispatch.cohesiveFaceCount;
             const bool validPartitions = buildMortarContactPartition(
-                    mortarFace, leftIsSideB, left, dispatch.gridNodeCount,
-                    leftPartition) &&
+                    mortarPatches, true, left, dispatch.gridNodeCount,
+                    cohesiveFaces, faceBase, leftPartition) &&
                 buildMortarContactPartition(
-                    mortarFace, !leftIsSideB, right, dispatch.gridNodeCount,
-                    rightPartition);
+                    mortarPatches, false, right, dispatch.gridNodeCount,
+                    cohesiveFaces, faceBase, rightPartition);
             NMMortarContactData selected{};
             const bool certified = validPartitions &&
                 findMortarComplementContact(
-                    leftPartition, rightPartition,
+                    leftPartition, rightPartition, mortarPatches,
+                    left, right, dispatch.gridNodeCount, cohesiveFaces,
+                    environment * dispatch.cohesiveFaceCount,
                     start, finish, start + 3u, finish + 3u,
                     thickness, selected);
             if (!validPartitions || !certified) {

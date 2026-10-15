@@ -1,5 +1,30 @@
 # Shipping-size runtime admission and memory gaps
 
+## Source095 continuation
+
+The selected private-trial capture now validates129 arrays/19,467,248 bytes,
+with complete capture-on/off production parity. Its physical fixture still
+rejects. Private GPU314 retains all14 case inputs and statuses:9 pass and5
+expected-accept mortar motions reject. Four patches are representable, but
+partition/complement and shared-boundary motion remain unqualified. The
+shipping CPU exact-rational audit proves zero overlap for635 recorded sides
+across497 remaining sliver pairs; it is not a Metal runtime repair.
+
+The explicit-flute shipping counts, independent arena caps and modeled12.42GB
+envelope below remain unchanged. No complete native allocation/physical-step
+admission or fixture-free shipping state exists. Source095 material/capture
+milestones do not remove those limits. Detailed current results are in the
+solver ledger; historical source091/083 statements below retain their scope.
+
+
+Source091 repairs the scoped paper FB value arithmetic; native300 passes all
+retained point projections, independently of shipping admission. Source090's
+three-patch parent-pair union now permits the formerly rejected activation299,
+but strict closure and private shared-boundary CCD301 still fail. The current
+shipping HMA topology also contains parent pairs with four mortar patches,
+beyond that bounded union. Passing CPU builds or point checks does not remove
+these contact, mesh-count, arena or full-process allocation requirements.
+
 The latest bounded solver work is documented in
 [solver progress](solver-progress-20261014.md). Shared FEM/rigid Armijo fractions
 are repaired and selected graph assembly is measured, but strict nonlinear

@@ -1,0 +1,179 @@
+{
+  "schema": "numi.cardboard.selector5-offline-replay-304.v1",
+  "bound_operator_report_sha256": "9d55e082c17fa246a23a98e96ca17832fff8814d017f0bf69eaf1d2196408f6d",
+  "bound_rap_manifest_sha256": "75fd9d878fdd22c01929fbb231046480d0daec9cefd77318d4703aff09ce8b00",
+  "layout_builder_source_sha256": "a8a6328d608ba7db4943025f15d35d750968755a8826de32b14b479752c9121d",
+  "layout_summary": "patches 27 patchNodes 2089 totalDofs 6267 matrixFloatCount 4721337 pivotCount 6267 metadataBytes 124476 deviceBytes 75783068",
+  "patch_sizes": [
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    1,
+    1,
+    1,
+    1,
+    1,
+    12,
+    12,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "patch_factorization": "FP64 sparse A assembled from captured source091 rich operator then local dense matrices cast to float32 and scipy LU; not a native factor dump",
+  "rhs_norm_Ns": 0.00027888347802445374,
+  "offline_history": [
+    {
+      "iteration": 1,
+      "true_relative_residual": 0.9931837002286991
+    },
+    {
+      "iteration": 2,
+      "true_relative_residual": 0.9910058432739164
+    },
+    {
+      "iteration": 3,
+      "true_relative_residual": 0.9841458046271275
+    },
+    {
+      "iteration": 4,
+      "true_relative_residual": 0.9814713014408626
+    },
+    {
+      "iteration": 5,
+      "true_relative_residual": 0.981468051571429
+    },
+    {
+      "iteration": 6,
+      "true_relative_residual": 0.9806957520373472
+    },
+    {
+      "iteration": 7,
+      "true_relative_residual": 0.9805759126595903
+    },
+    {
+      "iteration": 8,
+      "true_relative_residual": 0.9748056258315612
+    },
+    {
+      "iteration": 9,
+      "true_relative_residual": 0.9746643551328399
+    },
+    {
+      "iteration": 10,
+      "true_relative_residual": 0.9746389900147946
+    },
+    {
+      "iteration": 11,
+      "true_relative_residual": 0.971207834420499
+    },
+    {
+      "iteration": 12,
+      "true_relative_residual": 0.9710709914220812
+    },
+    {
+      "iteration": 13,
+      "true_relative_residual": 0.9701705089442615
+    },
+    {
+      "iteration": 14,
+      "true_relative_residual": 0.9622375590580069
+    },
+    {
+      "iteration": 15,
+      "true_relative_residual": 0.9577559641639527
+    },
+    {
+      "iteration": 16,
+      "true_relative_residual": 0.9529024190545872
+    },
+    {
+      "iteration": 17,
+      "true_relative_residual": 0.9529019927194238
+    },
+    {
+      "iteration": 18,
+      "true_relative_residual": 0.9528996672945763
+    },
+    {
+      "iteration": 19,
+      "true_relative_residual": 0.9528953670034871
+    },
+    {
+      "iteration": 20,
+      "true_relative_residual": 0.9528940182489946
+    },
+    {
+      "iteration": 21,
+      "true_relative_residual": 0.9528731904027881
+    },
+    {
+      "iteration": 22,
+      "true_relative_residual": 0.9528721519896184
+    },
+    {
+      "iteration": 23,
+      "true_relative_residual": 0.9528683544989
+    },
+    {
+      "iteration": 24,
+      "true_relative_residual": 0.9528279672535681
+    },
+    {
+      "iteration": 25,
+      "true_relative_residual": 0.9527243021218829
+    },
+    {
+      "iteration": 26,
+      "true_relative_residual": 0.9525321443446529
+    },
+    {
+      "iteration": 27,
+      "true_relative_residual": 0.9525012767922515
+    },
+    {
+      "iteration": 28,
+      "true_relative_residual": 0.9523890469165891
+    },
+    {
+      "iteration": 29,
+      "true_relative_residual": 0.9522807039206778
+    },
+    {
+      "iteration": 30,
+      "true_relative_residual": 0.9522643747541233
+    },
+    {
+      "iteration": 31,
+      "true_relative_residual": 0.9522479366746653
+    },
+    {
+      "iteration": 32,
+      "true_relative_residual": 0.9522469252234571
+    }
+  ],
+  "offline_final_residual_relative": 0.9522469252234571,
+  "native_captured_x_norm": 31.22038670558837,
+  "native_captured_x_true_residual_relative": 0.9522910729856378,
+  "native_true_residual_reported_cycle0": 0.9529478276568191,
+  "native_true_residual_reported_cycle1": 0.9522908901864345,
+  "limitations": [
+    "graph patch layout reconstructed from immutable source builder and exact captured topology/fixed mask; runtime did not export selected-generation graph patch arenas in the regional capture",
+    "local patch operator matrices reconstructed from same-generation rich operator and are not byte-identical native single-precision graph factor inputs",
+    "offline Arnoldi/orthogonalization and coarse solve are not bitwise identical to Metal production",
+    "diagnostic only, not a native preconditioner parity test or qualification"
+  ]
+}

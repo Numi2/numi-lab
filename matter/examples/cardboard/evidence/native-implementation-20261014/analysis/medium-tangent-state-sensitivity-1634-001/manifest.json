@@ -1,0 +1,134 @@
+{
+  "schema": "numi.cardboard.medium-tangent-state-sensitivity.package.v1",
+  "classification": "Bounded CPU 70/90-digit implicit reference and nine-direction FP64 matrix/central-difference checks at two source-selected medium points, paired with a native300 single-direction accurate-policy result and a separate source283 default-policy cached-matrix capture. This localizes the old discrepancy examples; it does not qualify the entire material or production projection policy.",
+  "artifacts": {
+    "replay.py": {
+      "sha256": "3214549746cb872fbf089f59e96ce961b239bae3a724f5da7bbeed9f8b0497f0",
+      "bytes": 34257
+    },
+    "report.json": {
+      "sha256": "4df12fcf9ac76a4b38797a6e25b9342d47a1129341145fbdde0b519c2021b3c0",
+      "bytes": 134599
+    },
+    "README.md": {
+      "sha256": "6c24f4141a8ba122bb49e92403c86658699fd221857bb163871469fbc52525bb",
+      "bytes": 4057
+    }
+  },
+  "source_bindings": {
+    "capture_path": "/Users/home/cardboard-implementation-20261014/solver/recycle-source-default-first-control-283/operator-capture",
+    "capture_sha256": "4decb7be2fbfa93ad97c0f2f22cfaca974931269068bed90e98815b09066b870",
+    "capture_run_prediction_path": "/Users/home/cardboard-implementation-20261014/solver/recycle-source-default-first-control-283/prediction.json",
+    "capture_run_prediction_sha256": "13d71c00d26d51fc8002db80fecd4978c43165b9bc3c0b7cc7f242a70760da39",
+    "capture_source_build_path": "/Users/home/cardboard-implementation-20261014/solver/recycle-source-default-first-control-283/inputs/external/source-build.json",
+    "capture_source_build_sha256": "a3d185edd518e1799d9742d117fb3674fcf5101b6f0c6da4b3152d37abda0a9e",
+    "capture_cached_matrix_policy": {
+      "run_id": "recycle-source-default-first-control-283",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-accepted-correction-regional-recycle-085",
+      "argv_includes_compensated_source_paper_projection": true,
+      "argv_includes_accurate_source_paper_projection": false,
+      "meaning": "The 9x9 cache is a production capture from run283 with the scaled-accuracy switch absent. Its comparison to MP90 is diagnostic only and is not attributed to native300 accurate policy."
+    },
+    "native_jsonl_path": "/Users/home/cardboard-implementation-20261014/native/rationalized-all-paper-entry-points-300/output/paper-points-accurate.jsonl",
+    "native_jsonl_sha256": "7c037b868e4f3d60e38ef0d030bfd75b29f4478660452623e92ca72a70a197fe",
+    "native_capture_sha256_in_header": "4decb7be2fbfa93ad97c0f2f22cfaca974931269068bed90e98815b09066b870",
+    "allpoint_report_path": "/Users/home/cardboard-implementation-20261014/analysis/retained-paper-allpoint-comparison-300-001/report.json",
+    "allpoint_report_sha256": "c09f18b2a14353e7e03b50a3e784016b2ab0df27dd8ed8cf00e1c241826270b8",
+    "reference_npz_path": "/Users/home/cardboard-implementation-20261014/analysis/retained-paper-allpoint-reference-296-001/reference.npz",
+    "reference_npz_sha256": "b1c53a73565da713531a4ca85297ed12441d4088b6b0b98dd3f8fb603ee8411d",
+    "reference_python_sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-projection-and-coupled-capture-084",
+    "frozen_source_manifest_sha256": "81614c67713b251dd0c4ccf019abcb3da8f2702c6762453a12558e8a1d632bdd",
+    "native_receipt_sha256": "f2cada2db2780f17271fd53ab32f9b4d22200fdd3a9f8870265e31ec350ee5c2",
+    "native_source_build_sha256": "f841758f26b3f533cd69caa0ed2dd85b92ed8422c0c2f13d85fff3464fd5d56b",
+    "source_build_success": true,
+    "run_exit_code": 0,
+    "run_timed_out": false,
+    "source_asset_sha256": {
+      "liner": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a",
+      "medium": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9"
+    },
+    "native_artifacts_sha256": {
+      "libmetalrobo.dylib": "7bdff5ca4e5b983fa1caac8e83652bb30c457a1305a73bc771b9dee2654726e7",
+      "NumiMatter.metallib": "613d5d9b690f4d226d38dc19a63e244d09b395070a9e1f0b270dc38f4bb7ff40",
+      "bilinear15_checker": "6fb64f3c0b124dcc4d1871d44f408c1be85e0ab5397b854668f6a839ad982bfc",
+      "bilinear15_diagnostic_metallib": "6dd07fb5842656ddcaafa82c6ffbc2444c289729b16ddad22804547412a3fc97"
+    },
+    "medium_asset_sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+    "policy296_valid_rows": 3450,
+    "policy296_tangent_rows_above_1e_minus_3": 26,
+    "allpoint_valid_rows": 3456,
+    "allpoint_tangent_rows_above_1e_minus_3": 0,
+    "reported_worst_row": [
+      0,
+      1634,
+      1
+    ],
+    "reported_worst_relative_l2": 5.786266832576555e-05
+  },
+  "selected_results": [
+    {
+      "environment": 0,
+      "tet_id": 1634,
+      "native300_accurate_directional_action_rel_error": 3.660479886929179e-08,
+      "fp64_9x9_implicit_matrix_rel_error": 2.4529102615572945e-16,
+      "source283_cached_matrix_rel_error_diagnostic_only": 6.382364783846444e-06,
+      "cpu_fd_epsilon_errors": [
+        {
+          "epsilon": 1e-05,
+          "relative_error": 6.3780128893558794e-06
+        },
+        {
+          "epsilon": 1e-06,
+          "relative_error": 6.375388823488367e-06
+        },
+        {
+          "epsilon": 1e-07,
+          "relative_error": 6.349292567568564e-06
+        }
+      ],
+      "fd_interlevel_relative_differences": [
+        2.6923316183128826e-09,
+        2.6777374340529015e-08
+      ]
+    },
+    {
+      "environment": 0,
+      "tet_id": 1638,
+      "native300_accurate_directional_action_rel_error": 4.415273241227078e-09,
+      "fp64_9x9_implicit_matrix_rel_error": 2.6394221714460406e-16,
+      "source283_cached_matrix_rel_error_diagnostic_only": 1.5642121114868171e-06,
+      "cpu_fd_epsilon_errors": [
+        {
+          "epsilon": 1e-05,
+          "relative_error": 1.5612743413173455e-06
+        },
+        {
+          "epsilon": 1e-06,
+          "relative_error": 1.559053453802497e-06
+        },
+        {
+          "epsilon": 1e-07,
+          "relative_error": 1.5371274494284187e-06
+        }
+      ],
+      "fd_interlevel_relative_differences": [
+        2.640872903848503e-09,
+        2.6195258550260075e-08
+      ]
+    }
+  ],
+  "errata": {
+    "superseded_preliminary_mp_result": "An early draft created mpmath operands before raising precision from its default 15 digits; those interim values are invalid and are superseded by this report. This script now sets precision before exact binary input construction and binds 70/90 digit comparisons.",
+    "superseded_matrix_assembly_report_sha256": "c4b4bed41dbb5e53e306931af84a2fa7f0273ad3da07a3fda9a63d5d8f238fbb",
+    "matrix_assembly_correction": "The superseded report hash above stacked 3x3 action matrices before reshaping and thereby interleaved matrix axes in the nine-direction FP64 assembly. The corrected code flattens each action to row-major length 9 before assigning it as a matrix column. The old reported full-matrix comparison is invalid; all numbers in this report are regenerated from the corrected assembler."
+  },
+  "limits": [
+    "Two selected medium points only: the prior report worst row and a nearby control. The native single-direction action comes from native300 accurate policy. The separate source283 cached 9x9 matrix was captured with the accurate-source policy switch absent and is diagnostic-only; the nine-direction central differences are independent CPU FP64, not native Metal finite differences.",
+    "The 70/90 digit and stable-strain agreement checks these local replays only; they do not establish a general representability/noise floor.",
+    "Finite-difference errors are reported with three epsilon levels, per-direction terminal residuals and elastic-side branch labels. No general noise floor is inferred from their interlevel differences.",
+    "The native300 3456-row status/one-direction comparison is against the earlier FP64 allpoint reference. It is not a per-row high-precision proof.",
+    "The native report residual field is retained as reported; independent equation residuals are separately computed at candidate and root.",
+    "No GPU, source changes, constitutive calibration, full nonlinear step, or material qualification."
+  ]
+}

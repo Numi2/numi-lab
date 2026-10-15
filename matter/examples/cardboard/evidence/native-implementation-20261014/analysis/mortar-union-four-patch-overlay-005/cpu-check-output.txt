@@ -1,0 +1,11 @@
+source_shared_edge_proof=PASS
+source_clip_is_tolerance_sliver=PASS
+source_false_positive_only_is_exempted=PASS
+same_side_not_exempted=PASS
+same_side_overlap_rejected=PASS
+interior_overlap_not_exempted=PASS
+interior_overlap_rejected=PASS
+one_ulp_endpoint_mismatch_not_exempted=PASS
+collinear_third_vertex_not_exempted=PASS
+identical_triangle_not_exempted=PASS
+source_clip_area=1.460882082e-09 overlap_floor=1.000000013e-10

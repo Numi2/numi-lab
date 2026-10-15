@@ -1,0 +1,14 @@
+{
+  "expected_exit": 1,
+  "actual_exit": 1,
+  "before": {
+    "/Users/home/cardboard-implementation-20261014/native/controlled-material-sweep-native-306/output/paper-derivative-sweep-default.jsonl": "b1c6263c33a36576131c8be6f6f9a185a31f515e3d4092a142eeeb577822e99e",
+    "/Users/home/cardboard-implementation-20261014/native/controlled-material-sweep-native-306/output/paper-derivative-sweep-accurate.jsonl": "bac79e82367e3b8dc026d8654903d51b67d3511be99ac1cd067263fd595eddd5"
+  },
+  "after": {
+    "/Users/home/cardboard-implementation-20261014/native/controlled-material-sweep-native-306/output/paper-derivative-sweep-default.jsonl": "b1c6263c33a36576131c8be6f6f9a185a31f515e3d4092a142eeeb577822e99e",
+    "/Users/home/cardboard-implementation-20261014/native/controlled-material-sweep-native-306/output/paper-derivative-sweep-accurate.jsonl": "bac79e82367e3b8dc026d8654903d51b67d3511be99ac1cd067263fd595eddd5"
+  },
+  "byte_preservation": true,
+  "physical_steps": 0
+}

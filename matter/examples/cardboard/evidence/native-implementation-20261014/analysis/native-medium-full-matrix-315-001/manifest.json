@@ -1,0 +1,54 @@
+{
+  "schema": "numi.cardboard.analysis-package.v1",
+  "artifacts": {
+    "README.md": {
+      "bytes": 574,
+      "sha256": "870c423d25c25c501420c47a4d234bd780cb91f4f8261dc2787ccec91b7483c8"
+    },
+    "audit.py": {
+      "bytes": 6828,
+      "sha256": "c1cca40346a779460b6af284fe804115d0341c055411f1faec0b2ae9f709a127"
+    },
+    "report.json": {
+      "bytes": 70120,
+      "sha256": "462877db43b4a312b8f5e574ce8edfc2f2d7ac7fcdc36a1e49f1d4c0178b1405"
+    }
+  },
+  "source_bindings": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-tangent-state-sensitivity-1634-001/report.json",
+      "sha256": "4df12fcf9ac76a4b38797a6e25b9342d47a1129341145fbdde0b519c2021b3c0",
+      "bytes": 134599
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-tangent-state-sensitivity-1634-001/manifest.json",
+      "sha256": "98db21d6dcd1425db661081213bd5946bd7b9e2b3cf3f93273d08be7fa4cf50b",
+      "bytes": 8247
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/finer-controlled-material-sweep-315/prediction.json",
+      "sha256": "c9a4fc1e52776d4e1ec4039d8da6f2078214ce6e678c1340abb96cd29f72ebb3",
+      "bytes": 101200
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/finer-controlled-material-sweep-315/receipt.json",
+      "sha256": "51548f1e3802d23c7206e29c2c45cad655acb7dc5ee081f4bbf9d89a5165ef7d",
+      "bytes": 306
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/finer-controlled-material-sweep-315/inputs/external/source-build.json",
+      "sha256": "af05899b3df433c799b23f25622210a51cc5bb66287902a93d8c6363ecc67c4d",
+      "bytes": 115136
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/finer-controlled-material-sweep-315/output/paper-derivative-sweep-default.jsonl",
+      "sha256": "0d1986d76ebde75d7749b4ae3965eddd722fa9e0ca172b342773edf7b5c479fe",
+      "bytes": 3125699
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/finer-controlled-material-sweep-315/output/paper-derivative-sweep-accurate.jsonl",
+      "sha256": "56de51013ea87338b8410a93d7ca078504dfb9d4d2db9553e312bbca96331c58",
+      "bytes": 3125700
+    }
+  ]
+}

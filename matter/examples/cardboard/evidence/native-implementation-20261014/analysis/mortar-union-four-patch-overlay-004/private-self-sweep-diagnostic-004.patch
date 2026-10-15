@@ -1,0 +1,520 @@
+--- a/matter/tools/cardboard_full_contact_armijo_check.mm
++++ b/matter/tools/cardboard_full_contact_armijo_check.mm
+@@ -2000,6 +2000,7 @@
+     partialCoveredCrossing,
+     threePatchCoveredCrossing,
+     fourPatchMatchedCrossing,
++    threePatchBoundaryCommonTranslation,
+     threePatchBoundarySeparating,
+     threePatchBoundarySlidingCrossing,
+     threePatchUncoveredCrossing,
+@@ -2008,16 +2009,80 @@
+     initiallyTouchingSeparating,
+ };
+ 
+-NMMatterStatusGPU runPrivateSelfSweepKernelCase(
++struct PrivateSelfSweepRun {
++    NMMatterStatusGPU status{};
++    std::string inputBuffersJSON;
++};
++
++std::string privateSelfSweepHex(const void* bytes, const std::size_t count) {
++    const auto* values = static_cast<const std::uint8_t*>(bytes);
++    std::ostringstream stream;
++    stream << std::hex << std::setfill('0');
++    for (std::size_t index = 0u; index < count; ++index)
++        stream << std::setw(2) << static_cast<unsigned>(values[index]);
++    return stream.str();
++}
++
++std::string privateSelfSweepInputBuffersJSON(
++        const NMMatterDispatchGPU& dispatch,
++        const NMMixedSolverGPU& solver,
++        const std::vector<NMContinuumSurfacePrimitiveGPU>& primitives,
++        const NMDeformableContactCandidateGPU& candidate,
++        const std::uint32_t candidateCount,
++        const std::vector<NMFEMNodeStateGPU>& base,
++        const std::vector<NMFEMNodeStateGPU>& trial,
++        const std::vector<NMIncidenceRangeGPU>& ranges,
++        const std::vector<nm_uint4>& references,
++        const std::vector<NMCohesiveFaceGPU>& faces,
++        const NMMatterStatusGPU& initialStatus,
++        const std::vector<NMContinuumObjectGPU>& objects) {
++    std::ostringstream stream;
++    stream << "{\"byte_order\":\"little-endian\",\"fields\":[";
++    bool first = true;
++    const auto field = [&stream, &first](const char* name, const void* data,
++                                         const std::size_t bytes) {
++        if (!first) stream << ',';
++        first = false;
++        stream << "{\"name\":\"" << name << "\",\"byte_count\":"
++               << bytes << ",\"hex\":\""
++               << privateSelfSweepHex(data, bytes) << "\"}";
++    };
++    const std::uint16_t endianProbe = 1u;
++    require(*reinterpret_cast<const std::uint8_t*>(&endianProbe) == 1u,
++            "private self-sweep fixture input export requires little endian");
++    field("dispatch_buffer_0", &dispatch, sizeof(dispatch));
++    field("solver_buffer_1", &solver, sizeof(solver));
++    field("primitives_buffer_2", primitives.data(),
++          primitives.size() * sizeof(primitives.front()));
++    field("candidate_buffer_3", &candidate, sizeof(candidate));
++    field("candidate_count_buffer_4", &candidateCount, sizeof(candidateCount));
++    field("base_nodes_buffer_5", base.data(), base.size() * sizeof(base.front()));
++    field("trial_nodes_buffer_6", trial.data(), trial.size() * sizeof(trial.front()));
++    field("incidence_ranges_buffer_7", ranges.data(),
++          ranges.size() * sizeof(ranges.front()));
++    field("cohesive_references_buffer_8", references.data(),
++          references.size() * sizeof(references.front()));
++    field("cohesive_faces_buffer_9", faces.data(),
++          faces.size() * sizeof(faces.front()));
++    field("initial_status_buffer_10", &initialStatus, sizeof(initialStatus));
++    field("objects_buffer_11", objects.data(),
++          objects.size() * sizeof(objects.front()));
++    stream << "]}";
++    return stream.str();
++}
++
++PrivateSelfSweepRun runPrivateSelfSweepKernelCase(
+         id<MTLDevice> device,
+         id<MTLCommandQueue> queue,
+         id<MTLComputePipelineState> pipeline,
+-        const PrivateSelfSweepCase fixtureCase) {
++        const PrivateSelfSweepCase fixtureCase,
++        std::string* capturedInputBuffersJSON = nullptr) {
+     const bool hasMortar =
+         fixtureCase == PrivateSelfSweepCase::fullyCoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::partialUncoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::threePatchCoveredCrossing ||
++        fixtureCase == PrivateSelfSweepCase::threePatchBoundaryCommonTranslation ||
+         fixtureCase == PrivateSelfSweepCase::threePatchBoundarySeparating ||
+         fixtureCase == PrivateSelfSweepCase::threePatchBoundarySlidingCrossing ||
+         fixtureCase == PrivateSelfSweepCase::fourPatchMatchedCrossing ||
+@@ -2026,6 +2091,7 @@
+         fixtureCase == PrivateSelfSweepCase::threePatchOverlapRejected;
+     const bool threePatches =
+         fixtureCase == PrivateSelfSweepCase::threePatchCoveredCrossing ||
++        fixtureCase == PrivateSelfSweepCase::threePatchBoundaryCommonTranslation ||
+         fixtureCase == PrivateSelfSweepCase::threePatchBoundarySeparating ||
+         fixtureCase == PrivateSelfSweepCase::threePatchBoundarySlidingCrossing ||
+         fixtureCase == PrivateSelfSweepCase::threePatchUncoveredCrossing ||
+@@ -2071,9 +2137,11 @@
+         trial[featureIndex + 1u] = base[featureIndex + 1u];
+         const bool boundarySeparating =
+             fixtureCase == PrivateSelfSweepCase::threePatchBoundarySeparating;
++        const bool boundaryCommonTranslation =
++            fixtureCase == PrivateSelfSweepCase::threePatchBoundaryCommonTranslation;
+         const bool boundarySliding =
+             fixtureCase == PrivateSelfSweepCase::threePatchBoundarySlidingCrossing;
+-        const float leftStartZ = boundarySeparating || boundarySliding
++        const float leftStartZ = boundaryCommonTranslation || boundarySeparating || boundarySliding
+             ? 0.0f : (initiallyTouching ? 0.0f : 2.0e-4f);
+         float leftEndZ = 2.0e-4f;
+         float rightStartZ = leftStartZ;
+@@ -2090,7 +2158,12 @@
+         else if (fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing &&
+                  featureIndex == 0u)
+             leftEndZ = rightEndZ = -2.0e-4f;
+-        if (boundarySeparating) {
++        if (boundaryCommonTranslation) {
++            // Both parent triangles share the exact same translation under
++            // linear endpoint interpolation, so their common boundary stays
++            // closed throughout the sweep.
++            leftEndZ = rightEndZ = 1.0e-4f;
++        } else if (boundarySeparating) {
+             leftEndZ = 0.0f;
+             rightStartZ = 0.0f;
+             rightEndZ = 2.0e-4f;
+@@ -2218,11 +2291,17 @@
+             length:std::max<std::size_t>(1u, value.size()) * sizeof(Element)
+             options:MTLResourceStorageModeShared];
+     };
++    const std::vector<NMContinuumObjectGPU> objects{object};
++    NMMatterStatusGPU initialStatus{};
++    const std::string inputBuffersJSON = privateSelfSweepInputBuffersJSON(
++        dispatch, solver, primitives, candidate, candidateCount, base, trial,
++        ranges, references, faces, initialStatus, objects);
++    if (capturedInputBuffersJSON != nullptr)
++        *capturedInputBuffersJSON = inputBuffersJSON;
+     id<MTLBuffer> dispatchBuffer = [device newBufferWithBytes:&dispatch
+         length:sizeof(dispatch) options:MTLResourceStorageModeShared];
+     id<MTLBuffer> solverBuffer = [device newBufferWithBytes:&solver
+         length:sizeof(solver) options:MTLResourceStorageModeShared];
+-    const std::vector<NMContinuumObjectGPU> objects{object};
+     id<MTLBuffer> primitiveBuffer = buffer(primitives);
+     id<MTLBuffer> candidateBuffer = [device newBufferWithBytes:&candidate
+         length:sizeof(candidate) options:MTLResourceStorageModeShared];
+@@ -2233,7 +2312,6 @@
+     id<MTLBuffer> rangeBuffer = buffer(ranges);
+     id<MTLBuffer> referenceBuffer = buffer(references);
+     id<MTLBuffer> faceBuffer = buffer(faces);
+-    NMMatterStatusGPU initialStatus{};
+     id<MTLBuffer> statusBuffer = [device newBufferWithBytes:&initialStatus
+         length:sizeof(initialStatus) options:MTLResourceStorageModeShared];
+     id<MTLBuffer> objectBuffer = buffer(objects);
+@@ -2267,7 +2345,9 @@
+     [command waitUntilCompleted];
+     require(command.status == MTLCommandBufferStatusCompleted,
+             "private self-sweep native command did not complete");
+-    return *static_cast<const NMMatterStatusGPU*>(statusBuffer.contents);
++    const NMMatterStatusGPU status =
++        *static_cast<const NMMatterStatusGPU*>(statusBuffer.contents);
++    return {status, inputBuffersJSON};
+ }
+ 
+ void verifyArmijoAlphaPublication() {
+@@ -2563,7 +2643,56 @@
+               << " physical_validation=false\n";
+ }
+ 
+-void verifyPrivateSelfSweepValidator() {
++std::string privateSelfSweepCaseName(const PrivateSelfSweepCase fixtureCase) {
++    switch (fixtureCase) {
++        case PrivateSelfSweepCase::unbondedCrossing: return "unbonded_crossing";
++        case PrivateSelfSweepCase::separatedMiss: return "separated_miss";
++        case PrivateSelfSweepCase::fullyCoveredCrossing: return "fully_covered_crossing";
++        case PrivateSelfSweepCase::partialUncoveredCrossing: return "partial_uncovered_crossing";
++        case PrivateSelfSweepCase::partialCoveredCrossing: return "partial_covered_crossing";
++        case PrivateSelfSweepCase::threePatchCoveredCrossing: return "three_patch_covered_crossing";
++        case PrivateSelfSweepCase::fourPatchMatchedCrossing: return "four_patch_matched_crossing";
++        case PrivateSelfSweepCase::threePatchBoundaryCommonTranslation: return "three_patch_boundary_common_translation";
++        case PrivateSelfSweepCase::threePatchBoundarySeparating: return "three_patch_boundary_separating";
++        case PrivateSelfSweepCase::threePatchBoundarySlidingCrossing: return "three_patch_boundary_sliding_crossing";
++        case PrivateSelfSweepCase::threePatchUncoveredCrossing: return "three_patch_uncovered_crossing";
++        case PrivateSelfSweepCase::threePatchCrossIdentityCrossing: return "three_patch_cross_identity_crossing";
++        case PrivateSelfSweepCase::threePatchOverlapRejected: return "three_patch_overlap_rejected";
++        case PrivateSelfSweepCase::initiallyTouchingSeparating: return "initially_touching_separating";
++    }
++    return "unknown";
++}
++
++std::string privateSelfSweepJsonEscape(const std::string& value) {
++    std::ostringstream escaped;
++    for (const unsigned char character : value) {
++        switch (character) {
++            case '"': escaped << "\\\""; break;
++            case '\\': escaped << "\\\\"; break;
++            case '\n': escaped << "\\n"; break;
++            case '\r': escaped << "\\r"; break;
++            case '\t': escaped << "\\t"; break;
++            default:
++                if (character < 0x20u)
++                    escaped << "\\u" << std::hex << std::setw(4)
++                            << std::setfill('0') << static_cast<unsigned>(character)
++                            << std::dec;
++                else
++                    escaped << static_cast<char>(character);
++        }
++    }
++    return escaped.str();
++}
++
++std::string privateSelfSweepJsonNumber(const float value) {
++    if (std::isnan(value)) return "\"nan\"";
++    if (std::isinf(value)) return value > 0.0f ? "\"+inf\"" : "\"-inf\"";
++    std::ostringstream number;
++    number << std::setprecision(9) << value;
++    return number.str();
++}
++
++void verifyPrivateSelfSweepValidator(const bool exhaustiveDiagnostics) {
+     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+     require(device != nil, "private self-sweep test requires a Metal device");
+     const std::string metallibPath = NUMI_MATTER_METALLIB;
+@@ -2590,73 +2719,114 @@
+     id<MTLCommandQueue> queue = [device newCommandQueue];
+     require(queue != nil, "private self-sweep test command queue unavailable");
+ 
+-    const NMMatterStatusGPU crossing = runPrivateSelfSweepKernelCase(
+-        device, queue, pipeline, PrivateSelfSweepCase::unbondedCrossing);
+-    require(crossing.code == NM_STATUS_CONTACT_FAILURE,
+-            "endpoint-clear triangle sweep crossing was not rejected by production validator");
+-    const NMMatterStatusGPU miss = runPrivateSelfSweepKernelCase(
+-        device, queue, pipeline, PrivateSelfSweepCase::separatedMiss);
+-    require(miss.code == NM_STATUS_SUCCESS,
+-            "separated triangle sweep miss was not admitted by production validator");
+-    const NMMatterStatusGPU covered = runPrivateSelfSweepKernelCase(
+-        device, queue, pipeline, PrivateSelfSweepCase::fullyCoveredCrossing);
+-    require(covered.code == NM_STATUS_SUCCESS,
+-            "fully covered active mortar parent pair duplicated self-contact rejection");
+-    const NMMatterStatusGPU partialUncovered = runPrivateSelfSweepKernelCase(
+-        device, queue, pipeline,
+-        PrivateSelfSweepCase::partialUncoveredCrossing);
+-    require(partialUncovered.code == NM_STATUS_CONTACT_FAILURE,
+-            "crossing through the uncovered complement of a partial active mortar patch was admitted");
+-    const NMMatterStatusGPU partialCovered = runPrivateSelfSweepKernelCase(
+-        device, queue, pipeline, PrivateSelfSweepCase::partialCoveredCrossing);
+-    require(partialCovered.code == NM_STATUS_SUCCESS,
+-            "crossing confined to a partial active mortar patch duplicated self-contact rejection");
+-    const NMMatterStatusGPU threeCovered = runPrivateSelfSweepKernelCase(
+-        device, queue, pipeline,
+-        PrivateSelfSweepCase::threePatchCoveredCrossing);
+-    require(threeCovered.code == NM_STATUS_SUCCESS,
+-            "three matched mortar patches failed to preserve normal closure across their shared edges");
+-    const NMMatterStatusGPU fourCovered = runPrivateSelfSweepKernelCase(
+-        device, queue, pipeline,
+-        PrivateSelfSweepCase::fourPatchMatchedCrossing);
+-    require(fourCovered.code == NM_STATUS_SUCCESS,
+-            "four matched mortar patches failed to preserve closure on shared boundaries");
+-    const NMMatterStatusGPU sharedBoundarySeparating =
+-        runPrivateSelfSweepKernelCase(device, queue, pipeline,
+-            PrivateSelfSweepCase::threePatchBoundarySeparating);
+-    require(sharedBoundarySeparating.code == NM_STATUS_SUCCESS,
+-            "paired shared-edge separation was mistaken for an uncovered contact");
+-    const NMMatterStatusGPU sharedBoundarySliding =
+-        runPrivateSelfSweepKernelCase(device, queue, pipeline,
+-            PrivateSelfSweepCase::threePatchBoundarySlidingCrossing);
+-    require(sharedBoundarySliding.code == NM_STATUS_CONTACT_FAILURE,
+-            "cross-patch collision during tangential slide was suppressed as a shared-edge duplicate");
+-    const NMMatterStatusGPU threeUncovered = runPrivateSelfSweepKernelCase(
+-        device, queue, pipeline,
+-        PrivateSelfSweepCase::threePatchUncoveredCrossing);
+-    require(threeUncovered.code == NM_STATUS_CONTACT_FAILURE,
+-            "three-patch union failed to detect crossing through the uncovered complement");
+-    const NMMatterStatusGPU crossPatch = runPrivateSelfSweepKernelCase(
+-        device, queue, pipeline,
+-        PrivateSelfSweepCase::threePatchCrossIdentityCrossing);
+-    require(crossPatch.code == NM_STATUS_CONTACT_FAILURE,
+-            "different covered-patch identities incorrectly suppressed a cross-patch collision");
+-    const NMMatterStatusGPU overlappingPatches = runPrivateSelfSweepKernelCase(
+-        device, queue, pipeline,
+-        PrivateSelfSweepCase::threePatchOverlapRejected);
+-    require(overlappingPatches.code == NM_STATUS_CONTACT_FAILURE,
+-            "overlapping active same-parent mortar patches were not rejected closed");
+-    const NMMatterStatusGPU touchingSeparating = runPrivateSelfSweepKernelCase(
+-        device, queue, pipeline,
+-        PrivateSelfSweepCase::initiallyTouchingSeparating);
+-    require(touchingSeparating.code == NM_STATUS_CONTACT_FAILURE,
+-            "initially touching unbonded separating ray was not explicitly rejected as unsupported");
++    struct CaseExpectation {
++        PrivateSelfSweepCase fixtureCase;
++        std::uint32_t expectedCode;
++        const char* expectation;
++    };
++    const std::array<CaseExpectation, 14> cases{{
++        {PrivateSelfSweepCase::unbondedCrossing, NM_STATUS_CONTACT_FAILURE,
++         "reject unbonded swept crossing"},
++        {PrivateSelfSweepCase::separatedMiss, NM_STATUS_SUCCESS,
++         "accept separated miss"},
++        {PrivateSelfSweepCase::fullyCoveredCrossing, NM_STATUS_SUCCESS,
++         "exclude fully covered active mortar crossing from self-contact"},
++        {PrivateSelfSweepCase::partialUncoveredCrossing, NM_STATUS_CONTACT_FAILURE,
++         "reject crossing through partial-patch complement"},
++        {PrivateSelfSweepCase::partialCoveredCrossing, NM_STATUS_SUCCESS,
++         "exclude crossing confined to partial active mortar patch"},
++        {PrivateSelfSweepCase::threePatchCoveredCrossing, NM_STATUS_SUCCESS,
++         "accept closure across three matched mortar patches"},
++        {PrivateSelfSweepCase::fourPatchMatchedCrossing, NM_STATUS_SUCCESS,
++         "accept closure across four matched mortar patches"},
++        {PrivateSelfSweepCase::threePatchBoundaryCommonTranslation, NM_STATUS_SUCCESS,
++         "accept exact common translation over the whole sweep"},
++        {PrivateSelfSweepCase::threePatchBoundarySeparating, NM_STATUS_SUCCESS,
++         "accept paired shared-edge separation"},
++        {PrivateSelfSweepCase::threePatchBoundarySlidingCrossing, NM_STATUS_CONTACT_FAILURE,
++         "reject cross-patch collision during tangential slide"},
++        {PrivateSelfSweepCase::threePatchUncoveredCrossing, NM_STATUS_CONTACT_FAILURE,
++         "reject crossing through three-patch union complement"},
++        {PrivateSelfSweepCase::threePatchCrossIdentityCrossing, NM_STATUS_CONTACT_FAILURE,
++         "reject collision between different covered-patch identities"},
++        {PrivateSelfSweepCase::threePatchOverlapRejected, NM_STATUS_CONTACT_FAILURE,
++         "reject overlapping active same-parent patches closed"},
++        {PrivateSelfSweepCase::initiallyTouchingSeparating, NM_STATUS_CONTACT_FAILURE,
++         "reject unsupported initially touching unbonded sweep"},
++    }};
++    std::size_t passed = 0u;
++    std::vector<std::string> failures;
++    for (const CaseExpectation& expected : cases) {
++        const std::string name = privateSelfSweepCaseName(expected.fixtureCase);
++        std::string capturedInputBuffersJSON;
++        try {
++            const PrivateSelfSweepRun run = runPrivateSelfSweepKernelCase(
++                device, queue, pipeline, expected.fixtureCase,
++                &capturedInputBuffersJSON);
++            const NMMatterStatusGPU& actual = run.status;
++            const bool matched = actual.code == expected.expectedCode;
++            if (matched) ++passed;
++            else failures.push_back(name + ": status code mismatch");
++            if (exhaustiveDiagnostics) {
++                std::cout << std::setprecision(9)
++                    << "{\"schema\":\"numi.matter.private_self_sweep_case.v1\","
++                    << "\"case\":\"" << name << "\","
++                    << "\"expected\":{\"code\":" << expected.expectedCode
++                    << ",\"outcome\":\"" << expected.expectation << "\"},"
++                    << "\"actual\":{\"code\":" << actual.code
++                    << ",\"environment\":" << actual.environment
++                    << ",\"object_index\":" << actual.objectIndex
++                    << ",\"failing_index\":" << actual.failingIndex
++                    << ",\"completed_microsteps\":" << actual.completedMicrosteps
++                    << ",\"fgmres_iterations\":" << actual.fgmresIterations
++                    << ",\"contact_count\":" << actual.contactCount
++                    << ",\"event_count\":" << actual.eventCount
++                    << ",\"diagnostics\":["
++                    << privateSelfSweepJsonNumber(actual.diagnostics.x) << ','
++                    << privateSelfSweepJsonNumber(actual.diagnostics.y) << ','
++                    << privateSelfSweepJsonNumber(actual.diagnostics.z) << ','
++                    << privateSelfSweepJsonNumber(actual.diagnostics.w) << "]},\"passed\":"
++                    << (matched ? "true" : "false")
++                    << ",\"input_buffers\":" << run.inputBuffersJSON << "}\n";
++            } else {
++                require(matched, name + " failed: expected " + expected.expectation +
++                    ", observed status " + std::to_string(actual.code));
++            }
++        } catch (const std::exception& error) {
++            failures.push_back(name + ": execution error");
++            if (exhaustiveDiagnostics) {
++                std::cout << "{\"schema\":\"numi.matter.private_self_sweep_case.v1\","
++                    << "\"case\":\"" << name << "\",\"expected\":{\"code\":"
++                    << expected.expectedCode << ",\"outcome\":\""
++                    << expected.expectation << "\"},\"execution_error\":\""
++                    << privateSelfSweepJsonEscape(error.what())
++                    << "\",\"passed\":false,\"input_buffers\":"
++                    << (capturedInputBuffersJSON.empty()
++                        ? "null" : capturedInputBuffersJSON) << "}\n";
++            } else {
++                throw;
++            }
++        }
++    }
++    if (exhaustiveDiagnostics) {
++        std::cout << "{\"schema\":\"numi.matter.private_self_sweep_summary.v1\","
++            << "\"case_count\":" << cases.size()
++            << ",\"passed\":" << passed
++            << ",\"failed\":" << failures.size()
++            << ",\"direct_production_kernel\":true"
++            << ",\"runtime_transaction\":false}\n";
++        require(failures.empty(),
++            "private self-sweep exhaustive diagnostic found expected-gate failures; "
++            "see preceding JSONL case records");
++    }
+     std::cout << "private_self_sweep_validator=pass"
+               << " endpoint_clear_crossing=rejected separated_miss=accepted"
+               << " fully_covered_mortar_crossing=excluded_from_self_contact"
+               << " partial_uncovered_crossing=rejected"
+               << " partial_covered_crossing=excluded_from_self_contact"
+               << " three_patch_matched_closure=accepted"
++              << " four_patch_matched_closure=accepted"
++              << " exact_common_translation=accepted"
+               << " three_patch_uncovered_complement=rejected"
+               << " cross_patch_identity_collision=rejected"
+               << " overlapping_active_patches=rejected_closed"
+@@ -5588,13 +5758,14 @@
+     @autoreleasepool {
+         try {
+             require(argc >= 2,
+-                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--sparse-free-body-parity|--sparse-free-body-overflow|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity|--cohesive-tiled-parity|--same-parent-mortar-union-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--compensated-material-arithmetic] [--newton-iterations N] [--diagnostic-state-output DIR]");
++                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--private-self-sweep-diagnostic|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--sparse-free-body-parity|--sparse-free-body-overflow|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity|--cohesive-tiled-parity|--same-parent-mortar-union-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--compensated-material-arithmetic] [--newton-iterations N] [--diagnostic-state-output DIR]");
+             bool cpuOnly = false;
+             bool overflow = false;
+             bool prescribedBoxOverflow = false;
+             bool prescribedBoxSweepReject = false;
+             bool prescribedBoxTranslation = false;
+             bool privateSelfSweep = false;
++            bool privateSelfSweepDiagnostic = false;
+             bool armijoAlphaPublication = false;
+             bool sparsePrivateParity = false;
+             bool sparsePrivateOverflow = false;
+@@ -5618,6 +5789,8 @@
+                     prescribedBoxTranslation = true;
+                 else if (option == "--private-self-sweep")
+                     privateSelfSweep = true;
++                else if (option == "--private-self-sweep-diagnostic")
++                    privateSelfSweepDiagnostic = true;
+                 else if (option == "--armijo-alpha-publication")
+                     armijoAlphaPublication = true;
+                 else if (option == "--sparse-private-parity")
+@@ -5668,7 +5841,8 @@
+             }
+             require(!(cpuOnly && (overflow || prescribedBoxOverflow ||
+                                   prescribedBoxSweepReject || prescribedBoxTranslation ||
+-                                  privateSelfSweep || armijoAlphaPublication ||
++                                  privateSelfSweep || privateSelfSweepDiagnostic ||
++                                  armijoAlphaPublication ||
+                                   sparsePrivateParity ||
+                                   sparsePrivateOverflow || sparsePrivateAdmission ||
+                                   sparsePrivateHighPairAdmission ||
+@@ -5681,7 +5855,8 @@
+             require(!armijoAlphaPublication ||
+                         !(cpuOnly || overflow || prescribedBoxOverflow ||
+                           prescribedBoxSweepReject || prescribedBoxTranslation ||
+-                          privateSelfSweep || sparsePrivateParity ||
++                          privateSelfSweep || privateSelfSweepDiagnostic ||
++                          sparsePrivateParity ||
+                           sparsePrivateOverflow || sparsePrivateAdmission ||
+                           sparsePrivateHighPairAdmission || sparseFreeBodyParity ||
+                           sparseFreeBodyOverflow || selfSurfaceScratchAliasParity ||
+@@ -5692,8 +5867,15 @@
+                           authoredNewtonIterations != 0u ||
+                           !diagnosticStateOutputPath.empty()),
+                     "Armijo alpha publication mode must run alone");
+-            require(!privateSelfSweep || !(overflow || prescribedBoxOverflow ||
+-                                  prescribedBoxSweepReject || prescribedBoxTranslation),
++            require(!(privateSelfSweep && privateSelfSweepDiagnostic),
++                    "choose either strict or exhaustive private self-sweep mode");
++            require(!(privateSelfSweep || privateSelfSweepDiagnostic) ||
++                        !(overflow || prescribedBoxOverflow ||
++                          prescribedBoxSweepReject || prescribedBoxTranslation ||
++                          regionalContactPreconditioner || extendedBudget ||
++                          accuratePaper || compensatedMaterialArithmetic ||
++                          authoredNewtonIterations != 0u ||
++                          !diagnosticStateOutputPath.empty()),
+                     "private self-sweep regression mode must run alone");
+             require(!(overflow && (prescribedBoxOverflow || prescribedBoxTranslation)),
+                     "choose only one overflow fixture mode");
+@@ -5720,7 +5902,8 @@
+             require(!cohesiveTiledParity ||
+                         !(overflow || prescribedBoxOverflow ||
+                           prescribedBoxSweepReject || prescribedBoxTranslation ||
+-                          privateSelfSweep || sparseModeCount != 0u ||
++                          privateSelfSweep || privateSelfSweepDiagnostic ||
++                          sparseModeCount != 0u ||
+                           selfSurfaceScratchAliasParity ||
+                           cohesiveScratchAliasParity || regionalContactPreconditioner ||
+                           extendedBudget || accuratePaper ||
+@@ -5730,7 +5913,8 @@
+             require(!sameParentMortarUnionParity ||
+                         !(overflow || prescribedBoxOverflow ||
+                           prescribedBoxSweepReject || prescribedBoxTranslation ||
+-                          privateSelfSweep || sparseModeCount != 0u ||
++                          privateSelfSweep || privateSelfSweepDiagnostic ||
++                          sparseModeCount != 0u ||
+                           selfSurfaceScratchAliasParity ||
+                           cohesiveScratchAliasParity || cohesiveTiledParity ||
+                           regionalContactPreconditioner || extendedBudget ||
+@@ -5740,17 +5924,18 @@
+             require(!selfSurfaceScratchAliasParity ||
+                         !(overflow || prescribedBoxOverflow ||
+                           prescribedBoxSweepReject || prescribedBoxTranslation ||
+-                          privateSelfSweep || cohesiveScratchAliasParity),
++                          privateSelfSweep || privateSelfSweepDiagnostic ||
++                          cohesiveScratchAliasParity),
+                     "surface scratch alias parity must run as its own full-contact sequence");
+             require(!cohesiveScratchAliasParity ||
+                         !(overflow || prescribedBoxOverflow ||
+                           prescribedBoxSweepReject || prescribedBoxTranslation ||
+-                          privateSelfSweep),
++                          privateSelfSweep || privateSelfSweepDiagnostic),
+                     "cohesive scratch alias parity must run as its own full-contact sequence");
+             require(sparseModeCount == 0u ||
+                         !(overflow || prescribedBoxOverflow ||
+                           prescribedBoxSweepReject || prescribedBoxTranslation ||
+-                          privateSelfSweep),
++                          privateSelfSweep || privateSelfSweepDiagnostic),
+                     "sparse private-contact modes must run separately");
+             require(!(sparseFreeBodyParity && sparseFreeBodyOverflow),
+                     "choose either free-body parity or its overflow control");
+@@ -5815,9 +6000,11 @@
+                           << " checks=" << checks << '\n';
+                 return 0;
+             }
+-            if (privateSelfSweep) {
+-                verifyPrivateSelfSweepValidator();
+-                std::cout << "PASS private self-sweep validator fixture"
++            if (privateSelfSweep || privateSelfSweepDiagnostic) {
++                verifyPrivateSelfSweepValidator(privateSelfSweepDiagnostic);
++                std::cout << (privateSelfSweepDiagnostic
++                    ? "PRIVATE_SELF_SWEEP_DIAGNOSTIC_COMPLETE"
++                    : "PASS private self-sweep validator fixture")
+                           << " checks=" << checks << '\n';
+                 return 0;
+             }

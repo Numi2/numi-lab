@@ -1,0 +1,22 @@
+{
+  "schema": "numi.cardboard.lossless-controlled-sweep-package.v1",
+  "source": "/Users/home/cardboard-implementation-20261014/native/finer-controlled-material-sweep-315/output",
+  "files": {
+    "paper-derivative-sweep-accurate.jsonl": {
+      "raw_bytes": 3125700,
+      "raw_sha256": "56de51013ea87338b8410a93d7ca078504dfb9d4d2db9553e312bbca96331c58",
+      "compressed_name": "paper-derivative-sweep-accurate.jsonl.gz",
+      "compressed_bytes": 185572,
+      "compressed_sha256": "a79041684ae753420752b90ac4e80b86c0a55c12b73be70338f2169e6a1c3267"
+    },
+    "paper-derivative-sweep-default.jsonl": {
+      "raw_bytes": 3125699,
+      "raw_sha256": "0d1986d76ebde75d7749b4ae3965eddd722fa9e0ca172b342773edf7b5c479fe",
+      "compressed_name": "paper-derivative-sweep-default.jsonl.gz",
+      "compressed_bytes": 167622,
+      "compressed_sha256": "0932ebbe1e02dd24fcb9513b248d4f22ba071ac7fbe833f87f381d602775b81e"
+    }
+  },
+  "physical_steps": 0,
+  "physical_validation": false
+}

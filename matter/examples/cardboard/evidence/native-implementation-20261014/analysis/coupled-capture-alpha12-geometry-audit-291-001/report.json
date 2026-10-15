@@ -1,0 +1,104 @@
+{
+  "binding": {
+    "analysis_script_sha256": "5580db11c12a9b28651b123d3c76d0a1e89a8cd8ea537596cd330ddbb86bd2d0",
+    "capture_manifest": "/Users/home/cardboard-implementation-20261014/native/strict-json-full-contact-arena-newton12-291/candidate-capture.coupled.json",
+    "capture_manifest_sha256": "fd77314acad48353980cdd33a05e8cccadd3a7e607c9b098f55647f852acb3b7",
+    "capture_payload": "/Users/home/cardboard-implementation-20261014/native/strict-json-full-contact-arena-newton12-291/candidate-capture.coupled.bin",
+    "capture_payload_bytes": 10787124,
+    "capture_payload_sha256": "ef7e5ff74370cf84d7c36fb647b3e2735add4695308b312807ccbbbc0c65c1aa",
+    "device_program_fingerprint": "d61f84737f5c7664",
+    "native_log_sha256": "78f71bebd097788bbf35789eddd84ed3ad0fa2888007fe3066d4ccb96bc1c682",
+    "source_capture_reader": "/Users/home/cardboard-implementation-20261014/analysis/coupled-free-body-candidate-capture-reader-v3-001",
+    "source_files": {
+      "include/numi/matter/shared.h": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691",
+      "src/metal/contact.metalinc": "9e4ce2d8213c83a9a3e58a64388562cb92638c892b21e612653e92400b654f1f",
+      "src/metal/fem.metalinc": "f4b5cd60dbe7ace7a54636746a00b5e7186d6c1f4890eb0718c138af9c753ae4"
+    },
+    "source_physics_fingerprint": "915f50b10edc2e46"
+  },
+  "causal_readout": {
+    "contact_geometry_rounding": "candidate x changes in FP32 at 21 components, but predicted changes of captured smooth self-contact gaps at this alpha are at most 1.22e-16 m; contact records show an unresolved endpoint/start generation discrepancy",
+    "fem_material_input_rounding": "candidate u changes in FP32 and reaches the ref-displacement material deformation path; the two-word helper improves formation of F from those words but does not retain a low word for the Newton velocity/u update",
+    "not_proven": "whether the 2.3e-13 decrease or subsequent 3.436e-6 plateau is dominated by FEM material force rounding, self-contact, rigid contact, mass/inertial residual rounding, or FGMRES/operator error",
+    "required_next_capture": "for selected alpha before and after private trial rebuild, retain the exact candidate node u/x/v words, element projected state/stress/element forces, rigid pose and contact samples, complete active self-contact records with generation identifiers, and separated residual vectors/norms for inertial, bulk material, cohesive, rigid contact, and deformable contact terms; preserve same accepted history and include on/off payload parity"
+  },
+  "fem_candidate_state": {
+    "alpha_trial_replay_fp32_word_changes": {
+      "materialized_position_components_of_108": 21,
+      "max_materialized_position_change_m": 1.7053026e-13,
+      "reference_displacement_components_of_108": 53,
+      "velocity_components_of_108": 96
+    },
+    "candidate_state_update_source": "fem.metalinc:3312-3329; accepted u/v, scaled correction, then u=accepted_u+dt*v and x=rest+u under mode tag 1",
+    "captured_fp32_u_based_F_reconstruction": {
+      "ideal_unrounded_increment_max_frobenius_delta_F": 9.46788e-11,
+      "interpretation": "reconstructed from captured u words and inverse-rest; not native stress or residual delta",
+      "max_frobenius_delta_F": 5.5700613e-10,
+      "tets_with_nonzero_F_change_of_48": 47
+    },
+    "fixed_nodes": 4,
+    "free_nodes": 32,
+    "fused_alpha0_replay_matches_center_words": {
+      "u_components": true,
+      "v_components": true,
+      "x_components": true
+    },
+    "material_flag_meaning": "NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC; generic compensated implicit projection bit 6 is not set",
+    "material_flags_u32": 16,
+    "material_path": "fem.metalinc:181-235 uses referenceDisplacementAndMode and, for this material/tet flag pair, two-word reference-deformation helper; however accepted-to-trial u is first updated in FP32",
+    "material_state_count": 0,
+    "node_count": 36,
+    "nodes_with_reference_displacement_mode_1": 36,
+    "object_flags_u32": 7171,
+    "tetrahedron_active_reference_gradient_flags_u32": 3,
+    "tetrahedron_count": 48
+  },
+  "newton12": {
+    "accepted_trial_l2": 3.43603074e-06,
+    "alpha_power_of_two": "2^-22",
+    "base_l2": 3.43603097e-06,
+    "dt_seconds_f32": 9.99999975e-05,
+    "iteration": 12,
+    "next_iteration_13_failed": true,
+    "residual_decrease": 2.3e-13,
+    "residual_units": "impulse, per stderr trace semantics",
+    "root": 1201,
+    "selected_alpha": 2.38418579e-07
+  },
+  "schema": "numi.cardboard.coupled_alpha12_geometry_material_audit.v1",
+  "self_contact_geometry": {
+    "active_count": 100,
+    "capacity": 18336,
+    "capture_complete": true,
+    "capture_generation_consistency": {
+      "median_abs_m": 6.967956e-08,
+      "record_gap_vs_endpoint_x_max_abs_m": 5.2159019e-12,
+      "record_gap_vs_reconstructed_start_max_abs_m": 7.7653514e-08,
+      "recorded_toi": "zero for all 99 direct replay records",
+      "status": "unresolved phase/generation binding discrepancy; do not identify record as either current finish or swept-start narrowphase without exact producer trace"
+    },
+    "endpoint_position_replay": {
+      "max_barycentric_change": 6.2798988e-12,
+      "max_gap_change_m": 1.2128326e-16,
+      "max_normal_change": 9.2268552e-10,
+      "nonzero_gap_changes": 81
+    },
+    "mapped_alias_records": 1,
+    "reconstructed_swept_start_replay": {
+      "max_barycentric_change": 6.2803697e-13,
+      "max_gap_change_m": 7.0388438e-18,
+      "max_normal_change": 8.930541e-11,
+      "nonzero_gap_changes": 24
+    },
+    "replay_feature_branches": "99 stable branches across center and emulated alpha=2^-22 candidate; no branch changes",
+    "replay_records_excluding_mapped_alias": 99,
+    "source_path": "contact.metalinc:2727-2807 loads FEM finish=positionAndMass and reconstructs start=finish-dt*velocity; closest-feature/CCD follows. Capture replay is independent CPU FP64 geometry over FP32 words, not a native trial execution.",
+    "valid_records": 100
+  },
+  "verdict": {
+    "first_causal_layer": "not isolated by capture 291; no post-trial per-term residual or post-rebuild contact data exists",
+    "physical_run": "failed; audit is diagnostic only",
+    "production_repair_recommended": "no, not from this capture alone",
+    "quantization_is_measured": "yes at candidate state inputs; causal contribution to residual decrease is unresolved"
+  }
+}

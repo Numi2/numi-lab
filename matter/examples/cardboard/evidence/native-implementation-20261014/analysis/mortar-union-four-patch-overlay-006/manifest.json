@@ -1,0 +1,93 @@
+{
+  "base": {
+    "overlay005": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-overlay-005",
+    "overlay005_candidate_extractor_binary_sha256": "4a6a7c18e86d6e6d1f312a35c2b7b66e9ca89f16ddbb4f2065163293e0a0cb29",
+    "overlay005_candidate_extractor_source_sha256": "de582968a550d76d3f755b36f31595057b1ea4baa71e1e1ceb12c6414f0777de",
+    "overlay005_manifest_sha256": "b7ffe857a24eae2a0b865ea05185d475b1501075769af0362ace6a5a2b8582da",
+    "source091_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-rationalized-paper-and-native-checkers-091",
+    "source091_snapshot_manifest_sha256": "81614c67713b251dd0c4ccf019abcb3da8f2702c6762453a12558e8a1d632bdd"
+  },
+  "candidate_extraction": {
+    "candidate_predicate": "source FP32 overlap > unchanged 1e-10f floor and long-double overlap <= unchanged floor, with the source shared-edge proof not certifying all source-hit sides",
+    "candidate_side_records": 635,
+    "compiler": "clang++ -std=c++20 -O2 -ffp-contract=fast -I <overlay005>/build-source/matter/tools -I <overlay005>/build-source/matter/include -I <overlay005>/build-source/include",
+    "diagnostic_source": "shipping_mortar_partition_candidates.cpp",
+    "run": "shipping_mortar_partition_candidates > candidates.log",
+    "unique_stable_id_patch_pairs": 497
+  },
+  "comparison": {
+    "command": "python3 verify_exact_vs_double.py",
+    "controls": {
+      "exact_shared_edge_disjoint": "PASS area 0",
+      "one_ulp_inward_positive_above_floor": "PASS area 1/33554434, above unchanged floor",
+      "one_ulp_outward_gap": "PASS area 0",
+      "positive_overlap_no_shared_edge": "PASS area 3355/33561142, above unchanged floor",
+      "same_edge_same_side_overlap": "PASS area 1/4, above unchanged floor"
+    },
+    "controls_all_pass": true,
+    "double_method": "Strict Sutherland-Hodgman clipping in binary64 on promoted binary32 inputs, no epsilon; math.fsum polygon area",
+    "exact_method": "Sutherland-Hodgman convex clipping with exact Fraction coordinates reconstructed from IEEE-754 binary32 values",
+    "exact_positive_area_side_records": 0,
+    "exact_zero_area_side_records": 635,
+    "input_sha256": "fa474dd0d12cb3e47c36a0da852576a0509ceb28cc9ebd1ab040c8848df6b2ce",
+    "overlap_threshold_exact": "14411519/144115188075855872",
+    "overlap_threshold_float32": 1.000000013351432e-10,
+    "script": "verify_exact_vs_double.py",
+    "strict_double_exact_floor_class_mismatches": 0,
+    "strict_double_zero_area_side_records": 635
+  },
+  "environment": {
+    "platform": "macOS-26.6-arm64-arm-64bit",
+    "python": "3.10.12 (main, May 15 2025, 18:07:36) [Clang 17.0.0 (clang-1700.0.13.3)]"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 3248,
+      "sha256": "35cca2467305e0c3ff7f5f98f8c1bdaade3f7884f92eb91e9811051ba976a4cb"
+    },
+    "candidates.log": {
+      "bytes": 168931,
+      "sha256": "fa474dd0d12cb3e47c36a0da852576a0509ceb28cc9ebd1ab040c8848df6b2ce"
+    },
+    "classify_unproven.py": {
+      "bytes": 1364,
+      "sha256": "874801b8f9dd088ed3fe1fbcd2d09a068be448a00eb279a2bd66610cb8e5465b"
+    },
+    "compare_double_exact.py": {
+      "bytes": 1821,
+      "sha256": "5b866e2da67da6589ceb255424f7c9559abe522e4ef287a5399f71b15d9ea846"
+    },
+    "comparison-report.json": {
+      "bytes": 192022,
+      "sha256": "5357f595c9a59810a8a89efc43632aa5dac176276f72b26a848b3a3e98c4ce13"
+    },
+    "exact-dyadic-results.json": {
+      "bytes": 212075,
+      "sha256": "5da954f7f92666b1a46665ab6b6808c3685e71274a9dad12f061f8ca5b895b72"
+    },
+    "exact_dyadic_overlap.py": {
+      "bytes": 3508,
+      "sha256": "5f5f04979f8b7f17f2b5df726092a7b33c1c6620a7899453880ff02318533fcc"
+    },
+    "shipping_mortar_partition_candidates": {
+      "bytes": 187416,
+      "sha256": "1595bd1682b6a020c5eccd97396ba0b706f728357a6d5d94f63f65482c73ec4a"
+    },
+    "shipping_mortar_partition_candidates.cpp": {
+      "bytes": 25426,
+      "sha256": "dba87ff3a435b76c46b52cfb17d1647001409bdfc3a474602c85771a31378f24"
+    },
+    "verify_exact_vs_double.py": {
+      "bytes": 6372,
+      "sha256": "f2731a25faa9ae20e6585e4c550d224c88796fe2da912fc8a6bd370b8c6eb608"
+    }
+  },
+  "runtime_boundary": {
+    "admission": "Do not use this CPU finding by itself to admit the 497 cases into runtime contact.",
+    "cpu_overlap_test_candidate": "Full-double clipping correctly classifies these recorded FP32 source inputs and synthetic controls.",
+    "metal_partition_builder": "UNRESOLVED; Metal complement construction remains float and uses 1e-7f clip tolerance.",
+    "native_gpu_execution": "NOT RUN"
+  },
+  "schema": "numi.cardboard.remaining-mortar-overlap-exact-dyadic-audit.v1",
+  "status": "CPU_DIAGNOSTIC_ONLY_NO_PRODUCTION_OR_GPU_CHANGE"
+}

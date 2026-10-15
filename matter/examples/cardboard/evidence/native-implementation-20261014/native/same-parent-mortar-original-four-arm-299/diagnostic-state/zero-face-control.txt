@@ -1,0 +1,2 @@
+status=failed_closed_before_transaction
+interpretation=expected_negative_control

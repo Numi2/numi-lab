@@ -1,0 +1,82 @@
+{
+  "schema": "numi.cardboard.shipping-hma-parent-pair-multiplicity.v1",
+  "evidence_class": "exact CPU reconstruction using source091 shipping blank, starch duplication, and HMA mortar mesh builders; no native assembly or constitutive execution",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-rationalized-paper-and-native-checkers-091",
+  "source_snapshot_manifest_sha256": "81614c67713b251dd0c4ccf019abcb3da8f2702c6762453a12558e8a1d632bdd",
+  "source_headers_sha256": {
+    "matter/tools/cardboard_shipping_protocol.hpp": "11259c4b6630da489e9277a36b82a51c9c8e824034fe933643d8dd632b08f198",
+    "matter/tools/cardboard_shipping_closure_mesh.hpp": "40f9a0c8e714a259fa3fcea7f2edddac50703b74553d8a103ce2b49169c0d4c7",
+    "matter/tools/cardboard_starch_interface_mesh.hpp": "62202f367f867afe7c6f72bfc00674f00643c26e08a4349f5729591e6e68f706",
+    "matter/tools/cardboard_box_blank.hpp": "bb07194cc135e51413fcdaff0445fa5992a7b386ccf4e7feeacfb4d9f2b25da3",
+    "matter/tools/cardboard_shipping_allocation_preflight.cpp": "f2c5483f59fd9aa335669634312f2c129bbbfcf4b22d43f9bb09122444626ba6"
+  },
+  "analysis_program": {
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-overlay-002/hma_parent_pair_multiplicity.cpp",
+    "sha256": "2bb355bd1f51afedec33182d2dee9f0e3980546eb024393a5722c1120302d82d",
+    "binary_sha256": "5872878515dd88a92000e6d51eb46ae152198f5c753992476eb542b2caf525e7",
+    "stdout_sha256": "ecc66dc740c5cee73378638c1dd49c43ed47a95150b11f6490f2881b953c6558"
+  },
+  "command": "xcrun --sdk macosx clang++ -std=c++20 -O2 -I <source091>/matter/tools -I <source091>/matter/include -I <source091>/include hma_parent_pair_multiplicity.cpp -o hma_parent_pair_multiplicity && ./hma_parent_pair_multiplicity",
+  "geometry_inputs": {
+    "inside_dimensions_m": [
+      0.3,
+      0.2,
+      0.2
+    ],
+    "manufacturer_joint_width_m": 0.025,
+    "slot_kerf_m": 0.001,
+    "subdivisions_per_band": 16,
+    "board_recipe_id": "literature2009",
+    "nx_per_pitch": 8,
+    "thickness_slices": 1,
+    "engineering_offsets_m": [
+      0,
+      0,
+      0
+    ],
+    "starch_density_kg_m3_by_region": {
+      "liner": 766,
+      "medium": 679,
+      "glue": 1500
+    },
+    "hma_footprint_width_m": 0.01,
+    "hma_activation_gap_placeholder_m": 0.0001,
+    "note": "Matches cardboard_shipping_allocation_preflight.cpp construction. Density values validate starch topology only and do not alter HMA face enumeration."
+  },
+  "topology": {
+    "nodes": 528444,
+    "tets": 1477728,
+    "starch_faces": 97984,
+    "hma_patches": 162851,
+    "hma_groups": 9,
+    "total_mortar_records": 260835,
+    "unique_parent_pairs": 183033,
+    "max_multiplicity": 4
+  },
+  "canonical_parent_primitive_semantics": "Each triangle side is keyed as 4*tetIndex + oppositeCorner(faceNodes), then the two side IDs are sorted. This matches the full-contact checker and canonical primitive-pair source grouping.",
+  "multiplicity_histogram_combined_starch_plus_hma": {
+    "1": 106021,
+    "2": 76227,
+    "3": 780,
+    "4": 5
+  },
+  "max_pair_records": [
+    {
+      "max_record_source": "hma",
+      "source_index": "73358"
+    },
+    {
+      "max_record_source": "hma",
+      "source_index": "73359"
+    },
+    {
+      "max_record_source": "hma",
+      "source_index": "73360"
+    },
+    {
+      "max_record_source": "hma",
+      "source_index": "73361"
+    }
+  ],
+  "verdict": "Under this exact shipping-source geometry and current builder, the maximum combined starch+HMA mortar record multiplicity is four; five same-parent patches are not needed by this geometry. Other resolutions/configurations remain unverified."
+}

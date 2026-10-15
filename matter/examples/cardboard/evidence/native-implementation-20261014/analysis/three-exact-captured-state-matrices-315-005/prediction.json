@@ -1,0 +1,49 @@
+{
+  "schema": "numi.cardboard.exact-center-matrix-prediction.v1",
+  "question": "Do all nine native material actions at the eight selected inputs agree with independent70/90-digit exact two-word-center matrices?",
+  "scope": "Eight recorded points comprise three unique parameter/F/history states; prove identity before deduplicating computation, retain each point result.",
+  "precision": [
+    70,
+    90
+  ],
+  "gate": "nonzero column norm1e-3 native,1e-6 FP64; absolute near-zero floors remain inconclusive",
+  "stopping": "All three unique states, both precisions, all nine columns, both native policies; preserve every failure.",
+  "inputs": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-tangent-state-sensitivity-1634-001/replay.py",
+      "bytes": 34257,
+      "sha256": "3214549746cb872fbf089f59e96ce961b239bae3a724f5da7bbeed9f8b0497f0"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/retained-paper-allpoint-reference-296-001/reference.npz",
+      "bytes": 171469,
+      "sha256": "b1c53a73565da713531a4ca85297ed12441d4088b6b0b98dd3f8fb603ee8411d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/finer-controlled-material-sweep-315/receipt.json",
+      "bytes": 306,
+      "sha256": "51548f1e3802d23c7206e29c2c45cad655acb7dc5ee081f4bbf9d89a5165ef7d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/finer-controlled-material-sweep-315/prediction.json",
+      "bytes": 101200,
+      "sha256": "c9a4fc1e52776d4e1ec4039d8da6f2078214ce6e678c1340abb96cd29f72ebb3"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/finer-controlled-material-sweep-315/inputs/external/source-build.json",
+      "bytes": 115136,
+      "sha256": "af05899b3df433c799b23f25622210a51cc5bb66287902a93d8c6363ecc67c4d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/finer-controlled-material-sweep-315/output/paper-derivative-sweep-default.jsonl",
+      "bytes": 3125699,
+      "sha256": "0d1986d76ebde75d7749b4ae3965eddd722fa9e0ca172b342773edf7b5c479fe"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/finer-controlled-material-sweep-315/output/paper-derivative-sweep-accurate.jsonl",
+      "bytes": 3125700,
+      "sha256": "56de51013ea87338b8410a93d7ca078504dfb9d4d2db9553e312bbca96331c58"
+    }
+  ],
+  "physical_steps": 0
+}

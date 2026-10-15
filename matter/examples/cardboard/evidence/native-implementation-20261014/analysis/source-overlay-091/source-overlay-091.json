@@ -1,0 +1,26 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-rationalized-paper-and-native-checkers-091",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-mortar-union-090",
+  "packages": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fb-value-rationalization-001",
+      "manifest_sha256": "6999593e3e0b177d59ab0b09156f363b4740202486546651773373daa5086a0c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-checker-repair-090-002",
+      "manifest_sha256": "14e442e9b4475f46c972c696fd539250764d7f976e52e0b2f82b6301b50b8b19"
+    }
+  ],
+  "changed": {
+    "matter/src/constitutive_impl.cpp": {
+      "before": "b2ddeeef55abee4002caaeca4303fddf3fe410845fe624ab049475ad8e072dbc",
+      "after": "f907a680f2ddfd0d1082ad97dc117869f678ea8ff0deb638dea4634f27704260"
+    },
+    "matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "before": "46ee2b3f3833f1579c2c83f9392e3dfd1f431a8664557d8cf1cf3808e0c61942",
+      "after": "e8a9d5587b47280bc0250280f7fc28b18f2f339bd001137a4da114e5edf1fdf1"
+    }
+  },
+  "scope": "Source090 plus opt-in exact-equation FB residual value rationalization for positive-epsilon bilinear15; authored derivatives, criteria, physical parameters and default policy unchanged. Host union checker empty/vector buffer extent and independent diagnostic arm ownership repaired after297SIGSEGV/298setupfailure. No native qualification until separate run receipts."
+}

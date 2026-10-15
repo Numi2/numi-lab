@@ -1,0 +1,63 @@
+{
+  "schema": "numi.cardboard.exact-dyadic-vs-double-overlap.v1",
+  "input": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-overlay-006/candidates.log",
+  "input_sha256": "fa474dd0d12cb3e47c36a0da852576a0509ceb28cc9ebd1ab040c8848df6b2ce",
+  "method": "Exact rational Sutherland-Hodgman uses Fraction representations of the exact IEEE-754 binary32 input coordinates. Comparison uses strict double clipping on the same promoted coordinates, with no epsilon. Both are compared against the existing threshold value rounded to binary32; the threshold is not relaxed.",
+  "threshold_fp32": 1.000000013351432e-10,
+  "threshold_exact_rational": "14411519/144115188075855872",
+  "candidate_side_count": 635,
+  "candidate_unique_stable_pairs": 497,
+  "candidate_exact_zero_area_sides": 635,
+  "candidate_exact_positive_area_sides": 0,
+  "candidate_exact_above_floor_sides": 0,
+  "candidate_double_above_floor_sides": 0,
+  "candidate_double_exact_floor_class_mismatches": 0,
+  "controls": [
+    {
+      "name": "exact_shared_edge_disjoint",
+      "expected_floor_class": "below_floor",
+      "exact_area": "0",
+      "strict_double_area": 0.0,
+      "exact_floor_class": "below_floor",
+      "double_floor_class": "below_floor",
+      "pass": true
+    },
+    {
+      "name": "same_edge_same_side_overlap",
+      "expected_floor_class": "above_floor",
+      "exact_area": "1/4",
+      "strict_double_area": 0.25,
+      "exact_floor_class": "above_floor",
+      "double_floor_class": "above_floor",
+      "pass": true
+    },
+    {
+      "name": "positive_overlap_no_shared_edge",
+      "expected_floor_class": "above_floor",
+      "exact_area": "3355/33561142",
+      "strict_double_area": 9.996680089132057e-05,
+      "exact_floor_class": "above_floor",
+      "double_floor_class": "above_floor",
+      "pass": true
+    },
+    {
+      "name": "one_ulp_inward_positive_above_floor",
+      "expected_floor_class": "above_floor",
+      "exact_area": "1/33554434",
+      "strict_double_area": 2.9802320611338685e-08,
+      "exact_floor_class": "above_floor",
+      "double_floor_class": "above_floor",
+      "pass": true
+    },
+    {
+      "name": "one_ulp_outward_gap",
+      "expected_floor_class": "below_floor",
+      "exact_area": "0",
+      "strict_double_area": 0.0,
+      "exact_floor_class": "below_floor",
+      "double_floor_class": "below_floor",
+      "pass": true
+    }
+  ],
+  "controls_all_pass": true
+}

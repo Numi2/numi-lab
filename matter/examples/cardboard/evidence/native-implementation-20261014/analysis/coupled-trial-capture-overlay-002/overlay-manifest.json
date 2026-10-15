@@ -1,0 +1,28 @@
+{
+  "schema": "numi.matter.coupled_armijo_trial_capture_overlay_manifest.v2",
+  "base_snapshot": "source-private-trial-and-material-sweep-092",
+  "base_runtime_sha256": "4b8dc05747e3224e8bc82692c795a56f3b3cfd7ad5ea067fd151c056fdcb31e4",
+  "overlay_runtime_sha256": "2fbdf2c09e5e27fadf15f6503e56d3dc042215eabf1029b4ebd3aa08e143b2e3",
+  "runtime_patch_sha256": "c73d07e3e28cea6d011f1b11a255dc3ce112c00fdd42713acc5b249b1f7d2cf7",
+  "readme_sha256": "90073abacca039bb7368dd0313eadad86d72e91f4581d13b204ea1592174bb1e",
+  "checker_sha256": "4af3645dd1772e77485524dc1f6c7f42a696d0df9149c007e5c028fa8de8528b",
+  "static_check_sha256": "3233a8c1174b3ccb1ae149bd32ce3b2622a33a5904258a706bba7c0dd9a2de4f",
+  "syntax_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "derived_array_bounds": {
+    "pre": 71,
+    "post": 109,
+    "both": 136
+  },
+  "array_cap": 192,
+  "aggregate_readback_cap_bytes": 33554432,
+  "fixes": [
+    "capture only selected line-search trial residual/measurement phases",
+    "include projected private rigid states/candidate in pre and post contexts"
+  ],
+  "production_changes": false,
+  "shader_changes": false,
+  "native_gpu_run": false,
+  "qualification": false,
+  "syntax": "PASS",
+  "static_checks": "PASS"
+}

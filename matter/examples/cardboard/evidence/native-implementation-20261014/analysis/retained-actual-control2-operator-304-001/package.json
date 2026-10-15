@@ -1,0 +1,26 @@
+{
+  "schema": "numi.cardboard.lossless-actual-operator-package.v1",
+  "source_run": "/Users/home/cardboard-implementation-20261014/solver/rationalized-paper-control2-newton63-capture-304",
+  "receipt": {
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": true,
+    "changed_inputs": [],
+    "exit_code": 2,
+    "timed_out": false,
+    "termination_errors": [],
+    "wall_seconds": 671.0984800420119,
+    "finished_at_utc": "2026-10-15T11:01:54.178653+00:00"
+  },
+  "compressed_name": "operator-capture.jsonl.gz",
+  "compressed_bytes": 6949784,
+  "compressed_sha256": "fc0c5342965e408f7b6ed9a85423981bba4c48ba5c49ed1fe3f3e755a4b6b290",
+  "raw_bytes": 38818506,
+  "raw_sha256": "609ebcc9751f7ba5a5d42154f1969d065bd779ea44e901c80bb3c925152089ab",
+  "records": 5606,
+  "root": 2,
+  "newton_iteration": 63,
+  "complete_cycle": false,
+  "accepted_checkpoint": false,
+  "physical_validation": false
+}

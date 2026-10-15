@@ -1,0 +1,5 @@
+{
+  "error": "AssertionError: allrecords minusheader includes endrecord, so len(rows) is3457 ratherthan3456",
+  "no_comparison_report_written": true,
+  "corrected_version": "retained-paper-allpoint-comparison-296-002"
+}

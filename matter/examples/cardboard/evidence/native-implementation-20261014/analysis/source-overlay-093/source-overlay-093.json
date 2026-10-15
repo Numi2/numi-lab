@@ -1,0 +1,18 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-exclusive-material-sweep-093",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-trial-and-material-sweep-092",
+  "packages": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-material-derivative-sweep-overlay-092-002",
+      "manifest_sha256": "f4bfb87c113e2e99d98f401e66ab99135218d567dae777d5ada03dc9503051de"
+    }
+  ],
+  "changed": {
+    "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": {
+      "before": "d1c3718ee1b14cb288157ed9fb2b544793d1aba679055e42950616b5ebc9c692",
+      "after": "d6926e42468c5e7635cb229f040ada441a2cb62cc925bf23c168ab8fc7db8075"
+    }
+  },
+  "scope": "Source092 plus exclusive-create bounded standalone derivative-sweep writer. No production operator, shader, material, acceptance or history change. Four-patch CCD proposal remains excluded pending conservatism review."
+}

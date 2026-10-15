@@ -1,0 +1,16 @@
+{
+  "base_constitutive_path": "matter/src/constitutive_impl.cpp",
+  "base_constitutive_sha256": "b2ddeeef55abee4002caaeca4303fddf3fe410845fe624ab049475ad8e072dbc",
+  "base_snapshot": "source-direct-projection-diagnostic-089",
+  "cpu_validation": "cpu-validation.json",
+  "cpu_validation_status": "pass_cpu_arithmetic_checks",
+  "native_status": "not_run_for_this_patch",
+  "overlay_id": "bilinear15-fb-value-rationalization-001",
+  "patch_path": "constitutive_impl.patch",
+  "patch_sha256": "310aa54ede347e5f716f6e4023c294313169fcdaac1d8e25a9a878660c048980",
+  "physical_validation": false,
+  "replacement_path": "matter/src/constitutive_impl.cpp",
+  "replacement_sha256": "f907a680f2ddfd0d1082ad97dc117869f678ea8ff0deb638dea4634f27704260",
+  "schema": "numi.cardboard.external-source-overlay.v1",
+  "scope": "Opt-in only for the recognized 15-state generic bilinear Hill material with generic compensated implicit projection and positive fb_epsilon. Rewrites FB residual value only; authored residual derivatives and tolerances unchanged."
+}

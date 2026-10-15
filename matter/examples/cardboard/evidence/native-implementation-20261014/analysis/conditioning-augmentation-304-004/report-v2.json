@@ -1,0 +1,1460 @@
+{
+  "schema": "numi.cardboard.same-newton-extra-coarse-mode-304.v2",
+  "source_run": "/Users/home/cardboard-implementation-20261014/solver/rationalized-paper-control2-newton63-capture-304",
+  "prediction_sha256": "6fd0e39606d2b05eb172a5ba76c2d589103f196604de1eb00999c74204ec00a1",
+  "receipt_sha256": "abd525c6de4a9932da3869a080fa00ef3a3307d76f0b70a834f9bc8a41910a3a",
+  "operator_report_sha256": "9d55e082c17fa246a23a98e96ca17832fff8814d017f0bf69eaf1d2196408f6d",
+  "operator_capture_sha256": "609ebcc9751f7ba5a5d42154f1969d065bd779ea44e901c80bb3c925152089ab",
+  "regional_manifest_sha256": "75fd9d878fdd22c01929fbb231046480d0daec9cefd77318d4703aff09ce8b00",
+  "operator_shape": [
+    2538,
+    2538
+  ],
+  "rhs_norm_Ns": 0.00027888347802445374,
+  "graph_layout_header": "patches 27 patchNodes 2089 totalDofs 6267 matrixFloatCount 4721337 pivotCount 6267 metadataBytes 124476 deviceBytes 75783068",
+  "baseline_sameA_restart16": {
+    "zero_R16": 0.9529048737118563,
+    "zero_R32": 0.952248820319242,
+    "zero_R64": 0.9522241466101745,
+    "native_capture_x_R32": 0.9522910729856378,
+    "native_capture_x_R64_after32_more": 0.9522652014386638,
+    "source": "conditioning-candidates-304-003; reconstructed patch factors, approximate CPU replay"
+  },
+  "base26_first_restart_correction": {
+    "RAP": {
+      "dimension": 26,
+      "rank_fp64": 26,
+      "rank_float32_svd_rtol1e-7": 26,
+      "singular_min_fp64": 3.5298583257668766e-05,
+      "singular_max_fp64": 0.07228456555197442,
+      "condition_2_fp64": 2047.8035909917232,
+      "singular_min_float32stored": 3.529863392262614e-05,
+      "condition_2_float32stored": 2047.8005808152948,
+      "symmetric_part_min_eigenvalue": 3.529858325484038e-05,
+      "symmetric_part_max_eigenvalue": 0.07228456553790373,
+      "pivot_abs_min_float32LU": 0.0003596715978346765,
+      "pivot_abs_max_float32LU": 0.06695709377527237
+    },
+    "R16_correction_residual": {
+      "norm_Ns": 0.00026574941225306737,
+      "relative_rhs": 0.9529048265446736
+    },
+    "q_extra": {
+      "projected_norm_before_normalize": 33.21801868182785,
+      "source_vector_norm": 33.84009737752491,
+      "normalized_q_norm": 0.9999999999999999,
+      "P_transpose_q_l2": 3.2281169743175575e-16,
+      "P_condition_2": 1.0000000411588428
+    }
+  },
+  "online_same_newton_restart_mode": {
+    "description": "First 16-step correction from this same Newton/operator, Euclidean-residualized against P; append q and rebuild AP/RAP before continuing the same Newton solve. This is forward-online as a restart augmentation, though this replay uses reconstructed graph factors.",
+    "RAP": {
+      "dimension": 27,
+      "rank_fp64": 27,
+      "rank_float32_svd_rtol1e-7": 26,
+      "singular_min_fp64": 6.12423975468956e-09,
+      "singular_max_fp64": 0.07228457796954134,
+      "condition_2_fp64": 11803028.761927605,
+      "singular_min_float32stored": 6.118637891791053e-09,
+      "condition_2_float32stored": 11813834.507720431,
+      "symmetric_part_min_eigenvalue": -6.1242483260152386e-09,
+      "symmetric_part_max_eigenvalue": 0.07228457795546742,
+      "pivot_abs_min_float32LU": 6.343430225541624e-09,
+      "pivot_abs_max_float32LU": 0.06695709377527237
+    },
+    "after_coarse_augmentation_at_restart16": {
+      "norm_Ns": 0.0016647235602921294,
+      "relative_rhs": 5.969244116161514
+    },
+    "R32_after_augmented_restart": {
+      "norm_Ns": 6.724249587406668e-05,
+      "relative_rhs": 0.241113228902612
+    },
+    "R64_after_augmented_restart": {
+      "norm_Ns": 1.56250449175786e-07,
+      "relative_rhs": 0.0005602714448436607
+    },
+    "step_histories_restart2": [
+      {
+        "step": 1,
+        "residual_Ns": 0.0014364640772973104,
+        "relative_residual": 5.150767938900112
+      },
+      {
+        "step": 2,
+        "residual_Ns": 0.0011623639457241386,
+        "relative_residual": 4.167919713129142
+      },
+      {
+        "step": 3,
+        "residual_Ns": 0.0009222754345000791,
+        "relative_residual": 3.3070278706837195
+      },
+      {
+        "step": 4,
+        "residual_Ns": 0.0007618898612113278,
+        "relative_residual": 2.731928999912006
+      },
+      {
+        "step": 5,
+        "residual_Ns": 0.0007609229478929547,
+        "relative_residual": 2.728461912778618
+      },
+      {
+        "step": 6,
+        "residual_Ns": 0.0006695002703500451,
+        "relative_residual": 2.400645155075628
+      },
+      {
+        "step": 7,
+        "residual_Ns": 0.0006506900050655895,
+        "relative_residual": 2.333196680115034
+      },
+      {
+        "step": 8,
+        "residual_Ns": 0.0005198808467419867,
+        "relative_residual": 1.8641507572435008
+      },
+      {
+        "step": 9,
+        "residual_Ns": 0.00032577866212511573,
+        "relative_residual": 1.1681533249400669
+      },
+      {
+        "step": 10,
+        "residual_Ns": 0.00022146096586053926,
+        "relative_residual": 0.7940985512276227
+      },
+      {
+        "step": 11,
+        "residual_Ns": 0.0001603085895755845,
+        "relative_residual": 0.5748228281975454
+      },
+      {
+        "step": 12,
+        "residual_Ns": 0.00014455963497324753,
+        "relative_residual": 0.5183513774185358
+      },
+      {
+        "step": 13,
+        "residual_Ns": 9.645876380442217e-05,
+        "relative_residual": 0.34587478787812675
+      },
+      {
+        "step": 14,
+        "residual_Ns": 8.036016871026604e-05,
+        "relative_residual": 0.28814962176862874
+      },
+      {
+        "step": 15,
+        "residual_Ns": 7.639360718101953e-05,
+        "relative_residual": 0.27392661523792744
+      },
+      {
+        "step": 16,
+        "residual_Ns": 6.724249587406668e-05,
+        "relative_residual": 0.241113228902612
+      }
+    ],
+    "step_histories_restart3plus": [
+      {
+        "step": 1,
+        "residual_Ns": 6.665693105581803e-05,
+        "relative_residual": 0.23901355335927524
+      },
+      {
+        "step": 2,
+        "residual_Ns": 6.54645059916485e-05,
+        "relative_residual": 0.23473784268391937
+      },
+      {
+        "step": 3,
+        "residual_Ns": 6.50868667828405e-05,
+        "relative_residual": 0.23338373159966613
+      },
+      {
+        "step": 4,
+        "residual_Ns": 6.446466072857787e-05,
+        "relative_residual": 0.23115267058927502
+      },
+      {
+        "step": 5,
+        "residual_Ns": 6.436902709319097e-05,
+        "relative_residual": 0.23080975448659172
+      },
+      {
+        "step": 6,
+        "residual_Ns": 6.3018526950628e-05,
+        "relative_residual": 0.22596722974425276
+      },
+      {
+        "step": 7,
+        "residual_Ns": 5.871278092077907e-05,
+        "relative_residual": 0.2105280002124431
+      },
+      {
+        "step": 8,
+        "residual_Ns": 5.6047092980541276e-05,
+        "relative_residual": 0.20096957115411054
+      },
+      {
+        "step": 9,
+        "residual_Ns": 5.0642491390143684e-05,
+        "relative_residual": 0.18159014563674913
+      },
+      {
+        "step": 10,
+        "residual_Ns": 4.214215058492191e-05,
+        "relative_residual": 0.15111024462061068
+      },
+      {
+        "step": 11,
+        "residual_Ns": 3.74924242098836e-05,
+        "relative_residual": 0.13443759549856196
+      },
+      {
+        "step": 12,
+        "residual_Ns": 3.4550595884555504e-05,
+        "relative_residual": 0.1238890024224596
+      },
+      {
+        "step": 13,
+        "residual_Ns": 2.796777601054231e-05,
+        "relative_residual": 0.10028480786549131
+      },
+      {
+        "step": 14,
+        "residual_Ns": 2.584941698191229e-05,
+        "relative_residual": 0.09268895083001545
+      },
+      {
+        "step": 15,
+        "residual_Ns": 1.7024514721145973e-05,
+        "relative_residual": 0.061045261059363254
+      },
+      {
+        "step": 16,
+        "residual_Ns": 1.1582527319781294e-05,
+        "relative_residual": 0.04153178023248005
+      },
+      {
+        "step": 17,
+        "residual_Ns": 9.547736071760455e-06,
+        "relative_residual": 0.034235574439168706
+      },
+      {
+        "step": 18,
+        "residual_Ns": 4.9705753866395325e-06,
+        "relative_residual": 0.017823126066305334
+      },
+      {
+        "step": 19,
+        "residual_Ns": 4.068910461995129e-06,
+        "relative_residual": 0.014590001856038058
+      },
+      {
+        "step": 20,
+        "residual_Ns": 3.484731895866377e-06,
+        "relative_residual": 0.012495297034271855
+      },
+      {
+        "step": 21,
+        "residual_Ns": 3.079997985914311e-06,
+        "relative_residual": 0.011044031750221658
+      },
+      {
+        "step": 22,
+        "residual_Ns": 1.991770166704075e-06,
+        "relative_residual": 0.007141943943088044
+      },
+      {
+        "step": 23,
+        "residual_Ns": 1.4087379593006578e-06,
+        "relative_residual": 0.005051349650685055
+      },
+      {
+        "step": 24,
+        "residual_Ns": 1.18340396510268e-06,
+        "relative_residual": 0.00424336347741229
+      },
+      {
+        "step": 25,
+        "residual_Ns": 9.161260989998471e-07,
+        "relative_residual": 0.003284978032723463
+      },
+      {
+        "step": 26,
+        "residual_Ns": 7.823617089460301e-07,
+        "relative_residual": 0.0028053354558258527
+      },
+      {
+        "step": 27,
+        "residual_Ns": 6.37635409944675e-07,
+        "relative_residual": 0.002286386466711966
+      },
+      {
+        "step": 28,
+        "residual_Ns": 4.366928650769107e-07,
+        "relative_residual": 0.0015658613703842992
+      },
+      {
+        "step": 29,
+        "residual_Ns": 3.233909886111349e-07,
+        "relative_residual": 0.0011595917796994003
+      },
+      {
+        "step": 30,
+        "residual_Ns": 2.435895907150662e-07,
+        "relative_residual": 0.0008734457574919773
+      },
+      {
+        "step": 31,
+        "residual_Ns": 1.727568219608016e-07,
+        "relative_residual": 0.000619458790404405
+      },
+      {
+        "step": 32,
+        "residual_Ns": 1.56250449175786e-07,
+        "relative_residual": 0.0005602714448436607
+      }
+    ],
+    "mode_count": 27,
+    "q_cosine_with_direct_q": 0.9999956059406991,
+    "q_cosine_with_native_captured_q": 0.9999999507089521
+  },
+  "retrospective_native_captured_extra_mode": {
+    "mode": "a_posteriori_from_same_failed_newton_solve_not_online_at_solve_start",
+    "RAP": {
+      "dimension": 27,
+      "rank_fp64": 27,
+      "rank_float32_svd_rtol1e-7": 26,
+      "singular_min_fp64": 6.162554904143128e-09,
+      "singular_max_fp64": 0.07228457894157904,
+      "condition_2_fp64": 11729644.614278669,
+      "singular_min_float32stored": 6.169662557521293e-09,
+      "condition_2_float32stored": 11716131.273695499,
+      "symmetric_part_min_eigenvalue": -6.1625635576370585e-09,
+      "symmetric_part_max_eigenvalue": 0.07228457892750514,
+      "pivot_abs_min_float32LU": 6.401417618207006e-09,
+      "pivot_abs_max_float32LU": 0.06695709377527237,
+      "P_aug_gram_rank": 27,
+      "P_aug_gram_condition_2": 1.000000082317684,
+      "extra_mode": {
+        "projected_norm_before_normalize": 30.644899156637926,
+        "source_vector_norm": 31.22038670558837,
+        "normalized_q_norm": 1.0,
+        "P_transpose_q_l2": 3.2920557056832684e-16,
+        "P_condition_2": 1.0000000411588428
+      }
+    },
+    "coarse_only_from_zero": {
+      "norm_Ns": 0.0017314027728395807,
+      "relative_rhs": 6.20833756486558
+    },
+    "native_x_before": {
+      "norm_Ns": 0.0002655782465258736,
+      "relative_rhs": 0.9522910729856378
+    },
+    "native_extra_q_cosine_direct_extra_q": 0.9999960688212486,
+    "native_extra_q_cosine_native_x": 30.644899156637926,
+    "from_zero_restart16": {
+      "coarse_only": {
+        "norm_Ns": 0.0017314027728395807,
+        "relative_rhs": 6.20833756486558
+      },
+      "R16": {
+        "norm_Ns": 6.425264886178979e-05,
+        "relative_rhs": 0.23039245392714094
+      },
+      "R32": {
+        "norm_Ns": 1.9318602443359573e-05,
+        "relative_rhs": 0.0692712332053806
+      },
+      "R64": {
+        "norm_Ns": 1.230244434628979e-07,
+        "relative_rhs": 0.0004411320610829106
+      },
+      "history_16": [
+        {
+          "step": 1,
+          "residual_Ns": 0.0002785301257393638,
+          "relative_residual": 0.9987329751923885
+        },
+        {
+          "step": 2,
+          "residual_Ns": 0.00026972174804962886,
+          "relative_residual": 0.9671485380212393
+        },
+        {
+          "step": 3,
+          "residual_Ns": 0.00026627468330066284,
+          "relative_residual": 0.9547883050903241
+        },
+        {
+          "step": 4,
+          "residual_Ns": 0.0002630536454053888,
+          "relative_residual": 0.9432385427376343
+        },
+        {
+          "step": 5,
+          "residual_Ns": 0.0002622055678229565,
+          "relative_residual": 0.9401975681039275
+        },
+        {
+          "step": 6,
+          "residual_Ns": 0.00025520083898946164,
+          "relative_residual": 0.9150805232251317
+        },
+        {
+          "step": 7,
+          "residual_Ns": 0.00025368752580039666,
+          "relative_residual": 0.9096541953559264
+        },
+        {
+          "step": 8,
+          "residual_Ns": 0.00023942611380541674,
+          "relative_residual": 0.8585166661770577
+        },
+        {
+          "step": 9,
+          "residual_Ns": 0.00020842295541246913,
+          "relative_residual": 0.7473478059327476
+        },
+        {
+          "step": 10,
+          "residual_Ns": 0.00017391489231014057,
+          "relative_residual": 0.6236113144533106
+        },
+        {
+          "step": 11,
+          "residual_Ns": 0.0001383732859015088,
+          "relative_residual": 0.49616881889781805
+        },
+        {
+          "step": 12,
+          "residual_Ns": 0.0001262676747047733,
+          "relative_residual": 0.45276140271637605
+        },
+        {
+          "step": 13,
+          "residual_Ns": 9.198976192673872e-05,
+          "relative_residual": 0.3298501674547843
+        },
+        {
+          "step": 14,
+          "residual_Ns": 7.705120080267565e-05,
+          "relative_residual": 0.2762845664020278
+        },
+        {
+          "step": 15,
+          "residual_Ns": 7.2831214819118e-05,
+          "relative_residual": 0.26115284897849644
+        },
+        {
+          "step": 16,
+          "residual_Ns": 6.425264886178979e-05,
+          "relative_residual": 0.23039245392714094
+        }
+      ],
+      "history_32": [
+        {
+          "step": 1,
+          "residual_Ns": 6.42167580059439e-05,
+          "relative_residual": 0.23026375911846986
+        },
+        {
+          "step": 2,
+          "residual_Ns": 6.396732166744042e-05,
+          "relative_residual": 0.22936934851992732
+        },
+        {
+          "step": 3,
+          "residual_Ns": 6.375224978442636e-05,
+          "relative_residual": 0.22859815947517795
+        },
+        {
+          "step": 4,
+          "residual_Ns": 6.350024377944883e-05,
+          "relative_residual": 0.2276945347543351
+        },
+        {
+          "step": 5,
+          "residual_Ns": 6.349341393795219e-05,
+          "relative_residual": 0.22767004480769135
+        },
+        {
+          "step": 6,
+          "residual_Ns": 6.314209426558469e-05,
+          "relative_residual": 0.22641030839427537
+        },
+        {
+          "step": 7,
+          "residual_Ns": 6.301063104113864e-05,
+          "relative_residual": 0.22593891716888867
+        },
+        {
+          "step": 8,
+          "residual_Ns": 6.211691189101658e-05,
+          "relative_residual": 0.22273428433637757
+        },
+        {
+          "step": 9,
+          "residual_Ns": 5.797218136164429e-05,
+          "relative_residual": 0.20787241242222687
+        },
+        {
+          "step": 10,
+          "residual_Ns": 5.0140237016761535e-05,
+          "relative_residual": 0.17978919859987194
+        },
+        {
+          "step": 11,
+          "residual_Ns": 4.196042029748071e-05,
+          "relative_residual": 0.15045860943329684
+        },
+        {
+          "step": 12,
+          "residual_Ns": 3.882973547529412e-05,
+          "relative_residual": 0.13923282852879998
+        },
+        {
+          "step": 13,
+          "residual_Ns": 2.812564660221565e-05,
+          "relative_residual": 0.10085088869893351
+        },
+        {
+          "step": 14,
+          "residual_Ns": 2.2406271465214208e-05,
+          "relative_residual": 0.08034277119582368
+        },
+        {
+          "step": 15,
+          "residual_Ns": 2.0337161496479626e-05,
+          "relative_residual": 0.07292350784113634
+        },
+        {
+          "step": 16,
+          "residual_Ns": 1.9318602443359573e-05,
+          "relative_residual": 0.0692712332053806
+        }
+      ],
+      "history_64": [
+        {
+          "step": 1,
+          "residual_Ns": 1.930498594453615e-05,
+          "relative_residual": 0.06922240815873433
+        },
+        {
+          "step": 2,
+          "residual_Ns": 1.9229034495020764e-05,
+          "relative_residual": 0.06895006700014934
+        },
+        {
+          "step": 3,
+          "residual_Ns": 1.89241359735038e-05,
+          "relative_residual": 0.06785678415787846
+        },
+        {
+          "step": 4,
+          "residual_Ns": 1.8018060091779154e-05,
+          "relative_residual": 0.0646078434599817
+        },
+        {
+          "step": 5,
+          "residual_Ns": 1.7252184308946293e-05,
+          "relative_residual": 0.061861622033534534
+        },
+        {
+          "step": 6,
+          "residual_Ns": 1.5896781704965666e-05,
+          "relative_residual": 0.05700151840322274
+        },
+        {
+          "step": 7,
+          "residual_Ns": 1.5239953535485184e-05,
+          "relative_residual": 0.05464631194160909
+        },
+        {
+          "step": 8,
+          "residual_Ns": 1.495259521886176e-05,
+          "relative_residual": 0.05361592348454092
+        },
+        {
+          "step": 9,
+          "residual_Ns": 1.4927499707860643e-05,
+          "relative_residual": 0.053525937834695725
+        },
+        {
+          "step": 10,
+          "residual_Ns": 1.4894120343277895e-05,
+          "relative_residual": 0.05340624854790398
+        },
+        {
+          "step": 11,
+          "residual_Ns": 1.4749310659254129e-05,
+          "relative_residual": 0.05288700056286893
+        },
+        {
+          "step": 12,
+          "residual_Ns": 1.4231582755906583e-05,
+          "relative_residual": 0.05103056967275306
+        },
+        {
+          "step": 13,
+          "residual_Ns": 1.4113483715591774e-05,
+          "relative_residual": 0.05060709876242379
+        },
+        {
+          "step": 14,
+          "residual_Ns": 1.3325625414758388e-05,
+          "relative_residual": 0.047782054028994644
+        },
+        {
+          "step": 15,
+          "residual_Ns": 8.407665548714006e-06,
+          "relative_residual": 0.030147592852297924
+        },
+        {
+          "step": 16,
+          "residual_Ns": 6.742981945900986e-06,
+          "relative_residual": 0.024178492012745665
+        },
+        {
+          "step": 17,
+          "residual_Ns": 5.860402394083505e-06,
+          "relative_residual": 0.021013802737965135
+        },
+        {
+          "step": 18,
+          "residual_Ns": 5.160194916011882e-06,
+          "relative_residual": 0.018503049920940148
+        },
+        {
+          "step": 19,
+          "residual_Ns": 4.71660626781849e-06,
+          "relative_residual": 0.01691246215526944
+        },
+        {
+          "step": 20,
+          "residual_Ns": 3.317629930542735e-06,
+          "relative_residual": 0.011896115015647612
+        },
+        {
+          "step": 21,
+          "residual_Ns": 2.6510244867028216e-06,
+          "relative_residual": 0.009505849917973154
+        },
+        {
+          "step": 22,
+          "residual_Ns": 2.1824949411315735e-06,
+          "relative_residual": 0.007825830904691322
+        },
+        {
+          "step": 23,
+          "residual_Ns": 1.737019041434149e-06,
+          "relative_residual": 0.006228475970461898
+        },
+        {
+          "step": 24,
+          "residual_Ns": 1.1849512062537155e-06,
+          "relative_residual": 0.004248911461688719
+        },
+        {
+          "step": 25,
+          "residual_Ns": 8.672985232854988e-07,
+          "relative_residual": 0.0031098956791174638
+        },
+        {
+          "step": 26,
+          "residual_Ns": 6.536616445617332e-07,
+          "relative_residual": 0.0023438521679094134
+        },
+        {
+          "step": 27,
+          "residual_Ns": 4.901231834116483e-07,
+          "relative_residual": 0.0017574479021976056
+        },
+        {
+          "step": 28,
+          "residual_Ns": 3.7479368705369116e-07,
+          "relative_residual": 0.0013439078202432185
+        },
+        {
+          "step": 29,
+          "residual_Ns": 2.8322721420367636e-07,
+          "relative_residual": 0.0010155754518338363
+        },
+        {
+          "step": 30,
+          "residual_Ns": 2.1579507425892687e-07,
+          "relative_residual": 0.0007737822110781515
+        },
+        {
+          "step": 31,
+          "residual_Ns": 1.708596289615063e-07,
+          "relative_residual": 0.000612655974358311
+        },
+        {
+          "step": 32,
+          "residual_Ns": 1.230244434628979e-07,
+          "relative_residual": 0.0004411320610829106
+        }
+      ]
+    },
+    "seeded_from_native_x": {
+      "coarse_augmented": {
+        "norm_Ns": 0.001731468994079113,
+        "relative_rhs": 6.208575016148107
+      },
+      "after16": {
+        "norm_Ns": 6.599344543203872e-05,
+        "relative_rhs": 0.23663447508443697
+      },
+      "after32": {
+        "norm_Ns": 1.0686356042824386e-05,
+        "relative_rhs": 0.03831835474271932
+      },
+      "history": [
+        {
+          "step": 1,
+          "residual_Ns": 0.0014918590533684426,
+          "relative_residual": 5.3493991968847645
+        },
+        {
+          "step": 2,
+          "residual_Ns": 0.0012262038207312169,
+          "relative_residual": 4.39683207272572
+        },
+        {
+          "step": 3,
+          "residual_Ns": 0.0009095626142495818,
+          "relative_residual": 3.2614431686405867
+        },
+        {
+          "step": 4,
+          "residual_Ns": 0.0007182263979584371,
+          "relative_residual": 2.5753637434751866
+        },
+        {
+          "step": 5,
+          "residual_Ns": 0.0007088812732586101,
+          "relative_residual": 2.5418546780905116
+        },
+        {
+          "step": 6,
+          "residual_Ns": 0.0005926067267454336,
+          "relative_residual": 2.1249259043358286
+        },
+        {
+          "step": 7,
+          "residual_Ns": 0.0005625748622904442,
+          "relative_residual": 2.017239838930563
+        },
+        {
+          "step": 8,
+          "residual_Ns": 0.00045306222516287777,
+          "relative_residual": 1.6245574258190774
+        },
+        {
+          "step": 9,
+          "residual_Ns": 0.0003156867634991081,
+          "relative_residual": 1.131966532170928
+        },
+        {
+          "step": 10,
+          "residual_Ns": 0.00022844296396338118,
+          "relative_residual": 0.8191340899131726
+        },
+        {
+          "step": 11,
+          "residual_Ns": 0.0001658589079032453,
+          "relative_residual": 0.5947247541451777
+        },
+        {
+          "step": 12,
+          "residual_Ns": 0.00014757308371330622,
+          "relative_residual": 0.5291567817451214
+        },
+        {
+          "step": 13,
+          "residual_Ns": 9.65608627031078e-05,
+          "relative_residual": 0.3462408866495882
+        },
+        {
+          "step": 14,
+          "residual_Ns": 7.934768179563881e-05,
+          "relative_residual": 0.2845191201634442
+        },
+        {
+          "step": 15,
+          "residual_Ns": 7.52255647214349e-05,
+          "relative_residual": 0.2697383339246751
+        },
+        {
+          "step": 16,
+          "residual_Ns": 6.599344543203872e-05,
+          "relative_residual": 0.23663447508443697
+        },
+        {
+          "step": 1,
+          "residual_Ns": 6.54411576549064e-05,
+          "relative_residual": 0.23465412192388185
+        },
+        {
+          "step": 2,
+          "residual_Ns": 6.446770825889082e-05,
+          "relative_residual": 0.2311635982008156
+        },
+        {
+          "step": 3,
+          "residual_Ns": 6.405149636032333e-05,
+          "relative_residual": 0.22967117598378134
+        },
+        {
+          "step": 4,
+          "residual_Ns": 6.32038175980654e-05,
+          "relative_residual": 0.22663163141031759
+        },
+        {
+          "step": 5,
+          "residual_Ns": 6.310670794327228e-05,
+          "relative_residual": 0.22628342270508692
+        },
+        {
+          "step": 6,
+          "residual_Ns": 6.167382248028873e-05,
+          "relative_residual": 0.221145486699936
+        },
+        {
+          "step": 7,
+          "residual_Ns": 5.7245276011941985e-05,
+          "relative_residual": 0.20526592832768123
+        },
+        {
+          "step": 8,
+          "residual_Ns": 5.440582844898274e-05,
+          "relative_residual": 0.19508444470924233
+        },
+        {
+          "step": 9,
+          "residual_Ns": 4.967207046005905e-05,
+          "relative_residual": 0.1781104811655554
+        },
+        {
+          "step": 10,
+          "residual_Ns": 4.2133064617824036e-05,
+          "relative_residual": 0.15107766482362078
+        },
+        {
+          "step": 11,
+          "residual_Ns": 3.714343214763832e-05,
+          "relative_residual": 0.13318620525946473
+        },
+        {
+          "step": 12,
+          "residual_Ns": 3.344967258380714e-05,
+          "relative_residual": 0.11994139208517088
+        },
+        {
+          "step": 13,
+          "residual_Ns": 2.6696990682409063e-05,
+          "relative_residual": 0.09572811868069199
+        },
+        {
+          "step": 14,
+          "residual_Ns": 2.4471545159157668e-05,
+          "relative_residual": 0.087748278716647
+        },
+        {
+          "step": 15,
+          "residual_Ns": 1.644965464235664e-05,
+          "relative_residual": 0.05898396978868093
+        },
+        {
+          "step": 16,
+          "residual_Ns": 1.0686356042824386e-05,
+          "relative_residual": 0.03831835474271932
+        }
+      ]
+    }
+  },
+  "retrospective_direct_solution_upper_control": {
+    "direct_solution_residual": {
+      "norm_Ns": 5.9875612759409805e-15,
+      "relative_rhs": 2.14697597661772e-11
+    },
+    "extra_mode": {
+      "projected_norm_before_normalize": 603.1529162586181,
+      "source_vector_norm": 614.4625256631842,
+      "normalized_q_norm": 0.9999999999999999,
+      "P_transpose_q_l2": 3.04745764769955e-16,
+      "P_condition_2": 1.0000000411588428
+    },
+    "mode": "unavailable_online_upper_control_from_spsolve_same_captured_A_b",
+    "candidate": {
+      "mode": "retrospective_unavailable_online_upper_control",
+      "RAP": {
+        "dimension": 27,
+        "rank_fp64": 27,
+        "rank_float32_svd_rtol1e-7": 26,
+        "singular_min_fp64": 6.562747865418514e-09,
+        "singular_max_fp64": 0.07228458079380101,
+        "condition_2_fp64": 11014377.251135085,
+        "singular_min_float32stored": 6.561039922599713e-09,
+        "condition_2_float32stored": 11017244.08680294,
+        "symmetric_part_min_eigenvalue": -6.5627571162826e-09,
+        "symmetric_part_max_eigenvalue": 0.0722845807797267,
+        "pivot_abs_min_float32LU": 6.809797614693025e-09,
+        "pivot_abs_max_float32LU": 0.06695709377527237,
+        "P_aug_gram_rank": 27,
+        "P_aug_gram_condition_2": 1.0000000823176838,
+        "extra_mode": {
+          "projected_norm_before_normalize": 603.1529162586181,
+          "source_vector_norm": 614.4625256631842,
+          "normalized_q_norm": 0.9999999999999999,
+          "P_transpose_q_l2": 3.04745764769955e-16,
+          "P_condition_2": 1.0000000411588428
+        }
+      },
+      "coarse_only_from_zero": {
+        "norm_Ns": 9.984940297671627e-07,
+        "relative_rhs": 0.0035803269409871974
+      },
+      "native_x_before": {
+        "norm_Ns": 0.0002655782465258736,
+        "relative_rhs": 0.9522910729856378
+      },
+      "native_extra_q_cosine_direct_extra_q": 0.9999999999999998,
+      "native_extra_q_cosine_native_x": 30.644778686061517,
+      "from_zero_restart16": {
+        "coarse_only": {
+          "norm_Ns": 9.984940297671627e-07,
+          "relative_rhs": 0.0035803269409871974
+        },
+        "R16": {
+          "norm_Ns": 4.695178550811503e-09,
+          "relative_rhs": 1.683562821315578e-05
+        },
+        "R32": {
+          "norm_Ns": 1.4778258994367576e-09,
+          "relative_rhs": 5.2990801387925005e-06
+        },
+        "R64": {
+          "norm_Ns": 5.643291986051032e-12,
+          "relative_rhs": 2.023530409914137e-08
+        },
+        "history_16": [
+          {
+            "step": 1,
+            "residual_Ns": 2.0274826943773318e-06,
+            "relative_residual": 0.007269999315626554
+          },
+          {
+            "step": 2,
+            "residual_Ns": 7.877003969559705e-07,
+            "relative_residual": 0.0028244785332421215
+          },
+          {
+            "step": 3,
+            "residual_Ns": 4.243385629936447e-07,
+            "relative_residual": 0.0015215622165915357
+          },
+          {
+            "step": 4,
+            "residual_Ns": 3.44944300562729e-07,
+            "relative_residual": 0.0012368760709893425
+          },
+          {
+            "step": 5,
+            "residual_Ns": 2.265417967503814e-07,
+            "relative_residual": 0.0008123170234219368
+          },
+          {
+            "step": 6,
+            "residual_Ns": 8.307186003754303e-08,
+            "relative_residual": 0.000297873006411154
+          },
+          {
+            "step": 7,
+            "residual_Ns": 5.467533823398191e-08,
+            "relative_residual": 0.00019605083320564347
+          },
+          {
+            "step": 8,
+            "residual_Ns": 4.700382208238857e-08,
+            "relative_residual": 0.00016854287107774475
+          },
+          {
+            "step": 9,
+            "residual_Ns": 3.995240114436281e-08,
+            "relative_residual": 0.00014325840106189295
+          },
+          {
+            "step": 10,
+            "residual_Ns": 2.2565660937272412e-08,
+            "relative_residual": 8.091429831957903e-05
+          },
+          {
+            "step": 11,
+            "residual_Ns": 1.7483265630503056e-08,
+            "relative_residual": 6.269021655334508e-05
+          },
+          {
+            "step": 12,
+            "residual_Ns": 1.3035046689521857e-08,
+            "relative_residual": 4.674011806600779e-05
+          },
+          {
+            "step": 13,
+            "residual_Ns": 8.234984448041196e-09,
+            "relative_residual": 2.9528405577755726e-05
+          },
+          {
+            "step": 14,
+            "residual_Ns": 7.1954859362483054e-09,
+            "relative_residual": 2.5801047760948295e-05
+          },
+          {
+            "step": 15,
+            "residual_Ns": 5.695752262066457e-09,
+            "relative_residual": 2.0423412324078334e-05
+          },
+          {
+            "step": 16,
+            "residual_Ns": 4.695178550811503e-09,
+            "relative_residual": 1.683562821315578e-05
+          }
+        ],
+        "history_32": [
+          {
+            "step": 1,
+            "residual_Ns": 4.629766521417779e-09,
+            "relative_residual": 1.6601078537222704e-05
+          },
+          {
+            "step": 2,
+            "residual_Ns": 4.629617378477037e-09,
+            "relative_residual": 1.6600543751362323e-05
+          },
+          {
+            "step": 3,
+            "residual_Ns": 4.6161718803473715e-09,
+            "relative_residual": 1.655233186651023e-05
+          },
+          {
+            "step": 4,
+            "residual_Ns": 4.545733721529929e-09,
+            "relative_residual": 1.6299759862903526e-05
+          },
+          {
+            "step": 5,
+            "residual_Ns": 4.545308558270794e-09,
+            "relative_residual": 1.6298235343551764e-05
+          },
+          {
+            "step": 6,
+            "residual_Ns": 3.967298527573664e-09,
+            "relative_residual": 1.422564920545703e-05
+          },
+          {
+            "step": 7,
+            "residual_Ns": 3.539392223561902e-09,
+            "relative_residual": 1.2691294043785385e-05
+          },
+          {
+            "step": 8,
+            "residual_Ns": 3.0175352041800175e-09,
+            "relative_residual": 1.0820057271070847e-05
+          },
+          {
+            "step": 9,
+            "residual_Ns": 2.944262024624086e-09,
+            "relative_residual": 1.055731965722946e-05
+          },
+          {
+            "step": 10,
+            "residual_Ns": 2.5887492605743274e-09,
+            "relative_residual": 9.282547962010622e-06
+          },
+          {
+            "step": 11,
+            "residual_Ns": 2.133874112300209e-09,
+            "relative_residual": 7.651489888953197e-06
+          },
+          {
+            "step": 12,
+            "residual_Ns": 2.055845744821975e-09,
+            "relative_residual": 7.371701469678707e-06
+          },
+          {
+            "step": 13,
+            "residual_Ns": 2.009258042680736e-09,
+            "relative_residual": 7.204650691083806e-06
+          },
+          {
+            "step": 14,
+            "residual_Ns": 2.007304516637853e-09,
+            "relative_residual": 7.197645880125762e-06
+          },
+          {
+            "step": 15,
+            "residual_Ns": 1.805607747642882e-09,
+            "relative_residual": 6.474416342027111e-06
+          },
+          {
+            "step": 16,
+            "residual_Ns": 1.4778258994367576e-09,
+            "relative_residual": 5.2990801387925005e-06
+          }
+        ],
+        "history_64": [
+          {
+            "step": 1,
+            "residual_Ns": 1.4713208964643696e-09,
+            "relative_residual": 5.2757549743960005e-06
+          },
+          {
+            "step": 2,
+            "residual_Ns": 1.4678170963330812e-09,
+            "relative_residual": 5.263191303876296e-06
+          },
+          {
+            "step": 3,
+            "residual_Ns": 1.4567119259942674e-09,
+            "relative_residual": 5.223371195430001e-06
+          },
+          {
+            "step": 4,
+            "residual_Ns": 1.4482926465766553e-09,
+            "relative_residual": 5.193181958415129e-06
+          },
+          {
+            "step": 5,
+            "residual_Ns": 1.4477908668663923e-09,
+            "relative_residual": 5.191382713390585e-06
+          },
+          {
+            "step": 6,
+            "residual_Ns": 1.3514501955984491e-09,
+            "relative_residual": 4.845931373101808e-06
+          },
+          {
+            "step": 7,
+            "residual_Ns": 1.271422643877279e-09,
+            "relative_residual": 4.558974425031357e-06
+          },
+          {
+            "step": 8,
+            "residual_Ns": 1.2283917796385368e-09,
+            "relative_residual": 4.4046774959211675e-06
+          },
+          {
+            "step": 9,
+            "residual_Ns": 1.1777834098772327e-09,
+            "relative_residual": 4.223209701128152e-06
+          },
+          {
+            "step": 10,
+            "residual_Ns": 1.1244850286743977e-09,
+            "relative_residual": 4.0320962598429655e-06
+          },
+          {
+            "step": 11,
+            "residual_Ns": 1.0418082922897414e-09,
+            "relative_residual": 3.7356400589582112e-06
+          },
+          {
+            "step": 12,
+            "residual_Ns": 9.771904956568747e-10,
+            "relative_residual": 3.5039382848315966e-06
+          },
+          {
+            "step": 13,
+            "residual_Ns": 8.394426960519457e-10,
+            "relative_residual": 3.0100122889974127e-06
+          },
+          {
+            "step": 14,
+            "residual_Ns": 6.519264174991214e-10,
+            "relative_residual": 2.3376301174856893e-06
+          },
+          {
+            "step": 15,
+            "residual_Ns": 5.903403188410299e-10,
+            "relative_residual": 2.1167991844581997e-06
+          },
+          {
+            "step": 16,
+            "residual_Ns": 5.274487248076812e-10,
+            "relative_residual": 1.8912871014948838e-06
+          },
+          {
+            "step": 17,
+            "residual_Ns": 4.005379564650854e-10,
+            "relative_residual": 1.4362197405970548e-06
+          },
+          {
+            "step": 18,
+            "residual_Ns": 3.15157751574826e-10,
+            "relative_residual": 1.1300696398629666e-06
+          },
+          {
+            "step": 19,
+            "residual_Ns": 2.343908513965116e-10,
+            "relative_residual": 8.404615901124096e-07
+          },
+          {
+            "step": 20,
+            "residual_Ns": 1.6528168024458442e-10,
+            "relative_residual": 5.926549733795696e-07
+          },
+          {
+            "step": 21,
+            "residual_Ns": 1.223924371590062e-10,
+            "relative_residual": 4.3886585905341546e-07
+          },
+          {
+            "step": 22,
+            "residual_Ns": 8.644726663060367e-11,
+            "relative_residual": 3.099762927620387e-07
+          },
+          {
+            "step": 23,
+            "residual_Ns": 6.86098280049426e-11,
+            "relative_residual": 2.46016108558882e-07
+          },
+          {
+            "step": 24,
+            "residual_Ns": 4.716590269053622e-11,
+            "relative_residual": 1.691240478806726e-07
+          },
+          {
+            "step": 25,
+            "residual_Ns": 3.668701694341058e-11,
+            "relative_residual": 1.3154962496628682e-07
+          },
+          {
+            "step": 26,
+            "residual_Ns": 3.134918341417875e-11,
+            "relative_residual": 1.1240961148451366e-07
+          },
+          {
+            "step": 27,
+            "residual_Ns": 2.1052377345112033e-11,
+            "relative_residual": 7.548807657679193e-08
+          },
+          {
+            "step": 28,
+            "residual_Ns": 1.4619470678983433e-11,
+            "relative_residual": 5.242142984785041e-08
+          },
+          {
+            "step": 29,
+            "residual_Ns": 9.718720077154048e-12,
+            "relative_residual": 3.4848676393450125e-08
+          },
+          {
+            "step": 30,
+            "residual_Ns": 8.20672402812598e-12,
+            "relative_residual": 2.9427071428757704e-08
+          },
+          {
+            "step": 31,
+            "residual_Ns": 6.275391961574929e-12,
+            "relative_residual": 2.2501842009531574e-08
+          },
+          {
+            "step": 32,
+            "residual_Ns": 5.643291986051032e-12,
+            "relative_residual": 2.023530409914137e-08
+          }
+        ]
+      },
+      "seeded_from_native_x": {
+        "coarse_augmented": {
+          "norm_Ns": 8.261710908615818e-05,
+          "relative_rhs": 0.29624239367422817
+        },
+        "after16": {
+          "norm_Ns": 3.3137459805326936e-06,
+          "relative_rhs": 0.011882188231466797
+        },
+        "after32": {
+          "norm_Ns": 5.287800778150107e-07,
+          "relative_rhs": 0.001896060969838611
+        },
+        "history": [
+          {
+            "step": 1,
+            "residual_Ns": 7.096557218133039e-05,
+            "relative_residual": 0.25446316391359625
+          },
+          {
+            "step": 2,
+            "residual_Ns": 5.91992833512727e-05,
+            "relative_residual": 0.21227246508336306
+          },
+          {
+            "step": 3,
+            "residual_Ns": 4.534562416659275e-05,
+            "relative_residual": 0.16259702614084812
+          },
+          {
+            "step": 4,
+            "residual_Ns": 3.5537314587739805e-05,
+            "relative_residual": 0.12742710625770284
+          },
+          {
+            "step": 5,
+            "residual_Ns": 3.502029111734786e-05,
+            "relative_residual": 0.12557320127181262
+          },
+          {
+            "step": 6,
+            "residual_Ns": 2.956488163306162e-05,
+            "relative_residual": 0.10601159252061981
+          },
+          {
+            "step": 7,
+            "residual_Ns": 2.7885999352753956e-05,
+            "relative_residual": 0.09999157910067655
+          },
+          {
+            "step": 8,
+            "residual_Ns": 2.2613996492144485e-05,
+            "relative_residual": 0.08108761642079632
+          },
+          {
+            "step": 9,
+            "residual_Ns": 1.539887572160848e-05,
+            "relative_residual": 0.05521616350559942
+          },
+          {
+            "step": 10,
+            "residual_Ns": 1.1187136610324129e-05,
+            "relative_residual": 0.040114017114141094
+          },
+          {
+            "step": 11,
+            "residual_Ns": 8.071937059896577e-06,
+            "relative_residual": 0.028943762165748642
+          },
+          {
+            "step": 12,
+            "residual_Ns": 7.207448977983815e-06,
+            "relative_residual": 0.025843943961971937
+          },
+          {
+            "step": 13,
+            "residual_Ns": 4.826491731362593e-06,
+            "relative_residual": 0.017306481422106276
+          },
+          {
+            "step": 14,
+            "residual_Ns": 3.9685611717663745e-06,
+            "relative_residual": 0.014230176702753231
+          },
+          {
+            "step": 15,
+            "residual_Ns": 3.7707968576860818e-06,
+            "relative_residual": 0.013521047874178627
+          },
+          {
+            "step": 16,
+            "residual_Ns": 3.3137459805326936e-06,
+            "relative_residual": 0.011882188231466797
+          },
+          {
+            "step": 1,
+            "residual_Ns": 3.2869282268452838e-06,
+            "relative_residual": 0.011786027089625837
+          },
+          {
+            "step": 2,
+            "residual_Ns": 3.2385922653624945e-06,
+            "relative_residual": 0.011612707530413546
+          },
+          {
+            "step": 3,
+            "residual_Ns": 3.2166122251595556e-06,
+            "relative_residual": 0.011533893108137116
+          },
+          {
+            "step": 4,
+            "residual_Ns": 3.1736740912087232e-06,
+            "relative_residual": 0.011379928684518347
+          },
+          {
+            "step": 5,
+            "residual_Ns": 3.1680776610406774e-06,
+            "relative_residual": 0.011359861414102439
+          },
+          {
+            "step": 6,
+            "residual_Ns": 3.1131630457802272e-06,
+            "relative_residual": 0.011162952598817099
+          },
+          {
+            "step": 7,
+            "residual_Ns": 2.873199478602227e-06,
+            "relative_residual": 0.010302508771603502
+          },
+          {
+            "step": 8,
+            "residual_Ns": 2.7129595551524524e-06,
+            "relative_residual": 0.009727932161383072
+          },
+          {
+            "step": 9,
+            "residual_Ns": 2.4785721358818165e-06,
+            "relative_residual": 0.008887482877936871
+          },
+          {
+            "step": 10,
+            "residual_Ns": 2.110191253059752e-06,
+            "relative_residual": 0.007566569622581661
+          },
+          {
+            "step": 11,
+            "residual_Ns": 1.8735549107326192e-06,
+            "relative_residual": 0.006718056315147997
+          },
+          {
+            "step": 12,
+            "residual_Ns": 1.6988903900435873e-06,
+            "relative_residual": 0.006091757038022242
+          },
+          {
+            "step": 13,
+            "residual_Ns": 1.36264909594947e-06,
+            "relative_residual": 0.004886087571777869
+          },
+          {
+            "step": 14,
+            "residual_Ns": 1.2610043278044261e-06,
+            "relative_residual": 0.004521617188429698
+          },
+          {
+            "step": 15,
+            "residual_Ns": 8.602716128942134e-07,
+            "relative_residual": 0.003084699097229349
+          },
+          {
+            "step": 16,
+            "residual_Ns": 5.287800778150107e-07,
+            "relative_residual": 0.001896060969838611
+          }
+        ]
+      }
+    }
+  },
+  "limits": [
+    "all candidates use same captured A/RHS and same-step 304 history; no cross-Newton 284 recycle",
+    "captured-native q is a posteriori from the end of the same failed solve; only first-restart q is online-feasible",
+    "direct q uses the direct solution and is only a retrospective upper control",
+    "graph patch factors are rebuilt from captured A and cast to FP32, not native factors; coarse and Arnoldi arithmetic are offline, not native parity",
+    "native source solve and certificate remain unchanged; no candidate result is accepted physical evidence",
+    "full operator indefiniteness is not excluded; residual plateau is far above numerical noise levels demonstrated in double offline arithmetic"
+  ]
+}

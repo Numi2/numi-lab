@@ -1,0 +1,18 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-selected-private-trial-repair-094",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-exclusive-material-sweep-093",
+  "packages": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupled-trial-capture-overlay-002",
+      "manifest_sha256": "5853f84b803cf06fa48dd2da8654a10a65ae575ff219db9fbfc1cfad7f0b9fb5"
+    }
+  ],
+  "changed": {
+    "matter/src/runtime.mm": {
+      "before": "4b8dc05747e3224e8bc82692c795a56f3b3cfd7ad5ea067fd151c056fdcb31e4",
+      "after": "2fbdf2c09e5e27fadf15f6503e56d3dc042215eabf1029b4ebd3aa08e143b2e3"
+    }
+  },
+  "scope": "Source093 plus selected-private-trial instrumentation repair after307 metadata overflow: gate all stage readbacks on the selected trial; include formed rigid candidate in both phases. Existing 192-array/32MiB caps retained. No shader, physical operator, acceptance or history change. Four-patch CCD proposal remains excluded pending independent native qualification."
+}
