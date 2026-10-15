@@ -226,6 +226,22 @@ struct MaterialProgram {
     // Opt-in bounded common-subexpression storage for large implicit laws.
     // Existing materials retain their original stack bytecode.
     bool cacheExpressions = false;
+    // Numerical initial guess for the exact source-ordered 13-state ideal
+    // Hill law. Generic Newton, authored residuals and all acceptance tests
+    // still run; this never selects a different constitutive operator.
+    bool paperHillScalarInitializer = false;
+    // Two-word evaluation of the same authored ideal-Hill scalar programs.
+    // Kept independent of the initial-guess policy for numerical comparisons.
+    bool paperCompensatedArithmetic = false;
+    // Tighter local acceptance for the source-ordered Hill projection.
+    // Requires compensated arithmetic. It changes numerical accuracy only;
+    // global nonlinear tolerances and the authored law remain unchanged.
+    bool paperHillAccurateProjection = false;
+    // Opt-in ordered two-word scalar evaluation and temporary two-word
+    // candidate history for generic implicit bytecode projections. Accepted
+    // persistent state remains FP32; unsupported scalar opcodes/layouts fail
+    // compiler or world validation rather than falling back to ordinary math.
+    bool genericCompensatedImplicitProjection = false;
     std::vector<Parameter> parameters;
     std::vector<InternalState> internalState;
     ExpressionGraph expressions;
@@ -290,12 +306,31 @@ struct TetrahedronSource {
     std::array<std::uint32_t, 4> nodes{};
 };
 
+enum class CohesiveLawKind : std::uint32_t {
+    // Preserves the source-bounded Tryding/Biel single-ply Mode-I law.
+    trydingModeI = NM_COHESIVE_LAW_TRYDING_MODE_I,
+    // Explicit engineering bilinear mixed-mode law. This is a separate
+    // authored law and does not imply starch calibration.
+    mixedModeBilinear = NM_COHESIVE_LAW_MIXED_MODE_BILINEAR,
+};
+
+struct CohesiveMaterialSource {
+    std::string name;
+    double normalPenaltyPaPerM = 0.0;
+    double shearPenaltyPaPerM = 0.0;
+    double compressionPenaltyPaPerM = 0.0;
+    double normalStrengthPa = 0.0;
+    double shearStrengthPa = 0.0;
+    double fractureEnergyModeIJPerM2 = 0.0;
+    double fractureEnergyModeIIJPerM2 = 0.0;
+    double bkExponent = 0.0;
+};
+
 // A source-authored zero-thickness interface between two already duplicated
 // triangular faces. Node triples are paired slot-for-slot and must have
-// coincident reference coordinates. Current coordinates may carry the
-// explicitly sourced post-initiation seed opening for materials whose
-// initial internal state is defined after initiation. The first
-// implementation admits only the Tryding/Biel pure Mode-I coupon material.
+// coincident reference coordinates. Tryding/Biel remains the default legacy
+// law. The mixed-mode law requires an explicit cohesive-material table index
+// and a transactional activation request with a bounded accepted-geometry gap.
 struct CohesiveInterfaceSource {
     std::array<std::uint32_t, 3> sideANodes{};
     std::array<std::uint32_t, 3> sideBNodes{};
@@ -303,11 +338,48 @@ struct CohesiveInterfaceSource {
     std::uint32_t secondTetrahedron = NM_INVALID_INDEX;
     std::uint32_t materialIndex = 0u;
     std::uint32_t stableIdentifier = 0u;
+    CohesiveLawKind lawKind = CohesiveLawKind::trydingModeI;
+    std::uint32_t cohesiveMaterialIndex = NM_INVALID_INDEX;
+    std::uint32_t activationControlStep = 0u;
+    double activationGapToleranceM = 0.0;
+};
+
+// A mixed-mode mortar triangle over two independently tessellated parent
+// faces. Each row in the vertex maps gives the barycentric coordinates of one
+// integration-patch vertex in the corresponding side's parent triangle. The
+// patch is dormant until an explicit endpoint activation command is submitted;
+// its constitutive reference area and local gap are latched from that accepted
+// endpoint, without changing either bulk reference mesh.
+struct CohesiveMortarPatchSource {
+    std::array<std::uint32_t, 3> sideANodes{};
+    std::array<std::uint32_t, 3> sideBNodes{};
+    std::array<std::array<double, 3>, 3> sideAVertexBarycentric{};
+    std::array<std::array<double, 3>, 3> sideBVertexBarycentric{};
+    std::uint32_t firstTetrahedron = NM_INVALID_INDEX;
+    std::uint32_t secondTetrahedron = NM_INVALID_INDEX;
+    std::uint32_t materialIndex = 0u;
+    std::uint32_t stableIdentifier = 0u;
+    std::uint32_t cohesiveMaterialIndex = NM_INVALID_INDEX;
+    double activationGapToleranceM = 0.0;
 };
 
 enum class FEMPreconditionerMode : std::uint32_t {
     scalarDiagonal = 0u,
     regionalTangentDiagonal = 1u,
+    // Source-bound two-level FEM right preconditioner. Its regional basis is
+    // formed from authored per-tetrahedron region IDs and the coarse operator
+    // is the exact P^T A P action of the production matrix-free operator.
+    regionalGalerkin = 2u,
+    // Exact regional coarse correction, enriched by independent quadratic/
+    // cubic bending trial fields up to 32 modes, with a full 3x3 nodal tangent
+    // block as its fine correction. Conditioning only; the physical operator
+    // and convergence/certificate policy are unchanged.
+    regionalGalerkinBlockJacobi = 3u,
+    // Selector 3's bounded two-level FEM preconditioner for one immutable
+    // explicit FEM object with kinematic rigid contact and immutable cohesive
+    // faces. The coarse AP action includes the production bulk, contact, and
+    // cohesive operators. Dynamic generalized rigid rows remain unsupported.
+    regionalGalerkinContact = 4u,
 };
 
 struct MixedSolverSource {
@@ -320,9 +392,11 @@ struct MixedSolverSource {
     std::uint32_t fieldSmootherPasses =
         NM_MIXED_FIELD_SMOOTHER_MAX_PASSES;
     std::uint32_t mutationRestarts = NM_MIXED_MUTATION_RESTARTS;
-    // Opt-in tangent-aware diagonal, currently validated only for pure FEM
+    // Opt-in fine FEM tangent diagonal, currently validated only for pure FEM
     // worlds without mixed/multiphysics or learned constitutive operators.
-    // The zero-valued scalar path preserves the historical implementation.
+    // The regionalGalerkin mode adds a bounded source-region coarse correction
+    // formed from exact production-operator actions. The zero-valued scalar
+    // path preserves the historical implementation.
     FEMPreconditionerMode femPreconditioner =
         FEMPreconditionerMode::scalarDiagonal;
     double relativeResidual = 1.0e-4;
@@ -513,10 +587,15 @@ struct ObjectSource {
     // reserved capacity for newly exposed nodes in a later active-list pass.
     std::vector<std::uint32_t> femContactNodes;
     std::vector<TetrahedronSource> tetrahedra;
-    // Explicitly paired, immutable cohesive faces. This currently supports
-    // only the source-bounded Tryding/Biel single-ply Mode-I material; it is
-    // not a corrugated-starch calibration or mixed-mode interface law.
+    // Explicitly paired immutable cohesive faces. The default Tryding/Biel
+    // law remains a source-bounded single-ply Mode-I model. The opt-in mixed
+    // bilinear law is an engineering model with explicit authored parameters;
+    // it is not a starch calibration without measured interface inputs.
     std::vector<CohesiveInterfaceSource> femCohesiveInterfaces;
+    // Mixed-mode interfaces with independent parent-face parameterizations.
+    // Each entry is one triangular mortar integration patch; callers split a
+    // nontriangular overlap into a deterministic patch list.
+    std::vector<CohesiveMortarPatchSource> femCohesiveMortarPatches;
     // Optional exact per-authored-tetrahedron material indices into
     // WorldSource::materials. Empty preserves the object material and legacy
     // mass arithmetic. Nonempty keeps shared nodes and assembles each cell's
@@ -528,6 +607,12 @@ struct ObjectSource {
     // materials must have the same interface response as materialIndex,
     // which remains the explicitly uniform object/contact interface owner.
     std::vector<std::uint32_t> femMaterialIndices;
+    // Stable source-region IDs used only by FEMPreconditionerMode::regionalGalerkin.
+    // One label per authored tetrahedron, contiguous from zero, independent of
+    // compiled constitutive-program/material pooling. The runtime uses these
+    // IDs to define a conditioning-only coarse subspace; they do not alter the
+    // physical operator, material assignment, or accepted mechanics.
+    std::vector<std::uint32_t> femPreconditionerRegionIds;
     // SHA256 of the source regional labels and declared material/density map.
     // Required with femMaterialIndices, canonical zero without them.
     std::array<std::uint64_t, 4> femMaterialSourceIdentity{};
@@ -704,9 +789,14 @@ struct WorldSource {
     std::uint32_t articulatedDofCapacity = 40u;
     std::uint32_t articulatedQCapacity = 41u;
     bool deterministic = true;
+    // Allocation/search optimization only. Requires explicit immutable FEM,
+    // no MPM/adaptation/mutation, and exact node/tet topology capacities.
+    // Duplicated cohesive interface nodes retain both exposed surfaces.
+    bool compactImmutableFEMSurfaces = false;
     MixedSolverSource mixedSolver;
     VascularNetworkSource vascular;
     std::vector<MaterialProgram> materials;
+    std::vector<CohesiveMaterialSource> cohesiveMaterials;
     std::vector<ObjectSource> objects;
     std::vector<RigidProxySource> rigidProxies;
 };
@@ -780,6 +870,7 @@ struct CompiledWorld {
     NMMixedSolverGPU mixedSolver{};
     std::vector<ConstitutiveProgram> constitutive;
     std::vector<NMMaterialGPU> materials;
+    std::vector<NMCohesiveMaterialGPU> cohesiveMaterials;
     std::vector<NMMixedMaterialGPU> mixedMaterials;
     std::vector<NMParameterRangeGPU> parameters;
     std::vector<float> stateInitials;
@@ -953,6 +1044,19 @@ struct BorrowedRigidWorldBuffers {
     std::uint32_t rodNodeStride = 0u;
     std::uint32_t qStride = 0u;
     std::uint32_t vStride = 0u;
+    // Optional environment-major world-frame external wrench input, indexed
+    // by the global bodyIndex in each current-body block. Each row is an
+    // MRABABodyWrenchGPU: force.xyz is N and torque.xyz is N*m about that
+    // body's COM; .w is ignored. This is read-only and distinct from
+    // bodyWrenches, which remains Matter's output arena. Count is the number
+    // of body rows per environment and stride is the row stride. If present,
+    // count must exactly equal currentBodyCount and stride must be at least
+    // count. Null requires count and stride both zero. Consumed in preDynamics
+    // only; a postCommit request may carry the same borrowed view for the
+    // caller's transaction lifetime, but the wrench is not applied twice.
+    void* externalWrenches = nullptr; // id<MTLBuffer>, MRABABodyWrenchGPU
+    std::uint32_t externalWrenchCount = 0u;
+    std::uint32_t externalWrenchStride = 0u;
 };
 
 enum class EncodePhase : std::uint32_t {
@@ -1111,6 +1215,17 @@ struct EncodeRequest {
     // free pure-FEM node. Targets are interpolated over internal microticks
     // and participate in the accepted/candidate/checkpoint transaction.
     void* femKinematicTargets = nullptr; // id<MTLBuffer>, float4
+    // Optional flat device stream of explicit cohesive activation requests.
+    // count is the total number of entries across all environments and stride
+    // must equal sizeof(NMCohesiveActivationCommandGPU). Commands are consumed
+    // only in preDynamics at the first microtick of physics substep zero, and
+    // latch the already accepted FEM pose at that transaction's start. The
+    // command and resulting face activation are rolled back with the native
+    // transaction. postCommit requires a null buffer, zero count, and zero
+    // stride.
+    void* cohesiveActivationCommands = nullptr; // NMCohesiveActivationCommandGPU
+    std::uint32_t cohesiveActivationCommandCount = 0u;
+    std::uint32_t cohesiveActivationCommandStride = 0u;
     // Optional borrowed final MetalWorld contact solve, laid out
     // [environment][rigidContactConstraintStride].  Matter consumes it only
     // during a final post-commit adaptive transfer to re-promote the exact
@@ -1751,6 +1866,33 @@ struct RuntimeStateSnapshot {
     // These are copied only at the explicit snapshot boundary.
     std::vector<NMIdentificationDistributionGPU> identification;
     std::vector<float> environmentParameters;
+    // Optional readback of conditioning-only regional Galerkin data.
+    // Populated only when captureDiagnostics is enabled and the complete
+    // bounded export fits the runtime's 64 MiB diagnostic-readback limit.
+    // Authored P is mode-major [mode][FEM node]; effective P and AP are
+    // environment/mode/node-major. Effective P is authored P projected
+    // through the candidate Dirichlet mask captured at this linearization.
+    // coarseMatrix is the in-place pivoted LU of each environment's RAP.
+    // This is diagnostic state, never accepted physical state or a package
+    // continuation field.
+    bool femRegionalGalerkinDiagnosticsAvailable = false;
+    std::uint32_t femRegionalGalerkinModeCount = 0u;
+    std::string femRegionalGalerkinDiagnosticsMessage;
+    // Exact FEM candidate node records from the Newton linearization used to
+    // form AP/RAP. Present only with the bounded regional readback above.
+    std::vector<NMFEMNodeStateGPU> femRegionalGalerkinLinearizationNodes;
+    std::vector<nm_float4> femRegionalGalerkinBasisP;
+    std::vector<nm_float4> femRegionalGalerkinEffectiveBasisP;
+    std::vector<nm_float4> femRegionalGalerkinOperatorAP;
+    std::vector<float> femRegionalGalerkinPivotedRAP;
+    std::vector<std::uint32_t> femRegionalGalerkinPivots;
+    std::vector<std::uint32_t> femRegionalGalerkinFactorValid;
+    // Selector 3 only: [environment][FEM node][3 row-major float4 rows].
+    // xyz stores the inverse nodal velocity block; row0.w is 1 when the full
+    // block passed the finite/pivot guard, otherwise the preconditioner uses
+    // selector 2's componentwise diagonal fallback. This is diagnostic data,
+    // not accepted physical state.
+    std::vector<nm_float4> femRegionalGalerkinNodeBlockInverse;
 };
 
 class Runtime {
@@ -1967,6 +2109,15 @@ public:
     // world-space newtons (float4 per environment/node, w = 0). Valid only
     // after an accepted pre-dynamics solve in the same command buffer.
     [[nodiscard]] void* femConstraintReactionBuffer() const noexcept;
+    // Contact-only force contribution at constrained FEM nodes, in world-space
+    // newtons (float4 per environment/node, w = 0). This is a separate
+    // supplement to femConstraintReactionBuffer(): rigid and deformable
+    // contact impulses are assembled into the nonlinear residual, but are not
+    // currently folded into that bulk/cohesive reaction channel. Human tag-2
+    // attachments are excluded and remain in their articulated reaction
+    // channel. Valid only after an accepted pre-dynamics solve in the same
+    // command buffer; rejected transactions are not accepted reaction evidence.
+    [[nodiscard]] void* femConstraintContactForceBuffer() const noexcept;
     // Borrowed final assembled unpreconditioned generalized residual, valid
     // after accepted preDynamics in the same command buffer. Leading FEM rows
     // are env-major float4; xyz is mechanical impulse imbalance (N s), including

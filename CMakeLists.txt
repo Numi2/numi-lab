@@ -1182,6 +1182,34 @@ set_target_properties(
         INSTALL_RPATH "@loader_path"
 )
 
+# The cardboard driver uses the native rigid/FEM coupled operator for finite
+# mass loading. Standalone Matter builds retain the coupon-only executable.
+foreach(cardboard_driver numi-matter-cardboard-probe numi-matter-cardboard-box-native-driver)
+    target_link_libraries(${cardboard_driver} PRIVATE metalrobo)
+    target_compile_definitions(${cardboard_driver} PRIVATE NUMI_CARDBOARD_METAL_WORLD=1)
+endforeach()
+add_executable(numi-matter-cardboard-shipping-rigid-driver-check
+    matter/tools/cardboard_shipping_rigid_driver_check.cpp)
+target_link_libraries(numi-matter-cardboard-shipping-rigid-driver-check PRIVATE metalrobo)
+target_compile_options(numi-matter-cardboard-shipping-rigid-driver-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
+add_executable(numi-matter-cardboard-shipping-rigid-native-check
+    matter/tools/cardboard_shipping_rigid_native_check.mm)
+target_link_libraries(numi-matter-cardboard-shipping-rigid-native-check PRIVATE
+    metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+target_compile_definitions(numi-matter-cardboard-shipping-rigid-native-check PRIVATE
+    NUMI_CARDBOARD_METAL_WORLD=1)
+target_compile_options(numi-matter-cardboard-shipping-rigid-native-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -fobjc-arc)
+add_dependencies(numi-matter-cardboard-shipping-rigid-native-check
+    metalrobo_shaders numi_matter_shaders)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.cardboard_shipping_rigid_driver
+        COMMAND numi-matter-cardboard-shipping-rigid-driver-check)
+    set_tests_properties(matter.compiler.cardboard_shipping_rigid_driver PROPERTIES
+        TIMEOUT 60 LABELS "matter;cardboard;rigid;synthetic")
+endif()
+
 add_executable(metalrobo_bench apps/benchmark.cpp)
 target_link_libraries(metalrobo_bench PRIVATE metalrobo)
 set_target_properties(

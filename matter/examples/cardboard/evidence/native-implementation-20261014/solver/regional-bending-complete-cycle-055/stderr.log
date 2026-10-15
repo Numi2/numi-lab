@@ -1,0 +1,2 @@
+fem_residual_armijo_enabled={"schema":1,"root":0,"trials":24,"metric":"per_environment_free_dof_l2_impulse","history":"accepted_state_read_only"}
+fem_residual_armijo_enabled={"schema":1,"root":1,"trials":24,"metric":"per_environment_free_dof_l2_impulse","history":"accepted_state_read_only"}

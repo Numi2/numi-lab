@@ -1,0 +1,230 @@
+{
+  "attempts": {
+    "control": {
+      "accepted_steps": 1,
+      "exit_code": 2,
+      "expected_protocol_steps": 27,
+      "failure": "Matter rejected step 1; status, accepted state OBJ, and CSV observations were retained",
+      "physical_validation": false,
+      "protocol_complete": false,
+      "result_status": "failed",
+      "timed_out": false,
+      "verdict": "failed_attempt",
+      "wall_seconds": 264.955513999972
+    },
+    "diagnostic_enabled": {
+      "accepted_steps": 1,
+      "exit_code": 2,
+      "expected_protocol_steps": 27,
+      "failure": "Matter rejected step 1; status, accepted state OBJ, and CSV observations were retained",
+      "physical_validation": false,
+      "protocol_complete": false,
+      "result_status": "failed",
+      "timed_out": false,
+      "verdict": "failed_attempt",
+      "wall_seconds": 266.1605168340029
+    }
+  },
+  "comparison": "byte_identical",
+  "created_at_utc": "2026-10-14T21:44:48.160776+00:00",
+  "differing_files": [],
+  "files": {
+    "control": {
+      "accepted_step_000001_bent.obj": {
+        "sha256": "3fbb071d4c0c0f5bb5179ee6a241b1074a234badca07d682765da423b7765b77",
+        "size_bytes": 61947
+      },
+      "accepted_step_000001_held_reference.obj": {
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+        "size_bytes": 56470
+      },
+      "accepted_step_000002_bent.obj": {
+        "sha256": "3fbb071d4c0c0f5bb5179ee6a241b1074a234badca07d682765da423b7765b77",
+        "size_bytes": 61947
+      },
+      "accepted_step_000002_held_reference.obj": {
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+        "size_bytes": 56470
+      },
+      "compiled.nmatterpack": {
+        "sha256": "e1d506918a95101042507fd0602ffee19a4f2e246d4b288a21d8c7103d69f0ae",
+        "size_bytes": 1761392
+      },
+      "initial.obj": {
+        "sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+        "size_bytes": 56470
+      },
+      "manifest.json": {
+        "sha256": "e052c3bfdf921b920d12cf680fb1bf31fe3f327e8265f27b98d2350ee49ea4de",
+        "size_bytes": 10752
+      },
+      "material_state_000002_bent.json": {
+        "sha256": "dbb2992a862f0ee3de4ea4209cd099f685c3231677fe50c6a99a1e3640062e07",
+        "size_bytes": 780012
+      },
+      "mesh.json": {
+        "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+        "size_bytes": 160425
+      },
+      "observations.csv": {
+        "sha256": "571d4f9e4daee2971044a074c879df49bdac0383c042b69c5344953988f4f492",
+        "size_bytes": 2166
+      },
+      "rejected-conditioning-000002/AP.bin": {
+        "sha256": "85fbd0c8a07f7a8d9cbaa7eff50644ab35935e77cc6c2c797e6ad70f28bbfdee",
+        "size_bytes": 733824
+      },
+      "rejected-conditioning-000002/P.bin": {
+        "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+        "size_bytes": 366912
+      },
+      "rejected-conditioning-000002/candidate_nodes.bin": {
+        "sha256": "7bc70bf33407415f79e9729af53b5d95ece3d429327d46ec0b58465aa8a6e66a",
+        "size_bytes": 141120
+      },
+      "rejected-conditioning-000002/effective_P.bin": {
+        "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+        "size_bytes": 733824
+      },
+      "rejected-conditioning-000002/factor_valid.bin": {
+        "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+        "size_bytes": 8
+      },
+      "rejected-conditioning-000002/manifest.json": {
+        "sha256": "e668c6695df1a7812057a1f91126ad83073b4cd82b3efe8fb71d9151f6391163",
+        "size_bytes": 1769
+      },
+      "rejected-conditioning-000002/node_block_inverse.bin": {
+        "sha256": "d0b59f16c41ef08b70daa7db2d00cb1a640137857fb262f05440989140a3b57c",
+        "size_bytes": 84672
+      },
+      "rejected-conditioning-000002/pivoted_RAP.bin": {
+        "sha256": "03674bbd7139f3299b3e5b33127173704df4945f75075907937821cc4bb527aa",
+        "size_bytes": 5408
+      },
+      "rejected-conditioning-000002/pivots.bin": {
+        "sha256": "334e2986232d7311015f41ba6abfdfbbc5b1ac8558f5ebf62c5643a79fe67843",
+        "size_bytes": 208
+      },
+      "result.json": {
+        "sha256": "b3facacf40a70bbcef330dfb62cedfdee562aa61daede1b753bd9c2c72c897c8",
+        "size_bytes": 642
+      }
+    },
+    "diagnostic_enabled": {
+      "accepted_step_000001_bent.obj": {
+        "sha256": "3fbb071d4c0c0f5bb5179ee6a241b1074a234badca07d682765da423b7765b77",
+        "size_bytes": 61947
+      },
+      "accepted_step_000001_held_reference.obj": {
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+        "size_bytes": 56470
+      },
+      "accepted_step_000002_bent.obj": {
+        "sha256": "3fbb071d4c0c0f5bb5179ee6a241b1074a234badca07d682765da423b7765b77",
+        "size_bytes": 61947
+      },
+      "accepted_step_000002_held_reference.obj": {
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+        "size_bytes": 56470
+      },
+      "compiled.nmatterpack": {
+        "sha256": "e1d506918a95101042507fd0602ffee19a4f2e246d4b288a21d8c7103d69f0ae",
+        "size_bytes": 1761392
+      },
+      "initial.obj": {
+        "sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+        "size_bytes": 56470
+      },
+      "manifest.json": {
+        "sha256": "e052c3bfdf921b920d12cf680fb1bf31fe3f327e8265f27b98d2350ee49ea4de",
+        "size_bytes": 10752
+      },
+      "material_state_000002_bent.json": {
+        "sha256": "dbb2992a862f0ee3de4ea4209cd099f685c3231677fe50c6a99a1e3640062e07",
+        "size_bytes": 780012
+      },
+      "mesh.json": {
+        "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+        "size_bytes": 160425
+      },
+      "observations.csv": {
+        "sha256": "571d4f9e4daee2971044a074c879df49bdac0383c042b69c5344953988f4f492",
+        "size_bytes": 2166
+      },
+      "rejected-conditioning-000002/AP.bin": {
+        "sha256": "85fbd0c8a07f7a8d9cbaa7eff50644ab35935e77cc6c2c797e6ad70f28bbfdee",
+        "size_bytes": 733824
+      },
+      "rejected-conditioning-000002/P.bin": {
+        "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+        "size_bytes": 366912
+      },
+      "rejected-conditioning-000002/candidate_nodes.bin": {
+        "sha256": "7bc70bf33407415f79e9729af53b5d95ece3d429327d46ec0b58465aa8a6e66a",
+        "size_bytes": 141120
+      },
+      "rejected-conditioning-000002/effective_P.bin": {
+        "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+        "size_bytes": 733824
+      },
+      "rejected-conditioning-000002/factor_valid.bin": {
+        "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+        "size_bytes": 8
+      },
+      "rejected-conditioning-000002/manifest.json": {
+        "sha256": "e668c6695df1a7812057a1f91126ad83073b4cd82b3efe8fb71d9151f6391163",
+        "size_bytes": 1769
+      },
+      "rejected-conditioning-000002/node_block_inverse.bin": {
+        "sha256": "d0b59f16c41ef08b70daa7db2d00cb1a640137857fb262f05440989140a3b57c",
+        "size_bytes": 84672
+      },
+      "rejected-conditioning-000002/pivoted_RAP.bin": {
+        "sha256": "03674bbd7139f3299b3e5b33127173704df4945f75075907937821cc4bb527aa",
+        "size_bytes": 5408
+      },
+      "rejected-conditioning-000002/pivots.bin": {
+        "sha256": "334e2986232d7311015f41ba6abfdfbbc5b1ac8558f5ebf62c5643a79fe67843",
+        "size_bytes": 208
+      },
+      "result.json": {
+        "sha256": "b3facacf40a70bbcef330dfb62cedfdee562aa61daede1b753bd9c2c72c897c8",
+        "size_bytes": 642
+      }
+    }
+  },
+  "identical_file_count": 20,
+  "output_file_count": 20,
+  "production_outputs_byte_identical": true,
+  "qualification": {
+    "reason": "A byte-identical diagnostic/control pair only establishes output parity. Failed attempts remain failed; parity does not establish convergence or physical validity.",
+    "status": "not_qualified"
+  },
+  "schema": "numi.cardboard.diagnostic-history-comparison.v1",
+  "sealed_identity": {
+    "argv_equal_except_output_directory": true,
+    "build_provenance": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-037/source-build.json",
+    "build_provenance_sha256": "b5f1c63250d38b5201f04934ba80c2f5768449f071524bdb163fb1c65d042715",
+    "changed_environment_keys": [
+      "NM_FEM_NEWTON_TRACE_ROOT",
+      "NM_FEM_OPERATOR_FD_CAPTURE_PATH",
+      "NM_FEM_OPERATOR_FD_SELECTOR"
+    ],
+    "diagnostic_environment_allowlist": [
+      "NM_FEM_NEWTON_TRACE_ROOT",
+      "NM_FEM_OPERATOR_FD_CAPTURE_PATH",
+      "NM_FEM_OPERATOR_FD_SELECTOR"
+    ],
+    "diagnostic_environment_changes_only": true,
+    "inputs_sha256_equal": true,
+    "runtime_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-037",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/contact-damage-bending-037",
+    "timeout_seconds": {
+      "control": 600,
+      "diagnostic_enabled": 1800,
+      "matched": false,
+      "note": "Timeout limits need not match when both receipts completed without timeout."
+    }
+  }
+}

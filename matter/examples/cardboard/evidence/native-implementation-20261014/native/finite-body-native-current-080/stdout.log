@@ -1,0 +1,2 @@
+native_transfer_steps=8 maximum_momentum_residual_kg_m_s=3.80631e-10 release_velocity_y_m_s=-0.02942 rollback_status=1 rollback_reason=Matter status and certificate are unavailable
+shipping finite-mass native checks passed: 244 assertions

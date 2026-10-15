@@ -1,0 +1,157 @@
+{
+  "bindings": {
+    "inputs/build-cardboard-abi45-009/numi-matter-cardboard-probe": "6f96c11220ee2134f24693d0d4db9924833b084d9cddf19b2697a912f577ac37",
+    "inputs/build-cardboard-abi45-009/shaders/NumiMatter.metallib": "9e8efe2591c9d67b751b1b6f98a1c12f95cf44dff2a98b36f538ed70bc8933ca",
+    "inputs/matter/include/numi/matter/paper_compensated_bytecode.h": "eda4e8fbbf43a2e3c27ad248c5b6177c0ea832b066981f8307c7c524610359b4",
+    "inputs/matter/materials/hajali2009_medium_hill_ideal.nmatter": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+    "inputs/matter/src/metal/common.metalinc": "4baed484bb298c560281fc18f2c5d3fbb20e10713ae019e32abf0dbeed707663",
+    "output/compiled.nmatterpack": "a821a17124bc8981f494542c927f1c3768df1166d1d4a1205c38b18f519bc9d3",
+    "output/result.json": "53c9ef821f8ee7e27d505f796a98adffbe73317679f3c3d3eb24069db8004b37"
+  },
+  "capture": {
+    "F_encoding": "high_float32_plus_low_float32_for_compensated_material_input; zero_low_for_other_materials",
+    "F_local_high_plus_low": [
+      [
+        0.9814203047643648,
+        0.0,
+        0.1889265637537293
+      ],
+      [
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        -0.18889832782194804,
+        0.0,
+        0.9819965140772968
+      ]
+    ],
+    "accepted_steps": 0,
+    "environment": 0,
+    "execution_fingerprint_hex": "ec65ce846d566315",
+    "material_name": "hajali2009_medium_hill_ideal",
+    "native_projection_succeeded": false,
+    "native_recorded_projection_residual": 3.47050047e-07,
+    "native_recorded_state_norm": 0.272619992,
+    "native_terminal_failure_code": 6,
+    "native_terminal_failure_name": "ArmijoNoAcceptedTrial",
+    "path": "/Users/home/cardboard-implementation-20261014/solver/accurate-projection-cycle-008/capture.jsonl",
+    "run_status": "failed",
+    "schema": "numi.cardboard.fem-newton-capture.v1",
+    "sha256": "b13ea279243f3bc07e4d0eda791a298f8c91bd71c31e40d98daebac34a2fd708",
+    "tet_id": 1434,
+    "world_fingerprint_hex": "9080e09cfd6ad010"
+  },
+  "classification": "independent_source_equation_quantization_diagnostic; not_native_replay_or_physical_validation",
+  "interpretation": {
+    "finding": "The nearest representable binary32 sbar11 state has a source-equation residual floor above the captured solver threshold. This proves that exact local convergence at that threshold is impossible for this row with a single binary32 stress-state word. The equivalent physical error is small in absolute units, but no application-level error allowance is specified here.",
+    "precision_repair_options": [
+      "Store candidate and accepted normalized stress state as two-word (high+low) values, and carry both words through snapshots, rollback, and local projection.",
+      "Alternatively, add an independently evaluated backward-error certificate that reports residual floors and physical stress error in Pa; admission still needs an explicit application error bound, not a blanket tolerance relaxation."
+    ],
+    "prohibited_inference": "This local material-point diagnostic is not evidence of board response, global FEM convergence, or physical validation.",
+    "single_precision_stress_state_can_meet_configured_threshold": false,
+    "unresolved_native_residual_gap": "The captured native local residual is larger than the independently computed representability floor. The floor does not explain the full native residual; this diagnostic does not identify whether the remainder comes from compiled evaluator arithmetic, another implementation detail, or capture formatting."
+  },
+  "material_scales": {
+    "configured_scaled_residual_threshold": 2.5452399840000003e-08,
+    "fb_epsilon": 9.99999993922529e-09,
+    "q_floor": 1.9999999949504854e-06,
+    "residual_scale": 10.0,
+    "sigma_ref_Pa": 9391000.0
+  },
+  "method": {
+    "candidate_states_are_binary32": true,
+    "local_residual_scaling": "authored residual_scale multiplies each implicit row; it is numerical conditioning and does not alter the zero set",
+    "no_tolerance_or_material_parameter_changes": true,
+    "reference": "binary64 evaluation of retained Haj-Ali .nmatter normalized StVK stress equations using exact decoded binary32 parameters/state and decoded F high+low words",
+    "stress_components": "normalized sbar = second Piola stress / sigma_ref; physical stress errors multiply sigma_ref in Pa"
+  },
+  "reference": {
+    "captured_flow_rows_exactly_zero": true,
+    "exact_equation_FB_row_scaled_residual": 2.7755575615628914e-15,
+    "exact_equation_scaled_residual_inf": 6.234873395349894e-08,
+    "floor_dominant_row": "sbar11",
+    "floor_dominant_row_physical_error_Pa": 0.05855169605573085,
+    "floor_over_configured_threshold": 2.4496210316291704,
+    "max_binary32_stress_state_floor": 6.234873395349894e-08,
+    "native_residual_minus_reference_norm": 2.8470131304650105e-07,
+    "native_residual_over_reference_quantization_floor": 5.566272560704081
+  },
+  "schema": "numi.cardboard.fp32-state-floor-diagnostic.v1",
+  "stress_rows": [
+    {
+      "captured_binary32_sbar": -0.27261999249458313,
+      "captured_equals_nearest": true,
+      "captured_physical_stress_error_Pa": 0.05855169605573085,
+      "captured_scaled_residual": 6.234873395349894e-08,
+      "captured_unscaled_residual_sbar": 6.234873395349894e-09,
+      "exact_elastic_root_sbar": -0.2726199987294565,
+      "nearest_binary32_sbar": -0.27261999249458313,
+      "nearest_physical_stress_error_floor_Pa": 0.05855169605573085,
+      "nearest_scaled_residual_floor": 6.234873395349894e-08,
+      "state": "sbar11"
+    },
+    {
+      "captured_binary32_sbar": -0.017688628286123276,
+      "captured_equals_nearest": true,
+      "captured_physical_stress_error_Pa": 0.0020476733549879,
+      "captured_scaled_residual": 2.1804635874644873e-09,
+      "captured_unscaled_residual_sbar": 2.1804635874644873e-10,
+      "exact_elastic_root_sbar": -0.017688628504169635,
+      "nearest_binary32_sbar": -0.017688628286123276,
+      "nearest_physical_stress_error_floor_Pa": 0.0020476733549879,
+      "nearest_scaled_residual_floor": 2.1804635874644873e-09,
+      "state": "sbar22"
+    },
+    {
+      "captured_binary32_sbar": -2.9645368613273604e-06,
+      "captured_equals_nearest": true,
+      "captured_physical_stress_error_Pa": -5.22638472679531e-07,
+      "captured_scaled_residual": 5.565312242354712e-13,
+      "captured_unscaled_residual_sbar": -5.565312242354712e-14,
+      "exact_elastic_root_sbar": -2.964536805674238e-06,
+      "nearest_binary32_sbar": -2.9645368613273604e-06,
+      "nearest_physical_stress_error_floor_Pa": 5.22638472679531e-07,
+      "nearest_scaled_residual_floor": 5.565312242354712e-13,
+      "state": "sbar33"
+    },
+    {
+      "captured_binary32_sbar": 0.0,
+      "captured_equals_nearest": true,
+      "captured_physical_stress_error_Pa": 0.0,
+      "captured_scaled_residual": 0.0,
+      "captured_unscaled_residual_sbar": 0.0,
+      "exact_elastic_root_sbar": 0.0,
+      "nearest_binary32_sbar": 0.0,
+      "nearest_physical_stress_error_floor_Pa": 0.0,
+      "nearest_scaled_residual_floor": 0.0,
+      "state": "sbar23"
+    },
+    {
+      "captured_binary32_sbar": -0.001955467276275158,
+      "captured_equals_nearest": true,
+      "captured_physical_stress_error_Pa": -0.0008328509871254747,
+      "captured_scaled_residual": 8.86860810483947e-10,
+      "captured_unscaled_residual_sbar": -8.86860810483947e-11,
+      "exact_elastic_root_sbar": -0.001955467187589077,
+      "nearest_binary32_sbar": -0.001955467276275158,
+      "nearest_physical_stress_error_floor_Pa": 0.0008328509871254747,
+      "nearest_scaled_residual_floor": 8.86860810483947e-10,
+      "state": "sbar13"
+    },
+    {
+      "captured_binary32_sbar": 0.0,
+      "captured_equals_nearest": true,
+      "captured_physical_stress_error_Pa": 0.0,
+      "captured_scaled_residual": 0.0,
+      "captured_unscaled_residual_sbar": 0.0,
+      "exact_elastic_root_sbar": 0.0,
+      "nearest_binary32_sbar": 0.0,
+      "nearest_physical_stress_error_floor_Pa": 0.0,
+      "nearest_scaled_residual_floor": 0.0,
+      "state": "sbar12"
+    }
+  ]
+}

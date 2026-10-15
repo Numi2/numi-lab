@@ -1,0 +1,1 @@
+FAIL regional RAP native checker: regional native fixture compile failed: explicit FEM reference requires exact coordinates/source identity and immutable non-mixed FEM without nodal fields or identification; 

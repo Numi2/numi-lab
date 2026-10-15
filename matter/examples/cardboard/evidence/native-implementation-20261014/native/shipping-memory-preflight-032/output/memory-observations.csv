@@ -1,0 +1,2 @@
+native_step,stage,runtime_resident_bytes,metal_current_allocated_bytes,metal_recommended_working_set_bytes,host_phys_footprint_bytes,host_sample_available,largest_measured_domain_bytes,within_16gib
+0,initialized_no_step,10467551760,10504568832,19069665280,5616488336,1,10504568832,1

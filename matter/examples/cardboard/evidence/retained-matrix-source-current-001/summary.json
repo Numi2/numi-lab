@@ -1,0 +1,183 @@
+{
+  "schema": "numi.cardboard.retained-matrix-evidence.v1",
+  "classification": "synthetic_constitutive_material_point_integration",
+  "physical_validation": false,
+  "calibration_claimed": false,
+  "gpu_execution": false,
+  "head_at_capture": "05fe543008297041c1ea4345ee7aec65a558b71f",
+  "cpu_run": {
+    "command": "c++ -std=c++2b -arch arm64 -Iinclude -Imatter/include -Imatter/tools -Wall -Wextra -Wpedantic -Werror matter/tools/cardboard_retained_matrix_damage_check.cpp build-cardboard-world/matter/libnumi_matter_compiler.a -framework Foundation -o /tmp/cardboard-retained-damage-check-source-current && /tmp/cardboard-retained-damage-check-source-current matter/materials",
+    "status": "pass",
+    "output_path": "matter/examples/cardboard/evidence/retained-matrix-source-current-001/cpu-output.txt",
+    "output_sha256": "4ed7a983854ab52a314d9cd6e77de908aed0cdc273dab5f59f288f3df4bf789e",
+    "executable": {
+      "path": "matter/examples/cardboard/evidence/retained-matrix-source-current-001/cpu-check-executable",
+      "sha256": "0a750a0a3db0fc955fc407d4bff84ac67fbda36b6e4a7dac8641d52678932191"
+    },
+    "compiler_archive": {
+      "path": "build-cardboard-world/matter/libnumi_matter_compiler.a",
+      "sha256": "0f846e74d0b9c8122aa0d8dbbdbfa4ab03abf41c74cbbbe6c4b357f4daaec79b"
+    },
+    "compiler_sources": [
+      {
+        "path": "matter/src/compiler_impl.cpp",
+        "sha256": "5404c010bf2111447e02ae73f9e70f063dc5f559f8fdd159abfc2e1d4bcfef85"
+      },
+      {
+        "path": "matter/src/constitutive_impl.cpp",
+        "sha256": "e5a48ec524ab3277eb446412de062237aab7a07bdd9ad6cbbcf75d5a7c340bb2"
+      }
+    ]
+  },
+  "inputs_and_implementation": [
+    {
+      "path": "matter/materials/hajali2009_liner_hill_ideal.nmatter",
+      "sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d"
+    },
+    {
+      "path": "matter/materials/hajali2009_medium_hill_ideal.nmatter",
+      "sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8"
+    },
+    {
+      "path": "matter/examples/cardboard/source-data/haj_ali_2009_bilinear_tension_fit_nodes.csv",
+      "sha256": "83f5778db797f0fb9996416848abb91c18f9102f4c3707aea9ea267b1eeb0d82"
+    },
+    {
+      "path": "matter/tools/cardboard_retained_matrix_damage.hpp",
+      "sha256": "bf09d22c045383c08e47e6ef2b32aae4902ac0696fa0af8bff54e244e83ecb58"
+    },
+    {
+      "path": "matter/tools/cardboard_retained_matrix_damage_check.cpp",
+      "sha256": "c3de2165d4ad097615e6fcafdbb5842456ca8b7bb88e1ab1a46338ea7814faf1"
+    },
+    {
+      "path": "matter/tools/cardboard_retained_matrix_damage.md",
+      "sha256": "5740be9af2ec16c6909157ecc0f201fe156b2f471dbf80b2f0dd0cdb31838eba"
+    }
+  ],
+  "checks": {
+    "default_tangent_relative_error": {
+      "fracture_rate": "4.6421850879130977e-07",
+      "compression_densification": "3.273867856975299e-05",
+      "plastic_hill_hardening": "4.9693837890531379e-10",
+      "mixed_mode": "3.3823266689069182e-05"
+    },
+    "strict_smooth_tangent_gate": {
+      "tolerance": "1e-6",
+      "local_projection_tolerance": "2e-12",
+      "compression_errors": [
+        "5.148712985583277e-07",
+        "5.9092463104810069e-07"
+      ],
+      "mixed_errors": [
+        "7.5885663907324611e-07",
+        "7.1903010847773086e-09"
+      ]
+    },
+    "synthetic_pure_mode": {
+      "GcA_J": "1.1250000000000001e-07",
+      "finite_opening_work_ratios_60_120_240": [
+        "0.98993544033109482",
+        "0.99147306375197342",
+        "0.99153772335239543"
+      ],
+      "2x_refinement_relative_difference": "0.0030146161401041205",
+      "full_softening_strength": "2e6_synthetic_only",
+      "full_softening_work_ratios_120_240": [
+        "0.99591123983329499",
+        "0.9954630911934349"
+      ],
+      "full_softening_resolution_relative_difference": "0.00045019111589844282"
+    },
+    "compression_cycle_bookkeeping": {
+      "candidate_work_J": "0.0056469567030420081",
+      "candidate_recoverable_endpoint_energy_J": "0.0010915032355534244",
+      "candidate_net_irreversible_work_J": "0.0045554534674885835",
+      "no_added_densification_control_work_J": "0.0056235942590239108",
+      "no_added_densification_control_endpoint_energy_J": "0.0010602192998973548",
+      "no_added_densification_control_net_work_J": "0.0045633749591265562",
+      "candidate_minus_control_J": "-7.9214916379726635e-06",
+      "source_hill_work_J": "0.0037518919346421048",
+      "source_hill_endpoint_energy_J": "0.00016394342348330081",
+      "source_hill_net_work_J": "0.0035879485111588042",
+      "candidate_minus_source_hill_J": "0.00096750495632977936",
+      "yield_strength_start_peak_final_Pa": [
+        "23558503.429493859",
+        "43329255.884779572",
+        "59261277.642920889"
+      ],
+      "peak_final_plastic_multiplier": [
+        "0.43482185709758076",
+        "0.67372963502157612"
+      ],
+      "maximum_fracture_history": "2.6736535253835403e-08",
+      "interpretation": "Total candidate work minus endpoint energy is positive. Candidate-minus-undensified is negative and confounds changes in plastic flow/hardening; it is not an isolated crush-energy or physical passivity result."
+    },
+    "mixed_mode": {
+      "damage_work_J": "1.0579283530629923e-07",
+      "additive_active_plane_budget_J": "1.2656250000000001e-07",
+      "ratio": "0.83589400735841368",
+      "classification": "synthetic upper-budget screen only"
+    },
+    "rejected_diagnostics": [
+      "A strict compression tangent sweep at h=1e-4 and local tolerance 2e-14 failed the local Newton line search; preserved as tangent_sweep_failure in output.",
+      "The first CPU output/executable predates the later compiler_impl.cpp edit and is retained under superseded-stale-linked; it is not treated as current evidence."
+    ]
+  },
+  "metal_instrument_compile_only": {
+    "build_command": "cmake --build build-cardboard-world --target numi-matter-cardboard-retained-matrix-damage-metal-check -j2",
+    "final_build_status": "pass",
+    "gpu_execution": false,
+    "target": "numi-matter-cardboard-retained-matrix-damage-metal-check",
+    "executable": {
+      "path": "build-cardboard-world/matter/numi-matter-cardboard-retained-matrix-damage-metal-check",
+      "sha256": "b665bbe9adffbb4897840b972c848e1b7d920ad1ff1887cab859a9ab2a4e2ca7"
+    },
+    "metallib": {
+      "path": "build-cardboard-world/matter/shaders/cardboard_retained_matrix_damage_check.metallib",
+      "sha256": "7c64c9b3627d27ebb5c64207097670523ae374a1a991fe4329a2c637dedadbd9"
+    },
+    "host_source": {
+      "path": "matter/tools/cardboard_retained_matrix_damage_gpu_check.mm",
+      "sha256": "814bff7c6e4d869e8cf2530dc97f74c2a24a7f6c6d5d56d754cbdc8713d539a6"
+    },
+    "kernel_source": {
+      "path": "matter/tools/cardboard_retained_matrix_damage_check.metal",
+      "sha256": "4e2a06a78aa36746b2a34f49082b719a7316e96f11679d0620ee25f887173129"
+    },
+    "compile_history": "Initial host compile failed on an NSString/std::string conversion; corrected to use the configured Objective-C string path, rebuilt successfully. GPU runner was not executed.",
+    "intended_cli": "numi-matter-cardboard-retained-matrix-damage-metal-check matter/materials/hajali2009_liner_hill_ideal.nmatter matter/materials/hajali2009_medium_hill_ideal.nmatter matter/examples/cardboard/source-data/haj_ali_2009_bilinear_tension_fit_nodes.csv"
+  },
+  "superseded_diagnostics": [
+    {
+      "path": "matter/examples/cardboard/evidence/retained-matrix-source-current-001/superseded-stale-linked/first-pass-pre-late-compiler-rebuild.txt",
+      "sha256": "4ed7a983854ab52a314d9cd6e77de908aed0cdc273dab5f59f288f3df4bf789e",
+      "classification": "superseded_diagnostic_not_current_source_binding"
+    },
+    {
+      "path": "matter/examples/cardboard/evidence/retained-matrix-source-current-001/superseded-stale-linked/first-pass-pre-late-compiler-rebuild-executable",
+      "sha256": "ea7d849e7d44f65b435f9948230af0801b8101efe5f8454ac4655e9cdc5908c2",
+      "classification": "superseded_diagnostic_not_current_source_binding"
+    },
+    {
+      "path": "matter/examples/cardboard/evidence/retained-matrix-source-current-001/superseded-stale-linked/final-isolated.txt",
+      "sha256": "3bd5bdc76ee555ef69c0af40fe3aeb6f5f7f810c68f5ef82610c881fa007c971",
+      "classification": "superseded_diagnostic_not_current_source_binding"
+    },
+    {
+      "path": "matter/examples/cardboard/evidence/retained-matrix-source-current-001/superseded-stale-linked/final.txt",
+      "sha256": "87a77636e98391c5703e9ada403bb5e7e6aa32f314807fc4e6febf22ed23533d",
+      "classification": "superseded_diagnostic_not_current_source_binding"
+    },
+    {
+      "path": "matter/examples/cardboard/evidence/retained-matrix-source-current-001/superseded-stale-linked/sweep-branch.txt",
+      "sha256": "05d0b9efe70813f6d1e634865f9f926cb47dbf550dc099db9f1e8dc948cd6ca3",
+      "classification": "superseded_diagnostic_not_current_source_binding"
+    }
+  ],
+  "limits": [
+    "Damage, rate, and compression additions are explicit synthetic fixture values, not fitted to the retained Kraft/NSSC material recipe.",
+    "CPU check is a material-point integration; native Metal target was compiled only and root owns its GPU execution.",
+    "No finite-element coupon, box, seam, fold, impact, or physical densification validation is represented."
+  ]
+}

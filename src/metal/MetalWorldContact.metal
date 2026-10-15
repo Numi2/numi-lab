@@ -3906,6 +3906,7 @@ kernel void mr_world_predict_scene(
     device MRBodyStateGPU* candidateBodies [[buffer(5)]],
     device MRMetalWorldContactStatusGPU* statuses [[buffer(6)]],
     device const MRABABodyWrenchGPU* bodyWrenches [[buffer(7)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(8)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -3914,6 +3915,18 @@ kernel void mr_world_predict_scene(
     if (statuses[environment].code != MR_STEP_SUCCESS) {
         return;
     }
+    // Collision passes ordinarily stamp the current substep. Scene-only
+    // motion has no collision pass, but must supply the same typed certificate.
+    MRMetalWorldContactStatusGPU predictionStatus = statuses[environment];
+    predictionStatus.physicsSubstep = pass.physicsSubstep;
+    if (predictionStatus.environment != environment ||
+        predictionStatus.controlStep != pass.controlStep ||
+        pass.physicsSubstep == MR_INVALID_INDEX) {
+        predictionStatus.code = MR_STEP_UNSUPPORTED;
+        statuses[environment] = predictionStatus;
+        return;
+    }
+    statuses[environment] = predictionStatus;
     const uint bodyBase =
         environment * dispatch.bodyStateStride;
     for (uint body = 0u; body < dispatch.bodyCount; ++body) {
@@ -3934,15 +3947,19 @@ kernel void mr_world_predict_scene(
         }
         // Exponential damping is invariant under event-time splitting:
         // exp(-d * h0) * exp(-d * h1) == exp(-d * (h0 + h1)).
-        const float linearScale = exp(
+        const bool ownedCandidate =
+            (dispatch.flags &
+             MR_METAL_WORLD_CONTACT_OWNED_FREE_BODY_CANDIDATE) != 0u;
+        const float linearScale = ownedCandidate ? 1.0f : exp(
             -timestep *
                 properties.dampingAndSpeedLimits.x
         );
-        const float angularScale = exp(
+        const float angularScale = ownedCandidate ? 1.0f : exp(
             -timestep *
                 properties.dampingAndSpeedLimits.y
         );
-        float3 linearAcceleration = world.gravityAndTimestep.xyz;
+        float3 linearAcceleration = ownedCandidate
+            ? float3(0.0f) : world.gravityAndTimestep.xyz;
         float3 angularAcceleration = float3(0.0f);
         if ((dispatch.flags &
              MR_METAL_WORLD_CONTACT_BODY_WRENCHES) != 0u) {
@@ -4476,6 +4493,8 @@ kernel void mr_world_fill_point_query_tail(
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= contactDispatch.environmentCount ||
+        contactDispatch.articulationCount == 0u ||
+        contactDispatch.articulationIndex == MR_INVALID_INDEX ||
         statuses[environment].code != MR_STEP_SUCCESS) {
         return;
     }

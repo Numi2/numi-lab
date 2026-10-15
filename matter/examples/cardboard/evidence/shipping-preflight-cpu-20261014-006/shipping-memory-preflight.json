@@ -1,0 +1,34 @@
+{
+  "schema": "numi.cardboard.shipping-memory-preflight.v1",
+  "evidence_class": "native allocation accounting; not a physical qualification",
+  "phase": "compiled_world_static_lower_bound_only",
+  "compiled_world_fingerprint": 2253983890636028690,
+  "physics_fingerprint": 2253983890636028690,
+  "environment_count": 1,
+  "mesh": {"nodes": 453378, "tetrahedra": 1477728, "cohesive_faces": 0},
+  "source_bindings": {
+    "liner_sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+    "medium_sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+    "glue_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "material_map_sha256": "e63e316dc072abdf65f0fb90d1a7d1707ce040a202573c862e9115768a58608d",
+    "authored_region_map_sha256": "2f926ded08b70b698618224ec2993cffdea9d5ec9d7cf5e0088eecf75ff649df",
+    "material_frame_map_sha256": "28d7ca5b0588117ae39d754c1f3ba847ff5eeded5bd4c16a04010adb5470af5a",
+    "coupon_evidence_sha256": "",
+    "coupon_measurement_sha256": "",
+    "starch_parameters_sha256": "",
+    "shipping_hma_parameters_sha256": ""
+  },
+  "static_lower_bound_bytes": {
+    "fem_node_states": 36270240,
+    "tetrahedra": 141861888,
+    "fgmres_vectors": 478767168,
+    "sum": 656899296,
+    "scope": "lower bound only; excludes other runtime arenas, contact, checkpoints, command captures, host mesh, compiler and package buffers"
+  },
+  "peak_limit_bytes": 17179869184,
+  "static_lower_bound_within_limit": true,
+  "runtime_observation": null,
+  "native_initialize_required_before_memory_admission": true,
+  "qualification_allowed": false,
+  "shipping_stage_enabled": true
+}

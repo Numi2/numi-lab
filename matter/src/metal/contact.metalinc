@@ -428,9 +428,10 @@ inline float4 ipcBarrierResponse(
         (2.0f * logarithm + 4.0f * offset / squaredDistance -
          offset * offset / (squaredDistance * squaredDistance));
     const float force = -2.0f * distance * firstSquared;
-    const float hessian = max(
-        4.0f * squaredDistance * secondSquared + 2.0f * firstSquared,
-        0.0f);
+    const float hessian = separation < 1.0e-4f * thickness
+        ? 0.0f
+        : max(4.0f * squaredDistance * secondSquared +
+              2.0f * firstSquared, 0.0f);
     return float4(
         max(force, 0.0f) * timestep,
         hessian * timestep * timestep,
@@ -512,6 +513,46 @@ inline float3x3 ipcProjectedSpatialHessian(
             (tangentProjector - outerProduct(tangent, tangent) / speed2);
     }
     return hessian;
+}
+
+inline bool ipcBarrierHasStrictInertialStiffness(
+    const float separation,
+    const float thickness,
+    const float inverseResponse,
+    const float timestep,
+    const float closingSpeed
+) {
+    if (!(thickness > 0.0f) || !(inverseResponse > 0.0f) ||
+        !(timestep > 0.0f) || !isfinite(separation) ||
+        !isfinite(closingSpeed)) return false;
+    const float distance = max(separation, 1.0e-4f * thickness);
+    const float remaining = max(thickness - distance,
+        1.0e-3f * thickness);
+    const float squaredThickness = thickness * thickness;
+    const float inertialStiffness = 10.0f /
+        max(inverseResponse * timestep * timestep * squaredThickness,
+            1.0e-20f);
+    const float impactStiffness = max(closingSpeed, 0.0f) /
+        max(inverseResponse * timestep * remaining * squaredThickness,
+            1.0e-20f);
+    // Stay away from the max() kink; the impact branch is intentionally left
+    // on the historical operator until its own complete derivative is added.
+    return isfinite(inertialStiffness) && isfinite(impactStiffness) &&
+        inertialStiffness > 0.0f &&
+        impactStiffness < inertialStiffness * (1.0f - 32.0f * kEpsilon);
+}
+
+inline float3x3 ipcCapsuleSideGeometricHessian(
+    const float3 normal,
+    const float3 capsuleAxis,
+    const float normalImpulse,
+    const float radialDistance,
+    const float timestep
+) {
+    const float3x3 identity = float3x3(1.0f);
+    return (-timestep * normalImpulse / radialDistance) *
+        (identity - outerProduct(capsuleAxis, capsuleAxis) -
+         outerProduct(normal, normal));
 }
 
 inline float3 closestPointOnTriangle(
@@ -611,7 +652,9 @@ inline uint3 surfaceNodes(
 inline uint continuumSurfacePrimitiveCount(
     const NMMatterDispatchGPU dispatch
 ) {
-    return 4u * dispatch.tetrahedronCount + dispatch.gridNodeCount;
+    const uint femCount = (dispatch.flags & NM_MATTER_STATIC_FEM_SURFACE_MAP) != 0u
+        ? dispatch.surfaceFaceCount : 4u * dispatch.tetrahedronCount;
+    return femCount + dispatch.gridNodeCount;
 }
 
 kernel void nm_contact_build_surface_primitives(
@@ -628,9 +671,14 @@ kernel void nm_contact_build_surface_primitives(
     device const uint* nodeIncidence [[buffer(10)]],
     device const NMIncidenceRangeGPU* nodeRanges [[buffer(11)]],
     device NMContinuumSurfacePrimitiveGPU* primitives [[buffer(12)]],
+    device const NMFEMSurfaceFaceGPU* staticSurfaceFaces [[buffer(13)]],
+    device const NMFEMNodeStateGPU* privateBaseNodes [[buffer(14)]],
+    constant uint& includePrivateBase [[buffer(15)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint femPrimitiveCount = 4u * dispatch.tetrahedronCount;
+    const bool compact = (dispatch.flags & NM_MATTER_STATIC_FEM_SURFACE_MAP) != 0u;
+    const uint femPrimitiveCount = compact
+        ? dispatch.surfaceFaceCount : 4u * dispatch.tetrahedronCount;
     const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
     const uint total = dispatch.environmentCount * primitiveCount;
     if (global >= total || primitiveCount == 0u) return;
@@ -688,8 +736,11 @@ kernel void nm_contact_build_surface_primitives(
         return;
     }
 
-    const uint tetrahedronIndex = localPrimitive >> 2u;
-    const uint opposite = localPrimitive & 3u;
+    const uint tetrahedronIndex = compact
+        ? staticSurfaceFaces[localPrimitive].adjacency.x : localPrimitive >> 2u;
+    const uint opposite = compact
+        ? staticSurfaceFaces[localPrimitive].sides.x : localPrimitive & 3u;
+    if (tetrahedronIndex >= dispatch.tetrahedronCount || opposite >= 4u) return;
     const uint tetrahedronBase = environment * dispatch.tetrahedronCount;
     const NMTetrahedronGPU tetrahedron =
         tetrahedra[tetrahedronBase + tetrahedronIndex];
@@ -701,6 +752,7 @@ kernel void nm_contact_build_surface_primitives(
     // Dynamic face ownership is derived from the rebuilt node incidence, so
     // split/collapse/flip/cohesive mutations never retain a stale cooked
     // surface graph. Any matching active neighbor makes this face internal.
+    if (!compact) {
     const NMIncidenceRangeGPU adjacency = nodeRanges[
         environment * dispatch.femNodeCount + currentNodes.x];
     const uint3 sortedCurrent = sortedSurfaceNodes(currentNodes);
@@ -717,6 +769,7 @@ kernel void nm_contact_build_surface_primitives(
             if (all(sortedSurfaceNodes(surfaceNodes(
                     other, otherOpposite)) == sortedCurrent))
                 return;
+    }
     }
 
     const uint objectIndex = tetrahedron.identity.y;
@@ -738,6 +791,13 @@ kernel void nm_contact_build_surface_primitives(
             dt * node.velocityAndInverseMass.xyz;
         minimumPoint = min(minimumPoint, min(previous, position[corner]));
         maximumPoint = max(maximumPoint, max(previous, position[corner]));
+        if (includePrivateBase != 0u) {
+            const float3 basePosition = privateBaseNodes[
+                nodeBase + currentNodes[corner]].positionAndMass.xyz;
+            if (!finite3(basePosition)) return;
+            minimumPoint = min(minimumPoint, basePosition);
+            maximumPoint = max(maximumPoint, basePosition);
+        }
         maximumTravel = max(
             maximumTravel, length(position[corner] - previous));
     }
@@ -752,7 +812,7 @@ kernel void nm_contact_build_surface_primitives(
         objectIndex
     };
     primitive.identity = {
-        localPrimitive, NM_CONTINUUM_SURFACE_TRIANGLE,
+        4u * tetrahedronIndex + opposite, NM_CONTINUUM_SURFACE_TRIANGLE,
         tetrahedron.identity.z, NM_TOPOLOGY_ACTIVE
     };
     primitive.boundsMinimum = float4(minimumPoint - thickness, area);
@@ -935,14 +995,53 @@ inline bool surfacePrimitivesShareNode(
             if (leftNode >= dispatch.femNodeCount ||
                 rightNode >= dispatch.femNodeCount) continue;
             const uint base = environment * dispatch.femNodeCount;
-            // Cohesive mutation duplicates a node but deliberately preserves
-            // its stable source lineage. Treat lineage-sharing faces as
-            // adjacent, avoiding a zero-gap self-contact barrier across the
-            // newly separated interface.
             if (topologyNodes[base + leftNode].identity.x ==
                 topologyNodes[base + rightNode].identity.x)
                 return true;
         }
+    return false;
+}
+
+inline bool exactMixedMortarParentPair(
+    const NMMatterDispatchGPU dispatch,
+    const NMContinuumSurfacePrimitiveGPU left,
+    const NMContinuumSurfacePrimitiveGPU right,
+    const uint environment,
+    device const NMIncidenceRangeGPU* cohesiveSurfaceFaceRanges,
+    device const nm_uint4* cohesiveSurfaceFaceRefs,
+    device const NMCohesiveFaceGPU* cohesiveFaces
+) {
+    const uint primitiveLimit = 4u * dispatch.tetrahedronCount;
+    if (left.identity.x >= primitiveLimit ||
+        right.identity.x >= primitiveLimit ||
+        dispatch.cohesiveFaceCount == 0u) return false;
+    const NMIncidenceRangeGPU range =
+        cohesiveSurfaceFaceRanges[left.identity.x];
+    const uint referenceCount = 2u * dispatch.cohesiveFaceCount;
+    if (range.first >= referenceCount ||
+        range.count > referenceCount - range.first) return false;
+    const uint faceBase = environment * dispatch.cohesiveFaceCount;
+    const uint required = NM_TOPOLOGY_PAIRED_COHESIVE |
+        NM_TOPOLOGY_COHESIVE_MIXED_MODE | NM_TOPOLOGY_COHESIVE_MORTAR;
+    for (uint local = 0u; local < range.count; ++local) {
+        const nm_uint4 reference =
+            cohesiveSurfaceFaceRefs[range.first + local];
+        if (reference.x != right.identity.x ||
+            reference.y >= dispatch.cohesiveFaceCount || reference.z > 1u)
+            continue;
+        const NMCohesiveFaceGPU face =
+            cohesiveFaces[faceBase + reference.y];
+        if ((face.adjacency.w & required) != required ||
+            face.lawIdentity.x != NM_COHESIVE_LAW_MIXED_MODE_BILINEAR)
+            continue;
+        const bool leftIsSideB = reference.z == 1u;
+        const uint leftTet = leftIsSideB
+            ? face.adjacency.x : face.nodesAndFirst.w;
+        const uint rightTet = leftIsSideB
+            ? face.nodesAndFirst.w : face.adjacency.x;
+        if ((left.identity.x >> 2u) == leftTet &&
+            (right.identity.x >> 2u) == rightTet) return true;
+    }
     return false;
 }
 
@@ -952,7 +1051,10 @@ inline bool surfacePairEligible(
     const NMContinuumSurfacePrimitiveGPU right,
     device const NMContinuumObjectGPU* objects,
     device const NMFEMTopologyNodeGPU* topologyNodes,
-    const uint environment
+    const uint environment,
+    device const NMIncidenceRangeGPU* cohesiveSurfaceFaceRanges,
+    device const nm_uint4* cohesiveSurfaceFaceRefs,
+    device const NMCohesiveFaceGPU* cohesiveFaces
 ) {
     if ((left.nodesAndObject.w < dispatch.objectCount &&
          (objects[left.nodesAndObject.w].flags &
@@ -966,8 +1068,865 @@ inline bool surfacePairEligible(
             NM_OBJECT_DISABLE_SELF_CONTACT) != 0u) return false;
     if (left.identity.y == NM_CONTINUUM_SURFACE_POINT &&
         right.identity.y == NM_CONTINUUM_SURFACE_POINT) return false;
-    return !surfacePrimitivesShareNode(
-        dispatch, left, right, topologyNodes, environment);
+    if (!surfacePrimitivesShareNode(
+            dispatch, left, right, topologyNodes, environment)) return true;
+    // Keep the legacy sibling-culling rule except for the exact two parent
+    // primitives represented by a mixed-mode mortar patch. Narrowphase then
+    // suppresses covered×covered points and retains every uncovered region.
+    return exactMixedMortarParentPair(
+        dispatch, left, right, environment,
+        cohesiveSurfaceFaceRanges, cohesiveSurfaceFaceRefs, cohesiveFaces);
+}
+
+inline bool cohesivePatchContainsPrimitivePoint(
+    const NMCohesiveFaceGPU face,
+    const bool sideB,
+    const NMContinuumSurfacePrimitiveGPU primitive,
+    const uint gridNodeCount,
+    const float3 primitiveBarycentric
+) {
+    const uint3 faceNodes = sideB
+        ? uint3(face.separatedNodes.xyz)
+        : uint3(face.nodesAndFirst.xyz);
+    float3 parentBarycentric = float3(0.0f);
+    // Float-roundoff allowance only: at the fixture's 2 mm edge scale this
+    // corresponds to 4 nm, comparable to the configured geometric floor.
+    constexpr float supportWeightTolerance = 2.0e-6f;
+    if (!all(isfinite(primitiveBarycentric)) ||
+        abs(dot(primitiveBarycentric, float3(1.0f)) - 1.0f) > 2.0e-4f)
+        return false;
+    for (uint corner = 0u; corner < 3u; ++corner) {
+        bool matched = false;
+        for (uint parentCorner = 0u; parentCorner < 3u; ++parentCorner) {
+            if (primitive.nodesAndObject[corner] ==
+                    gridNodeCount + faceNodes[parentCorner]) {
+                parentBarycentric[parentCorner] +=
+                    primitiveBarycentric[corner];
+                matched = true;
+                break;
+            }
+        }
+        // A closest feature may lie exactly on a paired endpoint/edge even
+        // when its incident surface primitive extends outside the mortar
+        // parent triangle. Ignore only primitive corners with zero support;
+        // any nonzero off-patch contribution remains ordinary self-contact.
+        if (!matched && abs(primitiveBarycentric[corner]) >
+                supportWeightTolerance) return false;
+    }
+
+    const float3 patch0 = sideB
+        ? face.mortarSideBVertexWeights[0].xyz
+        : face.mortarSideAVertexWeights[0].xyz;
+    const float3 patch1 = sideB
+        ? face.mortarSideBVertexWeights[1].xyz
+        : face.mortarSideAVertexWeights[1].xyz;
+    const float3 patch2 = sideB
+        ? face.mortarSideBVertexWeights[2].xyz
+        : face.mortarSideAVertexWeights[2].xyz;
+    // Barycentric coordinates live in a two-dimensional affine plane. Solve
+    // for the point's coordinates in the mapped patch triangle, preserving
+    // ordinary self-contact over the uncovered part of a parent face.
+    const float2 edge1 = patch1.xy - patch0.xy;
+    const float2 edge2 = patch2.xy - patch0.xy;
+    const float2 query = parentBarycentric.xy - patch0.xy;
+    const float determinant = edge1.x * edge2.y - edge1.y * edge2.x;
+    if (!isfinite(determinant) || abs(determinant) <= 1.0e-12f)
+        return false;
+    const float alpha1 =
+        (query.x * edge2.y - query.y * edge2.x) / determinant;
+    const float alpha2 =
+        (edge1.x * query.y - edge1.y * query.x) / determinant;
+    const float alpha0 = 1.0f - alpha1 - alpha2;
+    constexpr float patchEdgeTolerance = 2.0e-4f;
+    return isfinite(alpha0) && isfinite(alpha1) && isfinite(alpha2) &&
+        alpha0 >= -patchEdgeTolerance &&
+        alpha1 >= -patchEdgeTolerance &&
+        alpha2 >= -patchEdgeTolerance &&
+        alpha0 <= 1.0f + patchEdgeTolerance &&
+        alpha1 <= 1.0f + patchEdgeTolerance &&
+        alpha2 <= 1.0f + patchEdgeTolerance;
+}
+
+struct NMMortarContactSubtriangle {
+    float3 bary[3];
+    uint coveredByCohesive;
+};
+
+struct NMMortarContactPartition {
+    NMMortarContactSubtriangle triangle[10];
+    uint count;
+};
+
+inline bool vertexTriangleCCD(
+    const float3 vertex0, const float3 vertex1,
+    const float3 a0, const float3 a1,
+    const float3 b0, const float3 b1,
+    const float3 c0, const float3 c1,
+    const float thickness,
+    thread float& toi, thread float3& normal,
+    thread float3& barycentric, thread float3& point,
+    thread float& separation, thread bool& certified);
+
+inline bool edgeEdgeCCD(
+    const float3 p00, const float3 p01,
+    const float3 p10, const float3 p11,
+    const float3 q00, const float3 q01,
+    const float3 q10, const float3 q11,
+    const float thickness,
+    thread float& toi, thread float3& normal,
+    thread float2& parameters, thread float3& point,
+    thread float& separation, thread bool& certified);
+
+inline float crossMortarBary2(const float2 a, const float2 b) {
+    return a.x * b.y - a.y * b.x;
+}
+
+inline float crossMortarBary2(const float3 a, const float3 b) {
+    return crossMortarBary2(a.xy, b.xy);
+}
+
+inline uint clipMortarBaryPolygon(
+    thread const float3* input,
+    const uint inputCount,
+    const float3 edgeStart,
+    const float3 edgeEnd,
+    const float orientation,
+    const bool keepInside,
+    thread float3* output
+) {
+    uint outputCount = 0u;
+    if (inputCount < 3u || inputCount > 6u) return 0u;
+    const float2 edge = edgeEnd.xy - edgeStart.xy;
+    constexpr float clipTolerance = 1.0e-7f;
+    for (uint index = 0u; index < inputCount; ++index) {
+        const float3 a = input[index];
+        const float3 b = input[(index + 1u) % inputCount];
+        const float sideA = orientation * crossMortarBary2(
+            edge, (a - edgeStart).xy);
+        const float sideB = orientation * crossMortarBary2(
+            edge, (b - edgeStart).xy);
+        const bool aInside = keepInside
+            ? sideA >= -clipTolerance : sideA <= clipTolerance;
+        const bool bInside = keepInside
+            ? sideB >= -clipTolerance : sideB <= clipTolerance;
+        if (aInside && outputCount < 6u) output[outputCount++] = a;
+        if (aInside != bInside && outputCount < 6u) {
+            const float denominator = sideA - sideB;
+            if (abs(denominator) <= 1.0e-20f) return 0u;
+            const float fraction = clamp(sideA / denominator, 0.0f, 1.0f);
+            const float2 xy = a.xy + fraction * (b.xy - a.xy);
+            output[outputCount++] = float3(xy, 1.0f - xy.x - xy.y);
+        }
+    }
+    return outputCount;
+}
+
+inline bool mortarPatchInPrimitiveCoordinates(
+    const NMCohesiveFaceGPU face,
+    const bool sideB,
+    const NMContinuumSurfacePrimitiveGPU primitive,
+    const uint gridNodeCount,
+    thread float3& patch0,
+    thread float3& patch1,
+    thread float3& patch2
+) {
+    const uint3 faceNodes = sideB
+        ? uint3(face.separatedNodes.xyz)
+        : uint3(face.nodesAndFirst.xyz);
+    for (uint patchVertex = 0u; patchVertex < 3u; ++patchVertex) {
+        const float3 source = sideB
+            ? face.mortarSideBVertexWeights[patchVertex].xyz
+            : face.mortarSideAVertexWeights[patchVertex].xyz;
+        if (patchVertex == 0u) patch0 = float3(0.0f);
+        else if (patchVertex == 1u) patch1 = float3(0.0f);
+        else patch2 = float3(0.0f);
+        for (uint faceCorner = 0u; faceCorner < 3u; ++faceCorner) {
+            bool found = false;
+            for (uint primitiveCorner = 0u; primitiveCorner < 3u;
+                 ++primitiveCorner) {
+                if (primitive.nodesAndObject[primitiveCorner] ==
+                    gridNodeCount + faceNodes[faceCorner]) {
+                    if (patchVertex == 0u)
+                        patch0[primitiveCorner] = source[faceCorner];
+                    else if (patchVertex == 1u)
+                        patch1[primitiveCorner] = source[faceCorner];
+                    else
+                        patch2[primitiveCorner] = source[faceCorner];
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) return false;
+        }
+    }
+    return all(isfinite(patch0)) && all(isfinite(patch1)) &&
+        all(isfinite(patch2));
+}
+
+inline bool appendMortarPolygonTriangulation(
+    thread NMMortarContactPartition& partition,
+    thread const float3* polygon,
+    const uint polygonCount,
+    const uint coveredByCohesive
+) {
+    if (polygonCount < 3u || polygonCount > 6u) return polygonCount < 3u;
+    for (uint polygonVertex = 1u; polygonVertex + 1u < polygonCount;
+         ++polygonVertex) {
+        const float area2 = abs(crossMortarBary2(
+            polygon[polygonVertex] - polygon[0],
+            polygon[polygonVertex + 1u] - polygon[0]));
+        if (!(area2 > 1.0e-10f) || !isfinite(area2)) continue;
+        if (partition.count >= 10u) return false;
+        NMMortarContactSubtriangle triangle{};
+        triangle.bary[0] = polygon[0];
+        triangle.bary[1] = polygon[polygonVertex];
+        triangle.bary[2] = polygon[polygonVertex + 1u];
+        triangle.coveredByCohesive = coveredByCohesive;
+        partition.triangle[partition.count++] = triangle;
+    }
+    return true;
+}
+
+inline bool buildMortarContactPartition(
+    const NMCohesiveFaceGPU face,
+    const bool sideB,
+    const NMContinuumSurfacePrimitiveGPU primitive,
+    const uint gridNodeCount,
+    thread NMMortarContactPartition& partition
+) {
+    partition.count = 0u;
+    float3 patch[3];
+    if (!mortarPatchInPrimitiveCoordinates(face, sideB, primitive,
+            gridNodeCount, patch[0], patch[1], patch[2])) return false;
+    for (uint patchVertexIndex = 0u; patchVertexIndex < 3u;
+         ++patchVertexIndex) {
+        if (any(patch[patchVertexIndex] < float3(-1.0e-5f)) ||
+            any(patch[patchVertexIndex] > float3(1.00001f)) ||
+            abs(dot(patch[patchVertexIndex], float3(1.0f)) - 1.0f) > 1.0e-4f)
+            return false;
+    }
+    const float signedArea2 = crossMortarBary2(
+        patch[1] - patch[0], patch[2] - patch[0]);
+    if (!isfinite(signedArea2) || abs(signedArea2) <= 1.0e-10f)
+        return false;
+    const float orientation = signedArea2 > 0.0f ? 1.0f : -1.0f;
+    NMMortarContactSubtriangle covered{};
+    covered.bary[0] = patch[0];
+    covered.bary[1] = patch[1];
+    covered.bary[2] = patch[2];
+    covered.coveredByCohesive = 1u;
+    partition.triangle[partition.count++] = covered;
+
+    const float3 unit[3] = {
+        float3(1.0f, 0.0f, 0.0f),
+        float3(0.0f, 1.0f, 0.0f),
+        float3(0.0f, 0.0f, 1.0f),
+    };
+    for (uint outsideEdge = 0u; outsideEdge < 3u; ++outsideEdge) {
+        float3 polygonA[6], polygonB[6];
+        for (uint localVertex = 0u; localVertex < 3u; ++localVertex)
+            polygonA[localVertex] = unit[localVertex];
+        uint polygonCount = 3u;
+        for (uint edgeIndex = 0u; edgeIndex <= outsideEdge; ++edgeIndex) {
+            const uint next = (edgeIndex + 1u) % 3u;
+            const bool keepInside = edgeIndex != outsideEdge;
+            const uint clipped = clipMortarBaryPolygon(
+                polygonA, polygonCount, patch[edgeIndex], patch[next],
+                orientation, keepInside, polygonB);
+            polygonCount = clipped;
+            for (uint localVertex = 0u; localVertex < polygonCount;
+                 ++localVertex)
+                polygonA[localVertex] = polygonB[localVertex];
+            if (polygonCount < 3u) break;
+        }
+        if (!appendMortarPolygonTriangulation(
+                partition, polygonA, polygonCount, 0u)) return false;
+    }
+    return partition.count > 0u && partition.count <= 10u;
+}
+
+inline bool activeMixedCohesiveFaceForPrimitivePair(
+    const NMMatterDispatchGPU dispatch,
+    const NMContinuumSurfacePrimitiveGPU left,
+    const NMContinuumSurfacePrimitiveGPU right,
+    const uint environment,
+    device const NMIncidenceRangeGPU* ranges,
+    device const nm_uint4* references,
+    device const NMCohesiveFaceGPU* faces,
+    thread bool& found,
+    thread bool& leftIsSideB,
+    thread NMCohesiveFaceGPU& selectedFace
+) {
+    found = false;
+    leftIsSideB = false;
+    if (left.identity.x >= 4u * dispatch.tetrahedronCount ||
+        right.identity.x >= 4u * dispatch.tetrahedronCount ||
+        dispatch.cohesiveFaceCount == 0u) return true;
+    const NMIncidenceRangeGPU range = ranges[left.identity.x];
+    const uint referenceCount = 2u * dispatch.cohesiveFaceCount;
+    if (range.count == 0u) return true;
+    if (range.first >= referenceCount ||
+        range.count > referenceCount - range.first) return false;
+    const uint faceBase = environment * dispatch.cohesiveFaceCount;
+    for (uint local = 0u; local < range.count; ++local) {
+        const nm_uint4 reference = references[range.first + local];
+        if (reference.x != right.identity.x) continue;
+        if (reference.y >= dispatch.cohesiveFaceCount || reference.z > 1u)
+            return false;
+        const NMCohesiveFaceGPU face = faces[faceBase + reference.y];
+        const uint required = NM_TOPOLOGY_ACTIVE |
+            NM_TOPOLOGY_PAIRED_COHESIVE |
+            NM_TOPOLOGY_COHESIVE_MIXED_MODE;
+        if ((face.adjacency.w & required) != required ||
+            (face.adjacency.w & NM_TOPOLOGY_COHESIVE_DORMANT) != 0u ||
+            face.lawIdentity.x != NM_COHESIVE_LAW_MIXED_MODE_BILINEAR)
+            continue;
+        const bool currentLeftIsSideB = reference.z == 1u;
+        const uint leftParentTet = currentLeftIsSideB
+            ? face.adjacency.x : face.nodesAndFirst.w;
+        const uint rightParentTet = currentLeftIsSideB
+            ? face.nodesAndFirst.w : face.adjacency.x;
+        if ((left.identity.x >> 2u) != leftParentTet ||
+            (right.identity.x >> 2u) != rightParentTet) continue;
+        if (found) return false;
+        found = true;
+        leftIsSideB = currentLeftIsSideB;
+        selectedFace = face;
+    }
+    return true;
+}
+
+struct NMMortarContactData {
+    uint found;
+    uint kind;
+    uint positiveSide;
+    uint negativeSide;
+    float toi;
+    float3 normal;
+    float3 point;
+    float separation;
+    float featureMollifier;
+    float supportWeight[6];
+    float3 featureBarycentric[4];
+    uint featureSide[4];
+};
+
+inline float3 mortarBaryPoint(
+    const float3 barycentric,
+    thread const float3* triangle
+) {
+    return barycentric.x * triangle[0] +
+        barycentric.y * triangle[1] + barycentric.z * triangle[2];
+}
+
+inline float3 mortarFeatureBarycentric(
+    const float3 localBarycentric,
+    const NMMortarContactSubtriangle triangle
+) {
+    return localBarycentric.x * triangle.bary[0] +
+        localBarycentric.y * triangle.bary[1] +
+        localBarycentric.z * triangle.bary[2];
+}
+
+inline void considerMortarVertexTriangle(
+    const float3 pointStart,
+    const float3 pointFinish,
+    const float3 triangleStart0,
+    const float3 triangleFinish0,
+    const float3 triangleStart1,
+    const float3 triangleFinish1,
+    const float3 triangleStart2,
+    const float3 triangleFinish2,
+    const float thickness,
+    const uint pointSide,
+    const float3 pointBarycentric,
+    const NMMortarContactSubtriangle pointTriangle,
+    const NMMortarContactSubtriangle opposingTriangle,
+    thread NMMortarContactData& best
+) {
+    float toi, separation;
+    float3 normal, barycentric, point;
+    bool certified = false;
+    const bool hit = vertexTriangleCCD(
+        pointStart, pointFinish,
+        triangleStart0, triangleFinish0,
+        triangleStart1, triangleFinish1,
+        triangleStart2, triangleFinish2,
+        thickness, toi, normal, barycentric, point, separation, certified);
+    if (!certified || !hit || !(toi < best.toi)) return;
+    best.found = 1u;
+    best.kind = NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE;
+    best.positiveSide = pointSide;
+    best.negativeSide = 1u - pointSide;
+    best.toi = toi;
+    best.normal = normal;
+    best.point = point;
+    best.separation = separation;
+    best.featureSide[0] = pointSide;
+    best.featureBarycentric[0] = pointBarycentric;
+    for (uint corner = 0u; corner < 3u; ++corner) {
+        best.featureSide[corner + 1u] = 1u - pointSide;
+        best.featureBarycentric[corner + 1u] =
+            opposingTriangle.bary[corner];
+    }
+    (void)pointTriangle;
+}
+
+inline void considerMortarEdgeEdge(
+    const float3 leftStart0,
+    const float3 leftFinish0,
+    const float3 leftStart1,
+    const float3 leftFinish1,
+    const float3 rightStart0,
+    const float3 rightFinish0,
+    const float3 rightStart1,
+    const float3 rightFinish1,
+    const float thickness,
+    const NMMortarContactSubtriangle leftTriangle,
+    const uint2 leftEdge,
+    const NMMortarContactSubtriangle rightTriangle,
+    const uint2 rightEdge,
+    thread NMMortarContactData& best,
+    thread bool& certified
+) {
+    float toi, separation;
+    float3 normal, point;
+    float2 parameters;
+    bool localCertified = false;
+    const bool hit = edgeEdgeCCD(
+        leftStart0, leftFinish0, leftStart1, leftFinish1,
+        rightStart0, rightFinish0, rightStart1, rightFinish1,
+        thickness, toi, normal, parameters, point, separation,
+        localCertified);
+    certified = certified && localCertified;
+    if (!localCertified || !hit || !(toi < best.toi)) return;
+    best.found = 1u;
+    best.kind = NM_DEFORMABLE_CONTACT_EDGE_EDGE;
+    best.positiveSide = 0u;
+    best.negativeSide = 1u;
+    best.toi = toi;
+    best.normal = normal;
+    best.point = point;
+    best.separation = separation;
+    best.featureSide[0] = 0u;
+    best.featureSide[1] = 0u;
+    best.featureSide[2] = 1u;
+    best.featureSide[3] = 1u;
+    best.featureBarycentric[0] = leftTriangle.bary[leftEdge.x];
+    best.featureBarycentric[1] = leftTriangle.bary[leftEdge.y];
+    best.featureBarycentric[2] = rightTriangle.bary[rightEdge.x];
+    best.featureBarycentric[3] = rightTriangle.bary[rightEdge.y];
+}
+
+inline bool mortarSubtriangleMayOverlap(
+    const NMMortarContactSubtriangle left,
+    const NMMortarContactSubtriangle right,
+    thread const float3* leftStart,
+    thread const float3* leftFinish,
+    thread const float3* rightStart,
+    thread const float3* rightFinish,
+    const float thickness
+) {
+    float3 leftMinimum = float3(INFINITY);
+    float3 leftMaximum = float3(-INFINITY);
+    float3 rightMinimum = float3(INFINITY);
+    float3 rightMaximum = float3(-INFINITY);
+    for (uint localVertex = 0u; localVertex < 3u; ++localVertex) {
+        const float3 ls = mortarBaryPoint(left.bary[localVertex], leftStart);
+        const float3 lf = mortarBaryPoint(left.bary[localVertex], leftFinish);
+        const float3 rs = mortarBaryPoint(right.bary[localVertex], rightStart);
+        const float3 rf = mortarBaryPoint(right.bary[localVertex], rightFinish);
+        leftMinimum = min(leftMinimum, min(ls, lf));
+        leftMaximum = max(leftMaximum, max(ls, lf));
+        rightMinimum = min(rightMinimum, min(rs, rf));
+        rightMaximum = max(rightMaximum, max(rs, rf));
+    }
+    const float3 gap = max(max(leftMinimum - rightMaximum,
+        rightMinimum - leftMaximum), float3(0.0f));
+    return dot(gap, gap) <= thickness * thickness;
+}
+
+inline bool findMortarComplementContact(
+    const NMMortarContactPartition leftPartition,
+    const NMMortarContactPartition rightPartition,
+    thread const float3* leftStart,
+    thread const float3* leftFinish,
+    thread const float3* rightStart,
+    thread const float3* rightFinish,
+    const float thickness,
+    thread NMMortarContactData& best
+) {
+    constexpr uint2 edges[3] = {
+        uint2(0u, 1u), uint2(1u, 2u), uint2(2u, 0u)
+    };
+    bool allCertified = true;
+    best.found = 0u;
+    best.toi = INFINITY;
+    for (uint leftIndex = 0u; leftIndex < leftPartition.count;
+         ++leftIndex) {
+        const NMMortarContactSubtriangle leftTriangle =
+            leftPartition.triangle[leftIndex];
+        for (uint rightIndex = 0u; rightIndex < rightPartition.count;
+             ++rightIndex) {
+            const NMMortarContactSubtriangle rightTriangle =
+                rightPartition.triangle[rightIndex];
+            if (leftTriangle.coveredByCohesive != 0u &&
+                rightTriangle.coveredByCohesive != 0u) continue;
+            if (!mortarSubtriangleMayOverlap(
+                    leftTriangle, rightTriangle,
+                    leftStart, leftFinish, rightStart, rightFinish,
+                    thickness)) continue;
+
+            float3 leftSubStart[3], leftSubFinish[3];
+            float3 rightSubStart[3], rightSubFinish[3];
+            for (uint localVertex = 0u; localVertex < 3u; ++localVertex) {
+                leftSubStart[localVertex] = mortarBaryPoint(
+                    leftTriangle.bary[localVertex], leftStart);
+                leftSubFinish[localVertex] = mortarBaryPoint(
+                    leftTriangle.bary[localVertex], leftFinish);
+                rightSubStart[localVertex] = mortarBaryPoint(
+                    rightTriangle.bary[localVertex], rightStart);
+                rightSubFinish[localVertex] = mortarBaryPoint(
+                    rightTriangle.bary[localVertex], rightFinish);
+            }
+
+            for (uint leftVertex = 0u; leftVertex < 3u; ++leftVertex) {
+                float toi, separation;
+                float3 normal, barycentric, point;
+                bool certified = false;
+                const bool hit = vertexTriangleCCD(
+                    leftSubStart[leftVertex], leftSubFinish[leftVertex],
+                    rightSubStart[0], rightSubFinish[0],
+                    rightSubStart[1], rightSubFinish[1],
+                    rightSubStart[2], rightSubFinish[2],
+                    thickness, toi, normal, barycentric, point,
+                    separation, certified);
+                allCertified = allCertified && certified;
+                if (certified && hit && toi < best.toi) {
+                    considerMortarVertexTriangle(
+                        leftSubStart[leftVertex], leftSubFinish[leftVertex],
+                        rightSubStart[0], rightSubFinish[0],
+                        rightSubStart[1], rightSubFinish[1],
+                        rightSubStart[2], rightSubFinish[2],
+                        thickness, 0u,
+                        leftTriangle.bary[leftVertex], leftTriangle,
+                        rightTriangle, best);
+                }
+            }
+            for (uint rightVertex = 0u; rightVertex < 3u; ++rightVertex) {
+                float toi, separation;
+                float3 normal, barycentric, point;
+                bool certified = false;
+                const bool hit = vertexTriangleCCD(
+                    rightSubStart[rightVertex], rightSubFinish[rightVertex],
+                    leftSubStart[0], leftSubFinish[0],
+                    leftSubStart[1], leftSubFinish[1],
+                    leftSubStart[2], leftSubFinish[2],
+                    thickness, toi, normal, barycentric, point,
+                    separation, certified);
+                allCertified = allCertified && certified;
+                if (certified && hit && toi < best.toi) {
+                    considerMortarVertexTriangle(
+                        rightSubStart[rightVertex], rightSubFinish[rightVertex],
+                        leftSubStart[0], leftSubFinish[0],
+                        leftSubStart[1], leftSubFinish[1],
+                        leftSubStart[2], leftSubFinish[2],
+                        thickness, 1u,
+                        rightTriangle.bary[rightVertex], rightTriangle,
+                        leftTriangle, best);
+                }
+            }
+            for (uint leftEdge = 0u; leftEdge < 3u; ++leftEdge)
+                for (uint rightEdge = 0u; rightEdge < 3u; ++rightEdge) {
+                    bool certified = true;
+                    considerMortarEdgeEdge(
+                        leftSubStart[edges[leftEdge].x],
+                        leftSubFinish[edges[leftEdge].x],
+                        leftSubStart[edges[leftEdge].y],
+                        leftSubFinish[edges[leftEdge].y],
+                        rightSubStart[edges[rightEdge].x],
+                        rightSubFinish[edges[rightEdge].x],
+                        rightSubStart[edges[rightEdge].y],
+                        rightSubFinish[edges[rightEdge].y],
+                        thickness, leftTriangle, edges[leftEdge],
+                        rightTriangle, edges[rightEdge], best, certified);
+                    allCertified = allCertified && certified;
+                }
+        }
+    }
+    return allCertified;
+}
+
+// Private Newton trials must not pass through a self-contact pair merely
+// because that pair was absent from the accepted-contact history. The private
+// broadphase includes the exact current Newton base and the trial endpoint;
+// this validator then certifies that complete segment without changing the
+// trial fraction or any accepted contact/cohesive history.
+kernel void nm_contact_validate_armijo_deformable_sweep(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(2)]],
+    device const NMDeformableContactCandidateGPU* candidates [[buffer(3)]],
+    device const uint* candidateCounts [[buffer(4)]],
+    device const NMFEMNodeStateGPU* baseNodes [[buffer(5)]],
+    device const NMFEMNodeStateGPU* trialNodes [[buffer(6)]],
+    device const NMIncidenceRangeGPU* cohesiveSurfaceFaceRanges [[buffer(7)]],
+    device const nm_uint4* cohesiveSurfaceFaceRefs [[buffer(8)]],
+    device const NMCohesiveFaceGPU* cohesiveFaces [[buffer(9)]],
+    device NMMatterStatusGPU* statuses [[buffer(10)]],
+    device const NMContinuumObjectGPU* objects [[buffer(11)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint capacity = dispatch.deformableContactCapacity;
+    const uint total = dispatch.environmentCount * capacity;
+    if (global >= total || capacity == 0u) return;
+    const uint environment = global / capacity;
+    const uint slot = global - environment * capacity;
+    if (!environmentHealthy(statuses, environment)) return;
+    const uint count = candidateCounts[environment];
+    if (count > capacity) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX, slot,
+            float4(float(count), float(capacity), 0.0f, 1.0f));
+        return;
+    }
+    if (slot >= count) return;
+
+    const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
+    const uint candidateGlobal = environment * capacity + slot;
+    const NMDeformableContactCandidateGPU candidate =
+        candidates[candidateGlobal];
+    if (candidate.identity.z != slot ||
+        candidate.identity.x >= primitiveCount ||
+        candidate.identity.y >= primitiveCount ||
+        candidate.identity.x == candidate.identity.y) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX, slot,
+            float4(float(candidate.identity.x), float(candidate.identity.y),
+                   float(candidate.identity.z), 2.0f));
+        return;
+    }
+    const uint primitiveBase = environment * primitiveCount;
+    const NMContinuumSurfacePrimitiveGPU left =
+        primitives[primitiveBase + candidate.identity.x];
+    const NMContinuumSurfacePrimitiveGPU right =
+        primitives[primitiveBase + candidate.identity.y];
+    const uint femNodeBase = environment * dispatch.femNodeCount;
+    if ((left.identity.w & NM_TOPOLOGY_ACTIVE) == 0u ||
+        (right.identity.w & NM_TOPOLOGY_ACTIVE) == 0u ||
+        left.identity.y != NM_CONTINUUM_SURFACE_TRIANGLE ||
+        right.identity.y != NM_CONTINUUM_SURFACE_TRIANGLE ||
+        left.nodesAndObject.w >= dispatch.objectCount ||
+        right.nodesAndObject.w >= dispatch.objectCount ||
+        dispatch.gridNodeCount != 0u || dispatch.mpmGridCount != 0u) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            left.nodesAndObject.w, slot,
+            float4(float(left.identity.y), float(right.identity.y),
+                   float(dispatch.gridNodeCount), float(dispatch.mpmGridCount)));
+        return;
+    }
+    if (objects[left.nodesAndObject.w].representation !=
+            NM_REPRESENTATION_FEM ||
+        objects[right.nodesAndObject.w].representation !=
+            NM_REPRESENTATION_FEM) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            left.nodesAndObject.w, slot,
+            float4(float(objects[left.nodesAndObject.w].representation),
+                   float(objects[right.nodesAndObject.w].representation),
+                   float(NM_REPRESENTATION_FEM), 3.5f));
+        return;
+    }
+    const uint3 leftUnified = uint3(
+        left.nodesAndObject.x, left.nodesAndObject.y, left.nodesAndObject.z);
+    const uint3 rightUnified = uint3(
+        right.nodesAndObject.x, right.nodesAndObject.y, right.nodesAndObject.z);
+    const uint femFirst = dispatch.gridNodeCount;
+    const uint femEnd = femFirst + dispatch.femNodeCount;
+    if (any(leftUnified < uint3(femFirst)) ||
+        any(rightUnified < uint3(femFirst)) ||
+        any(leftUnified >= uint3(femEnd)) ||
+        any(rightUnified >= uint3(femEnd))) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            left.nodesAndObject.w, slot,
+            float4(float(leftUnified.x), float(rightUnified.x),
+                   float(femFirst), float(femEnd)));
+        return;
+    }
+
+    float3 start[6];
+    float3 finish[6];
+    float coordinateScale = dispatch.numericalLimits.x;
+    for (uint featureIndex = 0u; featureIndex < 3u; ++featureIndex) {
+        const uint leftNode = leftUnified[featureIndex] - femFirst;
+        const uint rightNode = rightUnified[featureIndex] - femFirst;
+        start[featureIndex] =
+            baseNodes[femNodeBase + leftNode].positionAndMass.xyz;
+        finish[featureIndex] =
+            trialNodes[femNodeBase + leftNode].positionAndMass.xyz;
+        start[featureIndex + 3u] =
+            baseNodes[femNodeBase + rightNode].positionAndMass.xyz;
+        finish[featureIndex + 3u] =
+            trialNodes[femNodeBase + rightNode].positionAndMass.xyz;
+        if (!finite3(start[featureIndex]) ||
+            !finite3(finish[featureIndex]) ||
+            !finite3(start[featureIndex + 3u]) ||
+            !finite3(finish[featureIndex + 3u])) {
+            recordFailure(statuses[environment], NM_STATUS_NONFINITE_INPUT,
+                left.nodesAndObject.w, slot,
+                float4(float(candidate.identity.x),
+                       float(candidate.identity.y),
+                       float(featureIndex), 3.0f));
+            return;
+        }
+        coordinateScale = max(coordinateScale,
+            maximumAbsoluteCoordinate(start[featureIndex]));
+        coordinateScale = max(coordinateScale,
+            maximumAbsoluteCoordinate(finish[featureIndex]));
+        coordinateScale = max(coordinateScale,
+            maximumAbsoluteCoordinate(start[featureIndex + 3u]));
+        coordinateScale = max(coordinateScale,
+            maximumAbsoluteCoordinate(finish[featureIndex + 3u]));
+    }
+    if (!(solver.contactAcceptance.x > 0.0f) ||
+        !isfinite(solver.contactAcceptance.x) ||
+        !(dispatch.numericalLimits.x > 0.0f) ||
+        !isfinite(dispatch.numericalLimits.x) ||
+        !isfinite(coordinateScale)) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            left.nodesAndObject.w, slot,
+            float4(solver.contactAcceptance.x,
+                   dispatch.numericalLimits.x, coordinateScale, 4.0f));
+        return;
+    }
+    const float collisionThickness = max(
+        solver.contactAcceptance.x * dispatch.numericalLimits.x,
+        16.0f * kEpsilon * max(coordinateScale, 1.0e-12f));
+
+    bool mortarPair = false;
+    bool leftIsSideB = false;
+    NMCohesiveFaceGPU mortarFace{};
+    if (!activeMixedCohesiveFaceForPrimitivePair(
+            dispatch, left, right, environment, cohesiveSurfaceFaceRanges,
+            cohesiveSurfaceFaceRefs, cohesiveFaces,
+            mortarPair, leftIsSideB, mortarFace)) {
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            left.nodesAndObject.w, slot,
+            float4(float(candidate.identity.x), float(candidate.identity.y),
+                   collisionThickness, 5.0f));
+        return;
+    }
+    NMMortarContactPartition leftPartition{};
+    NMMortarContactPartition rightPartition{};
+    bool validPartitions = true;
+    if (mortarPair) {
+        validPartitions = buildMortarContactPartition(
+                mortarFace, leftIsSideB, left, dispatch.gridNodeCount,
+                leftPartition) &&
+            buildMortarContactPartition(
+                mortarFace, !leftIsSideB, right, dispatch.gridNodeCount,
+                rightPartition);
+    } else {
+        const float3 unit[3] = {
+            float3(1.0f, 0.0f, 0.0f),
+            float3(0.0f, 1.0f, 0.0f),
+            float3(0.0f, 0.0f, 1.0f)
+        };
+        leftPartition.count = 1u;
+        rightPartition.count = 1u;
+        for (uint featureIndex = 0u; featureIndex < 3u; ++featureIndex) {
+            leftPartition.triangle[0].bary[featureIndex] = unit[featureIndex];
+            rightPartition.triangle[0].bary[featureIndex] = unit[featureIndex];
+        }
+        leftPartition.triangle[0].coveredByCohesive = 0u;
+        rightPartition.triangle[0].coveredByCohesive = 0u;
+    }
+    NMMortarContactData sweep{};
+    const bool certified = validPartitions && findMortarComplementContact(
+        leftPartition, rightPartition, start, finish, start + 3u, finish + 3u,
+        collisionThickness, sweep);
+    if (!validPartitions || !certified) {
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            left.nodesAndObject.w, slot,
+            float4(float(candidate.identity.x), float(candidate.identity.y),
+                   validPartitions ? 1.0f : 0.0f, 6.0f));
+        return;
+    }
+    if (sweep.found != 0u) {
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            left.nodesAndObject.w, slot,
+            float4(float(candidate.identity.x), float(candidate.identity.y),
+                   sweep.toi, sweep.separation));
+    }
+}
+
+inline bool contactFeatureCoveredFromMortarParent(
+    const NMMatterDispatchGPU dispatch,
+    const NMContinuumSurfacePrimitiveGPU parentPrimitive,
+    const NMContinuumSurfacePrimitiveGPU oppositePrimitive,
+    const float3 parentBarycentric,
+    const float3 oppositeBarycentric,
+    const uint environment,
+    device const NMIncidenceRangeGPU* ranges,
+    device const nm_uint4* references,
+    device const NMCohesiveFaceGPU* faces
+) {
+    if (parentPrimitive.identity.y != NM_CONTINUUM_SURFACE_TRIANGLE ||
+        oppositePrimitive.identity.y != NM_CONTINUUM_SURFACE_TRIANGLE ||
+        parentPrimitive.nodesAndObject.w != oppositePrimitive.nodesAndObject.w ||
+        parentPrimitive.identity.x >= 4u * dispatch.tetrahedronCount ||
+        oppositePrimitive.identity.x >= 4u * dispatch.tetrahedronCount ||
+        dispatch.cohesiveFaceCount == 0u)
+        return false;
+    const NMIncidenceRangeGPU range = ranges[parentPrimitive.identity.x];
+    const uint referenceCount = 2u * dispatch.cohesiveFaceCount;
+    if (range.count == 0u || range.first >= referenceCount ||
+        range.count > referenceCount - range.first)
+        return false;
+    const uint faceBase = environment * dispatch.cohesiveFaceCount;
+    for (uint local = 0u; local < range.count; ++local) {
+        const nm_uint4 reference = references[range.first + local];
+        if (reference.y >= dispatch.cohesiveFaceCount || reference.z > 1u)
+            continue;
+        const NMCohesiveFaceGPU face = faces[faceBase + reference.y];
+        const uint required = NM_TOPOLOGY_ACTIVE |
+            NM_TOPOLOGY_PAIRED_COHESIVE | NM_TOPOLOGY_COHESIVE_MIXED_MODE;
+        if ((face.adjacency.w & required) != required ||
+            (face.adjacency.w & NM_TOPOLOGY_COHESIVE_DORMANT) != 0u ||
+            face.lawIdentity.x != NM_COHESIVE_LAW_MIXED_MODE_BILINEAR)
+            continue;
+        const bool leftIsSideB = reference.z == 1u;
+        const uint parentTet = leftIsSideB
+            ? face.adjacency.x : face.nodesAndFirst.w;
+        if ((parentPrimitive.identity.x >> 2u) != parentTet)
+            continue;
+        if (cohesivePatchContainsPrimitivePoint(
+                face, leftIsSideB, parentPrimitive, dispatch.gridNodeCount,
+                parentBarycentric) &&
+            cohesivePatchContainsPrimitivePoint(
+                face, !leftIsSideB, oppositePrimitive, dispatch.gridNodeCount,
+                oppositeBarycentric))
+            return true;
+    }
+    return false;
+}
+
+inline bool contactFeatureCoveredByActiveCohesivePatch(
+    const NMMatterDispatchGPU dispatch,
+    const NMContinuumSurfacePrimitiveGPU left,
+    const NMContinuumSurfacePrimitiveGPU right,
+    const float3 leftBarycentric,
+    const float3 rightBarycentric,
+    const uint environment,
+    device const NMIncidenceRangeGPU* ranges,
+    device const nm_uint4* references,
+    device const NMCohesiveFaceGPU* faces
+) {
+    return contactFeatureCoveredFromMortarParent(
+            dispatch, left, right, leftBarycentric, rightBarycentric,
+            environment, ranges, references, faces) ||
+        contactFeatureCoveredFromMortarParent(
+            dispatch, right, left, rightBarycentric, leftBarycentric,
+            environment, ranges, references, faces);
 }
 
 // Balanced bounds hierarchy over the existing stable Morton order. Heap
@@ -1038,6 +1997,9 @@ inline uint surfaceBVHPairs(
     device const float4* bounds,
     device const NMFEMTopologyNodeGPU* topologyNodes,
     device const NMContinuumObjectGPU* objects,
+    device const NMIncidenceRangeGPU* cohesiveSurfaceFaceRanges,
+    device const nm_uint4* cohesiveSurfaceFaceRefs,
+    device const NMCohesiveFaceGPU* cohesiveFaces,
     device NMDeformableContactCandidateGPU* candidates,
     const uint outputOffset
 ) {
@@ -1068,7 +2030,9 @@ inline uint surfaceBVHPairs(
             const uint rightIndex = sortedIndices[primitiveBase + first];
             const auto right = primitives[primitiveBase + rightIndex];
             if ((right.identity.w & NM_TOPOLOGY_ACTIVE) != 0u &&
-                surfacePairEligible(dispatch, left, right, objects, topologyNodes, environment)) {
+                surfacePairEligible(dispatch, left, right, objects,
+                    topologyNodes, environment, cohesiveSurfaceFaceRanges,
+                    cohesiveSurfaceFaceRefs, cohesiveFaces)) {
                 if (scatter) {
                     const uint output = outputOffset + count;
                     if (output < capacity) {
@@ -1100,6 +2064,9 @@ kernel void nm_contact_count_deformable_candidates(
     device uint* pairCounts [[buffer(8)]],
     device NMDeformableContactCandidateGPU* candidates [[buffer(9)]],
     device const NMMatterStatusGPU* statuses [[buffer(10)]],
+    device const NMIncidenceRangeGPU* cohesiveSurfaceFaceRanges [[buffer(11)]],
+    device const nm_uint4* cohesiveSurfaceFaceRefs [[buffer(12)]],
+    device const NMCohesiveFaceGPU* cohesiveFaces [[buffer(13)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
@@ -1110,7 +2077,8 @@ kernel void nm_contact_count_deformable_candidates(
         dispatch.deformableContactCapacity != 0u
         ? surfaceBVHPairs<false>(dispatch, leafCount, environment, order,
             activeCounts[environment], primitives, sortedIndices, bounds,
-            topologyNodes, objects, candidates, 0u) : 0u;
+            topologyNodes, objects, cohesiveSurfaceFaceRanges,
+            cohesiveSurfaceFaceRefs, cohesiveFaces, candidates, 0u) : 0u;
 }
 
 kernel void nm_contact_scan_deformable_candidate_counts(
@@ -1161,6 +2129,9 @@ kernel void nm_contact_scatter_deformable_candidates(
     device const uint* pairOffsets [[buffer(8)]],
     device NMDeformableContactCandidateGPU* candidates [[buffer(9)]],
     device const NMMatterStatusGPU* statuses [[buffer(10)]],
+    device const NMIncidenceRangeGPU* cohesiveSurfaceFaceRanges [[buffer(11)]],
+    device const nm_uint4* cohesiveSurfaceFaceRefs [[buffer(12)]],
+    device const NMCohesiveFaceGPU* cohesiveFaces [[buffer(13)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
@@ -1171,7 +2142,8 @@ kernel void nm_contact_scatter_deformable_candidates(
         dispatch.deformableContactCapacity == 0u) return;
     surfaceBVHPairs<true>(dispatch, leafCount, environment, order,
         activeCounts[environment], primitives, sortedIndices, bounds,
-        topologyNodes, objects, candidates,
+        topologyNodes, objects, cohesiveSurfaceFaceRanges,
+        cohesiveSurfaceFaceRefs, cohesiveFaces, candidates,
         order < activeCounts[environment] ? pairOffsets[global] : 0u);
 }
 
@@ -1593,6 +2565,114 @@ inline bool pointPointCCD(
     return certified && distance <= effectiveThickness;
 }
 
+// An exhausted full Newton ray is not a proof that every smaller update is
+// infeasible. Re-run the same production CCD on a bounded shorter ray. Only a
+// newly certified sweep may set a positive update fraction; an exhausted
+// conservative-advancement prefix is never promoted to a certificate.
+inline bool certifyDeformableNewtonSweep(
+    const uint kind,
+    thread const float3* start,
+    thread const float3* direction,
+    const float thickness,
+    thread float& toi,
+    thread float3& normal,
+    thread float3& point,
+    thread float& separation,
+    thread bool& certified,
+    thread float& testedFraction,
+    thread uint& retries
+) {
+    certified = false;
+    testedFraction = 1.0f;
+    retries = 0u;
+    toi = 0.0f;
+    separation = INFINITY;
+    for (uint featureIndex = 0u; featureIndex < 4u; ++featureIndex)
+        if (!finite3(start[featureIndex]) || !finite3(direction[featureIndex]))
+            return false;
+    if (!(thickness >= 0.0f) || !isfinite(thickness)) return false;
+    for (uint attempt = 0u; attempt <= 16u; ++attempt) {
+        float3 finish[4];
+        for (uint featureIndex = 0u; featureIndex < 4u; ++featureIndex)
+            finish[featureIndex] = start[featureIndex] +
+                testedFraction * direction[featureIndex];
+        float localTOI = 0.0f;
+        bool hit = false;
+        if (kind == NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
+            float3 barycentric;
+            hit = vertexTriangleCCD(start[0], finish[0],
+                start[1], finish[1], start[2], finish[2],
+                start[3], finish[3], thickness, localTOI, normal,
+                barycentric, point, separation, certified);
+        } else if (kind == NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+            float2 parameters;
+            hit = edgeEdgeCCD(start[0], finish[0],
+                start[1], finish[1], start[2], finish[2],
+                start[3], finish[3], thickness, localTOI, normal,
+                parameters, point, separation, certified);
+        } else if (kind == NM_DEFORMABLE_CONTACT_POINT_POINT) {
+            hit = pointPointCCD(start[0], finish[0], start[1], finish[1],
+                thickness, localTOI, normal, point, separation, certified);
+        } else return false;
+        toi = testedFraction * localTOI;
+        retries = attempt;
+        if (certified && isfinite(toi)) return hit;
+        certified = false;
+        if (attempt < 16u) testedFraction *= 0.5f;
+    }
+    return false;
+}
+
+// Direct and shortened-ray instruments use the very same production CCD.
+// Per case: kind/thickness/mode, four starts, four ends. Two result float4s:
+// hit/certified/global TOI/separation and tested fraction/retry count.
+kernel void nm_contact_newton_ccd_regression(
+    device const float4* cases [[buffer(0)]],
+    device float4* results [[buffer(1)]],
+    constant uint& count [[buffer(2)]],
+    uint index [[thread_position_in_grid]]
+) {
+    if (index >= count) return;
+    const uint base = 9u * index;
+    float3 start[4], direction[4];
+    for (uint featureIndex = 0u; featureIndex < 4u; ++featureIndex) {
+        start[featureIndex] = cases[base + 1u + featureIndex].xyz;
+        direction[featureIndex] = cases[base + 5u + featureIndex].xyz - start[featureIndex];
+    }
+    float toi, separation;
+    float3 normal, point, barycentric;
+    float2 parameters;
+    bool certified;
+    bool hit;
+    float fraction = 1.0f;
+    uint retries = 0u;
+    const uint kind = cases[base].x == 0.0f
+        ? NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE
+        : NM_DEFORMABLE_CONTACT_EDGE_EDGE;
+    if (cases[base].z >= 2.0f) {
+        hit = certifyDeformableNewtonSweep(kind, start, direction,
+            cases[base].y, toi, normal, point, separation, certified,
+            fraction, retries);
+    } else if (kind == NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
+        hit = vertexTriangleCCD(cases[base+1].xyz, cases[base+5].xyz,
+            cases[base+2].xyz, cases[base+6].xyz,
+            cases[base+3].xyz, cases[base+7].xyz,
+            cases[base+4].xyz, cases[base+8].xyz,
+            cases[base].y, toi, normal, barycentric, point, separation,
+            certified);
+    } else {
+        hit = edgeEdgeCCD(cases[base+1].xyz, cases[base+5].xyz,
+            cases[base+2].xyz, cases[base+6].xyz,
+            cases[base+3].xyz, cases[base+7].xyz,
+            cases[base+4].xyz, cases[base+8].xyz,
+            cases[base].y, toi, normal, parameters, point, separation,
+            certified);
+    }
+    results[2u * index] = float4(hit ? 1.0f : 0.0f,
+        certified ? 1.0f : 0.0f, toi, separation);
+    results[2u * index + 1u] = float4(fraction, float(retries), 0.0f, 0.0f);
+}
+
 kernel void nm_contact_capture_deformable_failure(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& micro [[buffer(1)]],
@@ -1658,6 +2738,9 @@ kernel void nm_contact_narrowphase_deformable(
     device const NMDeformableContactHistoryGPU* histories [[buffer(10)]],
     device NMDeformableContactGPU* contacts [[buffer(11)]],
     device NMMatterStatusGPU* statuses [[buffer(12)]],
+    device const NMIncidenceRangeGPU* cohesiveSurfaceFaceRanges [[buffer(13)]],
+    device const nm_uint4* cohesiveSurfaceFaceRefs [[buffer(14)]],
+    device const NMCohesiveFaceGPU* cohesiveFaces [[buffer(15)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint capacity = dispatch.deformableContactCapacity;
@@ -1743,6 +2826,12 @@ kernel void nm_contact_narrowphase_deformable(
     uint bestKind = NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE;
     uint bestPositiveObject = NM_INVALID_INDEX;
     uint bestNegativeObject = NM_INVALID_INDEX;
+    uint bestExtraNodesX = NM_INVALID_INDEX;
+    uint bestExtraNodesY = NM_INVALID_INDEX;
+    float bestExtraWeightsX = 0.0f;
+    float bestExtraWeightsY = 0.0f;
+    bool bestUsesMortar = false;
+    NMMortarContactData bestMortar{};
 
     if (leftKind == NM_CONTINUUM_SURFACE_POINT &&
         rightKind == NM_CONTINUUM_SURFACE_POINT) {
@@ -1816,6 +2905,63 @@ kernel void nm_contact_narrowphase_deformable(
             bestNegativeObject = trianglePrimitive.nodesAndObject.w;
         }
     } else {
+        bool mortarPair = false;
+        bool leftIsSideB = false;
+        NMCohesiveFaceGPU mortarFace{};
+        if (leftKind == NM_CONTINUUM_SURFACE_TRIANGLE &&
+            rightKind == NM_CONTINUUM_SURFACE_TRIANGLE) {
+            if (!activeMixedCohesiveFaceForPrimitivePair(
+                    dispatch, left, right, environment,
+                    cohesiveSurfaceFaceRanges, cohesiveSurfaceFaceRefs,
+                    cohesiveFaces, mortarPair, leftIsSideB, mortarFace)) {
+                recordFailure(statuses[environment],
+                    NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
+                    float4(float(candidate.identity.x),
+                           float(candidate.identity.y), 0.0f, 1.0f));
+                return;
+            }
+        }
+        if (mortarPair) {
+            NMMortarContactPartition leftPartition{};
+            NMMortarContactPartition rightPartition{};
+            const bool validPartitions = buildMortarContactPartition(
+                    mortarFace, leftIsSideB, left, dispatch.gridNodeCount,
+                    leftPartition) &&
+                buildMortarContactPartition(
+                    mortarFace, !leftIsSideB, right, dispatch.gridNodeCount,
+                    rightPartition);
+            NMMortarContactData selected{};
+            const bool certified = validPartitions &&
+                findMortarComplementContact(
+                    leftPartition, rightPartition,
+                    start, finish, start + 3u, finish + 3u,
+                    thickness, selected);
+            if (!validPartitions || !certified) {
+                recordFailure(statuses[environment],
+                    NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
+                    float4(float(candidate.identity.x),
+                           float(candidate.identity.y),
+                           validPartitions ? 1.0f : 0.0f, 0.0f));
+                return;
+            }
+            if (selected.found != 0u) {
+                bestUsesMortar = true;
+                bestMortar = selected;
+                bestTOI = selected.toi;
+                bestKind = selected.kind;
+                bestPositiveObject = selected.positiveSide == 0u
+                    ? left.nodesAndObject.w : right.nodesAndObject.w;
+                bestNegativeObject = selected.negativeSide == 0u
+                    ? left.nodesAndObject.w : right.nodesAndObject.w;
+                bestNodes = {
+                    left.nodesAndObject.x, left.nodesAndObject.y,
+                    left.nodesAndObject.z, right.nodesAndObject.x
+                };
+                bestExtraNodesX = right.nodesAndObject.y;
+                bestExtraNodesY = right.nodesAndObject.z;
+
+            }
+        } else {
         for (uint direction = 0u; direction < 2u; ++direction) {
             const uint vertexBase = direction == 0u ? 0u : 3u;
             const uint triangleBase = direction == 0u ? 3u : 0u;
@@ -1840,6 +2986,21 @@ kernel void nm_contact_narrowphase_deformable(
                     return;
                 }
                 if (hit && toi < bestTOI) {
+                    float3 leftBarycentric = float3(0.0f);
+                    float3 rightBarycentric = float3(0.0f);
+                    if (direction == 0u) {
+                        leftBarycentric[vertexIndex] = 1.0f;
+                        rightBarycentric = barycentric;
+                    } else {
+                        leftBarycentric = barycentric;
+                        rightBarycentric[vertexIndex] = 1.0f;
+                    }
+                    if (contactFeatureCoveredByActiveCohesivePatch(
+                            dispatch, left, right,
+                            leftBarycentric, rightBarycentric, environment,
+                            cohesiveSurfaceFaceRanges,
+                            cohesiveSurfaceFaceRefs, cohesiveFaces))
+                        continue;
                     bestTOI = toi;
                     bestNormal = normal;
                     bestPoint = point;
@@ -1886,6 +3047,18 @@ kernel void nm_contact_narrowphase_deformable(
                     return;
                 }
                 if (hit && toi < bestTOI) {
+                    float3 leftBarycentric = float3(0.0f);
+                    float3 rightBarycentric = float3(0.0f);
+                    leftBarycentric[a.x] = 1.0f - parameters.x;
+                    leftBarycentric[a.y] = parameters.x;
+                    rightBarycentric[b.x] = 1.0f - parameters.y;
+                    rightBarycentric[b.y] = parameters.y;
+                    if (contactFeatureCoveredByActiveCohesivePatch(
+                            dispatch, left, right,
+                            leftBarycentric, rightBarycentric, environment,
+                            cohesiveSurfaceFaceRanges,
+                            cohesiveSurfaceFaceRefs, cohesiveFaces))
+                        continue;
                     bestTOI = toi;
                     bestNormal = normal;
                     bestPoint = point;
@@ -1903,32 +3076,122 @@ kernel void nm_contact_narrowphase_deformable(
                 }
             }
         }
+        }
     }
     if (!isfinite(bestTOI) || bestTOI > 1.0f) return;
-    uint bestSources[4] = {
+    uint bestSources[6] = {
+        NM_INVALID_INDEX, NM_INVALID_INDEX,
         NM_INVALID_INDEX, NM_INVALID_INDEX,
         NM_INVALID_INDEX, NM_INVALID_INDEX
     };
-    for (uint local = 0u; local < 4u; ++local) {
-        if (bestNodes[local] == NM_INVALID_INDEX) continue;
-        for (uint node = 0u; node < 6u; ++node) {
-            if (!nodeValid[node]) continue;
-            const uint globalNode = node < 3u
-                ? left.nodesAndObject[node]
-                : right.nodesAndObject[node - 3u];
-            if (globalNode == bestNodes[local]) {
-                bestSources[local] = node;
-                break;
+    if (bestUsesMortar) {
+        for (uint local = 0u; local < 6u; ++local)
+            bestSources[local] = local;
+    } else {
+        for (uint local = 0u; local < 4u; ++local) {
+            if (bestNodes[local] == NM_INVALID_INDEX) continue;
+            for (uint node = 0u; node < 6u; ++node) {
+                if (!nodeValid[node]) continue;
+                const uint globalNode = node < 3u
+                    ? left.nodesAndObject[node]
+                    : right.nodesAndObject[node - 3u];
+                if (globalNode == bestNodes[local]) {
+                    bestSources[local] = node;
+                    break;
+                }
             }
+            if (bestSources[local] == NM_INVALID_INDEX) return;
         }
-        if (bestSources[local] == NM_INVALID_INDEX) return;
     }
 
     // CCD selects the swept feature and a conservative feasible-time bound.
     // The primal IPC potential itself must be evaluated at the current Newton
     // candidate (the finish configuration), not at first impact where the
     // barrier value and gradient approach zero.
-    if (bestKind == NM_DEFORMABLE_CONTACT_POINT_POINT) {
+    if (bestUsesMortar) {
+        // The selected virtual feature is represented by barycentric maps to
+        // its two original parent triangles. Recompute its closest point at
+        // the accepted candidate endpoint, then distribute the signed
+        // contact Jacobian back to the six original parent nodes.
+        float3 featurePosition[4];
+        const float3 leftFinish[3] = {finish[0], finish[1], finish[2]};
+        const float3 rightFinish[3] = {finish[3], finish[4], finish[5]};
+        for (uint feature = 0u; feature < 4u; ++feature) {
+            featurePosition[feature] = mortarBaryPoint(
+                bestMortar.featureBarycentric[feature],
+                bestMortar.featureSide[feature] == 0u
+                    ? leftFinish : rightFinish);
+        }
+        float supportWeights[6] = {
+            0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
+        };
+        if (bestKind == NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
+            float3 localTriangleBarycentric;
+            const float3 closest = closestPointOnTriangle(
+                featurePosition[0], featurePosition[1],
+                featurePosition[2], featurePosition[3],
+                localTriangleBarycentric);
+            const float3 triangleBarycentric =
+                localTriangleBarycentric.x *
+                    bestMortar.featureBarycentric[1] +
+                localTriangleBarycentric.y *
+                    bestMortar.featureBarycentric[2] +
+                localTriangleBarycentric.z *
+                    bestMortar.featureBarycentric[3];
+            const float3 delta = bestMortar.positiveSide == 0u
+                ? featurePosition[0] - closest
+                : closest - featurePosition[0];
+            bestNormal = length(delta) > kGeometryFloor
+                ? normalize(delta) : bestMortar.normal;
+            bestPoint = bestMortar.negativeSide == 0u
+                ? closest : featurePosition[0];
+            bestSeparation = length(delta);
+            if (bestMortar.positiveSide == 0u) {
+                for (uint corner = 0u; corner < 3u; ++corner) {
+                    supportWeights[corner] =
+                        bestMortar.featureBarycentric[0][corner];
+                    supportWeights[3u + corner] =
+                        -triangleBarycentric[corner];
+                }
+            } else {
+                for (uint corner = 0u; corner < 3u; ++corner) {
+                    supportWeights[corner] = -triangleBarycentric[corner];
+                    supportWeights[3u + corner] =
+                        bestMortar.featureBarycentric[0][corner];
+                }
+            }
+        } else {
+            float firstParameter, secondParameter;
+            float3 firstPoint, secondPoint;
+            closestPointsOnSegments(
+                featurePosition[0], featurePosition[1],
+                featurePosition[2], featurePosition[3],
+                firstParameter, secondParameter, firstPoint, secondPoint);
+            const float3 delta = firstPoint - secondPoint;
+            bestNormal = length(delta) > kGeometryFloor
+                ? normalize(delta) : bestMortar.normal;
+            bestPoint = 0.5f * (firstPoint + secondPoint);
+            bestSeparation = length(delta);
+            const float3 leftBarycentric =
+                (1.0f - firstParameter) *
+                    bestMortar.featureBarycentric[0] +
+                firstParameter * bestMortar.featureBarycentric[1];
+            const float3 rightBarycentric =
+                (1.0f - secondParameter) *
+                    bestMortar.featureBarycentric[2] +
+                secondParameter * bestMortar.featureBarycentric[3];
+            for (uint corner = 0u; corner < 3u; ++corner) {
+                supportWeights[corner] = leftBarycentric[corner];
+                supportWeights[3u + corner] = -rightBarycentric[corner];
+            }
+        }
+        for (uint local = 0u; local < 6u; ++local)
+            bestMortar.supportWeight[local] = supportWeights[local];
+        for (uint local = 0u; local < 4u; ++local)
+            bestWeights[local] = supportWeights[local];
+        bestExtraWeightsX = supportWeights[4];
+        bestExtraWeightsY = supportWeights[5];
+    } else if (bestKind == NM_DEFORMABLE_CONTACT_POINT_POINT) {
         const float3 positive = finish[bestSources[0]];
         const float3 negative = finish[bestSources[1]];
         const float3 delta = positive - negative;
@@ -1972,32 +3235,127 @@ kernel void nm_contact_narrowphase_deformable(
             -(1.0f - secondParameter), -secondParameter);
     }
     if (!finite3(bestNormal) || !finite3(bestPoint) ||
-        !isfinite(bestSeparation) || !all(isfinite(bestWeights))) {
+        !isfinite(bestSeparation) || !all(isfinite(bestWeights)) ||
+        !isfinite(bestExtraWeightsX) || !isfinite(bestExtraWeightsY)) {
         recordFailure(statuses[environment],
             NM_STATUS_CONTACT_FAILURE, bestPositiveObject, slot,
             float4(bestSeparation, bestTOI, 0.0f, 0.0f));
         return;
     }
 
+    if (!bestUsesMortar && bestKind != NM_DEFORMABLE_CONTACT_POINT_POINT &&
+        leftKind == NM_CONTINUUM_SURFACE_TRIANGLE &&
+        rightKind == NM_CONTINUUM_SURFACE_TRIANGLE) {
+        float3 leftBarycentric = float3(0.0f);
+        float3 rightBarycentric = float3(0.0f);
+        if (bestKind == NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
+            const uint vertexSource = bestSources[0];
+            float3 vertexBarycentric = float3(0.0f);
+            if (vertexSource < 3u)
+                vertexBarycentric[vertexSource] = 1.0f;
+            else if (vertexSource < 6u)
+                vertexBarycentric[vertexSource - 3u] = 1.0f;
+            else
+                return;
+            float3 triangleBarycentric = float3(0.0f);
+            for (uint corner = 0u; corner < 3u; ++corner) {
+                const uint source = bestSources[corner + 1u];
+                if (source < 3u)
+                    triangleBarycentric[source] = -bestWeights[corner + 1u];
+                else if (source < 6u)
+                    triangleBarycentric[source - 3u] =
+                        -bestWeights[corner + 1u];
+                else
+                    return;
+            }
+            if (vertexSource < 3u) {
+                leftBarycentric = vertexBarycentric;
+                rightBarycentric = triangleBarycentric;
+            } else {
+                rightBarycentric = vertexBarycentric;
+                leftBarycentric = triangleBarycentric;
+            }
+        } else if (bestKind == NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+            for (uint edge = 0u; edge < 2u; ++edge) {
+                const uint source0 = bestSources[edge * 2u];
+                const uint source1 = bestSources[edge * 2u + 1u];
+                const float firstWeight = edge == 0u
+                    ? bestWeights.x : -bestWeights.z;
+                const float secondWeight = edge == 0u
+                    ? bestWeights.y : -bestWeights.w;
+                if (source0 < 3u && source1 < 3u) {
+                    leftBarycentric[source0] += firstWeight;
+                    leftBarycentric[source1] += secondWeight;
+                } else if (source0 >= 3u && source0 < 6u &&
+                           source1 >= 3u && source1 < 6u) {
+                    rightBarycentric[source0 - 3u] += firstWeight;
+                    rightBarycentric[source1 - 3u] += secondWeight;
+                } else {
+                    return;
+                }
+            }
+        }
+        if (!all(isfinite(leftBarycentric)) ||
+            !all(isfinite(rightBarycentric))) return;
+        // Active mortar pairs are handled above by partitioning both parent
+        // faces and retaining every uncovered subtriangle combination. Do
+        // not discard the original primitive pair based on a single closest
+        // feature; another uncovered region may still be in contact.
+    }
+
     float3 relativeVelocity = float3(0.0f);
     float inverseResponse = 0.0f;
-    for (uint local = 0u; local < 4u; ++local) {
-        if (bestNodes[local] == NM_INVALID_INDEX ||
-            abs(bestWeights[local]) <= kGeometryFloor) continue;
+    const uint supportCount = bestUsesMortar ? 6u : 4u;
+    for (uint local = 0u; local < supportCount; ++local) {
+        const uint supportNode = local < 4u
+            ? bestNodes[local]
+            : (local == 4u ? bestExtraNodesX : bestExtraNodesY);
+        const float supportWeight = local < 4u
+            ? bestWeights[local]
+            : (local == 4u ? bestExtraWeightsX : bestExtraWeightsY);
+        if (supportNode == NM_INVALID_INDEX ||
+            abs(supportWeight) <= kGeometryFloor) continue;
         const uint source = bestSources[local];
         if (source == NM_INVALID_INDEX) return;
-        relativeVelocity += bestWeights[local] * velocity[source];
-        inverseResponse += bestWeights[local] * bestWeights[local] *
+        relativeVelocity += supportWeight * velocity[source];
+        inverseResponse += supportWeight * supportWeight *
             inverseMass[source];
     }
     if (!(inverseResponse > kGeometryFloor) ||
         !finite3(relativeVelocity)) return;
     NMDeformableContactGPU contact{};
     contact.nodes = bestNodes;
+    contact.extraNodes = uint4(
+        bestExtraNodesX, bestExtraNodesY, NM_INVALID_INDEX,
+        NM_INVALID_INDEX);
     contact.identity = {
-        bestPositiveObject, bestNegativeObject, bestKind, NM_CONTACT_VALID
+        bestPositiveObject, bestNegativeObject, bestKind,
+        NM_CONTACT_VALID | (bestUsesMortar
+            ? NM_CONTACT_MAPPED_FEATURE : 0u)
     };
     contact.weights = bestWeights;
+    contact.extraWeights = float4(
+        bestExtraWeightsX, bestExtraWeightsY, 0.0f, 0.0f);
+    if (bestUsesMortar) {
+        contact.featureSideByVertex = uint4(
+            bestMortar.featureSide[0], bestMortar.featureSide[1],
+            bestMortar.featureSide[2], bestMortar.featureSide[3]);
+        contact.featureBarycentricX = float4(
+            bestMortar.featureBarycentric[0].x,
+            bestMortar.featureBarycentric[1].x,
+            bestMortar.featureBarycentric[2].x,
+            bestMortar.featureBarycentric[3].x);
+        contact.featureBarycentricY = float4(
+            bestMortar.featureBarycentric[0].y,
+            bestMortar.featureBarycentric[1].y,
+            bestMortar.featureBarycentric[2].y,
+            bestMortar.featureBarycentric[3].y);
+        contact.featureBarycentricZ = float4(
+            bestMortar.featureBarycentric[0].z,
+            bestMortar.featureBarycentric[1].z,
+            bestMortar.featureBarycentric[2].z,
+            bestMortar.featureBarycentric[3].z);
+    }
     contact.normalAndTOI = float4(bestNormal, bestTOI);
     contact.pointAndSeparation = float4(bestPoint, bestSeparation);
     contact.velocityAndResponse = float4(relativeVelocity, inverseResponse);
@@ -2016,26 +3374,83 @@ kernel void nm_contact_narrowphase_deformable(
                              bestPositiveObject]);
     if (!(contactTimestep > 0.0f) || !isfinite(contactTimestep)) return;
     float4 timeScales = float4(0.0f);
-    for (uint local = 0u; local < 4u; ++local) {
-        if (bestNodes[local] == NM_INVALID_INDEX) continue;
+    float2 extraTimeScales = float2(0.0f);
+    for (uint local = 0u; local < supportCount; ++local) {
+        const uint supportNode = local < 4u
+            ? bestNodes[local]
+            : (local == 4u ? bestExtraNodesX : bestExtraNodesY);
+        if (supportNode == NM_INVALID_INDEX) continue;
         const uint source = bestSources[local];
         if (source == NM_INVALID_INDEX) return;
-        const uint sourceObject = source < 3u
-            ? left.nodesAndObject.w : right.nodesAndObject.w;
+        const uint sourceObject = bestUsesMortar
+            ? (source < 3u ? left.nodesAndObject.w : right.nodesAndObject.w)
+            : (source < 3u
+                ? left.nodesAndObject.w : right.nodesAndObject.w);
         if (sourceObject >= dispatch.objectCount) return;
         const float sourceTimestep = objectTimestep(
             dispatch,
             schedulers[environment * dispatch.objectCount + sourceObject]);
         if (!(sourceTimestep > 0.0f) || !isfinite(sourceTimestep)) return;
-        timeScales[local] = sourceTimestep / contactTimestep;
+        if (local < 4u)
+            timeScales[local] = sourceTimestep / contactTimestep;
+        else
+            extraTimeScales[local - 4u] =
+                sourceTimestep / contactTimestep;
     }
-    if (!all(isfinite(timeScales))) return;
+    if (!all(isfinite(timeScales)) || !all(isfinite(extraTimeScales))) return;
     contact.timeScales = timeScales;
+    contact.extraTimeScales = float4(
+        extraTimeScales, 0.0f, 0.0f);
     float featureMollifier = 1.0f;
     float3 mollifierGradient[4] = {
         float3(0.0f), float3(0.0f),
         float3(0.0f), float3(0.0f)};
-    if (bestKind != NM_DEFORMABLE_CONTACT_POINT_POINT) {
+    float3 extendedMollifierGradient[6] = {
+        float3(0.0f), float3(0.0f), float3(0.0f),
+        float3(0.0f), float3(0.0f), float3(0.0f)};
+    if (bestUsesMortar) {
+        float3 featurePosition[4];
+        const float3 leftFinish[3] = {finish[0], finish[1], finish[2]};
+        const float3 rightFinish[3] = {finish[3], finish[4], finish[5]};
+        for (uint local = 0u; local < 4u; ++local)
+            featurePosition[local] = mortarBaryPoint(
+                bestMortar.featureBarycentric[local],
+                bestMortar.featureSide[local] == 0u
+                    ? leftFinish : rightFinish);
+        float3 featureGradient[4] = {
+            float3(0.0f), float3(0.0f),
+            float3(0.0f), float3(0.0f)};
+        if (bestKind == NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+            float3 firstGradient, secondGradient;
+            featureMollifier = ipcFeatureMollifierDifferential(
+                featurePosition[1] - featurePosition[0],
+                featurePosition[3] - featurePosition[2],
+                firstGradient, secondGradient);
+            featureGradient[0] = -firstGradient;
+            featureGradient[1] = firstGradient;
+            featureGradient[2] = -secondGradient;
+            featureGradient[3] = secondGradient;
+        } else {
+            float3 firstGradient, secondGradient;
+            featureMollifier = ipcFeatureMollifierDifferential(
+                featurePosition[2] - featurePosition[1],
+                featurePosition[3] - featurePosition[1],
+                firstGradient, secondGradient);
+            featureGradient[1] = -firstGradient - secondGradient;
+            featureGradient[2] = firstGradient;
+            featureGradient[3] = secondGradient;
+        }
+        for (uint local = 0u; local < 6u; ++local) {
+            const uint supportSide = local < 3u ? 0u : 1u;
+            const uint corner = local % 3u;
+            for (uint feature = 0u; feature < 4u; ++feature) {
+                if (bestMortar.featureSide[feature] == supportSide)
+                    extendedMollifierGradient[local] +=
+                        bestMortar.featureBarycentric[feature][corner] *
+                        featureGradient[feature];
+            }
+        }
+    } else if (bestKind != NM_DEFORMABLE_CONTACT_POINT_POINT) {
         float3 featurePosition[4] = {
             float3(0.0f), float3(0.0f), float3(0.0f), float3(0.0f)};
         bool completeFeature = true;
@@ -2076,6 +3491,8 @@ kernel void nm_contact_narrowphase_deformable(
             mollifierGradient[2] = firstGradient;
             mollifierGradient[3] = secondGradient;
         }
+        for (uint local = 0u; local < 4u; ++local)
+            extendedMollifierGradient[local] = mollifierGradient[local];
     }
     const float4 baseBarrier = ipcBarrierResponse(
         bestSeparation, thickness, inverseResponse, contactTimestep,
@@ -2149,10 +3566,18 @@ kernel void nm_contact_narrowphase_deformable(
         contact.barrierHessianRow0,
         contact.barrierHessianRow1,
         contact.barrierHessianRow2);
-    contact.mollifierGradientRow0 = float4(mollifierGradient[0], 0.0f);
-    contact.mollifierGradientRow1 = float4(mollifierGradient[1], 0.0f);
-    contact.mollifierGradientRow2 = float4(mollifierGradient[2], 0.0f);
-    contact.mollifierGradientRow3 = float4(mollifierGradient[3], 0.0f);
+    contact.mollifierGradientRow0 =
+        float4(extendedMollifierGradient[0], 0.0f);
+    contact.mollifierGradientRow1 =
+        float4(extendedMollifierGradient[1], 0.0f);
+    contact.mollifierGradientRow2 =
+        float4(extendedMollifierGradient[2], 0.0f);
+    contact.mollifierGradientRow3 =
+        float4(extendedMollifierGradient[3], 0.0f);
+    contact.mollifierGradientRow4 =
+        float4(extendedMollifierGradient[4], 0.0f);
+    contact.mollifierGradientRow5 =
+        float4(extendedMollifierGradient[5], 0.0f);
     contact.mollifier = float4(
         featureMollifier,
         contactTimestep * baseBarrierEnergy,
@@ -2261,8 +3686,8 @@ kernel void nm_contact_count_deformable_node_incidence(
         if (slot >= capacity) continue;
         const NMDeformableContactGPU contact = contacts[base + slot];
         if ((contact.identity.w & NM_CONTACT_VALID) == 0u) continue;
-        for (uint local = 0u; local < 4u; ++local)
-            count += contact.nodes[local] == node ? 1u : 0u;
+        for (uint local = 0u; local < 6u; ++local)
+            count += deformableContactNode(contact, local) == node ? 1u : 0u;
     }
     nodeRanges[global] = {0u, count, NM_INVALID_INDEX, 0u};
 }
@@ -2278,7 +3703,7 @@ kernel void nm_contact_scan_deformable_node_incidence(
     const uint nodeCount = dispatch.gridNodeCount + dispatch.femNodeCount;
     const uint rangeBase = environment * nodeCount;
     const uint incidenceBase =
-        4u * environment * dispatch.deformableContactCapacity;
+        6u * environment * dispatch.deformableContactCapacity;
     uint cursor = incidenceBase;
     for (uint node = 0u; node < nodeCount; ++node) {
         device NMIncidenceRangeGPU& range = nodeRanges[rangeBase + node];
@@ -2286,7 +3711,7 @@ kernel void nm_contact_scan_deformable_node_incidence(
         cursor += range.count;
     }
     const uint required = cursor - incidenceBase;
-    const uint capacity = 4u * dispatch.deformableContactCapacity;
+    const uint capacity = 6u * dispatch.deformableContactCapacity;
     if (required > capacity)
         recordFailure(
             statuses[environment], NM_STATUS_CAPACITY_OVERFLOW,
@@ -2318,10 +3743,10 @@ kernel void nm_contact_scatter_deformable_node_incidence(
         if (slot >= capacity) continue;
         const NMDeformableContactGPU contact = contacts[base + slot];
         if ((contact.identity.w & NM_CONTACT_VALID) == 0u) continue;
-        for (uint local = 0u; local < 4u; ++local)
-            if (contact.nodes[local] == node &&
+        for (uint local = 0u; local < 6u; ++local)
+            if (deformableContactNode(contact, local) == node &&
                 cursor < range.first + range.count)
-                nodeIncidence[cursor++] = 4u * slot + local;
+                nodeIncidence[cursor++] = 8u * slot + local;
     }
 }
 
@@ -2878,7 +4303,10 @@ kernel void nm_contact_validate_prescribed_motion(
         recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH, NM_INVALID_INDEX, index, float4(0.0f)); return;
     }
     const MRBodyStateGPU body = bodies[environment * bridge.currentBodyStride + proxy.bodyIndex];
-    if (body.flagsAndIndices[0] != MR_MOTION_KINEMATIC ||
+    const bool translatedCapsule = proxy.shapeKind == NM_RIGID_CAPSULE;
+    const bool translatedBox = proxy.shapeKind == NM_RIGID_BOX;
+    if ((!translatedCapsule && !translatedBox) ||
+        body.flagsAndIndices[0] != MR_MOTION_KINEMATIC ||
         any(body.angularVelocity.xyz != float3(0.0f)) ||
         body.linearVelocityAndInverseMass.w != 0.0f ||
         any(body.inverseInertiaWorldRow0.xyz != float3(0.0f)) ||
@@ -2894,16 +4322,24 @@ kernel void nm_contact_validate_prescribed_motion(
     if (dot(old.orientation, old.orientation) > 0.0f) {
         const float3 travel = bridge.time.y * next.linearVelocityAndInverseMass.xyz;
         const float scale = max(maximumAbsoluteCoordinate(next.centerAndRadius.xyz),
-            max(maximumAbsoluteCoordinate(next.extent.xyz), maximumAbsoluteCoordinate(old.centerAndRadius.xyz)));
+            max(maximumAbsoluteCoordinate(next.extent.xyz),
+                max(maximumAbsoluteCoordinate(old.centerAndRadius.xyz),
+                    max(maximumAbsoluteCoordinate(next.bodyCenter.xyz),
+                        maximumAbsoluteCoordinate(old.bodyCenter.xyz)))));
         const float allowance = 8.0f * kEpsilon * max(scale, 1.0e-12f);
         const float centerError = length(next.centerAndRadius.xyz - travel - old.centerAndRadius.xyz);
-        const float extentError = length(next.extent.xyz - travel - old.extent.xyz);
+        const float bodyCenterError = length(next.bodyCenter.xyz - travel - old.bodyCenter.xyz);
+        const float extentError = translatedCapsule
+            ? length(next.extent.xyz - travel - old.extent.xyz)
+            : (all(next.extent == old.extent) ? 0.0f : INFINITY);
         if (any(old.orientation != next.orientation) ||
             old.centerAndRadius.w != next.centerAndRadius.w ||
-            !isfinite(centerError) || !isfinite(extentError) ||
-            centerError > allowance || extentError > allowance) {
+            old.bodyCenter.w != next.bodyCenter.w ||
+            !isfinite(centerError) || !isfinite(bodyCenterError) ||
+            !isfinite(extentError) || centerError > allowance ||
+            bodyCenterError > allowance || extentError > allowance) {
             recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE, NM_INVALID_INDEX, index,
-                float4(centerError, extentError, allowance, -4.0f));
+                float4(centerError, max(bodyCenterError, extentError), allowance, -4.0f));
         }
     }
 }
@@ -2954,7 +4390,12 @@ kernel void nm_contact_validate_stationary_box_endpoint(
     if (!environmentHealthy(statuses, environment)) return;
     const NMRigidProxyGPU proxy = proxies[proxyIndex];
     if (proxy.shapeKind != NM_RIGID_BOX) return;
-    if (proxy.flags != 0u || proxy.reserved2 != 0u ||
+    // A free rigid box is not a prescribed endpoint projection. Its realized
+    // pose is owned by the rigid-body transaction and certified separately.
+    if (proxy.flags == NM_RIGID_DYNAMIC) return;
+    const bool prescribedTranslation =
+        proxy.flags == NM_RIGID_PRESCRIBED_TRANSLATION;
+    if ((proxy.flags != 0u && !prescribedTranslation) || proxy.reserved2 != 0u ||
         proxy.sceneBodyIndex != NM_INVALID_INDEX ||
         proxy.adaptiveObjectIndex != NM_INVALID_INDEX ||
         proxy.generalizedFreeBodyIndex != NM_INVALID_INDEX ||
@@ -2991,20 +4432,23 @@ kernel void nm_contact_validate_stationary_box_endpoint(
         }
         body = bodies[environment * bridge.currentBodyStride + proxy.bodyIndex];
         const float orientationNorm2 = dot(body.orientation, body.orientation);
-        const bool stationaryMotionType =
-            body.flagsAndIndices[0] == MR_MOTION_STATIC ||
-            body.flagsAndIndices[0] == MR_MOTION_KINEMATIC;
-        if (!stationaryMotionType || !all(isfinite(body.position)) ||
-            body.position.w != 0.0f || !all(isfinite(body.orientation)) ||
-            !isfinite(orientationNorm2) ||
-            !(orientationNorm2 > 1.0e-20f) ||
-            !all(isfinite(body.linearVelocityAndInverseMass)) ||
-            !all(isfinite(body.angularVelocity)) ||
+        const bool validMotionType = prescribedTranslation
+            ? body.flagsAndIndices[0] == MR_MOTION_KINEMATIC
+            : body.flagsAndIndices[0] == MR_MOTION_STATIC ||
+              body.flagsAndIndices[0] == MR_MOTION_KINEMATIC;
+        const bool validPosition = all(isfinite(body.position)) &&
+            body.position.w == 0.0f;
+        const bool validLinearState = prescribedTranslation
+            ? all(isfinite(body.linearVelocityAndInverseMass)) &&
+              body.linearVelocityAndInverseMass.w == 0.0f
+            : all(body.linearVelocityAndInverseMass == float4(0.0f));
+        if (!validMotionType || !validPosition || !all(isfinite(body.orientation)) ||
+            !isfinite(orientationNorm2) || !(orientationNorm2 > 1.0e-20f) ||
+            !validLinearState || !all(isfinite(body.angularVelocity)) ||
+            any(body.angularVelocity != float4(0.0f)) ||
             !all(isfinite(body.inverseInertiaWorldRow0)) ||
             !all(isfinite(body.inverseInertiaWorldRow1)) ||
             !all(isfinite(body.inverseInertiaWorldRow2)) ||
-            any(body.linearVelocityAndInverseMass != float4(0.0f)) ||
-            any(body.angularVelocity != float4(0.0f)) ||
             any(body.inverseInertiaWorldRow0 != float4(0.0f)) ||
             any(body.inverseInertiaWorldRow1 != float4(0.0f)) ||
             any(body.inverseInertiaWorldRow2 != float4(0.0f))) {
@@ -3012,7 +4456,7 @@ kernel void nm_contact_validate_stationary_box_endpoint(
                 NM_INVALID_INDEX, proxyIndex,
                 float4(float(body.flagsAndIndices[0]),
                     body.linearVelocityAndInverseMass.w,
-                    orientationNorm2, -3.0f));
+                    orientationNorm2, prescribedTranslation ? -8.0f : -3.0f));
             return;
         }
     } else {
@@ -3045,11 +4489,41 @@ kernel void nm_contact_validate_stationary_box_endpoint(
         // exactly the all-zero quaternion is its only uninitialized sentinel.
         // NaN must not pass the sentinel test and bypass the finite check.
         const bool uninitialized = all(old.orientation == float4(0.0f));
-        if (!uninitialized &&
-            (!finiteStationaryBoxRigidRecord(old) ||
-             !sameStationaryBoxRigidRecord(old, projectedEndpoint))) {
-            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
-                NM_INVALID_INDEX, proxyIndex, float4(-6.0f));
+        if (!uninitialized) {
+            if (!finiteStationaryBoxRigidRecord(old)) {
+                recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                    NM_INVALID_INDEX, proxyIndex, float4(-6.0f));
+                return;
+            }
+            if (!prescribedTranslation) {
+                if (!sameStationaryBoxRigidRecord(old, projectedEndpoint))
+                    recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                        NM_INVALID_INDEX, proxyIndex, float4(-6.0f));
+                return;
+            }
+            const float3 travel = bridge.time.y *
+                projectedEndpoint.linearVelocityAndInverseMass.xyz;
+            const float scale = max(
+                maximumAbsoluteCoordinate(projectedEndpoint.centerAndRadius.xyz),
+                max(maximumAbsoluteCoordinate(projectedEndpoint.bodyCenter.xyz),
+                    max(maximumAbsoluteCoordinate(old.centerAndRadius.xyz),
+                        maximumAbsoluteCoordinate(old.bodyCenter.xyz))));
+            const float allowance = 8.0f * kEpsilon * max(scale, 1.0e-12f);
+            const float centerError = length(
+                projectedEndpoint.centerAndRadius.xyz - travel -
+                    old.centerAndRadius.xyz);
+            const float bodyCenterError = length(
+                projectedEndpoint.bodyCenter.xyz - travel - old.bodyCenter.xyz);
+            if (any(old.orientation != projectedEndpoint.orientation) ||
+                old.centerAndRadius.w != projectedEndpoint.centerAndRadius.w ||
+                old.bodyCenter.w != projectedEndpoint.bodyCenter.w ||
+                any(old.extent != projectedEndpoint.extent) ||
+                !isfinite(centerError) || !isfinite(bodyCenterError) ||
+                centerError > allowance || bodyCenterError > allowance) {
+                recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                    NM_INVALID_INDEX, proxyIndex,
+                    float4(centerError, bodyCenterError, allowance, -9.0f));
+            }
         }
         return;
     }
@@ -3099,7 +4573,7 @@ kernel void nm_contact_rollback_stationary_box_projection(
         states[global] = previous[global];
 }
 
-// Opt-in backward-Euler prescribed capsule translation. This changes only the
+// Opt-in backward-Euler prescribed-tool translation. This changes only the
 // initial Newton iterate. It never changes accepted state, constraints or
 // material history; the ordinary residual/J/contact gates still own acceptance.
 inline float prescribedCapsulePathGap(const NMRigidStateGPU rigid,
@@ -3113,6 +4587,170 @@ inline float prescribedCapsulePathGap(const NMRigidStateGPU rigid,
         (last - rigid.centerAndRadius.xyz) / scale, float3(0.0f),
         (rigid.extent.xyz - rigid.centerAndRadius.xyz) / scale, s, t, p, q);
     return scale * length(p - q) - rigid.centerAndRadius.w;
+}
+
+// Exact point-segment distance to a fixed-orientation OBB, evaluated in the
+// box's local frame. The segment-to-AABB squared distance is piecewise
+// quadratic; its breakpoints are where one coordinate crosses a box face.
+// Enumerating those at most six breakpoints gives the exact minimum on every
+// piece. An intersection returns zero and is rejected by the caller's strict
+// collision floor. This is a conservative swept clearance for a translating
+// box because node motion is measured relative to the prescribed endpoint.
+inline float segmentAabbDistance(const float3 first,
+                                 const float3 last,
+                                 const float3 halfExtent) {
+    const float3 delta = last - first;
+    float cuts[8];
+    uint cutCount = 2u;
+    cuts[0] = 0.0f;
+    cuts[1] = 1.0f;
+    for (uint axis = 0u; axis < 3u; ++axis) {
+        if (abs(delta[axis]) <= 1.0e-30f) continue;
+        const float lower = (-halfExtent[axis] - first[axis]) / delta[axis];
+        const float upper = ( halfExtent[axis] - first[axis]) / delta[axis];
+        if (isfinite(lower) && lower > 0.0f && lower < 1.0f)
+            cuts[cutCount++] = lower;
+        if (isfinite(upper) && upper > 0.0f && upper < 1.0f)
+            cuts[cutCount++] = upper;
+    }
+    for (uint index = 1u; index < cutCount; ++index) {
+        const float key = cuts[index];
+        uint cursor = index;
+        while (cursor > 0u && cuts[cursor - 1u] > key) {
+            cuts[cursor] = cuts[cursor - 1u];
+            --cursor;
+        }
+        cuts[cursor] = key;
+    }
+
+    float minimumSquared = INFINITY;
+    for (uint interval = 0u; interval + 1u < cutCount; ++interval) {
+        const float lower = cuts[interval];
+        const float upper = cuts[interval + 1u];
+        if (!(upper > lower)) continue;
+        const float middle = 0.5f * (lower + upper);
+        float3 offset = float3(0.0f);
+        float3 slope = float3(0.0f);
+        for (uint axis = 0u; axis < 3u; ++axis) {
+            const float middleCoordinate = first[axis] + middle * delta[axis];
+            if (middleCoordinate > halfExtent[axis]) {
+                offset[axis] = first[axis] - halfExtent[axis];
+                slope[axis] = delta[axis];
+            } else if (middleCoordinate < -halfExtent[axis]) {
+                offset[axis] = first[axis] + halfExtent[axis];
+                slope[axis] = delta[axis];
+            }
+        }
+        const float denominator = dot(slope, slope);
+        const float stationary = denominator > 0.0f
+            ? -dot(offset, slope) / denominator : lower;
+        const float parameter = clamp(stationary, lower, upper);
+        const float3 separation = offset + parameter * slope;
+        minimumSquared = min(minimumSquared, dot(separation, separation));
+    }
+    if (!isfinite(minimumSquared)) return -INFINITY;
+    return sqrt(max(minimumSquared, 0.0f));
+}
+
+inline float prescribedBoxPathGap(const NMRigidStateGPU rigid,
+                                 const float3 first, const float3 last) {
+    const float scale = max(max(maximumAbsoluteCoordinate(rigid.extent.xyz),
+        length(last - first)), 1.0e-12f);
+    const float orientationNorm2 = dot(rigid.orientation, rigid.orientation);
+    if (!isfinite(scale) || !(orientationNorm2 > 1.0e-20f) ||
+        !all(isfinite(rigid.centerAndRadius)) ||
+        !all(isfinite(rigid.extent)) || !all(isfinite(rigid.orientation)) ||
+        !finite3(first) || !finite3(last) ||
+        !all(rigid.extent.xyz > float3(0.0f)))
+        return -INFINITY;
+    const float4 inverseOrientation = quaternionConjugate(
+        quaternionNormalize(rigid.orientation));
+    const float3 localFirst = quaternionRotate(
+        inverseOrientation, (first - rigid.centerAndRadius.xyz) / scale);
+    const float3 localLast = quaternionRotate(
+        inverseOrientation, (last - rigid.centerAndRadius.xyz) / scale);
+    const float normalizedDistance = segmentAabbDistance(
+        localFirst, localLast, rigid.extent.xyz / scale);
+    if (!isfinite(normalizedDistance)) return -INFINITY;
+    const float worldScale = max(scale,
+        max(maximumAbsoluteCoordinate(first),
+            max(maximumAbsoluteCoordinate(last),
+                maximumAbsoluteCoordinate(rigid.centerAndRadius.xyz))));
+    const float roundoff = 16.0f * kEpsilon * max(worldScale, 1.0e-12f);
+    return scale * normalizedDistance - roundoff;
+}
+
+inline float prescribedRigidPathGap(const NMRigidProxyGPU proxy,
+                                    const NMRigidStateGPU rigid,
+                                    const float3 first, const float3 last) {
+    if (proxy.shapeKind == NM_RIGID_CAPSULE)
+        return prescribedCapsulePathGap(rigid, first, last);
+    if (proxy.shapeKind == NM_RIGID_BOX)
+        return prescribedBoxPathGap(rigid, first, last);
+    return -INFINITY;
+}
+
+// Private residual-descent trials must also preserve clearance for rigid
+// pairs which are inactive at the base iterate. The compiled dense pair set
+// is the bounded conservative superset in this slice. Test the entire affine
+// node/proxy path, independent of contact activation, force or inverse mass.
+// This fixed-orientation test deliberately rejects an unsupported rotating
+// proxy trial instead of interpreting an endpoint check as rotational CCD.
+kernel void nm_contact_validate_fem_rigid_armijo_path(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMFEMNodeStateGPU* baseNodes [[buffer(2)]],
+    device const NMFEMNodeStateGPU* trialNodes [[buffer(3)]],
+    device const NMRigidProxyGPU* proxies [[buffer(4)]],
+    device const NMRigidStateGPU* baseRigids [[buffer(5)]],
+    device const NMRigidStateGPU* trialRigids [[buffer(6)]],
+    device const NMContactPairGPU* pairs [[buffer(7)]],
+    constant NMMixedSolverGPU& solver [[buffer(8)]],
+    device NMMatterStatusGPU* trialStatuses [[buffer(9)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * dispatch.contactPairCount ||
+        dispatch.contactPairCount == 0u) return;
+    const uint environment = global / dispatch.contactPairCount;
+    const uint pairIndex = global - environment * dispatch.contactPairCount;
+    if (!environmentHealthy(trialStatuses, environment)) return;
+    const NMContactPairGPU pair = pairs[pairIndex];
+    if (pair.objectIndex >= dispatch.objectCount ||
+        pair.rigidProxy >= dispatch.rigidProxyCount ||
+        pair.continuumNode < dispatch.gridNodeCount ||
+        pair.continuumNode - dispatch.gridNodeCount >= dispatch.femNodeCount ||
+        objects[pair.objectIndex].representation != NM_REPRESENTATION_FEM) {
+        recordFailure(trialStatuses[environment], NM_STATUS_INVALID_DISPATCH,
+            pair.objectIndex, pairIndex, float4(-4.0f)); return;
+    }
+    const NMRigidProxyGPU proxy = proxies[pair.rigidProxy];
+    const uint rigidIndex = environment * dispatch.rigidProxyCount + pair.rigidProxy;
+    const NMRigidStateGPU base = baseRigids[rigidIndex];
+    const NMRigidStateGPU trial = trialRigids[rigidIndex];
+    if (any(base.orientation != trial.orientation) ||
+        any(base.extent != trial.extent) ||
+        base.centerAndRadius.w != trial.centerAndRadius.w ||
+        (proxy.shapeKind != NM_RIGID_CAPSULE && proxy.shapeKind != NM_RIGID_BOX)) {
+        recordFailure(trialStatuses[environment], NM_STATUS_INVALID_DISPATCH,
+            pair.objectIndex, pairIndex, float4(-5.0f)); return;
+    }
+    const uint nodeIndex = environment * dispatch.femNodeCount +
+        pair.continuumNode - dispatch.gridNodeCount;
+    const float3 first = baseNodes[nodeIndex].positionAndMass.xyz +
+        (trial.centerAndRadius.xyz - base.centerAndRadius.xyz);
+    const float3 last = trialNodes[nodeIndex].positionAndMass.xyz;
+    const float coordinateScale = max(dispatch.numericalLimits.x,
+        max(maximumAbsoluteCoordinate(first),
+            max(maximumAbsoluteCoordinate(last),
+                max(maximumAbsoluteCoordinate(trial.centerAndRadius.xyz),
+                    maximumAbsoluteCoordinate(trial.extent.xyz)))));
+    const float floor = max(solver.contactAcceptance.x * dispatch.numericalLimits.x,
+        16.0f * kEpsilon * max(coordinateScale, 1.0e-12f));
+    const float gap = prescribedRigidPathGap(proxy, trial, first, last);
+    if (!(gap > floor))
+        recordFailure(trialStatuses[environment], NM_STATUS_CONTACT_FAILURE,
+            pair.objectIndex, pairIndex,
+            float4(gap, floor, float(pair.rigidProxy), -3.0f));
 }
 
 kernel void nm_contact_initialize_prescribed_fem_candidate(
@@ -3192,7 +4830,8 @@ kernel void nm_contact_initialize_prescribed_fem_candidate(
             next.deltaVelocity.xyz = next.velocityAndInverseMass.xyz - previous.velocityAndInverseMass.xyz;
             changed = true;
         }
-        const float sweptGap = prescribedCapsulePathGap(rigid, startInEndFrame, next.positionAndMass.xyz);
+        const float sweptGap = prescribedRigidPathGap(
+            proxy, rigid, startInEndFrame, next.positionAndMass.xyz);
         if (!(sweptGap > floor)) {
             recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
                 pair.objectIndex, pairIndex, float4(sweptGap, floor, gap, 1.0f)); return;
@@ -3614,9 +5253,52 @@ kernel void nm_contact_evaluate(
         length(seededTangent)
     );
     sample.barrier = barrier;
-    const float3x3 projectedHessian = ipcProjectedSpatialHessian(
+    float3x3 projectedHessian = ipcProjectedSpatialHessian(
         normal, barrier.y, tangentVelocity,
         frictionLimit, transitionSpeed);
+    // The radial IPC block above differentiates the barrier magnitude while
+    // holding its direction fixed. For the captured smooth side of a fixed,
+    // translating capsule, the exact distance Hessian also rotates the normal
+    // in the plane perpendicular to the capsule axis. This signed term is
+    // generally indefinite and belongs in the physical FGMRES operator; the
+    // right preconditioner separately keeps its existing PSD diagonal policy.
+    // End caps, feature switches, impact-stiffness, friction, and movable or
+    // rotating rigid bodies retain their existing operator until their full
+    // coupled geometric derivatives are implemented and tested.
+    if (proxy.shapeKind == NM_RIGID_CAPSULE &&
+        (proxy.flags & NM_RIGID_PRESCRIBED_TRANSLATION) != 0u &&
+        !(rigid.linearVelocityAndInverseMass.w > 0.0f) &&
+        all(rigid.angularVelocity.xyz == float3(0.0f)) &&
+        frictionLimit == 0.0f && barrier.x > 0.0f &&
+        separation > 1.0e-4f * slop &&
+        ipcBarrierHasStrictInertialStiffness(
+            separation, slop, normalResponse, dt,
+            max(-normalVelocity, 0.0f))) {
+        const float3 capsuleEdge =
+            rigid.extent.xyz - rigid.centerAndRadius.xyz;
+        const float capsuleEdgeSquared = dot(capsuleEdge, capsuleEdge);
+        const float capsuleRadius = rigid.centerAndRadius.w;
+        const float radialDistance = separation + capsuleRadius;
+        if (capsuleEdgeSquared > kGeometryFloor &&
+            capsuleRadius > 0.0f && radialDistance > kGeometryFloor &&
+            isfinite(radialDistance)) {
+            const float capsuleParameter = dot(
+                point - rigid.centerAndRadius.xyz, capsuleEdge) /
+                capsuleEdgeSquared;
+            const float3 capsuleAxis =
+                capsuleEdge * rsqrt(capsuleEdgeSquared);
+            // A strict interior margin keeps this branch away from the
+            // capsule side/end feature transition. The normal from
+            // capsuleContact must also be perpendicular to the fixed axis.
+            if (isfinite(capsuleParameter) &&
+                capsuleParameter > 1.0e-3f &&
+                capsuleParameter < 1.0f - 1.0e-3f &&
+                abs(dot(normal, capsuleAxis)) <= 64.0f * kEpsilon) {
+                projectedHessian += ipcCapsuleSideGeometricHessian(
+                    normal, capsuleAxis, barrier.x, radialDistance, dt);
+            }
+        }
+    }
     matrixToRows(
         projectedHessian,
         sample.barrierHessianRow0,
@@ -3768,7 +5450,8 @@ kernel void nm_contact_certify_post_commit_rigid(
         const uint nodeIndex = pair.continuumNode - dispatch.gridNodeCount;
         const float3 start = femCheckpoint[environment * dispatch.femNodeCount + nodeIndex].positionAndMass.xyz;
         const float3 travel = dispatch.gravityAndTimestep.w * rigid.linearVelocityAndInverseMass.xyz;
-        const float sweptGap = prescribedCapsulePathGap(rigid, start + travel, point);
+        const float sweptGap = prescribedRigidPathGap(
+            proxy, rigid, start + travel, point);
         if (!(sweptGap > collisionThickness)) {
             recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
                 pair.objectIndex, pairIndex, float4(sweptGap, collisionThickness, float(pair.rigidProxy), -1.0f));
@@ -4057,12 +5740,12 @@ kernel void nm_contact_accumulate_deformable_fem_residual(
     float3 impulse = float3(0.0f);
     for (uint incidence = 0u; incidence < range.count; ++incidence) {
         const uint encoded = nodeIncidence[range.first + incidence];
-        const uint slot = encoded >> 2u;
-        const uint local = encoded & 3u;
-        if (slot >= capacity || local >= 4u) continue;
+        const uint slot = encoded >> 3u;
+        const uint local = encoded & 7u;
+        if (slot >= capacity || local >= 6u) continue;
         const NMDeformableContactGPU contact = contacts[base + slot];
         if ((contact.identity.w & NM_CONTACT_VALID) == 0u ||
-            contact.nodes[local] != unifiedNode) continue;
+            deformableContactNode(contact, local) != unifiedNode) continue;
         float3 tangent0, tangent1;
         deformableContactFrame(
             contact.normalAndTOI.xyz, tangent0, tangent1);
@@ -4070,12 +5753,114 @@ kernel void nm_contact_accumulate_deformable_fem_residual(
             contact.impulseAndFriction.x * contact.normalAndTOI.xyz +
             contact.impulseAndFriction.y * tangent0 +
             contact.impulseAndFriction.z * tangent1;
-        impulse += contact.timeScales[local] * (
-            contact.weights[local] * contactImpulse -
+        impulse += deformableContactTimeScale(contact, local) * (
+            deformableContactWeight(contact, local) * contactImpulse -
             contact.mollifier.y *
                 deformableMollifierGradient(contact, local));
     }
     residual[global] += float4(impulse, 0.0f);
+}
+
+// Read-only support-reaction channel for the final certified primal-contact
+// candidate. The production residual already contains these same terms. This
+// kernel reports their force contribution at Dirichlet/massless FEM rows
+// without modifying the residual, cohesive/bulk reaction channel, or Human
+// attachment scatter. Rigid samples store impulse on the proxy; deformable
+// rows use the same mapped weights and mollifier gradient as residual assembly.
+kernel void nm_contact_publish_fem_constraint_contact_force(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(1)]],
+    device const NMContactPairGPU* pairs [[buffer(2)]],
+    device const uint* rigidNodeIncidence [[buffer(3)]],
+    device const NMIncidenceRangeGPU* rigidNodeRanges [[buffer(4)]],
+    device const NMContactSampleGPU* rigidSamples [[buffer(5)]],
+    device const NMDeformableContactGPU* deformableContacts [[buffer(6)]],
+    device const uint* deformableNodeIncidence [[buffer(7)]],
+    device const NMIncidenceRangeGPU* deformableNodeRanges [[buffer(8)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(9)]],
+    device const NMMatterStatusGPU* statuses [[buffer(10)]],
+    device float4* contactForces [[buffer(11)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= totalNodes || dispatch.femNodeCount == 0u) return;
+    contactForces[global] = float4(0.0f);
+    const uint environment = global / dispatch.femNodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const uint nodeIndex = global - environment * dispatch.femNodeCount;
+    const NMFEMNodeStateGPU node = candidate[global];
+    // Human tag 2 is deliberately not static: its residual is owned by the
+    // separate J^T attachment reaction path. Keep only tags 1/3 and the same
+    // zero-mass prescribed rows used by fem_build_mechanical_residual.
+    if (!femStaticConstraint(node.restAndFixed.w) &&
+        node.positionAndMass.w > 0.0f) return;
+
+    const uint unifiedCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+    const uint unifiedNode = dispatch.gridNodeCount + nodeIndex;
+    float3 force = float3(0.0f);
+    if (femHumanAttachmentConstraint(node.restAndFixed.w)) return;
+
+    if (dispatch.contactPairCount > 0u) {
+        const NMIncidenceRangeGPU range = rigidNodeRanges[unifiedNode];
+        const uint sampleBase = environment * dispatch.contactPairCount;
+        for (uint incidence = 0u; incidence < range.count; ++incidence) {
+            const uint pairIndex = rigidNodeIncidence[range.first + incidence];
+            if (pairIndex >= dispatch.contactPairCount) continue;
+            const NMContactSampleGPU sample =
+                rigidSamples[sampleBase + pairIndex];
+            if ((sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
+            const NMContactPairGPU pair = pairs[pairIndex];
+            if (pair.continuumNode != unifiedNode ||
+                pair.objectIndex >= dispatch.objectCount) continue;
+            const uint schedulerIndex =
+                environment * dispatch.objectCount + pair.objectIndex;
+            const float dt = objectTimestep(
+                dispatch, schedulers[schedulerIndex]);
+            if (!(dt > 0.0f) || !isfinite(dt)) continue;
+            force -= sample.impulseAndNormal.xyz / dt;
+        }
+    }
+
+    if (dispatch.deformableContactCapacity > 0u) {
+        const uint rangeIndex = environment * unifiedCount + unifiedNode;
+        const NMIncidenceRangeGPU range =
+            deformableNodeRanges[rangeIndex];
+        const uint capacity = dispatch.deformableContactCapacity;
+        const uint contactBase = environment * capacity;
+        for (uint incidence = 0u; incidence < range.count; ++incidence) {
+            const uint encoded = deformableNodeIncidence[
+                range.first + incidence];
+            const uint slot = encoded >> 3u;
+            const uint local = encoded & 7u;
+            if (slot >= capacity || local >= 6u) continue;
+            const NMDeformableContactGPU contact =
+                deformableContacts[contactBase + slot];
+            if ((contact.identity.w & NM_CONTACT_VALID) == 0u ||
+                deformableContactNode(contact, local) != unifiedNode ||
+                contact.identity.x >= dispatch.objectCount) continue;
+            const float contactDt = objectTimestep(
+                dispatch, schedulers[environment * dispatch.objectCount +
+                                     contact.identity.x]);
+            if (!(contactDt > 0.0f) || !isfinite(contactDt)) continue;
+            float3 tangent0, tangent1;
+            deformableContactFrame(
+                contact.normalAndTOI.xyz, tangent0, tangent1);
+            const float3 contactImpulse =
+                contact.impulseAndFriction.x * contact.normalAndTOI.xyz +
+                contact.impulseAndFriction.y * tangent0 +
+                contact.impulseAndFriction.z * tangent1;
+            const float3 localImpulse =
+                deformableContactWeight(contact, local) * contactImpulse -
+                contact.mollifier.y *
+                    deformableMollifierGradient(contact, local);
+            // Production multiplies localImpulse by sourceDt/contactDt in
+            // the row residual, then its force convention divides by
+            // sourceDt. Cancel sourceDt analytically to retain the exact
+            // contactDt denominator without a second rounded scale product.
+            force += localImpulse / contactDt;
+        }
+    }
+    if (all(isfinite(force))) contactForces[global] = float4(force, 0.0f);
 }
 
 kernel void nm_contact_publish_primal_history(
@@ -4104,6 +5889,8 @@ kernel void nm_contact_limit_deformable_line_search(
     device const uint* mpmNodeToActive [[buffer(12)]],
     device const uint* mpmActiveCounts [[buffer(13)]],
     constant NMMixedSolverGPU& solver [[buffer(14)]],
+    constant uint& traceSlotsPerEnvironment [[buffer(15)]],
+    device NMDeformableContactLimitTraceGPU* traceRecords [[buffer(16)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
@@ -4123,27 +5910,63 @@ kernel void nm_contact_limit_deformable_line_search(
         if (slot >= capacity) continue;
         const NMDeformableContactGPU contact = contacts[contactBase + slot];
         if ((contact.identity.w & NM_CONTACT_VALID) == 0u) continue;
+        const float laneBoundBefore = bound;
+        NMDeformableContactLimitTraceGPU traceRecord;
+        const bool captureTrace = activeSlot < traceSlotsPerEnvironment;
+        if (captureTrace) {
+            traceRecord = {};
+            traceRecord.contact = contact;
+            traceRecord.identity = contact.identity;
+            traceRecord.source = contact.source;
+            traceRecord.nodes = contact.nodes;
+            traceRecord.extraNodes = contact.extraNodes;
+            traceRecord.weights = contact.weights;
+            traceRecord.extraWeights = contact.extraWeights;
+            traceRecord.featureSideByVertex = contact.featureSideByVertex;
+            traceRecord.featureBarycentricX = contact.featureBarycentricX;
+            traceRecord.featureBarycentricY = contact.featureBarycentricY;
+            traceRecord.featureBarycentricZ = contact.featureBarycentricZ;
+            traceRecord.normalAndTOI = contact.normalAndTOI;
+            traceRecord.pointAndSeparation = contact.pointAndSeparation;
+            traceRecord.barrierParameters = contact.barrier;
+            traceRecord.lineSearch = float4(
+                laneBoundBefore, laneBoundBefore, existing, 1.0f);
+            traceRecord.result = uint4(activeSlot, slot, 0u, 0u);
+            traceRecord.diagnostic = uint4(1u, 0u, 0u, 0u);
+            for (uint feature = 0u; feature < 4u; ++feature) {
+                traceRecord.featureStart[feature] = float4(0.0f);
+                traceRecord.featureEnd[feature] = float4(0.0f);
+            }
+        }
         float3 weightedPosition = float3(0.0f);
         float3 weightedDirection = float3(0.0f);
-        float3 position[4] = {
+        float3 position[6] = {
+            float3(0.0f), float3(0.0f),
             float3(0.0f), float3(0.0f),
             float3(0.0f), float3(0.0f)
         };
-        float3 displacement[4] = {
+        float3 displacement[6] = {
+            float3(0.0f), float3(0.0f),
             float3(0.0f), float3(0.0f),
             float3(0.0f), float3(0.0f)
         };
         bool geometryValid = true;
-        for (uint local = 0u; local < 4u; ++local) {
-            const uint node = contact.nodes[local];
+        for (uint local = 0u; local < 6u; ++local) {
+            const uint node = deformableContactNode(contact, local);
             if (node == NM_INVALID_INDEX) continue;
+            const float contactWeight =
+                deformableContactWeight(contact, local);
             if (node < dispatch.gridNodeCount) {
-                const uint objectIndex = contact.weights[local] >= 0.0f
-                    ? contact.identity.x : contact.identity.y;
+                const uint objectIndex =
+                    (contact.identity.w & NM_CONTACT_MAPPED_FEATURE) != 0u
+                        ? contact.identity.x
+                        : (contactWeight >= 0.0f
+                            ? contact.identity.x : contact.identity.y);
                 if (objectIndex >= dispatch.objectCount ||
                     objects[objectIndex].representation !=
                         NM_REPRESENTATION_MPM) {
                     bound = 0.0f;
+                    if (captureTrace) traceRecord.diagnostic.y = 1u;
                     geometryValid = false;
                     continue;
                 }
@@ -4156,6 +5979,7 @@ kernel void nm_contact_limit_deformable_line_search(
                 const uint activeSlot = mpmNodeToActive[gridGlobal];
                 if (activeSlot >= mpmActiveCounts[environment]) {
                     bound = 0.0f;
+                    if (captureTrace) traceRecord.diagnostic.y = 1u;
                     geometryValid = false;
                     continue;
                 }
@@ -4164,14 +5988,15 @@ kernel void nm_contact_limit_deformable_line_search(
                     dt * gridNodes[gridGlobal].candidateVelocity.xyz;
                 displacement[local] = dt * correction[fgmresMPMIndex(
                     dispatch, environment, activeSlot)].xyz;
-                weightedPosition += contact.weights[local] * position[local];
+                weightedPosition += contactWeight * position[local];
                 weightedDirection +=
-                    contact.weights[local] * displacement[local];
+                    contactWeight * displacement[local];
                 continue;
             }
             const uint femNode = node - dispatch.gridNodeCount;
             if (femNode >= dispatch.femNodeCount) {
                 bound = 0.0f;
+                if (captureTrace) traceRecord.diagnostic.y = 1u;
                 geometryValid = false;
                 continue;
             }
@@ -4180,6 +6005,7 @@ kernel void nm_contact_limit_deformable_line_search(
             if (objectIndex >= dispatch.objectCount ||
                 objects[objectIndex].representation != NM_REPRESENTATION_FEM) {
                 bound = 0.0f;
+                if (captureTrace) traceRecord.diagnostic.y = 1u;
                 geometryValid = false;
                 continue;
             }
@@ -4188,24 +6014,83 @@ kernel void nm_contact_limit_deformable_line_search(
                 schedulers[environment * dispatch.objectCount + objectIndex]);
             position[local] = candidate[nodeGlobal].positionAndMass.xyz;
             displacement[local] = dt * correction[nodeGlobal].xyz;
-            weightedPosition += contact.weights[local] * position[local];
+            weightedPosition += contactWeight * position[local];
             weightedDirection +=
-                contact.weights[local] * displacement[local];
+                contactWeight * displacement[local];
         }
-        if (!geometryValid) continue;
+        if (!geometryValid) {
+            if (captureTrace) {
+                traceRecord.lineSearch.y = bound;
+                traceRecords[environment * traceSlotsPerEnvironment +
+                             activeSlot] = traceRecord;
+            }
+            continue;
+        }
+
+        float3 featurePosition[4];
+        float3 featureDirection[4];
+        if ((contact.identity.w & NM_CONTACT_MAPPED_FEATURE) != 0u) {
+            for (uint feature = 0u; feature < 4u; ++feature) {
+                const uint side = contact.featureSideByVertex[feature];
+                if (side > 1u) {
+                    if (captureTrace) traceRecord.diagnostic.y = 2u;
+                    geometryValid = false;
+                    break;
+                }
+                const float3 barycentric = float3(
+                    contact.featureBarycentricX[feature],
+                    contact.featureBarycentricY[feature],
+                    contact.featureBarycentricZ[feature]);
+                const uint base = side == 0u ? 0u : 3u;
+                featurePosition[feature] =
+                    barycentric.x * position[base] +
+                    barycentric.y * position[base + 1u] +
+                    barycentric.z * position[base + 2u];
+                featureDirection[feature] =
+                    barycentric.x * displacement[base] +
+                    barycentric.y * displacement[base + 1u] +
+                    barycentric.z * displacement[base + 2u];
+            }
+        } else {
+            for (uint feature = 0u; feature < 4u; ++feature) {
+                featurePosition[feature] = position[feature];
+                featureDirection[feature] = displacement[feature];
+            }
+        }
+        if (!geometryValid) {
+            recordFailure(statuses[environment],
+                NM_STATUS_CONTACT_FAILURE, contact.identity.x, slot,
+                float4(0.0f, 0.0f, 0.0f, 2.0f));
+            if (captureTrace) {
+                traceRecord.lineSearch.y = bound;
+                traceRecords[environment * traceSlotsPerEnvironment +
+                             activeSlot] = traceRecord;
+            }
+            continue;
+        }
+        if (captureTrace) {
+            for (uint feature = 0u; feature < 4u; ++feature) {
+                traceRecord.featureStart[feature] =
+                    float4(featurePosition[feature], 1.0f);
+                traceRecord.featureEnd[feature] = float4(
+                    featurePosition[feature] + featureDirection[feature],
+                    1.0f);
+            }
+        }
 
         // Certify the complete Newton correction against actual feature
         // geometry. Candidates may live inside the activation thickness; the
         // conservative CCD boundary is a small positive distance from true
         // intersection, not the barrier activation distance itself.
         float coordinateScale = dispatch.numericalLimits.x;
-        for (uint local = 0u; local < 4u; ++local) {
-            if (contact.nodes[local] == NM_INVALID_INDEX) continue;
+        for (uint local = 0u; local < 6u; ++local) {
+            if (deformableContactNode(contact, local) == NM_INVALID_INDEX)
+                continue;
             coordinateScale = max(
                 coordinateScale, maximumAbsoluteCoordinate(position[local]));
             coordinateScale = max(coordinateScale,
                 maximumAbsoluteCoordinate(
-                    position[local] + displacement[local]));
+                position[local] + displacement[local]));
         }
         const float collisionThickness = max(
             solver.contactAcceptance.x * dispatch.numericalLimits.x,
@@ -4214,34 +6099,14 @@ kernel void nm_contact_limit_deformable_line_search(
         float3 ccdNormal, ccdPoint;
         float ccdSeparation = INFINITY;
         bool certified = false;
-        bool hit = false;
-        if (contact.identity.z == NM_DEFORMABLE_CONTACT_POINT_POINT) {
-            hit = pointPointCCD(
-                position[0], position[0] + displacement[0],
-                position[1], position[1] + displacement[1],
-                collisionThickness, toi, ccdNormal, ccdPoint,
-                ccdSeparation, certified);
-        } else if (contact.identity.z ==
-                   NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
-            float3 barycentric;
-            hit = vertexTriangleCCD(
-                position[0], position[0] + displacement[0],
-                position[1], position[1] + displacement[1],
-                position[2], position[2] + displacement[2],
-                position[3], position[3] + displacement[3],
-                collisionThickness, toi, ccdNormal, barycentric,
-                ccdPoint, ccdSeparation, certified);
-        } else if (contact.identity.z ==
-                   NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
-            float2 parameters;
-            hit = edgeEdgeCCD(
-                position[0], position[0] + displacement[0],
-                position[1], position[1] + displacement[1],
-                position[2], position[2] + displacement[2],
-                position[3], position[3] + displacement[3],
-                collisionThickness, toi, ccdNormal, parameters,
-                ccdPoint, ccdSeparation, certified);
-        }
+        float ccdTestedFraction = 1.0f;
+        uint ccdShortenedRetries = 0u;
+        const bool hit = certifyDeformableNewtonSweep(
+            contact.identity.z, featurePosition, featureDirection,
+            collisionThickness, toi, ccdNormal, ccdPoint,
+            ccdSeparation, certified, ccdTestedFraction,
+            ccdShortenedRetries);
+        if (captureTrace) traceRecord.diagnostic.z = ccdShortenedRetries;
         if (!certified || !isfinite(toi)) {
             recordFailure(
                 statuses[environment], NM_STATUS_CONTACT_FAILURE,
@@ -4249,30 +6114,96 @@ kernel void nm_contact_limit_deformable_line_search(
                 float4(float(contact.identity.z), toi,
                        ccdSeparation, 0.0f));
             bound = 0.0f;
+            if (captureTrace) traceRecord.diagnostic.y = 3u;
+            if (captureTrace) {
+                traceRecord.metrics = float4(
+                    collisionThickness, toi, ccdSeparation, bound);
+                traceRecord.result.z = hit ? 1u : 0u;
+                traceRecord.result.w = certified ? 1u : 0u;
+                traceRecord.lineSearch.y = bound;
+                traceRecords[environment * traceSlotsPerEnvironment +
+                             activeSlot] = traceRecord;
+            }
             continue;
         }
-        if (hit) bound = min(bound, clamp(0.9f * toi, 0.0f, 1.0f));
+        // The tested shorter sweep is the maximum admissible update even
+        // when it is a certified miss. Production applies this same fraction
+        // and residual trials can only reduce it further.
+        bound = min(bound, ccdTestedFraction);
+        if (hit) {
+            // A feature can already be exactly touching at the current
+            // Newton iterate. CCD then correctly reports a hit at t=0, but
+            // that does not mean every correction direction is infeasible:
+            // tangential or separating motion remains admissible. Preserve
+            // the contact's oriented normal and test the relative correction
+            // against it before converting an initial-touch hit into a zero
+            // fraction-to-boundary. A closing direction still receives the
+            // strict zero bound; nonzero-time impacts retain the ordinary CCD
+            // limiter below.
+            const float initialTouchRoundoff = ccdDistanceRoundoff(
+                collisionThickness, coordinateScale);
+            const bool initialTouch =
+                toi / ccdTestedFraction <= 8.0f * kEpsilon &&
+                ccdSeparation <= collisionThickness +
+                    initialTouchRoundoff;
+            const float normalCorrection = dot(
+                contact.normalAndTOI.xyz, weightedDirection);
+            const float directionalRoundoff = 16.0f * kEpsilon * max(
+                length(weightedDirection), collisionThickness);
+            const bool initialTouchNonclosing = initialTouch &&
+                normalCorrection >= -directionalRoundoff;
+            if (initialTouchNonclosing) {
+                if (captureTrace) traceRecord.diagnostic.y = 9u;
+            } else {
+                const float ccdBound = clamp(0.9f * toi, 0.0f, 1.0f);
+                if (captureTrace && ccdBound <= 0.0f)
+                    traceRecord.diagnostic.y = 7u;
+                bound = min(bound, ccdBound);
+            }
+        }
 
         const float gap = dot(
             contact.normalAndTOI.xyz, weightedPosition) -
             dispatch.numericalLimits.x;
         const float directionalGap = dot(
             contact.normalAndTOI.xyz, weightedDirection);
-        if (gap > 0.0f && directionalGap < 0.0f)
-            bound = min(bound, clamp(
+        if (gap > 0.0f && directionalGap < 0.0f) {
+            const float gapBound = clamp(
                 0.9f * gap / max(-directionalGap, 1.0e-30f),
-                0.0f, 1.0f));
+                0.0f, 1.0f);
+            if (captureTrace && gapBound <= 0.0f)
+                traceRecord.diagnostic.y = 8u;
+            bound = min(bound, gapBound);
+        }
 
         float currentEnergy;
         float currentSeparation;
         if (!deformableBarrierEnergyAt(
-                contact, position, currentEnergy, currentSeparation)) {
+                contact, featurePosition, currentEnergy, currentSeparation)) {
             recordFailure(
                 statuses[environment], NM_STATUS_CONTACT_FAILURE,
                 contact.identity.x, slot,
                 float4(currentSeparation, currentEnergy, 0.0f, 0.0f));
             bound = 0.0f;
+            if (captureTrace) traceRecord.diagnostic.y = 4u;
+            if (captureTrace) {
+                traceRecord.metrics = float4(
+                    collisionThickness, toi, ccdSeparation, bound);
+                traceRecord.barrier = float4(
+                    gap, directionalGap, currentEnergy, currentSeparation);
+                traceRecord.result.z = hit ? 1u : 0u;
+                traceRecord.result.w = certified ? 1u : 0u;
+                traceRecord.lineSearch.y = bound;
+                traceRecords[environment * traceSlotsPerEnvironment +
+                             activeSlot] = traceRecord;
+            }
             continue;
+        }
+        if (captureTrace) {
+            traceRecord.barrier = float4(
+                gap, directionalGap, currentEnergy, currentSeparation);
+            traceRecord.result.z = hit ? 1u : 0u;
+            traceRecord.result.w = certified ? 1u : 0u;
         }
         // Barrier Armijo uses the full analytic product-rule gradient when
         // this feature is locally descending. The collision-free bound above
@@ -4284,9 +6215,13 @@ kernel void nm_contact_limit_deformable_line_search(
                 schedulers[environment * dispatch.objectCount +
                            contact.identity.x]);
             float impulseDotDisplacement = 0.0f;
-            for (uint local = 0u; local < 4u; ++local) {
+            for (uint local = 0u; local < 6u; ++local) {
+                const uint supportNode =
+                    deformableContactNode(contact, local);
+                if (supportNode == NM_INVALID_INDEX) continue;
                 const float3 barrierImpulse =
-                    contact.weights[local] * contact.barrier.x *
+                    deformableContactWeight(contact, local) *
+                        contact.barrier.x *
                         contact.normalAndTOI.xyz -
                     contact.mollifier.y *
                         deformableMollifierGradient(contact, local);
@@ -4302,6 +6237,7 @@ kernel void nm_contact_limit_deformable_line_search(
                     float4(currentEnergy, directionalDerivative,
                            min(existing, bound), 0.0f));
                 bound = 0.0f;
+                if (captureTrace) traceRecord.diagnostic.y = 5u;
             } else if (directionalDerivative < 0.0f) {
                 // A coupled Newton direction need not decrease every contact
                 // potential independently. Apply per-feature Armijo only
@@ -4309,12 +6245,16 @@ kernel void nm_contact_limit_deformable_line_search(
                 // CCD/fraction-to-boundary limit above remains authoritative.
                 const float startAlpha = min(existing, bound);
                 float armijoAlpha = 0.0f;
-                for (uint trial = 0u; trial < 8u; ++trial) {
+                const uint lineSearchSteps = min(
+                    solver.nonlinearIterations.w,
+                    NM_MIXED_LINE_SEARCH_MAX_STEPS);
+                for (uint trial = 0u; trial < lineSearchSteps; ++trial) {
                     const float alpha = startAlpha * exp2(-float(trial));
                     float3 trialPosition[4];
                     for (uint local = 0u; local < 4u; ++local)
                         trialPosition[local] =
-                            position[local] + alpha * displacement[local];
+                            featurePosition[local] +
+                            alpha * featureDirection[local];
                     float trialEnergy;
                     float trialSeparation;
                     const bool finiteTrial = deformableBarrierEnergyAt(
@@ -4333,10 +6273,18 @@ kernel void nm_contact_limit_deformable_line_search(
                         float4(currentEnergy, directionalDerivative,
                                startAlpha, 0.0f));
                     bound = 0.0f;
+                    if (captureTrace) traceRecord.diagnostic.y = 6u;
                 } else {
                     bound = min(bound, armijoAlpha);
                 }
             }
+        }
+        if (captureTrace) {
+            traceRecord.metrics = float4(
+                collisionThickness, toi, ccdSeparation, bound);
+            traceRecord.lineSearch.y = bound;
+            traceRecords[environment * traceSlotsPerEnvironment +
+                         activeSlot] = traceRecord;
         }
     }
     bound = simd_min(bound);
@@ -4353,6 +6301,8 @@ kernel void nm_contact_limit_deformable_line_search(
 // rigid displacement is evaluated through the same generalized point
 // Jacobian used by the monolithic operator, so continuum and articulated/free
 // rigid corrections are bounded together before candidate publication.
+#include "numi/matter/fixed_convex_contact_step.h"
+
 kernel void nm_contact_limit_rigid_line_search(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMContinuumObjectGPU* objects [[buffer(1)]],
@@ -4470,6 +6420,19 @@ kernel void nm_contact_limit_rigid_line_search(
                     bound = 0.0f;
                 }
             } else {
+                // The fixed convex obstacle's supporting plane proves that
+                // a resolved outward affine FEM trial cannot approach it.
+                // Tangential/uncertain and every moving/nonconvex proxy still
+                // use the general travel bound. Trial CCD is unchanged.
+                const bool certifiedOutward =
+                    object.representation == NM_REPRESENTATION_FEM &&
+                    pair.rigidProxy < dispatch.rigidProxyCount &&
+                    nmFixedConvexContactOutward(
+                        contact.rigidProxies[pair.rigidProxy].flags,
+                        contact.rigidProxies[pair.rigidProxy].shapeKind,
+                        separation, feasibleSeparation, travel,
+                        directionalSeparation, boundaryRoundoff);
+                if (!certifiedOutward)
                 bound = min(bound, clamp(
                     0.9f * (separation - feasibleSeparation) / travel,
                     0.0f, 1.0f));
@@ -4498,7 +6461,10 @@ kernel void nm_contact_limit_rigid_line_search(
             bound > 0.0f) {
             const float startAlpha = min(existing, bound);
             float armijoAlpha = 0.0f;
-            for (uint trial = 0u; trial < 8u; ++trial) {
+            const uint lineSearchSteps = min(
+                solver.nonlinearIterations.w,
+                NM_MIXED_LINE_SEARCH_MAX_STEPS);
+            for (uint trial = 0u; trial < lineSearchSteps; ++trial) {
                 const float alpha = startAlpha * exp2(-float(trial));
                 const float trialSeparation =
                     separation + alpha * directionalSeparation;

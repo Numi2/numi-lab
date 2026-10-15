@@ -94,3 +94,15 @@ geometry checks do not validate physical paperboard behavior. The Metal fixture 
 temporary-grip snapshot restore, injected rollback, episode reset,
 invalid-tag, and exact authored-rest checks. It still requires a native Apple
 GPU run before runtime behavior is confirmed.
+
+## Shipping-size protocol extension
+
+`cardboard_shipping_protocol.hpp` adds a separate 300 × 200 × 200 mm internal
+FEFCO 0201 target and an accepted-coupon-derived dieline. It does not change
+the mini-box fixture, its controller schedule, or its output. The shipping
+controller sequence is available as `makeShippingAssemblyProgram`; it names
+wall turns, accepted manufacturer-lap activation, minor/major end-flap turns,
+accepted flap-overlap activations, fixture release, and a settled checkpoint.
+Every stage remains `executed=false` until a native driver records it. See
+[`cardboard_shipping_protocol.md`](cardboard_shipping_protocol.md) for the
+coupon, HMA, compression/drop, qualification, and mesh-resolution limits.

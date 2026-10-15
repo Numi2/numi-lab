@@ -1,0 +1,1 @@
+FAIL full-contact residual Armijo fixture: BOX translation fixture's parked punch does not clear the actual highest FEM node by its declared margin

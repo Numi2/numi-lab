@@ -1,0 +1,3067 @@
+{
+  "accuracy_gates": {
+    "center_stress_and_tangent_parity": "resolved within threshold in both captured regions",
+    "oracle_noise_floor": "estimated from independent FP64 centered-FD step spread and Richardson comparison; tolerance sensitivity and captured-vs-rebuilt FP64 pair differences are reported separately, not called native noise",
+    "requested_direction": "not qualified; float32 realized direction is separately gated and no small-epsilon pair simultaneously meets direction and local-FD thresholds in both regions",
+    "same_exact_FP32_pair_derivative": "native and FP64 derivatives are compared on the exact stored plus/minus float32 F pair; source-rebuilt FP64 values are shown separately and their replay difference is retained",
+    "software_tangent_threshold": 0.001
+  },
+  "cases": [
+    {
+      "FP64_oracle_self_check_at_5e-7": {
+        "FD_step_spread_5e-7_vs_2.5e-7_relative": 1.7772663837292973e-07,
+        "Richardson_1e-6_vs_AD_relative": 2.8991334936647965e-10,
+        "raw_FD_vs_AD_relative": 2.3749898742775487e-07,
+        "scope": "independent FP64 oracle self-check only; not native physical or material calibration qualification"
+      },
+      "FP64_unquantized_requested_direction_sweep": [
+        {
+          "FD_vs_center_AD_relative_l2": 1.233047067342101,
+          "Richardson_vs_center_AD_relative_l2": 0.06859962915415369,
+          "epsilon": 0.001,
+          "half_step_spread_relative_l2": 0.7764621816839686,
+          "plus_minus_accumulated_multiplier": [
+            0.0003129390100582504,
+            -2.7755575910958133e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            5.695314012066355e-15,
+            6.408343875271511e-13
+          ],
+          "plus_minus_yield_gap": [
+            1.5920598173124745e-13,
+            0.3409982220717631
+          ],
+          "smooth_same_branch": false
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 0.257063164722038,
+          "Richardson_vs_center_AD_relative_l2": null,
+          "epsilon": 0.0005,
+          "half_step_spread_relative_l2": null,
+          "plus_minus_accumulated_multiplier": [
+            0.00010384186630264546,
+            -1.942890374751328e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            5.881810338261018e-14,
+            6.408342303285067e-13
+          ],
+          "plus_minus_yield_gap": [
+            4.756195437494171e-13,
+            0.20622022138517604
+          ],
+          "smooth_same_branch": false
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 0.08949567914903112,
+          "Richardson_vs_center_AD_relative_l2": 0.001277228898516749,
+          "epsilon": 0.0003,
+          "half_step_spread_relative_l2": 0.06658682963706679,
+          "plus_minus_accumulated_multiplier": [
+            2.0652843856489248e-05,
+            -1.11022317809657e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.461031796384242e-14,
+            6.408343875271511e-13
+          ],
+          "plus_minus_yield_gap": [
+            2.4145130339547904e-12,
+            0.15161353978429226
+          ],
+          "smooth_same_branch": false
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 0.02148241163019023,
+          "Richardson_vs_center_AD_relative_l2": null,
+          "epsilon": 0.00015,
+          "half_step_spread_relative_l2": null,
+          "plus_minus_accumulated_multiplier": [
+            1.356553300166757e-15,
+            1.3877758097645706e-17
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408342303285067e-13,
+            6.408343875271511e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.027750686181882034,
+            0.11046356030339166
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 0.009515977044626766,
+          "Richardson_vs_center_AD_relative_l2": 6.343454199225786e-06,
+          "epsilon": 0.0001,
+          "half_step_spread_relative_l2": 0.007124824979977552,
+          "plus_minus_accumulated_multiplier": [
+            7.563392311881716e-16,
+            6.93889015099299e-17
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408342303285067e-13,
+            6.408343875271511e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.04157021036924624,
+            0.09671409506879991
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 0.002374240710646158,
+          "Richardson_vs_center_AD_relative_l2": null,
+          "epsilon": 5e-05,
+          "half_step_spread_relative_l2": null,
+          "plus_minus_accumulated_multiplier": [
+            4.649057760166879e-16,
+            1.526556152681425e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408342303285067e-13,
+            6.408342303285067e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.05537687006597325,
+            0.08294940201902457
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 0.0008543620124277145,
+          "Richardson_vs_center_AD_relative_l2": 5.1201382301712546e-08,
+          "epsilon": 3e-05,
+          "half_step_spread_relative_l2": 0.0006406730983532459,
+          "plus_minus_accumulated_multiplier": [
+            3.816390693840356e-16,
+            1.9428897087254922e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408342303285067e-13,
+            6.408343875271511e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.06089581186322446,
+            0.07743940644710834
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 0.00021355213486605178,
+          "Richardson_vs_center_AD_relative_l2": null,
+          "epsilon": 1.5e-05,
+          "half_step_spread_relative_l2": null,
+          "plus_minus_accumulated_multiplier": [
+            3.1918903699090323e-16,
+            2.359223268239157e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408343875271511e-13,
+            6.408343875271511e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.06503358930054792,
+            0.07330540249677786
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 9.490895457763317e-05,
+          "Richardson_vs_center_AD_relative_l2": 5.092094771996131e-10,
+          "epsilon": 1e-05,
+          "half_step_spread_relative_l2": 7.118040873335563e-05,
+          "plus_minus_accumulated_multiplier": [
+            3.053112524268865e-16,
+            2.498001123155455e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408342303285067e-13,
+            6.408342303285067e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.06641257322570449,
+            0.0719271173198539
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 2.3726857424616817e-05,
+          "Richardson_vs_center_AD_relative_l2": null,
+          "epsilon": 5e-06,
+          "half_step_spread_relative_l2": null,
+          "plus_minus_accumulated_multiplier": [
+            2.914334675726298e-16,
+            2.636778971698457e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408343875271511e-13,
+            6.408343875271511e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.067791418575743,
+            0.07054869121182994
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 8.54169085775624e-06,
+          "Richardson_vs_center_AD_relative_l2": 7.323808760985704e-11,
+          "epsilon": 3e-06,
+          "half_step_spread_relative_l2": 6.406199624067394e-06,
+          "plus_minus_accumulated_multiplier": [
+            2.775556817338852e-16,
+            2.636778975169993e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408342303285067e-13,
+            6.408343875271511e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.06834291778407975,
+            0.06999728144113582
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 2.135477557184532e-06,
+          "Richardson_vs_center_AD_relative_l2": null,
+          "epsilon": 1.5e-06,
+          "half_step_spread_relative_l2": null,
+          "plus_minus_accumulated_multiplier": [
+            2.775556823712082e-16,
+            2.7755568271838353e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408342303285067e-13,
+            6.408342303285067e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.06875652755615025,
+            0.06958370940054381
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 9.491277941774342e-07,
+          "Richardson_vs_center_AD_relative_l2": 2.8991334936647965e-10,
+          "epsilon": 1e-06,
+          "half_step_spread_relative_l2": 7.116286382688468e-07,
+          "plus_minus_accumulated_multiplier": [
+            2.7755568208099496e-16,
+            2.775556827183641e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408342303285067e-13,
+            6.408342303285067e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.06889439468954173,
+            0.0694458492544292
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 2.3749898742775487e-07,
+          "Richardson_vs_center_AD_relative_l2": 5.304959506004096e-10,
+          "epsilon": 5e-07,
+          "half_step_spread_relative_l2": 1.7772663837292973e-07,
+          "plus_minus_accumulated_multiplier": [
+            2.775556827182788e-16,
+            2.775556823712925e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408342303285067e-13,
+            6.408342303285067e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.06903226042666588,
+            0.06930798770971092
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 8.538832360717894e-08,
+          "Richardson_vs_center_AD_relative_l2": 2.2175352147642527e-10,
+          "epsilon": 3e-07,
+          "half_step_spread_relative_l2": 6.387551600930578e-08,
+          "plus_minus_accumulated_multiplier": [
+            2.775556823712934e-16,
+            2.775556827183445e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408342303285067e-13,
+            6.408342303285067e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.06908740633042598,
+            0.06925284270030618
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 5.977234092217467e-08,
+          "Richardson_vs_center_AD_relative_l2": null,
+          "epsilon": 2.5e-07,
+          "half_step_spread_relative_l2": null,
+          "plus_minus_accumulated_multiplier": [
+            2.77555682371274e-16,
+            2.77555682371274e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408342303285067e-13,
+            6.408342303285067e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.06910119277139781,
+            0.0692390564130263
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 2.151281229313906e-08,
+          "Richardson_vs_center_AD_relative_l2": null,
+          "epsilon": 1.5e-07,
+          "half_step_spread_relative_l2": null,
+          "plus_minus_accumulated_multiplier": [
+            2.7755568237125347e-16,
+            2.7755568271838264e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408342303285067e-13,
+            6.408342303285067e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.06912876561152759,
+            0.06921148379648612
+          ],
+          "smooth_same_branch": true
+        }
+      ],
+      "any_joint_pair_gate_pass": false,
+      "candidate_state_precision": "temporary_fp32_high_plus_low; accepted_history_fp32_high",
+      "capture_path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-compensated-projection-046/capture/hajali2009_liner_hill_ideal.tangent-capture.json",
+      "capture_sha256": "642ffef432b854bf64edc7034860f3807faf76b9619dae56cb18ef2edf26cd04",
+      "center_FP64_projection_residual_inf": 6.408342303285067e-13,
+      "center_native_projection_residual_inf": 8.47001497e-11,
+      "center_native_vs_FP64_state_l2": 2.6021020142152992e-08,
+      "center_native_vs_FP64_stress_relative_l2": 4.380968606998737e-07,
+      "center_native_vs_FP64_tangent_relative_l2": 4.214145537101545e-07,
+      "evidence_class": "synthetic_instrument_only_not_calibration",
+      "generic_compensated_implicit_projection": true,
+      "interpretation": {
+        "native_center_stress_and_tangent_match_FP64": true,
+        "physical_or_material_calibration_qualification": false,
+        "reconstructed_constitutive_program_fingerprint_matches_native_capture": true,
+        "requested_direction_gate": "inconclusive: useful small-epsilon pairs do not realize the requested direction within 1e-3; pairs that do realize it either cross/approach a branch or have finite-difference truncation above 1e-3",
+        "same_pair_native_derivative_can_be_compared_after_using_realized_delta_F": true
+      },
+      "joint_pair_gate_epsilons": [],
+      "native_physical_fem_steps": 0,
+      "original_reference_epsilon_gate": {
+        "existing_exploratory_scaled_error": 0.001435680188602471,
+        "exploratory_pass": true,
+        "exploratory_threshold": 0.03,
+        "software_qualification_pass_at_reference_epsilon": false,
+        "software_qualification_threshold_1e-3": 0.001
+      },
+      "physical_calibration": false,
+      "region": "liner",
+      "same_exact_FP32_pair_results": [
+        {
+          "FP64_AD_at_realized_direction_vs_captured_FP64_FD_scaled_error": 0.5522924503021127,
+          "branch_classification_from_independent_FP64_exact_pair": "yield_branch_transition",
+          "captured_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.552290099152522,
+          "captured_FP64_FD_vs_rebuilt_source_FP64_FD_scaled_difference": 5.252720238162685e-06,
+          "direction_gate_le_1e-3": true,
+          "independent_FP64_replay_stress_vs_captured_FP64_stress": [
+            1.735135565389883e-07,
+            5.1928515611041095e-06
+          ],
+          "joint_requested_direction_local_gate": false,
+          "local_rebuilt_source_oracle_derivative_gate_le_1e-3": false,
+          "local_same_pair_derivative_gate_le_1e-3": false,
+          "midpoint_offset_inf_F": 2.9802322387695312e-08,
+          "native_AD_at_realized_direction_vs_FP64_FD_same_pair_scaled_error": 0.5522922580588729,
+          "native_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.5522899069082726,
+          "native_AD_vs_FP64_AD_at_realized_direction_relative_l2": 4.2933125255037235e-07,
+          "native_AD_vs_native_FD_scaled_error": 0.5522922412497365,
+          "native_FD_vs_FP64_FD_same_exact_F32_pair_scaled_error": 3.7564871416263656e-08,
+          "native_FD_vs_rebuilt_FP64_FD_scaled_error": 5.215178212478766e-06,
+          "native_pair_projection_residual_inf": [
+            4.49872495e-09,
+            8.56338438e-13
+          ],
+          "native_plus_minus_stress_relative_to_captured_FP64_same_pair": [
+            7.802985671095772e-10,
+            3.685305830619437e-08
+          ],
+          "native_plus_minus_stress_relative_to_rebuilt_FP64_same_pair": [
+            1.7428700813086292e-07,
+            5.156048230979723e-06
+          ],
+          "plus_minus_F_f32": [
+            [
+              1.00480008,
+              0.000119999997,
+              0,
+              0,
+              1.00014997,
+              0,
+              0,
+              0,
+              1
+            ],
+            [
+              1.00279999,
+              -0.000119999997,
+              0,
+              0,
+              0.999849975,
+              0,
+              0,
+              0,
+              1
+            ]
+          ],
+          "plus_minus_accumulated_multiplier": [
+            0.0003129469124552754,
+            -2.7755575974690876e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            1.214306433183765e-15,
+            6.408343875271511e-13
+          ],
+          "plus_minus_yield_gap": [
+            1.596500709410975e-13,
+            0.34101408247613796
+          ],
+          "realized_delta_F_f32": [
+            0.002000090000000121,
+            0.000239999994,
+            0.0,
+            0.0,
+            0.00029999500000010837,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "realized_direction": [
+            1.000046730041504,
+            0.11999999696854502,
+            0,
+            0,
+            0.1499950885772705,
+            0,
+            0,
+            0,
+            0
+          ],
+          "realized_direction_relative_l2_error": 4.6144404224110446e-05,
+          "realized_midpoint_F_f32_promoted": [
+            1.003800035,
+            0.0,
+            0.0,
+            0.0,
+            0.9999999725,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "rebuilt_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.5522917475572255,
+          "rebuilt_FP64_FD_tolerance_2e-11_vs_2e-13_scaled_difference": 1.044189772666828e-09,
+          "requested_epsilon": 0.001
+        },
+        {
+          "FP64_AD_at_realized_direction_vs_captured_FP64_FD_scaled_error": 0.08216862947747654,
+          "branch_classification_from_independent_FP64_exact_pair": "yield_branch_transition",
+          "captured_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.08217918693842113,
+          "captured_FP64_FD_vs_rebuilt_source_FP64_FD_scaled_difference": 1.1503791666628101e-05,
+          "direction_gate_le_1e-3": true,
+          "independent_FP64_replay_stress_vs_captured_FP64_stress": [
+            3.954088144338183e-06,
+            1.1409137094347344e-05
+          ],
+          "joint_requested_direction_local_gate": false,
+          "local_rebuilt_source_oracle_derivative_gate_le_1e-3": false,
+          "local_same_pair_derivative_gate_le_1e-3": false,
+          "midpoint_offset_inf_F": 2.9802322387695312e-08,
+          "native_AD_at_realized_direction_vs_FP64_FD_same_pair_scaled_error": 0.08216829520164871,
+          "native_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.08217885266644342,
+          "native_AD_vs_FP64_AD_at_realized_direction_relative_l2": 3.6427987271766544e-07,
+          "native_AD_vs_native_FD_scaled_error": 0.08216845597031684,
+          "native_FD_vs_FP64_FD_same_exact_F32_pair_scaled_error": 1.7518041780213815e-07,
+          "native_FD_vs_rebuilt_FP64_FD_scaled_error": 1.1328638713791103e-05,
+          "native_pair_projection_residual_inf": [
+            5.14245357e-09,
+            2.2916672e-11
+          ],
+          "native_plus_minus_stress_relative_to_captured_FP64_same_pair": [
+            3.966775113365654e-09,
+            1.3610858971564923e-07
+          ],
+          "native_plus_minus_stress_relative_to_rebuilt_FP64_same_pair": [
+            3.950245591473688e-06,
+            1.1272900191818837e-05
+          ],
+          "plus_minus_F_f32": [
+            [
+              1.00410008,
+              3.59999976e-05,
+              0,
+              0,
+              1.00004494,
+              0,
+              0,
+              0,
+              1
+            ],
+            [
+              1.00349998,
+              -3.59999976e-05,
+              0,
+              0,
+              0.999954998,
+              0,
+              0,
+              0,
+              1
+            ]
+          ],
+          "plus_minus_accumulated_multiplier": [
+            2.0651411708258156e-05,
+            -1.1102231844697994e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.184834681075349e-14,
+            6.408343875271511e-13
+          ],
+          "plus_minus_yield_gap": [
+            2.4149571231646405e-12,
+            0.1516273159493472
+          ],
+          "realized_delta_F_f32": [
+            0.0006000999999999923,
+            7.19999952e-05,
+            0.0,
+            0.0,
+            8.994200000000951e-05,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "realized_direction": [
+            1.0001659393310547,
+            0.11999999211790661,
+            0,
+            0,
+            0.14990568161010742,
+            0,
+            0,
+            0,
+            0
+          ],
+          "realized_direction_relative_l2_error": 0.00018744708874550425,
+          "realized_midpoint_F_f32_promoted": [
+            1.0038000299999998,
+            0.0,
+            0.0,
+            0.0,
+            0.999999969,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "rebuilt_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.0821694023719777,
+          "rebuilt_FP64_FD_tolerance_2e-11_vs_2e-13_scaled_difference": 8.153068388668957e-10,
+          "requested_epsilon": 0.0003
+        },
+        {
+          "FP64_AD_at_realized_direction_vs_captured_FP64_FD_scaled_error": 0.009429358184696536,
+          "branch_classification_from_independent_FP64_exact_pair": "both_strictly_inside_yield",
+          "captured_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.009412157460544232,
+          "captured_FP64_FD_vs_rebuilt_source_FP64_FD_scaled_difference": 1.736914313573592e-05,
+          "direction_gate_le_1e-3": true,
+          "independent_FP64_replay_stress_vs_captured_FP64_stress": [
+            1.577746661654781e-06,
+            4.736267395786461e-06
+          ],
+          "joint_requested_direction_local_gate": false,
+          "local_rebuilt_source_oracle_derivative_gate_le_1e-3": false,
+          "local_same_pair_derivative_gate_le_1e-3": false,
+          "midpoint_offset_inf_F": 0,
+          "native_AD_at_realized_direction_vs_FP64_FD_same_pair_scaled_error": 0.009428904974266085,
+          "native_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.009411704242486947,
+          "native_AD_vs_FP64_AD_at_realized_direction_relative_l2": 4.575639191099904e-07,
+          "native_AD_vs_native_FD_scaled_error": 0.009428305353200418,
+          "native_FD_vs_FP64_FD_same_exact_F32_pair_scaled_error": 6.056827176377153e-07,
+          "native_FD_vs_rebuilt_FP64_FD_scaled_error": 1.6763507764182167e-05,
+          "native_pair_projection_residual_inf": [
+            3.86975799e-11,
+            1.90115996e-11
+          ],
+          "native_plus_minus_stress_relative_to_captured_FP64_same_pair": [
+            1.311299025604632e-07,
+            8.865611543692433e-08
+          ],
+          "native_plus_minus_stress_relative_to_rebuilt_FP64_same_pair": [
+            1.4466179304577439e-06,
+            4.6476519198780515e-06
+          ],
+          "plus_minus_F_f32": [
+            [
+              1.00390005,
+              1.19999995e-05,
+              0,
+              0,
+              1.00001502,
+              0,
+              0,
+              0,
+              1
+            ],
+            [
+              1.00370002,
+              -1.19999995e-05,
+              0,
+              0,
+              0.99998498,
+              0,
+              0,
+              0,
+              1
+            ]
+          ],
+          "plus_minus_accumulated_multiplier": [
+            7.563392318254207e-16,
+            6.938890150992999e-17
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408342303285067e-13,
+            6.408343875271511e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.04156236986703998,
+            0.09672169898283745
+          ],
+          "realized_delta_F_f32": [
+            0.0002000300000000177,
+            2.3999999e-05,
+            0.0,
+            0.0,
+            3.0039999999953437e-05,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "realized_direction": [
+            1.0001659393310547,
+            0.11999999514955562,
+            0,
+            0,
+            0.15020370483398438,
+            0,
+            0,
+            0,
+            0
+          ],
+          "realized_direction_relative_l2_error": 0.00025801659819894195,
+          "realized_midpoint_F_f32_promoted": [
+            1.0038000349999998,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "rebuilt_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.009429060382447868,
+          "rebuilt_FP64_FD_tolerance_2e-11_vs_2e-13_scaled_difference": 6.457081802721251e-10,
+          "requested_epsilon": 0.0001
+        },
+        {
+          "FP64_AD_at_realized_direction_vs_captured_FP64_FD_scaled_error": 0.0008568406173885246,
+          "branch_classification_from_independent_FP64_exact_pair": "both_strictly_inside_yield",
+          "captured_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.000997838482245009,
+          "captured_FP64_FD_vs_rebuilt_source_FP64_FD_scaled_difference": 0.00014117259467418266,
+          "direction_gate_le_1e-3": false,
+          "independent_FP64_replay_stress_vs_captured_FP64_stress": [
+            7.945506210346682e-06,
+            7.338806432607456e-06
+          ],
+          "joint_requested_direction_local_gate": false,
+          "local_rebuilt_source_oracle_derivative_gate_le_1e-3": true,
+          "local_same_pair_derivative_gate_le_1e-3": true,
+          "midpoint_offset_inf_F": 2.9802322387695312e-08,
+          "native_AD_at_realized_direction_vs_FP64_FD_same_pair_scaled_error": 0.0008564163549494713,
+          "native_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.0009974142525918568,
+          "native_AD_vs_FP64_AD_at_realized_direction_relative_l2": 4.2469025656789494e-07,
+          "native_AD_vs_native_FD_scaled_error": 0.0008578939918985856,
+          "native_FD_vs_FP64_FD_same_exact_F32_pair_scaled_error": 1.479372571271016e-06,
+          "native_FD_vs_rebuilt_FP64_FD_scaled_error": 0.00013969346662236938,
+          "native_pair_projection_residual_inf": [
+            6.27360178e-11,
+            1.51321889e-11
+          ],
+          "native_plus_minus_stress_relative_to_captured_FP64_same_pair": [
+            2.3556589788282716e-07,
+            7.51349927747099e-08
+          ],
+          "native_plus_minus_stress_relative_to_rebuilt_FP64_same_pair": [
+            7.709940408398726e-06,
+            7.413940592229377e-06
+          ],
+          "plus_minus_F_f32": [
+            [
+              1.00383008,
+              3.5999999e-06,
+              0,
+              0,
+              1.00000453,
+              0,
+              0,
+              0,
+              1
+            ],
+            [
+              1.00376999,
+              -3.5999999e-06,
+              0,
+              0,
+              0.99999553,
+              0,
+              0,
+              0,
+              1
+            ]
+          ],
+          "plus_minus_accumulated_multiplier": [
+            3.8163906938410966e-16,
+            1.9428897185696243e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408342303285067e-13,
+            6.408343875271511e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.06087858842717053,
+            0.07744427123912978
+          ],
+          "realized_delta_F_f32": [
+            6.0090000000068144e-05,
+            7.1999998e-06,
+            0.0,
+            0.0,
+            9.000000000036756e-06,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "realized_direction": [
+            1.0013580322265625,
+            0.11999999666538011,
+            0,
+            0,
+            0.15000502268473306,
+            0,
+            0,
+            0,
+            0
+          ],
+          "realized_direction_relative_l2_error": 0.0013336583911488073,
+          "realized_midpoint_F_f32_promoted": [
+            1.0038000349999998,
+            0.0,
+            0.0,
+            0.0,
+            1.00000003,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "rebuilt_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.0008561997031512273,
+          "rebuilt_FP64_FD_tolerance_2e-11_vs_2e-13_scaled_difference": 6.424383636538062e-10,
+          "requested_epsilon": 3e-05
+        },
+        {
+          "FP64_AD_at_realized_direction_vs_captured_FP64_FD_scaled_error": 9.610089082836376e-05,
+          "branch_classification_from_independent_FP64_exact_pair": "both_strictly_inside_yield",
+          "captured_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.00023687218630927894,
+          "captured_FP64_FD_vs_rebuilt_source_FP64_FD_scaled_difference": 0.00014079967278989513,
+          "direction_gate_le_1e-3": false,
+          "independent_FP64_replay_stress_vs_captured_FP64_stress": [
+            3.3333423131046145e-06,
+            1.7440593047680506e-06
+          ],
+          "joint_requested_direction_local_gate": false,
+          "local_rebuilt_source_oracle_derivative_gate_le_1e-3": true,
+          "local_same_pair_derivative_gate_le_1e-3": true,
+          "midpoint_offset_inf_F": 2.9802322387695312e-08,
+          "native_AD_at_realized_direction_vs_FP64_FD_same_pair_scaled_error": 9.572846916181628e-05,
+          "native_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.00023649973812803185,
+          "native_AD_vs_FP64_AD_at_realized_direction_relative_l2": 3.725693281943102e-07,
+          "native_AD_vs_native_FD_scaled_error": 9.854462804750987e-05,
+          "native_FD_vs_FP64_FD_same_exact_F32_pair_scaled_error": 2.81832606848095e-06,
+          "native_FD_vs_rebuilt_FP64_FD_scaled_error": 0.0001379822208777737,
+          "native_pair_projection_residual_inf": [
+            1.4522653e-11,
+            3.03905963e-11
+          ],
+          "native_plus_minus_stress_relative_to_captured_FP64_same_pair": [
+            4.870069795528878e-08,
+            1.5019665994194864e-07
+          ],
+          "native_plus_minus_stress_relative_to_rebuilt_FP64_same_pair": [
+            3.382042287769229e-06,
+            1.593905968719821e-06
+          ],
+          "plus_minus_F_f32": [
+            [
+              1.00381005,
+              1.19999993e-06,
+              0,
+              0,
+              1.00000155,
+              0,
+              0,
+              0,
+              1
+            ],
+            [
+              1.00379002,
+              -1.19999993e-06,
+              0,
+              0,
+              0.99999851,
+              0,
+              0,
+              0,
+              1
+            ]
+          ],
+          "plus_minus_accumulated_multiplier": [
+            3.053112521366543e-16,
+            2.4980011295294965e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408342303285067e-13,
+            6.408342303285067e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.0663986714163941,
+            0.07192866086698468
+          ],
+          "realized_delta_F_f32": [
+            2.00299999999487e-05,
+            2.39999986e-06,
+            0.0,
+            0.0,
+            3.0399999999541905e-06,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "realized_direction": [
+            1.0013580322265625,
+            0.11999999287581885,
+            0,
+            0,
+            0.1519918441772461,
+            0,
+            0,
+            0,
+            0
+          ],
+          "realized_direction_relative_l2_error": 0.002367456856262517,
+          "realized_midpoint_F_f32_promoted": [
+            1.003800035,
+            0.0,
+            0.0,
+            0.0,
+            1.0000000299999998,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "rebuilt_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 9.517977064849117e-05,
+          "rebuilt_FP64_FD_tolerance_2e-11_vs_2e-13_scaled_difference": 6.422118239378569e-10,
+          "requested_epsilon": 1e-05
+        },
+        {
+          "FP64_AD_at_realized_direction_vs_captured_FP64_FD_scaled_error": 8.4269326280403e-06,
+          "branch_classification_from_independent_FP64_exact_pair": "both_strictly_inside_yield",
+          "captured_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 7.048456188953844e-05,
+          "captured_FP64_FD_vs_rebuilt_source_FP64_FD_scaled_difference": 7.829686690393468e-05,
+          "direction_gate_le_1e-3": false,
+          "independent_FP64_replay_stress_vs_captured_FP64_stress": [
+            8.587321450294239e-06,
+            7.790061443681787e-06
+          ],
+          "joint_requested_direction_local_gate": false,
+          "local_rebuilt_source_oracle_derivative_gate_le_1e-3": true,
+          "local_same_pair_derivative_gate_le_1e-3": true,
+          "midpoint_offset_inf_F": 0,
+          "native_AD_at_realized_direction_vs_FP64_FD_same_pair_scaled_error": 7.935257455141446e-06,
+          "native_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 7.093954795500953e-05,
+          "native_AD_vs_FP64_AD_at_realized_direction_relative_l2": 4.917828462906801e-07,
+          "native_AD_vs_native_FD_scaled_error": 2.498769899410904e-05,
+          "native_FD_vs_FP64_FD_same_exact_F32_pair_scaled_error": 3.2914233129112474e-05,
+          "native_FD_vs_rebuilt_FP64_FD_scaled_error": 4.8349712219675984e-05,
+          "native_pair_projection_residual_inf": [
+            4.50612395e-11,
+            4.58430308e-11
+          ],
+          "native_plus_minus_stress_relative_to_captured_FP64_same_pair": [
+            1.8723451291870623e-07,
+            1.6583142314953006e-07
+          ],
+          "native_plus_minus_stress_relative_to_rebuilt_FP64_same_pair": [
+            8.400197030341379e-06,
+            7.955872157562509e-06
+          ],
+          "plus_minus_F_f32": [
+            [
+              1.00380301,
+              3.60000001e-07,
+              0,
+              0,
+              1.00000048,
+              0,
+              0,
+              0,
+              1
+            ],
+            [
+              1.00379705,
+              -3.60000001e-07,
+              0,
+              0,
+              0.999999523,
+              0,
+              0,
+              0,
+              1
+            ]
+          ],
+          "plus_minus_accumulated_multiplier": [
+            2.775556817339305e-16,
+            2.636778975169158e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408342303285067e-13,
+            6.408343875271511e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.06834287419542029,
+            0.06999893884095665
+          ],
+          "realized_delta_F_f32": [
+            5.959999999971544e-06,
+            7.20000002e-07,
+            0.0,
+            0.0,
+            9.570000000236334e-07,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "realized_direction": [
+            0.9934107462565104,
+            0.12000000045494137,
+            0,
+            0,
+            0.15894571940104166,
+            0,
+            0,
+            0,
+            0
+          ],
+          "realized_direction_relative_l2_error": 0.010911052619472918,
+          "realized_midpoint_F_f32_promoted": [
+            1.0038000299999998,
+            0.0,
+            0.0,
+            0.0,
+            1.0000000015,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "rebuilt_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 8.425470186541726e-06,
+          "rebuilt_FP64_FD_tolerance_2e-11_vs_2e-13_scaled_difference": 6.421187062391561e-10,
+          "requested_epsilon": 3e-06
+        },
+        {
+          "FP64_AD_at_realized_direction_vs_captured_FP64_FD_scaled_error": 3.7395093832166107e-06,
+          "branch_classification_from_independent_FP64_exact_pair": "both_strictly_inside_yield",
+          "captured_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.001383544402823127,
+          "captured_FP64_FD_vs_rebuilt_source_FP64_FD_scaled_difference": 0.0013835883965377161,
+          "direction_gate_le_1e-3": false,
+          "independent_FP64_replay_stress_vs_captured_FP64_stress": [
+            3.226925865670779e-06,
+            1.5300513560294303e-06
+          ],
+          "joint_requested_direction_local_gate": false,
+          "local_rebuilt_source_oracle_derivative_gate_le_1e-3": false,
+          "local_same_pair_derivative_gate_le_1e-3": true,
+          "midpoint_offset_inf_F": 2.9802322387695312e-08,
+          "native_AD_at_realized_direction_vs_FP64_FD_same_pair_scaled_error": 3.7835551138684707e-06,
+          "native_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.001383048751780872,
+          "native_AD_vs_FP64_AD_at_realized_direction_relative_l2": 4.963836359060388e-07,
+          "native_AD_vs_native_FD_scaled_error": 1.9210810650257635e-05,
+          "native_FD_vs_FP64_FD_same_exact_F32_pair_scaled_error": 1.830377347492509e-05,
+          "native_FD_vs_rebuilt_FP64_FD_scaled_error": 0.00140186681181715,
+          "native_pair_projection_residual_inf": [
+            5.17579252e-12,
+            9.94373594e-12
+          ],
+          "native_plus_minus_stress_relative_to_captured_FP64_same_pair": [
+            1.3736357993033728e-08,
+            4.906363018149853e-08
+          ],
+          "native_plus_minus_stress_relative_to_rebuilt_FP64_same_pair": [
+            3.240589845828812e-06,
+            1.5790828541892747e-06
+          ],
+          "plus_minus_F_f32": [
+            [
+              1.00380099,
+              1.19999996e-07,
+              0,
+              0,
+              1.00000012,
+              0,
+              0,
+              0,
+              1
+            ],
+            [
+              1.00379908,
+              -1.19999996e-07,
+              0,
+              0,
+              0.999999821,
+              0,
+              0,
+              0,
+              1
+            ]
+          ],
+          "plus_minus_accumulated_multiplier": [
+            2.775556823712729e-16,
+            2.7755568335570573e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408342303285067e-13,
+            6.408342303285067e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.06891138338817138,
+            0.0694405482818431
+          ],
+          "realized_delta_F_f32": [
+            1.90999999993835e-06,
+            2.39999992e-07,
+            0.0,
+            0.0,
+            2.989999999813975e-07,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "realized_direction": [
+            0.95367431640625,
+            0.1199999957179898,
+            0,
+            0,
+            0.14901161193847656,
+            0,
+            0,
+            0,
+            0
+          ],
+          "realized_direction_relative_l2_error": 0.045504277721602024,
+          "realized_midpoint_F_f32_promoted": [
+            1.003800035,
+            0.0,
+            0.0,
+            0.0,
+            0.9999999705,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "rebuilt_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 8.655572471489154e-07,
+          "rebuilt_FP64_FD_tolerance_2e-11_vs_2e-13_scaled_difference": 6.42510291283114e-10,
+          "requested_epsilon": 1e-06
+        },
+        {
+          "FP64_AD_at_realized_direction_vs_captured_FP64_FD_scaled_error": 3.809569197417539e-06,
+          "branch_classification_from_independent_FP64_exact_pair": "both_strictly_inside_yield",
+          "captured_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.007418787293391889,
+          "captured_FP64_FD_vs_rebuilt_source_FP64_FD_scaled_difference": 0.007417913927823366,
+          "direction_gate_le_1e-3": false,
+          "independent_FP64_replay_stress_vs_captured_FP64_stress": [
+            3.875606053603286e-06,
+            5.612904854903292e-06
+          ],
+          "joint_requested_direction_local_gate": false,
+          "local_rebuilt_source_oracle_derivative_gate_le_1e-3": false,
+          "local_same_pair_derivative_gate_le_1e-3": true,
+          "midpoint_offset_inf_F": 2.9802322387695312e-08,
+          "native_AD_at_realized_direction_vs_FP64_FD_same_pair_scaled_error": 3.92460766407089e-06,
+          "native_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.007419220347218141,
+          "native_AD_vs_FP64_AD_at_realized_direction_relative_l2": 4.299057829381933e-07,
+          "native_AD_vs_native_FD_scaled_error": 0.0004376650775422672,
+          "native_FD_vs_FP64_FD_same_exact_F32_pair_scaled_error": 0.00043618202304095783,
+          "native_FD_vs_rebuilt_FP64_FD_scaled_error": 0.0069785028864011904,
+          "native_pair_projection_residual_inf": [
+            6.57391641e-11,
+            7.08978987e-11
+          ],
+          "native_plus_minus_stress_relative_to_captured_FP64_same_pair": [
+            2.4964043716256706e-07,
+            3.1252959830068963e-07
+          ],
+          "native_plus_minus_stress_relative_to_rebuilt_FP64_same_pair": [
+            3.625966570945399e-06,
+            5.300396235670655e-06
+          ],
+          "plus_minus_F_f32": [
+            [
+              1.00380039,
+              3.59999994e-08,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              1
+            ],
+            [
+              1.00379968,
+              -3.59999994e-08,
+              0,
+              0,
+              0.99999994,
+              0,
+              0,
+              0,
+              1
+            ]
+          ],
+          "plus_minus_accumulated_multiplier": [
+            2.775556827183632e-16,
+            2.775556827183632e-16
+          ],
+          "plus_minus_projection_residual_inf": [
+            6.408342303285067e-13,
+            6.408342303285067e-13
+          ],
+          "plus_minus_yield_gap": [
+            0.06908288422369158,
+            0.06926925457037214
+          ],
+          "realized_delta_F_f32": [
+            7.100000001258877e-07,
+            7.19999988e-08,
+            0.0,
+            0.0,
+            5.999999996841865e-08,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "realized_direction": [
+            1.1920928955078125,
+            0.1199999980864656,
+            0,
+            0,
+            0.09934107462565105,
+            0,
+            0,
+            0,
+            0
+          ],
+          "realized_direction_relative_l2_error": 0.19509366229383832,
+          "realized_midpoint_F_f32_promoted": [
+            1.003800035,
+            0.0,
+            0.0,
+            0.0,
+            0.99999997,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "rebuilt_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 1.2003877528496723e-07,
+          "rebuilt_FP64_FD_tolerance_2e-11_vs_2e-13_scaled_difference": 6.439256833943566e-10,
+          "requested_epsilon": 3e-07
+        }
+      ]
+    },
+    {
+      "FP64_oracle_self_check_at_5e-7": {
+        "FD_step_spread_5e-7_vs_2.5e-7_relative": 2.5124724838485927e-07,
+        "Richardson_1e-6_vs_AD_relative": 1.7274373790630855e-10,
+        "raw_FD_vs_AD_relative": 3.3541540956335223e-07,
+        "scope": "independent FP64 oracle self-check only; not native physical or material calibration qualification"
+      },
+      "FP64_unquantized_requested_direction_sweep": [
+        {
+          "FD_vs_center_AD_relative_l2": 1.8098156335183502,
+          "Richardson_vs_center_AD_relative_l2": 0.11294540674266147,
+          "epsilon": 0.001,
+          "half_step_spread_relative_l2": 1.0513126253573544,
+          "plus_minus_accumulated_multiplier": [
+            0.0014152152190226946,
+            0.0005147203337404482
+          ],
+          "plus_minus_projection_residual_inf": [
+            5.130618152549005e-13,
+            6.40815582433711e-13
+          ],
+          "plus_minus_yield_gap": [
+            4.440892098500626e-15,
+            0.15696301314291194
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 0.37028839997549556,
+          "Richardson_vs_center_AD_relative_l2": null,
+          "epsilon": 0.0005,
+          "half_step_spread_relative_l2": null,
+          "plus_minus_accumulated_multiplier": [
+            0.0011456580314675596,
+            0.000630020747427472
+          ],
+          "plus_minus_projection_residual_inf": [
+            3.5299454331783053e-14,
+            2.220446049250313e-15
+          ],
+          "plus_minus_yield_gap": [
+            7.571721027943568e-14,
+            4.334310688136611e-13
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 0.12510764412513578,
+          "Richardson_vs_center_AD_relative_l2": 0.0011077553597143264,
+          "epsilon": 0.0003,
+          "half_step_spread_relative_l2": 0.09186597393733574,
+          "plus_minus_accumulated_multiplier": [
+            0.0010401475256139698,
+            0.0007308322849174362
+          ],
+          "plus_minus_projection_residual_inf": [
+            2.1239520558991032e-14,
+            4.3517164698136934e-15
+          ],
+          "plus_minus_yield_gap": [
+            9.303668946358812e-14,
+            2.3092638912203256e-13
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 0.030448253539494884,
+          "Richardson_vs_center_AD_relative_l2": null,
+          "epsilon": 0.00015,
+          "half_step_spread_relative_l2": null,
+          "plus_minus_accumulated_multiplier": [
+            0.0009618272051940546,
+            0.0008071852518260608
+          ],
+          "plus_minus_projection_residual_inf": [
+            5.857402236852938e-15,
+            2.3570555229834866e-15
+          ],
+          "plus_minus_yield_gap": [
+            1.1124434706744069e-13,
+            1.709743457922741e-13
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 0.013465365455431219,
+          "Richardson_vs_center_AD_relative_l2": 1.342234447679059e-05,
+          "epsilon": 0.0001,
+          "half_step_spread_relative_l2": 0.010075294224357512,
+          "plus_minus_accumulated_multiplier": [
+            0.0009358708221683305,
+            0.0008327781787782522
+          ],
+          "plus_minus_projection_residual_inf": [
+            1.4828633113084244e-14,
+            6.626643678231403e-15
+          ],
+          "plus_minus_yield_gap": [
+            1.1746159600534156e-13,
+            1.5654144647214707e-13
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 0.0033563001719001846,
+          "Richardson_vs_center_AD_relative_l2": null,
+          "epsilon": 5e-05,
+          "half_step_spread_relative_l2": null,
+          "plus_minus_accumulated_multiplier": [
+            0.0009099883860699334,
+            0.0008584426661999022
+          ],
+          "plus_minus_projection_residual_inf": [
+            5.9717855660501584e-15,
+            1.3592642636450769e-14
+          ],
+          "plus_minus_yield_gap": [
+            1.2589929099249275e-13,
+            1.438849039914203e-13
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 0.0012074982054967735,
+          "Richardson_vs_center_AD_relative_l2": 1.0847922276325453e-07,
+          "epsilon": 3e-05,
+          "half_step_spread_relative_l2": 0.0009054319142926991,
+          "plus_minus_accumulated_multiplier": [
+            0.0008996559616039091,
+            0.0008687286069558633
+          ],
+          "plus_minus_projection_residual_inf": [
+            1.3280392410774944e-14,
+            4.440892098500626e-15
+          ],
+          "plus_minus_yield_gap": [
+            1.2856382625159313e-13,
+            1.4144241333724494e-13
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 0.0003017933981191993,
+          "Richardson_vs_center_AD_relative_l2": null,
+          "epsilon": 1.5e-05,
+          "half_step_spread_relative_l2": null,
+          "plus_minus_accumulated_multiplier": [
+            0.0008919143102584095,
+            0.0008764506492468498
+          ],
+          "plus_minus_projection_residual_inf": [
+            8.853052839430386e-15,
+            3.3480163086352377e-15
+          ],
+          "plus_minus_yield_gap": [
+            1.318944953254686e-13,
+            1.3788969965844444e-13
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 0.0001341237206027132,
+          "Richardson_vs_center_AD_relative_l2": 1.3209268671223406e-09,
+          "epsilon": 1e-05,
+          "half_step_spread_relative_l2": 0.00010059041018575847,
+          "plus_minus_accumulated_multiplier": [
+            0.0008893352168036827,
+            0.0008790261114771337
+          ],
+          "plus_minus_projection_residual_inf": [
+            1.131798647857618e-14,
+            6.898778423525265e-15
+          ],
+          "plus_minus_yield_gap": [
+            1.3233858453531866e-13,
+            1.3655743202889425e-13
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 3.352994207283165e-05,
+          "Richardson_vs_center_AD_relative_l2": null,
+          "epsilon": 5e-06,
+          "half_step_spread_relative_l2": null,
+          "plus_minus_accumulated_multiplier": [
+            0.0008867568508087435,
+            0.0008816022987498055
+          ],
+          "plus_minus_projection_residual_inf": [
+            2.80483102022e-15,
+            1.280496975814005e-14
+          ],
+          "plus_minus_yield_gap": [
+            1.3433698597964394e-13,
+            1.3522516439934407e-13
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 1.2070694260006114e-05,
+          "Richardson_vs_center_AD_relative_l2": 3.984493796489683e-11,
+          "epsilon": 3e-06,
+          "half_step_spread_relative_l2": 9.053023280282326e-06,
+          "plus_minus_accumulated_multiplier": [
+            0.0008857257079618159,
+            0.0008826329768038143
+          ],
+          "plus_minus_projection_residual_inf": [
+            1.3201245652183502e-14,
+            4.54605970923172e-15
+          ],
+          "plus_minus_yield_gap": [
+            1.3344880755994382e-13,
+            1.354472090042691e-13
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 3.0176436969410593e-06,
+          "Richardson_vs_center_AD_relative_l2": null,
+          "epsilon": 1.5e-06,
+          "half_step_spread_relative_l2": null,
+          "plus_minus_accumulated_multiplier": [
+            0.0008849524271219048,
+            0.0008834060615592897
+          ],
+          "plus_minus_projection_residual_inf": [
+            9.354496344204932e-15,
+            6.137126397354198e-15
+          ],
+          "plus_minus_yield_gap": [
+            1.341149413747189e-13,
+            1.3522516439934407e-13
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 1.341143689559282e-06,
+          "Richardson_vs_center_AD_relative_l2": 1.7274373790630855e-10,
+          "epsilon": 1e-06,
+          "half_step_spread_relative_l2": 1.0057279431401964e-06,
+          "plus_minus_accumulated_multiplier": [
+            0.0008846946813711812,
+            0.0008836637709981301
+          ],
+          "plus_minus_projection_residual_inf": [
+            8.075137780672037e-15,
+            9.630967898188736e-15
+          ],
+          "plus_minus_yield_gap": [
+            1.3433698597964394e-13,
+            1.3455903058456897e-13
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 3.3541540956335223e-07,
+          "Richardson_vs_center_AD_relative_l2": 4.1951356713669447e-10,
+          "epsilon": 5e-07,
+          "half_step_spread_relative_l2": 2.5124724838485927e-07,
+          "plus_minus_accumulated_multiplier": [
+            0.0008844369428840447,
+            0.0008839214876980852
+          ],
+          "plus_minus_projection_residual_inf": [
+            1.567864761631288e-14,
+            2.220446049250313e-15
+          ],
+          "plus_minus_yield_gap": [
+            1.3389289676979388e-13,
+            1.354472090042691e-13
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 1.205744999645199e-07,
+          "Richardson_vs_center_AD_relative_l2": 1.0366889944359409e-10,
+          "epsilon": 3e-07,
+          "half_step_spread_relative_l2": 9.035312915139211e-08,
+          "plus_minus_accumulated_multiplier": [
+            0.0008843338495228399,
+            0.0008840245764113942
+          ],
+          "plus_minus_projection_residual_inf": [
+            1.8276396021588148e-14,
+            5.751692525035601e-16
+          ],
+          "plus_minus_yield_gap": [
+            1.3367085216486885e-13,
+            1.354472090042691e-13
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 8.416814179000567e-08,
+          "Richardson_vs_center_AD_relative_l2": null,
+          "epsilon": 2.5e-07,
+          "half_step_spread_relative_l2": null,
+          "plus_minus_accumulated_multiplier": [
+            0.000884308076364187,
+            0.0008840503487712226
+          ],
+          "plus_minus_projection_residual_inf": [
+            7.267949263256579e-15,
+            3.771397256990827e-15
+          ],
+          "plus_minus_yield_gap": [
+            1.34781075189494e-13,
+            1.34781075189494e-13
+          ],
+          "smooth_same_branch": true
+        },
+        {
+          "FD_vs_center_AD_relative_l2": 3.022136811539596e-08,
+          "Richardson_vs_center_AD_relative_l2": null,
+          "epsilon": 1.5e-07,
+          "half_step_spread_relative_l2": null,
+          "plus_minus_accumulated_multiplier": [
+            0.0008842565302645763,
+            0.0008841018937088587
+          ],
+          "plus_minus_projection_residual_inf": [
+            1.4118480690106239e-14,
+            1.2464530275979602e-14
+          ],
+          "plus_minus_yield_gap": [
+            1.341149413747189e-13,
+            1.3389289676979388e-13
+          ],
+          "smooth_same_branch": true
+        }
+      ],
+      "any_joint_pair_gate_pass": false,
+      "candidate_state_precision": "temporary_fp32_high_plus_low; accepted_history_fp32_high",
+      "capture_path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-compensated-projection-046/capture/hajali2009_medium_hill_ideal.tangent-capture.json",
+      "capture_sha256": "2dfc9e8ef719332545eae31724e7059cbeb663cbd8ad99f1f5c6195e06572eee",
+      "center_FP64_projection_residual_inf": 5.519673260123703e-15,
+      "center_native_projection_residual_inf": 7.20478921e-09,
+      "center_native_vs_FP64_state_l2": 2.2974958276374468e-08,
+      "center_native_vs_FP64_stress_relative_l2": 1.7232759616349346e-08,
+      "center_native_vs_FP64_tangent_relative_l2": 5.0468461668345256e-08,
+      "evidence_class": "synthetic_instrument_only_not_calibration",
+      "generic_compensated_implicit_projection": true,
+      "interpretation": {
+        "native_center_stress_and_tangent_match_FP64": true,
+        "physical_or_material_calibration_qualification": false,
+        "reconstructed_constitutive_program_fingerprint_matches_native_capture": true,
+        "requested_direction_gate": "inconclusive: useful small-epsilon pairs do not realize the requested direction within 1e-3; pairs that do realize it either cross/approach a branch or have finite-difference truncation above 1e-3",
+        "same_pair_native_derivative_can_be_compared_after_using_realized_delta_F": true
+      },
+      "joint_pair_gate_epsilons": [],
+      "native_physical_fem_steps": 0,
+      "original_reference_epsilon_gate": {
+        "existing_exploratory_scaled_error": 0.0015472413744253275,
+        "exploratory_pass": true,
+        "exploratory_threshold": 0.03,
+        "software_qualification_pass_at_reference_epsilon": false,
+        "software_qualification_threshold_1e-3": 0.001
+      },
+      "physical_calibration": false,
+      "region": "medium",
+      "same_exact_FP32_pair_results": [
+        {
+          "FP64_AD_at_realized_direction_vs_captured_FP64_FD_scaled_error": 0.6441746067784405,
+          "branch_classification_from_independent_FP64_exact_pair": "both_on_or_at_yield",
+          "captured_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.6441725650474616,
+          "captured_FP64_FD_vs_rebuilt_source_FP64_FD_scaled_difference": 5.741463355994633e-06,
+          "direction_gate_le_1e-3": true,
+          "independent_FP64_replay_stress_vs_captured_FP64_stress": [
+            1.8468392907850915e-08,
+            5.709321523334989e-06
+          ],
+          "joint_requested_direction_local_gate": false,
+          "local_rebuilt_source_oracle_derivative_gate_le_1e-3": false,
+          "local_same_pair_derivative_gate_le_1e-3": false,
+          "midpoint_offset_inf_F": 2.9802322387695312e-08,
+          "native_AD_at_realized_direction_vs_FP64_FD_same_pair_scaled_error": 0.6441746239448993,
+          "native_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.6441725822140193,
+          "native_AD_vs_FP64_AD_at_realized_direction_relative_l2": 4.829408583012557e-08,
+          "native_AD_vs_native_FD_scaled_error": 0.6441745926192193,
+          "native_FD_vs_FP64_FD_same_exact_F32_pair_scaled_error": 8.821679486629104e-08,
+          "native_FD_vs_rebuilt_FP64_FD_scaled_error": 5.653636390086713e-06,
+          "native_pair_projection_residual_inf": [
+            4.26461167e-13,
+            8.42471665e-12
+          ],
+          "native_plus_minus_stress_relative_to_captured_FP64_same_pair": [
+            9.143013565100669e-11,
+            8.757410334336462e-08
+          ],
+          "native_plus_minus_stress_relative_to_rebuilt_FP64_same_pair": [
+            1.8554771977219605e-08,
+            5.622185092870739e-06
+          ],
+          "plus_minus_F_f32": [
+            [
+              1.00480008,
+              0.000119999997,
+              0,
+              0,
+              1.00014997,
+              0,
+              0,
+              0,
+              1
+            ],
+            [
+              1.00279999,
+              -0.000119999997,
+              0,
+              0,
+              0.999849975,
+              0,
+              0,
+              0,
+              1
+            ]
+          ],
+          "plus_minus_accumulated_multiplier": [
+            0.0014152297979262017,
+            0.0005147203337404205
+          ],
+          "plus_minus_projection_residual_inf": [
+            5.219349258345218e-13,
+            6.40815582433711e-13
+          ],
+          "plus_minus_yield_gap": [
+            3.3306690738754696e-15,
+            0.15699535471279236
+          ],
+          "realized_delta_F_f32": [
+            0.002000090000000121,
+            0.000239999994,
+            0.0,
+            0.0,
+            0.00029999500000010837,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "realized_direction": [
+            1.000046730041504,
+            0.11999999696854502,
+            0,
+            0,
+            0.1499950885772705,
+            0,
+            0,
+            0,
+            0
+          ],
+          "realized_direction_relative_l2_error": 4.6144404224110446e-05,
+          "realized_midpoint_F_f32_promoted": [
+            1.003800035,
+            0.0,
+            0.0,
+            0.0,
+            0.9999999725,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "rebuilt_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.6441726425653597,
+          "rebuilt_FP64_FD_tolerance_2e-11_vs_2e-13_scaled_difference": 1.1715864767121555e-09,
+          "requested_epsilon": 0.001
+        },
+        {
+          "FP64_AD_at_realized_direction_vs_captured_FP64_FD_scaled_error": 0.1112477728999561,
+          "branch_classification_from_independent_FP64_exact_pair": "both_on_or_at_yield",
+          "captured_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.1112599274196115,
+          "captured_FP64_FD_vs_rebuilt_source_FP64_FD_scaled_difference": 1.3679613081603633e-05,
+          "direction_gate_le_1e-3": true,
+          "independent_FP64_replay_stress_vs_captured_FP64_stress": [
+            5.2908934444607e-07,
+            3.1656870258558356e-06
+          ],
+          "joint_requested_direction_local_gate": false,
+          "local_rebuilt_source_oracle_derivative_gate_le_1e-3": false,
+          "local_same_pair_derivative_gate_le_1e-3": false,
+          "midpoint_offset_inf_F": 2.9802322387695312e-08,
+          "native_AD_at_realized_direction_vs_FP64_FD_same_pair_scaled_error": 0.11124779841824811,
+          "native_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.11125995293755782,
+          "native_AD_vs_FP64_AD_at_realized_direction_relative_l2": 2.8737970856346716e-08,
+          "native_AD_vs_native_FD_scaled_error": 0.11124780888640924,
+          "native_FD_vs_FP64_FD_same_exact_F32_pair_scaled_error": 1.1842233744487831e-08,
+          "native_FD_vs_rebuilt_FP64_FD_scaled_error": 1.3667806507411177e-05,
+          "native_pair_projection_residual_inf": [
+            1.28679369e-08,
+            3.30994609e-09
+          ],
+          "native_plus_minus_stress_relative_to_captured_FP64_same_pair": [
+            2.093677905252469e-10,
+            2.37724201328532e-09
+          ],
+          "native_plus_minus_stress_relative_to_rebuilt_FP64_same_pair": [
+            5.288970877298766e-07,
+            3.1633105199314106e-06
+          ],
+          "plus_minus_F_f32": [
+            [
+              1.00410008,
+              3.59999976e-05,
+              0,
+              0,
+              1.00004494,
+              0,
+              0,
+              0,
+              1
+            ],
+            [
+              1.00349998,
+              -3.59999976e-05,
+              0,
+              0,
+              0.999954998,
+              0,
+              0,
+              0,
+              1
+            ]
+          ],
+          "plus_minus_accumulated_multiplier": [
+            0.0010401523311022352,
+            0.0007308063970242647
+          ],
+          "plus_minus_projection_residual_inf": [
+            2.1231931143783633e-14,
+            2.220446049250313e-15
+          ],
+          "plus_minus_yield_gap": [
+            9.281464485866309e-14,
+            2.318145675417327e-13
+          ],
+          "realized_delta_F_f32": [
+            0.0006000999999999923,
+            7.19999952e-05,
+            0.0,
+            0.0,
+            8.994200000000951e-05,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "realized_direction": [
+            1.0001659393310547,
+            0.11999999211790661,
+            0,
+            0,
+            0.14990568161010742,
+            0,
+            0,
+            0,
+            0
+          ],
+          "realized_direction_relative_l2_error": 0.00018744708874550425,
+          "realized_midpoint_F_f32_promoted": [
+            1.0038000299999998,
+            0.0,
+            0.0,
+            0.0,
+            0.999999969,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "rebuilt_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.11124528919795328,
+          "rebuilt_FP64_FD_tolerance_2e-11_vs_2e-13_scaled_difference": 0.0,
+          "requested_epsilon": 0.0003
+        },
+        {
+          "FP64_AD_at_realized_direction_vs_captured_FP64_FD_scaled_error": 0.013291243157831634,
+          "branch_classification_from_independent_FP64_exact_pair": "both_on_or_at_yield",
+          "captured_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.013273747297803565,
+          "captured_FP64_FD_vs_rebuilt_source_FP64_FD_scaled_difference": 1.775359741448188e-05,
+          "direction_gate_le_1e-3": true,
+          "independent_FP64_replay_stress_vs_captured_FP64_stress": [
+            2.4154483338855766e-07,
+            7.862311880419036e-07
+          ],
+          "joint_requested_direction_local_gate": false,
+          "local_rebuilt_source_oracle_derivative_gate_le_1e-3": false,
+          "local_same_pair_derivative_gate_le_1e-3": false,
+          "midpoint_offset_inf_F": 0,
+          "native_AD_at_realized_direction_vs_FP64_FD_same_pair_scaled_error": 0.013291251795363987,
+          "native_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.013273755936043996,
+          "native_AD_vs_FP64_AD_at_realized_direction_relative_l2": 1.248039720082448e-08,
+          "native_AD_vs_native_FD_scaled_error": 0.01329123557284554,
+          "native_FD_vs_FP64_FD_same_exact_F32_pair_scaled_error": 2.103678119995442e-08,
+          "native_FD_vs_rebuilt_FP64_FD_scaled_error": 1.773654387233725e-05,
+          "native_pair_projection_residual_inf": [
+            8.71905392e-09,
+            5.84863358e-09
+          ],
+          "native_plus_minus_stress_relative_to_captured_FP64_same_pair": [
+            1.7326739104342268e-09,
+            1.0781870879224189e-09
+          ],
+          "native_plus_minus_stress_relative_to_rebuilt_FP64_same_pair": [
+            2.3981490941140363e-07,
+            7.869194556183536e-07
+          ],
+          "plus_minus_F_f32": [
+            [
+              1.00390005,
+              1.19999995e-05,
+              0,
+              0,
+              1.00001502,
+              0,
+              0,
+              0,
+              1
+            ],
+            [
+              1.00370002,
+              -1.19999995e-05,
+              0,
+              0,
+              0.99998498,
+              0,
+              0,
+              0,
+              1
+            ]
+          ],
+          "plus_minus_accumulated_multiplier": [
+            0.0009358838975086625,
+            0.0008327656193855973
+          ],
+          "plus_minus_projection_residual_inf": [
+            1.0350878140719111e-14,
+            2.220446049250313e-15
+          ],
+          "plus_minus_yield_gap": [
+            1.176836406102666e-13,
+            1.574296248918472e-13
+          ],
+          "realized_delta_F_f32": [
+            0.0002000300000000177,
+            2.3999999e-05,
+            0.0,
+            0.0,
+            3.0039999999953437e-05,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "realized_direction": [
+            1.0001659393310547,
+            0.11999999514955562,
+            0,
+            0,
+            0.15020370483398438,
+            0,
+            0,
+            0,
+            0
+          ],
+          "realized_direction_relative_l2_error": 0.00025801659819894195,
+          "realized_midpoint_F_f32_promoted": [
+            1.0038000349999998,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "rebuilt_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.013290822166334206,
+          "rebuilt_FP64_FD_tolerance_2e-11_vs_2e-13_scaled_difference": 0.0,
+          "requested_epsilon": 0.0001
+        },
+        {
+          "FP64_AD_at_realized_direction_vs_captured_FP64_FD_scaled_error": 0.0012063663592850006,
+          "branch_classification_from_independent_FP64_exact_pair": "both_on_or_at_yield",
+          "captured_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.0013458896693167557,
+          "captured_FP64_FD_vs_rebuilt_source_FP64_FD_scaled_difference": 0.00013985140072934147,
+          "direction_gate_le_1e-3": false,
+          "independent_FP64_replay_stress_vs_captured_FP64_stress": [
+            1.2360821676585693e-06,
+            1.1665800194269506e-06
+          ],
+          "joint_requested_direction_local_gate": false,
+          "local_rebuilt_source_oracle_derivative_gate_le_1e-3": false,
+          "local_same_pair_derivative_gate_le_1e-3": false,
+          "midpoint_offset_inf_F": 2.9802322387695312e-08,
+          "native_AD_at_realized_direction_vs_FP64_FD_same_pair_scaled_error": 0.0012063841108357566,
+          "native_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.0013459074256474259,
+          "native_AD_vs_FP64_AD_at_realized_direction_relative_l2": 1.7831943523782072e-08,
+          "native_AD_vs_native_FD_scaled_error": 0.0012063624908626466,
+          "native_FD_vs_FP64_FD_same_exact_F32_pair_scaled_error": 3.089689241265699e-08,
+          "native_FD_vs_rebuilt_FP64_FD_scaled_error": 0.0001398719504200247,
+          "native_pair_projection_residual_inf": [
+            7.63770469e-09,
+            6.786125e-09
+          ],
+          "native_plus_minus_stress_relative_to_captured_FP64_same_pair": [
+            3.418646902319703e-09,
+            2.7949990889231104e-09
+          ],
+          "native_plus_minus_stress_relative_to_rebuilt_FP64_same_pair": [
+            1.2394699186238786e-06,
+            1.1637851692341539e-06
+          ],
+          "plus_minus_F_f32": [
+            [
+              1.00383008,
+              3.5999999e-06,
+              0,
+              0,
+              1.00000453,
+              0,
+              0,
+              0,
+              1
+            ],
+            [
+              1.00376999,
+              -3.5999999e-06,
+              0,
+              0,
+              0.99999553,
+              0,
+              0,
+              0,
+              1
+            ]
+          ],
+          "plus_minus_accumulated_multiplier": [
+            0.0008996860763211073,
+            0.0008687162056204513
+          ],
+          "plus_minus_projection_residual_inf": [
+            2.076247160309741e-15,
+            9.124103382551763e-15
+          ],
+          "plus_minus_yield_gap": [
+            1.2945200467129325e-13,
+            1.4033219031261979e-13
+          ],
+          "realized_delta_F_f32": [
+            6.0090000000068144e-05,
+            7.1999998e-06,
+            0.0,
+            0.0,
+            9.000000000036756e-06,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "realized_direction": [
+            1.0013580322265625,
+            0.11999999666538011,
+            0,
+            0,
+            0.15000502268473306,
+            0,
+            0,
+            0,
+            0
+          ],
+          "realized_direction_relative_l2_error": 0.0013336583911488073,
+          "realized_midpoint_F_f32_promoted": [
+            1.0038000349999998,
+            0.0,
+            0.0,
+            0.0,
+            1.00000003,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "rebuilt_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.0012096404441799041,
+          "rebuilt_FP64_FD_tolerance_2e-11_vs_2e-13_scaled_difference": 0.0,
+          "requested_epsilon": 3e-05
+        },
+        {
+          "FP64_AD_at_realized_direction_vs_captured_FP64_FD_scaled_error": 0.00013155970570237108,
+          "branch_classification_from_independent_FP64_exact_pair": "both_on_or_at_yield",
+          "captured_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.0002713905883330595,
+          "captured_FP64_FD_vs_rebuilt_source_FP64_FD_scaled_difference": 0.00013997927904986398,
+          "direction_gate_le_1e-3": false,
+          "independent_FP64_replay_stress_vs_captured_FP64_stress": [
+            5.263855211644362e-07,
+            2.7442637805975764e-07
+          ],
+          "joint_requested_direction_local_gate": false,
+          "local_rebuilt_source_oracle_derivative_gate_le_1e-3": true,
+          "local_same_pair_derivative_gate_le_1e-3": true,
+          "midpoint_offset_inf_F": 2.9802322387695312e-08,
+          "native_AD_at_realized_direction_vs_FP64_FD_same_pair_scaled_error": 0.00013152043966926436,
+          "native_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.0002713516648547785,
+          "native_AD_vs_FP64_AD_at_realized_direction_relative_l2": 4.059039710271218e-08,
+          "native_AD_vs_native_FD_scaled_error": 0.00013168578723566607,
+          "native_FD_vs_FP64_FD_same_exact_F32_pair_scaled_error": 1.7069760512853138e-07,
+          "native_FD_vs_rebuilt_FP64_FD_scaled_error": 0.0001398167833993857,
+          "native_pair_projection_residual_inf": [
+            7.34713712e-09,
+            7.06378334e-09
+          ],
+          "native_plus_minus_stress_relative_to_captured_FP64_same_pair": [
+            3.5078859641221303e-09,
+            2.1485615107233026e-09
+          ],
+          "native_plus_minus_stress_relative_to_rebuilt_FP64_same_pair": [
+            5.228880214089451e-07,
+            2.765739982043874e-07
+          ],
+          "plus_minus_F_f32": [
+            [
+              1.00381005,
+              1.19999993e-06,
+              0,
+              0,
+              1.00000155,
+              0,
+              0,
+              0,
+              1
+            ],
+            [
+              1.00379002,
+              -1.19999993e-06,
+              0,
+              0,
+              0.99999851,
+              0,
+              0,
+              0,
+              1
+            ]
+          ],
+          "plus_minus_accumulated_multiplier": [
+            0.0008893568529340638,
+            0.0008790221184527708
+          ],
+          "plus_minus_projection_residual_inf": [
+            1.124100812432971e-14,
+            1.5795741450941314e-14
+          ],
+          "plus_minus_yield_gap": [
+            1.3233858453531866e-13,
+            1.3566925360919413e-13
+          ],
+          "realized_delta_F_f32": [
+            2.00299999999487e-05,
+            2.39999986e-06,
+            0.0,
+            0.0,
+            3.0399999999541905e-06,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "realized_direction": [
+            1.0013580322265625,
+            0.11999999287581885,
+            0,
+            0,
+            0.1519918441772461,
+            0,
+            0,
+            0,
+            0
+          ],
+          "realized_direction_relative_l2_error": 0.002367456856262517,
+          "realized_midpoint_F_f32_promoted": [
+            1.003800035,
+            0.0,
+            0.0,
+            0.0,
+            1.0000000299999998,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "rebuilt_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.0001345268918514637,
+          "rebuilt_FP64_FD_tolerance_2e-11_vs_2e-13_scaled_difference": 0.0,
+          "requested_epsilon": 1e-05
+        },
+        {
+          "FP64_AD_at_realized_direction_vs_captured_FP64_FD_scaled_error": 1.1921260676818135e-05,
+          "branch_classification_from_independent_FP64_exact_pair": "both_on_or_at_yield",
+          "captured_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 3.5215412652910256e-05,
+          "captured_FP64_FD_vs_rebuilt_source_FP64_FD_scaled_difference": 4.700177295954379e-05,
+          "direction_gate_le_1e-3": false,
+          "independent_FP64_replay_stress_vs_captured_FP64_stress": [
+            1.3099206192233436e-06,
+            1.2310731106765507e-06
+          ],
+          "joint_requested_direction_local_gate": false,
+          "local_rebuilt_source_oracle_derivative_gate_le_1e-3": true,
+          "local_same_pair_derivative_gate_le_1e-3": true,
+          "midpoint_offset_inf_F": 0,
+          "native_AD_at_realized_direction_vs_FP64_FD_same_pair_scaled_error": 1.1875886917964865e-05,
+          "native_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 3.525973281784415e-05,
+          "native_AD_vs_FP64_AD_at_realized_direction_relative_l2": 4.543136425361663e-08,
+          "native_AD_vs_native_FD_scaled_error": 9.890477858534108e-06,
+          "native_FD_vs_FP64_FD_same_exact_F32_pair_scaled_error": 2.0161993008521756e-06,
+          "native_FD_vs_rebuilt_FP64_FD_scaled_error": 4.498658623914497e-05,
+          "native_pair_projection_residual_inf": [
+            7.24743421e-09,
+            7.16218018e-09
+          ],
+          "native_plus_minus_stress_relative_to_captured_FP64_same_pair": [
+            2.1381503740913787e-09,
+            1.4126990515526538e-09
+          ],
+          "native_plus_minus_stress_relative_to_rebuilt_FP64_same_pair": [
+            1.3077957850555106e-06,
+            1.2323991021117645e-06
+          ],
+          "plus_minus_F_f32": [
+            [
+              1.00380301,
+              3.60000001e-07,
+              0,
+              0,
+              1.00000048,
+              0,
+              0,
+              0,
+              1
+            ],
+            [
+              1.00379705,
+              -3.60000001e-07,
+              0,
+              0,
+              0.999999523,
+              0,
+              0,
+              0,
+              1
+            ]
+          ],
+          "plus_minus_accumulated_multiplier": [
+            0.0008857227114568934,
+            0.0008826325541772613
+          ],
+          "plus_minus_projection_residual_inf": [
+            8.771195575407731e-15,
+            6.7681320617407614e-15
+          ],
+          "plus_minus_yield_gap": [
+            1.3389289676979388e-13,
+            1.3522516439934407e-13
+          ],
+          "realized_delta_F_f32": [
+            5.959999999971544e-06,
+            7.20000002e-07,
+            0.0,
+            0.0,
+            9.570000000236334e-07,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "realized_direction": [
+            0.9934107462565104,
+            0.12000000045494137,
+            0,
+            0,
+            0.15894571940104166,
+            0,
+            0,
+            0,
+            0
+          ],
+          "realized_direction_relative_l2_error": 0.010911052619472918,
+          "realized_midpoint_F_f32_promoted": [
+            1.0038000299999998,
+            0.0,
+            0.0,
+            0.0,
+            1.0000000015,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "rebuilt_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 1.1919927090520581e-05,
+          "rebuilt_FP64_FD_tolerance_2e-11_vs_2e-13_scaled_difference": 0.0,
+          "requested_epsilon": 3e-06
+        },
+        {
+          "FP64_AD_at_realized_direction_vs_captured_FP64_FD_scaled_error": 4.429330050925532e-06,
+          "branch_classification_from_independent_FP64_exact_pair": "both_on_or_at_yield",
+          "captured_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.0014008382985008455,
+          "captured_FP64_FD_vs_rebuilt_source_FP64_FD_scaled_difference": 0.0013966099671094783,
+          "direction_gate_le_1e-3": false,
+          "independent_FP64_replay_stress_vs_captured_FP64_stress": [
+            5.183412826584993e-07,
+            2.4357559187311876e-07
+          ],
+          "joint_requested_direction_local_gate": false,
+          "local_rebuilt_source_oracle_derivative_gate_le_1e-3": false,
+          "local_same_pair_derivative_gate_le_1e-3": true,
+          "midpoint_offset_inf_F": 2.9802322387695312e-08,
+          "native_AD_at_realized_direction_vs_FP64_FD_same_pair_scaled_error": 4.264013294878174e-06,
+          "native_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.0014006637314750697,
+          "native_AD_vs_FP64_AD_at_realized_direction_relative_l2": 1.7488300505865342e-07,
+          "native_AD_vs_native_FD_scaled_error": 8.28987234601486e-06,
+          "native_FD_vs_FP64_FD_same_exact_F32_pair_scaled_error": 1.179226055134971e-05,
+          "native_FD_vs_rebuilt_FP64_FD_scaled_error": 0.0014081903439646568,
+          "native_pair_projection_residual_inf": [
+            7.21846538e-09,
+            7.19105975e-09
+          ],
+          "native_plus_minus_stress_relative_to_captured_FP64_same_pair": [
+            2.803078036182635e-09,
+            3.624253295879495e-09
+          ],
+          "native_plus_minus_stress_relative_to_rebuilt_FP64_same_pair": [
+            5.210415751473878e-07,
+            2.4717815059364043e-07
+          ],
+          "plus_minus_F_f32": [
+            [
+              1.00380099,
+              1.19999996e-07,
+              0,
+              0,
+              1.00000012,
+              0,
+              0,
+              0,
+              1
+            ],
+            [
+              1.00379908,
+              -1.19999996e-07,
+              0,
+              0,
+              0.999999821,
+              0,
+              0,
+              0,
+              1
+            ]
+          ],
+          "plus_minus_accumulated_multiplier": [
+            0.0008846650506445193,
+            0.0008836769505417716
+          ],
+          "plus_minus_projection_residual_inf": [
+            5.963111948670274e-15,
+            5.141286701926262e-15
+          ],
+          "plus_minus_yield_gap": [
+            1.3455903058456897e-13,
+            1.3522516439934407e-13
+          ],
+          "realized_delta_F_f32": [
+            1.90999999993835e-06,
+            2.39999992e-07,
+            0.0,
+            0.0,
+            2.989999999813975e-07,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "realized_direction": [
+            0.95367431640625,
+            0.1199999957179898,
+            0,
+            0,
+            0.14901161193847656,
+            0,
+            0,
+            0,
+            0
+          ],
+          "realized_direction_relative_l2_error": 0.045504277721602024,
+          "realized_midpoint_F_f32_promoted": [
+            1.003800035,
+            0.0,
+            0.0,
+            0.0,
+            0.9999999705,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "rebuilt_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 1.2238419953246123e-06,
+          "rebuilt_FP64_FD_tolerance_2e-11_vs_2e-13_scaled_difference": 0.0,
+          "requested_epsilon": 1e-06
+        },
+        {
+          "FP64_AD_at_realized_direction_vs_captured_FP64_FD_scaled_error": 3.469462165391269e-06,
+          "branch_classification_from_independent_FP64_exact_pair": "both_on_or_at_yield",
+          "captured_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.0073609889359748295,
+          "captured_FP64_FD_vs_rebuilt_source_FP64_FD_scaled_difference": 0.007364195071159777,
+          "direction_gate_le_1e-3": false,
+          "independent_FP64_replay_stress_vs_captured_FP64_stress": [
+            6.105165573142972e-07,
+            8.793065330840823e-07
+          ],
+          "joint_requested_direction_local_gate": false,
+          "local_rebuilt_source_oracle_derivative_gate_le_1e-3": false,
+          "local_same_pair_derivative_gate_le_1e-3": true,
+          "midpoint_offset_inf_F": 2.9802322387695312e-08,
+          "native_AD_at_realized_direction_vs_FP64_FD_same_pair_scaled_error": 3.4590844306714876e-06,
+          "native_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 0.007361002987738256,
+          "native_AD_vs_FP64_AD_at_realized_direction_relative_l2": 1.5198288322620997e-08,
+          "native_AD_vs_native_FD_scaled_error": 9.656156359482172e-06,
+          "native_FD_vs_FP64_FD_same_exact_F32_pair_scaled_error": 1.2638248753927245e-05,
+          "native_FD_vs_rebuilt_FP64_FD_scaled_error": 0.007351476524453641,
+          "native_pair_projection_residual_inf": [
+            7.2101356e-09,
+            7.19954985e-09
+          ],
+          "native_plus_minus_stress_relative_to_captured_FP64_same_pair": [
+            3.4459612181177216e-10,
+            2.3094617842493096e-09
+          ],
+          "native_plus_minus_stress_relative_to_rebuilt_FP64_same_pair": [
+            6.102883518574626e-07,
+            8.770328853568953e-07
+          ],
+          "plus_minus_F_f32": [
+            [
+              1.00380039,
+              3.59999994e-08,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              1
+            ],
+            [
+              1.00379968,
+              -3.59999994e-08,
+              0,
+              0,
+              0.99999994,
+              0,
+              0,
+              0,
+              1
+            ]
+          ],
+          "plus_minus_accumulated_multiplier": [
+            0.0008843471730726962,
+            0.0008839945188224059
+          ],
+          "plus_minus_projection_residual_inf": [
+            7.125376677574735e-15,
+            8.417203566091214e-15
+          ],
+          "plus_minus_yield_gap": [
+            1.3433698597964394e-13,
+            1.3455903058456897e-13
+          ],
+          "realized_delta_F_f32": [
+            7.100000001258877e-07,
+            7.19999988e-08,
+            0.0,
+            0.0,
+            5.999999996841865e-08,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "realized_direction": [
+            1.1920928955078125,
+            0.1199999980864656,
+            0,
+            0,
+            0.09934107462565105,
+            0,
+            0,
+            0,
+            0
+          ],
+          "realized_direction_relative_l2_error": 0.19509366229383832,
+          "realized_midpoint_F_f32_promoted": [
+            1.003800035,
+            0.0,
+            0.0,
+            0.0,
+            0.99999997,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "rebuilt_FP64_AD_at_realized_direction_vs_rebuilt_FP64_FD_scaled_error": 1.6825518388313243e-07,
+          "rebuilt_FP64_FD_tolerance_2e-11_vs_2e-13_scaled_difference": 0.0,
+          "requested_epsilon": 3e-07
+        }
+      ]
+    }
+  ],
+  "evidence_class": "source-bound native material-point software comparison plus independent CPU FP64 oracle; synthetic instrument only; no physical validation or calibration",
+  "historical_039_preserved": {
+    "analysis_path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-exact-oracle-039/fp64-unquantized/analysis.json",
+    "analysis_sha256": "00a50231d50cceacc5a309f3cab95d03705b5bda37b11a06f2e8e895b1891e50",
+    "cases": [
+      {
+        "FP64_center_projection_residual_inf": 6.408340980457831e-13,
+        "capture_path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-exact-oracle-039/capture/hajali2009_liner_hill_ideal.tangent-capture.json",
+        "capture_sha256": "aad9bf5303c191c20f4371314f9cf9e331e218623d1d5b8746f2b92e13051248",
+        "largest_native_FP64_state_error": {
+          "absolute": 1.7544439669947565e-06,
+          "component": "sbar11",
+          "fp64": 0.804577555443967,
+          "native": 0.804575801
+        },
+        "native_center_projection_residual_inf": 1.16415322e-10,
+        "same_exact_FP32_pair_audit": [
+          {
+            "epsilon": 0.001,
+            "fp64_center_ad_vs_exact_same_fp32_pair_fd": 0.5522925461742761,
+            "fp64_midpoint_ad_vs_same_pair_fd_relative_l2": 1.233186634610398,
+            "fp64_projection_residual_inf_plus_minus": [
+              1.214306433183765e-15,
+              5.551115123125783e-16
+            ],
+            "midpoint_ad_at_realized_direction_vs_requested_center_ad_relative_l2": 4.318945367692263e-05,
+            "midpoint_multiplier_fp64": 7.216448925534728e-16,
+            "midpoint_yield_gap_fp64": 0.06917556449104023,
+            "native_projection_residual_inf_plus_minus": [
+              5.96628524e-06,
+              5.82076609e-11
+            ],
+            "one_sided_minus_actual_pair_fd_vs_ad_relative_l2": 3.086442755000762,
+            "one_sided_plus_actual_pair_fd_vs_ad_relative_l2": 0.6202669424908991,
+            "plus_minus_multiplier_fp64": [
+              0.0003129469124552853,
+              1.1102229950869735e-16
+            ],
+            "plus_minus_yield_gap_fp64": [
+              1.596500709410975e-13,
+              0.3410140824778155
+            ],
+            "realized_direction_relative_l2_error": 4.6144404224110446e-05,
+            "same_fp32_pair_native_fd_vs_tight_fp64_fd_relative_l2": 2.9052659997916632e-05,
+            "tight_fp64_fd_vs_capture_fp64_fd_relative_l2": 5.253765209065257e-06
+          },
+          {
+            "epsilon": 0.0003,
+            "fp64_center_ad_vs_exact_same_fp32_pair_fd": 0.08216865065772626,
+            "fp64_midpoint_ad_vs_same_pair_fd_relative_l2": 0.08952512423333849,
+            "fp64_projection_residual_inf_plus_minus": [
+              6.40687928600038e-14,
+              2.168404344971009e-19
+            ],
+            "midpoint_ad_at_realized_direction_vs_requested_center_ad_relative_l2": 0.00017800603233933304,
+            "midpoint_multiplier_fp64": 7.216448922063633e-16,
+            "midpoint_yield_gap_fp64": 0.06917749880569957,
+            "native_projection_residual_inf_plus_minus": [
+              2.65459312e-05,
+              1.16415322e-10
+            ],
+            "one_sided_minus_actual_pair_fd_vs_ad_relative_l2": 0.46284905530657183,
+            "one_sided_plus_actual_pair_fd_vs_ad_relative_l2": 0.2837989093740196,
+            "plus_minus_multiplier_fp64": [
+              2.065141170826902e-05,
+              3.3306689139996687e-16
+            ],
+            "plus_minus_yield_gap_fp64": [
+              2.4147350785597155e-12,
+              0.15162731595106682
+            ],
+            "realized_direction_relative_l2_error": 0.00018744708874550425,
+            "same_fp32_pair_native_fd_vs_tight_fp64_fd_relative_l2": 5.863623247288663e-05,
+            "tight_fp64_fd_vs_capture_fp64_fd_relative_l2": 1.1502978010762402e-05
+          },
+          {
+            "epsilon": 0.0001,
+            "fp64_center_ad_vs_exact_same_fp32_pair_fd": 0.009429360832150926,
+            "fp64_midpoint_ad_vs_same_pair_fd_relative_l2": 0.009518791310950103,
+            "fp64_projection_residual_inf_plus_minus": [
+              1.0842021724855044e-19,
+              2.168404344971009e-19
+            ],
+            "midpoint_ad_at_realized_direction_vs_requested_center_ad_relative_l2": 0.00014697921378674727,
+            "midpoint_multiplier_fp64": 7.216448925535173e-16,
+            "midpoint_yield_gap_fp64": 0.06917000770702275,
+            "native_projection_residual_inf_plus_minus": [
+              1.16415322e-10,
+              1.16415322e-10
+            ],
+            "one_sided_minus_actual_pair_fd_vs_ad_relative_l2": 0.13011634085399393,
+            "one_sided_plus_actual_pair_fd_vs_ad_relative_l2": 0.11108158281202231,
+            "plus_minus_multiplier_fp64": [
+              1.200428441287027e-15,
+              5.134781113523223e-16
+            ],
+            "plus_minus_yield_gap_fp64": [
+              0.04156236986875983,
+              0.09672169898455718
+            ],
+            "realized_direction_relative_l2_error": 0.00025801659819894195,
+            "same_fp32_pair_native_fd_vs_tight_fp64_fd_relative_l2": 5.1645248808705793e-05,
+            "tight_fp64_fd_vs_capture_fp64_fd_relative_l2": 1.7369789070475707e-05
+          },
+          {
+            "epsilon": 3e-05,
+            "fp64_center_ad_vs_exact_same_fp32_pair_fd": 0.0008568408589363037,
+            "fp64_midpoint_ad_vs_same_pair_fd_relative_l2": 0.0008569333422860094,
+            "fp64_projection_residual_inf_plus_minus": [
+              6.938893903907228e-17,
+              1.1102230246251565e-15
+            ],
+            "midpoint_ad_at_realized_direction_vs_requested_center_ad_relative_l2": 0.0015025234940042338,
+            "midpoint_multiplier_fp64": 7.216448925535163e-16,
+            "midpoint_yield_gap_fp64": 0.06916394575830553,
+            "native_projection_residual_inf_plus_minus": [
+              1.16415322e-10,
+              6.41042774e-13
+            ],
+            "one_sided_minus_actual_pair_fd_vs_ad_relative_l2": 0.036933800420624344,
+            "one_sided_plus_actual_pair_fd_vs_ad_relative_l2": 0.03522023504394248,
+            "plus_minus_multiplier_fp64": [
+              8.257282792146269e-16,
+              6.383781800734094e-16
+            ],
+            "plus_minus_yield_gap_fp64": [
+              0.06087858842889049,
+              0.07744427124084963
+            ],
+            "realized_direction_relative_l2_error": 0.0013336583911488073,
+            "same_fp32_pair_native_fd_vs_tight_fp64_fd_relative_l2": 4.391726092418333e-05,
+            "tight_fp64_fd_vs_capture_fp64_fd_relative_l2": 0.00014117195228304546
+          },
+          {
+            "epsilon": 1e-05,
+            "fp64_center_ad_vs_exact_same_fp32_pair_fd": 9.610091766309791e-05,
+            "fp64_midpoint_ad_vs_same_pair_fd_relative_l2": 9.518874905838545e-05,
+            "fp64_projection_residual_inf_plus_minus": [
+              2.168404344971009e-19,
+              2.168404344971009e-19
+            ],
+            "midpoint_ad_at_realized_direction_vs_requested_center_ad_relative_l2": 0.0014808578492921296,
+            "midpoint_multiplier_fp64": 7.21644892206403e-16,
+            "midpoint_yield_gap_fp64": 0.06916394575829632,
+            "native_projection_residual_inf_plus_minus": [
+              6.41042774e-13,
+              1.16415322e-10
+            ],
+            "one_sided_minus_actual_pair_fd_vs_ad_relative_l2": 0.01211599287195923,
+            "one_sided_plus_actual_pair_fd_vs_ad_relative_l2": 0.011925785888330933,
+            "plus_minus_multiplier_fp64": [
+              7.494004619707128e-16,
+              6.938893227891111e-16
+            ],
+            "plus_minus_yield_gap_fp64": [
+              0.06639867141811395,
+              0.07192866086870464
+            ],
+            "realized_direction_relative_l2_error": 0.002367456856262517,
+            "same_fp32_pair_native_fd_vs_tight_fp64_fd_relative_l2": 0.0020375254527524524,
+            "tight_fp64_fd_vs_capture_fp64_fd_relative_l2": 0.0001407990305851637
+          },
+          {
+            "epsilon": 3e-06,
+            "fp64_center_ad_vs_exact_same_fp32_pair_fd": 8.426935300973139e-06,
+            "fp64_midpoint_ad_vs_same_pair_fd_relative_l2": 8.425437958896328e-06,
+            "fp64_projection_residual_inf_plus_minus": [
+              2.168404344971009e-19,
+              2.168404344971009e-19
+            ],
+            "midpoint_ad_at_realized_direction_vs_requested_center_ad_relative_l2": 0.0067975471302689034,
+            "midpoint_multiplier_fp64": 7.216448922064465e-16,
+            "midpoint_yield_gap_fp64": 0.06917093169737598,
+            "native_projection_residual_inf_plus_minus": [
+              1.16415322e-10,
+              6.41042774e-13
+            ],
+            "one_sided_minus_actual_pair_fd_vs_ad_relative_l2": 0.0035901930649863416,
+            "one_sided_plus_actual_pair_fd_vs_ad_relative_l2": 0.0035624152295384882,
+            "plus_minus_multiplier_fp64": [
+              7.355226774074378e-16,
+              7.077671067152557e-16
+            ],
+            "plus_minus_yield_gap_fp64": [
+              0.0683428741971488,
+              0.0699989388426765
+            ],
+            "realized_direction_relative_l2_error": 0.010911052619472918,
+            "same_fp32_pair_native_fd_vs_tight_fp64_fd_relative_l2": 0.00371008980891902,
+            "tight_fp64_fd_vs_capture_fp64_fd_relative_l2": 7.8297468840068e-05
+          },
+          {
+            "epsilon": 1e-06,
+            "fp64_center_ad_vs_exact_same_fp32_pair_fd": 3.739509328907426e-06,
+            "fp64_midpoint_ad_vs_same_pair_fd_relative_l2": 8.654520033621267e-07,
+            "fp64_projection_residual_inf_plus_minus": [
+              1.0842021724855044e-19,
+              4.843845590018647e-20
+            ],
+            "midpoint_ad_at_realized_direction_vs_requested_center_ad_relative_l2": 0.04507648014062736,
+            "midpoint_multiplier_fp64": 7.216448925535148e-16,
+            "midpoint_yield_gap_fp64": 0.0691759686206952,
+            "native_projection_residual_inf_plus_minus": [
+              6.41042774e-13,
+              1.16415322e-10
+            ],
+            "one_sided_minus_actual_pair_fd_vs_ad_relative_l2": 0.001145960161606305,
+            "one_sided_plus_actual_pair_fd_vs_ad_relative_l2": 0.0011463508617116402,
+            "plus_minus_multiplier_fp64": [
+              7.216448919161467e-16,
+              7.216448922065326e-16
+            ],
+            "plus_minus_yield_gap_fp64": [
+              0.06891138338989133,
+              0.06944054828356272
+            ],
+            "realized_direction_relative_l2_error": 0.045504277721602024,
+            "same_fp32_pair_native_fd_vs_tight_fp64_fd_relative_l2": 0.005005926523285727,
+            "tight_fp64_fd_vs_capture_fp64_fd_relative_l2": 0.0013835877547759817
+          },
+          {
+            "epsilon": 3e-07,
+            "fp64_center_ad_vs_exact_same_fp32_pair_fd": 3.809569140953745e-06,
+            "fp64_midpoint_ad_vs_same_pair_fd_relative_l2": 1.1993119500708253e-07,
+            "fp64_projection_residual_inf_plus_minus": [
+              4.843845590018647e-20,
+              2.168404344971009e-19
+            ],
+            "midpoint_ad_at_realized_direction_vs_requested_center_ad_relative_l2": 0.18428164101685474,
+            "midpoint_multiplier_fp64": 7.216448922064272e-16,
+            "midpoint_yield_gap_fp64": 0.06917606965312106,
+            "native_projection_residual_inf_plus_minus": [
+              1.16415322e-10,
+              1.16415322e-10
+            ],
+            "one_sided_minus_actual_pair_fd_vs_ad_relative_l2": 0.0004255222092311061,
+            "one_sided_plus_actual_pair_fd_vs_ad_relative_l2": 0.00042746375179111644,
+            "plus_minus_multiplier_fp64": [
+              7.216448922063806e-16,
+              7.216448922065746e-16
+            ],
+            "plus_minus_yield_gap_fp64": [
+              0.06908288422541142,
+              0.0692692545720921
+            ],
+            "realized_direction_relative_l2_error": 0.19509366229383832,
+            "same_fp32_pair_native_fd_vs_tight_fp64_fd_relative_l2": 0.0038065857010326594,
+            "tight_fp64_fd_vs_capture_fp64_fd_relative_l2": 0.007417914574935985
+          }
+        ],
+        "status": "historical 039 observation retained unchanged; earlier generic-projection run and not merged with 046"
+      },
+      {
+        "FP64_center_projection_residual_inf": 2.220446049250313e-15,
+        "capture_path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-exact-oracle-039/capture/hajali2009_medium_hill_ideal.tangent-capture.json",
+        "capture_sha256": "3f4ebbf7e53ab9316ffcb1b4947f47899cedbd51723cc792ef54e9b6d67b4d0d",
+        "largest_native_FP64_state_error": {
+          "absolute": 1.5326362496903556e-06,
+          "component": "sbar11",
+          "fp64": 1.3604878026362497,
+          "native": 1.36048627
+        },
+        "native_center_projection_residual_inf": 5.96541213e-06,
+        "same_exact_FP32_pair_audit": [
+          {
+            "epsilon": 0.001,
+            "fp64_center_ad_vs_exact_same_fp32_pair_fd": 0.6441770900487889,
+            "fp64_midpoint_ad_vs_same_pair_fd_relative_l2": 1.8100306065876604,
+            "fp64_projection_residual_inf_plus_minus": [
+              6.78168458889683e-15,
+              8.565047642205356e-20
+            ],
+            "midpoint_ad_at_realized_direction_vs_requested_center_ad_relative_l2": 4.613693165868841e-05,
+            "midpoint_multiplier_fp64": 0.0008841712938683034,
+            "midpoint_yield_gap_fp64": 1.34781075189494e-13,
+            "native_projection_residual_inf_plus_minus": [
+              4.18198761e-05,
+              5.82076609e-11
+            ],
+            "one_sided_minus_actual_pair_fd_vs_ad_relative_l2": 4.288698098697553,
+            "one_sided_plus_actual_pair_fd_vs_ad_relative_l2": 0.6687672659955927,
+            "plus_minus_multiplier_fp64": [
+              0.0014152298643776017,
+              0.0005147054907869153
+            ],
+            "plus_minus_yield_gap_fp64": [
+              5.484501741648273e-14,
+              0.1569784428503802
+            ],
+            "realized_direction_relative_l2_error": 4.6144404224110446e-05,
+            "same_fp32_pair_native_fd_vs_tight_fp64_fd_relative_l2": 3.132126088477441e-05,
+            "tight_fp64_fd_vs_capture_fp64_fd_relative_l2": 5.742640803367067e-06
+          },
+          {
+            "epsilon": 0.0003,
+            "fp64_center_ad_vs_exact_same_fp32_pair_fd": 0.11124780332601511,
+            "fp64_midpoint_ad_vs_same_pair_fd_relative_l2": 0.12514968679289176,
+            "fp64_projection_residual_inf_plus_minus": [
+              3.008661028647275e-14,
+              2.253514215511121e-15
+            ],
+            "midpoint_ad_at_realized_direction_vs_requested_center_ad_relative_l2": 0.0001785050416548433,
+            "midpoint_multiplier_fp64": 0.0008841679289052277,
+            "midpoint_yield_gap_fp64": 1.3566925360919413e-13,
+            "native_projection_residual_inf_plus_minus": [
+              8.35163519e-06,
+              5.96875907e-06
+            ],
+            "one_sided_minus_actual_pair_fd_vs_ad_relative_l2": 0.57727140764861,
+            "one_sided_plus_actual_pair_fd_vs_ad_relative_l2": 0.3270474733258066,
+            "plus_minus_multiplier_fp64": [
+              0.0010401521587828353,
+              0.0007308060392330351
+            ],
+            "plus_minus_yield_gap_fp64": [
+              9.237055564881302e-14,
+              2.311484337269576e-13
+            ],
+            "realized_direction_relative_l2_error": 0.00018744708874550425,
+            "same_fp32_pair_native_fd_vs_tight_fp64_fd_relative_l2": 6.356498851944093e-05,
+            "tight_fp64_fd_vs_capture_fp64_fd_relative_l2": 1.3679614982286935e-05
+          },
+          {
+            "epsilon": 0.0001,
+            "fp64_center_ad_vs_exact_same_fp32_pair_fd": 0.013291247023466048,
+            "fp64_midpoint_ad_vs_same_pair_fd_relative_l2": 0.013469612990918844,
+            "fp64_projection_residual_inf_plus_minus": [
+              1.69710166059156e-14,
+              8.837331907929347e-15
+            ],
+            "midpoint_ad_at_realized_direction_vs_requested_center_ad_relative_l2": 0.00015461081881421997,
+            "midpoint_multiplier_fp64": 0.0008841791707169603,
+            "midpoint_yield_gap_fp64": 1.3455903058456897e-13,
+            "native_projection_residual_inf_plus_minus": [
+              9.54751158e-06,
+              4.77186404e-06
+            ],
+            "one_sided_minus_actual_pair_fd_vs_ad_relative_l2": 0.15639582256303425,
+            "one_sided_plus_actual_pair_fd_vs_ad_relative_l2": 0.12946810881761828,
+            "plus_minus_multiplier_fp64": [
+              0.0009358836620642436,
+              0.0008327653225191006
+            ],
+            "plus_minus_yield_gap_fp64": [
+              1.1723955140041653e-13,
+              1.5654144647214707e-13
+            ],
+            "realized_direction_relative_l2_error": 0.00025801659819894195,
+            "same_fp32_pair_native_fd_vs_tight_fp64_fd_relative_l2": 4.613531049278677e-05,
+            "tight_fp64_fd_vs_capture_fp64_fd_relative_l2": 1.7753597713894595e-05
+          },
+          {
+            "epsilon": 3e-05,
+            "fp64_center_ad_vs_exact_same_fp32_pair_fd": 0.001206366714946885,
+            "fp64_midpoint_ad_vs_same_pair_fd_relative_l2": 0.0012111038678128297,
+            "fp64_projection_residual_inf_plus_minus": [
+              1.0908700158462903e-14,
+              9.065556465237545e-15
+            ],
+            "midpoint_ad_at_realized_direction_vs_requested_center_ad_relative_l2": 0.0014880964970681745,
+            "midpoint_multiplier_fp64": 0.0008841877636387825,
+            "midpoint_yield_gap_fp64": 1.3500311979441904e-13,
+            "native_projection_residual_inf_plus_minus": [
+              1.43315992e-05,
+              5.96541213e-06
+            ],
+            "one_sided_minus_actual_pair_fd_vs_ad_relative_l2": 0.043885359223714476,
+            "one_sided_plus_actual_pair_fd_vs_ad_relative_l2": 0.041468566230600946,
+            "plus_minus_multiplier_fp64": [
+              0.0008996858192360062,
+              0.0008687159300913229
+            ],
+            "plus_minus_yield_gap_fp64": [
+              1.2856382625159313e-13,
+              1.4033219031261979e-13
+            ],
+            "realized_direction_relative_l2_error": 0.0013336583911488073,
+            "same_fp32_pair_native_fd_vs_tight_fp64_fd_relative_l2": 3.863354370212674e-05,
+            "tight_fp64_fd_vs_capture_fp64_fd_relative_l2": 0.00013985140116261788
+          },
+          {
+            "epsilon": 1e-05,
+            "fp64_center_ad_vs_exact_same_fp32_pair_fd": 0.0001315597464340517,
+            "fp64_midpoint_ad_vs_same_pair_fd_relative_l2": 0.00013454500747270314,
+            "fp64_projection_residual_inf_plus_minus": [
+              6.7480743215497796e-15,
+              4.638758994979231e-15
+            ],
+            "midpoint_ad_at_realized_direction_vs_requested_center_ad_relative_l2": 0.0015551636337680901,
+            "midpoint_multiplier_fp64": 0.0008841877636388234,
+            "midpoint_yield_gap_fp64": 1.3500311979441904e-13,
+            "native_projection_residual_inf_plus_minus": [
+              5.96512109e-06,
+              8.35425453e-06
+            ],
+            "one_sided_minus_actual_pair_fd_vs_ad_relative_l2": 0.01435133562999257,
+            "one_sided_plus_actual_pair_fd_vs_ad_relative_l2": 0.014086842183785352,
+            "plus_minus_multiplier_fp64": [
+              0.0008893565896837398,
+              0.0008790218490626356
+            ],
+            "plus_minus_yield_gap_fp64": [
+              1.3300471835009375e-13,
+              1.3700152123874432e-13
+            ],
+            "realized_direction_relative_l2_error": 0.002367456856262517,
+            "same_fp32_pair_native_fd_vs_tight_fp64_fd_relative_l2": 0.0020413355299785914,
+            "tight_fp64_fd_vs_capture_fp64_fd_relative_l2": 0.00013997927928073272
+          },
+          {
+            "epsilon": 3e-06,
+            "fp64_center_ad_vs_exact_same_fp32_pair_fd": 1.1921264217461886e-05,
+            "fp64_midpoint_ad_vs_same_pair_fd_relative_l2": 1.192007226566955e-05,
+            "fp64_projection_residual_inf_plus_minus": [
+              1.3158961767456567e-14,
+              2.220446049250313e-15
+            ],
+            "midpoint_ad_at_realized_direction_vs_requested_center_ad_relative_l2": 0.006305168534616236,
+            "midpoint_multiplier_fp64": 0.0008841772379091242,
+            "midpoint_yield_gap_fp64": 1.3367085216486885e-13,
+            "native_projection_residual_inf_plus_minus": [
+              7.15954229e-06,
+              4.771573e-06
+            ],
+            "one_sided_minus_actual_pair_fd_vs_ad_relative_l2": 0.00425032905543175,
+            "one_sided_plus_actual_pair_fd_vs_ad_relative_l2": 0.004213883676822473,
+            "plus_minus_multiplier_fp64": [
+              0.0008857224460473969,
+              0.0008826322869511329
+            ],
+            "plus_minus_yield_gap_fp64": [
+              1.3344880755994382e-13,
+              1.3589129821411916e-13
+            ],
+            "realized_direction_relative_l2_error": 0.010911052619472918,
+            "same_fp32_pair_native_fd_vs_tight_fp64_fd_relative_l2": 0.0037557644017153133,
+            "tight_fp64_fd_vs_capture_fp64_fd_relative_l2": 4.7001781488067454e-05
+          },
+          {
+            "epsilon": 1e-06,
+            "fp64_center_ad_vs_exact_same_fp32_pair_fd": 4.429328883213258e-06,
+            "fp64_midpoint_ad_vs_same_pair_fd_relative_l2": 1.2238439504451057e-06,
+            "fp64_projection_residual_inf_plus_minus": [
+              5.909443941132242e-15,
+              9.529052893975098e-15
+            ],
+            "midpoint_ad_at_realized_direction_vs_requested_center_ad_relative_l2": 0.04478945652352337,
+            "midpoint_multiplier_fp64": 0.0008841707210064506,
+            "midpoint_yield_gap_fp64": 1.3389289676979388e-13,
+            "native_projection_residual_inf_plus_minus": [
+              5.96541213e-06,
+              4.77128197e-06
+            ],
+            "one_sided_minus_actual_pair_fd_vs_ad_relative_l2": 0.0013581377212362408,
+            "one_sided_plus_actual_pair_fd_vs_ad_relative_l2": 0.0013539428487700346,
+            "plus_minus_multiplier_fp64": [
+              0.0008846647846261886,
+              0.0008836766839397528
+            ],
+            "plus_minus_yield_gap_fp64": [
+              1.3455903058456897e-13,
+              1.34781075189494e-13
+            ],
+            "realized_direction_relative_l2_error": 0.045504277721602024,
+            "same_fp32_pair_native_fd_vs_tight_fp64_fd_relative_l2": 0.004847005720361227,
+            "tight_fp64_fd_vs_capture_fp64_fd_relative_l2": 0.0013966099612694538
+          },
+          {
+            "epsilon": 3e-07,
+            "fp64_center_ad_vs_exact_same_fp32_pair_fd": 3.4694576680950186e-06,
+            "fp64_midpoint_ad_vs_same_pair_fd_relative_l2": 1.6825715877876917e-07,
+            "fp64_projection_residual_inf_plus_minus": [
+              4.8512626207863896e-15,
+              3.922643460052555e-15
+            ],
+            "midpoint_ad_at_realized_direction_vs_requested_center_ad_relative_l2": 0.18074788036973974,
+            "midpoint_multiplier_fp64": 0.0008841705777909649,
+            "midpoint_yield_gap_fp64": 1.341149413747189e-13,
+            "native_projection_residual_inf_plus_minus": [
+              1.19238393e-06,
+              4.771573e-06
+            ],
+            "one_sided_minus_actual_pair_fd_vs_ad_relative_l2": 0.000503809226995155,
+            "one_sided_plus_actual_pair_fd_vs_ad_relative_l2": 0.0005016641762883093,
+            "plus_minus_multiplier_fp64": [
+              0.000884346906876112,
+              0.0008839942523988156
+            ],
+            "plus_minus_yield_gap_fp64": [
+              1.34781075189494e-13,
+              1.3500311979441904e-13
+            ],
+            "realized_direction_relative_l2_error": 0.19509366229383832,
+            "same_fp32_pair_native_fd_vs_tight_fp64_fd_relative_l2": 0.003634234716408066,
+            "tight_fp64_fd_vs_capture_fp64_fd_relative_l2": 0.0073641950904130785
+          }
+        ],
+        "status": "historical 039 observation retained unchanged; earlier generic-projection run and not merged with 046"
+      }
+    ],
+    "interpretation": "kept as prior failure/inconclusive evidence; the 046 two-word candidate improves center state residual/parity and same-pair comparisons, but does not erase or rewrite 039",
+    "legacy_source_tolerance_results": [
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-exact-oracle-039/fp64-unquantized/analysis.json",
+        "sha256": "00a50231d50cceacc5a309f3cab95d03705b5bda37b11a06f2e8e895b1891e50"
+      }
+    ]
+  },
+  "native_run": {
+    "exit_code": 0,
+    "path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-compensated-projection-046",
+    "physical_fem_steps": 0,
+    "prediction_sha256": "27f024bc311079b444c6694f29f194b418399660ed61add0962d85edbaf71f60",
+    "receipt_sha256": "045c4f230fd7976121ab0601391ae179f8e7f0d2f5943b7cf98dd804d7babdb4",
+    "source_build_sha256": "999ab3d05c9176be2276ac51841d5fff603dde8a4dfa8fb487049261fd5b1a09",
+    "source_inputs_unchanged": true,
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/generic-damage-regional-block-032",
+    "source_snapshot_input_hash_check": {
+      "all_checked_source_files_match": true,
+      "source_file_mismatches": [],
+      "source_files_checked": 664
+    }
+  },
+  "schema": "numi.cardboard.generic-compensated-projection-fd-audit.v1",
+  "source_bindings": {
+    "builder_header": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/generic-damage-regional-block-032/matter/tools/cardboard_retained_matrix_damage.hpp",
+      "sha256": "dc7d0cca3ce687219f765244d266d4c08465a360ced912ff86e5bc1b9ea2ebed"
+    },
+    "compiler_library": {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-032/libnumi_matter_compiler.a",
+      "sha256": "7af9bb2ccb104568bdb3f0c30b2cfb1c536c61725d9eecfef6d72dc9020bdf6b"
+    },
+    "fp64_oracle_header": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/generic-damage-regional-block-032/matter/tools/cardboard_retained_damage_fp64_oracle.hpp",
+      "sha256": "1124770f92846b5f61789215b3afec5e841684f9fc22dfc68bd9943faf134db0"
+    },
+    "hardening_csv": {
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/source-data/haj_ali_2009_bilinear_tension_fit_nodes.csv",
+      "sha256": "83f5778db797f0fb9996416848abb91c18f9102f4c3707aea9ea267b1eeb0d82"
+    },
+    "independent_FP64_replay_artifacts": [
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-compensated-projection-046/analysis/fp64-unquantized/fp64_liner_unquantized.cpp",
+        "sha256": "e803c190fce2a63fda0efa4368677b6bdb1a71767a6a549f9deb59300231951a"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-compensated-projection-046/analysis/fp64-unquantized/fp64_liner_unquantized",
+        "sha256": "68788d0f641bd17993e3bb0f3a6251ca1be95fd4183ed68253e6829c8912e10e"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-compensated-projection-046/analysis/fp64-unquantized/fp64_liner_unquantized.json",
+        "sha256": "b9555580bf393ec6ae634369edb8bf4e40b8d46c2af4439ceff6fbafd7385d86"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-compensated-projection-046/analysis/fp64-unquantized/fp64_medium_unquantized.cpp",
+        "sha256": "f846e029ad1e317998b798347ae597d113ce83099082912e25998a0cee820107"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-compensated-projection-046/analysis/fp64-unquantized/fp64_medium_unquantized",
+        "sha256": "e89185f233f6ab4f451b269a0ccecdf856c99c2d51f5bd498f586432662acb43"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-compensated-projection-046/analysis/fp64-unquantized/fp64_medium_unquantized.json",
+        "sha256": "339c026c308fe7c66bc42ed5f02999a88435913cd03271754cc06a207f6a5f1a"
+      }
+    ],
+    "legacy_039_analysis": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-exact-oracle-039/fp64-unquantized/analysis.json",
+      "sha256": "00a50231d50cceacc5a309f3cab95d03705b5bda37b11a06f2e8e895b1891e50"
+    },
+    "native_capture_files": [
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-compensated-projection-046/capture/hajali2009_liner_hill_ideal.tangent-capture.json",
+        "sha256": "642ffef432b854bf64edc7034860f3807faf76b9619dae56cb18ef2edf26cd04"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-compensated-projection-046/capture/hajali2009_medium_hill_ideal.tangent-capture.json",
+        "sha256": "2dfc9e8ef719332545eae31724e7059cbeb663cbd8ad99f1f5c6195e06572eee"
+      }
+    ],
+    "native_executable": {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-032/numi-matter-cardboard-retained-matrix-damage-metal-check",
+      "sha256": "3d4ca6b6bb506bb679683ebf4f133efbf13e7d8e666e929da450cc5b45970459"
+    },
+    "native_metallib": {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-032/shaders/cardboard_retained_matrix_damage_check.metallib",
+      "sha256": "3955e2f582b8a0cc3a82427b855fccfc95dc68c2638356a39015496b3f8c6a6a"
+    },
+    "native_prediction": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-compensated-projection-046/prediction.json",
+      "sha256": "27f024bc311079b444c6694f29f194b418399660ed61add0962d85edbaf71f60"
+    },
+    "native_receipt": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-compensated-projection-046/receipt.json",
+      "sha256": "045c4f230fd7976121ab0601391ae179f8e7f0d2f5943b7cf98dd804d7babdb4"
+    },
+    "native_source_build": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-compensated-projection-046/inputs/external/source-build.json",
+      "sha256": "999ab3d05c9176be2276ac51841d5fff603dde8a4dfa8fb487049261fd5b1a09"
+    },
+    "oracle_default_tolerance_result": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-compensated-projection-046/analysis/fp64-unquantized/analysis_tol_2e-11.json",
+      "sha256": "4b2ebc90ba92bbae019a685da83284744eaacfdf0ab64cf54786eb624195c83e"
+    },
+    "oracle_script": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-compensated-projection-046/analysis/fp64-unquantized/analyze_unquantized_fp64.py",
+      "sha256": "14aa0b7b07280b1bcd4294e7d255a54720f4d627c58212fd94bb63d29da89235"
+    },
+    "oracle_tight_tolerance_result": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-compensated-projection-046/analysis/fp64-unquantized/analysis_tol_2e-13.json",
+      "sha256": "3c4bb026fdfc5115d138991f751a9d43e0ae0f700789bc802404376c0ee7ce89"
+    },
+    "source_material_files": [
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/generic-damage-regional-block-032/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/generic-damage-regional-block-032/matter/materials/hajali2009_medium_hill_ideal.nmatter",
+        "sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8"
+      }
+    ],
+    "source_snapshot_cmake": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/generic-damage-regional-block-032/matter/CMakeLists.txt",
+      "sha256": "e4b2ff640e5eeac8a80d9f66a24ec68e12ea9ab3dc128ceba0aa556adc159567"
+    },
+    "summary_script": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/retained-damage-compensated-projection-046/analysis/fp64-unquantized/summarize_compensated_projection.py",
+      "sha256": "a92b9a700e319c8134c88a103e488c1f4937c6f24c126bc8e903a89a662aff6e"
+    }
+  }
+}

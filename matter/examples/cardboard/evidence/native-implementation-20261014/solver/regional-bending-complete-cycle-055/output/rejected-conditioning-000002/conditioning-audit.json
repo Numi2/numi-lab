@@ -1,0 +1,147 @@
+{
+  "accepted_physical_state": false,
+  "classification": "rejected_step_diagnostic_only",
+  "control_step": 1,
+  "device_program_fingerprint": "17340892594118740483",
+  "dimensions": {
+    "environments": 2,
+    "modes": 26,
+    "nodes": 882
+  },
+  "environments": [
+    {
+      "RAP_relative_nonsymmetry": 3.885798183105408e-08,
+      "authored_P_basis_gram_condition_number": 1.0000000823176844,
+      "authored_P_basis_gram_frobenius_distance_from_identity": 1.0814956512572596e-07,
+      "basis_gram_frobenius_distance_from_identity": 1.0814956512572596e-07,
+      "environment": 0,
+      "largest_Ritz_mode": {
+        "full_space_A_invariance_residual_relative_to_Aq": 0.7800374962677072,
+        "residual_orthogonal_to_coarse_basis_fraction": 0.9999999999999999,
+        "residual_projected_onto_coarse_basis_fraction": 1.0734066831005641e-08,
+        "ritz_value": 0.06942666207896711
+      },
+      "pivoted_LU_relative_reconstruction_error_against_unpivoted_FP64_reduction": 8.572313610193458e-08,
+      "smallest_Ritz_mode": {
+        "full_space_A_invariance_residual_relative_to_Aq": 0.9989876644986585,
+        "residual_orthogonal_to_coarse_basis_fraction": 0.9999999999998913,
+        "residual_projected_onto_coarse_basis_fraction": 4.661588473389111e-07,
+        "ritz_value": 3.301255626550463e-05
+      },
+      "symmetric_RAP_condition_number": 2103.0380537817423,
+      "symmetric_RAP_max_eigenvalue": 0.06942666207896711,
+      "symmetric_RAP_min_eigenvalue": 3.301255626550463e-05,
+      "valid_node_block_count": 846
+    },
+    {
+      "RAP_relative_nonsymmetry": 4.1722295580215226e-08,
+      "authored_P_basis_gram_condition_number": 1.0000000823176844,
+      "authored_P_basis_gram_frobenius_distance_from_identity": 1.0814956512572596e-07,
+      "basis_gram_frobenius_distance_from_identity": 1.0814956512572596e-07,
+      "environment": 1,
+      "largest_Ritz_mode": {
+        "full_space_A_invariance_residual_relative_to_Aq": 0.7295891143544764,
+        "residual_orthogonal_to_coarse_basis_fraction": 0.9999999999999999,
+        "residual_projected_onto_coarse_basis_fraction": 1.712170748041086e-08,
+        "ritz_value": 0.08502033487636952
+      },
+      "pivoted_LU_relative_reconstruction_error_against_unpivoted_FP64_reduction": 8.034447923519726e-08,
+      "smallest_Ritz_mode": {
+        "full_space_A_invariance_residual_relative_to_Aq": 0.9977288225795429,
+        "residual_orthogonal_to_coarse_basis_fraction": 0.9999999999996031,
+        "residual_projected_onto_coarse_basis_fraction": 8.909881055097507e-07,
+        "ritz_value": 3.647801202520419e-05
+      },
+      "symmetric_RAP_condition_number": 2330.7282978476296,
+      "symmetric_RAP_max_eigenvalue": 0.08502033487636952,
+      "symmetric_RAP_min_eigenvalue": 3.647801202520419e-05,
+      "valid_node_block_count": 846
+    }
+  ],
+  "factor_valid": [
+    1,
+    1
+  ],
+  "interpretation": {
+    "cause_limit": "the capture contains no full operator, Krylov basis, or rejected linear-system right-hand side; it cannot identify the first failing solver subsystem or attribute the run rejection to RAP/LU",
+    "coarse_conditioning": "the captured symmetric RAP matrices are positive definite with the reported condition numbers; this does not establish conditioning or convergence of the full FEM operator",
+    "coarse_factor": "all exported pivoted RAP factors are valid and reconstruct the captured coarse matrix within the reported FP32 capture/reduction error",
+    "one_sided_residual": "Ritz A-invariance residuals compare captured AP times coarse Ritz vectors against the same vector times its projected Ritz value; the projected/orthogonal fractions are not an FGMRES right-hand-side residual",
+    "physical_limit": "candidate_nodes and conditioning arenas are diagnostic data from a rejected step, not accepted geometry or physical evidence"
+  },
+  "outer_artifact_sha256": {
+    "output/conditioning-manifest.json": "9a939d29c612ad4aeb73df9a1ecbbcbfcaee460340196de623edbb3bb89e93b7",
+    "output/observations.csv": "07395702d682236b50c2471dd3bdf2f2795429f6d9e8f95df863f7b330576b8a",
+    "output/result.json": "0b95bd22bc5810c746f17e355a47f0ac9cd983b6e4f86606bb99f6ce45a40a48",
+    "prediction.json": "03d149a3b4759d4ae70399d8fa7a0d88ae7eabcb7c12ef022920b211950f5278",
+    "receipt.json": "4a3d0db8789aa45965231ab918a2485c2a306cd522ab47d21701d9edb44be433",
+    "stderr.log": "0bca728b77d9650fa1266f72b990d928396f56058a5fa6940dff1f5ecaf77094",
+    "stdout.log": "e3881e48dd5afb2648633279028557f4a7936a5176c95a4e299b4e9d88bc7da4"
+  },
+  "outer_binding": {
+    "accepted_steps": 1,
+    "argv_values": {
+      "--bend-angle": ".375",
+      "--dt": ".0001",
+      "--fgmres-iterations": "256",
+      "--fgmres-preconditioner": "regional-galerkin-block",
+      "--fgmres-restart": "16",
+      "--hold-steps": "3",
+      "--line-search-steps": "24",
+      "--material-iterations": "16",
+      "--newton-iterations": "20",
+      "--nx": "8",
+      "--ny": "2",
+      "--preset": "literature2009",
+      "--relax-steps": "3",
+      "--release-steps": "3",
+      "--residual-tolerance": "1e-6",
+      "--steps": "12",
+      "--thickness-slices": "1",
+      "--unload-steps": "6"
+    },
+    "receipt_exit_code": 2,
+    "rejected_observation": {
+      "certificate_correction_raw": "0.013816731981933117",
+      "certificate_residual_raw": "4.0991657442646101e-05",
+      "environment": 0,
+      "fgmres_iterations": 256,
+      "free_force_imbalance_l2_N_raw": "0.40991659791756568",
+      "raw_certificate_accepted_flag": 0,
+      "status_code": 10,
+      "status_diagnostic_x_raw": "4.0991657442646101e-05",
+      "status_diagnostic_y_raw": "0.013816731981933117",
+      "status_name_from_sealed_source": "NM_STATUS_NONLINEAR_SOLVER_FAILURE",
+      "step": 1,
+      "step_accepted": 0
+    },
+    "required_flags": [
+      "--accurate-paper-projection",
+      "--compensated-paper-arithmetic",
+      "--reference-displacement-gradient",
+      "--safeguarded-paper-initializer",
+      "--scaled-paper-residuals",
+      "--without-self-contact"
+    ],
+    "result_status": "failed",
+    "runtime_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-037",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/contact-damage-bending-037",
+    "verified_input_count": 693
+  },
+  "raw_arena_sha256": {
+    "AP.bin": "636f448c54493ca0c3eb606941234b00923d863bc91147328415524ffa7ba152",
+    "P.bin": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+    "candidate_nodes.bin": "ed8fc31169f54a00e39fe1802f9cd8fb1301edb57154242dd63591e360e61ca1",
+    "effective_P.bin": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+    "factor_valid.bin": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+    "node_block_inverse.bin": "04e76ccd6ef5f28105cf57a95e8f61181e46e71a0c99b2b809932ecb68251f1a",
+    "pivoted_RAP.bin": "9a809fcb6964870837f0cd2b138e8b26f8628c66cb2b5aca501cec3870fec2be",
+    "pivots.bin": "334e2986232d7311015f41ba6abfdfbbc5b1ac8558f5ebf62c5643a79fe67843"
+  },
+  "schema": "numi.cardboard.regional-conditioning-audit.v1",
+  "source_physics_fingerprint": "10800280941410554138",
+  "valid_node_block_count_per_environment": [
+    846,
+    846
+  ]
+}

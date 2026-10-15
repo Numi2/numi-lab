@@ -1,0 +1,77 @@
+{
+  "schema": "numi.cardboard.local-evidence-archive.v1",
+  "scope": "task-generated CPU preflight exports; zero physical steps",
+  "archive_root": "/Users/home/cardboard-implementation-20261014/archive/shipping-preflight-cpu-20261014-003",
+  "files": [
+    {
+      "relative_path": "box-layout.json",
+      "bytes": 7736,
+      "sha256": "768a5d105948c31027eafc92dee9ebc26a1329b89c23dfc7ebdf9bf677a9ebee",
+      "archive_path": "/Users/home/cardboard-implementation-20261014/archive/shipping-preflight-cpu-20261014-003/box-layout.json",
+      "compression": "none"
+    },
+    {
+      "relative_path": "compiled.nmatterpack",
+      "bytes": 347606448,
+      "sha256": "b15c087ceb4eb91703f60d13d16d3b61cf7140f078e4b76262f08a433e596350",
+      "archive_path": "/Users/home/cardboard-implementation-20261014/archive/shipping-preflight-cpu-20261014-003/compiled.nmatterpack.gz",
+      "archive_sha256": "c5943c22265679b54c9391f340aaf15cb1d3eaf301e483aa6440d78cc46926cc",
+      "compression": "gzip",
+      "roundtrip_verified": true
+    },
+    {
+      "relative_path": "initial.obj",
+      "bytes": 35998902,
+      "sha256": "6f4c9f47ee71f2f969160bcf8ab9bfccf49be796063cc80fe8c32b31412944ff",
+      "archive_path": "/Users/home/cardboard-implementation-20261014/archive/shipping-preflight-cpu-20261014-003/initial.obj.gz",
+      "archive_sha256": "dba973dae682d41e4484ed461c2ef7bf33df25564b3ecc175e412d19d08432f1",
+      "compression": "gzip",
+      "roundtrip_verified": true
+    },
+    {
+      "relative_path": "manifest.json",
+      "bytes": 55341,
+      "sha256": "4fa21d02a4adbadc059510e23f8c986a780c5d0f7cca056af6e813169c9f31f0",
+      "archive_path": "/Users/home/cardboard-implementation-20261014/archive/shipping-preflight-cpu-20261014-003/manifest.json",
+      "compression": "none"
+    },
+    {
+      "relative_path": "mesh.json",
+      "bytes": 134146962,
+      "sha256": "4fcf4ed558eb35243e640a7a51c91d3dfbd0b0b034a3e17767554caff1ff4ced",
+      "archive_path": "/Users/home/cardboard-implementation-20261014/archive/shipping-preflight-cpu-20261014-003/mesh.json.gz",
+      "archive_sha256": "eff5c060fc1acdd19a22c946d663637451f8d79196465d30cec620c19b5e7865",
+      "compression": "gzip",
+      "roundtrip_verified": true
+    },
+    {
+      "relative_path": "result.json",
+      "bytes": 568,
+      "sha256": "d163ac60818b4b57cda4b711a9df3ad01a73216c656d6ea1ec4370de0132235a",
+      "archive_path": "/Users/home/cardboard-implementation-20261014/archive/shipping-preflight-cpu-20261014-003/result.json",
+      "compression": "none"
+    },
+    {
+      "relative_path": "shipping-design.json",
+      "bytes": 3102,
+      "sha256": "4917041d6d5413180fc536a8efd1abea7e9e8e4946676b9f95315c982185ece0",
+      "archive_path": "/Users/home/cardboard-implementation-20261014/archive/shipping-preflight-cpu-20261014-003/shipping-design.json",
+      "compression": "none"
+    },
+    {
+      "relative_path": "shipping-memory-prebuild.json",
+      "bytes": 1204,
+      "sha256": "0005ed33e46e8b33d56d345d459ef157c958b4da45de68c11ddad3b6bd42eb50",
+      "archive_path": "/Users/home/cardboard-implementation-20261014/archive/shipping-preflight-cpu-20261014-003/shipping-memory-prebuild.json",
+      "compression": "none"
+    },
+    {
+      "relative_path": "shipping-memory-preflight.json",
+      "bytes": 1735,
+      "sha256": "a928ca7132c472d90d10e174c6483ee1b572c94999ea13a6629acd7fc559f7f7",
+      "archive_path": "/Users/home/cardboard-implementation-20261014/archive/shipping-preflight-cpu-20261014-003/shipping-memory-preflight.json",
+      "compression": "none"
+    }
+  ],
+  "restore": "For gzip records, decompress archive_path to relative_path; verify uncompressed sha256 and bytes. Other files are retained verbatim."
+}

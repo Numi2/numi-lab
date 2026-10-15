@@ -1,0 +1,354 @@
+{
+  "schema": "numi.cardboard.captured_material_comparison.v1",
+  "reference_sha256": "c62ebe82111fa14daf9f64cca40840cef61c6a24e7b95a5390a04b5f24f0c269",
+  "native_sha256": "277acbb402e1380cece500688b0e981e17e6cbb181bcfddc512792d177c152cf",
+  "total_rows": 14400,
+  "invalid_rows": 0,
+  "invalid": [],
+  "measured_noise_floors": {
+    "stress_pa": null,
+    "tangent_pa_per_s": null
+  },
+  "layer_gate_relative": 0.001,
+  "layers": {
+    "stress": {
+      "counts": {
+        "inconclusive_zero_reference_without_noise_floor": 4800,
+        "pass": 9600
+      },
+      "worst": [
+        {
+          "key": "e0_t1309_s3",
+          "stress": {
+            "absolute_error": 0.3154006484619458,
+            "reference_scale": 36537.17079756512,
+            "relative_error": 8.632322688842796e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 497.7683484554291,
+            "reference_scale": 695174597.7154156,
+            "relative_error": 7.160335692519091e-07,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 7.442223677600612e-10
+        },
+        {
+          "key": "e0_t1312_s2",
+          "stress": {
+            "absolute_error": 0.3597252537301756,
+            "reference_scale": 48069.79277013341,
+            "relative_error": 7.483395142774135e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 125.14387949556112,
+            "reference_scale": 598387269.4633844,
+            "relative_error": 2.091352638698119e-07,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 8.527442571515387e-10
+        },
+        {
+          "key": "e0_t1371_s1",
+          "stress": {
+            "absolute_error": 0.3816383410267008,
+            "reference_scale": 52587.61992675995,
+            "relative_error": 7.2571898397040545e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 106.17686180025339,
+            "reference_scale": 453845842.359034,
+            "relative_error": 2.339491780917488e-07,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 9.046009670499178e-10
+        },
+        {
+          "key": "e0_t1312_s3",
+          "stress": {
+            "absolute_error": 0.339368535012909,
+            "reference_scale": 48104.87847320134,
+            "relative_error": 7.054763379185485e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 675.3548960573971,
+            "reference_scale": 589526562.9096795,
+            "relative_error": 1.1455885765759248e-06,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 8.051291959521034e-10
+        },
+        {
+          "key": "e0_t1309_s4",
+          "stress": {
+            "absolute_error": 0.2540651288582012,
+            "reference_scale": 36540.244874480726,
+            "relative_error": 6.953022064601359e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 1094.5306488126516,
+            "reference_scale": 699904361.1429745,
+            "relative_error": 1.5638288737410282e-06,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 5.981593276249697e-10
+        },
+        {
+          "key": "e0_t1313_s4",
+          "stress": {
+            "absolute_error": 0.32399173099474865,
+            "reference_scale": 48244.513892821706,
+            "relative_error": 6.7156181056050675e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 751.2875753045082,
+            "reference_scale": 595681937.5731025,
+            "relative_error": 1.2612226893522513e-06,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 7.684255974582666e-10
+        },
+        {
+          "key": "e0_t1308_s1",
+          "stress": {
+            "absolute_error": 0.2723025671366486,
+            "reference_scale": 40685.75277131714,
+            "relative_error": 6.692823619786087e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 743.6110873781145,
+            "reference_scale": 691249878.072795,
+            "relative_error": 1.075748598251189e-06,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 6.454426819402226e-10
+        },
+        {
+          "key": "e0_t1371_s2",
+          "stress": {
+            "absolute_error": 0.3485336460362305,
+            "reference_scale": 52673.782270191805,
+            "relative_error": 6.6168334798594165e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 62.992699693888426,
+            "reference_scale": 454263347.4364385,
+            "relative_error": 1.3867000287251328e-07,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 8.275309847094459e-10
+        },
+        {
+          "key": "e0_t1309_s1",
+          "stress": {
+            "absolute_error": 0.2292120784841245,
+            "reference_scale": 36535.60878186151,
+            "relative_error": 6.2736624932857076e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 906.8485948257148,
+            "reference_scale": 692788744.5751903,
+            "relative_error": 1.3089828637181216e-06,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 5.44587378664696e-10
+        },
+        {
+          "key": "e0_t1309_s2",
+          "stress": {
+            "absolute_error": 0.22770573632442392,
+            "reference_scale": 36541.77768291904,
+            "relative_error": 6.231380922413687e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 671.0480577275157,
+            "reference_scale": 702261838.8387868,
+            "relative_error": 9.55552502805956e-07,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 5.396500468712873e-10
+        }
+      ]
+    },
+    "tangent": {
+      "counts": {
+        "inconclusive_zero_reference_without_noise_floor": 7200,
+        "pass": 7200
+      },
+      "worst": [
+        {
+          "key": "e0_t1254_s2",
+          "stress": {
+            "absolute_error": 0.0011214317055419087,
+            "reference_scale": 25935.46089895573,
+            "relative_error": 4.323932047751125e-08,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 1342.3691858733073,
+            "reference_scale": 7056688.310417405,
+            "relative_error": 0.00019022650949336117,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 1.1616353972482285e-10
+        },
+        {
+          "key": "e0_t1254_s1",
+          "stress": {
+            "absolute_error": 0.007994781779416371,
+            "reference_scale": 25937.22442709322,
+            "relative_error": 3.0823582538250585e-07,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 1319.3334048446268,
+            "reference_scale": 7056937.665390688,
+            "relative_error": 0.000186955513482148,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 7.401566729306475e-11
+        },
+        {
+          "key": "e0_t1403_s1",
+          "stress": {
+            "absolute_error": 0.0006931104835530277,
+            "reference_scale": 25241.70712514112,
+            "relative_error": 2.7458938498762597e-08,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 32499.54700683593,
+            "reference_scale": 213549638.98558342,
+            "relative_error": 0.00015218731888856036,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 2.6455398852501255e-10
+        },
+        {
+          "key": "e0_t1221_s2",
+          "stress": {
+            "absolute_error": 0.0018637699831742793,
+            "reference_scale": 170552.32639946011,
+            "relative_error": 1.0927848493892952e-08,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 1535.9571209866554,
+            "reference_scale": 11595348.588219186,
+            "relative_error": 0.0001324632122355666,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 1.505060923980006e-10
+        },
+        {
+          "key": "e0_t1254_s4",
+          "stress": {
+            "absolute_error": 0.013524840476748068,
+            "reference_scale": 25935.870774269206,
+            "relative_error": 5.214723883558969e-07,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 904.9389970712364,
+            "reference_scale": 7056760.372737877,
+            "relative_error": 0.00012823717248034295,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 1.6021823624756681e-10
+        },
+        {
+          "key": "e0_t1276_s4",
+          "stress": {
+            "absolute_error": 0.000862535584019497,
+            "reference_scale": 36001.231331285584,
+            "relative_error": 2.3958502310167967e-08,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 36022.266494989395,
+            "reference_scale": 285091574.266495,
+            "relative_error": 0.0001263533185351766,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 2.4190352412162275e-10
+        },
+        {
+          "key": "e0_t874_s0",
+          "stress": {
+            "absolute_error": 0.025467719417065382,
+            "reference_scale": 1182588.6504677194,
+            "relative_error": 2.15355689461359e-08,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 156670.11634540558,
+            "reference_scale": 1390119681.8836546,
+            "relative_error": 0.00011270260998902828,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 2.091594106246042e-09
+        },
+        {
+          "key": "e0_t850_s2",
+          "stress": {
+            "absolute_error": 0.015257952269166708,
+            "reference_scale": 1109263.5152579523,
+            "relative_error": 1.3755029404008268e-08,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 66528.82577466965,
+            "reference_scale": 593986271.1742253,
+            "relative_error": 0.0001120039788851546,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 2.2756297402004577e-09
+        },
+        {
+          "key": "e0_t1020_s1",
+          "stress": {
+            "absolute_error": 0.002967124011775013,
+            "reference_scale": 56229.42402798013,
+            "relative_error": 5.2768173657595225e-08,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 1561.719608666841,
+            "reference_scale": 14434499.04396816,
+            "relative_error": 0.00010819354408558065,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 3.0263278601866395e-10
+        },
+        {
+          "key": "e0_t1221_s0",
+          "stress": {
+            "absolute_error": 0.00614573634811677,
+            "reference_scale": 170460.88447926365,
+            "relative_error": 3.605364577856799e-08,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 1223.3987383022904,
+            "reference_scale": 11584455.41229857,
+            "relative_error": 0.00010560692710711945,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 3.2260853016774504e-10
+        }
+      ]
+    }
+  },
+  "state_max_absolute_error": 1.395992581254557e-08,
+  "verdict": "inconclusive",
+  "scope": "material projection and analytical algorithmic tangent only; no element, FD, convergence or physical qualification"
+}

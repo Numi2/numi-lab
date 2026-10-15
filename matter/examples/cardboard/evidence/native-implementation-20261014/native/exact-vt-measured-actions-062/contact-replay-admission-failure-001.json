@@ -1,0 +1,10 @@
+{
+  "schema": "numi.cardboard.diagnostic-admission-failure.v1",
+  "capture": "/Users/home/cardboard-implementation-20261014/native/exact-vt-measured-actions-062/stderr.log",
+  "native_exit_code": 1,
+  "source_inputs_unchanged": true,
+  "reason": "source040 action capture omitted the reader-required support_order and quantity provenance labels",
+  "scope": "native fixture failed strict first transaction; no actual Metal action comparison admitted",
+  "strict_solver_qualification": false,
+  "physical_validation": false
+}

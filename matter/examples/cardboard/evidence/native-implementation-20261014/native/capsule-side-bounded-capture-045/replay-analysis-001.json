@@ -1,0 +1,1552 @@
+{
+  "analyzer": {
+    "path": "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_rigid_contact_derivative_replay.py",
+    "sha256": "bed7a320dde0997f095a2d41bee6383fe3bb63a292e3ca4fde32181b3c648ede"
+  },
+  "build_binding": {
+    "artifact_sha256": {
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-030/numi-matter-cardboard-full-contact-armijo-check": "492d5b143700aac70618ed4c0ba9e76069befc28e323e99268e06c24146185a8",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-030/shaders/NumiMatter.metallib": "e22d208d6da9dc4bde3d06b67e88713af2917a4bc73da2aa1e6fee4ba92ccde5"
+    },
+    "source_build_manifest": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-030/source-build.json",
+    "source_build_manifest_sha256": "384052bfb1e0dd54aa9ebf21702faa35bd9d260ec4edb1e71b89ce87a487e9ee",
+    "source_files": {
+      "contact_metal": {
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/capsule-side-tangent-030/matter/src/metal/contact.metalinc",
+        "sha256": "c3cbb84c734040c6b5df7e4d93ac96a7687d72f5c395fc443fed247f6a1e2541"
+      },
+      "fem_metal": {
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/capsule-side-tangent-030/matter/src/metal/fem.metalinc",
+        "sha256": "932c3af154cefe2a534e555f22ccc439589cc260f42f3fab03327bd5dabbf7d0"
+      },
+      "fixture": {
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/capsule-side-tangent-030/matter/tools/cardboard_full_contact_armijo_check.mm",
+        "sha256": "4369c0427a0627d095306f06daae33bf10d388c89888fc48a4b50798c78214bd"
+      },
+      "material": {
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/capsule-side-tangent-030/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d"
+      },
+      "tooling": {
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/capsule-side-tangent-030/matter/tools/cardboard_tooling.hpp",
+        "sha256": "db98b29d39895054ca25cedcc8e3adc67c4304bc083a6453eab660e9858b6ded"
+      }
+    },
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/capsule-side-tangent-030"
+  },
+  "capture": {
+    "armijo_interpretation": {
+      "accepted": true,
+      "alpha_schedule": [
+        0.03461971509248,
+        0.01730985754624,
+        0.00865492877312,
+        0.00432746438656,
+        0.00216373219328,
+        0.00108186609664,
+        0.00054093304832,
+        0.00027046652416,
+        0.00013523326208,
+        6.761663104e-05,
+        3.380831552e-05,
+        1.690415776e-05,
+        8.45207888e-06,
+        4.22603944e-06,
+        2.11301972e-06,
+        1.05650986e-06
+      ],
+      "certified_noop": false,
+      "initial_bound": 0.03461971509248,
+      "last_tested_alpha": 1.05650986e-06,
+      "outcome": "accepted_trial",
+      "selected_alpha": 1.05650986e-06,
+      "trial_count": 16,
+      "trial_status_code_is_authoritative": false,
+      "trial_status_interpretation": "the trial status arena can contain a later no-op/sentinel status; accepted=true and the selected alpha record decide this iteration"
+    },
+    "armijo_record": {
+      "environments": [
+        {
+          "accepted": true,
+          "base_l2": 3.52359057e-05,
+          "certified_noop": false,
+          "line_search_raw": [
+            1.05650986e-06,
+            0.9936257,
+            16,
+            42
+          ],
+          "minimum_J": 0.9936257,
+          "selected_alpha": 1.05650986e-06,
+          "solver_status": {
+            "code": 0,
+            "completed_microsteps": 0,
+            "contact_count": 0,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ],
+            "environment": 0,
+            "event_count": 0,
+            "failing_index": 4294967295,
+            "fgmres_iterations": 105,
+            "object_index": 4294967295
+          },
+          "solver_status_code": 0,
+          "trial_alpha": 1.05650986e-06,
+          "trial_l2": 3.52358802e-05,
+          "trial_status": {
+            "code": 10,
+            "completed_microsteps": 0,
+            "contact_count": 0,
+            "diagnostics": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "environment": 0,
+            "event_count": 0,
+            "failing_index": 0,
+            "fgmres_iterations": 0,
+            "object_index": 0
+          }
+        }
+      ],
+      "newton_iteration": 42,
+      "root": 0,
+      "schema": 1,
+      "semantics": {
+        "base_l2": "exact assembled free-node mechanical residual before this Newton correction, impulse units",
+        "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+        "trial_l2": "selected residual if accepted, otherwise last tested residual"
+      }
+    },
+    "captured_stages": [
+      "after_deformable_limit",
+      "after_rigid_limit",
+      "before_contact_limits",
+      "final_line_search"
+    ],
+    "newton_iteration": 42,
+    "path": "/Users/home/cardboard-implementation-20261014/native/capsule-side-bounded-capture-045/stderr.log",
+    "prediction_path": "/Users/home/cardboard-implementation-20261014/native/capsule-side-bounded-capture-045/prediction.json",
+    "prediction_sha256": "5a44118509f6f71253e0eb5938cb46968d741d73829aee0858cde9da5369e9a7",
+    "root": 0,
+    "same_candidate_solution_samples_across_stages": true,
+    "sha256": "50186b30e62d6faaf9f907fa1424a4cb533f4683160621c372f9d91671620070"
+  },
+  "classification": "local_derivative_diagnosis_only_not_global_solver_causality_or_physical_qualification",
+  "contacts": [
+    {
+      "analytic_radial_action_Ns_per_mps": [
+        -1.612925425004831e-09,
+        0.0,
+        -5.225929390748829e-06
+      ],
+      "barrier_replay": {
+        "force": 0.2344300001407054,
+        "impulse": 2.344300001407054e-05,
+        "k_impact": 1404304065430.1301,
+        "k_inertial": 14043335098990.15,
+        "radial_velocity_hessian": 0.0015538729423495708,
+        "stiffness": 14043335098990.15
+      },
+      "candidate_inverse_mass_kg_inv": 712081.5625,
+      "candidate_position_m": [
+        -1.5472788561510242e-07,
+        -1.5983204093572567e-07,
+        0.001988676842302084
+      ],
+      "candidate_state_arithmetic": {
+        "capsule_gap_difference_rebased_minus_world_m": 1.134594640461728e-10,
+        "capsule_relative_rebased_rest_plus_u_f32_m": [
+          -1.5472788561510242e-07,
+          -1.5983204093572567e-07,
+          -0.0005013233749195933
+        ],
+        "capsule_relative_world_position_f32_m": [
+          -1.5472788561510242e-07,
+          -1.5983204093572567e-07,
+          -0.0005013232585042715
+        ],
+        "capsule_side_gap_from_rebased_rest_plus_u_f32_m": 1.323381980000704e-06,
+        "capsule_side_gap_from_world_position_f32_m": 1.3232685205366579e-06,
+        "captured_minus_rest_plus_u_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "captured_world_position_m": [
+          -1.5472788561510242e-07,
+          -1.5983204093572567e-07,
+          0.001988676842302084
+        ],
+        "reference_displacement_mode": 1.0,
+        "reference_displacement_u_m": [
+          -1.5472788561510242e-07,
+          -1.5983204093572567e-07,
+          -1.1323369108140469e-05
+        ],
+        "rest_plus_u_world_position_m": [
+          -1.5472788561510242e-07,
+          -1.5983204093572567e-07,
+          0.001988676842302084
+        ],
+        "rest_position_m": [
+          0.0,
+          0.0,
+          0.0020000000949949026
+        ],
+        "scope": "identity-pose capsule side arithmetic diagnostic; not a native alternate contact evaluation",
+        "u_minus_dt_times_candidate_velocity_m": [
+          1.4210854715202004e-14,
+          0.0,
+          0.0
+        ]
+      },
+      "candidate_velocity_m_per_s": [
+        -0.0015472789527848363,
+        -0.001598320435732603,
+        -0.11323369294404984
+      ],
+      "captured_includes_capsule_geometry": true,
+      "captured_normal_impulse_Ns": 2.344299718970433e-05,
+      "captured_normal_velocity_m_per_s": -0.0867658331990242,
+      "captured_sample_operator_action_Ns_per_mps": [
+        3.224321954001126e-09,
+        -9.577699727051514e-13,
+        -5.225931477545688e-06
+      ],
+      "captured_sample_operator_rows_Ns_per_mps": [
+        [
+          -4.6760751502006315e-06,
+          8.789492164694782e-14,
+          4.810288487533398e-07
+        ],
+        [
+          8.789492164694782e-14,
+          5.203621180003686e-17,
+          2.8478230884587674e-10
+        ],
+        [
+          4.810288487533398e-07,
+          2.8478230884587674e-10,
+          0.0015538724837824702
+        ]
+      ],
+      "captured_vs_full_capsule_action_relative_error": 2.156411425386522e-07,
+      "central_difference": [
+        {
+          "epsilon_velocity_scale": 0.01,
+          "minus_gap_m": 1.3198715915565835e-06,
+          "minus_normal_velocity_m_per_s": -0.08679946024979211,
+          "minus_stiffness_branch": "inertial",
+          "negative_residual_directional_derivative_Ns_per_mps": [
+            3.224339217037623e-09,
+            -0.0,
+            -5.225966857939439e-06
+          ],
+          "plus_gap_m": 1.326597921669486e-06,
+          "plus_normal_velocity_m_per_s": -0.08673219045281239,
+          "plus_stiffness_branch": "inertial",
+          "relative_error_vs_captured_operator_action": 6.772640002313673e-06,
+          "relative_error_vs_expected_captured_action": 6.883792628470019e-06,
+          "relative_error_vs_full_capsule_hessian": 6.883792628470019e-06
+        },
+        {
+          "epsilon_velocity_scale": 0.001,
+          "minus_gap_m": 1.3228984390509105e-06,
+          "minus_normal_velocity_m_per_s": -0.0867691888624437,
+          "minus_stiffness_branch": "inertial",
+          "negative_residual_directional_derivative_Ns_per_mps": [
+            3.2243227376556983e-09,
+            -0.0,
+            -5.2259327690728965e-06
+          ],
+          "plus_gap_m": 1.323571072062049e-06,
+          "plus_normal_velocity_m_per_s": -0.08676246188274571,
+          "plus_stiffness_branch": "inertial",
+          "relative_error_vs_captured_operator_action": 3.07678579583106e-07,
+          "relative_error_vs_expected_captured_action": 3.607702820381429e-07,
+          "relative_error_vs_full_capsule_hessian": 3.607702820381429e-07
+        },
+        {
+          "epsilon_velocity_scale": 0.0001,
+          "minus_gap_m": 1.3232011238954386e-06,
+          "minus_normal_velocity_m_per_s": -0.08676616172179252,
+          "minus_stiffness_branch": "inertial",
+          "negative_residual_directional_derivative_Ns_per_mps": [
+            3.224322574434352e-09,
+            -0.0,
+            -5.225932423093819e-06
+          ],
+          "plus_gap_m": 1.3232683871964874e-06,
+          "plus_normal_velocity_m_per_s": -0.08676548902382271,
+          "plus_stiffness_branch": "inertial",
+          "relative_error_vs_captured_operator_action": 2.5753815889355465e-07,
+          "relative_error_vs_expected_captured_action": 2.9456599511233563e-07,
+          "relative_error_vs_full_capsule_hessian": 2.9456599511233563e-07
+        }
+      ],
+      "correction_velocity_m_per_s_per_alpha": [
+        -0.0010354726109653711,
+        -0.0003319431561976671,
+        -0.003362845629453659
+      ],
+      "dnormal_dalpha_per_alpha": [
+        -0.00020634084668859205,
+        0.0,
+        6.368482483330809e-08
+      ],
+      "dnormal_velocity_dalpha_per_alpha_s_inv": 0.0033634898490080014,
+      "dwitness_dalpha_m_per_alpha": [
+        -1.0317042334429603e-07,
+        -3.319431561976671e-08,
+        3.184241241665405e-11
+      ],
+      "full_action_dot_correction": 1.7570660134517362e-08,
+      "full_capsule_directional_action_Ns_per_mps": [
+        3.2243224640370435e-09,
+        0.0,
+        -5.225930883711999e-06
+      ],
+      "full_capsule_geometric_action_Ns_per_mps": [
+        4.8372478890418746e-09,
+        -0.0,
+        -1.4929631695940537e-12
+      ],
+      "gap_m": 1.3232347555458546e-06,
+      "geometric_action_dot_correction": -5.003817096883115e-12,
+      "geometric_action_over_radial_action": 0.0009256244253137029,
+      "identity": [
+        22,
+        0,
+        0,
+        1
+      ],
+      "impact_to_inertial_stiffness_ratio": 0.09999790331365895,
+      "node_id": 22,
+      "normal": [
+        -0.00030863894775120306,
+        0.0,
+        -0.9999999523709988
+      ],
+      "pair_slot": 42,
+      "radial_action_dot_correction": 1.7575663951614246e-08,
+      "radial_distance_m": 0.0005013232347555459,
+      "stiffness_branch": "inertial"
+    },
+    {
+      "analytic_radial_action_Ns_per_mps": [
+        -4.0489157146256444e-08,
+        0.0,
+        -6.878764189975229e-06
+      ],
+      "barrier_replay": {
+        "force": 0.17725356203765133,
+        "impulse": 1.7725356203765134e-05,
+        "k_impact": 62478024951.63066,
+        "k_inertial": 1270283651163.5952,
+        "radial_velocity_hessian": 0.01226285378258677,
+        "stiffness": 1270283651163.5952
+      },
+      "candidate_inverse_mass_kg_inv": 7872257.5,
+      "candidate_position_m": [
+        -2.9438499495881842e-06,
+        -1.3677765764441574e-07,
+        0.0019898649770766497
+      ],
+      "candidate_state_arithmetic": {
+        "capsule_gap_difference_rebased_minus_world_m": -5.682920800609281e-11,
+        "capsule_relative_rebased_rest_plus_u_f32_m": [
+          -2.9438499495881842e-06,
+          -1.3677765764441574e-07,
+          -0.0005001350655220449
+        ],
+        "capsule_relative_world_position_f32_m": [
+          -2.9438499495881842e-06,
+          -1.3677765764441574e-07,
+          -0.0005001351237297058
+        ],
+        "capsule_side_gap_from_rebased_rest_plus_u_f32_m": 1.4370959888765356e-07,
+        "capsule_side_gap_from_world_position_f32_m": 1.4376642809565965e-07,
+        "captured_minus_rest_plus_u_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "captured_world_position_m": [
+          -2.9438499495881842e-06,
+          -1.3677765764441574e-07,
+          0.0019898649770766497
+        ],
+        "reference_displacement_mode": 1.0,
+        "reference_displacement_u_m": [
+          -2.9438499495881842e-06,
+          -1.3677765764441574e-07,
+          -1.5134870409383439e-05
+        ],
+        "rest_plus_u_world_position_m": [
+          -2.9438499495881842e-06,
+          -1.3677765764441574e-07,
+          0.0019898649770766497
+        ],
+        "rest_position_m": [
+          0.0,
+          0.0,
+          0.002004999900236726
+        ],
+        "scope": "identity-pose capsule side arithmetic diagnostic; not a native alternate contact evaluation",
+        "u_minus_dt_times_candidate_velocity_m": [
+          0.0,
+          1.4210854715202004e-14,
+          9.094947017729282e-13
+        ]
+      },
+      "candidate_velocity_m_per_s": [
+        -0.029438499361276627,
+        -0.0013677766546607018,
+        -0.15134871006011963
+      ],
+      "captured_includes_capsule_geometry": true,
+      "captured_normal_impulse_Ns": 1.772535870259162e-05,
+      "captured_normal_velocity_m_per_s": -0.0484771728515625,
+      "captured_sample_operator_action_Ns_per_mps": [
+        8.670998746831847e-08,
+        -1.5977069776596477e-12,
+        -6.879513100953529e-06
+      ],
+      "captured_sample_operator_rows_Ns_per_mps": [
+        [
+          -3.119082066405099e-06,
+          1.6764535940017034e-11,
+          7.219886174425483e-05
+        ],
+        [
+          1.6764535940017034e-11,
+          6.613393965353978e-16,
+          2.8481523806078712e-09
+        ],
+        [
+          7.219886174425483e-05,
+          2.8481523806078712e-09,
+          0.012262429110705853
+        ]
+      ],
+      "captured_vs_full_capsule_action_relative_error": 2.3409209752407277e-07,
+      "central_difference": [
+        {
+          "epsilon_velocity_scale": 0.01,
+          "minus_gap_m": 1.4321325743338852e-07,
+          "minus_normal_velocity_m_per_s": -0.0484848886875993,
+          "minus_stiffness_branch": "inertial",
+          "negative_residual_directional_derivative_Ns_per_mps": [
+            8.671088871491871e-08,
+            -0.0,
+            -6.879493816878671e-06
+          ],
+          "plus_gap_m": 1.4433516313768543e-07,
+          "plus_normal_velocity_m_per_s": -0.04846940345139615,
+          "plus_stiffness_branch": "inertial",
+          "relative_error_vs_captured_operator_action": 2.8155460290292785e-06,
+          "relative_error_vs_expected_captured_action": 2.7764294386224215e-06,
+          "relative_error_vs_full_capsule_hessian": 2.7764294386224215e-06
+        },
+        {
+          "epsilon_velocity_scale": 0.001,
+          "minus_gap_m": 1.4371684004920848e-07,
+          "minus_normal_velocity_m_per_s": -0.04847794595154092,
+          "minus_stiffness_branch": "inertial",
+          "negative_residual_directional_derivative_Ns_per_mps": [
+            8.670999206776765e-08,
+            -0.0,
+            -6.8795121793584815e-06
+          ],
+          "plus_gap_m": 1.4382903061984417e-07,
+          "plus_normal_velocity_m_per_s": -0.0484763974279109,
+          "plus_stiffness_branch": "inertial",
+          "relative_error_vs_captured_operator_action": 2.680875398140929e-07,
+          "relative_error_vs_expected_captured_action": 1.0446932333747814e-07,
+          "relative_error_vs_full_capsule_hessian": 1.0446932333747814e-07
+        },
+        {
+          "epsilon_velocity_scale": 0.0001,
+          "minus_gap_m": 1.4376731305649256e-07,
+          "minus_normal_velocity_m_per_s": -0.048477249372109676,
+          "minus_stiffness_branch": "inertial",
+          "negative_residual_directional_derivative_Ns_per_mps": [
+            8.670998278876656e-08,
+            -0.0,
+            -6.879512416024569e-06
+          ],
+          "plus_gap_m": 1.4377853211364287e-07,
+          "plus_normal_velocity_m_per_s": -0.04847709451974669,
+          "plus_stiffness_branch": "inertial",
+          "relative_error_vs_captured_operator_action": 2.5266314399034315e-07,
+          "relative_error_vs_expected_captured_action": 7.010113368460749e-08,
+          "relative_error_vs_full_capsule_hessian": 7.010113368460749e-08
+        }
+      ],
+      "correction_velocity_m_per_s_per_alpha": [
+        -0.03589417785406113,
+        -0.00014354988525155932,
+        -0.0003496855206321925
+      ],
+      "dnormal_dalpha_per_alpha": [
+        -0.007176111755183901,
+        0.0,
+        4.2239377383829956e-05
+      ],
+      "dnormal_velocity_dalpha_per_alpha_s_inv": 0.0007742618150687703,
+      "dwitness_dalpha_m_per_alpha": [
+        -3.5880558775919506e-06,
+        -1.4354988525155932e-08,
+        2.111968869191498e-08
+      ],
+      "full_action_dot_correction": -7.067180334467089e-10,
+      "full_capsule_directional_action_Ns_per_mps": [
+        8.670999780426255e-08,
+        0.0,
+        -6.8795128980907316e-06
+      ],
+      "full_capsule_geometric_action_Ns_per_mps": [
+        1.27199154950519e-07,
+        -0.0,
+        -7.487081155025219e-10
+      ],
+      "gap_m": 1.437729224562645e-07,
+      "geometric_action_dot_correction": -4.565447278293037e-09,
+      "geometric_action_over_radial_action": 0.018491570787655832,
+      "identity": [
+        29,
+        0,
+        0,
+        1
+      ],
+      "impact_to_inertial_stiffness_ratio": 0.04918431005106618,
+      "node_id": 29,
+      "normal": [
+        -0.005886007231374546,
+        0.0,
+        -0.9999826773093983
+      ],
+      "pair_slot": 56,
+      "radial_action_dot_correction": 3.858729244846329e-09,
+      "radial_distance_m": 0.0005001437729224563,
+      "stiffness_branch": "inertial"
+    }
+  ],
+  "derivative_interpretation": {
+    "capsule_exact_smooth_side_hessian": "radial curvature n*n^T plus Eprime/rho*(I-axis*axis^T-n*n^T); Eprime=-normal_force, rho=gap+radius",
+    "captured_operator": "PSD radial curvature plus lagged-friction Hessian; friction is zero here",
+    "omitted_term": "signed capsule-distance geometric curvature; negative semidefinite on transverse tangent directions",
+    "stiffness_branch": "inertial max branch is active in both selected samples; derivative of inactive impact stiffness is zero locally",
+    "system_action": "negative derivative of the node impulse residual with respect to velocity correction"
+  },
+  "fp32_armijo_representability": {
+    "accepted": true,
+    "alpha_schedule": [
+      0.03461971509248,
+      0.01730985754624,
+      0.00865492877312,
+      0.00432746438656,
+      0.00216373219328,
+      0.00108186609664,
+      0.00054093304832,
+      0.00027046652416,
+      0.00013523326208,
+      6.761663104e-05,
+      3.380831552e-05,
+      1.690415776e-05,
+      8.45207888e-06,
+      4.22603944e-06,
+      2.11301972e-06,
+      1.05650986e-06
+    ],
+    "certified_noop": false,
+    "initial_bound": 0.03461971509248,
+    "interpretation": "binary32 arithmetic emulation reconstructs the accepted state from captured candidate u/v; it is not a second Metal execution",
+    "nodes": [
+      {
+        "accepted_displacement_assumption": "reconstructed from captured candidate u/v and the frozen trial update relation; not forced to zero",
+        "accepted_displacement_reconstructed_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "accepted_position_reconstructed_m": [
+          0.0,
+          0.0,
+          0.0020000000949949026
+        ],
+        "candidate_position_m": [
+          -1.5472788561510242e-07,
+          -1.5983204093572567e-07,
+          0.001988676842302084
+        ],
+        "candidate_velocity_m_per_s": [
+          -0.0015472789527848363,
+          -0.001598320435732603,
+          -0.11323369294404984
+        ],
+        "node_id": 22,
+        "reference_displacement_mode": 1.0,
+        "trial_update": "v'=v+alpha*dV; u'=accepted_u+dt*v'; x'=rest+u' (binary32 emulation)",
+        "trials": [
+          {
+            "alpha": 0.03461971509248,
+            "binary32_gap_m": 1.3351673260331154e-06,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -3.584787577892712e-09,
+              -1.1491749773995252e-09,
+              -1.1874362826347351e-08
+            ],
+            "trial_position_m": [
+              -1.5831267319299513e-07,
+              -1.609812159131252e-07,
+              0.0019886649679392576
+            ],
+            "trial_reference_displacement_m": [
+              -1.5831267319299513e-07,
+              -1.609812159131252e-07,
+              -1.1335011549817864e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.0015831267228350043,
+              -0.0016098122578114271,
+              -0.11335011571645737
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 0.01730985754624,
+            "binary32_gap_m": 1.3292883522808552e-06,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -1.7924008943737135e-09,
+              -5.745874886997626e-10,
+              -6.05359673500061e-09
+            ],
+            "trial_position_m": [
+              -1.5652028650947614e-07,
+              -1.6040662842442543e-07,
+              0.001988670788705349
+            ],
+            "trial_reference_displacement_m": [
+              -1.5652028650947614e-07,
+              -1.6040662842442543e-07,
+              -1.1329189874231815e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.0015652028378099203,
+              -0.001604066346772015,
+              -0.1132919043302536
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 0.00865492877312,
+            "binary32_gap_m": 1.3262615539133549e-06,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -8.961933417594992e-10,
+              -2.872866389225237e-10,
+              -3.026798367500305e-09
+            ],
+            "trial_position_m": [
+              -1.5562407895686192e-07,
+              -1.601193275746482e-07,
+              0.0019886738155037165
+            ],
+            "trial_reference_displacement_m": [
+              -1.5562407895686192e-07,
+              -1.601193275746482e-07,
+              -1.1326279491186142e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.0015562408370897174,
+              -0.0016011933330446482,
+              -0.11326279491186142
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 0.00432746438656,
+            "binary32_gap_m": 1.3248645700514317e-06,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -4.480966708797496e-10,
+              -1.4364331946126185e-10,
+              -1.6298145055770874e-09
+            ],
+            "trial_position_m": [
+              -1.5517598228598217e-07,
+              -1.5997568425518693e-07,
+              0.0019886752124875784
+            ],
+            "trial_reference_displacement_m": [
+              -1.5517598228598217e-07,
+              -1.5997568425518693e-07,
+              -1.1324824299663305e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.0015517598949372768,
+              -0.0015997568843886256,
+              -0.11324824392795563
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 0.00216373219328,
+            "binary32_gap_m": 1.3242242857813835e-06,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -2.2406254629459e-10,
+              -7.182165973063093e-11,
+              -9.313225746154785e-10
+            ],
+            "trial_position_m": [
+              -1.54951948161397e-07,
+              -1.599038625954563e-07,
+              0.0019886759109795094
+            ],
+            "trial_reference_displacement_m": [
+              -1.54951948161397e-07,
+              -1.599038625954563e-07,
+              -1.1324096703901887e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.0015495194820687175,
+              -0.0015990387182682753,
+              -0.11324097216129303
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 0.00108186609664,
+            "binary32_gap_m": 1.3237004168331623e-06,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -1.120383785746526e-10,
+              -3.5910829865315463e-11,
+              -4.656612873077393e-10
+            ],
+            "trial_position_m": [
+              -1.5483992399367708e-07,
+              -1.59867951765591e-07,
+              0.0019886763766407967
+            ],
+            "trial_reference_displacement_m": [
+              -1.5483992399367708e-07,
+              -1.59867951765591e-07,
+              -1.1323732906021178e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.0015483992174267769,
+              -0.0015986795770004392,
+              -0.11323732882738113
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 0.00054093304832,
+            "binary32_gap_m": 1.323525793850422e-06,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -5.60191892873263e-11,
+              -1.794830950530013e-11,
+              -2.3283064365386963e-10
+            ],
+            "trial_position_m": [
+              -1.5478390480438975e-07,
+              -1.5984998924523097e-07,
+              0.0019886766094714403
+            ],
+            "trial_reference_displacement_m": [
+              -1.5478390480438975e-07,
+              -1.5984998924523097e-07,
+              -1.1323551007080823e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.0015478390268981457,
+              -0.0015984999481588602,
+              -0.11323551088571548
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 0.00027046652416,
+            "binary32_gap_m": 1.323525793850422e-06,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -2.800959464366315e-11,
+              -8.981260180007666e-12,
+              -2.3283064365386963e-10
+            ],
+            "trial_position_m": [
+              -1.5475589520974609e-07,
+              -1.5984102219590568e-07,
+              0.0019886766094714403
+            ],
+            "trial_reference_displacement_m": [
+              -1.5475589520974609e-07,
+              -1.5984102219590568e-07,
+              -1.1323460057610646e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.001547559048049152,
+              -0.0015984101919457316,
+              -0.11323460191488266
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 0.00013523326208,
+            "binary32_gap_m": 1.323525793850422e-06,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -1.4011902749189176e-11,
+              -4.490630090003833e-12,
+              -2.3283064365386963e-10
+            ],
+            "trial_position_m": [
+              -1.547418975178516e-07,
+              -1.5983653156581568e-07,
+              0.0019886766094714403
+            ],
+            "trial_reference_displacement_m": [
+              -1.547418975178516e-07,
+              -1.5983653156581568e-07,
+              -1.1323414582875557e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.001547419000416994,
+              -0.0015983653720468283,
+              -0.11323414742946625
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 6.761663104e-05,
+            "binary32_gap_m": 1.323525793850422e-06,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -7.005951374594588e-12,
+              -2.2453150450019166e-12,
+              -2.3283064365386963e-10
+            ],
+            "trial_position_m": [
+              -1.5473489156647702e-07,
+              -1.5983428625077067e-07,
+              0.0019886766094714403
+            ],
+            "trial_reference_displacement_m": [
+              -1.5473489156647702e-07,
+              -1.5983428625077067e-07,
+              -1.1323391845508013e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.0015473489183932543,
+              -0.0015983429038897157,
+              -0.11323392391204834
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 3.380831552e-05,
+            "binary32_gap_m": 1.323525793850422e-06,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -3.510081114654895e-12,
+              -1.1226575225009583e-12,
+              -2.3283064365386963e-10
+            ],
+            "trial_position_m": [
+              -1.5473139569621708e-07,
+              -1.5983316359324817e-07,
+              0.0019886766094714403
+            ],
+            "trial_reference_displacement_m": [
+              -1.5473139569621708e-07,
+              -1.5983316359324817e-07,
+              -1.132338002207689e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.0015473139937967062,
+              -0.0015983316116034985,
+              -0.11323380470275879
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 1.690415776e-05,
+            "binary32_gap_m": 1.323525793850422e-06,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -1.7479351299698465e-12,
+              -5.542233338928781e-13,
+              -2.3283064365386963e-10
+            ],
+            "trial_position_m": [
+              -1.547296335502324e-07,
+              -1.5983259515905957e-07,
+              0.0019886766094714403
+            ],
+            "trial_reference_displacement_m": [
+              -1.547296335502324e-07,
+              -1.5983259515905957e-07,
+              -1.132337456510868e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.0015472964150831103,
+              -0.0015983260236680508,
+              -0.11323375254869461
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 8.45207888e-06,
+            "binary32_gap_m": 1.323525793850422e-06,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -8.810729923425242e-13,
+              -2.8421709430404007e-13,
+              -2.3283064365386963e-10
+            ],
+            "trial_position_m": [
+              -1.5472876668809477e-07,
+              -1.5983232515281998e-07,
+              0.0019886766094714403
+            ],
+            "trial_reference_displacement_m": [
+              -1.5472876668809477e-07,
+              -1.5983232515281998e-07,
+              -1.1323371836624574e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.0015472876839339733,
+              -0.001598323229700327,
+              -0.11323372274637222
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 4.22603944e-06,
+            "binary32_gap_m": 1.323525793850422e-06,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -4.547473508864641e-13,
+              -1.4210854715202004e-13,
+              -2.3283064365386963e-10
+            ],
+            "trial_position_m": [
+              -1.547283403624533e-07,
+              -1.5983218304427282e-07,
+              0.0019886766094714403
+            ],
+            "trial_reference_displacement_m": [
+              -1.547283403624533e-07,
+              -1.5983218304427282e-07,
+              -1.1323370927129872e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.0015472833765670657,
+              -0.001598321832716465,
+              -0.11323370784521103
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 2.11301972e-06,
+            "binary32_gap_m": 1.323525793850422e-06,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -2.2737367544323206e-13,
+              -7.105427357601002e-14,
+              -2.3283064365386963e-10
+            ],
+            "trial_position_m": [
+              -1.5472811298877787e-07,
+              -1.5983211198999925e-07,
+              0.0019886766094714403
+            ],
+            "trial_reference_displacement_m": [
+              -1.5472811298877787e-07,
+              -1.5983211198999925e-07,
+              -1.132337001763517e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.001547281164675951,
+              -0.001598321134224534,
+              -0.11323370039463043
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 1.05650986e-06,
+            "binary32_gap_m": 1.323292963206768e-06,
+            "gap_bits_unchanged": true,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -1.1368683772161603e-13,
+              -2.842170943040401e-14,
+              0.0
+            ],
+            "trial_position_m": [
+              -1.5472799930194014e-07,
+              -1.598320693574351e-07,
+              0.001988676842302084
+            ],
+            "trial_reference_displacement_m": [
+              -1.5472799930194014e-07,
+              -1.598320693574351e-07,
+              -1.1323369108140469e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.0015472800005227327,
+              -0.0015983207849785686,
+              -0.11323369294404984
+            ],
+            "velocity_bits_unchanged": false
+          }
+        ]
+      },
+      {
+        "accepted_displacement_assumption": "reconstructed from captured candidate u/v and the frozen trial update relation; not forced to zero",
+        "accepted_displacement_reconstructed_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "accepted_position_reconstructed_m": [
+          0.0,
+          0.0,
+          0.002004999900236726
+        ],
+        "candidate_position_m": [
+          -2.9438499495881842e-06,
+          -1.3677765764441574e-07,
+          0.0019898649770766497
+        ],
+        "candidate_velocity_m_per_s": [
+          -0.029438499361276627,
+          -0.0013677766546607018,
+          -0.15134871006011963
+        ],
+        "node_id": 29,
+        "reference_displacement_mode": 1.0,
+        "trial_update": "v'=v+alpha*dV; u'=accepted_u+dt*v'; x'=rest+u' (binary32 emulation)",
+        "trials": [
+          {
+            "alpha": 0.03461971509248,
+            "binary32_gap_m": 1.4569377526640892e-07,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -1.2426471585058607e-07,
+              -4.969678002453293e-10,
+              -1.1641532182693481e-09
+            ],
+            "trial_position_m": [
+              -3.0681146654387703e-06,
+              -1.3727462544466107e-07,
+              0.0019898638129234314
+            ],
+            "trial_reference_displacement_m": [
+              -3.0681146654387703e-06,
+              -1.3727462544466107e-07,
+              -1.5136080946831498e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.030681146308779716,
+              -0.0013727463083341718,
+              -0.15136080980300903
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 0.01730985754624,
+            "binary32_gap_m": 1.4458782970905304e-07,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -6.213213055161759e-08,
+              -2.4849100555002224e-10,
+              -4.656612873077393e-10
+            ],
+            "trial_position_m": [
+              -3.005982080139802e-06,
+              -1.3702614864996576e-07,
+              0.0019898645114153624
+            ],
+            "trial_reference_displacement_m": [
+              -3.005982080139802e-06,
+              -1.3702614864996576e-07,
+              -1.5135475223360118e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.030059821903705597,
+              -0.0013702615397050977,
+              -0.15135475993156433
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 0.00865492877312,
+            "binary32_gap_m": 1.4418037608265877e-07,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -3.1066065275808796e-08,
+              -1.2424550277501112e-10,
+              -2.3283064365386963e-10
+            ],
+            "trial_position_m": [
+              -2.974916014863993e-06,
+              -1.3690190314719075e-07,
+              0.001989864744246006
+            ],
+            "trial_reference_displacement_m": [
+              -2.974916014863993e-06,
+              -1.3690190314719075e-07,
+              -1.5135173271119129e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.029749160632491112,
+              -0.0013690190389752388,
+              -0.15135173499584198
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 0.00432746438656,
+            "binary32_gap_m": 1.4383113011717796e-07,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -1.5533032637904398e-08,
+              -6.212985681486316e-11,
+              0.0
+            ],
+            "trial_position_m": [
+              -2.9593829822260886e-06,
+              -1.368397875012306e-07,
+              0.0019898649770766497
+            ],
+            "trial_reference_displacement_m": [
+              -2.9593829822260886e-06,
+              -1.368397875012306e-07,
+              -1.5135022294998635e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.029593830928206444,
+              -0.0013683978468179703,
+              -0.1513502299785614
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 0.00216373219328,
+            "binary32_gap_m": 1.4383113011717796e-07,
+            "gap_bits_unchanged": false,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -7.766402632114477e-09,
+              -3.106492840743158e-11,
+              0.0
+            ],
+            "trial_position_m": [
+              -2.9516163522202987e-06,
+              -1.3680872257282317e-07,
+              0.0019898649770766497
+            ],
+            "trial_reference_displacement_m": [
+              -2.9516163522202987e-06,
+              -1.3680872257282317e-07,
+              -1.5134946806938387e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.02951616421341896,
+              -0.001368087250739336,
+              -0.15134947001934052
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 0.00108186609664,
+            "binary32_gap_m": 1.437729224562645e-07,
+            "gap_bits_unchanged": true,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -3.883087629219517e-09,
+              -1.553246420371579e-11,
+              0.0
+            ],
+            "trial_position_m": [
+              -2.9477330372174038e-06,
+              -1.3679319010861946e-07,
+              0.0019898649770766497
+            ],
+            "trial_reference_displacement_m": [
+              -2.9477330372174038e-06,
+              -1.3679319010861946e-07,
+              -1.5134907698666211e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.029477331787347794,
+              -0.0013679319527000189,
+              -0.15134908258914948
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 0.00054093304832,
+            "binary32_gap_m": 1.437729224562645e-07,
+            "gap_bits_unchanged": true,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -1.9415438146097586e-09,
+              -7.773337529215496e-12,
+              0.0
+            ],
+            "trial_position_m": [
+              -2.945791493402794e-06,
+              -1.3678543098194496e-07,
+              0.0019898649770766497
+            ],
+            "trial_reference_displacement_m": [
+              -2.945791493402794e-06,
+              -1.3678543098194496e-07,
+              -1.5134890418266878e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.02945791557431221,
+              -0.0013678543036803603,
+              -0.15134890377521515
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 0.00027046652416,
+            "binary32_gap_m": 1.437729224562645e-07,
+            "gap_bits_unchanged": true,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -9.706582204671577e-10,
+              -3.893774191965349e-12,
+              0.0
+            ],
+            "trial_position_m": [
+              -2.9448206078086514e-06,
+              -1.367815514186077e-07,
+              0.0019898649770766497
+            ],
+            "trial_reference_displacement_m": [
+              -2.9448206078086514e-06,
+              -1.367815514186077e-07,
+              -1.5134879504330456e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.02944820746779442,
+              -0.001367815537378192,
+              -0.1513487994670868
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 0.00013523326208,
+            "binary32_gap_m": 1.437729224562645e-07,
+            "gap_bits_unchanged": true,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -4.852154233958572e-10,
+              -1.9468870959826745e-12,
+              0.0
+            ],
+            "trial_position_m": [
+              -2.94433516501158e-06,
+              -1.3677960453151172e-07,
+              0.0019898649770766497
+            ],
+            "trial_reference_displacement_m": [
+              -2.94433516501158e-06,
+              -1.3677960453151172e-07,
+              -1.5134874956856947e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.029443353414535522,
+              -0.0013677960960194468,
+              -0.1513487547636032
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 6.761663104e-05,
+            "binary32_gap_m": 1.437729224562645e-07,
+            "gap_bits_unchanged": true,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -2.426077116979286e-10,
+              -9.663381206337363e-13,
+              0.0
+            ],
+            "trial_position_m": [
+              -2.944092557299882e-06,
+              -1.3677862398253637e-07,
+              0.0019898649770766497
+            ],
+            "trial_reference_displacement_m": [
+              -2.944092557299882e-06,
+              -1.3677862398253637e-07,
+              -1.5134874047362246e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.029440926387906075,
+              -0.0013677863171324134,
+              -0.15134873986244202
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 3.380831552e-05,
+            "binary32_gap_m": 1.437729224562645e-07,
+            "gap_bits_unchanged": true,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -1.2141754268668592e-10,
+              -4.973799150320701e-13,
+              0.0
+            ],
+            "trial_position_m": [
+              -2.943971367130871e-06,
+              -1.3677815502433077e-07,
+              0.0019898649770766497
+            ],
+            "trial_reference_displacement_m": [
+              -2.943971367130871e-06,
+              -1.3677815502433077e-07,
+              -1.5134872228372842e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.029439713805913925,
+              -0.0013677815441042185,
+              -0.15134872496128082
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 1.690415776e-05,
+            "binary32_gap_m": 1.437729224562645e-07,
+            "gap_bits_unchanged": true,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -6.070877134334296e-11,
+              -2.5579538487363607e-13,
+              0.0
+            ],
+            "trial_position_m": [
+              -2.9439106583595276e-06,
+              -1.3677791343980061e-07,
+              0.0019898649770766497
+            ],
+            "trial_reference_displacement_m": [
+              -2.9439106583595276e-06,
+              -1.3677791343980061e-07,
+              -1.5134870409383439e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.029439106583595276,
+              -0.0013677790993824601,
+              -0.15134871006011963
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 8.45207888e-06,
+            "binary32_gap_m": 1.437729224562645e-07,
+            "gap_bits_unchanged": true,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -3.0240698833949864e-11,
+              -1.1368683772161603e-13,
+              0.0
+            ],
+            "trial_position_m": [
+              -2.943880190287018e-06,
+              -1.3677777133125346e-07,
+              0.0019898649770766497
+            ],
+            "trial_reference_displacement_m": [
+              -2.943880190287018e-06,
+              -1.3677777133125346e-07,
+              -1.5134870409383439e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.02943880297243595,
+              -0.00136777781881392,
+              -0.15134871006011963
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 4.22603944e-06,
+            "binary32_gap_m": 1.437729224562645e-07,
+            "gap_bits_unchanged": true,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -1.5006662579253316e-11,
+              -5.684341886080802e-14,
+              0.0
+            ],
+            "trial_position_m": [
+              -2.9438649562507635e-06,
+              -1.367777144878346e-07,
+              0.0019898649770766497
+            ],
+            "trial_reference_displacement_m": [
+              -2.9438649562507635e-06,
+              -1.367777144878346e-07,
+              -1.5134870409383439e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.029438650235533714,
+              -0.0013677772367373109,
+              -0.15134871006011963
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 2.11301972e-06,
+            "binary32_gap_m": 1.437729224562645e-07,
+            "gap_bits_unchanged": true,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -7.503331289626658e-12,
+              -4.263256414560601e-14,
+              0.0
+            ],
+            "trial_position_m": [
+              -2.943857452919474e-06,
+              -1.3677770027697989e-07,
+              0.0019898649770766497
+            ],
+            "trial_reference_displacement_m": [
+              -2.943857452919474e-06,
+              -1.3677770027697989e-07,
+              -1.5134870409383439e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.029438575729727745,
+              -0.0013677770039066672,
+              -0.15134871006011963
+            ],
+            "velocity_bits_unchanged": false
+          },
+          {
+            "alpha": 1.05650986e-06,
+            "binary32_gap_m": 1.437729224562645e-07,
+            "gap_bits_unchanged": true,
+            "position_bits_unchanged": false,
+            "position_delta_m": [
+              -3.637978807091713e-12,
+              -1.4210854715202004e-14,
+              0.0
+            ],
+            "trial_position_m": [
+              -2.9438535875669913e-06,
+              -1.3677767185527046e-07,
+              0.0019898649770766497
+            ],
+            "trial_reference_displacement_m": [
+              -2.9438535875669913e-06,
+              -1.3677767185527046e-07,
+              -1.5134870409383439e-05
+            ],
+            "trial_velocity_m_per_s": [
+              -0.02943853661417961,
+              -0.0013677767710760236,
+              -0.15134871006011963
+            ],
+            "velocity_bits_unchanged": false
+          }
+        ]
+      }
+    ],
+    "outcome": "accepted_trial",
+    "recorded_last_trial_alpha": 1.05650986e-06,
+    "recorded_trial_count": 16,
+    "selected_alpha": 1.05650986e-06
+  },
+  "limitations": [
+    "This local capsule calculation excludes the assembled FEM stiffness, other contacts, cohesive terms, and global residual interactions.",
+    "The finite-difference replay is continuous FP64 for the captured smooth capsule-side feature. It does not reproduce all Metal rounding or feature-switch guards.",
+    "A local 1.8% operator discrepancy is not evidence by itself that it caused the global nonlinear plateau."
+  ],
+  "native_run": {
+    "execution_started": true,
+    "exit_code": 1,
+    "receipt_path": "/Users/home/cardboard-implementation-20261014/native/capsule-side-bounded-capture-045/receipt.json",
+    "receipt_sha256": "4493c6b8dab385629053e00112048e67f68bf81648c6757c6a3c1e50bf119fe2",
+    "run_interpretation": "the selected Newton trial may be accepted even when the native process later exits unsuccessfully; this receipt is run-level",
+    "source_inputs_unchanged": true,
+    "timed_out": false,
+    "wall_seconds": 120.76786899997387
+  },
+  "schema": "numi.cardboard.rigid-contact-derivative-replay.v1",
+  "scope": {
+    "accepted_material_history_mutation": false,
+    "capsule_centerline_center_z_m": 0.0024900001008063555,
+    "capsule_centerline_halfspan_y_m": 0.0015999999999999999,
+    "capsule_radius_m": 0.0005,
+    "capsule_velocity_world_m_per_s": [
+      0.0,
+      0.0,
+      -0.2
+    ],
+    "dt_s": 0.0001,
+    "friction_coefficients": {
+      "dynamic_friction": 0.0,
+      "static_friction": 0.0
+    },
+    "model": "one FEM free node against one prescribed identity-pose capsule, capsule axis world +Y; local node contact sample replay only",
+    "replay_advances_simulation": false,
+    "slop_m": 1e-05
+  },
+  "selected_contacts_total_action": {
+    "captured_operator_action_sum_Ns_per_mps": [
+      8.99343094223196e-08,
+      -2.555476950364799e-12,
+      -1.2105444578499218e-05
+    ],
+    "contact_node_ids": [
+      22,
+      29
+    ],
+    "independent_fp64_full_capsule_action_sum_Ns_per_mps": [
+      8.993432026829959e-08,
+      0.0,
+      -1.210544378180273e-05
+    ],
+    "relative_error": 2.2111828230437433e-07,
+    "scope": "sum of the two selected local sample actions, not the complete assembled contact or FEM residual"
+  }
+}

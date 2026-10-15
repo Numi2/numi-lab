@@ -1,0 +1,451 @@
+{
+  "schema": "numi.cardboard.solver-capture-analysis.v1",
+  "binding": {
+    "capture_sha256": "645ac2556b4369460974239db26ff629ac6ae6e894dc3cf899d1a4cffe3e2b94",
+    "replay_sha256": "be1f2df9660530b35ed2db1588449e8d452c25d754453c54bc821db350e7732e",
+    "analyzer_sha256": "8d247bdceeb1d06fd28f0e40fa90028d0b2faa7a149ea6a30140a2507dd01a5b"
+  },
+  "native_header": {
+    "record": "header",
+    "schema": "numi.cardboard.fem_operator_fd_capture.v1",
+    "root": 0,
+    "newton_iteration": 3,
+    "world_fingerprint_hex": "917721f57e151a08",
+    "execution_fingerprint_hex": "8575927fd8baa836",
+    "environment_count": 2,
+    "node_count_per_environment": 1458,
+    "tetrahedron_count_per_environment": 3072,
+    "center_residual_source": "pre_fgmres_private_copy",
+    "F_local_word_encoding": "high_float32_plus_low_float32_for_compensated_material_input; zero_low_for_other_materials",
+    "epsilon_values": [
+      0.03125,
+      0.015625
+    ],
+    "dt_seconds": 2.499999936844688e-05,
+    "dt_seconds_by_environment": [
+      2.499999936844688e-05,
+      2.499999936844688e-05
+    ],
+    "materials": [
+      {
+        "index": 0,
+        "name": "hajali2009_liner_hill_ideal",
+        "parameter_offset": 0,
+        "parameter_names": [
+          "density",
+          "c11",
+          "c22",
+          "c33",
+          "c12",
+          "c13",
+          "c23",
+          "g12",
+          "g13",
+          "g23",
+          "sigma_ref",
+          "hill_F",
+          "hill_G",
+          "hill_H",
+          "hill_L",
+          "hill_M",
+          "hill_N",
+          "q_floor",
+          "fb_epsilon",
+          "residual_scale"
+        ]
+      },
+      {
+        "index": 1,
+        "name": "hajali2009_medium_hill_ideal",
+        "parameter_offset": 20,
+        "parameter_names": [
+          "density",
+          "c11",
+          "c22",
+          "c33",
+          "c12",
+          "c13",
+          "c23",
+          "g12",
+          "g13",
+          "g23",
+          "sigma_ref",
+          "hill_F",
+          "hill_G",
+          "hill_H",
+          "hill_L",
+          "hill_M",
+          "hill_N",
+          "q_floor",
+          "fb_epsilon",
+          "residual_scale"
+        ]
+      },
+      {
+        "index": 2,
+        "name": "starch2007_finite_glue_elastic",
+        "parameter_offset": 40,
+        "parameter_names": [
+          "density",
+          "mu",
+          "lambda"
+        ]
+      }
+    ],
+    "parameters_by_environment": [
+      [
+        766,
+        4843625984.0,
+        2118009728.0,
+        19100028,
+        381243840,
+        228619.359375,
+        208994.90625,
+        1222000000.0,
+        166280000,
+        137280000,
+        22920000,
+        6.307661056518555,
+        2.9818649291992188,
+        -1.9818649291992188,
+        456012.5,
+        456012.5,
+        59.56081771850586,
+        1.9999999949504854e-06,
+        9.99999993922529e-09,
+        10,
+        679,
+        4524848640.0,
+        1631051264.0,
+        17900030,
+        293591136,
+        213716.359375,
+        192867.015625,
+        1039000000.0,
+        226340000,
+        198720000,
+        9391000,
+        5.612051963806152,
+        2.841099262237549,
+        -1.8410991430282593,
+        76554.5859375,
+        76554.5859375,
+        9.998966217041016,
+        1.9999999949504854e-06,
+        9.99999993922529e-09,
+        10,
+        1500,
+        153846160,
+        230769232
+      ],
+      [
+        766,
+        4843625984.0,
+        2118009728.0,
+        19100028,
+        381243840,
+        228619.359375,
+        208994.90625,
+        1222000000.0,
+        166280000,
+        137280000,
+        22920000,
+        6.307661056518555,
+        2.9818649291992188,
+        -1.9818649291992188,
+        456012.5,
+        456012.5,
+        59.56081771850586,
+        1.9999999949504854e-06,
+        9.99999993922529e-09,
+        10,
+        679,
+        4524848640.0,
+        1631051264.0,
+        17900030,
+        293591136,
+        213716.359375,
+        192867.015625,
+        1039000000.0,
+        226340000,
+        198720000,
+        9391000,
+        5.612051963806152,
+        2.841099262237549,
+        -1.8410991430282593,
+        76554.5859375,
+        76554.5859375,
+        9.998966217041016,
+        1.9999999949504854e-06,
+        9.99999993922529e-09,
+        10,
+        1500,
+        153846160,
+        230769232
+      ]
+    ],
+    "units": {
+      "position": "m",
+      "mass": "kg",
+      "velocity": "m/s",
+      "residual_and_operator_action": "N*s",
+      "element_force": "N",
+      "operator_element_force": "N/s",
+      "deformation_gradient": "dimensionless",
+      "first_piola": "Pa",
+      "tangent_per_velocity": "Pa/s",
+      "dt": "s"
+    },
+    "direction_contract": {
+      "unknown": "delta_v in m/s",
+      "local_F_direction": "grad(delta_v), per second",
+      "side_F": "F_center +/- epsilon*dt*local_F_direction",
+      "residual": "R=dt*(f_internal+f_external+m*g)-m*(v-v_old)",
+      "operator": "A*delta_v=M*delta_v-dt^2*K(delta_v)",
+      "centered_difference": "-(R_plus-R_minus)/(2*epsilon)"
+    },
+    "production_inputs_bitwise_unchanged": true,
+    "record_type": "header",
+    "native_schema": "numi.cardboard.fem-newton-capture.v1",
+    "numeric_input_contract": "native_fp32_high_low_words_summed_in_fp64_after_exact_widening",
+    "dt_s": 2.499999936844688e-05
+  },
+  "integrity": {
+    "record": "integrity",
+    "production_inputs_bitwise_unchanged": true,
+    "record_type": "integrity",
+    "inputs_unchanged": true,
+    "rich_capture_complete": true
+  },
+  "replay_returncode": 0,
+  "tetrahedra": 6144,
+  "material_tetrahedra_compared": 6144,
+  "layer_maxima": {
+    "projection_stress": {
+      "relative_error": 10.027447380070589,
+      "tet_id": 1574,
+      "environment": 0
+    },
+    "projection_state": {
+      "relative_error": 10.027447445316602,
+      "tet_id": 1574,
+      "environment": 0
+    },
+    "analytic_tangent": {
+      "relative_error": 2.2354836779631005e-05,
+      "tet_id": 1428,
+      "environment": 0
+    },
+    "frame_input": {
+      "relative_error": 8.151716454060349e-08,
+      "tet_id": 2914,
+      "environment": 0
+    },
+    "frame_stress": {
+      "relative_error": 1.3915239889971825e-07,
+      "tet_id": 2585,
+      "environment": 0
+    },
+    "frame_tangent": {
+      "relative_error": 1.3741039520464572e-07,
+      "tet_id": 2722,
+      "environment": 0
+    },
+    "element_force": {
+      "relative_error": 3.28812242084144e-07,
+      "tet_id": 1048,
+      "environment": 0
+    }
+  },
+  "stress_noise_floor_measured": false,
+  "assembled_comparison": [
+    {
+      "environment": 0,
+      "free_nodes": 1422,
+      "production_gather": {
+        "absolute_error": 1.1116984871978466e-13,
+        "reference_scale": 1.7140887925434555e-06,
+        "relative_error": 6.485652855522436e-08,
+        "noise_floor": 0.0,
+        "resolved": true
+      },
+      "mass_action_l2_Ns": 4.341843856550233e-08,
+      "stiffness_action_l2_Ns": 3.1277481690956553e-06,
+      "external_impulse_l2_Ns": 1.4149695073618076e-12,
+      "oracle_complete": true,
+      "oracle_assembled_action": {
+        "absolute_error": 4.466293392117954e-11,
+        "reference_scale": 1.714044877579154e-06,
+        "relative_error": 2.6057038824012366e-05,
+        "noise_floor": 0.0,
+        "resolved": true
+      },
+      "perturbations": [
+        {
+          "epsilon": 0.03125,
+          "side": 0,
+          "residual_assembly": {
+            "absolute_error": 5.738078672859587e-13,
+            "reference_scale": 1.6470876510592564e-06,
+            "relative_error": 3.483772505470112e-07,
+            "noise_floor": 0.0,
+            "resolved": true
+          }
+        },
+        {
+          "epsilon": 0.03125,
+          "side": 1,
+          "residual_assembly": {
+            "absolute_error": 6.967503675242103e-13,
+            "reference_scale": 1.7405348342878936e-06,
+            "relative_error": 4.0030820055909553e-07,
+            "noise_floor": 0.0,
+            "resolved": true
+          }
+        },
+        {
+          "epsilon": 0.015625,
+          "side": 0,
+          "residual_assembly": {
+            "absolute_error": 6.27438300346498e-13,
+            "reference_scale": 1.6588854323678577e-06,
+            "relative_error": 3.7822883250647754e-07,
+            "noise_floor": 0.0,
+            "resolved": true
+          }
+        },
+        {
+          "epsilon": 0.015625,
+          "side": 1,
+          "residual_assembly": {
+            "absolute_error": 7.566740496183629e-13,
+            "reference_scale": 1.712223786101007e-06,
+            "relative_error": 4.41924738904267e-07,
+            "noise_floor": 0.0,
+            "resolved": true
+          }
+        }
+      ],
+      "centered_actions": [
+        {
+          "epsilon": 0.03125,
+          "comparison": {
+            "absolute_error": 2.4889461890609255e-05,
+            "reference_scale": 2.4795372723929177e-05,
+            "relative_error": 1.0037946260267052,
+            "noise_floor": 0.0,
+            "resolved": true
+          },
+          "fd_action_l2_Ns": 3.639414691917945e-05
+        },
+        {
+          "epsilon": 0.015625,
+          "comparison": {
+            "absolute_error": 2.3344028811322914e-05,
+            "reference_scale": 2.32495340242167e-05,
+            "relative_error": 1.0040643733765928,
+            "noise_floor": 0.0,
+            "resolved": true
+          },
+          "fd_action_l2_Ns": 3.4138774206856425e-05
+        }
+      ],
+      "nonvacuous": true
+    },
+    {
+      "environment": 1,
+      "free_nodes": 1422,
+      "production_gather": {
+        "absolute_error": 0.0,
+        "reference_scale": 0.0,
+        "relative_error": null,
+        "noise_floor": 0.0,
+        "resolved": false
+      },
+      "mass_action_l2_Ns": 0.0,
+      "stiffness_action_l2_Ns": 0.0,
+      "external_impulse_l2_Ns": 2.735057672707378e-15,
+      "oracle_complete": true,
+      "oracle_assembled_action": {
+        "absolute_error": 0.0,
+        "reference_scale": 0.0,
+        "relative_error": null,
+        "noise_floor": 0.0,
+        "resolved": false
+      },
+      "perturbations": [
+        {
+          "epsilon": 0.03125,
+          "side": 0,
+          "residual_assembly": {
+            "absolute_error": 9.978106938693535e-16,
+            "reference_scale": 4.852549149479972e-09,
+            "relative_error": 2.0562608705906354e-07,
+            "noise_floor": 0.0,
+            "resolved": true
+          }
+        },
+        {
+          "epsilon": 0.03125,
+          "side": 1,
+          "residual_assembly": {
+            "absolute_error": 9.978106938693535e-16,
+            "reference_scale": 4.852549149479972e-09,
+            "relative_error": 2.0562608705906354e-07,
+            "noise_floor": 0.0,
+            "resolved": true
+          }
+        },
+        {
+          "epsilon": 0.015625,
+          "side": 0,
+          "residual_assembly": {
+            "absolute_error": 9.978106938693535e-16,
+            "reference_scale": 4.852549149479972e-09,
+            "relative_error": 2.0562608705906354e-07,
+            "noise_floor": 0.0,
+            "resolved": true
+          }
+        },
+        {
+          "epsilon": 0.015625,
+          "side": 1,
+          "residual_assembly": {
+            "absolute_error": 9.978106938693535e-16,
+            "reference_scale": 4.852549149479972e-09,
+            "relative_error": 2.0562608705906354e-07,
+            "noise_floor": 0.0,
+            "resolved": true
+          }
+        }
+      ],
+      "centered_actions": [
+        {
+          "epsilon": 0.03125,
+          "comparison": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "noise_floor": 0.0,
+            "resolved": false
+          },
+          "fd_action_l2_Ns": 0.0
+        },
+        {
+          "epsilon": 0.015625,
+          "comparison": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "noise_floor": 0.0,
+            "resolved": false
+          },
+          "fd_action_l2_Ns": 0.0
+        }
+      ],
+      "nonvacuous": false
+    }
+  ],
+  "solver_correctness": "unqualified",
+  "physical_validation": false
+}

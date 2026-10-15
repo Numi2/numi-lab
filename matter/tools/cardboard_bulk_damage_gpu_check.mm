@@ -458,7 +458,8 @@ int main(int argc, char** argv) {
         try {
             const Options options = parseOptions(argc, argv);
             const CompiledWorld world =
-                compileMaterial(numi_cardboard::robertsson2023::makeMaterial());
+                compileMaterial(
+                    numi_cardboard::robertsson2023::makeLegacyRecenteredMaterial());
             const uint32_t stateCount = world.materials[0].stateCount;
             std::cout << "state_count=" << stateCount
                       << " instructions=" << world.instructions.size()

@@ -1,0 +1,21 @@
+{
+  "schema": "numi.cardboard.shipping-prebuild-memory-screen.v1",
+  "evidence_class": "pre-mesh planning estimate; not exact geometry or native memory admission",
+  "finished_inside_dimensions_m": [0.29999999999999999,0.20000000000000001,0.20000000000000001],
+  "blank_perimeter_m": 1.0249999999999999,
+  "pitch_m": 0.0079,
+  "width_stations": 1,
+  "thickness_slices": 1,
+  "reference_pitch_intervals": 130,
+  "requested_pitch_intervals": 130,
+  "cardinality_margin": 1.25,
+  "reference_geometry_counts": {"nodes": 303640, "tetrahedra": 1037856},
+  "estimated_cardinality": {"nodes": 151820, "tetrahedra": 324330},
+  "estimated_static_arena_bytes": {"fem_node_states": 12145600, "tetrahedra": 31135680, "fgmres_vectors": 160321920, "sum": 203603200},
+  "limit_bytes": 17179869184,
+  "screen_result": "continue_to_exact_mesh_compile",
+  "estimate_method": "reference FEFCO mesh cardinality scaled by ceil(perimeter/pitch), width-station and thickness-slice ratios, then padded 25%; planning estimate only and does not model all runtime or compiler allocations",
+  "exact_compiled_arena_report_still_required": true,
+  "native_runtime_observation_still_required": true,
+  "qualification_allowed": false
+}

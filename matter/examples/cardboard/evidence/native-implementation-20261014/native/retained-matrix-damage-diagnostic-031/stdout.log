@@ -1,0 +1,1 @@
+device=Apple M4 path=production_projection_stress_and_consistent_tangent damage_set=explicit_synthetic_instrument_only physical_fem_steps=0 calibration=false

@@ -1,0 +1,653 @@
+{
+  "schema": "numi.cardboard.full-contact-true-residual-analysis.v1",
+  "physical_validation": false,
+  "strict_solver_qualification": false,
+  "cases": {
+    "contact-regional-true-residual-085": {
+      "raw_trace_sha256": "ef1a2a1fed7ad82d6925725a9c20eaea2df985ae51d1dacd25102f5bc8c2e544",
+      "total_rows": 384,
+      "healthy_rows": 32,
+      "rows_after_production_failure_excluded": 352,
+      "final_healthy_cycles": [
+        {
+          "schema": 2,
+          "root": 0,
+          "control_step": 0,
+          "newton_iteration": 0,
+          "restart_cycle": 15,
+          "final_cycle": true,
+          "restart_replacement": false,
+          "cohesive_face_count": 1,
+          "operator_scope": "full_fem_mass_bulk_cohesive_and_kinematic_rigid_self_contact",
+          "semantics": {
+            "true_l2": "norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows",
+            "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+            "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+            "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+          },
+          "environments": [
+            {
+              "true_l2": 0.0105189756,
+              "arnoldi_estimate": 0.0105189774,
+              "true_max_abs": 0.00909044407,
+              "rhs_l2": 0.0458731838,
+              "diagnostics": [
+                0.0105189774,
+                0.0458731838,
+                1,
+                0
+              ],
+              "solver_status_code": 0,
+              "operator_status_code": 0
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "root": 0,
+          "control_step": 0,
+          "newton_iteration": 1,
+          "restart_cycle": 15,
+          "final_cycle": true,
+          "restart_replacement": false,
+          "cohesive_face_count": 1,
+          "operator_scope": "full_fem_mass_bulk_cohesive_and_kinematic_rigid_self_contact",
+          "semantics": {
+            "true_l2": "norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows",
+            "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+            "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+            "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+          },
+          "environments": [
+            {
+              "true_l2": 5.52646052e-05,
+              "arnoldi_estimate": 5.52664242e-05,
+              "true_max_abs": 3.92933143e-05,
+              "rhs_l2": 0.000480357994,
+              "diagnostics": [
+                5.52664242e-05,
+                0.000480357994,
+                1,
+                0
+              ],
+              "solver_status_code": 0,
+              "operator_status_code": 0
+            }
+          ]
+        }
+      ],
+      "maximum_final_true_vs_arnoldi_relative_difference": 3.291437608959503e-05
+    },
+    "contact-scalar-true-residual-087": {
+      "raw_trace_sha256": "f8f55aba1092e282b7e1d8277f2dbaa047478792fb0cbdc95edfae813454e956",
+      "total_rows": 384,
+      "healthy_rows": 272,
+      "rows_after_production_failure_excluded": 112,
+      "final_healthy_cycles": [
+        {
+          "schema": 2,
+          "root": 0,
+          "control_step": 0,
+          "newton_iteration": 0,
+          "restart_cycle": 15,
+          "final_cycle": true,
+          "restart_replacement": false,
+          "cohesive_face_count": 1,
+          "operator_scope": "full_fem_mass_bulk_cohesive_and_kinematic_rigid_self_contact",
+          "semantics": {
+            "true_l2": "norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows",
+            "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+            "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+            "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+          },
+          "environments": [
+            {
+              "true_l2": 0.00953540299,
+              "arnoldi_estimate": 0.00953541975,
+              "true_max_abs": 0.00495365821,
+              "rhs_l2": 0.0458731838,
+              "diagnostics": [
+                0.00953541975,
+                0.0458731838,
+                1,
+                0
+              ],
+              "solver_status_code": 0,
+              "operator_status_code": 0
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "root": 0,
+          "control_step": 0,
+          "newton_iteration": 1,
+          "restart_cycle": 15,
+          "final_cycle": true,
+          "restart_replacement": false,
+          "cohesive_face_count": 1,
+          "operator_scope": "full_fem_mass_bulk_cohesive_and_kinematic_rigid_self_contact",
+          "semantics": {
+            "true_l2": "norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows",
+            "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+            "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+            "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+          },
+          "environments": [
+            {
+              "true_l2": 1.26753057e-05,
+              "arnoldi_estimate": 1.2675293e-05,
+              "true_max_abs": 4.90044567e-06,
+              "rhs_l2": 0.000101855672,
+              "diagnostics": [
+                1.2675293e-05,
+                0.000101855672,
+                1,
+                0
+              ],
+              "solver_status_code": 0,
+              "operator_status_code": 0
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "root": 0,
+          "control_step": 0,
+          "newton_iteration": 2,
+          "restart_cycle": 15,
+          "final_cycle": true,
+          "restart_replacement": false,
+          "cohesive_face_count": 1,
+          "operator_scope": "full_fem_mass_bulk_cohesive_and_kinematic_rigid_self_contact",
+          "semantics": {
+            "true_l2": "norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows",
+            "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+            "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+            "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+          },
+          "environments": [
+            {
+              "true_l2": 3.60934314e-06,
+              "arnoldi_estimate": 3.60923946e-06,
+              "true_max_abs": 1.41126066e-06,
+              "rhs_l2": 6.24111053e-05,
+              "diagnostics": [
+                3.60923946e-06,
+                6.24111053e-05,
+                1,
+                0
+              ],
+              "solver_status_code": 0,
+              "operator_status_code": 0
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "root": 0,
+          "control_step": 0,
+          "newton_iteration": 3,
+          "restart_cycle": 15,
+          "final_cycle": true,
+          "restart_replacement": false,
+          "cohesive_face_count": 1,
+          "operator_scope": "full_fem_mass_bulk_cohesive_and_kinematic_rigid_self_contact",
+          "semantics": {
+            "true_l2": "norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows",
+            "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+            "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+            "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+          },
+          "environments": [
+            {
+              "true_l2": 1.41472594e-06,
+              "arnoldi_estimate": 1.41470457e-06,
+              "true_max_abs": 5.7425018e-07,
+              "rhs_l2": 4.69702463e-05,
+              "diagnostics": [
+                1.41470457e-06,
+                4.69702463e-05,
+                1,
+                0
+              ],
+              "solver_status_code": 0,
+              "operator_status_code": 0
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "root": 0,
+          "control_step": 0,
+          "newton_iteration": 4,
+          "restart_cycle": 15,
+          "final_cycle": true,
+          "restart_replacement": false,
+          "cohesive_face_count": 1,
+          "operator_scope": "full_fem_mass_bulk_cohesive_and_kinematic_rigid_self_contact",
+          "semantics": {
+            "true_l2": "norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows",
+            "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+            "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+            "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+          },
+          "environments": [
+            {
+              "true_l2": 1.12608279e-06,
+              "arnoldi_estimate": 1.12609882e-06,
+              "true_max_abs": 3.84952614e-07,
+              "rhs_l2": 3.06787042e-05,
+              "diagnostics": [
+                1.12609882e-06,
+                3.06787042e-05,
+                0,
+                16
+              ],
+              "solver_status_code": 0,
+              "operator_status_code": 0
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "root": 0,
+          "control_step": 0,
+          "newton_iteration": 5,
+          "restart_cycle": 15,
+          "final_cycle": true,
+          "restart_replacement": false,
+          "cohesive_face_count": 1,
+          "operator_scope": "full_fem_mass_bulk_cohesive_and_kinematic_rigid_self_contact",
+          "semantics": {
+            "true_l2": "norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows",
+            "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+            "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+            "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+          },
+          "environments": [
+            {
+              "true_l2": 1.97833879e-06,
+              "arnoldi_estimate": 1.97832742e-06,
+              "true_max_abs": 8.64776666e-07,
+              "rhs_l2": 2.08214151e-05,
+              "diagnostics": [
+                1.97832742e-06,
+                2.08214151e-05,
+                0,
+                16
+              ],
+              "solver_status_code": 0,
+              "operator_status_code": 0
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "root": 0,
+          "control_step": 0,
+          "newton_iteration": 6,
+          "restart_cycle": 15,
+          "final_cycle": true,
+          "restart_replacement": false,
+          "cohesive_face_count": 1,
+          "operator_scope": "full_fem_mass_bulk_cohesive_and_kinematic_rigid_self_contact",
+          "semantics": {
+            "true_l2": "norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows",
+            "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+            "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+            "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+          },
+          "environments": [
+            {
+              "true_l2": 2.27602891e-06,
+              "arnoldi_estimate": 2.27602845e-06,
+              "true_max_abs": 1.15493071e-06,
+              "rhs_l2": 6.8027839e-06,
+              "diagnostics": [
+                2.27602845e-06,
+                6.8027839e-06,
+                0,
+                16
+              ],
+              "solver_status_code": 0,
+              "operator_status_code": 0
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "root": 0,
+          "control_step": 0,
+          "newton_iteration": 7,
+          "restart_cycle": 15,
+          "final_cycle": true,
+          "restart_replacement": false,
+          "cohesive_face_count": 1,
+          "operator_scope": "full_fem_mass_bulk_cohesive_and_kinematic_rigid_self_contact",
+          "semantics": {
+            "true_l2": "norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows",
+            "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+            "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+            "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+          },
+          "environments": [
+            {
+              "true_l2": 2.08572578e-06,
+              "arnoldi_estimate": 2.08573215e-06,
+              "true_max_abs": 7.78134677e-07,
+              "rhs_l2": 2.93912512e-06,
+              "diagnostics": [
+                2.08573215e-06,
+                2.93912512e-06,
+                0,
+                16
+              ],
+              "solver_status_code": 0,
+              "operator_status_code": 0
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "root": 0,
+          "control_step": 0,
+          "newton_iteration": 8,
+          "restart_cycle": 15,
+          "final_cycle": true,
+          "restart_replacement": false,
+          "cohesive_face_count": 1,
+          "operator_scope": "full_fem_mass_bulk_cohesive_and_kinematic_rigid_self_contact",
+          "semantics": {
+            "true_l2": "norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows",
+            "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+            "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+            "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+          },
+          "environments": [
+            {
+              "true_l2": 1.65220411e-06,
+              "arnoldi_estimate": 1.65220138e-06,
+              "true_max_abs": 8.56058762e-07,
+              "rhs_l2": 2.13046542e-06,
+              "diagnostics": [
+                1.65220138e-06,
+                2.13046542e-06,
+                0,
+                16
+              ],
+              "solver_status_code": 0,
+              "operator_status_code": 0
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "root": 0,
+          "control_step": 0,
+          "newton_iteration": 9,
+          "restart_cycle": 15,
+          "final_cycle": true,
+          "restart_replacement": false,
+          "cohesive_face_count": 1,
+          "operator_scope": "full_fem_mass_bulk_cohesive_and_kinematic_rigid_self_contact",
+          "semantics": {
+            "true_l2": "norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows",
+            "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+            "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+            "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+          },
+          "environments": [
+            {
+              "true_l2": 1.50648873e-06,
+              "arnoldi_estimate": 1.50649441e-06,
+              "true_max_abs": 7.83035091e-07,
+              "rhs_l2": 1.79306562e-06,
+              "diagnostics": [
+                1.50649441e-06,
+                1.79306562e-06,
+                0,
+                16
+              ],
+              "solver_status_code": 0,
+              "operator_status_code": 0
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "root": 0,
+          "control_step": 0,
+          "newton_iteration": 10,
+          "restart_cycle": 15,
+          "final_cycle": true,
+          "restart_replacement": false,
+          "cohesive_face_count": 1,
+          "operator_scope": "full_fem_mass_bulk_cohesive_and_kinematic_rigid_self_contact",
+          "semantics": {
+            "true_l2": "norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows",
+            "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+            "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+            "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+          },
+          "environments": [
+            {
+              "true_l2": 1.30434387e-06,
+              "arnoldi_estimate": 1.30431897e-06,
+              "true_max_abs": 6.78870435e-07,
+              "rhs_l2": 1.69015891e-06,
+              "diagnostics": [
+                1.30431897e-06,
+                1.69015891e-06,
+                0,
+                16
+              ],
+              "solver_status_code": 0,
+              "operator_status_code": 0
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "root": 0,
+          "control_step": 0,
+          "newton_iteration": 11,
+          "restart_cycle": 15,
+          "final_cycle": true,
+          "restart_replacement": false,
+          "cohesive_face_count": 1,
+          "operator_scope": "full_fem_mass_bulk_cohesive_and_kinematic_rigid_self_contact",
+          "semantics": {
+            "true_l2": "norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows",
+            "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+            "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+            "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+          },
+          "environments": [
+            {
+              "true_l2": 1.34389529e-06,
+              "arnoldi_estimate": 1.34389472e-06,
+              "true_max_abs": 7.52533083e-07,
+              "rhs_l2": 1.45713739e-06,
+              "diagnostics": [
+                1.34389472e-06,
+                1.45713739e-06,
+                0,
+                16
+              ],
+              "solver_status_code": 0,
+              "operator_status_code": 0
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "root": 0,
+          "control_step": 0,
+          "newton_iteration": 12,
+          "restart_cycle": 15,
+          "final_cycle": true,
+          "restart_replacement": false,
+          "cohesive_face_count": 1,
+          "operator_scope": "full_fem_mass_bulk_cohesive_and_kinematic_rigid_self_contact",
+          "semantics": {
+            "true_l2": "norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows",
+            "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+            "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+            "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+          },
+          "environments": [
+            {
+              "true_l2": 1.39614451e-06,
+              "arnoldi_estimate": 1.39614542e-06,
+              "true_max_abs": 7.2011818e-07,
+              "rhs_l2": 1.42387364e-06,
+              "diagnostics": [
+                1.39614542e-06,
+                1.42387364e-06,
+                0,
+                16
+              ],
+              "solver_status_code": 0,
+              "operator_status_code": 0
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "root": 0,
+          "control_step": 0,
+          "newton_iteration": 13,
+          "restart_cycle": 15,
+          "final_cycle": true,
+          "restart_replacement": false,
+          "cohesive_face_count": 1,
+          "operator_scope": "full_fem_mass_bulk_cohesive_and_kinematic_rigid_self_contact",
+          "semantics": {
+            "true_l2": "norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows",
+            "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+            "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+            "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+          },
+          "environments": [
+            {
+              "true_l2": 1.39540145e-06,
+              "arnoldi_estimate": 1.39540418e-06,
+              "true_max_abs": 7.05146533e-07,
+              "rhs_l2": 1.3968928e-06,
+              "diagnostics": [
+                1.39540418e-06,
+                1.3968928e-06,
+                0,
+                16
+              ],
+              "solver_status_code": 0,
+              "operator_status_code": 0
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "root": 0,
+          "control_step": 0,
+          "newton_iteration": 14,
+          "restart_cycle": 15,
+          "final_cycle": true,
+          "restart_replacement": false,
+          "cohesive_face_count": 1,
+          "operator_scope": "full_fem_mass_bulk_cohesive_and_kinematic_rigid_self_contact",
+          "semantics": {
+            "true_l2": "norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows",
+            "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+            "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+            "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+          },
+          "environments": [
+            {
+              "true_l2": 1.3963537e-06,
+              "arnoldi_estimate": 1.39635574e-06,
+              "true_max_abs": 7.15589806e-07,
+              "rhs_l2": 1.39651991e-06,
+              "diagnostics": [
+                1.39635574e-06,
+                1.39651991e-06,
+                0,
+                16
+              ],
+              "solver_status_code": 0,
+              "operator_status_code": 0
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "root": 0,
+          "control_step": 0,
+          "newton_iteration": 15,
+          "restart_cycle": 15,
+          "final_cycle": true,
+          "restart_replacement": false,
+          "cohesive_face_count": 1,
+          "operator_scope": "full_fem_mass_bulk_cohesive_and_kinematic_rigid_self_contact",
+          "semantics": {
+            "true_l2": "norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows",
+            "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+            "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+            "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+          },
+          "environments": [
+            {
+              "true_l2": 1.39629162e-06,
+              "arnoldi_estimate": 1.3962914e-06,
+              "true_max_abs": 7.12600524e-07,
+              "rhs_l2": 1.39632573e-06,
+              "diagnostics": [
+                1.3962914e-06,
+                1.39632573e-06,
+                0,
+                16
+              ],
+              "solver_status_code": 0,
+              "operator_status_code": 0
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "root": 0,
+          "control_step": 0,
+          "newton_iteration": 16,
+          "restart_cycle": 15,
+          "final_cycle": true,
+          "restart_replacement": false,
+          "cohesive_face_count": 1,
+          "operator_scope": "full_fem_mass_bulk_cohesive_and_kinematic_rigid_self_contact",
+          "semantics": {
+            "true_l2": "norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows",
+            "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+            "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+            "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+          },
+          "environments": [
+            {
+              "true_l2": 1.3962914e-06,
+              "arnoldi_estimate": 1.39629105e-06,
+              "true_max_abs": 7.12593135e-07,
+              "rhs_l2": 1.39632539e-06,
+              "diagnostics": [
+                1.39629105e-06,
+                1.39632539e-06,
+                0,
+                16
+              ],
+              "solver_status_code": 0,
+              "operator_status_code": 0
+            }
+          ]
+        }
+      ],
+      "maximum_final_true_vs_arnoldi_relative_difference": 2.8725448365104993e-05
+    }
+  },
+  "conclusion": "On supported healthy final cycles the fresh full-operator residual tracks the Arnoldi estimate. The scalar stagnation is a real unresolved linear residual, not a measured Arnoldi recurrence discrepancy. Regional conditioning changes the Newton direction and exposes a missing private rigid swept-clearance gate; its complete transaction fails."
+}

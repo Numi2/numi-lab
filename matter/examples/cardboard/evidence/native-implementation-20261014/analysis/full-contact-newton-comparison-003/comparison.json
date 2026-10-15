@@ -1,0 +1,327 @@
+{
+  "schema": "numi.cardboard.newton-history-comparison.v1",
+  "physical_step_accepted": false,
+  "full_history_complete": false,
+  "solver_tolerance_unchanged": 1e-07,
+  "curves": [
+    {
+      "case": "exact-vt-actions-and-state-063",
+      "source_path": "/Users/home/cardboard-implementation-20261014/native/exact-vt-actions-and-state-063/stderr.log",
+      "source_sha256": "f3d191987562eb33cd0ba410b584de535b34f4aeb080ee1f1b7243c5066a9a18",
+      "points": [
+        {
+          "newton_iteration": 0,
+          "base_residual_impulse_l2_Ns": 0.0458731838,
+          "trial_residual_impulse_l2_Ns": 0.000104660896,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 6.90807501e-05
+        },
+        {
+          "newton_iteration": 1,
+          "base_residual_impulse_l2_Ns": 0.000104660896,
+          "trial_residual_impulse_l2_Ns": 8.8551089e-05,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.144093856
+        },
+        {
+          "newton_iteration": 2,
+          "base_residual_impulse_l2_Ns": 8.8551089e-05,
+          "trial_residual_impulse_l2_Ns": 7.41881449e-05,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.139649615
+        },
+        {
+          "newton_iteration": 3,
+          "base_residual_impulse_l2_Ns": 7.41881449e-05,
+          "trial_residual_impulse_l2_Ns": 3.92159527e-05,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 1
+        },
+        {
+          "newton_iteration": 4,
+          "base_residual_impulse_l2_Ns": 3.92159527e-05,
+          "trial_residual_impulse_l2_Ns": 2.73588848e-05,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.316423893
+        },
+        {
+          "newton_iteration": 5,
+          "base_residual_impulse_l2_Ns": 2.73588848e-05,
+          "trial_residual_impulse_l2_Ns": 1.13970127e-05,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 1
+        },
+        {
+          "newton_iteration": 6,
+          "base_residual_impulse_l2_Ns": 1.13970127e-05,
+          "trial_residual_impulse_l2_Ns": 3.65435585e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 1
+        },
+        {
+          "newton_iteration": 7,
+          "base_residual_impulse_l2_Ns": 3.65435585e-06,
+          "trial_residual_impulse_l2_Ns": 1.72721764e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 1
+        },
+        {
+          "newton_iteration": 8,
+          "base_residual_impulse_l2_Ns": 1.72721764e-06,
+          "trial_residual_impulse_l2_Ns": 1.69142322e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.0547693744
+        },
+        {
+          "newton_iteration": 9,
+          "base_residual_impulse_l2_Ns": 1.69142322e-06,
+          "trial_residual_impulse_l2_Ns": 1.63537595e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.260478109
+        },
+        {
+          "newton_iteration": 10,
+          "base_residual_impulse_l2_Ns": 1.63537595e-06,
+          "trial_residual_impulse_l2_Ns": 1.43411035e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.320480436
+        },
+        {
+          "newton_iteration": 11,
+          "base_residual_impulse_l2_Ns": 1.43411035e-06,
+          "trial_residual_impulse_l2_Ns": 1.3324767e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 1
+        },
+        {
+          "newton_iteration": 12,
+          "base_residual_impulse_l2_Ns": 1.3324767e-06,
+          "trial_residual_impulse_l2_Ns": 1.27832402e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.306068033
+        },
+        {
+          "newton_iteration": 13,
+          "base_residual_impulse_l2_Ns": 1.27832402e-06,
+          "trial_residual_impulse_l2_Ns": 1.21021378e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 1
+        },
+        {
+          "newton_iteration": 14,
+          "base_residual_impulse_l2_Ns": 1.21021378e-06,
+          "trial_residual_impulse_l2_Ns": 1.20924835e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.649437726
+        },
+        {
+          "newton_iteration": 15,
+          "base_residual_impulse_l2_Ns": 1.20924835e-06,
+          "trial_residual_impulse_l2_Ns": 1.20670927e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.5
+        },
+        {
+          "newton_iteration": 16,
+          "base_residual_impulse_l2_Ns": 1.20670927e-06,
+          "trial_residual_impulse_l2_Ns": 1.20648042e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.5
+        },
+        {
+          "newton_iteration": 17,
+          "base_residual_impulse_l2_Ns": 1.20648042e-06,
+          "trial_residual_impulse_l2_Ns": 1.20647621e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.001953125
+        },
+        {
+          "newton_iteration": 18,
+          "base_residual_impulse_l2_Ns": 1.20647621e-06,
+          "trial_residual_impulse_l2_Ns": 1.20647599e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.000122070312
+        },
+        {
+          "newton_iteration": 19,
+          "base_residual_impulse_l2_Ns": 1.20647599e-06,
+          "trial_residual_impulse_l2_Ns": 1.20647587e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 3.05175781e-05
+        },
+        {
+          "newton_iteration": 20,
+          "base_residual_impulse_l2_Ns": 1.20647587e-06,
+          "trial_residual_impulse_l2_Ns": 1.20647587e-06,
+          "accepted_trial": false,
+          "status_code": 10,
+          "trial_alpha": 1.1920929e-07
+        }
+      ]
+    },
+    {
+      "case": "contact-fixed-feature-and-rollback-078",
+      "source_path": "/Users/home/cardboard-implementation-20261014/native/contact-fixed-feature-and-rollback-078/stderr.log",
+      "source_sha256": "80ff87d1b5e4d8f33738b3040c0ae0d1fffa928e47bca03a797ac9987b2ea6bb",
+      "points": [
+        {
+          "newton_iteration": 0,
+          "base_residual_impulse_l2_Ns": 0.0458731838,
+          "trial_residual_impulse_l2_Ns": 0.000101855672,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 6.43584208e-05
+        },
+        {
+          "newton_iteration": 1,
+          "base_residual_impulse_l2_Ns": 0.000101855672,
+          "trial_residual_impulse_l2_Ns": 6.24111053e-05,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.529133677
+        },
+        {
+          "newton_iteration": 2,
+          "base_residual_impulse_l2_Ns": 6.24111053e-05,
+          "trial_residual_impulse_l2_Ns": 4.697025e-05,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.214354455
+        },
+        {
+          "newton_iteration": 3,
+          "base_residual_impulse_l2_Ns": 4.697025e-05,
+          "trial_residual_impulse_l2_Ns": 3.06787042e-05,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.341876179
+        },
+        {
+          "newton_iteration": 4,
+          "base_residual_impulse_l2_Ns": 3.06787042e-05,
+          "trial_residual_impulse_l2_Ns": 2.08214151e-05,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.3228046
+        },
+        {
+          "newton_iteration": 5,
+          "base_residual_impulse_l2_Ns": 2.08214151e-05,
+          "trial_residual_impulse_l2_Ns": 6.80278345e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 1
+        },
+        {
+          "newton_iteration": 6,
+          "base_residual_impulse_l2_Ns": 6.80278345e-06,
+          "trial_residual_impulse_l2_Ns": 2.93912512e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 1
+        },
+        {
+          "newton_iteration": 7,
+          "base_residual_impulse_l2_Ns": 2.93912512e-06,
+          "trial_residual_impulse_l2_Ns": 2.13046542e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 1
+        },
+        {
+          "newton_iteration": 8,
+          "base_residual_impulse_l2_Ns": 2.13046542e-06,
+          "trial_residual_impulse_l2_Ns": 1.79306574e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 1
+        },
+        {
+          "newton_iteration": 9,
+          "base_residual_impulse_l2_Ns": 1.79306574e-06,
+          "trial_residual_impulse_l2_Ns": 1.69015891e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.25
+        },
+        {
+          "newton_iteration": 10,
+          "base_residual_impulse_l2_Ns": 1.69015891e-06,
+          "trial_residual_impulse_l2_Ns": 1.45713739e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.591601133
+        },
+        {
+          "newton_iteration": 11,
+          "base_residual_impulse_l2_Ns": 1.45713739e-06,
+          "trial_residual_impulse_l2_Ns": 1.42387364e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.25
+        },
+        {
+          "newton_iteration": 12,
+          "base_residual_impulse_l2_Ns": 1.42387364e-06,
+          "trial_residual_impulse_l2_Ns": 1.3968928e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 1
+        },
+        {
+          "newton_iteration": 13,
+          "base_residual_impulse_l2_Ns": 1.3968928e-06,
+          "trial_residual_impulse_l2_Ns": 1.39651979e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 0.5
+        },
+        {
+          "newton_iteration": 14,
+          "base_residual_impulse_l2_Ns": 1.39651979e-06,
+          "trial_residual_impulse_l2_Ns": 1.39632562e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 1
+        },
+        {
+          "newton_iteration": 15,
+          "base_residual_impulse_l2_Ns": 1.39632562e-06,
+          "trial_residual_impulse_l2_Ns": 1.39632539e-06,
+          "accepted_trial": true,
+          "status_code": 0,
+          "trial_alpha": 6.10351562e-05
+        },
+        {
+          "newton_iteration": 16,
+          "base_residual_impulse_l2_Ns": 1.39632539e-06,
+          "trial_residual_impulse_l2_Ns": 1.39632539e-06,
+          "accepted_trial": false,
+          "status_code": 10,
+          "trial_alpha": 1.1920929e-07
+        }
+      ]
+    }
+  ],
+  "image_sha256": "c21bdfe6f59ae9351a51c6d6b1ff7aef0499d56b9906471fb7a0e4ac77a6b86a"
+}

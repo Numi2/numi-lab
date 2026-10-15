@@ -32,8 +32,8 @@ inline bool validWorldDispatch(
         dispatch.physicsSubsteps > 0u &&
         dispatch.physicsSubsteps <=
             MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS &&
-        dispatch.nq > 0u &&
-        dispatch.nv > 0u &&
+        ((dispatch.nq > 0u && dispatch.nv > 0u) ||
+         (dispatch.nq == 0u && dispatch.nv == 0u)) &&
         dispatch.qStride >= dispatch.nq &&
         dispatch.vStride >= dispatch.nv &&
         dispatch.effortEnvironmentStride >= dispatch.nv &&
@@ -391,7 +391,9 @@ kernel void mr_metal_world_commit(
     const bool validPass =
         validWorldDispatch(dispatch) &&
         world.abiVersion == MR_ENGINE_ABI_VERSION &&
-        world.articulationCount > 0u &&
+        (world.articulationCount > 0u ||
+         (world.nq == 0u && world.nv == 0u &&
+          dispatch.nq == 0u && dispatch.nv == 0u)) &&
         pass.controlStep < dispatch.controlStepCount &&
         pass.physicsSubstep < dispatch.physicsSubsteps &&
         pass.reserved0 == 0u &&
@@ -402,7 +404,9 @@ kernel void mr_metal_world_commit(
     uint failureIndex = MR_INVALID_INDEX;
     float4 failureDiagnostics = float4(0.0f);
     float4 abaDiagnostics =
-        float4(kFloatMaximum, 0.0f, 0.0f, 0.0f);
+        world.articulationCount == 0u
+        ? float4(0.0f)
+        : float4(kFloatMaximum, 0.0f, 0.0f, 0.0f);
     for (uint articulation = 0u;
          articulation < world.articulationCount;
          ++articulation) {

@@ -1,0 +1,135 @@
+{
+  "schema": "numi.cardboard.accepted_geometry_animation.v1",
+  "complete": false,
+  "expected_steps": 108,
+  "accepted_steps": 45,
+  "rejected_steps": [
+    45
+  ],
+  "manifest_sha256": "a4e48df2abb0b458228fa38c852b97f2f63a904961d715969b2d01ba7957efb5",
+  "observations_sha256": "7a1b5ba373f371121939b2ae57315a766089ee1a27834cc1da1a4388ea8f6f8d",
+  "animation_sha256": "d2d0e092d3b3cfe88e359c966aa0dc07d28779d249197367273da73531a892bf",
+  "environment": 0,
+  "displayed_frames": 16,
+  "frame_stride": 3,
+  "playback_fps": 12,
+  "geometric_interpolation": false,
+  "deformation_scale": 1,
+  "fixed_camera": true,
+  "topology_decimation": false,
+  "physical_validation": false,
+  "frames": [
+    {
+      "step": 0,
+      "time_s": 2.499999936844688e-05,
+      "stage": "loading",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/compensated-native-001/output/accepted_step_000001_bent.obj",
+      "sha256": "efe42795fae668a854d0ad3a8cfc0f73fda48d70ecbbdb8c0ab24999f96d5df1"
+    },
+    {
+      "step": 3,
+      "time_s": 9.999999747378752e-05,
+      "stage": "loading",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/compensated-native-001/output/accepted_step_000004_bent.obj",
+      "sha256": "bd86d42ea6efcd3669da07323a6ba5d5d64ada79142dd6cdce702da447b27a8e"
+    },
+    {
+      "step": 6,
+      "time_s": 0.00017499999557912815,
+      "stage": "loading",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/compensated-native-001/output/accepted_step_000007_bent.obj",
+      "sha256": "8f725f06264764c7f76ba4401ee39486b330e90c298c4de0b9065e53dbcf653c"
+    },
+    {
+      "step": 9,
+      "time_s": 0.0002499999936844688,
+      "stage": "loading",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/compensated-native-001/output/accepted_step_000010_bent.obj",
+      "sha256": "cb8bd1701842eb981f61b1d60a6c23548cadf0df7f491a93142311f4c01f7ec9"
+    },
+    {
+      "step": 12,
+      "time_s": 0.00032499999178980943,
+      "stage": "loading",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/compensated-native-001/output/accepted_step_000013_bent.obj",
+      "sha256": "6fb20ed4a2c7b3080f5a9bac70c6ceaab2d49cdd3c30f540a4d1d98aca929c02"
+    },
+    {
+      "step": 15,
+      "time_s": 0.00039999998989515007,
+      "stage": "loading",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/compensated-native-001/output/accepted_step_000016_bent.obj",
+      "sha256": "6cfaf9d73ce415ef97c7005ca0103ef31ec454936652e0857bbc2681b5bccf25"
+    },
+    {
+      "step": 18,
+      "time_s": 0.0004749999880004907,
+      "stage": "loading",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/compensated-native-001/output/accepted_step_000019_bent.obj",
+      "sha256": "701028161e8c6375becb4a89a4750b5e03cddb1c99eab96e74441aa6d36c0c83"
+    },
+    {
+      "step": 21,
+      "time_s": 0.0005499999861058313,
+      "stage": "loading",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/compensated-native-001/output/accepted_step_000022_bent.obj",
+      "sha256": "41de819436efed701226f2ca6171a69a9a94b6b4d1e01e7502ff0d76a4305a90"
+    },
+    {
+      "step": 24,
+      "time_s": 0.000624999984211172,
+      "stage": "loading",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/compensated-native-001/output/accepted_step_000025_bent.obj",
+      "sha256": "8ada11fc8e2309f7e977768c9ee9eb68888752041ca548cde6e9479e5b1f9bbc"
+    },
+    {
+      "step": 27,
+      "time_s": 0.0006999999823165126,
+      "stage": "loading",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/compensated-native-001/output/accepted_step_000028_bent.obj",
+      "sha256": "9be0ad8c3157d843abb1617a76632a39076c99e6bf649fa9a93249faf317bca7"
+    },
+    {
+      "step": 30,
+      "time_s": 0.0007749999804218533,
+      "stage": "loading",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/compensated-native-001/output/accepted_step_000031_bent.obj",
+      "sha256": "77a94e07d021af6a4a9e3ae86066d52206be61047b823f37ed869d1395c51959"
+    },
+    {
+      "step": 33,
+      "time_s": 0.0008499999785271939,
+      "stage": "loading",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/compensated-native-001/output/accepted_step_000034_bent.obj",
+      "sha256": "c925bf4dfe408504a4ca519767aaa60ff8935b00108cb223103bdfbf7a23926c"
+    },
+    {
+      "step": 36,
+      "time_s": 0.0009249999766325345,
+      "stage": "loading",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/compensated-native-001/output/accepted_step_000037_bent.obj",
+      "sha256": "35dd927373119ef9560f94a61124d5452e7f360da8ec03f7d1edf256c1c21b47"
+    },
+    {
+      "step": 39,
+      "time_s": 0.0009999999747378752,
+      "stage": "loading",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/compensated-native-001/output/accepted_step_000040_bent.obj",
+      "sha256": "9f6ae672ee604a4cd5518eb832855894d5b57c82177d8ea27f3b29368a586522"
+    },
+    {
+      "step": 42,
+      "time_s": 0.0010749999728432158,
+      "stage": "loading",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/compensated-native-001/output/accepted_step_000043_bent.obj",
+      "sha256": "0f6716ee4c38f2400be9e7fe8b3c84988f6f21f2403c2a192b88bc0c2e6e2364"
+    },
+    {
+      "step": 44,
+      "time_s": 0.0011249999715801096,
+      "stage": "loading",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/compensated-native-001/output/accepted_step_000045_bent.obj",
+      "sha256": "1289048fd022d88eb1bfbaa550beade91614ba094485809a33329d99d41055b7"
+    }
+  ]
+}

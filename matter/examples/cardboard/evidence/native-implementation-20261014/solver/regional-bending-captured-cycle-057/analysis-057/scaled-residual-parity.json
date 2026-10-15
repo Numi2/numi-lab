@@ -1,0 +1,61 @@
+{
+  "schema": "numi.cardboard.capture057.scaled-residual-parity.v1",
+  "scope": {
+    "capture_root": 1,
+    "newton_iteration": 0,
+    "environment": 0,
+    "center_states_only": true,
+    "paper_tetrahedra": 1728,
+    "terminal_newton_failure_explained": false,
+    "physical_validation": false
+  },
+  "replay_contract": {
+    "F_words": "captured FP32 F high and low words; each widened separately to double in VM inputs",
+    "accepted_and_candidate_state_words": "captured FP32 values widened as passed to compiled source VM; candidate high and low retained",
+    "material_parameter_words": "captured FP32 exact roundtrip values",
+    "source_residual_vm": "snapshot 037 compiled scalar residual bytecode with compensated float arithmetic flag",
+    "builder_transforms": [
+      "paperHillScalarInitializer=true from --safeguarded-paper-initializer",
+      "paperCompensatedArithmetic=true from --compensated-paper-arithmetic",
+      "paperHillAccurateProjection=true from --accurate-paper-projection",
+      "all 13 implicit residual roots left-scaled by paperProjectionRowScales from --scaled-paper-residuals"
+    ],
+    "row_scale_equation": "strain i scale = yieldWeight_i * C_i / sigma_ref; stress i scale = yieldWeight_i; accumulated_multiplier scale=1",
+    "zero_set_changed": false
+  },
+  "native_vs_independent_source_vm": {
+    "liner": {
+      "count": 1152,
+      "max_abs_scaled_residual_difference": 4.929742175495746e-17,
+      "median_abs_scaled_residual_difference": 2.0679866865586027e-18,
+      "p99_abs_scaled_residual_difference": 4.634374176726536e-17,
+      "native_projection_residual_field": "center.projection[0]",
+      "native_projection_candidate_residual_field": "center.projection[1]",
+      "native_projection_iterations_field": "center.projection[2]"
+    },
+    "medium": {
+      "count": 576,
+      "max_abs_scaled_residual_difference": 4.995093248918253e-17,
+      "median_abs_scaled_residual_difference": 1.2739441701153681e-18,
+      "p99_abs_scaled_residual_difference": 4.8117969734936476e-17,
+      "native_projection_residual_field": "center.projection[0]",
+      "native_projection_candidate_residual_field": "center.projection[1]",
+      "native_projection_iterations_field": "center.projection[2]"
+    }
+  },
+  "interpretation": "The Newton-0 local scaled residual field matches the source-law compensated CPU VM at the same captured high/low words, to FP32 output rounding. This rules out the earlier unscaled replay as evidence of a production residual mismatch. It does not explain the terminal Newton-19 nonlinear failure; that iteration was not selected by capture 057 and requires a terminal capture.",
+  "bindings": {
+    "capture_sha256": "3a19737a8d1c0f1cf2de584d22bcd3b886e08a336ff40078483b99d23bc6e33c",
+    "prediction_sha256": "9130fe95f88d0935803626bae470691fd36ae14a08042bff68beb68473d24097",
+    "receipt_sha256": "4eefc7b24c909ef532b6d5c38108870d3621dab11e34b8794c623e825b120e53",
+    "scaled_vm_source_sha256": "a218703e129eef4e6f6187be3ef86d3cef3a631040bbbdf7eeaecdb19a45e9cf",
+    "scaled_vm_executable_sha256": "2908c3ab190d17b8e5b8029052741598b80365c6378aee0012a9d2ec2b8894d8",
+    "scaled_vm_input_sha256": "c34626467eabd08c8971a4f9d10bbb98018b9869145f0fe93b4b968218ba0458",
+    "scaled_vm_output_sha256": "1ee47eff82ff18706d413dd793a84d96bfc6f8b89bd1980c187c9198ee00dd0a",
+    "native_source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/contact-damage-bending-037",
+    "source_scaling_header_sha256": "9b05e0fffbf5f350d7c4fc98ad05f8df2029c358c857f217d107b488fc5dc001",
+    "probe_builder_sha256": "99cb8a7dc536a1c8f5b061738899c00ee8f51e89496201a6d1afcd0d65bc6775",
+    "compensated_bytecode_sha256": "0b43cb3453db8f46239dfa17442d4ac0e7e0be6ca9cdae9b703576d2abfd3d76"
+  },
+  "supersedes": "Any prior report comparing the scaled native projection norm to an unscaled residual VM; that comparison omitted --scaled-paper-residuals and is not a production mismatch."
+}

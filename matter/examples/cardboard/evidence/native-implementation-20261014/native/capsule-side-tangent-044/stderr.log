@@ -1,0 +1,4 @@
+fem_full_contact_residual_armijo_enabled={"schema":1,"root":0,"trials":24,"rigid_unknowns":0,"metric":"exact_production_volume_plus_mixed_cohesive_plus_capsule_box_plus_deformable_contact_free_dof_l2_impulse","history":"accepted_history_read_only_per_trial","private_contact_arena_bytes_cap":134217728}
+fem_residual_armijo_trace_enabled={"schema":1,"root":0,"maximum_newton_records":64}
+fem_newton_trace_skipped={"schema":1,"root":0,"reason":"newton_iteration_cap_32"}
+fem_residual_armijo_trace_stopped={"schema":1,"root":0,"reason":"record_cap_64"}

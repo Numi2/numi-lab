@@ -1071,6 +1071,54 @@ ConstitutiveCompileResult compileConstitutive(
 ) {
     ConstitutiveCompileResult result;
     result.program.material = material;
+    if (material.paperHillScalarInitializer || material.paperCompensatedArithmetic ||
+        material.paperHillAccurateProjection ||
+        material.genericCompensatedImplicitProjection) {
+        const std::array<std::string_view,20> parameters{"density","c11","c22","c33",
+            "c12","c13","c23","g12","g13","g23","sigma_ref","hill_F","hill_G",
+            "hill_H","hill_L","hill_M","hill_N","q_floor","fb_epsilon","residual_scale"};
+        const std::array<std::string_view,13> states{"ep11","ep22","ep33","ep23","ep13","ep12",
+            "sbar11","sbar22","sbar33","sbar23","sbar13","sbar12","accumulated_multiplier"};
+        bool valid=material.hint==ConstitutiveHint::generic &&
+            material.dissipationRoot==NM_INVALID_INDEX && material.parameters.size()==parameters.size() &&
+            material.internalState.size()==states.size() && material.stateImplicitRoots.size()==states.size();
+        for(unsigned i=0;valid && i<parameters.size();++i)
+            valid=material.parameters[i].name==parameters[i] &&
+                std::isfinite(material.parameters[i].defaultValue);
+        for(unsigned i=0;valid && i<states.size();++i)
+            valid=material.internalState[i].name==states[i] && material.stateImplicitRoots[i]!=NM_INVALID_INDEX;
+        const bool finiteElasticStarch = !material.paperHillScalarInitializer &&
+            !material.paperHillAccurateProjection &&
+            !material.genericCompensatedImplicitProjection &&
+            material.paperCompensatedArithmetic && material.hint==ConstitutiveHint::neoHookean &&
+            material.dissipationRoot==NM_INVALID_INDEX && material.parameters.size()==3u &&
+            material.internalState.empty() && material.stateImplicitRoots.empty() &&
+            material.parameters[0].name=="density" && material.parameters[1].name=="mu" &&
+            material.parameters[2].name=="lambda";
+        const bool genericProjectionLayout =
+            material.genericCompensatedImplicitProjection &&
+            !material.paperHillScalarInitializer &&
+            !material.paperHillAccurateProjection &&
+            material.hint==ConstitutiveHint::generic &&
+            !material.internalState.empty() &&
+            material.internalState.size()<=NM_MAX_MATERIAL_STATE &&
+            material.stateImplicitRoots.size()==material.internalState.size() &&
+            std::ranges::all_of(material.stateImplicitRoots,
+                [](const std::uint32_t root) { return root!=NM_INVALID_INDEX; });
+        if((material.genericCompensatedImplicitProjection &&
+                !genericProjectionLayout) ||
+           ((material.paperHillScalarInitializer ||
+             material.paperCompensatedArithmetic ||
+             material.paperHillAccurateProjection) &&
+                !valid && !finiteElasticStarch && !genericProjectionLayout) ||
+           (material.paperHillAccurateProjection && !material.paperCompensatedArithmetic)) {
+            result.diagnostics.push_back({Diagnostic::Severity::error,0u,0u,
+                genericProjectionLayout || finiteElasticStarch
+                    ? "accurate Hill projection requires compensated arithmetic"
+                    : "compensated arithmetic requires source-ordered 13-state Hill, stateless finite elastic starch, or a fully implicit generic bytecode layout; generic compensated projection cannot combine with Hill-only policies"});
+            return result;
+        }
+    }
     if (material.energyRoot == NM_INVALID_INDEX ||
         material.energyRoot >= material.expressions.nodes.size()) {
         result.diagnostics.push_back({
@@ -1320,7 +1368,12 @@ ConstitutiveCompileResult compileConstitutive(
         (material.dissipationRoot != NM_INVALID_INDEX
              ? NM_MATERIAL_HAS_DISSIPATION
              : 0u) |
-        (hasImplicit ? NM_MATERIAL_HAS_IMPLICIT_STATE : 0u);
+        (hasImplicit ? NM_MATERIAL_HAS_IMPLICIT_STATE : 0u) |
+        (material.paperHillScalarInitializer ? NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER : 0u) |
+        (material.paperCompensatedArithmetic ? NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC : 0u) |
+        (material.paperHillAccurateProjection ? NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION : 0u) |
+        (material.genericCompensatedImplicitProjection
+            ? NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION : 0u);
     gpu.stateInitialOffset = NM_INVALID_INDEX;
     gpu.stateUpdateProgramOffset = NM_INVALID_INDEX;
     gpu.dissipationProgram = NM_INVALID_INDEX;
@@ -1463,6 +1516,22 @@ ConstitutiveCompileResult compileConstitutive(
         sizeof(result.program.gpu.stateTransferMask),
         fingerprint
     );
+    if(material.paperHillScalarInitializer) {
+        const std::uint32_t policy=NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER;
+        fingerprint=hashBytes(&policy,sizeof(policy),fingerprint);
+    }
+    if(material.paperCompensatedArithmetic) {
+        const std::uint32_t policy=NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC;
+        fingerprint=hashBytes(&policy,sizeof(policy),fingerprint);
+    }
+    if(material.paperHillAccurateProjection) {
+        const std::uint32_t policy=NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION;
+        fingerprint=hashBytes(&policy,sizeof(policy),fingerprint);
+    }
+    if(material.genericCompensatedImplicitProjection) {
+        const std::uint32_t policy=NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION;
+        fingerprint=hashBytes(&policy,sizeof(policy),fingerprint);
+    }
     if (result.program.dissipation.has_value()) {
         fingerprint = hashBytes(
             result.program.dissipation->instructions.data(),

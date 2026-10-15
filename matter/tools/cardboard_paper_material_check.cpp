@@ -1,14 +1,19 @@
 #include "numi/matter/detail.hpp"
 #include "cardboard_paper_reference.hpp"
 #include "cardboard_paper_projection_scaling.hpp"
+#include "cardboard_paper_material_selection.hpp"
+#include "numi/matter/paper_compensated_bytecode.h"
 
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstring>
 #include <filesystem>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <map>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -35,9 +40,10 @@ std::string diagnostics(const std::vector<Diagnostic>& values) {
     return result;
 }
 
+template<class State>
 double evaluate(const ScalarBytecode& bytecode,const MaterialProgram& material,
                 const paper::Matrix& f,const paper::Matrix& h,
-                const paper::State& accepted,const paper::State& candidate) {
+                const State& accepted,const State& candidate) {
     std::vector<double> stack;
     const auto pop=[&]() {
         require(!stack.empty(),"paper bytecode stack underflow");
@@ -425,6 +431,442 @@ double maxAbs(const std::array<double,13>& values) {
     double result=0.0; for(double value:values)result=std::max(result,std::abs(value)); return result;
 }
 
+void checkParameter(const MaterialProgram& material,const std::string& name,
+                    double expected);
+
+double parameterValue(const MaterialProgram& material,const std::string& name) {
+    const auto found=std::find_if(material.parameters.begin(),material.parameters.end(),
+        [&](const Parameter& value) { return value.name==name; });
+    require(found!=material.parameters.end(),"material is missing parameter "+name);
+    return found->defaultValue;
+}
+
+struct CompiledPoint64 {
+    std::array<double,15> state{};
+    paper::Matrix firstPiolaMPa{};
+};
+
+std::array<double,15> compiledResiduals15(const ConstitutiveProgram& program,
+    const paper::Matrix& f,const std::array<double,15>& accepted,
+    const std::array<double,15>& candidate) {
+    std::array<double,15> result{};
+    const paper::Matrix zero{};
+    for(unsigned i=0;i<result.size();++i)
+        result[i]=evaluate(program.implicitResiduals.at(i),program.material,
+                           f,zero,accepted,candidate);
+    return result;
+}
+
+std::array<double,225> compiledJacobian15(const ConstitutiveProgram& program,
+    const paper::Matrix& f,const std::array<double,15>& accepted,
+    const std::array<double,15>& candidate) {
+    std::array<double,225> result{};
+    const paper::Matrix zero{};
+    for(unsigned i=0;i<result.size();++i)
+        result[i]=evaluate(program.implicitJacobians.at(i),program.material,
+                           f,zero,accepted,candidate);
+    return result;
+}
+
+double maxAbs(const std::array<double,15>& values) {
+    double result=0.0;
+    for(double value:values) result=std::max(result,std::abs(value));
+    return result;
+}
+
+bool solveLinear15(std::array<double,225> matrix,std::array<double,15> rhs,
+                   std::array<double,15>& solution) {
+    constexpr unsigned n=15u;
+    for(unsigned column=0;column<n;++column) {
+        unsigned pivot=column;
+        double magnitude=std::abs(matrix[column*n+column]);
+        for(unsigned row=column+1u;row<n;++row) {
+            const double candidate=std::abs(matrix[row*n+column]);
+            if(candidate>magnitude) { magnitude=candidate; pivot=row; }
+        }
+        if(!std::isfinite(magnitude)||magnitude<1.0e-14) return false;
+        if(pivot!=column) {
+            for(unsigned c=column;c<n;++c)
+                std::swap(matrix[column*n+c],matrix[pivot*n+c]);
+            std::swap(rhs[column],rhs[pivot]);
+        }
+        const double diagonal=matrix[column*n+column];
+        for(unsigned row=column+1u;row<n;++row) {
+            const double factor=matrix[row*n+column]/diagonal;
+            for(unsigned c=column+1u;c<n;++c)
+                matrix[row*n+c]-=factor*matrix[column*n+c];
+            rhs[row]-=factor*rhs[column];
+        }
+    }
+    for(int row=static_cast<int>(n)-1;row>=0;--row) {
+        double value=rhs[static_cast<unsigned>(row)];
+        for(unsigned c=static_cast<unsigned>(row)+1u;c<n;++c)
+            value-=matrix[static_cast<unsigned>(row)*n+c]*solution[c];
+        solution[static_cast<unsigned>(row)]=
+            value/matrix[static_cast<unsigned>(row)*n+static_cast<unsigned>(row)];
+        if(!std::isfinite(solution[static_cast<unsigned>(row)])) return false;
+    }
+    return true;
+}
+
+CompiledPoint64 projectCompiled64(const ConstitutiveProgram& program,
+    const paper::Matrix& f,const std::array<double,15>& accepted) {
+    constexpr unsigned kStates=15u;
+    std::array<double,kStates> candidate{};
+    const std::array<double,kStates> zeroState{};
+    const paper::Matrix zero{};
+    for(unsigned state=0;state<kStates;++state)
+        candidate[state]=evaluate(program.stateUpdates.at(state),program.material,
+            f,zero,accepted,zeroState);
+    const auto residualAt=[&](const std::array<double,kStates>& value) {
+        return compiledResiduals15(program,f,accepted,value);
+    };
+    bool converged=false;
+    for(unsigned iteration=0;iteration<256u;++iteration) {
+        const auto residual=residualAt(candidate);
+        const double norm=maxAbs(residual);
+        if(norm<2.0e-11) { converged=true; break; }
+        auto jacobian=compiledJacobian15(program,f,accepted,candidate);
+        std::array<double,kStates> rhs{},correction{};
+        for(unsigned row=0;row<kStates;++row) rhs[row]=-residual[row];
+        require(solveLinear15(jacobian,rhs,correction),
+            "bilinear source-fit local Newton Jacobian is singular");
+        double step=1.0;
+        bool acceptedStep=false;
+        for(unsigned backtrack=0;backtrack<24u;++backtrack) {
+            std::array<double,kStates> trial=candidate;
+            for(unsigned state=0;state<kStates;++state)
+                trial[state]+=step*correction[state];
+            const double trialNorm=maxAbs(residualAt(trial));
+            if(std::isfinite(trialNorm) && trialNorm<norm) {
+                candidate=trial;
+                acceptedStep=true;
+                break;
+            }
+            step*=0.5;
+        }
+        if(!acceptedStep) {
+            std::ostringstream detail;
+            detail<<"bilinear source-fit local Newton could not decrease residual at F11="
+                  <<number(f[0])<<" F22="<<number(f[4])<<" F33="<<number(f[8])
+                  <<" norm="<<number(norm)<<" candidate=";
+            for(double value:candidate) detail<<number(value)<<',';
+            detail<<" residuals=";
+            for(double value:residual) detail<<number(value)<<',';
+            throw std::runtime_error(detail.str());
+        }
+    }
+    const double finalNorm=maxAbs(residualAt(candidate));
+    if(!converged) converged=finalNorm<2.0e-11;
+    if(!converged) {
+        std::ostringstream detail;
+        detail<<"bilinear source-fit local projection did not converge; residual="
+              <<number(finalNorm)<<" at F11="<<number(f[0])<<" F22="<<number(f[4])
+              <<" F33="<<number(f[8])<<" candidate=";
+        for(double value:candidate) detail<<number(value)<<',';
+        detail<<" residuals=";
+        for(double value:residualAt(candidate)) detail<<number(value)<<',';
+        throw std::runtime_error(detail.str());
+    }
+    CompiledPoint64 result;
+    result.state=candidate;
+    for(unsigned component=0;component<9u;++component)
+        result.firstPiolaMPa[component]=evaluate(program.stress.at(component),
+            program.material,f,zero,accepted,candidate)*1.0e-6;
+    return result;
+}
+
+struct UniaxialPoint {
+    double stressMPa=0.0;
+    std::array<double,15> state{};
+    double lateralResidualMPa=0.0;
+};
+
+UniaxialPoint stressFreeUniaxialPoint(const ConstitutiveProgram& program,
+    const unsigned axis,const double engineeringStrain) {
+    require(axis<2u,"source-fit uniaxial test only admits MD/CD axes");
+    paper::Matrix f=paper::identity();
+    if(axis==0u) f[0]=1.0+engineeringStrain;
+    else f[4]=1.0+engineeringStrain;
+    std::array<unsigned,2> lateralComponents{};
+    std::array<unsigned,2> lateralStretches{};
+    unsigned stressComponent=0u;
+    if(axis==0u) {
+        lateralComponents={4u,8u}; lateralStretches={4u,8u}; stressComponent=0u;
+        f[4]=1.0-0.18*engineeringStrain;
+        f[8]=1.0-0.01*engineeringStrain;
+    } else {
+        lateralComponents={0u,8u}; lateralStretches={0u,8u}; stressComponent=4u;
+        f[0]=1.0-0.18*engineeringStrain;
+        f[8]=1.0-0.01*engineeringStrain;
+    }
+    const std::array<double,15> accepted{};
+    CompiledPoint64 point;
+    double lateralNorm=std::numeric_limits<double>::infinity();
+    for(unsigned iteration=0;iteration<12u;++iteration) {
+        point=projectCompiled64(program,f,accepted);
+        const std::array<double,2> residual{
+            point.firstPiolaMPa[lateralComponents[0]],
+            point.firstPiolaMPa[lateralComponents[1]]};
+        lateralNorm=std::max(std::abs(residual[0]),std::abs(residual[1]));
+        if(lateralNorm<2.0e-7) break;
+        constexpr double h=2.0e-6;
+        std::array<double,4> jacobian{};
+        for(unsigned column=0;column<2u;++column) {
+            paper::Matrix plusF=f,minusF=f;
+            plusF[lateralStretches[column]]+=h;
+            minusF[lateralStretches[column]]-=h;
+            const auto plus=projectCompiled64(program,plusF,accepted);
+            const auto minus=projectCompiled64(program,minusF,accepted);
+            for(unsigned row=0;row<2u;++row)
+                jacobian[2u*row+column]=
+                    (plus.firstPiolaMPa[lateralComponents[row]]-
+                     minus.firstPiolaMPa[lateralComponents[row]])/(2.0*h);
+        }
+        const double determinant=jacobian[0]*jacobian[3]-jacobian[1]*jacobian[2];
+        require(std::isfinite(determinant)&&std::abs(determinant)>1.0e-10,
+            "source-fit stress-free lateral tangent is singular");
+        const std::array<double,2> correction{
+            (-jacobian[3]*residual[0]+jacobian[1]*residual[1])/determinant,
+            (jacobian[2]*residual[0]-jacobian[0]*residual[1])/determinant};
+        const auto oldLateral=lateralNorm;
+        double step=1.0;
+        bool acceptedStep=false;
+        for(unsigned backtrack=0;backtrack<16u;++backtrack) {
+            paper::Matrix trialF=f;
+            for(unsigned column=0;column<2u;++column)
+                trialF[lateralStretches[column]]+=step*correction[column];
+            const auto trial=projectCompiled64(program,trialF,accepted);
+            const double trialNorm=std::max(
+                std::abs(trial.firstPiolaMPa[lateralComponents[0]]),
+                std::abs(trial.firstPiolaMPa[lateralComponents[1]]));
+            if(trialNorm<oldLateral) {
+                f=trialF;
+                acceptedStep=true;
+                break;
+            }
+            step*=0.5;
+        }
+        require(acceptedStep,"source-fit stress-free lateral solve stalled");
+    }
+    point=projectCompiled64(program,f,accepted);
+    lateralNorm=std::max(std::abs(point.firstPiolaMPa[lateralComponents[0]]),
+                         std::abs(point.firstPiolaMPa[lateralComponents[1]]));
+    require(lateralNorm<2.0e-6,
+        "source-fit uniaxial response did not reach stress-free transverse conditions: "+
+        number(lateralNorm));
+    return {point.firstPiolaMPa[stressComponent],point.state,lateralNorm};
+}
+
+struct SourceFitCurve {
+    std::string component;
+    std::string axis;
+    double yieldStrain=0.0;
+    double yieldStressMPa=0.0;
+    double endpointStrain=0.0;
+    double endpointStressMPa=0.0;
+    double elasticModulusMPa=0.0;
+    double tangentMPa=0.0;
+    double tangentLowMPa=0.0;
+    double tangentHighMPa=0.0;
+    double plasticHardeningMPa=0.0;
+    double plasticHardeningLowMPa=0.0;
+    double plasticHardeningHighMPa=0.0;
+};
+
+std::vector<std::string> splitCsvRow(const std::string& line) {
+    std::vector<std::string> fields;
+    std::string field;
+    bool quoted=false;
+    for(std::size_t index=0;index<line.size();++index) {
+        const char character=line[index];
+        if(character=='"') {
+            if(quoted && index+1u<line.size() && line[index+1u]=='"') {
+                field.push_back('"');
+                ++index;
+            } else {
+                quoted=!quoted;
+            }
+        } else if(character==',' && !quoted) {
+            fields.push_back(std::move(field));
+            field.clear();
+        } else {
+            field.push_back(character);
+        }
+    }
+    require(!quoted,"source fit CSV contains an unclosed quoted field");
+    fields.push_back(std::move(field));
+    return fields;
+}
+
+std::vector<SourceFitCurve> readSourceFitCurves(const std::filesystem::path& path) {
+    std::ifstream input(path);
+    require(input.good(),"cannot open registered Haj-Ali source-fit nodes: "+path.string());
+    std::string line;
+    require(static_cast<bool>(std::getline(input,line)),"source-fit CSV is empty");
+    const auto header=splitCsvRow(line);
+    const auto column=[&](const std::string& name) {
+        const auto found=std::find(header.begin(),header.end(),name);
+        require(found!=header.end(),"source-fit CSV lacks column "+name);
+        return static_cast<std::size_t>(std::distance(header.begin(),found));
+    };
+    const std::size_t componentColumn=column("component");
+    const std::size_t axisColumn=column("axis");
+    const std::size_t roleColumn=column("point_role");
+    const std::size_t strainColumn=column("strain_mm_per_mm");
+    const std::size_t stressColumn=column("stress_MPa");
+    const std::size_t elasticColumn=column("table2_elastic_modulus_MPa");
+    const std::size_t tangentColumn=column("postyield_tangent_MPa");
+    const std::size_t tangentLowColumn=column("postyield_tangent_low_MPa");
+    const std::size_t tangentHighColumn=column("postyield_tangent_high_MPa");
+    const std::size_t hardeningColumn=column("uniaxial_plastic_hardening_modulus_MPa");
+    const std::size_t hardeningLowColumn=column("uniaxial_plastic_hardening_modulus_low_MPa");
+    const std::size_t hardeningHighColumn=column("uniaxial_plastic_hardening_modulus_high_MPa");
+    std::map<std::string,SourceFitCurve> curves;
+    while(std::getline(input,line)) {
+        if(line.empty()) continue;
+        const auto fields=splitCsvRow(line);
+        require(fields.size()==header.size(),"source-fit CSV row has an unexpected field count");
+        const std::string component=fields[componentColumn];
+        const std::string axis=fields[axisColumn];
+        auto& curve=curves[component+"/"+axis];
+        curve.component=component;
+        curve.axis=axis;
+        const auto value=[&](const std::size_t index) { return std::stod(fields[index]); };
+        curve.elasticModulusMPa=value(elasticColumn);
+        curve.tangentMPa=value(tangentColumn);
+        curve.tangentLowMPa=value(tangentLowColumn);
+        curve.tangentHighMPa=value(tangentHighColumn);
+        curve.plasticHardeningMPa=value(hardeningColumn);
+        curve.plasticHardeningLowMPa=value(hardeningLowColumn);
+        curve.plasticHardeningHighMPa=value(hardeningHighColumn);
+        if(fields[roleColumn]=="published_Table_1_tensile_yield_anchor") {
+            curve.yieldStrain=value(strainColumn);
+            curve.yieldStressMPa=value(stressColumn);
+        } else if(fields[roleColumn]=="digitized_bilinear_fit_endpoint") {
+            curve.endpointStrain=value(strainColumn);
+            curve.endpointStressMPa=value(stressColumn);
+        }
+    }
+    require(curves.size()==4u,"registered source-fit CSV must contain the four liner/medium MD/CD curves");
+    std::vector<SourceFitCurve> result;
+    for(auto& [key,curve]:curves) {
+        (void)key;
+        require(curve.endpointStrain>curve.yieldStrain &&
+                    curve.endpointStressMPa>curve.yieldStressMPa &&
+                    curve.elasticModulusMPa>curve.tangentHighMPa,
+                "source-fit series is missing ordered yield/endpoint values");
+        const double derived=curve.elasticModulusMPa*curve.tangentMPa/
+            (curve.elasticModulusMPa-curve.tangentMPa);
+        require(std::abs(derived-curve.plasticHardeningMPa)<1.0e-8*std::max(1.0,derived),
+                "registered uniaxial H does not follow H=E*Et/(E-Et)");
+        result.push_back(curve);
+    }
+    return result;
+}
+
+void checkBilinearFitMaterial(const MaterialProgram& fit,
+    const MaterialProgram& ideal,const paper::MaterialKind kind,
+    const std::vector<SourceFitCurve>& curves) {
+    const bool liner=kind==paper::MaterialKind::liner;
+    const std::string expectedName=liner
+        ?"hajali2009_liner_hill_bilinear_fit"
+        :"hajali2009_medium_hill_bilinear_fit";
+    require(fit.name==expectedName,"bilinear fit asset identity differs from registered role");
+    require(fit.internalState.size()==15u && fit.stateImplicitRoots.size()==15u &&
+                fit.stateUpdateRoots.size()==15u,
+            "bilinear fit asset must append two directional hardening histories to the Hill program");
+    for(const char* name:{"density","c11","c22","c33","c12","c13","c23",
+                           "g12","g13","g23","sigma_ref","hill_F","hill_G",
+                           "hill_H","hill_L","hill_M","hill_N","q_floor",
+                           "fb_epsilon","residual_scale"})
+        checkParameter(fit,name,parameterValue(ideal,name));
+    checkParameter(fit,"hardening_weight_scale",1.0e-3);
+    const std::string component=liner?"liner":"medium_NSSC";
+    const auto findCurve=[&](const std::string& axis)->const SourceFitCurve& {
+        const auto found=std::find_if(curves.begin(),curves.end(),[&](const auto& curve) {
+            return curve.component==component && curve.axis==axis;
+        });
+        require(found!=curves.end(),"registered source-fit CSV lacks "+component+" "+axis);
+        return *found;
+    };
+    for(const auto axis:{"MD","CD"}) {
+        const auto& curve=findCurve(axis);
+        const std::string hardeningName=std::string("hardening_")+(
+            std::string_view(axis)=="MD"?"md":"cd");
+        checkParameter(fit,hardeningName,curve.plasticHardeningMPa*1.0e6);
+        require(curve.plasticHardeningLowMPa>0.0 &&
+                    curve.plasticHardeningMPa>=curve.plasticHardeningLowMPa &&
+                    curve.plasticHardeningMPa<=curve.plasticHardeningHighMPa,
+                "digitized hardening point estimate is outside its reported pixel interval");
+    }
+    const auto compiled=detail::compileConstitutive(fit,NM_EXPRESSION_STACK_CAPACITY);
+    require(compiled.succeeded(),"generic source-fit Hill material did not compile: "+
+        diagnostics(compiled.diagnostics));
+    require(compiled.program.implicitResiduals.size()==15u &&
+                compiled.program.implicitJacobians.size()==225u &&
+                compiled.program.stressStateDerivatives.size()==135u,
+            "source-fit material must use the generic 15-state projection/tangent program");
+
+    for(const auto axis:{"MD","CD"}) {
+        const auto& curve=findCurve(axis);
+        const double span=curve.endpointStrain-curve.yieldStrain;
+        const double strainA=curve.yieldStrain+0.30*span;
+        const double strainB=curve.yieldStrain+0.70*span;
+        const auto a=stressFreeUniaxialPoint(compiled.program,
+            std::string_view(axis)=="MD"?0u:1u,strainA);
+        const auto b=stressFreeUniaxialPoint(compiled.program,
+            std::string_view(axis)=="MD"?0u:1u,strainB);
+        require(a.state[12]>1.0e-7 && b.state[12]>a.state[12],
+            "source-fit uniaxial test did not traverse positive plastic flow");
+        const double observed=(b.stressMPa-a.stressMPa)/(strainB-strainA);
+        const double relative=std::abs(observed-curve.tangentMPa)/curve.tangentMPa;
+        const double intervalPadding=0.005*curve.tangentMPa;
+        const bool insideDigitizedInterval=
+            observed>=curve.tangentLowMPa-intervalPadding &&
+            observed<=curve.tangentHighMPa+intervalPadding;
+        std::cout<<fit.name<<" axis="<<axis<<" observed_total_tangent_MPa="
+            <<number(observed)<<" source_fit_Et_MPa="<<number(curve.tangentMPa)
+            <<" source_fit_pixel_interval_MPa=["<<number(curve.tangentLowMPa)<<','
+            <<number(curve.tangentHighMPa)<<"] relative_error="<<number(relative)
+            <<" transverse_stress_max_MPa="<<number(std::max(a.lateralResidualMPa,
+                                                               b.lateralResidualMPa))<<"\n";
+        require(insideDigitizedInterval,
+            "compiled source-fit law's observed uniaxial total-stress slope misses the digitized tangent interval: "+
+            fit.name+" "+axis+" error="+number(relative));
+    }
+}
+
+void checkMaterialSelectionDefaults(const std::filesystem::path& materialDirectory) {
+    using numi::cardboard::paper_materials::selectPaths;
+    const auto ordinary=selectPaths(materialDirectory,"literature2009",false);
+    require(ordinary.liner.filename()=="hajali2009_liner_hill_bilinear_fit.nmatter" &&
+                ordinary.medium.filename()=="hajali2009_medium_hill_bilinear_fit.nmatter",
+            "ordinary literature2009 default does not select source-fit bilinear materials");
+    const auto overlay=selectPaths(materialDirectory,"literature2009",true);
+    require(overlay.liner.filename()=="hajali2009_liner_hill_ideal.nmatter" &&
+                overlay.medium.filename()=="hajali2009_medium_hill_ideal.nmatter",
+            "retained-matrix overlay base must remain the ideal-Hill assets");
+    const std::filesystem::path explicitLiner="custom/liner.nmatter";
+    const auto explicitPaths=selectPaths(materialDirectory,"literature2009",false,
+                                         explicitLiner,{});
+    require(explicitPaths.liner==explicitLiner &&
+                explicitPaths.medium.filename()=="hajali2009_medium_hill_bilinear_fit.nmatter",
+            "explicit material path was overridden while filling an ordinary default");
+    const auto explicitOverlay=selectPaths(materialDirectory,"literature2009",true,
+                                           explicitLiner,{});
+    require(explicitOverlay.liner==explicitLiner &&
+                explicitOverlay.medium.filename()=="hajali2009_medium_hill_ideal.nmatter",
+            "explicit material path was overridden while selecting an overlay base");
+    require(numi::cardboard::paper_materials::isBilinearFitIdentity(
+                "hajali2009_liner_hill_bilinear_fit") &&
+                numi::cardboard::paper_materials::isBilinearFitIdentity(
+                "hajali2009_medium_hill_bilinear_fit") &&
+                !numi::cardboard::paper_materials::isBilinearFitIdentity(
+                "hajali2009_liner_hill_ideal"),
+            "bilinear/ideal overlay compatibility identity guard is incorrect");
+}
+
 paper::Matrix compiledAlgorithmicTangent(const ConstitutiveProgram& program,
     const paper::Matrix& f,const paper::Matrix& h,const paper::State& accepted,
     const paper::State& candidate) {
@@ -669,6 +1111,156 @@ void checkLocalMaterialBudget(const MaterialProgram& material) {
         require(diagnostics(rejected.diagnostics).find("local material Newton iteration budget")!=std::string::npos,
             "invalid local material Newton budget rejection lacks targeted diagnostic");
     }
+}
+
+void checkScalarInitializerAdmission(const MaterialProgram& material) {
+    auto initialized=material;
+    initialized.paperHillScalarInitializer=true;
+    CompileOptions options;
+    options.maximumRateExponent=0u;
+    options.emitSpecializedMetal=false;
+    const auto original=compileWorld(oneTetWorld(material),options);
+    const auto candidate=compileWorld(oneTetWorld(initialized),options);
+    require(original.succeeded()&&candidate.succeeded(),"scalar initializer admission failed");
+    require((candidate.world.materials.at(0).flags&NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER)!=0u,
+        "scalar initializer policy was lost during compilation");
+    require(candidate.world.fingerprint!=original.world.fingerprint&&
+        candidate.world.physicsFingerprint!=original.world.physicsFingerprint,
+        "scalar initializer policy was not fingerprinted");
+    require(candidate.world.scalarPrograms.size()==original.world.scalarPrograms.size()&&
+        candidate.world.instructions.size()==original.world.instructions.size(),
+        "initializer changed authored equation programs");
+    require(std::memcmp(candidate.world.instructions.data(),original.world.instructions.data(),
+        original.world.instructions.size()*sizeof(NMExpressionInstructionGPU))==0,
+        "initializer changed authored physical equations");
+    auto invalid=initialized;
+    invalid.parameters.front().name="unsupported_layout";
+    require(!detail::compileConstitutive(invalid,NM_EXPRESSION_STACK_CAPACITY).succeeded(),
+        "initializer admitted an unsupported parameter layout");
+    invalid=initialized;
+    invalid.stateImplicitRoots.pop_back();
+    require(!detail::compileConstitutive(invalid,NM_EXPRESSION_STACK_CAPACITY).succeeded(),
+        "initializer admitted an incomplete implicit system");
+    auto accurate=material;
+    accurate.paperCompensatedArithmetic=true;
+    const auto accurateCook=compileWorld(oneTetWorld(accurate),options);
+    require(accurateCook.succeeded(),"compensated arithmetic admission failed");
+    require(accurateCook.world.physicsFingerprint!=original.world.physicsFingerprint,
+        "compensated arithmetic policy was not fingerprinted");
+    for(const auto& program:accurateCook.world.scalarPrograms)
+        require((program.flags&2u)!=0u,"compensated policy was lost from a scalar program");
+    auto tight=accurate;
+    tight.paperHillAccurateProjection=true;
+    const auto tightCook=compileWorld(oneTetWorld(tight),options);
+    require(tightCook.succeeded() &&
+        tightCook.world.physicsFingerprint!=accurateCook.world.physicsFingerprint,
+        "accurate Hill projection was not admitted with a distinct execution identity");
+    require(tightCook.world.instructions.size()==accurateCook.world.instructions.size() &&
+        std::memcmp(tightCook.world.instructions.data(),accurateCook.world.instructions.data(),
+            tightCook.world.instructions.size()*sizeof(NMExpressionInstructionGPU))==0,
+        "accurate Hill projection changed the authored law");
+    auto tightInvalid=tight;
+    tightInvalid.paperCompensatedArithmetic=false;
+    require(!detail::compileConstitutive(tightInvalid,NM_EXPRESSION_STACK_CAPACITY).succeeded(),
+        "accurate Hill projection admitted unresolved scalar arithmetic");
+    const std::array<float,9> identityF{1,0,0,0,1,0,0,0,1},zero{};
+    const auto& world=accurateCook.world;
+    std::vector<float> parameters;
+    for(const auto& parameter:world.parameters)parameters.push_back(parameter.valueAndBounds.x);
+    for(unsigned i=0;i<9u;++i) {
+        bool valid=true;
+        const float stress=nmPaperCompensatedBytecode<0u>(world.scalarPrograms[world.materials[0].stressProgramOffset+i],
+            world.instructions.data(),parameters.data(),world.stateInitials.data(),world.stateInitials.data(),
+            identityF.data(),zero.data(),zero.data(),1e-4f,293.15f,valid);
+        require(valid&&std::abs(stress)<1e-5f,"compensated bytecode violated stress-free reference");
+    }
+    // A deformation smaller than one FP32 ULP at identity must still produce
+    // the authored elastic trial state. This is the failure seen in native
+    // residual sweeps; computing the bytecode accurately after discarding the
+    // deformation's low word cannot repair it.
+    std::array<float,9> lowF{};
+    lowF[0]=1e-8f;
+    for(unsigned component=0u;component<3u;++component) {
+        bool valid=true;
+        const auto scalar=world.scalarPrograms[world.materials[0].stateUpdateProgramOffset+6u+component];
+        const float actual=nmPaperCompensatedBytecode<0u>(scalar,world.instructions.data(),
+            parameters.data(),world.stateInitials.data(),world.stateInitials.data(),
+            identityF.data(),zero.data(),zero.data(),1e-4f,293.15f,valid,nullptr,lowF.data());
+        const unsigned stiffnessIndex=component==0u?1u:(component==1u?4u:5u);
+        const double delta=double(lowF[0]);
+        const double expected=double(parameters[stiffnessIndex])*(delta+0.5*delta*delta)/double(parameters[10]);
+        require(valid&&std::abs(double(actual)-expected)<1e-12,
+            "two-word deformation was lost before the authored trial state");
+        valid=true;
+        const float discarded=nmPaperCompensatedBytecode<0u>(scalar,world.instructions.data(),
+            parameters.data(),world.stateInitials.data(),world.stateInitials.data(),
+            identityF.data(),zero.data(),zero.data(),1e-4f,293.15f,valid);
+        require(valid&&discarded==0.0f,"high-only precision-loss control did not exercise zero strain");
+    }
+}
+
+void checkCompensatedStarch(const MaterialProgram& source) {
+    auto candidate=source;
+    candidate.paperCompensatedArithmetic=true;
+    CompileOptions options;
+    options.maximumRateExponent=0u;
+    options.emitSpecializedMetal=false;
+    const auto original=compileWorld(oneTetWorld(source),options);
+    const auto accurate=compileWorld(oneTetWorld(candidate),options);
+    require(original.succeeded()&&accurate.succeeded(),
+        "compensated finite-starch admission failed: "+diagnostics(accurate.diagnostics));
+    require(accurate.world.instructions.size()==original.world.instructions.size()&&
+        std::memcmp(accurate.world.instructions.data(),original.world.instructions.data(),
+            original.world.instructions.size()*sizeof(NMExpressionInstructionGPU))==0,
+        "compensated starch arithmetic changed authored instructions");
+    const auto& world=accurate.world;
+    const auto& material=world.materials[0];
+    std::vector<float> parameters;
+    for(const auto& p:world.parameters)parameters.push_back(p.valueAndBounds.x);
+    const double mu=parameters[1],lambda=parameters[2];
+    for(double delta:{-0.15,-1e-6,-1e-8,0.0,1e-8,1e-6,0.01}) {
+        std::array<float,9> f{1,0,0,0,1,0,0,0,1},low{},h{},zero{};
+        f[0]=float(1+delta);low[0]=float((1+delta)-double(f[0]));h[0]=1;
+        const double strain=(double(f[0])-1)+double(low[0]);
+        const double stretch=1+strain,logJ=std::log1p(strain);
+        const std::array<double,9> stress{
+            mu*strain*(2+strain)/stretch+lambda*logJ/stretch,0,0,
+            0,lambda*logJ,0,0,0,lambda*logJ};
+        const std::array<double,9> tangent{
+            mu+(mu+lambda*(1-logJ))/(stretch*stretch),0,0,
+            0,lambda/stretch,0,0,0,lambda/stretch};
+        for(unsigned component=0;component<9u;++component) {
+            bool valid=true;
+            const float actual=nmPaperCompensatedBytecode<0u>(
+                world.scalarPrograms[material.stressProgramOffset+component],world.instructions.data(),
+                parameters.data(),static_cast<const float*>(nullptr),static_cast<const float*>(nullptr),
+                f.data(),h.data(),zero.data(),1e-4f,293.15f,
+                valid,nullptr,low.data());
+            require(valid&&std::abs(double(actual)-stress[component])<
+                2e-7*std::max(1.0,std::abs(stress[component])),
+                "two-word starch stress differs from independent Neo-Hookean response delta="+
+                    number(delta)+" component="+std::to_string(component)+" actual="+number(actual)+
+                    " expected="+number(stress[component]));
+            valid=true;
+            const float actualT=nmPaperCompensatedBytecode<0u>(
+                world.scalarPrograms[material.tangentProgramOffset+component],world.instructions.data(),
+                parameters.data(),static_cast<const float*>(nullptr),static_cast<const float*>(nullptr),
+                f.data(),h.data(),zero.data(),1e-4f,293.15f,
+                valid,nullptr,low.data());
+            require(valid&&std::abs(double(actualT)-tangent[component])<
+                2e-7*std::max(1.0,std::abs(tangent[component])),
+                "two-word starch derivative differs from independent Neo-Hookean response delta="+
+                    number(delta)+" component="+std::to_string(component)+" actual="+number(actualT)+
+                    " expected="+number(tangent[component]));
+        }
+    }
+    candidate.paperHillScalarInitializer=true;
+    require(!detail::compileConstitutive(candidate,NM_EXPRESSION_STACK_CAPACITY).succeeded(),
+        "Hill initializer admitted stateless starch");
+    candidate.paperHillScalarInitializer=false;
+    candidate.paperHillAccurateProjection=true;
+    require(!detail::compileConstitutive(candidate,NM_EXPRESSION_STACK_CAPACITY).succeeded(),
+        "accurate Hill projection admitted stateless starch");
 }
 
 void checkParameter(const MaterialProgram& material,const std::string& name,double expected) {
@@ -976,6 +1568,15 @@ int main(int argc,char** argv) {
         require(argc<=3,"expected optional liner and medium material paths");
         const MaterialProgram linerSource=parse(linerPath);
         const MaterialProgram mediumSource=parse(mediumPath);
+        checkMaterialSelectionDefaults(root/"materials");
+        const auto fitCurves=readSourceFitCurves(
+            root/"examples/cardboard/source-data/haj_ali_2009_bilinear_tension_fit_nodes.csv");
+        const auto linerFit=parse(root/"materials/hajali2009_liner_hill_bilinear_fit.nmatter");
+        const auto mediumFit=parse(root/"materials/hajali2009_medium_hill_bilinear_fit.nmatter");
+        checkBilinearFitMaterial(linerFit,parse(root/"materials/hajali2009_liner_hill_ideal.nmatter"),
+            paper::MaterialKind::liner,fitCurves);
+        checkBilinearFitMaterial(mediumFit,parse(root/"materials/hajali2009_medium_hill_ideal.nmatter"),
+            paper::MaterialKind::medium,fitCurves);
         checkDualRootInitialization();
         checkComplementarityBranches();
         checkAuthoredSource(linerSource,paper::liner);
@@ -983,6 +1584,9 @@ int main(int argc,char** argv) {
         checkProductionMixedProjectionTrace(linerSource);
         checkProductionMixedProjectionTrace(mediumSource);
         checkLocalMaterialBudget(linerSource);
+        checkScalarInitializerAdmission(linerSource);
+        checkScalarInitializerAdmission(mediumSource);
+        checkCompensatedStarch(parse(linerPath.parent_path()/"starch2007_finite_glue_elastic.nmatter"));
         print(paper::liner,checkReturnMapping(paper::MaterialKind::liner));
         print(paper::medium,checkReturnMapping(paper::MaterialKind::medium));
         std::cout<<"checks="<<checks<<" status=pass scope=independent_fp64_oracle_and_matter_compiler_only\n";

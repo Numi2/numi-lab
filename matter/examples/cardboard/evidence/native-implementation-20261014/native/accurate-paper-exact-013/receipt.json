@@ -1,0 +1,7 @@
+{
+  "exit_code": 1,
+  "execution_started": false,
+  "stage": "input-seal",
+  "reason": "Selected executable path missing; actual agent compile target was standalone build-cardboard, not integrated build-cardboard-world/matter",
+  "finished_at_utc": "2026-10-14T18:46:52.402157+00:00"
+}

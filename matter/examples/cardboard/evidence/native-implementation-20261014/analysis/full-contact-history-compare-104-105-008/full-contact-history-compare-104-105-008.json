@@ -1,0 +1,139 @@
+{
+  "attempts": {
+    "control": {
+      "accepted_transactions": 2,
+      "exit_code": 1,
+      "rollback": [
+        {
+          "accepted": true,
+          "attempt_index": 0,
+          "rollback": "not_applicable_accepted_transaction"
+        },
+        {
+          "accepted": true,
+          "attempt_index": 1,
+          "rollback": "not_applicable_accepted_transaction"
+        }
+      ],
+      "timed_out": false,
+      "transactions": 2
+    },
+    "diagnostic_enabled": {
+      "accepted_transactions": 2,
+      "exit_code": 1,
+      "rollback": [
+        {
+          "accepted": true,
+          "attempt_index": 0,
+          "rollback": "not_applicable_accepted_transaction"
+        },
+        {
+          "accepted": true,
+          "attempt_index": 1,
+          "rollback": "not_applicable_accepted_transaction"
+        }
+      ],
+      "timed_out": false,
+      "transactions": 2
+    }
+  },
+  "differing_files": [],
+  "files": {
+    "control": {
+      "transaction-000000-after.bin": {
+        "sha256": "90b9918d6700a93a95dfcec7b36a182a3bd3d07d29994d5da585fbdda3415b6b",
+        "size_bytes": 936467
+      },
+      "transaction-000000-before.bin": {
+        "sha256": "c75064c07750fbf300b792021f1d57b891c1194968495d9e3fd1b54e95b68798",
+        "size_bytes": 936467
+      },
+      "transaction-000000.json": {
+        "sha256": "ca4d01559d7a623f7e9e4e2554e6c9643b7e7242505976e6a3279a9ff0af777e",
+        "size_bytes": 6581
+      },
+      "transaction-000001-after.bin": {
+        "sha256": "ab9b2135d8cdf7e9c973fb3fb0b183526f70db287a3be2dcbcf167c1424b742e",
+        "size_bytes": 936467
+      },
+      "transaction-000001-before.bin": {
+        "sha256": "c75064c07750fbf300b792021f1d57b891c1194968495d9e3fd1b54e95b68798",
+        "size_bytes": 936467
+      },
+      "transaction-000001.json": {
+        "sha256": "1a3ba120f7366dadc021468fdf6bbed64b9410ae59e1d94aee57a341dcddd409",
+        "size_bytes": 6579
+      }
+    },
+    "diagnostic_enabled": {
+      "transaction-000000-after.bin": {
+        "sha256": "90b9918d6700a93a95dfcec7b36a182a3bd3d07d29994d5da585fbdda3415b6b",
+        "size_bytes": 936467
+      },
+      "transaction-000000-before.bin": {
+        "sha256": "c75064c07750fbf300b792021f1d57b891c1194968495d9e3fd1b54e95b68798",
+        "size_bytes": 936467
+      },
+      "transaction-000000.json": {
+        "sha256": "ca4d01559d7a623f7e9e4e2554e6c9643b7e7242505976e6a3279a9ff0af777e",
+        "size_bytes": 6581
+      },
+      "transaction-000001-after.bin": {
+        "sha256": "ab9b2135d8cdf7e9c973fb3fb0b183526f70db287a3be2dcbcf167c1424b742e",
+        "size_bytes": 936467
+      },
+      "transaction-000001-before.bin": {
+        "sha256": "c75064c07750fbf300b792021f1d57b891c1194968495d9e3fd1b54e95b68798",
+        "size_bytes": 936467
+      },
+      "transaction-000001.json": {
+        "sha256": "1a3ba120f7366dadc021468fdf6bbed64b9410ae59e1d94aee57a341dcddd409",
+        "size_bytes": 6579
+      }
+    }
+  },
+  "output_file_count": 6,
+  "physical_validation": false,
+  "production_outputs_byte_identical": true,
+  "qualification_note": "Byte parity and rollback preserve failed attempt verdicts; status/certificate/contact sample and linearization scratch are outside the persistent rollback hash scope.",
+  "rollback_scope": [
+    "cohesiveFaces",
+    "contactHistories",
+    "deformableContactHistories",
+    "environmentParameters",
+    "femFields",
+    "femMaterialState",
+    "femNodes",
+    "femTopologyNodes",
+    "femTopologyTetrahedra",
+    "humanSupportConsequences",
+    "humanSupportHistories",
+    "particleMaterialState",
+    "particles",
+    "punctureChannels",
+    "rigidStates",
+    "topologyStates",
+    "vascularClock",
+    "vascularState"
+  ],
+  "schema": "numi.cardboard.full-contact-history-comparison.v1",
+  "sealed_identity": {
+    "changed_diagnostic_environment_keys": [
+      "NM_FEM_CONTACT_TRACE_ITERATION",
+      "NM_FEM_CONTACT_TRACE_ROOT",
+      "NM_FEM_NEWTON_TRACE_ROOT",
+      "NM_FEM_TRUE_RESIDUAL_RESTART",
+      "NM_FEM_TRUE_RESIDUAL_ROOT"
+    ],
+    "inputs_sha256_equal": true,
+    "physical_argv_equal_except_output_directory": true,
+    "source_build_sha256": "273220f311ab93c8b0af074b32b020b757ec0114c40e7d99c9f74094b668ba54"
+  },
+  "strict_solver_qualification": false,
+  "true_residual_instrument": {
+    "failed_production_environment_rows_excluded": 0,
+    "healthy_production_rows": 384,
+    "metric_note": "Rows after production failure are retained in raw logs and excluded from linear residual comparisons.",
+    "requested": true
+  }
+}

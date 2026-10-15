@@ -1,0 +1,371 @@
+{
+  "schema": "numi.cardboard.solver-assembly-audit.v1",
+  "binding": {
+    "capture_sha256": "22d1c2ce3b1658c6ce5d02edee6dad2648a7c642740e327839f53ce21719374b",
+    "pair_summary_sha256": "3baddeb19c4d3b89c1ad1952d70a739b3b57ebaedc2594053f5c4ced8a6a9297",
+    "replay_output_sha256": "4c87be930f739439e0cd7382b3e8339d43bfce2443333245f12c08669cc62b0d",
+    "analyzer_sha256": "ff95a70b30510c26bfbad25ecd5825da48f5068029e4836b7cbf110aec0ee38b",
+    "normalization_source_sha256": "8d247bdceeb1d06fd28f0e40fa90028d0b2faa7a149ea6a30140a2507dd01a5b",
+    "pair_analyzer_source_sha256": "0f1aa58ae66e1ccf8988077af7e9388e1595ef06b0633d23aba3f6e91046753a"
+  },
+  "scope": "captured bulk-plus-mass operator and element-frame transformations; full nonlinear contact operator not qualified",
+  "run_completion": {
+    "receipt_timed_out": true,
+    "receipt_exit_code": -15,
+    "full_history_complete": false,
+    "scope_note": "a complete selected Newton capture may be analyzed after timeout; timeout does not establish full-history completion"
+  },
+  "layer_maxima": {
+    "stress_frame": {
+      "max_relative_error": 1.308288218136989e-07,
+      "environment": 0,
+      "tet_id": 1547
+    },
+    "tangent_frame": {
+      "max_relative_error": 1.1906714556465495e-07,
+      "environment": 0,
+      "tet_id": 1740
+    },
+    "element_force": {
+      "max_relative_error": 5.905429447700326e-07,
+      "environment": 0,
+      "tet_id": 1696
+    },
+    "element_tangent": {
+      "max_relative_error": 5.570947507903387e-07,
+      "environment": 0,
+      "tet_id": 1595
+    }
+  },
+  "environments": [
+    {
+      "environment": 0,
+      "free_nodes": 846,
+      "production_gather": {
+        "absolute_error": 3.2785875946230282e-12,
+        "reference_scale": 1.5082221716165466e-05,
+        "relative_error": 2.1738094402291964e-07,
+        "nonzero_reference": true,
+        "verdict": "descriptive_only_no_measured_noise_floor"
+      },
+      "captured_candidate_FP64_assembled_action": {
+        "absolute_error": 4.849511534497344e-11,
+        "reference_scale": 1.5082179138672975e-05,
+        "relative_error": 3.2153918143449625e-06,
+        "nonzero_reference": true,
+        "verdict": "descriptive_only_no_measured_noise_floor"
+      },
+      "reprojected_FP64_assembled_action": {
+        "absolute_error": 4.8491022253073415e-11,
+        "reference_scale": 1.508217914281756e-05,
+        "relative_error": 3.2151204274858268e-06,
+        "nonzero_reference": true,
+        "verdict": "descriptive_only_no_measured_noise_floor"
+      },
+      "mass_action_l2_Ns": 9.197748707546014e-08,
+      "captured_stiffness_action_l2_Ns": 3.460991905083883e-05,
+      "production_action_l2_Ns": 3.461945823492203e-05,
+      "inferred_frozen_external_impulse_l2_Ns": 2.3854449998997002e-11,
+      "external_source_independently_validated": false,
+      "strict_gate": "inconclusive_no_measured_noise_floor",
+      "perturbations": [
+        {
+          "epsilon": 0.03125,
+          "side": "plus",
+          "residual_gather": {
+            "absolute_error": 9.019079594580659e-12,
+            "reference_scale": 1.4665102472316386e-05,
+            "relative_error": 6.150028349004829e-07,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_delta_v": {
+            "absolute_error": 1.7043930711224675e-09,
+            "reference_scale": 0.0014702372718602419,
+            "relative_error": 1.1592639526584414e-06,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_u_velocity_relation": {
+            "absolute_error": 4.365658090024413e-13,
+            "reference_scale": 1.4702370018882866e-07,
+            "relative_error": 2.969356698557727e-06,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          }
+        },
+        {
+          "epsilon": 0.03125,
+          "side": "minus",
+          "residual_gather": {
+            "absolute_error": 1.2050092631837207e-11,
+            "reference_scale": 1.5607734749112573e-05,
+            "relative_error": 7.720590351858941e-07,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_delta_v": {
+            "absolute_error": 1.7043930711224675e-09,
+            "reference_scale": 0.0014702372718602419,
+            "relative_error": 1.1592639526584414e-06,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_u_velocity_relation": {
+            "absolute_error": 4.2487409803500936e-13,
+            "reference_scale": 1.4702370018882866e-07,
+            "relative_error": 2.8898340708969088e-06,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          }
+        },
+        {
+          "epsilon": 0.015625,
+          "side": "plus",
+          "residual_gather": {
+            "absolute_error": 1.116109144569115e-11,
+            "reference_scale": 1.486884414144675e-05,
+            "relative_error": 7.506361180140239e-07,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_delta_v": {
+            "absolute_error": 1.7271304386667907e-09,
+            "reference_scale": 0.0007351186359301209,
+            "relative_error": 2.3494581068285807e-06,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_u_velocity_relation": {
+            "absolute_error": 4.198251447005974e-13,
+            "reference_scale": 7.351189666054189e-08,
+            "relative_error": 5.710982354859333e-06,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          }
+        },
+        {
+          "epsilon": 0.015625,
+          "side": "minus",
+          "residual_gather": {
+            "absolute_error": 8.926901734324913e-12,
+            "reference_scale": 1.534017157956747e-05,
+            "relative_error": 5.819297188445538e-07,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_delta_v": {
+            "absolute_error": 1.7271304386667907e-09,
+            "reference_scale": 0.0007351186359301209,
+            "relative_error": 2.3494581068285807e-06,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_u_velocity_relation": {
+            "absolute_error": 4.4165005311756766e-13,
+            "reference_scale": 7.351189666054189e-08,
+            "relative_error": 6.00787183001125e-06,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          }
+        }
+      ],
+      "centered_actions": [
+        {
+          "epsilon": 0.03125,
+          "comparison": {
+            "absolute_error": 5.777334983747551e-07,
+            "reference_scale": 1.5082143363542855e-05,
+            "relative_error": 0.03830579543298037,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "branch_crossing_tetrahedra": 2,
+          "near_yield_tetrahedra": 0,
+          "smooth_branch_eligible": false,
+          "strict_gate": "inconclusive_no_measured_noise_floor"
+        },
+        {
+          "epsilon": 0.015625,
+          "comparison": {
+            "absolute_error": 5.990088425278373e-08,
+            "reference_scale": 1.5082565369084477e-05,
+            "relative_error": 0.003971531552289222,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "branch_crossing_tetrahedra": 0,
+          "near_yield_tetrahedra": 0,
+          "smooth_branch_eligible": true,
+          "strict_gate": "inconclusive_no_measured_noise_floor"
+        }
+      ]
+    },
+    {
+      "environment": 1,
+      "free_nodes": 846,
+      "production_gather": {
+        "absolute_error": 0.0,
+        "reference_scale": 0.0,
+        "relative_error": null,
+        "nonzero_reference": false,
+        "verdict": "descriptive_only_no_measured_noise_floor"
+      },
+      "captured_candidate_FP64_assembled_action": {
+        "absolute_error": 0.0,
+        "reference_scale": 0.0,
+        "relative_error": null,
+        "nonzero_reference": false,
+        "verdict": "descriptive_only_no_measured_noise_floor"
+      },
+      "reprojected_FP64_assembled_action": {
+        "absolute_error": 0.0,
+        "reference_scale": 0.0,
+        "relative_error": null,
+        "nonzero_reference": false,
+        "verdict": "descriptive_only_no_measured_noise_floor"
+      },
+      "mass_action_l2_Ns": 0.0,
+      "captured_stiffness_action_l2_Ns": 0.0,
+      "production_action_l2_Ns": 0.0,
+      "inferred_frozen_external_impulse_l2_Ns": 4.890174196787677e-15,
+      "external_source_independently_validated": false,
+      "strict_gate": "inconclusive_no_measured_noise_floor",
+      "perturbations": [
+        {
+          "epsilon": 0.03125,
+          "side": "plus",
+          "residual_gather": {
+            "absolute_error": 4.83116246173962e-15,
+            "reference_scale": 8.656818467098874e-09,
+            "relative_error": 5.580759813898083e-07,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_delta_v": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_u_velocity_relation": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          }
+        },
+        {
+          "epsilon": 0.03125,
+          "side": "minus",
+          "residual_gather": {
+            "absolute_error": 4.83116246173962e-15,
+            "reference_scale": 8.656818467098874e-09,
+            "relative_error": 5.580759813898083e-07,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_delta_v": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_u_velocity_relation": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          }
+        },
+        {
+          "epsilon": 0.015625,
+          "side": "plus",
+          "residual_gather": {
+            "absolute_error": 4.83116246173962e-15,
+            "reference_scale": 8.656818467098874e-09,
+            "relative_error": 5.580759813898083e-07,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_delta_v": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_u_velocity_relation": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          }
+        },
+        {
+          "epsilon": 0.015625,
+          "side": "minus",
+          "residual_gather": {
+            "absolute_error": 4.83116246173962e-15,
+            "reference_scale": 8.656818467098874e-09,
+            "relative_error": 5.580759813898083e-07,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_delta_v": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_u_velocity_relation": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          }
+        }
+      ],
+      "centered_actions": [
+        {
+          "epsilon": 0.03125,
+          "comparison": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "branch_crossing_tetrahedra": 0,
+          "near_yield_tetrahedra": 0,
+          "smooth_branch_eligible": true,
+          "strict_gate": "inconclusive_no_measured_noise_floor"
+        },
+        {
+          "epsilon": 0.015625,
+          "comparison": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "branch_crossing_tetrahedra": 0,
+          "near_yield_tetrahedra": 0,
+          "smooth_branch_eligible": true,
+          "strict_gate": "inconclusive_no_measured_noise_floor"
+        }
+      ]
+    }
+  ],
+  "strict_gate": "inconclusive_no_measured_noise_floor",
+  "physical_validation": false,
+  "terminal_failure_explained": false
+}

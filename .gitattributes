@@ -1,0 +1,3 @@
+# Retain exact hashed CSV input bytes, including their existing CRLF endings.
+matter/examples/cardboard/source-data/johnson_popil_2016_pin_strength_summary_digitized.csv whitespace=cr-at-eol
+matter/examples/cardboard/source-data/popil_2012_ect_rate_fit.csv whitespace=cr-at-eol

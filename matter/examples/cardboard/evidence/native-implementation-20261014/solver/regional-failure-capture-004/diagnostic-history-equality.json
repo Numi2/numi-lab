@@ -1,0 +1,62 @@
+{
+  "schema": "numi.cardboard.diagnostic-history-equality.v1",
+  "off_case": "/Users/home/cardboard-implementation-20261014/solver/compensated-native-regional-003",
+  "on_case": "/Users/home/cardboard-implementation-20261014/solver/regional-failure-capture-004",
+  "all_equal": true,
+  "files": [
+    {
+      "file": "accepted_step_000001_bent.obj",
+      "off_sha256": "f9a2c7df96f8226c711e7beb133bd88a59d5a3c860001cf25c8caaf1e1609155",
+      "on_sha256": "f9a2c7df96f8226c711e7beb133bd88a59d5a3c860001cf25c8caaf1e1609155",
+      "equal": true
+    },
+    {
+      "file": "accepted_step_000001_held_reference.obj",
+      "off_sha256": "67e83d62cadb1b07bad50c40c725315b954984d9c3fc93584d9ff9a53042b73c",
+      "on_sha256": "67e83d62cadb1b07bad50c40c725315b954984d9c3fc93584d9ff9a53042b73c",
+      "equal": true
+    },
+    {
+      "file": "compiled.nmatterpack",
+      "off_sha256": "0f4c0adbed72367565b048b3ac63a58ac2c48242bb062e384ad50648e000d831",
+      "on_sha256": "0f4c0adbed72367565b048b3ac63a58ac2c48242bb062e384ad50648e000d831",
+      "equal": true
+    },
+    {
+      "file": "initial.obj",
+      "off_sha256": "f9a2c7df96f8226c711e7beb133bd88a59d5a3c860001cf25c8caaf1e1609155",
+      "on_sha256": "f9a2c7df96f8226c711e7beb133bd88a59d5a3c860001cf25c8caaf1e1609155",
+      "equal": true
+    },
+    {
+      "file": "manifest.json",
+      "off_sha256": "0feca46583203b48f54734ca1eb0692c5b902c7992ca6ae6e141d9b09f2f1c4a",
+      "on_sha256": "0feca46583203b48f54734ca1eb0692c5b902c7992ca6ae6e141d9b09f2f1c4a",
+      "equal": true
+    },
+    {
+      "file": "material_state_000001_bent.json",
+      "off_sha256": "4bc6802c1225bc6b6821a9820f30e4035343c72e7779814e84c15ee1fe10f2df",
+      "on_sha256": "4bc6802c1225bc6b6821a9820f30e4035343c72e7779814e84c15ee1fe10f2df",
+      "equal": true
+    },
+    {
+      "file": "mesh.json",
+      "off_sha256": "f1602aa46ab7f96cbb719cb1d60932ad0bbf34676856968c6df3a25c9ff7f8db",
+      "on_sha256": "f1602aa46ab7f96cbb719cb1d60932ad0bbf34676856968c6df3a25c9ff7f8db",
+      "equal": true
+    },
+    {
+      "file": "observations.csv",
+      "off_sha256": "f24add6d6d69c4b99a39132a5dadae05c3da6093404f4be7fe13a1d6d4e2ae3a",
+      "on_sha256": "f24add6d6d69c4b99a39132a5dadae05c3da6093404f4be7fe13a1d6d4e2ae3a",
+      "equal": true
+    },
+    {
+      "file": "result.json",
+      "off_sha256": "0627010b46c9b6ee9145727409543a366a1521a4186bd5a7142222f9d523eb4d",
+      "on_sha256": "0627010b46c9b6ee9145727409543a366a1521a4186bd5a7142222f9d523eb4d",
+      "equal": true
+    }
+  ]
+}

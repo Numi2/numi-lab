@@ -77,7 +77,8 @@ struct Fixture {
     std::uint32_t bodyCountPerEnvironment = 1u;
 
     Fixture(const bool prescribed, const double punchSpeed, const bool armijo,
-            const bool withSupportBox = false)
+            const bool withSupportBox = false,
+            const double supportSurfaceZ = -kBottomClearance)
         : includeSupportBox(withSupportBox),
           bodyCountPerEnvironment(withSupportBox ? 2u : 1u) {
         if (armijo && withSupportBox) {
@@ -193,7 +194,7 @@ struct Fixture {
         toolSpec.boardWidth = kPadWidth;
         toolSpec.boardCaliper = kPadCaliper;
         toolSpec.creaseX = 0.0;
-        toolSpec.supportSurfaceZ = -kBottomClearance;
+        toolSpec.supportSurfaceZ = supportSurfaceZ;
         toolSpec.punchRadius = kPunchRadius;
         toolSpec.punchEndOverhang = 0.1 * kMillimetre;
         toolSpec.supportEndOverhang = 0.25 * kMillimetre;
@@ -324,6 +325,52 @@ struct Fixture {
                     femKinematicTargets.length >=
                         femKinematicTargetValues.size() * 4u * sizeof(float),
                 "temporary-grip target buffer must cover every environment and node");
+    }
+
+    void prepareEnvironmentGripTargets(
+        const unsigned environment,
+        const std::uint32_t movedNode = NM_INVALID_INDEX,
+        const float movedNodeDeltaZ = 0.0f) {
+        require(environment < kEnvironmentCount,
+                "all-node grip environment is out of range");
+        femKinematicTargetValues.assign(
+            kEnvironmentCount * femNodeCount, std::array<float, 4>{});
+        for (std::uint32_t node = 0u; node < femNodeCount; ++node) {
+            const auto& initial = world.fem.nodes.at(node).positionAndMass;
+            // The four authored supports are already static. Tag-3 acquisition
+            // is valid only for free nodes, so leave those rows untouched.
+            if (world.fem.nodes.at(node).restAndFixed.w == 1.0f) continue;
+            const float deltaZ = node == movedNode ? movedNodeDeltaZ : 0.0f;
+            femKinematicTargetValues[environment * femNodeCount + node] = {
+                initial.x, initial.y, initial.z + deltaZ, 3.0f};
+        }
+        femKinematicTargets = makeBuffer(device, femKinematicTargetValues);
+        require(femKinematicTargets != nil &&
+                    femKinematicTargetValues.size() ==
+                        kEnvironmentCount * femNodeCount &&
+                    femKinematicTargets.length >=
+                        femKinematicTargetValues.size() * 4u * sizeof(float),
+                "all-node grip target buffer must cover every environment and node");
+    }
+
+    void prepareSingleEnvironmentGripTarget(
+        const unsigned environment,
+        const std::uint32_t movedNode,
+        const float movedNodeDeltaZ) {
+        require(environment < kEnvironmentCount && movedNode < femNodeCount,
+                "single-node grip target is out of range");
+        require(world.fem.nodes.at(movedNode).restAndFixed.w == 0.0f,
+                "single-node grip target must acquire a free FEM node");
+        femKinematicTargetValues.assign(
+            kEnvironmentCount * femNodeCount, std::array<float, 4>{});
+        const auto& initial = world.fem.nodes.at(movedNode).positionAndMass;
+        femKinematicTargetValues[environment * femNodeCount + movedNode] = {
+            initial.x, initial.y, initial.z + movedNodeDeltaZ, 3.0f};
+        femKinematicTargets = makeBuffer(device, femKinematicTargetValues);
+        require(femKinematicTargets != nil &&
+                    femKinematicTargets.length >=
+                        femKinematicTargetValues.size() * 4u * sizeof(float),
+                "single-node grip target buffer must cover every environment and node");
     }
 
     RuntimeStateSnapshot step(const unsigned index,
@@ -466,11 +513,500 @@ struct Fixture {
     }
 };
 
+template <class T>
+std::vector<T> readPrivateBuffer(id<MTLDevice> device,
+                                id<MTLCommandQueue> queue,
+                                void* borrowedBuffer,
+                                const std::size_t count,
+                                const std::string& label) {
+    require(borrowedBuffer != nullptr && count > 0u,
+            label + " readback source/count is invalid");
+    id<MTLBuffer> source = (__bridge id<MTLBuffer>)borrowedBuffer;
+    const NSUInteger byteCount = count * sizeof(T);
+    require(source != nil && source.length >= byteCount,
+            label + " readback source buffer is short");
+    id<MTLBuffer> destination = [device newBufferWithLength:byteCount
+        options:MTLResourceStorageModeShared];
+    id<MTLCommandBuffer> command = [queue commandBuffer];
+    id<MTLBlitCommandEncoder> blit = [command blitCommandEncoder];
+    require(destination != nil && command != nil && blit != nil,
+            label + " readback allocation/encoder failed");
+    [blit copyFromBuffer:source sourceOffset:0u toBuffer:destination
+        destinationOffset:0u size:byteCount];
+    [blit endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    require(command.status == MTLCommandBufferStatusCompleted,
+            label + " readback blit did not complete");
+    std::vector<T> values(count);
+    std::memcpy(values.data(), destination.contents, byteCount);
+    return values;
+}
+
 struct ContactSummary {
     std::uint32_t valid = 0u;
     double maxNormalImpulse = 0.0;
     double minSeparation = INFINITY;
 };
+
+ContactSummary contactsFor(const RuntimeStateSnapshot& state,
+                           unsigned environment,
+                           unsigned proxy,
+                           std::uint32_t proxyCount);
+
+void checkAcceptedConstraintReaction(
+    Fixture& fixture,
+    const RuntimeStateSnapshot& initial,
+    const RuntimeStateSnapshot& accepted,
+    const std::vector<unsigned>& requiredProxies,
+    const std::string& label,
+    const bool requireEmptyBulkChannel) {
+    require(accepted.statuses.at(0).code == NM_STATUS_SUCCESS &&
+                accepted.statuses.at(1).code == NM_STATUS_SUCCESS,
+            label + " tag-3 constrained contact transaction was rejected");
+    require(accepted.solverCertificates.at(0).nonlinear.x <=
+                fixture.world.mixedSolver.residualTolerances.x,
+            label + " tag-3 transaction missed the existing certificate");
+
+    std::vector<std::uint32_t> constrainedNodes;
+    constrainedNodes.reserve(fixture.femNodeCount);
+    for (std::uint32_t node = 0u; node < fixture.femNodeCount; ++node) {
+        const auto& state = accepted.femNodes.at(node);
+        if (state.restAndFixed.w == 1.0f || state.restAndFixed.w == 3.0f)
+            constrainedNodes.push_back(node);
+    }
+    require(!constrainedNodes.empty(),
+            label + " reaction fixture has no prescribed FEM rows");
+
+    const std::size_t totalNodes =
+        kEnvironmentCount * static_cast<std::size_t>(fixture.femNodeCount);
+    const auto contactForce = readPrivateBuffer<nm_float4>(
+        fixture.device, fixture.queue,
+        fixture.runtime.femConstraintContactForceBuffer(), totalNodes,
+        "FEM contact support force");
+    const auto bulkForce = readPrivateBuffer<nm_float4>(
+        fixture.device, fixture.queue,
+        fixture.runtime.femConstraintReactionBuffer(), totalNodes,
+        "FEM bulk/cohesive support force");
+
+    std::vector<std::array<double, 3>> expected(fixture.femNodeCount);
+    std::vector<std::array<double, 3>> expectedProxyImpulse(
+        fixture.world.contact.rigidProxies.size());
+    std::vector<std::uint32_t> validProxySamples(
+        fixture.world.contact.rigidProxies.size(), 0u);
+    std::uint32_t validFreeNodeSamples = 0u;
+    for (std::size_t pairIndex = 0u;
+         pairIndex < fixture.world.contact.pairs.size(); ++pairIndex) {
+        const NMContactPairGPU& pair = fixture.world.contact.pairs[pairIndex];
+        if (pair.objectIndex != 0u ||
+            pair.rigidProxy >= expectedProxyImpulse.size() ||
+            pair.continuumNode < fixture.world.dispatch.gridNodeCount)
+            continue;
+        const std::uint32_t node =
+            pair.continuumNode - fixture.world.dispatch.gridNodeCount;
+        if (node >= fixture.femNodeCount) continue;
+        const NMContactSampleGPU& sample = accepted.contactSamples.at(pairIndex);
+        if ((sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
+        ++validProxySamples[pair.rigidProxy];
+        if (accepted.femNodes.at(node).restAndFixed.w == 0.0f &&
+            accepted.femNodes.at(node).positionAndMass.w > 0.0f)
+            ++validFreeNodeSamples;
+        for (unsigned axis = 0u; axis < 3u; ++axis) {
+            const float impulse = axis == 0u ? sample.impulseAndNormal.x
+                : axis == 1u ? sample.impulseAndNormal.y
+                             : sample.impulseAndNormal.z;
+            expected[node][axis] -= static_cast<double>(impulse) /
+                                    fixture.timestep;
+            expectedProxyImpulse[pair.rigidProxy][axis] += impulse;
+        }
+    }
+    for (const unsigned proxyIndex : requiredProxies) {
+        require(proxyIndex < validProxySamples.size() &&
+                    validProxySamples[proxyIndex] > 0u,
+                label + " produced no accepted sample for required rigid proxy " +
+                    std::to_string(proxyIndex));
+        const double normalImpulse = proxyIndex < fixture.world.contact.rigidProxies.size()
+            ? contactsFor(accepted, 0u, proxyIndex,
+                          static_cast<std::uint32_t>(fixture.world.contact.rigidProxies.size()))
+                  .maxNormalImpulse
+            : 0.0;
+        require(normalImpulse > 0.0,
+                label + " required rigid proxy has no positive native normal impulse");
+    }
+
+    double maximumNodeForceError = 0.0;
+    double freeSupplementMaximum = 0.0;
+    double bulkForceMagnitude = 0.0;
+    for (std::uint32_t node = 0u; node < fixture.femNodeCount; ++node) {
+        const nm_float4& actual = contactForce.at(node);
+        const nm_float4& bulk = bulkForce.at(node);
+        const double values[3] = {actual.x, actual.y, actual.z};
+        const double bulkValues[3] = {bulk.x, bulk.y, bulk.z};
+        const bool constrained =
+            accepted.femNodes.at(node).restAndFixed.w == 1.0f ||
+            accepted.femNodes.at(node).restAndFixed.w == 3.0f ||
+            accepted.femNodes.at(node).positionAndMass.w <= 0.0f;
+        for (unsigned axis = 0u; axis < 3u; ++axis) {
+            if (constrained) {
+                maximumNodeForceError = std::max(maximumNodeForceError,
+                    std::abs(values[axis] - expected[node][axis]));
+            } else {
+                // The public supplement is specifically the support force on
+                // prescribed/massless rows. Contact on a free FEM row remains
+                // in the production residual and must not leak into it.
+                freeSupplementMaximum = std::max(freeSupplementMaximum,
+                    std::abs(values[axis]));
+            }
+            bulkForceMagnitude = std::max(bulkForceMagnitude,
+                std::abs(bulkValues[axis]));
+        }
+    }
+    double sampleFemContactForce[3] = {0.0, 0.0, 0.0};
+    for (const auto& force : expected)
+        for (unsigned axis = 0u; axis < 3u; ++axis)
+            sampleFemContactForce[axis] += force[axis];
+    require(maximumNodeForceError <= 2.0e-3,
+            "native constrained contact supplement differs from constrained per-node proxy impulses");
+    require(freeSupplementMaximum <= 2.0e-3,
+            "free FEM contact force leaked into the constrained supplement");
+    if (requireEmptyBulkChannel)
+        require(bulkForceMagnitude <= 2.0e-3,
+                label + " stationary fixture unexpectedly folded contact into bulk channel");
+    double actionReactionError = 0.0;
+    for (unsigned axis = 0u; axis < 3u; ++axis) {
+        double proxyImpulse = 0.0;
+        double sampleProxyImpulse = 0.0;
+        for (std::size_t proxyIndex = 0u;
+             proxyIndex < fixture.world.contact.rigidProxies.size(); ++proxyIndex) {
+            const std::size_t reactionIndex = proxyIndex;
+            require(reactionIndex < accepted.reactions.size(),
+                    label + " reaction snapshot lacks environment-zero proxy record");
+            const auto& reaction = accepted.reactions[reactionIndex];
+            const double value = axis == 0u ? reaction.impulseAndCount.x
+                : axis == 1u ? reaction.impulseAndCount.y
+                             : reaction.impulseAndCount.z;
+            proxyImpulse += value;
+            sampleProxyImpulse += expectedProxyImpulse[proxyIndex][axis];
+        }
+        actionReactionError = std::max(actionReactionError,
+            std::abs(sampleFemContactForce[axis] * fixture.timestep + proxyImpulse));
+        actionReactionError = std::max(actionReactionError,
+            std::abs(proxyImpulse - sampleProxyImpulse));
+    }
+    require(actionReactionError <= 2.0e-7,
+            label + " accepted sampled FEM/proxy impulses do not balance under dt/sign");
+    require(validFreeNodeSamples > 0u,
+            label + " did not exercise a nonzero-mass free FEM contact row");
+    for (std::uint32_t node = 0u; node < fixture.femNodeCount; ++node) {
+        const nm_float4& control = contactForce.at(
+            fixture.femNodeCount + node);
+        require(std::abs(control.x) <= 1.0e-8f &&
+                    std::abs(control.y) <= 1.0e-8f &&
+                    std::abs(control.z) <= 1.0e-8f,
+                label + " separated environment acquired a rigid reaction");
+        const auto& before = initial.femNodes.at(
+            fixture.femNodeCount + node).positionAndMass;
+        const auto& after = accepted.femNodes.at(
+            fixture.femNodeCount + node).positionAndMass;
+        require(std::abs(after.x - before.x) <= 1.0e-9f &&
+                    std::abs(after.y - before.y) <= 1.0e-9f &&
+                    std::abs(after.z - before.z) <= 1.0e-9f,
+                label + " separated environment moved during the tag-3 reaction check");
+    }
+    std::cout << std::setprecision(10)
+              << "native_" << label << "_constraint_reaction=pass accepted=true"
+              << " constrained_nodes=" << constrainedNodes.size()
+              << " free_contact_samples=" << validFreeNodeSamples
+              << " active_proxy_samples=";
+    for (std::size_t i = 0u; i < validProxySamples.size(); ++i) {
+        if (i != 0u) std::cout << ",";
+        std::cout << validProxySamples[i];
+    }
+    std::cout
+              << " max_per_node_force_error_N=" << maximumNodeForceError
+              << " free_row_supplement_max_N=" << freeSupplementMaximum
+              << " action_reaction_error_Ns=" << actionReactionError
+              << " bulk_channel_max_N=" << bulkForceMagnitude
+              << " reaction_qualification=free_contact_action_reaction_only"
+              << " physical_validation=false\n";
+}
+
+void runAcceptedCapsuleConstraintReactionCase() {
+    // Keep the actual free FEM pad: contact mechanics samples free positive-
+    // inverse-mass nodes, while the readback supplement is reserved for
+    // prescribed/massless rows. An all-tag3 case is recorded separately below
+    // as unsupported for nonzero rigid-reaction qualification.
+    constexpr double punchSpeed = 0.2;
+    Fixture fixture(true, punchSpeed, true);
+    const double initialGap =
+        static_cast<double>(fixture.authoredBodies[kPunchBodyIndex].position.z) -
+        kPunchRadius - kPadCaliper;
+    const double endpointGap = initialGap - punchSpeed * fixture.timestep;
+    require(initialGap > 0.0 && endpointGap < 0.0,
+            "free-pad capsule fixture must advance from clearance into contact");
+    const auto initial = fixture.snapshot();
+    const auto accepted = fixture.step(0u);
+    checkAcceptedConstraintReaction(
+        fixture, initial, accepted, {0u}, "capsule", false);
+    std::cout << std::setprecision(10)
+              << "capsule_nominal_endpoint_gap_m=" << endpointGap
+              << " accepted_min_separation_m="
+              << contactsFor(accepted, 0u, 0u, 1u).minSeparation
+              << " contact_slop_m=" << kContactSlop << '\n';
+}
+
+void runAllTag3ReactionLimitationCase() {
+    constexpr double punchSpeed = 0.05;
+    Fixture fixture(true, punchSpeed, false);
+    const double initialGap =
+        static_cast<double>(fixture.authoredBodies[kPunchBodyIndex].position.z) -
+        kPunchRadius - kPadCaliper;
+    const double endpointGap = initialGap - punchSpeed * fixture.timestep;
+    require(initialGap > 0.0 && endpointGap > 0.0 &&
+                endpointGap <= kContactSlop,
+            "all-tag3 limitation geometry must end separated by 5 um within slop");
+    fixture.prepareEnvironmentGripTargets(0u);
+    const auto accepted = fixture.step(0u);
+    require(accepted.statuses[0].code == NM_STATUS_SUCCESS &&
+                accepted.statuses[1].code == NM_STATUS_SUCCESS,
+            "all-tag3 separated geometry should remain an admissible prescribed state");
+    std::uint32_t tag3Rows = 0u;
+    for (std::uint32_t node = 0u; node < fixture.femNodeCount; ++node) {
+        const auto& state = accepted.femNodes.at(node);
+        if (state.restAndFixed.w == 3.0f) {
+            ++tag3Rows;
+            require(state.velocityAndInverseMass.w == 0.0f,
+                    "all-tag3 row retained nonzero inverse mass");
+        } else {
+            require(state.restAndFixed.w == 1.0f,
+                    "all-tag3 fixture left an untagged free row");
+        }
+    }
+    require(tag3Rows > 0u && tag3Rows + 4u == fixture.femNodeCount,
+            "all-tag3 fixture did not acquire every free FEM node");
+    const ContactSummary contact = contactsFor(accepted, 0u, 0u, 1u);
+    require(contact.valid == 0u,
+            "all-tag3 zero-inverse-mass geometry unexpectedly produced rigid contact impulse");
+    const auto contactForce = readPrivateBuffer<nm_float4>(
+        fixture.device, fixture.queue,
+        fixture.runtime.femConstraintContactForceBuffer(),
+        kEnvironmentCount * static_cast<std::size_t>(fixture.femNodeCount),
+        "all-tag3 contact support force");
+    double supplementMaximum = 0.0;
+    for (std::uint32_t node = 0u; node < fixture.femNodeCount; ++node) {
+        const auto& value = contactForce[node];
+        supplementMaximum = std::max(supplementMaximum,
+            std::max({std::abs(static_cast<double>(value.x)),
+                      std::abs(static_cast<double>(value.y)),
+                      std::abs(static_cast<double>(value.z))}));
+    }
+    require(supplementMaximum == 0.0,
+            "all-tag3 geometry unexpectedly published a contact reaction");
+    std::cout << std::setprecision(10)
+              << "all_tag3_rigid_contact=unsupported_absent"
+              << " accepted=true initial_gap_m=" << initialGap
+              << " endpoint_gap_m=" << endpointGap
+              << " tag3_rows=" << tag3Rows
+              << " rigid_samples=" << contact.valid
+              << " contact_supplement_max_N=" << supplementMaximum
+              << " reason=zero_inverse_mass_contact_rows_skipped"
+              << " unsupported_for_nonzero_reaction_readback=true"
+              << " physical_reaction_qualification=false\n";
+}
+
+void runAcceptedBoxConstraintReactionCase() {
+    // The support face is 10 um below the board. A single bottom-center tag-3
+    // target moves 5 um toward it during the accepted step, creating a bounded
+    // native BOX contact without penetrating the source surface.
+    constexpr double supportSurfaceZ = -10.0e-6;
+    constexpr std::uint32_t bottomCenterNode = 4u;
+    Fixture fixture(true, 0.2, false, true, supportSurfaceZ);
+    fixture.prepareSingleEnvironmentGripTarget(
+        0u, bottomCenterNode, -5.0e-6f);
+    const auto initial = fixture.snapshot();
+    const auto accepted = fixture.step(0u);
+    checkAcceptedConstraintReaction(
+        fixture, initial, accepted, {0u, 1u}, "capsule_box", false);
+}
+
+std::vector<nm_float4> dispatchDeformableReactionPublisher(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLComputePipelineState> pipeline,
+    const NMMatterDispatchGPU& dispatch,
+    const std::vector<NMFEMNodeStateGPU>& nodes,
+    const std::vector<NMDeformableContactGPU>& contacts) {
+    require(nodes.size() == dispatch.femNodeCount &&
+                contacts.size() == dispatch.deformableContactCapacity,
+            "synthetic deformable reaction fixture buffer sizes disagree with dispatch");
+    std::vector<NMContactPairGPU> rigidPairs(1u);
+    std::vector<std::uint32_t> rigidIncidence(1u, 0u);
+    std::vector<NMIncidenceRangeGPU> rigidRanges(dispatch.femNodeCount);
+    std::vector<NMContactSampleGPU> rigidSamples(1u);
+    std::vector<std::uint32_t> deformableIncidence(dispatch.femNodeCount);
+    std::vector<NMIncidenceRangeGPU> deformableRanges(dispatch.femNodeCount);
+    std::vector<NMSchedulerStateGPU> schedulers(dispatch.objectCount);
+    std::vector<NMMatterStatusGPU> statuses(dispatch.environmentCount);
+    std::vector<nm_float4> zeroForces(dispatch.environmentCount * dispatch.femNodeCount);
+    for (std::uint32_t node = 0u; node < dispatch.femNodeCount; ++node) {
+        deformableIncidence[node] = node; // contact slot 0, corresponding local node
+        deformableRanges[node] = {node, 1u, 0u, 0u};
+    }
+
+    std::array<id<MTLBuffer>, 12> buffers = {
+        makeBuffer(device, std::vector<NMMatterDispatchGPU>{dispatch}),
+        makeBuffer(device, nodes),
+        makeBuffer(device, rigidPairs),
+        makeBuffer(device, rigidIncidence),
+        makeBuffer(device, rigidRanges),
+        makeBuffer(device, rigidSamples),
+        makeBuffer(device, contacts),
+        makeBuffer(device, deformableIncidence),
+        makeBuffer(device, deformableRanges),
+        makeBuffer(device, schedulers),
+        makeBuffer(device, statuses),
+        makeBuffer(device, zeroForces),
+    };
+    for (std::size_t index = 0u; index < buffers.size(); ++index)
+        require(buffers[index] != nil,
+                "synthetic deformable reaction fixture Metal buffer allocation failed at " +
+                    std::to_string(index));
+    id<MTLCommandBuffer> command = [queue commandBuffer];
+    id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+    require(command != nil && encoder != nil,
+            "synthetic deformable reaction fixture command encoder unavailable");
+    [encoder setComputePipelineState:pipeline];
+    for (NSUInteger index = 0u; index < buffers.size(); ++index)
+        [encoder setBuffer:buffers[index] offset:0u atIndex:index];
+    [encoder dispatchThreads:MTLSizeMake(dispatch.femNodeCount, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(std::min<std::uint32_t>(
+            dispatch.femNodeCount, 32u), 1u, 1u)];
+    [encoder endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    require(command.status == MTLCommandBufferStatusCompleted,
+            "synthetic deformable reaction fixture kernel did not complete");
+    const auto* output = static_cast<const nm_float4*>(buffers[11].contents);
+    return std::vector<nm_float4>(output,
+        output + dispatch.environmentCount * dispatch.femNodeCount);
+}
+
+void runNativeDeformableConstraintReactionKernelCase() {
+    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+    require(device != nil, "native deformable reaction fixture requires Metal");
+    id<MTLCommandQueue> queue = [device newCommandQueue];
+    require(queue != nil, "native deformable reaction fixture command queue unavailable");
+    NSError* error = nil;
+    id<MTLLibrary> library = [device newLibraryWithURL:
+        [NSURL fileURLWithPath:@NUMI_MATTER_METALLIB] error:&error];
+    require(library != nil,
+            "native deformable reaction fixture could not load Matter metallib");
+    id<MTLFunction> function = [library newFunctionWithName:
+        @"numi_matter_metal::nm_contact_publish_fem_constraint_contact_force"];
+    require(function != nil,
+            "native deformable constraint reaction publisher is absent from metallib");
+    id<MTLComputePipelineState> pipeline = [device newComputePipelineStateWithFunction:
+        function error:&error];
+    require(pipeline != nil,
+            "native deformable constraint reaction publisher pipeline failed");
+
+    constexpr float dt = 0.02f;
+    constexpr float mollifierEnergyScale = 0.25f;
+    const std::array<float, 4> weights = {1.0f, -0.2f, -0.3f, -0.5f};
+    const std::array<std::array<float, 3>, 4> mollifierGradients = {{
+        {{0.0010f, -0.0020f, 0.0005f}},
+        {{-0.0004f, 0.0010f, -0.0002f}},
+        {{-0.0003f, 0.0005f, -0.0001f}},
+        {{-0.0003f, 0.0005f, -0.0002f}},
+    }};
+    const std::array<double, 3> contactImpulse = {0.001, 0.002, 0.007};
+
+    NMMatterDispatchGPU dispatch{};
+    dispatch.environmentCount = 1u;
+    dispatch.objectCount = 1u;
+    dispatch.femNodeCount = 4u;
+    dispatch.deformableContactCapacity = 1u;
+    dispatch.gravityAndTimestep.w = dt;
+    std::vector<NMFEMNodeStateGPU> nodes(dispatch.femNodeCount);
+    for (std::uint32_t node = 0u; node < dispatch.femNodeCount; ++node) {
+        nodes[node].positionAndMass = {static_cast<float>(node), 0.0f, 0.0f, 1.0f};
+        nodes[node].restAndFixed = {0.0f, 0.0f, 0.0f, 3.0f};
+    }
+    NMDeformableContactGPU contact{};
+    contact.nodes = {0u, 1u, 2u, 3u};
+    contact.identity = {0u, 0u, NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE,
+                        NM_CONTACT_VALID};
+    contact.weights = {weights[0], weights[1], weights[2], weights[3]};
+    contact.timeScales = {1.0f, 1.0f, 1.0f, 1.0f};
+    contact.normalAndTOI = {0.0f, 0.0f, 1.0f, 0.5f};
+    // For +Z, the production frame is t0=+Y and t1=-X.
+    contact.impulseAndFriction = {0.007f, 0.002f, -0.001f, 0.0f};
+    contact.mollifier = {1.0f, mollifierEnergyScale, 0.0f, 1.0f};
+    contact.mollifierGradientRow0 = {mollifierGradients[0][0],
+        mollifierGradients[0][1], mollifierGradients[0][2], 0.0f};
+    contact.mollifierGradientRow1 = {mollifierGradients[1][0],
+        mollifierGradients[1][1], mollifierGradients[1][2], 0.0f};
+    contact.mollifierGradientRow2 = {mollifierGradients[2][0],
+        mollifierGradients[2][1], mollifierGradients[2][2], 0.0f};
+    contact.mollifierGradientRow3 = {mollifierGradients[3][0],
+        mollifierGradients[3][1], mollifierGradients[3][2], 0.0f};
+    contact.extraNodes = {NM_INVALID_INDEX, NM_INVALID_INDEX,
+                          NM_INVALID_INDEX, NM_INVALID_INDEX};
+    const std::vector<NMDeformableContactGPU> contacts = {contact};
+
+    const auto forces = dispatchDeformableReactionPublisher(
+        device, queue, pipeline, dispatch, nodes, contacts);
+    double maximumError = 0.0;
+    std::array<double, 3> netForce{};
+    for (std::size_t local = 0u; local < 4u; ++local) {
+        const double expected[3] = {
+            (weights[local] * contactImpulse[0] - mollifierEnergyScale *
+                mollifierGradients[local][0]) / dt,
+            (weights[local] * contactImpulse[1] - mollifierEnergyScale *
+                mollifierGradients[local][1]) / dt,
+            (weights[local] * contactImpulse[2] - mollifierEnergyScale *
+                mollifierGradients[local][2]) / dt,
+        };
+        const double actual[3] = {
+            forces[local].x, forces[local].y, forces[local].z};
+        for (unsigned axis = 0u; axis < 3u; ++axis) {
+            maximumError = std::max(maximumError,
+                std::abs(actual[axis] - expected[axis]));
+            netForce[axis] += actual[axis];
+        }
+        require(forces[local].w == 0.0f,
+                "deformable reaction publisher populated the reserved force component");
+    }
+    double netForceMagnitude = 0.0;
+    for (const double component : netForce)
+        netForceMagnitude = std::max(netForceMagnitude, std::abs(component));
+    require(maximumError <= 2.0e-5,
+            "native deformable reaction differs from mapped-weight/mollifier residual formula");
+    require(netForceMagnitude <= 2.0e-5,
+            "native deformable mapped contact reaction violates total force balance");
+
+    // Human tag 2 belongs to the separate Human J^T reaction channel. Setting
+    // its inverse mass to zero reaches the explicit tag-2 exclusion in this
+    // publisher rather than the ordinary free-node filter.
+    nodes[0].restAndFixed.w = 2.0f;
+    nodes[0].positionAndMass.w = 0.0f;
+    const auto humanFiltered = dispatchDeformableReactionPublisher(
+        device, queue, pipeline, dispatch, nodes, contacts);
+    require(humanFiltered[0].x == 0.0f && humanFiltered[0].y == 0.0f &&
+                humanFiltered[0].z == 0.0f,
+            "Human tag-2 row leaked into the FEM constrained contact reaction channel");
+    for (std::size_t local = 1u; local < 4u; ++local) {
+        require(std::abs(humanFiltered[local].x - forces[local].x) <= 1.0e-7f &&
+                    std::abs(humanFiltered[local].y - forces[local].y) <= 1.0e-7f &&
+                    std::abs(humanFiltered[local].z - forces[local].z) <= 1.0e-7f,
+                "Human tag-2 filtering changed unrelated deformable contact rows");
+    }
+    std::cout << std::setprecision(10)
+              << "native_deformable_constraint_reaction=pass synthetic_kernel=true"
+              << " max_mapped_force_error_N=" << maximumError
+              << " net_force_error_N=" << netForceMagnitude
+              << " human_tag2_excluded=true physical_validation=false\n";
+}
 
 ContactSummary contactsFor(const RuntimeStateSnapshot& state,
                            const unsigned environment,
@@ -930,6 +1466,9 @@ void runCheck() {
     rollbackAfterArmijoCase();
     runStaticBoxArmijoPair();
     runStaticBoxTemporaryGripCase();
+    runAcceptedCapsuleConstraintReactionCase();
+    runAcceptedBoxConstraintReactionCase();
+    runNativeDeformableConstraintReactionKernelCase();
     rejectStaticBoxPreEndpoint(4u, "pre_pose_changed");
     rejectStaticBoxPreEndpoint(5u, "dynamic_motion_type");
     rejectStaticBoxPreEndpoint(6u, "nonzero_tool_velocity");
@@ -943,10 +1482,22 @@ void runCheck() {
 
 } // namespace
 
-int main() {
+int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
-            runCheck();
+            if (argc == 2 && std::string(argv[1]) == "--reaction-publisher-only") {
+                runNativeDeformableConstraintReactionKernelCase();
+            } else if (argc == 2 &&
+                       std::string(argv[1]) == "--constraint-reactions-only") {
+                runAcceptedCapsuleConstraintReactionCase();
+                runAcceptedBoxConstraintReactionCase();
+                runAllTag3ReactionLimitationCase();
+            } else {
+                require(argc == 1,
+                    "usage: cardboard-capsule-armijo-check "
+                    "[--reaction-publisher-only|--constraint-reactions-only]");
+                runCheck();
+            }
             return 0;
         } catch (const std::exception& error) {
             std::cerr << "native cardboard tooling fixture failed: "

@@ -1,0 +1,44 @@
+{
+  "active_coverage_complete": true,
+  "capture": {
+    "active_counts": [
+      0
+    ],
+    "capture_bytes": 123744,
+    "deformable_contact_capacity": 384,
+    "dt_s": 0.0001,
+    "environment_count": 1,
+    "fem_node_count": 30,
+    "grid_node_count": 0,
+    "iteration": 20,
+    "production_exact_action_capture": true,
+    "production_exact_action_feature_policy": "fixed_candidate_feature",
+    "recorded_count": 0,
+    "root": 0,
+    "trace_slots_per_environment": 128,
+    "truncated": [
+      false
+    ]
+  },
+  "classification": "diagnostic_only_not_solver_or_physical_qualification",
+  "contacts": [],
+  "counts": {
+    "analyzed": 0,
+    "branch_or_boundary_comparisons": 0,
+    "fixed_center_feature_diagnostic_available": 0,
+    "production_action_compared": 0,
+    "production_action_unsupported": 0,
+    "smooth_comparisons": 0,
+    "unsupported": 0
+  },
+  "epsilon_schedule_velocity": [
+    1e-05,
+    0.0001,
+    0.001
+  ],
+  "input": {
+    "path": "/Users/home/cardboard-implementation-20261014/native/contact-fixed-feature-and-rollback-078/stderr.log",
+    "sha256": "80ff87d1b5e4d8f33738b3040c0ae0d1fffa928e47bca03a797ac9987b2ea6bb"
+  },
+  "schema": 1
+}

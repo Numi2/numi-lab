@@ -1,0 +1,10 @@
+{
+  "exit_code": 1,
+  "timed_out": false,
+  "execution_started": false,
+  "stage": "input-seal",
+  "error_type": "FileNotFoundError",
+  "reason": "[Errno 2] No such file or directory: '/Users/home/numi-cardboard-20261006/build-cardboard-frozen-022/cardboard-full-contact-armijo-check'",
+  "wall_seconds": 0.1519384160055779,
+  "finished_at_utc": "2026-10-14T19:29:38.755428+00:00"
+}

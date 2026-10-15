@@ -1,0 +1,13 @@
+{
+  "schema": "numi.cardboard.probe-result.v1",
+  "status": "failed",
+  "accepted_steps": 0,
+  "compiled_world_fingerprint": 10412569303351742480,
+  "nodes": 1458,
+  "tetrahedra": 3072,
+  "material_map_sha256": "8d6cfcdebe27d88bc6f4dd7502fd88c637b52f0c139010632120a60208490f9b",
+  "frame_map_sha256": "705120934dd1161e06c74f9f36ba27947d9c00dab4e83d0df8b227bf2c65b9fc",
+  "damage_overlay_mapping_sha256": "",
+  "failure": "Matter rejected step 0; status, accepted state OBJ, and CSV observations were retained",
+  "physical_validation": false
+}

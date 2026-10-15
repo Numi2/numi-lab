@@ -1,0 +1,7 @@
+authored_newton_iterations=16 accurate_paper=false
+ipc_barrier_regularization=pass c1_floor_m=1e-09 below_floor_repulsion=true outside_support_exact_zero=true
+armijo_fp32_rounded_bound=pass base=3.43036e-05 alpha=1.6975e-08 bound_equals_base=true unchanged_rejected=true representable_descent_admitted=true
+authored_line_search_budget=pass accepted=1,8,32 rejected=0,33
+prescribed_box_compiler_admission=pass nonunit_barrier_and_dynamic_box_rejected=true
+selected_fem_preconditioner=scalar_diagonal selector=0
+prescribed_box_unrelated_punch_clearance_preflight=pass highest_node_z_m=0.00202500005 lowest_punch_z_m=0.0020549999 clearance_m=2.99998447e-05 declared_clearance_m=3e-05 body_pose_source=uploaded_MRBodyStateGPU geometry_source=authored_capsule_proxy_endpoints

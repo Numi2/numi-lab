@@ -1,0 +1,42 @@
+{
+  "schema": "numi.cardboard.accepted_geometry_animation.v1",
+  "complete": false,
+  "expected_steps": 27,
+  "accepted_steps": 3,
+  "rejected_steps": [],
+  "manifest_sha256": "d596ed8f0ca3313600b9dd8d3123ac75b00bc68ca873ab90f8204b35223782ba",
+  "observations_sha256": "40fa4f78d62d9abc479bb0bf24cb195d00b541d162204a0b6cca6f85cb2b4fab",
+  "animation_sha256": "7340e668f6a64a3aa424c4d0767a009c3f49da52a24ccbbadb5d08e42c363d4c",
+  "environment": 0,
+  "displayed_frames": 3,
+  "frame_stride": 1,
+  "playback_fps": 2,
+  "geometric_interpolation": false,
+  "deformation_scale": 1,
+  "fixed_camera": true,
+  "topology_decimation": false,
+  "physical_validation": false,
+  "frames": [
+    {
+      "step": 0,
+      "time_s": 9.999999747378752e-05,
+      "stage": "loading",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/regional-bending-terminal-capture-061/output/accepted_step_000001_bent.obj",
+      "sha256": "3fbb071d4c0c0f5bb5179ee6a241b1074a234badca07d682765da423b7765b77"
+    },
+    {
+      "step": 1,
+      "time_s": 0.00019999999494757503,
+      "stage": "loading",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/regional-bending-terminal-capture-061/output/accepted_step_000002_bent.obj",
+      "sha256": "2f980350bf0e21d51a144a9f7706fdd66ebd2af56cda7192d0cd89d51203d33d"
+    },
+    {
+      "step": 2,
+      "time_s": 0.00029999999242136255,
+      "stage": "loading",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/regional-bending-terminal-capture-061/output/accepted_step_000003_bent.obj",
+      "sha256": "3db89d864af3927a92c8cf6a8cfaf5917f0fdd051e9870dc1ce8306565b62c98"
+    }
+  ]
+}

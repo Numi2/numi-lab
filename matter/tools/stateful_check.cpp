@@ -710,7 +710,8 @@ void verifyAdaptiveLayout() {
         );
         require(
             validationError.find(expected) != std::string::npos,
-            "canonical layout validator returned the wrong diagnostic"
+            std::string("canonical layout validator expected '") +
+                std::string(expected) + "' but returned '" + validationError + "'"
         );
     };
 
@@ -788,8 +789,8 @@ void verifyAdaptiveLayout() {
     }
     {
         auto candidate = roundTrip;
-        // Selectors 0 and 1 are defined; 2 remains an invalid policy.
-        candidate.mixedSolver.executionBudgets.z = 2u;
+        // Selectors 0 through 4 are defined, including contact-regional RAP.
+        candidate.mixedSolver.executionBudgets.z = 5u;
         requireRejected(std::move(candidate), "mixed solver policy");
     }
     {

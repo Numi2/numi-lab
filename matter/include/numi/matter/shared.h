@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 41u
+#define NM_MATTER_ABI_VERSION 45u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_VASCULAR_TISSUE_MOMENTUM_TRANSFER 0x80000000u
 #define NM_EXPRESSION_STACK_CAPACITY 96u
@@ -65,6 +65,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 // it is intentionally separate from the smaller compiled basis depth above.
 #define NM_MIXED_FGMRES_MAX_ITERATIONS 1024u
 #define NM_MIXED_LINE_SEARCH_STEPS 8u
+#define NM_MIXED_LINE_SEARCH_MAX_STEPS 32u
 #define NM_MIXED_FIELD_SMOOTHER_MAX_PASSES 3u
 #define NM_MIXED_MUTATION_RESTARTS 4u
 #define NM_LEARNED_MAX_LAYERS 8u
@@ -152,6 +153,10 @@ enum NMMaterialFlags : nm_u32 {
     NM_MATERIAL_HAS_STATE = 1u << 0u,
     NM_MATERIAL_HAS_DISSIPATION = 1u << 1u,
     NM_MATERIAL_HAS_IMPLICIT_STATE = 1u << 2u,
+    NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER = 1u << 3u,
+    NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC = 1u << 4u,
+    NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION = 1u << 5u,
+    NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION = 1u << 6u,
 };
 
 enum NMMaterialProjectionKind : nm_u32 {
@@ -176,6 +181,9 @@ enum NMMatterFlags : nm_u32 {
     NM_MATTER_MUTATION = 1u << 6u,
     NM_MATTER_LEARNED_MATERIAL = 1u << 7u,
     NM_MATTER_IPC = 1u << 8u,
+    // surfaceFaceCount indexes an exterior-only immutable FEM map. Source
+    // face identities remain 4*tet+opposite, distinct from compact slots.
+    NM_MATTER_STATIC_FEM_SURFACE_MAP = 1u << 9u,
 };
 
 enum NMObjectFlags : nm_u32 {
@@ -197,6 +205,11 @@ enum NMObjectFlags : nm_u32 {
 
 enum NMTetrahedronFlags : nm_u32 {
     NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT = 1u << 1u,
+    // Immutable authored preconditioner region ID occupies bits 8..10 only
+    // when the source-selected regional Galerkin mode is active. This is
+    // solver metadata, not a physical material or topology flag.
+    NM_TETRAHEDRON_PRECONDITIONER_REGION_SHIFT = 8u,
+    NM_TETRAHEDRON_PRECONDITIONER_REGION_MASK = 7u << 8u,
 };
 
 enum NMFieldBoundaryFlags : nm_u32 {
@@ -245,6 +258,25 @@ enum NMTopologyFlags : nm_u32 {
     // constitutive interface material. Unlike event-created cohesive faces,
     // side B is present in separatedNodes from the initial state.
     NM_TOPOLOGY_PAIRED_COHESIVE = 1u << 5u,
+    // Authored mixed-mode bilinear interface with per-quadrature irreversible
+    // history. The paired nodes are already duplicated in the source mesh.
+    NM_TOPOLOGY_COHESIVE_MIXED_MODE = 1u << 6u,
+    // A mixed-mode paired interface that has not yet been activated by its
+    // explicit control-step request and accepted-geometry contact gate.
+    NM_TOPOLOGY_COHESIVE_DORMANT = 1u << 7u,
+    // Mixed-mode mortar patch: the three patch vertices are independently
+    // mapped into the two parent faces by the source barycentric maps below.
+    NM_TOPOLOGY_COHESIVE_MORTAR = 1u << 8u,
+};
+
+enum NMCohesiveLawKind : nm_u32 {
+    NM_COHESIVE_LAW_TRYDING_MODE_I = 0u,
+    NM_COHESIVE_LAW_MIXED_MODE_BILINEAR = 1u,
+};
+
+enum NMCohesiveActivationMode : nm_u32 {
+    NM_COHESIVE_ACTIVATION_SCHEDULED = 0u,
+    NM_COHESIVE_ACTIVATION_EXPLICIT_COMMAND = 1u,
 };
 
 enum NMLearnedActivationKind : nm_u32 {
@@ -292,6 +324,9 @@ enum NMContactFlags : nm_u32 {
     NM_CONTACT_VALID = 1u << 0u,
     NM_CONTACT_STICKING = 1u << 1u,
     NM_CONTACT_NEW = 1u << 2u,
+    // Contact feature geometry is a clipped subtriangle whose shape
+    // derivatives map into six parent-triangle FEM nodes.
+    NM_CONTACT_MAPPED_FEATURE = 1u << 3u,
 };
 
 enum NMEventClass : nm_u32 {
@@ -377,7 +412,9 @@ typedef struct NM_ALIGN16 NMMatterDispatchGPU {
 typedef struct NM_ALIGN16 NMMixedSolverGPU {
     // Newton, FGMRES restart, total FGMRES, determinant backtracking.
     nm_uint4 nonlinearIterations;
-    // Field-smoother passes, mutation restarts, FEM preconditioner selector, reserved.
+    // Field-smoother passes, mutation restarts, FEM preconditioner selector,
+    // reserved. Selector 2 is regional RAP with scalar fine correction;
+    // selector 3 uses the same RAP with a 3x3 nodal block fine correction.
     nm_uint4 executionBudgets;
     // Equilibrium, volume, pressure, and transport relative residuals.
     nm_float4 residualTolerances;
@@ -583,8 +620,9 @@ enum NMDeformableContactKind : nm_u32 {
 };
 
 typedef struct NM_ALIGN16 NMDeformableContactGPU {
-    // Four unified continuum nodes carrying the contact Jacobian. Unused
-    // entries are NM_INVALID_INDEX.
+    // Up to six unified continuum nodes carrying the contact Jacobian. The
+    // first four retain the legacy layout; mapped mortar-complement features
+    // use extraNodes/extraWeights/extraTimeScales for the final two.
     nm_uint4 nodes;
     // Positive-side object, negative-side object, feature kind, flags.
     nm_uint4 identity;
@@ -619,7 +657,68 @@ typedef struct NM_ALIGN16 NMDeformableContactGPU {
     // mollifier value, dt * unmollified barrier energy,
     // dt^2 * PSD Gauss-Newton curvature, unmollified barrier stiffness.
     nm_float4 mollifier;
+    nm_uint4 extraNodes;
+    nm_float4 extraWeights;
+    nm_float4 extraTimeScales;
+    nm_float4 mollifierGradientRow4;
+    nm_float4 mollifierGradientRow5;
+    // Clipped contact feature vertices are barycentric points on one of the
+    // two source parent triangles. These maps reconstruct exact moving feature
+    // geometry for CCD and trial-energy evaluation without adding FEM nodes.
+    nm_uint4 featureSideByVertex;
+    nm_float4 featureBarycentricX;
+    nm_float4 featureBarycentricY;
+    nm_float4 featureBarycentricZ;
 } NMDeformableContactGPU;
+
+// Opt-in, transaction-local diagnostic output for the deformable CCD line
+// search. This is scratch only: it is neither serialized in a Matter package
+// nor part of accepted/checkpoint state. One record corresponds to one active
+// contact candidate and carries the exact feature mapping used by CCD.
+typedef struct NM_ALIGN16 NMDeformableContactLimitTraceGPU {
+    nm_uint4 identity;
+    nm_uint4 source;
+    nm_uint4 nodes;
+    nm_uint4 extraNodes;
+    nm_float4 weights;
+    nm_float4 extraWeights;
+    nm_uint4 featureSideByVertex;
+    nm_float4 featureBarycentricX;
+    nm_float4 featureBarycentricY;
+    nm_float4 featureBarycentricZ;
+    nm_float4 featureStart[4];
+    nm_float4 featureEnd[4];
+    nm_float4 normalAndTOI;
+    nm_float4 pointAndSeparation;
+    nm_float4 barrierParameters;
+    // collision thickness, exact CCD TOI, separation at TOI, lane alpha after
+    // this candidate (before the final SIMD minimum).
+    nm_float4 metrics;
+    // start gap, directional gap, start barrier energy, start separation.
+    nm_float4 barrier;
+    // lane alpha before this contact, lane alpha after this contact,
+    // initially requested object alpha, record-written marker.
+    nm_float4 lineSearch;
+    // active slot, contact slot, CCD hit, CCD certified.
+    nm_uint4 result;
+    // record valid, zero-bound/failure reason code, reserved, reserved.
+    nm_uint4 diagnostic;
+    // Exact source contact record for bounded selected-iteration replay.
+    // This is diagnostic scratch only; it is not part of a runtime checkpoint
+    // or the production contact arena. The writer fills it only for a captured
+    // active slot, and readers must honor the active count/truncation fields.
+    NMDeformableContactGPU contact;
+    // Optional read-only result from the production exact VT matrix-action
+    // helper, evaluated on each of the four source support nodes using the
+    // selected Newton correction. Each float4 stores action xyz and a reserved
+    // zero w lane. The matching uint4 stores one supported-branch marker per
+    // support; these fields are diagnostic scratch and never solver state.
+    nm_float4 productionExactAction[4];
+    nm_uint4 productionExactActionSupported;
+    // Actual per-object timestep passed to the production helper. This can
+    // differ from the owner microstep for multirate objects.
+    nm_float4 productionExactActionMetadata;
+} NMDeformableContactLimitTraceGPU;
 
 // Compact transaction-owned deformable-contact history. The
 // geometric contact record is rebuilt from current surface primitives on each
@@ -650,13 +749,52 @@ typedef struct NM_ALIGN16 NMCohesiveFaceGPU {
     nm_uint4 adjacency;
     // damage, maximum opening, traction, fracture work.
     nm_float4 state;
-    // rest normal xyz and rest area.
+    // Interface reference normal xyz and latched reference area. Mortar
+    // patches replace the preflight area with the actual accepted setting
+    // endpoint area when activated.
     nm_float4 geometry;
     // For event-created faces, separated-side node copies. For
     // NM_TOPOLOGY_PAIRED_COHESIVE, xyz are authored side-B nodes and w is the
     // cohesive material index. Event-created faces keep w zero.
     nm_uint4 separatedNodes;
+    // kind, cohesive-material-table index, activation control step, reserved.
+    // Legacy Tryding faces keep kind zero and continue to use separatedNodes.w
+    // as their generic material index.
+    nm_uint4 lawIdentity;
+    // Maximum accepted nodal opening at activation in metres; remaining lanes
+    // are reserved and must be zero.
+    nm_float4 activationControl;
+    // Per paired node, activation gap in the co-rotating local basis
+    // (normal, tangent-1, tangent-2), metres.
+    nm_float4 activationLocalGap[3];
+    // Actual side-A patch vertices and tangent-1 at the accepted activation
+    // endpoint. Dormant faces keep these zero.
+    nm_float4 activationSideAPosition[3];
+    nm_float4 activationTangent1;
+    // For mortar patches, each row is one patch vertex's barycentric map
+    // into the corresponding parent face. Conforming legacy pairs use the
+    // identity rows. w is reserved and must remain zero.
+    nm_float4 mortarSideAVertexWeights[3];
+    nm_float4 mortarSideBVertexWeights[3];
+    // Three triangle quadrature points: maximum energy-norm separation,
+    // onset energy-norm separation, frozen mixed fracture energy, damage.
+    nm_float4 mixedPointHistory[3];
+    // Cumulative dissipation per quadrature point in x/y/z, J/m^2.
+    nm_float4 mixedPointWork;
 } NMCohesiveFaceGPU;
+
+typedef struct NM_ALIGN16 NMCohesiveActivationCommandGPU {
+    // environment, object, stable face identifier, reserved zero.
+    nm_uint4 identity;
+} NMCohesiveActivationCommandGPU;
+
+typedef struct NM_ALIGN16 NMCohesiveMaterialGPU {
+    // Normal, shear, compression penalties (Pa/m) and normal initiation
+    // strength (Pa).
+    nm_float4 stiffnessAndNormalStrength;
+    // Shear initiation strength (Pa), GIc (J/m^2), GIIc (J/m^2), BK exponent.
+    nm_float4 shearStrengthAndFracture;
+} NMCohesiveMaterialGPU;
 
 typedef struct NM_ALIGN16 NMMutationCommandGPU {
     // kind, object, stable identifier, flags.
@@ -1101,7 +1239,9 @@ typedef struct NM_ALIGN16 NMContactSampleGPU {
     nm_float4 angularImpulseAndTangent;
     // IPC normal impulse, velocity-space PSD curvature, thickness, barrier k.
     nm_float4 barrier;
-    // Rows of the primal velocity-space PSD barrier/friction Hessian.
+    // Rows of the physical velocity-space barrier/friction Hessian. Exact
+    // capsule-side geometry may make this block indefinite; preconditioners
+    // apply their own PSD policy without changing the physical operator.
     nm_float4 barrierHessianRow0;
     nm_float4 barrierHessianRow1;
     nm_float4 barrierHessianRow2;

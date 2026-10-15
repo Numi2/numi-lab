@@ -1,0 +1,2910 @@
+{
+  "schema": "numi.cardboard.captured_material_comparison.v1",
+  "reference_sha256": "c62ebe82111fa14daf9f64cca40840cef61c6a24e7b95a5390a04b5f24f0c269",
+  "native_sha256": "24c228ddd0d5ad20ef307cf6fce529fb1ad07bb3681a815cd3c20ac8e41ba0c0",
+  "total_rows": 14400,
+  "invalid_rows": 365,
+  "invalid": [
+    {
+      "key": "e0_t1026_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1026_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1028_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1028_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1028_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1029_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1029_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1030_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1031_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1031_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1031_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1068_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1069_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1069_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1070_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1070_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1070_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1071_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1071_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1072_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1072_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1086_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1086_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1087_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1087_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1087_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1088_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1089_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1089_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1089_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1089_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1090_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1090_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1090_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1091_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1091_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1091_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1128_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1128_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1128_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1129_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1129_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1129_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1129_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1129_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1130_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1130_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1130_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1130_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1131_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1131_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1131_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1131_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1131_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1132_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1132_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1133_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1133_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1133_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1133_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1133_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1146_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1146_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1146_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1146_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1146_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1147_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1147_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1147_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1147_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1147_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1148_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1148_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1148_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1148_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1148_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1149_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1149_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1149_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1149_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1150_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1150_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1150_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1150_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1151_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1151_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1151_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1151_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1151_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1188_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1188_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1188_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1188_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1188_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1189_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1189_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1189_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1190_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1190_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1190_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1190_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1191_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1191_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1191_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1192_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1192_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1192_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1192_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1192_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1193_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1193_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1193_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1193_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1206_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1206_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1206_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1206_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1206_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1207_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1207_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1207_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1207_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1207_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1208_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1208_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1208_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1208_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1209_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1209_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1209_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1209_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1210_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1210_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1210_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1210_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1210_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1211_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1211_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1211_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1211_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1211_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1248_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1248_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1248_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1248_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1248_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1249_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1249_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1249_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1249_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1249_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1250_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1250_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1250_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1250_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1250_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1251_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1251_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1251_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1251_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1252_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1252_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1252_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1252_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1253_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1253_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1253_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1253_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1253_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1256_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1260_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1261_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1261_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1266_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1266_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1266_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1266_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1266_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1267_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1267_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1267_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1267_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1267_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1268_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1268_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1268_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1268_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1268_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1269_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1269_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1269_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1269_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1269_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1270_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1270_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1270_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1270_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1271_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1271_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1271_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1271_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1271_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1308_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1308_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1308_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1308_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1308_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1309_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1309_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1309_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1309_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1309_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1310_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1310_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1310_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1310_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1310_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1311_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1311_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1311_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1311_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1312_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1312_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1312_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1312_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1312_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1313_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1313_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1313_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1313_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1313_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1318_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1323_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1323_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1325_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1326_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1326_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1326_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1326_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1326_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1327_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1327_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1327_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1327_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1327_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1328_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1328_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1328_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1328_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1328_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1329_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1329_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1329_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1329_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1329_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1330_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1330_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1330_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1330_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1330_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1331_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1331_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1331_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1331_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1331_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1368_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1368_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1368_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1368_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1368_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1369_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1369_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1369_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1369_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1369_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1370_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1370_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1370_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1370_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1371_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1371_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1371_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1371_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1371_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1372_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1372_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1372_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1372_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1372_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1373_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1373_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1373_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1373_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1373_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1374_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1374_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1374_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1375_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1376_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1376_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1377_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1377_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1378_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1379_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1380_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1381_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1382_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1383_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1384_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1385_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1386_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1386_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1386_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1386_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1386_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1387_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1387_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1387_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1388_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1388_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1388_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1388_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1388_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1389_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1389_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1389_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1389_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1390_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1390_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1390_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1390_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1390_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1391_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1391_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1391_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1391_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1391_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1428_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1428_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1428_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1428_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1428_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1429_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1429_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1429_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1429_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1430_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1430_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1430_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1430_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1431_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1431_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1431_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1431_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1431_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1432_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1432_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1432_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1432_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1432_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1433_s0",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1433_s1",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1433_s2",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1433_s3",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    },
+    {
+      "key": "e0_t1433_s4",
+      "native_valid": false,
+      "reference_valid": true,
+      "native_failure": 7,
+      "native_iterations": 16
+    }
+  ],
+  "measured_noise_floors": {
+    "stress_pa": null,
+    "tangent_pa_per_s": null
+  },
+  "layer_gate_relative": 0.001,
+  "layers": {
+    "stress": {
+      "counts": {
+        "inconclusive_zero_reference_without_noise_floor": 4800,
+        "pass": 9235
+      },
+      "worst": [
+        {
+          "key": "e0_t1030_s4",
+          "stress": {
+            "absolute_error": 0.04425308092322666,
+            "reference_scale": 25112.423159330923,
+            "relative_error": 1.7621987588554838e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 225.1156241381541,
+            "reference_scale": 120523173.34238139,
+            "relative_error": 1.8678202531113846e-06,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 1.7271140854285827e-10
+        },
+        {
+          "key": "e0_t1086_s2",
+          "stress": {
+            "absolute_error": 0.04180109454682679,
+            "reference_scale": 28652.31272644501,
+            "relative_error": 1.4589082195883597e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 78.63932566065341,
+            "reference_scale": 212326119.09313717,
+            "relative_error": 3.703704753636935e-07,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 1.4826601578421528e-10
+        },
+        {
+          "key": "e0_t1383_s0",
+          "stress": {
+            "absolute_error": 0.036985124923376134,
+            "reference_scale": 25473.902219499923,
+            "relative_error": 1.4518829743746339e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 1594.9511929303408,
+            "reference_scale": 2316476969.805554,
+            "relative_error": 6.88524519656339e-07,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 2.6740563843080656e-10
+        },
+        {
+          "key": "e0_t1318_s2",
+          "stress": {
+            "absolute_error": 0.03645224970023264,
+            "reference_scale": 26127.8151102503,
+            "relative_error": 1.3951510888459987e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 110.05278966238257,
+            "reference_scale": 197060197.62746203,
+            "relative_error": 5.584729488114842e-07,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 1.6048218700118189e-10
+        },
+        {
+          "key": "e0_t1381_s2",
+          "stress": {
+            "absolute_error": 0.04667710410649306,
+            "reference_scale": 33959.16256388054,
+            "relative_error": 1.3745069248597876e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 1196.897020071745,
+            "reference_scale": 926049567.0373745,
+            "relative_error": 1.2924761942288551e-06,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 2.317280612187944e-10
+        },
+        {
+          "key": "e0_t1383_s4",
+          "stress": {
+            "absolute_error": 0.03435975125466939,
+            "reference_scale": 25489.322138581752,
+            "relative_error": 1.3480056891219154e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 948.8521171212196,
+            "reference_scale": 2327091924.1675453,
+            "relative_error": 4.0774157104285685e-07,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 1.5344291332333726e-10
+        },
+        {
+          "key": "e0_t1087_s2",
+          "stress": {
+            "absolute_error": 0.037281310636899434,
+            "reference_scale": 28826.60267125767,
+            "relative_error": 1.2932953307769337e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 114.26654753088951,
+            "reference_scale": 212494676.485541,
+            "relative_error": 5.377384008896085e-07,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 1.8881823058217173e-10
+        },
+        {
+          "key": "e0_t1381_s3",
+          "stress": {
+            "absolute_error": 0.039676144457189366,
+            "reference_scale": 34113.36023335558,
+            "relative_error": 1.1630676129757093e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 1058.9483355470002,
+            "reference_scale": 894310083.1291925,
+            "relative_error": 1.1840952657513804e-06,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 8.709297215706013e-11
+        },
+        {
+          "key": "e0_t1030_s0",
+          "stress": {
+            "absolute_error": 0.02823122633708408,
+            "reference_scale": 25118.508878148663,
+            "relative_error": 1.123921267541612e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 191.73779005324468,
+            "reference_scale": 120677301.21314657,
+            "relative_error": 1.5888471827405831e-06,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 6.614212389594032e-11
+        },
+        {
+          "key": "e0_t1029_s0",
+          "stress": {
+            "absolute_error": 0.03837862951149873,
+            "reference_scale": 34924.16681074411,
+            "relative_error": 1.0989132459329535e-06,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 53.22647534310818,
+            "reference_scale": 207881240.3621232,
+            "relative_error": 2.5604270616429446e-07,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 9.127219553067834e-11
+        }
+      ]
+    },
+    "tangent": {
+      "counts": {
+        "inconclusive_zero_reference_without_noise_floor": 7200,
+        "pass": 6835
+      },
+      "worst": [
+        {
+          "key": "e0_t1403_s1",
+          "stress": {
+            "absolute_error": 0.0006931104835530277,
+            "reference_scale": 25241.70712514112,
+            "relative_error": 2.7458938498762597e-08,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 32507.54700683593,
+            "reference_scale": 213549638.98558342,
+            "relative_error": 0.0001522247809045956,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 2.6455398852501255e-10
+        },
+        {
+          "key": "e0_t1221_s2",
+          "stress": {
+            "absolute_error": 0.0018637699831742793,
+            "reference_scale": 170552.32639946011,
+            "relative_error": 1.0927848493892952e-08,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 1539.9571209866554,
+            "reference_scale": 11595348.588219186,
+            "relative_error": 0.0001328081781475068,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 1.505060923980006e-10
+        },
+        {
+          "key": "e0_t1221_s0",
+          "stress": {
+            "absolute_error": 0.00614573634811677,
+            "reference_scale": 170460.88447926365,
+            "relative_error": 3.605364577856799e-08,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 1223.3987383022904,
+            "reference_scale": 11584455.41229857,
+            "relative_error": 0.00010560692710711945,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 3.2260853016774504e-10
+        },
+        {
+          "key": "e0_t1221_s1",
+          "stress": {
+            "absolute_error": 0.006344617635477334,
+            "reference_scale": 170369.43382808362,
+            "relative_error": 3.724035170463477e-08,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 914.5075538344681,
+            "reference_scale": 11573590.404428402,
+            "relative_error": 7.901675468699412e-05,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 6.988281411879349e-10
+        },
+        {
+          "key": "e0_t1397_s2",
+          "stress": {
+            "absolute_error": 0.0013122133241267875,
+            "reference_scale": 24720.762360303837,
+            "relative_error": 5.3081426252206384e-08,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 2748.015041425824,
+            "reference_scale": 45854651.172688276,
+            "relative_error": 5.992881793118041e-05,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 1.24165672969051e-10
+        },
+        {
+          "key": "e0_t870_s0",
+          "stress": {
+            "absolute_error": 0.010077167535200715,
+            "reference_scale": 825386.6975771675,
+            "relative_error": 1.2209025859977075e-08,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 27534.603794546332,
+            "reference_scale": 473793530.81292516,
+            "relative_error": 5.811519576323262e-05,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 4.159438155015849e-09
+        },
+        {
+          "key": "e0_t1032_s3",
+          "stress": {
+            "absolute_error": 0.0039974198007257655,
+            "reference_scale": 103859.7815318391,
+            "relative_error": 3.848862131007201e-08,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 800.1564992005005,
+            "reference_scale": 15687169.750040425,
+            "relative_error": 5.100706577095837e-05,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 5.938286806728144e-10
+        },
+        {
+          "key": "e0_t1430_s4",
+          "stress": {
+            "absolute_error": 0.005733994621550664,
+            "reference_scale": 170371.72864100538,
+            "relative_error": 3.3655787068011215e-08,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 3865.3173847049475,
+            "reference_scale": 91367479.1975466,
+            "relative_error": 4.2305177057010664e-05,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 7.255878918532854e-10
+        },
+        {
+          "key": "e0_t1101_s2",
+          "stress": {
+            "absolute_error": 0.004996476753149182,
+            "reference_scale": 157480.11437147675,
+            "relative_error": 3.17276677953325e-08,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 556.6507599810138,
+            "reference_scale": 17951418.491706327,
+            "relative_error": 3.10087339470243e-05,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 3.3729609071053712e-09
+        },
+        {
+          "key": "e0_t1073_s3",
+          "stress": {
+            "absolute_error": 0.026614581591275055,
+            "reference_scale": 60087.29488892227,
+            "relative_error": 4.42931931625062e-07,
+            "verdict": "pass"
+          },
+          "tangent": {
+            "absolute_error": 429.78960604965687,
+            "reference_scale": 20271800.018420607,
+            "relative_error": 2.1201353883676587e-05,
+            "verdict": "pass"
+          },
+          "state_max_absolute_error": 1.896709300036603e-10
+        }
+      ]
+    }
+  },
+  "state_max_absolute_error": 1.395992581254557e-08,
+  "verdict": "fail",
+  "scope": "material projection and analytical algorithmic tangent only; no element, FD, convergence or physical qualification"
+}

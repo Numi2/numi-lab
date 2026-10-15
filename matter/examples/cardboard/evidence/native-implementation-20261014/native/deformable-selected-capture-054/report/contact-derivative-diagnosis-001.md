@@ -1,0 +1,13 @@
+# Deformable-contact tangent diagnosis from capture 054
+
+This is a diagnostic replay of one selected native nonlinear state, not a passing solver run or physical qualification. The enclosing full-contact transaction failed. It records the first supported local operator discrepancy for the saved state and leaves the 17 records too near a closest-feature boundary or degenerate for this derivative oracle.
+
+Capture: `stderr.log`, SHA-256 `ee4e3d340b24b7fd6b1eebf725c9c240abc9eca96acaa5894226d239ba1aa24a`; selected root 0, Newton 42, after deformable contact limiting, 44 active records with complete capture coverage. The immutable native source snapshot is `snapshots/contact-damage-bending-036`; its `contact.metalinc` SHA is `5fde2a9c14dae57e7cf52e0a3cf2f0b8af8e44694e31a391153a2c3a789db0af` and `fgmres.metalinc` SHA is `f0e462a4c72d80fbd1697292687853ff982f44afafc831ee68e4c9f77a5b5955`.
+
+For the 27 of 44 records passing strict gates (unmapped VT, zero friction, saturated unit mollifier with zero gradients, active barrier above its floor, strictly inertial stiffness, consistent candidate weights/normal/separation, and smooth feature margin), I differentiated the actual contact impulse residual along the captured velocity direction. The derivative includes closest-point normal and barycentric motion plus the variation of inertial stiffness, `k = 10/(I dt^2 h^2)`, through `I = Σ w_i^2 invMass_i`. Centered FP64 residual differences recompute weights, inverse response, stiffness, barrier force, and velocity on both sides.
+
+At velocity epsilon `1e-4`, the analytic action differs from recomputed centered residual differences by median `2.74e-9` and maximum `2.16e-8` relative. At the same epsilon, the captured radial-only PSD block differs by median `40.09%` and maximum `59.68%`. The largest relative change in `k` across a side at this epsilon is `1.86e-7`; this captured direction is dominated by geometric normal/feature-weight variation, while the `k` derivative is still included in the exact formula. Smaller centered epsilon `1e-5` gives median/max relative error `1.11e-8` / `3.30e-8`.
+
+This establishes a local derivative mismatch for the supported records. It does not establish that this contact term alone caused the terminal certificate failure, and the 17 boundary/degenerate records, nonzero friction, mortar features, impact stiffness, MPM/contact coupling, and full native trajectory remain outside this correction's qualification. The native solver must be rebuilt and rerun before claiming the changed operator improves a physical trajectory.
+
+Replay output: `contact-derivative-replay-inertial-004.json`. Replay implementation SHA-256 at capture time: `7407d6d3fe8e40754a71e1bda5c38fb620b2d8a438e796ee44c32e7767f4729b`.

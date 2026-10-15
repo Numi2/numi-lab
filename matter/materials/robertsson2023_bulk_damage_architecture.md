@@ -93,25 +93,38 @@ law.
 
 ## Current source-equivalence limits in the native authoring path
 
-The material builder accepts machine- and cross-direction projected areas, but
-its defaults are both `0.0011 mm²`, equal to the paper's reference area. The
-current point and FEM fixtures call `makeMaterial()` with those defaults, so
-the resulting two area ratios are `1.0`; the FEM path does not compute and pass
-per-tetrahedron material-direction projected areas. The native implementation
-therefore does not reproduce the paper's elementwise projected-area scaling
-or its mesh calibration. The one-tetrahedron coupling check verifies
-state/force parity for this authored program, not the paper's mesh-regularized
-crease response.
+The source-equivalent builder now requires explicit MD and CD projected areas.
+The one-tetrahedron own-grade verification uses the paper's reference value
+`0.0011 mm²` for both directions and explicitly selects `paper_absolute`.
+This is a source-bound material-state/force check, not the paper's elementwise
+brick-area mapping or mesh-calibrated crease response.
 
-The authored ZD compression energy also subtracts an additive constant so
-`Psi(I)=0`. This preserves the fixed-damage stress because the deformation
-derivative of a constant is zero, but it changes the absolute energy level and
-can change any damage-conjugate term evaluated from the unshifted energy. The
-printed equation and the source implementation's energy normalization have not
-been reconciled; the current tests do not establish exact source-energy-level
-reproduction. Treat the program as the documented stress/plasticity/damage
-slice with this explicit normalization, rather than claiming identity of the
-full source free energy.
+A separate tetrahedral candidate builder takes four actual selected crack
+planes per element, computes each area `A` and length `l=V/A`, and requires an
+explicit `Gc` for each plane. It inserts the local `Gc/l` softening work into
+the candidate damage update and gives that program a distinct
+`tet_selected_plane_candidate` identity. It is an architecture candidate, not
+the source brick regularization and not calibrated for the current kraft,
+NSSC, or starch recipe. Each source element must receive its own generated
+program (or an exactly equivalent set of per-element parameters); sharing one
+reference area across a mesh is not admitted.
+
+The source-energy discrepancy remains unresolved. Published Eq. 18 prints
+the ZD-compression bracket as
+`I13^2 + exp(-E7*(I13^2-1))/E7 - 2`; the native builder offers this literal
+`paper_absolute` convention and a `recentered` convention using `-1-1/E7`.
+The latter adds `E6*(1-1/E7) = 0.333260869565 MPa` on the compression branch.
+The compressed-side limit is `-0.333260869565 MPa` for `paper_absolute` and
+zero for `recentered`. The source also states `Psi0 >= 0`, which conflicts
+with the printed branch. The article text does not establish whether Eq. 18
+contains a typo. There is no implicit convention default: the source
+verification selects `paper_absolute`, while the historical regression uses
+the explicitly named `makeLegacyRecenteredMaterial()` entry point. Each program
+name records its convention. Both choices carry their selected full
+`Psi0` into `Psi=(1-alpha)Psi0`, so `A=-dPsi/dalpha=Psi0` changes even though
+the deformation derivative within the compressed branch does not. Do not claim
+a convention-independent damage-conjugate force or absolute energy. See the
+hash-bound [`Equation 18 source extract`](../examples/cardboard/source-data/robertsson_2023_eq18_source_extract.md).
 
 The source lists reference damage coefficients `c_n^r = [8, 8, 9, 9]` and
 `beta_n^r = [2.85, 2.85, 3.98, 3.98] MPa^-1` for subsurfaces 9–12. These values

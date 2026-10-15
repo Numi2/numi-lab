@@ -228,8 +228,10 @@ private:
     const EngineModel& model
 ) noexcept;
 
-// Validates and snapshots one canonical articulation transactionally. On
-// failure, compiled remains bit-for-bit logically unchanged.
+// Validates and snapshots a canonical world transactionally. Articulated
+// worlds select a primary articulation; a scene-body-only world uses
+// MR_INVALID_INDEX and contains no articulated q/v coordinates. On failure,
+// compiled remains bit-for-bit logically unchanged.
 [[nodiscard]] MetalWorldCompileDiagnostics compileMetalWorld(
     const EngineModel& model,
     std::uint32_t articulationIndex,
@@ -317,13 +319,21 @@ enum MetalWorldDevicePhysicsFlags : std::uint32_t {
     // substep. The immutable inverse-mass arena is borrowed alongside it.
     // Publication and rollback remain owned by MetalWorld's rod transaction.
     MetalWorldDevicePhysicsCouplesRodNodes = 1u << 3u,
+    // The extension solves every free scene body's complete velocity
+    // candidate and publishes M*dv/dt and I*dw/dt through bodyWrenches.
+    // Its RHS includes gravity and any actuator wrench. MetalWorld integrates
+    // that tested candidate once, without adding gravity or damping again.
+    // Initially admitted only for scene-only worlds without rigid colliders,
+    // body damping, or a second body-wrench producer.
+    MetalWorldDevicePhysicsOwnsFreeBodyCandidate = 1u << 4u,
 };
 
 inline constexpr std::uint32_t kMetalWorldDevicePhysicsKnownFlags =
     MetalWorldDevicePhysicsWritesBodyWrenches |
     MetalWorldDevicePhysicsRequiresRigidContactEvidence |
     MetalWorldDevicePhysicsOwnsCoupledCandidate |
-    MetalWorldDevicePhysicsCouplesRodNodes;
+    MetalWorldDevicePhysicsCouplesRodNodes |
+    MetalWorldDevicePhysicsOwnsFreeBodyCandidate;
 
 struct MetalWorldDevicePhysicsPass;
 
@@ -448,9 +458,15 @@ struct MetalWorldDevicePhysicsProgram {
     [[nodiscard]] bool valid() const noexcept {
         const bool ownsCoupledCandidate =
             (flags & MetalWorldDevicePhysicsOwnsCoupledCandidate) != 0u;
+        const bool ownsFreeBodyCandidate =
+            (flags & MetalWorldDevicePhysicsOwnsFreeBodyCandidate) != 0u;
         return context != nullptr && encode != nullptr && abort != nullptr &&
             fingerprint != 0u &&
             (flags & ~kMetalWorldDevicePhysicsKnownFlags) == 0u &&
+            (!ownsFreeBodyCandidate ||
+             ((flags & MetalWorldDevicePhysicsWritesBodyWrenches) != 0u &&
+              (flags & MetalWorldDevicePhysicsRequiresRigidContactEvidence) == 0u &&
+              !ownsCoupledCandidate)) &&
             coupledCandidatePointCapacity <=
                 MR_ARTICULATED_OPERATOR_MAX_POINTS &&
             (ownsCoupledCandidate

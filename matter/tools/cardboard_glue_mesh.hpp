@@ -36,6 +36,10 @@ struct GlueMeshConfig {
     double upperBondWidth = 0.0; // zero selects bondWidth
     std::uint32_t nxPerPitch = 0u;
     std::uint32_t thicknessSlices = 0u;
+    // Shipping dielines need not end at a flute-period boundary. This opt-in
+    // clips the periodic profile/finite glue patches at the authored length;
+    // the legacy miniature path remains whole-pitch-only by default.
+    bool allowPartialTerminalPitch = false;
 };
 
 struct GlueMeshPoint {
@@ -237,6 +241,14 @@ private:
     std::vector<GlueMeshPoint> points_;
 };
 
+inline void addTriangle(
+    const std::array<std::uint32_t, 3>& nodes,
+    const CellMaterial material,
+    const double frameAngle,
+    const std::vector<GlueMeshPoint>& points,
+    std::vector<GlueMeshTriangle>& triangles,
+    std::array<double, 3>& areas);
+
 inline std::vector<double> sortedUnique(std::vector<double> values,
                                         const double tolerance = 1.0e-13) {
     std::sort(values.begin(), values.end());
@@ -247,6 +259,118 @@ inline std::vector<double> sortedUnique(std::vector<double> values,
             result.push_back(value);
     }
     return result;
+}
+
+inline std::vector<GlueMeshPoint> clipSectionAtX(
+    const std::vector<GlueMeshPoint>& polygon,
+    const double boundary,
+    const bool keepGreater) {
+    std::vector<GlueMeshPoint> output;
+    if (polygon.empty()) return output;
+    const auto inside = [&](const GlueMeshPoint& point) {
+        return keepGreater ? point.x >= boundary - 1.0e-14
+                           : point.x <= boundary + 1.0e-14;
+    };
+    GlueMeshPoint previous = polygon.back();
+    bool previousInside = inside(previous);
+    for (const GlueMeshPoint current : polygon) {
+        const bool currentInside = inside(current);
+        if (currentInside != previousInside) {
+            const double dx = current.x - previous.x;
+            if (std::abs(dx) > 1.0e-20) {
+                const double fraction = (boundary - previous.x) / dx;
+                output.push_back({boundary, previous.z + fraction *
+                    (current.z - previous.z)});
+            }
+        }
+        if (currentInside) output.push_back(current);
+        previous = current;
+        previousInside = currentInside;
+    }
+    std::vector<GlueMeshPoint> clean;
+    clean.reserve(output.size());
+    for (const GlueMeshPoint point : output)
+        if (clean.empty() || std::hypot(point.x - clean.back().x,
+                                        point.z - clean.back().z) > 1.0e-13)
+            clean.push_back(point);
+    if (clean.size() > 2u &&
+        std::hypot(clean.front().x - clean.back().x,
+                   clean.front().z - clean.back().z) <= 1.0e-13)
+        clean.pop_back();
+    return clean;
+}
+
+inline void clipPartialTerminalCrossSection(
+    const GlueMeshConfig& config,
+    std::vector<GlueMeshPoint>& points,
+    std::vector<GlueMeshTriangle>& triangles,
+    std::array<double, 3>& areas,
+    std::vector<GlueFootprint>& footprints) {
+    std::vector<std::int32_t> footprintForTriangle(triangles.size(), -1);
+    for (std::size_t footprint = 0; footprint < footprints.size(); ++footprint) {
+        const std::uint64_t begin = footprints[footprint].firstTriangle;
+        const std::uint64_t end = begin + footprints[footprint].triangleCount;
+        for (std::uint64_t triangle = begin; triangle < end; ++triangle)
+            footprintForTriangle.at(static_cast<std::size_t>(triangle)) =
+                static_cast<std::int32_t>(footprint);
+        footprints[footprint].firstTriangle = 0u;
+        footprints[footprint].triangleCount = 0u;
+        footprints[footprint].crossSectionArea = 0.0;
+        footprints[footprint].volumePerUnitBoardWidth = 0.0;
+    }
+
+    PointRegistry clippedRegistry;
+    std::vector<GlueMeshTriangle> clippedTriangles;
+    clippedTriangles.reserve(triangles.size() + 16u);
+    std::array<double, 3> clippedAreas{};
+    for (std::size_t triangleIndex = 0; triangleIndex < triangles.size();
+         ++triangleIndex) {
+        const GlueMeshTriangle& source = triangles[triangleIndex];
+        std::vector<GlueMeshPoint> polygon{
+            points[source.points[0]], points[source.points[1]],
+            points[source.points[2]]};
+        polygon = clipSectionAtX(polygon, 0.0, true);
+        polygon = clipSectionAtX(polygon, config.length, false);
+        if (polygon.size() < 3u) continue;
+
+        const std::int32_t footprintIndex = footprintForTriangle[triangleIndex];
+        if (footprintIndex >= 0) {
+            GlueFootprint& footprint = footprints[
+                static_cast<std::size_t>(footprintIndex)];
+            if (footprint.triangleCount == 0u)
+                footprint.firstTriangle = clippedTriangles.size();
+        }
+        std::vector<std::uint32_t> ids;
+        ids.reserve(polygon.size());
+        for (const GlueMeshPoint point : polygon)
+            ids.push_back(clippedRegistry.add(point));
+        for (std::size_t fan = 1u; fan + 1u < ids.size(); ++fan) {
+            const std::size_t before = clippedTriangles.size();
+            addTriangle({ids[0], ids[fan], ids[fan + 1u]}, source.material,
+                source.frameAngle, clippedRegistry.points(), clippedTriangles,
+                clippedAreas);
+            if (footprintIndex >= 0) {
+                GlueFootprint& footprint = footprints[
+                    static_cast<std::size_t>(footprintIndex)];
+                const auto& output = clippedTriangles.at(before);
+                const auto& p0 = clippedRegistry.points()[output.points[0]];
+                const auto& p1 = clippedRegistry.points()[output.points[1]];
+                const auto& p2 = clippedRegistry.points()[output.points[2]];
+                const double triangleArea = 0.5 * std::abs(cross(p0, p1, p2));
+                footprint.crossSectionArea += triangleArea;
+                footprint.volumePerUnitBoardWidth += triangleArea;
+                ++footprint.triangleCount;
+            }
+        }
+    }
+    for (const GlueFootprint& footprint : footprints)
+        if (footprint.triangleCount == 0u ||
+            !(footprint.crossSectionArea > 0.0))
+            throw std::runtime_error(
+                "partial terminal clipping removed an authored glue footprint");
+    points = clippedRegistry.points();
+    triangles = std::move(clippedTriangles);
+    areas = clippedAreas;
 }
 
 inline void addTriangle(
@@ -373,10 +497,15 @@ inline void validateConfig(const GlueMeshConfig& config) {
         throw std::invalid_argument("thicknessSlices must lie in [1, 128]");
     const double pitchCount = config.length / config.pitch;
     const double rounded = std::round(pitchCount);
-    if (rounded < 1.0 || rounded > 128.0 ||
-        std::abs(pitchCount - rounded) > 1.0e-10)
-        throw std::invalid_argument(
-            "length must be an integer number of pitches in [1, 128]");
+    const double periods = config.allowPartialTerminalPitch
+        ? std::ceil(pitchCount) : rounded;
+    const double maximumPeriods = config.allowPartialTerminalPitch ? 256.0 : 128.0;
+    if (periods < 1.0 || periods > maximumPeriods ||
+        (!config.allowPartialTerminalPitch &&
+         std::abs(pitchCount - rounded) > 1.0e-10))
+        throw std::invalid_argument(config.allowPartialTerminalPitch
+            ? "length must span at most 256 clipped pitches"
+            : "length must be an integer number of pitches in [1, 128]");
     if (!(config.bondWidth < 0.5 * config.pitch) ||
         !(upperWidth < 0.5 * config.pitch))
         throw std::invalid_argument(
@@ -393,7 +522,7 @@ inline void validateConfig(const GlueMeshConfig& config) {
     if (!(0.5 * config.mediumThickness * maximumCurvature < 1.0))
         throw std::invalid_argument(
             "medium normal offset is singular or folds at the sinusoidal curvature");
-    const std::uint64_t intervals = static_cast<std::uint64_t>(rounded) *
+    const std::uint64_t intervals = static_cast<std::uint64_t>(periods) *
         config.nxPerPitch;
     if (intervals * config.thicknessSlices > 2000000ull)
         throw std::invalid_argument("requested cross-section exceeds cell bound");
@@ -403,7 +532,7 @@ inline std::vector<PatchDefinition> patchesFor(
     const GlueMeshConfig& config,
     const SinusoidalProfile& profile) {
     const auto pitchCount = static_cast<std::uint32_t>(
-        std::llround(config.length / config.pitch));
+        std::ceil(config.length / config.pitch));
     std::vector<PatchDefinition> patches;
     patches.reserve(2u * pitchCount + 1u);
     const auto addPatch = [&](const bool crest, const std::uint32_t period,
@@ -421,15 +550,14 @@ inline std::vector<PatchDefinition> patchesFor(
         patches.push_back({crest, period, center, xLeft, xRight,
                            uLeft, uRight, offset});
     };
-    for (std::uint32_t period = 0u; period < pitchCount; ++period) {
+    for (std::uint32_t period = 0u; period <= pitchCount; ++period) {
         const double valley = static_cast<double>(period) * config.pitch;
-        addPatch(false, period, valley, -0.5 * config.mediumThickness);
+        if (valley <= config.length + 1.0e-13)
+            addPatch(false, period, valley, -0.5 * config.mediumThickness);
         const double crest = valley + 0.5 * config.pitch;
-        addPatch(true, period, crest, 0.5 * config.mediumThickness);
+        if (crest <= config.length + 1.0e-13)
+            addPatch(true, period, crest, 0.5 * config.mediumThickness);
     }
-    const double terminalValley = config.length;
-    addPatch(false, pitchCount, terminalValley,
-             -0.5 * config.mediumThickness);
     return patches;
 }
 
@@ -446,17 +574,37 @@ inline ConformingGlueMesh buildConformingGlueCrossSection(
     mesh.mediumAmplitude = profile.amplitude();
     mesh.centerlineTakeUpRatio = profile.centerlineTakeUpRatio();
     mesh.maximumCurvature = profile.maxCurvature();
+    if (config.allowPartialTerminalPitch)
+        mesh.profileDescription =
+            "sinusoidal fallback; terminal flute and finite glue footprints are clipped at authored length; source-arc profile not represented";
 
     const auto patches = patchesFor(config, profile);
     const auto pitchCount = static_cast<std::uint32_t>(
-        std::llround(config.length / config.pitch));
+        std::ceil(config.length / config.pitch));
     std::vector<double> regularXs;
     const std::uint64_t intervalCount =
         static_cast<std::uint64_t>(pitchCount) * config.nxPerPitch;
     regularXs.reserve(static_cast<std::size_t>(intervalCount + 1u));
-    for (std::uint64_t index = 0u; index <= intervalCount; ++index)
-        regularXs.push_back(config.length * static_cast<double>(index) /
-                            static_cast<double>(intervalCount));
+    if (!config.allowPartialTerminalPitch) {
+        const std::uint64_t wholePitchIntervals =
+            static_cast<std::uint64_t>(std::llround(config.length / config.pitch)) *
+            config.nxPerPitch;
+        for (std::uint64_t index = 0; index <= wholePitchIntervals; ++index)
+            regularXs.push_back(config.length * static_cast<double>(index) /
+                                static_cast<double>(wholePitchIntervals));
+    } else {
+        for (std::uint32_t period = 0u; period < pitchCount; ++period) {
+            const double periodStart = static_cast<double>(period) * config.pitch;
+            for (std::uint32_t division = 0u;
+                 division < config.nxPerPitch; ++division) {
+                const double x = periodStart + config.pitch *
+                    static_cast<double>(division) /
+                    static_cast<double>(config.nxPerPitch);
+                if (x < config.length - 1.0e-13) regularXs.push_back(x);
+            }
+        }
+        regularXs.push_back(config.length);
+    }
 
     std::vector<double> centerlineXs = regularXs;
     for (const PatchDefinition& patch : patches) {
@@ -675,6 +823,9 @@ inline ConformingGlueMesh buildConformingGlueCrossSection(
     mesh.points = registry.points();
     mesh.triangles = std::move(triangles);
     mesh.crossSectionAreaByMaterial = areas;
+    if (config.allowPartialTerminalPitch)
+        clipPartialTerminalCrossSection(config, mesh.points, mesh.triangles,
+            mesh.crossSectionAreaByMaterial, mesh.glueFootprints);
     return mesh;
 }
 

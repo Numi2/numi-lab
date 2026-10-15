@@ -38,11 +38,13 @@ both MD and CD reference areas to the paper's `0.0011 mm^2` brick reference
 area, giving unit area ratios; it does not compute each tetrahedron's
 material-direction projected areas from source Eq. 26. This is not the
 paper's element-level mesh correction, and no tetrahedral mesh-regularization
-claim follows. Also, the authored ZD-compression energy subtracts an additive
-constant to set `Psi(I)=0`. This leaves fixed-damage stress unchanged but can
-shift the damage-conjugate `A`; exact reproduction of the source's absolute
-free-energy level and energy-derived damage force is therefore not claimed.
-The derivation and limits are documented in
+claim follows. The authored ZD-compression branch differs by the additive
+constant `E6*(1-1/E7)=0.333260869565 MPa` from printed Eq. 18. This leaves
+fixed-damage stress unchanged but changes damage-conjugate `A`. The source also
+states `Psi0 >= 0`, which conflicts with the printed Eq. 18 compression
+branch; whether the equation has a typo is unresolved. Exact source energy and
+damage-force reproduction is therefore not claimed. The transcription and
+limits are documented in
 [`robertsson2023_bulk_damage_architecture.md`](../../materials/robertsson2023_bulk_damage_architecture.md).
 The current material-point benchmark uses the reference coefficients and the
 line-creasing damage cap 0.96. It executes no FEM steps; this statement applies

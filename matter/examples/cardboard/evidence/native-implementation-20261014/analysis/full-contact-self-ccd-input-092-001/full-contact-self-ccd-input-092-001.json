@@ -1,0 +1,350 @@
+{
+  "binding": {
+    "capture_line_number": 45,
+    "limit_trace_line_number": 44,
+    "prediction_json_sha256": "1b07f870752fd353812557507352e16d82812f78096ed734db128f191e0e6d19",
+    "prediction_source_binding_verified": true,
+    "source_files": {
+      "ccd_shader": {
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/all-pair-trial-gate-bilinear-integrated-046/matter/src/metal/contact.metalinc",
+        "prediction_binding_matches": true,
+        "prediction_sha256": "745f36f38bdc5a6d7c4362eefa23e77a2bf7a3be55878427e538e1c84f59c967",
+        "sha256": "745f36f38bdc5a6d7c4362eefa23e77a2bf7a3be55878427e538e1c84f59c967"
+      },
+      "fixture": {
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/all-pair-trial-gate-bilinear-integrated-046/matter/tools/cardboard_full_contact_armijo_check.mm",
+        "prediction_binding_matches": true,
+        "prediction_sha256": "d395ef6dda574ab5f4efc525634dc6688459d00153765a940ff433ef7ada1666",
+        "sha256": "d395ef6dda574ab5f4efc525634dc6688459d00153765a940ff433ef7ada1666"
+      },
+      "shared_layout": {
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/all-pair-trial-gate-bilinear-integrated-046/matter/include/numi/matter/shared.h",
+        "prediction_binding_matches": true,
+        "prediction_sha256": "58cba04ca6c66b4c97f522dd29d1b9c1b3a4811ff53e7e0b972752db3e51dff3",
+        "sha256": "58cba04ca6c66b4c97f522dd29d1b9c1b3a4811ff53e7e0b972752db3e51dff3"
+      }
+    },
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/all-pair-trial-gate-bilinear-integrated-046",
+    "stderr_log_sha256": "c86967cfc51698d4cd5773cac5419dff8eb50b50c490089d75303b814a26bc74"
+  },
+  "case_id": "contact-regional-all-pair-gate-092 / slot 129",
+  "classification": {
+    "captured_linear_ray": "NO_COLLISION_IN_INDEPENDENT_FP64_PATH_ORACLE; native CCD remained uncertified",
+    "initial_fixture": "INVALID_FOR_CLEAN_SELF_CONTACT_INTERPRETATION",
+    "qualification": "diagnostic only; no accepted solver step, no threshold relaxation, no GPU rerun"
+  },
+  "fp64_path_oracle": {
+    "ccd_roundoff_padding_estimate_m": 1.9073560508786613e-09,
+    "effective_radius_estimate_m": 5.722066050878661e-09,
+    "endpoint_gap_m": 1.5346477522444913e-08,
+    "endpoint_gap_nm": 15.346477522444912,
+    "interpretation": "captured ray remains outside reported native thickness plus reconstructed CCD roundoff; this does not certify the invalid authored rest geometry",
+    "maximum_abs_feature_coordinate_m": 0.002000007778406143,
+    "method": "double precision synchronized linear interpolation between exact reconstructed FP32 endpoints; Ericson point-to-triangle closest-point regions; 1,000,001 uniform t samples followed by 120 ternary refinements around the minimum sample",
+    "minimum_clearance_over_effective_radius_m": 1.2605247732434886e-09,
+    "minimum_clearance_over_effective_radius_nm": 1.2605247732434885,
+    "minimum_closest_point_m": [
+      -9.406078411546295e-12,
+      -0.0020000005583277036,
+      0.0010050003184038745
+    ],
+    "minimum_gap_m": 6.98259082412215e-09,
+    "minimum_gap_nm": 6.98259082412215,
+    "minimum_t": 7.352546641701146e-11,
+    "minimum_triangle_barycentric": [
+      0.9949996134978689,
+      0.005000374135384779,
+      1.2366746260607458e-08
+    ],
+    "start_gap_m": 6.982590823254788e-09,
+    "start_gap_nm": 6.982590823254788,
+    "t_interval": [
+      0.0,
+      1.0
+    ],
+    "uniform_sample_count": 1000001
+  },
+  "initial_fixture_geometry_audit": {
+    "base_node_10_m": [
+      0.0,
+      -0.002,
+      0.001
+    ],
+    "conclusion": "the duplicate node lies on the exterior boundary triangle edge in the authored reference geometry; repair the fixture geometry before treating this as a clean self-contact CCD test",
+    "duplicate_node_28_rest_m": [
+      0.0,
+      -0.002,
+      0.001005
+    ],
+    "exterior_boundary_plane": "y = -0.002 m",
+    "fixture_source": "makeWorld in cardboard_full_contact_armijo_check.mm",
+    "initialMortarGap_m": 5e-06,
+    "offset_authored_as_global_plus_z_only": true,
+    "rest_point_to_boundary_triangle_distance_m": 0.0,
+    "rest_point_triangle_barycentric": [
+      0.995,
+      0.005,
+      0.0
+    ],
+    "rest_triangle_node_positions_m": [
+      [
+        0.0,
+        -0.002,
+        0.001
+      ],
+      [
+        0.0,
+        -0.002,
+        0.002
+      ],
+      [
+        0.002,
+        -0.002,
+        0.002
+      ]
+    ],
+    "selected_cell": 4,
+    "selected_shared_face_node_ids": [
+      9,
+      10,
+      22
+    ],
+    "shared_face_oriented_unit_normal_sideA_to_sideB": [
+      0.0,
+      -0.4472135954999579,
+      0.8944271909999159
+    ],
+    "shared_parent_tetrahedra": [
+      24,
+      29
+    ],
+    "sideB_duplicate_node_mapping": {
+      "27": 9,
+      "28": 10,
+      "29": 22
+    },
+    "target_triangle_is_exterior_boundary": true,
+    "target_triangle_node_ids": [
+      10,
+      19,
+      20
+    ]
+  },
+  "native_capture": {
+    "active_slot": 29,
+    "capture_exact_binary_payloads": true,
+    "capture_source": "deformableExactVertexTriangleDirectionalForce",
+    "contact_kind": "vertex_triangle",
+    "contact_slot": 129,
+    "direction_source": "femSolution",
+    "dt_s_f32": 9.999999747378752e-05,
+    "dt_s_f32_hex": "17b7d138",
+    "identity": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "iteration": 1,
+    "native_ccd_trace": {
+      "certified": false,
+      "collision_thickness_m": 3.81471e-09,
+      "failure_code": 3,
+      "failure_reason": "ccd_uncertified",
+      "hit": false,
+      "separation_m": 6.98548e-09,
+      "toi": 0.0180399
+    },
+    "record_hex": "1c0000000a0000001300000014000000000000000000000000000000010000000000803f4cb87ebf2edaa3bb506755b20000803f0000803f0000803f0000803f000c84b70000803f0000000000000000098a23ad711203bb37ba833a0000f03175c98434fa4d9238f068ae3605e1024b750000008b0000008100000001000000d105af39000000000000008000000000d105af39f5ee9840acc52737a4b98753b3c1a230c3c49db80000008000000000c3c49db8f5ee9840000000000000000000000080000000000000000000000000000000000000000000000000000000000000008000000080000000800000000000000000000000000000000000000000000000000000000000000000000000000000803ffd09952d7e2ff426a4b98753ffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "record_nodes": [
+      28,
+      10,
+      19,
+      20
+    ],
+    "stage": "after_deformable_limit"
+  },
+  "ray_reconstruction": {
+    "arithmetic": "direction = round_fp32(round_fp32(dt) * correction_fp32); end = round_fp32(start_fp32 + direction_fp32)",
+    "points": [
+      {
+        "correction_fp32": [
+          -8.752204848860856e-06,
+          8.738405449548736e-05,
+          0.008303474634885788
+        ],
+        "correction_fp32_hex": [
+          "6fd612b7",
+          "f541b738",
+          "4c0b083c"
+        ],
+        "direction_fp32_hex": [
+          "2a9470b0",
+          "ea1f1632",
+          "0be55e35"
+        ],
+        "direction_m_fp32": [
+          -8.752204516682127e-10,
+          8.738405554709061e-09,
+          8.303474601234484e-07
+        ],
+        "end_fp32_hex": [
+          "0f2a73b0",
+          "2d1203bb",
+          "14d6833a"
+        ],
+        "end_m_fp32": [
+          -8.846265386885932e-10,
+          -0.0019999847281724215,
+          0.0010058307088911533
+        ],
+        "node": 28,
+        "role": "point",
+        "start_fp32_hex": [
+          "367925ad",
+          "531203bb",
+          "37ba833a"
+        ],
+        "start_m_fp32": [
+          -9.406078346763103e-12,
+          -0.0019999935757368803,
+          0.0010050003184005618
+        ]
+      },
+      {
+        "correction_fp32": [
+          5.396054621087387e-05,
+          1.608827915333677e-05,
+          -0.0017950995825231075
+        ],
+        "correction_fp32_hex": [
+          "b2536238",
+          "51f58637",
+          "8c49ebba"
+        ],
+        "direction_fp32_hex": [
+          "3268b931",
+          "991ddd30",
+          "52bf40b4"
+        ],
+        "direction_m_fp32": [
+          5.396054270079276e-09,
+          1.6088278487202956e-09,
+          -1.7950995356841304e-07
+        ],
+        "end_fp32_hex": [
+          "573ab831",
+          "6a1203bb",
+          "680c833a"
+        ],
+        "end_m_fp32": [
+          5.361737276388112e-09,
+          -0.0019999989308416843,
+          0.0009998204186558723
+        ],
+        "node": 10,
+        "role": "triangle_vertex_1",
+        "start_fp32_hex": [
+          "b4ed16ae",
+          "711203bb",
+          "6e12833a"
+        ],
+        "start_m_fp32": [
+          -3.431717410240509e-11,
+          -0.00200000056065619,
+          0.0009999999310821295
+        ]
+      },
+      {
+        "correction_fp32": [
+          2.6740104658529162e-05,
+          0.00030760414665564895,
+          -0.00256539648398757
+        ],
+        "correction_fp32_hex": [
+          "f04fe037",
+          "ee45a139",
+          "362028bb"
+        ],
+        "direction_fp32_hex": [
+          "b0c13731",
+          "6f1d0433",
+          "8aba89b4"
+        ],
+        "direction_m_fp32": [
+          2.6740103464817366e-09,
+          3.076041465988055e-08,
+          -2.565396357567806e-07
+        ],
+        "end_fp32_hex": [
+          "ced63731",
+          "eb1103bb",
+          "210e033b"
+        ],
+        "end_m_fp32": [
+          2.6752107196159614e-09,
+          -0.0019999693613499403,
+          0.001999743515625596
+        ],
+        "node": 19,
+        "role": "triangle_vertex_2",
+        "start_fp32_hex": [
+          "15f1a82b",
+          "6f1203bb",
+          "6f12033b"
+        ],
+        "start_m_fp32": [
+          1.200403166624897e-12,
+          -0.0020000000949949026,
+          0.0020000000949949026
+        ]
+      },
+      {
+        "correction_fp32": [
+          7.699918205616996e-05,
+          0.00015485241601709276,
+          -0.0009333391208201647
+        ],
+        "correction_fp32_hex": [
+          "9f7aa138",
+          "e15f2239",
+          "54ab74ba"
+        ],
+        "direction_fp32_hex": [
+          "99480432",
+          "68048532",
+          "dc6ec8b3"
+        ],
+        "direction_m_fp32": [
+          7.699918036507825e-09,
+          1.5485241533497174e-08,
+          -9.333390948995657e-08
+        ],
+        "end_fp32_hex": [
+          "9012033b",
+          "2c1203bb",
+          "de10033b"
+        ],
+        "end_m_fp32": [
+          0.002000007778406143,
+          -0.001999984495341778,
+          0.0019999067299067974
+        ],
+        "node": 20,
+        "role": "triangle_vertex_3",
+        "start_fp32_hex": [
+          "6f12033b",
+          "6f1203bb",
+          "6f12033b"
+        ],
+        "start_m_fp32": [
+          0.0020000000949949026,
+          -0.0020000000949949026,
+          0.0020000000949949026
+        ]
+      }
+    ],
+    "source": "candidate_nodes_hex positionAndMass.xyz plus solution_hex FEM correction"
+  },
+  "schema": "numi.cardboard.self_contact_ccd_input_audit.v1"
+}

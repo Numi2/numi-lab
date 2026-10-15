@@ -496,6 +496,387 @@ inline float3 deformableBarrierDirectionalForce(
         relativeDirection);
 }
 
+// Exact directional derivative of the currently evaluated, unmapped VT IPC
+// impulse for the frictionless/unit-mollifier/inertial branch. The
+// historical stored block above contains only the radial PSD projection; it
+// omits closest-feature motion and the derivative of inertial k through the
+// lumped inverse response. Near a closest-feature transition, use the
+// Jacobian of the feature selected by the CURRENT CANDIDATE geometry. The
+// feature does not depend on `direction`, so this remains a linear Krylov
+// action. This is a fixed-feature generalized derivative, not a claim that a
+// branch-crossing centered finite difference is a smooth derivative.
+// Degenerate geometry and unsupported constitutive branches retain the
+// historical block until their complete derivative is implemented.
+inline bool deformableExactVertexTriangleDirectionalForce(
+    const NMMatterDispatchGPU dispatch,
+    const NMDeformableContactGPU contact,
+    device const NMFEMNodeStateGPU* candidate,
+    device const float4* direction,
+    const uint environment,
+    const uint unifiedNode,
+    const float timestep,
+    thread float3& action,
+    const bool requireSmoothFeature
+) {
+    action = float3(0.0f);
+    if ((contact.identity.w & NM_CONTACT_VALID) == 0u ||
+        contact.identity.z != NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE ||
+        (contact.identity.w & NM_CONTACT_MAPPED_FEATURE) != 0u ||
+        contact.extraNodes.x != NM_INVALID_INDEX ||
+        contact.extraNodes.y != NM_INVALID_INDEX ||
+        !(timestep > 0.0f) || !isfinite(timestep) ||
+        contact.identity.x >= dispatch.objectCount ||
+        contact.impulseAndFriction.w != 0.0f ||
+        contact.impulseAndFriction.y != 0.0f ||
+        contact.impulseAndFriction.z != 0.0f ||
+        abs(contact.mollifier.x - 1.0f) > 1.0e-6f)
+        return false;
+
+    constexpr float epsilon = 1.192092896e-7f;
+    float3 position[4];
+    float3 velocity[4];
+    float3 velocityDirection[4];
+    float inverseMass[4];
+    float timestepScale[4];
+    float weight[4];
+    float3 nodesDirection[4];
+    uint support[4];
+    for (uint local = 0u; local < 4u; ++local) {
+        support[local] = deformableContactNode(contact, local);
+        if (support[local] < dispatch.gridNodeCount ||
+            support[local] - dispatch.gridNodeCount >= dispatch.femNodeCount)
+            return false;
+        for (uint prior = 0u; prior < local; ++prior)
+            if (support[prior] == support[local]) return false;
+        const uint localNode = support[local] - dispatch.gridNodeCount;
+        const uint index = environment * dispatch.femNodeCount + localNode;
+        const NMFEMNodeStateGPU state = candidate[index];
+        position[local] = state.positionAndMass.xyz;
+        velocity[local] = state.velocityAndInverseMass.xyz;
+        inverseMass[local] = state.velocityAndInverseMass.w;
+        timestepScale[local] = deformableContactTimeScale(contact, local);
+        weight[local] = deformableContactWeight(contact, local);
+        velocityDirection[local] = direction[index].xyz;
+        nodesDirection[local] = timestep * timestepScale[local] *
+            velocityDirection[local];
+        if (!all(isfinite(position[local])) ||
+            !all(isfinite(velocity[local])) ||
+            !all(isfinite(velocityDirection[local])) ||
+            !isfinite(inverseMass[local]) || inverseMass[local] < 0.0f ||
+            !isfinite(timestepScale[local]) || timestepScale[local] < 0.0f ||
+            !isfinite(weight[local])) return false;
+    }
+
+    const float3 e1 = position[2] - position[1];
+    const float3 e2 = position[3] - position[1];
+    const float3 e3 = position[3] - position[2];
+    const float edgeScale2 = max(max(dot(e1, e1), dot(e2, e2)), dot(e3, e3));
+    if (!(edgeScale2 > 1.0e-24f) || !isfinite(edgeScale2)) return false;
+    const float dotGuard = 64.0f * epsilon * edgeScale2;
+    const float determinantGuard = 64.0f * epsilon * edgeScale2 * edgeScale2;
+    // The feature-margin guard and the geometric conditioning guard have
+    // different meanings. Keep the latter for every vertex/edge/face branch;
+    // admitting a finite active-feature margin must not admit a collapsed
+    // triangle or an unresolved Gram-system denominator.
+    const float triangleGram = dot(e1, e1) * dot(e2, e2) -
+        dot(e1, e2) * dot(e1, e2);
+    if (!(triangleGram > determinantGuard) || !isfinite(triangleGram))
+        return false;
+
+    const float3 a = position[1];
+    const float3 b = position[2];
+    const float3 c = position[3];
+    const float3 ab = b - a;
+    const float3 ac = c - a;
+    const float3 ap = position[0] - a;
+    const float d1 = dot(ab, ap);
+    const float d2 = dot(ac, ap);
+    const float3 bp = position[0] - b;
+    const float d3 = dot(ab, bp);
+    const float d4 = dot(ac, bp);
+    const float3 cp = position[0] - c;
+    const float d5 = dot(ab, cp);
+    const float d6 = dot(ac, cp);
+    const float vc = d1 * d4 - d3 * d2;
+    const float vb = d5 * d2 - d1 * d6;
+    const float va = d3 * d6 - d5 * d4;
+
+    float3 bary = float3(0.0f);
+    float3 baryDirection = float3(0.0f);
+    float3 closest = float3(0.0f);
+    float3 closestDirection = float3(0.0f);
+    bool smoothFeature = false;
+    if (d1 <= 0.0f && d2 <= 0.0f) {
+        bary = float3(1.0f, 0.0f, 0.0f);
+        closest = a;
+        closestDirection = nodesDirection[1];
+        smoothFeature = -d1 > dotGuard && -d2 > dotGuard;
+    } else if (d3 >= 0.0f && d4 <= d3) {
+        bary = float3(0.0f, 1.0f, 0.0f);
+        closest = b;
+        closestDirection = nodesDirection[2];
+        smoothFeature = d3 > dotGuard && d3 - d4 > dotGuard;
+    } else if (vc <= 0.0f && d1 >= 0.0f && d3 <= 0.0f) {
+        const float denominator = d1 - d3;
+        if (!(denominator > dotGuard)) return false;
+        const float t = d1 / denominator;
+        const float3 edge = b - a;
+        const float3 edgeDirection = nodesDirection[2] - nodesDirection[1];
+        const float3 r = position[0] - a;
+        const float3 rDirection = nodesDirection[0] - nodesDirection[1];
+        const float numeratorDirection = dot(rDirection, edge) +
+            dot(r, edgeDirection);
+        const float denominatorDirection = 2.0f * dot(edge, edgeDirection);
+        const float dt = (numeratorDirection - t * denominatorDirection) /
+            denominator;
+        bary = float3(1.0f - t, t, 0.0f);
+        baryDirection = float3(-dt, dt, 0.0f);
+        closest = a + t * edge;
+        closestDirection = nodesDirection[1] + dt * edge + t * edgeDirection;
+        smoothFeature = -vc > determinantGuard && d1 > dotGuard &&
+            -d3 > dotGuard;
+    } else if (d6 >= 0.0f && d5 <= d6) {
+        bary = float3(0.0f, 0.0f, 1.0f);
+        closest = c;
+        closestDirection = nodesDirection[3];
+        smoothFeature = d6 > dotGuard && d6 - d5 > dotGuard;
+    } else if (vb <= 0.0f && d2 >= 0.0f && d6 <= 0.0f) {
+        const float denominator = d2 - d6;
+        if (!(denominator > dotGuard)) return false;
+        const float t = d2 / denominator;
+        const float3 edge = c - a;
+        const float3 edgeDirection = nodesDirection[3] - nodesDirection[1];
+        const float3 r = position[0] - a;
+        const float3 rDirection = nodesDirection[0] - nodesDirection[1];
+        const float numeratorDirection = dot(rDirection, edge) +
+            dot(r, edgeDirection);
+        const float denominatorDirection = 2.0f * dot(edge, edgeDirection);
+        const float dt = (numeratorDirection - t * denominatorDirection) /
+            denominator;
+        bary = float3(1.0f - t, 0.0f, t);
+        baryDirection = float3(-dt, 0.0f, dt);
+        closest = a + t * edge;
+        closestDirection = nodesDirection[1] + dt * edge + t * edgeDirection;
+        smoothFeature = -vb > determinantGuard && d2 > dotGuard &&
+            -d6 > dotGuard;
+    } else if (va <= 0.0f && d4 - d3 >= 0.0f && d5 - d6 >= 0.0f) {
+        const float3 edge = c - b;
+        const float3 edgeDirection = nodesDirection[3] - nodesDirection[2];
+        const float3 r = position[0] - b;
+        const float3 rDirection = nodesDirection[0] - nodesDirection[2];
+        const float denominator = dot(edge, edge);
+        if (!(denominator > dotGuard)) return false;
+        const float t = dot(r, edge) / denominator;
+        const float dt = (dot(rDirection, edge) + dot(r, edgeDirection) -
+            2.0f * t * dot(edge, edgeDirection)) / denominator;
+        bary = float3(0.0f, 1.0f - t, t);
+        baryDirection = float3(0.0f, -dt, dt);
+        closest = b + t * edge;
+        closestDirection = nodesDirection[2] + dt * edge + t * edgeDirection;
+        smoothFeature = -va > determinantGuard && d4 - d3 > dotGuard &&
+            d5 - d6 > dotGuard;
+    } else {
+        const float denominator = va + vb + vc;
+        const float gram11 = dot(ab, ab);
+        const float gram12 = dot(ab, ac);
+        const float gram22 = dot(ac, ac);
+        const float gramDeterminant = gram11 * gram22 - gram12 * gram12;
+        if (!(denominator > determinantGuard) ||
+            !(gramDeterminant > determinantGuard)) return false;
+        const float v = vb / denominator;
+        const float w = vc / denominator;
+        bary = float3(1.0f - v - w, v, w);
+        closest = a + v * ab + w * ac;
+        const float3 delta = position[0] - closest;
+        const float3 abDirection = nodesDirection[2] - nodesDirection[1];
+        const float3 acDirection = nodesDirection[3] - nodesDirection[1];
+        const float3 fixedDirection = nodesDirection[0] - nodesDirection[1] -
+            v * abDirection - w * acDirection;
+        const float rhs0 = dot(ab, fixedDirection) + dot(abDirection, delta);
+        const float rhs1 = dot(ac, fixedDirection) + dot(acDirection, delta);
+        const float dv = (rhs0 * gram22 - rhs1 * gram12) / gramDeterminant;
+        const float dw = (rhs1 * gram11 - rhs0 * gram12) / gramDeterminant;
+        baryDirection = float3(-dv - dw, dv, dw);
+        closestDirection = nodesDirection[1] + dv * ab + v * abDirection +
+            dw * ac + w * acDirection;
+        smoothFeature = va > determinantGuard && vb > determinantGuard &&
+            vc > determinantGuard &&
+            min(min(bary.x, bary.y), bary.z) > 64.0f * epsilon;
+    }
+    if (requireSmoothFeature && !smoothFeature) return false;
+
+    const float3 capturedBary = float3(-weight[1], -weight[2], -weight[3]);
+    if (max(max(abs(bary.x - capturedBary.x),
+                abs(bary.y - capturedBary.y)),
+            abs(bary.z - capturedBary.z)) > 2.0e-4f)
+        return false;
+    const float3 delta = position[0] - closest;
+    const float separation = length(delta);
+    if (!(separation > 1.0e-4f * contact.barrier.z &&
+          separation < contact.barrier.z) || !isfinite(separation) ||
+        abs(separation - contact.pointAndSeparation.w) >
+            max(2.0e-4f * contact.barrier.z, 1.0e-8f))
+        return false;
+    const float3 normal = delta / separation;
+    if (length(normal - contact.normalAndTOI.xyz) > 2.0e-4f) return false;
+
+    const float3 mollifierFirst = position[2] - position[1];
+    const float3 mollifierSecond = position[3] - position[1];
+    const float mollifierScale = dot(mollifierFirst, mollifierFirst) *
+        dot(mollifierSecond, mollifierSecond);
+    const float mollifierMeasure = max(
+        mollifierScale - dot(mollifierFirst, mollifierSecond) *
+            dot(mollifierFirst, mollifierSecond), 0.0f);
+    const float mollifierThreshold = max(1.0e-3f * mollifierScale,
+                                         kGeometryFloor);
+    if (!(mollifierScale > kGeometryFloor) ||
+        !(mollifierMeasure > mollifierThreshold * (1.0f + 128.0f * epsilon)))
+        return false;
+    for (uint local = 0u; local < 6u; ++local)
+        if (length(deformableMollifierGradient(contact, local)) > 1.0e-10f)
+            return false;
+
+    float inverseResponse = 0.0f;
+    float3 relativeVelocity = float3(0.0f);
+    for (uint local = 0u; local < 4u; ++local) {
+        const float scalarWeight = local == 0u ? 1.0f : -bary[local - 1u];
+        if (abs(scalarWeight - weight[local]) > 2.0e-4f) return false;
+        inverseResponse += scalarWeight * scalarWeight * inverseMass[local];
+        relativeVelocity += scalarWeight * velocity[local];
+    }
+    if (!(inverseResponse > kGeometryFloor) ||
+        abs(inverseResponse - contact.velocityAndResponse.w) >
+            2.0e-4f * max(inverseResponse, 1.0e-20f))
+        return false;
+    const float distance = max(separation, 1.0e-4f * contact.barrier.z);
+    const float remaining = max(contact.barrier.z - distance,
+                                1.0e-3f * contact.barrier.z);
+    const float inertialDenominator = inverseResponse * timestep * timestep *
+        contact.barrier.z * contact.barrier.z;
+    if (!(inertialDenominator > 1.0e-20f)) return false;
+    const float inertial = 10.0f / inertialDenominator;
+    const float impact = max(-dot(relativeVelocity, normal), 0.0f) /
+        max(inverseResponse * timestep * remaining *
+            contact.barrier.z * contact.barrier.z, 1.0e-20f);
+    if (!isfinite(inertial) || !isfinite(impact) ||
+        !(inertial > impact * (1.0f + 128.0f * epsilon)) ||
+        abs(contact.barrier.w - inertial) >
+            3.0e-4f * max(inertial, 1.0f))
+        return false;
+
+    const float squaredDistance = distance * distance;
+    const float squaredThickness = contact.barrier.z * contact.barrier.z;
+    const float offset = squaredDistance - squaredThickness;
+    const float logarithm = log(squaredDistance / squaredThickness);
+    const float firstSquared = -inertial *
+        (2.0f * offset * logarithm + offset * offset / squaredDistance);
+    const float secondSquared = -inertial *
+        (2.0f * logarithm + 4.0f * offset / squaredDistance -
+         offset * offset / (squaredDistance * squaredDistance));
+    const float barrierImpulse = -2.0f * distance * firstSquared * timestep;
+    const float radialCurvature = 4.0f * squaredDistance * secondSquared +
+        2.0f * firstSquared;
+    if (!(barrierImpulse > 0.0f) ||
+        abs(barrierImpulse - contact.impulseAndFriction.x) >
+            4.0e-4f * max(barrierImpulse, 1.0e-20f) ||
+        abs(max(radialCurvature, 0.0f) * timestep * timestep -
+            contact.barrier.y) >
+            5.0e-4f * max(contact.barrier.y, 1.0e-20f))
+        return false;
+
+    float weightDirection[4];
+    weightDirection[0] = 0.0f;
+    for (uint local = 1u; local < 4u; ++local)
+        weightDirection[local] = -baryDirection[local - 1u];
+    const float3 deltaDirection = nodesDirection[0] - closestDirection;
+    const float distanceDirection = dot(normal, deltaDirection);
+    const float3 normalDirection =
+        (deltaDirection - normal * distanceDirection) / separation;
+    float responseDirection = 0.0f;
+    for (uint local = 0u; local < 4u; ++local)
+        responseDirection += 2.0f * weight[local] *
+            weightDirection[local] * inverseMass[local];
+    const float impulseMagnitude = contact.impulseAndFriction.x;
+    const float curvature = timestep * timestep * radialCurvature;
+    for (uint local = 0u; local < 4u; ++local) {
+        const float scalarNormal = weight[local] * (
+            curvature * distanceDirection / timestep +
+            impulseMagnitude * responseDirection / inverseResponse) -
+            impulseMagnitude * weightDirection[local];
+        const float3 localAction = timestepScale[local] * (
+            scalarNormal * normal -
+            weight[local] * impulseMagnitude * normalDirection);
+        if (support[local] == unifiedNode) {
+            action = localAction;
+            return all(isfinite(action));
+        }
+    }
+    return false;
+}
+
+// Diagnostic-only replay of the production exact-contact action on each
+// support node of a captured active contact. The contact, candidate, and
+// solution are the same buffers used by the selected Newton line search.
+// Unsupported branches return a zero action with a zero marker; no production
+// residual, history, or acceptance buffer is written.
+kernel void nm_fgmres_capture_exact_deformable_actions(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(1)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(2)]],
+    device const float4* direction [[buffer(3)]],
+    constant uint& traceSlotsPerEnvironment [[buffer(4)]],
+    device NMDeformableContactLimitTraceGPU* traceRecords [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (traceSlotsPerEnvironment == 0u) return;
+    const uint recordCount = dispatch.environmentCount *
+        traceSlotsPerEnvironment;
+    if (global >= recordCount) return;
+    const uint environment = global / traceSlotsPerEnvironment;
+    const uint activeSlot = global - environment * traceSlotsPerEnvironment;
+    device NMDeformableContactLimitTraceGPU& record = traceRecords[global];
+    record.productionExactActionSupported = uint4(0u);
+    record.productionExactActionMetadata = float4(0.0f);
+    for (uint local = 0u; local < 4u; ++local)
+        record.productionExactAction[local] = float4(0.0f);
+    if (record.lineSearch.w != 1.0f ||
+        (record.contact.identity.w & NM_CONTACT_VALID) == 0u ||
+        record.result.x != activeSlot ||
+        environment >= dispatch.environmentCount)
+        return;
+
+    const NMDeformableContactGPU contact = record.contact;
+    if (contact.identity.x >= dispatch.objectCount) return;
+    const float timestep = objectTimestep(
+        dispatch, schedulers[environment * dispatch.objectCount +
+                             contact.identity.x]);
+    // y=1 records the fixed-candidate-feature policy. It is read-only
+    // diagnostic provenance; the CPU replay separately labels smooth and
+    // marginal candidates and tests one-sided branch preservation.
+    record.productionExactActionMetadata = float4(timestep, 1.0f, 0.0f, 0.0f);
+    uint supported[4] = {0u, 0u, 0u, 0u};
+    float4 actions[4] = {
+        float4(0.0f), float4(0.0f), float4(0.0f), float4(0.0f)
+    };
+    for (uint local = 0u; local < 4u; ++local) {
+        float3 action = float3(0.0f);
+        const uint unifiedNode = deformableContactNode(contact, local);
+        const bool valid = deformableExactVertexTriangleDirectionalForce(
+            dispatch, contact, candidate, direction, environment,
+            unifiedNode, timestep, action, false);
+        if (valid && all(isfinite(action))) {
+            supported[local] = 1u;
+            actions[local] = float4(action, 0.0f);
+        }
+    }
+    record.productionExactAction[0] = actions[0];
+    record.productionExactAction[1] = actions[1];
+    record.productionExactAction[2] = actions[2];
+    record.productionExactAction[3] = actions[3];
+    record.productionExactActionSupported = uint4(
+        supported[0], supported[1], supported[2], supported[3]);
+}
+
 inline float3 fgmresPSDSpatialDiagonal(
     const float4 row0,
     const float4 row1,
@@ -549,15 +930,15 @@ inline float3 fgmresContactDiagonal(
     for (uint incidence = 0u; incidence < deformableRange.count; ++incidence) {
         const uint encoded = contact.deformableNodeIncidence[
             deformableRange.first + incidence];
-        const uint slot = encoded >> 2u;
-        const uint local = encoded & 3u;
-        if (slot >= deformableCapacity || local >= 4u) continue;
+        const uint slot = encoded >> 3u;
+        const uint local = encoded & 7u;
+        if (slot >= deformableCapacity || local >= 6u) continue;
         const NMDeformableContactGPU deformable =
             contact.deformableContacts[deformableBase + slot];
         if ((deformable.identity.w & NM_CONTACT_VALID) == 0u ||
-            deformable.nodes[local] != unifiedNode) continue;
-        const float timeScale = deformable.timeScales[local];
-        const float scale = timeScale * deformable.weights[local];
+            deformableContactNode(deformable, local) != unifiedNode) continue;
+        const float timeScale = deformableContactTimeScale(deformable, local);
+        const float scale = timeScale * deformableContactWeight(deformable, local);
         diagonal += scale * scale * fgmresPSDSpatialDiagonal(
             deformable.barrierHessianRow0,
             deformable.barrierHessianRow1,
@@ -974,6 +1355,10 @@ kernel void nm_fgmres_precondition_patches(
 // SIMD32 coarse solve removes the error components that diagonal smoothing
 // cannot propagate across a deformable object. One group owns one object, so
 // it writes directly to the private preconditioned vector without atomics.
+// Legacy object-wide diagonal blend. This is not a RAP/Galerkin coarse solve:
+// it aggregates the residual and diagonal independently, then blends one
+// constant correction. The source-selected regionalGalerkin mode below uses
+// the exact production A action to form and solve P^T A P instead.
 kernel void nm_fgmres_precondition_coarse(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMContinuumObjectGPU* objects [[buffer(1)]],
@@ -1041,6 +1426,359 @@ kernel void nm_fgmres_precondition_coarse(
             ? mix(value.w, coarse.w, coarseWeight) : 0.0f;
         preconditioned[node] = value;
     }
+}
+
+kernel void nm_fgmres_regional_load_mode(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* regionalBasis [[buffer(1)]],
+    device float4* direction [[buffer(2)]],
+    constant uint& modeCount [[buffer(3)]],
+    constant uint& mode [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u || mode >= modeCount)
+        return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global % dispatch.femNodeCount;
+    direction[global] = regionalBasis[
+        (environment * modeCount + mode) * dispatch.femNodeCount + node];
+}
+
+// Project the immutable source-authored P through the exact FEM candidate
+// constraint mask at this Newton linearization. The resulting environment-
+// major basis is used consistently by AP, P^TAP, P^Tr, and prolongation.
+kernel void nm_fgmres_regional_project_basis(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* authoredBasis [[buffer(1)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(2)]],
+    device float4* effectiveBasis [[buffer(3)]],
+    constant uint& modeCount [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint nodes = dispatch.femNodeCount;
+    if (nodes == 0u || modeCount == 0u || modeCount > 32u) return;
+    const uint perEnvironment = modeCount * nodes;
+    const uint total = dispatch.environmentCount * perEnvironment;
+    if (global >= total) return;
+    const uint environment = global / perEnvironment;
+    const uint local = global - environment * perEnvironment;
+    const uint mode = local / nodes;
+    const uint node = local - mode * nodes;
+    const NMFEMNodeStateGPU state = candidate[environment * nodes + node];
+    const bool constrained = state.restAndFixed.w == 1.0f ||
+        state.restAndFixed.w == 3.0f;
+    effectiveBasis[global] = constrained
+        ? float4(0.0f)
+        : authoredBasis[mode * nodes + node];
+}
+
+// Opt-in snapshot source for independent RAP replay. It captures the exact
+// FEM candidate used at the current Newton linearization; it does not write
+// solver or accepted physical state.
+kernel void nm_fgmres_regional_capture_linearization(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(1)]],
+    device NMFEMNodeStateGPU* captured [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total) return;
+    captured[global] = candidate[global];
+}
+
+kernel void nm_fgmres_regional_store_ap(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* operatorValue [[buffer(1)]],
+    device float4* regionalAP [[buffer(2)]],
+    constant uint& modeCount [[buffer(3)]],
+    constant uint& mode [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u || mode >= modeCount)
+        return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    const uint base = (environment * modeCount + mode) *
+        dispatch.femNodeCount;
+    regionalAP[base + node] = operatorValue[global];
+}
+
+kernel void nm_fgmres_regional_build_rap(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* regionalBasis [[buffer(1)]],
+    device const float4* regionalAP [[buffer(2)]],
+    device float* coarseMatrix [[buffer(3)]],
+    constant uint& modeCount [[buffer(4)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (modeCount == 0u || modeCount > 32u ||
+        dispatch.femNodeCount == 0u) return;
+    const uint entriesPerEnvironment = modeCount * modeCount;
+    const uint environment = group / entriesPerEnvironment;
+    if (environment >= dispatch.environmentCount) return;
+    const uint pair = group - environment * entriesPerEnvironment;
+    const uint row = pair / modeCount;
+    const uint column = pair - row * modeCount;
+    const uint apBase = (environment * modeCount + column) *
+        dispatch.femNodeCount;
+    float sum = 0.0f;
+    for (uint node = lane; node < dispatch.femNodeCount; node += 32u) {
+        const float4 p = regionalBasis[
+            (environment * modeCount + row) * dispatch.femNodeCount + node];
+        const float4 ap = regionalAP[apBase + node];
+        sum += dot(p.xyz, ap.xyz);
+    }
+    sum = simd_sum(sum);
+    if (lane == 0u)
+        coarseMatrix[(environment * modeCount + row) * modeCount + column] = sum;
+}
+
+// In-place partial-pivoted LU for the small, generally nonsymmetric exact RAP
+// matrix. Failure only disables the coarse correction; the fine diagonal
+// preconditioner and the physical FGMRES/certification path remain intact.
+kernel void nm_fgmres_regional_factor_rap(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float* coarseMatrix [[buffer(1)]],
+    device uint* pivots [[buffer(2)]],
+    device uint* valid [[buffer(3)]],
+    constant uint& modeCount [[buffer(4)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane != 0u || environment >= dispatch.environmentCount ||
+        modeCount == 0u || modeCount > 32u) return;
+    const uint matrixBase = environment * modeCount * modeCount;
+    const uint pivotBase = environment * modeCount;
+    valid[environment] = 0u;
+    float scale = 0.0f;
+    for (uint row = 0u; row < modeCount; ++row) {
+        pivots[pivotBase + row] = row;
+        for (uint column = 0u; column < modeCount; ++column) {
+            const float value = coarseMatrix[
+                matrixBase + row * modeCount + column];
+            if (!isfinite(value)) return;
+            scale = max(scale, abs(value));
+        }
+    }
+    if (!(scale > 0.0f) || !isfinite(scale)) return;
+    const float pivotFloor = max(scale * 1.0e-10f, 1.0e-30f);
+    for (uint pivotColumn = 0u; pivotColumn < modeCount; ++pivotColumn) {
+        uint pivotRow = pivotColumn;
+        float pivotMagnitude = 0.0f;
+        for (uint row = pivotColumn; row < modeCount; ++row) {
+            const float magnitude = abs(coarseMatrix[
+                matrixBase + row * modeCount + pivotColumn]);
+            if (magnitude > pivotMagnitude) {
+                pivotMagnitude = magnitude;
+                pivotRow = row;
+            }
+        }
+        if (!(pivotMagnitude > pivotFloor) || !isfinite(pivotMagnitude))
+            return;
+        if (pivotRow != pivotColumn) {
+            for (uint column = 0u; column < modeCount; ++column) {
+                const uint a = matrixBase + pivotColumn * modeCount + column;
+                const uint b = matrixBase + pivotRow * modeCount + column;
+                const float temporary = coarseMatrix[a];
+                coarseMatrix[a] = coarseMatrix[b];
+                coarseMatrix[b] = temporary;
+            }
+            const uint temporary = pivots[pivotBase + pivotColumn];
+            pivots[pivotBase + pivotColumn] = pivots[pivotBase + pivotRow];
+            pivots[pivotBase + pivotRow] = temporary;
+        }
+        const float diagonal = coarseMatrix[
+            matrixBase + pivotColumn * modeCount + pivotColumn];
+        if (!(abs(diagonal) > pivotFloor) || !isfinite(diagonal)) return;
+        for (uint row = pivotColumn + 1u; row < modeCount; ++row) {
+            const uint lowerIndex = matrixBase + row * modeCount + pivotColumn;
+            const float lower = coarseMatrix[lowerIndex] / diagonal;
+            if (!isfinite(lower)) return;
+            coarseMatrix[lowerIndex] = lower;
+            for (uint column = pivotColumn + 1u;
+                 column < modeCount; ++column) {
+                const uint index = matrixBase + row * modeCount + column;
+                coarseMatrix[index] -= lower * coarseMatrix[
+                    matrixBase + pivotColumn * modeCount + column];
+                if (!isfinite(coarseMatrix[index])) return;
+            }
+        }
+    }
+    valid[environment] = 1u;
+}
+
+kernel void nm_fgmres_regional_project_rhs(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* regionalBasis [[buffer(1)]],
+    device const float4* basis [[buffer(2)]],
+    device float* coarseRHS [[buffer(3)]],
+    constant uint& modeCount [[buffer(4)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (modeCount == 0u || modeCount > 32u ||
+        dispatch.femNodeCount == 0u) return;
+    const uint environment = group / modeCount;
+    if (environment >= dispatch.environmentCount) return;
+    const uint mode = group - environment * modeCount;
+    const uint basisBase = environment * dispatch.femNodeCount;
+    float sum = 0.0f;
+    for (uint node = lane; node < dispatch.femNodeCount; node += 32u) {
+        const float4 p = regionalBasis[
+            (environment * modeCount + mode) * dispatch.femNodeCount + node];
+        sum += dot(p.xyz, basis[basisBase + node].xyz);
+    }
+    sum = simd_sum(sum);
+    if (lane == 0u)
+        coarseRHS[environment * modeCount + mode] = sum;
+}
+
+kernel void nm_fgmres_regional_solve_rap(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float* coarseMatrix [[buffer(1)]],
+    device const uint* pivots [[buffer(2)]],
+    device const uint* valid [[buffer(3)]],
+    device const float* coarseRHS [[buffer(4)]],
+    device float* coefficients [[buffer(5)]],
+    constant uint& modeCount [[buffer(6)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane != 0u || environment >= dispatch.environmentCount ||
+        modeCount == 0u || modeCount > 32u) return;
+    const uint vectorBase = environment * modeCount;
+    if (valid[environment] == 0u) {
+        for (uint index = 0u; index < modeCount; ++index)
+            coefficients[vectorBase + index] = 0.0f;
+        return;
+    }
+    const uint matrixBase = environment * modeCount * modeCount;
+    float values[32];
+    for (uint row = 0u; row < modeCount; ++row) {
+        float value = coarseRHS[vectorBase + pivots[vectorBase + row]];
+        for (uint column = 0u; column < row; ++column)
+            value -= coarseMatrix[matrixBase + row * modeCount + column] *
+                values[column];
+        values[row] = value;
+    }
+    for (int reverse = int(modeCount) - 1; reverse >= 0; --reverse) {
+        const uint row = uint(reverse);
+        float value = values[row];
+        for (uint column = row + 1u; column < modeCount; ++column)
+            value -= coarseMatrix[matrixBase + row * modeCount + column] *
+                coefficients[vectorBase + column];
+        const float diagonal = coarseMatrix[
+            matrixBase + row * modeCount + row];
+        if (!(abs(diagonal) > 1.0e-30f) || !isfinite(value) ||
+            !isfinite(diagonal)) {
+            for (uint index = 0u; index < modeCount; ++index)
+                coefficients[vectorBase + index] = 0.0f;
+            return;
+        }
+        coefficients[vectorBase + row] = value / diagonal;
+        if (!isfinite(coefficients[vectorBase + row])) {
+            for (uint index = 0u; index < modeCount; ++index)
+                coefficients[vectorBase + index] = 0.0f;
+            return;
+        }
+    }
+}
+
+kernel void nm_fgmres_regional_apply_rap(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* regionalBasis [[buffer(1)]],
+    device const float4* regionalAP [[buffer(2)]],
+    device const float* coefficients [[buffer(3)]],
+    device const float4* inverseDiagonal [[buffer(4)]],
+    device const float4* basis [[buffer(5)]],
+    device float4* preconditioned [[buffer(6)]],
+    constant uint& modeCount [[buffer(7)]],
+    device const NMFGMRESStateGPU* states [[buffer(8)]],
+    uint global [[thread_position_in_grid]]
+) {
+    // Balanced two-level right preconditioner:
+    // z = P c + D^-1 (r - A P c), c = (P^T A P)^-1 P^T r.
+    // AP and the small dense RAP matrix were formed from the production
+    // matrix-free FEM operator at this Newton linearization. D is the same
+    // componentwise fine diagonal used by the scalar smoother.
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u ||
+        modeCount == 0u || modeCount > 32u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    if (states[environment].diagnostics.z > 0.5f) {
+        preconditioned[global] = float4(0.0f);
+        return;
+    }
+    const uint coefficientBase = environment * modeCount;
+    float3 coarseResidual = float3(0.0f);
+    float3 coarseCorrection = float3(0.0f);
+    for (uint mode = 0u; mode < modeCount; ++mode) {
+        const float coefficient = coefficients[coefficientBase + mode];
+        const float4 p = regionalBasis[
+            (environment * modeCount + mode) * dispatch.femNodeCount + node];
+        const float4 ap = regionalAP[
+            (environment * modeCount + mode) * dispatch.femNodeCount + node];
+        coarseCorrection += coefficient * p.xyz;
+        coarseResidual += coefficient * ap.xyz;
+    }
+    const float4 residual = basis[global];
+    const float4 inverse = inverseDiagonal[global];
+    preconditioned[global] = float4(
+        inverse.xyz * (residual.xyz - coarseResidual) + coarseCorrection,
+        0.0f);
+}
+
+kernel void nm_fgmres_regional_apply_block_rap(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* regionalBasis [[buffer(1)]],
+    device const float4* regionalAP [[buffer(2)]],
+    device const float* coefficients [[buffer(3)]],
+    device const float4* inverseDiagonal [[buffer(4)]],
+    device const float4* basis [[buffer(5)]],
+    device float4* preconditioned [[buffer(6)]],
+    constant uint& modeCount [[buffer(7)]],
+    device const NMFGMRESStateGPU* states [[buffer(8)]],
+    device const float4* inverseBlockRows [[buffer(9)]],
+    uint global [[thread_position_in_grid]]
+) {
+    // Selector 3 retains the same exact RAP coarse action and uses the full
+    // nodal block only for the fine residual correction. Invalid blocks use
+    // the selector-2 diagonal fallback; neither changes the physical A.
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u ||
+        modeCount == 0u || modeCount > 32u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    if (states[environment].diagnostics.z > 0.5f) {
+        preconditioned[global] = float4(0.0f);
+        return;
+    }
+    const uint coefficientBase = environment * modeCount;
+    float3 coarseResidual = float3(0.0f);
+    float3 coarseCorrection = float3(0.0f);
+    for (uint mode = 0u; mode < modeCount; ++mode) {
+        const float coefficient = coefficients[coefficientBase + mode];
+        const float4 p = regionalBasis[
+            (environment * modeCount + mode) * dispatch.femNodeCount + node];
+        const float4 ap = regionalAP[
+            (environment * modeCount + mode) * dispatch.femNodeCount + node];
+        coarseCorrection += coefficient * p.xyz;
+        coarseResidual += coefficient * ap.xyz;
+    }
+    const float3 residual = basis[global].xyz - coarseResidual;
+    const uint blockBase = global * 3u;
+    const float4 row0 = inverseBlockRows[blockBase];
+    const float3 fineCorrection = row0.w > 0.5f
+        ? float3(dot(row0.xyz, residual),
+                 dot(inverseBlockRows[blockBase + 1u].xyz, residual),
+                 dot(inverseBlockRows[blockBase + 2u].xyz, residual))
+        : inverseDiagonal[global].xyz * residual;
+    preconditioned[global] = float4(
+        fineCorrection + coarseCorrection, 0.0f);
 }
 
 kernel void nm_fgmres_build_preconditioner(
@@ -1119,12 +1857,12 @@ kernel void nm_fgmres_build_preconditioner(
     inverseDiagonal[global] = float4(velocityInverse, pressureInverse);
 }
 
-// Experimental regional-FEM diagonal built from the same constitutive
-// algorithmic tangent used by nm_fem_apply_operator_elements. Each incident
-// tetrahedron contributes the three same-node Jacobian diagonal entries. The
-// result is still only a componentwise diagonal approximation; cross-axis and
-// cross-node blocks remain the job of restarted FGMRES. This kernel is
-// dispatched once per Newton linearization only when executionBudgets.z == 1.
+// Fine-level FEM diagonal built from the same constitutive algorithmic tangent
+// used by nm_fem_apply_operator_elements. Each incident tetrahedron contributes
+// the three same-node Jacobian diagonal entries. Mode 1 uses this diagonal
+// alone; mode 2 uses it as the smoother in addition to a separately assembled
+// exact regional P^T A P coarse operator. This kernel is dispatched once per
+// Newton linearization for either opt-in mode.
 kernel void nm_fgmres_build_tangent_fem_preconditioner(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMixedSolverGPU& solver [[buffer(1)]],
@@ -1180,6 +1918,9 @@ kernel void nm_fgmres_build_tangent_fem_preconditioner(
         const float3x3 deformationRate = tetrahedronVelocityGradient(
             tetrahedron, candidate, nodeBase);
         const NMMaterialGPU material = materials[tetrahedron.identity.x];
+        float deformationLow[9];
+        const float3x3 preciseLocalF = femMaterialDeformationWords(
+            object,tetrahedron,material,candidate,nodeBase,deformation,deformationLow);
         device const float* internalState = material.stateCount == 0u
             ? nullptr
             : acceptedMaterialState + globalTet * dispatch.materialStateStride;
@@ -1211,11 +1952,11 @@ kernel void nm_fgmres_build_tangent_fem_preconditioner(
             float3x3 tangent;
             evaluateAlgorithmicStressTangent(
                 material, programs, instructions, parameters, internalState,
-                femMaterialInput(object, tetrahedron, deformation),
+                preciseLocalF,
                 femMaterialInput(object, tetrahedron, deformationDirection),
                 femMaterialInput(object, tetrahedron, deformationRate),
                 femMaterialInput(object, tetrahedron, rateDirection),
-                dt, material.bulk.y, analytic, tangent, valid);
+                dt, material.bulk.y, analytic, tangent, valid,deformationLow);
             (void)analytic;
             const bool finiteTangent = all(isfinite(tangent[0])) &&
                 all(isfinite(tangent[1])) && all(isfinite(tangent[2]));
@@ -1256,6 +1997,229 @@ kernel void nm_fgmres_build_tangent_fem_preconditioner(
             float3(mass) + stiffnessDiagonal + contactDiagonal,
             float3(solver.regularization.x));
     inverseDiagonal[global] = float4(velocityInverse, 0.0f);
+}
+
+inline bool fgmresInvertNodalBlock(
+    const thread float* matrix,
+    thread float* inverseMatrix
+) {
+    float augmented[18];
+    float scale = 0.0f;
+    for (uint row = 0u; row < 3u; ++row) {
+        for (uint column = 0u; column < 3u; ++column) {
+            const float value = matrix[row * 3u + column];
+            if (!isfinite(value)) return false;
+            scale = max(scale, abs(value));
+            augmented[row * 6u + column] = value;
+            augmented[row * 6u + 3u + column] = row == column ? 1.0f : 0.0f;
+        }
+    }
+    if (!(scale > 0.0f) || !isfinite(scale)) return false;
+    const float pivotFloor = max(scale * 1.0e-6f, 1.0e-30f);
+    for (uint pivot = 0u; pivot < 3u; ++pivot) {
+        uint selected = pivot;
+        float selectedMagnitude = abs(augmented[pivot * 6u + pivot]);
+        for (uint row = pivot + 1u; row < 3u; ++row) {
+            const float magnitude = abs(augmented[row * 6u + pivot]);
+            if (magnitude > selectedMagnitude) {
+                selected = row;
+                selectedMagnitude = magnitude;
+            }
+        }
+        if (!(selectedMagnitude > pivotFloor) ||
+            !isfinite(selectedMagnitude)) return false;
+        if (selected != pivot) {
+            for (uint column = 0u; column < 6u; ++column) {
+                const uint a = pivot * 6u + column;
+                const uint b = selected * 6u + column;
+                const float temporary = augmented[a];
+                augmented[a] = augmented[b];
+                augmented[b] = temporary;
+            }
+        }
+        const float diagonal = augmented[pivot * 6u + pivot];
+        if (!(abs(diagonal) > pivotFloor) || !isfinite(diagonal))
+            return false;
+        for (uint column = 0u; column < 6u; ++column)
+            augmented[pivot * 6u + column] /= diagonal;
+        for (uint row = 0u; row < 3u; ++row) {
+            if (row == pivot) continue;
+            const float factor = augmented[row * 6u + pivot];
+            for (uint column = 0u; column < 6u; ++column)
+                augmented[row * 6u + column] -=
+                    factor * augmented[pivot * 6u + column];
+        }
+    }
+    for (uint row = 0u; row < 3u; ++row)
+        for (uint column = 0u; column < 3u; ++column) {
+            const float value = augmented[row * 6u + 3u + column];
+            if (!isfinite(value)) return false;
+            inverseMatrix[row * 3u + column] = value;
+        }
+    return true;
+}
+
+// Selector 3 builds the same mass + dt^2 stiffness nodal block as the
+// production velocity operator, using three basis actions through each
+// incident tet's current projected material tangent and local frame. The
+// physical operator is not modified. If the finite pivot guard rejects a
+// block, inverseDiagonal remains the established componentwise fallback.
+kernel void nm_fgmres_build_tangent_fem_block_preconditioner(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(3)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
+    device const uint* nodeIncidence [[buffer(5)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(6)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(7)]],
+    device const NMMaterialGPU* materials [[buffer(8)]],
+    device const NMScalarProgramGPU* programs [[buffer(9)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(10)]],
+    device const float* environmentParameters [[buffer(11)]],
+    device const float* acceptedMaterialState [[buffer(12)]],
+    device float4* inverseDiagonal [[buffer(13)]],
+    constant NMPrimalContactArguments& contact [[buffer(14)]],
+    device NMMatterStatusGPU* statuses [[buffer(15)]],
+    device float4* inverseBlockRows [[buffer(16)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    inverseDiagonal[global] = float4(0.0f);
+    const uint packedBase = global * 3u;
+    inverseBlockRows[packedBase] = float4(0.0f);
+    inverseBlockRows[packedBase + 1u] = float4(0.0f);
+    inverseBlockRows[packedBase + 2u] = float4(0.0f);
+    const uint environment = global / dispatch.femNodeCount;
+    const NMIncidenceRangeGPU range = nodeRanges[global];
+    if (range.objectIndex == NM_INVALID_INDEX ||
+        range.objectIndex >= dispatch.objectCount) return;
+    const NMContinuumObjectGPU object = objects[range.objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        (object.flags & (NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS)) != 0u)
+        return;
+
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint localNode = global - nodeBase;
+    const float dt = objectTimestep(
+        dispatch, schedulers[environment * dispatch.objectCount +
+                             range.objectIndex]);
+    float blockRows[9] = {0.0f, 0.0f, 0.0f,
+                          0.0f, 0.0f, 0.0f,
+                          0.0f, 0.0f, 0.0f};
+    float3 stiffnessDiagonal = float3(0.0f);
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint tetrahedronIndex = nodeIncidence[range.first + local];
+        if (tetrahedronIndex >= dispatch.tetrahedronCount) continue;
+        const uint globalTet = environment * dispatch.tetrahedronCount +
+            tetrahedronIndex;
+        const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+            dispatch, tetrahedra, environment, tetrahedronIndex);
+        if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+            tetrahedron.identity.y != range.objectIndex) continue;
+        const float3x3 inverseRest = matrixFromRows(
+            tetrahedron.inverseRestRow0, tetrahedron.inverseRestRow1,
+            tetrahedron.inverseRestRow2);
+        const float3x3 deformation = tetrahedronDeformation(
+            tetrahedron, candidate, nodeBase);
+        const float3x3 deformationRate = tetrahedronVelocityGradient(
+            tetrahedron, candidate, nodeBase);
+        const NMMaterialGPU material = materials[tetrahedron.identity.x];
+        float deformationLow[9];
+        const float3x3 preciseLocalF = femMaterialDeformationWords(
+            object,tetrahedron,material,candidate,nodeBase,deformation,deformationLow);
+        device const float* internalState = material.stateCount == 0u
+            ? nullptr
+            : acceptedMaterialState + globalTet * dispatch.materialStateStride;
+        device const float* parameters = environmentParameters +
+            environment * dispatch.parameterCount;
+        uint localSlot = 0u;
+        bool foundLocalSlot = false;
+        for (uint slot = 0u; slot < 4u; ++slot)
+            if (tetrahedron.nodes[slot] == localNode) {
+                localSlot = slot;
+                foundLocalSlot = true;
+            }
+        if (!foundLocalSlot) continue;
+        for (uint axisIndex = 0u; axisIndex < 3u; ++axisIndex) {
+            const float3 axis = axisIndex == 0u ? float3(1.0f, 0.0f, 0.0f) :
+                (axisIndex == 1u ? float3(0.0f, 1.0f, 0.0f) :
+                                   float3(0.0f, 0.0f, 1.0f));
+            const float3 p0 = localSlot == 0u ? axis : float3(0.0f);
+            const float3 p1 = localSlot == 1u ? axis : float3(0.0f);
+            const float3 p2 = localSlot == 2u ? axis : float3(0.0f);
+            const float3 p3 = localSlot == 3u ? axis : float3(0.0f);
+            const float3x3 dp = float3x3(p1 - p0, p2 - p0, p3 - p0);
+            const float3x3 deformationDirection = dp * inverseRest;
+            const float3x3 rateDirection = deformationDirection /
+                max(dt, 1.0e-12f);
+            bool valid = true;
+            float3x3 analytic;
+            float3x3 tangent;
+            evaluateAlgorithmicStressTangent(
+                material, programs, instructions, parameters, internalState,
+                preciseLocalF,
+                femMaterialInput(object, tetrahedron, deformationDirection),
+                femMaterialInput(object, tetrahedron, deformationRate),
+                femMaterialInput(object, tetrahedron, rateDirection),
+                dt, material.bulk.y, analytic, tangent, valid,
+                deformationLow);
+            (void)analytic;
+            const bool finiteTangent = all(isfinite(tangent[0])) &&
+                all(isfinite(tangent[1])) && all(isfinite(tangent[2]));
+            if (!valid || !finiteTangent) {
+                recordFailure(statuses[environment],
+                    NM_STATUS_NONFINITE_RESULT, range.objectIndex,
+                    tetrahedronIndex,
+                    float4(maximumAbs(deformationDirection), dt,
+                           float(axisIndex), 0.0f));
+                return;
+            }
+            tangent = femMaterialOutput(object, tetrahedron, tangent);
+            const NMFEMElementVectorGPU forceDirection =
+                tetrahedronForce(tetrahedron, tangent);
+            const float3 nodeForceDirection = elementNodeVector(
+                forceDirection, tetrahedron, localNode).xyz;
+            if (!all(isfinite(nodeForceDirection))) {
+                recordFailure(statuses[environment],
+                    NM_STATUS_NONFINITE_RESULT, range.objectIndex,
+                    tetrahedronIndex,
+                    float4(maximumAbsoluteCoordinate(nodeForceDirection), dt,
+                           float(axisIndex), 1.0f));
+                return;
+            }
+            blockRows[axisIndex] -= dt * dt * nodeForceDirection.x;
+            blockRows[3u + axisIndex] -= dt * dt * nodeForceDirection.y;
+            blockRows[6u + axisIndex] -= dt * dt * nodeForceDirection.z;
+            stiffnessDiagonal[axisIndex] -= dt * dt *
+                nodeForceDirection[axisIndex];
+        }
+    }
+
+    const float mass = max(candidate[global].positionAndMass.w, 0.0f);
+    const bool fixedVelocity = candidate[global].restAndFixed.w > 0.5f;
+    const float3 contactDiagonal = fgmresContactDiagonal(
+        dispatch, contact, environment,
+        dispatch.gridNodeCount + localNode, range.objectIndex);
+    const float3 velocityInverse = fixedVelocity
+        ? float3(0.0f)
+        : 1.0f / max(float3(mass) + stiffnessDiagonal + contactDiagonal,
+                     float3(solver.regularization.x));
+    inverseDiagonal[global] = float4(velocityInverse, 0.0f);
+    if (fixedVelocity) return;
+
+    blockRows[0] += mass + contactDiagonal.x;
+    blockRows[4] += mass + contactDiagonal.y;
+    blockRows[8] += mass + contactDiagonal.z;
+    float inverseRows[9];
+    if (!fgmresInvertNodalBlock(blockRows, inverseRows)) return;
+    inverseBlockRows[packedBase] = float4(
+        inverseRows[0], inverseRows[1], inverseRows[2], 1.0f);
+    inverseBlockRows[packedBase + 1u] = float4(
+        inverseRows[3], inverseRows[4], inverseRows[5], 0.0f);
+    inverseBlockRows[packedBase + 2u] = float4(
+        inverseRows[6], inverseRows[7], inverseRows[8], 0.0f);
 }
 
 kernel void nm_fgmres_export_rigid(
@@ -1445,6 +2409,57 @@ kernel void nm_contact_accumulate_rigid_residual(
         }
     }
     residual[fgmresRigidBase(dispatch) + global].x += value;
+}
+
+// Apply a borrowed world-space wrench to compact, non-articulated free-body
+// rows. The input is force/torque (not impulse), so it is multiplied by the
+// exact microstep dt before entering the impulse-scaled generalized residual.
+// It is deliberately separate from bodyWrenches, which is an output arena.
+kernel void nm_fgmres_add_external_free_body_wrenches(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& articulatedNv [[buffer(1)]],
+    constant uint& wrenchCount [[buffer(2)]],
+    constant uint& wrenchStride [[buffer(3)]],
+    constant float& timestep [[buffer(4)]],
+    constant NMPrimalContactArguments& contact [[buffer(5)]],
+    device const MRABABodyWrenchGPU* externalWrenches [[buffer(6)]],
+    device float4* residual [[buffer(7)]],
+    device NMMatterStatusGPU* statuses [[buffer(8)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        dispatch.rigidGeneralizedCapacity;
+    if (global >= total || dispatch.rigidGeneralizedCapacity == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global - environment * dispatch.rigidGeneralizedCapacity;
+    if (dof < articulatedNv || !environmentHealthy(statuses, environment))
+        return;
+    const uint freeCoordinate = dof - articulatedNv;
+    const uint freeBodyIndex = freeCoordinate / 6u;
+    const uint component = freeCoordinate - 6u * freeBodyIndex;
+    const uint proxyIndex = coupledFreeProxyIndex(
+        dispatch, contact, freeBodyIndex);
+    if (proxyIndex >= dispatch.rigidProxyCount) return;
+    const NMRigidProxyGPU proxy = contact.rigidProxies[proxyIndex];
+    if (proxy.bodyIndex >= wrenchCount || wrenchStride < wrenchCount) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX, proxyIndex,
+            float4(float(proxy.bodyIndex), float(wrenchCount),
+                float(wrenchStride), 0.0f));
+        return;
+    }
+    const MRABABodyWrenchGPU wrench = externalWrenches[
+        environment * wrenchStride + proxy.bodyIndex];
+    const float input = component < 3u
+        ? wrench.force[component]
+        : wrench.torque[component - 3u];
+    if (!isfinite(input) || !isfinite(timestep) || !(timestep > 0.0f)) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, proxyIndex,
+            float4(input, timestep, float(component), 0.0f));
+        return;
+    }
+    residual[fgmresRigidBase(dispatch) + global].x += timestep * input;
 }
 
 kernel void nm_contact_subtract_rigid_inertia_residual(
@@ -1686,6 +2701,68 @@ kernel void nm_rigid_apply_candidate_solution(
     if (alpha == 0.0f) return;
     candidate[global] += alpha *
         solution[fgmresRigidBase(dispatch) + global].x;
+}
+
+// Construct the free-body generalized candidate privately for one Armijo
+// trial. The base production state is never modified; the Newton correction
+// is the same environment-scaled vector used by the normal apply kernel.
+kernel void nm_fem_armijo_prepare_free_rigid_candidate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* solution [[buffer(1)]],
+    device const float* baseCandidate [[buffer(2)]],
+    device const float4* metrics [[buffer(3)]],
+    device float* trialCandidate [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        dispatch.rigidGeneralizedCapacity;
+    if (global >= total || dispatch.rigidGeneralizedCapacity == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const float alpha = metrics[environment].z;
+    const float base = baseCandidate[global];
+    const float correction = solution[fgmresRigidBase(dispatch) + global].x;
+    trialCandidate[global] = isfinite(base) && isfinite(correction) &&
+        isfinite(alpha) ? base + alpha * correction : NAN;
+}
+
+kernel void nm_fem_armijo_copy_rigid_states(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMRigidStateGPU* source [[buffer(1)]],
+    device NMRigidStateGPU* destination [[buffer(2)]],
+    device const NMRigidProxyGPU* proxies [[buffer(3)]],
+    device NMMatterStatusGPU* statuses [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.rigidProxyCount;
+    if (global >= total) return;
+    const uint environment = global / dispatch.rigidProxyCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMRigidProxyGPU proxy = proxies[global % dispatch.rigidProxyCount];
+    const NMRigidStateGPU state = source[global];
+    if (proxy.generalizedFreeBodyIndex != NM_INVALID_INDEX) {
+        const float3x3 inverseInertia = matrixFromRows(
+            state.inverseInertiaRow0,
+            state.inverseInertiaRow1,
+            state.inverseInertiaRow2);
+        float3x3 inertia;
+        if ((proxy.flags & (NM_RIGID_DYNAMIC | NM_RIGID_ARTICULATED)) !=
+                NM_RIGID_DYNAMIC ||
+            !(state.linearVelocityAndInverseMass.w > 0.0f) ||
+            !isfinite(state.linearVelocityAndInverseMass.w) ||
+            !finite3(state.centerAndRadius.xyz) ||
+            !finite3(state.bodyCenter.xyz) ||
+            !finite3(state.linearVelocityAndInverseMass.xyz) ||
+            !finite3(state.angularVelocity.xyz) ||
+            !invert3x3(inverseInertia, inertia)) {
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                NM_INVALID_INDEX, global,
+                float4(state.linearVelocityAndInverseMass.w,
+                    determinant(inverseInertia),
+                    float(proxy.flags), float(proxy.generalizedFreeBodyIndex)));
+            return;
+        }
+    }
+    destination[global] = state;
 }
 
 kernel void nm_fgmres_field_smoother_initialize(
@@ -1936,41 +3013,53 @@ kernel void nm_fgmres_gather_nodes(
          ++incidence) {
         const uint encoded = contact.deformableNodeIncidence[
             deformableRange.first + incidence];
-        const uint slot = encoded >> 2u;
-        const uint local = encoded & 3u;
-        if (slot >= deformableCapacity || local >= 4u) continue;
+        const uint slot = encoded >> 3u;
+        const uint local = encoded & 7u;
+        if (slot >= deformableCapacity || local >= 6u) continue;
         const NMDeformableContactGPU deformable =
             contact.deformableContacts[deformableBase + slot];
         if ((deformable.identity.w & NM_CONTACT_VALID) == 0u ||
-            deformable.nodes[local] != unifiedNode) continue;
+            deformableContactNode(deformable, local) != unifiedNode) continue;
+        float3 exactContactAction = float3(0.0f);
+        const float contactTimestep = deformable.identity.x <
+                dispatch.objectCount
+            ? objectTimestep(dispatch, schedulers[
+                environment * dispatch.objectCount + deformable.identity.x])
+            : 0.0f;
+        if (deformableExactVertexTriangleDirectionalForce(
+                dispatch, deformable, candidate, direction, environment,
+                unifiedNode, contactTimestep, exactContactAction, false)) {
+            work[global].xyz += exactContactAction;
+            continue;
+        }
         float3 relativeDirection = float3(0.0f);
         float mollifierDirection = 0.0f;
-        for (uint other = 0u; other < 4u; ++other) {
-            const uint otherNode = deformable.nodes[other];
+        for (uint other = 0u; other < 6u; ++other) {
+            const uint otherNode = deformableContactNode(deformable, other);
             float3 otherDirection = float3(0.0f);
             if (otherNode >= dispatch.gridNodeCount &&
                 otherNode - dispatch.gridNodeCount < dispatch.femNodeCount) {
                 otherDirection = direction[
                     environment * dispatch.femNodeCount +
                     otherNode - dispatch.gridNodeCount].xyz;
-                relativeDirection += deformable.weights[other] *
-                    deformable.timeScales[other] * otherDirection;
+                relativeDirection += deformableContactWeight(deformable, other) *
+                    deformableContactTimeScale(deformable, other) * otherDirection;
             } else if (otherNode < dispatch.gridNodeCount) {
                 const uint activeSlot = contact.mpmNodeToActive[
                     environment * dispatch.gridNodeCount + otherNode];
                 if (activeSlot < contact.mpmActiveNodeCounts[environment]) {
                     otherDirection = direction[fgmresMPMIndex(
                         dispatch, environment, activeSlot)].xyz;
-                    relativeDirection += deformable.weights[other] *
-                        deformable.timeScales[other] * otherDirection;
+                    relativeDirection += deformableContactWeight(deformable, other) *
+                        deformableContactTimeScale(deformable, other) * otherDirection;
                 }
             }
             mollifierDirection += dot(
                 deformableMollifierGradient(deformable, other),
-                deformable.timeScales[other] * otherDirection);
+                deformableContactTimeScale(deformable, other) * otherDirection);
         }
-        work[global].xyz += deformable.timeScales[local] * (
-            deformable.weights[local] *
+        work[global].xyz += deformableContactTimeScale(deformable, local) * (
+            deformableContactWeight(deformable, local) *
                 deformableBarrierDirectionalForce(
                     deformable, relativeDirection) +
             deformableMollifierGradient(deformable, local) *
@@ -2027,7 +3116,7 @@ kernel void nm_fgmres_measure_true_residual(
     device NMFGMRESStateGPU* states [[buffer(5)]],
     device float4* metrics [[buffer(6)]],
     constant float& forcing [[buffer(7)]],
-    device const NMMatterStatusGPU* diagnosticStatuses [[buffer(8)]],
+    device NMMatterStatusGPU* diagnosticStatuses [[buffer(8)]],
     constant uint& replaceResidual [[buffer(9)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
@@ -2040,6 +3129,7 @@ kernel void nm_fgmres_measure_true_residual(
     float norm2 = 0.0f;
     float normCorrection = 0.0f;
     float maximumAbsolute = 0.0f;
+    bool finiteResidual = true;
     for (uint local = lane; local < dispatch.femNodeCount; local += 32u) {
         const uint mechanical = nodeBase + local;
         const uint field = fieldBase + local;
@@ -2047,10 +3137,8 @@ kernel void nm_fgmres_measure_true_residual(
             rightHandSide[mechanical] - operatorValue[mechanical];
         const float4 fieldResidual =
             rightHandSide[field] - operatorValue[field];
-        if (replaceResidual != 0u) {
-            residual[mechanical] = mechanicalResidual;
-            residual[field] = fieldResidual;
-        }
+        finiteResidual = finiteResidual && all(isfinite(mechanicalResidual)) &&
+            all(isfinite(fieldResidual));
         fgmresCompensatedAdd(
             norm2, normCorrection, dot(mechanicalResidual, mechanicalResidual));
         fgmresCompensatedAdd(
@@ -2063,6 +3151,32 @@ kernel void nm_fgmres_measure_true_residual(
     }
     norm2 = simd_sum(norm2);
     maximumAbsolute = simd_max(maximumAbsolute);
+    const bool validMetrics = simd_all(finiteResidual) && isfinite(norm2) &&
+        norm2 >= 0.0f && isfinite(maximumAbsolute) && isfinite(forcing) &&
+        isfinite(states[environment].diagnostics.x) &&
+        states[environment].diagnostics.x >= 0.0f &&
+        isfinite(states[environment].diagnostics.y) &&
+        states[environment].diagnostics.y >= 0.0f;
+    if (!validMetrics) {
+        if (lane == 0u)
+            recordFailure(diagnosticStatuses[environment],
+                NM_STATUS_NONFINITE_RESULT, NM_INVALID_INDEX,
+                NM_INVALID_INDEX, float4(norm2, maximumAbsolute,
+                    states[environment].diagnostics.x,
+                    states[environment].diagnostics.y));
+        return;
+    }
+    // Residual replacement is an explicitly selected algorithm experiment.
+    // Do not partially write its solver vectors before all lanes validate.
+    if (replaceResidual != 0u) {
+        for (uint local = lane; local < dispatch.femNodeCount; local += 32u) {
+            const uint mechanical = nodeBase + local;
+            const uint field = fieldBase + local;
+            residual[mechanical] =
+                rightHandSide[mechanical] - operatorValue[mechanical];
+            residual[field] = rightHandSide[field] - operatorValue[field];
+        }
+    }
     if (lane == 0u) {
         device NMFGMRESStateGPU& state = states[environment];
         const float trueNorm = sqrt(max(norm2, 0.0f));
@@ -2902,14 +4016,14 @@ kernel void nm_mpm_build_implicit_residual(
          ++incidence) {
         const uint encoded = contact.deformableNodeIncidence[
             deformableRange.first + incidence];
-        const uint contactSlot = encoded >> 2u;
-        const uint contactLocal = encoded & 3u;
+        const uint contactSlot = encoded >> 3u;
+        const uint contactLocal = encoded & 7u;
         if (contactSlot >= dispatch.deformableContactCapacity ||
-            contactLocal >= 4u) continue;
+            contactLocal >= 6u) continue;
         const NMDeformableContactGPU deformable =
             contact.deformableContacts[deformableBase + contactSlot];
         if ((deformable.identity.w & NM_CONTACT_VALID) == 0u ||
-            deformable.nodes[contactLocal] != nodeIndex) continue;
+            deformableContactNode(deformable, contactLocal) != nodeIndex) continue;
         float3 tangent0, tangent1;
         deformableContactFrame(
             deformable.normalAndTOI.xyz, tangent0, tangent1);
@@ -2918,8 +4032,8 @@ kernel void nm_mpm_build_implicit_residual(
                 deformable.normalAndTOI.xyz +
             deformable.impulseAndFriction.y * tangent0 +
             deformable.impulseAndFriction.z * tangent1;
-        rightHandSide += deformable.timeScales[contactLocal] * (
-            deformable.weights[contactLocal] * impulse -
+        rightHandSide += deformableContactTimeScale(deformable, contactLocal) * (
+            deformableContactWeight(deformable, contactLocal) * impulse -
             deformable.mollifier.y *
                 deformableMollifierGradient(deformable, contactLocal));
     }
@@ -3169,18 +4283,18 @@ kernel void nm_fgmres_apply_mpm(
          ++incidence) {
         const uint encoded = contact.deformableNodeIncidence[
             deformableRange.first + incidence];
-        const uint contactSlot = encoded >> 2u;
-        const uint contactLocal = encoded & 3u;
+        const uint contactSlot = encoded >> 3u;
+        const uint contactLocal = encoded & 7u;
         if (contactSlot >= dispatch.deformableContactCapacity ||
-            contactLocal >= 4u) continue;
+            contactLocal >= 6u) continue;
         const NMDeformableContactGPU deformable =
             contact.deformableContacts[deformableBase + contactSlot];
         if ((deformable.identity.w & NM_CONTACT_VALID) == 0u ||
-            deformable.nodes[contactLocal] != nodeIndex) continue;
+            deformableContactNode(deformable, contactLocal) != nodeIndex) continue;
         float3 relativeDirection = float3(0.0f);
         float mollifierDirection = 0.0f;
-        for (uint other = 0u; other < 4u; ++other) {
-            const uint otherNode = deformable.nodes[other];
+        for (uint other = 0u; other < 6u; ++other) {
+            const uint otherNode = deformableContactNode(deformable, other);
             float3 otherDirection = float3(0.0f);
             if (otherNode < dispatch.gridNodeCount) {
                 const uint otherSlot = contact.mpmNodeToActive[
@@ -3188,23 +4302,23 @@ kernel void nm_fgmres_apply_mpm(
                 if (otherSlot < contact.mpmActiveNodeCounts[environment]) {
                     otherDirection = direction[fgmresMPMIndex(
                         dispatch, environment, otherSlot)].xyz;
-                    relativeDirection += deformable.weights[other] *
-                        deformable.timeScales[other] * otherDirection;
+                    relativeDirection += deformableContactWeight(deformable, other) *
+                        deformableContactTimeScale(deformable, other) * otherDirection;
                 }
             } else if (otherNode - dispatch.gridNodeCount <
                        dispatch.femNodeCount) {
                 otherDirection = direction[
                     environment * dispatch.femNodeCount +
                     otherNode - dispatch.gridNodeCount].xyz;
-                relativeDirection += deformable.weights[other] *
-                    deformable.timeScales[other] * otherDirection;
+                relativeDirection += deformableContactWeight(deformable, other) *
+                    deformableContactTimeScale(deformable, other) * otherDirection;
             }
             mollifierDirection += dot(
                 deformableMollifierGradient(deformable, other),
-                deformable.timeScales[other] * otherDirection);
+                deformableContactTimeScale(deformable, other) * otherDirection);
         }
-        value += deformable.timeScales[contactLocal] * (
-            deformable.weights[contactLocal] *
+        value += deformableContactTimeScale(deformable, contactLocal) * (
+            deformableContactWeight(deformable, contactLocal) *
                 deformableBarrierDirectionalForce(
                     deformable, relativeDirection) +
             deformableMollifierGradient(deformable, contactLocal) *
@@ -3323,7 +4437,8 @@ kernel void nm_mpm_limit_implicit_line_search(
     }
     const NMMPMGridGPU grid = grids[object.elementOffset];
     const float dt = objectTimestep(dispatch, scheduler);
-    const uint candidateCount = min(solver.nonlinearIterations.w, 8u);
+    const uint candidateCount = min(
+        solver.nonlinearIterations.w, NM_MIXED_LINE_SEARCH_MAX_STEPS);
     float chosen = 0.0f;
     float chosenMinimum = -INFINITY;
     for (uint trial = 0u; trial < candidateCount; ++trial) {

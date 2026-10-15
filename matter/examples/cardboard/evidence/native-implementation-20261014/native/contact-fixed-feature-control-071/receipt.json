@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.native-run-receipt.v2",
+  "exit_code": 2,
+  "timed_out": false,
+  "execution_started": false,
+  "stage": "launcher_cli",
+  "reason": "External queue omitted executable argv after the required -- separator; argparse rejected before source seal/native execution. Failure retained; corrected launch uses a new case.",
+  "finished_at_utc": "2026-10-14T22:53:19.076009+00:00"
+}

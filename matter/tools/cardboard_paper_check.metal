@@ -13,17 +13,25 @@ kernel void cardboard_paper_check(
     uint index [[thread_position_in_grid]]) {
     if (index != 0u) return;
     using namespace numi_matter_metal;
-    float f[9], h[9];
-    for (uint i=0; i<9; ++i) { f[i]=inputs[i]; h[i]=inputs[9+i]; }
+    float f[9], h[9], fLow[9];
+    for (uint i=0; i<9; ++i) {
+        f[i]=inputs[i];
+        h[i]=inputs[9+i];
+        fLow[i]=inputs[18+i];
+    }
+    const bool accurateProjection = inputs[27] != 0.0f;
     const float3x3 F=componentsMatrix(f), H=componentsMatrix(h);
     float state[NM_MAX_MATERIAL_STATE];
+    float stateLow[NM_MAX_MATERIAL_STATE] = {0.0f};
     float residual=-1.0f, stateNorm=0.0f;
     uint iterations=0u, flags=0u, failure=0u;
     bool valid=true;
     float3x3 stress(0.0f), tangent(0.0f);
     evaluateAlgorithmicStressTangent(material,programs,instructions,
         parameters,accepted,F,H,float3x3(0.0f),float3x3(0.0f),1e-4f,293.15f,
-        stress,tangent,valid,state,&flags,&residual,&stateNorm,&iterations,&failure);
+        stress,tangent,valid,state,&flags,&residual,&stateNorm,&iterations,&failure,
+        accurateProjection ? fLow : nullptr,
+        accurateProjection ? stateLow : nullptr);
     const bool projectionValid = (flags & kMaterialDiagProjectionConverged) != 0u;
     float p[9], dp[9]; matrixComponents(stress,p); matrixComponents(tangent,dp);
     output[0]=valid?1.0f:0.0f;
@@ -38,4 +46,7 @@ kernel void cardboard_paper_check(
     output[22+NM_MAX_MATERIAL_STATE]=float(iterations);
     output[23+NM_MAX_MATERIAL_STATE]=float(flags);
     output[24+NM_MAX_MATERIAL_STATE]=float(failure);
+    for (uint i=0;i<NM_MAX_MATERIAL_STATE;++i)
+        output[25+NM_MAX_MATERIAL_STATE+i] =
+            accurateProjection && i<material.stateCount ? stateLow[i] : 0.0f;
 }

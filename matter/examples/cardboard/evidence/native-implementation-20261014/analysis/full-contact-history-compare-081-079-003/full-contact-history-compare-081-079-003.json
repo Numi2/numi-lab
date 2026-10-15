@@ -1,0 +1,102 @@
+{
+  "attempts": {
+    "control": {
+      "accepted_transactions": 0,
+      "exit_code": 1,
+      "rollback": [
+        {
+          "accepted": false,
+          "attempt_index": 0,
+          "changed_cursors": [],
+          "different_vectors": [],
+          "rollback": "persistent_scope_identical"
+        }
+      ],
+      "timed_out": false,
+      "transactions": 1
+    },
+    "diagnostic_enabled": {
+      "accepted_transactions": 0,
+      "exit_code": 1,
+      "rollback": [
+        {
+          "accepted": false,
+          "attempt_index": 0,
+          "changed_cursors": [],
+          "different_vectors": [],
+          "rollback": "persistent_scope_identical"
+        }
+      ],
+      "timed_out": false,
+      "transactions": 1
+    }
+  },
+  "differing_files": [],
+  "files": {
+    "control": {
+      "transaction-000000-after.bin": {
+        "sha256": "5bf9d9a6c9b227a889f7df60e47995c75f0ec4bcd14f0bc91262d3e70a4fbc7b",
+        "size_bytes": 41927
+      },
+      "transaction-000000-before.bin": {
+        "sha256": "8c47dbb379b36ee820967d704449e6b1b9a6f4863bf018c191244dc05b856e67",
+        "size_bytes": 41927
+      },
+      "transaction-000000.json": {
+        "sha256": "a458a6f1d886efb9415d48eaa37a6447ce1eccf2ff49e4727b9c4a1fa9c83c8c",
+        "size_bytes": 6558
+      }
+    },
+    "diagnostic_enabled": {
+      "transaction-000000-after.bin": {
+        "sha256": "5bf9d9a6c9b227a889f7df60e47995c75f0ec4bcd14f0bc91262d3e70a4fbc7b",
+        "size_bytes": 41927
+      },
+      "transaction-000000-before.bin": {
+        "sha256": "8c47dbb379b36ee820967d704449e6b1b9a6f4863bf018c191244dc05b856e67",
+        "size_bytes": 41927
+      },
+      "transaction-000000.json": {
+        "sha256": "a458a6f1d886efb9415d48eaa37a6447ce1eccf2ff49e4727b9c4a1fa9c83c8c",
+        "size_bytes": 6558
+      }
+    }
+  },
+  "output_file_count": 3,
+  "physical_validation": false,
+  "production_outputs_byte_identical": true,
+  "qualification_note": "Byte parity and rollback preserve failed attempt verdicts; status/certificate/contact sample and linearization scratch are outside the persistent rollback hash scope.",
+  "rollback_scope": [
+    "cohesiveFaces",
+    "contactHistories",
+    "deformableContactHistories",
+    "environmentParameters",
+    "femFields",
+    "femMaterialState",
+    "femNodes",
+    "femTopologyNodes",
+    "femTopologyTetrahedra",
+    "humanSupportConsequences",
+    "humanSupportHistories",
+    "particleMaterialState",
+    "particles",
+    "punctureChannels",
+    "rigidStates",
+    "topologyStates",
+    "vascularClock",
+    "vascularState"
+  ],
+  "schema": "numi.cardboard.full-contact-history-comparison.v1",
+  "sealed_identity": {
+    "changed_diagnostic_environment_keys": [
+      "NM_FEM_CONTACT_TRACE_ITERATION",
+      "NM_FEM_CONTACT_TRACE_ROOT",
+      "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT",
+      "NM_FEM_NEWTON_TRACE_ROOT"
+    ],
+    "inputs_sha256_equal": true,
+    "physical_argv_equal_except_output_directory": true,
+    "source_build_sha256": "e50c6390deba14d18995bdfcb75d219f73234b61b8fa120882b2123821becc51"
+  },
+  "strict_solver_qualification": false
+}

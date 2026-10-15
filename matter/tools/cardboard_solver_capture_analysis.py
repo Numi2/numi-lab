@@ -115,6 +115,10 @@ def normalize_native(records):
             r["reference_volume_m3"] = r["rest_volume_m3"]
             r["accepted_state"] = r["center"]["accepted_state"]
             c = r["center"]
+            for state in [c]+r["sides"]:
+                if "F_local_low" in state:
+                    state["F_local_high"] = list(state["F_local"])
+                    state["F_local"] = (array(state["F_local"],9)+array(state["F_local_low"],9)).tolist()
             c["local_F_direction_per_unit_velocity"] = c["F_direction_local_per_s"]
             c["dP_local_Pa_per_mps"] = c["tangent_local_Pa_per_s"]
             c["dP_world_Pa_per_mps"] = c["tangent_world_Pa_per_s"]
@@ -123,6 +127,8 @@ def normalize_native(records):
             for i,s in enumerate(r["perturbations"]):
                 s["side"] = "plus" if i%2 == 0 else "minus"
     header = records[0]
+    if any("F_local_low" in r.get("center",{}) for r in records):
+        header["numeric_input_contract"] = "native_fp32_high_low_words_summed_in_fp64_after_exact_widening"
     for kind,count in (("node",header["node_count_per_environment"]),
                        ("tetrahedron",header["tetrahedron_count_per_environment"])):
         actual = [r for r in records if r["record_type"] == kind]

@@ -1,0 +1,258 @@
+{
+  "accepted_physics_steps": 0,
+  "architecture": "arm64",
+  "binary": {
+    "path": "build-cardboard-world/matter/numi-matter-cardboard-probe",
+    "sha256": "696e855bcb0792524d40bad63d9d458d9a64d14d34714cee0bff375a313eeefb"
+  },
+  "checkout": "/Users/home/numi-cardboard-20261006",
+  "classification": "source-bound compile-only geometry and static memory preflight; no physical or native runtime execution",
+  "command": "build-cardboard-world/matter/numi-matter-cardboard-probe --shipping-box --compile-only --output matter/examples/cardboard/evidence/shipping-preflight-cpu-20261014-009",
+  "compiled_geometry": {
+    "assembly_actions": 15,
+    "box_panels": 4,
+    "butt_edge_adhesion": false,
+    "channel_support_rails": 24,
+    "closure_adhesive_strip_footprint_m2": 0.009999999999999995,
+    "closure_overlap_area_m2": 0.08500000000000002,
+    "closure_patch_count": 9,
+    "flat_blank_bounds_m": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        1.024999976158142,
+        0.4000000059604645,
+        0.004209999926388264
+      ]
+    ],
+    "mesh_nodes": 453378,
+    "physical_assembly": false,
+    "pitch_intervals": 130,
+    "score_fold_release_gates": {
+      "flaps": false,
+      "folded_walls": false,
+      "manufacturer_lap": false,
+      "released_settled_assembly": false,
+      "scoring": false
+    },
+    "score_lines": 12,
+    "score_punches": 12,
+    "score_tool_defaults": {
+      "channel_tool_geometry_available": true,
+      "channel_tool_geometry_qualified": false,
+      "channel_width_m": 0.006,
+      "clearance_calipers": 0.25,
+      "crease_damage_law_qualified": false,
+      "depths_m": [
+        0.00042100000000000004,
+        0.0008420000000000001,
+        0.001263,
+        0.0016840000000000002
+      ],
+      "nose_radius_m": 0.001,
+      "support_rail_width_m": 0.01
+    },
+    "tetrahedra": 1477728,
+    "tooling_cpu_check": "passed: 12 score axes, one capsule plus two BOX rails per axis; native contact was not executed"
+  },
+  "compiled_package_sha256": "691372740ce8b94652e7a51ce3676a62948c42735d07a4ace90f4b83d114d964",
+  "compiled_world_fingerprint": 2253983890636028690,
+  "cpu_checks": [
+    {
+      "command": "build-cardboard-world/matter/numi-matter-cardboard-shipping-memory-check",
+      "status": "passed"
+    },
+    {
+      "command": "build-cardboard-world/matter/numi-matter-cardboard-shipping-driver-check",
+      "status": "passed"
+    },
+    {
+      "command": "build-cardboard-world/matter/numi-matter-cardboard-box-blank-check",
+      "status": "passed"
+    },
+    {
+      "command": "build-cardboard-world/matter/numi-matter-cardboard-shipping-protocol-check",
+      "status": "passed; synthetic geometry only"
+    },
+    {
+      "command": "build-cardboard-world/matter/numi-matter-cardboard-box-assembly-controller-check",
+      "status": "passed; synthetic geometry only"
+    },
+    {
+      "command": "build-cardboard-world/numi-matter-cardboard-shipping-rigid-driver-check",
+      "status": "passed; scene index validation CPU fixture"
+    }
+  ],
+  "created_utc": "2026-10-14T18:46:29.244915+00:00",
+  "git_head": "05fe543008297041c1ea4345ee7aec65a558b71f",
+  "gpu_work_submitted": false,
+  "historical_attempts": [
+    {
+      "classification": "failed stale region-ID selector assumption; retained",
+      "path": "shipping-preflight-cpu-20261014-001"
+    },
+    {
+      "classification": "regional Galerkin v1 correctly rejected coupled shipping world; retained",
+      "path": "shipping-preflight-cpu-20261014-002"
+    },
+    {
+      "classification": "preliminary reduced preflight with missing tool geometry; superseded and retained",
+      "path": "shipping-preflight-cpu-20261014-003"
+    },
+    {
+      "classification": "compile-only first blocked by HMA input gate; retained",
+      "path": "shipping-preflight-cpu-20261014-004"
+    },
+    {
+      "classification": "compile-only first blocked by coupon/engineering input gate; retained",
+      "path": "shipping-preflight-cpu-20261014-005"
+    },
+    {
+      "classification": "successful earlier geometry preflight; stale lower-bound screen and report; retained",
+      "path": "shipping-preflight-cpu-20261014-006"
+    },
+    {
+      "classification": "superseded by scene-index and memory-screen source fixes; retained",
+      "path": "shipping-preflight-cpu-20261014-007"
+    },
+    {
+      "classification": "superseded by corrected memory-screen reference; retained",
+      "path": "shipping-preflight-cpu-20261014-008"
+    }
+  ],
+  "inputs": {
+    "accepted_coupon_sha256": null,
+    "allowance_disposition": "zero_offset_lower_bound_only",
+    "board_recipe": {
+      "caliper_m": 0.00421,
+      "id": "literature2009_cross_source",
+      "liner_thickness_m": 0.000277,
+      "lower_bond_width_m": 0.0008,
+      "lower_glue_gap_m": 0.0001,
+      "medium_thickness_m": 0.000191,
+      "paper_compensated_arithmetic": false,
+      "paper_hill_accurate_projection": false,
+      "partial_terminal_pitch": true,
+      "pitch_intervals": 130,
+      "pitch_m": 0.0079,
+      "profile": "sinusoidal_fallback",
+      "safeguarded_paper_hill_initializer": false,
+      "upper_bond_width_m": 0.0006,
+      "upper_glue_gap_m": 3e-05
+    },
+    "material_file_sha256": {
+      "glue": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+      "liner": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+      "medium": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8"
+    },
+    "requested_inside_dimensions_m": [
+      0.3,
+      0.2,
+      0.2
+    ],
+    "score_center_span_minus_inside_m_xyz": [
+      0,
+      0,
+      0
+    ]
+  },
+  "linked_metalrobo_library": {
+    "path": "build-cardboard-world/lib/libmetalrobo.dylib",
+    "sha256": "39d52dd9b941fc0804c366b6f766d26815e402d1560ba7e4e95e0f8edb67f86a"
+  },
+  "material_and_qualification_limits": {
+    "complete_score_fold_release_accepted": false,
+    "hma_law_calibrated": false,
+    "hma_mortar_patches": 0,
+    "hma_parameters_sha256": null,
+    "physical_box_qualified": false,
+    "scoring_damage_law_qualified": false,
+    "source_grade_calibrated": false,
+    "starch_law_calibrated": false,
+    "starch_paired_faces": 0,
+    "starch_parameters_sha256": null
+  },
+  "memory": {
+    "actual_native_peak_bytes": null,
+    "exact_compiled_static_lower_bound_bytes": 656899296,
+    "limit_bytes": 17179869184,
+    "native_initialize_required_for_memory_admission": true,
+    "prebuild_estimate_bytes": 821124688,
+    "prebuild_estimated_nodes": 566723,
+    "prebuild_estimated_tetrahedra": 1847160,
+    "scope": "exact compiled lower bound omits other arenas, contact, checkpoint duplication, host mesh, compiler and package allocations; no native peak measurement",
+    "static_lower_bound_within_16_gib": true
+  },
+  "metal_runtime_initialized": false,
+  "output_sha256": {
+    "box-layout.json": "768a5d105948c31027eafc92dee9ebc26a1329b89c23dfc7ebdf9bf677a9ebee",
+    "compiled.nmatterpack": "691372740ce8b94652e7a51ce3676a62948c42735d07a4ace90f4b83d114d964",
+    "initial.obj": "6f4c9f47ee71f2f969160bcf8ab9bfccf49be796063cc80fe8c32b31412944ff",
+    "manifest.json": "4e6614c2d72d432455a2004964efb5c2dc3dea212948073a0c20e4bb5d5f96a9",
+    "mesh.json": "4fcf4ed558eb35243e640a7a51c91d3dfbd0b0b034a3e17767554caff1ff4ced",
+    "result.json": "0dccbf0a7ec7ad60c0056c0e7fc314fdae8fdad990d48310079943a9b9b6e2b1",
+    "shipping-design.json": "39f9c5b587a06365ab171c30bd3ff0840a042ee27eee4602f6c296b4fb8cd04e",
+    "shipping-memory-prebuild.json": "c90c1fa41a987c69b9204676f0ac2013db9d43cd83f60f3bb62c2fe5e6cc3212",
+    "shipping-memory-preflight.json": "27b5e86dbf0d8290f3099f4c0b235d1e58a633bb42d2a279e05155e49bee8a38"
+  },
+  "physical_validation": false,
+  "platform": "macOS-26.6-arm64-arm-64bit-Mach-O",
+  "runtime_execution": false,
+  "schema": "numi.cardboard.shipping-cpu-preflight-audit.v1",
+  "source_boundaries": {
+    "no_claim_of_actual_gpu_peak_memory": true,
+    "no_folded_or_assembled_mesh_exported": true,
+    "no_physical_or_constitutive_qualification": true,
+    "score_geometry_compiled_but_unexecuted": true,
+    "zero_allowance_is_fixture_lower_bound_only": true
+  },
+  "source_sha256": {
+    "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_hill_ideal.nmatter": {
+      "sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d"
+    },
+    "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_medium_hill_ideal.nmatter": {
+      "sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8"
+    },
+    "/Users/home/numi-cardboard-20261006/matter/materials/starch2007_finite_glue_elastic.nmatter": {
+      "sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1"
+    },
+    "matter/tools/cardboard_box_assembly_controller.hpp": {
+      "sha256": "397c2d266f1620f45a278402409696bd89b310da30c1208e4ded2348afc80798"
+    },
+    "matter/tools/cardboard_box_assembly_controller_check.cpp": {
+      "sha256": "d38e36104fe491aac166af601fd52cd79714a8ea18172c58bc9b7320956bbc8f"
+    },
+    "matter/tools/cardboard_box_blank.hpp": {
+      "sha256": "bb07194cc135e51413fcdaff0445fa5992a7b386ccf4e7feeacfb4d9f2b25da3"
+    },
+    "matter/tools/cardboard_glue_mesh.hpp": {
+      "sha256": "8db61e54ff4a0e2e4a47d6bcfe02244699b7820bf97474727bb77f1f9f389260"
+    },
+    "matter/tools/cardboard_probe.mm": {
+      "sha256": "54b09830476481a95a963350fd8f6f27b7de1ffe397391f3897e8b9d06bc310f"
+    },
+    "matter/tools/cardboard_shipping_memory.hpp": {
+      "sha256": "e8de6b2b4c9e5dca11b91e342a367aa23813c8916188c760cb552ce5f8febffe"
+    },
+    "matter/tools/cardboard_shipping_memory_check.cpp": {
+      "sha256": "031badaa90a4fc4f7c84efa2feceb8cfba318d22f87ca3a97f29633f2ee59d84"
+    },
+    "matter/tools/cardboard_shipping_protocol.hpp": {
+      "sha256": "325eb1a123208ca4f0a85cfc6b2dd41e7aafd84c107d92473d9ca4b67166d59f"
+    },
+    "matter/tools/cardboard_shipping_rigid_driver.hpp": {
+      "sha256": "4278a4685b8a2513cc942c0a6955497eb57c5e5c354f782554fab79f6f9c7b54"
+    },
+    "matter/tools/cardboard_shipping_rigid_driver_check.cpp": {
+      "sha256": "c5e7372c006c97e5ea99af158a98cbdadf62917eb5e27c17f781910a6446bcdd"
+    },
+    "matter/tools/cardboard_shipping_snapshot.hpp": {
+      "sha256": "3f9bf2ed211606c89c2c537ae2f8e8a6159fc127e2a713ea1880f36796c2726e"
+    }
+  },
+  "tracked_worktree_change_count": 38,
+  "working_tree_clean": false
+}

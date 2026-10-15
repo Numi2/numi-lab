@@ -1,0 +1,30 @@
+evidence=exact_fp32_capture_independent_fp64_bytecode_ad_replay calibration=false physical_validation=false
+material=hajali2009_liner_hill_ideal state_count=30 dt_f32=0.0020000000949949026 requested_epsilon=1.0000000000000001e-05 actual_directional_half_step=1.0015993716328597e-05
+reference_volume_m3=1.6666666666666669e-10
+mode_geometry index=0 length_m=0.00059259259259259269 normal_onset_strain=0.00041291378113657567 normal_softening_strain=0.00013104310943171213 shear_onset_strain=0.30069761847486171 shear_softening_strain=8.2871511907625681
+mode_geometry index=1 length_m=0.00059259259259259269 normal_onset_strain=0.047214135297202302 normal_softening_strain=16.851392932351395 shear_onset_strain=0.36421911421911424 shear_softening_strain=8.255390442890441
+mode_geometry index=2 length_m=0.00059259259259259269 normal_onset_strain=5.2355943470405562 normal_softening_strain=14.257202826479718 shear_onset_strain=0.36421911421911424 shear_softening_strain=8.255390442890441
+mode_geometry index=3 length_m=0.00034213349285311146 normal_onset_strain=0.064999131251419512 normal_softening_strain=29.195857812099103 shear_onset_strain=0.085107063549940451 shear_softening_strain=14.571625157087436
+native_center_projection_residual=1.16415322e-10 fp64_center_projection_residual=6.4083409804578313e-13native_center_state_vs_fp64_inf=1.754548276111656e-06
+native_center_implicit_residual_inf=1.7545484525260946e-05
+native_plus_implicit_residual_inf=2.8597910757266476e-05
+native_minus_implicit_residual_inf=6.2490965375694429e-05
+native_stress_vs_fp64_projected_stress_relative=0.32865894451753885
+native_stress_vs_fp64_native_candidate_stress_relative=0.32864512179809574
+fp64_bytecode_stress_P11_vs_energy_FD_relative=5.8555515991542961e-10
+fp64_energy_fd_P11_Pa=0.74071666071270392
+native_tangent_vs_fp64_ad_at_fp64_candidate_relative=0.057628148485219459
+native_tangent_vs_fp64_ad_at_native_candidate_relative=0.057649910561610077
+fp64_ad_vs_fp64_fd_at_captured_F_inputs_relative=0.00018481210516457385
+native_fd_vs_fp64_fd_at_captured_F_inputs_relative=7.0120548515833683
+native_center_stress_Pa=1.1033388376235962,0,0,0,0.086515508592128754,0,0,0,5.1880495448131114e-05
+fp64_center_stress_Pa=0.74071666012714876,0,0,0,0.058081408745670436,0,0,0,3.4829505598538346e-05
+fp64_stress_at_native_candidate_Pa=0.7407319112703491,0,0,0,0.058082604625308849,0,0,0,3.4830222726403974e-05
+native_center_tangent_action_Pa=-1698.6060791015625,8.8173608779907227,0,8.7736387252807617,-114.59370422363281,0,0,0,-0.078258268535137177
+fp64_ad_tangent_action_Pa=-1795.6678652696187,5.9194436444915901,0,5.8900913252183829,-128.31917068763619,0,0,0,-0.083323015164023601
+fp64_fd_tangent_action_Pa=-1795.3801226435212,5.9121402021962801,0,5.882826215184398,-128.15245336117604,0,0,0,-0.083296309227832294
+native_fd_tangent_action_Pa=296.01794180728149,8.803281875684652,0,8.7596293715641753,42.024097874224921,0,0,0,0.015594901863530863
+state_difference name=sbar11 native=0.80457580089569092 fp64=0.80457755544396703 delta=-1.754548276111656e-06
+state_difference name=sbar22 native=0.06332850456237793 fp64=0.063328638055021189 delta=-1.3349264325890342e-07
+state_difference name=sbar33 native=3.7976016756147146e-05 fp64=3.7976095988711517e-05 delta=-7.9232564370698873e-11
+state_difference name=overlay_fracture_excess_0 native=0.002000806387513876 fp64=0.0020008089468436141 delta=-2.5593297381561186e-09

@@ -1,0 +1,10 @@
+{
+  "exit_code": 1,
+  "timed_out": false,
+  "execution_started": false,
+  "stage": "input-seal",
+  "error_type": "FileNotFoundError",
+  "reason": "[Errno 2] No such file or directory: '/Users/home/cardboard-implementation-20261014/solver/candidate-precision-cycle-009/output/fem-newton-capture.json'",
+  "wall_seconds": 0.18869849998736754,
+  "finished_at_utc": "2026-10-14T19:01:42.216902+00:00"
+}

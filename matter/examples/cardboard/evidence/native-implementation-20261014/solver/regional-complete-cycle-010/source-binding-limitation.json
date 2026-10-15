@@ -1,0 +1,4 @@
+{
+  "qualification": false,
+  "reason": "Probe executable was statically linked before dynamic-mask runtime repair; its explicit old kinematic-target rejection proves it is not source-equivalent to archived runtime. Failure retained; retry uses an immutable source-built probe."
+}

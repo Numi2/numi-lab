@@ -2895,7 +2895,9 @@ kernel void nm_topology_validate_growth_references(
             const bool nodeInvalid = node < source.stateOffset ||
                 node - source.stateOffset >= source.stateCount;
             const bool separatedInvalid =
-                (face.adjacency.w & NM_TOPOLOGY_SEPARATED) != 0u &&
+                (face.adjacency.w &
+                    (NM_TOPOLOGY_SEPARATED |
+                     NM_TOPOLOGY_PAIRED_COHESIVE)) != 0u &&
                 (separated < source.stateOffset ||
                  separated - source.stateOffset >= source.stateCount);
             if (nodeInvalid || separatedInvalid) {

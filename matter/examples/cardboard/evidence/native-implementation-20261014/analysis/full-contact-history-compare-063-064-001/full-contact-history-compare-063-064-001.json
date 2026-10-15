@@ -1,0 +1,106 @@
+{
+  "attempts": {
+    "control": {
+      "accepted_transactions": 0,
+      "exit_code": 1,
+      "rollback": [
+        {
+          "accepted": false,
+          "attempt_index": 0,
+          "changed_cursors": [],
+          "different_vectors": [
+            "rigidStates"
+          ],
+          "rollback": "persistent_scope_changed"
+        }
+      ],
+      "timed_out": false,
+      "transactions": 1
+    },
+    "diagnostic_enabled": {
+      "accepted_transactions": 0,
+      "exit_code": 1,
+      "rollback": [
+        {
+          "accepted": false,
+          "attempt_index": 0,
+          "changed_cursors": [],
+          "different_vectors": [
+            "rigidStates"
+          ],
+          "rollback": "persistent_scope_changed"
+        }
+      ],
+      "timed_out": false,
+      "transactions": 1
+    }
+  },
+  "differing_files": [],
+  "files": {
+    "control": {
+      "transaction-000000-after.bin": {
+        "sha256": "901610159119ccbcfa71c14fbe08725b9a884d983cce2d10d06e82b69cab60e6",
+        "size_bytes": 41927
+      },
+      "transaction-000000-before.bin": {
+        "sha256": "b95568762dfffb7cb62561dd3473152bf4f542e7e51b9170654379ee799d26d3",
+        "size_bytes": 41927
+      },
+      "transaction-000000.json": {
+        "sha256": "fa70039680364c503225f5cf18993131305a275444a79b7a97c3cd74baadabf0",
+        "size_bytes": 6557
+      }
+    },
+    "diagnostic_enabled": {
+      "transaction-000000-after.bin": {
+        "sha256": "901610159119ccbcfa71c14fbe08725b9a884d983cce2d10d06e82b69cab60e6",
+        "size_bytes": 41927
+      },
+      "transaction-000000-before.bin": {
+        "sha256": "b95568762dfffb7cb62561dd3473152bf4f542e7e51b9170654379ee799d26d3",
+        "size_bytes": 41927
+      },
+      "transaction-000000.json": {
+        "sha256": "fa70039680364c503225f5cf18993131305a275444a79b7a97c3cd74baadabf0",
+        "size_bytes": 6557
+      }
+    }
+  },
+  "output_file_count": 3,
+  "physical_validation": false,
+  "production_outputs_byte_identical": true,
+  "qualification_note": "Byte parity and rollback preserve failed attempt verdicts; status/certificate/contact sample and linearization scratch are outside the persistent rollback hash scope.",
+  "rollback_scope": [
+    "cohesiveFaces",
+    "contactHistories",
+    "deformableContactHistories",
+    "environmentParameters",
+    "femFields",
+    "femMaterialState",
+    "femNodes",
+    "femTopologyNodes",
+    "femTopologyTetrahedra",
+    "humanSupportConsequences",
+    "humanSupportHistories",
+    "particleMaterialState",
+    "particles",
+    "punctureChannels",
+    "rigidStates",
+    "topologyStates",
+    "vascularClock",
+    "vascularState"
+  ],
+  "schema": "numi.cardboard.full-contact-history-comparison.v1",
+  "sealed_identity": {
+    "changed_diagnostic_environment_keys": [
+      "NM_FEM_CONTACT_TRACE_ITERATION",
+      "NM_FEM_CONTACT_TRACE_ROOT",
+      "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT",
+      "NM_FEM_NEWTON_TRACE_ROOT"
+    ],
+    "inputs_sha256_equal": true,
+    "physical_argv_equal_except_output_directory": true,
+    "source_build_sha256": "9f4c7f9427b5ff6e50a262af765d973b66983aec4db9ef601ccf2de731779769"
+  },
+  "strict_solver_qualification": false
+}

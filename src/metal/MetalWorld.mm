@@ -3640,9 +3640,35 @@ MetalWorldDiagnostics validateAndBuildLayout(
         }
     }
     const bool contactMode =
-        config.solverMode != MetalWorldSolverMode::freeMotionABA;
+        config.solverMode != MetalWorldSolverMode::freeMotionABA ||
+        world.sceneBodyCount() != 0u;
     const bool qualityMode =
         config.solverMode == MetalWorldSolverMode::qualityNewton;
+    const bool ownsFreeCandidate = config.devicePhysicsProgram.valid() &&
+        (config.devicePhysicsProgram.flags &
+         MetalWorldDevicePhysicsOwnsFreeBodyCandidate) != 0u;
+    if ((config.solverMode == MetalWorldSolverMode::freeMotionABA &&
+         world.sceneBodyCount() != 0u && world.colliderCount() != 0u) ||
+        (ownsFreeCandidate &&
+         (world.articulationCount() != 0u || world.sceneBodyCount() == 0u ||
+          world.colliderCount() != 0u || world.rodCount() != 0u ||
+          config.solverMode != MetalWorldSolverMode::freeMotionABA ||
+          config.ccdMode != MetalWorldCCDMode::disabled ||
+          config.multicopterProgram.valid() ||
+          (nativeTask && taskHasActuatorKind(
+              config.taskProgram, MR_TASK_ACTUATOR_BODY_WRENCH)) ||
+          std::any_of(world.model().bodies.begin(), world.model().bodies.end(),
+              [](const MRBodyPropertiesGPU& body) {
+                  return body.motionType == MR_MOTION_DYNAMIC &&
+                      (body.dampingAndSpeedLimits.x != 0.0f ||
+                       body.dampingAndSpeedLimits.y != 0.0f ||
+                       body.dampingAndSpeedLimits.z != 0.0f ||
+                       body.dampingAndSpeedLimits.w != 0.0f);
+              })))) {
+        return reject(std::move(diagnostics),
+            MetalWorldHostStatus::unsupportedTopology,
+            "free-body candidate ownership requires a scene-only free-motion world, no rigid colliders/CCD/rods, zero damping/speed clipping, and one body-wrench producer");
+    }
     const bool hasFunctionBasedDynamics =
         !world.model().functionBasedJointPrograms.empty();
     if (config.millardProgram.configured() &&
@@ -4165,14 +4191,9 @@ MetalWorldDiagnostics validateAndBuildLayout(
         : MR_SOLVER_TEMPORAL_CONE;
     contact.bodyCount =
         static_cast<mr_u32>(world.model().bodies.size());
-    // Free-motion ABA does not allocate or accept a scene-body state arena.
-    // Keep the device-physics projection contract consistent with that
-    // allocation: articulated body states remain available, while no phantom
-    // scene entries are advertised to an extension or read by projection.
-    contact.sceneBodyCount = config.solverMode ==
-            MetalWorldSolverMode::freeMotionABA
-        ? 0u
-        : world.sceneBodyCount();
+    // Free scene bodies own the same transactional state arena in free-motion
+    // and rigid-contact worlds. No phantom generalized coordinates are needed.
+    contact.sceneBodyCount = world.sceneBodyCount();
     contact.shapeCount = world.colliderCount();
     contact.eligiblePairCount = world.eligiblePairCount();
     contact.pairCapacity = world.capacities().candidatePairs;
@@ -4331,6 +4352,9 @@ MetalWorldDiagnostics validateAndBuildLayout(
     if (hasBodyWrenches) {
         contact.flags |=
             MR_METAL_WORLD_CONTACT_BODY_WRENCHES;
+    }
+    if (ownsFreeCandidate) {
+        contact.flags |= MR_METAL_WORLD_CONTACT_OWNED_FREE_BODY_CANDIDATE;
     }
     if (config.ccdMode != MetalWorldCCDMode::disabled) {
         contact.flags |= MR_METAL_WORLD_CONTACT_CCD;
@@ -5357,8 +5381,23 @@ id<MTLComputePipelineState> makePipeline(
     NSString* functionName,
     NSError** error
 ) {
-    id<MTLFunction> function =
-        [library newFunctionWithName:functionName];
+    id<MTLFunction> function = nil;
+    if ([functionName isEqualToString:@"mr_articulated_operator"] ||
+        [functionName isEqualToString:@"mr_parameterized_articulated_operator"] ||
+        [functionName isEqualToString:@"mr_articulated_materialize_body_velocities"]) {
+        // MetalWorld uses the ordinary point-query route. These shared
+        // operators also expose the opt-in Human probe-fusion constant;
+        // Metal requires explicit specialization before pipeline creation.
+        MTLFunctionConstantValues* constants =
+            [[MTLFunctionConstantValues alloc] init];
+        bool canonicalBodyProbeFusion = false;
+        [constants setConstantValue:&canonicalBodyProbeFusion
+                               type:MTLDataTypeBool atIndex:45u];
+        function = [library newFunctionWithName:functionName
+                                constantValues:constants error:error];
+    } else {
+        function = [library newFunctionWithName:functionName];
+    }
     if (function == nil) {
         if (error != nullptr) {
             *error = [NSError
@@ -10126,6 +10165,10 @@ bool encodeArticulatedOperator(
     NSString* label,
     const bool indirectDispatch
 ) {
+    if (context.boundArticulations.empty()) {
+        return dispatchBuffer == kOperatorKinematicsDispatch ||
+               dispatchBuffer == kOperatorFactorDispatch;
+    }
     id<MTLComputeCommandEncoder> encoder =
         [commandBuffer computeCommandEncoder];
     if (encoder == nil) {
@@ -10825,11 +10868,11 @@ bool encodeDevicePhysicsBodyVelocities(
     const std::size_t sourceV,
     const std::size_t environmentCount
 ) {
-    if (context.boundArticulations.empty() ||
-        context.boundArticulations.size() !=
+    if (context.boundArticulations.size() !=
             layout.kinematicsDispatches.size()) {
         return false;
     }
+    if (context.boundArticulations.empty()) return true;
     id<MTLComputeCommandEncoder> encoder =
         [commandBuffer computeCommandEncoder];
     if (encoder == nil) {
@@ -12763,6 +12806,9 @@ bool encodeABA(
     const std::size_t articulationCount,
     const std::size_t environmentCount
 ) {
+    // Scene bodies use the native six-coordinate free-body owner. With no
+    // articulation there is no ABA work and no primary descriptor to read.
+    if (articulationCount == 0u) return true;
     id<MTLComputeCommandEncoder> encoder =
         [commandBuffer computeCommandEncoder];
     if (encoder == nil) {
@@ -15474,6 +15520,51 @@ bool encodeContactSubstep(
     const std::size_t colliderThreadCount,
     const std::size_t pairFlagThreadCount
 ) {
+    // Scene-only free motion uses the native body projection, velocity
+    // prediction, pose integration, failure latch and complete checkpoint
+    // publication. It has no articulation factorization or collision work.
+    if (world.articulationCount() == 0u && world.colliderCount() == 0u &&
+        world.rodCount() == 0u) {
+        return encodeContactThreadKernel(context, commandBuffer,
+            context.bodyProjectionPipeline, @"MetalWorld free-scene projection",
+            {{0u, kContactDispatch}, {1u, kArticulations}, {2u, kBodies},
+             {3u, kSceneBodyIndices}, {4u, kBodyPoses},
+             {5u, kOperatorStatuses}, {6u, sourceScene},
+             {7u, kCurrentBodies}, {8u, kContactStatuses}},
+            nullptr, 0u, environmentCount) &&
+            encodeContactThreadKernel(context, commandBuffer,
+                context.scenePredictionPipeline, @"MetalWorld free-scene prediction",
+                {{0u, kWorld}, {1u, kContactDispatch}, {2u, kBodies},
+                 {3u, kSceneBodyIndices}, {4u, kCurrentBodies},
+                 {5u, kCandidateBodies}, {6u, kContactStatuses},
+                 {7u, kBodyWrenchPlaceholder}}, &pass, 8u, environmentCount) &&
+            encodeContactThreadKernel(context, commandBuffer,
+                context.contactIntegratePipeline, @"MetalWorld free-scene integration",
+                {{0u, kContactDispatch}, {1u, kArticulations}, {2u, kJoints},
+                 {3u, kBodies}, {4u, kSceneBodyIndices}, {5u, sourceQ},
+                 {6u, kCandidateV}, {7u, kCandidateQ},
+                 {8u, kCandidateBodies}, {9u, kContactStatuses}},
+                nullptr, 0u, environmentCount) &&
+            encodeContactThreadKernel(context, commandBuffer,
+                context.contactLatchPipeline, @"MetalWorld free-scene failure latch",
+                {{0u, kWorldDispatch}, {2u, kContactStatuses},
+                 {3u, kEnvironmentStatuses}}, &pass, 1u, environmentCount) &&
+            encodeCommit(context, commandBuffer, pass, destinationQ,
+                destinationV, environmentCount) &&
+            encodeContactThreadKernel(context, commandBuffer,
+                context.contactCommitPipeline, @"MetalWorld free-scene transaction",
+                {{0u, kWorldDispatch}, {1u, kContactDispatch},
+                 {3u, kEnvironmentStatuses}, {4u, kSceneBodyIndices},
+                 {5u, kCandidateBodies}, {6u, kCheckpointSceneBodies},
+                 {7u, destinationScene}, {8u, sourceManifoldHeaders},
+                 {9u, sourceManifoldPoints}, {10u, sourceManifoldCounts},
+                 {11u, kCheckpointManifoldHeaders},
+                 {12u, kCheckpointManifoldPoints},
+                 {13u, kCheckpointManifoldCounts},
+                 {14u, destinationManifoldHeaders},
+                 {15u, destinationManifoldPoints},
+                 {16u, destinationManifoldCounts}}, &pass, 2u, environmentCount);
+    }
     MRMetalWorldPassGPU solverPass = pass;
     solverPass.reserved0 = finalPhysicsSubstep ? 1u : 0u;
     const mr_u32 eventPass = 0u;
@@ -15555,8 +15646,8 @@ bool encodeContactSubstep(
                 {6u, kContactStatuses},
                 {7u, kBodyWrenchPlaceholder},
             },
-            nullptr,
-            0u,
+            &pass,
+            8u,
             environmentCount
         ) ||
         !encodeContactThreadKernel(
@@ -16971,7 +17062,10 @@ MetalWorldDiagnostics validateAndPublish(
 bool CompiledWorld::valid() const noexcept {
     return fingerprint_ != 0u &&
         modelFingerprint_ != 0u &&
-        articulationIndex_ < model_.articulations.size() &&
+        (model_.articulations.empty()
+            ? articulationIndex_ == MR_INVALID_INDEX && model_.world.nq == 0u &&
+                model_.world.nv == 0u
+            : articulationIndex_ < model_.articulations.size()) &&
         parallelABASchedule_.fingerprint != 0u &&
         parallelABASchedule_.articulations.size() ==
             model_.articulations.size() &&
@@ -17217,13 +17311,16 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                 "invalid EngineModel: " + modelReason
             );
         }
-        if (model.articulations.empty() ||
-            articulationIndex >= model.articulations.size()) {
+        const bool sceneBodyOnly = model.articulations.empty();
+        if ((sceneBodyOnly &&
+                (articulationIndex != MR_INVALID_INDEX || model.world.nq != 0u ||
+                 model.world.nv != 0u || !model.joints.empty() || !model.dofs.empty())) ||
+            (!sceneBodyOnly && articulationIndex >= model.articulations.size())) {
             return rejectCompile(
                 std::move(diagnostics),
                 MetalWorldHostStatus::unsupportedTopology,
-                "MetalWorld requires at least one valid primary "
-                "articulation"
+                "MetalWorld requires a valid primary articulation, or a scene-body-only "
+                "world with zero articulated coordinates and MR_INVALID_INDEX primary"
             );
         }
         for (std::uint32_t owner = 0u;
@@ -17584,7 +17681,7 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             6ull * staged.model_.world.nv;
         const std::uint32_t maximumConstraintCapacity =
             pointJacobianWordsPerConstraint == 0u
-            ? 0u
+            ? std::numeric_limits<std::uint32_t>::max()
             : static_cast<std::uint32_t>(
                   std::numeric_limits<std::uint32_t>::max() /
                   pointJacobianWordsPerConstraint
@@ -17948,7 +18045,7 @@ MetalWorldCompileDiagnostics compileMetalWorld(
         CompiledWorld staged;
         diagnostics = compileMetalWorld(
             world.model,
-            0u,
+            world.model.articulations.empty() ? MR_INVALID_INDEX : 0u,
             staged,
             requestedCapacities
         );
@@ -20004,7 +20101,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             }
             const bool contactMode =
                 config.solverMode !=
-                    MetalWorldSolverMode::freeMotionABA;
+                    MetalWorldSolverMode::freeMotionABA ||
+                world.sceneBodyCount() != 0u;
             const bool uploadInitialState =
                 !residentContinuation;
             const bool nativeTask = config.taskProgram.valid();
@@ -21092,10 +21190,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             pending->context = selectedState;
             pending->commandBuffer = commandBuffer;
             pending->diagnostics = diagnostics;
-            pending->articulation =
-                world.model().articulations[
-                    world.articulationIndex()
-                ];
+            if (world.articulationCount() != 0u)
+                pending->articulation = world.model().articulations[world.articulationIndex()];
             pending->finalQBuffer = sourceQ;
             pending->finalVBuffer = sourceV;
             pending->finalSceneBuffer = sourceScene;

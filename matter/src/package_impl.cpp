@@ -22,13 +22,14 @@ inline constexpr std::array<char, 16> kMagic{
     'N', 'U', 'M', 'I', 'M', 'A', 'T', 'T',
     'E', 'R', 'P', 'K', 'G', '\0', '\0', '\0',
 };
-inline constexpr std::uint32_t kPackageVersion = 18u;
+inline constexpr std::uint32_t kPackageVersion = 19u;
 inline constexpr std::uint32_t kEndianMarker = 0x01020304u;
 
 enum class Section : std::uint32_t {
     dispatch = 1u,
     mixedSolver,
     materials,
+    cohesiveMaterials,
     mixedMaterials,
     parameters,
     stateInitials,
@@ -281,6 +282,8 @@ bool writePackage(
             std::span<const NMMixedSolverGPU>(&world.mixedSolver, 1u)) &&
         writeSection(stream, Section::materials,
             std::span<const NMMaterialGPU>(world.materials)) &&
+        writeSection(stream, Section::cohesiveMaterials,
+            std::span<const NMCohesiveMaterialGPU>(world.cohesiveMaterials)) &&
         writeSection(stream, Section::mixedMaterials,
             std::span<const NMMixedMaterialGPU>(world.mixedMaterials)) &&
         writeSection(stream, Section::parameters,
@@ -478,6 +481,9 @@ bool readPackage(
         }
         case Section::materials:
             decoded = decodeVector(stream, section, candidate.materials, error); break;
+        case Section::cohesiveMaterials:
+            decoded = decodeVector(stream, section,
+                candidate.cohesiveMaterials, error); break;
         case Section::mixedMaterials:
             decoded = decodeVector(stream, section, candidate.mixedMaterials, error); break;
         case Section::parameters:

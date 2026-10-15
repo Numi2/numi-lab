@@ -24,6 +24,47 @@ namespace {
 
 using Vec3 = std::array<double, 3>;
 using Mat3 = std::array<double, 9>;
+constexpr std::uint32_t kMaximumRegionalGalerkinRegions = 5u;
+constexpr std::uint32_t kRegionalGalerkinModesPerRegion = 6u;
+constexpr std::uint32_t kMaximumRegionalGalerkinModes = 32u;
+
+[[nodiscard]] constexpr bool usesRegionalGalerkin(
+    const FEMPreconditionerMode mode
+) noexcept {
+    return mode == FEMPreconditionerMode::regionalGalerkin ||
+        mode == FEMPreconditionerMode::regionalGalerkinBlockJacobi ||
+        mode == FEMPreconditionerMode::regionalGalerkinContact;
+}
+
+[[nodiscard]] constexpr bool usesContactRegionalGalerkin(
+    const FEMPreconditionerMode mode
+) noexcept {
+    return mode == FEMPreconditionerMode::regionalGalerkinContact;
+}
+
+[[nodiscard]] constexpr std::uint32_t encodeFEMPreconditionerRegion(
+    const std::uint32_t region
+) noexcept {
+    return (region << NM_TETRAHEDRON_PRECONDITIONER_REGION_SHIFT) &
+        NM_TETRAHEDRON_PRECONDITIONER_REGION_MASK;
+}
+
+[[nodiscard]] bool validRegionalGalerkinIds(
+    const std::vector<std::uint32_t>& ids,
+    const std::size_t tetrahedronCount
+) {
+    if (ids.empty() || ids.size() != tetrahedronCount) return false;
+    std::set<std::uint32_t> unique(ids.begin(), ids.end());
+    if (unique.empty() || unique.size() > kMaximumRegionalGalerkinRegions ||
+        unique.size() * kRegionalGalerkinModesPerRegion >
+            kMaximumRegionalGalerkinModes) return false;
+    std::uint32_t expected = 0u;
+    for (const std::uint32_t id : unique)
+        if (id != expected++) return false;
+    return std::ranges::all_of(ids, [](const std::uint32_t id) {
+        return id < kMaximumRegionalGalerkinRegions;
+    });
+}
 
 [[nodiscard]] nm_float4 f4(
     const double x = 0.0,
@@ -313,6 +354,73 @@ using Mat3 = std::array<double, 9>;
     return result;
 }
 
+[[nodiscard]] bool validMixedCohesiveMaterial(
+    const CohesiveMaterialSource& source
+) {
+    const std::array<double, 8> values{
+        source.normalPenaltyPaPerM,
+        source.shearPenaltyPaPerM,
+        source.compressionPenaltyPaPerM,
+        source.normalStrengthPa,
+        source.shearStrengthPa,
+        source.fractureEnergyModeIJPerM2,
+        source.fractureEnergyModeIIJPerM2,
+        source.bkExponent,
+    };
+    if (source.name.empty() ||
+        !std::ranges::all_of(values, [](const double value) {
+            return finite(value) && value > 0.0 &&
+                value <= static_cast<double>(std::numeric_limits<float>::max());
+        }) || source.bkExponent < 1.0) {
+        return false;
+    }
+    const double GI0 = source.normalStrengthPa * source.normalStrengthPa /
+        (2.0 * source.normalPenaltyPaPerM);
+    const double GII0 = source.shearStrengthPa * source.shearStrengthPa /
+        (2.0 * source.shearPenaltyPaPerM);
+    const double deltaG = source.fractureEnergyModeIIJPerM2 -
+        source.fractureEnergyModeIJPerM2;
+    const double deltaInitiation = GII0 - GI0;
+    const auto margin = [&](const double modeIIFraction) {
+        const double Gc = source.fractureEnergyModeIJPerM2 + deltaG *
+            std::pow(modeIIFraction, source.bkExponent);
+        const double onsetEnergy = GI0 * (1.0 - modeIIFraction) +
+            GII0 * modeIIFraction;
+        return Gc - onsetEnergy;
+    };
+    double minimumMargin = std::min(margin(0.0), margin(1.0));
+    if (source.bkExponent > 1.0 && deltaG != 0.0 &&
+        deltaInitiation / (deltaG * source.bkExponent) > 0.0) {
+        const double stationary = std::pow(
+            deltaInitiation /
+                (deltaG * source.bkExponent),
+            1.0 / (source.bkExponent - 1.0));
+        if (stationary > 0.0 && stationary < 1.0)
+            minimumMargin = std::min(minimumMargin, margin(stationary));
+    }
+    return finite(minimumMargin) &&
+        minimumMargin > 1.0e-6 * std::max({GI0, GII0,
+            source.fractureEnergyModeIJPerM2,
+            source.fractureEnergyModeIIJPerM2});
+}
+
+[[nodiscard]] NMCohesiveMaterialGPU cookMixedCohesiveMaterial(
+    const CohesiveMaterialSource& source
+) noexcept {
+    NMCohesiveMaterialGPU result{};
+    result.stiffnessAndNormalStrength = f4(
+        source.normalPenaltyPaPerM,
+        source.shearPenaltyPaPerM,
+        source.compressionPenaltyPaPerM,
+        source.normalStrengthPa);
+    result.shearStrengthAndFracture = f4(
+        source.shearStrengthPa,
+        source.fractureEnergyModeIJPerM2,
+        source.fractureEnergyModeIIJPerM2,
+        source.bkExponent);
+    return result;
+}
+
 [[nodiscard]] std::uint32_t rateExponent(
     const ObjectSource& object,
     const MaterialProgram& material,
@@ -505,6 +613,24 @@ void validateWorld(
             "matter world requires at least one material",
         });
     }
+    if (source.cohesiveMaterials.size() >
+        std::numeric_limits<std::uint32_t>::max()) {
+        diagnostics.push_back({
+            Diagnostic::Severity::error, 0u, 0u,
+            "cohesive material table exceeds the 32-bit ABI",
+        });
+    }
+    std::set<std::string> cohesiveMaterialNames;
+    for (const CohesiveMaterialSource& cohesive : source.cohesiveMaterials) {
+        if (!validMixedCohesiveMaterial(cohesive) ||
+            !cohesiveMaterialNames.insert(cohesive.name).second) {
+            diagnostics.push_back({
+                Diagnostic::Severity::error, 0u, 0u,
+                "cohesive material '" + cohesive.name +
+                    "' has invalid, duplicate, or non-softening mixed-mode parameters",
+            });
+        }
+    }
     if (source.identificationCandidates != 0u &&
         ((source.identificationCandidates & 1u) != 0u ||
          source.identificationCandidates > source.environmentCount)) {
@@ -514,6 +640,12 @@ void validateWorld(
         });
     }
     const MixedSolverSource& solver = source.mixedSolver;
+    if (static_cast<std::uint32_t>(solver.femPreconditioner) >
+        static_cast<std::uint32_t>(
+            FEMPreconditionerMode::regionalGalerkinContact)) {
+        diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+            "FEM preconditioner selector is not recognized"});
+    }
     const std::array<std::uint32_t, 6> budgets{
         solver.newtonIterations,
         solver.fgmresRestart,
@@ -574,6 +706,72 @@ void validateWorld(
             "mixed solver field smoother exceeds the compiled fixed-pass capacity",
         });
     }
+    if (usesRegionalGalerkin(solver.femPreconditioner)) {
+        const bool vascular = !source.vascular.species.empty() ||
+            !source.vascular.compartments.empty() ||
+            !source.vascular.connections.empty() ||
+            !source.vascular.tissues.empty() ||
+            !source.vascular.exchanges.empty() ||
+            !source.vascular.cavities.empty();
+        const bool contactMode =
+            usesContactRegionalGalerkin(solver.femPreconditioner);
+        const bool oneSupportedObject = source.objects.size() == 1u &&
+            source.objects.front().representation == Representation::fem &&
+            !source.objects.front().automaticRepresentation &&
+            !source.objects.front().mixedFEM &&
+            (contactMode ||
+             (!source.objects.front().deformableContact &&
+              !source.objects.front().deformableSelfContact)) &&
+            !source.objects.front().multiphysics.enabled &&
+            !source.objects.front().adaptive &&
+            !source.objects.front().identifiable &&
+            !source.objects.front().mutationPolicy.enabled &&
+            source.objects.front().mutationCommands.empty() &&
+            source.objects.front().femHumanAttachments.empty() &&
+            source.objects.front().fieldBoundaries.empty() &&
+            (contactMode ||
+             (source.objects.front().femCohesiveInterfaces.empty() &&
+              source.objects.front().femCohesiveMortarPatches.empty())) &&
+            validRegionalGalerkinIds(
+                source.objects.front().femPreconditionerRegionIds,
+                source.objects.front().tetrahedra.size());
+        const bool contactCohesiveLawsSupported = !contactMode ||
+            (source.objects.size() == 1u && std::ranges::all_of(
+                source.objects.front().femCohesiveInterfaces,
+                [](const CohesiveInterfaceSource& interface) {
+                    return interface.lawKind ==
+                        CohesiveLawKind::mixedModeBilinear;
+                }));
+        const bool contactProxiesSupported = contactMode &&
+            std::ranges::all_of(source.rigidProxies,
+                [](const RigidProxySource& proxy) {
+                    return !proxy.dynamic && !proxy.articulated &&
+                        !proxy.punctureTip && !proxy.punctureDilator &&
+                        !proxy.sutureStrand;
+                });
+        const bool sourceScopeSupported = contactMode
+            ? source.environmentCount == 1u &&
+                source.objects.size() == 1u &&
+                source.objects.front().femNodes.size() <= 8192u &&
+                source.objects.front().tetrahedra.size() <= 32768u &&
+                std::ranges::none_of(source.materials,
+                    [](const MaterialProgram& material) {
+                        return material.learned.has_value();
+                    }) &&
+                contactProxiesSupported
+            : source.environmentCount <= 4u &&
+                source.rigidProxies.empty() &&
+                source.cohesiveMaterials.empty();
+        if (!sourceScopeSupported || source.identificationCandidates != 0u ||
+            vascular || !oneSupportedObject ||
+            !contactCohesiveLawsSupported ||
+            (!contactMode && !source.cohesiveMaterials.empty())) {
+            diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                contactMode
+                    ? "regional Galerkin contact preconditioner requires one immutable explicit FEM object, at most 8192 nodes and 32768 tetrahedra, static or kinematic non-articulated contact proxies, authored compact region IDs, and no dynamic generalized, mixed, field, adaptive, mutation, vascular, learned, or identification coupling"
+                    : "regional Galerkin FEM preconditioner v1 requires one immutable explicit non-mixed FEM object with authored compact region IDs, no contact/cohesive/rigid/field/vascular coupling, and at most four environments"});
+        }
+    }
     if (std::ranges::any_of(budgets, [](const std::uint32_t value) {
             return value == 0u;
         }) || solver.fgmresRestart > solver.fgmresIterations ||
@@ -624,6 +822,28 @@ CompileResult compileWorld(
         return result;
     }
 
+    if (source.compactImmutableFEMSurfaces) {
+        const bool admissible = !source.objects.empty() &&
+            std::ranges::all_of(source.objects, [](const ObjectSource& object) {
+                return object.representation == Representation::fem &&
+                    !object.automaticRepresentation && !object.adaptive &&
+                    !object.mutationPolicy.enabled &&
+                    !object.mutationPolicy.cohesiveFracture &&
+                    object.mutationCommands.empty() &&
+                    object.femCapacity.mutationCommands == 0u &&
+                    object.femCapacity.punctureChannels == 0u &&
+                    (object.femCapacity.nodes == 0u ||
+                     object.femCapacity.nodes == object.femNodes.size()) &&
+                    (object.femCapacity.tetrahedra == 0u ||
+                     object.femCapacity.tetrahedra == object.tetrahedra.size());
+            });
+        if (!admissible) {
+            result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                "compact immutable FEM surfaces require explicit FEM without adaptation, mutation, or spare topology capacity"});
+            return result;
+        }
+    }
+
     world.constitutive.reserve(source.materials.size());
     world.materials.reserve(source.materials.size());
     world.mixedMaterials.reserve(source.materials.size());
@@ -659,6 +879,7 @@ CompileResult compileWorld(
             continue;
         }
         ConstitutiveProgram program = std::move(compiled.program);
+        const auto firstMaterialProgram=world.scalarPrograms.size();
         program.gpu.localNewtonIterations = options.localMaterialNewtonIterations;
         program.gpu.parameterOffset =
             static_cast<nm_u32>(world.parameters.size());
@@ -765,6 +986,21 @@ CompileResult compileWorld(
             );
         } else {
             program.gpu.validityProgram = NM_INVALID_INDEX;
+        }
+        if(material.paperCompensatedArithmetic ||
+           material.genericCompensatedImplicitProjection) {
+            for(auto index=firstMaterialProgram;index<world.scalarPrograms.size();++index) {
+                auto& scalar=world.scalarPrograms[index];
+                for(unsigned j=0;j<scalar.instructionCount;++j) {
+                    const auto opcode=world.instructions[scalar.firstInstruction+j].opcode;
+                    if(opcode==NM_EXPR_FIBER_EXP_LINEAR) {
+                        result.diagnostics.push_back({Diagnostic::Severity::error,0u,0u,
+                            "compensated scalar arithmetic does not admit fiber-specific exponential bytecode"});
+                        return result;
+                    }
+                }
+                scalar.flags|=2u;
+            }
         }
         world.parameters.insert(
             world.parameters.end(),
@@ -908,6 +1144,10 @@ CompileResult compileWorld(
         return result;
     }
 
+    world.cohesiveMaterials.reserve(source.cohesiveMaterials.size());
+    for (const CohesiveMaterialSource& cohesive : source.cohesiveMaterials)
+        world.cohesiveMaterials.push_back(cookMixedCohesiveMaterial(cohesive));
+
     world.contact.rigidProxies.reserve(source.rigidProxies.size());
     std::map<std::uint32_t, std::uint32_t> freeBodyIndices;
     for (const RigidProxySource& proxy : source.rigidProxies) {
@@ -959,7 +1199,10 @@ CompileResult compileWorld(
               !(proxy.radiusOrOffset > 0.0) ||
               !(capsuleLengthSquared > 1.0e-18))) ||
             (proxy.prescribedEndPoseTranslation &&
-             (proxy.shape != NM_RIGID_CAPSULE || proxy.bodyIndex == NM_INVALID_INDEX ||
+             ((proxy.shape != NM_RIGID_CAPSULE && proxy.shape != NM_RIGID_BOX) ||
+              (proxy.shape == NM_RIGID_BOX &&
+               proxy.prescribedBarrierStiffnessScale != 1.0) ||
+              proxy.bodyIndex == NM_INVALID_INDEX ||
               proxy.dynamic || proxy.articulated || strand || proxy.punctureTip || proxy.punctureDilator ||
               options.maximumRateExponent != 0u ||
               std::ranges::any_of(source.objects, [](const ObjectSource& object) {
@@ -1045,7 +1288,10 @@ CompileResult compileWorld(
 
     const bool hasImmutableFEMFields = std::ranges::any_of(source.objects,
         [](const ObjectSource& object) {
-            return !object.femMaterialFrameRotations.empty() || !object.femMaterialIndices.empty() || !object.femReferenceNodes.empty();
+            return !object.femMaterialFrameRotations.empty() ||
+                !object.femMaterialIndices.empty() ||
+                !object.femReferenceNodes.empty() ||
+                !object.femPreconditionerRegionIds.empty();
         });
     if (hasImmutableFEMFields && std::ranges::any_of(source.objects,
             [](const ObjectSource& object) {
@@ -1114,6 +1360,21 @@ CompileResult compileWorld(
                     "material-local FEM frame rotation must be finite and unit length"});
                 return result;
             }
+        }
+        const bool hasPreconditionerRegionIds =
+            !object.femPreconditionerRegionIds.empty();
+        if ((hasPreconditionerRegionIds &&
+                (representation != Representation::fem ||
+                 !validRegionalGalerkinIds(
+                    object.femPreconditionerRegionIds,
+                    object.tetrahedra.size()))) ||
+            (hasPreconditionerRegionIds && !usesRegionalGalerkin(
+                source.mixedSolver.femPreconditioner)) ||
+            (usesRegionalGalerkin(source.mixedSolver.femPreconditioner) &&
+             !hasPreconditionerRegionIds)) {
+            result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                "regional Galerkin IDs require one compact source label per explicit FEM tetrahedron and may only be authored when that preconditioner is selected"});
+            return result;
         }
         const bool referenced = !object.femReferenceNodes.empty();
         const bool referenceIdentity = std::ranges::any_of(object.femReferenceSourceIdentity,
@@ -1948,7 +2209,12 @@ CompileResult compileWorld(
                     objectIndex,
                     1u,
                     NM_OBJECT_ACTIVE | (object.femReferenceDisplacementGradient
-                        ? NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT : 0u),
+                        ? NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT : 0u) |
+                        (usesRegionalGalerkin(
+                                source.mixedSolver.femPreconditioner)
+                            ? encodeFEMPreconditionerRegion(
+                                  object.femPreconditionerRegionIds[sourceTetIndex])
+                            : 0u),
                 };
                 if (referenced) {
                     double initialDeterminant = 0.0;
@@ -2108,6 +2374,8 @@ CompileResult compileWorld(
             std::uint32_t stableSurfaceFace = 0u;
             for (const auto& [key, adjacent] : faceAdjacency) {
                 (void)key;
+                if (source.compactImmutableFEMSurfaces && adjacent.size() == 2u)
+                    continue;
                 NMFEMSurfaceFaceGPU surface{};
                 surface.adjacency = {
                     adjacent[0].tetrahedron,
@@ -2125,25 +2393,38 @@ CompileResult compileWorld(
                 };
                 world.fem.surfaceFaces.push_back(surface);
             }
-            if (!object.femCohesiveInterfaces.empty() &&
+            const bool hasAuthoredCohesiveFaces =
+                !object.femCohesiveInterfaces.empty() ||
+                !object.femCohesiveMortarPatches.empty();
+            const bool hasOnlyMixedModeAuthoredCohesiveFaces =
+                std::ranges::all_of(object.femCohesiveInterfaces,
+                    [](const CohesiveInterfaceSource& interface) {
+                        return interface.lawKind ==
+                            CohesiveLawKind::mixedModeBilinear;
+                    });
+            if (hasAuthoredCohesiveFaces &&
                 (object.mutationPolicy.enabled ||
                  object.mutationPolicy.cohesiveFracture ||
                  !object.mutationCommands.empty() ||
                  !object.femReferenceDisplacementGradient ||
                  object.femReferenceNodes.empty() || object.mixedFEM ||
                  object.multiphysics.enabled || object.adaptive ||
-                 object.deformableSelfContact)) {
+                 (object.deformableSelfContact &&
+                  !hasOnlyMixedModeAuthoredCohesiveFaces))) {
                 result.diagnostics.push_back({
                     Diagnostic::Severity::error, 0u, 0u,
                     "FEM object '" + object.name +
                         "' authored cohesive interfaces require immutable, "
                         "explicit reference-displacement FEM without mixed, "
-                        "multiphysics, adaptive state, or deformable self-contact",
+                        "multiphysics, adaptive state, or legacy cohesive "
+                        "self-contact; self-contact with authored interfaces "
+                        "requires the mixed-mode law",
                 });
                 return result;
             }
             const std::size_t authoredCohesiveCount =
-                object.femCohesiveInterfaces.size();
+                object.femCohesiveInterfaces.size() +
+                object.femCohesiveMortarPatches.size();
             const std::size_t cohesiveRequired =
                 object.mutationPolicy.cohesiveFracture
                     ? internalFaceCount : 0u;
@@ -2229,54 +2510,81 @@ CompileResult compileWorld(
                     return result;
                 }
                 if (interface.materialIndex >= source.materials.size()) {
-                    error("material index is outside the compiled material table");
+                    error("bulk/interface material index is outside the compiled material table");
                     return result;
                 }
-                const MaterialProgram& cohesiveMaterial =
-                    source.materials[interface.materialIndex];
-                if (cohesiveMaterial.name !=
-                        "tryding2023_bleached_paperboard_modeI_coupon" ||
-                    cohesiveMaterial.internalState.size() != 1u ||
-                    cohesiveMaterial.internalState[0].name != "damage" ||
-                    cohesiveMaterial.internalState[0].transfer !=
-                        InternalState::Transfer::maximum ||
-                    cohesiveMaterial.internalState[0].initialValue != 0.01) {
-                    error("the first native law is limited to the source-initialized Tryding/Biel Mode-I coupon material");
-                    return result;
+                double damage = 0.0;
+                double opening = 0.0;
+                double strength = 0.0;
+                switch (interface.lawKind) {
+                case CohesiveLawKind::trydingModeI: {
+                    if (interface.cohesiveMaterialIndex != NM_INVALID_INDEX ||
+                        interface.activationGapToleranceM != 0.0) {
+                        error("legacy Tryding faces must leave mixed-law fields at their canonical defaults");
+                        return result;
+                    }
+                    const MaterialProgram& cohesiveMaterial =
+                        source.materials[interface.materialIndex];
+                    if (cohesiveMaterial.name !=
+                            "tryding2023_bleached_paperboard_modeI_coupon" ||
+                        cohesiveMaterial.internalState.size() != 1u ||
+                        cohesiveMaterial.internalState[0].name != "damage" ||
+                        cohesiveMaterial.internalState[0].transfer !=
+                            InternalState::Transfer::maximum ||
+                        cohesiveMaterial.internalState[0].initialValue != 0.01) {
+                        error("the legacy Tryding/Biel law remains limited to its source-initialized Mode-I coupon material");
+                        return result;
+                    }
+                    if (std::ranges::find(
+                            cohesiveMaterial.supportedRepresentations,
+                            Representation::fem) ==
+                        cohesiveMaterial.supportedRepresentations.end() ||
+                        cohesiveMaterial.parameters.size() < 2u ||
+                        cohesiveMaterial.parameters[1].name != "thickness") {
+                        error("the legacy face evaluator requires the FEM material's explicit thickness parameter at local slot 1");
+                        return result;
+                    }
+                    const auto parameterValue = [&](const std::string_view name)
+                        -> std::optional<double> {
+                        const auto found = std::ranges::find(
+                            cohesiveMaterial.parameters, name, &Parameter::name);
+                        if (found == cohesiveMaterial.parameters.end())
+                            return std::nullopt;
+                        return found->defaultValue;
+                    };
+                    const auto normalStrength = parameterValue("normal_strength");
+                    const auto normalLength = parameterValue("normal_length");
+                    const auto shape = parameterValue("shape");
+                    const auto shapeFactor = parameterValue("shape_factor_xc");
+                    if (!normalStrength || !normalLength || !shape || !shapeFactor ||
+                        !(*normalStrength > 0.0) || !(*normalLength > 0.0) ||
+                        !(*shape > 0.0) || !(*shapeFactor > 0.0)) {
+                        error("required source normal-envelope parameters are absent or nonpositive");
+                        return result;
+                    }
+                    damage = cohesiveMaterial.internalState[0].initialValue;
+                    strength = *normalStrength;
+                    opening = *normalLength * *shapeFactor *
+                        std::pow(damage / (1.0 - damage), *shape);
+                    if (!(opening > 0.0) || !finite(opening)) {
+                        error("source post-initiation opening could not be derived");
+                        return result;
+                    }
+                    break;
                 }
-                if (std::ranges::find(
-                        cohesiveMaterial.supportedRepresentations,
-                        Representation::fem) ==
-                    cohesiveMaterial.supportedRepresentations.end() ||
-                    cohesiveMaterial.parameters.size() < 2u ||
-                    cohesiveMaterial.parameters[1].name != "thickness") {
-                    error("the native face evaluator requires the FEM material's explicit thickness parameter at local slot 1");
-                    return result;
-                }
-                const auto parameterValue = [&](const std::string_view name)
-                    -> std::optional<double> {
-                    const auto found = std::ranges::find(
-                        cohesiveMaterial.parameters, name, &Parameter::name);
-                    if (found == cohesiveMaterial.parameters.end())
-                        return std::nullopt;
-                    return found->defaultValue;
-                };
-                const auto strength = parameterValue("normal_strength");
-                const auto normalLength = parameterValue("normal_length");
-                const auto shape = parameterValue("shape");
-                const auto shapeFactor = parameterValue("shape_factor_xc");
-                if (!strength || !normalLength || !shape || !shapeFactor ||
-                    !(*strength > 0.0) || !(*normalLength > 0.0) ||
-                    !(*shape > 0.0) || !(*shapeFactor > 0.0)) {
-                    error("required source normal-envelope parameters are absent or nonpositive");
-                    return result;
-                }
-                const double damage =
-                    cohesiveMaterial.internalState[0].initialValue;
-                const double opening = *normalLength * *shapeFactor *
-                    std::pow(damage / (1.0 - damage), *shape);
-                if (!(opening > 0.0) || !finite(opening)) {
-                    error("source post-initiation opening could not be derived");
+                case CohesiveLawKind::mixedModeBilinear:
+                    if (interface.cohesiveMaterialIndex >=
+                            world.cohesiveMaterials.size() ||
+                        !(interface.activationGapToleranceM > 0.0) ||
+                        !finite(interface.activationGapToleranceM) ||
+                        interface.activationGapToleranceM >
+                            std::numeric_limits<float>::max()) {
+                        error("mixed-mode faces require a valid explicit law-table index and positive finite activation-gap bound");
+                        return result;
+                    }
+                    break;
+                default:
+                    error("cohesive law selector is unknown");
                     return result;
                 }
                 if (interface.firstTetrahedron >= object.tetrahedra.size() ||
@@ -2309,6 +2617,8 @@ CompileResult compileWorld(
                     object.tetrahedra[interface.firstTetrahedron];
                 const TetrahedronSource& tetB =
                     object.tetrahedra[interface.secondTetrahedron];
+                std::array<std::uint32_t, 3> pairedSideA = interface.sideANodes;
+                std::array<std::uint32_t, 3> pairedSideB = interface.sideBNodes;
                 const auto containsFace = [](const TetrahedronSource& tet,
                                              const std::array<std::uint32_t, 3>& face) {
                     return std::ranges::all_of(face, [&](const std::uint32_t node) {
@@ -2350,9 +2660,29 @@ CompileResult compileWorld(
                 const auto scale3 = [](const std::array<double, 3>& a, const double s) {
                     return std::array<double, 3>{s * a[0], s * a[1], s * a[2]};
                 };
+                const std::uint32_t oppositeA = *std::ranges::find_if(
+                    tetA.nodes, [&](const std::uint32_t node) {
+                        return std::ranges::find(pairedSideA, node) ==
+                            pairedSideA.end();
+                    });
+                const std::uint32_t oppositeB = *std::ranges::find_if(
+                    tetB.nodes, [&](const std::uint32_t node) {
+                        return std::ranges::find(pairedSideB, node) ==
+                            pairedSideB.end();
+                    });
+                if (interface.lawKind == CohesiveLawKind::mixedModeBilinear) {
+                    const auto unoriented = cross3(
+                        subtract3(point(pairedSideA[1]), point(pairedSideA[0])),
+                        subtract3(point(pairedSideA[2]), point(pairedSideA[0])));
+                    if (dot3(unoriented,
+                            subtract3(point(oppositeB), point(oppositeA))) < 0.0) {
+                        std::swap(pairedSideA[1], pairedSideA[2]);
+                        std::swap(pairedSideB[1], pairedSideB[2]);
+                    }
+                }
                 std::array<double, 3> normal = cross3(
-                    subtract3(point(interface.sideANodes[1]), point(interface.sideANodes[0])),
-                    subtract3(point(interface.sideANodes[2]), point(interface.sideANodes[0]))
+                    subtract3(point(pairedSideA[1]), point(pairedSideA[0])),
+                    subtract3(point(pairedSideA[2]), point(pairedSideA[0]))
                 );
                 const double twiceArea = std::sqrt(dot3(normal, normal));
                 if (!(twiceArea > 1.0e-15) || !finite(twiceArea)) {
@@ -2360,23 +2690,13 @@ CompileResult compileWorld(
                     return result;
                 }
                 normal = scale3(normal, 1.0 / twiceArea);
-                const std::uint32_t oppositeA = *std::ranges::find_if(
-                    tetA.nodes, [&](const std::uint32_t node) {
-                        return std::ranges::find(interface.sideANodes, node) ==
-                            interface.sideANodes.end();
-                    });
-                const std::uint32_t oppositeB = *std::ranges::find_if(
-                    tetB.nodes, [&](const std::uint32_t node) {
-                        return std::ranges::find(interface.sideBNodes, node) ==
-                            interface.sideBNodes.end();
-                    });
                 if (dot3(normal, subtract3(point(oppositeB), point(oppositeA))) < 0.0)
                     normal = scale3(normal, -1.0);
                 const std::array<double, 3> averageGap = scale3(
                     add3(add3(
-                        subtract3(currentPoint(interface.sideBNodes[0]), currentPoint(interface.sideANodes[0])),
-                        subtract3(currentPoint(interface.sideBNodes[1]), currentPoint(interface.sideANodes[1]))),
-                        subtract3(currentPoint(interface.sideBNodes[2]), currentPoint(interface.sideANodes[2]))),
+                        subtract3(currentPoint(pairedSideB[0]), currentPoint(pairedSideA[0])),
+                        subtract3(currentPoint(pairedSideB[1]), currentPoint(pairedSideA[1]))),
+                        subtract3(currentPoint(pairedSideB[2]), currentPoint(pairedSideA[2]))),
                     1.0 / 3.0
                 );
                 const double currentOpening = dot3(averageGap, normal);
@@ -2385,50 +2705,274 @@ CompileResult compileWorld(
                     std::abs(currentPoint(interface.sideANodes[0])[1]),
                     std::abs(currentPoint(interface.sideANodes[0])[2]),
                 });
-                const double tolerance = std::max(1.0e-9 * coordinateScale,
-                    2.0e-5 * opening);
-                if (std::abs(currentOpening - opening) > tolerance) {
+                const double tolerance = interface.lawKind ==
+                        CohesiveLawKind::trydingModeI
+                    ? std::max(1.0e-9 * coordinateScale, 2.0e-5 * opening)
+                    : interface.activationGapToleranceM;
+                if (interface.lawKind == CohesiveLawKind::trydingModeI &&
+                    std::abs(currentOpening - opening) > tolerance) {
                     error("current duplicated-face gap does not match the material's source-derived initial damage seed");
                     return result;
                 }
                 for (std::uint32_t slot = 0u; slot < 3u; ++slot) {
                     const auto restGap = subtract3(
-                        point(interface.sideBNodes[slot]),
-                        point(interface.sideANodes[slot]));
+                        point(pairedSideB[slot]),
+                        point(pairedSideA[slot]));
                     const auto currentGap = subtract3(
-                        currentPoint(interface.sideBNodes[slot]),
-                        currentPoint(interface.sideANodes[slot]));
+                        currentPoint(pairedSideB[slot]),
+                        currentPoint(pairedSideA[slot]));
                     const double tangentialCurrent = std::sqrt(std::max(
                         0.0, dot3(currentGap, currentGap) - std::pow(dot3(currentGap, normal), 2)));
                     if (std::sqrt(dot3(restGap, restGap)) > 1.0e-9 * coordinateScale ||
-                        tangentialCurrent > tolerance ||
-                        std::abs(dot3(currentGap, normal) - opening) > tolerance) {
+                        (interface.lawKind == CohesiveLawKind::trydingModeI &&
+                            (tangentialCurrent > tolerance ||
+                             std::abs(dot3(currentGap, normal) - opening) > tolerance))) {
                         error("paired nodes must have coincident reference coordinates and uniform source-derived normal opening");
                         return result;
                     }
                 }
                 NMCohesiveFaceGPU face{};
                 face.nodesAndFirst = {
-                    descriptor.stateOffset + interface.sideANodes[0],
-                    descriptor.stateOffset + interface.sideANodes[1],
-                    descriptor.stateOffset + interface.sideANodes[2],
+                    descriptor.stateOffset + pairedSideA[0],
+                    descriptor.stateOffset + pairedSideA[1],
+                    descriptor.stateOffset + pairedSideA[2],
                     descriptor.elementOffset + interface.firstTetrahedron,
                 };
+                nm_u32 faceFlags = NM_TOPOLOGY_ACTIVE | NM_TOPOLOGY_COHESIVE |
+                    NM_TOPOLOGY_PAIRED_COHESIVE;
+                if (interface.lawKind == CohesiveLawKind::mixedModeBilinear)
+                    faceFlags |= NM_TOPOLOGY_COHESIVE_MIXED_MODE |
+                        NM_TOPOLOGY_COHESIVE_DORMANT;
                 face.adjacency = {
                     descriptor.elementOffset + interface.secondTetrahedron,
                     objectIndex,
                     interface.stableIdentifier,
-                    NM_TOPOLOGY_ACTIVE | NM_TOPOLOGY_COHESIVE |
-                        NM_TOPOLOGY_PAIRED_COHESIVE,
+                    faceFlags,
                 };
-                face.state = f4(damage, opening, *strength * (1.0 - damage), 0.0);
+                face.state = f4(damage, opening, strength * (1.0 - damage), 0.0);
                 face.geometry = f4(normal[0], normal[1], normal[2], 0.5 * twiceArea);
                 face.separatedNodes = {
-                    descriptor.stateOffset + interface.sideBNodes[0],
-                    descriptor.stateOffset + interface.sideBNodes[1],
-                    descriptor.stateOffset + interface.sideBNodes[2],
+                    descriptor.stateOffset + pairedSideB[0],
+                    descriptor.stateOffset + pairedSideB[1],
+                    descriptor.stateOffset + pairedSideB[2],
                     interface.materialIndex,
                 };
+                face.lawIdentity = {
+                    static_cast<nm_u32>(interface.lawKind),
+                    interface.lawKind == CohesiveLawKind::mixedModeBilinear
+                        ? interface.cohesiveMaterialIndex : NM_INVALID_INDEX,
+                    interface.activationControlStep,
+                    0u,
+                };
+                for (std::uint32_t vertex = 0u; vertex < 3u; ++vertex) {
+                    const std::array<float, 3> identity{
+                        vertex == 0u ? 1.0f : 0.0f,
+                        vertex == 1u ? 1.0f : 0.0f,
+                        vertex == 2u ? 1.0f : 0.0f,
+                    };
+                    face.mortarSideAVertexWeights[vertex] = f4(
+                        identity[0], identity[1], identity[2], 0.0);
+                    face.mortarSideBVertexWeights[vertex] = f4(
+                        identity[0], identity[1], identity[2], 0.0);
+                }
+                if (interface.lawKind == CohesiveLawKind::mixedModeBilinear)
+                    face.activationControl = f4(
+                        interface.activationGapToleranceM, 0.0, 0.0, 0.0);
+                world.fem.cohesiveFaces.push_back(face);
+            }
+            for (const CohesiveMortarPatchSource& patch :
+                 object.femCohesiveMortarPatches) {
+                const auto error = [&](const std::string& detail) {
+                    result.diagnostics.push_back({
+                        Diagnostic::Severity::error, 0u, 0u,
+                        "FEM object '" + object.name +
+                            "' has an invalid authored cohesive mortar patch: " + detail,
+                    });
+                };
+                if (patch.stableIdentifier == 0u ||
+                    !cohesiveIdentifiers.insert(patch.stableIdentifier).second) {
+                    error("stable identifiers must be nonzero and unique across paired faces and mortar patches");
+                    return result;
+                }
+                if (patch.firstTetrahedron >= object.tetrahedra.size() ||
+                    patch.secondTetrahedron >= object.tetrahedra.size() ||
+                    patch.firstTetrahedron == patch.secondTetrahedron ||
+                    patch.materialIndex >= source.materials.size() ||
+                    patch.cohesiveMaterialIndex >= world.cohesiveMaterials.size() ||
+                    !(patch.activationGapToleranceM > 0.0) ||
+                    !finite(patch.activationGapToleranceM) ||
+                    patch.activationGapToleranceM >
+                        std::numeric_limits<float>::max()) {
+                    error("adjacent tets, material indices, and finite positive activation tolerance must be valid");
+                    return result;
+                }
+                for (std::uint32_t i = 0u; i < 3u; ++i) {
+                    if (patch.sideANodes[i] >= object.femNodes.size() ||
+                        patch.sideBNodes[i] >= object.femNodes.size()) {
+                        error("a parent-face node is outside the FEM node table");
+                        return result;
+                    }
+                    for (std::uint32_t j = 0u; j < 3u; ++j) {
+                        if (patch.sideANodes[i] == patch.sideANodes[j] && i != j) {
+                            error("side A parent face contains duplicate nodes");
+                            return result;
+                        }
+                        if (patch.sideBNodes[i] == patch.sideBNodes[j] && i != j) {
+                            error("side B parent face contains duplicate nodes");
+                            return result;
+                        }
+                    }
+                    for (std::uint32_t j = 0u; j < 3u; ++j) {
+                        if (patch.sideANodes[i] == patch.sideBNodes[j]) {
+                            error("the two mortar sides must use independent duplicated nodes");
+                            return result;
+                        }
+                    }
+                }
+                const TetrahedronSource& tetA =
+                    object.tetrahedra[patch.firstTetrahedron];
+                const TetrahedronSource& tetB =
+                    object.tetrahedra[patch.secondTetrahedron];
+                const auto containsFace = [](const TetrahedronSource& tet,
+                                             const std::array<std::uint32_t, 3>& face) {
+                    return std::ranges::all_of(face, [&](const std::uint32_t node) {
+                        return std::ranges::find(tet.nodes, node) != tet.nodes.end();
+                    });
+                };
+                if (!containsFace(tetA, patch.sideANodes) ||
+                    !containsFace(tetB, patch.sideBNodes)) {
+                    error("each parent-node triple must be a face of its declared tetrahedron");
+                    return result;
+                }
+                std::array<std::array<double, 3>, 3> mapA =
+                    patch.sideAVertexBarycentric;
+                std::array<std::array<double, 3>, 3> mapB =
+                    patch.sideBVertexBarycentric;
+                const auto validateMap = [&](
+                    const std::array<std::array<double, 3>, 3>& map) {
+                    for (const auto& row : map) {
+                        double sum = 0.0;
+                        for (const double value : row) {
+                            if (!finite(value) || value < 0.0 || value > 1.0)
+                                return false;
+                            sum += value;
+                        }
+                        if (std::abs(sum - 1.0) > 1.0e-10) return false;
+                    }
+                    return true;
+                };
+                if (!validateMap(mapA) || !validateMap(mapB)) {
+                    error("each patch-vertex barycentric row must be finite, nonnegative, and sum to one");
+                    return result;
+                }
+                const auto mappedPoint = [&](
+                    const std::array<double, 3>& weights,
+                    const std::array<std::uint32_t, 3>& nodes) {
+                    std::array<double, 3> point{};
+                    for (std::uint32_t corner = 0u; corner < 3u; ++corner)
+                        for (std::uint32_t axis = 0u; axis < 3u; ++axis)
+                            point[axis] += weights[corner] *
+                                object.femReferenceNodes[nodes[corner]][axis];
+                    return point;
+                };
+                std::array<std::array<double, 3>, 3> verticesA{};
+                std::array<std::array<double, 3>, 3> verticesB{};
+                for (std::uint32_t vertex = 0u; vertex < 3u; ++vertex) {
+                    verticesA[vertex] = mappedPoint(mapA[vertex], patch.sideANodes);
+                    verticesB[vertex] = mappedPoint(mapB[vertex], patch.sideBNodes);
+                }
+                const auto subtract3 = [](const std::array<double, 3>& a,
+                                          const std::array<double, 3>& b) {
+                    return std::array<double, 3>{a[0] - b[0], a[1] - b[1], a[2] - b[2]};
+                };
+                const auto cross3 = [](const std::array<double, 3>& a,
+                                       const std::array<double, 3>& b) {
+                    return std::array<double, 3>{
+                        a[1] * b[2] - a[2] * b[1],
+                        a[2] * b[0] - a[0] * b[2],
+                        a[0] * b[1] - a[1] * b[0],
+                    };
+                };
+                const auto dot3 = [](const std::array<double, 3>& a,
+                                     const std::array<double, 3>& b) {
+                    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+                };
+                const auto centroid = [](const auto& points) {
+                    std::array<double, 3> result{};
+                    for (const auto& point : points)
+                        for (std::uint32_t axis = 0u; axis < 3u; ++axis)
+                            result[axis] += point[axis] / 3.0;
+                    return result;
+                };
+                std::array<double, 3> areaVector = cross3(
+                    subtract3(verticesA[1], verticesA[0]),
+                    subtract3(verticesA[2], verticesA[0]));
+                if (dot3(areaVector, subtract3(centroid(verticesB), centroid(verticesA))) < 0.0) {
+                    std::swap(mapA[1], mapA[2]);
+                    std::swap(mapB[1], mapB[2]);
+                    std::swap(verticesA[1], verticesA[2]);
+                    std::swap(verticesB[1], verticesB[2]);
+                    areaVector = cross3(
+                        subtract3(verticesA[1], verticesA[0]),
+                        subtract3(verticesA[2], verticesA[0]));
+                }
+                const double twiceArea = std::sqrt(dot3(areaVector, areaVector));
+                if (!(twiceArea > 1.0e-15) || !finite(twiceArea)) {
+                    error("mapped side-A patch must have positive finite preflight area");
+                    return result;
+                }
+                const std::array<double, 3> normal = {
+                    areaVector[0] / twiceArea,
+                    areaVector[1] / twiceArea,
+                    areaVector[2] / twiceArea,
+                };
+                const auto sideBAreaVector = cross3(
+                    subtract3(verticesB[1], verticesB[0]),
+                    subtract3(verticesB[2], verticesB[0]));
+                const double sideBTwiceArea = std::sqrt(
+                    dot3(sideBAreaVector, sideBAreaVector));
+                if (!(sideBTwiceArea > 1.0e-15) || !finite(sideBTwiceArea)) {
+                    error("mapped side-B patch must have positive finite preflight area");
+                    return result;
+                }
+                NMCohesiveFaceGPU face{};
+                face.nodesAndFirst = {
+                    descriptor.stateOffset + patch.sideANodes[0],
+                    descriptor.stateOffset + patch.sideANodes[1],
+                    descriptor.stateOffset + patch.sideANodes[2],
+                    descriptor.elementOffset + patch.firstTetrahedron,
+                };
+                face.adjacency = {
+                    descriptor.elementOffset + patch.secondTetrahedron,
+                    objectIndex,
+                    patch.stableIdentifier,
+                    NM_TOPOLOGY_ACTIVE | NM_TOPOLOGY_COHESIVE |
+                        NM_TOPOLOGY_PAIRED_COHESIVE |
+                        NM_TOPOLOGY_COHESIVE_MIXED_MODE |
+                        NM_TOPOLOGY_COHESIVE_DORMANT |
+                        NM_TOPOLOGY_COHESIVE_MORTAR,
+                };
+                face.geometry = f4(normal[0], normal[1], normal[2], 0.5 * twiceArea);
+                face.separatedNodes = {
+                    descriptor.stateOffset + patch.sideBNodes[0],
+                    descriptor.stateOffset + patch.sideBNodes[1],
+                    descriptor.stateOffset + patch.sideBNodes[2],
+                    patch.materialIndex,
+                };
+                face.lawIdentity = {
+                    NM_COHESIVE_LAW_MIXED_MODE_BILINEAR,
+                    patch.cohesiveMaterialIndex,
+                    0u,
+                    NM_COHESIVE_ACTIVATION_EXPLICIT_COMMAND,
+                };
+                face.activationControl = f4(
+                    patch.activationGapToleranceM, 0.0, 0.0, 0.0);
+                for (std::uint32_t vertex = 0u; vertex < 3u; ++vertex) {
+                    face.mortarSideAVertexWeights[vertex] = f4(
+                        mapA[vertex][0], mapA[vertex][1], mapA[vertex][2], 0.0);
+                    face.mortarSideBVertexWeights[vertex] = f4(
+                        mapB[vertex][0], mapB[vertex][1], mapB[vertex][2], 0.0);
+                }
                 world.fem.cohesiveFaces.push_back(face);
             }
             world.fem.cohesiveFaces.resize(
@@ -2779,6 +3323,7 @@ CompileResult compileWorld(
     dispatch.abiVersion = NM_MATTER_ABI_VERSION;
     dispatch.flags =
         (source.deterministic ? NM_MATTER_DETERMINISTIC : 0u) |
+        (source.compactImmutableFEMSurfaces ? NM_MATTER_STATIC_FEM_SURFACE_MAP : 0u) |
         NM_MATTER_IPC |
         (!world.contact.pairs.empty() ? NM_MATTER_CONTACT : 0u) |
         (std::ranges::any_of(source.objects, [](const ObjectSource& object) {
@@ -2997,8 +3542,9 @@ CompileResult compileWorld(
                 capacity.deformableContacts != 0u;
         }
     );
-    if (hasAllocationOverrides) {
+    if (hasAllocationOverrides || source.compactImmutableFEMSurfaces) {
         WorldSource canonicalSource = source;
+        canonicalSource.compactImmutableFEMSurfaces = false;
         for (ObjectSource& object : canonicalSource.objects) {
             object.femCapacity = {};
         }

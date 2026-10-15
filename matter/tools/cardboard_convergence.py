@@ -898,11 +898,9 @@ def _paired_curve_metrics(a: RunData, b: RunData, phases: list[str], kind: str) 
                         vb = _interpolate(pb, x, field)
                     else:
                         assert ra is not None and rb is not None
-                        # Reconstruct A/B order after choosing the shorter grid.
-                        if len(pa) <= len(pb):
-                            va, vb = ra[field], rb[field]
-                        else:
-                            va, vb = rb[field], ra[field]
+                        # The matching tuple was already normalized to A/B
+                        # order when the shorter grid was selected above.
+                        va, vb = ra[field], rb[field]
                     values_a.append(va)
                     values_b.append(vb)
                     deltas.append(vb - va)

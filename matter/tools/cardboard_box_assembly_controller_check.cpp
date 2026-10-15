@@ -131,6 +131,7 @@ std::vector<std::uint32_t> exposedNodes(const FEFCO0201Blank& blank) {
 
 void run() {
     const FEFCO0201Blank blank = buildBlank();
+    const auto boundaryNodes = exposedNodes(blank);
     const auto tooling = makeBoxScoreTooling(
         blank, 0.75e-3, 2.0e-3, 0.010e-3, 0.010e-3, 3.0e-3, 2.0e-3);
     require(tooling.proxies.size() == 13u &&
@@ -167,18 +168,235 @@ void run() {
     require(bodyStates.size() == 4u &&
                 bodyStates[tooling.supportBodyIndex].flagsAndIndices[0] ==
                     MR_MOTION_KINEMATIC &&
+                bodyStates[tooling.scoreBodyIndex].flagsAndIndices[2] ==
+                    MR_INVALID_INDEX &&
+                bodyStates[tooling.supportBodyIndex].flagsAndIndices[2] ==
+                    MR_INVALID_INDEX &&
                 std::abs(firstContact.z -
                     (blank.boardCaliper + tooling.punchRadius)) < 1.0e-15 &&
                 parked.z > firstContact.z,
             "die/anvil body-state arena has the wrong count or motion mode");
 
-    const auto grips = makeBoxFeatureGrips(blank, blank.points);
+    const auto channelTooling = makeBoxScoreTooling(
+        blank, 1.0e-3, 0.25 * blank.boardCaliper, 0.25 * blank.boardCaliper,
+        0.25 * blank.boardCaliper, 1.0e-3, 0.25 * blank.boardCaliper,
+        6.0e-3, 10.0e-3);
+    require(channelTooling.proxies.size() == 36u &&
+                channelTooling.channelWidth == 6.0e-3 &&
+                channelTooling.supportRailWidth == 10.0e-3,
+            "shipping score tooling must contain twelve punches and two rails per line");
+    for (std::uint32_t score = 0u; score < 12u; ++score) {
+        const auto& line = blank.scoreLines[score];
+        const double dx = line.second.x - line.first.x;
+        const double dy = line.second.y - line.first.y;
+        const double length = std::hypot(dx, dy);
+        const double nx = -dy / length;
+        const double ny = dx / length;
+        const double midpointX = 0.5 * (line.first.x + line.second.x);
+        const double midpointY = 0.5 * (line.first.y + line.second.y);
+        const auto& positive = channelTooling.proxies[12u + 2u * score];
+        const auto& negative = channelTooling.proxies[13u + 2u * score];
+        require(positive.shape == NM_RIGID_BOX &&
+                    negative.shape == NM_RIGID_BOX &&
+                    positive.bodyIndex == channelTooling.supportBodyIndex &&
+                    negative.bodyIndex == channelTooling.supportBodyIndex,
+                "score channel rail proxies must share the support body");
+        const double positiveOffset =
+            (positive.localCenter[0] + channelTooling.supportBodyPosition.x -
+                 midpointX) * nx +
+            (positive.localCenter[1] + channelTooling.supportBodyPosition.y -
+                 midpointY) * ny;
+        const double negativeOffset =
+            (negative.localCenter[0] + channelTooling.supportBodyPosition.x -
+                 midpointX) * nx +
+            (negative.localCenter[1] + channelTooling.supportBodyPosition.y -
+                 midpointY) * ny;
+        const double clearGap = std::abs(positiveOffset - negativeOffset) -
+            positive.localExtent[1] - negative.localExtent[1];
+        const double tangentAngle = std::atan2(dy, dx);
+        const double railAngle = 2.0 * std::atan2(
+            positive.localOrientation[2], positive.localOrientation[3]);
+        require(std::abs(clearGap - channelTooling.channelWidth) < 1.0e-12 &&
+                    std::abs(positive.localExtent[0] -
+                        (0.5 * length + 0.25 * blank.boardCaliper)) < 1.0e-12 &&
+                    std::abs(std::remainder(railAngle - tangentAngle,
+                        2.0 * 3.14159265358979323846)) < 1.0e-12,
+                "score channel gap, rail span, or per-line orientation is inconsistent");
+    }
+
+    const auto reusedTooling = makeSequentialBoxScoreTooling(
+        blank, 1.0e-3, 0.25 * blank.boardCaliper, 0.25 * blank.boardCaliper,
+        0.25 * blank.boardCaliper, 1.0e-3, 0.25 * blank.boardCaliper,
+        6.0e-3, 10.0e-3);
+    require(reusedTooling.sequentialFamilies &&
+                reusedTooling.families.size() == 3u &&
+                reusedTooling.scoreLineFamilyIndices.size() == 12u &&
+                reusedTooling.proxies.size() == 9u,
+            "sequential scoring must compile three fixed-orientation triplets");
+    const auto reusedStates = makeBoxToolBodyStates(
+        reusedTooling, 2u, blank.boardCaliper + 1.0e-3 + 5.0e-3);
+    require(reusedStates.size() == 12u,
+            "three score families must own six kinematic scene bodies per environment");
+    std::vector<MRBodyStateGPU> orientedTool(1u);
+    orientedTool[0].orientation = {
+        -0.7071067811865476f, 0.0f, 0.0f, 0.7071067811865476f};
+    orientedTool[0].flagsAndIndices[0] = MR_MOTION_KINEMATIC;
+    const auto originalToolOrientation = orientedTool[0].orientation;
+    setBoxToolBodyCommand(orientedTool, 1u, 0u, 0u,
+        {0.1, 0.2, 0.3}, {0.0, 0.0, 0.0});
+    require(orientedTool[0].orientation.x == originalToolOrientation.x &&
+                orientedTool[0].orientation.y == originalToolOrientation.y &&
+                orientedTool[0].orientation.z == originalToolOrientation.z &&
+                orientedTool[0].orientation.w == originalToolOrientation.w,
+            "translation command must preserve the floor's authored fixed orientation");
+    const auto nearPoint = [](const BoxVec3 a, const BoxVec3 b) {
+        return boxLength(a - b) <= 2.0e-12;
+    };
+    for (std::uint32_t score = 0u; score < 12u; ++score) {
+        const std::uint32_t familyIndex =
+            boxSequentialFamilyForScoreLine(reusedTooling, score);
+        const auto& family = reusedTooling.families.at(familyIndex);
+        require(std::find(family.scoreLineIndices.begin(),
+                          family.scoreLineIndices.end(), score) !=
+                    family.scoreLineIndices.end(),
+                "score-line-to-family mapping is not reciprocal");
+        const auto& line = blank.scoreLines[score];
+        const BoxVec3 center = boxScoreLineCenter(blank, score);
+        const auto& compactPunch = reusedTooling.proxies.at(3u * familyIndex);
+        const double extension = 0.25 * blank.boardCaliper - 1.0e-3;
+        const double dx = line.second.x - line.first.x;
+        const double dy = line.second.y - line.first.y;
+        const double length = std::hypot(dx, dy);
+        const BoxVec3 tangent{dx / length, dy / length, 0.0};
+        const BoxVec3 expectedFirst{
+            line.first.x - extension * tangent.x,
+            line.first.y - extension * tangent.y, 0.0};
+        const BoxVec3 expectedSecond{
+            line.second.x + extension * tangent.x,
+            line.second.y + extension * tangent.y, 0.0};
+        const BoxVec3 compactFirst = center + BoxVec3{
+            compactPunch.localCenter[0], compactPunch.localCenter[1],
+            compactPunch.localCenter[2]};
+        const BoxVec3 compactSecond = center + BoxVec3{
+            compactPunch.localExtent[0], compactPunch.localExtent[1],
+            compactPunch.localExtent[2]};
+        require(compactPunch.bodyIndex == family.scoreBodyIndex &&
+                    compactPunch.prescribedEndPoseTranslation &&
+                    ((nearPoint(compactFirst, expectedFirst) &&
+                      nearPoint(compactSecond, expectedSecond)) ||
+                     (nearPoint(compactFirst, expectedSecond) &&
+                      nearPoint(compactSecond, expectedFirst))),
+                "reused punch translation does not reproduce the authored score line");
+
+        const std::array<std::uint32_t, 2> originalRailIndices{
+            12u + 2u * score, 13u + 2u * score};
+        const std::array<std::uint32_t, 2> compactRailIndices{
+            3u * familyIndex + 1u, 3u * familyIndex + 2u};
+        std::array<bool, 2> matched{};
+        for (const std::uint32_t compactIndex : compactRailIndices) {
+            const auto& compactRail = reusedTooling.proxies.at(compactIndex);
+            require(compactRail.prescribedEndPoseTranslation,
+                    "reused support BOX must request the native prescribed-translation gate");
+            const BoxVec3 compactCenter = center + BoxVec3{
+                compactRail.localCenter[0], compactRail.localCenter[1],
+                compactRail.localCenter[2]};
+            bool foundRail = false;
+            for (std::size_t side = 0u; side < originalRailIndices.size(); ++side) {
+                if (matched[side]) continue;
+                const auto& originalRail = channelTooling.proxies.at(
+                    originalRailIndices[side]);
+                const BoxVec3 originalCenter =
+                    channelTooling.supportBodyPosition + BoxVec3{
+                        originalRail.localCenter[0], originalRail.localCenter[1],
+                        originalRail.localCenter[2]};
+                const double orientationDot = std::abs(
+                    compactRail.localOrientation[2] *
+                        originalRail.localOrientation[2] +
+                    compactRail.localOrientation[3] *
+                        originalRail.localOrientation[3]);
+                if (nearPoint(compactCenter, originalCenter) &&
+                    std::abs(compactRail.localExtent[0] -
+                             originalRail.localExtent[0]) < 1.0e-12 &&
+                    std::abs(compactRail.localExtent[1] -
+                             originalRail.localExtent[1]) < 1.0e-12 &&
+                    std::abs(compactRail.localExtent[2] -
+                             originalRail.localExtent[2]) < 1.0e-12 &&
+                    orientationDot > 1.0 - 1.0e-12) {
+                    matched[side] = true;
+                    foundRail = true;
+                    break;
+                }
+            }
+            require(foundRail && compactRail.shape == NM_RIGID_BOX &&
+                        compactRail.bodyIndex == family.supportBodyIndex,
+                    "family rail relocation changes the original finite BOX geometry");
+        }
+        require(matched[0] && matched[1],
+                "compact support pair failed to match both authored channel rails");
+    }
+    for (const auto& state : reusedStates) {
+        require(state.flagsAndIndices[0] == MR_MOTION_KINEMATIC &&
+                    state.flagsAndIndices[2] == MR_INVALID_INDEX &&
+                    state.orientation.x == 0.0f && state.orientation.y == 0.0f &&
+                    state.orientation.z == 0.0f && state.orientation.w == 1.0f,
+                "reusable tool scene body must remain kinematic with identity orientation");
+    }
+
+    const auto grips = makeBoxFeatureGrips(blank, blank.points, boundaryNodes);
     require(grips.size() == 12u,
             "four wall and eight flap actions must each have a grip boundary");
-    for (const auto& grip : grips)
+    const std::set<std::uint32_t> exteriorSet(
+        boundaryNodes.begin(), boundaryNodes.end());
+    const auto targetsUseOnlyExteriorNodes = [&](const BoxAssemblyActionStep& step) {
+        return std::all_of(step.nodeTargets.begin(), step.nodeTargets.end(),
+            [&](const BoxGripNodeTarget& target) {
+                return exteriorSet.contains(target.node);
+            });
+    };
+    for (const auto& grip : grips) {
         require(!grip.nodeIndices.empty(),
                 "assembly action grip selection is empty");
-    const auto boundaryNodes = exposedNodes(blank);
+        require(std::all_of(grip.nodeIndices.begin(), grip.nodeIndices.end(),
+                    [&](const std::uint32_t node) {
+                        return exteriorSet.contains(node);
+                    }),
+                "assembly action selected an interior FEM node as a grip");
+        require(!grip.referencePatches.empty(),
+                "assembly grip omitted its authored reference-surface patch");
+    }
+    for (std::uint32_t action = 0u; action < 4u; ++action) {
+        const auto& grip = grips.at(action);
+        const BoxBlankPanel& panel = blank.panels.at(grip.panelIndex);
+        require(grip.referencePatches.size() == 2u,
+                "wall grip must identify both exterior liner faces of its finite jaw patch");
+        for (const auto& patch : grip.referencePatches) {
+            require(patch.planeAxis == 'z' && patch.nodeCount > 0u &&
+                        (std::abs(patch.planeCoordinate) < 1.0e-12 ||
+                         std::abs(patch.planeCoordinate - blank.boardCaliper) < 1.0e-12) &&
+                        patch.minimumX > panel.xStart && patch.maximumX < panel.xEnd &&
+                        patch.minimumY > panel.yStart && patch.maximumY <= panel.yEnd &&
+                        patch.maximumX > patch.minimumX &&
+                        patch.maximumY > patch.minimumY,
+                    "wall grip is not a finite exterior-face patch inside the panel");
+        }
+        for (const std::uint32_t node : grip.nodeIndices) {
+            const BoxBlankPoint& point = blank.points.at(node);
+            require((std::abs(point.z) < 1.0e-12 ||
+                     std::abs(point.z - blank.boardCaliper) < 1.0e-12) &&
+                        point.x > panel.xStart && point.x < panel.xEnd,
+                    "wall grip constrained flute interior or an authored score edge");
+        }
+    }
+    bool rejectedMalformedExteriorMap = false;
+    try {
+        auto malformed = boundaryNodes;
+        malformed.push_back(static_cast<std::uint32_t>(blank.points.size()));
+        (void)makeBoxFeatureGrips(blank, blank.points, malformed);
+    } catch (const std::invalid_argument&) {
+        rejectedMalformedExteriorMap = true;
+    }
+    require(rejectedMalformedExteriorMap,
+            "box grip accepted an out-of-range compiled exterior-node identity");
     const auto tabAnchors = makeBoxTabBodyAnchorNodes(
         blank, blank.points, boundaryNodes);
     require(tabAnchors.size() >= 3u &&
@@ -199,6 +417,37 @@ void run() {
     }
     require(anchorsIncludeTheTabFreeEdge,
             "tab anchor does not include the seam-side free edge that must later be released");
+
+    std::vector<NMFEMNodeStateGPU> releaseState(blank.points.size());
+    releaseState[0].restAndFixed.w = 1.0f; // immutable authored fix is not a grip.
+    releaseState[1].restAndFixed.w = 3.0f;
+    require(countActiveBoxTemporaryGripNodes(releaseState, 1u,
+                static_cast<std::uint32_t>(blank.points.size())) == 1u,
+            "temporary clamp scan confused an immutable fix with an active grip");
+    require(countActiveBoxPrescribedNodes(releaseState, 1u,
+                static_cast<std::uint32_t>(blank.points.size())) == 2u,
+            "released-blank audit failed to detect permanent and temporary constraints");
+    releaseState[1].restAndFixed.w = 0.0f;
+    require(countActiveBoxTemporaryGripNodes(releaseState, 1u,
+                static_cast<std::uint32_t>(blank.points.size())) == 0u,
+            "released accepted snapshot still reports a temporary clamp");
+    require(countActiveBoxPrescribedNodes(releaseState, 1u,
+                static_cast<std::uint32_t>(blank.points.size())) == 1u,
+            "released-blank audit must continue to reject an authored fixed node");
+    releaseState[0].restAndFixed.w = 0.0f;
+    require(countActiveBoxPrescribedNodes(releaseState, 1u,
+                static_cast<std::uint32_t>(blank.points.size())) == 0u,
+            "released-blank audit did not admit a fully unconstrained fixture-free blank");
+    bool rejectedUnknownConstraintTag = false;
+    releaseState[2].restAndFixed.w = 4.0f;
+    try {
+        (void)countActiveBoxTemporaryGripNodes(releaseState, 1u,
+            static_cast<std::uint32_t>(blank.points.size()));
+    } catch (const std::invalid_argument&) {
+        rejectedUnknownConstraintTag = true;
+    }
+    require(rejectedUnknownConstraintTag,
+            "temporary clamp scan admitted an unknown accepted constraint tag");
     const auto program = makeBoxExecutionProgram(blank);
     require(program.size() == 16u &&
                 program[0].kind == BoxExecutionStage::Kind::score &&
@@ -286,9 +535,10 @@ void run() {
                 std::abs(relativeFit.targetTurnDegrees + 90.0) < 1.0e-12,
             "whole-blank rigid rotation was mistaken for the first relative wall fold");
     const auto rigidPlan = planBoxAssemblyActionStep(
-        blank, blank.points, accepted, accepted, 0u,
+        blank, blank.points, boundaryNodes, accepted, accepted, 0u,
         static_cast<std::uint32_t>(blank.points.size()), 0u, 15.0, 0.5);
     require(rigidPlan.valid &&
+                targetsUseOnlyExteriorNodes(rigidPlan) &&
                 rigidPlan.shapeFitWithinBound &&
                 rigidPlan.phase == BoxAssemblyActionStep::Phase::moveGrip &&
                 std::abs(rigidPlan.observedAngleDegrees) < 1.0e-3 &&
@@ -331,10 +581,11 @@ void run() {
         ++warpedFlapNodes;
     }
     const auto warpedFlapPlan = planBoxAssemblyActionStep(
-        blank, blank.points, warpedFlap, actionStart, 0u,
+        blank, blank.points, boundaryNodes, warpedFlap, actionStart, 0u,
         static_cast<std::uint32_t>(blank.points.size()), panelZeroFlapAction,
         30.0, 0.5);
     require(warpedFlapNodes > 0u && warpedFlapPlan.angleObservable &&
+                targetsUseOnlyExteriorNodes(warpedFlapPlan) &&
                 std::abs(warpedFlapPlan.observedAngleDegrees - 90.0) < 1.0e-3 &&
                 !warpedFlapPlan.valid && warpedFlapPlan.shapeFitRejected &&
                 !warpedFlapPlan.shapeFitWithinBound && warpedFlapPlan.fitCoverage <
@@ -373,9 +624,10 @@ void run() {
     }
 
     const auto firstWallPlan = planBoxAssemblyActionStep(
-        blank, blank.points, actionStart, actionStart, 0u,
+        blank, blank.points, boundaryNodes, actionStart, actionStart, 0u,
         static_cast<std::uint32_t>(blank.points.size()), 0u, 15.0, 0.5);
     require(firstWallPlan.valid &&
+                targetsUseOnlyExteriorNodes(firstWallPlan) &&
                 firstWallPlan.phase == BoxAssemblyActionStep::Phase::moveGrip &&
                 firstWallPlan.hinge.valid &&
                 std::abs(firstWallPlan.commandedIncrementDegrees + 15.0) < 1.0e-12 &&
@@ -397,10 +649,11 @@ void run() {
     require(firstFlapAction != kNoBoxScoreLineIndex,
             "assembly schedule has no flap action to exercise");
     const auto firstFlapPlan = planBoxAssemblyActionStep(
-        blank, blank.points, actionStart, actionStart, 0u,
+        blank, blank.points, boundaryNodes, actionStart, actionStart, 0u,
         static_cast<std::uint32_t>(blank.points.size()), firstFlapAction,
         30.0, 0.5);
     require(firstFlapPlan.valid &&
+                targetsUseOnlyExteriorNodes(firstFlapPlan) &&
                 firstFlapPlan.phase == BoxAssemblyActionStep::Phase::moveGrip &&
                 firstFlapPlan.hinge.valid &&
                 std::abs(firstFlapPlan.commandedIncrementDegrees - 30.0) < 1.0e-12,
@@ -430,9 +683,10 @@ void run() {
         accepted[node].velocityAndInverseMass.w = 0.0f;
     }
     const auto completedWallPlan = planBoxAssemblyActionStep(
-        blank, blank.points, accepted, actionStart, 0u,
+        blank, blank.points, boundaryNodes, accepted, actionStart, 0u,
         static_cast<std::uint32_t>(blank.points.size()), 0u, 15.0, 0.5);
     require(completedWallPlan.valid &&
+                targetsUseOnlyExteriorNodes(completedWallPlan) &&
                 completedWallPlan.phase == BoxAssemblyActionStep::Phase::acceptedContactOnly &&
                 std::abs(completedWallPlan.observedAngleDegrees + 90.0) < 1.0e-3 &&
                 completedWallPlan.shapeFitWithinBound &&
@@ -480,7 +734,7 @@ void run() {
          warpedRequiredParent.fitCoverage * warpedRequiredParent.sampleCount) /
         (goodRequiredWall.sampleCount + warpedRequiredParent.sampleCount);
     const auto warpedParentPlan = planBoxAssemblyActionStep(
-        blank, blank.points, warpedParentAccepted, actionStart, 0u,
+        blank, blank.points, boundaryNodes, warpedParentAccepted, actionStart, 0u,
         static_cast<std::uint32_t>(blank.points.size()), 0u, 15.0, 0.5);
     require(warpedParentNodes > 0u && goodRequiredWall.valid &&
                 goodRequiredWall.fitResidualRms <=
@@ -494,6 +748,7 @@ void run() {
                     kDefaultBoxShapeResidualBoundCalipers * blank.boardCaliper &&
                 legacyWeightedCoverage >= kDefaultBoxShapeFitCoverage &&
                 warpedParentPlan.angleObservable &&
+                targetsUseOnlyExteriorNodes(warpedParentPlan) &&
                 std::abs(warpedParentPlan.observedAngleDegrees + 90.0) < 1.0e-3 &&
                 !warpedParentPlan.valid && warpedParentPlan.shapeFitRejected &&
                 !warpedParentPlan.shapeFitWithinBound &&
@@ -521,9 +776,10 @@ void run() {
         ++warpedNodes;
     }
     const auto warpedPlan = planBoxAssemblyActionStep(
-        blank, blank.points, warpedAccepted, actionStart, 0u,
+        blank, blank.points, boundaryNodes, warpedAccepted, actionStart, 0u,
         static_cast<std::uint32_t>(blank.points.size()), 0u, 15.0, 0.5);
     require(warpedNodes > 0u && warpedPlan.angleObservable &&
+                targetsUseOnlyExteriorNodes(warpedPlan) &&
                 std::abs(warpedPlan.observedAngleDegrees + 90.0) < 1.0e-3 &&
                 !warpedPlan.valid && warpedPlan.shapeFitRejected &&
                 !warpedPlan.shapeFitWithinBound && warpedPlan.fitCoverage <
@@ -533,9 +789,10 @@ void run() {
             "target-angle but buckled panel was accepted or given interior targets");
 
     const auto jointContactPlan = planBoxAssemblyActionStep(
-        blank, blank.points, actionStart, actionStart, 0u,
+        blank, blank.points, boundaryNodes, actionStart, actionStart, 0u,
         static_cast<std::uint32_t>(blank.points.size()), 4u, 15.0, 0.5);
     require(jointContactPlan.valid &&
+                targetsUseOnlyExteriorNodes(jointContactPlan) &&
                 jointContactPlan.phase == BoxAssemblyActionStep::Phase::acceptedContactOnly &&
                 jointContactPlan.physicalBondLawRequired &&
                 jointContactPlan.nodeTargets.empty(),

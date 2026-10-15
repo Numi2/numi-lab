@@ -1,0 +1,1 @@
+native_deformable_constraint_reaction=pass synthetic_kernel=true max_mapped_force_error_N=2.241577002e-08 net_force_error_N=3.725290298e-09 human_tag2_excluded=true physical_validation=false

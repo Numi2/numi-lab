@@ -1,0 +1,1 @@
+step 0: Matter preDynamics encode failed: regional Galerkin FEM preconditioner v1 does not admit runtime kinematic targets; its source-bound coarse basis uses only compiled fixed-node constraints

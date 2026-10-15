@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.first-failure-revision.v1",
+  "supersedes_interpretation_only": "/Users/home/cardboard-implementation-20261014/native/full-contact-true-residual-analysis-045-001.json",
+  "superseded_sha256": "97ab80ba54aeab1d2c2d2d5a752c5fc5f014d116fe700a143aadba8a8868b064",
+  "preserved_old_record": true,
+  "rigid_pair_count": 58,
+  "failing_index": 129,
+  "correct_domain": "deformable_contact_slot",
+  "source_case": "contact-regional-all-pair-gate-092",
+  "reason": "ccd_uncertified",
+  "sweep_time_dimensionless": 0.0180399176,
+  "separation_m": 6.98547575e-09,
+  "physical_validation": false,
+  "solver_qualification": false,
+  "note": "The source45 linear residual comparisons remain valid. The regional failure classification was wrong: index129 exceeds rigid pair count58. Source46 exact contact capture localizes uncertified vertex-triangle self-contact CCD. The independent all-pair rigid trial gate does not repair this failure."
+}

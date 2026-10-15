@@ -1,0 +1,8 @@
+{
+  "qualified": false,
+  "reason": "contact source changed after snapshot copying and before linked fixture run",
+  "snapshot_contact_sha256": "eec3f596169b46a69187ce8e882e44506780d1fd417a59561d3531b524b8f893",
+  "actual_contact_sha256": "2d32ce76b74a3c1b9f027fb62816b77dad371241021f81f9d941a611e72c0dfd",
+  "retained_actual_source": "/Users/home/cardboard-implementation-20261014/snapshots/abi45-covered-endpoint-007/matter/src/metal/contact.metalinc",
+  "original_prediction_preserved": true
+}

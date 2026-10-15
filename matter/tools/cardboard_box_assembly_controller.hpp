@@ -6,6 +6,7 @@
 // claim calibration to the literature recipe.
 
 #include "cardboard_box_blank.hpp"
+#include "cardboard_shipping_protocol.hpp"
 #include "numi/matter/matter.hpp"
 #include "metalrobo/engine_types.h"
 
@@ -77,9 +78,9 @@ inline BoxVec3 boxAcceptedPosition(const NMFEMNodeStateGPU& node) {
 }
 
 struct BoxScoreToolingSet {
-    // Twelve fixed-orientation capsule proxies form one body-backed scoring
-    // die, followed by a retractable body-backed support anvil. The scoring
-    // pass therefore presses all authored score IDs in one tool stroke.
+    // The legacy factory emits twelve per-line capsule proxies and optional
+    // channel rails. Shipping mode instead uses three fixed-orientation
+    // families through makeSequentialBoxScoreTooling below.
     std::vector<numi::matter::RigidProxySource> proxies;
     BoxVec3 scoreBodyPosition{};
     BoxVec3 supportBodyPosition{};
@@ -92,6 +93,24 @@ struct BoxScoreToolingSet {
     double supportThickness = 0.0;
     double supportHalfX = 0.0;
     double supportHalfY = 0.0;
+    double channelWidth = 0.0;
+    double supportRailWidth = 0.0;
+    // The shipping blank can reuse a fixed-orientation punch/rail triplet for
+    // each distinct (axis,length) score-line family.  Body poses stay
+    // identity-oriented and relocate by translation only.  The original
+    // all-lines tooling factory above remains available for legacy controls.
+    struct SequentialFamily {
+        std::uint32_t scoreBodyIndex = 0u;
+        std::uint32_t supportBodyIndex = 0u;
+        BoxVec3 referenceCenter{};
+        BoxVec3 tangent{};
+        BoxVec3 normal{};
+        double lineLength = 0.0;
+        std::vector<std::uint32_t> scoreLineIndices;
+    };
+    bool sequentialFamilies = false;
+    std::vector<SequentialFamily> families;
+    std::vector<std::uint32_t> scoreLineFamilyIndices;
 };
 
 inline std::array<double, 4> boxQuaternionFromLocalY(
@@ -111,7 +130,9 @@ inline BoxScoreToolingSet makeBoxScoreTooling(
     const double toolClearance,
     const double anvilClearance,
     const double supportThickness,
-    const double anvilOverhang) {
+    const double anvilOverhang,
+    const double channelWidth = 0.0,
+    const double supportRailWidth = 0.010) {
     const auto positive = [](const double value) {
         return std::isfinite(value) && value > 0.0;
     };
@@ -119,7 +140,9 @@ inline BoxScoreToolingSet makeBoxScoreTooling(
         !std::isfinite(punchOverhang) || punchOverhang < 0.0 ||
         !positive(toolClearance) || !positive(anvilClearance) ||
         !positive(supportThickness) || !std::isfinite(anvilOverhang) ||
-        anvilOverhang < 0.0 || !(toolClearance > 0.0))
+        anvilOverhang < 0.0 || !(toolClearance > 0.0) ||
+        !std::isfinite(channelWidth) || channelWidth < 0.0 ||
+        (channelWidth > 0.0 && !positive(supportRailWidth)))
         throw std::invalid_argument("box scoring tool inputs are invalid");
 
     BoxScoreToolingSet result;
@@ -130,6 +153,8 @@ inline BoxScoreToolingSet makeBoxScoreTooling(
     result.supportThickness = supportThickness;
     result.supportHalfX = 0.5 * blank.perimeterSpan + anvilOverhang;
     result.supportHalfY = 0.5 * blank.blankHeight + anvilOverhang;
+    result.channelWidth = channelWidth;
+    result.supportRailWidth = channelWidth > 0.0 ? supportRailWidth : 0.0;
     result.scoreBodyIndex = 0u;
     result.supportBodyIndex = 1u;
     result.scoreBodyPosition = {
@@ -137,7 +162,9 @@ inline BoxScoreToolingSet makeBoxScoreTooling(
         blank.boardCaliper + punchRadius + toolClearance};
     result.supportBodyPosition = {
         0.5 * blank.perimeterSpan, 0.5 * blank.blankHeight, 0.0};
-    result.proxies.reserve(blank.scoreLines.size() + 1u);
+    result.proxies.reserve(blank.scoreLines.size() *
+        (channelWidth > 0.0 ? 3u : 1u) +
+        (channelWidth > 0.0 ? 0u : 1u));
 
     for (std::uint32_t scoreIndex = 0u;
          scoreIndex < blank.scoreLines.size(); ++scoreIndex) {
@@ -176,6 +203,47 @@ inline BoxScoreToolingSet makeBoxScoreTooling(
         result.proxies.push_back(punch);
     }
 
+    if (channelWidth > 0.0) {
+        const double railHalfWidth = 0.5 * supportRailWidth;
+        const double railOffset = 0.5 * channelWidth + railHalfWidth;
+        for (const BoxScoreLine& line : blank.scoreLines) {
+            const double dx = line.second.x - line.first.x;
+            const double dy = line.second.y - line.first.y;
+            const double lineLength = std::hypot(dx, dy);
+            if (!(lineLength > 0.0) || !std::isfinite(lineLength))
+                throw std::invalid_argument("score channel has a zero-length centerline");
+            const double tangentX = dx / lineLength;
+            const double tangentY = dy / lineLength;
+            const double normalX = -tangentY;
+            const double normalY = tangentX;
+            const double midpointX = 0.5 * (line.first.x + line.second.x);
+            const double midpointY = 0.5 * (line.first.y + line.second.y);
+            const double halfSpan = 0.5 * lineLength + anvilOverhang;
+            const double angle = std::atan2(tangentY, tangentX);
+            const std::array<double, 4> orientation{
+                0.0, 0.0, std::sin(0.5 * angle), std::cos(0.5 * angle)};
+            for (const double side : {-1.0, 1.0}) {
+                numi::matter::RigidProxySource rail;
+                rail.shape = NM_RIGID_BOX;
+                rail.bodyIndex = result.supportBodyIndex;
+                rail.materialIndex = 0u;
+                rail.localCenter = {
+                    midpointX + side * railOffset * normalX -
+                        result.supportBodyPosition.x,
+                    midpointY + side * railOffset * normalY -
+                        result.supportBodyPosition.y,
+                    -anvilClearance - 0.5 * supportThickness};
+                rail.localExtent = {
+                    halfSpan, railHalfWidth, 0.5 * supportThickness};
+                rail.localOrientation = orientation;
+                rail.articulated = false;
+                rail.dynamic = false;
+                result.proxies.push_back(rail);
+            }
+        }
+        return result;
+    }
+
     numi::matter::RigidProxySource anvil;
     anvil.shape = NM_RIGID_BOX;
     anvil.bodyIndex = result.supportBodyIndex;
@@ -191,6 +259,158 @@ inline BoxScoreToolingSet makeBoxScoreTooling(
     return result;
 }
 
+// Build one physically movable punch and one pair of support rails per
+// distinct score-line axis/length.  A score line selects one family and the
+// driver moves only that family's two kinematic bodies to the line midpoint.
+// Shapes have fixed authored local orientations; body orientations remain
+// identity throughout, so the native prescribed-capsule path never rotates a
+// capsule and BOX rails are not silently rebound between proxy indices.
+inline BoxScoreToolingSet makeSequentialBoxScoreTooling(
+    const FEFCO0201Blank& blank,
+    const double punchRadius,
+    const double punchOverhang,
+    const double toolClearance,
+    const double anvilClearance,
+    const double supportThickness,
+    const double anvilOverhang,
+    const double channelWidth,
+    const double supportRailWidth = 0.010) {
+    const auto positive = [](const double value) {
+        return std::isfinite(value) && value > 0.0;
+    };
+    if (blank.scoreLines.size() != 12u || !positive(punchRadius) ||
+        !std::isfinite(punchOverhang) || punchOverhang < 0.0 ||
+        !positive(toolClearance) || !positive(anvilClearance) ||
+        !positive(supportThickness) || !std::isfinite(anvilOverhang) ||
+        anvilOverhang < 0.0 || !positive(channelWidth) ||
+        !positive(supportRailWidth))
+        throw std::invalid_argument("sequential box scoring tool inputs are invalid");
+
+    BoxScoreToolingSet result;
+    result.sequentialFamilies = true;
+    result.punchRadius = punchRadius;
+    result.boardCaliper = blank.boardCaliper;
+    result.toolClearance = toolClearance;
+    result.anvilClearance = anvilClearance;
+    result.supportThickness = supportThickness;
+    result.supportHalfX = 0.5 * blank.perimeterSpan + anvilOverhang;
+    result.supportHalfY = 0.5 * blank.blankHeight + anvilOverhang;
+    result.channelWidth = channelWidth;
+    result.supportRailWidth = supportRailWidth;
+    result.scoreLineFamilyIndices.resize(blank.scoreLines.size());
+
+    constexpr double directionTolerance = 1.0e-10;
+    constexpr double lengthTolerance = 1.0e-10;
+    for (std::uint32_t scoreIndex = 0u;
+         scoreIndex < blank.scoreLines.size(); ++scoreIndex) {
+        const BoxScoreLine& line = blank.scoreLines[scoreIndex];
+        const double dx = line.second.x - line.first.x;
+        const double dy = line.second.y - line.first.y;
+        const double length = std::hypot(dx, dy);
+        if (!(length > 0.0) || !std::isfinite(length) ||
+            !(0.5 * length + anvilOverhang > 0.0))
+            throw std::invalid_argument("sequential score line has invalid span");
+        double tx = dx / length;
+        double ty = dy / length;
+        // Give each unoriented line a canonical tangent so opposite endpoint
+        // order does not create duplicate families.
+        if (tx < -directionTolerance ||
+            (std::abs(tx) <= directionTolerance && ty < 0.0)) {
+            tx = -tx;
+            ty = -ty;
+        }
+        const auto found = std::find_if(
+            result.families.begin(), result.families.end(),
+            [&](const BoxScoreToolingSet::SequentialFamily& family) {
+                return std::abs(family.tangent.x - tx) <= directionTolerance &&
+                    std::abs(family.tangent.y - ty) <= directionTolerance &&
+                    std::abs(family.lineLength - length) <= lengthTolerance;
+            });
+        std::uint32_t familyIndex = 0u;
+        if (found == result.families.end()) {
+            familyIndex = static_cast<std::uint32_t>(result.families.size());
+            BoxScoreToolingSet::SequentialFamily family;
+            family.scoreBodyIndex = 2u * familyIndex;
+            family.supportBodyIndex = family.scoreBodyIndex + 1u;
+            family.referenceCenter = {
+                0.5 * (line.first.x + line.second.x),
+                0.5 * (line.first.y + line.second.y), 0.0};
+            family.tangent = {tx, ty, 0.0};
+            family.normal = {-ty, tx, 0.0};
+            family.lineLength = length;
+            result.families.push_back(std::move(family));
+        } else {
+            familyIndex = static_cast<std::uint32_t>(
+                std::distance(result.families.begin(), found));
+        }
+        result.scoreLineFamilyIndices[scoreIndex] = familyIndex;
+        result.families[familyIndex].scoreLineIndices.push_back(scoreIndex);
+    }
+    if (result.families.size() != 3u)
+        throw std::invalid_argument(
+            "shipping score-line layout must reduce to three fixed-orientation families");
+    result.scoreBodyIndex = result.families.front().scoreBodyIndex;
+    result.supportBodyIndex = result.families.front().supportBodyIndex;
+    result.scoreBodyPosition = result.families.front().referenceCenter;
+    result.supportBodyPosition = result.families.front().referenceCenter;
+
+    const double extension = punchOverhang - punchRadius;
+    const double railHalfWidth = 0.5 * supportRailWidth;
+    const double railOffset = 0.5 * channelWidth + railHalfWidth;
+    result.proxies.reserve(result.families.size() * 3u);
+    for (const auto& family : result.families) {
+        const double halfCenterline =
+            0.5 * family.lineLength + extension;
+        if (!(halfCenterline > 0.0) || !std::isfinite(halfCenterline))
+            throw std::invalid_argument(
+                "sequential capsule cannot span its score-line family");
+        numi::matter::RigidProxySource punch;
+        punch.shape = NM_RIGID_CAPSULE;
+        punch.bodyIndex = family.scoreBodyIndex;
+        punch.materialIndex = 0u;
+        punch.localCenter = {
+            -halfCenterline * family.tangent.x,
+            -halfCenterline * family.tangent.y, 0.0};
+        punch.localExtent = {
+            halfCenterline * family.tangent.x,
+            halfCenterline * family.tangent.y, 0.0};
+        punch.localOrientation = {0.0, 0.0, 0.0, 1.0};
+        punch.radiusOrOffset = punchRadius;
+        punch.articulated = false;
+        punch.dynamic = false;
+        punch.prescribedEndPoseTranslation = true;
+        result.proxies.push_back(punch);
+
+        const std::array<double, 4> railOrientation{
+            0.0, 0.0,
+            std::sin(0.5 * std::atan2(family.tangent.y,
+                                      family.tangent.x)),
+            std::cos(0.5 * std::atan2(family.tangent.y,
+                                      family.tangent.x))};
+        for (const double side : {-1.0, 1.0}) {
+            numi::matter::RigidProxySource rail;
+            rail.shape = NM_RIGID_BOX;
+            rail.bodyIndex = family.supportBodyIndex;
+            rail.materialIndex = 0u;
+            rail.localCenter = {
+                side * railOffset * family.normal.x,
+                side * railOffset * family.normal.y,
+                -anvilClearance - 0.5 * supportThickness};
+            rail.localExtent = {
+                0.5 * family.lineLength + anvilOverhang,
+                railHalfWidth, 0.5 * supportThickness};
+            rail.localOrientation = railOrientation;
+            rail.articulated = false;
+            rail.dynamic = false;
+            // Shipping scoring relocates this BOX between score-line families.
+            // Native admission must certify its prescribed translation.
+            rail.prescribedEndPoseTranslation = true;
+            result.proxies.push_back(rail);
+        }
+    }
+    return result;
+}
+
 inline std::vector<MRBodyStateGPU> makeBoxToolBodyStates(
     const BoxScoreToolingSet& tooling,
     const std::uint32_t environmentCount,
@@ -198,25 +418,38 @@ inline std::vector<MRBodyStateGPU> makeBoxToolBodyStates(
     if (environmentCount == 0u || !std::isfinite(parkedHeight) ||
         parkedHeight <= tooling.boardCaliper + 2.0 * tooling.punchRadius)
         throw std::invalid_argument("box tool body-state inputs are invalid");
-    constexpr std::uint32_t bodyCount = 2u;
+    const std::uint32_t bodyCount = tooling.sequentialFamilies
+        ? static_cast<std::uint32_t>(tooling.families.size() * 2u) : 2u;
     std::vector<MRBodyStateGPU> result(
         static_cast<std::size_t>(environmentCount) * bodyCount);
     for (std::uint32_t environment = 0u;
          environment < environmentCount; ++environment) {
         const std::size_t base = static_cast<std::size_t>(environment) * bodyCount;
-        MRBodyStateGPU& scoreBody = result[base + tooling.scoreBodyIndex];
-        scoreBody.position = {static_cast<float>(tooling.scoreBodyPosition.x),
-            static_cast<float>(tooling.scoreBodyPosition.y),
-            static_cast<float>(parkedHeight), 0.0f};
-        scoreBody.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
-        scoreBody.flagsAndIndices[0] = MR_MOTION_KINEMATIC;
-        scoreBody.linearVelocityAndInverseMass = {0.0f, 0.0f, 0.0f, 0.0f};
-        MRBodyStateGPU& anvil = result[base + tooling.supportBodyIndex];
-        anvil.position = {static_cast<float>(tooling.supportBodyPosition.x),
-            static_cast<float>(tooling.supportBodyPosition.y), 0.0f, 0.0f};
-        anvil.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
-        anvil.flagsAndIndices[0] = MR_MOTION_KINEMATIC;
-        anvil.linearVelocityAndInverseMass = {0.0f, 0.0f, 0.0f, 0.0f};
+        const auto initializeBody = [](MRBodyStateGPU& body,
+                                       const BoxVec3 position) {
+            body.position = {static_cast<float>(position.x),
+                static_cast<float>(position.y), static_cast<float>(position.z), 0.0f};
+            body.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
+            body.flagsAndIndices[0] = MR_MOTION_KINEMATIC;
+            body.flagsAndIndices[1] = MR_INVALID_INDEX;
+            body.flagsAndIndices[2] = MR_INVALID_INDEX;
+            body.linearVelocityAndInverseMass = {0.0f, 0.0f, 0.0f, 0.0f};
+        };
+        if (tooling.sequentialFamilies) {
+            for (const auto& family : tooling.families) {
+                initializeBody(result[base + family.scoreBodyIndex],
+                    {family.referenceCenter.x, family.referenceCenter.y,
+                     parkedHeight});
+                initializeBody(result[base + family.supportBodyIndex],
+                    {family.referenceCenter.x, family.referenceCenter.y, -2.0});
+            }
+        } else {
+            initializeBody(result[base + tooling.scoreBodyIndex],
+                {tooling.scoreBodyPosition.x, tooling.scoreBodyPosition.y,
+                 parkedHeight});
+            initializeBody(result[base + tooling.supportBodyIndex],
+                {tooling.supportBodyPosition.x, tooling.supportBodyPosition.y, 0.0});
+        }
     }
     return result;
 }
@@ -253,12 +486,36 @@ inline void setBoxToolBodyCommand(
         throw std::invalid_argument("box rigid-tool command is invalid");
     MRBodyStateGPU& body = bodies[
         static_cast<std::size_t>(environment) * bodyCountPerEnvironment + bodyIndex];
+    const double orientationNorm2 =
+        static_cast<double>(body.orientation.x) * body.orientation.x +
+        static_cast<double>(body.orientation.y) * body.orientation.y +
+        static_cast<double>(body.orientation.z) * body.orientation.z +
+        static_cast<double>(body.orientation.w) * body.orientation.w;
+    if (!(std::isfinite(orientationNorm2) && orientationNorm2 > 1.0e-12))
+        throw std::invalid_argument(
+            "box rigid-tool command requires an existing valid fixed orientation");
     body.position = {static_cast<float>(position.x),
         static_cast<float>(position.y), static_cast<float>(position.z), 0.0f};
-    body.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
     body.flagsAndIndices[0] = MR_MOTION_KINEMATIC;
     body.linearVelocityAndInverseMass = {static_cast<float>(velocity.x),
         static_cast<float>(velocity.y), static_cast<float>(velocity.z), 0.0f};
+}
+
+inline std::uint32_t boxSequentialFamilyForScoreLine(
+    const BoxScoreToolingSet& tooling, const std::uint32_t scoreLineIndex) {
+    if (!tooling.sequentialFamilies ||
+        scoreLineIndex >= tooling.scoreLineFamilyIndices.size())
+        throw std::out_of_range("sequential score-line family lookup is invalid");
+    return tooling.scoreLineFamilyIndices[scoreLineIndex];
+}
+
+inline BoxVec3 boxScoreLineCenter(
+    const FEFCO0201Blank& blank, const std::uint32_t scoreLineIndex) {
+    if (scoreLineIndex >= blank.scoreLines.size())
+        throw std::out_of_range("score-line center lookup is invalid");
+    const auto& line = blank.scoreLines[scoreLineIndex];
+    return {0.5 * (line.first.x + line.second.x),
+            0.5 * (line.first.y + line.second.y), 0.0};
 }
 
 struct BoxFeatureGrip {
@@ -266,11 +523,35 @@ struct BoxFeatureGrip {
     std::uint32_t panelIndex = 0u;
     std::uint32_t scoreLineIndex = kNoBoxScoreLineIndex;
     std::vector<std::uint32_t> nodeIndices;
+    struct ReferencePatch {
+        // The patch is a selected exterior portion of the authored flat blank.
+        // It records the kinematic clamp surface only; it does not represent a
+        // rigid tool/contact model or a material crease.
+        char planeAxis = 'z';
+        double planeCoordinate = 0.0;
+        double minimumX = 0.0;
+        double maximumX = 0.0;
+        double minimumY = 0.0;
+        double maximumY = 0.0;
+        std::uint32_t nodeCount = 0u;
+        std::vector<std::uint32_t> nodeIndices;
+    };
+    std::vector<ReferencePatch> referencePatches;
 };
 
 inline std::vector<BoxFeatureGrip> makeBoxFeatureGrips(
     const FEFCO0201Blank& blank,
-    const std::vector<BoxBlankPoint>& restNodes) {
+    const std::vector<BoxBlankPoint>& restNodes,
+    const std::vector<std::uint32_t>& exposedBoundaryNodeIndices) {
+    if (restNodes.size() != blank.points.size() || restNodes.empty() ||
+        exposedBoundaryNodeIndices.empty())
+        throw std::invalid_argument("box grip requires the compiled authored mesh and its exterior nodes");
+    std::vector<std::uint8_t> isExterior(restNodes.size(), 0u);
+    for (const std::uint32_t node : exposedBoundaryNodeIndices) {
+        if (node >= restNodes.size() || isExterior[node] != 0u)
+            throw std::invalid_argument("box grip exterior-node map is out of range or duplicated");
+        isExterior[node] = 1u;
+    }
     const double tolerance = 2.0e-10 *
         std::max({blank.perimeterSpan, blank.blankHeight, blank.boardCaliper});
     std::vector<BoxFeatureGrip> result;
@@ -283,13 +564,46 @@ inline std::vector<BoxFeatureGrip> makeBoxFeatureGrips(
         if (action.kind == BoxAssemblyAction::Kind::erectWallPanel) {
             grip.panelIndex = action.feature.index;
             const BoxBlankPanel& panel = blank.panels.at(grip.panelIndex);
+            const double panelWidth = panel.xEnd - panel.xStart;
+            // A finite jaw patch sits in the distal upper half of the wall,
+            // inboard from its score edges and reaching the upper cut edge.
+            // Only the two exterior liner faces are clamped; interior
+            // flute/glue nodes remain unknowns.
+            const double patchX0 = panel.xEnd - 0.40 * panelWidth;
+            const double patchX1 = panel.xEnd - 0.08 * panelWidth;
+            const double patchY0 = panel.yEnd - 0.50 * (panel.yEnd - panel.yStart);
+            const double patchY1 = panel.yEnd;
+            std::array<BoxFeatureGrip::ReferencePatch, 2> surfacePatches{};
+            surfacePatches[0].planeCoordinate = 0.0;
+            surfacePatches[1].planeCoordinate = blank.boardCaliper;
             for (std::uint32_t node = 0u; node < restNodes.size(); ++node) {
+                if (isExterior[node] == 0u) continue;
                 const auto& p = restNodes[node];
-                if (std::abs(p.x - panel.xEnd) <= tolerance &&
-                    p.y >= panel.yStart - tolerance &&
-                    p.y <= panel.yEnd + tolerance)
+                const bool inPatch = p.x >= patchX0 - tolerance &&
+                    p.x <= patchX1 + tolerance &&
+                    p.y >= patchY0 - tolerance && p.y <= patchY1 + tolerance;
+                if (!inPatch) continue;
+                const std::size_t surface =
+                    std::abs(p.z) <= tolerance ? 0u :
+                    std::abs(p.z - blank.boardCaliper) <= tolerance ? 1u : 2u;
+                if (surface < surfacePatches.size()) {
                     grip.nodeIndices.push_back(node);
+                    auto& reference = surfacePatches[surface];
+                    if (reference.nodeCount == 0u) {
+                        reference.minimumX = reference.maximumX = p.x;
+                        reference.minimumY = reference.maximumY = p.y;
+                    } else {
+                        reference.minimumX = std::min(reference.minimumX, p.x);
+                        reference.maximumX = std::max(reference.maximumX, p.x);
+                        reference.minimumY = std::min(reference.minimumY, p.y);
+                        reference.maximumY = std::max(reference.maximumY, p.y);
+                    }
+                    reference.nodeIndices.push_back(node);
+                    ++reference.nodeCount;
+                }
             }
+            for (const auto& patch : surfacePatches)
+                if (patch.nodeCount > 0u) grip.referencePatches.push_back(patch);
             grip.scoreLineIndex = action.hingeScoreLineIndex;
             hasGrip = true;
         } else if (action.kind == BoxAssemblyAction::Kind::foldFlap) {
@@ -299,13 +613,23 @@ inline std::vector<BoxFeatureGrip> makeBoxFeatureGrips(
             const BoxBlankPanel& panel = blank.panels.at(grip.panelIndex);
             const bool top = score.kind == BoxScoreKind::topFlap;
             const double freeY = top ? blank.blankHeight : 0.0;
+            BoxFeatureGrip::ReferencePatch patch;
+            patch.planeAxis = 'y';
+            patch.planeCoordinate = freeY;
+            patch.minimumX = panel.xStart;
+            patch.maximumX = panel.xEnd;
+            patch.minimumY = patch.maximumY = freeY;
             for (std::uint32_t node = 0u; node < restNodes.size(); ++node) {
+                if (isExterior[node] == 0u) continue;
                 const auto& p = restNodes[node];
                 if (std::abs(p.y - freeY) <= tolerance &&
                     p.x >= panel.xStart - tolerance &&
                     p.x <= panel.xEnd + tolerance)
                     grip.nodeIndices.push_back(node);
             }
+            patch.nodeCount = static_cast<std::uint32_t>(grip.nodeIndices.size());
+            patch.nodeIndices = grip.nodeIndices;
+            if (patch.nodeCount > 0u) grip.referencePatches.push_back(patch);
             hasGrip = true;
         }
         if (!hasGrip) continue; // seam/end actions are observed, not bonded.
@@ -314,6 +638,54 @@ inline std::vector<BoxFeatureGrip> makeBoxFeatureGrips(
         result.push_back(std::move(grip));
     }
     return result;
+}
+
+// restAndFixed.w == 3 is the temporary boundary-grip tag. Tag 1 is an
+// authored immutable Dirichlet condition and is deliberately not counted as
+// an acquired clamp. Validate the complete accepted FEM state before using
+// this as a release/checkpoint postcondition.
+inline std::uint32_t countActiveBoxTemporaryGripNodes(
+    const std::vector<NMFEMNodeStateGPU>& acceptedNodes,
+    const std::uint32_t environmentCount,
+    const std::uint32_t nodeCount) {
+    if (environmentCount == 0u || nodeCount == 0u ||
+        acceptedNodes.size() !=
+            static_cast<std::size_t>(environmentCount) * nodeCount)
+        throw std::invalid_argument("accepted FEM state has the wrong shape for grip-release verification");
+    std::uint32_t active = 0u;
+    for (const auto& node : acceptedNodes) {
+        const float tag = node.restAndFixed.w;
+        if (!std::isfinite(tag) ||
+            (tag != 0.0f && tag != 1.0f && tag != 2.0f && tag != 3.0f))
+            throw std::invalid_argument("accepted FEM state contains an unknown constraint tag");
+        if (tag == 3.0f) ++active;
+    }
+    return active;
+}
+
+// A completed released shipping blank has no permanent prescribed FEM nodes:
+// every score, fold, and clamp actuator must have relinquished its node tags.
+// This is intentionally stronger than the temporary-grip counter above,
+// which remains useful while a fixture is still being assembled.
+inline std::uint32_t countActiveBoxPrescribedNodes(
+    const std::vector<NMFEMNodeStateGPU>& acceptedNodes,
+    const std::uint32_t environmentCount,
+    const std::uint32_t nodeCount) {
+    if (environmentCount == 0u || nodeCount == 0u ||
+        acceptedNodes.size() !=
+            static_cast<std::size_t>(environmentCount) * nodeCount)
+        throw std::invalid_argument(
+            "accepted FEM state has the wrong shape for released-node verification");
+    std::uint32_t active = 0u;
+    for (const auto& node : acceptedNodes) {
+        const float tag = node.restAndFixed.w;
+        if (!std::isfinite(tag) ||
+            (tag != 0.0f && tag != 1.0f && tag != 2.0f && tag != 3.0f))
+            throw std::invalid_argument(
+                "accepted FEM state contains an unknown constraint tag");
+        if (tag > 0.5f) ++active;
+    }
+    return active;
 }
 
 // Select exposed boundary nodes on the manufacturer tab body, leaving a
@@ -709,6 +1081,7 @@ struct BoxAssemblyActionStep {
 inline BoxAssemblyActionStep planBoxAssemblyActionStep(
     const FEFCO0201Blank& blank,
     const std::vector<BoxBlankPoint>& restNodes,
+    const std::vector<std::uint32_t>& exposedBoundaryNodeIndices,
     const std::vector<NMFEMNodeStateGPU>& acceptedNodes,
     const std::vector<NMFEMNodeStateGPU>& actionStartNodes,
     const std::uint32_t environment,
@@ -743,7 +1116,8 @@ inline BoxAssemblyActionStep planBoxAssemblyActionStep(
         shapeResidualBoundCalipers * blank.boardCaliper;
     result.shapeFitCoverageMinimum = minimumShapeFitCoverage;
 
-    const auto grips = makeBoxFeatureGrips(blank, restNodes);
+    const auto grips = makeBoxFeatureGrips(
+        blank, restNodes, exposedBoundaryNodeIndices);
     const auto stableGrip = std::find_if(
         grips.begin(), grips.end(), [assemblyActionIndex](const BoxFeatureGrip& grip) {
             return grip.assemblyActionIndex == assemblyActionIndex;
@@ -1157,6 +1531,79 @@ inline std::vector<BoxExecutionStage> makeBoxExecutionProgram(
             action.targetAngleDegrees, {}});
     }
     return program;
+}
+
+// Shipping-scale action declarations are separated from the retained mini
+// controller. These records preserve accepted-state sequencing and name the
+// glue overlaps that must be activated only after native contact is accepted.
+// They do not fabricate node targets or mark the actions as executed.
+struct ShippingAssemblyStage {
+    enum class Kind : std::uint32_t {
+        scorePass = 0u,
+        foldWall = 1u,
+        activateManufacturerLap = 2u,
+        foldMinorFlaps = 3u,
+        foldMajorFlaps = 4u,
+        activateAcceptedFlapOverlaps = 5u,
+        waitForHmaSet = 6u,
+        releaseTemporaryFixtures = 7u,
+        settleAndCheckpoint = 8u,
+    };
+    Kind kind = Kind::scorePass;
+    std::uint32_t panelIndex = kNoBoxScoreLineIndex;
+    ShippingEnd end = ShippingEnd::bottom;
+    std::vector<std::string> acceptedInterfacePatchIds;
+    bool requireAcceptedSnapshotBeforeAdvance = true;
+    double measuredAdhesiveSetHoldSeconds =
+        std::numeric_limits<double>::quiet_NaN();
+    bool setHoldProtocolCalibrated = false;
+    bool executed = false;
+};
+
+inline std::vector<ShippingAssemblyStage> makeShippingAssemblyProgram(
+    const ShippingBoxDesign& design) {
+    if (!(std::isfinite(design.perimeterSpanM) && design.perimeterSpanM > 0.0) ||
+        design.blankConfig.panelLength <= 0.0 ||
+        design.blankConfig.panelWidth <= 0.0 ||
+        design.blankConfig.wallHeight <= 0.0 ||
+        design.allowanceCoupon.couponId.empty())
+        throw std::invalid_argument(
+            "shipping assembly program requires coupon-derived dimensions");
+    const ShippingClosurePlan closure = makeShippingClosurePlan(design);
+    std::vector<ShippingAssemblyStage> stages;
+    stages.reserve(15u);
+    const auto append = [&](const ShippingAssemblyStage::Kind kind,
+                            const std::uint32_t panel = kNoBoxScoreLineIndex,
+                            const ShippingEnd end = ShippingEnd::bottom,
+                            std::vector<std::string> patchIds = {}) {
+        stages.push_back({kind, panel, end, std::move(patchIds), true,
+            std::numeric_limits<double>::quiet_NaN(), false, false});
+    };
+    append(ShippingAssemblyStage::Kind::scorePass);
+    for (std::uint32_t panel = 0u; panel < 4u; ++panel)
+        append(ShippingAssemblyStage::Kind::foldWall, panel);
+    append(ShippingAssemblyStage::Kind::activateManufacturerLap,
+        kNoBoxScoreLineIndex, ShippingEnd::bottom,
+        {closure.patches.front().patchId});
+    for (const ShippingEnd end : {ShippingEnd::bottom, ShippingEnd::top}) {
+        append(ShippingAssemblyStage::Kind::foldMinorFlaps,
+            kNoBoxScoreLineIndex, end);
+        append(ShippingAssemblyStage::Kind::foldMajorFlaps,
+            kNoBoxScoreLineIndex, end);
+        ShippingAssemblyStage activate{
+            ShippingAssemblyStage::Kind::activateAcceptedFlapOverlaps,
+            kNoBoxScoreLineIndex, end, {}, true,
+            std::numeric_limits<double>::quiet_NaN(), false, false};
+        for (std::size_t index = 1u; index < closure.patches.size(); ++index)
+            if (closure.patches[index].end == end)
+                activate.acceptedInterfacePatchIds.push_back(
+                    closure.patches[index].patchId);
+        stages.push_back(std::move(activate));
+    }
+    append(ShippingAssemblyStage::Kind::waitForHmaSet);
+    append(ShippingAssemblyStage::Kind::releaseTemporaryFixtures);
+    append(ShippingAssemblyStage::Kind::settleAndCheckpoint);
+    return stages;
 }
 
 // The perimeter order is L/W/L/W. This is a prescribed tool-path target

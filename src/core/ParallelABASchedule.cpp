@@ -123,9 +123,11 @@ bool ParallelABASchedule::valid(std::string* reason) const {
         }
         return false;
     };
-    if (articulations.empty()) {
-        return reject("parallel ABA schedule has no articulations");
-    }
+    if (articulations.empty() &&
+        (!levels.empty() || !parentReductions.empty() || !levelBodies.empty() ||
+         !bodyOrder.empty() || !parentLocal.empty() || !inboundJoint.empty() ||
+         !childOffsets.empty() || !childIndices.empty()))
+        return reject("empty parallel ABA schedule contains articulated work");
 
     for (std::size_t articulationIndex = 0u;
          articulationIndex < articulations.size();
@@ -396,13 +398,12 @@ ParallelABAScheduleDiagnostics compileParallelABASchedule(
             "invalid EngineModel: " + modelReason
         );
     }
-    if (model.articulations.empty()) {
-        return fail(
-            std::move(diagnostics),
+    if (model.articulations.empty() &&
+        (model.world.nq != 0u || model.world.nv != 0u || !model.joints.empty() ||
+         !model.dofs.empty()))
+        return fail(std::move(diagnostics),
             ParallelABAScheduleStatus::unsupportedTopology,
-            "parallel ABA requires at least one articulation"
-        );
-    }
+            "scene-body-only world contains articulated coordinates");
 
     try {
         ParallelABASchedule staged;

@@ -337,6 +337,17 @@ class CardboardConvergenceTests(unittest.TestCase):
         self.assertEqual(rate["status"], "analyzed_descriptive")
         self.assertTrue(rate["comparison_contract"]["duration_difference_is_declared_axis"])
 
+    def test_reverse_temporal_pair_preserves_baseline_curve_identity(self) -> None:
+        coarse = fake_run(self.root, "reverse-coarse", dt=1.0, steps=2,
+                          hold=2, unload=2, relax=2, moment_scale=2.0)
+        fine = fake_run(self.root, "reverse-fine", dt=.5, steps=4,
+                        hold=4, unload=4, relax=4, moment_scale=1.0)
+        report = cc.analyze_pair(fine, coarse, "temporal")
+        curve = report["reaction_dynamics_and_energy_curves"]["loading"]["bent"]["reaction_moment_y_Nm"]
+        self.assertEqual(curve["baseline_max_abs"], 1.0)
+        self.assertEqual(curve["candidate_max_abs"], 2.0)
+        self.assertAlmostEqual(curve["relative_rms_difference"], 1.0)
+
     def test_force_matched_tolerance_is_temporal_only_and_reports_force_bounds(self) -> None:
         baseline = fake_run(self.root, "force-base", nx=2, dt=1.0,
                             steps=2, hold=2, unload=2, relax=2,

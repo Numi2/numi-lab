@@ -811,6 +811,9 @@ enum MRMetalWorldContactFlags : mr_u32 {
     // body-wrench arena as ABA. This keeps continuum, typed actuator, and
     // multicopter reactions additive under one clear/write/consume contract.
     MR_METAL_WORLD_CONTACT_BODY_WRENCHES = 1u << 10u,
+    // A coupled continuum solve has already included every free body's
+    // gravity/actuator load in its accepted velocity increment.
+    MR_METAL_WORLD_CONTACT_OWNED_FREE_BODY_CANDIDATE = 1u << 11u,
 };
 
 // One stable, cooker-produced pair. The pair stream is canonical collider

@@ -1,0 +1,22 @@
+{
+  "schema": "numi.cardboard.local-evidence-archive.v1",
+  "scope": "task-generated CPU preflight exports; zero physical steps",
+  "archive_root": "/Users/home/cardboard-implementation-20261014/archive/shipping-preflight-cpu-20261014-002",
+  "files": [
+    {
+      "relative_path": "failure.txt",
+      "bytes": 248,
+      "sha256": "a0b19011dbc047505f518c249f1d99a6a4fae3ae540bcfdac8a375f4663f2424",
+      "archive_path": "/Users/home/cardboard-implementation-20261014/archive/shipping-preflight-cpu-20261014-002/failure.txt",
+      "compression": "none"
+    },
+    {
+      "relative_path": "shipping-memory-prebuild.json",
+      "bytes": 1204,
+      "sha256": "0005ed33e46e8b33d56d345d459ef157c958b4da45de68c11ddad3b6bd42eb50",
+      "archive_path": "/Users/home/cardboard-implementation-20261014/archive/shipping-preflight-cpu-20261014-002/shipping-memory-prebuild.json",
+      "compression": "none"
+    }
+  ],
+  "restore": "For gzip records, decompress archive_path to relative_path; verify uncompressed sha256 and bytes. Other files are retained verbatim."
+}

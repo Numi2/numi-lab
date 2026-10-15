@@ -30,11 +30,16 @@ constexpr std::uint32_t kKnownMatterFlags =
     NM_MATTER_MULTIPHYSICS |
     NM_MATTER_MUTATION |
     NM_MATTER_LEARNED_MATERIAL |
-    NM_MATTER_IPC;
+    NM_MATTER_IPC |
+    NM_MATTER_STATIC_FEM_SURFACE_MAP;
 constexpr std::uint32_t kKnownMaterialFlags =
     NM_MATERIAL_HAS_STATE |
     NM_MATERIAL_HAS_DISSIPATION |
-    NM_MATERIAL_HAS_IMPLICIT_STATE;
+    NM_MATERIAL_HAS_IMPLICIT_STATE |
+    NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER |
+    NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC |
+    NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION |
+    NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION;
 constexpr std::uint32_t kKnownObjectFlags =
     NM_OBJECT_ACTIVE |
     NM_OBJECT_TWO_WAY_COUPLED |
@@ -51,7 +56,8 @@ constexpr std::uint32_t kKnownObjectFlags =
     NM_OBJECT_FEM_REFERENCE_DISPLACEMENT_GRADIENT;
 constexpr std::uint32_t kKnownTetrahedronFlags =
     static_cast<std::uint32_t>(NM_OBJECT_ACTIVE) |
-    static_cast<std::uint32_t>(NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT);
+    static_cast<std::uint32_t>(NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) |
+    static_cast<std::uint32_t>(NM_TETRAHEDRON_PRECONDITIONER_REGION_MASK);
 constexpr std::uint32_t kKnownRigidFlags =
     NM_RIGID_ARTICULATED |
     NM_RIGID_DYNAMIC |
@@ -59,6 +65,14 @@ constexpr std::uint32_t kKnownRigidFlags =
     NM_RIGID_SUTURE_STRAND |
     NM_RIGID_PUNCTURE_DILATOR |
     NM_RIGID_PRESCRIBED_TRANSLATION;
+
+[[nodiscard]] constexpr std::uint32_t decodeFEMPreconditionerRegion(
+    const std::uint32_t tetrahedronFlags
+) noexcept {
+    return (tetrahedronFlags &
+            NM_TETRAHEDRON_PRECONDITIONER_REGION_MASK) >>
+        NM_TETRAHEDRON_PRECONDITIONER_REGION_SHIFT;
+}
 
 [[nodiscard]] bool finite4(const nm_float4 value) noexcept {
     return std::isfinite(value.x) && std::isfinite(value.y) &&
@@ -170,6 +184,7 @@ public:
             validateMixedAuthorities() &&
             validateProgramsAndMaterials() &&
             validateObjectsAndTopology() &&
+            validateCompactStaticSurfaceMap() &&
             validateHumanAttachments() &&
             validateContact() &&
             validateAdaptiveAndSchedulers() &&
@@ -237,6 +252,24 @@ private:
             dispatch.rigidProxyCount != world_.contact.rigidProxies.size() ||
             dispatch.contactPairCount != world_.contact.pairs.size()) {
             return fail("Matter dispatch counts disagree with cooked arenas");
+        }
+        for (std::size_t lawIndex = 0u;
+             lawIndex < world_.cohesiveMaterials.size(); ++lawIndex) {
+            const NMCohesiveMaterialGPU& law =
+                world_.cohesiveMaterials[lawIndex];
+            if (!finite4(law.stiffnessAndNormalStrength) ||
+                !finite4(law.shearStrengthAndFracture) ||
+                !(law.stiffnessAndNormalStrength.x > 0.0f) ||
+                !(law.stiffnessAndNormalStrength.y > 0.0f) ||
+                !(law.stiffnessAndNormalStrength.z > 0.0f) ||
+                !(law.stiffnessAndNormalStrength.w > 0.0f) ||
+                !(law.shearStrengthAndFracture.x > 0.0f) ||
+                !(law.shearStrengthAndFracture.y > 0.0f) ||
+                !(law.shearStrengthAndFracture.z > 0.0f) ||
+                !(law.shearStrengthAndFracture.w >= 1.0f)) {
+                return failIndexed("mixed-mode cohesive material", lawIndex,
+                    "compiled penalties, strengths, fracture energies, or BK exponent are invalid");
+            }
         }
         const std::uint64_t expectedEventStride =
             static_cast<std::uint64_t>(NM_EVENT_CLASS_COUNT) *
@@ -378,11 +411,12 @@ private:
                 std::numeric_limits<std::uint32_t>::max() -
                     solver.nonlinearIterations.y + 1u ||
             solver.nonlinearIterations.w == 0u ||
+            solver.nonlinearIterations.w > NM_MIXED_LINE_SEARCH_MAX_STEPS ||
             solver.executionBudgets.x == 0u ||
             solver.executionBudgets.x >
                 NM_MIXED_FIELD_SMOOTHER_MAX_PASSES ||
             solver.executionBudgets.y == 0u ||
-            solver.executionBudgets.z > 1u ||
+            solver.executionBudgets.z > 4u ||
             solver.executionBudgets.w != 0u ||
             !finite4(solver.residualTolerances) ||
             !(solver.residualTolerances.x > 0.0f) ||
@@ -438,6 +472,106 @@ private:
                 );
             }
         }
+        if (solver.executionBudgets.z == 2u ||
+            solver.executionBudgets.z == 3u) {
+            if (world_.dispatch.environmentCount == 0u ||
+                world_.dispatch.environmentCount > 4u ||
+                world_.objects.size() != 1u ||
+                world_.dispatch.rigidProxyCount != 0u ||
+                world_.dispatch.contactPairCount != 0u ||
+                world_.dispatch.mpmGridCount != 0u ||
+                world_.dispatch.mpmBlockCount != 0u ||
+                world_.vascular.layout.ranges.z != 0u ||
+                world_.vascular.unknowns.size() != 0u ||
+                !world_.learnedMaterials.empty() ||
+                !world_.fem.humanAttachments.empty() ||
+                !world_.fem.fieldBoundaries.empty() ||
+                !world_.fem.cohesiveFaces.empty() ||
+                !world_.fem.punctureChannels.empty() ||
+                !world_.fem.mutationCommands.empty()) {
+                return fail(
+                    "regional Galerkin FEM preconditioner v1 requires one "
+                    "contact-free immutable explicit FEM object, no other "
+                    "generalized or multiphysics blocks, and at most four "
+                    "environments"
+                );
+            }
+            const NMContinuumObjectGPU& object = world_.objects.front();
+            const std::uint32_t requiredDisableFlags =
+                NM_OBJECT_DISABLE_DEFORMABLE_CONTACT |
+                NM_OBJECT_DISABLE_SELF_CONTACT;
+            if (object.representation != NM_REPRESENTATION_FEM ||
+                (object.flags & (NM_OBJECT_MIXED_FEM |
+                                 NM_OBJECT_MULTIPHYSICS |
+                                 NM_OBJECT_ADAPTIVE |
+                                 NM_OBJECT_MUTABLE_TOPOLOGY |
+                                 NM_OBJECT_IDENTIFIABLE)) != 0u ||
+                (object.flags & requiredDisableFlags) != requiredDisableFlags) {
+                return fail(
+                    "regional Galerkin FEM preconditioner v1 requires an "
+                    "explicit non-mixed FEM object with self and external "
+                    "deformable contact disabled"
+                );
+            }
+        }
+        if (solver.executionBudgets.z == 4u) {
+            constexpr std::uint32_t maximumContactGalerkinNodes = 8192u;
+            constexpr std::uint32_t maximumContactGalerkinTetrahedra = 32768u;
+            constexpr std::uint32_t maximumContactGalerkinCohesiveFaces = 4096u;
+            const bool unsupportedProxy = std::ranges::any_of(
+                world_.contact.rigidProxies,
+                [](const NMRigidProxyGPU& proxy) {
+                    return (proxy.flags & (NM_RIGID_DYNAMIC |
+                                           NM_RIGID_ARTICULATED |
+                                           NM_RIGID_SUTURE_STRAND |
+                                           NM_RIGID_PUNCTURE_TIP |
+                                           NM_RIGID_PUNCTURE_DILATOR)) != 0u;
+                });
+            const bool unsupportedCohesiveLaw = std::ranges::any_of(
+                world_.fem.cohesiveFaces,
+                [](const NMCohesiveFaceGPU& face) {
+                    const bool active =
+                        (face.adjacency.w & NM_TOPOLOGY_ACTIVE) != 0u;
+                    return active &&
+                        ((face.adjacency.w &
+                          NM_TOPOLOGY_COHESIVE_MIXED_MODE) == 0u ||
+                         face.lawIdentity.x !=
+                             NM_COHESIVE_LAW_MIXED_MODE_BILINEAR);
+                });
+            if (world_.dispatch.environmentCount != 1u ||
+                world_.objects.size() != 1u ||
+                world_.dispatch.femNodeCount > maximumContactGalerkinNodes ||
+                world_.dispatch.topologyTetrahedronCapacity >
+                    maximumContactGalerkinTetrahedra ||
+                world_.dispatch.rigidGeneralizedCapacity != 0u ||
+                world_.dispatch.mpmGridCount != 0u ||
+                world_.dispatch.mpmBlockCount != 0u ||
+                world_.vascular.layout.ranges.z != 0u ||
+                !world_.vascular.unknowns.empty() ||
+                !world_.learnedMaterials.empty() ||
+                !world_.fem.humanAttachments.empty() ||
+                !world_.fem.fieldBoundaries.empty() ||
+                !world_.fem.punctureChannels.empty() ||
+                !world_.fem.mutationCommands.empty() ||
+                world_.fem.cohesiveFaces.size() >
+                    maximumContactGalerkinCohesiveFaces ||
+                unsupportedProxy || unsupportedCohesiveLaw) {
+                return fail(
+                    "regional Galerkin contact preconditioner requires one immutable explicit FEM object, at most 8192 nodes/32768 tetrahedra/4096 cohesive faces, no generalized rigid rows or multiphysics/mutation/learned coupling, and only static or kinematic non-articulated contact proxies"
+                );
+            }
+            const NMContinuumObjectGPU& object = world_.objects.front();
+            if (object.representation != NM_REPRESENTATION_FEM ||
+                (object.flags & (NM_OBJECT_MIXED_FEM |
+                                 NM_OBJECT_MULTIPHYSICS |
+                                 NM_OBJECT_ADAPTIVE |
+                                 NM_OBJECT_MUTABLE_TOPOLOGY |
+                                 NM_OBJECT_IDENTIFIABLE)) != 0u) {
+                return fail(
+                    "regional Galerkin contact preconditioner requires an immutable, non-mixed explicit FEM object"
+                );
+            }
+        }
         if (world_.mixedMaterials.size() != world_.materials.size() ||
             world_.fem.capacities.size() != world_.objects.size() ||
             world_.fem.fields.size() != world_.fem.nodes.size() ||
@@ -466,7 +600,10 @@ private:
         if (tetrahedronCapacity != world_.dispatch.topologyTetrahedronCapacity) {
             return fail("topology tetrahedron capacity disagrees with dispatch");
         }
-        if (solver.executionBudgets.z == 1u) {
+        if (solver.executionBudgets.z == 1u ||
+            solver.executionBudgets.z == 2u ||
+            solver.executionBudgets.z == 3u ||
+            solver.executionBudgets.z == 4u) {
             std::uint64_t nodeCapacity = 0u;
             std::uint64_t cohesiveCapacity = 0u;
             std::uint64_t channelCapacity = 0u;
@@ -499,7 +636,7 @@ private:
                 channelCapacity != world_.fem.punctureChannels.size() ||
                 mutationCapacity != world_.fem.mutationCommands.size()) {
                 return fail(
-                    "regional tangent FEM preconditioner does not support "
+                    "regional FEM preconditioner does not support "
                     "reserved mutable-topology capacity"
                 );
             }
@@ -587,7 +724,12 @@ private:
         const NMScalarProgramGPU& program =
             world_.scalarPrograms[programIndex];
         const NMMaterialGPU& material = world_.materials[materialIndex];
-        if (program.flags > 1u || program.instructionCount == 0u ||
+        const bool materialCompensatedBytecode =
+            (material.flags & (NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC |
+                               NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION)) != 0u;
+        if (program.flags > 3u ||
+            bool(program.flags&2u)!=materialCompensatedBytecode ||
+            program.instructionCount == 0u ||
             program.maximumStack == 0u ||
             program.maximumStack > NM_EXPRESSION_STACK_CAPACITY ||
             !rangeWithin(
@@ -625,15 +767,18 @@ private:
             const auto requireStack = [&](const std::uint32_t count) {
                 return stackDepth >= count;
             };
+            if((program.flags&2u)!=0u&&instruction.opcode==NM_EXPR_FIBER_EXP_LINEAR)
+                return failIndexed("expression instruction",instructionIndex,
+                    "compensated scalar program contains unsupported fiber exponential bytecode");
             switch (instruction.opcode) {
             case NM_EXPR_CACHE_STORE:
-                if (program.flags != 1u || !requireStack(1u) || instruction.index >= cacheWritten.size())
+                if ((program.flags&1u)==0u || !requireStack(1u) || instruction.index >= cacheWritten.size())
                     return failIndexed("expression instruction", instructionIndex,
                         "expression cache store is out of range or underflows");
                 cacheWritten[instruction.index] = true;
                 break;
             case NM_EXPR_CACHE_LOAD:
-                if (program.flags != 1u || instruction.index >= cacheWritten.size() ||
+                if ((program.flags&1u)==0u || instruction.index >= cacheWritten.size() ||
                     !cacheWritten[instruction.index])
                     return failIndexed("expression instruction", instructionIndex,
                         "expression cache load has no preceding store");
@@ -835,6 +980,41 @@ private:
                     "kind, flags, projection, or reserved fields are invalid"
                 );
             }
+            const bool genericCompensatedProjection =
+                (material.flags & NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION)!=0u;
+            const bool finiteElasticStarchArithmetic =
+                (material.flags & NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC)!=0u &&
+                (material.flags & NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER)==0u &&
+                (material.flags & NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION)==0u &&
+                !genericCompensatedProjection &&
+                material.stateCount==0u && material.parameterCount==3u &&
+                material.constitutiveKind==NM_CONSTITUTIVE_NEO_HOOKEAN &&
+                material.projectionKind==NM_MATERIAL_PROJECTION_GENERIC &&
+                (material.flags & (NM_MATERIAL_HAS_IMPLICIT_STATE|NM_MATERIAL_HAS_DISSIPATION))==0u;
+            if (genericCompensatedProjection &&
+                (material.stateCount==0u ||
+                 material.stateCount>NM_MAX_MATERIAL_STATE ||
+                 material.constitutiveKind!=NM_CONSTITUTIVE_BYTECODE ||
+                 material.projectionKind!=NM_MATERIAL_PROJECTION_GENERIC ||
+                 (material.flags & NM_MATERIAL_HAS_IMPLICIT_STATE)==0u ||
+                 (material.flags & (NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER |
+                                    NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION))!=0u)) {
+                return failIndexed("material",index,
+                    "generic compensated projection requires a generic implicit bytecode layout and cannot use Hill-only policies");
+            }
+            if ((material.flags & (NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER|NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC|NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION)) != 0u &&
+                !finiteElasticStarchArithmetic &&
+                !genericCompensatedProjection &&
+                (material.stateCount != 13u || material.parameterCount != 20u ||
+                 material.constitutiveKind != NM_CONSTITUTIVE_BYTECODE ||
+                 material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC ||
+                 (material.flags & NM_MATERIAL_HAS_IMPLICIT_STATE) == 0u ||
+                 (material.flags & NM_MATERIAL_HAS_DISSIPATION) != 0u)) {
+                return failIndexed("material",index,"paper Hill initializer layout or generic policy is invalid");
+            }
+            if ((material.flags & NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION) != 0u &&
+                (material.flags & NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC) == 0u)
+                return failIndexed("material",index,"accurate paper projection requires compensated arithmetic");
             if (material.parameterOffset != parameterCursor ||
                 !rangeWithin(
                     material.parameterOffset,
@@ -1463,6 +1643,7 @@ private:
                         static_cast<std::uint32_t>(index);
                 }
                 std::vector<double> regionalMass((regional || referenced) ? object.stateCount : 0u, 0.0);
+                std::set<std::uint32_t> preconditionerRegions;
                 for (std::uint32_t local = 0u;
                      local < object.elementCount;
                      ++local) {
@@ -1492,6 +1673,19 @@ private:
                     }
                     const bool active =
                         (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+                    const std::uint32_t regionBits =
+                        tetrahedron.identity.w &
+                        NM_TETRAHEDRON_PRECONDITIONER_REGION_MASK;
+                    const std::uint32_t regionId =
+                        decodeFEMPreconditionerRegion(tetrahedron.identity.w);
+                    if (active && (world_.mixedSolver.executionBudgets.z == 2u ||
+                                   world_.mixedSolver.executionBudgets.z == 3u ||
+                                   world_.mixedSolver.executionBudgets.z == 4u))
+                        preconditionerRegions.insert(regionId);
+                    else if (regionBits != 0u) {
+                        return failIndexed("FEM tetrahedron", tetrahedronIndex,
+                            "regional Galerkin ID is present without its selected preconditioner mode");
+                    }
                     const bool displacementElement = (tetrahedron.identity.w &
                         NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u;
                     if (active && displacementElement != referenceDisplacement) {
@@ -1574,6 +1768,24 @@ private:
                         return failIndexed("FEM tetrahedron", tetrahedronIndex,
                             "reference coordinates, rest operator, reference volume or initial deformation disagree");
                     }
+                }
+                if (world_.mixedSolver.executionBudgets.z == 2u ||
+                    world_.mixedSolver.executionBudgets.z == 3u ||
+                    world_.mixedSolver.executionBudgets.z == 4u) {
+                    constexpr std::uint32_t modesPerRegion = 6u;
+                    constexpr std::uint32_t maximumModes = 32u;
+                    if (preconditionerRegions.empty() ||
+                        preconditionerRegions.size() > 5u ||
+                        preconditionerRegions.size() * modesPerRegion >
+                            maximumModes) {
+                        return failIndexed("continuum object", index,
+                            "regional Galerkin IDs exceed the bounded coarse-mode count");
+                    }
+                    std::uint32_t expected = 0u;
+                    for (const std::uint32_t region : preconditionerRegions)
+                        if (region != expected++)
+                            return failIndexed("continuum object", index,
+                                "regional Galerkin IDs must be compact from zero");
                 }
                 for (std::size_t local = 0u; local < regionalMass.size(); ++local) {
                     const auto& node = world_.fem.nodes[object.stateOffset + local];
@@ -1697,14 +1909,28 @@ private:
                 world_.fem.cohesiveFaces[faceIndex];
             if ((face.adjacency.w & NM_TOPOLOGY_PAIRED_COHESIVE) == 0u)
                 continue;
+            const bool mixedMode =
+                (face.adjacency.w & NM_TOPOLOGY_COHESIVE_MIXED_MODE) != 0u;
+            const bool dormant =
+                (face.adjacency.w & NM_TOPOLOGY_COHESIVE_DORMANT) != 0u;
+            const bool mortar =
+                (face.adjacency.w & NM_TOPOLOGY_COHESIVE_MORTAR) != 0u;
+            const std::uint32_t expectedActivationMode = mortar
+                ? NM_COHESIVE_ACTIVATION_EXPLICIT_COMMAND
+                : NM_COHESIVE_ACTIVATION_SCHEDULED;
             const std::uint32_t objectIndex = face.adjacency.y;
             if (objectIndex >= world_.objects.size() ||
                 face.nodesAndFirst.w >= world_.fem.tetrahedra.size() ||
                 face.adjacency.x >= world_.fem.tetrahedra.size() ||
                 face.separatedNodes.w >= world_.materials.size() ||
                 !finite4(face.state) || !finite4(face.geometry) ||
-                !(face.state.x >= 0.0f && face.state.x < 1.0f) ||
-                !(face.state.y > 0.0f) || !(face.state.z >= 0.0f) ||
+                !finite4(face.activationControl) ||
+                face.lawIdentity.w != expectedActivationMode ||
+                (mortar && (!mixedMode || face.lawIdentity.z != 0u)) ||
+                !(face.state.x >= 0.0f &&
+                    (mixedMode ? face.state.x <= 1.0f : face.state.x < 1.0f)) ||
+                !(mixedMode ? face.state.y >= 0.0f : face.state.y > 0.0f) ||
+                !(face.state.z >= 0.0f) || face.state.w < 0.0f ||
                 !(face.geometry.w > 0.0f)) {
                 return failIndexed("paired cohesive face", faceIndex,
                     "face identity, material, state, or area is invalid");
@@ -1717,12 +1943,87 @@ private:
                                  NM_OBJECT_MIXED_FEM |
                                  NM_OBJECT_MULTIPHYSICS |
                                  NM_OBJECT_ADAPTIVE)) != 0u ||
-                (object.flags & NM_OBJECT_DISABLE_SELF_CONTACT) == 0u ||
+                ((object.flags & NM_OBJECT_DISABLE_SELF_CONTACT) == 0u &&
+                 !mixedMode)) {
+                return failIndexed("paired cohesive face", faceIndex,
+                    "paired faces require immutable explicit FEM; self-contact "
+                    "is admitted only for the mixed-mode law");
+            }
+            if (mixedMode) {
+                if (face.lawIdentity.x != NM_COHESIVE_LAW_MIXED_MODE_BILINEAR ||
+                    face.lawIdentity.y >= world_.cohesiveMaterials.size() ||
+                    !(face.activationControl.x > 0.0f) ||
+                    face.activationControl.y != 0.0f ||
+                    face.activationControl.z != 0.0f ||
+                    face.activationControl.w != 0.0f ||
+                    (face.adjacency.w & NM_TOPOLOGY_COHESIVE) == 0u) {
+                    return failIndexed("paired cohesive face", faceIndex,
+                        "mixed-mode law identity or activation contract is invalid");
+                }
+                if (mortar) {
+                    const auto validBarycentricMap = [](
+                        const nm_float4* values) {
+                        for (std::uint32_t vertex = 0u; vertex < 3u; ++vertex) {
+                            const nm_float4 row = values[vertex];
+                            if (!finite4(row) || row.x < 0.0f || row.y < 0.0f ||
+                                row.z < 0.0f || row.x > 1.0f || row.y > 1.0f ||
+                                row.z > 1.0f || row.w != 0.0f ||
+                                std::abs((row.x + row.y + row.z) - 1.0f) > 2.0e-6f)
+                                return false;
+                        }
+                        return true;
+                    };
+                    if (!validBarycentricMap(face.mortarSideAVertexWeights) ||
+                        !validBarycentricMap(face.mortarSideBVertexWeights)) {
+                        return failIndexed("paired cohesive face", faceIndex,
+                            "mortar patch barycentric maps are invalid");
+                    }
+                }
+                for (const nm_float4 value : face.activationLocalGap)
+                    if (!finite4(value))
+                        return failIndexed("paired cohesive face", faceIndex,
+                            "activation-local interface reference is nonfinite");
+                for (const nm_float4 value : face.mixedPointHistory)
+                    if (!finite4(value) || value.x < 0.0f ||
+                        value.y < 0.0f || value.z < 0.0f ||
+                        value.w < 0.0f || value.w > 1.0f ||
+                        (value.y == 0.0f && (value.x != 0.0f ||
+                            value.z != 0.0f || value.w != 0.0f)))
+                        return failIndexed("paired cohesive face", faceIndex,
+                            "mixed-mode quadrature history is invalid");
+                if (!finite4(face.mixedPointWork) ||
+                    face.mixedPointWork.x < 0.0f ||
+                    face.mixedPointWork.y < 0.0f ||
+                    face.mixedPointWork.z < 0.0f ||
+                    face.mixedPointWork.w != 0.0f ||
+                    (dormant && (face.state.x != 0.0f ||
+                        face.state.y != 0.0f || face.state.z != 0.0f ||
+                        face.state.w != 0.0f ||
+                        face.activationLocalGap[0].x != 0.0f ||
+                        face.activationLocalGap[0].y != 0.0f ||
+                        face.activationLocalGap[0].z != 0.0f ||
+                        face.activationLocalGap[1].x != 0.0f ||
+                        face.activationLocalGap[1].y != 0.0f ||
+                        face.activationLocalGap[1].z != 0.0f ||
+                        face.activationLocalGap[2].x != 0.0f ||
+                        face.activationLocalGap[2].y != 0.0f ||
+                        face.activationLocalGap[2].z != 0.0f))) {
+                    return failIndexed("paired cohesive face", faceIndex,
+                        "mixed-mode activation or accumulated-work state is invalid");
+                }
+            } else if (dormant ||
+                (face.adjacency.w & NM_TOPOLOGY_COHESIVE_MIXED_MODE) != 0u ||
+                face.lawIdentity.x != NM_COHESIVE_LAW_TRYDING_MODE_I ||
+                face.lawIdentity.y != NM_INVALID_INDEX ||
+                face.activationControl.x != 0.0f ||
+                face.activationControl.y != 0.0f ||
+                face.activationControl.z != 0.0f ||
+                face.activationControl.w != 0.0f ||
                 material.stateCount != 1u || material.parameterCount < 2u ||
                 material.stateInitialOffset >= world_.stateInitials.size() ||
                 world_.stateInitials[material.stateInitialOffset] != 0.01f) {
                 return failIndexed("paired cohesive face", faceIndex,
-                    "first paired-face implementation requires immutable FEM and the one-state source-initialized Mode-I law");
+                    "legacy paired faces require the source-initialized Tryding/Biel Mode-I law");
             }
             const NMTetrahedronGPU& first =
                 world_.fem.tetrahedra[face.nodesAndFirst.w];
@@ -1785,6 +2086,67 @@ private:
                     stencil,
                     "binding or weight is invalid"
                 );
+            }
+        }
+        return true;
+    }
+
+    [[nodiscard]] bool validateCompactStaticSurfaceMap() {
+        if ((world_.dispatch.flags & NM_MATTER_STATIC_FEM_SURFACE_MAP) == 0u)
+            return true;
+        if (world_.objects.empty() || !world_.mpm.nodes.empty() ||
+            !world_.mpm.particles.empty() || !world_.fem.mutationCommands.empty() ||
+            !world_.fem.punctureChannels.empty() ||
+            world_.fem.tetrahedra.size() > std::numeric_limits<std::uint32_t>::max() / 4u)
+            return fail("compact surface map has unsupported or overflowing topology");
+        for (const auto& object : world_.objects)
+            if (object.representation != NM_REPRESENTATION_FEM ||
+                (object.flags & (NM_OBJECT_ADAPTIVE | NM_OBJECT_MUTABLE_TOPOLOGY)) != 0u)
+                return fail("compact surface map requires immutable explicit FEM");
+        for (const auto& node : world_.fem.topologyNodes)
+            if ((node.identity.w & NM_TOPOLOGY_ACTIVE) == 0u)
+                return fail("compact surface map cannot reserve dormant topology nodes");
+        for (const auto& capacity : world_.fem.capacities)
+            if (capacity.work.x != 0u || capacity.topology.w != 0u)
+                return fail("compact surface map cannot reserve mutation or puncture capacity");
+        std::vector<bool> mapped(4u * world_.fem.tetrahedra.size(), false);
+        for (const auto& face : world_.fem.surfaceFaces) {
+            if (face.adjacency.y != NM_INVALID_INDEX || face.sides.y != NM_INVALID_INDEX)
+                return fail("compact surface map contains an internal face");
+            const auto sourceId = 4u * face.adjacency.x + face.sides.x;
+            if (mapped[sourceId]) return fail("compact surface map repeats a source face");
+            mapped[sourceId] = true;
+        }
+        // Verify completeness against the independently validated node/tet
+        // incidence. Sharing a face across different objects does not remove
+        // either object's contact surface. Duplicated interface nodes likewise
+        // retain two exposed faces, irrespective of cohesive activation.
+        for (std::uint32_t index = 0u; index < world_.fem.tetrahedra.size(); ++index) {
+            const auto& tet = world_.fem.tetrahedra[index];
+            if ((tet.identity.w & NM_OBJECT_ACTIVE) == 0u)
+                return fail("compact surface map cannot reserve dormant tetrahedra");
+            for (unsigned opposite = 0u; opposite < 4u; ++opposite) {
+                std::array<std::uint32_t, 3> nodes{};
+                const std::array<std::uint32_t,4> tetNodes{
+                    tet.nodes.x,tet.nodes.y,tet.nodes.z,tet.nodes.w};
+                unsigned output = 0u;
+                for (unsigned corner = 0u; corner < 4u; ++corner)
+                    if (corner != opposite) nodes[output++] = tetNodes[corner];
+                const auto range = world_.fem.nodeRanges[nodes[0]];
+                unsigned neighbors = 0u;
+                for (std::uint32_t local = 0u; local < range.count; ++local) {
+                    const auto otherIndex = world_.fem.nodeIncidence[range.first + local];
+                    if (otherIndex == index) continue;
+                    const auto& other = world_.fem.tetrahedra[otherIndex];
+                    if (other.identity.y != tet.identity.y) continue;
+                    bool contains = true;
+                    for (const auto node : nodes)
+                        contains = contains && (other.nodes.x == node || other.nodes.y == node ||
+                                               other.nodes.z == node || other.nodes.w == node);
+                    neighbors += contains ? 1u : 0u;
+                }
+                if (neighbors > 1u || mapped[4u * index + opposite] != (neighbors == 0u))
+                    return fail("compact surface map omits an exterior face or exposes an internal/nonmanifold face");
             }
         }
         return true;
@@ -1855,7 +2217,10 @@ private:
                 (proxy.flags & ~kKnownRigidFlags) != 0u ||
                 invalidPrescribedBarrierScale ||
                 ((proxy.flags & NM_RIGID_PRESCRIBED_TRANSLATION) != 0u &&
-                 (proxy.shapeKind != NM_RIGID_CAPSULE || proxy.bodyIndex == NM_INVALID_INDEX ||
+                 ((proxy.shapeKind != NM_RIGID_CAPSULE &&
+                   proxy.shapeKind != NM_RIGID_BOX) ||
+                  (proxy.shapeKind == NM_RIGID_BOX && proxy.reserved2 != 0u) ||
+                  proxy.bodyIndex == NM_INVALID_INDEX ||
                   articulated || dynamic || strand || punctureTip || punctureDilator ||
                   world_.dispatch.maximumRateExponent != 0u || world_.dispatch.gridNodeCount != 0u ||
                   std::ranges::any_of(world_.objects, [](const NMContinuumObjectGPU& object) {

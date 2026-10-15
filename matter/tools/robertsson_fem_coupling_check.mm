@@ -11,8 +11,10 @@
 #include <cstdint>
 #include <cstring>
 #include <fstream>
+#include <functional>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -34,6 +36,192 @@ constexpr double kTimestepSeconds = 0.005;
 constexpr std::uint32_t kStateCount = 27u;
 constexpr double kTetVolume = kThicknessM * kThicknessM * kThicknessM / 6.0;
 
+void require(bool condition, const std::string& message);
+
+double evaluateEnergyRoot(const MaterialProgram& material,
+                          const std::array<double, 9>& deformation,
+                          const double damage) {
+    std::vector<double> accepted;
+    accepted.reserve(material.internalState.size());
+    for (const auto& state : material.internalState)
+        accepted.push_back(state.initialValue);
+    require(accepted.size() == kStateCount,
+            "source material state layout differs from the authored 27-state law");
+    std::vector<double> candidate = accepted;
+    candidate[26] = damage;
+    std::vector<double> cache(material.expressions.nodes.size(),
+                              std::numeric_limits<double>::quiet_NaN());
+    std::function<double(std::uint32_t)> visit = [&](const std::uint32_t index) {
+        const auto& node = material.expressions.nodes.at(index);
+        if (std::isfinite(cache.at(index))) return cache.at(index);
+        const auto arg = [&](const unsigned slot) {
+            return visit(node.arguments.at(slot));
+        };
+        double value = 0.0;
+        switch (node.kind) {
+            case ExprKind::constant:
+                value = static_cast<float>(node.constant);
+                break;
+            case ExprKind::parameter:
+                value = static_cast<float>(material.parameters.at(node.index).defaultValue);
+                break;
+            case ExprKind::internalState:
+                value = accepted.at(node.index);
+                break;
+            case ExprKind::candidateState:
+                value = candidate.at(node.index);
+                break;
+            case ExprKind::deformation:
+                value = deformation.at(node.index);
+                break;
+            case ExprKind::deformationDirection:
+            case ExprKind::deformationRate:
+                value = 0.0;
+                break;
+            case ExprKind::timeStep:
+                value = kTimestepSeconds;
+                break;
+            case ExprKind::temperature:
+                value = 293.15;
+                break;
+            case ExprKind::add:
+                value = arg(0u) + arg(1u);
+                break;
+            case ExprKind::subtract:
+                value = arg(0u) - arg(1u);
+                break;
+            case ExprKind::multiply:
+                value = arg(0u) * arg(1u);
+                break;
+            case ExprKind::divide:
+                value = arg(0u) / arg(1u);
+                break;
+            case ExprKind::negate:
+                value = -arg(0u);
+                break;
+            case ExprKind::logarithm:
+                value = std::log(arg(0u));
+                break;
+            case ExprKind::exponential:
+                value = std::exp(arg(0u));
+                break;
+            case ExprKind::squareRoot:
+                value = std::sqrt(arg(0u));
+                break;
+            case ExprKind::absolute:
+                value = std::abs(arg(0u));
+                break;
+            case ExprKind::minimum:
+                value = std::min(arg(0u), arg(1u));
+                break;
+            case ExprKind::maximum:
+                value = std::max(arg(0u), arg(1u));
+                break;
+            case ExprKind::integerPower:
+                value = std::pow(arg(0u), node.integer);
+                break;
+            case ExprKind::clamp:
+                value = std::clamp(arg(0u), arg(1u), arg(2u));
+                break;
+            case ExprKind::expm1MinusArgument: {
+                const double x = arg(0u);
+                value = std::expm1(x) - x;
+                break;
+            }
+            case ExprKind::selectNonnegative:
+                value = arg(0u) >= 0.0 ? arg(1u) : arg(2u);
+                break;
+            case ExprKind::fiberExpLinear:
+                throw std::runtime_error(
+                    "unexpected fiber expression in the Robertsson source material");
+        }
+        require(std::isfinite(value), "nonfinite Robertsson energy expression");
+        cache[index] = value;
+        return value;
+    };
+    return visit(material.energyRoot);
+}
+
+double sourceZDCompressionMPa(const double i13) {
+    constexpr double e6MPa = 0.365;
+    constexpr double e7 = 11.5;
+    const double square = i13 * i13;
+    return e6MPa * (square + std::exp(-e7 * (square - 1.0)) / e7 - 2.0);
+}
+
+void checkOwnGradeAbsoluteEnergy(const MaterialProgram& paper,
+                                 const MaterialProgram& recentered) {
+    const auto energyAt = [](const MaterialProgram& material,
+                             const double stretch,
+                             const double damage) {
+        return evaluateEnergyRoot(material,
+            {1.0, 0.0, 0.0,
+             0.0, 1.0, 0.0,
+             0.0, 0.0, stretch}, damage);
+    };
+    const auto close = [](const double actual, const double expected,
+                          const double absoluteTolerance,
+                          const double relativeTolerance) {
+        return std::abs(actual - expected) <= std::max(
+            absoluteTolerance,
+            relativeTolerance * std::max(std::abs(actual), std::abs(expected)));
+    };
+
+    const double identityEnergyPa = energyAt(paper, 1.0, 0.0);
+    require(std::abs(identityEnergyPa) <= 1.0e-6,
+            "undeformed undamaged source reference energy is not zero");
+
+    constexpr double compressionStretch = 0.99;
+    constexpr double damage = 0.25;
+    const double sourceEnergyMPa = sourceZDCompressionMPa(compressionStretch);
+    const double expectedPaperPa = (1.0 - damage) * sourceEnergyMPa * 1.0e6;
+    const double paperEnergyPa = energyAt(paper, compressionStretch, damage);
+    require(close(paperEnergyPa, expectedPaperPa, 1.0e-3, 2.0e-6),
+            "paper_absolute builder differs from the printed Eq. 18 branch");
+    require(paperEnergyPa < 0.0,
+            "printed Eq. 18 compression branch no longer exposes its negative offset");
+
+    const double offsetMPa = 0.365 * (1.0 - 1.0 / 11.5);
+    const double expectedOffsetPa = (1.0 - damage) * offsetMPa * 1.0e6;
+    const double recenteredEnergyPa =
+        energyAt(recentered, compressionStretch, damage);
+    require(close(recenteredEnergyPa - paperEnergyPa,
+                  expectedOffsetPa, 1.0e-3, 2.0e-6),
+            "recentered convention does not differ by the documented absolute offset");
+    require(recenteredEnergyPa > 0.0,
+            "recentered comparison energy should be positive at this compressed state");
+
+    const double undamagedPaperPa = energyAt(paper, compressionStretch, 0.0);
+    const double damageForcePa =
+        (undamagedPaperPa - paperEnergyPa) / damage;
+    require(close(damageForcePa, undamagedPaperPa, 1.0e-3, 2.0e-6),
+            "damage-conjugate force is not the selected absolute Psi0");
+
+    constexpr double tensionStretch = 1.1;
+    const double tensionExpectedPa = 28.4e6 *
+        (tensionStretch + 1.0 / tensionStretch - 2.0);
+    require(close(energyAt(paper, tensionStretch, 0.0),
+                  tensionExpectedPa, 1.0e-2, 2.0e-6),
+            "paper_absolute tension branch differs from Eq. 18/Table C1");
+
+    const double leftLimitMPa = 0.365 * (1.0 / 11.5 - 1.0);
+    require(close(leftLimitMPa, -0.3332608695652174, 1.0e-14, 1.0e-14),
+            "analytic compressed-side limit differs from Eq. 18/Table C1");
+    std::cout << std::setprecision(17)
+              << "own_grade_cpu_energy_check=PASS\n"
+              << "source=Robertsson_2023_single_ply_softwood_paperboard\n"
+              << "reference_state_energy_Pa=" << identityEnergyPa << '\n'
+              << "compression_I13=" << compressionStretch << '\n'
+              << "paper_absolute_energy_at_damage_0.25_Pa=" << paperEnergyPa << '\n'
+              << "recentered_minus_paper_absolute_at_damage_0.25_Pa="
+              << (recenteredEnergyPa - paperEnergyPa) << '\n'
+              << "damage_conjugate_A_at_damage_0_Pa=" << undamagedPaperPa << '\n'
+              << "analytic_compressed_side_limit_MPa=" << leftLimitMPa << '\n'
+              << "source_assertion_Psi0_nonnegative_at_compression=CONTRADICTED_BY_PRINTED_EQ18\n"
+              << "corrugated_kraft_or_NSSC_transfer=NOT_TESTED\n"
+              << "qualification=source_equation_CPU_consistency_check_only\n";
+}
+
 void require(const bool condition, const std::string& message) {
     if (!condition) throw std::runtime_error(message);
 }
@@ -53,7 +241,8 @@ bool byteEqual(const std::vector<T>& a, const std::vector<T>& b) {
         (a.empty() || std::memcmp(a.data(), b.data(), a.size() * sizeof(T)) == 0);
 }
 
-CompiledWorld compileFixture() {
+CompiledWorld compileFixture(
+    const numi_cardboard::robertsson2023::CompressionEnergyConvention convention) {
     WorldSource source;
     source.environmentCount = kEnvironmentCount;
     source.gravity = {0.0f, 0.0f, 0.0f};
@@ -61,8 +250,12 @@ CompiledWorld compileFixture() {
     source.deterministic = true;
     source.mixedSolver.newtonIterations = 1u;
     source.materials = {
-        numi_cardboard::robertsson2023::makeMaterial()
+        numi_cardboard::robertsson2023::makePublishedReferenceMaterial(convention)
     };
+    require(source.materials[0].name.find(
+                numi_cardboard::robertsson2023::conventionName(convention)) !=
+                std::string::npos,
+            "compiled source material name lost its explicit energy convention");
 
     ObjectSource object;
     object.name = "robertsson_single_ply_prescribed_F13_tetra";
@@ -125,10 +318,12 @@ struct StepOutput {
 struct Fixture {
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
     id<MTLCommandQueue> queue = nil;
-    CompiledWorld world = compileFixture();
+    CompiledWorld world;
     Runtime runtime;
 
-    Fixture() {
+    explicit Fixture(
+        const numi_cardboard::robertsson2023::CompressionEnergyConvention convention)
+        : world(compileFixture(convention)) {
         require(device != nil, "Metal device unavailable");
         require([[device name] rangeOfString:@"Apple"].location != NSNotFound &&
                     [[device name] rangeOfString:@"Paravirtual"].location == NSNotFound,
@@ -327,8 +522,9 @@ void checkInitialStates(const RuntimeStateSnapshot& state,
     }
 }
 
-void run(const std::string& csvPath) {
-    Fixture fixture;
+void run(const std::string& csvPath,
+         const numi_cardboard::robertsson2023::CompressionEnergyConvention convention) {
+    Fixture fixture(convention);
     const auto initial = fixture.snapshot();
     require(initial.femNodes.size() == kEnvironmentCount * kNodeCount,
             "initial node snapshot has unexpected extent");
@@ -452,6 +648,8 @@ void run(const std::string& csvPath) {
             "initial snapshot restore did not round-trip accepted FEM state");
 
     std::cout << "instrument=native_fem_prescribed_reference_displacement\n"
+              << "energy_convention="
+              << numi_cardboard::robertsson2023::conventionName(convention) << '\n'
               << "material=Robertsson2023_single_ply_softwood_full_27_state\n"
               << "material_grade_is_corrugated_kraft=0\n"
               << "material_grade_is_starch_laminated=0\n"
@@ -477,20 +675,36 @@ int main(int argc, char** argv) {
     @autoreleasepool {
         try {
             if (argc == 2 && std::string(argv[1]) == "--cpu-only") {
-                const auto world = compileFixture();
+                const auto paperAbsolute = compileFixture(
+                    numi_cardboard::robertsson2023::CompressionEnergyConvention::paper_absolute);
+                const auto recenteredRegression = compileFixture(
+                    numi_cardboard::robertsson2023::CompressionEnergyConvention::recentered);
+                require(paperAbsolute.materials.size() == 1u &&
+                            recenteredRegression.materials.size() == 1u &&
+                            paperAbsolute.constitutive.size() == 1u &&
+                            recenteredRegression.constitutive.size() == 1u,
+                        "source energy convention fixtures did not both compile");
+                checkOwnGradeAbsoluteEnergy(
+                    paperAbsolute.constitutive[0].material,
+                    recenteredRegression.constitutive[0].material);
                 std::cout << "cpu_only_compile=1\n"
-                          << "material_state_count="
-                          << world.materials[0].stateCount << '\n'
-                          << "fem_node_count=" << world.dispatch.femNodeCount << '\n'
-                          << "fem_tetrahedron_count="
-                          << world.dispatch.tetrahedronCount << '\n'
+                          << "paper_absolute_state_count="
+                          << paperAbsolute.materials[0].stateCount << '\n'
+                          << "recentered_regression_state_count="
+                          << recenteredRegression.materials[0].stateCount << '\n'
+                          << "paper_absolute_fem_node_count="
+                          << paperAbsolute.dispatch.femNodeCount << '\n'
+                          << "paper_absolute_fem_tetrahedron_count="
+                          << paperAbsolute.dispatch.tetrahedronCount << '\n'
+                          << "historical_recentered_branch_compiled=1\n"
                           << "runtime_steps=0\n"
-                          << "qualification=source_and_layout_compile_only\n";
+                          << "qualification=CPU_source_equation_consistency_and_layout_compile_only\n";
                 return 0;
             }
             require(argc == 2,
                     "usage: numi-matter-robertsson-fem-coupling-check output.csv");
-            run(argv[1]);
+            run(argv[1],
+                numi_cardboard::robertsson2023::CompressionEnergyConvention::paper_absolute);
             return 0;
         } catch (const std::exception& error) {
             std::cerr << "Robertsson FEM coupling check failed: "

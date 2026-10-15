@@ -2,7 +2,9 @@
 #include "numi/matter/matter.hpp"
 #include <array>
 #include <cmath>
+#include <optional>
 #include <stdexcept>
+#include <string>
 
 // Robertsson et al., DOI 10.1002/pts.2774, equations 18--27, B1 and C1--C3.
 // Native authoring of the full multiplicative, twelve-subsurface model.
@@ -77,20 +79,140 @@ struct Graph {
     }
 };
 
-// Projected areas must be supplied in mm^2 for this source's BRICK scaling.
-// A tetrahedral adaptation is a separate hypothesis, not source calibration.
-inline MaterialProgram makeMaterial(double areaMDmm2=0.0011,double areaCDmm2=0.0011,
-                                    double damageCap=0.96) {
-    if(!(areaMDmm2>0 && areaCDmm2>0 && damageCap>=0 && damageCap<=0.96))
-        throw std::invalid_argument("invalid Robertsson reference area/damage cap");
-    Graph g;g.p.cacheExpressions=true;g.p.name="robertsson2023_single_ply_softwood_full";
+// The primary paper prints -2 in the ZD-compression bracket. Replacing it
+// with -1-1/E7 is an engineering recentering that makes the compressed-side
+// limit zero; no author executable source was available to establish that
+// alternate as the paper's implementation. Keep both conventions explicit.
+enum class CompressionEnergyConvention {
+    paper_absolute, // literal printed Eq. 18; compressed-side limit is negative
+    recentered,     // zero ZD compression energy at I13 -> 1-, preserving legacy output
+};
+
+inline const char* conventionName(CompressionEnergyConvention convention) {
+    switch (convention) {
+        case CompressionEnergyConvention::paper_absolute: return "paper_absolute";
+        case CompressionEnergyConvention::recentered: return "recentered";
+    }
+    throw std::invalid_argument("unknown Robertsson compression energy convention");
+}
+
+struct StrengthHardeningParameters {
+    // The source law uses numerical MPa values in its normalized local system.
+    std::array<double,12> initialStrengthMPa{};
+    std::array<double,12> hardeningAmplitudeMPa{};
+    // q(kappa)=A*log(1+B*kappa); B=0 with A>0 is a linear hardening branch.
+    std::array<double,12> hardeningRate{};
+};
+
+inline StrengthHardeningParameters publishedStrengthHardening() {
+    return {{20.4,11.7,9.91,22.0,16.7,9.91,1.0,0.4,2.51,2.51,2.51,2.51},
+            {12.2,5.10,6.63,0.0,0.0,6.63,49.0,0.0,0.0,0.0,0.0,0.0},
+            {690.0,435.0,334.0,0.0,0.0,334.0,0.0,0.0,0.0,0.0,0.0,0.0}};
+}
+
+// Every damage-driving plane has its own reference area in mm^2. The source
+// brick recipe supplies equal MD areas for nu=9,10 and equal CD areas for
+// nu=11,12; a tetrahedral selected-plane adaptation can supply four different
+// element-local areas, but is not source calibration.
+inline MaterialProgram makeMaterialFromModeAreas(
+    CompressionEnergyConvention energyConvention,
+    const std::array<double,4>& selectedPlaneAreaMm2,
+    double damageCap,
+    bool selectedPlaneCandidate,
+    const std::optional<std::array<double,4>>& softeningEnergyJPerM2 = std::nullopt,
+    const std::optional<std::array<double,4>>& selectedPlaneLengthM = std::nullopt,
+    const std::optional<StrengthHardeningParameters>& strengthHardening = std::nullopt) {
+    for (double area : selectedPlaneAreaMm2) {
+        if (!(std::isfinite(area) && area > 0.0))
+            throw std::invalid_argument(
+                "Robertsson selected damage-plane areas must be finite and positive");
+    }
+    if (!(std::isfinite(damageCap) && damageCap >= 0.0 && damageCap <= 0.96))
+        throw std::invalid_argument("invalid Robertsson damage cap");
+    const bool hasAnyCandidateInput = softeningEnergyJPerM2.has_value() ||
+        selectedPlaneLengthM.has_value() || strengthHardening.has_value();
+    const bool hasAllCandidateInputs = softeningEnergyJPerM2.has_value() &&
+        selectedPlaneLengthM.has_value() && strengthHardening.has_value();
+    if ((selectedPlaneCandidate && !hasAllCandidateInputs) ||
+        (!selectedPlaneCandidate && hasAnyCandidateInput))
+        throw std::invalid_argument(
+            "selected-plane candidate requires explicit Gc, element lengths, strengths, and hardening");
+    if (softeningEnergyJPerM2 && selectedPlaneLengthM) {
+        for (unsigned i=0;i<4;++i) {
+            if (!(std::isfinite((*softeningEnergyJPerM2)[i]) &&
+                  (*softeningEnergyJPerM2)[i] > 0.0 &&
+                  std::isfinite((*selectedPlaneLengthM)[i]) &&
+                  (*selectedPlaneLengthM)[i] > 0.0))
+                throw std::invalid_argument(
+                    "selected-plane Gc and lengths must be finite and positive");
+        }
+    }
+    const StrengthHardeningParameters modeParameters =
+        strengthHardening.value_or(publishedStrengthHardening());
+    if (selectedPlaneCandidate) {
+        for (unsigned i=0;i<12;++i) {
+            if (!(std::isfinite(modeParameters.initialStrengthMPa[i]) &&
+                  modeParameters.initialStrengthMPa[i] > 0.0 &&
+                  std::isfinite(modeParameters.hardeningAmplitudeMPa[i]) &&
+                  modeParameters.hardeningAmplitudeMPa[i] >= 0.0 &&
+                  std::isfinite(modeParameters.hardeningRate[i]) &&
+                  modeParameters.hardeningRate[i] >= 0.0))
+                throw std::invalid_argument(
+                    "invalid explicit source damage strength/hardening mode input");
+        }
+    }
+    const std::string convention=conventionName(energyConvention);
+    Graph g;g.p.cacheExpressions=true;
+    g.p.name="robertsson2023_single_ply_softwood_full_"+convention+
+        (selectedPlaneCandidate ? "_tet_selected_plane_candidate" : "");
     g.p.supportedRepresentations={Representation::fem};
     g.p.staticFriction=0;g.p.dynamicFriction=0;
     g.parameter("density",788,{-3,1,0,0});
     R stressUnit=g.parameter("stress_unit",1e6,{-1,1,-2,0});
-    R aMD=g.parameter("area_ratio_MD",areaMDmm2/0.0011);
-    R aCD=g.parameter("area_ratio_CD",areaCDmm2/0.0011);
+    std::array<R,4> areaRatio{};
+    constexpr const char* areaNames[]={"area_ratio_nu9","area_ratio_nu10",
+                                       "area_ratio_nu11","area_ratio_nu12"};
+    for (unsigned i=0;i<4;++i)
+        areaRatio[i]=g.parameter(areaNames[i],selectedPlaneAreaMm2[i]/0.0011);
+    std::array<R,4> softeningEnergyDensity{};
+    if (selectedPlaneCandidate) {
+        constexpr const char* gcNames[]={"fracture_energy_nu9_J_m2",
+                                         "fracture_energy_nu10_J_m2",
+                                         "fracture_energy_nu11_J_m2",
+                                         "fracture_energy_nu12_J_m2"};
+        constexpr const char* lengthNames[]={"selected_plane_length_nu9_m",
+                                             "selected_plane_length_nu10_m",
+                                             "selected_plane_length_nu11_m",
+                                             "selected_plane_length_nu12_m"};
+        for (unsigned i=0;i<4;++i) {
+            R gc=g.parameter(gcNames[i],(*softeningEnergyJPerM2)[i],
+                             {0,1,-2,0});
+            R length=g.parameter(lengthNames[i],(*selectedPlaneLengthM)[i],
+                                 {1,0,0,0});
+            softeningEnergyDensity[i]=g.div(
+                g.div(gc,length),stressUnit);
+        }
+    }
     R cap=g.parameter("damage_cap",damageCap);
+    std::array<R,12> initialStrength{},hardeningAmplitude{},hardeningRate{};
+    for (unsigned n=0;n<12;++n) {
+        if (selectedPlaneCandidate) {
+            const std::string suffix = "_nu" + std::to_string(n + 1u);
+            initialStrength[n]=g.parameter(
+                ("initial_strength" + suffix + "_MPa").c_str(),
+                modeParameters.initialStrengthMPa[n]);
+            hardeningAmplitude[n]=g.parameter(
+                ("hardening_amplitude" + suffix + "_MPa").c_str(),
+                modeParameters.hardeningAmplitudeMPa[n]);
+            hardeningRate[n]=g.parameter(
+                ("hardening_rate" + suffix).c_str(),
+                modeParameters.hardeningRate[n]);
+        } else {
+            initialStrength[n]=g.c(modeParameters.initialStrengthMPa[n]);
+            hardeningAmplitude[n]=g.c(modeParameters.hardeningAmplitudeMPa[n]);
+            hardeningRate[n]=g.c(modeParameters.hardeningRate[n]);
+        }
+    }
     constexpr const char* fpNames[]={"fp00","fp01","fp02","fp10","fp11","fp12","fp20","fp21","fp22"};
     constexpr const char* kNames[]={"kappa1","kappa2","kappa3","kappa4","kappa5","kappa6","kappa7","kappa8","kappa9","kappa10","kappa11","kappa12"};
     for(unsigned i=0;i<9;++i)g.state(fpNames[i],i%4==0?1:0);
@@ -105,21 +227,34 @@ inline MaterialProgram makeMaterial(double areaMDmm2=0.0011,double areaCDmm2=0.0
     V v1=g.col(fe,0),v2=g.col(fe,1),v3=g.col(fe,2),n3=g.cross(v1,v2);
     R i11=g.sqrt(g.dot(v1,v1)),i12=g.sqrt(g.dot(v2,v2)),i13=g.sqrt(g.dot(v3,v3));
     R i23=g.sqrt(g.dot(n3,n3)),je=g.det(fe);
-    // The printed Eq18 compression constant is shifted to set Psi(I)=0;
-    // this constant correction leaves stress unchanged at fixed damage.
+    // The printed and recentered forms have identical deformation derivatives
+    // on this branch but different absolute energies. Since the full selected
+    // psi0 below multiplies (1-damage), its derivative with respect to damage
+    // is the corresponding full damage-conjugate force A=Psi0. Keep the
+    // convention in the energy itself; stress parity alone is insufficient.
     R zdT=g.scale(g.sub(g.add(i13,g.div(g.c(1),i13)),g.c(2)),28.4);
-    R zdC=g.scale(g.sum({g.pow(i13,2),g.scale(g.exp(g.scale(g.sub(g.pow(i13,2),g.c(1)),-11.5)),1/11.5),g.c(-1-1/11.5)}),0.365);
+    constexpr double E6_MPa=0.365;
+    constexpr double E7=11.5;
+    const double compressionConstant =
+        energyConvention==CompressionEnergyConvention::paper_absolute
+            ? -2.0 : -1.0-1.0/E7;
+    R zdC=g.scale(g.sum({g.pow(i13,2),g.scale(g.exp(g.scale(g.sub(g.pow(i13,2),g.c(1)),-E7)),1/E7),g.c(compressionConstant)}),E6_MPa);
     R zd=g.choose(g.sub(i13,g.c(1)),zdT,zdC);
     R psi=g.sum({g.scale(g.sub(g.add(i11,g.div(g.c(1),i11)),g.c(2)),1690),
        g.scale(g.sub(g.add(i12,g.div(g.c(1),i12)),g.c(2)),292),
        g.scale(g.sum({i11,i12,g.div(g.c(1),i23),g.c(-3)}),1333),zd,
        g.scale(g.sub(g.mul(g.mul(i11,i12),i13),je),78)});
-    constexpr double energyA[]={12.2,5.10,6.63,0,0,6.63,49,0,0,0,0,0};
-    constexpr double energyB[]={690,435,334,0,0,334,0,0,0,0,0,0};
     for(unsigned n=0;n<12;++n) {
-        if(energyB[n]>0) {R x=g.add(g.scale(y[9+n],energyB[n]),g.c(1));
-            psi=g.add(psi,g.scale(g.sum({g.mul(x,g.log(x)),g.scale(x,-1),g.c(1)}),energyA[n]/energyB[n]));}
-        else if(n==6) psi=g.add(psi,g.scale(g.pow(y[9+n],2),.5*49));
+        if(modeParameters.hardeningRate[n]>0.0) {
+            R x=g.add(g.mul(y[9+n],hardeningRate[n]),g.c(1));
+            psi=g.add(psi,g.scale(
+                g.sum({g.mul(x,g.log(x)),g.scale(x,-1),g.c(1)}),
+                modeParameters.hardeningAmplitudeMPa[n] /
+                    modeParameters.hardeningRate[n]));
+        } else if(modeParameters.hardeningAmplitudeMPa[n]>0.0) {
+            psi=g.add(psi,g.scale(g.mul(hardeningAmplitude[n],
+                                      g.pow(y[9+n],2)),0.5));
+        }
     }
     g.p.energyRoot=g.mul(stressUnit,g.mul(g.sub(g.c(1),y[26]),psi));
     // Eq A1 and 20, in normalized MPa. ZD branch derivatives below use
@@ -153,17 +288,18 @@ inline MaterialProgram makeMaterial(double areaMDmm2=0.0011,double areaCDmm2=0.0
     for(unsigned i=0;i<9;++i){ns[3][i]=g.scale(u11[i],-1);ns[4][i]=g.scale(u22[i],-1);ns[5][i]=g.scale(ns[2][i],-1);ns[6][i]=g.scale(u33[i],-1);ns[7][i]=u33[i];}
     for(unsigned n=8;n<12;++n){ns[n]=g.combine(g.outer(n<10?u1:u2,u3),u33,.7);if(n%2==1)ns[n]=g.combine(g.outer(n<10?u1:u2,u3),u33,-.7);
        for(auto&r:ns[n])r=g.scale(r,(n%2==1?-1:1)/std::sqrt(1+.7*.7));}
-    constexpr double k0[]={20.4,11.7,9.91,22,16.7,9.91,1,.4,2.51,2.51,2.51,2.51};
-    constexpr double hardA[]={12.2,5.10,6.63,0,0,6.63,49,0,0,0,0,0};
-    constexpr double hardB[]={690,435,334,0,0,334,0,0,0,0,0,0};
     std::array<R,12> omega{},lambda{};
     R yield=g.c(-1),dl=g.sub(y[21],old[21]);
     M flow{};for(auto&r:flow)r=g.c(0);
     M fpInvF=g.product(fp,g.inverse(f));
     for(unsigned n=0;n<12;++n){
-       R hard=g.c(0);if(hardB[n]>0)hard=g.scale(g.log(g.add(g.scale(y[9+n],hardB[n]),g.c(1))),hardA[n]);
-       else if(n==6)hard=g.scale(y[9+n],49);
-       R strength=g.add(g.c(k0[n]),hard);
+       R hard=g.c(0);
+       if(modeParameters.hardeningRate[n]>0.0)
+           hard=g.mul(hardeningAmplitude[n],g.log(g.add(
+               g.mul(y[9+n],hardeningRate[n]),g.c(1))));
+       else if(modeParameters.hardeningAmplitudeMPa[n]>0.0)
+           hard=g.mul(hardeningAmplitude[n],y[9+n]);
+       R strength=g.add(initialStrength[n],hard);
        omega[n]=g.div(g.max(g.inner(tau,ns[n]),g.c(0)),strength);
        lambda[n]=g.div(g.scale(g.pow(omega[n],5),6),strength);
        yield=g.add(yield,g.pow(omega[n],6));
@@ -179,7 +315,8 @@ inline MaterialProgram makeMaterial(double areaMDmm2=0.0011,double areaCDmm2=0.0
     std::array<R,4> work{},prevWork{},beta{},dc{};
     R onsetNow=g.c(0),onsetPrev=g.c(0),sumCritical=g.c(0);
     for(unsigned j=0;j<4;++j){work[j]=g.scale(y[17+j],2.51);prevWork[j]=g.scale(old[17+j],2.51);
-       beta[j]=g.scale(j<2?aMD:aCD,j<2?2.85:3.98);dc[j]=g.scale(j<2?aMD:aCD,j<2?8:9);
+       beta[j]=g.scale(areaRatio[j],j<2?2.85:3.98);
+       dc[j]=g.scale(areaRatio[j],j<2?8:9);
        onsetNow=g.add(onsetNow,g.mul(beta[j],work[j]));onsetPrev=g.add(onsetPrev,g.mul(beta[j],prevWork[j]));sumCritical=g.add(sumCritical,old[22+j]);}
     // Freeze onset mode proportions at the first threshold crossing, with
     // linear interpolation in dissipated work within the accepted increment.
@@ -190,10 +327,62 @@ inline MaterialProgram makeMaterial(double areaMDmm2=0.0011,double areaCDmm2=0.0
     for(unsigned j=0;j<4;++j){R crossing=g.add(prevWork[j],g.mul(theta,g.sub(work[j],prevWork[j])));
        R critical=g.add(g.mul(already,old[22+j]),g.mul(g.sub(g.c(1),already),g.mul(reached,crossing)));
        g.p.stateImplicitRoots[22+j]=g.scale(g.sub(y[22+j],critical),10);
-       numerator=g.add(numerator,g.sub(work[j],y[22+j]));denominator=g.add(denominator,g.mul(dc[j],y[22+j]));}
+       numerator=g.add(numerator,g.sub(work[j],y[22+j]));
+       if (selectedPlaneCandidate) {
+           R modeActive=g.choose(g.sub(y[22+j],g.c(1e-12)),g.c(1),g.c(0));
+           denominator=g.add(denominator,
+                             g.mul(modeActive,softeningEnergyDensity[j]));
+       } else {
+           denominator=g.add(denominator,g.mul(dc[j],y[22+j]));
+       }
+    }
     R alpha=g.min(cap,g.max(old[26],g.mul(reached,g.div(numerator,g.choose(g.sub(denominator,g.c(1e-12)),denominator,g.c(1))))));
     g.p.stateImplicitRoots[26]=g.scale(g.sub(y[26],alpha),10);
     g.p.minimumDeterminant=.05;g.p.maximumDeterminant=20;
     return std::move(g.p);
+}
+
+// Source-equivalent area map for the published brick law: the two MD shear
+// subsurfaces share the source MD projected area, and the two CD subsurfaces
+// share the source CD projected area. The convention is always explicit.
+inline MaterialProgram makeMaterial(CompressionEnergyConvention convention,
+                                    double areaMDmm2,
+                                    double areaCDmm2,
+                                    double damageCap) {
+    if (!(std::isfinite(areaMDmm2) && areaMDmm2 > 0.0 &&
+          std::isfinite(areaCDmm2) && areaCDmm2 > 0.0))
+        throw std::invalid_argument(
+            "Robertsson MD/CD projected areas must be finite and positive");
+    return makeMaterialFromModeAreas(
+        convention, {areaMDmm2, areaMDmm2, areaCDmm2, areaCDmm2},
+        damageCap, false);
+}
+
+// Candidate mapping for a tetrahedral crack-band adaptation. Each of the four
+// source damage subsurfaces receives its own actual selected-plane area.
+// This is a changed regularization geometry, not the paper's brick calibration.
+inline MaterialProgram makeSelectedPlaneCandidate(
+    CompressionEnergyConvention convention,
+    const std::array<double,4>& selectedPlaneAreaMm2,
+    const std::array<double,4>& fractureEnergyJPerM2,
+    const std::array<double,4>& selectedPlaneLengthM,
+    const StrengthHardeningParameters& strengthHardening,
+    double damageCap) {
+    return makeMaterialFromModeAreas(convention, selectedPlaneAreaMm2,
+                                     damageCap, true, fractureEnergyJPerM2,
+                                     selectedPlaneLengthM, strengthHardening);
+}
+
+inline MaterialProgram makePublishedReferenceMaterial(
+    CompressionEnergyConvention convention) {
+    constexpr double sourceReferenceAreaMm2 = 0.0011;
+    constexpr double sourceDamageCap = 0.96;
+    return makeMaterial(convention, sourceReferenceAreaMm2,
+                        sourceReferenceAreaMm2, sourceDamageCap);
+}
+
+// Preserve the historical fixture as an explicit, named regression mode.
+inline MaterialProgram makeLegacyRecenteredMaterial() {
+    return makePublishedReferenceMaterial(CompressionEnergyConvention::recentered);
 }
 }

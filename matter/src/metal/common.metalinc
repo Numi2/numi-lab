@@ -2,6 +2,9 @@
 
 #include "numi/matter/shared.h"
 #include "numi/matter/fiber_exp_linear.h"
+#include "numi/matter/hill_scalar_initializer.h"
+#include "numi/matter/paper_compensated_bytecode.h"
+#include "numi/matter/fem_compensated_deformation.h"
 #include "metalrobo/engine_types.h"
 #include "metalrobo/rod_gpu_shared.h"
 
@@ -74,12 +77,26 @@ inline float ipcBarrierEnergy(
 ) {
     if (!(thickness > 0.0f) || !(stiffness > 0.0f) ||
         separation >= thickness) return 0.0f;
-    const float distance = max(separation, 1.0e-4f * thickness);
+    const float regularizationFloor = 1.0e-4f * thickness;
+    const float distance = max(separation, regularizationFloor);
     const float squaredDistance = distance * distance;
     const float squaredThickness = thickness * thickness;
     const float offset = squaredDistance - squaredThickness;
-    return max(-stiffness * offset * offset *
-        log(squaredDistance / squaredThickness), 0.0f);
+    const float logarithm = log(squaredDistance / squaredThickness);
+    const float energyAtDistance = max(-stiffness * offset * offset *
+        logarithm, 0.0f);
+    if (separation >= regularizationFloor) return energyAtDistance;
+
+    // Continue the potential linearly below the evaluation floor. The force
+    // kernel evaluates the radial derivative at this same floor, so a flat
+    // clamp here would report a nonzero force with zero energy derivative.
+    // This C1 continuation keeps the overlap force finite and consistent.
+    const float firstSquared = -stiffness *
+        (2.0f * offset * logarithm +
+         offset * offset / squaredDistance);
+    const float energyDerivativeAtFloor = 2.0f * distance * firstSquared;
+    return max(energyAtDistance + energyDerivativeAtFloor *
+        (separation - regularizationFloor), 0.0f);
 }
 
 inline bool finite3(const float3 value) {
@@ -567,8 +584,19 @@ inline float evaluateScalarProgramWithCandidate(
     const float temperature,
     thread bool& valid,
     thread bool* nonfiniteOutput = nullptr
+,
+    thread const float* deformationLow = nullptr
 ) {
-    if (programIndex != NM_INVALID_INDEX && programs[programIndex].flags == 1u)
+    if(programIndex!=NM_INVALID_INDEX&&(programs[programIndex].flags&2u)!=0u) {
+        if((programs[programIndex].flags&1u)!=0u)
+            return nmPaperCompensatedBytecode<NM_EXPRESSION_CACHE_CAPACITY>(
+                programs[programIndex],instructions,parameters,internalState,candidateState,
+                deformation,deformationDirection,deformationRate,timestep,temperature,valid,nonfiniteOutput,deformationLow);
+        return nmPaperCompensatedBytecode<0u>(programs[programIndex],instructions,parameters,
+            internalState,candidateState,deformation,deformationDirection,deformationRate,
+            timestep,temperature,valid,nonfiniteOutput,deformationLow);
+    }
+    if (programIndex != NM_INVALID_INDEX && (programs[programIndex].flags&1u)!=0u)
         return evaluateScalarProgramWithCandidateCached<NM_EXPRESSION_CACHE_CAPACITY>(
             programIndex, programs, instructions, parameters, internalState,
             candidateState, deformation, deformationDirection, deformationRate,
@@ -592,12 +620,14 @@ inline float evaluateScalarProgram(
     const float timestep,
     const float temperature,
     thread bool& valid
+,
+    thread const float* deformationLow = nullptr
 ) {
     return evaluateScalarProgramWithCandidate(
         programIndex, programs, instructions, parameters,
         internalState, internalState, deformation, deformationDirection,
         deformationRate, timestep, temperature, valid
-    );
+    , nullptr, deformationLow);
 }
 
 inline void matrixComponents(
@@ -633,6 +663,8 @@ inline float3x3 evaluateStressWithCandidate(
     const float temperature,
     thread bool& valid,
     thread bool* nonfiniteOutput = nullptr
+,
+    thread const float* deformationLow = nullptr
 ) {
     float f[9];
     float direction[9] = {
@@ -658,7 +690,7 @@ inline float3x3 evaluateStressWithCandidate(
             timestep,
             temperature,
             valid, nonfiniteOutput
-        );
+        , deformationLow);
         if (!valid) {
             return float3x3(0.0f);
         }
@@ -679,7 +711,7 @@ inline float3x3 evaluateStressWithCandidate(
                 timestep,
                 temperature,
                 valid, nonfiniteOutput
-            );
+            , deformationLow);
             if (!valid) {
                 return float3x3(0.0f);
             }
@@ -707,12 +739,14 @@ inline float3x3 evaluateStress(
     const float timestep,
     const float temperature,
     thread bool& valid
+,
+    thread const float* deformationLow = nullptr
 ) {
     return evaluateStressWithCandidate(
         material, programs, instructions, parameters,
         internalState, internalState, deformation, deformationRate,
         timestep, temperature, valid
-    );
+    , nullptr, deformationLow);
 }
 
 template <typename StatePointer, typename CandidatePointer>
@@ -731,6 +765,8 @@ inline float3x3 evaluateTangentVectorWithCandidate(
     const float temperature,
     thread bool& valid,
     thread bool* nonfiniteOutput = nullptr
+,
+    thread const float* deformationLow = nullptr
 ) {
     float f[9];
     float direction[9];
@@ -753,7 +789,7 @@ inline float3x3 evaluateTangentVectorWithCandidate(
             timestep,
             temperature,
             valid, nonfiniteOutput
-        );
+        , deformationLow);
         if (!valid) {
             return float3x3(0.0f);
         }
@@ -775,7 +811,7 @@ inline float3x3 evaluateTangentVectorWithCandidate(
                 timestep,
                 temperature,
                 valid, nonfiniteOutput
-            );
+            , deformationLow);
             if (!valid) {
                 return float3x3(0.0f);
             }
@@ -805,12 +841,14 @@ inline float3x3 evaluateTangentVector(
     const float timestep,
     const float temperature,
     thread bool& valid
+,
+    thread const float* deformationLow = nullptr
 ) {
     return evaluateTangentVectorWithCandidate(
         material, programs, instructions, parameters,
         internalState, internalState, deformation, deformationDirection,
         deformationRate, rateDirection, timestep, temperature, valid
-    );
+    , nullptr, deformationLow);
 }
 
 inline bool evaluateStateUpdate(
@@ -825,6 +863,8 @@ inline bool evaluateStateUpdate(
     const float timestep,
     const float temperature,
     thread float& nextState
+,
+    thread const float* deformationLow = nullptr
 ) {
     if (stateIndex >= material.stateCount ||
         material.stateUpdateProgramOffset == NM_INVALID_INDEX ||
@@ -853,7 +893,7 @@ inline bool evaluateStateUpdate(
         timestep,
         temperature,
         valid
-    );
+    , deformationLow);
     return valid && isfinite(nextState);
 }
 
@@ -909,13 +949,14 @@ inline bool solveLocalMaterialSystem(
     return true;
 }
 
+template<typename CandidatePointer>
 inline bool evaluateImplicitMaterialSystem(
     const NMMaterialGPU material,
     device const NMScalarProgramGPU* programs,
     device const NMExpressionInstructionGPU* instructions,
     device const float* parameters,
     device const float* acceptedState,
-    thread const float* candidateState,
+    CandidatePointer candidateState,
     const float3x3 deformation,
     const float3x3 deformationDirection,
     const float3x3 deformationRate,
@@ -925,6 +966,8 @@ inline bool evaluateImplicitMaterialSystem(
     thread float* jacobian,
     const bool evaluateJacobian,
     thread bool* nonfiniteOutput = nullptr
+,
+    thread const float* deformationLow = nullptr
 ) {
     float f[9];
     float direction[9];
@@ -939,7 +982,7 @@ inline bool evaluateImplicitMaterialSystem(
             programs, instructions, parameters + material.parameterOffset,
             acceptedState, candidateState, f, direction, rate, timestep,
             temperature, valid, nonfiniteOutput
-        );
+        , deformationLow);
         if (!valid) return false;
         if (!evaluateJacobian) continue;
         for (uint column = 0u; column < material.stateCount; ++column) {
@@ -951,7 +994,7 @@ inline bool evaluateImplicitMaterialSystem(
                     parameters + material.parameterOffset,
                     acceptedState, candidateState, f, direction, rate,
                     timestep, temperature, valid, nonfiniteOutput
-                );
+                , deformationLow);
             if (!valid) return false;
         }
     }
@@ -1115,6 +1158,11 @@ inline bool evaluateSpecializedPlasticity(
         all(isfinite(tangent[1])) && all(isfinite(tangent[2]));
 }
 
+inline bool usesCompensatedImplicitCandidate(const NMMaterialGPU material) {
+    return (material.flags & (NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION |
+                              NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION)) != 0u;
+}
+
 inline bool projectMaterialState(
     const NMMaterialGPU material,
     device const NMScalarProgramGPU* programs,
@@ -1131,6 +1179,9 @@ inline bool projectMaterialState(
     thread uint* iterationOutput = nullptr,
     thread uint* stageFlagsOutput = nullptr,
     thread uint* terminalFailureOutput = nullptr
+,
+    thread const float* deformationLow = nullptr,
+    thread float* projectedLowOutput = nullptr
 ) {
     if (residualNormOutput != nullptr) *residualNormOutput = -1.0f;
     if (stateNormOutput != nullptr) *stateNormOutput = 0.0f;
@@ -1151,6 +1202,13 @@ inline bool projectMaterialState(
     }
     if (stageFlagsOutput != nullptr)
         *stageFlagsOutput |= kMaterialDiagProjectionEntered;
+    const bool accurateCandidate = usesCompensatedImplicitCandidate(material);
+    float localCandidateLow[NM_MAX_MATERIAL_STATE];
+    thread float* candidateLow = projectedLowOutput != nullptr
+        ? projectedLowOutput : localCandidateLow;
+    for (uint i=0u;i<NM_MAX_MATERIAL_STATE;++i) candidateLow[i]=0.0f;
+    const NMPaperCandidateState candidate{projectedState,
+        accurateCandidate ? candidateLow : nullptr};
     float initialStateNorm = 0.0f;
     for (uint state = 0u; state < material.stateCount; ++state) {
         projectedState[state] = acceptedState[state];
@@ -1185,7 +1243,7 @@ inline bool projectMaterialState(
                 timestep,
                 temperature,
                 projectedState[state]
-            )) {
+            , deformationLow)) {
             if (terminalFailureOutput != nullptr)
                 *terminalFailureOutput = kMaterialFailureStateUpdateInvalid;
             return false;
@@ -1193,6 +1251,22 @@ inline bool projectMaterialState(
     }
     if (stageFlagsOutput != nullptr)
         *stageFlagsOutput |= kMaterialDiagStateUpdatesComplete;
+    if ((material.flags & NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER) != 0u) {
+        if (material.stateCount != 13u || material.parameterCount != 20u)
+            return false;
+        float old[13], trial[6];
+        for (uint i=0u;i<13u;++i) old[i]=acceptedState[i];
+        for (uint i=0u;i<6u;++i) trial[i]=projectedState[6u+i];
+        // This is a bounded initial guess only. A failed helper falls back to
+        // the original authored update guess. It cannot commit or bypass any
+        // generic Newton residual, constitutive, or production certificate.
+        // The elastic authored guess already resolves the smoothed FB residual
+        // away from yield. Skip scalar bisection there; Newton still verifies
+        // every row and supplies the complete implicit derivative afterward.
+        if(nmHillScalarInitializerEquivalent(parameters+material.parameterOffset,trial)>1.0f)
+            nmHillScalarInitializeCandidate(parameters + material.parameterOffset,
+                old, trial, projectedState);
+    }
     if ((material.flags & NM_MATERIAL_HAS_IMPLICIT_STATE) == 0u) {
         if (stageFlagsOutput != nullptr)
             *stageFlagsOutput |= kMaterialDiagProjectionConverged;
@@ -1200,6 +1274,9 @@ inline bool projectMaterialState(
     }
     float residual[NM_MAX_MATERIAL_STATE];
     float jacobian[NM_MAX_MATERIAL_STATE * NM_MAX_MATERIAL_STATE];
+    const float projectionTolerance =
+        usesCompensatedImplicitCandidate(material)
+        ? 2.0e-8f : 2.0e-5f;
     for (uint iteration = 0u; iteration < material.localNewtonIterations;
          ++iteration) {
         float stateNormBeforeEvaluation = 0.0f;
@@ -1213,9 +1290,9 @@ inline bool projectMaterialState(
         bool implicitNonfinite = false;
         if (!evaluateImplicitMaterialSystem(
                 material, programs, instructions, parameters, acceptedState,
-                projectedState, deformation, float3x3(0.0f), deformationRate,
+                candidate, deformation, float3x3(0.0f), deformationRate,
                 timestep, temperature, residual, jacobian, true,
-                &implicitNonfinite)) {
+                &implicitNonfinite, deformationLow)) {
             if (terminalFailureOutput != nullptr)
                 *terminalFailureOutput = implicitNonfinite
                     ? kMaterialFailureImplicitEvaluationNonfinite
@@ -1234,7 +1311,7 @@ inline bool projectMaterialState(
         if (residualNormOutput != nullptr) *residualNormOutput = residualNorm;
         if (stateNormOutput != nullptr) *stateNormOutput = stateNorm;
         if (iterationOutput != nullptr) *iterationOutput = iteration + 1u;
-        if (residualNorm <= 2.0e-5f * (1.0f + stateNorm)) {
+        if (residualNorm <= projectionTolerance * (1.0f + stateNorm)) {
             if (stageFlagsOutput != nullptr)
                 *stageFlagsOutput |= kMaterialDiagProjectionConverged;
             return true;
@@ -1250,6 +1327,7 @@ inline bool projectMaterialState(
         if (stageFlagsOutput != nullptr)
             *stageFlagsOutput |= kMaterialDiagLocalSolveSucceeded;
         float trialState[NM_MAX_MATERIAL_STATE];
+        float trialLow[NM_MAX_MATERIAL_STATE];
         float trialResidual[NM_MAX_MATERIAL_STATE];
         float step = 1.0f;
         bool acceptedStep = false;
@@ -1257,15 +1335,26 @@ inline bool projectMaterialState(
         // 1/128. Retain the same Armijo/tolerance tests, with a bounded search
         // down to 1/32768; previously accepted trials still exit immediately.
         for (uint backtrack = 0u; backtrack < 16u; ++backtrack) {
-            for (uint state = 0u; state < material.stateCount; ++state)
-                trialState[state] = projectedState[state] +
-                    step * residual[state];
+            for (uint state = 0u; state < material.stateCount; ++state) {
+                if (accurateCandidate) {
+                    const auto sum=mrCompensatedAdd(
+                        {projectedState[state],candidateLow[state]},
+                        {step*residual[state],0.0f});
+                    trialState[state]=sum.high;
+                    trialLow[state]=sum.low;
+                } else {
+                    trialState[state]=projectedState[state]+step*residual[state];
+                    trialLow[state]=0.0f;
+                }
+            }
+            const NMPaperCandidateState trialCandidate{trialState,
+                accurateCandidate ? trialLow : nullptr};
             bool trialNonfinite = false;
             if (!evaluateImplicitMaterialSystem(
                     material, programs, instructions, parameters,
-                    acceptedState, trialState, deformation,
+                    acceptedState, trialCandidate, deformation,
                     float3x3(0.0f), deformationRate, timestep, temperature,
-                    trialResidual, jacobian, false, &trialNonfinite)) {
+                    trialResidual, jacobian, false, &trialNonfinite, deformationLow)) {
                 step *= 0.5f;
                 continue;
             }
@@ -1273,8 +1362,10 @@ inline bool projectMaterialState(
             for (uint state = 0u; state < material.stateCount; ++state)
                 trialNorm = max(trialNorm, abs(trialResidual[state]));
             if (trialNorm <= (1.0f - 1.0e-4f * step) * residualNorm) {
-                for (uint state = 0u; state < material.stateCount; ++state)
+                for (uint state = 0u; state < material.stateCount; ++state) {
                     projectedState[state] = trialState[state];
+                    candidateLow[state] = trialLow[state];
+                }
                 acceptedStep = true;
                 if (stageFlagsOutput != nullptr)
                     *stageFlagsOutput |= kMaterialDiagNewtonUpdateAccepted;
@@ -1298,9 +1389,9 @@ inline bool projectMaterialState(
     bool finalNonfinite = false;
     if (!evaluateImplicitMaterialSystem(
             material, programs, instructions, parameters, acceptedState,
-            projectedState, deformation, float3x3(0.0f), deformationRate,
+            candidate, deformation, float3x3(0.0f), deformationRate,
             timestep, temperature, residual, jacobian, false,
-            &finalNonfinite)) {
+            &finalNonfinite, deformationLow)) {
         if (terminalFailureOutput != nullptr)
             *terminalFailureOutput = finalNonfinite
                 ? kMaterialFailureImplicitEvaluationNonfinite
@@ -1318,7 +1409,7 @@ inline bool projectMaterialState(
     if (residualNormOutput != nullptr) *residualNormOutput = residualNorm;
     if (stateNormOutput != nullptr) *stateNormOutput = stateNorm;
     const bool converged =
-        residualNorm <= 2.0e-5f * (1.0f + stateNorm);
+        residualNorm <= projectionTolerance * (1.0f + stateNorm);
     if (converged && stageFlagsOutput != nullptr)
         *stageFlagsOutput |= kMaterialDiagProjectionConverged;
     if (!converged && terminalFailureOutput != nullptr)
@@ -1337,6 +1428,8 @@ inline float3x3 evaluateAlgorithmicStress(
     const float timestep,
     const float temperature,
     thread bool& valid
+,
+    thread const float* deformationLow = nullptr
 ) {
     if (material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC) {
         float projectedState[NM_MAX_MATERIAL_STATE];
@@ -1350,21 +1443,23 @@ inline float3x3 evaluateAlgorithmicStress(
         return evaluateStress(
             material, programs, instructions, parameters, acceptedState,
             deformation, deformationRate, timestep, temperature, valid
-        );
+        , deformationLow);
     }
     float projectedState[NM_MAX_MATERIAL_STATE];
+    float projectedLow[NM_MAX_MATERIAL_STATE] = {0.0f};
     valid = valid && projectMaterialState(
         material, programs, instructions, parameters, acceptedState,
         deformation, deformationRate, timestep, temperature, projectedState
-    );
+    , nullptr, nullptr, nullptr, nullptr, nullptr, deformationLow, projectedLow);
     if (!valid) {
         return float3x3(0.0f);
     }
     return evaluateStressWithCandidate(
         material, programs, instructions, parameters,
-        acceptedState, projectedState,
+        acceptedState, NMPaperCandidateState{projectedState,
+            usesCompensatedImplicitCandidate(material) ? projectedLow : nullptr},
         deformation, deformationRate, timestep, temperature, valid
-    );
+    , nullptr, deformationLow);
 }
 
 inline void evaluateAlgorithmicStressTangent(
@@ -1388,7 +1483,12 @@ inline void evaluateAlgorithmicStressTangent(
     thread float* diagnosticProjectionStateNorm = nullptr,
     thread uint* diagnosticProjectionIterations = nullptr,
     thread uint* diagnosticTerminalFailure = nullptr
+,
+    thread const float* deformationLow = nullptr,
+    thread float* returnedProjectedLow = nullptr
 ) {
+    if (returnedProjectedLow != nullptr)
+        for (uint i=0u;i<NM_MAX_MATERIAL_STATE;++i) returnedProjectedLow[i]=0.0f;
     if (diagnosticTerminalFailure != nullptr)
         *diagnosticTerminalFailure = kMaterialFailureNone;
     if (diagnosticStageFlags != nullptr) *diagnosticStageFlags = 0u;
@@ -1454,7 +1554,7 @@ inline void evaluateAlgorithmicStressTangent(
             material, programs, instructions, parameters, acceptedState,
             acceptedState, deformation, deformationRate, timestep,
             temperature, valid, &stressNonfinite
-        );
+        , deformationLow);
         if (!valid && diagnosticTerminalFailure != nullptr)
             *diagnosticTerminalFailure = stressNonfinite
                 ? kMaterialFailureStressNonfinite
@@ -1465,7 +1565,7 @@ inline void evaluateAlgorithmicStressTangent(
             acceptedState,
             deformation, deformationDirection, deformationRate, rateDirection,
             timestep, temperature, valid, &tangentNonfinite
-        );
+        , deformationLow);
         if (valid && diagnosticStageFlags != nullptr)
             *diagnosticStageFlags |= kMaterialDiagStressEvaluated |
                 kMaterialDiagTangentEvaluated;
@@ -1478,6 +1578,9 @@ inline void evaluateAlgorithmicStressTangent(
     }
 
     float projectedState[NM_MAX_MATERIAL_STATE];
+    float projectedLow[NM_MAX_MATERIAL_STATE] = {0.0f};
+    const NMPaperCandidateState candidate{projectedState,
+        usesCompensatedImplicitCandidate(material) ? projectedLow : nullptr};
     for (uint state = 0u; state < material.stateCount; ++state)
         projectedState[state] = acceptedState != nullptr
             ? acceptedState[state] : 0.0f;
@@ -1489,11 +1592,14 @@ inline void evaluateAlgorithmicStressTangent(
         diagnosticProjectionResidualNorm, diagnosticProjectionStateNorm,
         diagnosticProjectionIterations, diagnosticStageFlags,
         &projectionFailure
-    );
+    , deformationLow, projectedLow);
     if (returnedProjectedState != nullptr) {
         for (uint state = 0u; state < material.stateCount; ++state)
             returnedProjectedState[state] = projectedState[state];
     }
+    if (returnedProjectedLow != nullptr)
+        for (uint state=0u;state<material.stateCount;++state)
+            returnedProjectedLow[state]=projectedLow[state];
     valid = projectionSucceeded;
     if (!projectionSucceeded) {
         stress = float3x3(0.0f);
@@ -1506,10 +1612,10 @@ inline void evaluateAlgorithmicStressTangent(
     bool stressNonfinite = false;
     stress = evaluateStressWithCandidate(
         material, programs, instructions, parameters,
-        acceptedState, projectedState,
+        acceptedState, candidate,
         deformation, deformationRate, timestep, temperature, valid,
         &stressNonfinite
-    );
+    , deformationLow);
     if (!valid && diagnosticTerminalFailure != nullptr)
         *diagnosticTerminalFailure = stressNonfinite
             ? kMaterialFailureStressNonfinite
@@ -1519,10 +1625,10 @@ inline void evaluateAlgorithmicStressTangent(
     bool tangentNonfinite = false;
     tangent = evaluateTangentVectorWithCandidate(
         material, programs, instructions, parameters,
-        acceptedState, projectedState,
+        acceptedState, candidate,
         deformation, deformationDirection, deformationRate, rateDirection,
         timestep, temperature, valid, &tangentNonfinite
-    );
+    , deformationLow);
     if (!valid) {
         if (diagnosticTerminalFailure != nullptr &&
             *diagnosticTerminalFailure == kMaterialFailureNone)
@@ -1542,10 +1648,10 @@ inline void evaluateAlgorithmicStressTangent(
         bool implicitTangentNonfinite = false;
         valid = evaluateImplicitMaterialSystem(
             material, programs, instructions, parameters, acceptedState,
-            projectedState, deformation, deformationDirection,
+            candidate, deformation, deformationDirection,
             deformationRate, timestep, temperature, residual, jacobian, true,
             &implicitTangentNonfinite
-        );
+        , deformationLow);
         if (!valid) {
             if (diagnosticTerminalFailure != nullptr)
                 *diagnosticTerminalFailure = implicitTangentNonfinite
@@ -1564,9 +1670,9 @@ inline void evaluateAlgorithmicStressTangent(
             residual[state] = -evaluateScalarProgramWithCandidate(
                 material.implicitDeformationProgramOffset + state,
                 programs, instructions, parameters + material.parameterOffset,
-                acceptedState, projectedState, f, direction, rate, timestep,
+                acceptedState, candidate, f, direction, rate, timestep,
                 temperature, valid, &derivativeNonfinite
-            );
+            , deformationLow);
             if (!valid) {
                 if (diagnosticTerminalFailure != nullptr)
                     *diagnosticTerminalFailure = derivativeNonfinite
@@ -1595,9 +1701,9 @@ inline void evaluateAlgorithmicStressTangent(
                         component * material.stateCount + state,
                     programs, instructions,
                     parameters + material.parameterOffset,
-                    acceptedState, projectedState, f, direction, rate,
+                    acceptedState, candidate, f, direction, rate,
                     timestep, temperature, valid, &derivativeNonfinite
-                );
+                , deformationLow);
                 if (!valid) {
                     if (diagnosticTerminalFailure != nullptr)
                         *diagnosticTerminalFailure = derivativeNonfinite
@@ -1650,7 +1756,7 @@ inline void evaluateAlgorithmicStressTangent(
         deformationRate + epsilon * rateDirection,
         timestep, temperature, perturbedState, nullptr, nullptr, nullptr,
         nullptr, &perturbedFailure
-    );
+    , deformationLow);
     float3x3 perturbedStateStress = float3x3(0.0f);
     if (perturbedValid) {
         bool perturbedStressNonfinite = false;
@@ -1659,7 +1765,7 @@ inline void evaluateAlgorithmicStressTangent(
             acceptedState, perturbedState,
             deformation, deformationRate, timestep, temperature,
             perturbedValid, &perturbedStressNonfinite
-        );
+        , deformationLow);
         if (!perturbedValid)
             perturbedFailure = perturbedStressNonfinite
                 ? kMaterialFailureStressNonfinite
@@ -1683,7 +1789,7 @@ inline void evaluateAlgorithmicStressTangent(
         deformationRate - epsilon * rateDirection,
         timestep, temperature, perturbedState, nullptr, nullptr, nullptr,
         nullptr, &perturbedFailure
-    );
+    , deformationLow);
     if (perturbedValid) {
         bool perturbedStressNonfinite = false;
         perturbedStateStress = evaluateStressWithCandidate(
@@ -1691,7 +1797,7 @@ inline void evaluateAlgorithmicStressTangent(
             acceptedState, perturbedState,
             deformation, deformationRate, timestep, temperature,
             perturbedValid, &perturbedStressNonfinite
-        );
+        , deformationLow);
         if (!perturbedValid)
             perturbedFailure = perturbedStressNonfinite
                 ? kMaterialFailureStressNonfinite
@@ -1723,6 +1829,8 @@ inline bool evaluateMaterialValidity(
     const float timestep,
     const float temperature,
     thread float& margin
+,
+    thread const float* deformationLow = nullptr
 ) {
     if (material.validityProgram == NM_INVALID_INDEX) {
         margin = 1.0f;
@@ -1750,7 +1858,7 @@ inline bool evaluateMaterialValidity(
         timestep,
         temperature,
         valid
-    );
+    , deformationLow);
     return valid && isfinite(margin);
 }
 

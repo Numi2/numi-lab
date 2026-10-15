@@ -1,0 +1,3 @@
+authored_extended_budget=newton32,fgmres256,restart16,line_search24 relative_residual_unchanged=1e-7
+ipc_barrier_regularization=pass c1_floor_m=1e-09 below_floor_repulsion=true outside_support_exact_zero=true
+authored_line_search_budget=pass accepted=1,8,32 rejected=0,33

@@ -1,0 +1,18 @@
+{
+  "exit_code": 0,
+  "commands": [
+    [
+      "ctest",
+      "--test-dir",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-040",
+      "--tests-from-file",
+      "/Users/home/cardboard-implementation-20261014/cpu-checks-040/selected-tests.txt",
+      "--output-on-failure",
+      "-j",
+      "4"
+    ]
+  ],
+  "build_provenance_sha256": "3b9fcf7fed62bf379c1c347b9cb2396c5073267efe25d8cf98526986606d32da",
+  "selected_tests": 48,
+  "finished_at_utc": "2026-10-14T21:56:19.674323+00:00"
+}

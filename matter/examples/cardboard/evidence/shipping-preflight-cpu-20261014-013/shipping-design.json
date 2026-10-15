@@ -1,0 +1,23 @@
+{
+  "schema": "numi.cardboard.shipping-design.v1",
+  "status": "flat_dieline_native_protocol_inputs",
+  "finished_inside_dimensions_m": [0.29999999999999999,0.20000000000000001,0.20000000000000001],
+  "score_center_span_minus_inside_m_xyz": [0,0,0],
+  "allowance_disposition": "zero_offset_lower_bound_only",
+  "coupon_id": "lower-bound-zero-offset",
+  "coupon_source_run_id": "not-a-run-lower-bound-only",
+  "coupon_measurement_sha256": null,
+  "coupon_evidence_file_sha256": "",
+  "coupon_evidence_file": "",
+  "coupon_measurement_file": "",
+  "allowance_gates": {"complete_score_fold_release": false, "scoring_damage_law_qualified": false},
+  "blank": {"panel_length_m": 0.29999999999999999, "panel_width_m": 0.20000000000000001, "wall_height_m": 0.20000000000000001, "manufacturer_lap_m": 0.025000000000000001, "slot_kerf_m": 0.001, "perimeter_span_m": 1.0249999999999999, "blank_height_m": 0.40000000000000002, "flap_depth_m": 0.10000000000000001},
+  "board_recipe": {"id": "literature2009_cross_source", "profile": "sinusoidal_fallback", "pitch_m": 0.0079000000000000008, "caliper_m": 0.0042100000000000002, "liner_thickness_m": 0.00027700000000000001, "medium_thickness_m": 0.00019100000000000001, "lower_glue_gap_m": 0.0001, "lower_bond_width_m": 0.00080000000000000004, "upper_glue_gap_m": 3.0000000000000001e-05, "safeguarded_paper_hill_initializer": false, "paper_compensated_arithmetic": false, "paper_hill_accurate_projection": false, "upper_bond_width_m": 0.00059999999999999995, "partial_terminal_pitch": true, "pitch_intervals": 130},
+  "score_tool_defaults": {"nose_radius_m": 0.001, "channel_width_m": 0.006, "support_rail_width_m": 0.010, "clearance_calipers": 0.25, "depths_m": [0.00042100000000000004,0.00084200000000000008,0.001263,0.0016840000000000002], "channel_tool_geometry_available": true, "channel_tool_geometry_qualified": false, "crease_damage_law_qualified": false},
+  "closure_plan": {"adhesive": "hot_melt", "patch_count": 9, "overlap_area_m2": 0.08500000000000002, "adhesive_footprint_area_m2": 0.009999999999999995, "manufacturer_lap_width_m": 0.025, "flap_patch_layout": "major flaps bond to underlying minor flaps; major flaps meet at an unbonded butt line", "tape": false, "adhesive_grade_or_law_calibrated": false, "authored_mortar_patch_groups": []},
+  "hma_parameter_provenance": {"file_sha256": "", "source_class": "not_provided", "source_citation": "", "transfer_uncertainty_fraction": 0, "calibrated_corrugated_closure": false},
+  "starch_interface": {"paired_face_count": 0, "law_parameters_sha256": "", "source_class": "not_provided", "qualified_starch_calibration": false, "self_contact_after_debonding": false},
+  "mesh": {"nodes": 453378, "tetrahedra": 1477728, "cohesive_faces": 0, "static_lower_bound_bytes": 656899296},
+  "accepted_stage_gates": {"scoring": false, "folded_walls": false, "manufacturer_lap": false, "flaps": false, "released_settled_assembly": false},
+  "qualification": {"native_process_complete": false, "physical_box_qualified": false, "source_grade_calibrated": false}
+}
