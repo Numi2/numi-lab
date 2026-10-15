@@ -1,0 +1,14 @@
+{
+  "binary_sha256": "b87ce91b41f82a60c812eb7c41582377306dc7b4bee3b3a96c44d281a7a0930d",
+  "command": [
+    "/usr/bin/swiftc",
+    "/Users/n/numi-lab-resting-qualification-publish-1395/matter/tools/inspect_resting_movie.swift",
+    "-o",
+    "/Users/n/numi-human-retained-delivery-20261009/native-movie-inspector-build-20261015-001/inspect-resting-movie"
+  ],
+  "elapsed_seconds": 2.560609584004851,
+  "exit_code": 0,
+  "scope": "Existing AVFoundation native movie inspection utility only. No simulation or native scene admission.",
+  "source_path": "/Users/n/numi-lab-resting-qualification-publish-1395/matter/tools/inspect_resting_movie.swift",
+  "source_sha256": "2d6704dd5f06bffd0b8aa0072171af805fdb3dd00dcc11c02e0b692513b21649"
+}

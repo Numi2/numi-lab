@@ -1,0 +1,14 @@
+{
+  "binary_sha256": "a875fc60a86f91339d87e846e4a7325f3de6c9880472d606a30ae5de412d7109",
+  "command": [
+    "/usr/bin/swiftc",
+    "/Users/n/numi-lab-resting-storage-publish-1420/matter/tools/inspect_resting_movie.swift",
+    "-o",
+    "/Users/n/numi-human-retained-delivery-20261009/native-movie-inspector-build-20261015-002/inspect-resting-movie"
+  ],
+  "elapsed_seconds": 0.2794292910111835,
+  "exit_code": 0,
+  "scope": "Existing native movie inspector, startup zero-time frames retained; no physics change.",
+  "source_path": "/Users/n/numi-lab-resting-storage-publish-1420/matter/tools/inspect_resting_movie.swift",
+  "source_sha256": "741f5efebffc7667de3bd48991a2545c9b0a6d084b4ac2330a0c76786046e92e"
+}
