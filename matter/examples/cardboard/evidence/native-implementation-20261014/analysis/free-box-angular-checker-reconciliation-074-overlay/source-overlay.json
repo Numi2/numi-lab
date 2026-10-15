@@ -1,0 +1,54 @@
+{
+  "schema": "numi.cardboard.angular-checker-overlay.v1",
+  "overlay_id": "free-box-angular-checker-reconciliation-074",
+  "source_snapshot_base": "/Users/home/cardboard-implementation-20261014/snapshots/source-refined-graph-angular-residual-instrument-071",
+  "immediate_checker_base": "/Users/home/cardboard-implementation-20261014/analysis/free-box-angular-inertia-chain-073-overlay/cardboard_free_box_angular_native_check.mm",
+  "base_file": "base-073.mm",
+  "base_sha256": "c7ec4c436481019a80ae57c98f5687d3088414252780a662736248f34736cbdf",
+  "replacement_file": "cardboard_free_box_angular_native_check.mm",
+  "replacement_sha256": "dd9116d31b2bd6f25ff01c0d5b67597de13350ce4f82f1c01fb400624c1db638",
+  "patch_file": "checker.patch",
+  "patch_sha256": "ec5c9c0ce97a74b1c821637c2a554f39e521b527eb94b04c4e886f2a8742566b",
+  "changed_path": "matter/tools/cardboard_free_box_angular_native_check.mm",
+  "patch_scope": "Checker fixture and diagnostics only. Carries the 073 path-classification repair and FP64 inertia-chain gates, while restoring the validated invalid adaptive-owner sentinel, approaching relative point velocity, and raw sample failure diagnostics from the 069 fixture correction. No production solver or contact physics changes.",
+  "merged_corrections": {
+    "adaptive_owner": "proxy_.adaptiveObjectIndex=NM_INVALID_INDEX to avoid treating FEM object 0 as the rigid body's adaptive owner",
+    "approach_direction": "box point velocity is authored so the fixed node approaches the outward contact normal; a dot-product assertion verifies the sign",
+    "sample_failure": "invalid status/sample/branch prints raw sample and state fields, marks the result failed, and continues independent cases; it never promotes the missing sample",
+    "inertia_sample_failure": "prints raw sample details and returns FAIL instead of throwing before diagnostics",
+    "reference_fixture_overlay": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/free-box-angular-sample-approach-fixture-069-overlay/cardboard_free_box_angular_native_check.mm",
+      "sha256": "4e0d3f1f59ec844fea14b89ec725d67208d07ab80293f460443906b1a94aa230",
+      "merged_only": "adaptive owner invalidation, approaching body velocity with dot assertion, raw invalid-sample/inertia diagnostics and fail-closed continuation; its older path and inertia code were not copied"
+    }
+  },
+  "retained_073_gates": {
+    "path_oracle": "FP64 sampled path oracle and production certificate classification are retained; sampled clearance is not treated as a swept certificate",
+    "contact_operator": "A=-dR; stable-feature and max-stiffness-branch checks remain",
+    "inertia_chain": "FP32-bound source fields promoted to FP64; FP64 derivative threshold 1e-6 and production-vs-FP64 threshold 1e-3 remain; FP32 FD may remain inconclusive"
+  },
+  "validation": {
+    "fixture_invariants": "PASS; see verify_overlay.py output",
+    "objective_cxx_syntax_only": "PASS against source071 headers with -Wall -Wextra -Wpedantic -Werror",
+    "native": "PENDING root-controlled; no GPU run performed by overlay author",
+    "fixture_invariant_script_sha256": "17ca8e6b63ae157a35b4513e5c17d4d332f1d3898bf452bf9f1ed45676b269fc",
+    "syntax_record_sha256": "c910755bbd1f876d9131b01dc466aa8d639b2f68611f93fd4680f2328651e7d4"
+  },
+  "cli_regression": {
+    "base_cmake": "/Users/home/cardboard-implementation-20261014/snapshots/source-finite-refinement-and-resolved-inertia-instrument-072/matter/CMakeLists.txt",
+    "base_cmake_sha256": "232ca6593bb0f87aeb37c746d18f27faa4e7d91cf24a77ad80a3cefcb4edb92a",
+    "patch_file": "cmake-cli-option.patch",
+    "patch_sha256": "020bf9e57fc2f7450b5544bfcdc7e9c474bc408b30fc00b5213f47c1fd7e3c8a",
+    "test_name": "matter.cli.cardboard_graph_option",
+    "command": "numi-matter-cardboard-probe --help",
+    "pass_regex": "regional-galerkin-schwarz",
+    "labels": [
+      "matter",
+      "cardboard",
+      "cpu",
+      "cli"
+    ],
+    "purpose": "Catch restoring a probe binary/source that drops the selector-5 option from help output; this is a no-step CLI test.",
+    "dry_run_record_sha256": "f4e00a1fd9772040b81aae848d1d3c4932cadca5cde4c11bb566e244df6d57e5"
+  }
+}

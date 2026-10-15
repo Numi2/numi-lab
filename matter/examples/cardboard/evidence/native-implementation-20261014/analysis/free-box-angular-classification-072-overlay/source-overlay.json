@@ -1,0 +1,34 @@
+{
+  "schema": "numi.cardboard.angular-checker-overlay.v1",
+  "overlay_id": "free-box-angular-classification-072",
+  "source_snapshot_base": "/Users/home/cardboard-implementation-20261014/snapshots/source-refined-graph-angular-residual-instrument-071",
+  "base_revision_description": "Source 071 checker, exact checker input hash recorded by native case 223; does not edit the sealed snapshot.",
+  "base_file": "base-855b.mm",
+  "base_sha256": "855b816c2f4f814446f382e58bcd0acc58dc6d31543b91c84760309b94dbb11f",
+  "replacement_file": "cardboard_free_box_angular_native_check.mm",
+  "replacement_sha256": "908255e8aabbca96f1c1ca535de6390ae6f6ddb948f4e66fb87178d89b1f7bd1",
+  "patch_file": "checker.patch",
+  "patch_sha256": "784fb3e48693448308f50764fe67fe692b04cfe028e1ba0ca5b3dd1fc04ad1f8",
+  "changed_path": "matter/tools/cardboard_free_box_angular_native_check.mm",
+  "patch_scope": "Checker only. Restores sampled FP64 sweep oracle and pre-assert raw diagnostic output, while preserving the 855b A=-dR sign correction and smooth-branch guards. No production kernel or physical law changes.",
+  "evidence": {
+    "failed_run_223": "/Users/home/cardboard-implementation-20261014/native/free-box-angular-corrected-residual-kernels-223",
+    "comparison_run_213": "/Users/home/cardboard-implementation-20261014/native/free-box-angular-production-kernels-213",
+    "contact_source_sha256_case_213": "69c3ec930d0b382dfe278fa42c56353782438ded77d8224a3ccfd6989e3067c9",
+    "contact_source_sha256_case_223": "69c3ec930d0b382dfe278fa42c56353782438ded77d8224a3ccfd6989e3067c9",
+    "case_213_crossing_diagnostics": {
+      "status": 6,
+      "alpha_min_gap_m": 0.0649999976158,
+      "physical_min_sampled_gap_m": 1.00387260318e-05,
+      "floor_m": 1.00000006569e-05,
+      "alpha_certified": true,
+      "fp64_sampled_physical_gap_at_fraction_0_5_m": -0.00499999957972
+    },
+    "case_223": "Failed before printing raw diagnostics because checker asserted diagnostics.y > diagnostics.z as physical clearance. These fields are sampled minimum gap and floor; a positive sampled minimum is not a swept-clear certificate.",
+    "interpretation": "Case 213 used source 069 and is a comparator, not the source 071 result. Contact Metal source text SHA is identical in cases 213 and 223, but builds/source snapshots differ. Case 223 exact path status cannot be recovered from its current log; rerun replacement checker to capture it."
+  },
+  "validation": {
+    "clang_objective_cxx_fsyntax_only": "PASS using source 071 headers and build 071 framework/include configuration; no GPU execution",
+    "native_replacement": "PENDING root-controlled run; no native test performed by this overlay author"
+  }
+}

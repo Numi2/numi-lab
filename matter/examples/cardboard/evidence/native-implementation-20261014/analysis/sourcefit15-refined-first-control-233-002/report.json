@@ -1,0 +1,685 @@
+{
+  "schema": "numi.cardboard.sourcefit-first-control.v1",
+  "status": "pass_bounded_first_control",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-refined-graph-first-control-233",
+  "bindings": {
+    "prediction.json": "0aa506990fda414069761b15c7cb2c2eec07f2dfcf440dce5e27fb84350aacf5",
+    "receipt.json": "d6c32710aab1718e2630eac7f2e2023a0331db27156a2a90c61c347ea4525a33",
+    "output/result.json": "c338bdd29d8d49f6eaf03779c1abbf64963b3bbfbd7a9ac3ad7a1c71fb9f3b02",
+    "output/manifest.json": "dee57d60926700d8d4eda11e09f10815a37c8a90ff8ca9eb07bf16bce255e52a",
+    "output/observations.csv": "42f934892d1343db126ad32dfced2185f77f6a14a7e06e501f2cf6394ae03aeb"
+  },
+  "result": {
+    "schema": "numi.cardboard.probe-result.v1",
+    "status": "completed",
+    "accepted_steps": 1,
+    "compiled_world_fingerprint": 11435624337443124422,
+    "nodes": 882,
+    "tetrahedra": 1920,
+    "material_map_sha256": "1bfcfd4eedb2c328811d4dbca26b51f3f996a83398c2e51108e2126e4c541c31",
+    "authored_region_map_sha256": "8513c9e0e7f3f784ed3de52b609ac26837197d4ba3d0bf5d33a067136afafec4",
+    "frame_map_sha256": "94e426a5d9d06445e3f44d1046f8b49bdae23a5752691f9776118222f4d7b740",
+    "damage_overlay_mapping_sha256": "",
+    "failure": "",
+    "physical_validation": false
+  },
+  "solver": {
+    "backend": "implicit nonlinear Matter FEM on Apple Metal",
+    "deformable_self_contact": false,
+    "compact_immutable_surface_map": false,
+    "compiled_surface_face_count": 4720,
+    "deformable_contact_capacity_requested": null,
+    "deformable_contact_capacity_compiled": 15360,
+    "contact_slop_m": 1.91e-06,
+    "deformation_gradient": "persistent_reference_displacement",
+    "dt_s": 0.0001,
+    "bend_angle_deg": 0.03125,
+    "steps": 1,
+    "hold_steps": 0,
+    "unload_steps": 0,
+    "relax_steps": 0,
+    "release_steps": 0,
+    "release_policy": "right grip free; left grip remains fixed; physical state preserved",
+    "local_material_newton_iterations": 32,
+    "newton_iteration_budget": 64,
+    "fgmres_restart": 16,
+    "fgmres_iteration_budget": 1024,
+    "fgmres_preconditioner": "regional_galerkin_graph_schwarz_conditioning_only",
+    "fgmres_preconditioner_rebuild_policy": "once_per_newton_linearization",
+    "fgmres_algorithmic_tangent_cache": true,
+    "paper_compensated_arithmetic": true,
+    "safeguarded_paper_hill_initializer": false,
+    "line_search_steps": 24,
+    "relative_residual_tolerance": 9.999999974752427e-07,
+    "volume_tolerance": 9.999999747378752e-05,
+    "pressure_tolerance": 9.999999747378752e-05,
+    "transport_tolerance": 9.999999747378752e-05,
+    "gravity_m_s2": [
+      0,
+      0,
+      0
+    ],
+    "maximum_rate_exponent": 0,
+    "runtime_execution": true
+  },
+  "first_certified_noop_newton": 39,
+  "armijo": [
+    {
+      "newton": 0,
+      "base_l2": 0.00485658878,
+      "trial_l2": 0.00131248264,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 1,
+      "base_l2": 0.00131248264,
+      "trial_l2": 0.000463343225,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 2,
+      "base_l2": 0.000463343225,
+      "trial_l2": 0.000447746948,
+      "alpha": 0.0625,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 3,
+      "base_l2": 0.000447746948,
+      "trial_l2": 0.000433816662,
+      "alpha": 0.0625,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 4,
+      "base_l2": 0.000433816662,
+      "trial_l2": 0.000417979987,
+      "alpha": 0.0625,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 5,
+      "base_l2": 0.000417979987,
+      "trial_l2": 0.000411761052,
+      "alpha": 0.0625,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 6,
+      "base_l2": 0.000411761052,
+      "trial_l2": 0.000400911929,
+      "alpha": 0.0625,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 7,
+      "base_l2": 0.000400911929,
+      "trial_l2": 0.000393477589,
+      "alpha": 0.125,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 8,
+      "base_l2": 0.000393477589,
+      "trial_l2": 0.000382198836,
+      "alpha": 0.0625,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 9,
+      "base_l2": 0.000382198836,
+      "trial_l2": 0.000364776526,
+      "alpha": 0.125,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 10,
+      "base_l2": 0.000364776526,
+      "trial_l2": 0.000353889831,
+      "alpha": 0.0625,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 11,
+      "base_l2": 0.000353889831,
+      "trial_l2": 0.000314035045,
+      "alpha": 0.5,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 12,
+      "base_l2": 0.000314035045,
+      "trial_l2": 0.000310342497,
+      "alpha": 0.0625,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 13,
+      "base_l2": 0.000310342497,
+      "trial_l2": 0.000305048627,
+      "alpha": 0.125,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 14,
+      "base_l2": 0.000305048627,
+      "trial_l2": 0.000258347689,
+      "alpha": 0.5,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 15,
+      "base_l2": 0.000258347689,
+      "trial_l2": 0.000247201329,
+      "alpha": 0.0625,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 16,
+      "base_l2": 0.000247201329,
+      "trial_l2": 0.000237138403,
+      "alpha": 0.125,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 17,
+      "base_l2": 0.000237138403,
+      "trial_l2": 0.00022174629,
+      "alpha": 0.25,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 18,
+      "base_l2": 0.00022174629,
+      "trial_l2": 0.000219886235,
+      "alpha": 0.03125,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 19,
+      "base_l2": 0.000219886235,
+      "trial_l2": 0.000205924269,
+      "alpha": 0.125,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 20,
+      "base_l2": 0.000205924269,
+      "trial_l2": 0.000197220899,
+      "alpha": 0.25,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 21,
+      "base_l2": 0.000197220899,
+      "trial_l2": 0.000195514731,
+      "alpha": 0.03125,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 22,
+      "base_l2": 0.000195514731,
+      "trial_l2": 0.000185183642,
+      "alpha": 0.125,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 23,
+      "base_l2": 0.000185183642,
+      "trial_l2": 0.000142625824,
+      "alpha": 0.5,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 24,
+      "base_l2": 0.000142625824,
+      "trial_l2": 0.00014134901,
+      "alpha": 0.0625,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 25,
+      "base_l2": 0.00014134901,
+      "trial_l2": 0.000124427213,
+      "alpha": 0.25,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 26,
+      "base_l2": 0.000124427213,
+      "trial_l2": 3.70065827e-05,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 27,
+      "base_l2": 3.70065827e-05,
+      "trial_l2": 3.68451001e-05,
+      "alpha": 0.0078125,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 28,
+      "base_l2": 3.68451001e-05,
+      "trial_l2": 3.66762542e-05,
+      "alpha": 0.0078125,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 29,
+      "base_l2": 3.66762542e-05,
+      "trial_l2": 3.63247527e-05,
+      "alpha": 0.0625,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 30,
+      "base_l2": 3.63247527e-05,
+      "trial_l2": 3.45926637e-05,
+      "alpha": 0.25,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 31,
+      "base_l2": 3.45926637e-05,
+      "trial_l2": 3.35934092e-05,
+      "alpha": 0.5,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 32,
+      "base_l2": 3.35934092e-05,
+      "trial_l2": 2.98256837e-05,
+      "alpha": 0.25,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 33,
+      "base_l2": 2.98256837e-05,
+      "trial_l2": 8.32656497e-06,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 34,
+      "base_l2": 8.32656497e-06,
+      "trial_l2": 6.83555845e-06,
+      "alpha": 0.25,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 35,
+      "base_l2": 6.83555845e-06,
+      "trial_l2": 6.61153535e-06,
+      "alpha": 0.125,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 36,
+      "base_l2": 6.61153535e-06,
+      "trial_l2": 4.74355329e-06,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 37,
+      "base_l2": 4.74355329e-06,
+      "trial_l2": 4.57885244e-06,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 38,
+      "base_l2": 4.57885244e-06,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 0.5,
+      "accepted": true,
+      "certified_noop": false
+    },
+    {
+      "newton": 39,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 40,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 41,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 42,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 43,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 44,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 45,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 46,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 47,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 48,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 49,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 50,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 51,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 52,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 53,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 54,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 55,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 56,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 57,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 58,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 59,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 60,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 61,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 62,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    },
+    {
+      "newton": 63,
+      "base_l2": 8.69235777e-08,
+      "trial_l2": 8.69235777e-08,
+      "alpha": 1,
+      "accepted": true,
+      "certified_noop": true
+    }
+  ],
+  "terminal_certificates": [],
+  "production_observations": [
+    {
+      "step": "0",
+      "time_s": "9.9999997473787516e-05",
+      "environment": "0",
+      "arm": "bent",
+      "target_angle_deg": "0.03125",
+      "status_code": "0",
+      "object_index": "4294967295",
+      "failing_index": "4294967295",
+      "completed_microsteps": "1",
+      "fgmres_iterations": "25",
+      "status_diagnostic_x": "0.99941915273666382",
+      "status_diagnostic_y": "0",
+      "status_diagnostic_z": "0",
+      "status_diagnostic_w": "0",
+      "min_J": "0.99941908366467125",
+      "max_J": "1.0005212068239819",
+      "max_node_displacement_m": "2.4644541052350929e-06",
+      "reaction_x_N": "-0.0019427686929702759",
+      "reaction_y_N": "-0.010919511580141261",
+      "reaction_z_N": "-0.31897765753092244",
+      "reaction_moment_y_Nm": "-0.0084168032152811077",
+      "mechanical_constraint_reaction_x_N": "-0.0019427686929702759",
+      "mechanical_constraint_reaction_y_N": "-0.010919511580141261",
+      "mechanical_constraint_reaction_z_N": "-0.31897765753092244",
+      "contact_reaction_x_N": "0",
+      "contact_reaction_y_N": "0",
+      "contact_reaction_z_N": "0",
+      "mechanical_constraint_moment_y_Nm": "-0.0084168032152811077",
+      "contact_moment_y_Nm": "0",
+      "phase": "loading",
+      "max_free_displacement_m": "2.4644541052350929e-06",
+      "max_free_speed_m_s": "0.024644999226498335",
+      "kinetic_energy_J": "3.1765316088388763e-08",
+      "max_material_state_change": "0.036298912018537521",
+      "certificate_residual": "8.6923598985322315e-08",
+      "certificate_correction": "0",
+      "certificate_volume": "0",
+      "certificate_pressure": "0",
+      "certificate_raw_accepted_flag": "1",
+      "step_accepted": "1",
+      "right_grip_constrained": "1",
+      "measured_right_grip_angle_deg": "0.0312709094888994",
+      "current_fixed_nodes": "36",
+      "free_force_imbalance_l2_N": "0.00086923605669944766",
+      "free_force_imbalance_max_N": "0.00059014938020327131"
+    },
+    {
+      "step": "0",
+      "time_s": "9.9999997473787516e-05",
+      "environment": "1",
+      "arm": "held_reference",
+      "target_angle_deg": "0",
+      "status_code": "0",
+      "object_index": "4294967295",
+      "failing_index": "4294967295",
+      "completed_microsteps": "1",
+      "fgmres_iterations": "4",
+      "status_diagnostic_x": "1",
+      "status_diagnostic_y": "0",
+      "status_diagnostic_z": "0",
+      "status_diagnostic_w": "0",
+      "min_J": "1",
+      "max_J": "1",
+      "max_node_displacement_m": "0",
+      "reaction_x_N": "-0.00034503398092056159",
+      "reaction_y_N": "0",
+      "reaction_z_N": "5.8862638979917392e-05",
+      "reaction_moment_y_Nm": "3.8063805862425422e-07",
+      "mechanical_constraint_reaction_x_N": "-0.00034503398092056159",
+      "mechanical_constraint_reaction_y_N": "0",
+      "mechanical_constraint_reaction_z_N": "5.8862638979917392e-05",
+      "contact_reaction_x_N": "0",
+      "contact_reaction_y_N": "0",
+      "contact_reaction_z_N": "0",
+      "mechanical_constraint_moment_y_Nm": "3.8063805862425422e-07",
+      "contact_moment_y_Nm": "0",
+      "phase": "loading",
+      "max_free_displacement_m": "0",
+      "max_free_speed_m_s": "0",
+      "kinetic_energy_J": "0",
+      "max_material_state_change": "1.1370992979209404e-05",
+      "certificate_residual": "6.7800051795074978e-08",
+      "certificate_correction": "0",
+      "certificate_volume": "0",
+      "certificate_pressure": "0",
+      "certificate_raw_accepted_flag": "1",
+      "step_accepted": "1",
+      "right_grip_constrained": "1",
+      "measured_right_grip_angle_deg": "-4.6091072262071513e-14",
+      "current_fixed_nodes": "36",
+      "free_force_imbalance_l2_N": "0.00067800058012175576",
+      "free_force_imbalance_max_N": "9.1728926586278557e-05"
+    }
+  ],
+  "observer_scope": "No terminal Newton observer was enabled; actual certificates are exported by production observations.csv.",
+  "comparison": "Fresh source073 uses fixed local residual refinement on the actual graph preconditioner, same 15-state recipe, 64 Newton, restart16 and strict1e-6 as unrefined225. Completed prepared-kernel227 does not by itself qualify this control. Earlier230 was rejected pre-FEM by a lost CLI option; its failure is retained. No tolerance relaxation.",
+  "limitations": [
+    "Onlyone.03125degreecontrolatdt.0001; nofullcycleorquasistaticclaim",
+    "Publishedtensilehardeningfitwithcompression/shearassumptions,notmatcheddamagecalibration",
+    "Differentmodelthan13-stateidealregression; doesnotrepairorqualifyitsfailedconvergence",
+    "No complete mesh/time/release/starch/HMA/boxassembly/crush/drop qualification"
+  ]
+}

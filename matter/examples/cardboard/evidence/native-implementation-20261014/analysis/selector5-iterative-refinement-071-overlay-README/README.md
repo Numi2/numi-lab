@@ -1,0 +1,11 @@
+# Selector-5 graph Schwarz one-step refinement overlay (071)
+
+This isolated, corrected overlay preserves one copy of each assembled selector-5 local patch matrix before the existing pivoted FP32 LU overwrites it. After the existing local solve returns `x0`, the solve kernel computes `r = b - A*x0` from that preserved matrix, solves one correction through the same LU and pivots, and returns `x0 + delta`.
+
+The physical operator, nonlinear solver tolerances, acceptance certificate, and selectors other than 5 are unchanged. Completed-Krylov-cycle tails still zero patch corrections before local solves. Invalid factors remain fail-closed; an exactly zero residual does not trigger a correction. Mode 0 exposes the unrefined result for a checker control. Mode 1 performs exactly one refinement and is bound by production runtime; modes above 1 are rejected.
+
+The source overlay manifest binds this patch to frozen source 069 and includes source 068 lineage. The 069 runtime and FGMRES hashes include the completed-tail guard (pipeline filtering, buffer 17 state input, and a zero-correction return before solving). The 070 build exposed a typo in an extent check (`totalPatchNodes` was not a layout member); the failed 068 overlay is preserved with that exact source, and this 071 overlay fixes it by using `layout.patchNodes.size()`.
+
+The extra arena is `environmentCount * matrixFloatCount * sizeof(float)`. In canonical182, 4,718,637 matrix floats per environment adds 18,874,548 bytes per environment or 37,749,096 bytes for two environments. The graph layout helper now counts both the LU and source matrix arenas under its existing 96 MiB bound. Runtime checks per-buffer `MTLDevice.maxBufferLength` and environment-major matrix, pivot, patch-correction, and factor-valid `uint32` extents before allocating. The estimated selector-5 arena for two canonical182 environments changes from 37,986,404 to 75,735,500 bytes.
+
+The CPU audit in `../selector5-triangle-roundoff-audit-001/` found that offline one-step refinement with the captured FP32 LU brought all 13 canonical182 patches below the unchanged 1e-3 local residual limit. That is motivation, not native qualification. This 071 overlay has not been compiled or run on GPU. Native checker coverage for an active solve, exact-zero RHS, completed-cycle tail, and invalid factor is still pending.

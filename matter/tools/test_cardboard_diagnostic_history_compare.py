@@ -1,10 +1,14 @@
 import hashlib
 import json
+import errno
 from pathlib import Path
+import signal
+import subprocess
 import tempfile
 import unittest
 
 import cardboard_diagnostic_history_compare as compare
+import cardboard_source_bound_run_support as runner_support
 
 
 def _digest(data: bytes) -> str:
@@ -117,6 +121,93 @@ class DiagnosticHistoryComparatorTests(unittest.TestCase):
         path = case / "prediction.json"
         value = json.loads(path.read_text())
         return path, value
+
+    def _configure_regional_rap_capture(self, case: Path):
+        prediction_path, prediction = self._prediction(case)
+        capture_base = case / "rap-only-capture"
+        prediction["environment"].update({
+            "NM_FEM_OPERATOR_FD_SELECTOR": "1:0",
+            "NM_FEM_OPERATOR_FD_CAPTURE_PATH": str(capture_base),
+            "NM_FEM_REGIONAL_RAP_CAPTURE_ONLY": "1",
+        })
+        _write_json(prediction_path, prediction)
+        (case / "capture.jsonl").unlink(missing_ok=True)
+
+        names = {
+            "candidate_nodes": (b"nodes", "uint8"),
+            "material_history": (b"history", "uint8"),
+            "scheduler_exponents": (b"sched", "uint8"),
+            "deformation_high": (b"fhigh", "uint8"),
+            "deformation_low": (b"flow", "uint8"),
+            "P": (b"P", "uint8"),
+            "effective_P": (b"EP", "uint8"),
+            "AP": (b"AP", "uint8"),
+            "pivoted_RAP": (b"RAP", "uint8"),
+            "pivots": (b"piv", "uint8"),
+            "factor_valid": (b"valid", "uint8"),
+        }
+        payload = bytearray()
+        arrays = []
+        spans = {}
+        for name, (data, dtype) in names.items():
+            offset = len(payload)
+            payload.extend(data)
+            spans[name] = (offset, len(data))
+            arrays.append({
+                "name": name,
+                "dtype": dtype,
+                "shape": [len(data)],
+                "offset": offset,
+                "byte_count": len(data),
+                "element_bytes": 1,
+                "sha256": _digest(data),
+            })
+        payload_path = Path(str(capture_base) + ".regional.bin")
+        payload_path.write_bytes(payload)
+        identity = hashlib.sha256()
+        for name in ("candidate_nodes", "material_history", "scheduler_exponents",
+                     "deformation_high", "deformation_low"):
+            offset, size = spans[name]
+            identity.update(payload[offset:offset + size])
+        node_offset, node_size = spans["candidate_nodes"]
+        manifest = {
+            "schema": "numi.matter.regional_rap_capture.v1",
+            "byte_order": "little_endian",
+            "layout": (
+                "C-contiguous; environment-major; each array is tightly concatenated with no padding; "
+                "float32x4 elements store four adjacent little-endian lanes"),
+            "capture_point": "after_regional_rap_factor_barrier_before_fgmres_correction",
+            "source_physics_fingerprint": "0123456789abcdef",
+            "device_program_fingerprint": "fedcba9876543210",
+            "root": 1,
+            "iteration": 0,
+            "environment_count": 1,
+            "node_count": 1,
+            "tetrahedron_count": 1,
+            "mode_count": 1,
+            "preconditioner_selector": 2,
+            "graph_schwarz": {"enabled": False},
+            "material_state_stride": 16,
+            "substep": 0,
+            "microtick": 0,
+            "microtick_count": 1,
+            "linearization_generation": 0,
+            "dt_seconds": 1e-4,
+            "tangent_cache_used": False,
+            "candidate_linearization_sha256": [{
+                "environment": 0,
+                "sha256": identity.hexdigest(),
+                "candidate_nodes_sha256": _digest(payload[node_offset:node_offset + node_size]),
+            }],
+            "payload": {
+                "file": str(payload_path),
+                "byte_count": len(payload),
+                "sha256": _digest(bytes(payload)),
+            },
+            "arrays": arrays,
+        }
+        _write_json(Path(str(capture_base) + ".regional.json"), manifest)
+        return capture_base
 
     def test_identical_failed_attempts_report_parity_without_qualification(self):
         report = compare.compare_attempts(self.left, self.right)
@@ -264,12 +355,127 @@ class DiagnosticHistoryComparatorTests(unittest.TestCase):
         with self.assertRaisesRegex(compare.ComparisonError, "inside its own attempt directory"):
             compare.compare_attempts(self.left, self.right)
 
+    def test_regional_rap_only_sidecars_are_integrity_checked(self):
+        self._configure_regional_rap_capture(self.left)
+        report = compare.compare_attempts(self.left, self.right)
+        self.assertEqual(report["comparison"], "byte_identical")
+        self.assertEqual(report["qualification"]["status"], "not_qualified")
+
+    def test_regional_rap_only_requires_selector_and_capture_path(self):
+        environment = {"NM_FEM_REGIONAL_RAP_CAPTURE_ONLY": "1"}
+        with self.assertRaisesRegex(compare.ComparisonError, "requires both"):
+            compare._validate_diagnostic_capture(self.left, environment)
+        with self.assertRaisesRegex(compare.ComparisonError, "requires both"):
+            compare._validate_diagnostic_capture(self.left, {
+                "NM_FEM_REGIONAL_RAP_CAPTURE_ONLY": "1",
+                "NM_FEM_OPERATOR_FD_SELECTOR": "1:0",
+            })
+        with self.assertRaisesRegex(compare.ComparisonError, "exactly 0 or 1"):
+            compare._validate_diagnostic_capture(self.left, {
+                "NM_FEM_REGIONAL_RAP_CAPTURE_ONLY": "true",
+            })
+
+    def test_regional_rap_only_rejects_missing_or_mismatched_sidecars(self):
+        base = self._configure_regional_rap_capture(self.left)
+        manifest_path = Path(str(base) + ".regional.json")
+        manifest = json.loads(manifest_path.read_text())
+        manifest["root"] = 2
+        _write_json(manifest_path, manifest)
+        with self.assertRaisesRegex(compare.ComparisonError, "root does not match"):
+            compare.compare_attempts(self.left, self.right)
+        manifest["root"] = 1
+        _write_json(manifest_path, manifest)
+        payload_path = Path(str(base) + ".regional.bin")
+        payload_path.unlink()
+        with self.assertRaisesRegex(compare.ComparisonError, "payload is missing"):
+            compare.compare_attempts(self.left, self.right)
+
+    def test_regional_rap_only_rejects_payload_and_array_hash_mismatch(self):
+        base = self._configure_regional_rap_capture(self.left)
+        payload_path = Path(str(base) + ".regional.bin")
+        payload_path.write_bytes(payload_path.read_bytes() + b"tamper")
+        with self.assertRaisesRegex(compare.ComparisonError, "payload size or SHA-256"):
+            compare.compare_attempts(self.left, self.right)
+        base = self._configure_regional_rap_capture(self.left)
+        manifest_path = Path(str(base) + ".regional.json")
+        manifest = json.loads(manifest_path.read_text())
+        manifest["arrays"][0]["sha256"] = "0" * 64
+        _write_json(manifest_path, manifest)
+        with self.assertRaisesRegex(compare.ComparisonError, "array hash mismatch"):
+            compare.compare_attempts(self.left, self.right)
+
     def test_exclusive_report_writer_does_not_overwrite(self):
         destination = self.root / "report.json"
         destination.write_text("preserve me")
         with self.assertRaises(FileExistsError):
             compare.write_report_exclusive(destination, {"ok": True})
         self.assertEqual(destination.read_text(), "preserve me")
+
+
+class SourceBoundTimeoutReceiptTests(unittest.TestCase):
+    class _NeverExits:
+        pid = 9123
+
+        def wait(self, timeout=None):
+            raise subprocess.TimeoutExpired("sealed-probe", timeout)
+
+    def test_sigkill_failure_keeps_timeout_and_original_os_error(self):
+        state = {"timed_out": False, "termination_errors": []}
+        signals = []
+
+        def kill_group(_pid, signum):
+            signals.append(signum)
+            if signum == signal.SIGKILL:
+                raise PermissionError(errno.EPERM, "operation not permitted")
+
+        with self.assertRaises(PermissionError) as raised:
+            runner_support.wait_with_timeout(
+                self._NeverExits(), 1, state=state,
+                kill_process_group=kill_group, term_grace_seconds=0.01)
+        with tempfile.TemporaryDirectory() as temp:
+            receipt_path = Path(temp) / "timeout-error-receipt.json"
+            runner_support.write_failure_receipt(
+                receipt_path, raised.exception, state=state,
+                execution_started=True, wall_seconds=25.0,
+                finished_at_utc="2026-10-15T00:00:00+00:00")
+            receipt = json.loads(receipt_path.read_text())
+        self.assertEqual(signals, [signal.SIGTERM, signal.SIGKILL])
+        self.assertEqual(receipt["schema"], compare.RECEIPT_SCHEMA)
+        self.assertTrue(receipt["timed_out"])
+        self.assertEqual(receipt["error_type"], "PermissionError")
+        self.assertIn("operation not permitted", receipt["reason"])
+        self.assertEqual(len(receipt["termination_errors"]), 1)
+        self.assertEqual(receipt["termination_errors"][0]["signal_name"], "SIGKILL")
+        self.assertEqual(receipt["termination_errors"][0]["errno"], errno.EPERM)
+        self.assertIsNone(receipt["source_inputs_unchanged"])
+        self.assertIsNone(receipt["changed_inputs"])
+
+    def test_sigterm_error_is_retained_if_sigkill_completes(self):
+        state = {"timed_out": False, "termination_errors": []}
+        signals = []
+
+        class ExitsAfterKill:
+            pid = 9124
+            waits = 0
+
+            def wait(self, timeout=None):
+                self.waits += 1
+                if self.waits <= 2:
+                    raise subprocess.TimeoutExpired("sealed-probe", timeout)
+                return -signal.SIGKILL
+
+        def kill_group(_pid, signum):
+            signals.append(signum)
+            if signum == signal.SIGTERM:
+                raise ProcessLookupError(errno.ESRCH, "process group disappeared")
+
+        code = runner_support.wait_with_timeout(
+            ExitsAfterKill(), 1, state=state,
+            kill_process_group=kill_group, term_grace_seconds=0.01)
+        self.assertEqual(code, -signal.SIGKILL)
+        self.assertTrue(state["timed_out"])
+        self.assertEqual(signals, [signal.SIGTERM, signal.SIGKILL])
+        self.assertEqual(state["termination_errors"][0]["signal_name"], "SIGTERM")
 
 
 if __name__ == "__main__":

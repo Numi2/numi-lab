@@ -1,5 +1,15 @@
 # Shipping-size runtime admission and memory gaps
 
+The latest bounded solver work is documented in
+[solver progress](solver-progress-20261014.md). Shared FEM/rigid Armijo fractions
+are repaired and selected graph assembly is measured, but strict nonlinear
+contact and complete coupon convergence remain open. The experimental
+selector5 preconditioner is limited to contact-free coupons and cannot admit
+the shipping box. The modeled sub16GiB configuration remains an allocation
+plan, not a measured complete native arena or whole-process peak. Shipping
+assembly, released checkpoint, capacity-derived masses, gravity crush and
+impact therefore remain unexecuted.
+
 Date: 2026-10-15
 Scope: audit of the native shipping runtime and its sizing helpers, plus the admission-consistency repair and source-bound Fpeak numerical-capacity gate. No production solver, contact law, tolerance, mesh, or certificate behavior was changed. No GPU transaction was run for this audit.
 

@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.publication-binding.v1",
+  "parent_revision": "3231b850876fbbacce9a307cd2f246b8a7bd70c5",
+  "build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-053/source-build.json",
+  "build_sha256": "d2eeee5285297739915db369bc6376476b49b9d28bf91c03f48ca6ee2b6190a3",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-compensated-local-tangent-integrated-053",
+  "bound_index_files": 743,
+  "all_bound_index_bytes_verified": true,
+  "extras": [
+    "matter/examples/cardboard/implementation-20261014.md",
+    "matter/examples/cardboard/solver-progress-20261014.md",
+    "matter/examples/cardboard/shipping-runtime-gaps-20261014.md",
+    "matter/examples/cardboard/evidence/native-implementation-20261014"
+  ],
+  "limitation": "Post-snapshot source54 work remains unstaged; native failed and incomplete cases are explicitly retained."
+}

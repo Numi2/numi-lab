@@ -1,0 +1,157 @@
+[  0%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[ 33%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[ 33%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[ 33%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+[ 50%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[ 66%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[ 66%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[ 83%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[ 83%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Linking CXX static library libnumi_matter_compiler.a
+[ 83%] Built target numi_matter_compiler
+[ 83%] Building CXX object CMakeFiles/numi-matter-cardboard-barrier-scale-check.dir/tools/cardboard_prescribed_barrier_scale_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-barrier-scale-check
+[100%] Built target numi-matter-cardboard-barrier-scale-check
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-box-assembly-controller-check.dir/tools/cardboard_box_assembly_controller_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-box-assembly-controller-check
+[100%] Built target numi-matter-cardboard-box-assembly-controller-check
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-box-blank-check.dir/tools/cardboard_box_blank_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-box-blank-check
+[100%] Built target numi-matter-cardboard-box-blank-check
+[  0%] Generating shaders/NumiMatterPhysicalStateDigest.metallib
+[ 10%] Generating shaders/NumiMatter.metallib
+[ 60%] Built target numi_matter_compiler_objects
+[ 60%] Built target numi_matter_compiler
+[ 60%] Built target numi_matter_shaders
+[ 60%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[ 60%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+[ 80%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[ 80%] Building CXX object CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[ 80%] Built target numi_matter_runtime_objects
+[ 90%] Linking CXX static library libnumi_matter_runtime.a
+[ 90%] Built target numi_matter_runtime
+[ 90%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-cohesive-face-check.dir/tools/cardboard_cohesive_face_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-cohesive-face-check
+[100%] Built target numi-matter-cardboard-cohesive-face-check
+[  0%] Building CXX object CMakeFiles/numi-matter-cardboard-compensated-deformation-check.dir/tools/cardboard_compensated_deformation_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-compensated-deformation-check
+[100%] Built target numi-matter-cardboard-compensated-deformation-check
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-damage-builder-check.dir/tools/cardboard_damage_builder_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-damage-builder-check
+[100%] Built target numi-matter-cardboard-damage-builder-check
+[ 50%] Building CXX object CMakeFiles/numi-matter-cardboard-delamination-reference-check.dir/tools/cardboard_bleached_delamination_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-delamination-reference-check
+[100%] Built target numi-matter-cardboard-delamination-reference-check
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 83%] Building CXX object CMakeFiles/numi-matter-cardboard-expression-cache-check.dir/tools/cardboard_expression_cache_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-expression-cache-check
+[100%] Built target numi-matter-cardboard-expression-cache-check
+[  0%] Building CXX object CMakeFiles/numi-matter-cardboard-fracture-regularization-check.dir/tools/cardboard_fracture_regularization_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-fracture-regularization-check
+[100%] Built target numi-matter-cardboard-fracture-regularization-check
+[ 10%] Built target numi_matter_shaders
+[ 60%] Built target numi_matter_compiler_objects
+[ 60%] Built target numi_matter_compiler
+[ 80%] Built target numi_matter_runtime_objects
+[ 90%] Built target numi_matter_runtime
+[100%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-full-contact-armijo-check.dir/tools/cardboard_full_contact_armijo_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-full-contact-armijo-check
+[100%] Built target numi-matter-cardboard-full-contact-armijo-check
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-generic-compensated-projection-check.dir/tools/cardboard_generic_compensated_projection_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-generic-compensated-projection-check
+[100%] Built target numi-matter-cardboard-generic-compensated-projection-check
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-glue-mesh-check.dir/tools/cardboard_glue_mesh_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-glue-mesh-check
+[100%] Built target numi-matter-cardboard-glue-mesh-check
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 83%] Building CXX object CMakeFiles/numi-matter-cardboard-material-check.dir/tools/cardboard_material_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-material-check
+[100%] Built target numi-matter-cardboard-material-check
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-mixed-cohesive-check.dir/tools/cardboard_mixed_cohesive_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-mixed-cohesive-check
+[100%] Built target numi-matter-cardboard-mixed-cohesive-check
+[ 10%] Built target numi_matter_shaders
+[ 60%] Built target numi_matter_compiler_objects
+[ 60%] Built target numi_matter_compiler
+[ 80%] Built target numi_matter_runtime_objects
+[ 90%] Built target numi_matter_runtime
+[100%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-mixed-cohesive-face-check.dir/tools/cardboard_mixed_cohesive_face_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-mixed-cohesive-face-check
+[100%] Built target numi-matter-cardboard-mixed-cohesive-face-check
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-mixed-cohesive-frame-check.dir/tools/cardboard_mixed_cohesive_frame_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-mixed-cohesive-frame-check
+[100%] Built target numi-matter-cardboard-mixed-cohesive-frame-check
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 83%] Building CXX object CMakeFiles/numi-matter-cardboard-paper-material-check.dir/tools/cardboard_paper_material_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-paper-material-check
+[100%] Built target numi-matter-cardboard-paper-material-check
+[  0%] Building CXX object CMakeFiles/numi-matter-cardboard-pin-adhesion-fixture-check.dir/tools/cardboard_pin_adhesion_fixture_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-pin-adhesion-fixture-check
+[100%] Built target numi-matter-cardboard-pin-adhesion-fixture-check
+[ 10%] Built target numi_matter_shaders
+[ 60%] Built target numi_matter_compiler_objects
+[ 60%] Built target numi_matter_compiler
+[ 80%] Built target numi_matter_runtime_objects
+[ 90%] Built target numi_matter_runtime
+[100%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o
+/Users/home/cardboard-implementation-20261014/snapshots/reaction-roof-capacity-state-041/matter/tools/cardboard_probe.mm:317:21: error: use of undeclared identifier 'hexDigest'; did you mean 'Digest'?
+  317 |             require(hexDigest(sha256File(path)) == expectedSha,
+      |                     ^~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/reaction-roof-capacity-state-041/matter/tools/cardboard_probe.mm:244:8: note: 'Digest' declared here
+  244 | struct Digest {
+      |        ^
+/Users/home/cardboard-implementation-20261014/snapshots/reaction-roof-capacity-state-041/matter/tools/cardboard_probe.mm:325:13: error: use of undeclared identifier 'hexDigest'; did you mean 'Digest'?
+  325 |             hexDigest(sha256File(arguments.shippingCapacityQualificationFile));
+      |             ^~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/reaction-roof-capacity-state-041/matter/tools/cardboard_probe.mm:244:8: note: 'Digest' declared here
+  244 | struct Digest {
+      |        ^
+/Users/home/cardboard-implementation-20261014/snapshots/reaction-roof-capacity-state-041/matter/tools/cardboard_probe.mm:333:65: error: use of undeclared identifier 'hexDigest'; did you mean 'Digest'?
+  333 |                 arguments.shippingCapacityQualificationSha256 = hexDigest(
+      |                                                                 ^~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/reaction-roof-capacity-state-041/matter/tools/cardboard_probe.mm:244:8: note: 'Digest' declared here
+  244 | struct Digest {
+      |        ^
+/Users/home/cardboard-implementation-20261014/snapshots/reaction-roof-capacity-state-041/matter/tools/cardboard_probe.mm:347:17: error: use of undeclared identifier 'hexDigest'; did you mean 'Digest'?
+  347 |                 hexDigest(sha256File(arguments.linerMaterial))) << '\n'
+      |                 ^~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/reaction-roof-capacity-state-041/matter/tools/cardboard_probe.mm:244:8: note: 'Digest' declared here
+  244 | struct Digest {
+      |        ^
+/Users/home/cardboard-implementation-20261014/snapshots/reaction-roof-capacity-state-041/matter/tools/cardboard_probe.mm:349:17: error: use of undeclared identifier 'hexDigest'; did you mean 'Digest'?
+  349 |                 hexDigest(sha256File(arguments.mediumMaterial))) << '\n'
+      |                 ^~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/reaction-roof-capacity-state-041/matter/tools/cardboard_probe.mm:244:8: note: 'Digest' declared here
+  244 | struct Digest {
+      |        ^
+/Users/home/cardboard-implementation-20261014/snapshots/reaction-roof-capacity-state-041/matter/tools/cardboard_probe.mm:351:17: error: use of undeclared identifier 'hexDigest'; did you mean 'Digest'?
+  351 |                 hexDigest(sha256File(arguments.glueMaterial))) << '\n'
+      |                 ^~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/reaction-roof-capacity-state-041/matter/tools/cardboard_probe.mm:244:8: note: 'Digest' declared here
+  244 | struct Digest {
+      |        ^
+/Users/home/cardboard-implementation-20261014/snapshots/reaction-roof-capacity-state-041/matter/tools/cardboard_probe.mm:360:12: error: use of undeclared identifier 'hexDigest'; did you mean 'Digest'?
+  360 |     return hexDigest(sha256(binding.str()));
+      |            ^~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/reaction-roof-capacity-state-041/matter/tools/cardboard_probe.mm:244:8: note: 'Digest' declared here
+  244 | struct Digest {
+      |        ^
+/Users/home/cardboard-implementation-20261014/snapshots/reaction-roof-capacity-state-041/matter/tools/cardboard_probe.mm:376:12: error: use of undeclared identifier 'hexDigest'; did you mean 'Digest'?
+  376 |     return hexDigest(sha256File(path));
+      |            ^~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/reaction-roof-capacity-state-041/matter/tools/cardboard_probe.mm:244:8: note: 'Digest' declared here
+  244 | struct Digest {
+      |        ^
+8 errors generated.
+make[3]: *** [CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o] Error 1
+make[2]: *** [CMakeFiles/numi-matter-cardboard-probe.dir/all] Error 2
+make[1]: *** [CMakeFiles/numi-matter-cardboard-probe.dir/rule] Error 2
+make: *** [numi-matter-cardboard-probe] Error 2

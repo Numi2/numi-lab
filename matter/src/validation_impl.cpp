@@ -416,7 +416,7 @@ private:
             solver.executionBudgets.x >
                 NM_MIXED_FIELD_SMOOTHER_MAX_PASSES ||
             solver.executionBudgets.y == 0u ||
-            solver.executionBudgets.z > 4u ||
+            solver.executionBudgets.z > 5u ||
             solver.executionBudgets.w > 1u ||
             !finite4(solver.residualTolerances) ||
             !(solver.residualTolerances.x > 0.0f) ||
@@ -635,6 +635,51 @@ private:
                 );
             }
         }
+        if (solver.executionBudgets.z == 5u) {
+            constexpr std::uint32_t maximumGraphSchwarzNodes = 4096u;
+            constexpr std::uint32_t maximumGraphSchwarzTetrahedra = 32768u;
+            if (world_.dispatch.environmentCount == 0u ||
+                world_.dispatch.environmentCount > 4u ||
+                world_.objects.size() != 1u ||
+                world_.dispatch.femNodeCount > maximumGraphSchwarzNodes ||
+                world_.dispatch.topologyTetrahedronCapacity >
+                    maximumGraphSchwarzTetrahedra ||
+                world_.dispatch.rigidProxyCount != 0u ||
+                world_.dispatch.rigidGeneralizedCapacity != 0u ||
+                world_.dispatch.contactPairCount != 0u ||
+                world_.dispatch.mpmGridCount != 0u ||
+                world_.dispatch.mpmBlockCount != 0u ||
+                world_.vascular.layout.ranges.z != 0u ||
+                !world_.vascular.unknowns.empty() ||
+                !world_.learnedMaterials.empty() ||
+                !world_.fem.humanAttachments.empty() ||
+                !world_.fem.fieldBoundaries.empty() ||
+                !world_.fem.cohesiveFaces.empty() ||
+                !world_.fem.punctureChannels.empty() ||
+                !world_.fem.mutationCommands.empty()) {
+                return fail(
+                    "graph Schwarz preconditioner requires one immutable, "
+                    "contact-free explicit FEM object within 4096 nodes, "
+                    "32768 tetrahedra, and four environments"
+                );
+            }
+            const NMContinuumObjectGPU& object = world_.objects.front();
+            const std::uint32_t requiredDisableFlags =
+                NM_OBJECT_DISABLE_DEFORMABLE_CONTACT |
+                NM_OBJECT_DISABLE_SELF_CONTACT;
+            if (object.representation != NM_REPRESENTATION_FEM ||
+                (object.flags & (NM_OBJECT_MIXED_FEM |
+                                 NM_OBJECT_MULTIPHYSICS |
+                                 NM_OBJECT_ADAPTIVE |
+                                 NM_OBJECT_MUTABLE_TOPOLOGY |
+                                 NM_OBJECT_IDENTIFIABLE)) != 0u ||
+                (object.flags & requiredDisableFlags) != requiredDisableFlags) {
+                return fail(
+                    "graph Schwarz requires explicit immutable non-mixed FEM "
+                    "with self and external deformable contact disabled"
+                );
+            }
+        }
         if (world_.mixedMaterials.size() != world_.materials.size() ||
             world_.fem.capacities.size() != world_.objects.size() ||
             world_.fem.fields.size() != world_.fem.nodes.size() ||
@@ -666,7 +711,8 @@ private:
         if (solver.executionBudgets.z == 1u ||
             solver.executionBudgets.z == 2u ||
             solver.executionBudgets.z == 3u ||
-            solver.executionBudgets.z == 4u) {
+            solver.executionBudgets.z == 4u ||
+            solver.executionBudgets.z == 5u) {
             std::uint64_t nodeCapacity = 0u;
             std::uint64_t cohesiveCapacity = 0u;
             std::uint64_t channelCapacity = 0u;
@@ -1743,7 +1789,8 @@ private:
                         decodeFEMPreconditionerRegion(tetrahedron.identity.w);
                     if (active && (world_.mixedSolver.executionBudgets.z == 2u ||
                                    world_.mixedSolver.executionBudgets.z == 3u ||
-                                   world_.mixedSolver.executionBudgets.z == 4u))
+                                   world_.mixedSolver.executionBudgets.z == 4u ||
+                                   world_.mixedSolver.executionBudgets.z == 5u))
                         preconditionerRegions.insert(regionId);
                     else if (regionBits != 0u) {
                         return failIndexed("FEM tetrahedron", tetrahedronIndex,
@@ -1834,7 +1881,8 @@ private:
                 }
                 if (world_.mixedSolver.executionBudgets.z == 2u ||
                     world_.mixedSolver.executionBudgets.z == 3u ||
-                    world_.mixedSolver.executionBudgets.z == 4u) {
+                    world_.mixedSolver.executionBudgets.z == 4u ||
+                    world_.mixedSolver.executionBudgets.z == 5u) {
                     constexpr std::uint32_t modesPerRegion = 6u;
                     constexpr std::uint32_t maximumModes = 32u;
                     if (preconditionerRegions.empty() ||

@@ -1,0 +1,57 @@
+{
+  "schema": "numi.matter.angular_overlay_audit.v1",
+  "audit_scope": "read-only source064 review of angular free-BOX overlay relative to exact frozen source063 base",
+  "overlay_directory": "/Users/home/cardboard-implementation-20261014/analysis/angular-box-contact-063-overlay",
+  "source064_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-angular-free-box-and-swept-path-integrated-064",
+  "source_overlay_manifest_sha256": "0a2728eca70bf37751ef33973623cb3521f9ce47e4084b33e6124699f2a15c1e",
+  "patch_sha256": "1e2ef15649f004a56e79dfe9c4ce1bb1f75a5e6da87209e2cd25b768c3c967a7",
+  "base_frozen_commit": "5fd4486ea2bcbe903782509a769ce3935b790e55",
+  "overlay_files": {
+    "contact": {
+      "path": "source/matter/src/metal/contact.metalinc",
+      "sha256": "69c3ec930d0b382dfe278fa42c56353782438ded77d8224a3ccfd6989e3067c9"
+    },
+    "fgmres": {
+      "path": "source/matter/src/metal/fgmres.metalinc",
+      "sha256": "e2b4c539c7f7e5b97b52e9f703657776c1aa196e0a9f3a5d8b9573bb350c1fa2"
+    },
+    "runtime": {
+      "path": "source/matter/src/runtime.mm",
+      "sha256": "32597ceffdafc88ed507b2e6bc06ff6a78bffc7918a20884f0586387153e3f8e"
+    },
+    "cpu_test": {
+      "path": "source/matter/tools/test_cardboard_free_box_angular_operator.py",
+      "sha256": "ea9c1db98f5db492bd57c083c002d2c5a1482c4e21ec7e83d542cf8d5bd0c636"
+    }
+  },
+  "validation_artifacts": {
+    "receipt": {
+      "path": "validation-receipt.json",
+      "sha256": "e12f533c2865895cf49e0c30bb924fe5569a1db15e1bd9ee1655029aba1b5c5e"
+    },
+    "air": {
+      "path": "angular-063.air",
+      "sha256": "dce3e1a30dc718bca53a26dc1ae74fdbdce0275252ae32f177b788d8b45d5a36"
+    },
+    "metallib": {
+      "path": "angular-063.metallib",
+      "sha256": "566e72e6a96d9dfdcd9dbdea4154539d48c9778ed2dd5462568ec790cccd00eb"
+    }
+  },
+  "readme_sha256": "d7be16972d524f36954618547041eda1e0cfe0f5ef9db4f5e1e726fbfaa4de47",
+  "checks": {
+    "overlay_and_base_hash_bindings": "pass",
+    "patch_apply_check_on_frozen_063": "exit 0",
+    "cpu_test": "11 passed",
+    "metal_compile": "exit 0",
+    "metallib": "exit 0",
+    "runtime_objcxx_syntax": "exit 0",
+    "native_gpu": "not run"
+  },
+  "verdict": "No actionable source correctness defect found after the corrected displacement-scaled spatial normal differential. Review confirmed the six-row SO(3) candidate map, smooth frictionless normal/witness/response/torque tangent, world-inertia derivative, and conservative rotating-box sweep bound are internally consistent within the admitted scope.",
+  "limits": [
+    "No native GPU qualification.",
+    "Active frictional free-BOX samples, nonsmooth/feature-transition cases, impact branches, multiple or articulated free bodies, adaptive rate subdivisions, MPM and mixed/cohesive contact remain excluded and fail closed or remain out of scope.",
+    "Native cases 195/196 were run on pre-overlay source063 and are not evidence for or against the angular overlay."
+  ]
+}

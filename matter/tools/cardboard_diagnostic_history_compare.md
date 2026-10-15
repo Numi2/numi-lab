@@ -4,10 +4,24 @@
 native attempt with a diagnostic-disabled control. It admits a pair only when
 both source-bound receipts executed, inputs remained unchanged, neither timed
 out, and the archived source, executable, Metal libraries, build provenance,
-physical arguments, and non-diagnostic environment match. The only permitted
-environment differences are the explicit FEM Newton-trace selector, the
-operator-FD selector, and its per-attempt capture path. The capture must remain
-inside that attempt directory.
+physical arguments, and non-diagnostic environment match. Permitted
+environment differences are the explicitly allowlisted FEM trace selectors,
+the operator-FD selector and per-attempt capture path, its finite-difference
+epsilon scale, the observational true-residual selectors, and the residual
+Armijo trace selector. The capture must remain inside that attempt directory.
+
+When `NM_FEM_REGIONAL_RAP_CAPTURE_ONLY=1`, the capture path is a base name and
+the comparator requires both `.regional.json` and `.regional.bin` sidecars.
+It verifies the selector/root/iteration binding, array packing and hashes,
+candidate linearization digests, and the payload SHA-256. A mode-1 request with
+no selector or capture path is invalid even if the selected root would not be
+reached by that run. Ordinary JSONL captures still require the base file.
+
+The source-bound runner records timeout state before process termination. If
+group termination itself raises, its exception type/message and each failed
+signal are retained in the receipt while `timed_out` remains true. If an
+exception interrupts the final input hash scan, the receipt marks that check
+unknown rather than claiming either unchanged inputs or detected mutation.
 
 The comparator walks the complete `output/` trees recursively and records a
 SHA-256 and byte length for each file. It also compares the actual bytes, so

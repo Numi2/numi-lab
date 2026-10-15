@@ -1,0 +1,467 @@
+{
+  "checker_scope": "prepared source182 operator patches; production Metal factor/solve/apply kernels",
+  "checks": [
+    {
+      "detail": {
+        "actual": 0,
+        "expected": 0
+      },
+      "name": "factor_status",
+      "pass": true
+    },
+    {
+      "detail": {
+        "actual": 0,
+        "expected": 0
+      },
+      "name": "mode0_status",
+      "pass": true
+    },
+    {
+      "detail": {
+        "actual": 0,
+        "expected": 0
+      },
+      "name": "mode1_status",
+      "pass": true
+    },
+    {
+      "detail": {
+        "actual": 0,
+        "expected": 0
+      },
+      "name": "zero_mode0_status",
+      "pass": true
+    },
+    {
+      "detail": {
+        "actual": 0,
+        "expected": 0
+      },
+      "name": "zero_status",
+      "pass": true
+    },
+    {
+      "detail": {
+        "actual": 0,
+        "expected": 0
+      },
+      "name": "completed_status",
+      "pass": true
+    },
+    {
+      "detail": {
+        "actual": 7,
+        "expected": 7
+      },
+      "name": "invalid_factor_status",
+      "pass": true
+    },
+    {
+      "detail": {
+        "actual": 1,
+        "expected": 1
+      },
+      "name": "invalid_mode_status",
+      "pass": true
+    },
+    {
+      "detail": {
+        "actual": 7,
+        "expected": 7
+      },
+      "name": "singular_factor_status",
+      "pass": true
+    },
+    {
+      "detail": {
+        "actual": 7,
+        "expected": 7
+      },
+      "name": "singular_solve_status",
+      "pass": true
+    },
+    {
+      "detail": {
+        "patch_count": 13,
+        "valid_patch_count": 13
+      },
+      "name": "active_factor_valid",
+      "pass": true
+    },
+    {
+      "detail": {
+        "first_patch_factor_valid": 0
+      },
+      "name": "singular_factor_rejected",
+      "pass": true
+    },
+    {
+      "detail": {
+        "first_nonzero_bits": null,
+        "first_nonzero_index": null,
+        "negative_zero_count": 639,
+        "nonfinite_count": 0,
+        "nonzero_count": 0,
+        "value_count": 8212
+      },
+      "name": "zero_rhs_mode0_corrections_numeric_zero",
+      "pass": true
+    },
+    {
+      "detail": {
+        "first_nonzero_bits": null,
+        "first_nonzero_index": null,
+        "negative_zero_count": 0,
+        "nonfinite_count": 0,
+        "nonzero_count": 0,
+        "value_count": 3528
+      },
+      "name": "zero_rhs_mode0_preconditioned_numeric_zero",
+      "pass": true
+    },
+    {
+      "detail": {
+        "first_nonzero_bits": null,
+        "first_nonzero_index": null,
+        "negative_zero_count": 639,
+        "nonfinite_count": 0,
+        "nonzero_count": 0,
+        "value_count": 8212
+      },
+      "name": "zero_rhs_corrections_numeric_zero",
+      "pass": true
+    },
+    {
+      "detail": {
+        "first_nonzero_bits": null,
+        "first_nonzero_index": null,
+        "negative_zero_count": 0,
+        "nonfinite_count": 0,
+        "nonzero_count": 0,
+        "value_count": 3528
+      },
+      "name": "zero_rhs_preconditioned_numeric_zero",
+      "pass": true
+    },
+    {
+      "detail": null,
+      "name": "completed_tail_corrections_bitwise_zero",
+      "pass": true
+    },
+    {
+      "detail": null,
+      "name": "completed_tail_preconditioned_bitwise_zero",
+      "pass": true
+    },
+    {
+      "detail": null,
+      "name": "invalid_factor_corrections_bitwise_zero",
+      "pass": true
+    },
+    {
+      "detail": null,
+      "name": "invalid_mode_corrections_bitwise_zero",
+      "pass": true
+    },
+    {
+      "detail": {
+        "patch_index": 0,
+        "patch_node_count": 256
+      },
+      "name": "singular_patch_zero_correction",
+      "pass": true
+    },
+    {
+      "detail": null,
+      "name": "mode0_finite",
+      "pass": true
+    },
+    {
+      "detail": null,
+      "name": "mode1_finite",
+      "pass": true
+    },
+    {
+      "detail": {
+        "limit": 0.001,
+        "maximum_mode0": 0.0013949652490246574,
+        "maximum_mode1": 8.99797057865229e-05,
+        "worst_mode1_patch": 7
+      },
+      "name": "refined_all_patch_residual_gate",
+      "pass": true
+    },
+    {
+      "detail": {
+        "mode0_patches_over_limit": [
+          7
+        ]
+      },
+      "name": "refinement_exercises_unrefined_failure",
+      "pass": true
+    },
+    {
+      "detail": {
+        "patches": [
+          {
+            "mode0": 0.0013949652490246574,
+            "mode1": 8.99797057865229e-05,
+            "patch_index": 7
+          }
+        ]
+      },
+      "name": "refinement_improves_each_unrefined_failure",
+      "pass": true
+    }
+  ],
+  "dimensions": {
+    "dof_count": 6159,
+    "matrix_float_count": 4718637,
+    "mode_count": 26,
+    "node_count": 882,
+    "patch_count": 13,
+    "patch_node_count": 2053,
+    "pivot_count": 6159,
+    "selected_environment": 0,
+    "source_environment_count": 2,
+    "tetrahedron_count": 1920,
+    "version": 1
+  },
+  "input_sha256": "b2619d5d7120f1e6cae40869af0a37ce14b86b29ce0a51961c95ec2c84c3de60",
+  "limitations": [
+    "Input operator is the source182 selected-generation FEM operator with selector-5 graph patches rebuilt from its actual mesh; no selector-5 production FEM transaction is implied.",
+    "FP64 row sums independently audit native float32 correction vectors; they do not validate the physical model or full FGMRES convergence."
+  ],
+  "mode0": {
+    "maximum_patch_residual_relative": 0.0013949652490246574,
+    "patches": [
+      {
+        "node_count": 256,
+        "patch_index": 0,
+        "residual_l2": 1.2077405988478836e-09,
+        "residual_relative": 0.0005255863871482744,
+        "rhs_l2": 2.2978917041608334e-06
+      },
+      {
+        "node_count": 256,
+        "patch_index": 1,
+        "residual_l2": 6.487102734227808e-10,
+        "residual_relative": 0.00023585468034245175,
+        "rhs_l2": 2.7504659754085817e-06
+      },
+      {
+        "node_count": 256,
+        "patch_index": 2,
+        "residual_l2": 4.890703182802813e-10,
+        "residual_relative": 0.00017985615830848993,
+        "rhs_l2": 2.7192303164922833e-06
+      },
+      {
+        "node_count": 256,
+        "patch_index": 3,
+        "residual_l2": 8.16933556338546e-10,
+        "residual_relative": 0.000413202810893929,
+        "rhs_l2": 1.9770764738293526e-06
+      },
+      {
+        "node_count": 256,
+        "patch_index": 4,
+        "residual_l2": 7.527535313265858e-10,
+        "residual_relative": 0.00036465787710984396,
+        "rhs_l2": 2.064273332836405e-06
+      },
+      {
+        "node_count": 256,
+        "patch_index": 5,
+        "residual_l2": 7.196402614341672e-10,
+        "residual_relative": 0.00037046555668804044,
+        "rhs_l2": 1.9425294698588077e-06
+      },
+      {
+        "node_count": 256,
+        "patch_index": 6,
+        "residual_l2": 9.602862210056824e-10,
+        "residual_relative": 0.00040310694156927494,
+        "rhs_l2": 2.382212068259943e-06
+      },
+      {
+        "node_count": 256,
+        "patch_index": 7,
+        "residual_l2": 5.013221610364826e-09,
+        "residual_relative": 0.0013949652490246574,
+        "rhs_l2": 3.593796772980552e-06
+      },
+      {
+        "node_count": 1,
+        "patch_index": 8,
+        "residual_l2": 9.292799252486504e-15,
+        "residual_relative": 2.575212370530718e-07,
+        "rhs_l2": 3.6085564665765325e-08
+      },
+      {
+        "node_count": 1,
+        "patch_index": 9,
+        "residual_l2": 4.890845046582294e-15,
+        "residual_relative": 4.798983847014404e-08,
+        "rhs_l2": 1.0191418022015307e-07
+      },
+      {
+        "node_count": 1,
+        "patch_index": 10,
+        "residual_l2": 2.2635550338435032e-15,
+        "residual_relative": 1.3638811095355604e-07,
+        "rhs_l2": 1.6596424849775264e-08
+      },
+      {
+        "node_count": 1,
+        "patch_index": 11,
+        "residual_l2": 1.0406924767191117e-14,
+        "residual_relative": 1.0995994954519372e-07,
+        "rhs_l2": 9.464286597288637e-08
+      },
+      {
+        "node_count": 1,
+        "patch_index": 12,
+        "residual_l2": 1.0470918538142167e-15,
+        "residual_relative": 1.3972396255745427e-08,
+        "rhs_l2": 7.494003423955675e-08
+      }
+    ]
+  },
+  "mode1": {
+    "maximum_mode1_to_mode0_residual_ratio": 1.0703720226508069,
+    "maximum_patch_residual_relative": 8.99797057865229e-05,
+    "patches": [
+      {
+        "node_count": 256,
+        "patch_index": 0,
+        "residual_l2": 1.0018334017760339e-10,
+        "residual_relative": 4.359793805608839e-05,
+        "rhs_l2": 2.2978917041608334e-06
+      },
+      {
+        "node_count": 256,
+        "patch_index": 1,
+        "residual_l2": 6.284260360481434e-11,
+        "residual_relative": 2.284798436580517e-05,
+        "rhs_l2": 2.7504659754085817e-06
+      },
+      {
+        "node_count": 256,
+        "patch_index": 2,
+        "residual_l2": 5.4339958315554215e-11,
+        "residual_relative": 1.9983580642647053e-05,
+        "rhs_l2": 2.7192303164922833e-06
+      },
+      {
+        "node_count": 256,
+        "patch_index": 3,
+        "residual_l2": 6.810528568029481e-11,
+        "residual_relative": 3.4447471598497806e-05,
+        "rhs_l2": 1.9770764738293526e-06
+      },
+      {
+        "node_count": 256,
+        "patch_index": 4,
+        "residual_l2": 8.084071556867246e-11,
+        "residual_relative": 3.91618272070558e-05,
+        "rhs_l2": 2.064273332836405e-06
+      },
+      {
+        "node_count": 256,
+        "patch_index": 5,
+        "residual_l2": 9.573094374147596e-11,
+        "residual_relative": 4.928159146457333e-05,
+        "rhs_l2": 1.9425294698588077e-06
+      },
+      {
+        "node_count": 256,
+        "patch_index": 6,
+        "residual_l2": 8.557032051649942e-11,
+        "residual_relative": 3.5920530189826126e-05,
+        "rhs_l2": 2.382212068259943e-06
+      },
+      {
+        "node_count": 256,
+        "patch_index": 7,
+        "residual_l2": 3.2336877628934546e-10,
+        "residual_relative": 8.99797057865229e-05,
+        "rhs_l2": 3.593796772980552e-06
+      },
+      {
+        "node_count": 1,
+        "patch_index": 8,
+        "residual_l2": 9.292799252486504e-15,
+        "residual_relative": 2.575212370530718e-07,
+        "rhs_l2": 3.6085564665765325e-08
+      },
+      {
+        "node_count": 1,
+        "patch_index": 9,
+        "residual_l2": 4.7750042330552675e-15,
+        "residual_relative": 4.68531878757244e-08,
+        "rhs_l2": 1.0191418022015307e-07
+      },
+      {
+        "node_count": 1,
+        "patch_index": 10,
+        "residual_l2": 2.422845979956486e-15,
+        "residual_relative": 1.4598601818688044e-07,
+        "rhs_l2": 1.6596424849775264e-08
+      },
+      {
+        "node_count": 1,
+        "patch_index": 11,
+        "residual_l2": 1.0603687802311417e-14,
+        "residual_relative": 1.1203895500532708e-07,
+        "rhs_l2": 9.464286597288637e-08
+      },
+      {
+        "node_count": 1,
+        "patch_index": 12,
+        "residual_l2": 7.610985489222241e-16,
+        "residual_relative": 1.0156100896474928e-08,
+        "rhs_l2": 7.494003423955675e-08
+      }
+    ]
+  },
+  "output_sha256": "3e1b5c1dc744db36b2a601d7a726dab7b7b5380b0adecd0acf149f4c4a0e9304",
+  "pass": true,
+  "qualification": "kernel arithmetic contract only; not full selector-5 FEM/FGMRES qualification",
+  "schema": "numi.matter.selector5.iterative_refinement_native_check.v1",
+  "zero_rhs_numeric_summary": {
+    "zero_rhs_corrections": {
+      "first_nonzero_bits": null,
+      "first_nonzero_index": null,
+      "negative_zero_count": 639,
+      "nonfinite_count": 0,
+      "nonzero_count": 0,
+      "value_count": 8212
+    },
+    "zero_rhs_mode0_corrections": {
+      "first_nonzero_bits": null,
+      "first_nonzero_index": null,
+      "negative_zero_count": 639,
+      "nonfinite_count": 0,
+      "nonzero_count": 0,
+      "value_count": 8212
+    },
+    "zero_rhs_mode0_preconditioned": {
+      "first_nonzero_bits": null,
+      "first_nonzero_index": null,
+      "negative_zero_count": 0,
+      "nonfinite_count": 0,
+      "nonzero_count": 0,
+      "value_count": 3528
+    },
+    "zero_rhs_preconditioned": {
+      "first_nonzero_bits": null,
+      "first_nonzero_index": null,
+      "negative_zero_count": 0,
+      "nonfinite_count": 0,
+      "nonzero_count": 0,
+      "value_count": 3528
+    }
+  }
+}

@@ -1,0 +1,11 @@
+# Selector-5 graph Schwarz one-step refinement overlay
+
+This isolated overlay preserves one copy of each assembled selector-5 local patch matrix before the existing pivoted FP32 LU overwrites it. After the existing local solve returns `x0`, the solve kernel computes `r = b - A*x0` from that preserved matrix, solves one correction through the same LU and pivots, and returns `x0 + delta`.
+
+The physical operator, nonlinear solver tolerances, acceptance certificate, and selectors other than 5 are unchanged. Completed-Krylov-cycle tails still zero patch corrections before local solves. Invalid factors remain fail-closed; an exactly zero residual does not trigger a correction. The kernel's `refinementMode=0` exposes the unrefined result for a checker control, while production binds `1` for exactly one pass.
+
+`source-overlay.json` records hashes and applicability. The patch applies to frozen source 069. Its runtime and FGMRES bases include the completed-tail guard introduced against source 068: the pipeline is selector-filtered, buffer 17 supplies the FGMRES state, and the completed-cycle latch returns zero correction before refinement. Source 068 hashes are included as lineage, not as the direct patch base.
+
+The extra arena is `environmentCount * matrixFloatCount * sizeof(float)`. In canonical182 (4,718,637 matrix floats per environment), this adds 18,874,548 bytes per environment or 37,749,096 bytes for two environments. The original 96 MiB admission estimate counted only LU; the overlay updates the checked layout to count both matrices and adds runtime checks for buffer length and shader `uint32` environment-major extents. Canonical182's estimated selector-5 arena changes from 37,986,404 to 75,735,500 bytes for two environments, below the unchanged 96 MiB bound.
+
+The separate CPU audit at `../selector5-triangle-roundoff-audit-001/` found that one offline correction with the captured FP32 LU brought all 13 canonical182 patches below the unchanged 1e-3 local residual limit. That does not qualify this native kernel change. This overlay has not been compiled or run on the GPU; a native checker must verify the unrefined/refined solve, zero RHS, completed-tail zeros, and invalid-factor rejection before any performance or solver qualification.

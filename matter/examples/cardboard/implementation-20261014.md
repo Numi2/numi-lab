@@ -1,5 +1,16 @@
 # Cardboard implementation and evidence ledger
 
+Current continuation: source067 repairs a measured mismatch between the FEM
+and rigid Armijo update fractions; strict full-contact convergence still fails.
+Source069 removes unused completed-cycle graph solves with bounded bytewise
+parity. Actual selected native graph assembly passes independent checks, while
+one local inverse accuracy gate and complete nonlinear coupon convergence
+remain open. Source070's compile failure and corrected071 continuation are
+retained. See [solver progress](solver-progress-20261014.md) and the versioned
+evidence index for source-specific results. No accepted shipping assembly
+checkpoint, numerically qualified compression peak, gravity crush or drop
+impact is available.
+
 The implementation starts from `a9d801c`. Unrelated upstream work was retained
 when the checkout advanced to `bf9e90cb`; the first published solver milestone
 is `05fe5430`. The current checkout also retains unrelated upstream `9d0526d2`. The kraft 205 / NSSC 126 / finite elastic starch recipe and the

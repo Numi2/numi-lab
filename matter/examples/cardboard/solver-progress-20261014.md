@@ -1,5 +1,143 @@
 # Native solver progress and unresolved qualification
 
+## Source073 verified milestone
+
+The source073 fresh build passes all 54 requested targets and all 62 selected
+CPU checks, including a regression that the graph selector remains exposed by
+the probe CLI. Prepared native227 qualifies one fixed original-matrix residual
+correction for all 13 local patches without changing the physical operator.
+Actual native233 then completes one 0.03125-degree control of the intended
+15-state tensile-hardening recipe at the unchanged 1e-6 certificate: loaded
+residual 8.69236e-8 and reference residual 6.78001e-8, with the first certified
+no-op at Newton39. It takes122.4s. This is not a full loading/release cycle or
+mesh/time convergence result. The separate failed 13-state ideal regression
+remains failed.
+
+Native232 reconciles the earlier checker integration errors. Its five swept
+path controls and six direct BOX samples pass. The complete FP64 angular
+inertia derivative agrees with independent finite differences within3.976e-11;
+the native action agrees within1.011e-7. The separate FP32 candidate-projection
+finite differences remain unresolved, so the overall angular checker exits
+inconclusive rather than treating small final errors as convergence.
+
+The independent exact-word replay now covers all3,456 paper tetrahedra from
+capture216. The1,728 loaded directions have maximum material tangent relative
+error5.82e-8 and element-action error9.14e-7; independently assembled free-node
+action agrees within1.59e-7. Ordinary-double reference finite differences pass
+1,723 directions; the other five are adjudicated with branch-aware80-digit
+projection and precision comparison. The1,728 zero directions in the reference
+environment remain inconclusive. Capture216 is a failed physical transaction,
+so these selected-state agreements cannot qualify its full trajectory.
+
+A new all-potential-node graph overlay implements per-environment gripper
+acquisition and release while preserving the restricted physical operator.
+Its current20 CPU checks pass; native transaction qualification is pending.
+The complete shipping box, fixture-free assembly checkpoint, resolution studies,
+matched damage/debonding calibration, compression capacity and impact histories
+remain unqualified. No Fpeak-derived masses have been selected.
+
+## Shared update fraction, independent replay and retained failures
+
+Source067 repairs a measured full-contact Armijo publication defect. The trial
+selected a FEM update fraction, while rigid apply could consume an environment
+fraction still equal to one. Direct production kernel case205 passes 2,023
+assertions. In206, all twelve accepted trials match the next production
+residual and both apply paths consume the tested fraction. The transaction
+still rejects near 1.40947e-7 against the unchanged 1e-7 certificate. All
+eighteen persistent vectors roll back; diagnostic-on/off206/207 preserve all
+six raw state files byte-for-byte. This qualifies the fraction repair alone.
+
+The original203 cross-build comparison overstated raw identity. Two JSON files
+match exactly. Four binary files differ only in their eight-byte device-program
+fingerprint headers; every remaining byte matches. The earlier incorrect draft
+and field-aware correction are retained. This is distinct from same-build
+observational-on/off qualification.
+
+The experimental native selector5 preconditioner adds regional coarse correction
+and overlapping graph patches. Its current admission remains contact-free
+coupons with at most 4,096 nodes, 32,768 tets, four environments and a 96 MiB
+graph arena. It is not a shipping-box preconditioner. Native209 exposes a stale
+packaged metallib with none of the five graph entrypoints. Fresh native210
+executes them, but patch7's local solve residual is 1.394965e-3, above 1e-3.
+Independent reconstruction attributes this to FP32 factor perturbation amplified
+by conditioning; more accurate triangular sums alone do not clear the gate.
+
+Source071 preserves the original local matrix for one fixed residual correction;
+source072 adds a finite check on the final correction sum. Both matrix arenas
+count against the unchanged cap and checked buffer extents. Native227, using
+checker004 and the fresh072 library, passes the independent FP64 scalar audit
+for all thirteen prepared patches: worst refined residual 8.997971e-5 versus
+1.394965e-3 without refinement. Zero RHS is numerically zero; 639 negative-zero
+words are reported rather than mislabeled as nonzero physics. Completed-tail,
+invalid-factor, unsupported-mode and actual singular-factor controls pass.
+These are prepared-kernel checks; production assembly and nonlinear convergence
+require their own evidence. Original checker221's overstrict bit-pattern failure
+is retained, with no production zero canonicalization added to satisfy it.
+
+Actual native212 graph membership is independently reconstructed from its
+same-run 882-node, 1,920-tet, 36-fixed-node topology. Every membership, coverage
+and digest agrees. An independent CPU helper reads exact static FP32 tetrahedra
+from the compiled package. Native patch assembly agrees within 4.724e-7,
+including LU roundoff; same-generation A*P agrees within 9.899e-8. This selected
+root0/Newton0 check uses the captured local tangent and does not qualify it.
+Source069's completed-cycle guard preserves the entire 22,846,072-byte capture,
+all23 array hashes and physical output bytes in212/214. Bounded GPU time falls
+from63.0185s to3.98277s; both intentionally one-Newton controls still reject.
+
+Full first-control215 rejects after24 Newton iterations at2.466302e-4 against
+1e-6. Cases216/218/220 vary capture and perturbation size without changing any
+of the19 output files (17 non-manifest files), 96 Newton-stage records,
+24 Armijo records or the terminal certificate. The prior report's count17
+excluded two manifests; the new report names both counts explicitly. Selected
+native-cache assembly action error is1.337e-6. The combined regional sidecar
+correctly skips the unchanged32 MiB readback cap.
+
+Exact FP64 replay of six selected paper tets across216/218/220 separates yield
+crossings from representable-input effects. Replayed center stress and tangent
+agree with the native law at roughly2e-8 to5.1e-8 relative error. At small
+perturbations, the realized two-word deformation direction can differ greatly
+from the nominal direction. The independent smooth derivative along that
+realized direction agrees, including cases whose nominal finite difference
+looked inaccurate. This clears those selected local constitutive comparisons;
+it neither establishes a resolved global centered difference across yield
+transitions nor qualifies every material state. The full-state audit remains
+separate. No global tolerance was relaxed.
+
+The intended15-state published tensile-hardening model is kept distinct from
+the13-state ideal-plastic regression. Case222 rejects its first control with a
+32-Newton ceiling. Attempt224 requests128 and is rejected before FEM because
+the supported ceiling is64. Case225 completes the same first control with64:
+final loaded residual1.4446683e-8, reference6.78000518e-8, against1e-6. Its first
+certified no-op is Newton50. This is one0.03125-degree control, not deep folding,
+a full cycle, quasi-static validation or mesh/time convergence. Full-cycle226
+is deliberately interrupted after source inspection confirms that its authored
+right-grip release changes the fixed mask, which the immutable graph correctly
+rejects. The stop, OS termination error and incomplete receipt are retained.
+Safe dynamic-mask conditioning support is a new implementation task.
+
+Rotating-box instruments have exposed and retained several checker defects:
+positive sampled gap is not a swept-clear certificate; an unset adaptive owner
+suppresses rigid contact; approach velocity and residual-derivative signs must
+match production; approaching contacts can remain on a smooth branch. Some
+later checker versions accidentally dropped earlier fixture corrections.
+Native229 passes all five independently sampled path fixtures but again stops
+at an invalid contact sample. This is not evidence that contact or inertia
+derivatives pass. A corrected fixture must preserve all previous fixes before
+fresh native qualification. The independent CPU FP64 complete inertia-chain
+oracle agrees with central differences at3.50e-11 but does not qualify Metal.
+
+Source070's host build fails on a nonexistent layout member. Source072 builds
+all54 targets and passes61 CPU checks, but native230 exposes an integration
+regression: copying an older mutable probe dropped selector5's CLI option.
+The failed source/build/run remain intact. Its replacement restores the verified
+071 probe and applies only the intended rejected-geometry export naming change.
+Rejected coupon geometry will no longer use an accepted-step filename.
+
+There is still no complete coupon mesh/time/slower-loading series, matched
+damage/debonding calibration, fixture-free shipping-box checkpoint, qualified
+compression peak, gravity crush, drop history or accepted full-box animation.
+The six qualification verdicts remain separate in the evidence index.
+
 ## Selected Newton capture, reference inputs and checkpoint continuation
 
 Source060 case182 captures the production tangent, P, AP, pivoted RAP,

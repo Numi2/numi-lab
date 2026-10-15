@@ -1,0 +1,29 @@
+{
+  "schema": "numi.cardboard.checker-overlay.v1",
+  "overlay_id": "free-box-angular-residual-sign-070",
+  "purpose": "correct checker comparison from A=+dR to production A=-dR and gate finite differences on a stable active inertial/impact stiffness max branch",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-graph-tail-guard-angular-instrument-069",
+  "source_snapshot_sha256": "8fb4d0ed380412c1d46a3ebbb2b3817cbbfe1ce39a124796a41f88c483086d61",
+  "base_checker_overlay": "/Users/home/cardboard-implementation-20261014/analysis/free-box-angular-sample-approach-fixture-069-overlay",
+  "base_checker_sha256": "4e0d3f1f59ec844fea14b89ec725d67208d07ab80293f460443906b1a94aa230",
+  "overlay_checker_sha256": "855b816c2f4f814446f382e58bcd0acc58dc6d31543b91c84760309b94dbb11f",
+  "patch_sha256": "82849bafbee86f80c2d52955db56449cdcead4cc48d181fc0644dc6cb26466af",
+  "readme_sha256": "a400b47eccbcfde02f74841bf70f12eb9919b43e8d2584d78145e8cf7233d3c5",
+  "production_changes": false,
+  "native_case_219": {
+    "path": "/Users/home/cardboard-implementation-20261014/native/free-box-angular-corrected-fixture-kernels-219",
+    "bound_checker_sha256": "4e0d3f1f59ec844fea14b89ec725d67208d07ab80293f460443906b1a94aa230",
+    "input_checker_sha256_verified": "4e0d3f1f59ec844fea14b89ec725d67208d07ab80293f460443906b1a94aa230",
+    "classification": "does_not_validate_this_overlay; preserve as prior native evidence bound to base checker"
+  },
+  "changes": [
+    "The FP64 reference rigid residual is signed as production R: contact impulse plus and inertia minus; FD is negated when compared to A=-dR.",
+    "Stable FD branch requires positive in-range barrier, a resolved inertial-vs-impact stiffness max branch, and unchanged feature/branch across baseline and symmetric perturbations.",
+    "Approaching contact is not rejected merely because normalVelocity is negative; crossover or changed branch remains inconclusive."
+  ],
+  "validation": {
+    "command": "xcrun clang++ -std=c++20 -arch arm64 -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fsyntax-only -I<source069>/include -I<source069>/matter/include cardboard_free_box_angular_native_check.mm",
+    "cpu_syntax": "PASS against frozen source-069 headers",
+    "native": "NOT RUN; requires a fresh source-bound build/run; case219 binds the previous checker"
+  }
+}

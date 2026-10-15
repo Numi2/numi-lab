@@ -32,6 +32,7 @@ DIAGNOSTIC_ENV_KEYS = frozenset({
     "NM_FEM_NEWTON_TRACE_ROOT",
     "NM_FEM_OPERATOR_FD_SELECTOR",
     "NM_FEM_OPERATOR_FD_CAPTURE_PATH",
+    "NM_FEM_REGIONAL_RAP_CAPTURE_ONLY",
     # Changes only the private perturbation pair, never the production update.
     "NM_FEM_OPERATOR_FD_EPSILON_SCALE",
     "NM_FEM_TRUE_RESIDUAL_ROOT",
@@ -236,18 +237,25 @@ def _load_attempt(case_dir: Path, *, state_fixture: bool = False) -> dict[str, A
 def _validate_diagnostic_capture(case_dir: Path, environment: dict[str, str]) -> None:
     selector = environment.get("NM_FEM_OPERATOR_FD_SELECTOR")
     capture_path = environment.get("NM_FEM_OPERATOR_FD_CAPTURE_PATH")
+    regional_only = environment.get("NM_FEM_REGIONAL_RAP_CAPTURE_ONLY")
+    if regional_only not in (None, "0", "1"):
+        raise ComparisonError("NM_FEM_REGIONAL_RAP_CAPTURE_ONLY must be exactly 0 or 1")
+    if regional_only == "1" and (selector is None or not selector or
+                                    capture_path is None or not capture_path):
+        raise ComparisonError(
+            "regional RAP-only capture requires both a nonempty FD selector and capture path")
     if (selector is None) != (capture_path is None):
         raise ComparisonError("FD selector and capture path must be supplied together")
     if selector is not None:
         if not re.fullmatch(r"\d+:\d+", selector):
             raise ComparisonError(f"invalid operator FD selector: {selector!r}")
-        path = Path(capture_path)
-        try:
-            resolved = path.resolve(strict=True)
-            resolved.relative_to(case_dir)
-        except (OSError, ValueError) as error:
-            raise ComparisonError("diagnostic capture must be retained inside its own attempt directory") from error
-        _safe_regular_file(resolved)
+        if not Path(capture_path).is_absolute():
+            raise ComparisonError("diagnostic capture path must be absolute and retained inside its own attempt directory")
+        if regional_only == "1":
+            _validate_regional_rap_capture(case_dir, selector, capture_path)
+        else:
+            _retained_regular_file(case_dir, Path(capture_path),
+                                   "diagnostic capture must be retained inside its own attempt directory")
     for key in ("NM_FEM_NEWTON_TRACE_ROOT", "NM_FEM_TRUE_RESIDUAL_ROOT",
                 "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT"):
         trace = environment.get(key)
@@ -267,6 +275,152 @@ def _validate_diagnostic_capture(case_dir: Path, environment: dict[str, str]) ->
             raise ComparisonError("invalid true residual Newton selector")
         if selector is not None and int(newton) != int(selector.split(":", 1)[1]):
             raise ComparisonError("true residual Newton selector must select the captured Newton iteration")
+
+
+def _retained_regular_file(case_dir: Path, path: Path, error_message: str) -> Path:
+    try:
+        resolved = path.resolve(strict=True)
+        resolved.relative_to(case_dir.resolve(strict=True))
+    except (OSError, ValueError) as error:
+        raise ComparisonError(error_message) from error
+    # Inspect the original path before accepting resolve(); otherwise a
+    # symlink inside the attempt could masquerade as a retained regular file.
+    _safe_regular_file(path)
+    return resolved
+
+
+def _validate_regional_rap_capture(
+    case_dir: Path,
+    selector: str,
+    capture_path: str,
+) -> None:
+    base = Path(capture_path)
+    manifest_path = Path(str(base) + ".regional.json")
+    payload_path = Path(str(base) + ".regional.bin")
+    _retained_regular_file(
+        case_dir, manifest_path,
+        "regional RAP manifest is missing or outside its own attempt directory")
+    payload_resolved = _retained_regular_file(
+        case_dir, payload_path,
+        "regional RAP payload is missing or outside its own attempt directory")
+    manifest = _read_json(manifest_path, "regional RAP manifest")
+    if manifest.get("schema") != "numi.matter.regional_rap_capture.v1":
+        raise ComparisonError("unsupported regional RAP capture schema")
+    if manifest.get("byte_order") != "little_endian":
+        raise ComparisonError("regional RAP payload must declare little_endian byte order")
+    if manifest.get("layout") != (
+            "C-contiguous; environment-major; each array is tightly concatenated with no padding; "
+            "float32x4 elements store four adjacent little-endian lanes"):
+        raise ComparisonError("regional RAP payload layout is missing or unsupported")
+    try:
+        selected_root, selected_iteration = (int(value) for value in selector.split(":"))
+    except (TypeError, ValueError) as error:
+        raise ComparisonError("invalid regional RAP selector") from error
+    for key, expected in (("root", selected_root), ("iteration", selected_iteration)):
+        value = manifest.get(key)
+        if type(value) is not int or value != expected:
+            raise ComparisonError(f"regional RAP manifest {key} does not match the selected iteration")
+    if manifest.get("preconditioner_selector") not in (2, 3, 4, 5):
+        raise ComparisonError("regional RAP manifest does not identify a regional preconditioner")
+    capture_point = manifest.get("capture_point")
+    if capture_point not in (
+            "after_regional_rap_factor_barrier_before_fgmres_correction",
+            "after_regional_rap_and_graph_factor_barrier_before_fgmres_correction"):
+        raise ComparisonError("regional RAP capture point is missing or unsupported")
+
+    payload = manifest.get("payload")
+    if not isinstance(payload, dict):
+        raise ComparisonError("regional RAP manifest lacks payload metadata")
+    if payload.get("file") != str(payload_path):
+        raise ComparisonError("regional RAP manifest payload path does not match its retained sidecar")
+    payload_bytes = payload_resolved.read_bytes()
+    payload_hash = hashlib.sha256(payload_bytes).hexdigest()
+    if (type(payload.get("byte_count")) is not int or
+            payload.get("byte_count") != len(payload_bytes) or
+            payload.get("sha256") != payload_hash):
+        raise ComparisonError("regional RAP payload size or SHA-256 does not match its manifest")
+
+    arrays = manifest.get("arrays")
+    if not isinstance(arrays, list) or not arrays:
+        raise ComparisonError("regional RAP manifest has no array table")
+    required = {"candidate_nodes", "material_history", "scheduler_exponents",
+                "deformation_high", "deformation_low", "P", "effective_P",
+                "AP", "pivoted_RAP", "pivots", "factor_valid"}
+    seen: set[str] = set()
+    offset = 0
+    validated: dict[str, tuple[int, int]] = {}
+    for array in arrays:
+        if not isinstance(array, dict):
+            raise ComparisonError("regional RAP array entry must be an object")
+        name = array.get("name")
+        dtype = array.get("dtype")
+        shape = array.get("shape")
+        array_offset = array.get("offset")
+        byte_count = array.get("byte_count")
+        element_bytes = array.get("element_bytes")
+        if (not isinstance(name, str) or not name or name in seen or
+                not isinstance(dtype, str) or not dtype or
+                not isinstance(shape, list) or not shape or
+                any(type(extent) is not int or extent <= 0 for extent in shape) or
+                type(array_offset) is not int or type(byte_count) is not int or
+                type(element_bytes) is not int or element_bytes <= 0):
+            raise ComparisonError("regional RAP array metadata is malformed or duplicated")
+        element_count = 1
+        for extent in shape:
+            element_count *= extent
+            if element_count > len(payload_bytes) + 1:
+                raise ComparisonError("regional RAP array shape exceeds its payload")
+        if (array_offset != offset or byte_count != element_count * element_bytes or
+                byte_count > len(payload_bytes) - offset):
+            raise ComparisonError("regional RAP arrays are not tightly packed within the payload")
+        array_bytes = payload_bytes[offset:offset + byte_count]
+        if array.get("sha256") != hashlib.sha256(array_bytes).hexdigest():
+            raise ComparisonError(f"regional RAP array hash mismatch: {name}")
+        seen.add(name)
+        validated[name] = (array_offset, byte_count)
+        offset += byte_count
+    if offset != len(payload_bytes) or not required.issubset(seen):
+        raise ComparisonError("regional RAP array table is incomplete or does not cover its payload")
+
+    environment_count = manifest.get("environment_count")
+    if type(environment_count) is not int or environment_count <= 0:
+        raise ComparisonError("regional RAP environment_count is invalid")
+    identities = manifest.get("candidate_linearization_sha256")
+    if not isinstance(identities, list) or len(identities) != environment_count:
+        raise ComparisonError("regional RAP candidate identity table is incomplete")
+    identity_arrays = ["candidate_nodes", "material_history", "scheduler_exponents",
+                       "deformation_high", "deformation_low"]
+    tangent_cache_used = manifest.get("tangent_cache_used")
+    if type(tangent_cache_used) is not bool:
+        raise ComparisonError("regional RAP tangent_cache_used must be boolean")
+    if tangent_cache_used:
+        required_cache = {"algorithmic_tangent_cache", "algorithmic_tangent_cache_valid"}
+        if not required_cache.issubset(seen):
+            raise ComparisonError("regional RAP tangent-cache identity arrays are missing")
+        identity_arrays.extend(sorted(required_cache))
+    for environment, entry in enumerate(identities):
+        if not isinstance(entry, dict) or entry.get("environment") != environment:
+            raise ComparisonError("regional RAP candidate identity order is invalid")
+        if entry.get("identity_status") == "missing_arrays":
+            raise ComparisonError("regional RAP candidate identity was not captured")
+        if not re.fullmatch(r"[0-9a-f]{64}", str(entry.get("sha256", ""))):
+            raise ComparisonError("regional RAP candidate identity SHA-256 is malformed")
+        identity_digest = hashlib.sha256()
+        for name in identity_arrays:
+            start, size = validated[name]
+            if size % environment_count != 0:
+                raise ComparisonError(f"regional RAP identity array is not environment-major: {name}")
+            per_environment = size // environment_count
+            start += environment * per_environment
+            identity_digest.update(payload_bytes[start:start + per_environment])
+        if identity_digest.hexdigest() != entry["sha256"]:
+            raise ComparisonError(f"regional RAP candidate linearization hash mismatch for environment {environment}")
+        nodes_start, nodes_size = validated["candidate_nodes"]
+        nodes_size //= environment_count
+        nodes_start += environment * nodes_size
+        if entry.get("candidate_nodes_sha256") != hashlib.sha256(
+                payload_bytes[nodes_start:nodes_start + nodes_size]).hexdigest():
+            raise ComparisonError(f"regional RAP candidate-node hash mismatch for environment {environment}")
 
 
 def _enumerate_output_files(output_dir: Path, *, require_probe_result: bool = True) -> dict[str, dict[str, Any]]:

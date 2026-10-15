@@ -1,0 +1,31 @@
+{
+  "schema": "numi.cardboard.checker-overlay.v1",
+  "purpose": "diagnose invalid angular-contact samples while preserving failure and running independent fixtures",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-graph-tail-guard-angular-instrument-069",
+  "source_snapshot_sha256": "8fb4d0ed380412c1d46a3ebbb2b3817cbbfe1ce39a124796a41f88c483086d61",
+  "source_checker_sha256": "0cbc92a782fcc9e16d6f8d9a17d367601c4c5f5356303237e0050e3d090f8aac",
+  "overlay_checker_sha256": "16f63afb637d2f00ae4314937999893ccc163c6a8040819d4edeef7fd155b4f8",
+  "patch_sha256": "02f9a3bfc058b785cdbaa967b02e218c5fc342ecab87d9ca72f062248da87a13",
+  "readme_sha256": "9ef2e0624575d76d57a2495b6acafa1334ea667dab747cdb0c09028654b8f36c",
+  "native_case_213": {
+    "path": "/Users/home/cardboard-implementation-20261014/native/free-box-angular-production-kernels-213",
+    "prediction_sha256": "7a11cf7d92a143268c2aebed30fa3170ca1ae4702dbe3db37e7bfcc06a480953",
+    "receipt_sha256": "02f4789589ec593f6d8d1188a7a6b71915c20734368d5e34637306adffdccf41",
+    "stdout_sha256": "9ababb1b5b8bddc5969158494ae6ef44d08801af34799f9204766fe7d6f849db",
+    "stderr_sha256": "b1837e725fc3138c31ac6d5338cc8d048b5874c6769dd889ec1fb2aed7c6b62c",
+    "observed": "all five rotating path fixtures passed; checker stopped at face_pos invalid contact sample before contact-action/inertia fixtures"
+  },
+  "changes": [
+    "print raw status/sample/node/rigid values on invalid sample",
+    "continue subsequent contact cases",
+    "skip only action calculations that require an invalid sample",
+    "continue independent inertia fixture and preserve failing outcome"
+  ],
+  "production_changes": false,
+  "syntax_validation": {
+    "command": "xcrun --sdk macosx clang++ -std=c++20 -x objective-c++ -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fsyntax-only -I<source069>/include -I<source069>/matter/include -DNUMI_MATTER_METALLIB=\"/tmp/NumiMatter.metallib\" <overlay checker>",
+    "result": "PASS"
+  },
+  "native_validation": "NOT_RUN_NO_GPU",
+  "validation_after_precision_update": "Objective-C++ syntax-only PASS, -Wall -Wextra -Wpedantic -Werror"
+}

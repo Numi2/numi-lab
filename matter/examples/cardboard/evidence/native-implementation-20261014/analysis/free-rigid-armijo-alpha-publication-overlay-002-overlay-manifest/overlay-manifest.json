@@ -1,0 +1,25 @@
+{
+  "schema": "numi.cardboard.review_overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-armijo-applied-alpha-diagnostic-integrated-066",
+  "base_parent_revision": "5fd4486ea2bcbe903782509a769ce3935b790e55",
+  "patch": "/Users/home/cardboard-implementation-20261014/analysis/free-rigid-armijo-alpha-publication-overlay-002/free-rigid-armijo-alpha-publication.patch",
+  "patch_sha256": "06a25bba3c5e671e38bef281c91999382d65e4e586548dd6ae8414ae7c34bc68",
+  "files": [
+    {
+      "path": "matter/src/metal/fem.metalinc",
+      "base_sha256": "24e88be8674ffa2f2c859be29c564cd99c97f8fd5946b16dcea3aebab5e1fee3",
+      "overlay_sha256": "819f6724c2690c41c07972e6596624672000d35423bba3f1233e0063c47b9564"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "base_sha256": "03513ba0020ed413ef6c933111621c6f7804dbd3c665d12f5771c042ded9cd38",
+      "overlay_sha256": "f567edcbdf3c173738d2f5a7515d68c0ad9239e467a2ed0894e44429ae866194"
+    },
+    {
+      "path": "matter/tools/cardboard_full_contact_armijo_check.mm",
+      "base_sha256": "6e92a04cfdf87010238855c9afa51884e1d460dc0df8e966c431ce1b5928694f",
+      "overlay_sha256": "29c0a58158e483f07eba6d056b2c65eea02aec39a9f1bafa8160405861b6fd1b"
+    }
+  ],
+  "validation": "objc++ syntax and Metal AIR compile passed; native GPU test pending root"
+}

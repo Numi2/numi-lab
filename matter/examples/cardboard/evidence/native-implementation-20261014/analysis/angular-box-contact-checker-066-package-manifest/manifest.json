@@ -1,0 +1,96 @@
+{
+  "checker": {
+    "cmake_patch": "patches/add-angular-native-check-to-source066.patch",
+    "cmake_patch_sha256": "e96a670dd4229555429fc652178ba768e93983fb95cacdfc6ab4abe19693613a",
+    "cmake_target": "numi-matter-cardboard-free-box-angular-native-check",
+    "native_run": "NOT_RUN_GPU_OWNED_BY_PARENT",
+    "path": "checker/cardboard_free_box_angular_native_check.mm",
+    "sha256": "9b709d5972a7c63f6d1f237faf4f74081d7ece2310fc769d865e937a79365843"
+  },
+  "cmake_patch_validation": {
+    "base_file_sha256": "2d747ce5bc6dd5891fd76d3701bcdeff2a17b6452cad3f6d427a779a63035e2a",
+    "record": "validation/cmake-patch-dry-run.txt",
+    "status": "PASS"
+  },
+  "package_files_sha256": {
+    "README.md": "1dfb77a67c07e9aacca099472c37727b3ea4c864eba4fc04ad9937e15b84a613",
+    "checker/cardboard_free_box_angular_native_check.mm": "9b709d5972a7c63f6d1f237faf4f74081d7ece2310fc769d865e937a79365843",
+    "patches/add-angular-native-check-to-source066.patch": "e96a670dd4229555429fc652178ba768e93983fb95cacdfc6ab4abe19693613a",
+    "provenance/base-files/include/metalrobo/engine_types.h": "2eacf034dcce6b4cafb56b1db90a24e3bbc1a8d75b324722daed34a95d21dcb2",
+    "provenance/base-files/matter/CMakeLists.patched.txt": "232ca6593bb0f87aeb37c746d18f27faa4e7d91cf24a77ad80a3cefcb4edb92a",
+    "provenance/base-files/matter/CMakeLists.txt": "2d747ce5bc6dd5891fd76d3701bcdeff2a17b6452cad3f6d427a779a63035e2a",
+    "provenance/base-files/matter/include/numi/matter/shared.h": "e1b4a229e58227280e2a1e263fa6535f325333e9edcacfd93498f699790c30d3",
+    "provenance/base-files/matter/src/metal/contact.metalinc": "69c3ec930d0b382dfe278fa42c56353782438ded77d8224a3ccfd6989e3067c9",
+    "provenance/base-files/matter/src/metal/fgmres.metalinc": "c99e77d32266797e10d3d39a2be93cde68b818b386c0f8e7fc9152dac3b072f1",
+    "provenance/base-files/matter/src/runtime.mm": "03513ba0020ed413ef6c933111621c6f7804dbd3c665d12f5771c042ded9cd38",
+    "provenance/frozen-source-066.json": "7cdb5bf12d62e9ae6a0122d41480e1a684d9aec37b3744aa5345928660e0f4c8",
+    "validation/cmake-patch-dry-run.txt": "cdd5e1c87d5fcd6813ca5ce8768ea865dbf9dbaf6bbd4aa8c7de290daaa32010",
+    "validation/syntax-command.txt": "8f8ca018b978a3f10d2c3f7abd91a1438076a45f9e3d354689cf32b070effe1a",
+    "validation/syntax-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "validation/syntax-stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verify_package.py": "e82b9a91ab30fcff7ed7b72c9ec52b9caba6fab902b1887bde7af761a52d8d55"
+  },
+  "package_status": "SOURCE_AND_SYNTAX_SEALED_NATIVE_GPU_RUN_PENDING",
+  "schema": "numi.cardboard.angular-box-native-check-package.v1",
+  "source_base": {
+    "base_scope": "Read-only applied-alpha diagnostic and corrected selector-range CPU assertion; no physics change",
+    "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-angular-and-graph-schwarz-integrated-065",
+    "frozen_source_manifest": "provenance/frozen-source-066.json",
+    "frozen_source_manifest_sha256": "7cdb5bf12d62e9ae6a0122d41480e1a684d9aec37b3744aa5345928660e0f4c8",
+    "overlays": [
+      {
+        "patch": "/Users/home/cardboard-implementation-20261014/analysis/stateful-selector5-validation-overlay-001/stateful-selector5-validation.patch",
+        "patch_sha256": "135d14290fbb7d16a7d2773e1df994969b2fdafa9b9b40722598fda645036ecb",
+        "relative_path": "matter/tools/stateful_check.cpp",
+        "sha256": "60f2cc1b18cb5c857d78e6bbcef916281749f2b404f50ce93aa3f9a467fb8f80"
+      },
+      {
+        "patch": "/Users/home/cardboard-implementation-20261014/analysis/free-rigid-armijo-alpha-trace-overlay-001/free-rigid-armijo-alpha-trace.patch",
+        "patch_sha256": "1168ef7b480e26e388fb61d381a1283201b5b6b1e7e9367944d9088c8cbc97b7",
+        "relative_path": "matter/src/runtime.mm",
+        "sha256": "03513ba0020ed413ef6c933111621c6f7804dbd3c665d12f5771c042ded9cd38"
+      }
+    ],
+    "parent_revision": "5fd4486ea2bcbe903782509a769ce3935b790e55",
+    "selected_base_files": {
+      "include/metalrobo/engine_types.h": {
+        "package_copy": "provenance/base-files/include/metalrobo/engine_types.h",
+        "sha256": "2eacf034dcce6b4cafb56b1db90a24e3bbc1a8d75b324722daed34a95d21dcb2"
+      },
+      "matter/CMakeLists.txt": {
+        "package_copy": "provenance/base-files/matter/CMakeLists.txt",
+        "sha256": "2d747ce5bc6dd5891fd76d3701bcdeff2a17b6452cad3f6d427a779a63035e2a"
+      },
+      "matter/include/numi/matter/shared.h": {
+        "package_copy": "provenance/base-files/matter/include/numi/matter/shared.h",
+        "sha256": "e1b4a229e58227280e2a1e263fa6535f325333e9edcacfd93498f699790c30d3"
+      },
+      "matter/src/metal/contact.metalinc": {
+        "package_copy": "provenance/base-files/matter/src/metal/contact.metalinc",
+        "sha256": "69c3ec930d0b382dfe278fa42c56353782438ded77d8224a3ccfd6989e3067c9"
+      },
+      "matter/src/metal/fgmres.metalinc": {
+        "package_copy": "provenance/base-files/matter/src/metal/fgmres.metalinc",
+        "sha256": "c99e77d32266797e10d3d39a2be93cde68b818b386c0f8e7fc9152dac3b072f1"
+      },
+      "matter/src/runtime.mm": {
+        "package_copy": "provenance/base-files/matter/src/runtime.mm",
+        "sha256": "03513ba0020ed413ef6c933111621c6f7804dbd3c665d12f5771c042ded9cd38"
+      }
+    },
+    "snapshot_name": "source-armijo-applied-alpha-diagnostic-integrated-066",
+    "snapshot_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-armijo-applied-alpha-diagnostic-integrated-066"
+  },
+  "syntax_validation": {
+    "architecture": "arm64",
+    "base_snapshot_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-armijo-applied-alpha-diagnostic-integrated-066",
+    "command_file": "validation/syntax-command.txt",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.0.123.102)",
+    "exit_code": 0,
+    "status": "PASS",
+    "stderr": "validation/syntax-stderr.txt",
+    "stdout": "validation/syntax-stdout.txt",
+    "tested_checker_sha256": "9b709d5972a7c63f6d1f237faf4f74081d7ece2310fc769d865e937a79365843",
+    "working_directory": "/Users/home/cardboard-implementation-20261014/snapshots/source-armijo-applied-alpha-diagnostic-integrated-066"
+  }
+}

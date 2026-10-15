@@ -1,0 +1,66 @@
+[  0%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[  0%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+[  0%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[  0%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[ 50%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[ 50%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[ 50%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[ 50%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[ 50%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[ 50%] Built target numi_matter_compiler_objects
+[ 50%] Linking CXX static library libnumi_matter_compiler.a
+[ 50%] Built target numi_matter_compiler
+[100%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-barrier-scale-check.dir/tools/cardboard_prescribed_barrier_scale_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-barrier-scale-check
+[100%] Built target numi-matter-cardboard-barrier-scale-check
+Building CXX object matter/CMakeFiles/numi-matter-cardboard-box-assembly-controller-check.dir/tools/cardboard_box_assembly_controller_check.cpp.o
+Linking CXX executable numi-matter-cardboard-box-assembly-controller-check
+Built target numi-matter-cardboard-box-assembly-controller-check
+[  0%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-box-blank-check.dir/tools/cardboard_box_blank_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-box-blank-check
+[100%] Built target numi-matter-cardboard-box-blank-check
+[  0%] Generating shaders/NumiMatterPhysicalStateDigest.metallib
+[  0%] Generating shaders/NumiMatter.metallib
+[ 33%] Built target numi_matter_compiler_objects
+[ 33%] Built target numi_matter_compiler
+In file included from /Users/home/cardboard-implementation-20261014/snapshots/source-graph-local-refinement-070/matter/src/matter_kernels.metal:4:
+/Users/home/cardboard-implementation-20261014/snapshots/source-graph-local-refinement-070/matter/src/metal/fgmres.metalinc:2430:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/source-graph-local-refinement-070/matter/src/metal/fgmres.metalinc:2439:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/source-graph-local-refinement-070/matter/src/metal/fgmres.metalinc:2430:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/source-graph-local-refinement-070/matter/src/metal/fgmres.metalinc:2425:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/home/cardboard-implementation-20261014/snapshots/source-graph-local-refinement-070/matter/src/metal/fgmres.metalinc:2760:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/source-graph-local-refinement-070/matter/src/metal/fgmres.metalinc:2777:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/source-graph-local-refinement-070/matter/src/metal/fgmres.metalinc:2760:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/source-graph-local-refinement-070/matter/src/metal/fgmres.metalinc:2643:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+2 warnings generated.
+[ 33%] Built target numi_matter_shaders
+[ 33%] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[ 66%] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[ 66%] Building CXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[ 66%] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+/Users/home/cardboard-implementation-20261014/snapshots/source-graph-local-refinement-070/matter/src/runtime.mm:3992:54: error: no member named 'totalPatchNodes' in 'numi::matter::detail::RegionalGraphSchwarzLayout'
+ 3992 |                 !graphBufferFits(graphSchwarz.layout.totalPatchNodes,
+      |                                  ~~~~~~~~~~~~~~~~~~~ ^
+1 error generated.
+make[3]: *** [matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o] Error 1
+make[2]: *** [matter/CMakeFiles/numi_matter_runtime_objects.dir/all] Error 2
+make[1]: *** [matter/CMakeFiles/numi-matter-cardboard-cohesive-face-check.dir/rule] Error 2
+make: *** [numi-matter-cardboard-cohesive-face-check] Error 2

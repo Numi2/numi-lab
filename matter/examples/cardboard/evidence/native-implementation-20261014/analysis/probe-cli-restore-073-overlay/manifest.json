@@ -1,0 +1,7 @@
+{
+  "schema": "numi.cardboard.probe-merge-repair.v1",
+  "base": "/Users/home/cardboard-implementation-20261014/snapshots/source-refined-graph-angular-residual-instrument-071/matter/tools/cardboard_probe.mm",
+  "base_sha256": "74129753fafb28924ce690512115ee1afc8d0c98dd933f2dde54cf36d980a5ed",
+  "replacement_sha256": "c0f258b5d2da58570baa097b834060aa136e8e4ab2a59b624e5ef5c881a3676d",
+  "reason": "Source072copiedoldermutableprobeandlostselector5CLI; native230rejectsbeforeFEM. Restoreverified071completeprobedriverthenapplyonlyrejected-geometryexportnaming. Retainfailed072/230 unchanged."
+}

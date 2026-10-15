@@ -1,0 +1,21 @@
+CPU-only validation record. No Metal command/native kernel run was executed.
+
+Host compile/link:
+clang++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -I <source065>/matter/include graph_layout_export.cpp -o graph_layout_export
+clang++ -std=c++20 -fobjc-arc -fmodules -Wall -Wextra -Wpedantic -Werror -I <source065>/matter/include selector5_graph_kernels.mm -framework Foundation -framework Metal -o selector5_graph_kernels
+Both completed with exit 0. A first attempted link with `-lCommonCrypto` failed because there is no standalone CommonCrypto library; removing that flag succeeded because these symbols are in libSystem.
+
+Source-bound input build:
+python3 prepare_inputs.py
+status=prepared
+bundle_sha256=b2619d5d7120f1e6cae40869af0a37ce14b86b29ce0a51961c95ec2c84c3de60
+layout_sha256=9191007fecd8dd21f7a044d3049255a7361118492f3adf1bd7a5fa6e9188fe13
+C++ source065 production graph helper and independent Python BFS matched every actual global-ID map array.
+
+CPU checker tests:
+python3 test_verify_kernel_output.py
+5 tests passed: hand-solvable projection/RAP/local-solve/gather, invalid patch factor, injected gather corruption, and malformed dimensions/trailing bytes.
+python3 ../selector5-regional-capture-reader-001/test_reader.py
+7 tests passed: capture bytes/hashes/generation, exact topology-map binding, same-count wrong global ID rejection, and fail-closed missing topology binding.
+
+Python bytecode compilation of both tool/test pairs completed with exit 0.

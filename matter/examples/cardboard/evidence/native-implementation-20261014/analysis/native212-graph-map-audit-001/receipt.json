@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/selector5-regional-capture-reader-v2-001/read_selector5_capture.py",
+    "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-topology-factor-one-newton-212/operator-capture.regional.json",
+    "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-topology-factor-one-newton-212/operator-capture.regional.bin",
+    "--topology-npz",
+    "/Users/home/cardboard-implementation-20261014/analysis/native212-graph-map-audit-001/same-run-topology.npz",
+    "--require-topology",
+    "--output",
+    "/Users/home/cardboard-implementation-20261014/analysis/native212-graph-map-audit-001/reader-report.json"
+  ],
+  "exit_code": 0,
+  "reader_sha256": "60f496e938775d79e93b6a4143b1ea726d62c1383f99107dbc1a6cc57a2ccde3",
+  "finished_at_utc": "2026-10-15T05:27:28.928161+00:00",
+  "physical_steps": 0,
+  "scope": "Selected native graph membership and retained array integrity only; one-Newton run intentionally fails certificate."
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "numi.matter.source-overlay.v1",
+  "overlay_id": "graph-completed-tail-guard-067",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-consistent-armijo-alpha-and-topology-capture-067",
+  "base_files": {
+    "matter/src/runtime.mm": "f88c108754e79df70da59a515d2dc60f4117af4701f2519442b90c87ea5ce6fe",
+    "matter/src/metal/fgmres.metalinc": "c99e77d32266797e10d3d39a2be93cde68b818b386c0f8e7fc9152dac3b072f1"
+  },
+  "overlay_files": {
+    "matter/src/runtime.mm": {
+      "path": "runtime.mm",
+      "sha256": "b40e422fc8c5eb7134a1255456c595be0e86f23b987ad99cee3fa92526936e4d",
+      "patch_path": "runtime.patch",
+      "patch_sha256": "9b0c40bbfa40179589fdcd3c0fc50188e52a736cc72cb883758347559b00b6ce"
+    },
+    "matter/src/metal/fgmres.metalinc": {
+      "path": "fgmres.metalinc",
+      "sha256": "538f5e5517e9ddb6cf0727e8a6da2e3ecc834bd702263a8fe880b461c4d9933c",
+      "patch_path": "fgmres.patch",
+      "patch_sha256": "661bc1040ad248dbd744de6fdb8c8ba0aa10609aba9c13abfe15b857d0bc2ffd"
+    }
+  },
+  "validation": {
+    "source_review": "completed against frozen 067 only",
+    "static_dispatch_audit": "completed",
+    "compile": "not run",
+    "native_or_gpu_execution": "not run"
+  }
+}

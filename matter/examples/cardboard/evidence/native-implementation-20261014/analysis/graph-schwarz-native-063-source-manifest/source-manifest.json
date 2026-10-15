@@ -1,0 +1,51 @@
+{
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-phase-correct-rigid-bridge-and-implicit-reference-integrated-063",
+  "changed_files": [
+    {
+      "path": "matter/include/numi/matter/matter.hpp",
+      "sha256": "c3a8ee4c09c58c0891cda023c4b82ebd0e4036909007fa815e30180af8aee05a",
+      "bytes": 104606
+    },
+    {
+      "path": "matter/src/compiler_impl.cpp",
+      "sha256": "a194cef5c9e5403bdafe91d864612626afb9ebb86af34ec5b04bf91f3fd1a281",
+      "bytes": 168552
+    },
+    {
+      "path": "matter/src/validation_impl.cpp",
+      "sha256": "2b63b7d3fc0da732fe36edc6413e98985c7cede382904ccdbe7e020443eb1e15",
+      "bytes": 135949
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "70ef8c933fafa0bba05e4d7819a122381a7168a1db74269288f2b58584a4a112",
+      "bytes": 1363083
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "sha256": "8b84c10b184494fc061ad04e3c7e32acdaf3a8795771203da8b7ae090b87ce88",
+      "bytes": 327412
+    },
+    {
+      "path": "matter/src/regional_graph_schwarz.hpp",
+      "sha256": "f8973ed2c95367e82f202be77b4f8763231dae88d17cd80c60c64ccd127391a8",
+      "bytes": 12351
+    },
+    {
+      "path": "matter/tools/cardboard_probe.mm",
+      "sha256": "74129753fafb28924ce690512115ee1afc8d0c98dd933f2dde54cf36d980a5ed",
+      "bytes": 707168
+    },
+    {
+      "path": "matter/tools/regional_graph_schwarz_layout_check.cpp",
+      "sha256": "a1c7a9ad8aa98b606fa300c8c8cf5de8dd4a4641d88423d2cdf68aacae1f3adc",
+      "bytes": 7822
+    }
+  ],
+  "patch_sha256": "2f01e12de3e5dc33d30d5a32f7541d49d53886075e7ab69caee178eb2d03da02",
+  "metal_compile": {
+    "air_sha256": "75dda3fb4f2fcb23e59c9ff0a46f37a428b9b034426c4bd3bc487c5a44c79f3f",
+    "metallib_sha256": "2f64ba5258db2d53322f00f6d3223ac7b897daf47e920e2d5f11d15df7c4c56a",
+    "source": "matter/src/matter_kernels.metal from frozen063 with overlay matter/src+matter/include first"
+  }
+}

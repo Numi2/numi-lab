@@ -1,0 +1,39 @@
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -2640,6 +2640,7 @@
+     threadgroup float values[768];
+     threadgroup float originalSolution[768];
+     threadgroup atomic_uint refinementError;
++    threadgroup atomic_uint finalOutputError;
+     threadgroup uint refinementValid;
+     threadgroup uint refinementNeeded;
+     threadgroup uint refinementSolveValid;
+@@ -2848,6 +2849,28 @@
+         }
+     }
+ 
++    if (lane == 0u)
++        atomic_store_explicit(&finalOutputError, 0u, memory_order_relaxed);
++    threadgroup_barrier(mem_flags::mem_threadgroup);
++    if (refinementSolveValid != 0u && refinementNeeded != 0u) {
++        for (uint scalar = lane; scalar < n; scalar += 256u) {
++            const float finalValue = originalSolution[scalar] + values[scalar];
++            if (!isfinite(finalValue)) {
++                atomic_store_explicit(&finalOutputError, 1u,
++                                      memory_order_relaxed);
++            }
++        }
++    }
++    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
++    if (lane == 0u && atomic_load_explicit(
++            &finalOutputError, memory_order_relaxed) != 0u) {
++        refinementSolveValid = 0u;
++        recordFailure(statuses[environment],
++            NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
++            float4(float(patchIndex), float(n), 0.0f, 16.0f));
++    }
++    threadgroup_barrier(mem_flags::mem_threadgroup);
++
+     for (uint local = lane; local < patch.y; local += 256u) {
+         if (refinementSolveValid == 0u) {
+             patchCorrections[patchCorrectionBase + local] = float4(0.0f);

@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.publication-binding.v1",
+  "parent_revision": "62e5bfc1d05dc2481acd473d48a8271c8a96aa78",
+  "build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-054/source-build.json",
+  "build_sha256": "113da39a5091bd770651e7fd46ed9c6186c422679297757f5876724fe20e1e9d",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-tangent-cache-trial-scratch-and-exact-AP-integrated-054",
+  "bound_index_files": 745,
+  "all_bound_index_bytes_verified": true,
+  "extras": [
+    "matter/examples/cardboard/implementation-20261014.md",
+    "matter/examples/cardboard/solver-progress-20261014.md",
+    "matter/examples/cardboard/shipping-runtime-gaps-20261014.md",
+    "matter/examples/cardboard/evidence/native-implementation-20261014"
+  ],
+  "limitation": "Post-snapshot source55 work remains unstaged; native failed and incomplete cases are explicitly retained."
+}

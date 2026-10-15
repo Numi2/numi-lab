@@ -1,0 +1,49 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-consistent-armijo-alpha-and-topology-capture-067",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-angular-native-check-and-capture-contract-068",
+  "changed": {
+    "matter/CMakeLists.txt": {
+      "before": "2d747ce5bc6dd5891fd76d3701bcdeff2a17b6452cad3f6d427a779a63035e2a",
+      "after": "232ca6593bb0f87aeb37c746d18f27faa4e7d91cf24a77ad80a3cefcb4edb92a"
+    },
+    "matter/src/runtime.mm": {
+      "before": "f88c108754e79df70da59a515d2dc60f4117af4701f2519442b90c87ea5ce6fe",
+      "after": "f44f80b2b1e04d2321d0a5075b915a55a66fb8cf168597c5ad0b64b96eca6595"
+    },
+    "matter/tools/cardboard_diagnostic_history_compare.md": {
+      "before": "fd8880260d2b4eb367b909e0a2778c1d40d77a094d47010a055cbe2fea8b0bdd",
+      "after": "cb0c3780f93256acbfc8031c564ff62579d31ce4ec3c5de0430605f978194286"
+    },
+    "matter/tools/cardboard_diagnostic_history_compare.py": {
+      "before": "d173daa305218a5783d953a555f0a270830fb7fd6193faed2ee2f96695f83153",
+      "after": "0905945c7e7adad8bc7de0d991d1b2113e73b40c7aec5ee606b2c5dea67a1230"
+    },
+    "matter/tools/cardboard_free_box_angular_native_check.mm": {
+      "before": null,
+      "after": "9b709d5972a7c63f6d1f237faf4f74081d7ece2310fc769d865e937a79365843"
+    },
+    "matter/tools/cardboard_source_bound_run.py": {
+      "before": "b64e3ad6833cea996f74095efe6cf1dd4cf162f8ffb01f1cd1bf05946216905b",
+      "after": "0484c3be3547443169aa5be71665febc8cc20179eb9755be9ee620f724a84b2a"
+    },
+    "matter/tools/cardboard_source_bound_run_support.py": {
+      "before": null,
+      "after": "5ce3ec12e48d88ba8a76b7e498d29b7dd991f0c930de43e17bb5cb96d379685e"
+    },
+    "matter/tools/test_cardboard_diagnostic_history_compare.py": {
+      "before": "adf427b1e32370a00c0f3cdb2df6f1ae7b839b98cad8aa4195aa80991a389a0f",
+      "after": "cc3e51200b00bfb1164382e33ed7ee49acb86b9d3ad508dc315f9c7a794e5ee0"
+    }
+  },
+  "overlays": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/rap-only-contract-repair-overlay-068/changes.patch",
+      "sha256": "95a9b6b3292af8c34851bc9d7e206f2fdfb702894c09ba9c260f3def528ad19c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/angular-box-contact-checker-066-package/patches/add-angular-native-check-to-source066.patch",
+      "sha256": "e96a670dd4229555429fc652178ba768e93983fb95cacdfc6ab4abe19693613a"
+    }
+  ]
+}

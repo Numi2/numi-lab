@@ -1,0 +1,137 @@
+{
+  "schema": "numi.cardboard.worktree-reconciliation.v1",
+  "time_utc": "2026-10-15T06:18:01.719422+00:00",
+  "source": "/Users/home/cardboard-implementation-20261014/snapshots/source-reconciled-angular-fixture-and-probe-cli-073",
+  "excluded": [
+    "matter/CMakeLists.txt: active material-agent target edits"
+  ],
+  "basis": "Current runtime diff was earlier task observer scoping plus an extraneous buffer6 on a six-argument preconditioner; frozen verified source includes scoped graph capture and correct buffer6 on apply_free_rigid. Current fgmres lacks dt in spatial normal derivative; frozen repairs it. Current probe export change merges cleanly. All replaced bytes backed up. Unrelated work preserved.",
+  "records": [
+    {
+      "path": "matter/include/numi/matter/matter.hpp",
+      "before_sha256": "016e6650bbb6d17d314b219f01cdf0ebce7400efcb6fb2b0a72d67bb5b49cc47",
+      "HEAD_sha256": "016e6650bbb6d17d314b219f01cdf0ebce7400efcb6fb2b0a72d67bb5b49cc47",
+      "after_sha256": "c3a8ee4c09c58c0891cda023c4b82ebd0e4036909007fa815e30180af8aee05a",
+      "mode": "clean source advanced"
+    },
+    {
+      "path": "matter/src/compiler_impl.cpp",
+      "before_sha256": "6a3ea24d5cf791d0fa5c4291209306941399aad876debd485c6eb2d45833bcca",
+      "HEAD_sha256": "6a3ea24d5cf791d0fa5c4291209306941399aad876debd485c6eb2d45833bcca",
+      "after_sha256": "a194cef5c9e5403bdafe91d864612626afb9ebb86af34ec5b04bf91f3fd1a281",
+      "mode": "clean source advanced"
+    },
+    {
+      "path": "matter/src/metal/fem.metalinc",
+      "before_sha256": "24e88be8674ffa2f2c859be29c564cd99c97f8fd5946b16dcea3aebab5e1fee3",
+      "HEAD_sha256": "24e88be8674ffa2f2c859be29c564cd99c97f8fd5946b16dcea3aebab5e1fee3",
+      "after_sha256": "819f6724c2690c41c07972e6596624672000d35423bba3f1233e0063c47b9564",
+      "mode": "clean source advanced"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "before_sha256": "6afdd442b698ef9ef46892c112788cc719d2969c77e81344cf858defe0c14bac",
+      "HEAD_sha256": "8162bd9eeb36811329459f1ddb62bdb1e238218e511aca158489d2a1c5775f20",
+      "after_sha256": "389c309235b4f5aee758985c335db9c95faaf8b2eeb281e41095fc718700c42a",
+      "mode": "task-WIP reconciled to verified frozen source"
+    },
+    {
+      "path": "matter/src/regional_graph_schwarz.hpp",
+      "before_sha256": null,
+      "HEAD_sha256": null,
+      "after_sha256": "1356685f98c1818ad100c10e3e919db3c67a95c88ba86d86e7e009437844015a",
+      "mode": "clean source advanced"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "before_sha256": "e989124ec4ba70ebdf1ce03340ccd20a9b52f19c9ea62e26380330cf622560d7",
+      "HEAD_sha256": "e5ac4362d0ab925598aefe51dd935b587940da57630c6349380e16a83125d760",
+      "after_sha256": "c3c9272fd0483b922d2ec4c489459212dbec49ca2212e23e3a3a6b499295cc72",
+      "mode": "task-WIP reconciled to verified frozen source"
+    },
+    {
+      "path": "matter/src/validation_impl.cpp",
+      "before_sha256": "99b66772d4ed9cfd4bb86113c3fb89dcd4c0c7abdefaa917235e9cb9ab41d477",
+      "HEAD_sha256": "99b66772d4ed9cfd4bb86113c3fb89dcd4c0c7abdefaa917235e9cb9ab41d477",
+      "after_sha256": "2b63b7d3fc0da732fe36edc6413e98985c7cede382904ccdbe7e020443eb1e15",
+      "mode": "clean source advanced"
+    },
+    {
+      "path": "matter/tools/cardboard_diagnostic_history_compare.md",
+      "before_sha256": "fd8880260d2b4eb367b909e0a2778c1d40d77a094d47010a055cbe2fea8b0bdd",
+      "HEAD_sha256": "fd8880260d2b4eb367b909e0a2778c1d40d77a094d47010a055cbe2fea8b0bdd",
+      "after_sha256": "cb0c3780f93256acbfc8031c564ff62579d31ce4ec3c5de0430605f978194286",
+      "mode": "clean source advanced"
+    },
+    {
+      "path": "matter/tools/cardboard_diagnostic_history_compare.py",
+      "before_sha256": "00f0af69f34dfde6f373b7a6bcc69a6000cd53a910178707824e00eaa8d07644",
+      "HEAD_sha256": "00f0af69f34dfde6f373b7a6bcc69a6000cd53a910178707824e00eaa8d07644",
+      "after_sha256": "0905945c7e7adad8bc7de0d991d1b2113e73b40c7aec5ee606b2c5dea67a1230",
+      "mode": "clean source advanced"
+    },
+    {
+      "path": "matter/tools/cardboard_free_box_angular_native_check.mm",
+      "before_sha256": "855b816c2f4f814446f382e58bcd0acc58dc6d31543b91c84760309b94dbb11f",
+      "HEAD_sha256": null,
+      "after_sha256": "dd9116d31b2bd6f25ff01c0d5b67597de13350ce4f82f1c01fb400624c1db638",
+      "mode": "task-WIP reconciled to verified frozen source"
+    },
+    {
+      "path": "matter/tools/cardboard_full_contact_armijo_check.mm",
+      "before_sha256": "6e92a04cfdf87010238855c9afa51884e1d460dc0df8e966c431ce1b5928694f",
+      "HEAD_sha256": "6e92a04cfdf87010238855c9afa51884e1d460dc0df8e966c431ce1b5928694f",
+      "after_sha256": "29c0a58158e483f07eba6d056b2c65eea02aec39a9f1bafa8160405861b6fd1b",
+      "mode": "clean source advanced"
+    },
+    {
+      "path": "matter/tools/cardboard_probe.mm",
+      "before_sha256": "f2b4f3d3c7aaaecb147cc3db9a97f74c118f70f9d51114c060a71f49a43283dd",
+      "HEAD_sha256": "d94fe0aa982de7aa950963faabfef4a596345d19cc68fe9dbf75c7ff37ba6984",
+      "after_sha256": "c0f258b5d2da58570baa097b834060aa136e8e4ab2a59b624e5ef5c881a3676d",
+      "mode": "task-WIP reconciled to verified frozen source"
+    },
+    {
+      "path": "matter/tools/cardboard_source_bound_run.py",
+      "before_sha256": "b64e3ad6833cea996f74095efe6cf1dd4cf162f8ffb01f1cd1bf05946216905b",
+      "HEAD_sha256": "b64e3ad6833cea996f74095efe6cf1dd4cf162f8ffb01f1cd1bf05946216905b",
+      "after_sha256": "0484c3be3547443169aa5be71665febc8cc20179eb9755be9ee620f724a84b2a",
+      "mode": "clean source advanced"
+    },
+    {
+      "path": "matter/tools/cardboard_source_bound_run_support.py",
+      "before_sha256": null,
+      "HEAD_sha256": null,
+      "after_sha256": "5ce3ec12e48d88ba8a76b7e498d29b7dd991f0c930de43e17bb5cb96d379685e",
+      "mode": "clean source advanced"
+    },
+    {
+      "path": "matter/tools/regional_graph_schwarz_layout_check.cpp",
+      "before_sha256": null,
+      "HEAD_sha256": null,
+      "after_sha256": "8b9c08915cfa3e13be6f2628d84e0243754d41301549bcb2035e81a7faf9fb9f",
+      "mode": "clean source advanced"
+    },
+    {
+      "path": "matter/tools/stateful_check.cpp",
+      "before_sha256": "aae7021ce00ac272eac1c7a5ed3893b266d407e3df7fa5aceb0d9c24d01836af",
+      "HEAD_sha256": "aae7021ce00ac272eac1c7a5ed3893b266d407e3df7fa5aceb0d9c24d01836af",
+      "after_sha256": "60f2cc1b18cb5c857d78e6bbcef916281749f2b404f50ce93aa3f9a467fb8f80",
+      "mode": "clean source advanced"
+    },
+    {
+      "path": "matter/tools/test_cardboard_diagnostic_history_compare.py",
+      "before_sha256": "adf427b1e32370a00c0f3cdb2df6f1ae7b839b98cad8aa4195aa80991a389a0f",
+      "HEAD_sha256": "adf427b1e32370a00c0f3cdb2df6f1ae7b839b98cad8aa4195aa80991a389a0f",
+      "after_sha256": "cc3e51200b00bfb1164382e33ed7ee49acb86b9d3ad508dc315f9c7a794e5ee0",
+      "mode": "clean source advanced"
+    },
+    {
+      "path": "matter/tools/test_cardboard_free_box_angular_operator.py",
+      "before_sha256": "52d361823edb7ce737f1fcf97909283ab66af37bd9592913279cb22d384baf3a",
+      "HEAD_sha256": null,
+      "after_sha256": "ea9c1db98f5db492bd57c083c002d2c5a1482c4e21ec7e83d542cf8d5bd0c636",
+      "mode": "task-WIP reconciled to verified frozen source"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "exit_code": 1,
+  "timed_out": false,
+  "execution_started": false,
+  "stage": "input-seal",
+  "error_type": "ValueError",
+  "reason": "artifact no longer matches its executed build: /Users/home/numi-cardboard-20261006/build-cardboard-provenance-023/numi-matter-cardboard-retained-matrix-damage-metal-check",
+  "wall_seconds": 0.10381904197856784,
+  "finished_at_utc": "2026-10-14T19:54:54.508439+00:00"
+}

@@ -1,0 +1,5083 @@
+{
+  "schema": "numi.cardboard.adaptive-high-precision-fd-adjudication.v1",
+  "capture": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-first-control-final-newton-capture-216/operator-capture",
+  "capture_sha256": "902298a2655399972a855b48e02dd0bcb221131bd9f5640e72d9aac8ab709c77",
+  "native_prediction_sha256": "d6ed7a8bd8eb871a8ac4b877e1dc4f3990ed273b373c9a654072a31258f15fba",
+  "receipt_sha256": "f4b7544c749346625794db652b5bcd18f71f07368f43f598d54c47f4f91a87cc",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-graph-tail-guard-angular-instrument-069",
+  "methods": "Independent mpmath 80-digit FP64-oracle equation replay; exact FP32 high+low F, captured accepted history, FP32 H and FP32 parameter words; center/one-sided/centered dimensional perturbation sweeps with fixed max|delta F|; branch labels from exact elastic trial q; repeat at 50 vs 80 decimal digits to estimate numerical precision convergence, not empirical stochastic noise.",
+  "threshold_policy": "No tolerance relaxed. FD <=1e-6 is reported only where the exact q branch is the same for minus/center/plus and tangent scale is nonzero.",
+  "python_mpmath_version": "1.3.0",
+  "results": [
+    {
+      "tet_id": 611,
+      "grade": "medium",
+      "captured_material_index": 1,
+      "native_capture_candidate_q_field": 0.99395597,
+      "independent_center_trial_q": 0.9939559705463429,
+      "independent_candidate_lambda_increment": 8.272584912148664e-15,
+      "high_precision_projection_residual": 3.2262523094877327e-80,
+      "iterations": 3,
+      "precision_convergence_50_vs_80_dps": {
+        "center_stress_abs_Pa": 2.989355081148514e-43,
+        "directional_tangent_abs_Pa_per_s": 8.327963370357519e-38
+      },
+      "direction_max_abs_per_s": 0.8565208911895752,
+      "tangent_matrix_Pa_per_s": [
+        -2918887.6261781096,
+        7245728.633015097,
+        -52752237.34972794,
+        7641237.135613583,
+        -117643.86692460004,
+        2199486.6496382807,
+        -55868706.757351674,
+        3269749.6978836996,
+        -18061790.988358717
+      ],
+      "center_first_piola_Pa": [
+        56215.99729675288,
+        160.76520844105033,
+        22889.856456077974,
+        104.93017275358918,
+        3238.963320715916,
+        -397.3077640820829,
+        32233.112683959138,
+        -378.2791789501914,
+        8371.195923867795
+      ],
+      "sweeps": [
+        {
+          "deltaF_inf": 0.003,
+          "epsilon_s": 0.003502541538518066,
+          "q_minus_center_plus": [
+            9.054332701491328,
+            0.9939559705463429,
+            6.952244018146136
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "plastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.8495454574488125,
+          "forward_relative_error": 0.7448231595020532,
+          "backward_relative_error": 0.9705776418835563,
+          "centered_abs_error_Pa_per_s": 47463006.03924789,
+          "central_tangent_matrix": [
+            -9806245.247391773,
+            7484609.018164289,
+            -5296928.637871881,
+            7608450.144749481,
+            -128829.81070827601,
+            311116.2648129955,
+            -8405700.718103783,
+            1395448.3872116192,
+            -11180230.131350314
+          ],
+          "stress_delta_inf_Pa": 78318.44089049155,
+          "projection_residuals_mp80": [
+            5.010162038652267e-82,
+            5.871070937843961e-82
+          ],
+          "projection_iterations": [
+            10,
+            10
+          ]
+        },
+        {
+          "deltaF_inf": 0.001,
+          "epsilon_s": 0.0011675138461726888,
+          "q_minus_center_plus": [
+            3.667866064389292,
+            0.9939559705463429,
+            1.6678909480374369
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "plastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.6073198088726172,
+          "forward_relative_error": 0.25092827706676435,
+          "backward_relative_error": 0.9688710468816303,
+          "centered_abs_error_Pa_per_s": 33930172.30983511,
+          "central_tangent_matrix": [
+            -7833181.673639674,
+            7414993.394193068,
+            -18844312.889511794,
+            7632451.947703439,
+            -116379.05297177286,
+            966455.3239592443,
+            -21938534.447516564,
+            2048035.2320893633,
+            -13138934.742274592
+          ],
+          "stress_delta_inf_Pa": 51227.08546442417,
+          "projection_residuals_mp80": [
+            3.2029255951938052e-56,
+            6.444571187015884e-82
+          ],
+          "projection_iterations": [
+            9,
+            10
+          ]
+        },
+        {
+          "deltaF_inf": 0.0003,
+          "epsilon_s": 0.00035025415385180666,
+          "q_minus_center_plus": [
+            1.7947223354855573,
+            0.9939559705463429,
+            0.19542363921130507
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.4824276400934954,
+          "forward_relative_error": 0.010163226061615549,
+          "backward_relative_error": 0.963745973927667,
+          "centered_abs_error_Pa_per_s": 26952608.35602469,
+          "central_tangent_matrix": [
+            -6810863.533337615,
+            7342092.160866581,
+            -25813840.27559301,
+            7638984.253651774,
+            -112792.84475466506,
+            1514612.9012918975,
+            -28916098.401326984,
+            2591544.50312449,
+            -14159069.725908592
+          ],
+          "stress_delta_inf_Pa": 20255.96715650472,
+          "projection_residuals_mp80": [
+            1.0542197943230523e-81,
+            1.9895332682668888e-60
+          ],
+          "projection_iterations": [
+            3,
+            9
+          ]
+        },
+        {
+          "deltaF_inf": 0.0001,
+          "epsilon_s": 0.00011675138461726888,
+          "q_minus_center_plus": [
+            1.2607318840154709,
+            0.9939559705463429,
+            0.7273536250036017
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.4748360900760807,
+          "forward_relative_error": 0.003388060892906888,
+          "backward_relative_error": 0.9490999981214598,
+          "centered_abs_error_Pa_per_s": 26528478.274267975,
+          "central_tangent_matrix": [
+            -6745011.731092073,
+            7319862.571259523,
+            -26234239.345920082,
+            7640538.707839864,
+            -112402.04202172773,
+            1677700.5393532848,
+            -29340228.4830837,
+            2753162.8431929667,
+            -14225433.201712295
+          ],
+          "stress_delta_inf_Pa": 6851.024600774104,
+          "projection_residuals_mp80": [
+            5.271098971615262e-82,
+            1.3168485344215308e-82
+          ],
+          "projection_iterations": [
+            3,
+            9
+          ]
+        },
+        {
+          "deltaF_inf": 3e-05,
+          "epsilon_s": 3.502541538518066e-05,
+          "q_minus_center_plus": [
+            1.0739720790441472,
+            0.9939559705463429,
+            0.9139552105048747
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.44906077921910226,
+          "forward_relative_error": 0.0010168537690211348,
+          "backward_relative_error": 0.8978822117435359,
+          "centered_abs_error_Pa_per_s": 25088444.99041987,
+          "central_tangent_matrix": [
+            -6535785.771184736,
+            7304692.243717428,
+            -27672507.319340672,
+            7641080.984511945,
+            -112526.28836763276,
+            1786514.9009326363,
+            -30780261.766931806,
+            2860934.5964931906,
+            -14435317.131852569
+          ],
+          "stress_delta_inf_Pa": 2156.1829081027627,
+          "projection_residuals_mp80": [
+            1.0295115178936058e-84,
+            3.877775715190873e-82
+          ],
+          "projection_iterations": [
+            3,
+            9
+          ]
+        },
+        {
+          "deltaF_inf": 1e-05,
+          "epsilon_s": 1.1675138461726887e-05,
+          "q_minus_center_plus": [
+            1.0206263462383205,
+            0.9939559705463429,
+            0.9672872977645577
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.375649738191371,
+          "forward_relative_error": 0.0003393072274934787,
+          "backward_relative_error": 0.7512221660137215,
+          "centered_abs_error_Pa_per_s": 20987065.066489637,
+          "central_tangent_matrix": [
+            -5944139.236161708,
+            7291819.580850118,
+            -31772173.76746338,
+            7641227.181531066,
+            -113324.0893592645,
+            1877255.965583638,
+            -34881641.69086204,
+            2950773.474475906,
+            -15028552.727100195
+          ],
+          "stress_delta_inf_Pa": 814.495993026319,
+          "projection_residuals_mp80": [
+            8.236092143148846e-84,
+            5.527265622773509e-69
+          ],
+          "projection_iterations": [
+            3,
+            9
+          ]
+        },
+        {
+          "deltaF_inf": 3e-06,
+          "epsilon_s": 3.502541538518066e-06,
+          "q_minus_center_plus": [
+            1.0019569060004707,
+            0.9939559705463429,
+            0.9859551883289684
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.11879995833175638,
+          "forward_relative_error": 0.00010202192189962254,
+          "backward_relative_error": 0.23757831773501495,
+          "centered_abs_error_Pa_per_s": 6637200.034822495,
+          "central_tangent_matrix": [
+            -3875588.621504233,
+            7259923.886531882,
+            -46117219.48223893,
+            7641247.348528929,
+            -116273.41647214057,
+            2100314.388699015,
+            -49231506.72252918,
+            3171580.352789778,
+            -17102566.78918368
+          ],
+          "stress_delta_inf_Pa": 344.8707945989797,
+          "projection_residuals_mp80": [
+            1.6472184286297693e-83,
+            8.313487256949706e-71
+          ],
+          "projection_iterations": [
+            3,
+            12
+          ]
+        },
+        {
+          "deltaF_inf": 1e-06,
+          "epsilon_s": 1.1675138461726887e-06,
+          "q_minus_center_plus": [
+            0.9966229320504424,
+            0.9939559705463429,
+            0.9912890260683036
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 1.18615386937986e-06,
+          "forward_relative_error": 3.4089518994161285e-05,
+          "backward_relative_error": 3.4431463990973934e-05,
+          "centered_abs_error_Pa_per_s": 66.26888269748142,
+          "central_tangent_matrix": [
+            -2918897.1781904865,
+            7245728.774354528,
+            -52752171.10052171,
+            7641237.1357753975,
+            -117643.85323527284,
+            2199485.662341954,
+            -55868640.488468975,
+            3269748.7205172377,
+            -18061781.410903912
+          ],
+          "stress_delta_inf_Pa": 130.45482267426326,
+          "projection_residuals_mp80": [
+            2.4341825779989984e-83,
+            3.567442466105075e-75
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-07,
+          "epsilon_s": 3.5025415385180665e-07,
+          "q_minus_center_plus": [
+            0.9947560572113986,
+            0.9939559705463429,
+            0.99315588541363
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 8.75019616633468e-08,
+          "forward_relative_error": 1.0244571420817836e-05,
+          "backward_relative_error": 1.026979647449752e-05,
+          "centered_abs_error_Pa_per_s": 4.88862143686255,
+          "central_tangent_matrix": [
+            -2918888.330823673,
+            7245728.643441856,
+            -52752232.4625243,
+            7641237.135626265,
+            -117643.8659147195,
+            2199486.576805491,
+            -55868701.86873024,
+            3269749.625782528,
+            -18061790.28183218
+          ],
+          "stress_delta_inf_Pa": 39.136489799661916,
+          "projection_residuals_mp80": [
+            2.722393638683647e-81,
+            5.475680263162392e-79
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-07,
+          "epsilon_s": 1.1675138461726888e-07,
+          "q_minus_center_plus": [
+            0.9942226659311469,
+            0.9939559705463429,
+            0.9936892753317991
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 9.570704537432539e-09,
+          "forward_relative_error": 3.417186118940849e-06,
+          "backward_relative_error": 3.4199451598406113e-06,
+          "centered_abs_error_Pa_per_s": 0.5347028852630736,
+          "central_tangent_matrix": [
+            -2918887.703250133,
+            7245728.634155546,
+            -52752236.81517981,
+            7641237.135614977,
+            -117643.86681414205,
+            2199486.641672042,
+            -55868706.22264879,
+            3269749.6899974747,
+            -18061790.91108092
+          ],
+          "stress_delta_inf_Pa": 13.045497616539343,
+          "projection_residuals_mp80": [
+            1.3654056082766762e-80,
+            7.930883264055928e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-08,
+          "epsilon_s": 3.502541538518066e-08,
+          "q_minus_center_plus": [
+            0.9940359791439083,
+            0.9939559705463429,
+            0.9938759619641008
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 8.598369663762796e-10,
+          "forward_relative_error": 1.0254291335211248e-06,
+          "backward_relative_error": 1.0256770071544765e-06,
+          "centered_abs_error_Pa_per_s": 0.04803797933360721,
+          "central_tangent_matrix": [
+            -2918887.633102299,
+            7245728.633117556,
+            -52752237.30170386,
+            7641237.135613709,
+            -117643.86691467643,
+            2199486.6489225896,
+            -55868706.7093137,
+            3269749.697175197,
+            -18061790.98141604
+          ],
+          "stress_delta_inf_Pa": 3.913649319053084,
+          "projection_residuals_mp80": [
+            2.482708003056286e-80,
+            4.2074244551792855e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-08,
+          "epsilon_s": 1.1675138461726887e-08,
+          "q_minus_center_plus": [
+            0.9939826400771621,
+            0.9939559705463429,
+            0.9939293010172262
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 9.552255914779781e-11,
+          "forward_relative_error": 3.4183676869610684e-07,
+          "backward_relative_error": 3.4186430592081933e-07,
+          "centered_abs_error_Pa_per_s": 0.005336721845740097,
+          "central_tangent_matrix": [
+            -2918887.6269473443,
+            7245728.633026479,
+            -52752237.34439277,
+            7641237.135613597,
+            -117643.86692349758,
+            2199486.649558772,
+            -55868706.75201495,
+            3269749.6978049893,
+            -18061790.987587426
+          ],
+          "stress_delta_inf_Pa": 1.304549774014781,
+          "projection_residuals_mp80": [
+            2.95531824057586e-80,
+            3.5234173594107696e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-09,
+          "epsilon_s": 3.5025415385180662e-09,
+          "q_minus_center_plus": [
+            0.9939639714054098,
+            0.9939559705463429,
+            0.993947969687429
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 8.596877999752822e-12,
+          "forward_relative_error": 1.0255390545281968e-07,
+          "backward_relative_error": 1.0255638375913148e-07,
+          "centered_abs_error_Pa_per_s": 0.00048029645599691846,
+          "central_tangent_matrix": [
+            -2918887.6262473394,
+            7245728.633016121,
+            -52752237.34924779,
+            7641237.135613585,
+            -117643.86692450082,
+            2199486.649631125,
+            -55868706.75687138,
+            3269749.697876616,
+            -18061790.9882893
+          ],
+          "stress_delta_inf_Pa": 0.3913649322384539,
+          "projection_residuals_mp80": [
+            3.1423325386886052e-80,
+            3.31253111266316e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-09,
+          "epsilon_s": 1.1675138461726887e-09,
+          "q_minus_center_plus": [
+            0.9939586374993482,
+            0.9939559705463429,
+            0.9939533035933545
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 9.552071787699668e-13,
+          "forward_relative_error": 3.418491003247857e-08,
+          "backward_relative_error": 3.418518539941761e-08,
+          "centered_abs_error_Pa_per_s": 5.3366189763216476e-05,
+          "central_tangent_matrix": [
+            -2918887.626185802,
+            7245728.633015211,
+            -52752237.3496746,
+            7641237.135613584,
+            -117643.86692458902,
+            2199486.6496374854,
+            -55868706.757298306,
+            3269749.6978829126,
+            -18061790.988351002
+          ],
+          "stress_delta_inf_Pa": 0.13045497741381487,
+          "projection_residuals_mp80": [
+            3.1980203144629153e-80,
+            3.254746402075827e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-10,
+          "epsilon_s": 3.502541538518066e-10,
+          "q_minus_center_plus": [
+            0.9939567706322426,
+            0.9939559705463429,
+            0.9939551704604446
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 8.596863085726214e-14,
+          "forward_relative_error": 1.025550190668815e-08,
+          "backward_relative_error": 1.0255526689708274e-08,
+          "centered_abs_error_Pa_per_s": 4.802956227695393e-06,
+          "central_tangent_matrix": [
+            -2918887.626178802,
+            7245728.633015107,
+            -52752237.349723145,
+            7641237.135613583,
+            -117643.86692459905,
+            2199486.649638209,
+            -55868706.75734687,
+            3269749.697883629,
+            -18061790.98835802
+          ],
+          "stress_delta_inf_Pa": 0.03913649322417848,
+          "projection_residuals_mp80": [
+            3.2177553061624582e-80,
+            3.2347729014181876e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-10,
+          "epsilon_s": 1.1675138461726888e-10,
+          "q_minus_center_plus": [
+            0.9939562372416426,
+            0.9939559705463429,
+            0.9939557038510433
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 9.552069946464713e-15,
+          "forward_relative_error": 3.418503388745598e-09,
+          "backward_relative_error": 3.4185061424144577e-09,
+          "centered_abs_error_Pa_per_s": 5.336617947647489e-07,
+          "central_tangent_matrix": [
+            -2918887.6261781864,
+            7245728.633015098,
+            -52752237.349727415,
+            7641237.135613583,
+            -117643.86692459993,
+            2199486.649638273,
+            -55868706.75735114,
+            3269749.6978836916,
+            -18061790.98835864
+          ],
+          "stress_delta_inf_Pa": 0.013045497741393823,
+          "projection_residuals_mp80": [
+            3.2234173574740017e-80,
+            3.229089882455882e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-11,
+          "epsilon_s": 3.502541538518066e-11,
+          "q_minus_center_plus": [
+            0.9939560505549327,
+            0.9939559705463429,
+            0.9939558905377529
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 8.59686293658621e-16,
+          "forward_relative_error": 1.0255513057423236e-09,
+          "backward_relative_error": 1.0255515535725206e-09,
+          "centered_abs_error_Pa_per_s": 4.802956144372801e-08,
+          "central_tangent_matrix": [
+            -2918887.6261781165,
+            7245728.633015097,
+            -52752237.3497279,
+            7641237.135613583,
+            -117643.86692460002,
+            2199486.64963828,
+            -55868706.75735163,
+            3269749.6978836986,
+            -18061790.98835871
+          ],
+          "stress_delta_inf_Pa": 0.003913649322418181,
+          "projection_residuals_mp80": [
+            3.225401548798907e-80,
+            3.2271033060624457e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-11,
+          "epsilon_s": 1.1675138461726888e-11,
+          "q_minus_center_plus": [
+            0.9939559972158728,
+            0.9939559705463429,
+            0.9939559438768129
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 9.552069928052366e-17,
+          "forward_relative_error": 3.4185046278364375e-10,
+          "backward_relative_error": 3.418504903203323e-10,
+          "centered_abs_error_Pa_per_s": 5.33661793736075e-09,
+          "central_tangent_matrix": [
+            -2918887.6261781105,
+            7245728.633015097,
+            -52752237.349727936,
+            7641237.135613583,
+            -117643.86692460004,
+            2199486.6496382803,
+            -55868706.75735167,
+            3269749.6978836996,
+            -18061790.988358714
+          ],
+          "stress_delta_inf_Pa": 0.0013045497741393946,
+          "projection_residuals_mp80": [
+            3.225968696385308e-80,
+            3.22653594879971e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-12,
+          "epsilon_s": 3.5025415385180665e-12,
+          "q_minus_center_plus": [
+            0.9939559785472019,
+            0.9939559705463429,
+            0.9939559625454839
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 8.596862935094809e-18,
+          "forward_relative_error": 1.0255514172642884e-10,
+          "backward_relative_error": 1.025551442047308e-10,
+          "centered_abs_error_Pa_per_s": 4.802956143539576e-10,
+          "central_tangent_matrix": [
+            -2918887.6261781096,
+            7245728.633015097,
+            -52752237.34972794,
+            7641237.135613583,
+            -117643.86692460004,
+            2199486.6496382807,
+            -55868706.757351674,
+            3269749.6978836996,
+            -18061790.988358717
+          ],
+          "stress_delta_inf_Pa": 0.00039136493224181847,
+          "projection_residuals_mp80": [
+            3.2261672228051147e-80,
+            3.2263373985292145e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-12,
+          "epsilon_s": 1.1675138461726888e-12,
+          "q_minus_center_plus": [
+            0.9939559732132959,
+            0.9939559705463429,
+            0.9939559678793899
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 9.552069927868242e-19,
+          "forward_relative_error": 3.418504751750934e-11,
+          "backward_relative_error": 3.418504779287623e-11,
+          "centered_abs_error_Pa_per_s": 5.336617937257882e-11,
+          "central_tangent_matrix": [
+            -2918887.6261781096,
+            7245728.633015097,
+            -52752237.34972794,
+            7641237.135613583,
+            -117643.86692460004,
+            2199486.6496382807,
+            -55868706.757351674,
+            3269749.6978836996,
+            -18061790.988358717
+          ],
+          "stress_delta_inf_Pa": 0.00013045497741393948,
+          "projection_residuals_mp80": [
+            3.2262239469981024e-80,
+            3.226280672239462e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-13,
+          "epsilon_s": 3.5025415385180663e-13,
+          "q_minus_center_plus": [
+            0.9939559713464288,
+            0.9939559705463429,
+            0.993955969746257
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 8.596862935079895e-20,
+          "forward_relative_error": 1.025551428416631e-11,
+          "backward_relative_error": 1.0255514308949329e-11,
+          "centered_abs_error_Pa_per_s": 4.8029561435312426e-12,
+          "central_tangent_matrix": [
+            -2918887.6261781096,
+            7245728.633015097,
+            -52752237.34972794,
+            7641237.135613583,
+            -117643.86692460004,
+            2199486.6496382807,
+            -55868706.757351674,
+            3269749.6978836996,
+            -18061790.988358717
+          ],
+          "stress_delta_inf_Pa": 3.9136493224181847e-05,
+          "projection_residuals_mp80": [
+            3.2262438007133276e-80,
+            3.2262608182857334e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-13,
+          "epsilon_s": 1.1675138461726888e-13,
+          "q_minus_center_plus": [
+            0.9939559708130381,
+            0.9939559705463429,
+            0.9939559702796475
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 9.552069927866401e-21,
+          "forward_relative_error": 3.418504764142438e-12,
+          "backward_relative_error": 3.418504766896107e-12,
+          "centered_abs_error_Pa_per_s": 5.336617937256853e-13,
+          "central_tangent_matrix": [
+            -2918887.6261781096,
+            7245728.633015097,
+            -52752237.34972794,
+            7641237.135613583,
+            -117643.86692460004,
+            2199486.6496382807,
+            -55868706.757351674,
+            3269749.6978836996,
+            -18061790.988358717
+          ],
+          "stress_delta_inf_Pa": 1.3045497741393948e-05,
+          "projection_residuals_mp80": [
+            3.22624947322698e-80,
+            3.2262551457511102e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-14,
+          "epsilon_s": 3.502541538518066e-14,
+          "q_minus_center_plus": [
+            0.9939559706263514,
+            0.9939559705463429,
+            0.9939559704663342
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 8.596862935079746e-22,
+          "forward_relative_error": 1.0255514295318667e-12,
+          "backward_relative_error": 1.0255514297796968e-12,
+          "centered_abs_error_Pa_per_s": 4.802956143531159e-14,
+          "central_tangent_matrix": [
+            -2918887.6261781096,
+            7245728.633015097,
+            -52752237.34972794,
+            7641237.135613583,
+            -117643.86692460004,
+            2199486.6496382807,
+            -55868706.757351674,
+            3269749.6978836996,
+            -18061790.988358717
+          ],
+          "stress_delta_inf_Pa": 3.9136493224181845e-06,
+          "projection_residuals_mp80": [
+            3.226251458609235e-80,
+            3.22625316036647e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-14,
+          "epsilon_s": 1.1675138461726888e-14,
+          "q_minus_center_plus": [
+            0.9939559705730124,
+            0.9939559705463429,
+            0.9939559705196733
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 9.552069927866383e-23,
+          "forward_relative_error": 3.418504765381589e-13,
+          "backward_relative_error": 3.418504765656956e-13,
+          "centered_abs_error_Pa_per_s": 5.336617937256843e-15,
+          "central_tangent_matrix": [
+            -2918887.6261781096,
+            7245728.633015097,
+            -52752237.34972794,
+            7641237.135613583,
+            -117643.86692460004,
+            2199486.6496382807,
+            -55868706.757351674,
+            3269749.6978836996,
+            -18061790.988358717
+          ],
+          "stress_delta_inf_Pa": 1.3045497741393948e-06,
+          "projection_residuals_mp80": [
+            3.226252025861541e-80,
+            3.2262525931139545e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-15,
+          "epsilon_s": 3.5025415385180664e-15,
+          "q_minus_center_plus": [
+            0.9939559705543437,
+            0.9939559705463429,
+            0.993955970538342
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 8.596862935079744e-24,
+          "forward_relative_error": 1.0255514296433902e-13,
+          "backward_relative_error": 1.0255514296681732e-13,
+          "centered_abs_error_Pa_per_s": 4.8029561435311585e-16,
+          "central_tangent_matrix": [
+            -2918887.6261781096,
+            7245728.633015097,
+            -52752237.34972794,
+            7641237.135613583,
+            -117643.86692460004,
+            2199486.6496382807,
+            -55868706.757351674,
+            3269749.6978836996,
+            -18061790.988358717
+          ],
+          "stress_delta_inf_Pa": 3.9136493224181846e-07,
+          "projection_residuals_mp80": [
+            3.2262522243998724e-80,
+            3.226252394575602e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "tet_id": 776,
+      "grade": "medium",
+      "captured_material_index": 1,
+      "native_capture_candidate_q_field": 0.999999166,
+      "independent_center_trial_q": 1.0002293965907496,
+      "independent_candidate_lambda_increment": 6.238384842386331e-11,
+      "high_precision_projection_residual": 9.421553206237537e-68,
+      "iterations": 15,
+      "precision_convergence_50_vs_80_dps": {
+        "center_stress_abs_Pa": 6.523463435996395e-47,
+        "directional_tangent_abs_Pa_per_s": 2.943093171774829e-39
+      },
+      "direction_max_abs_per_s": 2.7334954738616943,
+      "tangent_matrix_Pa_per_s": [
+        -234012895.29690325,
+        158757427.45348066,
+        28486929.603908885,
+        290891392.4744003,
+        -19256110.84335568,
+        -32395022.638839375,
+        288881867.30395997,
+        -245888848.7494157,
+        21581516.885183007
+      ],
+      "center_first_piola_Pa": [
+        -62850.544574795946,
+        2489.780379652779,
+        -18849.388676957402,
+        3758.1808792765087,
+        -1901.4773211585475,
+        147.35430681441375,
+        39098.82633195926,
+        -2819.364590262586,
+        15594.221050300739
+      ],
+      "sweeps": [
+        {
+          "deltaF_inf": 0.003,
+          "epsilon_s": 0.0010974958724778155,
+          "q_minus_center_plus": [
+            20.512651504449558,
+            1.0002293965907496,
+            18.514336146534664
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "plastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 0.10453060365847279,
+          "forward_relative_error": 0.11611998675653463,
+          "backward_relative_error": 0.1052920297649937,
+          "centered_abs_error_Pa_per_s": 30407052.854402788,
+          "central_tangent_matrix": [
+            -217329738.69811672,
+            180241645.6674092,
+            41239235.409698114,
+            287617511.06819814,
+            -18240228.723494355,
+            -1987969.784436588,
+            300449250.64641535,
+            -224131428.16026628,
+            5922610.150697555
+          ],
+          "stress_delta_inf_Pa": 659483.6249469869,
+          "projection_residuals_mp80": [
+            4.4860014852588395e-59,
+            1.4806711521716028e-60
+          ],
+          "projection_iterations": [
+            10,
+            10
+          ]
+        },
+        {
+          "deltaF_inf": 0.001,
+          "epsilon_s": 0.00036583195749260517,
+          "q_minus_center_plus": [
+            7.502352040413194,
+            1.0002293965907496,
+            5.5074623602074535
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "plastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 0.17164502652510047,
+          "forward_relative_error": 0.3465192596575084,
+          "backward_relative_error": 0.09479799139948361,
+          "centered_abs_error_Pa_per_s": 49930060.77719185,
+          "central_tangent_matrix": [
+            -184082834.5197114,
+            178530557.7282484,
+            68886430.36328149,
+            289902459.72176903,
+            -18899888.814842176,
+            -6060189.271823568,
+            328857765.5584618,
+            -228475625.57232243,
+            -27959059.249408398
+          ],
+          "stress_delta_inf_Pa": 240613.36022179262,
+          "projection_residuals_mp80": [
+            7.964699233832245e-82,
+            1.0411015655286424e-81
+          ],
+          "projection_iterations": [
+            10,
+            10
+          ]
+        },
+        {
+          "deltaF_inf": 0.0003,
+          "epsilon_s": 0.00010974958724778155,
+          "q_minus_center_plus": [
+            2.949650987247828,
+            1.0002293965907496,
+            0.9570593746875118
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.5627650607088917,
+          "forward_relative_error": 1.1297800794073267,
+          "backward_relative_error": 0.07032064328815339,
+          "centered_abs_error_Pa_per_s": 163703512.1455499,
+          "central_tangent_matrix": [
+            -70309383.15135337,
+            165669008.23309305,
+            161919387.98838827,
+            290705224.61294353,
+            -19158561.70736865,
+            -23314696.40852334,
+            422180231.3684312,
+            -240002654.0252486,
+            -142017345.70134357
+          ],
+          "stress_delta_inf_Pa": 92668.21227371648,
+          "projection_residuals_mp80": [
+            6.588873714519077e-83,
+            6.1469076371108455e-84
+          ],
+          "projection_iterations": [
+            3,
+            10
+          ]
+        },
+        {
+          "deltaF_inf": 0.0001,
+          "epsilon_s": 3.6583195749260516e-05,
+          "q_minus_center_plus": [
+            1.6495250770921122,
+            1.0002293965907496,
+            0.35517574771790955
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.5623409372879359,
+          "forward_relative_error": 1.1292125641747308,
+          "backward_relative_error": 0.04045905385451071,
+          "centered_abs_error_Pa_per_s": 163580138.29304707,
+          "central_tangent_matrix": [
+            -70432757.00385618,
+            162378771.55011964,
+            161879506.87936324,
+            290815793.5527967,
+            -19190422.711531516,
+            -27656471.982672647,
+            422179710.5627436,
+            -242835375.26286134,
+            -141968344.7938817
+          ],
+          "stress_delta_inf_Pa": 30889.36598576599,
+          "projection_residuals_mp80": [
+            1.0542197943230523e-81,
+            7.957818745250564e-60
+          ],
+          "projection_iterations": [
+            3,
+            9
+          ]
+        },
+        {
+          "deltaF_inf": 3e-05,
+          "epsilon_s": 1.0974958724778155e-05,
+          "q_minus_center_plus": [
+            1.1948861945867333,
+            1.0002293965907496,
+            0.8058036563606535
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.561937099931037,
+          "forward_relative_error": 1.1281691195912749,
+          "backward_relative_error": 0.016279875652114303,
+          "centered_abs_error_Pa_per_s": 163462665.48196557,
+          "central_tangent_matrix": [
+            -70550229.81493768,
+            159680797.48818526,
+            161804946.61683708,
+            290854486.3548501,
+            -19201599.429405805,
+            -31171862.291454203,
+            422118938.81193954,
+            -245088041.0953686,
+            -141876831.66408703
+          ],
+          "stress_delta_inf_Pa": 9265.475860816383,
+          "projection_residuals_mp80": [
+            1.0295115178936058e-84,
+            1.2244775865413725e-81
+          ],
+          "projection_iterations": [
+            3,
+            9
+          ]
+        },
+        {
+          "deltaF_inf": 1e-05,
+          "epsilon_s": 3.6583195749260516e-06,
+          "q_minus_center_plus": [
+            1.0650955657000438,
+            1.0002293965907496,
+            0.9353880363441422
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.5607024762211369,
+          "forward_relative_error": 1.125487616983875,
+          "backward_relative_error": 0.006026939148582872,
+          "centered_abs_error_Pa_per_s": 163103524.0718108,
+          "central_tangent_matrix": [
+            -70912441.85610503,
+            158534938.9261371,
+            161515583.08845642,
+            290865576.0426493,
+            -19204896.20823331,
+            -32660275.40064127,
+            421833664.14135206,
+            -246037556.21120167,
+            -141522007.1866278
+          ],
+          "stress_delta_inf_Pa": 3086.40470178218,
+          "projection_residuals_mp80": [
+            1.3177747429038154e-82,
+            3.501699568819363e-83
+          ],
+          "projection_iterations": [
+            3,
+            9
+          ]
+        },
+        {
+          "deltaF_inf": 3e-06,
+          "epsilon_s": 1.0974958724778154e-06,
+          "q_minus_center_plus": [
+            1.019686857421209,
+            1.0002293965907496,
+            0.9807741600394781
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.5560809538645859,
+          "forward_relative_error": 1.116101849709759,
+          "backward_relative_error": 0.003939941980587276,
+          "centered_abs_error_Pa_per_s": 161759162.99816212,
+          "central_tangent_matrix": [
+            -72259335.56345528,
+            158079616.78365266,
+            160419124.33135462,
+            290869608.3987248,
+            -19206422.180778135,
+            -33251390.397824265,
+            420739196.9142711,
+            -246414338.0457277,
+            -140177646.1129791
+          ],
+          "stress_delta_inf_Pa": 923.5190640060869,
+          "projection_residuals_mp80": [
+            8.236092143148846e-84,
+            5.2887243691108745e-65
+          ],
+          "projection_iterations": [
+            3,
+            9
+          ]
+        },
+        {
+          "deltaF_inf": 1e-06,
+          "epsilon_s": 3.658319574926052e-07,
+          "q_minus_center_plus": [
+            1.0067149760833833,
+            1.0002293965907496,
+            0.9937440641573831
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.5427351885054689,
+          "forward_relative_error": 1.0892860133718554,
+          "backward_relative_error": 0.0038156363609176533,
+          "centered_abs_error_Pa_per_s": 157876994.72921196,
+          "central_tangent_matrix": [
+            -76142082.30413128,
+            157961909.00812906,
+            157252797.843105,
+            290871196.0825366,
+            -19207922.57333126,
+            -33404664.85458747,
+            417575045.8450705,
+            -246512432.5324885,
+            -136295477.84402895
+          ],
+          "stress_delta_inf_Pa": 305.52459284313295,
+          "projection_residuals_mp80": [
+            5.283532041865064e-81,
+            3.0999496396601514e-60
+          ],
+          "projection_iterations": [
+            3,
+            10
+          ]
+        },
+        {
+          "deltaF_inf": 3e-07,
+          "epsilon_s": 1.0974958724778155e-07,
+          "q_minus_center_plus": [
+            1.00217504471519,
+            1.0002293965907496,
+            0.9982837707007952
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.4959752054227392,
+          "forward_relative_error": 0.9954710974090973,
+          "backward_relative_error": 0.003520686563618892,
+          "centered_abs_error_Pa_per_s": 144274918.13819733,
+          "central_tangent_matrix": [
+            -89743854.29156761,
+            157986940.56965435,
+            146158825.6241688,
+            290873276.68690634,
+            -19212172.768478543,
+            -33374122.281505395,
+            406487457.40589523,
+            -246494650.72229955,
+            -122693401.25301433
+          ],
+          "stress_delta_inf_Pa": 89.22366134339437,
+          "projection_residuals_mp80": [
+            9.187976010910225e-70,
+            1.7355317523336116e-77
+          ],
+          "projection_iterations": [
+            3,
+            12
+          ]
+        },
+        {
+          "deltaF_inf": 1e-07,
+          "epsilon_s": 3.658319574926052e-08,
+          "q_minus_center_plus": [
+            1.0008779435014572,
+            1.0002293965907496,
+            0.999580852150532
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.3625344695485004,
+          "forward_relative_error": 0.7279698975150876,
+          "backward_relative_error": 0.00290095841808687,
+          "centered_abs_error_Pa_per_s": 105458156.66693133,
+          "central_tangent_matrix": [
+            -128559082.13331299,
+            158185107.9020249,
+            114499532.805802,
+            290878221.7878429,
+            -19224014.744594414,
+            -33122542.800179232,
+            374846029.29422474,
+            -246339203.710097,
+            -83876639.78174832
+          ],
+          "stress_delta_inf_Pa": 27.426131331007333,
+          "projection_residuals_mp80": [
+            8.236092143148846e-84,
+            1.297799675558582e-64
+          ],
+          "projection_iterations": [
+            4,
+            13
+          ]
+        },
+        {
+          "deltaF_inf": 3e-08,
+          "epsilon_s": 1.0974958724778155e-08,
+          "q_minus_center_plus": [
+            1.0004239604047787,
+            1.0002293965907496,
+            1.0000348329990645
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "plastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 0.008405215252038419,
+          "forward_relative_error": 0.01860712202685237,
+          "backward_relative_error": 0.001796691522775534,
+          "centered_abs_error_Pa_per_s": 2445004.768712523,
+          "central_tangent_matrix": [
+            -231567991.5834562,
+            158744089.98288757,
+            30481097.07150124,
+            290891087.644536,
+            -19255366.860737447,
+            -32411978.726023182,
+            290874911.8691213,
+            -245899346.60473624,
+            19136512.116470486
+          ],
+          "stress_delta_inf_Pa": 6.385035360609215,
+          "projection_residuals_mp80": [
+            1.0295115178936058e-84,
+            5.384695008169707e-63
+          ],
+          "projection_iterations": [
+            18,
+            14
+          ]
+        },
+        {
+          "deltaF_inf": 1e-08,
+          "epsilon_s": 3.658319574926052e-09,
+          "q_minus_center_plus": [
+            1.0002942511707273,
+            1.0002293965907496,
+            1.0001645420354766
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "plastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 0.00033229771264626454,
+          "forward_relative_error": 0.001525038798837688,
+          "backward_relative_error": 0.000860443373545159,
+          "centered_abs_error_Pa_per_s": 96662.54434773003,
+          "central_tangent_matrix": [
+            -233916236.7478569,
+            158756900.08649167,
+            28565768.42817022,
+            290891380.4232096,
+            -19256081.430271536,
+            -32395693.088424128,
+            288960661.73466444,
+            -245889263.83962882,
+            21484854.340835277
+          ],
+          "stress_delta_inf_Pa": 2.128347262358977,
+          "projection_residuals_mp80": [
+            8.236092143148846e-84,
+            1.4913841656673582e-83
+          ],
+          "projection_iterations": [
+            16,
+            15
+          ]
+        },
+        {
+          "deltaF_inf": 3e-09,
+          "epsilon_s": 1.0974958724778156e-09,
+          "q_minus_center_plus": [
+            1.0002488529621492,
+            1.0002293965907496,
+            1.0002099402215734
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "plastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.7801657466435837e-05,
+          "forward_relative_error": 0.0003602608454359604,
+          "backward_relative_error": 0.00030465753050308873,
+          "centered_abs_error_Pa_per_s": 8087.262853507828,
+          "central_tangent_matrix": [
+            -234004808.36831662,
+            158757383.33078888,
+            28493525.646866035,
+            290891391.466139,
+            -19256108.38251287,
+            -32395078.732692704,
+            288888459.6327345,
+            -245888883.4783749,
+            21573429.6223295
+          ],
+          "stress_delta_inf_Pa": 0.6385042029468321,
+          "projection_residuals_mp80": [
+            4.947925658993603e-63,
+            1.7532600502189756e-72
+          ],
+          "projection_iterations": [
+            15,
+            15
+          ]
+        },
+        {
+          "deltaF_inf": 1e-09,
+          "epsilon_s": 3.6583195749260516e-10,
+          "q_minus_center_plus": [
+            1.0002358820476356,
+            1.0002293965907496,
+            1.0002229111341103
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "plastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 3.0700525628263994e-06,
+          "forward_relative_error": 0.00011320270103587882,
+          "backward_relative_error": 0.00010706259591022603,
+          "centered_abs_error_Pa_per_s": 893.0518649701726,
+          "central_tangent_matrix": [
+            -234012002.28195035,
+            158757422.58114025,
+            28487657.984891552,
+            290891392.3630611,
+            -19256110.571612287,
+            -32395028.833120394,
+            288882595.2747967,
+            -245888852.58443373,
+            21580623.833318036
+          ],
+          "stress_delta_inf_Pa": 0.21283473497185618,
+          "projection_residuals_mp80": [
+            3.5380190722507806e-66,
+            2.5025410082758435e-69
+          ],
+          "projection_iterations": [
+            15,
+            15
+          ]
+        },
+        {
+          "deltaF_inf": 3e-10,
+          "epsilon_s": 1.0974958724778155e-10,
+          "q_minus_center_plus": [
+            1.0002313422277895,
+            1.0002293965907496,
+            1.000227450953732
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "plastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.761113237148164e-07,
+          "forward_relative_error": 3.32926187649573e-05,
+          "backward_relative_error": 3.274039611752767e-05,
+          "centered_abs_error_Pa_per_s": 80.31840743335283,
+          "central_tangent_matrix": [
+            -234012814.98181558,
+            158757427.0152769,
+            28486995.112310838,
+            290891392.46438676,
+            -19256110.818915896,
+            -32395023.195934515,
+            288881932.7754746,
+            -245888849.09432578,
+            21581436.566775575
+          ],
+          "stress_delta_inf_Pa": 0.06385042051379776,
+          "projection_residuals_mp80": [
+            2.7966162512248927e-67,
+            3.1733125847295196e-68
+          ],
+          "projection_iterations": [
+            15,
+            15
+          ]
+        },
+        {
+          "deltaF_inf": 1e-10,
+          "epsilon_s": 3.6583195749260516e-11,
+          "q_minus_center_plus": [
+            1.000230045136427,
+            1.0002293965907496,
+            1.0002287480450744
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "plastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 3.067714818541245e-08,
+          "forward_relative_error": 1.1035497738646225e-05,
+          "backward_relative_error": 1.0974143442275399e-05,
+          "centered_abs_error_Pa_per_s": 8.92371835279815,
+          "central_tangent_matrix": [
+            -234012886.37355375,
+            158757427.40479434,
+            28486936.88217233,
+            290891392.47328776,
+            -19256110.840640318,
+            -32395022.70073503,
+            288881874.57812506,
+            -245888848.78773668,
+            21581507.961464655
+          ],
+          "stress_delta_inf_Pa": 0.021283473505250505,
+          "projection_residuals_mp80": [
+            1.3540574354764197e-67,
+            6.555365229360386e-68
+          ],
+          "projection_iterations": [
+            15,
+            15
+          ]
+        },
+        {
+          "deltaF_inf": 3e-11,
+          "epsilon_s": 1.0974958724778155e-11,
+          "q_minus_center_plus": [
+            1.0002295911544525,
+            1.0002293965907496,
+            1.0002292020270467
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "plastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.760924011815188e-09,
+          "forward_relative_error": 3.304183833238751e-06,
+          "backward_relative_error": 3.2986619852151205e-06,
+          "centered_abs_error_Pa_per_s": 0.8031290303129277,
+          "central_tangent_matrix": [
+            -234012894.49380744,
+            158757427.4490989,
+            28486930.258948013,
+            290891392.47430015,
+            -19256110.843111303,
+            -32395022.644409947,
+            288881867.95863026,
+            -245888848.75286457,
+            21581516.082053978
+          ],
+          "stress_delta_inf_Pa": 0.0063850420515973744,
+          "projection_residuals_mp80": [
+            1.0504564227922782e-67,
+            8.450180320189689e-68
+          ],
+          "projection_iterations": [
+            15,
+            15
+          ]
+        },
+        {
+          "deltaF_inf": 1e-11,
+          "epsilon_s": 3.658319574926052e-12,
+          "q_minus_center_plus": [
+            1.000229461445317,
+            1.0002293965907496,
+            1.000229331736182
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "plastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 3.0676914588201104e-10,
+          "forward_relative_error": 1.1007803903831273e-06,
+          "backward_relative_error": 1.1001668520913634e-06,
+          "centered_abs_error_Pa_per_s": 0.08923650401380064,
+          "central_tangent_matrix": [
+            -234012895.20767045,
+            158757427.45299378,
+            28486929.676690966,
+            290891392.47438914,
+            -19256110.843328528,
+            -32395022.63945833,
+            288881867.37670106,
+            -245888848.74979892,
+            21581516.795946505
+          ],
+          "stress_delta_inf_Pa": 0.002128347350533109,
+          "projection_residuals_mp80": [
+            9.769547767894088e-68,
+            9.08595201964637e-68
+          ],
+          "projection_iterations": [
+            15,
+            15
+          ]
+        },
+        {
+          "deltaF_inf": 3e-12,
+          "epsilon_s": 1.0974958724778156e-12,
+          "q_minus_center_plus": [
+            1.00022941604712,
+            1.0002293965907496,
+            1.0002293771343793
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "plastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.7609221196909613e-11,
+          "forward_relative_error": 3.3016967232465097e-07,
+          "backward_relative_error": 3.3011445388225717e-07,
+          "centered_abs_error_Pa_per_s": 0.008031284799102766,
+          "central_tangent_matrix": [
+            -234012895.2888723,
+            158757427.45343682,
+            28486929.61045927,
+            290891392.47439927,
+            -19256110.843353238,
+            -32395022.638895083,
+            288881867.31050664,
+            -245888848.7494502,
+            21581516.877151724
+          ],
+          "stress_delta_inf_Pa": 0.000638504205159955,
+          "projection_residuals_mp80": [
+            9.524629770720578e-68,
+            9.319591934351686e-68
+          ],
+          "projection_iterations": [
+            15,
+            15
+          ]
+        },
+        {
+          "deltaF_inf": 1e-12,
+          "epsilon_s": 3.6583195749260515e-13,
+          "q_minus_center_plus": [
+            1.0002294030762062,
+            1.0002293965907496,
+            1.0002293901052928
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "plastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 3.06769122522467e-12,
+          "forward_relative_error": 1.1005042137720536e-07,
+          "backward_relative_error": 1.1004428599475491e-07,
+          "centered_abs_error_Pa_per_s": 0.0008923649721871034,
+          "central_tangent_matrix": [
+            -234012895.29601094,
+            158757427.45347577,
+            28486929.604636706,
+            290891392.47440016,
+            -19256110.84335541,
+            -32395022.638845567,
+            288881867.3046874,
+            -245888848.74941954,
+            21581516.884290643
+          ],
+          "stress_delta_inf_Pa": 0.00021283473505331898,
+          "projection_residuals_mp80": [
+            9.455787540068491e-68,
+            9.387442792720519e-68
+          ],
+          "projection_iterations": [
+            15,
+            15
+          ]
+        },
+        {
+          "deltaF_inf": 3e-13,
+          "epsilon_s": 1.0974958724778156e-13,
+          "q_minus_center_plus": [
+            1.0002293985363866,
+            1.0002293965907496,
+            1.0002293946451124
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "plastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.7609221007697317e-13,
+          "forward_relative_error": 3.30144821747364e-08,
+          "backward_relative_error": 3.301392999031625e-08,
+          "centered_abs_error_Pa_per_s": 8.031284744062538e-05,
+          "central_tangent_matrix": [
+            -234012895.29682297,
+            158757427.4534802,
+            28486929.60397439,
+            290891392.4744003,
+            -19256110.84335566,
+            -32395022.638839934,
+            288881867.3040254,
+            -245888848.74941605,
+            21581516.885102693
+          ],
+          "stress_delta_inf_Pa": 6.385042051599572e-05,
+          "projection_residuals_mp80": [
+            9.431810474305699e-68,
+            9.411307090986515e-68
+          ],
+          "projection_iterations": [
+            15,
+            15
+          ]
+        },
+        {
+          "deltaF_inf": 1e-13,
+          "epsilon_s": 3.6583195749260516e-14,
+          "q_minus_center_plus": [
+            1.0002293972392953,
+            1.0002293965907496,
+            1.000229395942204
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "plastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 3.067691222888716e-14,
+          "forward_relative_error": 1.10047660370725e-08,
+          "backward_relative_error": 1.1004704683248041e-08,
+          "centered_abs_error_Pa_per_s": 8.923649715075944e-06,
+          "central_tangent_matrix": [
+            -234012895.29689434,
+            158757427.4534806,
+            28486929.603916164,
+            290891392.4744003,
+            -19256110.843355678,
+            -32395022.63883944,
+            288881867.30396724,
+            -245888848.74941576,
+            21581516.885174084
+          ],
+          "stress_delta_inf_Pa": 2.1283473505331908e-05,
+          "projection_residuals_mp80": [
+            9.424971055792581e-68,
+            9.418136595884288e-68
+          ],
+          "projection_iterations": [
+            15,
+            15
+          ]
+        },
+        {
+          "deltaF_inf": 3e-14,
+          "epsilon_s": 1.0974958724778156e-14,
+          "q_minus_center_plus": [
+            1.0002293967853133,
+            1.0002293965907496,
+            1.000229396396186
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "plastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.7609221005805195e-15,
+          "forward_relative_error": 3.3014233689469138e-09,
+          "backward_relative_error": 3.3014178471027127e-09,
+          "centered_abs_error_Pa_per_s": 8.031284743512136e-07,
+          "central_tangent_matrix": [
+            -234012895.29690245,
+            158757427.45348066,
+            28486929.60390954,
+            290891392.4744003,
+            -19256110.84335568,
+            -32395022.638839383,
+            288881867.3039606,
+            -245888848.7494157,
+            21581516.885182206
+          ],
+          "stress_delta_inf_Pa": 6.385042051599572e-06,
+          "projection_residuals_mp80": [
+            9.422578430967418e-68,
+            9.420528093035816e-68
+          ],
+          "projection_iterations": [
+            15,
+            15
+          ]
+        },
+        {
+          "deltaF_inf": 1e-14,
+          "epsilon_s": 3.658319574926052e-15,
+          "q_minus_center_plus": [
+            1.0002293966556042,
+            1.0002293965907496,
+            1.000229396525895
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "plastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 3.0676912228653563e-16,
+          "forward_relative_error": 1.1004738427767115e-09,
+          "backward_relative_error": 1.1004732292384669e-09,
+          "centered_abs_error_Pa_per_s": 8.923649715007993e-08,
+          "central_tangent_matrix": [
+            -234012895.29690316,
+            158757427.45348066,
+            28486929.60390896,
+            290891392.4744003,
+            -19256110.84335568,
+            -32395022.63883938,
+            288881867.30396,
+            -245888848.7494157,
+            21581516.885182917
+          ],
+          "stress_delta_inf_Pa": 2.1283473505331908e-06,
+          "projection_residuals_mp80": [
+            9.421894935421548e-68,
+            9.421211489445545e-68
+          ],
+          "projection_iterations": [
+            15,
+            15
+          ]
+        },
+        {
+          "deltaF_inf": 3e-15,
+          "epsilon_s": 1.0974958724778156e-15,
+          "q_minus_center_plus": [
+            1.0002293966102058,
+            1.0002293965907496,
+            1.0002293965712932
+          ],
+          "branches": [
+            "plastic",
+            "plastic",
+            "plastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.7609221005786273e-17,
+          "forward_relative_error": 3.301420884114745e-10,
+          "backward_relative_error": 3.301420331930325e-10,
+          "centered_abs_error_Pa_per_s": 8.031284743506632e-09,
+          "central_tangent_matrix": [
+            -234012895.29690325,
+            158757427.45348066,
+            28486929.603908893,
+            290891392.4744003,
+            -19256110.84335568,
+            -32395022.638839375,
+            288881867.30395997,
+            -245888848.7494157,
+            21581516.885183
+          ],
+          "stress_delta_inf_Pa": 6.385042051599572e-07,
+          "projection_residuals_mp80": [
+            9.421655723691557e-68,
+            9.421450689898797e-68
+          ],
+          "projection_iterations": [
+            15,
+            15
+          ]
+        }
+      ]
+    },
+    {
+      "tet_id": 1569,
+      "grade": "medium",
+      "captured_material_index": 1,
+      "native_capture_candidate_q_field": 0.993908584,
+      "independent_center_trial_q": 0.9939086416020478,
+      "independent_candidate_lambda_increment": 8.208308805133044e-15,
+      "high_precision_projection_residual": 2.2230916355399274e-80,
+      "iterations": 3,
+      "precision_convergence_50_vs_80_dps": {
+        "center_stress_abs_Pa": 6.331890257809602e-43,
+        "directional_tangent_abs_Pa_per_s": 1.8148048938265193e-37
+      },
+      "direction_max_abs_per_s": 0.8565207719802856,
+      "tangent_matrix_Pa_per_s": [
+        -3330610.5487201856,
+        22624665.60689927,
+        -52752154.847844474,
+        21922070.435153186,
+        -2429565.2125892397,
+        -6502294.429897179,
+        -55927993.54615867,
+        -3300532.3992744475,
+        -18062105.81541918
+      ],
+      "center_first_piola_Pa": [
+        56238.50779808227,
+        -1832.288285810426,
+        22889.854590664963,
+        -1805.0140665440429,
+        3365.405008564463,
+        320.9752981209812,
+        32236.36359422629,
+        59.55079915328567,
+        8371.210771127093
+      ],
+      "sweeps": [
+        {
+          "deltaF_inf": 0.003,
+          "epsilon_s": 0.003502542025996598,
+          "q_minus_center_plus": [
+            9.099778472375958,
+            0.9939086416020478,
+            7.007604611961228
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "plastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.8496968604346785,
+          "forward_relative_error": 0.74522654020811,
+          "backward_relative_error": 0.9703799303234564,
+          "centered_abs_error_Pa_per_s": 47521840.52658198,
+          "central_tangent_matrix": [
+            -10221693.743214943,
+            21733313.670003206,
+            -5238607.76311228,
+            21828418.438488778,
+            -2437507.1434360645,
+            -914176.6608144307,
+            -8406153.019576684,
+            2218252.648990125,
+            -11172125.938248405
+          ],
+          "stress_delta_inf_Pa": 152909.90588369197,
+          "projection_residuals_mp80": [
+            2.900125902847554e-82,
+            6.107255357554475e-82
+          ],
+          "projection_iterations": [
+            10,
+            10
+          ]
+        },
+        {
+          "deltaF_inf": 0.001,
+          "epsilon_s": 0.0011675140086655328,
+          "q_minus_center_plus": [
+            3.680664047593756,
+            0.9939086416020478,
+            1.6926845302446891
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "plastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.610397412220331,
+          "forward_relative_error": 0.25653101255397714,
+          "backward_relative_error": 0.9693903804754735,
+          "centered_abs_error_Pa_per_s": 34138302.53125062,
+          "central_tangent_matrix": [
+            -8273768.037083054,
+            22091457.600149553,
+            -18636242.090862542,
+            21897798.19034215,
+            -2427631.878063438,
+            -2940639.718551241,
+            -21789691.01490805,
+            223200.2507262588,
+            -13109165.406894632
+          ],
+          "stress_delta_inf_Pa": 51584.1724400305,
+          "projection_residuals_mp80": [
+            1.3518195024493937e-82,
+            4.8623909420702337e-82
+          ],
+          "projection_iterations": [
+            10,
+            10
+          ]
+        },
+        {
+          "deltaF_inf": 0.0003,
+          "epsilon_s": 0.0003502542025996598,
+          "q_minus_center_plus": [
+            1.7973366671019604,
+            0.9939086416020478,
+            0.21116656780794418
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.48290662224234604,
+          "forward_relative_error": 0.010159630750048327,
+          "backward_relative_error": 0.9647027036017901,
+          "centered_abs_error_Pa_per_s": 27007998.45216721,
+          "central_tangent_matrix": [
+            -7230250.484153543,
+            22399246.99264071,
+            -25758451.387502506,
+            21915096.207620744,
+            -2424513.7501284583,
+            -4973675.34668421,
+            -28919995.09399146,
+            -1787682.650658486,
+            -14151317.32990451
+          ],
+          "stress_delta_inf_Pa": 20258.699641664105,
+          "projection_residuals_mp80": [
+            1.0295115178936058e-84,
+            7.201872922440263e-82
+          ],
+          "projection_iterations": [
+            3,
+            10
+          ]
+        },
+        {
+          "deltaF_inf": 0.0001,
+          "epsilon_s": 0.00011675140086655327,
+          "q_minus_center_plus": [
+            1.2612428609420612,
+            0.9939086416020478,
+            0.7275589351601991
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.4751103122193075,
+          "forward_relative_error": 0.0033868546682739227,
+          "backward_relative_error": 0.9496478567244586,
+          "centered_abs_error_Pa_per_s": 26571966.47551486,
+          "central_tangent_matrix": [
+            -7162869.505104873,
+            22498220.48952739,
+            -26190706.118128493,
+            21918971.318064637,
+            -2424228.2533021662,
+            -5639009.908412098,
+            -29356027.07064381,
+            -2446161.7080979464,
+            -14219451.443794154
+          ],
+          "stress_delta_inf_Pa": 6854.71456874825,
+          "projection_residuals_mp80": [
+            5.992545734006014e-95,
+            3.2619542105273656e-82
+          ],
+          "projection_iterations": [
+            3,
+            9
+          ]
+        },
+        {
+          "deltaF_inf": 3e-05,
+          "epsilon_s": 3.5025420259965985e-05,
+          "q_minus_center_plus": [
+            1.074034553963634,
+            0.9939086416020478,
+            0.9138662715968059
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.4489443745771354,
+          "forward_relative_error": 0.0010164845717936042,
+          "backward_relative_error": 0.8976502427943753,
+          "centered_abs_error_Pa_per_s": 25108558.083934266,
+          "central_tangent_matrix": [
+            -6950341.712462275,
+            22554651.608052004,
+            -27652327.8263708,
+            21920386.914228544,
+            -2424399.0346011776,
+            -6024162.212120668,
+            -30819435.4622244,
+            -2827355.514406541,
+            -14432724.445128893
+          ],
+          "stress_delta_inf_Pa": 2158.927358478617,
+          "projection_residuals_mp80": [
+            1.3177747429038154e-82,
+            3.1456484394205046e-82
+          ],
+          "projection_iterations": [
+            3,
+            9
+          ]
+        },
+        {
+          "deltaF_inf": 1e-05,
+          "epsilon_s": 1.1675140086655327e-05,
+          "q_minus_center_plus": [
+            1.0206088328349203,
+            0.9939086416020478,
+            0.9672176868663832
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.37493833571560026,
+          "forward_relative_error": 0.00033917799627135607,
+          "backward_relative_error": 0.7497995984497497,
+          "centered_abs_error_Pa_per_s": 20969548.820109565,
+          "central_tangent_matrix": [
+            -6353296.487128402,
+            22580373.42980085,
+            -31789607.03183321,
+            21920961.524086565,
+            -2425221.1976192165,
+            -6200196.916254783,
+            -34958444.7260491,
+            -3001575.6242195196,
+            -15031399.898250625
+          ],
+          "stress_delta_inf_Pa": 816.2894787764408,
+          "projection_residuals_mp80": [
+            1.0295115178936058e-84,
+            1.0653191713066528e-68
+          ],
+          "projection_iterations": [
+            3,
+            9
+          ]
+        },
+        {
+          "deltaF_inf": 3e-06,
+          "epsilon_s": 3.502542025996598e-06,
+          "q_minus_center_plus": [
+            1.0019177580413532,
+            0.9939086416020478,
+            0.9859003559796797
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.11630369978111599,
+          "forward_relative_error": 0.00010197863675073218,
+          "backward_relative_error": 0.23258584054147002,
+          "centered_abs_error_Pa_per_s": 6504632.57075263,
+          "central_tangent_matrix": [
+            -4268191.942110957,
+            22612560.896563638,
+            -46249662.28470313,
+            21921758.71356148,
+            -2428214.524832401,
+            -6419805.575006306,
+            -49423360.975406036,
+            -3218902.657564364,
+            -17122040.88597028
+          ],
+          "stress_delta_inf_Pa": 346.2147977647197,
+          "projection_residuals_mp80": [
+            1.6472184286297693e-83,
+            1.3677233305935735e-69
+          ],
+          "projection_iterations": [
+            3,
+            12
+          ]
+        },
+        {
+          "deltaF_inf": 1e-06,
+          "epsilon_s": 1.1675140086655327e-06,
+          "q_minus_center_plus": [
+            0.9965782556197256,
+            0.9939086416020478,
+            0.9912391198927967
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 1.1482571803376277e-06,
+          "forward_relative_error": 3.4073197470985165e-05,
+          "backward_relative_error": 3.4404213651922297e-05,
+          "centered_abs_error_Pa_per_s": 64.2197201712532,
+          "central_tangent_matrix": [
+            -3330619.805255601,
+            22624665.489097193,
+            -52752090.64713477,
+            21922070.432153914,
+            -2429565.1992480285,
+            -6502293.627035268,
+            -55927929.326438494,
+            -3300531.6048890036,
+            -18062096.534114867
+          ],
+          "stress_delta_inf_Pa": 130.59328192854562,
+          "projection_residuals_mp80": [
+            1.6305046332407405e-83,
+            2.2562220874396826e-75
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-07,
+          "epsilon_s": 3.5025420259965983e-07,
+          "q_minus_center_plus": [
+            0.9947095161440561,
+            0.9939086416020478,
+            0.9931077753677512
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 8.496203235305268e-08,
+          "forward_relative_error": 1.0239213996743363e-05,
+          "backward_relative_error": 1.0263706547063384e-05,
+          "centered_abs_error_Pa_per_s": 4.751755997110054,
+          "central_tangent_matrix": [
+            -3330611.2336297836,
+            22624665.59818318,
+            -52752150.097461715,
+            21922070.434931993,
+            -2429565.211602051,
+            -6502294.3704912355,
+            -55927988.794402674,
+            -3300532.340497509,
+            -18062105.12867282
+          ],
+          "stress_delta_inf_Pa": 39.17802623637243,
+          "projection_residuals_mp80": [
+            1.8845540395329596e-81,
+            3.724682559235363e-79
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-07,
+          "epsilon_s": 1.1675140086655328e-07,
+          "q_minus_center_plus": [
+            0.9941755988604911,
+            0.9939086416020478,
+            0.9936416852666832
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 9.294884829242608e-09,
+          "forward_relative_error": 3.415335661015189e-06,
+          "backward_relative_error": 3.4180151566074506e-06,
+          "centered_abs_error_Pa_per_s": 0.5198442587421687,
+          "central_tangent_matrix": [
+            -3330610.6236495916,
+            22624665.605945725,
+            -52752154.32815013,
+            21922070.435128994,
+            -2429565.2124812403,
+            -6502294.423398138,
+            -55927993.02631441,
+            -3300532.392844237,
+            -18062105.74028879
+          ],
+          "stress_delta_inf_Pa": 13.059343066954058,
+          "projection_residuals_mp80": [
+            9.43194962486513e-81,
+            5.446364847218339e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-08,
+          "epsilon_s": 3.5025420259965985e-08,
+          "q_minus_center_plus": [
+            0.9939887286826866,
+            0.9939086416020478,
+            0.993828554604486
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 8.350771739850424e-10,
+          "forward_relative_error": 1.0248662230807456e-06,
+          "backward_relative_error": 1.0251069560860168e-06,
+          "centered_abs_error_Pa_per_s": 0.04670419079717986,
+          "central_tangent_matrix": [
+            -3330610.5554520427,
+            22624665.6068136,
+            -52752154.80115375,
+            21922070.435151014,
+            -2429565.2125795367,
+            -6502294.429313288,
+            -55927993.499454476,
+            -3300532.3986967406,
+            -18062105.808669265
+          ],
+          "stress_delta_inf_Pa": 3.917802953230077,
+          "projection_residuals_mp80": [
+            1.712184505913413e-80,
+            2.896504328058262e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-08,
+          "epsilon_s": 1.1675140086655327e-08,
+          "q_minus_center_plus": [
+            0.9939353372863642,
+            0.9939086416020478,
+            0.9938819459269622
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 9.277209449883522e-11,
+          "forward_relative_error": 3.416483555872583e-07,
+          "backward_relative_error": 3.416750995886122e-07,
+          "centered_abs_error_Pa_per_s": 0.005188557102394478,
+          "central_tangent_matrix": [
+            -3330610.549468055,
+            22624665.60688975,
+            -52752154.84265742,
+            21922070.435152944,
+            -2429565.2125881617,
+            -6502294.429832312,
+            -55927993.54097011,
+            -3300532.3992102677,
+            -18062105.814669304
+          ],
+          "stress_delta_inf_Pa": 1.3059343187127608,
+          "projection_residuals_mp80": [
+            2.0369913451592637e-80,
+            2.427131525928603e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-09,
+          "epsilon_s": 3.5025420259965984e-09,
+          "q_minus_center_plus": [
+            0.9939166503063736,
+            0.9939086416020478,
+            0.9939006328985529
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 8.34934256189895e-12,
+          "forward_relative_error": 1.0249729881752181e-07,
+          "backward_relative_error": 1.0249970573557121e-07,
+          "centered_abs_error_Pa_per_s": 0.0004669619769165524,
+          "central_tangent_matrix": [
+            -3330610.548787493,
+            22624665.606898412,
+            -52752154.84737765,
+            21922070.435153164,
+            -2429565.212589143,
+            -6502294.429891341,
+            -55927993.545691706,
+            -3300532.3992686714,
+            -18062105.81535169
+          ],
+          "stress_delta_inf_Pa": 0.39178029564690336,
+          "projection_residuals_mp80": [
+            2.1654559754679987e-80,
+            2.282340670267077e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-09,
+          "epsilon_s": 1.1675140086655328e-09,
+          "q_minus_center_plus": [
+            0.993911311170064,
+            0.9939086416020478,
+            0.9939059720341239
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 9.277033035543776e-13,
+          "forward_relative_error": 3.416603323920088e-08,
+          "backward_relative_error": 3.4166300674128746e-08,
+          "centered_abs_error_Pa_per_s": 5.188458437393931e-05,
+          "central_tangent_matrix": [
+            -3330610.548727664,
+            22624665.606899172,
+            -52752154.84779261,
+            21922070.435153183,
+            -2429565.212589229,
+            -6502294.429896531,
+            -55927993.546106786,
+            -3300532.399273806,
+            -18062105.81541168
+          ],
+          "stress_delta_inf_Pa": 0.13059343188327036,
+          "projection_residuals_mp80": [
+            2.2037027836154157e-80,
+            2.2426597397018924e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-10,
+          "epsilon_s": 3.502542025996598e-10,
+          "q_minus_center_plus": [
+            0.993909442472443,
+            0.9939086416020478,
+            0.9939078407316609
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 8.349328272589685e-14,
+          "forward_relative_error": 1.024983803643029e-08,
+          "backward_relative_error": 1.024986210556959e-08,
+          "centered_abs_error_Pa_per_s": 4.66961177744156e-06,
+          "central_tangent_matrix": [
+            -3330610.5487208585,
+            22624665.606899258,
+            -52752154.84783981,
+            21922070.435153186,
+            -2429565.212589239,
+            -6502294.429897121,
+            -55927993.546154,
+            -3300532.3992743897,
+            -18062105.815418504
+          ],
+          "stress_delta_inf_Pa": 0.03917802956501418,
+          "projection_residuals_mp80": [
+            2.2172562370529216e-80,
+            2.2289431666094013e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-10,
+          "epsilon_s": 1.1675140086655326e-10,
+          "q_minus_center_plus": [
+            0.9939089085588453,
+            0.9939086416020478,
+            0.9939083746452513
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 9.277031271434259e-15,
+          "forward_relative_error": 3.416615352690079e-09,
+          "backward_relative_error": 3.4166180270388488e-09,
+          "centered_abs_error_Pa_per_s": 5.188457450762874e-07,
+          "central_tangent_matrix": [
+            -3330610.54872026,
+            22624665.606899265,
+            -52752154.84784396,
+            21922070.435153186,
+            -2429565.2125892397,
+            -6502294.429897172,
+            -55927993.54615815,
+            -3300532.399274441,
+            -18062105.815419104
+          ],
+          "stress_delta_inf_Pa": 0.01305934318833903,
+          "projection_residuals_mp80": [
+            2.2211447125054763e-80,
+            2.2250403510823663e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-11,
+          "epsilon_s": 3.502542025996598e-11,
+          "q_minus_center_plus": [
+            0.993908721689087,
+            0.9939086416020478,
+            0.9939085615150087
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 8.349328129696839e-16,
+          "forward_relative_error": 1.0249848865976452e-09,
+          "backward_relative_error": 1.024985127289034e-09,
+          "centered_abs_error_Pa_per_s": 4.6696116975244586e-08,
+          "central_tangent_matrix": [
+            -3330610.548720192,
+            22624665.606899265,
+            -52752154.84784443,
+            21922070.435153186,
+            -2429565.2125892397,
+            -6502294.429897179,
+            -55927993.54615862,
+            -3300532.399274447,
+            -18062105.81541917
+          ],
+          "stress_delta_inf_Pa": 0.003917802956501741,
+          "projection_residuals_mp80": [
+            2.2225073704948754e-80,
+            2.2236760619106686e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-11,
+          "epsilon_s": 1.1675140086655327e-11,
+          "q_minus_center_plus": [
+            0.9939086682977275,
+            0.9939086416020478,
+            0.9939086149063682
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 9.277031253793167e-17,
+          "forward_relative_error": 3.4166165560890054e-10,
+          "backward_relative_error": 3.416616823523882e-10,
+          "centered_abs_error_Pa_per_s": 5.188457440896565e-09,
+          "central_tangent_matrix": [
+            -3330610.548720186,
+            22624665.60689927,
+            -52752154.847844474,
+            21922070.435153186,
+            -2429565.2125892397,
+            -6502294.429897179,
+            -55927993.546158664,
+            -3300532.3992744475,
+            -18062105.81541918
+          ],
+          "stress_delta_inf_Pa": 0.001305934318833915,
+          "projection_residuals_mp80": [
+            2.2228968626021316e-80,
+            2.2232864264027847e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-12,
+          "epsilon_s": 3.502542025996598e-12,
+          "q_minus_center_plus": [
+            0.9939086496107518,
+            0.9939086416020478,
+            0.9939086335933439
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 8.34932812826791e-18,
+          "forward_relative_error": 1.0249849949072036e-10,
+          "backward_relative_error": 1.0249850189763425e-10,
+          "centered_abs_error_Pa_per_s": 4.669611696725288e-10,
+          "central_tangent_matrix": [
+            -3330610.5487201856,
+            22624665.60689927,
+            -52752154.847844474,
+            21922070.435153186,
+            -2429565.2125892397,
+            -6502294.429897179,
+            -55927993.546158664,
+            -3300532.3992744475,
+            -18062105.81541918
+          ],
+          "stress_delta_inf_Pa": 0.0003917802956501745,
+          "projection_residuals_mp80": [
+            2.2230332017765218e-80,
+            2.2231500709165622e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-12,
+          "epsilon_s": 1.1675140086655328e-12,
+          "q_minus_center_plus": [
+            0.9939086442716157,
+            0.9939086416020478,
+            0.9939086389324798
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 9.277031253616757e-19,
+          "forward_relative_error": 3.4166166764341194e-11,
+          "backward_relative_error": 3.416616703177607e-11,
+          "centered_abs_error_Pa_per_s": 5.188457440797902e-11,
+          "central_tangent_matrix": [
+            -3330610.5487201856,
+            22624665.60689927,
+            -52752154.847844474,
+            21922070.435153186,
+            -2429565.2125892397,
+            -6502294.429897179,
+            -55927993.54615867,
+            -3300532.3992744475,
+            -18062105.81541918
+          ],
+          "stress_delta_inf_Pa": 0.0001305934318833915,
+          "projection_residuals_mp80": [
+            2.223072157439545e-80,
+            2.2231111138195526e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-13,
+          "epsilon_s": 3.5025420259965983e-13,
+          "q_minus_center_plus": [
+            0.9939086424029182,
+            0.9939086416020478,
+            0.9939086408011775
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 8.349328128253621e-20,
+          "forward_relative_error": 1.0249850057383005e-11,
+          "backward_relative_error": 1.0249850081452145e-11,
+          "centered_abs_error_Pa_per_s": 4.6696116967172955e-12,
+          "central_tangent_matrix": [
+            -3330610.5487201856,
+            22624665.60689927,
+            -52752154.847844474,
+            21922070.435153186,
+            -2429565.2125892397,
+            -6502294.429897179,
+            -55927993.54615867,
+            -3300532.3992744475,
+            -18062105.81541918
+          ],
+          "stress_delta_inf_Pa": 3.917802956501745e-05,
+          "projection_residuals_mp80": [
+            2.2230857920909814e-80,
+            2.2230974790049843e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-13,
+          "epsilon_s": 1.1675140086655326e-13,
+          "q_minus_center_plus": [
+            0.9939086418690046,
+            0.9939086416020478,
+            0.993908641335091
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 9.277031253614992e-21,
+          "forward_relative_error": 3.416616688468683e-12,
+          "backward_relative_error": 3.416616691143032e-12,
+          "centered_abs_error_Pa_per_s": 5.188457440796916e-13,
+          "central_tangent_matrix": [
+            -3330610.5487201856,
+            22624665.60689927,
+            -52752154.847844474,
+            21922070.435153186,
+            -2429565.2125892397,
+            -6502294.429897179,
+            -55927993.54615867,
+            -3300532.3992744475,
+            -18062105.81541918
+          ],
+          "stress_delta_inf_Pa": 1.305934318833915e-05,
+          "projection_residuals_mp80": [
+            2.2230896877218163e-80,
+            2.2230935833598242e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-14,
+          "epsilon_s": 3.502542025996598e-14,
+          "q_minus_center_plus": [
+            0.9939086416821349,
+            0.9939086416020478,
+            0.9939086415219608
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 8.349328128253478e-22,
+          "forward_relative_error": 1.0249850068214116e-12,
+          "backward_relative_error": 1.024985007062103e-12,
+          "centered_abs_error_Pa_per_s": 4.669611696717216e-14,
+          "central_tangent_matrix": [
+            -3330610.5487201856,
+            22624665.60689927,
+            -52752154.847844474,
+            21922070.435153186,
+            -2429565.2125892397,
+            -6502294.429897179,
+            -55927993.54615867,
+            -3300532.3992744475,
+            -18062105.81541918
+          ],
+          "stress_delta_inf_Pa": 3.917802956501745e-06,
+          "projection_residuals_mp80": [
+            2.2230910511942984e-80,
+            2.223092219885697e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-14,
+          "epsilon_s": 1.1675140086655327e-14,
+          "q_minus_center_plus": [
+            0.9939086416287435,
+            0.9939086416020478,
+            0.9939086415753521
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 9.277031253614974e-23,
+          "forward_relative_error": 3.41661668967214e-13,
+          "backward_relative_error": 3.416616689939575e-13,
+          "centered_abs_error_Pa_per_s": 5.188457440796905e-15,
+          "central_tangent_matrix": [
+            -3330610.5487201856,
+            22624665.60689927,
+            -52752154.847844474,
+            21922070.435153186,
+            -2429565.2125892397,
+            -6502294.429897179,
+            -55927993.54615867,
+            -3300532.3992744475,
+            -18062105.81541918
+          ],
+          "stress_delta_inf_Pa": 1.305934318833915e-06,
+          "projection_residuals_mp80": [
+            2.223091440758026e-80,
+            2.2230918303218257e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-15,
+          "epsilon_s": 3.5025420259965983e-15,
+          "q_minus_center_plus": [
+            0.9939086416100565,
+            0.9939086416020478,
+            0.9939086415940391
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 8.349328128253477e-24,
+          "forward_relative_error": 1.0249850069297227e-13,
+          "backward_relative_error": 1.0249850069537918e-13,
+          "centered_abs_error_Pa_per_s": 4.669611696717215e-16,
+          "central_tangent_matrix": [
+            -3330610.5487201856,
+            22624665.60689927,
+            -52752154.847844474,
+            21922070.435153186,
+            -2429565.2125892397,
+            -6502294.429897179,
+            -55927993.54615867,
+            -3300532.3992744475,
+            -18062105.81541918
+          ],
+          "stress_delta_inf_Pa": 3.917802956501745e-07,
+          "projection_residuals_mp80": [
+            2.2230915771053495e-80,
+            2.2230916939744903e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "tet_id": 1603,
+      "grade": "medium",
+      "captured_material_index": 1,
+      "native_capture_candidate_q_field": 0.993113279,
+      "independent_center_trial_q": 0.9931133081117843,
+      "independent_candidate_lambda_increment": 7.260351665250278e-15,
+      "high_precision_projection_residual": 4.723599725193009e-81,
+      "iterations": 3,
+      "precision_convergence_50_vs_80_dps": {
+        "center_stress_abs_Pa": 2.1720657073075388e-43,
+        "directional_tangent_abs_Pa_per_s": 1.5656410773322517e-38
+      },
+      "direction_max_abs_per_s": 0.19248700141906738,
+      "tangent_matrix_Pa_per_s": [
+        13925683.507082673,
+        -9142385.296939729,
+        -4585357.620637151,
+        -8162783.966095459,
+        312735.81528289575,
+        -5933068.348008082,
+        -7256136.390121448,
+        -4283753.626731426,
+        -179.61498538783346
+      ],
+      "center_first_piola_Pa": [
+        -71700.54986466988,
+        -3085.8001084699094,
+        23431.709263388988,
+        -2977.3405583024833,
+        -3461.282844276799,
+        -858.4833863223421,
+        38026.18702025786,
+        -281.4333469969781,
+        -4277.127323107494
+      ],
+      "sweeps": [
+        {
+          "deltaF_inf": 0.003,
+          "epsilon_s": 0.01558546799463429,
+          "q_minus_center_plus": [
+            5.478685614367652,
+            0.9931133081117843,
+            4.326597481380595
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "plastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.33512360812857345,
+          "forward_relative_error": 0.32937552958422817,
+          "backward_relative_error": 0.35520284508607536,
+          "centered_abs_error_Pa_per_s": 4666825.302550112,
+          "central_tangent_matrix": [
+            14605757.76267839,
+            -8241423.976118689,
+            -983874.0013861876,
+            -8145504.658973385,
+            304772.6729223884,
+            -1266243.0454579701,
+            -3652301.7249331344,
+            292986.89818959945,
+            -690308.658123788
+          ],
+          "stress_delta_inf_Pa": 455275.1402952108,
+          "projection_residuals_mp80": [
+            1.306358984193211e-69,
+            5.494112882649597e-82
+          ],
+          "projection_iterations": [
+            10,
+            11
+          ]
+        },
+        {
+          "deltaF_inf": 0.001,
+          "epsilon_s": 0.00519515599821143,
+          "q_minus_center_plus": [
+            2.330578317544508,
+            0.9931133081117843,
+            1.3178517697187562
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "plastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.18530240653023472,
+          "forward_relative_error": 0.10623307441444095,
+          "backward_relative_error": 0.37318568967832805,
+          "centered_abs_error_Pa_per_s": 2580462.6664408185,
+          "central_tangent_matrix": [
+            14417503.407403748,
+            -8700834.947106138,
+            -2006103.7307071362,
+            -8160915.550631022,
+            309708.7302901123,
+            -3613717.198422723,
+            -4675673.723680629,
+            -2007293.3963207076,
+            -493865.30364537827
+          ],
+          "stress_delta_inf_Pa": 149802.35861241462,
+          "projection_residuals_mp80": [
+            4.87934043162325e-82,
+            9.744457216567399e-82
+          ],
+          "projection_iterations": [
+            9,
+            10
+          ]
+        },
+        {
+          "deltaF_inf": 0.0003,
+          "epsilon_s": 0.0015585467994634291,
+          "q_minus_center_plus": [
+            1.3315807992509618,
+            0.9931133081117843,
+            0.8167373607020979
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.17492120061820307,
+          "forward_relative_error": 0.0033981740361601538,
+          "backward_relative_error": 0.35017790033921486,
+          "centered_abs_error_Pa_per_s": 2435897.2784880097,
+          "central_tangent_matrix": [
+            14391877.895349786,
+            -9026424.448104512,
+            -2149981.3628831506,
+            -8162797.209027153,
+            311417.9561389087,
+            -5321638.977353207,
+            -4820239.111633439,
+            -3683530.1989680436,
+            -467524.69011805474
+          ],
+          "stress_delta_inf_Pa": 44860.83046413176,
+          "projection_residuals_mp80": [
+            8.236092143148846e-84,
+            1.5870950565230168e-81
+          ],
+          "projection_iterations": [
+            3,
+            10
+          ]
+        },
+        {
+          "deltaF_inf": 0.0001,
+          "epsilon_s": 0.0005195155998211431,
+          "q_minus_center_plus": [
+            1.0938733059696497,
+            0.9931133081117843,
+            0.9099159089800785
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.15251192866806318,
+          "forward_relative_error": 0.0011327305214074632,
+          "backward_relative_error": 0.30513627473421706,
+          "centered_abs_error_Pa_per_s": 2123832.8496862166,
+          "central_tangent_matrix": [
+            14332549.09279376,
+            -9111531.954741329,
+            -2461828.3421749705,
+            -8162913.911991142,
+            311905.727334049,
+            -5769901.22012131,
+            -5132303.540435231,
+            -4123565.582162511,
+            -407968.41296311194
+          ],
+          "stress_delta_inf_Pa": 14891.96567781746,
+          "projection_residuals_mp80": [
+            4.118046071574423e-84,
+            1.2137110098805788e-81
+          ],
+          "projection_iterations": [
+            3,
+            9
+          ]
+        },
+        {
+          "deltaF_inf": 3e-05,
+          "epsilon_s": 0.0001558546799463429,
+          "q_minus_center_plus": [
+            1.0217155720705986,
+            0.9931133081117843,
+            0.966085693339769
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.11792523145317436,
+          "forward_relative_error": 0.00033981995732316355,
+          "backward_relative_error": 0.2358847900319237,
+          "centered_abs_error_Pa_per_s": 1642189.4507163772,
+          "central_tangent_matrix": [
+            14240376.647738602,
+            -9141705.42200519,
+            -2943362.202127919,
+            -8162911.230898533,
+            312151.6940191234,
+            -5929088.875341611,
+            -5613946.939405071,
+            -4279839.0477358345,
+            -315548.9429888392
+          ],
+          "stress_delta_inf_Pa": 4438.8586894973505,
+          "projection_residuals_mp80": [
+            6.588873714519077e-83,
+            7.983607170961938e-61
+          ],
+          "projection_iterations": [
+            3,
+            9
+          ]
+        },
+        {
+          "deltaF_inf": 1e-05,
+          "epsilon_s": 5.19515599821143e-05,
+          "q_minus_center_plus": [
+            1.002478920675388,
+            0.9931133081117843,
+            0.9839225965193227
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.04037695183786546,
+          "forward_relative_error": 0.00011327350066232502,
+          "backward_relative_error": 0.08076570701639159,
+          "centered_abs_error_Pa_per_s": 562276.6522748345,
+          "central_tangent_matrix": [
+            14033441.753703933,
+            -9144592.052335352,
+            -4023143.4254183187,
+            -8162830.153712004,
+            312540.3122478374,
+            -5944570.560642363,
+            -6693859.737846614,
+            -4295042.47269334,
+            -108165.04306870901
+          ],
+          "stress_delta_inf_Pa": 1458.1183820461144,
+          "projection_residuals_mp80": [
+            5.147557589468029e-85,
+            1.6472184286297693e-83
+          ],
+          "projection_iterations": [
+            3,
+            12
+          ]
+        },
+        {
+          "deltaF_inf": 3e-06,
+          "epsilon_s": 1.558546799463429e-05,
+          "q_minus_center_plus": [
+            0.9959048494056352,
+            0.9931133081117843,
+            0.9903375072891084
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.334092564947621e-07,
+          "forward_relative_error": 3.39821035950567e-05,
+          "backward_relative_error": 3.3982270504093335e-05,
+          "centered_abs_error_Pa_per_s": 3.2503834335695383,
+          "central_tangent_matrix": [
+            13925684.130025579,
+            -9142385.311641507,
+            -4585354.3702537175,
+            -8162783.966551236,
+            312735.8141207345,
+            -5933068.424456939,
+            -7256133.140183566,
+            -4283753.703433785,
+            -180.23938434620175
+          ],
+          "stress_delta_inf_Pa": 434.0766086238006,
+          "projection_residuals_mp80": [
+            1.7238135329231166e-83,
+            1.393383072178156e-76
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-06,
+          "epsilon_s": 5.19515599821143e-06,
+          "q_minus_center_plus": [
+            0.9940420794506765,
+            0.9931133081117843,
+            0.992186285708113
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.2044233669243213e-08,
+          "forward_relative_error": 1.1327377816212217e-05,
+          "backward_relative_error": 1.1327393663795599e-05,
+          "centered_abs_error_Pa_per_s": 0.3069810212340568,
+          "central_tangent_matrix": [
+            13925683.565915298,
+            -9142385.29832913,
+            -4585357.31365613,
+            -8162783.966141617,
+            312735.81517255155,
+            -5933068.355227984,
+            -7256136.0831959015,
+            -4283753.634003097,
+            -179.67395796318942
+          ],
+          "stress_delta_inf_Pa": 144.6921970133184,
+          "projection_residuals_mp80": [
+            4.599128856183444e-82,
+            8.006759702533227e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-07,
+          "epsilon_s": 1.5585467994634291e-06,
+          "q_minus_center_plus": [
+            0.9933917560976686,
+            0.9931133081117843,
+            0.9928350175300084
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 1.9506973779189925e-09,
+          "forward_relative_error": 3.3982147368244273e-06,
+          "backward_relative_error": 3.398216140024195e-06,
+          "centered_abs_error_Pa_per_s": 0.027164794302995926,
+          "central_tangent_matrix": [
+            13925683.512288772,
+            -9142385.297062688,
+            -4585357.593472357,
+            -8162783.966099574,
+            312735.8152731255,
+            -5933068.34864697,
+            -7256136.362961697,
+            -4283753.627375175,
+            -179.62020389445414
+          ],
+          "stress_delta_inf_Pa": 43.40765893683662,
+          "projection_residuals_mp80": [
+            2.2286151805184294e-81,
+            1.0470758293305119e-80
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-07,
+          "epsilon_s": 5.195155998211431e-07,
+          "q_minus_center_plus": [
+            0.993206106624252,
+            0.9931133081117843,
+            0.9930205270886615
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.164249629155289e-10,
+          "forward_relative_error": 1.1327383934714052e-06,
+          "backward_relative_error": 1.1327385491611272e-06,
+          "centered_abs_error_Pa_per_s": 0.00301386553659376,
+          "central_tangent_matrix": [
+            13925683.507660277,
+            -9142385.29695337,
+            -4585357.617623285,
+            -8162783.966095916,
+            312735.8152818117,
+            -5933068.348078965,
+            -7256136.387108143,
+            -4283753.626802851,
+            -179.61556436815124
+          ],
+          "stress_delta_inf_Pa": 14.469219640803056,
+          "projection_residuals_mp80": [
+            3.6590137989607906e-81,
+            6.128354861870412e-81
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-08,
+          "epsilon_s": 1.5585467994634292e-07,
+          "q_minus_center_plus": [
+            0.9931411458293659,
+            0.9931133081117843,
+            0.9930854719682438
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 1.9474984311494696e-11,
+          "forward_relative_error": 3.3982153411202126e-07,
+          "backward_relative_error": 3.398215481218337e-07,
+          "centered_abs_error_Pa_per_s": 0.0002712024678272755,
+          "central_tangent_matrix": [
+            13925683.507134648,
+            -9142385.296940958,
+            -4585357.620365948,
+            -8162783.9660955,
+            312735.8152827982,
+            -5933068.34801446,
+            -7256136.389850296,
+            -4283753.6267378535,
+            -179.61503748733614
+          ],
+          "stress_delta_inf_Pa": 4.340765892077074,
+          "projection_residuals_mp80": [
+            4.372938723189217e-81,
+            5.104666015827118e-81
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-08,
+          "epsilon_s": 5.1951559982114303e-08,
+          "q_minus_center_plus": [
+            0.9931225871760913,
+            0.9931133081117843,
+            0.9931040292223708
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.163855284852432e-12,
+          "forward_relative_error": 1.1327384625252032e-07,
+          "backward_relative_error": 1.1327384780914405e-07,
+          "centered_abs_error_Pa_per_s": 3.013316385198319e-05,
+          "central_tangent_matrix": [
+            13925683.507088449,
+            -9142385.296939867,
+            -4585357.620607018,
+            -8162783.966095463,
+            312735.8152828849,
+            -5933068.348008791,
+            -7256136.3900913205,
+            -4283753.626732141,
+            -179.61499117658187
+          ],
+          "stress_delta_inf_Pa": 1.4469219640208908,
+          "projection_residuals_mp80": [
+            4.603465649230605e-81,
+            4.84711012322302e-81
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-09,
+          "epsilon_s": 1.5585467994634292e-08,
+          "q_minus_center_plus": [
+            0.9931160918127129,
+            0.9931133081117843,
+            0.9931105244265963
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 1.9474664946641922e-13,
+          "forward_relative_error": 3.3982154038923807e-08,
+          "backward_relative_error": 3.3982154179019714e-08,
+          "centered_abs_error_Pa_per_s": 2.711980204534125e-06,
+          "central_tangent_matrix": [
+            13925683.507083192,
+            -9142385.296939742,
+            -4585357.620634439,
+            -8162783.966095459,
+            312735.81528289476,
+            -5933068.348008146,
+            -7256136.390118737,
+            -4283753.626731491,
+            -179.61498590881996
+          ],
+          "stress_delta_inf_Pa": 0.4340765892061034,
+          "projection_residuals_mp80": [
+            4.68720949126271e-81,
+            4.760293807197633e-81
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-09,
+          "epsilon_s": 5.19515599821143e-09,
+          "q_minus_center_plus": [
+            0.9931142360103449,
+            0.9931133081117843,
+            0.9931123802149727
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.1638513421351043e-14,
+          "forward_relative_error": 1.1327384695199338e-08,
+          "backward_relative_error": 1.1327384710765547e-08,
+          "centered_abs_error_Pa_per_s": 3.013310894694953e-07,
+          "central_tangent_matrix": [
+            13925683.50708273,
+            -9142385.29693973,
+            -4585357.62063685,
+            -8162783.966095459,
+            312735.81528289564,
+            -5933068.348008089,
+            -7256136.390121147,
+            -4283753.626731433,
+            -179.61498544572086
+          ],
+          "stress_delta_inf_Pa": 0.14469219640202968,
+          "projection_residuals_mp80": [
+            4.711436018463424e-81,
+            4.735797192615707e-81
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-10,
+          "epsilon_s": 1.558546799463429e-09,
+          "q_minus_center_plus": [
+            0.9931135864811689,
+            0.9931133081117843,
+            0.9931130297425572
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 1.947466175304629e-15,
+          "forward_relative_error": 3.3982154101939754e-09,
+          "backward_relative_error": 3.3982154115949344e-09,
+          "centered_abs_error_Pa_per_s": 2.7119797598041043e-08,
+          "central_tangent_matrix": [
+            13925683.507082678,
+            -9142385.29693973,
+            -4585357.620637124,
+            -8162783.966095459,
+            312735.81528289575,
+            -5933068.348008082,
+            -7256136.390121421,
+            -4283753.626731426,
+            -179.61498539304333
+          ],
+          "stress_delta_inf_Pa": 0.04340765892060874,
+          "projection_residuals_mp80": [
+            4.719947072813236e-81,
+            4.72725541603305e-81
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-10,
+          "epsilon_s": 5.19515599821143e-10,
+          "q_minus_center_plus": [
+            0.9931134009015617,
+            0.9931133081117843,
+            0.9931132153220245
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.1638513027080036e-16,
+          "forward_relative_error": 1.1327384702203125e-09,
+          "backward_relative_error": 1.1327384703759744e-09,
+          "centered_abs_error_Pa_per_s": 3.0133108397900204e-09,
+          "central_tangent_matrix": [
+            13925683.507082675,
+            -9142385.296939729,
+            -4585357.620637148,
+            -8162783.966095459,
+            312735.81528289575,
+            -5933068.348008082,
+            -7256136.390121445,
+            -4283753.626731426,
+            -179.61498538841235
+          ],
+          "stress_delta_inf_Pa": 0.014469219640202908,
+          "projection_residuals_mp80": [
+            4.722381836925263e-81,
+            4.724817951067477e-81
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-11,
+          "epsilon_s": 1.558546799463429e-10,
+          "q_minus_center_plus": [
+            0.9931133359487158,
+            0.9931133081117843,
+            0.9931132802748546
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 1.9474661721110337e-17,
+          "forward_relative_error": 3.3982154108243796e-10,
+          "backward_relative_error": 3.3982154109644755e-10,
+          "centered_abs_error_Pa_per_s": 2.711979755356805e-10,
+          "central_tangent_matrix": [
+            13925683.507082673,
+            -9142385.296939729,
+            -4585357.6206371505,
+            -8162783.966095459,
+            312735.81528289575,
+            -5933068.348008082,
+            -7256136.390121448,
+            -4283753.626731426,
+            -179.61498538788558
+          ],
+          "stress_delta_inf_Pa": 0.004340765892060872,
+          "projection_residuals_mp80": [
+            4.723234323268599e-81,
+            4.723965157502262e-81
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-11,
+          "epsilon_s": 5.19515599821143e-11,
+          "q_minus_center_plus": [
+            0.9931133173907614,
+            0.9931133081117843,
+            0.9931132988328076
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.1638513023137327e-18,
+          "forward_relative_error": 1.1327384702903593e-10,
+          "backward_relative_error": 1.1327384703059256e-10,
+          "centered_abs_error_Pa_per_s": 3.0133108392409714e-11,
+          "central_tangent_matrix": [
+            13925683.507082673,
+            -9142385.296939729,
+            -4585357.620637151,
+            -8162783.966095459,
+            312735.81528289575,
+            -5933068.348008082,
+            -7256136.390121448,
+            -4283753.626731426,
+            -179.61498538783925
+          ],
+          "stress_delta_inf_Pa": 0.0014469219640202908,
+          "projection_residuals_mp80": [
+            4.723477921175598e-81,
+            4.7237215325865e-81
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-12,
+          "epsilon_s": 1.5585467994634292e-11,
+          "q_minus_center_plus": [
+            0.9931133108954774,
+            0.9931133081117843,
+            0.9931133053280913
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 1.9474661720790977e-19,
+          "forward_relative_error": 3.398215410887423e-11,
+          "backward_relative_error": 3.3982154109014325e-11,
+          "centered_abs_error_Pa_per_s": 2.7119797553123318e-12,
+          "central_tangent_matrix": [
+            13925683.507082673,
+            -9142385.296939729,
+            -4585357.620637151,
+            -8162783.966095459,
+            312735.81528289575,
+            -5933068.348008082,
+            -7256136.390121448,
+            -4283753.626731426,
+            -179.614985387834
+          ],
+          "stress_delta_inf_Pa": 0.0004340765892060872,
+          "projection_residuals_mp80": [
+            4.723563183633219e-81,
+            4.723636267056561e-81
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-12,
+          "epsilon_s": 5.19515599821143e-12,
+          "q_minus_center_plus": [
+            0.9931133090396821,
+            0.9931133081117843,
+            0.9931133071838867
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.16385130230979e-20,
+          "forward_relative_error": 1.1327384702973642e-11,
+          "backward_relative_error": 1.1327384702989208e-11,
+          "centered_abs_error_Pa_per_s": 3.0133108392354807e-13,
+          "central_tangent_matrix": [
+            13925683.507082673,
+            -9142385.296939729,
+            -4585357.620637151,
+            -8162783.966095459,
+            312735.81528289575,
+            -5933068.348008082,
+            -7256136.390121448,
+            -4283753.626731426,
+            -179.61498538783354
+          ],
+          "stress_delta_inf_Pa": 0.00014469219640202908,
+          "projection_residuals_mp80": [
+            4.7235875446395e-81,
+            4.723611905780555e-81
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-13,
+          "epsilon_s": 1.558546799463429e-12,
+          "q_minus_center_plus": [
+            0.9931133083901537,
+            0.9931133081117843,
+            0.993113307833415
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 1.9474661720787782e-21,
+          "forward_relative_error": 3.398215410893727e-12,
+          "backward_relative_error": 3.398215410895128e-12,
+          "centered_abs_error_Pa_per_s": 2.711979755311887e-14,
+          "central_tangent_matrix": [
+            13925683.507082673,
+            -9142385.296939729,
+            -4585357.620637151,
+            -8162783.966095459,
+            312735.81528289575,
+            -5933068.348008082,
+            -7256136.390121448,
+            -4283753.626731426,
+            -179.61498538783349
+          ],
+          "stress_delta_inf_Pa": 4.340765892060872e-05,
+          "projection_residuals_mp80": [
+            4.723596071023534e-81,
+            4.723603379365779e-81
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-13,
+          "epsilon_s": 5.195155998211431e-13,
+          "q_minus_center_plus": [
+            0.9931133082045741,
+            0.9931133081117843,
+            0.9931133080189946
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.1638513023097507e-22,
+          "forward_relative_error": 1.1327384702980647e-12,
+          "backward_relative_error": 1.1327384702982204e-12,
+          "centered_abs_error_Pa_per_s": 3.0133108392354257e-15,
+          "central_tangent_matrix": [
+            13925683.507082673,
+            -9142385.296939729,
+            -4585357.620637151,
+            -8162783.966095459,
+            312735.81528289575,
+            -5933068.348008082,
+            -7256136.390121448,
+            -4283753.626731426,
+            -179.61498538783349
+          ],
+          "stress_delta_inf_Pa": 1.4469219640202908e-05,
+          "projection_residuals_mp80": [
+            4.723598507136238e-81,
+            4.723600943250259e-81
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-14,
+          "epsilon_s": 1.558546799463429e-13,
+          "q_minus_center_plus": [
+            0.9931133081396213,
+            0.9931133081117843,
+            0.9931133080839474
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 1.9474661720787753e-23,
+          "forward_relative_error": 3.3982154108943575e-13,
+          "backward_relative_error": 3.3982154108944974e-13,
+          "centered_abs_error_Pa_per_s": 2.711979755311883e-16,
+          "central_tangent_matrix": [
+            13925683.507082673,
+            -9142385.296939729,
+            -4585357.620637151,
+            -8162783.966095459,
+            312735.81528289575,
+            -5933068.348008082,
+            -7256136.390121448,
+            -4283753.626731426,
+            -179.61498538783346
+          ],
+          "stress_delta_inf_Pa": 4.340765892060872e-06,
+          "projection_residuals_mp80": [
+            4.723599359775899e-81,
+            4.723600090610178e-81
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-14,
+          "epsilon_s": 5.19515599821143e-14,
+          "q_minus_center_plus": [
+            0.9931133081210634,
+            0.9931133081117843,
+            0.9931133081025054
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.1638513023097503e-24,
+          "forward_relative_error": 1.1327384702981347e-13,
+          "backward_relative_error": 1.1327384702981503e-13,
+          "centered_abs_error_Pa_per_s": 3.013310839235425e-17,
+          "central_tangent_matrix": [
+            13925683.507082673,
+            -9142385.296939729,
+            -4585357.620637151,
+            -8162783.966095459,
+            312735.81528289575,
+            -5933068.348008082,
+            -7256136.390121448,
+            -4283753.626731426,
+            -179.61498538783346
+          ],
+          "stress_delta_inf_Pa": 1.4469219640202908e-06,
+          "projection_residuals_mp80": [
+            4.7235996033873855e-81,
+            4.723599846998872e-81
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-15,
+          "epsilon_s": 1.558546799463429e-14,
+          "q_minus_center_plus": [
+            0.9931133081145681,
+            0.9931133081117843,
+            0.9931133081090007
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 1.947466172078775e-25,
+          "forward_relative_error": 3.3982154108944204e-14,
+          "backward_relative_error": 3.398215410894434e-14,
+          "centered_abs_error_Pa_per_s": 2.7119797553118825e-18,
+          "central_tangent_matrix": [
+            13925683.507082673,
+            -9142385.296939729,
+            -4585357.620637151,
+            -8162783.966095459,
+            312735.81528289575,
+            -5933068.348008082,
+            -7256136.390121448,
+            -4283753.626731426,
+            -179.61498538783346
+          ],
+          "stress_delta_inf_Pa": 4.3407658920608724e-07,
+          "projection_residuals_mp80": [
+            4.723599688651304e-81,
+            4.7235997617347735e-81
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "tet_id": 1675,
+      "grade": "medium",
+      "captured_material_index": 1,
+      "native_capture_candidate_q_field": 0.994258463,
+      "independent_center_trial_q": 0.9942585472242471,
+      "independent_candidate_lambda_increment": 8.708548460182234e-15,
+      "high_precision_projection_residual": 3.026285093200336e-79,
+      "iterations": 3,
+      "precision_convergence_50_vs_80_dps": {
+        "center_stress_abs_Pa": 6.904403794847618e-44,
+        "directional_tangent_abs_Pa_per_s": 2.4614037453900664e-38
+      },
+      "direction_max_abs_per_s": 4.383027076721191,
+      "tangent_matrix_Pa_per_s": [
+        -261587302.53990012,
+        56828055.14374564,
+        -377827375.50129193,
+        59398484.344721965,
+        -25746855.470438574,
+        -7876261.755945115,
+        -353926418.47252625,
+        -18903042.665919825,
+        140202791.97616503
+      ],
+      "center_first_piola_Pa": [
+        -95954.16239706948,
+        -9829.81357367478,
+        23174.704546836958,
+        -9697.332232586716,
+        -1623.215396735144,
+        -1626.0275633590402,
+        42680.391958477485,
+        233.55453302365044,
+        -5543.205594169141
+      ],
+      "sweeps": [
+        {
+          "deltaF_inf": 0.003,
+          "epsilon_s": 0.000684458468425481,
+          "q_minus_center_plus": [
+            12.255661061818827,
+            0.9942585472242471,
+            10.423060332784736
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "plastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.942174942768339,
+          "forward_relative_error": 0.8523427689618688,
+          "backward_relative_error": 1.0459349300061298,
+          "centered_abs_error_Pa_per_s": 355979485.88924146,
+          "central_tangent_matrix": [
+            -192621108.8211988,
+            57800500.139265075,
+            -21847889.612050477,
+            59009624.237336546,
+            -25321100.87689789,
+            -807746.8256043193,
+            1725377.4469788433,
+            -11890960.316284845,
+            71889446.28808285
+          ],
+          "stress_delta_inf_Pa": 263682.2982603513,
+          "projection_residuals_mp80": [
+            1.3988527964673036e-81,
+            7.315966224031436e-83
+          ],
+          "projection_iterations": [
+            10,
+            10
+          ]
+        },
+        {
+          "deltaF_inf": 0.001,
+          "epsilon_s": 0.00022815282280849367,
+          "q_minus_center_plus": [
+            4.762583958913536,
+            0.9942585472242471,
+            2.7989797831124203
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "plastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.7600635252061698,
+          "forward_relative_error": 0.4893249517881165,
+          "backward_relative_error": 1.0355478311562045,
+          "centered_abs_error_Pa_per_s": 287172806.9429072,
+          "central_tangent_matrix": [
+            -206344698.5220326,
+            57630901.97789805,
+            -90654568.55838473,
+            59260584.77946548,
+            -25669989.83740394,
+            -3000073.555422998,
+            -66896910.530243725,
+            -14088068.656610148,
+            85118432.12134919
+          ],
+          "stress_delta_inf_Pa": 94156.25087873869,
+          "projection_residuals_mp80": [
+            5.628261048501691e-82,
+            4.52492430525757e-82
+          ],
+          "projection_iterations": [
+            10,
+            9
+          ]
+        },
+        {
+          "deltaF_inf": 0.0003,
+          "epsilon_s": 6.84458468425481e-05,
+          "q_minus_center_plus": [
+            2.1253162395098357,
+            0.9942585472242471,
+            0.16930834318664875
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.5127148976826964,
+          "forward_relative_error": 0.00770872650606247,
+          "backward_relative_error": 1.0274736091424705,
+          "centered_abs_error_Pa_per_s": 193717724.17186663,
+          "central_tangent_matrix": [
+            -224471868.2585976,
+            56016431.934181646,
+            -184109651.32942533,
+            59322001.44271409,
+            -25802745.486664888,
+            -11827694.090377893,
+            -160258736.32735857,
+            -22768848.12540719,
+            103034857.04756951
+          ],
+          "stress_delta_inf_Pa": 30728.334230577217,
+          "projection_residuals_mp80": [
+            1.6472184286297693e-83,
+            7.492678422849871e-59
+          ],
+          "projection_iterations": [
+            3,
+            9
+          ]
+        },
+        {
+          "deltaF_inf": 0.0001,
+          "epsilon_s": 2.2815282280849368e-05,
+          "q_minus_center_plus": [
+            1.3710558369215686,
+            0.9942585472242471,
+            0.6186263837356422
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.5068718020091908,
+          "forward_relative_error": 0.00256900135733288,
+          "backward_relative_error": 1.0144718585850776,
+          "centered_abs_error_Pa_per_s": 191510042.66874304,
+          "central_tangent_matrix": [
+            -224886321.21060646,
+            55304604.16584083,
+            -186317332.83254892,
+            59339356.79583669,
+            -25817962.18645355,
+            -15668000.497621723,
+            -162424780.2426343,
+            -26542630.902111895,
+            103418091.70063566
+          ],
+          "stress_delta_inf_Pa": 10261.689799043497,
+          "projection_residuals_mp80": [
+            2.5737787947340145e-85,
+            1.3847406368719827e-67
+          ],
+          "projection_iterations": [
+            3,
+            9
+          ]
+        },
+        {
+          "deltaF_inf": 3e-05,
+          "epsilon_s": 6.84458468425481e-06,
+          "q_minus_center_plus": [
+            1.1072371086811377,
+            0.9942585472242471,
+            0.881369068488725
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.4880302608949443,
+          "forward_relative_error": 0.0007699929197238083,
+          "backward_relative_error": 0.9762960548759279,
+          "centered_abs_error_Pa_per_s": 184391192.63914758,
+          "central_tangent_matrix": [
+            -226248826.67012483,
+            54914778.221155,
+            -193441729.57337058,
+            59347102.88398135,
+            -25820674.59592722,
+            -17763838.731911957,
+            -169535225.83337867,
+            -28602190.92695455,
+            104772966.47460712
+          ],
+          "stress_delta_inf_Pa": 3097.1585077139152,
+          "projection_residuals_mp80": [
+            1.3177747429038154e-82,
+            1.4189026338165158e-81
+          ],
+          "projection_iterations": [
+            3,
+            9
+          ]
+        },
+        {
+          "deltaF_inf": 1e-05,
+          "epsilon_s": 2.2815282280849367e-06,
+          "q_minus_center_plus": [
+            1.031909854947554,
+            0.9942585472242471,
+            0.9566170051364525
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.43556029194610346,
+          "forward_relative_error": 0.00025605938729542283,
+          "backward_relative_error": 0.8712022530778879,
+          "centered_abs_error_Pa_per_s": 164566601.9785728,
+          "central_tangent_matrix": [
+            -230048158.66724452,
+            54973102.34025064,
+            -213269185.63124943,
+            59354039.57864112,
+            -25814110.343826726,
+            -17486444.158834994,
+            -189359816.49395347,
+            -28331198.506933417,
+            108579372.88341178
+          ],
+          "stress_delta_inf_Pa": 1049.7227356365615,
+          "projection_residuals_mp80": [
+            6.588873714519077e-83,
+            5.566092164027929e-69
+          ],
+          "projection_iterations": [
+            3,
+            9
+          ]
+        },
+        {
+          "deltaF_inf": 3e-06,
+          "epsilon_s": 6.84458468425481e-07,
+          "q_minus_center_plus": [
+            1.0055529724916112,
+            0.9942585472242471,
+            0.9829649995253444
+          ],
+          "branches": [
+            "plastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": false,
+          "centered_relative_error": 0.2526300505240145,
+          "forward_relative_error": 7.637440092838924e-05,
+          "backward_relative_error": 0.5052869156648735,
+          "centered_abs_error_Pa_per_s": 95450548.9622472,
+          "central_tangent_matrix": [
+            -243294224.01307255,
+            55719540.90665275,
+            -282382407.4735549,
+            59372992.32619592,
+            -25786143.41866966,
+            -13624058.222188104,
+            -258475869.51027906,
+            -24542193.8097088,
+            121860274.342258
+          ],
+          "stress_delta_inf_Pa": 386.558060259299,
+          "projection_residuals_mp80": [
+            2.0590230357872116e-84,
+            1.6472184286297693e-83
+          ],
+          "projection_iterations": [
+            3,
+            11
+          ]
+        },
+        {
+          "deltaF_inf": 1e-06,
+          "epsilon_s": 2.2815282280849367e-07,
+          "q_minus_center_plus": [
+            0.9980232598593971,
+            0.9942585472242471,
+            0.9904939320836457
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 4.33487193950625e-06,
+          "forward_relative_error": 2.5265334038587938e-05,
+          "backward_relative_error": 2.360378264604836e-05,
+          "centered_abs_error_Pa_per_s": 1637.8332880378416,
+          "central_tangent_matrix": [
+            -261586988.65009916,
+            56828036.00121831,
+            -377825737.75510854,
+            59398483.90824851,
+            -25746856.14560229,
+            -7876361.0289270505,
+            -353924780.63923824,
+            -18903140.063802656,
+            140202477.23416537
+          ],
+          "stress_delta_inf_Pa": 172.40401719705935,
+          "projection_residuals_mp80": [
+            9.213351744639654e-83,
+            6.11729161182586e-70
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-07,
+          "epsilon_s": 6.84458468425481e-08,
+          "q_minus_center_plus": [
+            0.9953879508367183,
+            0.9942585472242471,
+            0.9931291523861516
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.3135967429938026e-07,
+          "forward_relative_error": 7.529405546003402e-06,
+          "backward_relative_error": 7.440725775744575e-06,
+          "centered_abs_error_Pa_per_s": 87.41401853736856,
+          "central_tangent_matrix": [
+            -261587285.7870777,
+            56828054.12206564,
+            -377827288.09151226,
+            59398484.32142325,
+            -25746855.50647368,
+            -7876267.05434176,
+            -353926331.05850774,
+            -18903047.864259344,
+            140202775.17779136
+          ],
+          "stress_delta_inf_Pa": 51.7214173872939,
+          "projection_residuals_mp80": [
+            1.0614391206567186e-80,
+            2.460906105888672e-77
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-07,
+          "epsilon_s": 2.2815282280849368e-08,
+          "q_minus_center_plus": [
+            0.9946350141218662,
+            0.9942585472242471,
+            0.9938820813015574
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.481863653614806e-08,
+          "forward_relative_error": 2.50237385225567e-06,
+          "backward_relative_error": 2.492860912196585e-06,
+          "centered_abs_error_Pa_per_s": 9.377160305973296,
+          "central_tangent_matrix": [
+            -261587300.74277553,
+            56828055.03414691,
+            -377827366.1245825,
+            59398484.34222261,
+            -25746855.47430417,
+            -7876262.324320024,
+            -353926409.09536594,
+            -18903043.2235615,
+            140202790.1741534
+          ],
+          "stress_delta_inf_Pa": 17.240476023124348,
+          "projection_residuals_mp80": [
+            8.832225646958858e-80,
+            1.1634399884660922e-78
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-08,
+          "epsilon_s": 6.84458468425481e-09,
+          "q_minus_center_plus": [
+            0.9943714871912241,
+            0.9942585472242471,
+            0.9941456073450137
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.224934818658019e-09,
+          "forward_relative_error": 7.49796798591787e-07,
+          "backward_relative_error": 7.489439849718129e-07,
+          "centered_abs_error_Pa_per_s": 0.8406412831950023,
+          "central_tangent_matrix": [
+            -261587302.37879196,
+            56828055.13392036,
+            -377827374.6606911,
+            59398484.344497904,
+            -25746855.470785115,
+            -7876261.806898647,
+            -353926417.631885,
+            -18903042.71591115,
+            140202791.81461874
+          ],
+          "stress_delta_inf_Pa": 5.17214292378954,
+          "projection_residuals_mp80": [
+            2.06638873146163e-79,
+            4.478166434045337e-79
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-08,
+          "epsilon_s": 2.281528228084937e-09,
+          "q_minus_center_plus": [
+            0.9942961938701586,
+            0.9942585472242471,
+            0.994220900588085
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.47129946804989e-10,
+          "forward_relative_error": 2.498399782401993e-07,
+          "backward_relative_error": 2.4974525376444814e-07,
+          "centered_abs_error_Pa_per_s": 0.09337245920910289,
+          "central_tangent_matrix": [
+            -261587302.52200538,
+            56828055.142654315,
+            -377827375.407924,
+            59398484.34469707,
+            -25746855.470477063,
+            -7876261.761604671,
+            -353926418.3791538,
+            -18903042.671472505,
+            140202791.9582216
+          ],
+          "stress_delta_inf_Pa": 1.724047644672846,
+          "projection_residuals_mp80": [
+            2.6618166217452843e-79,
+            3.44461470221976e-79
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-09,
+          "epsilon_s": 6.84458468425481e-10,
+          "q_minus_center_plus": [
+            0.9942698412169969,
+            0.9942585472242471,
+            0.9942472532323747
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.2240825020106777e-11,
+          "forward_relative_error": 7.494213201740545e-08,
+          "backward_relative_error": 7.493360714813225e-08,
+          "centered_abs_error_Pa_per_s": 0.008403192546330414,
+          "central_tangent_matrix": [
+            -261587302.53828967,
+            56828055.143647425,
+            -377827375.49288917,
+            59398484.34471972,
+            -25746855.470442038,
+            -7876261.756454456,
+            -353926418.4641231,
+            -18903042.666419547,
+            140202791.9745502
+          ],
+          "stress_delta_inf_Pa": 0.5172142935181641,
+          "projection_residuals_mp80": [
+            2.911641653633296e-79,
+            3.145767870113706e-79
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-09,
+          "epsilon_s": 2.2815282280849367e-10,
+          "q_minus_center_plus": [
+            0.9942623118883995,
+            0.9942585472242471,
+            0.9942547825601922
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.4711942803263466e-12,
+          "forward_relative_error": 2.497976594749307e-08,
+          "backward_relative_error": 2.4978818743053972e-08,
+          "centered_abs_error_Pa_per_s": 0.0009336848492895075,
+          "central_tangent_matrix": [
+            -261587302.5397212,
+            56828055.14373472,
+            -377827375.50035834,
+            59398484.34472171,
+            -25746855.470438957,
+            -7876261.756001708,
+            -353926418.47159255,
+            -18903042.66597535,
+            140202791.97598562
+          ],
+          "stress_delta_inf_Pa": 0.1724047645094629,
+          "projection_residuals_mp80": [
+            2.9875433066937974e-79,
+            3.065564504169967e-79
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-10,
+          "epsilon_s": 6.84458468425481e-11,
+          "q_minus_center_plus": [
+            0.9942596766234826,
+            0.9942585472242471,
+            0.9942574178250204
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.2240739821417403e-13,
+          "forward_relative_error": 7.493830412543277e-09,
+          "backward_relative_error": 7.493745164177111e-09,
+          "centered_abs_error_Pa_per_s": 8.40316035593321e-05,
+          "central_tangent_matrix": [
+            -261587302.539884,
+            56828055.143744655,
+            -377827375.50120795,
+            59398484.34472194,
+            -25746855.470438607,
+            -7876261.755950209,
+            -353926418.4724422,
+            -18903042.66592482,
+            140202791.97614887
+          ],
+          "stress_delta_inf_Pa": 0.05172142935295518,
+          "projection_residuals_mp80": [
+            3.0146064624075473e-79,
+            3.038012109379075e-79
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-10,
+          "epsilon_s": 2.281528228084937e-11,
+          "q_minus_center_plus": [
+            0.9942589236906579,
+            0.9942585472242471,
+            0.9942581707578372
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.471193228494329e-14,
+          "forward_relative_error": 2.497934001291251e-09,
+          "backward_relative_error": 2.497924529250892e-09,
+          "centered_abs_error_Pa_per_s": 9.33684451878577e-06,
+          "central_tangent_matrix": [
+            -261587302.53989834,
+            56828055.14374553,
+            -377827375.50128263,
+            59398484.34472196,
+            -25746855.470438577,
+            -7876261.755945682,
+            -353926418.4725169,
+            -18903042.66592038,
+            140202791.97616324
+          ],
+          "stress_delta_inf_Pa": 0.017240476450988466,
+          "projection_residuals_mp80": [
+            3.022386850547511e-79,
+            3.0301887119991785e-79
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-11,
+          "epsilon_s": 6.84458468425481e-12,
+          "q_minus_center_plus": [
+            0.9942586601641703,
+            0.9942585472242471,
+            0.994258434284324
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.2240738969433805e-15,
+          "forward_relative_error": 7.493792059079141e-10,
+          "backward_relative_error": 7.493783534242851e-10,
+          "centered_abs_error_Pa_per_s": 8.403160034030484e-07,
+          "central_tangent_matrix": [
+            -261587302.53989995,
+            56828055.14374563,
+            -377827375.5012911,
+            59398484.344721965,
+            -25746855.470438574,
+            -7876261.755945167,
+            -353926418.4725254,
+            -18903042.665919874,
+            140202791.97616488
+          ],
+          "stress_delta_inf_Pa": 0.005172142935296656,
+          "projection_residuals_mp80": [
+            3.025115056265243e-79,
+            3.027455613988481e-79
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-11,
+          "epsilon_s": 2.2815282280849366e-12,
+          "q_minus_center_plus": [
+            0.9942585848708881,
+            0.9942585472242471,
+            0.9942585095776061
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.4711932179760134e-16,
+          "forward_relative_error": 2.4979297391805245e-10,
+          "backward_relative_error": 2.4979287919764926e-10,
+          "centered_abs_error_Pa_per_s": 9.336844479044693e-08,
+          "central_tangent_matrix": [
+            -261587302.5399001,
+            56828055.14374564,
+            -377827375.5012919,
+            59398484.344721965,
+            -25746855.470438574,
+            -7876261.755945121,
+            -353926418.4725262,
+            -18903042.665919833,
+            140202791.97616503
+          ],
+          "stress_delta_inf_Pa": 0.001724047645098889,
+          "projection_residuals_mp80": [
+            3.025895027137622e-79,
+            3.026675213024498e-79
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-12,
+          "epsilon_s": 6.844584684254811e-13,
+          "q_minus_center_plus": [
+            0.9942585585182394,
+            0.9942585472242471,
+            0.9942585359302548
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.224073896091397e-17,
+          "forward_relative_error": 7.493788222985818e-11,
+          "backward_relative_error": 7.493787370502189e-11,
+          "centered_abs_error_Pa_per_s": 8.403160030811456e-09,
+          "central_tangent_matrix": [
+            -261587302.53990012,
+            56828055.14374564,
+            -377827375.50129193,
+            59398484.344721965,
+            -25746855.470438574,
+            -7876261.755945115,
+            -353926418.47252625,
+            -18903042.665919825,
+            140202791.97616503
+          ],
+          "stress_delta_inf_Pa": 0.0005172142935296668,
+          "projection_residuals_mp80": [
+            3.026168067736922e-79,
+            3.026402123502275e-79
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-12,
+          "epsilon_s": 2.2815282280849367e-13,
+          "q_minus_center_plus": [
+            0.9942585509889112,
+            0.9942585472242471,
+            0.994258543459583
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.4711932178708303e-18,
+          "forward_relative_error": 2.4979293129417844e-11,
+          "backward_relative_error": 2.4979292182213813e-11,
+          "centered_abs_error_Pa_per_s": 9.336844478647282e-10,
+          "central_tangent_matrix": [
+            -261587302.53990012,
+            56828055.14374564,
+            -377827375.50129193,
+            59398484.344721965,
+            -25746855.470438574,
+            -7876261.755945115,
+            -353926418.47252625,
+            -18903042.665919825,
+            140202791.97616503
+          ],
+          "stress_delta_inf_Pa": 0.00017240476450988893,
+          "projection_residuals_mp80": [
+            3.026246084174925e-79,
+            3.0263241027633575e-79
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-13,
+          "epsilon_s": 6.844584684254811e-14,
+          "q_minus_center_plus": [
+            0.9942585483536464,
+            0.9942585472242471,
+            0.9942585460948479
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.224073896082877e-19,
+          "forward_relative_error": 7.493787839369015e-12,
+          "backward_relative_error": 7.493787754120652e-12,
+          "centered_abs_error_Pa_per_s": 8.403160030779266e-11,
+          "central_tangent_matrix": [
+            -261587302.53990012,
+            56828055.14374564,
+            -377827375.50129193,
+            59398484.344721965,
+            -25746855.470438574,
+            -7876261.755945115,
+            -353926418.47252625,
+            -18903042.665919825,
+            140202791.97616503
+          ],
+          "stress_delta_inf_Pa": 5.172142935296668e-05,
+          "projection_residuals_mp80": [
+            3.0262733904362624e-79,
+            3.026296796012791e-79
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-13,
+          "epsilon_s": 2.2815282280849368e-14,
+          "q_minus_center_plus": [
+            0.9942585476007135,
+            0.9942585472242471,
+            0.9942585468477807
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.4711932178697786e-20,
+          "forward_relative_error": 2.497929270317634e-12,
+          "backward_relative_error": 2.4979292608455936e-12,
+          "centered_abs_error_Pa_per_s": 9.336844478643308e-12,
+          "central_tangent_matrix": [
+            -261587302.53990012,
+            56828055.14374564,
+            -377827375.50129193,
+            59398484.344721965,
+            -25746855.470438574,
+            -7876261.755945115,
+            -353926418.47252625,
+            -18903042.665919825,
+            140202791.97616503
+          ],
+          "stress_delta_inf_Pa": 1.7240476450988893e-05,
+          "projection_residuals_mp80": [
+            3.026281192273601e-79,
+            3.026288994132443e-79
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-14,
+          "epsilon_s": 6.84458468425481e-15,
+          "q_minus_center_plus": [
+            0.994258547337187,
+            0.9942585472242471,
+            0.9942585471113072
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.224073896082792e-21,
+          "forward_relative_error": 7.49378780100726e-13,
+          "backward_relative_error": 7.493787792482424e-13,
+          "centered_abs_error_Pa_per_s": 8.403160030778944e-13,
+          "central_tangent_matrix": [
+            -261587302.53990012,
+            56828055.14374564,
+            -377827375.50129193,
+            59398484.344721965,
+            -25746855.470438574,
+            -7876261.755945115,
+            -353926418.47252625,
+            -18903042.665919825,
+            140202791.97616503
+          ],
+          "stress_delta_inf_Pa": 5.172142935296668e-06,
+          "projection_residuals_mp80": [
+            3.0262839229217486e-79,
+            3.026286263479403e-79
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 1e-14,
+          "epsilon_s": 2.281528228084937e-15,
+          "q_minus_center_plus": [
+            0.9942585472618938,
+            0.9942585472242471,
+            0.9942585471866004
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.471193217869768e-22,
+          "forward_relative_error": 2.497929266055216e-13,
+          "backward_relative_error": 2.497929265108012e-13,
+          "centered_abs_error_Pa_per_s": 9.336844478643269e-14,
+          "central_tangent_matrix": [
+            -261587302.53990012,
+            56828055.14374564,
+            -377827375.50129193,
+            59398484.344721965,
+            -25746855.470438574,
+            -7876261.755945115,
+            -353926418.47252625,
+            -18903042.665919825,
+            140202791.97616503
+          ],
+          "stress_delta_inf_Pa": 1.7240476450988895e-06,
+          "projection_residuals_mp80": [
+            3.0262847031074216e-79,
+            3.026285483293303e-79
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        },
+        {
+          "deltaF_inf": 3e-15,
+          "epsilon_s": 6.84458468425481e-16,
+          "q_minus_center_plus": [
+            0.9942585472355411,
+            0.9942585472242471,
+            0.9942585472129531
+          ],
+          "branches": [
+            "elastic",
+            "elastic",
+            "elastic"
+          ],
+          "same_smooth_branch": true,
+          "centered_relative_error": 2.2240738960827911e-23,
+          "forward_relative_error": 7.493787797171084e-14,
+          "backward_relative_error": 7.4937877963186e-14,
+          "centered_abs_error_Pa_per_s": 8.403160030778942e-15,
+          "central_tangent_matrix": [
+            -261587302.53990012,
+            56828055.14374564,
+            -377827375.50129193,
+            59398484.344721965,
+            -25746855.470438574,
+            -7876261.755945115,
+            -353926418.47252625,
+            -18903042.665919825,
+            140202791.97616503
+          ],
+          "stress_delta_inf_Pa": 5.172142935296668e-07,
+          "projection_residuals_mp80": [
+            3.026284976172452e-79,
+            3.02628521022822e-79
+          ],
+          "projection_iterations": [
+            3,
+            3
+          ]
+        }
+      ]
+    }
+  ]
+}

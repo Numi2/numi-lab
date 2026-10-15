@@ -1,0 +1,2 @@
+Objective-C++ syntax-only: PASS
+No Metal build or GPU execution performed.

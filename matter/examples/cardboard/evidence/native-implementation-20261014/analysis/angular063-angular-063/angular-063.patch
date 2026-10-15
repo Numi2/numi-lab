@@ -1,0 +1,1315 @@
+diff --git a/matter/src/metal/contact.metalinc b/matter/src/metal/contact.metalinc
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -3998,6 +3998,25 @@
+         delta, quaternionNormalize(source)));
+ }
+ 
++// Match MetalWorld's scene-body integrator exactly, including its small-angle
++// series. The free-BOX candidate, alpha path, and physical CCD sweep must use
++// the same pose map as the body that will be committed after Matter accepts.
++inline float4 integrateFreeBoxSceneQuaternion(
++    const float4 source,
++    const float3 angularVelocity,
++    const float timestep
++) {
++    const float3 rotationVector = timestep * angularVelocity;
++    const float angle = length(rotationVector);
++    const float halfAngle = 0.5f * angle;
++    const float scale = angle > 1.0e-6f
++        ? sin(halfAngle) / angle
++        : 0.5f - angle * angle / 48.0f;
++    const float4 delta = float4(rotationVector * scale, cos(halfAngle));
++    return quaternionNormalize(quaternionMultiply(
++        delta, quaternionNormalize(source)));
++}
++
+ // Materializes free-body geometry at the same primal Newton candidate used by
+ // FEM, MPM, and articulated bodies. Multiple proxies on one body read the
+ // same compact six-coordinate block and independently project their authored
+@@ -4056,8 +4075,11 @@
+     MRBodyStateGPU candidate = source;
+     candidate.position.xyz = source.position.xyz +
+         bridge.time.y * linearVelocity;
+-    candidate.orientation = integrateWorldQuaternion(
+-        source.orientation, angularVelocity, bridge.time.y);
++    candidate.orientation = proxy.shapeKind == NM_RIGID_BOX
++        ? integrateFreeBoxSceneQuaternion(
++            source.orientation, angularVelocity, bridge.time.y)
++        : integrateWorldQuaternion(
++            source.orientation, angularVelocity, bridge.time.y);
+     candidate.linearVelocityAndInverseMass.xyz = linearVelocity;
+     candidate.angularVelocity.xyz = angularVelocity;
+ 
+@@ -4687,6 +4709,17 @@
+     return sqrt(max(minimumSquared, 0.0f));
+ }
+ 
++inline float segmentPointDistance(const float3 first,
++                                  const float3 last,
++                                  const float3 point) {
++    const float3 direction = last - first;
++    const float denominator = dot(direction, direction);
++    const float parameter = denominator > 0.0f
++        ? clamp(dot(point - first, direction) / denominator, 0.0f, 1.0f)
++        : 0.0f;
++    return length(first + parameter * direction - point);
++}
++
+ inline float prescribedBoxPathGap(const NMRigidStateGPU rigid,
+                                  const float3 first, const float3 last) {
+     const float scale = max(max(maximumAbsoluteCoordinate(rigid.extent.xyz),
+@@ -4725,6 +4758,174 @@
+     return -INFINITY;
+ }
+ 
++inline float3 armijoRigidBodyCenterVelocity(
++    const NMRigidStateGPU rigid
++) {
++    return rigid.linearVelocityAndInverseMass.xyz - cross(
++        rigid.angularVelocity.xyz,
++        rigid.centerAndRadius.xyz - rigid.bodyCenter.xyz);
++}
++
++inline bool freeBoxArmijoRigidAt(
++    const NMRigidProxyGPU proxy,
++    const MRBodyStateGPU sourceBody,
++    const NMRigidStateGPU base,
++    const NMRigidStateGPU trial,
++    const float timestep,
++    const float fraction,
++    const bool physicalSweep,
++    thread NMRigidStateGPU& rigid
++) {
++    if (!isfinite(fraction) || fraction < 0.0f || fraction > 1.0f ||
++        !(timestep > 0.0f) || !isfinite(timestep)) return false;
++    if (physicalSweep && fraction == 0.0f) {
++        projectProxy(proxy, sourceBody, true, rigid);
++        return finiteStationaryBoxRigidRecord(rigid);
++    }
++    if (fraction == 1.0f) {
++        rigid = trial;
++        return finiteStationaryBoxRigidRecord(rigid);
++    }
++    if (!physicalSweep && fraction == 0.0f) {
++        rigid = base;
++        return finiteStationaryBoxRigidRecord(rigid);
++    }
++
++    const float3 trialLinear = armijoRigidBodyCenterVelocity(trial);
++    const float3 trialAngular = trial.angularVelocity.xyz;
++    const float3 baseLinear = physicalSweep
++        ? trialLinear : armijoRigidBodyCenterVelocity(base);
++    const float3 baseAngular = physicalSweep
++        ? trialAngular : base.angularVelocity.xyz;
++    const float3 linear = mix(baseLinear, trialLinear, fraction);
++    const float3 angular = mix(baseAngular, trialAngular, fraction);
++    MRBodyStateGPU body = sourceBody;
++    const float poseTimestep = physicalSweep ? fraction * timestep : timestep;
++    body.position.xyz = sourceBody.position.xyz +
++        poseTimestep * linear;
++    body.orientation = integrateFreeBoxSceneQuaternion(
++        sourceBody.orientation, angular, poseTimestep);
++    body.linearVelocityAndInverseMass.xyz = linear;
++    body.angularVelocity.xyz = angular;
++    projectProxy(proxy, body, true, rigid);
++    return finiteStationaryBoxRigidRecord(rigid);
++}
++
++inline bool freeBoxArmijoGapAt(
++    const NMRigidProxyGPU proxy,
++    const MRBodyStateGPU sourceBody,
++    const NMRigidStateGPU base,
++    const NMRigidStateGPU trial,
++    const float3 firstPoint,
++    const float3 lastPoint,
++    const float timestep,
++    const float fraction,
++    const bool physicalSweep,
++    thread float& gap
++) {
++    const float3 point = mix(firstPoint, lastPoint, fraction);
++    NMRigidStateGPU rigid{};
++    if (!freeBoxArmijoRigidAt(proxy, sourceBody, base, trial,
++                             timestep, fraction, physicalSweep, rigid))
++        return false;
++    float3 normal, witness;
++    return rigidWitness(proxy, rigid, point, gap, normal, witness) &&
++        isfinite(gap);
++}
++
++inline bool certifyFreeBoxArmijoSweep(
++    const NMRigidProxyGPU proxy,
++    const MRBodyStateGPU sourceBody,
++    const NMRigidStateGPU base,
++    const NMRigidStateGPU trial,
++    const float3 firstPoint,
++    const float3 lastPoint,
++    const float timestep,
++    const float floor,
++    const bool physicalSweep,
++    thread float& minimumSampledGap
++) {
++    const float3 firstCenter = physicalSweep
++        ? sourceBody.position.xyz : base.bodyCenter.xyz;
++    const float3 lastCenter = trial.bodyCenter.xyz;
++    const float3 firstAngular = physicalSweep
++        ? trial.angularVelocity.xyz : base.angularVelocity.xyz;
++    const float3 lastAngular = trial.angularVelocity.xyz;
++    const float3 relativeFirst = firstPoint - firstCenter;
++    const float3 relativeLast = lastPoint - lastCenter;
++    const float3 relativeDelta = relativeLast - relativeFirst;
++    const float rotationRate = timestep * (physicalSweep
++        ? length(lastAngular) : length(lastAngular - firstAngular));
++    const float bodyOffsetRadius = length(proxy.localCenterAndRadius.xyz) +
++        length(proxy.localExtent.xyz);
++    // Bound angular motion about the BODY COM. In particular, an authored
++    // proxy-center offset is inside the swept radius rather than being lost
++    // when the proxy is translated/rotated independently of its body origin.
++    const float angularRadius = max(length(relativeFirst), length(relativeLast)) +
++        bodyOffsetRadius;
++    const float lipschitz = length(relativeDelta) +
++        rotationRate * angularRadius;
++    if (!isfinite(lipschitz) || !isfinite(angularRadius) ||
++        !(floor > 0.0f) || !isfinite(floor)) return false;
++
++    float gap = -INFINITY;
++    if (!freeBoxArmijoGapAt(proxy, sourceBody, base, trial,
++                            firstPoint, lastPoint, timestep, 0.0f,
++                            physicalSweep, gap) || !(gap > floor)) {
++        minimumSampledGap = gap;
++        return false;
++    }
++    const float startGap = gap;
++    minimumSampledGap = gap;
++    float endGap = -INFINITY;
++    if (!freeBoxArmijoGapAt(proxy, sourceBody, base, trial,
++                            firstPoint, lastPoint, timestep, 1.0f,
++                            physicalSweep, endGap) || !(endGap > floor)) {
++        minimumSampledGap = min(minimumSampledGap, endGap);
++        return false;
++    }
++    minimumSampledGap = min(minimumSampledGap, endGap);
++
++    const float centerScale = max(maximumAbsoluteCoordinate(firstCenter),
++        maximumAbsoluteCoordinate(lastCenter));
++    const float pointScale = max(maximumAbsoluteCoordinate(firstPoint),
++        maximumAbsoluteCoordinate(lastPoint));
++    const float roundoff = 16.0f * kEpsilon * max(
++        max(centerScale, pointScale), 1.0e-12f);
++    const float relativeClosest = segmentPointDistance(
++        relativeFirst, relativeLast, float3(0.0f));
++    if (isfinite(relativeClosest) && relativeClosest >
++            bodyOffsetRadius + floor + roundoff)
++        return true;
++    if (!(lipschitz > 0.0f)) return true;
++
++    float fraction = 0.0f;
++    gap = startGap;
++    constexpr uint maximumAdvancementSteps = 256u;
++    constexpr float minimumFractionStep = 5.960464477539063e-8f;
++    for (uint iteration = 0u; iteration < maximumAdvancementSteps; ++iteration) {
++        const float remaining = 1.0f - fraction;
++        if (!(remaining > 0.0f)) return true;
++        const float step = 0.8f * (gap - floor) / lipschitz;
++        if (!isfinite(step) || !(step > minimumFractionStep)) return false;
++        const float nextFraction = min(1.0f, fraction + step);
++        if (!(nextFraction > fraction)) return false;
++        float nextGap = -INFINITY;
++        if (!freeBoxArmijoGapAt(proxy, sourceBody, base, trial,
++                                firstPoint, lastPoint, timestep,
++                                nextFraction, physicalSweep, nextGap) ||
++            !(nextGap > floor)) {
++            minimumSampledGap = min(minimumSampledGap, nextGap);
++            return false;
++        }
++        minimumSampledGap = min(minimumSampledGap, nextGap);
++        if (nextFraction >= 1.0f) return true;
++        fraction = nextFraction;
++        gap = nextGap;
++    }
++    return false;
++}
++
+ // Private residual-descent trials must also preserve clearance for rigid
+ // pairs which are inactive at the base iterate. The compiled dense pair set
+ // is the bounded conservative superset in this slice. Test the entire affine
+@@ -4742,6 +4943,9 @@
+     device const NMContactPairGPU* pairs [[buffer(7)]],
+     constant NMMixedSolverGPU& solver [[buffer(8)]],
+     device NMMatterStatusGPU* trialStatuses [[buffer(9)]],
++    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(10)]],
++    constant NMBridgeDispatchGPU& bridge [[buffer(11)]],
++    device const MRBodyStateGPU* currentBodies [[buffer(12)]],
+     uint global [[thread_position_in_grid]]
+ ) {
+     if (global >= dispatch.environmentCount * dispatch.contactPairCount ||
+@@ -4762,6 +4966,64 @@
+     const uint rigidIndex = environment * dispatch.rigidProxyCount + pair.rigidProxy;
+     const NMRigidStateGPU base = baseRigids[rigidIndex];
+     const NMRigidStateGPU trial = trialRigids[rigidIndex];
++    const bool freeDynamicBox = proxy.shapeKind == NM_RIGID_BOX &&
++        (proxy.flags & NM_RIGID_DYNAMIC) != 0u &&
++        (proxy.flags & NM_RIGID_ARTICULATED) == 0u &&
++        proxy.generalizedFreeBodyIndex != NM_INVALID_INDEX;
++    if (freeDynamicBox) {
++        if (proxy.bodyIndex >= bridge.currentBodyCount ||
++            bridge.currentBodyStride < bridge.currentBodyCount ||
++            dispatch.rigidGeneralizedCapacity != 6u ||
++            proxy.generalizedFreeBodyIndex != 0u ||
++            dispatch.maximumRateExponent != 0u) {
++            recordFailure(trialStatuses[environment], NM_STATUS_INVALID_DISPATCH,
++                pair.objectIndex, pairIndex,
++                float4(float(proxy.bodyIndex), float(bridge.currentBodyCount),
++                    float(dispatch.rigidGeneralizedCapacity),
++                    float(dispatch.maximumRateExponent)));
++            return;
++        }
++        const MRBodyStateGPU sourceBody = currentBodies[
++            environment * bridge.currentBodyStride + proxy.bodyIndex];
++        if (sourceBody.flagsAndIndices[0] != MR_MOTION_DYNAMIC ||
++            !(bridge.time.y > 0.0f) || !isfinite(bridge.time.y)) {
++            recordFailure(trialStatuses[environment], NM_STATUS_INVALID_DISPATCH,
++                pair.objectIndex, pairIndex,
++                float4(float(sourceBody.flagsAndIndices[0]), bridge.time.y,
++                    float(dispatch.rigidGeneralizedCapacity), 1.0f));
++            return;
++        }
++        const uint nodeIndex = environment * dispatch.femNodeCount +
++            pair.continuumNode - dispatch.gridNodeCount;
++        const float3 basePoint = baseNodes[nodeIndex].positionAndMass.xyz;
++        const float3 trialPoint = trialNodes[nodeIndex].positionAndMass.xyz;
++        const float3 physicalStart =
++            acceptedNodes[nodeIndex].positionAndMass.xyz;
++        const float coordinateScale = max(dispatch.numericalLimits.x,
++            max(maximumAbsoluteCoordinate(physicalStart),
++                max(maximumAbsoluteCoordinate(basePoint),
++                    max(maximumAbsoluteCoordinate(trialPoint),
++                        max(maximumAbsoluteCoordinate(trial.bodyCenter.xyz),
++                            maximumAbsoluteCoordinate(trial.extent.xyz))))));
++        const float floor = max(
++            solver.contactAcceptance.x * dispatch.numericalLimits.x,
++            16.0f * kEpsilon * max(coordinateScale, 1.0e-12f));
++        float alphaMinimumGap = INFINITY;
++        float physicalMinimumGap = INFINITY;
++        const bool alphaClear = certifyFreeBoxArmijoSweep(
++            proxy, sourceBody, base, trial, basePoint, trialPoint,
++            bridge.time.y, floor, false, alphaMinimumGap);
++        const bool physicalClear = certifyFreeBoxArmijoSweep(
++            proxy, sourceBody, base, trial, physicalStart, trialPoint,
++            bridge.time.y, floor, true, physicalMinimumGap);
++        if (!alphaClear || !physicalClear) {
++            recordFailure(trialStatuses[environment], NM_STATUS_CONTACT_FAILURE,
++                pair.objectIndex, pairIndex,
++                float4(alphaMinimumGap, physicalMinimumGap, floor,
++                    alphaClear ? 1.0f : 0.0f));
++        }
++        return;
++    }
+     if (any(base.orientation != trial.orientation) ||
+         any(base.extent != trial.extent) ||
+         base.centerAndRadius.w != trial.centerAndRadius.w ||
+@@ -5490,6 +5752,88 @@
+     if (historyTangentLength > historyLimit &&
+         historyTangentLength > 1.0e-12f)
+         historyTangent *= historyLimit / historyTangentLength;
++    bool angularFreeBoxTangent = false;
++    float3x3 freeBoxGeometricHessian = float3x3(0.0f);
++    const bool freeDynamicBox = proxy.shapeKind == NM_RIGID_BOX &&
++        (proxy.flags & NM_RIGID_DYNAMIC) != 0u &&
++        (proxy.flags & NM_RIGID_ARTICULATED) == 0u &&
++        proxy.generalizedFreeBodyIndex != NM_INVALID_INDEX;
++    if (freeDynamicBox && normalImpulse > 0.0f) {
++        if (frictionLimit != 0.0f) {
++            // This six-row operator can perturb angular coordinates even at
++            // a zero-angular-velocity iterate. Until the friction/history
++            // derivative is implemented, admit only frictionless samples;
++            // checking the current angular velocity would falsely admit an
++            // incomplete tangent when omega happens to be zero.
++            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
++                pair.objectIndex, pairIndex,
++                float4(separation, slop, frictionLimit, 1.0f));
++            return;
++        } else {
++        const float featureScale = max(max(maximumAbsoluteCoordinate(point),
++                maximumAbsoluteCoordinate(rigid.bodyCenter.xyz)),
++            max(maximumAbsoluteCoordinate(rigid.extent.xyz), slop));
++        const float featureTolerance = 64.0f * kEpsilon *
++            max(featureScale, 1.0e-12f);
++        const float4 inverseOrientation = quaternionConjugate(
++            quaternionNormalize(rigid.orientation));
++        const float3 localPoint = quaternionRotate(
++            inverseOrientation, point - rigid.centerAndRadius.xyz);
++        const float3 signedOutside = abs(localPoint) - rigid.extent.xyz;
++        const float3 outside = max(signedOutside, float3(0.0f));
++        const float localDistance = length(outside);
++        float3 activeAxes = float3(0.0f);
++        bool featureSmooth = isfinite(localDistance) &&
++            localDistance > 0.0f &&
++            abs(localDistance - separation) <= 64.0f * kEpsilon *
++                max(max(localDistance, separation), slop);
++        for (uint axis = 0u; axis < 3u; ++axis) {
++            if (!isfinite(signedOutside[axis]) ||
++                abs(signedOutside[axis]) <= featureTolerance)
++                featureSmooth = false;
++            if (signedOutside[axis] > 0.0f) activeAxes[axis] = 1.0f;
++        }
++        const float activeAxisCount = activeAxes.x + activeAxes.y + activeAxes.z;
++        if (pair.continuumNode < dispatch.gridNodeCount ||
++            rigid.linearVelocityAndInverseMass.w <= 0.0f ||
++            proxy.generalizedFreeBodyIndex != 0u ||
++            dispatch.rigidGeneralizedCapacity != 6u ||
++            !(separation > 1.0e-4f * slop) ||
++            !(barrier.x > 0.0f) || !featureSmooth || activeAxisCount < 1.0f ||
++            !ipcBarrierHasStrictInertialStiffness(
++                separation, slop, normalResponse, dt,
++                max(-normalVelocity, 0.0f))) {
++            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
++                pair.objectIndex, pairIndex,
++                float4(separation, slop, frictionLimit, activeAxisCount));
++            return;
++        }
++        const float3 localNormal = quaternionRotate(inverseOrientation, normal);
++        const float3x3 localActive = float3x3(
++            float3(activeAxes.x, 0.0f, 0.0f),
++            float3(0.0f, activeAxes.y, 0.0f),
++            float3(0.0f, 0.0f, activeAxes.z));
++        const float3x3 localDistanceHessian =
++            (localActive - outerProduct(localNormal, localNormal)) /
++            localDistance;
++        const float4 orientation = quaternionNormalize(rigid.orientation);
++        const float3x3 rotation = float3x3(
++            quaternionRotate(orientation, float3(1.0f, 0.0f, 0.0f)),
++            quaternionRotate(orientation, float3(0.0f, 1.0f, 0.0f)),
++            quaternionRotate(orientation, float3(0.0f, 0.0f, 1.0f)));
++        freeBoxGeometricHessian = -dt * barrier.x *
++            rotation * localDistanceHessian * transpose(rotation);
++        if (!all(isfinite(freeBoxGeometricHessian[0])) ||
++            !all(isfinite(freeBoxGeometricHessian[1])) ||
++            !all(isfinite(freeBoxGeometricHessian[2]))) {
++            recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
++                pair.objectIndex, pairIndex,
++                float4(separation, localDistance, dt, barrier.x));
++            return;
++        }
++        angularFreeBoxTangent = true;
++        }
++    }
+     const float seededNormal = normalImpulse;
+     const bool staticBranch = validHistory &&
+         tangentSpeed < 0.25f * transitionSpeed;
+@@ -5520,15 +5864,16 @@
+     float3x3 projectedHessian = ipcProjectedSpatialHessian(
+         normal, barrier.y, tangentVelocity,
+         frictionLimit, transitionSpeed);
+-    // The radial IPC block above differentiates the barrier magnitude while
+-    // holding its direction fixed. For the captured smooth side of a fixed,
+-    // translating capsule, the exact distance Hessian also rotates the normal
+-    // in the plane perpendicular to the capsule axis. This signed term is
+-    // generally indefinite and belongs in the physical FGMRES operator; the
+-    // right preconditioner separately keeps its existing PSD diagonal policy.
+-    // End caps, feature switches, impact-stiffness, friction, and movable or
+-    // rotating rigid bodies retain their existing operator until their full
+-    // coupled geometric derivatives are implemented and tested.
++    projectedHessian += freeBoxGeometricHessian;
++    // The radial IPC block differentiates barrier magnitude while holding its
++    // direction fixed. Smooth fixed-capsule side samples add their exact
++    // distance Hessian here. Smooth frictionless free-BOX samples also add the
++    // translational distance Hessian below; FGMRES adds the remaining oriented
++    // normal and inverse-response terms from the same marked sample. These
++    // signed geometric terms belong to the physical operator; the right
++    // preconditioner retains its separate PSD policy. Capsule end caps,
++    // feature switches, impact-stiffness, and frictional free-BOX rotation
++    // remain outside the angular branch.
+     if (proxy.shapeKind == NM_RIGID_CAPSULE &&
+         (proxy.flags & NM_RIGID_PRESCRIBED_TRANSLATION) != 0u &&
+         !(rigid.linearVelocityAndInverseMass.w > 0.0f) &&
+@@ -5568,6 +5913,13 @@
+         sample.barrierHessianRow0,
+         sample.barrierHessianRow1,
+         sample.barrierHessianRow2);
++    // The row0.w/row1.w lanes carry the contact microstep and linearization
++    // inverse response only for the exact smooth, frictionless free-BOX
++    // branch. FGMRES uses them for the SO(3) contact-frame and barrier-scale
++    // derivatives; multiplyRows consumes xyz only, so the spatial block is
++    // unchanged for every existing contact path.
++    sample.barrierHessianRow0.w = angularFreeBoxTangent ? dt : 0.0f;
++    sample.barrierHessianRow1.w = angularFreeBoxTangent ? normalResponse : 0.0f;
+     samples[sampleIndex] = sample;
+ }
+ 
+diff --git a/matter/src/metal/fgmres.metalinc b/matter/src/metal/fgmres.metalinc
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -409,6 +409,53 @@
+     return NM_INVALID_INDEX;
+ }
+ 
++// Differential of Exp(phi) with a world-frame angular-velocity perturbation.
++// Free rigid candidates are materialized as Exp(dt*omega)*q0, so using the
++// raw angular direction is only correct at zero angular velocity.
++inline float3 coupledSO3LeftJacobianApply(
++    const float3 phi,
++    const float3 value
++) {
++    const float angleSquared = dot(phi, phi);
++    float first;
++    float second;
++    if (angleSquared < 1.0e-6f) {
++        const float fourth = angleSquared * angleSquared;
++        first = 0.5f - angleSquared / 24.0f + fourth / 720.0f;
++        second = 1.0f / 6.0f - angleSquared / 120.0f +
++            fourth / 5040.0f;
++    } else {
++        const float angle = sqrt(angleSquared);
++        first = (1.0f - cos(angle)) / angleSquared;
++        second = (angle - sin(angle)) / (angleSquared * angle);
++    }
++    const float3 firstCross = cross(phi, value);
++    return value + first * firstCross +
++        second * cross(phi, firstCross);
++}
++
++inline float3 coupledSO3LeftJacobianTransposeApply(
++    const float3 phi,
++    const float3 value
++) {
++    const float angleSquared = dot(phi, phi);
++    float first;
++    float second;
++    if (angleSquared < 1.0e-6f) {
++        const float fourth = angleSquared * angleSquared;
++        first = 0.5f - angleSquared / 24.0f + fourth / 720.0f;
++        second = 1.0f / 6.0f - angleSquared / 120.0f +
++            fourth / 5040.0f;
++    } else {
++        const float angle = sqrt(angleSquared);
++        first = (1.0f - cos(angle)) / angleSquared;
++        second = (angle - sin(angle)) / (angleSquared * angle);
++    }
++    const float3 firstCross = cross(phi, value);
++    return value - first * firstCross +
++        second * cross(phi, firstCross);
++}
++
+ inline float3 coupledRigidPointDirection(
+     const NMMatterDispatchGPU dispatch,
+     constant NMPrimalContactArguments& contact,
+@@ -470,8 +517,205 @@
+         return float3(0.0f);
+     const NMContactSampleGPU sample = contact.samples[
+         environment * dispatch.contactPairCount + pairIndex];
++    float3 mappedAngular = angular;
++    if (proxy.shapeKind == NM_RIGID_BOX &&
++        sample.barrierHessianRow0.w > 0.0f) {
++        const float timestep = sample.barrierHessianRow0.w;
++        mappedAngular = coupledSO3LeftJacobianApply(
++            timestep * rigid.angularVelocity.xyz, angular);
++    }
+     return linear + cross(
+-        angular, sample.pointAndSeparation.xyz - rigid.bodyCenter.xyz);
++        mappedAngular,
++        sample.pointAndSeparation.xyz - rigid.bodyCenter.xyz);
++}
++
++// Directional derivative of the free BOX contact witness lever about the
++// body COM. This is the fixed-active-feature derivative of the same clamp
++// map used by boxContact; contact evaluation marks the sample only after
++// checking that the closest feature is separated from every active-set
++// transition. The returned vector is d(witness-COM) for a velocity-space
++// Krylov direction, so it carries the same microstep dt as the candidate
++// pose map.
++inline float3 coupledFreeBoxWitnessLeverDirection(
++    const NMMatterDispatchGPU dispatch,
++    constant NMPrimalContactArguments& contact,
++    const uint environment,
++    const NMContactPairGPU pair,
++    const NMContactSampleGPU sample,
++    const uint articulatedNv,
++    device const float4* direction
++) {
++    if (pair.rigidProxy >= dispatch.rigidProxyCount ||
++        pair.continuumNode < dispatch.gridNodeCount ||
++        pair.continuumNode - dispatch.gridNodeCount >= dispatch.femNodeCount ||
++        sample.barrierHessianRow0.w <= 0.0f)
++        return float3(0.0f);
++    const NMRigidProxyGPU proxy = contact.rigidProxies[pair.rigidProxy];
++    const NMRigidStateGPU rigid = contact.rigidStates[
++        environment * dispatch.rigidProxyCount + pair.rigidProxy];
++    if (proxy.shapeKind != NM_RIGID_BOX ||
++        (proxy.flags & NM_RIGID_DYNAMIC) == 0u ||
++        (proxy.flags & NM_RIGID_ARTICULATED) != 0u ||
++        proxy.generalizedFreeBodyIndex != 0u ||
++        dispatch.rigidGeneralizedCapacity != 6u)
++        return float3(0.0f);
++
++    const float timestep = sample.barrierHessianRow0.w;
++    const uint bodyBase = fgmresRigidIndex(
++        dispatch, environment, articulatedNv);
++    const float3 linearDirection = float3(
++        direction[bodyBase + 0u].x,
++        direction[bodyBase + 1u].x,
++        direction[bodyBase + 2u].x);
++    const float3 angularDirection = float3(
++        direction[bodyBase + 3u].x,
++        direction[bodyBase + 4u].x,
++        direction[bodyBase + 5u].x);
++    const float3 deltaTheta = timestep * coupledSO3LeftJacobianApply(
++        timestep * rigid.angularVelocity.xyz, angularDirection);
++    const uint femNode = pair.continuumNode - dispatch.gridNodeCount;
++    const float3 deltaPoint = timestep * direction[
++        environment * dispatch.femNodeCount + femNode].xyz;
++    const float3 deltaCenter = timestep * linearDirection;
++    const float3 point = sample.pointAndSeparation.xyz +
++        sample.pointAndSeparation.w * sample.normalAndVelocity.xyz;
++    const float3 pointFromCenter = point - rigid.bodyCenter.xyz;
++    const float4 orientation = quaternionNormalize(rigid.orientation);
++    const float4 inverseOrientation = float4(-orientation.xyz, orientation.w);
++    const float3 localPoint = quaternionRotate(
++        inverseOrientation, point - rigid.centerAndRadius.xyz);
++    const float3 localDisplacement = quaternionRotate(
++        inverseOrientation,
++        deltaPoint - deltaCenter + cross(pointFromCenter, deltaTheta));
++    const float3 outside = max(abs(localPoint) - rigid.extent.xyz,
++                               float3(0.0f));
++    const float3 activeAxes = float3(
++        outside.x > 0.0f ? 1.0f : 0.0f,
++        outside.y > 0.0f ? 1.0f : 0.0f,
++        outside.z > 0.0f ? 1.0f : 0.0f);
++    const float3 localWitnessDirection =
++        (float3(1.0f) - activeAxes) * localDisplacement;
++    const float3 lever = sample.pointAndSeparation.xyz -
++        rigid.bodyCenter.xyz;
++    return cross(deltaTheta, lever) + quaternionRotate(
++        orientation, localWitnessDirection);
++}
++
++// Add the part of the free-BOX contact Jacobian that is not represented by
++// the stored translational spatial block. In addition to rotating the normal,
++// the barrier stiffness depends on the inverse directional response
++// a=m_node^-1+m_body^-1+(r x n)·I_world^-1(r x n). This helper differentiates
++// both terms from the same accepted linearization. The response derivative is
++// needed even for pure translations near a smooth edge; it is zero only in
++// geometries where the contact normal and moment arm leave a unchanged.
++inline float3 coupledFreeBoxAngularBarrierCorrection(
++    const NMMatterDispatchGPU dispatch,
++    constant NMPrimalContactArguments& contact,
++    const uint environment,
++    const uint pairIndex,
++    const uint articulatedNv,
++    device const float4* direction
++) {
++    if (pairIndex >= dispatch.contactPairCount) return float3(0.0f);
++    const NMContactPairGPU pair = contact.pairs[pairIndex];
++    if (pair.rigidProxy >= dispatch.rigidProxyCount) return float3(0.0f);
++    const NMRigidProxyGPU proxy = contact.rigidProxies[pair.rigidProxy];
++    const NMContactSampleGPU sample = contact.samples[
++        environment * dispatch.contactPairCount + pairIndex];
++    if (sample.barrierHessianRow0.w <= 0.0f ||
++        !(sample.barrierHessianRow1.w > 0.0f) ||
++        proxy.shapeKind != NM_RIGID_BOX ||
++        (proxy.flags & NM_RIGID_DYNAMIC) == 0u ||
++        (proxy.flags & NM_RIGID_ARTICULATED) != 0u ||
++        proxy.generalizedFreeBodyIndex != 0u ||
++        dispatch.rigidGeneralizedCapacity != 6u)
++        return float3(0.0f);
++    const NMRigidStateGPU rigid = contact.rigidStates[
++        environment * dispatch.rigidProxyCount + pair.rigidProxy];
++    if (!(rigid.linearVelocityAndInverseMass.w > 0.0f))
++        return float3(0.0f);
++    const float timestep = sample.barrierHessianRow0.w;
++    const uint bodyBase = fgmresRigidIndex(
++        dispatch, environment, articulatedNv);
++    const float3 linearDirection = float3(
++        direction[bodyBase + 0u].x,
++        direction[bodyBase + 1u].x,
++        direction[bodyBase + 2u].x);
++    const float3 angularDirection = float3(
++        direction[bodyBase + 3u].x,
++        direction[bodyBase + 4u].x,
++        direction[bodyBase + 5u].x);
++    const float3 deltaTheta = timestep * coupledSO3LeftJacobianApply(
++        timestep * rigid.angularVelocity.xyz, angularDirection);
++    const uint femNode = pair.continuumNode - dispatch.gridNodeCount;
++    if (femNode >= dispatch.femNodeCount) return float3(0.0f);
++    const float3 deltaPoint = timestep * direction[
++        environment * dispatch.femNodeCount + femNode].xyz;
++    const float3 deltaCenter = timestep * linearDirection;
++    const float3 normal = sample.normalAndVelocity.xyz;
++    const float3 point = sample.pointAndSeparation.xyz +
++        sample.pointAndSeparation.w * normal;
++    const float4 orientation = quaternionNormalize(rigid.orientation);
++    const float4 inverseOrientation = float4(-orientation.xyz, orientation.w);
++    const float3 localPoint = quaternionRotate(
++        inverseOrientation, point - rigid.centerAndRadius.xyz);
++    const float3 signedOutside = abs(localPoint) - rigid.extent.xyz;
++    const float3 outside = max(signedOutside, float3(0.0f));
++    const float localDistance = length(outside);
++    if (!(localDistance > 0.0f) || !isfinite(localDistance))
++        return float3(NAN);
++    const float3 activeAxes = float3(
++        signedOutside.x > 0.0f ? 1.0f : 0.0f,
++        signedOutside.y > 0.0f ? 1.0f : 0.0f,
++        signedOutside.z > 0.0f ? 1.0f : 0.0f);
++    const float3 localNormal = quaternionRotate(inverseOrientation, normal);
++    const float3x3 localActive = float3x3(
++        float3(activeAxes.x, 0.0f, 0.0f),
++        float3(0.0f, activeAxes.y, 0.0f),
++        float3(0.0f, 0.0f, activeAxes.z));
++    const float3x3 localDistanceHessian =
++        (localActive - outerProduct(localNormal, localNormal)) /
++        localDistance;
++    const float3 localDisplacement = quaternionRotate(
++        inverseOrientation,
++        deltaPoint - deltaCenter + cross(
++            point - rigid.bodyCenter.xyz, deltaTheta));
++    const float3 exactNormalDirection = cross(deltaTheta, normal) +
++        quaternionRotate(orientation,
++            localDistanceHessian * localDisplacement);
++    const float3 lever = sample.pointAndSeparation.xyz -
++        rigid.bodyCenter.xyz;
++    const float3 leverDirection = coupledFreeBoxWitnessLeverDirection(
++        dispatch, contact, environment, pair, sample,
++        articulatedNv, direction);
++    const float3 relativeDirection =
++        (deltaPoint - deltaCenter - leverDirection) / timestep;
++    const float3x3 rotation = float3x3(
++        quaternionRotate(orientation, float3(1.0f, 0.0f, 0.0f)),
++        quaternionRotate(orientation, float3(0.0f, 1.0f, 0.0f)),
++        quaternionRotate(orientation, float3(0.0f, 0.0f, 1.0f)));
++    const float3 spatialNormalDirection = timestep * rotation *
++        localDistanceHessian * transpose(rotation) * relativeDirection;
++    const float3 unrepresentedNormalDirection =
++        exactNormalDirection - spatialNormalDirection;
++
++    const float3 angularMomentumArm = cross(lever, normal);
++    const float3 inverseInertiaArm = multiplyRows(
++        rigid.inverseInertiaRow0,
++        rigid.inverseInertiaRow1,
++        rigid.inverseInertiaRow2,
++        angularMomentumArm);
++    const float3 armDirection = cross(leverDirection, normal) +
++        cross(lever, exactNormalDirection);
++    // I_world^-1 rotates with the body: dI^-1=[dtheta]x I^-1-I^-1[dtheta]x.
++    const float inverseResponseDirection = 2.0f * dot(
++        armDirection, inverseInertiaArm) + 2.0f * dot(
++        deltaTheta, cross(inverseInertiaArm, angularMomentumArm));
++    const float inverseResponse = sample.barrierHessianRow1.w;
++    const float normalImpulse = sample.impulseAndNormal.w;
++    return normalImpulse * (
++        (inverseResponseDirection / inverseResponse) * normal -
++        unrepresentedNormalDirection);
+ }
+ 
+ inline float3 coupledBarrierDirectionalForce(
+@@ -2417,6 +2661,7 @@
+     device float4* work [[buffer(3)]],
+     constant NMPrimalContactArguments& contact [[buffer(4)]],
+     device const NMFGMRESStateGPU* states [[buffer(5)]],
++    device const float* generalizedCandidate [[buffer(6)]],
+     uint global [[thread_position_in_grid]]
+ ) {
+     const uint total = dispatch.environmentCount *
+@@ -2462,7 +2707,35 @@
+             articulatedNv + 6u * freeBodyIndex + 4u)].x,
+         direction[fgmresRigidIndex(dispatch, environment,
+             articulatedNv + 6u * freeBodyIndex + 5u)].x);
+-    work[row] = float4((inertia * angular)[component - 3u], 0.0f, 0.0f, 0.0f);
++    float3 action = inertia * angular;
++    if (proxy.shapeKind == NM_RIGID_BOX) {
++        const float timestep = dispatch.gravityAndTimestep.w;
++        if (!(timestep > 0.0f) || !isfinite(timestep)) {
++            work[row] = float4(NAN);
++            return;
++        }
++        const uint candidateBase = environment *
++            dispatch.rigidGeneralizedCapacity + articulatedNv +
++            6u * freeBodyIndex + 3u;
++        const float3 candidateAngular = float3(
++            generalizedCandidate[candidateBase + 0u],
++            generalizedCandidate[candidateBase + 1u],
++            generalizedCandidate[candidateBase + 2u]);
++        if (!all(isfinite(candidateAngular))) {
++            work[row] = float4(NAN);
++            return;
++        }
++        const float3 deltaTheta = timestep *
++            coupledSO3LeftJacobianApply(
++                timestep * rigid.angularVelocity.xyz, angular);
++        // The rigid residual contains I_world(q_candidate) * DeltaOmega,
++        // where DeltaOmega is the accumulated generalized candidate and q is
++        // integrated from accepted-body omega + DeltaOmega. Differentiate
++        // both factors. This term is required even without active contact.
++        action += cross(deltaTheta, inertia * candidateAngular) -
++            inertia * cross(deltaTheta, candidateAngular);
++    }
++    work[row] = float4(action[component - 3u], 0.0f, 0.0f, 0.0f);
+ }
+ 
+ kernel void nm_contact_accumulate_rigid_residual(
+@@ -2800,7 +3073,10 @@
+             dispatch, contact, coupledPointJacobians, environment, pairIndex,
+             articulatedNv, direction);
+         const float3 force = coupledBarrierDirectionalForce(
+-            sample, continuumDirection - rigidDirection);
++            sample, continuumDirection - rigidDirection) +
++            coupledFreeBoxAngularBarrierCorrection(
++                dispatch, contact, environment, pairIndex,
++                articulatedNv, direction);
+         const NMRigidProxyGPU proxy = contact.rigidProxies[pair.rigidProxy];
+         if ((proxy.flags & NM_RIGID_ARTICULATED) != 0u &&
+             dof < articulatedNv) {
+@@ -2830,6 +3106,16 @@
+                     sample.pointAndSeparation.xyz - rigid.bodyCenter.xyz,
+                     force);
+                 value -= torque[dof - freeBase - 3u];
++                if (proxy.shapeKind == NM_RIGID_BOX &&
++                    sample.barrierHessianRow0.w > 0.0f) {
++                    const float3 deltaLever =
++                        coupledFreeBoxWitnessLeverDirection(
++                            dispatch, contact, environment, pair, sample,
++                            articulatedNv, direction);
++                    const float3 geometricTorque = -cross(
++                        deltaLever, sample.impulseAndNormal.xyz);
++                    value += geometricTorque[dof - freeBase - 3u];
++                }
+             }
+         }
+     }
+@@ -3236,7 +3522,10 @@
+                 environment, pairIndex,
+                 articulatedNv, direction);
+             work[global].xyz += coupledBarrierDirectionalForce(
+-                sample, direction[global].xyz - rigidDirection);
++                sample, direction[global].xyz - rigidDirection) +
++                coupledFreeBoxAngularBarrierCorrection(
++                    dispatch, contact, environment, pairIndex,
++                    articulatedNv, direction);
+         }
+     }
+     const uint deformableCapacity = dispatch.deformableContactCapacity;
+diff --git a/matter/src/runtime.mm b/matter/src/runtime.mm
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -15403,6 +15403,8 @@
+                                  offset:0u atIndex:3u];
+                     bindPrimalContactArguments(4u);
+                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
++                    [encoder setBuffer:state.coupledGeneralizedCandidate
++                                 offset:0u atIndex:6u];
+                 });
+                 dispatchThreads("nm_fgmres_apply_primal_rigid_contacts",
+                     rigidGeneralizedTotal, [&] {
+@@ -16734,6 +16736,9 @@
+                         [encoder setBuffer:state.contactPairs offset:0u atIndex:7u];
+                         [encoder setBuffer:state.mixedSolver offset:0u atIndex:8u];
+                         [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:9u];
++                        [encoder setBuffer:state.femAccepted offset:0u atIndex:10u];
++                        [encoder setBytes:&bridge length:sizeof(bridge) atIndex:11u];
++                        [encoder setBuffer:currentBodies offset:0u atIndex:12u];
+                     });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                     if (femSparsePrivateContactEnabled) {
+diff --git a/matter/tools/test_cardboard_free_box_angular_operator.py b/matter/tools/test_cardboard_free_box_angular_operator.py
+new file mode 100644
+--- /dev/null
++++ b/matter/tools/test_cardboard_free_box_angular_operator.py
+@@ -0,0 +1,498 @@
++#!/usr/bin/env python3
++"""Independent finite-difference audit for the smooth free-BOX contact Jacobian.
++
++This is a CPU formula check, not a native Metal or solver qualification. It
++covers the frictionless, strictly inertial barrier branch used by the current
++free-BOX angular slice: one smooth face/edge feature, one free six-DOF body,
++and no active-set transition.
++"""
++from __future__ import annotations
++
++import math
++import random
++from pathlib import Path
++import unittest
++
++
++def add(a, b): return [x + y for x, y in zip(a, b)]
++def sub(a, b): return [x - y for x, y in zip(a, b)]
++def scale(s, a): return [s * x for x in a]
++def dot(a, b): return sum(x * y for x, y in zip(a, b))
++def cross(a, b):
++    return [a[1] * b[2] - a[2] * b[1],
++            a[2] * b[0] - a[0] * b[2],
++            a[0] * b[1] - a[1] * b[0]]
++def norm(a): return math.sqrt(dot(a, a))
++def eye(): return [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]
++def skew(a): return [[0., -a[2], a[1]], [a[2], 0., -a[0]], [-a[1], a[0], 0.]]
++def transpose(a): return [[a[j][i] for j in range(3)] for i in range(3)]
++def matmul(a, b):
++    return [[sum(a[i][k] * b[k][j] for k in range(3)) for j in range(3)]
++            for i in range(3)]
++def matvec(a, x): return [dot(row, x) for row in a]
++def madd(a, b): return [[x + y for x, y in zip(ar, br)] for ar, br in zip(a, b)]
++def mscale(s, a): return [[s * x for x in row] for row in a]
++
++
++def quaternion_normalize(q):
++    length = math.sqrt(sum(x * x for x in q))
++    return [x / length for x in q]
++
++
++def quaternion_multiply(a, b):
++    ax, ay, az, aw = a
++    bx, by, bz, bw = b
++    return [aw * bx + ax * bw + ay * bz - az * by,
++            aw * by - ax * bz + ay * bw + az * bx,
++            aw * bz + ax * by - ay * bx + az * bw,
++            aw * bw - ax * bx - ay * by - az * bz]
++
++
++def quaternion_rotation_matrix(q):
++    x, y, z, w = quaternion_normalize(q)
++    return [[1.0 - 2.0 * (y * y + z * z),
++             2.0 * (x * y - z * w),
++             2.0 * (x * z + y * w)],
++            [2.0 * (x * y + z * w),
++             1.0 - 2.0 * (x * x + z * z),
++             2.0 * (y * z - x * w)],
++            [2.0 * (x * z - y * w),
++             2.0 * (y * z + x * w),
++             1.0 - 2.0 * (x * x + y * y)]]
++
++
++def scene_integrate_quaternion(source, omega, dt):
++    rotation_vector = scale(dt, omega)
++    angle = norm(rotation_vector)
++    half_angle = 0.5 * angle
++    scale_factor = (math.sin(half_angle) / angle if angle > 1.0e-6
++                    else 0.5 - angle * angle / 48.0)
++    delta = [*(scale(scale_factor, rotation_vector)), math.cos(half_angle)]
++    return quaternion_normalize(quaternion_multiply(
++        delta, quaternion_normalize(source)))
++
++
++def matter_pre_slice_quaternion(source, omega, dt):
++    angle = norm(omega) * dt
++    if angle > 1.0e-6:
++        half_angle = 0.5 * angle
++        delta = [*(scale(math.sin(half_angle) / norm(omega), omega)),
++                 math.cos(half_angle)]
++    else:
++        delta = quaternion_normalize([*(scale(0.5 * dt, omega)), 1.0])
++    return quaternion_normalize(quaternion_multiply(
++        delta, quaternion_normalize(source)))
++
++
++def free_box_angular_slice_admits(friction_limit):
++    """The current angular Jacobian is frictionless-only, independent of omega."""
++    return math.isfinite(friction_limit) and friction_limit == 0.0
++
++
++def alpha_path_gap(p, alpha, first_point, last_point,
++                   base_velocity, trial_velocity,
++                   base_omega, trial_omega):
++    dt = p["dt"]
++    body_velocity = add(base_velocity,
++                        scale(alpha, sub(trial_velocity, base_velocity)))
++    omega = add(base_omega, scale(alpha, sub(trial_omega, base_omega)))
++    center = add(p["c0"], scale(dt, body_velocity))
++    rotation = matmul(exp_so3(scale(dt, omega)), p["rotation0"])
++    point = add(first_point, scale(alpha, sub(last_point, first_point)))
++    distance, *_ = box_geometry(point, center, rotation,
++                                p["proxy_offset"], p["half_extent"])
++    return distance
++
++
++def physical_sweep_gap(p, alpha, first_point, last_point,
++                       body_velocity, angular_velocity):
++    dt = p["dt"]
++    center = add(p["c0"], scale(alpha * dt, body_velocity))
++    rotation = matmul(exp_so3(scale(alpha * dt, angular_velocity)),
++                      p["rotation0"])
++    point = add(first_point, scale(alpha, sub(last_point, first_point)))
++    distance, *_ = box_geometry(point, center, rotation,
++                                p["proxy_offset"], p["half_extent"])
++    return distance
++
++
++def inverse3(a):
++    d = (a[0][0] * (a[1][1] * a[2][2] - a[1][2] * a[2][1])
++         - a[0][1] * (a[1][0] * a[2][2] - a[1][2] * a[2][0])
++         + a[0][2] * (a[1][0] * a[2][1] - a[1][1] * a[2][0]))
++    return [[(a[1][1]*a[2][2]-a[1][2]*a[2][1])/d,
++             (a[0][2]*a[2][1]-a[0][1]*a[2][2])/d,
++             (a[0][1]*a[1][2]-a[0][2]*a[1][1])/d],
++            [(a[1][2]*a[2][0]-a[1][0]*a[2][2])/d,
++             (a[0][0]*a[2][2]-a[0][2]*a[2][0])/d,
++             (a[0][2]*a[1][0]-a[0][0]*a[1][2])/d],
++            [(a[1][0]*a[2][1]-a[1][1]*a[2][0])/d,
++             (a[0][1]*a[2][0]-a[0][0]*a[2][1])/d,
++             (a[0][0]*a[1][1]-a[0][1]*a[1][0])/d]]
++
++
++def exp_so3(v):
++    theta = norm(v)
++    k = skew(v)
++    if theta < 1.0e-10:
++        return madd(madd(eye(), k), mscale(0.5, matmul(k, k)))
++    k = mscale(1.0 / theta, k)
++    return madd(madd(eye(), mscale(math.sin(theta), k)),
++                mscale(1.0 - math.cos(theta), matmul(k, k)))
++
++
++def so3_left_jacobian(v):
++    theta = norm(v)
++    k = skew(v)
++    k2 = matmul(k, k)
++    if theta < 1.0e-8:
++        return madd(madd(eye(), mscale(0.5, k)), mscale(1.0 / 6.0, k2))
++    return madd(madd(eye(), mscale((1.0 - math.cos(theta)) / theta**2, k)),
++                mscale((theta - math.sin(theta)) / theta**3, k2))
++
++
++def box_geometry(point, center, rotation, proxy_offset, half_extent):
++    proxy_center = add(center, matvec(rotation, proxy_offset))
++    local = matvec(transpose(rotation), sub(point, proxy_center))
++    signed = [abs(local[i]) - half_extent[i] for i in range(3)]
++    outside = [max(x, 0.0) for x in signed]
++    distance = norm(outside)
++    if not distance:
++        raise ValueError("fixture point must lie strictly outside the box")
++    local_sign = [-1.0 if value < 0.0 else 1.0 for value in local]
++    local_normal = [local_sign[i] * outside[i] / distance for i in range(3)]
++    normal = matvec(rotation, local_normal)
++    witness_local = [max(-half_extent[i], min(half_extent[i], local[i]))
++                     for i in range(3)]
++    witness = add(proxy_center, matvec(rotation, witness_local))
++    active = [[1.0 if i == j and signed[i] > 0.0 else 0.0
++               for j in range(3)] for i in range(3)]
++    local_hessian = mscale(
++        1.0 / distance,
++        madd(active, mscale(-1.0,
++             [[local_normal[i] * local_normal[j] for j in range(3)]
++              for i in range(3)])))
++    world_hessian = matmul(matmul(rotation, local_hessian), transpose(rotation))
++    return distance, normal, witness, local, signed, local_normal, active, local_hessian, world_hessian
++
++
++def barrier(distance, inverse_response, dt, thickness):
++    d = max(distance, 1.0e-4 * thickness)
++    d2, h2 = d * d, thickness * thickness
++    offset = d2 - h2
++    k = 10.0 / max(inverse_response * dt * dt * h2, 1.0e-20)
++    logarithm = math.log(d2 / h2)
++    first = -k * (2.0 * offset * logarithm + offset * offset / d2)
++    second = -k * (2.0 * logarithm + 4.0 * offset / d2
++                   - offset * offset / (d2 * d2))
++    force = -2.0 * d * first
++    hessian = max(4.0 * d2 * second + 2.0 * first, 0.0)
++    return dt * force, dt * dt * hessian
++
++
++def fixture(local_point):
++    p = {
++        "dt": 0.03,
++        "thickness": 0.1,
++        "x0": [0.86, 0.25, 0.18],
++        "c0": [0.0, 0.0, 0.0],
++        "rotation0": exp_so3([0.12, -0.18, 0.08]),
++        "proxy_offset": [0.08, -0.05, 0.03],
++        "omega": [0.7, -0.4, 0.5],
++        "source_omega": [0.25, -0.15, 0.35],
++        "candidate_delta_omega": [0.45, -0.25, 0.15],
++        "v": [0.2, 0.1, -0.3],
++        "node_v": [-0.3, 0.2, 0.1],
++        "node_inverse_mass": 0.25,
++        "body_inverse_mass": 0.4,
++        "body_inertia": [[0.9, 0.08, 0.02],
++                          [0.08, 1.1, -0.04],
++                          [0.02, -0.04, 0.7]],
++        "half_extent": [0.7, 0.8, 0.9],
++        "local_point": local_point,
++    }
++    current_rotation = matmul(exp_so3(scale(p["dt"], p["omega"])),
++                              p["rotation0"])
++    current_center = add(p["c0"], scale(p["dt"], p["v"]))
++    current_point = add(current_center, matvec(current_rotation,
++        add(p["proxy_offset"], local_point)))
++    p["x0"] = sub(current_point, scale(p["dt"], p["node_v"]))
++    return p
++
++
++def state_at(p, direction=None, epsilon=0.0):
++    dt = p["dt"]
++    node_v = list(p["node_v"])
++    body_v = list(p["v"])
++    omega = list(p["omega"])
++    if direction is not None:
++        node_v = add(node_v, scale(epsilon, direction[:3]))
++        body_v = add(body_v, scale(epsilon, direction[3:6]))
++        omega = add(omega, scale(epsilon, direction[6:9]))
++    rotation = matmul(exp_so3(scale(dt, omega)), p["rotation0"])
++    center = add(p["c0"], scale(dt, body_v))
++    point = add(p["x0"], scale(dt, node_v))
++    return point, center, rotation, node_v, body_v, omega
++
++
++def nonlinear_contact_residual(p, direction=None, epsilon=0.0):
++    point, center, rotation, _, _, _ = state_at(p, direction, epsilon)
++    distance, normal, witness, *_ = box_geometry(
++        point, center, rotation, p["proxy_offset"], p["half_extent"])
++    lever = sub(witness, center)
++    inverse_inertia = matmul(matmul(rotation, inverse3(p["body_inertia"])),
++                             transpose(rotation))
++    angular_arm = cross(lever, normal)
++    response = (p["node_inverse_mass"] + p["body_inverse_mass"]
++                + dot(angular_arm, matvec(inverse_inertia, angular_arm)))
++    impulse, _ = barrier(distance, response, p["dt"], p["thickness"])
++    normal_impulse = scale(impulse, normal)
++    return (list(normal_impulse) + list(scale(-1.0, normal_impulse))
++            + list(scale(-1.0, cross(lever, normal_impulse))))
++
++
++def analytic_contact_action(p, direction):
++    dt = p["dt"]
++    point, center, rotation, _, _, omega = state_at(p)
++    distance, normal, witness, local, signed, local_normal, active, local_hessian, world_hessian = box_geometry(
++        point, center, rotation, p["proxy_offset"], p["half_extent"])
++    delta_theta = scale(dt, matvec(so3_left_jacobian(scale(dt, omega)),
++                                   direction[6:9]))
++    delta_point = scale(dt, direction[:3])
++    delta_center = scale(dt, direction[3:6])
++    point_from_com = sub(point, center)
++    local_displacement = matvec(transpose(rotation),
++        add(sub(delta_point, delta_center), cross(point_from_com, delta_theta)))
++    inside = madd(eye(), mscale(-1.0, active))
++    delta_lever = add(cross(delta_theta, sub(witness, center)),
++                      matvec(rotation, matvec(inside, local_displacement)))
++    exact_normal_direction = add(cross(delta_theta, normal),
++                      matvec(rotation, matvec(local_hessian, local_displacement)))
++    relative_displacement = sub(sub(delta_point, delta_center), delta_lever)
++    relative_velocity = scale(1.0 / dt, relative_displacement)
++    spatial_normal_direction = matvec(world_hessian, relative_displacement)
++    unrepresented_normal_direction = sub(exact_normal_direction,
++                                         spatial_normal_direction)
++
++    lever = sub(witness, center)
++    inverse_inertia = matmul(matmul(rotation, inverse3(p["body_inertia"])),
++                             transpose(rotation))
++    angular_arm = cross(lever, normal)
++    inverse_inertia_arm = matvec(inverse_inertia, angular_arm)
++    inverse_response = (p["node_inverse_mass"] + p["body_inverse_mass"]
++                        + dot(angular_arm, inverse_inertia_arm))
++    arm_direction = add(cross(delta_lever, normal),
++                         cross(lever, exact_normal_direction))
++    inverse_response_direction = (
++        2.0 * dot(arm_direction, inverse_inertia_arm)
++        + 2.0 * dot(delta_theta, cross(inverse_inertia_arm, angular_arm)))
++    impulse, spatial_hessian = barrier(
++        distance, inverse_response, dt, p["thickness"])
++    node_action = add(
++        add(scale(spatial_hessian * dot(normal, relative_velocity), normal),
++            scale(-dt * impulse, matvec(world_hessian, relative_velocity))),
++        add(scale(-impulse, unrepresented_normal_direction),
++            scale(impulse * inverse_response_direction / inverse_response,
++                  normal)))
++    body_action = scale(-1.0, node_action)
++    body_torque_action = add(
++        cross(lever, scale(-1.0, node_action)),
++        cross(delta_lever, scale(impulse, normal)))
++    return list(node_action) + list(body_action) + list(body_torque_action)
++
++
++class FreeBoxAngularOperatorTest(unittest.TestCase):
++    def assert_operator_matches_fd(self, local_point):
++        p = fixture(local_point)
++        # All points are separated from box-feature transitions and inside the
++        # barrier band. This test does not exercise nonsmooth feature switches.
++        point, center, rotation, _, _, _ = state_at(p)
++        gap, *_ = box_geometry(point, center, rotation,
++                               p["proxy_offset"], p["half_extent"])
++        self.assertGreater(gap, 1.0e-3)
++        self.assertLess(gap, p["thickness"])
++        worst_abs = 0.0
++        worst_rel = 0.0
++        directions = []
++        for axis in range(9):
++            e = [0.0] * 9
++            e[axis] = 1.0
++            directions.append(e)
++        for seed in range(64):
++            random.seed(9000 + seed)
++            v = [random.gauss(0.0, 1.0) for _ in range(9)]
++            directions.append(scale(1.0 / norm(v), v))
++        epsilon = 1.0e-5
++        for direction in directions:
++            plus = nonlinear_contact_residual(p, direction, epsilon)
++            minus = nonlinear_contact_residual(p, direction, -epsilon)
++            finite_difference = scale(-1.0 / (2.0 * epsilon), sub(plus, minus))
++            action = analytic_contact_action(p, direction)
++            error = norm(sub(action, finite_difference))
++            reference = max(norm(finite_difference), 1.0e-12)
++            worst_abs = max(worst_abs, error)
++            worst_rel = max(worst_rel, error / reference)
++            self.assertLess(error, 2.0e-5)
++            self.assertLess(error / reference, 2.0e-7)
++        return worst_abs, worst_rel
++
++    def test_rotated_smooth_face_includes_normal_frame_and_offset_torque(self):
++        worst_abs, worst_rel = self.assert_operator_matches_fd([0.74, 0.2, 0.15])
++        self.assertLess(worst_abs, 2.0e-5)
++        self.assertLess(worst_rel, 2.0e-7)
++
++    def test_shader_compares_normal_differentials_in_displacement_units(self):
++        shader = (Path(__file__).resolve().parents[1] /
++                  "src" / "metal" / "fgmres.metalinc").read_text()
++        self.assertIn(
++            "const float3 spatialNormalDirection = timestep * rotation *\n"
++            "        localDistanceHessian * transpose(rotation) * relativeDirection;",
++            shader)
++        # The explicit timestep is required because relativeDirection is a
++        # velocity perturbation while dn and H*dx are displacement differentials.
++        dt = 0.03
++        hessian = [[2.0, 0.2, 0.0], [0.2, 1.0, -0.1], [0.0, -0.1, 0.5]]
++        relative_velocity = [0.4, -0.3, 0.2]
++        relative_displacement = scale(dt, relative_velocity)
++        exact_linearized = matvec(hessian, relative_displacement)
++        scaled_shader_term = scale(dt, matvec(hessian, relative_velocity))
++        unscaled_shader_term = matvec(hessian, relative_velocity)
++        self.assertLess(norm(sub(exact_linearized, scaled_shader_term)), 1.0e-16)
++        self.assertGreater(norm(sub(exact_linearized, unscaled_shader_term)), 1.0e-3)
++
++    def test_rotated_smooth_edge_includes_inverse_response_derivative(self):
++        worst_abs, worst_rel = self.assert_operator_matches_fd([0.74, 0.83, 0.15])
++        self.assertLess(worst_abs, 2.0e-5)
++        self.assertLess(worst_rel, 2.0e-7)
++
++    def test_rotated_smooth_corner_includes_all_three_active_axes(self):
++        worst_abs, worst_rel = self.assert_operator_matches_fd([0.74, 0.83, 0.95])
++        self.assertLess(worst_abs, 2.0e-5)
++        self.assertLess(worst_rel, 2.0e-7)
++
++    def test_negative_and_mixed_sign_face_edge_corner_directions(self):
++        for local_point in ([-0.74, 0.2, 0.15],
++                            [-0.74, 0.83, 0.15],
++                            [-0.74, -0.83, 0.95]):
++            with self.subTest(local_point=local_point):
++                worst_abs, worst_rel = self.assert_operator_matches_fd(local_point)
++                self.assertLess(worst_abs, 2.0e-5)
++                self.assertLess(worst_rel, 2.0e-7)
++
++    def test_rotated_world_inertia_action(self):
++        p = fixture([0.74, 0.2, 0.15])
++        dt = p["dt"]
++        omega = p["omega"]
++        rotation = matmul(exp_so3(scale(dt, omega)), p["rotation0"])
++        inertia_world = matmul(matmul(rotation, p["body_inertia"]),
++                               transpose(rotation))
++        direction = [0.4, -0.2, 0.7]
++        delta_theta = scale(dt, matvec(so3_left_jacobian(scale(dt, omega)),
++                                       direction))
++        candidate_delta = p["candidate_delta_omega"]
++        omega_term = add(matvec(inertia_world, direction),
++            sub(cross(delta_theta, matvec(inertia_world, candidate_delta)),
++                matvec(inertia_world, cross(delta_theta, candidate_delta))))
++        eps = 2.0e-6
++        def angular_momentum(sign):
++            delta = add(candidate_delta,
++                        scale(sign * eps, direction))
++            w = add(p["source_omega"], delta)
++            r = matmul(exp_so3(scale(dt, w)), p["rotation0"])
++            iw = matmul(matmul(r, p["body_inertia"]), transpose(r))
++            return matvec(iw, delta)
++        fd = scale(1.0 / (2.0 * eps),
++                   sub(angular_momentum(1.0), angular_momentum(-1.0)))
++        self.assertLess(norm(sub(omega_term, fd)), 2.0e-7)
++
++    def test_small_angle_pose_map_matches_metalworld_scene_integrator(self):
++        source = quaternion_normalize([0.17, -0.11, 0.08, 0.97])
++        for angle in (0.5e-6, 1.0e-6, 2.0e-6):
++            omega = [angle / 0.03, -0.0, 0.0]
++            exact = [math.sin(0.5 * angle), 0.0, 0.0,
++                     math.cos(0.5 * angle)]
++            exact = quaternion_normalize(quaternion_multiply(
++                exact, source))
++            self.assertLess(norm(sub(
++                scene_integrate_quaternion(source, omega, 0.03), exact)),
++                1.0e-15)
++        # The generic Matter branch remains an FP32-near-equivalent formula;
++        # the BOX-specific path uses the exact same small-angle series as the
++        # body integrator so endpoint checking is representation-consistent.
++        omega = [0.5e-6 / 0.03, 0.0, 0.0]
++        self.assertLess(norm(sub(
++            scene_integrate_quaternion(source, omega, 0.03),
++            matter_pre_slice_quaternion(source, omega, 0.03))), 2.0e-16)
++
++    def test_scene_candidate_endpoint_matches_exponential_rotation(self):
++        source = quaternion_normalize([0.21, -0.13, 0.09, 0.94])
++        dt = 0.017
++        accepted_omega = [0.41, -0.32, 0.27]
++        candidate_increment = [0.18, 0.07, -0.11]
++        candidate_omega = add(accepted_omega, candidate_increment)
++        for omega in (accepted_omega, candidate_omega,
++                      [2.7, -1.9, 1.2], [1.0e-5, -2.0e-5, 3.0e-5]):
++            scene_q = scene_integrate_quaternion(source, omega, dt)
++            expected_rotation = matmul(
++                exp_so3(scale(dt, omega)), quaternion_rotation_matrix(source))
++            observed_rotation = quaternion_rotation_matrix(scene_q)
++            max_error = max(abs(observed_rotation[i][j] - expected_rotation[i][j])
++                            for i in range(3) for j in range(3))
++            self.assertLess(max_error, 2.0e-14)
++
++    def test_frictional_box_is_rejected_even_when_iterate_omega_is_zero(self):
++        self.assertTrue(free_box_angular_slice_admits(0.0))
++        self.assertFalse(free_box_angular_slice_admits(1.0e-30))
++        self.assertFalse(free_box_angular_slice_admits(0.25))
++
++    def test_alpha_sweep_gap_is_bounded_with_rotating_offset_proxy(self):
++        p = fixture([0.74, 0.2, 0.15])
++        dt = p["dt"]
++        base_v = p["v"]
++        trial_v = add(base_v, [0.01, -0.015, 0.006])
++        base_omega = p["omega"]
++        trial_omega = add(base_omega, [0.3, -0.2, 0.15])
++        first_point = add(p["x0"], scale(dt, p["node_v"]))
++        last_point = add(first_point, [0.002, -0.001, 0.0015])
++        first_center = add(p["c0"], scale(dt, base_v))
++        last_center = add(p["c0"], scale(dt, trial_v))
++        relative_first = sub(first_point, first_center)
++        relative_last = sub(last_point, last_center)
++        offset_radius = norm(p["proxy_offset"]) + norm(p["half_extent"])
++        angular_radius = max(norm(relative_first), norm(relative_last)) + offset_radius
++        lipschitz = (norm(sub(relative_last, relative_first)) +
++                     dt * norm(sub(trial_omega, base_omega)) * angular_radius)
++        self.assertGreater(lipschitz, 0.0)
++        samples = [alpha_path_gap(p, i / 256.0, first_point, last_point,
++                                  base_v, trial_v, base_omega, trial_omega)
++                   for i in range(257)]
++        for i, (first, last) in enumerate(zip(samples, samples[1:])):
++            self.assertLessEqual(abs(last - first), lipschitz / 256.0 + 2.0e-10,
++                                 f"gap escaped angular sweep bound at interval {i}")
++
++    def test_physical_rotating_sweep_gap_bound_includes_proxy_offset(self):
++        p = fixture([0.74, 0.2, 0.15])
++        dt = p["dt"]
++        first_point = p["x0"]
++        last_point = add(first_point, scale(dt, p["node_v"]))
++        body_velocity = p["v"]
++        angular_velocity = [0.7, -0.4, 0.5]
++        center_end = add(p["c0"], scale(dt, body_velocity))
++        relative_first = sub(first_point, p["c0"])
++        relative_last = sub(last_point, center_end)
++        offset_radius = norm(p["proxy_offset"]) + norm(p["half_extent"])
++        angular_radius = max(norm(relative_first), norm(relative_last)) + offset_radius
++        lipschitz = (norm(sub(relative_last, relative_first)) +
++                     dt * norm(angular_velocity) * angular_radius)
++        samples = [physical_sweep_gap(p, i / 256.0, first_point, last_point,
++                                      body_velocity, angular_velocity)
++                   for i in range(257)]
++        self.assertTrue(all(math.isfinite(value) and value > 0.0
++                            for value in samples))
++        for i, (first, last) in enumerate(zip(samples, samples[1:])):
++            self.assertLessEqual(abs(last - first), lipschitz / 256.0 + 2.0e-10,
++                                 f"physical sweep escaped angular bound at interval {i}")
++
++
++if __name__ == "__main__":
++    unittest.main()

@@ -1,0 +1,363 @@
+{
+  "files": {
+    "actual_topology_layout": {
+      "bytes": 371679,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/selector5-native-kernel-check-002/canonical182-input/layout.json",
+      "sha256": "9191007fecd8dd21f7a044d3049255a7361118492f3adf1bd7a5fa6e9188fe13"
+    },
+    "checker002_report": {
+      "bytes": 25372,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/selector5-native-kernel-check-002/native-output-audit.json",
+      "sha256": "e3574c3248619790e7ec9d9b6da3e1729fb276a8da5f0a7801a48dc7388d3c88"
+    },
+    "checker002_tests": {
+      "bytes": 7184,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/selector5-native-kernel-check-002/test_verify_kernel_output.py",
+      "sha256": "a50527774e72614cc9bb54b4e1b2dcf71a02be94afa73098e1be5c9127e782cb"
+    },
+    "checker002_verifier": {
+      "bytes": 25282,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/selector5-native-kernel-check-002/verify_kernel_output.py",
+      "sha256": "ba482bb258441c73ef822abfb51fee6c7c4b0936064bfa82bd973ae4cef5e39b"
+    },
+    "host_checker_executable_065": {
+      "bytes": 128536,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/selector5-native-kernel-check-001/selector5_graph_kernels",
+      "sha256": "52b4ffcb5aaf16ec85cbda6bd0293dda86491c1d9df73f3d510aef4abe3c0516"
+    },
+    "host_checker_source_065": {
+      "bytes": 19920,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/selector5-native-kernel-check-002/selector5_graph_kernels.mm",
+      "sha256": "4c2318e74c92a990e281cf0e15c8a29036e60d5076d9d08494b32954132114a3"
+    },
+    "input_bundle": {
+      "bytes": 19649040,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/selector5-native-kernel-check-002/canonical182-input/selector5-kernel-input.bin",
+      "sha256": "b2619d5d7120f1e6cae40869af0a37ce14b86b29ce0a51961c95ec2c84c3de60"
+    },
+    "input_bundle_manifest": {
+      "bytes": 5234,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/selector5-native-kernel-check-002/canonical182-input/bundle.json",
+      "sha256": "81a913889748d56e0fdba09258968373c19d358ac9be1c35ad02005178af42bb"
+    },
+    "run209_actual_host_executable": {
+      "bytes": 128536,
+      "path": "/Users/home/cardboard-implementation-20261014/native/selector5-coarse-patch-kernels-canonical182-209/inputs/runtime/selector5_graph_kernels",
+      "sha256": "52b4ffcb5aaf16ec85cbda6bd0293dda86491c1d9df73f3d510aef4abe3c0516"
+    },
+    "run209_actual_metallib_copy": {
+      "bytes": 5616001,
+      "path": "/Users/home/cardboard-implementation-20261014/native/selector5-coarse-patch-kernels-canonical182-209/inputs/external/NumiMatterGraphSchwarz.metallib",
+      "sha256": "2f64ba5258db2d53322f00f6d3223ac7b897daf47e920e2d5f11d15df7c4c56a"
+    },
+    "run209_prediction": {
+      "bytes": 97852,
+      "path": "/Users/home/cardboard-implementation-20261014/native/selector5-coarse-patch-kernels-canonical182-209/prediction.json",
+      "sha256": "f7a5c0b64af2980869b77ca8c94ac04ee16b1cd2d9768acaebb999a35616c438"
+    },
+    "run209_receipt": {
+      "bytes": 277,
+      "path": "/Users/home/cardboard-implementation-20261014/native/selector5-coarse-patch-kernels-canonical182-209/receipt.json",
+      "sha256": "7a8359bab4fa72bb78a13119fd7e9aef238bcc503f5ff27fcefe333168a3888f"
+    },
+    "run209_stderr": {
+      "bytes": 125,
+      "path": "/Users/home/cardboard-implementation-20261014/native/selector5-coarse-patch-kernels-canonical182-209/stderr.log",
+      "sha256": "3ce4cf369b91a8171950936466fd650634f1635e786a245908fd3ab5a990d322"
+    },
+    "run210_actual_external_host_source": {
+      "bytes": 19920,
+      "path": "/Users/home/cardboard-implementation-20261014/native/selector5-coarse-patch-kernels-fresh067-canonical182-210/inputs/external/selector5_graph_kernels.mm",
+      "sha256": "4c2318e74c92a990e281cf0e15c8a29036e60d5076d9d08494b32954132114a3"
+    },
+    "run210_actual_host_executable": {
+      "bytes": 128536,
+      "path": "/Users/home/cardboard-implementation-20261014/native/selector5-coarse-patch-kernels-fresh067-canonical182-210/inputs/runtime/selector5_graph_kernels",
+      "sha256": "52b4ffcb5aaf16ec85cbda6bd0293dda86491c1d9df73f3d510aef4abe3c0516"
+    },
+    "run210_actual_input_bundle": {
+      "bytes": 19649040,
+      "path": "/Users/home/cardboard-implementation-20261014/native/selector5-coarse-patch-kernels-fresh067-canonical182-210/inputs/external/selector5-kernel-input.bin",
+      "sha256": "b2619d5d7120f1e6cae40869af0a37ce14b86b29ce0a51961c95ec2c84c3de60"
+    },
+    "run210_actual_input_bundle_manifest": {
+      "bytes": 5234,
+      "path": "/Users/home/cardboard-implementation-20261014/native/selector5-coarse-patch-kernels-fresh067-canonical182-210/inputs/external/bundle.json",
+      "sha256": "81a913889748d56e0fdba09258968373c19d358ac9be1c35ad02005178af42bb"
+    },
+    "run210_actual_layout": {
+      "bytes": 371679,
+      "path": "/Users/home/cardboard-implementation-20261014/native/selector5-coarse-patch-kernels-fresh067-canonical182-210/inputs/external/layout.json",
+      "sha256": "9191007fecd8dd21f7a044d3049255a7361118492f3adf1bd7a5fa6e9188fe13"
+    },
+    "run210_actual_metallib_copy": {
+      "bytes": 5891399,
+      "path": "/Users/home/cardboard-implementation-20261014/native/selector5-coarse-patch-kernels-fresh067-canonical182-210/inputs/external/NumiMatter.metallib",
+      "sha256": "f5cdb9acaa56026c0a31dfa7e2d01ae3b731bbe247bae93a45d9ca1e4ed4d683"
+    },
+    "run210_actual_source_build_manifest": {
+      "bytes": 107876,
+      "path": "/Users/home/cardboard-implementation-20261014/native/selector5-coarse-patch-kernels-fresh067-canonical182-210/inputs/external/source-build.json",
+      "sha256": "29d6d79bdb557109da2db2ef23974e096a996c5796c31a65360b238a45ce2c6f"
+    },
+    "run210_native_output": {
+      "bytes": 18946504,
+      "path": "/Users/home/cardboard-implementation-20261014/native/selector5-coarse-patch-kernels-fresh067-canonical182-210/native-output.bin",
+      "sha256": "2b391c0a6feb0c5a52c9cfb61ffdc12f7734a124d322338e136854076c15a6fd"
+    },
+    "run210_original_source_build_manifest": {
+      "bytes": 107876,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-067/source-build.json",
+      "sha256": "29d6d79bdb557109da2db2ef23974e096a996c5796c31a65360b238a45ce2c6f"
+    },
+    "run210_prediction": {
+      "bytes": 97950,
+      "path": "/Users/home/cardboard-implementation-20261014/native/selector5-coarse-patch-kernels-fresh067-canonical182-210/prediction.json",
+      "sha256": "42f97e82598e16ec9d72c43fb0bfda3e4565729564c4552502d1f3ae4515b73d"
+    },
+    "run210_receipt": {
+      "bytes": 277,
+      "path": "/Users/home/cardboard-implementation-20261014/native/selector5-coarse-patch-kernels-fresh067-canonical182-210/receipt.json",
+      "sha256": "0efa1a3282a5c285a5f86fa990899c97559dd9413be0f8c8868067b14c90da6f"
+    },
+    "run210_stdout": {
+      "bytes": 436,
+      "path": "/Users/home/cardboard-implementation-20261014/native/selector5-coarse-patch-kernels-fresh067-canonical182-210/stdout.log",
+      "sha256": "057ceb41c7fb6399d470d5e69ef458379c7dbd0f713d3ba2514b3476406cb61c"
+    },
+    "shared_header_065": {
+      "bytes": 55615,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-angular-and-graph-schwarz-integrated-065/matter/include/numi/matter/shared.h",
+      "sha256": "e1b4a229e58227280e2a1e263fa6535f325333e9edcacfd93498f699790c30d3"
+    },
+    "shared_header_067": {
+      "bytes": 55615,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-consistent-armijo-alpha-and-topology-capture-067/matter/include/numi/matter/shared.h",
+      "sha256": "e1b4a229e58227280e2a1e263fa6535f325333e9edcacfd93498f699790c30d3"
+    },
+    "source063_frozen_fgmres_include": {
+      "bytes": 302013,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-phase-correct-rigid-bridge-and-implicit-reference-integrated-063/matter/src/metal/fgmres.metalinc",
+      "sha256": "8162bd9eeb36811329459f1ddb62bdb1e238218e511aca158489d2a1c5775f20"
+    },
+    "source063_frozen_translation_unit": {
+      "bytes": 561,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-phase-correct-rigid-bridge-and-implicit-reference-integrated-063/matter/src/matter_kernels.metal",
+      "sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168"
+    },
+    "source063_graph_overlay_fgmres_include": {
+      "bytes": 327412,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/graph-schwarz-native-063/overlay/matter/src/metal/fgmres.metalinc",
+      "sha256": "8b84c10b184494fc061ad04e3c7e32acdaf3a8795771203da8b7ae090b87ce88"
+    },
+    "source063_metallib": {
+      "bytes": 5616001,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/graph-schwarz-native-063/NumiMatterGraphSchwarz.metallib",
+      "sha256": "2f64ba5258db2d53322f00f6d3223ac7b897daf47e920e2d5f11d15df7c4c56a"
+    },
+    "source067_build_manifest": {
+      "bytes": 107876,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/selector5-native-kernel-check-002/source-build-067.json",
+      "sha256": "29d6d79bdb557109da2db2ef23974e096a996c5796c31a65360b238a45ce2c6f"
+    },
+    "source067_common_include": {
+      "bytes": 91510,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-consistent-armijo-alpha-and-topology-capture-067/matter/src/metal/common.metalinc",
+      "sha256": "0509fe98df6afe6694dec59088ad5d4391177b63133bb38fb0caecb5e1ef7fba"
+    },
+    "source067_fem_include": {
+      "bytes": 229674,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-consistent-armijo-alpha-and-topology-capture-067/matter/src/metal/fem.metalinc",
+      "sha256": "819f6724c2690c41c07972e6596624672000d35423bba3f1233e0063c47b9564"
+    },
+    "source067_fgmres_include": {
+      "bytes": 341092,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-consistent-armijo-alpha-and-topology-capture-067/matter/src/metal/fgmres.metalinc",
+      "sha256": "c99e77d32266797e10d3d39a2be93cde68b818b386c0f8e7fc9152dac3b072f1"
+    },
+    "source067_graph_layout_header": {
+      "bytes": 12427,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-consistent-armijo-alpha-and-topology-capture-067/matter/src/regional_graph_schwarz.hpp",
+      "sha256": "7064cc7f3af864e65274f85c6ae4de25b0df7d2c6b91b32a0f0275f711106390"
+    },
+    "source067_metallib": {
+      "bytes": 5891399,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-067/matter/shaders/NumiMatter.metallib",
+      "sha256": "f5cdb9acaa56026c0a31dfa7e2d01ae3b731bbe247bae93a45d9ca1e4ed4d683"
+    },
+    "source067_translation_unit": {
+      "bytes": 561,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-consistent-armijo-alpha-and-topology-capture-067/matter/src/matter_kernels.metal",
+      "sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168"
+    }
+  },
+  "kernel_export_evidence": {
+    "exports": {
+      "nm_fgmres_graph_apply_patches": {
+        "source063_metallib_byte_offset": -1,
+        "source067_metallib_byte_offset": 15357
+      },
+      "nm_fgmres_graph_build_patch_matrices": {
+        "source063_metallib_byte_offset": -1,
+        "source067_metallib_byte_offset": 14685
+      },
+      "nm_fgmres_graph_factor_patches": {
+        "source063_metallib_byte_offset": -1,
+        "source067_metallib_byte_offset": 15024
+      },
+      "nm_fgmres_graph_solve_patches": {
+        "source063_metallib_byte_offset": -1,
+        "source067_metallib_byte_offset": 15191
+      },
+      "nm_fgmres_graph_validate_mask": {
+        "source063_metallib_byte_offset": -1,
+        "source067_metallib_byte_offset": 14858
+      }
+    },
+    "raw_metallib_string_presence": "Static raw-byte string search; supports symbol presence, not entrypoint execution by itself.",
+    "source_function_body_sha256": {
+      "source063_frozen_include": {
+        "nm_fgmres_graph_apply_patches": {
+          "present": false
+        },
+        "nm_fgmres_graph_build_patch_matrices": {
+          "present": false
+        },
+        "nm_fgmres_graph_factor_patches": {
+          "present": false
+        },
+        "nm_fgmres_graph_solve_patches": {
+          "present": false
+        },
+        "nm_fgmres_graph_validate_mask": {
+          "present": false
+        }
+      },
+      "source063_overlay": {
+        "nm_fgmres_graph_apply_patches": {
+          "bytes": 2215,
+          "present": true,
+          "sha256": "3deae04746b23912b5aa563ef85ecbbad3d948b7682af7f48751101f9714548a"
+        },
+        "nm_fgmres_graph_build_patch_matrices": {
+          "bytes": 9389,
+          "present": true,
+          "sha256": "3114e1b6708b78b245f1488c54d729b15befe3491408997ff3b30127dbf9fbaa"
+        },
+        "nm_fgmres_graph_factor_patches": {
+          "bytes": 7355,
+          "present": true,
+          "sha256": "e05c1199fbd7675d724da20dae8d6f8d5f059a570f47ca7b814eb978eafb3a9d"
+        },
+        "nm_fgmres_graph_solve_patches": {
+          "bytes": 4865,
+          "present": true,
+          "sha256": "28aef76d71845d47b572602fe72beee957a410039e442a7a7cafe03d323e173d"
+        },
+        "nm_fgmres_graph_validate_mask": {
+          "bytes": 1188,
+          "present": true,
+          "sha256": "7579229af6b1e107336ac3c702be34b1fa168d7dc693f4f9ada61cd1f44390e6"
+        }
+      },
+      "source067_compiled_source": {
+        "nm_fgmres_graph_apply_patches": {
+          "bytes": 2215,
+          "present": true,
+          "sha256": "3deae04746b23912b5aa563ef85ecbbad3d948b7682af7f48751101f9714548a"
+        },
+        "nm_fgmres_graph_build_patch_matrices": {
+          "bytes": 9389,
+          "present": true,
+          "sha256": "3114e1b6708b78b245f1488c54d729b15befe3491408997ff3b30127dbf9fbaa"
+        },
+        "nm_fgmres_graph_factor_patches": {
+          "bytes": 7355,
+          "present": true,
+          "sha256": "e05c1199fbd7675d724da20dae8d6f8d5f059a570f47ca7b814eb978eafb3a9d"
+        },
+        "nm_fgmres_graph_solve_patches": {
+          "bytes": 4865,
+          "present": true,
+          "sha256": "28aef76d71845d47b572602fe72beee957a410039e442a7a7cafe03d323e173d"
+        },
+        "nm_fgmres_graph_validate_mask": {
+          "bytes": 1188,
+          "present": true,
+          "sha256": "7579229af6b1e107336ac3c702be34b1fa168d7dc693f4f9ada61cd1f44390e6"
+        }
+      }
+    }
+  },
+  "lineage_conclusion": {
+    "abi": "The source-065 host checker shared.h and source-067 shared.h match byte-for-byte. This is a necessary ABI check for the prepared host invocation, not proof that the checker was compiled against source-067 or that the selector-5 production world ran.",
+    "cause": "The source-063 and source-067 top-level matter_kernels.metal translation units have the same SHA, but quoted include resolution is relative to the translation unit directory. In the frozen source-063 build this resolves its frozen fgmres.metalinc (which has no graph kernels), not the graph overlay include offered through -I. The source-067 translation unit resolves source-067 fgmres.metalinc, which includes the graph kernels. The five kernel function bodies in source-067 and the old overlay are byte-identical by extracted body hash; build lineage nevertheless differs.",
+    "run209": "The loaded source-063 metallib lacks all five graph kernel export names. Host reported first missing production function nm_fgmres_graph_factor_patches and exited before native output was written.",
+    "run210": "The fresh source-067 metallib has all five graph names and dispatch completed all five kernels on Apple M4 with status 0. Arithmetic checking remains separate and reports one per-patch residual over the existing 1e-3 gate."
+  },
+  "numerical_audit": {
+    "checks_total": 73,
+    "failed_checks": [
+      {
+        "name": "patch_7_native_solve_residual",
+        "tolerance": 0.001,
+        "value": 0.0013949652490246572
+      }
+    ],
+    "global_overlap_gather_relative": 2.8873222158213672e-08,
+    "interpretation": "The local residual issue is consistent with FP32 factorization error amplified by the ill-conditioned patch blocks; native solution closely tracks an FP64 triangular solve of the stored FP32 factor, and global gather / pivot mapping pass. This is not a production preconditioner qualification.",
+    "maximum_lu_reconstruction_relative": 3.909979276784752e-07,
+    "maximum_native_vs_fp64_solve_of_fp32_lu_relative": 2.04535085075945e-05,
+    "patch_7_fp64_direct_condition_1_estimate": 1092824.5616978204,
+    "patch_7_fp64_solve_of_stored_fp32_lu_residual": 0.001296359349548493,
+    "patches_retained": 13,
+    "tolerance": 0.001,
+    "verifier_schema": "numi.matter.selector5_kernel_output_audit.v2"
+  },
+  "purpose": "Separate immutable lineage record for the missing-entrypoint run 209 and successful five-kernel dispatch run 210; no same-build solver claim.",
+  "run209": {
+    "failure": "selector5_production_kernel_check=fail message=missing production function numi_matter_metal::nm_fgmres_graph_factor_patches",
+    "input_files_unchanged": true,
+    "metallib_copy_sha256": "2f64ba5258db2d53322f00f6d3223ac7b897daf47e920e2d5f11d15df7c4c56a",
+    "native_output_produced": false,
+    "receipt_status": {
+      "changed_inputs": [],
+      "execution_started": true,
+      "exit_code": 1,
+      "finished_at_utc": "2026-10-15T05:22:35.745021+00:00",
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "source_inputs_unchanged": true,
+      "timed_out": false,
+      "wall_seconds": 1.223686582990922
+    }
+  },
+  "run210": {
+    "checker_executable_matches_checker001": true,
+    "checker_source_matches_checker001": true,
+    "input_files_unchanged": true,
+    "input_sha256": "b2619d5d7120f1e6cae40869af0a37ce14b86b29ce0a51961c95ec2c84c3de60",
+    "output_sha256": "2b391c0a6feb0c5a52c9cfb61ffdc12f7734a124d322338e136854076c15a6fd",
+    "receipt_status": {
+      "changed_inputs": [],
+      "execution_started": true,
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-15T05:23:49.621678+00:00",
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "source_inputs_unchanged": true,
+      "timed_out": false,
+      "wall_seconds": 2.147073125001043
+    },
+    "run_bundle_and_native_copies_match_analysis_inputs": true,
+    "source067_build_success": true,
+    "source067_target_metallib_sha256": "f5cdb9acaa56026c0a31dfa7e2d01ae3b731bbe247bae93a45d9ca1e4ed4d683",
+    "source_build_artifact_binding_matches": true,
+    "stdout": "selector5_production_kernel_check=complete device=\"Apple M4\" source_environment=0 nodes=882 patches=13 patch_nodes=2053 input_sha256=b2619d5d7120f1e6cae40869af0a37ce14b86b29ce0a51961c95ec2c84c3de60 output_sha256=2b391c0a6feb0c5a52c9cfb61ffdc12f7734a124d322338e136854076c15a6fd kernels=nm_fgmres_regional_project_rhs,nm_fgmres_regional_solve_rap,nm_fgmres_graph_factor_patches,nm_fgmres_graph_solve_patches,nm_fgmres_graph_apply_patches"
+  },
+  "schema": "numi.matter.selector5_native_kernel_lineage.v1",
+  "scope_limits": [
+    "Prepared canonical182 source/operator and actual-topology graph layout; exact local patch matrices are supplied to the checker, so production FEM patch assembly is not exercised.",
+    "Runs the five production kernel entrypoints with prepared data; no FEM or FGMRES iterations, no full production selector-5 transaction.",
+    "Run 209 remains a separate failure receipt and is not overwritten or reclassified.",
+    "Kernel body hash equality does not erase the stale metallib lineage; source067 rebuild is the admitted executable lineage for run210."
+  ]
+}

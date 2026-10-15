@@ -656,6 +656,27 @@ if(APPLE)
             "${CMAKE_CURRENT_SOURCE_DIR}/materials/nagasawa2013_medium_orthotropic.nmatter" --cpu-only)
         set_tests_properties(matter.compiler.cardboard_full_contact_armijo PROPERTIES TIMEOUT 60 LABELS "matter;cardboard;contact;armijo;synthetic")
     endif()
+    # Direct native angular free-BOX contact/operator regression.  This is a
+    # kernel-level check with no Matter FEM time steps; it is intentionally
+    # separate from the full Armijo integration fixture.
+    add_executable(numi-matter-cardboard-free-box-angular-native-check
+        tools/cardboard_free_box_angular_native_check.mm)
+    add_dependencies(numi-matter-cardboard-free-box-angular-native-check
+        numi_matter_shaders)
+    target_link_libraries(numi-matter-cardboard-free-box-angular-native-check PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_include_directories(numi-matter-cardboard-free-box-angular-native-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_compile_definitions(numi-matter-cardboard-free-box-angular-native-check PRIVATE
+        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+    target_compile_options(numi-matter-cardboard-free-box-angular-native-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.cardboard_free_box_angular_native
+            COMMAND numi-matter-cardboard-free-box-angular-native-check)
+        set_tests_properties(matter.metal.cardboard_free_box_angular_native PROPERTIES
+            LABELS "matter;cardboard;contact;angular;native-kernel" TIMEOUT 180)
+    endif()
     add_executable(numi-matter-cardboard-probe tools/cardboard_probe.mm)
     target_link_libraries(numi-matter-cardboard-probe PRIVATE
         numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
@@ -670,6 +691,11 @@ if(APPLE)
             --output "${CMAKE_CURRENT_BINARY_DIR}/cardboard-pin-fixture-cpu-preflight")
         set_tests_properties(matter.compiler.cardboard_pin_fixture_preflight PROPERTIES
             TIMEOUT 120 LABELS "matter;cardboard;pin;geometry;cpu")
+        add_test(NAME matter.cli.cardboard_graph_option
+            COMMAND numi-matter-cardboard-probe --help)
+        set_tests_properties(matter.cli.cardboard_graph_option PROPERTIES
+            PASS_REGULAR_EXPRESSION "regional-galerkin-schwarz"
+            TIMEOUT 15 LABELS "matter;cardboard;cpu;cli")
     endif()
     add_executable(numi-matter-cardboard-box-native-driver tools/cardboard_probe.mm)
     target_link_libraries(numi-matter-cardboard-box-native-driver PRIVATE

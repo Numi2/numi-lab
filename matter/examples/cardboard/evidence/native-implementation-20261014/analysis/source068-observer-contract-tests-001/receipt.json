@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "-m",
+    "unittest",
+    "test_cardboard_diagnostic_history_compare.py"
+  ],
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-angular-native-check-and-capture-contract-068",
+  "source_build_sha256": "d91973ce0dd2b0f641eee58135aa22f47e488c2aa26edff21d88f591492faa83",
+  "started_at_utc": "2026-10-15T05:26:45.467190+00:00",
+  "finished_at_utc": "2026-10-15T05:26:45.728931+00:00",
+  "exit_code": 0,
+  "test_count": 21,
+  "physical_steps": 0
+}

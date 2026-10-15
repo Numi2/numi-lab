@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.angular-checker-overlay.v1",
+  "overlay_id": "free-box-angular-inertia-chain-073",
+  "source_snapshot_base": "/Users/home/cardboard-implementation-20261014/snapshots/source-refined-graph-angular-residual-instrument-071",
+  "immediate_checker_base": "/Users/home/cardboard-implementation-20261014/analysis/free-box-angular-classification-072-overlay/cardboard_free_box_angular_native_check.mm",
+  "base_file": "base-908255.mm",
+  "base_sha256": "908255e8aabbca96f1c1ca535de6390ae6f6ddb948f4e66fb87178d89b1f7bd1",
+  "replacement_file": "cardboard_free_box_angular_native_check.mm",
+  "replacement_sha256": "c7ec4c436481019a80ae57c98f5687d3088414252780a662736248f34736cbdf",
+  "patch_file": "checker.patch",
+  "patch_sha256": "dea5713c3100ebd3e375fdfcfdd6764a9f15e70e5e507385fe4d7e0fabe1d5b1",
+  "changed_path": "matter/tools/cardboard_free_box_angular_native_check.mm",
+  "patch_scope": "Checker-only. Includes overlay 072 path classification repair and adds an independent FP64 full inertia-chain derivative gate. No production kernels, solver tolerances, source material law, or native inputs change.",
+  "inertia_chain": {
+    "native_source": "actual fixture MRBodyStateGPU FP32 words: orientation, angularVelocity, timestep, source world inverse-inertia rows; candidate deltaOmega and each test direction are also canonicalized to exact FP32 then promoted to FP64",
+    "equations": "q=Exp(dt*(omega0+DeltaOmega))*q0; Iinv(q)=R(Exp(phi))*Iinv0_world*R^T; R=-I(q)*DeltaOmega; A=-dR; dtheta=dt*J_left(phi)*dDeltaOmega; dI=[dtheta]x I-I[dtheta]x",
+    "gates": {
+      "FP64_analytic_vs_FP64_central_difference_relative_and_component_over_action_norm": 1e-06,
+      "native_production_action_vs_FP64_chain_relative_and_component_over_FP64_action_norm": 0.001
+    },
+    "native_FP32_candidate_FD": "retained as independent quantization-sensitive diagnostic; unresolved remains INCONCLUSIVE and is not upgraded by the FP64 gate",
+    "source_bound_values": "emitted as raw IEEE-754 FP32 bit words in inertia_chain_binding line; derived from the checker fixture at execution, not copied from a separate illustrative case"
+  },
+  "path_classification": {
+    "source071_failure_case": "/Users/home/cardboard-implementation-20261014/native/free-box-angular-corrected-residual-kernels-223",
+    "comparison_case": "/Users/home/cardboard-implementation-20261014/native/free-box-angular-production-kernels-213",
+    "repair": "sampled FP64 path oracle is restored; raw status and sampled gaps print before suite classification; positive sampled gap is not described as swept-clear certification; remaining checks continue after an angular-path failure"
+  },
+  "validation": {
+    "objective_cxx_syntax_only": "PASS against source071 headers with -Wall -Wextra -Wpedantic -Werror",
+    "native": "PENDING root-controlled; no GPU run performed by overlay author"
+  }
+}

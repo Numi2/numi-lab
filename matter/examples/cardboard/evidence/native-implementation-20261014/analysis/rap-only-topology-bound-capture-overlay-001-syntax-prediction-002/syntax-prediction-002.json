@@ -1,0 +1,30 @@
+{
+  "schema": "numi.cardboard.cpu-prediction.v1",
+  "argv": [
+    "/usr/bin/clang++",
+    "-DNUMI_MATTER_DEFAULT_METALLIB=\"/Users/home/numi-cardboard-20261006/build-cardboard-provenance-066/matter/shaders/NumiMatter.metallib\"",
+    "-I/Users/home/cardboard-implementation-20261014/snapshots/source-armijo-applied-alpha-diagnostic-integrated-066/matter/include",
+    "-I/Users/home/cardboard-implementation-20261014/snapshots/source-armijo-applied-alpha-diagnostic-integrated-066/matter/../include",
+    "-x",
+    "objective-c++",
+    "-O3",
+    "-DNDEBUG",
+    "-std=c++23",
+    "-arch",
+    "arm64",
+    "-fPIC",
+    "-fobjc-arc",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "/Users/home/cardboard-implementation-20261014/analysis/rap-only-topology-bound-capture-overlay-001/runtime.mm",
+    "-fsyntax-only",
+    "-I",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-armijo-applied-alpha-diagnostic-integrated-066/matter/src"
+  ],
+  "directory": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-066/matter",
+  "runtime_sha256": "ffee0c7ac443c9290650ea487feac15b54977c3abc103dabd25b9c0162f23d79",
+  "sealed_at_utc": "2026-10-15T05:06:54.254634+00:00",
+  "prediction": "Compile observational overlay with frozen066 flags; no operator/tolerance edits. This only checks compilation, native scope and history identity remain unqualified.",
+  "correction": "Out-of-tree overlay needs frozen source/src quoted-include directory; initial missing-header compile failure preserved."
+}

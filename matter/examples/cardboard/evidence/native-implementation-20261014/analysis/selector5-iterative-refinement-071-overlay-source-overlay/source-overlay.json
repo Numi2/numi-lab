@@ -1,0 +1,80 @@
+{
+  "schema": "numi.matter.source-overlay.v1",
+  "overlay_id": "selector5-graph-schwarz-one-step-refinement-071",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-graph-tail-guard-angular-instrument-069",
+  "base_files": {
+    "matter/src/runtime.mm": "0a47ffdcee60c650435faba2fe8eca57bcc1a68e792183c23b392be97e836046",
+    "matter/src/metal/fgmres.metalinc": "538f5e5517e9ddb6cf0727e8a6da2e3ecc834bd702263a8fe880b461c4d9933c",
+    "matter/src/regional_graph_schwarz.hpp": "7064cc7f3af864e65274f85c6ae4de25b0df7d2c6b91b32a0f0275f711106390"
+  },
+  "compatibility": {
+    "source068_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-angular-native-check-and-capture-contract-068",
+    "source068_files": {
+      "matter/src/runtime.mm": "f44f80b2b1e04d2321d0a5075b915a55a66fb8cf168597c5ad0b64b96eca6595",
+      "matter/src/metal/fgmres.metalinc": "c99e77d32266797e10d3d39a2be93cde68b818b386c0f8e7fc9152dac3b072f1",
+      "matter/src/regional_graph_schwarz.hpp": "7064cc7f3af864e65274f85c6ae4de25b0df7d2c6b91b32a0f0275f711106390"
+    },
+    "source069_completed_tail_guard": {
+      "runtime_sha256": "0a47ffdcee60c650435faba2fe8eca57bcc1a68e792183c23b392be97e836046",
+      "fgmres_sha256": "538f5e5517e9ddb6cf0727e8a6da2e3ecc834bd702263a8fe880b461c4d9933c",
+      "tail_guard_overlay": "/Users/home/cardboard-implementation-20261014/analysis/graph-completed-tail-guard-067-overlay/source-overlay.json",
+      "required_behavior": "The non-selector-5 pipeline filter and buffer-17 NMFGMRESStateGPU binding are inherited from source069. The solve kernel checks diagnostics.z and zeros patch corrections before factor validity or local solve; refinement is below this guard."
+    }
+  },
+  "overlay_files": {
+    "matter/src/runtime.mm": {
+      "path": "matter/src/runtime.mm",
+      "sha256": "c3c9272fd0483b922d2ec4c489459212dbec49ca2212e23e3a3a6b499295cc72",
+      "base_sha256": "0a47ffdcee60c650435faba2fe8eca57bcc1a68e792183c23b392be97e836046",
+      "patch_path": "runtime.mm.patch",
+      "patch_sha256": "6d219df360b26714c0e00b7e1f844c0852cfbd19dba298919feb5f419d1d521b"
+    },
+    "matter/src/metal/fgmres.metalinc": {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "sha256": "d47277e977a3a15c53fdb83a03a401a4261b365d799113944c9661ca98d7e4b7",
+      "base_sha256": "538f5e5517e9ddb6cf0727e8a6da2e3ecc834bd702263a8fe880b461c4d9933c",
+      "patch_path": "fgmres.metalinc.patch",
+      "patch_sha256": "152966d9a9d8ce2fe82dcf8c2e9cc615fe6488d1ce15099d3f9b11985f02a93f"
+    },
+    "matter/src/regional_graph_schwarz.hpp": {
+      "path": "matter/src/regional_graph_schwarz.hpp",
+      "sha256": "1356685f98c1818ad100c10e3e919db3c67a95c88ba86d86e7e009437844015a",
+      "base_sha256": "7064cc7f3af864e65274f85c6ae4de25b0df7d2c6b91b32a0f0275f711106390",
+      "patch_path": "regional_graph_schwarz.hpp.patch",
+      "patch_sha256": "b31c399c96ae7e4e224ed44540b28a182c1eb73b54d42d0e835aa6d5258f739b"
+    }
+  },
+  "change": {
+    "selector": 5,
+    "method": "Preserve each assembled local patch matrix A before in-place FP32 pivoted LU. After the existing solve x0, compute r=b-A*x0 with compensated FP32 accumulation, solve A*delta=r through the same FP32 LU/pivots once, and return x0+delta.",
+    "production_operator_changed": false,
+    "residual_or_acceptance_tolerance_changed": false,
+    "default_or_other_selector_changed": false,
+    "checker_mode": "Mode 0 is an unrefined checker control; mode 1 performs one refinement and is what production runtime binds. Values above 1 fail as invalid dispatch.",
+    "extra_device_allocation": "One environment-major float arena of matrixFloatCount elements, separate from in-place LU."
+  },
+  "canonical182_memory": {
+    "patches": 13,
+    "patch_nodes": 2053,
+    "patch_dofs": 6159,
+    "matrix_float_count_per_environment": 4718637,
+    "original_A_bytes_per_environment": 18874548,
+    "original_A_bytes_environment_count_2": 37749096,
+    "prior_device_bytes_environment_count_2": 37986404,
+    "updated_device_bytes_environment_count_2": 75735500,
+    "layout_bound_bytes": 100663296,
+    "runtime_checks": "The graph layout estimate includes both source and LU matrices. Runtime checks each graph buffer against MTLDevice.maxBufferLength and environment-major matrix/pivot/correction/factor-valid extents against UINT32_MAX before allocation."
+  },
+  "repair_lineage": {
+    "preserved_070_overlay": "/Users/home/cardboard-implementation-20261014/analysis/selector5-iterative-refinement-068-overlay",
+    "source070_build_issue": "The 070 host build exposed a nonexistent RegionalGraphSchwarzLayout.totalPatchNodes field in the new extent check.",
+    "071_fix": "Use layout.patchNodes.size() as the allocated per-environment patch-node count. The failed 068 overlay and its manifest are preserved unchanged."
+  },
+  "validation": {
+    "source_review": "static against source069; exact hashes and tail-guard compatibility bound",
+    "patch_application": "all three patches pass patch --dry-run -p1 against frozen source069",
+    "compile": "not run in this overlay; source070 host-compile failure fixed in 071 overlay but awaits integrated build",
+    "native_or_gpu_execution": "not run",
+    "checker": "Literature agent has the checker ABI and will add active, zero RHS, completed-tail, and invalid-factor cases; checker patch remains pending."
+  }
+}

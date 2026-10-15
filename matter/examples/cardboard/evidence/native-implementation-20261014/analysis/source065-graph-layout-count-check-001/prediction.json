@@ -1,0 +1,20 @@
+{
+  "schema": "numi.cardboard.cpu-prediction.v1",
+  "sealed_at_utc": "2026-10-15T04:57:50.064267+00:00",
+  "question": "Does frozen source065 deterministic graph-patch layout pass its bounded allocation/count/coverage checks?",
+  "prediction": "Synthetic topology count/coverage tests only. The named source182 fixture is synthetic and does not qualify actual source182 mesh membership. No native kernel or physics execution.",
+  "source_sha256": {
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-angular-and-graph-schwarz-integrated-065/matter/tools/regional_graph_schwarz_layout_check.cpp": "a1c7a9ad8aa98b606fa300c8c8cf5de8dd4a4641d88423d2cdf68aacae1f3adc",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-angular-and-graph-schwarz-integrated-065/matter/src/regional_graph_schwarz.hpp": "f8973ed2c95367e82f202be77b4f8763231dae88d17cd80c60c64ccd127391a8"
+  },
+  "argv": [
+    "c++",
+    "-std=c++20",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-o",
+    "/Users/home/cardboard-implementation-20261014/analysis/source065-graph-layout-count-check-001/layout-check",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-angular-and-graph-schwarz-integrated-065/matter/tools/regional_graph_schwarz_layout_check.cpp"
+  ]
+}

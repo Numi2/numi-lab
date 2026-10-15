@@ -1,0 +1,1 @@
+{"schema":"numi.cardboard.analysis-erratum.v1","scope":"Reporting footer only indexed an absent terminal-observer record; production observations and audit report were already written correctly. The quiet protocol intentionally has no terminal observer. Fresh002 reads actual production certificate observations; original001 retained."}

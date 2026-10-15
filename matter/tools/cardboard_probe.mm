@@ -1171,8 +1171,9 @@ void printUsage() {
         << "  --compensated-implicit-projection  opt in to compensated residual evaluation for retained-matrix generic implicit damage overlays\n"
         << "  --compensated-source-paper-projection  opt in to generic compensated projection for the 15-state source bilinear/C1 liner+medium pair; also requires --compensated-paper-arithmetic\n"
         << "  --cache-fem-algorithmic-tangent  opt-in per-Newton full material tangent cache for FGMRES; private trials and final certificates use direct evaluation\n"
-        << "  --fgmres-preconditioner scalar|regional-tangent-diagonal|regional-galerkin|regional-galerkin-block|regional-galerkin-contact\n"
+        << "  --fgmres-preconditioner scalar|regional-tangent-diagonal|regional-galerkin|regional-galerkin-block|regional-galerkin-contact|regional-galerkin-schwarz\n"
         << "    regional-galerkin modes require authored compact constituent regions; selectors 2/3 are contact-free. Contact selector 4 uses the enriched 32-mode RAP/block estimate and admits one immutable explicit FEM object (<=8192 nodes, <=32768 tets, <=4096 cohesive faces), one environment, no dynamic/generalized rigid or multiphysics rows, and only static/kinematic non-articulated contact proxies\n"
+        << "    graph-Schwarz selector 5 is a bounded conditioning-only coupon experiment (<=4096 nodes, <=32768 tets, <=4 environments), contact/cohesive/rigid/field/adaptive/mutation free; no shipping-box qualification\n"
         << "  --bend-angle DEGREES   final right-grip rotation\n"
         << "  --dt SECONDS           frame timestep\n"
         << "  --nx N                 cross-section subdivisions per flute pitch\n"
@@ -1490,9 +1491,12 @@ Arguments parseArguments(const int argc, const char* argv[]) {
             else if (value == "regional-galerkin-contact")
                 arguments.femPreconditioner =
                     FEMPreconditionerMode::regionalGalerkinContact;
+            else if (value == "regional-galerkin-schwarz")
+                arguments.femPreconditioner =
+                    FEMPreconditionerMode::regionalGalerkinGraphSchwarz;
             else
                 require(false, "--fgmres-preconditioner expects scalar or "
-                               "regional-tangent-diagonal or regional-galerkin or regional-galerkin-block or regional-galerkin-contact");
+                               "regional-tangent-diagonal or regional-galerkin or regional-galerkin-block or regional-galerkin-contact or regional-galerkin-schwarz");
         }
         else if (option == "--nx") arguments.nxPerPitch = parseUnsigned(value, option);
         else if (option == "--ny") arguments.ny = parseUnsigned(value, option);
@@ -1791,6 +1795,10 @@ Arguments parseArguments(const int argc, const char* argv[]) {
             "--shipping-roof-measurement requires --shipping-box");
     require(arguments.shippingBox || !arguments.shippingImpactorHalfExtentsProvided,
             "--shipping-impactor-half-extents-mm requires --shipping-box");
+    require(!arguments.shippingBox ||
+                arguments.femPreconditioner !=
+                    FEMPreconditionerMode::regionalGalerkinGraphSchwarz,
+            "regional-galerkin-schwarz is a bounded contact-free coupon experiment and is not admitted for shipping-box runs");
     if (arguments.shippingBox) {
         for (const double extent : arguments.shippingImpactorHalfExtentsM)
             require(std::isfinite(extent) && extent > 0.0,
@@ -2427,7 +2435,9 @@ MeshSource buildMesh(const Arguments& arguments,
         arguments.femPreconditioner ==
             FEMPreconditionerMode::regionalGalerkinBlockJacobi ||
         arguments.femPreconditioner ==
-            FEMPreconditionerMode::regionalGalerkinContact)
+            FEMPreconditionerMode::regionalGalerkinContact ||
+        arguments.femPreconditioner ==
+            FEMPreconditionerMode::regionalGalerkinGraphSchwarz)
         object.femPreconditionerRegionIds = result.authoredRegionIds;
     std::ostringstream authoredRegionSource;
     authoredRegionSource << "numi.cardboard.authored-constituent-region-map.v1\n";
@@ -3655,6 +3665,8 @@ void writeManifest(const std::filesystem::path& path,
            << "    \"fgmres_preconditioner\": \""
            << (compiled.world.mixedSolver.executionBudgets.z == 4u
                    ? "regional_galerkin_contact_rap"
+                   : compiled.world.mixedSolver.executionBudgets.z == 5u
+                   ? "regional_galerkin_graph_schwarz_conditioning_only"
                    : compiled.world.mixedSolver.executionBudgets.z == 3u
                    ? "regional_galerkin_block_jacobi"
                    : compiled.world.mixedSolver.executionBudgets.z == 2u
@@ -4855,7 +4867,8 @@ numi::cardboard::ShippingMemoryBudgetInput shippingMemoryBudgetInput(
     input.regionalGalerkinEnabled =
         compiled.world.mixedSolver.executionBudgets.z == 2u ||
         compiled.world.mixedSolver.executionBudgets.z == 3u ||
-        compiled.world.mixedSolver.executionBudgets.z == 4u;
+        compiled.world.mixedSolver.executionBudgets.z == 4u ||
+        compiled.world.mixedSolver.executionBudgets.z == 5u;
     input.regionalGalerkinBlockFineEnabled =
         compiled.world.mixedSolver.executionBudgets.z == 3u ||
         compiled.world.mixedSolver.executionBudgets.z == 4u;
@@ -5254,7 +5267,8 @@ void writeShippingPrebuildMemoryScreen(
         preconditionerSelector == 4u;
     const std::uint32_t assumedRegionalModes =
         enrichedBlockPreconditioner ? 32u :
-        (preconditionerSelector == 2u ? 18u : 0u);
+        (preconditionerSelector == 2u ? 18u :
+         preconditionerSelector == 5u ? 32u : 0u);
     output << std::setprecision(17)
            << "{\n  \"schema\": \"numi.cardboard.shipping-prebuild-memory-screen.v1\",\n"
            << "  \"evidence_class\": \"pre-mesh planning estimate; not exact geometry or native memory admission\",\n"
@@ -5272,7 +5286,11 @@ void writeShippingPrebuildMemoryScreen(
            << (regionalPreconditioner ? "true" : "false")
            << ", \"assumed_coarse_modes\": " << assumedRegionalModes
            << ", \"enriched_block_fine_estimate_enabled\": "
-           << (enrichedBlockPreconditioner ? "true" : "false") << "},\n"
+           << (enrichedBlockPreconditioner ? "true" : "false")
+           << ", \"graph_schwarz_conditioning_only\": "
+           << (preconditionerSelector == 5u ? "true" : "false")
+           << ", \"graph_schwarz_coupon_node_cap\": 4096"
+           << ", \"graph_schwarz_exact_patch_bytes\": null},\n"
            << "  \"reference_pitch_intervals\": "
            << estimate.referencePitchIntervals << ",\n"
            << "  \"requested_pitch_intervals\": "
@@ -12183,7 +12201,9 @@ int execute(Arguments arguments) {
                              certificate, accepted, measuredGripAngle(mesh, current.snapshot, environment), arguments.crease, std::sqrt(forceNorm2), forceMax);
             const std::string arm = arguments.crease ? (environment == 0u ? "indented" : "stationary_tool_reference") : (environment == 0u ? "bent" : "held_reference");
             writeObj(arguments.output /
-                         ("accepted_step_" + stepLabel(step + 1u) + "_" +
+                         (std::string(accepted ? "accepted_step_" :
+                                                 "rejected_step_diagnostic_") +
+                          stepLabel(step + 1u) + "_" +
                           arm + ".obj"),
                      compiled.world, current.snapshot.femNodes, environment);
             if (step + 1u == totalSteps(arguments) || !accepted ||
@@ -12229,7 +12249,7 @@ int execute(Arguments arguments) {
             writeRejectedRegionalConditioning(step, current.snapshot);
             failed = true;
             failure = "Matter rejected step " + std::to_string(step) +
-                "; status, accepted state OBJ, and CSV observations were retained";
+                "; status, diagnostic state OBJ, and CSV observations were retained; rejected geometry is not an accepted animation frame";
             break;
         }
         ++acceptedSteps;

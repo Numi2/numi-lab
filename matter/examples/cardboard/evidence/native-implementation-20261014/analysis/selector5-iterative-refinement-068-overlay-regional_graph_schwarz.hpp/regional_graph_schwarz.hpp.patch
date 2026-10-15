@@ -1,0 +1,29 @@
+--- a/matter/src/regional_graph_schwarz.hpp
++++ b/matter/src/regional_graph_schwarz.hpp
+@@ -245,14 +245,17 @@
+ 
+     std::uint64_t perEnvironment = 0u;
+     std::uint64_t factorBytes = 0u;
++    std::uint64_t originalMatrixBytes = 0u;
+     std::uint64_t pivotBytes = 0u;
+     std::uint64_t correctionBytes = 0u;
+     std::uint64_t validBytes = 0u;
+     if (!regionalGraphSchwarzCheckedMul(matrixFloatCount, sizeof(float), factorBytes) ||
++        !regionalGraphSchwarzCheckedMul(matrixFloatCount, sizeof(float), originalMatrixBytes) ||
+         !regionalGraphSchwarzCheckedMul(pivotCount, sizeof(std::uint32_t), pivotBytes) ||
+         !regionalGraphSchwarzCheckedMul(totalPatchNodes, 4u * sizeof(float), correctionBytes) ||
+         !regionalGraphSchwarzCheckedMul(nodePatches.size(), sizeof(std::uint32_t), validBytes) ||
+         !regionalGraphSchwarzCheckedAdd(factorBytes, pivotBytes, perEnvironment) ||
++        !regionalGraphSchwarzCheckedAdd(perEnvironment, originalMatrixBytes, perEnvironment) ||
+         !regionalGraphSchwarzCheckedAdd(perEnvironment, correctionBytes, perEnvironment) ||
+         !regionalGraphSchwarzCheckedAdd(perEnvironment, validBytes, perEnvironment)) {
+         return fail("graph Schwarz per-environment device byte count overflow");
+@@ -261,7 +264,7 @@
+     if (!regionalGraphSchwarzCheckedMul(perEnvironment, environmentCount, allEnvironments) ||
+         !regionalGraphSchwarzCheckedAdd(allEnvironments, metadataBytes, out.deviceBytes) ||
+         out.deviceBytes > maximumDeviceBytes) {
+-        return fail("graph Schwarz packed device arenas exceed the explicit 96 MiB bound");
++        return fail("graph Schwarz packed device arenas, including source matrices for one refinement pass, exceed the explicit 96 MiB bound");
+     }
+     return out;
+ }

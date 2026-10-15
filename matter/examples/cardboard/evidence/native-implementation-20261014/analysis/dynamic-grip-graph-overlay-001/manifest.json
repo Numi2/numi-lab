@@ -1,0 +1,81 @@
+{
+  "schema": "numi.cardboard.dynamic_grip_graph_overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-finite-refinement-and-resolved-inertia-instrument-072",
+  "base_parent_revision": "5fd4486ea2bcbe903782509a769ce3935b790e55",
+  "base_source_manifest_sha256": "20e9b189eb1f3094b655ee23edf5b66aa903ba905dbedf9a3a879ac0b2f54fa3",
+  "patch_sha256": "8cf7b3815258f709d728e865a7d14fae8c2904e1723dbdb0d98161600bbb5adb",
+  "files": [
+    {
+      "path": "matter/src/runtime.mm",
+      "base_sha256": "c3c9272fd0483b922d2ec4c489459212dbec49ca2212e23e3a3a6b499295cc72",
+      "overlay_sha256": "71bde2d099898c89fc55ecdd23c8918cae330a1e933b2413ec59dcbd9db66ca6"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "base_sha256": "389c309235b4f5aee758985c335db9c95faaf8b2eeb281e41095fc718700c42a",
+      "overlay_sha256": "493dbef3fbeb6cfacaceac285753790cb8dc2faeb992de94ffc7aa2106a15aff"
+    },
+    {
+      "path": "matter/src/regional_graph_schwarz.hpp",
+      "base_sha256": "1356685f98c1818ad100c10e3e919db3c67a95c88ba86d86e7e009437844015a",
+      "overlay_sha256": "3578592e3c3e8d384cad549d12b09473f073c1d26142f96b7fc1a8b0d33c9d24"
+    },
+    {
+      "path": "matter/tools/regional_graph_schwarz_layout_check.cpp",
+      "base_sha256": "8b9c08915cfa3e13be6f2628d84e0243754d41301549bcb2035e81a7faf9fb9f",
+      "overlay_sha256": "87a84f8fa2a4b022de9080d3d4a6b6d14f2c6586455411228e4e1d34bedf5b09"
+    },
+    {
+      "path": "matter/tools/fem_regional_galerkin_native_check.mm",
+      "base_sha256": "2b8acd670fda06352665722d27a3f12bc5efa3e39c0515e300cd6180c0e474c0",
+      "overlay_sha256": "a0095bd0eef16c4494d2f9e86e9d78881aab55b2ea64c7533df57efe337f2ee4"
+    }
+  ],
+  "tests": [
+    {
+      "name": "layout CPU regression",
+      "command": "clang++ -std=c++20 -O2 -Wall -Wextra -Werror -I overlay/matter/src overlay/matter/tools/regional_graph_schwarz_layout_check.cpp -o regional_graph_schwarz_layout_check && ./regional_graph_schwarz_layout_check",
+      "result": "PASS; graph_schwarz_layout_checks=20"
+    },
+    {
+      "name": "native checker syntax",
+      "command": "xcrun clang++ -std=c++20 -fobjc-arc -fsyntax-only -x objective-c++ with base snapshot include paths and NUMI_MATTER_METALLIB defined",
+      "result": "PASS on current overlay"
+    },
+    {
+      "name": "runtime syntax",
+      "command": "xcrun clang++ -std=c++20 -fobjc-arc -fsyntax-only -x objective-c++ with base snapshot include paths",
+      "result": "PASS on current overlay"
+    },
+    {
+      "name": "native Metal/GPU run",
+      "result": "NOT RUN; root owns native/GPU qualification"
+    }
+  ],
+  "actual_topology_layout": {
+    "input_topology_hashes": {
+      "canonical182-source-mask.bin": "f0f5bc136f50f7e4cb3c66005316edbf47279b64a42ec531bfbe54e5189493b9",
+      "canonical182-all-potential.bin": "82ed77d438cfe571b9111f900ddfe3d1026928392ae042fe4f84c64771a33c32"
+    },
+    "layout_output_sha256": "71cb27a35da72ff0b95053cb15252773d09ac06f30cf1aa874bc6768b6b1423d",
+    "node_count": 882,
+    "tetrahedron_count": 1920,
+    "environment_count": 2,
+    "source_initial_free_nodes": 846,
+    "source_initial_fixed_nodes": 36,
+    "potential_mask": "all 882 compiled FEM nodes",
+    "patch_count": 9,
+    "patch_node_entries": 2049,
+    "scalar_dofs_per_environment": 6147,
+    "matrix_floats_per_environment": 4718601,
+    "pivot_count_per_environment": 6147,
+    "device_bytes_total_all_environments": 75734380,
+    "scope_note": "Layout arithmetic measurement only; not a native physics or convergence result."
+  },
+  "limitations": [
+    "Selector 5 remains immutable explicit FEM, contact-free, and within existing node/tet/environment/patch/byte bounds.",
+    "Per-environment candidate masks may change among tags 0, 1, and 3; tag 2 and other unsupported tags fail closed. Positive finite mass and inverse-mass consistency are checked.",
+    "The source-authored coarse basis is projected through current candidate masks. Newly free nodes may have no coarse-mode support; graph local coverage remains, so conditioning can be weaker.",
+    "No shipping-scale or physical qualification is claimed."
+  ]
+}

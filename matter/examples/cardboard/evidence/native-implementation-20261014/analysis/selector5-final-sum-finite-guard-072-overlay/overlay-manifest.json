@@ -1,0 +1,11 @@
+{
+  "base_fgmres_sha256": "d47277e977a3a15c53fdb83a03a401a4261b365d799113944c9661ca98d7e4b7",
+  "base_snapshot": "source-refined-graph-angular-residual-instrument-071",
+  "overlay": "072",
+  "overlay_fgmres_sha256": "389c309235b4f5aee758985c335db9c95faaf8b2eeb281e41095fc718700c42a",
+  "patch_sha256": "de54b6ff5a83a2f492e6b22325c6fbfaab9ac7d8a4d7cd973ac3253e758cfcb9",
+  "readme_sha256": "330b6d4cbb32d3105a3c6eb718c0f742f37b515420ba1e74e2a7b8db95abe42a",
+  "schema": "numi.matter.selector5.final_sum_finite_guard_overlay.v1",
+  "scope": "fail closed if any final refined correction component originalSolution+correction is nonfinite",
+  "validation": "source diff inspected; Metal compile and native run not performed by this overlay author"
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-finite-refinement-and-resolved-inertia-instrument-072",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-refined-graph-angular-residual-instrument-071",
+  "changed": {
+    "matter/src/metal/fgmres.metalinc": {
+      "before": "d47277e977a3a15c53fdb83a03a401a4261b365d799113944c9661ca98d7e4b7",
+      "after": "389c309235b4f5aee758985c335db9c95faaf8b2eeb281e41095fc718700c42a"
+    },
+    "matter/tools/cardboard_free_box_angular_native_check.mm": {
+      "before": "855b816c2f4f814446f382e58bcd0acc58dc6d31543b91c84760309b94dbb11f",
+      "after": "c7ec4c436481019a80ae57c98f5687d3088414252780a662736248f34736cbdf"
+    },
+    "matter/tools/cardboard_probe.mm": {
+      "before": "74129753fafb28924ce690512115ee1afc8d0c98dd933f2dde54cf36d980a5ed",
+      "after": "f2b4f3d3c7aaaecb147cc3db9a97f74c118f70f9d51114c060a71f49a43283dd"
+    },
+    "matter/tools/cardboard_resolution_study.py": {
+      "before": "18097a3666aaeac82391051527db50df30a32d1a140d61998acc6f3be32131af",
+      "after": "76adea30407281d79ad572bbfab1e71fe96ac21a65ef6afde3010a01089f5143"
+    },
+    "matter/tools/cardboard_shipping_allocation_preflight.cpp": {
+      "before": "173c163f8d0d964556db4bf4b11c28dca6f20639a9191279efdc1bb553640bd2",
+      "after": "f2c5483f59fd9aa335669634312f2c129bbbfcf4b22d43f9bb09122444626ba6"
+    }
+  },
+  "guard_overlay_manifest_sha256": "862300ece5a69104eb72ab0e10c7ff76b2d1a40a710306184d229546225d2590",
+  "angular_checker_manifest_sha256": "98554566a4371b612a546c924a76edd7ecfdae00baf1a3d5db75ee1b45784882"
+}

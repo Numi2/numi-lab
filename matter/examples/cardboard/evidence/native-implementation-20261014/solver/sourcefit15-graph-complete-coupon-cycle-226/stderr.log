@@ -1,0 +1,5 @@
+cardboard_step_timing={"schema":1,"control_step":0,"stage":"encode_begin","scope":"prescribed_fem_transaction"}
+fem_residual_armijo_enabled={"schema":1,"root":0,"trials":24,"metric":"per_environment_free_dof_l2_impulse","history":"accepted_state_read_only"}
+fem_residual_armijo_trace_enabled={"schema":1,"root":0,"maximum_newton_records":64}
+fem_newton_trace_skipped={"schema":1,"root":0,"reason":"newton_iteration_cap_32"}
+cardboard_step_timing={"schema":1,"control_step":0,"stage":"encode_end","encoding_wall_s":1.03209}

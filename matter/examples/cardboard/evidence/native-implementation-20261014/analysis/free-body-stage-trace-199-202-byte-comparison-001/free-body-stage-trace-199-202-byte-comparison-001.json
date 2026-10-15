@@ -1,0 +1,41 @@
+{
+  "schema": "numi.cardboard.bounded-diagnostic-history-comparison.v1",
+  "cases": [
+    "angular-path-free-body-parity-199",
+    "angular-path-final-alpha-trace-202"
+  ],
+  "payload_counts": [
+    7,
+    7
+  ],
+  "same_relative_paths": true,
+  "changed": [
+    "dense/fixture-free-body-control-1200.log"
+  ],
+  "payload_sha256": [
+    {
+      "dense/transaction-000000-after.bin": "dc1b235f25139aaae8c05a2990f0b9f55c366616c50a419d94dde90b6c37c65d",
+      "dense/transaction-000001-before.bin": "dc1b235f25139aaae8c05a2990f0b9f55c366616c50a419d94dde90b6c37c65d",
+      "dense/transaction-000001-after.bin": "dc3fff3179cc6515d8179abde949ce60a3ab879cfb9ca744ee6d7776f7a12f19",
+      "dense/fixture-free-body-control-1200.log": "60d5ba53f8401f969c1dd7b68ae266c7182f5937a497dc729a6e556437e4c678",
+      "dense/transaction-000000-before.bin": "ffcfbc7ca416a2cf8946ae512f35e0eb62111eb6b2c466926c43574ba949d0b5",
+      "dense/transaction-000001.json": "52ed57634f09e9439203214c8c7e9e1587adcf64126b7832215e946b212cc1b0",
+      "dense/transaction-000000.json": "5ab1d4b20007852b145fe2ca27bfbc7ce0a6bda64bafc683cc3f0c658d04b795"
+    },
+    {
+      "dense/transaction-000000-after.bin": "dc1b235f25139aaae8c05a2990f0b9f55c366616c50a419d94dde90b6c37c65d",
+      "dense/transaction-000001-before.bin": "dc1b235f25139aaae8c05a2990f0b9f55c366616c50a419d94dde90b6c37c65d",
+      "dense/transaction-000001-after.bin": "dc3fff3179cc6515d8179abde949ce60a3ab879cfb9ca744ee6d7776f7a12f19",
+      "dense/fixture-free-body-control-1200.log": "413882d03890a043415880b0bafdbae5d4587eb355055fa56a5a9f789d39ced6",
+      "dense/transaction-000000-before.bin": "ffcfbc7ca416a2cf8946ae512f35e0eb62111eb6b2c466926c43574ba949d0b5",
+      "dense/transaction-000001.json": "52ed57634f09e9439203214c8c7e9e1587adcf64126b7832215e946b212cc1b0",
+      "dense/transaction-000000.json": "5ab1d4b20007852b145fe2ca27bfbc7ce0a6bda64bafc683cc3f0c658d04b795"
+    }
+  ],
+  "stage_trace_admitted": false,
+  "stage_trace_skip_reason": "requires_fem_nodes_as_only_generalized_unknowns",
+  "scope": "All retained diagnostic-state payload bytes, including failed/rolled-back histories. Both attempts fail; this is not full trajectory convergence or a successful stage capture.",
+  "changed_state_payloads": [],
+  "unchanged_state_payload_count": 6,
+  "changed_logs_only": true
+}

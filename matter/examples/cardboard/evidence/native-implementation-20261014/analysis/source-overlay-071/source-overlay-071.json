@@ -1,0 +1,25 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-refined-graph-angular-residual-instrument-071",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-graph-tail-guard-angular-instrument-069",
+  "changed": {
+    "matter/src/metal/fgmres.metalinc": {
+      "before": "538f5e5517e9ddb6cf0727e8a6da2e3ecc834bd702263a8fe880b461c4d9933c",
+      "after": "d47277e977a3a15c53fdb83a03a401a4261b365d799113944c9661ca98d7e4b7"
+    },
+    "matter/src/regional_graph_schwarz.hpp": {
+      "before": "7064cc7f3af864e65274f85c6ae4de25b0df7d2c6b91b32a0f0275f711106390",
+      "after": "1356685f98c1818ad100c10e3e919db3c67a95c88ba86d86e7e009437844015a"
+    },
+    "matter/src/runtime.mm": {
+      "before": "0a47ffdcee60c650435faba2fe8eca57bcc1a68e792183c23b392be97e836046",
+      "after": "c3c9272fd0483b922d2ec4c489459212dbec49ca2212e23e3a3a6b499295cc72"
+    },
+    "matter/tools/cardboard_free_box_angular_native_check.mm": {
+      "before": "0cbc92a782fcc9e16d6f8d9a17d367601c4c5f5356303237e0050e3d090f8aac",
+      "after": "855b816c2f4f814446f382e58bcd0acc58dc6d31543b91c84760309b94dbb11f"
+    }
+  },
+  "refinement_overlay_manifest_sha256": "221fbabd6d4a634a31dadce80099ab1db2bcf97849ed1919e5d451134bd1331c",
+  "angular_checker_manifest_sha256": "1b5800ac07a6439481db7bbf08bbc0579907c58663479114692ce3286c26682a"
+}

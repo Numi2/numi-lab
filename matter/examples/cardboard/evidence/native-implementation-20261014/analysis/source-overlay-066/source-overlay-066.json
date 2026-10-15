@@ -1,0 +1,29 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-angular-and-graph-schwarz-integrated-065",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-armijo-applied-alpha-diagnostic-integrated-066",
+  "changed": {
+    "matter/src/runtime.mm": {
+      "before": "a0584b8324e277700111f66f9d324391957092d109ab66525020f7860c0708fe",
+      "after": "03513ba0020ed413ef6c933111621c6f7804dbd3c665d12f5771c042ded9cd38"
+    },
+    "matter/tools/stateful_check.cpp": {
+      "before": "aae7021ce00ac272eac1c7a5ed3893b266d407e3df7fa5aceb0d9c24d01836af",
+      "after": "60f2cc1b18cb5c857d78e6bbcef916281749f2b404f50ce93aa3f9a467fb8f80"
+    }
+  },
+  "overlays": [
+    {
+      "patch": "/Users/home/cardboard-implementation-20261014/analysis/stateful-selector5-validation-overlay-001/stateful-selector5-validation.patch",
+      "patch_sha256": "135d14290fbb7d16a7d2773e1df994969b2fdafa9b9b40722598fda645036ecb",
+      "relative_path": "matter/tools/stateful_check.cpp",
+      "sha256": "60f2cc1b18cb5c857d78e6bbcef916281749f2b404f50ce93aa3f9a467fb8f80"
+    },
+    {
+      "patch": "/Users/home/cardboard-implementation-20261014/analysis/free-rigid-armijo-alpha-trace-overlay-001/free-rigid-armijo-alpha-trace.patch",
+      "patch_sha256": "1168ef7b480e26e388fb61d381a1283201b5b6b1e7e9367944d9088c8cbc97b7",
+      "relative_path": "matter/src/runtime.mm",
+      "sha256": "03513ba0020ed413ef6c933111621c6f7804dbd3c665d12f5771c042ded9cd38"
+    }
+  ]
+}

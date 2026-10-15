@@ -1,0 +1,32 @@
+{
+  "schema": "numi.cardboard.checker-overlay.v1",
+  "overlay_id": "free-box-angular-sample-approach-fixture-069",
+  "purpose": "fix source-069 checker fixture setup after native217 showed untouched zero samples with success status",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-graph-tail-guard-angular-instrument-069",
+  "source_snapshot_sha256": "8fb4d0ed380412c1d46a3ebbb2b3817cbbfe1ce39a124796a41f88c483086d61",
+  "base_checker_overlay": "/Users/home/cardboard-implementation-20261014/analysis/free-box-angular-sample-diagnostics-069-overlay",
+  "base_checker_sha256": "16f63afb637d2f00ae4314937999893ccc163c6a8040819d4edeef7fd155b4f8",
+  "overlay_checker_sha256": "4e0d3f1f59ec844fea14b89ec725d67208d07ab80293f460443906b1a94aa230",
+  "patch_sha256": "a84ee0d83daff5a22d86cfd3120ba40e76dd70cc8c4abae636861b43bcdad01d",
+  "readme_sha256": "4ddcbe804924acdccbfe9fa898cf982565c876cba434945d250cd543983812ce",
+  "case_217": {
+    "path": "/Users/home/cardboard-implementation-20261014/native/free-box-angular-raw-sample-diagnostic-217",
+    "prediction_sha256": "2a18d0dfc4a2f7d088182ffb161fb9c6096366e225b99e4aadaae748510b59c1",
+    "receipt_sha256": "7fa45168a1017a8bef694d870e57bab0972b502d71c1f6c05007cfe56cf55ed2",
+    "stdout_sha256": "789f9fbb5f35e32d2e924c6410cb1fdcf830e947dd66b63591296f1d97966327",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finding": "all six contact sample records and the inertia sample remained zero with success status; body node data were nonzero; production did not emit a valid sample because fixture body velocity made the normal relative motion separating"
+  },
+  "change": "set free BOX proxy adaptiveObjectIndex to NM_INVALID_INDEX and correct the synthetic body normal velocity to approach the stationary FEM node; host assertion verifies approach direction",
+  "production_changes": false,
+  "validation": {
+    "cpu_syntax": "PASS -Wall -Wextra -Wpedantic -Werror against frozen source069 headers",
+    "native": "not run; root owns GPU"
+  },
+  "diagnosis": {
+    "primary": "proxy adaptiveObjectIndex was zero from aggregate initialization; production evaluator treated the FEM object as a rigid adaptive owner and returned without writing a sample because the owner representation was FEM",
+    "source_anchor": "source069 matter/src/metal/contact.metalinc around lines 5586-5603",
+    "secondary": "the stationary node and authored box velocity sign were separating; corrected fixture velocity is required to produce a positive barrier impulse and enter the tested angular branch",
+    "source_anchor_secondary": "source069 matter/tools/cardboard_free_box_angular_native_check.mm baseline around lines 302-314"
+  }
+}

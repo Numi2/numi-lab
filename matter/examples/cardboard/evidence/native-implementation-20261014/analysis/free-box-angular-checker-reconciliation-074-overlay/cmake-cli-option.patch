@@ -1,0 +1,14 @@
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -691,6 +691,11 @@
+             --output "${CMAKE_CURRENT_BINARY_DIR}/cardboard-pin-fixture-cpu-preflight")
+         set_tests_properties(matter.compiler.cardboard_pin_fixture_preflight PROPERTIES
+             TIMEOUT 120 LABELS "matter;cardboard;pin;geometry;cpu")
++        add_test(NAME matter.cli.cardboard_graph_option
++            COMMAND numi-matter-cardboard-probe --help)
++        set_tests_properties(matter.cli.cardboard_graph_option PROPERTIES
++            PASS_REGULAR_EXPRESSION "regional-galerkin-schwarz"
++            TIMEOUT 15 LABELS "matter;cardboard;cpu;cli")
+     endif()
+     add_executable(numi-matter-cardboard-box-native-driver tools/cardboard_probe.mm)
+     target_link_libraries(numi-matter-cardboard-box-native-driver PRIVATE

@@ -1,0 +1,32 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -3857,8 +3857,20 @@
+                 std::string("numi_matter_metal::") + name;
+             return [candidate->library newFunctionWithName:
+                 [NSString stringWithUTF8String:qualified.c_str()]];
++        };
++        const auto isGraphSchwarzKernel = [](const char* name) {
++            return std::strcmp(name, "nm_fgmres_graph_build_patch_matrices") == 0 ||
++                std::strcmp(name, "nm_fgmres_graph_validate_mask") == 0 ||
++                std::strcmp(name, "nm_fgmres_graph_factor_patches") == 0 ||
++                std::strcmp(name, "nm_fgmres_graph_solve_patches") == 0 ||
++                std::strcmp(name, "nm_fgmres_graph_apply_patches") == 0;
+         };
+         for (const char* name : kernelNames) {
++            // Selector-5 graph Schwarz has no consumers in other solver modes.
++            // Avoid compiling these five pipelines for the default and other
++            // preconditioners, while preserving the complete selector-5 set.
++            if (world.mixedSolver.executionBudgets.z != 5u &&
++                isGraphSchwarzKernel(name)) continue;
+             id<MTLFunction> function = kernel(name);
+             if (function == nil) {
+                 diagnostics.message = std::string("missing Metal function ") + name;
+@@ -15570,6 +15582,8 @@
+                                 length:sizeof(graphPivots) atIndex:15u];
+                             [encoder setBytes:&regionalModes
+                                 length:sizeof(regionalModes) atIndex:16u];
++                            [encoder setBuffer:state.fgmresStates
++                                         offset:0u atIndex:17u];
+                         });
+                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                         dispatchThreads("nm_fgmres_graph_apply_patches",

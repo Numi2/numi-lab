@@ -1,0 +1,29 @@
+[  0%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[ 25%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[ 25%] Generating shaders/cardboard_retained_matrix_damage_check.metallib
+[ 25%] Built target numi_cardboard_retained_damage_shaders
+[ 37%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+[ 37%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[ 50%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[ 50%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[ 62%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[ 75%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[ 75%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[ 75%] Built target numi_matter_compiler_objects
+[ 87%] Linking CXX static library libnumi_matter_compiler.a
+[ 87%] Built target numi_matter_compiler
+[ 87%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-retained-matrix-damage-metal-check.dir/tools/cardboard_retained_matrix_damage_gpu_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-retained-matrix-damage-metal-check
+[100%] Built target numi-matter-cardboard-retained-matrix-damage-metal-check
+[ 71%] Built target numi_matter_compiler_objects
+[ 85%] Built target numi_matter_compiler
+[ 85%] Building CXX object CMakeFiles/numi-matter-cardboard-generic-compensated-projection-check.dir/tools/cardboard_generic_compensated_projection_check.cpp.o
+In file included from /Users/home/cardboard-implementation-20261014/snapshots/generic-damage-regional-block-031/matter/tools/cardboard_generic_compensated_projection_check.cpp:8:
+/Users/home/cardboard-implementation-20261014/snapshots/generic-damage-regional-block-031/matter/include/numi/matter/paper_compensated_bytecode.h:3:10: fatal error: 'metalrobo/compensated_geometry_gpu.h' file not found
+    3 | #include "metalrobo/compensated_geometry_gpu.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+make[3]: *** [CMakeFiles/numi-matter-cardboard-generic-compensated-projection-check.dir/tools/cardboard_generic_compensated_projection_check.cpp.o] Error 1
+make[2]: *** [CMakeFiles/numi-matter-cardboard-generic-compensated-projection-check.dir/all] Error 2
+make[1]: *** [CMakeFiles/numi-matter-cardboard-generic-compensated-projection-check.dir/rule] Error 2
+make: *** [numi-matter-cardboard-generic-compensated-projection-check] Error 2

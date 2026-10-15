@@ -1,0 +1,35 @@
+{
+  "artifact_id": "shipping-memory-scope-070",
+  "classification": "CPU-only exact-geometry and allocation model; not native memory admission or qualification",
+  "result": {
+    "path": "preflight.json",
+    "schema": "numi.cardboard.shipping-allocation-preflight.v6",
+    "sha256": "18c60756072a917c1b17c74b031175f27b094416cdc5e613d267d36e1823a5e5"
+  },
+  "schema": "numi.cardboard.shipping-memory-scope-artifact.v1",
+  "sources": {
+    "allocation_preflight_cpp": {
+      "path": "matter/tools/cardboard_shipping_allocation_preflight.cpp",
+      "sha256": "f2c5483f59fd9aa335669634312f2c129bbbfcf4b22d43f9bb09122444626ba6"
+    },
+    "memory_check_cpp": {
+      "path": "matter/tools/cardboard_shipping_memory_check.cpp",
+      "sha256": "58b385fe0afa0566bd33c7354dd4ac1f684fa8dcc283fe8c05e7583525de02db"
+    },
+    "memory_helper_hpp": {
+      "path": "matter/tools/cardboard_shipping_memory.hpp",
+      "sha256": "5ee051c26bfa0d31544999454b07b12f75fa9d95977030f7aba4bbb5fb94903e"
+    },
+    "shared_sparse_admission_hpp": {
+      "path": "matter/include/numi/matter/sparse_private_contact_admission.hpp",
+      "sha256": "859c763ca42e8b6867f0ec77bcb5661ae143cd79ad2df87dde083b51ba138371"
+    }
+  },
+  "validation": {
+    "allocation_preflight": "PASS; CPU-only script compiled and ran; JSON parsed",
+    "full_shipping_metal_peak_measured": false,
+    "native_gpu": "NOT RUN",
+    "shipping_full_contact_admission": false,
+    "shipping_memory_check": "PASS; direct CPU compile/run printed: shipping memory preflight checks passed"
+  }
+}

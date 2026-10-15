@@ -33,7 +33,8 @@ constexpr std::uint32_t kMaximumRegionalGalerkinModes = 32u;
 ) noexcept {
     return mode == FEMPreconditionerMode::regionalGalerkin ||
         mode == FEMPreconditionerMode::regionalGalerkinBlockJacobi ||
-        mode == FEMPreconditionerMode::regionalGalerkinContact;
+        mode == FEMPreconditionerMode::regionalGalerkinContact ||
+        mode == FEMPreconditionerMode::regionalGalerkinGraphSchwarz;
 }
 
 [[nodiscard]] constexpr bool usesContactRegionalGalerkin(
@@ -642,7 +643,7 @@ void validateWorld(
     const MixedSolverSource& solver = source.mixedSolver;
     if (static_cast<std::uint32_t>(solver.femPreconditioner) >
         static_cast<std::uint32_t>(
-            FEMPreconditionerMode::regionalGalerkinContact)) {
+            FEMPreconditionerMode::regionalGalerkinGraphSchwarz)) {
         diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
             "FEM preconditioner selector is not recognized"});
     }
@@ -715,6 +716,8 @@ void validateWorld(
             !source.vascular.cavities.empty();
         const bool contactMode =
             usesContactRegionalGalerkin(solver.femPreconditioner);
+        const bool graphSchwarzMode = solver.femPreconditioner ==
+            FEMPreconditionerMode::regionalGalerkinGraphSchwarz;
         const bool oneSupportedObject = source.objects.size() == 1u &&
             source.objects.front().representation == Representation::fem &&
             !source.objects.front().automaticRepresentation &&
@@ -759,6 +762,18 @@ void validateWorld(
                         return material.learned.has_value();
                     }) &&
                 contactProxiesSupported
+            : graphSchwarzMode
+                ? source.environmentCount >= 1u &&
+                    source.environmentCount <= 4u &&
+                    source.objects.size() == 1u &&
+                    source.objects.front().femNodes.size() <= 4096u &&
+                    source.objects.front().tetrahedra.size() <= 32768u &&
+                    source.rigidProxies.empty() &&
+                    source.cohesiveMaterials.empty() &&
+                    std::ranges::none_of(source.materials,
+                        [](const MaterialProgram& material) {
+                            return material.learned.has_value();
+                        })
             : source.environmentCount <= 4u &&
                 source.rigidProxies.empty() &&
                 source.cohesiveMaterials.empty();
@@ -769,7 +784,9 @@ void validateWorld(
             diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
                 contactMode
                     ? "regional Galerkin contact preconditioner requires one immutable explicit FEM object, at most 8192 nodes and 32768 tetrahedra, static or kinematic non-articulated contact proxies, authored compact region IDs, and no dynamic generalized, mixed, field, adaptive, mutation, vascular, learned, or identification coupling"
-                    : "regional Galerkin FEM preconditioner v1 requires one immutable explicit non-mixed FEM object with authored compact region IDs, no contact/cohesive/rigid/field/vascular coupling, and at most four environments"});
+                    : graphSchwarzMode
+                        ? "graph Schwarz FEM preconditioner requires one immutable explicit non-mixed FEM object with authored compact region IDs, at most 4096 nodes, 32768 tetrahedra, and four environments, with no contact/cohesive/rigid/field/vascular or learned coupling"
+                        : "regional Galerkin FEM preconditioner v1 requires one immutable explicit non-mixed FEM object with authored compact region IDs, no contact/cohesive/rigid/field/vascular coupling, and at most four environments"});
         }
     }
     if (std::ranges::any_of(budgets, [](const std::uint32_t value) {

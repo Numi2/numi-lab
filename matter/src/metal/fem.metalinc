@@ -4364,6 +4364,7 @@ kernel void nm_fem_armijo_decide(
     constant uint& trialIndex [[buffer(7)]],
     device const NMFGMRESStateGPU* fgmresStates [[buffer(8)]],
     device float4* correction [[buffer(9)]],
+    device float* environmentLineSearch [[buffer(10)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount || dispatch.objectCount != 1u)
@@ -4416,6 +4417,10 @@ kernel void nm_fem_armijo_decide(
         line.z = float(trialIndex + 1u);
         line.w = float(microstep.solverIteration);
         lineSearch[slot] = line;
+        // FEM and free-rigid generalized rows share one Newton correction.
+        // Publish the tested alpha to the environment-wide arena in the same
+        // decision that accepts this trial, before either block is applied.
+        environmentLineSearch[environment] = line.x;
     } else if (trialIndex + 1u >= solver.nonlinearIterations.w) {
         recordFailure(statuses[environment],
             NM_STATUS_NONLINEAR_SOLVER_FAILURE, 0u,

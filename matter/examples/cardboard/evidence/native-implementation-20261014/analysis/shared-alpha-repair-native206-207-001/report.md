@@ -1,0 +1,3 @@
+# Shared Armijo fraction repair
+
+Source067 direct native205 passes 2,023 assertions including the accepted 1/16 FEM/rigid fraction and certified no-op. Coupled native206/207 remain failed at Newton12, residual1.40947279e-7 against unchanged1e-7. Every accepted fraction now agrees across FEM and rigid buffers; all12 accepted trial-to-next-base residuals agree exactly. All6 retained state records are byte-identical between this same-build diagnostic-on/off pair; all18 accepted persistent-vector hashes survive the failed transaction unchanged and the final certificate is invalid. This qualifies the narrow publication repair and observational parity, not coupled convergence, dense/sparse parity, angular derivatives or shipping assembly.

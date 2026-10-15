@@ -1,0 +1,1129 @@
+{
+  "bindings": {
+    "RAP_manifest_sha256": "8a0c68399357d3edf513499864260cdda3e7a239d429941d95a544756eb84eda",
+    "RAP_payload_sha256": "5ea011af4b6c0835cf88cf9f6005514b79a14a850ba16c2c4a66374e118cb4d4",
+    "candidate_linearization_sha256_environment0": "1c756428d7ef1f5cfa6a5e035faef068d39de9b38db6195b56009bbe3c581b41",
+    "layout_inputs": {
+      "anchor_stride": 128,
+      "dimensions": {
+        "dof_count": 6159,
+        "node_count": 882,
+        "patch_count": 13,
+        "patch_node_count": 2053,
+        "tet_count": 1920
+      },
+      "graph_helper_sha256": "f8973ed2c95367e82f202be77b4f8763231dae88d17cd80c60c64ccd127391a8",
+      "layout_bundle_manifest_sha256": "81a913889748d56e0fdba09258968373c19d358ac9be1c35ad02005178af42bb",
+      "layout_checksum_fnv1a32": 2602968157,
+      "layout_document_sha256": "9191007fecd8dd21f7a044d3049255a7361118492f3adf1bd7a5fa6e9188fe13",
+      "native_selector5_capture_present": false,
+      "patch_nodes_limit": 256,
+      "reader_v2_manifest_sha256": "aade6ae9b57c09e41d6dabcd914c1dfeae7479a86e4dc9190b254f2fdffec32f",
+      "source_free_mask_sha256_recomputed": "dae5a5047292398f5a4ebfae0f961daa5a76ec53af59bab106f326de08aeefd8",
+      "source_topology_sha256_recomputed": "52d495969f0220838a87b2dd7984961265fc0e6b1891f2d3e157b2ef17ae7511",
+      "topology_npz_sha256": "aee02f06cdf0abbd5e1fb8287a37324f0ede6b18977b41e681f267446a45436c"
+    },
+    "operator_npz_sha256": "014efa29694ca8f2afc4a6838f005eb3ffd17f232f62db32a2cc3212d51e72f7",
+    "source182_operator_report": "/Users/home/cardboard-implementation-20261014/analysis/selected-newton-regional-rap-audit-182/operator-audit.json",
+    "source182_operator_report_sha256": "7fc18d560019f74f00e5cf0b82326494316e0e0a145db0a96db493c0d3d646db",
+    "source182_prediction_sha256": "21e3aa24fefececad0c0fc44aefe7b58d4c93c260fe10ac29ff5dd45a2f3ecee",
+    "source182_receipt_sha256": "e8b9feb5f65d6482d2195b8fe388ee5d99572afc061b8cd7f5803f621e0da0c1",
+    "source182_selection": {
+      "environment": 0,
+      "newton_iteration": 23,
+      "root": 3
+    },
+    "source182_sidecar_hashes": {
+      "operator-audit.operator.npz": "014efa29694ca8f2afc4a6838f005eb3ffd17f232f62db32a2cc3212d51e72f7",
+      "operator-audit.topology.npz": "aee02f06cdf0abbd5e1fb8287a37324f0ede6b18977b41e681f267446a45436c",
+      "operator-audit.vectors.npz": "a2acfe0b30d14fed1238372ce7970b759360da018931ea8ecc87650912b0cbcc"
+    },
+    "source182_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-selected-newton-rap-and-validated-replay-integrated-060",
+    "study_script_sha256": "c0675837630f20c1eaa7a61b8a5c127b3c1bcf6f2eef78c868c4a1370df85c6f",
+    "topology_npz_sha256": "aee02f06cdf0abbd5e1fb8287a37324f0ede6b18977b41e681f267446a45436c",
+    "vector_npz_sha256": "a2acfe0b30d14fed1238372ce7970b759360da018931ea8ecc87650912b0cbcc"
+  },
+  "classification": "CPU algorithmic emulation only; source182 native capture is selector3, and no native selector5 FEM patch assembly or native selector5 factor capture was used",
+  "elapsed_seconds": 25.01237645803485,
+  "limitations": [
+    "No selector-5 source182 capture exists; source182 RAP was selected under selector 3.",
+    "No native selector-5 graph sidecar exists for source182; local matrices/factors were formed in CPU from captured CSR A.",
+    "CPU arithmetic and SciPy factorization are not a Metal kernel or FGMRES performance/convergence qualification.",
+    "The selected source182 Newton linearization belongs to a native run that later failed at Newton63; this does not qualify a completed physical step.",
+    "No cardboard material calibration or physical result is inferred."
+  ],
+  "method": {
+    "coarse": "selected-generation source182 selector-3 captured P/AP/pivoted RAP; FP32 CPU arithmetic approximating the production Metal sequence, not hardware bitwise reproduction",
+    "fine": "principal blocks extracted from audited source182 CSR A; FP32 LU/triangular solves; production overlap gather order and sum-then-divide policy",
+    "layout": "source-065 production buildRegionalGraphSchwarzLayout defaults: maxPatchNodes=256, anchorStride=128, exact actual source182 global IDs; independently reconstructed and compared every ordered layout array",
+    "limits": {
+      "host_memory_bytes": 1073741824,
+      "wall_clock_seconds": 120.0
+    },
+    "local_factor_diagnostics": {
+      "estimated_patch_factor_workspace_bytes": 56722188,
+      "local_matrix_factor_precision": "FP32 dense principal blocks and SciPy LU; native kernel emulation only",
+      "maximum_local_probe_relative_residual": 7.171449316230932e-07,
+      "maximum_patch_nodes": 256,
+      "minimum_patch_nodes": 1,
+      "minimum_relative_U_pivot": 0.0002494931104592979,
+      "patch_count": 13,
+      "patch_node_entries": 2053,
+      "pivot_floor": "max(max_abs(local_block)*1e-10, 1e-30)"
+    },
+    "outer_solver": {
+      "implementation": "existing source-bound CPU restarted right-GMRES utility",
+      "iteration_cap": 256,
+      "restart": 16,
+      "true_relative_tolerance": 1e-08
+    }
+  },
+  "operator": {
+    "dimension": 2538,
+    "native_A_action_parity_relative": 1.1899694705850294e-06,
+    "nnz": 71046,
+    "rhs_l2_Ns": 4.407680504925044e-06,
+    "unsymmetric": true
+  },
+  "result": {
+    "final_true_relative_residual": 0.9935469408593788,
+    "max_iterations": 256,
+    "preconditioner_application_count": 256,
+    "relative_tolerance": 1e-08,
+    "restart": 16,
+    "rhs_l2": 4.407680504925044e-06,
+    "status": "diagnostic_not_converged",
+    "true_operator_matvec_count": 528,
+    "true_residual_history": [
+      {
+        "iteration": 0,
+        "true_relative_residual": 1.0
+      },
+      {
+        "iteration": 1,
+        "true_relative_residual": 0.9980797975885641
+      },
+      {
+        "iteration": 2,
+        "true_relative_residual": 0.9980158443244229
+      },
+      {
+        "iteration": 3,
+        "true_relative_residual": 0.9980071226092406
+      },
+      {
+        "iteration": 4,
+        "true_relative_residual": 0.9973312708061631
+      },
+      {
+        "iteration": 5,
+        "true_relative_residual": 0.9972194305874447
+      },
+      {
+        "iteration": 6,
+        "true_relative_residual": 0.996938346475711
+      },
+      {
+        "iteration": 7,
+        "true_relative_residual": 0.9969340351500194
+      },
+      {
+        "iteration": 8,
+        "true_relative_residual": 0.9966509130266362
+      },
+      {
+        "iteration": 9,
+        "true_relative_residual": 0.9950449920204493
+      },
+      {
+        "iteration": 10,
+        "true_relative_residual": 0.9949766460439357
+      },
+      {
+        "iteration": 11,
+        "true_relative_residual": 0.9940540519433844
+      },
+      {
+        "iteration": 12,
+        "true_relative_residual": 0.9940032653961614
+      },
+      {
+        "iteration": 13,
+        "true_relative_residual": 0.9939900898678474
+      },
+      {
+        "iteration": 14,
+        "true_relative_residual": 0.9937963475047876
+      },
+      {
+        "iteration": 15,
+        "true_relative_residual": 0.9936355585684985
+      },
+      {
+        "iteration": 16,
+        "true_relative_residual": 0.9935469836039649
+      },
+      {
+        "iteration": 17,
+        "true_relative_residual": 0.9935469836035019
+      },
+      {
+        "iteration": 18,
+        "true_relative_residual": 0.9935469836031653
+      },
+      {
+        "iteration": 19,
+        "true_relative_residual": 0.9935469836031653
+      },
+      {
+        "iteration": 20,
+        "true_relative_residual": 0.9935469836031622
+      },
+      {
+        "iteration": 21,
+        "true_relative_residual": 0.9935469835960017
+      },
+      {
+        "iteration": 22,
+        "true_relative_residual": 0.9935469835867211
+      },
+      {
+        "iteration": 23,
+        "true_relative_residual": 0.993546983566491
+      },
+      {
+        "iteration": 24,
+        "true_relative_residual": 0.9935469835462695
+      },
+      {
+        "iteration": 25,
+        "true_relative_residual": 0.9935469835427451
+      },
+      {
+        "iteration": 26,
+        "true_relative_residual": 0.9935469835427437
+      },
+      {
+        "iteration": 27,
+        "true_relative_residual": 0.9935469835419024
+      },
+      {
+        "iteration": 28,
+        "true_relative_residual": 0.9935469835223446
+      },
+      {
+        "iteration": 29,
+        "true_relative_residual": 0.9935469835074807
+      },
+      {
+        "iteration": 30,
+        "true_relative_residual": 0.9935469833629591
+      },
+      {
+        "iteration": 31,
+        "true_relative_residual": 0.9935469833615371
+      },
+      {
+        "iteration": 32,
+        "true_relative_residual": 0.9935469832291747
+      },
+      {
+        "iteration": 33,
+        "true_relative_residual": 0.9935469832291476
+      },
+      {
+        "iteration": 34,
+        "true_relative_residual": 0.9935469832291453
+      },
+      {
+        "iteration": 35,
+        "true_relative_residual": 0.9935469832290806
+      },
+      {
+        "iteration": 36,
+        "true_relative_residual": 0.993546983229018
+      },
+      {
+        "iteration": 37,
+        "true_relative_residual": 0.9935469832285634
+      },
+      {
+        "iteration": 38,
+        "true_relative_residual": 0.9935469832245162
+      },
+      {
+        "iteration": 39,
+        "true_relative_residual": 0.9935469832232373
+      },
+      {
+        "iteration": 40,
+        "true_relative_residual": 0.993546983223113
+      },
+      {
+        "iteration": 41,
+        "true_relative_residual": 0.9935469832035246
+      },
+      {
+        "iteration": 42,
+        "true_relative_residual": 0.9935469832032285
+      },
+      {
+        "iteration": 43,
+        "true_relative_residual": 0.9935469831929349
+      },
+      {
+        "iteration": 44,
+        "true_relative_residual": 0.9935469830899892
+      },
+      {
+        "iteration": 45,
+        "true_relative_residual": 0.9935469830800634
+      },
+      {
+        "iteration": 46,
+        "true_relative_residual": 0.993546982931753
+      },
+      {
+        "iteration": 47,
+        "true_relative_residual": 0.9935469829125958
+      },
+      {
+        "iteration": 48,
+        "true_relative_residual": 0.9935469828112193
+      },
+      {
+        "iteration": 49,
+        "true_relative_residual": 0.9935469828111989
+      },
+      {
+        "iteration": 50,
+        "true_relative_residual": 0.9935469828111545
+      },
+      {
+        "iteration": 51,
+        "true_relative_residual": 0.9935469828109749
+      },
+      {
+        "iteration": 52,
+        "true_relative_residual": 0.9935469828109704
+      },
+      {
+        "iteration": 53,
+        "true_relative_residual": 0.9935469828075381
+      },
+      {
+        "iteration": 54,
+        "true_relative_residual": 0.9935469827939926
+      },
+      {
+        "iteration": 55,
+        "true_relative_residual": 0.9935469827921013
+      },
+      {
+        "iteration": 56,
+        "true_relative_residual": 0.9935469827919071
+      },
+      {
+        "iteration": 57,
+        "true_relative_residual": 0.9935469827639851
+      },
+      {
+        "iteration": 58,
+        "true_relative_residual": 0.993546982756741
+      },
+      {
+        "iteration": 59,
+        "true_relative_residual": 0.9935469827549327
+      },
+      {
+        "iteration": 60,
+        "true_relative_residual": 0.9935469826126956
+      },
+      {
+        "iteration": 61,
+        "true_relative_residual": 0.9935469825954134
+      },
+      {
+        "iteration": 62,
+        "true_relative_residual": 0.9935469821064659
+      },
+      {
+        "iteration": 63,
+        "true_relative_residual": 0.9935469820544364
+      },
+      {
+        "iteration": 64,
+        "true_relative_residual": 0.9935469812342508
+      },
+      {
+        "iteration": 65,
+        "true_relative_residual": 0.993546981234082
+      },
+      {
+        "iteration": 66,
+        "true_relative_residual": 0.9935469812340328
+      },
+      {
+        "iteration": 67,
+        "true_relative_residual": 0.9935469812340163
+      },
+      {
+        "iteration": 68,
+        "true_relative_residual": 0.9935469812325327
+      },
+      {
+        "iteration": 69,
+        "true_relative_residual": 0.9935469812293194
+      },
+      {
+        "iteration": 70,
+        "true_relative_residual": 0.9935469812226255
+      },
+      {
+        "iteration": 71,
+        "true_relative_residual": 0.9935469812149093
+      },
+      {
+        "iteration": 72,
+        "true_relative_residual": 0.9935469812145927
+      },
+      {
+        "iteration": 73,
+        "true_relative_residual": 0.9935469811744906
+      },
+      {
+        "iteration": 74,
+        "true_relative_residual": 0.9935469811683255
+      },
+      {
+        "iteration": 75,
+        "true_relative_residual": 0.9935469811466472
+      },
+      {
+        "iteration": 76,
+        "true_relative_residual": 0.9935469810046635
+      },
+      {
+        "iteration": 77,
+        "true_relative_residual": 0.9935469810028786
+      },
+      {
+        "iteration": 78,
+        "true_relative_residual": 0.9935469804924782
+      },
+      {
+        "iteration": 79,
+        "true_relative_residual": 0.9935469804303825
+      },
+      {
+        "iteration": 80,
+        "true_relative_residual": 0.9935469780049095
+      },
+      {
+        "iteration": 81,
+        "true_relative_residual": 0.9935469780048863
+      },
+      {
+        "iteration": 82,
+        "true_relative_residual": 0.9935469780048493
+      },
+      {
+        "iteration": 83,
+        "true_relative_residual": 0.9935469780047079
+      },
+      {
+        "iteration": 84,
+        "true_relative_residual": 0.9935469780045237
+      },
+      {
+        "iteration": 85,
+        "true_relative_residual": 0.9935469780036312
+      },
+      {
+        "iteration": 86,
+        "true_relative_residual": 0.99354697800073
+      },
+      {
+        "iteration": 87,
+        "true_relative_residual": 0.9935469779995182
+      },
+      {
+        "iteration": 88,
+        "true_relative_residual": 0.9935469779989579
+      },
+      {
+        "iteration": 89,
+        "true_relative_residual": 0.9935469779951941
+      },
+      {
+        "iteration": 90,
+        "true_relative_residual": 0.9935469779918232
+      },
+      {
+        "iteration": 91,
+        "true_relative_residual": 0.9935469779896184
+      },
+      {
+        "iteration": 92,
+        "true_relative_residual": 0.9935469779880539
+      },
+      {
+        "iteration": 93,
+        "true_relative_residual": 0.9935469779867905
+      },
+      {
+        "iteration": 94,
+        "true_relative_residual": 0.993546977907781
+      },
+      {
+        "iteration": 95,
+        "true_relative_residual": 0.9935469777544487
+      },
+      {
+        "iteration": 96,
+        "true_relative_residual": 0.99354697772428
+      },
+      {
+        "iteration": 97,
+        "true_relative_residual": 0.9935469777242217
+      },
+      {
+        "iteration": 98,
+        "true_relative_residual": 0.9935469777242202
+      },
+      {
+        "iteration": 99,
+        "true_relative_residual": 0.9935469777242172
+      },
+      {
+        "iteration": 100,
+        "true_relative_residual": 0.9935469777241536
+      },
+      {
+        "iteration": 101,
+        "true_relative_residual": 0.9935469777237834
+      },
+      {
+        "iteration": 102,
+        "true_relative_residual": 0.9935469777206218
+      },
+      {
+        "iteration": 103,
+        "true_relative_residual": 0.9935469777201821
+      },
+      {
+        "iteration": 104,
+        "true_relative_residual": 0.9935469777188688
+      },
+      {
+        "iteration": 105,
+        "true_relative_residual": 0.993546977718506
+      },
+      {
+        "iteration": 106,
+        "true_relative_residual": 0.9935469777064103
+      },
+      {
+        "iteration": 107,
+        "true_relative_residual": 0.9935469777064101
+      },
+      {
+        "iteration": 108,
+        "true_relative_residual": 0.9935469776904249
+      },
+      {
+        "iteration": 109,
+        "true_relative_residual": 0.9935469776903285
+      },
+      {
+        "iteration": 110,
+        "true_relative_residual": 0.9935469776612152
+      },
+      {
+        "iteration": 111,
+        "true_relative_residual": 0.9935469776436853
+      },
+      {
+        "iteration": 112,
+        "true_relative_residual": 0.9935469775076127
+      },
+      {
+        "iteration": 113,
+        "true_relative_residual": 0.9935469775075753
+      },
+      {
+        "iteration": 114,
+        "true_relative_residual": 0.9935469775074928
+      },
+      {
+        "iteration": 115,
+        "true_relative_residual": 0.9935469775074891
+      },
+      {
+        "iteration": 116,
+        "true_relative_residual": 0.9935469775072445
+      },
+      {
+        "iteration": 117,
+        "true_relative_residual": 0.9935469774922858
+      },
+      {
+        "iteration": 118,
+        "true_relative_residual": 0.9935469774862918
+      },
+      {
+        "iteration": 119,
+        "true_relative_residual": 0.9935469774286435
+      },
+      {
+        "iteration": 120,
+        "true_relative_residual": 0.9935469774080564
+      },
+      {
+        "iteration": 121,
+        "true_relative_residual": 0.993546977390653
+      },
+      {
+        "iteration": 122,
+        "true_relative_residual": 0.9935469773904138
+      },
+      {
+        "iteration": 123,
+        "true_relative_residual": 0.9935469773707121
+      },
+      {
+        "iteration": 124,
+        "true_relative_residual": 0.9935469770491431
+      },
+      {
+        "iteration": 125,
+        "true_relative_residual": 0.993546977016929
+      },
+      {
+        "iteration": 126,
+        "true_relative_residual": 0.9935469760453449
+      },
+      {
+        "iteration": 127,
+        "true_relative_residual": 0.9935469755899139
+      },
+      {
+        "iteration": 128,
+        "true_relative_residual": 0.9935469753487075
+      },
+      {
+        "iteration": 129,
+        "true_relative_residual": 0.9935469753483529
+      },
+      {
+        "iteration": 130,
+        "true_relative_residual": 0.993546975348259
+      },
+      {
+        "iteration": 131,
+        "true_relative_residual": 0.9935469753481591
+      },
+      {
+        "iteration": 132,
+        "true_relative_residual": 0.9935469753480369
+      },
+      {
+        "iteration": 133,
+        "true_relative_residual": 0.9935469753297504
+      },
+      {
+        "iteration": 134,
+        "true_relative_residual": 0.9935469753226095
+      },
+      {
+        "iteration": 135,
+        "true_relative_residual": 0.9935469752521675
+      },
+      {
+        "iteration": 136,
+        "true_relative_residual": 0.9935469751983601
+      },
+      {
+        "iteration": 137,
+        "true_relative_residual": 0.9935469751792491
+      },
+      {
+        "iteration": 138,
+        "true_relative_residual": 0.9935469751786755
+      },
+      {
+        "iteration": 139,
+        "true_relative_residual": 0.9935469751692965
+      },
+      {
+        "iteration": 140,
+        "true_relative_residual": 0.9935469747359058
+      },
+      {
+        "iteration": 141,
+        "true_relative_residual": 0.993546974665282
+      },
+      {
+        "iteration": 142,
+        "true_relative_residual": 0.9935469731932515
+      },
+      {
+        "iteration": 143,
+        "true_relative_residual": 0.9935469726586926
+      },
+      {
+        "iteration": 144,
+        "true_relative_residual": 0.9935469725125617
+      },
+      {
+        "iteration": 145,
+        "true_relative_residual": 0.9935469725114956
+      },
+      {
+        "iteration": 146,
+        "true_relative_residual": 0.9935469725114328
+      },
+      {
+        "iteration": 147,
+        "true_relative_residual": 0.9935469725109066
+      },
+      {
+        "iteration": 148,
+        "true_relative_residual": 0.9935469725102838
+      },
+      {
+        "iteration": 149,
+        "true_relative_residual": 0.9935469724908258
+      },
+      {
+        "iteration": 150,
+        "true_relative_residual": 0.993546972487659
+      },
+      {
+        "iteration": 151,
+        "true_relative_residual": 0.9935469724410909
+      },
+      {
+        "iteration": 152,
+        "true_relative_residual": 0.9935469724070328
+      },
+      {
+        "iteration": 153,
+        "true_relative_residual": 0.993546972385209
+      },
+      {
+        "iteration": 154,
+        "true_relative_residual": 0.993546972378762
+      },
+      {
+        "iteration": 155,
+        "true_relative_residual": 0.9935469723550677
+      },
+      {
+        "iteration": 156,
+        "true_relative_residual": 0.9935469720435569
+      },
+      {
+        "iteration": 157,
+        "true_relative_residual": 0.9935469720424187
+      },
+      {
+        "iteration": 158,
+        "true_relative_residual": 0.9935469700408005
+      },
+      {
+        "iteration": 159,
+        "true_relative_residual": 0.9935469699579357
+      },
+      {
+        "iteration": 160,
+        "true_relative_residual": 0.9935469685155748
+      },
+      {
+        "iteration": 161,
+        "true_relative_residual": 0.9935469685155689
+      },
+      {
+        "iteration": 162,
+        "true_relative_residual": 0.9935469685154318
+      },
+      {
+        "iteration": 163,
+        "true_relative_residual": 0.9935469685153901
+      },
+      {
+        "iteration": 164,
+        "true_relative_residual": 0.993546968515218
+      },
+      {
+        "iteration": 165,
+        "true_relative_residual": 0.9935469685076302
+      },
+      {
+        "iteration": 166,
+        "true_relative_residual": 0.9935469684907731
+      },
+      {
+        "iteration": 167,
+        "true_relative_residual": 0.9935469684685837
+      },
+      {
+        "iteration": 168,
+        "true_relative_residual": 0.9935469684509727
+      },
+      {
+        "iteration": 169,
+        "true_relative_residual": 0.993546968446413
+      },
+      {
+        "iteration": 170,
+        "true_relative_residual": 0.9935469684452796
+      },
+      {
+        "iteration": 171,
+        "true_relative_residual": 0.9935469684271557
+      },
+      {
+        "iteration": 172,
+        "true_relative_residual": 0.99354696826224
+      },
+      {
+        "iteration": 173,
+        "true_relative_residual": 0.9935469682602006
+      },
+      {
+        "iteration": 174,
+        "true_relative_residual": 0.9935469667868857
+      },
+      {
+        "iteration": 175,
+        "true_relative_residual": 0.993546966706344
+      },
+      {
+        "iteration": 176,
+        "true_relative_residual": 0.9935469657985204
+      },
+      {
+        "iteration": 177,
+        "true_relative_residual": 0.9935469657982733
+      },
+      {
+        "iteration": 178,
+        "true_relative_residual": 0.9935469657982733
+      },
+      {
+        "iteration": 179,
+        "true_relative_residual": 0.9935469657982564
+      },
+      {
+        "iteration": 180,
+        "true_relative_residual": 0.9935469657979632
+      },
+      {
+        "iteration": 181,
+        "true_relative_residual": 0.9935469657857525
+      },
+      {
+        "iteration": 182,
+        "true_relative_residual": 0.9935469657786076
+      },
+      {
+        "iteration": 183,
+        "true_relative_residual": 0.9935469657224228
+      },
+      {
+        "iteration": 184,
+        "true_relative_residual": 0.9935469656991026
+      },
+      {
+        "iteration": 185,
+        "true_relative_residual": 0.9935469656798348
+      },
+      {
+        "iteration": 186,
+        "true_relative_residual": 0.9935469656784053
+      },
+      {
+        "iteration": 187,
+        "true_relative_residual": 0.9935469656568733
+      },
+      {
+        "iteration": 188,
+        "true_relative_residual": 0.993546965304027
+      },
+      {
+        "iteration": 189,
+        "true_relative_residual": 0.9935469652887958
+      },
+      {
+        "iteration": 190,
+        "true_relative_residual": 0.9935469642588154
+      },
+      {
+        "iteration": 191,
+        "true_relative_residual": 0.9935469641435135
+      },
+      {
+        "iteration": 192,
+        "true_relative_residual": 0.9935469631143002
+      },
+      {
+        "iteration": 193,
+        "true_relative_residual": 0.99354696311422
+      },
+      {
+        "iteration": 194,
+        "true_relative_residual": 0.9935469631142043
+      },
+      {
+        "iteration": 195,
+        "true_relative_residual": 0.9935469631142027
+      },
+      {
+        "iteration": 196,
+        "true_relative_residual": 0.9935469631139774
+      },
+      {
+        "iteration": 197,
+        "true_relative_residual": 0.99354696306157
+      },
+      {
+        "iteration": 198,
+        "true_relative_residual": 0.9935469630562531
+      },
+      {
+        "iteration": 199,
+        "true_relative_residual": 0.9935469629043933
+      },
+      {
+        "iteration": 200,
+        "true_relative_residual": 0.9935469628729833
+      },
+      {
+        "iteration": 201,
+        "true_relative_residual": 0.9935469627213299
+      },
+      {
+        "iteration": 202,
+        "true_relative_residual": 0.9935469627025934
+      },
+      {
+        "iteration": 203,
+        "true_relative_residual": 0.9935469626520771
+      },
+      {
+        "iteration": 204,
+        "true_relative_residual": 0.9935469612157333
+      },
+      {
+        "iteration": 205,
+        "true_relative_residual": 0.9935469611256917
+      },
+      {
+        "iteration": 206,
+        "true_relative_residual": 0.9935469577790891
+      },
+      {
+        "iteration": 207,
+        "true_relative_residual": 0.9935469576005397
+      },
+      {
+        "iteration": 208,
+        "true_relative_residual": 0.9935469520502834
+      },
+      {
+        "iteration": 209,
+        "true_relative_residual": 0.9935469520502709
+      },
+      {
+        "iteration": 210,
+        "true_relative_residual": 0.9935469520502628
+      },
+      {
+        "iteration": 211,
+        "true_relative_residual": 0.993546952050263
+      },
+      {
+        "iteration": 212,
+        "true_relative_residual": 0.9935469520501735
+      },
+      {
+        "iteration": 213,
+        "true_relative_residual": 0.9935469520269093
+      },
+      {
+        "iteration": 214,
+        "true_relative_residual": 0.993546952023736
+      },
+      {
+        "iteration": 215,
+        "true_relative_residual": 0.993546951950432
+      },
+      {
+        "iteration": 216,
+        "true_relative_residual": 0.993546951944656
+      },
+      {
+        "iteration": 217,
+        "true_relative_residual": 0.9935469519032355
+      },
+      {
+        "iteration": 218,
+        "true_relative_residual": 0.9935469519013893
+      },
+      {
+        "iteration": 219,
+        "true_relative_residual": 0.993546951803425
+      },
+      {
+        "iteration": 220,
+        "true_relative_residual": 0.9935469511235808
+      },
+      {
+        "iteration": 221,
+        "true_relative_residual": 0.9935469511203748
+      },
+      {
+        "iteration": 222,
+        "true_relative_residual": 0.9935469489413841
+      },
+      {
+        "iteration": 223,
+        "true_relative_residual": 0.9935469487250251
+      },
+      {
+        "iteration": 224,
+        "true_relative_residual": 0.9935469458920063
+      },
+      {
+        "iteration": 225,
+        "true_relative_residual": 0.9935469458920063
+      },
+      {
+        "iteration": 226,
+        "true_relative_residual": 0.9935469458920035
+      },
+      {
+        "iteration": 227,
+        "true_relative_residual": 0.9935469458919824
+      },
+      {
+        "iteration": 228,
+        "true_relative_residual": 0.9935469458919821
+      },
+      {
+        "iteration": 229,
+        "true_relative_residual": 0.9935469458906148
+      },
+      {
+        "iteration": 230,
+        "true_relative_residual": 0.9935469458814393
+      },
+      {
+        "iteration": 231,
+        "true_relative_residual": 0.9935469458695358
+      },
+      {
+        "iteration": 232,
+        "true_relative_residual": 0.9935469458581734
+      },
+      {
+        "iteration": 233,
+        "true_relative_residual": 0.9935469458578189
+      },
+      {
+        "iteration": 234,
+        "true_relative_residual": 0.9935469458542272
+      },
+      {
+        "iteration": 235,
+        "true_relative_residual": 0.9935469456038051
+      },
+      {
+        "iteration": 236,
+        "true_relative_residual": 0.9935469454136059
+      },
+      {
+        "iteration": 237,
+        "true_relative_residual": 0.9935469452973086
+      },
+      {
+        "iteration": 238,
+        "true_relative_residual": 0.9935469451312149
+      },
+      {
+        "iteration": 239,
+        "true_relative_residual": 0.9935469450855502
+      },
+      {
+        "iteration": 240,
+        "true_relative_residual": 0.9935469429606453
+      },
+      {
+        "iteration": 241,
+        "true_relative_residual": 0.9935469429606342
+      },
+      {
+        "iteration": 242,
+        "true_relative_residual": 0.9935469429606255
+      },
+      {
+        "iteration": 243,
+        "true_relative_residual": 0.9935469429606252
+      },
+      {
+        "iteration": 244,
+        "true_relative_residual": 0.993546942960498
+      },
+      {
+        "iteration": 245,
+        "true_relative_residual": 0.993546942954168
+      },
+      {
+        "iteration": 246,
+        "true_relative_residual": 0.9935469429502757
+      },
+      {
+        "iteration": 247,
+        "true_relative_residual": 0.9935469429474327
+      },
+      {
+        "iteration": 248,
+        "true_relative_residual": 0.9935469429203445
+      },
+      {
+        "iteration": 249,
+        "true_relative_residual": 0.9935469429190981
+      },
+      {
+        "iteration": 250,
+        "true_relative_residual": 0.9935469429169421
+      },
+      {
+        "iteration": 251,
+        "true_relative_residual": 0.9935469428279013
+      },
+      {
+        "iteration": 252,
+        "true_relative_residual": 0.9935469428269168
+      },
+      {
+        "iteration": 253,
+        "true_relative_residual": 0.9935469427384697
+      },
+      {
+        "iteration": 254,
+        "true_relative_residual": 0.9935469422344347
+      },
+      {
+        "iteration": 255,
+        "true_relative_residual": 0.9935469418154281
+      },
+      {
+        "iteration": 256,
+        "true_relative_residual": 0.9935469408593788
+      }
+    ]
+  },
+  "schema": "numi.cardboard.source182-selector5-coarse-fine-cpu-emulation.v1"
+}

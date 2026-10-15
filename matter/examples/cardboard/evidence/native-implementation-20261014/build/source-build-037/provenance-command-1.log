@@ -1,0 +1,33 @@
+[  0%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[  0%] Generating shaders/NumiMatterPhysicalStateDigest.metallib
+[ 18%] Generating shaders/NumiMatter.metallib
+[ 18%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[ 27%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+[ 27%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[ 36%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[ 36%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[ 45%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[ 54%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[ 54%] Built target numi_matter_shaders
+[ 54%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[ 54%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+[ 63%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[ 72%] Building CXX object CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[ 72%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[ 72%] Built target numi_matter_compiler_objects
+[ 81%] Linking CXX static library libnumi_matter_compiler.a
+[ 81%] Built target numi_matter_compiler
+[ 81%] Built target numi_matter_runtime_objects
+[ 90%] Linking CXX static library libnumi_matter_runtime.a
+[ 90%] Built target numi_matter_runtime
+[ 90%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-probe
+[100%] Built target numi-matter-cardboard-probe
+[  8%] Built target numi_matter_shaders
+[ 50%] Built target numi_matter_compiler_objects
+[ 66%] Built target numi_matter_compiler
+[ 75%] Built target numi_matter_runtime_objects
+[ 83%] Built target numi_matter_runtime
+[ 91%] Building OBJCXX object CMakeFiles/numi-matter-fem-regional-galerkin-native-check.dir/tools/fem_regional_galerkin_native_check.mm.o
+[100%] Linking CXX executable numi-matter-fem-regional-galerkin-native-check
+[100%] Built target numi-matter-fem-regional-galerkin-native-check

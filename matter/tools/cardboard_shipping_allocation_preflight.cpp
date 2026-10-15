@@ -52,7 +52,8 @@ ShippingMemoryBudget estimateScenario(const std::uint64_t nodeCount,
     const bool sparsePrivate = false,
     const bool freeRigidUnknowns = true,
     const bool aliasSurfaceScratch = false,
-    const bool aliasCohesiveScratch = false) {
+    const bool aliasCohesiveScratch = false,
+    const bool boundedOneFreeBoxScope = false) {
     ShippingMemoryBudgetInput input;
     input.nodeCount = nodeCount;
     input.tetrahedronCount = tetrahedronCount;
@@ -73,6 +74,9 @@ ShippingMemoryBudget estimateScenario(const std::uint64_t nodeCount,
     input.deformableSelfContactEnabled = true;
     input.sparsePrivateContactRequested = sparsePrivate;
     input.sparsePrivateContactCapacity = sparsePrivate ? 65536u : 0u;
+    // This is an explicit scenario assumption, not inferred from the number
+    // of generalized rows. Runtime still validates the full proxy/body layout.
+    input.sparsePrivateContactBoundedFreeBoxScope = boundedOneFreeBoxScope;
     input.fullContactArmijoAliasesSurfaceScratch = aliasSurfaceScratch;
     input.fullContactArmijoAliasesCohesiveScratch = aliasCohesiveScratch;
     // Match the coarse host-side reserve used by the probe's prebuild
@@ -96,7 +100,8 @@ void writeMemoryScenario(const char* name,
                          const ShippingMemoryBudget& budget,
                          const std::uint64_t snapshotBytes,
                          const std::uint64_t checkpointCount,
-                         const std::uint64_t tangentCacheBytes) {
+                         const std::uint64_t tangentCacheBytes,
+                         const bool boundedOneFreeBoxScope = false) {
     std::cout << "    \"" << name << "\": {"
         << "\"modeled_metal_envelope_bytes\":" << budget.estimatedMetalPeakBytes
         << ",\"modeled_peak_domain_bytes\":" << budget.estimatedPeakDomainBytes
@@ -127,6 +132,13 @@ void writeMemoryScenario(const char* name,
         << budget.requiredCohesiveArmijoBytes
         << ",\"sparse_private_contact_bytes\":"
         << budget.sparsePrivateContactBytes
+        << ",\"bounded_one_free_box_six_dof_scope_assumed\":"
+        << (boundedOneFreeBoxScope ? "true" : "false")
+        << ",\"bounded_one_free_box_scope_note\":\""
+        << (boundedOneFreeBoxScope
+                ? "planning assumption only; runtime must validate one non-articulated free BOX and remaining proxy/body eligibility"
+                : "not assumed")
+        << "\""
         << ",\"private_rigid_contact_admitted\":"
         << (budget.privateRigidContactAdmitted ? "true" : "false")
         << ",\"private_rigid_contact_failure\":\""
@@ -287,7 +299,7 @@ void run() {
     const auto sparseFreeRigid = estimateScenario(
         starch.referenceNodesM.size(), starch.tetrahedra.size(), cohesiveFaceCount,
         pairCount, boundaryFaceCount, 131072u, true, 15u,
-        true, true, true, true);
+        true, true, true, true, true);
 
     ShippingMemoryBudgetInput snapshotDimensions;
     snapshotDimensions.nodeCount = starch.referenceNodesM.size();
@@ -324,12 +336,23 @@ void run() {
         numi::matter::detail::admitSparsePrivateContact(
         1u, static_cast<std::uint32_t>(pairCount),
         static_cast<std::uint32_t>(sparseCandidateCapacity), false, true);
+    const auto sparseAdmissionBoundedFreeBox =
+        numi::matter::detail::admitSparsePrivateContact(
+            1u, static_cast<std::uint32_t>(pairCount),
+            static_cast<std::uint32_t>(sparseCandidateCapacity),
+            false, true, true);
     require(sparseAdmissionNoFreeRows.admitted(),
             "shared runtime sparse admission rejected the no-free-rigid K=65536 case");
     require(!sparseAdmissionFreeRows.admitted() &&
             sparseAdmissionFreeRows.error ==
                 numi::matter::detail::SparsePrivateContactAdmissionError::free_rigid_unknowns_unsupported,
-            "shared runtime sparse admission did not reject free rigid unknowns");
+            "shared runtime sparse admission did not reject generic free rigid unknowns");
+    require(sparseAdmissionBoundedFreeBox.admitted(),
+            "shared runtime sparse admission rejected the bounded one-free-BOX six-DOF case");
+    require(sparseFreeRigid.privateRigidContactAdmitted &&
+            sparseFreeRigid.sparsePrivateContactBytes ==
+                sparseAdmissionBoundedFreeBox.totalBytes,
+            "bounded free-BOX scenario failed to include its sparse trial arena in the model");
     require(sparseKinematicAliased.requiredFullContactArmijoBytes <
                 sparseKinematicUnaliased.requiredFullContactArmijoBytes &&
             sparseKinematicAliased.persistentContactBytes ==
@@ -353,7 +376,7 @@ void run() {
 
     std::cout
         << "{\n"
-        << "  \"schema\": \"numi.cardboard.shipping-allocation-preflight.v5\",\n"
+        << "  \"schema\": \"numi.cardboard.shipping-allocation-preflight.v6\",\n"
         << "  \"allocation_accounting\": {\"combined_formula\": \"modeled Metal envelope + host mesh/compile allocations + retained checkpoints\", \"shared_upload_and_readback_reserves_counted_once\": true, \"host_subtotal_is_not_an_observed_process_metric\": true, \"observed_runtime_and_host_counters_compared_by_max\": true},\n"
         << "  \"evidence_class\": \"exact CPU-built authored geometry plus allocation formulas read from source; modeled envelope only, not actual Metal peak, solver qualification, or physical qualification\",\n"
         << "  \"host_reserve_assumptions\": {\"basis\": \"same coarse reserve formulas as estimateShippingPrebuildMemoryBudget in cardboard_shipping_memory.hpp\", \"source_mesh_bytes\": " << hostSourceMeshBytes
@@ -407,11 +430,16 @@ void run() {
         << ", \"sparse_runtime_helper_failure_without_free_rigid_rows\": \""
         << numi::matter::detail::sparsePrivateContactAdmissionErrorText(
                 sparseAdmissionNoFreeRows.error)
-        << "\", \"sparse_runtime_helper_admitted_with_six_free_rigid_rows\": "
+        << "\", \"sparse_runtime_helper_admitted_with_generic_six_free_rigid_rows\": "
         << (sparseAdmissionFreeRows.admitted() ? "true" : "false")
-        << ", \"sparse_runtime_helper_failure_with_six_free_rigid_rows\": \""
+        << ", \"sparse_runtime_helper_failure_with_generic_six_free_rigid_rows\": \""
         << numi::matter::detail::sparsePrivateContactAdmissionErrorText(
                 sparseAdmissionFreeRows.error)
+        << "\", \"sparse_runtime_helper_admitted_with_bounded_one_free_BOX_six_DOF_scope\": "
+        << (sparseAdmissionBoundedFreeBox.admitted() ? "true" : "false")
+        << ", \"sparse_runtime_helper_failure_with_bounded_one_free_BOX_six_DOF_scope\": \""
+        << numi::matter::detail::sparsePrivateContactAdmissionErrorText(
+                sparseAdmissionBoundedFreeBox.error)
         << "\"},\n"
         << "  \"current_admission\": {\"node_limit\": 8192, \"nodes_rejected\": "
         << (starch.referenceNodesM.size() > 8192u ? "true" : "false")
@@ -459,17 +487,17 @@ void run() {
         boundedUncompacted, snapshotBytes[1], 2u,
         tangentCacheBytes + tangentCacheValidBytes);
     std::cout << ",\n";
-    writeMemoryScenario("sparse_K65536_no_free_rigid_aliases_on_stride15",
+    writeMemoryScenario("sparse_K65536_no_free_rigid_on_stride15",
         sparseKinematicAliased, snapshotBytes[1], 2u,
         tangentCacheBytes + tangentCacheValidBytes);
     std::cout << ",\n";
-    writeMemoryScenario("sparse_K65536_no_free_rigid_aliases_off_stride15",
+    writeMemoryScenario("sparse_K65536_no_free_rigid_off_stride15",
         sparseKinematicUnaliased, snapshotBytes[1], 2u,
         tangentCacheBytes + tangentCacheValidBytes);
     std::cout << ",\n";
-    writeMemoryScenario("sparse_K65536_six_free_rigid_aliases_on_stride15",
+    writeMemoryScenario("sparse_K65536_one_free_BOX_six_DOF_on_stride15",
         sparseFreeRigid, snapshotBytes[1], 2u,
-        tangentCacheBytes + tangentCacheValidBytes);
+        tangentCacheBytes + tangentCacheValidBytes, true);
     std::cout
         << "\n    },\n"
         << "    \"regional_preconditioner_selector_estimates\": {"
@@ -486,8 +514,8 @@ void run() {
         << kShippingCase032RuntimeResidentBytes
         << ",\"measurement_scope\":\"earlier base FEM source032 without shipping tools or cohesive faces; not the present full-world model\"\n"
         << "  },\n"
-        << "  \"known_admission_blockers\": [\"node/tet/cohesive count gates remain exceeded for the full shipping topology\", \"default 8T deformable contact slots exceed cap; explicit 131072 only clears this one count gate\", \"dense private contact rejects the current pair domain; sparse K=65536 admits the rigid trial arena only when there are no free rigid unknowns\", \"full-contact FEM and cohesive count/arena gates remain exceeded\", \"selector 2 and selector 4 RAP arenas exceed 256 MiB\"],\n"
-        << "  \"limits\": {\"memory_peak_is_model_not_actual_metal_allocation\": true, \"host_reserve_is_coarse_not_measured\": true, \"scratch_aliases_reduce_private_estimates_only\": true, \"persistent_allocations_and_runtime_count_caps_are_not_reduced_by_aliases\": true, \"sparse_private_requires_zero_free_rigid_unknowns\": true, \"no_solver_step_or_physical_qualification\": true}\n"
+        << "  \"known_admission_blockers\": [\"node/tet/cohesive count gates remain exceeded for the full shipping topology\", \"default 8T deformable contact slots exceed cap; explicit 131072 only clears this one count gate\", \"dense private contact rejects the current pair domain; sparse K=65536 models an exact one non-articulated free BOX six-DOF scope, subject to runtime proxy/body validation\", \"full-contact FEM and cohesive count/arena gates remain exceeded\", \"selector 2 and selector 4 RAP arenas exceed 256 MiB\"],\n"
+        << "  \"limits\": {\"memory_peak_is_model_not_actual_metal_allocation\": true, \"host_reserve_is_coarse_not_measured\": true, \"scratch_aliases_reduce_private_estimates_only\": true, \"persistent_allocations_and_runtime_count_caps_are_not_reduced_by_aliases\": true, \"generic_sparse_free_rigid_scope_is_rejected\": true, \"bounded_sparse_free_BOX_layout_is_only_a_modeled_assumption_until_runtime_validation\": true, \"no_solver_step_or_physical_qualification\": true}\n"
         << "}\n";
 }
 

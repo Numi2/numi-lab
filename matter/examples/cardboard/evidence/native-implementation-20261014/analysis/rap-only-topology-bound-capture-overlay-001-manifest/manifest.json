@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.observational-overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-armijo-applied-alpha-diagnostic-integrated-066",
+  "source_files": {
+    "matter/src/runtime.mm": {
+      "before": "03513ba0020ed413ef6c933111621c6f7804dbd3c665d12f5771c042ded9cd38",
+      "after": "ffee0c7ac443c9290650ea487feac15b54977c3abc103dabd25b9c0162f23d79"
+    },
+    "matter/tools/cardboard_diagnostic_history_compare.py": {
+      "before": "00f0af69f34dfde6f373b7a6bcc69a6000cd53a910178707824e00eaa8d07644",
+      "after": "d173daa305218a5783d953a555f0a270830fb7fd6193faed2ee2f96695f83153"
+    }
+  },
+  "patch_sha256": "573cb11a25449d3f2965a0ddf50e3be397e218b49188355c0e9e9c76d342e230",
+  "scope": "RAP-only diagnostic prevents unused FD readback allocation/encoding; aggregate32MiBcap unchanged. Adds exact compiled topology/free-mask identities. No physical operator, tolerance, conditioning or acceptance change."
+}

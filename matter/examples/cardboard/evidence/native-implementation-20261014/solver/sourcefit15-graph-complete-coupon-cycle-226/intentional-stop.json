@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.intentional-stop.v1",
+  "at_utc": "2026-10-15T06:03:26.770925+00:00",
+  "pid": 15973,
+  "process_group": 15973,
+  "signal": "SIGTERM",
+  "reason": "Source069 selector5 immutable mask cannot admit authored right-grip release at control24; source inspection confirms w2 releases initiallyfixednodes. Stop this not-yet-completed diagnostic-heavy wholecycle before replacing it with safe dynamic-mask support and quiet observers. No complete control/history/convergence claim from this interrupted run.",
+  "timeout": false
+}

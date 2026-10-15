@@ -1,0 +1,218 @@
+[  0%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[  0%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[ 33%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[ 33%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+[ 50%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[ 66%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[ 66%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[ 83%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[ 83%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Linking CXX static library libnumi_matter_compiler.a
+[ 83%] Built target numi_matter_compiler
+[ 83%] Building CXX object CMakeFiles/numi-matter-cardboard-barrier-scale-check.dir/tools/cardboard_prescribed_barrier_scale_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-barrier-scale-check
+[100%] Built target numi-matter-cardboard-barrier-scale-check
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-box-assembly-controller-check.dir/tools/cardboard_box_assembly_controller_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-box-assembly-controller-check
+[100%] Built target numi-matter-cardboard-box-assembly-controller-check
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-box-blank-check.dir/tools/cardboard_box_blank_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-box-blank-check
+[100%] Built target numi-matter-cardboard-box-blank-check
+[  0%] Generating shaders/NumiMatterPhysicalStateDigest.metallib
+[ 10%] Generating shaders/NumiMatter.metallib
+[ 60%] Built target numi_matter_compiler_objects
+[ 60%] Built target numi_matter_compiler
+[ 60%] Built target numi_matter_shaders
+[ 60%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+[ 60%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[ 70%] Building CXX object CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[ 80%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[ 80%] Built target numi_matter_runtime_objects
+[ 90%] Linking CXX static library libnumi_matter_runtime.a
+[ 90%] Built target numi_matter_runtime
+[ 90%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-cohesive-face-check.dir/tools/cardboard_cohesive_face_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-cohesive-face-check
+[100%] Built target numi-matter-cardboard-cohesive-face-check
+[  0%] Building CXX object CMakeFiles/numi-matter-cardboard-compensated-deformation-check.dir/tools/cardboard_compensated_deformation_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-compensated-deformation-check
+[100%] Built target numi-matter-cardboard-compensated-deformation-check
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-damage-builder-check.dir/tools/cardboard_damage_builder_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-damage-builder-check
+[100%] Built target numi-matter-cardboard-damage-builder-check
+[ 50%] Building CXX object CMakeFiles/numi-matter-cardboard-delamination-reference-check.dir/tools/cardboard_bleached_delamination_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-delamination-reference-check
+[100%] Built target numi-matter-cardboard-delamination-reference-check
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 83%] Building CXX object CMakeFiles/numi-matter-cardboard-expression-cache-check.dir/tools/cardboard_expression_cache_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-expression-cache-check
+[100%] Built target numi-matter-cardboard-expression-cache-check
+[  0%] Building CXX object CMakeFiles/numi-matter-cardboard-fracture-regularization-check.dir/tools/cardboard_fracture_regularization_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-fracture-regularization-check
+[100%] Built target numi-matter-cardboard-fracture-regularization-check
+[ 10%] Built target numi_matter_shaders
+[ 60%] Built target numi_matter_compiler_objects
+[ 60%] Built target numi_matter_compiler
+[ 80%] Built target numi_matter_runtime_objects
+[ 90%] Built target numi_matter_runtime
+[100%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-full-contact-armijo-check.dir/tools/cardboard_full_contact_armijo_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-full-contact-armijo-check
+[100%] Built target numi-matter-cardboard-full-contact-armijo-check
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-generic-compensated-projection-check.dir/tools/cardboard_generic_compensated_projection_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-generic-compensated-projection-check
+[100%] Built target numi-matter-cardboard-generic-compensated-projection-check
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-glue-mesh-check.dir/tools/cardboard_glue_mesh_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-glue-mesh-check
+[100%] Built target numi-matter-cardboard-glue-mesh-check
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 83%] Building CXX object CMakeFiles/numi-matter-cardboard-material-check.dir/tools/cardboard_material_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-material-check
+[100%] Built target numi-matter-cardboard-material-check
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-mixed-cohesive-check.dir/tools/cardboard_mixed_cohesive_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-mixed-cohesive-check
+[100%] Built target numi-matter-cardboard-mixed-cohesive-check
+[ 10%] Built target numi_matter_shaders
+[ 60%] Built target numi_matter_compiler_objects
+[ 60%] Built target numi_matter_compiler
+[ 80%] Built target numi_matter_runtime_objects
+[ 90%] Built target numi_matter_runtime
+[100%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-mixed-cohesive-face-check.dir/tools/cardboard_mixed_cohesive_face_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-mixed-cohesive-face-check
+[100%] Built target numi-matter-cardboard-mixed-cohesive-face-check
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-mixed-cohesive-frame-check.dir/tools/cardboard_mixed_cohesive_frame_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-mixed-cohesive-frame-check
+[100%] Built target numi-matter-cardboard-mixed-cohesive-frame-check
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 83%] Building CXX object CMakeFiles/numi-matter-cardboard-paper-material-check.dir/tools/cardboard_paper_material_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-paper-material-check
+[100%] Built target numi-matter-cardboard-paper-material-check
+[  0%] Building CXX object CMakeFiles/numi-matter-cardboard-pin-adhesion-fixture-check.dir/tools/cardboard_pin_adhesion_fixture_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-pin-adhesion-fixture-check
+[100%] Built target numi-matter-cardboard-pin-adhesion-fixture-check
+[ 10%] Built target numi_matter_shaders
+[ 60%] Built target numi_matter_compiler_objects
+[ 60%] Built target numi_matter_compiler
+[ 80%] Built target numi_matter_runtime_objects
+[ 90%] Built target numi_matter_runtime
+[100%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o
+/Users/home/cardboard-implementation-20261014/snapshots/contact-feature-box-motion-roof-043/matter/tools/cardboard_probe.mm:618:13: warning: unused function 'writeShippingNominalCurveArtifact' [-Wunused-function]
+  618 | std::string writeShippingNominalCurveArtifact(
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.
+[100%] Linking CXX executable numi-matter-cardboard-probe
+[100%] Built target numi-matter-cardboard-probe
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-profile-check.dir/tools/cardboard_profile_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-profile-check
+[100%] Built target numi-matter-cardboard-profile-check
+[ 50%] Building CXX object CMakeFiles/numi-matter-cardboard-retained-damage-fp64-oracle-check.dir/tools/cardboard_retained_damage_fp64_oracle_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-retained-damage-fp64-oracle-check
+[100%] Built target numi-matter-cardboard-retained-damage-fp64-oracle-check
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 83%] Building CXX object CMakeFiles/numi-matter-cardboard-retained-matrix-damage-check.dir/tools/cardboard_retained_matrix_damage_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-retained-matrix-damage-check
+[100%] Built target numi-matter-cardboard-retained-matrix-damage-check
+[  0%] Generating shaders/cardboard_retained_matrix_damage_check.metallib
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 83%] Built target numi_cardboard_retained_damage_shaders
+[ 83%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-retained-matrix-damage-metal-check.dir/tools/cardboard_retained_matrix_damage_gpu_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-retained-matrix-damage-metal-check
+[100%] Built target numi-matter-cardboard-retained-matrix-damage-metal-check
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-shipping-closure-mesh-check.dir/tools/cardboard_shipping_closure_mesh_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-shipping-closure-mesh-check
+[100%] Built target numi-matter-cardboard-shipping-closure-mesh-check
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-shipping-driver-check.dir/tools/cardboard_shipping_driver_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-shipping-driver-check
+[100%] Built target numi-matter-cardboard-shipping-driver-check
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-shipping-memory-check.dir/tools/cardboard_shipping_memory_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-shipping-memory-check
+[100%] Built target numi-matter-cardboard-shipping-memory-check
+[ 50%] Building CXX object CMakeFiles/numi-matter-cardboard-shipping-protocol-check.dir/tools/cardboard_shipping_protocol_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-shipping-protocol-check
+[100%] Built target numi-matter-cardboard-shipping-protocol-check
+[  0%] Building CXX object CMakeFiles/numi-matter-cardboard-shipping-snapshot-check.dir/tools/cardboard_shipping_snapshot_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-shipping-snapshot-check
+[100%] Built target numi-matter-cardboard-shipping-snapshot-check
+[  0%] Building CXX object CMakeFiles/numi-matter-cardboard-solver-replay.dir/tools/cardboard_solver_replay.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-solver-replay
+[100%] Built target numi-matter-cardboard-solver-replay
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-starch-interface-mesh-check.dir/tools/cardboard_starch_interface_mesh_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-starch-interface-mesh-check
+[100%] Built target numi-matter-cardboard-starch-interface-mesh-check
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-tooling-check.dir/tools/cardboard_tooling_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-tooling-check
+[100%] Built target numi-matter-cardboard-tooling-check
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 83%] Building CXX object CMakeFiles/numi-matter-fem-material-frame-compiler-check.dir/tools/fem_material_frame_compiler_check.cpp.o
+[100%] Linking CXX executable numi-matter-fem-material-frame-compiler-check
+[100%] Built target numi-matter-fem-material-frame-compiler-check
+[ 10%] Built target numi_matter_shaders
+[ 60%] Built target numi_matter_compiler_objects
+[ 60%] Built target numi_matter_compiler
+[ 80%] Built target numi_matter_runtime_objects
+[ 90%] Built target numi_matter_runtime
+[100%] Building OBJCXX object CMakeFiles/numi-matter-fem-reference-check.dir/tools/fem_reference_check.mm.o
+[100%] Linking CXX executable numi-matter-fem-reference-check
+[100%] Built target numi-matter-fem-reference-check
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[100%] Building CXX object CMakeFiles/numi-matter-fem-regional-galerkin-compiler-check.dir/tools/fem_regional_galerkin_compiler_check.cpp.o
+[100%] Linking CXX executable numi-matter-fem-regional-galerkin-compiler-check
+[100%] Built target numi-matter-fem-regional-galerkin-compiler-check
+[ 10%] Built target numi_matter_shaders
+[ 60%] Built target numi_matter_compiler_objects
+[ 60%] Built target numi_matter_compiler
+[ 80%] Built target numi_matter_runtime_objects
+[ 90%] Built target numi_matter_runtime
+[100%] Building OBJCXX object CMakeFiles/numi-matter-fem-regional-galerkin-native-check.dir/tools/fem_regional_galerkin_native_check.mm.o
+[100%] Linking CXX executable numi-matter-fem-regional-galerkin-native-check
+[100%] Built target numi-matter-fem-regional-galerkin-native-check
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 83%] Building CXX object CMakeFiles/numi-matter-fem-static-surface-map-check.dir/tools/fem_static_surface_map_check.cpp.o
+[100%] Linking CXX executable numi-matter-fem-static-surface-map-check
+[100%] Built target numi-matter-fem-static-surface-map-check
+[100%] Building CXX object CMakeFiles/numi-matter-fixed-convex-contact-step-check.dir/tools/fixed_convex_contact_step_check.cpp.o
+[100%] Linking CXX executable numi-matter-fixed-convex-contact-step-check
+[100%] Built target numi-matter-fixed-convex-contact-step-check
+[  9%] Built target numi_matter_shaders
+[ 54%] Built target numi_matter_compiler_objects
+[ 54%] Built target numi_matter_compiler
+[ 72%] Built target numi_matter_runtime_objects
+[ 81%] Built target numi_matter_runtime
+[ 90%] Building OBJCXX object CMakeFiles/numi-matter-robertsson-fem-coupling-check.dir/tools/robertsson_fem_coupling_check.mm.o
+[100%] Linking CXX executable numi-matter-robertsson-fem-coupling-check
+[100%] Built target numi-matter-robertsson-fem-coupling-check
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 83%] Building CXX object CMakeFiles/numi-matter-stateful-check.dir/tools/stateful_check.cpp.o
+[100%] Linking CXX executable numi-matter-stateful-check
+[100%] Built target numi-matter-stateful-check
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 83%] Building CXX object CMakeFiles/numi-matter-cardboard-solver-pair-replay.dir/tools/cardboard_solver_pair_replay.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-solver-pair-replay
+[100%] Built target numi-matter-cardboard-solver-pair-replay
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-reaction-observables-check.dir/tools/cardboard_reaction_observables_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-reaction-observables-check
+[100%] Built target numi-matter-cardboard-reaction-observables-check
+[ 10%] Built target numi_matter_shaders
+[ 60%] Built target numi_matter_compiler_objects
+[ 80%] Built target numi_matter_runtime_objects
+[ 80%] Built target numi_matter_compiler
+[ 90%] Built target numi_matter_runtime
+[ 90%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-capsule-armijo-check.dir/tools/cardboard_capsule_armijo_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-capsule-armijo-check
+[100%] Built target numi-matter-cardboard-capsule-armijo-check
+make: *** No rule to make target `numi-matter-cardboard-shipping-rigid-driver-check'.  Stop.

@@ -1,0 +1,448 @@
+{
+  "schema": "numi.cardboard.first-failing-layer.v1",
+  "recorded_at_utc": "2026-10-15T05:07:19.809777+00:00",
+  "case": "/Users/home/cardboard-implementation-20261014/native/armijo-applied-alpha-free-body-trace-203",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-armijo-applied-alpha-diagnostic-integrated-066",
+  "inputs_sha256": {
+    "prediction.json": "d3dd294af7b20061cf0eaf307269a5ee73a3adfa88bf41d1926389b92659c593",
+    "receipt.json": "ff1980e6d8f3669e5cab9b9db036674b46dda8b9618986ba2ccb0563ae2cb678",
+    "stderr.log": "21897284ae5c9e2d78d64b971aff77c082165a8604417905a225dd51c5144857",
+    "stdout.log": "b9cfd2240a76fe8947ed52537aec88565a2cea7e0250189d17e7c00cacd786fa"
+  },
+  "rows": [
+    {
+      "newton_iteration": 0,
+      "base_l2": 0.00999826938,
+      "trial_l2": 0.00499893026,
+      "trial_alpha": 0.5,
+      "selected_alpha": 0.5,
+      "environment_line_search_alpha": 0.5,
+      "accepted": true
+    },
+    {
+      "newton_iteration": 1,
+      "base_l2": 0.00499893026,
+      "trial_l2": 0.00249941903,
+      "trial_alpha": 0.5,
+      "selected_alpha": 0.5,
+      "environment_line_search_alpha": 0.5,
+      "accepted": true
+    },
+    {
+      "newton_iteration": 2,
+      "base_l2": 0.00249941903,
+      "trial_l2": 1.29492003e-06,
+      "trial_alpha": 1,
+      "selected_alpha": 1,
+      "environment_line_search_alpha": 1,
+      "accepted": true
+    },
+    {
+      "newton_iteration": 3,
+      "base_l2": 1.29492003e-06,
+      "trial_l2": 2.68620056e-07,
+      "trial_alpha": 1,
+      "selected_alpha": 1,
+      "environment_line_search_alpha": 1,
+      "accepted": true
+    },
+    {
+      "newton_iteration": 4,
+      "base_l2": 2.68620056e-07,
+      "trial_l2": 1.44815175e-07,
+      "trial_alpha": 1,
+      "selected_alpha": 1,
+      "environment_line_search_alpha": 1,
+      "accepted": true
+    },
+    {
+      "newton_iteration": 5,
+      "base_l2": 1.44815175e-07,
+      "trial_l2": 1.41007575e-07,
+      "trial_alpha": 0.0625,
+      "selected_alpha": 0.0625,
+      "environment_line_search_alpha": 1,
+      "accepted": true
+    },
+    {
+      "newton_iteration": 6,
+      "base_l2": 1.41997361e-07,
+      "trial_l2": 1.41866636e-07,
+      "trial_alpha": 0.0009765625,
+      "selected_alpha": 0.0009765625,
+      "environment_line_search_alpha": 1,
+      "accepted": true
+    },
+    {
+      "newton_iteration": 7,
+      "base_l2": 1.42206076e-07,
+      "trial_l2": 1.42171587e-07,
+      "trial_alpha": 0.000244140625,
+      "selected_alpha": 0.000244140625,
+      "environment_line_search_alpha": 1,
+      "accepted": true
+    },
+    {
+      "newton_iteration": 8,
+      "base_l2": 1.42296784e-07,
+      "trial_l2": 1.42296173e-07,
+      "trial_alpha": 6.10351562e-05,
+      "selected_alpha": 6.10351562e-05,
+      "environment_line_search_alpha": 1,
+      "accepted": true
+    },
+    {
+      "newton_iteration": 9,
+      "base_l2": 1.42296173e-07,
+      "trial_l2": 1.42295036e-07,
+      "trial_alpha": 3.05175781e-05,
+      "selected_alpha": 3.05175781e-05,
+      "environment_line_search_alpha": 1,
+      "accepted": true
+    },
+    {
+      "newton_iteration": 10,
+      "base_l2": 1.42295036e-07,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 1.1920929e-07,
+      "selected_alpha": 1.1920929e-07,
+      "environment_line_search_alpha": 1,
+      "accepted": true
+    },
+    {
+      "newton_iteration": 11,
+      "base_l2": 1.42294965e-07,
+      "trial_l2": 1.42295093e-07,
+      "trial_alpha": 1.1920929e-07,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 1,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 12,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 13,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 14,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 15,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 16,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 17,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 18,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 19,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 20,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 21,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 22,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 23,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 24,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 25,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 26,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 27,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 28,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 29,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 30,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    },
+    {
+      "newton_iteration": 31,
+      "base_l2": 0.0100000193,
+      "trial_l2": 1.42294965e-07,
+      "trial_alpha": 0,
+      "selected_alpha": 0,
+      "environment_line_search_alpha": 0,
+      "accepted": false
+    }
+  ],
+  "first_accepted_fraction_mismatch": {
+    "newton_iteration": 5,
+    "base_l2": 1.44815175e-07,
+    "trial_l2": 1.41007575e-07,
+    "trial_alpha": 0.0625,
+    "selected_alpha": 0.0625,
+    "environment_line_search_alpha": 1,
+    "accepted": true
+  },
+  "state_comparison_to_199": [
+    {
+      "path": "dense/transaction-000000-after.bin",
+      "current_sha256": "04bb9f83b790f82a3fa851f1561867ece8ab98b50fb4dc4fe330b9f6bbf98ed5",
+      "prior_sha256": "dc1b235f25139aaae8c05a2990f0b9f55c366616c50a419d94dde90b6c37c65d",
+      "equal": false,
+      "field_aware_comparison": {
+        "codec_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-armijo-applied-alpha-diagnostic-integrated-066/matter/tools/cardboard_shipping_snapshot.hpp",
+        "codec_sha256": "987eade18437c57a5e5ea364065ab7926c8911281d0b966034a44279b4f48475",
+        "payload_bytes": 904359,
+        "different_byte_offsets": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "different_field": "deviceProgramFingerprint",
+        "field_offset": 12,
+        "field_bytes": 8,
+        "current_device_program_fingerprint": "0x37c262ea314a3299",
+        "prior_device_program_fingerprint": "0xc7ae8e580cd0017f",
+        "all_other_payload_bytes_equal": true,
+        "current_excluding_device_program_fingerprint_sha256": "6045aa0acdc5b93a22d07f659f6f5d063553c3c65c9240fd36cc6f7e37372794",
+        "prior_excluding_device_program_fingerprint_sha256": "6045aa0acdc5b93a22d07f659f6f5d063553c3c65c9240fd36cc6f7e37372794",
+        "scope": "Cross-build comparison; raw bytes differ at program identity. This is not a same-build diagnostic-on/off qualification."
+      }
+    },
+    {
+      "path": "dense/transaction-000000-before.bin",
+      "current_sha256": "fe9abc2bb2600c83e399bee043bb5323e247ed5a18976394d856040bed773987",
+      "prior_sha256": "ffcfbc7ca416a2cf8946ae512f35e0eb62111eb6b2c466926c43574ba949d0b5",
+      "equal": false,
+      "field_aware_comparison": {
+        "codec_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-armijo-applied-alpha-diagnostic-integrated-066/matter/tools/cardboard_shipping_snapshot.hpp",
+        "codec_sha256": "987eade18437c57a5e5ea364065ab7926c8911281d0b966034a44279b4f48475",
+        "payload_bytes": 904359,
+        "different_byte_offsets": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "different_field": "deviceProgramFingerprint",
+        "field_offset": 12,
+        "field_bytes": 8,
+        "current_device_program_fingerprint": "0x37c262ea314a3299",
+        "prior_device_program_fingerprint": "0xc7ae8e580cd0017f",
+        "all_other_payload_bytes_equal": true,
+        "current_excluding_device_program_fingerprint_sha256": "3a2dd0c48b92cde534f4bf5106f18419b70261ae74b4477c2b79bf6dbec3ba39",
+        "prior_excluding_device_program_fingerprint_sha256": "3a2dd0c48b92cde534f4bf5106f18419b70261ae74b4477c2b79bf6dbec3ba39",
+        "scope": "Cross-build comparison; raw bytes differ at program identity. This is not a same-build diagnostic-on/off qualification."
+      }
+    },
+    {
+      "path": "dense/transaction-000000.json",
+      "current_sha256": "5ab1d4b20007852b145fe2ca27bfbc7ce0a6bda64bafc683cc3f0c658d04b795",
+      "prior_sha256": "5ab1d4b20007852b145fe2ca27bfbc7ce0a6bda64bafc683cc3f0c658d04b795",
+      "equal": true
+    },
+    {
+      "path": "dense/transaction-000001-after.bin",
+      "current_sha256": "2af1d62b30b9b49cdc209c86e570a046e40ec8daa19aa9db1cfaea05eb059e24",
+      "prior_sha256": "dc3fff3179cc6515d8179abde949ce60a3ab879cfb9ca744ee6d7776f7a12f19",
+      "equal": false,
+      "field_aware_comparison": {
+        "codec_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-armijo-applied-alpha-diagnostic-integrated-066/matter/tools/cardboard_shipping_snapshot.hpp",
+        "codec_sha256": "987eade18437c57a5e5ea364065ab7926c8911281d0b966034a44279b4f48475",
+        "payload_bytes": 904359,
+        "different_byte_offsets": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "different_field": "deviceProgramFingerprint",
+        "field_offset": 12,
+        "field_bytes": 8,
+        "current_device_program_fingerprint": "0x37c262ea314a3299",
+        "prior_device_program_fingerprint": "0xc7ae8e580cd0017f",
+        "all_other_payload_bytes_equal": true,
+        "current_excluding_device_program_fingerprint_sha256": "7dfe816eb1caff0e4d28e1499a0f8fcab7b2a14455c6bbb41757dc76b3cd750c",
+        "prior_excluding_device_program_fingerprint_sha256": "7dfe816eb1caff0e4d28e1499a0f8fcab7b2a14455c6bbb41757dc76b3cd750c",
+        "scope": "Cross-build comparison; raw bytes differ at program identity. This is not a same-build diagnostic-on/off qualification."
+      }
+    },
+    {
+      "path": "dense/transaction-000001-before.bin",
+      "current_sha256": "04bb9f83b790f82a3fa851f1561867ece8ab98b50fb4dc4fe330b9f6bbf98ed5",
+      "prior_sha256": "dc1b235f25139aaae8c05a2990f0b9f55c366616c50a419d94dde90b6c37c65d",
+      "equal": false,
+      "field_aware_comparison": {
+        "codec_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-armijo-applied-alpha-diagnostic-integrated-066/matter/tools/cardboard_shipping_snapshot.hpp",
+        "codec_sha256": "987eade18437c57a5e5ea364065ab7926c8911281d0b966034a44279b4f48475",
+        "payload_bytes": 904359,
+        "different_byte_offsets": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "different_field": "deviceProgramFingerprint",
+        "field_offset": 12,
+        "field_bytes": 8,
+        "current_device_program_fingerprint": "0x37c262ea314a3299",
+        "prior_device_program_fingerprint": "0xc7ae8e580cd0017f",
+        "all_other_payload_bytes_equal": true,
+        "current_excluding_device_program_fingerprint_sha256": "6045aa0acdc5b93a22d07f659f6f5d063553c3c65c9240fd36cc6f7e37372794",
+        "prior_excluding_device_program_fingerprint_sha256": "6045aa0acdc5b93a22d07f659f6f5d063553c3c65c9240fd36cc6f7e37372794",
+        "scope": "Cross-build comparison; raw bytes differ at program identity. This is not a same-build diagnostic-on/off qualification."
+      }
+    },
+    {
+      "path": "dense/transaction-000001.json",
+      "current_sha256": "52ed57634f09e9439203214c8c7e9e1587adcf64126b7832215e946b212cc1b0",
+      "prior_sha256": "52ed57634f09e9439203214c8c7e9e1587adcf64126b7832215e946b212cc1b0",
+      "equal": true
+    }
+  ],
+  "verdict": "CONFIRMED_TESTED_APPLIED_FRACTION_PUBLICATION_DISCREPANCY",
+  "scope": "Full-contact Armijo executes after native determinant/contact limits. FEM apply reads object line.x; free-rigid apply reads distinct environmentLineSearch. Same accepted decision must publish both. This confirms a vector-update consistency defect, not that this defect alone explains all convergence failures. No global tolerance relaxation.",
+  "cross_build_identity_erratum": "The initial markdown incorrectly called all six raw files byte-identical. The two JSON records are byte-identical; the four binary records differ only in the eight-byte deviceProgramFingerprint header. All other binary bytes, including retained histories, match exactly. Initial draft is preserved. Same-build on/off comparison still required."
+}

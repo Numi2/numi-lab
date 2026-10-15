@@ -1,0 +1,12 @@
+{
+  "schema": "numi.cardboard.cpu-formula-prediction.v1",
+  "argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-angular-free-box-and-swept-path-integrated-064/matter/tools/test_cardboard_free_box_angular_operator.py"
+  ],
+  "script_sha256": "ea9c1db98f5db492bd57c083c002d2c5a1482c4e21ec7e83d542cf8d5bd0c636",
+  "frozen_source_sha256": "3364a3981f0378586f55e4ae2239d5d84ed42a9979c3a13b8748be2ec568b9fa",
+  "question": "Do signed smooth-box, inertia, pose-endpoint and swept-bound CPU formula checks pass on the exact frozen064 source?",
+  "prediction": "Eleven formula checks should pass; these do not bind actual shader action or qualify native contact, friction, transitions, shipping assembly or impact.",
+  "physical_steps": 0
+}

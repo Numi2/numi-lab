@@ -1,0 +1,41 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-angular-free-box-and-swept-path-integrated-064",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-angular-and-graph-schwarz-integrated-065",
+  "changed": {
+    "matter/include/numi/matter/matter.hpp": {
+      "before": "016e6650bbb6d17d314b219f01cdf0ebce7400efcb6fb2b0a72d67bb5b49cc47",
+      "after": "c3a8ee4c09c58c0891cda023c4b82ebd0e4036909007fa815e30180af8aee05a"
+    },
+    "matter/src/compiler_impl.cpp": {
+      "before": "6a3ea24d5cf791d0fa5c4291209306941399aad876debd485c6eb2d45833bcca",
+      "after": "a194cef5c9e5403bdafe91d864612626afb9ebb86af34ec5b04bf91f3fd1a281"
+    },
+    "matter/src/metal/fgmres.metalinc": {
+      "before": "e2b4c539c7f7e5b97b52e9f703657776c1aa196e0a9f3a5d8b9573bb350c1fa2",
+      "after": "c99e77d32266797e10d3d39a2be93cde68b818b386c0f8e7fc9152dac3b072f1"
+    },
+    "matter/src/regional_graph_schwarz.hpp": {
+      "before": null,
+      "after": "f8973ed2c95367e82f202be77b4f8763231dae88d17cd80c60c64ccd127391a8"
+    },
+    "matter/src/runtime.mm": {
+      "before": "32597ceffdafc88ed507b2e6bc06ff6a78bffc7918a20884f0586387153e3f8e",
+      "after": "a0584b8324e277700111f66f9d324391957092d109ab66525020f7860c0708fe"
+    },
+    "matter/src/validation_impl.cpp": {
+      "before": "99b66772d4ed9cfd4bb86113c3fb89dcd4c0c7abdefaa917235e9cb9ab41d477",
+      "after": "2b63b7d3fc0da732fe36edc6413e98985c7cede382904ccdbe7e020443eb1e15"
+    },
+    "matter/tools/cardboard_probe.mm": {
+      "before": "d94fe0aa982de7aa950963faabfef4a596345d19cc68fe9dbf75c7ff37ba6984",
+      "after": "74129753fafb28924ce690512115ee1afc8d0c98dd933f2dde54cf36d980a5ed"
+    },
+    "matter/tools/regional_graph_schwarz_layout_check.cpp": {
+      "before": null,
+      "after": "a1c7a9ad8aa98b606fa300c8c8cf5de8dd4a4641d88423d2cdf68aacae1f3adc"
+    }
+  },
+  "overlay_manifest_sha256": "fbee2e35ba7331fcb0dc7d039249c0f72e30fcb7fddaf2c9f48c32dbc1db8908",
+  "overlay_patch_sha256": "2f01e12de3e5dc33d30d5a32f7541d49d53886075e7ab69caee178eb2d03da02"
+}

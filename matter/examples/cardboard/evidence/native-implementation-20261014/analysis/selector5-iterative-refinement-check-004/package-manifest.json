@@ -1,0 +1,33 @@
+{
+  "canonical182_input_bundle_sha256": "b2619d5d7120f1e6cae40869af0a37ce14b86b29ce0a51961c95ec2c84c3de60",
+  "check_directory": "/Users/home/cardboard-implementation-20261014/analysis/selector5-iterative-refinement-check-004",
+  "checker_revision": "004",
+  "cpu_tests": "python3 -W error test_verify_refinement_output.py; 8 tests passed",
+  "host_build": "not linked in revision 004; source003 executable retained only as stale evidence",
+  "host_syntax_check": "xcrun --sdk macosx clang++ -std=c++17 -fobjc-arc -fsyntax-only -framework Foundation -framework Metal -I <source071>/matter/include selector5_refinement_kernels.mm; pass",
+  "limitation": "Prepared source182 FEM operator/patches only; not full selector-5 production FEM/FGMRES qualification and not a material or physical qualification.",
+  "metallib_requirement": "fresh source071 build containing nm_fgmres_graph_factor_patches, nm_fgmres_graph_solve_patches, nm_fgmres_graph_apply_patches, nm_fgmres_regional_project_rhs, nm_fgmres_regional_solve_rap",
+  "native_execution": "not run for revision 004; checker is prepared for parent-owned execution using a freshly built source071 metallib",
+  "schema": "numi.matter.selector5.refinement_checker_package.v2",
+  "source_sha256": {
+    "README.md": "dd1f47ab41066557109f837e018d08508511507050d687eb0fdfc51ee963a09b",
+    "canonical182.bundle_manifest": "81a913889748d56e0fdba09258968373c19d358ac9be1c35ad02005178af42bb",
+    "canonical182.graph_layout_input": "f0f5bc136f50f7e4cb3c66005316edbf47279b64a42ec531bfbe54e5189493b9",
+    "canonical182.graph_layout_output": "a51d0829a32519071201e229a43b949752d7dd98adbf72e8bd0dfc9c164889c6",
+    "canonical182.input_bundle": "b2619d5d7120f1e6cae40869af0a37ce14b86b29ce0a51961c95ec2c84c3de60",
+    "canonical182.layout": "9191007fecd8dd21f7a044d3049255a7361118492f3adf1bd7a5fa6e9188fe13",
+    "selector5_refinement_kernels.mm": "bd4c0bbf9f360e837ae94463edb409944169d692730b7b460e0e21695691db30",
+    "selector5_refinement_kernels.source003-stale": "ae855adb090396431789114b9e60df331d0bdbe1c7091c2244d157ae2f3f99c5",
+    "source071.fgmres_metal": "d47277e977a3a15c53fdb83a03a401a4261b365d799113944c9661ca98d7e4b7",
+    "source071.frozen_source_manifest": "bbe6e8767e151b87fae893dfc12ad4d746b25fa0f31e47cce1967fde4d3bddbe",
+    "source071.graph_layout": "1356685f98c1818ad100c10e3e919db3c67a95c88ba86d86e7e009437844015a",
+    "source071.runtime": "c3c9272fd0483b922d2ec4c489459212dbec49ca2212e23e3a3a6b499295cc72",
+    "source071.shared_header": "e1b4a229e58227280e2a1e263fa6535f325333e9edcacfd93498f699790c30d3",
+    "test_verify_refinement_output.py": "a5164e27617dc1fdd9866330aa8b6ea71cefe26c9c0e3523384c8106ea23f200",
+    "verify_refinement_output.py": "3307bf83a0bc427881e5717cdfbf06e9208b0798a9235816727d571a7ed3fabe"
+  },
+  "source_snapshot": "source-refined-graph-angular-residual-instrument-071",
+  "source_snapshot_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-refined-graph-angular-residual-instrument-071",
+  "stale_executable_note": "selector5_refinement_kernels.source003-stale is the executable from checker003; do not use as checker004.",
+  "zero_rhs_contract": "zero RHS solve/apply outputs must be finite and numerically zero; signed negative zero is reported separately and accepted; completed-tail and invalid/failure paths remain bitwise-zero"
+}

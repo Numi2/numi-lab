@@ -1,0 +1,7 @@
+cardboard_step_timing={"schema":1,"control_step":0,"stage":"encode_begin","scope":"prescribed_fem_transaction"}
+fem_residual_armijo_enabled={"schema":1,"root":0,"trials":24,"metric":"per_environment_free_dof_l2_impulse","history":"accepted_state_read_only"}
+fem_operator_fd_enabled={"schema":1,"root":0,"iteration":0,"epsilons":[0.03125,0.015625],"unknown":"velocity correction; paired positions shift by dt*epsilon*delta_v","operator":"production FEM element tangent plus production FGMRES node gather","residual":"production assembled free-node mechanical impulse","mutation_check":"bitwise accepted material history, tetrahedron frame/reference data, and production status"}
+fem_residual_armijo_trace_enabled={"schema":1,"root":0,"maximum_newton_records":64}
+fem_regional_rap_capture_skipped={"schema":1,"root":0,"iteration":0,"reason":"invalid_layout_or_aggregate_32MiB_cap","bytes":22846072,"other_readback_upper_bound":17818096}
+fem_newton_trace_skipped={"schema":1,"root":0,"reason":"newton_iteration_cap_32"}
+cardboard_step_timing={"schema":1,"control_step":0,"stage":"encode_end","encoding_wall_s":0.869926}

@@ -1,0 +1,60 @@
+{
+  "schema": "numi.matter.source_overlay.v1",
+  "overlay_name": "angular-box-contact-063-overlay",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-phase-correct-rigid-bridge-and-implicit-reference-integrated-063",
+  "base_frozen_commit": "5fd4486ea2bcbe903782509a769ce3935b790e55",
+  "base_snapshot_manifest_sha256": "d80f5f7ded1b3d67c8ac08c7aa4023248fb68f2280de99307d7f5ee3da8c638d",
+  "base_parent_revision": "62371ed242d94ce47fbad16e77f7b44c9ff050e2",
+  "files": [
+    {
+      "path": "matter/src/metal/contact.metalinc",
+      "base_sha256": "cdb425493f265cbdae00a931dd7654c3efba5d8f4f8ae39687f2b034173185ae",
+      "overlay_sha256": "69c3ec930d0b382dfe278fa42c56353782438ded77d8224a3ccfd6989e3067c9"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "base_sha256": "8162bd9eeb36811329459f1ddb62bdb1e238218e511aca158489d2a1c5775f20",
+      "overlay_sha256": "e2b4c539c7f7e5b97b52e9f703657776c1aa196e0a9f3a5d8b9573bb350c1fa2"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "base_sha256": "e5ac4362d0ab925598aefe51dd935b587940da57630c6349380e16a83125d760",
+      "overlay_sha256": "32597ceffdafc88ed507b2e6bc06ff6a78bffc7918a20884f0586387153e3f8e"
+    },
+    {
+      "path": "matter/tools/test_cardboard_free_box_angular_operator.py",
+      "base_sha256": null,
+      "overlay_sha256": "ea9c1db98f5db492bd57c083c002d2c5a1482c4e21ec7e83d542cf8d5bd0c636"
+    }
+  ],
+  "patch": "angular-063.patch",
+  "patch_sha256": "1e2ef15649f004a56e79dfe9c4ce1bb1f75a5e6da87209e2cd25b768c3c967a7",
+  "validation_artifacts": {
+    "air": "angular-063.air",
+    "air_sha256": "dce3e1a30dc718bca53a26dc1ae74fdbdce0275252ae32f177b788d8b45d5a36",
+    "metallib": "angular-063.metallib",
+    "metallib_sha256": "566e72e6a96d9dfdcd9dbdea4154539d48c9778ed2dd5462568ec790cccd00eb",
+    "validation_receipt": "validation-receipt.json",
+    "validation_receipt_sha256": "e12f533c2865895cf49e0c30bb924fe5569a1db15e1bd9ee1655029aba1b5c5e"
+  },
+  "owned_scope": [
+    "one non-articulated free BOX with six generalized rows: SO(3) endpoint pose and exact tested-alpha geometry",
+    "conservative advancement over the Armijo candidate path and full physical timestep, with fail-closed nonfinite, floor, or iteration-exhaustion outcomes",
+    "frictionless smooth face/edge/corner contact tangent, including witness, normal-frame, world-inertia-response and torque terms",
+    "runtime bindings for the candidate vector and swept-validator inputs"
+  ],
+  "explicit_limits": [
+    "source overlay compile and independent CPU checks only; no native GPU qualification",
+    "active frictional free-BOX samples fail closed until the friction/history tangent is complete",
+    "feature transitions, impact-stiffness branches, articulated or multiple free bodies, adaptive rate subdivisions, MPM, and mixed/cohesive contact remain outside this slice",
+    "no shipping-box impact or full rotational-contact qualification is claimed"
+  ],
+  "validation": {
+    "cpu_oracle_command": "python3 source/matter/tools/test_cardboard_free_box_angular_operator.py",
+    "cpu_oracle_result": "11 tests passed",
+    "metal_compile_exit": 0,
+    "metallib_exit": 0,
+    "runtime_objcxx_fsyntax_only_exit": 0,
+    "native_gpu": "not run; parent owns GPU queue"
+  }
+}

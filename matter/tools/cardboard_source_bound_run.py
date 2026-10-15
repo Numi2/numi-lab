@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Seal and retain a source-bound native cardboard run and any failure/timeout."""
 from pathlib import Path
-import argparse, datetime, fcntl, hashlib, json, os, shutil, signal, subprocess, sys, time
+import argparse, datetime, fcntl, hashlib, json, os, shutil, subprocess, sys, time
+from cardboard_source_bound_run_support import wait_with_timeout, write_failure_receipt
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--case', required=True)
@@ -28,16 +29,15 @@ except BlockingIOError:
     raise RuntimeError('another source-bound native worker owns this checkout')
 case.mkdir(parents=True, exist_ok=False)
 execution_started = False
+run_state = {'timed_out': False, 'termination_errors': []}
 seal_started = time.monotonic()
 def retain_unhandled_failure(kind, error, traceback):
-    (case/'receipt.json').write_text(json.dumps({
-        'exit_code':1,'timed_out':False,
-        'execution_started':execution_started,
-        'stage':'execution' if execution_started else 'input-seal',
-        'error_type':kind.__name__,'reason':str(error),
-        'wall_seconds':time.monotonic()-seal_started,
-        'finished_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()},
-        indent=2)+'\n')
+    write_failure_receipt(
+        case/'receipt.json', error, state=run_state,
+        execution_started=execution_started,
+        wall_seconds=time.monotonic()-seal_started,
+        finished_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    )
     sys.__excepthook__(kind,error,traceback)
 sys.excepthook = retain_unhandled_failure
 if not args.argv:
@@ -124,16 +124,10 @@ started = time.monotonic()
 with (case/'stdout.log').open('w') as out, (case/'stderr.log').open('w') as err:
     process = subprocess.Popen(argv, stdout=out, stderr=err, env=environment, start_new_session=True)
     execution_started = True
-    timed_out = False
-    try:
-        code = process.wait(timeout=args.timeout)
-    except subprocess.TimeoutExpired:
-        timed_out = True
-        os.killpg(process.pid, signal.SIGTERM)
-        try: code = process.wait(timeout=20)
-        except subprocess.TimeoutExpired:
-            os.killpg(process.pid, signal.SIGKILL)
-            code = process.wait()
+    code = wait_with_timeout(
+        process, args.timeout, state=run_state, kill_process_group=os.killpg,
+        term_grace_seconds=20,
+    )
 changed_inputs = []
 for path, digest in original_bindings.items():
     try: current = hashlib.sha256(Path(path).read_bytes()).hexdigest()
@@ -143,9 +137,10 @@ receipt = {'schema':'numi.cardboard.native-run-receipt.v2',
            'execution_started':execution_started,
            'source_inputs_unchanged':not changed_inputs,
            'changed_inputs':changed_inputs,
-           'exit_code':code,'timed_out':timed_out,
+           'exit_code':code,'timed_out':run_state['timed_out'],
+           'termination_errors':run_state['termination_errors'],
            'wall_seconds':time.monotonic()-started,
            'finished_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()}
 (case/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
 print(json.dumps(receipt),flush=True)
-raise SystemExit(124 if timed_out else (3 if changed_inputs else (code if code >= 0 else 128-code)))
+raise SystemExit(124 if run_state['timed_out'] else (3 if changed_inputs else (code if code >= 0 else 128-code)))

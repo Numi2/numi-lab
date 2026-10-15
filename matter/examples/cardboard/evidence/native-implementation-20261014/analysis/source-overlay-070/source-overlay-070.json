@@ -1,0 +1,20 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-graph-local-refinement-070",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-graph-tail-guard-angular-instrument-069",
+  "changed": {
+    "matter/src/metal/fgmres.metalinc": {
+      "before": "538f5e5517e9ddb6cf0727e8a6da2e3ecc834bd702263a8fe880b461c4d9933c",
+      "after": "d47277e977a3a15c53fdb83a03a401a4261b365d799113944c9661ca98d7e4b7"
+    },
+    "matter/src/regional_graph_schwarz.hpp": {
+      "before": "7064cc7f3af864e65274f85c6ae4de25b0df7d2c6b91b32a0f0275f711106390",
+      "after": "1356685f98c1818ad100c10e3e919db3c67a95c88ba86d86e7e009437844015a"
+    },
+    "matter/src/runtime.mm": {
+      "before": "0a47ffdcee60c650435faba2fe8eca57bcc1a68e792183c23b392be97e836046",
+      "after": "c43b9cd33ca8231eb9e07407706a01c1c6405e1aa4f5e5b8bc25cd8e1c2bb942"
+    }
+  },
+  "overlay_manifest_sha256": "e225bbb0b68af09849509fda1ec8be7a6097269b9580f292412a7f28d3a8be10"
+}

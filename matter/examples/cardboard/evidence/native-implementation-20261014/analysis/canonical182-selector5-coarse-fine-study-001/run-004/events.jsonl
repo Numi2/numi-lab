@@ -1,0 +1,2 @@
+{"action":"FP32 RAP coarse solve; residual r-AP*c; FP32 principal-block solves; sum corrections then divide once by exact node coverage; return Pc+fine","elapsed_s":0.3471831660135649,"event":"case_start","membership_sha256":"eaf352b52c58a18ade3f82f1fe64df01bee6a69c0f81f90b860ab7a8be0b20b0","patch_count":13,"patch_node_entries":2053}
+{"elapsed_s":25.01317462499719,"event":"case_complete","gmres_status":"diagnostic_not_converged","iterations":null,"true_relative_residual":0.9935469408593788}

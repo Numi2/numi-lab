@@ -1,0 +1,96 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -2248,6 +2248,10 @@
+     id<MTLBuffer> femRegionalGraphNodePatchValues = nil;
+     id<MTLBuffer> femRegionalGraphNodeCoverage = nil;
+     id<MTLBuffer> femRegionalGraphFactors = nil;
++    // Selector 5 refinement-only copy of the assembled patch principal A.
++    // `femRegionalGraphFactors` is overwritten in place by pivoted LU, while
++    // one residual-correction solve needs the original A for r = b - A*x.
++    id<MTLBuffer> femRegionalGraphOriginalMatrices = nil;
+     id<MTLBuffer> femRegionalGraphPivots = nil;
+     id<MTLBuffer> femRegionalGraphFactorValid = nil;
+     id<MTLBuffer> femRegionalGraphPatchCorrections = nil;
+@@ -3962,6 +3966,47 @@
+             graphSchwarz = buildRegionalGraphSchwarz(world);
+             if (!graphSchwarz.layout.error.empty()) {
+                 diagnostics.message = graphSchwarz.layout.error;
++                return diagnostics;
++            }
++            const auto graphBufferFits = [&](const std::uint64_t elements,
++                const std::uint64_t elementBytes,
++                const bool environmentMajor) {
++                std::uint64_t totalElements = elements;
++                std::uint64_t totalBytes = 0u;
++                if ((environmentMajor &&
++                     !detail::regionalGraphSchwarzCheckedMul(
++                         elements, environments, totalElements)) ||
++                    (environmentMajor && totalElements >
++                        std::numeric_limits<std::uint32_t>::max()) ||
++                    !detail::regionalGraphSchwarzCheckedMul(
++                        totalElements, elementBytes, totalBytes) ||
++                    totalBytes > candidate->device.maxBufferLength) {
++                    return false;
++                }
++                return true;
++            };
++            if (!graphBufferFits(graphSchwarz.layout.matrixFloatCount,
++                    sizeof(float), true) ||
++                !graphBufferFits(graphSchwarz.layout.pivotCount,
++                    sizeof(std::uint32_t), true) ||
++                !graphBufferFits(graphSchwarz.layout.patchNodes.size(),
++                    sizeof(nm_float4), true) ||
++                !graphBufferFits(graphSchwarz.patches.size(),
++                    sizeof(std::array<std::uint32_t, 4>), false) ||
++                !graphBufferFits(graphSchwarz.layout.patchNodes.size(),
++                    sizeof(std::uint32_t), false) ||
++                !graphBufferFits(graphSchwarz.layout.rows.size(),
++                    sizeof(std::array<std::uint32_t, 4>), false) ||
++                !graphBufferFits(graphSchwarz.layout.nodePatchOffsets.size(),
++                    sizeof(std::uint32_t), false) ||
++                !graphBufferFits(graphSchwarz.layout.nodePatchValues.size(),
++                    sizeof(std::uint32_t), false) ||
++                !graphBufferFits(graphSchwarz.layout.nodeCoverage.size(),
++                    sizeof(std::uint32_t), false) ||
++                !graphBufferFits(graphSchwarz.patches.size(),
++                    sizeof(std::uint32_t), true)) {
++                diagnostics.message =
++                    "graph Schwarz arenas exceed checked Metal buffer or environment-major uint32 indexing limits";
+                 return diagnostics;
+             }
+             candidate->femRegionalGraphPatchCount =
+@@ -5831,6 +5876,10 @@
+             }
+         }
+         if (candidate->femRegionalGraphPatchCount != 0u) {
++            candidate->femRegionalGraphOriginalMatrices = privateScratch<float>(
++                candidate->device,
++                multiplied(candidate->femRegionalGraphMatrixFloatCount),
++                valid, candidate->residentBytes);
+             candidate->femRegionalGraphFactors = privateScratch<float>(
+                 candidate->device,
+                 multiplied(candidate->femRegionalGraphMatrixFloatCount),
+@@ -14750,6 +14799,9 @@
+                             length:sizeof(graphMatrixFloats) atIndex:7u];
+                         [encoder setBytes:&graphPivots
+                             length:sizeof(graphPivots) atIndex:8u];
++                        [encoder setBuffer:
++                            state.femRegionalGraphOriginalMatrices
++                                     offset:0u atIndex:9u];
+                     });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 }
+@@ -15608,6 +15660,13 @@
+                                 length:sizeof(regionalModes) atIndex:16u];
+                             [encoder setBuffer:state.fgmresStates
+                                          offset:0u atIndex:17u];
++                            [encoder setBuffer:
++                                state.femRegionalGraphOriginalMatrices
++                                         offset:0u atIndex:18u];
++                            const std::uint32_t refinementMode = 1u;
++                            [encoder setBytes:&refinementMode
++                                       length:sizeof(refinementMode)
++                                      atIndex:19u];
+                         });
+                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                         dispatchThreads("nm_fgmres_graph_apply_patches",

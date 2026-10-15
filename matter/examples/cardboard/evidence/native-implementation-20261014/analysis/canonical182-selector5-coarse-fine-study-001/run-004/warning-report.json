@@ -1,0 +1,13 @@
+{
+  "schema": "numi.cardboard.cpu-study-warning-record.v1",
+  "classification": "retained warning observation from the run-004 tool output; not a redirected raw stderr log",
+  "study_script_sha256": "c0675837630f20c1eaa7a61b8a5c127b3c1bcf6f2eef78c868c4a1370df85c6f",
+  "observed_at_source_lines": [171, 173],
+  "operation": "NumPy matrix multiply in the diagnostic local solve probe",
+  "warning_categories": [
+    "divide by zero encountered in matmul",
+    "overflow encountered in matmul",
+    "invalid value encountered in matmul"
+  ],
+  "interpretation": "Unresolved. The warning was not treated as benign and run-004 was not counted as a pass. Run-005 replaced these probe matmuls with scalar math.fsum and explicit finite-result checks."
+}

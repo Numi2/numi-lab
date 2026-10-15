@@ -1,0 +1,175 @@
+--- /Users/home/cardboard-implementation-20261014/analysis/free-box-angular-classification-072-overlay/base-855b.mm	2026-10-15 07:56:16
++++ /Users/home/cardboard-implementation-20261014/analysis/free-box-angular-classification-072-overlay/cardboard_free_box_angular_native_check.mm	2026-10-15 07:56:16
+@@ -122,6 +122,84 @@
+ 
+ struct SweepCase { std::string name; V3 localCenter; V3 half; V3 acceptedPoint,basePoint,trialPoint; V3 baseOmega,trialOmega; bool expectedAlphaClear,expectedPhysicalClear; };
+ 
++struct SweepOracle {
++    double minimumGap = std::numeric_limits<double>::infinity();
++    double fractionAtMinimum = 0.0;
++    double midpointGap = std::numeric_limits<double>::quiet_NaN();
++    double floor = 0.0;
++};
++
++double quantized(double value) { return double(float(value)); }
++V3 quantized(V3 value) { for (double& x : value) x = quantized(x); return value; }
++
++double boxGapFP64(const SweepCase& c, double fraction, bool physicalSweep) {
++    constexpr double dt = double(float(0.1f));
++    const Q4 identity{0.0,0.0,0.0,1.0};
++    const V3 baseOmega = quantized(c.baseOmega);
++    const V3 trialOmega = quantized(c.trialOmega);
++    V3 angular{};
++    double poseDt = dt;
++    if (physicalSweep) {
++        angular = trialOmega;
++        poseDt = fraction * dt;
++    } else {
++        for (int i=0;i<3;++i)
++            angular[i] = (1.0-fraction)*baseOmega[i] + fraction*trialOmega[i];
++    }
++    Q4 bodyQ = integrate(identity, angular, poseDt);
++    // The kernel returns the exact projected endpoint records at f=1 and the
++    // base record at alpha f=0. Use those same FP32 endpoint quaternions in the
++    // oracle; interior samples use the documented source integration map.
++    if (physicalSweep && fraction == 1.0) {
++        bodyQ = integrate(identity, c.trialOmega, dt);
++        for (double& x : bodyQ) x = quantized(x);
++    } else if (!physicalSweep && fraction == 0.0) {
++        bodyQ = integrate(identity, c.baseOmega, dt);
++        for (double& x : bodyQ) x = quantized(x);
++    } else if (!physicalSweep && fraction == 1.0) {
++        bodyQ = integrate(identity, c.trialOmega, dt);
++        for (double& x : bodyQ) x = quantized(x);
++    }
++    const M3 bodyR = rotation(bodyQ);
++    const V3 bodyPosition{0.0,0.0,0.0}; // test source has zero COM velocity
++    const V3 localCenter = quantized(c.localCenter);
++    const V3 proxyCenter = add(bodyPosition, multiply(bodyR, localCenter));
++    const V3 first = quantized(physicalSweep ? c.acceptedPoint : c.basePoint);
++    const V3 last = quantized(c.trialPoint);
++    const V3 point = add(first, mul(sub(last, first), fraction));
++    const V3 local = multiply(transpose(bodyR), sub(point, proxyCenter));
++    const V3 half = quantized(c.half);
++    V3 outside{};
++    for (int i=0;i<3;++i) outside[i] = std::max(std::abs(local[i])-half[i],0.0);
++    const double outsideDistance = norm(outside);
++    if (outsideDistance > 0.0) return outsideDistance;
++    double penetration = std::numeric_limits<double>::infinity();
++    for (int i=0;i<3;++i) penetration = std::min(penetration, half[i]-std::abs(local[i]));
++    return -penetration;
++}
++
++SweepOracle sampleSweepFP64(const SweepCase& c, bool physicalSweep) {
++    SweepOracle result;
++    const V3 points{quantized(c.acceptedPoint[0]),quantized(c.basePoint[0]),quantized(c.trialPoint[0])};
++    const V3 half=quantized(c.half);
++    double coordinateScale=std::max(double(float(0.01f)),
++        std::max({std::abs(points[0]),std::abs(points[1]),std::abs(points[2]),
++                  std::abs(quantized(c.acceptedPoint[1])),std::abs(quantized(c.acceptedPoint[2])),
++                  std::abs(quantized(c.basePoint[1])),std::abs(quantized(c.basePoint[2])),
++                  std::abs(quantized(c.trialPoint[1])),std::abs(quantized(c.trialPoint[2])),
++                  std::abs(half[0]),std::abs(half[1]),std::abs(half[2])}));
++    result.floor=std::max(double(float(0.001f))*double(float(0.01f)),
++        16.0*double(std::numeric_limits<float>::epsilon())*std::max(coordinateScale,1.0e-12));
++    constexpr unsigned samples=65536u;
++    for(unsigned i=0;i<=samples;++i){
++        const double f=double(i)/samples;
++        const double gap=boxGapFP64(c,f,physicalSweep);
++        if(gap<result.minimumGap){result.minimumGap=gap;result.fractionAtMinimum=f;}
++        if(i==samples/2)result.midpointGap=gap;
++    }
++    return result;
++}
++
+ NMMatterStatusGPU runValidator(Device& d,const SweepCase& c){
+     constexpr float dt=.1f; const Q4 q0{0,0,0,1};
+     NMMatterDispatchGPU dispatch{};dispatch.environmentCount=1;dispatch.objectCount=1;dispatch.femNodeCount=1;dispatch.rigidProxyCount=1;dispatch.contactPairCount=1;dispatch.rigidGeneralizedCapacity=6;dispatch.maximumRateExponent=0;dispatch.numericalLimits={.01f,0,1e-8f,1e20f};
+@@ -330,22 +408,71 @@
+     const V3 omega{float(candidate[3]),float(candidate[4]),float(candidate[5])};const V3 value=mul(multiply(inverse(invI),omega),-1.0);return {value[0],value[1],value[2]};
+ }
+ 
+-void testValidator(Device& d){
++bool testValidator(Device& d){
+     const double omega=3.141592653589793/.1;
+     const SweepCase crossing{"physical_rotating_endpoints_clear_midpath_hit",{0,0,0},{.1,.005,.005},{0,.07,0},{0,.07,0},{0,.07,0},{0,0,omega},{0,0,omega},true,false};
+     const SweepCase miss{"rotating_separated_miss",{0,0,0},{.1,.005,.005},{0,.2,0},{0,.2,0},{0,.2,0},{0,0,omega},{0,0,omega},true,true};
+     const SweepCase offset{"offset_proxy_swept_center_bound",{.12,0,0},{.005,.004,.003},{0,.12,0},{0,.12,0},{0,.12,0},{0,0,omega},{0,0,omega},true,false};
+     const SweepCase alphaOnly{"alpha_path_hit_physical_path_clear",{0,0,0},{.1,.005,.005},{0,.07,0},{0,.07,0},{0,.07,0},{0,0,omega},{0,0,0},false,true};
+     const SweepCase physicalOnly{"physical_path_hit_alpha_path_clear",{0,0,0},{.1,.005,.005},{0,-.2,0},{0,.07,0},{0,.07,0},{0,0,omega},{0,0,omega},true,false};
++    bool allExpected=true;
+     for(const auto& c:{crossing,miss,offset,alphaOnly,physicalOnly}){
+-        const auto status=runValidator(d,c);const bool rejected=status.code==NM_STATUS_CONTACT_FAILURE;
+-        need(rejected==(!c.expectedAlphaClear||!c.expectedPhysicalClear),c.name+" production path-validator outcome mismatch; status="+std::to_string(status.code));
+-        if(rejected){
+-            need((status.diagnostics.w>0.5f)==c.expectedAlphaClear,c.name+" alpha-path classification mismatch");
+-            need((status.diagnostics.y>status.diagnostics.z)==c.expectedPhysicalClear,c.name+" physical-sweep classification mismatch");
++        NMMatterStatusGPU status{};
++        try { status=runValidator(d,c); }
++        catch(const std::exception& e) {
++            allExpected=false;
++            std::cout<<"validator_case="<<c.name<<" status=UNAVAILABLE error="<<e.what()<<"\n";
++            continue;
+         }
+-        std::cout<<"validator_case="<<c.name<<" status="<<status.code<<" diagnostics="<<status.diagnostics.x<<","<<status.diagnostics.y<<","<<status.diagnostics.z<<","<<status.diagnostics.w<<"\n";
++        const auto alpha=sampleSweepFP64(c,false);
++        const auto physical=sampleSweepFP64(c,true);
++        const bool alphaOracleClear=alpha.minimumGap>alpha.floor;
++        const bool physicalOracleClear=physical.minimumGap>physical.floor;
++        const bool oracleMatchesAuthored=alphaOracleClear==c.expectedAlphaClear &&
++            physicalOracleClear==c.expectedPhysicalClear;
++        const bool productionAccepted=status.code==NM_STATUS_SUCCESS;
++        const bool productionRejected=status.code==NM_STATUS_CONTACT_FAILURE;
++        const bool actualAlphaCertified=productionAccepted ||
++            (productionRejected && status.diagnostics.w>0.5f);
++        const bool expectedReject=!c.expectedAlphaClear || !c.expectedPhysicalClear;
++        const bool productionStatusMatches=expectedReject ? productionRejected : productionAccepted;
++        const bool alphaCertificateMatches=actualAlphaCertified==alphaOracleClear;
++        const bool pathPass=oracleMatchesAuthored && productionStatusMatches && alphaCertificateMatches;
++        allExpected=allExpected&&pathPass;
++        const char* productionPhysicalState=productionAccepted
++            ? "certified_clear"
++            : (productionRejected && actualAlphaCertified
++                ? "physical_sweep_rejected_or_uncertified"
++                : "not_isolated_alpha_path_also_failed");
++        // Emit raw status and both gap observations before any gate can fail.
++        // The production physical diagnostic is a minimum sampled gap; it is
++        // not a CCD-clear certificate. The independent oracle is also sampled.
++        std::cout<<std::setprecision(12)
++            <<"validator_case="<<c.name
++            <<" status="<<status.code
++            <<" object="<<status.objectIndex
++            <<" failing_index="<<status.failingIndex
++            <<" diag_alpha_min_gap="<<status.diagnostics.x
++            <<" diag_physical_min_sample_gap="<<status.diagnostics.y
++            <<" diag_floor="<<status.diagnostics.z
++            <<" diag_alpha_certified="<<(status.diagnostics.w>0.5f?1:0)
++            <<" production_physical_state="<<productionPhysicalState
++            <<" fp64_alpha_min_sample_gap="<<alpha.minimumGap
++            <<" fp64_alpha_min_fraction="<<alpha.fractionAtMinimum
++            <<" fp64_alpha_mid_gap="<<alpha.midpointGap
++            <<" fp64_physical_min_sample_gap="<<physical.minimumGap
++            <<" fp64_physical_min_fraction="<<physical.fractionAtMinimum
++            <<" fp64_physical_mid_gap="<<physical.midpointGap
++            <<" fp64_floor="<<physical.floor
++            <<" fp64_alpha_sampled_clear="<<(alphaOracleClear?1:0)
++            <<" fp64_physical_sampled_clear="<<(physicalOracleClear?1:0)
++            <<" authored_expect_alpha_clear="<<(c.expectedAlphaClear?1:0)
++            <<" authored_expect_physical_clear="<<(c.expectedPhysicalClear?1:0)
++            <<" path_case="<<(pathPass?"PASS":"FAIL")<<"\n";
+     }
++    std::cout<<"production_rotating_path_fixture_suite="<<(allExpected?"PASS":"FAIL")
++        <<" interpretation=sampled_FP64_fixture_oracle_plus_production_certificate; positive_min_sample_gap_does_not_prove_swept_clearance\n";
++    return allExpected;
+ }
+ 
+ struct ContactProbe {std::array<double,6> residual{};bool stable=false;int stiffnessBranch=-1;uint32_t feature=0;};
+@@ -529,7 +656,7 @@
+ } // namespace
+ 
+ int main(){@autoreleasepool{
+-    try {Device device;std::cout<<"device="<<[[device.gpu name] UTF8String]<<" native_steps=0 kernel_scope=production_contact_and_fgmres\n";testValidator(device);const Outcome contact=testActions(device),inertia=testInertiaAction(device);if(contact==Outcome::fail||inertia==Outcome::fail){std::cout<<"result="<<(contact==Outcome::fail&&inertia==Outcome::fail?"FAIL_CONTACT_AND_INERTIA":(contact==Outcome::fail?"FAIL_CONTACT":"FAIL_INERTIA"))<<"\n";return 2;}if(contact==Outcome::inconclusive||inertia==Outcome::inconclusive){std::cout<<"result=INCONCLUSIVE contact="<<outcomeName(contact)<<" inertia="<<outcomeName(inertia)<<"\n";return 3;}std::cout<<"result=PASS\n";return 0;}
++    try {Device device;std::cout<<"device="<<[[device.gpu name] UTF8String]<<" native_steps=0 kernel_scope=production_contact_and_fgmres\n";const bool validatorOk=testValidator(device);const Outcome contact=testActions(device),inertia=testInertiaAction(device);if(!validatorOk||contact==Outcome::fail||inertia==Outcome::fail){std::cout<<"result="<<(!validatorOk?"FAIL_VALIDATOR":(contact==Outcome::fail&&inertia==Outcome::fail?"FAIL_CONTACT_AND_INERTIA":(contact==Outcome::fail?"FAIL_CONTACT":"FAIL_INERTIA")))<<"\n";return 2;}if(contact==Outcome::inconclusive||inertia==Outcome::inconclusive){std::cout<<"result=INCONCLUSIVE contact="<<outcomeName(contact)<<" inertia="<<outcomeName(inertia)<<"\n";return 3;}std::cout<<"result=PASS\n";return 0;}
+     catch(const std::exception& e){std::cerr<<"result=FAIL message="<<e.what()<<"\n";return 2;}
+ }}
+ 

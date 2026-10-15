@@ -380,6 +380,10 @@ enum class FEMPreconditionerMode : std::uint32_t {
     // faces. The coarse AP action includes the production bulk, contact, and
     // cohesive operators. Dynamic generalized rigid rows remain unsupported.
     regionalGalerkinContact = 4u,
+    // Source-bound graph-Schwarz patches (bounded to 256 free nodes per patch)
+    // supplement the exact regional RAP coarse correction. Conditioning only;
+    // it does not change the physical operator or acceptance certificate.
+    regionalGalerkinGraphSchwarz = 5u,
 };
 
 struct MixedSolverSource {

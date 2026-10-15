@@ -1817,6 +1817,260 @@ NMMatterStatusGPU runPrivateSelfSweepKernelCase(
     return *static_cast<const NMMatterStatusGPU*>(statusBuffer.contents);
 }
 
+void verifyArmijoAlphaPublication() {
+    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+    require(device != nil, "Armijo alpha publication test requires a Metal device");
+    const std::string metallibPath = NUMI_MATTER_METALLIB;
+    require(!metallibPath.empty(),
+            "Armijo alpha publication test requires the production Matter metallib");
+    NSError* libraryError = nil;
+    id<MTLLibrary> library = [device newLibraryWithURL:
+        [NSURL fileURLWithPath:[NSString stringWithUTF8String:metallibPath.c_str()]]
+        error:&libraryError];
+    require(library != nil, "could not load production Matter metallib: " +
+        (libraryError != nil ? std::string([[libraryError description] UTF8String])
+                             : std::string("unknown Metal library error")));
+    auto makePipeline = [&](const char* name) -> id<MTLComputePipelineState> {
+        id<MTLFunction> function = [library newFunctionWithName:
+            [NSString stringWithUTF8String:name]];
+        require(function != nil, std::string("production kernel is missing: ") + name);
+        NSError* error = nil;
+        id<MTLComputePipelineState> pipeline = [device
+            newComputePipelineStateWithFunction:function error:&error];
+        require(pipeline != nil, std::string("could not create production pipeline ") +
+            name + ": " + (error != nil
+                ? std::string([[error description] UTF8String])
+                : std::string("unknown Metal pipeline error")));
+        return pipeline;
+    };
+    const auto begin = makePipeline(
+        "numi_matter_metal::nm_fem_armijo_begin_trial");
+    const auto measure = makePipeline(
+        "numi_matter_metal::nm_fem_armijo_measure_trial");
+    const auto decide = makePipeline(
+        "numi_matter_metal::nm_fem_armijo_decide");
+    const auto applyFEM = makePipeline(
+        "numi_matter_metal::nm_fem_apply_solution");
+    const auto applyRigid = makePipeline(
+        "numi_matter_metal::nm_rigid_apply_candidate_solution");
+    id<MTLCommandQueue> queue = [device newCommandQueue];
+    require(queue != nil, "Armijo alpha publication command queue unavailable");
+
+    NMMatterDispatchGPU dispatch{};
+    dispatch.environmentCount = 1u;
+    dispatch.objectCount = 1u;
+    dispatch.femNodeCount = 1u;
+    dispatch.rigidGeneralizedCapacity = 6u;
+    dispatch.gravityAndTimestep.w = 1.0f;
+    NMMicrostepGPU microstep{};
+    microstep.microtickCount = 1u;
+    microstep.solverIteration = 3u;
+    NMMixedSolverGPU solver{};
+    solver.nonlinearIterations.w = 8u;
+    solver.residualTolerances.x = 1.0e-6f;
+    solver.globalization.x = 1.0e-4f;
+    NMContinuumObjectGPU object{};
+    object.representation = NM_REPRESENTATION_FEM;
+    object.flags = NM_OBJECT_ACTIVE;
+    NMIncidenceRangeGPU nodeRange{};
+    nodeRange.objectIndex = 0u;
+    NMSchedulerStateGPU scheduler{};
+    scheduler.numerical.w = 1.0f;
+    NMAdaptiveStateGPU adaptive{};
+    adaptive.activeRepresentation = NM_REPRESENTATION_FEM;
+    NMFEMNodeStateGPU node{};
+    node.positionAndMass = {0.0f, 0.0f, 0.0f, 1.0f};
+    node.velocityAndInverseMass = {0.0f, 0.0f, 0.0f, 1.0f};
+    node.restAndFixed = {0.0f, 0.0f, 0.0f, 0.0f};
+    NMFEMFieldStateGPU field{};
+    NMMixedMaterialGPU mixedMaterial{};
+    NMFGMRESLayoutGPU layout{};
+    NMMatterStatusGPU healthy{};
+    NMFGMRESStateGPU fgmres{};
+
+    id<MTLBuffer> dispatchBuffer = makeBuffer(
+        device, std::vector<NMMatterDispatchGPU>{dispatch});
+    id<MTLBuffer> metricsBuffer = makeBuffer(
+        device, std::vector<nm_float4>{{1.0f, 0.0f, 1.0f, 0.0f}});
+    id<MTLBuffer> lineBuffer = makeBuffer(
+        device, std::vector<nm_float4>{{1.0f, 0.0f, 1.0f, 0.0f}});
+    id<MTLBuffer> environmentLineBuffer = makeBuffer(
+        device, std::vector<float>{-1.0f});
+    id<MTLBuffer> trialStatusBuffer = makeBuffer(
+        device, std::vector<NMMatterStatusGPU>{healthy});
+    id<MTLBuffer> statusBuffer = makeBuffer(
+        device, std::vector<NMMatterStatusGPU>{healthy});
+    id<MTLBuffer> fgmresBuffer = makeBuffer(
+        device, std::vector<NMFGMRESStateGPU>{fgmres});
+    id<MTLBuffer> solutionBuffer = makeBuffer(
+        device, std::vector<nm_float4>(8u));
+    id<MTLBuffer> residualBuffer = makeBuffer(
+        device, std::vector<nm_float4>(8u));
+    id<MTLBuffer> acceptedBuffer = makeBuffer(
+        device, std::vector<NMFEMNodeStateGPU>{node});
+    id<MTLBuffer> candidateBuffer = makeBuffer(
+        device, std::vector<NMFEMNodeStateGPU>{node});
+    id<MTLBuffer> trialCandidateBuffer = makeBuffer(
+        device, std::vector<NMFEMNodeStateGPU>{node});
+    id<MTLBuffer> objectBuffer = makeBuffer(
+        device, std::vector<NMContinuumObjectGPU>{object});
+    id<MTLBuffer> nodeRangeBuffer = makeBuffer(
+        device, std::vector<NMIncidenceRangeGPU>{nodeRange});
+    id<MTLBuffer> schedulerBuffer = makeBuffer(
+        device, std::vector<NMSchedulerStateGPU>{scheduler});
+    id<MTLBuffer> adaptiveBuffer = makeBuffer(
+        device, std::vector<NMAdaptiveStateGPU>{adaptive});
+    id<MTLBuffer> fieldBuffer = makeBuffer(
+        device, std::vector<NMFEMFieldStateGPU>{field});
+    id<MTLBuffer> mixedMaterialBuffer = makeBuffer(
+        device, std::vector<NMMixedMaterialGPU>{mixedMaterial});
+    id<MTLBuffer> rigidCandidateBuffer = makeBuffer(
+        device, std::vector<float>(6u));
+    for (id<MTLBuffer> buffer : {
+             dispatchBuffer, metricsBuffer, lineBuffer, environmentLineBuffer,
+             trialStatusBuffer, statusBuffer, fgmresBuffer, solutionBuffer,
+             residualBuffer, acceptedBuffer, candidateBuffer,
+             trialCandidateBuffer, objectBuffer, nodeRangeBuffer,
+             schedulerBuffer, adaptiveBuffer, fieldBuffer,
+             mixedMaterialBuffer, rigidCandidateBuffer})
+        require(buffer != nil, "Armijo alpha publication buffer allocation failed");
+
+    auto dispatchOne = [&](id<MTLComputePipelineState> pipeline, auto bind) {
+        id<MTLCommandBuffer> command = [queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder =
+            command != nil ? [command computeCommandEncoder] : nil;
+        require(command != nil && encoder != nil,
+                "Armijo alpha publication encoder allocation failed");
+        [encoder setComputePipelineState:pipeline];
+        bind(encoder);
+        [encoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
+        [encoder endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        require(command.status == MTLCommandBufferStatusCompleted,
+                "Armijo alpha publication kernel command did not complete");
+    };
+    auto dispatchDecision = [&](const std::uint32_t trialIndex) {
+        dispatchOne(begin, [&](id<MTLComputeCommandEncoder> encoder) {
+            [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+            [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1u];
+            [encoder setBuffer:metricsBuffer offset:0u atIndex:2u];
+            [encoder setBuffer:lineBuffer offset:0u atIndex:3u];
+            [encoder setBuffer:trialStatusBuffer offset:0u atIndex:4u];
+            [encoder setBytes:&trialIndex length:sizeof(trialIndex) atIndex:5u];
+            [encoder setBytes:&solver length:sizeof(solver) atIndex:6u];
+        });
+        dispatchOne(measure, [&](id<MTLComputeCommandEncoder> encoder) {
+            [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+            [encoder setBuffer:residualBuffer offset:0u atIndex:1u];
+            [encoder setBuffer:metricsBuffer offset:0u atIndex:2u];
+            [encoder setBuffer:trialStatusBuffer offset:0u atIndex:3u];
+            [encoder setBuffer:trialCandidateBuffer offset:0u atIndex:4u];
+        });
+        dispatchOne(decide, [&](id<MTLComputeCommandEncoder> encoder) {
+            [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+            [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1u];
+            [encoder setBytes:&solver length:sizeof(solver) atIndex:2u];
+            [encoder setBuffer:metricsBuffer offset:0u atIndex:3u];
+            [encoder setBuffer:lineBuffer offset:0u atIndex:4u];
+            [encoder setBuffer:trialStatusBuffer offset:0u atIndex:5u];
+            [encoder setBuffer:statusBuffer offset:0u atIndex:6u];
+            [encoder setBytes:&trialIndex length:sizeof(trialIndex) atIndex:7u];
+            [encoder setBuffer:fgmresBuffer offset:0u atIndex:8u];
+            [encoder setBuffer:solutionBuffer offset:0u atIndex:9u];
+            [encoder setBuffer:environmentLineBuffer offset:0u atIndex:10u];
+        });
+    };
+
+    // Force four rejected residual trials, then accept the fifth at alpha 1/16.
+    const std::array<float, 5> trialNorms{1.10f, 1.05f, 1.02f, 1.001f, 0.98f};
+    auto* solution = static_cast<nm_float4*>(solutionBuffer.contents);
+    solution[0] = {4.0f, 0.0f, 0.0f, 0.0f};
+    solution[2] = {4.0f, 0.0f, 0.0f, 0.0f};
+    auto* residual = static_cast<nm_float4*>(residualBuffer.contents);
+    auto* metrics = static_cast<nm_float4*>(metricsBuffer.contents);
+    auto* line = static_cast<nm_float4*>(lineBuffer.contents);
+    auto* environmentAlpha = static_cast<float*>(environmentLineBuffer.contents);
+    for (std::uint32_t trialIndex = 0u; trialIndex < trialNorms.size();
+         ++trialIndex) {
+        residual[0] = {trialNorms[trialIndex], 0.0f, 0.0f, 0.0f};
+        dispatchDecision(trialIndex);
+        if (trialIndex + 1u < trialNorms.size())
+            require(metrics[0].w <= 0.5f && environmentAlpha[0] == -1.0f,
+                    "Armijo accepted a non-descending prefix or published an unaccepted environment alpha");
+    }
+    require(metrics[0].w == 1.0f && line[0].x == 0.0625f &&
+            environmentAlpha[0] == 0.0625f && line[0].z == 5.0f &&
+            line[0].w == float(microstep.solverIteration),
+            "accepted FEM Armijo alpha or trial identity was not published consistently");
+
+    auto applyCandidates = [&] {
+        dispatchOne(applyFEM, [&](id<MTLComputeCommandEncoder> encoder) {
+            [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+            [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1u];
+            [encoder setBuffer:objectBuffer offset:0u atIndex:2u];
+            [encoder setBuffer:nodeRangeBuffer offset:0u atIndex:3u];
+            [encoder setBuffer:schedulerBuffer offset:0u atIndex:4u];
+            [encoder setBuffer:adaptiveBuffer offset:0u atIndex:5u];
+            [encoder setBuffer:acceptedBuffer offset:0u atIndex:6u];
+            [encoder setBuffer:solutionBuffer offset:0u atIndex:7u];
+            [encoder setBuffer:candidateBuffer offset:0u atIndex:8u];
+            [encoder setBuffer:lineBuffer offset:0u atIndex:9u];
+            [encoder setBuffer:mixedMaterialBuffer offset:0u atIndex:10u];
+            [encoder setBuffer:fieldBuffer offset:0u atIndex:11u];
+        });
+        dispatchOne(applyRigid, [&](id<MTLComputeCommandEncoder> encoder) {
+            [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+            [encoder setBuffer:solutionBuffer offset:0u atIndex:1u];
+            [encoder setBuffer:environmentLineBuffer offset:0u atIndex:2u];
+            [encoder setBuffer:rigidCandidateBuffer offset:0u atIndex:3u];
+            [encoder setBytes:&layout length:sizeof(layout) atIndex:30u];
+        });
+    };
+    applyCandidates();
+    const auto femVelocity = static_cast<const NMFEMNodeStateGPU*>(
+        candidateBuffer.contents)[0].velocityAndInverseMass.x;
+    const auto rigidVelocity = static_cast<const float*>(
+        rigidCandidateBuffer.contents)[0];
+    require(femVelocity == 0.25f && rigidVelocity == 0.25f,
+            "FEM and free-rigid corrections did not consume the same accepted 1/16 alpha");
+
+    // A certified no-op is deliberately different: the candidate correction is
+    // zeroed and alpha one is published so both application kernels preserve it.
+    *static_cast<nm_float4*>(metricsBuffer.contents) =
+        {0.5e-6f, INFINITY, 1.0f, 0.0f};
+    *static_cast<nm_float4*>(lineBuffer.contents) = {1.0f, 0.0f, 1.0f, 0.0f};
+    *static_cast<float*>(environmentLineBuffer.contents) = -1.0f;
+    *static_cast<NMMatterStatusGPU*>(trialStatusBuffer.contents) = {};
+    *static_cast<NMMatterStatusGPU*>(statusBuffer.contents) = {};
+    *static_cast<NMFEMNodeStateGPU*>(candidateBuffer.contents) = node;
+    *static_cast<NMFEMNodeStateGPU*>(acceptedBuffer.contents) = node;
+    std::fill_n(static_cast<float*>(rigidCandidateBuffer.contents), 6u, 0.0f);
+    std::fill_n(static_cast<nm_float4*>(solutionBuffer.contents), 8u,
+                nm_float4{});
+    solution = static_cast<nm_float4*>(solutionBuffer.contents);
+    solution[0] = {4.0f, 0.0f, 0.0f, 0.0f};
+    solution[2] = {4.0f, 0.0f, 0.0f, 0.0f};
+    residual[0] = {0.5e-6f, 0.0f, 0.0f, 0.0f};
+    dispatchDecision(0u);
+    require(metrics[0].w == 2.0f && line[0].x == 1.0f &&
+            environmentAlpha[0] == 1.0f &&
+            solution[0].x == 0.0f && solution[2].x == 0.0f,
+            "certified no-op did not publish alpha one with an exactly zero correction");
+    applyCandidates();
+    require(static_cast<const NMFEMNodeStateGPU*>(candidateBuffer.contents)[0]
+                .velocityAndInverseMass.x == 0.0f &&
+            static_cast<const float*>(rigidCandidateBuffer.contents)[0] == 0.0f,
+            "certified no-op changed a FEM or rigid candidate");
+    std::cout << "armijo_environment_alpha_publication=pass"
+              << " rejected_prefix_trials=4 selected_alpha=0.0625"
+              << " applied_fem_delta=0.25 applied_rigid_delta=0.25"
+              << " certified_noop_fem_alpha=1 certified_noop_rigid_alpha=1"
+              << " noop_correction_zero=true direct_production_kernels=true"
+              << " physical_validation=false\n";
+}
+
 void verifyPrivateSelfSweepValidator() {
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
     require(device != nil, "private self-sweep test requires a Metal device");
@@ -4079,6 +4333,7 @@ int main(int argc, const char* argv[]) {
             bool prescribedBoxSweepReject = false;
             bool prescribedBoxTranslation = false;
             bool privateSelfSweep = false;
+            bool armijoAlphaPublication = false;
             bool sparsePrivateParity = false;
             bool sparsePrivateOverflow = false;
             bool sparsePrivateAdmission = false;
@@ -4099,6 +4354,8 @@ int main(int argc, const char* argv[]) {
                     prescribedBoxTranslation = true;
                 else if (option == "--private-self-sweep")
                     privateSelfSweep = true;
+                else if (option == "--armijo-alpha-publication")
+                    armijoAlphaPublication = true;
                 else if (option == "--sparse-private-parity")
                     sparsePrivateParity = true;
                 else if (option == "--sparse-private-overflow")
@@ -4141,13 +4398,26 @@ int main(int argc, const char* argv[]) {
             }
             require(!(cpuOnly && (overflow || prescribedBoxOverflow ||
                                   prescribedBoxSweepReject || prescribedBoxTranslation ||
-                                  privateSelfSweep || sparsePrivateParity ||
+                                  privateSelfSweep || armijoAlphaPublication ||
+                                  sparsePrivateParity ||
                                   sparsePrivateOverflow || sparsePrivateAdmission ||
                                   sparsePrivateHighPairAdmission ||
                                   sparseFreeBodyParity || sparseFreeBodyOverflow ||
                                   selfSurfaceScratchAliasParity ||
                                   cohesiveScratchAliasParity)),
                     "CPU and overflow modes are exclusive");
+            require(!armijoAlphaPublication ||
+                        !(cpuOnly || overflow || prescribedBoxOverflow ||
+                          prescribedBoxSweepReject || prescribedBoxTranslation ||
+                          privateSelfSweep || sparsePrivateParity ||
+                          sparsePrivateOverflow || sparsePrivateAdmission ||
+                          sparsePrivateHighPairAdmission || sparseFreeBodyParity ||
+                          sparseFreeBodyOverflow || selfSurfaceScratchAliasParity ||
+                          cohesiveScratchAliasParity || regionalContactPreconditioner ||
+                          extendedBudget || accuratePaper ||
+                          authoredNewtonIterations != 0u ||
+                          !diagnosticStateOutputPath.empty()),
+                    "Armijo alpha publication mode must run alone");
             require(!privateSelfSweep || !(overflow || prescribedBoxOverflow ||
                                   prescribedBoxSweepReject || prescribedBoxTranslation),
                     "private self-sweep regression mode must run alone");
@@ -4219,6 +4489,12 @@ int main(int argc, const char* argv[]) {
             verifyAuthoredLineSearchBudget(bulk);
             verifyPrescribedBoxCompilerAdmission(bulk);
             verifySparsePrivateSizingAdmission();
+            if (armijoAlphaPublication) {
+                verifyArmijoAlphaPublication();
+                std::cout << "PASS Armijo environment-alpha publication kernel check"
+                          << " checks=" << checks << '\n';
+                return 0;
+            }
             if (privateSelfSweep) {
                 verifyPrivateSelfSweepValidator();
                 std::cout << "PASS private self-sweep validator fixture"

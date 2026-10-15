@@ -409,6 +409,53 @@ inline uint coupledFreeProxyIndex(
     return NM_INVALID_INDEX;
 }
 
+// Differential of Exp(phi) with a world-frame angular-velocity perturbation.
+// Free rigid candidates are materialized as Exp(dt*omega)*q0, so using the
+// raw angular direction is only correct at zero angular velocity.
+inline float3 coupledSO3LeftJacobianApply(
+    const float3 phi,
+    const float3 value
+) {
+    const float angleSquared = dot(phi, phi);
+    float first;
+    float second;
+    if (angleSquared < 1.0e-6f) {
+        const float fourth = angleSquared * angleSquared;
+        first = 0.5f - angleSquared / 24.0f + fourth / 720.0f;
+        second = 1.0f / 6.0f - angleSquared / 120.0f +
+            fourth / 5040.0f;
+    } else {
+        const float angle = sqrt(angleSquared);
+        first = (1.0f - cos(angle)) / angleSquared;
+        second = (angle - sin(angle)) / (angleSquared * angle);
+    }
+    const float3 firstCross = cross(phi, value);
+    return value + first * firstCross +
+        second * cross(phi, firstCross);
+}
+
+inline float3 coupledSO3LeftJacobianTransposeApply(
+    const float3 phi,
+    const float3 value
+) {
+    const float angleSquared = dot(phi, phi);
+    float first;
+    float second;
+    if (angleSquared < 1.0e-6f) {
+        const float fourth = angleSquared * angleSquared;
+        first = 0.5f - angleSquared / 24.0f + fourth / 720.0f;
+        second = 1.0f / 6.0f - angleSquared / 120.0f +
+            fourth / 5040.0f;
+    } else {
+        const float angle = sqrt(angleSquared);
+        first = (1.0f - cos(angle)) / angleSquared;
+        second = (angle - sin(angle)) / (angleSquared * angle);
+    }
+    const float3 firstCross = cross(phi, value);
+    return value - first * firstCross +
+        second * cross(phi, firstCross);
+}
+
 inline float3 coupledRigidPointDirection(
     const NMMatterDispatchGPU dispatch,
     constant NMPrimalContactArguments& contact,
@@ -470,8 +517,205 @@ inline float3 coupledRigidPointDirection(
         return float3(0.0f);
     const NMContactSampleGPU sample = contact.samples[
         environment * dispatch.contactPairCount + pairIndex];
+    float3 mappedAngular = angular;
+    if (proxy.shapeKind == NM_RIGID_BOX &&
+        sample.barrierHessianRow0.w > 0.0f) {
+        const float timestep = sample.barrierHessianRow0.w;
+        mappedAngular = coupledSO3LeftJacobianApply(
+            timestep * rigid.angularVelocity.xyz, angular);
+    }
     return linear + cross(
-        angular, sample.pointAndSeparation.xyz - rigid.bodyCenter.xyz);
+        mappedAngular,
+        sample.pointAndSeparation.xyz - rigid.bodyCenter.xyz);
+}
+
+// Directional derivative of the free BOX contact witness lever about the
+// body COM. This is the fixed-active-feature derivative of the same clamp
+// map used by boxContact; contact evaluation marks the sample only after
+// checking that the closest feature is separated from every active-set
+// transition. The returned vector is d(witness-COM) for a velocity-space
+// Krylov direction, so it carries the same microstep dt as the candidate
+// pose map.
+inline float3 coupledFreeBoxWitnessLeverDirection(
+    const NMMatterDispatchGPU dispatch,
+    constant NMPrimalContactArguments& contact,
+    const uint environment,
+    const NMContactPairGPU pair,
+    const NMContactSampleGPU sample,
+    const uint articulatedNv,
+    device const float4* direction
+) {
+    if (pair.rigidProxy >= dispatch.rigidProxyCount ||
+        pair.continuumNode < dispatch.gridNodeCount ||
+        pair.continuumNode - dispatch.gridNodeCount >= dispatch.femNodeCount ||
+        sample.barrierHessianRow0.w <= 0.0f)
+        return float3(0.0f);
+    const NMRigidProxyGPU proxy = contact.rigidProxies[pair.rigidProxy];
+    const NMRigidStateGPU rigid = contact.rigidStates[
+        environment * dispatch.rigidProxyCount + pair.rigidProxy];
+    if (proxy.shapeKind != NM_RIGID_BOX ||
+        (proxy.flags & NM_RIGID_DYNAMIC) == 0u ||
+        (proxy.flags & NM_RIGID_ARTICULATED) != 0u ||
+        proxy.generalizedFreeBodyIndex != 0u ||
+        dispatch.rigidGeneralizedCapacity != 6u)
+        return float3(0.0f);
+
+    const float timestep = sample.barrierHessianRow0.w;
+    const uint bodyBase = fgmresRigidIndex(
+        dispatch, environment, articulatedNv);
+    const float3 linearDirection = float3(
+        direction[bodyBase + 0u].x,
+        direction[bodyBase + 1u].x,
+        direction[bodyBase + 2u].x);
+    const float3 angularDirection = float3(
+        direction[bodyBase + 3u].x,
+        direction[bodyBase + 4u].x,
+        direction[bodyBase + 5u].x);
+    const float3 deltaTheta = timestep * coupledSO3LeftJacobianApply(
+        timestep * rigid.angularVelocity.xyz, angularDirection);
+    const uint femNode = pair.continuumNode - dispatch.gridNodeCount;
+    const float3 deltaPoint = timestep * direction[
+        environment * dispatch.femNodeCount + femNode].xyz;
+    const float3 deltaCenter = timestep * linearDirection;
+    const float3 point = sample.pointAndSeparation.xyz +
+        sample.pointAndSeparation.w * sample.normalAndVelocity.xyz;
+    const float3 pointFromCenter = point - rigid.bodyCenter.xyz;
+    const float4 orientation = quaternionNormalize(rigid.orientation);
+    const float4 inverseOrientation = float4(-orientation.xyz, orientation.w);
+    const float3 localPoint = quaternionRotate(
+        inverseOrientation, point - rigid.centerAndRadius.xyz);
+    const float3 localDisplacement = quaternionRotate(
+        inverseOrientation,
+        deltaPoint - deltaCenter + cross(pointFromCenter, deltaTheta));
+    const float3 outside = max(abs(localPoint) - rigid.extent.xyz,
+                               float3(0.0f));
+    const float3 activeAxes = float3(
+        outside.x > 0.0f ? 1.0f : 0.0f,
+        outside.y > 0.0f ? 1.0f : 0.0f,
+        outside.z > 0.0f ? 1.0f : 0.0f);
+    const float3 localWitnessDirection =
+        (float3(1.0f) - activeAxes) * localDisplacement;
+    const float3 lever = sample.pointAndSeparation.xyz -
+        rigid.bodyCenter.xyz;
+    return cross(deltaTheta, lever) + quaternionRotate(
+        orientation, localWitnessDirection);
+}
+
+// Add the part of the free-BOX contact Jacobian that is not represented by
+// the stored translational spatial block. In addition to rotating the normal,
+// the barrier stiffness depends on the inverse directional response
+// a=m_node^-1+m_body^-1+(r x n)·I_world^-1(r x n). This helper differentiates
+// both terms from the same accepted linearization. The response derivative is
+// needed even for pure translations near a smooth edge; it is zero only in
+// geometries where the contact normal and moment arm leave a unchanged.
+inline float3 coupledFreeBoxAngularBarrierCorrection(
+    const NMMatterDispatchGPU dispatch,
+    constant NMPrimalContactArguments& contact,
+    const uint environment,
+    const uint pairIndex,
+    const uint articulatedNv,
+    device const float4* direction
+) {
+    if (pairIndex >= dispatch.contactPairCount) return float3(0.0f);
+    const NMContactPairGPU pair = contact.pairs[pairIndex];
+    if (pair.rigidProxy >= dispatch.rigidProxyCount) return float3(0.0f);
+    const NMRigidProxyGPU proxy = contact.rigidProxies[pair.rigidProxy];
+    const NMContactSampleGPU sample = contact.samples[
+        environment * dispatch.contactPairCount + pairIndex];
+    if (sample.barrierHessianRow0.w <= 0.0f ||
+        !(sample.barrierHessianRow1.w > 0.0f) ||
+        proxy.shapeKind != NM_RIGID_BOX ||
+        (proxy.flags & NM_RIGID_DYNAMIC) == 0u ||
+        (proxy.flags & NM_RIGID_ARTICULATED) != 0u ||
+        proxy.generalizedFreeBodyIndex != 0u ||
+        dispatch.rigidGeneralizedCapacity != 6u)
+        return float3(0.0f);
+    const NMRigidStateGPU rigid = contact.rigidStates[
+        environment * dispatch.rigidProxyCount + pair.rigidProxy];
+    if (!(rigid.linearVelocityAndInverseMass.w > 0.0f))
+        return float3(0.0f);
+    const float timestep = sample.barrierHessianRow0.w;
+    const uint bodyBase = fgmresRigidIndex(
+        dispatch, environment, articulatedNv);
+    const float3 linearDirection = float3(
+        direction[bodyBase + 0u].x,
+        direction[bodyBase + 1u].x,
+        direction[bodyBase + 2u].x);
+    const float3 angularDirection = float3(
+        direction[bodyBase + 3u].x,
+        direction[bodyBase + 4u].x,
+        direction[bodyBase + 5u].x);
+    const float3 deltaTheta = timestep * coupledSO3LeftJacobianApply(
+        timestep * rigid.angularVelocity.xyz, angularDirection);
+    const uint femNode = pair.continuumNode - dispatch.gridNodeCount;
+    if (femNode >= dispatch.femNodeCount) return float3(0.0f);
+    const float3 deltaPoint = timestep * direction[
+        environment * dispatch.femNodeCount + femNode].xyz;
+    const float3 deltaCenter = timestep * linearDirection;
+    const float3 normal = sample.normalAndVelocity.xyz;
+    const float3 point = sample.pointAndSeparation.xyz +
+        sample.pointAndSeparation.w * normal;
+    const float4 orientation = quaternionNormalize(rigid.orientation);
+    const float4 inverseOrientation = float4(-orientation.xyz, orientation.w);
+    const float3 localPoint = quaternionRotate(
+        inverseOrientation, point - rigid.centerAndRadius.xyz);
+    const float3 signedOutside = abs(localPoint) - rigid.extent.xyz;
+    const float3 outside = max(signedOutside, float3(0.0f));
+    const float localDistance = length(outside);
+    if (!(localDistance > 0.0f) || !isfinite(localDistance))
+        return float3(NAN);
+    const float3 activeAxes = float3(
+        signedOutside.x > 0.0f ? 1.0f : 0.0f,
+        signedOutside.y > 0.0f ? 1.0f : 0.0f,
+        signedOutside.z > 0.0f ? 1.0f : 0.0f);
+    const float3 localNormal = quaternionRotate(inverseOrientation, normal);
+    const float3x3 localActive = float3x3(
+        float3(activeAxes.x, 0.0f, 0.0f),
+        float3(0.0f, activeAxes.y, 0.0f),
+        float3(0.0f, 0.0f, activeAxes.z));
+    const float3x3 localDistanceHessian =
+        (localActive - outerProduct(localNormal, localNormal)) /
+        localDistance;
+    const float3 localDisplacement = quaternionRotate(
+        inverseOrientation,
+        deltaPoint - deltaCenter + cross(
+            point - rigid.bodyCenter.xyz, deltaTheta));
+    const float3 exactNormalDirection = cross(deltaTheta, normal) +
+        quaternionRotate(orientation,
+            localDistanceHessian * localDisplacement);
+    const float3 lever = sample.pointAndSeparation.xyz -
+        rigid.bodyCenter.xyz;
+    const float3 leverDirection = coupledFreeBoxWitnessLeverDirection(
+        dispatch, contact, environment, pair, sample,
+        articulatedNv, direction);
+    const float3 relativeDirection =
+        (deltaPoint - deltaCenter - leverDirection) / timestep;
+    const float3x3 rotation = float3x3(
+        quaternionRotate(orientation, float3(1.0f, 0.0f, 0.0f)),
+        quaternionRotate(orientation, float3(0.0f, 1.0f, 0.0f)),
+        quaternionRotate(orientation, float3(0.0f, 0.0f, 1.0f)));
+    const float3 spatialNormalDirection = timestep * rotation *
+        localDistanceHessian * transpose(rotation) * relativeDirection;
+    const float3 unrepresentedNormalDirection =
+        exactNormalDirection - spatialNormalDirection;
+
+    const float3 angularMomentumArm = cross(lever, normal);
+    const float3 inverseInertiaArm = multiplyRows(
+        rigid.inverseInertiaRow0,
+        rigid.inverseInertiaRow1,
+        rigid.inverseInertiaRow2,
+        angularMomentumArm);
+    const float3 armDirection = cross(leverDirection, normal) +
+        cross(lever, exactNormalDirection);
+    // I_world^-1 rotates with the body: dI^-1=[dtheta]x I^-1-I^-1[dtheta]x.
+    const float inverseResponseDirection = 2.0f * dot(
+        armDirection, inverseInertiaArm) + 2.0f * dot(
+        deltaTheta, cross(inverseInertiaArm, angularMomentumArm));
+    const float inverseResponse = sample.barrierHessianRow1.w;
+    const float normalImpulse = sample.impulseAndNormal.w;
+    return normalImpulse * (
+        (inverseResponseDirection / inverseResponse) * normal -
+        unrepresentedNormalDirection);
 }
 
 inline float3 coupledBarrierDirectionalForce(
@@ -1947,6 +2191,752 @@ inline float3x3 fgmresApplyCachedTangent(
     return componentsMatrix(responseComponents);
 }
 
+// Assemble each dense graph-patch principal submatrix from the same local
+// production FEM tangent used by the matrix-free operator. One thread owns a
+// complete scalar row, so overlapping patches never race while accumulating
+// their independent principal matrices. The layout is immutable and contains
+// only currently free nodes; a changed Dirichlet mask is a hard failure.
+kernel void nm_fgmres_graph_build_patch_matrices(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(2)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(3)]],
+    device const uint* nodeIncidence [[buffer(4)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(5)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(6)]],
+    device const NMMaterialGPU* materials [[buffer(7)]],
+    device const NMScalarProgramGPU* programs [[buffer(8)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(9)]],
+    device const float* environmentParameters [[buffer(10)]],
+    device const float* acceptedMaterialState [[buffer(11)]],
+    device const float* tangentCache [[buffer(12)]],
+    device const uint* tangentCacheValid [[buffer(13)]],
+    constant uint& useTangentCache [[buffer(14)]],
+    device const uint4* patches [[buffer(15)]],
+    device const uint* patchNodes [[buffer(16)]],
+    device const uint4* rows [[buffer(17)]],
+    device const uint* nodeCoverage [[buffer(18)]],
+    device float* patchMatrices [[buffer(19)]],
+    device NMMatterStatusGPU* statuses [[buffer(20)]],
+    constant uint& rowCount [[buffer(21)]],
+    constant uint& patchCount [[buffer(22)]],
+    constant uint& matrixFloatCount [[buffer(23)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * rowCount;
+    if (global >= total || rowCount == 0u) return;
+    const uint environment = global / rowCount;
+    const uint4 row = rows[global - environment * rowCount];
+    if (row.x >= patchCount || row.y >= 256u || row.z >= 3u ||
+        row.w >= dispatch.femNodeCount) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            0u, NM_INVALID_INDEX, float4(float(global), float(row.x),
+                                         float(row.y), float(row.z)));
+        return;
+    }
+    const uint4 patch = patches[row.x];
+    const uint n = patch.y * 3u;
+    if (patch.y == 0u || patch.y > 256u || row.y >= patch.y || n > 768u) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            0u, NM_INVALID_INDEX, float4(float(row.x), float(patch.y),
+                                         float(n), 1.0f));
+        return;
+    }
+    const uint rowScalar = row.y * 3u + row.z;
+    const uint matrixBase = environment * matrixFloatCount + patch.z;
+    const uint matrixRowBase = matrixBase + rowScalar * n;
+    for (uint column = 0u; column < n; ++column)
+        patchMatrices[matrixRowBase + column] = 0.0f;
+    const uint globalNode = environment * dispatch.femNodeCount + row.w;
+    const bool expectedFree = nodeCoverage[row.w] != 0u;
+    const bool candidateFree = candidate[globalNode].restAndFixed.w <= 0.5f;
+    if (expectedFree != candidateFree) {
+        recordFailure(statuses[environment], NM_STATUS_UNSUPPORTED,
+            0u, NM_INVALID_INDEX,
+            float4(float(row.w), float(nodeCoverage[row.w]),
+                   candidate[globalNode].restAndFixed.w, 2.0f));
+        return;
+    }
+    const NMIncidenceRangeGPU range = nodeRanges[globalNode];
+    if (range.objectIndex != 0u || range.objectIndex >= dispatch.objectCount) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            range.objectIndex, NM_INVALID_INDEX,
+            float4(float(globalNode), float(range.objectIndex), 0.0f, 3.0f));
+        return;
+    }
+    const NMContinuumObjectGPU object = objects[range.objectIndex];
+    const NMSchedulerStateGPU scheduler = schedulers[
+        environment * dispatch.objectCount + range.objectIndex];
+    const float dt = objectTimestep(dispatch, scheduler);
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint stateStride = dispatch.materialStateStride;
+    const device float* parameters = environmentParameters +
+        environment * dispatch.parameterCount;
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint tetrahedronIndex = nodeIncidence[range.first + local];
+        if (tetrahedronIndex >= dispatch.tetrahedronCount) continue;
+        const uint globalTet = environment * dispatch.tetrahedronCount +
+            tetrahedronIndex;
+        const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+            dispatch, tetrahedra, environment, tetrahedronIndex);
+        if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+            tetrahedron.identity.y != range.objectIndex) continue;
+        uint rowSlot = 0u;
+        bool foundRow = false;
+        for (uint slot = 0u; slot < 4u; ++slot) {
+            if (tetrahedron.nodes[slot] == row.w) {
+                rowSlot = slot;
+                foundRow = true;
+                break;
+            }
+        }
+        if (!foundRow) continue;
+        const float3x3 inverseRest = matrixFromRows(
+            tetrahedron.inverseRestRow0, tetrahedron.inverseRestRow1,
+            tetrahedron.inverseRestRow2);
+        const float3x3 deformation = tetrahedronDeformation(
+            tetrahedron, candidate, nodeBase);
+        const float3x3 deformationRate = tetrahedronVelocityGradient(
+            tetrahedron, candidate, nodeBase);
+        const NMMaterialGPU material = materials[tetrahedron.identity.x];
+        float deformationLow[9];
+        const float3x3 preciseLocalF = femMaterialDeformationWords(
+            object, tetrahedron, material, candidate, nodeBase,
+            deformation, deformationLow);
+        const device float* internalState = material.stateCount == 0u
+            ? nullptr : acceptedMaterialState + globalTet * stateStride;
+        for (uint columnSlot = 0u; columnSlot < 4u; ++columnSlot) {
+            const uint columnNode = tetrahedron.nodes[columnSlot];
+            // Patch nodes are sorted, so the small fixed upper-bound binary
+            // search maps an incident global node to its local scalar columns.
+            uint low = 0u;
+            uint high = patch.y;
+            while (low < high) {
+                const uint middle = low + (high - low) / 2u;
+                if (patchNodes[patch.x + middle] < columnNode)
+                    low = middle + 1u;
+                else
+                    high = middle;
+            }
+            if (low >= patch.y || patchNodes[patch.x + low] != columnNode)
+                continue;
+            for (uint axisIndex = 0u; axisIndex < 3u; ++axisIndex) {
+                const float3 axis = axisIndex == 0u
+                    ? float3(1.0f, 0.0f, 0.0f)
+                    : (axisIndex == 1u ? float3(0.0f, 1.0f, 0.0f)
+                                       : float3(0.0f, 0.0f, 1.0f));
+                const float3 p0 = columnSlot == 0u ? axis : float3(0.0f);
+                const float3 p1 = columnSlot == 1u ? axis : float3(0.0f);
+                const float3 p2 = columnSlot == 2u ? axis : float3(0.0f);
+                const float3 p3 = columnSlot == 3u ? axis : float3(0.0f);
+                const float3x3 df = float3x3(p1 - p0, p2 - p0, p3 - p0) *
+                    inverseRest;
+                const float3x3 dRate = df / max(dt, 1.0e-12f);
+                const float3x3 localDirection = femMaterialInput(
+                    object, tetrahedron, df);
+                bool valid = true;
+                float3x3 analytic;
+                float3x3 tangent;
+                if (useTangentCache != 0u &&
+                    tangentCacheValid[globalTet] == 1u) {
+                    tangent = fgmresApplyCachedTangent(
+                        tangentCache, globalTet, localDirection, valid);
+                } else {
+                    evaluateAlgorithmicStressTangent(
+                        material, programs, instructions, parameters,
+                        internalState, preciseLocalF, localDirection,
+                        femMaterialInput(object, tetrahedron,
+                                         deformationRate),
+                        femMaterialInput(object, tetrahedron, dRate), dt,
+                        material.bulk.y, analytic, tangent, valid,
+                        nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+                        deformationLow);
+                }
+                const bool finiteTangent = all(isfinite(tangent[0])) &&
+                    all(isfinite(tangent[1])) && all(isfinite(tangent[2]));
+                if (!valid || !finiteTangent) {
+                    recordFailure(statuses[environment],
+                        NM_STATUS_NONFINITE_RESULT, range.objectIndex,
+                        tetrahedronIndex,
+                        float4(float(axisIndex), dt,
+                               maximumAbs(tangent), 4.0f));
+                    return;
+                }
+                tangent = femMaterialOutput(object, tetrahedron, tangent);
+                const NMFEMElementVectorGPU forceDirection =
+                    tetrahedronForce(tetrahedron, tangent);
+                const float3 nodalForce = elementNodeVector(
+                    forceDirection, tetrahedron, row.w).xyz;
+                const uint columnScalar = low * 3u + axisIndex;
+                patchMatrices[matrixRowBase + columnScalar] +=
+                    -dt * dt * nodalForce[row.z];
+            }
+        }
+    }
+    patchMatrices[matrixRowBase + rowScalar] +=
+        max(candidate[globalNode].positionAndMass.w, 0.0f);
+}
+
+kernel void nm_fgmres_graph_validate_mask(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(1)]],
+    device const uint* nodeCoverage [[buffer(2)]],
+    device NMMatterStatusGPU* statuses [[buffer(3)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint node = global % dispatch.femNodeCount;
+    const bool expectedFree = nodeCoverage[node] != 0u;
+    const bool candidateFree = candidate[global].restAndFixed.w <= 0.5f;
+    if (expectedFree != candidateFree)
+        recordFailure(statuses[global / dispatch.femNodeCount],
+            NM_STATUS_UNSUPPORTED, 0u, NM_INVALID_INDEX,
+            float4(float(node), float(nodeCoverage[node]),
+                   candidate[global].restAndFixed.w, 7.0f));
+}
+
+// Pivoted in-place dense LU, one threadgroup per environment/patch. The
+// arithmetic is partitioned over group lanes, with uniform barriers around
+// each pivot stage; a bad pivot is fatal to selector 5 rather than silently
+// replaced with a different preconditioner.
+kernel void nm_fgmres_graph_factor_patches(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint4* patches [[buffer(1)]],
+    device float* matrices [[buffer(2)]],
+    device uint* pivots [[buffer(3)]],
+    device uint* factorValid [[buffer(4)]],
+    device NMMatterStatusGPU* statuses [[buffer(5)]],
+    constant uint& patchCount [[buffer(6)]],
+    constant uint& matrixFloatCount [[buffer(7)]],
+    constant uint& pivotCount [[buffer(8)]],
+    device float* originalMatrices [[buffer(9)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]) {
+    const uint totalGroups = dispatch.environmentCount * patchCount;
+    if (group >= totalGroups || patchCount == 0u) return;
+    const uint environment = group / patchCount;
+    const uint patchIndex = group - environment * patchCount;
+    const uint4 patch = patches[patchIndex];
+    const uint n = patch.y * 3u;
+    const uint matrixBase = environment * matrixFloatCount + patch.z;
+    const uint originalMatrixBase = environment * matrixFloatCount + patch.z;
+    const uint pivotBase = environment * pivotCount + patch.w;
+    const uint validIndex = group;
+    threadgroup uint sharedPivotRow;
+    threadgroup uint sharedValid;
+    threadgroup float sharedScale;
+    threadgroup float sharedPivotMagnitude;
+    threadgroup float sharedDiagonal;
+    threadgroup atomic_uint sharedError;
+    if (lane == 0u) {
+        factorValid[validIndex] = 0u;
+        sharedValid = patch.y > 0u && patch.y <= 256u && n <= 768u &&
+            patch.z <= matrixFloatCount && n * n <= matrixFloatCount - patch.z &&
+            patch.w <= pivotCount && n <= pivotCount - patch.w;
+        sharedScale = 0.0f;
+        atomic_store_explicit(&sharedError, 0u, memory_order_relaxed);
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (sharedValid == 0u) return;
+    for (uint row = lane; row < n; row += 256u) {
+        pivots[pivotBase + row] = row;
+    }
+    // Preserve the assembled source matrix before this buffer is overwritten
+    // by LU. One residual-refinement pass uses it for r = b - A*x.
+    for (uint entry = lane; entry < n * n; entry += 256u)
+        originalMatrices[originalMatrixBase + entry] =
+            matrices[matrixBase + entry];
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (lane == 0u) {
+        for (uint index = 0u; index < n * n; ++index) {
+            const float value = matrices[matrixBase + index];
+            if (!isfinite(value)) {
+                sharedValid = 0u;
+                break;
+            }
+            sharedScale = max(sharedScale, abs(value));
+        }
+        if (!(sharedScale > 0.0f) || !isfinite(sharedScale))
+            sharedValid = 0u;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (sharedValid == 0u) {
+        if (lane == 0u)
+            recordFailure(statuses[environment],
+                NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
+                float4(float(patchIndex), float(n), sharedScale, 5.0f));
+        return;
+    }
+    const float pivotFloor = max(sharedScale * 1.0e-10f, 1.0e-30f);
+    for (uint k = 0u; k < n; ++k) {
+        if (lane == 0u) {
+            sharedPivotRow = k;
+            sharedPivotMagnitude = 0.0f;
+            for (uint row = k; row < n; ++row) {
+                const float magnitude = abs(matrices[
+                    matrixBase + row * n + k]);
+                if (!isfinite(magnitude)) {
+                    sharedValid = 0u;
+                    break;
+                }
+                if (magnitude > sharedPivotMagnitude) {
+                    sharedPivotMagnitude = magnitude;
+                    sharedPivotRow = row;
+                }
+            }
+            if (!(sharedPivotMagnitude > pivotFloor)) sharedValid = 0u;
+            if (sharedValid != 0u && sharedPivotRow != k) {
+                const uint other = sharedPivotRow;
+                for (uint column = 0u; column < n; ++column) {
+                    const uint a = matrixBase + k * n + column;
+                    const uint b = matrixBase + other * n + column;
+                    const float temporary = matrices[a];
+                    matrices[a] = matrices[b];
+                    matrices[b] = temporary;
+                }
+                const uint a = pivotBase + k;
+                const uint b = pivotBase + other;
+                const uint temporary = pivots[a];
+                pivots[a] = pivots[b];
+                pivots[b] = temporary;
+            }
+        }
+        // Publish the pivot row/global matrix swap and lane-0 control words
+        // before any lane consumes them in this pivot stage.
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        if (sharedValid == 0u) break;
+        if (lane == 0u) {
+            sharedDiagonal = matrices[matrixBase + k * n + k];
+            if (!isfinite(sharedDiagonal) ||
+                !(abs(sharedDiagonal) > pivotFloor)) sharedValid = 0u;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (sharedValid == 0u) break;
+        const uint lowerCount = n - k - 1u;
+        if (lane == 0u)
+            atomic_store_explicit(&sharedError, 0u, memory_order_relaxed);
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        for (uint offset = lane; offset < lowerCount; offset += 256u) {
+            const uint row = k + 1u + offset;
+            const uint index = matrixBase + row * n + k;
+            matrices[index] /= sharedDiagonal;
+            if (!isfinite(matrices[index]))
+                atomic_store_explicit(&sharedError, 1u,
+                                      memory_order_relaxed);
+        }
+        // Publish both lower-column matrix writes and the shared error flag.
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        if (lane == 0u &&
+            atomic_load_explicit(&sharedError, memory_order_relaxed) != 0u)
+            sharedValid = 0u;
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (sharedValid == 0u) break;
+        const uint width = lowerCount;
+        const uint updateCount = width * width;
+        if (lane == 0u)
+            atomic_store_explicit(&sharedError, 0u, memory_order_relaxed);
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        for (uint offset = lane; offset < updateCount; offset += 256u) {
+            const uint row = k + 1u + offset / width;
+            const uint column = k + 1u + offset % width;
+            const uint index = matrixBase + row * n + column;
+            matrices[index] -= matrices[matrixBase + row * n + k] *
+                matrices[matrixBase + k * n + column];
+            if (!isfinite(matrices[index]))
+                atomic_store_explicit(&sharedError, 1u,
+                                      memory_order_relaxed);
+        }
+        // Trailing updates write the global matrix and lane 0 consumes the
+        // shared error flag/control state after the update.
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        if (lane == 0u &&
+            atomic_load_explicit(&sharedError, memory_order_relaxed) != 0u)
+            sharedValid = 0u;
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (sharedValid == 0u) break;
+    }
+    if (lane == 0u) {
+        factorValid[validIndex] = sharedValid;
+        if (sharedValid == 0u)
+            recordFailure(statuses[environment],
+                NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
+                float4(float(patchIndex), sharedPivotMagnitude,
+                       pivotFloor, 6.0f));
+    }
+}
+
+// Add one signed product to a two-word float accumulator. fma captures the
+// product roundoff and TwoSum-style renormalization captures addition loss.
+// This is used only for the residual and the single correction solve; it does
+// not alter the assembled operator or the first LU solve.
+inline float2 fgmresGraphAccumulateProduct(
+    const float2 accumulator,
+    const float left,
+    const float right,
+    const float sign
+) {
+    const float product = left * right;
+    const float productError = fma(left, right, -product);
+    const float term = sign * product;
+    const float termError = sign * productError;
+    const float high = accumulator.x + term;
+    const float virtualTerm = high - accumulator.x;
+    const float sumError = (accumulator.x - (high - virtualTerm)) +
+        (term - virtualTerm);
+    const float tail = accumulator.y + sumError + termError;
+    const float normalizedHigh = high + tail;
+    const float normalizedLow = tail - (normalizedHigh - high);
+    return float2(normalizedHigh, normalizedLow);
+}
+
+// Solve one local right-preconditioner system per patch. The row permutation
+// matches the in-place LU swaps. The residual-refinement path preserves the
+// initial solution in bounded threadgroup memory, recomputes b-A*x from the
+// original source matrix, solves L/U once more, and publishes x+delta.
+kernel void nm_fgmres_graph_solve_patches(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint4* patches [[buffer(1)]],
+    device const uint* patchNodes [[buffer(2)]],
+    device const float4* basis [[buffer(3)]],
+    device const float4* regionalBasis [[buffer(4)]],
+    device const float4* regionalAP [[buffer(5)]],
+    device const float* coefficients [[buffer(6)]],
+    device const float* matrices [[buffer(7)]],
+    device const uint* pivots [[buffer(8)]],
+    device const uint* factorValid [[buffer(9)]],
+    device float4* patchCorrections [[buffer(10)]],
+    device NMMatterStatusGPU* statuses [[buffer(11)]],
+    constant uint& patchCount [[buffer(12)]],
+    constant uint& patchNodeCount [[buffer(13)]],
+    constant uint& matrixFloatCount [[buffer(14)]],
+    constant uint& pivotCount [[buffer(15)]],
+    constant uint& modeCount [[buffer(16)]],
+    device const NMFGMRESStateGPU* states [[buffer(17)]],
+    device const float* originalMatrices [[buffer(18)]],
+    constant uint& refinementMode [[buffer(19)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]) {
+    const uint totalGroups = dispatch.environmentCount * patchCount;
+    if (group >= totalGroups || patchCount == 0u || modeCount == 0u ||
+        modeCount > 32u) return;
+    const uint environment = group / patchCount;
+    const uint patchIndex = group - environment * patchCount;
+    const uint4 patch = patches[patchIndex];
+    const uint n = patch.y * 3u;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint patchCorrectionBase = environment * patchNodeCount + patch.x;
+    const uint matrixBase = environment * matrixFloatCount + patch.z;
+    const uint originalMatrixBase = environment * matrixFloatCount + patch.z;
+    const uint pivotBase = environment * pivotCount + patch.w;
+    // The completed Krylov-cycle latch is authoritative here: nm_fgmres_begin
+    // has already run for this restart, while graph build/factorization occurs
+    // earlier and must remain unconditional. Do not leave a prior Arnoldi
+    // column's correction live in scratch consumed by the apply kernel.
+    if (states[environment].diagnostics.z > 0.5f) {
+        for (uint local = lane; local < patch.y; local += 256u)
+            patchCorrections[patchCorrectionBase + local] = float4(0.0f);
+        return;
+    }
+    threadgroup float rhs[768];
+    threadgroup float values[768];
+    threadgroup float originalSolution[768];
+    threadgroup atomic_uint refinementError;
+    threadgroup atomic_uint finalOutputError;
+    threadgroup uint refinementValid;
+    threadgroup uint refinementNeeded;
+    threadgroup uint refinementSolveValid;
+    if (lane == 0u && refinementMode > 1u) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            0u, NM_INVALID_INDEX,
+            float4(float(patchIndex), float(refinementMode), 1.0f, 11.0f));
+    }
+    if (refinementMode > 1u) {
+        for (uint local = lane; local < patch.y; local += 256u)
+            patchCorrections[patchCorrectionBase + local] = float4(0.0f);
+        return;
+    }
+    if (factorValid[group] == 0u || n == 0u || n > 768u) {
+        if (lane == 0u)
+            recordFailure(statuses[environment],
+                NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
+                float4(float(patchIndex), float(n), 0.0f, 8.0f));
+        for (uint local = lane; local < patch.y; local += 256u)
+            patchCorrections[patchCorrectionBase + local] = float4(0.0f);
+        return;
+    }
+    for (uint scalar = lane; scalar < n; scalar += 256u) {
+        const uint localNode = scalar / 3u;
+        const uint axis = scalar % 3u;
+        const uint globalNode = patchNodes[patch.x + localNode];
+        float value = basis[nodeBase + globalNode][axis];
+        const uint coefficientBase = environment * modeCount;
+        for (uint mode = 0u; mode < modeCount; ++mode) {
+            const uint modeNodeBase =
+                (environment * modeCount + mode) * dispatch.femNodeCount;
+            value -= coefficients[coefficientBase + mode] *
+                regionalAP[modeNodeBase + globalNode][axis];
+        }
+        rhs[scalar] = value;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint scalar = lane; scalar < n; scalar += 256u)
+        values[scalar] = rhs[pivots[pivotBase + scalar]];
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint row = 0u; row < n; ++row) {
+        if (lane == 0u) {
+            float value = values[row];
+            for (uint column = 0u; column < row; ++column)
+                value -= matrices[matrixBase + row * n + column] *
+                    values[column];
+            values[row] = value;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    for (int reverse = int(n) - 1; reverse >= 0; --reverse) {
+        if (lane == 0u) {
+            const uint row = uint(reverse);
+            float value = values[row];
+            for (uint column = row + 1u; column < n; ++column)
+                value -= matrices[matrixBase + row * n + column] *
+                    values[column];
+            const float diagonal = matrices[matrixBase + row * n + row];
+            if (!isfinite(value) || !isfinite(diagonal) ||
+                !(abs(diagonal) > 1.0e-30f)) {
+                recordFailure(statuses[environment],
+                    NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
+                    float4(float(patchIndex), float(row), diagonal, 9.0f));
+                values[row] = 0.0f;
+            } else {
+                values[row] = value / diagonal;
+                if (!isfinite(values[row])) {
+                    recordFailure(statuses[environment],
+                        NM_STATUS_LINEAR_SOLVER_FAILURE, 0u,
+                        NM_INVALID_INDEX,
+                        float4(float(patchIndex), float(row), value, 10.0f));
+                    values[row] = 0.0f;
+                }
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+
+    // The mode-0 call is a checker control that exposes the unrefined solve;
+    // production runtime always binds mode 1. It writes the same output ABI.
+    if (refinementMode == 0u) {
+        for (uint local = lane; local < patch.y; local += 256u) {
+            patchCorrections[patchCorrectionBase + local] = float4(
+                values[local * 3u], values[local * 3u + 1u],
+                values[local * 3u + 2u], 0.0f);
+        }
+        return;
+    }
+
+    for (uint scalar = lane; scalar < n; scalar += 256u)
+        originalSolution[scalar] = values[scalar];
+    if (lane == 0u)
+        atomic_store_explicit(&refinementError, 0u, memory_order_relaxed);
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    // Compute the production RHS minus the original, unpivoted A times x.
+    // Each row is independent; two-word accumulation is rounded only once
+    // when the correction RHS is stored.
+    for (uint row = lane; row < n; row += 256u) {
+        float2 accumulated = float2(rhs[row], 0.0f);
+        for (uint column = 0u; column < n; ++column) {
+            accumulated = fgmresGraphAccumulateProduct(
+                accumulated,
+                originalMatrices[originalMatrixBase + row * n + column],
+                originalSolution[column], -1.0f);
+        }
+        const float residual = accumulated.x + accumulated.y;
+        if (!isfinite(accumulated.x) || !isfinite(accumulated.y) ||
+            !isfinite(residual)) {
+            atomic_store_explicit(&refinementError, 1u,
+                                  memory_order_relaxed);
+            rhs[row] = 0.0f;
+        } else {
+            rhs[row] = residual;
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (lane == 0u) {
+        const uint error = atomic_load_explicit(
+            &refinementError, memory_order_relaxed);
+        refinementValid = error == 0u ? 1u : 0u;
+        refinementNeeded = 0u;
+        refinementSolveValid = refinementValid;
+        if (refinementValid != 0u) {
+            for (uint scalar = 0u; scalar < n; ++scalar) {
+                if (rhs[scalar] != 0.0f) refinementNeeded = 1u;
+            }
+        } else {
+            recordFailure(statuses[environment],
+                NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
+                float4(float(patchIndex), float(n), 0.0f, 12.0f));
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (refinementValid == 0u) {
+        for (uint local = lane; local < patch.y; local += 256u)
+            patchCorrections[patchCorrectionBase + local] = float4(0.0f);
+        return;
+    }
+
+    if (refinementNeeded != 0u) {
+        for (uint scalar = lane; scalar < n; scalar += 256u)
+            values[scalar] = rhs[pivots[pivotBase + scalar]];
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        for (uint row = 0u; row < n; ++row) {
+            if (lane == 0u) {
+                float2 accumulated = float2(values[row], 0.0f);
+                for (uint column = 0u; column < row; ++column) {
+                    accumulated = fgmresGraphAccumulateProduct(
+                        accumulated,
+                        matrices[matrixBase + row * n + column],
+                        values[column], -1.0f);
+                }
+                const float value = accumulated.x + accumulated.y;
+                if (!isfinite(accumulated.x) ||
+                    !isfinite(accumulated.y) || !isfinite(value)) {
+                    refinementSolveValid = 0u;
+                    recordFailure(statuses[environment],
+                        NM_STATUS_LINEAR_SOLVER_FAILURE, 0u,
+                        NM_INVALID_INDEX,
+                        float4(float(patchIndex), float(row), value, 13.0f));
+                    values[row] = 0.0f;
+                } else {
+                    values[row] = value;
+                }
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            if (refinementSolveValid == 0u) break;
+        }
+        for (int reverse = int(n) - 1; reverse >= 0; --reverse) {
+            if (lane == 0u && refinementSolveValid != 0u) {
+                const uint row = uint(reverse);
+                float2 accumulated = float2(values[row], 0.0f);
+                for (uint column = row + 1u; column < n; ++column) {
+                    accumulated = fgmresGraphAccumulateProduct(
+                        accumulated,
+                        matrices[matrixBase + row * n + column],
+                        values[column], -1.0f);
+                }
+                const float diagonal = matrices[matrixBase + row * n + row];
+                const float numerator = accumulated.x + accumulated.y;
+                if (!isfinite(accumulated.x) || !isfinite(accumulated.y) ||
+                    !isfinite(numerator) || !isfinite(diagonal) ||
+                    !(abs(diagonal) > 1.0e-30f)) {
+                    refinementSolveValid = 0u;
+                    recordFailure(statuses[environment],
+                        NM_STATUS_LINEAR_SOLVER_FAILURE, 0u,
+                        NM_INVALID_INDEX,
+                        float4(float(patchIndex), float(row), diagonal, 14.0f));
+                    values[row] = 0.0f;
+                } else {
+                    values[row] = numerator / diagonal;
+                    if (!isfinite(values[row])) {
+                        refinementSolveValid = 0u;
+                        recordFailure(statuses[environment],
+                            NM_STATUS_LINEAR_SOLVER_FAILURE, 0u,
+                            NM_INVALID_INDEX,
+                            float4(float(patchIndex), float(row),
+                                   numerator, 15.0f));
+                        values[row] = 0.0f;
+                    }
+                }
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            if (refinementSolveValid == 0u) break;
+        }
+    }
+
+    if (lane == 0u)
+        atomic_store_explicit(&finalOutputError, 0u, memory_order_relaxed);
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (refinementSolveValid != 0u && refinementNeeded != 0u) {
+        for (uint scalar = lane; scalar < n; scalar += 256u) {
+            const float finalValue = originalSolution[scalar] + values[scalar];
+            if (!isfinite(finalValue)) {
+                atomic_store_explicit(&finalOutputError, 1u,
+                                      memory_order_relaxed);
+            }
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (lane == 0u && atomic_load_explicit(
+            &finalOutputError, memory_order_relaxed) != 0u) {
+        refinementSolveValid = 0u;
+        recordFailure(statuses[environment],
+            NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
+            float4(float(patchIndex), float(n), 0.0f, 16.0f));
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    for (uint local = lane; local < patch.y; local += 256u) {
+        if (refinementSolveValid == 0u) {
+            patchCorrections[patchCorrectionBase + local] = float4(0.0f);
+        } else if (refinementNeeded == 0u) {
+            patchCorrections[patchCorrectionBase + local] = float4(
+                originalSolution[local * 3u],
+                originalSolution[local * 3u + 1u],
+                originalSolution[local * 3u + 2u], 0.0f);
+        } else {
+            patchCorrections[patchCorrectionBase + local] = float4(
+                originalSolution[local * 3u] + values[local * 3u],
+                originalSolution[local * 3u + 1u] + values[local * 3u + 1u],
+                originalSolution[local * 3u + 2u] + values[local * 3u + 2u],
+                0.0f);
+        }
+    }
+}
+
+kernel void nm_fgmres_graph_apply_patches(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* patchNodes [[buffer(1)]],
+    device const uint* nodePatchOffsets [[buffer(2)]],
+    device const uint* nodePatchValues [[buffer(3)]],
+    device const uint* nodeCoverage [[buffer(4)]],
+    device const float4* regionalBasis [[buffer(5)]],
+    device const float* coefficients [[buffer(6)]],
+    device const float4* patchCorrections [[buffer(7)]],
+    device float4* preconditioned [[buffer(8)]],
+    device const NMFGMRESStateGPU* states [[buffer(9)]],
+    constant uint& patchNodeCount [[buffer(10)]],
+    constant uint& modeCount [[buffer(11)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u ||
+        modeCount == 0u || modeCount > 32u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    if (states[environment].diagnostics.z > 0.5f) {
+        preconditioned[global] = float4(0.0f);
+        return;
+    }
+    float3 coarseCorrection = float3(0.0f);
+    const uint coefficientBase = environment * modeCount;
+    for (uint mode = 0u; mode < modeCount; ++mode) {
+        const float coefficient = coefficients[coefficientBase + mode];
+        const uint basisBase =
+            (environment * modeCount + mode) * dispatch.femNodeCount;
+        coarseCorrection += coefficient * regionalBasis[basisBase + node].xyz;
+    }
+    float3 graphCorrection = float3(0.0f);
+    const uint coverage = nodeCoverage[node];
+    if (coverage != 0u) {
+        for (uint item = nodePatchOffsets[node];
+             item < nodePatchOffsets[node + 1u]; ++item) {
+            const uint patchNode = nodePatchValues[item];
+            if (patchNode >= patchNodeCount || patchNodes[patchNode] != node)
+                continue;
+            graphCorrection += patchCorrections[
+                environment * patchNodeCount + patchNode].xyz;
+        }
+        graphCorrection /= float(coverage);
+    }
+    preconditioned[global] = float4(
+        coarseCorrection + graphCorrection, 0.0f);
+}
+
 kernel void nm_fgmres_build_tangent_fem_preconditioner(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMixedSolverGPU& solver [[buffer(1)]],
@@ -2417,6 +3407,7 @@ kernel void nm_fgmres_apply_free_rigid(
     device float4* work [[buffer(3)]],
     constant NMPrimalContactArguments& contact [[buffer(4)]],
     device const NMFGMRESStateGPU* states [[buffer(5)]],
+    device const float* generalizedCandidate [[buffer(6)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount *
@@ -2462,7 +3453,35 @@ kernel void nm_fgmres_apply_free_rigid(
             articulatedNv + 6u * freeBodyIndex + 4u)].x,
         direction[fgmresRigidIndex(dispatch, environment,
             articulatedNv + 6u * freeBodyIndex + 5u)].x);
-    work[row] = float4((inertia * angular)[component - 3u], 0.0f, 0.0f, 0.0f);
+    float3 action = inertia * angular;
+    if (proxy.shapeKind == NM_RIGID_BOX) {
+        const float timestep = dispatch.gravityAndTimestep.w;
+        if (!(timestep > 0.0f) || !isfinite(timestep)) {
+            work[row] = float4(NAN);
+            return;
+        }
+        const uint candidateBase = environment *
+            dispatch.rigidGeneralizedCapacity + articulatedNv +
+            6u * freeBodyIndex + 3u;
+        const float3 candidateAngular = float3(
+            generalizedCandidate[candidateBase + 0u],
+            generalizedCandidate[candidateBase + 1u],
+            generalizedCandidate[candidateBase + 2u]);
+        if (!all(isfinite(candidateAngular))) {
+            work[row] = float4(NAN);
+            return;
+        }
+        const float3 deltaTheta = timestep *
+            coupledSO3LeftJacobianApply(
+                timestep * rigid.angularVelocity.xyz, angular);
+        // The rigid residual contains I_world(q_candidate) * DeltaOmega,
+        // where DeltaOmega is the accumulated generalized candidate and q is
+        // integrated from accepted-body omega + DeltaOmega. Differentiate
+        // both factors. This term is required even without active contact.
+        action += cross(deltaTheta, inertia * candidateAngular) -
+            inertia * cross(deltaTheta, candidateAngular);
+    }
+    work[row] = float4(action[component - 3u], 0.0f, 0.0f, 0.0f);
 }
 
 kernel void nm_contact_accumulate_rigid_residual(
@@ -2800,7 +3819,10 @@ kernel void nm_fgmres_apply_primal_rigid_contacts(
             dispatch, contact, coupledPointJacobians, environment, pairIndex,
             articulatedNv, direction);
         const float3 force = coupledBarrierDirectionalForce(
-            sample, continuumDirection - rigidDirection);
+            sample, continuumDirection - rigidDirection) +
+            coupledFreeBoxAngularBarrierCorrection(
+                dispatch, contact, environment, pairIndex,
+                articulatedNv, direction);
         const NMRigidProxyGPU proxy = contact.rigidProxies[pair.rigidProxy];
         if ((proxy.flags & NM_RIGID_ARTICULATED) != 0u &&
             dof < articulatedNv) {
@@ -2830,6 +3852,16 @@ kernel void nm_fgmres_apply_primal_rigid_contacts(
                     sample.pointAndSeparation.xyz - rigid.bodyCenter.xyz,
                     force);
                 value -= torque[dof - freeBase - 3u];
+                if (proxy.shapeKind == NM_RIGID_BOX &&
+                    sample.barrierHessianRow0.w > 0.0f) {
+                    const float3 deltaLever =
+                        coupledFreeBoxWitnessLeverDirection(
+                            dispatch, contact, environment, pair, sample,
+                            articulatedNv, direction);
+                    const float3 geometricTorque = -cross(
+                        deltaLever, sample.impulseAndNormal.xyz);
+                    value += geometricTorque[dof - freeBase - 3u];
+                }
             }
         }
     }
@@ -3236,7 +4268,10 @@ kernel void nm_fgmres_gather_nodes(
                 environment, pairIndex,
                 articulatedNv, direction);
             work[global].xyz += coupledBarrierDirectionalForce(
-                sample, direction[global].xyz - rigidDirection);
+                sample, direction[global].xyz - rigidDirection) +
+                coupledFreeBoxAngularBarrierCorrection(
+                    dispatch, contact, environment, pairIndex,
+                    articulatedNv, direction);
         }
     }
     const uint deformableCapacity = dispatch.deformableContactCapacity;

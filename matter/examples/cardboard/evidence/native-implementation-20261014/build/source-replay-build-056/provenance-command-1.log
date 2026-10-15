@@ -1,0 +1,17 @@
+[  0%] Generating shaders/cardboard_paper_check.metallib
+[  0%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[ 14%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[ 14%] Built target numi_cardboard_paper_shaders
+[ 14%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+[ 28%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[ 28%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[ 42%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[ 42%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[ 57%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[ 71%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[ 71%] Built target numi_matter_compiler_objects
+[ 85%] Linking CXX static library libnumi_matter_compiler.a
+[ 85%] Built target numi_matter_compiler
+[ 85%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-paper-gpu-check.dir/tools/cardboard_paper_gpu_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-paper-gpu-check
+[100%] Built target numi-matter-cardboard-paper-gpu-check

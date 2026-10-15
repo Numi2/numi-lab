@@ -1,0 +1,1939 @@
+--- a/matter/include/numi/matter/matter.hpp
++++ b/matter/include/numi/matter/matter.hpp
+@@ -380,6 +380,10 @@
+     // faces. The coarse AP action includes the production bulk, contact, and
+     // cohesive operators. Dynamic generalized rigid rows remain unsupported.
+     regionalGalerkinContact = 4u,
++    // Source-bound graph-Schwarz patches (bounded to 256 free nodes per patch)
++    // supplement the exact regional RAP coarse correction. Conditioning only;
++    // it does not change the physical operator or acceptance certificate.
++    regionalGalerkinGraphSchwarz = 5u,
+ };
+ 
+ struct MixedSolverSource {
+--- a/matter/src/compiler_impl.cpp
++++ b/matter/src/compiler_impl.cpp
+@@ -33,7 +33,8 @@
+ ) noexcept {
+     return mode == FEMPreconditionerMode::regionalGalerkin ||
+         mode == FEMPreconditionerMode::regionalGalerkinBlockJacobi ||
+-        mode == FEMPreconditionerMode::regionalGalerkinContact;
++        mode == FEMPreconditionerMode::regionalGalerkinContact ||
++        mode == FEMPreconditionerMode::regionalGalerkinGraphSchwarz;
+ }
+ 
+ [[nodiscard]] constexpr bool usesContactRegionalGalerkin(
+@@ -642,7 +643,7 @@
+     const MixedSolverSource& solver = source.mixedSolver;
+     if (static_cast<std::uint32_t>(solver.femPreconditioner) >
+         static_cast<std::uint32_t>(
+-            FEMPreconditionerMode::regionalGalerkinContact)) {
++            FEMPreconditionerMode::regionalGalerkinGraphSchwarz)) {
+         diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+             "FEM preconditioner selector is not recognized"});
+     }
+@@ -715,6 +716,8 @@
+             !source.vascular.cavities.empty();
+         const bool contactMode =
+             usesContactRegionalGalerkin(solver.femPreconditioner);
++        const bool graphSchwarzMode = solver.femPreconditioner ==
++            FEMPreconditionerMode::regionalGalerkinGraphSchwarz;
+         const bool oneSupportedObject = source.objects.size() == 1u &&
+             source.objects.front().representation == Representation::fem &&
+             !source.objects.front().automaticRepresentation &&
+@@ -759,6 +762,18 @@
+                         return material.learned.has_value();
+                     }) &&
+                 contactProxiesSupported
++            : graphSchwarzMode
++                ? source.environmentCount >= 1u &&
++                    source.environmentCount <= 4u &&
++                    source.objects.size() == 1u &&
++                    source.objects.front().femNodes.size() <= 4096u &&
++                    source.objects.front().tetrahedra.size() <= 32768u &&
++                    source.rigidProxies.empty() &&
++                    source.cohesiveMaterials.empty() &&
++                    std::ranges::none_of(source.materials,
++                        [](const MaterialProgram& material) {
++                            return material.learned.has_value();
++                        })
+             : source.environmentCount <= 4u &&
+                 source.rigidProxies.empty() &&
+                 source.cohesiveMaterials.empty();
+@@ -769,7 +784,9 @@
+             diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                 contactMode
+                     ? "regional Galerkin contact preconditioner requires one immutable explicit FEM object, at most 8192 nodes and 32768 tetrahedra, static or kinematic non-articulated contact proxies, authored compact region IDs, and no dynamic generalized, mixed, field, adaptive, mutation, vascular, learned, or identification coupling"
+-                    : "regional Galerkin FEM preconditioner v1 requires one immutable explicit non-mixed FEM object with authored compact region IDs, no contact/cohesive/rigid/field/vascular coupling, and at most four environments"});
++                    : graphSchwarzMode
++                        ? "graph Schwarz FEM preconditioner requires one immutable explicit non-mixed FEM object with authored compact region IDs, at most 4096 nodes, 32768 tetrahedra, and four environments, with no contact/cohesive/rigid/field/vascular or learned coupling"
++                        : "regional Galerkin FEM preconditioner v1 requires one immutable explicit non-mixed FEM object with authored compact region IDs, no contact/cohesive/rigid/field/vascular coupling, and at most four environments"});
+         }
+     }
+     if (std::ranges::any_of(budgets, [](const std::uint32_t value) {
+--- a/matter/src/validation_impl.cpp
++++ b/matter/src/validation_impl.cpp
+@@ -416,7 +416,7 @@
+             solver.executionBudgets.x >
+                 NM_MIXED_FIELD_SMOOTHER_MAX_PASSES ||
+             solver.executionBudgets.y == 0u ||
+-            solver.executionBudgets.z > 4u ||
++            solver.executionBudgets.z > 5u ||
+             solver.executionBudgets.w > 1u ||
+             !finite4(solver.residualTolerances) ||
+             !(solver.residualTolerances.x > 0.0f) ||
+@@ -635,6 +635,51 @@
+                 );
+             }
+         }
++        if (solver.executionBudgets.z == 5u) {
++            constexpr std::uint32_t maximumGraphSchwarzNodes = 4096u;
++            constexpr std::uint32_t maximumGraphSchwarzTetrahedra = 32768u;
++            if (world_.dispatch.environmentCount == 0u ||
++                world_.dispatch.environmentCount > 4u ||
++                world_.objects.size() != 1u ||
++                world_.dispatch.femNodeCount > maximumGraphSchwarzNodes ||
++                world_.dispatch.topologyTetrahedronCapacity >
++                    maximumGraphSchwarzTetrahedra ||
++                world_.dispatch.rigidProxyCount != 0u ||
++                world_.dispatch.rigidGeneralizedCapacity != 0u ||
++                world_.dispatch.contactPairCount != 0u ||
++                world_.dispatch.mpmGridCount != 0u ||
++                world_.dispatch.mpmBlockCount != 0u ||
++                world_.vascular.layout.ranges.z != 0u ||
++                !world_.vascular.unknowns.empty() ||
++                !world_.learnedMaterials.empty() ||
++                !world_.fem.humanAttachments.empty() ||
++                !world_.fem.fieldBoundaries.empty() ||
++                !world_.fem.cohesiveFaces.empty() ||
++                !world_.fem.punctureChannels.empty() ||
++                !world_.fem.mutationCommands.empty()) {
++                return fail(
++                    "graph Schwarz preconditioner requires one immutable, "
++                    "contact-free explicit FEM object within 4096 nodes, "
++                    "32768 tetrahedra, and four environments"
++                );
++            }
++            const NMContinuumObjectGPU& object = world_.objects.front();
++            const std::uint32_t requiredDisableFlags =
++                NM_OBJECT_DISABLE_DEFORMABLE_CONTACT |
++                NM_OBJECT_DISABLE_SELF_CONTACT;
++            if (object.representation != NM_REPRESENTATION_FEM ||
++                (object.flags & (NM_OBJECT_MIXED_FEM |
++                                 NM_OBJECT_MULTIPHYSICS |
++                                 NM_OBJECT_ADAPTIVE |
++                                 NM_OBJECT_MUTABLE_TOPOLOGY |
++                                 NM_OBJECT_IDENTIFIABLE)) != 0u ||
++                (object.flags & requiredDisableFlags) != requiredDisableFlags) {
++                return fail(
++                    "graph Schwarz requires explicit immutable non-mixed FEM "
++                    "with self and external deformable contact disabled"
++                );
++            }
++        }
+         if (world_.mixedMaterials.size() != world_.materials.size() ||
+             world_.fem.capacities.size() != world_.objects.size() ||
+             world_.fem.fields.size() != world_.fem.nodes.size() ||
+@@ -666,7 +711,8 @@
+         if (solver.executionBudgets.z == 1u ||
+             solver.executionBudgets.z == 2u ||
+             solver.executionBudgets.z == 3u ||
+-            solver.executionBudgets.z == 4u) {
++            solver.executionBudgets.z == 4u ||
++            solver.executionBudgets.z == 5u) {
+             std::uint64_t nodeCapacity = 0u;
+             std::uint64_t cohesiveCapacity = 0u;
+             std::uint64_t channelCapacity = 0u;
+@@ -1743,7 +1789,8 @@
+                         decodeFEMPreconditionerRegion(tetrahedron.identity.w);
+                     if (active && (world_.mixedSolver.executionBudgets.z == 2u ||
+                                    world_.mixedSolver.executionBudgets.z == 3u ||
+-                                   world_.mixedSolver.executionBudgets.z == 4u))
++                                   world_.mixedSolver.executionBudgets.z == 4u ||
++                                   world_.mixedSolver.executionBudgets.z == 5u))
+                         preconditionerRegions.insert(regionId);
+                     else if (regionBits != 0u) {
+                         return failIndexed("FEM tetrahedron", tetrahedronIndex,
+@@ -1834,7 +1881,8 @@
+                 }
+                 if (world_.mixedSolver.executionBudgets.z == 2u ||
+                     world_.mixedSolver.executionBudgets.z == 3u ||
+-                    world_.mixedSolver.executionBudgets.z == 4u) {
++                    world_.mixedSolver.executionBudgets.z == 4u ||
++                    world_.mixedSolver.executionBudgets.z == 5u) {
+                     constexpr std::uint32_t modesPerRegion = 6u;
+                     constexpr std::uint32_t maximumModes = 32u;
+                     if (preconditionerRegions.empty() ||
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -7,6 +7,7 @@
+ #include "numi/matter/sparse_private_contact_admission.hpp"
+ #include "numi/matter/full_contact_armijo_admission.hpp"
+ #include "numi/matter/regional_galerkin_bending_basis.hpp"
++#include "regional_graph_schwarz.hpp"
+ #include "fem_reference_geometry.hpp"
+ #include "numi/matter/accepted_state_apply_gpu.h"
+ #include "accepted_state_proof_gpu.hpp"
+@@ -756,6 +757,7 @@
+     std::uint64_t byteCount = 0u;
+     std::uint64_t elementBytes = 0u;
+     std::uint32_t sourceSlot = 0u;
++    std::uint64_t sourceOffset = 0u;
+ };
+ 
+ struct RegionalRAPCaptureMetadata {
+@@ -771,6 +773,14 @@
+     std::uint32_t modeCount = 0u;
+     std::uint32_t materialStateStride = 0u;
+     std::uint32_t tangentCacheUsed = 0u;
++    std::uint32_t preconditionerSelector = 0u;
++    std::uint32_t graphEnvironment = NM_INVALID_INDEX;
++    std::uint32_t graphPatchCount = 0u;
++    std::uint32_t graphPatchNodeCount = 0u;
++    std::uint32_t graphDofCount = 0u;
++    std::uint32_t graphMatrixFloatCount = 0u;
++    std::uint32_t graphPivotCount = 0u;
++    std::uint32_t graphLayoutChecksum = 0u;
+     std::uint64_t linearizationGeneration = 0u;
+     std::uint64_t worldFingerprint = 0u;
+     std::uint64_t executionFingerprint = 0u;
+@@ -856,7 +866,11 @@
+         << "{\"schema\":\"numi.matter.regional_rap_capture.v1\","
+         << "\"byte_order\":\"little_endian\","
+         << "\"layout\":\"C-contiguous; environment-major; each array is tightly concatenated with no padding; float32x4 elements store four adjacent little-endian lanes\","
+-        << "\"capture_point\":\"after_regional_rap_factor_barrier_before_fgmres_correction\","
++        << "\"capture_point\":"
++        << jsonQuoted(metadata.preconditionerSelector == 5u
++            ? "after_regional_rap_and_graph_factor_barrier_before_fgmres_correction"
++            : "after_regional_rap_factor_barrier_before_fgmres_correction")
++        << ','
+         << "\"source_physics_fingerprint\":"
+         << jsonQuoted(hexU64(metadata.worldFingerprint)) << ','
+         << "\"device_program_fingerprint\":"
+@@ -867,6 +881,20 @@
+         << ",\"node_count\":" << metadata.nodeCount
+         << ",\"tetrahedron_count\":" << metadata.tetrahedronCount
+         << ",\"mode_count\":" << metadata.modeCount
++        << ",\"preconditioner_selector\":"
++        << metadata.preconditionerSelector
++        << ",\"graph_schwarz\":{\"enabled\":"
++        << (metadata.preconditionerSelector == 5u ? "true" : "false")
++        << ",\"capture_environment\":"
++        << (metadata.graphEnvironment == NM_INVALID_INDEX ? "null" :
++            std::to_string(metadata.graphEnvironment))
++        << ",\"patch_count\":" << metadata.graphPatchCount
++        << ",\"patch_node_count\":" << metadata.graphPatchNodeCount
++        << ",\"dof_count\":" << metadata.graphDofCount
++        << ",\"matrix_float_count\":" << metadata.graphMatrixFloatCount
++        << ",\"pivot_count\":" << metadata.graphPivotCount
++        << ",\"layout_checksum_fnv1a32\":"
++        << metadata.graphLayoutChecksum << "}"
+         << ",\"material_state_stride\":" << metadata.materialStateStride
+         << ",\"device\":{\"name\":" << jsonQuoted(metadata.deviceName)
+         << ",\"registry_id\":" << metadata.deviceRegistryID << "},"
+@@ -878,7 +906,7 @@
+         << ",\"linearization_generation_encoding\":\"(micro_generation << 32) | newton_iteration\""
+         << ",\"micro_generation\":" << metadata.microGeneration
+         << ",\"dt_seconds\":" << metadata.timestepSeconds
+-        << ",\"operator_generation\":\"candidate state, accepted history, scheduler, deformation words, tangent cache, AP and RAP copied from the same ordered command-buffer generation\","
++        << ",\"operator_generation\":\"candidate state, accepted history, scheduler, deformation words, tangent cache, AP and RAP copied from the same ordered command-buffer generation; selector 5 graph matrices and LU factors follow from the same candidate before FGMRES correction\","
+         << "\"candidate_linearization_digest_algorithm\":\"SHA-256 over raw little-endian environment slices concatenated in this exact order: candidate_nodes, material_history, scheduler_exponents, deformation_high, deformation_low, then algorithmic_tangent_cache and algorithmic_tangent_cache_valid when tangent_cache_used=true\","
+         << "\"tangent_cache_used\":"
+         << (metadata.tangentCacheUsed != 0u ? "true" : "false") << ','
+@@ -1162,10 +1190,55 @@
+     std::string error;
+ };
+ 
++struct RegionalGraphSchwarzHostLayout {
++    std::vector<std::array<std::uint32_t, 4>> patches;
++    std::vector<std::array<std::uint32_t, 4>> rows;
++    detail::RegionalGraphSchwarzLayout layout;
++    std::vector<std::uint8_t> freeMask;
++};
++
++[[nodiscard]] RegionalGraphSchwarzHostLayout buildRegionalGraphSchwarz(
++    const CompiledWorld& world
++) {
++    RegionalGraphSchwarzHostLayout result;
++    const std::uint32_t nodes = world.dispatch.femNodeCount;
++    if (nodes == 0u || world.fem.nodes.size() != nodes ||
++        world.fem.tetrahedra.size() != world.dispatch.tetrahedronCount) {
++        result.layout.error = "graph Schwarz requires exact compiled FEM node/tet arrays";
++        return result;
++    }
++    std::vector<std::array<std::uint32_t, 4>> tetrahedra;
++    tetrahedra.reserve(world.fem.tetrahedra.size());
++    for (const NMTetrahedronGPU& tetrahedron : world.fem.tetrahedra) {
++        tetrahedra.push_back({tetrahedron.nodes.x, tetrahedron.nodes.y,
++                              tetrahedron.nodes.z, tetrahedron.nodes.w});
++    }
++    result.freeMask.resize(nodes);
++    for (std::uint32_t node = 0u; node < nodes; ++node) {
++        const float fixed = world.fem.nodes[node].restAndFixed.w;
++        if (!std::isfinite(fixed) || (fixed != 0.0f && fixed != 1.0f)) {
++            result.layout.error = "graph Schwarz requires a binary immutable FEM fixed mask";
++            return result;
++        }
++        result.freeMask[node] = fixed == 0.0f ? 1u : 0u;
++    }
++    result.layout = detail::buildRegionalGraphSchwarzLayout(
++        nodes, tetrahedra, result.freeMask, world.dispatch.environmentCount);
++    if (!result.layout.error.empty()) return result;
++    result.patches.reserve(result.layout.patches.size());
++    for (const auto& patch : result.layout.patches) {
++        result.patches.push_back({patch.nodeOffset, patch.nodeCount,
++                                  patch.matrixFloatOffset, patch.pivotOffset});
++    }
++    result.rows = result.layout.rows;
++    return result;
++}
++
+ [[nodiscard]] bool usesRegionalGalerkinPreconditioner(
+     const std::uint32_t selector
+ ) noexcept {
+-    return selector == 2u || selector == 3u || selector == 4u;
++    return selector == 2u || selector == 3u || selector == 4u ||
++        selector == 5u;
+ }
+ 
+ [[nodiscard]] std::uint32_t decodeFEMPreconditionerRegion(
+@@ -1228,7 +1301,8 @@
+         environments * modes * modes +
+         environments * modes * 2u + environments * modes + environments;
+     const std::uint64_t blockFineFloat4Count =
+-        world.mixedSolver.executionBudgets.z >= 3u
++        (world.mixedSolver.executionBudgets.z == 3u ||
++         world.mixedSolver.executionBudgets.z == 4u)
+             ? 3u * environments * nodes
+             : 0u;
+     constexpr std::uint64_t maximumSafeScalars =
+@@ -2138,7 +2212,26 @@
+     // Selector 3 only: inverse 3x3 nodal velocity blocks, three row-major
+     // float4 rows per environment/node. This conditions FGMRES only.
+     id<MTLBuffer> femRegionalNodeBlockInverse = nil;
++    // Selector 5: deterministic immutable graph patches. Metadata is uploaded
++    // once; the dense per-Newton matrices, pivots, validity, and patch solves
++    // are private scratch and never enter accepted physical state.
++    id<MTLBuffer> femRegionalGraphPatches = nil;
++    id<MTLBuffer> femRegionalGraphPatchNodes = nil;
++    id<MTLBuffer> femRegionalGraphRows = nil;
++    id<MTLBuffer> femRegionalGraphNodePatchOffsets = nil;
++    id<MTLBuffer> femRegionalGraphNodePatchValues = nil;
++    id<MTLBuffer> femRegionalGraphNodeCoverage = nil;
++    id<MTLBuffer> femRegionalGraphFactors = nil;
++    id<MTLBuffer> femRegionalGraphPivots = nil;
++    id<MTLBuffer> femRegionalGraphFactorValid = nil;
++    id<MTLBuffer> femRegionalGraphPatchCorrections = nil;
+     std::uint32_t femRegionalModeCount = 0u;
++    std::uint32_t femRegionalGraphPatchCount = 0u;
++    std::uint32_t femRegionalGraphPatchNodeCount = 0u;
++    std::uint32_t femRegionalGraphDofCount = 0u;
++    std::uint32_t femRegionalGraphMatrixFloatCount = 0u;
++    std::uint32_t femRegionalGraphPivotCount = 0u;
++    std::uint32_t femRegionalGraphLayoutChecksum = 0u;
+     id<MTLBuffer> primalContactArguments = nil;
+ 
+     id<MTLBuffer> identificationDistributions = nil;
+@@ -3566,6 +3659,11 @@
+             "nm_fgmres_regional_store_ap",
+             "nm_fgmres_regional_build_rap",
+             "nm_fgmres_regional_factor_rap",
++            "nm_fgmres_graph_build_patch_matrices",
++            "nm_fgmres_graph_validate_mask",
++            "nm_fgmres_graph_factor_patches",
++            "nm_fgmres_graph_solve_patches",
++            "nm_fgmres_graph_apply_patches",
+             "nm_fgmres_regional_project_rhs",
+             "nm_fgmres_regional_solve_rap",
+             "nm_fgmres_regional_apply_rap",
+@@ -3818,6 +3916,64 @@
+             candidate->femRegionalBasis = uploads.one(
+                 std::span<const nm_float4>(regionalGalerkinBasis.values),
+                 valid, candidate->residentBytes);
++        }
++        RegionalGraphSchwarzHostLayout graphSchwarz;
++        if (world.mixedSolver.executionBudgets.z == 5u) {
++            graphSchwarz = buildRegionalGraphSchwarz(world);
++            if (!graphSchwarz.layout.error.empty()) {
++                diagnostics.message = graphSchwarz.layout.error;
++                return diagnostics;
++            }
++            candidate->femRegionalGraphPatchCount =
++                static_cast<std::uint32_t>(graphSchwarz.patches.size());
++            candidate->femRegionalGraphPatchNodeCount =
++                static_cast<std::uint32_t>(
++                    graphSchwarz.layout.patchNodes.size());
++            candidate->femRegionalGraphDofCount =
++                graphSchwarz.layout.totalPatchDofs;
++            candidate->femRegionalGraphMatrixFloatCount =
++                graphSchwarz.layout.matrixFloatCount;
++            candidate->femRegionalGraphPivotCount =
++                graphSchwarz.layout.pivotCount;
++            // Source-bound layout identity catches accidental divergence
++            // between the CPU graph builder and the uploaded immutable maps.
++            std::uint32_t checksum = 2166136261u;
++            const auto mixWord = [&checksum](const std::uint32_t word) {
++                checksum = (checksum ^ word) * 16777619u;
++            };
++            for (const auto& patch : graphSchwarz.patches)
++                for (const std::uint32_t word : patch) mixWord(word);
++            for (const auto& row : graphSchwarz.rows)
++                for (const std::uint32_t word : row) mixWord(word);
++            for (const std::uint32_t word : graphSchwarz.layout.patchNodes)
++                mixWord(word);
++            for (const std::uint32_t word :
++                    graphSchwarz.layout.nodePatchOffsets) mixWord(word);
++            for (const std::uint32_t word :
++                    graphSchwarz.layout.nodePatchValues) mixWord(word);
++            candidate->femRegionalGraphLayoutChecksum = checksum;
++            candidate->femRegionalGraphPatches = uploads.one(
++                std::span<const std::array<std::uint32_t, 4>>(
++                    graphSchwarz.patches), valid, candidate->residentBytes);
++            candidate->femRegionalGraphPatchNodes = uploads.one(
++                std::span<const std::uint32_t>(
++                    graphSchwarz.layout.patchNodes), valid,
++                candidate->residentBytes);
++            candidate->femRegionalGraphRows = uploads.one(
++                std::span<const std::array<std::uint32_t, 4>>(
++                    graphSchwarz.rows), valid, candidate->residentBytes);
++            candidate->femRegionalGraphNodePatchOffsets = uploads.one(
++                std::span<const std::uint32_t>(
++                    graphSchwarz.layout.nodePatchOffsets), valid,
++                candidate->residentBytes);
++            candidate->femRegionalGraphNodePatchValues = uploads.one(
++                std::span<const std::uint32_t>(
++                    graphSchwarz.layout.nodePatchValues), valid,
++                candidate->residentBytes);
++            candidate->femRegionalGraphNodeCoverage = uploads.one(
++                std::span<const std::uint32_t>(
++                    graphSchwarz.layout.nodeCoverage), valid,
++                candidate->residentBytes);
+         }
+         candidate->dispatchBuffer = uploads.one(
+             std::span<const NMMatterDispatchGPU>(&candidate->dispatch, 1u),
+@@ -5621,13 +5777,32 @@
+             candidate->femRegionalCoarseValid = privateScratch<std::uint32_t>(
+                 candidate->device, environments, valid,
+                 candidate->residentBytes);
+-            if (world.mixedSolver.executionBudgets.z >= 3u) {
++            if (world.mixedSolver.executionBudgets.z == 3u ||
++                world.mixedSolver.executionBudgets.z == 4u) {
+                 candidate->femRegionalNodeBlockInverse =
+                     privateScratch<nm_float4>(candidate->device,
+                         multiplied(std::size_t{3u} *
+                                    world.dispatch.femNodeCount),
+                         valid, candidate->residentBytes);
+             }
++        }
++        if (candidate->femRegionalGraphPatchCount != 0u) {
++            candidate->femRegionalGraphFactors = privateScratch<float>(
++                candidate->device,
++                multiplied(candidate->femRegionalGraphMatrixFloatCount),
++                valid, candidate->residentBytes);
++            candidate->femRegionalGraphPivots =
++                privateScratch<std::uint32_t>(candidate->device,
++                    multiplied(candidate->femRegionalGraphPivotCount),
++                    valid, candidate->residentBytes);
++            candidate->femRegionalGraphFactorValid =
++                privateScratch<std::uint32_t>(candidate->device,
++                    multiplied(candidate->femRegionalGraphPatchCount),
++                    valid, candidate->residentBytes);
++            candidate->femRegionalGraphPatchCorrections =
++                privateScratch<nm_float4>(candidate->device,
++                    multiplied(candidate->femRegionalGraphPatchNodeCount),
++                    valid, candidate->residentBytes);
+         }
+         candidate->solverCertificates = privateScratch<NMSolverCertificateGPU>(
+             candidate->device, multiplied(world.dispatch.objectCount),
+@@ -7357,6 +7532,24 @@
+                     "matter_after_dense45", request.controlStep);
+                 primalResourcesEncoder = nil;
+             }
++        };
++        const auto dispatchGroups256 = [&](const char* name,
++                                            const NSUInteger groupCount,
++                                            const auto& bind) {
++            if (groupCount == 0u) return;
++            id<MTLComputePipelineState> pipeline = state.pipeline(name);
++            if (pipeline.maxTotalThreadsPerThreadgroup < 256u) {
++                diagnostics.message = std::string(name) +
++                    " requires a 256-thread Metal threadgroup";
++                return;
++            }
++            ++diagnostics.simdgroupDispatchCount;
++            diagnostics.requestedThreadgroupCount +=
++                static_cast<std::uint64_t>(groupCount);
++            [encoder setComputePipelineState:pipeline];
++            bind();
++            [encoder dispatchThreadgroups:MTLSizeMake(groupCount, 1u, 1u)
++                threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+         };
+         const auto dispatchIndirect = [&](
+             const char* name,
+@@ -14092,7 +14285,8 @@
+                                   atIndex:18u];
+                     });
+             }
+-            if (state.mixedSolverValue.executionBudgets.z >= 3u) {
++            if (state.mixedSolverValue.executionBudgets.z == 3u ||
++                state.mixedSolverValue.executionBudgets.z == 4u) {
+                 dispatchThreads(
+                     "nm_fgmres_build_tangent_fem_block_preconditioner",
+                     femNodeTotal, [&] {
+@@ -14359,6 +14553,103 @@
+                                length:sizeof(regionalModes) atIndex:4u];
+                 });
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                if (state.mixedSolverValue.executionBudgets.z == 5u) {
++                    dispatchThreads("nm_fgmres_graph_validate_mask",
++                        femNodeTotal, [&] {
++                        setDispatch();
++                        [encoder setBuffer:state.femCandidate
++                                     offset:0u atIndex:1u];
++                        [encoder setBuffer:state.femRegionalGraphNodeCoverage
++                                     offset:0u atIndex:2u];
++                        [encoder setBuffer:state.statuses
++                                     offset:0u atIndex:3u];
++                    });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                    const std::uint32_t graphRows =
++                        state.femRegionalGraphDofCount;
++                    const std::uint32_t graphPatches =
++                        state.femRegionalGraphPatchCount;
++                    const std::uint32_t graphMatrixFloats =
++                        state.femRegionalGraphMatrixFloatCount;
++                    const std::uint32_t graphPivots =
++                        state.femRegionalGraphPivotCount;
++                    dispatchThreads("nm_fgmres_graph_build_patch_matrices",
++                        environments * graphRows, [&] {
++                        setDispatch();
++                        [encoder setBuffer:state.objects offset:0u atIndex:1u];
++                        [encoder setBuffer:state.femCandidate
++                                     offset:0u atIndex:2u];
++                        [encoder setBuffer:state.femTetrahedraCandidate
++                                     offset:0u atIndex:3u];
++                        [encoder setBuffer:state.femNodeIncidence
++                                     offset:0u atIndex:4u];
++                        [encoder setBuffer:state.femNodeRanges
++                                     offset:0u atIndex:5u];
++                        [encoder setBuffer:state.schedulers
++                                     offset:0u atIndex:6u];
++                        [encoder setBuffer:state.materials
++                                     offset:0u atIndex:7u];
++                        [encoder setBuffer:state.scalarPrograms
++                                     offset:0u atIndex:8u];
++                        [encoder setBuffer:state.instructions
++                                     offset:0u atIndex:9u];
++                        [encoder setBuffer:state.environmentParameters
++                                     offset:0u atIndex:10u];
++                        [encoder setBuffer:state.femMaterialStateAccepted
++                                     offset:0u atIndex:11u];
++                        [encoder setBuffer:state.femAlgorithmicTangentCache != nil
++                            ? state.femAlgorithmicTangentCache : state.dummy
++                                     offset:0u atIndex:12u];
++                        [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
++                            ? state.femAlgorithmicTangentCacheValid : state.dummy
++                                     offset:0u atIndex:13u];
++                        const std::uint32_t useCache =
++                            state.mixedSolverValue.executionBudgets.w == 1u
++                                ? 1u : 0u;
++                        [encoder setBytes:&useCache length:sizeof(useCache)
++                                  atIndex:14u];
++                        [encoder setBuffer:state.femRegionalGraphPatches
++                                     offset:0u atIndex:15u];
++                        [encoder setBuffer:state.femRegionalGraphPatchNodes
++                                     offset:0u atIndex:16u];
++                        [encoder setBuffer:state.femRegionalGraphRows
++                                     offset:0u atIndex:17u];
++                        [encoder setBuffer:state.femRegionalGraphNodeCoverage
++                                     offset:0u atIndex:18u];
++                        [encoder setBuffer:state.femRegionalGraphFactors
++                                     offset:0u atIndex:19u];
++                        [encoder setBuffer:state.statuses
++                                     offset:0u atIndex:20u];
++                        [encoder setBytes:&graphRows length:sizeof(graphRows)
++                                  atIndex:21u];
++                        [encoder setBytes:&graphPatches
++                            length:sizeof(graphPatches) atIndex:22u];
++                        [encoder setBytes:&graphMatrixFloats
++                            length:sizeof(graphMatrixFloats) atIndex:23u];
++                    });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                    dispatchGroups256("nm_fgmres_graph_factor_patches",
++                        environments * graphPatches, [&] {
++                        setDispatch();
++                        [encoder setBuffer:state.femRegionalGraphPatches
++                                     offset:0u atIndex:1u];
++                        [encoder setBuffer:state.femRegionalGraphFactors
++                                     offset:0u atIndex:2u];
++                        [encoder setBuffer:state.femRegionalGraphPivots
++                                     offset:0u atIndex:3u];
++                        [encoder setBuffer:state.femRegionalGraphFactorValid
++                                     offset:0u atIndex:4u];
++                        [encoder setBuffer:state.statuses
++                                     offset:0u atIndex:5u];
++                        [encoder setBytes:&graphPatches
++                            length:sizeof(graphPatches) atIndex:6u];
++                        [encoder setBytes:&graphMatrixFloats
++                            length:sizeof(graphMatrixFloats) atIndex:7u];
++                        [encoder setBytes:&graphPivots
++                            length:sizeof(graphPivots) atIndex:8u];
++                    });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                }
+             }
+                 // Capture the exact preconditioner generation immediately
+                 // after RAP factorization. The ordinary RuntimeStateSnapshot
+@@ -14401,15 +14692,16 @@
+                         state.femRegionalCoarsePivots != nil &&
+                         state.femRegionalCoarseValid != nil;
+                     std::vector<RegionalRAPCaptureArray> captureArrays;
+-                    id<MTLBuffer> captureSources[16] = {};
++                    id<MTLBuffer> captureSources[32] = {};
+                     const auto appendCaptureArray = [&](
+                         const char* name,
+                         const char* dtype,
+                         std::initializer_list<std::uint64_t> shape,
+                         const std::uint64_t elementBytes,
+-                        id<MTLBuffer> source) {
++                        id<MTLBuffer> source,
++                        const std::uint64_t sourceOffset = 0u) {
+                         if (!layoutValid || source == nil || elementBytes == 0u ||
+-                            captureArrays.size() >= 16u) {
++                            captureArrays.size() >= 32u) {
+                             layoutValid = false;
+                             return;
+                         }
+@@ -14429,7 +14721,8 @@
+                             return;
+                         }
+                         const std::uint64_t byteCount = count * elementBytes;
+-                        if (source.length < byteCount ||
++                        if (sourceOffset > source.length ||
++                            byteCount > source.length - sourceOffset ||
+                             payloadBytes > std::numeric_limits<std::uint64_t>::max() -
+                                 byteCount) {
+                             layoutValid = false;
+@@ -14444,6 +14737,7 @@
+                         array.elementBytes = elementBytes;
+                         array.sourceSlot = static_cast<std::uint32_t>(
+                             captureArrays.size());
++                        array.sourceOffset = sourceOffset;
+                         captureSources[array.sourceSlot] = source;
+                         captureArrays.push_back(std::move(array));
+                         payloadBytes += byteCount;
+@@ -14503,6 +14797,72 @@
+                         appendCaptureArray("production_status",
+                             "struct:NMMatterStatusGPU", {envCount},
+                             sizeof(NMMatterStatusGPU), state.statuses);
++                        if (state.mixedSolverValue.executionBudgets.z == 5u) {
++                            // The graph factors are environment-major and can
++                            // be large. Capture the first environment only,
++                            // explicitly identified in the manifest, so the
++                            // existing aggregate readback cap remains in force.
++                            constexpr std::uint64_t graphEnvironment = 0u;
++                            const std::uint64_t graphMatrixOffset =
++                                graphEnvironment *
++                                state.femRegionalGraphMatrixFloatCount *
++                                sizeof(float);
++                            const std::uint64_t graphPivotOffset =
++                                graphEnvironment *
++                                state.femRegionalGraphPivotCount *
++                                sizeof(std::uint32_t);
++                            const std::uint64_t graphValidOffset =
++                                graphEnvironment *
++                                state.femRegionalGraphPatchCount *
++                                sizeof(std::uint32_t);
++                            layoutValid = state.femRegionalGraphPatches != nil &&
++                                state.femRegionalGraphPatchNodes != nil &&
++                                state.femRegionalGraphRows != nil &&
++                                state.femRegionalGraphNodePatchOffsets != nil &&
++                                state.femRegionalGraphNodePatchValues != nil &&
++                                state.femRegionalGraphNodeCoverage != nil &&
++                                state.femRegionalGraphFactors != nil &&
++                                state.femRegionalGraphPivots != nil &&
++                                state.femRegionalGraphFactorValid != nil;
++                            if (layoutValid) {
++                                appendCaptureArray("graph_patches", "<u4x4",
++                                    {state.femRegionalGraphPatchCount},
++                                    sizeof(std::array<std::uint32_t, 4>),
++                                    state.femRegionalGraphPatches);
++                                appendCaptureArray("graph_patch_nodes", "<u4",
++                                    {state.femRegionalGraphPatchNodeCount},
++                                    sizeof(std::uint32_t),
++                                    state.femRegionalGraphPatchNodes);
++                                appendCaptureArray("graph_rows", "<u4x4",
++                                    {state.femRegionalGraphDofCount},
++                                    sizeof(std::array<std::uint32_t, 4>),
++                                    state.femRegionalGraphRows);
++                                appendCaptureArray("graph_node_patch_offsets", "<u4",
++                                    {nodeCount + 1u}, sizeof(std::uint32_t),
++                                    state.femRegionalGraphNodePatchOffsets);
++                                appendCaptureArray("graph_node_patch_values", "<u4",
++                                    {state.femRegionalGraphPatchNodeCount},
++                                    sizeof(std::uint32_t),
++                                    state.femRegionalGraphNodePatchValues);
++                                appendCaptureArray("graph_node_coverage", "<u4",
++                                    {nodeCount}, sizeof(std::uint32_t),
++                                    state.femRegionalGraphNodeCoverage);
++                                appendCaptureArray("graph_patch_matrices_lu", "<f4",
++                                    {state.femRegionalGraphMatrixFloatCount},
++                                    sizeof(float), state.femRegionalGraphFactors,
++                                    graphMatrixOffset);
++                                appendCaptureArray("graph_pivots", "<u4",
++                                    {state.femRegionalGraphPivotCount},
++                                    sizeof(std::uint32_t),
++                                    state.femRegionalGraphPivots,
++                                    graphPivotOffset);
++                                appendCaptureArray("graph_factor_valid", "<u4",
++                                    {state.femRegionalGraphPatchCount},
++                                    sizeof(std::uint32_t),
++                                    state.femRegionalGraphFactorValid,
++                                    graphValidOffset);
++                            }
++                        }
+                     }
+ 
+                     // The FD trace allocates its own shared readback later in
+@@ -14564,7 +14924,9 @@
+                                 for (const auto& array : captureArrays) {
+                                     [copy copyFromBuffer:
+                                         captureSources[array.sourceSlot]
+-                                        sourceOffset:0u toBuffer:snapshot
++                                        sourceOffset:static_cast<NSUInteger>(
++                                            array.sourceOffset)
++                                        toBuffer:snapshot
+                                         destinationOffset:
+                                             static_cast<NSUInteger>(array.offset)
+                                         size:static_cast<NSUInteger>(array.byteCount)];
+@@ -14586,6 +14948,23 @@
+                                     static_cast<std::uint32_t>(
+                                         state.dispatch.tetrahedronCount);
+                                 metadata.modeCount = captureRegionalModes;
++                                metadata.preconditionerSelector =
++                                    state.mixedSolverValue.executionBudgets.z;
++                                if (metadata.preconditionerSelector == 5u) {
++                                    metadata.graphEnvironment = 0u;
++                                    metadata.graphPatchCount =
++                                        state.femRegionalGraphPatchCount;
++                                    metadata.graphPatchNodeCount =
++                                        state.femRegionalGraphPatchNodeCount;
++                                    metadata.graphDofCount =
++                                        state.femRegionalGraphDofCount;
++                                    metadata.graphMatrixFloatCount =
++                                        state.femRegionalGraphMatrixFloatCount;
++                                    metadata.graphPivotCount =
++                                        state.femRegionalGraphPivotCount;
++                                    metadata.graphLayoutChecksum =
++                                        state.femRegionalGraphLayoutChecksum;
++                                }
+                                 metadata.materialStateStride =
+                                     state.dispatch.materialStateStride;
+                                 metadata.tangentCacheUsed =
+@@ -15071,13 +15450,93 @@
+                         });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                     const bool useBlockFineCorrection =
+-                        state.mixedSolverValue.executionBudgets.z >= 3u;
+-                    dispatchThreads(
+-                        useBlockFineCorrection
+-                            ? "nm_fgmres_regional_apply_block_rap"
+-                            : "nm_fgmres_regional_apply_rap",
+-                        femNodeTotal,
+-                        [&] {
++                        state.mixedSolverValue.executionBudgets.z == 3u ||
++                        state.mixedSolverValue.executionBudgets.z == 4u;
++                    if (state.mixedSolverValue.executionBudgets.z == 5u) {
++                        const std::uint32_t graphPatches =
++                            state.femRegionalGraphPatchCount;
++                        const std::uint32_t graphPatchNodes =
++                            state.femRegionalGraphPatchNodeCount;
++                        const std::uint32_t graphMatrixFloats =
++                            state.femRegionalGraphMatrixFloatCount;
++                        const std::uint32_t graphPivots =
++                            state.femRegionalGraphPivotCount;
++                        dispatchGroups256(
++                            "nm_fgmres_graph_solve_patches",
++                            environments * graphPatches, [&] {
++                            setDispatch();
++                            [encoder setBuffer:state.femRegionalGraphPatches
++                                         offset:0u atIndex:1u];
++                            [encoder setBuffer:state.femRegionalGraphPatchNodes
++                                         offset:0u atIndex:2u];
++                            [encoder setBuffer:state.fgmresBasis
++                                         offset:columnOffset atIndex:3u];
++                            [encoder setBuffer:state.femRegionalEffectiveBasis
++                                         offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femRegionalAP
++                                         offset:0u atIndex:5u];
++                            [encoder setBuffer:state.femRegionalCoarseCoefficients
++                                         offset:0u atIndex:6u];
++                            [encoder setBuffer:state.femRegionalGraphFactors
++                                         offset:0u atIndex:7u];
++                            [encoder setBuffer:state.femRegionalGraphPivots
++                                         offset:0u atIndex:8u];
++                            [encoder setBuffer:state.femRegionalGraphFactorValid
++                                         offset:0u atIndex:9u];
++                            [encoder setBuffer:
++                                state.femRegionalGraphPatchCorrections
++                                         offset:0u atIndex:10u];
++                            [encoder setBuffer:state.statuses
++                                         offset:0u atIndex:11u];
++                            [encoder setBytes:&graphPatches
++                                length:sizeof(graphPatches) atIndex:12u];
++                            [encoder setBytes:&graphPatchNodes
++                                length:sizeof(graphPatchNodes) atIndex:13u];
++                            [encoder setBytes:&graphMatrixFloats
++                                length:sizeof(graphMatrixFloats) atIndex:14u];
++                            [encoder setBytes:&graphPivots
++                                length:sizeof(graphPivots) atIndex:15u];
++                            [encoder setBytes:&regionalModes
++                                length:sizeof(regionalModes) atIndex:16u];
++                        });
++                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                        dispatchThreads("nm_fgmres_graph_apply_patches",
++                            femNodeTotal, [&] {
++                            setDispatch();
++                            [encoder setBuffer:state.femRegionalGraphPatchNodes
++                                         offset:0u atIndex:1u];
++                            [encoder setBuffer:
++                                state.femRegionalGraphNodePatchOffsets
++                                         offset:0u atIndex:2u];
++                            [encoder setBuffer:
++                                state.femRegionalGraphNodePatchValues
++                                         offset:0u atIndex:3u];
++                            [encoder setBuffer:
++                                state.femRegionalGraphNodeCoverage
++                                         offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femRegionalEffectiveBasis
++                                         offset:0u atIndex:5u];
++                            [encoder setBuffer:state.femRegionalCoarseCoefficients
++                                         offset:0u atIndex:6u];
++                            [encoder setBuffer:
++                                state.femRegionalGraphPatchCorrections
++                                         offset:0u atIndex:7u];
++                            [encoder setBuffer:state.fgmresPreconditionedBasis
++                                         offset:columnOffset atIndex:8u];
++                            [encoder setBuffer:state.fgmresStates
++                                         offset:0u atIndex:9u];
++                            [encoder setBytes:&graphPatchNodes
++                                length:sizeof(graphPatchNodes) atIndex:10u];
++                            [encoder setBytes:&regionalModes
++                                length:sizeof(regionalModes) atIndex:11u];
++                        });
++                    } else {
++                        dispatchThreads(
++                            useBlockFineCorrection
++                                ? "nm_fgmres_regional_apply_block_rap"
++                                : "nm_fgmres_regional_apply_rap",
++                            femNodeTotal,
++                            [&] {
+                             setDispatch();
+                             [encoder setBuffer:state.femRegionalEffectiveBasis
+                                          offset:0u atIndex:1u];
+@@ -15101,6 +15560,7 @@
+                                              offset:0u atIndex:9u];
+                             }
+                         });
++                    }
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 }
+                 dispatchThreads("nm_fem_apply_operator_elements", tetrahedronTotal, [&] {
+@@ -23329,7 +23789,8 @@
+                 nodes * modes * sizeof(nm_float4) +
+                 environments * nodes * modes * sizeof(nm_float4) +
+                 environments * nodes * modes * sizeof(nm_float4) +
+-                (state_->mixedSolverValue.executionBudgets.z >= 3u
++                ((state_->mixedSolverValue.executionBudgets.z == 3u ||
++                  state_->mixedSolverValue.executionBudgets.z == 4u)
+                     ? 3u * environments * nodes * sizeof(nm_float4)
+                     : 0u) +
+                 environments * nodes * sizeof(NMFEMNodeStateGPU) +
+@@ -23363,7 +23824,8 @@
+                 regionalPivotedRAP = copy(state_->femRegionalCoarseMatrix);
+                 regionalPivots = copy(state_->femRegionalCoarsePivots);
+                 regionalFactorValid = copy(state_->femRegionalCoarseValid);
+-                if (state_->mixedSolverValue.executionBudgets.z >= 3u)
++                if (state_->mixedSolverValue.executionBudgets.z == 3u ||
++                    state_->mixedSolverValue.executionBudgets.z == 4u)
+                     regionalNodeBlockInverse =
+                         copy(state_->femRegionalNodeBlockInverse);
+                 regionalDiagnosticsMessage = "captured";
+@@ -23474,7 +23936,8 @@
+             encodeCopy(state_->femRegionalCoarseMatrix, regionalPivotedRAP);
+             encodeCopy(state_->femRegionalCoarsePivots, regionalPivots);
+             encodeCopy(state_->femRegionalCoarseValid, regionalFactorValid);
+-            if (state_->mixedSolverValue.executionBudgets.z >= 3u)
++            if (state_->mixedSolverValue.executionBudgets.z == 3u ||
++                state_->mixedSolverValue.executionBudgets.z == 4u)
+                 encodeCopy(state_->femRegionalNodeBlockInverse,
+                            regionalNodeBlockInverse);
+         }
+@@ -23633,7 +24096,8 @@
+                 environments * modes);
+             readCount(regionalFactorValid,
+                 snapshot.femRegionalGalerkinFactorValid, environments);
+-            if (state_->mixedSolverValue.executionBudgets.z >= 3u)
++            if (state_->mixedSolverValue.executionBudgets.z == 3u ||
++                state_->mixedSolverValue.executionBudgets.z == 4u)
+                 readCount(regionalNodeBlockInverse,
+                     snapshot.femRegionalGalerkinNodeBlockInverse,
+                     environments * nodes * 3u);
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -1945,6 +1945,526 @@
+         valid = valid && isfinite(response);
+     }
+     return componentsMatrix(responseComponents);
++}
++
++// Assemble each dense graph-patch principal submatrix from the same local
++// production FEM tangent used by the matrix-free operator. One thread owns a
++// complete scalar row, so overlapping patches never race while accumulating
++// their independent principal matrices. The layout is immutable and contains
++// only currently free nodes; a changed Dirichlet mask is a hard failure.
++kernel void nm_fgmres_graph_build_patch_matrices(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const NMContinuumObjectGPU* objects [[buffer(1)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(2)]],
++    device const NMTetrahedronGPU* tetrahedra [[buffer(3)]],
++    device const uint* nodeIncidence [[buffer(4)]],
++    device const NMIncidenceRangeGPU* nodeRanges [[buffer(5)]],
++    device const NMSchedulerStateGPU* schedulers [[buffer(6)]],
++    device const NMMaterialGPU* materials [[buffer(7)]],
++    device const NMScalarProgramGPU* programs [[buffer(8)]],
++    device const NMExpressionInstructionGPU* instructions [[buffer(9)]],
++    device const float* environmentParameters [[buffer(10)]],
++    device const float* acceptedMaterialState [[buffer(11)]],
++    device const float* tangentCache [[buffer(12)]],
++    device const uint* tangentCacheValid [[buffer(13)]],
++    constant uint& useTangentCache [[buffer(14)]],
++    device const uint4* patches [[buffer(15)]],
++    device const uint* patchNodes [[buffer(16)]],
++    device const uint4* rows [[buffer(17)]],
++    device const uint* nodeCoverage [[buffer(18)]],
++    device float* patchMatrices [[buffer(19)]],
++    device NMMatterStatusGPU* statuses [[buffer(20)]],
++    constant uint& rowCount [[buffer(21)]],
++    constant uint& patchCount [[buffer(22)]],
++    constant uint& matrixFloatCount [[buffer(23)]],
++    uint global [[thread_position_in_grid]]) {
++    const uint total = dispatch.environmentCount * rowCount;
++    if (global >= total || rowCount == 0u) return;
++    const uint environment = global / rowCount;
++    const uint4 row = rows[global - environment * rowCount];
++    if (row.x >= patchCount || row.y >= 256u || row.z >= 3u ||
++        row.w >= dispatch.femNodeCount) {
++        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
++            0u, NM_INVALID_INDEX, float4(float(global), float(row.x),
++                                         float(row.y), float(row.z)));
++        return;
++    }
++    const uint4 patch = patches[row.x];
++    const uint n = patch.y * 3u;
++    if (patch.y == 0u || patch.y > 256u || row.y >= patch.y || n > 768u) {
++        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
++            0u, NM_INVALID_INDEX, float4(float(row.x), float(patch.y),
++                                         float(n), 1.0f));
++        return;
++    }
++    const uint rowScalar = row.y * 3u + row.z;
++    const uint matrixBase = environment * matrixFloatCount + patch.z;
++    const uint matrixRowBase = matrixBase + rowScalar * n;
++    for (uint column = 0u; column < n; ++column)
++        patchMatrices[matrixRowBase + column] = 0.0f;
++    const uint globalNode = environment * dispatch.femNodeCount + row.w;
++    const bool expectedFree = nodeCoverage[row.w] != 0u;
++    const bool candidateFree = candidate[globalNode].restAndFixed.w <= 0.5f;
++    if (expectedFree != candidateFree) {
++        recordFailure(statuses[environment], NM_STATUS_UNSUPPORTED,
++            0u, NM_INVALID_INDEX,
++            float4(float(row.w), float(nodeCoverage[row.w]),
++                   candidate[globalNode].restAndFixed.w, 2.0f));
++        return;
++    }
++    const NMIncidenceRangeGPU range = nodeRanges[globalNode];
++    if (range.objectIndex != 0u || range.objectIndex >= dispatch.objectCount) {
++        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
++            range.objectIndex, NM_INVALID_INDEX,
++            float4(float(globalNode), float(range.objectIndex), 0.0f, 3.0f));
++        return;
++    }
++    const NMContinuumObjectGPU object = objects[range.objectIndex];
++    const NMSchedulerStateGPU scheduler = schedulers[
++        environment * dispatch.objectCount + range.objectIndex];
++    const float dt = objectTimestep(dispatch, scheduler);
++    const uint nodeBase = environment * dispatch.femNodeCount;
++    const uint stateStride = dispatch.materialStateStride;
++    const device float* parameters = environmentParameters +
++        environment * dispatch.parameterCount;
++    for (uint local = 0u; local < range.count; ++local) {
++        const uint tetrahedronIndex = nodeIncidence[range.first + local];
++        if (tetrahedronIndex >= dispatch.tetrahedronCount) continue;
++        const uint globalTet = environment * dispatch.tetrahedronCount +
++            tetrahedronIndex;
++        const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
++            dispatch, tetrahedra, environment, tetrahedronIndex);
++        if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
++            tetrahedron.identity.y != range.objectIndex) continue;
++        uint rowSlot = 0u;
++        bool foundRow = false;
++        for (uint slot = 0u; slot < 4u; ++slot) {
++            if (tetrahedron.nodes[slot] == row.w) {
++                rowSlot = slot;
++                foundRow = true;
++                break;
++            }
++        }
++        if (!foundRow) continue;
++        const float3x3 inverseRest = matrixFromRows(
++            tetrahedron.inverseRestRow0, tetrahedron.inverseRestRow1,
++            tetrahedron.inverseRestRow2);
++        const float3x3 deformation = tetrahedronDeformation(
++            tetrahedron, candidate, nodeBase);
++        const float3x3 deformationRate = tetrahedronVelocityGradient(
++            tetrahedron, candidate, nodeBase);
++        const NMMaterialGPU material = materials[tetrahedron.identity.x];
++        float deformationLow[9];
++        const float3x3 preciseLocalF = femMaterialDeformationWords(
++            object, tetrahedron, material, candidate, nodeBase,
++            deformation, deformationLow);
++        const device float* internalState = material.stateCount == 0u
++            ? nullptr : acceptedMaterialState + globalTet * stateStride;
++        for (uint columnSlot = 0u; columnSlot < 4u; ++columnSlot) {
++            const uint columnNode = tetrahedron.nodes[columnSlot];
++            // Patch nodes are sorted, so the small fixed upper-bound binary
++            // search maps an incident global node to its local scalar columns.
++            uint low = 0u;
++            uint high = patch.y;
++            while (low < high) {
++                const uint middle = low + (high - low) / 2u;
++                if (patchNodes[patch.x + middle] < columnNode)
++                    low = middle + 1u;
++                else
++                    high = middle;
++            }
++            if (low >= patch.y || patchNodes[patch.x + low] != columnNode)
++                continue;
++            for (uint axisIndex = 0u; axisIndex < 3u; ++axisIndex) {
++                const float3 axis = axisIndex == 0u
++                    ? float3(1.0f, 0.0f, 0.0f)
++                    : (axisIndex == 1u ? float3(0.0f, 1.0f, 0.0f)
++                                       : float3(0.0f, 0.0f, 1.0f));
++                const float3 p0 = columnSlot == 0u ? axis : float3(0.0f);
++                const float3 p1 = columnSlot == 1u ? axis : float3(0.0f);
++                const float3 p2 = columnSlot == 2u ? axis : float3(0.0f);
++                const float3 p3 = columnSlot == 3u ? axis : float3(0.0f);
++                const float3x3 df = float3x3(p1 - p0, p2 - p0, p3 - p0) *
++                    inverseRest;
++                const float3x3 dRate = df / max(dt, 1.0e-12f);
++                const float3x3 localDirection = femMaterialInput(
++                    object, tetrahedron, df);
++                bool valid = true;
++                float3x3 analytic;
++                float3x3 tangent;
++                if (useTangentCache != 0u &&
++                    tangentCacheValid[globalTet] == 1u) {
++                    tangent = fgmresApplyCachedTangent(
++                        tangentCache, globalTet, localDirection, valid);
++                } else {
++                    evaluateAlgorithmicStressTangent(
++                        material, programs, instructions, parameters,
++                        internalState, preciseLocalF, localDirection,
++                        femMaterialInput(object, tetrahedron,
++                                         deformationRate),
++                        femMaterialInput(object, tetrahedron, dRate), dt,
++                        material.bulk.y, analytic, tangent, valid,
++                        nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
++                        deformationLow);
++                }
++                const bool finiteTangent = all(isfinite(tangent[0])) &&
++                    all(isfinite(tangent[1])) && all(isfinite(tangent[2]));
++                if (!valid || !finiteTangent) {
++                    recordFailure(statuses[environment],
++                        NM_STATUS_NONFINITE_RESULT, range.objectIndex,
++                        tetrahedronIndex,
++                        float4(float(axisIndex), dt,
++                               maximumAbs(tangent), 4.0f));
++                    return;
++                }
++                tangent = femMaterialOutput(object, tetrahedron, tangent);
++                const NMFEMElementVectorGPU forceDirection =
++                    tetrahedronForce(tetrahedron, tangent);
++                const float3 nodalForce = elementNodeVector(
++                    forceDirection, tetrahedron, row.w).xyz;
++                const uint columnScalar = low * 3u + axisIndex;
++                patchMatrices[matrixRowBase + columnScalar] +=
++                    -dt * dt * nodalForce[row.z];
++            }
++        }
++    }
++    patchMatrices[matrixRowBase + rowScalar] +=
++        max(candidate[globalNode].positionAndMass.w, 0.0f);
++}
++
++kernel void nm_fgmres_graph_validate_mask(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(1)]],
++    device const uint* nodeCoverage [[buffer(2)]],
++    device NMMatterStatusGPU* statuses [[buffer(3)]],
++    uint global [[thread_position_in_grid]]) {
++    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
++    if (global >= total || dispatch.femNodeCount == 0u) return;
++    const uint node = global % dispatch.femNodeCount;
++    const bool expectedFree = nodeCoverage[node] != 0u;
++    const bool candidateFree = candidate[global].restAndFixed.w <= 0.5f;
++    if (expectedFree != candidateFree)
++        recordFailure(statuses[global / dispatch.femNodeCount],
++            NM_STATUS_UNSUPPORTED, 0u, NM_INVALID_INDEX,
++            float4(float(node), float(nodeCoverage[node]),
++                   candidate[global].restAndFixed.w, 7.0f));
++}
++
++// Pivoted in-place dense LU, one threadgroup per environment/patch. The
++// arithmetic is partitioned over group lanes, with uniform barriers around
++// each pivot stage; a bad pivot is fatal to selector 5 rather than silently
++// replaced with a different preconditioner.
++kernel void nm_fgmres_graph_factor_patches(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const uint4* patches [[buffer(1)]],
++    device float* matrices [[buffer(2)]],
++    device uint* pivots [[buffer(3)]],
++    device uint* factorValid [[buffer(4)]],
++    device NMMatterStatusGPU* statuses [[buffer(5)]],
++    constant uint& patchCount [[buffer(6)]],
++    constant uint& matrixFloatCount [[buffer(7)]],
++    constant uint& pivotCount [[buffer(8)]],
++    uint lane [[thread_index_in_threadgroup]],
++    uint group [[threadgroup_position_in_grid]]) {
++    const uint totalGroups = dispatch.environmentCount * patchCount;
++    if (group >= totalGroups || patchCount == 0u) return;
++    const uint environment = group / patchCount;
++    const uint patchIndex = group - environment * patchCount;
++    const uint4 patch = patches[patchIndex];
++    const uint n = patch.y * 3u;
++    const uint matrixBase = environment * matrixFloatCount + patch.z;
++    const uint pivotBase = environment * pivotCount + patch.w;
++    const uint validIndex = group;
++    threadgroup uint sharedPivotRow;
++    threadgroup uint sharedValid;
++    threadgroup float sharedScale;
++    threadgroup float sharedPivotMagnitude;
++    threadgroup float sharedDiagonal;
++    threadgroup atomic_uint sharedError;
++    if (lane == 0u) {
++        factorValid[validIndex] = 0u;
++        sharedValid = patch.y > 0u && patch.y <= 256u && n <= 768u;
++        sharedScale = 0.0f;
++        atomic_store_explicit(&sharedError, 0u, memory_order_relaxed);
++    }
++    threadgroup_barrier(mem_flags::mem_threadgroup);
++    if (sharedValid == 0u) return;
++    for (uint row = lane; row < n; row += 256u) {
++        pivots[pivotBase + row] = row;
++    }
++    threadgroup_barrier(mem_flags::mem_device);
++    if (lane == 0u) {
++        for (uint index = 0u; index < n * n; ++index) {
++            const float value = matrices[matrixBase + index];
++            if (!isfinite(value)) {
++                sharedValid = 0u;
++                break;
++            }
++            sharedScale = max(sharedScale, abs(value));
++        }
++        if (!(sharedScale > 0.0f) || !isfinite(sharedScale))
++            sharedValid = 0u;
++    }
++    threadgroup_barrier(mem_flags::mem_threadgroup);
++    if (sharedValid == 0u) {
++        if (lane == 0u)
++            recordFailure(statuses[environment],
++                NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
++                float4(float(patchIndex), float(n), sharedScale, 5.0f));
++        return;
++    }
++    const float pivotFloor = max(sharedScale * 1.0e-10f, 1.0e-30f);
++    for (uint k = 0u; k < n; ++k) {
++        if (lane == 0u) {
++            sharedPivotRow = k;
++            sharedPivotMagnitude = 0.0f;
++            for (uint row = k; row < n; ++row) {
++                const float magnitude = abs(matrices[
++                    matrixBase + row * n + k]);
++                if (!isfinite(magnitude)) {
++                    sharedValid = 0u;
++                    break;
++                }
++                if (magnitude > sharedPivotMagnitude) {
++                    sharedPivotMagnitude = magnitude;
++                    sharedPivotRow = row;
++                }
++            }
++            if (!(sharedPivotMagnitude > pivotFloor)) sharedValid = 0u;
++            if (sharedValid != 0u && sharedPivotRow != k) {
++                const uint other = sharedPivotRow;
++                for (uint column = 0u; column < n; ++column) {
++                    const uint a = matrixBase + k * n + column;
++                    const uint b = matrixBase + other * n + column;
++                    const float temporary = matrices[a];
++                    matrices[a] = matrices[b];
++                    matrices[b] = temporary;
++                }
++                const uint a = pivotBase + k;
++                const uint b = pivotBase + other;
++                const uint temporary = pivots[a];
++                pivots[a] = pivots[b];
++                pivots[b] = temporary;
++            }
++        }
++        // Publish the pivot row/global matrix swap and lane-0 control words
++        // before any lane consumes them in this pivot stage.
++        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
++        if (sharedValid == 0u) break;
++        if (lane == 0u) {
++            sharedDiagonal = matrices[matrixBase + k * n + k];
++            if (!isfinite(sharedDiagonal) ||
++                !(abs(sharedDiagonal) > pivotFloor)) sharedValid = 0u;
++        }
++        threadgroup_barrier(mem_flags::mem_threadgroup);
++        if (sharedValid == 0u) break;
++        const uint lowerCount = n - k - 1u;
++        if (lane == 0u)
++            atomic_store_explicit(&sharedError, 0u, memory_order_relaxed);
++        threadgroup_barrier(mem_flags::mem_threadgroup);
++        for (uint offset = lane; offset < lowerCount; offset += 256u) {
++            const uint row = k + 1u + offset;
++            const uint index = matrixBase + row * n + k;
++            matrices[index] /= sharedDiagonal;
++            if (!isfinite(matrices[index]))
++                atomic_store_explicit(&sharedError, 1u,
++                                      memory_order_relaxed);
++        }
++        // Publish both lower-column matrix writes and the shared error flag.
++        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
++        if (lane == 0u &&
++            atomic_load_explicit(&sharedError, memory_order_relaxed) != 0u)
++            sharedValid = 0u;
++        threadgroup_barrier(mem_flags::mem_threadgroup);
++        if (sharedValid == 0u) break;
++        const uint width = lowerCount;
++        const uint updateCount = width * width;
++        if (lane == 0u)
++            atomic_store_explicit(&sharedError, 0u, memory_order_relaxed);
++        threadgroup_barrier(mem_flags::mem_threadgroup);
++        for (uint offset = lane; offset < updateCount; offset += 256u) {
++            const uint row = k + 1u + offset / width;
++            const uint column = k + 1u + offset % width;
++            const uint index = matrixBase + row * n + column;
++            matrices[index] -= matrices[matrixBase + row * n + k] *
++                matrices[matrixBase + k * n + column];
++            if (!isfinite(matrices[index]))
++                atomic_store_explicit(&sharedError, 1u,
++                                      memory_order_relaxed);
++        }
++        // Trailing updates write the global matrix and lane 0 consumes the
++        // shared error flag/control state after the update.
++        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
++        if (lane == 0u &&
++            atomic_load_explicit(&sharedError, memory_order_relaxed) != 0u)
++            sharedValid = 0u;
++        threadgroup_barrier(mem_flags::mem_threadgroup);
++        if (sharedValid == 0u) break;
++    }
++    if (lane == 0u) {
++        factorValid[validIndex] = sharedValid;
++        if (sharedValid == 0u)
++            recordFailure(statuses[environment],
++                NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
++                float4(float(patchIndex), sharedPivotMagnitude,
++                       pivotFloor, 6.0f));
++    }
++}
++
++// Solve one local right-preconditioner system per patch. The row permutation
++// matches the in-place LU swaps. Two bounded threadgroup vectors hold the
++// permuted right-hand side and solution; the scalar triangular recurrences
++// are uniform across the group and never inspect a Krylov-dependent branch.
++kernel void nm_fgmres_graph_solve_patches(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const uint4* patches [[buffer(1)]],
++    device const uint* patchNodes [[buffer(2)]],
++    device const float4* basis [[buffer(3)]],
++    device const float4* regionalBasis [[buffer(4)]],
++    device const float4* regionalAP [[buffer(5)]],
++    device const float* coefficients [[buffer(6)]],
++    device const float* matrices [[buffer(7)]],
++    device const uint* pivots [[buffer(8)]],
++    device const uint* factorValid [[buffer(9)]],
++    device float4* patchCorrections [[buffer(10)]],
++    device NMMatterStatusGPU* statuses [[buffer(11)]],
++    constant uint& patchCount [[buffer(12)]],
++    constant uint& patchNodeCount [[buffer(13)]],
++    constant uint& matrixFloatCount [[buffer(14)]],
++    constant uint& pivotCount [[buffer(15)]],
++    constant uint& modeCount [[buffer(16)]],
++    uint lane [[thread_index_in_threadgroup]],
++    uint group [[threadgroup_position_in_grid]]) {
++    const uint totalGroups = dispatch.environmentCount * patchCount;
++    if (group >= totalGroups || patchCount == 0u || modeCount == 0u ||
++        modeCount > 32u) return;
++    const uint environment = group / patchCount;
++    const uint patchIndex = group - environment * patchCount;
++    const uint4 patch = patches[patchIndex];
++    const uint n = patch.y * 3u;
++    const uint nodeBase = environment * dispatch.femNodeCount;
++    const uint patchCorrectionBase = environment * patchNodeCount + patch.x;
++    const uint matrixBase = environment * matrixFloatCount + patch.z;
++    const uint pivotBase = environment * pivotCount + patch.w;
++    threadgroup float rhs[768];
++    threadgroup float values[768];
++    if (factorValid[group] == 0u || n == 0u || n > 768u) {
++        if (lane == 0u)
++            recordFailure(statuses[environment],
++                NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
++                float4(float(patchIndex), float(n), 0.0f, 8.0f));
++        for (uint local = lane; local < patch.y; local += 256u)
++            patchCorrections[patchCorrectionBase + local] = float4(0.0f);
++        return;
++    }
++    for (uint scalar = lane; scalar < n; scalar += 256u) {
++        const uint localNode = scalar / 3u;
++        const uint axis = scalar % 3u;
++        const uint globalNode = patchNodes[patch.x + localNode];
++        float value = basis[nodeBase + globalNode][axis];
++        const uint coefficientBase = environment * modeCount;
++        for (uint mode = 0u; mode < modeCount; ++mode) {
++            const uint modeNodeBase =
++                (environment * modeCount + mode) * dispatch.femNodeCount;
++            value -= coefficients[coefficientBase + mode] *
++                regionalAP[modeNodeBase + globalNode][axis];
++        }
++        rhs[scalar] = value;
++    }
++    threadgroup_barrier(mem_flags::mem_threadgroup);
++    for (uint scalar = lane; scalar < n; scalar += 256u)
++        values[scalar] = rhs[pivots[pivotBase + scalar]];
++    threadgroup_barrier(mem_flags::mem_threadgroup);
++    for (uint row = 0u; row < n; ++row) {
++        if (lane == 0u) {
++            float value = values[row];
++            for (uint column = 0u; column < row; ++column)
++                value -= matrices[matrixBase + row * n + column] *
++                    values[column];
++            values[row] = value;
++        }
++        threadgroup_barrier(mem_flags::mem_threadgroup);
++    }
++    for (int reverse = int(n) - 1; reverse >= 0; --reverse) {
++        if (lane == 0u) {
++            const uint row = uint(reverse);
++            float value = values[row];
++            for (uint column = row + 1u; column < n; ++column)
++                value -= matrices[matrixBase + row * n + column] *
++                    values[column];
++            const float diagonal = matrices[matrixBase + row * n + row];
++            if (!isfinite(value) || !isfinite(diagonal) ||
++                !(abs(diagonal) > 1.0e-30f)) {
++                recordFailure(statuses[environment],
++                    NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
++                    float4(float(patchIndex), float(row), diagonal, 9.0f));
++                values[row] = 0.0f;
++            } else {
++                values[row] = value / diagonal;
++                if (!isfinite(values[row])) {
++                    recordFailure(statuses[environment],
++                        NM_STATUS_LINEAR_SOLVER_FAILURE, 0u,
++                        NM_INVALID_INDEX,
++                        float4(float(patchIndex), float(row), value, 10.0f));
++                    values[row] = 0.0f;
++                }
++            }
++        }
++        threadgroup_barrier(mem_flags::mem_threadgroup);
++    }
++    for (uint local = lane; local < patch.y; local += 256u) {
++        patchCorrections[patchCorrectionBase + local] = float4(
++            values[local * 3u], values[local * 3u + 1u],
++            values[local * 3u + 2u], 0.0f);
++    }
++}
++
++kernel void nm_fgmres_graph_apply_patches(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const uint* patchNodes [[buffer(1)]],
++    device const uint* nodePatchOffsets [[buffer(2)]],
++    device const uint* nodePatchValues [[buffer(3)]],
++    device const uint* nodeCoverage [[buffer(4)]],
++    device const float4* regionalBasis [[buffer(5)]],
++    device const float* coefficients [[buffer(6)]],
++    device const float4* patchCorrections [[buffer(7)]],
++    device float4* preconditioned [[buffer(8)]],
++    device const NMFGMRESStateGPU* states [[buffer(9)]],
++    constant uint& patchNodeCount [[buffer(10)]],
++    constant uint& modeCount [[buffer(11)]],
++    uint global [[thread_position_in_grid]]) {
++    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
++    if (global >= total || dispatch.femNodeCount == 0u ||
++        modeCount == 0u || modeCount > 32u) return;
++    const uint environment = global / dispatch.femNodeCount;
++    const uint node = global - environment * dispatch.femNodeCount;
++    if (states[environment].diagnostics.z > 0.5f) {
++        preconditioned[global] = float4(0.0f);
++        return;
++    }
++    float3 coarseCorrection = float3(0.0f);
++    const uint coefficientBase = environment * modeCount;
++    for (uint mode = 0u; mode < modeCount; ++mode) {
++        const float coefficient = coefficients[coefficientBase + mode];
++        const uint basisBase =
++            (environment * modeCount + mode) * dispatch.femNodeCount;
++        coarseCorrection += coefficient * regionalBasis[basisBase + node].xyz;
++    }
++    float3 graphCorrection = float3(0.0f);
++    const uint coverage = nodeCoverage[node];
++    if (coverage != 0u) {
++        for (uint item = nodePatchOffsets[node];
++             item < nodePatchOffsets[node + 1u]; ++item) {
++            const uint patchNode = nodePatchValues[item];
++            if (patchNode >= patchNodeCount || patchNodes[patchNode] != node)
++                continue;
++            graphCorrection += patchCorrections[
++                environment * patchNodeCount + patchNode].xyz;
++        }
++        graphCorrection /= float(coverage);
++    }
++    preconditioned[global] = float4(
++        coarseCorrection + graphCorrection, 0.0f);
+ }
+ 
+ kernel void nm_fgmres_build_tangent_fem_preconditioner(
+--- a/matter/src/regional_graph_schwarz.hpp
++++ b/matter/src/regional_graph_schwarz.hpp
+@@ -0,0 +1,268 @@
++#pragma once
++
++#include <algorithm>
++#include <array>
++#include <cstddef>
++#include <cstdint>
++#include <deque>
++#include <limits>
++#include <set>
++#include <span>
++#include <string>
++#include <vector>
++
++namespace numi::matter::detail {
++
++// A bounded host-built graph layout for the selector-5 additive Schwarz
++// preconditioner.  The graph is derived from the exact active tetrahedron
++// connectivity and the immutable FEM Dirichlet mask.  Patches are ordered by
++// ascending free-node anchors, breadth-first sorted neighbors, then sorted
++// node IDs, matching the source182 offline study.
++struct RegionalGraphSchwarzPatch {
++    std::uint32_t nodeOffset = 0u;
++    std::uint32_t nodeCount = 0u;
++    std::uint32_t matrixFloatOffset = 0u;
++    std::uint32_t pivotOffset = 0u;
++};
++
++struct RegionalGraphSchwarzLayout {
++    std::vector<RegionalGraphSchwarzPatch> patches;
++    std::vector<std::uint32_t> patchNodes;
++    // One row descriptor per local scalar DOF: patch, local node, axis,
++    // global node.  Matrix assembly uses this to give each output row exactly
++    // one writer.
++    std::vector<std::array<std::uint32_t, 4>> rows;
++    // Node-to-patch-value CSR. Values index patchNodes and therefore the
++    // patch-local correction buffer, without a dense node-by-patch map.
++    std::vector<std::uint32_t> nodePatchOffsets;
++    std::vector<std::uint32_t> nodePatchValues;
++    std::vector<std::uint32_t> nodeCoverage;
++    std::uint32_t nodeCount = 0u;
++    std::uint32_t environmentCount = 0u;
++    std::uint32_t totalPatchDofs = 0u;
++    std::uint32_t matrixFloatCount = 0u;
++    std::uint32_t pivotCount = 0u;
++    std::uint64_t metadataBytes = 0u;
++    std::uint64_t deviceBytes = 0u;
++    std::string error;
++};
++
++[[nodiscard]] inline bool regionalGraphSchwarzCheckedAdd(
++    const std::uint64_t a, const std::uint64_t b,
++    std::uint64_t& result) noexcept {
++    if (a > std::numeric_limits<std::uint64_t>::max() - b) return false;
++    result = a + b;
++    return true;
++}
++
++[[nodiscard]] inline bool regionalGraphSchwarzCheckedMul(
++    const std::uint64_t a, const std::uint64_t b,
++    std::uint64_t& result) noexcept {
++    if (a != 0u && b > std::numeric_limits<std::uint64_t>::max() / a)
++        return false;
++    result = a * b;
++    return true;
++}
++
++[[nodiscard]] inline RegionalGraphSchwarzLayout buildRegionalGraphSchwarzLayout(
++    const std::uint32_t nodeCount,
++    const std::span<const std::array<std::uint32_t, 4>> tetrahedra,
++    // 1 means free; 0 means fixed. Must be the exact immutable mask used by
++    // the candidate projection. A changed mask is rejected by runtime.
++    const std::span<const std::uint8_t> freeMask,
++    const std::uint32_t environmentCount,
++    const std::uint64_t maximumDeviceBytes = 96ull * 1024ull * 1024ull,
++    const std::uint32_t maximumNodeCount = 4096u,
++    const std::uint32_t maximumTetrahedronCount = 32768u,
++    const std::uint32_t maximumPatchCount = 128u,
++    const std::uint32_t maximumPatchNodes = 256u,
++    const std::uint32_t anchorStride = 128u
++) {
++    RegionalGraphSchwarzLayout out;
++    out.nodeCount = nodeCount;
++    out.environmentCount = environmentCount;
++    const auto fail = [&](const char* message) {
++        out.error = message;
++        return out;
++    };
++    if (nodeCount == 0u || nodeCount > maximumNodeCount ||
++        tetrahedra.empty() || tetrahedra.size() > maximumTetrahedronCount ||
++        freeMask.size() != nodeCount || environmentCount == 0u ||
++        environmentCount > 4u || maximumPatchNodes == 0u ||
++        maximumPatchNodes > 256u || anchorStride == 0u ||
++        anchorStride > maximumPatchNodes || maximumPatchCount == 0u) {
++        return fail("graph Schwarz input exceeds its explicit FEM admission bounds");
++    }
++
++    std::vector<std::set<std::uint32_t>> adjacency(nodeCount);
++    std::vector<std::uint32_t> freeNodes;
++    freeNodes.reserve(nodeCount);
++    for (std::uint32_t node = 0u; node < nodeCount; ++node) {
++        if (freeMask[node] > 1u)
++            return fail("graph Schwarz free mask is not binary");
++        if (freeMask[node] != 0u) freeNodes.push_back(node);
++    }
++    if (freeNodes.empty())
++        return fail("graph Schwarz requires at least one unconstrained FEM node");
++
++    for (const auto& tet : tetrahedra) {
++        for (std::uint32_t i = 0u; i < 4u; ++i) {
++            if (tet[i] >= nodeCount)
++                return fail("graph Schwarz tetrahedron references an invalid FEM node");
++            for (std::uint32_t j = 0u; j < i; ++j)
++                if (tet[i] == tet[j])
++                    return fail("graph Schwarz tetrahedron repeats a node");
++        }
++        for (std::uint32_t i = 0u; i < 4u; ++i) {
++            if (freeMask[tet[i]] == 0u) continue;
++            for (std::uint32_t j = 0u; j < 4u; ++j) {
++                if (i != j && freeMask[tet[j]] != 0u)
++                    adjacency[tet[i]].insert(tet[j]);
++            }
++        }
++    }
++
++    std::vector<std::uint32_t> anchors;
++    for (std::size_t index = 0u; index < freeNodes.size(); index += anchorStride)
++        anchors.push_back(freeNodes[index]);
++    if (anchors.empty() || anchors.back() != freeNodes.back())
++        anchors.push_back(freeNodes.back());
++
++    std::vector<std::vector<std::uint32_t>> nodePatches;
++    nodePatches.reserve(anchors.size());
++    std::vector<std::uint8_t> covered(nodeCount, 0u);
++    for (const std::uint32_t anchor : anchors) {
++        std::vector<std::uint32_t> selected{anchor};
++        std::vector<std::uint8_t> visited(nodeCount, 0u);
++        visited[anchor] = 1u;
++        std::deque<std::uint32_t> frontier{anchor};
++        while (!frontier.empty() && selected.size() < maximumPatchNodes) {
++            const std::uint32_t current = frontier.front();
++            frontier.pop_front();
++            for (const std::uint32_t neighbor : adjacency[current]) {
++                if (visited[neighbor] != 0u) continue;
++                visited[neighbor] = 1u;
++                selected.push_back(neighbor);
++                frontier.push_back(neighbor);
++                if (selected.size() == maximumPatchNodes) break;
++            }
++        }
++        std::sort(selected.begin(), selected.end());
++        for (const std::uint32_t node : selected) covered[node] = 1u;
++        nodePatches.push_back(std::move(selected));
++    }
++    for (const std::uint32_t node : freeNodes) {
++        if (covered[node] == 0u) nodePatches.push_back({node});
++    }
++    if (nodePatches.empty() || nodePatches.size() > maximumPatchCount)
++        return fail("graph Schwarz patch count exceeds its bounded layout");
++
++    std::uint64_t matrixFloatCount = 0u;
++    std::uint64_t pivotCount = 0u;
++    std::uint64_t totalPatchDofs = 0u;
++    std::uint64_t totalPatchNodes = 0u;
++    out.patches.reserve(nodePatches.size());
++    for (const auto& patch : nodePatches) {
++        if (patch.empty() || patch.size() > maximumPatchNodes)
++            return fail("graph Schwarz contains an empty or oversized patch");
++        const std::uint64_t dofs = 3u * static_cast<std::uint64_t>(patch.size());
++        std::uint64_t matrixEntries = 0u;
++        if (!regionalGraphSchwarzCheckedMul(dofs, dofs, matrixEntries) ||
++            matrixFloatCount > std::numeric_limits<std::uint32_t>::max() - matrixEntries ||
++            pivotCount > std::numeric_limits<std::uint32_t>::max() - dofs ||
++            totalPatchDofs > std::numeric_limits<std::uint32_t>::max() - dofs ||
++            totalPatchNodes > std::numeric_limits<std::uint32_t>::max() - patch.size()) {
++            return fail("graph Schwarz packed offsets overflow their 32-bit device indices");
++        }
++        out.patches.push_back({
++            static_cast<std::uint32_t>(totalPatchNodes),
++            static_cast<std::uint32_t>(patch.size()),
++            static_cast<std::uint32_t>(matrixFloatCount),
++            static_cast<std::uint32_t>(pivotCount)});
++        matrixFloatCount += matrixEntries;
++        pivotCount += dofs;
++        totalPatchDofs += dofs;
++        totalPatchNodes += patch.size();
++        out.patchNodes.insert(out.patchNodes.end(), patch.begin(), patch.end());
++    }
++    out.matrixFloatCount = static_cast<std::uint32_t>(matrixFloatCount);
++    out.pivotCount = static_cast<std::uint32_t>(pivotCount);
++    out.totalPatchDofs = static_cast<std::uint32_t>(totalPatchDofs);
++
++    out.rows.reserve(out.totalPatchDofs);
++    for (std::uint32_t patchIndex = 0u; patchIndex < out.patches.size(); ++patchIndex) {
++        const RegionalGraphSchwarzPatch patch = out.patches[patchIndex];
++        for (std::uint32_t localNode = 0u; localNode < patch.nodeCount; ++localNode) {
++            const std::uint32_t node = out.patchNodes[patch.nodeOffset + localNode];
++            for (std::uint32_t axis = 0u; axis < 3u; ++axis)
++                out.rows.push_back({patchIndex, localNode, axis, node});
++        }
++    }
++    if (out.rows.size() != out.totalPatchDofs)
++        return fail("graph Schwarz row map is incomplete");
++
++    out.nodeCoverage.assign(nodeCount, 0u);
++    for (const std::uint32_t node : out.patchNodes) {
++        if (node >= nodeCount || freeMask[node] == 0u)
++            return fail("graph Schwarz patches include a constrained or invalid node");
++        ++out.nodeCoverage[node];
++    }
++    for (const std::uint32_t node : freeNodes)
++        if (out.nodeCoverage[node] == 0u)
++            return fail("graph Schwarz patches do not cover every free node");
++    for (std::uint32_t node = 0u; node < nodeCount; ++node)
++        if (freeMask[node] == 0u && out.nodeCoverage[node] != 0u)
++            return fail("graph Schwarz patches cover a constrained node");
++
++    out.nodePatchOffsets.assign(static_cast<std::size_t>(nodeCount) + 1u, 0u);
++    for (const std::uint32_t node : out.patchNodes)
++        ++out.nodePatchOffsets[static_cast<std::size_t>(node) + 1u];
++    for (std::uint32_t node = 0u; node < nodeCount; ++node)
++        out.nodePatchOffsets[node + 1u] += out.nodePatchOffsets[node];
++    out.nodePatchValues.resize(out.patchNodes.size());
++    std::vector<std::uint32_t> cursor = out.nodePatchOffsets;
++    for (std::uint32_t valueIndex = 0u; valueIndex < out.patchNodes.size(); ++valueIndex) {
++        const std::uint32_t node = out.patchNodes[valueIndex];
++        out.nodePatchValues[cursor[node]++] = valueIndex;
++    }
++
++    std::uint64_t metadataBytes = 0u;
++    std::uint64_t term = 0u;
++    const auto addArray = [&](const std::uint64_t count, const std::uint64_t width) {
++        return regionalGraphSchwarzCheckedMul(count, width, term) &&
++            regionalGraphSchwarzCheckedAdd(metadataBytes, term, metadataBytes);
++    };
++    if (!addArray(out.patches.size(), sizeof(RegionalGraphSchwarzPatch)) ||
++        !addArray(out.patchNodes.size(), sizeof(std::uint32_t)) ||
++        !addArray(out.rows.size(), sizeof(std::array<std::uint32_t, 4>)) ||
++        !addArray(out.nodePatchOffsets.size(), sizeof(std::uint32_t)) ||
++        !addArray(out.nodePatchValues.size(), sizeof(std::uint32_t)) ||
++        !addArray(out.nodeCoverage.size(), sizeof(std::uint32_t))) {
++        return fail("graph Schwarz metadata byte count overflow");
++    }
++    out.metadataBytes = metadataBytes;
++
++    std::uint64_t perEnvironment = 0u;
++    std::uint64_t factorBytes = 0u;
++    std::uint64_t pivotBytes = 0u;
++    std::uint64_t correctionBytes = 0u;
++    std::uint64_t validBytes = 0u;
++    if (!regionalGraphSchwarzCheckedMul(matrixFloatCount, sizeof(float), factorBytes) ||
++        !regionalGraphSchwarzCheckedMul(pivotCount, sizeof(std::uint32_t), pivotBytes) ||
++        !regionalGraphSchwarzCheckedMul(totalPatchNodes, 4u * sizeof(float), correctionBytes) ||
++        !regionalGraphSchwarzCheckedMul(nodePatches.size(), sizeof(std::uint32_t), validBytes) ||
++        !regionalGraphSchwarzCheckedAdd(factorBytes, pivotBytes, perEnvironment) ||
++        !regionalGraphSchwarzCheckedAdd(perEnvironment, correctionBytes, perEnvironment) ||
++        !regionalGraphSchwarzCheckedAdd(perEnvironment, validBytes, perEnvironment)) {
++        return fail("graph Schwarz per-environment device byte count overflow");
++    }
++    std::uint64_t allEnvironments = 0u;
++    if (!regionalGraphSchwarzCheckedMul(perEnvironment, environmentCount, allEnvironments) ||
++        !regionalGraphSchwarzCheckedAdd(allEnvironments, metadataBytes, out.deviceBytes) ||
++        out.deviceBytes > maximumDeviceBytes) {
++        return fail("graph Schwarz packed device arenas exceed the explicit 96 MiB bound");
++    }
++    return out;
++}
++
++} // namespace numi::matter::detail
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -1171,8 +1171,9 @@
+         << "  --compensated-implicit-projection  opt in to compensated residual evaluation for retained-matrix generic implicit damage overlays\n"
+         << "  --compensated-source-paper-projection  opt in to generic compensated projection for the 15-state source bilinear/C1 liner+medium pair; also requires --compensated-paper-arithmetic\n"
+         << "  --cache-fem-algorithmic-tangent  opt-in per-Newton full material tangent cache for FGMRES; private trials and final certificates use direct evaluation\n"
+-        << "  --fgmres-preconditioner scalar|regional-tangent-diagonal|regional-galerkin|regional-galerkin-block|regional-galerkin-contact\n"
++        << "  --fgmres-preconditioner scalar|regional-tangent-diagonal|regional-galerkin|regional-galerkin-block|regional-galerkin-contact|regional-galerkin-schwarz\n"
+         << "    regional-galerkin modes require authored compact constituent regions; selectors 2/3 are contact-free. Contact selector 4 uses the enriched 32-mode RAP/block estimate and admits one immutable explicit FEM object (<=8192 nodes, <=32768 tets, <=4096 cohesive faces), one environment, no dynamic/generalized rigid or multiphysics rows, and only static/kinematic non-articulated contact proxies\n"
++        << "    graph-Schwarz selector 5 is a bounded conditioning-only coupon experiment (<=4096 nodes, <=32768 tets, <=4 environments), contact/cohesive/rigid/field/adaptive/mutation free; no shipping-box qualification\n"
+         << "  --bend-angle DEGREES   final right-grip rotation\n"
+         << "  --dt SECONDS           frame timestep\n"
+         << "  --nx N                 cross-section subdivisions per flute pitch\n"
+@@ -1490,9 +1491,12 @@
+             else if (value == "regional-galerkin-contact")
+                 arguments.femPreconditioner =
+                     FEMPreconditionerMode::regionalGalerkinContact;
++            else if (value == "regional-galerkin-schwarz")
++                arguments.femPreconditioner =
++                    FEMPreconditionerMode::regionalGalerkinGraphSchwarz;
+             else
+                 require(false, "--fgmres-preconditioner expects scalar or "
+-                               "regional-tangent-diagonal or regional-galerkin or regional-galerkin-block or regional-galerkin-contact");
++                               "regional-tangent-diagonal or regional-galerkin or regional-galerkin-block or regional-galerkin-contact or regional-galerkin-schwarz");
+         }
+         else if (option == "--nx") arguments.nxPerPitch = parseUnsigned(value, option);
+         else if (option == "--ny") arguments.ny = parseUnsigned(value, option);
+@@ -1791,6 +1795,10 @@
+             "--shipping-roof-measurement requires --shipping-box");
+     require(arguments.shippingBox || !arguments.shippingImpactorHalfExtentsProvided,
+             "--shipping-impactor-half-extents-mm requires --shipping-box");
++    require(!arguments.shippingBox ||
++                arguments.femPreconditioner !=
++                    FEMPreconditionerMode::regionalGalerkinGraphSchwarz,
++            "regional-galerkin-schwarz is a bounded contact-free coupon experiment and is not admitted for shipping-box runs");
+     if (arguments.shippingBox) {
+         for (const double extent : arguments.shippingImpactorHalfExtentsM)
+             require(std::isfinite(extent) && extent > 0.0,
+@@ -2427,7 +2435,9 @@
+         arguments.femPreconditioner ==
+             FEMPreconditionerMode::regionalGalerkinBlockJacobi ||
+         arguments.femPreconditioner ==
+-            FEMPreconditionerMode::regionalGalerkinContact)
++            FEMPreconditionerMode::regionalGalerkinContact ||
++        arguments.femPreconditioner ==
++            FEMPreconditionerMode::regionalGalerkinGraphSchwarz)
+         object.femPreconditionerRegionIds = result.authoredRegionIds;
+     std::ostringstream authoredRegionSource;
+     authoredRegionSource << "numi.cardboard.authored-constituent-region-map.v1\n";
+@@ -3655,6 +3665,8 @@
+            << "    \"fgmres_preconditioner\": \""
+            << (compiled.world.mixedSolver.executionBudgets.z == 4u
+                    ? "regional_galerkin_contact_rap"
++                   : compiled.world.mixedSolver.executionBudgets.z == 5u
++                   ? "regional_galerkin_graph_schwarz_conditioning_only"
+                    : compiled.world.mixedSolver.executionBudgets.z == 3u
+                    ? "regional_galerkin_block_jacobi"
+                    : compiled.world.mixedSolver.executionBudgets.z == 2u
+@@ -4855,7 +4867,8 @@
+     input.regionalGalerkinEnabled =
+         compiled.world.mixedSolver.executionBudgets.z == 2u ||
+         compiled.world.mixedSolver.executionBudgets.z == 3u ||
+-        compiled.world.mixedSolver.executionBudgets.z == 4u;
++        compiled.world.mixedSolver.executionBudgets.z == 4u ||
++        compiled.world.mixedSolver.executionBudgets.z == 5u;
+     input.regionalGalerkinBlockFineEnabled =
+         compiled.world.mixedSolver.executionBudgets.z == 3u ||
+         compiled.world.mixedSolver.executionBudgets.z == 4u;
+@@ -5254,7 +5267,8 @@
+         preconditionerSelector == 4u;
+     const std::uint32_t assumedRegionalModes =
+         enrichedBlockPreconditioner ? 32u :
+-        (preconditionerSelector == 2u ? 18u : 0u);
++        (preconditionerSelector == 2u ? 18u :
++         preconditionerSelector == 5u ? 32u : 0u);
+     output << std::setprecision(17)
+            << "{\n  \"schema\": \"numi.cardboard.shipping-prebuild-memory-screen.v1\",\n"
+            << "  \"evidence_class\": \"pre-mesh planning estimate; not exact geometry or native memory admission\",\n"
+@@ -5272,7 +5286,11 @@
+            << (regionalPreconditioner ? "true" : "false")
+            << ", \"assumed_coarse_modes\": " << assumedRegionalModes
+            << ", \"enriched_block_fine_estimate_enabled\": "
+-           << (enrichedBlockPreconditioner ? "true" : "false") << "},\n"
++           << (enrichedBlockPreconditioner ? "true" : "false")
++           << ", \"graph_schwarz_conditioning_only\": "
++           << (preconditionerSelector == 5u ? "true" : "false")
++           << ", \"graph_schwarz_coupon_node_cap\": 4096"
++           << ", \"graph_schwarz_exact_patch_bytes\": null},\n"
+            << "  \"reference_pitch_intervals\": "
+            << estimate.referencePitchIntervals << ",\n"
+            << "  \"requested_pitch_intervals\": "
+--- a/matter/tools/regional_graph_schwarz_layout_check.cpp
++++ b/matter/tools/regional_graph_schwarz_layout_check.cpp
+@@ -0,0 +1,164 @@
++#include "../src/regional_graph_schwarz.hpp"
++
++#include <array>
++#include <cstdint>
++#include <iostream>
++#include <limits>
++#include <span>
++#include <vector>
++
++using numi::matter::detail::buildRegionalGraphSchwarzLayout;
++using numi::matter::detail::regionalGraphSchwarzCheckedAdd;
++using numi::matter::detail::regionalGraphSchwarzCheckedMul;
++
++int main() {
++    // Small CSR and fail-closed cases exercise fixed/free, disconnected,
++    // deterministic, and overflow behavior.
++    constexpr std::uint32_t nodeCount = 302u;
++    std::vector<std::array<std::uint32_t, 4>> tetrahedra;
++    for (std::uint32_t node = 0u; node + 3u < 299u; ++node)
++        tetrahedra.push_back({node, node + 1u, node + 2u, node + 3u});
++    std::vector<std::uint8_t> freeMask(nodeCount, 1u);
++    freeMask[0] = 0u;
++    freeMask[299] = 0u;
++    // Nodes 300 and 301 are disconnected from tetrahedra. The layout must
++    // preserve both free rows; any uncovered free node receives a singleton.
++    const auto first = buildRegionalGraphSchwarzLayout(
++        nodeCount, tetrahedra, freeMask, 2u);
++    const auto second = buildRegionalGraphSchwarzLayout(
++        nodeCount, tetrahedra, freeMask, 2u);
++    if (!first.error.empty() || !second.error.empty() ||
++        first.patches.size() != second.patches.size() ||
++        first.patchNodes != second.patchNodes ||
++        first.nodePatchOffsets != second.nodePatchOffsets ||
++        first.nodePatchValues != second.nodePatchValues ||
++        first.rows != second.rows || first.nodeCoverage != second.nodeCoverage) {
++        std::cerr << "deterministic graph layout check failed\n";
++        return 1;
++    }
++    if (first.patches.empty() || first.patchNodes.size() < 300u ||
++        first.totalPatchDofs != first.patchNodes.size() * 3u ||
++        first.rows.size() != first.totalPatchDofs ||
++        first.nodeCoverage[0] != 0u || first.nodeCoverage[299] != 0u ||
++        first.nodeCoverage[300] == 0u || first.nodeCoverage[301] == 0u) {
++        std::cerr << "free/fixed coverage check failed\n";
++        return 2;
++    }
++    for (std::uint32_t node = 0u; node < nodeCount; ++node) {
++        if ((freeMask[node] != 0u) != (first.nodeCoverage[node] != 0u)) {
++            std::cerr << "coverage includes fixed nodes or misses free nodes\n";
++            return 3;
++        }
++        const std::uint32_t begin = first.nodePatchOffsets[node];
++        const std::uint32_t end = first.nodePatchOffsets[node + 1u];
++        if (end - begin != first.nodeCoverage[node]) {
++            std::cerr << "node-to-patch CSR disagrees with coverage counts\n";
++            return 4;
++        }
++        for (std::uint32_t item = begin; item < end; ++item) {
++            const std::uint32_t flatPatchNode = first.nodePatchValues[item];
++            if (flatPatchNode >= first.patchNodes.size() ||
++                first.patchNodes[flatPatchNode] != node) {
++                std::cerr << "node-to-patch CSR points at the wrong local node\n";
++                return 5;
++            }
++        }
++    }
++    for (std::size_t p = 0u; p < first.patches.size(); ++p) {
++        const auto patch = first.patches[p];
++        const std::uint64_t dofs = 3ull * patch.nodeCount;
++        const std::uint64_t expectedMatrixOffset =
++            p == 0u ? 0ull : first.patches[p - 1u].matrixFloatOffset +
++                9ull * first.patches[p - 1u].nodeCount *
++                    first.patches[p - 1u].nodeCount;
++        const std::uint64_t expectedPivotOffset =
++            p == 0u ? 0ull : first.patches[p - 1u].pivotOffset +
++                3ull * first.patches[p - 1u].nodeCount;
++        if (patch.matrixFloatOffset != expectedMatrixOffset ||
++            patch.pivotOffset != expectedPivotOffset ||
++            patch.nodeCount == 0u || patch.nodeCount > 256u ||
++            dofs != 3ull * patch.nodeCount) {
++            std::cerr << "packed patch offsets or local dimensions are invalid\n";
++            return 6;
++        }
++    }
++
++    std::uint64_t output = 0u;
++    if (regionalGraphSchwarzCheckedAdd(5u, 7u, output) != true || output != 12u ||
++        regionalGraphSchwarzCheckedAdd(
++            std::numeric_limits<std::uint64_t>::max(), 1u, output) ||
++        regionalGraphSchwarzCheckedMul(7u, 9u, output) != true || output != 63u ||
++        regionalGraphSchwarzCheckedMul(
++            std::numeric_limits<std::uint64_t>::max(), 2u, output)) {
++        std::cerr << "64-bit checked sizing arithmetic failed\n";
++        return 7;
++    }
++
++    const auto tooLarge = buildRegionalGraphSchwarzLayout(
++        4097u, tetrahedra, std::span<const std::uint8_t>(freeMask), 1u);
++    const auto tinyBudget = buildRegionalGraphSchwarzLayout(
++        nodeCount, tetrahedra, freeMask, 2u, 1u);
++    auto badTet = tetrahedra;
++    badTet[0][3] = nodeCount;
++    const auto invalidTet = buildRegionalGraphSchwarzLayout(
++        nodeCount, badTet, freeMask, 2u);
++    if (tooLarge.error.empty() || tinyBudget.error.empty() ||
++        invalidTet.error.empty()) {
++        std::cerr << "fail-closed bounds checks did not reject malformed input\n";
++        return 8;
++    }
++
++    // Reproduce source182's measured graph shape: 846 free nodes, eight
++    // anchor patches of 256 nodes, and five uncovered disconnected singleton
++    // nodes. These exact counts drive the native workspace offsets.
++    constexpr std::uint32_t source182Nodes = 846u;
++    std::vector<std::uint32_t> connected;
++    for (std::uint32_t node = 0u; node < source182Nodes; ++node) {
++        if (node != 10u && node != 30u && node != 50u &&
++            node != 70u && node != 90u)
++            connected.push_back(node);
++    }
++    std::vector<std::array<std::uint32_t, 4>> source182Tets;
++    for (std::size_t index = 0u; index + 3u < connected.size(); ++index)
++        source182Tets.push_back({connected[index], connected[index + 1u],
++                                 connected[index + 2u],
++                                 connected[index + 3u]});
++    std::vector<std::uint8_t> source182Free(source182Nodes, 1u);
++    const auto source182 = buildRegionalGraphSchwarzLayout(
++        source182Nodes, source182Tets, source182Free, 2u);
++    const std::array<std::uint32_t, 8> expectedPatchSizes{
++        256u, 256u, 256u, 256u, 256u, 256u, 256u, 256u};
++    if (!source182.error.empty() || source182.patches.size() != 13u ||
++        source182.patchNodes.size() != 2053u ||
++        source182.totalPatchDofs != 6159u ||
++        source182.matrixFloatCount != 4'718'637u ||
++        source182.pivotCount != 6159u ||
++        source182.deviceBytes >= 96ull * 1024ull * 1024ull) {
++        std::cerr << "source182 exact graph workspace regression failed\n";
++        return 9;
++    }
++    for (std::size_t index = 0u; index < expectedPatchSizes.size(); ++index)
++        if (source182.patches[index].nodeCount != expectedPatchSizes[index]) {
++            std::cerr << "source182 large-patch membership regression failed\n";
++            return 10;
++        }
++    for (std::size_t index = expectedPatchSizes.size();
++         index < source182.patches.size(); ++index)
++        if (source182.patches[index].nodeCount != 1u) {
++            std::cerr << "source182 singleton-patch regression failed\n";
++            return 11;
++        }
++
++    std::cout << "graph_schwarz_layout_checks=11"
++              << " patches=" << first.patches.size()
++              << " patch_nodes=" << first.patchNodes.size()
++              << " matrix_floats=" << first.matrixFloatCount
++              << " pivots=" << first.pivotCount
++              << " device_bytes=" << first.deviceBytes
++              << " source182_patches=" << source182.patches.size()
++              << " source182_patch_nodes=" << source182.patchNodes.size()
++              << " source182_matrix_floats=" << source182.matrixFloatCount
++              << " source182_pivots=" << source182.pivotCount
++              << " source182_device_bytes=" << source182.deviceBytes << '\n';
++    return 0;
++}

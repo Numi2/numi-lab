@@ -1,0 +1,160 @@
+{
+  "schema": "numi.cardboard.native-patch-assembly-audit.v1",
+  "status": "pass",
+  "package_sha256": "6bd80f1b736881c67e8ac0026a491139390367e7354777fc3baa529c0ed0ed85",
+  "exporter_sha256": "7562e4af6aec3920e1fca909e795ff2a5f84b6d0f70791504b907905749eab6d",
+  "export_binary_sha256": "d8e9f82ed57bc79339b3e3e02e0a08678b85f1c25788fa1e37db35036babef29",
+  "compiler_library_sha256": "afeca1ff28f7b9937585d536c5fb736224886e82ff0aae856422aa3fdef3775a",
+  "shared_header_sha256": "e1b4a229e58227280e2a1e263fa6535f325333e9edcacfd93498f699790c30d3",
+  "export": {
+    "fingerprint": "c2e4ff30b9bee46f",
+    "physics_fingerprint": "c2e4ff30b9bee46f",
+    "nodes": 882,
+    "tetrahedra": 1920,
+    "tet_stride": 96,
+    "object_stride": 176,
+    "node_stride": 80
+  },
+  "capture_manifest_sha256": "fc104f3f5566e6021ef547f88907ceb9e355f69c11ff56b03b1274f8f977a6ac",
+  "payload_sha256": "8d9abb9f70df7c2793ce8eb61fb540fbb3d72e8cc3824442a9a68a7764e6a8ab",
+  "source_static_arrays": {
+    "tetrahedra.bin": "dfa561e55656a5be7e475ff5b43154e7c440451751e741b32e22145133604152",
+    "dispatch.bin": "c7dea427c617d00cf4a76960a457ac47e38387f3978742922a11a680929f72b3",
+    "nodes.bin": "e25c9ce6c0e7331a42a83c085bb5861f261dc1f535fe2c3c043ec841eeb77c3a",
+    "objects.bin": "2b9f4f510f4335658bf887e57c749ef1d82c8d4257da700f0a578f52908fa875",
+    "schedulers.bin": "5b2a4d7078285447e209d41ecfb64050f724ce1a05ac247d449584c2bdc6c1c8"
+  },
+  "world_fingerprint": "c2e4ff30b9bee46f",
+  "device_program_fingerprint": "12cb5be7a185ebaf",
+  "candidate_linearization_sha256": "3fbdef8ccbb382d8fc865e7ef1c6d53210cbdfe2b7b1e64e862c8e94439174d0",
+  "linearization_generation": 4294967296,
+  "dt_seconds": 9.999999747378752e-05,
+  "maximum_patch_error": 4.7239705650471473e-07,
+  "assembled_AP_relative_error": 9.898196578192723e-08,
+  "patches": [
+    {
+      "patch": 0,
+      "nodes": 256,
+      "dofs": 768,
+      "relative_frobenius_error_including_LU_roundoff": 4.585483448716128e-07,
+      "maximum_absolute_entry_error": 4.3766688440083357e-07,
+      "factor_valid": 1,
+      "gate_1e_3": true
+    },
+    {
+      "patch": 1,
+      "nodes": 256,
+      "dofs": 768,
+      "relative_frobenius_error_including_LU_roundoff": 4.034438871768371e-07,
+      "maximum_absolute_entry_error": 5.281167415605026e-07,
+      "factor_valid": 1,
+      "gate_1e_3": true
+    },
+    {
+      "patch": 2,
+      "nodes": 256,
+      "dofs": 768,
+      "relative_frobenius_error_including_LU_roundoff": 3.8213672845117194e-07,
+      "maximum_absolute_entry_error": 3.389211475357534e-07,
+      "factor_valid": 1,
+      "gate_1e_3": true
+    },
+    {
+      "patch": 3,
+      "nodes": 256,
+      "dofs": 768,
+      "relative_frobenius_error_including_LU_roundoff": 4.6321893575563956e-07,
+      "maximum_absolute_entry_error": 4.568847223884731e-07,
+      "factor_valid": 1,
+      "gate_1e_3": true
+    },
+    {
+      "patch": 4,
+      "nodes": 256,
+      "dofs": 768,
+      "relative_frobenius_error_including_LU_roundoff": 4.1987008359730196e-07,
+      "maximum_absolute_entry_error": 5.856402012227591e-07,
+      "factor_valid": 1,
+      "gate_1e_3": true
+    },
+    {
+      "patch": 5,
+      "nodes": 256,
+      "dofs": 768,
+      "relative_frobenius_error_including_LU_roundoff": 4.387371972528751e-07,
+      "maximum_absolute_entry_error": 4.4818763128562367e-07,
+      "factor_valid": 1,
+      "gate_1e_3": true
+    },
+    {
+      "patch": 6,
+      "nodes": 256,
+      "dofs": 768,
+      "relative_frobenius_error_including_LU_roundoff": 4.1467123115772633e-07,
+      "maximum_absolute_entry_error": 3.6117646118327684e-07,
+      "factor_valid": 1,
+      "gate_1e_3": true
+    },
+    {
+      "patch": 7,
+      "nodes": 256,
+      "dofs": 768,
+      "relative_frobenius_error_including_LU_roundoff": 4.7239705650471473e-07,
+      "maximum_absolute_entry_error": 5.464145591549396e-07,
+      "factor_valid": 1,
+      "gate_1e_3": true
+    },
+    {
+      "patch": 8,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_frobenius_error_including_LU_roundoff": 3.538785445236555e-08,
+      "maximum_absolute_entry_error": 2.3273827171044204e-09,
+      "factor_valid": 1,
+      "gate_1e_3": true
+    },
+    {
+      "patch": 9,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_frobenius_error_including_LU_roundoff": 5.823209584460407e-08,
+      "maximum_absolute_entry_error": 1.1626916152085442e-08,
+      "factor_valid": 1,
+      "gate_1e_3": true
+    },
+    {
+      "patch": 10,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_frobenius_error_including_LU_roundoff": 2.1084601777401695e-07,
+      "maximum_absolute_entry_error": 1.876757090013559e-08,
+      "factor_valid": 1,
+      "gate_1e_3": true
+    },
+    {
+      "patch": 11,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_frobenius_error_including_LU_roundoff": 4.2353098449286225e-09,
+      "maximum_absolute_entry_error": 4.60983806682691e-10,
+      "factor_valid": 1,
+      "gate_1e_3": true
+    },
+    {
+      "patch": 12,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_frobenius_error_including_LU_roundoff": 5.726744805727765e-08,
+      "maximum_absolute_entry_error": 7.360844503367936e-09,
+      "factor_valid": 1,
+      "gate_1e_3": true
+    }
+  ],
+  "wall_seconds": 0.4204521179199219,
+  "limitations": [
+    "Selected root0 Newton0 environment0 only",
+    "Patch error includes native FP32 matrix accumulation and LU factorization; unfactored patch matrices were not captured",
+    "A uses the same captured algorithmic tangents, so this does not independently validate the material derivative",
+    "No preconditioner action or whole nonlinear trajectory convergence qualification"
+  ]
+}

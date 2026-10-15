@@ -1,0 +1,68 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -9854,12 +9854,14 @@
+                     environments * sizeof(nm_float4);
+                 const NSUInteger lineSearchBytes =
+                     environments * sizeof(nm_float4);
++                const NSUInteger environmentLineSearchBytes =
++                    environments * sizeof(float);
+                 const NSUInteger statusBytes =
+                     environments * sizeof(NMMatterStatusGPU);
+                 const NSUInteger trialStatusBytes =
+                     environments * sizeof(NMMatterStatusGPU);
+                 const NSUInteger bytes = metricBytes + lineSearchBytes +
+-                    statusBytes + trialStatusBytes;
++                    statusBytes + trialStatusBytes + environmentLineSearchBytes;
+                 constexpr NSUInteger maximumSnapshotBytes = 16u * 1024u;
+                 if (environments == 0u || bytes > maximumSnapshotBytes) {
+                     if (!femResidualArmijoTraceNoticeLogged) {
+@@ -9916,6 +9918,10 @@
+                     toBuffer:snapshot destinationOffset:metricBytes +
+                         lineSearchBytes + statusBytes
+                     size:trialStatusBytes];
++                [copy copyFromBuffer:state.environmentLineSearch sourceOffset:0u
++                    toBuffer:snapshot destinationOffset:metricBytes + lineSearchBytes +
++                        statusBytes + trialStatusBytes
++                    size:environmentLineSearchBytes];
+                 [copy endEncoding];
+                 ++femResidualArmijoTraceRecords;
+                 const auto capturedRoot = request.controlStep;
+@@ -9924,6 +9930,7 @@
+                 const auto capturedMetricBytes = metricBytes;
+                 const auto capturedLineSearchBytes = lineSearchBytes;
+                 const auto capturedStatusBytes = statusBytes;
++                const auto capturedTrialStatusBytes = trialStatusBytes;
+                 const auto capturedAppendTraceFloat = appendTraceFloat;
+                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                     if (completed.status != MTLCommandBufferStatusCompleted) {
+@@ -9943,6 +9950,11 @@
+                         reinterpret_cast<const NMMatterStatusGPU*>(
+                             data + capturedMetricBytes + capturedLineSearchBytes +
+                                 capturedStatusBytes);
++                    const auto* environmentLineSearch =
++                        reinterpret_cast<const float*>(
++                            data + capturedMetricBytes + capturedLineSearchBytes +
++                                capturedStatusBytes +
++                                capturedTrialStatusBytes);
+                     std::ostringstream line;
+                     line << std::setprecision(9)
+                          << "fem_residual_armijo_iteration={\"schema\":1,\"root\":"
+@@ -9950,7 +9962,8 @@
+                          << capturedIteration
+                          << ",\"semantics\":{\"base_l2\":\"exact assembled free-node mechanical residual before this Newton correction, impulse units\","
+                          << "\"trial_l2\":\"selected residual if accepted, otherwise last tested residual\","
+-                         << "\"trial_alpha\":\"selected alpha if accepted, otherwise last tested alpha\"},\"environments\":[";
++                         << "\"trial_alpha\":\"selected alpha if accepted, otherwise last tested alpha\","
++                         << "\"environment_line_search_alpha\":\"environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently\"},\"environments\":[";
+                     for (std::uint32_t environment = 0u;
+                          environment < capturedEnvironments; ++environment) {
+                         if (environment != 0u) line << ',';
+@@ -9966,6 +9979,8 @@
+                              << (metrics[environment].w > 1.5f ? "true" : "false");
+                         line << ",\"selected_alpha\":";
+                         capturedAppendTraceFloat(line, lineSearch[environment].x);
++                        line << ",\"environment_line_search_alpha\":";
++                        capturedAppendTraceFloat(line, environmentLineSearch[environment]);
+                         line << ",\"minimum_J\":";
+                         capturedAppendTraceFloat(line, lineSearch[environment].y);
+                         line << ",\"line_search_raw\":[";

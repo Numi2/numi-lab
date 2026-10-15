@@ -1,0 +1,114 @@
+--- a/matter/tools/cardboard_free_box_angular_native_check.mm
++++ b/matter/tools/cardboard_free_box_angular_native_check.mm
+@@ -279,7 +279,7 @@
+         micro_.microtickCount=1;micro_.time={dt_,1/dt_,0,dt_};
+         object_.representation=NM_REPRESENTATION_FEM;object_.materialIndex=0;object_.flags=NM_OBJECT_ACTIVE;object_.solver.y=0;
+         material_.interfaceResponse={0,0,0,0};scheduler_.numerical.w=1;adaptive_.activeRepresentation=NM_REPRESENTATION_FEM;
+-        proxy_.shapeKind=NM_RIGID_BOX;proxy_.bodyIndex=0;proxy_.sceneBodyIndex=0;proxy_.flags=NM_RIGID_DYNAMIC;proxy_.generalizedFreeBodyIndex=0;
++        proxy_.shapeKind=NM_RIGID_BOX;proxy_.bodyIndex=0;proxy_.sceneBodyIndex=0;proxy_.flags=NM_RIGID_DYNAMIC;proxy_.generalizedFreeBodyIndex=0;proxy_.adaptiveObjectIndex=NM_INVALID_INDEX;
+         proxy_.localCenterAndRadius=f4(localCenter_);proxy_.localExtent=f4(half_);proxy_.localOrientation=q4(localOrientation_);
+         pair_.continuumNode=0;pair_.rigidProxy=0;pair_.objectIndex=0;pair_.materialInterface=0;
+         sourceInvI_={2.0,0,0,0,1.3,0,0,0,.7};
+@@ -306,8 +306,12 @@
+         const M3 Rbody=rotation(q4(mq4(qcandidate)));
+         const V3 proxyCenterOffset=multiply(Rbody,v3(proxy_.localCenterAndRadius));
+         const V3 pointOffset=add(proxyCenterOffset,multiply(Rproxy,vlocal));
+-        const V3 velocity=add(mul(normalApprox,-.5),mul(cross(v3(mf4(omega)),pointOffset),-1.0));
+-        s.body.position=mf4(center);s.body.orientation=mq4(qsource);s.body.linearVelocityAndInverseMass=mf4(velocity,.4);s.body.angularVelocity=mf4(omega);s.body.flagsAndIndices[0]=MR_MOTION_DYNAMIC;
++        const V3 bodyLinearVelocity=add(mul(normalApprox,.5),mul(cross(v3(mf4(omega)),pointOffset),-1.0));
++        const V3 rigidPointVelocity=add(bodyLinearVelocity,cross(v3(mf4(omega)),pointOffset));
++        const V3 relativePointVelocity=mul(rigidPointVelocity,-1.0); // node velocity is zero below
++        need(dot(relativePointVelocity,normalApprox)<-0.49,
++             "fixture must approach the BOX so production predictor admits a sample");
++        s.body.position=mf4(center);s.body.orientation=mq4(qsource);s.body.linearVelocityAndInverseMass=mf4(bodyLinearVelocity,.4);s.body.angularVelocity=mf4(omega);s.body.flagsAndIndices[0]=MR_MOTION_DYNAMIC;
+         // Accepted body inverse inertia is authored in world coordinates at qsource.
+         const M3 Rsource=rotation(q4(s.body.orientation)),Iworld0=multiply(multiply(Rsource,sourceInvI_),transpose(Rsource));
+         s.body.inverseInertiaWorldRow0={float(Iworld0[0]),float(Iworld0[1]),float(Iworld0[2]),0};s.body.inverseInertiaWorldRow1={float(Iworld0[3]),float(Iworld0[4]),float(Iworld0[5]),0};s.body.inverseInertiaWorldRow2={float(Iworld0[6]),float(Iworld0[7]),float(Iworld0[8]),0};
+@@ -357,6 +361,52 @@
+         const auto* out=static_cast<const nm_float4*>(workB.contents);std::array<double,6> result{};for(int i=0;i<6;++i)result[i]=out[2+i].x;return result;
+     }
+ };
++void printContactSetup(const char* stage, const ContactCase& c,
++                       const ProductionContact::State& state,
++                       const ContactEval& eval) {
++    std::cout << std::setprecision(10)
++              << "contact_setup stage=" << stage << " case=" << c.name
++              << " status=" << eval.status.code
++              << " object=" << eval.status.objectIndex
++              << " failing_index=" << eval.status.failingIndex
++              << " status_diag=" << eval.status.diagnostics.x << ","
++              << eval.status.diagnostics.y << "," << eval.status.diagnostics.z
++              << "," << eval.status.diagnostics.w
++              << " sample_identity=" << eval.sample.identity.x << ","
++              << eval.sample.identity.y << "," << eval.sample.identity.z
++              << "," << eval.sample.identity.w
++              << " sample_point_gap=" << eval.sample.pointAndSeparation.x << ","
++              << eval.sample.pointAndSeparation.y << ","
++              << eval.sample.pointAndSeparation.z << ","
++              << eval.sample.pointAndSeparation.w
++              << " sample_normal_velocity=" << eval.sample.normalAndVelocity.x
++              << "," << eval.sample.normalAndVelocity.y << ","
++              << eval.sample.normalAndVelocity.z << ","
++              << eval.sample.normalAndVelocity.w
++              << " sample_barrier=" << eval.sample.barrier.x << ","
++              << eval.sample.barrier.y << "," << eval.sample.barrier.z
++              << "," << eval.sample.barrier.w
++              << " sample_hessian_markers=" << eval.sample.barrierHessianRow0.w
++              << "," << eval.sample.barrierHessianRow1.w
++              << " node=" << state.node.positionAndMass.x << ","
++              << state.node.positionAndMass.y << ","
++              << state.node.positionAndMass.z << ","
++              << state.node.positionAndMass.w
++              << " node_inverse_mass=" << state.node.velocityAndInverseMass.w
++              << " rigid_center=" << eval.rigid.centerAndRadius.x << ","
++              << eval.rigid.centerAndRadius.y << ","
++              << eval.rigid.centerAndRadius.z
++              << " rigid_extent=" << eval.rigid.extent.x << ","
++              << eval.rigid.extent.y << "," << eval.rigid.extent.z
++              << " rigid_orientation=" << eval.rigid.orientation.x << ","
++              << eval.rigid.orientation.y << "," << eval.rigid.orientation.z
++              << "," << eval.rigid.orientation.w
++              << " rigid_inverse_mass="
++              << eval.rigid.linearVelocityAndInverseMass.w
++              << " authored_box_local_point=" << c.boxLocalPoint[0] << ","
++              << c.boxLocalPoint[1] << "," << c.boxLocalPoint[2] << "\n";
++}
++
+ struct OracleSample {
+     V3 witness{},normal{},impulse{},torque{};
+     double separation=0,normalVelocity=0,lambda=0,inverseResponse=0,stiffness=0;
+@@ -561,9 +611,16 @@
+     bool allSampleChecks=true,allResolved=true,anyResolvedActionFailure=false;double worstAbs=0,worstRel=0,worstDirectSampleRel=0,worstRepeatFloor=0;unsigned directionsChecked=0;
+     for(const auto& c:cases){
+         const auto state=scene.baseline(c);const auto sampleEval=scene.evaluate(state);
+-        need(sampleEval.status.code==NM_STATUS_SUCCESS,c.name+" production sample status="+std::to_string(sampleEval.status.code));
+-        need((sampleEval.sample.identity.w&NM_CONTACT_VALID)!=0,c.name+" did not produce a valid production contact sample");
+-        need(sampleEval.sample.barrierHessianRow0.w>0 && sampleEval.sample.barrierHessianRow1.w>0,c.name+" did not enter smooth free-BOX angular branch");
++        if (sampleEval.status.code != NM_STATUS_SUCCESS ||
++            (sampleEval.sample.identity.w & NM_CONTACT_VALID) == 0u ||
++            !(sampleEval.sample.barrierHessianRow0.w > 0.0f &&
++              sampleEval.sample.barrierHessianRow1.w > 0.0f)) {
++            printContactSetup("production_sample_rejected", c, state, sampleEval);
++            allSampleChecks = false;
++            std::cout << "action_case=" << c.name
++                      << " outcome=SKIPPED_AFTER_RETAINED_SAMPLE_FAILURE\n";
++            continue;
++        }
+         const auto oracle=fp64Sample(scene,state,sampleEval.rigid);const auto oracleR=energyScaled(contactResidual(oracle),scene.characteristicLength()),nativeR=energyScaled(sampleResidual(sampleEval.sample),scene.characteristicLength());
+         double residualError=0;for(size_t i=0;i<6;++i)residualError+=std::pow(nativeR[i]-oracleR[i],2);residualError=std::sqrt(residualError);
+         const double residualScale=std::max(vectorNorm(oracleR),1e-20);
+@@ -669,7 +726,13 @@
+ 
+ Outcome testInertiaAction(Device& d){
+     ProductionContact scene(d);const ContactCase c{"inertia_rotated_candidate",{-.052,.042,-.032}};
+-    const auto state=scene.baseline(c);const auto sample=scene.evaluate(state);need(sample.status.code==NM_STATUS_SUCCESS,"inertia fixture contact sample failed");
++    const auto state=scene.baseline(c);const auto sample=scene.evaluate(state);
++    if (sample.status.code != NM_STATUS_SUCCESS ||
++        (sample.sample.identity.w & NM_CONTACT_VALID) == 0u) {
++        printContactSetup("inertia_sample_rejected", c, state, sample);
++        std::cout << "inertia_action=SKIPPED_AFTER_RETAINED_SAMPLE_FAILURE\n";
++        return Outcome::fail;
++    }
+     const std::array<double,6> candidate{.0,.0,.0,.13,-.09,.17};const auto baseRigid=scene.candidateRigid(state,candidate);
+     const V3 candidateOmega{float(candidate[3]),float(candidate[4]),float(candidate[5])};
+     std::cout<<"inertia_chain_binding source_q0_omega0_dt_Iinv0_candidate_f32_words="

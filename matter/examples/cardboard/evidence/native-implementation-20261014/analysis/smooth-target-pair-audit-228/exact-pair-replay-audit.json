@@ -1,0 +1,4077 @@
+{
+  "schema": "numi.cardboard.exact-native-pair-replay-audit.v1",
+  "evidence_class": "CPU independent FP64 constitutive replay of captured native states; not a new native solver run or physical validation",
+  "replay_source_snapshot": "source-refined-graph-angular-residual-instrument-071 plus isolated two-word-direction reader extension",
+  "exact_direction_replay_source_sha256": "9dbe9379a2a350e6c5234151a3776ce6d83b2bf34b7742eb9df47b69a0809120",
+  "captures": {
+    "216": {
+      "capture": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-first-control-final-newton-capture-216/operator-capture",
+      "receipt": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-first-control-final-newton-capture-216/receipt.json",
+      "prediction": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-first-control-final-newton-capture-216/prediction.json",
+      "source_build": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-first-control-final-newton-capture-216/inputs/external/source-build.json",
+      "capture_sha256": "902298a2655399972a855b48e02dd0bcb221131bd9f5640e72d9aac8ab709c77",
+      "receipt_sha256": "f4b7544c749346625794db652b5bcd18f71f07368f43f598d54c47f4f91a87cc",
+      "prediction_sha256": "d6ed7a8bd8eb871a8ac4b877e1dc4f3990ed273b373c9a654072a31258f15fba",
+      "source_build_sha256": "2b76dadb4962122620bc75d2d484aa7de9347079f56f8ce10a29633d6c00297b",
+      "receipt_summary": {
+        "exit_code": 2,
+        "timed_out": false,
+        "source_inputs_unchanged": true,
+        "wall_seconds": 68.76003883400699
+      },
+      "prediction_summary": {
+        "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-graph-tail-guard-angular-instrument-069",
+        "source_binding_limitation": "Listed source, executable and Metal libraries retained; compiler system headers and OS/driver not archived.",
+        "executed_build_verified": true,
+        "build_provenance": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-069/source-build.json",
+        "timeout_seconds": 180
+      },
+      "native_probe_binary_sha256": "336c3c2df7766e4a33a923560a391aace4e664200e360a3de94e3c371bcac926",
+      "native_metallib_sha256": "e333aaffbef6e5142b51e3d7ce49c701b85f5de7f508ed5bbe93c45529117064",
+      "native_source_material_sha256": {
+        "liner": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+        "medium": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8"
+      },
+      "native_source_materials_match_FP64_replay": {
+        "liner": true,
+        "medium": true
+      },
+      "source_build_materials_match": {
+        "liner": true,
+        "medium": true
+      },
+      "header": {
+        "record": "header",
+        "schema": "numi.cardboard.fem-newton-capture.v1",
+        "root": 0,
+        "newton_iteration": 23,
+        "world_fingerprint_hex": "ef8f0d2c7d47c012",
+        "execution_fingerprint_hex": "34a06682b31c801f",
+        "environment_count": 2,
+        "node_count_per_environment": 882,
+        "tetrahedron_count_per_environment": 1920,
+        "center_residual_source": "pre_fgmres_private_copy",
+        "F_local_word_encoding": "high_float32_plus_low_float32_for_compensated_material_input; zero_low_for_other_materials",
+        "epsilon_values": [
+          0.03125,
+          0.015625
+        ],
+        "dt_seconds": 9.99999975e-05,
+        "dt_seconds_by_environment": [
+          9.99999975e-05,
+          9.99999975e-05
+        ],
+        "cached_algorithmic_tangent_capture": {
+          "policy_enabled": true,
+          "available": true,
+          "snapshot_bitwise_guard_included": true,
+          "source": "read-only snapshot of the production per-tetrahedron algorithmic tangent cache; no recomputation",
+          "matrix_layout": "row-major 9x9, local material frame",
+          "derivative_contract": "dP_local/dF_local at the captured Newton linearization; basis perturbation also induces delta(Fdot)=delta(F)/dt with fixed dt",
+          "units": "Pa per dimensionless F component",
+          "validity": "one cache-valid bit per environment/tetrahedron; matrix is null when invalid",
+          "unavailable_reason": null
+        },
+        "materials": [
+          {
+            "index": 0,
+            "name": "hajali2009_liner_hill_ideal",
+            "parameter_offset": 0,
+            "parameter_names": [
+              "density",
+              "c11",
+              "c22",
+              "c33",
+              "c12",
+              "c13",
+              "c23",
+              "g12",
+              "g13",
+              "g23",
+              "sigma_ref",
+              "hill_F",
+              "hill_G",
+              "hill_H",
+              "hill_L",
+              "hill_M",
+              "hill_N",
+              "q_floor",
+              "fb_epsilon",
+              "residual_scale"
+            ]
+          },
+          {
+            "index": 1,
+            "name": "hajali2009_medium_hill_ideal",
+            "parameter_offset": 20,
+            "parameter_names": [
+              "density",
+              "c11",
+              "c22",
+              "c33",
+              "c12",
+              "c13",
+              "c23",
+              "g12",
+              "g13",
+              "g23",
+              "sigma_ref",
+              "hill_F",
+              "hill_G",
+              "hill_H",
+              "hill_L",
+              "hill_M",
+              "hill_N",
+              "q_floor",
+              "fb_epsilon",
+              "residual_scale"
+            ]
+          },
+          {
+            "index": 2,
+            "name": "starch2007_finite_glue_elastic",
+            "parameter_offset": 40,
+            "parameter_names": [
+              "density",
+              "mu",
+              "lambda"
+            ]
+          }
+        ],
+        "parameters_by_environment": [
+          [
+            766,
+            4843625980.0,
+            2118009730.0,
+            19100028,
+            381243840,
+            228619.359,
+            208994.906,
+            1222000000.0,
+            166280000,
+            137280000,
+            22920000,
+            6.30766106,
+            2.98186493,
+            -1.98186493,
+            456012.5,
+            456012.5,
+            59.5608177,
+            1.99999999e-06,
+            9.99999994e-09,
+            10,
+            679,
+            4524848640.0,
+            1631051260.0,
+            17900030,
+            293591136,
+            213716.359,
+            192867.016,
+            1039000000.0,
+            226340000,
+            198720000,
+            9391000,
+            5.61205196,
+            2.84109926,
+            -1.84109914,
+            76554.5859,
+            76554.5859,
+            9.99896622,
+            1.99999999e-06,
+            9.99999994e-09,
+            10,
+            1500,
+            153846160,
+            230769232
+          ],
+          [
+            766,
+            4843625980.0,
+            2118009730.0,
+            19100028,
+            381243840,
+            228619.359,
+            208994.906,
+            1222000000.0,
+            166280000,
+            137280000,
+            22920000,
+            6.30766106,
+            2.98186493,
+            -1.98186493,
+            456012.5,
+            456012.5,
+            59.5608177,
+            1.99999999e-06,
+            9.99999994e-09,
+            10,
+            679,
+            4524848640.0,
+            1631051260.0,
+            17900030,
+            293591136,
+            213716.359,
+            192867.016,
+            1039000000.0,
+            226340000,
+            198720000,
+            9391000,
+            5.61205196,
+            2.84109926,
+            -1.84109914,
+            76554.5859,
+            76554.5859,
+            9.99896622,
+            1.99999999e-06,
+            9.99999994e-09,
+            10,
+            1500,
+            153846160,
+            230769232
+          ]
+        ],
+        "units": {
+          "position": "m",
+          "mass": "kg",
+          "velocity": "m/s",
+          "residual_and_operator_action": "N*s",
+          "element_force": "N",
+          "operator_element_force": "N/s",
+          "deformation_gradient": "dimensionless",
+          "first_piola": "Pa",
+          "tangent_per_velocity": "Pa/s",
+          "dt": "s"
+        },
+        "direction_contract": {
+          "unknown": "delta_v in m/s",
+          "local_F_direction": "grad(delta_v), per second",
+          "side_F": "F_center +/- epsilon*dt*local_F_direction",
+          "residual": "R=dt*(f_internal+f_external+m*g)-m*(v-v_old)",
+          "operator": "A*delta_v=M*delta_v-dt^2*K(delta_v)",
+          "centered_difference": "-(R_plus-R_minus)/(2*epsilon)"
+        },
+        "production_inputs_bitwise_unchanged": true
+      },
+      "integrity": {
+        "record": "integrity",
+        "production_inputs_bitwise_unchanged": true,
+        "cached_tangent_snapshot_bitwise_guard_included": true
+      },
+      "selected_tets": [
+        {
+          "tet_id": 441,
+          "grade": "liner",
+          "material_index": 0,
+          "center": {
+            "native_trial_q_from_capture": 0.0287671201,
+            "FP64_trial_q_at_exact_native_F": 0.02876712203487517,
+            "branch": "elastic",
+            "native_lambda_increment": 0.0,
+            "FP64_lambda_increment": 0.0,
+            "native_projected_state_vs_FP64": {
+              "absolute_error": 2.855581049399092e-11,
+              "reference_max_abs": 0.01206797079121548,
+              "relative_error": 2.366247896023851e-09
+            },
+            "native_stress_vs_FP64_candidate_state": {
+              "absolute_error": 0.012511263659689575,
+              "reference_max_abs": 276613.66876126366,
+              "relative_error": 4.5230099133270394e-08
+            },
+            "native_stress_vs_FP64_reprojected_state": {
+              "absolute_error": 0.012511263659689575,
+              "reference_max_abs": 276613.66876126366,
+              "relative_error": 4.5230099133270394e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_candidate": {
+              "absolute_error": 3.6895592659711838,
+              "reference_max_abs": 107289628.31044073,
+              "relative_error": 3.438877852475643e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_reprojected": {
+              "absolute_error": 3.6895592659711838,
+              "reference_max_abs": 107289628.31044073,
+              "relative_error": 3.438877852475643e-08
+            },
+            "native_algorithmic_tangent_abs_max_Pa_per_s": 107289632.0,
+            "observed_native_minus_FP64_stress_max_abs_Pa": 0.012511263659689575,
+            "native_local_residual_at_captured_candidate_scaled_inf": 5.798996394190681e-09,
+            "native_internal_force_vs_FP64_Pa_stress_force": {
+              "absolute_error": 4.917273616067419e-09,
+              "reference_max_abs": 0.12810202397741932,
+              "relative_error": 3.838560440648613e-08
+            },
+            "native_internal_force_observed_abs_discrepancy_max_N": 4.917273616067419e-09
+          },
+          "pairs": [
+            {
+              "pair": 0,
+              "epsilon": 0.03125,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "elastic",
+                "elastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                0.029345330151484605,
+                0.02876712203487517,
+                0.028192411861279108
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 24629.29025810957,
+                "reference_max_abs": 107289632.0,
+                "relative_error": 0.00022955890330679453
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 25051.211521983147,
+                "reference_max_abs": 107289628.31044073,
+                "relative_error": 0.00023349145594481777
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 0.20609407126903534,
+                "reference_max_abs": 107264577.30501282,
+                "relative_error": 1.9213618926870454e-09
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.002660067577380687,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.002610046532936394,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0002860005224647466,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 4.008992567183789e-05,
+                "reference_max_abs": 0.44340693950653076,
+                "relative_error": 9.041339252934136e-05
+              },
+              "realized_F_direction_max_abs_delta_per_s": 4.008992567183789e-05,
+              "nominal_direction_inf_per_s": 0.44340693950653076,
+              "realized_direction_inf_per_s": 0.443419702200316,
+              "nominal_F_endpoint_delta_inf": 2.771293301907058e-06,
+              "actual_native_F_endpoint_delta_inf": 6.291765885790834e-07,
+              "native_F_endpoint_delta_inf_error": 2.182759102284043e-06,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 0.011415690055038397,
+                "reference_max_abs": 52.82434842500691,
+                "relative_error": 0.00021610659469363636
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 1.2402354698792806e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 1.2128704152125636e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 2.8378503106468722e-11,
+              "native_plus_minus_stress_abs_delta_Pa": 670.40625,
+              "fp64_plus_minus_stress_abs_delta_Pa": 670.4035899324226,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            },
+            {
+              "pair": 1,
+              "epsilon": 0.015625,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "elastic",
+                "elastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                0.0290558428238085,
+                0.02876712203487517,
+                0.028482561571037852
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 239629.29568946362,
+                "reference_max_abs": 107289632.0,
+                "relative_error": 0.0022334804512095224
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 245518.7135219574,
+                "reference_max_abs": 107289628.31044073,
+                "relative_error": 0.0022883732322340903
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 0.3389651030302048,
+                "reference_max_abs": 107044109.93588388,
+                "relative_error": 3.1665927553905995e-09
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.018415960134007037,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.007498797262087464,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.010917162871919572,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.00022106588223390344,
+                "reference_max_abs": 0.44340693950653076,
+                "relative_error": 0.0004985620714008862
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.00022106588223390344,
+              "nominal_direction_inf_per_s": 0.44340693950653076,
+              "realized_direction_inf_per_s": 0.44338686845709496,
+              "nominal_F_endpoint_delta_inf": 1.385646650953529e-06,
+              "actual_native_F_endpoint_delta_inf": 6.291765885790834e-07,
+              "native_F_endpoint_delta_inf_error": 8.898702216415504e-07,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 0.12353737272995602,
+                "reference_max_abs": 52.82434842500691,
+                "relative_error": 0.0023386445155180323
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 8.499922016236283e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 3.459980107978211e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 5.044281742305756e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 334.53125,
+              "fp64_plus_minus_stress_abs_delta_Pa": 334.512834039866,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            }
+          ]
+        },
+        {
+          "tet_id": 518,
+          "grade": "liner",
+          "material_index": 0,
+          "center": {
+            "native_trial_q_from_capture": 0.99999994,
+            "FP64_trial_q_at_exact_native_F": 2.309470432319127,
+            "branch": "plastic",
+            "native_lambda_increment": 1.9798091474443869e-07,
+            "FP64_lambda_increment": 1.9798091475736793e-07,
+            "native_projected_state_vs_FP64": {
+              "absolute_error": 9.934587874571577e-14,
+              "reference_max_abs": 0.009153013327059195,
+              "relative_error": 1.0853898622874064e-11
+            },
+            "native_stress_vs_FP64_candidate_state": {
+              "absolute_error": 0.0009326361468993127,
+              "reference_max_abs": 209783.26469236385,
+              "relative_error": 4.445712808726543e-09
+            },
+            "native_stress_vs_FP64_reprojected_state": {
+              "absolute_error": 0.0009326384169980884,
+              "reference_max_abs": 209783.26469236158,
+              "relative_error": 4.4457236298889895e-09
+            },
+            "native_algorithmic_tangent_vs_FP64_candidate": {
+              "absolute_error": 60.0614275932312,
+              "reference_max_abs": 1179153468.0614276,
+              "relative_error": 5.0936056433751945e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_reprojected": {
+              "absolute_error": 60.06051301956177,
+              "reference_max_abs": 1179153468.060513,
+              "relative_error": 5.09352808149308e-08
+            },
+            "native_algorithmic_tangent_abs_max_Pa_per_s": 1179153408.0,
+            "observed_native_minus_FP64_stress_max_abs_Pa": 0.0009326361468993127,
+            "native_local_residual_at_captured_candidate_scaled_inf": 8.594477907131193e-10,
+            "native_internal_force_vs_FP64_Pa_stress_force": {
+              "absolute_error": 5.554453258449499e-09,
+              "reference_max_abs": 0.0964722130782448,
+              "relative_error": 5.7575679889757493e-08
+            },
+            "native_internal_force_observed_abs_discrepancy_max_N": 5.554453258449499e-09
+          },
+          "pairs": [
+            {
+              "pair": 0,
+              "epsilon": 0.03125,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "plastic",
+                "plastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": true,
+              "FP64_trial_q_minus_center_plus": [
+                4.5357892710222,
+                2.309470432319127,
+                0.08423623698016015
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                5.345751919993341e-07,
+                1.9798091475736793e-07,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                5.345751787899644e-07,
+                1.9798091474443869e-07,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 3518486142.5746117,
+                "reference_max_abs": 1179153408.0,
+                "relative_error": 2.9839087252798
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 3518486091.2244287,
+                "reference_max_abs": 1179153468.0614276,
+                "relative_error": 2.983908529742911
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 3518486021.5446434,
+                "reference_max_abs": 1179156118.8279445,
+                "relative_error": 2.9839017627639857
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.0060646418714895844,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.005687515891622752,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0006273623766901437,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.00012693731105917205,
+                "reference_max_abs": 95.88673400878906,
+                "relative_error": 1.3238255778691645e-06
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.00012693731105917205,
+              "nominal_direction_inf_per_s": 95.88673400878906,
+              "realized_direction_inf_per_s": 95.88671138507337,
+              "nominal_F_endpoint_delta_inf": 0.0005992920724155401,
+              "actual_native_F_endpoint_delta_inf": 6.291765885790834e-07,
+              "native_F_endpoint_delta_inf_error": 0.000599695091074541,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 4031.564368166488,
+                "reference_max_abs": 548.8120201017413,
+                "relative_error": 7.34598409017918
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 2.8044346706002088e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 2.629648679364216e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 7.188531922497354e-10,
+              "native_plus_minus_stress_abs_delta_Pa": 21991.641357421875,
+              "fp64_plus_minus_stress_abs_delta_Pa": 21991.642035386874,
+              "smooth_tangent_verdict": "not_admissible_branch_crossing_or_near_yield"
+            },
+            {
+              "pair": 1,
+              "epsilon": 0.015625,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "plastic",
+                "plastic",
+                "plastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                3.422626709305121,
+                2.309470432319127,
+                1.1963411750910384
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                3.6627707612419854e-07,
+                1.9798091475736793e-07,
+                2.9686293930726856e-08
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                3.66277078001076e-07,
+                1.9798091474443869e-07,
+                2.9686294311659367e-08
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 1692163.8747698516,
+                "reference_max_abs": 1179153408.0,
+                "relative_error": 0.0014350667718799925
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 1692152.97960331,
+                "reference_max_abs": 1179153468.0614276,
+                "relative_error": 0.0014350574589627192
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 1692379.8268045913,
+                "reference_max_abs": 1179149434.1225555,
+                "relative_error": 0.0014352547504413193
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.0020762370550073683,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.005381120223319158,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0033048831683117896,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 2.6387361435453727e-05,
+                "reference_max_abs": 95.88673400878906,
+                "relative_error": 2.751930359108387e-07
+              },
+              "realized_F_direction_max_abs_delta_per_s": 2.6387361435453727e-05,
+              "nominal_direction_inf_per_s": 95.88673400878906,
+              "realized_direction_inf_per_s": 95.88673784308315,
+              "nominal_F_endpoint_delta_inf": 0.00029964603620777006,
+              "actual_native_F_endpoint_delta_inf": 6.291765885790834e-07,
+              "native_F_endpoint_delta_inf_error": 0.000300049054866771,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 1.9406438447148275,
+                "reference_max_abs": 548.8120201017413,
+                "relative_error": 0.0035360811600938734
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 1.5836572747618405e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 2.8279310143597414e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 1.5313292994756367e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 3684.8447265625,
+              "fp64_plus_minus_stress_abs_delta_Pa": 3684.844606981358,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            }
+          ]
+        },
+        {
+          "tet_id": 633,
+          "grade": "medium",
+          "material_index": 1,
+          "center": {
+            "native_trial_q_from_capture": 0.0491805859,
+            "FP64_trial_q_at_exact_native_F": 0.04918058627292022,
+            "branch": "elastic",
+            "native_lambda_increment": 0.0,
+            "FP64_lambda_increment": 0.0,
+            "native_projected_state_vs_FP64": {
+              "absolute_error": 4.756945566619653e-10,
+              "reference_max_abs": 0.01783143776540937,
+              "relative_error": 2.6677296745232163e-08
+            },
+            "native_stress_vs_FP64_candidate_state": {
+              "absolute_error": 0.00312575681891758,
+              "reference_max_abs": 129112.45781174318,
+              "relative_error": 2.4209567937086258e-08
+            },
+            "native_stress_vs_FP64_reprojected_state": {
+              "absolute_error": 0.00312575681891758,
+              "reference_max_abs": 129112.45781174318,
+              "relative_error": 2.4209567937086258e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_candidate": {
+              "absolute_error": 0.4516486171633005,
+              "reference_max_abs": 16176699.74916285,
+              "relative_error": 2.791970081454182e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_reprojected": {
+              "absolute_error": 0.4479977134615183,
+              "reference_max_abs": 16176699.749158302,
+              "relative_error": 2.7694011782893372e-08
+            },
+            "native_algorithmic_tangent_abs_max_Pa_per_s": 16176700.0,
+            "observed_native_minus_FP64_stress_max_abs_Pa": 0.00312575681891758,
+            "native_local_residual_at_captured_candidate_scaled_inf": 5.629212651570015e-09,
+            "native_internal_force_vs_FP64_Pa_stress_force": {
+              "absolute_error": 2.1618267459153073e-08,
+              "reference_max_abs": 0.042133902567972115,
+              "relative_error": 5.130848590224371e-07
+            },
+            "native_internal_force_observed_abs_discrepancy_max_N": 2.1618267459153073e-08
+          },
+          "pairs": [
+            {
+              "pair": 0,
+              "epsilon": 0.03125,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "elastic",
+                "elastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                0.04746525116529803,
+                0.04918058627292022,
+                0.05093900942548654
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 19419.72426390089,
+                "reference_max_abs": 16176700.0,
+                "relative_error": 0.00120047502048631
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 20108.307623190805,
+                "reference_max_abs": 16176699.74916285,
+                "relative_error": 0.001243041407394077
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 0.028457278502173722,
+                "reference_max_abs": 16177935.46354795,
+                "relative_error": 1.7590179269965275e-09
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.004306468690629117,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.001513678696937859,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.002792789993691258,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 6.425423209437814e-05,
+                "reference_max_abs": 0.11424961686134338,
+                "relative_error": 0.0005624021669355699
+              },
+              "realized_F_direction_max_abs_delta_per_s": 6.425423209437814e-05,
+              "nominal_direction_inf_per_s": 0.11424961686134338,
+              "realized_direction_inf_per_s": 0.11424799883875714,
+              "nominal_F_endpoint_delta_inf": 7.140600873447206e-07,
+              "actual_native_F_endpoint_delta_inf": 6.291765885790834e-07,
+              "native_F_endpoint_delta_inf_error": 7.115744157759416e-07,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 0.018170161431527276,
+                "reference_max_abs": 38.58151504820094,
+                "relative_error": 0.00047095510398766863
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 2.0102012298879937e-08,
+              "native_plus_force_vs_FP64_abs_max_N": 6.154575730998868e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 1.9059514660968446e-08,
+              "native_plus_minus_stress_abs_delta_Pa": 101.1121826171875,
+              "fp64_plus_minus_stress_abs_delta_Pa": 101.11209412865742,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            },
+            {
+              "pair": 1,
+              "epsilon": 0.015625,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "elastic",
+                "elastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                0.04831434286059305,
+                0.04918058627292022,
+                0.050057561962687236
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 66581.34703844786,
+                "reference_max_abs": 16176700.0,
+                "relative_error": 0.004115879446268266
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 65677.61605450884,
+                "reference_max_abs": 16176699.74916285,
+                "relative_error": 0.004060013295227765
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 0.03139035403728485,
+                "reference_max_abs": 16175932.81018197,
+                "relative_error": 1.940559126057085e-09
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.0028243702254258096,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.001342071729595773,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.002790632890537381,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.0002220277776861443,
+                "reference_max_abs": 0.11424961686134338,
+                "relative_error": 0.0019433568688077404
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.0002220277776861443,
+              "nominal_direction_inf_per_s": 0.11424961686134338,
+              "realized_direction_inf_per_s": 0.11425072732293139,
+              "nominal_F_endpoint_delta_inf": 3.570300436723603e-07,
+              "actual_native_F_endpoint_delta_inf": 6.291765885790834e-07,
+              "native_F_endpoint_delta_inf_error": 5.125209535502706e-07,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 0.1164182357129846,
+                "reference_max_abs": 38.58151504820094,
+                "relative_error": 0.0030174614855725626
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 2.006758037520484e-08,
+              "native_plus_force_vs_FP64_abs_max_N": 2.0284966484318545e-08,
+              "native_minus_force_vs_FP64_abs_max_N": 1.5865355708875872e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 50.5498046875,
+              "fp64_plus_minus_stress_abs_delta_Pa": 50.54978875860388,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            }
+          ]
+        },
+        {
+          "tet_id": 702,
+          "grade": "medium",
+          "material_index": 1,
+          "center": {
+            "native_trial_q_from_capture": 1,
+            "FP64_trial_q_at_exact_native_F": 1.021463029696243,
+            "branch": "plastic",
+            "native_lambda_increment": 5.8167021301884174e-09,
+            "FP64_lambda_increment": 5.816702732227938e-09,
+            "native_projected_state_vs_FP64": {
+              "absolute_error": 5.677187019104135e-12,
+              "reference_max_abs": 0.009767594947440911,
+              "relative_error": 5.812267041838734e-10
+            },
+            "native_stress_vs_FP64_candidate_state": {
+              "absolute_error": 0.0022409148659789935,
+              "reference_max_abs": 76571.44307158513,
+              "relative_error": 2.9265673677901125e-08
+            },
+            "native_stress_vs_FP64_reprojected_state": {
+              "absolute_error": 0.0022822245955467224,
+              "reference_max_abs": 76571.4430302754,
+              "relative_error": 2.980516632871029e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_candidate": {
+              "absolute_error": 6.381656676530838,
+              "reference_max_abs": 165206975.66440442,
+              "relative_error": 3.862825192983563e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_reprojected": {
+              "absolute_error": 45.6288905441761,
+              "reference_max_abs": 165207007.65972525,
+              "relative_error": 2.761922220524528e-07
+            },
+            "native_algorithmic_tangent_abs_max_Pa_per_s": 165206976.0,
+            "observed_native_minus_FP64_stress_max_abs_Pa": 0.0022409148659789935,
+            "native_local_residual_at_captured_candidate_scaled_inf": 1.017451101148481e-08,
+            "native_internal_force_vs_FP64_Pa_stress_force": {
+              "absolute_error": 2.0375977002884404e-08,
+              "reference_max_abs": 0.04845139209317163,
+              "relative_error": 4.205447175532452e-07
+            },
+            "native_internal_force_observed_abs_discrepancy_max_N": 2.0375977002884404e-08
+          },
+          "pairs": [
+            {
+              "pair": 0,
+              "epsilon": 0.03125,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "plastic",
+                "plastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": true,
+              "FP64_trial_q_minus_center_plus": [
+                1.0828885298040478,
+                1.021463029696243,
+                0.9600387960931112
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                2.2463558665472123e-08,
+                5.816702732227938e-09,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                2.2463558124741212e-08,
+                5.8167021301884174e-09,
+                1.2212449035711986e-15
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 118970783.59504813,
+                "reference_max_abs": 165206976.0,
+                "relative_error": 0.7201317188630589
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 118970334.86079198,
+                "reference_max_abs": 165206975.66440442,
+                "relative_error": 0.7201290041315452
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 118898416.22530171,
+                "reference_max_abs": 165118813.16006315,
+                "relative_error": 0.7200779484167183
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.0027647036768030375,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.0018481239894754253,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0014272748085204512,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 6.889033303569825e-05,
+                "reference_max_abs": 1.8446921110153198,
+                "relative_error": 3.734516596256324e-05
+              },
+              "realized_F_direction_max_abs_delta_per_s": 6.889033303569825e-05,
+              "nominal_direction_inf_per_s": 1.8446921110153198,
+              "realized_direction_inf_per_s": 1.8446232206822841,
+              "nominal_F_endpoint_delta_inf": 1.1529325402590484e-05,
+              "actual_native_F_endpoint_delta_inf": 6.291765885790834e-07,
+              "native_F_endpoint_delta_inf_error": 1.09001488140114e-05,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 336.79486249729825,
+                "reference_max_abs": 108.26598614177463,
+                "relative_error": 3.1108095395377857
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 9.813633003452615e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 8.434044795890827e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 7.555076904364189e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 1637.79296875,
+              "fp64_plus_minus_stress_abs_delta_Pa": 1637.7906057372675,
+              "smooth_tangent_verdict": "not_admissible_branch_crossing_or_near_yield"
+            },
+            {
+              "pair": 1,
+              "epsilon": 0.015625,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "plastic",
+                "plastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": true,
+              "FP64_trial_q_minus_center_plus": [
+                1.0521796722547774,
+                1.021463029696243,
+                0.990751180498078
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                1.4141199356715504e-08,
+                5.816702732227938e-09,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                1.4141199322637021e-08,
+                5.8167021301884174e-09,
+                5.412302093180327e-15
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 55035480.895605505,
+                "reference_max_abs": 165206976.0,
+                "relative_error": 0.33313049017739726
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 55035182.22453742,
+                "reference_max_abs": 165206975.66440442,
+                "relative_error": 0.3331286829941971
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 55036442.19104719,
+                "reference_max_abs": 165314731.9849964,
+                "relative_error": 0.3329191629215609
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.0012269652797840536,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.0005395029074861668,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0017664681872702204,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 9.70087345308901e-05,
+                "reference_max_abs": 1.8446921110153198,
+                "relative_error": 5.258803566818336e-05
+              },
+              "realized_F_direction_max_abs_delta_per_s": 9.70087345308901e-05,
+              "nominal_direction_inf_per_s": 1.8446921110153198,
+              "realized_direction_inf_per_s": 1.8447891197498507,
+              "nominal_F_endpoint_delta_inf": 5.764662701295242e-06,
+              "actual_native_F_endpoint_delta_inf": 6.291765885790834e-07,
+              "native_F_endpoint_delta_inf_error": 5.1354861127161585e-06,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 155.94962776326724,
+                "reference_max_abs": 108.26598614177463,
+                "relative_error": 1.4404304927223472
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 6.123397441881728e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 2.245692735936e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 6.053399677352633e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 656.81640625,
+              "fp64_plus_minus_stress_abs_delta_Pa": 656.8176332152798,
+              "smooth_tangent_verdict": "not_admissible_branch_crossing_or_near_yield"
+            }
+          ]
+        },
+        {
+          "tet_id": 776,
+          "grade": "medium",
+          "material_index": 1,
+          "center": {
+            "native_trial_q_from_capture": 0.999999166,
+            "FP64_trial_q_at_exact_native_F": 1.0002293965905171,
+            "branch": "plastic",
+            "native_lambda_increment": 6.238384185146522e-11,
+            "FP64_lambda_increment": 6.238378713602244e-11,
+            "native_projected_state_vs_FP64": {
+              "absolute_error": 5.04870451001338e-13,
+              "reference_max_abs": 0.0074568132408686415,
+              "relative_error": 6.770592674016411e-11
+            },
+            "native_stress_vs_FP64_candidate_state": {
+              "absolute_error": 0.0017934104398591444,
+              "reference_max_abs": 62850.544575238186,
+              "relative_error": 2.853452507022049e-08
+            },
+            "native_stress_vs_FP64_reprojected_state": {
+              "absolute_error": 0.0017964712969842367,
+              "reference_max_abs": 62850.54457899303,
+              "relative_error": 2.858322563500402e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_candidate": {
+              "absolute_error": 9.514417707920074,
+              "reference_max_abs": 290891392.48445815,
+              "relative_error": 3.270780075910432e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_reprojected": {
+              "absolute_error": 561.8153252005577,
+              "reference_max_abs": 290891392.55447847,
+              "relative_error": 1.931357680496993e-06
+            },
+            "native_algorithmic_tangent_abs_max_Pa_per_s": 290891392.0,
+            "observed_native_minus_FP64_stress_max_abs_Pa": 0.0017934104398591444,
+            "native_local_residual_at_captured_candidate_scaled_inf": 4.072697040724549e-14,
+            "native_internal_force_vs_FP64_Pa_stress_force": {
+              "absolute_error": 1.194823630312758e-08,
+              "reference_max_abs": 0.04670160058624572,
+              "relative_error": 2.55842115754947e-07
+            },
+            "native_internal_force_observed_abs_discrepancy_max_N": 1.194823630312758e-08
+          },
+          "pairs": [
+            {
+              "pair": 0,
+              "epsilon": 0.03125,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "plastic",
+                "plastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": true,
+              "FP64_trial_q_minus_center_plus": [
+                1.0556343827593453,
+                1.0002293965905171,
+                0.9448480102588863
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                1.507701078491573e-08,
+                6.238378713602244e-11,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                1.5077009862807245e-08,
+                6.238384185146522e-11,
+                9.99201251558233e-16
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 163014224.20642066,
+                "reference_max_abs": 290891392.0,
+                "relative_error": 0.5603954901711931
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 163013827.23163375,
+                "reference_max_abs": 290891392.48445815,
+                "relative_error": 0.5603941245540406
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 162980695.70852053,
+                "reference_max_abs": 290889992.185662,
+                "relative_error": 0.5602829251152006
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.0024811057228362188,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.0009010278408823069,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0018406052695354447,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.00021052942073515601,
+                "reference_max_abs": 2.7334954738616943,
+                "relative_error": 7.701839009732639e-05
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.00021052942073515601,
+              "nominal_direction_inf_per_s": 2.7334954738616943,
+              "realized_direction_inf_per_s": 2.7334256462781408,
+              "nominal_F_endpoint_delta_inf": 1.708434628004869e-05,
+              "actual_native_F_endpoint_delta_inf": 6.291765885790834e-07,
+              "native_F_endpoint_delta_inf_error": 1.6455169691469607e-05,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 461.6888397093795,
+                "reference_max_abs": 184.16419274061744,
+                "relative_error": 2.5069414028797468
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 8.47451666480259e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 4.273365064588752e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 1.0811346533301514e-08,
+              "native_plus_minus_stress_abs_delta_Pa": 2635.5546875,
+              "fp64_plus_minus_stress_abs_delta_Pa": 2635.552789077068,
+              "smooth_tangent_verdict": "not_admissible_branch_crossing_or_near_yield"
+            },
+            {
+              "pair": 1,
+              "epsilon": 0.015625,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "plastic",
+                "plastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": true,
+              "FP64_trial_q_minus_center_plus": [
+                1.027930728262964,
+                1.0002293965905171,
+                0.9725381308243353
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                7.569258863963838e-09,
+                6.238378713602244e-11,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                7.569258109185739e-09,
+                6.238384185146522e-11,
+                1.8041132620488266e-15
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 162409224.19113708,
+                "reference_max_abs": 290891392.0,
+                "relative_error": 0.5583156760827666
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 162409222.9916811,
+                "reference_max_abs": 290891392.48445815,
+                "relative_error": 0.5583156710295523
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 162296823.29947853,
+                "reference_max_abs": 290887720.490896,
+                "relative_error": 0.5579363165471194
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.0032840303974808194,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.0015529199081356637,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0017311104893451557,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.00030175685753527914,
+                "reference_max_abs": 2.7334954738616943,
+                "relative_error": 0.00011039230187894835
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.00030175685753527914,
+              "nominal_direction_inf_per_s": 2.7334954738616943,
+              "realized_direction_inf_per_s": 2.733521756245,
+              "nominal_F_endpoint_delta_inf": 8.542173140024345e-06,
+              "actual_native_F_endpoint_delta_inf": 6.291765885790834e-07,
+              "native_F_endpoint_delta_inf_error": 7.912996551445262e-06,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 459.71268611220256,
+                "reference_max_abs": 184.16419274061744,
+                "relative_error": 2.496211012961006
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 9.523094292307466e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 1.7818632819244229e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 8.901174387843103e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 1315.73046875,
+              "fp64_plus_minus_stress_abs_delta_Pa": 1315.7271847196025,
+              "smooth_tangent_verdict": "not_admissible_branch_crossing_or_near_yield"
+            }
+          ]
+        },
+        {
+          "tet_id": 1388,
+          "grade": "liner",
+          "material_index": 0,
+          "center": {
+            "native_trial_q_from_capture": 0.0214917175,
+            "FP64_trial_q_at_exact_native_F": 0.02149171710395507,
+            "branch": "elastic",
+            "native_lambda_increment": 0.0,
+            "FP64_lambda_increment": 0.0,
+            "native_projected_state_vs_FP64": {
+              "absolute_error": 3.870721833332258e-10,
+              "reference_max_abs": 0.012562554873884104,
+              "relative_error": 3.081158149907053e-08
+            },
+            "native_stress_vs_FP64_candidate_state": {
+              "absolute_error": 0.005659831804223359,
+              "reference_max_abs": 287951.0369098318,
+              "relative_error": 1.9655535416584255e-08
+            },
+            "native_stress_vs_FP64_reprojected_state": {
+              "absolute_error": 0.005659831804223359,
+              "reference_max_abs": 287951.0369098318,
+              "relative_error": 1.9655535416584255e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_candidate": {
+              "absolute_error": 2.959395870566368,
+              "reference_max_abs": 88055354.95939587,
+              "relative_error": 3.36083577419114e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_reprojected": {
+              "absolute_error": 2.9592507630586624,
+              "reference_max_abs": 88055354.95925076,
+              "relative_error": 3.3606709829607866e-08
+            },
+            "native_algorithmic_tangent_abs_max_Pa_per_s": 88055352.0,
+            "observed_native_minus_FP64_stress_max_abs_Pa": 0.005659831804223359,
+            "native_local_residual_at_captured_candidate_scaled_inf": 4.626237615212858e-09,
+            "native_internal_force_vs_FP64_Pa_stress_force": {
+              "absolute_error": 8.181461426685823e-09,
+              "reference_max_abs": 0.13290858365192676,
+              "relative_error": 6.155705825676533e-08
+            },
+            "native_internal_force_observed_abs_discrepancy_max_N": 8.181461426685823e-09
+          },
+          "pairs": [
+            {
+              "pair": 0,
+              "epsilon": 0.03125,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "elastic",
+                "elastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                0.020386786173633965,
+                0.02149171710395507,
+                0.022648845742903906
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 224650.23014043272,
+                "reference_max_abs": 88055352.0,
+                "relative_error": 0.002551238795120968
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 226208.2513125986,
+                "reference_max_abs": 88055354.95939587,
+                "relative_error": 0.002568932365520619
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 0.16835971176624298,
+                "reference_max_abs": 88281563.04234876,
+                "relative_error": 1.907076698285016e-09
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.009756128303706646,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.0045667755184695125,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.014322903822176158,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 7.944840949307462e-05,
+                "reference_max_abs": 0.20123952627182007,
+                "relative_error": 0.0003947952520309621
+              },
+              "realized_F_direction_max_abs_delta_per_s": 7.944840949307462e-05,
+              "nominal_direction_inf_per_s": 0.20123952627182007,
+              "realized_direction_inf_per_s": 0.20117234471538958,
+              "nominal_F_endpoint_delta_inf": 1.2577470074255127e-06,
+              "actual_native_F_endpoint_delta_inf": 6.291765885790834e-07,
+              "native_F_endpoint_delta_inf_error": 6.285704188464293e-07,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 0.11342150345273438,
+                "reference_max_abs": 41.27879285644478,
+                "relative_error": 0.0027476942905569025
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 4.520844337774221e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 2.109082297696574e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 6.6205013693476644e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 551.75,
+              "fp64_plus_minus_stress_abs_delta_Pa": 551.7597561283037,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            },
+            {
+              "pair": 1,
+              "epsilon": 0.015625,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "elastic",
+                "elastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                0.020926861688611412,
+                0.02149171710395507,
+                0.022067345934411616
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 155349.77945916355,
+                "reference_max_abs": 88055352.0,
+                "relative_error": 0.0017642287030907962
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 159594.71437770128,
+                "reference_max_abs": 88055354.95939587,
+                "relative_error": 0.0018124362164151592
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 0.10697057843208313,
+                "reference_max_abs": 87895760.13804759,
+                "relative_error": 1.2170163642031989e-09
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.013256173173431307,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.0005741575732827187,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.012682015600148588,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.0003433671731987442,
+                "reference_max_abs": 0.20123952627182007,
+                "relative_error": 0.0017062610887631897
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.0003433671731987442,
+              "nominal_direction_inf_per_s": 0.20123952627182007,
+              "realized_direction_inf_per_s": 0.20133651343149483,
+              "nominal_F_endpoint_delta_inf": 6.288735037127564e-07,
+              "actual_native_F_endpoint_delta_inf": 6.291765885790834e-07,
+              "native_F_endpoint_delta_inf_error": 1.0730223891392704e-09,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 0.12053740102759036,
+                "reference_max_abs": 41.27879285644478,
+                "relative_error": 0.002920080571318623
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 6.121153944826929e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 2.6560920129981014e-10,
+              "native_minus_force_vs_FP64_abs_max_N": 5.862949653545613e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 274.6875,
+              "fp64_plus_minus_stress_abs_delta_Pa": 274.67424382682657,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            }
+          ]
+        }
+      ],
+      "replay_returncode": 0,
+      "replay_stdout_sha256": "3e3595919111994ce44b306682a8173774d1331be817944877d5e2d8757dc16d",
+      "replay_input_sha256": "4e2e97e4715933e59a12d190bac6b735664c252c2a59b02f1d1af8cb6990d2fc",
+      "deterministic_discrepancy_envelopes": {
+        "max_native_vs_FP64_candidate_stress_abs_Pa": 0.014322903822176158,
+        "max_native_vs_FP64_element_force_abs_N": 2.1618267459153073e-08,
+        "max_native_vs_FP64_candidate_tangent_relative": 5.0936056433751945e-08,
+        "max_native_vs_FP64_centered_pair_stress_response_abs_Pa": 0.018415960134007037,
+        "max_native_vs_FP64_centered_pair_force_response_abs_N": 2.0102012298879937e-08,
+        "max_realized_direction_relative_deviation": 0.0019433568688077404,
+        "interpretation": "captured deterministic evaluator/rounding discrepancies, not measured stochastic noise floor"
+      }
+    },
+    "218": {
+      "capture": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-final-newton-fd-scale-1over16-218/operator-capture",
+      "receipt": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-final-newton-fd-scale-1over16-218/receipt.json",
+      "prediction": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-final-newton-fd-scale-1over16-218/prediction.json",
+      "source_build": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-final-newton-fd-scale-1over16-218/inputs/external/source-build.json",
+      "capture_sha256": "ea7721878a2b26a06dfc22f7368d85b48b3e3bc42579155293472b2130394287",
+      "receipt_sha256": "285b707da6b320634415e593545ef689c49f36d8968ed150376ccad9540d1c6b",
+      "prediction_sha256": "6bde5a66c2462d868356f0a0af67b180f45054d19d0c7c54d91b6c69553af8c0",
+      "source_build_sha256": "2b76dadb4962122620bc75d2d484aa7de9347079f56f8ce10a29633d6c00297b",
+      "receipt_summary": {
+        "exit_code": 2,
+        "timed_out": false,
+        "source_inputs_unchanged": true,
+        "wall_seconds": 71.47078183299163
+      },
+      "prediction_summary": {
+        "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-graph-tail-guard-angular-instrument-069",
+        "source_binding_limitation": "Listed source, executable and Metal libraries retained; compiler system headers and OS/driver not archived.",
+        "executed_build_verified": true,
+        "build_provenance": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-069/source-build.json",
+        "timeout_seconds": 180
+      },
+      "native_probe_binary_sha256": "336c3c2df7766e4a33a923560a391aace4e664200e360a3de94e3c371bcac926",
+      "native_metallib_sha256": "e333aaffbef6e5142b51e3d7ce49c701b85f5de7f508ed5bbe93c45529117064",
+      "native_source_material_sha256": {
+        "liner": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+        "medium": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8"
+      },
+      "native_source_materials_match_FP64_replay": {
+        "liner": true,
+        "medium": true
+      },
+      "source_build_materials_match": {
+        "liner": true,
+        "medium": true
+      },
+      "header": {
+        "record": "header",
+        "schema": "numi.cardboard.fem-newton-capture.v1",
+        "root": 0,
+        "newton_iteration": 23,
+        "world_fingerprint_hex": "ef8f0d2c7d47c012",
+        "execution_fingerprint_hex": "34a06682b31c801f",
+        "environment_count": 2,
+        "node_count_per_environment": 882,
+        "tetrahedron_count_per_environment": 1920,
+        "center_residual_source": "pre_fgmres_private_copy",
+        "F_local_word_encoding": "high_float32_plus_low_float32_for_compensated_material_input; zero_low_for_other_materials",
+        "epsilon_values": [
+          0.001953125,
+          0.0009765625
+        ],
+        "dt_seconds": 9.99999975e-05,
+        "dt_seconds_by_environment": [
+          9.99999975e-05,
+          9.99999975e-05
+        ],
+        "cached_algorithmic_tangent_capture": {
+          "policy_enabled": true,
+          "available": true,
+          "snapshot_bitwise_guard_included": true,
+          "source": "read-only snapshot of the production per-tetrahedron algorithmic tangent cache; no recomputation",
+          "matrix_layout": "row-major 9x9, local material frame",
+          "derivative_contract": "dP_local/dF_local at the captured Newton linearization; basis perturbation also induces delta(Fdot)=delta(F)/dt with fixed dt",
+          "units": "Pa per dimensionless F component",
+          "validity": "one cache-valid bit per environment/tetrahedron; matrix is null when invalid",
+          "unavailable_reason": null
+        },
+        "materials": [
+          {
+            "index": 0,
+            "name": "hajali2009_liner_hill_ideal",
+            "parameter_offset": 0,
+            "parameter_names": [
+              "density",
+              "c11",
+              "c22",
+              "c33",
+              "c12",
+              "c13",
+              "c23",
+              "g12",
+              "g13",
+              "g23",
+              "sigma_ref",
+              "hill_F",
+              "hill_G",
+              "hill_H",
+              "hill_L",
+              "hill_M",
+              "hill_N",
+              "q_floor",
+              "fb_epsilon",
+              "residual_scale"
+            ]
+          },
+          {
+            "index": 1,
+            "name": "hajali2009_medium_hill_ideal",
+            "parameter_offset": 20,
+            "parameter_names": [
+              "density",
+              "c11",
+              "c22",
+              "c33",
+              "c12",
+              "c13",
+              "c23",
+              "g12",
+              "g13",
+              "g23",
+              "sigma_ref",
+              "hill_F",
+              "hill_G",
+              "hill_H",
+              "hill_L",
+              "hill_M",
+              "hill_N",
+              "q_floor",
+              "fb_epsilon",
+              "residual_scale"
+            ]
+          },
+          {
+            "index": 2,
+            "name": "starch2007_finite_glue_elastic",
+            "parameter_offset": 40,
+            "parameter_names": [
+              "density",
+              "mu",
+              "lambda"
+            ]
+          }
+        ],
+        "parameters_by_environment": [
+          [
+            766,
+            4843625980.0,
+            2118009730.0,
+            19100028,
+            381243840,
+            228619.359,
+            208994.906,
+            1222000000.0,
+            166280000,
+            137280000,
+            22920000,
+            6.30766106,
+            2.98186493,
+            -1.98186493,
+            456012.5,
+            456012.5,
+            59.5608177,
+            1.99999999e-06,
+            9.99999994e-09,
+            10,
+            679,
+            4524848640.0,
+            1631051260.0,
+            17900030,
+            293591136,
+            213716.359,
+            192867.016,
+            1039000000.0,
+            226340000,
+            198720000,
+            9391000,
+            5.61205196,
+            2.84109926,
+            -1.84109914,
+            76554.5859,
+            76554.5859,
+            9.99896622,
+            1.99999999e-06,
+            9.99999994e-09,
+            10,
+            1500,
+            153846160,
+            230769232
+          ],
+          [
+            766,
+            4843625980.0,
+            2118009730.0,
+            19100028,
+            381243840,
+            228619.359,
+            208994.906,
+            1222000000.0,
+            166280000,
+            137280000,
+            22920000,
+            6.30766106,
+            2.98186493,
+            -1.98186493,
+            456012.5,
+            456012.5,
+            59.5608177,
+            1.99999999e-06,
+            9.99999994e-09,
+            10,
+            679,
+            4524848640.0,
+            1631051260.0,
+            17900030,
+            293591136,
+            213716.359,
+            192867.016,
+            1039000000.0,
+            226340000,
+            198720000,
+            9391000,
+            5.61205196,
+            2.84109926,
+            -1.84109914,
+            76554.5859,
+            76554.5859,
+            9.99896622,
+            1.99999999e-06,
+            9.99999994e-09,
+            10,
+            1500,
+            153846160,
+            230769232
+          ]
+        ],
+        "units": {
+          "position": "m",
+          "mass": "kg",
+          "velocity": "m/s",
+          "residual_and_operator_action": "N*s",
+          "element_force": "N",
+          "operator_element_force": "N/s",
+          "deformation_gradient": "dimensionless",
+          "first_piola": "Pa",
+          "tangent_per_velocity": "Pa/s",
+          "dt": "s"
+        },
+        "direction_contract": {
+          "unknown": "delta_v in m/s",
+          "local_F_direction": "grad(delta_v), per second",
+          "side_F": "F_center +/- epsilon*dt*local_F_direction",
+          "residual": "R=dt*(f_internal+f_external+m*g)-m*(v-v_old)",
+          "operator": "A*delta_v=M*delta_v-dt^2*K(delta_v)",
+          "centered_difference": "-(R_plus-R_minus)/(2*epsilon)"
+        },
+        "production_inputs_bitwise_unchanged": true
+      },
+      "integrity": {
+        "record": "integrity",
+        "production_inputs_bitwise_unchanged": true,
+        "cached_tangent_snapshot_bitwise_guard_included": true
+      },
+      "selected_tets": [
+        {
+          "tet_id": 441,
+          "grade": "liner",
+          "material_index": 0,
+          "center": {
+            "native_trial_q_from_capture": 0.0287671201,
+            "FP64_trial_q_at_exact_native_F": 0.02876712203487517,
+            "branch": "elastic",
+            "native_lambda_increment": 0.0,
+            "FP64_lambda_increment": 0.0,
+            "native_projected_state_vs_FP64": {
+              "absolute_error": 2.855581049399092e-11,
+              "reference_max_abs": 0.01206797079121548,
+              "relative_error": 2.366247896023851e-09
+            },
+            "native_stress_vs_FP64_candidate_state": {
+              "absolute_error": 0.012511263659689575,
+              "reference_max_abs": 276613.66876126366,
+              "relative_error": 4.5230099133270394e-08
+            },
+            "native_stress_vs_FP64_reprojected_state": {
+              "absolute_error": 0.012511263659689575,
+              "reference_max_abs": 276613.66876126366,
+              "relative_error": 4.5230099133270394e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_candidate": {
+              "absolute_error": 3.6895592659711838,
+              "reference_max_abs": 107289628.31044073,
+              "relative_error": 3.438877852475643e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_reprojected": {
+              "absolute_error": 3.6895592659711838,
+              "reference_max_abs": 107289628.31044073,
+              "relative_error": 3.438877852475643e-08
+            },
+            "native_algorithmic_tangent_abs_max_Pa_per_s": 107289632.0,
+            "observed_native_minus_FP64_stress_max_abs_Pa": 0.012511263659689575,
+            "native_local_residual_at_captured_candidate_scaled_inf": 5.798996394190681e-09,
+            "native_internal_force_vs_FP64_Pa_stress_force": {
+              "absolute_error": 4.917273616067419e-09,
+              "reference_max_abs": 0.12810202397741932,
+              "relative_error": 3.838560440648613e-08
+            },
+            "native_internal_force_observed_abs_discrepancy_max_N": 4.917273616067419e-09
+          },
+          "pairs": [
+            {
+              "pair": 0,
+              "epsilon": 0.001953125,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "elastic",
+                "elastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                0.028804059299873903,
+                0.02876712203487517,
+                0.028730657199945376
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 3369629.3747599274,
+                "reference_max_abs": 107289632.0,
+                "relative_error": 0.031406849962538105
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 3328911.9938018173,
+                "reference_max_abs": 107289628.31044073,
+                "relative_error": 0.031027342029461287
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 0.7452437877655029,
+                "reference_max_abs": 103960715.57139513,
+                "relative_error": 7.168513449233677e-09
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.015903785300906748,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.010984830791130662,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.004918954509776086,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.0011769602189868889,
+                "reference_max_abs": 0.44340693950653076,
+                "relative_error": 0.0026543567863343146
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.0011769602189868889,
+              "nominal_direction_inf_per_s": 0.44340693950653076,
+              "realized_direction_inf_per_s": 0.4428615285655581,
+              "nominal_F_endpoint_delta_inf": 1.7320583136919113e-07,
+              "actual_native_F_endpoint_delta_inf": 3.8990069090028e-08,
+              "native_F_endpoint_delta_inf_error": 1.363158627946389e-07,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 1.5564531285278633,
+                "reference_max_abs": 52.82434842500691,
+                "relative_error": 0.0294646914715382
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 7.3403415568051855e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 5.069336200813623e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 2.271005355991562e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 40.59375,
+              "fp64_plus_minus_stress_abs_delta_Pa": 40.60965378530091,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            },
+            {
+              "pair": 1,
+              "epsilon": 0.0009765625,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "elastic",
+                "elastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                0.028785360090827404,
+                0.02876712203487517,
+                0.028749345734728822
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 3750370.8051064163,
+                "reference_max_abs": 107289632.0,
+                "relative_error": 0.03495557525172997
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 3719754.251534894,
+                "reference_max_abs": 107289628.31044073,
+                "relative_error": 0.034670212863184204
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 1.4890527576208115,
+                "reference_max_abs": 111009381.07292287,
+                "relative_error": 1.3413756055829568e-08
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.005980516085401177,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.015099883603397757,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.00911936751799658,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.0013549565990205042,
+                "reference_max_abs": 0.44340693950653076,
+                "relative_error": 0.003055785731563968
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.0013549565990205042,
+              "nominal_direction_inf_per_s": 0.44340693950653076,
+              "realized_direction_inf_per_s": 0.4444375482401686,
+              "nominal_F_endpoint_delta_inf": 8.660291568459557e-08,
+              "actual_native_F_endpoint_delta_inf": 3.8990069090028e-08,
+              "native_F_endpoint_delta_inf_error": 5.551030775448311e-08,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 1.7343198539646352,
+                "reference_max_abs": 52.82434842500691,
+                "relative_error": 0.03283182671768863
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 2.7875208530314666e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 6.990798662176445e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 4.2109601916529016e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 21.6875,
+              "fp64_plus_minus_stress_abs_delta_Pa": 21.6815194839146,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            }
+          ]
+        },
+        {
+          "tet_id": 518,
+          "grade": "liner",
+          "material_index": 0,
+          "center": {
+            "native_trial_q_from_capture": 0.99999994,
+            "FP64_trial_q_at_exact_native_F": 2.309470432319127,
+            "branch": "plastic",
+            "native_lambda_increment": 1.9798091474443869e-07,
+            "FP64_lambda_increment": 1.9798091475736793e-07,
+            "native_projected_state_vs_FP64": {
+              "absolute_error": 9.934587874571577e-14,
+              "reference_max_abs": 0.009153013327059195,
+              "relative_error": 1.0853898622874064e-11
+            },
+            "native_stress_vs_FP64_candidate_state": {
+              "absolute_error": 0.0009326361468993127,
+              "reference_max_abs": 209783.26469236385,
+              "relative_error": 4.445712808726543e-09
+            },
+            "native_stress_vs_FP64_reprojected_state": {
+              "absolute_error": 0.0009326384169980884,
+              "reference_max_abs": 209783.26469236158,
+              "relative_error": 4.4457236298889895e-09
+            },
+            "native_algorithmic_tangent_vs_FP64_candidate": {
+              "absolute_error": 60.0614275932312,
+              "reference_max_abs": 1179153468.0614276,
+              "relative_error": 5.0936056433751945e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_reprojected": {
+              "absolute_error": 60.06051301956177,
+              "reference_max_abs": 1179153468.060513,
+              "relative_error": 5.09352808149308e-08
+            },
+            "native_algorithmic_tangent_abs_max_Pa_per_s": 1179153408.0,
+            "observed_native_minus_FP64_stress_max_abs_Pa": 0.0009326361468993127,
+            "native_local_residual_at_captured_candidate_scaled_inf": 8.594477907131193e-10,
+            "native_internal_force_vs_FP64_Pa_stress_force": {
+              "absolute_error": 5.554453258449499e-09,
+              "reference_max_abs": 0.0964722130782448,
+              "relative_error": 5.7575679889757493e-08
+            },
+            "native_internal_force_observed_abs_discrepancy_max_N": 5.554453258449499e-09
+          },
+          "pairs": [
+            {
+              "pair": 0,
+              "epsilon": 0.001953125,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "plastic",
+                "plastic",
+                "plastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                2.4486136811719583,
+                2.309470432319127,
+                2.1703286489526747
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                2.190177515832813e-07,
+                1.9798091475736793e-07,
+                1.7694427512826982e-07
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                2.1901774971411214e-07,
+                1.9798091474443869e-07,
+                1.769442690147116e-07
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 2241334.5115654767,
+                "reference_max_abs": 1179153408.0,
+                "relative_error": 0.0019007997571470164
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 2241687.9564327,
+                "reference_max_abs": 1179153468.0614276,
+                "relative_error": 0.001901099404913017
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 21494.138418368064,
+                "reference_max_abs": 1179169242.842535,
+                "relative_error": 1.8228204771143583e-05
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.00035378033135202713,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.003516738099278882,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.003654652420664206,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.0007899059994684876,
+                "reference_max_abs": 95.88673400878906,
+                "relative_error": 8.237907022634477e-06
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.0007899059994684876,
+              "nominal_direction_inf_per_s": 95.88673400878906,
+              "realized_direction_inf_per_s": 95.8859441027896,
+              "nominal_F_endpoint_delta_inf": 3.745575452597126e-05,
+              "actual_native_F_endpoint_delta_inf": 3.8990069090028e-08,
+              "native_F_endpoint_delta_inf_error": 3.748104977325693e-05,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 1.0360901291087146,
+                "reference_max_abs": 548.8120201017413,
+                "relative_error": 0.0018878779821853017
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 1.6335213390283876e-10,
+              "native_plus_force_vs_FP64_abs_max_N": 2.402252896605006e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 2.3685534367157146e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 460.61328125,
+              "fp64_plus_minus_stress_abs_delta_Pa": 460.61297800319335,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            },
+            {
+              "pair": 1,
+              "epsilon": 0.0009765625,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "plastic",
+                "plastic",
+                "plastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                2.37904215789981,
+                2.309470432319127,
+                2.2398976423550705
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                2.0849935093910097e-07,
+                1.9798091475736793e-07,
+                1.874623117011383e-07
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                2.0849934401212522e-07,
+                1.9798091474443869e-07,
+                1.8746230523447593e-07
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 878665.5672523677,
+                "reference_max_abs": 1179153408.0,
+                "relative_error": 0.0007451664569605923
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 833217.8176082075,
+                "reference_max_abs": 1179153468.0614276,
+                "relative_error": 0.0007066237264077667
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 5482.746483600698,
+                "reference_max_abs": 1179107774.7658074,
+                "relative_error": 4.64991123028569e-06
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.008876438339939341,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.002411064429907128,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.006465373910032213,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.001024292421638151,
+                "reference_max_abs": 95.88673400878906,
+                "relative_error": 1.06823162998154e-05
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.001024292421638151,
+              "nominal_direction_inf_per_s": 95.88673400878906,
+              "realized_direction_inf_per_s": 95.88636743094615,
+              "nominal_F_endpoint_delta_inf": 1.872787726298563e-05,
+              "actual_native_F_endpoint_delta_inf": 3.8990069090028e-08,
+              "native_F_endpoint_delta_inf_error": 1.87531725102713e-05,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 0.4071861060174342,
+                "reference_max_abs": 548.8120201017413,
+                "relative_error": 0.0007419409398903985
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 4.114998564119787e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 1.1175180641975757e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 3.0794272132261824e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 230.2939453125,
+              "fp64_plus_minus_stress_abs_delta_Pa": 230.2944822727968,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            }
+          ]
+        },
+        {
+          "tet_id": 633,
+          "grade": "medium",
+          "material_index": 1,
+          "center": {
+            "native_trial_q_from_capture": 0.0491805859,
+            "FP64_trial_q_at_exact_native_F": 0.04918058627292022,
+            "branch": "elastic",
+            "native_lambda_increment": 0.0,
+            "FP64_lambda_increment": 0.0,
+            "native_projected_state_vs_FP64": {
+              "absolute_error": 4.756945566619653e-10,
+              "reference_max_abs": 0.01783143776540937,
+              "relative_error": 2.6677296745232163e-08
+            },
+            "native_stress_vs_FP64_candidate_state": {
+              "absolute_error": 0.00312575681891758,
+              "reference_max_abs": 129112.45781174318,
+              "relative_error": 2.4209567937086258e-08
+            },
+            "native_stress_vs_FP64_reprojected_state": {
+              "absolute_error": 0.00312575681891758,
+              "reference_max_abs": 129112.45781174318,
+              "relative_error": 2.4209567937086258e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_candidate": {
+              "absolute_error": 0.4516486171633005,
+              "reference_max_abs": 16176699.74916285,
+              "relative_error": 2.791970081454182e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_reprojected": {
+              "absolute_error": 0.4479977134615183,
+              "reference_max_abs": 16176699.749158302,
+              "relative_error": 2.7694011782893372e-08
+            },
+            "native_algorithmic_tangent_abs_max_Pa_per_s": 16176700.0,
+            "observed_native_minus_FP64_stress_max_abs_Pa": 0.00312575681891758,
+            "native_local_residual_at_captured_candidate_scaled_inf": 5.629212651570015e-09,
+            "native_internal_force_vs_FP64_Pa_stress_force": {
+              "absolute_error": 2.1618267459153073e-08,
+              "reference_max_abs": 0.042133902567972115,
+              "relative_error": 5.130848590224371e-07
+            },
+            "native_internal_force_observed_abs_discrepancy_max_N": 2.1618267459153073e-08
+          },
+          "pairs": [
+            {
+              "pair": 0,
+              "epsilon": 0.001953125,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "elastic",
+                "elastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                0.04907156692557844,
+                0.04918058627292022,
+                0.049289801848240285
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 209081.35063830204,
+                "reference_max_abs": 16176700.0,
+                "relative_error": 0.012924845650738533
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 205346.92949323915,
+                "reference_max_abs": 16176699.74916285,
+                "relative_error": 0.0126939939961404
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 0.18371306732296944,
+                "reference_max_abs": 16163458.051006425,
+                "relative_error": 1.1365950698373635e-08
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.0045179308945080265,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.0036931946233380586,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.003841689642285928,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.00022479235743227965,
+                "reference_max_abs": 0.11424961686134338,
+                "relative_error": 0.0019675545844945294
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.00022479235743227965,
+              "nominal_direction_inf_per_s": 0.11424961686134338,
+              "realized_direction_inf_per_s": 0.11426164125962837,
+              "nominal_F_endpoint_delta_inf": 4.462875545904504e-08,
+              "actual_native_F_endpoint_delta_inf": 3.8990069090028e-08,
+              "native_F_endpoint_delta_inf_error": 4.4757614194519805e-08,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 0.21138398540463754,
+                "reference_max_abs": 38.58151504820094,
+                "relative_error": 0.005478892810211049
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 7.870529577028162e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 1.4945126662266328e-08,
+              "native_minus_force_vs_FP64_abs_max_N": 1.1591589977157438e-08,
+              "native_plus_minus_stress_abs_delta_Pa": 6.3138427734375,
+              "fp64_plus_minus_stress_abs_delta_Pa": 6.313850641635781,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            },
+            {
+              "pair": 1,
+              "epsilon": 0.0009765625,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "elastic",
+                "elastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                0.049125361691661616,
+                0.04918058627292022,
+                0.04923574987711091
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 865580.2980930805,
+                "reference_max_abs": 16176700.0,
+                "relative_error": 0.05350784140727593
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 868884.0321605466,
+                "reference_max_abs": 16176699.74916285,
+                "relative_error": 0.05371207017707747
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 0.6261587049812078,
+                "reference_max_abs": 16158980.209640348,
+                "relative_error": 3.874988995949419e-08
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.000645172331132926,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.002272044192068279,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0023269573430297896,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.0017356745527633693,
+                "reference_max_abs": 0.11424961686134338,
+                "relative_error": 0.015191950751745923
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.0017356745527633693,
+              "nominal_direction_inf_per_s": 0.11424961686134338,
+              "realized_direction_inf_per_s": 0.11426164125962837,
+              "nominal_F_endpoint_delta_inf": 2.231437772952252e-08,
+              "actual_native_F_endpoint_delta_inf": 3.8990069090028e-08,
+              "native_F_endpoint_delta_inf_error": 3.16990919007272e-08,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 0.4820426749578175,
+                "reference_max_abs": 38.58151504820094,
+                "relative_error": 0.012494135452057504
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 6.386181086552589e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 7.309643501596241e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 1.3603626766722776e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 3.156005859375,
+              "fp64_plus_minus_stress_abs_delta_Pa": 3.156050742597472,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            }
+          ]
+        },
+        {
+          "tet_id": 702,
+          "grade": "medium",
+          "material_index": 1,
+          "center": {
+            "native_trial_q_from_capture": 1,
+            "FP64_trial_q_at_exact_native_F": 1.021463029696243,
+            "branch": "plastic",
+            "native_lambda_increment": 5.8167021301884174e-09,
+            "FP64_lambda_increment": 5.816702732227938e-09,
+            "native_projected_state_vs_FP64": {
+              "absolute_error": 5.677187019104135e-12,
+              "reference_max_abs": 0.009767594947440911,
+              "relative_error": 5.812267041838734e-10
+            },
+            "native_stress_vs_FP64_candidate_state": {
+              "absolute_error": 0.0022409148659789935,
+              "reference_max_abs": 76571.44307158513,
+              "relative_error": 2.9265673677901125e-08
+            },
+            "native_stress_vs_FP64_reprojected_state": {
+              "absolute_error": 0.0022822245955467224,
+              "reference_max_abs": 76571.4430302754,
+              "relative_error": 2.980516632871029e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_candidate": {
+              "absolute_error": 6.381656676530838,
+              "reference_max_abs": 165206975.66440442,
+              "relative_error": 3.862825192983563e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_reprojected": {
+              "absolute_error": 45.6288905441761,
+              "reference_max_abs": 165207007.65972525,
+              "relative_error": 2.761922220524528e-07
+            },
+            "native_algorithmic_tangent_abs_max_Pa_per_s": 165206976.0,
+            "observed_native_minus_FP64_stress_max_abs_Pa": 0.0022409148659789935,
+            "native_local_residual_at_captured_candidate_scaled_inf": 1.017451101148481e-08,
+            "native_internal_force_vs_FP64_Pa_stress_force": {
+              "absolute_error": 2.0375977002884404e-08,
+              "reference_max_abs": 0.04845139209317163,
+              "relative_error": 4.205447175532452e-07
+            },
+            "native_internal_force_observed_abs_discrepancy_max_N": 2.0375977002884404e-08
+          },
+          "pairs": [
+            {
+              "pair": 0,
+              "epsilon": 0.001953125,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "plastic",
+                "plastic",
+                "plastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                1.0253063124424893,
+                1.021463029696243,
+                1.0176201113349117
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                6.8582696583930915e-09,
+                5.816702732227938e-09,
+                4.775234225214113e-09
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                6.85826861968053e-09,
+                5.8167021301884174e-09,
+                4.775233097831233e-09
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 1143028.2023545802,
+                "reference_max_abs": 165206976.0,
+                "relative_error": 0.006918764752128749
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 1146461.096103996,
+                "reference_max_abs": 165206975.66440442,
+                "relative_error": 0.006939544117270668
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 34.687792520970106,
+                "reference_max_abs": 166353465.06609422,
+                "relative_error": 2.08518605291379e-07
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.001546480561955832,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.0019285799789940938,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0006760782307537738,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.0016209164003292975,
+                "reference_max_abs": 1.8446921110153198,
+                "relative_error": 0.0008786921083741958
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.0016209164003292975,
+              "nominal_direction_inf_per_s": 1.8446921110153198,
+              "realized_direction_inf_per_s": 1.8456523673783887,
+              "nominal_F_endpoint_delta_inf": 7.205828376619052e-07,
+              "actual_native_F_endpoint_delta_inf": 3.8990069090028e-08,
+              "native_F_endpoint_delta_inf_error": 6.815927685718772e-07,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 0.41540074281961026,
+                "reference_max_abs": 108.26598614177463,
+                "relative_error": 0.003836853638183665
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 8.580216630943438e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 2.7120367479538388e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 8.058124924270604e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 64.98046875,
+              "fp64_plus_minus_stress_abs_delta_Pa": 64.98180959299498,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            },
+            {
+              "pair": 1,
+              "epsilon": 0.0009765625,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "plastic",
+                "plastic",
+                "plastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                1.0233804477763,
+                1.021463029696243,
+                1.0195455400109437
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                6.33634169298247e-09,
+                5.816702732227938e-09,
+                5.297044285910612e-09
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                6.336340785395578e-09,
+                5.8167021301884174e-09,
+                5.297043248475575e-09
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 986971.8514537513,
+                "reference_max_abs": 165206976.0,
+                "relative_error": 0.0059741536062844665
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 989388.5557532012,
+                "reference_max_abs": 165206975.66440442,
+                "relative_error": 0.005988781961380432
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 58.601282715797424,
+                "reference_max_abs": 164217633.85963848,
+                "relative_error": 3.568513401300473e-07
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.0012325097195571288,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.0008270615799119696,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0018295343179488555,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.002084047580609427,
+                "reference_max_abs": 1.8446921110153198,
+                "relative_error": 0.0011297536147982798
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.002084047580609427,
+              "nominal_direction_inf_per_s": 1.8446921110153198,
+              "realized_direction_inf_per_s": 1.8426080634347104,
+              "nominal_F_endpoint_delta_inf": 3.602914188309526e-07,
+              "actual_native_F_endpoint_delta_inf": 3.8990069090028e-08,
+              "native_F_endpoint_delta_inf_error": 3.213013497409246e-07,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 0.31409031579580216,
+                "reference_max_abs": 108.26598614177463,
+                "relative_error": 0.002901098738291636
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 1.1159503127133874e-08,
+              "native_plus_force_vs_FP64_abs_max_N": 3.8903458232653065e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 7.475147723035036e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 32.07421875,
+              "fp64_plus_minus_stress_abs_delta_Pa": 32.07374667190743,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            }
+          ]
+        },
+        {
+          "tet_id": 776,
+          "grade": "medium",
+          "material_index": 1,
+          "center": {
+            "native_trial_q_from_capture": 0.999999166,
+            "FP64_trial_q_at_exact_native_F": 1.0002293965905171,
+            "branch": "plastic",
+            "native_lambda_increment": 6.238384185146522e-11,
+            "FP64_lambda_increment": 6.238378713602244e-11,
+            "native_projected_state_vs_FP64": {
+              "absolute_error": 5.04870451001338e-13,
+              "reference_max_abs": 0.0074568132408686415,
+              "relative_error": 6.770592674016411e-11
+            },
+            "native_stress_vs_FP64_candidate_state": {
+              "absolute_error": 0.0017934104398591444,
+              "reference_max_abs": 62850.544575238186,
+              "relative_error": 2.853452507022049e-08
+            },
+            "native_stress_vs_FP64_reprojected_state": {
+              "absolute_error": 0.0017964712969842367,
+              "reference_max_abs": 62850.54457899303,
+              "relative_error": 2.858322563500402e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_candidate": {
+              "absolute_error": 9.514417707920074,
+              "reference_max_abs": 290891392.48445815,
+              "relative_error": 3.270780075910432e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_reprojected": {
+              "absolute_error": 561.8153252005577,
+              "reference_max_abs": 290891392.55447847,
+              "relative_error": 1.931357680496993e-06
+            },
+            "native_algorithmic_tangent_abs_max_Pa_per_s": 290891392.0,
+            "observed_native_minus_FP64_stress_max_abs_Pa": 0.0017934104398591444,
+            "native_local_residual_at_captured_candidate_scaled_inf": 4.072697040724549e-14,
+            "native_internal_force_vs_FP64_Pa_stress_force": {
+              "absolute_error": 1.194823630312758e-08,
+              "reference_max_abs": 0.04670160058624572,
+              "relative_error": 2.55842115754947e-07
+            },
+            "native_internal_force_observed_abs_discrepancy_max_N": 1.194823630312758e-08
+          },
+          "pairs": [
+            {
+              "pair": 0,
+              "epsilon": 0.001953125,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "plastic",
+                "plastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": true,
+              "FP64_trial_q_minus_center_plus": [
+                1.0036937538251822,
+                1.0002293965905171,
+                0.9967624396735164
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                1.0010236206263409e-09,
+                6.238378713602244e-11,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                1.0010160478302055e-09,
+                6.238384185146522e-11,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 153032973.95427307,
+                "reference_max_abs": 290891392.0,
+                "relative_error": 0.5260828548487027
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 153034769.26975963,
+                "reference_max_abs": 290891392.48445815,
+                "relative_error": 0.5260890257450159
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 152999504.38163218,
+                "reference_max_abs": 290837395.61264306,
+                "relative_error": 0.526065446499209
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.000701294258760754,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.0013259733386803418,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0019323389351484366,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.0022014142095094225,
+                "reference_max_abs": 2.7334954738616943,
+                "relative_error": 0.000805347669516868
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.0022014142095094225,
+              "nominal_direction_inf_per_s": 2.7334954738616943,
+              "realized_direction_inf_per_s": 2.733702075084974,
+              "nominal_F_endpoint_delta_inf": 1.0677716425030431e-06,
+              "actual_native_F_endpoint_delta_inf": 3.8990069090028e-08,
+              "native_F_endpoint_delta_inf_error": 1.0287815734130151e-06,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 433.45189391284,
+                "reference_max_abs": 184.16419274061744,
+                "relative_error": 2.3536165606488284
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 1.922042580648764e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 4.1728307476063264e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 4.049887383783535e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 161.54296875,
+              "fp64_plus_minus_stress_abs_delta_Pa": 161.54323652323365,
+              "smooth_tangent_verdict": "not_admissible_branch_crossing_or_near_yield"
+            },
+            {
+              "pair": 1,
+              "epsilon": 0.0009765625,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "plastic",
+                "plastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": true,
+              "FP64_trial_q_minus_center_plus": [
+                1.0019602691618643,
+                1.0002293965905171,
+                0.9984958716333363
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                5.312599047719583e-10,
+                6.238378713602244e-11,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                5.312534856471984e-10,
+                6.238384185146522e-11,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 142212973.68093687,
+                "reference_max_abs": 290891392.0,
+                "relative_error": 0.48888684090362106
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 142222614.42265582,
+                "reference_max_abs": 290891392.48445815,
+                "relative_error": 0.4889199821553831
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 142076624.8334574,
+                "reference_max_abs": 290977188.187552,
+                "relative_error": 0.4882741005177376
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.0018829569016816095,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.0017403957826900296,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0010093074961332604,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.000980160592730872,
+                "reference_max_abs": 2.7334954738616943,
+                "relative_error": 0.00035857406829584707
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.000980160592730872,
+              "nominal_direction_inf_per_s": 2.7334954738616943,
+              "realized_direction_inf_per_s": 2.734475634454425,
+              "nominal_F_endpoint_delta_inf": 5.338858212515216e-07,
+              "actual_native_F_endpoint_delta_inf": 3.8990069090028e-08,
+              "native_F_endpoint_delta_inf_error": 4.948957521614936e-07,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 402.4627782208456,
+                "reference_max_abs": 184.16419274061744,
+                "relative_error": 2.1853476087378545
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 9.991554902888389e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 5.441233307673654e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 5.299563704541654e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 79.0078125,
+              "fp64_plus_minus_stress_abs_delta_Pa": 79.00595473304566,
+              "smooth_tangent_verdict": "not_admissible_branch_crossing_or_near_yield"
+            }
+          ]
+        },
+        {
+          "tet_id": 1388,
+          "grade": "liner",
+          "material_index": 0,
+          "center": {
+            "native_trial_q_from_capture": 0.0214917175,
+            "FP64_trial_q_at_exact_native_F": 0.02149171710395507,
+            "branch": "elastic",
+            "native_lambda_increment": 0.0,
+            "FP64_lambda_increment": 0.0,
+            "native_projected_state_vs_FP64": {
+              "absolute_error": 3.870721833332258e-10,
+              "reference_max_abs": 0.012562554873884104,
+              "relative_error": 3.081158149907053e-08
+            },
+            "native_stress_vs_FP64_candidate_state": {
+              "absolute_error": 0.005659831804223359,
+              "reference_max_abs": 287951.0369098318,
+              "relative_error": 1.9655535416584255e-08
+            },
+            "native_stress_vs_FP64_reprojected_state": {
+              "absolute_error": 0.005659831804223359,
+              "reference_max_abs": 287951.0369098318,
+              "relative_error": 1.9655535416584255e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_candidate": {
+              "absolute_error": 2.959395870566368,
+              "reference_max_abs": 88055354.95939587,
+              "relative_error": 3.36083577419114e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_reprojected": {
+              "absolute_error": 2.9592507630586624,
+              "reference_max_abs": 88055354.95925076,
+              "relative_error": 3.3606709829607866e-08
+            },
+            "native_algorithmic_tangent_abs_max_Pa_per_s": 88055352.0,
+            "observed_native_minus_FP64_stress_max_abs_Pa": 0.005659831804223359,
+            "native_local_residual_at_captured_candidate_scaled_inf": 4.626237615212858e-09,
+            "native_internal_force_vs_FP64_Pa_stress_force": {
+              "absolute_error": 8.181461426685823e-09,
+              "reference_max_abs": 0.13290858365192676,
+              "relative_error": 6.155705825676533e-08
+            },
+            "native_internal_force_observed_abs_discrepancy_max_N": 8.181461426685823e-09
+          },
+          "pairs": [
+            {
+              "pair": 0,
+              "epsilon": 0.001953125,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "elastic",
+                "elastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                0.021420248723280837,
+                0.02149171710395507,
+                0.021560460346399652
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 744650.2432767451,
+                "reference_max_abs": 88055352.0,
+                "relative_error": 0.008456615371621535
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 722096.3123992085,
+                "reference_max_abs": 88055354.95939587,
+                "relative_error": 0.008200481534963796
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 0.6898534893989563,
+                "reference_max_abs": 88777450.58194159,
+                "relative_error": 7.770593600930469e-09
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.00880897301249206,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.014298681577201933,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.005489708564709872,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.0005596877047462923,
+                "reference_max_abs": 0.20123952627182007,
+                "relative_error": 0.002781201661100642
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.0005596877047462923,
+              "nominal_direction_inf_per_s": 0.20123952627182007,
+              "realized_direction_inf_per_s": 0.20067983856707378,
+              "nominal_F_endpoint_delta_inf": 7.860918796409454e-08,
+              "actual_native_F_endpoint_delta_inf": 3.8990069090028e-08,
+              "native_F_endpoint_delta_inf_error": 3.961911887406654e-08,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 0.4282377503811077,
+                "reference_max_abs": 41.27879285644478,
+                "relative_error": 0.010374279884355865
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 4.066720099560328e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 6.601634877645424e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 2.5443306628236684e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 34.6875,
+              "fp64_plus_minus_stress_abs_delta_Pa": 34.67869102698751,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            },
+            {
+              "pair": 1,
+              "epsilon": 0.0009765625,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "elastic",
+                "elastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                0.021456465090806467,
+                0.02149171710395507,
+                0.02152555777408033
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 6984650.400912404,
+                "reference_max_abs": 88055352.0,
+                "relative_error": 0.07932113428962732
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 6891324.411369398,
+                "reference_max_abs": 88055354.95939587,
+                "relative_error": 0.07826127570034928
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 2.0103210657835007,
+                "reference_max_abs": 94946681.38108633,
+                "relative_error": 2.1173157782257807e-08
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.018227153865154833,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.003332703548949212,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.01489445031620562,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.0034009283408522606,
+                "reference_max_abs": 0.20123952627182007,
+                "relative_error": 0.016899902339555937
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.0034009283408522606,
+              "nominal_direction_inf_per_s": 0.20123952627182007,
+              "realized_direction_inf_per_s": 0.1996291587840001,
+              "nominal_F_endpoint_delta_inf": 3.930459398204727e-08,
+              "actual_native_F_endpoint_delta_inf": 3.8990069090028e-08,
+              "native_F_endpoint_delta_inf_error": 6.642437997924969e-10,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 3.4256007342334414,
+                "reference_max_abs": 41.27879285644478,
+                "relative_error": 0.08298694068275324
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 8.419326902320279e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 1.5381015072701842e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 6.882394015805815e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 18.5625,
+              "fp64_plus_minus_stress_abs_delta_Pa": 18.544272846134845,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            }
+          ]
+        }
+      ],
+      "replay_returncode": 0,
+      "replay_stdout_sha256": "95fbc4d45633eb7364ee3dba8b5f010a501cad5f7e509a2f4c640732bc423bf8",
+      "replay_input_sha256": "ce134fed31e5dae5d0738a4e1b07f82e8303b0e2f71f216c8983a568fcff62b5",
+      "deterministic_discrepancy_envelopes": {
+        "max_native_vs_FP64_candidate_stress_abs_Pa": 0.015099883603397757,
+        "max_native_vs_FP64_element_force_abs_N": 2.1618267459153073e-08,
+        "max_native_vs_FP64_candidate_tangent_relative": 5.0936056433751945e-08,
+        "max_native_vs_FP64_centered_pair_stress_response_abs_Pa": 0.018227153865154833,
+        "max_native_vs_FP64_centered_pair_force_response_abs_N": 1.1159503127133874e-08,
+        "max_realized_direction_relative_deviation": 0.016899902339555937,
+        "interpretation": "captured deterministic evaluator/rounding discrepancies, not measured stochastic noise floor"
+      }
+    },
+    "220": {
+      "capture": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-final-newton-fd-scale-1over256-220/operator-capture",
+      "receipt": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-final-newton-fd-scale-1over256-220/receipt.json",
+      "prediction": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-final-newton-fd-scale-1over256-220/prediction.json",
+      "source_build": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-final-newton-fd-scale-1over256-220/inputs/external/source-build.json",
+      "capture_sha256": "fcc734b81cb88740ac860af2e7b576d6c619cf842740e5c486de894b2645f0a6",
+      "receipt_sha256": "1c143915be6a8ff84652ea89311d6325a97537b8df5358c44a4b3ced39d046bb",
+      "prediction_sha256": "75abd4c72d2d9df546a53ddac04e31f0126eef2fc66555732934fb55a8cc7f00",
+      "source_build_sha256": "2b76dadb4962122620bc75d2d484aa7de9347079f56f8ce10a29633d6c00297b",
+      "receipt_summary": {
+        "exit_code": 2,
+        "timed_out": false,
+        "source_inputs_unchanged": true,
+        "wall_seconds": 66.29785620898474
+      },
+      "prediction_summary": {
+        "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-graph-tail-guard-angular-instrument-069",
+        "source_binding_limitation": "Listed source, executable and Metal libraries retained; compiler system headers and OS/driver not archived.",
+        "executed_build_verified": true,
+        "build_provenance": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-069/source-build.json",
+        "timeout_seconds": 180
+      },
+      "native_probe_binary_sha256": "336c3c2df7766e4a33a923560a391aace4e664200e360a3de94e3c371bcac926",
+      "native_metallib_sha256": "e333aaffbef6e5142b51e3d7ce49c701b85f5de7f508ed5bbe93c45529117064",
+      "native_source_material_sha256": {
+        "liner": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+        "medium": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8"
+      },
+      "native_source_materials_match_FP64_replay": {
+        "liner": true,
+        "medium": true
+      },
+      "source_build_materials_match": {
+        "liner": true,
+        "medium": true
+      },
+      "header": {
+        "record": "header",
+        "schema": "numi.cardboard.fem-newton-capture.v1",
+        "root": 0,
+        "newton_iteration": 23,
+        "world_fingerprint_hex": "ef8f0d2c7d47c012",
+        "execution_fingerprint_hex": "34a06682b31c801f",
+        "environment_count": 2,
+        "node_count_per_environment": 882,
+        "tetrahedron_count_per_environment": 1920,
+        "center_residual_source": "pre_fgmres_private_copy",
+        "F_local_word_encoding": "high_float32_plus_low_float32_for_compensated_material_input; zero_low_for_other_materials",
+        "epsilon_values": [
+          0.000122070312,
+          6.10351562e-05
+        ],
+        "dt_seconds": 9.99999975e-05,
+        "dt_seconds_by_environment": [
+          9.99999975e-05,
+          9.99999975e-05
+        ],
+        "cached_algorithmic_tangent_capture": {
+          "policy_enabled": true,
+          "available": true,
+          "snapshot_bitwise_guard_included": true,
+          "source": "read-only snapshot of the production per-tetrahedron algorithmic tangent cache; no recomputation",
+          "matrix_layout": "row-major 9x9, local material frame",
+          "derivative_contract": "dP_local/dF_local at the captured Newton linearization; basis perturbation also induces delta(Fdot)=delta(F)/dt with fixed dt",
+          "units": "Pa per dimensionless F component",
+          "validity": "one cache-valid bit per environment/tetrahedron; matrix is null when invalid",
+          "unavailable_reason": null
+        },
+        "materials": [
+          {
+            "index": 0,
+            "name": "hajali2009_liner_hill_ideal",
+            "parameter_offset": 0,
+            "parameter_names": [
+              "density",
+              "c11",
+              "c22",
+              "c33",
+              "c12",
+              "c13",
+              "c23",
+              "g12",
+              "g13",
+              "g23",
+              "sigma_ref",
+              "hill_F",
+              "hill_G",
+              "hill_H",
+              "hill_L",
+              "hill_M",
+              "hill_N",
+              "q_floor",
+              "fb_epsilon",
+              "residual_scale"
+            ]
+          },
+          {
+            "index": 1,
+            "name": "hajali2009_medium_hill_ideal",
+            "parameter_offset": 20,
+            "parameter_names": [
+              "density",
+              "c11",
+              "c22",
+              "c33",
+              "c12",
+              "c13",
+              "c23",
+              "g12",
+              "g13",
+              "g23",
+              "sigma_ref",
+              "hill_F",
+              "hill_G",
+              "hill_H",
+              "hill_L",
+              "hill_M",
+              "hill_N",
+              "q_floor",
+              "fb_epsilon",
+              "residual_scale"
+            ]
+          },
+          {
+            "index": 2,
+            "name": "starch2007_finite_glue_elastic",
+            "parameter_offset": 40,
+            "parameter_names": [
+              "density",
+              "mu",
+              "lambda"
+            ]
+          }
+        ],
+        "parameters_by_environment": [
+          [
+            766,
+            4843625980.0,
+            2118009730.0,
+            19100028,
+            381243840,
+            228619.359,
+            208994.906,
+            1222000000.0,
+            166280000,
+            137280000,
+            22920000,
+            6.30766106,
+            2.98186493,
+            -1.98186493,
+            456012.5,
+            456012.5,
+            59.5608177,
+            1.99999999e-06,
+            9.99999994e-09,
+            10,
+            679,
+            4524848640.0,
+            1631051260.0,
+            17900030,
+            293591136,
+            213716.359,
+            192867.016,
+            1039000000.0,
+            226340000,
+            198720000,
+            9391000,
+            5.61205196,
+            2.84109926,
+            -1.84109914,
+            76554.5859,
+            76554.5859,
+            9.99896622,
+            1.99999999e-06,
+            9.99999994e-09,
+            10,
+            1500,
+            153846160,
+            230769232
+          ],
+          [
+            766,
+            4843625980.0,
+            2118009730.0,
+            19100028,
+            381243840,
+            228619.359,
+            208994.906,
+            1222000000.0,
+            166280000,
+            137280000,
+            22920000,
+            6.30766106,
+            2.98186493,
+            -1.98186493,
+            456012.5,
+            456012.5,
+            59.5608177,
+            1.99999999e-06,
+            9.99999994e-09,
+            10,
+            679,
+            4524848640.0,
+            1631051260.0,
+            17900030,
+            293591136,
+            213716.359,
+            192867.016,
+            1039000000.0,
+            226340000,
+            198720000,
+            9391000,
+            5.61205196,
+            2.84109926,
+            -1.84109914,
+            76554.5859,
+            76554.5859,
+            9.99896622,
+            1.99999999e-06,
+            9.99999994e-09,
+            10,
+            1500,
+            153846160,
+            230769232
+          ]
+        ],
+        "units": {
+          "position": "m",
+          "mass": "kg",
+          "velocity": "m/s",
+          "residual_and_operator_action": "N*s",
+          "element_force": "N",
+          "operator_element_force": "N/s",
+          "deformation_gradient": "dimensionless",
+          "first_piola": "Pa",
+          "tangent_per_velocity": "Pa/s",
+          "dt": "s"
+        },
+        "direction_contract": {
+          "unknown": "delta_v in m/s",
+          "local_F_direction": "grad(delta_v), per second",
+          "side_F": "F_center +/- epsilon*dt*local_F_direction",
+          "residual": "R=dt*(f_internal+f_external+m*g)-m*(v-v_old)",
+          "operator": "A*delta_v=M*delta_v-dt^2*K(delta_v)",
+          "centered_difference": "-(R_plus-R_minus)/(2*epsilon)"
+        },
+        "production_inputs_bitwise_unchanged": true
+      },
+      "integrity": {
+        "record": "integrity",
+        "production_inputs_bitwise_unchanged": true,
+        "cached_tangent_snapshot_bitwise_guard_included": true
+      },
+      "selected_tets": [
+        {
+          "tet_id": 441,
+          "grade": "liner",
+          "material_index": 0,
+          "center": {
+            "native_trial_q_from_capture": 0.0287671201,
+            "FP64_trial_q_at_exact_native_F": 0.02876712203487517,
+            "branch": "elastic",
+            "native_lambda_increment": 0.0,
+            "FP64_lambda_increment": 0.0,
+            "native_projected_state_vs_FP64": {
+              "absolute_error": 2.855581049399092e-11,
+              "reference_max_abs": 0.01206797079121548,
+              "relative_error": 2.366247896023851e-09
+            },
+            "native_stress_vs_FP64_candidate_state": {
+              "absolute_error": 0.012511263659689575,
+              "reference_max_abs": 276613.66876126366,
+              "relative_error": 4.5230099133270394e-08
+            },
+            "native_stress_vs_FP64_reprojected_state": {
+              "absolute_error": 0.012511263659689575,
+              "reference_max_abs": 276613.66876126366,
+              "relative_error": 4.5230099133270394e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_candidate": {
+              "absolute_error": 3.6895592659711838,
+              "reference_max_abs": 107289628.31044073,
+              "relative_error": 3.438877852475643e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_reprojected": {
+              "absolute_error": 3.6895592659711838,
+              "reference_max_abs": 107289628.31044073,
+              "relative_error": 3.438877852475643e-08
+            },
+            "native_algorithmic_tangent_abs_max_Pa_per_s": 107289632.0,
+            "observed_native_minus_FP64_stress_max_abs_Pa": 0.012511263659689575,
+            "native_local_residual_at_captured_candidate_scaled_inf": 5.798996394190681e-09,
+            "native_internal_force_vs_FP64_Pa_stress_force": {
+              "absolute_error": 4.917273616067419e-09,
+              "reference_max_abs": 0.12810202397741932,
+              "relative_error": 3.838560440648613e-08
+            },
+            "native_internal_force_observed_abs_discrepancy_max_N": 4.917273616067419e-09
+          },
+          "pairs": [
+            {
+              "pair": 0,
+              "epsilon": 0.0001220703125,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "elastic",
+                "elastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                0.028770234481492588,
+                0.02876712203487517,
+                0.028764484066363227
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 6630370.877861336,
+                "reference_max_abs": 107289632.0,
+                "relative_error": 0.061798803428287793
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 7242723.992946923,
+                "reference_max_abs": 107289628.31044073,
+                "relative_error": 0.0675062828253093
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 3.250873103737831,
+                "reference_max_abs": 114532349.05251455,
+                "relative_error": 2.8383885693702693e-08
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.014949936768971384,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.010574987740255892,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.004374949028715491,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.013354560790336735,
+                "reference_max_abs": 0.44340693950653076,
+                "relative_error": 0.030118068980154157
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.013354560790336735,
+              "nominal_direction_inf_per_s": 0.44340693950653076,
+              "realized_direction_inf_per_s": 0.44548822802324234,
+              "nominal_F_endpoint_delta_inf": 1.0825364460574446e-08,
+              "actual_native_F_endpoint_delta_inf": 2.052108899475158e-09,
+              "native_F_endpoint_delta_inf_error": 8.773255561099288e-09,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 3.9870432374366658,
+                "reference_max_abs": 52.82434842500691,
+                "relative_error": 0.07547737655670184
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 6.905839594617547e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 4.883972892777422e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 2.021866701840125e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 2.78125,
+              "fp64_plus_minus_stress_abs_delta_Pa": 2.7961999367689714,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            },
+            {
+              "pair": 1,
+              "epsilon": 6.103515625e-05,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "elastic",
+                "elastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                0.02876951077682685,
+                0.02876712203487517,
+                0.028766425023087995
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 7910370.910196856,
+                "reference_max_abs": 107289632.0,
+                "relative_error": 0.0737291270623135
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 7270313.791617528,
+                "reference_max_abs": 107289628.31044073,
+                "relative_error": 0.06776343534885775
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 1.7584858760237694,
+                "reference_max_abs": 114559941.47289652,
+                "relative_error": 1.534991946936186e-08
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.007813242089468986,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.0009009480709210038,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.006912294018547982,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.037078067660331726,
+                "reference_max_abs": 0.44340693950653076,
+                "relative_error": 0.08362085559958995
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.037078067660331726,
+              "nominal_direction_inf_per_s": 0.44340693950653076,
+              "realized_direction_inf_per_s": 0.43708278975865283,
+              "nominal_F_endpoint_delta_inf": 5.412682230287223e-09,
+              "actual_native_F_endpoint_delta_inf": 2.052108899475158e-09,
+              "native_F_endpoint_delta_inf_error": 3.360573330812065e-09,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 4.9363092751938,
+                "reference_max_abs": 52.82434842500691,
+                "relative_error": 0.09344761312487791
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 3.6086666432844083e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 4.178740131699499e-10,
+              "native_minus_force_vs_FP64_abs_max_N": 3.194959130592423e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 1.40625,
+              "fp64_plus_minus_stress_abs_delta_Pa": 1.398436757910531,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            }
+          ]
+        },
+        {
+          "tet_id": 518,
+          "grade": "liner",
+          "material_index": 0,
+          "center": {
+            "native_trial_q_from_capture": 0.99999994,
+            "FP64_trial_q_at_exact_native_F": 2.309470432319127,
+            "branch": "plastic",
+            "native_lambda_increment": 1.9798091474443869e-07,
+            "FP64_lambda_increment": 1.9798091475736793e-07,
+            "native_projected_state_vs_FP64": {
+              "absolute_error": 9.934587874571577e-14,
+              "reference_max_abs": 0.009153013327059195,
+              "relative_error": 1.0853898622874064e-11
+            },
+            "native_stress_vs_FP64_candidate_state": {
+              "absolute_error": 0.0009326361468993127,
+              "reference_max_abs": 209783.26469236385,
+              "relative_error": 4.445712808726543e-09
+            },
+            "native_stress_vs_FP64_reprojected_state": {
+              "absolute_error": 0.0009326384169980884,
+              "reference_max_abs": 209783.26469236158,
+              "relative_error": 4.4457236298889895e-09
+            },
+            "native_algorithmic_tangent_vs_FP64_candidate": {
+              "absolute_error": 60.0614275932312,
+              "reference_max_abs": 1179153468.0614276,
+              "relative_error": 5.0936056433751945e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_reprojected": {
+              "absolute_error": 60.06051301956177,
+              "reference_max_abs": 1179153468.060513,
+              "relative_error": 5.09352808149308e-08
+            },
+            "native_algorithmic_tangent_abs_max_Pa_per_s": 1179153408.0,
+            "observed_native_minus_FP64_stress_max_abs_Pa": 0.0009326361468993127,
+            "native_local_residual_at_captured_candidate_scaled_inf": 8.594477907131193e-10,
+            "native_internal_force_vs_FP64_Pa_stress_force": {
+              "absolute_error": 5.554453258449499e-09,
+              "reference_max_abs": 0.0964722130782448,
+              "relative_error": 5.7575679889757493e-08
+            },
+            "native_internal_force_observed_abs_discrepancy_max_N": 5.554453258449499e-09
+          },
+          "pairs": [
+            {
+              "pair": 0,
+              "epsilon": 0.0001220703125,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "plastic",
+                "plastic",
+                "plastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                2.3181693519110174,
+                2.309470432319127,
+                2.300772662252248
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                1.992960904600837e-07,
+                1.9798091475736793e-07,
+                1.966659127293941e-07
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                1.9929609607061138e-07,
+                1.9798091474443869e-07,
+                1.9666590844735765e-07
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 15841334.855130374,
+                "reference_max_abs": 1179153408.0,
+                "relative_error": 0.013434498639154486
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 15568504.522022605,
+                "reference_max_abs": 1179153468.0614276,
+                "relative_error": 0.013203119817488904
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 109.98970281425864,
+                "reference_max_abs": 1179266865.8885965,
+                "relative_error": 9.326956094147496e-08
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.006660906015895307,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.004947404871927574,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0017135011439677328,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.019936528516964813,
+                "reference_max_abs": 95.88673400878906,
+                "relative_error": 0.00020791748434290623
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.019936528516964813,
+              "nominal_direction_inf_per_s": 95.88673400878906,
+              "realized_direction_inf_per_s": 95.88890739988555,
+              "nominal_F_endpoint_delta_inf": 2.3409846578732036e-06,
+              "actual_native_F_endpoint_delta_inf": 2.052108899475158e-09,
+              "native_F_endpoint_delta_inf_error": 2.342974171704661e-06,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 7.316165548409742,
+                "reference_max_abs": 548.8120201017413,
+                "relative_error": 0.01333091346478424
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 3.054324765328076e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 2.27774375749501e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 7.765810078330659e-10,
+              "native_plus_minus_stress_abs_delta_Pa": 28.7900390625,
+              "fp64_plus_minus_stress_abs_delta_Pa": 28.79069419015468,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            },
+            {
+              "pair": 1,
+              "epsilon": 6.103515625e-05,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "plastic",
+                "plastic",
+                "plastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                2.3138186114497032,
+                2.309470432319127,
+                2.305123404195759
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                1.9863830917741467e-07,
+                1.9798091475736793e-07,
+                1.9732369439222988e-07
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                1.9863830402755411e-07,
+                1.9798091474443869e-07,
+                1.9732370049041492e-07
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 66078667.21434295,
+                "reference_max_abs": 1179153408.0,
+                "relative_error": 0.05603907580305526
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 66483529.8355228,
+                "reference_max_abs": 1179153468.0614276,
+                "relative_error": 0.05638242318434106
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 150.93188485130668,
+                "reference_max_abs": 1177881185.9736667,
+                "relative_error": 1.2813846307133475e-07
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.004942175233736634,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.0016677684907335788,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0032744067430030555,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.026065514763880027,
+                "reference_max_abs": 95.88673400878906,
+                "relative_error": 0.00027183650620002175
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.026065514763880027,
+              "nominal_direction_inf_per_s": 95.88673400878906,
+              "realized_direction_inf_per_s": 95.86858764837042,
+              "nominal_F_endpoint_delta_inf": 1.1704923289366018e-06,
+              "actual_native_F_endpoint_delta_inf": 2.052108899475158e-09,
+              "native_F_endpoint_delta_inf_error": 1.1724818427680592e-06,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 30.548003924086046,
+                "reference_max_abs": 548.8120201017413,
+                "relative_error": 0.05566205331731422
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 3.880614288243045e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 1.5643292772260509e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 2.316285011016994e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 14.3779296875,
+              "fp64_plus_minus_stress_abs_delta_Pa": 14.378432065992456,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            }
+          ]
+        },
+        {
+          "tet_id": 633,
+          "grade": "medium",
+          "material_index": 1,
+          "center": {
+            "native_trial_q_from_capture": 0.0491805859,
+            "FP64_trial_q_at_exact_native_F": 0.04918058627292022,
+            "branch": "elastic",
+            "native_lambda_increment": 0.0,
+            "FP64_lambda_increment": 0.0,
+            "native_projected_state_vs_FP64": {
+              "absolute_error": 4.756945566619653e-10,
+              "reference_max_abs": 0.01783143776540937,
+              "relative_error": 2.6677296745232163e-08
+            },
+            "native_stress_vs_FP64_candidate_state": {
+              "absolute_error": 0.00312575681891758,
+              "reference_max_abs": 129112.45781174318,
+              "relative_error": 2.4209567937086258e-08
+            },
+            "native_stress_vs_FP64_reprojected_state": {
+              "absolute_error": 0.00312575681891758,
+              "reference_max_abs": 129112.45781174318,
+              "relative_error": 2.4209567937086258e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_candidate": {
+              "absolute_error": 0.4516486171633005,
+              "reference_max_abs": 16176699.74916285,
+              "relative_error": 2.791970081454182e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_reprojected": {
+              "absolute_error": 0.4479977134615183,
+              "reference_max_abs": 16176699.749158302,
+              "relative_error": 2.7694011782893372e-08
+            },
+            "native_algorithmic_tangent_abs_max_Pa_per_s": 16176700.0,
+            "observed_native_minus_FP64_stress_max_abs_Pa": 0.00312575681891758,
+            "native_local_residual_at_captured_candidate_scaled_inf": 5.629212651570015e-09,
+            "native_internal_force_vs_FP64_Pa_stress_force": {
+              "absolute_error": 2.1618267459153073e-08,
+              "reference_max_abs": 0.042133902567972115,
+              "relative_error": 5.130848590224371e-07
+            },
+            "native_internal_force_observed_abs_discrepancy_max_N": 2.1618267459153073e-08
+          },
+          "pairs": [
+            {
+              "pair": 0,
+              "epsilon": 0.0001220703125,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "elastic",
+                "elastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                0.04917185361233749,
+                0.04918058627292022,
+                0.049187427466248726
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 5705580.420361768,
+                "reference_max_abs": 16176700.0,
+                "relative_error": 0.35270360582577215
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 5564320.0770209,
+                "reference_max_abs": 16176699.74916285,
+                "relative_error": 0.34397127741144207
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 2.430314956465736,
+                "reference_max_abs": 16498741.024926744,
+                "relative_error": 1.4730305499031415e-07
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.0034487497905502096,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.002325878929696046,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.003700924586155452,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.013896364808327753,
+                "reference_max_abs": 0.11424961686134338,
+                "relative_error": 0.12163160971640527
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.013896364808327753,
+              "nominal_direction_inf_per_s": 0.11424961686134338,
+              "realized_direction_inf_per_s": 0.11455267957154795,
+              "nominal_F_endpoint_delta_inf": 2.789297216190315e-09,
+              "actual_native_F_endpoint_delta_inf": 2.052108899475158e-09,
+              "native_F_endpoint_delta_inf_error": 2.9128149698969238e-09,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 4.5335052458725045,
+                "reference_max_abs": 38.58151504820094,
+                "relative_error": 0.11750459359122296
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 4.7829621652173415e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 6.841485729932456e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 1.078461774745021e-08,
+              "native_plus_minus_stress_abs_delta_Pa": 0.40625,
+              "fp64_plus_minus_stress_abs_delta_Pa": 0.4028012502094498,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            },
+            {
+              "pair": 1,
+              "epsilon": 6.103515625e-05,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "elastic",
+                "elastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                0.049178953478907945,
+                0.04918058627292022,
+                0.049182107596797954
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 16870919.0808388,
+                "reference_max_abs": 16176700.0,
+                "relative_error": 1.042914752751723
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 17297364.446273237,
+                "reference_max_abs": 16176699.74916285,
+                "relative_error": 1.0692764726110702
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 7.82974398159422,
+                "reference_max_abs": 15989465.053401148,
+                "relative_error": 4.896814218264758e-07
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.005205632594879717,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.001408555734087713,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0037970768607920036,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.04724583687467404,
+                "reference_max_abs": 0.11424961686134338,
+                "relative_error": 0.4135316876555739
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.04724583687467404,
+              "nominal_direction_inf_per_s": 0.11424961686134338,
+              "realized_direction_inf_per_s": 0.11455267957154795,
+              "nominal_F_endpoint_delta_inf": 1.3946486080951575e-09,
+              "actual_native_F_endpoint_delta_inf": 2.052108899475158e-09,
+              "native_F_endpoint_delta_inf_error": 1.634043168888487e-09,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 23.74772760111989,
+                "reference_max_abs": 38.58151504820094,
+                "relative_error": 0.6155208672197348
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 4.128632720423742e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 7.2553555940935155e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 8.332144376798495e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 0.1951904296875,
+              "fp64_plus_minus_stress_abs_delta_Pa": 0.1951838947111355,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            }
+          ]
+        },
+        {
+          "tet_id": 702,
+          "grade": "medium",
+          "material_index": 1,
+          "center": {
+            "native_trial_q_from_capture": 1,
+            "FP64_trial_q_at_exact_native_F": 1.021463029696243,
+            "branch": "plastic",
+            "native_lambda_increment": 5.8167021301884174e-09,
+            "FP64_lambda_increment": 5.816702732227938e-09,
+            "native_projected_state_vs_FP64": {
+              "absolute_error": 5.677187019104135e-12,
+              "reference_max_abs": 0.009767594947440911,
+              "relative_error": 5.812267041838734e-10
+            },
+            "native_stress_vs_FP64_candidate_state": {
+              "absolute_error": 0.0022409148659789935,
+              "reference_max_abs": 76571.44307158513,
+              "relative_error": 2.9265673677901125e-08
+            },
+            "native_stress_vs_FP64_reprojected_state": {
+              "absolute_error": 0.0022822245955467224,
+              "reference_max_abs": 76571.4430302754,
+              "relative_error": 2.980516632871029e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_candidate": {
+              "absolute_error": 6.381656676530838,
+              "reference_max_abs": 165206975.66440442,
+              "relative_error": 3.862825192983563e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_reprojected": {
+              "absolute_error": 45.6288905441761,
+              "reference_max_abs": 165207007.65972525,
+              "relative_error": 2.761922220524528e-07
+            },
+            "native_algorithmic_tangent_abs_max_Pa_per_s": 165206976.0,
+            "observed_native_minus_FP64_stress_max_abs_Pa": 0.0022409148659789935,
+            "native_local_residual_at_captured_candidate_scaled_inf": 1.017451101148481e-08,
+            "native_internal_force_vs_FP64_Pa_stress_force": {
+              "absolute_error": 2.0375977002884404e-08,
+              "reference_max_abs": 0.04845139209317163,
+              "relative_error": 4.205447175532452e-07
+            },
+            "native_internal_force_observed_abs_discrepancy_max_N": 2.0375977002884404e-08
+          },
+          "pairs": [
+            {
+              "pair": 0,
+              "epsilon": 0.0001220703125,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "plastic",
+                "plastic",
+                "plastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                1.0217013051660464,
+                1.021463029696243,
+                1.021220620053949
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                5.881277705159063e-09,
+                5.816702732227938e-09,
+                5.751007357405312e-09
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                5.8812767989024906e-09,
+                5.8167021301884174e-09,
+                5.7510067819066535e-09
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 19753028.67248273,
+                "reference_max_abs": 165206976.0,
+                "relative_error": 0.11956534252211437
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 19720059.31340587,
+                "reference_max_abs": 165206975.66440442,
+                "relative_error": 0.11936577880019121
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 1191.7296235002577,
+                "reference_max_abs": 184926061.99245098,
+                "relative_error": 6.4443573321152874e-06
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.0011739277688320726,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.0010720592108555138,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0022459869796875864,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.007281971865579995,
+                "reference_max_abs": 1.8446921110153198,
+                "relative_error": 0.0039475269732530014
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.007281971865579995,
+              "nominal_direction_inf_per_s": 1.8446921110153198,
+              "realized_direction_inf_per_s": 1.8456585815010955,
+              "nominal_F_endpoint_delta_inf": 4.503642735386908e-08,
+              "actual_native_F_endpoint_delta_inf": 2.052108899475158e-09,
+              "native_F_endpoint_delta_inf_error": 4.298431845439392e-08,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 6.468827275954583,
+                "reference_max_abs": 108.26598614177463,
+                "relative_error": 0.05974939596895773
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 8.798903119999757e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 3.794034988957584e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 5.163225305637731e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 4.515625,
+              "fp64_plus_minus_stress_abs_delta_Pa": 4.514820075833995,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            },
+            {
+              "pair": 1,
+              "epsilon": 6.103515625e-05,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "plastic",
+                "plastic",
+                "plastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                1.0215870346852252,
+                1.021463029696243,
+                1.0213434496730134
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                5.850309293150319e-09,
+                5.816702732227938e-09,
+                5.7842953771965344e-09
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                5.850308681942806e-09,
+                5.8167021301884174e-09,
+                5.7842948208985945e-09
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 13206972.160156935,
+                "reference_max_abs": 165206976.0,
+                "relative_error": 0.07994197630103063
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 13342792.847999603,
+                "reference_max_abs": 165206975.66440442,
+                "relative_error": 0.0807641008761257
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 564.8763731867075,
+                "reference_max_abs": 151863744.57279128,
+                "relative_error": 3.719626266135899e-06
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.0016579714356339537,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.0034559384075691923,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0028743042203132063,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.031309524619993256,
+                "reference_max_abs": 1.8446921110153198,
+                "relative_error": 0.01697276441582464
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.031309524619993256,
+              "nominal_direction_inf_per_s": 1.8446921110153198,
+              "realized_direction_inf_per_s": 1.876001635635313,
+              "nominal_F_endpoint_delta_inf": 2.251821367693454e-08,
+              "actual_native_F_endpoint_delta_inf": 2.052108899475158e-09,
+              "native_F_endpoint_delta_inf_error": 2.046610477745938e-08,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 4.936763517721445,
+                "reference_max_abs": 108.26598614177463,
+                "relative_error": 0.045598471816039605
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 1.728507836862292e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 3.099675530138235e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 1.6095690474893232e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 1.85546875,
+              "fp64_plus_minus_stress_abs_delta_Pa": 1.853810778564366,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            }
+          ]
+        },
+        {
+          "tet_id": 776,
+          "grade": "medium",
+          "material_index": 1,
+          "center": {
+            "native_trial_q_from_capture": 0.999999166,
+            "FP64_trial_q_at_exact_native_F": 1.0002293965905171,
+            "branch": "plastic",
+            "native_lambda_increment": 6.238384185146522e-11,
+            "FP64_lambda_increment": 6.238378713602244e-11,
+            "native_projected_state_vs_FP64": {
+              "absolute_error": 5.04870451001338e-13,
+              "reference_max_abs": 0.0074568132408686415,
+              "relative_error": 6.770592674016411e-11
+            },
+            "native_stress_vs_FP64_candidate_state": {
+              "absolute_error": 0.0017934104398591444,
+              "reference_max_abs": 62850.544575238186,
+              "relative_error": 2.853452507022049e-08
+            },
+            "native_stress_vs_FP64_reprojected_state": {
+              "absolute_error": 0.0017964712969842367,
+              "reference_max_abs": 62850.54457899303,
+              "relative_error": 2.858322563500402e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_candidate": {
+              "absolute_error": 9.514417707920074,
+              "reference_max_abs": 290891392.48445815,
+              "relative_error": 3.270780075910432e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_reprojected": {
+              "absolute_error": 561.8153252005577,
+              "reference_max_abs": 290891392.55447847,
+              "relative_error": 1.931357680496993e-06
+            },
+            "native_algorithmic_tangent_abs_max_Pa_per_s": 290891392.0,
+            "observed_native_minus_FP64_stress_max_abs_Pa": 0.0017934104398591444,
+            "native_local_residual_at_captured_candidate_scaled_inf": 4.072697040724549e-14,
+            "native_internal_force_vs_FP64_Pa_stress_force": {
+              "absolute_error": 1.194823630312758e-08,
+              "reference_max_abs": 0.04670160058624572,
+              "relative_error": 2.55842115754947e-07
+            },
+            "native_internal_force_observed_abs_discrepancy_max_N": 1.194823630312758e-08
+          },
+          "pairs": [
+            {
+              "pair": 0,
+              "epsilon": 0.0001220703125,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "plastic",
+                "plastic",
+                "plastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                1.0004517035066758,
+                1.0002293965905171,
+                1.0000092792896556
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                1.2252253769794359e-10,
+                6.238378713602244e-11,
+                5.079099974306883e-12
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                1.225219509182196e-10,
+                6.238384185146522e-11,
+                5.147116240167282e-12
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 30318216.063670456,
+                "reference_max_abs": 290891392.0,
+                "relative_error": 0.1042252087805694
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 30356433.604397178,
+                "reference_max_abs": 290891392.48445815,
+                "relative_error": 0.10435658939622654
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 5921334.38048706,
+                "reference_max_abs": 314411467.11907935,
+                "relative_error": 0.018833073853010678
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.0017643623941694386,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.0017061428225133568,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0014115199155639857,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.04560600118703653,
+                "reference_max_abs": 2.7334954738616943,
+                "relative_error": 0.01668413268766365
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.04560600118703653,
+              "nominal_direction_inf_per_s": 2.7334954738616943,
+              "realized_direction_inf_per_s": 2.7359101259140877,
+              "nominal_F_endpoint_delta_inf": 6.67357276564402e-08,
+              "actual_native_F_endpoint_delta_inf": 2.052108899475158e-09,
+              "native_F_endpoint_delta_inf_error": 6.468361875696504e-08,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 26.70103119923762,
+                "reference_max_abs": 184.16419274061744,
+                "relative_error": 0.14498492243193106
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 1.0627713833977204e-08,
+              "native_plus_force_vs_FP64_abs_max_N": 9.275265187846937e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 7.16912871429054e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 7.79296875,
+              "fp64_plus_minus_stress_abs_delta_Pa": 7.79390202768991,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            },
+            {
+              "pair": 1,
+              "epsilon": 6.103515625e-05,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "plastic",
+                "plastic",
+                "plastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                1.0003382650155528,
+                1.0002293965905171,
+                1.0001253186683836
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                9.181728065333322e-11,
+                6.238378713602244e-11,
+                3.435157730915722e-11
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                9.181711640993129e-11,
+                6.238384185146522e-11,
+                3.435530679385401e-11
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 4558215.412918091,
+                "reference_max_abs": 290891392.0,
+                "relative_error": 0.015669818833683777
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 4645338.259252548,
+                "reference_max_abs": 290891392.48445815,
+                "relative_error": 0.015969321813125634
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 261926.45846196637,
+                "reference_max_abs": 293313634.2140834,
+                "relative_error": 0.0008929910781808111
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.0034062768609146588,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.0018245442624902353,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0018346283613936976,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.051811215693622126,
+                "reference_max_abs": 2.7334954738616943,
+                "relative_error": 0.018954198457269367
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.051811215693622126,
+              "nominal_direction_inf_per_s": 2.7334954738616943,
+              "realized_direction_inf_per_s": 2.748286966685936,
+              "nominal_F_endpoint_delta_inf": 3.33678638282201e-08,
+              "actual_native_F_endpoint_delta_inf": 2.052108899475158e-09,
+              "native_F_endpoint_delta_inf_error": 3.131575492874494e-08,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 2.344043818330533,
+                "reference_max_abs": 184.16419274061744,
+                "relative_error": 0.01272801071396087
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 1.1039932065748381e-08,
+              "native_plus_force_vs_FP64_abs_max_N": 5.811222329732413e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 5.2287097360159684e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 3.58203125,
+              "fp64_plus_minus_stress_abs_delta_Pa": 3.5830948774237186,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            }
+          ]
+        },
+        {
+          "tet_id": 1388,
+          "grade": "liner",
+          "material_index": 0,
+          "center": {
+            "native_trial_q_from_capture": 0.0214917175,
+            "FP64_trial_q_at_exact_native_F": 0.02149171710395507,
+            "branch": "elastic",
+            "native_lambda_increment": 0.0,
+            "FP64_lambda_increment": 0.0,
+            "native_projected_state_vs_FP64": {
+              "absolute_error": 3.870721833332258e-10,
+              "reference_max_abs": 0.012562554873884104,
+              "relative_error": 3.081158149907053e-08
+            },
+            "native_stress_vs_FP64_candidate_state": {
+              "absolute_error": 0.005659831804223359,
+              "reference_max_abs": 287951.0369098318,
+              "relative_error": 1.9655535416584255e-08
+            },
+            "native_stress_vs_FP64_reprojected_state": {
+              "absolute_error": 0.005659831804223359,
+              "reference_max_abs": 287951.0369098318,
+              "relative_error": 1.9655535416584255e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_candidate": {
+              "absolute_error": 2.959395870566368,
+              "reference_max_abs": 88055354.95939587,
+              "relative_error": 3.36083577419114e-08
+            },
+            "native_algorithmic_tangent_vs_FP64_reprojected": {
+              "absolute_error": 2.9592507630586624,
+              "reference_max_abs": 88055354.95925076,
+              "relative_error": 3.3606709829607866e-08
+            },
+            "native_algorithmic_tangent_abs_max_Pa_per_s": 88055352.0,
+            "observed_native_minus_FP64_stress_max_abs_Pa": 0.005659831804223359,
+            "native_local_residual_at_captured_candidate_scaled_inf": 4.626237615212858e-09,
+            "native_internal_force_vs_FP64_Pa_stress_force": {
+              "absolute_error": 8.181461426685823e-09,
+              "reference_max_abs": 0.13290858365192676,
+              "relative_error": 6.155705825676533e-08
+            },
+            "native_internal_force_observed_abs_discrepancy_max_N": 8.181461426685823e-09
+          },
+          "pairs": [
+            {
+              "pair": 0,
+              "epsilon": 0.0001220703125,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "elastic",
+                "elastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                0.021484975920785437,
+                0.02149171710395507,
+                0.02149555047100257
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 3575349.865855634,
+                "reference_max_abs": 88055352.0,
+                "relative_error": 0.04060343618699786
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 3699019.019476652,
+                "reference_max_abs": 88055354.95939587,
+                "relative_error": 0.04200788266860483
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 34.61767442524433,
+                "reference_max_abs": 84356301.3222448,
+                "relative_error": 4.1037449345963246e-07
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.00301919411867857,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.004485205688979477,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.0075043998076580465,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.012894357604143272,
+                "reference_max_abs": 0.20123952627182007,
+                "relative_error": 0.06407467679449061
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.012894357604143272,
+              "nominal_direction_inf_per_s": 0.20123952627182007,
+              "realized_direction_inf_per_s": 0.20173051835014746,
+              "nominal_F_endpoint_delta_inf": 4.913074247755909e-09,
+              "actual_native_F_endpoint_delta_inf": 2.052108899475158e-09,
+              "native_F_endpoint_delta_inf_error": 2.860965348280751e-09,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 3.1346044543987226,
+                "reference_max_abs": 41.27879285644478,
+                "relative_error": 0.075937406050122
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 1.3935798348629902e-09,
+              "native_plus_force_vs_FP64_abs_max_N": 2.070905252837818e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 3.4644850877008082e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 2.0625,
+              "fp64_plus_minus_stress_abs_delta_Pa": 2.0594808058813214,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            },
+            {
+              "pair": 1,
+              "epsilon": 6.103515625e-05,
+              "dt_s": 9.999999747378752e-05,
+              "branches_minus_center_plus": [
+                "elastic",
+                "elastic",
+                "elastic"
+              ],
+              "branch_crossing_or_unresolved": false,
+              "FP64_trial_q_minus_center_plus": [
+                0.021490837585254743,
+                0.02149171710395507,
+                0.021491108950738653
+              ],
+              "FP64_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_lambda_increment_minus_center_plus": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "native_centered_stress_derivative_Pa_per_s": {
+                "absolute_error": 52744651.55690727,
+                "reference_max_abs": 88055352.0,
+                "relative_error": 0.5989942730216701
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_nominal_direction_tangent": {
+                "absolute_error": 52733910.88247268,
+                "reference_max_abs": 88055354.95939587,
+                "relative_error": 0.5988722764991335
+              },
+              "FP64_exact_endpoint_stress_derivative_vs_FP64_realized_direction_tangent": {
+                "absolute_error": 9.03375369310379,
+                "reference_max_abs": 140789274.87562224,
+                "relative_error": 6.416507010981127e-08
+              },
+              "native_minus_FP64_exact_endpoint_stress_difference_abs_max_Pa": 0.00025036803162947763,
+              "native_vs_FP64_plus_stress_abs_max_Pa": 0.005521578714251518,
+              "native_vs_FP64_minus_stress_abs_max_Pa": 0.005652654333971441,
+              "exact_realized_F_direction_vs_nominal": {
+                "absolute_error": 0.03367163587878133,
+                "reference_max_abs": 0.20123952627182007,
+                "relative_error": 0.1673211843745849
+              },
+              "realized_F_direction_max_abs_delta_per_s": 0.03367163587878133,
+              "nominal_direction_inf_per_s": 0.20123952627182007,
+              "realized_direction_inf_per_s": 0.16810876529178956,
+              "nominal_F_endpoint_delta_inf": 2.4565371238779545e-09,
+              "actual_native_F_endpoint_delta_inf": 2.052108899475158e-09,
+              "native_F_endpoint_delta_inf_error": 4.1103070102739574e-10,
+              "native_centered_force_derivative_N_per_s": {
+                "absolute_error": 31.756489602726283,
+                "reference_max_abs": 41.27879285644478,
+                "relative_error": 0.7693173032740032
+              },
+              "native_minus_FP64_exact_endpoint_force_difference_abs_max_N": 6.366954186098894e-11,
+              "native_plus_force_vs_FP64_abs_max_N": 2.549876310098398e-09,
+              "native_minus_force_vs_FP64_abs_max_N": 2.6095861582753344e-09,
+              "native_plus_minus_stress_abs_delta_Pa": 1.71875,
+              "fp64_plus_minus_stress_abs_delta_Pa": 1.71861892438028,
+              "smooth_tangent_verdict": "center_tangent_compared; input pair response separately reported"
+            }
+          ]
+        }
+      ],
+      "replay_returncode": 0,
+      "replay_stdout_sha256": "bed60ac281500be2e06f8d11c2b3a9fb25706c15b4e19edf0ade775f204baaa0",
+      "replay_input_sha256": "857fbc2d794464071b3abdd972941a9bc8ddeab2b1b554126b5eaef64fc62654",
+      "deterministic_discrepancy_envelopes": {
+        "max_native_vs_FP64_candidate_stress_abs_Pa": 0.012511263659689575,
+        "max_native_vs_FP64_element_force_abs_N": 2.1618267459153073e-08,
+        "max_native_vs_FP64_candidate_tangent_relative": 5.0936056433751945e-08,
+        "max_native_vs_FP64_centered_pair_stress_response_abs_Pa": 0.014949936768971384,
+        "max_native_vs_FP64_centered_pair_force_response_abs_N": 1.1039932065748381e-08,
+        "max_realized_direction_relative_deviation": 0.4135316876555739,
+        "interpretation": "captured deterministic evaluator/rounding discrepancies, not measured stochastic noise floor"
+      }
+    }
+  },
+  "replay_executable": "/Users/home/cardboard-implementation-20261014/analysis/smooth-target-pair-audit-225/build/cardboard_solver_pair_replay_realized",
+  "replay_executable_sha256": "7277f658c379166fd7865237a8edf7b50dec0a20d7ffdb5e570c098003832dda",
+  "replay_source_sha256": "bae9ff0ba93087c93276be423023a43e393011df4553f5d5838c409212834f20",
+  "oracle_header_sha256": "9055ddda423484ae24482abb1fc6f00e81fd221f07cb822b89805ffdd4bb39f7",
+  "projection_scaling_header_sha256": "9b05e0fffbf5f350d7c4fc98ad05f8df2029c358c857f217d107b488fc5dc001",
+  "liner_material_sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+  "medium_material_sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+  "capture_source_snapshot": "source-graph-tail-guard-angular-instrument-069",
+  "capture_run_invariant_source_files_sha256": {
+    "matter/tools/cardboard_solver_pair_replay.cpp": "bae9ff0ba93087c93276be423023a43e393011df4553f5d5838c409212834f20",
+    "matter/tools/cardboard_solver_reference.hpp": "9055ddda423484ae24482abb1fc6f00e81fd221f07cb822b89805ffdd4bb39f7",
+    "matter/tools/cardboard_paper_projection_scaling.hpp": "9b05e0fffbf5f350d7c4fc98ad05f8df2029c358c857f217d107b488fc5dc001",
+    "matter/include/numi/matter/paper_compensated_bytecode.h": "f578310307a4698692fc57117340794ac4ce2d3813cdfcf705da6a018a5976aa",
+    "matter/materials/hajali2009_liner_hill_ideal.nmatter": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+    "matter/materials/hajali2009_medium_hill_ideal.nmatter": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8"
+  },
+  "capture_source_and_replay_source_relevant_files_match": true,
+  "numeric_contract": "All native float-valued capture words, including F high/low, projected-state high/low, accepted state, direction, and parameters, are rounded to float32 and widened exactly. The independent replay sums each high+low pair in FP64, including a two-word decomposition of the exact realized endpoint direction; exact-endpoint stress differences remain unrounded FP64.",
+  "limits": [
+    "Only env0 tets 1388, 633, 441, 518, 702, 776 are replayed.",
+    "Capture JSON exposes directional tangent only, not the full 9x9 native tangent; exact realized-pair derivative is compared with independent tangent, not native tangent transformed to a new direction.",
+    "Absolute deterministic discrepancies are evaluator error envelopes, not stochastic/repeatability noise floors.",
+    "Near-yield or branch-crossing endpoint pairs are not admissible smooth-derivative tests.",
+    "No physical grade calibration, box qualification, or convergence claim."
+  ]
+}

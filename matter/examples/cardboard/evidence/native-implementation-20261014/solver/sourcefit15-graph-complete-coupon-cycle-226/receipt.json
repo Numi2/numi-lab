@@ -1,0 +1,14 @@
+{
+  "exit_code": 1,
+  "timed_out": false,
+  "termination_errors": [],
+  "error_type": "KeyboardInterrupt",
+  "reason": "",
+  "schema": "numi.cardboard.native-run-receipt.v2",
+  "execution_started": true,
+  "source_inputs_unchanged": null,
+  "changed_inputs": null,
+  "stage": "execution",
+  "wall_seconds": 390.62261720804963,
+  "finished_at_utc": "2026-10-15T06:04:13.540236+00:00"
+}

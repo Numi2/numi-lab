@@ -1,0 +1,82 @@
+{
+  "schema": "numi.matter.selector5-native-kernel-check-001.manifest.v1",
+  "status": "prepared_cpu_only_no_native_gpu_execution",
+  "scope": "production selector-5 point kernels using source182 selector3 operator inputs and source065 reconstructed graph layout",
+  "source_bindings": {
+    "source_snapshot": "source-angular-and-graph-schwarz-integrated-065",
+    "source_snapshot_binding": "see parent source snapshot manifest; relevant layout and Metal source hashes below",
+    "source182_operator_audit_sha256": "7fc18d560019f74f00e5cf0b82326494316e0e0a145db0a96db493c0d3d646db",
+    "source182_topology_npz_sha256": "aee02f06cdf0abbd5e1fb8287a37324f0ede6b18977b41e681f267446a45436c",
+    "source182_vectors_npz_sha256": "a2acfe0b30d14fed1238372ce7970b759360da018931ea8ecc87650912b0cbcc",
+    "source182_operator_npz_sha256": "014efa29694ca8f2afc4a6838f005eb3ffd17f232f62db32a2cc3212d51e72f7",
+    "source182_regional_capture_manifest_sha256": "8a0c68399357d3edf513499864260cdda3e7a239d429941d95a544756eb84eda",
+    "source182_regional_capture_payload_sha256": "5ea011af4b6c0835cf88cf9f6005514b79a14a850ba16c2c4a66374e118cb4d4",
+    "source182_source_physics_fingerprint": "9405e23ae7e2bcd0",
+    "source182_device_program_fingerprint": "692ad59caf1de985",
+    "source182_candidate_linearization_sha256_environment0": "1c756428d7ef1f5cfa6a5e035faef068d39de9b38db6195b56009bbe3c581b41",
+    "graph_layout_helper_sha256": "f8973ed2c95367e82f202be77b4f8763231dae88d17cd80c60c64ccd127391a8",
+    "graph_layout_exporter_source_sha256": "98400bb5334256754fda43fa59cd59cfb5f595010d31627b6438929fef7c8914",
+    "graph_layout_exporter_binary_sha256": "b7b7d58f974a033cbc56d127ca92d4d115c4ca7c3135ed8b92ee4ec22298b77f",
+    "selector5_metal_source_sha256": "c99e77d32266797e10d3d39a2be93cde68b818b386c0f8e7fc9152dac3b072f1",
+    "selector5_metallib_path": "/Users/home/cardboard-implementation-20261014/analysis/graph-schwarz-native-063/NumiMatterGraphSchwarz.metallib",
+    "selector5_metallib_sha256": "2f64ba5258db2d53322f00f6d3223ac7b897daf47e920e2d5f11d15df7c4c56a"
+  },
+  "prepared_inputs": {
+    "bundle_sha256": "b2619d5d7120f1e6cae40869af0a37ce14b86b29ce0a51961c95ec2c84c3de60",
+    "bundle_manifest_sha256": "81a913889748d56e0fdba09258968373c19d358ac9be1c35ad02005178af42bb",
+    "layout_json_sha256": "9191007fecd8dd21f7a044d3049255a7361118492f3adf1bd7a5fa6e9188fe13",
+    "graph_layout_input_sha256": "f0f5bc136f50f7e4cb3c66005316edbf47279b64a42ec531bfbe54e5189493b9",
+    "graph_layout_output_sha256": "a51d0829a32519071201e229a43b949752d7dd98adbf72e8bd0dfc9c164889c6",
+    "actual_topology_global_id_bfs_matches_production_cpp": true,
+    "native_selector5_capture_present": false,
+    "source_selector": 3,
+    "capture_generation": {
+      "root": 3,
+      "iteration": 23,
+      "environment": 0
+    },
+    "dimensions": {
+      "nodes": 882,
+      "tetrahedra": 1920,
+      "free_nodes": 846,
+      "fixed_nodes": 36,
+      "modes": 26,
+      "patches": 13,
+      "patch_node_entries": 2053,
+      "patch_dofs": 6159,
+      "local_matrix_float_count": 4718637,
+      "pivot_count": 6159,
+      "runtime_layout_fnv1a32": 2602968157
+    }
+  },
+  "tool_bindings": {
+    "host_source_sha256": "4c2318e74c92a990e281cf0e15c8a29036e60d5076d9d08494b32954132114a3",
+    "host_binary_sha256": "52b4ffcb5aaf16ec85cbda6bd0293dda86491c1d9df73f3d510aef4abe3c0516",
+    "output_verifier_source_sha256": "0a4935689449d11a30d1600d585f88a6d62edc65d00feb2fcd2ca813bcb83028",
+    "unit_test_source_sha256": "34d4019e1226bf7d26f86a8752eda01de1b39ba289dc210d09ae03f040bd0554",
+    "native_output_sha256": null,
+    "native_run": false,
+    "input_builder_sha256": "18982aaf7c84fa9ffaf20ec04b88067dbf05da3a7c1fa53201707b64f890b6f2",
+    "capture_reader_source_sha256": "f6cb1c33fb42e4618bfe356f7513447cfb5c08a73abc050ea2acdc6007ce17b3",
+    "capture_reader_test_sha256": "040eb72637bbc95fe9f843297368416729adbc630dabb6a8e81aca0b2e32af6b",
+    "compile_commands": [
+      "clang++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -I <source065>/matter/include graph_layout_export.cpp -o graph_layout_export",
+      "clang++ -std=c++20 -fobjc-arc -fmodules -Wall -Wextra -Wpedantic -Werror -I <source065>/matter/include selector5_graph_kernels.mm -framework Foundation -framework Metal -o selector5_graph_kernels"
+    ],
+    "cpu_test_results": {
+      "output_verifier_tests": "5 passed",
+      "selector5_capture_reader_tests": "7 passed",
+      "native_kernel_run": "not run"
+    },
+    "capture_reader_readme_sha256": "7369d34153fdf429b21bd2e1aed9c8ac3835af09fa0ae0d3a56bc0c61205decc",
+    "README_sha256": "89778f8a0ec882b6e77804c203c10b2d3eda678f9049f02ee2b914ad3bcf63c7",
+    "cpu_test_record_sha256": "2fbd014752ffda18fbe5c2759fd19e21aa000199724b2b91834fe3f089f4c2f7"
+  },
+  "evidence_limits": [
+    "Source182 is selector3, so the graph map is reconstructed from a separately retained source-bound mesh and same-generation fixed mask.",
+    "Source065 graph layout and graph-schwarz-native-063 metallib are not same-build source evidence.",
+    "Patch matrices are principal blocks of audited CSR A rather than production selector5 FEM assembly.",
+    "No Metal command was executed by this task; only host compile/link and CPU tests were run.",
+    "A future strict selector5 capture must bind actual global connectivity and free mask to the same run/world/generation; matching node/tet/patch counts is insufficient."
+  ]
+}

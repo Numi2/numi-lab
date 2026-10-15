@@ -1,0 +1,178 @@
+{
+  "schema": "numi.cardboard.all_paper_tet_fp64_audit.v1",
+  "capture": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-first-control-final-newton-capture-216/operator-capture",
+  "capture_sha256": "902298a2655399972a855b48e02dd0bcb221131bd9f5640e72d9aac8ab709c77",
+  "prediction_sha256": "d6ed7a8bd8eb871a8ac4b877e1dc4f3990ed273b373c9a654072a31258f15fba",
+  "receipt_sha256": "f4b7544c749346625794db652b5bcd18f71f07368f43f598d54c47f4f91a87cc",
+  "native_receipt": {
+    "exit_code": 2,
+    "timed_out": false,
+    "source_inputs_unchanged": true,
+    "wall_seconds": 68.76003883400699
+  },
+  "selection": {
+    "root": 0,
+    "newton_iteration": 23,
+    "environment_count": 2,
+    "node_count_per_environment": 882,
+    "tet_count_per_environment": 1920,
+    "dt_seconds": 9.999999747378752e-05,
+    "paper_tets": 3456,
+    "paper_tets_by_environment_material": {
+      "0:0": 1152,
+      "0:1": 576,
+      "1:0": 1152,
+      "1:1": 576
+    },
+    "starch_tets_per_environment": 192
+  },
+  "source": {
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-graph-tail-guard-angular-instrument-069",
+    "source_tree_hash": null,
+    "liner_nmatter_sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+    "medium_nmatter_sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+    "replay_cpp_sha256": "9dbe9379a2a350e6c5234151a3776ce6d83b2bf34b7742eb9df47b69a0809120",
+    "replay_binary_sha256": "7277f658c379166fd7865237a8edf7b50dec0a20d7ffdb5e570c098003832dda",
+    "parameter_blocks_equal_across_environments": true,
+    "inputs_bitwise_unchanged": true
+  },
+  "counts": {
+    "replayed_rows_expected": 24192,
+    "replayed_rows_observed": 24192,
+    "paper_tetrahedron_audit_rows": 3456,
+    "branch_counts": {
+      "env0:liner:elastic": 1029,
+      "env0:liner:plastic": 123,
+      "env0:medium:plastic": 258,
+      "env0:medium:elastic": 318,
+      "env1:liner:elastic": 1152,
+      "env1:medium:elastic": 576
+    },
+    "own_fp64_fd_gate_by_pair": {
+      "pair0": {
+        "PASS": 1438,
+        "INCONCLUSIVE_BRANCH_OR_ZERO_SCALE": 1759,
+        "FAIL": 259
+      },
+      "pair1": {
+        "PASS": 1470,
+        "FAIL": 251,
+        "INCONCLUSIVE_BRANCH_OR_ZERO_SCALE": 1735
+      }
+    }
+  },
+  "all_tet_distributions": {
+    "native_vs_FP64_center_stress_relative": {
+      "n": 2304,
+      "max": 9.697761303302334e-08,
+      "p99": 9.697761303302334e-08,
+      "median": 2.5299755963548278e-08
+    },
+    "native_vs_FP64_center_tangent_relative": {
+      "n": 1728,
+      "max": 5.813327153553562e-08,
+      "p99": 5.393363016874709e-08,
+      "median": 2.50738946305365e-08
+    },
+    "native_vs_FP64_center_tangent_absolute_Pa_per_s": {
+      "n": 3456,
+      "max": 455.33010482788086,
+      "p99": 94.89006342887845,
+      "median": 0.024911636020988226
+    },
+    "native_vs_FP64_projected_state_abs_component": {
+      "n": 3456,
+      "max": 9.074946037690435e-10,
+      "p99": 4.4921886505760975e-10,
+      "median": 1.3475331961387838e-13
+    },
+    "native_vs_FP64_element_tangent_force_relative": {
+      "n": 1728,
+      "max": 9.135296375433304e-07,
+      "p99": 4.5248559233105356e-07,
+      "median": 6.145632209700658e-08
+    },
+    "native_vs_FP64_element_tangent_force_abs_N_per_s": {
+      "n": 3456,
+      "max": 0.0004991343303117901,
+      "p99": 0.0001396393984236965,
+      "median": 1.1716065256850428e-08
+    }
+  },
+  "assembled_free_A_action": [
+    {
+      "environment": 0,
+      "free_node_count": 846,
+      "captured_tet_count": 1920,
+      "paper_tet_count": 1728,
+      "glue_tet_count": 192,
+      "native_production_A_action_vs_mass_minus_native_element_tangent": {
+        "absolute_error": 1.1625681686322324e-11,
+        "reference_max_abs": 9.190467385068048e-05,
+        "relative_error": 1.264971758151367e-07
+      },
+      "native_production_A_action_vs_mass_minus_independent_FP64_element_tangent": {
+        "absolute_error": 1.4618690535438822e-11,
+        "reference_max_abs": 9.19046719915462e-05,
+        "relative_error": 1.5906362776403266e-07
+      },
+      "max_abs_native_operator_action_Ns": 9.190466516884044e-05,
+      "max_abs_independent_element_action_Ns": 9.19046719915462e-05,
+      "relative_action_difference_native_tangent_vs_oracle": {
+        "absolute_error": 8.459460686271081e-12,
+        "reference_max_abs": 9.19046719915462e-05,
+        "relative_error": 9.204603534246029e-08
+      },
+      "mass_action_l2_Ns": 4.6219101994529764e-07,
+      "dt_squared_stiffness_action_l2_Ns": 0.0002588589583055731,
+      "native_correction_delta_v_max_m_s": 0.33012855052948,
+      "displacement_dof_reconstruction": "mass*delta_v - dt^2*assembled element (dP/dF):(dF/dv) direction; first 3 node action components only",
+      "limitations": "captured rejected Newton transaction; independent paper 13-state FP64 tangent plus analytic finite-glue tangent; no global physical reaction or accepted solver claim"
+    },
+    {
+      "environment": 1,
+      "free_node_count": 846,
+      "captured_tet_count": 1920,
+      "paper_tet_count": 1728,
+      "glue_tet_count": 192,
+      "native_production_A_action_vs_mass_minus_native_element_tangent": {
+        "absolute_error": 0.0,
+        "reference_max_abs": 0.0,
+        "relative_error": null
+      },
+      "native_production_A_action_vs_mass_minus_independent_FP64_element_tangent": {
+        "absolute_error": 0.0,
+        "reference_max_abs": 0.0,
+        "relative_error": null
+      },
+      "max_abs_native_operator_action_Ns": 0.0,
+      "max_abs_independent_element_action_Ns": 0.0,
+      "relative_action_difference_native_tangent_vs_oracle": {
+        "absolute_error": 0.0,
+        "reference_max_abs": 0.0,
+        "relative_error": null
+      },
+      "mass_action_l2_Ns": 0.0,
+      "dt_squared_stiffness_action_l2_Ns": 0.0,
+      "native_correction_delta_v_max_m_s": 0.0,
+      "displacement_dof_reconstruction": "mass*delta_v - dt^2*assembled element (dP/dF):(dF/dv) direction; first 3 node action components only",
+      "limitations": "captured rejected Newton transaction; independent paper 13-state FP64 tangent plus analytic finite-glue tangent; no global physical reaction or accepted solver claim"
+    }
+  ],
+  "gates": {
+    "native_directional_tangent_vs_independent_FP64_relative_le_1e-3": "counted in rows; no gate accepted when reference scale is zero",
+    "own_FP64_endpoint_FD_vs_exact_realized_direction_tangent_relative_le_1e-6": "only eligible same-branch, non-near-transition rows are counted; observed endpoint pairs use captured high+low F words",
+    "assembled_free_displacement_A_action_relative_le_1e-2": "reported per environment; capture uses rejected transaction and is not physical/solver qualification"
+  },
+  "limits": [
+    "This native transaction was rejected with zero accepted steps; capture is diagnostic only.",
+    "Native capture carries a 9-component directional tangent, not a complete exported 9x9 per-element constitutive Jacobian; the full 9x9 matrix gate is unavailable.",
+    "Independent FP64 own-FD sweeps at infinitesimal smooth steps are a separate operation from native endpoint pairs; native realized F perturbation can differ from requested direction.",
+    "Element force and assembled A checks are not physical calibration, fold validation, or an accepted global response."
+  ],
+  "artifact_sha256": {
+    "replay_input": "a4c466231c2dabe35bba369bead3449749b021639b114861d12d7956fc62042b",
+    "replay_output": "008b1b6c2222b26df82e6f50b219a2ba978ee1f6289e6bd2e74d3b314f54a6e1",
+    "audit_jsonl": "a27e65300fc0f73e6cfa5264d1e4de86b7011ef9a662e182efce10539eefd4a1"
+  }
+}

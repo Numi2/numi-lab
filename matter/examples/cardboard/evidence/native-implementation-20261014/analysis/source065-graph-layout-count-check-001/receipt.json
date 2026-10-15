@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.cpu-check-receipt.v1",
+  "exit_code": 0,
+  "physical_steps": 0,
+  "physical_validation": false,
+  "scope": "synthetic-layout-count-and-coverage-only",
+  "stdout_sha256": "7b807ef2a708b3d087ca0ce47e418f8fd818f2a9e7ffa9253cf53502527d7624",
+  "finished_at_utc": "2026-10-15T04:57:50.834788+00:00"
+}

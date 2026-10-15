@@ -1,0 +1,683 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -9616,6 +9616,33 @@
+             const bool femRegionalRAPCaptureOnly =
+                 regionalOnlyCaptureText != nullptr &&
+                 std::strcmp(regionalOnlyCaptureText, "1") == 0;
++            const char* regionalCaptureSelectorText = std::getenv(
++                "NM_FEM_OPERATOR_FD_SELECTOR");
++            const char* regionalCapturePathText = std::getenv(
++                "NM_FEM_OPERATOR_FD_CAPTURE_PATH");
++            const char* regionalOnlyCaptureReason = nullptr;
++            if (!regionalOnlyCaptureValid) {
++                regionalOnlyCaptureReason = "regional_rap_capture_only_must_be_0_or_1";
++            } else if (femRegionalRAPCaptureOnly &&
++                       (regionalCaptureSelectorText == nullptr ||
++                        regionalCaptureSelectorText[0] == '\0')) {
++                regionalOnlyCaptureReason = "regional_rap_capture_only_requires_fd_selector";
++            } else if (femRegionalRAPCaptureOnly &&
++                       (regionalCapturePathText == nullptr ||
++                        regionalCapturePathText[0] == '\0')) {
++                regionalOnlyCaptureReason = "regional_rap_capture_only_requires_capture_path";
++            } else if (femRegionalRAPCaptureOnly &&
++                       !usesRegionalGalerkinPreconditioner(
++                           state.mixedSolverValue.executionBudgets.z)) {
++                regionalOnlyCaptureReason = "regional_rap_capture_only_requires_regional_preconditioner";
++            }
++            const bool regionalOnlyCaptureConfigValid =
++                regionalOnlyCaptureReason == nullptr;
++            if (regionalOnlyCaptureReason != nullptr) {
++                std::fprintf(stderr,
++                    "fem_regional_rap_only_error={\"schema\":1,\"reason\":\"%s\",\"physical_state_changed\":false}\n",
++                    regionalOnlyCaptureReason);
++            }
+             bool femOperatorFDTraceEnabled = false;
+             bool femOperatorFDTraceCaptured = false;
+             bool femRegionalRAPTraceCaptured = false;
+@@ -9668,12 +9695,9 @@
+                                 }
+                             }
+                         }
+-                        if (!regionalOnlyCaptureValid ||
+-                            (femRegionalRAPCaptureOnly &&
+-                             !usesRegionalGalerkinPreconditioner(
+-                                 state.mixedSolverValue.executionBudgets.z))) {
++                        if (!regionalOnlyCaptureConfigValid) {
+                             std::fprintf(stderr,
+-                                "fem_operator_fd_error={\"schema\":1,\"root\":%u,\"reason\":\"regional_only_requires_0_or_1_and_regional_preconditioner\"}\n",
++                                "fem_operator_fd_error={\"schema\":1,\"root\":%u,\"reason\":\"regional_rap_only_configuration_invalid\"}\n",
+                                 femOperatorFDTraceRoot);
+                         } else if (!epsilonScaleValid) {
+                             std::fprintf(stderr,
+--- a/matter/tools/cardboard_diagnostic_history_compare.py
++++ b/matter/tools/cardboard_diagnostic_history_compare.py
+@@ -237,18 +237,25 @@
+ def _validate_diagnostic_capture(case_dir: Path, environment: dict[str, str]) -> None:
+     selector = environment.get("NM_FEM_OPERATOR_FD_SELECTOR")
+     capture_path = environment.get("NM_FEM_OPERATOR_FD_CAPTURE_PATH")
++    regional_only = environment.get("NM_FEM_REGIONAL_RAP_CAPTURE_ONLY")
++    if regional_only not in (None, "0", "1"):
++        raise ComparisonError("NM_FEM_REGIONAL_RAP_CAPTURE_ONLY must be exactly 0 or 1")
++    if regional_only == "1" and (selector is None or not selector or
++                                    capture_path is None or not capture_path):
++        raise ComparisonError(
++            "regional RAP-only capture requires both a nonempty FD selector and capture path")
+     if (selector is None) != (capture_path is None):
+         raise ComparisonError("FD selector and capture path must be supplied together")
+     if selector is not None:
+         if not re.fullmatch(r"\d+:\d+", selector):
+             raise ComparisonError(f"invalid operator FD selector: {selector!r}")
+-        path = Path(capture_path)
+-        try:
+-            resolved = path.resolve(strict=True)
+-            resolved.relative_to(case_dir)
+-        except (OSError, ValueError) as error:
+-            raise ComparisonError("diagnostic capture must be retained inside its own attempt directory") from error
+-        _safe_regular_file(resolved)
++        if not Path(capture_path).is_absolute():
++            raise ComparisonError("diagnostic capture path must be absolute and retained inside its own attempt directory")
++        if regional_only == "1":
++            _validate_regional_rap_capture(case_dir, selector, capture_path)
++        else:
++            _retained_regular_file(case_dir, Path(capture_path),
++                                   "diagnostic capture must be retained inside its own attempt directory")
+     for key in ("NM_FEM_NEWTON_TRACE_ROOT", "NM_FEM_TRUE_RESIDUAL_ROOT",
+                 "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT"):
+         trace = environment.get(key)
+@@ -268,6 +275,152 @@
+             raise ComparisonError("invalid true residual Newton selector")
+         if selector is not None and int(newton) != int(selector.split(":", 1)[1]):
+             raise ComparisonError("true residual Newton selector must select the captured Newton iteration")
++
++
++def _retained_regular_file(case_dir: Path, path: Path, error_message: str) -> Path:
++    try:
++        resolved = path.resolve(strict=True)
++        resolved.relative_to(case_dir.resolve(strict=True))
++    except (OSError, ValueError) as error:
++        raise ComparisonError(error_message) from error
++    # Inspect the original path before accepting resolve(); otherwise a
++    # symlink inside the attempt could masquerade as a retained regular file.
++    _safe_regular_file(path)
++    return resolved
++
++
++def _validate_regional_rap_capture(
++    case_dir: Path,
++    selector: str,
++    capture_path: str,
++) -> None:
++    base = Path(capture_path)
++    manifest_path = Path(str(base) + ".regional.json")
++    payload_path = Path(str(base) + ".regional.bin")
++    _retained_regular_file(
++        case_dir, manifest_path,
++        "regional RAP manifest is missing or outside its own attempt directory")
++    payload_resolved = _retained_regular_file(
++        case_dir, payload_path,
++        "regional RAP payload is missing or outside its own attempt directory")
++    manifest = _read_json(manifest_path, "regional RAP manifest")
++    if manifest.get("schema") != "numi.matter.regional_rap_capture.v1":
++        raise ComparisonError("unsupported regional RAP capture schema")
++    if manifest.get("byte_order") != "little_endian":
++        raise ComparisonError("regional RAP payload must declare little_endian byte order")
++    if manifest.get("layout") != (
++            "C-contiguous; environment-major; each array is tightly concatenated with no padding; "
++            "float32x4 elements store four adjacent little-endian lanes"):
++        raise ComparisonError("regional RAP payload layout is missing or unsupported")
++    try:
++        selected_root, selected_iteration = (int(value) for value in selector.split(":"))
++    except (TypeError, ValueError) as error:
++        raise ComparisonError("invalid regional RAP selector") from error
++    for key, expected in (("root", selected_root), ("iteration", selected_iteration)):
++        value = manifest.get(key)
++        if type(value) is not int or value != expected:
++            raise ComparisonError(f"regional RAP manifest {key} does not match the selected iteration")
++    if manifest.get("preconditioner_selector") not in (2, 3, 4, 5):
++        raise ComparisonError("regional RAP manifest does not identify a regional preconditioner")
++    capture_point = manifest.get("capture_point")
++    if capture_point not in (
++            "after_regional_rap_factor_barrier_before_fgmres_correction",
++            "after_regional_rap_and_graph_factor_barrier_before_fgmres_correction"):
++        raise ComparisonError("regional RAP capture point is missing or unsupported")
++
++    payload = manifest.get("payload")
++    if not isinstance(payload, dict):
++        raise ComparisonError("regional RAP manifest lacks payload metadata")
++    if payload.get("file") != str(payload_path):
++        raise ComparisonError("regional RAP manifest payload path does not match its retained sidecar")
++    payload_bytes = payload_resolved.read_bytes()
++    payload_hash = hashlib.sha256(payload_bytes).hexdigest()
++    if (type(payload.get("byte_count")) is not int or
++            payload.get("byte_count") != len(payload_bytes) or
++            payload.get("sha256") != payload_hash):
++        raise ComparisonError("regional RAP payload size or SHA-256 does not match its manifest")
++
++    arrays = manifest.get("arrays")
++    if not isinstance(arrays, list) or not arrays:
++        raise ComparisonError("regional RAP manifest has no array table")
++    required = {"candidate_nodes", "material_history", "scheduler_exponents",
++                "deformation_high", "deformation_low", "P", "effective_P",
++                "AP", "pivoted_RAP", "pivots", "factor_valid"}
++    seen: set[str] = set()
++    offset = 0
++    validated: dict[str, tuple[int, int]] = {}
++    for array in arrays:
++        if not isinstance(array, dict):
++            raise ComparisonError("regional RAP array entry must be an object")
++        name = array.get("name")
++        dtype = array.get("dtype")
++        shape = array.get("shape")
++        array_offset = array.get("offset")
++        byte_count = array.get("byte_count")
++        element_bytes = array.get("element_bytes")
++        if (not isinstance(name, str) or not name or name in seen or
++                not isinstance(dtype, str) or not dtype or
++                not isinstance(shape, list) or not shape or
++                any(type(extent) is not int or extent <= 0 for extent in shape) or
++                type(array_offset) is not int or type(byte_count) is not int or
++                type(element_bytes) is not int or element_bytes <= 0):
++            raise ComparisonError("regional RAP array metadata is malformed or duplicated")
++        element_count = 1
++        for extent in shape:
++            element_count *= extent
++            if element_count > len(payload_bytes) + 1:
++                raise ComparisonError("regional RAP array shape exceeds its payload")
++        if (array_offset != offset or byte_count != element_count * element_bytes or
++                byte_count > len(payload_bytes) - offset):
++            raise ComparisonError("regional RAP arrays are not tightly packed within the payload")
++        array_bytes = payload_bytes[offset:offset + byte_count]
++        if array.get("sha256") != hashlib.sha256(array_bytes).hexdigest():
++            raise ComparisonError(f"regional RAP array hash mismatch: {name}")
++        seen.add(name)
++        validated[name] = (array_offset, byte_count)
++        offset += byte_count
++    if offset != len(payload_bytes) or not required.issubset(seen):
++        raise ComparisonError("regional RAP array table is incomplete or does not cover its payload")
++
++    environment_count = manifest.get("environment_count")
++    if type(environment_count) is not int or environment_count <= 0:
++        raise ComparisonError("regional RAP environment_count is invalid")
++    identities = manifest.get("candidate_linearization_sha256")
++    if not isinstance(identities, list) or len(identities) != environment_count:
++        raise ComparisonError("regional RAP candidate identity table is incomplete")
++    identity_arrays = ["candidate_nodes", "material_history", "scheduler_exponents",
++                       "deformation_high", "deformation_low"]
++    tangent_cache_used = manifest.get("tangent_cache_used")
++    if type(tangent_cache_used) is not bool:
++        raise ComparisonError("regional RAP tangent_cache_used must be boolean")
++    if tangent_cache_used:
++        required_cache = {"algorithmic_tangent_cache", "algorithmic_tangent_cache_valid"}
++        if not required_cache.issubset(seen):
++            raise ComparisonError("regional RAP tangent-cache identity arrays are missing")
++        identity_arrays.extend(sorted(required_cache))
++    for environment, entry in enumerate(identities):
++        if not isinstance(entry, dict) or entry.get("environment") != environment:
++            raise ComparisonError("regional RAP candidate identity order is invalid")
++        if entry.get("identity_status") == "missing_arrays":
++            raise ComparisonError("regional RAP candidate identity was not captured")
++        if not re.fullmatch(r"[0-9a-f]{64}", str(entry.get("sha256", ""))):
++            raise ComparisonError("regional RAP candidate identity SHA-256 is malformed")
++        identity_digest = hashlib.sha256()
++        for name in identity_arrays:
++            start, size = validated[name]
++            if size % environment_count != 0:
++                raise ComparisonError(f"regional RAP identity array is not environment-major: {name}")
++            per_environment = size // environment_count
++            start += environment * per_environment
++            identity_digest.update(payload_bytes[start:start + per_environment])
++        if identity_digest.hexdigest() != entry["sha256"]:
++            raise ComparisonError(f"regional RAP candidate linearization hash mismatch for environment {environment}")
++        nodes_start, nodes_size = validated["candidate_nodes"]
++        nodes_size //= environment_count
++        nodes_start += environment * nodes_size
++        if entry.get("candidate_nodes_sha256") != hashlib.sha256(
++                payload_bytes[nodes_start:nodes_start + nodes_size]).hexdigest():
++            raise ComparisonError(f"regional RAP candidate-node hash mismatch for environment {environment}")
+ 
+ 
+ def _enumerate_output_files(output_dir: Path, *, require_probe_result: bool = True) -> dict[str, dict[str, Any]]:
+--- a/matter/tools/test_cardboard_diagnostic_history_compare.py
++++ b/matter/tools/test_cardboard_diagnostic_history_compare.py
+@@ -1,10 +1,14 @@
+ import hashlib
+ import json
++import errno
+ from pathlib import Path
++import signal
++import subprocess
+ import tempfile
+ import unittest
+ 
+ import cardboard_diagnostic_history_compare as compare
++import cardboard_source_bound_run_support as runner_support
+ 
+ 
+ def _digest(data: bytes) -> str:
+@@ -118,6 +122,93 @@
+         value = json.loads(path.read_text())
+         return path, value
+ 
++    def _configure_regional_rap_capture(self, case: Path):
++        prediction_path, prediction = self._prediction(case)
++        capture_base = case / "rap-only-capture"
++        prediction["environment"].update({
++            "NM_FEM_OPERATOR_FD_SELECTOR": "1:0",
++            "NM_FEM_OPERATOR_FD_CAPTURE_PATH": str(capture_base),
++            "NM_FEM_REGIONAL_RAP_CAPTURE_ONLY": "1",
++        })
++        _write_json(prediction_path, prediction)
++        (case / "capture.jsonl").unlink(missing_ok=True)
++
++        names = {
++            "candidate_nodes": (b"nodes", "uint8"),
++            "material_history": (b"history", "uint8"),
++            "scheduler_exponents": (b"sched", "uint8"),
++            "deformation_high": (b"fhigh", "uint8"),
++            "deformation_low": (b"flow", "uint8"),
++            "P": (b"P", "uint8"),
++            "effective_P": (b"EP", "uint8"),
++            "AP": (b"AP", "uint8"),
++            "pivoted_RAP": (b"RAP", "uint8"),
++            "pivots": (b"piv", "uint8"),
++            "factor_valid": (b"valid", "uint8"),
++        }
++        payload = bytearray()
++        arrays = []
++        spans = {}
++        for name, (data, dtype) in names.items():
++            offset = len(payload)
++            payload.extend(data)
++            spans[name] = (offset, len(data))
++            arrays.append({
++                "name": name,
++                "dtype": dtype,
++                "shape": [len(data)],
++                "offset": offset,
++                "byte_count": len(data),
++                "element_bytes": 1,
++                "sha256": _digest(data),
++            })
++        payload_path = Path(str(capture_base) + ".regional.bin")
++        payload_path.write_bytes(payload)
++        identity = hashlib.sha256()
++        for name in ("candidate_nodes", "material_history", "scheduler_exponents",
++                     "deformation_high", "deformation_low"):
++            offset, size = spans[name]
++            identity.update(payload[offset:offset + size])
++        node_offset, node_size = spans["candidate_nodes"]
++        manifest = {
++            "schema": "numi.matter.regional_rap_capture.v1",
++            "byte_order": "little_endian",
++            "layout": (
++                "C-contiguous; environment-major; each array is tightly concatenated with no padding; "
++                "float32x4 elements store four adjacent little-endian lanes"),
++            "capture_point": "after_regional_rap_factor_barrier_before_fgmres_correction",
++            "source_physics_fingerprint": "0123456789abcdef",
++            "device_program_fingerprint": "fedcba9876543210",
++            "root": 1,
++            "iteration": 0,
++            "environment_count": 1,
++            "node_count": 1,
++            "tetrahedron_count": 1,
++            "mode_count": 1,
++            "preconditioner_selector": 2,
++            "graph_schwarz": {"enabled": False},
++            "material_state_stride": 16,
++            "substep": 0,
++            "microtick": 0,
++            "microtick_count": 1,
++            "linearization_generation": 0,
++            "dt_seconds": 1e-4,
++            "tangent_cache_used": False,
++            "candidate_linearization_sha256": [{
++                "environment": 0,
++                "sha256": identity.hexdigest(),
++                "candidate_nodes_sha256": _digest(payload[node_offset:node_offset + node_size]),
++            }],
++            "payload": {
++                "file": str(payload_path),
++                "byte_count": len(payload),
++                "sha256": _digest(bytes(payload)),
++            },
++            "arrays": arrays,
++        }
++        _write_json(Path(str(capture_base) + ".regional.json"), manifest)
++        return capture_base
++
+     def test_identical_failed_attempts_report_parity_without_qualification(self):
+         report = compare.compare_attempts(self.left, self.right)
+         self.assertEqual(report["comparison"], "byte_identical")
+@@ -264,6 +355,55 @@
+         with self.assertRaisesRegex(compare.ComparisonError, "inside its own attempt directory"):
+             compare.compare_attempts(self.left, self.right)
+ 
++    def test_regional_rap_only_sidecars_are_integrity_checked(self):
++        self._configure_regional_rap_capture(self.left)
++        report = compare.compare_attempts(self.left, self.right)
++        self.assertEqual(report["comparison"], "byte_identical")
++        self.assertEqual(report["qualification"]["status"], "not_qualified")
++
++    def test_regional_rap_only_requires_selector_and_capture_path(self):
++        environment = {"NM_FEM_REGIONAL_RAP_CAPTURE_ONLY": "1"}
++        with self.assertRaisesRegex(compare.ComparisonError, "requires both"):
++            compare._validate_diagnostic_capture(self.left, environment)
++        with self.assertRaisesRegex(compare.ComparisonError, "requires both"):
++            compare._validate_diagnostic_capture(self.left, {
++                "NM_FEM_REGIONAL_RAP_CAPTURE_ONLY": "1",
++                "NM_FEM_OPERATOR_FD_SELECTOR": "1:0",
++            })
++        with self.assertRaisesRegex(compare.ComparisonError, "exactly 0 or 1"):
++            compare._validate_diagnostic_capture(self.left, {
++                "NM_FEM_REGIONAL_RAP_CAPTURE_ONLY": "true",
++            })
++
++    def test_regional_rap_only_rejects_missing_or_mismatched_sidecars(self):
++        base = self._configure_regional_rap_capture(self.left)
++        manifest_path = Path(str(base) + ".regional.json")
++        manifest = json.loads(manifest_path.read_text())
++        manifest["root"] = 2
++        _write_json(manifest_path, manifest)
++        with self.assertRaisesRegex(compare.ComparisonError, "root does not match"):
++            compare.compare_attempts(self.left, self.right)
++        manifest["root"] = 1
++        _write_json(manifest_path, manifest)
++        payload_path = Path(str(base) + ".regional.bin")
++        payload_path.unlink()
++        with self.assertRaisesRegex(compare.ComparisonError, "payload is missing"):
++            compare.compare_attempts(self.left, self.right)
++
++    def test_regional_rap_only_rejects_payload_and_array_hash_mismatch(self):
++        base = self._configure_regional_rap_capture(self.left)
++        payload_path = Path(str(base) + ".regional.bin")
++        payload_path.write_bytes(payload_path.read_bytes() + b"tamper")
++        with self.assertRaisesRegex(compare.ComparisonError, "payload size or SHA-256"):
++            compare.compare_attempts(self.left, self.right)
++        base = self._configure_regional_rap_capture(self.left)
++        manifest_path = Path(str(base) + ".regional.json")
++        manifest = json.loads(manifest_path.read_text())
++        manifest["arrays"][0]["sha256"] = "0" * 64
++        _write_json(manifest_path, manifest)
++        with self.assertRaisesRegex(compare.ComparisonError, "array hash mismatch"):
++            compare.compare_attempts(self.left, self.right)
++
+     def test_exclusive_report_writer_does_not_overwrite(self):
+         destination = self.root / "report.json"
+         destination.write_text("preserve me")
+@@ -272,5 +412,71 @@
+         self.assertEqual(destination.read_text(), "preserve me")
+ 
+ 
++class SourceBoundTimeoutReceiptTests(unittest.TestCase):
++    class _NeverExits:
++        pid = 9123
++
++        def wait(self, timeout=None):
++            raise subprocess.TimeoutExpired("sealed-probe", timeout)
++
++    def test_sigkill_failure_keeps_timeout_and_original_os_error(self):
++        state = {"timed_out": False, "termination_errors": []}
++        signals = []
++
++        def kill_group(_pid, signum):
++            signals.append(signum)
++            if signum == signal.SIGKILL:
++                raise PermissionError(errno.EPERM, "operation not permitted")
++
++        with self.assertRaises(PermissionError) as raised:
++            runner_support.wait_with_timeout(
++                self._NeverExits(), 1, state=state,
++                kill_process_group=kill_group, term_grace_seconds=0.01)
++        with tempfile.TemporaryDirectory() as temp:
++            receipt_path = Path(temp) / "timeout-error-receipt.json"
++            runner_support.write_failure_receipt(
++                receipt_path, raised.exception, state=state,
++                execution_started=True, wall_seconds=25.0,
++                finished_at_utc="2026-10-15T00:00:00+00:00")
++            receipt = json.loads(receipt_path.read_text())
++        self.assertEqual(signals, [signal.SIGTERM, signal.SIGKILL])
++        self.assertEqual(receipt["schema"], compare.RECEIPT_SCHEMA)
++        self.assertTrue(receipt["timed_out"])
++        self.assertEqual(receipt["error_type"], "PermissionError")
++        self.assertIn("operation not permitted", receipt["reason"])
++        self.assertEqual(len(receipt["termination_errors"]), 1)
++        self.assertEqual(receipt["termination_errors"][0]["signal_name"], "SIGKILL")
++        self.assertEqual(receipt["termination_errors"][0]["errno"], errno.EPERM)
++        self.assertIsNone(receipt["source_inputs_unchanged"])
++        self.assertIsNone(receipt["changed_inputs"])
++
++    def test_sigterm_error_is_retained_if_sigkill_completes(self):
++        state = {"timed_out": False, "termination_errors": []}
++        signals = []
++
++        class ExitsAfterKill:
++            pid = 9124
++            waits = 0
++
++            def wait(self, timeout=None):
++                self.waits += 1
++                if self.waits <= 2:
++                    raise subprocess.TimeoutExpired("sealed-probe", timeout)
++                return -signal.SIGKILL
++
++        def kill_group(_pid, signum):
++            signals.append(signum)
++            if signum == signal.SIGTERM:
++                raise ProcessLookupError(errno.ESRCH, "process group disappeared")
++
++        code = runner_support.wait_with_timeout(
++            ExitsAfterKill(), 1, state=state,
++            kill_process_group=kill_group, term_grace_seconds=0.01)
++        self.assertEqual(code, -signal.SIGKILL)
++        self.assertTrue(state["timed_out"])
++        self.assertEqual(signals, [signal.SIGTERM, signal.SIGKILL])
++        self.assertEqual(state["termination_errors"][0]["signal_name"], "SIGTERM")
++
++
+ if __name__ == "__main__":
+     unittest.main()
+--- a/matter/tools/cardboard_diagnostic_history_compare.md
++++ b/matter/tools/cardboard_diagnostic_history_compare.md
+@@ -4,10 +4,24 @@
+ native attempt with a diagnostic-disabled control. It admits a pair only when
+ both source-bound receipts executed, inputs remained unchanged, neither timed
+ out, and the archived source, executable, Metal libraries, build provenance,
+-physical arguments, and non-diagnostic environment match. The only permitted
+-environment differences are the explicit FEM Newton-trace selector, the
+-operator-FD selector, and its per-attempt capture path. The capture must remain
+-inside that attempt directory.
++physical arguments, and non-diagnostic environment match. Permitted
++environment differences are the explicitly allowlisted FEM trace selectors,
++the operator-FD selector and per-attempt capture path, its finite-difference
++epsilon scale, the observational true-residual selectors, and the residual
++Armijo trace selector. The capture must remain inside that attempt directory.
++
++When `NM_FEM_REGIONAL_RAP_CAPTURE_ONLY=1`, the capture path is a base name and
++the comparator requires both `.regional.json` and `.regional.bin` sidecars.
++It verifies the selector/root/iteration binding, array packing and hashes,
++candidate linearization digests, and the payload SHA-256. A mode-1 request with
++no selector or capture path is invalid even if the selected root would not be
++reached by that run. Ordinary JSONL captures still require the base file.
++
++The source-bound runner records timeout state before process termination. If
++group termination itself raises, its exception type/message and each failed
++signal are retained in the receipt while `timed_out` remains true. If an
++exception interrupts the final input hash scan, the receipt marks that check
++unknown rather than claiming either unchanged inputs or detected mutation.
+ 
+ The comparator walks the complete `output/` trees recursively and records a
+ SHA-256 and byte length for each file. It also compares the actual bytes, so
+--- a/matter/tools/cardboard_source_bound_run.py
++++ b/matter/tools/cardboard_source_bound_run.py
+@@ -1,7 +1,8 @@
+ #!/usr/bin/env python3
+ """Seal and retain a source-bound native cardboard run and any failure/timeout."""
+ from pathlib import Path
+-import argparse, datetime, fcntl, hashlib, json, os, shutil, signal, subprocess, sys, time
++import argparse, datetime, fcntl, hashlib, json, os, shutil, subprocess, sys, time
++from cardboard_source_bound_run_support import wait_with_timeout, write_failure_receipt
+ 
+ parser = argparse.ArgumentParser()
+ parser.add_argument('--case', required=True)
+@@ -28,16 +29,15 @@
+     raise RuntimeError('another source-bound native worker owns this checkout')
+ case.mkdir(parents=True, exist_ok=False)
+ execution_started = False
++run_state = {'timed_out': False, 'termination_errors': []}
+ seal_started = time.monotonic()
+ def retain_unhandled_failure(kind, error, traceback):
+-    (case/'receipt.json').write_text(json.dumps({
+-        'exit_code':1,'timed_out':False,
+-        'execution_started':execution_started,
+-        'stage':'execution' if execution_started else 'input-seal',
+-        'error_type':kind.__name__,'reason':str(error),
+-        'wall_seconds':time.monotonic()-seal_started,
+-        'finished_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()},
+-        indent=2)+'\n')
++    write_failure_receipt(
++        case/'receipt.json', error, state=run_state,
++        execution_started=execution_started,
++        wall_seconds=time.monotonic()-seal_started,
++        finished_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
++    )
+     sys.__excepthook__(kind,error,traceback)
+ sys.excepthook = retain_unhandled_failure
+ if not args.argv:
+@@ -124,16 +124,10 @@
+ with (case/'stdout.log').open('w') as out, (case/'stderr.log').open('w') as err:
+     process = subprocess.Popen(argv, stdout=out, stderr=err, env=environment, start_new_session=True)
+     execution_started = True
+-    timed_out = False
+-    try:
+-        code = process.wait(timeout=args.timeout)
+-    except subprocess.TimeoutExpired:
+-        timed_out = True
+-        os.killpg(process.pid, signal.SIGTERM)
+-        try: code = process.wait(timeout=20)
+-        except subprocess.TimeoutExpired:
+-            os.killpg(process.pid, signal.SIGKILL)
+-            code = process.wait()
++    code = wait_with_timeout(
++        process, args.timeout, state=run_state, kill_process_group=os.killpg,
++        term_grace_seconds=20,
++    )
+ changed_inputs = []
+ for path, digest in original_bindings.items():
+     try: current = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+@@ -143,9 +137,10 @@
+            'execution_started':execution_started,
+            'source_inputs_unchanged':not changed_inputs,
+            'changed_inputs':changed_inputs,
+-           'exit_code':code,'timed_out':timed_out,
++           'exit_code':code,'timed_out':run_state['timed_out'],
++           'termination_errors':run_state['termination_errors'],
+            'wall_seconds':time.monotonic()-started,
+            'finished_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()}
+ (case/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+ print(json.dumps(receipt),flush=True)
+-raise SystemExit(124 if timed_out else (3 if changed_inputs else (code if code >= 0 else 128-code)))
++raise SystemExit(124 if run_state['timed_out'] else (3 if changed_inputs else (code if code >= 0 else 128-code)))
+--- /dev/null
++++ b/matter/tools/cardboard_source_bound_run_support.py
+@@ -0,0 +1,101 @@
++"""Small testable helpers for source-bound subprocess timeout accounting."""
++
++from __future__ import annotations
++
++import signal
++import subprocess
++import json
++from pathlib import Path
++from typing import Any, Callable
++
++
++def _record_signal_error(state: dict[str, Any], signum: int, error: OSError) -> None:
++    state.setdefault("termination_errors", []).append({
++        "signal": int(signum),
++        "signal_name": signal.Signals(signum).name,
++        "error_type": type(error).__name__,
++        "reason": str(error),
++        "errno": error.errno,
++    })
++
++
++def wait_with_timeout(
++    process: Any,
++    timeout_seconds: float,
++    *,
++    state: dict[str, Any],
++    kill_process_group: Callable[[int, int], None],
++    term_grace_seconds: float = 20.0,
++) -> int:
++    """Wait for a process and record timeout/termination failures faithfully.
++
++    ``state`` is initialized by the caller before input sealing so the same
++    timeout fact remains available if a signal or later wait raises. A failed
++    SIGTERM is retained but does not prevent the bounded grace wait. A failed
++    SIGKILL is retained and re-raised unchanged; the caller's exception
++    receipt can therefore preserve the original OS exception and the timeout
++    flag together.
++    """
++    state.setdefault("timed_out", False)
++    state.setdefault("termination_errors", [])
++    try:
++        return process.wait(timeout=timeout_seconds)
++    except subprocess.TimeoutExpired:
++        state["timed_out"] = True
++
++    try:
++        kill_process_group(process.pid, signal.SIGTERM)
++    except OSError as error:
++        _record_signal_error(state, signal.SIGTERM, error)
++
++    try:
++        return process.wait(timeout=term_grace_seconds)
++    except subprocess.TimeoutExpired:
++        pass
++
++    try:
++        kill_process_group(process.pid, signal.SIGKILL)
++    except OSError as error:
++        _record_signal_error(state, signal.SIGKILL, error)
++        raise
++    return process.wait()
++
++
++def failure_receipt_fields(
++    error: BaseException,
++    state: dict[str, Any],
++) -> dict[str, Any]:
++    """Return the stable error fields shared by runner exception receipts."""
++    return {
++        "exit_code": 1,
++        "timed_out": state.get("timed_out") is True,
++        "termination_errors": list(state.get("termination_errors", [])),
++        "error_type": type(error).__name__,
++        "reason": str(error),
++    }
++
++
++def write_failure_receipt(
++    path: Path,
++    error: BaseException,
++    *,
++    state: dict[str, Any],
++    execution_started: bool,
++    wall_seconds: float,
++    finished_at_utc: str,
++) -> dict[str, Any]:
++    """Persist an exception receipt without relabeling timeout or OS failure."""
++    receipt = failure_receipt_fields(error, state)
++    receipt.update({
++        "schema": "numi.cardboard.native-run-receipt.v2",
++        "execution_started": execution_started,
++        # An exception can interrupt the final source-hash scan; unknown is
++        # distinct from either verified-unchanged or detected mutation.
++        "source_inputs_unchanged": None,
++        "changed_inputs": None,
++        "stage": "execution" if execution_started else "input-seal",
++        "wall_seconds": wall_seconds,
++        "finished_at_utc": finished_at_utc,
++    })
++    path.write_text(json.dumps(receipt, indent=2) + "\n")
++    return receipt

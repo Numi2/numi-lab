@@ -3998,6 +3998,25 @@ inline float4 integrateWorldQuaternion(
         delta, quaternionNormalize(source)));
 }
 
+// Match MetalWorld's scene-body integrator exactly, including its small-angle
+// series. The free-BOX candidate, alpha path, and physical CCD sweep must use
+// the same pose map as the body that will be committed after Matter accepts.
+inline float4 integrateFreeBoxSceneQuaternion(
+    const float4 source,
+    const float3 angularVelocity,
+    const float timestep
+) {
+    const float3 rotationVector = timestep * angularVelocity;
+    const float angle = length(rotationVector);
+    const float halfAngle = 0.5f * angle;
+    const float scale = angle > 1.0e-6f
+        ? sin(halfAngle) / angle
+        : 0.5f - angle * angle / 48.0f;
+    const float4 delta = float4(rotationVector * scale, cos(halfAngle));
+    return quaternionNormalize(quaternionMultiply(
+        delta, quaternionNormalize(source)));
+}
+
 // Materializes free-body geometry at the same primal Newton candidate used by
 // FEM, MPM, and articulated bodies. Multiple proxies on one body read the
 // same compact six-coordinate block and independently project their authored
@@ -4056,8 +4075,11 @@ kernel void nm_project_primal_free_rigid_candidate(
     MRBodyStateGPU candidate = source;
     candidate.position.xyz = source.position.xyz +
         bridge.time.y * linearVelocity;
-    candidate.orientation = integrateWorldQuaternion(
-        source.orientation, angularVelocity, bridge.time.y);
+    candidate.orientation = proxy.shapeKind == NM_RIGID_BOX
+        ? integrateFreeBoxSceneQuaternion(
+            source.orientation, angularVelocity, bridge.time.y)
+        : integrateWorldQuaternion(
+            source.orientation, angularVelocity, bridge.time.y);
     candidate.linearVelocityAndInverseMass.xyz = linearVelocity;
     candidate.angularVelocity.xyz = angularVelocity;
 
@@ -4687,6 +4709,17 @@ inline float segmentAabbDistance(const float3 first,
     return sqrt(max(minimumSquared, 0.0f));
 }
 
+inline float segmentPointDistance(const float3 first,
+                                  const float3 last,
+                                  const float3 point) {
+    const float3 direction = last - first;
+    const float denominator = dot(direction, direction);
+    const float parameter = denominator > 0.0f
+        ? clamp(dot(point - first, direction) / denominator, 0.0f, 1.0f)
+        : 0.0f;
+    return length(first + parameter * direction - point);
+}
+
 inline float prescribedBoxPathGap(const NMRigidStateGPU rigid,
                                  const float3 first, const float3 last) {
     const float scale = max(max(maximumAbsoluteCoordinate(rigid.extent.xyz),
@@ -4725,6 +4758,174 @@ inline float prescribedRigidPathGap(const NMRigidProxyGPU proxy,
     return -INFINITY;
 }
 
+inline float3 armijoRigidBodyCenterVelocity(
+    const NMRigidStateGPU rigid
+) {
+    return rigid.linearVelocityAndInverseMass.xyz - cross(
+        rigid.angularVelocity.xyz,
+        rigid.centerAndRadius.xyz - rigid.bodyCenter.xyz);
+}
+
+inline bool freeBoxArmijoRigidAt(
+    const NMRigidProxyGPU proxy,
+    const MRBodyStateGPU sourceBody,
+    const NMRigidStateGPU base,
+    const NMRigidStateGPU trial,
+    const float timestep,
+    const float fraction,
+    const bool physicalSweep,
+    thread NMRigidStateGPU& rigid
+) {
+    if (!isfinite(fraction) || fraction < 0.0f || fraction > 1.0f ||
+        !(timestep > 0.0f) || !isfinite(timestep)) return false;
+    if (physicalSweep && fraction == 0.0f) {
+        projectProxy(proxy, sourceBody, true, rigid);
+        return finiteStationaryBoxRigidRecord(rigid);
+    }
+    if (fraction == 1.0f) {
+        rigid = trial;
+        return finiteStationaryBoxRigidRecord(rigid);
+    }
+    if (!physicalSweep && fraction == 0.0f) {
+        rigid = base;
+        return finiteStationaryBoxRigidRecord(rigid);
+    }
+
+    const float3 trialLinear = armijoRigidBodyCenterVelocity(trial);
+    const float3 trialAngular = trial.angularVelocity.xyz;
+    const float3 baseLinear = physicalSweep
+        ? trialLinear : armijoRigidBodyCenterVelocity(base);
+    const float3 baseAngular = physicalSweep
+        ? trialAngular : base.angularVelocity.xyz;
+    const float3 linear = mix(baseLinear, trialLinear, fraction);
+    const float3 angular = mix(baseAngular, trialAngular, fraction);
+    MRBodyStateGPU body = sourceBody;
+    const float poseTimestep = physicalSweep ? fraction * timestep : timestep;
+    body.position.xyz = sourceBody.position.xyz +
+        poseTimestep * linear;
+    body.orientation = integrateFreeBoxSceneQuaternion(
+        sourceBody.orientation, angular, poseTimestep);
+    body.linearVelocityAndInverseMass.xyz = linear;
+    body.angularVelocity.xyz = angular;
+    projectProxy(proxy, body, true, rigid);
+    return finiteStationaryBoxRigidRecord(rigid);
+}
+
+inline bool freeBoxArmijoGapAt(
+    const NMRigidProxyGPU proxy,
+    const MRBodyStateGPU sourceBody,
+    const NMRigidStateGPU base,
+    const NMRigidStateGPU trial,
+    const float3 firstPoint,
+    const float3 lastPoint,
+    const float timestep,
+    const float fraction,
+    const bool physicalSweep,
+    thread float& gap
+) {
+    const float3 point = mix(firstPoint, lastPoint, fraction);
+    NMRigidStateGPU rigid{};
+    if (!freeBoxArmijoRigidAt(proxy, sourceBody, base, trial,
+                             timestep, fraction, physicalSweep, rigid))
+        return false;
+    float3 normal, witness;
+    return rigidWitness(proxy, rigid, point, gap, normal, witness) &&
+        isfinite(gap);
+}
+
+inline bool certifyFreeBoxArmijoSweep(
+    const NMRigidProxyGPU proxy,
+    const MRBodyStateGPU sourceBody,
+    const NMRigidStateGPU base,
+    const NMRigidStateGPU trial,
+    const float3 firstPoint,
+    const float3 lastPoint,
+    const float timestep,
+    const float floor,
+    const bool physicalSweep,
+    thread float& minimumSampledGap
+) {
+    const float3 firstCenter = physicalSweep
+        ? sourceBody.position.xyz : base.bodyCenter.xyz;
+    const float3 lastCenter = trial.bodyCenter.xyz;
+    const float3 firstAngular = physicalSweep
+        ? trial.angularVelocity.xyz : base.angularVelocity.xyz;
+    const float3 lastAngular = trial.angularVelocity.xyz;
+    const float3 relativeFirst = firstPoint - firstCenter;
+    const float3 relativeLast = lastPoint - lastCenter;
+    const float3 relativeDelta = relativeLast - relativeFirst;
+    const float rotationRate = timestep * (physicalSweep
+        ? length(lastAngular) : length(lastAngular - firstAngular));
+    const float bodyOffsetRadius = length(proxy.localCenterAndRadius.xyz) +
+        length(proxy.localExtent.xyz);
+    // Bound angular motion about the BODY COM. In particular, an authored
+    // proxy-center offset is inside the swept radius rather than being lost
+    // when the proxy is translated/rotated independently of its body origin.
+    const float angularRadius = max(length(relativeFirst), length(relativeLast)) +
+        bodyOffsetRadius;
+    const float lipschitz = length(relativeDelta) +
+        rotationRate * angularRadius;
+    if (!isfinite(lipschitz) || !isfinite(angularRadius) ||
+        !(floor > 0.0f) || !isfinite(floor)) return false;
+
+    float gap = -INFINITY;
+    if (!freeBoxArmijoGapAt(proxy, sourceBody, base, trial,
+                            firstPoint, lastPoint, timestep, 0.0f,
+                            physicalSweep, gap) || !(gap > floor)) {
+        minimumSampledGap = gap;
+        return false;
+    }
+    const float startGap = gap;
+    minimumSampledGap = gap;
+    float endGap = -INFINITY;
+    if (!freeBoxArmijoGapAt(proxy, sourceBody, base, trial,
+                            firstPoint, lastPoint, timestep, 1.0f,
+                            physicalSweep, endGap) || !(endGap > floor)) {
+        minimumSampledGap = min(minimumSampledGap, endGap);
+        return false;
+    }
+    minimumSampledGap = min(minimumSampledGap, endGap);
+
+    const float centerScale = max(maximumAbsoluteCoordinate(firstCenter),
+        maximumAbsoluteCoordinate(lastCenter));
+    const float pointScale = max(maximumAbsoluteCoordinate(firstPoint),
+        maximumAbsoluteCoordinate(lastPoint));
+    const float roundoff = 16.0f * kEpsilon * max(
+        max(centerScale, pointScale), 1.0e-12f);
+    const float relativeClosest = segmentPointDistance(
+        relativeFirst, relativeLast, float3(0.0f));
+    if (isfinite(relativeClosest) && relativeClosest >
+            bodyOffsetRadius + floor + roundoff)
+        return true;
+    if (!(lipschitz > 0.0f)) return true;
+
+    float fraction = 0.0f;
+    gap = startGap;
+    constexpr uint maximumAdvancementSteps = 256u;
+    constexpr float minimumFractionStep = 5.960464477539063e-8f;
+    for (uint iteration = 0u; iteration < maximumAdvancementSteps; ++iteration) {
+        const float remaining = 1.0f - fraction;
+        if (!(remaining > 0.0f)) return true;
+        const float step = 0.8f * (gap - floor) / lipschitz;
+        if (!isfinite(step) || !(step > minimumFractionStep)) return false;
+        const float nextFraction = min(1.0f, fraction + step);
+        if (!(nextFraction > fraction)) return false;
+        float nextGap = -INFINITY;
+        if (!freeBoxArmijoGapAt(proxy, sourceBody, base, trial,
+                                firstPoint, lastPoint, timestep,
+                                nextFraction, physicalSweep, nextGap) ||
+            !(nextGap > floor)) {
+            minimumSampledGap = min(minimumSampledGap, nextGap);
+            return false;
+        }
+        minimumSampledGap = min(minimumSampledGap, nextGap);
+        if (nextFraction >= 1.0f) return true;
+        fraction = nextFraction;
+        gap = nextGap;
+    }
+    return false;
+}
+
 // Private residual-descent trials must also preserve clearance for rigid
 // pairs which are inactive at the base iterate. The compiled dense pair set
 // is the bounded conservative superset in this slice. Test the entire affine
@@ -4742,6 +4943,9 @@ kernel void nm_contact_validate_fem_rigid_armijo_path(
     device const NMContactPairGPU* pairs [[buffer(7)]],
     constant NMMixedSolverGPU& solver [[buffer(8)]],
     device NMMatterStatusGPU* trialStatuses [[buffer(9)]],
+    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(10)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(11)]],
+    device const MRBodyStateGPU* currentBodies [[buffer(12)]],
     uint global [[thread_position_in_grid]]
 ) {
     if (global >= dispatch.environmentCount * dispatch.contactPairCount ||
@@ -4762,6 +4966,64 @@ kernel void nm_contact_validate_fem_rigid_armijo_path(
     const uint rigidIndex = environment * dispatch.rigidProxyCount + pair.rigidProxy;
     const NMRigidStateGPU base = baseRigids[rigidIndex];
     const NMRigidStateGPU trial = trialRigids[rigidIndex];
+    const bool freeDynamicBox = proxy.shapeKind == NM_RIGID_BOX &&
+        (proxy.flags & NM_RIGID_DYNAMIC) != 0u &&
+        (proxy.flags & NM_RIGID_ARTICULATED) == 0u &&
+        proxy.generalizedFreeBodyIndex != NM_INVALID_INDEX;
+    if (freeDynamicBox) {
+        if (proxy.bodyIndex >= bridge.currentBodyCount ||
+            bridge.currentBodyStride < bridge.currentBodyCount ||
+            dispatch.rigidGeneralizedCapacity != 6u ||
+            proxy.generalizedFreeBodyIndex != 0u ||
+            dispatch.maximumRateExponent != 0u) {
+            recordFailure(trialStatuses[environment], NM_STATUS_INVALID_DISPATCH,
+                pair.objectIndex, pairIndex,
+                float4(float(proxy.bodyIndex), float(bridge.currentBodyCount),
+                    float(dispatch.rigidGeneralizedCapacity),
+                    float(dispatch.maximumRateExponent)));
+            return;
+        }
+        const MRBodyStateGPU sourceBody = currentBodies[
+            environment * bridge.currentBodyStride + proxy.bodyIndex];
+        if (sourceBody.flagsAndIndices[0] != MR_MOTION_DYNAMIC ||
+            !(bridge.time.y > 0.0f) || !isfinite(bridge.time.y)) {
+            recordFailure(trialStatuses[environment], NM_STATUS_INVALID_DISPATCH,
+                pair.objectIndex, pairIndex,
+                float4(float(sourceBody.flagsAndIndices[0]), bridge.time.y,
+                    float(dispatch.rigidGeneralizedCapacity), 1.0f));
+            return;
+        }
+        const uint nodeIndex = environment * dispatch.femNodeCount +
+            pair.continuumNode - dispatch.gridNodeCount;
+        const float3 basePoint = baseNodes[nodeIndex].positionAndMass.xyz;
+        const float3 trialPoint = trialNodes[nodeIndex].positionAndMass.xyz;
+        const float3 physicalStart =
+            acceptedNodes[nodeIndex].positionAndMass.xyz;
+        const float coordinateScale = max(dispatch.numericalLimits.x,
+            max(maximumAbsoluteCoordinate(physicalStart),
+                max(maximumAbsoluteCoordinate(basePoint),
+                    max(maximumAbsoluteCoordinate(trialPoint),
+                        max(maximumAbsoluteCoordinate(trial.bodyCenter.xyz),
+                            maximumAbsoluteCoordinate(trial.extent.xyz))))));
+        const float floor = max(
+            solver.contactAcceptance.x * dispatch.numericalLimits.x,
+            16.0f * kEpsilon * max(coordinateScale, 1.0e-12f));
+        float alphaMinimumGap = INFINITY;
+        float physicalMinimumGap = INFINITY;
+        const bool alphaClear = certifyFreeBoxArmijoSweep(
+            proxy, sourceBody, base, trial, basePoint, trialPoint,
+            bridge.time.y, floor, false, alphaMinimumGap);
+        const bool physicalClear = certifyFreeBoxArmijoSweep(
+            proxy, sourceBody, base, trial, physicalStart, trialPoint,
+            bridge.time.y, floor, true, physicalMinimumGap);
+        if (!alphaClear || !physicalClear) {
+            recordFailure(trialStatuses[environment], NM_STATUS_CONTACT_FAILURE,
+                pair.objectIndex, pairIndex,
+                float4(alphaMinimumGap, physicalMinimumGap, floor,
+                    alphaClear ? 1.0f : 0.0f));
+        }
+        return;
+    }
     if (any(base.orientation != trial.orientation) ||
         any(base.extent != trial.extent) ||
         base.centerAndRadius.w != trial.centerAndRadius.w ||
@@ -5490,6 +5752,88 @@ kernel void nm_contact_evaluate(
     if (historyTangentLength > historyLimit &&
         historyTangentLength > 1.0e-12f)
         historyTangent *= historyLimit / historyTangentLength;
+    bool angularFreeBoxTangent = false;
+    float3x3 freeBoxGeometricHessian = float3x3(0.0f);
+    const bool freeDynamicBox = proxy.shapeKind == NM_RIGID_BOX &&
+        (proxy.flags & NM_RIGID_DYNAMIC) != 0u &&
+        (proxy.flags & NM_RIGID_ARTICULATED) == 0u &&
+        proxy.generalizedFreeBodyIndex != NM_INVALID_INDEX;
+    if (freeDynamicBox && normalImpulse > 0.0f) {
+        if (frictionLimit != 0.0f) {
+            // This six-row operator can perturb angular coordinates even at
+            // a zero-angular-velocity iterate. Until the friction/history
+            // derivative is implemented, admit only frictionless samples;
+            // checking the current angular velocity would falsely admit an
+            // incomplete tangent when omega happens to be zero.
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                pair.objectIndex, pairIndex,
+                float4(separation, slop, frictionLimit, 1.0f));
+            return;
+        } else {
+        const float featureScale = max(max(maximumAbsoluteCoordinate(point),
+                maximumAbsoluteCoordinate(rigid.bodyCenter.xyz)),
+            max(maximumAbsoluteCoordinate(rigid.extent.xyz), slop));
+        const float featureTolerance = 64.0f * kEpsilon *
+            max(featureScale, 1.0e-12f);
+        const float4 inverseOrientation = quaternionConjugate(
+            quaternionNormalize(rigid.orientation));
+        const float3 localPoint = quaternionRotate(
+            inverseOrientation, point - rigid.centerAndRadius.xyz);
+        const float3 signedOutside = abs(localPoint) - rigid.extent.xyz;
+        const float3 outside = max(signedOutside, float3(0.0f));
+        const float localDistance = length(outside);
+        float3 activeAxes = float3(0.0f);
+        bool featureSmooth = isfinite(localDistance) &&
+            localDistance > 0.0f &&
+            abs(localDistance - separation) <= 64.0f * kEpsilon *
+                max(max(localDistance, separation), slop);
+        for (uint axis = 0u; axis < 3u; ++axis) {
+            if (!isfinite(signedOutside[axis]) ||
+                abs(signedOutside[axis]) <= featureTolerance)
+                featureSmooth = false;
+            if (signedOutside[axis] > 0.0f) activeAxes[axis] = 1.0f;
+        }
+        const float activeAxisCount = activeAxes.x + activeAxes.y + activeAxes.z;
+        if (pair.continuumNode < dispatch.gridNodeCount ||
+            rigid.linearVelocityAndInverseMass.w <= 0.0f ||
+            proxy.generalizedFreeBodyIndex != 0u ||
+            dispatch.rigidGeneralizedCapacity != 6u ||
+            !(separation > 1.0e-4f * slop) ||
+            !(barrier.x > 0.0f) || !featureSmooth || activeAxisCount < 1.0f ||
+            !ipcBarrierHasStrictInertialStiffness(
+                separation, slop, normalResponse, dt,
+                max(-normalVelocity, 0.0f))) {
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                pair.objectIndex, pairIndex,
+                float4(separation, slop, frictionLimit, activeAxisCount));
+            return;
+        }
+        const float3 localNormal = quaternionRotate(inverseOrientation, normal);
+        const float3x3 localActive = float3x3(
+            float3(activeAxes.x, 0.0f, 0.0f),
+            float3(0.0f, activeAxes.y, 0.0f),
+            float3(0.0f, 0.0f, activeAxes.z));
+        const float3x3 localDistanceHessian =
+            (localActive - outerProduct(localNormal, localNormal)) /
+            localDistance;
+        const float4 orientation = quaternionNormalize(rigid.orientation);
+        const float3x3 rotation = float3x3(
+            quaternionRotate(orientation, float3(1.0f, 0.0f, 0.0f)),
+            quaternionRotate(orientation, float3(0.0f, 1.0f, 0.0f)),
+            quaternionRotate(orientation, float3(0.0f, 0.0f, 1.0f)));
+        freeBoxGeometricHessian = -dt * barrier.x *
+            rotation * localDistanceHessian * transpose(rotation);
+        if (!all(isfinite(freeBoxGeometricHessian[0])) ||
+            !all(isfinite(freeBoxGeometricHessian[1])) ||
+            !all(isfinite(freeBoxGeometricHessian[2]))) {
+            recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+                pair.objectIndex, pairIndex,
+                float4(separation, localDistance, dt, barrier.x));
+            return;
+        }
+        angularFreeBoxTangent = true;
+        }
+    }
     const float seededNormal = normalImpulse;
     const bool staticBranch = validHistory &&
         tangentSpeed < 0.25f * transitionSpeed;
@@ -5520,15 +5864,16 @@ kernel void nm_contact_evaluate(
     float3x3 projectedHessian = ipcProjectedSpatialHessian(
         normal, barrier.y, tangentVelocity,
         frictionLimit, transitionSpeed);
-    // The radial IPC block above differentiates the barrier magnitude while
-    // holding its direction fixed. For the captured smooth side of a fixed,
-    // translating capsule, the exact distance Hessian also rotates the normal
-    // in the plane perpendicular to the capsule axis. This signed term is
-    // generally indefinite and belongs in the physical FGMRES operator; the
-    // right preconditioner separately keeps its existing PSD diagonal policy.
-    // End caps, feature switches, impact-stiffness, friction, and movable or
-    // rotating rigid bodies retain their existing operator until their full
-    // coupled geometric derivatives are implemented and tested.
+    projectedHessian += freeBoxGeometricHessian;
+    // The radial IPC block differentiates barrier magnitude while holding its
+    // direction fixed. Smooth fixed-capsule side samples add their exact
+    // distance Hessian here. Smooth frictionless free-BOX samples also add the
+    // translational distance Hessian below; FGMRES adds the remaining oriented
+    // normal and inverse-response terms from the same marked sample. These
+    // signed geometric terms belong to the physical operator; the right
+    // preconditioner retains its separate PSD policy. Capsule end caps,
+    // feature switches, impact-stiffness, and frictional free-BOX rotation
+    // remain outside the angular branch.
     if (proxy.shapeKind == NM_RIGID_CAPSULE &&
         (proxy.flags & NM_RIGID_PRESCRIBED_TRANSLATION) != 0u &&
         !(rigid.linearVelocityAndInverseMass.w > 0.0f) &&
@@ -5568,6 +5913,13 @@ kernel void nm_contact_evaluate(
         sample.barrierHessianRow0,
         sample.barrierHessianRow1,
         sample.barrierHessianRow2);
+    // The row0.w/row1.w lanes carry the contact microstep and linearization
+    // inverse response only for the exact smooth, frictionless free-BOX
+    // branch. FGMRES uses them for the SO(3) contact-frame and barrier-scale
+    // derivatives; multiplyRows consumes xyz only, so the spatial block is
+    // unchanged for every existing contact path.
+    sample.barrierHessianRow0.w = angularFreeBoxTangent ? dt : 0.0f;
+    sample.barrierHessianRow1.w = angularFreeBoxTangent ? normalResponse : 0.0f;
     samples[sampleIndex] = sample;
 }
 

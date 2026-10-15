@@ -1,0 +1,10 @@
+{
+  "schema": "numi.cardboard.termination-erratum.v1",
+  "at_utc": "2026-10-15T06:04:13.285714+00:00",
+  "child_pid": 15973,
+  "requested_stop": "SIGTERM",
+  "child_state": "?Es exiting, RSS0, no listed threads/open files",
+  "subsequent_SIGKILL": "PermissionError errno1 Operation not permitted",
+  "verdict": "interrupted/incomplete; no physical result",
+  "wrapper_action": "SIGINT to source-bound wrapper so exception receipt retains interrupted execution; child OS exiting entry may remain"
+}

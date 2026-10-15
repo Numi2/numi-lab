@@ -1,0 +1,8 @@
+{
+  "schema": "numi.cardboard.normalized-topology.v1",
+  "source_mesh_path": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-topology-factor-one-newton-212/output/mesh.json",
+  "source_mesh_sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+  "topology_npz_sha256": "a6f8f11205e63b9a5f188db99d9887a7cae4e1ca51c20a5e5dce94e3ec3138bb",
+  "encoding": "Ordered source mesh tetrahedra; node_count from same mesh nodes_m",
+  "reconstructed_from_same_run_mesh": true
+}

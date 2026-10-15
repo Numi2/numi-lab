@@ -843,7 +843,7 @@ def analyze_study(plan: dict[str, Any], case_paths: dict[str, Path]) -> dict[str
             "capabilities_by_run": scope_by_run,
             "meaning": "current end-grip coupon convergence cannot qualify the added scoring/contact/damage/debond stages without explicit accepted native certificates and area fields",
         },
-        "force_accuracy_limit": "relative residual setting is held constant and observed free-force imbalance is reported in N; no absolute force-accuracy equivalence is claimed because the solver's residual normalization scale is not exported",
+        "force_accuracy_limit": "temporal pairs require matching relative residual tolerance / dt, with tighter tolerances on smaller timesteps; observed free-force imbalance is separately bounded in N for every pair. The tolerance ratio alone is not an absolute force-error bound because the residual normalization scale is not exported",
         "physical_validation": False,
     }
 

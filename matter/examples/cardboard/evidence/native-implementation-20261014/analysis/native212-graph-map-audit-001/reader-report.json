@@ -1,0 +1,33 @@
+{
+  "all_free_nodes_covered": true,
+  "all_graph_factors_valid": true,
+  "candidate_linearization_sha256": "3fbdef8ccbb382d8fc865e7ef1c6d53210cbdfe2b7b1e64e862c8e94439174d0",
+  "capture_point": "after_regional_rap_and_graph_factor_barrier_before_fgmres_correction",
+  "device_program_fingerprint": "12cb5be7a185ebaf",
+  "dof_count": 6159,
+  "environment": 0,
+  "iteration": 0,
+  "layout_checksum_fnv1a32": 2602968157,
+  "limitations": [
+    "byte/layout integrity only",
+    "not a native FGMRES convergence result",
+    "not material calibration or physical qualification"
+  ],
+  "linearization_generation": 4294967296,
+  "manifest_sha256": "fc104f3f5566e6021ef547f88907ceb9e355f69c11ff56b03b1274f8f977a6ac",
+  "matrix_float_count": 4718637,
+  "patch_count": 13,
+  "patch_node_count": 2053,
+  "payload_sha256": "8d9abb9f70df7c2793ce8eb61fb540fbb3d72e8cc3824442a9a68a7764e6a8ab",
+  "pivot_count": 6159,
+  "root": 0,
+  "schema": "numi.matter.regional_rap_capture.v1",
+  "source_physics_fingerprint": "c2e4ff30b9bee46f",
+  "topology_validation": {
+    "graph_layout_checksum_fnv1a32": 2602968157,
+    "source_free_mask_sha256": "dae5a5047292398f5a4ebfae0f961daa5a76ec53af59bab106f326de08aeefd8",
+    "source_topology_sha256": "52d495969f0220838a87b2dd7984961265fc0e6b1891f2d3e157b2ef17ae7511",
+    "status": "topology_and_global_ids_verified",
+    "topology_npz_file_sha256": "a6f8f11205e63b9a5f188db99d9887a7cae4e1ca51c20a5e5dce94e3ec3138bb"
+  }
+}

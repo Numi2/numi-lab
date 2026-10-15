@@ -1,0 +1,19 @@
+--- a/matter/tools/stateful_check.cpp
++++ b/matter/tools/stateful_check.cpp
+@@ -789,8 +789,15 @@
+     }
+     {
+         auto candidate = roundTrip;
+-        // Selectors 0 through 4 are defined, including contact-regional RAP.
++        // Selector 5 is a defined graph-Schwarz mode, but this mixed
++        // MPM/FEM world is outside its immutable, contact-free FEM scope.
+         candidate.mixedSolver.executionBudgets.z = 5u;
++        requireRejected(std::move(candidate), "graph Schwarz preconditioner");
++    }
++    {
++        auto candidate = roundTrip;
++        // Selector values above the defined range remain a mixed-policy error.
++        candidate.mixedSolver.executionBudgets.z = 6u;
+         requireRejected(std::move(candidate), "mixed solver policy");
+     }
+     {

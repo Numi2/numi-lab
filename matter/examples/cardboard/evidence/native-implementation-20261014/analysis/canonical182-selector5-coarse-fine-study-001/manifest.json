@@ -1,0 +1,133 @@
+{
+  "attempts": [
+    {
+      "events_sha256": "dec04692e9720ef56711e0b612e997332e9881d7a9ea6b044fa5537b66f2a898",
+      "id": "run-001",
+      "status": "setup_failure",
+      "stderr_sha256": "09b22303915458577f1beede8cadc9738fbb11b9556c64343f770c9aaaebe278"
+    },
+    {
+      "events_sha256": "21bbe783b81bcaa3b6507b8302381baa2726280204c46a36df0d1335839d9591",
+      "id": "run-002",
+      "status": "setup_failure",
+      "stderr_sha256": "b30487c5a6fb38c95d4259607a324dca8c4c896c38771ed1f0acf791024affc4"
+    },
+    {
+      "events_sha256": "ce6e385bed55d4385c90ebafc737c31573425292b15a749f7b46e3e2d3b25a42",
+      "id": "run-003",
+      "status": "setup_failure",
+      "stderr_sha256": "d3aa946355c05b326d6f47757f85b1f624469dc5180b3ac43f10745018e0c1cc"
+    },
+    {
+      "id": "run-004",
+      "observed_numpy_matmul_warnings": [
+        "divide by zero",
+        "overflow",
+        "invalid value"
+      ],
+      "script_sha256": "c0675837630f20c1eaa7a61b8a5c127b3c1bcf6f2eef78c868c4a1370df85c6f",
+      "status": "diagnostic_not_converged",
+      "true_relative_residual": 0.9935469408593788,
+      "warning_interpretation": "unresolved, preserved; not counted as benign",
+      "warning_record_sha256": "a92a78d8186f6a9109dcb115aba81da95684f627c28f39ed7d331d50f75ad07d"
+    },
+    {
+      "id": "run-005",
+      "note": "Earlier CPU variant with corrected DOF indices but flattened xyz coarse sum; superseded by run-006 node-dot/simd-tree FP32 grouping. Preserved, not deleted.",
+      "script_sha256": "979c97c6ce5aed65e9e926ecda1fa14ee1260c5fb5bcec9f1c1ea2003861f0f6",
+      "status": "diagnostic_converged",
+      "true_relative_residual": 9.266566592568453e-09
+    },
+    {
+      "correction": "FP32 per-node xyz dot followed by deterministic 32-lane tree sum; scalar fsum local probe; explicit nonfinite checks",
+      "id": "run-006",
+      "script_sha256": "53a3d8f7585c921b46bca458d57aa71a9b32a66bdda8851e4405c00f6e028b59",
+      "status": "diagnostic_converged",
+      "true_relative_residual": 8.572800977143566e-09
+    }
+  ],
+  "limits": [
+    "Source 182 RAP capture is selector 3; no source-182 native selector-5 capture exists.",
+    "Patch local matrices/factors were rebuilt on CPU from audited CSR A; not native selector-5 FEM patch assembly or captured native factors.",
+    "Metal arithmetic/performance and full solver convergence are not qualified.",
+    "Selected Newton 23 comes from a native run that later failed at Newton 63; this is only a linearization study.",
+    "No physical material/box calibration or validation is claimed."
+  ],
+  "readme_sha256": "83219197e31b1f946ec6e64854cfc9d3b31bd2e79f5c2be3ff40628c75aec1e3",
+  "run": {
+    "A_matvecs": 526,
+    "algorithmic_cpu_emulation": true,
+    "elapsed_seconds": 26.645598999981303,
+    "events_sha256": "eb00dab9e966ad084652847fbbf6df40d5103d2440d03a35d56e2b3f951e99d9",
+    "final_attempt": "run-006",
+    "final_true_relative_residual": 8.572800977143566e-09,
+    "max_iterations": 256,
+    "measured_rss": false,
+    "modeled_numeric_workspace_bytes": 60358208,
+    "modeled_numeric_workspace_mib": 57.56207275390625,
+    "native_selector5_factor_capture": false,
+    "numpy": "2.2.5",
+    "patch_membership_sha256": "eaf352b52c58a18ade3f82f1fe64df01bee6a69c0f81f90b860ab7a8be0b20b0",
+    "preconditioner_applications": 255,
+    "python": "3.10.12",
+    "report_sha256": "8496ca3e419cf96775a2d0892cbc74d9b732098c60f17de3956cd6a25b599b6b",
+    "resource_estimate_sha256": "eb95a4f6d318519d703c22f80c8d0be5e35e70b7aa04cdd933d76ba508fb4de0",
+    "restart": 16,
+    "result": "diagnostic_converged",
+    "scipy": "1.15.3",
+    "script_sha256": "53a3d8f7585c921b46bca458d57aa71a9b32a66bdda8851e4405c00f6e028b59",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "601505f8b3ff65d50a172c48438248ab9479a6bf59d89f11af3737d2cd746a9f",
+    "thread_limits": {
+      "OMP_NUM_THREADS": 1,
+      "OPENBLAS_NUM_THREADS": 1,
+      "VECLIB_MAXIMUM_THREADS": 1
+    },
+    "true_relative_tolerance": 1e-08
+  },
+  "schema": "numi.cardboard.selector5-cpu-emulation-study.v1",
+  "source_bindings": {
+    "layout": {
+      "anchor_stride": 128,
+      "free_dofs": 2538,
+      "free_mask_digest_recomputed": "dae5a5047292398f5a4ebfae0f961daa5a76ec53af59bab106f326de08aeefd8",
+      "layout_checksum_fnv1a32": 2602968157,
+      "patch_node_entries": 2053,
+      "patch_node_limit": 256,
+      "patches": 13,
+      "topology_digest_recomputed": "52d495969f0220838a87b2dd7984961265fc0e6b1891f2d3e157b2ef17ae7511"
+    },
+    "native_capture_selection": {
+      "environment": 0,
+      "newton_iteration": 23,
+      "root": 3
+    },
+    "source065_graph_helper_sha256": "f8973ed2c95367e82f202be77b4f8763231dae88d17cd80c60c64ccd127391a8",
+    "source065_layout_bundle_sha256": "81a913889748d56e0fdba09258968373c19d358ac9be1c35ad02005178af42bb",
+    "source065_layout_document_sha256": "9191007fecd8dd21f7a044d3049255a7361118492f3adf1bd7a5fa6e9188fe13",
+    "source182_native_preconditioner_selector": 3,
+    "source182_operator_npz_sha256": "014efa29694ca8f2afc4a6838f005eb3ffd17f232f62db32a2cc3212d51e72f7",
+    "source182_operator_report_sha256": "7fc18d560019f74f00e5cf0b82326494316e0e0a145db0a96db493c0d3d646db",
+    "source182_rap_manifest_sha256": "8a0c68399357d3edf513499864260cdda3e7a239d429941d95a544756eb84eda",
+    "source182_rap_payload_sha256": "5ea011af4b6c0835cf88cf9f6005514b79a14a850ba16c2c4a66374e118cb4d4",
+    "source182_topology_npz_sha256": "aee02f06cdf0abbd5e1fb8287a37324f0ede6b18977b41e681f267446a45436c",
+    "source182_vectors_npz_sha256": "a2acfe0b30d14fed1238372ce7970b759360da018931ea8ecc87650912b0cbcc"
+  },
+  "source_overlay": {
+    "manifest_sha256": "67266e75404db2ddac733164c2c5017131130677a5cf107d7e8d6673922dfc35",
+    "patch_sha256": "573cb11a25449d3f2965a0ddf50e3be397e218b49188355c0e9e9c76d342e230",
+    "runtime_overlay_sha256": "ffee0c7ac443c9290650ea487feac15b54977c3abc103dabd25b9c0162f23d79",
+    "scope": "diagnostic-only: optional RAP-only capture omits unused FD readback without changing its 32 MiB aggregate cap; emits canonical source topology and binary free-mask digests; no physical operator/tolerance/acceptance change."
+  },
+  "status": "cpu_emulation_converged_no_native_selector5_run",
+  "study_root": "/Users/home/cardboard-implementation-20261014/analysis/canonical182-selector5-coarse-fine-study-001",
+  "v2_capture_reader": {
+    "cpu_tests": "8 passed",
+    "digest_encoding": "little-endian u32 node_count, u32 tetrahedron_count, row-major little-endian u32 global tet IDs; raw u8 free mask (1 free,0 fixed)",
+    "manifest_sha256": "aade6ae9b57c09e41d6dabcd914c1dfeae7479a86e4dc9190b254f2fdffec32f",
+    "native_selector5_capture_available": false,
+    "reader_sha256": "60f496e938775d79e93b6a4143b1ea726d62c1383f99107dbc1a6cc57a2ccde3",
+    "readme_sha256": "96982f98a1857ad3d84ef48bac33158626e8e6f8aee5e13d53f1d99620734715",
+    "test_sha256": "c583cea92fb5cbc7256aa123ad3826753241df85fc529e7b33f18032353ff8c7"
+  }
+}

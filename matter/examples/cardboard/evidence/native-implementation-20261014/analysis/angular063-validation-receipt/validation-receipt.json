@@ -1,0 +1,75 @@
+{
+  "schema": "numi.matter.angular_free_box.validation.v1",
+  "base_commit": "5fd4486ea2bcbe903782509a769ce3935b790e55",
+  "source_overlay_manifest_sha256_before_receipt": null,
+  "commands": [
+    {
+      "kind": "cpu_test",
+      "argv": [
+        "python3",
+        "source/matter/tools/test_cardboard_free_box_angular_operator.py"
+      ],
+      "exit_code": 0,
+      "result": "11 tests passed"
+    },
+    {
+      "kind": "metal_compile",
+      "argv": [
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metal",
+        "-std=metal4.0",
+        "-O3",
+        "-fno-fast-math",
+        "-I",
+        "source/matter/include",
+        "-I",
+        "source/include",
+        "-c",
+        "source/matter/src/matter_kernels.metal",
+        "-o",
+        "angular-063.air"
+      ],
+      "exit_code": 0,
+      "artifact_sha256": "dce3e1a30dc718bca53a26dc1ae74fdbdce0275252ae32f177b788d8b45d5a36"
+    },
+    {
+      "kind": "metallib",
+      "argv": [
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metallib",
+        "angular-063.air",
+        "-o",
+        "angular-063.metallib"
+      ],
+      "exit_code": 0,
+      "artifact_sha256": "566e72e6a96d9dfdcd9dbdea4154539d48c9778ed2dd5462568ec790cccd00eb"
+    },
+    {
+      "kind": "runtime_objcxx_syntax_only",
+      "argv": [
+        "/usr/bin/clang++",
+        "-DNUMI_MATTER_DEFAULT_METALLIB=\"<overlay>/angular-063.metallib\"",
+        "-I<overlay>/source/matter/include",
+        "-I<overlay>/source/include",
+        "-x",
+        "objective-c++",
+        "-O3",
+        "-std=c++23",
+        "-arch",
+        "arm64",
+        "-fobjc-arc",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-fsyntax-only",
+        "<overlay>/source/matter/src/runtime.mm"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "native_gpu": "not run"
+}

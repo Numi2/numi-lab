@@ -1,0 +1,26 @@
+{
+  "schema": "numi.cardboard.standalone-checker-host-build.v1",
+  "at_utc": "2026-10-15T06:04:30.669780+00:00",
+  "success": true,
+  "command": [
+    "xcrun",
+    "--sdk",
+    "macosx",
+    "clang++",
+    "-std=c++17",
+    "-fobjc-arc",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "-I",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-finite-refinement-and-resolved-inertia-instrument-072/matter/include",
+    "/Users/home/cardboard-implementation-20261014/analysis/selector5-iterative-refinement-check-004/selector5_refinement_kernels.mm",
+    "-o",
+    "/Users/home/cardboard-implementation-20261014/analysis/selector5-iterative-refinement-check-004/selector5_refinement_kernels"
+  ],
+  "source_sha256": "bd4c0bbf9f360e837ae94463edb409944169d692730b7b460e0e21695691db30",
+  "shared_header_sha256": "e1b4a229e58227280e2a1e263fa6535f325333e9edcacfd93498f699790c30d3",
+  "executable_sha256": "084388be8b060ce14115865b3ccfcf527c0128d678ffc8d08c72003cdc82d575",
+  "scope": "Standalonechecker004compiledagainstsource072sharedABI,sameas071; productionmetalliblaterboundseparatelyby nativerun; packageauthorreceiptremainsunchanged. NoGPUexecutioninthishostbuild."
+}

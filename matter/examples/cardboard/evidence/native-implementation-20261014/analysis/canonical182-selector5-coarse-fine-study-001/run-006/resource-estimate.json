@@ -1,0 +1,27 @@
+{
+  "cap_bytes": 1073741824,
+  "cap_margin_bytes": 1013383616,
+  "classification": "numeric-array/workspace estimate for the CPU emulation, not measured RSS or GPU allocation evidence",
+  "method": "CSR and retained input ndarray nbytes plus captured RAP numeric ndarray bytes; GMRES vector estimate from the study formula; patch estimate is 3 times each dense FP32 principal-block bytes plus pivot bytes. Excludes Python object/interpreter overhead, SciPy/BLAS internal workspace, and measured resident memory.",
+  "modeled_components_bytes": {
+    "captured_rap_numeric_bytes": 1061424,
+    "gmres_workspace_model_bytes": 1281464,
+    "operator_csr_numeric_bytes": 862708,
+    "operator_vectors_numeric_bytes": 200016,
+    "patch_factor_workspace_model_bytes": 56722188,
+    "topology_numeric_bytes": 230408
+  },
+  "modeled_total_MiB": 57.56207275390625,
+  "modeled_total_bytes": 60358208,
+  "run_id": "run-006",
+  "run_report_sha256": "8496ca3e419cf96775a2d0892cbc74d9b732098c60f17de3956cd6a25b599b6b",
+  "schema": "numi.cardboard.selector5-cpu-emulation-resource-estimate.v1",
+  "source_bindings": {
+    "operator_npz_sha256": "014efa29694ca8f2afc4a6838f005eb3ffd17f232f62db32a2cc3212d51e72f7",
+    "rap_manifest_sha256": "8a0c68399357d3edf513499864260cdda3e7a239d429941d95a544756eb84eda",
+    "rap_payload_sha256": "5ea011af4b6c0835cf88cf9f6005514b79a14a850ba16c2c4a66374e118cb4d4",
+    "topology_npz_sha256": "aee02f06cdf0abbd5e1fb8287a37324f0ede6b18977b41e681f267446a45436c",
+    "vectors_npz_sha256": "a2acfe0b30d14fed1238372ce7970b759360da018931ea8ecc87650912b0cbcc"
+  },
+  "study_script_sha256": "53a3d8f7585c921b46bca458d57aa71a9b32a66bdda8851e4405c00f6e028b59"
+}

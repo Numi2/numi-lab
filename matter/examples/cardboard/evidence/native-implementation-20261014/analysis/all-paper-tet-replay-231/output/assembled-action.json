@@ -1,0 +1,60 @@
+[
+  {
+    "environment": 0,
+    "free_node_count": 846,
+    "captured_tet_count": 1920,
+    "paper_tet_count": 1728,
+    "glue_tet_count": 192,
+    "native_production_A_action_vs_mass_minus_native_element_tangent": {
+      "absolute_error": 1.1625681686322324e-11,
+      "reference_max_abs": 9.190467385068048e-05,
+      "relative_error": 1.264971758151367e-07
+    },
+    "native_production_A_action_vs_mass_minus_independent_FP64_element_tangent": {
+      "absolute_error": 1.4618690535438822e-11,
+      "reference_max_abs": 9.19046719915462e-05,
+      "relative_error": 1.5906362776403266e-07
+    },
+    "max_abs_native_operator_action_Ns": 9.190466516884044e-05,
+    "max_abs_independent_element_action_Ns": 9.19046719915462e-05,
+    "relative_action_difference_native_tangent_vs_oracle": {
+      "absolute_error": 8.459460686271081e-12,
+      "reference_max_abs": 9.19046719915462e-05,
+      "relative_error": 9.204603534246029e-08
+    },
+    "mass_action_l2_Ns": 4.6219101994529764e-07,
+    "dt_squared_stiffness_action_l2_Ns": 0.0002588589583055731,
+    "native_correction_delta_v_max_m_s": 0.33012855052948,
+    "displacement_dof_reconstruction": "mass*delta_v - dt^2*assembled element (dP/dF):(dF/dv) direction; first 3 node action components only",
+    "limitations": "captured rejected Newton transaction; independent paper 13-state FP64 tangent plus analytic finite-glue tangent; no global physical reaction or accepted solver claim"
+  },
+  {
+    "environment": 1,
+    "free_node_count": 846,
+    "captured_tet_count": 1920,
+    "paper_tet_count": 1728,
+    "glue_tet_count": 192,
+    "native_production_A_action_vs_mass_minus_native_element_tangent": {
+      "absolute_error": 0.0,
+      "reference_max_abs": 0.0,
+      "relative_error": null
+    },
+    "native_production_A_action_vs_mass_minus_independent_FP64_element_tangent": {
+      "absolute_error": 0.0,
+      "reference_max_abs": 0.0,
+      "relative_error": null
+    },
+    "max_abs_native_operator_action_Ns": 0.0,
+    "max_abs_independent_element_action_Ns": 0.0,
+    "relative_action_difference_native_tangent_vs_oracle": {
+      "absolute_error": 0.0,
+      "reference_max_abs": 0.0,
+      "relative_error": null
+    },
+    "mass_action_l2_Ns": 0.0,
+    "dt_squared_stiffness_action_l2_Ns": 0.0,
+    "native_correction_delta_v_max_m_s": 0.0,
+    "displacement_dof_reconstruction": "mass*delta_v - dt^2*assembled element (dP/dF):(dF/dv) direction; first 3 node action components only",
+    "limitations": "captured rejected Newton transaction; independent paper 13-state FP64 tangent plus analytic finite-glue tangent; no global physical reaction or accepted solver claim"
+  }
+]

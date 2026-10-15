@@ -1,0 +1,45 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-armijo-applied-alpha-diagnostic-integrated-066",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-consistent-armijo-alpha-and-topology-capture-067",
+  "changed": {
+    "matter/src/metal/fem.metalinc": {
+      "before": "24e88be8674ffa2f2c859be29c564cd99c97f8fd5946b16dcea3aebab5e1fee3",
+      "after": "819f6724c2690c41c07972e6596624672000d35423bba3f1233e0063c47b9564"
+    },
+    "matter/src/regional_graph_schwarz.hpp": {
+      "before": "f8973ed2c95367e82f202be77b4f8763231dae88d17cd80c60c64ccd127391a8",
+      "after": "7064cc7f3af864e65274f85c6ae4de25b0df7d2c6b91b32a0f0275f711106390"
+    },
+    "matter/src/runtime.mm": {
+      "before": "03513ba0020ed413ef6c933111621c6f7804dbd3c665d12f5771c042ded9cd38",
+      "after": "f88c108754e79df70da59a515d2dc60f4117af4701f2519442b90c87ea5ce6fe"
+    },
+    "matter/tools/cardboard_diagnostic_history_compare.py": {
+      "before": "00f0af69f34dfde6f373b7a6bcc69a6000cd53a910178707824e00eaa8d07644",
+      "after": "d173daa305218a5783d953a555f0a270830fb7fd6193faed2ee2f96695f83153"
+    },
+    "matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "before": "6e92a04cfdf87010238855c9afa51884e1d460dc0df8e966c431ce1b5928694f",
+      "after": "29c0a58158e483f07eba6d056b2c65eea02aec39a9f1bafa8160405861b6fd1b"
+    },
+    "matter/tools/regional_graph_schwarz_layout_check.cpp": {
+      "before": "a1c7a9ad8aa98b606fa300c8c8cf5de8dd4a4641d88423d2cdf68aacae1f3adc",
+      "after": "8b9c08915cfa3e13be6f2628d84e0243754d41301549bcb2035e81a7faf9fb9f"
+    }
+  },
+  "overlays": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/free-rigid-armijo-alpha-publication-overlay-002/free-rigid-armijo-alpha-publication.patch",
+      "sha256": "06a25bba3c5e671e38bef281c91999382d65e4e586548dd6ae8414ae7c34bc68"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/synthetic-schwarz-layout-rename-overlay-001/synthetic-schwarz-layout-rename.patch",
+      "sha256": "c41a13244e70bd45111968d67532364d3ffc51538220dfaa43fd5fe8369bb203"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/rap-only-topology-bound-capture-overlay-001/rap-only-topology-bound-capture.patch",
+      "sha256": "573cb11a25449d3f2965a0ddf50e3be397e218b49188355c0e9e9c76d342e230"
+    }
+  ]
+}

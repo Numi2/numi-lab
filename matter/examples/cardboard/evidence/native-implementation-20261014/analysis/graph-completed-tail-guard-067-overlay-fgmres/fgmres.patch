@@ -1,0 +1,26 @@
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -2577,6 +2577,7 @@
+     constant uint& matrixFloatCount [[buffer(14)]],
+     constant uint& pivotCount [[buffer(15)]],
+     constant uint& modeCount [[buffer(16)]],
++    device const NMFGMRESStateGPU* states [[buffer(17)]],
+     uint lane [[thread_index_in_threadgroup]],
+     uint group [[threadgroup_position_in_grid]]) {
+     const uint totalGroups = dispatch.environmentCount * patchCount;
+@@ -2590,6 +2591,15 @@
+     const uint patchCorrectionBase = environment * patchNodeCount + patch.x;
+     const uint matrixBase = environment * matrixFloatCount + patch.z;
+     const uint pivotBase = environment * pivotCount + patch.w;
++    // The completed Krylov-cycle latch is authoritative here: nm_fgmres_begin
++    // has already run for this restart, while graph build/factorization occurs
++    // earlier and must remain unconditional. Do not leave a prior Arnoldi
++    // column's correction live in scratch consumed by the apply kernel.
++    if (states[environment].diagnostics.z > 0.5f) {
++        for (uint local = lane; local < patch.y; local += 256u)
++            patchCorrections[patchCorrectionBase + local] = float4(0.0f);
++        return;
++    }
+     threadgroup float rhs[768];
+     threadgroup float values[768];
+     if (factorValid[group] == 0u || n == 0u || n > 768u) {

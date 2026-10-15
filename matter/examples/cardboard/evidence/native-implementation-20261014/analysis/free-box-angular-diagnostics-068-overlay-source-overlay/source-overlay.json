@@ -1,0 +1,41 @@
+{
+  "schema": "numi.matter.source-overlay.v1",
+  "overlay_id": "free-box-angular-diagnostics-068",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-angular-native-check-and-capture-contract-068",
+  "base_source_hashes": {
+    "matter/src/runtime.mm": "f44f80b2b1e04d2321d0a5075b915a55a66fb8cf168597c5ad0b64b96eca6595",
+    "matter/src/metal/fgmres.metalinc": "c99e77d32266797e10d3d39a2be93cde68b818b386c0f8e7fc9152dac3b072f1",
+    "matter/src/metal/contact.metalinc": "69c3ec930d0b382dfe278fa42c56353782438ded77d8224a3ccfd6989e3067c9",
+    "matter/tools/cardboard_free_box_angular_native_check.mm": "9b709d5972a7c63f6d1f237faf4f74081d7ece2310fc769d865e937a79365843"
+  },
+  "original_case_211": {
+    "path": "/Users/home/cardboard-implementation-20261014/native/free-box-angular-production-kernels-211",
+    "prediction_sha256": "88a99a8ec2364c464f4250da23d0bcd71504f588721fe58bcde5999e8b305e69",
+    "receipt_sha256": "33e43f57e1ad48e6a1a26bd184269cde2ac97ca6d059dde83867c5cf57014759",
+    "stdout_sha256": "7d943686952f6f346d65c34125705f720047e3d71587ccae53b6d52fd3578e3d",
+    "stderr_sha256": "b747d0e3dd54064e9498ed86609d03666aa6e6fb4c422aacc4496e4fb669bfd9",
+    "exit_code": 2,
+    "native_steps": 0
+  },
+  "overlay_file": {
+    "path": "cardboard_free_box_angular_native_check.mm",
+    "sha256": "0cbc92a782fcc9e16d6f8d9a17d367601c4c5f5356303237e0050e3d090f8aac",
+    "patch_path": "cardboard_free_box_angular_native_check.patch",
+    "patch_sha256": "ecad4bfd6dbd78b056d9b53450fc482783cb28cf23b164605d3da524a9ab2e16"
+  },
+  "first_fixture_fp64_sample": {
+    "fixture": "physical_rotating_endpoints_clear_midpath_hit",
+    "sample_count": 65537,
+    "alpha_minimum_gap_m": 0.065,
+    "alpha_minimum_fraction": 0.0,
+    "physical_minimum_gap_m": -0.005,
+    "physical_minimum_fraction": 0.5,
+    "classification": "alpha path sampled clear; physical path sampled hit"
+  },
+  "validation": {
+    "objcxx_syntax_only": "pass with -Wall -Wextra -Wpedantic -Werror",
+    "metal_build": "not run",
+    "native_or_gpu_execution": "not run"
+  },
+  "graph_guard_note": "Frozen 068 has the same fgmres.metalinc hash as 067 and does not contain the proposed graph-solve completion guard. This checker overlay does not add a graph-solve regression; that should accompany integration of the separate graph-guard overlay."
+}

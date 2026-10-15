@@ -7,6 +7,7 @@
 #include "numi/matter/sparse_private_contact_admission.hpp"
 #include "numi/matter/full_contact_armijo_admission.hpp"
 #include "numi/matter/regional_galerkin_bending_basis.hpp"
+#include "regional_graph_schwarz.hpp"
 #include "fem_reference_geometry.hpp"
 #include "numi/matter/accepted_state_apply_gpu.h"
 #include "accepted_state_proof_gpu.hpp"
@@ -756,6 +757,7 @@ struct RegionalRAPCaptureArray {
     std::uint64_t byteCount = 0u;
     std::uint64_t elementBytes = 0u;
     std::uint32_t sourceSlot = 0u;
+    std::uint64_t sourceOffset = 0u;
 };
 
 struct RegionalRAPCaptureMetadata {
@@ -771,6 +773,16 @@ struct RegionalRAPCaptureMetadata {
     std::uint32_t modeCount = 0u;
     std::uint32_t materialStateStride = 0u;
     std::uint32_t tangentCacheUsed = 0u;
+    std::uint32_t preconditionerSelector = 0u;
+    std::uint32_t graphEnvironment = NM_INVALID_INDEX;
+    std::uint32_t graphPatchCount = 0u;
+    std::uint32_t graphPatchNodeCount = 0u;
+    std::uint32_t graphDofCount = 0u;
+    std::uint32_t graphMatrixFloatCount = 0u;
+    std::uint32_t graphPivotCount = 0u;
+    std::uint32_t graphLayoutChecksum = 0u;
+    std::string graphSourceTopologySHA256;
+    std::string graphSourceFreeMaskSHA256;
     std::uint64_t linearizationGeneration = 0u;
     std::uint64_t worldFingerprint = 0u;
     std::uint64_t executionFingerprint = 0u;
@@ -856,7 +868,11 @@ void writeRegionalRAPCapture(
         << "{\"schema\":\"numi.matter.regional_rap_capture.v1\","
         << "\"byte_order\":\"little_endian\","
         << "\"layout\":\"C-contiguous; environment-major; each array is tightly concatenated with no padding; float32x4 elements store four adjacent little-endian lanes\","
-        << "\"capture_point\":\"after_regional_rap_factor_barrier_before_fgmres_correction\","
+        << "\"capture_point\":"
+        << jsonQuoted(metadata.preconditionerSelector == 5u
+            ? "after_regional_rap_and_graph_factor_barrier_before_fgmres_correction"
+            : "after_regional_rap_factor_barrier_before_fgmres_correction")
+        << ','
         << "\"source_physics_fingerprint\":"
         << jsonQuoted(hexU64(metadata.worldFingerprint)) << ','
         << "\"device_program_fingerprint\":"
@@ -867,6 +883,25 @@ void writeRegionalRAPCapture(
         << ",\"node_count\":" << metadata.nodeCount
         << ",\"tetrahedron_count\":" << metadata.tetrahedronCount
         << ",\"mode_count\":" << metadata.modeCount
+        << ",\"preconditioner_selector\":"
+        << metadata.preconditionerSelector
+        << ",\"graph_schwarz\":{\"enabled\":"
+        << (metadata.preconditionerSelector == 5u ? "true" : "false")
+        << ",\"capture_environment\":"
+        << (metadata.graphEnvironment == NM_INVALID_INDEX ? "null" :
+            std::to_string(metadata.graphEnvironment))
+        << ",\"patch_count\":" << metadata.graphPatchCount
+        << ",\"patch_node_count\":" << metadata.graphPatchNodeCount
+        << ",\"dof_count\":" << metadata.graphDofCount
+        << ",\"matrix_float_count\":" << metadata.graphMatrixFloatCount
+        << ",\"pivot_count\":" << metadata.graphPivotCount
+        << ",\"layout_checksum_fnv1a32\":"
+        << metadata.graphLayoutChecksum
+        << ",\"source_topology_sha256\":"
+        << jsonQuoted(metadata.graphSourceTopologySHA256)
+        << ",\"source_free_mask_sha256\":"
+        << jsonQuoted(metadata.graphSourceFreeMaskSHA256)
+        << ",\"source_topology_digest_encoding\":\"little-endian u32 node_count, u32 tetrahedron_count, then row-major u32 tet connectivity; free mask is raw u8, 1=free 0=fixed\"}"
         << ",\"material_state_stride\":" << metadata.materialStateStride
         << ",\"device\":{\"name\":" << jsonQuoted(metadata.deviceName)
         << ",\"registry_id\":" << metadata.deviceRegistryID << "},"
@@ -878,7 +913,7 @@ void writeRegionalRAPCapture(
         << ",\"linearization_generation_encoding\":\"(micro_generation << 32) | newton_iteration\""
         << ",\"micro_generation\":" << metadata.microGeneration
         << ",\"dt_seconds\":" << metadata.timestepSeconds
-        << ",\"operator_generation\":\"candidate state, accepted history, scheduler, deformation words, tangent cache, AP and RAP copied from the same ordered command-buffer generation\","
+        << ",\"operator_generation\":\"candidate state, accepted history, scheduler, deformation words, tangent cache, AP and RAP copied from the same ordered command-buffer generation; selector 5 graph matrices and LU factors follow from the same candidate before FGMRES correction\","
         << "\"candidate_linearization_digest_algorithm\":\"SHA-256 over raw little-endian environment slices concatenated in this exact order: candidate_nodes, material_history, scheduler_exponents, deformation_high, deformation_low, then algorithmic_tangent_cache and algorithmic_tangent_cache_valid when tangent_cache_used=true\","
         << "\"tangent_cache_used\":"
         << (metadata.tangentCacheUsed != 0u ? "true" : "false") << ','
@@ -1162,10 +1197,74 @@ struct RegionalGalerkinBasis {
     std::string error;
 };
 
+struct RegionalGraphSchwarzHostLayout {
+    std::vector<std::array<std::uint32_t, 4>> patches;
+    std::vector<std::array<std::uint32_t, 4>> rows;
+    detail::RegionalGraphSchwarzLayout layout;
+    std::vector<std::uint8_t> freeMask;
+    std::string sourceTopologySHA256;
+    std::string sourceFreeMaskSHA256;
+};
+
+[[nodiscard]] RegionalGraphSchwarzHostLayout buildRegionalGraphSchwarz(
+    const CompiledWorld& world
+) {
+    RegionalGraphSchwarzHostLayout result;
+    const std::uint32_t nodes = world.dispatch.femNodeCount;
+    if (nodes == 0u || world.fem.nodes.size() != nodes ||
+        world.fem.tetrahedra.size() != world.dispatch.tetrahedronCount) {
+        result.layout.error = "graph Schwarz requires exact compiled FEM node/tet arrays";
+        return result;
+    }
+    std::vector<std::array<std::uint32_t, 4>> tetrahedra;
+    tetrahedra.reserve(world.fem.tetrahedra.size());
+    for (const NMTetrahedronGPU& tetrahedron : world.fem.tetrahedra) {
+        tetrahedra.push_back({tetrahedron.nodes.x, tetrahedron.nodes.y,
+                              tetrahedron.nodes.z, tetrahedron.nodes.w});
+    }
+    result.freeMask.resize(nodes);
+    for (std::uint32_t node = 0u; node < nodes; ++node) {
+        const float fixed = world.fem.nodes[node].restAndFixed.w;
+        if (!std::isfinite(fixed) || (fixed != 0.0f && fixed != 1.0f)) {
+            result.layout.error = "graph Schwarz requires a binary immutable FEM fixed mask";
+            return result;
+        }
+        result.freeMask[node] = fixed == 0.0f ? 1u : 0u;
+    }
+    // Hash the exact host topology and mask consumed by the builder
+    // and uploaded below; no reconstructed or synthetic graph enters
+    // this identity. Serialize words explicitly in little-endian order.
+    std::vector<unsigned char> topologyBytes;
+    topologyBytes.reserve(8u + tetrahedra.size() * 16u);
+    const auto appendWord = [&](const std::uint32_t word) {
+        for (unsigned int shift = 0u; shift < 32u; shift += 8u)
+            topologyBytes.push_back(static_cast<unsigned char>(word >> shift));
+    };
+    appendWord(nodes);
+    appendWord(static_cast<std::uint32_t>(tetrahedra.size()));
+    for (const auto& tetrahedron : tetrahedra)
+        for (const std::uint32_t node : tetrahedron) appendWord(node);
+    result.sourceTopologySHA256 = sha256Hex(
+        topologyBytes.data(), topologyBytes.size());
+    result.sourceFreeMaskSHA256 = sha256Hex(
+        result.freeMask.data(), result.freeMask.size());
+    result.layout = detail::buildRegionalGraphSchwarzLayout(
+        nodes, tetrahedra, result.freeMask, world.dispatch.environmentCount);
+    if (!result.layout.error.empty()) return result;
+    result.patches.reserve(result.layout.patches.size());
+    for (const auto& patch : result.layout.patches) {
+        result.patches.push_back({patch.nodeOffset, patch.nodeCount,
+                                  patch.matrixFloatOffset, patch.pivotOffset});
+    }
+    result.rows = result.layout.rows;
+    return result;
+}
+
 [[nodiscard]] bool usesRegionalGalerkinPreconditioner(
     const std::uint32_t selector
 ) noexcept {
-    return selector == 2u || selector == 3u || selector == 4u;
+    return selector == 2u || selector == 3u || selector == 4u ||
+        selector == 5u;
 }
 
 [[nodiscard]] std::uint32_t decodeFEMPreconditionerRegion(
@@ -1228,7 +1327,8 @@ struct RegionalGalerkinBasis {
         environments * modes * modes +
         environments * modes * 2u + environments * modes + environments;
     const std::uint64_t blockFineFloat4Count =
-        world.mixedSolver.executionBudgets.z >= 3u
+        (world.mixedSolver.executionBudgets.z == 3u ||
+         world.mixedSolver.executionBudgets.z == 4u)
             ? 3u * environments * nodes
             : 0u;
     constexpr std::uint64_t maximumSafeScalars =
@@ -2138,7 +2238,32 @@ struct Runtime::State {
     // Selector 3 only: inverse 3x3 nodal velocity blocks, three row-major
     // float4 rows per environment/node. This conditions FGMRES only.
     id<MTLBuffer> femRegionalNodeBlockInverse = nil;
+    // Selector 5: deterministic immutable graph patches. Metadata is uploaded
+    // once; the dense per-Newton matrices, pivots, validity, and patch solves
+    // are private scratch and never enter accepted physical state.
+    id<MTLBuffer> femRegionalGraphPatches = nil;
+    id<MTLBuffer> femRegionalGraphPatchNodes = nil;
+    id<MTLBuffer> femRegionalGraphRows = nil;
+    id<MTLBuffer> femRegionalGraphNodePatchOffsets = nil;
+    id<MTLBuffer> femRegionalGraphNodePatchValues = nil;
+    id<MTLBuffer> femRegionalGraphNodeCoverage = nil;
+    id<MTLBuffer> femRegionalGraphFactors = nil;
+    // Selector 5 refinement-only copy of the assembled patch principal A.
+    // `femRegionalGraphFactors` is overwritten in place by pivoted LU, while
+    // one residual-correction solve needs the original A for r = b - A*x.
+    id<MTLBuffer> femRegionalGraphOriginalMatrices = nil;
+    id<MTLBuffer> femRegionalGraphPivots = nil;
+    id<MTLBuffer> femRegionalGraphFactorValid = nil;
+    id<MTLBuffer> femRegionalGraphPatchCorrections = nil;
     std::uint32_t femRegionalModeCount = 0u;
+    std::uint32_t femRegionalGraphPatchCount = 0u;
+    std::uint32_t femRegionalGraphPatchNodeCount = 0u;
+    std::uint32_t femRegionalGraphDofCount = 0u;
+    std::uint32_t femRegionalGraphMatrixFloatCount = 0u;
+    std::uint32_t femRegionalGraphPivotCount = 0u;
+    std::uint32_t femRegionalGraphLayoutChecksum = 0u;
+    std::string femRegionalGraphSourceTopologySHA256;
+    std::string femRegionalGraphSourceFreeMaskSHA256;
     id<MTLBuffer> primalContactArguments = nil;
 
     id<MTLBuffer> identificationDistributions = nil;
@@ -3566,6 +3691,11 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_regional_store_ap",
             "nm_fgmres_regional_build_rap",
             "nm_fgmres_regional_factor_rap",
+            "nm_fgmres_graph_build_patch_matrices",
+            "nm_fgmres_graph_validate_mask",
+            "nm_fgmres_graph_factor_patches",
+            "nm_fgmres_graph_solve_patches",
+            "nm_fgmres_graph_apply_patches",
             "nm_fgmres_regional_project_rhs",
             "nm_fgmres_regional_solve_rap",
             "nm_fgmres_regional_apply_rap",
@@ -3732,7 +3862,19 @@ RuntimeDiagnostics Runtime::initialize(
             return [candidate->library newFunctionWithName:
                 [NSString stringWithUTF8String:qualified.c_str()]];
         };
+        const auto isGraphSchwarzKernel = [](const char* name) {
+            return std::strcmp(name, "nm_fgmres_graph_build_patch_matrices") == 0 ||
+                std::strcmp(name, "nm_fgmres_graph_validate_mask") == 0 ||
+                std::strcmp(name, "nm_fgmres_graph_factor_patches") == 0 ||
+                std::strcmp(name, "nm_fgmres_graph_solve_patches") == 0 ||
+                std::strcmp(name, "nm_fgmres_graph_apply_patches") == 0;
+        };
         for (const char* name : kernelNames) {
+            // Selector-5 graph Schwarz has no consumers in other solver modes.
+            // Avoid compiling these five pipelines for the default and other
+            // preconditioners, while preserving the complete selector-5 set.
+            if (world.mixedSolver.executionBudgets.z != 5u &&
+                isGraphSchwarzKernel(name)) continue;
             id<MTLFunction> function = kernel(name);
             if (function == nil) {
                 diagnostics.message = std::string("missing Metal function ") + name;
@@ -3818,6 +3960,109 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femRegionalBasis = uploads.one(
                 std::span<const nm_float4>(regionalGalerkinBasis.values),
                 valid, candidate->residentBytes);
+        }
+        RegionalGraphSchwarzHostLayout graphSchwarz;
+        if (world.mixedSolver.executionBudgets.z == 5u) {
+            graphSchwarz = buildRegionalGraphSchwarz(world);
+            if (!graphSchwarz.layout.error.empty()) {
+                diagnostics.message = graphSchwarz.layout.error;
+                return diagnostics;
+            }
+            const auto graphBufferFits = [&](const std::uint64_t elements,
+                const std::uint64_t elementBytes,
+                const bool environmentMajor) {
+                std::uint64_t totalElements = elements;
+                std::uint64_t totalBytes = 0u;
+                if ((environmentMajor &&
+                     !detail::regionalGraphSchwarzCheckedMul(
+                         elements, environments, totalElements)) ||
+                    (environmentMajor && totalElements >
+                        std::numeric_limits<std::uint32_t>::max()) ||
+                    !detail::regionalGraphSchwarzCheckedMul(
+                        totalElements, elementBytes, totalBytes) ||
+                    totalBytes > candidate->device.maxBufferLength) {
+                    return false;
+                }
+                return true;
+            };
+            if (!graphBufferFits(graphSchwarz.layout.matrixFloatCount,
+                    sizeof(float), true) ||
+                !graphBufferFits(graphSchwarz.layout.pivotCount,
+                    sizeof(std::uint32_t), true) ||
+                !graphBufferFits(graphSchwarz.layout.patchNodes.size(),
+                    sizeof(nm_float4), true) ||
+                !graphBufferFits(graphSchwarz.patches.size(),
+                    sizeof(std::array<std::uint32_t, 4>), false) ||
+                !graphBufferFits(graphSchwarz.layout.patchNodes.size(),
+                    sizeof(std::uint32_t), false) ||
+                !graphBufferFits(graphSchwarz.layout.rows.size(),
+                    sizeof(std::array<std::uint32_t, 4>), false) ||
+                !graphBufferFits(graphSchwarz.layout.nodePatchOffsets.size(),
+                    sizeof(std::uint32_t), false) ||
+                !graphBufferFits(graphSchwarz.layout.nodePatchValues.size(),
+                    sizeof(std::uint32_t), false) ||
+                !graphBufferFits(graphSchwarz.layout.nodeCoverage.size(),
+                    sizeof(std::uint32_t), false) ||
+                !graphBufferFits(graphSchwarz.patches.size(),
+                    sizeof(std::uint32_t), true)) {
+                diagnostics.message =
+                    "graph Schwarz arenas exceed checked Metal buffer or environment-major uint32 indexing limits";
+                return diagnostics;
+            }
+            candidate->femRegionalGraphPatchCount =
+                static_cast<std::uint32_t>(graphSchwarz.patches.size());
+            candidate->femRegionalGraphPatchNodeCount =
+                static_cast<std::uint32_t>(
+                    graphSchwarz.layout.patchNodes.size());
+            candidate->femRegionalGraphDofCount =
+                graphSchwarz.layout.totalPatchDofs;
+            candidate->femRegionalGraphMatrixFloatCount =
+                graphSchwarz.layout.matrixFloatCount;
+            candidate->femRegionalGraphPivotCount =
+                graphSchwarz.layout.pivotCount;
+            // Source-bound layout identity catches accidental divergence
+            // between the CPU graph builder and the uploaded immutable maps.
+            std::uint32_t checksum = 2166136261u;
+            const auto mixWord = [&checksum](const std::uint32_t word) {
+                checksum = (checksum ^ word) * 16777619u;
+            };
+            for (const auto& patch : graphSchwarz.patches)
+                for (const std::uint32_t word : patch) mixWord(word);
+            for (const auto& row : graphSchwarz.rows)
+                for (const std::uint32_t word : row) mixWord(word);
+            for (const std::uint32_t word : graphSchwarz.layout.patchNodes)
+                mixWord(word);
+            for (const std::uint32_t word :
+                    graphSchwarz.layout.nodePatchOffsets) mixWord(word);
+            for (const std::uint32_t word :
+                    graphSchwarz.layout.nodePatchValues) mixWord(word);
+            candidate->femRegionalGraphLayoutChecksum = checksum;
+            candidate->femRegionalGraphSourceTopologySHA256 =
+                graphSchwarz.sourceTopologySHA256;
+            candidate->femRegionalGraphSourceFreeMaskSHA256 =
+                graphSchwarz.sourceFreeMaskSHA256;
+            candidate->femRegionalGraphPatches = uploads.one(
+                std::span<const std::array<std::uint32_t, 4>>(
+                    graphSchwarz.patches), valid, candidate->residentBytes);
+            candidate->femRegionalGraphPatchNodes = uploads.one(
+                std::span<const std::uint32_t>(
+                    graphSchwarz.layout.patchNodes), valid,
+                candidate->residentBytes);
+            candidate->femRegionalGraphRows = uploads.one(
+                std::span<const std::array<std::uint32_t, 4>>(
+                    graphSchwarz.rows), valid, candidate->residentBytes);
+            candidate->femRegionalGraphNodePatchOffsets = uploads.one(
+                std::span<const std::uint32_t>(
+                    graphSchwarz.layout.nodePatchOffsets), valid,
+                candidate->residentBytes);
+            candidate->femRegionalGraphNodePatchValues = uploads.one(
+                std::span<const std::uint32_t>(
+                    graphSchwarz.layout.nodePatchValues), valid,
+                candidate->residentBytes);
+            candidate->femRegionalGraphNodeCoverage = uploads.one(
+                std::span<const std::uint32_t>(
+                    graphSchwarz.layout.nodeCoverage), valid,
+                candidate->residentBytes);
         }
         candidate->dispatchBuffer = uploads.one(
             std::span<const NMMatterDispatchGPU>(&candidate->dispatch, 1u),
@@ -5621,13 +5866,36 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femRegionalCoarseValid = privateScratch<std::uint32_t>(
                 candidate->device, environments, valid,
                 candidate->residentBytes);
-            if (world.mixedSolver.executionBudgets.z >= 3u) {
+            if (world.mixedSolver.executionBudgets.z == 3u ||
+                world.mixedSolver.executionBudgets.z == 4u) {
                 candidate->femRegionalNodeBlockInverse =
                     privateScratch<nm_float4>(candidate->device,
                         multiplied(std::size_t{3u} *
                                    world.dispatch.femNodeCount),
                         valid, candidate->residentBytes);
             }
+        }
+        if (candidate->femRegionalGraphPatchCount != 0u) {
+            candidate->femRegionalGraphOriginalMatrices = privateScratch<float>(
+                candidate->device,
+                multiplied(candidate->femRegionalGraphMatrixFloatCount),
+                valid, candidate->residentBytes);
+            candidate->femRegionalGraphFactors = privateScratch<float>(
+                candidate->device,
+                multiplied(candidate->femRegionalGraphMatrixFloatCount),
+                valid, candidate->residentBytes);
+            candidate->femRegionalGraphPivots =
+                privateScratch<std::uint32_t>(candidate->device,
+                    multiplied(candidate->femRegionalGraphPivotCount),
+                    valid, candidate->residentBytes);
+            candidate->femRegionalGraphFactorValid =
+                privateScratch<std::uint32_t>(candidate->device,
+                    multiplied(candidate->femRegionalGraphPatchCount),
+                    valid, candidate->residentBytes);
+            candidate->femRegionalGraphPatchCorrections =
+                privateScratch<nm_float4>(candidate->device,
+                    multiplied(candidate->femRegionalGraphPatchNodeCount),
+                    valid, candidate->residentBytes);
         }
         candidate->solverCertificates = privateScratch<NMSolverCertificateGPU>(
             candidate->device, multiplied(world.dispatch.objectCount),
@@ -7357,6 +7625,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     "matter_after_dense45", request.controlStep);
                 primalResourcesEncoder = nil;
             }
+        };
+        const auto dispatchGroups256 = [&](const char* name,
+                                            const NSUInteger groupCount,
+                                            const auto& bind) {
+            if (groupCount == 0u) return;
+            id<MTLComputePipelineState> pipeline = state.pipeline(name);
+            if (pipeline.maxTotalThreadsPerThreadgroup < 256u) {
+                diagnostics.message = std::string(name) +
+                    " requires a 256-thread Metal threadgroup";
+                return;
+            }
+            ++diagnostics.simdgroupDispatchCount;
+            diagnostics.requestedThreadgroupCount +=
+                static_cast<std::uint64_t>(groupCount);
+            [encoder setComputePipelineState:pipeline];
+            bind();
+            [encoder dispatchThreadgroups:MTLSizeMake(groupCount, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
         };
         const auto dispatchIndirect = [&](
             const char* name,
@@ -9382,6 +9668,42 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                 }
             }
+            const char* regionalOnlyCaptureText =
+                std::getenv("NM_FEM_REGIONAL_RAP_CAPTURE_ONLY");
+            const bool regionalOnlyCaptureValid =
+                regionalOnlyCaptureText == nullptr ||
+                std::strcmp(regionalOnlyCaptureText, "0") == 0 ||
+                std::strcmp(regionalOnlyCaptureText, "1") == 0;
+            const bool femRegionalRAPCaptureOnly =
+                regionalOnlyCaptureText != nullptr &&
+                std::strcmp(regionalOnlyCaptureText, "1") == 0;
+            const char* regionalCaptureSelectorText = std::getenv(
+                "NM_FEM_OPERATOR_FD_SELECTOR");
+            const char* regionalCapturePathText = std::getenv(
+                "NM_FEM_OPERATOR_FD_CAPTURE_PATH");
+            const char* regionalOnlyCaptureReason = nullptr;
+            if (!regionalOnlyCaptureValid) {
+                regionalOnlyCaptureReason = "regional_rap_capture_only_must_be_0_or_1";
+            } else if (femRegionalRAPCaptureOnly &&
+                       (regionalCaptureSelectorText == nullptr ||
+                        regionalCaptureSelectorText[0] == '\0')) {
+                regionalOnlyCaptureReason = "regional_rap_capture_only_requires_fd_selector";
+            } else if (femRegionalRAPCaptureOnly &&
+                       (regionalCapturePathText == nullptr ||
+                        regionalCapturePathText[0] == '\0')) {
+                regionalOnlyCaptureReason = "regional_rap_capture_only_requires_capture_path";
+            } else if (femRegionalRAPCaptureOnly &&
+                       !usesRegionalGalerkinPreconditioner(
+                           state.mixedSolverValue.executionBudgets.z)) {
+                regionalOnlyCaptureReason = "regional_rap_capture_only_requires_regional_preconditioner";
+            }
+            const bool regionalOnlyCaptureConfigValid =
+                regionalOnlyCaptureReason == nullptr;
+            if (regionalOnlyCaptureReason != nullptr) {
+                std::fprintf(stderr,
+                    "fem_regional_rap_only_error={\"schema\":1,\"reason\":\"%s\",\"physical_state_changed\":false}\n",
+                    regionalOnlyCaptureReason);
+            }
             bool femOperatorFDTraceEnabled = false;
             bool femOperatorFDTraceCaptured = false;
             bool femRegionalRAPTraceCaptured = false;
@@ -9434,7 +9756,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 }
                             }
                         }
-                        if (!epsilonScaleValid) {
+                        if (!regionalOnlyCaptureConfigValid) {
+                            std::fprintf(stderr,
+                                "fem_operator_fd_error={\"schema\":1,\"root\":%u,\"reason\":\"regional_rap_only_configuration_invalid\"}\n",
+                                femOperatorFDTraceRoot);
+                        } else if (!epsilonScaleValid) {
                             std::fprintf(stderr,
                                 "fem_operator_fd_error={\"schema\":1,\"root\":%u,\"reason\":\"epsilon_scale_must_be_finite_power_of_two_in_[1/1024,16]\"}\n",
                                 femOperatorFDTraceRoot);
@@ -9445,7 +9771,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 reason);
                         } else {
                             femOperatorFDTraceEnabled = true;
-                            std::fprintf(stderr,
+                            if (femRegionalRAPCaptureOnly) {
+                                std::fprintf(stderr,
+                                    "fem_regional_rap_only_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"finite_difference_readback\":false,\"aggregate_readback_cap_bytes\":33554432}\n",
+                                    femOperatorFDTraceRoot, femOperatorFDTraceIteration);
+                            } else std::fprintf(stderr,
                                 "fem_operator_fd_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"epsilons\":[%.9g,%.9g],\"unknown\":\"velocity correction; paired positions shift by dt*epsilon*delta_v\",\"operator\":\"production FEM element tangent plus production FGMRES node gather\",\"residual\":\"production assembled free-node mechanical impulse\",\"mutation_check\":\"bitwise accepted material history, tetrahedron frame/reference data, and production status\"}\n",
                                 femOperatorFDTraceRoot, femOperatorFDTraceIteration,
                                 0.03125f * femOperatorFDEpsilonScale,
@@ -9661,12 +9991,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     environments * sizeof(nm_float4);
                 const NSUInteger lineSearchBytes =
                     environments * sizeof(nm_float4);
+                const NSUInteger environmentLineSearchBytes =
+                    environments * sizeof(float);
                 const NSUInteger statusBytes =
                     environments * sizeof(NMMatterStatusGPU);
                 const NSUInteger trialStatusBytes =
                     environments * sizeof(NMMatterStatusGPU);
                 const NSUInteger bytes = metricBytes + lineSearchBytes +
-                    statusBytes + trialStatusBytes;
+                    statusBytes + trialStatusBytes + environmentLineSearchBytes;
                 constexpr NSUInteger maximumSnapshotBytes = 16u * 1024u;
                 if (environments == 0u || bytes > maximumSnapshotBytes) {
                     if (!femResidualArmijoTraceNoticeLogged) {
@@ -9723,6 +10055,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     toBuffer:snapshot destinationOffset:metricBytes +
                         lineSearchBytes + statusBytes
                     size:trialStatusBytes];
+                [copy copyFromBuffer:state.environmentLineSearch sourceOffset:0u
+                    toBuffer:snapshot destinationOffset:metricBytes + lineSearchBytes +
+                        statusBytes + trialStatusBytes
+                    size:environmentLineSearchBytes];
                 [copy endEncoding];
                 ++femResidualArmijoTraceRecords;
                 const auto capturedRoot = request.controlStep;
@@ -9731,6 +10067,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const auto capturedMetricBytes = metricBytes;
                 const auto capturedLineSearchBytes = lineSearchBytes;
                 const auto capturedStatusBytes = statusBytes;
+                const auto capturedTrialStatusBytes = trialStatusBytes;
                 const auto capturedAppendTraceFloat = appendTraceFloat;
                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
                     if (completed.status != MTLCommandBufferStatusCompleted) {
@@ -9750,6 +10087,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         reinterpret_cast<const NMMatterStatusGPU*>(
                             data + capturedMetricBytes + capturedLineSearchBytes +
                                 capturedStatusBytes);
+                    const auto* environmentLineSearch =
+                        reinterpret_cast<const float*>(
+                            data + capturedMetricBytes + capturedLineSearchBytes +
+                                capturedStatusBytes +
+                                capturedTrialStatusBytes);
                     std::ostringstream line;
                     line << std::setprecision(9)
                          << "fem_residual_armijo_iteration={\"schema\":1,\"root\":"
@@ -9757,7 +10099,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                          << capturedIteration
                          << ",\"semantics\":{\"base_l2\":\"exact assembled free-node mechanical residual before this Newton correction, impulse units\","
                          << "\"trial_l2\":\"selected residual if accepted, otherwise last tested residual\","
-                         << "\"trial_alpha\":\"selected alpha if accepted, otherwise last tested alpha\"},\"environments\":[";
+                         << "\"trial_alpha\":\"selected alpha if accepted, otherwise last tested alpha\","
+                         << "\"environment_line_search_alpha\":\"environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently\"},\"environments\":[";
                     for (std::uint32_t environment = 0u;
                          environment < capturedEnvironments; ++environment) {
                         if (environment != 0u) line << ',';
@@ -9773,6 +10116,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                              << (metrics[environment].w > 1.5f ? "true" : "false");
                         line << ",\"selected_alpha\":";
                         capturedAppendTraceFloat(line, lineSearch[environment].x);
+                        line << ",\"environment_line_search_alpha\":";
+                        capturedAppendTraceFloat(line, environmentLineSearch[environment]);
                         line << ",\"minimum_J\":";
                         capturedAppendTraceFloat(line, lineSearch[environment].y);
                         line << ",\"line_search_raw\":[";
@@ -14092,7 +14437,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                   atIndex:18u];
                     });
             }
-            if (state.mixedSolverValue.executionBudgets.z >= 3u) {
+            if (state.mixedSolverValue.executionBudgets.z == 3u ||
+                state.mixedSolverValue.executionBudgets.z == 4u) {
                 dispatchThreads(
                     "nm_fgmres_build_tangent_fem_block_preconditioner",
                     femNodeTotal, [&] {
@@ -14359,6 +14705,106 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                length:sizeof(regionalModes) atIndex:4u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                if (state.mixedSolverValue.executionBudgets.z == 5u) {
+                    dispatchThreads("nm_fgmres_graph_validate_mask",
+                        femNodeTotal, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femCandidate
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femRegionalGraphNodeCoverage
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.statuses
+                                     offset:0u atIndex:3u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    const std::uint32_t graphRows =
+                        state.femRegionalGraphDofCount;
+                    const std::uint32_t graphPatches =
+                        state.femRegionalGraphPatchCount;
+                    const std::uint32_t graphMatrixFloats =
+                        state.femRegionalGraphMatrixFloatCount;
+                    const std::uint32_t graphPivots =
+                        state.femRegionalGraphPivotCount;
+                    dispatchThreads("nm_fgmres_graph_build_patch_matrices",
+                        environments * graphRows, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femCandidate
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femTetrahedraCandidate
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femNodeIncidence
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femNodeRanges
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.schedulers
+                                     offset:0u atIndex:6u];
+                        [encoder setBuffer:state.materials
+                                     offset:0u atIndex:7u];
+                        [encoder setBuffer:state.scalarPrograms
+                                     offset:0u atIndex:8u];
+                        [encoder setBuffer:state.instructions
+                                     offset:0u atIndex:9u];
+                        [encoder setBuffer:state.environmentParameters
+                                     offset:0u atIndex:10u];
+                        [encoder setBuffer:state.femMaterialStateAccepted
+                                     offset:0u atIndex:11u];
+                        [encoder setBuffer:state.femAlgorithmicTangentCache != nil
+                            ? state.femAlgorithmicTangentCache : state.dummy
+                                     offset:0u atIndex:12u];
+                        [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
+                            ? state.femAlgorithmicTangentCacheValid : state.dummy
+                                     offset:0u atIndex:13u];
+                        const std::uint32_t useCache =
+                            state.mixedSolverValue.executionBudgets.w == 1u
+                                ? 1u : 0u;
+                        [encoder setBytes:&useCache length:sizeof(useCache)
+                                  atIndex:14u];
+                        [encoder setBuffer:state.femRegionalGraphPatches
+                                     offset:0u atIndex:15u];
+                        [encoder setBuffer:state.femRegionalGraphPatchNodes
+                                     offset:0u atIndex:16u];
+                        [encoder setBuffer:state.femRegionalGraphRows
+                                     offset:0u atIndex:17u];
+                        [encoder setBuffer:state.femRegionalGraphNodeCoverage
+                                     offset:0u atIndex:18u];
+                        [encoder setBuffer:state.femRegionalGraphFactors
+                                     offset:0u atIndex:19u];
+                        [encoder setBuffer:state.statuses
+                                     offset:0u atIndex:20u];
+                        [encoder setBytes:&graphRows length:sizeof(graphRows)
+                                  atIndex:21u];
+                        [encoder setBytes:&graphPatches
+                            length:sizeof(graphPatches) atIndex:22u];
+                        [encoder setBytes:&graphMatrixFloats
+                            length:sizeof(graphMatrixFloats) atIndex:23u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchGroups256("nm_fgmres_graph_factor_patches",
+                        environments * graphPatches, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femRegionalGraphPatches
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femRegionalGraphFactors
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femRegionalGraphPivots
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femRegionalGraphFactorValid
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.statuses
+                                     offset:0u atIndex:5u];
+                        [encoder setBytes:&graphPatches
+                            length:sizeof(graphPatches) atIndex:6u];
+                        [encoder setBytes:&graphMatrixFloats
+                            length:sizeof(graphMatrixFloats) atIndex:7u];
+                        [encoder setBytes:&graphPivots
+                            length:sizeof(graphPivots) atIndex:8u];
+                        [encoder setBuffer:
+                            state.femRegionalGraphOriginalMatrices
+                                     offset:0u atIndex:9u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
             }
                 // Capture the exact preconditioner generation immediately
                 // after RAP factorization. The ordinary RuntimeStateSnapshot
@@ -14401,15 +14847,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.femRegionalCoarsePivots != nil &&
                         state.femRegionalCoarseValid != nil;
                     std::vector<RegionalRAPCaptureArray> captureArrays;
-                    id<MTLBuffer> captureSources[16] = {};
+                    id<MTLBuffer> captureSources[32] = {};
                     const auto appendCaptureArray = [&](
                         const char* name,
                         const char* dtype,
                         std::initializer_list<std::uint64_t> shape,
                         const std::uint64_t elementBytes,
-                        id<MTLBuffer> source) {
+                        id<MTLBuffer> source,
+                        const std::uint64_t sourceOffset = 0u) {
                         if (!layoutValid || source == nil || elementBytes == 0u ||
-                            captureArrays.size() >= 16u) {
+                            captureArrays.size() >= 32u) {
                             layoutValid = false;
                             return;
                         }
@@ -14429,7 +14876,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             return;
                         }
                         const std::uint64_t byteCount = count * elementBytes;
-                        if (source.length < byteCount ||
+                        if (sourceOffset > source.length ||
+                            byteCount > source.length - sourceOffset ||
                             payloadBytes > std::numeric_limits<std::uint64_t>::max() -
                                 byteCount) {
                             layoutValid = false;
@@ -14444,6 +14892,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         array.elementBytes = elementBytes;
                         array.sourceSlot = static_cast<std::uint32_t>(
                             captureArrays.size());
+                        array.sourceOffset = sourceOffset;
                         captureSources[array.sourceSlot] = source;
                         captureArrays.push_back(std::move(array));
                         payloadBytes += byteCount;
@@ -14503,6 +14952,72 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         appendCaptureArray("production_status",
                             "struct:NMMatterStatusGPU", {envCount},
                             sizeof(NMMatterStatusGPU), state.statuses);
+                        if (state.mixedSolverValue.executionBudgets.z == 5u) {
+                            // The graph factors are environment-major and can
+                            // be large. Capture the first environment only,
+                            // explicitly identified in the manifest, so the
+                            // existing aggregate readback cap remains in force.
+                            constexpr std::uint64_t graphEnvironment = 0u;
+                            const std::uint64_t graphMatrixOffset =
+                                graphEnvironment *
+                                state.femRegionalGraphMatrixFloatCount *
+                                sizeof(float);
+                            const std::uint64_t graphPivotOffset =
+                                graphEnvironment *
+                                state.femRegionalGraphPivotCount *
+                                sizeof(std::uint32_t);
+                            const std::uint64_t graphValidOffset =
+                                graphEnvironment *
+                                state.femRegionalGraphPatchCount *
+                                sizeof(std::uint32_t);
+                            layoutValid = state.femRegionalGraphPatches != nil &&
+                                state.femRegionalGraphPatchNodes != nil &&
+                                state.femRegionalGraphRows != nil &&
+                                state.femRegionalGraphNodePatchOffsets != nil &&
+                                state.femRegionalGraphNodePatchValues != nil &&
+                                state.femRegionalGraphNodeCoverage != nil &&
+                                state.femRegionalGraphFactors != nil &&
+                                state.femRegionalGraphPivots != nil &&
+                                state.femRegionalGraphFactorValid != nil;
+                            if (layoutValid) {
+                                appendCaptureArray("graph_patches", "<u4x4",
+                                    {state.femRegionalGraphPatchCount},
+                                    sizeof(std::array<std::uint32_t, 4>),
+                                    state.femRegionalGraphPatches);
+                                appendCaptureArray("graph_patch_nodes", "<u4",
+                                    {state.femRegionalGraphPatchNodeCount},
+                                    sizeof(std::uint32_t),
+                                    state.femRegionalGraphPatchNodes);
+                                appendCaptureArray("graph_rows", "<u4x4",
+                                    {state.femRegionalGraphDofCount},
+                                    sizeof(std::array<std::uint32_t, 4>),
+                                    state.femRegionalGraphRows);
+                                appendCaptureArray("graph_node_patch_offsets", "<u4",
+                                    {nodeCount + 1u}, sizeof(std::uint32_t),
+                                    state.femRegionalGraphNodePatchOffsets);
+                                appendCaptureArray("graph_node_patch_values", "<u4",
+                                    {state.femRegionalGraphPatchNodeCount},
+                                    sizeof(std::uint32_t),
+                                    state.femRegionalGraphNodePatchValues);
+                                appendCaptureArray("graph_node_coverage", "<u4",
+                                    {nodeCount}, sizeof(std::uint32_t),
+                                    state.femRegionalGraphNodeCoverage);
+                                appendCaptureArray("graph_patch_matrices_lu", "<f4",
+                                    {state.femRegionalGraphMatrixFloatCount},
+                                    sizeof(float), state.femRegionalGraphFactors,
+                                    graphMatrixOffset);
+                                appendCaptureArray("graph_pivots", "<u4",
+                                    {state.femRegionalGraphPivotCount},
+                                    sizeof(std::uint32_t),
+                                    state.femRegionalGraphPivots,
+                                    graphPivotOffset);
+                                appendCaptureArray("graph_factor_valid", "<u4",
+                                    {state.femRegionalGraphPatchCount},
+                                    sizeof(std::uint32_t),
+                                    state.femRegionalGraphFactorValid,
+                                    graphValidOffset);
+                            }
+                        }
                     }
 
                     // The FD trace allocates its own shared readback later in
@@ -14510,7 +15025,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     // so the selected diagnostics cannot exceed 32 MiB live
                     // readback storage, even when both captures are enabled.
                     std::uint64_t fdReadbackUpperBound = 0u;
-                    if (state.femOperatorFDRichCaptureEnabled) {
+                    if (state.femOperatorFDRichCaptureEnabled &&
+                        !femRegionalRAPCaptureOnly) {
                         const std::uint64_t resultBytes = envCount *
                             10u * sizeof(nm_float4);
                         constexpr std::uint64_t integrityBytes =
@@ -14564,7 +15080,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 for (const auto& array : captureArrays) {
                                     [copy copyFromBuffer:
                                         captureSources[array.sourceSlot]
-                                        sourceOffset:0u toBuffer:snapshot
+                                        sourceOffset:static_cast<NSUInteger>(
+                                            array.sourceOffset)
+                                        toBuffer:snapshot
                                         destinationOffset:
                                             static_cast<NSUInteger>(array.offset)
                                         size:static_cast<NSUInteger>(array.byteCount)];
@@ -14586,6 +15104,27 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     static_cast<std::uint32_t>(
                                         state.dispatch.tetrahedronCount);
                                 metadata.modeCount = captureRegionalModes;
+                                metadata.preconditionerSelector =
+                                    state.mixedSolverValue.executionBudgets.z;
+                                if (metadata.preconditionerSelector == 5u) {
+                                    metadata.graphEnvironment = 0u;
+                                    metadata.graphPatchCount =
+                                        state.femRegionalGraphPatchCount;
+                                    metadata.graphPatchNodeCount =
+                                        state.femRegionalGraphPatchNodeCount;
+                                    metadata.graphDofCount =
+                                        state.femRegionalGraphDofCount;
+                                    metadata.graphMatrixFloatCount =
+                                        state.femRegionalGraphMatrixFloatCount;
+                                    metadata.graphPivotCount =
+                                        state.femRegionalGraphPivotCount;
+                                    metadata.graphLayoutChecksum =
+                                        state.femRegionalGraphLayoutChecksum;
+                                    metadata.graphSourceTopologySHA256 =
+                                        state.femRegionalGraphSourceTopologySHA256;
+                                    metadata.graphSourceFreeMaskSHA256 =
+                                        state.femRegionalGraphSourceFreeMaskSHA256;
+                                }
                                 metadata.materialStateStride =
                                     state.dispatch.materialStateStride;
                                 metadata.tangentCacheUsed =
@@ -15071,13 +15610,102 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     const bool useBlockFineCorrection =
-                        state.mixedSolverValue.executionBudgets.z >= 3u;
-                    dispatchThreads(
-                        useBlockFineCorrection
-                            ? "nm_fgmres_regional_apply_block_rap"
-                            : "nm_fgmres_regional_apply_rap",
-                        femNodeTotal,
-                        [&] {
+                        state.mixedSolverValue.executionBudgets.z == 3u ||
+                        state.mixedSolverValue.executionBudgets.z == 4u;
+                    if (state.mixedSolverValue.executionBudgets.z == 5u) {
+                        const std::uint32_t graphPatches =
+                            state.femRegionalGraphPatchCount;
+                        const std::uint32_t graphPatchNodes =
+                            state.femRegionalGraphPatchNodeCount;
+                        const std::uint32_t graphMatrixFloats =
+                            state.femRegionalGraphMatrixFloatCount;
+                        const std::uint32_t graphPivots =
+                            state.femRegionalGraphPivotCount;
+                        dispatchGroups256(
+                            "nm_fgmres_graph_solve_patches",
+                            environments * graphPatches, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.femRegionalGraphPatches
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:state.femRegionalGraphPatchNodes
+                                         offset:0u atIndex:2u];
+                            [encoder setBuffer:state.fgmresBasis
+                                         offset:columnOffset atIndex:3u];
+                            [encoder setBuffer:state.femRegionalEffectiveBasis
+                                         offset:0u atIndex:4u];
+                            [encoder setBuffer:state.femRegionalAP
+                                         offset:0u atIndex:5u];
+                            [encoder setBuffer:state.femRegionalCoarseCoefficients
+                                         offset:0u atIndex:6u];
+                            [encoder setBuffer:state.femRegionalGraphFactors
+                                         offset:0u atIndex:7u];
+                            [encoder setBuffer:state.femRegionalGraphPivots
+                                         offset:0u atIndex:8u];
+                            [encoder setBuffer:state.femRegionalGraphFactorValid
+                                         offset:0u atIndex:9u];
+                            [encoder setBuffer:
+                                state.femRegionalGraphPatchCorrections
+                                         offset:0u atIndex:10u];
+                            [encoder setBuffer:state.statuses
+                                         offset:0u atIndex:11u];
+                            [encoder setBytes:&graphPatches
+                                length:sizeof(graphPatches) atIndex:12u];
+                            [encoder setBytes:&graphPatchNodes
+                                length:sizeof(graphPatchNodes) atIndex:13u];
+                            [encoder setBytes:&graphMatrixFloats
+                                length:sizeof(graphMatrixFloats) atIndex:14u];
+                            [encoder setBytes:&graphPivots
+                                length:sizeof(graphPivots) atIndex:15u];
+                            [encoder setBytes:&regionalModes
+                                length:sizeof(regionalModes) atIndex:16u];
+                            [encoder setBuffer:state.fgmresStates
+                                         offset:0u atIndex:17u];
+                            [encoder setBuffer:
+                                state.femRegionalGraphOriginalMatrices
+                                         offset:0u atIndex:18u];
+                            const std::uint32_t refinementMode = 1u;
+                            [encoder setBytes:&refinementMode
+                                       length:sizeof(refinementMode)
+                                      atIndex:19u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        dispatchThreads("nm_fgmres_graph_apply_patches",
+                            femNodeTotal, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.femRegionalGraphPatchNodes
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:
+                                state.femRegionalGraphNodePatchOffsets
+                                         offset:0u atIndex:2u];
+                            [encoder setBuffer:
+                                state.femRegionalGraphNodePatchValues
+                                         offset:0u atIndex:3u];
+                            [encoder setBuffer:
+                                state.femRegionalGraphNodeCoverage
+                                         offset:0u atIndex:4u];
+                            [encoder setBuffer:state.femRegionalEffectiveBasis
+                                         offset:0u atIndex:5u];
+                            [encoder setBuffer:state.femRegionalCoarseCoefficients
+                                         offset:0u atIndex:6u];
+                            [encoder setBuffer:
+                                state.femRegionalGraphPatchCorrections
+                                         offset:0u atIndex:7u];
+                            [encoder setBuffer:state.fgmresPreconditionedBasis
+                                         offset:columnOffset atIndex:8u];
+                            [encoder setBuffer:state.fgmresStates
+                                         offset:0u atIndex:9u];
+                            [encoder setBytes:&graphPatchNodes
+                                length:sizeof(graphPatchNodes) atIndex:10u];
+                            [encoder setBytes:&regionalModes
+                                length:sizeof(regionalModes) atIndex:11u];
+                        });
+                    } else {
+                        dispatchThreads(
+                            useBlockFineCorrection
+                                ? "nm_fgmres_regional_apply_block_rap"
+                                : "nm_fgmres_regional_apply_rap",
+                            femNodeTotal,
+                            [&] {
                             setDispatch();
                             [encoder setBuffer:state.femRegionalEffectiveBasis
                                          offset:0u atIndex:1u];
@@ -15101,6 +15729,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                              offset:0u atIndex:9u];
                             }
                         });
+                    }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
                 dispatchThreads("nm_fem_apply_operator_elements", tetrahedronTotal, [&] {
@@ -15403,6 +16032,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:3u];
                     bindPrimalContactArguments(4u);
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
+                    [encoder setBuffer:state.coupledGeneralizedCandidate
+                                 offset:0u atIndex:6u];
                 });
                 dispatchThreads("nm_fgmres_apply_primal_rigid_contacts",
                     rigidGeneralizedTotal, [&] {
@@ -15903,7 +16534,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         "fem_operator_fd_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"%s\"}\n",
                         femOperatorFDTraceRoot, femOperatorFDTraceIteration,
                         reason);
-                } else if (!encodeFEMOperatorFDTrace()) {
+                } else if (!femRegionalRAPCaptureOnly &&
+                           !encodeFEMOperatorFDTrace()) {
                     ownership->preDynamicsOpen = false;
                     return diagnostics;
                 }
@@ -16081,6 +16713,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBytes:&trialIndex length:sizeof(trialIndex) atIndex:7u];
                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
                         [encoder setBuffer:state.femSolution offset:0u atIndex:9u];
+                        [encoder setBuffer:state.environmentLineSearch offset:0u atIndex:10u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
@@ -16734,6 +17367,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.contactPairs offset:0u atIndex:7u];
                         [encoder setBuffer:state.mixedSolver offset:0u atIndex:8u];
                         [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:9u];
+                        [encoder setBuffer:state.femAccepted offset:0u atIndex:10u];
+                        [encoder setBytes:&bridge length:sizeof(bridge) atIndex:11u];
+                        [encoder setBuffer:currentBodies offset:0u atIndex:12u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     if (femSparsePrivateContactEnabled) {
@@ -17049,6 +17685,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBytes:&trialIndex length:sizeof(trialIndex) atIndex:7u];
                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
                         [encoder setBuffer:state.femSolution offset:0u atIndex:9u];
+                        [encoder setBuffer:state.environmentLineSearch offset:0u atIndex:10u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
@@ -23329,7 +23966,8 @@ RuntimeStateSnapshot Runtime::snapshot() const {
                 nodes * modes * sizeof(nm_float4) +
                 environments * nodes * modes * sizeof(nm_float4) +
                 environments * nodes * modes * sizeof(nm_float4) +
-                (state_->mixedSolverValue.executionBudgets.z >= 3u
+                ((state_->mixedSolverValue.executionBudgets.z == 3u ||
+                  state_->mixedSolverValue.executionBudgets.z == 4u)
                     ? 3u * environments * nodes * sizeof(nm_float4)
                     : 0u) +
                 environments * nodes * sizeof(NMFEMNodeStateGPU) +
@@ -23363,7 +24001,8 @@ RuntimeStateSnapshot Runtime::snapshot() const {
                 regionalPivotedRAP = copy(state_->femRegionalCoarseMatrix);
                 regionalPivots = copy(state_->femRegionalCoarsePivots);
                 regionalFactorValid = copy(state_->femRegionalCoarseValid);
-                if (state_->mixedSolverValue.executionBudgets.z >= 3u)
+                if (state_->mixedSolverValue.executionBudgets.z == 3u ||
+                    state_->mixedSolverValue.executionBudgets.z == 4u)
                     regionalNodeBlockInverse =
                         copy(state_->femRegionalNodeBlockInverse);
                 regionalDiagnosticsMessage = "captured";
@@ -23474,7 +24113,8 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             encodeCopy(state_->femRegionalCoarseMatrix, regionalPivotedRAP);
             encodeCopy(state_->femRegionalCoarsePivots, regionalPivots);
             encodeCopy(state_->femRegionalCoarseValid, regionalFactorValid);
-            if (state_->mixedSolverValue.executionBudgets.z >= 3u)
+            if (state_->mixedSolverValue.executionBudgets.z == 3u ||
+                state_->mixedSolverValue.executionBudgets.z == 4u)
                 encodeCopy(state_->femRegionalNodeBlockInverse,
                            regionalNodeBlockInverse);
         }
@@ -23633,7 +24273,8 @@ RuntimeStateSnapshot Runtime::snapshot() const {
                 environments * modes);
             readCount(regionalFactorValid,
                 snapshot.femRegionalGalerkinFactorValid, environments);
-            if (state_->mixedSolverValue.executionBudgets.z >= 3u)
+            if (state_->mixedSolverValue.executionBudgets.z == 3u ||
+                state_->mixedSolverValue.executionBudgets.z == 4u)
                 readCount(regionalNodeBlockInverse,
                     snapshot.femRegionalGalerkinNodeBlockInverse,
                     environments * nodes * 3u);

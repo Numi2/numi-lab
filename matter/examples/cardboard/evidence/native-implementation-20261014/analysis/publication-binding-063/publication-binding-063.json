@@ -1,0 +1,21 @@
+{
+  "schema": "numi.cardboard.publication-binding.v1",
+  "parent_revision": "62371ed242d94ce47fbad16e77f7b44c9ff050e2",
+  "build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-063/source-build.json",
+  "build_sha256": "e9ea9edc383d2cace9f610d59936a12c077a7dd2bdd9e0bde6b544c83141a2b3",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-phase-correct-rigid-bridge-and-implicit-reference-integrated-063",
+  "bound_index_files": 750,
+  "all_bound_index_bytes_verified": true,
+  "extras": [
+    "matter/README.md",
+    "matter/examples/cardboard/implementation-20261014.md",
+    "matter/examples/cardboard/solver-progress-20261014.md",
+    "matter/examples/cardboard/shipping-runtime-gaps-20261014.md",
+    "matter/examples/cardboard/evidence/native-implementation-20261014"
+  ],
+  "limitation": "Unfinished angular BOX/CCD and isolated selector5 Schwarz work remain unstaged. All native failed and incomplete cases are explicitly retained. This commit is a source-bound bounded solver diagnostic milestone, not completion of physical assembly, convergence or crush/impact.",
+  "published_revision": "5fd4486ea2bcbe903782509a769ce3935b790e55",
+  "origin_main_revision": "5fd4486ea2bcbe903782509a769ce3935b790e55",
+  "all_committed_source_bytes_verified": true,
+  "published_at_utc": "2026-10-15T04:38:39.170482+00:00"
+}

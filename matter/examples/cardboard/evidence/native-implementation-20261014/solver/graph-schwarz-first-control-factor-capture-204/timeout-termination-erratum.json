@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.timeout-termination-erratum.v1",
+  "original_receipt_sha256": "fda2dcfbbdbf79ed906da6260c92bee728c9e069c0b44c1ba87d9fc155315f9d",
+  "original_receipt_preserved": true,
+  "recorded_at_utc": "2026-10-15T05:14:28.712618+00:00",
+  "actual_timeout_seconds": 600,
+  "termination_grace_seconds": 20,
+  "execution_timed_out": true,
+  "sigkill_group_error": "PermissionError EPERM",
+  "original_receipt_timed_out_false_is_exception_handler_artifact": true,
+  "native_completion": false,
+  "gpu_worker_qualification": "BLOCKED_PENDING_EXIT_STATE_AUDIT",
+  "pid": 62156
+}

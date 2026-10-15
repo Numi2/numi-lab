@@ -350,6 +350,17 @@ linearization. Final scratch exported after a rejected transaction is not
 automatically the selected Newton state. These CPU analyses do not qualify a
 physical coupon, material calibration or shipping-box trajectory.
 
+The current cardboard milestone adds bounded native graph-patch conditioning,
+shared FEM/rigid line-search fraction publication, retained diagnostic failures,
+and exact-word FP64 replay. The fresh source073 build passes54 targets and62
+selected CPU checks; native233 completes one small coupon control at unchanged
+accuracy. Full loading/release convergence, calibrated corrugated failure,
+shipping-box assembly and crushing are still unqualified. See
+[the solver evidence ledger](examples/cardboard/solver-progress-20261014.md)
+and [the source-bound archive](examples/cardboard/evidence/native-implementation-20261014/summary.json)
+for separate solver, convergence, calibration, analogue, assembly and impact
+verdicts. A passing prepared kernel or accepted prefix does not qualify a box.
+
 The included elastic and damageable-viscoelastic materials compile into worlds containing both MPM and FEM objects, write versioned packages, emit specialized Metal and round-trip through `readPackage`. The portable stateful regression evaluates compiled elastic stress degradation, viscous stress/tangent, explicit state evolution and canonical fingerprint sensitivity. It also corrupts material-state offsets, scalar-program spans, sparse block lookup, tetrahedron topology, contact incidence and identification ownership and requires a precise rejection from the same validator used by production loading. Source-level audits additionally check shared-ABI sizes, kernel names, buffer bindings and delimiter balance.
 
 On an Apple Silicon Metal 4 build host, run the physics qualification suite

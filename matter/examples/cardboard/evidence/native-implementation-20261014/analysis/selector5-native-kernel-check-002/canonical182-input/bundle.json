@@ -1,0 +1,170 @@
+{
+  "schema": "numi.matter.selector5-kernel-check-input.v1",
+  "source_capture_selector": 3,
+  "native_selector5_capture_present": false,
+  "kernel_input_qualification": "real source182 mesh and selector3 selected-generation operator arrays; selector5 graph rebuilt from source065 helper",
+  "bundle_file": "selector5-kernel-input.bin",
+  "bundle_byte_count": 19649040,
+  "bundle_sha256": "b2619d5d7120f1e6cae40869af0a37ce14b86b29ce0a51961c95ec2c84c3de60",
+  "dimensions": {
+    "node_count": 882,
+    "tetrahedron_count": 1920,
+    "mode_count": 26,
+    "patch_count": 13,
+    "patch_node_count": 2053,
+    "dof_count": 6159,
+    "matrix_float_count": 4718637,
+    "pivot_count": 6159,
+    "source_environment_count": 2,
+    "selected_environment": 0
+  },
+  "arrays": [
+    {
+      "name": "rap_lu",
+      "dtype": "<f4",
+      "shape": [
+        26,
+        26
+      ],
+      "offset": 52,
+      "byte_count": 2704,
+      "sha256": "f6884395e720d65caf240b76e62d77ce4813b882910a1a4192c0d986ff52397f"
+    },
+    {
+      "name": "rap_pivots",
+      "dtype": "<u4",
+      "shape": [
+        26
+      ],
+      "offset": 2756,
+      "byte_count": 104,
+      "sha256": "93c2e02e2bd75b9e6f508a8d32cafe8ffc3c2d24ac59f42b0af7f6a4590b5ce3"
+    },
+    {
+      "name": "rap_valid",
+      "dtype": "<u4",
+      "shape": [
+        1
+      ],
+      "offset": 2860,
+      "byte_count": 4,
+      "sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+    },
+    {
+      "name": "basis",
+      "dtype": "<f4",
+      "shape": [
+        882,
+        4
+      ],
+      "offset": 2864,
+      "byte_count": 14112,
+      "sha256": "f9ada41ec73103c446d001c81a09383b1eb70b2207bb40f5c936552744351489"
+    },
+    {
+      "name": "regional_basis",
+      "dtype": "<f4",
+      "shape": [
+        26,
+        882,
+        4
+      ],
+      "offset": 16976,
+      "byte_count": 366912,
+      "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5"
+    },
+    {
+      "name": "regional_ap",
+      "dtype": "<f4",
+      "shape": [
+        26,
+        882,
+        4
+      ],
+      "offset": 383888,
+      "byte_count": 366912,
+      "sha256": "e110f945c2d0f4af8396f3123f70ba5349063407258f2d34b298c93813d56d27"
+    },
+    {
+      "name": "patches",
+      "dtype": "<u4",
+      "shape": [
+        13,
+        4
+      ],
+      "offset": 750800,
+      "byte_count": 208,
+      "sha256": "711fe781e35c3fb19c616b73ed5e108989330b5a6cc0ef38be0e1245f57bd635"
+    },
+    {
+      "name": "patch_nodes",
+      "dtype": "<u4",
+      "shape": [
+        2053
+      ],
+      "offset": 751008,
+      "byte_count": 8212,
+      "sha256": "25e8d8c4aea7c7aaf3f474eb4616008504982164cb7d9815059fefc6928e0d26"
+    },
+    {
+      "name": "node_patch_offsets",
+      "dtype": "<u4",
+      "shape": [
+        883
+      ],
+      "offset": 759220,
+      "byte_count": 3532,
+      "sha256": "7733f18d8e898375a09dea2b4e2685e260830558cb4027410dc63145b3d1271d"
+    },
+    {
+      "name": "node_patch_values",
+      "dtype": "<u4",
+      "shape": [
+        2053
+      ],
+      "offset": 762752,
+      "byte_count": 8212,
+      "sha256": "b2355dc89f0133a36ac135c1d47383733294cd39dbb52338b6b5c030f3ba7480"
+    },
+    {
+      "name": "node_coverage",
+      "dtype": "<u4",
+      "shape": [
+        882
+      ],
+      "offset": 770964,
+      "byte_count": 3528,
+      "sha256": "796d0f5de2a908efde4efc235bc9ea1cc4130a062c13fef3580098780dc41137"
+    },
+    {
+      "name": "patch_matrices",
+      "dtype": "<f4",
+      "shape": [
+        4718637
+      ],
+      "offset": 774492,
+      "byte_count": 18874548,
+      "sha256": "028c41d29a93b9e064bb2b22ea17ff9c930fd279bfedaaf1349f9744bba3a923"
+    }
+  ],
+  "operator_audit_sha256": "7fc18d560019f74f00e5cf0b82326494316e0e0a145db0a96db493c0d3d646db",
+  "operator_npz_sha256": "014efa29694ca8f2afc4a6838f005eb3ffd17f232f62db32a2cc3212d51e72f7",
+  "vectors_npz_sha256": "a2acfe0b30d14fed1238372ce7970b759360da018931ea8ecc87650912b0cbcc",
+  "topology_npz_sha256": "aee02f06cdf0abbd5e1fb8287a37324f0ede6b18977b41e681f267446a45436c",
+  "regional_capture_manifest_sha256": "8a0c68399357d3edf513499864260cdda3e7a239d429941d95a544756eb84eda",
+  "regional_capture_payload_sha256": "5ea011af4b6c0835cf88cf9f6005514b79a14a850ba16c2c4a66374e118cb4d4",
+  "regional_capture_environment": 0,
+  "regional_capture_source_selector": 3,
+  "candidate_linearization_sha256": "1c756428d7ef1f5cfa6a5e035faef068d39de9b38db6195b56009bbe3c581b41",
+  "source_physics_fingerprint": "9405e23ae7e2bcd0",
+  "device_program_fingerprint": "692ad59caf1de985",
+  "layout_file": "layout.json",
+  "layout_file_sha256": "9191007fecd8dd21f7a044d3049255a7361118492f3adf1bd7a5fa6e9188fe13",
+  "arrays_are_cpu_prepared": true,
+  "limits": [
+    "This is a source-182 selector-3 operator capture; no native selector-5 capture was present.",
+    "Graph maps use actual captured mesh global IDs and env0 fixed mask; source065 production helper rebuilt them.",
+    "Patch matrices are exact principal blocks of the audited CSR A converted to FP32; native FEM graph matrix assembly is not dispatched here.",
+    "This checks production factor/solve/apply GPU kernels only when run by the parent; it is not full native preconditioner or solver qualification."
+  ]
+}

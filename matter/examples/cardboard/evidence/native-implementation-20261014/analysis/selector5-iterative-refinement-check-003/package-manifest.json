@@ -1,0 +1,25 @@
+{
+  "check_directory": "/Users/home/cardboard-implementation-20261014/analysis/selector5-iterative-refinement-check-003",
+  "cpu_tests": "python3 -W error test_verify_refinement_output.py; 4 tests passed",
+  "host_build": "xcrun macOS clang++ Objective-C++17; -fobjc-arc; Foundation and Metal frameworks; source071 matter/include",
+  "limitation": "Prepared source182 FEM operator/patches only; not full selector-5 production FEM transaction or material/physical qualification.",
+  "metallib_requirement": "fresh source071 build containing nm_fgmres_graph_factor_patches, nm_fgmres_graph_solve_patches, nm_fgmres_graph_apply_patches, nm_fgmres_regional_project_rhs, nm_fgmres_regional_solve_rap",
+  "native_execution": "not run by this checker author; no GPU execution",
+  "schema": "numi.matter.selector5.refinement_checker_package.v1",
+  "source_sha256": {
+    "README.md": "179b27d34b9c91c9e51679c4994095929057deba831e94889125360d7ea628c0",
+    "canonical182.bundle_manifest": "81a913889748d56e0fdba09258968373c19d358ac9be1c35ad02005178af42bb",
+    "canonical182.input_bundle": "b2619d5d7120f1e6cae40869af0a37ce14b86b29ce0a51961c95ec2c84c3de60",
+    "host_executable": "ae855adb090396431789114b9e60df331d0bdbe1c7091c2244d157ae2f3f99c5",
+    "selector5_refinement_kernels.mm": "5f8277b0add174aa0f7af7bda9a9d1e198eef0233d6016c1683b482070c6f546",
+    "source071.fgmres_metal": "d47277e977a3a15c53fdb83a03a401a4261b365d799113944c9661ca98d7e4b7",
+    "source071.frozen_source_manifest": "bbe6e8767e151b87fae893dfc12ad4d746b25fa0f31e47cce1967fde4d3bddbe",
+    "source071.graph_layout": "1356685f98c1818ad100c10e3e919db3c67a95c88ba86d86e7e009437844015a",
+    "source071.runtime": "c3c9272fd0483b922d2ec4c489459212dbec49ca2212e23e3a3a6b499295cc72",
+    "source071.shared_header": "e1b4a229e58227280e2a1e263fa6535f325333e9edcacfd93498f699790c30d3",
+    "test_verify_refinement_output.py": "0643885927f1b0827d71bd660f1beef694d8ce04ae3e3555340d470e433a4007",
+    "verify_refinement_output.py": "4c99772f84d6021ec04d7342598a170078775dbb2895170475eb696aafe24395"
+  },
+  "source_snapshot": "source-refined-graph-angular-residual-instrument-071",
+  "source_snapshot_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-refined-graph-angular-residual-instrument-071"
+}

@@ -1,0 +1,183 @@
+--- /Users/home/cardboard-implementation-20261014/analysis/free-box-angular-inertia-chain-073-overlay/base-908255.mm	2026-10-15 07:59:08
++++ /Users/home/cardboard-implementation-20261014/analysis/free-box-angular-inertia-chain-073-overlay/cardboard_free_box_angular_native_check.mm	2026-10-15 07:59:19
+@@ -6,6 +6,7 @@
+ 
+ #include <array>
+ #include <algorithm>
++#include <bit>
+ #include <cmath>
+ #include <cstdint>
+ #include <cstdlib>
+@@ -14,6 +15,7 @@
+ #include <limits>
+ #include <random>
+ #include <stdexcept>
++#include <sstream>
+ #include <string>
+ #include <vector>
+ 
+@@ -408,6 +410,60 @@
+     const V3 omega{float(candidate[3]),float(candidate[4]),float(candidate[5])};const V3 value=mul(multiply(inverse(invI),omega),-1.0);return {value[0],value[1],value[2]};
+ }
+ 
++
++std::uint32_t fp32Bits(float value){return std::bit_cast<std::uint32_t>(value);}
++std::string fp32WordList(const std::vector<float>& values){
++    std::ostringstream out;out<<std::hex<<std::setfill('0');
++    for(size_t i=0;i<values.size();++i){if(i)out<<',';out<<std::setw(8)<<fp32Bits(values[i]);}
++    return out.str();
++}
++M3 sourceWorldInverseInertia(const MRBodyStateGPU& source){
++    return {source.inverseInertiaWorldRow0.x,source.inverseInertiaWorldRow0.y,source.inverseInertiaWorldRow0.z,
++            source.inverseInertiaWorldRow1.x,source.inverseInertiaWorldRow1.y,source.inverseInertiaWorldRow1.z,
++            source.inverseInertiaWorldRow2.x,source.inverseInertiaWorldRow2.y,source.inverseInertiaWorldRow2.z};
++}
++V3 sourceOmega(const MRBodyStateGPU& source){return {source.angularVelocity.x,source.angularVelocity.y,source.angularVelocity.z};}
++V3 leftJacobianApply(const V3& phi,const V3& direction){
++    const double theta2=dot(phi,phi);double a,b;
++    if(theta2<1e-12){
++        a=.5-theta2/24.0+theta2*theta2/720.0;
++        b=1.0/6.0-theta2/120.0+theta2*theta2/5040.0;
++    }else{
++        const double theta=std::sqrt(theta2);
++        a=(1.0-std::cos(theta))/theta2;
++        b=(theta-std::sin(theta))/(theta2*theta);
++    }
++    const V3 first=cross(phi,direction);
++    return add(add(direction,mul(first,a)),mul(cross(phi,first),b));
++}
++M3 fp64InertiaAtCandidate(const MRBodyStateGPU& source,const V3& candidate,double dt){
++    const V3 total=add(sourceOmega(source),candidate);
++    const Q4 deltaQ=integrate(Q4{0,0,0,1},total,dt);
++    const M3 deltaR=rotation(deltaQ),sourceInv=sourceWorldInverseInertia(source);
++    const M3 candidateInv=multiply(multiply(deltaR,sourceInv),transpose(deltaR));
++    return inverse(candidateInv);
++}
++V3 fp64FullInertiaResidual(const MRBodyStateGPU& source,const V3& candidate,double dt){
++    return mul(multiply(fp64InertiaAtCandidate(source,candidate,dt),candidate),-1.0);
++}
++V3 fp64FullInertiaAction(const MRBodyStateGPU& source,const V3& candidate,const V3& direction,double dt){
++    const M3 inertia=fp64InertiaAtCandidate(source,candidate,dt);
++    const V3 phi=mul(add(sourceOmega(source),candidate),dt);
++    const V3 dtheta=mul(leftJacobianApply(phi,direction),dt);
++    return add(multiply(inertia,direction),sub(cross(dtheta,multiply(inertia,candidate)),multiply(inertia,cross(dtheta,candidate))));
++}
++double norm3(V3 value){return norm(value);}
++double maxAbs3(V3 value){return std::max({std::abs(value[0]),std::abs(value[1]),std::abs(value[2])});}
++std::string inertiaInputBinding(const MRBodyStateGPU& source,const V3& candidate,double dt){
++    std::vector<float> words={source.orientation.x,source.orientation.y,source.orientation.z,source.orientation.w,
++        source.angularVelocity.x,source.angularVelocity.y,source.angularVelocity.z,float(dt),
++        source.inverseInertiaWorldRow0.x,source.inverseInertiaWorldRow0.y,source.inverseInertiaWorldRow0.z,
++        source.inverseInertiaWorldRow1.x,source.inverseInertiaWorldRow1.y,source.inverseInertiaWorldRow1.z,
++        source.inverseInertiaWorldRow2.x,source.inverseInertiaWorldRow2.y,source.inverseInertiaWorldRow2.z,
++        float(candidate[0]),float(candidate[1]),float(candidate[2])};
++    return fp32WordList(words);
++}
++
+ bool testValidator(Device& d){
+     const double omega=3.141592653589793/.1;
+     const SweepCase crossing{"physical_rotating_endpoints_clear_midpath_hit",{0,0,0},{.1,.005,.005},{0,.07,0},{0,.07,0},{0,.07,0},{0,0,omega},{0,0,omega},true,false};
+@@ -615,28 +671,78 @@
+     ProductionContact scene(d);const ContactCase c{"inertia_rotated_candidate",{-.052,.042,-.032}};
+     const auto state=scene.baseline(c);const auto sample=scene.evaluate(state);need(sample.status.code==NM_STATUS_SUCCESS,"inertia fixture contact sample failed");
+     const std::array<double,6> candidate{.0,.0,.0,.13,-.09,.17};const auto baseRigid=scene.candidateRigid(state,candidate);
++    const V3 candidateOmega{float(candidate[3]),float(candidate[4]),float(candidate[5])};
++    std::cout<<"inertia_chain_binding source_q0_omega0_dt_Iinv0_candidate_f32_words="
++        <<inertiaInputBinding(state.body,candidateOmega,scene.timestep())
++        <<" source_material=actual_native_fixture_MRBodyStateGPU_fields\n";
+     std::mt19937 rng(0x734bc1u);std::uniform_real_distribution<double> dist(-1,1);std::vector<std::array<double,6>> directions;
+     for(int axis=0;axis<3;++axis){std::array<double,6> direction{};direction[axis+3]=1;directions.push_back(direction);}
+     for(int trial=0;trial<5;++trial){std::array<double,6> direction{};double n=0;for(int i=3;i<6;++i){direction[i]=dist(rng);n+=direction[i]*direction[i];}n=std::sqrt(n);for(int i=3;i<6;++i)direction[i]/=n;directions.push_back(direction);}
+     constexpr std::array<double,5> epsilons{4e-2,2e-2,1e-2,5e-3,2.5e-3};constexpr double tolerance=1e-3;
+-    bool allResolved=true,anyResolvedFailure=false;double worstRel=0,worstAbs=0,repeatFloor=0;
++    constexpr std::array<double,4> fp64Epsilons{1e-4,1e-5,1e-6,1e-7};constexpr double fp64Tolerance=1e-6;
++    bool allResolved=true,anyResolvedFailure=false,fp64SmoothAll=true,nativeChainAll=true;double worstRel=0,worstAbs=0,repeatFloor=0,worstFp64Rel=0,worstFp64Component=0,worstNativeChainRel=0,worstNativeChainComponent=0;
+     for(size_t di=0;di<directions.size();++di){
+         std::array<double,6> direction=directions[di];for(double& v:direction)v=float(v);
++        const V3 directionOmega{float(direction[3]),float(direction[4]),float(direction[5])};
+         const auto action=scene.freeRigidAction(sample.sample,baseRigid,direction,candidate);
+         const auto repeated=scene.freeRigidAction(sample.sample,baseRigid,direction,candidate);
+-        for(int i=3;i<6;++i)repeatFloor=std::max(repeatFloor,std::abs(action[i]-repeated[i]));
++        double thisRepeatFloor=0;for(int i=3;i<6;++i){thisRepeatFloor=std::max(thisRepeatFloor,std::abs(action[i]-repeated[i]));repeatFloor=std::max(repeatFloor,thisRepeatFloor);}
++
++        const V3 fp64Analytic=fp64FullInertiaAction(state.body,candidateOmega,directionOmega,scene.timestep());
++        std::array<V3,fp64Epsilons.size()> fp64FD{};
++        double previousFp64Difference=std::numeric_limits<double>::infinity();bool fp64Resolved=true;
++        for(size_t ei=0;ei<fp64Epsilons.size();++ei){
++            const double epsilon=fp64Epsilons[ei];
++            const V3 plusCandidate=add(candidateOmega,mul(directionOmega,epsilon));
++            const V3 minusCandidate=sub(candidateOmega,mul(directionOmega,epsilon));
++            const V3 plus=fp64FullInertiaResidual(state.body,plusCandidate,scene.timestep());
++            const V3 minus=fp64FullInertiaResidual(state.body,minusCandidate,scene.timestep());
++            fp64FD[ei]=mul(sub(plus,minus),-0.5/epsilon);
++            const V3 error=sub(fp64Analytic,fp64FD[ei]);
++            const double derivativeRel=norm3(error)/std::max(norm3(fp64Analytic),1e-30);
++            const double derivativeComponent=maxAbs3(error)/std::max(norm3(fp64Analytic),1e-30);
++            std::cout<<"inertia_chain_fp64_fd direction="<<di<<" epsilon="<<epsilon
++                <<" analytic_l2="<<norm3(fp64Analytic)<<" rel="<<derivativeRel
++                <<" component_over_analytic_l2="<<derivativeComponent<<"\n";
++            if(ei==2){worstFp64Rel=std::max(worstFp64Rel,derivativeRel);worstFp64Component=std::max(worstFp64Component,derivativeComponent);}
++            if(ei==3){
++                fp64Resolved=derivativeRel<=fp64Tolerance&&derivativeComponent<=fp64Tolerance;
++                const double refinement=norm3(sub(fp64FD[3],fp64FD[2]))/std::max(norm3(fp64Analytic),1e-30);
++                fp64Resolved=fp64Resolved&&refinement<=fp64Tolerance;
++            }
++            if(ei>0){
++                const double diff=norm3(sub(fp64FD[ei],fp64FD[ei-1]))/std::max(norm3(fp64Analytic),1e-30);
++                // FP64 refinement should descend until the final roundoff floor;
++                // the last difference is checked against the declared tolerance.
++                if(ei<3 && diff>previousFp64Difference*1.2) fp64Resolved=false;
++                previousFp64Difference=diff;
++            }
++        }
++        const V3 nativeAngular{action[3],action[4],action[5]};
++        const V3 nativeChainError=sub(nativeAngular,fp64Analytic);
++        const double nativeChainRel=norm3(nativeChainError)/std::max(norm3(fp64Analytic),1e-30);
++        const double nativeChainComponent=maxAbs3(nativeChainError)/std::max(norm3(fp64Analytic),1e-30);
++        const bool nativeChainPass=nativeChainRel<=tolerance&&nativeChainComponent<=tolerance+thisRepeatFloor/std::max(norm3(fp64Analytic),1e-30);
++        fp64SmoothAll=fp64SmoothAll&&fp64Resolved;nativeChainAll=nativeChainAll&&nativeChainPass;
++        worstNativeChainRel=std::max(worstNativeChainRel,nativeChainRel);worstNativeChainComponent=std::max(worstNativeChainComponent,nativeChainComponent);
++        std::cout<<"inertia_chain_native_action direction="<<di<<" fp64_smooth_derivative="<<(fp64Resolved?"PASS":"FAIL")
++            <<" native_A_minus_dR_l2="<<norm3(nativeAngular)<<" fp64_A_minus_dR_l2="<<norm3(fp64Analytic)
++            <<" native_fp64_rel="<<nativeChainRel<<" component_over_fp64_l2="<<nativeChainComponent
++            <<" repeat_floor_abs="<<thisRepeatFloor<<" threshold="<<tolerance
++            <<" outcome="<<(nativeChainPass?"PASS":"FAIL")<<"\n";
++
+         std::array<std::array<double,3>,epsilons.size()> fd{};
+         for(size_t ei=0;ei<epsilons.size();++ei){
+             auto plusCandidate=candidate,minusCandidate=candidate;
+             for(int i=0;i<6;++i){plusCandidate[i]=float(candidate[i]+epsilons[ei]*direction[i]);minusCandidate[i]=float(candidate[i]-epsilons[ei]*direction[i]);}
+             const auto plusRigid=scene.candidateRigid(state,plusCandidate),minusRigid=scene.candidateRigid(state,minusCandidate);
+             const auto plus=fp64InertialResidual(plusRigid,plusCandidate),minus=fp64InertialResidual(minusRigid,minusCandidate);
+-            // Match the production convention A=-dR, with the independent
+-            // inertial residual R=-I_world(q)*candidateAngular.
++            // Retained native-FP32 candidate finite differences are a separate
++            // quantization-sensitive diagnostic, not replaced by the FP64 gate.
+             for(int i=0;i<3;++i)fd[ei][i]=-(plus[i]-minus[i])/(2*epsilons[ei]);
+             std::array<double,3> error{};for(int i=0;i<3;++i)error[i]=action[i+3]-fd[ei][i];
+             double fdNorm=0;for(double v:fd[ei])fdNorm+=v*v;fdNorm=std::sqrt(fdNorm);double errorNorm=0;for(double v:error)errorNorm+=v*v;errorNorm=std::sqrt(errorNorm);
+-            std::cout<<"inertia_fd direction="<<di<<" epsilon="<<epsilons[ei]<<" A_minus_dR_fd_l2="<<fdNorm<<" action_l2="<<std::sqrt(action[3]*action[3]+action[4]*action[4]+action[5]*action[5])<<" error_l2_rel="<<errorNorm/std::max(fdNorm,1e-30)<<"\n";
++            std::cout<<"inertia_fp32_candidate_fd direction="<<di<<" epsilon="<<epsilons[ei]<<" A_minus_dR_fd_l2="<<fdNorm<<" action_l2="<<std::sqrt(action[3]*action[3]+action[4]*action[4]+action[5]*action[5])<<" error_l2_rel="<<errorNorm/std::max(fdNorm,1e-30)<<"\n";
+         }
+         auto difference=[&](size_t a,size_t b){double n=0;for(int i=0;i<3;++i)n+=std::pow(fd[a][i]-fd[b][i],2);return std::sqrt(n);};
+         const double d12=difference(1,2),d23=difference(2,3),d34=difference(3,4);double fdNorm=0,errorNorm=0,component=0;
+@@ -645,10 +751,16 @@
+         const bool resolved=fdNorm>10*repeatFloor&&d34<=d23&&d23<=d12&&d34<=tolerance*fdNorm;
+         const bool pass=resolved&&rel<=tolerance&&component<=repeatFloor+tolerance*fdNorm;
+         allResolved=allResolved&&resolved;anyResolvedFailure=anyResolvedFailure||(resolved&&!pass);worstRel=std::max(worstRel,rel);worstAbs=std::max(worstAbs,component);
+-        std::cout<<"inertia_fd_summary direction="<<di<<" refinements="<<d12<<","<<d23<<","<<d34<<" repeat_floor_abs="<<repeatFloor<<" resolved="<<(resolved?1:0)<<" final_rel="<<rel<<" component_max="<<component<<" outcome="<<(pass?"PASS":(resolved?"FAIL":"INCONCLUSIVE"))<<"\n";
++        std::cout<<"inertia_fp32_fd_summary direction="<<di<<" refinements="<<d12<<","<<d23<<","<<d34<<" repeat_floor_abs="<<thisRepeatFloor<<" resolved="<<(resolved?1:0)<<" final_rel="<<rel<<" component_max="<<component<<" outcome="<<(pass?"PASS":(resolved?"FAIL":"INCONCLUSIVE"))<<"\n";
+     }
+-    std::cout<<"production_free_rigid_inertia_operator directions="<<directions.size()<<" worst_rel="<<worstRel<<" worst_component_abs="<<worstAbs<<" repeat_floor_abs="<<repeatFloor<<" threshold="<<tolerance<<" resolved="<<(allResolved?"YES":"NO")<<" result="<<(anyResolvedFailure?"FAIL":(allResolved?"PASS":"INCONCLUSIVE"))<<" convention=A_minus_dR source=nm_fgmres_apply_free_rigid\n";
+-    if(anyResolvedFailure)return Outcome::fail;
++    const bool chainFailure=!fp64SmoothAll||!nativeChainAll;
++    std::cout<<"production_free_rigid_inertia_fp64_chain directions="<<directions.size()<<" smooth_derivative="<<(fp64SmoothAll?"PASS":"FAIL")
++        <<" worst_fp64_fd_rel_at_1e-6="<<worstFp64Rel<<" worst_fp64_component_over_l2="<<worstFp64Component
++        <<" native_action="<<(nativeChainAll?"PASS":"FAIL")<<" worst_native_rel="<<worstNativeChainRel
++        <<" worst_native_component_over_fp64_l2="<<worstNativeChainComponent<<" threshold="<<tolerance
++        <<" convention=A_minus_dR equation=R_minus_Iworld_times_deltaOmega actual_fp32_input_words=true\n";
++    std::cout<<"production_free_rigid_inertia_fp32_candidate_fd directions="<<directions.size()<<" worst_rel="<<worstRel<<" worst_component_abs="<<worstAbs<<" repeat_floor_abs="<<repeatFloor<<" threshold="<<tolerance<<" resolved="<<(allResolved?"YES":"NO")<<" result="<<(anyResolvedFailure?"FAIL":(allResolved?"PASS":"INCONCLUSIVE"))<<" source=nm_fgmres_apply_free_rigid\n";
++    if(anyResolvedFailure||chainFailure)return Outcome::fail;
+     if(!allResolved)return Outcome::inconclusive;
+     return Outcome::pass;
+ }

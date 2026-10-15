@@ -1,0 +1,449 @@
+[  0%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+[  0%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[  0%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[  0%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[100%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[100%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[100%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[100%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[100%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[100%] Built target numi_matter_compiler_objects
+[100%] Linking CXX static library libnumi_matter_compiler.a
+[100%] Built target numi_matter_compiler
+[100%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-barrier-scale-check.dir/tools/cardboard_prescribed_barrier_scale_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-barrier-scale-check
+[100%] Built target numi-matter-cardboard-barrier-scale-check
+Building CXX object matter/CMakeFiles/numi-matter-cardboard-box-assembly-controller-check.dir/tools/cardboard_box_assembly_controller_check.cpp.o
+Linking CXX executable numi-matter-cardboard-box-assembly-controller-check
+Built target numi-matter-cardboard-box-assembly-controller-check
+[100%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-box-blank-check.dir/tools/cardboard_box_blank_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-box-blank-check
+[100%] Built target numi-matter-cardboard-box-blank-check
+[  0%] Generating shaders/NumiMatter.metallib
+[  0%] Generating shaders/NumiMatterPhysicalStateDigest.metallib
+[ 50%] Built target numi_matter_compiler_objects
+[ 50%] Built target numi_matter_compiler
+[ 50%] Built target numi_matter_shaders
+[ 50%] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[ 50%] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+[100%] Building CXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[100%] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[100%] Built target numi_matter_runtime_objects
+[100%] Linking CXX static library libnumi_matter_runtime.a
+[100%] Built target numi_matter_runtime
+[100%] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-cohesive-face-check.dir/tools/cardboard_cohesive_face_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-cohesive-face-check
+[100%] Built target numi-matter-cardboard-cohesive-face-check
+Building CXX object matter/CMakeFiles/numi-matter-cardboard-compensated-deformation-check.dir/tools/cardboard_compensated_deformation_check.cpp.o
+Linking CXX executable numi-matter-cardboard-compensated-deformation-check
+Built target numi-matter-cardboard-compensated-deformation-check
+[100%] Built target numi_matter_compiler_objects
+[100%] Built target numi_matter_compiler
+[100%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-damage-builder-check.dir/tools/cardboard_damage_builder_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-damage-builder-check
+[100%] Built target numi-matter-cardboard-damage-builder-check
+[100%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-delamination-reference-check.dir/tools/cardboard_bleached_delamination_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-delamination-reference-check
+[100%] Built target numi-matter-cardboard-delamination-reference-check
+[100%] Built target numi_matter_compiler_objects
+[100%] Built target numi_matter_compiler
+[100%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-expression-cache-check.dir/tools/cardboard_expression_cache_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-expression-cache-check
+[100%] Built target numi-matter-cardboard-expression-cache-check
+[100%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-fracture-regularization-check.dir/tools/cardboard_fracture_regularization_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-fracture-regularization-check
+[100%] Built target numi-matter-cardboard-fracture-regularization-check
+[  0%] Built target numi_matter_shaders
+[ 50%] Built target numi_matter_compiler_objects
+[ 50%] Built target numi_matter_compiler
+[100%] Built target numi_matter_runtime_objects
+[100%] Built target numi_matter_runtime
+[100%] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-full-contact-armijo-check.dir/tools/cardboard_full_contact_armijo_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-full-contact-armijo-check
+[100%] Built target numi-matter-cardboard-full-contact-armijo-check
+[100%] Built target numi_matter_compiler_objects
+[100%] Built target numi_matter_compiler
+[100%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-generic-compensated-projection-check.dir/tools/cardboard_generic_compensated_projection_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-generic-compensated-projection-check
+[100%] Built target numi-matter-cardboard-generic-compensated-projection-check
+[  0%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-glue-mesh-check.dir/tools/cardboard_glue_mesh_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-glue-mesh-check
+[100%] Built target numi-matter-cardboard-glue-mesh-check
+[100%] Built target numi_matter_compiler_objects
+[100%] Built target numi_matter_compiler
+[100%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-material-check.dir/tools/cardboard_material_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-material-check
+[100%] Built target numi-matter-cardboard-material-check
+[100%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-mixed-cohesive-check.dir/tools/cardboard_mixed_cohesive_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-mixed-cohesive-check
+[100%] Built target numi-matter-cardboard-mixed-cohesive-check
+[  0%] Built target numi_matter_shaders
+[ 50%] Built target numi_matter_compiler_objects
+[ 50%] Built target numi_matter_compiler
+[100%] Built target numi_matter_runtime_objects
+[100%] Built target numi_matter_runtime
+[100%] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-mixed-cohesive-face-check.dir/tools/cardboard_mixed_cohesive_face_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-mixed-cohesive-face-check
+[100%] Built target numi-matter-cardboard-mixed-cohesive-face-check
+Building CXX object matter/CMakeFiles/numi-matter-cardboard-mixed-cohesive-frame-check.dir/tools/cardboard_mixed_cohesive_frame_check.cpp.o
+Linking CXX executable numi-matter-cardboard-mixed-cohesive-frame-check
+Built target numi-matter-cardboard-mixed-cohesive-frame-check
+[100%] Built target numi_matter_compiler_objects
+[100%] Built target numi_matter_compiler
+[100%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-paper-material-check.dir/tools/cardboard_paper_material_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-paper-material-check
+[100%] Built target numi-matter-cardboard-paper-material-check
+Building CXX object matter/CMakeFiles/numi-matter-cardboard-pin-adhesion-fixture-check.dir/tools/cardboard_pin_adhesion_fixture_check.cpp.o
+Linking CXX executable numi-matter-cardboard-pin-adhesion-fixture-check
+Built target numi-matter-cardboard-pin-adhesion-fixture-check
+[  0%] Built target numi_matter_shaders
+[  0%] Generating shaders/NumiNeuron.metallib
+[  0%] Generating shaders/MetalRobo.metallib
+[  0%] Generating shaders/MetalRoboHyperPolicy.metallib
+[  4%] Built target numi_matter_compiler_objects
+[  4%] Generating generated/VisualKernelHashes.h
+[  4%] Built target metalrobo_visual_kernel_hashes
+[  9%] Built target numi_matter_runtime_objects
+[  9%] Built target numi_matter_compiler
+[  9%] Built target metalrobo_neuron_culture_shaders
+[  9%] Built target numi_matter_runtime
+[  9%] Built target metalrobo_hyper_policy_shaders
+/Users/home/cardboard-implementation-20261014/snapshots/source-local-budget-and-operator-decomposition-integrated-055/src/metal/NumiHumanStand.metal:2524:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns = (equalityColumnsEnd + nv) * nv;
+               ^
+/Users/home/cardboard-implementation-20261014/snapshots/source-local-budget-and-operator-decomposition-integrated-055/src/metal/NumiHumanStand.metal:2638:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns =
+               ^
+2 warnings generated.
+/Users/home/cardboard-implementation-20261014/snapshots/source-local-budget-and-operator-decomposition-integrated-055/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/home/cardboard-implementation-20261014/snapshots/source-local-budget-and-operator-decomposition-integrated-055/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+In file included from /Users/home/cardboard-implementation-20261014/snapshots/source-local-budget-and-operator-decomposition-integrated-055/src/metal/MujocoMuscleReferenceCompensated.metal:4:
+/Users/home/cardboard-implementation-20261014/snapshots/source-local-budget-and-operator-decomposition-integrated-055/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/home/cardboard-implementation-20261014/snapshots/source-local-budget-and-operator-decomposition-integrated-055/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+[  9%] Built target metalrobo_shaders
+[  9%] Building CXX object CMakeFiles/metalrobo.dir/src/core/Model.cpp.o
+[  9%] Building CXX object CMakeFiles/metalrobo.dir/src/core/Franka.cpp.o
+[  9%] Building CXX object CMakeFiles/metalrobo.dir/src/core/FrankaHand.cpp.o
+[  9%] Building CXX object CMakeFiles/metalrobo.dir/src/core/FrankaEngine.cpp.o
+[ 14%] Building CXX object CMakeFiles/metalrobo.dir/src/core/FrankaWorld.cpp.o
+[ 14%] Building CXX object CMakeFiles/metalrobo.dir/src/core/CpuDynamics.cpp.o
+[ 14%] Building CXX object CMakeFiles/metalrobo.dir/src/core/EngineModel.cpp.o
+[ 14%] Building CXX object CMakeFiles/metalrobo.dir/src/core/EngineModelComposer.cpp.o
+[ 14%] Building CXX object CMakeFiles/metalrobo.dir/src/core/RunProgram.cpp.o
+[ 14%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ParallelABASchedule.cpp.o
+[ 14%] Building CXX object CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedProgram.cpp.o
+[ 19%] Building CXX object CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedContactProgram.cpp.o
+[ 19%] Building CXX object CMakeFiles/metalrobo.dir/src/core/WorldCompiler.cpp.o
+[ 19%] Building CXX object CMakeFiles/metalrobo.dir/src/core/WorldPack.cpp.o
+[ 19%] Building CXX object CMakeFiles/metalrobo.dir/src/core/MatterSnapshotArchive.cpp.o
+[ 19%] Building CXX object CMakeFiles/metalrobo.dir/src/core/EpisodeTwinCompiler.cpp.o
+[ 19%] Building CXX object CMakeFiles/metalrobo.dir/src/core/R2S2R.cpp.o
+[ 23%] Building CXX object CMakeFiles/metalrobo.dir/src/core/VisualPlatform.cpp.o
+[ 23%] Building CXX object CMakeFiles/metalrobo.dir/src/core/VisualPresentation.cpp.o
+[ 23%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NeuronCulture.cpp.o
+[ 23%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NeuronCultureArtifacts.cpp.o
+[ 23%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NeuronCultureProtocol.cpp.o
+[ 23%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NeuronCultureEmbodiment.cpp.o
+[ 23%] Building CXX object CMakeFiles/metalrobo.dir/src/core/Tactile.cpp.o
+[ 28%] Building CXX object CMakeFiles/metalrobo.dir/src/core/TactileDebug.cpp.o
+[ 28%] Building CXX object CMakeFiles/metalrobo.dir/src/core/RobotDescriptionCooker.cpp.o
+[ 28%] Building CXX object CMakeFiles/metalrobo.dir/src/core/GeometryCooker.cpp.o
+[ 28%] Building CXX object CMakeFiles/metalrobo.dir/src/core/OpenSimFunction.cpp.o
+[ 28%] Building CXX object CMakeFiles/metalrobo.dir/src/core/OpenSimSpatialTransform.cpp.o
+[ 28%] Building CXX object CMakeFiles/metalrobo.dir/src/core/OpenSimMobileRoot.cpp.o
+[ 28%] Building CXX object CMakeFiles/metalrobo.dir/src/core/G1.cpp.o
+[ 33%] Building CXX object CMakeFiles/metalrobo.dir/src/core/LocomotionWorld.cpp.o
+[ 33%] Building CXX object CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o
+[ 33%] Building CXX object CMakeFiles/metalrobo.dir/src/core/PolicyProgram.cpp.o
+[ 33%] Building CXX object CMakeFiles/metalrobo.dir/src/core/HyperPolicyProgram.cpp.o
+[ 33%] Building CXX object CMakeFiles/metalrobo.dir/src/core/HyperPolicyPacks.cpp.o
+[ 33%] Building CXX object CMakeFiles/metalrobo.dir/src/core/LearningPacks.cpp.o
+[ 38%] Building CXX object CMakeFiles/metalrobo.dir/src/core/MotionCompiler.cpp.o
+[ 38%] Building CXX object CMakeFiles/metalrobo.dir/src/core/SurgicalPSM.cpp.o
+[ 38%] Building CXX object CMakeFiles/metalrobo.dir/src/core/EmbodiedTactile.cpp.o
+[ 38%] Building CXX object CMakeFiles/metalrobo.dir/src/core/Wave.cpp.o
+[ 38%] Building CXX object CMakeFiles/metalrobo.dir/src/core/SurgicalAssets.cpp.o
+[ 38%] Building CXX object CMakeFiles/metalrobo.dir/src/core/SurgicalVisual.cpp.o
+[ 38%] Building CXX object CMakeFiles/metalrobo.dir/src/core/SurgicalWorld.cpp.o
+[ 42%] Building CXX object CMakeFiles/metalrobo.dir/src/core/SurgicalKnot.cpp.o
+[ 42%] Building CXX object CMakeFiles/metalrobo.dir/src/core/SurgicalThreadTargeting.cpp.o
+[ 42%] Building CXX object CMakeFiles/metalrobo.dir/src/core/HeterogeneousWorld.cpp.o
+[ 42%] Building CXX object CMakeFiles/metalrobo.dir/src/core/DiscreteElasticRod.cpp.o
+[ 42%] Building CXX object CMakeFiles/metalrobo.dir/src/core/Collision.cpp.o
+[ 42%] Building CXX object CMakeFiles/metalrobo.dir/src/core/FreeBodyDynamics.cpp.o
+[ 42%] Building CXX object CMakeFiles/metalrobo.dir/src/core/Multicopter.cpp.o
+[ 47%] Building CXX object CMakeFiles/metalrobo.dir/src/core/PX4X500.cpp.o
+[ 47%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedDynamics.cpp.o
+[ 47%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanSupport.cpp.o
+[ 47%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedActuation.cpp.o
+[ 47%] Building CXX object CMakeFiles/metalrobo.dir/src/core/MillardMuscleReference.cpp.o
+[ 47%] Building CXX object CMakeFiles/metalrobo.dir/src/core/MujocoMuscleReference.cpp.o
+[ 52%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanJointEquality.cpp.o
+[ 52%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanMuscleEquilibrium.cpp.o
+[ 52%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanInitialState.cpp.o
+[ 52%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanRuntimeIdentity.cpp.o
+[ 52%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanSourceConstraints.cpp.o
+[ 52%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumanXExactTransaction.cpp.o
+[ 52%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerEvidenceWriter.cpp.o
+[ 57%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerSnapshot.cpp.o
+[ 57%] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorProgram.cpp.o
+[ 57%] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorTrial.cpp.o
+[ 57%] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorAcceptedStateRoot.cpp.o
+[ 57%] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorNativeAudit.cpp.o
+[ 57%] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorStateComponents.cpp.o
+[ 57%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanTensionNetwork.cpp.o
+[ 61%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanTendon.cpp.o
+[ 61%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanCartilage.cpp.o
+[ 61%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueMass.cpp.o
+[ 61%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueBinding.cpp.o
+[ 61%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanKnee.cpp.o
+[ 61%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanKneeContact.cpp.o
+[ 66%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o
+[ 66%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKneeNumanX.cpp.o
+[ 66%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumiHumanLoadedKneeBinding.mm.o
+[ 66%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanContinuumMap.cpp.o
+[ 66%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedJointLimits.cpp.o
+[ 66%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedContact.cpp.o
+[ 66%] Building CXX object CMakeFiles/metalrobo.dir/src/core/CoupledArticulatedRigidContact.cpp.o
+[ 71%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidCollision.cpp.o
+[ 71%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidWorld.cpp.o
+[ 71%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedMixedConstraints.cpp.o
+[ 71%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedCollision.cpp.o
+[ 71%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedWorld.cpp.o
+[ 71%] Building CXX object CMakeFiles/metalrobo.dir/src/core/MultiArticulatedWorld.cpp.o
+[ 71%] Building CXX object CMakeFiles/metalrobo.dir/src/core/MultiArticulatedContact.cpp.o
+[ 76%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ConstraintIR.cpp.o
+[ 76%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ReferenceConicSolver.cpp.o
+[ 76%] Building CXX object CMakeFiles/metalrobo.dir/src/core/QualityContactSolver.cpp.o
+[ 76%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ConstraintSolver.cpp.o
+[ 76%] Building CXX object CMakeFiles/metalrobo.dir/src/core/RigidBodyWorld.cpp.o
+[ 76%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/apple/CaptureManifestJSON.mm.o
+[ 80%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/apple/HardwareOutcomeJSON.mm.o
+[ 80%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/apple/EnvironmentCooker.mm.o
+[ 80%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/apple/VisualAssetCooker.mm.o
+[ 80%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o
+[ 80%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanIO.mm.o
+[ 80%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHumanBehaviorTelemetry.mm.o
+[ 80%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumanXBridgeV1.mm.o
+[ 85%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumanXRuntimeV1.mm.o
+[ 85%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalNumanXCoupledHuman.mm.o
+[ 85%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanMatter.mm.o
+[ 85%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumiHumanTendonMetal.mm.o
+[ 85%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumiHumanExtensorHoodMetal.mm.o
+[ 85%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedABA.mm.o
+[ 85%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedABA.mm.o
+[ 90%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalDiscreteElasticRod.mm.o
+[ 90%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedInverseMass.mm.o
+[ 90%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedInverseMass.mm.o
+[ 90%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedConstraints.mm.o
+[ 90%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedContact.mm.o
+[ 90%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalQualityContactSolver.mm.o
+[ 95%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalUnifiedQualitySolver.mm.o
+[ 95%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o
+[ 95%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHyperPolicy.mm.o
+[ 95%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalWorldFamily.mm.o
+[ 95%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o
+[ 95%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalRunInspector.mm.o
+[ 95%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalTactile.mm.o
+[100%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalNeuronCulture.mm.o
+[100%] Building CXX object CMakeFiles/metalrobo.dir/src/c_api.cpp.o
+[100%] Linking CXX shared library lib/libmetalrobo.dylib
+[100%] Built target metalrobo
+[100%] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-probe
+[100%] Built target numi-matter-cardboard-probe
+Building CXX object matter/CMakeFiles/numi-matter-cardboard-profile-check.dir/tools/cardboard_profile_check.cpp.o
+Linking CXX executable numi-matter-cardboard-profile-check
+Built target numi-matter-cardboard-profile-check
+[100%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-retained-damage-fp64-oracle-check.dir/tools/cardboard_retained_damage_fp64_oracle_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-retained-damage-fp64-oracle-check
+[100%] Built target numi-matter-cardboard-retained-damage-fp64-oracle-check
+[100%] Built target numi_matter_compiler_objects
+[100%] Built target numi_matter_compiler
+[100%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-retained-matrix-damage-check.dir/tools/cardboard_retained_matrix_damage_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-retained-matrix-damage-check
+[100%] Built target numi-matter-cardboard-retained-matrix-damage-check
+[  0%] Generating shaders/cardboard_retained_matrix_damage_check.metallib
+[100%] Built target numi_matter_compiler_objects
+[100%] Built target numi_matter_compiler
+[100%] Built target numi_cardboard_retained_damage_shaders
+[100%] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-retained-matrix-damage-metal-check.dir/tools/cardboard_retained_matrix_damage_gpu_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-retained-matrix-damage-metal-check
+[100%] Built target numi-matter-cardboard-retained-matrix-damage-metal-check
+[100%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-shipping-closure-mesh-check.dir/tools/cardboard_shipping_closure_mesh_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-shipping-closure-mesh-check
+[100%] Built target numi-matter-cardboard-shipping-closure-mesh-check
+Building CXX object matter/CMakeFiles/numi-matter-cardboard-shipping-driver-check.dir/tools/cardboard_shipping_driver_check.cpp.o
+Linking CXX executable numi-matter-cardboard-shipping-driver-check
+Built target numi-matter-cardboard-shipping-driver-check
+Building CXX object matter/CMakeFiles/numi-matter-cardboard-shipping-memory-check.dir/tools/cardboard_shipping_memory_check.cpp.o
+Linking CXX executable numi-matter-cardboard-shipping-memory-check
+Built target numi-matter-cardboard-shipping-memory-check
+[  0%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-shipping-protocol-check.dir/tools/cardboard_shipping_protocol_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-shipping-protocol-check
+[100%] Built target numi-matter-cardboard-shipping-protocol-check
+Building CXX object matter/CMakeFiles/numi-matter-cardboard-shipping-snapshot-check.dir/tools/cardboard_shipping_snapshot_check.cpp.o
+Linking CXX executable numi-matter-cardboard-shipping-snapshot-check
+Built target numi-matter-cardboard-shipping-snapshot-check
+Building CXX object matter/CMakeFiles/numi-matter-cardboard-solver-replay.dir/tools/cardboard_solver_replay.cpp.o
+Linking CXX executable numi-matter-cardboard-solver-replay
+Built target numi-matter-cardboard-solver-replay
+Building CXX object matter/CMakeFiles/numi-matter-cardboard-starch-interface-mesh-check.dir/tools/cardboard_starch_interface_mesh_check.cpp.o
+Linking CXX executable numi-matter-cardboard-starch-interface-mesh-check
+Built target numi-matter-cardboard-starch-interface-mesh-check
+[ 50%] Built target numi_matter_compiler_objects
+[ 50%] Built target numi_matter_compiler
+[100%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-tooling-check.dir/tools/cardboard_tooling_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-tooling-check
+[100%] Built target numi-matter-cardboard-tooling-check
+[100%] Built target numi_matter_compiler_objects
+[100%] Built target numi_matter_compiler
+[100%] Building CXX object matter/CMakeFiles/numi-matter-fem-material-frame-compiler-check.dir/tools/fem_material_frame_compiler_check.cpp.o
+[100%] Linking CXX executable numi-matter-fem-material-frame-compiler-check
+[100%] Built target numi-matter-fem-material-frame-compiler-check
+[  0%] Built target numi_matter_shaders
+[ 50%] Built target numi_matter_compiler_objects
+[ 50%] Built target numi_matter_compiler
+[100%] Built target numi_matter_runtime_objects
+[100%] Built target numi_matter_runtime
+[100%] Building OBJCXX object matter/CMakeFiles/numi-matter-fem-reference-check.dir/tools/fem_reference_check.mm.o
+[100%] Linking CXX executable numi-matter-fem-reference-check
+[100%] Built target numi-matter-fem-reference-check
+[100%] Built target numi_matter_compiler_objects
+[100%] Built target numi_matter_compiler
+[100%] Building CXX object matter/CMakeFiles/numi-matter-fem-regional-galerkin-compiler-check.dir/tools/fem_regional_galerkin_compiler_check.cpp.o
+[100%] Linking CXX executable numi-matter-fem-regional-galerkin-compiler-check
+[100%] Built target numi-matter-fem-regional-galerkin-compiler-check
+[  0%] Built target numi_matter_shaders
+[ 33%] Built target numi_matter_compiler_objects
+[ 33%] Built target numi_matter_compiler
+[ 66%] Built target numi_matter_runtime_objects
+[ 66%] Built target numi_matter_runtime
+[ 66%] Building OBJCXX object matter/CMakeFiles/numi-matter-fem-regional-galerkin-native-check.dir/tools/fem_regional_galerkin_native_check.mm.o
+[100%] Linking CXX executable numi-matter-fem-regional-galerkin-native-check
+[100%] Built target numi-matter-fem-regional-galerkin-native-check
+[100%] Built target numi_matter_compiler_objects
+[100%] Built target numi_matter_compiler
+[100%] Building CXX object matter/CMakeFiles/numi-matter-fem-static-surface-map-check.dir/tools/fem_static_surface_map_check.cpp.o
+[100%] Linking CXX executable numi-matter-fem-static-surface-map-check
+[100%] Built target numi-matter-fem-static-surface-map-check
+Building CXX object matter/CMakeFiles/numi-matter-fixed-convex-contact-step-check.dir/tools/fixed_convex_contact_step_check.cpp.o
+Linking CXX executable numi-matter-fixed-convex-contact-step-check
+Built target numi-matter-fixed-convex-contact-step-check
+[  0%] Built target numi_matter_shaders
+[ 50%] Built target numi_matter_compiler_objects
+[ 50%] Built target numi_matter_compiler
+[100%] Built target numi_matter_runtime_objects
+[100%] Built target numi_matter_runtime
+[100%] Building OBJCXX object matter/CMakeFiles/numi-matter-robertsson-fem-coupling-check.dir/tools/robertsson_fem_coupling_check.mm.o
+[100%] Linking CXX executable numi-matter-robertsson-fem-coupling-check
+[100%] Built target numi-matter-robertsson-fem-coupling-check
+[ 50%] Built target numi_matter_compiler_objects
+[ 50%] Built target numi_matter_compiler
+[ 50%] Building CXX object matter/CMakeFiles/numi-matter-stateful-check.dir/tools/stateful_check.cpp.o
+[100%] Linking CXX executable numi-matter-stateful-check
+[100%] Built target numi-matter-stateful-check
+[ 50%] Built target numi_matter_compiler_objects
+[ 50%] Built target numi_matter_compiler
+[100%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-solver-pair-replay.dir/tools/cardboard_solver_pair_replay.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-solver-pair-replay
+[100%] Built target numi-matter-cardboard-solver-pair-replay
+Building CXX object matter/CMakeFiles/numi-matter-cardboard-reaction-observables-check.dir/tools/cardboard_reaction_observables_check.cpp.o
+Linking CXX executable numi-matter-cardboard-reaction-observables-check
+Built target numi-matter-cardboard-reaction-observables-check
+[  0%] Built target numi_matter_shaders
+[ 33%] Built target numi_matter_compiler_objects
+[ 33%] Built target numi_matter_compiler
+[ 66%] Built target numi_matter_runtime_objects
+[ 66%] Built target numi_matter_runtime
+[100%] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-capsule-armijo-check.dir/tools/cardboard_capsule_armijo_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-capsule-armijo-check
+[100%] Built target numi-matter-cardboard-capsule-armijo-check
+[  0%] Built target numi_matter_shaders
+[  0%] Built target metalrobo_hyper_policy_shaders
+[  0%] Built target metalrobo_neuron_culture_shaders
+[  0%] Built target metalrobo_shaders
+[  0%] Built target metalrobo_visual_kernel_hashes
+[  9%] Built target numi_matter_compiler_objects
+[  9%] Built target numi_matter_runtime_objects
+[100%] Built target metalrobo
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-shipping-rigid-driver-check.dir/matter/tools/cardboard_shipping_rigid_driver_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-shipping-rigid-driver-check
+[100%] Built target numi-matter-cardboard-shipping-rigid-driver-check
+[  0%] Built target metalrobo_neuron_culture_shaders
+[  0%] Built target numi_matter_shaders
+[  0%] Built target metalrobo_shaders
+[  0%] Built target metalrobo_hyper_policy_shaders
+[  0%] Built target metalrobo_visual_kernel_hashes
+[  4%] Built target numi_matter_compiler_objects
+[  9%] Built target numi_matter_runtime_objects
+[100%] Built target metalrobo
+[100%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-shipping-rigid-native-check.dir/matter/tools/cardboard_shipping_rigid_native_check.mm.o
+[100%] Linking OBJCXX executable numi-matter-cardboard-shipping-rigid-native-check
+[100%] Built target numi-matter-cardboard-shipping-rigid-native-check
+[  0%] Generating shaders/cardboard_paper_check.metallib
+[100%] Built target numi_matter_compiler_objects
+[100%] Built target numi_matter_compiler
+[100%] Built target numi_cardboard_paper_shaders
+[100%] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-bilinear-paper-gpu-check.dir/tools/cardboard_bilinear_paper_gpu_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-bilinear-paper-gpu-check
+[100%] Built target numi-matter-cardboard-bilinear-paper-gpu-check
+[  0%] Built target numi_matter_shaders
+[ 50%] Built target numi_matter_compiler_objects
+[ 50%] Built target numi_matter_compiler
+[100%] Built target numi_matter_runtime_objects
+[100%] Built target numi_matter_runtime
+[100%] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-contact-ccd-native-check.dir/tools/cardboard_contact_ccd_native_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-contact-ccd-native-check
+[100%] Built target numi-matter-cardboard-contact-ccd-native-check
+[  0%] Built target numi_cardboard_paper_shaders
+[ 50%] Built target numi_matter_compiler_objects
+[ 50%] Built target numi_matter_compiler
+[ 50%] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-asymmetric-c1-paper-gpu-check.dir/tools/cardboard_asymmetric_c1_paper_gpu_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-asymmetric-c1-paper-gpu-check
+[100%] Built target numi-matter-cardboard-asymmetric-c1-paper-gpu-check
+[  0%] Built target numi_matter_shaders
+[ 50%] Built target numi_matter_compiler_objects
+[ 50%] Built target numi_matter_compiler
+[100%] Built target numi_matter_runtime_objects
+[100%] Built target numi_matter_runtime
+[100%] Building OBJCXX object matter/CMakeFiles/numi-matter-fem-material-frame-check.dir/tools/fem_material_frame_check.mm.o
+[100%] Linking CXX executable numi-matter-fem-material-frame-check
+[100%] Built target numi-matter-fem-material-frame-check
+[  0%] Building CXX object matter/CMakeFiles/numi-matter-cardboard-contact-candidate-domain-check.dir/tools/cardboard_contact_candidate_domain_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-contact-candidate-domain-check
+[100%] Built target numi-matter-cardboard-contact-candidate-domain-check
+[  0%] Built target numi_matter_shaders
+[ 50%] Built target numi_matter_compiler_objects
+[ 50%] Built target numi_matter_compiler
+[100%] Built target numi_matter_runtime_objects
+[100%] Built target numi_matter_runtime
+[100%] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-gpu-check.dir/tools/cardboard_gpu_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-gpu-check
+[100%] Built target numi-matter-cardboard-gpu-check
+[  0%] Built target numi_matter_shaders
+[ 50%] Built target numi_matter_compiler_objects
+[ 50%] Built target numi_matter_compiler
+[100%] Built target numi_matter_runtime_objects
+[100%] Built target numi_matter_runtime
+[100%] Building OBJCXX object matter/CMakeFiles/numi-matter-fem-regional-material-check.dir/tools/fem_regional_material_check.mm.o
+[100%] Linking CXX executable numi-matter-fem-regional-material-check
+[100%] Built target numi-matter-fem-regional-material-check
+[  0%] Built target numi_matter_shaders
+[ 33%] Built target numi_matter_compiler_objects
+[ 33%] Built target numi_matter_compiler
+[ 66%] Built target numi_matter_runtime_objects
+[ 66%] Built target numi_matter_runtime
+[ 66%] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-preconditioner-gpu-check.dir/tools/cardboard_fgmres_preconditioner_gpu_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-preconditioner-gpu-check
+[100%] Built target numi-matter-cardboard-preconditioner-gpu-check
