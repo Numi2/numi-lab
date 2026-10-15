@@ -1,0 +1,242 @@
+{
+  "audit_pass": true,
+  "audit_scope": "CPU-only tool, schedule, and admission checks; no native build, GPU execution, or physical qualification",
+  "limitations": [
+    "No native compile or GPU execution was run for this overlay.",
+    "Synthetic reader fixtures validate software contracts only.",
+    "Numerical convergence, absolute force accuracy, held-out material prediction, and physical coupon/box validation remain unqualified."
+  ],
+  "overlay_package": "/Users/home/cardboard-implementation-20261014/analysis/cardboard-convergence-tool-overlay-145-001",
+  "overlay_sha256": {
+    "overlay/matter/tools/cardboard_convergence.py": "bfc71d8eb6ee051a22c9311b965011b512508806342a932989483f362902da7e",
+    "overlay/matter/tools/cardboard_probe.mm": "d2d4812ccbe95e31cb4fd266cfc94a727b74ce12f1830b6fe017460e7e8a37c9",
+    "overlay/matter/tools/cardboard_resolution_study.py": "ec9cfe762640896fb11731b05598153080e57d208f01f5804d77a21c43c1cc66",
+    "overlay/matter/tools/test_cardboard_convergence.py": "efeb505727a9bf4e0ad0bd88f5a51386a63679e15f9dd20411c313a9bc918ec4",
+    "overlay/matter/tools/test_cardboard_resolution_study.py": "5c026b66feb30a0aa5eabcf4f1ff50e11bc3879b2cb3d1db27c0d1a9c5bc7c84"
+  },
+  "patch_check": {
+    "applies_to_source143_snapshot": true,
+    "changed_paths": [
+      "matter/tools/cardboard_probe.mm",
+      "matter/tools/cardboard_convergence.py",
+      "matter/tools/cardboard_resolution_study.py",
+      "matter/tools/test_cardboard_convergence.py",
+      "matter/tools/test_cardboard_resolution_study.py"
+    ],
+    "patch_applied_output_matches_overlay": true,
+    "patch_sha256": "03a2096821094c9ef73934d9dcfe18f908d65101e069b3336bec0908313a7cff",
+    "snapshot_dry_run_stderr": "",
+    "snapshot_dry_run_stdout": "patching file 'matter/tools/cardboard_probe.mm'\npatching file 'matter/tools/cardboard_convergence.py'\npatching file 'matter/tools/cardboard_resolution_study.py'\npatching file 'matter/tools/test_cardboard_convergence.py'\npatching file 'matter/tools/test_cardboard_resolution_study.py'\n"
+  },
+  "resolution_plan": {
+    "force_accuracy_limit": "tolerance/dt matching and observed force residuals do not establish an absolute force error bound without exported residual normalization scale",
+    "legacy_plan_path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/release-and-resolution/release-resolution-plan.json",
+    "legacy_plan_sha256": "7c119c92e4cceb19fe0d9ce142c484b3a8f60a98ddf7436db8983c5c658b6edc",
+    "legacy_plan_trial_count": 7,
+    "slower_load_policy": "separate load-rate axis changes only loading duration",
+    "spatial_case_count": 7,
+    "spatial_cases": [
+      {
+        "id": "nx16-ny2-t1",
+        "mesh": [
+          16,
+          2,
+          1
+        ]
+      },
+      {
+        "id": "nx32-ny2-t1",
+        "mesh": [
+          32,
+          2,
+          1
+        ]
+      },
+      {
+        "id": "nx8-ny4-t1",
+        "mesh": [
+          8,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "nx8-ny8-t1",
+        "mesh": [
+          8,
+          8,
+          1
+        ]
+      },
+      {
+        "id": "nx8-ny2-t2",
+        "mesh": [
+          8,
+          2,
+          2
+        ]
+      },
+      {
+        "id": "nx8-ny2-t4",
+        "mesh": [
+          8,
+          2,
+          4
+        ]
+      },
+      {
+        "id": "nx32-ny8-t4",
+        "mesh": [
+          32,
+          8,
+          4
+        ]
+      }
+    ],
+    "temporal_policy": "dt, dt/2, dt/4 with every phase step count multiplied uniformly, preserving each physical phase duration and loading rate",
+    "thresholds": {
+      "debond_area_fraction_difference": 0.02,
+      "normalized_force_curve_rms": 0.05,
+      "normalized_moment_curve_rms": 0.05,
+      "paper_damage_area_fraction_difference": 0.02,
+      "path_work_relative": 0.02,
+      "peak_force_relative": 0.02,
+      "peak_moment_relative": 0.02,
+      "signed_springback_angle_difference_deg": 1.0
+    }
+  },
+  "retained_failed_run_controls": [
+    {
+      "analyzer_status": "failed_run",
+      "manifest_sha256": "b5261b0f60e2ed24b88d3571f9c9c9369c48a496ed570776642e518d2f7626b7",
+      "observations_sha256": "b779720a403170ed42ddbb029b01dea1bb2c75edee468c5c0075ce28104d1db4",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/output",
+      "physical_validation": false,
+      "raw_accepted_steps": 1,
+      "raw_status": "failed",
+      "reason_codes": [
+        "native_run_failed"
+      ],
+      "result_sha256": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba"
+    },
+    {
+      "analyzer_status": "failed_run",
+      "manifest_sha256": "b5261b0f60e2ed24b88d3571f9c9c9369c48a496ed570776642e518d2f7626b7",
+      "observations_sha256": "b779720a403170ed42ddbb029b01dea1bb2c75edee468c5c0075ce28104d1db4",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-capture-off-parity-452/output",
+      "physical_validation": false,
+      "raw_accepted_steps": 1,
+      "raw_status": "failed",
+      "reason_codes": [
+        "native_run_failed"
+      ],
+      "result_sha256": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba"
+    }
+  ],
+  "schedule_contract": {
+    "complete_study_requires_positive_steps": true,
+    "default_post_release_steps": 0,
+    "default_trajectory_contract": "the extra segment contributes no steps and leaves old default release schedule unchanged",
+    "legacy_analyzer_compatibility": "missing post_release_relaxation_steps is read as zero; legacy analysis may omit that requested phase",
+    "phase_boundaries": "accepted phase snapshots are emitted at the existing loop phase transition for both free phases",
+    "phases": [
+      "loading",
+      "hold",
+      "unloading",
+      "relaxation",
+      "release",
+      "post_release_relaxation"
+    ],
+    "post_release_requires_release": true,
+    "released_nodes": "right grip remains free in release and post_release_relaxation; left grip remains fixed",
+    "shipping_settle": "separate shipping released_assembly_settle is retained; new end-grip option is rejected for shipping mode",
+    "strict_decreasing_differences": true
+  },
+  "schema": "numi.cardboard.post_release_relaxation_overlay_audit.v1",
+  "source143_sha256": {
+    "matter/CMakeLists.txt": "2763c841225947f88218450536f77d428009a8878bc053bd278b2c353e262293",
+    "matter/tools/cardboard_convergence.py": "db7de31be82f9362b52a3c4c366c72c74d1f6a3df923fdcdab7061eda89dcb7f",
+    "matter/tools/cardboard_probe.mm": "6917e515993e1da26d09d946bf8a3f58c7066ad183b19131aa466e94e8d32e99",
+    "matter/tools/cardboard_resolution_study.py": "326348a3047124fc5da57404f577aca76e1383ff7fc35266e307cb0b00a5b7be",
+    "matter/tools/cardboard_stage_resolution_study.py": "8fe20bad44a32038d64de0f7c93db85735365ccf03081691e00e3fb21ce2c21f",
+    "matter/tools/test_cardboard_convergence.py": "ae20faabdc4643d9d378571c926e261aacab67b6794668a2cd8e784be8940bb7",
+    "matter/tools/test_cardboard_resolution_study.py": "7e7c350f2effee2178f3d006461ae80938b088f5417fccae59998abd5046c3fe",
+    "matter/tools/test_cardboard_stage_resolution_study.py": "0610a641b56929a1bd859cfe4b2be0881ff5bd4f6594429d3c9356bb8a9f906b"
+  },
+  "source_contract_checks": {
+    "all_phase_arguments_are_controlled": true,
+    "both_phases_leave_right_grip_free": true,
+    "bounded_count": true,
+    "complete_study_requires_all_six_positive_phases": true,
+    "manifest_exports_count": true,
+    "older_exports_default_missing_post_count_to_zero": true,
+    "option_default_zero": true,
+    "option_parsed": true,
+    "phase_order_release_then_post": true,
+    "positive_count_requires_release": true,
+    "shipping_uses_separate_settle_guard": true,
+    "source143_did_not_gain_new_option": true,
+    "strict_decrease_preserved": true,
+    "temporal_counts_all_six_phases": true,
+    "total_steps_adds_separate_count": true
+  },
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143",
+  "test_suites": {
+    "overlay_convergence_tests": {
+      "argv": [
+        "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+        "/Users/home/cardboard-implementation-20261014/analysis/cardboard-convergence-tool-overlay-145-001/overlay/matter/tools/test_cardboard_convergence.py"
+      ],
+      "cwd": "/Users/home/cardboard-implementation-20261014",
+      "exit_code": 0,
+      "stderr_path": "overlay_convergence_tests.stderr.log",
+      "stderr_sha256": "8b5f3302d18f7f2e0a563ecc63e9e54d13a8fcdff20b2c183e957dab171f1ad7",
+      "stdout_path": "overlay_convergence_tests.stdout.log",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "success_marker": true,
+      "test_count": 19
+    },
+    "overlay_resolution_tests": {
+      "argv": [
+        "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+        "/Users/home/cardboard-implementation-20261014/analysis/cardboard-convergence-tool-overlay-145-001/overlay/matter/tools/test_cardboard_resolution_study.py"
+      ],
+      "cwd": "/Users/home/cardboard-implementation-20261014",
+      "exit_code": 0,
+      "stderr_path": "overlay_resolution_tests.stderr.log",
+      "stderr_sha256": "bdca544007cfee9a360bf40c2f001d1d5305b11d16d5acf4ece2eb2e7d49c9b8",
+      "stdout_path": "overlay_resolution_tests.stdout.log",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "success_marker": true,
+      "test_count": 13
+    },
+    "post_release_admission_and_schedule_tests": {
+      "argv": [
+        "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+        "/Users/home/cardboard-implementation-20261014/analysis/cardboard-convergence-tool-overlay-145-001/tests/test_convergence_study_overlay.py"
+      ],
+      "cwd": "/Users/home/cardboard-implementation-20261014",
+      "exit_code": 0,
+      "stderr_path": "post_release_admission_and_schedule_tests.stderr.log",
+      "stderr_sha256": "4e037d9d27e3a55bb2df3f6e174020dfb86fe0e35c09563068dc1b827ca0d642",
+      "stdout_path": "post_release_admission_and_schedule_tests.stdout.log",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "success_marker": true,
+      "test_count": 10
+    },
+    "source143_shipping_stage_tests": {
+      "argv": [
+        "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143/matter/tools/test_cardboard_stage_resolution_study.py"
+      ],
+      "cwd": "/Users/home/cardboard-implementation-20261014",
+      "exit_code": 0,
+      "stderr_path": "source143_shipping_stage_tests.stderr.log",
+      "stderr_sha256": "d866bec162e1204e0f860bc3a6108d20e1bdd8984d09d9bc7450b5d8a55b2513",
+      "stdout_path": "source143_shipping_stage_tests.stdout.log",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "success_marker": true,
+      "test_count": 26
+    }
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "candidate_history": {
+    "accepted_history_sha256": "6da0c36e2de32d4c188ca8d0f9f4e38c0150caa26c17e9369a68f7cf9c97f6af",
+    "bytewise_equal_to_accepted_history": true,
+    "candidate_buffer_is_current_projection": false,
+    "candidate_state_buffer_sha256": "6da0c36e2de32d4c188ca8d0f9f4e38c0150caa26c17e9369a68f7cf9c97f6af",
+    "projection_status": "unavailable_not_persisted"
+  },
+  "capture_identity": {
+    "dt_seconds": 9.99999975e-05,
+    "environment_count": 2,
+    "history_stride": 15,
+    "newton_iteration": 48,
+    "node_count": 882,
+    "operator_execution_fingerprint": "7fad2607fcd060e7",
+    "operator_world_fingerprint": "75c1264bc96ac2d9",
+    "root": 1,
+    "tetrahedron_count": 1920,
+    "world_fingerprint": "75c1264bc96ac2d9"
+  },
+  "classification": "exact source-input join only; both source captures are from failed solver runs",
+  "exact_word_tallies": {
+    "accepted_history_vs_center_accepted_state": 3840,
+    "accepted_nodes": 1764,
+    "accepted_tetrahedra_byte_exact": 956,
+    "accepted_tetrahedra_equal_after_signedzero_canonicalization": 3840,
+    "accepted_tetrahedra_signedzero_only": 2884,
+    "base_rhs_vs_419_physical_center_residual": 7056,
+    "cache_valid": 3840,
+    "candidate_tetrahedra_byte_exact": 956,
+    "center_nodes_vs_candidate_nodes": 1764,
+    "environment_parameters": 118,
+    "newton_correction_xyz": 1764,
+    "tangent_cache": 3840,
+    "tetrahedra_equal_after_signedzero_canonicalization": 3840,
+    "tetrahedra_other_mismatch": 0,
+    "tetrahedra_signedzero_only": 2884
+  },
+  "expected_counts": {
+    "accepted_history_vs_center_accepted_state": 3840,
+    "accepted_nodes": 1764,
+    "accepted_tetrahedra_equal_after_signedzero_canonicalization": 3840,
+    "base_rhs_vs_419_physical_center_residual": 7056,
+    "cache_valid": 3840,
+    "center_nodes_vs_candidate_nodes": 1764,
+    "environment_parameters": 118,
+    "newton_correction_xyz": 1764,
+    "tangent_cache": 3840,
+    "tetrahedra_equal_after_signedzero_canonicalization": 3840,
+    "tetrahedra_other_mismatch": 0
+  },
+  "inputs": {
+    "operator_capture": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture",
+    "operator_capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "shared_header_sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143",
+    "state_capture_manifest": "/Users/home/cardboard-implementation-20261014/solver/cgls-state-sidecar-observer-455/base-cgls.bin.state.json",
+    "state_capture_manifest_sha256": "202dd136536cfc9293b882def510c3a4b6e0cbc1136916d5db67acf87b510948",
+    "state_capture_payload_sha256": "1a99fa72a4f45c68c67a53dcace37f0f01df6587d6db1a178606247a9fdef5b6"
+  },
+  "limits": [
+    "No current-Newton projected history was persisted; candidate_material_state_buffer remains raw/unavailable, not a projection result.",
+    "This join validates bytes and state identity only; it does not validate CGLS direction quality or convergence.",
+    "The 419 operator capture is a separate diagnostic capture sharing root/Newton/world identity; source lineages and execution fingerprints remain separately recorded.",
+    "Both native runs ended with expected fixture failure; neither is a complete solver or physical qualification."
+  ],
+  "mismatches": {},
+  "newton_inputs": {
+    "base_rhs_sign_vs_419_physical_residual": "same sign and exact float32 words for all mechanical components; this capture's CGLS b equals the 419 physical center residual R",
+    "correction_bytes": 56448,
+    "field_correction_all_zero": true,
+    "field_rhs_all_zero": true,
+    "field_rows_float_count": 7056,
+    "mechanical_rows_float_count": 7056
+  },
+  "reader_validation": {
+    "array_count": 24,
+    "environment_count": 2,
+    "manifest": "/Users/home/cardboard-implementation-20261014/solver/cgls-state-sidecar-observer-455/base-cgls.bin.state.json",
+    "newton_iteration": 48,
+    "node_count": 882,
+    "payload": "/Users/home/cardboard-implementation-20261014/solver/cgls-state-sidecar-observer-455/base-cgls.bin.state.bin",
+    "payload_bytes": 4327464,
+    "payload_sha256": "1a99fa72a4f45c68c67a53dcace37f0f01df6587d6db1a178606247a9fdef5b6",
+    "projected_history_status": "unavailable_not_persisted",
+    "root": 1,
+    "schema": "numi.matter.base_cgls_state_capture.v1",
+    "tetrahedron_count": 1920
+  },
+  "record_counts": {
+    "node": 1764,
+    "other": 1,
+    "tetrahedron": 3840
+  },
+  "schema": "numi.matter.base_cgls_state_capture_419_join.v1",
+  "tetrahedron_signedzero_word_counts_by_field": {
+    "inverseRestRow0": 32,
+    "inverseRestRow1": 96,
+    "inverseRestRow2": 452,
+    "materialFrameRotation": 2304
+  },
+  "tetrahedron_snapshot_relation": {
+    "419_after_signedzero_only_canonicalization": "3840/3840 per arena; no other word mismatch",
+    "419_exact_bytes": "956/3840 per arena; remaining records differ only in signed-zero bits in float fields because the JSON capture prints them as +0",
+    "accepted_and_candidate_arrays_bytewise_equal": true,
+    "accepted_array_sha256": "78fdb3e6e8c362621d440f7a86b4cf509f5e7481648b71c23fad716e788f3a53",
+    "candidate_array_sha256": "78fdb3e6e8c362621d440f7a86b4cf509f5e7481648b71c23fad716e788f3a53"
+  }
+}

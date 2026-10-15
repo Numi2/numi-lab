@@ -1,0 +1,17 @@
+{
+  "schema": "numi.cardboard.closed-input-compaction020-final.v1",
+  "utc": "2026-10-15T23:15:18.326818+00:00",
+  "completed_cases": 5,
+  "archive_bytes": 83195197,
+  "verified_restored_files": 3927,
+  "original_logical_bytes": 253313682,
+  "all_archives_and_pointers_reverified": true,
+  "sole_recovery_archive_notice": "Keep every archives/*/inputs.tar.gz; these are now the sole raw input trees. CPU full restoration was verified before unlink, with original file hashes, modes and mtimes.",
+  "originals_retained_for_refused_cases": [
+    "rationalized-paper-control2-newton63-capture-304",
+    "inactive-field-admission-augmentation-on-335",
+    "inactive-field-admission-augmentation-off-336",
+    "repeated-cauchy-full-coupon-438"
+  ],
+  "native_outputs_source_snapshots_or_binaries_removed": false
+}

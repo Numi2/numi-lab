@@ -1,0 +1,13 @@
+{
+  "schema": "numi.cardboard.host_parser_check_seal.v1",
+  "files": {
+    "stderr-1.log": "35c9a0556dd421f33f7404585bbf9861d613c4723c0d1531b23e609c95b2eded",
+    "stderr-0.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "report.json": "3151a05e5e862a59eba3ddefbb6efb4b823efc57b78e9ef7c4039ae0294b026d",
+    "check.py": "a277212b202b49975f28b39f49506e19b2f0e91c37bdab248a2d249e17627908",
+    "actual_host_parser.cpp": "2953301c1622afc57f6cffe8ff24f7875ba10b7e4b67c35eb3fce541616eac88",
+    "stdout-1.log": "4e00e40aa8beeb4b264d34c18d421337ec23628a0ce5963e8fc2e39af770ce9c",
+    "stdout-0.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "actual_host_parser": "c958bf94131afd9887f41b01517defe4afd543f9061630c75aa971d060a39784"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.source143_policy_integration.v1",
+  "created_at_utc": "2026-10-15T22:25:29.355422+00:00",
+  "base": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143",
+  "changed_files": {
+    "matter/src/runtime.mm": "01162665b98a7f88d4d6341e2bc6ea50afb9f5d831b04fe446ce27d34e7ad5ec",
+    "matter/src/metal/base_cgls_runtime.metalinc": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903"
+  },
+  "source_count": 787,
+  "overlay_manifest_sha256": "ea4708b3a079cf4f156665fea7f0815bd2d2a767089ea4a63ea4d3d9da072d21",
+  "independent_review_sha256": "4b06e22a80bc44910f98c4f82616e4effacf78c1cc1027f2e4d25a0c2d5dea4f",
+  "physical_steps": 0,
+  "status": "AWAITING_NATIVE_QUALIFICATION"
+}

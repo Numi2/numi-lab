@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.primary_feature_off454_protocol.v1",
+  "stage": "PREPARED_NOT_EXECUTED",
+  "created_at_utc": "2026-10-15T22:35:56.257491+00:00",
+  "command_sha256": "2415e13a54aa65fda21f03d33967545f23ad054ef5a7e7ecdabc0ec209658f84",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143",
+  "all_physical_and_solver_parameters_unchanged_from450": true,
+  "physical_validation": false
+}

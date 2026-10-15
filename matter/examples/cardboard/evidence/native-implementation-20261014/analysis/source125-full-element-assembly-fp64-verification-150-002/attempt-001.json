@@ -1,0 +1,1 @@
+{"outcome": "report serialization failed after numerical verification, before report/manifest output", "exception": "TypeError: numpy.bool is not JSON serializable", "physical_transactions": 0}

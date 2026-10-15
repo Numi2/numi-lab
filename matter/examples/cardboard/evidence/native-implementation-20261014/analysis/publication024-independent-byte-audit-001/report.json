@@ -1,0 +1,80 @@
+{
+  "audit_pass": true,
+  "audit_script_sha256": "d2c6e56e1700500bc149957da40150f16c7c395b562a841aa5f741117a0e6574",
+  "binding": {
+    "expected_sha256": "635ec94166fa02e415dfaa8df7be54a7fb78e0abc4c4661a912d449c58cd2d29",
+    "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/publication-binding-reference024.json",
+    "sha256": "635ec94166fa02e415dfaa8df7be54a7fb78e0abc4c4661a912d449c58cd2d29"
+  },
+  "classification": "independent read-only published-byte and reference-prefix verification; no archive writes",
+  "historical_prefix_exceptions": {
+    "count": 2,
+    "preserved_without_rewrite": [
+      "matter/examples/cardboard/evidence/native-implementation-20261014/analysis/cache-projection-reuse-admission-overlay-138-001/base/matter/src/metal/fem.metalinc",
+      "matter/examples/cardboard/evidence/native-implementation-20261014/analysis/cache-projection-reuse-admission-overlay-138-001/base/matter/src/runtime.mm.gz"
+    ],
+    "scope": "two prior publication023 base/ overlay artifacts; publication024 suffix has zero excluded source/base/build/cache paths"
+  },
+  "new_payloads": {
+    "all_source_and_archived_hashes_match": true,
+    "case_count": 42,
+    "files": 591,
+    "gzip": 92,
+    "original_bytes": 76059262,
+    "raw": 499
+  },
+  "pathspec": {
+    "cumulative_entries": 2312,
+    "exact_prior_byte_prefix_preserved": true,
+    "new_payload_plus_control_entries": 593,
+    "prior_entries": 1719,
+    "sha256": "7ac9978a0f21c6480b49d6d9ac22952aa7587cf0bfd54e86e0b3a0afa7b9ab36",
+    "suffix_entries": 593,
+    "suffix_is_exact_expected_set": true
+  },
+  "prepared_cases_path": "/Users/home/cardboard-implementation-20261014/publication024-cases-prepared-v2.json",
+  "prepared_cases_sha256": "4e27cce0f9280d0b0ade554603e1348c213afae4904b4e1bebca1b0a9e52b504",
+  "prior_payloads": {
+    "all_raw_and_decompressed_hashes_match": true,
+    "control_paths": 5,
+    "gzip_payloads": 85,
+    "original_bytes_verified": 266553442,
+    "pathspec_entries": 1719,
+    "payload_files_derived_from_022_and_023_bindings": 1714,
+    "raw_payloads": 1629
+  },
+  "qualification_limits_verified": true,
+  "root_summary_path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/summary.json",
+  "schema": "numi.cardboard.publication024_independent_byte_audit.v1",
+  "six_axis_verdict_object": "summary.verdicts (qualification is explanatory prose, not the verdict object)",
+  "six_axis_verdicts": {
+    "analogue_validation": "whole-fixture held-out validation open",
+    "component_calibration": "partial source-bound constituent fits; corrugated damage/debonding open",
+    "crush_impact_prediction": "unexecuted",
+    "numerical_convergence": "unqualified",
+    "physical_assembly_in_simulation": "unexecuted",
+    "solver_correctness": "bounded CGLS helper/action/descent and observer-history parity qualified; full trajectory and derivative/contact qualification open"
+  },
+  "source142": {
+    "complete_coupon_qualified": false,
+    "selected_hash_count": 787,
+    "selected_hashes_match": true,
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142"
+  },
+  "summary": {
+    "current_summary_sha256": "24e0b44039397159eb0fb0d8018bdff25321acee3452acce5959dc5a3631213b",
+    "new_records": 42,
+    "prior_record_prefix_exact": true,
+    "prior_records": 1300,
+    "records": 1342,
+    "summary_reference023_sha256": "38da763f3d87b50d78eca8b081ef0c6581e4f1db1a90c1512ddbb4a553e27288"
+  },
+  "summary_qualification_explanation": {
+    "analogue_validation": "Published source grades and separate series retained; no new full-board analogue validation pass.",
+    "component_calibration": "Retained damage path now rejects complete shared-face ownership with rotated/sliver checks; this is not mesh-objective or calibrated damage. Robertsson absolute-energy conflict retained. Kraft/NSSC component and local starch/hot-melt fracture parameter identifiability remain open; public analogues do not close exact-recipe calibration.",
+    "crush_impact_prediction": "No qualified native box compression curve, frozenFpeak, capacity-derived masses, gravity-crush or drop-impact result.",
+    "numerical_convergence": "No complete coupon spatial, timestep or slower-loading study. Both450/452 fail and roll back control1 after one accepted control. No performance, shipping allocation or mesh-objectivity qualification follows from selected directional evidence.",
+    "physical_assembly_in_simulation": "Shipping explicit-flute topology still fails native admission; no fully scored, folded, bonded, released and settled shipping-box checkpoint.",
+    "solver_correctness": "Source142 bounded native CGLS selected actions and nonlinear trial pass; exact full attempted observer parity450/452 passes. Native443/446 helper failures and448 incomplete ENOSPC incident retained. All-row pointwise FP64 directional intervals pass; native FP32 derivative and complete nonlinear/contact qualification remain open. The N63 Armijo branch is outside the64-record trace cap and must not be inferred."
+  }
+}

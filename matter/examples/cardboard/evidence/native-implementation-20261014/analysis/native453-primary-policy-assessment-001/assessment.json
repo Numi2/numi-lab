@@ -1,0 +1,266 @@
+{
+  "CGLS_snapshot": {
+    "b_dot_Ax": 3.21364944e-08,
+    "byte_count": 409368,
+    "byte_identical_to_baseline": true,
+    "candidate_l2": 0.00332389981,
+    "capture_marker_complete": true,
+    "capture_newton": 48,
+    "completed_iterations": 64,
+    "error_bits": 0,
+    "iteration_cap": 64,
+    "linear_residual_l2": 4.34334615e-05,
+    "quiet_environment_zero_idle": {
+      "Ax": true,
+      "b": true,
+      "control_idle": true,
+      "errors_zero": true,
+      "mask": true,
+      "p": true,
+      "r": true,
+      "s": true,
+      "scalars_zero": true,
+      "selected_zero": true,
+      "x": true
+    },
+    "selected_environment": 0,
+    "sha256_baseline": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099",
+    "sha256_current": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099",
+    "status": "exhausted"
+  },
+  "baseline_comparison_after_N48": {
+    "N48_CGLS_trial_residual": 4.85483652e-05,
+    "N48_base_residual": 0.00018444375,
+    "baseline_N48_Newton_rejected_then_CGLS_fallback_accepted": true,
+    "baseline_N49_newton_alpha": 0.0009765625,
+    "baseline_N49_trial_residual": 4.85014716e-05,
+    "baseline_N63_Armijo_branch": "unavailable: source450 trace cap ended before N63 Armijo record; terminal output metrics are recorded separately",
+    "baseline_terminal_observation_correction": 0.001802645856514573,
+    "baseline_terminal_observation_residual": 4.618109232978895e-05,
+    "baseline_terminal_raw_accepted_flag": 0,
+    "current_terminal_observation_correction": 8.690737740835175e-05,
+    "current_terminal_observation_residual": 1.4950156582926866e-05,
+    "current_terminal_raw_accepted_flag": 0,
+    "current_to_baseline_terminal_residual_ratio": 0.32372895115093064,
+    "same_N48_CGLS_direction_values_as_current": true
+  },
+  "classification": "source-bound failed solver run; policy-progress and bounded directional-action adjudication only; not nonlinear convergence or physical qualification",
+  "decision": {
+    "earlier_primary_start": "not evidence-supported by this run: ordinary Newton history 0..47 is exact baseline; no earlier-policy counterfactual was run. N48 matches baseline first CGLS fallback direction and is the first observed Newton rejection.",
+    "more_inner_CGLS_iterations": "also testable but not yet demonstrated: the Newton48 snapshot reaches CGLS64/exhausted, and late direction traces still show a large residual. Change the CGLS cap separately from the outer budget to avoid confounding; the current run does not establish that more inner iterations solve the nonlinear gate.",
+    "more_outer_iterations": "best next bounded experiment: after Newton48 the policy accepts every CGLS update at alpha1 and residual falls monotonically through N63, but strict terminal gates still fail. Extend only the outer Newton budget modestly while holding CGLS64, operator, physical input, and all certificates fixed; this is a hypothesis test, not a predicted pass.",
+    "physical_or_calibration_claim": "none; this was one failed two-step numerical coupon attempt with one accepted control step.",
+    "remaining_operator_uncertainty": "453 own rich capture skipped at environment_count_out_of_scope; inherited 450 directional checks do not establish a full operator or current candidate identity.",
+    "result": "CGLS-primary policy improves the observed nonlinear residual trajectory after Newton48 but does not converge the second bent control within the 64-Newton budget."
+  },
+  "directional_operator_actions": {
+    "453_per_run_rich_capture_skip": [
+      {
+        "bytes": 0,
+        "iteration": 48,
+        "observed": {
+          "accepted_contact_history_bytes": 1474560,
+          "active_count_buffer_bytes": 16,
+          "active_dispatch_buffer_bytes": 16,
+          "active_index_buffer_bytes": 122880,
+          "active_offsets_buffer_bytes": 16,
+          "candidate_contact_history_bytes": 1474560,
+          "candidate_count_buffer_bytes": 16,
+          "capture_byte_cap_bytes": 33554432,
+          "cohesive_face_count": 0,
+          "contact_pair_count": 0,
+          "deformable_candidate_buffer_bytes": 491520,
+          "deformable_contact_buffer_bytes": 13271040,
+          "deformable_contact_capacity": 15360,
+          "environment_count": 2,
+          "fem_node_count": 882,
+          "global_active_indices_buffer_bytes": 122880,
+          "grid_node_count": 0,
+          "identification_candidate_count": 0,
+          "material_history_elements": 115200,
+          "material_state_stride": 15,
+          "minimum_full_contact_arena_bytes": 17723008,
+          "mpm_block_count": 0,
+          "mpm_block_lookup_count": 0,
+          "mpm_grid_count": 0,
+          "mutation_command_count": 0,
+          "node_incidence_buffer_bytes": 737280,
+          "node_ranges_buffer_bytes": 28224,
+          "object_count": 1,
+          "particle_count": 0,
+          "rigid_generalized_capacity": 0,
+          "rigid_proxy_count": 0,
+          "tetrahedron_count": 1920,
+          "unknown_count": 3528,
+          "vascular_unknown_count": 0
+        },
+        "physical_state_changed": false,
+        "reason": "environment_count_out_of_scope",
+        "requested_present_payload_bytes": 0,
+        "root": 1,
+        "schema": 1
+      }
+    ],
+    "current_capture_scope_reason": "environment_count_out_of_scope",
+    "direct_453_reason": "reference capture binding does not match CGLS compiled world/dimensions/root/Newton",
+    "direct_453_reference_replay_available": false,
+    "inherited_450_action_comparison": {
+      "450_candidate_audit_sha256": "7f1cc80cee95dcc5695b44db74de4614bb28f1f67ca704e74563b5ad06ae1146",
+      "450_reference_fingerprint_addendum_sha256": "47b64ed702f066858a36e69d3b9f72afd10dae77eb5d8abe2c3647abfea75cd8",
+      "450_root_adjudication_sha256": "7b6589d34e1fbc8507d040c251e65e58a340e520320a0312551585104cbf2d73",
+      "A_times_x_relative_error": 1.4480381394566878e-07,
+      "A_transpose_times_r_relative_error": 1.437122783812886e-07,
+      "basis": "453 and 450 base-cgls.bin files are byte-identical at Newton48; source142/143 production base-CGLS, FEM, and FGMRES Metal sources match by SHA; 450 reference capture was bound to same compiled pack/world/root/Newton and its exact serialized x/r directions",
+      "scope": "only the exact serialized CGLS x and r directional actions; not full-matrix identity, complete candidate state/history identity, or a Newton certificate",
+      "within_existing_1_percent_action_gates": true
+    },
+    "unchanged_operator_source_files": {
+      "matter/src/metal/base_cgls.metalinc": {
+        "identical": true,
+        "source142_sha256": "439f702b6b92b913cff204ba3fd2a73757280cf68f9b7808c5cefcfa3de9b04e",
+        "source143_sha256": "439f702b6b92b913cff204ba3fd2a73757280cf68f9b7808c5cefcfa3de9b04e"
+      },
+      "matter/src/metal/fem.metalinc": {
+        "identical": true,
+        "source142_sha256": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170",
+        "source143_sha256": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170"
+      },
+      "matter/src/metal/fgmres.metalinc": {
+        "identical": true,
+        "source142_sha256": "e5ebc5a8942fc4b7b23ccc8beebc2b88370860b9544996eb882a9ace87111b90",
+        "source143_sha256": "e5ebc5a8942fc4b7b23ccc8beebc2b88370860b9544996eb882a9ace87111b90"
+      }
+    }
+  },
+  "ordinary_prefix": {
+    "active_or_unresolved_fallback_observations": 0,
+    "baseline_receipt_sha256": "958e07dc51d541c7e483d44403bdfa1ee6f6b8058d0025c50a2063f89f64b34c",
+    "baseline_run": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450",
+    "canonical_newton_sha256_baseline": "7c2a02c6ce36333b88caa3a476fb1ea09885b1d58be022628c9312dabd4c22ab",
+    "canonical_newton_sha256_current": "7c2a02c6ce36333b88caa3a476fb1ea09885b1d58be022628c9312dabd4c22ab",
+    "compiled_pack_equal": true,
+    "compiled_world_equal": true,
+    "exact_record_parity": true,
+    "inert_fallback_observations": 48,
+    "newton_indices": "0..47",
+    "ordinary_newton_rows_compared": 48
+  },
+  "primary_policy_trajectory": {
+    "accepted_full_alpha_steps": 16,
+    "active_newton_indices": [
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63
+    ],
+    "active_selected_CGLS_directions": 16,
+    "after_16_CGLS_steps_from_first_accepted_trial": {
+      "ratio_to_N48_poststep": 0.30794361948978666,
+      "reduction_percent": 69.20563805102134,
+      "residual": 1.49501593e-05
+    },
+    "all_policy_updates_monotone": true,
+    "complete_primary_trace_N48_to_N63": true,
+    "eligible_environments_at_start": [
+      true,
+      false
+    ],
+    "first_CGLS_step": {
+      "alpha": 1,
+      "base_residual": 0.00018444375,
+      "relative_reduction": 0.7367849807868252,
+      "trial_residual": 4.85483652e-05
+    },
+    "full_residual_armijo_trace_records": 112,
+    "last_CGLS_step": {
+      "alpha": 1,
+      "b_dot_Ax": 5.99771361e-12,
+      "base_residual": 1.51490267e-05,
+      "candidate_l2": 0.000270563556,
+      "linear_residual_l2": 1.49496318e-05,
+      "trial_residual": 1.49501593e-05
+    },
+    "original_Newton_certificate_transferred": false,
+    "policy_enabled_marker": {
+      "armijo_fallback_allowed": false,
+      "operator_changed": false,
+      "root": 1,
+      "selection": "healthy_base_above_noop_bound_with_original_linear_certificate",
+      "start_newton_inclusive": 48
+    }
+  },
+  "schema": "numi.cardboard.native453_primary_policy_assessment.v1",
+  "source_and_run": {
+    "accepted_control_steps": 1,
+    "changed_inputs": [],
+    "failure_text": "Matter rejected step 1; status, diagnostic state OBJ, and CSV observations were retained; rejected geometry is not an accepted animation frame",
+    "finished_at_utc": "2026-10-15T22:33:02.441010+00:00",
+    "native_result_status": "failed",
+    "physical_validation": false,
+    "receipt_exit_code": 2,
+    "receipt_sha256": "6bf62bf387064b81b40bddedb30fe58483950ab4cd1e2b70b5cc46847339cbe7",
+    "run_dir": "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-after48-control1-453",
+    "source_frozen_source_json_sha256": "b8073cc91b873d5c63c942c984a1e8a01f0f2f4d0f37e2fd3f1e2ef41ec5abfe",
+    "source_inputs_unchanged": true,
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143",
+    "timed_out": false,
+    "wall_seconds": 366.48245966696413
+  },
+  "source_bindings": {
+    "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-adjudication-001/report.json": "7b6589d34e1fbc8507d040c251e65e58a340e520320a0312551585104cbf2d73",
+    "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-candidate-audit-001/report.json": "7f1cc80cee95dcc5695b44db74de4614bb28f1f67ca704e74563b5ad06ae1146",
+    "/Users/home/cardboard-implementation-20261014/analysis/native450-reference-fingerprint-addendum-001/addendum.json": "47b64ed702f066858a36e69d3b9f72afd10dae77eb5d8abe2c3647abfea75cd8",
+    "/Users/home/cardboard-implementation-20261014/analysis/native453-primary-policy-adjudication-001/report.json": "e2da38d92a829d3323a9aa89e8183409d22525ac325731ed7b516edde058b1e6",
+    "/Users/home/cardboard-implementation-20261014/analysis/native453-primary-policy-audit-tool-001/package-manifest.json": "5901763fb0e96409179e65e05af911732c3a144186c1f7859e142212fc37f2c8",
+    "/Users/home/cardboard-implementation-20261014/analysis/primary-cgls453-inputs-001/protocol.json": "daf7ff65ae3779f9cd37bd3ddd28e2b3534fcc89cd4a7654c1fc3fee14cf4b2e",
+    "/Users/home/cardboard-implementation-20261014/native-453-command.json": "f4889862aa03e4600ed516aa4bf46fff48a77c34908cee33852b7f5f75814bef",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143/frozen-source.json": "b8073cc91b873d5c63c942c984a1e8a01f0f2f4d0f37e2fd3f1e2ef41ec5abfe",
+    "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/base-cgls.bin": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099",
+    "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/output/observations.csv": "b779720a403170ed42ddbb029b01dea1bb2c75edee468c5c0075ce28104d1db4",
+    "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/output/result.json": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba",
+    "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/receipt.json": "958e07dc51d541c7e483d44403bdfa1ee6f6b8058d0025c50a2063f89f64b34c",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-after48-control1-453/base-cgls.bin": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-after48-control1-453/output/accepted_step_000001_bent.obj": "42fbb543657063c3c3df7eed3ec4d07dc820f5f2ab887e2d3ceb6c3bfd68a522",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-after48-control1-453/output/manifest.json": "73b344eb325c8a575b8b3c656bc36b6e842e6cbfd532563f5f72b394571037ee",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-after48-control1-453/output/observations.csv": "5fdc0c1dd54403c9f3e25494f3c1edca78f3e5886c70563aa03d8fe9fb5d9c1c",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-after48-control1-453/output/rejected_step_diagnostic_000002_bent.obj": "42fbb543657063c3c3df7eed3ec4d07dc820f5f2ab887e2d3ceb6c3bfd68a522",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-after48-control1-453/output/result.json": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-after48-control1-453/receipt.json": "6bf62bf387064b81b40bddedb30fe58483950ab4cd1e2b70b5cc46847339cbe7",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-after48-control1-453/stderr.log": "61c8a9b28b4cd5e2197b77552a899ae6b2c36a2aa5afa1dc52b178fd0a6b68cf",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-after48-control1-453/stdout.log": "9e9e87625cf0549628c2668a29decf5dfeec04db6a5f649642e4c81a51e79fc3"
+  },
+  "transaction_and_terminal": {
+    "accepted_files": [
+      "accepted_step_000001_bent.obj",
+      "accepted_step_000001_held_reference.obj"
+    ],
+    "complete_receipt_without_timeout": true,
+    "exit_code": 2,
+    "final_failure_gate": {
+      "correction": 8.690737740835175e-05,
+      "raw_accepted_flag": 0,
+      "residual": 1.4950156582926866e-05,
+      "status_code": 10
+    },
+    "held_reference_step_accepted": true,
+    "overall_solver_success": false,
+    "rejected_files": [
+      "rejected_step_diagnostic_000002_bent.obj",
+      "material_state_000002_bent.json"
+    ],
+    "rejected_geometry_not_accepted": true,
+    "second_bent_step_accepted": false
+  }
+}

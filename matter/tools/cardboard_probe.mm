@@ -194,6 +194,7 @@ struct Arguments {
     std::uint32_t unloadSteps = 0u;
     std::uint32_t relaxSteps = 0u;
     std::uint32_t releaseSteps = 0u;
+    std::uint32_t postReleaseRelaxSteps = 0u;
     std::uint32_t fgmresIterations = NM_MIXED_FGMRES_ITERATIONS;
     std::uint32_t fgmresRestart = NM_MIXED_FGMRES_DEFAULT_RESTART;
     bool fgmresRestartExplicit = false;
@@ -1259,6 +1260,7 @@ void printUsage() {
         << "  --steps N              ramp the end-grip rotation\n"
         << "  --hold-steps N --unload-steps N --relax-steps N  loading cycle phases\n"
         << "  --release-steps N      release right grip after preceding phases; left remains fixed\n"
+        << "  --post-release-relax-steps N  continue free motion after release; separate accepted phase (default 0)\n"
         << "  --newton-iterations N  global nonlinear budget (1..64)\n"
         << "  --material-iterations N  local constitutive Newton budget (1..32; default16)\n"
         << "  --fgmres-iterations N  Krylov-column budget (max "
@@ -1365,6 +1367,7 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         arguments.unloadSteps = 0u;
         arguments.relaxSteps = 0u;
         arguments.releaseSteps = 0u;
+        arguments.postReleaseRelaxSteps = 0u;
     }
     for (int index = 1; index < argc; ++index) {
         const std::string option = argv[index];
@@ -1576,6 +1579,7 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         else if (option == "--unload-steps") arguments.unloadSteps = parseUnsigned(value, option);
         else if (option == "--relax-steps") arguments.relaxSteps = parseUnsigned(value, option);
         else if (option == "--release-steps") arguments.releaseSteps = parseUnsigned(value, option);
+        else if (option == "--post-release-relax-steps") arguments.postReleaseRelaxSteps = parseUnsigned(value, option);
         else if (option == "--fgmres-iterations")
             arguments.fgmresIterations = parseUnsigned(value, option);
         else if (option == "--fgmres-restart") {
@@ -1745,6 +1749,8 @@ Arguments parseArguments(const int argc, const char* argv[]) {
     if (arguments.shippingBox) {
         require(arguments.preset == "literature2009",
                 "shipping box currently requires the explicit literature2009 cross-source recipe");
+        require(arguments.postReleaseRelaxSteps == 0u,
+                "shipping box uses --shipping-settle-steps after release; --post-release-relax-steps is only for the end-grip coupon protocol");
         arguments.environmentCount = 1u;
         arguments.boxBlank = true;
         arguments.boxAssemblyNative = !arguments.shippingPreflightOnly;
@@ -1823,6 +1829,7 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         arguments.unloadSteps = 0u;
         arguments.relaxSteps = 0u;
         arguments.releaseSteps = 0u;
+        arguments.postReleaseRelaxSteps = 0u;
         require(arguments.shippingRunThroughStage == "scoring" ||
                     arguments.shippingRunThroughStage == "walls" ||
                     arguments.shippingRunThroughStage == "manufacturer-lap" ||
@@ -2004,9 +2011,15 @@ Arguments parseArguments(const int argc, const char* argv[]) {
     require(arguments.steps > 0u && arguments.steps <= 10000u,
             "--steps must lie in [1, 10000]");
     require(arguments.holdSteps <= 10000u && arguments.unloadSteps <= 10000u &&
-                arguments.relaxSteps <= 10000u && arguments.releaseSteps <= 10000u, "cycle phase exceeds 10000 steps");
+                arguments.relaxSteps <= 10000u && arguments.releaseSteps <= 10000u &&
+                arguments.postReleaseRelaxSteps <= 10000u, "cycle phase exceeds 10000 steps");
     require(arguments.relaxSteps == 0u || arguments.unloadSteps > 0u,
             "relaxation requires an unloading phase; no instantaneous release");
+    require(arguments.postReleaseRelaxSteps == 0u || arguments.releaseSteps > 0u,
+            "post-release relaxation requires a positive release phase");
+    require(arguments.postReleaseRelaxSteps == 0u ||
+                (!arguments.shippingBox && !arguments.crease && !arguments.pinAdhesion),
+            "post-release relaxation is supported only by the end-grip coupon protocol; shipping assembly has its own released settle stage");
     require(arguments.fgmresIterations >= NM_MIXED_FGMRES_DEFAULT_RESTART &&
                 arguments.fgmresIterations <= NM_MIXED_FGMRES_MAX_ITERATIONS,
             "--fgmres-iterations must lie between the compiled restart size and native operational ceiling");
@@ -3769,6 +3782,7 @@ void writeManifest(const std::filesystem::path& path,
            << "    \"unload_steps\": " << arguments.unloadSteps << ",\n"
            << "    \"relax_steps\": " << arguments.relaxSteps << ",\n"
            << "    \"release_steps\": " << arguments.releaseSteps << ",\n"
+           << "    \"post_release_relaxation_steps\": " << arguments.postReleaseRelaxSteps << ",\n"
            << "    \"release_policy\": \"right grip free; left grip remains fixed; physical state preserved\",\n"
            << "    \"local_material_newton_iterations\": " << arguments.localMaterialIterations << ",\n"
            << "    \"local_material_newton_iterations_explicit\": "
@@ -4051,7 +4065,8 @@ std::string stepLabel(const std::uint32_t step) {
 struct LoadPoint { double angleDegrees; const char* phase; };
 
 std::uint32_t totalSteps(const Arguments& a) {
-    return a.steps + a.holdSteps + a.unloadSteps + a.relaxSteps + a.releaseSteps;
+    return a.steps + a.holdSteps + a.unloadSteps + a.relaxSteps + a.releaseSteps +
+           a.postReleaseRelaxSteps;
 }
 
 LoadPoint loadingPoint(const Arguments& a, std::uint32_t step) {
@@ -4065,7 +4080,9 @@ LoadPoint loadingPoint(const Arguments& a, std::uint32_t step) {
         return {a.bendAngleDegrees * (1.0 - static_cast<double>(step + 1u) / a.unloadSteps), "unloading"};
     step -= a.unloadSteps;
     if (step < a.relaxSteps) return {0.0, "relaxation"};
-    return {0.0, "release"};
+    step -= a.relaxSteps;
+    if (step < a.releaseSteps) return {0.0, "release"};
+    return {0.0, "post_release_relaxation"};
 }
 
 struct Metrics {
@@ -4231,7 +4248,8 @@ void fillTargets(const Arguments& arguments,
         const std::size_t base = static_cast<std::size_t>(environment) * nodeCount;
         for (std::uint32_t node = 0u; node < nodeCount; ++node) {
             if (!left[node] && !right[node]) continue;
-            if (right[node] && std::string_view(loadingPoint(arguments, step).phase) == "release") {
+            const std::string_view phase = loadingPoint(arguments, step).phase;
+            if (right[node] && (phase == "release" || phase == "post_release_relaxation")) {
                 targets[base + node] = {0.0f, 0.0f, 0.0f, 2.0f};
                 continue;
             }

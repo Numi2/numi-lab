@@ -1,0 +1,18 @@
+{
+  "inputs": {
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-full-element-assembly-fp64-audit-150-001/manifest.json": "595a9777a2d8915f621d414be41f0108dd8ef67cf521900eaf9206680c0fcdbc",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/tools/cardboard_cached_operator_audit.py": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-full-tangent-fp64-audit-147-001/manifest.json": "1c215555f3c084c9a804249c0a8926ee7c11fad756cc324318ca7a07c6288b92",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-full-tangent-fp64-audit-147-001/report.json": "19616c7a1a45ad8fef00930852b2e3f7bc4d03ab9af7811f6edb68c2926c5bbd",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-full-tangent-fp64-audit-147-001/matrices.npz": "c79152b13f1a8a88a00388d1083d558980fde0a54c8f8c8ba765246186950b5e",
+    "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/A_free_csr.npz": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-full-tangent-independent-review-001/manifest.json": "83720dfbf39c4bee570a2292464c75dcab84699f0d636e376011449bd2022aee"
+  },
+  "files": {
+    "attempt-001.json": "8bc352ab8e5fd8745af1927c796123ceece89737aa75586b4a0150c755de728a",
+    "attempt-001.py": "d7007422b8330df7ee02915bd2eb6d33a0d2c5ee5054b6bb43ea3df05740cf93",
+    "report.json": "1fa8bcbc96fd0906ac8b7d9bd29ad9f782d9e5ee33d026c08023d553aed62725",
+    "verify.py": "8635ae2a1b359644ae586e8e1110de54c0a956a1fcc15d8020dfbbaf1607c783"
+  }
+}

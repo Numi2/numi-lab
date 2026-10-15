@@ -1,0 +1,23 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 2954,
+      "sha256": "83df8e127fb81eacd1d565f5cdbeb0cd6a6d970b900114bc779764aa53551859"
+    },
+    "assessment.json": {
+      "bytes": 14990,
+      "sha256": "d6ca22dc7147df8a87300d3a2da2b85254074fc732c4d664c7c06913b713f59b"
+    }
+  },
+  "lineage": {
+    "analyzer_package_manifest_sha256": "5901763fb0e96409179e65e05af911732c3a144186c1f7859e142212fc37f2c8",
+    "analyzer_report_sha256": "e2da38d92a829d3323a9aa89e8183409d22525ac325731ed7b516edde058b1e6",
+    "byte_identical_snapshots": true,
+    "run_receipt_sha256": "6bf62bf387064b81b40bddedb30fe58483950ab4cd1e2b70b5cc46847339cbe7",
+    "source142_baseline_cgls_snapshot_sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099",
+    "source143_cgls_snapshot_sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099",
+    "source_frozen_source_json_sha256": "b8073cc91b873d5c63c942c984a1e8a01f0f2f4d0f37e2fd3f1e2ef41ec5abfe"
+  },
+  "schema": "numi.cardboard.native453_primary_policy_assessment_manifest.v1",
+  "status": "complete_source_bound_adjudication; nonlinear run failed; no physical qualification"
+}

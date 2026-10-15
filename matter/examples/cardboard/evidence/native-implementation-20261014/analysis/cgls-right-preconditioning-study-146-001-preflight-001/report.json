@@ -1,0 +1,160 @@
+{
+  "classification": "CPU/source payload preflight only; no GPU/native residual execution",
+  "compiled_package_sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+  "helper_sha256": "cc872337366821d0752665ea0feb913f38c1ff7cd921696c395c9861fabccbec",
+  "preflights": [
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/block3_emulated_fp32_iter064.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001-preflight-001/block3_emulated_fp32_iter064",
+        "--preflight-only"
+      ],
+      "name": "block3_emulated_fp32_iter064",
+      "output_files": [],
+      "payload_sha256": "4370627c8defac3cf5876b65a534a7259113339d1471aa24fa549966a788e67e",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    },
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/block3_emulated_fp32_iter128.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001-preflight-001/block3_emulated_fp32_iter128",
+        "--preflight-only"
+      ],
+      "name": "block3_emulated_fp32_iter128",
+      "output_files": [],
+      "payload_sha256": "2e1a54541f46419c454034e836ad2338735e03041af91b010305f6112d7aa87f",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    },
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/block3_fp64_iter064.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001-preflight-001/block3_fp64_iter064",
+        "--preflight-only"
+      ],
+      "name": "block3_fp64_iter064",
+      "output_files": [],
+      "payload_sha256": "9afcad670448f0a4001d4c53b71bebfbe97449aa487b4fd33a25da42d3ecd389",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    },
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/block3_fp64_iter128.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001-preflight-001/block3_fp64_iter128",
+        "--preflight-only"
+      ],
+      "name": "block3_fp64_iter128",
+      "output_files": [],
+      "payload_sha256": "0ba247c55d0e7163f31f1cb63b62104c30110504b0e57e1b75cd8c783a0cd510",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    },
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/column_emulated_fp32_iter064.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001-preflight-001/column_emulated_fp32_iter064",
+        "--preflight-only"
+      ],
+      "name": "column_emulated_fp32_iter064",
+      "output_files": [],
+      "payload_sha256": "61c208c8c8cca9079b360d93bdf5a44346e83231269c00c1a971c654d57d4259",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    },
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/column_emulated_fp32_iter128.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001-preflight-001/column_emulated_fp32_iter128",
+        "--preflight-only"
+      ],
+      "name": "column_emulated_fp32_iter128",
+      "output_files": [],
+      "payload_sha256": "c375dd29d51d04940c9206c2495f55d5312dd4d4fa3d4e6c1875cbed9dcfff6a",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    },
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/column_fp64_iter064.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001-preflight-001/column_fp64_iter064",
+        "--preflight-only"
+      ],
+      "name": "column_fp64_iter064",
+      "output_files": [],
+      "payload_sha256": "3207385b9a829db6ca331381b5fdfbe220659dc422d76f145a5c8f5167c1dfc4",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    },
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/column_fp64_iter128.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001-preflight-001/column_fp64_iter128",
+        "--preflight-only"
+      ],
+      "name": "column_fp64_iter128",
+      "output_files": [],
+      "payload_sha256": "c9a8aacda5081af4bcd58dc17ec49655d8129ad21464b29eeef11ac5d4cf4ee8",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    },
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/none_emulated_fp32_iter064.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001-preflight-001/none_emulated_fp32_iter064",
+        "--preflight-only"
+      ],
+      "name": "none_emulated_fp32_iter064",
+      "output_files": [],
+      "payload_sha256": "45a89e9cc3cd882619815e06cfd66d3748649759d2ad97600c350e985f75a680",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    },
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/none_fp64_iter064.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001-preflight-001/none_fp64_iter064",
+        "--preflight-only"
+      ],
+      "name": "none_fp64_iter064",
+      "output_files": [],
+      "payload_sha256": "9267fe96c9ee0532ecba7a3c4ea3edf7406cad233bc8a8990de14e81448f3355",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    }
+  ],
+  "schema": "numi.cardboard.captured419-cgls-preflight.v1",
+  "study_manifest_sha256": "8d6fbf28cd30b146c201ea27acd80281eb1f3d0a9784aecc9e48dbcc81097bd3",
+  "study_report_sha256": "49c2857833d23f3a44f63d652e89667cbce0115e73b89908b01235273d5f18be"
+}

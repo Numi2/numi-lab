@@ -1,0 +1,9 @@
+{
+  "inputs_sha256": "517c546db6986862309007e99fbdd3c58ead588f523157c29b8df019d6910211",
+  "inventory_file_count_excluding_manifest_and_seal": 19,
+  "manifest_sha256": "1fe6b5d2f8c830ba880d09fe26caf85fdbb6c670bfd75b1911fdb963f36e6697",
+  "manifest_size_bytes": 3686,
+  "package": "base-cgls-state-reader-abi-repair-148-001",
+  "schema": "numi.matter.audit_package_seal.v1",
+  "sealed_without_native_or_physical_qualification": true
+}

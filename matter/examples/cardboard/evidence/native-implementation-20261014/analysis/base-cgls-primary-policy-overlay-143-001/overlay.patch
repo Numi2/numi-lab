@@ -1,0 +1,269 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -4192,6 +4192,7 @@
+             "nm_fgmres_capture_base_cauchy_rhs",
+             "nm_fgmres_prepare_base_cauchy_action",
+             "nm_fgmres_build_base_cauchy_direction",
++            "nm_fgmres_select_base_cgls_primary_policy",
+             "nm_fgmres_prepare_base_cgls_layout",
+             "nm_fgmres_base_cgls_initialize_state",
+             "nm_fgmres_base_cgls_initialize_vectors",
+@@ -11683,6 +11684,31 @@
+             const char* baseCauchySelector = std::getenv(
+                 "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR");
+             femBaseCauchyFallbackRequested = baseCauchySelector != nullptr;
++            bool femBaseCGLSPrimaryPolicyRequested = false;
++            std::uint32_t femBaseCGLSPrimaryStartNewton = 0u;
++            if (const char* primaryAfter = std::getenv(
++                    "NM_FEM_BASE_CGLS_PRIMARY_AFTER")) {
++                bool digitsOnly = primaryAfter[0] != '\0';
++                for (const char* cursor = primaryAfter;
++                     *cursor != '\0'; ++cursor) {
++                    digitsOnly = digitsOnly && *cursor >= '0' && *cursor <= '9';
++                }
++                char* end = nullptr;
++                const unsigned long parsed = std::strtoul(primaryAfter, &end, 10);
++                if (!digitsOnly || end == primaryAfter || *end != '\0' ||
++                    parsed > 256ul || std::to_string(parsed) != primaryAfter) {
++                    std::fprintf(stderr,
++                        "fem_base_cgls_primary_policy_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"primary_after_must_be_canonical_newton_index_0_to_256\"}\n",
++                        request.controlStep);
++                    diagnostics.message =
++                        "base CGLS primary start must be a canonical Newton index from 0 through 256";
++                    ownership->preDynamicsOpen = false;
++                    return diagnostics;
++                }
++                femBaseCGLSPrimaryPolicyRequested = true;
++                femBaseCGLSPrimaryStartNewton =
++                    static_cast<std::uint32_t>(parsed);
++            }
+             std::uint32_t femBaseCGLSIterations = 0u;
+             if (const char* cglsIterations = std::getenv("NM_FEM_BASE_CGLS_ITERATIONS")) {
+                 if (!femBaseCauchyFallbackRequested ||
+@@ -11817,6 +11843,12 @@
+                                 "fem_base_cgls_enabled={\"schema\":1,\"root\":%u,\"iterations\":%u,\"operator_changed\":false,\"linear_solve_claim\":false}\n",
+                                 femBaseCauchyFallbackRoot, femBaseCGLSIterations);
+                         }
++                        if (femBaseCGLSPrimaryPolicyRequested) {
++                            std::fprintf(stderr,
++                                "fem_base_cgls_primary_policy_enabled={\"schema\":1,\"root\":%u,\"start_newton_inclusive\":%u,\"selection\":\"healthy_base_above_noop_bound_with_original_linear_certificate\",\"armijo_fallback_allowed\":false,\"operator_changed\":false}\n",
++                                femBaseCauchyFallbackRoot,
++                                femBaseCGLSPrimaryStartNewton);
++                        }
+                         if (femBaseCauchyFallbackAllNewtonIterations) {
+                             std::fprintf(stderr,
+                                 "fem_base_cauchy_all_newton_enabled={\"schema\":1,\"root\":%u,\"scope\":\"all_newton_iterations_on_one_control_step\",\"maximum_trace_records\":512,\"physical_operator_changed\":false}\n",
+@@ -11832,6 +11864,18 @@
+             if (femBaseCauchyFallbackRequested &&
+                 !femBaseCauchyFallbackConfigValid) {
+                 diagnostics.message = "requested base-state Cauchy fallback is unsupported";
++                ownership->preDynamicsOpen = false;
++                return diagnostics;
++            }
++            if (femBaseCGLSPrimaryPolicyRequested &&
++                (femBaseCGLSIterations == 0u ||
++                 !femBaseCauchyFallbackRequested ||
++                 !femBaseCauchyFallbackAllNewtonIterations)) {
++                std::fprintf(stderr,
++                    "fem_base_cgls_primary_policy_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"requires_cgls_iterations_and_control_step_all_newton_selector\"}\n",
++                    request.controlStep);
++                diagnostics.message =
++                    "base CGLS primary policy requires CGLS and the selected control-step all-Newton selector";
+                 ownership->preDynamicsOpen = false;
+                 return diagnostics;
+             }
+@@ -19163,6 +19207,11 @@
+                 femBaseCauchyFallbackSelectedRoot &&
+                 (femBaseCauchyFallbackAllNewtonIterations ||
+                  nonlinearIteration == femBaseCauchyFallbackIteration);
++            const bool baseCGLSPrimaryPolicySelectedNewton =
++                baseCauchyNewtonSelected &&
++                femBaseCGLSPrimaryPolicyRequested &&
++                femBaseCGLSIterations != 0u &&
++                nonlinearIteration >= femBaseCGLSPrimaryStartNewton;
+             if (baseCauchyNewtonSelected) {
+                 dispatchThreads("nm_fgmres_capture_base_cauchy_rhs",
+                     state.fgmresLayout.unknownCount, [&] {
+@@ -22330,8 +22379,17 @@
+                     return diagnostics;
+                 }
+             }
+-            const auto encodeBaseCauchyDirectionTrace = [&]() -> bool {
+-                const NSUInteger bytes = environments * sizeof(nm_float4);
++            const auto encodeBaseCauchyDirectionTrace = [&](
++                bool primaryPolicy = false) -> bool {
++                const NSUInteger traceBytes = environments * sizeof(nm_float4);
++                const NSUInteger primarySelectionOffset = traceBytes;
++                const NSUInteger bytes = traceBytes + (primaryPolicy
++                    ? environments * sizeof(std::uint32_t) : 0u);
++                if (primaryPolicy && state.femBaseCGLSSelected == nil) {
++                    diagnostics.message =
++                        "primary CGLS policy trace requires its reserved selection scratch";
++                    return false;
++                }
+                 id<MTLBuffer> snapshot = [state.device newBufferWithLength:bytes
+                     options:MTLResourceStorageModeShared];
+                 if (snapshot == nil) {
+@@ -22345,7 +22403,12 @@
+                     return false;
+                 }
+                 [copy copyFromBuffer:state.femBaseCauchyTrace sourceOffset:0u
+-                    toBuffer:snapshot destinationOffset:0u size:bytes];
++                    toBuffer:snapshot destinationOffset:0u size:traceBytes];
++                if (primaryPolicy) {
++                    [copy copyFromBuffer:state.femBaseCGLSSelected sourceOffset:0u
++                        toBuffer:snapshot destinationOffset:primarySelectionOffset
++                        size:environments * sizeof(std::uint32_t)];
++                }
+                 // Optional bounded read-only snapshot of generated scratch.
+                 // Header uint32[8]: magic CGLS, version, E, N, U, cap, segmentCount,0.
+                 // Twelve aligned segments: x,r,s,p,Ax,b,mask,envMap,scalars,control,errors,selected.
+@@ -22400,6 +22463,10 @@
+                 const auto capturedEnvironments = environments;
+                 const auto formatFloat = appendTraceFloat;
+                 const auto capturedCGLSIterations = femBaseCGLSIterations;
++                const auto capturedPrimaryPolicy = primaryPolicy;
++                const auto capturedPrimarySelectionOffset = primarySelectionOffset;
++                const auto capturedPrimaryStartNewton =
++                    femBaseCGLSPrimaryStartNewton;
+                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                     if (completed.status != MTLCommandBufferStatusCompleted) return;
+                     if (cglsSnapshot != nil) {
+@@ -22420,14 +22487,26 @@
+                             capturedRoot, capturedIteration, written,
+                             static_cast<std::size_t>(cglsSnapshotBytes), complete ? "true" : "false");
+                     }
+-                    const auto* values = static_cast<const nm_float4*>(snapshot.contents);
++                    const auto* snapshotBytes = static_cast<const unsigned char*>(
++                        snapshot.contents);
++                    const auto* values = reinterpret_cast<const nm_float4*>(
++                        snapshotBytes);
++                    const auto* primarySelection = capturedPrimaryPolicy
++                        ? reinterpret_cast<const std::uint32_t*>(
++                            snapshotBytes + capturedPrimarySelectionOffset)
++                        : nullptr;
+                     std::ostringstream line;
+                     if (capturedCGLSIterations != 0u) {
+                         line << "fem_base_cgls_direction={\"schema\":1,\"root\":"
+                              << capturedRoot << ",\"newton_iteration\":" << capturedIteration
+                              << ",\"direction_kind\":\"truncated_unregularized_CGLS\",\"iteration_budget\":"
+                              << capturedCGLSIterations
+-                             << ",\"original_newton_certificate_applies_to_direction\":false,\"environments\":[";
++                             << ",\"original_newton_certificate_applies_to_direction\":false";
++                        if (capturedPrimaryPolicy) {
++                            line << ",\"selection_policy\":\"base_cgls_primary_policy\",\"start_newton_inclusive\":"
++                                 << capturedPrimaryStartNewton;
++                        }
++                        line << ",\"environments\":[";
+                     } else line << "fem_base_cauchy_direction={\"schema\":1,\"root\":"
+                          << capturedRoot << ",\"newton_iteration\":" << capturedIteration
+                          << ",\"direction_kind\":\"raw_A_transpose_b\","
+@@ -22441,8 +22520,14 @@
+                         formatFloat(line, values[e].y);
+                         line << (capturedCGLSIterations != 0u ? ",\"b_dot_Ax\":" : ",\"tau\":");
+                         formatFloat(line, values[e].z);
+-                        line << ",\"original_newton_converged\":"
+-                             << (values[e].w > 0.5f ? "true" : "false") << '}';
++                        if (primarySelection != nullptr) {
++                            line << ",\"primary_policy_eligible\":"
++                                 << (primarySelection[e] != 0u ? "true" : "false");
++                        } else {
++                            line << ",\"original_newton_converged\":"
++                                 << (values[e].w > 0.5f ? "true" : "false");
++                        }
++                        line << '}';
+                     }
+                     line << "]}\n";
+                     const auto text = line.str();
+@@ -22698,8 +22783,31 @@
+                 !femCapsuleResidualArmijoEnabled &&
+                 !femCapsuleBoxResidualArmijoEnabled) {
+                 encodeFEMResidualArmijoBaseStatus();
++                if (baseCGLSPrimaryPolicySelectedNewton) {
++                    dispatchThreads(
++                        "nm_fgmres_select_base_cgls_primary_policy",
++                        environments, [&] {
++                        setDispatch();
++                        [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
++                        [encoder setBytes:&femBaseCGLSPrimaryStartNewton
++                                   length:sizeof(femBaseCGLSPrimaryStartNewton)
++                                  atIndex:2u];
++                        [encoder setBytes:&nonlinearIteration
++                                   length:sizeof(nonlinearIteration) atIndex:3u];
++                        [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:4u];
++                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
++                        [encoder setBuffer:state.statuses offset:0u atIndex:6u];
++                    });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                    encodeBaseCauchyDirection();
++                    if (!encodeBaseCauchyDirectionTrace(true)) {
++                        ownership->preDynamicsOpen = false;
++                        return diagnostics;
++                    }
++                }
+                 const std::uint32_t directionPassCount =
+-                    baseCauchyNewtonSelected ? 2u : 1u;
++                    baseCauchyNewtonSelected &&
++                        !baseCGLSPrimaryPolicySelectedNewton ? 2u : 1u;
+                 for (std::uint32_t directionPass = 0u;
+                      directionPass < directionPassCount; ++directionPass) {
+                 if (directionPass == 1u) {
+@@ -22710,7 +22818,9 @@
+                     }
+                 }
+                 const std::uint32_t fallbackAllowed =
+-                    baseCauchyNewtonSelected && directionPass == 0u ? 1u : 0u;
++                    baseCauchyNewtonSelected &&
++                        !baseCGLSPrimaryPolicySelectedNewton &&
++                        directionPass == 0u ? 1u : 0u;
+                 for (std::uint32_t trialIndex = 0u;
+                      trialIndex < state.mixedSolverValue
+                          .nonlinearIterations.w; ++trialIndex) {
+@@ -22907,7 +23017,11 @@
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 }
+                 if (!encodeFEMResidualArmijoTrace(
+-                        directionPass == 1u ? (femBaseCGLSIterations != 0u ? "base_cgls" : "base_cauchy") : "newton")) {
++                        directionPass == 1u
++                            ? (femBaseCGLSIterations != 0u
++                                ? "base_cgls" : "base_cauchy")
++                            : (baseCGLSPrimaryPolicySelectedNewton
++                                ? "base_cgls_primary_policy" : "newton"))) {
+                     ownership->preDynamicsOpen = false;
+                     return diagnostics;
+                 }
+--- a/matter/src/metal/base_cgls_runtime.metalinc
++++ b/matter/src/metal/base_cgls_runtime.metalinc
+@@ -1,4 +1,32 @@
+ namespace numi_matter_metal {
++
++// Arm a private CGLS-primary direction only after the base residual and
++// original Newton linear certificate are available. The metrics.w marker is
++// request-local scratch consumed by the existing CGLS layout builder; it is
++// never copied into accepted state or used as a convergence certificate.
++kernel void nm_fgmres_select_base_cgls_primary_policy(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant NMMixedSolverGPU& solver [[buffer(1)]],
++    constant uint& primaryStartNewton [[buffer(2)]],
++    constant uint& currentNewton [[buffer(3)]],
++    device float4* metrics [[buffer(4)]],
++    device const NMFGMRESStateGPU* states [[buffer(5)]],
++    device const NMMatterStatusGPU* statuses [[buffer(6)]],
++    uint environment [[thread_position_in_grid]]) {
++    if (environment >= dispatch.environmentCount ||
++        dispatch.objectCount != 1u) return;
++
++    const float4 metric = metrics[environment];
++    const float residualBound = solver.residualTolerances.x;
++    const bool baseResidualIsUnconverged = isfinite(metric.x) &&
++        isfinite(residualBound) && residualBound >= 0.0f &&
++        metric.x > residualBound;
++    const bool eligible = currentNewton >= primaryStartNewton &&
++        metric.w == 0.0f && environmentHealthy(statuses, environment) &&
++        states[environment].diagnostics.z > 0.5f &&
++        baseResidualIsUnconverged;
++    if (eligible) metrics[environment].w = 3.0f;
++}
+ 
+ // Runtime-only adapters for the bounded, default-off CGLS direction experiment.
+ // Derive row spaces from the actual Newton candidate, not authored tag guesses.

@@ -1,0 +1,433 @@
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -194,6 +194,7 @@
+     std::uint32_t unloadSteps = 0u;
+     std::uint32_t relaxSteps = 0u;
+     std::uint32_t releaseSteps = 0u;
++    std::uint32_t postReleaseRelaxSteps = 0u;
+     std::uint32_t fgmresIterations = NM_MIXED_FGMRES_ITERATIONS;
+     std::uint32_t fgmresRestart = NM_MIXED_FGMRES_DEFAULT_RESTART;
+     bool fgmresRestartExplicit = false;
+@@ -1259,6 +1260,7 @@
+         << "  --steps N              ramp the end-grip rotation\n"
+         << "  --hold-steps N --unload-steps N --relax-steps N  loading cycle phases\n"
+         << "  --release-steps N      release right grip after preceding phases; left remains fixed\n"
++        << "  --post-release-relax-steps N  continue free motion after release; separate accepted phase (default 0)\n"
+         << "  --newton-iterations N  global nonlinear budget (1..64)\n"
+         << "  --material-iterations N  local constitutive Newton budget (1..32; default16)\n"
+         << "  --fgmres-iterations N  Krylov-column budget (max "
+@@ -1365,6 +1367,7 @@
+         arguments.unloadSteps = 0u;
+         arguments.relaxSteps = 0u;
+         arguments.releaseSteps = 0u;
++        arguments.postReleaseRelaxSteps = 0u;
+     }
+     for (int index = 1; index < argc; ++index) {
+         const std::string option = argv[index];
+@@ -1576,6 +1579,7 @@
+         else if (option == "--unload-steps") arguments.unloadSteps = parseUnsigned(value, option);
+         else if (option == "--relax-steps") arguments.relaxSteps = parseUnsigned(value, option);
+         else if (option == "--release-steps") arguments.releaseSteps = parseUnsigned(value, option);
++        else if (option == "--post-release-relax-steps") arguments.postReleaseRelaxSteps = parseUnsigned(value, option);
+         else if (option == "--fgmres-iterations")
+             arguments.fgmresIterations = parseUnsigned(value, option);
+         else if (option == "--fgmres-restart") {
+@@ -1745,6 +1749,8 @@
+     if (arguments.shippingBox) {
+         require(arguments.preset == "literature2009",
+                 "shipping box currently requires the explicit literature2009 cross-source recipe");
++        require(arguments.postReleaseRelaxSteps == 0u,
++                "shipping box uses --shipping-settle-steps after release; --post-release-relax-steps is only for the end-grip coupon protocol");
+         arguments.environmentCount = 1u;
+         arguments.boxBlank = true;
+         arguments.boxAssemblyNative = !arguments.shippingPreflightOnly;
+@@ -1823,6 +1829,7 @@
+         arguments.unloadSteps = 0u;
+         arguments.relaxSteps = 0u;
+         arguments.releaseSteps = 0u;
++        arguments.postReleaseRelaxSteps = 0u;
+         require(arguments.shippingRunThroughStage == "scoring" ||
+                     arguments.shippingRunThroughStage == "walls" ||
+                     arguments.shippingRunThroughStage == "manufacturer-lap" ||
+@@ -2004,9 +2011,15 @@
+     require(arguments.steps > 0u && arguments.steps <= 10000u,
+             "--steps must lie in [1, 10000]");
+     require(arguments.holdSteps <= 10000u && arguments.unloadSteps <= 10000u &&
+-                arguments.relaxSteps <= 10000u && arguments.releaseSteps <= 10000u, "cycle phase exceeds 10000 steps");
++                arguments.relaxSteps <= 10000u && arguments.releaseSteps <= 10000u &&
++                arguments.postReleaseRelaxSteps <= 10000u, "cycle phase exceeds 10000 steps");
+     require(arguments.relaxSteps == 0u || arguments.unloadSteps > 0u,
+             "relaxation requires an unloading phase; no instantaneous release");
++    require(arguments.postReleaseRelaxSteps == 0u || arguments.releaseSteps > 0u,
++            "post-release relaxation requires a positive release phase");
++    require(arguments.postReleaseRelaxSteps == 0u ||
++                (!arguments.shippingBox && !arguments.crease && !arguments.pinAdhesion),
++            "post-release relaxation is supported only by the end-grip coupon protocol; shipping assembly has its own released settle stage");
+     require(arguments.fgmresIterations >= NM_MIXED_FGMRES_DEFAULT_RESTART &&
+                 arguments.fgmresIterations <= NM_MIXED_FGMRES_MAX_ITERATIONS,
+             "--fgmres-iterations must lie between the compiled restart size and native operational ceiling");
+@@ -3769,6 +3782,7 @@
+            << "    \"unload_steps\": " << arguments.unloadSteps << ",\n"
+            << "    \"relax_steps\": " << arguments.relaxSteps << ",\n"
+            << "    \"release_steps\": " << arguments.releaseSteps << ",\n"
++           << "    \"post_release_relaxation_steps\": " << arguments.postReleaseRelaxSteps << ",\n"
+            << "    \"release_policy\": \"right grip free; left grip remains fixed; physical state preserved\",\n"
+            << "    \"local_material_newton_iterations\": " << arguments.localMaterialIterations << ",\n"
+            << "    \"local_material_newton_iterations_explicit\": "
+@@ -4051,7 +4065,8 @@
+ struct LoadPoint { double angleDegrees; const char* phase; };
+ 
+ std::uint32_t totalSteps(const Arguments& a) {
+-    return a.steps + a.holdSteps + a.unloadSteps + a.relaxSteps + a.releaseSteps;
++    return a.steps + a.holdSteps + a.unloadSteps + a.relaxSteps + a.releaseSteps +
++           a.postReleaseRelaxSteps;
+ }
+ 
+ LoadPoint loadingPoint(const Arguments& a, std::uint32_t step) {
+@@ -4065,7 +4080,9 @@
+         return {a.bendAngleDegrees * (1.0 - static_cast<double>(step + 1u) / a.unloadSteps), "unloading"};
+     step -= a.unloadSteps;
+     if (step < a.relaxSteps) return {0.0, "relaxation"};
+-    return {0.0, "release"};
++    step -= a.relaxSteps;
++    if (step < a.releaseSteps) return {0.0, "release"};
++    return {0.0, "post_release_relaxation"};
+ }
+ 
+ struct Metrics {
+@@ -4231,7 +4248,8 @@
+         const std::size_t base = static_cast<std::size_t>(environment) * nodeCount;
+         for (std::uint32_t node = 0u; node < nodeCount; ++node) {
+             if (!left[node] && !right[node]) continue;
+-            if (right[node] && std::string_view(loadingPoint(arguments, step).phase) == "release") {
++            const std::string_view phase = loadingPoint(arguments, step).phase;
++            if (right[node] && (phase == "release" || phase == "post_release_relaxation")) {
+                 targets[base + node] = {0.0f, 0.0f, 0.0f, 2.0f};
+                 continue;
+             }
+--- a/matter/tools/cardboard_convergence.py
++++ b/matter/tools/cardboard_convergence.py
+@@ -25,13 +25,14 @@
+ MESH_SCHEMA = "numi.cardboard.authored-mesh.v1"
+ STATE_SCHEMA = "numi.cardboard.accepted-material-state.v1"
+ EP_NAMES = ("ep11", "ep22", "ep33", "ep23", "ep13", "ep12")
+-PHASE_ORDER = ("loading", "hold", "unloading", "relaxation", "release")
++PHASE_ORDER = ("loading", "hold", "unloading", "relaxation", "release", "post_release_relaxation")
+ PHASE_COUNT_KEYS = {
+     "loading": "steps",
+     "hold": "hold_steps",
+     "unloading": "unload_steps",
+     "relaxation": "relax_steps",
+     "release": "release_steps",
++    "post_release_relaxation": "post_release_relaxation_steps",
+ }
+ FLOAT_FIELDS = (
+     "time_s", "target_angle_deg", "reaction_x_N", "reaction_y_N", "reaction_z_N",
+@@ -154,9 +155,9 @@
+ def _protocol(solver: dict[str, Any]) -> dict[str, Any]:
+     protocol: dict[str, Any] = {}
+     for phase, field in PHASE_COUNT_KEYS.items():
+-        # Old v1 manifests predate free release; they are accepted for clamped
+-        # studies as release_steps=0, but never imply release evidence.
+-        value = solver.get(field, 0 if phase == "release" else None)
++        # Legacy manifests predate free release and post-release relaxation;
++        # missing fields remain zero and never imply those histories.
++        value = solver.get(field, 0 if phase in ("release", "post_release_relaxation") else None)
+         if value is None:
+             raise EvidenceError("missing_protocol_field", f"manifest.solver.{field} is missing")
+         count = _int(value, f"solver.{field}")
+@@ -174,6 +175,8 @@
+         "right grip free; left grip remains fixed; physical state preserved"
+     ):
+         raise EvidenceError("unknown_release_policy", "release phase has an unknown or missing policy")
++    if protocol["post_release_relaxation"] > 0 and protocol["release"] <= 0:
++        raise EvidenceError("invalid_protocol", "post-release relaxation requires a positive free-release phase")
+     return protocol
+ 
+ 
+@@ -194,7 +197,7 @@
+             elif phase == "relaxation":
+                 target = 0.0
+             else:
+-                target = None  # target angle is explicitly ignored while released
++                target = None  # target angle is ignored during either free phase
+             return phase, target
+         cursor += count
+     raise EvidenceError("step_outside_protocol", f"CSV step {step} is outside the declared protocol")
+@@ -375,17 +378,18 @@
+             raise FailedRunError("legacy_raw_acceptance_rejected", "raw accepted flag cannot override failed status")
+         if release_columns.issubset(header):
+             constrained = _int(raw.get("right_grip_constrained"), "CSV.right_grip_constrained")
+-            expected_constrained = 0 if phase == "release" else 1
++            free_phase = phase in ("release", "post_release_relaxation")
++            expected_constrained = 0 if free_phase else 1
+             if constrained != expected_constrained:
+                 raise EvidenceError("release_boundary_mismatch", f"step {step} grip-constraint flag differs from phase")
+             measured_angle = _number(raw.get("measured_right_grip_angle_deg"), "CSV.measured_right_grip_angle_deg")
+             fixed_nodes = _int(raw.get("current_fixed_nodes"), "CSV.current_fixed_nodes")
+             mesh_left = len(mesh.get("left_grip_nodes", []))
+             mesh_fixed = len(mesh.get("fixed_nodes", []))
+-            expected_fixed = mesh_left if phase == "release" else mesh_fixed
++            expected_fixed = mesh_left if free_phase else mesh_fixed
+             if expected_fixed and fixed_nodes != expected_fixed:
+                 raise EvidenceError("fixed_node_count_mismatch", f"step {step} fixed-node count differs from release policy")
+-            if phase == "release" and env == 1 and abs(measured_angle) > 1e-5:
++            if free_phase and env == 1 and abs(measured_angle) > 1e-5:
+                 raise EvidenceError("reference_grip_moved", "held reference right grip changed angle during release")
+             values["right_grip_constrained"] = constrained
+             values["measured_right_grip_angle_deg"] = measured_angle
+@@ -844,6 +848,8 @@
+         if phase not in a.phases or phase not in b.phases:
+             if phase == "release":
+                 raise EvidenceError("inconclusive_missing_free_release", "free-release phase was requested but not recorded in both runs")
++            if phase == "post_release_relaxation":
++                raise EvidenceError("inconclusive_missing_post_release_relaxation", "post-release relaxation was requested but not recorded in both runs")
+             raise EvidenceError("inconclusive_missing_phase", f"requested phase {phase} is not present in both runs")
+     return phases
+ 
+@@ -1023,19 +1029,25 @@
+         raise EvidenceError("missing_release_reference", "free release has no preceding clamped phase")
+     before_phase = preceding[-1]
+     before = _observation_endpoint(run, before_phase, 0)
+-    after = _observation_endpoint(run, "release", 0)
++    release_endpoint = _observation_endpoint(run, "release", 0)
++    final_phase = ("post_release_relaxation"
++                   if protocol["post_release_relaxation"] > 0 else "release")
++    after = _observation_endpoint(run, final_phase, 0)
+     before_state = _state_stats(run, before_phase, "bent")["paper_total"]
+-    after_state = _state_stats(run, "release", "bent")["paper_total"]
++    after_state = _state_stats(run, final_phase, "bent")["paper_total"]
+     return {
+         "pre_release_phase": before_phase,
+-        "boundary_verified": before.get("right_grip_constrained") == 1 and after.get("right_grip_constrained") == 0,
++        "boundary_verified": before.get("right_grip_constrained") == 1 and release_endpoint.get("right_grip_constrained") == 0 and after.get("right_grip_constrained") == 0,
+         "before_release_endpoint": {k: before.get(k) for k in ("time_s", "measured_right_grip_angle_deg", "max_free_displacement_m", "max_free_speed_m_s", "kinetic_energy_J")},
++        "release_endpoint": {k: release_endpoint.get(k) for k in ("time_s", "measured_right_grip_angle_deg", "max_free_displacement_m", "max_free_speed_m_s", "kinetic_energy_J")},
+         "after_release_endpoint": {k: after.get(k) for k in ("time_s", "measured_right_grip_angle_deg", "max_free_displacement_m", "max_free_speed_m_s", "kinetic_energy_J")},
++        "post_release_relaxation_completed": protocol["post_release_relaxation"] > 0,
++        "post_release_relaxation_steps": protocol["post_release_relaxation"],
+         "right_grip_angle_change_deg": after["measured_right_grip_angle_deg"] - before["measured_right_grip_angle_deg"],
+         "free_displacement_change_m": after["max_free_displacement_m"] - before["max_free_displacement_m"],
+         "kinetic_energy_J": after["kinetic_energy_J"],
+         "paper_plastic_mean_frobenius_change": after_state["volume_mean_frobenius_ep"] - before_state["volume_mean_frobenius_ep"],
+-        "note": "release is a distinct free-grip phase; constrained relaxation is not substituted for it",
++        "note": "release and post-release relaxation are separate accepted free-grip phases; when post-release relaxation is present, its endpoint supplies the final springback and material-state comparison",
+     }
+ 
+ 
+@@ -1166,6 +1178,11 @@
+                 raise EvidenceError("inconclusive_missing_free_release", "requested free-release comparison lacks release in both runs")
+             if a.manifest["solver"].get("release_policy") != b.manifest["solver"].get("release_policy"):
+                 raise IncompatibleError("release_policy_mismatch", "free-release policies differ")
++        if "post_release_relaxation" in phases and any(
++                run.manifest["solver"].get("post_release_relaxation_steps", 0) <= 0
++                for run in (a, b)):
++            raise EvidenceError("inconclusive_missing_post_release_relaxation",
++                                "requested post-release relaxation comparison requires positive accepted histories in both runs")
+         endpoints_a = _run_endpoint_metrics(a, phases)
+         endpoints_b = _run_endpoint_metrics(b, phases)
+         pair_metrics = _paired_curve_metrics(a, b, phases, kind)
+--- a/matter/tools/cardboard_resolution_study.py
++++ b/matter/tools/cardboard_resolution_study.py
+@@ -36,17 +36,19 @@
+     "paper_damage_area_fraction_difference": 0.02,
+     "debond_area_fraction_difference": 0.02,
+ }
+-PHASE_ORDER = ("loading", "hold", "unloading", "relaxation", "release")
++PHASE_ORDER = ("loading", "hold", "unloading", "relaxation", "release", "post_release_relaxation")
+ PHASE_CLI = {
+     "loading": "--steps",
+     "hold": "--hold-steps",
+     "unloading": "--unload-steps",
+     "relaxation": "--relax-steps",
+     "release": "--release-steps",
++    "post_release_relaxation": "--post-release-relax-steps",
+ }
+ CONTROLLED_FLAGS = {
+     "--output", "--metallib", "--nx", "--ny", "--thickness-slices", "--dt",
+     "--steps", "--hold-steps", "--unload-steps", "--relax-steps", "--release-steps",
++    "--post-release-relax-steps",
+ }
+ 
+ 
+@@ -108,7 +110,7 @@
+     protocol = cc._protocol(run.manifest["solver"])
+     missing = [phase for phase in PHASE_ORDER if protocol[phase] <= 0]
+     if missing:
+-        raise StudyError(f"baseline must include positive loading, hold, withdrawal, relaxation, and release steps; missing {missing}")
++        raise StudyError(f"complete-study baseline must include positive loading, hold, withdrawal, clamped relaxation, release, and post-release relaxation steps; missing {missing}")
+     if "release" not in run.phases:
+         raise StudyError("baseline has no accepted free-release phase")
+     return run
+@@ -317,6 +319,7 @@
+ def make_plan(*, baseline_dir: Path, probe: Path, metallib: Path, run_root: Path,
+               timeout_seconds: float, slower_load_factor: int | None = None,
+               max_free_force_residual_n: float | None = None,
++              source_root: Path | None = None,
+               source_paths: Iterable[Path] | None = None) -> dict[str, Any]:
+     """Create the immutable prediction and sequential native case plan."""
+     baseline_dir = baseline_dir.expanduser().resolve()
+@@ -337,7 +340,8 @@
+     if slower_load_factor is not None and slower_load_factor < 2:
+         raise StudyError("slower_load_factor must be an integer >= 2")
+ 
+-    repo_root = Path(__file__).resolve().parents[2]
++    repo_root = (source_root.expanduser().resolve() if source_root is not None
++                 else Path(__file__).resolve().parents[2])
+     sources = _default_source_paths(repo_root)
+     if source_paths is not None:
+         sources.extend(source_paths)
+@@ -385,7 +389,8 @@
+             "acceptance_thresholds": THRESHOLDS,
+             "no_plateau_claim": "a missing or failed level is inconclusive; no extrapolated plateau or tolerance-derived absolute force accuracy is inferred",
+             "spatial_axes": {"nx": [8, 16, 32], "ny": [2, 4, 8], "thickness_slices": [1, 2, 4], "combined_refined": [32, 8, 4]},
+-            "temporal_axis": "dt, dt/2, dt/4 at 32x8x4 with all five physical phase durations and loading speed unchanged",
++            "temporal_axis": "dt, dt/2, dt/4 at 32x8x4 with all six physical phase durations and loading speed unchanged",
++            "release_history": "accepted right-grip-free release followed by a separate positive post-release-relaxation phase; the latter supplies the final springback and material-state endpoint",
+             "force_accuracy": "hold relative residual tolerance / dt fixed by tightening tolerance on time refinement; report accepted native free-force residuals in newtons separately; this ratio is not an absolute force error bound because the residual normalization scale is not exported",
+             "max_free_force_residual_n": force_limit,
+         },
+@@ -446,6 +451,7 @@
+         run_root=root, timeout_seconds=args.timeout,
+         slower_load_factor=args.slower_load_factor,
+         max_free_force_residual_n=args.max_free_force_residual_n,
++        source_root=Path(args.source_root) if args.source_root else None,
+         source_paths=[Path(path) for path in args.source_file] if args.source_file else None,
+     )
+     root.mkdir(parents=True, exist_ok=False)
+@@ -1029,6 +1035,8 @@
+                       help="optional declared absolute limit for observed accepted free-force L2 and max residuals")
+     plan.add_argument("--slower-load-factor", type=int,
+                       help="optional separate load-rate comparison; multiplies loading duration only")
++    plan.add_argument("--source-root", type=Path,
++                      help="source checkout root for required compiler/runtime bindings; use --source-file for additional overlay files")
+     plan.add_argument("--source-file", action="append", type=Path,
+                       help="additional source binding; default core source set is always included")
+     run = sub.add_parser("run", help="execute the sealed cases sequentially under the one-GPU process lock")
+--- a/matter/tools/test_cardboard_convergence.py
++++ b/matter/tools/test_cardboard_convergence.py
+@@ -28,7 +28,8 @@
+ 
+ def fake_run(root: Path, name: str, *, nx: int = 2, dt: float = 1.0,
+              steps: int = 1, hold: int = 1, unload: int = 1, relax: int = 1,
+-             release: int = 0, phase_angle: float = 1.0, material_digest: str = "liner-v1",
++             release: int = 0, post_release_relax: int = 0,
++             phase_angle: float = 1.0, material_digest: str = "liner-v1",
+              relative_residual_tolerance: float = 1e-4,
+              geometry_length: float = 1.0, plastic_liner: float = 0.0,
+              plastic_medium: float = 3e-6, moment_scale: float = 1.0,
+@@ -36,7 +37,7 @@
+              release_constraint_error: bool = False, omit_step_accepted: bool = False) -> Path:
+     path = root / name
+     path.mkdir()
+-    phases = (steps, hold, unload, relax, release)
++    phases = (steps, hold, unload, relax, release, post_release_relax)
+     total = sum(phases)
+     geo = {
+         "source_dimensions": "synthetic only", "initial_condition": "stress-free synthetic mesh",
+@@ -59,6 +60,7 @@
+         "contact_slop_m": 0.001, "dt_s": dt, "bend_angle_deg": phase_angle,
+         "steps": steps, "hold_steps": hold, "unload_steps": unload, "relax_steps": relax,
+         "release_steps": release,
++        "post_release_relaxation_steps": post_release_relax,
+         "release_policy": "right grip free; left grip remains fixed; physical state preserved",
+         "local_material_newton_iterations": 16, "newton_iteration_budget": 14,
+         "fgmres_restart": 10, "fgmres_iteration_budget": 32, "line_search_steps": 8,
+@@ -127,7 +129,7 @@
+                 angle = phase_angle
+             elif phase == "unloading":
+                 angle = phase_angle * (1 - (local + 1) / max(unload, 1))
+-            elif phase == "release":
++            elif phase in ("release", "post_release_relaxation"):
+                 angle = 0.0
+             else:
+                 angle = 0.0
+@@ -162,11 +164,11 @@
+                 "certificate_pressure": 0.0, "certificate_raw_accepted_flag": accepted_flag,
+                 "free_force_imbalance_l2_N": .25 if env == 0 else .05,
+                 "free_force_imbalance_max_N": .20 if env == 0 else .04,
+-                "right_grip_constrained": 0 if phase == "release" else 1,
+-                "measured_right_grip_angle_deg": (0.25 if env == 0 and phase == "release" else (angle if env == 0 else 0.0)),
+-                "current_fixed_nodes": 3 if phase == "release" else 6,
++                "right_grip_constrained": 0 if phase in ("release", "post_release_relaxation") else 1,
++                "measured_right_grip_angle_deg": (0.25 if env == 0 and phase in ("release", "post_release_relaxation") else (angle if env == 0 else 0.0)),
++                "current_fixed_nodes": 3 if phase in ("release", "post_release_relaxation") else 6,
+             }
+-            if release_constraint_error and phase == "release":
++            if release_constraint_error and phase in ("release", "post_release_relaxation"):
+                 row["right_grip_constrained"] = 1
+             if not omit_step_accepted:
+                 row["step_accepted"] = 1
+--- a/matter/tools/test_cardboard_resolution_study.py
++++ b/matter/tools/test_cardboard_resolution_study.py
+@@ -47,7 +47,7 @@
+                      accepted_flag: int = 1) -> Path:
+         return fixtures.fake_run(
+             self.root, name, nx=nx, dt=0.01, steps=4, hold=2, unload=4, relax=2,
+-            release=2, phase_angle=1.0, moment_scale=moment_scale,
++            release=2, post_release_relax=3, phase_angle=1.0, moment_scale=moment_scale,
+             accepted_flag=accepted_flag,
+         )
+ 
+@@ -94,7 +94,8 @@
+             baseline_dir=baseline, probe=probe, metallib=metallib,
+             run_root=self.root / "study-run-root", timeout_seconds=123.0,
+             slower_load_factor=2, max_free_force_residual_n=0.5,
+-            source_paths=[extra_source],
++            source_root=Path("/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143"),
++            source_paths=[extra_source, HERE / "cardboard_probe.mm"],
+         )
+         self.assertEqual(plan["plan_sha256"], study._plan_digest(plan))
+         self.assertEqual(len(plan["cases"]), 10)
+@@ -102,6 +103,9 @@
+         self.assertEqual(plan["execution"]["parallelism"], 1)
+         self.assertIn({"path": str(extra_source.resolve()),
+                        "sha256": hashlib.sha256(extra_source.read_bytes()).hexdigest()},
++                      plan["execution"]["source_files"])
++        self.assertIn({"path": str((HERE / "cardboard_probe.mm").resolve()),
++                       "sha256": hashlib.sha256((HERE / "cardboard_probe.mm").read_bytes()).hexdigest()},
+                       plan["execution"]["source_files"])
+         time_cases = [case for case in plan["cases"] if case["kind"] == "temporal"]
+         self.assertEqual([case["time_refinement_factor"] for case in time_cases], [2, 4])
+@@ -116,7 +120,8 @@
+             study._verify_bindings(plan)
+ 
+     def test_time_refinement_preserves_each_phase_duration_and_speed(self) -> None:
+-        base = {"loading": 16, "hold": 8, "unloading": 16, "relaxation": 32, "release": 8, "dt_s": 0.000025}
++        base = {"loading": 16, "hold": 8, "unloading": 16, "relaxation": 32,
++                "release": 8, "post_release_relaxation": 32, "dt_s": 0.000025}
+         for factor in (2, 4):
+             counts = study._time_counts(base, factor)
+             self.assertEqual(set(counts), set(study.PHASE_ORDER))
+@@ -154,6 +159,10 @@
+         argv = study._native_args(case, common, self.root / "output", self.root / "shaders")
+         self.assertEqual(argv.count("--residual-tolerance"), 1)
+         self.assertEqual(float(argv[argv.index("--residual-tolerance") + 1]), 2.5e-7)
++        self.assertEqual(argv[argv.index("--release-steps") + 1], "8")
++        self.assertEqual(argv[argv.index("--post-release-relax-steps") + 1], "8")
++        with self.assertRaisesRegex(study.StudyError, "cannot override planned axis --post-release-relax-steps"):
++            study._controlled_arg_check(["--post-release-relax-steps", "999"])
+         del solver["safeguarded_paper_hill_initializer"]
+         with self.assertRaisesRegex(study.StudyError, "explicit arithmetic/initializer"):
+             study._native_base_arguments(run)
+@@ -250,7 +259,7 @@
+         negative = cc._load_run(self._release_run("negative-springback", nx=4))
+         for run, signed_change in ((positive, 1.0), (negative, -1.0)):
+             before = run.row_by_key[(11, 0)]
+-            after = run.row_by_key[(13, 0)]
++            after = run.row_by_key[(16, 0)]
+             before["measured_right_grip_angle_deg"] = 0.0
+             after["measured_right_grip_angle_deg"] = signed_change
+         metrics = study._pair_metrics(positive, negative, "spatial")
+@@ -262,9 +271,9 @@
+ 
+     def test_slower_load_is_separate_and_uses_normalized_phase_samples(self) -> None:
+         base = fixtures.fake_run(self.root, "load-base", nx=2, dt=0.01, steps=4,
+-                                 hold=2, unload=4, relax=2, release=2)
++                                 hold=2, unload=4, relax=2, release=2, post_release_relax=2)
+         slower = fixtures.fake_run(self.root, "load-slower", nx=2, dt=0.01, steps=8,
+-                                   hold=2, unload=4, relax=2, release=2)
++                                   hold=2, unload=4, relax=2, release=2, post_release_relax=2)
+         admission = cc.analyze_pair(base, slower, "load_rate", list(study.PHASE_ORDER))
+         self.assertEqual(admission["status"], "analyzed_descriptive")
+         metrics = study._pair_metrics(cc._load_run(base), cc._load_run(slower), "load_rate")

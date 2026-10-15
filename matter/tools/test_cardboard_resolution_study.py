@@ -47,7 +47,7 @@ class CardboardResolutionStudyTests(unittest.TestCase):
                      accepted_flag: int = 1) -> Path:
         return fixtures.fake_run(
             self.root, name, nx=nx, dt=0.01, steps=4, hold=2, unload=4, relax=2,
-            release=2, phase_angle=1.0, moment_scale=moment_scale,
+            release=2, post_release_relax=3, phase_angle=1.0, moment_scale=moment_scale,
             accepted_flag=accepted_flag,
         )
 
@@ -94,7 +94,8 @@ class CardboardResolutionStudyTests(unittest.TestCase):
             baseline_dir=baseline, probe=probe, metallib=metallib,
             run_root=self.root / "study-run-root", timeout_seconds=123.0,
             slower_load_factor=2, max_free_force_residual_n=0.5,
-            source_paths=[extra_source],
+            source_root=Path("/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143"),
+            source_paths=[extra_source, HERE / "cardboard_probe.mm"],
         )
         self.assertEqual(plan["plan_sha256"], study._plan_digest(plan))
         self.assertEqual(len(plan["cases"]), 10)
@@ -102,6 +103,9 @@ class CardboardResolutionStudyTests(unittest.TestCase):
         self.assertEqual(plan["execution"]["parallelism"], 1)
         self.assertIn({"path": str(extra_source.resolve()),
                        "sha256": hashlib.sha256(extra_source.read_bytes()).hexdigest()},
+                      plan["execution"]["source_files"])
+        self.assertIn({"path": str((HERE / "cardboard_probe.mm").resolve()),
+                       "sha256": hashlib.sha256((HERE / "cardboard_probe.mm").read_bytes()).hexdigest()},
                       plan["execution"]["source_files"])
         time_cases = [case for case in plan["cases"] if case["kind"] == "temporal"]
         self.assertEqual([case["time_refinement_factor"] for case in time_cases], [2, 4])
@@ -116,7 +120,8 @@ class CardboardResolutionStudyTests(unittest.TestCase):
             study._verify_bindings(plan)
 
     def test_time_refinement_preserves_each_phase_duration_and_speed(self) -> None:
-        base = {"loading": 16, "hold": 8, "unloading": 16, "relaxation": 32, "release": 8, "dt_s": 0.000025}
+        base = {"loading": 16, "hold": 8, "unloading": 16, "relaxation": 32,
+                "release": 8, "post_release_relaxation": 32, "dt_s": 0.000025}
         for factor in (2, 4):
             counts = study._time_counts(base, factor)
             self.assertEqual(set(counts), set(study.PHASE_ORDER))
@@ -154,6 +159,10 @@ class CardboardResolutionStudyTests(unittest.TestCase):
         argv = study._native_args(case, common, self.root / "output", self.root / "shaders")
         self.assertEqual(argv.count("--residual-tolerance"), 1)
         self.assertEqual(float(argv[argv.index("--residual-tolerance") + 1]), 2.5e-7)
+        self.assertEqual(argv[argv.index("--release-steps") + 1], "8")
+        self.assertEqual(argv[argv.index("--post-release-relax-steps") + 1], "8")
+        with self.assertRaisesRegex(study.StudyError, "cannot override planned axis --post-release-relax-steps"):
+            study._controlled_arg_check(["--post-release-relax-steps", "999"])
         del solver["safeguarded_paper_hill_initializer"]
         with self.assertRaisesRegex(study.StudyError, "explicit arithmetic/initializer"):
             study._native_base_arguments(run)
@@ -250,7 +259,7 @@ class CardboardResolutionStudyTests(unittest.TestCase):
         negative = cc._load_run(self._release_run("negative-springback", nx=4))
         for run, signed_change in ((positive, 1.0), (negative, -1.0)):
             before = run.row_by_key[(11, 0)]
-            after = run.row_by_key[(13, 0)]
+            after = run.row_by_key[(16, 0)]
             before["measured_right_grip_angle_deg"] = 0.0
             after["measured_right_grip_angle_deg"] = signed_change
         metrics = study._pair_metrics(positive, negative, "spatial")
@@ -262,9 +271,9 @@ class CardboardResolutionStudyTests(unittest.TestCase):
 
     def test_slower_load_is_separate_and_uses_normalized_phase_samples(self) -> None:
         base = fixtures.fake_run(self.root, "load-base", nx=2, dt=0.01, steps=4,
-                                 hold=2, unload=4, relax=2, release=2)
+                                 hold=2, unload=4, relax=2, release=2, post_release_relax=2)
         slower = fixtures.fake_run(self.root, "load-slower", nx=2, dt=0.01, steps=8,
-                                   hold=2, unload=4, relax=2, release=2)
+                                   hold=2, unload=4, relax=2, release=2, post_release_relax=2)
         admission = cc.analyze_pair(base, slower, "load_rate", list(study.PHASE_ORDER))
         self.assertEqual(admission["status"], "analyzed_descriptive")
         metrics = study._pair_metrics(cc._load_run(base), cc._load_run(slower), "load_rate")

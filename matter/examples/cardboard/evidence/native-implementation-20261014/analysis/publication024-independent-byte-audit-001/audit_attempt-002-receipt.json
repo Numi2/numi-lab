@@ -1,0 +1,10 @@
+{
+  "archive_write_performed": false,
+  "attempt": "publication024 independent byte audit after verdict-field repair",
+  "cause": "audit helper called sha(Path) with the already-read NUL pathspec bytes at report assembly; correct helper is sha_bytes(bytes)",
+  "exit_code": 1,
+  "failure": "AttributeError: 'bytes' object has no attribute 'read_bytes'",
+  "source": "/Users/home/cardboard-implementation-20261014/analysis/publication024-independent-byte-audit-001/audit_attempt-002.py",
+  "source_sha256": "cafa7a0c321bd86a982a9241a6f66a7e923eed0cb199bee129264ae7c409c5a0",
+  "status": "failed"
+}

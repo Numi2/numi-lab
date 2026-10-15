@@ -1,0 +1,168 @@
+{
+  "limits": [
+    "This proves attempted production-history parity for the failed source143/source144 pair, not completion of the coupon.",
+    "Source144 adds the state observer; runtime/library/probe binaries are expected to differ and are not called byte-identical.",
+    "The sidecar capture is diagnostic and records projected current-Newton history as unavailable.",
+    "Runtime timing rows are preserved but excluded from physical-state parity because they measure wall/GPU time."
+  ],
+  "non_timing_stderr_equal_after_run_build_path_and_new_state_marker_normalization": true,
+  "output_tree": {
+    "byte_identical_files": [
+      "accepted_step_000001_bent.obj",
+      "accepted_step_000001_held_reference.obj",
+      "accepted_step_000002_held_reference.obj",
+      "compiled.nmatterpack",
+      "initial.obj",
+      "material_state_000002_bent.json",
+      "mesh.json",
+      "observations.csv",
+      "rejected-conditioning-000002/AP.bin",
+      "rejected-conditioning-000002/P.bin",
+      "rejected-conditioning-000002/candidate_nodes.bin",
+      "rejected-conditioning-000002/effective_P.bin",
+      "rejected-conditioning-000002/factor_valid.bin",
+      "rejected-conditioning-000002/manifest.json",
+      "rejected-conditioning-000002/node_block_inverse.bin",
+      "rejected-conditioning-000002/pivoted_RAP.bin",
+      "rejected-conditioning-000002/pivots.bin",
+      "rejected-conditioning-000002/restart_Aq.bin",
+      "rejected-conditioning-000002/restart_Aq_by_environment.bin",
+      "rejected-conditioning-000002/restart_attempt_counts_by_environment.bin",
+      "rejected-conditioning-000002/restart_factor_valid_by_environment.bin",
+      "rejected-conditioning-000002/restart_generations_by_environment.bin",
+      "rejected-conditioning-000002/restart_mode_scales_by_environment.bin",
+      "rejected-conditioning-000002/restart_mode_valid_by_environment.bin",
+      "rejected-conditioning-000002/restart_pivoted_RAP.bin",
+      "rejected-conditioning-000002/restart_pivoted_RAP_by_environment.bin",
+      "rejected-conditioning-000002/restart_pivots.bin",
+      "rejected-conditioning-000002/restart_pivots_by_environment.bin",
+      "rejected-conditioning-000002/restart_q.bin",
+      "rejected-conditioning-000002/restart_q_by_environment.bin",
+      "rejected-conditioning-000002/restart_raw_norm_squared_by_environment.bin",
+      "rejected-conditioning-000002/restart_target_scales_by_environment.bin",
+      "rejected_step_diagnostic_000002_bent.obj",
+      "result.json"
+    ],
+    "file_inventory_equal": true,
+    "manifest_equal_after_path_basename_normalization": true,
+    "manifest_only_difference": {
+      "glue_path": {
+        "453": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143/matter/materials/starch2007_finite_glue_elastic.nmatter",
+        "455": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-state-sidecar-144/matter/materials/starch2007_finite_glue_elastic.nmatter",
+        "basename_same": true
+      },
+      "liner_path": {
+        "453": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+        "455": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-state-sidecar-144/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+        "basename_same": true
+      },
+      "medium_path": {
+        "453": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+        "455": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-state-sidecar-144/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+        "basename_same": true
+      }
+    }
+  },
+  "payloads": {
+    "base-cgls.bin": {
+      "453_sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099",
+      "455_sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099",
+      "byte_count": 409368,
+      "bytes_equal": true
+    },
+    "first-status5.bin": {
+      "453_sha256": "0f3ae7cd18df40df8ad3bbed0b55491b43f1ee67c321eab2287c46e18a43239f",
+      "455_sha256": "0f3ae7cd18df40df8ad3bbed0b55491b43f1ee67c321eab2287c46e18a43239f",
+      "byte_count": 13568,
+      "bytes_equal": true
+    }
+  },
+  "production_trace_record_counts": {
+    "453": {
+      "fem_base_cgls_direction": 64,
+      "fem_residual_armijo_iteration": 112,
+      "fem_true_residual_cycle": 4096
+    },
+    "455": {
+      "fem_base_cgls_direction": 64,
+      "fem_residual_armijo_iteration": 112,
+      "fem_true_residual_cycle": 4096
+    }
+  },
+  "production_trace_records_exact": true,
+  "runs": {
+    "453": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-after48-control1-453",
+      "receipt": {
+        "changed_inputs": [],
+        "execution_started": true,
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-15T22:33:02.441010+00:00",
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "source_inputs_unchanged": true,
+        "termination_errors": [],
+        "timed_out": false,
+        "wall_seconds": 366.48245966696413
+      },
+      "stderr_sha256": "61c8a9b28b4cd5e2197b77552a899ae6b2c36a2aa5afa1dc52b178fd0a6b68cf",
+      "stdout_sha256": "9e9e87625cf0549628c2668a29decf5dfeec04db6a5f649642e4c81a51e79fc3"
+    },
+    "455": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-state-sidecar-observer-455",
+      "receipt": {
+        "changed_inputs": [],
+        "execution_started": true,
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-15T22:50:02.666997+00:00",
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "source_inputs_unchanged": true,
+        "termination_errors": [],
+        "timed_out": false,
+        "wall_seconds": 367.0796778330114
+      },
+      "stderr_sha256": "97f7176a610d2e6dfb71f93664e3f997ed1367ce742c8c394b454dde1ec673f5",
+      "stdout_sha256": "9e9e87625cf0549628c2668a29decf5dfeec04db6a5f649642e4c81a51e79fc3"
+    }
+  },
+  "schema": "numi.matter.cgls_state_observer_parity_453_455.v1",
+  "source_build_changes": {
+    "base_cgls_byte_identical": true,
+    "full_application_binary_identical": false,
+    "native_exit_status_is_success": false,
+    "source143_runtime_sha256": "01162665b98a7f88d4d6341e2bc6ea50afb9f5d831b04fe446ce27d34e7ad5ec",
+    "source144_runtime_sha256": "1a9fcbdda74c921a36b6529033851ae47a460ce51c8373e3794cc8967c5eca7f"
+  },
+  "state_sidecar": {
+    "complete_marker": {
+      "array_count": 24,
+      "bytes": 4327464,
+      "complete": true,
+      "manifest": "/Users/home/cardboard-implementation-20261014/solver/cgls-state-sidecar-observer-455/base-cgls.bin.state.json",
+      "newton_iteration": 48,
+      "root": 1,
+      "schema": 1
+    },
+    "present_only_in_455": true,
+    "strict_reader_validation": {
+      "array_count": 24,
+      "environment_count": 2,
+      "manifest": "/Users/home/cardboard-implementation-20261014/solver/cgls-state-sidecar-observer-455/base-cgls.bin.state.json",
+      "newton_iteration": 48,
+      "node_count": 882,
+      "payload": "/Users/home/cardboard-implementation-20261014/solver/cgls-state-sidecar-observer-455/base-cgls.bin.state.bin",
+      "payload_bytes": 4327464,
+      "payload_sha256": "1a99fa72a4f45c68c67a53dcace37f0f01df6587d6db1a178606247a9fdef5b6",
+      "projected_history_status": "unavailable_not_persisted",
+      "root": 1,
+      "schema": "numi.matter.base_cgls_state_capture.v1",
+      "tetrahedron_count": 1920
+    }
+  },
+  "status5_manifest_equal_after_payload_path_normalization": true,
+  "timing_rows": {
+    "453_count": 6,
+    "455_count": 6,
+    "compared_as_physical_history": false
+  },
+  "verdict": "PASS_PHYSICAL_HISTORY_PARITY_WITH_DIAGNOSTIC_SOURCE_DELTA"
+}

@@ -1,0 +1,9 @@
+{
+  "exit_code": 1,
+  "failure": "Consumer used parameter26 as a rate exponent; actual parameter26 is fb_epsilon. Failed before prediction/results. Corrected to check existing captured-program rate contract. Native/source inputs unchanged.",
+  "files": {
+    "audit.py": "fc4e068655c1917883e98f64762c71fd339355d2ffb555217841fc92916016d3",
+    "stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr.log": "18cdb57b315f3afeb4c1b20699aca4dea85cc1479b086d55bcd0259e209a2dab"
+  }
+}

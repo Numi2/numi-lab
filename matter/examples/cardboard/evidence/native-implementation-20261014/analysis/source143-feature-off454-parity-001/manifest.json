@@ -1,0 +1,18 @@
+{
+  "inputs": {
+    "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-candidate-audit-tool-001/audit_cgls_snapshot.py": "20fb48f577960505929c900dfdf5399bff6d191883ca2d70c5d6b31a95cae02b",
+    "/Users/home/cardboard-implementation-20261014/analysis/native450-capture-off-parity-tool-001/audit_capture_observer_parity.py": "cf79d940ce2a912532a9548a903b713900d7ec31abad901986d5ae20dea9c51e",
+    "/Users/home/cardboard-implementation-20261014/native-450-command.json": "61fefd629ed4cb79ff9f9b75b38ce9d69c5eadd11f354250f3d5d1539dffb4bc",
+    "/Users/home/cardboard-implementation-20261014/native-454-command.json": "2415e13a54aa65fda21f03d33967545f23ad054ef5a7e7ecdabc0ec209658f84",
+    "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/prediction.json": "d2678ec8c0a8aae9316e2a9c4eba757bbd8075d45cbe647d1af835068b832260",
+    "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/receipt.json": "958e07dc51d541c7e483d44403bdfa1ee6f6b8058d0025c50a2063f89f64b34c",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-feature-off-parity-454/prediction.json": "831da0b7bd2f5123d0f74a6ef2f361e5bf05a4b3018c0bfdf0d97d73e4d00803",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-feature-off-parity-454/receipt.json": "64afca3eda79df6ab9c72ee22b12c9a5e92b4974d635bd00c56350f6ae45cce9",
+    "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/stderr.log": "b5ae5ced00920cbda990e923064df518b527311cb24d95a27a4e0b1e1559e984",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-feature-off-parity-454/stderr.log": "9a3ed5d631ab641c070ad392ddecd177bab72f7c13e62ea317befbda76644a32"
+  },
+  "files": {
+    "compare.py": "d92ce55f69387dece13197106414e8b6eeb087e80ad306b8e75a2d794b9d8ff7",
+    "report.json": "16e2eb81c36beead2340b69b7593a730408187d086691dd329f4af76a0abf49f"
+  }
+}

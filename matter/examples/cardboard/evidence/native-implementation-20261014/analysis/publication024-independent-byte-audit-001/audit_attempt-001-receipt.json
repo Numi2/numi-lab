@@ -1,0 +1,10 @@
+{
+  "archive_write_performed": false,
+  "attempt": "publication024 independent byte audit initial consumer run",
+  "cause": "wrong summary field selected by audit consumer; summary.qualification contains explanatory evidence prose while summary.verdicts is the six-axis verdict object",
+  "exit_code": 1,
+  "failure": "AssertionError: binding24['six_axis_verdicts'] == summary['qualification']",
+  "source": "/Users/home/cardboard-implementation-20261014/analysis/publication024-independent-byte-audit-001/audit_attempt-001.py",
+  "source_sha256": "37fb0a9a1368fe17098249f931f41cd2faf9d3a186a73258751d08713f6ba1e1",
+  "status": "failed"
+}

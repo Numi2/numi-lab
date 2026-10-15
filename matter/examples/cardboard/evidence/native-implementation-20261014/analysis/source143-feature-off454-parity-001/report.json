@@ -1,0 +1,70 @@
+{
+  "schema": "numi.cardboard.source143_feature_off_full_attempted_history_parity.v1",
+  "parity_pass": true,
+  "classification": "default-off source/build change parity across the full attempted trajectory; both coupon attempts failed, not a completed coupon",
+  "run450": {
+    "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450",
+    "receipt_sha256": "958e07dc51d541c7e483d44403bdfa1ee6f6b8058d0025c50a2063f89f64b34c",
+    "binding": {
+      "input_count": 800,
+      "verified_count": 800,
+      "all_prediction_inputs_verified": true
+    }
+  },
+  "run454": {
+    "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-feature-off-parity-454",
+    "receipt_sha256": "64afca3eda79df6ab9c72ee22b12c9a5e92b4974d635bd00c56350f6ae45cce9",
+    "binding": {
+      "input_count": 804,
+      "verified_count": 804,
+      "all_prediction_inputs_verified": true
+    }
+  },
+  "source_changes": {
+    "matter/src/runtime.mm": {
+      "old": "1917384f3d82c43c1c63e040ebe796c43f7ab017cc0ef0f474ca94d3bd511ebb",
+      "new": "01162665b98a7f88d4d6341e2bc6ea50afb9f5d831b04fe446ce27d34e7ad5ec"
+    },
+    "matter/src/metal/base_cgls_runtime.metalinc": {
+      "old": "9c889ffa751411980498f6a4536e1c8ffacbe472a37d559f291b5893874fa74c",
+      "new": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903"
+    }
+  },
+  "all_source_files_verified": 787,
+  "physical_and_solver_arguments_equal_after_explicit_path_mapping": true,
+  "environment_equal_after_run_path_mapping": true,
+  "physical_output_files": 35,
+  "raw_byte_equal_output_files": 33,
+  "metadata_only_output_differences": [
+    "manifest.json",
+    "rejected-conditioning-000002/manifest.json"
+  ],
+  "metadata_exclusions": {
+    "output_manifest": "three material source paths only; file hashes and all other values equal",
+    "conditioning_manifest": "device_program_fingerprint only",
+    "status5_manifest": "payload path and device_program_fingerprint only",
+    "fingerprints": {
+      "450_decimal": "896977536326040402",
+      "454_decimal": "11208320261497217943",
+      "450_hex": "0c72b4512037fb52",
+      "454_hex": "9b8bf3e4c35ae397"
+    },
+    "stderr": "only wall/GPU timing rows excluded, run/source/runtime paths normalized; all other rows exactly equal"
+  },
+  "full_numeric_trace_counts": {
+    "fem_residual_armijo_iteration=": 64,
+    "fem_true_residual_cycle=": 4096,
+    "fem_base_cgls_direction=": 1
+  },
+  "non_timing_stderr_lines": 4171,
+  "CGLS_snapshot_byte_identical": true,
+  "status5_payload_byte_identical": true,
+  "stdout_byte_identical": true,
+  "rollback_geometry_byte_identical": true,
+  "source_builds_verified_by_native_wrapper": true,
+  "physical_validation": false,
+  "limits": [
+    "Feature-on453 still fails control1 after64 Newton iterations.",
+    "No coupon convergence, nonlinear contact, material calibration, box assembly or crush/drop qualification."
+  ]
+}

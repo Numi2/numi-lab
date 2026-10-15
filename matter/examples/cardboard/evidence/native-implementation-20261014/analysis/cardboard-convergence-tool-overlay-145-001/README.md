@@ -1,0 +1,15 @@
+# Separate post-release relaxation for the end-grip coupon study
+
+This external overlay is based on the immutable `source-cgls-primary-policy-143` snapshot. It adds a distinct accepted free-motion phase after the existing right-grip release phase and updates the offline analyzer and resolution planner to retain that history. It does not edit the snapshot, build the native probe, launch a GPU study, or claim physical validation.
+
+The probe option is `--post-release-relax-steps N`, defaulting to zero. Zero leaves the old end-grip schedule's steps and constraints unchanged. For a positive value, the native loop runs the existing free-release segment first, then a separately named `post_release_relaxation` segment. The right grip remains released and the left grip remains fixed in both. Each segment gets its own accepted phase rows and endpoint snapshot. A positive post-release count requires a positive release count. The option is restricted to the end-grip coupon; the shipping-assembly driver already has its own `released_assembly_settle` schedule and rejects this option.
+
+The offline convergence reader treats missing post-release fields in older exports as zero. It can still analyze older histories when that phase is not requested. The complete resolution-study planner requires positive steps for all six phases and includes the new count in mesh, time-refinement, and slower-loading case commands. Time refinement multiplies every phase count by the same factor while dividing `dt` by that factor, preserving phase durations and the imposed loading rate. The final springback and material-state endpoint is taken after post-release relaxation; the immediate release endpoint is retained separately.
+
+The CPU-only test set covers the phase boundary and free-grip schedule, default-zero compatibility, rejection of post-release steps without release, complete-study admission, generated native arguments, locked planned axes, duration-preserving time refinement, shifted-duration rejection, accepted-prefix refusal, both retained failed native runs (450 and 452), and synthetic curve metrics. The synthetic results are test fixtures only. The convergence rule still requires differences to decrease strictly; equality does not pass.
+
+The separate stage-resolution driver already contains a shipping `released_assembly_settle` stage with its own accepted-step checks. This end-grip phase does not replace or duplicate that shipping stage.
+
+Apply `post-release-relaxation.patch` from the root of a source143 checkout with `patch -p1`. `run_audit.py` runs the CPU tests, source-contract checks, retained failed-run refusal checks, and patch dry-run, then writes `report.json` and logs. `manifest.json` binds the overlay, patch, tests, logs, source143 files, and failed-run inputs.
+
+Remaining limits include native execution of this overlay, validated force accuracy in newtons, numerical convergence, held-out material prediction, and physical coupon or box validation. The plan's thresholds are numerical screens, not calibration claims.

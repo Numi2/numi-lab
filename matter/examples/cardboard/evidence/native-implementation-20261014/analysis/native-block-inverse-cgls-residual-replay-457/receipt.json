@@ -1,0 +1,88 @@
+{
+  "commands": {
+    "block_Aii_emulated_fp32_iter064.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "block_Aii_emulated_fp32_iter064.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "block_Aii_emulated_fp32_iter128.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "block_Aii_emulated_fp32_iter128.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "block_Aii_fp64_iter064.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "block_Aii_fp64_iter064.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "block_Aii_fp64_iter128.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "block_Aii_fp64_iter128.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "diag_Aii_emulated_fp32_iter064.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "diag_Aii_emulated_fp32_iter064.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "diag_Aii_emulated_fp32_iter128.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "diag_Aii_emulated_fp32_iter128.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "diag_Aii_fp64_iter064.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "diag_Aii_fp64_iter064.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "diag_Aii_fp64_iter128.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "diag_Aii_fp64_iter128.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "none_emulated_fp32_iter064.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "none_emulated_fp32_iter064.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "none_fp64_iter064.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "none_fp64_iter064.native": {
+      "exit_code": 0,
+      "timed_out": false
+    }
+  },
+  "wall_seconds": 15.893386958981864,
+  "physical_transactions": 0,
+  "source_and_helper_inputs_unchanged": true,
+  "finished_at_utc": "2026-10-15T22:54:02.818708+00:00"
+}

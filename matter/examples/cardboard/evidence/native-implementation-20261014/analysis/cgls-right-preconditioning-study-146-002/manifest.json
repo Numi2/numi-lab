@@ -1,0 +1,101 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 2141,
+      "sha256": "80fc601b19bb6e6c64e12772aaa01ecf05861ee28ff6fadc345ec1396f826456"
+    },
+    "directions/block_Aii_emulated_fp32_iter064.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "bece0006c6950610e976342e57fe62885b19b97dd73166809aebeb36be5eb27a"
+    },
+    "directions/block_Aii_emulated_fp32_iter128.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "43d4b18930a68c21a6b2658babca7915896d4a8b1e8d71c2e2143c54aca85365"
+    },
+    "directions/block_Aii_fp64_iter064.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "e3def552d097a89e20d42a254f383028de186e459966ad24e4cc1102e9f65a8e"
+    },
+    "directions/block_Aii_fp64_iter128.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "f2c8846553f6abc5939ea29a2e407300dcfc71db393ff3145f15d54a89ec4ac2"
+    },
+    "directions/diag_Aii_emulated_fp32_iter064.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "f2db6b84eca49852f65952842db82dd63434af3e5228f504f8860965341eacd0"
+    },
+    "directions/diag_Aii_emulated_fp32_iter128.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "1aff7023d438e2229e967901b3b1613ca0b30f4399a6000cbeda6707a76728db"
+    },
+    "directions/diag_Aii_fp64_iter064.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "99fe1cb9b632b095283e49a4706f3e4b5c643f21e0dd4aa617e0dd593d05ffb4"
+    },
+    "directions/diag_Aii_fp64_iter128.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "4a5ecc991d67f464338f989c974077ff76cbe69974cefb661ebae0c337e27884"
+    },
+    "directions/none_emulated_fp32_iter064.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "53cff24d3bd353d3df9fdf9697914dc5cda3947d480b024c794608c1de927df0"
+    },
+    "directions/none_fp64_iter064.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "a139cd39ffe0e616812b5896e5c3b78904abed5b8461c9fa0d466c9080e6ab85"
+    },
+    "replay-inputs/block_Aii_emulated_fp32_iter064.input.bin": {
+      "bytes": 2195272,
+      "sha256": "6d44883128fde34aefccb370fe7826403e57e4682fb487c9486a9e7e8af8e277"
+    },
+    "replay-inputs/block_Aii_emulated_fp32_iter128.input.bin": {
+      "bytes": 2195272,
+      "sha256": "b19fd5a116654907ce8a804a6397ebe4a7903b79c16cbe817d88cae9158547e4"
+    },
+    "replay-inputs/block_Aii_fp64_iter064.input.bin": {
+      "bytes": 2195272,
+      "sha256": "42c143bee4b5db50b3e73d8b4b32a6bbefe78775196d0f233f79fd650df243db"
+    },
+    "replay-inputs/block_Aii_fp64_iter128.input.bin": {
+      "bytes": 2195272,
+      "sha256": "590c223560bc36cdf6e17f0e732a82251ad4a3c582b9de31e6fb0435f30ac358"
+    },
+    "replay-inputs/diag_Aii_emulated_fp32_iter064.input.bin": {
+      "bytes": 2195272,
+      "sha256": "9fb88717db1d9cc735788507e43a0979a474ffd0d1a2f28f326a400df04751dc"
+    },
+    "replay-inputs/diag_Aii_emulated_fp32_iter128.input.bin": {
+      "bytes": 2195272,
+      "sha256": "79890c50e5cceaf49203a2b5d746a1c99d2f8d8620c65d754c0d2cced2ce6a5c"
+    },
+    "replay-inputs/diag_Aii_fp64_iter064.input.bin": {
+      "bytes": 2195272,
+      "sha256": "a040b30a6c83348e3a5d6da99e9374e5a4a8a717f5f9c4ce995ade6a2a4452a5"
+    },
+    "replay-inputs/diag_Aii_fp64_iter128.input.bin": {
+      "bytes": 2195272,
+      "sha256": "1ec38e61826385d708976e4530a8855350baec4654a0176492c81781f81d24be"
+    },
+    "replay-inputs/none_emulated_fp32_iter064.input.bin": {
+      "bytes": 2195272,
+      "sha256": "45a89e9cc3cd882619815e06cfd66d3748649759d2ad97600c350e985f75a680"
+    },
+    "replay-inputs/none_fp64_iter064.input.bin": {
+      "bytes": 2195272,
+      "sha256": "9267fe96c9ee0532ecba7a3c4ea3edf7406cad233bc8a8990de14e81448f3355"
+    },
+    "report.json": {
+      "bytes": 38128,
+      "sha256": "549a5d405e2197865e415754131455c1e96d8edeb4519729d1042bfa2bc1e175"
+    },
+    "run_study.py": {
+      "bytes": 28208,
+      "sha256": "1d50fa71f66c95f13e2d91da506da6f66c5b7f4e5c08bfcec9e736057f458053"
+    }
+  },
+  "report_sha256": "549a5d405e2197865e415754131455c1e96d8edeb4519729d1042bfa2bc1e175",
+  "schema": "numi.cardboard.captured419-cgls-right-preconditioning-study-package.v1",
+  "source_A_sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed",
+  "source_b_sha256": "af22b09232b270e5cc15184d09cd8ed3d8f86b83bf08e765f510d6777fcaa8cb",
+  "source_capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a"
+}

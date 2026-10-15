@@ -1,0 +1,19 @@
+{
+  "inputs": {
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/tools/cardboard_cached_operator_audit.py": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-full-tangent-fp64-audit-147-001/manifest.json": "1c215555f3c084c9a804249c0a8926ee7c11fad756cc324318ca7a07c6288b92",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-full-tangent-fp64-audit-147-001/report.json": "19616c7a1a45ad8fef00930852b2e3f7bc4d03ab9af7811f6edb68c2926c5bbd",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-full-tangent-fp64-audit-147-001/matrices.npz": "c79152b13f1a8a88a00388d1083d558980fde0a54c8f8c8ba765246186950b5e",
+    "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/A_free_csr.npz": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-full-tangent-independent-review-001/manifest.json": "83720dfbf39c4bee570a2292464c75dcab84699f0d636e376011449bd2022aee"
+  },
+  "files": {
+    "audit.py": "ded8490a06ec6e3e2770510c7d34b578c2debaea92551f5ba84a15c49ad67022",
+    "element-column-comparison.npz": "3e6635417b83341c392a3e63b9f962e08eb9e438d665354b3c37190f3bde0f5c",
+    "independent_A_free_csr.npz": "223e9db9bbcc9898ed423fb9d8819453ec0d1be1387af8556d0566a81310b7f8",
+    "per-element.json": "00c64776a30eaf658e56e372f5c89ba0384ea854536ceb2c95a96d3b443ae2c6",
+    "prediction.json": "26b9fc8c15b44344f73f7e21b6de5004715432f17fb1e112d769b073d231ded9",
+    "report.json": "45a95b351a44c24878f2ec523a047140d18c86820e6decf68b079f6f5b803f8d"
+  }
+}

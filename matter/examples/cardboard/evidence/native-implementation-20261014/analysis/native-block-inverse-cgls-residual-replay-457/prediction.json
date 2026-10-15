@@ -1,0 +1,71 @@
+{
+  "schema": "numi.cardboard.native_preconditioned_CGLS_residual_replay.v1",
+  "question": "Do right-scaled CGLS proposals improve the actual nonlinear residual of the captured419 state?",
+  "prediction": "Offline principal3x3block scaling reduces true linear residual at64 iterations compared with identity. Native residual, finite material/geometry feasibility, useful tested alpha and relative benefit remain unknown. Evaluate each full FP32-exported candidate through the same native residual, hold accepted history fixed, preserve nooperator/noparameter/nothresholdchanges. This is zero physicaltransactions and no Newton or nonlinearproductioncertificate.",
+  "package_manifest_sha256": "a56642718cf503998875992c0ac2e0c1302524de1241d544c3d7bd1b2b6f4215",
+  "helper_program_sha256": "b2f37a4eaaf922eb8ed8c5cbc721ab8ef174c230b56bc02f522b44ca5b3aea1f",
+  "source125_build_sha256": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6",
+  "commands": {
+    "block_Aii_emulated_fp32_iter064": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/block_Aii_emulated_fp32_iter064.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-block-inverse-cgls-residual-replay-457/block_Aii_emulated_fp32_iter064"
+    ],
+    "block_Aii_emulated_fp32_iter128": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/block_Aii_emulated_fp32_iter128.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-block-inverse-cgls-residual-replay-457/block_Aii_emulated_fp32_iter128"
+    ],
+    "block_Aii_fp64_iter064": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/block_Aii_fp64_iter064.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-block-inverse-cgls-residual-replay-457/block_Aii_fp64_iter064"
+    ],
+    "block_Aii_fp64_iter128": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/block_Aii_fp64_iter128.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-block-inverse-cgls-residual-replay-457/block_Aii_fp64_iter128"
+    ],
+    "diag_Aii_emulated_fp32_iter064": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/diag_Aii_emulated_fp32_iter064.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-block-inverse-cgls-residual-replay-457/diag_Aii_emulated_fp32_iter064"
+    ],
+    "diag_Aii_emulated_fp32_iter128": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/diag_Aii_emulated_fp32_iter128.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-block-inverse-cgls-residual-replay-457/diag_Aii_emulated_fp32_iter128"
+    ],
+    "diag_Aii_fp64_iter064": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/diag_Aii_fp64_iter064.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-block-inverse-cgls-residual-replay-457/diag_Aii_fp64_iter064"
+    ],
+    "diag_Aii_fp64_iter128": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/diag_Aii_fp64_iter128.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-block-inverse-cgls-residual-replay-457/diag_Aii_fp64_iter128"
+    ],
+    "none_emulated_fp32_iter064": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/none_emulated_fp32_iter064.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-block-inverse-cgls-residual-replay-457/none_emulated_fp32_iter064"
+    ],
+    "none_fp64_iter064": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/none_fp64_iter064.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-block-inverse-cgls-residual-replay-457/none_fp64_iter064"
+    ]
+  },
+  "semantic_erratum_to146_first_report": "In A=M+dt^2 K, K=-df_internal/dx, not -df_internal/dv; captured matrix and recurrence unchanged."
+}

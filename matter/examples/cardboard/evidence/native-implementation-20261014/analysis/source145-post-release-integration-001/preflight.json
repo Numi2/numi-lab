@@ -1,0 +1,22 @@
+{
+  "available_bytes_before_clone": 2648735744,
+  "available_gib_before_clone": 2.466827392578125,
+  "base_configure_support_entries": 1034,
+  "base_configure_support_sha256": "7f6f2afa927ae0373fa8027597fade97174cb867415fb38640e4e01767cfe3f1",
+  "base_frozen_source_entries": 787,
+  "base_frozen_source_sha256": "e74446f6156bc56a82e6165089fcc6837935a542034e836e2f990bcf955c20de",
+  "base_hashes_match_143_for_all_changed_paths": true,
+  "base_inventory_file_count": 1859,
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-state-sidecar-144",
+  "changed_paths": [
+    "matter/tools/cardboard_probe.mm",
+    "matter/tools/cardboard_convergence.py",
+    "matter/tools/cardboard_resolution_study.py",
+    "matter/tools/test_cardboard_convergence.py",
+    "matter/tools/test_cardboard_resolution_study.py"
+  ],
+  "minimum_required_bytes": 2147483648,
+  "native_gpu_launch": false,
+  "overlay_manifest_sha256": "aca1ab6014af96cb3d757eae52f6d4f3f2bc7366affd33b0f2fd3f2cba5d9014",
+  "overlay_patch_sha256": "03a2096821094c9ef73934d9dcfe18f908d65101e069b3336bec0908313a7cff"
+}

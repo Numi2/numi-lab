@@ -1,0 +1,7 @@
+{
+  "file_count_excluding_manifest_and_seal": 9,
+  "inputs_sha256": "38d8a915a79466991f71ccc0e8b394a97d41b48baf638c4c416f571034fa5e30",
+  "manifest_sha256": "ed7a28f8bd2c52442b21b0ff8fa6d25e763c3ea608427c6ebc1ec64964b440e2",
+  "package": "source125-full-element-assembly-independent-review-001",
+  "schema": "numi.cardboard.independent_audit_package_seal.v1"
+}

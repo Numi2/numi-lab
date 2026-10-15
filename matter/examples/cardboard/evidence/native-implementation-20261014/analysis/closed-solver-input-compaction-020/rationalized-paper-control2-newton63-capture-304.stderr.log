@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/compact_case.py", line 300, in <module>
+    compact(args.case)
+  File "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/compact_case.py", line 202, in compact
+    validate_case(case, pred, receipt, dirs, files)
+  File "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/compact_case.py", line 85, in validate_case
+    raise RuntimeError('input file set differs from prediction inputs_sha256')
+RuntimeError: input file set differs from prediction inputs_sha256

@@ -1,0 +1,12 @@
+{
+  "base_file": "matter/src/runtime.mm",
+  "base_sha256": "01162665b98a7f88d4d6341e2bc6ea50afb9f5d831b04fe446ce27d34e7ad5ec",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143",
+  "candidate_file": "candidate/matter/src/runtime.mm",
+  "candidate_sha256": "1a9fcbdda74c921a36b6529033851ae47a460ce51c8373e3794cc8967c5eca7f",
+  "gpu_or_build_run": false,
+  "patch_file": "overlay.patch",
+  "patch_sha256": "c679ee17e25a50c2f4be5cd08ab6220c3687a19f46f7cf591623516cac505bb8",
+  "schema": "numi.matter.source_overlay.v1",
+  "scope": "diagnostic-only opt-in exact state sidecar for selected CGLS Newton capture; no shader or physical-state writes"
+}

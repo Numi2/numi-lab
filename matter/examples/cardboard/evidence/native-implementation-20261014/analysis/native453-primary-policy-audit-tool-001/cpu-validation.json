@@ -1,0 +1,13 @@
+{
+  "schema": "numi.cardboard.native453_primary_policy_audit_tool_validation.v1",
+  "status": "passed",
+  "python": "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+  "checks": [
+    {"command": "python3 -m py_compile audit_primary_policy_snapshot.py test_audit_primary_policy_snapshot.py", "result": "passed"},
+    {"command": "python3 -m unittest -v test_audit_primary_policy_snapshot.py", "result": "passed", "tests": 6, "coverage": ["selected CGLS direction and no Newton certificate transfer", "retained Newton direction and certified no-op", "rejected selected direction versus accepted state update", "complete and missing primary direction markers", "strict pretarget fallback inertness, including nonzero candidate and Newton rejection negatives", "receipt must attest ended, unchanged, non-timeout execution"]},
+    {"command": "python3 audit_primary_policy_snapshot.py --help", "result": "passed"}
+  ],
+  "native_run_executed_by_tool_author": false,
+  "gpu_used": false,
+  "solver_or_physical_qualification": false
+}

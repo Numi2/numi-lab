@@ -28,7 +28,8 @@ def write_json(path: Path, value: object) -> None:
 
 def fake_run(root: Path, name: str, *, nx: int = 2, dt: float = 1.0,
              steps: int = 1, hold: int = 1, unload: int = 1, relax: int = 1,
-             release: int = 0, phase_angle: float = 1.0, material_digest: str = "liner-v1",
+             release: int = 0, post_release_relax: int = 0,
+             phase_angle: float = 1.0, material_digest: str = "liner-v1",
              relative_residual_tolerance: float = 1e-4,
              geometry_length: float = 1.0, plastic_liner: float = 0.0,
              plastic_medium: float = 3e-6, moment_scale: float = 1.0,
@@ -36,7 +37,7 @@ def fake_run(root: Path, name: str, *, nx: int = 2, dt: float = 1.0,
              release_constraint_error: bool = False, omit_step_accepted: bool = False) -> Path:
     path = root / name
     path.mkdir()
-    phases = (steps, hold, unload, relax, release)
+    phases = (steps, hold, unload, relax, release, post_release_relax)
     total = sum(phases)
     geo = {
         "source_dimensions": "synthetic only", "initial_condition": "stress-free synthetic mesh",
@@ -59,6 +60,7 @@ def fake_run(root: Path, name: str, *, nx: int = 2, dt: float = 1.0,
         "contact_slop_m": 0.001, "dt_s": dt, "bend_angle_deg": phase_angle,
         "steps": steps, "hold_steps": hold, "unload_steps": unload, "relax_steps": relax,
         "release_steps": release,
+        "post_release_relaxation_steps": post_release_relax,
         "release_policy": "right grip free; left grip remains fixed; physical state preserved",
         "local_material_newton_iterations": 16, "newton_iteration_budget": 14,
         "fgmres_restart": 10, "fgmres_iteration_budget": 32, "line_search_steps": 8,
@@ -127,7 +129,7 @@ def fake_run(root: Path, name: str, *, nx: int = 2, dt: float = 1.0,
                 angle = phase_angle
             elif phase == "unloading":
                 angle = phase_angle * (1 - (local + 1) / max(unload, 1))
-            elif phase == "release":
+            elif phase in ("release", "post_release_relaxation"):
                 angle = 0.0
             else:
                 angle = 0.0
@@ -162,11 +164,11 @@ def fake_run(root: Path, name: str, *, nx: int = 2, dt: float = 1.0,
                 "certificate_pressure": 0.0, "certificate_raw_accepted_flag": accepted_flag,
                 "free_force_imbalance_l2_N": .25 if env == 0 else .05,
                 "free_force_imbalance_max_N": .20 if env == 0 else .04,
-                "right_grip_constrained": 0 if phase == "release" else 1,
-                "measured_right_grip_angle_deg": (0.25 if env == 0 and phase == "release" else (angle if env == 0 else 0.0)),
-                "current_fixed_nodes": 3 if phase == "release" else 6,
+                "right_grip_constrained": 0 if phase in ("release", "post_release_relaxation") else 1,
+                "measured_right_grip_angle_deg": (0.25 if env == 0 and phase in ("release", "post_release_relaxation") else (angle if env == 0 else 0.0)),
+                "current_fixed_nodes": 3 if phase in ("release", "post_release_relaxation") else 6,
             }
-            if release_constraint_error and phase == "release":
+            if release_constraint_error and phase in ("release", "post_release_relaxation"):
                 row["right_grip_constrained"] = 1
             if not omit_step_accepted:
                 row["step_accepted"] = 1

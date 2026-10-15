@@ -1,0 +1,27 @@
+{
+  "schema": "numi.cardboard.full_assembly_explicit_contraction_verification.v1",
+  "first_manifest_sha256": "595a9777a2d8915f621d414be41f0108dd8ef67cf521900eaf9206680c0fcdbc",
+  "finite_input_and_all_local_matrix_checks": true,
+  "floating_point_exceptions": "all raise during explicit small tensor contractions",
+  "warnings": [],
+  "element_columns": 23040,
+  "max_element_column_relative_error": 3.859290877500059e-05,
+  "max_element_matrix_relative_error": 1.8441009973955528e-07,
+  "assembled_columns": 2538,
+  "max_assembled_column_relative_error": 5.11386290932195e-08,
+  "assembled_matrix_relative_error": 1.4565263073569595e-08,
+  "reference_recomputation_relative_difference": 2.436015641088534e-17,
+  "cached_recomputation_relative_difference": 1.1719391220292713e-16,
+  "gates_pass": true,
+  "scope_correction_to150_first_report": "The fixture has no independent cohesive interfaces. It retains the source explicit finite elastic starch geometry and its original substrate connectivity. The word untied in the first report limitations should not be interpreted as an unbonded limiting-control fixture.",
+  "first_run_warning_record": {
+    "source": "root tool-returned stderr; original numeric report and manifest preserved",
+    "warnings": [
+      "divide by zero encountered in matmul",
+      "overflow encountered in matmul",
+      "invalid value encountered in matmul"
+    ],
+    "outcome": "First consumer completed with every local/assembled result finite. Explicit-contraction recomputation with floating-point exceptions enabled has no warnings and agrees within1e-14. No arithmetic-noise floor is inferred."
+  },
+  "classification": "same captured-center analytic material/element/frame/assembly agreement only; no fresh native all-column action sweep, FD noise resolution or physical qualification"
+}

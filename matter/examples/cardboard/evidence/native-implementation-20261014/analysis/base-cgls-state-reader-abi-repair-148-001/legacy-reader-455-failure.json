@@ -1,0 +1,10 @@
+{
+  "classification": "preserved consumer-side ABI-width failure; the native sidecar payload remains unchanged",
+  "manifest_path": "/Users/home/cardboard-implementation-20261014/solver/cgls-state-sidecar-observer-455/base-cgls.bin.state.json",
+  "reader_path": "/Users/home/cardboard-implementation-20261014/analysis/base-cgls-state-capture-overlay-144-001/tools/read_state_capture.py",
+  "reader_sha256": "91ba3e3bca1d7ef9fa35c1784ebf6296c9b6917b39aeed4ca40dba381386f9d9",
+  "returncode": 2,
+  "schema": "numi.matter.retained_legacy_reader_failure.v1",
+  "stderr": "",
+  "stdout": "{\"error\": \"array accepted_tetrahedra: unexpected element width for record:NMTetrahedronGPU\", \"valid\": false}"
+}

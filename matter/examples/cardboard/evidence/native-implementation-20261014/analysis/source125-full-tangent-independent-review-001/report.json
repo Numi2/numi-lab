@@ -1,0 +1,57 @@
+{
+  "blocking_findings": [],
+  "limitations": [
+    "Single captured center and accepted history, not all solver states.",
+    "This compares native cached tangent with an independent analytic FP64 projection/implicit derivative; it does not close the separate native FP32 endpoint/secant noise question.",
+    "The audit is not a complete nonlinear-solve, damage/interface, nonzero-rate, physical calibration, or assembly qualification.",
+    "Two medium-tet lambda activity labels differ only at an approximately 5.1e-17 FP64 increment versus captured FP32 zero; the captured-state tangent comparisons remain within the reported gate. This is an activity-label caveat near numerical zero, not proof of a material mismatch."
+  ],
+  "numerical_scope": {
+    "all_columns_with_nonzero_reference_within_gate": true,
+    "basis_columns": 17280,
+    "captured_state": "environment 0, control 1, Newton 48",
+    "gate": 0.001,
+    "maximum_relative_column_error_by_group": {
+      "0": 3.294828832069637e-06,
+      "1": 6.135899309139776e-05,
+      "2": 5.1888227325398735e-08
+    },
+    "near_zero": "No measured absolute noise floor; zero reference columns would be inconclusive. This dataset has none.",
+    "tets": 1920,
+    "transactions": 0,
+    "valid_projection_rows": 1728,
+    "warnings_retained": 58,
+    "zero_reference_columns": 0
+  },
+  "reproduction": {
+    "147_declared_artifacts_all_hash_match": true,
+    "147_declared_inputs_all_hash_match": true,
+    "independent_rerun_same_audit_script": true,
+    "npz_and_csv_byte_identical": true,
+    "prediction_inputs_equal_except_timestamp": true,
+    "semantic_report_equal_except_runtime_wall_seconds": true
+  },
+  "review_scope": "Independent integrity/reproduction and source-lineage review of the 147 full 9x9 tangent audit; no production changes or GPU work.",
+  "schema": "numi.cardboard.full_tangent_independent_review.v1",
+  "source_review": {
+    "capture_header_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "captured_parameter_count": 28,
+    "parameter_26_value_environment0_liner": 9.99999994e-09,
+    "parameter_26_value_environment0_medium": 9.99999994e-09,
+    "parameter_26_zero_based": "fb_epsilon",
+    "predecessor_sweep_mislabel": {
+      "actual_source": "parameter index 26 (zero-based) is fb_epsilon",
+      "classification": "metadata-label defect in predecessor sweep; not consumed for 147 derivative computation",
+      "field_name": "rate_exponent_max_by_paper_material",
+      "values": {
+        "0": 9.99999993922529e-09,
+        "1": 9.99999993922529e-09
+      }
+    },
+    "prediction_binds_probe_source": true,
+    "probe_maximumRateExponent_zero_literal_found": true,
+    "probe_source_sha256": "6917e515993e1da26d09d946bf8a3f58c7066ad183b19131aa466e94e8d32e99",
+    "source_parameter_declaration_sha256": "f907a680f2ddfd0d1082ad97dc117869f678ea8ff0deb638dea4634f27704260"
+  },
+  "verdict": "PASS_WITH_SCOPED_ERRATUM"
+}

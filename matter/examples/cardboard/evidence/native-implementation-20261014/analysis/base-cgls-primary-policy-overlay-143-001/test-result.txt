@@ -1,0 +1,3 @@
+command: python3 tests/test_base_cgls_primary_policy_contract.py
+PASS extracted production selector kernel CPU cases
+PASS production host source-contract audit (not runtime parser coverage)

@@ -1,0 +1,14 @@
+{
+  "records": [
+    {
+      "case": "current-failure-22-state-capture-153",
+      "exit_code": 0
+    },
+    {
+      "case": "rationalized-paper-control2-newton63-capture-304",
+      "exit_code": 1
+    }
+  ],
+  "all_success": false,
+  "finished_utc": "2026-10-15T23:05:13.861167+00:00"
+}

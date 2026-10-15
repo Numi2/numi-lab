@@ -1,0 +1,55 @@
+{
+  "file_count": 9,
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "85e6508e1b7a00793cbfca8f1d9b3ebb1f4811d991d5e4eccb8c29d072e2f090",
+      "size_bytes": 2379
+    },
+    {
+      "path": "attempt-001-missing-numpy.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "attempt-002-review-indexing-failure.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "attempt-003-report-schema-adaptation.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "inputs.json",
+      "sha256": "38d8a915a79466991f71ccc0e8b394a97d41b48baf638c4c416f571034fa5e30",
+      "size_bytes": 4425
+    },
+    {
+      "path": "report.json",
+      "sha256": "f77c178aa924791b6d3a09cf398e2b273eb69c9aed7029704fd26589745141ca",
+      "size_bytes": 4522
+    },
+    {
+      "path": "review.py",
+      "sha256": "d2b074bedfae17612743a0503443d52c75a1ae9112747e002e3236229e278171",
+      "size_bytes": 21885
+    },
+    {
+      "path": "run.log",
+      "sha256": "f77c178aa924791b6d3a09cf398e2b273eb69c9aed7029704fd26589745141ca",
+      "size_bytes": 4522
+    },
+    {
+      "path": "seal.py",
+      "sha256": "d66689303b6ce47c71862b5ebdc4dde156aef45fd0a044d82634c6ca7001ac49",
+      "size_bytes": 5367
+    }
+  ],
+  "inputs_file_sha256": "38d8a915a79466991f71ccc0e8b394a97d41b48baf638c4c416f571034fa5e30",
+  "native_or_physical_qualification": false,
+  "package": "source125-full-element-assembly-independent-review-001",
+  "schema": "numi.cardboard.independent_audit_package_manifest.v1",
+  "verdict": "PASS_WITH_SCOPED_LIMITATIONS"
+}

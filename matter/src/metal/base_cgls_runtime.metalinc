@@ -1,5 +1,33 @@
 namespace numi_matter_metal {
 
+// Arm a private CGLS-primary direction only after the base residual and
+// original Newton linear certificate are available. The metrics.w marker is
+// request-local scratch consumed by the existing CGLS layout builder; it is
+// never copied into accepted state or used as a convergence certificate.
+kernel void nm_fgmres_select_base_cgls_primary_policy(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    constant uint& primaryStartNewton [[buffer(2)]],
+    constant uint& currentNewton [[buffer(3)]],
+    device float4* metrics [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    device const NMMatterStatusGPU* statuses [[buffer(6)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.objectCount != 1u) return;
+
+    const float4 metric = metrics[environment];
+    const float residualBound = solver.residualTolerances.x;
+    const bool baseResidualIsUnconverged = isfinite(metric.x) &&
+        isfinite(residualBound) && residualBound >= 0.0f &&
+        metric.x > residualBound;
+    const bool eligible = currentNewton >= primaryStartNewton &&
+        metric.w == 0.0f && environmentHealthy(statuses, environment) &&
+        states[environment].diagnostics.z > 0.5f &&
+        baseResidualIsUnconverged;
+    if (eligible) metrics[environment].w = 3.0f;
+}
+
 // Runtime-only adapters for the bounded, default-off CGLS direction experiment.
 // Derive row spaces from the actual Newton candidate, not authored tag guesses.
 kernel void nm_fgmres_prepare_base_cgls_layout(

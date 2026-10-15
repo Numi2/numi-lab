@@ -1,0 +1,10 @@
+{
+  "schema": "numi.cardboard.publication024_staged_check.v1",
+  "staged_paths": 602,
+  "exact_intended_path_set": true,
+  "selected_source_hashes_exact": 787,
+  "production_and_report_whitespace_check_pass": true,
+  "retained_raw_evidence_patch_whitespace": "Four existing patch-data lines have trailing context whitespace; archived bytes/hashes are preserved. They are not production source whitespace errors.",
+  "independent_archive_audit_manifest_sha256": "1bb2bcd90a935e59433a9e535f02cec48ca5233840499a6483fa31e264d14700",
+  "physical_validation": false
+}

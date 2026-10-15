@@ -1,0 +1,1389 @@
+{
+  "schema": "numi.cardboard.native453_primary_cgls_policy_audit.v1",
+  "classification": "read-only CGLS snapshot and primary-policy history audit with optional same-world directional operator replay; not a physical solve or solver certificate",
+  "run_binding": {
+    "run_dir": "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-after48-control1-453",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143",
+    "prediction_sha256": "faaac769c666b380acecce59dbaff0ab825768b50812b4dbf9e85da08c5eae98",
+    "receipt_sha256": "6bf62bf387064b81b40bddedb30fe58483950ab4cd1e2b70b5cc46847339cbe7",
+    "stderr_sha256": "61c8a9b28b4cd5e2197b77552a899ae6b2c36a2aa5afa1dc52b178fd0a6b68cf",
+    "source_module_sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+    "prediction_inputs": {
+      "input_count": 806,
+      "verified_count": 806,
+      "all_prediction_inputs_verified": true
+    },
+    "run_exit_code": 2,
+    "timed_out": false,
+    "execution_started": true,
+    "source_inputs_unchanged": true,
+    "changed_inputs": [],
+    "finished_at_utc": "2026-10-15T22:33:02.441010+00:00",
+    "wall_seconds": 366.48245966696413,
+    "primary_policy_root": 1,
+    "primary_policy_start_newton_inclusive": 48,
+    "primary_selector": "1:all",
+    "CGLS_iteration_cap": 64,
+    "binary_sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099",
+    "binary_bytes": 409368
+  },
+  "snapshot_header": {
+    "magic_hex": "0x534c4743",
+    "version": 1,
+    "environment_count": 2,
+    "nodes_per_environment": 882,
+    "unknown_count": 3528,
+    "iteration_cap": 64,
+    "segment_count": 12,
+    "file_bytes": 409368,
+    "sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099",
+    "segments": [
+      {
+        "name": "x",
+        "offset": 32,
+        "bytes": 56448
+      },
+      {
+        "name": "r",
+        "offset": 56480,
+        "bytes": 56448
+      },
+      {
+        "name": "s",
+        "offset": 112928,
+        "bytes": 56448
+      },
+      {
+        "name": "p",
+        "offset": 169376,
+        "bytes": 56448
+      },
+      {
+        "name": "Ax",
+        "offset": 225824,
+        "bytes": 56448
+      },
+      {
+        "name": "b",
+        "offset": 282272,
+        "bytes": 56448
+      },
+      {
+        "name": "mask",
+        "offset": 338720,
+        "bytes": 56448
+      },
+      {
+        "name": "row_environment",
+        "offset": 395168,
+        "bytes": 14112
+      },
+      {
+        "name": "scalars",
+        "offset": 409280,
+        "bytes": 32
+      },
+      {
+        "name": "control",
+        "offset": 409312,
+        "bytes": 32
+      },
+      {
+        "name": "errors",
+        "offset": 409344,
+        "bytes": 8
+      },
+      {
+        "name": "selected",
+        "offset": 409360,
+        "bytes": 8
+      }
+    ]
+  },
+  "native_state": {
+    "selected_environment": 0,
+    "status": 2,
+    "status_name": "exhausted",
+    "completed_iterations": 64,
+    "cap": 64,
+    "error_bits": 0,
+    "selected_word": 1,
+    "status_valid": true,
+    "direction_marker_selected_environment": {
+      "environment": 0,
+      "candidate_l2": 0.00332389981,
+      "linear_residual_l2": 4.34334615e-05,
+      "b_dot_Ax": 3.21364944e-08,
+      "primary_policy_eligible": true
+    },
+    "primary_eligible_environment_bits": [
+      true,
+      false
+    ],
+    "scalars_gamma_alpha_beta_bnorm2": [
+      5.787147670799353e-12,
+      7.059413909912109,
+      1.453755497932434,
+      3.4019517869410265e-08
+    ],
+    "x_l2": 0.0033238997035214875,
+    "r_l2": 4.3433460070661115e-05,
+    "s_l2": 2.405649183235133e-06,
+    "p_l2": 9.555020904726576e-06,
+    "Ax_l2": 0.00017927615699800192,
+    "b_l2": 0.00018444380407784324
+  },
+  "scope_checks": {
+    "field_backing_exact_zero": {
+      "x": true,
+      "r": true,
+      "s": true,
+      "p": true,
+      "Ax": true,
+      "b": true,
+      "mask": true
+    },
+    "quiet_environment_exact_zero_idle": {
+      "1": {
+        "x": true,
+        "r": true,
+        "s": true,
+        "p": true,
+        "Ax": true,
+        "b": true,
+        "mask": true,
+        "errors_zero": true,
+        "scalars_zero": true,
+        "control_idle": true,
+        "selected_zero": true
+      }
+    },
+    "selected_mask_free_row_count": 846,
+    "selected_mask_vs_reference": {
+      "available": false,
+      "reason": "no same-world/root/Newton rich operator capture supplied"
+    },
+    "original_newton_certificate_applies_to_CGLS_direction": false
+  },
+  "selected_start_armijo": {
+    "newton_iteration": 48,
+    "policy_trace_label": "base_cgls_primary_policy",
+    "primary_policy_eligible": true,
+    "cgls_direction_selected": true,
+    "actual_direction_classification": "CGLS primary direction selected; original Newton certificate does not transfer",
+    "original_newton_certificate_transferred_to_CGLS": false,
+    "armijo_outcome": "accepted_state_update",
+    "accepted": true,
+    "certified_noop": false,
+    "selected_alpha": 1,
+    "trial_alpha": 1,
+    "base_l2": 0.00018444375,
+    "trial_l2": 4.85483652e-05,
+    "trial_outcome": "selected_trial_accepted",
+    "base_health": "healthy_at_armijo_entry",
+    "solver_status_code": 0,
+    "pretrial_status": {
+      "code": 0,
+      "environment": 0,
+      "object_index": 4294967295,
+      "failing_index": 4294967295,
+      "completed_microsteps": 0,
+      "fgmres_iterations": 44,
+      "contact_count": 0,
+      "event_count": 0,
+      "diagnostics": [
+        null,
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "later_primary_policy_trials": {
+    "root": 1,
+    "start_newton_inclusive": 48,
+    "last_observed_newton_iteration": 63,
+    "armijo_record_count": 16,
+    "primary_direction_marker_count": 16,
+    "missing_armijo_iterations": [],
+    "missing_primary_direction_iterations": [],
+    "direction_markers_after_last_armijo_iteration": [],
+    "unexpected_non_primary_armijo_records": [],
+    "per_iteration": [
+      {
+        "newton_iteration": 48,
+        "policy_trace_label": "base_cgls_primary_policy",
+        "primary_policy_eligible": true,
+        "cgls_direction_selected": true,
+        "actual_direction_classification": "CGLS primary direction selected; original Newton certificate does not transfer",
+        "original_newton_certificate_transferred_to_CGLS": false,
+        "armijo_outcome": "accepted_state_update",
+        "accepted": true,
+        "certified_noop": false,
+        "selected_alpha": 1,
+        "trial_alpha": 1,
+        "base_l2": 0.00018444375,
+        "trial_l2": 4.85483652e-05,
+        "trial_outcome": "selected_trial_accepted",
+        "base_health": "healthy_at_armijo_entry",
+        "solver_status_code": 0,
+        "pretrial_status": {
+          "code": 0,
+          "environment": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 44,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "newton_iteration": 49,
+        "policy_trace_label": "base_cgls_primary_policy",
+        "primary_policy_eligible": true,
+        "cgls_direction_selected": true,
+        "actual_direction_classification": "CGLS primary direction selected; original Newton certificate does not transfer",
+        "original_newton_certificate_transferred_to_CGLS": false,
+        "armijo_outcome": "accepted_state_update",
+        "accepted": true,
+        "certified_noop": false,
+        "selected_alpha": 1,
+        "trial_alpha": 1,
+        "base_l2": 4.85483652e-05,
+        "trial_l2": 3.44600885e-05,
+        "trial_outcome": "selected_trial_accepted",
+        "base_health": "healthy_at_armijo_entry",
+        "solver_status_code": 0,
+        "pretrial_status": {
+          "code": 0,
+          "environment": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 44,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "newton_iteration": 50,
+        "policy_trace_label": "base_cgls_primary_policy",
+        "primary_policy_eligible": true,
+        "cgls_direction_selected": true,
+        "actual_direction_classification": "CGLS primary direction selected; original Newton certificate does not transfer",
+        "original_newton_certificate_transferred_to_CGLS": false,
+        "armijo_outcome": "accepted_state_update",
+        "accepted": true,
+        "certified_noop": false,
+        "selected_alpha": 1,
+        "trial_alpha": 1,
+        "base_l2": 3.44600885e-05,
+        "trial_l2": 2.56120202e-05,
+        "trial_outcome": "selected_trial_accepted",
+        "base_health": "healthy_at_armijo_entry",
+        "solver_status_code": 0,
+        "pretrial_status": {
+          "code": 0,
+          "environment": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 44,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "newton_iteration": 51,
+        "policy_trace_label": "base_cgls_primary_policy",
+        "primary_policy_eligible": true,
+        "cgls_direction_selected": true,
+        "actual_direction_classification": "CGLS primary direction selected; original Newton certificate does not transfer",
+        "original_newton_certificate_transferred_to_CGLS": false,
+        "armijo_outcome": "accepted_state_update",
+        "accepted": true,
+        "certified_noop": false,
+        "selected_alpha": 1,
+        "trial_alpha": 1,
+        "base_l2": 2.56120202e-05,
+        "trial_l2": 2.24683499e-05,
+        "trial_outcome": "selected_trial_accepted",
+        "base_health": "healthy_at_armijo_entry",
+        "solver_status_code": 0,
+        "pretrial_status": {
+          "code": 0,
+          "environment": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 44,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "newton_iteration": 52,
+        "policy_trace_label": "base_cgls_primary_policy",
+        "primary_policy_eligible": true,
+        "cgls_direction_selected": true,
+        "actual_direction_classification": "CGLS primary direction selected; original Newton certificate does not transfer",
+        "original_newton_certificate_transferred_to_CGLS": false,
+        "armijo_outcome": "accepted_state_update",
+        "accepted": true,
+        "certified_noop": false,
+        "selected_alpha": 1,
+        "trial_alpha": 1,
+        "base_l2": 2.24683499e-05,
+        "trial_l2": 2.04604348e-05,
+        "trial_outcome": "selected_trial_accepted",
+        "base_health": "healthy_at_armijo_entry",
+        "solver_status_code": 0,
+        "pretrial_status": {
+          "code": 0,
+          "environment": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 44,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "newton_iteration": 53,
+        "policy_trace_label": "base_cgls_primary_policy",
+        "primary_policy_eligible": true,
+        "cgls_direction_selected": true,
+        "actual_direction_classification": "CGLS primary direction selected; original Newton certificate does not transfer",
+        "original_newton_certificate_transferred_to_CGLS": false,
+        "armijo_outcome": "accepted_state_update",
+        "accepted": true,
+        "certified_noop": false,
+        "selected_alpha": 1,
+        "trial_alpha": 1,
+        "base_l2": 2.04604348e-05,
+        "trial_l2": 1.91428608e-05,
+        "trial_outcome": "selected_trial_accepted",
+        "base_health": "healthy_at_armijo_entry",
+        "solver_status_code": 0,
+        "pretrial_status": {
+          "code": 0,
+          "environment": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 44,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "newton_iteration": 54,
+        "policy_trace_label": "base_cgls_primary_policy",
+        "primary_policy_eligible": true,
+        "cgls_direction_selected": true,
+        "actual_direction_classification": "CGLS primary direction selected; original Newton certificate does not transfer",
+        "original_newton_certificate_transferred_to_CGLS": false,
+        "armijo_outcome": "accepted_state_update",
+        "accepted": true,
+        "certified_noop": false,
+        "selected_alpha": 1,
+        "trial_alpha": 1,
+        "base_l2": 1.91428608e-05,
+        "trial_l2": 1.82437161e-05,
+        "trial_outcome": "selected_trial_accepted",
+        "base_health": "healthy_at_armijo_entry",
+        "solver_status_code": 0,
+        "pretrial_status": {
+          "code": 0,
+          "environment": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 44,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "newton_iteration": 55,
+        "policy_trace_label": "base_cgls_primary_policy",
+        "primary_policy_eligible": true,
+        "cgls_direction_selected": true,
+        "actual_direction_classification": "CGLS primary direction selected; original Newton certificate does not transfer",
+        "original_newton_certificate_transferred_to_CGLS": false,
+        "armijo_outcome": "accepted_state_update",
+        "accepted": true,
+        "certified_noop": false,
+        "selected_alpha": 1,
+        "trial_alpha": 1,
+        "base_l2": 1.82437161e-05,
+        "trial_l2": 1.75814312e-05,
+        "trial_outcome": "selected_trial_accepted",
+        "base_health": "healthy_at_armijo_entry",
+        "solver_status_code": 0,
+        "pretrial_status": {
+          "code": 0,
+          "environment": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 44,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "newton_iteration": 56,
+        "policy_trace_label": "base_cgls_primary_policy",
+        "primary_policy_eligible": true,
+        "cgls_direction_selected": true,
+        "actual_direction_classification": "CGLS primary direction selected; original Newton certificate does not transfer",
+        "original_newton_certificate_transferred_to_CGLS": false,
+        "armijo_outcome": "accepted_state_update",
+        "accepted": true,
+        "certified_noop": false,
+        "selected_alpha": 1,
+        "trial_alpha": 1,
+        "base_l2": 1.75814312e-05,
+        "trial_l2": 1.70406693e-05,
+        "trial_outcome": "selected_trial_accepted",
+        "base_health": "healthy_at_armijo_entry",
+        "solver_status_code": 0,
+        "pretrial_status": {
+          "code": 0,
+          "environment": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 44,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "newton_iteration": 57,
+        "policy_trace_label": "base_cgls_primary_policy",
+        "primary_policy_eligible": true,
+        "cgls_direction_selected": true,
+        "actual_direction_classification": "CGLS primary direction selected; original Newton certificate does not transfer",
+        "original_newton_certificate_transferred_to_CGLS": false,
+        "armijo_outcome": "accepted_state_update",
+        "accepted": true,
+        "certified_noop": false,
+        "selected_alpha": 1,
+        "trial_alpha": 1,
+        "base_l2": 1.70406693e-05,
+        "trial_l2": 1.65989186e-05,
+        "trial_outcome": "selected_trial_accepted",
+        "base_health": "healthy_at_armijo_entry",
+        "solver_status_code": 0,
+        "pretrial_status": {
+          "code": 0,
+          "environment": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 44,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "newton_iteration": 58,
+        "policy_trace_label": "base_cgls_primary_policy",
+        "primary_policy_eligible": true,
+        "cgls_direction_selected": true,
+        "actual_direction_classification": "CGLS primary direction selected; original Newton certificate does not transfer",
+        "original_newton_certificate_transferred_to_CGLS": false,
+        "armijo_outcome": "accepted_state_update",
+        "accepted": true,
+        "certified_noop": false,
+        "selected_alpha": 1,
+        "trial_alpha": 1,
+        "base_l2": 1.65989186e-05,
+        "trial_l2": 1.62225278e-05,
+        "trial_outcome": "selected_trial_accepted",
+        "base_health": "healthy_at_armijo_entry",
+        "solver_status_code": 0,
+        "pretrial_status": {
+          "code": 0,
+          "environment": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 44,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "newton_iteration": 59,
+        "policy_trace_label": "base_cgls_primary_policy",
+        "primary_policy_eligible": true,
+        "cgls_direction_selected": true,
+        "actual_direction_classification": "CGLS primary direction selected; original Newton certificate does not transfer",
+        "original_newton_certificate_transferred_to_CGLS": false,
+        "armijo_outcome": "accepted_state_update",
+        "accepted": true,
+        "certified_noop": false,
+        "selected_alpha": 1,
+        "trial_alpha": 1,
+        "base_l2": 1.62225278e-05,
+        "trial_l2": 1.589563e-05,
+        "trial_outcome": "selected_trial_accepted",
+        "base_health": "healthy_at_armijo_entry",
+        "solver_status_code": 0,
+        "pretrial_status": {
+          "code": 0,
+          "environment": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 44,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "newton_iteration": 60,
+        "policy_trace_label": "base_cgls_primary_policy",
+        "primary_policy_eligible": true,
+        "cgls_direction_selected": true,
+        "actual_direction_classification": "CGLS primary direction selected; original Newton certificate does not transfer",
+        "original_newton_certificate_transferred_to_CGLS": false,
+        "armijo_outcome": "accepted_state_update",
+        "accepted": true,
+        "certified_noop": false,
+        "selected_alpha": 1,
+        "trial_alpha": 1,
+        "base_l2": 1.589563e-05,
+        "trial_l2": 1.5612779e-05,
+        "trial_outcome": "selected_trial_accepted",
+        "base_health": "healthy_at_armijo_entry",
+        "solver_status_code": 0,
+        "pretrial_status": {
+          "code": 0,
+          "environment": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 44,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "newton_iteration": 61,
+        "policy_trace_label": "base_cgls_primary_policy",
+        "primary_policy_eligible": true,
+        "cgls_direction_selected": true,
+        "actual_direction_classification": "CGLS primary direction selected; original Newton certificate does not transfer",
+        "original_newton_certificate_transferred_to_CGLS": false,
+        "armijo_outcome": "accepted_state_update",
+        "accepted": true,
+        "certified_noop": false,
+        "selected_alpha": 1,
+        "trial_alpha": 1,
+        "base_l2": 1.5612779e-05,
+        "trial_l2": 1.53676374e-05,
+        "trial_outcome": "selected_trial_accepted",
+        "base_health": "healthy_at_armijo_entry",
+        "solver_status_code": 0,
+        "pretrial_status": {
+          "code": 0,
+          "environment": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 44,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "newton_iteration": 62,
+        "policy_trace_label": "base_cgls_primary_policy",
+        "primary_policy_eligible": true,
+        "cgls_direction_selected": true,
+        "actual_direction_classification": "CGLS primary direction selected; original Newton certificate does not transfer",
+        "original_newton_certificate_transferred_to_CGLS": false,
+        "armijo_outcome": "accepted_state_update",
+        "accepted": true,
+        "certified_noop": false,
+        "selected_alpha": 1,
+        "trial_alpha": 1,
+        "base_l2": 1.53676374e-05,
+        "trial_l2": 1.51490267e-05,
+        "trial_outcome": "selected_trial_accepted",
+        "base_health": "healthy_at_armijo_entry",
+        "solver_status_code": 0,
+        "pretrial_status": {
+          "code": 0,
+          "environment": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 44,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "newton_iteration": 63,
+        "policy_trace_label": "base_cgls_primary_policy",
+        "primary_policy_eligible": true,
+        "cgls_direction_selected": true,
+        "actual_direction_classification": "CGLS primary direction selected; original Newton certificate does not transfer",
+        "original_newton_certificate_transferred_to_CGLS": false,
+        "armijo_outcome": "accepted_state_update",
+        "accepted": true,
+        "certified_noop": false,
+        "selected_alpha": 1,
+        "trial_alpha": 1,
+        "base_l2": 1.51490267e-05,
+        "trial_l2": 1.49501593e-05,
+        "trial_outcome": "selected_trial_accepted",
+        "base_health": "healthy_at_armijo_entry",
+        "solver_status_code": 0,
+        "pretrial_status": {
+          "code": 0,
+          "environment": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 44,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    ],
+    "complete_observed_primary_trace": true,
+    "classification": "per-environment eligibility is used to identify the actual direction; the global primary-policy trace label alone is not treated as proof that CGLS replaced Newton"
+  },
+  "trace_inventory": {
+    "residual_armijo_records_for_selected_root": 112,
+    "CGLS_direction_records_for_selected_root": 64,
+    "policy_marker_count": 1,
+    "all_newton_trace_cap": 512,
+    "over_cap": false,
+    "classification": "record counts are observed trace coverage; receipt completion does not imply a successful or complete physical coupon"
+  },
+  "pretarget_history_comparison": {
+    "baseline": {
+      "available": true,
+      "run_dir": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142",
+      "source_module_sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+      "prediction_sha256": "d2678ec8c0a8aae9316e2a9c4eba757bbd8075d45cbe647d1af835068b832260",
+      "receipt_sha256": "958e07dc51d541c7e483d44403bdfa1ee6f6b8058d0025c50a2063f89f64b34c",
+      "stderr_sha256": "b5ae5ced00920cbda990e923064df518b527311cb24d95a27a4e0b1e1559e984",
+      "prediction_inputs": {
+        "input_count": 800,
+        "verified_count": 800,
+        "all_prediction_inputs_verified": true
+      },
+      "run_exit_code": 2,
+      "process_finished_at_utc": "2026-10-15T22:05:28.076617+00:00",
+      "timed_out": false,
+      "source_inputs_unchanged": true,
+      "compiled_world_fingerprint_hex": "75c1264bc96ac2d9",
+      "compiled_pack_sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+      "same_compiled_world": true,
+      "same_compiled_pack": true
+    },
+    "classification": "compares exactly one ordinary Newton Armijo record per index [0,target); only semantically inert root:all fallback observations are omitted from that comparison and listed below",
+    "root": 1,
+    "target_newton_iteration_exclusive": 48,
+    "environment_used_to_classify_fallback": 0,
+    "actual_newton_record_count": 48,
+    "baseline_newton_record_count": 48,
+    "expected_newton_record_count": 48,
+    "missing_actual_iterations": [],
+    "missing_baseline_iterations": [],
+    "mismatch_iterations": [],
+    "inert_fallback_observations_discarded_from_newton_comparison": [
+      {
+        "newton_iteration": 0,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 1,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 2,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 3,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 4,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 5,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 6,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 7,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 8,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 9,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 10,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 11,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 12,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 13,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 14,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 15,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 16,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 17,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 18,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 19,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 20,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 21,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 22,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 23,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 24,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 25,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 26,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 27,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 28,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 29,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 30,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 31,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 32,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 33,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 34,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 35,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 36,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 37,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 38,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 39,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 40,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 41,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 42,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 43,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 44,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 45,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 46,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      },
+      {
+        "newton_iteration": 47,
+        "direction_kind": "base_cgls",
+        "selected_environment_candidate_l2": 0,
+        "fallback_direction_marker_valid": true,
+        "prior_newton_accepted": true,
+        "prior_newton_certified_noop": false,
+        "fallback_last_trial_status_role": "unused_tail_after_selected_accept",
+        "classification": "inert observation: no CGLS vector installed and the prior Newton step already selected/no-op"
+      }
+    ],
+    "active_or_unresolved_fallback_observations": [],
+    "baseline_non_newton_pretarget_record_count": 0,
+    "exact_pretarget_newton_trace_parity": true,
+    "pretarget_trace_parity_with_inert_fallbacks_discarded": true,
+    "actual_canonical_newton_record_sha256": "7c2a02c6ce36333b88caa3a476fb1ea09885b1d58be022628c9312dabd4c22ab",
+    "baseline_canonical_newton_record_sha256": "7c2a02c6ce36333b88caa3a476fb1ea09885b1d58be022628c9312dabd4c22ab",
+    "same_compiled_world": true,
+    "same_compiled_pack": true,
+    "pretarget_trace_parity_with_compiled_identity": true
+  },
+  "target_rich_operator_capture_scope": {
+    "root": 1,
+    "newton_iteration": 48,
+    "completed_markers": [],
+    "skipped_markers": [
+      {
+        "schema": 1,
+        "root": 1,
+        "iteration": 48,
+        "reason": "environment_count_out_of_scope",
+        "bytes": 0,
+        "requested_present_payload_bytes": 0,
+        "observed": {
+          "capture_byte_cap_bytes": 33554432,
+          "minimum_full_contact_arena_bytes": 17723008,
+          "environment_count": 2,
+          "fem_node_count": 882,
+          "tetrahedron_count": 1920,
+          "particle_count": 0,
+          "grid_node_count": 0,
+          "mpm_grid_count": 0,
+          "mpm_block_count": 0,
+          "mpm_block_lookup_count": 0,
+          "object_count": 1,
+          "material_state_stride": 15,
+          "material_history_elements": 115200,
+          "contact_pair_count": 0,
+          "deformable_contact_capacity": 15360,
+          "cohesive_face_count": 0,
+          "rigid_proxy_count": 0,
+          "rigid_generalized_capacity": 0,
+          "unknown_count": 3528,
+          "vascular_unknown_count": 0,
+          "identification_candidate_count": 0,
+          "mutation_command_count": 0,
+          "deformable_contact_buffer_bytes": 13271040,
+          "deformable_candidate_buffer_bytes": 491520,
+          "accepted_contact_history_bytes": 1474560,
+          "candidate_contact_history_bytes": 1474560,
+          "active_index_buffer_bytes": 122880,
+          "active_count_buffer_bytes": 16,
+          "candidate_count_buffer_bytes": 16,
+          "node_incidence_buffer_bytes": 737280,
+          "node_ranges_buffer_bytes": 28224,
+          "active_offsets_buffer_bytes": 16,
+          "global_active_indices_buffer_bytes": 122880,
+          "active_dispatch_buffer_bytes": 16
+        },
+        "physical_state_changed": false
+      }
+    ],
+    "classification": "runtime emitted a bounded skip marker"
+  },
+  "reference_operator": null,
+  "action_comparison": {
+    "available": false,
+    "reason": "reference capture binding does not match CGLS compiled world/dimensions/root/Newton",
+    "compiled_pack_hash_equal": true,
+    "world_fingerprint_equal": true,
+    "dimensions_equal": true,
+    "root_newton_equal": true,
+    "capture_run_fingerprints_match": false
+  },
+  "limitations": [
+    "Any coupled-capture skip is reported from this run's own root/Newton skip marker; an absent marker is not treated as a completed capture.",
+    "The 419 CSR replay is checked only on native x and r, with same compiled world, pack, root, Newton, E, and N; this is directional action parity, not a proof of full matrix equality.",
+    "All action differences are report-only and have no qualified noise-floor or acceptance threshold.",
+    "Primary-policy eligibility identifies environments whose CGLS direction was selected; false eligibility retains the original Newton direction under the policy-scoped trace label.",
+    "An accepted residual-Armijo trial is not a true-residual or nonlinear certificate for the selected CGLS direction; no original Newton certificate is transferred.",
+    "A complete run receipt only establishes that the process ended without timeout and source-input mutation; a nonzero exit code or failed solver history is not physical success."
+  ],
+  "analyzer_binding": {
+    "script_path": "/Users/home/cardboard-implementation-20261014/analysis/native453-primary-policy-audit-tool-001/audit_primary_policy_snapshot.py",
+    "script_sha256": "820cbbfd245665f218f514c1babf6be1dc6d3d70b1b2294009a1def5329a9f2d",
+    "argv": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native453-primary-policy-audit-tool-001/audit_primary_policy_snapshot.py",
+      "--binary",
+      "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-after48-control1-453/base-cgls.bin",
+      "--run-dir",
+      "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-after48-control1-453",
+      "--source-snapshot",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143",
+      "--operator-environment",
+      "0",
+      "--reference-run-dir",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419",
+      "--reference-environment",
+      "0",
+      "--baseline-run-dir",
+      "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450",
+      "--output",
+      "/Users/home/cardboard-implementation-20261014/analysis/native453-primary-policy-adjudication-001"
+    ],
+    "python_version": "3.10.12 (main, May 15 2025, 18:07:36) [Clang 17.0.0 (clang-1700.0.13.3)]"
+  }
+}

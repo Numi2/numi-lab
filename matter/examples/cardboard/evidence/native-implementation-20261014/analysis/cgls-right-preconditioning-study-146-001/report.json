@@ -1,0 +1,632 @@
+{
+  "classification": "CPU-only conditioning diagnostic on captured419 source125 unsymmetric free-DOF operator; no native GPU execution and no production solver qualification.",
+  "limitations": [
+    "No GPU/native CGLS or production residual replay was run in this study. Payloads are prepared for the root-owned bounded native residual replay helper only.",
+    "Right scaling changes Krylov coordinates but not A; comparisons measure finite-iteration conditioning, not a new accepted solver policy.",
+    "The 3x3 block Gram scale is an offline, computed preconditioner and has not been admitted or used in production.",
+    "FP32 emulation is not Metal/native parity and reports true residual against unscaled FP64 A only.",
+    "No nonlinear Armijo, rollback, history, or full-coupon outcome is predicted by these linear residuals.",
+    "The graph/RAP option is unavailable at the exact selected generation, as documented above."
+  ],
+  "method": {
+    "emulated_fp32": "CPU SciPy float32 CSR A/A^T actions; FP32 state/scaling/update arithmetic; CGLS dot uses source-shaped 32-lane Kahan accumulation and SIMD-tree sum over full 882-node backing layout. Not bitwise Metal: GPU matrix-free operator/reduction/action order differs.",
+    "fp64": "FP64 CGLS recurrence and sparse actions; exported payload gets one required FP32 serialization rounding.",
+    "iterations": [
+      32,
+      64,
+      128
+    ],
+    "native_cap": "Native CGLS is currently bounded to 32/64; 128 is CPU conditioning extrapolation only.",
+    "preconditioners": {
+      "block3": "block-diagonal SPD S_n=(A_nn^T A_nn)^(-1/2), one 3x3 principal block per free FEM node, using eigendecomposition; no shift or regularization",
+      "column": "S[j,j]=1/||A[:,j]||_2",
+      "none": "S=I"
+    },
+    "true_residual": "Recomputed as b-A*x in original unscaled operator with FP64 CSR action at each checkpoint; norms use math.fsum.",
+    "unknown": "x=S*y for right-preconditioned recurrences; final reported/exported direction is x"
+  },
+  "native_replay_payloads": {
+    "block3_emulated_fp32_iter064": {
+      "direction_block_bytes": 28224,
+      "direction_bytes": 28224,
+      "direction_offset": 141168,
+      "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/block3_emulated_fp32_iter064.float32x4.bin",
+      "direction_sha256": "7774038212a741b85b73f2c71f0221da0132f0e179f3bf4cd3c93be388f2d738",
+      "fixed_nodes_zero": true,
+      "non_direction_bytes_unchanged": true,
+      "payload_bytes": 2195272,
+      "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/block3_emulated_fp32_iter064.input.bin",
+      "payload_sha256": "4370627c8defac3cf5876b65a534a7259113339d1471aa24fa549966a788e67e",
+      "quiet_environment_zero": true,
+      "w_lane_zero": true
+    },
+    "block3_emulated_fp32_iter128": {
+      "direction_block_bytes": 28224,
+      "direction_bytes": 28224,
+      "direction_offset": 141168,
+      "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/block3_emulated_fp32_iter128.float32x4.bin",
+      "direction_sha256": "8d03a8d55789e0abe5dc0626754ac41ea1122452da6248128b27beb0e374d600",
+      "fixed_nodes_zero": true,
+      "non_direction_bytes_unchanged": true,
+      "payload_bytes": 2195272,
+      "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/block3_emulated_fp32_iter128.input.bin",
+      "payload_sha256": "2e1a54541f46419c454034e836ad2338735e03041af91b010305f6112d7aa87f",
+      "quiet_environment_zero": true,
+      "w_lane_zero": true
+    },
+    "block3_fp64_iter064": {
+      "direction_block_bytes": 28224,
+      "direction_bytes": 28224,
+      "direction_offset": 141168,
+      "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/block3_fp64_iter064.float32x4.bin",
+      "direction_sha256": "1bed7d50c670c415cffb94794e34996ef033e926cd313447f66235928bb6dd4d",
+      "fixed_nodes_zero": true,
+      "non_direction_bytes_unchanged": true,
+      "payload_bytes": 2195272,
+      "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/block3_fp64_iter064.input.bin",
+      "payload_sha256": "9afcad670448f0a4001d4c53b71bebfbe97449aa487b4fd33a25da42d3ecd389",
+      "quiet_environment_zero": true,
+      "w_lane_zero": true
+    },
+    "block3_fp64_iter128": {
+      "direction_block_bytes": 28224,
+      "direction_bytes": 28224,
+      "direction_offset": 141168,
+      "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/block3_fp64_iter128.float32x4.bin",
+      "direction_sha256": "f296c1065788937e0c44fd5199b4339677211c562d4bb7474f569b55612f4c56",
+      "fixed_nodes_zero": true,
+      "non_direction_bytes_unchanged": true,
+      "payload_bytes": 2195272,
+      "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/block3_fp64_iter128.input.bin",
+      "payload_sha256": "0ba247c55d0e7163f31f1cb63b62104c30110504b0e57e1b75cd8c783a0cd510",
+      "quiet_environment_zero": true,
+      "w_lane_zero": true
+    },
+    "column_emulated_fp32_iter064": {
+      "direction_block_bytes": 28224,
+      "direction_bytes": 28224,
+      "direction_offset": 141168,
+      "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/column_emulated_fp32_iter064.float32x4.bin",
+      "direction_sha256": "81b27f09eb603dfdc0322beaeec4ea7d582f1c1a59ca05c4c8d94b4d9515553a",
+      "fixed_nodes_zero": true,
+      "non_direction_bytes_unchanged": true,
+      "payload_bytes": 2195272,
+      "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/column_emulated_fp32_iter064.input.bin",
+      "payload_sha256": "61c208c8c8cca9079b360d93bdf5a44346e83231269c00c1a971c654d57d4259",
+      "quiet_environment_zero": true,
+      "w_lane_zero": true
+    },
+    "column_emulated_fp32_iter128": {
+      "direction_block_bytes": 28224,
+      "direction_bytes": 28224,
+      "direction_offset": 141168,
+      "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/column_emulated_fp32_iter128.float32x4.bin",
+      "direction_sha256": "aec3b5de36f9ba050acf2edc3b96dd568e8ee35ea1e6e1a345e0c67a8e133303",
+      "fixed_nodes_zero": true,
+      "non_direction_bytes_unchanged": true,
+      "payload_bytes": 2195272,
+      "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/column_emulated_fp32_iter128.input.bin",
+      "payload_sha256": "c375dd29d51d04940c9206c2495f55d5312dd4d4fa3d4e6c1875cbed9dcfff6a",
+      "quiet_environment_zero": true,
+      "w_lane_zero": true
+    },
+    "column_fp64_iter064": {
+      "direction_block_bytes": 28224,
+      "direction_bytes": 28224,
+      "direction_offset": 141168,
+      "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/column_fp64_iter064.float32x4.bin",
+      "direction_sha256": "c472786cd16ca3de9dd39006ec24b3816d17103a24514ae4632237b4842a6152",
+      "fixed_nodes_zero": true,
+      "non_direction_bytes_unchanged": true,
+      "payload_bytes": 2195272,
+      "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/column_fp64_iter064.input.bin",
+      "payload_sha256": "3207385b9a829db6ca331381b5fdfbe220659dc422d76f145a5c8f5167c1dfc4",
+      "quiet_environment_zero": true,
+      "w_lane_zero": true
+    },
+    "column_fp64_iter128": {
+      "direction_block_bytes": 28224,
+      "direction_bytes": 28224,
+      "direction_offset": 141168,
+      "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/column_fp64_iter128.float32x4.bin",
+      "direction_sha256": "4f22b0b3f7d6ee6287099c04bc3e6becc5282bd178b1348077bbe3e328ae6b91",
+      "fixed_nodes_zero": true,
+      "non_direction_bytes_unchanged": true,
+      "payload_bytes": 2195272,
+      "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/column_fp64_iter128.input.bin",
+      "payload_sha256": "c9a8aacda5081af4bcd58dc17ec49655d8129ad21464b29eeef11ac5d4cf4ee8",
+      "quiet_environment_zero": true,
+      "w_lane_zero": true
+    },
+    "none_emulated_fp32_iter064": {
+      "direction_block_bytes": 28224,
+      "direction_bytes": 28224,
+      "direction_offset": 141168,
+      "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/none_emulated_fp32_iter064.float32x4.bin",
+      "direction_sha256": "53cff24d3bd353d3df9fdf9697914dc5cda3947d480b024c794608c1de927df0",
+      "fixed_nodes_zero": true,
+      "non_direction_bytes_unchanged": true,
+      "payload_bytes": 2195272,
+      "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/none_emulated_fp32_iter064.input.bin",
+      "payload_sha256": "45a89e9cc3cd882619815e06cfd66d3748649759d2ad97600c350e985f75a680",
+      "quiet_environment_zero": true,
+      "w_lane_zero": true
+    },
+    "none_fp64_iter064": {
+      "direction_block_bytes": 28224,
+      "direction_bytes": 28224,
+      "direction_offset": 141168,
+      "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/none_fp64_iter064.float32x4.bin",
+      "direction_sha256": "a139cd39ffe0e616812b5896e5c3b78904abed5b8461c9fa0d466c9080e6ab85",
+      "fixed_nodes_zero": true,
+      "non_direction_bytes_unchanged": true,
+      "payload_bytes": 2195272,
+      "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/none_fp64_iter064.input.bin",
+      "payload_sha256": "9267fe96c9ee0532ecba7a3c4ea3edf7406cad233bc8a8990de14e81448f3355",
+      "quiet_environment_zero": true,
+      "w_lane_zero": true
+    }
+  },
+  "operator_semantics": "Unmodified captured nonsymmetric A from source125: M + dt^2*K, K=-d(f_internal)/d(v); fixed DOFs already eliminated. All recurrence variants minimize ||A x-b||_2 without normal-matrix materialization.",
+  "regional_graph_preconditioner": {
+    "available_for_same_generation": false,
+    "reason": "The 419 rich capture did not include a regional RAP sidecar under its aggregate readback budget. The later rejected-conditioning-000002 export has no graph-patch membership/factors and lacks a selected-Newton generation identity matching the 419 operator; its AP/RAP cannot be used as a same-generation preconditioner. No regional/graph result is fabricated."
+  },
+  "replay_contract": {
+    "command_template": "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction /Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack <fresh replay-inputs/*.input.bin> <fresh output directory>",
+    "compiled_package": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+    "helper": "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+    "payload_header": "NMFDSWP1 v1; exact source125 2x882x4 float32 direction block replaced only at byte offset 141168, length 28224. Fixed rows, quiet environment, w lanes and all non-direction bytes are checked unchanged."
+  },
+  "results": {
+    "block3": {
+      "emulated_fp32": {
+        "breakdown": null,
+        "checkpoints": {
+          "128": {
+            "exported_payload_direction_l2": 0.02895046974831181,
+            "exported_payload_true_residual_ratio": 0.0717052873216968,
+            "exported_payload_true_unscaled_residual_l2": 1.32255959661085e-05,
+            "iterations": 128,
+            "native_replay_payload": {
+              "direction_block_bytes": 28224,
+              "direction_bytes": 28224,
+              "direction_offset": 141168,
+              "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/block3_emulated_fp32_iter128.float32x4.bin",
+              "direction_sha256": "8d03a8d55789e0abe5dc0626754ac41ea1122452da6248128b27beb0e374d600",
+              "fixed_nodes_zero": true,
+              "non_direction_bytes_unchanged": true,
+              "payload_bytes": 2195272,
+              "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/block3_emulated_fp32_iter128.input.bin",
+              "payload_sha256": "2e1a54541f46419c454034e836ad2338735e03041af91b010305f6112d7aa87f",
+              "quiet_environment_zero": true,
+              "w_lane_zero": true
+            },
+            "normal_residual_l2_fp32": 1.731333049783177e-06,
+            "payload_export_rounding": "Direction is serialized as FP32 NMFDSWP1 full-node float4; FP64 recurrence is rounded once for the native residual replay contract.",
+            "recurrence_residual_l2_fp32": 1.3225594326791958e-05,
+            "status": "exhausted_at_checkpoint",
+            "true_residual_ratio": 0.0717052873216968,
+            "true_unscaled_residual_l2": 1.32255959661085e-05,
+            "x_l2": 0.02895046974831181
+          },
+          "32": {
+            "iterations": 32,
+            "normal_residual_l2_fp32": 6.8693550060498296e-06,
+            "recurrence_residual_l2_fp32": 2.2430343804340015e-05,
+            "status": "exhausted_at_checkpoint",
+            "true_residual_ratio": 0.12161071824045931,
+            "true_unscaled_residual_l2": 2.2430343488909073e-05,
+            "x_l2": 0.025741869061010357
+          },
+          "64": {
+            "exported_payload_direction_l2": 0.02925833480430187,
+            "exported_payload_true_residual_ratio": 0.08953310718734689,
+            "exported_payload_true_unscaled_residual_l2": 1.6513826880543545e-05,
+            "iterations": 64,
+            "native_replay_payload": {
+              "direction_block_bytes": 28224,
+              "direction_bytes": 28224,
+              "direction_offset": 141168,
+              "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/block3_emulated_fp32_iter064.float32x4.bin",
+              "direction_sha256": "7774038212a741b85b73f2c71f0221da0132f0e179f3bf4cd3c93be388f2d738",
+              "fixed_nodes_zero": true,
+              "non_direction_bytes_unchanged": true,
+              "payload_bytes": 2195272,
+              "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/block3_emulated_fp32_iter064.input.bin",
+              "payload_sha256": "4370627c8defac3cf5876b65a534a7259113339d1471aa24fa549966a788e67e",
+              "quiet_environment_zero": true,
+              "w_lane_zero": true
+            },
+            "normal_residual_l2_fp32": 4.4438985472043575e-06,
+            "payload_export_rounding": "Direction is serialized as FP32 NMFDSWP1 full-node float4; FP64 recurrence is rounded once for the native residual replay contract.",
+            "recurrence_residual_l2_fp32": 1.6513825745798716e-05,
+            "status": "exhausted_at_checkpoint",
+            "true_residual_ratio": 0.08953310718734689,
+            "true_unscaled_residual_l2": 1.6513826880543545e-05,
+            "x_l2": 0.02925833480430187
+          }
+        },
+        "run_status": "exhausted"
+      },
+      "fp64": {
+        "breakdown": null,
+        "checkpoints": {
+          "128": {
+            "exported_payload_direction_l2": 0.028720867312865914,
+            "exported_payload_true_residual_ratio": 0.07078361103017525,
+            "exported_payload_true_unscaled_residual_l2": 1.3055598484771905e-05,
+            "iterations": 128,
+            "native_replay_payload": {
+              "direction_block_bytes": 28224,
+              "direction_bytes": 28224,
+              "direction_offset": 141168,
+              "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/block3_fp64_iter128.float32x4.bin",
+              "direction_sha256": "f296c1065788937e0c44fd5199b4339677211c562d4bb7474f569b55612f4c56",
+              "fixed_nodes_zero": true,
+              "non_direction_bytes_unchanged": true,
+              "payload_bytes": 2195272,
+              "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/block3_fp64_iter128.input.bin",
+              "payload_sha256": "0ba247c55d0e7163f31f1cb63b62104c30110504b0e57e1b75cd8c783a0cd510",
+              "quiet_environment_zero": true,
+              "w_lane_zero": true
+            },
+            "normal_residual_l2": 1.7732737991330498e-06,
+            "payload_export_rounding": "Direction is serialized as FP32 NMFDSWP1 full-node float4; FP64 recurrence is rounded once for the native residual replay contract.",
+            "recurrence_residual_l2": 1.3058994377128008e-05,
+            "status": "exhausted_at_checkpoint",
+            "true_residual_ratio": 0.07080202255867893,
+            "true_unscaled_residual_l2": 1.3058994377128013e-05,
+            "x_l2": 0.028725823348928772
+          },
+          "32": {
+            "iterations": 32,
+            "normal_residual_l2": 6.872814872730555e-06,
+            "recurrence_residual_l2": 2.2430257025134185e-05,
+            "status": "exhausted_at_checkpoint",
+            "true_residual_ratio": 0.12161024945932931,
+            "true_unscaled_residual_l2": 2.2430257025134175e-05,
+            "x_l2": 0.025741851231869516
+          },
+          "64": {
+            "exported_payload_direction_l2": 0.029416357713326995,
+            "exported_payload_true_residual_ratio": 0.08845396111872295,
+            "exported_payload_true_unscaled_residual_l2": 1.6314785074490897e-05,
+            "iterations": 64,
+            "native_replay_payload": {
+              "direction_block_bytes": 28224,
+              "direction_bytes": 28224,
+              "direction_offset": 141168,
+              "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/block3_fp64_iter064.float32x4.bin",
+              "direction_sha256": "1bed7d50c670c415cffb94794e34996ef033e926cd313447f66235928bb6dd4d",
+              "fixed_nodes_zero": true,
+              "non_direction_bytes_unchanged": true,
+              "payload_bytes": 2195272,
+              "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/block3_fp64_iter064.input.bin",
+              "payload_sha256": "9afcad670448f0a4001d4c53b71bebfbe97449aa487b4fd33a25da42d3ecd389",
+              "quiet_environment_zero": true,
+              "w_lane_zero": true
+            },
+            "normal_residual_l2": 3.4985202504680836e-06,
+            "payload_export_rounding": "Direction is serialized as FP32 NMFDSWP1 full-node float4; FP64 recurrence is rounded once for the native residual replay contract.",
+            "recurrence_residual_l2": 1.631476326984279e-05,
+            "status": "exhausted_at_checkpoint",
+            "true_residual_ratio": 0.08845384290034077,
+            "true_unscaled_residual_l2": 1.6314763269842776e-05,
+            "x_l2": 0.029416379778663296
+          }
+        },
+        "run_status": "exhausted"
+      }
+    },
+    "column": {
+      "emulated_fp32": {
+        "breakdown": null,
+        "checkpoints": {
+          "128": {
+            "exported_payload_direction_l2": 0.028013304602095994,
+            "exported_payload_true_residual_ratio": 0.08002432474830101,
+            "exported_payload_true_unscaled_residual_l2": 1.4759990875337331e-05,
+            "iterations": 128,
+            "native_replay_payload": {
+              "direction_block_bytes": 28224,
+              "direction_bytes": 28224,
+              "direction_offset": 141168,
+              "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/column_emulated_fp32_iter128.float32x4.bin",
+              "direction_sha256": "aec3b5de36f9ba050acf2edc3b96dd568e8ee35ea1e6e1a345e0c67a8e133303",
+              "fixed_nodes_zero": true,
+              "non_direction_bytes_unchanged": true,
+              "payload_bytes": 2195272,
+              "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/column_emulated_fp32_iter128.input.bin",
+              "payload_sha256": "c375dd29d51d04940c9206c2495f55d5312dd4d4fa3d4e6c1875cbed9dcfff6a",
+              "quiet_environment_zero": true,
+              "w_lane_zero": true
+            },
+            "normal_residual_l2_fp32": 1.9019680330388688e-06,
+            "payload_export_rounding": "Direction is serialized as FP32 NMFDSWP1 full-node float4; FP64 recurrence is rounded once for the native residual replay contract.",
+            "recurrence_residual_l2_fp32": 1.4759990363172012e-05,
+            "status": "exhausted_at_checkpoint",
+            "true_residual_ratio": 0.08002432474830101,
+            "true_unscaled_residual_l2": 1.4759990875337331e-05,
+            "x_l2": 0.028013304602095994
+          },
+          "32": {
+            "iterations": 32,
+            "normal_residual_l2_fp32": 6.246785058483697e-06,
+            "recurrence_residual_l2_fp32": 3.445412386347707e-05,
+            "status": "exhausted_at_checkpoint",
+            "true_residual_ratio": 0.1868001016060662,
+            "true_unscaled_residual_l2": 3.445412134235048e-05,
+            "x_l2": 0.01651248231483162
+          },
+          "64": {
+            "exported_payload_direction_l2": 0.0205129474809821,
+            "exported_payload_true_residual_ratio": 0.12990765934828555,
+            "exported_payload_true_unscaled_residual_l2": 2.396066286904638e-05,
+            "iterations": 64,
+            "native_replay_payload": {
+              "direction_block_bytes": 28224,
+              "direction_bytes": 28224,
+              "direction_offset": 141168,
+              "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/column_emulated_fp32_iter064.float32x4.bin",
+              "direction_sha256": "81b27f09eb603dfdc0322beaeec4ea7d582f1c1a59ca05c4c8d94b4d9515553a",
+              "fixed_nodes_zero": true,
+              "non_direction_bytes_unchanged": true,
+              "payload_bytes": 2195272,
+              "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/column_emulated_fp32_iter064.input.bin",
+              "payload_sha256": "61c208c8c8cca9079b360d93bdf5a44346e83231269c00c1a971c654d57d4259",
+              "quiet_environment_zero": true,
+              "w_lane_zero": true
+            },
+            "normal_residual_l2_fp32": 4.468246567503632e-06,
+            "payload_export_rounding": "Direction is serialized as FP32 NMFDSWP1 full-node float4; FP64 recurrence is rounded once for the native residual replay contract.",
+            "recurrence_residual_l2_fp32": 2.3960661769783098e-05,
+            "status": "exhausted_at_checkpoint",
+            "true_residual_ratio": 0.12990765934828555,
+            "true_unscaled_residual_l2": 2.396066286904638e-05,
+            "x_l2": 0.0205129474809821
+          }
+        },
+        "run_status": "exhausted"
+      },
+      "fp64": {
+        "breakdown": null,
+        "checkpoints": {
+          "128": {
+            "exported_payload_direction_l2": 0.02823264148052407,
+            "exported_payload_true_residual_ratio": 0.07897752890576792,
+            "exported_payload_true_unscaled_residual_l2": 1.4566915868047657e-05,
+            "iterations": 128,
+            "native_replay_payload": {
+              "direction_block_bytes": 28224,
+              "direction_bytes": 28224,
+              "direction_offset": 141168,
+              "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/column_fp64_iter128.float32x4.bin",
+              "direction_sha256": "4f22b0b3f7d6ee6287099c04bc3e6becc5282bd178b1348077bbe3e328ae6b91",
+              "fixed_nodes_zero": true,
+              "non_direction_bytes_unchanged": true,
+              "payload_bytes": 2195272,
+              "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/column_fp64_iter128.input.bin",
+              "payload_sha256": "c9a8aacda5081af4bcd58dc17ec49655d8129ad21464b29eeef11ac5d4cf4ee8",
+              "quiet_environment_zero": true,
+              "w_lane_zero": true
+            },
+            "normal_residual_l2": 2.0318937452803756e-06,
+            "payload_export_rounding": "Direction is serialized as FP32 NMFDSWP1 full-node float4; FP64 recurrence is rounded once for the native residual replay contract.",
+            "recurrence_residual_l2": 1.4566915914571213e-05,
+            "status": "exhausted_at_checkpoint",
+            "true_residual_ratio": 0.0789775291580049,
+            "true_unscaled_residual_l2": 1.4566915914571208e-05,
+            "x_l2": 0.02823264117681881
+          },
+          "32": {
+            "iterations": 32,
+            "normal_residual_l2": 6.246783550232418e-06,
+            "recurrence_residual_l2": 3.445412298508886e-05,
+            "status": "exhausted_at_checkpoint",
+            "true_residual_ratio": 0.18680011051251003,
+            "true_unscaled_residual_l2": 3.445412298508886e-05,
+            "x_l2": 0.016512482675264464
+          },
+          "64": {
+            "exported_payload_direction_l2": 0.020513357299981192,
+            "exported_payload_true_residual_ratio": 0.1299041870398273,
+            "exported_payload_true_unscaled_residual_l2": 2.396002242326541e-05,
+            "iterations": 64,
+            "native_replay_payload": {
+              "direction_block_bytes": 28224,
+              "direction_bytes": 28224,
+              "direction_offset": 141168,
+              "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/column_fp64_iter064.float32x4.bin",
+              "direction_sha256": "c472786cd16ca3de9dd39006ec24b3816d17103a24514ae4632237b4842a6152",
+              "fixed_nodes_zero": true,
+              "non_direction_bytes_unchanged": true,
+              "payload_bytes": 2195272,
+              "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/column_fp64_iter064.input.bin",
+              "payload_sha256": "3207385b9a829db6ca331381b5fdfbe220659dc422d76f145a5c8f5167c1dfc4",
+              "quiet_environment_zero": true,
+              "w_lane_zero": true
+            },
+            "normal_residual_l2": 4.459908421795892e-06,
+            "payload_export_rounding": "Direction is serialized as FP32 NMFDSWP1 full-node float4; FP64 recurrence is rounded once for the native residual replay contract.",
+            "recurrence_residual_l2": 2.396002258796249e-05,
+            "status": "exhausted_at_checkpoint",
+            "true_residual_ratio": 0.12990418793276648,
+            "true_unscaled_residual_l2": 2.3960022587962504e-05,
+            "x_l2": 0.020513357088324042
+          }
+        },
+        "run_status": "exhausted"
+      }
+    },
+    "none": {
+      "emulated_fp32": {
+        "breakdown": null,
+        "checkpoints": {
+          "128": {
+            "iterations": 128,
+            "normal_residual_l2_fp32": 1.3992143063344206e-06,
+            "recurrence_residual_l2_fp32": 2.9482191254779012e-05,
+            "status": "exhausted_at_checkpoint",
+            "true_residual_ratio": 0.15984374335711768,
+            "true_unscaled_residual_l2": 2.9482188082829266e-05,
+            "x_l2": 0.005463946378519556
+          },
+          "32": {
+            "iterations": 32,
+            "normal_residual_l2_fp32": 3.095383364764807e-06,
+            "recurrence_residual_l2_fp32": 5.541034408374059e-05,
+            "status": "exhausted_at_checkpoint",
+            "true_residual_ratio": 0.3004185797733375,
+            "true_unscaled_residual_l2": 5.5410345669057376e-05,
+            "x_l2": 0.0024345553456537002
+          },
+          "64": {
+            "exported_payload_direction_l2": 0.0033213075486493377,
+            "exported_payload_true_residual_ratio": 0.23560850219724475,
+            "exported_payload_true_unscaled_residual_l2": 4.3456528418342705e-05,
+            "iterations": 64,
+            "native_replay_payload": {
+              "direction_block_bytes": 28224,
+              "direction_bytes": 28224,
+              "direction_offset": 141168,
+              "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/none_emulated_fp32_iter064.float32x4.bin",
+              "direction_sha256": "53cff24d3bd353d3df9fdf9697914dc5cda3947d480b024c794608c1de927df0",
+              "fixed_nodes_zero": true,
+              "non_direction_bytes_unchanged": true,
+              "payload_bytes": 2195272,
+              "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/none_emulated_fp32_iter064.input.bin",
+              "payload_sha256": "45a89e9cc3cd882619815e06cfd66d3748649759d2ad97600c350e985f75a680",
+              "quiet_environment_zero": true,
+              "w_lane_zero": true
+            },
+            "normal_residual_l2_fp32": 2.476939363382051e-06,
+            "payload_export_rounding": "Direction is serialized as FP32 NMFDSWP1 full-node float4; FP64 recurrence is rounded once for the native residual replay contract.",
+            "recurrence_residual_l2_fp32": 4.34565279901899e-05,
+            "status": "exhausted_at_checkpoint",
+            "true_residual_ratio": 0.23560850219724475,
+            "true_unscaled_residual_l2": 4.3456528418342705e-05,
+            "x_l2": 0.0033213075486493377
+          }
+        },
+        "run_status": "exhausted"
+      },
+      "fp64": {
+        "breakdown": null,
+        "checkpoints": {
+          "128": {
+            "iterations": 128,
+            "normal_residual_l2": 1.0231253525804654e-06,
+            "recurrence_residual_l2": 2.814856352322731e-05,
+            "status": "exhausted_at_checkpoint",
+            "true_residual_ratio": 0.15261322365346253,
+            "true_unscaled_residual_l2": 2.814856352322731e-05,
+            "x_l2": 0.005731399076514336
+          },
+          "32": {
+            "iterations": 32,
+            "normal_residual_l2": 2.83305357999808e-06,
+            "recurrence_residual_l2": 5.5220628486644e-05,
+            "status": "exhausted_at_checkpoint",
+            "true_residual_ratio": 0.2993899890686407,
+            "true_unscaled_residual_l2": 5.5220628486644e-05,
+            "x_l2": 0.0024437700050712204
+          },
+          "64": {
+            "exported_payload_direction_l2": 0.0034398168003562843,
+            "exported_payload_true_residual_ratio": 0.23005643475082094,
+            "exported_payload_true_unscaled_residual_l2": 4.243248397802754e-05,
+            "iterations": 64,
+            "native_replay_payload": {
+              "direction_block_bytes": 28224,
+              "direction_bytes": 28224,
+              "direction_offset": 141168,
+              "direction_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/directions/none_fp64_iter064.float32x4.bin",
+              "direction_sha256": "a139cd39ffe0e616812b5896e5c3b78904abed5b8461c9fa0d466c9080e6ab85",
+              "fixed_nodes_zero": true,
+              "non_direction_bytes_unchanged": true,
+              "payload_bytes": 2195272,
+              "payload_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/none_fp64_iter064.input.bin",
+              "payload_sha256": "9267fe96c9ee0532ecba7a3c4ea3edf7406cad233bc8a8990de14e81448f3355",
+              "quiet_environment_zero": true,
+              "w_lane_zero": true
+            },
+            "normal_residual_l2": 3.1401142237625307e-06,
+            "payload_export_rounding": "Direction is serialized as FP32 NMFDSWP1 full-node float4; FP64 recurrence is rounded once for the native residual replay contract.",
+            "recurrence_residual_l2": 4.243248406041477e-05,
+            "status": "exhausted_at_checkpoint",
+            "true_residual_ratio": 0.2300564351975003,
+            "true_unscaled_residual_l2": 4.243248406041478e-05,
+            "x_l2": 0.003439816783244057
+          }
+        },
+        "run_status": "exhausted"
+      }
+    }
+  },
+  "scale_diagnostics": {
+    "block_count": 846,
+    "block_gram_eigenvalue_max": 0.46485098885144266,
+    "block_gram_eigenvalue_min": 1.080798405357736e-06,
+    "column_scale_max": 666.8535482322994,
+    "column_scale_min": 1.275473416701849
+  },
+  "schema": "numi.cardboard.captured419-cgls-right-preconditioning-study.v1",
+  "source_bindings": {
+    "CGLS_metal_source": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/src/metal/base_cgls.metalinc",
+      "sha256": "439f702b6b92b913cff204ba3fd2a73757280cf68f9b7808c5cefcfa3de9b04e"
+    },
+    "CPU_CGLS_reference": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-mask-repair-142-001/cpu/cgls_reference.py",
+      "sha256": "f528887b17ace8eb3ddd3b30fff1b7b82f31bf1e1bed68341fba7393526389ea"
+    },
+    "base_replay_payload": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured419-regularized-directions-001/base-replay-input.bin",
+      "sha256": "30c472a120d7ff091d81c04e342939d571a392e02c249c8bfef8402f120852a8"
+    },
+    "compiled_package": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c"
+    },
+    "csr_nnz": 71046,
+    "csr_shape": [
+      2538,
+      2538
+    ],
+    "dt_seconds": 9.999999747378752e-05,
+    "fixed_node_count": 36,
+    "free_node_count": 846,
+    "native_replay_helper": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "sha256": "cc872337366821d0752665ea0feb913f38c1ff7cd921696c395c9861fabccbec"
+    },
+    "node_count": 882,
+    "operator_npz": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/A_free_csr.npz",
+      "sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed"
+    },
+    "prior_replay_generator": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured419-truncated-cgls-directions-001/generate.py",
+      "sha256": "399690f36befa419d44d550b0dce30265e55b9e7d5f0f96bae8cfcbdc423b105"
+    },
+    "rhs": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/base_rhs.float64le.bin",
+      "sha256": "af22b09232b270e5cc15184d09cd8ed3d8f86b83bf08e765f510d6777fcaa8cb"
+    },
+    "rhs_l2_Ns": 0.00018444380407784322,
+    "rich_capture": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture",
+      "sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a"
+    },
+    "source_assembler": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/tools/cardboard_cached_operator_audit.py",
+      "sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38"
+    },
+    "source_build_manifest": {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-125/source-build.json",
+      "sha256": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6"
+    },
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125"
+  }
+}

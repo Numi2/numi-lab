@@ -1,0 +1,155 @@
+{
+  "artifact_comparison": {
+    "audit.py": {
+      "byte_identical": true,
+      "sha_audit": "c9c8cf312cb0a6be213a0b3c65abf6996dd417d102ce9a821490ead18e0d61f4",
+      "sha_rerun": "c9c8cf312cb0a6be213a0b3c65abf6996dd417d102ce9a821490ead18e0d61f4"
+    },
+    "matrices.npz": {
+      "byte_identical": true,
+      "sha_audit": "c79152b13f1a8a88a00388d1083d558980fde0a54c8f8c8ba765246186950b5e",
+      "sha_rerun": "c79152b13f1a8a88a00388d1083d558980fde0a54c8f8c8ba765246186950b5e"
+    },
+    "per-column.csv": {
+      "byte_identical": true,
+      "sha_audit": "c53d99a27c8732a5f00c28a30abc653ca28a771bdf3b272b98db5fa8e1d6b601",
+      "sha_rerun": "c53d99a27c8732a5f00c28a30abc653ca28a771bdf3b272b98db5fa8e1d6b601"
+    },
+    "prediction.json": {
+      "semantic_equal_except_time_utc": true,
+      "sha_audit": "3978224f6f1c57265a8287041966f630bbcb6ca603a6c402da4951c231308bde",
+      "sha_rerun": "ba1009d68db55654102ea2db370f15806fd6de18832ce19bd610989032ce66ef"
+    },
+    "report.json": {
+      "semantic_equal_except_wall_seconds": true,
+      "sha_audit": "19616c7a1a45ad8fef00930852b2e3f7bc4d03ab9af7811f6edb68c2926c5bbd",
+      "sha_rerun": "00a7c17a6e2f02fa408e2ac18dd695bd2fb8a4827901aa7cb1a6e060440c3b47",
+      "wall_seconds_audit": 0.48823037499096245,
+      "wall_seconds_rerun": 0.43969995802035555
+    }
+  },
+  "artifact_hashes": {
+    "README.md": {
+      "exists": true,
+      "expected": "429fff06e8c422a6f191120fb73b087ac80fec5715aad9024d05b0b996b5534e",
+      "sha256": "429fff06e8c422a6f191120fb73b087ac80fec5715aad9024d05b0b996b5534e"
+    },
+    "attempt-001/audit.py": {
+      "exists": true,
+      "expected": "fc4e068655c1917883e98f64762c71fd339355d2ffb555217841fc92916016d3",
+      "sha256": "fc4e068655c1917883e98f64762c71fd339355d2ffb555217841fc92916016d3"
+    },
+    "attempt-001/receipt.json": {
+      "exists": true,
+      "expected": "03f7b9a0394eead5a5aa47126fb0559264bc088bc4ef75c0be85cffde40eddc5",
+      "sha256": "03f7b9a0394eead5a5aa47126fb0559264bc088bc4ef75c0be85cffde40eddc5"
+    },
+    "attempt-001/stderr.log": {
+      "exists": true,
+      "expected": "18cdb57b315f3afeb4c1b20699aca4dea85cc1479b086d55bcd0259e209a2dab",
+      "sha256": "18cdb57b315f3afeb4c1b20699aca4dea85cc1479b086d55bcd0259e209a2dab"
+    },
+    "attempt-001/stdout.log": {
+      "exists": true,
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "audit.py": {
+      "exists": true,
+      "expected": "c9c8cf312cb0a6be213a0b3c65abf6996dd417d102ce9a821490ead18e0d61f4",
+      "sha256": "c9c8cf312cb0a6be213a0b3c65abf6996dd417d102ce9a821490ead18e0d61f4"
+    },
+    "matrices.npz": {
+      "exists": true,
+      "expected": "c79152b13f1a8a88a00388d1083d558980fde0a54c8f8c8ba765246186950b5e",
+      "sha256": "c79152b13f1a8a88a00388d1083d558980fde0a54c8f8c8ba765246186950b5e"
+    },
+    "per-column.csv": {
+      "exists": true,
+      "expected": "c53d99a27c8732a5f00c28a30abc653ca28a771bdf3b272b98db5fa8e1d6b601",
+      "sha256": "c53d99a27c8732a5f00c28a30abc653ca28a771bdf3b272b98db5fa8e1d6b601"
+    },
+    "prediction.json": {
+      "exists": true,
+      "expected": "3978224f6f1c57265a8287041966f630bbcb6ca603a6c402da4951c231308bde",
+      "sha256": "3978224f6f1c57265a8287041966f630bbcb6ca603a6c402da4951c231308bde"
+    },
+    "report.json": {
+      "exists": true,
+      "expected": "19616c7a1a45ad8fef00930852b2e3f7bc4d03ab9af7811f6edb68c2926c5bbd",
+      "sha256": "19616c7a1a45ad8fef00930852b2e3f7bc4d03ab9af7811f6edb68c2926c5bbd"
+    },
+    "stderr.log": {
+      "exists": true,
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout.log": {
+      "exists": true,
+      "expected": "884fa0e6f4ac46ddba7bd5fd513bd9210869679fd01d2d48c76f260fcef03aef",
+      "sha256": "884fa0e6f4ac46ddba7bd5fd513bd9210869679fd01d2d48c76f260fcef03aef"
+    }
+  },
+  "input_hashes": {
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py": {
+      "exists": true,
+      "expected": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+      "sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3"
+    },
+    "/Users/home/cardboard-implementation-20261014/analysis/operator-fd-e2-adapter-001/audit_capture.py": {
+      "exists": true,
+      "expected": "33dd948eb955d3b02dab0c24aadedf766f6fe201586b42cba6e014a8ce261505",
+      "sha256": "33dd948eb955d3b02dab0c24aadedf766f6fe201586b42cba6e014a8ce261505"
+    },
+    "/Users/home/cardboard-implementation-20261014/analysis/operator-fd-e2-adapter-001/coupon419-003/report.json": {
+      "exists": true,
+      "expected": "c918a287f0de7966d50813a70fa7d9d3917746a6fc5de8dca57283fbf375ba76",
+      "sha256": "c918a287f0de7966d50813a70fa7d9d3917746a6fc5de8dca57283fbf375ba76"
+    },
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-001/compare_directional_fd.py": {
+      "exists": true,
+      "expected": "742b0920c4f543e284e41ed18f8dbc78253915a31f39b3ef8d32ff7dec01b5e8",
+      "sha256": "742b0920c4f543e284e41ed18f8dbc78253915a31f39b3ef8d32ff7dec01b5e8"
+    },
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-006/sweep.py": {
+      "exists": true,
+      "expected": "671445300cac39dd404d0292c8b82045090d4c6f33582069e33319598280b4f3",
+      "sha256": "671445300cac39dd404d0292c8b82045090d4c6f33582069e33319598280b4f3"
+    },
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture": {
+      "exists": true,
+      "expected": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+      "sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a"
+    },
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/prediction.json": {
+      "exists": true,
+      "expected": "41b37af2747cfa551fae60eaddd7681cd7c7dbc859a402e641677ec23bd957d6",
+      "sha256": "41b37af2747cfa551fae60eaddd7681cd7c7dbc859a402e641677ec23bd957d6"
+    },
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/receipt.json": {
+      "exists": true,
+      "expected": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d",
+      "sha256": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d"
+    }
+  },
+  "parameter_source_check": {
+    "capture_header_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "captured_parameter_count": 28,
+    "parameter_26_value_environment0_liner": 9.99999994e-09,
+    "parameter_26_value_environment0_medium": 9.99999994e-09,
+    "parameter_26_zero_based": "fb_epsilon",
+    "predecessor_sweep_mislabel": {
+      "actual_source": "parameter index 26 (zero-based) is fb_epsilon",
+      "classification": "metadata-label defect in predecessor sweep; not consumed for 147 derivative computation",
+      "field_name": "rate_exponent_max_by_paper_material",
+      "values": {
+        "0": 9.99999993922529e-09,
+        "1": 9.99999993922529e-09
+      }
+    },
+    "prediction_binds_probe_source": true,
+    "probe_maximumRateExponent_zero_literal_found": true,
+    "probe_source_sha256": "6917e515993e1da26d09d946bf8a3f58c7066ad183b19131aa466e94e8d32e99",
+    "source_parameter_declaration_sha256": "f907a680f2ddfd0d1082ad97dc117869f678ea8ff0deb638dea4634f27704260"
+  }
+}

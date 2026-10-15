@@ -25,13 +25,14 @@ RESULT_SCHEMA = "numi.cardboard.probe-result.v1"
 MESH_SCHEMA = "numi.cardboard.authored-mesh.v1"
 STATE_SCHEMA = "numi.cardboard.accepted-material-state.v1"
 EP_NAMES = ("ep11", "ep22", "ep33", "ep23", "ep13", "ep12")
-PHASE_ORDER = ("loading", "hold", "unloading", "relaxation", "release")
+PHASE_ORDER = ("loading", "hold", "unloading", "relaxation", "release", "post_release_relaxation")
 PHASE_COUNT_KEYS = {
     "loading": "steps",
     "hold": "hold_steps",
     "unloading": "unload_steps",
     "relaxation": "relax_steps",
     "release": "release_steps",
+    "post_release_relaxation": "post_release_relaxation_steps",
 }
 FLOAT_FIELDS = (
     "time_s", "target_angle_deg", "reaction_x_N", "reaction_y_N", "reaction_z_N",
@@ -154,9 +155,9 @@ def _geometry_signature(manifest: dict[str, Any]) -> dict[str, Any]:
 def _protocol(solver: dict[str, Any]) -> dict[str, Any]:
     protocol: dict[str, Any] = {}
     for phase, field in PHASE_COUNT_KEYS.items():
-        # Old v1 manifests predate free release; they are accepted for clamped
-        # studies as release_steps=0, but never imply release evidence.
-        value = solver.get(field, 0 if phase == "release" else None)
+        # Legacy manifests predate free release and post-release relaxation;
+        # missing fields remain zero and never imply those histories.
+        value = solver.get(field, 0 if phase in ("release", "post_release_relaxation") else None)
         if value is None:
             raise EvidenceError("missing_protocol_field", f"manifest.solver.{field} is missing")
         count = _int(value, f"solver.{field}")
@@ -174,6 +175,8 @@ def _protocol(solver: dict[str, Any]) -> dict[str, Any]:
         "right grip free; left grip remains fixed; physical state preserved"
     ):
         raise EvidenceError("unknown_release_policy", "release phase has an unknown or missing policy")
+    if protocol["post_release_relaxation"] > 0 and protocol["release"] <= 0:
+        raise EvidenceError("invalid_protocol", "post-release relaxation requires a positive free-release phase")
     return protocol
 
 
@@ -194,7 +197,7 @@ def _expected_phase(protocol: dict[str, Any], step: int) -> tuple[str, float | N
             elif phase == "relaxation":
                 target = 0.0
             else:
-                target = None  # target angle is explicitly ignored while released
+                target = None  # target angle is ignored during either free phase
             return phase, target
         cursor += count
     raise EvidenceError("step_outside_protocol", f"CSV step {step} is outside the declared protocol")
@@ -375,17 +378,18 @@ def _load_run(path: Path) -> RunData:
             raise FailedRunError("legacy_raw_acceptance_rejected", "raw accepted flag cannot override failed status")
         if release_columns.issubset(header):
             constrained = _int(raw.get("right_grip_constrained"), "CSV.right_grip_constrained")
-            expected_constrained = 0 if phase == "release" else 1
+            free_phase = phase in ("release", "post_release_relaxation")
+            expected_constrained = 0 if free_phase else 1
             if constrained != expected_constrained:
                 raise EvidenceError("release_boundary_mismatch", f"step {step} grip-constraint flag differs from phase")
             measured_angle = _number(raw.get("measured_right_grip_angle_deg"), "CSV.measured_right_grip_angle_deg")
             fixed_nodes = _int(raw.get("current_fixed_nodes"), "CSV.current_fixed_nodes")
             mesh_left = len(mesh.get("left_grip_nodes", []))
             mesh_fixed = len(mesh.get("fixed_nodes", []))
-            expected_fixed = mesh_left if phase == "release" else mesh_fixed
+            expected_fixed = mesh_left if free_phase else mesh_fixed
             if expected_fixed and fixed_nodes != expected_fixed:
                 raise EvidenceError("fixed_node_count_mismatch", f"step {step} fixed-node count differs from release policy")
-            if phase == "release" and env == 1 and abs(measured_angle) > 1e-5:
+            if free_phase and env == 1 and abs(measured_angle) > 1e-5:
                 raise EvidenceError("reference_grip_moved", "held reference right grip changed angle during release")
             values["right_grip_constrained"] = constrained
             values["measured_right_grip_angle_deg"] = measured_angle
@@ -844,6 +848,8 @@ def _request_phases(a: RunData, b: RunData, requested: Iterable[str] | None) -> 
         if phase not in a.phases or phase not in b.phases:
             if phase == "release":
                 raise EvidenceError("inconclusive_missing_free_release", "free-release phase was requested but not recorded in both runs")
+            if phase == "post_release_relaxation":
+                raise EvidenceError("inconclusive_missing_post_release_relaxation", "post-release relaxation was requested but not recorded in both runs")
             raise EvidenceError("inconclusive_missing_phase", f"requested phase {phase} is not present in both runs")
     return phases
 
@@ -1023,19 +1029,25 @@ def _release_response(run: RunData) -> dict[str, Any] | None:
         raise EvidenceError("missing_release_reference", "free release has no preceding clamped phase")
     before_phase = preceding[-1]
     before = _observation_endpoint(run, before_phase, 0)
-    after = _observation_endpoint(run, "release", 0)
+    release_endpoint = _observation_endpoint(run, "release", 0)
+    final_phase = ("post_release_relaxation"
+                   if protocol["post_release_relaxation"] > 0 else "release")
+    after = _observation_endpoint(run, final_phase, 0)
     before_state = _state_stats(run, before_phase, "bent")["paper_total"]
-    after_state = _state_stats(run, "release", "bent")["paper_total"]
+    after_state = _state_stats(run, final_phase, "bent")["paper_total"]
     return {
         "pre_release_phase": before_phase,
-        "boundary_verified": before.get("right_grip_constrained") == 1 and after.get("right_grip_constrained") == 0,
+        "boundary_verified": before.get("right_grip_constrained") == 1 and release_endpoint.get("right_grip_constrained") == 0 and after.get("right_grip_constrained") == 0,
         "before_release_endpoint": {k: before.get(k) for k in ("time_s", "measured_right_grip_angle_deg", "max_free_displacement_m", "max_free_speed_m_s", "kinetic_energy_J")},
+        "release_endpoint": {k: release_endpoint.get(k) for k in ("time_s", "measured_right_grip_angle_deg", "max_free_displacement_m", "max_free_speed_m_s", "kinetic_energy_J")},
         "after_release_endpoint": {k: after.get(k) for k in ("time_s", "measured_right_grip_angle_deg", "max_free_displacement_m", "max_free_speed_m_s", "kinetic_energy_J")},
+        "post_release_relaxation_completed": protocol["post_release_relaxation"] > 0,
+        "post_release_relaxation_steps": protocol["post_release_relaxation"],
         "right_grip_angle_change_deg": after["measured_right_grip_angle_deg"] - before["measured_right_grip_angle_deg"],
         "free_displacement_change_m": after["max_free_displacement_m"] - before["max_free_displacement_m"],
         "kinetic_energy_J": after["kinetic_energy_J"],
         "paper_plastic_mean_frobenius_change": after_state["volume_mean_frobenius_ep"] - before_state["volume_mean_frobenius_ep"],
-        "note": "release is a distinct free-grip phase; constrained relaxation is not substituted for it",
+        "note": "release and post-release relaxation are separate accepted free-grip phases; when post-release relaxation is present, its endpoint supplies the final springback and material-state comparison",
     }
 
 
@@ -1166,6 +1178,11 @@ def analyze_pair(baseline_dir: str | Path, candidate_dir: str | Path, kind: str,
                 raise EvidenceError("inconclusive_missing_free_release", "requested free-release comparison lacks release in both runs")
             if a.manifest["solver"].get("release_policy") != b.manifest["solver"].get("release_policy"):
                 raise IncompatibleError("release_policy_mismatch", "free-release policies differ")
+        if "post_release_relaxation" in phases and any(
+                run.manifest["solver"].get("post_release_relaxation_steps", 0) <= 0
+                for run in (a, b)):
+            raise EvidenceError("inconclusive_missing_post_release_relaxation",
+                                "requested post-release relaxation comparison requires positive accepted histories in both runs")
         endpoints_a = _run_endpoint_metrics(a, phases)
         endpoints_b = _run_endpoint_metrics(b, phases)
         pair_metrics = _paired_curve_metrics(a, b, phases, kind)

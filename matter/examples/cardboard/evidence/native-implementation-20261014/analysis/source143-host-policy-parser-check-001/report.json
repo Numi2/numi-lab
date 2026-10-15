@@ -1,0 +1,32 @@
+{
+  "schema": "numi.cardboard.actual_host_policy_parser_check.v1",
+  "source": "/Users/home/cardboard-implementation-20261014/analysis/base-cgls-primary-policy-overlay-143-001/overlay/matter/src/runtime.mm",
+  "source_sha256": "01162665b98a7f88d4d6341e2bc6ea50afb9f5d831b04fe446ce27d34e7ad5ec",
+  "extracted_blocks_sha256": "83132c1d36487c8a4b63524a6a21d3b09872bad91269311eb09b17c9e13d0b9b",
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/c++",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "/Users/home/cardboard-implementation-20261014/analysis/source143-host-policy-parser-check-001/actual_host_parser.cpp",
+        "-o",
+        "/Users/home/cardboard-implementation-20261014/analysis/source143-host-policy-parser-check-001/actual_host_parser"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/home/cardboard-implementation-20261014/analysis/source143-host-policy-parser-check-001/actual_host_parser"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "checks": 17,
+  "pass": true,
+  "coverage": "Actual unchanged extracted new host parsing/admission blocks; stub ownership/diagnostic carriers only. Existing broader CGLS scope parser and GPU sequencing are separate.",
+  "physical_steps": 0,
+  "physical_validation": false
+}

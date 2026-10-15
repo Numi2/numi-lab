@@ -1,0 +1,105 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 1744,
+      "sha256": "f03782c3bc1f2a3392f9d1d433cd6f852714ffcf4cb34285f95ab577702bc9be"
+    },
+    "__pycache__/run_study.cpython-310.pyc": {
+      "bytes": 22883,
+      "sha256": "27fd674c23d1662447da386300081b2f54b5beb9d1d7de8d2197b9811f62ce27"
+    },
+    "directions/block3_emulated_fp32_iter064.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "7774038212a741b85b73f2c71f0221da0132f0e179f3bf4cd3c93be388f2d738"
+    },
+    "directions/block3_emulated_fp32_iter128.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "8d03a8d55789e0abe5dc0626754ac41ea1122452da6248128b27beb0e374d600"
+    },
+    "directions/block3_fp64_iter064.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "1bed7d50c670c415cffb94794e34996ef033e926cd313447f66235928bb6dd4d"
+    },
+    "directions/block3_fp64_iter128.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "f296c1065788937e0c44fd5199b4339677211c562d4bb7474f569b55612f4c56"
+    },
+    "directions/column_emulated_fp32_iter064.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "81b27f09eb603dfdc0322beaeec4ea7d582f1c1a59ca05c4c8d94b4d9515553a"
+    },
+    "directions/column_emulated_fp32_iter128.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "aec3b5de36f9ba050acf2edc3b96dd568e8ee35ea1e6e1a345e0c67a8e133303"
+    },
+    "directions/column_fp64_iter064.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "c472786cd16ca3de9dd39006ec24b3816d17103a24514ae4632237b4842a6152"
+    },
+    "directions/column_fp64_iter128.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "4f22b0b3f7d6ee6287099c04bc3e6becc5282bd178b1348077bbe3e328ae6b91"
+    },
+    "directions/none_emulated_fp32_iter064.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "53cff24d3bd353d3df9fdf9697914dc5cda3947d480b024c794608c1de927df0"
+    },
+    "directions/none_fp64_iter064.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "a139cd39ffe0e616812b5896e5c3b78904abed5b8461c9fa0d466c9080e6ab85"
+    },
+    "replay-inputs/block3_emulated_fp32_iter064.input.bin": {
+      "bytes": 2195272,
+      "sha256": "4370627c8defac3cf5876b65a534a7259113339d1471aa24fa549966a788e67e"
+    },
+    "replay-inputs/block3_emulated_fp32_iter128.input.bin": {
+      "bytes": 2195272,
+      "sha256": "2e1a54541f46419c454034e836ad2338735e03041af91b010305f6112d7aa87f"
+    },
+    "replay-inputs/block3_fp64_iter064.input.bin": {
+      "bytes": 2195272,
+      "sha256": "9afcad670448f0a4001d4c53b71bebfbe97449aa487b4fd33a25da42d3ecd389"
+    },
+    "replay-inputs/block3_fp64_iter128.input.bin": {
+      "bytes": 2195272,
+      "sha256": "0ba247c55d0e7163f31f1cb63b62104c30110504b0e57e1b75cd8c783a0cd510"
+    },
+    "replay-inputs/column_emulated_fp32_iter064.input.bin": {
+      "bytes": 2195272,
+      "sha256": "61c208c8c8cca9079b360d93bdf5a44346e83231269c00c1a971c654d57d4259"
+    },
+    "replay-inputs/column_emulated_fp32_iter128.input.bin": {
+      "bytes": 2195272,
+      "sha256": "c375dd29d51d04940c9206c2495f55d5312dd4d4fa3d4e6c1875cbed9dcfff6a"
+    },
+    "replay-inputs/column_fp64_iter064.input.bin": {
+      "bytes": 2195272,
+      "sha256": "3207385b9a829db6ca331381b5fdfbe220659dc422d76f145a5c8f5167c1dfc4"
+    },
+    "replay-inputs/column_fp64_iter128.input.bin": {
+      "bytes": 2195272,
+      "sha256": "c9a8aacda5081af4bcd58dc17ec49655d8129ad21464b29eeef11ac5d4cf4ee8"
+    },
+    "replay-inputs/none_emulated_fp32_iter064.input.bin": {
+      "bytes": 2195272,
+      "sha256": "45a89e9cc3cd882619815e06cfd66d3748649759d2ad97600c350e985f75a680"
+    },
+    "replay-inputs/none_fp64_iter064.input.bin": {
+      "bytes": 2195272,
+      "sha256": "9267fe96c9ee0532ecba7a3c4ea3edf7406cad233bc8a8990de14e81448f3355"
+    },
+    "report.json": {
+      "bytes": 36941,
+      "sha256": "49c2857833d23f3a44f63d652e89667cbce0115e73b89908b01235273d5f18be"
+    },
+    "run_study.py": {
+      "bytes": 24465,
+      "sha256": "6362f3fdb146d1285c96a3914da77edb66453c77b4b6cac0037d033987782fdf"
+    }
+  },
+  "report_sha256": "49c2857833d23f3a44f63d652e89667cbce0115e73b89908b01235273d5f18be",
+  "schema": "numi.cardboard.captured419-cgls-right-preconditioning-study-package.v1",
+  "source_A_sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed",
+  "source_b_sha256": "af22b09232b270e5cc15184d09cd8ed3d8f86b83bf08e765f510d6777fcaa8cb",
+  "source_capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a"
+}

@@ -1,0 +1,14 @@
+source143 overlay validation (144)
+
+Base snapshot: /Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143
+Base runtime SHA-256: 01162665b98a7f88d4d6341e2bc6ea50afb9f5d831b04fe446ce27d34e7ad5ec
+Candidate runtime SHA-256: 1a9fcbdda74c921a36b6529033851ae47a460ce51c8373e3794cc8967c5eca7f
+Overlay patch SHA-256: c679ee17e25a50c2f4be5cd08ab6220c3687a19f46f7cf591623516cac505bb8
+
+Validation performed:
+- `python3 tools/make_overlay.py`: regenerated candidate and manifest; generated hashes match overlay-manifest.json.
+- `python3 -m unittest discover -s tests -v`: 14 tests passed (6 source-contract and 8 strict-reader tests).
+- `patch --dry-run -p1 -d /Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143 < overlay.patch`: applies cleanly.
+- Frozen source143 runtime SHA checked before and after; unchanged.
+
+Not performed: host compile, Metal compile, GPU execution, or native capture. The sidecar remains diagnostic instrumentation without native qualification.

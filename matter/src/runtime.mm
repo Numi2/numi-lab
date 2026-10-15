@@ -1136,6 +1136,188 @@ void writeRegionalRAPCapture(
         jsonQuoted(manifestPath).c_str());
 }
 
+struct BaseCGLSStateCaptureArray {
+    std::string name;
+    std::string dtype;
+    std::string semantic;
+    std::vector<std::uint64_t> shape;
+    std::uint64_t offset = 0u;
+    std::uint64_t byteCount = 0u;
+    std::uint64_t elementBytes = 0u;
+};
+
+struct BaseCGLSStateCaptureMetadata {
+    std::uint32_t controlStep = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t microtick = 0u;
+    std::uint32_t microtickCount = 0u;
+    std::uint32_t newtonIteration = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t objectCount = 0u;
+    std::uint32_t materialCount = 0u;
+    std::uint32_t parameterCount = 0u;
+    std::uint32_t nodeCount = 0u;
+    std::uint32_t tetrahedronCount = 0u;
+    std::uint32_t materialStateStride = 0u;
+    std::uint32_t unknownCount = 0u;
+    std::uint32_t materialStateCandidateIsCurrentProjection = 0u;
+    std::uint32_t tangentCacheEnabled = 0u;
+    std::uint32_t tangentCacheForceRebuild = 0u;
+    std::uint32_t tangentCacheValidCount = 0u;
+    std::uint32_t mixedSolverPreconditioner = 0u;
+    std::uint32_t cglsIterations = 0u;
+    std::uint32_t microFlags = 0u;
+    std::uint32_t dispatchABI = 0u;
+    std::uint32_t dispatchFlags = 0u;
+    std::uint32_t rigidGeneralizedCapacity = 0u;
+    std::uint64_t sourcePhysicsFingerprint = 0u;
+    std::uint64_t worldFingerprint = 0u;
+    std::uint64_t executionFingerprint = 0u;
+    std::uint64_t deviceRegistryID = 0u;
+    std::string deviceName;
+    std::string cglsCaptureFile;
+    float dtSeconds = 0.0f;
+    float inverseDtSeconds = 0.0f;
+};
+
+void writeBaseCGLSStateCapture(
+    const void* payload,
+    const std::uint64_t payloadBytes,
+    const std::vector<BaseCGLSStateCaptureArray>& arrays,
+    const BaseCGLSStateCaptureMetadata& metadata,
+    const std::string& basePath
+) {
+    const auto* bytes = static_cast<const unsigned char*>(payload);
+    const std::string payloadHash = sha256Hex(
+        bytes, static_cast<std::size_t>(payloadBytes));
+    const std::string binaryPath = basePath + ".bin";
+    const std::string manifestPath = basePath + ".json";
+    const std::string payloadName =
+        std::filesystem::path(binaryPath).filename().string();
+    std::ostringstream manifest;
+    manifest.imbue(std::locale::classic());
+    manifest << "{\"schema\":\"numi.matter.base_cgls_state_capture.v1\","
+        << "\"complete\":true,"
+        << "\"byte_order\":\"little_endian\","
+        << "\"capture_point\":\"after_newton_correction_before_cgls_direction_construction_or_installation\","
+        << "\"physical_state_changed\":false,"
+        << "\"root\":" << metadata.controlStep
+        << ",\"control_step\":" << metadata.controlStep
+        << ",\"physics_substep\":" << metadata.physicsSubstep
+        << ",\"microtick\":" << metadata.microtick
+        << ",\"microtick_count\":" << metadata.microtickCount
+        << ",\"newton_iteration\":" << metadata.newtonIteration
+        << ",\"environment_count\":" << metadata.environmentCount
+        << ",\"object_count\":" << metadata.objectCount
+        << ",\"material_count\":" << metadata.materialCount
+        << ",\"parameter_count\":" << metadata.parameterCount
+        << ",\"node_count\":" << metadata.nodeCount
+        << ",\"tetrahedron_count\":" << metadata.tetrahedronCount
+        << ",\"material_state_stride\":" << metadata.materialStateStride
+        << ",\"unknown_count\":" << metadata.unknownCount
+        << ",\"cgls_iterations\":" << metadata.cglsIterations
+        << ",\"mixed_solver_preconditioner\":" << metadata.mixedSolverPreconditioner
+        << ",\"array_count\":" << arrays.size()
+        << ",\"cgls_capture_file\":" << jsonQuoted(metadata.cglsCaptureFile)
+        << ",\"microstep_flags\":" << metadata.microFlags
+        << ",\"dispatch_abi_version\":" << metadata.dispatchABI
+        << ",\"dispatch_flags\":" << metadata.dispatchFlags
+        << ",\"rigid_generalized_capacity\":" << metadata.rigidGeneralizedCapacity
+        << ",\"layout\":{\"unknown_count\":" << metadata.unknownCount
+        << ",\"mechanical_rows\":\"first E*N float4 entries\",\"field_backing_rows\":\"second E*N float4 entries; CGLS requires exact pure-FEM layout and preserves captured bits\"},"
+        << "\"dt_seconds\":" << jsonFloat32Token(metadata.dtSeconds)
+        << ",\"inverse_dt_seconds\":" << jsonFloat32Token(metadata.inverseDtSeconds)
+        << ",\"source_physics_fingerprint_u64_hex\":"
+        << jsonQuoted(hexU64(metadata.sourcePhysicsFingerprint))
+        << ",\"world_fingerprint_u64_hex\":"
+        << jsonQuoted(hexU64(metadata.worldFingerprint))
+        << ",\"device_program_fingerprint_u64_hex\":"
+        << jsonQuoted(hexU64(metadata.executionFingerprint))
+        << ",\"device\":{\"name\":" << jsonQuoted(metadata.deviceName)
+        << ",\"registry_id\":" << metadata.deviceRegistryID << "},"
+        << "\"tangent_cache\":{\"enabled_by_solver_policy\":"
+        << (metadata.tangentCacheEnabled != 0u ? "true" : "false")
+        << ",\"force_rebuild_requested\":"
+        << (metadata.tangentCacheForceRebuild != 0u ? "true" : "false")
+        << ",\"valid_entry_count\":" << metadata.tangentCacheValidCount
+        << ",\"generation_claim\":\"raw selected-point cache bytes; reader must adjudicate against captured state and production cache reuse rules\"},"
+        << "\"material_history_projection\":{\"current_newton_status\":\"unavailable_not_persisted\","
+        << "\"candidate_buffer_name\":\"candidate_material_state_buffer\","
+        << "\"candidate_buffer_is_current_projection\":false,"
+        << "\"reason\":\"nm_fem_build_algorithmic_tangent_cache projects state in local temporaries and stores tangent columns only; nm_fem_validate writes the candidate arena later in the nonlinear transaction\"},"
+        << "\"payload\":{\"file\":" << jsonQuoted(payloadName)
+        << ",\"byte_count\":" << payloadBytes
+        << ",\"sha256\":" << jsonQuoted(payloadHash) << "},\"arrays\":[";
+    for (std::size_t index = 0u; index < arrays.size(); ++index) {
+        const auto& array = arrays[index];
+        if (index != 0u) manifest << ',';
+        manifest << "{\"name\":" << jsonQuoted(array.name)
+            << ",\"dtype\":" << jsonQuoted(array.dtype)
+            << ",\"semantic\":" << jsonQuoted(array.semantic)
+            << ",\"shape\":[";
+        for (std::size_t axis = 0u; axis < array.shape.size(); ++axis) {
+            if (axis != 0u) manifest << ',';
+            manifest << array.shape[axis];
+        }
+        manifest << "],\"offset\":" << array.offset
+            << ",\"byte_count\":" << array.byteCount
+            << ",\"element_bytes\":" << array.elementBytes
+            << ",\"sha256\":"
+            << jsonQuoted(sha256Hex(bytes + array.offset,
+                static_cast<std::size_t>(array.byteCount))) << '}';
+    }
+    manifest << "]}\n";
+    const std::string manifestText = manifest.str();
+
+    const int binaryFD = ::open(binaryPath.c_str(),
+        O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+    if (binaryFD < 0) {
+        std::fprintf(stderr,
+            "fem_base_cgls_state_capture={\"schema\":1,\"root\":%u,\"complete\":false,\"reason\":\"binary_exclusive_create_failed\",\"errno\":%d}\n",
+            metadata.controlStep, errno);
+        return;
+    }
+    const bool binaryWritten = writeAllBytes(binaryFD, bytes,
+        static_cast<std::size_t>(payloadBytes));
+    const bool binarySynced = binaryWritten && ::fsync(binaryFD) == 0;
+    const int binaryClose = ::close(binaryFD);
+    if (!binaryWritten || !binarySynced || binaryClose != 0) {
+        ::unlink(binaryPath.c_str());
+        std::fprintf(stderr,
+            "fem_base_cgls_state_capture={\"schema\":1,\"root\":%u,\"complete\":false,\"reason\":\"binary_write_sync_or_close_failed\",\"errno\":%d}\n",
+            metadata.controlStep, errno);
+        return;
+    }
+    const int manifestFD = ::open(manifestPath.c_str(),
+        O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+    if (manifestFD < 0) {
+        const int savedErrno = errno;
+        ::unlink(binaryPath.c_str());
+        std::fprintf(stderr,
+            "fem_base_cgls_state_capture={\"schema\":1,\"root\":%u,\"complete\":false,\"reason\":\"manifest_exclusive_create_failed\",\"errno\":%d}\n",
+            metadata.controlStep, savedErrno);
+        return;
+    }
+    const bool manifestWritten = writeAllBytes(manifestFD,
+        manifestText.data(), manifestText.size());
+    const bool manifestSynced = manifestWritten && ::fsync(manifestFD) == 0;
+    const int manifestClose = ::close(manifestFD);
+    if (!manifestWritten || !manifestSynced || manifestClose != 0) {
+        ::unlink(binaryPath.c_str());
+        ::unlink(manifestPath.c_str());
+        std::fprintf(stderr,
+            "fem_base_cgls_state_capture={\"schema\":1,\"root\":%u,\"complete\":false,\"reason\":\"manifest_write_sync_or_close_failed\",\"errno\":%d}\n",
+            metadata.controlStep, errno);
+        return;
+    }
+    std::fprintf(stderr,
+        "fem_base_cgls_state_capture={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"bytes\":%llu,\"array_count\":%llu,\"complete\":true,\"manifest\":%s}\n",
+        metadata.controlStep, metadata.newtonIteration,
+        static_cast<unsigned long long>(payloadBytes),
+        static_cast<unsigned long long>(arrays.size()),
+        jsonQuoted(manifestPath).c_str());
+}
+
 class UploadPlan {
 public:
     UploadPlan(id<MTLDevice> device, id<MTLCommandQueue> queue)
@@ -4192,6 +4374,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_capture_base_cauchy_rhs",
             "nm_fgmres_prepare_base_cauchy_action",
             "nm_fgmres_build_base_cauchy_direction",
+            "nm_fgmres_select_base_cgls_primary_policy",
             "nm_fgmres_prepare_base_cgls_layout",
             "nm_fgmres_base_cgls_initialize_state",
             "nm_fgmres_base_cgls_initialize_vectors",
@@ -11683,6 +11866,31 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const char* baseCauchySelector = std::getenv(
                 "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR");
             femBaseCauchyFallbackRequested = baseCauchySelector != nullptr;
+            bool femBaseCGLSPrimaryPolicyRequested = false;
+            std::uint32_t femBaseCGLSPrimaryStartNewton = 0u;
+            if (const char* primaryAfter = std::getenv(
+                    "NM_FEM_BASE_CGLS_PRIMARY_AFTER")) {
+                bool digitsOnly = primaryAfter[0] != '\0';
+                for (const char* cursor = primaryAfter;
+                     *cursor != '\0'; ++cursor) {
+                    digitsOnly = digitsOnly && *cursor >= '0' && *cursor <= '9';
+                }
+                char* end = nullptr;
+                const unsigned long parsed = std::strtoul(primaryAfter, &end, 10);
+                if (!digitsOnly || end == primaryAfter || *end != '\0' ||
+                    parsed > 256ul || std::to_string(parsed) != primaryAfter) {
+                    std::fprintf(stderr,
+                        "fem_base_cgls_primary_policy_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"primary_after_must_be_canonical_newton_index_0_to_256\"}\n",
+                        request.controlStep);
+                    diagnostics.message =
+                        "base CGLS primary start must be a canonical Newton index from 0 through 256";
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
+                femBaseCGLSPrimaryPolicyRequested = true;
+                femBaseCGLSPrimaryStartNewton =
+                    static_cast<std::uint32_t>(parsed);
+            }
             std::uint32_t femBaseCGLSIterations = 0u;
             if (const char* cglsIterations = std::getenv("NM_FEM_BASE_CGLS_ITERATIONS")) {
                 if (!femBaseCauchyFallbackRequested ||
@@ -11718,6 +11926,31 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 }
                 femBaseCGLSCaptureIteration = static_cast<std::uint32_t>(parsed);
                 femBaseCGLSCapturePath = cglsCapturePath;
+            }
+            bool femBaseCGLSStateCaptureRequested = false;
+            bool femBaseCGLSStateCaptureCaptured = false;
+            const char* cglsStateCaptureText = std::getenv(
+                "NM_FEM_BASE_CGLS_STATE_CAPTURE");
+            if (cglsStateCaptureText != nullptr) {
+                if (std::strcmp(cglsStateCaptureText, "0") != 0 &&
+                    std::strcmp(cglsStateCaptureText, "1") != 0) {
+                    diagnostics.message =
+                        "CGLS state capture must be exactly 0 or 1";
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
+                femBaseCGLSStateCaptureRequested =
+                    std::strcmp(cglsStateCaptureText, "1") == 0;
+                if (femBaseCGLSStateCaptureRequested &&
+                    (femBaseCGLSIterations == 0u ||
+                     femBaseCGLSCapturePath.empty() ||
+                     femBaseCGLSCaptureIteration == NM_INVALID_INDEX ||
+                     !state.femBaseCGLSScratchEnabled)) {
+                    diagnostics.message =
+                        "CGLS state capture requires the existing selected CGLS capture path, Newton selector, and admitted scratch";
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
             }
             if (femBaseCauchyFallbackRequested) {
                 const auto rejectBaseCauchy = [&](const char* reason) {
@@ -11817,6 +12050,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 "fem_base_cgls_enabled={\"schema\":1,\"root\":%u,\"iterations\":%u,\"operator_changed\":false,\"linear_solve_claim\":false}\n",
                                 femBaseCauchyFallbackRoot, femBaseCGLSIterations);
                         }
+                        if (femBaseCGLSPrimaryPolicyRequested) {
+                            std::fprintf(stderr,
+                                "fem_base_cgls_primary_policy_enabled={\"schema\":1,\"root\":%u,\"start_newton_inclusive\":%u,\"selection\":\"healthy_base_above_noop_bound_with_original_linear_certificate\",\"armijo_fallback_allowed\":false,\"operator_changed\":false}\n",
+                                femBaseCauchyFallbackRoot,
+                                femBaseCGLSPrimaryStartNewton);
+                        }
                         if (femBaseCauchyFallbackAllNewtonIterations) {
                             std::fprintf(stderr,
                                 "fem_base_cauchy_all_newton_enabled={\"schema\":1,\"root\":%u,\"scope\":\"all_newton_iterations_on_one_control_step\",\"maximum_trace_records\":512,\"physical_operator_changed\":false}\n",
@@ -11832,6 +12071,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
             if (femBaseCauchyFallbackRequested &&
                 !femBaseCauchyFallbackConfigValid) {
                 diagnostics.message = "requested base-state Cauchy fallback is unsupported";
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
+            }
+            if (femBaseCGLSPrimaryPolicyRequested &&
+                (femBaseCGLSIterations == 0u ||
+                 !femBaseCauchyFallbackRequested ||
+                 !femBaseCauchyFallbackAllNewtonIterations)) {
+                std::fprintf(stderr,
+                    "fem_base_cgls_primary_policy_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"requires_cgls_iterations_and_control_step_all_newton_selector\"}\n",
+                    request.controlStep);
+                diagnostics.message =
+                    "base CGLS primary policy requires CGLS and the selected control-step all-Newton selector";
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
@@ -19163,6 +19414,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 femBaseCauchyFallbackSelectedRoot &&
                 (femBaseCauchyFallbackAllNewtonIterations ||
                  nonlinearIteration == femBaseCauchyFallbackIteration);
+            const bool baseCGLSPrimaryPolicySelectedNewton =
+                baseCauchyNewtonSelected &&
+                femBaseCGLSPrimaryPolicyRequested &&
+                femBaseCGLSIterations != 0u &&
+                nonlinearIteration >= femBaseCGLSPrimaryStartNewton;
             if (baseCauchyNewtonSelected) {
                 dispatchThreads("nm_fgmres_capture_base_cauchy_rhs",
                     state.fgmresLayout.unknownCount, [&] {
@@ -22330,8 +22586,322 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return diagnostics;
                 }
             }
-            const auto encodeBaseCauchyDirectionTrace = [&]() -> bool {
-                const NSUInteger bytes = environments * sizeof(nm_float4);
+            const auto encodeBaseCGLSStateCapture = [&]() -> bool {
+                if (!femBaseCGLSStateCaptureRequested ||
+                    femBaseCGLSStateCaptureCaptured ||
+                    request.controlStep == NM_INVALID_INDEX ||
+                    nonlinearIteration != femBaseCGLSCaptureIteration) {
+                    return true;
+                }
+                femBaseCGLSStateCaptureCaptured = true;
+                const auto skip = [&](const char* reason) {
+                    std::fprintf(stderr,
+                        "fem_base_cgls_state_capture_skipped={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"reason\":\"%s\",\"physical_state_changed\":false}\n",
+                        request.controlStep, nonlinearIteration, reason);
+                    return true;
+                };
+                const std::uint64_t envCount = state.dispatch.environmentCount;
+                const std::uint64_t nodeCount = state.dispatch.femNodeCount;
+                const std::uint64_t tetCount = state.dispatch.tetrahedronCount;
+                const std::uint64_t stride = state.dispatch.materialStateStride;
+                const std::uint64_t unknownCount = state.fgmresLayout.unknownCount;
+                constexpr std::uint64_t maximumCaptureBytes =
+                    96u * 1024u * 1024u;
+                if (envCount == 0u || envCount > 2u || nodeCount == 0u ||
+                    nodeCount > 4096u || tetCount == 0u || tetCount > 32768u ||
+                    stride == 0u || stride > NM_MAX_MATERIAL_STATE ||
+                    unknownCount != 2u * envCount * nodeCount) {
+                    return skip("unsupported_dispatch_extent");
+                }
+                if (state.femAlgorithmicTangentCache == nil ||
+                    state.femAlgorithmicTangentCacheValid == nil) {
+                    return skip("algorithmic_tangent_cache_unavailable");
+                }
+                std::vector<BaseCGLSStateCaptureArray> arrays;
+                std::array<id<MTLBuffer>, 24> sourceBuffers{};
+                std::uint64_t cursor = 0u;
+                const auto append = [&](const char* name, const char* dtype,
+                    const char* semantic, const std::uint64_t elementBytes,
+                    const std::vector<std::uint64_t>& shape,
+                    const std::uint64_t byteCount, id<MTLBuffer> source) -> bool {
+                    if (arrays.size() >= sourceBuffers.size() || elementBytes == 0u ||
+                        cursor > maximumCaptureBytes - 15u ||
+                        byteCount > std::numeric_limits<std::uint64_t>::max() - 15u)
+                        return false;
+                    std::uint64_t elementCount = 1u;
+                    for (const auto axis : shape) {
+                        if (axis != 0u && elementCount >
+                            std::numeric_limits<std::uint64_t>::max() / axis)
+                            return false;
+                        elementCount *= axis;
+                    }
+                    if (elementCount >
+                        std::numeric_limits<std::uint64_t>::max() / elementBytes ||
+                        elementCount * elementBytes != byteCount)
+                        return false;
+                    const std::uint64_t aligned = (cursor + 15u) & ~std::uint64_t(15u);
+                    if (aligned > maximumCaptureBytes ||
+                        byteCount > maximumCaptureBytes - aligned ||
+                        (byteCount != 0u && (source == nil || source.length < byteCount)))
+                        return false;
+                    BaseCGLSStateCaptureArray entry;
+                    entry.name = name;
+                    entry.dtype = dtype;
+                    entry.semantic = semantic;
+                    entry.shape = shape;
+                    entry.offset = aligned;
+                    entry.byteCount = byteCount;
+                    entry.elementBytes = elementBytes;
+                    arrays.push_back(std::move(entry));
+                    sourceBuffers[arrays.size() - 1u] = source;
+                    cursor = aligned + byteCount;
+                    return true;
+                };
+                const auto checkedBytes = [](const std::uint64_t count,
+                    const std::uint64_t elementBytes, std::uint64_t& result) {
+                    if (elementBytes == 0u || count >
+                        std::numeric_limits<std::uint64_t>::max() / elementBytes)
+                        return false;
+                    result = count * elementBytes;
+                    return true;
+                };
+                const std::uint64_t envNodes = envCount * nodeCount;
+                const std::uint64_t envTets = envCount * tetCount;
+                const std::uint64_t envStateScalars = envTets * stride;
+                const std::uint64_t tangentScalars = envTets * 81u;
+                std::uint64_t nodeBytes = 0u, tetBytes = 0u, historyBytes = 0u;
+                std::uint64_t correctionBytes = 0u, tangentBytes = 0u;
+                std::uint64_t validityBytes = 0u;
+                if (!checkedBytes(envNodes, sizeof(NMFEMNodeStateGPU), nodeBytes) ||
+                    !checkedBytes(envTets, sizeof(NMTetrahedronGPU), tetBytes) ||
+                    !checkedBytes(envStateScalars, sizeof(float), historyBytes) ||
+                    !checkedBytes(unknownCount, sizeof(nm_float4), correctionBytes) ||
+                    !checkedBytes(tangentScalars, sizeof(float), tangentBytes) ||
+                    !checkedBytes(envTets, sizeof(std::uint32_t), validityBytes))
+                    return skip("checked_extent_overflow");
+                const auto appendStorageBuffer = [&](const char* name,
+                    const char* dtype, const char* semantic,
+                    const std::uint64_t elementBytes, id<MTLBuffer> source) {
+                    if (source == nil || source.length % elementBytes != 0u)
+                        return false;
+                    const std::uint64_t count = source.length / elementBytes;
+                    return append(name, dtype, semantic, elementBytes, {count},
+                        source.length, source);
+                };
+                if (!append("accepted_nodes", "record:NMFEMNodeStateGPU",
+                        "accepted physical FEM nodes, environment-major",
+                        sizeof(NMFEMNodeStateGPU), {envCount, nodeCount},
+                        nodeBytes, state.femAccepted) ||
+                    !append("candidate_nodes", "record:NMFEMNodeStateGPU",
+                        "exact candidate FEM node arena at selected Newton center",
+                        sizeof(NMFEMNodeStateGPU), {envCount, nodeCount},
+                        nodeBytes, state.femCandidate) ||
+                    !append("accepted_tetrahedra", "record:NMTetrahedronGPU",
+                        "accepted topology and material-frame records, environment-major",
+                        sizeof(NMTetrahedronGPU), {envCount, tetCount},
+                        tetBytes, state.femTetrahedraAccepted) ||
+                    !append("candidate_tetrahedra", "record:NMTetrahedronGPU",
+                        "exact candidate topology and material-frame records at selected Newton center",
+                        sizeof(NMTetrahedronGPU), {envCount, tetCount},
+                        tetBytes, state.femTetrahedraCandidate) ||
+                    !append("accepted_material_history", "float32",
+                        "accepted internal material history, environment/tetrahedron/state order",
+                        sizeof(float), {envCount, tetCount, stride},
+                        historyBytes, state.femMaterialStateAccepted) ||
+                    !append("candidate_material_state_buffer", "float32",
+                        "raw candidate history arena; not asserted to be projected for this Newton linearization",
+                        sizeof(float), {envCount, tetCount, stride},
+                        historyBytes, state.femMaterialStateCandidate) ||
+                    !appendStorageBuffer("objects", "record:NMContinuumObjectGPU",
+                        "exact resident object descriptors; storage extent, includes typed sentinel if empty",
+                        sizeof(NMContinuumObjectGPU), state.objects) ||
+                    !appendStorageBuffer("materials", "record:NMMaterialGPU",
+                        "exact resident material descriptors; storage extent, includes typed sentinel if empty",
+                        sizeof(NMMaterialGPU), state.materials) ||
+                    !appendStorageBuffer("scalar_programs", "record:NMScalarProgramGPU",
+                        "exact resident scalar programs; storage extent, includes typed sentinel if empty",
+                        sizeof(NMScalarProgramGPU), state.scalarPrograms) ||
+                    !appendStorageBuffer("expression_instructions", "record:NMExpressionInstructionGPU",
+                        "exact resident expression instructions; storage extent, includes typed sentinel if empty",
+                        sizeof(NMExpressionInstructionGPU), state.instructions) ||
+                    !append("environment_parameters", "float32",
+                        "environment-major exact parameter arena",
+                        sizeof(float), {envCount, state.dispatch.parameterCount},
+                        envCount * state.dispatch.parameterCount * sizeof(float),
+                        state.environmentParameters) ||
+                    !append("schedulers", "record:NMSchedulerStateGPU",
+                        "exact environment/object scheduler state",
+                        sizeof(NMSchedulerStateGPU), {envCount, state.dispatch.objectCount},
+                        envCount * state.dispatch.objectCount * sizeof(NMSchedulerStateGPU),
+                        state.schedulers) ||
+                    !append("adaptive_state", "record:NMAdaptiveStateGPU",
+                        "exact environment/object adaptive state",
+                        sizeof(NMAdaptiveStateGPU), {envCount, state.dispatch.objectCount},
+                        envCount * state.dispatch.objectCount * sizeof(NMAdaptiveStateGPU),
+                        state.adaptive) ||
+                    !append("original_newton_correction", "float32x4",
+                        "original FGMRES Newton correction before CGLS replacement; layout U=2*E*N",
+                        sizeof(nm_float4), {unknownCount}, correctionBytes,
+                        state.femSolution) ||
+                    !append("base_residual_rhs", "float32x4",
+                        "unmodified base residual right-hand side consumed by CGLS layout preparation",
+                        sizeof(nm_float4), {unknownCount}, correctionBytes,
+                        state.femBaseCauchyRightHandSide) ||
+                    !append("algorithmic_tangent_cache", "float32",
+                        "raw cached dP/dF entries in environment/tet/row/column order",
+                        sizeof(float), {envCount, tetCount, 9u, 9u},
+                        tangentBytes, state.femAlgorithmicTangentCache) ||
+                    !append("algorithmic_tangent_cache_valid", "uint32",
+                        "raw cache-valid flags in environment/tetrahedron order",
+                        sizeof(std::uint32_t), {envCount, tetCount},
+                        validityBytes, state.femAlgorithmicTangentCacheValid) ||
+                    !append("fgmres_state", "record:NMFGMRESStateGPU",
+                        "per-environment Newton/FGMRES certificate state at capture point",
+                        sizeof(NMFGMRESStateGPU), {envCount},
+                        envCount * sizeof(NMFGMRESStateGPU), state.fgmresStates) ||
+                    !append("mixed_solver", "record:NMMixedSolverGPU",
+                        "exact compiled solver tolerances and execution policy",
+                        sizeof(NMMixedSolverGPU), {1u}, sizeof(NMMixedSolverGPU),
+                        state.mixedSolver) ||
+                    !append("armijo_metrics", "float32x4",
+                        "current Armijo base metrics and CGLS eligibility marker",
+                        sizeof(nm_float4), {envCount},
+                        envCount * sizeof(nm_float4), state.femArmijoMetrics) ||
+                    !append("armijo_statuses", "record:NMMatterStatusGPU",
+                        "per-environment Armijo status at CGLS entry",
+                        sizeof(NMMatterStatusGPU), {envCount},
+                        envCount * sizeof(NMMatterStatusGPU), state.femArmijoStatuses) ||
+                    !append("production_statuses", "record:NMMatterStatusGPU",
+                        "per-environment production status at CGLS entry",
+                        sizeof(NMMatterStatusGPU), {envCount},
+                        envCount * sizeof(NMMatterStatusGPU), state.statuses) ||
+                    !append("fem_line_search", "float32x4",
+                        "full environment/object FEM line-search records at CGLS entry",
+                        sizeof(nm_float4), {envCount, state.dispatch.objectCount},
+                        envCount * state.dispatch.objectCount * sizeof(nm_float4),
+                        state.femLineSearch) ||
+                    !append("environment_line_search", "float32",
+                        "per-environment accepted trial fraction at CGLS entry",
+                        sizeof(float), {envCount},
+                        envCount * sizeof(float), state.environmentLineSearch)) {
+                    return skip("required_input_buffer_missing_or_extent_overflow");
+                }
+                const std::uint64_t payloadBytes = cursor;
+                if (payloadBytes == 0u || payloadBytes > maximumCaptureBytes ||
+                    payloadBytes > state.device.maxBufferLength) {
+                    return skip("aggregate_capture_cap_or_device_buffer_limit");
+                }
+                id<MTLBuffer> snapshot = [state.device newBufferWithLength:
+                    static_cast<NSUInteger>(payloadBytes)
+                    options:MTLResourceStorageModeShared];
+                if (snapshot == nil) return skip("snapshot_allocation_failed");
+                std::memset(snapshot.contents, 0,
+                    static_cast<std::size_t>(payloadBytes));
+                [encoder endEncoding]; encoder = nil;
+                id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
+                if (copy == nil) {
+                    std::fprintf(stderr,
+                        "fem_base_cgls_state_capture_skipped={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"reason\":\"blit_encoder_unavailable\",\"physical_state_changed\":false}\n",
+                        request.controlStep, nonlinearIteration);
+                    encoder = [commandBuffer computeCommandEncoder];
+                    return encoder != nil;
+                }
+                for (std::size_t index = 0u; index < arrays.size(); ++index) {
+                    if (arrays[index].byteCount == 0u) continue;
+                    [copy copyFromBuffer:sourceBuffers[index] sourceOffset:0u
+                        toBuffer:snapshot destinationOffset:
+                            static_cast<NSUInteger>(arrays[index].offset)
+                        size:static_cast<NSUInteger>(arrays[index].byteCount)];
+                }
+                [copy endEncoding];
+                BaseCGLSStateCaptureMetadata metadata;
+                metadata.controlStep = request.controlStep;
+                metadata.physicsSubstep = request.physicsSubstep;
+                metadata.microtick = micro.microtick;
+                metadata.microtickCount = micro.microtickCount;
+                metadata.newtonIteration = nonlinearIteration;
+                metadata.environmentCount = state.dispatch.environmentCount;
+                metadata.objectCount = state.dispatch.objectCount;
+                metadata.materialCount = state.dispatch.materialCount;
+                metadata.parameterCount = state.dispatch.parameterCount;
+                metadata.nodeCount = state.dispatch.femNodeCount;
+                metadata.tetrahedronCount = state.dispatch.tetrahedronCount;
+                metadata.materialStateStride = state.dispatch.materialStateStride;
+                metadata.unknownCount = state.fgmresLayout.unknownCount;
+                metadata.tangentCacheEnabled =
+                    state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
+                metadata.tangentCacheForceRebuild =
+                    state.forceCompletedTangentCacheRebuild ? 1u : 0u;
+                metadata.mixedSolverPreconditioner =
+                    state.mixedSolverValue.executionBudgets.z;
+                metadata.cglsIterations = femBaseCGLSIterations;
+                metadata.microFlags = micro.flags;
+                metadata.dispatchABI = state.dispatch.abiVersion;
+                metadata.dispatchFlags = state.dispatch.flags;
+                metadata.rigidGeneralizedCapacity =
+                    state.dispatch.rigidGeneralizedCapacity;
+                metadata.sourcePhysicsFingerprint =
+                    state.sourcePhysicsFingerprint;
+                metadata.worldFingerprint = state.worldFingerprint;
+                metadata.executionFingerprint = state.executionFingerprint;
+                metadata.deviceRegistryID =
+                    static_cast<std::uint64_t>(state.device.registryID);
+                metadata.deviceName = nsString(state.device.name);
+                metadata.cglsCaptureFile =
+                    std::filesystem::path(femBaseCGLSCapturePath).filename().string();
+                metadata.dtSeconds = micro.time.x;
+                metadata.inverseDtSeconds = micro.time.y;
+                // Read the exact validity words only in the asynchronous callback;
+                // the manifest keeps the count as an explicit post-read check.
+                const auto capturedArrays = arrays;
+                const auto capturedMetadata = metadata;
+                const auto capturedPath = femBaseCGLSCapturePath + ".state";
+                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                    if (completed.status != MTLCommandBufferStatusCompleted) {
+                        std::fprintf(stderr,
+                            "fem_base_cgls_state_capture_skipped={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"reason\":\"command_buffer_not_completed\",\"command_buffer_status\":%u,\"physical_state_changed\":false}\n",
+                            capturedMetadata.controlStep,
+                            capturedMetadata.newtonIteration,
+                            static_cast<unsigned>(completed.status));
+                        return;
+                    }
+                    const auto* raw = static_cast<const unsigned char*>(snapshot.contents);
+                    std::uint32_t validCount = 0u;
+                    for (const auto& array : capturedArrays) {
+                        if (array.name != "algorithmic_tangent_cache_valid") continue;
+                        const auto* valid = reinterpret_cast<const std::uint32_t*>(
+                            raw + array.offset);
+                        const std::size_t count = static_cast<std::size_t>(
+                            array.byteCount / sizeof(std::uint32_t));
+                        for (std::size_t i = 0u; i < count; ++i)
+                            validCount += valid[i] != 0u ? 1u : 0u;
+                    }
+                    auto finalMetadata = capturedMetadata;
+                    finalMetadata.tangentCacheValidCount = validCount;
+                    writeBaseCGLSStateCapture(snapshot.contents, payloadBytes,
+                        capturedArrays, finalMetadata, capturedPath);
+                }];
+                encoder = [commandBuffer computeCommandEncoder];
+                if (encoder == nil) {
+                    diagnostics.message =
+                        "CGLS state capture continuation encoder unavailable";
+                    return false;
+                }
+                [encoder setLabel:@"Numi Matter CGLS exact input state capture continuation"];
+                return true;
+            };
+
+            const auto encodeBaseCauchyDirectionTrace = [&](
+                bool primaryPolicy = false) -> bool {
+                const NSUInteger traceBytes = environments * sizeof(nm_float4);
+                const NSUInteger primarySelectionOffset = traceBytes;
+                const NSUInteger bytes = traceBytes + (primaryPolicy
+                    ? environments * sizeof(std::uint32_t) : 0u);
+                if (primaryPolicy && state.femBaseCGLSSelected == nil) {
+                    diagnostics.message =
+                        "primary CGLS policy trace requires its reserved selection scratch";
+                    return false;
+                }
                 id<MTLBuffer> snapshot = [state.device newBufferWithLength:bytes
                     options:MTLResourceStorageModeShared];
                 if (snapshot == nil) {
@@ -22345,7 +22915,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return false;
                 }
                 [copy copyFromBuffer:state.femBaseCauchyTrace sourceOffset:0u
-                    toBuffer:snapshot destinationOffset:0u size:bytes];
+                    toBuffer:snapshot destinationOffset:0u size:traceBytes];
+                if (primaryPolicy) {
+                    [copy copyFromBuffer:state.femBaseCGLSSelected sourceOffset:0u
+                        toBuffer:snapshot destinationOffset:primarySelectionOffset
+                        size:environments * sizeof(std::uint32_t)];
+                }
                 // Optional bounded read-only snapshot of generated scratch.
                 // Header uint32[8]: magic CGLS, version, E, N, U, cap, segmentCount,0.
                 // Twelve aligned segments: x,r,s,p,Ax,b,mask,envMap,scalars,control,errors,selected.
@@ -22400,6 +22975,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const auto capturedEnvironments = environments;
                 const auto formatFloat = appendTraceFloat;
                 const auto capturedCGLSIterations = femBaseCGLSIterations;
+                const auto capturedPrimaryPolicy = primaryPolicy;
+                const auto capturedPrimarySelectionOffset = primarySelectionOffset;
+                const auto capturedPrimaryStartNewton =
+                    femBaseCGLSPrimaryStartNewton;
                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
                     if (completed.status != MTLCommandBufferStatusCompleted) return;
                     if (cglsSnapshot != nil) {
@@ -22420,14 +22999,26 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             capturedRoot, capturedIteration, written,
                             static_cast<std::size_t>(cglsSnapshotBytes), complete ? "true" : "false");
                     }
-                    const auto* values = static_cast<const nm_float4*>(snapshot.contents);
+                    const auto* snapshotBytes = static_cast<const unsigned char*>(
+                        snapshot.contents);
+                    const auto* values = reinterpret_cast<const nm_float4*>(
+                        snapshotBytes);
+                    const auto* primarySelection = capturedPrimaryPolicy
+                        ? reinterpret_cast<const std::uint32_t*>(
+                            snapshotBytes + capturedPrimarySelectionOffset)
+                        : nullptr;
                     std::ostringstream line;
                     if (capturedCGLSIterations != 0u) {
                         line << "fem_base_cgls_direction={\"schema\":1,\"root\":"
                              << capturedRoot << ",\"newton_iteration\":" << capturedIteration
                              << ",\"direction_kind\":\"truncated_unregularized_CGLS\",\"iteration_budget\":"
                              << capturedCGLSIterations
-                             << ",\"original_newton_certificate_applies_to_direction\":false,\"environments\":[";
+                             << ",\"original_newton_certificate_applies_to_direction\":false";
+                        if (capturedPrimaryPolicy) {
+                            line << ",\"selection_policy\":\"base_cgls_primary_policy\",\"start_newton_inclusive\":"
+                                 << capturedPrimaryStartNewton;
+                        }
+                        line << ",\"environments\":[";
                     } else line << "fem_base_cauchy_direction={\"schema\":1,\"root\":"
                          << capturedRoot << ",\"newton_iteration\":" << capturedIteration
                          << ",\"direction_kind\":\"raw_A_transpose_b\","
@@ -22441,8 +23032,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         formatFloat(line, values[e].y);
                         line << (capturedCGLSIterations != 0u ? ",\"b_dot_Ax\":" : ",\"tau\":");
                         formatFloat(line, values[e].z);
-                        line << ",\"original_newton_converged\":"
-                             << (values[e].w > 0.5f ? "true" : "false") << '}';
+                        if (primarySelection != nullptr) {
+                            line << ",\"primary_policy_eligible\":"
+                                 << (primarySelection[e] != 0u ? "true" : "false");
+                        } else {
+                            line << ",\"original_newton_converged\":"
+                                 << (values[e].w > 0.5f ? "true" : "false");
+                        }
+                        line << '}';
                     }
                     line << "]}\n";
                     const auto text = line.str();
@@ -22698,11 +23295,42 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 !femCapsuleResidualArmijoEnabled &&
                 !femCapsuleBoxResidualArmijoEnabled) {
                 encodeFEMResidualArmijoBaseStatus();
+                if (baseCGLSPrimaryPolicySelectedNewton) {
+                    dispatchThreads(
+                        "nm_fgmres_select_base_cgls_primary_policy",
+                        environments, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                        [encoder setBytes:&femBaseCGLSPrimaryStartNewton
+                                   length:sizeof(femBaseCGLSPrimaryStartNewton)
+                                  atIndex:2u];
+                        [encoder setBytes:&nonlinearIteration
+                                   length:sizeof(nonlinearIteration) atIndex:3u];
+                        [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:4u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    if (!encodeBaseCGLSStateCapture()) {
+                        ownership->preDynamicsOpen = false;
+                        return diagnostics;
+                    }
+                    encodeBaseCauchyDirection();
+                    if (!encodeBaseCauchyDirectionTrace(true)) {
+                        ownership->preDynamicsOpen = false;
+                        return diagnostics;
+                    }
+                }
                 const std::uint32_t directionPassCount =
-                    baseCauchyNewtonSelected ? 2u : 1u;
+                    baseCauchyNewtonSelected &&
+                        !baseCGLSPrimaryPolicySelectedNewton ? 2u : 1u;
                 for (std::uint32_t directionPass = 0u;
                      directionPass < directionPassCount; ++directionPass) {
                 if (directionPass == 1u) {
+                    if (!encodeBaseCGLSStateCapture()) {
+                        ownership->preDynamicsOpen = false;
+                        return diagnostics;
+                    }
                     encodeBaseCauchyDirection();
                     if (!encodeBaseCauchyDirectionTrace()) {
                         ownership->preDynamicsOpen = false;
@@ -22710,7 +23338,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                 }
                 const std::uint32_t fallbackAllowed =
-                    baseCauchyNewtonSelected && directionPass == 0u ? 1u : 0u;
+                    baseCauchyNewtonSelected &&
+                        !baseCGLSPrimaryPolicySelectedNewton &&
+                        directionPass == 0u ? 1u : 0u;
                 for (std::uint32_t trialIndex = 0u;
                      trialIndex < state.mixedSolverValue
                          .nonlinearIterations.w; ++trialIndex) {
@@ -22907,7 +23537,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
                 if (!encodeFEMResidualArmijoTrace(
-                        directionPass == 1u ? (femBaseCGLSIterations != 0u ? "base_cgls" : "base_cauchy") : "newton")) {
+                        directionPass == 1u
+                            ? (femBaseCGLSIterations != 0u
+                                ? "base_cgls" : "base_cauchy")
+                            : (baseCGLSPrimaryPolicySelectedNewton
+                                ? "base_cgls_primary_policy" : "newton"))) {
                     ownership->preDynamicsOpen = false;
                     return diagnostics;
                 }

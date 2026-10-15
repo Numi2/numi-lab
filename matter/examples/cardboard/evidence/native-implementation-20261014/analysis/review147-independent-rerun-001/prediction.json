@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.full_tangent_audit_prediction.v1",
+  "time_utc": "2026-10-15T22:43:54.491706+00:00",
+  "question": "Do all nine native cached tangent columns at419 agree with independently reprojected FP64 implicit derivatives at the same exact F and accepted history?",
+  "prediction": "Single-direction comparisons are close, but no complete matrix result is assumed. A failed column/tet is retained. This is analytic derivative-chain comparison, separate from FP32 secant-noise resolution and coupon convergence.",
+  "inputs": {
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-006/sweep.py": "671445300cac39dd404d0292c8b82045090d4c6f33582069e33319598280b4f3",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/receipt.json": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/prediction.json": "41b37af2747cfa551fae60eaddd7681cd7c7dbc859a402e641677ec23bd957d6",
+    "/Users/home/cardboard-implementation-20261014/analysis/operator-fd-e2-adapter-001/coupon419-003/report.json": "c918a287f0de7966d50813a70fa7d9d3917746a6fc5de8dca57283fbf375ba76",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-001/compare_directional_fd.py": "742b0920c4f543e284e41ed18f8dbc78253915a31f39b3ef8d32ff7dec01b5e8",
+    "/Users/home/cardboard-implementation-20261014/analysis/operator-fd-e2-adapter-001/audit_capture.py": "33dd948eb955d3b02dab0c24aadedf766f6fe201586b42cba6e014a8ce261505"
+  }
+}

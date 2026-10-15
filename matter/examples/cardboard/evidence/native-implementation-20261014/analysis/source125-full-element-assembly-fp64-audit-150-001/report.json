@@ -1,0 +1,51 @@
+{
+  "schema": "numi.cardboard.full_element_assembly_fp64_analytic_audit.v1",
+  "classification": "analytic same-center element/frame/assembly comparison, independent FP64 projection; zero physical transactions; not all-column GPU action measurement or native finite difference qualification",
+  "scope": {
+    "environment": 0,
+    "control": 1,
+    "newton": 48,
+    "tets": 1920,
+    "free_nodes": 846,
+    "assembled_columns": 2538,
+    "dt_s": 9.999999747378752e-05
+  },
+  "mass": {
+    "exactly_identical": true,
+    "separate_matrix_l2": 2.653912528676425e-05
+  },
+  "tensor_vs_prior_independent_loop": {
+    "max_element_frobenius_relative_difference": 7.654419123486511e-16,
+    "assembled_relative_difference": 1.1789678550067196e-16
+  },
+  "elements": {
+    "max_column_relative_error": 3.859290877500059e-05,
+    "max_matrix_relative_error": 1.844100997399125e-07,
+    "all_at_1e-3": true,
+    "worst": {
+      "tet": 859,
+      "material": 1,
+      "max_column_relative_error": 3.859290877500059e-05,
+      "max_absolute_column_error_N_per_m": 0.8383692369429689,
+      "matrix_relative_error": 1.844100997399125e-07
+    }
+  },
+  "stiffness_only": {
+    "relative_frobenius_difference": 1.4565287287968425e-08
+  },
+  "assembled_A": {
+    "relative_frobenius_difference": 1.4565263073833691e-08,
+    "max_column_relative_error": 5.113862909322029e-08,
+    "max_absolute_column_error_Ns_per_mps": 2.042086617415356e-08,
+    "zero_reference_columns": 0,
+    "all_columns_at_1percent": true
+  },
+  "near_zero_policy": "No measured native noise floor. No zero reference columns occur; absolute errors retained. No near-zero native finite-difference result is inferred.",
+  "unit_erratum": "Prior cached_operator_audit.local_tet_stiffness docstring calls K=-df/dv. Its basis is displacement and numerical K is -df/dx [N/m]; A=M+dt^2 K [kg], A*delta_v [Ns]. Tensor comparison and previous numbers unchanged.",
+  "wall_seconds": 0.9683880409575067,
+  "limitations": [
+    "One captured state, rate-independent source law and unmodified no-damage/untied internal-starch fixture only.",
+    "An is assembled from native cached material derivatives, not a fresh full native matrix action sweep.",
+    "This does not resolve native FP32 endpoint/secant noise, nonlinear convergence, contact or calibration."
+  ]
+}

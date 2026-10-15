@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.full_element_assembly_prediction.v1",
+  "question": "Does independently reprojected FP64 material differentiation propagate through every element and every assembled free-DOF column consistently with the captured native tangent?",
+  "prediction": "Prior selected actions and147 localmatrices are close, but no all-element/all-assembled-column conclusion is assumed. Compare independent tensor B^T C B against source-bound cached assembly, separate mass from dt^2K, retain absolute errors. This is analytic comparison at one captured center, not native finite differences or a production certificate.",
+  "time_utc": "2026-10-15T22:57:50.441711+00:00",
+  "inputs": {
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/tools/cardboard_cached_operator_audit.py": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-full-tangent-fp64-audit-147-001/manifest.json": "1c215555f3c084c9a804249c0a8926ee7c11fad756cc324318ca7a07c6288b92",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-full-tangent-fp64-audit-147-001/report.json": "19616c7a1a45ad8fef00930852b2e3f7bc4d03ab9af7811f6edb68c2926c5bbd",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-full-tangent-fp64-audit-147-001/matrices.npz": "c79152b13f1a8a88a00388d1083d558980fde0a54c8f8c8ba765246186950b5e",
+    "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/A_free_csr.npz": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-full-tangent-independent-review-001/manifest.json": "83720dfbf39c4bee570a2292464c75dcab84699f0d636e376011449bd2022aee"
+  }
+}

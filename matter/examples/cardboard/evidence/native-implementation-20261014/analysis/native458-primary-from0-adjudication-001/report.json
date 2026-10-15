@@ -1,0 +1,64 @@
+{
+  "schema": "numi.cardboard.native458_primary_from0_adjudication.v1",
+  "classification": "failed complete attempted solver trajectory; no full coupon or post-release execution",
+  "run": "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-from0-post-release-458",
+  "receipt": {
+    "exit_code": 2,
+    "timed_out": false,
+    "inputs_unchanged": true,
+    "accepted_controls": 1,
+    "result": "failed"
+  },
+  "policy": {
+    "selected_control": 1,
+    "start_newton": 0,
+    "inner_CGLS_cap": 64,
+    "outer_Newton_cap": 64,
+    "physical_operator_and_tolerances_unchanged": true,
+    "replacement_has_original_Newton_certificate": false
+  },
+  "trajectory": {
+    "recorded_Armijo_iterations": 64,
+    "recorded_CGLS_directions": 64,
+    "true_residual_rows": 4096,
+    "all64_healthy_selected_alpha1_descent": true,
+    "initial_residual_Ns": 0.0048547294,
+    "first_trial_residual_Ns": 0.000993777649,
+    "final_trial_residual_Ns": 5.54202161e-05,
+    "minimum_recorded_J": 0.997901261,
+    "quiet_environment_directions_zero": true
+  },
+  "comparison": {
+    "source143_primary48_final_residual_Ns": 1.49501593e-05,
+    "current_to_primary48_final_residual_ratio": 3.706998366231455,
+    "earlier_start_improved_outcome": false,
+    "scope": "different nonlinear paths, same physical problem through failing control1; not per-iteration state equivalence"
+  },
+  "new_post_release_phase": {
+    "requested_steps": 3,
+    "actually_reached": false,
+    "native_phase_qualification": false,
+    "CPU_and_build_checks": "source145 package only; no physical execution inferred"
+  },
+  "decision": "Retain primary0 as failed counterfactual. It neither completes control1 nor improves the previously observed terminal residual. Do not enable it by default or count its64 private accepted trials as physical steps. Continue exact-operator conditioning experiments with strict original gates.",
+  "six_axis_verdicts": {
+    "solver_correctness": "Scoped same-center analytic derivatives/actions and observerparity pass elsewhere; this full attempted control fails its final production certificate.",
+    "numerical_convergence": "Not qualified; full histories forresolutionstudies unavailable.",
+    "component_calibration": "No new calibration evidence.",
+    "analogue_validation": "No new fixture validation.",
+    "physical_assembly_in_simulation": "No assembled/released shipping checkpoint.",
+    "crush_impact_prediction": "No qualified capacity or impact result."
+  },
+  "inputs": {
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-from0-post-release-458/receipt.json": "89e531b5b6b33f25394a70ec14716ab2dbf2f8c932a831300a90c448ed46117e",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-from0-post-release-458/prediction.json": "e0cabf6cb86c0d71a368331bd358b01e45a6bf80fc3e7af7e15baa4b67559bcb",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-from0-post-release-458/stderr.log": "b044181305b49e5f59bd1cecfc1e9347d7f4bf018f262c5bc267af94783ccdd3",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-from0-post-release-458/output/result.json": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-from0-post-release-458/output/observations.csv": "6940da285194b3c1d1c382b466dbe0b16cdd67c1892405fcfecae5a4725d4a9d",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-from0-post-release-458/output/manifest.json": "6c2ff3df57bdc97b42e440e6e68378197236611f599006298c89e901e6ea1186",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-after48-control1-453/receipt.json": "6bf62bf387064b81b40bddedb30fe58483950ab4cd1e2b70b5cc46847339cbe7",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-after48-control1-453/stderr.log": "61c8a9b28b4cd5e2197b77552a899ae6b2c36a2aa5afa1dc52b178fd0a6b68cf",
+    "/Users/home/cardboard-implementation-20261014/native-458-command.json": "8ed6703b891716594ea834d404bcd1870adcdcf09b3e823a8b882be50c98ebab",
+    "/Users/home/cardboard-implementation-20261014/analysis/source145-post-release-integration-001/integration-manifest.json": "273b89ddff7211b8f3161c1ec7cb8b296e59cfdd1c608e7240b6bb02cc1486e0"
+  }
+}

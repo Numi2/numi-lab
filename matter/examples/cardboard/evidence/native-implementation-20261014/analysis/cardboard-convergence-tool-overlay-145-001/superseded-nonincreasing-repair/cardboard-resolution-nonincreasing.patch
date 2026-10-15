@@ -1,0 +1,10 @@
+--- a/matter/tools/cardboard_resolution_study.py
++++ b/matter/tools/cardboard_resolution_study.py
+@@ -754,7 +754,7 @@
+         if coarse is None or fine is None:
+             gates[key] = {"status": "inconclusive_missing_metric", "coarse_middle": coarse, "middle_fine": fine}
+         else:
+-            gates[key] = {"status": "pass" if float(fine) < float(coarse) else "difference_not_decreasing",
++            gates[key] = {"status": "pass" if float(fine) <= float(coarse) else "difference_not_decreasing",
+                           "coarse_middle": float(coarse), "middle_fine": float(fine)}
+     return gates

@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.analysis_manifest.v1",
+  "files": {
+    "README.md": {
+      "bytes": 768,
+      "sha256": "6ee3db45f59468eb49cfeb4d1f030cd751fd975705817a61ef63b2f61ea9a0d9"
+    },
+    "adjudicate.py": {
+      "bytes": 13915,
+      "sha256": "d0be12b0d34bad32d00356a4e6c9c0d4c555aac261fe91e64b4a222c0540e391"
+    },
+    "report.md": {
+      "bytes": 7965,
+      "sha256": "2078ee7a58d4a6749643d39631d903de5b565dc376184ea041c53ae35e452030"
+    },
+    "residuals.csv": {
+      "bytes": 122869,
+      "sha256": "a63d53ae88a457896c47ebe3b3b79e2a762015b790ffb327dd426309f62cf98e"
+    },
+    "seal_report.py": {
+      "bytes": 13997,
+      "sha256": "0f39a2a6a3e4efdc44f7d0e4052479e6fb79489097bff48164508587515ef15b"
+    },
+    "source_bindings.json": {
+      "bytes": 11925,
+      "sha256": "712584e1f322b879c0961582decf6d08f47e732c027b60899c7fd29569ca6c67"
+    },
+    "summary.json": {
+      "bytes": 37011,
+      "sha256": "92d4ab7958c76ca14d317c196cca2b3a5631537b24e1870f7f03f3861cedc763"
+    }
+  }
+}

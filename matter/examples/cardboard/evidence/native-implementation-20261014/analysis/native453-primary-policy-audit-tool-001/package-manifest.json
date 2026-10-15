@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.native453_primary_policy_audit_tool_package.v1",
+  "status": "cpu-tested; ready for completed native453 run",
+  "files": {
+    "README.md": {
+      "bytes": 3988,
+      "sha256": "607df917ca4b6096e211458fcf31343b603f5e4efbeb839e1a094a743ff1cc7b"
+    },
+    "audit_primary_policy_snapshot.py": {
+      "bytes": 53201,
+      "sha256": "820cbbfd245665f218f514c1babf6be1dc6d3d70b1b2294009a1def5329a9f2d"
+    },
+    "cpu-validation.json": {
+      "bytes": 1030,
+      "sha256": "e99b30212650e03317e4c208b06f83040ca29695a323dbb4e6ed164125e65138"
+    },
+    "test_audit_primary_policy_snapshot.py": {
+      "bytes": 7842,
+      "sha256": "85bb78ff6245f5ed398e355873eb79411ac3b47fed82103f664de791be0de8ec"
+    }
+  },
+  "source_lineage": {
+    "adapted_analyzer": "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-candidate-audit-tool-001/audit_cgls_snapshot.py",
+    "adapted_analyzer_sha256": "20fb48f577960505929c900dfdf5399bff6d191883ca2d70c5d6b31a95cae02b",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143",
+    "source_frozen_source_json_sha256": "b8073cc91b873d5c63c942c984a1e8a01f0f2f4d0f37e2fd3f1e2ef41ec5abfe",
+    "native_command": "/Users/home/cardboard-implementation-20261014/native-453-command.json",
+    "native_command_sha256": "f4889862aa03e4600ed516aa4bf46fff48a77c34908cee33852b7f5f75814bef",
+    "protocol": "/Users/home/cardboard-implementation-20261014/analysis/primary-cgls453-inputs-001/protocol.json",
+    "protocol_sha256": "daf7ff65ae3779f9cd37bd3ddd28e2b3534fcc89cd4a7654c1fc3fee14cf4b2e"
+  },
+  "native453_status": "running at package seal; no receipt and no audit result included"
+}

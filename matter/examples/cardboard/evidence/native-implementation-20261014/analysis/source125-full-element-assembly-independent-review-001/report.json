@@ -1,0 +1,80 @@
+{
+  "classification": "Independent numerical reproduction of the analytic same-center element/frame/assembly audit only. No native all-column action sweep, finite-difference noise resolution, solver convergence or physical qualification.",
+  "inputs": {
+    "capture_419_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "source_150_manifest_sha256": "595a9777a2d8915f621d414be41f0108dd8ef67cf521900eaf9206680c0fcdbc",
+    "tangent_147_manifest_sha256": "1c215555f3c084c9a804249c0a8926ee7c11fad756cc324318ca7a07c6288b92",
+    "tangent_independent_review_manifest_sha256": "83720dfbf39c4bee570a2292464c75dcab84699f0d636e376011449bd2022aee",
+    "verification_150_manifest_sha256": "46aade2ed20899768e60db0334f70ae5814154e1048ad6fe63bc217261e1ae4b",
+    "verification_150_report_sha256": "1fa8bcbc96fd0906ac8b7d9bd29ad9f782d9e5ee33d026c08023d553aed62725"
+  },
+  "integrity": {
+    "capture_header_identity_checked": true,
+    "capture_integrity_footer": {
+      "cached_tangent_snapshot_bitwise_guard_included": true,
+      "production_inputs_bitwise_unchanged": true,
+      "record": "integrity"
+    },
+    "capture_record_counts": {
+      "environment0_nodes": 882,
+      "environment0_tetrahedra": 1920
+    },
+    "native_cached_tangent_matrices_exactly_join_419": 1920,
+    "source_150_declared_files_checked": 6,
+    "source_150_declared_inputs_checked": 7,
+    "tangent_147_declared_files_checked": 12,
+    "tangent_147_declared_inputs_checked": 8,
+    "tangent_independent_review_artifacts_checked": 5,
+    "tangent_independent_review_bound_inputs_checked": 11,
+    "verification_150_declared_files_checked": 4,
+    "verification_150_declared_inputs_checked": 8,
+    "warnings_or_numpy_fp_exceptions": 0
+  },
+  "limitations": [
+    "The input is one captured environment/control/Newton center and one source law state.",
+    "No independent cohesive interfaces are represented; fixture is explicit finite elastic starch geometry with original substrate connectivity.",
+    "The tangent source uses the separately audited FP64 projection and derivative arrays; this scalar review tests their element and assembly propagation.",
+    "Signed-zero-only tetrahedron record differences versus JSON capture remain as described in the source audit; this review uses captured numerical fields, not an invented geometry qualification."
+  ],
+  "reviewer_attempts": [
+    {
+      "attempt": "001",
+      "cause": "the available system Python has neither NumPy nor SciPy; the successful review uses a small standard-library NPY/NPZ reader and scalar contractions",
+      "log": "attempt-001-missing-numpy.log",
+      "outcome": "no numerical analysis"
+    },
+    {
+      "attempt": "002",
+      "cause": "initial scalar B-matrix construction used the wrong Kronecker-delta index and produced zero reference columns; corrected to the source convention delta(a, displacement)",
+      "log": "attempt-002-review-indexing-failure.log",
+      "outcome": "reviewer-script caught its own indexing error before any report was written"
+    },
+    {
+      "attempt": "003",
+      "cause": "the 150-002 report stores metrics at the top level; the review initially looked for a nested scalar_reconstruction object",
+      "log": "attempt-003-report-schema-adaptation.log",
+      "outcome": "reviewer script stopped before report output"
+    }
+  ],
+  "scalar_reconstruction": {
+    "assembled_dimension": 2538,
+    "assembled_matrix_relative_error": 1.4565263069886152e-08,
+    "cached_matrix_vs_prior_capture_relative_difference": 1.5981819141799301e-16,
+    "contraction_method": "independent scalar Python math.fsum loops; no BLAS, NumPy matmul/einsum, or source helper contraction",
+    "differences_from_150_report": {
+      "assembled_matrix_relative_error": 3.683443539504758e-18,
+      "max_assembled_column_relative_error": 5.2319372267326013e-17,
+      "max_element_column_relative_error": 4.4980837630992365e-17,
+      "max_element_matrix_relative_error": 9.913461856427518e-19
+    },
+    "independent_matrix_vs_first_report_relative_difference": 1.457457019178468e-16,
+    "local_columns": 23040,
+    "local_matrix_count": 1920,
+    "max_assembled_column_relative_error": 5.113862904090013e-08,
+    "max_element_column_absolute_error": 0.838369236941993,
+    "max_element_column_relative_error": 3.859290877495561e-05,
+    "max_element_matrix_relative_error": 1.8441009974054662e-07,
+    "stated_gates_reproduced": true
+  },
+  "schema": "numi.cardboard.full_element_assembly_independent_review.v1"
+}

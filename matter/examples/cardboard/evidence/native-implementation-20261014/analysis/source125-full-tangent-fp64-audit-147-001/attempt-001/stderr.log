@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/home/cardboard-implementation-20261014/analysis/source125-full-tangent-fp64-audit-147-001/audit.py", line 22, in <module>
+    assert np.max(np.abs(p[mat<2,26]))==0,'rate-independent captured contract required'
+AssertionError: rate-independent captured contract required

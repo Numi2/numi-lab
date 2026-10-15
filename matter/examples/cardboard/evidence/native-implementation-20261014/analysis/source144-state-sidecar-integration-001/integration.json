@@ -1,0 +1,13 @@
+{
+  "schema": "numi.cardboard.source144_state_sidecar_integration.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-state-sidecar-144",
+  "base": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143",
+  "changed_files": {
+    "matter/src/runtime.mm": "1a9fcbdda74c921a36b6529033851ae47a460ce51c8373e3794cc8967c5eca7f"
+  },
+  "source_count": 787,
+  "overlay_seal_sha256": "ec27cdbfa38f62cce25a54ab35c38f0a687a99f4e24f6d74edb84ef662b44c77",
+  "available_before_build_bytes": 2812338176,
+  "physical_transactions": 0,
+  "native_qualification": "NOT_EXECUTED"
+}

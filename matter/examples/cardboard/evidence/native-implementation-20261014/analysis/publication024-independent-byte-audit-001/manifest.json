@@ -1,0 +1,87 @@
+{
+  "archive_binding_sha256": "635ec94166fa02e415dfaa8df7be54a7fb78e0abc4c4661a912d449c58cd2d29",
+  "audit_pass": true,
+  "classification": "read-only independent audit; no archive writes",
+  "files": [
+    {
+      "bytes": 1302,
+      "path": "README.md",
+      "sha256": "3639448609c86d1d5334492849a7ea646d0edf4a264d6c73ee8081ab3539450b"
+    },
+    {
+      "bytes": 17071,
+      "path": "audit.py",
+      "sha256": "d2c6e56e1700500bc149957da40150f16c7c395b562a841aa5f741117a0e6574"
+    },
+    {
+      "bytes": 16906,
+      "path": "audit_attempt-001.py",
+      "sha256": "37fb0a9a1368fe17098249f931f41cd2faf9d3a186a73258751d08713f6ba1e1"
+    },
+    {
+      "bytes": 639,
+      "path": "audit_attempt-001-receipt.json",
+      "sha256": "41bad56134575242c543f7014f6a1a71ada07e7ed684b8d3e803b40b6d3204b9"
+    },
+    {
+      "bytes": 17065,
+      "path": "audit_attempt-002.py",
+      "sha256": "cafa7a0c321bd86a982a9241a6f66a7e923eed0cb199bee129264ae7c409c5a0"
+    },
+    {
+      "bytes": 597,
+      "path": "audit_attempt-002-receipt.json",
+      "sha256": "0ca16b9e4fe8e4f54c573db6e4611880ebd099ba469dc8b14dba18ac501039fb"
+    },
+    {
+      "bytes": 5175,
+      "path": "report.json",
+      "sha256": "3633ff65e08d40030904f2d3a55756c47b3b4b7e8de6fe55c00fc7e6e86f2e97"
+    }
+  ],
+  "input_bindings": [
+    {
+      "bytes": 3714,
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/publication-binding-reference024.json",
+      "sha256": "635ec94166fa02e415dfaa8df7be54a7fb78e0abc4c4661a912d449c58cd2d29"
+    },
+    {
+      "bytes": 15272670,
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/summary.json",
+      "sha256": "24e0b44039397159eb0fb0d8018bdff25321acee3452acce5959dc5a3631213b"
+    },
+    {
+      "bytes": 14506397,
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/summary-reference023.json",
+      "sha256": "38da763f3d87b50d78eca8b081ef0c6581e4f1db1a90c1512ddbb4a553e27288"
+    },
+    {
+      "bytes": 2355,
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/publication-binding-reference023.json",
+      "sha256": "a8fcf3302f19d207ffdd41b2f421b0d80b00ce230414fcd6ca523bd300daae8b"
+    },
+    {
+      "bytes": 352755,
+      "path": "/Users/home/cardboard-implementation-20261014/publication-reference024-pathspec.nul",
+      "sha256": "7ac9978a0f21c6480b49d6d9ac22952aa7587cf0bfd54e86e0b3a0afa7b9ab36"
+    },
+    {
+      "bytes": 187957,
+      "path": "/Users/home/cardboard-implementation-20261014/publication024-cases-prepared-v2.json",
+      "sha256": "4e27cce0f9280d0b0ade554603e1348c213afae4904b4e1bebca1b0a9e52b504"
+    },
+    {
+      "bytes": 1590,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source142-root-integration-001/report.json",
+      "sha256": "29de6f5d8503d6b80a5103318c9d91bbc6ab0730f9406aa87e26f6dc9825c7bd"
+    }
+  ],
+  "preserved_failed_attempts": [
+    "audit_attempt-001.py",
+    "audit_attempt-001-receipt.json",
+    "audit_attempt-002.py",
+    "audit_attempt-002-receipt.json"
+  ],
+  "result_path": "report.json",
+  "schema": "numi.cardboard.publication024_independent_byte_audit_manifest.v1"
+}

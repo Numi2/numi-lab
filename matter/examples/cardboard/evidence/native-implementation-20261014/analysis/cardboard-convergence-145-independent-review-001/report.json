@@ -1,0 +1,87 @@
+{
+  "blocking_findings": [],
+  "cpu_validation": {
+    "all_passed": true,
+    "tests": [
+      {
+        "exit_code": 0,
+        "log_sha256": "417fa9cad6650dd37323ea28c281e5652d1ea923f9e0051ae8ea2b04d8b948f8",
+        "suite": "convergence",
+        "test_count": 19
+      },
+      {
+        "exit_code": 0,
+        "log_sha256": "28c66942347d09f24bce098b437daba4872e1cb488a78ff3b0765c3f831e8d7f",
+        "suite": "resolution",
+        "test_count": 13
+      },
+      {
+        "exit_code": 0,
+        "log_sha256": "8c44d88f70f9eaa0d3d12625284980a7f62136065ec7c1d2fe9f3442208edeeb",
+        "suite": "admission",
+        "test_count": 10
+      },
+      {
+        "exit_code": 0,
+        "log_sha256": "3b00acc732f66031321049f9b581cc4368d7da5dbf65c0d3df7821886b64dc44",
+        "suite": "shipping",
+        "test_count": 26
+      }
+    ],
+    "total_tests": 68
+  },
+  "limits": [
+    "No native compile or GPU run for this overlay.",
+    "Synthetic-reader fixtures test software/history contracts only.",
+    "Numerical convergence, absolute force accuracy, held-out material prediction, physical coupon validation, and physical box validation remain unqualified."
+  ],
+  "overlay": "post-release-relaxation end-grip schedule/tooling overlay",
+  "review": {
+    "default_compatibility": {
+      "legacy_analyzer": "missing release/post-release counts default to zero and do not infer unrecorded histories",
+      "metadata_note": "manifest now emits the explicit zero count, so serialization shape changes even when trajectory schedule does not",
+      "new_count_default": 0,
+      "total_steps_add_post_count": true,
+      "when_count_zero": "old loading/hold/unload/relax/release step sequence remains; no post-release accepted steps are added"
+    },
+    "history_and_analysis_gates": {
+      "all_per_step_environment_rows_and_acceptance_certificates_required": true,
+      "complete_resolution_matrix_requires_positive_counts_for_all_six_phases": true,
+      "explicit_requested_post_phase_missing_in_either_run_is_inconclusive": true,
+      "free_grip_constraint_and_fixed_node_count_checked": true,
+      "native_analyzer_requires_completed_status_and_exact_accepted_step_count": true,
+      "retained_failed_runs_cannot_pass_from_accepted_prefix": true,
+      "strictly_decreasing_resolution_differences_preserved": true
+    },
+    "patch": {
+      "changed_paths": [
+        "matter/tools/cardboard_probe.mm",
+        "matter/tools/cardboard_convergence.py",
+        "matter/tools/cardboard_resolution_study.py",
+        "matter/tools/test_cardboard_convergence.py",
+        "matter/tools/test_cardboard_resolution_study.py"
+      ],
+      "patch_applies_and_recreates_overlay": true,
+      "patch_sha256": "03a2096821094c9ef73934d9dcfe18f908d65101e069b3336bec0908313a7cff",
+      "source143_hashes_match_package_manifest": true
+    },
+    "phase_and_boundary": {
+      "left_grip_remains_fixed": true,
+      "phase_endpoint_state_write": "each accepted step writes material state at final step or phase boundary; rejected steps preserve diagnostic state output",
+      "phase_order": [
+        "loading",
+        "hold",
+        "unloading",
+        "relaxation",
+        "release",
+        "post_release_relaxation"
+      ],
+      "post_phase_rejected_for_shipping_crease_and_pin_adhesion_modes": true,
+      "post_phase_requires_positive_release": true,
+      "release_and_post_release_right_grip_free": true,
+      "shipping_uses_existing_released_assembly_settle": true
+    }
+  },
+  "schema": "numi.cardboard.post_release_145_independent_review.v1",
+  "verdict": "PASS_SOFTWARE_SCOPE_ONLY"
+}

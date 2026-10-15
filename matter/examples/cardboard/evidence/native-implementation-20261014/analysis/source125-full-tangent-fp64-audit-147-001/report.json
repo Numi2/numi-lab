@@ -1,0 +1,314 @@
+{
+  "schema": "numi.cardboard.full_native_tangent_vs_independent_fp64.v1",
+  "scope": {
+    "run": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419",
+    "environment": 0,
+    "control": 1,
+    "newton": 48,
+    "tets": 1920,
+    "columns_per_tet": 9,
+    "rate_state": "rate independent only",
+    "physical_transactions": 0
+  },
+  "classification": "same-input analytic derivative comparison; independent FP64 projection and implicit differentiation; not native finite-difference noise qualification or complete nonlinear solve",
+  "projection": {
+    "0": {
+      "rows": 1152,
+      "valid": 1152,
+      "max_scaled_residual": 1.9965211331745533e-12,
+      "max_dynamic_correction": 5.014357269269954e-13,
+      "failures": []
+    },
+    "1": {
+      "rows": 576,
+      "valid": 576,
+      "max_scaled_residual": 1.981137200749782e-12,
+      "max_dynamic_correction": 1.0673123234014252e-11,
+      "failures": []
+    }
+  },
+  "material_groups": {
+    "0": {
+      "tets": 1152,
+      "valid_projections": 1152,
+      "columns": 10368,
+      "zero_reference_columns": 0,
+      "columns_over_1e-3": 0,
+      "max_column_relative_error": 3.294828832069637e-06,
+      "max_matrix_frobenius_relative_error": 4.7859295467774286e-08,
+      "max_absolute_column_l2_Pa": 255.65707009016313,
+      "max_absolute_component_Pa": 255.3705015182495,
+      "max_error_tet": 460,
+      "max_error_column": 2
+    },
+    "1": {
+      "tets": 576,
+      "valid_projections": 576,
+      "columns": 5184,
+      "zero_reference_columns": 0,
+      "columns_over_1e-3": 0,
+      "max_column_relative_error": 6.135899309139776e-05,
+      "max_matrix_frobenius_relative_error": 6.01739402356255e-08,
+      "max_absolute_column_l2_Pa": 257.5007500600857,
+      "max_absolute_component_Pa": 255.12593841552734,
+      "max_error_tet": 859,
+      "max_error_column": 2
+    },
+    "2": {
+      "tets": 192,
+      "valid_projections": 192,
+      "columns": 1728,
+      "zero_reference_columns": 0,
+      "columns_over_1e-3": 0,
+      "max_column_relative_error": 5.1888227325398735e-08,
+      "max_matrix_frobenius_relative_error": 3.387080013321881e-08,
+      "max_absolute_column_l2_Pa": 32.670085126000835,
+      "max_absolute_component_Pa": 31.94291651248932,
+      "max_error_tet": 1892,
+      "max_error_column": 4
+    }
+  },
+  "warnings": [
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "divide by zero encountered in divide",
+      "category": "RuntimeWarning"
+    },
+    {
+      "message": "invalid value encountered in divide",
+      "category": "RuntimeWarning"
+    }
+  ],
+  "wall_seconds": 0.48823037499096245,
+  "near_zero_policy": "No measured absolute noise floor supplied. Zero-reference columns are inconclusive and never pass a relative gate. All absolute errors and reference norms retained.",
+  "limitations": [
+    "One captured center/accepted history, not all solver states.",
+    "Native cached matrix versus independent analytic derivative is distinct from unresolved FP32 endpoint/secant comparison.",
+    "Full FP64 finite-difference verification for every basis column is not performed here; prior branch-preserving FP64 evidence binds one captured direction.",
+    "No damage/interface/rate-dependent law qualification or physical calibration."
+  ],
+  "all_captured_columns_at_relative_gate": true
+}

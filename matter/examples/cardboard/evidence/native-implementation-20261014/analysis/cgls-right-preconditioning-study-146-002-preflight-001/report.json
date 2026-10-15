@@ -1,0 +1,170 @@
+{
+  "classification": "CPU/source payload preflight only; no GPU/native residual execution",
+  "compiled_package_sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+  "helper_sha256": "cc872337366821d0752665ea0feb913f38c1ff7cd921696c395c9861fabccbec",
+  "preflights": [
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/block_Aii_emulated_fp32_iter064.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002-preflight-001/block_Aii_emulated_fp32_iter064",
+        "--preflight-only"
+      ],
+      "name": "block_Aii_emulated_fp32_iter064",
+      "output_exists": false,
+      "output_files": [],
+      "payload_sha256": "6d44883128fde34aefccb370fe7826403e57e4682fb487c9486a9e7e8af8e277",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    },
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/block_Aii_emulated_fp32_iter128.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002-preflight-001/block_Aii_emulated_fp32_iter128",
+        "--preflight-only"
+      ],
+      "name": "block_Aii_emulated_fp32_iter128",
+      "output_exists": false,
+      "output_files": [],
+      "payload_sha256": "b19fd5a116654907ce8a804a6397ebe4a7903b79c16cbe817d88cae9158547e4",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    },
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/block_Aii_fp64_iter064.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002-preflight-001/block_Aii_fp64_iter064",
+        "--preflight-only"
+      ],
+      "name": "block_Aii_fp64_iter064",
+      "output_exists": false,
+      "output_files": [],
+      "payload_sha256": "42c143bee4b5db50b3e73d8b4b32a6bbefe78775196d0f233f79fd650df243db",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    },
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/block_Aii_fp64_iter128.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002-preflight-001/block_Aii_fp64_iter128",
+        "--preflight-only"
+      ],
+      "name": "block_Aii_fp64_iter128",
+      "output_exists": false,
+      "output_files": [],
+      "payload_sha256": "590c223560bc36cdf6e17f0e732a82251ad4a3c582b9de31e6fb0435f30ac358",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    },
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/diag_Aii_emulated_fp32_iter064.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002-preflight-001/diag_Aii_emulated_fp32_iter064",
+        "--preflight-only"
+      ],
+      "name": "diag_Aii_emulated_fp32_iter064",
+      "output_exists": false,
+      "output_files": [],
+      "payload_sha256": "9fb88717db1d9cc735788507e43a0979a474ffd0d1a2f28f326a400df04751dc",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    },
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/diag_Aii_emulated_fp32_iter128.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002-preflight-001/diag_Aii_emulated_fp32_iter128",
+        "--preflight-only"
+      ],
+      "name": "diag_Aii_emulated_fp32_iter128",
+      "output_exists": false,
+      "output_files": [],
+      "payload_sha256": "79890c50e5cceaf49203a2b5d746a1c99d2f8d8620c65d754c0d2cced2ce6a5c",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    },
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/diag_Aii_fp64_iter064.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002-preflight-001/diag_Aii_fp64_iter064",
+        "--preflight-only"
+      ],
+      "name": "diag_Aii_fp64_iter064",
+      "output_exists": false,
+      "output_files": [],
+      "payload_sha256": "a040b30a6c83348e3a5d6da99e9374e5a4a8a717f5f9c4ce995ade6a2a4452a5",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    },
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/diag_Aii_fp64_iter128.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002-preflight-001/diag_Aii_fp64_iter128",
+        "--preflight-only"
+      ],
+      "name": "diag_Aii_fp64_iter128",
+      "output_exists": false,
+      "output_files": [],
+      "payload_sha256": "1ec38e61826385d708976e4530a8855350baec4654a0176492c81781f81d24be",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    },
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/none_emulated_fp32_iter064.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002-preflight-001/none_emulated_fp32_iter064",
+        "--preflight-only"
+      ],
+      "name": "none_emulated_fp32_iter064",
+      "output_exists": false,
+      "output_files": [],
+      "payload_sha256": "45a89e9cc3cd882619815e06cfd66d3748649759d2ad97600c350e985f75a680",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    },
+    {
+      "command": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+        "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/none_fp64_iter064.input.bin",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002-preflight-001/none_fp64_iter064",
+        "--preflight-only"
+      ],
+      "name": "none_fp64_iter064",
+      "output_exists": false,
+      "output_files": [],
+      "payload_sha256": "9267fe96c9ee0532ecba7a3c4ea3edf7406cad233bc8a8990de14e81448f3355",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created"
+    }
+  ],
+  "schema": "numi.cardboard.captured419-cgls-preflight.v1",
+  "study_manifest_sha256": "a56642718cf503998875992c0ac2e0c1302524de1241d544c3d7bd1b2b6f4215",
+  "study_report_sha256": "549a5d405e2197865e415754131455c1e96d8edeb4519729d1042bfa2bc1e175"
+}

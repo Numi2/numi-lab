@@ -1,0 +1,33 @@
+[
+  {
+    "case": "inactive-field-admission-augmentation-on-335",
+    "outcome": "retained_originals_preflight_refused",
+    "reason": "case name marks active/review scope"
+  },
+  {
+    "case": "inactive-field-admission-augmentation-off-336",
+    "outcome": "retained_originals_preflight_refused",
+    "reason": "case name marks active/review scope"
+  },
+  {
+    "case": "two-stage-coupon-first-descent-capture-415",
+    "exit_code": 0
+  },
+  {
+    "case": "base-cauchy-disabled-parity-434",
+    "exit_code": 0
+  },
+  {
+    "case": "base-cauchy-first-failure-enabled-435",
+    "exit_code": 0
+  },
+  {
+    "case": "cache-reuse-full-history-parity-437",
+    "exit_code": 0
+  },
+  {
+    "case": "repeated-cauchy-full-coupon-438",
+    "outcome": "retained_originals_preflight_refused",
+    "reason": "[Errno 2] No such file or directory: '/Users/home/cardboard-implementation-20261014/solver/repeated-cauchy-full-coupon-438/prediction.json'"
+  }
+]

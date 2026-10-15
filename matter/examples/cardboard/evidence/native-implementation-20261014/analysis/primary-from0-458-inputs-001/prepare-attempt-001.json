@@ -1,0 +1,1 @@
+{"outcome": "preparation_failed_before_native_or_new_command", "exception": "KeyError: exit_code; source145 post-build schema instead contains source_build_receipt.success", "physical_transactions": 0}

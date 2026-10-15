@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 16149988,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/archives/cache-reuse-full-history-parity-437/inputs.tar.gz",
+  "archive_sha256": "3430dff7539ddb2882d2f868753fd649881f342173c4f897370dbdccd9cc4440",
+  "before_manifest_sha256": "a672907a743be08fa6874e70a7f1cf1beb88841be448882383c1d9ab26c8d06b",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cache-reuse-full-history-parity-437",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 1837674496,
+  "filesystem_available_before_bytes": 1806286848,
+  "filesystem_delta_bytes": 31387648,
+  "original_allocated_bytes": 51728384,
+  "original_input_files_removed": 794,
+  "original_logical_bytes": 50101636,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/cache-reuse-full-history-parity-437/inputs.compaction.json",
+  "pointer_sha256": "f258681d47d100c2c0f8608eb4b041989c9864c16e5adfc3a3e1415dde8b6ef9",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 50101636,
+    "verified_dirs": 32,
+    "verified_files": 794
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

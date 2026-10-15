@@ -36,17 +36,19 @@ THRESHOLDS = {
     "paper_damage_area_fraction_difference": 0.02,
     "debond_area_fraction_difference": 0.02,
 }
-PHASE_ORDER = ("loading", "hold", "unloading", "relaxation", "release")
+PHASE_ORDER = ("loading", "hold", "unloading", "relaxation", "release", "post_release_relaxation")
 PHASE_CLI = {
     "loading": "--steps",
     "hold": "--hold-steps",
     "unloading": "--unload-steps",
     "relaxation": "--relax-steps",
     "release": "--release-steps",
+    "post_release_relaxation": "--post-release-relax-steps",
 }
 CONTROLLED_FLAGS = {
     "--output", "--metallib", "--nx", "--ny", "--thickness-slices", "--dt",
     "--steps", "--hold-steps", "--unload-steps", "--relax-steps", "--release-steps",
+    "--post-release-relax-steps",
 }
 
 
@@ -108,7 +110,7 @@ def _baseline_contract(path: Path) -> Any:
     protocol = cc._protocol(run.manifest["solver"])
     missing = [phase for phase in PHASE_ORDER if protocol[phase] <= 0]
     if missing:
-        raise StudyError(f"baseline must include positive loading, hold, withdrawal, relaxation, and release steps; missing {missing}")
+        raise StudyError(f"complete-study baseline must include positive loading, hold, withdrawal, clamped relaxation, release, and post-release relaxation steps; missing {missing}")
     if "release" not in run.phases:
         raise StudyError("baseline has no accepted free-release phase")
     return run
@@ -317,6 +319,7 @@ def _case_pairs(slower_load: bool) -> list[dict[str, Any]]:
 def make_plan(*, baseline_dir: Path, probe: Path, metallib: Path, run_root: Path,
               timeout_seconds: float, slower_load_factor: int | None = None,
               max_free_force_residual_n: float | None = None,
+              source_root: Path | None = None,
               source_paths: Iterable[Path] | None = None) -> dict[str, Any]:
     """Create the immutable prediction and sequential native case plan."""
     baseline_dir = baseline_dir.expanduser().resolve()
@@ -337,7 +340,8 @@ def make_plan(*, baseline_dir: Path, probe: Path, metallib: Path, run_root: Path
     if slower_load_factor is not None and slower_load_factor < 2:
         raise StudyError("slower_load_factor must be an integer >= 2")
 
-    repo_root = Path(__file__).resolve().parents[2]
+    repo_root = (source_root.expanduser().resolve() if source_root is not None
+                 else Path(__file__).resolve().parents[2])
     sources = _default_source_paths(repo_root)
     if source_paths is not None:
         sources.extend(source_paths)
@@ -385,7 +389,8 @@ def make_plan(*, baseline_dir: Path, probe: Path, metallib: Path, run_root: Path
             "acceptance_thresholds": THRESHOLDS,
             "no_plateau_claim": "a missing or failed level is inconclusive; no extrapolated plateau or tolerance-derived absolute force accuracy is inferred",
             "spatial_axes": {"nx": [8, 16, 32], "ny": [2, 4, 8], "thickness_slices": [1, 2, 4], "combined_refined": [32, 8, 4]},
-            "temporal_axis": "dt, dt/2, dt/4 at 32x8x4 with all five physical phase durations and loading speed unchanged",
+            "temporal_axis": "dt, dt/2, dt/4 at 32x8x4 with all six physical phase durations and loading speed unchanged",
+            "release_history": "accepted right-grip-free release followed by a separate positive post-release-relaxation phase; the latter supplies the final springback and material-state endpoint",
             "force_accuracy": "hold relative residual tolerance / dt fixed by tightening tolerance on time refinement; report accepted native free-force residuals in newtons separately; this ratio is not an absolute force error bound because the residual normalization scale is not exported",
             "max_free_force_residual_n": force_limit,
         },
@@ -446,6 +451,7 @@ def create_plan(args: argparse.Namespace) -> Path:
         run_root=root, timeout_seconds=args.timeout,
         slower_load_factor=args.slower_load_factor,
         max_free_force_residual_n=args.max_free_force_residual_n,
+        source_root=Path(args.source_root) if args.source_root else None,
         source_paths=[Path(path) for path in args.source_file] if args.source_file else None,
     )
     root.mkdir(parents=True, exist_ok=False)
@@ -1029,6 +1035,8 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
                       help="optional declared absolute limit for observed accepted free-force L2 and max residuals")
     plan.add_argument("--slower-load-factor", type=int,
                       help="optional separate load-rate comparison; multiplies loading duration only")
+    plan.add_argument("--source-root", type=Path,
+                      help="source checkout root for required compiler/runtime bindings; use --source-file for additional overlay files")
     plan.add_argument("--source-file", action="append", type=Path,
                       help="additional source binding; default core source set is always included")
     run = sub.add_parser("run", help="execute the sealed cases sequentially under the one-GPU process lock")

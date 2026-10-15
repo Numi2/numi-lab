@@ -1,0 +1,6 @@
+{
+  "exit_code": 1,
+  "error": "verification incorrectly expected no input directory entries; compactor deliberately preserves empty directory hierarchy",
+  "correction": "test that no regular input files remain; retain empty directories",
+  "physical_source_or_archives_modified": false
+}

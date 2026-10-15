@@ -1,0 +1,118 @@
+{
+  "schema": "numi.cardboard.reference025-publication-binding.v1",
+  "prior_binding_sha256": "635ec94166fa02e415dfaa8df7be54a7fb78e0abc4c4661a912d449c58cd2d29",
+  "prior_pathspec_sha256": "7ac9978a0f21c6480b49d6d9ac22952aa7587cf0bfd54e86e0b3a0afa7b9ab36",
+  "prior_pathspec_entries": 2312,
+  "historical_prefix": {
+    "path": "summary-reference024.json",
+    "records": 1342,
+    "sha256": "24e0b44039397159eb0fb0d8018bdff25321acee3452acce5959dc5a3631213b"
+  },
+  "cases": [
+    "analysis/base-cgls-primary-policy-overlay-143-001",
+    "analysis/base-cgls-state-capture-overlay-144-001",
+    "analysis/base-cgls-state-reader-abi-repair-148-001",
+    "analysis/cardboard-convergence-145-independent-review-001",
+    "analysis/cardboard-convergence-tool-overlay-145-001",
+    "analysis/cgls-right-preconditioning-study-146-001",
+    "analysis/cgls-right-preconditioning-study-146-001-preflight-001",
+    "analysis/cgls-right-preconditioning-study-146-002",
+    "analysis/cgls-right-preconditioning-study-146-002-preflight-001",
+    "analysis/closed-published-output-compaction-021",
+    "analysis/closed-published-output-compaction-022",
+    "analysis/closed-solver-input-compaction-020",
+    "analysis/native-block-inverse-cgls-residual-replay-457",
+    "analysis/native-right-preconditioned-cgls-residual-replay-456",
+    "analysis/native450-453-residual-figure-001",
+    "analysis/native453-launch-guard-001",
+    "analysis/native453-primary-policy-adjudication-001",
+    "analysis/native453-primary-policy-assessment-001",
+    "analysis/native453-primary-policy-audit-tool-001",
+    "analysis/native454-launch-guard-001",
+    "analysis/native455-launch-guard-001",
+    "analysis/native456-right-preconditioning-adjudication-001",
+    "analysis/native458-launch-guard-001",
+    "analysis/native458-primary-from0-adjudication-001",
+    "analysis/native459-launch-guard-001",
+    "analysis/native459-resource-preflight-revision-001",
+    "analysis/post-release-default459-inputs-001",
+    "analysis/primary-cgls453-inputs-001",
+    "analysis/primary-feature-off454-inputs-001",
+    "analysis/primary-from0-458-inputs-001",
+    "analysis/publication024-independent-byte-audit-001",
+    "analysis/publication024-preflight-001",
+    "analysis/publication024-staged-source-check-001",
+    "analysis/retained-source-snapshot143-001",
+    "analysis/retained-source-snapshots144-145-149-001",
+    "analysis/review147-independent-rerun-001",
+    "analysis/source125-full-element-assembly-fp64-audit-150-001",
+    "analysis/source125-full-element-assembly-fp64-verification-150-002",
+    "analysis/source125-full-tangent-fp64-audit-147-001",
+    "analysis/source125-full-tangent-independent-review-001",
+    "analysis/source125-full-element-assembly-independent-review-001",
+    "analysis/source143-feature-off454-parity-001",
+    "analysis/source143-host-policy-parser-check-001",
+    "analysis/source143-primary-policy-independent-review-001",
+    "analysis/source143-primary-policy-integration-001",
+    "analysis/source144-state-sidecar-integration-001",
+    "analysis/source145-post-release-integration-001",
+    "analysis/source145-root-integration-001",
+    "analysis/source145-default-phase459-parity-001",
+    "analysis/state-sidecar455-inputs-001",
+    "solver/cgls-primary-after48-control1-453",
+    "solver/cgls-primary-feature-off-parity-454",
+    "solver/cgls-primary-from0-post-release-458",
+    "solver/cgls-state-sidecar-observer-455",
+    "solver/post-release-default-zero-parity-459",
+    "solver/original-19-state-fp64-replay-141-001"
+  ],
+  "summary_sha256": "0592e4164c784c1ed3d920abe37f673b95144cc3c8c305ae49c8ceff6341b786",
+  "previous_prefix_records": 1342,
+  "new_case_records": 56,
+  "copied_files": 1756,
+  "raw_files": 1679,
+  "gzip_files": 77,
+  "all_archived_bytes_verified": true,
+  "physical_validation": false,
+  "six_axis_verdicts": {
+    "solver_correctness": {
+      "status": "partial_component_evidence; complete_nonlinear_solve_unqualified",
+      "evidence": "Native453/45516lateCGLSprivateupdatesaccepted; allroll backcontrol1. Defaultoff454, observer455, defaultphase459 completeattemptparitypasses. Exactstate455joins419. Fullcapturedanalyticmaterial/element/assembledcomparisonsmeettheirstatedgates. MetalFP32finite-differencenoisefloorunresolved."
+    },
+    "numerical_convergence": {
+      "status": "unqualified",
+      "evidence": "No completedcoupon mesh/time/slower-loadingstudy. Source145addspositivepostreleasephase/fullphaseadmission; native458neverreachedit. Native458primaryfrom0worsensfailure."
+    },
+    "component_calibration": {
+      "status": "partial_source_data_only",
+      "evidence": "Prior source-grade/absolute-energy/damage/interface implementations and uncertainties retained. Exactkraft/NSSCprogressivedamage and independentstarchGIc/GIIcunidentified."
+    },
+    "analogue_validation": {
+      "status": "unqualified_for_requested_full_sequence",
+      "evidence": "Nearbygrade/fixture/conditioning/rate transfer limits retained; no new validationseriespassed."
+    },
+    "physical_assembly_in_simulation": {
+      "status": "unqualified",
+      "evidence": "No completed12-score fold/lap/end closure and fixture-free settledshippingbox. Explicitflutecontactarenas/memoryadmissionremainopen."
+    },
+    "crush_impact_prediction": {
+      "status": "unexecuted",
+      "evidence": "No qualifiednominalcompressionfirstpeak, selectedmasses, gravitycrush or100mmdrop. Exactbare-boximpactvalidationunavailable."
+    }
+  },
+  "excluded_directory_parts": [
+    "__pycache__",
+    "archives",
+    "base",
+    "build",
+    "candidate",
+    "inputs",
+    "restore-check",
+    "source"
+  ],
+  "excluded_directory_prefixes": [
+    "CMakeFiles",
+    ".air"
+  ],
+  "external_recovery_archives": "Closed rawinputs compaction019/020 archives remain external sole recovery archives; keep them. Restore metadata is published."
+}

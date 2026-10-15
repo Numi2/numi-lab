@@ -1,0 +1,15 @@
+test_reader_widths_and_offsets_match_compiled_source144_header (test_shared_abi.SharedHeaderABITests.test_reader_widths_and_offsets_match_compiled_source144_header) ... ok
+test_absolute_payload_path_is_rejected_even_if_present (test_state_capture_reader.StateCaptureReaderTests.test_absolute_payload_path_is_rejected_even_if_present) ... ok
+test_candidate_state_cannot_claim_current_projection (test_state_capture_reader.StateCaptureReaderTests.test_candidate_state_cannot_claim_current_projection) ... ok
+test_duplicate_json_keys_rejected (test_state_capture_reader.StateCaptureReaderTests.test_duplicate_json_keys_rejected) ... ok
+test_missing_adjacent_payload_has_no_fallback (test_state_capture_reader.StateCaptureReaderTests.test_missing_adjacent_payload_has_no_fallback) ... ok
+test_nonstandard_json_number_rejected (test_state_capture_reader.StateCaptureReaderTests.test_nonstandard_json_number_rejected) ... ok
+test_original_144_reader_failure_is_preserved_as_abi_diagnostic (test_state_capture_reader.StateCaptureReaderTests.test_original_144_reader_failure_is_preserved_as_abi_diagnostic) ... ok
+test_payload_and_array_hashes_are_checked (test_state_capture_reader.StateCaptureReaderTests.test_payload_and_array_hashes_are_checked) ... ok
+test_valid_schema_fixture (test_state_capture_reader.StateCaptureReaderTests.test_valid_schema_fixture) ... ok
+test_wrong_fixed_record_width_rejected (test_state_capture_reader.StateCaptureReaderTests.test_wrong_fixed_record_width_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.342s
+
+OK

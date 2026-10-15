@@ -1,0 +1,42 @@
+{
+  "schema": "numi.cardboard.root-source145-integration.v1",
+  "utc": "2026-10-15T23:17:19.609997+00:00",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-post-release-relaxation-145",
+  "root": "/Users/home/numi-cardboard-20261006",
+  "changed_files": {
+    "matter/src/runtime.mm": {
+      "before": "1917384f3d82c43c1c63e040ebe796c43f7ab017cc0ef0f474ca94d3bd511ebb",
+      "after": "1a9fcbdda74c921a36b6529033851ae47a460ce51c8373e3794cc8967c5eca7f"
+    },
+    "matter/tools/cardboard_convergence.py": {
+      "before": "db7de31be82f9362b52a3c4c366c72c74d1f6a3df923fdcdab7061eda89dcb7f",
+      "after": "bfc71d8eb6ee051a22c9311b965011b512508806342a932989483f362902da7e"
+    },
+    "matter/tools/cardboard_probe.mm": {
+      "before": "6917e515993e1da26d09d946bf8a3f58c7066ad183b19131aa466e94e8d32e99",
+      "after": "d2d4812ccbe95e31cb4fd266cfc94a727b74ce12f1830b6fe017460e7e8a37c9"
+    },
+    "matter/tools/cardboard_resolution_study.py": {
+      "before": "326348a3047124fc5da57404f577aca76e1383ff7fc35266e307cb0b00a5b7be",
+      "after": "ec9cfe762640896fb11731b05598153080e57d208f01f5804d77a21c43c1cc66"
+    },
+    "matter/tools/test_cardboard_convergence.py": {
+      "before": "ae20faabdc4643d9d378571c926e261aacab67b6794668a2cd8e784be8940bb7",
+      "after": "efeb505727a9bf4e0ad0bd88f5a51386a63679e15f9dd20411c313a9bc918ec4"
+    },
+    "matter/tools/test_cardboard_resolution_study.py": {
+      "before": "7e7c350f2effee2178f3d006461ae80938b088f5417fccae59998abd5046c3fe",
+      "after": "5c026b66feb30a0aa5eabcf4f1ff50e11bc3879b2cb3d1db27c0d1a9c5bc7c84"
+    },
+    "matter/src/metal/base_cgls_runtime.metalinc": {
+      "before": "9c889ffa751411980498f6a4536e1c8ffacbe472a37d559f291b5893874fa74c",
+      "after": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903"
+    }
+  },
+  "all_787_selected_source_hashes_match": true,
+  "native_build_receipt": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-145/source-build.json",
+  "native_build_receipt_sha256": "b1db366d5cb919f5bb470c201ae83df568349bc6bb6f5b0c45cb332875b764ec",
+  "new_native_build_run": false,
+  "reason": "Root selected sources are byte-identical to the independently built immutable145 snapshot. Root docs/evidence publication is separate.",
+  "full_attempted_native_default_zero_parity": "pending native459"
+}

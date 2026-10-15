@@ -1,0 +1,16 @@
+{
+  "created_utc": "2026-10-15T23:05:11.764372+00:00",
+  "exact_cases": [
+    "current-failure-22-state-capture-153",
+    "rationalized-paper-control2-newton63-capture-304",
+    "inactive-field-admission-augmentation-on-335",
+    "inactive-field-admission-augmentation-off-336",
+    "two-stage-coupon-first-descent-capture-415",
+    "base-cauchy-disabled-parity-434",
+    "base-cauchy-first-failure-enabled-435",
+    "cache-reuse-full-history-parity-437",
+    "repeated-cauchy-full-coupon-438"
+  ],
+  "retained_raw_cases": "419,441through458 and allactive/incomplete/timedoutcases",
+  "preservation": "archive then hash/size/modes verification and full streaming restore before unlink originals; original source snapshots, native binaries, receipts/predictions and all output histories retained"
+}

@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.resource-preflight-revision.v1",
+  "utc": "2026-10-15T23:12:10.267467+00:00",
+  "previous_guard_refused_before_native_launch": true,
+  "previous_guard_bytes": 2147483648,
+  "observed_available_bytes": 2093772800,
+  "case_exists": false,
+  "guard_exists": false,
+  "revised_initial_guard_bytes": 1610612736,
+  "abort_floor_bytes_unchanged": 536870912,
+  "reserve_bytes_unchanged": 134217728,
+  "reason": "Known same-shape complete failed run outputs and copies are under 128MiB; retained 128MiB emergency reserve and 512MiB abort floor. Change is resource admission only; physical model, solver tolerances, and command remain unchanged.",
+  "matching_processes": [],
+  "original_runner_sha256": "27bb3eeae55f1f3c8bacc9ecf9e5533d628511409fbf4412c06f25efb7a58970",
+  "revised_runner_sha256": "28e7775b037a81287f3c7860bfd7a83642b5e19578bca423ebb8521cb973d1af"
+}

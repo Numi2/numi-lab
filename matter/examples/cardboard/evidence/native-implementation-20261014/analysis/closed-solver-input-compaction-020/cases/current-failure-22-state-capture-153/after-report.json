@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 14954123,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/archives/current-failure-22-state-capture-153/inputs.tar.gz",
+  "archive_sha256": "d1f8765d16fa396ad74b4b0209d0a414b8dca4b7cb14ecd6b07752c7fdc3235f",
+  "before_manifest_sha256": "15f90d27230984fc8cb92e767bf0448c165ffb69378c39e6e88049743aaff6f4",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/current-failure-22-state-capture-153",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 1850146816,
+  "filesystem_available_before_bytes": 1824014336,
+  "filesystem_delta_bytes": 26132480,
+  "original_allocated_bytes": 47730688,
+  "original_input_files_removed": 753,
+  "original_logical_bytes": 46186850,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/current-failure-22-state-capture-153/inputs.compaction.json",
+  "pointer_sha256": "eef9bad57a04ec45d6cf7850e5b1f4541f0fa901af085506c2153504f9d23cf0",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 46186850,
+    "verified_dirs": 32,
+    "verified_files": 753
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

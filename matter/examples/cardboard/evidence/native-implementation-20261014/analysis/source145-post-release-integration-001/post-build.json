@@ -1,0 +1,82 @@
+{
+  "build_command_logs": [
+    {
+      "bytes": 1218,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-145/provenance-command-0.log",
+      "sha256": "dffd7ebb5fe0af4efc4028114a9a247f9557152a83e94b3b9f06e4c360152853"
+    },
+    {
+      "bytes": 17534,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-145/provenance-command-1.log",
+      "sha256": "91dd04d5bd4dbc05c253e3ead2991d3b451ae397eff621c4a5969d4df35737e9"
+    }
+  ],
+  "build_outputs": {
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-145/lib/libmetalrobo.dylib": {
+      "bytes": 8505520,
+      "sha256": "0ac8c0fd07c5c4bc4344895db59263007e5e874327b80bd11413194d741967fd"
+    },
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-145/matter/numi-matter-cardboard-probe": {
+      "bytes": 2677096,
+      "sha256": "f5788c6dfba27780ca0613dcbb4db8e74210451b1d80c0dc8ca7b36ee1b3b2af"
+    },
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-145/matter/shaders/NumiMatter.metallib": {
+      "bytes": 6960773,
+      "sha256": "1b5edb67e9f86f43c0a76d76b56e342d06da3c376bfad8f46c9712a9dab68289"
+    },
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-145/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729"
+    },
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-145/shaders/MetalRobo.metallib": {
+      "bytes": 5300911,
+      "sha256": "61a548c69e6ec9c5c95480d54dbcf2fd851744e2a5e799397c59960e2fb27334"
+    },
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-145/shaders/MetalRoboHyperPolicy.metallib": {
+      "bytes": 48434,
+      "sha256": "0229cfae6afd3f1c75244e6814dd542e07a0f2a8082a636b1a6038dfa2573cef"
+    },
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-145/shaders/NumiNeuron.metallib": {
+      "bytes": 66974,
+      "sha256": "e7243f197f9312ff28abefc6ffe5b17b3f52916175b445e65e026f760e42665a"
+    }
+  },
+  "build_runner_log": {
+    "bytes": 136,
+    "content": "{\"success\": true, \"exit_code\": 0, \"provenance\": \"/Users/home/numi-cardboard-20261006/build-cardboard-provenance-145/source-build.json\"}",
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/source145-post-release-integration-001/build-runner.log",
+    "sha256": "16db367e2c7fe584eebbbf6492fc26c9cbfb1825440b9974290272fbd5ce2a3c"
+  },
+  "configure_support_entries_verified": 1034,
+  "configure_support_file_byte_identical_to_source144": true,
+  "configure_support_source_sha256": "7f6f2afa927ae0373fa8027597fade97174cb867415fb38640e4e01767cfe3f1",
+  "disk_available_bytes_after_build": 2582814720,
+  "native_probe_or_gpu_simulation_launched": false,
+  "only_expected_differences_from_source144": [
+    "frozen-source.json",
+    "matter/tools/cardboard_convergence.py",
+    "matter/tools/cardboard_probe.mm",
+    "matter/tools/cardboard_resolution_study.py",
+    "matter/tools/test_cardboard_convergence.py",
+    "matter/tools/test_cardboard_resolution_study.py"
+  ],
+  "overlay_manifest_sha256": "aca1ab6014af96cb3d757eae52f6d4f3f2bc7366affd33b0f2fd3f2cba5d9014",
+  "overlay_patch_sha256": "03a2096821094c9ef73934d9dcfe18f908d65101e069b3336bec0908313a7cff",
+  "schema": "numi.cardboard.source145_post_release_build_evidence.v1",
+  "source144_file_inventory_entries": 1859,
+  "source145_file_inventory_entries": 1859,
+  "source_build_receipt": {
+    "bytes": 96292,
+    "changed_sources": [],
+    "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-145/source-build.json",
+    "sha256": "b1db366d5cb919f5bb470c201ae83df568349bc6bb6f5b0c45cb332875b764ec",
+    "success": true,
+    "targets": [
+      "numi-matter-cardboard-probe"
+    ]
+  },
+  "source_map_entries_verified": 787,
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-post-release-relaxation-145",
+  "source_snapshot_frozen_sha256": "35fdfca5606e7e49ab27727a7f9991f1fe7d0999dfc65a46b95d15dd0070bd2c",
+  "unchanged_inventory_entries": 1853
+}

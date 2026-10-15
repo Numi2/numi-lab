@@ -1,0 +1,110 @@
+{
+  "file_count": 19,
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "d1e1e0f0204f19d06b527c8cf04d26e11cd441772bf9d52f450ce4e192a8f4db",
+      "size_bytes": 4720
+    },
+    {
+      "path": "capture-455-vs-419.json",
+      "sha256": "14cabbe692fcb4c83cc6581d965f257fb1698b7f713a13897ba3a85fbc8f9486",
+      "size_bytes": 5363
+    },
+    {
+      "path": "capture-join-run.log",
+      "sha256": "14cabbe692fcb4c83cc6581d965f257fb1698b7f713a13897ba3a85fbc8f9486",
+      "size_bytes": 5363
+    },
+    {
+      "path": "inputs.json",
+      "sha256": "517c546db6986862309007e99fbdd3c58ead588f523157c29b8df019d6910211",
+      "size_bytes": 517580
+    },
+    {
+      "path": "legacy-reader-455-failure.json",
+      "sha256": "70e6a545d9577759b825f56ae7b4ec4d702ed2da17f7aa7cfb78f20b42201fd7",
+      "size_bytes": 702
+    },
+    {
+      "path": "observer-parity-453-455.json",
+      "sha256": "540b63fc3108e27d3c0fd487e7f466ade7a94105589f59f4b738cd2e100e82f6",
+      "size_bytes": 7855
+    },
+    {
+      "path": "observer-parity-run.log",
+      "sha256": "540b63fc3108e27d3c0fd487e7f466ade7a94105589f59f4b738cd2e100e82f6",
+      "size_bytes": 7855
+    },
+    {
+      "path": "reader-455-validation.json",
+      "sha256": "f345051bc7beeb23b2edf9866a6043a935a05bb33f0fa5d203db49e952ce2061",
+      "size_bytes": 609
+    },
+    {
+      "path": "reader-validation-run.log",
+      "sha256": "f345051bc7beeb23b2edf9866a6043a935a05bb33f0fa5d203db49e952ce2061",
+      "size_bytes": 609
+    },
+    {
+      "path": "shared-abi-compiled-result.json",
+      "sha256": "0d0e1a0cd94c9fba045273dce925e6ea9162b68d66fa6f22d5bdeb19103c41a3",
+      "size_bytes": 710
+    },
+    {
+      "path": "tests/shared_abi_probe.cpp",
+      "sha256": "41f05792316afc8af109694596ee37ad35fba40a7a3a6980c07f1e097582aea8",
+      "size_bytes": 2230
+    },
+    {
+      "path": "tests/test_shared_abi.py",
+      "sha256": "2af029acd95d39cea4b1e01ee5079561325f01330e2cee90ec28563b03d8931e",
+      "size_bytes": 3696
+    },
+    {
+      "path": "tests/test_state_capture_reader.py",
+      "sha256": "d36afbe64289b46d7347ed925a02ebefe8cc1b4584fdc4c4e5941bb47643dc43",
+      "size_bytes": 9662
+    },
+    {
+      "path": "tools/audit_capture_against_419.py",
+      "sha256": "8bacefe0048e9d9f34074b075491ef78a44b6fc6003d5573b69f7192c78eaa4a",
+      "size_bytes": 21100
+    },
+    {
+      "path": "tools/audit_observer_parity.py",
+      "sha256": "15bb943a9e68f445d0561ba1afadbe654aafdfe970313ce515788f5b381cb7ab",
+      "size_bytes": 9230
+    },
+    {
+      "path": "tools/collect_inputs.py",
+      "sha256": "5f7a4ec7c389b90d755980c901cc121ca61c9f2c346631b5139efdeff36431c8",
+      "size_bytes": 2950
+    },
+    {
+      "path": "tools/read_state_capture.py",
+      "sha256": "ee400288607bf220502fd4670923972f7b79cce2d810f247d6889ed4665f4b48",
+      "size_bytes": 16068
+    },
+    {
+      "path": "tools/seal_package.py",
+      "sha256": "6592f81a50cb29460e500ea37a0cba88150ec1140ae4355476fd3b26feb7ca77",
+      "size_bytes": 2660
+    },
+    {
+      "path": "validation.log",
+      "sha256": "b7e1d78bdf3f667e12fd6677619e7bffe01333c23c87b2d5ce56dbba6c4a0985",
+      "size_bytes": 1596
+    }
+  ],
+  "package": "base-cgls-state-reader-abi-repair-148-001",
+  "schema": "numi.matter.audit_package_manifest.v1",
+  "source_inputs": "inputs.json",
+  "validation": {
+    "cpu_tests": "10 passed",
+    "join_455_419": "state-input parity with signed-zero-only tetrahedron representation differences; projected history unavailable",
+    "native_or_physical_qualification": false,
+    "observer_453_455": "production history parity; both runs remain failed attempts",
+    "reader_455": "valid; 24 arrays; 4,327,464-byte payload"
+  }
+}

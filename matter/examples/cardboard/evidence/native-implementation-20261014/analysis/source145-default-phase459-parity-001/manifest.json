@@ -1,0 +1,15 @@
+{
+  "inputs": {
+    "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-candidate-audit-tool-001/audit_cgls_snapshot.py": "20fb48f577960505929c900dfdf5399bff6d191883ca2d70c5d6b31a95cae02b",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-state-sidecar-observer-455/prediction.json": "ca3c0cd8f11df2f913d504ddecd075e64c4e1124dd84acecf32c32613ae40163",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-state-sidecar-observer-455/receipt.json": "0eea54025b2468593ba37e9d2d34cab3e5feded3d2084ef1fe173b8db12f55e6",
+    "/Users/home/cardboard-implementation-20261014/solver/post-release-default-zero-parity-459/prediction.json": "f0697b0a8bb808907d36a2390d9e7fa7fe3c91c6a022a6db893546436ed886cf",
+    "/Users/home/cardboard-implementation-20261014/solver/post-release-default-zero-parity-459/receipt.json": "3e3aa4ba2f6dd61a82e0e92a3a76ad2c67795cb9fbc5e9c10ba5051cc6006f01",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-state-sidecar-observer-455/stderr.log": "97f7176a610d2e6dfb71f93664e3f997ed1367ce742c8c394b454dde1ec673f5",
+    "/Users/home/cardboard-implementation-20261014/solver/post-release-default-zero-parity-459/stderr.log": "6148bc55edd4ab7a0214411bb2e771e41e4aff569928dc169d7fc171b0894d19"
+  },
+  "files": {
+    "report.json": "7e608908ee6067d7782cab6ad16057330fe42171ce5d463fabacfc363b83ee36",
+    "compare.py": "0a3deb02827d1f9dc2326eae01308989b5605e158d4ca746d4c19d4342722174"
+  }
+}

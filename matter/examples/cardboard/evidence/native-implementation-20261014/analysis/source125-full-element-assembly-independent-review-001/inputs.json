@@ -1,0 +1,91 @@
+{
+  "direct_inputs": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source125-full-element-assembly-fp64-audit-150-001/manifest.json",
+      "sha256": "595a9777a2d8915f621d414be41f0108dd8ef67cf521900eaf9206680c0fcdbc",
+      "size_bytes": 1921
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source125-full-element-assembly-fp64-audit-150-001/report.json",
+      "sha256": "45a95b351a44c24878f2ec523a047140d18c86820e6decf68b079f6f5b803f8d",
+      "size_bytes": 2314
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source125-full-element-assembly-fp64-audit-150-001/audit.py",
+      "sha256": "ded8490a06ec6e3e2770510c7d34b578c2debaea92551f5ba84a15c49ad67022",
+      "size_bytes": 7674
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source125-full-element-assembly-fp64-verification-150-002/manifest.json",
+      "sha256": "46aade2ed20899768e60db0334f70ae5814154e1048ad6fe63bc217261e1ae4b",
+      "size_bytes": 1909
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source125-full-element-assembly-fp64-verification-150-002/report.json",
+      "sha256": "1fa8bcbc96fd0906ac8b7d9bd29ad9f782d9e5ee33d026c08023d553aed62725",
+      "size_bytes": 1827
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source125-full-element-assembly-fp64-verification-150-002/verify.py",
+      "sha256": "8635ae2a1b359644ae586e8e1110de54c0a956a1fcc15d8020dfbbaf1607c783",
+      "size_bytes": 5957
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source125-full-tangent-fp64-audit-147-001/manifest.json",
+      "sha256": "1c215555f3c084c9a804249c0a8926ee7c11fad756cc324318ca7a07c6288b92",
+      "size_bytes": 2641
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source125-full-tangent-fp64-audit-147-001/report.json",
+      "sha256": "19616c7a1a45ad8fef00930852b2e3f7bc4d03ab9af7811f6edb68c2926c5bbd",
+      "size_bytes": 9172
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source125-full-tangent-fp64-audit-147-001/matrices.npz",
+      "sha256": "c79152b13f1a8a88a00388d1083d558980fde0a54c8f8c8ba765246186950b5e",
+      "size_bytes": 1721008
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source125-full-tangent-independent-review-001/manifest.json",
+      "sha256": "83720dfbf39c4bee570a2292464c75dcab84699f0d636e376011449bd2022aee",
+      "size_bytes": 2730
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source125-full-tangent-independent-review-001/report.json",
+      "sha256": "11f761fd752c8398fd07f22abd3d55b0fb7afe25f7bd12c855bb14e5a3e45099",
+      "size_bytes": 2949
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source125-full-tangent-independent-review-001/verification-details.json",
+      "sha256": "205a97f7c38f0a51dc37320bfff50dcb8e55e9ee0c80ccb56738e01691d2516a",
+      "size_bytes": 7587
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/tools/cardboard_cached_operator_audit.py",
+      "sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+      "size_bytes": 44728
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture",
+      "sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+      "size_bytes": 38811258
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/A_free_csr.npz",
+      "sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed",
+      "size_bytes": 506678
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/review147-independent-rerun-001/manifest.json",
+      "sha256": "88516aa26ad5b64aeb431ce03caacaf892c84b63a5cbac521ba00980b7a2e954",
+      "size_bytes": 1992
+    }
+  ],
+  "schema": "numi.cardboard.full_element_assembly_independent_review_inputs.v1",
+  "source_150_files_checked": 6,
+  "source_150_inputs_checked": 7,
+  "tangent_147_files_checked": 12,
+  "tangent_147_inputs_checked": 8,
+  "verification_150_files_checked": 4,
+  "verification_150_inputs_checked": 8
+}

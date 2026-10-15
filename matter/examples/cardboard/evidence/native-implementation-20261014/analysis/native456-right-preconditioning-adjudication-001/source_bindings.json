@@ -1,0 +1,177 @@
+{
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142",
+  "frozen_source_manifest_sha256": "b0b14da5a0a4f65d7f7fc103be9d04cbf03ec3d2e322af6791e23b1f8125aba6",
+  "native_helper_source": {
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/native_residual_direction.mm",
+    "sha256": "b00923d80b7897d4939c090ecbdbecdf48b63726ea188719ebca328675f76310"
+  },
+  "native_helper_program_manifest": {
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/compiled-program.json",
+    "sha256": "b2f37a4eaaf922eb8ed8c5cbc721ab8ef174c230b56bc02f522b44ca5b3aea1f"
+  },
+  "native_helper_executable": {
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+    "sha256": "cc872337366821d0752665ea0feb913f38c1ff7cd921696c395c9861fabccbec"
+  },
+  "source125_build_receipt": {
+    "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-125/source-build.json",
+    "sha256": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6",
+    "matches_prediction": true
+  },
+  "compiled_world": {
+    "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+    "sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c"
+  },
+  "matter_sources": {
+    "fem.metalinc": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/src/metal/fem.metalinc",
+      "sha256": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170",
+      "lines": {
+        "armijo_prepare_candidate": "4469-4512",
+        "mechanical_residual": "2730-2824"
+      }
+    },
+    "shared.h": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/include/numi/matter/shared.h",
+      "sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+      "lines": {
+        "NMFEMNodeStateGPU": "1139-1147"
+      }
+    }
+  },
+  "capture_packages": {
+    "456": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-right-preconditioned-cgls-residual-replay-456",
+      "prediction_sha256": "0b6e142504df8d700a443efbdccd814ba65e356e344f466207b6d90042fb4c88",
+      "receipt_sha256": "8b282f3847c8abadb751040bd7cb8d06e9a3a5cc9272b3bba524d5b8fddf5121",
+      "manifest_sha256": "c24a40bef6434b26e0497e76ff927153657a156f4c4c116ff9e4fbb3d578f08d",
+      "native_commands": 10,
+      "preflight_commands": 10,
+      "physical_transactions": 0,
+      "source_and_helper_inputs_unchanged": true,
+      "output_file_count": 553,
+      "output_payloads": {
+        "block3_emulated_fp32_iter064": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/block3_emulated_fp32_iter064.input.bin",
+          "sha256": "4370627c8defac3cf5876b65a534a7259113339d1471aa24fa549966a788e67e"
+        },
+        "block3_emulated_fp32_iter128": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/block3_emulated_fp32_iter128.input.bin",
+          "sha256": "2e1a54541f46419c454034e836ad2338735e03041af91b010305f6112d7aa87f"
+        },
+        "block3_fp64_iter064": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/block3_fp64_iter064.input.bin",
+          "sha256": "9afcad670448f0a4001d4c53b71bebfbe97449aa487b4fd33a25da42d3ecd389"
+        },
+        "block3_fp64_iter128": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/block3_fp64_iter128.input.bin",
+          "sha256": "0ba247c55d0e7163f31f1cb63b62104c30110504b0e57e1b75cd8c783a0cd510"
+        },
+        "column_emulated_fp32_iter064": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/column_emulated_fp32_iter064.input.bin",
+          "sha256": "61c208c8c8cca9079b360d93bdf5a44346e83231269c00c1a971c654d57d4259"
+        },
+        "column_emulated_fp32_iter128": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/column_emulated_fp32_iter128.input.bin",
+          "sha256": "c375dd29d51d04940c9206c2495f55d5312dd4d4fa3d4e6c1875cbed9dcfff6a"
+        },
+        "column_fp64_iter064": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/column_fp64_iter064.input.bin",
+          "sha256": "3207385b9a829db6ca331381b5fdfbe220659dc422d76f145a5c8f5167c1dfc4"
+        },
+        "column_fp64_iter128": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/column_fp64_iter128.input.bin",
+          "sha256": "c9a8aacda5081af4bcd58dc17ec49655d8129ad21464b29eeef11ac5d4cf4ee8"
+        },
+        "none_emulated_fp32_iter064": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/none_emulated_fp32_iter064.input.bin",
+          "sha256": "45a89e9cc3cd882619815e06cfd66d3748649759d2ad97600c350e985f75a680"
+        },
+        "none_fp64_iter064": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001/replay-inputs/none_fp64_iter064.input.bin",
+          "sha256": "9267fe96c9ee0532ecba7a3c4ea3edf7406cad233bc8a8990de14e81448f3355"
+        }
+      },
+      "helper_program_sha256": "b2f37a4eaaf922eb8ed8c5cbc721ab8ef174c230b56bc02f522b44ca5b3aea1f",
+      "source_build_sha256": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6"
+    },
+    "457": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-block-inverse-cgls-residual-replay-457",
+      "prediction_sha256": "7118e71676a2ee6f107126330c3e5cef6e3f50be741a9d6cf883628ca5a26daa",
+      "receipt_sha256": "44f22d30f2d6994020aaa0ad4b6297a964c2105fd3f4d300e3e9f9f1ffd042fc",
+      "manifest_sha256": "cbffcecd01583c601f1bfa57ff7bcdd268154f6acd7740edc2888160be8ae261",
+      "native_commands": 10,
+      "preflight_commands": 10,
+      "physical_transactions": 0,
+      "source_and_helper_inputs_unchanged": true,
+      "output_file_count": 553,
+      "output_payloads": {
+        "block_Aii_emulated_fp32_iter064": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/block_Aii_emulated_fp32_iter064.input.bin",
+          "sha256": "6d44883128fde34aefccb370fe7826403e57e4682fb487c9486a9e7e8af8e277"
+        },
+        "block_Aii_emulated_fp32_iter128": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/block_Aii_emulated_fp32_iter128.input.bin",
+          "sha256": "b19fd5a116654907ce8a804a6397ebe4a7903b79c16cbe817d88cae9158547e4"
+        },
+        "block_Aii_fp64_iter064": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/block_Aii_fp64_iter064.input.bin",
+          "sha256": "42c143bee4b5db50b3e73d8b4b32a6bbefe78775196d0f233f79fd650df243db"
+        },
+        "block_Aii_fp64_iter128": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/block_Aii_fp64_iter128.input.bin",
+          "sha256": "590c223560bc36cdf6e17f0e732a82251ad4a3c582b9de31e6fb0435f30ac358"
+        },
+        "diag_Aii_emulated_fp32_iter064": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/diag_Aii_emulated_fp32_iter064.input.bin",
+          "sha256": "9fb88717db1d9cc735788507e43a0979a474ffd0d1a2f28f326a400df04751dc"
+        },
+        "diag_Aii_emulated_fp32_iter128": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/diag_Aii_emulated_fp32_iter128.input.bin",
+          "sha256": "79890c50e5cceaf49203a2b5d746a1c99d2f8d8620c65d754c0d2cced2ce6a5c"
+        },
+        "diag_Aii_fp64_iter064": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/diag_Aii_fp64_iter064.input.bin",
+          "sha256": "a040b30a6c83348e3a5d6da99e9374e5a4a8a717f5f9c4ce995ade6a2a4452a5"
+        },
+        "diag_Aii_fp64_iter128": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/diag_Aii_fp64_iter128.input.bin",
+          "sha256": "1ec38e61826385d708976e4530a8855350baec4654a0176492c81781f81d24be"
+        },
+        "none_emulated_fp32_iter064": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/none_emulated_fp32_iter064.input.bin",
+          "sha256": "45a89e9cc3cd882619815e06cfd66d3748649759d2ad97600c350e985f75a680"
+        },
+        "none_fp64_iter064": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002/replay-inputs/none_fp64_iter064.input.bin",
+          "sha256": "9267fe96c9ee0532ecba7a3c4ea3edf7406cad233bc8a8990de14e81448f3355"
+        }
+      },
+      "helper_program_sha256": "b2f37a4eaaf922eb8ed8c5cbc721ab8ef174c230b56bc02f522b44ca5b3aea1f",
+      "source_build_sha256": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6"
+    }
+  },
+  "CGLS_direction_study_inputs": {
+    "146-001": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-001",
+      "report_sha256": "49c2857833d23f3a44f63d652e89667cbce0115e73b89908b01235273d5f18be",
+      "manifest_sha256": "8d6fbf28cd30b146c201ea27acd80281eb1f3d0a9784aecc9e48dbcc81097bd3"
+    },
+    "146-002": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-right-preconditioning-study-146-002",
+      "report_sha256": "549a5d405e2197865e415754131455c1e96d8edeb4519729d1042bfa2bc1e175",
+      "manifest_sha256": "a56642718cf503998875992c0ac2e0c1302524de1241d544c3d7bd1b2b6f4215"
+    }
+  },
+  "native_helper_source_semantics": {
+    "evaluateResidual_and_signed_direction": "native_residual_direction.mm:473-490",
+    "geometry_force_residual_pipeline": "native_residual_direction.mm:526-548",
+    "accepted_history_and_nodes_immutable_checks": "native_residual_direction.mm:547-557",
+    "constraint_mask_metric_definition": "native_residual_direction.mm:593-627",
+    "alpha_grid_and_side_logging": "native_residual_direction.mm:760-771",
+    "payload_layout": "native_residual_direction.mm:114-150"
+  },
+  "residual_definition": "nm_fem_build_mechanical_residual computes free-node impulse residual dt*(internal force + configured gravity + external force) - mass*(current velocity - accepted velocity); this test sets hasExternalForces=0 and passes no contact residual term. xyz components are normed; fixed constraint values 1 or 3 excluded.",
+  "direction_sign": "sample side 0 uses the exported direction unchanged; side 1 negates xyz; positive alpha is added to candidate velocity, then displacement is reconstructed from accepted displacement and dt times the new velocity.",
+  "fixed_mask": "candidate/sample restAndFixed.w exactly 1.0 or 3.0 is fixed; all other legal 0.0 rows are included. Captured state has 846 free and 36 fixed nodes per environment (36 tag1, zero tag3)."
+}

@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 16022919,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/archives/base-cauchy-first-failure-enabled-435/inputs.tar.gz",
+  "archive_sha256": "8fcc983a9c6352bbd6a7572f005a27955461721fe090808225654febf5cc89f9",
+  "before_manifest_sha256": "4a0c177bc2411326209451fb57c1868565ccc12bef34efec837732c742e54ddb",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 1807138816,
+  "filesystem_available_before_bytes": 1770270720,
+  "filesystem_delta_bytes": 36868096,
+  "original_allocated_bytes": 51511296,
+  "original_input_files_removed": 794,
+  "original_logical_bytes": 49897656,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/inputs.compaction.json",
+  "pointer_sha256": "06754d86f28d7aee3e2021fbaa10462d9bd22d8bd1996ead3410ce539c8461b0",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 49897656,
+    "verified_dirs": 32,
+    "verified_files": 794
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

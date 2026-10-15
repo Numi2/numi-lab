@@ -1,0 +1,8 @@
+{
+  "files": {
+    "before-manifest.json": "52d4b50868caef159e3cf7aa7644111c4163b221552e20a3c6d544ae95d04b4a",
+    "report.json": "767cdb69fb31ba3f2cfec7698e2aef11d70f52f41edc33a380763eeb0015d9a3",
+    "restore.py": "b45b4caf8d657cee253d7a99338a255057ce0d981e2820091eeb4080a9db1dc8",
+    "runner.py": "df1d3cef55167f3c9ca3d53d7fc52e5be606f4c37429f6fa22388ca7bdc08fce"
+  }
+}

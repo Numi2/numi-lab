@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 20051908,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/archives/two-stage-coupon-first-descent-capture-415/inputs.tar.gz",
+  "archive_sha256": "53f3ffb96b6647beec7b2d9ec9edceb104258860bd1b8ebfeb2a96101358f0c6",
+  "before_manifest_sha256": "428f3f89ab4e19cb6d24a35a1c7bae993f0175697c0b459d393f83332f6c5698",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/two-stage-coupon-first-descent-capture-415",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 1736273920,
+  "filesystem_available_before_bytes": 1704112128,
+  "filesystem_delta_bytes": 32161792,
+  "original_allocated_bytes": 58863616,
+  "original_input_files_removed": 793,
+  "original_logical_bytes": 57243018,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-coupon-first-descent-capture-415/inputs.compaction.json",
+  "pointer_sha256": "0ef79d4e47e216260c547913177c83812d851499de52a4725a365ffe036ed7a1",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 57243018,
+    "verified_dirs": 32,
+    "verified_files": 793
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

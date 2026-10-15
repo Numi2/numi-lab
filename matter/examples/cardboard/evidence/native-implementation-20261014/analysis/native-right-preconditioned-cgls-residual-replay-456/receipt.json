@@ -1,0 +1,88 @@
+{
+  "commands": {
+    "block3_emulated_fp32_iter064.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "block3_emulated_fp32_iter064.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "block3_emulated_fp32_iter128.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "block3_emulated_fp32_iter128.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "block3_fp64_iter064.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "block3_fp64_iter064.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "block3_fp64_iter128.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "block3_fp64_iter128.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "column_emulated_fp32_iter064.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "column_emulated_fp32_iter064.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "column_emulated_fp32_iter128.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "column_emulated_fp32_iter128.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "column_fp64_iter064.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "column_fp64_iter064.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "column_fp64_iter128.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "column_fp64_iter128.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "none_emulated_fp32_iter064.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "none_emulated_fp32_iter064.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "none_fp64_iter064.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "none_fp64_iter064.native": {
+      "exit_code": 0,
+      "timed_out": false
+    }
+  },
+  "wall_seconds": 16.20189324999228,
+  "physical_transactions": 0,
+  "source_and_helper_inputs_unchanged": true,
+  "finished_at_utc": "2026-10-15T22:50:24.748170+00:00"
+}

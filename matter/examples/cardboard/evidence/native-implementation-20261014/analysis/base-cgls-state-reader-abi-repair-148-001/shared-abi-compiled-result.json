@@ -1,0 +1,20 @@
+{
+  "member_offsets": {
+    "NMFEMNodeStateGPU.deltaVelocity": 48,
+    "NMFEMNodeStateGPU.positionAndMass": 0,
+    "NMFEMNodeStateGPU.referenceDisplacementAndMode": 64,
+    "NMFEMNodeStateGPU.restAndFixed": 32,
+    "NMFEMNodeStateGPU.velocityAndInverseMass": 16,
+    "NMTetrahedronGPU.identity": 64,
+    "NMTetrahedronGPU.inverseRestRow0": 16,
+    "NMTetrahedronGPU.inverseRestRow1": 32,
+    "NMTetrahedronGPU.inverseRestRow2": 48,
+    "NMTetrahedronGPU.materialFrameRotation": 80,
+    "NMTetrahedronGPU.nodes": 0
+  },
+  "record_widths": {
+    "record:NMFEMNodeStateGPU": 80,
+    "record:NMTetrahedronGPU": 96
+  },
+  "shared_header_sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+}

@@ -1,0 +1,15 @@
+test_actual_native_450_452_failed_runs_cannot_pass_from_accepted_prefix (__main__.ToolOverlayTests) ... ok
+test_complete_synthetic_curve_metrics_are_screened_without_physical_claim (__main__.ToolOverlayTests) ... ok
+test_completed_status_with_short_accepted_prefix_is_rejected (__main__.ToolOverlayTests) ... ok
+test_declared_decreasing_rule_rejects_equality_and_worsening (__main__.ToolOverlayTests) ... ok
+test_matrix_phases_time_refinement_and_separate_rate_axis (__main__.ToolOverlayTests) ... ok
+test_missing_required_baseline_phase_is_refused (__main__.ToolOverlayTests) ... ok
+test_post_release_endpoint_is_free_and_used_after_distinct_relaxation (__main__.ToolOverlayTests) ... ok
+test_post_release_relaxation_cannot_exist_without_a_free_release_phase (__main__.ToolOverlayTests) ... ok
+test_probe_source_contract_keeps_default_legacy_and_separate_free_phase (__main__.ToolOverlayTests) ... ok
+test_shifted_phase_duration_is_refused (__main__.ToolOverlayTests) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.101s
+
+OK
