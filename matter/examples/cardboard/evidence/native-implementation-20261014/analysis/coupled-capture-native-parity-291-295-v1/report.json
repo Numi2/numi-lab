@@ -1,0 +1,250 @@
+{
+  "capture": {
+    "device_program_fingerprint_json_a": "d61f84737f5c7664",
+    "device_program_fingerprint_json_b": "2fecbe5cf49ff5ed",
+    "iteration_a": 12,
+    "iteration_b": 12,
+    "manifest_diff": [
+      [
+        "$.device_program_fingerprint",
+        "d61f84737f5c7664",
+        "2fecbe5cf49ff5ed"
+      ],
+      [
+        "$.payload.file",
+        "/Users/home/cardboard-implementation-20261014/native/strict-json-full-contact-arena-newton12-291/candidate-capture.coupled.bin",
+        "/Users/home/cardboard-implementation-20261014/native/trace-slot-production-contact-parity-295/candidate-capture.coupled.bin"
+      ]
+    ],
+    "manifest_sha256_a": "fd77314acad48353980cdd33a05e8cccadd3a7e607c9b098f55647f852acb3b7",
+    "manifest_sha256_b": "5d8a3d378f9b200de438c6c03357f49ac6ec1eaf5869c084b8a853e6ed615b07",
+    "payload_byte_identical": true,
+    "payload_bytes_a": 10787124,
+    "payload_bytes_b": 10787124,
+    "payload_sha256_a": "ef7e5ff74370cf84d7c36fb647b3e2735add4695308b312807ccbbbc0c65c1aa",
+    "payload_sha256_b": "ef7e5ff74370cf84d7c36fb647b3e2735add4695308b312807ccbbbc0c65c1aa",
+    "physics_fingerprint_json_a": "915f50b10edc2e46",
+    "physics_fingerprint_json_b": "915f50b10edc2e46",
+    "root_a": 1201,
+    "root_b": 1201,
+    "schema_a": "numi.matter.coupled_newton_capture.v1",
+    "schema_b": "numi.matter.coupled_newton_capture.v1"
+  },
+  "diagnostic_state_files": [
+    {
+      "byte_identical": true,
+      "bytes_a": 37008,
+      "bytes_b": 37008,
+      "name": "fixture-free-body-control-1200.log",
+      "sha256_a": "ccb40283ebb8a4c849a536899fb9ebd87906f0da7fcb785c2f403f666321c8d6",
+      "sha256_b": "ccb40283ebb8a4c849a536899fb9ebd87906f0da7fcb785c2f403f666321c8d6"
+    },
+    {
+      "byte_identical": false,
+      "bytes_a": 37869,
+      "bytes_b": 37866,
+      "manifest_path_normalized_equal": true,
+      "name": "fixture-free-body-control-1201.log",
+      "sha256_a": "cce1d27b47120706340f71244a8ab81368aac38cf0014cdab655392fc5b3fcf2",
+      "sha256_b": "4db4e4b04aeb252bae051f802d99c3d47eea45d6f617c890d4b7aa424642a0bf"
+    },
+    {
+      "byte_identical": false,
+      "bytes_a": 904359,
+      "bytes_b": 904359,
+      "differing_offsets": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "name": "transaction-000000-after.bin",
+      "only_device_program_fingerprint_differs": true,
+      "sha256_a": "9fd3c14c8dc3f825b2b552ff98e81b0270f4fd203e1646677a2560f5fd5c3cbf",
+      "sha256_b": "007a8e07b75431ff339211bcbe824d7ef03a2a3b1b9a9e156c0dd1f7a0a5f712"
+    },
+    {
+      "byte_identical": false,
+      "bytes_a": 904359,
+      "bytes_b": 904359,
+      "differing_offsets": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "name": "transaction-000000-before.bin",
+      "only_device_program_fingerprint_differs": true,
+      "sha256_a": "1c312c5ea77aeda45a3bf6b56c2aa34adc9f19aca9e6dd632d522afbcee1f7bc",
+      "sha256_b": "58e00d366d17b7eff397bf778b24586d5f8cdb7b8c99cb43d7583d87919b17c0"
+    },
+    {
+      "byte_identical": true,
+      "bytes_a": 6559,
+      "bytes_b": 6559,
+      "name": "transaction-000000.json",
+      "sha256_a": "249d5249c1a4f2f165bc8468142a8f086ee615465360aac7080d9b9d6d90c5bf",
+      "sha256_b": "249d5249c1a4f2f165bc8468142a8f086ee615465360aac7080d9b9d6d90c5bf"
+    },
+    {
+      "byte_identical": false,
+      "bytes_a": 904359,
+      "bytes_b": 904359,
+      "differing_offsets": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "name": "transaction-000001-after.bin",
+      "only_device_program_fingerprint_differs": true,
+      "sha256_a": "aa2c93f4474a5cd98f64dd4ff00c732cd82f4e78138942769147f9a1fa363e57",
+      "sha256_b": "cc77cb710c0a360c5177ab2cb34551adfc5c3e0ce98d6818c838f0e48abc3391"
+    },
+    {
+      "byte_identical": false,
+      "bytes_a": 904359,
+      "bytes_b": 904359,
+      "differing_offsets": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "name": "transaction-000001-before.bin",
+      "only_device_program_fingerprint_differs": true,
+      "sha256_a": "9fd3c14c8dc3f825b2b552ff98e81b0270f4fd203e1646677a2560f5fd5c3cbf",
+      "sha256_b": "007a8e07b75431ff339211bcbe824d7ef03a2a3b1b9a9e156c0dd1f7a0a5f712"
+    },
+    {
+      "byte_identical": true,
+      "bytes_a": 6676,
+      "bytes_b": 6676,
+      "name": "transaction-000001.json",
+      "sha256_a": "1920dcf0873634e798740a00313ae9a12fb95fa3fb760eb2a2653cdf40d28e81",
+      "sha256_b": "1920dcf0873634e798740a00313ae9a12fb95fa3fb760eb2a2653cdf40d28e81"
+    },
+    {
+      "byte_identical": false,
+      "bytes_a": 904359,
+      "bytes_b": 904359,
+      "differing_offsets": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "name": "transaction-000002-after.bin",
+      "only_device_program_fingerprint_differs": true,
+      "sha256_a": "26b56cb561aa827b67a780c23509be7ee3fcdc479b74ff4d131415d8817cf36f",
+      "sha256_b": "2d27e8449284f31f4bc52735235ebe2673156ed049df124d7aed76af49c9a334"
+    },
+    {
+      "byte_identical": false,
+      "bytes_a": 904359,
+      "bytes_b": 904359,
+      "differing_offsets": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "name": "transaction-000002-before.bin",
+      "only_device_program_fingerprint_differs": true,
+      "sha256_a": "aa2c93f4474a5cd98f64dd4ff00c732cd82f4e78138942769147f9a1fa363e57",
+      "sha256_b": "cc77cb710c0a360c5177ab2cb34551adfc5c3e0ce98d6818c838f0e48abc3391"
+    },
+    {
+      "byte_identical": true,
+      "bytes_a": 6677,
+      "bytes_b": 6677,
+      "name": "transaction-000002.json",
+      "sha256_a": "0ae149d7cc5610221fa3380331f1e1e2579e56b84e6f351d760bb9e07884f780",
+      "sha256_b": "0ae149d7cc5610221fa3380331f1e1e2579e56b84e6f351d760bb9e07884f780"
+    }
+  ],
+  "limitations": [
+    "This compares emitted candidate/run state and transaction snapshots. The source/build snapshots differ, so it is not a same-executable diagnostics-on/off control.",
+    "The snapshot payloads differ in their 8-byte deviceProgramFingerprint field by design; all other bytes in the six paired snapshots are equal.",
+    "Both native runs exit 1; this is failed-run state parity, not solver convergence or physical qualification."
+  ],
+  "run_receipts": {
+    "build_a": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-088/source-build.json",
+    "build_b": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-089/source-build.json",
+    "exit_code_a": 1,
+    "exit_code_b": 1,
+    "inputs_unchanged_a": true,
+    "inputs_unchanged_b": true,
+    "source_snapshot_a": "/Users/home/cardboard-implementation-20261014/snapshots/source-strict-coupled-capture-json-088",
+    "source_snapshot_b": "/Users/home/cardboard-implementation-20261014/snapshots/source-direct-projection-diagnostic-089",
+    "timed_out_a": false,
+    "timed_out_b": false
+  },
+  "runs": {
+    "a": "/Users/home/cardboard-implementation-20261014/native/strict-json-full-contact-arena-newton12-291",
+    "b": "/Users/home/cardboard-implementation-20261014/native/trace-slot-production-contact-parity-295"
+  },
+  "schema": "numi.cardboard.native_capture_state_parity.v1",
+  "snapshot_payload_header": {
+    "compared_snapshot_file": "transaction-000000-after.bin",
+    "contract": "little-endian: uint32 message length at 0; uint64 sourcePhysicsFingerprint at 4; uint64 deviceProgramFingerprint at 12",
+    "device_program_u64_a": "0xd61f84737f5c7664",
+    "device_program_u64_b": "0x2fecbe5cf49ff5ed",
+    "message_bytes_a": 0,
+    "message_bytes_b": 0,
+    "raw_difference_ranges": [
+      [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ]
+    ],
+    "raw_differing_byte_count": 8,
+    "raw_differing_offsets": [
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "source_physics_u64_a": "0xb8682516183db1dc",
+    "source_physics_u64_b": "0xb8682516183db1dc"
+  },
+  "verdict": {
+    "diagnostic_state_payloads_have_only_expected_program_fingerprint_difference": true,
+    "physical_convergence": "failed_in_both_runs",
+    "whole_run_or_container_identity": false
+  }
+}

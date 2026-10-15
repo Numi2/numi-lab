@@ -1,0 +1,31 @@
+{
+  "all_772_retained_sources_match_build_manifest": true,
+  "analysis": {
+    "analyzer_sha256": "1cc6b8b6f483fbba4d38c802bb42c0b14e258fd8c2456f406ca499cfd1828aac",
+    "readme_sha256": "17d946a4baebcfef9516b16a511dd326baac9e136fd560bff2f83ea215e71b96",
+    "report_sha256": "1b62caf93c28dce399c788170361040c79f0ddec625ff338602a8b0692e2d82d",
+    "status": "layout_parity_on_retained_prefix; four-arm comparison incomplete"
+  },
+  "executed_artifacts_sha256": {
+    "/Users/home/cardboard-implementation-20261014/native/ordered-cohesive-pages-stage-diagnostics-287/inputs/runtime/lib/libmetalrobo.dylib": {
+      "matches_build_manifest": true,
+      "sha256": "b88ee5fdacb91a8909d3ee97c9a86da090aeac0cedc34fef9d0dac9c7d50e64d"
+    },
+    "/Users/home/cardboard-implementation-20261014/native/ordered-cohesive-pages-stage-diagnostics-287/inputs/runtime/matter/numi-matter-cardboard-full-contact-armijo-check": {
+      "matches_build_manifest": true,
+      "sha256": "19bc2585b99c7cbc2859c84d7685f6ae4e4016e018233cacf973f2b5532a1f8c"
+    },
+    "/Users/home/cardboard-implementation-20261014/native/ordered-cohesive-pages-stage-diagnostics-287/inputs/runtime/matter/shaders/NumiMatter.metallib": {
+      "matches_build_manifest": true,
+      "sha256": "51c38a9b27b750227d61fae7f38a09de4030ede739d00e29557adfcf3db27bca"
+    },
+    "/Users/home/cardboard-implementation-20261014/native/ordered-cohesive-pages-stage-diagnostics-287/inputs/runtime/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "matches_build_manifest": true,
+      "sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729"
+    }
+  },
+  "prediction_sha256": "3e9b9c42da4e769e50ca6f6548dab57caf62d1c1da4496aa25aa5816947c1105",
+  "run_receipt_sha256": "40bda53b19fca9be011fa601b2a57dacb010bb347af7f47a3933c7a172281567",
+  "schema": "numi.cardboard.tiled_cohesive_stage_diagnostics_manifest.v1",
+  "source_build_manifest_sha256": "120c809d6d0ea9a0c1ed27a25df3c20748f186f62c64164eb54f09e745524c1b"
+}

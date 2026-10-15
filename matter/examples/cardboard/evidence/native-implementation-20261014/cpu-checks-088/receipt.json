@@ -1,0 +1,20 @@
+{
+  "schema": "numi.cardboard.cpu-check-receipt.v1",
+  "argv": [
+    "ctest",
+    "--test-dir",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-088",
+    "--output-on-failure",
+    "-j",
+    "4",
+    "-R",
+    "^(matter.compiler.cardboard_solver_reference|matter.analysis.cardboard_source_data|matter.analysis.cardboard_calibration_ensemble|matter.analysis.cardboard_resolution_study|matter.analysis.cardboard_convergence|matter.analysis.cardboard_tooling|matter.analysis.cardboard_newton_trace|matter.analysis.cardboard_accepted_animation|matter.analysis.cardboard_capsule_side_derivative|matter.compiler.cardboard_tooling|matter.compiler.cardboard_barrier_scale|matter.compiler.cardboard_profile|matter.compiler.cardboard_fracture_regularization|matter.compiler.cardboard_starch_interface_mesh|matter.compiler.cardboard_glue_mesh|matter.compiler.cardboard_box_blank|matter.compiler.cardboard_shipping_protocol|matter.compiler.cardboard_box_assembly_controller|matter.compiler.cardboard_damage_builder|matter.compiler.cardboard_retained_matrix_damage|cardboard-compensated-deformation|matter.compiler.fem_static_surface_map|matter.compiler.cardboard_pin_adhesion_fixture|matter.compiler.cardboard_retained_damage_fp64_oracle|matter.compiler.cardboard_generic_compensated_projection|matter.compiler.fem_regional_galerkin|matter.compiler.fixed_convex_contact_step|matter.compiler.cardboard_shipping_driver|matter.compiler.cardboard_shipping_memory|matter.compiler.cardboard_shipping_closure_mesh|matter.compiler.cardboard_shipping_snapshot|matter.compiler.cardboard_mixed_cohesive_frame|matter.compiler.cardboard_mixed_cohesive|matter.compiler.cardboard_paper|matter.compiler.cardboard_expression_cache|matter.compiler.cardboard_delamination_reference|matter.compiler.cardboard_material|matter.compiler.fem_material_frame|matter.compiler.stateful_roundtrip|matter.compiler.cardboard_mixed_cohesive_face|matter.compiler.cardboard_cohesive_face|matter.compiler.fem_reference|matter.compiler.cardboard_robertsson_fem_coupling|matter.analysis.cardboard_deformable_derivative|matter.analysis.cardboard_retained_capture_audit|matter.analysis.cardboard_stage_resolution|matter.analysis.cardboard_regional_conditioning|matter.analysis.cardboard_diagnostic_history|matter.analysis.cardboard_solver_pair|matter.analysis.cardboard_solver_assembly|matter.analysis.cardboard_full_contact_history|matter.compiler.cardboard_reaction_observables|matter.compiler.cardboard_full_contact_armijo|matter.compiler.cardboard_shipping_rigid_driver|matter.compiler.cardboard_bilinear_liner_rest_fp32|matter.compiler.cardboard_bilinear_medium_rest_fp32|matter.compiler.cardboard_contact_candidate_domain|matter.compiler.fem_regional_material|matter.analysis.cardboard_pin_source_observables|matter.analysis.cardboard_cached_operator_audit|matter.analysis.cardboard_offline_conditioning_study|matter.cli.cardboard_graph_option|matter.compiler.cardboard_damage_cohesive_transaction|matter.compiler.regional_graph_completed_tail|matter.compiler.regional_graph_schwarz_layout|matter.compiler.cardboard_compensated_full_contact|matter.compiler.cardboard_contact_node_incidence_sort|matter.compiler.cardboard_cohesive_armijo_tiles|matter.analysis.cardboard_bct_capacity_producer|matter.analysis.cardboard_bct_source_bound_harness|matter.compiler.cardboard_bilinear15_projection_policy)$"
+  ],
+  "started_at_utc": "2026-10-15T09:38:39.206415+00:00",
+  "finished_at_utc": "2026-10-15T09:39:29.321201+00:00",
+  "exit_code": 0,
+  "source_build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-088/source-build.json",
+  "source_build_sha256": "ba4174f0714c8fd4faff480df73ad5da917803f842872cd7aa2e77b9ab9a8684",
+  "physical_steps": 0,
+  "physical_validation": false
+}

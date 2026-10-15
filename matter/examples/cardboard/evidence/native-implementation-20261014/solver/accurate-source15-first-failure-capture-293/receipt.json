@@ -1,0 +1,22 @@
+{
+  "exit_code": 1,
+  "timed_out": true,
+  "termination_errors": [
+    {
+      "signal": 9,
+      "signal_name": "SIGKILL",
+      "error_type": "PermissionError",
+      "reason": "[Errno 1] Operation not permitted",
+      "errno": 1
+    }
+  ],
+  "error_type": "PermissionError",
+  "reason": "[Errno 1] Operation not permitted",
+  "schema": "numi.cardboard.native-run-receipt.v2",
+  "execution_started": true,
+  "source_inputs_unchanged": null,
+  "changed_inputs": null,
+  "stage": "execution",
+  "wall_seconds": 620.3727939170203,
+  "finished_at_utc": "2026-10-15T09:51:50.003057+00:00"
+}

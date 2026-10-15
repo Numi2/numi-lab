@@ -1,0 +1,20 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-full-contact-arena-capture-087",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-captured-point-and-contact-scope-086",
+  "patches": [
+    {
+      "package": "/Users/home/cardboard-implementation-20261014/analysis/coupled-capture-active-arena-087",
+      "sha256": "0a0b46c028e8660e805208a842a6d2ad52595f56dba7026f719c3a83919674b5",
+      "output": "patching file 'matter/src/runtime.mm'\n",
+      "exit_code": 0
+    }
+  ],
+  "changed": {
+    "matter/src/runtime.mm": {
+      "before": "f9899a9e7772089204fb6c30e4e61d1ef4ea26c45c5c29085719e6f6de586150",
+      "after": "90628e9e6fa9dda736f6ae77058063c4006ce2fbeba45c025e69794f4fdc8657"
+    }
+  },
+  "scope": "Diagnostic-only full-capacity deformable contact arena capture under unchanged 32 MiB cap; explicit active-prefix and full arena metadata. No solver/material/physical input changes."
+}

@@ -1,0 +1,14 @@
+--- a/matter/src/metal/common.metalinc
++++ b/matter/src/metal/common.metalinc
+@@ -1558,6 +1558,11 @@
+         }
+         if (traceProjection) {
+             projectionIterationTrace[traceRecord+0u]=3.0f;
++            // Diagnostic-only field: do not feed this value into stopping or
++            // line-search decisions. It preserves the scaled solve quantity
++            // before the state correction is rounded into float32.
++            projectionIterationTrace[traceRecord+5u]=scaledCorrectionPolicy
++                ? scaledCorrectionNorm : -1.0f;
+             for (uint state=0u;state<material.stateCount;++state)
+                 projectionIterationTrace[traceRecord+6u+
+                     3u*kMaterialProjectionTraceStateCapacity+state]=residual[state];

@@ -1,0 +1,349 @@
+{
+  "schema": "numi.cardboard.direct-liner-entry-point-replay-audit.v1",
+  "receipt": {
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": true,
+    "changed_inputs": [],
+    "exit_code": 0,
+    "timed_out": false,
+    "termination_errors": [],
+    "wall_seconds": 123.88142824999522,
+    "finished_at_utc": "2026-10-15T10:00:33.713707+00:00"
+  },
+  "receipt_sha256": "6e6bf995df41449f222bffebff6213c459f0158f027b3dfea3bbc47c775a6606",
+  "prediction_sha256": "94d14fc1d4451405dd85282b6741b99a8d9c7e7231fc78540deb9b36f0c59608",
+  "build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-089/source-build.json",
+  "build_sha256": "966206a5f5b645669f9c75bc0ba5a2682eac4958ac529df6b3745a08298a4438",
+  "rows": [
+    {
+      "policy": "default",
+      "path": "/Users/home/cardboard-implementation-20261014/native/direct-liner-stress-projector-tangent-294/output/tet1528-env0-default-trace.json",
+      "sha256": "9bd4b344a78c90e6f248d39d41c7a0ac8776dfb6ad455d7a569f1ee4b06382fe",
+      "summary": {
+        "direct_project_valid": true,
+        "direct_projection_residual": 1.77635684e-14,
+        "direct_state_norm": 0.52484107,
+        "direct_iterations": 2,
+        "direct_flags": 127,
+        "direct_failure": 0,
+        "stress_valid": true,
+        "tangent_valid": true,
+        "tangent_projection_converged": true,
+        "tangent_projection_residual": 1.77635684e-14,
+        "tangent_iterations": 2,
+        "tangent_flags": 2047,
+        "tangent_failure": 0,
+        "stress_direct": [
+          -11999444,
+          0,
+          108.615578,
+          0,
+          -946835.75,
+          0,
+          101.009071,
+          0,
+          -567.786133
+        ],
+        "stress_tangent_path": [
+          -11999444,
+          0,
+          108.615578,
+          0,
+          -946835.75,
+          0,
+          101.009071,
+          0,
+          -567.786133
+        ],
+        "tangent": [
+          116581450000.0,
+          -332052704,
+          528359072,
+          -329332064,
+          9241660420.0,
+          10350928,
+          533910112,
+          10318129,
+          -66240624
+        ],
+        "projected_state_high": [
+          -8.8596147e-16,
+          -1.78258084e-15,
+          2.66995161e-15,
+          0,
+          3.16879007e-15,
+          0,
+          -0.52484107,
+          -0.0413104594,
+          -2.47725202e-05,
+          0,
+          4.75071283e-06,
+          0,
+          8.8817842e-16,
+          3.97434009e-35,
+          8.23221481e-35
+        ],
+        "projected_state_low": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1.79995379e-08,
+          -7.59496521e-10,
+          -5.45771165e-13,
+          0,
+          1.07849053e-13,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "trace_disposition": "unsupported_by_existing_16_iteration_trace_capacity",
+      "iterations": []
+    },
+    {
+      "policy": "accurate",
+      "path": "/Users/home/cardboard-implementation-20261014/native/direct-liner-stress-projector-tangent-294/output/tet1528-env0-accurate-trace.json",
+      "sha256": "56c3d154d9c915bece73e89d5b3b4a2672fdeb73738b43036e36502c6288620b",
+      "summary": {
+        "direct_project_valid": false,
+        "direct_projection_residual": 2.22044605e-15,
+        "direct_state_norm": 0.52484107,
+        "direct_iterations": 16,
+        "direct_flags": 63,
+        "direct_failure": 7,
+        "stress_valid": false,
+        "tangent_valid": false,
+        "tangent_projection_converged": false,
+        "tangent_projection_residual": 2.22044605e-15,
+        "tangent_iterations": 16,
+        "tangent_flags": 63,
+        "tangent_failure": 7,
+        "stress_direct": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "stress_tangent_path": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "tangent": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "projected_state_high": [
+          -4.41230897e-16,
+          -8.86411668e-16,
+          1.32764251e-15,
+          0,
+          1.57569145e-15,
+          0,
+          -0.52484107,
+          -0.0413104594,
+          -2.47725202e-05,
+          0,
+          4.75071283e-06,
+          0,
+          4.41649755e-16,
+          1.97940779e-35,
+          -3.95494004e-37
+        ],
+        "projected_state_low": [
+          -1.07791974e-23,
+          -1.58327539e-23,
+          5.25001195e-23,
+          0,
+          2.93002883e-23,
+          0,
+          1.79994313e-08,
+          -7.59586671e-10,
+          -5.44665604e-13,
+          0,
+          1.30964426e-13,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "trace_disposition": "trace_recorded",
+      "iterations": [
+        {
+          "iteration": 0,
+          "stage": 7,
+          "backtrack": 0,
+          "fraction": 1,
+          "residual_inf": 1.79993208e-07,
+          "state_inf": 0.52484107,
+          "scaled_correction_inf": 3.16878953e-07
+        },
+        {
+          "iteration": 1,
+          "stage": 7,
+          "backtrack": 1,
+          "fraction": 0.5,
+          "residual_inf": 1.77635684e-14,
+          "state_inf": 0.52484107,
+          "scaled_correction_inf": 3.16878925e-07
+        },
+        {
+          "iteration": 2,
+          "stage": 7,
+          "backtrack": 8,
+          "fraction": 0.00390625,
+          "residual_inf": 4.4408921e-15,
+          "state_inf": 0.52484107,
+          "scaled_correction_inf": 1.58439477e-07
+        },
+        {
+          "iteration": 3,
+          "stage": 7,
+          "backtrack": 12,
+          "fraction": 0.000244140625,
+          "residual_inf": 2.22044605e-15,
+          "state_inf": 0.52484107,
+          "scaled_correction_inf": 7.92197383e-08
+        },
+        {
+          "iteration": 4,
+          "stage": 7,
+          "backtrack": 12,
+          "fraction": 0.000244140625,
+          "residual_inf": 2.22044605e-15,
+          "state_inf": 0.52484107,
+          "scaled_correction_inf": 7.92197383e-08
+        },
+        {
+          "iteration": 5,
+          "stage": 7,
+          "backtrack": 12,
+          "fraction": 0.000244140625,
+          "residual_inf": 2.22044605e-15,
+          "state_inf": 0.52484107,
+          "scaled_correction_inf": 7.92197383e-08
+        },
+        {
+          "iteration": 6,
+          "stage": 7,
+          "backtrack": 12,
+          "fraction": 0.000244140625,
+          "residual_inf": 2.22044605e-15,
+          "state_inf": 0.52484107,
+          "scaled_correction_inf": 7.92197383e-08
+        },
+        {
+          "iteration": 7,
+          "stage": 7,
+          "backtrack": 12,
+          "fraction": 0.000244140625,
+          "residual_inf": 2.22044605e-15,
+          "state_inf": 0.52484107,
+          "scaled_correction_inf": 7.92197383e-08
+        },
+        {
+          "iteration": 8,
+          "stage": 7,
+          "backtrack": 12,
+          "fraction": 0.000244140625,
+          "residual_inf": 2.22044605e-15,
+          "state_inf": 0.52484107,
+          "scaled_correction_inf": 7.92197383e-08
+        },
+        {
+          "iteration": 9,
+          "stage": 7,
+          "backtrack": 12,
+          "fraction": 0.000244140625,
+          "residual_inf": 2.22044605e-15,
+          "state_inf": 0.52484107,
+          "scaled_correction_inf": 7.92197383e-08
+        },
+        {
+          "iteration": 10,
+          "stage": 7,
+          "backtrack": 12,
+          "fraction": 0.000244140625,
+          "residual_inf": 2.22044605e-15,
+          "state_inf": 0.52484107,
+          "scaled_correction_inf": 7.92197383e-08
+        },
+        {
+          "iteration": 11,
+          "stage": 7,
+          "backtrack": 12,
+          "fraction": 0.000244140625,
+          "residual_inf": 2.22044605e-15,
+          "state_inf": 0.52484107,
+          "scaled_correction_inf": 7.92197383e-08
+        },
+        {
+          "iteration": 12,
+          "stage": 7,
+          "backtrack": 12,
+          "fraction": 0.000244140625,
+          "residual_inf": 2.22044605e-15,
+          "state_inf": 0.52484107,
+          "scaled_correction_inf": 7.92197383e-08
+        },
+        {
+          "iteration": 13,
+          "stage": 7,
+          "backtrack": 12,
+          "fraction": 0.000244140625,
+          "residual_inf": 2.22044605e-15,
+          "state_inf": 0.52484107,
+          "scaled_correction_inf": 7.92197383e-08
+        },
+        {
+          "iteration": 14,
+          "stage": 7,
+          "backtrack": 12,
+          "fraction": 0.000244140625,
+          "residual_inf": 2.22044605e-15,
+          "state_inf": 0.52484107,
+          "scaled_correction_inf": 7.92197383e-08
+        },
+        {
+          "iteration": 15,
+          "stage": 7,
+          "backtrack": 12,
+          "fraction": 0.000244140625,
+          "residual_inf": 2.22044605e-15,
+          "state_inf": 0.52484107,
+          "scaled_correction_inf": 7.92197383e-08
+        }
+      ]
+    }
+  ],
+  "observed": "Accurate16 rejects the exact283 retained liner point in all three native entry points; default32 accepts. This local reproduction does not establish exact288 state identity.",
+  "first_failing_layer": "local projection stopping; row-wise independent cause comparison pending",
+  "physical_steps": 0,
+  "solver_qualification": false,
+  "accepted_checkpoint": false,
+  "source288_exact_state_identity": false
+}

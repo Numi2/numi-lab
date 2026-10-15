@@ -1,0 +1,8 @@
+authored_extended_budget=fgmres256,restart16,line_search24 relative_residual_unchanged=1e-7
+authored_newton_iterations=32 accurate_paper=false compensated_material_arithmetic=true
+ipc_barrier_regularization=pass c1_floor_m=1e-09 below_floor_repulsion=true outside_support_exact_zero=true
+armijo_fp32_rounded_bound=pass base=3.43036e-05 alpha=1.6975e-08 bound_equals_base=true unchanged_rejected=true representable_descent_admitted=true
+authored_line_search_budget=pass accepted=1,8,32 rejected=0,33
+prescribed_box_compiler_admission=pass nonunit_barrier_and_dynamic_box_rejected=true
+sparse_private_sizing=pass P_above_65536=65537 flattened_u32_overflow=rejected dense_pair_limit=65536 private_budget_bytes=37748736 free_rigid_unknowns=rejected dormant_mixed_authored_scope=admitted inactive_unsupported_law=rejected
+selected_fem_preconditioner=scalar_diagonal selector=0

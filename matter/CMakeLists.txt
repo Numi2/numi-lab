@@ -989,6 +989,44 @@ if(APPLE)
             LABELS "matter;cardboard;plasticity;fp32-domain"
             TIMEOUT 30)
     endif()
+    # Bounded direct stress/tangent/projector diagnostics for a source-bound
+    # FEM Newton capture. This shader is separate from the ordinary paper
+    # checker and only runs when the external checker is invoked explicitly.
+    set(NUMI_CARDBOARD_BILINEAR15_CAPTURE_AIR
+        "${NUMI_MATTER_SHADER_DIR}/cardboard_bilinear15_capture_diagnostic.air")
+    set(NUMI_CARDBOARD_BILINEAR15_CAPTURE_METALLIB
+        "${NUMI_MATTER_SHADER_DIR}/cardboard_bilinear15_capture_diagnostic.metallib")
+    add_custom_command(OUTPUT "${NUMI_CARDBOARD_BILINEAR15_CAPTURE_METALLIB}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${NUMI_MATTER_SHADER_DIR}"
+        COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include" -I "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+            -c "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_bilinear15_capture_diagnostic.metal"
+            -o "${NUMI_CARDBOARD_BILINEAR15_CAPTURE_AIR}"
+        COMMAND xcrun -sdk macosx metallib "${NUMI_CARDBOARD_BILINEAR15_CAPTURE_AIR}"
+            -o "${NUMI_CARDBOARD_BILINEAR15_CAPTURE_METALLIB}"
+        DEPENDS tools/cardboard_bilinear15_capture_diagnostic.metal src/metal/common.metalinc
+            include/numi/matter/paper_compensated_bytecode.h
+            include/numi/matter/fem_compensated_deformation.h
+            include/numi/matter/hill_scalar_initializer.h
+            include/numi/matter/shared.h include/numi/matter/fiber_exp_linear.h
+            "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/compensated_geometry_gpu.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/compensated_translation_gpu.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/rod_gpu_shared.h"
+        VERBATIM)
+    add_custom_target(numi_cardboard_bilinear15_capture_shaders
+        DEPENDS "${NUMI_CARDBOARD_BILINEAR15_CAPTURE_METALLIB}")
+    add_executable(numi-matter-cardboard-bilinear15-capture-diagnostic-check
+        tools/cardboard_bilinear15_capture_diagnostic_check.mm)
+    add_dependencies(numi-matter-cardboard-bilinear15-capture-diagnostic-check
+        numi_cardboard_bilinear15_capture_shaders)
+    target_link_libraries(numi-matter-cardboard-bilinear15-capture-diagnostic-check PRIVATE
+        numi_matter_compiler "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(numi-matter-cardboard-bilinear15-capture-diagnostic-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_compile_definitions(numi-matter-cardboard-bilinear15-capture-diagnostic-check PRIVATE
+        NUMI_CARDBOARD_PAPER_METALLIB="${NUMI_CARDBOARD_BILINEAR15_CAPTURE_METALLIB}"
+        NUMI_CARDBOARD_BASE_SNAPSHOT_SHA256="769a5e34c1d919293cb263fd27fbd041a482d22016c2818eec41d44e47935752")
     # The C1 compression-asymmetry transfer candidate stays separate from the
     # ordinary 15-state source-fit defaults and the 13-state ideal regression.
     add_executable(numi-matter-cardboard-asymmetric-c1-paper-gpu-check

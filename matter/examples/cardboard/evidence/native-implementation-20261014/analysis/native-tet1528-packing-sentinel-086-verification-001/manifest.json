@@ -1,0 +1,35 @@
+{
+  "schema": "numi.source_bound_verification.v1",
+  "id": "native-tet1528-packing-sentinel-086-verification-001",
+  "classification": "static-source-and-CPU-packing-emulation; no native execution",
+  "base_overlay": {
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/native-tet1528-projection-diagnostic-086-overlay-001",
+    "source_overlay_sha256": "dadb4b71350f7f03f61e2142949aa67733e448582bb767ff372c3ceaacdbc320",
+    "shader_sha256": "23f6f758cda7ccc0e0651e45a298644e6b71a3c25cd5ef2f7c9cbe4ceca40628",
+    "checker_sha256": "27f1b7852668ccec459ee5d6060bf89da203358448aca0138c7e8ac53cdf9571",
+    "modified_common_sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182"
+  },
+  "layout": {
+    "max_material_state": 32,
+    "active_projected_state_count": 15,
+    "high_state_slots": [41, 55],
+    "low_state_slots": [56, 70],
+    "sentinel_slots": [71, 72],
+    "trace_start": 73,
+    "trace_slots": 5992,
+    "output_slots": 6065
+  },
+  "result": {
+    "status": "pass",
+    "verification_json_sha256": "b342e90e00ed7c9f4526d93186da98dc60b616815bddcc7ee170f887123d5828",
+    "test_script_sha256": "ffcc37b2b6c836eea41387f83c5c0595c177cad690e169c8fcbdce2436fab85e",
+    "erratum_sha256": "40e86d2a1f50aa6644f4047cb076d0b97e1dd62bf3aee68d66090ebd7d24e1f4",
+    "readme_sha256": "acffa16050dd45ad8101b5f28cce9c210b9c18907a6c4a690ab0abb1beaf764b"
+  },
+  "limits": [
+    "source-level packing and CPU emulation only",
+    "not a native Metal execution result",
+    "does not reproduce the source-288 failure candidate",
+    "the reconstructed defective loop is not a preserved historical source artifact"
+  ]
+}

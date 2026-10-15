@@ -1,0 +1,78 @@
+{
+  "schema": "numi.cardboard.lossless-failed-contact-capture-package.v2",
+  "created_at_utc": "2026-10-15T10:00:25.537419+00:00",
+  "original_capture": "/Users/home/cardboard-implementation-20261014/native/strict-json-full-contact-arena-newton12-291/candidate-capture.coupled.json",
+  "original_build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-088/source-build.json",
+  "original_build_sha256": "ba4174f0714c8fd4faff480df73ad5da917803f842872cd7aa2e77b9ab9a8684",
+  "compressed_payload": "candidate-capture.coupled.bin.gz",
+  "payload_filename": "candidate-capture.coupled.bin",
+  "manifest_filename": "candidate-capture.coupled.json",
+  "payload_bytes": 10787124,
+  "payload_sha256": "ef7e5ff74370cf84d7c36fb647b3e2735add4695308b312807ccbbbc0c65c1aa",
+  "files": {
+    "candidate-capture.coupled.bin.gz": {
+      "bytes": 48648,
+      "sha256": "dc2e0010d33eabeb24d8efe0f6451c72e71f7987db50b97821fa233986f314f8"
+    },
+    "coupled_capture_reader.py": {
+      "bytes": 12751,
+      "sha256": "01c7d775e250a74db56d468d529f6a7890d0e4006e395739ca86de90da7d282b"
+    },
+    "README.md": {
+      "bytes": 844,
+      "sha256": "d7cdb3a9fb77c5af3c0ed0ec178d1c609d7a5a4f61a67f8492b8b1aa52443c15"
+    },
+    "prediction.json": {
+      "bytes": 100226,
+      "sha256": "60883e2e1684ae0b757dd8892dddd8670ca4140dcb985c30e536ee541304c29c"
+    },
+    "candidate-capture.coupled.json": {
+      "bytes": 41895,
+      "sha256": "fd77314acad48353980cdd33a05e8cccadd3a7e607c9b098f55647f852acb3b7"
+    },
+    "restore.py": {
+      "bytes": 1448,
+      "sha256": "10ccbbabfae9540e13e4b2330356ef13ad1706e93fd9f8c28686f01f2ca8b66a"
+    },
+    "coupled_contact_coverage.py": {
+      "bytes": 10345,
+      "sha256": "35ea3fecad9b3e04256d89ff7aaef8f7154352ef2dc13707047f479087587cdd"
+    },
+    "receipt.json": {
+      "bytes": 306,
+      "sha256": "99b23f56973f81e88488470bbaff4f00e9093e1dd74fdb87ae516c11edf46136"
+    }
+  },
+  "strict_validator": {
+    "complete": true,
+    "capacity": 18336,
+    "active_counts": [
+      100
+    ],
+    "valid_slots": 100,
+    "unused_valid_slots": 0,
+    "valid_records_equal_active_count": true,
+    "payload_bytes": 10787124,
+    "payload_sha256": "ef7e5ff74370cf84d7c36fb647b3e2735add4695308b312807ccbbbc0c65c1aa"
+  },
+  "roundtrip_validator": {
+    "complete": true,
+    "capacity": 18336,
+    "active_counts": [
+      100
+    ],
+    "valid_slots": 100,
+    "unused_valid_slots": 0,
+    "valid_records_equal_active_count": true,
+    "payload_bytes": 10787124,
+    "payload_sha256": "ef7e5ff74370cf84d7c36fb647b3e2735add4695308b312807ccbbbc0c65c1aa"
+  },
+  "accepted_checkpoint": false,
+  "physical_validation": false,
+  "predecessor_package": "/Users/home/cardboard-implementation-20261014/analysis/retained-coupled-failure-capture-291/package.json",
+  "predecessor_package_sha256": "15cf4f52a75917e321b1cb0d27ad7fa1f17e4b38a3aac9cb53314fcce35b586d",
+  "strict_reader_schema": "numi.matter.coupled_capture_reader.v3",
+  "strict_reader_sha256": "01c7d775e250a74db56d468d529f6a7890d0e4006e395739ca86de90da7d282b",
+  "strict_metadata_validation": "reader-v3 rejects nonstandard constants; payload words are raw",
+  "payload_resolution": "manifest_adjacent_basename_only"
+}

@@ -18,6 +18,18 @@ legacy cloned trial arena. Invalid page selectors fail closed. The independent
 does not complete even the small legacy/tiled comparison. This accounting
 change is not measured shipping allocation or execution admission.
 
+Run287 subsequently retains byte-identical legacy/tiled failed prefixes. The
+one-face fixture rejects closure; the three-face fixture rejects activation.
+Source087's full-arena readback admits the small free-body fixture's reserved
+18,336 contact slots under the independent 32 MiB diagnostic cap. Its first
+manifest has a retained nonfinite-JSON serialization failure. Source088 fixes
+serialization only;291 validates the strict manifest and all140 array hashes,
+and291/292 preserve physical state and Armijo histories with capture on/off.
+The failed three-face fixture also exposes a single-parent-pair lookup that
+cannot represent multiple active mortar patches. Its union/complement must be
+supported in contact and private CCD; a compiler rejection alone is not support.
+Neither bounded readback nor failed-prefix parity removes shipping limits.
+
 The heavy-object footprint convention is now explicit:20% larger means
 1.2 times the roof area, preserving its aspect ratio (linear scale sqrt1.2).
 The previous1.2 scale on each axis implied44% more area. No accepted shipping

@@ -1,0 +1,117 @@
+{
+  "artifacts": {
+    "CMakeLists.patch": {
+      "bytes": 3314,
+      "sha256": "f5f5533425e87d2f3fecbcd5953ac02646f82ec28bc388f600873749a0025db9"
+    },
+    "CMakeLists.source086.modified.txt": {
+      "bytes": 104703,
+      "sha256": "2330a53f4d4d4ec3c22ced258f642af6a4623d93da407ca87018c40ad8dc0297"
+    },
+    "README.md": {
+      "bytes": 5724,
+      "sha256": "e7da51340787b14b33ec1cc6b37ede1b073abd8f5868aefc94c08d3146ec3f5d"
+    },
+    "capture-preflight.json": {
+      "bytes": 2526,
+      "sha256": "655f270ba25f774b3e5e50b8e2a582cc2550d731554fb594d7689564cfb3234a"
+    },
+    "capture_preflight.py": {
+      "bytes": 7723,
+      "sha256": "155f965acb003c395419edf4d513e807bbb445eefd356a5d799a434d61369da1"
+    },
+    "cardboard_bilinear15_capture_diagnostic.air": {
+      "bytes": 203264,
+      "sha256": "56b4954a89fc7f037aabfa610e1d28a37f46b47543c41ac1cd52e3dbc8a343c1"
+    },
+    "cardboard_bilinear15_capture_diagnostic.metallib": {
+      "bytes": 931390,
+      "sha256": "6dd07fb5842656ddcaafa82c6ffbc2444c289729b16ddad22804547412a3fc97"
+    },
+    "cardboard_bilinear15_capture_diagnostic_check.o": {
+      "bytes": 1596440,
+      "sha256": "9998b8abd795d0cde1cf0561d9dba51dae26b6d7cfd4bafdc6d86fd2ca29dc89"
+    },
+    "common.metalinc.patch": {
+      "bytes": 767,
+      "sha256": "735568cfe153b07cf57fa8ed98af903a7d4364c4282b5f192bde87c6ee349920"
+    },
+    "common.metalinc.source086.modified.txt": {
+      "bytes": 96571,
+      "sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182"
+    },
+    "failed-policy-288-observation.json": {
+      "bytes": 1355,
+      "sha256": "0cac3e4f69337c881e281302428e890c50d842df4e0dd3c726be8b3eb7fa223a"
+    },
+    "validation.json": {
+      "bytes": 2671,
+      "sha256": "f7a7d74e3820ddef54e2a6410dac6e10810feac31dbf7730982c670c27d5133c"
+    }
+  },
+  "base": {
+    "captured_point_checker_sha256": "5785c89f06db3854e3cac5d1f668e11fc90dd88245f3b238dc465c81898de510",
+    "common_metalinc_sha256": "f783cc641196353c22c9ec41a70711abcd835e9ce9bb6c9cebf3031571fd0366",
+    "frozen_source_manifest_sha256": "769a5e34c1d919293cb263fd27fbd041a482d22016c2818eec41d44e47935752",
+    "matter_cmake_sha256": "df51df6e659ac345d6b717f3e680cbf810478dfe91158ad0bfbbad3f2d5de337",
+    "snapshot_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-captured-point-and-contact-scope-086"
+  },
+  "changed_files": {
+    "matter/CMakeLists.txt": {
+      "artifact": "CMakeLists.source086.modified.txt",
+      "base_sha256": "df51df6e659ac345d6b717f3e680cbf810478dfe91158ad0bfbbad3f2d5de337",
+      "patch_artifact": "CMakeLists.patch",
+      "patch_sha256": "f5f5533425e87d2f3fecbcd5953ac02646f82ec28bc388f600873749a0025db9",
+      "sha256": "2330a53f4d4d4ec3c22ced258f642af6a4623d93da407ca87018c40ad8dc0297"
+    },
+    "matter/src/metal/common.metalinc": {
+      "artifact": "common.metalinc.source086.modified.txt",
+      "base_sha256": "f783cc641196353c22c9ec41a70711abcd835e9ce9bb6c9cebf3031571fd0366",
+      "patch_artifact": "common.metalinc.patch",
+      "patch_sha256": "735568cfe153b07cf57fa8ed98af903a7d4364c4282b5f192bde87c6ee349920",
+      "scope": "diagnostic per-iteration trace slot only; does not change stopping, residual, or line-search logic",
+      "sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182"
+    },
+    "matter/tools/cardboard_bilinear15_capture_diagnostic.metal": {
+      "artifact": "cardboard_bilinear15_capture_diagnostic.metal",
+      "base_sha256": null,
+      "sha256": "23f6f758cda7ccc0e0651e45a298644e6b71a3c25cd5ef2f7c9cbe4ceca40628"
+    },
+    "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": {
+      "artifact": "cardboard_bilinear15_capture_diagnostic_check.mm",
+      "base_sha256": null,
+      "sha256": "27f1b7852668ccec459ee5d6060bf89da203358448aca0138c7e8ac53cdf9571"
+    }
+  },
+  "checker_contract": {
+    "default32_trace": "unsupported_by_existing_16_iteration_trace_capacity; direct batch result retained",
+    "native_order": "selected env0/tet1528 trace first; all-point replay requires --all-points",
+    "nonfinite_values": "JSON null with original float32 raw bits retained",
+    "paper_rows": 3456,
+    "physical_steps": 0,
+    "point_output_raw_bits": true,
+    "point_output_slots": 65,
+    "policies": [
+      "source-default-local-budget-32",
+      "accurate-projection-local-budget-16"
+    ],
+    "selected_mode": "--selected-only",
+    "trace_record_slot5": "scaled local correction norm added by a diagnostic-only common source patch",
+    "trace_slots_with_raw_bits": 5992,
+    "trace_summary_slots_with_raw_bits": 73
+  },
+  "classification": "source-bound direct material-point diagnostic tooling; native execution pending",
+  "inputs": {
+    "liner_asset_sha256": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a",
+    "medium_asset_sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+    "runtime_capture_binding": "CLI requires --expected-capture-sha256 and compares it with a fresh SHA-256 of the supplied capture",
+    "source283_capture_path": "/Users/home/cardboard-implementation-20261014/solver/recycle-source-default-first-control-283/operator-capture",
+    "source283_capture_sha256": "4decb7be2fbfa93ad97c0f2f22cfaca974931269068bed90e98815b09066b870",
+    "source288_exact_candidate_capture": false,
+    "source288_failure_observation_sha256": "0cac3e4f69337c881e281302428e890c50d842df4e0dd3c726be8b3eb7fa223a"
+  },
+  "overlay_id": "native-tet1528-projection-diagnostic-086-overlay-001",
+  "qualification": false,
+  "schema": "numi.source_overlay.v1",
+  "validation_manifest": "validation.json"
+}

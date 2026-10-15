@@ -1,0 +1,47 @@
+{
+  "cases": {
+    "denorm_min": {
+      "bits": 1,
+      "value": 1.40129846e-45
+    },
+    "max_finite": {
+      "bits": 2139095039,
+      "value": 3.40282347e+38
+    },
+    "min_normal": {
+      "bits": 8388608,
+      "value": 1.17549435e-38
+    },
+    "nan": {
+      "bits": 2143289344,
+      "value": null
+    },
+    "negative_inf": {
+      "bits": 4286578688,
+      "value": null
+    },
+    "negative_zero": {
+      "bits": 2147483648,
+      "value": 0
+    },
+    "positive_inf": {
+      "bits": 2139095040,
+      "value": null
+    },
+    "positive_zero": {
+      "bits": 0,
+      "value": 0
+    },
+    "vascular_tolerance": {
+      "bits": 2139095040,
+      "value": null
+    }
+  },
+  "helper_source": "extracted exact jsonFloat32Token function from runtime.mm",
+  "negative_zero_token": "-0 is retained as a valid JSON number; exact sign is preserved in f32_bits_u32",
+  "nonfinite_representation": "value=null with exact FP32 bits; vascular tolerance includes explicit not-applicable semantics",
+  "pass": true,
+  "runtime_sha256": "a980ee59341429440e83984dd02073123c9647f19655a94260119a5d67aa5918",
+  "schema": "numi.matter.json_float32_helper_regression.v1",
+  "strict_json_parse": true
+}

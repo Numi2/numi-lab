@@ -1,0 +1,21 @@
+{
+  "schema": "numi.matter.coupled_capture_active_arena_overlay.v1",
+  "base_snapshot": "source-captured-point-and-contact-scope-086",
+  "base_runtime_sha256": "f9899a9e7772089204fb6c30e4e61d1ef4ea26c45c5c29085719e6f6de586150",
+  "fixture_sha256": "6eb68eea4e258866f7c1b41c1c74cbc40ed27b9e06a31a6e1ad503aa8064123c",
+  "overlay_runtime_sha256": "90628e9e6fa9dda736f6ae77058063c4006ce2fbeba45c025e69794f4fdc8657",
+  "contact_capacity": 18336,
+  "contact_slot_bytes": 576,
+  "minimum_full_contact_arena_bytes": 10562176,
+  "aggregate_payload_cap_bytes": 33554432,
+  "gpu_run_performed": false,
+  "preserved_native_skip": "native/coupled-capture-scope-repaired-newton12-286",
+  "files": {
+    "runtime.mm": "90628e9e6fa9dda736f6ae77058063c4006ce2fbeba45c025e69794f4fdc8657",
+    "runtime.patch": "0a0b46c028e8660e805208a842a6d2ad52595f56dba7026f719c3a83919674b5",
+    "coupled_contact_coverage.py": "35ea3fecad9b3e04256d89ff7aaef8f7154352ef2dc13707047f479087587cdd",
+    "test_coupled_contact_coverage.py": "96fde3c900e6260be5057a298e1bb02c5830dac1af11b075cfb94d698cd655d1",
+    "verify_overlay.py": "a498068f713c5b4a89fe639c14ddb05f6ef67ef0fd47f031774846ecf610dd41",
+    "README.md": "3caf3ddd210d1aecf5042a45e95d0824ea01c2bc7315e5b9bf2a2708034d6ec0"
+  }
+}

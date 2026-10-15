@@ -1,5 +1,81 @@
 # Native solver progress and unresolved qualification
 
+## Sources087–089: complete contact capture and first-control diagnosis
+
+Source087 builds all 65 targets and passes all 71 selected CPU checks. Its
+capture-only change replaces the 16,384-slot deformable-contact readback limit
+with complete arena byte accounting under the unchanged 32 MiB payload cap.
+The actual fixture reserves 18,336 slots. Run289 retains 140 arrays in a
+10,787,124-byte payload, including all reserved contact records and histories;
+its 100 active indices are unique, in range and valid. The first manifest is
+strict-JSON-invalid because an unused vascular tolerance is emitted as bare
+`inf`. The original remains retained. Payload and array hash checks through a
+separately labeled lenient diagnostic parse do not admit that manifest as a
+valid replay input. Source088 repairs the serializer and passes all65 build
+targets and71 selected CPU checks. Run291 retains a strict-JSON-valid manifest,
+all140 array hashes and the complete10,787,124-byte payload. Its unused positive
+infinite vascular tolerance is `null` with its exact FP32 word and an explicit
+not-applicable label. The complete failed candidate is available as a lossless
+compressed diagnostic package; it is not an accepted restart checkpoint.
+
+Same-source088 capture-on291 and capture-off292 produce identical physical
+state payloads and Armijo records. The only selected control-log differences
+are the expected capture notifications. At Newton12 the remaining impulse
+norm is3.43603e-6: FEM contributes2.86297e-6 and the six rigid rows1.89993e-6.
+The accepted fraction2^-22 resolves only21 of108 stored node position
+coordinates. This quantization is measured; its causal contribution to the
+residual plateau still requires a matched contact-geometry replay.
+
+Independent FP64 replay of all 3,456 paper points in run283's first candidate
+converges within 16 iterations (maximum 13); ceilings of 16, 32 and 64 return
+identical roots. Tet1528 converges in one CPU iteration. This does not explain
+run288's native first-force rejection, and does not identify the local ceiling
+as its cause. A native liner-material comparison of the production stress,
+tangent and traced projection paths is required. Run285 checked selected
+medium-material points through the tangent entry point only. Run293 attempts
+the actual accurate-policy root0 rich capture but times out at its600s budget;
+the runner also retains the OS termination error. No failed material candidate
+was exported, so nominally equal run283 inputs cannot be relabeled as run288's
+actual state. Source089 adds a separate selected-point stress/projector/tangent
+instrument, retaining raw words and a scaled-correction trace without changing
+the solver equations or acceptance criteria. All66 build targets and71 selected
+CPU checks pass. Native294 completes the selected liner replay in123.88s.
+Default32 accepts through all three entry points in two iterations. Accurate16
+rejects all three: residual2.22e-15, scaled correction plateau7.92e-8 versus2e-8,
+terminal local iteration exhaustion. The sixteen iteration records and exact
+raw words are retained. This establishes a local discrepancy on283's inputs;
+it does not prove missing288 state identity or identify the first inaccurate
+equation row. No tolerance is relaxed.
+
+
+Native296 extends that read-only instrument to all3,456 retained paper points.
+Every default32 point is valid and reproduces the captured high/low projected
+state, stress and tangent FP32 words exactly. Accurate16 has six failures:
+liner tets567/568/569 and1527/1528/1529, all at the local iteration ceiling.
+Stress-only and tangent entry points agree on validity and stress words for
+both policies. This excludes an entry-point discrepancy on these inputs; it
+does not establish independent accuracy or identify the missing run288 state.
+The exact44,640,978 bytes of input/output evidence are losslessly packaged and
+restore-tested. Run295 also preserves291's32 Armijo lines and complete failed
+candidate payload across the trace-slot instrumentation. Its six transaction
+snapshot containers differ only in the eight-byte device program fingerprint;
+the persistent payloads and source physics fingerprint are unchanged.
+
+Run287 completes the four-arm diagnostic instrument but fails its physical
+fixture sequences. Legacy and tiled paths have byte-identical corresponding
+before/after snapshots, transaction records and Armijo traces on the failed
+prefixes. Their accepted histories remain unchanged after rejection. Both
+one-face arms accept activation and reject closure with residual 1.69753e-4;
+both three-face arms reject activation with contact failure code6/index78.
+The three authored tiles partition the same parent face pair. Contact's
+single-face lookup rejects its second active patch before FGMRES. This is a
+native multi-patch contact capability gap; selecting one tile would omit
+coverage. A bounded union/complement implementation must be shared by
+production contact and private swept CCD before those tiles can qualify.
+This is failed-prefix parity, not a successful cohesive trajectory or evidence
+of a tiled-storage defect. No mesh/time, assembly, capacity or impact verdict
+is promoted by these diagnostics.
+
 ## Source080–086: local projection accuracy and measured conditioning regression
 
 Source086 builds all65 targets and passes all71 selected CPU checks. No global

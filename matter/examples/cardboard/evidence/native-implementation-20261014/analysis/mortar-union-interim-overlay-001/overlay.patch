@@ -1,0 +1,420 @@
+--- a/matter/src/compiler_impl.cpp
++++ b/matter/src/compiler_impl.cpp
+@@ -2514,6 +2514,11 @@
+                 }
+             }
+             std::set<std::uint32_t> cohesiveIdentifiers;
++            // Contact currently selects only one mixed-mode cohesive face for a
++            // parent primitive pair. Keep authored noncontact cohesive worlds
++            // unrestricted, but reject ambiguous pairs when self-contact can call
++            // that lookup. This is a capability bound, not an overlap verdict.
++            std::set<std::pair<std::uint64_t, std::uint64_t>> mixedPrimitivePairs;
+             for (const CohesiveInterfaceSource& interface :
+                  object.femCohesiveInterfaces) {
+                 const auto error = [&](const std::string& detail) {
+@@ -2689,6 +2694,19 @@
+                         return std::ranges::find(pairedSideB, node) ==
+                             pairedSideB.end();
+                     });
++                if (interface.lawKind == CohesiveLawKind::mixedModeBilinear &&
++                    object.deformableSelfContact) {
++                    const std::uint64_t primitiveA =
++                        4ull * interface.firstTetrahedron + oppositeA;
++                    const std::uint64_t primitiveB =
++                        4ull * interface.secondTetrahedron + oppositeB;
++                    const auto canonicalPair = std::minmax(primitiveA, primitiveB);
++                    if (!mixedPrimitivePairs.emplace(
++                            canonicalPair.first, canonicalPair.second).second) {
++                        error("same-object FEM self-contact does not yet support multiple mixed-mode cohesive patches on the same canonical parent primitive pair; this is a conservative contact-capability rejection, not a geometric-overlap verdict");
++                        return result;
++                    }
++                }
+                 if (interface.lawKind == CohesiveLawKind::mixedModeBilinear) {
+                     const auto unoriented = cross3(
+                         subtract3(point(pairedSideA[1]), point(pairedSideA[0])),
+@@ -2861,6 +2879,34 @@
+                 if (!containsFace(tetA, patch.sideANodes) ||
+                     !containsFace(tetB, patch.sideBNodes)) {
+                     error("each parent-node triple must be a face of its declared tetrahedron");
++                    return result;
++                }
++                const auto oppositeCorner = [](
++                    const TetrahedronSource& tet,
++                    const std::array<std::uint32_t, 3>& face) {
++                    for (std::uint32_t corner = 0u; corner < 4u; ++corner) {
++                        if (std::ranges::find(face, tet.nodes[corner]) == face.end())
++                            return corner;
++                    }
++                    return std::numeric_limits<std::uint32_t>::max();
++                };
++                const std::uint32_t oppositeA =
++                    oppositeCorner(tetA, patch.sideANodes);
++                const std::uint32_t oppositeB =
++                    oppositeCorner(tetB, patch.sideBNodes);
++                if (oppositeA >= 4u || oppositeB >= 4u) {
++                    error("parent primitive identity could not be derived from the authored face nodes");
++                    return result;
++                }
++                const std::uint64_t primitiveA =
++                    4ull * patch.firstTetrahedron + oppositeA;
++                const std::uint64_t primitiveB =
++                    4ull * patch.secondTetrahedron + oppositeB;
++                const auto canonicalPair = std::minmax(primitiveA, primitiveB);
++                if (object.deformableSelfContact &&
++                    !mixedPrimitivePairs.emplace(
++                        canonicalPair.first, canonicalPair.second).second) {
++                    error("same-object FEM self-contact does not yet support multiple mixed-mode cohesive patches on the same canonical parent primitive pair; this is a conservative contact-capability rejection, not a geometric-overlap verdict");
+                     return result;
+                 }
+                 std::array<std::array<double, 3>, 3> mapA =
+--- a/matter/tools/cardboard_full_contact_armijo_check.mm
++++ b/matter/tools/cardboard_full_contact_armijo_check.mm
+@@ -29,6 +29,7 @@
+ #include <memory>
+ #include <optional>
+ #include <regex>
++#include <set>
+ #include <sstream>
+ #include <stdexcept>
+ #include <string>
+@@ -788,7 +789,8 @@
+                        const bool partialMortarPatch = false,
+                        const double initialMortarGap = kActivationGap,
+                        const bool highSparsePairDomain = false,
+-                       const std::uint32_t cohesivePatchTileCount = 1u) {
++                       const std::uint32_t cohesivePatchTileCount = 1u,
++                       const bool duplicateParentPairMortarControl = false) {
+     MeshAndWorld result;
+     WorldSource& source = result.world;
+     source.environmentCount = kEnvironmentCount;
+@@ -1084,64 +1086,138 @@
+     } else if (cohesivePatchTileCount == 1u) {
+         pad.femCohesiveMortarPatches.push_back(interface);
+     } else {
+-        // Partition the authored integration triangle into three disjoint
+-        // triangles around its centroid. This keeps the exact same mortar
+-        // surface for both solver modes while forcing the tiled path to cross
+-        // page boundaries when PAGE_FACES=1.
+-        const auto sideACenter = [&] {
+-            std::array<double, 3> center{};
+-            for (const auto& row : interface.sideAVertexBarycentric)
+-                for (unsigned axis = 0u; axis < 3u; ++axis)
+-                    center[axis] += row[axis] / 3.0;
+-            return center;
+-        }();
+-        const auto sideBCenter = [&] {
+-            std::array<double, 3> center{};
+-            for (const auto& row : interface.sideBVertexBarycentric)
+-                for (unsigned axis = 0u; axis < 3u; ++axis)
+-                    center[axis] += row[axis] / 3.0;
+-            return center;
+-        }();
+-        const std::array<std::array<unsigned, 3>, 3> tileVertices{{
+-            {{0u, 1u, 3u}}, {{1u, 2u, 3u}}, {{2u, 0u, 3u}}
+-        }};
+-        std::array<std::array<double, 3>, 4> sideA{};
+-        std::array<std::array<double, 3>, 4> sideB{};
+-        for (unsigned vertex = 0u; vertex < 3u; ++vertex) {
+-            sideA[vertex] = interface.sideAVertexBarycentric[vertex];
+-            sideB[vertex] = interface.sideBVertexBarycentric[vertex];
++        if (duplicateParentPairMortarControl) {
++            // Explicit negative control retained from the original fixture:
++            // these are three disjoint barycentric subtriangles, all on the
++            // same parent primitive pair. The current contact lookup cannot
++            // represent their union, so the compiler must reject them early.
++            // Partition the authored integration triangle into three disjoint
++            // triangles around its centroid. This keeps the exact same mortar
++            // surface for both solver modes while forcing the tiled path to cross
++            // page boundaries when PAGE_FACES=1.
++            const auto sideACenter = [&] {
++                std::array<double, 3> center{};
++                for (const auto& row : interface.sideAVertexBarycentric)
++                    for (unsigned axis = 0u; axis < 3u; ++axis)
++                        center[axis] += row[axis] / 3.0;
++                return center;
++            }();
++            const auto sideBCenter = [&] {
++                std::array<double, 3> center{};
++                for (const auto& row : interface.sideBVertexBarycentric)
++                    for (unsigned axis = 0u; axis < 3u; ++axis)
++                        center[axis] += row[axis] / 3.0;
++                return center;
++            }();
++            const std::array<std::array<unsigned, 3>, 3> tileVertices{{
++                {{0u, 1u, 3u}}, {{1u, 2u, 3u}}, {{2u, 0u, 3u}}
++            }};
++            std::array<std::array<double, 3>, 4> sideA{};
++            std::array<std::array<double, 3>, 4> sideB{};
++            for (unsigned vertex = 0u; vertex < 3u; ++vertex) {
++                sideA[vertex] = interface.sideAVertexBarycentric[vertex];
++                sideB[vertex] = interface.sideBVertexBarycentric[vertex];
++            }
++            sideA[3] = sideACenter;
++            sideB[3] = sideBCenter;
++            double areaFractionSum = 0.0;
++            for (std::uint32_t tile = 0u; tile < tileVertices.size(); ++tile) {
++                CohesiveMortarPatchSource part = interface;
++                part.stableIdentifier = kFaceId + tile;
++                for (unsigned vertex = 0u; vertex < 3u; ++vertex) {
++                    part.sideAVertexBarycentric[vertex] =
++                        sideA[tileVertices[tile][vertex]];
++                    part.sideBVertexBarycentric[vertex] =
++                        sideB[tileVertices[tile][vertex]];
++                }
++                const auto& rows = part.sideAVertexBarycentric;
++                const double determinantValue =
++                    (rows[1][0] - rows[0][0]) * (rows[2][1] - rows[0][1]) -
++                    (rows[1][1] - rows[0][1]) * (rows[2][0] - rows[0][0]);
++                require(std::isfinite(determinantValue) &&
++                            std::abs(determinantValue) > 1.0e-12,
++                        "cohesive page-partition generated a degenerate integration triangle");
++                areaFractionSum += std::abs(determinantValue);
++                pad.femCohesiveMortarPatches.push_back(std::move(part));
++            }
++            const auto& original = interface.sideAVertexBarycentric;
++            const double originalAreaFraction = std::abs(
++                (original[1][0] - original[0][0]) *
++                    (original[2][1] - original[0][1]) -
++                (original[1][1] - original[0][1]) *
++                    (original[2][0] - original[0][0]));
++            require(std::abs(areaFractionSum - originalAreaFraction) <=
++                        1.0e-12 * std::max(1.0, originalAreaFraction),
++                    "cohesive page-partition does not conserve the authored mortar area");
++        } else {
++            // Exercise tiled paging over three neighboring interface faces,
++            // each with its own unique parent primitive pair. This tests page
++            // boundaries without claiming multi-patch union support.
++            std::vector<std::pair<Face, std::array<std::uint32_t, 2>>> pageFaces;
++            pageFaces.push_back({sideA, {firstTet, secondTet}});
++            for (const auto& [face, uses] : interfaceFaces) {
++                if (face == sideA) continue;
++                std::uint32_t lowerTet = NM_INVALID_INDEX;
++                std::uint32_t upperTet = NM_INVALID_INDEX;
++                for (const InterfaceFaceUse& use : uses) {
++                    if (use.upperHalf) upperTet = use.tetrahedron;
++                    else lowerTet = use.tetrahedron;
++                }
++                require(lowerTet < kLowerLayerTetCount &&
++                        upperTet >= kUpperLayerTetBegin &&
++                        upperTet < pad.tetrahedra.size(),
++                        "page parity face lacks a distinct lower/upper parent pair");
++                pageFaces.push_back({face, {lowerTet, upperTet}});
++                if (pageFaces.size() == 3u) break;
++            }
++            require(pageFaces.size() == 3u,
++                    "page parity fixture could not select three interface faces");
++            std::set<std::pair<std::uint32_t, std::uint32_t>> primitivePairs;
++            for (std::uint32_t tile = 0u; tile < pageFaces.size(); ++tile) {
++                Face orderedA = pageFaces[tile].first;
++                const auto& a0 = pad.femNodes.at(orderedA[0]);
++                const auto& a1 = pad.femNodes.at(orderedA[1]);
++                const auto& a2 = pad.femNodes.at(orderedA[2]);
++                const double signedAreaZ =
++                    (a1[0] - a0[0]) * (a2[1] - a0[1]) -
++                    (a1[1] - a0[1]) * (a2[0] - a0[0]);
++                require(std::isfinite(signedAreaZ) &&
++                        std::abs(signedAreaZ) > 1.0e-12,
++                        "page parity interface face has degenerate projected area");
++                if (signedAreaZ < 0.0) std::swap(orderedA[1], orderedA[2]);
++                std::array<std::uint32_t, 3> orderedB{};
++                for (unsigned local = 0u; local < 3u; ++local)
++                    orderedB[local] = upperNodeMap[orderedA[local]];
++                CohesiveMortarPatchSource part = interface;
++                part.stableIdentifier = kFaceId + tile;
++                part.sideANodes = orderedA;
++                part.sideBNodes = orderedB;
++                part.firstTetrahedron = pageFaces[tile].second[0];
++                part.secondTetrahedron = pageFaces[tile].second[1];
++                part.sideAVertexBarycentric = partialMortarPatch
++                    ? std::array<std::array<double, 3>, 3>{{
++                        {{0.7, 0.2, 0.1}}, {{0.2, 0.7, 0.1}}, {{0.2, 0.1, 0.7}}
++                      }}
++                    : std::array<std::array<double, 3>, 3>{{
++                        {{1.0, 0.0, 0.0}}, {{0.0, 1.0, 0.0}}, {{0.0, 0.0, 1.0}}
++                      }};
++                part.sideBVertexBarycentric = part.sideAVertexBarycentric;
++                const std::uint32_t primitiveA =
++                    4u * part.firstTetrahedron + oppositeCornerForFace(
++                        pad.tetrahedra[part.firstTetrahedron].nodes,
++                        part.sideANodes);
++                const std::uint32_t primitiveB =
++                    4u * part.secondTetrahedron + oppositeCornerForFace(
++                        pad.tetrahedra[part.secondTetrahedron].nodes,
++                        part.sideBNodes);
++                const auto pair = std::minmax(primitiveA, primitiveB);
++                require(primitivePairs.emplace(pair.first, pair.second).second,
++                        "page parity faces unexpectedly reuse a parent primitive pair");
++                pad.femCohesiveMortarPatches.push_back(std::move(part));
++            }
++            require(primitivePairs.size() == 3u,
++                    "multi-page parity fixture does not contain three distinct parent pairs");
+         }
+-        sideA[3] = sideACenter;
+-        sideB[3] = sideBCenter;
+-        double areaFractionSum = 0.0;
+-        for (std::uint32_t tile = 0u; tile < tileVertices.size(); ++tile) {
+-            CohesiveMortarPatchSource part = interface;
+-            part.stableIdentifier = kFaceId + tile;
+-            for (unsigned vertex = 0u; vertex < 3u; ++vertex) {
+-                part.sideAVertexBarycentric[vertex] =
+-                    sideA[tileVertices[tile][vertex]];
+-                part.sideBVertexBarycentric[vertex] =
+-                    sideB[tileVertices[tile][vertex]];
+-            }
+-            const auto& rows = part.sideAVertexBarycentric;
+-            const double determinantValue =
+-                (rows[1][0] - rows[0][0]) * (rows[2][1] - rows[0][1]) -
+-                (rows[1][1] - rows[0][1]) * (rows[2][0] - rows[0][0]);
+-            require(std::isfinite(determinantValue) &&
+-                        std::abs(determinantValue) > 1.0e-12,
+-                    "cohesive page-partition generated a degenerate integration triangle");
+-            areaFractionSum += std::abs(determinantValue);
+-            pad.femCohesiveMortarPatches.push_back(std::move(part));
+-        }
+-        const auto& original = interface.sideAVertexBarycentric;
+-        const double originalAreaFraction = std::abs(
+-            (original[1][0] - original[0][0]) *
+-                (original[2][1] - original[0][1]) -
+-            (original[1][1] - original[0][1]) *
+-                (original[2][0] - original[0][0]));
+-        require(std::abs(areaFractionSum - originalAreaFraction) <=
+-                    1.0e-12 * std::max(1.0, originalAreaFraction),
+-                "cohesive page-partition does not conserve the authored mortar area");
+     }
+ 
+     if (highSparsePairDomain) {
+@@ -1359,6 +1435,126 @@
+             "compiler admitted a free dynamic BOX as endpoint-prescribed tooling");
+     std::cout << "prescribed_box_compiler_admission=pass"
+               << " nonunit_barrier_and_dynamic_box_rejected=true\n";
++}
++
++void verifyMortarParentPrimitivePairAdmission(const MaterialProgram& bulk) {
++    MeshAndWorld distinct = makeWorld(
++        bulk, false, true, kActivationGap, false, 3u, false);
++    const CompileResult accepted = compileWorld(distinct.world);
++    require(accepted.succeeded() &&
++            accepted.world.dispatch.cohesiveFaceCount == 3u &&
++            std::all_of(accepted.world.fem.cohesiveFaces.begin(),
++                accepted.world.fem.cohesiveFaces.end(),
++                [](const NMCohesiveFaceGPU& face) {
++                    return (face.adjacency.w &
++                        NM_TOPOLOGY_COHESIVE_DORMANT) != 0u;
++                }),
++            "three-page distinct-parent mortar source did not compile dormant");
++
++    const auto hasCapabilityDiagnostic = [](const CompileResult& result) {
++        return std::any_of(result.diagnostics.begin(), result.diagnostics.end(),
++            [](const Diagnostic& diagnostic) {
++                return diagnostic.severity == Diagnostic::Severity::error &&
++                    diagnostic.message.find(
++                        "does not yet support multiple mixed-mode cohesive patches on the same canonical parent primitive pair")
++                        != std::string::npos &&
++                    diagnostic.message.find(
++                        "not a geometric-overlap verdict") != std::string::npos;
++            });
++    };
++
++    MeshAndWorld disjoint = makeWorld(
++        bulk, false, true, kActivationGap, false, 3u, true);
++    const auto& disjointPatches =
++        disjoint.world.objects.at(0u).femCohesiveMortarPatches;
++    require(disjointPatches.size() == 3u &&
++            std::all_of(disjointPatches.begin(), disjointPatches.end(),
++                [&](const CohesiveMortarPatchSource& patch) {
++                    const std::uint32_t primitiveA =
++                        4u * patch.firstTetrahedron + oppositeCornerForFace(
++                            disjoint.world.objects.at(0u).tetrahedra.at(
++                                patch.firstTetrahedron).nodes, patch.sideANodes);
++                    const std::uint32_t primitiveB =
++                        4u * patch.secondTetrahedron + oppositeCornerForFace(
++                            disjoint.world.objects.at(0u).tetrahedra.at(
++                                patch.secondTetrahedron).nodes, patch.sideBNodes);
++                    const std::uint32_t firstPrimitiveA =
++                        4u * disjointPatches.front().firstTetrahedron +
++                        oppositeCornerForFace(
++                            disjoint.world.objects.at(0u).tetrahedra.at(
++                                disjointPatches.front().firstTetrahedron).nodes,
++                            disjointPatches.front().sideANodes);
++                    const std::uint32_t firstPrimitiveB =
++                        4u * disjointPatches.front().secondTetrahedron +
++                        oppositeCornerForFace(
++                            disjoint.world.objects.at(0u).tetrahedra.at(
++                                disjointPatches.front().secondTetrahedron).nodes,
++                            disjointPatches.front().sideBNodes);
++                    const auto pair = std::minmax(primitiveA, primitiveB);
++                    const auto firstPair = std::minmax(firstPrimitiveA, firstPrimitiveB);
++                    return pair.first == firstPair.first && pair.second == firstPair.second;
++                }),
++            "disjoint union-control patches no longer share their authored parent pair");
++    const CompileResult disjointRejected = compileWorld(disjoint.world);
++    require(!disjointRejected.succeeded() &&
++            hasCapabilityDiagnostic(disjointRejected),
++            "disjoint same-parent patches were not rejected as an unsupported contact capability");
++
++    MeshAndWorld overlapping = makeWorld(
++        bulk, false, true, kActivationGap, false, 3u, true);
++    auto& overlapPatches =
++        overlapping.world.objects.at(0u).femCohesiveMortarPatches;
++    overlapPatches[1].sideAVertexBarycentric =
++        overlapPatches[0].sideAVertexBarycentric;
++    overlapPatches[1].sideBVertexBarycentric =
++        overlapPatches[0].sideBVertexBarycentric;
++    const CompileResult overlapRejected = compileWorld(overlapping.world);
++    require(!overlapRejected.succeeded() &&
++            hasCapabilityDiagnostic(overlapRejected),
++            "overlapping same-parent control did not fail at the unsupported-pair admission gate");
++
++    MeshAndWorld noSelfContact = makeWorld(
++        bulk, false, true, kActivationGap, false, 3u, true);
++    noSelfContact.world.objects.at(0u).deformableSelfContact = false;
++    const CompileResult noncontactAccepted = compileWorld(noSelfContact.world);
++    require(noncontactAccepted.succeeded() &&
++            noncontactAccepted.world.dispatch.cohesiveFaceCount == 3u,
++            "duplicate parent mortar patches were rejected despite self-contact being disabled");
++
++    MeshAndWorld mixedInterfaceConflict = makeWorld(
++        bulk, false, true, kActivationGap, false, 1u);
++    const CohesiveMortarPatchSource& mortar =
++        mixedInterfaceConflict.world.objects.at(0u).femCohesiveMortarPatches.at(0u);
++    CohesiveInterfaceSource pairedInterface;
++    pairedInterface.sideANodes = mortar.sideANodes;
++    pairedInterface.sideBNodes = mortar.sideBNodes;
++    pairedInterface.firstTetrahedron = mortar.firstTetrahedron;
++    pairedInterface.secondTetrahedron = mortar.secondTetrahedron;
++    pairedInterface.materialIndex = mortar.materialIndex;
++    pairedInterface.stableIdentifier = kFaceId + 100u;
++    pairedInterface.lawKind = CohesiveLawKind::mixedModeBilinear;
++    pairedInterface.cohesiveMaterialIndex = mortar.cohesiveMaterialIndex;
++    pairedInterface.activationGapToleranceM = mortar.activationGapToleranceM;
++    mixedInterfaceConflict.world.objects.at(0u).femCohesiveInterfaces.push_back(
++        pairedInterface);
++    const CompileResult mixedInterfaceRejected = compileWorld(
++        mixedInterfaceConflict.world);
++    require(!mixedInterfaceRejected.succeeded() &&
++            hasCapabilityDiagnostic(mixedInterfaceRejected),
++            "mixed-mode paired face plus mortar patch escaped the exact-pair capability guard");
++    mixedInterfaceConflict.world.objects.at(0u).deformableSelfContact = false;
++    const CompileResult noncontactMixedInterfaceAccepted = compileWorld(
++        mixedInterfaceConflict.world);
++    require(noncontactMixedInterfaceAccepted.succeeded(),
++            "multiple mixed-mode faces on an exact pair were rejected in a noncontact world");
++
++    std::cout << "mortar_parent_pair_admission=pass"
++              << " distinct_dormant_pairs=3 accepted=true"
++              << " disjoint_same_pair_rejected=true"
++              << " overlapping_same_pair_rejected_as_capability_only=true"
++              << " self_contact_disabled_duplicate_pairs_accepted=true"
++              << " noncontact_mixed_interface_mortar_pair_accepted=true"
++              << " physical_overlap_claim=false union_support=false\n";
+ }
+ 
+ MRBodyStateGPU bodyAt(const ToolPose pose, const float velocityZ) {
+@@ -5313,6 +5509,7 @@
+             verifyArmijoRequiresResolvedDescent();
+             verifyAuthoredLineSearchBudget(bulk);
+             verifyPrescribedBoxCompilerAdmission(bulk);
++            verifyMortarParentPrimitivePairAdmission(bulk);
+             verifySparsePrivateSizingAdmission();
+             if (armijoAlphaPublication) {
+                 verifyArmijoAlphaPublication();

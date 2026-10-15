@@ -1,0 +1,14 @@
+Base: /Users/home/cardboard-implementation-20261014/snapshots/source-captured-point-and-contact-scope-086
+Frozen source manifest SHA-256: 769a5e34c1d919293cb263fd27fbd041a482d22016c2818eec41d44e47935752
+
+PASS (exit 0): python3 capture_preflight.py <overlay>/capture-preflight.json
+PASS (exit 0): clang++ -std=c++2b -x objective-c++ -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fsyntax-only [frozen086 include dirs] [base SHA define] cardboard_bilinear15_capture_diagnostic_check.mm
+PASS (exit 0): clang++ -std=c++2b -x objective-c++ -fobjc-arc -Wall -Wextra -Wpedantic -Werror -c [frozen086 include dirs] [base SHA define] cardboard_bilinear15_capture_diagnostic_check.mm
+PASS (exit 0): xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math [staged overlay include dirs] -c cardboard_bilinear15_capture_diagnostic.metal
+PASS (exit 0): xcrun -sdk macosx metallib cardboard_bilinear15_capture_diagnostic.air -o cardboard_bilinear15_capture_diagnostic.metallib
+PASS (exit 0): strings metallib symbol inspection for cardboard_bilinear15_capture_batch and cardboard_bilinear15_capture_trace
+PASS (exit 0): git apply --check common.metalinc.patch against frozen086
+PASS (exit 0): git apply --check CMakeLists.patch against frozen086
+
+NOT RUN: CMake configure/target link.
+NOT RUN: any native Metal command or GPU execution.

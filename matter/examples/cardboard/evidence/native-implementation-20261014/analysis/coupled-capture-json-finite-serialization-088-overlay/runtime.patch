@@ -1,0 +1,79 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -36,6 +36,7 @@
+ #include <iomanip>
+ #include <initializer_list>
+ #include <limits>
++#include <locale>
+ #include <memory>
+ #include <mutex>
+ #include <numeric>
+@@ -861,6 +862,14 @@
+         result[2u * index + 1u] = digits[digest[index] & 0x0fu];
+     }
+     return result;
++}
++
++[[nodiscard]] std::string jsonFloat32Token(const float value) {
++    if (!std::isfinite(value)) return "null";
++    std::ostringstream output;
++    output.imbue(std::locale::classic());
++    output << std::setprecision(std::numeric_limits<float>::max_digits10) << value;
++    return output.str();
+ }
+ 
+ [[nodiscard]] std::string jsonQuoted(const std::string& value) {
+@@ -15804,7 +15813,9 @@
+                         << capturedRigidWorldPhysicsSubstep
+                         << ",\"microtick\":" << capturedMicro.microtick
+                         << ",\"microtick_count\":" << capturedMicro.microtickCount
+-                        << ",\"dt_seconds\":" << capturedMicro.time.x
++                        << ",\"dt_seconds\":" << jsonFloat32Token(capturedMicro.time.x)
++                        << ",\"dt_seconds_f32_bits_u32\":"
++                        << std::bit_cast<std::uint32_t>(capturedMicro.time.x)
+                         << ",\"environment_count\":" << capturedDispatch.environmentCount
+                         << ",\"node_count\":" << capturedDispatch.femNodeCount
+                         << ",\"tetrahedron_count\":" << capturedDispatch.tetrahedronCount
+@@ -15848,7 +15859,22 @@
+                         << capturedLayout.vascularUnknownCount
+                         << ",\"vascular_base\":" << capturedLayout.vascularBase
+                         << ",\"vascular_residual_tolerance\":"
+-                        << capturedLayout.vascularResidualTolerance
++                        << jsonFloat32Token(capturedLayout.vascularResidualTolerance)
++                        << ",\"vascular_residual_tolerance_f32_bits_u32\":"
++                        << std::bit_cast<std::uint32_t>(
++                            capturedLayout.vascularResidualTolerance)
++                        << ",\"vascular_residual_tolerance_semantics\":"
++                        << jsonQuoted(std::isfinite(capturedLayout.vascularResidualTolerance)
++                            ? "finite_numeric_threshold"
++                            : (capturedLayout.vascularUnknownCount == 0u &&
++                               std::isinf(capturedLayout.vascularResidualTolerance) &&
++                               capturedLayout.vascularResidualTolerance > 0.0f
++                                ? "positive_infinity_not_applicable_no_vascular_unknowns"
++                                : (std::isnan(capturedLayout.vascularResidualTolerance)
++                                    ? "nan_invalid"
++                                    : (capturedLayout.vascularResidualTolerance > 0.0f
++                                        ? "positive_infinity_with_vascular_unknowns"
++                                        : "negative_infinity_invalid"))))
+                         << "},\"microstep\":{\"control_step\":"
+                         << capturedMicro.controlStep << ",\"microtick\":"
+                         << capturedMicro.microtick << ",\"microtick_count\":"
+@@ -15857,9 +15883,15 @@
+                         << capturedMicro.seedLo << ",\"seed_hi\":" << capturedMicro.seedHi
+                         << ",\"flags\":" << capturedMicro.flags
+                         << ",\"generation\":" << capturedMicro.reserved
+-                        << ",\"time\":[" << capturedMicro.time.x << ','
+-                        << capturedMicro.time.y << ',' << capturedMicro.time.z << ','
+-                        << capturedMicro.time.w << "]},\"mixed_solver\":{\"newton_budget\":"
++                        << ",\"time\":[" << jsonFloat32Token(capturedMicro.time.x) << ','
++                        << jsonFloat32Token(capturedMicro.time.y) << ','
++                        << jsonFloat32Token(capturedMicro.time.z) << ','
++                        << jsonFloat32Token(capturedMicro.time.w) << "],\"time_f32_bits_u32\":["
++                        << std::bit_cast<std::uint32_t>(capturedMicro.time.x) << ','
++                        << std::bit_cast<std::uint32_t>(capturedMicro.time.y) << ','
++                        << std::bit_cast<std::uint32_t>(capturedMicro.time.z) << ','
++                        << std::bit_cast<std::uint32_t>(capturedMicro.time.w)
++                        << "]},\"mixed_solver\":{\"newton_budget\":"
+                         << capturedMixedSolver.nonlinearIterations.x
+                         << ",\"restart\":" << capturedMixedSolver.nonlinearIterations.y
+                         << ",\"fgmres_budget\":" << capturedMixedSolver.nonlinearIterations.z

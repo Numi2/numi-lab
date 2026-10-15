@@ -1,0 +1,48 @@
+{
+  "schema": "numi.cardboard.timed-out-capture-postmortem.v1",
+  "audited_at_utc": "2026-10-15T10:05:23.487033+00:00",
+  "original_receipt_sha256": "02c3f172865951ee484d8392c934ceeb722827d862da15e59a66edb9001b8c53",
+  "original_receipt": {
+    "exit_code": 1,
+    "timed_out": true,
+    "termination_errors": [
+      {
+        "signal": 9,
+        "signal_name": "SIGKILL",
+        "error_type": "PermissionError",
+        "reason": "[Errno 1] Operation not permitted",
+        "errno": 1
+      }
+    ],
+    "error_type": "PermissionError",
+    "reason": "[Errno 1] Operation not permitted",
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": null,
+    "changed_inputs": null,
+    "stage": "execution",
+    "wall_seconds": 620.3727939170203,
+    "finished_at_utc": "2026-10-15T09:51:50.003057+00:00"
+  },
+  "original_prediction_sha256": "1a73c9ec7dccd0b247ae7bde8ae5437a652356c4d72e25c3020dde367c3291fd",
+  "sealed_input_count": 782,
+  "all_sealed_and_live_inputs_match_at_postmortem": true,
+  "mismatched_inputs": [],
+  "process_snapshot": "process_absent",
+  "process_check_exit_code": 1,
+  "initial_audit_attempt": {
+    "error": "CalledProcessError",
+    "command": [
+      "ps",
+      "-p",
+      "11280",
+      "-o",
+      "pid=,state=,rss=,command="
+    ],
+    "exit_code": 1,
+    "reason": "Process was reaped between checks; initial helper wrongly treated absence as exceptional. Original script preserved as audit.initial.py."
+  },
+  "operator_capture_files": [],
+  "qualification": false,
+  "scope": "Separate postmortem only. Original exception receipt is unchanged; it did not complete its post-run input scan. No exact failed material capture exists. Zombie RSS0 is not an active GPU worker."
+}

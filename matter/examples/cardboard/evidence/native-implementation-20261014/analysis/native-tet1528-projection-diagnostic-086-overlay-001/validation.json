@@ -1,0 +1,72 @@
+{
+  "base_snapshot_frozen_source_sha256": "769a5e34c1d919293cb263fd27fbd041a482d22016c2818eec41d44e47935752",
+  "checks": {
+    "capture_preflight_283": {
+      "capture_rows": 3456,
+      "capture_sha256": "4decb7be2fbfa93ad97c0f2f22cfaca974931269068bed90e98815b09066b870",
+      "exit_code": 0,
+      "selected_point": "env0/tet1528/liner",
+      "status": "PASS"
+    },
+    "cmake_configure_and_target_link": {
+      "reason": "parent will integrate/build the source-bound target",
+      "status": "NOT_RUN"
+    },
+    "cmake_patch_check": {
+      "base_sha256": "df51df6e659ac345d6b717f3e680cbf810478dfe91158ad0bfbbad3f2d5de337",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    "common_patch_check": {
+      "base_sha256": "f783cc641196353c22c9ec41a70711abcd835e9ce9bb6c9cebf3031571fd0366",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    "kernel_symbols": {
+      "names": [
+        "cardboard_bilinear15_capture_batch",
+        "cardboard_bilinear15_capture_trace"
+      ],
+      "status": "PASS"
+    },
+    "metal_air_compile": {
+      "common_source": "diagnostic slot patch applied over frozen086 common.metalinc",
+      "exit_code": 0,
+      "fast_math": false,
+      "language": "metal4.0",
+      "optimization": "-O3",
+      "sdk": "macosx",
+      "status": "PASS"
+    },
+    "metallib_link": {
+      "exit_code": 0,
+      "native_execution": false,
+      "status": "PASS"
+    },
+    "native_metal_execution": {
+      "reason": "GPU execution is parent-owned",
+      "status": "NOT_RUN"
+    },
+    "objective_cxx_object_compile": {
+      "exit_code": 0,
+      "flags": "-std=c++2b -x objective-c++ -fobjc-arc -Wall -Wextra -Wpedantic -Werror",
+      "status": "PASS"
+    },
+    "objective_cxx_syntax": {
+      "exit_code": 0,
+      "flags": "-std=c++2b -x objective-c++ -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fsyntax-only",
+      "status": "PASS"
+    }
+  },
+  "evidence_sha256": {
+    "commands.txt": "55773d14cd95d0a5c00b853615093e2f83a8b5dc5959ba51a0954428ae9edf5f",
+    "cpu-preflight.log": "734e3c85b947ae9543f0e34b1f4084b55abb51e654bcbe09948a51656f23fdf7",
+    "metal-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "metallib-link.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "metallib-symbols.txt": "c33d5c30c3f2e193ce889473c32c617d2a0e6460689ed598cec71da8bae01a02",
+    "objcxx-object-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "objcxx-syntax.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "qualification": false,
+  "schema": "numi.cardboard.captured-point-diagnostic-validation.v1"
+}

@@ -1,0 +1,50 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-direct-projection-diagnostic-089",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-strict-coupled-capture-json-088",
+  "package": "/Users/home/cardboard-implementation-20261014/analysis/native-tet1528-projection-diagnostic-086-overlay-001",
+  "package_manifest_sha256": "dadb4b71350f7f03f61e2142949aa67733e448582bb767ff372c3ceaacdbc320",
+  "changed": {
+    "matter/CMakeLists.txt": {
+      "before": "df51df6e659ac345d6b717f3e680cbf810478dfe91158ad0bfbbad3f2d5de337",
+      "after": "214313d74f3324fc4c861fe2135010151e43d51da1514156aca2f44b64082684"
+    },
+    "matter/src/metal/common.metalinc": {
+      "before": "f783cc641196353c22c9ec41a70711abcd835e9ce9bb6c9cebf3031571fd0366",
+      "after": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182"
+    },
+    "matter/tools/cardboard_bilinear15_capture_diagnostic.metal": {
+      "before": null,
+      "after": "23f6f758cda7ccc0e0651e45a298644e6b71a3c25cd5ef2f7c9cbe4ceca40628"
+    },
+    "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": {
+      "before": null,
+      "after": "27f1b7852668ccec459ee5d6060bf89da203358448aca0138c7e8ac53cdf9571"
+    }
+  },
+  "integration_changes": [
+    {
+      "path": "matter/CMakeLists.txt",
+      "defect": "literal escaped CMake variable references",
+      "corrected_occurrences": 19,
+      "original_artifact_sha256": "2330a53f4d4d4ec3c22ced258f642af6a4623d93da407ca87018c40ad8dc0297"
+    },
+    {
+      "path": "matter/CMakeLists.txt",
+      "integrated_sha256": "214313d74f3324fc4c861fe2135010151e43d51da1514156aca2f44b64082684"
+    },
+    {
+      "path": "matter/src/metal/common.metalinc",
+      "integrated_sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182"
+    },
+    {
+      "path": "matter/tools/cardboard_bilinear15_capture_diagnostic.metal",
+      "integrated_sha256": "23f6f758cda7ccc0e0651e45a298644e6b71a3c25cd5ef2f7c9cbe4ceca40628"
+    },
+    {
+      "path": "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm",
+      "integrated_sha256": "27f1b7852668ccec459ee5d6060bf89da203358448aca0138c7e8ac53cdf9571"
+    }
+  ],
+  "scope": "Source088 strict coupled capture plus separate read-only native paper stress, tangent and local return-map trace instrument. Per-iteration trace slot5 only; no stopping, residual, line-search, material or physical changes. External CMake literal variable escapes corrected before configure."
+}

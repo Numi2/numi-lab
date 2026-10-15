@@ -1,0 +1,467 @@
+{
+  "schema": "numi.cardboard.accurate-source15-first-control-failure-comparison.v1",
+  "classification": "CPU-only independent FP64 equation replay bound to the successful 283 first-control capture; not a native reproduction of the failed 288 local projection.",
+  "run_bindings": {
+    "recycle-source-default-first-control-283": {
+      "prediction_sha256": "13d71c00d26d51fc8002db80fecd4978c43165b9bc3c0b7cc7f242a70760da39",
+      "receipt_sha256": "ee136749d2b110c33bd463b511def98e7b0b6509de672a14bd1ae42ed6d56576",
+      "result_sha256": "92565f34f4b7849d66bfafe3026f886cc197458cbef20969aa0f2e7f69dfd834",
+      "manifest_sha256": "d5fbeb31403454d2b007ed5dfe024d9323f0779fe93cc37b6b1bea7b0478a504",
+      "mesh_sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+      "compiled_pack_sha256": "611cb0e96d26348f9d25c73379b6b77915c4b3f603c8ee28f8aadf333ea9cbc0",
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-085/matter/numi-matter-cardboard-probe",
+        "--preset",
+        "literature2009",
+        "--line-search-steps",
+        "24",
+        "--without-self-contact",
+        "--reference-displacement-gradient",
+        "--compensated-paper-arithmetic",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "64",
+        "--fgmres-restart",
+        "16",
+        "--fgmres-iterations",
+        "32",
+        "--fgmres-preconditioner",
+        "regional-galerkin-schwarz",
+        "--steps",
+        "1",
+        "--hold-steps",
+        "0",
+        "--unload-steps",
+        "0",
+        "--relax-steps",
+        "0",
+        "--release-steps",
+        "0",
+        "--nx",
+        "8",
+        "--ny",
+        "2",
+        "--thickness-slices",
+        "1",
+        "--bend-angle",
+        ".03125",
+        "--dt",
+        ".0001",
+        "--material-iterations",
+        "32",
+        "--metallib",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-085/matter/shaders/NumiMatter.metallib",
+        "--output",
+        "/Users/home/cardboard-implementation-20261014/solver/recycle-source-default-first-control-283/output",
+        "--liner-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-accepted-correction-regional-recycle-085/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+        "--medium-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-accepted-correction-regional-recycle-085/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+        "--cache-fem-algorithmic-tangent",
+        "--compensated-source-paper-projection"
+      ],
+      "result": {
+        "schema": "numi.cardboard.probe-result.v1",
+        "status": "completed",
+        "accepted_steps": 1,
+        "compiled_world_fingerprint": 4391195443475122722,
+        "nodes": 882,
+        "tetrahedra": 1920,
+        "material_map_sha256": "1bfcfd4eedb2c328811d4dbca26b51f3f996a83398c2e51108e2126e4c541c31",
+        "authored_region_map_sha256": "8513c9e0e7f3f784ed3de52b609ac26837197d4ba3d0bf5d33a067136afafec4",
+        "frame_map_sha256": "94e426a5d9d06445e3f44d1046f8b49bdae23a5752691f9776118222f4d7b740",
+        "damage_overlay_mapping_sha256": "",
+        "failure": "",
+        "physical_validation": false
+      },
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 0,
+        "timed_out": false,
+        "termination_errors": [],
+        "wall_seconds": 142.64194829104235,
+        "finished_at_utc": "2026-10-15T09:04:20.372052+00:00"
+      },
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-accepted-correction-regional-recycle-085",
+      "build_provenance": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-085/source-build.json",
+      "material_binding": {
+        "liner_sha256": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a",
+        "medium_sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+        "glue_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1"
+      },
+      "solver": {
+        "backend": "implicit nonlinear Matter FEM on Apple Metal",
+        "deformable_self_contact": false,
+        "compact_immutable_surface_map": false,
+        "compiled_surface_face_count": 4720,
+        "deformable_contact_capacity_requested": null,
+        "deformable_contact_capacity_compiled": 15360,
+        "contact_slop_m": 1.91e-06,
+        "deformation_gradient": "persistent_reference_displacement",
+        "dt_s": 0.0001,
+        "bend_angle_deg": 0.03125,
+        "steps": 1,
+        "hold_steps": 0,
+        "unload_steps": 0,
+        "relax_steps": 0,
+        "release_steps": 0,
+        "release_policy": "right grip free; left grip remains fixed; physical state preserved",
+        "local_material_newton_iterations": 32,
+        "newton_iteration_budget": 64,
+        "fgmres_restart": 16,
+        "fgmres_iteration_budget": 32,
+        "fgmres_preconditioner": "regional_galerkin_graph_schwarz_conditioning_only",
+        "fgmres_preconditioner_rebuild_policy": "once_per_newton_linearization",
+        "fgmres_algorithmic_tangent_cache": true,
+        "paper_compensated_arithmetic": true,
+        "safeguarded_paper_hill_initializer": false,
+        "line_search_steps": 24,
+        "relative_residual_tolerance": 9.999999974752427e-07,
+        "volume_tolerance": 9.999999747378752e-05,
+        "pressure_tolerance": 9.999999747378752e-05,
+        "transport_tolerance": 9.999999747378752e-05,
+        "gravity_m_s2": [
+          0,
+          0,
+          0
+        ],
+        "maximum_rate_exponent": 0,
+        "runtime_execution": true
+      },
+      "source_compensated": {
+        "enabled": true,
+        "accurate_bilinear15_projection": false,
+        "scope": "explicit numerical opt-in for exactly the 15-state source bilinear-fit or asymmetric-C1 liner/medium pair; requires compensated paper arithmetic; no retained-damage overlay or 13-state Hill policy; constitutive equations and global tolerances unchanged",
+        "source_material_indices": [
+          0,
+          1
+        ],
+        "source_map_sha256": "1bfcfd4eedb2c328811d4dbca26b51f3f996a83398c2e51108e2126e4c541c31",
+        "compiled_world_fingerprint": 4391195443475122722,
+        "effective_compiled_flags": {
+          "liner_flags": 85,
+          "medium_flags": 85,
+          "liner_local_newton_iterations": 32,
+          "medium_local_newton_iterations": 32,
+          "liner_generic_compensated_implicit_projection": true,
+          "medium_generic_compensated_implicit_projection": true,
+          "liner_compensated_paper_arithmetic": true,
+          "medium_compensated_paper_arithmetic": true
+        }
+      }
+    },
+    "accurate-source15-complete-coupon-cycle-288": {
+      "prediction_sha256": "a8eec9bdefcc7107bd177b5c1dce7eff5272a361123c5afa46d08a1bc1c5545f",
+      "receipt_sha256": "1328afa56f7ab0dadfdfe41feb784615949bd0602213e1b62f7f32396b49a4b7",
+      "result_sha256": "7c22df8bb5e267c8bf30200769981b44612125f5bec344064358e5629a9aa951",
+      "manifest_sha256": "90f52f600acf399383723a249bfdda1ffba1cada06f6a235511635bea6bc84c9",
+      "mesh_sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+      "compiled_pack_sha256": "4934dec51abb973247974445c93f375d749aa875243a31b298fbfedd97efff68",
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-086/matter/numi-matter-cardboard-probe",
+        "--preset",
+        "literature2009",
+        "--line-search-steps",
+        "24",
+        "--without-self-contact",
+        "--reference-displacement-gradient",
+        "--compensated-paper-arithmetic",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "64",
+        "--fgmres-restart",
+        "16",
+        "--fgmres-iterations",
+        "32",
+        "--fgmres-preconditioner",
+        "regional-galerkin-schwarz",
+        "--steps",
+        "12",
+        "--hold-steps",
+        "3",
+        "--unload-steps",
+        "6",
+        "--relax-steps",
+        "3",
+        "--release-steps",
+        "3",
+        "--nx",
+        "8",
+        "--ny",
+        "2",
+        "--thickness-slices",
+        "1",
+        "--bend-angle",
+        ".375",
+        "--dt",
+        ".0001",
+        "--material-iterations",
+        "32",
+        "--metallib",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-086/matter/shaders/NumiMatter.metallib",
+        "--output",
+        "/Users/home/cardboard-implementation-20261014/solver/accurate-source15-complete-coupon-cycle-288/output",
+        "--liner-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-captured-point-and-contact-scope-086/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+        "--medium-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-captured-point-and-contact-scope-086/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+        "--cache-fem-algorithmic-tangent",
+        "--compensated-source-paper-projection",
+        "--accurate-source-paper-projection"
+      ],
+      "result": {
+        "schema": "numi.cardboard.probe-result.v1",
+        "status": "failed",
+        "accepted_steps": 0,
+        "compiled_world_fingerprint": 14155255640810059088,
+        "nodes": 882,
+        "tetrahedra": 1920,
+        "material_map_sha256": "a695cb1bf6c22547013c15007998b171fc7639433c438380a15972cf36483f7b",
+        "authored_region_map_sha256": "8513c9e0e7f3f784ed3de52b609ac26837197d4ba3d0bf5d33a067136afafec4",
+        "frame_map_sha256": "94e426a5d9d06445e3f44d1046f8b49bdae23a5752691f9776118222f4d7b740",
+        "damage_overlay_mapping_sha256": "",
+        "failure": "Matter rejected step 0; status, diagnostic state OBJ, and CSV observations were retained; rejected geometry is not an accepted animation frame",
+        "physical_validation": false
+      },
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 2,
+        "timed_out": false,
+        "termination_errors": [],
+        "wall_seconds": 371.71260437503224,
+        "finished_at_utc": "2026-10-15T09:17:02.926419+00:00"
+      },
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-captured-point-and-contact-scope-086",
+      "build_provenance": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-086/source-build.json",
+      "material_binding": {
+        "liner_sha256": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a",
+        "medium_sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+        "glue_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1"
+      },
+      "solver": {
+        "backend": "implicit nonlinear Matter FEM on Apple Metal",
+        "deformable_self_contact": false,
+        "compact_immutable_surface_map": false,
+        "compiled_surface_face_count": 4720,
+        "deformable_contact_capacity_requested": null,
+        "deformable_contact_capacity_compiled": 15360,
+        "contact_slop_m": 1.91e-06,
+        "deformation_gradient": "persistent_reference_displacement",
+        "dt_s": 0.0001,
+        "bend_angle_deg": 0.375,
+        "steps": 12,
+        "hold_steps": 3,
+        "unload_steps": 6,
+        "relax_steps": 3,
+        "release_steps": 3,
+        "release_policy": "right grip free; left grip remains fixed; physical state preserved",
+        "local_material_newton_iterations": 32,
+        "newton_iteration_budget": 64,
+        "fgmres_restart": 16,
+        "fgmres_iteration_budget": 32,
+        "fgmres_preconditioner": "regional_galerkin_graph_schwarz_conditioning_only",
+        "fgmres_preconditioner_rebuild_policy": "once_per_newton_linearization",
+        "fgmres_algorithmic_tangent_cache": true,
+        "paper_compensated_arithmetic": true,
+        "safeguarded_paper_hill_initializer": false,
+        "line_search_steps": 24,
+        "relative_residual_tolerance": 9.999999974752427e-07,
+        "volume_tolerance": 9.999999747378752e-05,
+        "pressure_tolerance": 9.999999747378752e-05,
+        "transport_tolerance": 9.999999747378752e-05,
+        "gravity_m_s2": [
+          0,
+          0,
+          0
+        ],
+        "maximum_rate_exponent": 0,
+        "runtime_execution": true
+      },
+      "source_compensated": {
+        "enabled": true,
+        "accurate_bilinear15_projection": true,
+        "scope": "explicit numerical opt-in for exactly the 15-state source bilinear-fit or asymmetric-C1 liner/medium pair; requires compensated paper arithmetic; no retained-damage overlay or 13-state Hill policy; constitutive equations and global tolerances unchanged",
+        "source_material_indices": [
+          0,
+          1
+        ],
+        "source_map_sha256": "a695cb1bf6c22547013c15007998b171fc7639433c438380a15972cf36483f7b",
+        "compiled_world_fingerprint": 14155255640810059088,
+        "effective_compiled_flags": {
+          "liner_flags": 213,
+          "medium_flags": 213,
+          "liner_local_newton_iterations": 16,
+          "medium_local_newton_iterations": 16,
+          "liner_generic_compensated_implicit_projection": true,
+          "medium_generic_compensated_implicit_projection": true,
+          "liner_compensated_paper_arithmetic": true,
+          "medium_compensated_paper_arithmetic": true
+        }
+      }
+    }
+  },
+  "first_increment_comparison": {
+    "283_steps": 1,
+    "283_bend_angle": 0.03125,
+    "288_steps": 12,
+    "288_bend_angle": 0.375,
+    "comparison": "one 283 increment requests 0.03125 degrees; the first of 12 equal 288 increments is 0.375/12 = 0.03125 degrees. This establishes nominal command equivalence, not a byte-for-byte 288 failing-candidate capture."
+  },
+  "tet1528_successful_283_input": {
+    "capture_sha256": "4decb7be2fbfa93ad97c0f2f22cfaca974931269068bed90e98815b09066b870",
+    "root": 0,
+    "newton_iteration": 0,
+    "tetrahedron": 1528,
+    "environment": 0,
+    "material_index": 0,
+    "F_high_fp32": [
+      [
+        0.9975133538246155,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        6.548372653014667e-07,
+        0.0,
+        1.0
+      ]
+    ],
+    "F_low_fp32": [
+      [
+        1.0772964742500335e-08,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        7.105427357601002e-15,
+        0.0,
+        0.0
+      ]
+    ],
+    "F_high_plus_low_fp64": [
+      [
+        0.9975133645975802,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        6.54837272406894e-07,
+        0.0,
+        1.0
+      ]
+    ],
+    "determinant_high_plus_low_fp64": 0.9975133645975802,
+    "accepted_state_fp32": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "native_283_projection_record": [
+      1.77635684e-14,
+      0.52484107,
+      2,
+      1
+    ],
+    "compiled_local_newton_iterations_283": 32,
+    "compiled_local_newton_iterations_288": 32
+  },
+  "288_failure_observation_from_parent_status_report": {
+    "status_code": 5,
+    "label": "INVALID_DEFORMATION",
+    "failing_tetrahedron": 1528,
+    "reported_determinant": 0.99751335,
+    "reported_fgmres_iterations": 0,
+    "source": "root status report; not present as a per-tet projection trace in the retained 288 raw run files",
+    "retained_native_result_status": "failed",
+    "retained_native_receipt_exit_code": 2
+  },
+  "cpu_replay": {
+    "summary_sha256": "e491ab238d57c268545699eabd18ab14ec6482cc96d7e05100ab46939bcb05f6",
+    "budget_sweep_sha256": "4caeae7213721455f051672869f09e018d9e9e381f9f16d651da2b9239fa3fa7",
+    "rows": 3456,
+    "row_counts": {
+      "environment0_liner": 1152,
+      "environment0_medium": 576,
+      "environment1_liner": 1152,
+      "environment1_medium": 576
+    },
+    "policy": "same FP64 equations and source parameters; original 2e-8 authored residual L-infinity stop plus opt-in 2e-8 dimensionless scaled-correction stop; original Armijo test and 16 backtracks; only the local iteration ceiling changed for the comparison.",
+    "iterations_across_ceilings": {
+      "16": {
+        "converged": 3456,
+        "max": 13
+      },
+      "32": {
+        "converged": 3456,
+        "max": 13
+      },
+      "64": {
+        "converged": 3456,
+        "max": 13
+      }
+    },
+    "root_comparison": {
+      "16_vs_32_max_abs_state_difference": 0.0,
+      "16_vs_64_max_abs_state_difference": 0.0,
+      "residual_only_vs_scaled_policy_max_abs_state_difference": 4.141131881851834e-14
+    },
+    "tet1528": {
+      "tet": 1528,
+      "environment": 0,
+      "material_index": 0,
+      "native_projection_iterations": 2,
+      "baseline_iterations": 0,
+      "accurate_iterations": 1,
+      "accurate_status": "converged",
+      "max_abs_state_difference_baseline_accurate": 3.108624468950438e-14,
+      "relative_l2_state_difference_baseline_accurate": 7.766866101779699e-14,
+      "residual_threshold_fraction": 3.64045492820696e-08,
+      "scaled_correction_threshold_fraction": 1.0576754809844562e-08,
+      "initial_lambda": 0.0,
+      "accepted_lambda": 0.0
+    },
+    "native_283_projection_iteration_counts": {
+      "1": 3420,
+      "7": 12,
+      "2": 12,
+      "14": 12
+    }
+  },
+  "interpretation": "The exact 283 captured input for tet1528 is positive-J and the independent CPU projection passes; all captured points pass the 16-iteration scaled-correction policy. The 288 failure is therefore not explained by a local iteration ceiling on these captured FP64 inputs. Since 288 did not retain the failed per-tet material input/iteration trace, native FP32/compensated behavior versus a differing in-flight candidate remains unresolved. Do not classify the 288 cause as insufficient local iteration budget from this replay.",
+  "required_next_diagnostic": "For a source-bound native rerun, capture at the failure the exact F high/low words, accepted 15-state words, authored state-update seed, local iteration states/residual and scaled correction norms, material index/flags/budget, terminal failure reason, and determinant. Preserve the same physical command and equations; compare matched 16/32/64 ceilings at those exact inputs."
+}

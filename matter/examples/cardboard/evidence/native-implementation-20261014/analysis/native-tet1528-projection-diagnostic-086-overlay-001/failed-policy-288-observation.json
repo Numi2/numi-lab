@@ -1,0 +1,32 @@
+{
+  "schema": "numi.cardboard.source15-failed-policy-observation.v1",
+  "run_id": "accurate-source15-first-control-288",
+  "evidence_scope": "native solver failure observation; not a point replay",
+  "exit_code": 2,
+  "timed_out": false,
+  "wall_seconds": 371.71260437503224,
+  "accepted_steps": 0,
+  "failing_point": {
+    "environment": 0,
+    "tet_id": 1528,
+    "material": "hajali2009_liner_hill_bilinear_fit",
+    "status_code": 5,
+    "completed_microsteps": 0,
+    "fgmres_iterations": 0,
+    "determinant_diagnostic": 0.99751335382461548
+  },
+  "effective_material_policy": {
+    "flags": 213,
+    "compiled_local_newton_iterations": 16,
+    "requested_command_local_iterations": 32
+  },
+  "source_bound_inputs": {
+    "prediction_sha256": "a8eec9bdefcc7107bd177b5c1dce7eff5272a361123c5afa46d08a1bc1c5545f",
+    "manifest_sha256": "90f52f600acf399383723a249bfdda1ffba1cada06f6a235511635bea6bc84c9",
+    "observations_csv_sha256": "0be594282577aa60c313aabb1f31601d0ce5c4321c48b39f318efb5338c71ccd",
+    "result_json_sha256": "7c22df8bb5e267c8bf30200769981b44612125f5bec344064358e5629a9aa951"
+  },
+  "not_equivalent_to_capture283": true,
+  "actual_failed_candidate_capture": "A separate source-bound capture is being collected; this observation does not identify capture283 as the exact source288 trial input.",
+  "physical_qualification": false
+}

@@ -1,0 +1,52 @@
+{
+  "schema": "numi.matter.mortar-union-interim-overlay.v1",
+  "created_utc_date": "2026-10-15",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-captured-point-and-contact-scope-086",
+  "base_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+  "base_frozen_source_sha256": "769a5e34c1d919293cb263fd27fbd041a482d22016c2818eec41d44e47935752",
+  "source_files": {
+    "matter/src/compiler_impl.cpp": {
+      "base_sha256": "46783699e8fe29c2bec502c987f86f6fc11dc0e832e56886c9cb553e2cc0d350",
+      "overlay_sha256": "fcf6e35d3f3ba84faa4c5be1e5c45bb8b32cb86646ea1a5650a04f90040c098a"
+    },
+    "matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "base_sha256": "6eb68eea4e258866f7c1b41c1c74cbc40ed27b9e06a31a6e1ad503aa8064123c",
+      "overlay_sha256": "ee59eeb8ee47629e98a850b254aa9193df24ca506466784b17ee14c7876b0c0b"
+    }
+  },
+  "overlay_patch": {
+    "path": "overlay.patch",
+    "sha256": "17e96dfa6ece5583d009d64386f954c8401cddd4d12abea678b918fb90090868",
+    "apply_check": "pass; applied to copies of both exact base files and byte-compared against overlay files"
+  },
+  "cpu_prototype": {
+    "path": "mortar_union_partition.py",
+    "sha256": "67a77b8d35e8b8f77ad179899847149778bf9a574646f87753dcfdb02b8e7405",
+    "test_path": "test_mortar_union_partition.py",
+    "test_sha256": "5c4a4de1428212b8ee9a225c00cc803a327e0be3070dfeeb00efc7dc39a6fad2",
+    "command": "python3 -m unittest -v test_mortar_union_partition.py",
+    "result": "11 passed"
+  },
+  "syntax_checks": [
+    {
+      "command": "clang++ -std=c++23 -fsyntax-only -Wall -Wextra -Wpedantic -Werror -I matter/include -I include -I matter/src matter/src/compiler_impl.cpp",
+      "result": "pass",
+      "compiler": "Apple clang version 21.0.0 (clang-2100.0.123.102)",
+      "tree": "build-source copied from source-captured-point-and-contact-scope-086 with the two overlay files installed"
+    },
+    {
+      "command": "clang++ -x objective-c++ -std=c++23 -fobjc-arc -fsyntax-only -Wall -Wextra -Wpedantic -Werror -Wno-unused-const-variable -Wno-unused-function -DNUMI_MATTER_METALLIB=\\\"\\\" -I matter/include -I include -I matter/src -I matter/tools matter/tools/cardboard_full_contact_armijo_check.mm",
+      "result": "pass",
+      "compiler": "Apple clang version 21.0.0 (clang-2100.0.123.102)",
+      "tree": "build-source copied from source-captured-point-and-contact-scope-086 with the two overlay files installed"
+    }
+  ],
+  "scope": {
+    "interim_compiler_guard": "Reject a second mixed-mode cohesive source patch on the same canonical parent primitive pair only when same-object deformable self-contact is enabled. The key includes exact face primitive identities 4*tet+oppositeCorner. This prevents the current single-face contact lookup from ambiguously selecting one patch.",
+    "noncontact_behavior": "Duplicate mixed-mode patches remain eligible for compilation when deformable self-contact is disabled; cohesive force/history remains per face.",
+    "unsupported": "Native union coverage, multi-patch complement contact, CCD, and complete mixed-mode patch runtime behavior are not implemented by this overlay.",
+    "qualification": "No GPU or native execution was performed; the source checker changes were syntax-compiled only. The Python prototype is CPU geometry arithmetic, not solver or physical qualification."
+  },
+  "derivation_reference": "/Users/home/cardboard-implementation-20261014/analysis/three-face-mortar-parent-ambiguity-287/analysis.json",
+  "readme_sha256": "cfdc751e6b2a32d0cae40e2c3a98d9ea65689240f5a7d838998c6029677ef8bf"
+}

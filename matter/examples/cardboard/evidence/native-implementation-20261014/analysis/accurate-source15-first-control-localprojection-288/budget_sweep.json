@@ -1,0 +1,59 @@
+{
+  "16": {
+    "status_counts": {
+      "converged": 3456
+    },
+    "iterations": {
+      "min": 0,
+      "mean": 0.3993055555555556,
+      "p95": 1.0,
+      "max": 13
+    },
+    "failures": []
+  },
+  "32": {
+    "status_counts": {
+      "converged": 3456
+    },
+    "iterations": {
+      "min": 0,
+      "mean": 0.3993055555555556,
+      "p95": 1.0,
+      "max": 13
+    },
+    "failures": []
+  },
+  "64": {
+    "status_counts": {
+      "converged": 3456
+    },
+    "iterations": {
+      "min": 0,
+      "mean": 0.3993055555555556,
+      "p95": 1.0,
+      "max": 13
+    },
+    "failures": []
+  },
+  "root_compare_16_vs_32": {
+    "max_abs_state_difference": 0.0,
+    "rows_over_1e-12": 0,
+    "rows_over_1e-8": 0
+  },
+  "root_compare_16_vs_64": {
+    "max_abs_state_difference": 0.0,
+    "rows_over_1e-12": 0,
+    "rows_over_1e-8": 0
+  },
+  "schema": "numi.cardboard.bilinear15-first-control-local-projection-budget-sweep.v1",
+  "classification": "CPU FP64 equation replay of exact captured 283 first-control F/accepted-state/material-parameter inputs; not a native replay of failed run 288.",
+  "capture_sha256": "4decb7be2fbfa93ad97c0f2f22cfaca974931269068bed90e98815b09066b870",
+  "equation_reference_sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+  "policy_replay_sha256": "0c67283a94258aff8a6198146edf7ef2c3093d3994d6b05aa28def42bcf46653",
+  "rows": 3456,
+  "epsilon": 1e-08,
+  "authored_residual_tolerance": 2e-08,
+  "scaled_correction_tolerance": 2e-08,
+  "line_search": "unchanged authored infinity-norm Armijo, 16 backtracks",
+  "elapsed_seconds": 11.485700130462646
+}

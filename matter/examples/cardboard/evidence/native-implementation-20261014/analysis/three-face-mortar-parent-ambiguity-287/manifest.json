@@ -1,0 +1,55 @@
+{
+  "files": {
+    "activation_trace": {
+      "bytes": 35253,
+      "path": "/Users/home/cardboard-implementation-20261014/native/ordered-cohesive-pages-stage-diagnostics-287/diagnostic-state/face-count-3/legacy/fixture-activation.log",
+      "sha256": "f4f39260c84bb8436235e916b10dfa58236182e8e229138885aac2f38992b919"
+    },
+    "analysis.json": {
+      "bytes": 4231,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/three-face-mortar-parent-ambiguity-287/analysis.json",
+      "sha256": "52eb7f58aa809736a7001020148a0572885d9f3058554a3f57f05461edcda4ff"
+    },
+    "analyzer.py": {
+      "bytes": 8305,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/three-face-mortar-parent-ambiguity-287/analyze_parent_pair_ambiguity.py",
+      "sha256": "14b468eb2cfa6a4ca8d9800a540f4303aa54b0ff7f67766244ab34fc4f0cda36"
+    },
+    "contact_source": {
+      "bytes": 360114,
+      "path": "/Users/home/cardboard-implementation-20261014/native/ordered-cohesive-pages-stage-diagnostics-287/inputs/source/matter/src/metal/contact.metalinc",
+      "sha256": "9e4ce2d8213c83a9a3e58a64388562cb92638c892b21e612653e92400b654f1f"
+    },
+    "fixture_source": {
+      "bytes": 283578,
+      "path": "/Users/home/cardboard-implementation-20261014/native/ordered-cohesive-pages-stage-diagnostics-287/inputs/source/matter/tools/cardboard_full_contact_armijo_check.mm",
+      "sha256": "6eb68eea4e258866f7c1b41c1c74cbc40ed27b9e06a31a6e1ad503aa8064123c"
+    },
+    "prior_tiled_stage_report": {
+      "bytes": 209335,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/tiled-cohesive-stage-diagnostics-287/report.json",
+      "sha256": "1b62caf93c28dce399c788170361040c79f0ddec625ff338602a8b0692e2d82d"
+    },
+    "readme": {
+      "bytes": 4151,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/three-face-mortar-parent-ambiguity-287/README.md",
+      "sha256": "25b8974f316384d47b65b3030095ea883bda234cc00519ff989e84a9f3b34807"
+    },
+    "run_receipt": {
+      "bytes": 306,
+      "path": "/Users/home/cardboard-implementation-20261014/native/ordered-cohesive-pages-stage-diagnostics-287/receipt.json",
+      "sha256": "40bda53b19fca9be011fa601b2a57dacb010bb347af7f47a3933c7a172281567"
+    },
+    "source_build_manifest": {
+      "bytes": 114287,
+      "path": "/Users/home/cardboard-implementation-20261014/native/ordered-cohesive-pages-stage-diagnostics-287/inputs/external/source-build.json",
+      "sha256": "120c809d6d0ea9a0c1ed27a25df3c20748f186f62c64164eb54f09e745524c1b"
+    },
+    "validation_source": {
+      "bytes": 140440,
+      "path": "/Users/home/cardboard-implementation-20261014/native/ordered-cohesive-pages-stage-diagnostics-287/inputs/source/matter/src/validation_impl.cpp",
+      "sha256": "298c8cd8052309610ef0d85c22eb638aadb8cd5a589978b5599a5043e342c048"
+    }
+  },
+  "schema": "numi.cardboard.three_face_mortar_parent_ambiguity_manifest.v1"
+}

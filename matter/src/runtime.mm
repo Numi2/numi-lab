@@ -36,6 +36,7 @@
 #include <iomanip>
 #include <initializer_list>
 #include <limits>
+#include <locale>
 #include <memory>
 #include <mutex>
 #include <numeric>
@@ -861,6 +862,14 @@ struct RegionalRAPCaptureMetadata {
         result[2u * index + 1u] = digits[digest[index] & 0x0fu];
     }
     return result;
+}
+
+[[nodiscard]] std::string jsonFloat32Token(const float value) {
+    if (!std::isfinite(value)) return "null";
+    std::ostringstream output;
+    output.imbue(std::locale::classic());
+    output << std::setprecision(std::numeric_limits<float>::max_digits10) << value;
+    return output.str();
 }
 
 [[nodiscard]] std::string jsonQuoted(const std::string& value) {
@@ -10496,8 +10505,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return "unknown_count_out_of_scope";
                 if (state.dispatch.contactPairCount > 131072u)
                     return "contact_pair_count_out_of_scope";
-                if (state.dispatch.deformableContactCapacity > 16384u)
-                    return "deformable_contact_capacity_out_of_scope";
+                // Contact capacity is bounded by the actual readback byte
+                // accounting below. A large unused reservation is not itself
+                // excluded if every complete arena fits the fixed capture cap.
                 if (state.dispatch.cohesiveFaceCount > 8192u)
                     return "cohesive_face_count_out_of_scope";
                 if (state.dispatch.objectCount > 64u)
@@ -14552,38 +14562,99 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return true;
                 }
                 femCoupledCaptureCaptured = true;
+                const auto bufferBytes = [](id<MTLBuffer> buffer) {
+                    return buffer == nil ? std::uint64_t{0u}
+                        : static_cast<std::uint64_t>(buffer.length);
+                };
                 const auto emitSkipped = [&](const char* reason,
                                              const std::uint64_t bytes = 0u) {
+                    const auto saturatedMultiply = [](
+                            const std::uint64_t left,
+                            const std::uint64_t right) {
+                        if (right != 0u &&
+                            left > std::numeric_limits<std::uint64_t>::max() / right)
+                            return std::numeric_limits<std::uint64_t>::max();
+                        return left * right;
+                    };
+                    const auto saturatedAdd = [](
+                            const std::uint64_t left,
+                            const std::uint64_t right) {
+                        if (left > std::numeric_limits<std::uint64_t>::max() - right)
+                            return std::numeric_limits<std::uint64_t>::max();
+                        return left + right;
+                    };
+                    const std::uint64_t envTets = saturatedMultiply(
+                        state.dispatch.environmentCount,
+                        state.dispatch.tetrahedronCount);
+                    const std::uint64_t envParticles = saturatedMultiply(
+                        state.dispatch.environmentCount,
+                        state.dispatch.particleCount);
+                    const std::uint64_t envContactSlots = saturatedMultiply(
+                        state.dispatch.environmentCount,
+                        state.dispatch.deformableContactCapacity);
+                    const std::uint64_t historyElements = saturatedMultiply(
+                        saturatedAdd(saturatedMultiply(2u, envTets),
+                                     saturatedMultiply(4u, envParticles)),
+                        state.dispatch.materialStateStride);
+                    const std::uint64_t bytesPerContactSlot =
+                        sizeof(NMDeformableContactGPU) +
+                        sizeof(NMDeformableContactCandidateGPU) +
+                        2u * sizeof(NMDeformableContactHistoryGPU) +
+                        2u * sizeof(std::uint32_t) +
+                        6u * sizeof(std::uint32_t);
+                    const std::uint64_t fullContactSlotBytes =
+                        saturatedMultiply(envContactSlots, bytesPerContactSlot);
+                    const std::uint64_t rangeCount = saturatedMultiply(
+                        state.dispatch.environmentCount,
+                        static_cast<std::uint64_t>(state.dispatch.gridNodeCount) +
+                            state.dispatch.femNodeCount);
+                    const std::uint64_t rangeBytes = saturatedMultiply(
+                        rangeCount, sizeof(NMIncidenceRangeGPU));
+                    const std::uint64_t environmentScalars = saturatedMultiply(
+                        std::max<std::uint64_t>(16u, saturatedMultiply(
+                            state.dispatch.environmentCount, sizeof(std::uint32_t))),
+                        3u);
+                    const std::uint64_t minimumContactArenaBytes = saturatedAdd(
+                        saturatedAdd(fullContactSlotBytes, rangeBytes),
+                        saturatedAdd(environmentScalars,
+                            sizeof(NMIndirectDispatchGPU)));
                     std::fprintf(stderr,
-                        "fem_coupled_capture_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"%s\",\"bytes\":%llu,\"physical_state_changed\":false}\n",
-                        femCoupledCaptureRoot, femCoupledCaptureIteration,
-                        reason, static_cast<unsigned long long>(bytes));
+                        "fem_coupled_capture_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"%s\",\"bytes\":%llu,\"requested_present_payload_bytes\":%llu,\"observed\":{\"capture_byte_cap_bytes\":33554432,\"minimum_full_contact_arena_bytes\":%llu,\"environment_count\":%u,\"fem_node_count\":%u,\"tetrahedron_count\":%u,\"particle_count\":%u,\"grid_node_count\":%u,\"mpm_grid_count\":%u,\"mpm_block_count\":%u,\"mpm_block_lookup_count\":%u,\"object_count\":%u,\"material_state_stride\":%u,\"material_history_elements\":%llu,\"contact_pair_count\":%u,\"deformable_contact_capacity\":%u,\"cohesive_face_count\":%u,\"rigid_proxy_count\":%u,\"rigid_generalized_capacity\":%u,\"unknown_count\":%u,\"vascular_unknown_count\":%u,\"identification_candidate_count\":%u,\"mutation_command_count\":%u,\"deformable_contact_buffer_bytes\":%llu,\"deformable_candidate_buffer_bytes\":%llu,\"accepted_contact_history_bytes\":%llu,\"candidate_contact_history_bytes\":%llu,\"active_index_buffer_bytes\":%llu,\"active_count_buffer_bytes\":%llu,\"candidate_count_buffer_bytes\":%llu,\"node_incidence_buffer_bytes\":%llu,\"node_ranges_buffer_bytes\":%llu,\"active_offsets_buffer_bytes\":%llu,\"global_active_indices_buffer_bytes\":%llu,\"active_dispatch_buffer_bytes\":%llu},\"physical_state_changed\":false}\n",
+                        femCoupledCaptureRoot, femCoupledCaptureIteration, reason,
+                        static_cast<unsigned long long>(bytes),
+                        static_cast<unsigned long long>(bytes),
+                        static_cast<unsigned long long>(minimumContactArenaBytes),
+                        state.dispatch.environmentCount, state.dispatch.femNodeCount,
+                        state.dispatch.tetrahedronCount, state.dispatch.particleCount,
+                        state.dispatch.gridNodeCount, state.dispatch.mpmGridCount,
+                        state.dispatch.mpmBlockCount,
+                        state.dispatch.mpmBlockLookupCount, state.dispatch.objectCount,
+                        state.dispatch.materialStateStride,
+                        static_cast<unsigned long long>(historyElements),
+                        state.dispatch.contactPairCount,
+                        state.dispatch.deformableContactCapacity,
+                        state.dispatch.cohesiveFaceCount,
+                        state.dispatch.rigidProxyCount,
+                        state.dispatch.rigidGeneralizedCapacity,
+                        state.fgmresLayout.unknownCount,
+                        state.fgmresLayout.vascularUnknownCount,
+                        state.dispatch.identificationCandidateCount,
+                        request.mutationCommandCount,
+                        static_cast<unsigned long long>(bufferBytes(state.deformableContacts)),
+                        static_cast<unsigned long long>(bufferBytes(state.deformableContactCandidates)),
+                        static_cast<unsigned long long>(bufferBytes(state.deformableContactHistoriesAccepted)),
+                        static_cast<unsigned long long>(bufferBytes(state.deformableContactHistoriesCandidate)),
+                        static_cast<unsigned long long>(bufferBytes(state.deformableContactActiveIndices)),
+                        static_cast<unsigned long long>(bufferBytes(state.deformableContactActiveCounts)),
+                        static_cast<unsigned long long>(bufferBytes(state.deformableContactCandidateCounts)),
+                        static_cast<unsigned long long>(bufferBytes(state.deformableContactNodeIncidence)),
+                        static_cast<unsigned long long>(bufferBytes(state.deformableContactNodeRanges)),
+                        static_cast<unsigned long long>(bufferBytes(state.deformableContactActiveOffsets)),
+                        static_cast<unsigned long long>(bufferBytes(state.deformableContactGlobalActiveIndices)),
+                        static_cast<unsigned long long>(bufferBytes(state.deformableContactActiveDispatch)));
                 };
                 if (const char* scopeFailure = femCoupledCaptureScopeFailure()) {
-                    const bool historyExtentSafe =
-                        state.dispatch.environmentCount == 1u &&
-                        state.dispatch.tetrahedronCount <= 8192u &&
-                        state.dispatch.particleCount <= femCoupledCaptureParticleCap &&
-                        state.dispatch.materialStateStride <= NM_MAX_MATERIAL_STATE;
-                    const std::uint64_t historyElements = historyExtentSafe
-                        ? (2u * static_cast<std::uint64_t>(
-                               state.dispatch.environmentCount) *
-                               state.dispatch.tetrahedronCount +
-                           4u * static_cast<std::uint64_t>(
-                               state.dispatch.environmentCount) *
-                               state.dispatch.particleCount) *
-                               state.dispatch.materialStateStride
-                        : std::numeric_limits<std::uint64_t>::max();
-                    std::fprintf(stderr,
-                        "fem_coupled_capture_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"%s\",\"bytes\":0,\"observed\":{\"environment_count\":%u,\"fem_node_count\":%u,\"tetrahedron_count\":%u,\"particle_count\":%u,\"grid_node_count\":%u,\"mpm_grid_count\":%u,\"mpm_block_count\":%u,\"mpm_block_lookup_count\":%u,\"material_state_stride\":%u,\"material_history_elements\":%llu},\"physical_state_changed\":false}\n",
-                        femCoupledCaptureRoot, femCoupledCaptureIteration,
-                        scopeFailure, state.dispatch.environmentCount,
-                        state.dispatch.femNodeCount, state.dispatch.tetrahedronCount,
-                        state.dispatch.particleCount, state.dispatch.gridNodeCount,
-                        state.dispatch.mpmGridCount, state.dispatch.mpmBlockCount,
-                        state.dispatch.mpmBlockLookupCount,
-                        state.dispatch.materialStateStride,
-                        static_cast<unsigned long long>(historyElements));
+                    emitSkipped(scopeFailure);
                     return true;
                 }
                 // This snapshot captures one free, non-articulated rigid
@@ -14618,7 +14689,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 std::vector<void*> sources;
                 std::vector<std::string> omittedOptional;
                 std::uint64_t payloadBytes = 0u;
+                std::uint64_t requestedPayloadBytes = 0u;
                 bool layoutValid = true;
+                const auto accountRequestedBytes = [&](const std::uint64_t bytes) {
+                    if (requestedPayloadBytes >
+                        std::numeric_limits<std::uint64_t>::max() - bytes)
+                        requestedPayloadBytes =
+                            std::numeric_limits<std::uint64_t>::max();
+                    else
+                        requestedPayloadBytes += bytes;
+                };
                 const auto appendBuffer = [&](const char* name,
                                               const char* dtype,
                                               const std::uint64_t elementBytes,
@@ -14629,6 +14709,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         else omittedOptional.emplace_back(name);
                         return;
                     }
+                    accountRequestedBytes(static_cast<std::uint64_t>(source.length));
                     if (elementBytes == 0u || source.length == 0u ||
                         source.length % elementBytes != 0u ||
                         source.length > state.device.maxBufferLength ||
@@ -14665,6 +14746,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                             const void* data,
                                             const std::uint64_t byteCount,
                                             const std::uint64_t elementBytes) {
+                    if (data != nullptr) accountRequestedBytes(byteCount);
                     if (data == nullptr || byteCount == 0u || elementBytes == 0u ||
                         byteCount % elementBytes != 0u ||
                         byteCount > captureCap ||
@@ -14999,38 +15081,49 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     sizeof(std::uint32_t), state.contactActiveSlotsByPair, false);
                 appendBuffer("contact_active_counts", "uint32x4",
                     sizeof(nm_uint4), state.contactActiveCounts, false);
+                const bool captureDeformableArena =
+                    state.dispatch.deformableContactCapacity != 0u;
                 appendBuffer("deformable_contacts", "record:NMDeformableContactGPU",
-                    sizeof(NMDeformableContactGPU), state.deformableContacts, false);
+                    sizeof(NMDeformableContactGPU), state.deformableContacts,
+                    captureDeformableArena);
                 appendBuffer("deformable_contact_candidates",
                     "record:NMDeformableContactCandidateGPU",
                     sizeof(NMDeformableContactCandidateGPU),
-                    state.deformableContactCandidates, false);
+                    state.deformableContactCandidates, captureDeformableArena);
                 appendBuffer("deformable_contact_candidate_counts", "uint32x4",
-                    sizeof(nm_uint4), state.deformableContactCandidateCounts, false);
+                    sizeof(nm_uint4), state.deformableContactCandidateCounts,
+                    captureDeformableArena);
                 appendBuffer("deformable_contact_histories_accepted",
                     "record:NMDeformableContactHistoryGPU",
                     sizeof(NMDeformableContactHistoryGPU),
-                    state.deformableContactHistoriesAccepted, false);
+                    state.deformableContactHistoriesAccepted,
+                    captureDeformableArena);
                 appendBuffer("deformable_contact_histories_candidate",
                     "record:NMDeformableContactHistoryGPU",
                     sizeof(NMDeformableContactHistoryGPU),
-                    state.deformableContactHistoriesCandidate, false);
+                    state.deformableContactHistoriesCandidate,
+                    captureDeformableArena);
                 appendBuffer("deformable_contact_active_indices", "uint32",
-                    sizeof(std::uint32_t), state.deformableContactActiveIndices, false);
+                    sizeof(std::uint32_t), state.deformableContactActiveIndices,
+                    captureDeformableArena);
                 appendBuffer("deformable_contact_active_counts", "uint32x4",
-                    sizeof(nm_uint4), state.deformableContactActiveCounts, false);
+                    sizeof(nm_uint4), state.deformableContactActiveCounts,
+                    captureDeformableArena);
                 appendBuffer("deformable_contact_node_incidence", "uint32",
-                    sizeof(std::uint32_t), state.deformableContactNodeIncidence, false);
+                    sizeof(std::uint32_t), state.deformableContactNodeIncidence,
+                    captureDeformableArena);
                 appendBuffer("deformable_contact_node_ranges",
                     "record:NMIncidenceRangeGPU", sizeof(NMIncidenceRangeGPU),
-                    state.deformableContactNodeRanges, false);
+                    state.deformableContactNodeRanges, captureDeformableArena);
                 appendBuffer("deformable_contact_active_offsets", "uint32",
-                    sizeof(std::uint32_t), state.deformableContactActiveOffsets, false);
+                    sizeof(std::uint32_t), state.deformableContactActiveOffsets,
+                    captureDeformableArena);
                 appendBuffer("deformable_contact_global_active_indices", "uint32",
-                    sizeof(std::uint32_t), state.deformableContactGlobalActiveIndices, false);
+                    sizeof(std::uint32_t), state.deformableContactGlobalActiveIndices,
+                    captureDeformableArena);
                 appendBuffer("deformable_contact_active_dispatch",
                     "record:NMIndirectDispatchGPU", sizeof(NMIndirectDispatchGPU),
-                    state.deformableContactActiveDispatch, false);
+                    state.deformableContactActiveDispatch, captureDeformableArena);
                 appendBuffer("algorithmic_tangent_cache", "float32",
                     sizeof(float), state.femAlgorithmicTangentCache, false);
                 appendBuffer("algorithmic_tangent_cache_valid", "uint32",
@@ -15251,6 +15344,52 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 requireMinimumBufferBytes("fgmres_restart_coefficients",
                     state.fgmresRestartCoefficients,
                     expectedFGMRESScalarsBytes);
+                if (state.dispatch.deformableContactCapacity != 0u) {
+                    const std::uint64_t envContactSlots =
+                        static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                        state.dispatch.deformableContactCapacity;
+                    requireMinimumBufferBytes("deformable_contacts",
+                        state.deformableContacts,
+                        envContactSlots * sizeof(NMDeformableContactGPU));
+                    requireMinimumBufferBytes("deformable_contact_candidates",
+                        state.deformableContactCandidates,
+                        envContactSlots * sizeof(NMDeformableContactCandidateGPU));
+                    requireMinimumBufferBytes("deformable_contact_candidate_counts",
+                        state.deformableContactCandidateCounts,
+                        static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                            sizeof(std::uint32_t));
+                    requireMinimumBufferBytes("deformable_contact_histories_accepted",
+                        state.deformableContactHistoriesAccepted,
+                        envContactSlots * sizeof(NMDeformableContactHistoryGPU));
+                    requireMinimumBufferBytes("deformable_contact_histories_candidate",
+                        state.deformableContactHistoriesCandidate,
+                        envContactSlots * sizeof(NMDeformableContactHistoryGPU));
+                    requireMinimumBufferBytes("deformable_contact_active_indices",
+                        state.deformableContactActiveIndices,
+                        envContactSlots * sizeof(std::uint32_t));
+                    requireMinimumBufferBytes("deformable_contact_active_counts",
+                        state.deformableContactActiveCounts,
+                        static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                            sizeof(std::uint32_t));
+                    requireMinimumBufferBytes("deformable_contact_node_incidence",
+                        state.deformableContactNodeIncidence,
+                        6ull * envContactSlots * sizeof(std::uint32_t));
+                    requireMinimumBufferBytes("deformable_contact_node_ranges",
+                        state.deformableContactNodeRanges,
+                        static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                            (state.dispatch.gridNodeCount + state.dispatch.femNodeCount) *
+                            sizeof(NMIncidenceRangeGPU));
+                    requireMinimumBufferBytes("deformable_contact_active_offsets",
+                        state.deformableContactActiveOffsets,
+                        static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                            sizeof(std::uint32_t));
+                    requireMinimumBufferBytes("deformable_contact_global_active_indices",
+                        state.deformableContactGlobalActiveIndices,
+                        envContactSlots * sizeof(std::uint32_t));
+                    requireMinimumBufferBytes("deformable_contact_active_dispatch",
+                        state.deformableContactActiveDispatch,
+                        sizeof(NMIndirectDispatchGPU));
+                }
                 if (state.femRegionalModeCount != 0u) {
                     const std::uint64_t regionalModeNodes =
                         static_cast<std::uint64_t>(state.femRegionalModeCount) *
@@ -15329,7 +15468,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 if (!layoutValid || arrays.empty() || payloadBytes == 0u ||
                     payloadBytes > captureCap ||
                     payloadBytes > state.device.maxBufferLength) {
-                    emitSkipped("invalid_or_over_32_mib_capture_layout", payloadBytes);
+                    emitSkipped("invalid_or_over_32_mib_capture_layout",
+                        requestedPayloadBytes);
                     return true;
                 }
                 id<MTLBuffer> snapshot = [state.device
@@ -15398,6 +15538,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const auto capturedDeviceID =
                     static_cast<std::uint64_t>(state.device.registryID);
                 const auto capturedDeviceName = nsString(state.device.name);
+                const auto capturedDeformableCapacity =
+                    state.dispatch.deformableContactCapacity;
                 const auto capturedDispatch = state.dispatch;
                 const auto capturedLayout = state.fgmresLayout;
                 const auto capturedMixedSolver = state.mixedSolverValue;
@@ -15455,6 +15597,201 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             capturedRoot, capturedIteration);
                         return;
                     }
+                    std::vector<std::uint32_t> capturedDeformableActiveCounts(
+                        capturedDispatch.environmentCount, 0u);
+                    std::vector<std::uint32_t> capturedDeformableValidRecordCounts(
+                        capturedDispatch.environmentCount, 0u);
+                    bool deformableArenaComplete = true;
+                    if (capturedDeformableCapacity != 0u) {
+                        const auto findArray = [&](const char* name)
+                                -> const CoupledCaptureArray* {
+                            const auto found = std::find_if(
+                                capturedArrays.begin(), capturedArrays.end(),
+                                [&](const CoupledCaptureArray& array) {
+                                    return array.name == name;
+                                });
+                            return found == capturedArrays.end() ? nullptr : &*found;
+                        };
+                        const CoupledCaptureArray* contactsArray =
+                            findArray("deformable_contacts");
+                        const CoupledCaptureArray* indicesArray =
+                            findArray("deformable_contact_active_indices");
+                        const CoupledCaptureArray* countsArray =
+                            findArray("deformable_contact_active_counts");
+                        const std::uint64_t envSlots =
+                            static_cast<std::uint64_t>(
+                                capturedDispatch.environmentCount) *
+                            capturedDeformableCapacity;
+                        deformableArenaComplete = contactsArray != nullptr &&
+                            indicesArray != nullptr && countsArray != nullptr &&
+                            contactsArray->byteCount >= envSlots *
+                                sizeof(NMDeformableContactGPU) &&
+                            indicesArray->byteCount >= envSlots *
+                                sizeof(std::uint32_t) &&
+                            countsArray->byteCount >= static_cast<std::uint64_t>(
+                                capturedDispatch.environmentCount) *
+                                sizeof(std::uint32_t);
+                        if (deformableArenaComplete) {
+                            std::vector<std::uint8_t> seen(
+                                capturedDeformableCapacity, 0u);
+                            for (std::uint32_t environment = 0u;
+                                 environment < capturedDispatch.environmentCount &&
+                                 deformableArenaComplete; ++environment) {
+                                std::uint32_t activeCount = 0u;
+                                std::memcpy(&activeCount,
+                                    data + countsArray->offset +
+                                        static_cast<std::uint64_t>(environment) *
+                                            sizeof(std::uint32_t),
+                                    sizeof(activeCount));
+                                capturedDeformableActiveCounts[environment] =
+                                    activeCount;
+                                if (activeCount > capturedDeformableCapacity) {
+                                    deformableArenaComplete = false;
+                                    break;
+                                }
+                                std::fill(seen.begin(), seen.end(), 0u);
+                                const std::uint64_t slotBase =
+                                    static_cast<std::uint64_t>(environment) *
+                                    capturedDeformableCapacity;
+                                for (std::uint32_t order = 0u;
+                                     order < activeCount; ++order) {
+                                    std::uint32_t slot = NM_INVALID_INDEX;
+                                    std::memcpy(&slot,
+                                        data + indicesArray->offset +
+                                            (slotBase + order) *
+                                                sizeof(std::uint32_t),
+                                        sizeof(slot));
+                                    if (slot >= capturedDeformableCapacity ||
+                                        seen[slot] != 0u) {
+                                        deformableArenaComplete = false;
+                                        break;
+                                    }
+                                    NMDeformableContactGPU contact{};
+                                    std::memcpy(&contact,
+                                        data + contactsArray->offset +
+                                            (slotBase + slot) *
+                                                sizeof(NMDeformableContactGPU),
+                                        sizeof(contact));
+                                    if ((contact.identity.w & NM_CONTACT_VALID) == 0u) {
+                                        deformableArenaComplete = false;
+                                        break;
+                                    }
+                                    seen[slot] = 1u;
+                                }
+                                std::uint32_t validRecordCount = 0u;
+                                for (std::uint32_t slot = 0u;
+                                     slot < capturedDeformableCapacity; ++slot) {
+                                    NMDeformableContactGPU contact{};
+                                    std::memcpy(&contact,
+                                        data + contactsArray->offset +
+                                            (slotBase + slot) *
+                                                sizeof(NMDeformableContactGPU),
+                                        sizeof(contact));
+                                    if ((contact.identity.w & NM_CONTACT_VALID) != 0u)
+                                        ++validRecordCount;
+                                }
+                                // Unused slots can retain valid records from
+                                // an earlier generation. The full arena and
+                                // active prefix are both captured; report that
+                                // difference without rejecting the snapshot.
+                                capturedDeformableValidRecordCounts[environment] =
+                                    validRecordCount;
+                            }
+                        }
+                        if (!deformableArenaComplete) {
+                            std::fprintf(stderr,
+                                "fem_coupled_capture_failed={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"deformable_active_prefix_not_complete_or_not_a_valid_set\",\"deformable_contact_capacity\":%u,\"physical_state_changed\":false}\n",
+                                capturedRoot, capturedIteration,
+                                capturedDeformableCapacity);
+                            return;
+                        }
+                    }
+                    std::ostringstream deformableCoverage;
+                    if (capturedDeformableCapacity == 0u) {
+                        deformableCoverage << "{\"mode\":\"no_deformable_contact_arena\",\"complete\":true,\"truncated\":false}";
+                    } else {
+                        deformableCoverage << "{\"mode\":\"full_capacity_arenas\",\"capacity_per_environment\":"
+                            << capturedDeformableCapacity
+                            << ",\"captured_contact_records_per_environment\":[";
+                        for (std::uint32_t environment = 0u;
+                             environment < capturedDispatch.environmentCount;
+                             ++environment) {
+                            if (environment != 0u) deformableCoverage << ',';
+                            deformableCoverage << capturedDeformableCapacity;
+                        }
+                        deformableCoverage << "],\"captured_candidate_records_per_environment\":[";
+                        for (std::uint32_t environment = 0u;
+                             environment < capturedDispatch.environmentCount;
+                             ++environment) {
+                            if (environment != 0u) deformableCoverage << ',';
+                            deformableCoverage << capturedDeformableCapacity;
+                        }
+                        deformableCoverage << "],\"captured_accepted_history_records_per_environment\":[";
+                        for (std::uint32_t environment = 0u;
+                             environment < capturedDispatch.environmentCount;
+                             ++environment) {
+                            if (environment != 0u) deformableCoverage << ',';
+                            deformableCoverage << capturedDeformableCapacity;
+                        }
+                        deformableCoverage << "],\"captured_candidate_history_records_per_environment\":[";
+                        for (std::uint32_t environment = 0u;
+                             environment < capturedDispatch.environmentCount;
+                             ++environment) {
+                            if (environment != 0u) deformableCoverage << ',';
+                            deformableCoverage << capturedDeformableCapacity;
+                        }
+                        deformableCoverage << "],\"captured_incidence_entries_per_environment\":[";
+                        for (std::uint32_t environment = 0u;
+                             environment < capturedDispatch.environmentCount;
+                             ++environment) {
+                            if (environment != 0u) deformableCoverage << ',';
+                            deformableCoverage << 6ull * capturedDeformableCapacity;
+                        }
+                        deformableCoverage << "],\"active_count_per_environment\":[";
+                        for (std::size_t environment = 0u;
+                             environment < capturedDeformableActiveCounts.size();
+                             ++environment) {
+                            if (environment != 0u) deformableCoverage << ',';
+                            deformableCoverage <<
+                                capturedDeformableActiveCounts[environment];
+                        }
+                        deformableCoverage << "],\"active_index_valid_prefix_count_per_environment\":[";
+                        for (std::size_t environment = 0u;
+                             environment < capturedDeformableActiveCounts.size();
+                             ++environment) {
+                            if (environment != 0u) deformableCoverage << ',';
+                            deformableCoverage <<
+                                capturedDeformableActiveCounts[environment];
+                        }
+                        deformableCoverage << "],\"valid_record_count_per_environment\":[";
+                        for (std::size_t environment = 0u;
+                             environment < capturedDeformableValidRecordCounts.size();
+                             ++environment) {
+                            if (environment != 0u) deformableCoverage << ',';
+                            deformableCoverage <<
+                                capturedDeformableValidRecordCounts[environment];
+                        }
+                        deformableCoverage << "],\"unused_valid_record_count_per_environment\":[";
+                        for (std::size_t environment = 0u;
+                             environment < capturedDeformableValidRecordCounts.size();
+                             ++environment) {
+                            if (environment != 0u) deformableCoverage << ',';
+                            deformableCoverage <<
+                                capturedDeformableValidRecordCounts[environment] -
+                                capturedDeformableActiveCounts[environment];
+                        }
+                        deformableCoverage << "],\"valid_records_equal_active_count_per_environment\":[";
+                        for (std::size_t environment = 0u;
+                             environment < capturedDeformableValidRecordCounts.size();
+                             ++environment) {
+                            if (environment != 0u) deformableCoverage << ',';
+                            deformableCoverage <<
+                                (capturedDeformableValidRecordCounts[environment] ==
+                                 capturedDeformableActiveCounts[environment]
+                                     ? "true" : "false");
+                        }
+                        deformableCoverage << "],\"active_list_verified_against_valid_flags\":true,\"truncated\":false,\"complete\":true,\"verification\":\"full_contact_arena_and_active_prefix_count_range_uniqueness_and_valid_bit_scan\"}";
+                    }
                     std::ostringstream manifest;
                     manifest << std::setprecision(9)
                         << "{\"schema\":\"numi.matter.coupled_newton_capture.v1\","
@@ -15476,7 +15813,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         << capturedRigidWorldPhysicsSubstep
                         << ",\"microtick\":" << capturedMicro.microtick
                         << ",\"microtick_count\":" << capturedMicro.microtickCount
-                        << ",\"dt_seconds\":" << capturedMicro.time.x
+                        << ",\"dt_seconds\":" << jsonFloat32Token(capturedMicro.time.x)
+                        << ",\"dt_seconds_f32_bits_u32\":"
+                        << std::bit_cast<std::uint32_t>(capturedMicro.time.x)
                         << ",\"environment_count\":" << capturedDispatch.environmentCount
                         << ",\"node_count\":" << capturedDispatch.femNodeCount
                         << ",\"tetrahedron_count\":" << capturedDispatch.tetrahedronCount
@@ -15503,6 +15842,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         << ",\"mpm_active_dispatch_array_included\":"
                         << (capturedMPMActiveDispatch ? "true" : "false")
                         << ",\"mechanics_scope\":\"no_grid_or_block_topology\"}"
+                        << ",\"deformable_contact_capture\":"
+                        << deformableCoverage.str()
                         << ",\"dispatch\":{\"abi_version\":" << capturedDispatch.abiVersion
                         << ",\"flags\":" << capturedDispatch.flags
                         << ",\"object_count\":" << capturedDispatch.objectCount
@@ -15518,7 +15859,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         << capturedLayout.vascularUnknownCount
                         << ",\"vascular_base\":" << capturedLayout.vascularBase
                         << ",\"vascular_residual_tolerance\":"
-                        << capturedLayout.vascularResidualTolerance
+                        << jsonFloat32Token(capturedLayout.vascularResidualTolerance)
+                        << ",\"vascular_residual_tolerance_f32_bits_u32\":"
+                        << std::bit_cast<std::uint32_t>(
+                            capturedLayout.vascularResidualTolerance)
+                        << ",\"vascular_residual_tolerance_semantics\":"
+                        << jsonQuoted(std::isfinite(capturedLayout.vascularResidualTolerance)
+                            ? "finite_numeric_threshold"
+                            : (capturedLayout.vascularUnknownCount == 0u &&
+                               std::isinf(capturedLayout.vascularResidualTolerance) &&
+                               capturedLayout.vascularResidualTolerance > 0.0f
+                                ? "positive_infinity_not_applicable_no_vascular_unknowns"
+                                : (std::isnan(capturedLayout.vascularResidualTolerance)
+                                    ? "nan_invalid"
+                                    : (capturedLayout.vascularResidualTolerance > 0.0f
+                                        ? "positive_infinity_with_vascular_unknowns"
+                                        : "negative_infinity_invalid"))))
                         << "},\"microstep\":{\"control_step\":"
                         << capturedMicro.controlStep << ",\"microtick\":"
                         << capturedMicro.microtick << ",\"microtick_count\":"
@@ -15527,9 +15883,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         << capturedMicro.seedLo << ",\"seed_hi\":" << capturedMicro.seedHi
                         << ",\"flags\":" << capturedMicro.flags
                         << ",\"generation\":" << capturedMicro.reserved
-                        << ",\"time\":[" << capturedMicro.time.x << ','
-                        << capturedMicro.time.y << ',' << capturedMicro.time.z << ','
-                        << capturedMicro.time.w << "]},\"mixed_solver\":{\"newton_budget\":"
+                        << ",\"time\":[" << jsonFloat32Token(capturedMicro.time.x) << ','
+                        << jsonFloat32Token(capturedMicro.time.y) << ','
+                        << jsonFloat32Token(capturedMicro.time.z) << ','
+                        << jsonFloat32Token(capturedMicro.time.w) << "],\"time_f32_bits_u32\":["
+                        << std::bit_cast<std::uint32_t>(capturedMicro.time.x) << ','
+                        << std::bit_cast<std::uint32_t>(capturedMicro.time.y) << ','
+                        << std::bit_cast<std::uint32_t>(capturedMicro.time.z) << ','
+                        << std::bit_cast<std::uint32_t>(capturedMicro.time.w)
+                        << "]},\"mixed_solver\":{\"newton_budget\":"
                         << capturedMixedSolver.nonlinearIterations.x
                         << ",\"restart\":" << capturedMixedSolver.nonlinearIterations.y
                         << ",\"fgmres_budget\":" << capturedMixedSolver.nonlinearIterations.z

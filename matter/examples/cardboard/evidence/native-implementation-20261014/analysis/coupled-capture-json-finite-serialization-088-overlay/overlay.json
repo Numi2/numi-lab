@@ -1,0 +1,24 @@
+{
+  "base_runtime_sha256": "90628e9e6fa9dda736f6ae77058063c4006ce2fbeba45c025e69794f4fdc8657",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-full-contact-arena-capture-087",
+  "name": "coupled-capture-json-finite-serialization-088",
+  "observed_289_issue": {
+    "capture_path": "/Users/home/cardboard-implementation-20261014/native/coupled-full-contact-arena-newton12-289/candidate-capture.coupled.json",
+    "field": "fgmres_layout.vascular_residual_tolerance",
+    "semantic_context": "vascular_unknown_count=0; no vascular block is part of this selected solve",
+    "serialized_token": "inf"
+  },
+  "output_runtime_sha256": "a980ee59341429440e83984dd02073123c9647f19655a94260119a5d67aa5918",
+  "owned_files": [
+    "matter/src/runtime.mm"
+  ],
+  "patch_file": "runtime.patch",
+  "patch_sha256": "f1ce009dac3504d3ca8dcf1b0c9941e9cf7ff40e378e946d7e6df277c83c6616",
+  "schema": "numi.matter.external_source_overlay.v1",
+  "scope": "Capture-manifest JSON serialization only. Nonfinite float tokens become JSON null with adjacent FP32 bit words and an explicit vascular-tolerance semantic label. Capture payload bytes and solver state are untouched.",
+  "validation": {
+    "native": "not run by this overlay author; root owns native rerun",
+    "preserves_289": "289 files remain unchanged and strict-JSON-invalid; lenient verification confirmed payload SHA, every array hash, contiguous ranges, and full active contact prefix",
+    "source_compile": "Objective-C++ -fsyntax-only -Wall -Wextra -Wpedantic passed using source-087 compile command plus source include directory"
+  }
+}

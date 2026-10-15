@@ -1,6 +1,22 @@
 # Cardboard implementation and evidence ledger
 
-Current continuation: source086 builds all65 targets and passes all71 selected
+Sources087/088 each build all65 targets and pass all71 selected CPU checks.
+Run287 establishes legacy/tiled parity on rejected prefixes only and exposes
+the unsupported multiple-patch contact lookup. Run289 captures the full
+reserved contact arena but retains an invalid JSON manifest. Source088 fixes
+only serialization;291 strictly validates all140 arrays and10,787,124 payload
+bytes. Capture-on291 and capture-off292 retain identical physical state and
+Armijo histories. Their free-body residual still fails the unchanged tolerance.
+Independent FP64 replay of all3,456 run283 paper points fits the16-iteration
+local ceiling, so that ceiling does not explain288 on those inputs. Actual
+failure capture293 times out. Source089 builds66 targets and passes71 selected
+CPU checks. Its separate native point instrument294 reproduces accurate-policy
+local exhaustion through projector, stress and tangent on283's retained liner
+input. A tiny residual coexists with a stalled scaled correction; comparison
+of the exact iteration rows is under way. This does not substitute283's inputs
+for288's missing failed candidate or qualify a complete physical trajectory.
+
+The preceding source086 milestone builds all65 targets and passes all71 selected
 CPU checks. The scoped, dimensionally scaled15-state projection policy passes
 all16 selected captured native material points in285. This is a local numerical
 check, not a complete coupon. Default-disabled conditioning run283 preserves
@@ -32,7 +48,7 @@ exists from which to execute the gravity or drop branches.
 
 | Verdict | Current evidence | Remaining qualification |
 | --- | --- | --- |
-| Solver correctness | Shared tested update fractions and rollback; selected exact-word independent material/element/assembled actions; native285 local accuracy policy on16 captured points; source08665targets/71CPU checks | Full coupon/contact trajectories remain failed. Recycling284 is a conditioning regression and stays disabled. Selected action accuracy is not all-direction or near-zero qualification; candidate capture286 still exceeds its diagnostic scope |
+| Solver correctness | Shared tested update fractions and rollback; selected exact-word material/element/assembled actions; native285 local accuracy on16 captured points; strict full-arena capture291 with same-source on/off history parity | Full coupon/contact trajectories remain failed. Recycling284 stays disabled. Selected accuracy is not all-direction or near-zero qualification. Actual first-force material capture293 times out; multi-patch contact union remains open |
 | Numerical convergence | Complete-history runners preserve duration, paths, rate, tolerances and failed cases | No complete 8/16/32, 2/4/8, 1/2/4 or timestep triplet has qualified. A first-control pass is not a complete coupon |
 | Component calibration | Versioned published curves, pixel uncertainty, bilinear tensile fits and explicit compression/shear assumptions; synthetic progressive-damage and interface laws execute transactionally | No matched corrugated damage or local starch/HMA fracture identification; source-grade transfer and Robertsson absolute-energy convention remain open |
 | Analogue validation | Separate ECT, scored-bend, pin and BCT series with source identities and transfer rules | Whole native source fixtures and held-out comparisons. Partial pin windows cannot supply full peaks or full work; unrelated grades cannot be labeled same grade |

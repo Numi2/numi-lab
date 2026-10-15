@@ -1,0 +1,110 @@
+{
+  "adjudication": {
+    "confirmed": "three disjoint mortar subtriangles are authored on one exact parent tetrahedron pair; primitive IDs 16 and 99 identify that pair, and the runtime helper rejects the second active face reference before FGMRES",
+    "not_supported_by_this_evidence": [
+      "geometric overlap between adjacent tiles",
+      "tiled-storage-specific defect",
+      "constitutive or FGMRES failure"
+    ],
+    "smallest_safe_next_step": "For a layout parity fixture, author three non-overlapping mortar faces on three distinct parent primitive pairs (one active mortar face per parent pair). If the intended supported contract is multiple disjoint tiles on one parent pair, implement and test union coverage/complement contact across all matching active pages; do not merely remove the duplicate guard or select one face."
+  },
+  "diagnostic_trace_sha256": "f4f39260c84bb8436235e916b10dfa58236182e8e229138885aac2f38992b919",
+  "independent_geometry_reconstruction": {
+    "basis": "all three patch objects copy `interface`; only stable ID and barycentric subtriangle differ",
+    "parent_face_uses": [
+      {
+        "opposite": 0,
+        "primitive_id": 16,
+        "tet": 4,
+        "tet_nodes": [
+          0,
+          9,
+          10,
+          13
+        ]
+      },
+      {
+        "opposite": 3,
+        "primitive_id": 99,
+        "tet": 24,
+        "tet_nodes": [
+          9,
+          10,
+          13,
+          22
+        ]
+      }
+    ],
+    "same_parent_pair_for_three_authored_tiles": true,
+    "selected_shared_interface_face_nodes": [
+      9,
+      10,
+      13
+    ],
+    "split_pad_node_index": "i + 3*j + 9*k"
+  },
+  "native_observation": {
+    "arm": "face_count=3, legacy activation, first Newton record",
+    "candidate_pair_identity_is_4tet_plus_opposite": true,
+    "candidate_primitive_ids": [
+      16,
+      99
+    ],
+    "failing_index": 78,
+    "fgmres_iterations": 0,
+    "status_code": 6,
+    "status_diagnostics": [
+      16,
+      99,
+      0,
+      1
+    ],
+    "trial_diagnostics": [
+      16,
+      99,
+      3.81469745e-09,
+      5
+    ],
+    "trial_status_code": 6
+  },
+  "prior_parity_report_sha256": "1b62caf93c28dce399c788170361040c79f0ddec625ff338602a8b0692e2d82d",
+  "retained_source_bindings": {
+    "contact": {
+      "path": "matter/src/metal/contact.metalinc",
+      "sha256": "9e4ce2d8213c83a9a3e58a64388562cb92638c892b21e612653e92400b654f1f"
+    },
+    "fixture": {
+      "path": "matter/tools/cardboard_full_contact_armijo_check.mm",
+      "sha256": "6eb68eea4e258866f7c1b41c1c74cbc40ed27b9e06a31a6e1ad503aa8064123c"
+    },
+    "shared_status": {
+      "path": "matter/include/numi/matter/shared.h",
+      "sha256": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691"
+    },
+    "validation": {
+      "path": "matter/src/validation_impl.cpp",
+      "sha256": "298c8cd8052309610ef0d85c22eb638aadb8cd5a589978b5599a5043e342c048"
+    }
+  },
+  "run_path": "/Users/home/cardboard-implementation-20261014/native/ordered-cohesive-pages-stage-diagnostics-287",
+  "run_receipt": {
+    "changed_inputs": [],
+    "execution_started": true,
+    "exit_code": 1,
+    "finished_at_utc": "2026-10-15T09:23:06.062419+00:00",
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "source_inputs_unchanged": true,
+    "termination_errors": [],
+    "timed_out": false,
+    "wall_seconds": 234.67730262497207
+  },
+  "schema": "numi.cardboard.three_face_mortar_parent_ambiguity_audit.v1",
+  "source_build_manifest_sha256": "120c809d6d0ea9a0c1ed27a25df3c20748f186f62c64164eb54f09e745524c1b",
+  "source_control_flow": {
+    "duplicate_match_behavior": "activeMixedCohesiveFaceForPrimitivePair returns false when a second active mixed-mode face matches the same parent primitive pair",
+    "generation_caller": "contact generation records CONTACT_FAILURE with diagnostics [leftPrimitive,rightPrimitive,0,1] when that helper returns false",
+    "pre_fg": true,
+    "trial_validation_caller": "private contact trial validation records CONTACT_FAILURE with [leftPrimitive,rightPrimitive,collisionThickness,5] on the same helper failure"
+  },
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-captured-point-and-contact-scope-086"
+}

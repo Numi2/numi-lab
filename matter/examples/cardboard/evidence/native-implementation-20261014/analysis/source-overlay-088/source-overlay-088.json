@@ -1,0 +1,20 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-strict-coupled-capture-json-088",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-full-contact-arena-capture-087",
+  "patches": [
+    {
+      "package": "/Users/home/cardboard-implementation-20261014/analysis/coupled-capture-json-finite-serialization-088-overlay",
+      "sha256": "f1ce009dac3504d3ca8dcf1b0c9941e9cf7ff40e378e946d7e6df277c83c6616",
+      "output": "patching file 'matter/src/runtime.mm'\n",
+      "exit_code": 0
+    }
+  ],
+  "changed": {
+    "matter/src/runtime.mm": {
+      "before": "90628e9e6fa9dda736f6ae77058063c4006ce2fbeba45c025e69794f4fdc8657",
+      "after": "a980ee59341429440e83984dd02073123c9647f19655a94260119a5d67aa5918"
+    }
+  },
+  "scope": "Diagnostic-only strict JSON FP32 manifest tokens plus raw words and absent-vascular threshold semantics. No solver/material/physical state changes; source087 raw payload unchanged."
+}

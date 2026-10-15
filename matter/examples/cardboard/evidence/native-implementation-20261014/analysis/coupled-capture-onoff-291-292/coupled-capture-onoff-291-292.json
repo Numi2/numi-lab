@@ -1,0 +1,58 @@
+{
+  "accepted_and_rollback_result": "both attempted physical runs failed with exit 1; parity does not qualify convergence",
+  "argv_identical_except_declared_diagnostic_state_output": true,
+  "changed_environment_keys": [
+    "NM_FEM_COUPLED_CAPTURE_PATH",
+    "NM_FEM_COUPLED_CAPTURE_SELECTOR"
+  ],
+  "changed_environment_values": {
+    "NM_FEM_COUPLED_CAPTURE_PATH": {
+      "off": null,
+      "on": "/Users/home/cardboard-implementation-20261014/native/strict-json-full-contact-arena-newton12-291/candidate-capture"
+    },
+    "NM_FEM_COUPLED_CAPTURE_SELECTOR": {
+      "off": null,
+      "on": "1201:12"
+    }
+  },
+  "diagnostic_off": {
+    "executed_build_verified": true,
+    "exit_code": 1,
+    "input_hash_manifest_equal": true,
+    "path": "/Users/home/cardboard-implementation-20261014/native/strict-json-full-contact-arena-capture-off-292",
+    "runtime_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-088",
+    "source_build_sha256": "ba4174f0714c8fd4faff480df73ad5da917803f842872cd7aa2e77b9ab9a8684",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-strict-coupled-capture-json-088",
+    "timed_out": false
+  },
+  "diagnostic_on": {
+    "executed_build_verified": true,
+    "exit_code": 1,
+    "input_hash_manifest_equal": true,
+    "path": "/Users/home/cardboard-implementation-20261014/native/strict-json-full-contact-arena-newton12-291",
+    "runtime_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-088",
+    "source_build_sha256": "ba4174f0714c8fd4faff480df73ad5da917803f842872cd7aa2e77b9ab9a8684",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-strict-coupled-capture-json-088",
+    "timed_out": false
+  },
+  "differing_state_files": [
+    "dense/fixture-free-body-control-1201.log"
+  ],
+  "schema": "numi.matter.coupled_capture_pair_audit.v1",
+  "source_build_and_sealed_inputs_equal": true,
+  "state_file_sha256": {
+    "dense/fixture-free-body-control-1200.log": "ccb40283ebb8a4c849a536899fb9ebd87906f0da7fcb785c2f403f666321c8d6",
+    "dense/fixture-free-body-control-1201.log": "cce1d27b47120706340f71244a8ab81368aac38cf0014cdab655392fc5b3fcf2",
+    "dense/transaction-000000-after.bin": "9fd3c14c8dc3f825b2b552ff98e81b0270f4fd203e1646677a2560f5fd5c3cbf",
+    "dense/transaction-000000-before.bin": "1c312c5ea77aeda45a3bf6b56c2aa34adc9f19aca9e6dd632d522afbcee1f7bc",
+    "dense/transaction-000000.json": "249d5249c1a4f2f165bc8468142a8f086ee615465360aac7080d9b9d6d90c5bf",
+    "dense/transaction-000001-after.bin": "aa2c93f4474a5cd98f64dd4ff00c732cd82f4e78138942769147f9a1fa363e57",
+    "dense/transaction-000001-before.bin": "9fd3c14c8dc3f825b2b552ff98e81b0270f4fd203e1646677a2560f5fd5c3cbf",
+    "dense/transaction-000001.json": "1920dcf0873634e798740a00313ae9a12fb95fa3fb760eb2a2653cdf40d28e81",
+    "dense/transaction-000002-after.bin": "26b56cb561aa827b67a780c23509be7ee3fcdc479b74ff4d131415d8817cf36f",
+    "dense/transaction-000002-before.bin": "aa2c93f4474a5cd98f64dd4ff00c732cd82f4e78138942769147f9a1fa363e57",
+    "dense/transaction-000002.json": "0ae149d7cc5610221fa3380331f1e1e2579e56b84e6f351d760bb9e07884f780"
+  },
+  "state_output_files": 11,
+  "state_outputs_identical": false
+}

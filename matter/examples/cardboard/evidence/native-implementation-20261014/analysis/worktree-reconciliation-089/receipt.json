@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.worktree-reconciliation.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-direct-projection-diagnostic-089",
+  "rows": [
+    {
+      "path": "matter/CMakeLists.txt",
+      "before": "df51df6e659ac345d6b717f3e680cbf810478dfe91158ad0bfbbad3f2d5de337",
+      "after": "214313d74f3324fc4c861fe2135010151e43d51da1514156aca2f44b64082684"
+    },
+    {
+      "path": "matter/src/metal/common.metalinc",
+      "before": "f783cc641196353c22c9ec41a70711abcd835e9ce9bb6c9cebf3031571fd0366",
+      "after": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "before": "f9899a9e7772089204fb6c30e4e61d1ef4ea26c45c5c29085719e6f6de586150",
+      "after": "a980ee59341429440e83984dd02073123c9647f19655a94260119a5d67aa5918"
+    },
+    {
+      "path": "matter/tools/cardboard_bilinear15_capture_diagnostic.metal",
+      "before": null,
+      "after": "23f6f758cda7ccc0e0651e45a298644e6b71a3c25cd5ef2f7c9cbe4ceca40628"
+    },
+    {
+      "path": "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm",
+      "before": null,
+      "after": "27f1b7852668ccec459ee5d6060bf89da203358448aca0138c7e8ac53cdf9571"
+    }
+  ],
+  "build_sha256": "966206a5f5b645669f9c75bc0ba5a2682eac4958ac529df6b3745a08298a4438",
+  "scope": "66 target build,71 selected CPU checks, selected native stress/projector/tangent instrument294. Diagnostic capture and serialization repairs only. Accurate local policy still fails selected point; no solver, convergence, calibration, assembly, crush or impact completion."
+}
