@@ -1,0 +1,29 @@
+{
+  "schema": "numi.cardboard.remote-compatibility.v1",
+  "git_revision": "69d3901c4f63e23fa729826b50985ec91265439c",
+  "remote_revision": "3c407f04913db0daaffdef236514c49b9be1bbd8",
+  "source104_selected_unchanged": 776,
+  "selected_source_differences": {
+    "CMakeLists.txt": {
+      "source104": "afb49b9dbbe042edbb80cdd86a9f3e01286d96e28a71232a2da447af4929c2d7",
+      "current": "41416ae49d88b043712588d8a4d579f59a5b6b7a0bb128b1117f83c27320af37"
+    },
+    "matter/tools/README-human-resting.md": {
+      "source104": "1e9631b9c31fac7c082a661c634bc5b0fba8a99c74f5d3c7d61712e83a7ecc97",
+      "current": "fd801331362696c5b634524246290dd82c5f556375078bfbf1b3016c8c4706d2"
+    }
+  },
+  "configure_argv": [
+    "cmake",
+    "-S",
+    "/Users/home/numi-cardboard-20261006",
+    "-B",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-source104-compatibility",
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+    "-DPython3_EXECUTABLE=/Users/home/.pyenv/versions/3.10.12/bin/python3"
+  ],
+  "configure_exit_code": 0,
+  "physical_qualification": false,
+  "scope": "Only selected differences are additive root CMake Human replay target and Human README. Every other selected source104 input matches its frozen source. Root configure compatibility; prior native/build results retain their original snapshot identity."
+}

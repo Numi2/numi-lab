@@ -23,10 +23,12 @@
     "solver/reset-augmentation-first-failure-rap-only-361",
     "cpu-checks-104",
     "build/source-build-104",
-    "analysis/source104-publication-adoption-001"
+    "analysis/source104-publication-adoption-001",
+    "analysis/source104-remote-compatibility-001",
+    "analysis/source104-remote-compatibility-002"
   ],
-  "summary_sha256": "552227d750f045bd03460edca51e5ff039dc7e111b6ac9e6e3aa3c83f3128f1b",
-  "copied_files": 259,
+  "summary_sha256": "2d4bf52acaa780241f11e61e8db6a40488dfd314f61d12ffecc85c8efb192f97",
+  "copied_files": 262,
   "source104_build_sha256": "759eabcfbc4c940cf85c9a8061b394445907b99b2186d3bb26382cebb6bf15f3",
   "physical_validation": false
 }

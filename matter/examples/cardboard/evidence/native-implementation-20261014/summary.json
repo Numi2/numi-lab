@@ -78284,6 +78284,41 @@
           "repository_copy": "analysis/source104-publication-adoption-001/report.json"
         }
       ]
+    },
+    {
+      "case": "analysis/source104-remote-compatibility-001",
+      "external_root": "/Users/home/cardboard-implementation-20261014/analysis/source104-remote-compatibility-001",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "failure.json",
+          "bytes": 660,
+          "sha256": "87c68db6e62937d10152302ba5d758e00d067cab63e3f5e244c55dc596546db2",
+          "external_path": "/Users/home/cardboard-implementation-20261014/analysis/source104-remote-compatibility-001/failure.json",
+          "repository_copy": "analysis/source104-remote-compatibility-001/failure.json"
+        }
+      ]
+    },
+    {
+      "case": "analysis/source104-remote-compatibility-002",
+      "external_root": "/Users/home/cardboard-implementation-20261014/analysis/source104-remote-compatibility-002",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "configure.stdout.log",
+          "bytes": 1299,
+          "sha256": "b846dbcbe4a6c98db6dc72ee639c3cf7c98abed9bc512e1984be7fe7dbd36230",
+          "external_path": "/Users/home/cardboard-implementation-20261014/analysis/source104-remote-compatibility-002/configure.stdout.log",
+          "repository_copy": "analysis/source104-remote-compatibility-002/configure.stdout.log"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 1352,
+          "sha256": "1f05233ebc2f288bc6ea48ebebeb7eaa086988491e92672689cc54500447e08f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/analysis/source104-remote-compatibility-002/receipt.json",
+          "repository_copy": "analysis/source104-remote-compatibility-002/receipt.json"
+        }
+      ]
     }
   ],
   "verdicts": {
