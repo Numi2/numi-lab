@@ -1,0 +1,24 @@
+test_arithmetic_change_cannot_masquerade_as_mesh_convergence (__main__.CardboardConvergenceTests) ... ok
+test_cli_output_refuses_to_overwrite_existing_report (__main__.CardboardConvergenceTests) ... ok
+test_enabled_tool_loading_is_explicitly_unsupported (__main__.CardboardConvergenceTests) ... ok
+test_failed_status_not_overridden_by_raw_accepted_flag (__main__.CardboardConvergenceTests) ... ok
+test_force_matched_tolerance_is_temporal_only_and_reports_force_bounds (__main__.CardboardConvergenceTests) ... ok
+test_force_matched_tolerance_rejects_non_temporal_api_and_cli_use (__main__.CardboardConvergenceTests) ... ok
+test_free_release_is_measured_and_not_confused_with_clamped_relaxation (__main__.CardboardConvergenceTests) ... ok
+test_material_geometry_duration_and_sampling_mismatches_reject (__main__.CardboardConvergenceTests) ... ok
+test_nonfinite_endpoint_thresholds_reject (__main__.CardboardConvergenceTests) ... ok
+test_preconditioner_change_is_not_a_matched_resolution_pair (__main__.CardboardConvergenceTests) ... ok
+test_raw_flag_without_step_acceptance_is_inconclusive (__main__.CardboardConvergenceTests) ... ok
+test_regional_comparisons_bind_projection_and_cache_policy (__main__.CardboardConvergenceTests) ... ok
+test_reverse_temporal_pair_preserves_baseline_curve_identity (__main__.CardboardConvergenceTests) ... ok
+test_scaled_source_projection_binds_policy_budget_and_comparisons (__main__.CardboardConvergenceTests) ... ok
+test_single_run_release_report_binds_observation_and_state_inputs (__main__.CardboardConvergenceTests) ... ok
+test_source_projection_requires_both_cooked_flags_and_matching_world (__main__.CardboardConvergenceTests) ... ok
+test_spatial_summary_volume_weighted_plastic_and_curves (__main__.CardboardConvergenceTests) ... ok
+test_temporal_nested_samples_and_load_rate_are_explicit_axes (__main__.CardboardConvergenceTests) ... ok
+test_unknown_schema_and_missing_endpoint_are_inconclusive (__main__.CardboardConvergenceTests) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.271s
+
+OK

@@ -1,0 +1,9 @@
+{
+  "verdict": "FAIL_UNEXPECTED_STATUS",
+  "report": "/Users/home/cardboard-implementation-20261014/analysis/source106-lifetime-parity-371-audit-001/report.json",
+  "rhs_flags": {
+    "362": true,
+    "369": false,
+    "371": true
+  }
+}

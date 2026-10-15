@@ -1,0 +1,16 @@
+{
+  "schema": "numi.matter.overlay-package.v1",
+  "overlay_id": "graph-fd-selected-rebuild-108",
+  "source_overlay_json_sha256": "f8229e9a9536319e969c1581320215c3a95444b4a82b2abc86237c2e537de915",
+  "files": {
+    "README.md": "568a06c58c1027fb7b56f552dede80f0fdbd1e44e4d2eae1ec6be96f792bbb0a",
+    "source-overlay.patch": "cc31befa94e3d1045700b8ca821353393779e48f355744e0e8cbd1ee0e46ab52",
+    "contract-test.log": "fd2cd648f232b098d6cb4679aca57d9c4f97fb99f4c51d72fcb0c29c017ac384",
+    "runtime-syntax.log": "9bdcf7954d1e4e0450722cda3906517af9c54473bc3549fdb561659bcd35e8bc",
+    "patch-dry-run.log": "009f17cd8ca8334a969b5b2b737cc04eaa3ecad7ba69f94f3c606d372cfcc1b3",
+    "matter/src/runtime.mm": "4d1b86e16819c7811b04e7ae745dfe81ee31ffa1451ad9259fa8b4b92c39d12b",
+    "matter/src/regional_graph_schwarz.hpp": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf",
+    "matter/tools/regional_graph_completed_tail_check.cpp": "496ecc347435624c9822905f6ba008241792bba9b381ea8ed967306315b07cca",
+    "source-overlay.json": "f8229e9a9536319e969c1581320215c3a95444b4a82b2abc86237c2e537de915"
+  }
+}

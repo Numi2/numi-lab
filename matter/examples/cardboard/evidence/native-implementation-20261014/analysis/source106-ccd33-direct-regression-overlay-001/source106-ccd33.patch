@@ -1,0 +1,214 @@
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -3362,7 +3362,7 @@
+     const float speedBound = max(length(p01 - p00), length(p11 - p10)) +
+         max(length(q01 - q00), length(q11 - q10));
+     float time = 0.0f;
+-    for (uint iteration = 0u; iteration < 17u; ++iteration) {
++    for (uint iteration = 0u; iteration < 33u; ++iteration) {
+         const float3 p0 = mix(p00, p01, time);
+         const float3 p1 = mix(p10, p11, time);
+         const float3 q0 = mix(q00, q01, time);
+--- a/matter/tools/cardboard_contact_ccd_native_check.mm
++++ b/matter/tools/cardboard_contact_ccd_native_check.mm
+@@ -30,6 +30,14 @@
+ constexpr std::uint32_t kSamples = 10000u;
+ constexpr char kCapturedRaySha256[] =
+     "9b50eef2b182f38e061eff23eaa46d55b158539fa579340280b9f801a1f68bc7";
++constexpr char kCapturedEEInputCorpusSha256[] =
++    "e116911335b4fbf88683535cde08a97b26ca99bc1975989d67532196c2ff996f";
++constexpr char kCapturedEERecordSha256[] =
++    "41d9c804684188137c5576f40b4d3e099a3f11184ed02b78e84376d244ed5f78";
++constexpr char kBaseline367ResultSha256[] =
++    "8b9b1ef8b0a32adb3938a39254ac57698fceb7b19265bae3fa69329562b3b6cc";
++constexpr char kContinuation372ResultSha256[] =
++    "c8fd27646a56d117931552dbe99a3c119976ea7061d53365e24080af81bda45b";
+ unsigned checks = 0u;
+ 
+ void require(const bool condition, const std::string& message) {
+@@ -56,6 +64,7 @@
+     bool expectUncertified = false;
+     bool expectDirectUncertified = false;
+     bool expectShortenedCertificate = false;
++    bool expectRoundoffBandHit = false;
+     bool verifySampledDistance = true;
+ };
+ 
+@@ -106,6 +115,77 @@
+     c.end = {{{100.0, 0.0, 0.0}, {101.0, 0.0, 0.0},
+               {0.0, 0.02, 0.0}, {1.0, 0.02, 0.0}}};
+     return c;
++}
++
++float floatFromBits(const std::uint32_t bits) {
++    float value = 0.0f;
++    static_assert(sizeof(value) == sizeof(bits));
++    std::memcpy(&value, &bits, sizeof(value));
++    return value;
++}
++
++Point pointFromBits(const std::uint32_t x, const std::uint32_t y,
++                    const std::uint32_t z) {
++    return {floatFromBits(x), floatFromBits(y), floatFromBits(z)};
++}
++
++Case capturedNearBandEdgeEdgeExhaustion(const float selector) {
++    // Exact FP32 input for source103 capture pair (primitive 92,127), case
++    // trial358_ee_edge0_edge0. Source103 bound17 exhausted at iteration16;
++    // bound33 reached a certified hit on evaluation17. The returned point is
++    // inside the implementation's roundoff-expanded band, not a robust
++    // nominal-thickness crossing. This is a CCD continuation regression only.
++    Case c;
++    c.name = selector >= 2.0f
++        ? "captured_ee_roundoff_band_17_to_33_helper"
++        : "captured_ee_roundoff_band_17_to_33_direct";
++    c.kind = kEdgeEdge;
++    c.selector = selector;
++    c.thickness = floatFromBits(0x3727c5acu);
++    c.expectedHit = true;
++    c.expectRoundoffBandHit = true;
++    c.verifySampledDistance = false;
++    c.start = {{
++        pointFromBits(0x3b031297u, 0x3236273cu, 0x3a831ea8u),
++        pointFromBits(0x3b03126au, 0x3120b246u, 0x34dbee94u),
++        pointFromBits(0xb3d85123u, 0xbb03137eu, 0x3a846bdfu),
++        pointFromBits(0x3b0310a7u, 0xb3794115u, 0x3a84703bu),
++    }};
++    c.end = {{
++        pointFromBits(0x3b0312a4u, 0x325a5b76u, 0x3a8321aeu),
++        pointFromBits(0x3b031269u, 0x314b9a59u, 0x350b6ba8u),
++        pointFromBits(0xb3d8283bu, 0xbb03137fu, 0x3a846d2fu),
++        pointFromBits(0x3b0310a7u, 0xb379acd4u, 0x3a84712bu),
++    }};
++    return c;
++}
++
++float roundoffExpandedThickness(const Case& c) {
++    float coordinateScale = 0.0f;
++    for (const auto* points : {&c.start, &c.end}) {
++        for (const Point& p : *points) {
++            coordinateScale = std::max(coordinateScale,
++                std::fabs(static_cast<float>(p[0])));
++            coordinateScale = std::max(coordinateScale,
++                std::fabs(static_cast<float>(p[1])));
++            coordinateScale = std::max(coordinateScale,
++                std::fabs(static_cast<float>(p[2])));
++        }
++    }
++    const float scale = std::max(std::max(c.thickness, coordinateScale), 1.0e-12f);
++    const float roundoff = 8.0f * std::numeric_limits<float>::epsilon() * scale;
++    return c.thickness + roundoff;
++}
++
++void checkRoundoffBandHit(const Case& c, const Float4& result) {
++    if (!c.expectRoundoffBandHit) return;
++    const float effectiveThickness = roundoffExpandedThickness(c);
++    require(result[0] == 1.0f && result[1] == 1.0f,
++        c.name + ": exact captured ray was not certified as a hit at bound33");
++    require(result[3] >= c.thickness && result[3] <= effectiveThickness,
++        c.name + ": returned separation left nominal/roundoff band bounds");
++    require(result[2] >= 0.95f && result[2] <= 1.0f,
++        c.name + ": returned hit is outside the captured terminal-time region");
+ }
+ 
+ Case degenerateCollinearCross(const float selector = 0.0f) {
+@@ -361,6 +441,7 @@
+         require(std::isfinite(r[2]) && r[2] >= 0.0f && r[2] <= 1.0f,
+             c.name + ": direct CCD TOI is outside the unit sweep");
+         require(std::isfinite(r[3]), c.name + ": direct CCD separation is nonfinite");
++        checkRoundoffBandHit(c, r);
+         if (c.verifySampledDistance) {
+             const double minimum = sampledMinimum(c);
+             const double sampleTolerance = std::max(
+@@ -404,6 +485,7 @@
+         }
+         require(std::isfinite(r[2]) && r[2] >= 0.0f && r[2] <= 1.0f &&
+                 std::isfinite(r[3]), c.name + ": helper outcome contains invalid geometry");
++        checkRoundoffBandHit(c, r);
+         if (c.verifySampledDistance) {
+             const double minimum = sampledMinimum(c, sweep[0]);
+             const double sampleTolerance = std::max(
+@@ -423,11 +505,13 @@
+             const std::vector<Case> directCases = {
+                 vertexTriangleMiss(), vertexTriangleEndpointClearCross(),
+                 edgeEdgeEndpointClearCross(), edgeEdgeNearParallelLongTangent(),
++                capturedNearBandEdgeEdgeExhaustion(0.0f),
+                 degenerateCollinearCross(), capturedUncertifiedClearRay(0.0f),
+             };
+             std::vector<Case> helperCases = {
+                 vertexTriangleMiss(2.0f), vertexTriangleEndpointClearCross(2.0f),
+                 edgeEdgeEndpointClearCross(2.0f), edgeEdgeNearParallelLongTangent(2.0f),
++                capturedNearBandEdgeEdgeExhaustion(2.0f),
+                 degenerateCollinearCross(2.0f),
+                 capturedUncertifiedClearRay(2.0f), helperRejectsNonfiniteRay(),
+             };
+@@ -468,18 +552,45 @@
+                 << "\"captured_diagnostic_ray_fixture_initial_geometry_valid\":false,"
+                 << "\"captured_diagnostic_ray_thickness_source\":\"16*FLT_EPSILON*max_abs_endpoint_coordinate reconstructed from FP32 endpoints\","
+                 << "\"captured_diagnostic_ray_physical_qualification\":false,"
++                << "\"captured_ee_input_corpus_sha256\":\"" << kCapturedEEInputCorpusSha256 << "\","
++                << "\"captured_ee_case_record_sha256\":\"" << kCapturedEERecordSha256 << "\","
++                << "\"captured_ee_iteration_comparison\":{"
++                << "\"case\":\"trial358_ee_edge0_edge0\","
++                << "\"baseline_source\":\"source103\","
++                << "\"baseline_iteration_bound\":17,"
++                << "\"baseline_terminal_iteration\":16,"
++                << "\"baseline_certified\":false,"
++                << "\"baseline_result_sha256\":\"" << kBaseline367ResultSha256 << "\","
++                << "\"continuation_iteration_bound\":33,"
++                << "\"continuation_terminal_iteration\":17,"
++                << "\"continuation_certified\":true,"
++                << "\"continuation_result_sha256\":\"" << kContinuation372ResultSha256 << "\","
++                << "\"near_band_only_not_nominal_crossing\":true,"
++                << "\"full_contact_same_build_required\":true},"
++                << "\"captured_ee_ray_id\":\"source103/trial358_ee_edge0_edge0/pair92-127\","
++                << "\"captured_ee_diagnostic_only\":true,"
++                << "\"captured_ee_physical_qualification\":false,"
+                 << "\"direct_cases\":" << directCases.size() << ','
+                 << "\"helper_cases\":" << helperCases.size() << ','
+                 << "\"direct_results\":[";
+             for (std::size_t i = 0; i < directCases.size(); ++i) {
+                 if (i) std::cout << ',';
+                 std::cout << "{\"name\":\"" << directCases[i].name
+-                    << "\",\"hit\":" << (direct[i][0] > 0.5f ? "true" : "false")
++                    << "\",\"near_band_only\":"
++                    << (directCases[i].expectRoundoffBandHit ? "true" : "false")
++                    << ",\"hit\":" << (direct[i][0] > 0.5f ? "true" : "false")
+                     << ",\"certified\":" << (direct[i][1] > 0.5f ? "true" : "false")
+                     << ",\"toi\":";
+                 writeJsonFiniteOrNull(std::cout, direct[i][2]);
+                 std::cout << ",\"separation_m\":";
+                 writeJsonFiniteOrNull(std::cout, direct[i][3]);
++                if (directCases[i].expectRoundoffBandHit) {
++                    std::cout << ",\"nominal_thickness_m\":";
++                    writeJsonFiniteOrNull(std::cout, directCases[i].thickness);
++                    std::cout << ",\"roundoff_expanded_thickness_m\":";
++                    writeJsonFiniteOrNull(std::cout, roundoffExpandedThickness(directCases[i]));
++                    std::cout << ",\"sampled_minimum_is_clearance_proof\":false";
++                }
+                 std::cout << ",\"sampled_minimum_m\":";
+                 writeJsonFiniteOrNull(std::cout, sampledMinimum(directCases[i]));
+                 std::cout << '}';
+@@ -490,12 +601,21 @@
+                 const auto& first = helper[2u * i];
+                 const auto& second = helper[2u * i + 1u];
+                 std::cout << "{\"name\":\"" << helperCases[i].name
+-                    << "\",\"hit\":" << (first[0] > 0.5f ? "true" : "false")
++                    << "\",\"near_band_only\":"
++                    << (helperCases[i].expectRoundoffBandHit ? "true" : "false")
++                    << ",\"hit\":" << (first[0] > 0.5f ? "true" : "false")
+                     << ",\"certified\":" << (first[1] > 0.5f ? "true" : "false")
+                     << ",\"global_toi\":";
+                 writeJsonFiniteOrNull(std::cout, first[2]);
+                 std::cout << ",\"separation_m\":";
+                 writeJsonFiniteOrNull(std::cout, first[3]);
++                if (helperCases[i].expectRoundoffBandHit) {
++                    std::cout << ",\"nominal_thickness_m\":";
++                    writeJsonFiniteOrNull(std::cout, helperCases[i].thickness);
++                    std::cout << ",\"roundoff_expanded_thickness_m\":";
++                    writeJsonFiniteOrNull(std::cout, roundoffExpandedThickness(helperCases[i]));
++                    std::cout << ",\"sampled_minimum_is_clearance_proof\":false";
++                }
+                 std::cout << ",\"tested_fraction\":";
+                 writeJsonFiniteOrNull(std::cout, second[0]);
+                 std::cout << ",\"retries\":";

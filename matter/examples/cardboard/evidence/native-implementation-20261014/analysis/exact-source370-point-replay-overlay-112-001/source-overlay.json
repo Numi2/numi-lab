@@ -1,0 +1,26 @@
+{
+  "schema": "numi.cardboard.source_overlay.v1",
+  "overlay_id": "exact-source370-point-replay-112-001",
+  "classification": "CPU-admission correction for a bounded material-point diagnostic; no solver physics change",
+  "parent_overlay": "analysis/exact-source370-point-replay-overlay-111-001/source-overlay.json",
+  "parent_overlay_manifest_sha256": "7598760eef248a2ef09c095a765238843827f2128b5cd8279ec4f4ef303f3de0",
+  "base_checker_sha256": "2eea53940a37be0b59dd8ddb595b7c3c6e1038d699a62921129edd8aabcf2e2b",
+  "candidate_checker_sha256": "023806c32a018fe4c136d6a83cd1b1c3e838c8df29e856e3ff3f080ce10a54da",
+  "patch_sha256": "3bb2099645522e1b585b96bda7f2849c6ebf0cfb7a8dfbcd3e862649f1d99e75",
+  "change": "Compare each private source compile against its explicit 16/32 expected budget, while independently requiring the immutable370 descriptor to remain16 and all non-budget fields/parameters/initial states to match.",
+  "preserved_failure": {
+    "overlay": "analysis/exact-source370-point-replay-overlay-111-001",
+    "failure": "CPU admission incorrectly compared the private 32-update material descriptor's localNewtonIterations against the immutable370 package value16."
+  },
+  "validation": {
+    "host_objective_cpp_syntax_only": "pass",
+    "patch_dry_run_against_overlay111": "pass",
+    "cpu_admission": "not_run_root_build_required",
+    "native_gpu_dispatch": "not_run_no_gpu_by_overlay_author"
+  },
+  "limits": [
+    "This changes checker admission only; it does not alter material equations, solver tolerances, source-370 package bytes, or trajectory history.",
+    "The 32-update result is a single-point diagnostic recompile from the same asset and parameters, not a full source-370 replay.",
+    "No material calibration, coupon validation, or physical qualification is claimed."
+  ]
+}

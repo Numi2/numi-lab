@@ -1,0 +1,40 @@
+{
+  "schema": "numi.matter.true_residual_certification_candidate.v1",
+  "candidate": "source-contact-health-diagnostics-104 plus opt-in true-residual restart certification",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-contact-health-diagnostics-104",
+  "base_frozen_source_manifest_sha256": "40a978c154980895e6db8609ed2ffeb92ce0608254d5434ee780d838120abe65",
+  "base_parent_revision": "1648fe0e0483b5b05ce3c1e64d78cbec4885899e",
+  "base_source_sha256": {
+    "matter/src/runtime.mm": "119148dedc593742dfe7f62c1b06c99e488b6c40a783aa839722f70d2da59c20",
+    "matter/src/metal/fgmres.metalinc": "eef8a0919636c513716528dcf04cf9d175801c25e7159125808cbb59a9b696d6",
+    "matter/CMakeLists.txt": "3d7c54b440f76bd70a600ecfcc2e8e27b82554fa437e25744e8e410121c4f868",
+    "CMakeLists.txt": "afb49b9dbbe042edbb80cdd86a9f3e01286d96e28a71232a2da447af4929c2d7"
+  },
+  "files": [
+    {
+      "path": "matter/src/runtime.mm",
+      "base_sha256": "119148dedc593742dfe7f62c1b06c99e488b6c40a783aa839722f70d2da59c20",
+      "candidate_sha256": "924669986619a88c6e34ec79e306495c1113e6ea35b0c793e8a36cfede887ec2"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "base_sha256": "eef8a0919636c513716528dcf04cf9d175801c25e7159125808cbb59a9b696d6",
+      "candidate_sha256": "19adbc5a4b6db540ba625654083ac42bc9369b4d831de847e26a4ec1d8bde500"
+    },
+    {
+      "path": "matter/tools/test_true_residual_certification_contract.py",
+      "base_sha256": null,
+      "candidate_sha256": "ae81212a36655d464893905b91b79009613033ec810906f857d5e63caf895459"
+    }
+  ],
+  "patch_sha256": "8fcf5d42fd6ae81d5d4be30de780a898dd3296943bdc748cf40a855fb343a69c",
+  "scope": "Opt-in bounded explicit FEM true-residual restart; defaults unchanged; no GPU qualification.",
+  "validation": {
+    "cpu_contract_test": "python3 matter/tools/test_true_residual_certification_contract.py",
+    "cpu_contract_result": "8 tests passed",
+    "cmake_configure": "passed",
+    "metal_target": "numi_matter_shaders passed; existing unrelated graph-Schwarz uninitialized shared-variable warnings retained",
+    "runtime_objcxx_target": "numi_matter_runtime_objects passed",
+    "native_gpu": "not run"
+  }
+}

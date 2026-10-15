@@ -1,0 +1,32 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 3408,
+      "sha256": "f1886003b9bf545bd1cde650809a777356f8d7e74c0689f9683a1cb46ebe0612"
+    },
+    "audit.py": {
+      "bytes": 22100,
+      "sha256": "7c0341f68c4a54291bd38cc0198ce6432e26c6ea6d26c9f4278ebb8ae931977d"
+    },
+    "report.json": {
+      "bytes": 30259,
+      "sha256": "9df15f858fd8d40790c34871935f01c796cea6ba26027b629227d6e4d487244e"
+    },
+    "test_report_contract.py": {
+      "bytes": 2473,
+      "sha256": "48892111e685a1b0379d1ebb8f506c0acce394cbdcfd300c07e261d7645b1e6d"
+    },
+    "validation/audit-run.log": {
+      "bytes": 237,
+      "sha256": "401f95253233fcbc0a5ea73696c08da0983b4065d41d54ce9b539c492e33af0f"
+    },
+    "validation/report-contract-tests.log": {
+      "bytes": 700,
+      "sha256": "7cb5e649bc31cc0d8e9406acfd75feffa9640b591ab2a65dd07bfe423b92ae53"
+    }
+  },
+  "name": "source106-lifetime-parity-371-audit-001",
+  "report_sha256": "9df15f858fd8d40790c34871935f01c796cea6ba26027b629227d6e4d487244e",
+  "schema": "numi.matter.audit_package.v1",
+  "verdict": "FAIL_UNEXPECTED_STATUS"
+}

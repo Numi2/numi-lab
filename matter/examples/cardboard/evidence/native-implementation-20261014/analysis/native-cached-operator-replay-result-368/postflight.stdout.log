@@ -1,0 +1,1 @@
+PASS source101 replay CPU preflight: sealed hashes and all 3840 immutable tetrahedron float/integer words match bitwise, including signed zero; no Metal device created

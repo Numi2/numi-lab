@@ -1,0 +1,31 @@
+{
+  "schema": "numi.cardboard.main-adoption-validation.v1",
+  "native_files": "15exactsource109hashesverified;69targetsand74CPUcheckspassedinsource109",
+  "commands": [
+    {
+      "argv": [
+        "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+        "matter/tools/test_cardboard_resolution_study.py"
+      ],
+      "exit_code": 0,
+      "tests": 13
+    },
+    {
+      "argv": [
+        "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+        "matter/tools/test_cardboard_convergence.py"
+      ],
+      "exit_code": 0,
+      "tests": 19
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "physical_validation": false
+}

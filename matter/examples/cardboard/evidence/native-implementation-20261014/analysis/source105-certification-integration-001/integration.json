@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.source105-certification-integration.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-contact-health-diagnostics-104",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-true-residual-certification-105",
+  "scope": "Opt-in bounded native FGMRES true-residual certification and restart replacement. Same configured cached operator, unchanged forcing/absolute thresholds and final transactional certificates. Default mode unchanged; no full FEM/native convergence qualification from compilation or kernel fixture.",
+  "selected_source_files": 780,
+  "support_files": 1068,
+  "changes": {
+    "matter/CMakeLists.txt": {
+      "before": "3d7c54b440f76bd70a600ecfcc2e8e27b82554fa437e25744e8e410121c4f868",
+      "after": "031c7f9a497a245aa222d832918812ba561673ec6774925ca0cfb49198425bea"
+    },
+    "matter/src/metal/fgmres.metalinc": {
+      "before": "eef8a0919636c513716528dcf04cf9d175801c25e7159125808cbb59a9b696d6",
+      "after": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0"
+    },
+    "matter/src/runtime.mm": {
+      "before": "119148dedc593742dfe7f62c1b06c99e488b6c40a783aa839722f70d2da59c20",
+      "after": "924669986619a88c6e34ec79e306495c1113e6ea35b0c793e8a36cfede887ec2"
+    },
+    "matter/tools/fgmres_true_residual_native_check.mm": {
+      "before": null,
+      "after": "b854f1a83d3851e99f5648478e208e7236751d1728a51286bcecfa8d5466b589"
+    },
+    "matter/tools/test_true_residual_certification_contract.py": {
+      "before": null,
+      "after": "b03c7aa4cb8bb275d232a172dab662ef3be61762b31c95f4f1e084d087568b2d"
+    }
+  },
+  "overlay_manifest_sha256": "000a882a0c3b9402048bf8a8cc5bd91f6672ae4ac9fbd755a5b4e6bd50a77cae",
+  "patch_sha256": "5c519fb8e86e884616aad687be1009b939c162e2d374e3f295c0d9ed1b8b68dc",
+  "native_qualification": "pending"
+}

@@ -1,0 +1,70 @@
+{
+  "schema": "numi.cardboard.native-diagnostic-evidence.v1",
+  "files": [
+    {
+      "path": "native.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native.stdout.log",
+      "bytes": 106,
+      "sha256": "60740b675b4440babb2932bbf0d1c649af68c68e8f626c08691a42386eefe427"
+    },
+    {
+      "path": "postflight.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "postflight.stdout.log",
+      "bytes": 168,
+      "sha256": "0433878734d8ca1e321e33b90f6022c1cc2391581a6a747726c588190acf6aae"
+    },
+    {
+      "path": "prediction.json",
+      "bytes": 3341,
+      "sha256": "16df8e7334b1ea278022da8a4ed2261a52a1995d347b8879eeaaee44069147dd"
+    },
+    {
+      "path": "preflight.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "preflight.stdout.log",
+      "bytes": 168,
+      "sha256": "0433878734d8ca1e321e33b90f6022c1cc2391581a6a747726c588190acf6aae"
+    },
+    {
+      "path": "receipt.json",
+      "bytes": 462,
+      "sha256": "b24f8d82098d88bb1c8e78ec3451549436e7544ac8405a36e247b1ab33836302"
+    },
+    {
+      "path": "result/cached-action.float4.bin",
+      "bytes": 28224,
+      "sha256": "8d17f4dc69bf54ac538912682b8e43744cdcbce3b793a94ebebd7d3af37ff7d3"
+    },
+    {
+      "path": "result/captured-fresh-action.float4.bin",
+      "bytes": 28224,
+      "sha256": "73862a2af43ce5d2d27e40b09ffc370fedb7ce5693bad5321dad22ef2ffb483f"
+    },
+    {
+      "path": "result/fresh-action.float4.bin",
+      "bytes": 28224,
+      "sha256": "73862a2af43ce5d2d27e40b09ffc370fedb7ce5693bad5321dad22ef2ffb483f"
+    },
+    {
+      "path": "result/replay-report.json",
+      "bytes": 2041,
+      "sha256": "1c64eb8cfa70e1a3c07ddf8c2c81b852e6b71e24b9bed44b92fbd46988e87f52"
+    },
+    {
+      "path": "runner.py",
+      "bytes": 3492,
+      "sha256": "d9a3c27d5badea92a08db3a30fc4efa1ea57c4adeecb5c0adcbe5c9cf0f65e3d"
+    }
+  ]
+}

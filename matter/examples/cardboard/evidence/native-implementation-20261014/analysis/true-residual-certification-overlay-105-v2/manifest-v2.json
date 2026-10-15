@@ -1,0 +1,121 @@
+{
+  "schema": "numi.matter.true_residual_certification_candidate.v2",
+  "candidate": "source-contact-health-diagnostics-104 plus opt-in true-residual restart certification and native kernel contract fixture",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-contact-health-diagnostics-104",
+  "base_frozen_source_manifest_sha256": "40a978c154980895e6db8609ed2ffeb92ce0608254d5434ee780d838120abe65",
+  "base_parent_revision": "1648fe0e0483b5b05ce3c1e64d78cbec4885899e",
+  "supersedes_candidate": "/Users/home/cardboard-implementation-20261014/analysis/true-residual-certification-overlay-105-candidate",
+  "supersedes_manifest_sha256": "ef4af01ce11879abacce3074b57f6159c361fa1e485f61805f425d19a40283ef",
+  "files": [
+    {
+      "path": "matter/CMakeLists.txt",
+      "base_sha256": "3d7c54b440f76bd70a600ecfcc2e8e27b82554fa437e25744e8e410121c4f868",
+      "candidate_sha256": "031c7f9a497a245aa222d832918812ba561673ec6774925ca0cfb49198425bea"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "base_sha256": "eef8a0919636c513716528dcf04cf9d175801c25e7159125808cbb59a9b696d6",
+      "candidate_sha256": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "base_sha256": "119148dedc593742dfe7f62c1b06c99e488b6c40a783aa839722f70d2da59c20",
+      "candidate_sha256": "924669986619a88c6e34ec79e306495c1113e6ea35b0c793e8a36cfede887ec2"
+    },
+    {
+      "path": "matter/tools/fgmres_true_residual_native_check.mm",
+      "base_sha256": null,
+      "candidate_sha256": "b854f1a83d3851e99f5648478e208e7236751d1728a51286bcecfa8d5466b589"
+    },
+    {
+      "path": "matter/tools/test_true_residual_certification_contract.py",
+      "base_sha256": null,
+      "candidate_sha256": "b03c7aa4cb8bb275d232a172dab662ef3be61762b31c95f4f1e084d087568b2d"
+    }
+  ],
+  "package_files": [
+    {
+      "path": "README.md",
+      "sha256": "ae0f9e5c2f41137bfc000ff0656066ff56927e494bb1e321084e6755334035ca"
+    }
+  ],
+  "patch_sha256": "5c519fb8e86e884616aad687be1009b939c162e2d374e3f295c0d9ed1b8b68dc",
+  "validation_files": [
+    {
+      "path": "validation-v2/cmake-configure-fresh.log",
+      "sha256": "a13049314f664584fa1ba9a02733e3dd4d340a19250a60395151aa62ad7eeb62",
+      "bytes": 203
+    },
+    {
+      "path": "validation-v2/cmake-configure.log",
+      "sha256": "18d943fd4ffffa898ec5d4064ff9b072e04315fc828597232a6dc06fa1bf8d27",
+      "bytes": 197
+    },
+    {
+      "path": "validation-v2/cpu-contract.log",
+      "sha256": "9db4ec2a8c5afdf15f089f926468779b12530118870acc867b95101f8ce627c6",
+      "bytes": 1183
+    },
+    {
+      "path": "validation-v2/ctest-contract.log",
+      "sha256": "abe1950f373e662774bd930935bc6448dbc818dc744b560526bd65da29defc6e",
+      "bytes": 595
+    },
+    {
+      "path": "validation-v2/final-patch-dry-run.log",
+      "sha256": "3d3f2b369b46fbb2c93a6c1fcfd69139897276e1453359a28d89d162ad020be4",
+      "bytes": 265
+    },
+    {
+      "path": "validation-v2/full-build.log",
+      "sha256": "81eaee3fa5dc950c56eb394bb2f36943352b7742c8ecb67b9bfea3c58b7cf523",
+      "bytes": 317
+    },
+    {
+      "path": "validation-v2/metal-build.log",
+      "sha256": "af041a5aace08ae8604c3a15ba8fb82aaef5763a34b696b5cbd376a9e8714d94",
+      "bytes": 33
+    },
+    {
+      "path": "validation-v2/native-check-build.log",
+      "sha256": "7b083aeeeeabe349dc31be6730d30f976adae446a42765fe71b6559c63d18f7f",
+      "bytes": 196
+    },
+    {
+      "path": "validation-v2/patch-dry-run.log",
+      "sha256": "3d3f2b369b46fbb2c93a6c1fcfd69139897276e1453359a28d89d162ad020be4",
+      "bytes": 265
+    },
+    {
+      "path": "validation-v2/runtime-build.log",
+      "sha256": "c4e3e02d4b5e89e0a0bce5daeafb29f7b6fc1b6b89f0b8be158efef73a15f7fa",
+      "bytes": 88
+    },
+    {
+      "path": "validation-v2/source-symlink-audit.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "validation": {
+    "cpu_contract_test": {
+      "command": "python3 matter/tools/test_true_residual_certification_contract.py",
+      "result": "10 tests passed"
+    },
+    "ctest_cpu_contract": {
+      "command": "ctest --test-dir build-v2-fresh -R '^matter.analysis.fgmres_true_residual_contract$' --output-on-failure",
+      "result": "passed"
+    },
+    "cmake_configure": {
+      "command": "cmake -S source -B build-v2-fresh -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+      "result": "passed"
+    },
+    "compile_targets": {
+      "command": "cmake --build build-v2-fresh --target numi_matter_shaders numi_matter_runtime_objects numi-matter-fgmres-true-residual-native-check -j2",
+      "result": "passed; shader has two pre-existing graph-Schwarz warnings for sharedValid and refinementValid"
+    },
+    "native_kernel_fixture": "compiled but not executed; no GPU test was performed",
+    "qualification": "kernel state-machine fixture only, with A=I; not a full FEM operator or physical qualification"
+  },
+  "scope": "Opt-in bounded explicit FEM true-residual restart; default path unchanged."
+}

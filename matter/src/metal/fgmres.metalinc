@@ -5259,11 +5259,21 @@ kernel void nm_fgmres_measure_true_residual(
     constant float& forcing [[buffer(7)]],
     device NMMatterStatusGPU* diagnosticStatuses [[buffer(8)]],
     constant uint& replaceResidual [[buffer(9)]],
+    device NMMatterStatusGPU* productionStatuses [[buffer(10)]],
+    constant uint& propagateFailure [[buffer(11)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
     if (lane >= 32u || environment >= dispatch.environmentCount) return;
-    if (!environmentHealthy(diagnosticStatuses, environment)) return;
+    if (!environmentHealthy(diagnosticStatuses, environment)) {
+        // This is a threadgroup-wide early exit. Only one lane may publish
+        // the environment status; redundant writes are still a Metal data
+        // race even when every lane copies the same bytes.
+        if (lane == 0u && propagateFailure != 0u &&
+            environmentHealthy(productionStatuses, environment))
+            productionStatuses[environment] = diagnosticStatuses[environment];
+        return;
+    }
     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
     const uint nodeBase = environment * dispatch.femNodeCount;
     const uint fieldBase = totalNodes + nodeBase;
@@ -5299,12 +5309,18 @@ kernel void nm_fgmres_measure_true_residual(
         isfinite(states[environment].diagnostics.y) &&
         states[environment].diagnostics.y >= 0.0f;
     if (!validMetrics) {
-        if (lane == 0u)
+        if (lane == 0u) {
+            const float4 failureDiagnostics = float4(
+                norm2, maximumAbsolute, states[environment].diagnostics.x,
+                states[environment].diagnostics.y);
             recordFailure(diagnosticStatuses[environment],
                 NM_STATUS_NONFINITE_RESULT, NM_INVALID_INDEX,
-                NM_INVALID_INDEX, float4(norm2, maximumAbsolute,
-                    states[environment].diagnostics.x,
-                    states[environment].diagnostics.y));
+                NM_INVALID_INDEX, failureDiagnostics);
+            if (propagateFailure != 0u)
+                recordFailure(productionStatuses[environment],
+                    NM_STATUS_NONFINITE_RESULT, NM_INVALID_INDEX,
+                    NM_INVALID_INDEX, failureDiagnostics);
+        }
         return;
     }
     // Residual replacement is an explicitly selected algorithm experiment.
@@ -5327,8 +5343,11 @@ kernel void nm_fgmres_measure_true_residual(
             forcing, solver.residualTolerances.x, 0.5f) * initialNorm;
         if (replaceResidual != 0u) {
             state.diagnostics.x = trueNorm;
-            state.diagnostics.z = trueNorm == 0.0f || trueNorm <= target
-                ? 1.0f : 0.0f;
+            const float nonlinearThreshold = max(
+                solver.regularization.x,
+                solver.residualTolerances.x * max(state.nonlinear.x, 1.0f));
+            state.diagnostics.z = trueNorm == 0.0f || trueNorm <= target ||
+                trueNorm <= nonlinearThreshold ? 1.0f : 0.0f;
         }
         metrics[environment] = float4(
             trueNorm, arnoldiEstimate, maximumAbsolute, initialNorm);
@@ -5745,6 +5764,7 @@ kernel void nm_fgmres_finalize_cycle(
     constant float& forcing [[buffer(8)]],
     device const float2* rotations [[buffer(9)]],
     device float* restartCoefficients [[buffer(10)]],
+    constant uint& deferCompletionToTrueResidual [[buffer(11)]],
     uint global [[thread_position_in_grid]]
 ) {
     if (global >= dispatch.environmentCount) return;
@@ -5828,7 +5848,12 @@ kernel void nm_fgmres_finalize_cycle(
     // the transaction here can reject a candidate whose post-correction KKT
     // residual already satisfies those physical acceptance gates. Non-finite
     // Krylov state remains an immediate linear-solver failure.
-    state.diagnostics.z = cycleAccepted ? 1.0f : 0.0f;
+    // In true-residual certification mode, the Arnoldi estimate is provisional
+    // until the accumulated correction has been applied to the full operator.
+    // Keep the next encoded restart cycle active; the later true-residual pass
+    // publishes the only completion latch for this cycle.
+    state.diagnostics.z = (deferCompletionToTrueResidual != 0u && used > 0u)
+        ? 0.0f : (cycleAccepted ? 1.0f : 0.0f);
     if (!isfinite(state.diagnostics.x)) {
         recordFailure(
             statuses[environment], NM_STATUS_LINEAR_SOLVER_FAILURE,

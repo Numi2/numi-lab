@@ -1,0 +1,42 @@
+{
+  "schema": "numi.cardboard.source101-regional361-independent-review-package.v1",
+  "inputs_sha256": {
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-rap-only-361/operator-capture.regional.json": "ec3908f9880def353b006a3a2a990911e5a602f7fea52e0f5933b65b44689ea5",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-rap-only-361/operator-capture.regional.bin": "535cad15b3fc1d56b6537f591e80e45f331081802e5b28ef49dc0f938904e14e",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-rap-only-361/prediction.json": "5394702539afef4bbce90d929dd20ce7845a3a86d345934980b3ea2ebbc61d5e",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-rap-only-361/receipt.json": "a15d44ff226491ce6606f204a2ade9b6faa111e805152e0591c754d204a1be2a",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-rap-only-361/output/compiled.nmatterpack": "3c25f41c6c26654ccf3f8b4f4b510bbb64ab0ea0f52b94d05d8b1fa4060fafe5",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/prediction.json": "7bab817e48d15c03587e6effc6e6ba3c888a1f1cb820982ccfb76ba6aebc5e33",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/receipt.json": "d623591647a91ca07626e18fef6c78358e60c0d9ab7c38d465e79a2f6c18c474",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-control2-newton23-audit-004/result-360/environment-0-operator-audit.operator.npz": "ed5809db58dcbf5d944d427b20ee40c488f86273674b700c9dbb02dc9c018193",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-control2-newton23-audit-004/result-360/environment-0-operator-audit.vectors.npz": "f4af205fa19556f9501d60627b0eeda1692b6e3ca20407f4c26a5153eaefc14d",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-regional361-actual-newton23-006/audit.py": "cfb2ea6991521689194254ad4007cc1198757a2bab18ed4a147eb9b6aeca59e7",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-regional361-actual-newton23-006/potential_mask_reader.py": "d7d1da074d874f9111355c5bdee92d3c482faf2f157a86332db163133b92c078",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/src/package_impl.cpp": "02aa83df6568dad36a3260ff74973c6b7c7de4c659fa87f36188d0c492188d3c",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/src/regional_graph_schwarz.hpp": "a8a6328d608ba7db4943025f15d35d750968755a8826de32b14b479752c9121d",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/src/runtime.mm": "836605dca3f6b264d5ee04a9f65b66997ecbdc39f60709039c7e1ac59becb087",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/src/metal/fgmres.metalinc": "eef8a0919636c513716528dcf04cf9d175801c25e7159125808cbb59a9b696d6",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/include/numi/matter/shared.h": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-regional361-actual-newton23-001/failure.json": "46ab800c845e40bd304c473684b9aed13b245273bf87d22a6442f1f415d52a69",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-regional361-actual-newton23-001/audit.py": "87730cfe846bc90375b9dcd1c240d6d99adaa4c7efc0ace4710175487ddf033b",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-regional361-actual-newton23-001/manifest.json": "731ce31e312e1d18b88fe12eab61ddbbbda9b4bb3b7edc491581fcf385971e29",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-regional361-actual-newton23-002/failure.json": "75e806ab2cddc757ce67eb881e386d63cfeb9a140b42af5e93ce01df8c6545fe",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-regional361-actual-newton23-002/audit.py": "fea6d6e0255f4370592dd15bab882e6d7f306fc65f8690693d565b899b797c02",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-regional361-actual-newton23-002/manifest.json": "5e1c3021ac54b86cc89ee314241cbcf2d9e03380fd1ecc77739a73a8124f7323",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-regional361-actual-newton23-003/failure.json": "9addf4e04ea4abdbd296e9f7cdccfaa255ddab0a0ae3b5e7b3e80e47614bd6f7",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-regional361-actual-newton23-003/audit.py": "20b59214d73f1334b101b3aee0208b697327115ff2e45f33078ef5daf0edd015",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-regional361-actual-newton23-003/manifest.json": "2c67d18fdbea4de82403843aa5e58cd73abc4596b40135c0adfe08dd7d21388c",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-regional361-actual-newton23-004/failure.json": "4af744cc055458558f369f2910d4b8a123a919f7bc2126bb9f6e9b993550d363",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-regional361-actual-newton23-004/audit.py": "3e259abb1c3d366af32f6b9e3ca9507c59cd67b479f11cd393364e8f1e1e1aa1",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-regional361-actual-newton23-004/manifest.json": "ebaefa38188006476dc67b5aa9dba35a66d5b661fdd6ff8b19d2dc45366b2eb1",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-regional361-actual-newton23-005/failure.json": "206562a28dc02d5df881796ea56475b2d2d06b7c8f08dd057d1109d0f7440929",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-regional361-actual-newton23-005/audit.py": "f2f1a9e25dbe661b14569c57753314554b890211fdeaba080400c37d9d6931d3",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-regional361-actual-newton23-005/manifest.json": "1cf957cc257990491e4f5e86de22b05f3cdea6c5e6fc1b2d24200737863357a1"
+  },
+  "package_files_sha256": {
+    "review.py": "622101b97a973161076b30792a38a530c1e7bb9283bee926690c58bf6674a6ff",
+    "report.json": "c366ea6064b80fb654c08416962d17c1a82d1c10267a72889dad0a49cb409c56"
+  },
+  "review_command": "python3 /Users/home/cardboard-implementation-20261014/analysis/source101-regional361-independent-review-001/review.py"
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "numi.cardboard.robertsson_source_recovery.v1",
+  "created_utc": "2026-10-15T15:47:11Z",
+  "result": "no-new-hashable-source-asset",
+  "report": {
+    "path": "report.md",
+    "sha256": "bdf951b555df21450eb23fe695394d29f78b8d3fd2dcf13f9958415a951f9495"
+  },
+  "access_attempts": {
+    "path": "access-attempts.json",
+    "sha256": "c1c944cbcdc799a807c7dac8e470bc4b14fb6f440903e7f61ddf770e686f6937"
+  },
+  "input_bindings": [
+    {
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/source-data/robertsson_2023_absolute_energy_audit.md",
+      "sha256": "df109c5e3d052afd33bae3ecae8ccb80d2da89f20165ccaa499f12c1f5b4c910",
+      "role": "existing equation audit"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/source-data/robertsson_2023_eq18_source_extract.md",
+      "sha256": "fd1ddbfb50d039232b359d58e0a2245151e70cd42755dc8fbfb08b0acf71bddc",
+      "role": "existing primary transcription and access note"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/source-data/catalog.json",
+      "sha256": "f812ca264c3f0cd15e98178aeae090332eb753d127a199906a9ebc800e3a62c1",
+      "role": "existing source catalog"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/matter/tools/robertsson2023_material.hpp",
+      "sha256": "52dc8daf9e417e773ec25ef288561460e786d7aa1e5dce8f715f94ebc61da3f7",
+      "role": "existing explicit convention implementation"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/matter/materials/robertsson2023_bulk_damage_architecture.md",
+      "sha256": "9868269e3393103087a804d7f8497873c0594e4416bf3a7541ea71bb5e4474b2",
+      "role": "existing material scope notes"
+    }
+  ],
+  "official_source_bytes_retained": false,
+  "figure4_pixels_retained": false,
+  "equation18_resolution": "unresolved"
+}

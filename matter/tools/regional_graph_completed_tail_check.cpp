@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <iostream>
 
+using numi::matter::detail::regionalGraphCapturePendingForIteration;
 using numi::matter::detail::regionalGraphCompletedTailReuseAllowed;
 using numi::matter::detail::regionalGraphMaySkipPatchFactorization;
 
@@ -38,6 +39,37 @@ int main() {
         "later same-transaction tail may consult its completion latch", checks);
     ok &= require(!regionalGraphCompletedTailReuseAllowed(4u, true, false),
         "explicit cache rebuild must suppress reuse", checks);
+    const bool selectedCaptureAtIterationFour =
+        regionalGraphCapturePendingForIteration(
+            true, false, 7u, 7u, 4u, 4u);
+    const bool selectedCaptureAtIterationFive =
+        regionalGraphCapturePendingForIteration(
+            true, false, 7u, 7u, 4u, 5u);
+    const bool selectedCaptureAtOtherRoot =
+        regionalGraphCapturePendingForIteration(
+            true, false, 7u, 8u, 4u, 4u);
+    const bool completedCaptureAtIterationFour =
+        regionalGraphCapturePendingForIteration(
+            true, true, 7u, 7u, 4u, 4u);
+    const bool invalidSelectorAtIterationFour =
+        regionalGraphCapturePendingForIteration(
+            false, false, 7u, 7u, 4u, 4u);
+    ok &= require(selectedCaptureAtIterationFour &&
+                      !regionalGraphCompletedTailReuseAllowed(
+                          4u, false, selectedCaptureAtIterationFour),
+        "validated selected iteration must force its graph rebuild", checks);
+    ok &= require(!selectedCaptureAtIterationFive &&
+                      regionalGraphCompletedTailReuseAllowed(
+                          5u, false, selectedCaptureAtIterationFive),
+        "unselected later iteration must keep completed-tail reuse enabled", checks);
+    ok &= require(!selectedCaptureAtOtherRoot,
+        "capture selector for another root must not disable reuse", checks);
+    ok &= require(!completedCaptureAtIterationFour,
+        "already completed capture must not keep disabling reuse", checks);
+    ok &= require(!invalidSelectorAtIterationFour &&
+                      regionalGraphCompletedTailReuseAllowed(
+                          4u, false, invalidSelectorAtIterationFour),
+        "invalid or disabled selector must fail closed without disabling reuse", checks);
     ok &= require(!regionalGraphCompletedTailReuseAllowed(4u, false, true),
         "selected diagnostic generation must suppress reuse", checks);
     ok &= require(!regionalGraphMaySkipPatchFactorization(true, false, true),

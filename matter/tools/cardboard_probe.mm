@@ -198,6 +198,7 @@ struct Arguments {
     std::uint32_t fgmresRestart = NM_MIXED_FGMRES_DEFAULT_RESTART;
     bool fgmresRestartExplicit = false;
     std::uint32_t lineSearchSteps = 8u;
+    bool localMaterialIterationsExplicit = false;
     FEMPreconditionerMode femPreconditioner =
         FEMPreconditionerMode::scalarDiagonal;
     std::uint32_t localMaterialIterations = 8u;
@@ -1269,7 +1270,7 @@ void printUsage() {
         << "  --accurate-paper-projection  opt-in strict Hill state projection; requires compensated arithmetic (pair with --scaled-paper-residuals in the comparison study)\n"
         << "  --compensated-implicit-projection  opt in to compensated residual evaluation for retained-matrix generic implicit damage overlays\n"
         << "  --compensated-source-paper-projection  opt in to generic compensated projection for the 15-state source bilinear/C1 liner+medium pair; also requires --compensated-paper-arithmetic\n"
-        << "  --accurate-source-paper-projection  opt in to scaled correction convergence for the bilinear15 pair; requires --compensated-source-paper-projection; local budget 16\n"
+        << "  --accurate-source-paper-projection  opt in to scaled correction convergence for the bilinear15 pair; requires --compensated-source-paper-projection; local budget defaults to 16 and may be overridden by --material-iterations [1,32]\n"
         << "  --cache-fem-algorithmic-tangent  opt-in per-Newton full material tangent cache for FGMRES; private trials and final certificates use direct evaluation\n"
         << "  --fgmres-preconditioner scalar|regional-tangent-diagonal|regional-galerkin|regional-galerkin-block|regional-galerkin-contact|regional-galerkin-schwarz\n"
         << "    regional-galerkin modes require authored compact constituent regions; selectors 2/3 are contact-free. Contact selector 4 uses the enriched 32-mode RAP/block estimate and admits one immutable explicit FEM object (<=8192 nodes, <=32768 tets, <=4096 cohesive faces), one environment, no dynamic/generalized rigid or multiphysics rows, and only static/kinematic non-articulated contact proxies\n"
@@ -1334,7 +1335,8 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         arguments.glueGapM = 0.000100; arguments.bondWidthM = 0.000800;
         arguments.upperGlueGapM = 0.000030; arguments.upperBondWidthM = 0.000600;
         arguments.fgmresIterations = 32u;
-        arguments.localMaterialIterations = 16u;
+        if (!arguments.localMaterialIterationsExplicit)
+            arguments.localMaterialIterations = 16u;
         arguments.newtonIterations = 14u;
         arguments.nxPerPitch = 8u;
         arguments.ny = 1u;
@@ -1550,7 +1552,10 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         else if (option == "--prescribed-tool-barrier-scale")
             arguments.prescribedToolBarrierStiffnessScale = parseDouble(value, option);
         else if (option == "--newton-iterations") arguments.newtonIterations = parseUnsigned(value, option);
-        else if (option == "--material-iterations") arguments.localMaterialIterations = parseUnsigned(value, option);
+        else if (option == "--material-iterations") {
+            arguments.localMaterialIterations = parseUnsigned(value, option);
+            arguments.localMaterialIterationsExplicit = true;
+        }
         else if (option == "--preset") arguments.preset = value;
         else if (option == "--material") setMaterialPath(arguments, value);
         else if (option == "--liner-material") {
@@ -1809,7 +1814,8 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         arguments.fgmresIterations = 1024u;
         if (!arguments.fgmresRestartExplicit)
             arguments.fgmresRestart = NM_MIXED_FGMRES_RESTART;
-        arguments.localMaterialIterations = 16u;
+        if (!arguments.localMaterialIterationsExplicit)
+            arguments.localMaterialIterations = 16u;
         arguments.newtonIterations = 14u;
         arguments.timestepSeconds = 25.0e-6;
         arguments.steps = 96u;
@@ -3765,6 +3771,13 @@ void writeManifest(const std::filesystem::path& path,
            << "    \"release_steps\": " << arguments.releaseSteps << ",\n"
            << "    \"release_policy\": \"right grip free; left grip remains fixed; physical state preserved\",\n"
            << "    \"local_material_newton_iterations\": " << arguments.localMaterialIterations << ",\n"
+           << "    \"local_material_newton_iterations_explicit\": "
+           << (arguments.localMaterialIterationsExplicit ? "true" : "false") << ",\n"
+           << "    \"compiled_local_material_newton_iterations\": [";
+    for (std::size_t index = 0u; index < compiled.world.materials.size(); ++index)
+        output << (index == 0u ? "" : ",")
+               << compiled.world.materials[index].localNewtonIterations;
+    output << "],\n"
            << "    \"newton_iteration_budget\": "
            << compiled.world.mixedSolver.nonlinearIterations.x << ",\n"
            << "    \"fgmres_restart\": "
@@ -3846,6 +3859,10 @@ void writeManifest(const std::filesystem::path& path,
            << (arguments.compensatedSourcePaperProjection ? "true" : "false")
            << ", \"accurate_bilinear15_projection\": "
            << (arguments.accurateSourcePaperProjection ? "true" : "false")
+           << ", \"requested_local_newton_iterations\": "
+           << arguments.localMaterialIterations
+           << ", \"local_newton_iterations_explicit\": "
+           << (arguments.localMaterialIterationsExplicit ? "true" : "false")
            << ", \"scope\": \"explicit numerical opt-in for exactly the 15-state source bilinear-fit or asymmetric-C1 liner/medium pair; requires compensated paper arithmetic; no retained-damage overlay or 13-state Hill policy; constitutive equations and global tolerances unchanged\","
               " \"source_material_indices\": ["
            << (arguments.compensatedSourcePaperProjection ? "0,1" : "")
@@ -12118,7 +12135,13 @@ int execute(Arguments arguments) {
 
     CompileResult compiled = compileWorld(
         mesh.world, {.maximumRateExponent = 0u, .emitSpecializedMetal = false,
-                     .localMaterialNewtonIterations = arguments.localMaterialIterations});
+                     .localMaterialNewtonIterations = arguments.localMaterialIterations,
+                     .accurateBilinear15LocalNewtonIterations =
+                         arguments.accurateSourcePaperProjection &&
+                                 arguments.localMaterialIterationsExplicit
+                             ? std::optional<std::uint32_t>{
+                                   arguments.localMaterialIterations}
+                             : std::nullopt});
     require(compiled.succeeded(),
             "Matter cardboard source compile failed: " +
                 diagnosticText(compiled.diagnostics));
@@ -12142,8 +12165,9 @@ int execute(Arguments arguments) {
         for (std::uint32_t index = 0u; index < 2u; ++index)
             require((compiled.world.materials[index].flags &
                         NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) != 0u &&
-                        compiled.world.materials[index].localNewtonIterations == 16u,
-                    "compiled source-paper material omitted scaled-correction policy or its local budget");
+                        compiled.world.materials[index].localNewtonIterations ==
+                            arguments.localMaterialIterations,
+                    "compiled source-paper material omitted scaled-correction policy or the requested effective local budget");
     }
     if (arguments.shippingBox) {
         require(mesh.shippingImpactorProxyIndex <

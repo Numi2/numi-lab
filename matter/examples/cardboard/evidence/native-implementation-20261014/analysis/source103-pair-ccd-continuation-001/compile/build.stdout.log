@@ -1,0 +1,4 @@
+source103_pair_ccd_continuation_compile=PASS
+metallib=/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-continuation-001/compile/diagnostic_pair.metallib
+host=/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-continuation-001/compile/pair_ccd_native_check
+No native executable was run by build.sh.

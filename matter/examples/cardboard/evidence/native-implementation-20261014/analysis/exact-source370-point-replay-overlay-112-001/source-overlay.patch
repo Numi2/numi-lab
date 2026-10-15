@@ -1,0 +1,39 @@
+--- a/matter/tools/cardboard_source370_material_point_check.mm
++++ b/matter/tools/cardboard_source370_material_point_check.mm
+@@ -283,7 +283,10 @@
+          "370 target object omitted the captured material frame policy");
+ }
+ void verifyParameterBinding(const CompiledWorld& sourceWorld,
+-                            const CompiledWorld& package) {
++                            const CompiledWorld& package,
++                            const std::uint32_t expectedSourceBudget) {
++    need(expectedSourceBudget==16u||expectedSourceBudget==32u,
++         "source point comparison budget is outside the declared 16/32 diagnostic set");
+     need(sourceWorld.parameters.size()==28u,"source point compile parameter count changed");
+     const auto offset=package.materials[kTargetMaterial].parameterOffset;
+     need(offset+28u<=package.parameters.size(),"package medium parameter slice is out of range");
+@@ -295,10 +298,13 @@
+     }
+     const auto& captured=package.materials[kTargetMaterial];
+     const auto& source=sourceWorld.materials[0];
++    need(source.localNewtonIterations==expectedSourceBudget,
++         "private source compile did not preserve its explicitly requested local budget");
++    need(captured.localNewtonIterations==16u,
++         "immutable source-370 descriptor no longer records its actual 16-update budget");
+     need(captured.stateCount==source.stateCount&&captured.parameterCount==source.parameterCount&&
+          captured.flags==source.flags&&captured.constitutiveKind==source.constitutiveKind&&
+          captured.projectionKind==source.projectionKind&&
+-         captured.localNewtonIterations==source.localNewtonIterations&&
+          captured.stateTransferMask==source.stateTransferMask&&
+          sameFloat4Bits(captured.bulk,source.bulk)&&
+          sameFloat4Bits(captured.interfaceResponse,source.interfaceResponse)&&
+@@ -441,7 +447,8 @@
+                       tetrahedron,objectValue);
+     const CompiledWorld budget16=compileMaterial(mediumPath,16u);
+     const CompiledWorld budget32=compileMaterial(mediumPath,32u);
+-    verifyParameterBinding(budget16,package);verifyParameterBinding(budget32,package);
++    verifyParameterBinding(budget16,package,16u);
++    verifyParameterBinding(budget32,package,32u);
+     need(budget16.fingerprint!=budget32.fingerprint,
+          "source compiler fingerprints failed to bind 16 versus 32 local updates");
+     if(!native) {

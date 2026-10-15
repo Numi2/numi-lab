@@ -1,0 +1,36 @@
+{
+  "baseline": {
+    "manifest": {
+      "bytes": 1894,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-native-367/manifest.json",
+      "sha256": "b3379fb8a4060fc6e1ed2dbee662a85ce72d9db04304c7e23420ecc8ecb88b24"
+    },
+    "receipt": {
+      "bytes": 458,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-native-367/receipt.json",
+      "sha256": "dd7f97c7393ff8c1bbf7c46a585bead630252c9ef939902ac2b750a21aa3fcd9"
+    },
+    "result": {
+      "bytes": 329582,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-native-367/native-result.json",
+      "sha256": "8b9b1ef8b0a32adb3938a39254ac57698fceb7b19265bae3fa69329562b3b6cc"
+    }
+  },
+  "continuation": {
+    "manifest": {
+      "bytes": 1894,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-native-continuation-372/manifest.json",
+      "sha256": "86568502ed0960b15adc15f023d5af49c3646700f7ecbc7cb03054160cbd5c73"
+    },
+    "receipt": {
+      "bytes": 457,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-native-continuation-372/receipt.json",
+      "sha256": "9b73af97ec1163bbaa75142f68b23a242f64ed3d0282fcb01520e96ed4ec75cd"
+    },
+    "result": {
+      "bytes": 330149,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-native-continuation-372/native-result.json",
+      "sha256": "c8fd27646a56d117931552dbe99a3c119976ea7061d53365e24080af81bda45b"
+    }
+  }
+}

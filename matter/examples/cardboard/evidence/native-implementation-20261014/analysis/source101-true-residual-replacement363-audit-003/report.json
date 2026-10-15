@@ -1,0 +1,127 @@
+{
+  "schema": "numi.cardboard.true-residual-replacement363-audit.v1",
+  "status": "REPLACEMENT_EXECUTED_NONLINEAR_FAILURE_REMAINS",
+  "original_run": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360",
+  "experiment_run": "/Users/home/cardboard-implementation-20261014/solver/selected-failure-true-residual-replacement-363",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101",
+  "same_archived_inputs": true,
+  "same_physical_argv_except_output": true,
+  "changed_environment": {
+    "NM_FEM_REGIONAL_RAP_CAPTURE_ONLY": [
+      "0",
+      null
+    ],
+    "NM_FEM_TRUE_RESIDUAL_RESTART": [
+      "0",
+      "1"
+    ],
+    "NM_FEM_OPERATOR_FD_SELECTOR": [
+      "2:23",
+      null
+    ],
+    "NM_FEM_OPERATOR_FD_CAPTURE_PATH": [
+      "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture",
+      null
+    ],
+    "NM_FEM_NEWTON_TRACE_ROOT": [
+      "2",
+      null
+    ]
+  },
+  "accepted_steps": 2,
+  "required_steps": 27,
+  "exact_preselected_newton_armijo_rows": 23,
+  "exact_ordinary_files_except_observations": 36,
+  "observation_changes": [
+    {
+      "row": 4,
+      "key": "fgmres_iterations",
+      "baseline": "176",
+      "experiment": "1011"
+    },
+    {
+      "row": 4,
+      "key": "status_diagnostic_y",
+      "baseline": "0.00076755619375035167",
+      "experiment": "0.00076755526242777705"
+    },
+    {
+      "row": 5,
+      "key": "fgmres_iterations",
+      "baseline": "4",
+      "experiment": "29"
+    }
+  ],
+  "all_native_operator_statuses_healthy": true,
+  "forcing_target_Ns": 1.1992869984375e-05,
+  "selected_newton_actual_columns": 348,
+  "original_selected_newton_actual_columns": 111,
+  "reported_status_fgmres_iterations": 1011,
+  "status_counter_semantics": "Maximum statically scheduled iterationOffset+used, not the sum of formed columns after partial restarted cycles.",
+  "minimum_fresh_residual_Ns": 1.5076047e-05,
+  "final_fresh_residual_Ns": 1.78195114e-05,
+  "selected_newton_armijo": {
+    "base_l2": 0.000767543504,
+    "trial_l2": 0.000767555262,
+    "trial_alpha": 1.1920929e-07,
+    "accepted": false,
+    "certified_noop": false,
+    "selected_alpha": 0,
+    "environment_line_search_alpha": 0,
+    "minimum_J": 0.989442289,
+    "line_search_raw": [
+      0,
+      0.989442289,
+      0,
+      23
+    ],
+    "solver_status_code": 10,
+    "solver_status": {
+      "code": 10,
+      "environment": 0,
+      "object_index": 0,
+      "failing_index": 23,
+      "completed_microsteps": 0,
+      "fgmres_iterations": 1011,
+      "contact_count": 0,
+      "event_count": 0,
+      "diagnostics": [
+        0.000767543504,
+        0.000767555262,
+        1.1920929e-07,
+        24
+      ]
+    },
+    "trial_status": {
+      "code": 0,
+      "environment": 0,
+      "object_index": 0,
+      "failing_index": 0,
+      "completed_microsteps": 0,
+      "fgmres_iterations": 0,
+      "contact_count": 0,
+      "event_count": 0,
+      "diagnostics": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "limitations": [
+    "This experiment replaces using the fresh uncached path while Arnoldi uses the cached path.",
+    "Native368 independently measures both paths; source105 subsequently certifies using the same configured operator.",
+    "Original material FD perturbations are infeasible; neither run qualifies an independent tangent.",
+    "No complete coupon, mesh/time, component calibration, shipping assembly or crush/impact qualification."
+  ],
+  "inputs_sha256": {
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-352-parity-001/compare.py": "27db785e842f49e6a2a37483c836cb3a5339b54fcde547a4d65c1cd783dcd233",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/prediction.json": "7bab817e48d15c03587e6effc6e6ba3c888a1f1cb820982ccfb76ba6aebc5e33",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/receipt.json": "d623591647a91ca07626e18fef6c78358e60c0d9ab7c38d465e79a2f6c18c474",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/stderr.log": "e279be355ef56ff7f7532b16a8a0706fc238d333d91d0ede7aa27a5dda7a1db5",
+    "/Users/home/cardboard-implementation-20261014/solver/selected-failure-true-residual-replacement-363/prediction.json": "4aca202774a15ed937c538c28d641d9cac6b0d4a0b4bb0ec2f98d0883d1718d9",
+    "/Users/home/cardboard-implementation-20261014/solver/selected-failure-true-residual-replacement-363/receipt.json": "1be69c27c68b0addf3b15cfc82062ef4f39934437ed298296b3b7e2f1b880aed",
+    "/Users/home/cardboard-implementation-20261014/solver/selected-failure-true-residual-replacement-363/stderr.log": "ffc5a0505f404442201c09d6ff6036ac6ebadf00e04efbfc72a8b207339783e1"
+  }
+}

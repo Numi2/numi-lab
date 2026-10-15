@@ -1,0 +1,14 @@
+Test project /Users/home/cardboard-implementation-20261014/analysis/true-residual-certification-overlay-105-v2/build-v2-fresh
+    Start 161: matter.analysis.fgmres_true_residual_contract
+1/1 Test #161: matter.analysis.fgmres_true_residual_contract ...   Passed    0.06 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Label Time Summary:
+contract         =   0.06 sec*proc (1 test)
+cpu              =   0.06 sec*proc (1 test)
+fgmres           =   0.06 sec*proc (1 test)
+matter           =   0.06 sec*proc (1 test)
+true-residual    =   0.06 sec*proc (1 test)
+
+Total Test time (real) =   0.06 sec

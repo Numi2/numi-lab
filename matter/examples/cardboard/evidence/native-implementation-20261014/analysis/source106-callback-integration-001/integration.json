@@ -1,0 +1,21 @@
+{
+  "schema": "numi.cardboard.source106-callback-integration.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-true-residual-certification-105",
+  "scope": "Own async coupled-capture metadata and snapshot lifetime; preserves solver105 operator and opt-in certification behavior. No physical change. Native metadata and production parity remain required.",
+  "selected_source_files": 781,
+  "support_files": 1068,
+  "changes": {
+    "matter/src/runtime.mm": {
+      "before": "924669986619a88c6e34ec79e306495c1113e6ea35b0c793e8a36cfede887ec2",
+      "after": "2e26d26a04326a3ce567cccb60d213da8f4a8ceaf178c98153939f1b68752fd7"
+    },
+    "matter/src/coupled_capture_manifest_context.hpp": {
+      "before": null,
+      "after": "7d82c3c8f1fff4546bd65ee1641b4fd5faced73dea9c75501ea780254069bbae"
+    }
+  },
+  "overlay_manifest_sha256": "459015461a2cb0e0eaf255d877645bbf3497fe88748051b9dbeec46fca3b3f47",
+  "patch_sha256": "c7dd47360fa0e3504f394aa1ca7451f5a38476605da963f20ac5a8640ce6d32b",
+  "native_qualification": "pending"
+}

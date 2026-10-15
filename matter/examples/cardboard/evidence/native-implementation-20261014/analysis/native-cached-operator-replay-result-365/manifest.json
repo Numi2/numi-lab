@@ -1,0 +1,50 @@
+{
+  "schema": "numi.cardboard.native-diagnostic-evidence.v1",
+  "files": [
+    {
+      "path": "native.stderr.log",
+      "bytes": 105,
+      "sha256": "77cd78441994b2940953d59090a7aa46de206ec54ab924eb9737836d04ff3053"
+    },
+    {
+      "path": "native.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "postflight.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "postflight.stdout.log",
+      "bytes": 116,
+      "sha256": "ff8c43782b50c7b860e076e1650fb40e61bf5cc688d74505aeb349312ed58509"
+    },
+    {
+      "path": "prediction.json",
+      "bytes": 2623,
+      "sha256": "c36c54cb2e1e96d566e0e1d25bcf5eb980a03d20280f4ef8e7a89990d5107057"
+    },
+    {
+      "path": "preflight.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "preflight.stdout.log",
+      "bytes": 116,
+      "sha256": "ff8c43782b50c7b860e076e1650fb40e61bf5cc688d74505aeb349312ed58509"
+    },
+    {
+      "path": "receipt.json",
+      "bytes": 462,
+      "sha256": "50a17ba5a3bcd2b0e844d0ffd83209714cf789c1b431d96a8d69c5688c6093d7"
+    },
+    {
+      "path": "runner.py",
+      "bytes": 3492,
+      "sha256": "ab4dc854d85f4f4b24245c00f4507c94acae20a0ac59b001c42ceb54f7ec82be"
+    }
+  ]
+}

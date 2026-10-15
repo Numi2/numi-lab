@@ -1,0 +1,10 @@
+{
+  "checker_binary_sha256": "d09b460ff73f2736da6c8209ca8ff5fcf0750ed2cbf57844148dd080110a7514",
+  "checker_patch_sha256": "96abe08871cc1eacfb74470caebe62df7b2e361d5703dc8dad33e92837e94074",
+  "checker_source_sha256": "91c6bff186d6bc381629b3e5ec8f57b79836ad0477d9874209230eab05b0ea52",
+  "package_manifest_sha256": "cf5873283e35c4e80becfb316225219a28f7e2e6c787f88f1297cbc3c87a6207",
+  "preflight_report_sha256": "aceb87e013ee6f9fcbe8befad26bac67b0a1610287fd085d070052c681652cb1",
+  "readme_sha256": "8021012376c3343c62a11f5429bac224069eeab18f5cd48e0e45a4d355d7590d",
+  "schema": "numi.cardboard.native-cached-operator-replay-package-seal.v1",
+  "statement": "Seals CPU-only immutable-field preflight package 002. Native GPU replay not run."
+}

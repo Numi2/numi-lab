@@ -1,0 +1,35 @@
+{
+  "files": [
+    {
+      "bytes": 2762,
+      "path": "README.md",
+      "sha256": "5bed0270e03873621a6db8965e3a248ede9d15f5ddd5baa0809bb9bf5e282d40"
+    },
+    {
+      "bytes": 8631,
+      "path": "adjudicate.py",
+      "sha256": "164782e893bfd6d8e36ab15b9f3805b249e043f530ba3c0049797b32056a4aaa"
+    },
+    {
+      "bytes": 5957,
+      "path": "direct-regression-evidence.json",
+      "sha256": "694e8fc5cb0d81463d1505bec377f9910b3b24e400d3d9f84a153f521162fde3"
+    },
+    {
+      "bytes": 1560,
+      "path": "native-run-bindings.json",
+      "sha256": "da1cc86fd5d9431ae2458cc4a57b02e21ccd23cd0ba508645b131cbd8f6a8383"
+    },
+    {
+      "bytes": 3577,
+      "path": "report.json",
+      "sha256": "e272cad757586f8958c104f467e0a08a33c095afad447819b31a826f5e10d050"
+    },
+    {
+      "bytes": 8418,
+      "path": "source-and-regression-bindings.json",
+      "sha256": "6e621b8051c3ad95a196f3f9282fd24e6977953783efeafcc078f24c945d72ca"
+    }
+  ],
+  "schema": "numi.cardboard.source103_pair_ccd_continuation_adjudication_package.v1"
+}

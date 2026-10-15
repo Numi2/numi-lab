@@ -1,0 +1,9 @@
+test_binary_tamper_rejected (__main__.PackageContractTests) ... ok
+test_current_prepared_package_and_speed_bounds (__main__.PackageContractTests) ... ok
+test_exact_formula_rejects_nonconservative_claim_fields (__main__.PackageContractTests) ... ok
+test_source_binding_tamper_rejected (__main__.PackageContractTests) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.094s
+
+OK

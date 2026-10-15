@@ -1,0 +1,11 @@
+{
+  "status": "pass",
+  "scope": "CPU source and captured-evidence contract only; no Metal dispatch",
+  "base_contact_sha256": "b9ec3915b63bdee729ff0902c390e137e0f6b5d005d06e6a7136c534be3d510b",
+  "base_checker_sha256": "bd2e0ef37446183c22e964a0517114f376e84e6fc85875c8f8946a92962e5528",
+  "overlay_contact_sha256": "1636c24f766abadd9187809aaaf9511842a56b68f9856cea2154bdc31bc1a603",
+  "overlay_checker_sha256": "a6e913f735e356165106a937312d6b439ba4f31a7f8778fc2ceec02c2a106b5a",
+  "captured_case": "trial358_ee_edge0_edge0",
+  "baseline17": "uncertified at evaluation 16",
+  "continuation33": "certified at evaluation 17, roundoff band only"
+}

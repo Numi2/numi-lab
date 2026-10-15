@@ -1,0 +1,281 @@
+--- a/matter/include/numi/matter/matter.hpp
++++ b/matter/include/numi/matter/matter.hpp
+@@ -923,6 +923,10 @@
+     // Kept at the historical per-material value unless a study explicitly
+     // selects another count; the cooked NMMaterialGPU carries this value.
+     std::uint32_t localMaterialNewtonIterations = 8u;
++    // The accurate 15-state bilinear source-paper policy defaults to 16 local
++    // updates. A caller may explicitly override that bounded budget without
++    // changing this historical generic-material default.
++    std::optional<std::uint32_t> accurateBilinear15LocalNewtonIterations;
+ };
+ 
+ struct CompileResult {
+--- a/matter/src/compiler_impl.cpp
++++ b/matter/src/compiler_impl.cpp
+@@ -594,6 +594,14 @@
+         diagnostics.push_back({
+             Diagnostic::Severity::error, 0u, 0u,
+             "local material Newton iteration budget must be between 1 and 32",
++        });
++    }
++    if (options.accurateBilinear15LocalNewtonIterations.has_value() &&
++        (*options.accurateBilinear15LocalNewtonIterations == 0u ||
++         *options.accurateBilinear15LocalNewtonIterations > 32u)) {
++        diagnostics.push_back({
++            Diagnostic::Severity::error, 0u, 0u,
++            "accurate bilinear-15 local Newton iteration budget must be between 1 and 32",
+         });
+     }
+     if (options.maximumRateExponent != 0u &&
+@@ -899,7 +907,8 @@
+         const auto firstMaterialProgram=world.scalarPrograms.size();
+         program.gpu.localNewtonIterations =
+             program.material.genericBilinear15AccurateProjection
+-                ? 16u : options.localMaterialNewtonIterations;
++                ? options.accurateBilinear15LocalNewtonIterations.value_or(16u)
++                : options.localMaterialNewtonIterations;
+         program.gpu.parameterOffset =
+             static_cast<nm_u32>(world.parameters.size());
+         program.gpu.stateInitialOffset =
+--- a/matter/src/validation_impl.cpp
++++ b/matter/src/validation_impl.cpp
+@@ -1133,14 +1133,14 @@
+             }
+             if (genericBilinear15AccurateProjection &&
+                 (!genericCompensatedProjection || material.stateCount!=15u ||
+-                 material.parameterCount!=28u || material.localNewtonIterations!=16u ||
++                 material.parameterCount!=28u ||
+                  material.constitutiveKind!=NM_CONSTITUTIVE_BYTECODE ||
+                  material.projectionKind!=NM_MATERIAL_PROJECTION_GENERIC ||
+                  (material.flags & NM_MATERIAL_HAS_IMPLICIT_STATE)==0u ||
+                  (material.flags & (NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER |
+                                     NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION))!=0u)) {
+                 return failIndexed("material",index,
+-                    "accurate bilinear-15 projection requires the 15-state/28-parameter generic implicit compensated layout and a 16-step local budget");
++                    "accurate bilinear-15 projection requires the 15-state/28-parameter generic implicit compensated layout and a valid bounded local budget");
+             }
+             if ((material.flags & (NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER|NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC|NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION)) != 0u &&
+                 !finiteElasticStarchArithmetic &&
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -198,6 +198,7 @@
+     std::uint32_t fgmresRestart = NM_MIXED_FGMRES_DEFAULT_RESTART;
+     bool fgmresRestartExplicit = false;
+     std::uint32_t lineSearchSteps = 8u;
++    bool localMaterialIterationsExplicit = false;
+     FEMPreconditionerMode femPreconditioner =
+         FEMPreconditionerMode::scalarDiagonal;
+     std::uint32_t localMaterialIterations = 8u;
+@@ -1269,7 +1270,7 @@
+         << "  --accurate-paper-projection  opt-in strict Hill state projection; requires compensated arithmetic (pair with --scaled-paper-residuals in the comparison study)\n"
+         << "  --compensated-implicit-projection  opt in to compensated residual evaluation for retained-matrix generic implicit damage overlays\n"
+         << "  --compensated-source-paper-projection  opt in to generic compensated projection for the 15-state source bilinear/C1 liner+medium pair; also requires --compensated-paper-arithmetic\n"
+-        << "  --accurate-source-paper-projection  opt in to scaled correction convergence for the bilinear15 pair; requires --compensated-source-paper-projection; local budget 16\n"
++        << "  --accurate-source-paper-projection  opt in to scaled correction convergence for the bilinear15 pair; requires --compensated-source-paper-projection; local budget defaults to 16 and may be overridden by --material-iterations [1,32]\n"
+         << "  --cache-fem-algorithmic-tangent  opt-in per-Newton full material tangent cache for FGMRES; private trials and final certificates use direct evaluation\n"
+         << "  --fgmres-preconditioner scalar|regional-tangent-diagonal|regional-galerkin|regional-galerkin-block|regional-galerkin-contact|regional-galerkin-schwarz\n"
+         << "    regional-galerkin modes require authored compact constituent regions; selectors 2/3 are contact-free. Contact selector 4 uses the enriched 32-mode RAP/block estimate and admits one immutable explicit FEM object (<=8192 nodes, <=32768 tets, <=4096 cohesive faces), one environment, no dynamic/generalized rigid or multiphysics rows, and only static/kinematic non-articulated contact proxies\n"
+@@ -1334,7 +1335,8 @@
+         arguments.glueGapM = 0.000100; arguments.bondWidthM = 0.000800;
+         arguments.upperGlueGapM = 0.000030; arguments.upperBondWidthM = 0.000600;
+         arguments.fgmresIterations = 32u;
+-        arguments.localMaterialIterations = 16u;
++        if (!arguments.localMaterialIterationsExplicit)
++            arguments.localMaterialIterations = 16u;
+         arguments.newtonIterations = 14u;
+         arguments.nxPerPitch = 8u;
+         arguments.ny = 1u;
+@@ -1550,7 +1552,10 @@
+         else if (option == "--prescribed-tool-barrier-scale")
+             arguments.prescribedToolBarrierStiffnessScale = parseDouble(value, option);
+         else if (option == "--newton-iterations") arguments.newtonIterations = parseUnsigned(value, option);
+-        else if (option == "--material-iterations") arguments.localMaterialIterations = parseUnsigned(value, option);
++        else if (option == "--material-iterations") {
++            arguments.localMaterialIterations = parseUnsigned(value, option);
++            arguments.localMaterialIterationsExplicit = true;
++        }
+         else if (option == "--preset") arguments.preset = value;
+         else if (option == "--material") setMaterialPath(arguments, value);
+         else if (option == "--liner-material") {
+@@ -1809,7 +1814,8 @@
+         arguments.fgmresIterations = 1024u;
+         if (!arguments.fgmresRestartExplicit)
+             arguments.fgmresRestart = NM_MIXED_FGMRES_RESTART;
+-        arguments.localMaterialIterations = 16u;
++        if (!arguments.localMaterialIterationsExplicit)
++            arguments.localMaterialIterations = 16u;
+         arguments.newtonIterations = 14u;
+         arguments.timestepSeconds = 25.0e-6;
+         arguments.steps = 96u;
+@@ -3765,6 +3771,13 @@
+            << "    \"release_steps\": " << arguments.releaseSteps << ",\n"
+            << "    \"release_policy\": \"right grip free; left grip remains fixed; physical state preserved\",\n"
+            << "    \"local_material_newton_iterations\": " << arguments.localMaterialIterations << ",\n"
++           << "    \"local_material_newton_iterations_explicit\": "
++           << (arguments.localMaterialIterationsExplicit ? "true" : "false") << ",\n"
++           << "    \"compiled_local_material_newton_iterations\": [";
++    for (std::size_t index = 0u; index < compiled.world.materials.size(); ++index)
++        output << (index == 0u ? "" : ",")
++               << compiled.world.materials[index].localNewtonIterations;
++    output << "],\n"
+            << "    \"newton_iteration_budget\": "
+            << compiled.world.mixedSolver.nonlinearIterations.x << ",\n"
+            << "    \"fgmres_restart\": "
+@@ -3846,6 +3859,10 @@
+            << (arguments.compensatedSourcePaperProjection ? "true" : "false")
+            << ", \"accurate_bilinear15_projection\": "
+            << (arguments.accurateSourcePaperProjection ? "true" : "false")
++           << ", \"requested_local_newton_iterations\": "
++           << arguments.localMaterialIterations
++           << ", \"local_newton_iterations_explicit\": "
++           << (arguments.localMaterialIterationsExplicit ? "true" : "false")
+            << ", \"scope\": \"explicit numerical opt-in for exactly the 15-state source bilinear-fit or asymmetric-C1 liner/medium pair; requires compensated paper arithmetic; no retained-damage overlay or 13-state Hill policy; constitutive equations and global tolerances unchanged\","
+               " \"source_material_indices\": ["
+            << (arguments.compensatedSourcePaperProjection ? "0,1" : "")
+@@ -12118,7 +12135,13 @@
+ 
+     CompileResult compiled = compileWorld(
+         mesh.world, {.maximumRateExponent = 0u, .emitSpecializedMetal = false,
+-                     .localMaterialNewtonIterations = arguments.localMaterialIterations});
++                     .localMaterialNewtonIterations = arguments.localMaterialIterations,
++                     .accurateBilinear15LocalNewtonIterations =
++                         arguments.accurateSourcePaperProjection &&
++                                 arguments.localMaterialIterationsExplicit
++                             ? std::optional<std::uint32_t>{
++                                   arguments.localMaterialIterations}
++                             : std::nullopt});
+     require(compiled.succeeded(),
+             "Matter cardboard source compile failed: " +
+                 diagnosticText(compiled.diagnostics));
+@@ -12142,8 +12165,9 @@
+         for (std::uint32_t index = 0u; index < 2u; ++index)
+             require((compiled.world.materials[index].flags &
+                         NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) != 0u &&
+-                        compiled.world.materials[index].localNewtonIterations == 16u,
+-                    "compiled source-paper material omitted scaled-correction policy or its local budget");
++                        compiled.world.materials[index].localNewtonIterations ==
++                            arguments.localMaterialIterations,
++                    "compiled source-paper material omitted scaled-correction policy or the requested effective local budget");
+     }
+     if (arguments.shippingBox) {
+         require(mesh.shippingImpactorProxyIndex <
+--- a/matter/tools/cardboard_bilinear15_projection_policy_check.cpp
++++ b/matter/tools/cardboard_bilinear15_projection_policy_check.cpp
+@@ -4,8 +4,10 @@
+ 
+ #include "numi/matter/detail.hpp"
+ 
++#include <cstdint>
+ #include <filesystem>
+ #include <iostream>
++#include <optional>
+ #include <stdexcept>
+ #include <string>
+ 
+@@ -16,7 +18,9 @@
+ }
+ 
+ numi::matter::CompileResult compileOneMaterial(
+-    const numi::matter::MaterialProgram& material) {
++    const numi::matter::MaterialProgram& material,
++    const std::uint32_t localIterations = 8u,
++    const std::optional<std::uint32_t> accurateOverride = std::nullopt) {
+     using namespace numi::matter;
+     WorldSource source;
+     source.materials = {material};
+@@ -37,6 +41,8 @@
+     CompileOptions options;
+     options.maximumRateExponent = 0u;
+     options.emitSpecializedMetal = false;
++    options.localMaterialNewtonIterations = localIterations;
++    options.accurateBilinear15LocalNewtonIterations = accurateOverride;
+     return compileWorld(source, options);
+ }
+ 
+@@ -73,7 +79,7 @@
+           NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION) != 0u,
+          "compiled material omitted an opt-in projection policy flag");
+     need(compiled.program.gpu.localNewtonIterations == 16u,
+-         "the scoped local iteration budget is not 16");
++         "the standalone constitutive compiler default for this policy changed");
+     need(compiled.program.fingerprint != legacy.program.fingerprint,
+          "material fingerprint did not bind the scaled-correction policy");
+     need(compiled.program.implicitResiduals.size() == 15u &&
+@@ -107,6 +113,25 @@
+     const auto world = compileOneMaterial(candidate);
+     const std::string worldFailure = world.diagnostics.empty() ? "no compiler diagnostic" : world.diagnostics.front().message;
+     need(world.succeeded(), "scoped projection world failed compilation: " + worldFailure);
++    need(world.world.materials[0].localNewtonIterations == 16u,
++         "accurate bilinear-15 world default must remain 16 when no override is supplied");
++    const auto explicit16 = compileOneMaterial(candidate, 32u, 16u);
++    const auto explicit32 = compileOneMaterial(candidate, 32u, 32u);
++    need(explicit16.succeeded() && explicit32.succeeded() &&
++         explicit16.world.materials[0].localNewtonIterations == 16u &&
++         explicit32.world.materials[0].localNewtonIterations == 32u,
++         "explicit accurate bilinear-15 budgets 16 and 32 were not preserved by compilation");
++    need(explicit16.world.fingerprint != explicit32.world.fingerprint,
++         "compiled-world fingerprint did not bind the effective local projection budget");
++    const auto explicit8 = compileOneMaterial(candidate, 32u, 8u);
++    need(explicit8.succeeded() &&
++         explicit8.world.materials[0].localNewtonIterations == 8u,
++         "valid explicit accurate bilinear-15 budget 8 was not preserved");
++    for (const std::uint32_t invalidBudget : {0u, 33u}) {
++        const auto invalid = compileOneMaterial(candidate, 32u, invalidBudget);
++        need(!invalid.succeeded(),
++             "compiler admitted an accurate bilinear-15 budget outside 1..32");
++    }
+     const auto legacyWorld = compileOneMaterial(compensatedDefault);
+     need(legacyWorld.succeeded() &&
+          legacyWorld.world.materials[0].localNewtonIterations == 8u &&
+@@ -116,12 +141,16 @@
+     std::string error;
+     need(validateCompiledWorldLayout(world.world, &error),
+          "scoped projection world failed package validation: " + error);
+-    auto wrongBudget = world.world;
+-    wrongBudget.materials[0].localNewtonIterations = 8u;
+-    wrongBudget.fingerprint = compiledWorldFingerprint(wrongBudget);
+-    error.clear();
+-    need(!validateCompiledWorldLayout(wrongBudget, &error),
+-         "validator admitted the scaled-correction flag with the old iteration budget");
++    need(validateCompiledWorldLayout(explicit32.world, &error),
++         "validator rejected a valid explicit accurate bilinear-15 budget: " + error);
++    for (const std::uint32_t invalidBudget : {0u, 33u}) {
++        auto wrongBudget = world.world;
++        wrongBudget.materials[0].localNewtonIterations = invalidBudget;
++        wrongBudget.fingerprint = compiledWorldFingerprint(wrongBudget);
++        error.clear();
++        need(!validateCompiledWorldLayout(wrongBudget, &error),
++             "validator admitted an accurate bilinear-15 budget outside 1..32");
++    }
+     auto wrongStateCount = world.world;
+     wrongStateCount.materials[0].stateCount = 14u;
+     wrongStateCount.fingerprint = compiledWorldFingerprint(wrongStateCount);
+@@ -133,21 +162,21 @@
+         "numi-cardboard-bilinear15-scaled-correction-policy.nmatterpkg";
+     std::filesystem::remove(packagePath);
+     CompileResult package;
+-    package.world = world.world;
++    package.world = explicit32.world;
+     need(writePackage(package, packagePath, &error),
+-         "could not serialize the scoped policy package: " + error);
++         "could not serialize the explicit-32 scoped policy package: " + error);
+     CompiledWorld restored;
+     need(readPackage(packagePath, restored, nullptr, &error),
+-         "could not restore the scoped policy package: " + error);
++         "could not restore the explicit-32 scoped policy package: " + error);
+     std::filesystem::remove(packagePath);
+     need(validateCompiledWorldLayout(restored, &error) &&
+-         restored.fingerprint == world.world.fingerprint &&
+-         restored.materials[0].localNewtonIterations == 16u &&
++         restored.fingerprint == explicit32.world.fingerprint &&
++         restored.materials[0].localNewtonIterations == 32u &&
+          (restored.materials[0].flags &
+           NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) != 0u,
+          "package roundtrip lost the local projection policy or iteration budget");
+     std::cout << "bilinear15_scaled_correction_policy_cpu_check_passed"
+-              << " state_count=15 parameter_count=28 local_iterations=16"
++              << " state_count=15 parameter_count=28 default_iterations=16 explicit_iterations=8,16,32"
+               << " package_roundtrip=pass native_metal_execution=not_run"
+               << " physical_validation=false\n";
+ }

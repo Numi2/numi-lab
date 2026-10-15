@@ -1,0 +1,915 @@
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -145,6 +145,11 @@
+ if(BUILD_TESTING)
+     find_package(Python3 COMPONENTS Interpreter QUIET)
+     if(Python3_Interpreter_FOUND)
++        add_test(NAME matter.analysis.fgmres_true_residual_contract
++            COMMAND "${Python3_EXECUTABLE}"
++                "${CMAKE_CURRENT_SOURCE_DIR}/tools/test_true_residual_certification_contract.py")
++        set_tests_properties(matter.analysis.fgmres_true_residual_contract
++            PROPERTIES TIMEOUT 30 LABELS "matter;fgmres;true-residual;cpu;contract")
+         add_test(NAME matter.analysis.cardboard_source_data
+             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_source_data_test.py")
+         add_test(NAME matter.analysis.cardboard_pin_source_observables
+@@ -682,6 +687,21 @@
+         add_test(NAME matter.metal.fem_static_surface_map COMMAND numi-matter-fem-static-surface-map-native-check)
+         set_tests_properties(matter.metal.fem_static_surface_map PROPERTIES LABELS "matter;contact;surface;synthetic" TIMEOUT 120 RUN_SERIAL TRUE)
+     endif()
++    add_executable(numi-matter-fgmres-true-residual-native-check tools/fgmres_true_residual_native_check.mm)
++    add_dependencies(numi-matter-fgmres-true-residual-native-check numi_matter_shaders)
++    target_link_libraries(numi-matter-fgmres-true-residual-native-check PRIVATE
++        numi_matter_compiler "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
++    target_compile_definitions(numi-matter-fgmres-true-residual-native-check PRIVATE
++        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
++    target_compile_options(numi-matter-fgmres-true-residual-native-check PRIVATE
++        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
++    if(BUILD_TESTING)
++        add_test(NAME matter.metal.fgmres_true_residual_kernel_contract
++            COMMAND numi-matter-fgmres-true-residual-native-check)
++        set_tests_properties(matter.metal.fgmres_true_residual_kernel_contract
++            PROPERTIES LABELS "matter;metal;fgmres;true-residual;synthetic"
++            TIMEOUT 120 RUN_SERIAL TRUE)
++    endif()
+     add_executable(numi-matter-fem-kinematic-release-check tools/fem_kinematic_release_check.mm)
+     target_link_libraries(numi-matter-fem-kinematic-release-check PRIVATE numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+     target_include_directories(numi-matter-fem-kinematic-release-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -5259,11 +5259,21 @@
+     constant float& forcing [[buffer(7)]],
+     device NMMatterStatusGPU* diagnosticStatuses [[buffer(8)]],
+     constant uint& replaceResidual [[buffer(9)]],
++    device NMMatterStatusGPU* productionStatuses [[buffer(10)]],
++    constant uint& propagateFailure [[buffer(11)]],
+     uint lane [[thread_index_in_threadgroup]],
+     uint environment [[threadgroup_position_in_grid]]
+ ) {
+     if (lane >= 32u || environment >= dispatch.environmentCount) return;
+-    if (!environmentHealthy(diagnosticStatuses, environment)) return;
++    if (!environmentHealthy(diagnosticStatuses, environment)) {
++        // This is a threadgroup-wide early exit. Only one lane may publish
++        // the environment status; redundant writes are still a Metal data
++        // race even when every lane copies the same bytes.
++        if (lane == 0u && propagateFailure != 0u &&
++            environmentHealthy(productionStatuses, environment))
++            productionStatuses[environment] = diagnosticStatuses[environment];
++        return;
++    }
+     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+     const uint nodeBase = environment * dispatch.femNodeCount;
+     const uint fieldBase = totalNodes + nodeBase;
+@@ -5299,12 +5309,18 @@
+         isfinite(states[environment].diagnostics.y) &&
+         states[environment].diagnostics.y >= 0.0f;
+     if (!validMetrics) {
+-        if (lane == 0u)
++        if (lane == 0u) {
++            const float4 failureDiagnostics = float4(
++                norm2, maximumAbsolute, states[environment].diagnostics.x,
++                states[environment].diagnostics.y);
+             recordFailure(diagnosticStatuses[environment],
+                 NM_STATUS_NONFINITE_RESULT, NM_INVALID_INDEX,
+-                NM_INVALID_INDEX, float4(norm2, maximumAbsolute,
+-                    states[environment].diagnostics.x,
+-                    states[environment].diagnostics.y));
++                NM_INVALID_INDEX, failureDiagnostics);
++            if (propagateFailure != 0u)
++                recordFailure(productionStatuses[environment],
++                    NM_STATUS_NONFINITE_RESULT, NM_INVALID_INDEX,
++                    NM_INVALID_INDEX, failureDiagnostics);
++        }
+         return;
+     }
+     // Residual replacement is an explicitly selected algorithm experiment.
+@@ -5327,8 +5343,11 @@
+             forcing, solver.residualTolerances.x, 0.5f) * initialNorm;
+         if (replaceResidual != 0u) {
+             state.diagnostics.x = trueNorm;
+-            state.diagnostics.z = trueNorm == 0.0f || trueNorm <= target
+-                ? 1.0f : 0.0f;
++            const float nonlinearThreshold = max(
++                solver.regularization.x,
++                solver.residualTolerances.x * max(state.nonlinear.x, 1.0f));
++            state.diagnostics.z = trueNorm == 0.0f || trueNorm <= target ||
++                trueNorm <= nonlinearThreshold ? 1.0f : 0.0f;
+         }
+         metrics[environment] = float4(
+             trueNorm, arnoldiEstimate, maximumAbsolute, initialNorm);
+@@ -5745,6 +5764,7 @@
+     constant float& forcing [[buffer(8)]],
+     device const float2* rotations [[buffer(9)]],
+     device float* restartCoefficients [[buffer(10)]],
++    constant uint& deferCompletionToTrueResidual [[buffer(11)]],
+     uint global [[thread_position_in_grid]]
+ ) {
+     if (global >= dispatch.environmentCount) return;
+@@ -5828,7 +5848,12 @@
+     // the transaction here can reject a candidate whose post-correction KKT
+     // residual already satisfies those physical acceptance gates. Non-finite
+     // Krylov state remains an immediate linear-solver failure.
+-    state.diagnostics.z = cycleAccepted ? 1.0f : 0.0f;
++    // In true-residual certification mode, the Arnoldi estimate is provisional
++    // until the accumulated correction has been applied to the full operator.
++    // Keep the next encoded restart cycle active; the later true-residual pass
++    // publishes the only completion latch for this cycle.
++    state.diagnostics.z = (deferCompletionToTrueResidual != 0u && used > 0u)
++        ? 0.0f : (cycleAccepted ? 1.0f : 0.0f);
+     if (!isfinite(state.diagnostics.x)) {
+         recordFailure(
+             statuses[environment], NM_STATUS_LINEAR_SOLVER_FAILURE,
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -9867,6 +9867,30 @@
+                     return "requires_fem_nodes_as_only_generalized_unknowns";
+                 return nullptr;
+             };
++            const auto femTrueResidualCapabilityFailure = [&]() -> const char* {
++                if (microtick != 0u) return "requires_microtick_zero";
++                if (state.enableVascularDense45)
++                    return "requires_staged_fgmres";
++                if (state.dispatch.cohesiveFaceCount > 4096u ||
++                    (state.dispatch.cohesiveFaceCount != 0u &&
++                     state.femTrueResidualCohesiveOperator == nil))
++                    return "cohesive_true_residual_capacity_or_buffer_unavailable";
++                if (state.dispatch.tetrahedronCount > 32768u ||
++                    state.femTrueResidualElementOperator == nil ||
++                    state.femTrueResidualOperatorValue == nil ||
++                    state.femTrueResidualRightHandSide == nil ||
++                    state.femTrueResidualMetrics == nil ||
++                    state.femTrueResidualStatuses == nil)
++                    return "true_residual_private_operator_capacity_or_buffer_unavailable";
++                if (state.femResidual == nil || state.statuses == nil ||
++                    state.fgmresStates == nil)
++                    return "solver_status_or_residual_buffer_unavailable";
++                if (state.mixedSolverValue.executionBudgets.w == 1u &&
++                    (state.femAlgorithmicTangentCache == nil ||
++                     state.femAlgorithmicTangentCacheValid == nil))
++                    return "configured_tangent_cache_unavailable";
++                return femNewtonTraceScope();
++            };
+             const auto femResidualArmijoScope = [&]() -> const char* {
+                 if (!state.femResidualArmijoScratchEnabled)
+                     return "armijo_scratch_was_not_reserved_at_runtime_creation";
+@@ -10982,6 +11006,20 @@
+             bool femTrueResidualEnabled = false;
+             bool femTrueResidualRestartEnabled = false;
+             bool femTrueResidualRestartRequested = false;
++            bool femTrueResidualCertificationRequested = false;
++            if (const char* certification = std::getenv(
++                    "NM_FEM_TRUE_RESIDUAL_CERTIFY")) {
++                if (std::strcmp(certification, "1") == 0) {
++                    femTrueResidualCertificationRequested = true;
++                } else if (std::strcmp(certification, "0") != 0) {
++                    std::fprintf(stderr,
++                        "fem_true_residual_certification_rejected={\"schema\":1,\"reason\":\"selector_must_be_0_or_1\"}\n");
++                    diagnostics.message =
++                        "NM_FEM_TRUE_RESIDUAL_CERTIFY must be 0 or 1";
++                    ownership->preDynamicsOpen = false;
++                    return diagnostics;
++                }
++            }
+             bool femTrueResidualNoticeLogged = false;
+             bool femTrueResidualRootSelected = false;
+             bool femTrueResidualNewtonSelectorSpecified = false;
+@@ -11028,23 +11066,10 @@
+                 } else {
+                     femTrueResidualRoot = static_cast<std::uint32_t>(parsed);
+                     if (femTrueResidualRoot == request.controlStep) {
+-                        const char* skipReason = nullptr;
+-                        if (!femTrueResidualNewtonSelectorValid)
+-                            skipReason = "invalid_newton_iteration_selector";
+-                        else if (microtick != 0u)
+-                            skipReason = "requires_microtick_zero";
+-                        else if (state.enableVascularDense45)
+-                            skipReason = "requires_staged_fgmres";
+-                        else if (state.dispatch.cohesiveFaceCount > 4096u ||
+-                                 (state.dispatch.cohesiveFaceCount != 0u &&
+-                                  state.femTrueResidualCohesiveOperator == nil))
+-                            skipReason = "cohesive_true_residual_instrument_capacity_exceeded";
+-                        else if (state.dispatch.tetrahedronCount > 32768u ||
+-                                 state.femTrueResidualElementOperator == nil ||
+-                                 state.femTrueResidualOperatorValue == nil)
+-                            skipReason = "true_residual_private_operator_capacity_exceeded";
+-                        else
+-                            skipReason = femNewtonTraceScope();
++                        const char* skipReason =
++                            !femTrueResidualNewtonSelectorValid
++                                ? "invalid_newton_iteration_selector"
++                                : femTrueResidualCapabilityFailure();
+                         if (skipReason != nullptr) {
+                             std::fprintf(stderr,
+                                 "fem_true_residual_skipped={\"schema\":1,\"root\":%u,\"reason\":\"%s\"}\n",
+@@ -11068,6 +11093,17 @@
+                             }
+                         }
+                     }
++                }
++            }
++            if (femTrueResidualCertificationRequested) {
++                if (const char* reason = femTrueResidualCapabilityFailure()) {
++                    std::fprintf(stderr,
++                        "fem_true_residual_certification_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"%s\"}\n",
++                        request.controlStep, reason);
++                    diagnostics.message = std::string(
++                        "true-residual certification unsupported: ") + reason;
++                    ownership->preDynamicsOpen = false;
++                    return diagnostics;
+                 }
+             }
+             const auto emitFEMNewtonTraceSkip = [&](std::uint32_t root,
+@@ -12668,7 +12704,11 @@
+             };
+             const auto encodeFEMTrueResidualTrace =
+                 [&](std::uint32_t restartCycle, bool finalCycle) -> bool {
+-                if (!femTrueResidualEnabled) return true;
++                // The certification mode uses the device-side fresh residual
++                // to control restart state, but does not request host readback.
++                // Keep this observer strictly selector-gated.
++                if (!femTrueResidualEnabled || !femTrueResidualRootSelected)
++                    return true;
+                 constexpr std::uint32_t maximumTraceCycles = 64u;
+                 if (restartCycle >= maximumTraceCycles) {
+                     if (!femTrueResidualNoticeLogged) {
+@@ -17360,15 +17400,17 @@
+             };
+ 
+             micro.solverIteration = nonlinearIteration;
+-            femTrueResidualEnabled = femTrueResidualRootSelected &&
+-                (!femTrueResidualNewtonSelectorSpecified ||
+-                 nonlinearIteration == femTrueResidualNewtonIteration);
++            femTrueResidualEnabled = femTrueResidualCertificationRequested ||
++                (femTrueResidualRootSelected &&
++                 (!femTrueResidualNewtonSelectorSpecified ||
++                  nonlinearIteration == femTrueResidualNewtonIteration));
+             // Restart replacement is part of the selected diagnostic action,
+             // not a persistent solver mode. Keep ordinary Newton iterations
+             // on the canonical restart residual when a single iteration was
+             // selected for true-residual replacement.
+-            femTrueResidualRestartEnabled = femTrueResidualEnabled &&
+-                femTrueResidualRestartRequested;
++            femTrueResidualRestartEnabled =
++                femTrueResidualCertificationRequested ||
++                (femTrueResidualEnabled && femTrueResidualRestartRequested);
+             dispatchThreads("nm_vascular_begin_working_set", vascularTotal, [&] {
+                 setDispatch();
+                 [encoder setBytes:&state.vascularValue.layout length:sizeof(state.vascularValue.layout) atIndex:1u];
+@@ -17842,6 +17884,15 @@
+             const std::uint32_t restartCycleCount =
+                 (linearIterationBudget + restart - 1u) / restart;
+             if (femTrueResidualEnabled && restartCycleCount > 64u) {
++                if (femTrueResidualCertificationRequested) {
++                    std::fprintf(stderr,
++                        "fem_true_residual_certification_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"restart_cycle_cap_64\"}\n",
++                        request.controlStep);
++                    diagnostics.message =
++                        "true-residual certification exceeds 64 restart cycles";
++                    ownership->preDynamicsOpen = false;
++                    return diagnostics;
++                }
+                 std::fprintf(stderr,
+                     "fem_true_residual_skipped={\"schema\":1,\"root\":%u,\"reason\":\"restart_cycle_cap_64\"}\n",
+                     femTrueResidualRoot);
+@@ -20048,6 +20099,10 @@
+                              offset:0u atIndex:9u];
+                 [encoder setBuffer:state.fgmresRestartCoefficients
+                              offset:0u atIndex:10u];
++                const std::uint32_t deferCompletionToTrueResidual =
++                    femTrueResidualRestartEnabled ? 1u : 0u;
++                [encoder setBytes:&deferCompletionToTrueResidual
++                           length:sizeof(deferCompletionToTrueResidual) atIndex:11u];
+             });
+             if (state.femRegionalRestartAugmentationEnabled &&
+                 restartCycle + 1u < restartCycleCount) {
+@@ -20408,9 +20463,14 @@
+                                  offset:0u atIndex:20u];
+                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:21u];
+                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
+-                    [encoder setBuffer:state.dummy offset:0u atIndex:23u];
+-                    [encoder setBuffer:state.dummy offset:0u atIndex:24u];
+-                    const std::uint32_t useCache = 0u;
++                    [encoder setBuffer:state.femAlgorithmicTangentCache != nil
++                            ? state.femAlgorithmicTangentCache : state.dummy
++                                 offset:0u atIndex:23u];
++                    [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
++                            ? state.femAlgorithmicTangentCacheValid : state.dummy
++                                 offset:0u atIndex:24u];
++                    const std::uint32_t useCache =
++                        state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
+                     [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
+                 });
+                 dispatchThreads("nm_fem_cohesive_face_operator",
+@@ -20498,6 +20558,12 @@
+                                  offset:0u atIndex:8u];
+                     [encoder setBytes:&replaceTrueResidual
+                                length:sizeof(replaceTrueResidual) atIndex:9u];
++                    [encoder setBuffer:state.statuses offset:0u atIndex:10u];
++                    const std::uint32_t propagateTrueResidualFailures =
++                        femTrueResidualCertificationRequested ? 1u : 0u;
++                    [encoder setBytes:&propagateTrueResidualFailures
++                               length:sizeof(propagateTrueResidualFailures)
++                              atIndex:11u];
+                 });
+                 if (!encodeFEMTrueResidualTrace(
+                         restartCycle, finalRestartCycle != 0u)) {
+--- a/matter/tools/fgmres_true_residual_native_check.mm
++++ b/matter/tools/fgmres_true_residual_native_check.mm
+@@ -0,0 +1,387 @@
++#import <Foundation/Foundation.h>
++#import <Metal/Metal.h>
++
++#include "numi/matter/shared.h"
++
++#include <cmath>
++#include <cstdint>
++#include <cstring>
++#include <iostream>
++#include <stdexcept>
++#include <string>
++#include <utility>
++#include <vector>
++
++#ifndef NUMI_MATTER_METALLIB
++#error "CMake must define NUMI_MATTER_METALLIB"
++#endif
++
++namespace {
++
++struct alignas(8) NativeFloat2 { float x; float y; };
++
++unsigned checks = 0u;
++
++void require(bool condition, const std::string& message) {
++    ++checks;
++    if (!condition) throw std::runtime_error(message);
++}
++
++template <typename T>
++id<MTLBuffer> makeBuffer(id<MTLDevice> device, const std::vector<T>& values) {
++    require(!values.empty(), "native fixture attempted an empty Metal buffer");
++    id<MTLBuffer> buffer = [device newBufferWithBytes:values.data()
++        length:values.size() * sizeof(T)
++        options:MTLResourceStorageModeShared];
++    require(buffer != nil, "Metal buffer allocation failed");
++    return buffer;
++}
++
++template <typename T>
++std::vector<T> readBuffer(id<MTLBuffer> buffer, std::size_t count) {
++    require(buffer != nil && [buffer length] >= count * sizeof(T),
++        "Metal readback extent is invalid");
++    const T* values = static_cast<const T*>([buffer contents]);
++    return std::vector<T>(values, values + count);
++}
++
++id<MTLComputePipelineState> pipeline(
++    id<MTLDevice> device, id<MTLLibrary> library, const char* name) {
++    NSString* functionName = [NSString stringWithUTF8String:name];
++    id<MTLFunction> function = [library newFunctionWithName:functionName];
++    require(function != nil, std::string("missing Metal function: ") + name);
++    NSError* error = nil;
++    id<MTLComputePipelineState> result =
++        [device newComputePipelineStateWithFunction:function error:&error];
++    require(result != nil, error != nil
++        ? std::string("pipeline creation failed: ") +
++            [[error localizedDescription] UTF8String]
++        : std::string("pipeline creation failed: ") + name);
++    return result;
++}
++
++void dispatch(
++    id<MTLDevice> device,
++    id<MTLCommandQueue> queue,
++    id<MTLComputePipelineState> state,
++    const std::vector<std::pair<NSUInteger, id<MTLBuffer>>>& bindings,
++    const NSUInteger groups,
++    const NSUInteger threads) {
++    id<MTLCommandBuffer> command = [queue commandBuffer];
++    id<MTLComputeCommandEncoder> encoder =
++        command != nil ? [command computeCommandEncoder] : nil;
++    require(command != nil && encoder != nil,
++        "cannot allocate Metal command encoder");
++    [encoder setComputePipelineState:state];
++    for (const auto& [index, buffer] : bindings)
++        [encoder setBuffer:buffer offset:0u atIndex:index];
++    [encoder dispatchThreadgroups:MTLSizeMake(groups, 1u, 1u)
++        threadsPerThreadgroup:MTLSizeMake(threads, 1u, 1u)];
++    [encoder endEncoding];
++    [command commit];
++    [command waitUntilCompleted];
++    require(command.status == MTLCommandBufferStatusCompleted,
++        command.error != nil
++            ? std::string("Metal command failed: ") +
++                [[command.error localizedDescription] UTF8String]
++            : "Metal command did not complete");
++    (void)device;
++}
++
++void resetStatuses(
++    id<MTLBuffer> diagnosticBuffer,
++    id<MTLBuffer> productionBuffer,
++    const NMMatterStatusGPU& diagnostic,
++    const NMMatterStatusGPU& production) {
++    *static_cast<NMMatterStatusGPU*>([diagnosticBuffer contents]) = diagnostic;
++    *static_cast<NMMatterStatusGPU*>([productionBuffer contents]) = production;
++}
++
++bool close(float a, float b, float tolerance = 1.0e-6f) {
++    return std::isfinite(a) && std::isfinite(b) &&
++        std::abs(a - b) <= tolerance;
++}
++
++} // namespace
++
++int main() {
++    @autoreleasepool {
++        try {
++            id<MTLDevice> device = MTLCreateSystemDefaultDevice();
++            require(device != nil, "Metal device unavailable");
++            id<MTLCommandQueue> queue = [device newCommandQueue];
++            require(queue != nil, "Metal command queue unavailable");
++
++            NSError* error = nil;
++            NSURL* libraryURL = [NSURL fileURLWithPath:
++                [NSString stringWithUTF8String:NUMI_MATTER_METALLIB]];
++            id<MTLLibrary> library =
++                [device newLibraryWithURL:libraryURL error:&error];
++            require(library != nil, error != nil
++                ? std::string("cannot load Matter metallib: ") +
++                    [[error localizedDescription] UTF8String]
++                : "cannot load Matter metallib");
++
++            auto finalize = pipeline(device, library,
++                "numi_matter_metal::nm_fgmres_finalize_cycle");
++            auto accumulate = pipeline(device, library,
++                "numi_matter_metal::nm_fgmres_accumulate");
++            auto accumulateFields = pipeline(device, library,
++                "numi_matter_metal::nm_fgmres_accumulate_fields");
++            auto measure = pipeline(device, library,
++                "numi_matter_metal::nm_fgmres_measure_true_residual");
++
++            NMMatterDispatchGPU dispatchData{};
++            dispatchData.abiVersion = NM_MATTER_ABI_VERSION;
++            dispatchData.environmentCount = 1u;
++            dispatchData.objectCount = 1u;
++            dispatchData.femNodeCount = 1u;
++            NMFGMRESLayoutGPU layout{};
++            layout.unknownCount = 2u;
++            NMMixedSolverGPU solver{};
++            solver.nonlinearIterations.y = 1u;
++            solver.residualTolerances.x = 1.0e-5f;
++            solver.regularization.x = 1.0e-6f;
++            NMIncidenceRangeGPU nodeRange{};
++            nodeRange.objectIndex = 0u;
++
++            const std::size_t hessenbergCount =
++                std::size_t(NM_MIXED_FGMRES_RESTART + 1u) *
++                std::size_t(NM_MIXED_FGMRES_RESTART);
++            std::vector<float> hessenberg(hessenbergCount, 0.0f);
++            std::vector<float> leastSquares(
++                NM_MIXED_FGMRES_RESTART + 1u, 0.0f);
++            std::vector<NativeFloat2> rotations(NM_MIXED_FGMRES_RESTART);
++            std::vector<float> restartCoefficients(
++                NM_MIXED_FGMRES_RESTART + 1u, 0.0f);
++            hessenberg[0] = 1.0f;
++            leastSquares[0] = 0.5f;
++
++            NMFGMRESStateGPU initialState{};
++            initialState.diagnostics = {1.0e-3f, 2.23606798f, 0.0f, 1.0f};
++            initialState.nonlinear = {1.0f, 1.0f, 0.0f, 0.0f};
++            NMMatterStatusGPU healthy{};
++            healthy.code = NM_STATUS_SUCCESS;
++            healthy.environment = 0u;
++
++            auto dispatchBuffer = makeBuffer(device,
++                std::vector<NMMatterDispatchGPU>{dispatchData});
++            auto layoutBuffer = makeBuffer(device,
++                std::vector<NMFGMRESLayoutGPU>{layout});
++            auto solverBuffer = makeBuffer(device,
++                std::vector<NMMixedSolverGPU>{solver});
++            auto hessenbergBuffer = makeBuffer(device, hessenberg);
++            auto leastSquaresBuffer = makeBuffer(device, leastSquares);
++            auto rotationsBuffer = makeBuffer(device, rotations);
++            auto restartCoefficientsBuffer =
++                makeBuffer(device, restartCoefficients);
++            auto stateBuffer = makeBuffer(device,
++                std::vector<NMFGMRESStateGPU>{initialState});
++            auto statusBuffer = makeBuffer(device,
++                std::vector<NMMatterStatusGPU>{healthy});
++            auto rangesBuffer = makeBuffer(device,
++                std::vector<NMIncidenceRangeGPU>{nodeRange});
++            std::vector<nm_float4> basis(
++                2u * std::size_t(NM_MIXED_FGMRES_RESTART + 1u),
++                nm_float4{0.0f, 0.0f, 0.0f, 0.0f});
++            basis[0] = {2.0f, 0.0f, 0.0f, 0.0f};
++            basis[1] = {4.0f, 0.0f, 0.0f, 0.0f};
++            auto basisBuffer = makeBuffer(device, basis);
++            std::vector<nm_float4> solutionValues(
++                2u, nm_float4{0.0f, 0.0f, 0.0f, 0.0f});
++            auto solutionBuffer = makeBuffer(device, solutionValues);
++            std::vector<nm_float4> rhsValues{
++                {2.0f, 0.0f, 0.0f, 0.0f},
++                {4.0f, 0.0f, 0.0f, 0.0f}};
++            auto rhsBuffer = makeBuffer(device, rhsValues);
++            std::vector<nm_float4> operatorValues(
++                2u, nm_float4{0.0f, 0.0f, 0.0f, 0.0f});
++            auto operatorBuffer = makeBuffer(device, operatorValues);
++            std::vector<nm_float4> residualValues(
++                2u, nm_float4{-7.0f, -7.0f, -7.0f, -7.0f});
++            auto residualBuffer = makeBuffer(device, residualValues);
++            auto metricsBuffer = makeBuffer(device,
++                std::vector<nm_float4>{nm_float4{-1.0f, -1.0f, -1.0f, -1.0f}});
++            auto diagnosticBuffer = makeBuffer(device,
++                std::vector<NMMatterStatusGPU>{healthy});
++
++            const std::uint32_t offset = 0u;
++            const std::uint32_t finalCycle = 1u;
++            const float forcing = 0.1f;
++            const std::uint32_t defer = 1u;
++            dispatch(device, queue, finalize, {
++                {0u, dispatchBuffer}, {1u, solverBuffer},
++                {2u, hessenbergBuffer}, {3u, leastSquaresBuffer},
++                {4u, stateBuffer}, {5u, statusBuffer},
++                {6u, makeBuffer(device, std::vector<std::uint32_t>{offset})},
++                {7u, makeBuffer(device, std::vector<std::uint32_t>{finalCycle})},
++                {8u, makeBuffer(device, std::vector<float>{forcing})},
++                {9u, rotationsBuffer}, {10u, restartCoefficientsBuffer},
++                {11u, makeBuffer(device, std::vector<std::uint32_t>{defer})}},
++                1u, 32u);
++            auto afterFinalize = readBuffer<NMFGMRESStateGPU>(stateBuffer, 1u);
++            require(afterFinalize[0].diagnostics.z == 0.0f,
++                "deferred mode latched Arnoldi-only completion");
++
++            const std::uint32_t firstCycle = 0u;
++            auto cycleBuffer = makeBuffer(device,
++                std::vector<std::uint32_t>{firstCycle});
++            dispatch(device, queue, accumulate, {
++                {0u, dispatchBuffer}, {30u, layoutBuffer},
++                {1u, solverBuffer}, {2u, rangesBuffer},
++                {3u, basisBuffer}, {4u, leastSquaresBuffer},
++                {5u, stateBuffer}, {6u, solutionBuffer}, {7u, cycleBuffer}},
++                1u, 1u);
++            dispatch(device, queue, accumulateFields, {
++                {0u, dispatchBuffer}, {30u, layoutBuffer},
++                {1u, solverBuffer}, {2u, rangesBuffer},
++                {3u, basisBuffer}, {4u, leastSquaresBuffer},
++                {5u, stateBuffer}, {6u, solutionBuffer}, {7u, cycleBuffer}},
++                1u, 1u);
++            solutionValues = readBuffer<nm_float4>(solutionBuffer, 2u);
++            require(close(solutionValues[0].x, 1.0f) &&
++                    close(solutionValues[1].x, 2.0f),
++                "production accumulation did not form the authored correction");
++
++            // The focused algebraic fixture uses A=I: operatorValue is the
++            // actual accumulated production correction. This isolates the
++            // native completion/replacement kernels; it is not a full FEM
++            // operator qualification.
++            operatorValues = solutionValues;
++            operatorValues[0].y = operatorValues[0].z = operatorValues[0].w = 0.0f;
++            operatorValues[1].y = operatorValues[1].z = operatorValues[1].w = 0.0f;
++            std::memcpy([operatorBuffer contents], operatorValues.data(),
++                operatorValues.size() * sizeof(nm_float4));
++            const std::uint32_t replace = 1u;
++            const std::uint32_t propagate = 1u;
++            auto replaceBuffer = makeBuffer(device,
++                std::vector<std::uint32_t>{replace});
++            auto propagateBuffer = makeBuffer(device,
++                std::vector<std::uint32_t>{propagate});
++
++            dispatch(device, queue, measure, {
++                {0u, dispatchBuffer}, {30u, layoutBuffer},
++                {1u, solverBuffer}, {2u, rhsBuffer},
++                {3u, operatorBuffer}, {4u, residualBuffer},
++                {5u, stateBuffer}, {6u, metricsBuffer},
++                {7u, makeBuffer(device, std::vector<float>{forcing})},
++                {8u, diagnosticBuffer}, {9u, replaceBuffer},
++                {10u, statusBuffer}, {11u, propagateBuffer}},
++                1u, 32u);
++            auto rejected = readBuffer<NMFGMRESStateGPU>(stateBuffer, 1u);
++            auto replacedResidual = readBuffer<nm_float4>(residualBuffer, 2u);
++            require(rejected[0].diagnostics.z == 0.0f,
++                "true residual incorrectly accepted false Arnoldi convergence");
++            require(close(replacedResidual[0].x, 1.0f) &&
++                    close(replacedResidual[1].x, 2.0f),
++                "same-operator true residual did not replace the restart vector");
++
++            // A zero true residual meets the unchanged absolute/forcing gate.
++            rhsValues = solutionValues;
++            std::memcpy([rhsBuffer contents], rhsValues.data(),
++                rhsValues.size() * sizeof(nm_float4));
++            auto beforeSuccess = rejected[0];
++            beforeSuccess.diagnostics.z = 0.0f;
++            std::memcpy([stateBuffer contents], &beforeSuccess,
++                sizeof(beforeSuccess));
++            std::memcpy([residualBuffer contents], residualValues.data(),
++                residualValues.size() * sizeof(nm_float4));
++            dispatch(device, queue, measure, {
++                {0u, dispatchBuffer}, {30u, layoutBuffer},
++                {1u, solverBuffer}, {2u, rhsBuffer},
++                {3u, operatorBuffer}, {4u, residualBuffer},
++                {5u, stateBuffer}, {6u, metricsBuffer},
++                {7u, makeBuffer(device, std::vector<float>{forcing})},
++                {8u, diagnosticBuffer}, {9u, replaceBuffer},
++                {10u, statusBuffer}, {11u, propagateBuffer}},
++                1u, 32u);
++            auto accepted = readBuffer<NMFGMRESStateGPU>(stateBuffer, 1u);
++            require(accepted[0].diagnostics.z == 1.0f,
++                "resolved zero true residual did not latch completion");
++
++            // Nonfinite action is reported and must not publish a partial
++            // residual replacement.
++            auto nanOperator = operatorValues;
++            nanOperator[0].x = NAN;
++            std::memcpy([operatorBuffer contents], nanOperator.data(),
++                nanOperator.size() * sizeof(nm_float4));
++            auto freshState = initialState;
++            freshState.diagnostics.z = 0.0f;
++            std::memcpy([stateBuffer contents], &freshState, sizeof(freshState));
++            std::memcpy([residualBuffer contents], residualValues.data(),
++                residualValues.size() * sizeof(nm_float4));
++            resetStatuses(diagnosticBuffer, statusBuffer, healthy, healthy);
++            dispatch(device, queue, measure, {
++                {0u, dispatchBuffer}, {30u, layoutBuffer},
++                {1u, solverBuffer}, {2u, rhsBuffer},
++                {3u, operatorBuffer}, {4u, residualBuffer},
++                {5u, stateBuffer}, {6u, metricsBuffer},
++                {7u, makeBuffer(device, std::vector<float>{forcing})},
++                {8u, diagnosticBuffer}, {9u, replaceBuffer},
++                {10u, statusBuffer}, {11u, propagateBuffer}},
++                1u, 32u);
++            auto failedDiagnostic =
++                readBuffer<NMMatterStatusGPU>(diagnosticBuffer, 1u);
++            auto failedProduction =
++                readBuffer<NMMatterStatusGPU>(statusBuffer, 1u);
++            auto untouched = readBuffer<nm_float4>(residualBuffer, 2u);
++            require(failedDiagnostic[0].code == NM_STATUS_NONFINITE_RESULT &&
++                    failedProduction[0].code == NM_STATUS_NONFINITE_RESULT,
++                "nonfinite action did not propagate to diagnostic and production status");
++            require(untouched[0].x == -7.0f && untouched[1].x == -7.0f,
++                "nonfinite action partially replaced the restart residual");
++
++            // Early unhealthy diagnostic status publishes once to a healthy
++            // production status, but never overwrites an existing failure.
++            NMMatterStatusGPU diagnosticFailure = healthy;
++            diagnosticFailure.code = NM_STATUS_CONTACT_FAILURE;
++            diagnosticFailure.failingIndex = 9u;
++            resetStatuses(diagnosticBuffer, statusBuffer, diagnosticFailure, healthy);
++            dispatch(device, queue, measure, {
++                {0u, dispatchBuffer}, {30u, layoutBuffer},
++                {1u, solverBuffer}, {2u, rhsBuffer},
++                {3u, operatorBuffer}, {4u, residualBuffer},
++                {5u, stateBuffer}, {6u, metricsBuffer},
++                {7u, makeBuffer(device, std::vector<float>{forcing})},
++                {8u, diagnosticBuffer}, {9u, replaceBuffer},
++                {10u, statusBuffer}, {11u, propagateBuffer}},
++                1u, 32u);
++            auto propagated =
++                readBuffer<NMMatterStatusGPU>(statusBuffer, 1u);
++            require(propagated[0].code == NM_STATUS_CONTACT_FAILURE &&
++                    propagated[0].failingIndex == 9u,
++                "unhealthy diagnostic status was not propagated to healthy production status");
++
++            NMMatterStatusGPU existingFailure = healthy;
++            existingFailure.code = NM_STATUS_INVALID_DISPATCH;
++            existingFailure.failingIndex = 4u;
++            resetStatuses(diagnosticBuffer, statusBuffer, diagnosticFailure,
++                          existingFailure);
++            dispatch(device, queue, measure, {
++                {0u, dispatchBuffer}, {30u, layoutBuffer},
++                {1u, solverBuffer}, {2u, rhsBuffer},
++                {3u, operatorBuffer}, {4u, residualBuffer},
++                {5u, stateBuffer}, {6u, metricsBuffer},
++                {7u, makeBuffer(device, std::vector<float>{forcing})},
++                {8u, diagnosticBuffer}, {9u, replaceBuffer},
++                {10u, statusBuffer}, {11u, propagateBuffer}},
++                1u, 32u);
++            auto preserved =
++                readBuffer<NMMatterStatusGPU>(statusBuffer, 1u);
++            require(preserved[0].code == NM_STATUS_INVALID_DISPATCH &&
++                    preserved[0].failingIndex == 4u,
++                "diagnostic status overwrote an existing production failure");
++
++            std::cout << "PASS native FGMRES true-residual kernel contract "
++                      << checks
++                      << " checks; correction_accumulated=true; unit_action=true; "
++                         "full_FEM_operator_qualification=false\n";
++            return 0;
++        } catch (const std::exception& exception) {
++            std::cerr << "FAIL native FGMRES true-residual kernel contract: "
++                      << exception.what() << '\n';
++            return 1;
++        }
++    }
++}
++
+--- a/matter/tools/test_true_residual_certification_contract.py
++++ b/matter/tools/test_true_residual_certification_contract.py
+@@ -0,0 +1,208 @@
++#!/usr/bin/env python3
++"""Source and arithmetic contracts for opt-in true-residual FGMRES mode.
++
++These tests bind control flow and admission behavior; they do not claim GPU or
++physical qualification. Run with:
++  python3 matter/tools/test_true_residual_certification_contract.py
++"""
++from pathlib import Path
++import math
++import unittest
++
++
++HERE = Path(__file__).resolve().parent
++MATTER = HERE.parents[0]
++RUNTIME = (MATTER / "src/runtime.mm").read_text()
++FGMRES = (MATTER / "src/metal/fgmres.metalinc").read_text()
++NATIVE_CHECK = (HERE / "fgmres_true_residual_native_check.mm").read_text()
++
++
++def section(source: str, start: str, end: str) -> str:
++    a = source.index(start)
++    b = source.index(end, a + len(start))
++    return source[a:b]
++
++
++def adjudicate_true_residual(
++    *, arnoldi_estimate: float, true_norm: float, initial_norm: float,
++    forcing: float, relative_tolerance: float, absolute_tolerance: float,
++    nonlinear_scale: float, defer_completion: bool, replace_residual: bool,
++) -> tuple[bool, bool]:
++    """Return (completion_latched, restart_residual_replaced)."""
++    values = (arnoldi_estimate, true_norm, initial_norm, forcing,
++              relative_tolerance, absolute_tolerance, nonlinear_scale)
++    if not all(math.isfinite(x) and x >= 0.0 for x in values):
++        raise ValueError("nonfinite/negative input is outside this contract")
++    threshold = max(absolute_tolerance,
++                    relative_tolerance * max(nonlinear_scale, 1.0))
++    target = min(0.5, max(relative_tolerance, forcing)) * initial_norm
++    accepted = true_norm == 0.0 or true_norm <= target or true_norm <= threshold
++    # With the new option, the Arnoldi estimate cannot latch completion before
++    # the accumulated correction receives its fresh residual evaluation.
++    if defer_completion:
++        completion = accepted if replace_residual else False
++    else:
++        completion = (arnoldi_estimate <= target or
++                      arnoldi_estimate <= threshold)
++    return completion, bool(replace_residual)
++
++
++class TrueResidualCertificationContract(unittest.TestCase):
++    def test_explicit_opt_in_is_separate_from_observer_selectors(self):
++        self.assertIn('"NM_FEM_TRUE_RESIDUAL_CERTIFY"', RUNTIME)
++        self.assertIn('std::strcmp(certification, "1") == 0', RUNTIME)
++        self.assertIn('std::strcmp(certification, "0") != 0', RUNTIME)
++        assign = section(RUNTIME, "femTrueResidualEnabled = femTrueResidualCertificationRequested ||",
++                         "dispatchThreads(\"nm_vascular_begin_working_set\"")
++        self.assertIn("femTrueResidualCertificationRequested", assign)
++        self.assertIn("femTrueResidualRootSelected", assign)
++        # Selector-based readback remains an observer and is disabled when the
++        # independent certification option is the only opt-in.
++        trace = section(RUNTIME, "const auto encodeFEMTrueResidualTrace =",
++                        "const auto encodeFEMNewtonTrace =")
++        self.assertRegex(trace, r"!femTrueResidualEnabled\s*\|\|\s*!femTrueResidualRootSelected")
++
++    def test_capability_failure_is_fail_closed(self):
++        caps = section(RUNTIME, "const auto femTrueResidualCapabilityFailure =",
++                       "const auto femResidualArmijoScope =")
++        for guard in (
++            "microtick != 0u", "state.enableVascularDense45",
++            "cohesiveFaceCount > 4096u", "tetrahedronCount > 32768u",
++            "femNewtonTraceScope()", "femTrueResidualElementOperator == nil",
++            "femTrueResidualRightHandSide == nil",
++            "femTrueResidualMetrics == nil", "femTrueResidualStatuses == nil",
++            "femAlgorithmicTangentCache == nil",
++        ):
++            self.assertIn(guard, caps)
++        cert = section(RUNTIME, "if (femTrueResidualCertificationRequested) {",
++                       "const auto emitFEMNewtonTraceSkip =")
++        self.assertIn("femTrueResidualCapabilityFailure()", cert)
++        self.assertIn("ownership->preDynamicsOpen = false", cert)
++        self.assertIn("return diagnostics", cert)
++
++    def test_cycle_cap_rejects_certification_not_silent_skips(self):
++        check = section(RUNTIME, "if (femTrueResidualEnabled && restartCycleCount > 64u)",
++                        "const bool femCoupledCaptureNewtonSelected =")
++        self.assertIn("if (femTrueResidualCertificationRequested)", check)
++        self.assertIn("restart_cycle_cap_64", check)
++        self.assertIn("return diagnostics", check)
++        self.assertIn("femTrueResidualEnabled = false", check)
++        self.assertIn("femTrueResidualRestartEnabled = false", check)
++        self.assertIn("columnsThisCycle = std::min(", RUNTIME)
++        self.assertIn("linearIterationBudget - iterationOffset", RUNTIME)
++
++    def test_same_operator_action_precedes_true_residual_decision(self):
++        cycle = section(RUNTIME, "for (std::uint32_t restartCycle = 0u;",
++                        "// Capture an explicit same-generation J*delta")
++        order = [
++            cycle.index('"nm_fgmres_finalize_cycle"'),
++            cycle.index('"nm_fgmres_accumulate"'),
++            cycle.index('"nm_fgmres_clear_true_operator"'),
++            cycle.rindex('"nm_fem_apply_operator_elements"'),
++            cycle.rindex('"nm_fgmres_gather_nodes"'),
++            cycle.index('"nm_fgmres_measure_true_residual"'),
++        ]
++        self.assertEqual(order, sorted(order))
++        self.assertIn("useCache =\n                        state.mixedSolverValue.executionBudgets.w == 1u", cycle)
++        self.assertIn("state.femAlgorithmicTangentCache", cycle)
++        self.assertIn("state.femAlgorithmicTangentCacheValid", cycle)
++        self.assertIn('"nm_fem_cohesive_face_operator"', cycle)
++        self.assertIn('"nm_fgmres_add_cohesive_operator"', cycle)
++        self.assertIn("bindPrimalContactArguments(12u)", cycle)
++        # The admitted scope excludes MPM, articulated/support/vascular rows;
++        # the gathered mechanical action still contains contact and cohesive.
++
++    def test_true_residual_controls_latch_and_preserves_unmodified_thresholds(self):
++        finalize = section(FGMRES, "kernel void nm_fgmres_finalize_cycle(",
++                          "kernel void nm_fgmres_restart_residual_nodes(")
++        self.assertIn("deferCompletionToTrueResidual", finalize)
++        self.assertIn("used > 0u", finalize)
++        self.assertRegex(finalize,
++                         r"state\.diagnostics\.z = \(deferCompletionToTrueResidual != 0u && used > 0u\)\s*\? 0\.0f")
++        measure = section(FGMRES, "kernel void nm_fgmres_measure_true_residual(",
++                          "// Add the six-node native cohesive-face directional force")
++        self.assertIn("const float target = clamp(", measure)
++        self.assertIn("solver.residualTolerances.x", measure)
++        self.assertIn("state.diagnostics.z = trueNorm == 0.0f || trueNorm <= target ||", measure)
++        self.assertIn("trueNorm <= nonlinearThreshold", measure)
++        self.assertIn("productionStatuses[environment] = diagnosticStatuses[environment]", measure)
++
++    def test_false_arnoldi_convergence_is_rejected_and_true_restart_is_used(self):
++        estimate = 9.7661823e-6
++        true_norm = 2.15781765e-4
++        initial = 7.67543679e-4
++        forcing = 0.015625
++        target = forcing * initial
++        self.assertLess(estimate, target)
++        self.assertGreater(true_norm, target)
++        complete, replaced = adjudicate_true_residual(
++            arnoldi_estimate=estimate, true_norm=true_norm,
++            initial_norm=initial, forcing=forcing,
++            relative_tolerance=1e-7, absolute_tolerance=1e-7,
++            nonlinear_scale=0.0,
++            defer_completion=True, replace_residual=True)
++        self.assertFalse(complete)
++        self.assertTrue(replaced)
++        # The same observation-only mode does not alter existing FGMRES latch.
++        observed_complete, observed_replaced = adjudicate_true_residual(
++            arnoldi_estimate=estimate, true_norm=true_norm,
++            initial_norm=initial, forcing=forcing,
++            relative_tolerance=1e-7, absolute_tolerance=1e-7,
++            nonlinear_scale=0.0,
++            defer_completion=False, replace_residual=False)
++        self.assertTrue(observed_complete)
++        self.assertFalse(observed_replaced)
++
++    def test_true_absolute_gate_and_unresolved_finite_floor(self):
++        complete, _ = adjudicate_true_residual(
++            arnoldi_estimate=1e-9, true_norm=8e-8, initial_norm=1e-3,
++            forcing=1e-2, relative_tolerance=1e-7,
++            absolute_tolerance=1e-7, defer_completion=True,
++            nonlinear_scale=0.0,
++            replace_residual=True)
++        self.assertTrue(complete)
++        complete, _ = adjudicate_true_residual(
++            arnoldi_estimate=1e-9, true_norm=1.19929e-5,
++            initial_norm=7.67544e-4, forcing=0.015625,
++            relative_tolerance=1e-7, absolute_tolerance=1e-7,
++            nonlinear_scale=100.0,
++            defer_completion=True, replace_residual=True)
++        self.assertFalse(complete)
++
++    def test_nonfinite_residual_is_not_certified(self):
++        with self.assertRaises(ValueError):
++            adjudicate_true_residual(
++                arnoldi_estimate=0.0, true_norm=float("inf"),
++                initial_norm=1.0, forcing=0.1, relative_tolerance=1e-7,
++                absolute_tolerance=1e-7, nonlinear_scale=1.0,
++                defer_completion=True, replace_residual=True)
++
++    def test_unhealthy_diagnostic_status_has_single_lane_writer(self):
++        measure = section(FGMRES, "kernel void nm_fgmres_measure_true_residual(",
++                          "// Add the six-node native cohesive-face directional force")
++        early = section(measure, "if (!environmentHealthy(diagnosticStatuses, environment)) {",
++                        "const uint totalNodes")
++        self.assertRegex(early,
++                         r"if \(lane == 0u && propagateFailure != 0u &&")
++        self.assertEqual(early.count("productionStatuses[environment] ="), 1)
++
++    def test_native_kernel_fixture_covers_state_machine_and_failure_rollback(self):
++        for kernel in (
++            "nm_fgmres_finalize_cycle",
++            "nm_fgmres_accumulate",
++            "nm_fgmres_accumulate_fields",
++            "nm_fgmres_measure_true_residual",
++        ):
++            self.assertIn(f"numi_matter_metal::{kernel}", NATIVE_CHECK)
++        self.assertIn("production accumulation did not form the authored correction",
++                      NATIVE_CHECK)
++        self.assertIn("false Arnoldi convergence", NATIVE_CHECK)
++        self.assertIn("same-operator true residual did not replace", NATIVE_CHECK)
++        self.assertIn("nonfinite action did not propagate", NATIVE_CHECK)
++        self.assertIn("partially replaced the restart residual", NATIVE_CHECK)
++        self.assertIn("overwrote an existing production failure", NATIVE_CHECK)
++        self.assertIn("full_FEM_operator_qualification=false", NATIVE_CHECK)
++
++
++if __name__ == "__main__":
++    unittest.main(verbosity=2)

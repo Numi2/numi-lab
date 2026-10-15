@@ -1,0 +1,49 @@
+[1/1] Cleaning all built files...
+Cleaning... 19 files.
+[1/19] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[2/19] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[3/19] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+[4/19] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[5/19] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[6/19] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[7/19] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[8/19] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[9/19] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[10/19] Generating shaders/NumiMatterPhysicalStateDigest.metallib
+[11/19] Linking CXX static library libnumi_matter_compiler.a
+[12/19] Generating shaders/NumiMatter.metallib
+In file included from /Users/home/cardboard-implementation-20261014/analysis/source106-ccd33-direct-regression-overlay-001/compile-source/matter/src/matter_kernels.metal:4:
+/Users/home/cardboard-implementation-20261014/analysis/source106-ccd33-direct-regression-overlay-001/compile-source/matter/src/metal/fgmres.metalinc:3174:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/source106-ccd33-direct-regression-overlay-001/compile-source/matter/src/metal/fgmres.metalinc:3183:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/source106-ccd33-direct-regression-overlay-001/compile-source/matter/src/metal/fgmres.metalinc:3174:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/source106-ccd33-direct-regression-overlay-001/compile-source/matter/src/metal/fgmres.metalinc:3164:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/home/cardboard-implementation-20261014/analysis/source106-ccd33-direct-regression-overlay-001/compile-source/matter/src/metal/fgmres.metalinc:3620:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/source106-ccd33-direct-regression-overlay-001/compile-source/matter/src/metal/fgmres.metalinc:3637:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/source106-ccd33-direct-regression-overlay-001/compile-source/matter/src/metal/fgmres.metalinc:3620:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/source106-ccd33-direct-regression-overlay-001/compile-source/matter/src/metal/fgmres.metalinc:3500:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+2 warnings generated.
+[13/19] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[14/19] Building CXX object CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[15/19] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[16/19] Building OBJCXX object CMakeFiles/numi-matter-cardboard-contact-ccd-native-check.dir/tools/cardboard_contact_ccd_native_check.mm.o
+[17/19] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+[18/19] Linking CXX static library libnumi_matter_runtime.a
+[19/19] Linking CXX executable numi-matter-cardboard-contact-ccd-native-check

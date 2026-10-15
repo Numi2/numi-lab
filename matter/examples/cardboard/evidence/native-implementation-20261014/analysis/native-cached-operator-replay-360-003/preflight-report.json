@@ -1,0 +1,28 @@
+{
+  "schema": "numi.cardboard.native-cached-operator-replay-preflight.v3",
+  "status": "pass",
+  "native_metal_device_created": false,
+  "physical_transactions": 0,
+  "immutable_records_checked": 3840,
+  "immutable_integer_words": "bitwise exact",
+  "immutable_finite_float_words": "bitwise exact, including signed zero",
+  "raw_negative_zero_tokens": [
+    {
+      "environment": 0,
+      "tetrahedron": 0,
+      "field": "material_frame_quaternion_xyzw[1]",
+      "raw_json_token": "-0",
+      "captured_payload_word": "80000000"
+    },
+    {
+      "environment": 0,
+      "tetrahedron": 585,
+      "field": "inverse_rest_rows_per_m[2][2]",
+      "raw_json_token": "-0",
+      "captured_payload_word": "80000000"
+    }
+  ],
+  "prior_package_002_numeric_comparison": "superseded; it parsed both raw -0 tokens as integer 0 and allowed signed-zero equivalence",
+  "output": "compiled package and all 3840 immutable tetrahedron float/integer words match bitwise, including signed zero; exact-bit sentinel tests pass; no Metal device or pipeline was created",
+  "native_replay": "not run"
+}

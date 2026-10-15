@@ -1,0 +1,14 @@
+{
+  "exit_code": 1,
+  "timed_out": false,
+  "termination_errors": [],
+  "error_type": "ValueError",
+  "reason": "duplicate external input basename",
+  "schema": "numi.cardboard.native-run-receipt.v2",
+  "execution_started": false,
+  "source_inputs_unchanged": null,
+  "changed_inputs": null,
+  "stage": "input-seal",
+  "wall_seconds": 0.44793700001901016,
+  "finished_at_utc": "2026-10-15T16:25:06.009311+00:00"
+}

@@ -1,0 +1,5 @@
+{
+  "status": "FAIL_RECORDER_SCHEMA_ADAPTER",
+  "error": "KeyError files on112manifest; first overlay applied, no build dispatched",
+  "partial_snapshot_preserved": "snapshots/source-exact-material-point-112-incomplete001"
+}

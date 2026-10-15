@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.native-diagnostic-prediction.v1",
+  "package_manifest_sha256": "a69a1b5c9a534c542c9436b06f9bc2f5267629670707628a7b4f2e5ffca3535e",
+  "preflight_argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-continuation-001/verify_pair_package.py",
+    "--prepared",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-continuation-001/prepared/prepared.json",
+    "--output",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-native-continuation-372/preflight-audit.json"
+  ],
+  "native_argv": [
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-continuation-001/compile/pair_ccd_native_check",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-continuation-001/prepared/prepared.json",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-continuation-001/prepared/cases.bin",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-continuation-001/compile/diagnostic_pair.metallib",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-native-continuation-372/native-result.json"
+  ],
+  "verifier_argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-continuation-001/verify_pair_package.py",
+    "--prepared",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-continuation-001/prepared/prepared.json",
+    "--native-result",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-native-continuation-372/native-result.json",
+    "--output",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-native-continuation-372/native-audit.json"
+  ],
+  "question": "Does conservative EE continuation17to33certify the exact source103 exhausted edge-edge query while retaining direct/trace bit parity?",
+  "prediction": "Diagnostic-only candidate with EE33 versus original17evaluations; all speeds,distances,thicknesses,separating tests,minadvance and failclosedexhaustion unchanged. Require direct/clone exactphysicaloutputs on30calls,retainallunresolved/hit/missclassifications,andcompareearliercertifiedcalls with367. No physicaltransaction or fullcontactqualification.",
+  "physical_transactions": 0,
+  "started_at_utc": "2026-10-15T15:25:23.063207+00:00"
+}

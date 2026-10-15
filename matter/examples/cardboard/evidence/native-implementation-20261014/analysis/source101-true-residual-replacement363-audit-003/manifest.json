@@ -1,0 +1,26 @@
+{
+  "schema": "numi.cardboard.analysis-evidence.v1",
+  "files": [
+    {
+      "path": "audit.py",
+      "bytes": 6606,
+      "sha256": "38fe4a461568a0adf878ed95de72ad4af8eaa5ad8d6492a56801f8fbabe351e7"
+    },
+    {
+      "path": "report.json",
+      "bytes": 4894,
+      "sha256": "4f91657ec7f8d363a9b53e7a3ed38afa4bddf13d2704a7cb35cb2c878a715191"
+    },
+    {
+      "path": "residual-cycles.csv",
+      "bytes": 3747,
+      "sha256": "c73e0629038c43760537d6c9b2bd53255a93d6fcf8f8cde82b9931fbbf2368a9"
+    },
+    {
+      "path": "retained_parity_helper.py",
+      "bytes": 13823,
+      "sha256": "27db785e842f49e6a2a37483c836cb3a5339b54fcde547a4d65c1cd783dcd233"
+    }
+  ],
+  "physical_transactions": 0
+}

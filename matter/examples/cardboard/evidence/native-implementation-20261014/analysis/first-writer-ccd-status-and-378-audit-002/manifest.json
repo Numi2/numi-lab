@@ -1,0 +1,190 @@
+{
+  "files": [
+    {
+      "bytes": 16039,
+      "name": "audit.py",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/first-writer-ccd-status-and-378-audit-002/audit.py",
+      "sha256": "cef2302466a827b04b04334dfc28f96cbf77e3d2183646577a4c2f40a8048144"
+    },
+    {
+      "bytes": 3224,
+      "name": "README.md",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/first-writer-ccd-status-and-378-audit-002/README.md",
+      "sha256": "454e6792d5fba7b7677705af0aa2ae90b5f61f795b09ea5d029b4d3c4c138c55"
+    },
+    {
+      "bytes": 48809,
+      "name": "report.json",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/first-writer-ccd-status-and-378-audit-002/report.json",
+      "sha256": "0943dedf69f7c1b3fb767821457ff9fb0af60bacf567c5b1fbb1bf3ffba2fdd2"
+    },
+    {
+      "bytes": 406206,
+      "name": "source104_contact",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-contact-health-diagnostics-104/matter/src/metal/contact.metalinc",
+      "sha256": "b9ec3915b63bdee729ff0902c390e137e0f6b5d005d06e6a7136c534be3d510b"
+    },
+    {
+      "bytes": 406206,
+      "name": "source105_contact",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-true-residual-certification-105/matter/src/metal/contact.metalinc",
+      "sha256": "b9ec3915b63bdee729ff0902c390e137e0f6b5d005d06e6a7136c534be3d510b"
+    },
+    {
+      "bytes": 96571,
+      "name": "source106_common",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106/matter/src/metal/common.metalinc",
+      "sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182"
+    },
+    {
+      "bytes": 406206,
+      "name": "source106_contact",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106/matter/src/metal/contact.metalinc",
+      "sha256": "b9ec3915b63bdee729ff0902c390e137e0f6b5d005d06e6a7136c534be3d510b"
+    },
+    {
+      "bytes": 1687566,
+      "name": "source106_runtime",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106/matter/src/runtime.mm",
+      "sha256": "2e26d26a04326a3ce567cccb60d213da8f4a8ceaf178c98153939f1b68752fd7"
+    },
+    {
+      "bytes": 55682,
+      "name": "source106_shared",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106/matter/include/numi/matter/shared.h",
+      "sha256": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691"
+    },
+    {
+      "bytes": 406206,
+      "name": "source107_contact",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-ee-ccd-continuation-107/matter/src/metal/contact.metalinc",
+      "sha256": "1636c24f766abadd9187809aaaf9511842a56b68f9856cea2154bdc31bc1a603"
+    },
+    {
+      "bytes": 61698,
+      "name": "run362_stderr",
+      "path": "/Users/home/cardboard-implementation-20261014/native/health-and-vt-marker-firstfatal-362/stderr.log",
+      "sha256": "dad60206a57c47e57e6e483583ed3f393cf435100f35d28a8052c64f6995934c"
+    },
+    {
+      "bytes": 101316,
+      "name": "run362_prediction",
+      "path": "/Users/home/cardboard-implementation-20261014/native/health-and-vt-marker-firstfatal-362/prediction.json",
+      "sha256": "76e7dbff579bcfdecf505346527ff6c1eb113b794f467d87446a4a3c66a18ee1"
+    },
+    {
+      "bytes": 306,
+      "name": "run362_receipt",
+      "path": "/Users/home/cardboard-implementation-20261014/native/health-and-vt-marker-firstfatal-362/receipt.json",
+      "sha256": "cdcad4c5578618fc1dab90327708d480e8511f9a8bc464dfdcebc17a0cb43c3a"
+    },
+    {
+      "bytes": 44701,
+      "name": "run362_center_json",
+      "path": "/Users/home/cardboard-implementation-20261014/native/health-and-vt-marker-firstfatal-362/center-capture.coupled.json",
+      "sha256": "44ce64b4f69c58abcf3786d59f6392b8dde760ee9751f13ae7a03be4baec29da"
+    },
+    {
+      "bytes": 11670948,
+      "name": "run362_center_bin",
+      "path": "/Users/home/cardboard-implementation-20261014/native/health-and-vt-marker-firstfatal-362/center-capture.coupled.bin",
+      "sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4"
+    },
+    {
+      "bytes": 61695,
+      "name": "run369_stderr",
+      "path": "/Users/home/cardboard-implementation-20261014/native/true-residual-default-parity-369/stderr.log",
+      "sha256": "8398bfd5ee0145e37d70261b8fe7f92a37df5b9be075ae9b429cfb7d07864ded"
+    },
+    {
+      "bytes": 101546,
+      "name": "run369_prediction",
+      "path": "/Users/home/cardboard-implementation-20261014/native/true-residual-default-parity-369/prediction.json",
+      "sha256": "720362273ec91171a7deeab87d843fb260a00b8c71f70dccd7dd09b235a332af"
+    },
+    {
+      "bytes": 305,
+      "name": "run369_receipt",
+      "path": "/Users/home/cardboard-implementation-20261014/native/true-residual-default-parity-369/receipt.json",
+      "sha256": "617b77657fa3fd1374d67763f8cc308cacb5ac1934219456f679109c6aa03d72"
+    },
+    {
+      "bytes": 44699,
+      "name": "run369_center_json",
+      "path": "/Users/home/cardboard-implementation-20261014/native/true-residual-default-parity-369/center-capture.coupled.json",
+      "sha256": "666c1d7da3d2d7a4064eaf21ed3ca5a4781c202fcf37b1f22edb028c08fa5d09"
+    },
+    {
+      "bytes": 11670948,
+      "name": "run369_center_bin",
+      "path": "/Users/home/cardboard-implementation-20261014/native/true-residual-default-parity-369/center-capture.coupled.bin",
+      "sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4"
+    },
+    {
+      "bytes": 61698,
+      "name": "run371_stderr",
+      "path": "/Users/home/cardboard-implementation-20261014/native/capture-lifetime-default-parity-371/stderr.log",
+      "sha256": "27dad49627217218990a2b8333043c8512b8da77eebfc190e679ff1542b94a52"
+    },
+    {
+      "bytes": 101693,
+      "name": "run371_prediction",
+      "path": "/Users/home/cardboard-implementation-20261014/native/capture-lifetime-default-parity-371/prediction.json",
+      "sha256": "11327303d5b55022c557eeb56974bad3a7dc9003000827d92dfa2a4f7b80eec9"
+    },
+    {
+      "bytes": 306,
+      "name": "run371_receipt",
+      "path": "/Users/home/cardboard-implementation-20261014/native/capture-lifetime-default-parity-371/receipt.json",
+      "sha256": "31639a7dfa579c36142f360e789fe26d19e3a7a4ec1090482dc209119284c05f"
+    },
+    {
+      "bytes": 44701,
+      "name": "run371_center_json",
+      "path": "/Users/home/cardboard-implementation-20261014/native/capture-lifetime-default-parity-371/center-capture.coupled.json",
+      "sha256": "4aab7d6893abf7d5c0184f6c3df3032dc93025b771bcde552463ac41fd3b7b02"
+    },
+    {
+      "bytes": 11670948,
+      "name": "run371_center_bin",
+      "path": "/Users/home/cardboard-implementation-20261014/native/capture-lifetime-default-parity-371/center-capture.coupled.bin",
+      "sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4"
+    },
+    {
+      "bytes": 62157,
+      "name": "run378_stderr",
+      "path": "/Users/home/cardboard-implementation-20261014/native/ccd-continuation-full-contact-378/stderr.log",
+      "sha256": "172138aaa1b0f835d7a4e4f714d6bc1cd04c3c56a4c28136edcc10ebb35d2ece"
+    },
+    {
+      "bytes": 101698,
+      "name": "run378_prediction",
+      "path": "/Users/home/cardboard-implementation-20261014/native/ccd-continuation-full-contact-378/prediction.json",
+      "sha256": "68353a7681b0277dff06dd3af6092026099958317c168fa13345a0ec583fd48a"
+    },
+    {
+      "bytes": 305,
+      "name": "run378_receipt",
+      "path": "/Users/home/cardboard-implementation-20261014/native/ccd-continuation-full-contact-378/receipt.json",
+      "sha256": "a37b3fd79e08cb58db9f13307ea7317c0b2e9d010409fb6eef1d22e28e1dd8b2"
+    },
+    {
+      "bytes": 44699,
+      "name": "run378_center_json",
+      "path": "/Users/home/cardboard-implementation-20261014/native/ccd-continuation-full-contact-378/center-capture.coupled.json",
+      "sha256": "aa79660708a335f47d66f6792fdfc645cce1ed3d527ce8b6efbd3de1f50ad43a"
+    },
+    {
+      "bytes": 11670948,
+      "name": "run378_center_bin",
+      "path": "/Users/home/cardboard-implementation-20261014/native/ccd-continuation-full-contact-378/center-capture.coupled.bin",
+      "sha256": "19482f9561aac98e1093d95b469ad7af4d96d54730448be85efd458b82f9d5e5"
+    }
+  ],
+  "package": "/Users/home/cardboard-implementation-20261014/analysis/first-writer-ccd-status-and-378-audit-002",
+  "schema": "numi.cardboard.analysis_manifest.v1",
+  "validation": {
+    "command": "python3 audit.py",
+    "result": "PASS: source-bound status analysis and capture-derived branch decoding; strict outcome remains FAIL_UNEXPECTED_STATUS; run 378 is not a same-source parity pair"
+  }
+}

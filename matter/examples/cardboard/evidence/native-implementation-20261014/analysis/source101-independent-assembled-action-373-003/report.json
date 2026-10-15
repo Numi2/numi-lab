@@ -1,0 +1,50 @@
+{
+  "schema": "numi.cardboard.independent-assembled-action.v1",
+  "scope": "One rejected source101 capture360 direction, environment0, all1920tets. Independent FP64 Hill/bilinear paper equations and analytic finite starch neo-Hookean law, then independent frame/element/gather/mass assembly. No production tangent coefficients used.",
+  "physical_transactions": 0,
+  "supersedes_correction_gate_only": [
+    "source101-independent-assembled-action-373-001",
+    "source101-independent-assembled-action-373-002"
+  ],
+  "correction_erratum": "Earlier audits used the fixed FP64 residual weights for their correction metric. This audit uses max(abs(accepted),abs(candidate),parameter26) per state, matching the production scaled-correction coordinates. Earlier action vectors remain retained comparison data, not proof of the production correction gate.",
+  "paper_correction_scaling": "max(abs(delta_state)/max(abs(old_state),abs(candidate_state),parameter26))",
+  "center_correction_refinement": [
+    {
+      "iteration": 0,
+      "rows_above_2e_minus8": 1031,
+      "maximum_scaled_correction": 0.00036504522092341735
+    },
+    {
+      "iteration": 1,
+      "rows_above_2e_minus8": 0,
+      "maximum_scaled_correction": 1.94362983304928e-08
+    }
+  ],
+  "paper_correction_limit": 2e-08,
+  "paper_final_correction_gate_passed": true,
+  "paper_rows": 1728,
+  "starch_rows": 192,
+  "paper_projection_success": 1728,
+  "maximum_paper_scaled_residual": 1.3490895735317928e-10,
+  "maximum_paper_final_scaled_correction": 1.94362983304928e-08,
+  "maximum_paper_iterations": 10,
+  "starch_analytic_vs_complex_step_relative_error": 1.2462340029024445e-15,
+  "dt_seconds": 9.999999747378752e-05,
+  "absolute_action_error_Ns": 5.809706610097489e-06,
+  "reference_action_l2_Ns": 0.0007829340202090705,
+  "native_action_l2_Ns": 0.0007834137040960101,
+  "relative_assembled_action_error": 0.007420429385027995,
+  "comparison_gate": 0.01,
+  "comparison_within_one_percent": true,
+  "absolute_noise_floor_measured": false,
+  "general_solver_qualified": false,
+  "input_bindings": {
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-001/compare_directional_fd.py": "742b0920c4f543e284e41ed18f8dbc78253915a31f39b3ef8d32ff7dec01b5e8",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/tools/cardboard_cached_operator_audit.py": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-operator-term-replay-result-373/receipt.json": "b272edd1182891ca0fd26b9e95d49ac0d877f9ebc5a0fb9417a593d02153b286",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-operator-term-replay-result-373/result/cached-action.float4.bin": "8d17f4dc69bf54ac538912682b8e43744cdcbce3b793a94ebebd7d3af37ff7d3"
+  },
+  "finished_at_utc": "2026-10-15T16:12:48.573779+00:00"
+}

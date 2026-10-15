@@ -1,0 +1,4 @@
+{
+  "status": "FAIL_CLOSED",
+  "reason": "Analysis consumer used nonexistent environment diagnostics key; diagnostics live under solver_status. 64cycleCSV retained; no complete report emitted."
+}

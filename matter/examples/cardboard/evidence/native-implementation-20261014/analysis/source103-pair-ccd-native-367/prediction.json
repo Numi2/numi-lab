@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.native-diagnostic-prediction.v1",
+  "package_manifest_sha256": "7f9e549cd95d8d1009556efc5398b066561b2367868f9146b998659883d0eb79",
+  "preflight_argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/verify_pair_package.py",
+    "--prepared",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/prepared/prepared.json",
+    "--output",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-native-367/preflight-audit.json"
+  ],
+  "native_argv": [
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/compile/pair_ccd_native_check",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/prepared/prepared.json",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/prepared/cases.bin",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/compile/diagnostic_pair.metallib",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-native-367/native-result.json"
+  ],
+  "verifier_argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/verify_pair_package.py",
+    "--prepared",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/prepared/prepared.json",
+    "--native-result",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-native-367/native-result.json",
+    "--output",
+    "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-native-367/native-audit.json"
+  ],
+  "question": "Which exact unchanged production CCD subcall becomes uncertified at source103 first fatal self-contact trial?",
+  "prediction": "Require direct-production/trace-clone physical-output bit equality on all 30 calls before interpreting traces. Certification failures are retained and are not interpreted as physical penetration. No state, threshold or iteration budget changes.",
+  "physical_transactions": 0,
+  "started_at_utc": "2026-10-15T15:10:27.675130+00:00"
+}

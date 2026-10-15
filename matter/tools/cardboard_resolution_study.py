@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 
-SCHEMA = "numi.cardboard.resolution-study.v1"
+SCHEMA = "numi.cardboard.resolution-study.v2"
 PLAN_SCHEMA = "numi.cardboard.resolution-plan.v1"
 THRESHOLDS = {
     "peak_force_relative": 0.02,
@@ -32,7 +32,7 @@ THRESHOLDS = {
     "path_work_relative": 0.02,
     "normalized_force_curve_rms": 0.05,
     "normalized_moment_curve_rms": 0.05,
-    "springback_angle_difference_deg": 1.0,
+    "signed_springback_angle_difference_deg": 1.0,
     "paper_damage_area_fraction_difference": 0.02,
     "debond_area_fraction_difference": 0.02,
 }
@@ -489,6 +489,28 @@ def _all_finite(values: Iterable[float]) -> bool:
     return all(math.isfinite(float(value)) for value in values)
 
 
+def _absolute_linear_path_work(moment_a: float, moment_b: float, delta_angle_rad: float) -> float:
+    """Integrate |M| exactly for a linearly interpolated moment over one angle interval."""
+    a, b, width = float(moment_a), float(moment_b), abs(float(delta_angle_rad))
+    if not _all_finite((a, b, width)):
+        raise StudyError("nonfinite moment/rotation input to absolute-work integration")
+    abs_a, abs_b = abs(a), abs(b)
+    scale = max(abs_a, abs_b)
+    if scale == 0.0 or width == 0.0:
+        return 0.0
+    scaled_a, scaled_b = abs_a / scale, abs_b / scale
+    if (a < 0.0 < b) or (b < 0.0 < a):
+        # Split at the exact zero crossing. The two normalized triangle areas
+        # avoid squaring large finite moments or overflowing their sum.
+        average_factor = 0.5 * (scaled_a * scaled_a + scaled_b * scaled_b) / (scaled_a + scaled_b)
+    else:
+        average_factor = 0.5 * (scaled_a + scaled_b)
+    value = (scale * average_factor) * width
+    if not math.isfinite(value):
+        raise StudyError("absolute moment-path work overflowed")
+    return value
+
+
 def _run_metrics(run: Any) -> dict[str, Any]:
     protocol = cc._protocol(run.manifest["solver"])
     rows = [run.row_by_key[(step, 0)] for step in range(sum(protocol[p] for p in PHASE_ORDER))]
@@ -496,7 +518,7 @@ def _run_metrics(run: Any) -> dict[str, Any]:
     moments = [abs(row["reaction_moment_y_Nm"]) for row in rows]
     if not _all_finite(forces + moments):
         raise StudyError("nonfinite accepted force/moment observations")
-    path_work = 0.0
+    path_work_segments = []
     signed_work = 0.0
     for a, b in zip(rows, rows[1:]):
         theta_a = a.get("measured_right_grip_angle_deg")
@@ -504,9 +526,17 @@ def _run_metrics(run: Any) -> dict[str, Any]:
         if theta_a is None or theta_b is None:
             raise StudyError("accepted observations lack measured grip angles required for force-work integration")
         dtheta = math.radians(theta_b - theta_a)
-        increment = 0.5 * (a["reaction_moment_y_Nm"] + b["reaction_moment_y_Nm"]) * dtheta
+        moment_a = a["reaction_moment_y_Nm"]
+        moment_b = b["reaction_moment_y_Nm"]
+        increment = 0.5 * (moment_a + moment_b) * dtheta
         signed_work += increment
-        path_work += abs(increment)
+        path_work_segments.append(_absolute_linear_path_work(moment_a, moment_b, dtheta))
+    try:
+        path_work = math.fsum(path_work_segments)
+    except OverflowError as error:
+        raise StudyError("absolute moment-path work overflowed during accumulation") from error
+    if not _all_finite((signed_work, path_work)):
+        raise StudyError("nonfinite integrated moment work")
     release = cc._release_response(run)
     if not release or release.get("boundary_verified") is not True:
         raise StudyError("free-release boundary response is missing or unverified")
@@ -531,6 +561,7 @@ def _run_metrics(run: Any) -> dict[str, Any]:
         "signed_external_moment_work_J": signed_work,
         "absolute_moment_path_work_J": path_work,
         "springback_angle_change_deg": abs(float(release["right_grip_angle_change_deg"])) if release["right_grip_angle_change_deg"] is not None else None,
+        "signed_springback_angle_change_deg": float(release["right_grip_angle_change_deg"]) if release["right_grip_angle_change_deg"] is not None else None,
         "free_force_residuals": residual_summary,
     }
 
@@ -635,6 +666,9 @@ def _pair_metrics(run_a: Any, run_b: Any, kind: str) -> dict[str, Any]:
         "normalized_moment_curve_rms": curve["normalized_moment_curve_rms"],
         "springback_angle_difference_deg": abs(a["springback_angle_change_deg"] - b["springback_angle_change_deg"])
             if a["springback_angle_change_deg"] is not None and b["springback_angle_change_deg"] is not None else None,
+        "signed_springback_angle_difference_deg": abs(
+            a["signed_springback_angle_change_deg"] - b["signed_springback_angle_change_deg"]
+        ) if a["signed_springback_angle_change_deg"] is not None and b["signed_springback_angle_change_deg"] is not None else None,
         "free_force_residuals": {"baseline": a["free_force_residuals"], "candidate": b["free_force_residuals"]},
         "damage_debond": {"baseline": _damage_areas(run_a), "candidate": _damage_areas(run_b)},
         "raw_summary": {"baseline": a, "candidate": b},

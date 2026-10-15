@@ -1,0 +1,546 @@
+{
+  "schema": "numi.cardboard.source103_pair_geometry_hypothesis.v1",
+  "verdict": "CPU_GEOMETRY_SUGGESTS_NEAR_THICKNESS_CROSSING; NATIVE_SUBCALL_UNOBSERVED",
+  "scope": "Read-only CPU hypothesis for exact captured EE edge0/edge0 endpoints. No source or transaction changes.",
+  "bindings": {
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103",
+    "contact_metalinc_sha256": "427aca061ad2c6d2218b5eae0bc7620132a1ef9fff9f688390ccc96ca8a27ffc",
+    "common_metalinc_sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182",
+    "prepared_manifest_sha256": "d1e544342095a563e55b18dc160fd344052c8db50eed14a8dbddd178eb019fe9",
+    "prepared_cases_bin_sha256": "e116911335b4fbf88683535cde08a97b26ca99bc1975989d67532196c2ff996f",
+    "native_trial358_manifest_sha256": "3d4b183e2f7ba467d6f084ce0aef9c061173dc93ba49d47966428772236eb0cd",
+    "native_trial358_payload_sha256": "8126b3baa007e1da436447bd8bfaa91ab51a53be72471ff1c7133897089deea0",
+    "trial358_build_source_fingerprint": "915f50b10edc2e46",
+    "trial358_device_program_fingerprint": "ce63481efb49444f"
+  },
+  "selected_identity": {
+    "pair": [
+      92,
+      127
+    ],
+    "candidate_slot": 283,
+    "candidate_identity": [
+      92,
+      127,
+      283,
+      1
+    ],
+    "root": 1201,
+    "newton_iteration": 7,
+    "private_trial": 23,
+    "kind": "edge_edge",
+    "feature_indices": [
+      0,
+      0
+    ]
+  },
+  "cases": {
+    "center359": {
+      "case_name": "center359_ee_edge0_edge0",
+      "captured_endpoint_float32_bits": [
+        "3b031297",
+        "3236273c",
+        "3a831ea8",
+        "3b03126a",
+        "3120b246",
+        "34dbee95",
+        "b3d85123",
+        "bb03137e",
+        "3a846bdf",
+        "3b0310a7",
+        "b3794115",
+        "3a84703b",
+        "3b0312a4",
+        "325a5b75",
+        "3a8321ae",
+        "3b031269",
+        "314b9a57",
+        "350b6ba7",
+        "b3d8283b",
+        "bb03137f",
+        "3a846d2f",
+        "3b0310a7",
+        "b379acd4",
+        "3a84712b"
+      ],
+      "pair": [
+        92,
+        127
+      ],
+      "candidate_identity": [
+        92,
+        127,
+        283,
+        1
+      ],
+      "dt_seconds_f32_bits": "38d1b717",
+      "thickness_f32_bits": "3727c5ac",
+      "primitive_nodes": [
+        [
+          14,
+          5,
+          17
+        ],
+        [
+          28,
+          32,
+          31
+        ]
+      ],
+      "geometry": {
+        "nominal_thickness_m": 9.999999747378752e-06,
+        "roundoff_pad_f32_m": 1.9074091195392384e-09,
+        "effective_thickness_f32_m": 1.000190695776837e-05,
+        "effective_thickness_f32_bits": [
+          "3727cddd"
+        ],
+        "production_source_bound_promoted_estimate_m": 1.488450341040999e-07,
+        "relative_geometry_lipschitz_bound_fp64_m": 8.179054300744533e-08,
+        "absolute_over_relative_ratio": 1.8198318366776296,
+        "sampled_start_distance_m": 1.0061392608598617e-05,
+        "sampled_finish_distance_m": 9.999283199358746e-06,
+        "sampled_min_m": 9.999283199358746e-06,
+        "first_time_within_nominal_thickness_fp64": 0.9884629395058816,
+        "first_time_within_effective_thickness_fp64": 0.9577551778533452,
+        "ca_trace_fp64_geometry_using_source_bound": [
+          {
+            "iteration": 0,
+            "time": 0.0,
+            "distance_m": 1.0061392608598617e-05,
+            "gap_to_effective_m": 5.948565083024757e-08
+          },
+          {
+            "iteration": 1,
+            "time": 0.39964820585579114,
+            "distance_m": 1.0036570443253364e-05,
+            "gap_to_effective_m": 3.46634854849944e-08
+          },
+          {
+            "iteration": 2,
+            "time": 0.6325312556238559,
+            "distance_m": 1.0022106222110392e-05,
+            "gap_to_effective_m": 2.0199264342022705e-08
+          },
+          {
+            "iteration": 3,
+            "time": 0.7682379284302571,
+            "distance_m": 1.0013677617739305e-05,
+            "gap_to_effective_m": 1.1770659970935246e-08
+          },
+          {
+            "iteration": 4,
+            "time": 0.8473178926479616,
+            "distance_m": 1.0008766058929075e-05,
+            "gap_to_effective_m": 6.859101160705514e-09
+          },
+          {
+            "iteration": 5,
+            "time": 0.8934000558990941,
+            "distance_m": 1.0005903958826124e-05,
+            "gap_to_effective_m": 3.997001057754845e-09
+          },
+          {
+            "iteration": 6,
+            "time": 0.9202534949930675,
+            "distance_m": 1.0004236130537184e-05,
+            "gap_to_effective_m": 2.3291727688148635e-09
+          },
+          {
+            "iteration": 7,
+            "time": 0.9359018018568751,
+            "distance_m": 1.000326423751783e-05,
+            "gap_to_effective_m": 1.3572797494600819e-09
+          },
+          {
+            "iteration": 8,
+            "time": 0.9450205457748672,
+            "distance_m": 1.0002697886161377e-05,
+            "gap_to_effective_m": 7.909283930073797e-10
+          },
+          {
+            "iteration": 9,
+            "time": 0.9503343165551151,
+            "distance_m": 1.0002367855997154e-05,
+            "gap_to_effective_m": 4.608982287840959e-10
+          },
+          {
+            "iteration": 10,
+            "time": 0.953430813737962,
+            "distance_m": 1.0002175537327636e-05,
+            "gap_to_effective_m": 2.6857955926649555e-10
+          },
+          {
+            "iteration": 11,
+            "time": 0.9552352377880022,
+            "distance_m": 1.0002063467339198e-05,
+            "gap_to_effective_m": 1.565095708283261e-10
+          },
+          {
+            "iteration": 12,
+            "time": 0.9562867311869615,
+            "distance_m": 1.0001998160712409e-05,
+            "gap_to_effective_m": 9.120294403967561e-11
+          },
+          {
+            "iteration": 13,
+            "time": 0.9568994687538452,
+            "distance_m": 1.0001960104532504e-05,
+            "gap_to_effective_m": 5.3146764134978284e-11
+          },
+          {
+            "iteration": 14,
+            "time": 0.957256529803647,
+            "distance_m": 1.0001937928024756e-05,
+            "gap_to_effective_m": 3.097025638703211e-11
+          },
+          {
+            "iteration": 15,
+            "time": 0.957464600274882,
+            "distance_m": 1.0001925005090593e-05,
+            "gap_to_effective_m": 1.8047322223964835e-11
+          },
+          {
+            "iteration": 16,
+            "time": 0.9575858493466606,
+            "distance_m": 1.0001917474499041e-05,
+            "gap_to_effective_m": 1.051673067140285e-11
+          },
+          {
+            "iteration": 17,
+            "time": 0.9576565049162918,
+            "distance_m": 1.0001913086191395e-05,
+            "gap_to_effective_m": 6.128423025400943e-12
+          },
+          {
+            "iteration": 18,
+            "time": 0.9576976780939009,
+            "distance_m": 1.0001910528989024e-05,
+            "gap_to_effective_m": 3.5712206541309906e-12
+          },
+          {
+            "iteration": 19,
+            "time": 0.957721670971296,
+            "distance_m": 1.0001909038828805e-05,
+            "gap_to_effective_m": 2.081060435196909e-12
+          },
+          {
+            "iteration": 20,
+            "time": 0.957735652361053,
+            "distance_m": 1.0001908170466314e-05,
+            "gap_to_effective_m": 1.2126979447219834e-12
+          },
+          {
+            "iteration": 21,
+            "time": 0.9577437997470375,
+            "distance_m": 1.0001907664444927e-05,
+            "gap_to_effective_m": 7.066765572103775e-13
+          },
+          {
+            "iteration": 22,
+            "time": 0.9577485474805542,
+            "distance_m": 1.0001907369570633e-05,
+            "gap_to_effective_m": 4.1180226377057327e-13
+          },
+          {
+            "iteration": 23,
+            "time": 0.957751314131563,
+            "distance_m": 1.0001907197738148e-05,
+            "gap_to_effective_m": 2.3996977873504046e-13
+          },
+          {
+            "iteration": 24,
+            "time": 0.9577529263437552,
+            "distance_m": 1.0001907097606067e-05,
+            "gap_to_effective_m": 1.398376975602104e-13
+          },
+          {
+            "iteration": 25,
+            "time": 0.9577539263437552,
+            "distance_m": 1.0001907035497637e-05,
+            "gap_to_effective_m": 7.772926758893659e-14
+          },
+          {
+            "iteration": 26,
+            "time": 0.9577549263437553,
+            "distance_m": 1.0001906973389204e-05,
+            "gap_to_effective_m": 1.5620834229530985e-14
+          },
+          {
+            "iteration": 27,
+            "time": 0.9577559263437553,
+            "distance_m": 1.000190691128077e-05,
+            "gap_to_effective_m": -4.648759912987462e-14
+          }
+        ],
+        "first_hit_iteration_in_extended_cpu_trace": 27,
+        "native_ccd_result": "NOT_OBSERVED: package 003 was compile/CPU verified only; previous native 364 failed before dispatch",
+        "interpretation": "Independent FP64 closest-segment geometry over exact promoted captured FP32 endpoint words. This is not a production Metal trace or certificate."
+      }
+    },
+    "trial358": {
+      "case_name": "trial358_ee_edge0_edge0",
+      "captured_endpoint_float32_bits": [
+        "3b031297",
+        "3236273c",
+        "3a831ea8",
+        "3b03126a",
+        "3120b246",
+        "34dbee94",
+        "b3d85123",
+        "bb03137e",
+        "3a846bdf",
+        "3b0310a7",
+        "b3794115",
+        "3a84703b",
+        "3b0312a4",
+        "325a5b76",
+        "3a8321ae",
+        "3b031269",
+        "314b9a59",
+        "350b6ba8",
+        "b3d8283b",
+        "bb03137f",
+        "3a846d2f",
+        "3b0310a7",
+        "b379acd4",
+        "3a84712b"
+      ],
+      "pair": [
+        92,
+        127
+      ],
+      "candidate_identity": [
+        92,
+        127,
+        283,
+        1
+      ],
+      "dt_seconds_f32_bits": "38d1b717",
+      "thickness_f32_bits": "3727c5ac",
+      "primitive_nodes": [
+        [
+          14,
+          5,
+          17
+        ],
+        [
+          28,
+          32,
+          31
+        ]
+      ],
+      "geometry": {
+        "nominal_thickness_m": 9.999999747378752e-06,
+        "roundoff_pad_f32_m": 1.9074091195392384e-09,
+        "effective_thickness_f32_m": 1.000190695776837e-05,
+        "effective_thickness_f32_bits": [
+          "3727cddd"
+        ],
+        "production_source_bound_promoted_estimate_m": 1.488451193701828e-07,
+        "relative_geometry_lipschitz_bound_fp64_m": 8.179062827282478e-08,
+        "absolute_over_relative_ratio": 1.8198309820250775,
+        "sampled_start_distance_m": 1.0061392608598617e-05,
+        "sampled_finish_distance_m": 9.999283199365038e-06,
+        "sampled_min_m": 9.999283199365038e-06,
+        "first_time_within_nominal_thickness_fp64": 0.988462939604549,
+        "first_time_within_effective_thickness_fp64": 0.9577551779496059,
+        "ca_trace_fp64_geometry_using_source_bound": [
+          {
+            "iteration": 0,
+            "time": 0.0,
+            "distance_m": 1.0061392608598617e-05,
+            "gap_to_effective_m": 5.948565083024757e-08
+          },
+          {
+            "iteration": 1,
+            "time": 0.39964797691689685,
+            "distance_m": 1.0036570457475067e-05,
+            "gap_to_effective_m": 3.466349970669791e-08
+          },
+          {
+            "iteration": 2,
+            "time": 0.6325309888246546,
+            "distance_m": 1.0022106238684896e-05,
+            "gap_to_effective_m": 2.0199280916526248e-08
+          },
+          {
+            "iteration": 3,
+            "time": 0.7682376952453734,
+            "distance_m": 1.0013677632226817e-05,
+            "gap_to_effective_m": 1.1770674458447863e-08
+          },
+          {
+            "iteration": 4,
+            "time": 0.8473177114948401,
+            "distance_m": 1.0008766070185641e-05,
+            "gap_to_effective_m": 6.85911241727194e-09
+          },
+          {
+            "iteration": 5,
+            "time": 0.8933999239737935,
+            "distance_m": 1.0005903967025305e-05,
+            "gap_to_effective_m": 3.997009256935519e-09
+          },
+          {
+            "iteration": 6,
+            "time": 0.9202534027700637,
+            "distance_m": 1.000423613627072e-05,
+            "gap_to_effective_m": 2.3291785023503902e-09
+          },
+          {
+            "iteration": 7,
+            "time": 0.935901739189867,
+            "distance_m": 1.0003264241416084e-05,
+            "gap_to_effective_m": 1.3572836477140752e-09
+          },
+          {
+            "iteration": 8,
+            "time": 0.9450205040741791,
+            "distance_m": 1.0002697888757033e-05,
+            "gap_to_effective_m": 7.909309886636136e-10
+          },
+          {
+            "iteration": 9,
+            "time": 0.9503342892490665,
+            "distance_m": 1.00023678576992e-05,
+            "gap_to_effective_m": 4.6089993083073483e-10
+          },
+          {
+            "iteration": 10,
+            "time": 0.9534307960930999,
+            "distance_m": 1.0002175538429605e-05,
+            "gap_to_effective_m": 2.6858066123603113e-10
+          },
+          {
+            "iteration": 11,
+            "time": 0.9552352265129382,
+            "distance_m": 1.000206346804538e-05,
+            "gap_to_effective_m": 1.5651027700985863e-10
+          },
+          {
+            "iteration": 12,
+            "time": 0.9562867240539534,
+            "distance_m": 1.0001998161161662e-05,
+            "gap_to_effective_m": 9.120339329239831e-11
+          },
+          {
+            "iteration": 13,
+            "time": 0.9568994642880861,
+            "distance_m": 1.0001960104815598e-05,
+            "gap_to_effective_m": 5.314704722863585e-11
+          },
+          {
+            "iteration": 14,
+            "time": 0.9572565270352794,
+            "distance_m": 1.0001937928202569e-05,
+            "gap_to_effective_m": 3.097043419957653e-11
+          },
+          {
+            "iteration": 15,
+            "time": 0.9574645985819356,
+            "distance_m": 1.0001925005201894e-05,
+            "gap_to_effective_m": 1.8047433524094104e-11
+          },
+          {
+            "iteration": 16,
+            "time": 0.9575858483320144,
+            "distance_m": 1.0001917474568101e-05,
+            "gap_to_effective_m": 1.0516799731693106e-11
+          },
+          {
+            "iteration": 17,
+            "time": 0.9576565043251447,
+            "distance_m": 1.0001913086234021e-05,
+            "gap_to_effective_m": 6.12846565148698e-12
+          },
+          {
+            "iteration": 18,
+            "time": 0.9576976777655465,
+            "distance_m": 1.0001910529015624e-05,
+            "gap_to_effective_m": 3.5712472543536662e-12
+          },
+          {
+            "iteration": 19,
+            "time": 0.957721670807908,
+            "distance_m": 1.0001909038845005e-05,
+            "gap_to_effective_m": 2.081076635549058e-12
+          },
+          {
+            "iteration": 20,
+            "time": 0.9577356522984961,
+            "distance_m": 1.0001908170476228e-05,
+            "gap_to_effective_m": 1.212707858395598e-12
+          },
+          {
+            "iteration": 21,
+            "time": 0.9577437997464173,
+            "distance_m": 1.0001907664450944e-05,
+            "gap_to_effective_m": 7.066825745324348e-13
+          },
+          {
+            "iteration": 22,
+            "time": 0.957748547517641,
+            "distance_m": 1.0001907369574269e-05,
+            "gap_to_effective_m": 4.118058992359829e-13
+          },
+          {
+            "iteration": 23,
+            "time": 0.9577513141914895,
+            "distance_m": 1.0001907197740486e-05,
+            "gap_to_effective_m": 2.399721165459749e-13
+          },
+          {
+            "iteration": 24,
+            "time": 0.9577529264184645,
+            "distance_m": 1.000190709760732e-05,
+            "gap_to_effective_m": 1.3983895116897235e-13
+          },
+          {
+            "iteration": 25,
+            "time": 0.9577539264184646,
+            "distance_m": 1.0001907035498886e-05,
+            "gap_to_effective_m": 7.773051611550084e-14
+          },
+          {
+            "iteration": 26,
+            "time": 0.9577549264184646,
+            "distance_m": 1.0001906973390674e-05,
+            "gap_to_effective_m": 1.5622304678727418e-14
+          },
+          {
+            "iteration": 27,
+            "time": 0.9577559264184646,
+            "distance_m": 1.0001906911282239e-05,
+            "gap_to_effective_m": -4.6486130374744083e-14
+          }
+        ],
+        "first_hit_iteration_in_extended_cpu_trace": 27,
+        "native_ccd_result": "NOT_OBSERVED: package 003 was compile/CPU verified only; previous native 364 failed before dispatch",
+        "interpretation": "Independent FP64 closest-segment geometry over exact promoted captured FP32 endpoint words. This is not a production Metal trace or certificate."
+      }
+    }
+  },
+  "source_algorithm": {
+    "edge_edge_iterations": 17,
+    "speed_bound": "max(|dp0|,|dp1|)+max(|dq0|,|dq1|)",
+    "advance": "max((distance-effectiveThickness)/speedBound,1e-6)",
+    "effective_thickness": "thickness + 8*float_epsilon*max(thickness,coordinateScale,1e-12)",
+    "source_lines": {
+      "common.metalinc": "79-84",
+      "contact.metalinc": "3331-3428"
+    },
+    "safety_note": "Any replacement bound needs an outward FP32 evaluation-error argument; the relative-motion bound here is exact-real geometry only."
+  },
+  "narrow_followup_proposal": {
+    "first_step": "Run package 003 native direct-routine replay; compare 30 direct production outputs with trace clone and retain exact per-call certification/iterations.",
+    "if_EE_0_0_exhausts": "Evaluate a bounded conservative-advance continuation for exhausted calls only, carrying the same time and using the exact same speed bound, effective thickness, feature distance and certified miss tests. Continue to fail closed if the tail cannot certify. This changes no threshold and cannot turn a true hit into a miss; it may classify the near-thickness crossing as a hit rather than status-6 uncertainty.",
+    "guard": "Keep the current production path unchanged until the native trace demonstrates that this exact subcall exhausts. Do not substitute the smaller Galilean-relative bound without a separate outward-rounding proof.",
+    "physical_interpretation": "A certified hit still means the candidate encounters the configured contact band and may be rejected; it is not evidence that the action is collision-free or that a solver defect is fixed."
+  },
+  "limitations": [
+    "CPU reference is double precision over promoted exact float32 endpoints, but closest-point arithmetic and the CCD walk are independently implemented.",
+    "No successful native package-003 dispatch is included.",
+    "The calculation does not identify whether pair 92/127 is an intended interface or an unintended geometric contact.",
+    "No collision threshold, iteration limit, source code, or physical state was changed."
+  ]
+}

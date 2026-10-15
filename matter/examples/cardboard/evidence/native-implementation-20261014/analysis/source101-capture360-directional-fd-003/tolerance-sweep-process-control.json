@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-002/tolerance_sweep.py"
+  ],
+  "observed_process": {
+    "cpu_percent_at_last_observation": 99.3,
+    "elapsed_at_last_observation": "about 01:46",
+    "pid": 791,
+    "resident_kib_at_last_observation": 349712
+  },
+  "partial_output": "none; the script writes only after the full sweep, and its output directory did not exist after termination.",
+  "result_status": "incomplete and excluded from evidence; no projection result is inferred from the interrupted run.",
+  "schema": "numi.cardboard.analysis.process-control.v1",
+  "script_sha256": "b3139b4208b114ee72e80ac96d28b7d1a358530a84cf93dfee6fb89c4b084d01",
+  "termination": "SIGTERM issued by the same analysis owner after the full 1,728-row, 3-threshold, 5-scale run remained CPU-bound with no output. It was replaced with a bounded ten-row selected sensitivity sweep."
+}

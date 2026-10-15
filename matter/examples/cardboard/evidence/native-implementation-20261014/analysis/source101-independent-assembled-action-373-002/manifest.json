@@ -1,0 +1,8 @@
+{
+  "schema": "numi.cardboard.audit-evidence.v1",
+  "files": {
+    "audit.py": "5385c3c82070be5330b4d797065fbd80aed38b8fa373008ae837c9cd0e542811",
+    "reference-vectors.npz": "ba67df46530150b18933a218040ba67496044ff750c6109953593c1920c5512f",
+    "report.json": "04f239f673b26c9f3ec598b28356f7398aaf0603683a266aadd4009c7d05bcee"
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "captures": [
+    {
+      "label": "center359",
+      "manifest": "/Users/home/cardboard-implementation-20261014/native/first-fatal-center-359/center-capture.coupled.json",
+      "manifest_sha256": "f3344db91f0edba415119dd639956507ba0efacfe0c459042dc4d8b83087ff1b",
+      "payload": "/Users/home/cardboard-implementation-20261014/native/first-fatal-center-359/center-capture.coupled.bin",
+      "payload_sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+      "prediction": "/Users/home/cardboard-implementation-20261014/native/first-fatal-center-359/prediction.json",
+      "prediction_sha256": "0088a3d2db831b46dac34db72d1f18822e82a3eec8864a2103bf20419d167d04",
+      "run_receipt": "/Users/home/cardboard-implementation-20261014/native/first-fatal-center-359/receipt.json",
+      "run_receipt_sha256": "8f6b5dc36c239e25223dab6b1fb8e7b4bb51150e5d1b386de57a802133e69661"
+    },
+    {
+      "label": "trial358",
+      "manifest": "/Users/home/cardboard-implementation-20261014/native/first-fatal-private-trial-358/private-trial.coupled.json",
+      "manifest_sha256": "3d4b183e2f7ba467d6f084ce0aef9c061173dc93ba49d47966428772236eb0cd",
+      "payload": "/Users/home/cardboard-implementation-20261014/native/first-fatal-private-trial-358/private-trial.coupled.bin",
+      "payload_sha256": "8126b3baa007e1da436447bd8bfaa91ab51a53be72471ff1c7133897089deea0",
+      "prediction": "/Users/home/cardboard-implementation-20261014/native/first-fatal-private-trial-358/prediction.json",
+      "prediction_sha256": "2e3f5fa5b977a1a72b728ff1bdaaa75b1cc7a4589e26c380ed3c0fec4cf21756",
+      "run_receipt": "/Users/home/cardboard-implementation-20261014/native/first-fatal-private-trial-358/receipt.json",
+      "run_receipt_sha256": "20e277611fe1a79e1e38f2b9f66c8bf5f3a685440a005014ccb39f16d4b8a5c1"
+    }
+  ],
+  "commands": {
+    "compile": "./build.sh",
+    "cpu_tests": "python3 test_package_contract.py",
+    "prepare": "python3 prepare_pair_inputs.py",
+    "root_native_run": "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/compile/pair_ccd_native_check /Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/prepared/prepared.json /Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/prepared/cases.bin /Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/compile/diagnostic_pair.metallib /Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/native-results.json",
+    "verify_cpu": "python3 verify_pair_package.py --prepared prepared/prepared.json --output cpu-audit.json",
+    "verify_native": "python3 /Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/verify_pair_package.py --prepared /Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/prepared/prepared.json --native-result /Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/native-results.json --output /Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/native-audit.json"
+  },
+  "compile_warnings": [
+    "Untouched source-103 fgmres.metalinc emits two existing Metal warnings: sharedValid and refinementValid may be uninitialized on non-lane-0 threads. Metal compilation/linking succeeded."
+  ],
+  "compiled_artifacts": {
+    "README.md": "d9b081d4b222ace4b26c79dfea476b29e35b6a32608922a8e8aa948fc82df218",
+    "build.sh": "002a2a42107b6698023c465399fb5437db57106a85dd3c52318e8920915c4cf2",
+    "compile/build.log": "b55402e4954b815ee4b9a3d80abbc91625bba15ae512ecf053bf821819c1f440",
+    "compile/diagnostic_pair.air": "4aff21e68b218fbed90afe310866c2c17bb8a2c6489c29f78b31ac13018f4dbb",
+    "compile/diagnostic_pair.metallib": "c7038566197e207275de5ca63f7d25689ccdd3e4edc7ec383591208596dc34cf",
+    "compile/kernel-symbol.txt": "b5c710f1c839400617f417aa61a20285b9e84547eb6729162749aa221bf1290a",
+    "compile/pair_ccd_native_check": "81ec3a863172148127e24a43d3a9deaa6d685f9bec81abd073676b157af6f093",
+    "cpu-audit.json": "3a96000ee9ee4fccb07bf8c78a3653db7901702b7b06c4f0e1fee3ec0acc8b3d",
+    "cpu-tests.log": "1779ea12ca8031748885a8344efaa41cad51ea17bf0d79d169bf7090b791ba00",
+    "cpu-verify.log": "3a96000ee9ee4fccb07bf8c78a3653db7901702b7b06c4f0e1fee3ec0acc8b3d",
+    "diagnostic_pair.metal": "7e4a3b1ed78c53551f0d5d30ac50c9b5b59e0c3cbc913be66dd006295abe2432",
+    "pair_ccd_native_check.mm": "a88bf8417be2f9ad2fc532706967034d1880a03c2707a24442e3fda75e25ec83",
+    "prepare_pair_inputs.py": "9e7787990d672ab4c6f5c55b78fd1d6ca9fcf6c59f4514d628d73774479d8d12",
+    "prepared/cases.bin": "e116911335b4fbf88683535cde08a97b26ca99bc1975989d67532196c2ff996f",
+    "prepared/prepared.json": "d1e544342095a563e55b18dc160fd344052c8db50eed14a8dbddd178eb019fe9",
+    "test_package_contract.py": "a1387014c903f19f8b8af61b37a2c95e3be2fff1ef71fa81b2b63f9bb3830b5e",
+    "verify_pair_package.py": "7e0e2fae6ada3b96f9b7a0d244e34f77b68bfa114608e99ac0a19b8e2fffc986"
+  },
+  "diagnostic": {
+    "function_resolution": {
+      "evidence_file": "compile/kernel-symbol.txt",
+      "evidence_sha256": "b5c710f1c839400617f417aa61a20285b9e84547eb6729162749aa221bf1290a",
+      "host_lookup": "numi_matter_metal::nm_cardboard_source103_pair_ccd_diagnostic",
+      "metallib_symbol": "numi_matter_metal::nm_cardboard_source103_pair_ccd_diagnostic",
+      "resolution_method": "exact namespaced Metal function name; no fallback alias"
+    },
+    "kernel": "numi_matter_metal::nm_cardboard_source103_pair_ccd_diagnostic",
+    "method": "direct frozen production CCD call plus instrumentation clone; requires bitwise output equality",
+    "native_result_contract": "Verify raw f32 words independently: production versus clone records 0..2 all words plus record3.x only; additionally validate host flag, field serialization, trace length/terminal marker, exact source identity, and sealed metallib path/SHA.",
+    "no_state_or_transaction_changes": true,
+    "no_threshold_changes": true,
+    "summary_float4_records_per_case": 9,
+    "traces": "per conservative-advance iteration, max 16 VT or 17 EE"
+  },
+  "limits": [
+    "No GPU dispatch is performed by package preparation or CPU verification.",
+    "metal-nm confirms the namespaced entry point and the host requests that exact name; successful runtime pipeline creation and native CCD outputs remain pending the root-owned native run.",
+    "CPU FP64 geometry and CA reproduction are comparisons, not formal certificate oracles.",
+    "The Galilean-relative bound remains a mathematical hypothesis without outward FP32 error accounting.",
+    "No production CCD, thickness, timestep, or acceptance logic is changed."
+  ],
+  "package_path": "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003",
+  "schema": "numi.cardboard.source103_pair_ccd_diagnostic_package.v1",
+  "scope": "source103 exact pair-92/127 CCD diagnosis; host/metallib qualified-symbol repair only; no physical transaction; no native dispatch by preparer",
+  "selection": {
+    "candidate_identity": [
+      92,
+      127,
+      283,
+      1
+    ],
+    "candidate_slot": 283,
+    "case_count": 30,
+    "cases_bin_sha256": "e116911335b4fbf88683535cde08a97b26ca99bc1975989d67532196c2ff996f",
+    "ee_count": 18,
+    "input_binary_bytes": 4320,
+    "input_case_bytes": 144,
+    "newton_iteration": 7,
+    "prepared_sha256": "d1e544342095a563e55b18dc160fd344052c8db50eed14a8dbddd178eb019fe9",
+    "primitive_pair": [
+      92,
+      127
+    ],
+    "private_trial": 23,
+    "root": 1201,
+    "vt_count": 12
+  },
+  "source": {
+    "build_receipt": "/Users/home/cardboard-implementation-20261014/analysis/retained-firstfatal-captures103-001/359/source-build.json",
+    "build_receipt_sha256": "b4c036f65383b5fce246144c3a81526050ad327252f5859d9b4c0504888bce6b",
+    "common_metalinc_sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182",
+    "contact_metalinc_sha256": "427aca061ad2c6d2218b5eae0bc7620132a1ef9fff9f688390ccc96ca8a27ffc",
+    "main_shader_sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168",
+    "production_file_line_ranges": {
+      "edgeEdgeCCD": "matter/src/metal/contact.metalinc:3331-3427",
+      "vertexTriangleCCD": "matter/src/metal/contact.metalinc:3234-3329"
+    },
+    "production_functions": [
+      "vertexTriangleCCD",
+      "edgeEdgeCCD"
+    ],
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103",
+    "source_file_inventory_count": 778
+  },
+  "speed_bound_hypothesis": {
+    "ee_ratio_min_max": [
+      1.8198309820250775,
+      2.5379432891775067
+    ],
+    "meaning": "ideal mathematical Galilean-relative Lipschitz bound on exact promoted captured FP32 endpoints; not an outward-FP32 conservative certificate and not a production-change authorization",
+    "vt_ratio_min_max": [
+      1.6831837524630746,
+      6.70695782488078
+    ]
+  },
+  "status": {
+    "cpu_contract_tests": "10/10 passed, including synthetic native-result parser positive/negative cases",
+    "host_compile": true,
+    "inputs_prepared": true,
+    "metal_compile": true,
+    "native_dispatch": "not run by preparer; root owns queued dispatch",
+    "symbol_lookup": "qualified metallib entry point verified with metal-nm; host requests same exact symbol"
+  },
+  "supersedes": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-002/manifest.json",
+      "reason": "package002 host requested an unqualified kernel symbol absent from the namespaced metallib export",
+      "sha256": "2aaf4a4e71c205530599e5ee2205f4269213a4d4ffca86b2e6ebccea9ab0884a"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-001/manifest.json",
+      "reason": "001 native verifier expected the wrong per-case key and compared all 4 rows despite host comparing three full rows plus fourth-row x only.",
+      "sha256": "f679c9b8455257941f4f81573311a100f78db3ee7e7d1376d7550d948bba32e7"
+    }
+  ]
+}

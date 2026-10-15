@@ -1,0 +1,587 @@
+{
+  "schema": "numi.cardboard.source101-regional361-independent-review.v1",
+  "verdict": "same-generation captured operator/factors and compiled-world graph layout reproduced; numerical checks are descriptive and the physical transaction remains rejected",
+  "native_status": {
+    "capture_run_360_exit": 2,
+    "capture_run_361_exit": 2,
+    "timed_out": false,
+    "physical_step_admitted": false,
+    "ordinary_output_files_identical": 37,
+    "armijo_rows_identical": 64,
+    "same_compiled_input_hash_map": true,
+    "only_argv_difference_after_normalization": "output directory",
+    "environment_differences": {
+      "NM_FEM_NEWTON_TRACE_ROOT": [
+        "2",
+        null
+      ],
+      "NM_FEM_OPERATOR_FD_CAPTURE_PATH": [
+        "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture",
+        "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-rap-only-361/operator-capture"
+      ],
+      "NM_FEM_REGIONAL_RAP_CAPTURE_ONLY": [
+        "0",
+        "1"
+      ],
+      "NM_FEM_TRUE_RESIDUAL_NEWTON_SELECTOR": [
+        "23",
+        null
+      ],
+      "NM_FEM_TRUE_RESIDUAL_RESTART": [
+        "0",
+        null
+      ],
+      "NM_FEM_TRUE_RESIDUAL_ROOT": [
+        "2",
+        null
+      ]
+    }
+  },
+  "failed_audit_revisions_001_to_005": [
+    {
+      "revision": 1,
+      "failure": {
+        "status": "reader rejected before arithmetic comparisons",
+        "reason": "graph patch 13 includes a fixed node",
+        "interpretation": "Older reader assumed all potential patch nodes remain free. No production defect or factor result inferred."
+      },
+      "failure_json_sha256": "46ab800c845e40bd304c473684b9aed13b245273bf87d22a6442f1f415d52a69",
+      "audit_py_sha256": "87730cfe846bc90375b9dcd1c240d6d99adaa4c7efc0ace4710175487ddf033b",
+      "manifest_sha256": "731ce31e312e1d18b88fe12eab61ddbbbda9b4bb3b7edc491581fcf385971e29"
+    },
+    {
+      "revision": 2,
+      "failure": {
+        "status": "rejected before arithmetic comparisons",
+        "reason": "glue tetrahedra have zero logical material state; 15 is allocated stride, not every material state length",
+        "production_verdict": null
+      },
+      "failure_json_sha256": "75e806ab2cddc757ce67eb881e386d63cfeb9a140b42af5e93ce01df8c6545fe",
+      "audit_py_sha256": "fea6d6e0255f4370592dd15bab882e6d7f306fc65f8690693d565b899b797c02",
+      "manifest_sha256": "5e1c3021ac54b86cc89ee314241cbcf2d9e03380fd1ecc77739a73a8124f7323"
+    },
+    {
+      "revision": 3,
+      "failure": {
+        "status": "rejected before arithmetic comparisons",
+        "reason": "audit transposed deformation words; source capture stores three row-major float4 records",
+        "production_verdict": null
+      },
+      "failure_json_sha256": "9addf4e04ea4abdbd296e9f7cdccfaa255ddab0a0ae3b5e7b3e80e47614bd6f7",
+      "audit_py_sha256": "20b59214d73f1334b101b3aee0208b697327115ff2e45f33078ef5daf0edd015",
+      "manifest_sha256": "2c67d18fdbea4de82403843aa5e58cd73abc4596b40135c0adfe08dd7d21388c"
+    },
+    {
+      "revision": 4,
+      "failure": {
+        "status": "rejected before arithmetic comparisons",
+        "reason": "old independent graph constructor does not reproduce current source101 potential-node patch layout",
+        "production_verdict": null,
+        "next_scope": "verify exact topology and potential-mask digests, capture layout checksum/row maps and physical block arithmetic; do not claim independent layout-constructor qualification"
+      },
+      "failure_json_sha256": "4af744cc055458558f369f2910d4b8a123a919f7bc2126bb9f6e9b993550d363",
+      "audit_py_sha256": "3e259abb1c3d366af32f6b9e3ca9507c59cd67b479f11cd393364e8f1e1e1aa1",
+      "manifest_sha256": "ebaefa38188006476dc67b5aa9dba35a66d5b661fdd6ff8b19d2dc45366b2eb1"
+    },
+    {
+      "revision": 5,
+      "failure": {
+        "status": "audit serialization failed after arithmetic",
+        "reason": "NumPy int64 patch counts were not converted to JSON integers; BLAS emitted runtime warnings",
+        "production_verdict": null,
+        "next_scope": "use explicit finite-checked non-BLAS contractions and scalar JSON types; preserve failed attempt"
+      },
+      "failure_json_sha256": "206562a28dc02d5df881796ea56475b2d2d06b7c8f08dd057d1109d0f7440929",
+      "audit_py_sha256": "f2f1a9e25dbe661b14569c57753314554b890211fdeaba080400c37d9d6931d3",
+      "manifest_sha256": "1cf957cc257990491e4f5e86de22b05f3cdea6c5e6fc1b2d24200737863357a1"
+    }
+  ],
+  "compiled_world_package": {
+    "sha256": "3c25f41c6c26654ccf3f8b4f4b510bbb64ab0ea0f52b94d05d8b1fa4060fafe5",
+    "version": 19,
+    "matter_abi_version": 45,
+    "section_count": 65,
+    "physics_fingerprint_u64": 7918250992036473017,
+    "world_fingerprint_u64": 7918250992036473017,
+    "header_hash_valid": true,
+    "all_section_hashes_valid": true,
+    "bytes": 1984768,
+    "section_19_fem_nodes": {
+      "count": 882,
+      "element_bytes": 80,
+      "fixed_tag_byte_offset": 44
+    },
+    "section_20_fem_tetrahedra": {
+      "count": 1920,
+      "element_bytes": 96,
+      "connectivity_byte_offsets": [
+        0,
+        4,
+        8,
+        12
+      ]
+    },
+    "source_free_nodes": 846,
+    "source_fixed_nodes": 36,
+    "source_free_mask_sha256": "dae5a5047292398f5a4ebfae0f961daa5a76ec53af59bab106f326de08aeefd8",
+    "source_topology_sha256": "52d495969f0220838a87b2dd7984961265fc0e6b1891f2d3e157b2ef17ae7511",
+    "graph_layout_serialized_in_pack": false,
+    "graph_layout_rebuilt_independently_from_pack_fem_sections": true
+  },
+  "same_generation360_state_byte_comparisons": {
+    "candidate_nodes": true,
+    "material_history": true,
+    "deformation_high": true,
+    "deformation_low": true,
+    "algorithmic_tangent_cache": true
+  },
+  "candidate_digest_recomputed_from_payload": {
+    "environment": 0,
+    "computed_sha256": "f1dd93b423728d11338f5cfa7693592f9dfe108d2fab1c606f4b1719cff99626",
+    "manifest_sha256": "f1dd93b423728d11338f5cfa7693592f9dfe108d2fab1c606f4b1719cff99626",
+    "candidate_nodes_sha256": "f2ab3d27c3f582b102750a7f993677619db79ceb7da4a5a5d54c6b4c68f46158",
+    "candidate_nodes_manifest_sha256": "f2ab3d27c3f582b102750a7f993677619db79ceb7da4a5a5d54c6b4c68f46158"
+  },
+  "independent_current_graph_layout_equality": {
+    "all_arrays_exact": true,
+    "arrays": {
+      "patches": true,
+      "patch_nodes": true,
+      "rows": true,
+      "node_patch_offsets": true,
+      "node_patch_values": true,
+      "node_coverage": true
+    },
+    "patch_count": 27,
+    "patch_node_count": 2089,
+    "row_count": 6267,
+    "matrix_float_count": 4721337,
+    "pivot_count": 6267,
+    "coverage_min": 1,
+    "coverage_max": 5,
+    "potential_mask_sha256": "7c62147f8709c6be3af1de14e5fc926756a8ee13a8883b6ac13db58cf7e6f3b6",
+    "layout_checksum_fnv1a32": 1292406985,
+    "previous_reader_all_false_reason": "it reconstructed the older free-only layout and omitted the source101 initially-fixed supplementary partition; its false comparison does not indicate a production mismatch"
+  },
+  "production_operator_and_lu_reconstruction": {
+    "capture_point": "after_regional_rap_and_graph_factor_barrier_before_fgmres_correction",
+    "environment": 0,
+    "root": 2,
+    "newton_iteration": 23,
+    "linearization_generation": 12884901911,
+    "linearization_sha256": "f1dd93b423728d11338f5cfa7693592f9dfe108d2fab1c606f4b1719cff99626",
+    "operator_reference": "cached-tangent A reconstructed by source101-control2-newton23-audit-004 from this same capture generation; not an independent material-law evaluation",
+    "A_shape": [
+      2538,
+      2538
+    ],
+    "A_nnz": 71046,
+    "P_shape": [
+      2538,
+      26
+    ],
+    "AP_shape": [
+      2538,
+      26
+    ],
+    "AP": {
+      "relative_frobenius_error": 1.0259022335984584e-07,
+      "absolute_frobenius_error": 3.0364176475097534e-08,
+      "maximum_absolute_error": 5.928065878457733e-09,
+      "reference_frobenius_norm_denominator": 0.2959753422954548,
+      "actual_frobenius_norm": 0.2959753398586963,
+      "relative_denominator_floor": 1e-300
+    },
+    "RAP": {
+      "relative_frobenius_error": 1.3776599695190233e-07,
+      "absolute_frobenius_error": 1.7086753170260935e-08,
+      "maximum_absolute_error": 1.5266042888151254e-08,
+      "reference_frobenius_norm_denominator": 0.12402736196382597,
+      "actual_frobenius_norm": 0.1240273697369938,
+      "relative_denominator_floor": 1e-300
+    },
+    "RAP_pivots_are_permutation": true,
+    "RAP_factor_valid_by_environment": [
+      1,
+      1
+    ],
+    "pivot_convention": "factor row i corresponds to source row pivots[i]; source row swaps pivot entries with LU rows, so reconstruct original matrix by assigning (L@U)[i] into result[pivots[i]]",
+    "graph_patch_count": 27,
+    "graph_factor_valid_count": 27,
+    "maximum_patch_relative_frobenius_error": 4.257481892758861e-07,
+    "maximum_patch_absolute_error": 4.550456355056909e-07,
+    "max_fixed_identity_error": 0.0,
+    "max_fixed_to_free_cross_error": 0.0,
+    "fixed_patch_dof_copies_checked": 108,
+    "patch_metrics": [
+      {
+        "index": 0,
+        "nodes": 256,
+        "dofs": 768,
+        "fixed_dofs": 0,
+        "relative_frobenius_error": 4.257481892758861e-07,
+        "absolute_frobenius_error": 1.981722520233317e-06,
+        "maximum_absolute_error": 3.807776567388288e-07,
+        "reference_frobenius_norm_denominator": 4.654682204529952,
+        "actual_frobenius_norm": 4.654682857256381,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 1,
+        "nodes": 256,
+        "dofs": 768,
+        "fixed_dofs": 0,
+        "relative_frobenius_error": 2.916318460827237e-07,
+        "absolute_frobenius_error": 1.4347159922689912e-06,
+        "maximum_absolute_error": 3.38341253569574e-07,
+        "reference_frobenius_norm_denominator": 4.919613586583485,
+        "actual_frobenius_norm": 4.919613705340591,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 2,
+        "nodes": 256,
+        "dofs": 768,
+        "fixed_dofs": 0,
+        "relative_frobenius_error": 2.546951285627543e-07,
+        "absolute_frobenius_error": 1.2876532527677263e-06,
+        "maximum_absolute_error": 3.3282220324171163e-07,
+        "reference_frobenius_norm_denominator": 5.0556650220754475,
+        "actual_frobenius_norm": 5.05566512998777,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 3,
+        "nodes": 256,
+        "dofs": 768,
+        "fixed_dofs": 0,
+        "relative_frobenius_error": 3.7959391478563067e-07,
+        "absolute_frobenius_error": 1.882363749114466e-06,
+        "maximum_absolute_error": 4.550456355056909e-07,
+        "reference_frobenius_norm_denominator": 4.95888810593157,
+        "actual_frobenius_norm": 4.958888623139348,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 4,
+        "nodes": 256,
+        "dofs": 768,
+        "fixed_dofs": 0,
+        "relative_frobenius_error": 3.074311862653927e-07,
+        "absolute_frobenius_error": 1.5257590301609622e-06,
+        "maximum_absolute_error": 4.542982645627802e-07,
+        "reference_frobenius_norm_denominator": 4.962928610774826,
+        "actual_frobenius_norm": 4.9629288641321585,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 5,
+        "nodes": 256,
+        "dofs": 768,
+        "fixed_dofs": 0,
+        "relative_frobenius_error": 3.42035674017291e-07,
+        "absolute_frobenius_error": 1.6283541656608162e-06,
+        "maximum_absolute_error": 3.963727668310213e-07,
+        "reference_frobenius_norm_denominator": 4.760772894053436,
+        "actual_frobenius_norm": 4.7607732286744175,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 6,
+        "nodes": 256,
+        "dofs": 768,
+        "fixed_dofs": 0,
+        "relative_frobenius_error": 4.0028950564682273e-07,
+        "absolute_frobenius_error": 1.9535825039650576e-06,
+        "maximum_absolute_error": 4.3446951286663094e-07,
+        "reference_frobenius_norm_denominator": 4.880423984156888,
+        "actual_frobenius_norm": 4.880424692279749,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 7,
+        "nodes": 256,
+        "dofs": 768,
+        "fixed_dofs": 0,
+        "relative_frobenius_error": 3.3647069971388306e-07,
+        "absolute_frobenius_error": 1.5081112976757172e-06,
+        "maximum_absolute_error": 3.0597247047126075e-07,
+        "reference_frobenius_norm_denominator": 4.482147476609807,
+        "actual_frobenius_norm": 4.482147607362914,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 8,
+        "nodes": 1,
+        "dofs": 3,
+        "fixed_dofs": 0,
+        "relative_frobenius_error": 5.221008777365374e-08,
+        "absolute_frobenius_error": 4.366381112392776e-09,
+        "maximum_absolute_error": 3.694564348899476e-09,
+        "reference_frobenius_norm_denominator": 0.08363098586086154,
+        "actual_frobenius_norm": 0.08363098153589713,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 9,
+        "nodes": 1,
+        "dofs": 3,
+        "fixed_dofs": 0,
+        "relative_frobenius_error": 1.9939438413922634e-07,
+        "absolute_frobenius_error": 4.251286094350929e-08,
+        "maximum_absolute_error": 4.178551968325728e-08,
+        "reference_frobenius_norm_denominator": 0.213209921267516,
+        "actual_frobenius_norm": 0.21320987984717096,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 10,
+        "nodes": 1,
+        "dofs": 3,
+        "fixed_dofs": 0,
+        "relative_frobenius_error": 4.663923722072531e-08,
+        "absolute_frobenius_error": 4.161593380728207e-09,
+        "maximum_absolute_error": 4.079548879265538e-09,
+        "reference_frobenius_norm_denominator": 0.08922944775089287,
+        "actual_frobenius_norm": 0.08922944416328475,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 11,
+        "nodes": 1,
+        "dofs": 3,
+        "fixed_dofs": 0,
+        "relative_frobenius_error": 4.756819522392377e-08,
+        "absolute_frobenius_error": 7.205311183414681e-09,
+        "maximum_absolute_error": 6.1378676585732705e-09,
+        "reference_frobenius_norm_denominator": 0.1514732932266236,
+        "actual_frobenius_norm": 0.15147328619872502,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 12,
+        "nodes": 1,
+        "dofs": 3,
+        "fixed_dofs": 0,
+        "relative_frobenius_error": 2.0636631501474322e-08,
+        "absolute_frobenius_error": 2.6770099358928706e-09,
+        "maximum_absolute_error": 2.5329157937736824e-09,
+        "reference_frobenius_norm_denominator": 0.1297212646211965,
+        "actual_frobenius_norm": 0.1297212666602158,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 13,
+        "nodes": 12,
+        "dofs": 36,
+        "fixed_dofs": 36,
+        "relative_frobenius_error": 0.0,
+        "absolute_frobenius_error": 0.0,
+        "maximum_absolute_error": 0.0,
+        "reference_frobenius_norm_denominator": 6.0,
+        "actual_frobenius_norm": 6.0,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 14,
+        "nodes": 12,
+        "dofs": 36,
+        "fixed_dofs": 36,
+        "relative_frobenius_error": 0.0,
+        "absolute_frobenius_error": 0.0,
+        "maximum_absolute_error": 0.0,
+        "reference_frobenius_norm_denominator": 6.0,
+        "actual_frobenius_norm": 6.0,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 15,
+        "nodes": 1,
+        "dofs": 3,
+        "fixed_dofs": 3,
+        "relative_frobenius_error": 0.0,
+        "absolute_frobenius_error": 0.0,
+        "maximum_absolute_error": 0.0,
+        "reference_frobenius_norm_denominator": 1.7320508075688772,
+        "actual_frobenius_norm": 1.7320508075688772,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 16,
+        "nodes": 1,
+        "dofs": 3,
+        "fixed_dofs": 3,
+        "relative_frobenius_error": 0.0,
+        "absolute_frobenius_error": 0.0,
+        "maximum_absolute_error": 0.0,
+        "reference_frobenius_norm_denominator": 1.7320508075688772,
+        "actual_frobenius_norm": 1.7320508075688772,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 17,
+        "nodes": 1,
+        "dofs": 3,
+        "fixed_dofs": 3,
+        "relative_frobenius_error": 0.0,
+        "absolute_frobenius_error": 0.0,
+        "maximum_absolute_error": 0.0,
+        "reference_frobenius_norm_denominator": 1.7320508075688772,
+        "actual_frobenius_norm": 1.7320508075688772,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 18,
+        "nodes": 1,
+        "dofs": 3,
+        "fixed_dofs": 3,
+        "relative_frobenius_error": 0.0,
+        "absolute_frobenius_error": 0.0,
+        "maximum_absolute_error": 0.0,
+        "reference_frobenius_norm_denominator": 1.7320508075688772,
+        "actual_frobenius_norm": 1.7320508075688772,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 19,
+        "nodes": 1,
+        "dofs": 3,
+        "fixed_dofs": 3,
+        "relative_frobenius_error": 0.0,
+        "absolute_frobenius_error": 0.0,
+        "maximum_absolute_error": 0.0,
+        "reference_frobenius_norm_denominator": 1.7320508075688772,
+        "actual_frobenius_norm": 1.7320508075688772,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 20,
+        "nodes": 1,
+        "dofs": 3,
+        "fixed_dofs": 3,
+        "relative_frobenius_error": 0.0,
+        "absolute_frobenius_error": 0.0,
+        "maximum_absolute_error": 0.0,
+        "reference_frobenius_norm_denominator": 1.7320508075688772,
+        "actual_frobenius_norm": 1.7320508075688772,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 21,
+        "nodes": 1,
+        "dofs": 3,
+        "fixed_dofs": 3,
+        "relative_frobenius_error": 0.0,
+        "absolute_frobenius_error": 0.0,
+        "maximum_absolute_error": 0.0,
+        "reference_frobenius_norm_denominator": 1.7320508075688772,
+        "actual_frobenius_norm": 1.7320508075688772,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 22,
+        "nodes": 1,
+        "dofs": 3,
+        "fixed_dofs": 3,
+        "relative_frobenius_error": 0.0,
+        "absolute_frobenius_error": 0.0,
+        "maximum_absolute_error": 0.0,
+        "reference_frobenius_norm_denominator": 1.7320508075688772,
+        "actual_frobenius_norm": 1.7320508075688772,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 23,
+        "nodes": 1,
+        "dofs": 3,
+        "fixed_dofs": 3,
+        "relative_frobenius_error": 0.0,
+        "absolute_frobenius_error": 0.0,
+        "maximum_absolute_error": 0.0,
+        "reference_frobenius_norm_denominator": 1.7320508075688772,
+        "actual_frobenius_norm": 1.7320508075688772,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 24,
+        "nodes": 1,
+        "dofs": 3,
+        "fixed_dofs": 3,
+        "relative_frobenius_error": 0.0,
+        "absolute_frobenius_error": 0.0,
+        "maximum_absolute_error": 0.0,
+        "reference_frobenius_norm_denominator": 1.7320508075688772,
+        "actual_frobenius_norm": 1.7320508075688772,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 25,
+        "nodes": 1,
+        "dofs": 3,
+        "fixed_dofs": 3,
+        "relative_frobenius_error": 0.0,
+        "absolute_frobenius_error": 0.0,
+        "maximum_absolute_error": 0.0,
+        "reference_frobenius_norm_denominator": 1.7320508075688772,
+        "actual_frobenius_norm": 1.7320508075688772,
+        "relative_denominator_floor": 1e-300
+      },
+      {
+        "index": 26,
+        "nodes": 1,
+        "dofs": 3,
+        "fixed_dofs": 3,
+        "relative_frobenius_error": 0.0,
+        "absolute_frobenius_error": 0.0,
+        "maximum_absolute_error": 0.0,
+        "reference_frobenius_norm_denominator": 1.7320508075688772,
+        "actual_frobenius_norm": 1.7320508075688772,
+        "relative_denominator_floor": 1e-300
+      }
+    ],
+    "relative_error_denominators": {
+      "formula": "Frobenius norm(actual-reference) / max(Frobenius norm(reference), 1e-300)",
+      "AP_reference_norm": 0.2959753422954548,
+      "RAP_reference_norm": 0.12402736196382597,
+      "patch_reference_norms": [
+        4.654682204529952,
+        4.919613586583485,
+        5.0556650220754475,
+        4.95888810593157,
+        4.962928610774826,
+        4.760772894053436,
+        4.880423984156888,
+        4.482147476609807,
+        0.08363098586086154,
+        0.213209921267516,
+        0.08922944775089287,
+        0.1514732932266236,
+        0.1297212646211965,
+        6.0,
+        6.0,
+        1.7320508075688772,
+        1.7320508075688772,
+        1.7320508075688772,
+        1.7320508075688772,
+        1.7320508075688772,
+        1.7320508075688772,
+        1.7320508075688772,
+        1.7320508075688772,
+        1.7320508075688772,
+        1.7320508075688772,
+        1.7320508075688772,
+        1.7320508075688772
+      ]
+    },
+    "numeric_threshold_gate": "none in source101 006 report or this independent review; values are descriptive reconstruction metrics, not a predeclared tolerance pass"
+  },
+  "scope_and_limits": [
+    "No native or physical transaction was run by this review.",
+    "The exact graph-layout equality check is independent Python reconstruction from the actual compiled package FEM node mask and connectivity, against native layout arrays; it is not a separately compiled C++ builder test.",
+    "The compiled package serializes FEM topology and fixed mask but does not serialize the runtime-built graph maps.",
+    "AP/RAP and graph-LU comparisons use a cached-tangent reconstructed A from the same native linearization, so they validate operator/preconditioner assembly consistency, not independent constitutive accuracy.",
+    "RAP arrays are present for both environments; graph patch LU arrays are captured only for environment 0.",
+    "The two native attempts have exit code 2 and the physical step is rejected; no convergence, mesh/time refinement, or full-box qualification follows.",
+    "No universal FP32 noise floor was measured; numerical residuals are reported with denominators, not promoted to a broad accuracy gate."
+  ]
+}

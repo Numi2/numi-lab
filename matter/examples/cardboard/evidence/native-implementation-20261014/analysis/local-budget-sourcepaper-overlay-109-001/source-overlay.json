@@ -1,0 +1,53 @@
+{
+  "schema": "numi.cardboard.source_overlay.v1",
+  "overlay_id": "local-budget-sourcepaper-109-001",
+  "classification": "source-only compiler/validator/probe budget override; no native verification",
+  "base_git_revision": "6961dab30061be5614430f834bfce25168b4d2a1",
+  "base_source_snapshot_manifest": "analysis/retained-source-snapshot107-001/manifest.json",
+  "base_source_snapshot_manifest_sha256": "09ae737a09623ff15fc4b1d13f8a96cb14e5d87e0c245cb7b1deb70bcf145d97",
+  "native_failure_run": "solver/cached-true-residual-certification-coupon-370",
+  "native_failure_run_manifest_sha256": "67a766eebc35ebfeb26b122899ff9137ae62fb4f0122465cb715e04e8bd1e711",
+  "cpu_replay": "analysis/source105-failure370-exact-tet1820-001/replay_tet1820.py",
+  "cpu_replay_json_sha256": "bafbfb153f56f4801154c9b00dce93f2955bd0dde6a0f6de40fbf26d88d23d8e",
+  "native_gpu_run_performed": false,
+  "build_performed": false,
+  "files": [
+    {
+      "path": "matter/include/numi/matter/matter.hpp",
+      "base_sha256": "3afd1dbe987b0cf3a386a69d335489ca38342984d9a5f4c52f2ddcd094ded633",
+      "candidate_sha256": "798e124cdf0b97370a7e1412526693b0f2469985df2b5e985ad3a8acbe00808a"
+    },
+    {
+      "path": "matter/src/compiler_impl.cpp",
+      "base_sha256": "9dc5cd30bc781704552936531120d28fd6bb95572d2793c7c4a0dd819143272c",
+      "candidate_sha256": "474e717759ded2ecf81a0590dd7f5cb51da8a1041eacddff33c971ccb96152df"
+    },
+    {
+      "path": "matter/src/validation_impl.cpp",
+      "base_sha256": "298c8cd8052309610ef0d85c22eb638aadb8cd5a589978b5599a5043e342c048",
+      "candidate_sha256": "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808"
+    },
+    {
+      "path": "matter/tools/cardboard_probe.mm",
+      "base_sha256": "af5196370b4c812bc6a71d603987b3ce3ae47d88769bfd54a23851e0c325e059",
+      "candidate_sha256": "6917e515993e1da26d09d946bf8a3f58c7066ad183b19131aa466e94e8d32e99"
+    },
+    {
+      "path": "matter/tools/cardboard_bilinear15_projection_policy_check.cpp",
+      "base_sha256": "d7206a61f70b6c5392c97c31201683721aefb9db8c3cdaeb1f07467526d7d6df",
+      "candidate_sha256": "8e76c3435a18b2eeb2680c6b726dd4b6cb9bbd4e64dd48095d401120780b6c2d"
+    }
+  ],
+  "patch_sha256": "8cd879a6ab536e3a70a4ead8163f3d0501d375f5d35ec5fe3896fa6fae97a33b",
+  "limits": [
+    "Native GPU run 370 explicitly requested 32 local material updates, but its compiled material descriptor contains 16; this patch makes an explicit 1..32 override reach the compiled descriptor while preserving default 16 for the accurate source-paper policy.",
+    "CPU row replay uses source-transcribed deformation words and is not native F-word confirmation. It finds 16 updates fail the unchanged scaled-correction condition and 17 updates converge; this is consistent with, but does not prove, the native failure cause.",
+    "No new physical, material, or coupon qualification is claimed. Native point replay with exact candidate inputs remains pending."
+  ],
+  "validation": {
+    "candidate_whitespace_check": "pass",
+    "compiler_build": "not_run_parent_build_required",
+    "CPU_policy_check": "implemented_not_run_parent_build_required",
+    "native_material_point_check": "not_run_no_GPU"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "comparison_policy": {
+    "fields": [
+      "connectivity",
+      "inverse_rest_matrix",
+      "rest_volume",
+      "identity_words",
+      "material_frame_quaternion"
+    ],
+    "float_comparison": "finite numeric equality, no tolerance; IEEE +0 and -0 are equal numeric zero",
+    "integer_comparison": "bitwise exact",
+    "nonfinite_values": "rejected",
+    "nonzero_changes": "rejected exactly",
+    "observed_only_representation_differences": [
+      {
+        "capture_word": "00000000",
+        "environment": 0,
+        "field": "material_frame_quaternion.y",
+        "package_word": "80000000",
+        "tetrahedron": 0
+      },
+      {
+        "capture_word": "00000000",
+        "environment": 0,
+        "field": "inverse_rest_matrix[8]",
+        "package_word": "80000000",
+        "tetrahedron": 585
+      }
+    ],
+    "other_immutable_fields": "all matched exactly",
+    "records_checked": 3840
+  },
+  "gpu_dispatch": false,
+  "hashes": {
+    "capture_sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+    "checker_binary_sha256": "d09b460ff73f2736da6c8209ca8ff5fcf0750ed2cbf57844148dd080110a7514",
+    "checker_source_sha256": "91c6bff186d6bc381629b3e5ec8f57b79836ad0477d9874209230eab05b0ea52",
+    "compiled_package_sha256": "3c25f41c6c26654ccf3f8b4f4b510bbb64ab0ea0f52b94d05d8b1fa4060fafe5",
+    "payload_sha256": "129758a5bcf1a0072a148ea4373335844c86fa1d4235f60dd607eae5f9aa09e0"
+  },
+  "package": "002",
+  "physical_transactions": 0,
+  "records_checked": 3840,
+  "result": "pass",
+  "schema": "numi.cardboard.native-cached-operator-replay-preflight.v2",
+  "stdout": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created",
+  "unresolved": "Native cached/fresh action comparison remains pending; this preflight only resolves input identity admission."
+}

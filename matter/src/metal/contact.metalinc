@@ -3362,7 +3362,7 @@ inline bool edgeEdgeCCD(
     const float speedBound = max(length(p01 - p00), length(p11 - p10)) +
         max(length(q01 - q00), length(q11 - q10));
     float time = 0.0f;
-    for (uint iteration = 0u; iteration < 17u; ++iteration) {
+    for (uint iteration = 0u; iteration < 33u; ++iteration) {
         const float3 p0 = mix(p00, p01, time);
         const float3 p1 = mix(p10, p11, time);
         const float3 q0 = mix(q00, q01, time);

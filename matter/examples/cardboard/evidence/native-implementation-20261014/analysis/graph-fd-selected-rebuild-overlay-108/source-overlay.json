@@ -1,0 +1,34 @@
+{
+  "schema": "numi.matter.source-overlay.v1",
+  "overlay_id": "graph-fd-selected-rebuild-108",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-ee-ccd-continuation-107",
+  "base_files": {
+    "matter/src/runtime.mm": "2e26d26a04326a3ce567cccb60d213da8f4a8ceaf178c98153939f1b68752fd7",
+    "matter/src/regional_graph_schwarz.hpp": "a8a6328d608ba7db4943025f15d35d750968755a8826de32b14b479752c9121d",
+    "matter/tools/regional_graph_completed_tail_check.cpp": "bfdc93f22dc12827af3620c36d675aef940f7b1a533bace9d4f8d9f44f2022d3"
+  },
+  "overlay_files": {
+    "matter/src/runtime.mm": {
+      "path": "matter/src/runtime.mm",
+      "sha256": "4d1b86e16819c7811b04e7ae745dfe81ee31ffa1451ad9259fa8b4b92c39d12b"
+    },
+    "matter/src/regional_graph_schwarz.hpp": {
+      "path": "matter/src/regional_graph_schwarz.hpp",
+      "sha256": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf"
+    },
+    "matter/tools/regional_graph_completed_tail_check.cpp": {
+      "path": "matter/tools/regional_graph_completed_tail_check.cpp",
+      "sha256": "496ecc347435624c9822905f6ba008241792bba9b381ea8ed967306315b07cca"
+    }
+  },
+  "patch": {
+    "path": "source-overlay.patch",
+    "sha256": "cc31befa94e3d1045700b8ca821353393779e48f355744e0e8cbd1ee0e46ab52"
+  },
+  "validation": {
+    "cpu_contract_test": "regional_graph_completed_tail_check.cpp: 19 checks PASS",
+    "runtime_syntax": "Objective-C++ -fsyntax-only PASS against frozen-107 include roots",
+    "metal_compile": "not run; no Metal kernel changed",
+    "native_or_gpu_execution": "not run"
+  }
+}

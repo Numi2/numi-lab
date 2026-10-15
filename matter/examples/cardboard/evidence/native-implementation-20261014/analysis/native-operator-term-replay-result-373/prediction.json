@@ -1,0 +1,32 @@
+{
+  "schema": "numi.cardboard.native-diagnostic-prediction.v1",
+  "package_manifest_sha256": "3ab46a473baf156359b817798242aa74407e05fb04631ba197e138e86ee18c87",
+  "preflight_argv": [
+    "/Users/home/cardboard-implementation-20261014/analysis/native-operator-term-replay-360-001/build/operator_terms_replay",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/output/compiled.nmatterpack",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-003/prepared/replay-input.bin",
+    "/tmp/cardboard-term-preflight-unused",
+    "--preflight-only"
+  ],
+  "native_argv": [
+    "/Users/home/cardboard-implementation-20261014/analysis/native-operator-term-replay-360-001/build/operator_terms_replay",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/output/compiled.nmatterpack",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-003/prepared/replay-input.bin",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-operator-term-replay-result-373/result"
+  ],
+  "package_files": {
+    "README.md": "e6c36032dd657799c8df00ef19e27b8e0b6551296abf6b6e421bd0b9edaf2481",
+    "build/compile.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/compile.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/operator_terms_replay": "a0585e57e10670c97afcb14142b2478ed7b446fee0581109eca83bb48ea0382b",
+    "manifest.json": "3ab46a473baf156359b817798242aa74407e05fb04631ba197e138e86ee18c87",
+    "operator_terms_replay.mm": "e45febe176cff6f845db9cecc7d17afae7c7a83878412971cd149d702f802451",
+    "preflight.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "preflight.stdout.log": "ea4fdf2697f7a5a951e0ba0b74439c07c568e512dd08a2487de1698fedd51c2b",
+    "prepare.py": "ec0fbef7951948320e6b0cf8d1ade5605f3332fa960b2f109a2332c4a59abaed"
+  },
+  "question": "Which production element/frame/gather/mass contribution differs from the independent FP64 action at captured control2/Newton23?",
+  "prediction": "Replay exact source101 state/correction, export normal cached/fresh element forces and isolated mass. Require normal combined outputs bitwise equal native368. Compare element/frame transformations and assembled nodal actions independently; no physical transaction and no inferred noise floor.",
+  "physical_transactions": 0,
+  "started_at_utc": "2026-10-15T16:06:29.293182+00:00"
+}

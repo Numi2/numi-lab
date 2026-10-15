@@ -1,0 +1,81 @@
+{
+  "base_runtime_sha256": "924669986619a88c6e34ec79e306495c1113e6ea35b0c793e8a36cfede887ec2",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-true-residual-certification-105",
+  "base_source_manifest_sha256": "3b96c0e56edfb364f717f71d06901c298b4d2bcf8fdf90b6d7a917d8c3c69790",
+  "files": {
+    "README.md": {
+      "bytes": 2915,
+      "sha256": "df658bbfd10a2632fa3daf36193fa69305fdd7ccb7120116a59e0056f876bbbf"
+    },
+    "source-overlay.patch": {
+      "bytes": 5540,
+      "sha256": "c7dd47360fa0e3504f394aa1ca7451f5a38476605da963f20ac5a8640ce6d32b"
+    },
+    "source/matter/src/coupled_capture_manifest_context.hpp": {
+      "bytes": 583,
+      "sha256": "7d82c3c8f1fff4546bd65ee1641b4fd5faced73dea9c75501ea780254069bbae"
+    },
+    "source/matter/src/runtime.mm": {
+      "bytes": 1687566,
+      "sha256": "2e26d26a04326a3ce567cccb60d213da8f4a8ceaf178c98153939f1b68752fd7"
+    },
+    "tests/delayed_completion_capture.mm": {
+      "bytes": 2232,
+      "sha256": "6735569f276e709e865d610916f85bc4435518dca3a8600ef9dedb05992dc62e"
+    },
+    "tests/test_callback_capture_contract.py": {
+      "bytes": 2952,
+      "sha256": "bbf7c2003b35733189e851fbbf12f5e4807cc23c346993ef6393d3b7be7981fc"
+    },
+    "validation/delayed-completion-test.log": {
+      "bytes": 35,
+      "sha256": "078a7ecd8add27d4117ac48826d92a3446afbf377cf6f9de6c6d7181c645d545"
+    },
+    "validation/manifest-integrity.log": {
+      "bytes": 38,
+      "sha256": "068b1e726243f429b436f2d8ae7b793bd1505f78e38a0df4707fde1b64302566"
+    },
+    "validation/objc-compile.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "validation/patch-apply.log": {
+      "bytes": 102,
+      "sha256": "a03c438c1446b7ea4a5873b466685dc3330d1dae8821331f48509ec1f5374915"
+    },
+    "validation/python-contract-tests.log": {
+      "bytes": 382,
+      "sha256": "4654cdcfc9a5d2ae69ec4628a0a075ffd5960d308ce664b030dca7db538d2020"
+    },
+    "validation/runtime-syntax.log": {
+      "bytes": 799,
+      "sha256": "79c23ef68b6a98ea3351245ac73c2780db73ae4ea65e3a8f326d23a0476defc2"
+    }
+  },
+  "name": "source105-capture-callback-lifetime-overlay-001",
+  "output_context_header_sha256": "7d82c3c8f1fff4546bd65ee1641b4fd5faced73dea9c75501ea780254069bbae",
+  "output_runtime_sha256": "2e26d26a04326a3ce567cccb60d213da8f4a8ceaf178c98153939f1b68752fd7",
+  "patch_sha256": "c7dd47360fa0e3504f394aa1ca7451f5a38476605da963f20ac5a8640ce6d32b",
+  "schema": "numi.matter.source_overlay.v1",
+  "trigger_runs": {
+    "362": {
+      "full_rhs_payload_sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+      "manifest": "/Users/home/cardboard-implementation-20261014/native/health-and-vt-marker-firstfatal-362/center-capture.coupled.json",
+      "manifest_sha256": "44ce64b4f69c58abcf3786d59f6392b8dde760ee9751f13ae7a03be4baec29da",
+      "rhs_preserved_before_fgmres": true
+    },
+    "369": {
+      "full_rhs_payload_sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+      "manifest": "/Users/home/cardboard-implementation-20261014/native/true-residual-default-parity-369/center-capture.coupled.json",
+      "manifest_sha256": "666c1d7da3d2d7a4064eaf21ed3ca5a4781c202fcf37b1f22edb028c08fa5d09",
+      "rhs_preserved_before_fgmres": false
+    }
+  },
+  "validation": {
+    "delayed_objc_callback": "passed",
+    "native_gpu": "not_run",
+    "patch_reconstruction": "passed",
+    "python_contract_tests": "3 passed",
+    "runtime_syntax_only": "passed"
+  }
+}

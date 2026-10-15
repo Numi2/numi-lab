@@ -1,0 +1,78 @@
+{
+  "schema": "numi.cardboard.native-operator-term-package.v1",
+  "base_package": "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-003",
+  "base_package_manifest_sha256": "756f064c072cc292f99bc1ebefbfa4868a9fc37ff75541c26659f4be696f27e9",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101",
+  "compile_argv": [
+    "xcrun",
+    "clang++",
+    "-std=c++2b",
+    "-arch",
+    "arm64",
+    "-fobjc-arc",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-I/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/include",
+    "-I/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/include",
+    "-DNUMI_MATTER_METALLIB=\"/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/inputs/runtime/matter/shaders/NumiMatter.metallib\"",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-operator-term-replay-360-001/operator_terms_replay.mm",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-101/matter/libnumi_matter_runtime.a",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-101/matter/libnumi_matter_compiler.a",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "-o",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-operator-term-replay-360-001/build/operator_terms_replay"
+  ],
+  "compile_exit_code": 0,
+  "preflight_argv": [
+    "/Users/home/cardboard-implementation-20261014/analysis/native-operator-term-replay-360-001/build/operator_terms_replay",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/output/compiled.nmatterpack",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-003/prepared/replay-input.bin",
+    "/tmp/cardboard-term-preflight-unused",
+    "--preflight-only"
+  ],
+  "preflight_exit_code": 0,
+  "native_dispatched": false,
+  "physical_transactions": 0,
+  "files": {
+    "README.md": {
+      "bytes": 1082,
+      "sha256": "e6c36032dd657799c8df00ef19e27b8e0b6551296abf6b6e421bd0b9edaf2481"
+    },
+    "build/compile.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build/compile.stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build/operator_terms_replay": {
+      "bytes": 1864792,
+      "sha256": "a0585e57e10670c97afcb14142b2478ed7b446fee0581109eca83bb48ea0382b"
+    },
+    "operator_terms_replay.mm": {
+      "bytes": 34842,
+      "sha256": "e45febe176cff6f845db9cecc7d17afae7c7a83878412971cd149d702f802451"
+    },
+    "preflight.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "preflight.stdout.log": {
+      "bytes": 156,
+      "sha256": "ea4fdf2697f7a5a951e0ba0b74439c07c568e512dd08a2487de1698fedd51c2b"
+    },
+    "prepare.py": {
+      "bytes": 6351,
+      "sha256": "ec0fbef7951948320e6b0cf8d1ade5605f3332fa960b2f109a2332c4a59abaed"
+    }
+  },
+  "payload_sha256": "4c21ba6299fcd30753b469ebeb965a40f1b2e550c5e7d5ce508359ece44e4a40",
+  "production_metallib_sha256": "fef3d58618ffecde6f31038b03671c7058e004a0b83c0429e8d6898d9af09030",
+  "created_at_utc": "2026-10-15T15:26:51.992704+00:00"
+}

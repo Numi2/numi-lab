@@ -1,0 +1,2 @@
+  PID  PPID STAT        F    RSS      VSZ STARTED                      COMMAND
+24466     1 ?Es      6004      0        0 Thu Oct 15 17:26:08 2026     (numi-matter-card)

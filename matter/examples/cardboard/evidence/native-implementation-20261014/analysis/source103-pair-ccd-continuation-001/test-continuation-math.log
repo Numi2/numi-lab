@@ -1,0 +1,8 @@
+test_a_short_budget_remains_exhaustion_not_a_miss (__main__.ContinuationRecurrenceTests) ... ok
+test_captured_pair_exhausts_original_bound_but_reaches_band_in_extended_cpu_recurrence (__main__.ContinuationRecurrenceTests) ... ok
+test_exact_start_contact_is_seen_before_any_advance (__main__.ContinuationRecurrenceTests) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.002s
+
+OK

@@ -1,0 +1,8 @@
+test_completion_block_uses_owned_manifest_snapshot (__main__.CallbackCaptureContract) ... ok
+test_context_owns_vector_and_scalar_values (__main__.CallbackCaptureContract) ... ok
+test_snapshot_is_built_before_async_block_without_normalization (__main__.CallbackCaptureContract) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.003s
+
+OK

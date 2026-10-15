@@ -1,0 +1,123 @@
+--- 002/prepare_replay.py
++++ 003/prepare_replay.py
+@@ -39,6 +39,12 @@
+         for chunk in iter(lambda: stream.read(1 << 20), b""):
+             digest.update(chunk)
+     return digest.hexdigest()
++
++
++def preserve_negative_zero_integer(token: str) -> int | float:
++    # JSON permits -0 as a number; Python otherwise turns it into int(0),
++    # erasing the binary32 sign bit before the capture payload is built.
++    return -0.0 if token == "-0" else int(token)
+ 
+ 
+ def require(ok: bool, message: str) -> None:
+@@ -99,7 +105,7 @@
+         for line_number, line in enumerate(stream, 1):
+             if line.strip():
+                 try:
+-                    records.append(json.loads(line))
++                    records.append(json.loads(line, parse_int=preserve_negative_zero_integer))
+                 except json.JSONDecodeError as error:
+                     raise ValueError(f"capture line {line_number} is invalid JSON") from error
+     require(records and records[0].get("record") == "header",
+@@ -272,7 +278,7 @@
+             "tangent_cache_valid: E*T uint32",
+             "environment_parameters: E*parameterCount floats",
+             "captured_production_action: E*N*float4 (independent comparison output)",
+-            "static_tet_audit: E*T records <4I9ff4I4f>; integer words compare bitwise, finite float values compare exactly with signed zero equivalent",
++            "static_tet_audit: E*T records <4I9ff4I4f>; all integer and finite float words compare bitwise, including signed zero",
+         ],
+         "limits": [
+             "The replay uses production element/gather kernels with cache enabled and disabled on identical captured inputs.",
+--- 002/cached_operator_replay.mm
++++ 003/cached_operator_replay.mm
+@@ -69,27 +69,31 @@
+     return stream.str();
+ }
+ 
+-bool exactNumericFloatArray(const float* left, const float* right, std::size_t count) {
++bool exactFiniteFloatWords(const float* left, const float* right, std::size_t count) {
+     for (std::size_t i = 0; i < count; ++i) {
+-        if (!std::isfinite(left[i]) || !std::isfinite(right[i]) || left[i] != right[i]) {
++        if (!std::isfinite(left[i]) || !std::isfinite(right[i]) ||
++            std::bit_cast<std::uint32_t>(left[i]) !=
++                std::bit_cast<std::uint32_t>(right[i])) {
+             return false;
+         }
+     }
+     return true;
+ }
+ 
+-void testExactNumericFloatArray() {
+-    const float positiveZero[3] = {0.0f, 1.0f, -0.0f};
+-    const float signedZero[3] = {-0.0f, 1.0f, 0.0f};
+-    need(exactNumericFloatArray(positiveZero, signedZero, 3u),
+-         "exact numeric comparison must equate signed-zero encodings");
+-    const float adjacent[3] = {0.0f, std::nextafter(1.0f, 2.0f), -0.0f};
+-    need(!exactNumericFloatArray(positiveZero, adjacent, 3u),
+-         "exact numeric comparison must reject any changed nonzero float");
++void testExactFiniteFloatWords() {
++    const float positiveZero[3] = {0.0f, 1.0f, 0.0f};
++    const float negativeZero[3] = {-0.0f, 1.0f, 0.0f};
++    need(!exactFiniteFloatWords(positiveZero, negativeZero, 3u),
++         "bitwise immutable-field comparison must distinguish signed zero");
++    need(exactFiniteFloatWords(negativeZero, negativeZero, 3u),
++         "bitwise immutable-field comparison must accept identical signed-zero words");
++    const float adjacent[3] = {0.0f, std::nextafter(1.0f, 2.0f), 0.0f};
++    need(!exactFiniteFloatWords(positiveZero, adjacent, 3u),
++         "bitwise comparison must reject an adjacent nonzero float");
+     const float nonfinite[3] = {0.0f, 1.0f,
+                                 std::numeric_limits<float>::quiet_NaN()};
+-    need(!exactNumericFloatArray(positiveZero, nonfinite, 3u),
+-         "exact numeric comparison must reject nonfinite immutable fields");
++    need(!exactFiniteFloatWords(positiveZero, nonfinite, 3u),
++         "bitwise comparison must reject nonfinite immutable fields");
+ }
+ 
+ void readExact(std::ifstream& stream, void* destination, std::size_t bytes,
+@@ -295,7 +299,7 @@
+             need(std::memcmp(captured.nodes, compiledNodes, sizeof(compiledNodes)) == 0,
+                  "capture/package connectivity mismatch env=" + std::to_string(e) +
+                  " tet=" + std::to_string(t));
+-            need(exactNumericFloatArray(captured.inverseRest, compiledInv, 9u),
++            need(exactFiniteFloatWords(captured.inverseRest, compiledInv, 9u),
+                  "capture/package inverse-rest mismatch env=" + std::to_string(e) +
+                  " tet=" + std::to_string(t) + " captured=" + floatWords(captured.inverseRest, 9u) +
+                  " compiled=" + floatWords(compiledInv, 9u));
+@@ -306,7 +310,7 @@
+             need(std::memcmp(captured.identity, idWords, sizeof(idWords)) == 0,
+                  "capture/package identity mismatch env=" + std::to_string(e) +
+                  " tet=" + std::to_string(t));
+-            need(exactNumericFloatArray(captured.frame, frame, 4u),
++            need(exactFiniteFloatWords(captured.frame, frame, 4u),
+                  "capture/package material-frame mismatch env=" + std::to_string(e) +
+                  " tet=" + std::to_string(t) + " captured=" + floatWords(captured.frame, 4u) +
+                  " compiled=" + floatWords(frame, 4u));
+@@ -592,7 +596,7 @@
+             const bool preflightOnly = argc == 5;
+             need(!preflightOnly || std::string(argv[4]) == "--preflight-only",
+                  "the only supported optional argument is --preflight-only");
+-            testExactNumericFloatArray();
++            testExactFiniteFloatWords();
+             const std::string packagePath = argv[1];
+             const std::string payloadPath = argv[2];
+             const std::string outputDir = argv[3];
+--- 002/preflight.py
++++ 003/preflight.py
+@@ -52,7 +52,7 @@
+     require(sha(SOURCE / relative) == digest, "source changed: " + relative)
+ binary = ROOT / "build/cached_operator_replay"
+ require(binary.is_file() and sha(binary) ==
+-        "d09b460ff73f2736da6c8209ca8ff5fcf0750ed2cbf57844148dd080110a7514",
++        "eaf90bf06c42342b61de5a7da438dc4ec9b9e13fd507d28c5ffe6845eb570c95",
+         "compiled executable hash mismatch")
+ probe = subprocess.run([
+     str(binary), str(RUN / "output/compiled.nmatterpack"), str(payload),
+@@ -61,4 +61,4 @@
+ require(probe.returncode == 0, "compiled immutable-field audit failed: " + probe.stderr.strip())
+ require("no Metal device or pipeline was created" in probe.stdout,
+         "compiled audit did not use CPU-only preflight mode")
+-print("PASS source101 replay CPU preflight: sealed hashes and 3840 immutable tetrahedron records match; no Metal device created")
++print("PASS source101 replay CPU preflight: sealed hashes and all 3840 immutable tetrahedron float/integer words match bitwise, including signed zero; no Metal device created")

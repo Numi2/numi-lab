@@ -1,0 +1,12 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-exact-material-point-112",
+  "selected_source_files": 782,
+  "support_files": 1068,
+  "changes": {
+    "matter/CMakeLists.txt": "26be9449b499be7c1e5d4ac4120e5e89bda7a8d7c3afcd4f655fe5d7c8ff2052",
+    "matter/tools/cardboard_paper_check.metal": "4660f78dc594adcdcdd4cab6d6943114d16f54f5d1a3cc327270718e16a5e181",
+    "matter/tools/cardboard_source370_material_point_check.mm": "023806c32a018fe4c136d6a83cd1b1c3e838c8df29e856e3ff3f080ce10a54da",
+    "matter/src/matter_kernels.metal": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168"
+  },
+  "unmodified_production_physics_from_source109": true
+}

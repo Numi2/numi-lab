@@ -1,0 +1,46 @@
+[  0%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[  0%] Generating shaders/cardboard_paper_check.metallib
+[  0%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+In file included from /Users/home/cardboard-implementation-20261014/snapshots/source-exact-material-point-112/matter/tools/cardboard_paper_check.metal:4:
+In file included from /Users/home/cardboard-implementation-20261014/snapshots/source-exact-material-point-112/matter/tools/../src/matter_kernels.metal:4:
+/Users/home/cardboard-implementation-20261014/snapshots/source-exact-material-point-112/matter/tools/../src/metal/fgmres.metalinc:3174:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/source-exact-material-point-112/matter/tools/../src/metal/fgmres.metalinc:3183:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/source-exact-material-point-112/matter/tools/../src/metal/fgmres.metalinc:3174:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/source-exact-material-point-112/matter/tools/../src/metal/fgmres.metalinc:3164:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/home/cardboard-implementation-20261014/snapshots/source-exact-material-point-112/matter/tools/../src/metal/fgmres.metalinc:3620:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/source-exact-material-point-112/matter/tools/../src/metal/fgmres.metalinc:3637:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/source-exact-material-point-112/matter/tools/../src/metal/fgmres.metalinc:3620:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/source-exact-material-point-112/matter/tools/../src/metal/fgmres.metalinc:3500:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+[  0%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+[100%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+2 warnings generated.
+[100%] Built target numi_cardboard_paper_shaders
+[100%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[100%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[100%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[100%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[100%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[100%] Built target numi_matter_compiler_objects
+[100%] Linking CXX static library libnumi_matter_compiler.a
+[100%] Built target numi_matter_compiler
+[100%] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-source370-material-point-check.dir/tools/cardboard_source370_material_point_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-source370-material-point-check
+[100%] Built target numi-matter-cardboard-source370-material-point-check

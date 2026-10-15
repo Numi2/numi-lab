@@ -1,0 +1,14 @@
+{
+  "classification": "read-only CPU audit of sealed source373-v3; not native qualification",
+  "files": {
+    "README.md": "fb9cd764c069bcb3d1378636fc49ddb143d86df491a54f7fb4559bfc4c25af75",
+    "review.json": "e4e1ea27e33e8bf075f33571257f86f2b3eefbc196b3071d842c0c7d0814d6d9",
+    "verify_dynamic_scale.py": "6ee2e36e3bbc1d6a1a1d601a8d873a7c7350ff134cca330fa9cf74a576454170"
+  },
+  "frozen_source_manifest_sha256": "3fe62983d15e55d887429f714370df1758ba9e450ae1648b554ce66a41a74680",
+  "production_common_source_sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182",
+  "schema": "numi.cardboard.source101-dynamic-correction-review-package.v1",
+  "source373v3_report_sha256": "76219330ecd17c30f40d2fd6b7ea16213f5e9052eb4c05293d43ec303bb97d87",
+  "source373v3_vectors_sha256": "341c7c9a4fca15878bfca1dbd9d924dbdef3d2adbf066311a4b103175be671bb",
+  "verification_status": "PASS: exact reproduction of sealed correction and residual vectors; direct and production-equivalent equilibrated FP64 solves agree below 2e-8"
+}

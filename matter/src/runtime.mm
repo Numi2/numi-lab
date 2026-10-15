@@ -10,6 +10,7 @@
 #include "numi/matter/regional_galerkin_bending_basis.hpp"
 #include "regional_graph_schwarz.hpp"
 #include "fem_reference_geometry.hpp"
+#include "coupled_capture_manifest_context.hpp"
 #include "numi/matter/accepted_state_apply_gpu.h"
 #include "accepted_state_proof_gpu.hpp"
 #include "metal_encoder_timing.hpp"
@@ -9867,6 +9868,30 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return "requires_fem_nodes_as_only_generalized_unknowns";
                 return nullptr;
             };
+            const auto femTrueResidualCapabilityFailure = [&]() -> const char* {
+                if (microtick != 0u) return "requires_microtick_zero";
+                if (state.enableVascularDense45)
+                    return "requires_staged_fgmres";
+                if (state.dispatch.cohesiveFaceCount > 4096u ||
+                    (state.dispatch.cohesiveFaceCount != 0u &&
+                     state.femTrueResidualCohesiveOperator == nil))
+                    return "cohesive_true_residual_capacity_or_buffer_unavailable";
+                if (state.dispatch.tetrahedronCount > 32768u ||
+                    state.femTrueResidualElementOperator == nil ||
+                    state.femTrueResidualOperatorValue == nil ||
+                    state.femTrueResidualRightHandSide == nil ||
+                    state.femTrueResidualMetrics == nil ||
+                    state.femTrueResidualStatuses == nil)
+                    return "true_residual_private_operator_capacity_or_buffer_unavailable";
+                if (state.femResidual == nil || state.statuses == nil ||
+                    state.fgmresStates == nil)
+                    return "solver_status_or_residual_buffer_unavailable";
+                if (state.mixedSolverValue.executionBudgets.w == 1u &&
+                    (state.femAlgorithmicTangentCache == nil ||
+                     state.femAlgorithmicTangentCacheValid == nil))
+                    return "configured_tangent_cache_unavailable";
+                return femNewtonTraceScope();
+            };
             const auto femResidualArmijoScope = [&]() -> const char* {
                 if (!state.femResidualArmijoScratchEnabled)
                     return "armijo_scratch_was_not_reserved_at_runtime_creation";
@@ -10982,6 +11007,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
             bool femTrueResidualEnabled = false;
             bool femTrueResidualRestartEnabled = false;
             bool femTrueResidualRestartRequested = false;
+            bool femTrueResidualCertificationRequested = false;
+            if (const char* certification = std::getenv(
+                    "NM_FEM_TRUE_RESIDUAL_CERTIFY")) {
+                if (std::strcmp(certification, "1") == 0) {
+                    femTrueResidualCertificationRequested = true;
+                } else if (std::strcmp(certification, "0") != 0) {
+                    std::fprintf(stderr,
+                        "fem_true_residual_certification_rejected={\"schema\":1,\"reason\":\"selector_must_be_0_or_1\"}\n");
+                    diagnostics.message =
+                        "NM_FEM_TRUE_RESIDUAL_CERTIFY must be 0 or 1";
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
+            }
             bool femTrueResidualNoticeLogged = false;
             bool femTrueResidualRootSelected = false;
             bool femTrueResidualNewtonSelectorSpecified = false;
@@ -11028,23 +11067,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 } else {
                     femTrueResidualRoot = static_cast<std::uint32_t>(parsed);
                     if (femTrueResidualRoot == request.controlStep) {
-                        const char* skipReason = nullptr;
-                        if (!femTrueResidualNewtonSelectorValid)
-                            skipReason = "invalid_newton_iteration_selector";
-                        else if (microtick != 0u)
-                            skipReason = "requires_microtick_zero";
-                        else if (state.enableVascularDense45)
-                            skipReason = "requires_staged_fgmres";
-                        else if (state.dispatch.cohesiveFaceCount > 4096u ||
-                                 (state.dispatch.cohesiveFaceCount != 0u &&
-                                  state.femTrueResidualCohesiveOperator == nil))
-                            skipReason = "cohesive_true_residual_instrument_capacity_exceeded";
-                        else if (state.dispatch.tetrahedronCount > 32768u ||
-                                 state.femTrueResidualElementOperator == nil ||
-                                 state.femTrueResidualOperatorValue == nil)
-                            skipReason = "true_residual_private_operator_capacity_exceeded";
-                        else
-                            skipReason = femNewtonTraceScope();
+                        const char* skipReason =
+                            !femTrueResidualNewtonSelectorValid
+                                ? "invalid_newton_iteration_selector"
+                                : femTrueResidualCapabilityFailure();
                         if (skipReason != nullptr) {
                             std::fprintf(stderr,
                                 "fem_true_residual_skipped={\"schema\":1,\"root\":%u,\"reason\":\"%s\"}\n",
@@ -11068,6 +11094,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             }
                         }
                     }
+                }
+            }
+            if (femTrueResidualCertificationRequested) {
+                if (const char* reason = femTrueResidualCapabilityFailure()) {
+                    std::fprintf(stderr,
+                        "fem_true_residual_certification_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"%s\"}\n",
+                        request.controlStep, reason);
+                    diagnostics.message = std::string(
+                        "true-residual certification unsupported: ") + reason;
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
                 }
             }
             const auto emitFEMNewtonTraceSkip = [&](std::uint32_t root,
@@ -12668,7 +12705,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
             };
             const auto encodeFEMTrueResidualTrace =
                 [&](std::uint32_t restartCycle, bool finalCycle) -> bool {
-                if (!femTrueResidualEnabled) return true;
+                // The certification mode uses the device-side fresh residual
+                // to control restart state, but does not request host readback.
+                // Keep this observer strictly selector-gated.
+                if (!femTrueResidualEnabled || !femTrueResidualRootSelected)
+                    return true;
                 constexpr std::uint32_t maximumTraceCycles = 64u;
                 if (restartCycle >= maximumTraceCycles) {
                     if (!femTrueResidualNoticeLogged) {
@@ -16101,6 +16142,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const auto capturedRigidContactConstraintStride =
                     request.rigidContactConstraintStride;
                 const auto capturedCoupledArticulatedNv = coupledArticulatedNv;
+                id<MTLBuffer> const capturedSnapshot = snapshot;
+                // The completion handler may execute after this enclosing
+                // encode lambda returns. Snapshot every value it needs from
+                // the lambda's reference-captured state into owned storage.
+                const detail::CoupledCaptureManifestContext capturedManifestContext{
+                    femCoupledCaptureRHSReady,
+                    state.mixedSolverValue.executionBudgets.w == 1u,
+                    femCoupledCaptureCapBytes,
+                    omittedOptional
+                };
                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
                     if (completed.status != MTLCommandBufferStatusCompleted) {
                         std::fprintf(stderr,
@@ -16109,7 +16160,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             static_cast<unsigned long>(completed.status));
                         return;
                     }
-                    const auto* data = static_cast<const unsigned char*>(snapshot.contents);
+                    const auto* data = static_cast<const unsigned char*>(capturedSnapshot.contents);
                     if (data == nullptr) {
                         std::fprintf(stderr,
                             "fem_coupled_capture_failed={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"snapshot_contents_missing\"}\n",
@@ -16458,10 +16509,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         << "\"post_fgmres_workspace\":\"fem_rhs_after_fgmres and solver state are diagnostic workspaces, not the original RHS\","
                         << "\"transaction\":\"the capture is raw read-only input state for replay and is not an accepted checkpoint\"},"
                         << "\"center_operator_action\":{\"capture_point\":\"after_fgmres_final_restart_before_armijo\",\"generation\":\"same control step, microtick, Newton iteration, center candidate, accepted material/cohesive state, selected contact samples, and tangent-cache generation as correction\",\"cache_used\":"
-                        << (state.mixedSolverValue.executionBudgets.w == 1u ? "true" : "false")
+                        << (capturedManifestContext.cachedOperatorUsed ? "true" : "false")
                         << ",\"status_array\":\"center_operator_diagnostic_status\",\"trial_history_identity\":\"compare contact_histories_used_by_private_trial and deformable_contact_histories_used_by_private_trial from the selected trial phase to the center-used arrays; names preserve distinct algorithmic working-history generations\"},"
                         << "\"rhs_preserved_before_fgmres\":"
-                        << (femCoupledCaptureRHSReady ? "true" : "false")
+                        << (capturedManifestContext.rhsPreservedBeforeFGMRES ? "true" : "false")
                         << ",\"payload\":{\"file\":"
                         << jsonQuoted(capturedPath + ".coupled.bin")
                         << ",\"byte_count\":" << capturedPayloadBytes
@@ -16469,13 +16520,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         << jsonQuoted(sha256Hex(data,
                             static_cast<std::size_t>(capturedPayloadBytes)))
                         << "},\"max_payload_bytes\":"
-                        << femCoupledCaptureCapBytes
+                        << capturedManifestContext.maxPayloadBytes
                         << ",\"max_arrays\":192"
                         << ",\"array_count\":" << capturedArrays.size()
                         << ",\"omitted_optional_buffers\":[";
-                    for (std::size_t index = 0u; index < omittedOptional.size(); ++index) {
+                    for (std::size_t index = 0u;
+                         index < capturedManifestContext.omittedOptionalBuffers.size();
+                         ++index) {
                         if (index != 0u) manifest << ',';
-                        manifest << jsonQuoted(omittedOptional[index]);
+                        manifest << jsonQuoted(
+                            capturedManifestContext.omittedOptionalBuffers[index]);
                     }
                     manifest << "],\"arrays\":[";
                     for (std::size_t index = 0u; index < capturedArrays.size(); ++index) {
@@ -17360,15 +17414,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
             };
 
             micro.solverIteration = nonlinearIteration;
-            femTrueResidualEnabled = femTrueResidualRootSelected &&
-                (!femTrueResidualNewtonSelectorSpecified ||
-                 nonlinearIteration == femTrueResidualNewtonIteration);
+            femTrueResidualEnabled = femTrueResidualCertificationRequested ||
+                (femTrueResidualRootSelected &&
+                 (!femTrueResidualNewtonSelectorSpecified ||
+                  nonlinearIteration == femTrueResidualNewtonIteration));
             // Restart replacement is part of the selected diagnostic action,
             // not a persistent solver mode. Keep ordinary Newton iterations
             // on the canonical restart residual when a single iteration was
             // selected for true-residual replacement.
-            femTrueResidualRestartEnabled = femTrueResidualEnabled &&
-                femTrueResidualRestartRequested;
+            femTrueResidualRestartEnabled =
+                femTrueResidualCertificationRequested ||
+                (femTrueResidualEnabled && femTrueResidualRestartRequested);
             dispatchThreads("nm_vascular_begin_working_set", vascularTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&state.vascularValue.layout length:sizeof(state.vascularValue.layout) atIndex:1u];
@@ -17842,6 +17898,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const std::uint32_t restartCycleCount =
                 (linearIterationBudget + restart - 1u) / restart;
             if (femTrueResidualEnabled && restartCycleCount > 64u) {
+                if (femTrueResidualCertificationRequested) {
+                    std::fprintf(stderr,
+                        "fem_true_residual_certification_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"restart_cycle_cap_64\"}\n",
+                        request.controlStep);
+                    diagnostics.message =
+                        "true-residual certification exceeds 64 restart cycles";
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
                 std::fprintf(stderr,
                     "fem_true_residual_skipped={\"schema\":1,\"root\":%u,\"reason\":\"restart_cycle_cap_64\"}\n",
                     femTrueResidualRoot);
@@ -18414,11 +18479,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.femRegionalGraphMatrixFloatCount;
                     const std::uint32_t graphPivots =
                         state.femRegionalGraphPivotCount;
+                    const bool selectedFEMOperatorCapturePending =
+                        detail::regionalGraphCapturePendingForIteration(
+                            femOperatorFDTraceEnabled,
+                            femOperatorFDTraceCaptured,
+                            femOperatorFDTraceRoot,
+                            request.controlStep,
+                            femOperatorFDTraceIteration,
+                            operatorMicro.solverIteration);
                     const std::uint32_t reuseCompletedGraphTail =
                         detail::regionalGraphCompletedTailReuseAllowed(
                             operatorMicro.solverIteration,
                             state.forceCompletedTangentCacheRebuild,
-                            femOperatorFDTraceEnabled) ? 1u : 0u;
+                            selectedFEMOperatorCapturePending) ? 1u : 0u;
                     dispatchThreads("nm_fgmres_graph_build_patch_matrices",
                         environments * graphRows, [&] {
                         setDispatch();
@@ -20048,6 +20121,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                              offset:0u atIndex:9u];
                 [encoder setBuffer:state.fgmresRestartCoefficients
                              offset:0u atIndex:10u];
+                const std::uint32_t deferCompletionToTrueResidual =
+                    femTrueResidualRestartEnabled ? 1u : 0u;
+                [encoder setBytes:&deferCompletionToTrueResidual
+                           length:sizeof(deferCompletionToTrueResidual) atIndex:11u];
             });
             if (state.femRegionalRestartAugmentationEnabled &&
                 restartCycle + 1u < restartCycleCount) {
@@ -20408,9 +20485,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:20u];
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:21u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
-                    [encoder setBuffer:state.dummy offset:0u atIndex:23u];
-                    [encoder setBuffer:state.dummy offset:0u atIndex:24u];
-                    const std::uint32_t useCache = 0u;
+                    [encoder setBuffer:state.femAlgorithmicTangentCache != nil
+                            ? state.femAlgorithmicTangentCache : state.dummy
+                                 offset:0u atIndex:23u];
+                    [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
+                            ? state.femAlgorithmicTangentCacheValid : state.dummy
+                                 offset:0u atIndex:24u];
+                    const std::uint32_t useCache =
+                        state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
                     [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
                 });
                 dispatchThreads("nm_fem_cohesive_face_operator",
@@ -20498,6 +20580,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:8u];
                     [encoder setBytes:&replaceTrueResidual
                                length:sizeof(replaceTrueResidual) atIndex:9u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:10u];
+                    const std::uint32_t propagateTrueResidualFailures =
+                        femTrueResidualCertificationRequested ? 1u : 0u;
+                    [encoder setBytes:&propagateTrueResidualFailures
+                               length:sizeof(propagateTrueResidualFailures)
+                              atIndex:11u];
                 });
                 if (!encodeFEMTrueResidualTrace(
                         restartCycle, finalRestartCycle != 0u)) {

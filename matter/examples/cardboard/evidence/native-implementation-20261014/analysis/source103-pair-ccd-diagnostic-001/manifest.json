@@ -1,0 +1,129 @@
+{
+  "schema": "numi.cardboard.source103_pair_ccd_diagnostic_package.v1",
+  "package_path": "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-001",
+  "scope": "source103 exact pair-92/127 CCD diagnosis; no physical transaction; no GPU execution by preparer",
+  "status": {
+    "inputs_prepared": true,
+    "metal_compile": true,
+    "host_compile": true,
+    "cpu_contract_tests": "4/4 passed",
+    "gpu_dispatch": "not run by subagent; root owns queued native dispatch"
+  },
+  "source": {
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103",
+    "build_receipt": "/Users/home/cardboard-implementation-20261014/analysis/retained-firstfatal-captures103-001/359/source-build.json",
+    "build_receipt_sha256": "b4c036f65383b5fce246144c3a81526050ad327252f5859d9b4c0504888bce6b",
+    "source_file_inventory_count": 778,
+    "contact_metalinc_sha256": "427aca061ad2c6d2218b5eae0bc7620132a1ef9fff9f688390ccc96ca8a27ffc",
+    "common_metalinc_sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182",
+    "main_shader_sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168",
+    "production_functions": [
+      "vertexTriangleCCD",
+      "edgeEdgeCCD"
+    ],
+    "production_file_line_ranges": {
+      "vertexTriangleCCD": "matter/src/metal/contact.metalinc:3234-3329",
+      "edgeEdgeCCD": "matter/src/metal/contact.metalinc:3331-3427"
+    }
+  },
+  "captures": [
+    {
+      "label": "center359",
+      "manifest": "/Users/home/cardboard-implementation-20261014/native/first-fatal-center-359/center-capture.coupled.json",
+      "manifest_sha256": "f3344db91f0edba415119dd639956507ba0efacfe0c459042dc4d8b83087ff1b",
+      "payload": "/Users/home/cardboard-implementation-20261014/native/first-fatal-center-359/center-capture.coupled.bin",
+      "payload_sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+      "run_receipt": "/Users/home/cardboard-implementation-20261014/native/first-fatal-center-359/receipt.json",
+      "run_receipt_sha256": "8f6b5dc36c239e25223dab6b1fb8e7b4bb51150e5d1b386de57a802133e69661",
+      "prediction": "/Users/home/cardboard-implementation-20261014/native/first-fatal-center-359/prediction.json",
+      "prediction_sha256": "0088a3d2db831b46dac34db72d1f18822e82a3eec8864a2103bf20419d167d04"
+    },
+    {
+      "label": "trial358",
+      "manifest": "/Users/home/cardboard-implementation-20261014/native/first-fatal-private-trial-358/private-trial.coupled.json",
+      "manifest_sha256": "3d4b183e2f7ba467d6f084ce0aef9c061173dc93ba49d47966428772236eb0cd",
+      "payload": "/Users/home/cardboard-implementation-20261014/native/first-fatal-private-trial-358/private-trial.coupled.bin",
+      "payload_sha256": "8126b3baa007e1da436447bd8bfaa91ab51a53be72471ff1c7133897089deea0",
+      "run_receipt": "/Users/home/cardboard-implementation-20261014/native/first-fatal-private-trial-358/receipt.json",
+      "run_receipt_sha256": "20e277611fe1a79e1e38f2b9f66c8bf5f3a685440a005014ccb39f16d4b8a5c1",
+      "prediction": "/Users/home/cardboard-implementation-20261014/native/first-fatal-private-trial-358/prediction.json",
+      "prediction_sha256": "2e3f5fa5b977a1a72b728ff1bdaaa75b1cc7a4589e26c380ed3c0fec4cf21756"
+    }
+  ],
+  "selection": {
+    "root": 1201,
+    "newton_iteration": 7,
+    "private_trial": 23,
+    "primitive_pair": [
+      92,
+      127
+    ],
+    "candidate_slot": 283,
+    "candidate_identity": [
+      92,
+      127,
+      283,
+      1
+    ],
+    "case_count": 30,
+    "vt_count": 12,
+    "ee_count": 18,
+    "input_case_bytes": 144,
+    "input_binary_bytes": 4320,
+    "prepared_sha256": "d1e544342095a563e55b18dc160fd344052c8db50eed14a8dbddd178eb019fe9",
+    "cases_bin_sha256": "e116911335b4fbf88683535cde08a97b26ca99bc1975989d67532196c2ff996f"
+  },
+  "diagnostic": {
+    "kernel": "nm_cardboard_source103_pair_ccd_diagnostic",
+    "method": "direct frozen production CCD call plus instrumentation clone; requires bitwise output equality",
+    "summary_float4_records_per_case": 9,
+    "traces": "per conservative-advance iteration, max 16 VT or 17 EE",
+    "no_threshold_changes": true,
+    "no_state_or_transaction_changes": true
+  },
+  "speed_bound_hypothesis": {
+    "vt_ratio_min_max": [
+      1.6831837524630746,
+      6.70695782488078
+    ],
+    "ee_ratio_min_max": [
+      1.8198309820250775,
+      2.5379432891775067
+    ],
+    "meaning": "ideal mathematical Galilean-relative Lipschitz bound on exact promoted captured FP32 endpoints; not an outward-FP32 conservative certificate and not a production-change authorization"
+  },
+  "commands": {
+    "prepare": "python3 prepare_pair_inputs.py",
+    "cpu_tests": "python3 test_package_contract.py",
+    "verify_cpu": "python3 verify_pair_package.py --output cpu-audit.json",
+    "compile": "./build.sh",
+    "root_native_run": "compile/pair_ccd_native_check prepared/prepared.json prepared/cases.bin compile/diagnostic_pair.metallib native-results.json",
+    "verify_native": "python3 verify_pair_package.py --native-result native-results.json --output native-audit.json"
+  },
+  "compiled_artifacts": {
+    "prepare_pair_inputs.py": "9e7787990d672ab4c6f5c55b78fd1d6ca9fcf6c59f4514d628d73774479d8d12",
+    "verify_pair_package.py": "c55e58186b3321aad4abf926b33b699917bc719d91f91dd03d89400c4a16b22b",
+    "test_package_contract.py": "8baa250ca649ab892de85d3b5ff988582de02c68141fda837fcf7b56c8b1cc6b",
+    "build.sh": "002a2a42107b6698023c465399fb5437db57106a85dd3c52318e8920915c4cf2",
+    "diagnostic_pair.metal": "7e4a3b1ed78c53551f0d5d30ac50c9b5b59e0c3cbc913be66dd006295abe2432",
+    "pair_ccd_native_check.mm": "64e52d185f95f5adefe286713e6f68c71c3b7c404536dcb925819022ae0e1c5b",
+    "README.md": "043053636ba8246c3d791cc274259c70e9fb4abafc59cbdeabe3050739d8a98f",
+    "compile/build.log": "c87633ada7f99e4563be81e85467a35ee3c43214d88b2ae3d1eb81d14ea15cd5",
+    "compile/diagnostic_pair.air": "78480844433c8a667ad673e4e89f7503a14214bfd7943aeb87f701bca8b4a8d5",
+    "compile/diagnostic_pair.metallib": "c7038566197e207275de5ca63f7d25689ccdd3e4edc7ec383591208596dc34cf",
+    "compile/pair_ccd_native_check": "efb6ededa56fc66a125daeb36393020ecb2d6356a8d45fcc50c76423490f582c",
+    "prepared/prepared.json": "d1e544342095a563e55b18dc160fd344052c8db50eed14a8dbddd178eb019fe9",
+    "prepared/cases.bin": "e116911335b4fbf88683535cde08a97b26ca99bc1975989d67532196c2ff996f",
+    "cpu-audit.json": "3a96000ee9ee4fccb07bf8c78a3653db7901702b7b06c4f0e1fee3ec0acc8b3d",
+    "cpu-tests.log": "1952d20f620541d04c2196593fa6321ac3e5056fcb460953432bb9cd274e250f",
+    "cpu-verify.log": "3a96000ee9ee4fccb07bf8c78a3653db7901702b7b06c4f0e1fee3ec0acc8b3d"
+  },
+  "compile_warnings": [
+    "Two existing warnings in untouched source-103 fgmres.metalinc: sharedValid and refinementValid may be uninitialized on non-lane-0 threads. Compilation/link succeeded."
+  ],
+  "limits": [
+    "CPU FP64 geometry and CA reproduction are comparisons, not formal certificate oracles.",
+    "The speed-bound comparison does not prove numerical safety of a changed bound.",
+    "Native result does not yet exist; root must run the exact prepared command after its current GPU work."
+  ]
+}

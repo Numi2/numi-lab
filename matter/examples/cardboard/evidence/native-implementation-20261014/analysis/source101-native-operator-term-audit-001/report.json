@@ -1,0 +1,540 @@
+{
+  "schema": "numi.cardboard.native-operator-term-audit.v1",
+  "verdict": "DIAGNOSTIC_COMPARISON_ONLY",
+  "normal_combined_action_bitwise_equal_368": true,
+  "physical_transactions": 0,
+  "independent_scope": "Independent FP64 frame/element/gather assembly using exact captured production FP32 tangent coefficients; not an independent constitutive derivative or a measured FP32 noise floor.",
+  "input_bindings": {
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/tools/cardboard_cached_operator_audit.py": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-operator-term-replay-result-373/manifest.json": "70926a07dd0fd97e546ef7dc6a81078c454c1e43f268a03e1664f95b0610675f",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-operator-term-replay-result-373/receipt.json": "b272edd1182891ca0fd26b9e95d49ac0d877f9ebc5a0fb9417a593d02153b286"
+  },
+  "environments": [
+    {
+      "environment": 0,
+      "dt_seconds": 9.999999747378752e-05,
+      "element_force_transform": {
+        "reference_l2": 816681427.8406105,
+        "native_l2": 816681436.6600558,
+        "absolute_l2_error": 524.2840122261492,
+        "relative_to_reference": 6.419688196074324e-07,
+        "maximum_absolute_error": 78.14078528282698,
+        "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+        "resolved_noise_floor": false
+      },
+      "mass_term": {
+        "reference_l2": 0.019505062648323804,
+        "native_l2": 0.019505062535504908,
+        "absolute_l2_error": 3.5957301884676226e-10,
+        "relative_to_reference": 1.8434855879720163e-08,
+        "maximum_absolute_error": 2.2383001008208225e-10,
+        "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+        "resolved_noise_floor": false
+      },
+      "gather_same_native_elements": {
+        "reference_l2": 0.0007834438303316178,
+        "native_l2": 0.0007834137040960101,
+        "absolute_l2_error": 2.3741527102916103e-07,
+        "relative_to_reference": 0.000303040577814835,
+        "maximum_absolute_error": 7.2818139907718e-08,
+        "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+        "resolved_noise_floor": false
+      },
+      "combined_cached_action": {
+        "reference_l2": 0.000782846087764457,
+        "native_l2": 0.0007834137040960101,
+        "absolute_l2_error": 5.835529210546551e-06,
+        "relative_to_reference": 0.007454248417094149,
+        "maximum_absolute_error": 1.529774475782434e-06,
+        "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+        "resolved_noise_floor": false
+      },
+      "worst_element_rows": [
+        {
+          "tet_id": 895,
+          "material": "starch2007_finite_glue_elastic",
+          "reference_l2": 2305620.4281955794,
+          "native_l2": 2305642.897603702,
+          "absolute_l2_error": 114.74864855963193,
+          "relative_to_reference": 4.97690977909301e-05,
+          "maximum_absolute_error": 56.46460514247883,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 904,
+          "material": "starch2007_finite_glue_elastic",
+          "reference_l2": 3582126.7361816373,
+          "native_l2": 3582070.800784257,
+          "absolute_l2_error": 155.9690239185373,
+          "relative_to_reference": 4.35409005335172e-05,
+          "maximum_absolute_error": 78.14078528282698,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 1858,
+          "material": "starch2007_finite_glue_elastic",
+          "reference_l2": 1099741.2804535348,
+          "native_l2": 1099704.9214202743,
+          "absolute_l2_error": 44.80693336687305,
+          "relative_to_reference": 4.0743158562161644e-05,
+          "maximum_absolute_error": 22.564244397974107,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 1882,
+          "material": "starch2007_finite_glue_elastic",
+          "reference_l2": 768539.9060704831,
+          "native_l2": 768535.1195127727,
+          "absolute_l2_error": 24.34476495289576,
+          "relative_to_reference": 3.1676643932999736e-05,
+          "maximum_absolute_error": 12.267045978049282,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 1646,
+          "material": "hajali2009_medium_hill_bilinear_fit",
+          "reference_l2": 1615654.7917238048,
+          "native_l2": 1615675.004899947,
+          "absolute_l2_error": 34.649087640897484,
+          "relative_to_reference": 2.1445848344824347e-05,
+          "maximum_absolute_error": 24.283372869016603,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 1832,
+          "material": "starch2007_finite_glue_elastic",
+          "reference_l2": 395844.4753456406,
+          "native_l2": 395846.2919733073,
+          "absolute_l2_error": 8.16286130923974,
+          "relative_to_reference": 2.062138495708991e-05,
+          "maximum_absolute_error": 5.449520083479001,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 745,
+          "material": "hajali2009_medium_hill_bilinear_fit",
+          "reference_l2": 2212844.3360125977,
+          "native_l2": 2212863.6096216636,
+          "absolute_l2_error": 43.43894702880718,
+          "relative_to_reference": 1.9630367270696206e-05,
+          "maximum_absolute_error": 24.90883115667384,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 1174,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 819816.8210152584,
+          "native_l2": 819805.694670874,
+          "absolute_l2_error": 15.220028291683954,
+          "relative_to_reference": 1.8565157363855405e-05,
+          "maximum_absolute_error": 10.771841625741217,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 1841,
+          "material": "starch2007_finite_glue_elastic",
+          "reference_l2": 384542.57384419785,
+          "native_l2": 384543.70622514735,
+          "absolute_l2_error": 7.043393247382904,
+          "relative_to_reference": 1.8316289863490177e-05,
+          "maximum_absolute_error": 4.854452019193559,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 1889,
+          "material": "starch2007_finite_glue_elastic",
+          "reference_l2": 1132536.1452681574,
+          "native_l2": 1132530.9649760772,
+          "absolute_l2_error": 20.486010465011223,
+          "relative_to_reference": 1.8088615140985747e-05,
+          "maximum_absolute_error": 14.36038171715336,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 1706,
+          "material": "hajali2009_medium_hill_bilinear_fit",
+          "reference_l2": 2253058.410356272,
+          "native_l2": 2253047.3452049345,
+          "absolute_l2_error": 39.6136715771487,
+          "relative_to_reference": 1.7582176917856587e-05,
+          "maximum_absolute_error": 22.971060991170816,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 1880,
+          "material": "starch2007_finite_glue_elastic",
+          "reference_l2": 1010619.0121695243,
+          "native_l2": 1010621.2944432485,
+          "absolute_l2_error": 17.214365234278052,
+          "relative_to_reference": 1.7033486434540242e-05,
+          "maximum_absolute_error": 12.17972542217467,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 1175,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 931472.6219505153,
+          "native_l2": 931462.7437185972,
+          "absolute_l2_error": 15.49107377201094,
+          "relative_to_reference": 1.66307343951478e-05,
+          "maximum_absolute_error": 10.959643912909087,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 1684,
+          "material": "hajali2009_medium_hill_bilinear_fit",
+          "reference_l2": 1964837.9473306218,
+          "native_l2": 1964847.09544775,
+          "absolute_l2_error": 31.02012953485558,
+          "relative_to_reference": 1.5787627461592307e-05,
+          "maximum_absolute_error": 21.502645205531735,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 752,
+          "material": "hajali2009_medium_hill_bilinear_fit",
+          "reference_l2": 1027854.7722839566,
+          "native_l2": 1027850.9651138486,
+          "absolute_l2_error": 16.18004488771887,
+          "relative_to_reference": 1.574156712019327e-05,
+          "maximum_absolute_error": 11.221824821739574,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 1888,
+          "material": "starch2007_finite_glue_elastic",
+          "reference_l2": 3451876.5443524653,
+          "native_l2": 3451867.6608374096,
+          "absolute_l2_error": 54.03963277927676,
+          "relative_to_reference": 1.5655146435549598e-05,
+          "maximum_absolute_error": 27.015754757565446,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 680,
+          "material": "hajali2009_medium_hill_bilinear_fit",
+          "reference_l2": 1293798.8397253198,
+          "native_l2": 1293810.3019495097,
+          "absolute_l2_error": 20.1830810382245,
+          "relative_to_reference": 1.5599860208956035e-05,
+          "maximum_absolute_error": 14.25296569277998,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 1704,
+          "material": "hajali2009_medium_hill_bilinear_fit",
+          "reference_l2": 1701928.248357289,
+          "native_l2": 1701937.592846072,
+          "absolute_l2_error": 26.23875237562888,
+          "relative_to_reference": 1.5417073193863888e-05,
+          "maximum_absolute_error": 17.92215697458596,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 1235,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 754115.7925213207,
+          "native_l2": 754111.5044713868,
+          "absolute_l2_error": 10.518121472655283,
+          "relative_to_reference": 1.3947621276420768e-05,
+          "maximum_absolute_error": 7.544000866939314,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 1722,
+          "material": "hajali2009_medium_hill_bilinear_fit",
+          "reference_l2": 1521758.0753187072,
+          "native_l2": 1521772.3746633858,
+          "absolute_l2_error": 21.023062932051417,
+          "relative_to_reference": 1.3814983651490388e-05,
+          "maximum_absolute_error": 13.135159936500713,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        }
+      ]
+    },
+    {
+      "environment": 1,
+      "dt_seconds": 9.999999747378752e-05,
+      "element_force_transform": {
+        "reference_l2": 0.0,
+        "native_l2": 0.0,
+        "absolute_l2_error": 0.0,
+        "relative_to_reference": null,
+        "maximum_absolute_error": 0.0,
+        "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+        "resolved_noise_floor": false
+      },
+      "mass_term": {
+        "reference_l2": 0.0,
+        "native_l2": 0.0,
+        "absolute_l2_error": 0.0,
+        "relative_to_reference": null,
+        "maximum_absolute_error": 0.0,
+        "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+        "resolved_noise_floor": false
+      },
+      "gather_same_native_elements": {
+        "reference_l2": 0.0,
+        "native_l2": 0.0,
+        "absolute_l2_error": 0.0,
+        "relative_to_reference": null,
+        "maximum_absolute_error": 0.0,
+        "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+        "resolved_noise_floor": false
+      },
+      "combined_cached_action": {
+        "reference_l2": 0.0,
+        "native_l2": 0.0,
+        "absolute_l2_error": 0.0,
+        "relative_to_reference": null,
+        "maximum_absolute_error": 0.0,
+        "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+        "resolved_noise_floor": false
+      },
+      "worst_element_rows": [
+        {
+          "tet_id": 0,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 1,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 2,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 3,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 4,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 5,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 6,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 7,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 8,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 9,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 10,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 11,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 12,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 13,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 14,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 15,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 16,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 17,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 18,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        },
+        {
+          "tet_id": 19,
+          "material": "hajali2009_liner_hill_bilinear_fit",
+          "reference_l2": 0.0,
+          "native_l2": 0.0,
+          "absolute_l2_error": 0.0,
+          "relative_to_reference": null,
+          "maximum_absolute_error": 0.0,
+          "units": "force_per_velocity_direction_before_dt_squared for elements; Ns for actions",
+          "resolved_noise_floor": false
+        }
+      ]
+    }
+  ],
+  "finished_at_utc": "2026-10-15T16:07:20.741810+00:00"
+}

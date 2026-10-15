@@ -1,0 +1,123 @@
+{
+  "capture_run": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360",
+  "compile": {
+    "command": [
+      "xcrun",
+      "clang++",
+      "-std=c++2b",
+      "-arch",
+      "arm64",
+      "-fobjc-arc",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-I/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/include",
+      "-I/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/include",
+      "-DNUMI_MATTER_METALLIB=\"/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/inputs/runtime/matter/shaders/NumiMatter.metallib\"",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-002/cached_operator_replay.mm",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-101/matter/libnumi_matter_runtime.a",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-101/matter/libnumi_matter_compiler.a",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "Metal",
+      "-o",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-002/build/cached_operator_replay"
+    ],
+    "status": "pass",
+    "warnings": "none under -Wall -Wextra -Wpedantic -Werror"
+  },
+  "cpu_preflight": {
+    "command": [
+      "python3",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-002/preflight.py"
+    ],
+    "metal_device_created": false,
+    "native_readonly_command": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-002/build/cached_operator_replay",
+      "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-002/prepared/replay-input.bin",
+      "/tmp/cardboard-operator-preflight-only",
+      "--preflight-only"
+    ],
+    "output": "compiled package and captured immutable tetrahedron fields match for 3840 records; exact-float sentinel tests pass; no Metal device or pipeline was created",
+    "physical_transactions": 0,
+    "status": "pass"
+  },
+  "dynamic_capture_inputs": {
+    "accepted_material_history": "captured environment/tetrahedron state array; exact payload hash bound",
+    "algorithmic_tangent": "captured production 9x9 per-tetrahedron cache; valid flags and payload hash bound",
+    "candidate_node_state": "captured candidate vectors are passed as dynamic replay input, not compared to compiled rest topology",
+    "direction": "captured delta_v correction preserved without rescaling",
+    "source_identity": "capture, compiled package, metallib, source101 snapshot hashes, and world/execution fingerprints independently bound"
+  },
+  "files": {
+    "capture_sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+    "checker_binary_sha256": "d09b460ff73f2736da6c8209ca8ff5fcf0750ed2cbf57844148dd080110a7514",
+    "checker_patch_sha256": "96abe08871cc1eacfb74470caebe62df7b2e361d5703dc8dad33e92837e94074",
+    "checker_source_sha256": "91c6bff186d6bc381629b3e5ec8f57b79836ad0477d9874209230eab05b0ea52",
+    "compiled_package_sha256": "3c25f41c6c26654ccf3f8b4f4b510bbb64ab0ea0f52b94d05d8b1fa4060fafe5",
+    "compiler_archive_sha256": "b3298d89a43f3b8ee8caffc5759a19564a744ce6eecd102e38fd73d31f6eca6e",
+    "cpu_preflight_script_sha256": "ee203afc5e7cc949b4bb4a9e4b9df537cd738c402a0071b9d0460181d324fd7a",
+    "input_manifest_seal_sha256": "bc37a9e2f44321f7bf749d91fb59bc690029a2485279590e28cb3de3b7a6c25d",
+    "input_manifest_sha256": "5a7d620912a86df53a198d1dc764630ae826058f72a0464fc07d9baf996f3053",
+    "metallib_sha256": "fef3d58618ffecde6f31038b03671c7058e004a0b83c0429e8d6898d9af09030",
+    "payload_sha256": "129758a5bcf1a0072a148ea4373335844c86fa1d4235f60dd607eae5f9aa09e0",
+    "prepare_script_sha256": "2adbcb010a38a6af0a1a19ef2e2a0d9221a2edb66bd2a4f0083c1c6211fb5877",
+    "readme_sha256": "8021012376c3343c62a11f5429bac224069eeab18f5cd48e0e45a4d355d7590d",
+    "runtime_archive_sha256": "a3eade7d0c5cc74e79f7c34355024e8018c1a7081536da66a96fd16190931e62"
+  },
+  "immutable_tetrahedron_audit": {
+    "fields": [
+      "connectivity",
+      "inverse_rest_matrix",
+      "rest_volume",
+      "identity_words",
+      "material_frame_quaternion"
+    ],
+    "float_comparison": "finite numeric equality, no tolerance; IEEE +0 and -0 are equal numeric zero",
+    "integer_comparison": "bitwise exact",
+    "nonfinite_values": "rejected",
+    "nonzero_changes": "rejected exactly",
+    "observed_only_representation_differences": [
+      {
+        "capture_word": "00000000",
+        "environment": 0,
+        "field": "material_frame_quaternion.y",
+        "package_word": "80000000",
+        "tetrahedron": 0
+      },
+      {
+        "capture_word": "00000000",
+        "environment": 0,
+        "field": "inverse_rest_matrix[8]",
+        "package_word": "80000000",
+        "tetrahedron": 585
+      }
+    ],
+    "other_immutable_fields": "all matched exactly",
+    "records_checked": 3840
+  },
+  "limits": [
+    "The capture is rejected Newton 23, not accepted physical geometry.",
+    "Scope is this two-environment mechanical FEM slice with zero rigid proxies, contacts, fields, and cohesive faces.",
+    "The CPU static-field audit does not establish cached-versus-fresh operator action agreement.",
+    "No tolerance, source identity, nonzero geometry field, material state, or solver acceptance gate was relaxed."
+  ],
+  "native_replay": {
+    "no_native_comparison_claim": true,
+    "reason": "parent owns serialized GPU slot",
+    "status": "not_run"
+  },
+  "preserves_failed_attempt": {
+    "failure": "native replay rejected the rich tetrahedron identity audit before any physical transaction; prepared package unchanged",
+    "native_stderr_sha256": "77cd78441994b2940953d59090a7aa46de206ec54ab924eb9737836d04ff3053",
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-result-365",
+    "receipt_sha256": "50a17ba5a3bcd2b0e844d0ffd83209714cf789c1b431d96a8d69c5688c6093d7"
+  },
+  "schema": "numi.cardboard.native-cached-operator-replay-package.v2",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101",
+  "supersedes_package": "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-001",
+  "version": "002"
+}

@@ -1,0 +1,111 @@
+--- a/cached_operator_replay.mm
++++ b/cached_operator_replay.mm
+@@ -14,6 +14,7 @@
+ #include <iostream>
+ #include <limits>
+ #include <stdexcept>
++#include <sstream>
+ #include <string>
+ #include <vector>
+ 
+@@ -57,7 +58,40 @@
+     std::vector<nm_float4> capturedFreshAction;
+     std::vector<TetAudit> tetAudit;
+ };
++
++std::string floatWords(const float* values, std::size_t count) {
++    std::ostringstream stream;
++    stream << std::hex << std::setfill('0');
++    for (std::size_t i = 0; i < count; ++i) {
++        if (i != 0) stream << ',';
++        stream << std::setw(8) << std::bit_cast<std::uint32_t>(values[i]);
++    }
++    return stream.str();
++}
++
++bool exactNumericFloatArray(const float* left, const float* right, std::size_t count) {
++    for (std::size_t i = 0; i < count; ++i) {
++        if (!std::isfinite(left[i]) || !std::isfinite(right[i]) || left[i] != right[i]) {
++            return false;
++        }
++    }
++    return true;
++}
+ 
++void testExactNumericFloatArray() {
++    const float positiveZero[3] = {0.0f, 1.0f, -0.0f};
++    const float signedZero[3] = {-0.0f, 1.0f, 0.0f};
++    need(exactNumericFloatArray(positiveZero, signedZero, 3u),
++         "exact numeric comparison must equate signed-zero encodings");
++    const float adjacent[3] = {0.0f, std::nextafter(1.0f, 2.0f), -0.0f};
++    need(!exactNumericFloatArray(positiveZero, adjacent, 3u),
++         "exact numeric comparison must reject any changed nonzero float");
++    const float nonfinite[3] = {0.0f, 1.0f,
++                                std::numeric_limits<float>::quiet_NaN()};
++    need(!exactNumericFloatArray(positiveZero, nonfinite, 3u),
++         "exact numeric comparison must reject nonfinite immutable fields");
++}
++
+ void readExact(std::ifstream& stream, void* destination, std::size_t bytes,
+                const char* label) {
+     stream.read(static_cast<char*>(destination), static_cast<std::streamsize>(bytes));
+@@ -258,13 +292,24 @@
+             const float frame[4] = {compiled.materialFrameRotation.x,
+                 compiled.materialFrameRotation.y, compiled.materialFrameRotation.z,
+                 compiled.materialFrameRotation.w};
+-            need(std::memcmp(captured.nodes, compiledNodes, sizeof(compiledNodes)) == 0 &&
+-                 std::memcmp(captured.inverseRest, compiledInv, sizeof(compiledInv)) == 0 &&
+-                 std::bit_cast<std::uint32_t>(captured.volume) ==
+-                    std::bit_cast<std::uint32_t>(compiled.inverseRestRow0.w) &&
+-                 std::memcmp(captured.identity, idWords, sizeof(idWords)) == 0 &&
+-                 std::memcmp(captured.frame, frame, sizeof(frame)) == 0,
+-                 "rich capture tetrahedron does not bit-match the compiled package");
++            need(std::memcmp(captured.nodes, compiledNodes, sizeof(compiledNodes)) == 0,
++                 "capture/package connectivity mismatch env=" + std::to_string(e) +
++                 " tet=" + std::to_string(t));
++            need(exactNumericFloatArray(captured.inverseRest, compiledInv, 9u),
++                 "capture/package inverse-rest mismatch env=" + std::to_string(e) +
++                 " tet=" + std::to_string(t) + " captured=" + floatWords(captured.inverseRest, 9u) +
++                 " compiled=" + floatWords(compiledInv, 9u));
++            need(std::bit_cast<std::uint32_t>(captured.volume) ==
++                    std::bit_cast<std::uint32_t>(compiled.inverseRestRow0.w),
++                 "capture/package volume mismatch env=" + std::to_string(e) +
++                 " tet=" + std::to_string(t));
++            need(std::memcmp(captured.identity, idWords, sizeof(idWords)) == 0,
++                 "capture/package identity mismatch env=" + std::to_string(e) +
++                 " tet=" + std::to_string(t));
++            need(exactNumericFloatArray(captured.frame, frame, 4u),
++                 "capture/package material-frame mismatch env=" + std::to_string(e) +
++                 " tet=" + std::to_string(t) + " captured=" + floatWords(captured.frame, 4u) +
++                 " compiled=" + floatWords(frame, 4u));
+         }
+         for (std::uint32_t i = 0u; i < h.parameterCount; ++i) {
+             const float captured = p.parameters[std::size_t(e) * h.parameterCount + i];
+@@ -542,7 +587,12 @@
+ int main(int argc, char** argv) {
+     @autoreleasepool {
+         try {
+-            need(argc == 4, "usage: cached_operator_replay <compiled.nmatterpack> <replay-input.bin> <output-dir>");
++            need(argc == 4 || argc == 5,
++                 "usage: cached_operator_replay <compiled.nmatterpack> <replay-input.bin> <output-dir> [--preflight-only]");
++            const bool preflightOnly = argc == 5;
++            need(!preflightOnly || std::string(argv[4]) == "--preflight-only",
++                 "the only supported optional argument is --preflight-only");
++            testExactNumericFloatArray();
+             const std::string packagePath = argv[1];
+             const std::string payloadPath = argv[2];
+             const std::string outputDir = argv[3];
+@@ -552,6 +602,13 @@
+             need(readPackage(packagePath, world, nullptr, &error),
+                  "compiled package rejected: " + error);
+             checkCompiledBinding(world, p);
++            if (preflightOnly) {
++                std::cout << "compiled package and captured immutable tetrahedron fields match "
++                          << "for " << (p.header.environments * p.header.tetrahedra)
++                          << " records; exact-float sentinel tests pass; "
++                             "no Metal device or pipeline was created\n";
++                return 0;
++            }
+ 
+             Device device;
+             auto femOperator = device.makePipeline(

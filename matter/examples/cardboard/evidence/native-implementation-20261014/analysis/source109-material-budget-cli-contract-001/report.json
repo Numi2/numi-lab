@@ -1,0 +1,44 @@
+{
+  "schema": "numi.cardboard.compile-only-budget-cli-contract.v1",
+  "cases": [
+    {
+      "case": "default",
+      "requested": null,
+      "effective": [
+        16,
+        16,
+        16
+      ],
+      "source_inputs_unchanged": true,
+      "physical_steps": 0,
+      "native_runtime_initialized": false
+    },
+    {
+      "case": "explicit16",
+      "requested": 16,
+      "effective": [
+        16,
+        16,
+        16
+      ],
+      "source_inputs_unchanged": true,
+      "physical_steps": 0,
+      "native_runtime_initialized": false
+    },
+    {
+      "case": "explicit32",
+      "requested": 32,
+      "effective": [
+        32,
+        32,
+        32
+      ],
+      "source_inputs_unchanged": true,
+      "physical_steps": 0,
+      "native_runtime_initialized": false
+    }
+  ],
+  "all_passed": true,
+  "source_build_sha256": "f96bfeb3253d8713df4bf01ee82c2f0df731415cf954ff348abc1e948f5f069c",
+  "finished_at_utc": "2026-10-15T16:11:49.497366+00:00"
+}

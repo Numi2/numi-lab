@@ -1,0 +1,12 @@
+{
+  "schema":"numi.cardboard.native-cached-operator-replay.v1",
+  "source101_world_fingerprint_hex":"6de3475316b7e8b9",
+  "capture_selection":{"control_step":2,"newton_iteration":23},
+  "physical_transactions":0,
+  "operator_path":"production nm_fem_apply_operator_elements plus nm_fgmres_gather_nodes; same captured candidate, accepted history, parameters, direction, and dt; useCache=1 versus useCache=0",
+  "residual_convention":"captured pre-FGMRES RHS b minus replayed A*delta_v; free FEM xyz rows",
+  "dt_seconds":9.9999997473787516e-05,
+  "environment_0":{"action_l2_Ns":0.00078341370409601018,"fresh_action_l2_Ns":0.00078352846079497306,"cached_vs_fresh_action_difference_l2_Ns":2.5836373831403376e-06,"cached_vs_fresh_action_difference_relative_to_cached":0.0032979221190949496,"cached_vs_captured_action_difference_l2_Ns":2.5836373831403376e-06,"fresh_vs_captured_action_difference_l2_Ns":0,"cached_rhs_minus_Ax_l2_Ns":0.00021612528951235689,"fresh_rhs_minus_Ax_l2_Ns":0.00021578176503380376,"cached_rhs_minus_Ax_all_rows_l2_Ns":0.00021612528951235689,"fresh_rhs_minus_Ax_all_rows_l2_Ns":0.00021578176503380376,"rhs_l2_Ns":0.00076754368401830834,"correction_l2_m_per_s":24346.271164603804,"maximum_cached_action_component_Ns":0.00019076711032539606,"maximum_cached_fresh_component_difference_Ns":1.2800010154023767e-06,"free_nodes":846},
+  "environment_1":{"action_l2_Ns":0,"fresh_action_l2_Ns":0,"cached_vs_fresh_action_difference_l2_Ns":0,"cached_vs_captured_action_difference_l2_Ns":0,"fresh_vs_captured_action_difference_l2_Ns":0,"cached_rhs_minus_Ax_l2_Ns":6.7800054794594602e-08,"fresh_rhs_minus_Ax_l2_Ns":6.7800054794594602e-08,"rhs_l2_Ns":6.7800054794594655e-08,"correction_l2_m_per_s":0,"free_nodes":846},
+  "limitations":["Rejected Newton candidate; diagnostic only, not an accepted physical state.","Zero rigid proxies/contact pairs/fields/cohesive faces in this compiled world; this is the complete mechanical FEM operator slice for this source-bound case.","No noise floor or solver convergence claim is inferred."]
+}

@@ -1,0 +1,4 @@
+{
+  "status": "FAIL_CLOSED",
+  "reason": "Expected absent360TRUE_RESIDUAL_RESTART; the sealed capture360 explicitly sets it to0. Source unchanged, observations not interpreted."
+}

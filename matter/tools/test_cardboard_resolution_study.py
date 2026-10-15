@@ -6,6 +6,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import importlib.util
+import math
 import os
 import json
 import sys
@@ -224,6 +225,41 @@ class CardboardResolutionStudyTests(unittest.TestCase):
         self.assertEqual(study._gate_pair(measured)["observed_free_force_residuals"]["status"],
                          "exceeds_declared_absolute_bound")
 
+    def test_absolute_work_splits_a_piecewise_linear_moment_zero_crossing(self) -> None:
+        # Independent triangle-area oracle: +1 to -1 over width 0.1 crosses
+        # zero halfway, so integral(|M|) is two triangles totaling 0.05.
+        self.assertAlmostEqual(study._absolute_linear_path_work(1.0, -1.0, 0.1), 0.05)
+        self.assertAlmostEqual(study._absolute_linear_path_work(-1.0, 3.0, 0.1), 0.125)
+        self.assertAlmostEqual(study._absolute_linear_path_work(-1.0, -3.0, 0.1), 0.2)
+
+        path = self._release_run("zero-crossing-work")
+        run = cc._load_run(path)
+        rows = [run.row_by_key[(step, 0)] for step in range(14)]
+        for row in rows:
+            row["reaction_moment_y_Nm"] = 0.0
+        rows[0]["reaction_moment_y_Nm"] = 1.0
+        rows[1]["reaction_moment_y_Nm"] = -1.0
+        rows[2]["measured_right_grip_angle_deg"] = rows[1]["measured_right_grip_angle_deg"]
+        interval = math.radians(rows[1]["measured_right_grip_angle_deg"] - rows[0]["measured_right_grip_angle_deg"])
+        metrics = study._run_metrics(run)
+        self.assertAlmostEqual(metrics["signed_external_moment_work_J"], 0.0)
+        self.assertAlmostEqual(metrics["absolute_moment_path_work_J"], 0.5 * interval)
+
+    def test_signed_springback_gate_rejects_equal_magnitudes_in_opposite_directions(self) -> None:
+        positive = cc._load_run(self._release_run("positive-springback"))
+        negative = cc._load_run(self._release_run("negative-springback", nx=4))
+        for run, signed_change in ((positive, 1.0), (negative, -1.0)):
+            before = run.row_by_key[(11, 0)]
+            after = run.row_by_key[(13, 0)]
+            before["measured_right_grip_angle_deg"] = 0.0
+            after["measured_right_grip_angle_deg"] = signed_change
+        metrics = study._pair_metrics(positive, negative, "spatial")
+        self.assertEqual(metrics["springback_angle_difference_deg"], 0.0)
+        self.assertEqual(metrics["signed_springback_angle_difference_deg"], 2.0)
+        gates = study._gate_pair(metrics)
+        self.assertEqual(gates["signed_springback_angle_difference_deg"]["status"], "exceeds_limit")
+        self.assertNotIn("springback_angle_difference_deg", gates)
+
     def test_slower_load_is_separate_and_uses_normalized_phase_samples(self) -> None:
         base = fixtures.fake_run(self.root, "load-base", nx=2, dt=0.01, steps=4,
                                  hold=2, unload=4, relax=2, release=2)
@@ -274,7 +310,8 @@ class CardboardResolutionStudyTests(unittest.TestCase):
         coarse_middle = {
             "peak_force_relative": .04, "peak_moment_relative": .03,
             "path_work_relative": .04, "normalized_force_curve_rms": .08,
-            "normalized_moment_curve_rms": .07, "springback_angle_difference_deg": 1.2,
+            "normalized_moment_curve_rms": .07, "springback_angle_difference_deg": .4,
+            "signed_springback_angle_difference_deg": 1.2,
             "paper_damage_area_fraction_difference": None,
             "debond_area_fraction_difference": None,
             "damage_debond": {"baseline": {"paper_enabled": False, "debond_enabled": False},
@@ -285,6 +322,7 @@ class CardboardResolutionStudyTests(unittest.TestCase):
             "peak_force_relative": .01, "peak_moment_relative": .01,
             "path_work_relative": .01, "normalized_force_curve_rms": .03,
             "normalized_moment_curve_rms": .02, "springback_angle_difference_deg": .4,
+            "signed_springback_angle_difference_deg": .4,
         })
         passed = study._gate_triple(coarse_middle, middle_fine)
         self.assertTrue(all(item["status"] in ("pass", "not_enabled") for item in passed.values()))

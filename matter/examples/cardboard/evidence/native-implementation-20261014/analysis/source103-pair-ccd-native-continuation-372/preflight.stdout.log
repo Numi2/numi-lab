@@ -1,0 +1,275 @@
+{
+  "schema": "numi.cardboard.source103_pair_ccd_package_audit.v1",
+  "status": "PASS",
+  "scope": "CPU package validation; native result is optional and is only parsed if supplied",
+  "summary": {
+    "prepared_manifest_sha256": "d1e544342095a563e55b18dc160fd344052c8db50eed14a8dbddd178eb019fe9",
+    "cases_bin_sha256": "e116911335b4fbf88683535cde08a97b26ca99bc1975989d67532196c2ff996f",
+    "case_count": 30,
+    "capture_build_source_files_verified": 778,
+    "case_counts": {
+      "vertex_triangle": 12,
+      "edge_edge": 18
+    },
+    "speed_bound_ratio_ranges": {
+      "vertex_triangle": {
+        "min": 1.6831837524630746,
+        "max": 6.70695782488078
+      },
+      "edge_edge": {
+        "min": 1.8198309820250775,
+        "max": 2.5379432891775067
+      }
+    },
+    "per_case": [
+      {
+        "case": "center359_vt_direction0_vertex0",
+        "production_bound_m": 1.2976224014832557e-07,
+        "galilean_relative_bound_m": 6.227848332917642e-08,
+        "ratio": 2.083580607807354,
+        "cpu_fp64_trace_terminal": "iteration_exhausted",
+        "cpu_fp64_trace_certified": false
+      },
+      {
+        "case": "center359_vt_direction0_vertex1",
+        "production_bound_m": 1.4931005428061822e-07,
+        "galilean_relative_bound_m": 8.179054300744533e-08,
+        "ratio": 1.8255173372186395,
+        "cpu_fp64_trace_terminal": "advanced_past_end_certified_miss",
+        "cpu_fp64_trace_certified": true
+      },
+      {
+        "case": "center359_vt_direction0_vertex2",
+        "production_bound_m": 7.022400311226273e-08,
+        "galilean_relative_bound_m": 1.0470321261265872e-08,
+        "ratio": 6.70695782488078,
+        "cpu_fp64_trace_terminal": "advanced_past_end_certified_miss",
+        "cpu_fp64_trace_certified": true
+      },
+      {
+        "case": "center359_vt_direction1_vertex0",
+        "production_bound_m": 1.488450341040999e-07,
+        "galilean_relative_bound_m": 7.061702199588938e-08,
+        "ratio": 2.107778406639184,
+        "cpu_fp64_trace_terminal": "advanced_past_end_certified_miss",
+        "cpu_fp64_trace_certified": true
+      },
+      {
+        "case": "center359_vt_direction1_vertex1",
+        "production_bound_m": 1.3766857134648276e-07,
+        "galilean_relative_bound_m": 8.179054300744533e-08,
+        "ratio": 1.6831844646629976,
+        "cpu_fp64_trace_terminal": "iteration_exhausted",
+        "cpu_fp64_trace_certified": false
+      },
+      {
+        "case": "center359_vt_direction1_vertex2",
+        "production_bound_m": 1.4931005428061822e-07,
+        "galilean_relative_bound_m": 7.014958573530961e-08,
+        "ratio": 2.128452402327779,
+        "cpu_fp64_trace_terminal": "advanced_past_end_certified_miss",
+        "cpu_fp64_trace_certified": true
+      },
+      {
+        "case": "center359_ee_edge0_edge0",
+        "production_bound_m": 1.488450341040999e-07,
+        "galilean_relative_bound_m": 8.179054300744533e-08,
+        "ratio": 1.8198318366776296,
+        "cpu_fp64_trace_terminal": "iteration_exhausted",
+        "cpu_fp64_trace_certified": false
+      },
+      {
+        "case": "center359_ee_edge0_edge1",
+        "production_bound_m": 1.4931005428061822e-07,
+        "galilean_relative_bound_m": 8.179054300744533e-08,
+        "ratio": 1.8255173372186395,
+        "cpu_fp64_trace_terminal": "iteration_exhausted",
+        "cpu_fp64_trace_certified": false
+      },
+      {
+        "case": "center359_ee_edge0_edge2",
+        "production_bound_m": 1.4931005428061822e-07,
+        "galilean_relative_bound_m": 7.061702199588938e-08,
+        "ratio": 2.1143635069928264,
+        "cpu_fp64_trace_terminal": "advanced_past_end_certified_miss",
+        "cpu_fp64_trace_certified": true
+      },
+      {
+        "case": "center359_ee_edge1_edge0",
+        "production_bound_m": 1.488450341040999e-07,
+        "galilean_relative_bound_m": 8.179054300744533e-08,
+        "ratio": 1.8198318366776296,
+        "cpu_fp64_trace_terminal": "advanced_past_end_certified_miss",
+        "cpu_fp64_trace_certified": true
+      },
+      {
+        "case": "center359_ee_edge1_edge1",
+        "production_bound_m": 1.4931005428061822e-07,
+        "galilean_relative_bound_m": 8.179054300744533e-08,
+        "ratio": 1.8255173372186395,
+        "cpu_fp64_trace_terminal": "advanced_past_end_certified_miss",
+        "cpu_fp64_trace_certified": true
+      },
+      {
+        "case": "center359_ee_edge1_edge2",
+        "production_bound_m": 1.4931005428061822e-07,
+        "galilean_relative_bound_m": 7.061702199588938e-08,
+        "ratio": 2.1143635069928264,
+        "cpu_fp64_trace_terminal": "advanced_past_end_certified_miss",
+        "cpu_fp64_trace_certified": true
+      },
+      {
+        "case": "center359_ee_edge2_edge0",
+        "production_bound_m": 1.2929721997180725e-07,
+        "galilean_relative_bound_m": 6.227848332917642e-08,
+        "ratio": 2.076113820697905,
+        "cpu_fp64_trace_terminal": "iteration_exhausted",
+        "cpu_fp64_trace_certified": false
+      },
+      {
+        "case": "center359_ee_edge2_edge1",
+        "production_bound_m": 1.2976224014832557e-07,
+        "galilean_relative_bound_m": 6.227848332917642e-08,
+        "ratio": 2.083580607807354,
+        "cpu_fp64_trace_terminal": "iteration_exhausted",
+        "cpu_fp64_trace_certified": false
+      },
+      {
+        "case": "center359_ee_edge2_edge2",
+        "production_bound_m": 1.2976224014832557e-07,
+        "galilean_relative_bound_m": 5.112889665488891e-08,
+        "ratio": 2.5379432891775067,
+        "cpu_fp64_trace_terminal": "advanced_past_end_certified_miss",
+        "cpu_fp64_trace_certified": true
+      },
+      {
+        "case": "trial358_vt_direction0_vertex0",
+        "production_bound_m": 1.2976224016908058e-07,
+        "galilean_relative_bound_m": 6.227848336062772e-08,
+        "ratio": 2.083580607088385,
+        "cpu_fp64_trace_terminal": "iteration_exhausted",
+        "cpu_fp64_trace_certified": false
+      },
+      {
+        "case": "trial358_vt_direction0_vertex1",
+        "production_bound_m": 1.4931013954670114e-07,
+        "galilean_relative_bound_m": 8.179062827282478e-08,
+        "ratio": 1.8255164766390473,
+        "cpu_fp64_trace_terminal": "advanced_past_end_certified_miss",
+        "cpu_fp64_trace_certified": true
+      },
+      {
+        "case": "trial358_vt_direction0_vertex2",
+        "production_bound_m": 7.022400311226273e-08,
+        "galilean_relative_bound_m": 1.0470321261265872e-08,
+        "ratio": 6.70695782488078,
+        "cpu_fp64_trace_terminal": "advanced_past_end_certified_miss",
+        "cpu_fp64_trace_certified": true
+      },
+      {
+        "case": "trial358_vt_direction1_vertex0",
+        "production_bound_m": 1.488451193701828e-07,
+        "galilean_relative_bound_m": 7.061710725931918e-08,
+        "ratio": 2.1077770691398583,
+        "cpu_fp64_trace_terminal": "advanced_past_end_certified_miss",
+        "cpu_fp64_trace_certified": true
+      },
+      {
+        "case": "trial358_vt_direction1_vertex1",
+        "production_bound_m": 1.3766865661256566e-07,
+        "galilean_relative_bound_m": 8.179062827282478e-08,
+        "ratio": 1.6831837524630746,
+        "cpu_fp64_trace_terminal": "iteration_exhausted",
+        "cpu_fp64_trace_certified": false
+      },
+      {
+        "case": "trial358_vt_direction1_vertex2",
+        "production_bound_m": 1.4931013954670114e-07,
+        "galilean_relative_bound_m": 7.0149670999865e-08,
+        "ratio": 2.1284510307537787,
+        "cpu_fp64_trace_terminal": "advanced_past_end_certified_miss",
+        "cpu_fp64_trace_certified": true
+      },
+      {
+        "case": "trial358_ee_edge0_edge0",
+        "production_bound_m": 1.488451193701828e-07,
+        "galilean_relative_bound_m": 8.179062827282478e-08,
+        "ratio": 1.8198309820250775,
+        "cpu_fp64_trace_terminal": "iteration_exhausted",
+        "cpu_fp64_trace_certified": false
+      },
+      {
+        "case": "trial358_ee_edge0_edge1",
+        "production_bound_m": 1.4931013954670114e-07,
+        "galilean_relative_bound_m": 8.179062827282478e-08,
+        "ratio": 1.8255164766390473,
+        "cpu_fp64_trace_terminal": "iteration_exhausted",
+        "cpu_fp64_trace_certified": false
+      },
+      {
+        "case": "trial358_ee_edge0_edge2",
+        "production_bound_m": 1.4931013954670114e-07,
+        "galilean_relative_bound_m": 7.061710725931918e-08,
+        "ratio": 2.11436216154262,
+        "cpu_fp64_trace_terminal": "advanced_past_end_certified_miss",
+        "cpu_fp64_trace_certified": true
+      },
+      {
+        "case": "trial358_ee_edge1_edge0",
+        "production_bound_m": 1.488451193701828e-07,
+        "galilean_relative_bound_m": 8.179062827282478e-08,
+        "ratio": 1.8198309820250775,
+        "cpu_fp64_trace_terminal": "advanced_past_end_certified_miss",
+        "cpu_fp64_trace_certified": true
+      },
+      {
+        "case": "trial358_ee_edge1_edge1",
+        "production_bound_m": 1.4931013954670114e-07,
+        "galilean_relative_bound_m": 8.179062827282478e-08,
+        "ratio": 1.8255164766390473,
+        "cpu_fp64_trace_terminal": "advanced_past_end_certified_miss",
+        "cpu_fp64_trace_certified": true
+      },
+      {
+        "case": "trial358_ee_edge1_edge2",
+        "production_bound_m": 1.4931013954670114e-07,
+        "galilean_relative_bound_m": 7.061710725931918e-08,
+        "ratio": 2.11436216154262,
+        "cpu_fp64_trace_terminal": "advanced_past_end_certified_miss",
+        "cpu_fp64_trace_certified": true
+      },
+      {
+        "case": "trial358_ee_edge2_edge0",
+        "production_bound_m": 1.2929721999256223e-07,
+        "galilean_relative_bound_m": 6.227848336062772e-08,
+        "ratio": 2.0761138199827065,
+        "cpu_fp64_trace_terminal": "iteration_exhausted",
+        "cpu_fp64_trace_certified": false
+      },
+      {
+        "case": "trial358_ee_edge2_edge1",
+        "production_bound_m": 1.2976224016908058e-07,
+        "galilean_relative_bound_m": 6.227848336062772e-08,
+        "ratio": 2.083580607088385,
+        "cpu_fp64_trace_terminal": "iteration_exhausted",
+        "cpu_fp64_trace_certified": false
+      },
+      {
+        "case": "trial358_ee_edge2_edge2",
+        "production_bound_m": 1.2976224016908058e-07,
+        "galilean_relative_bound_m": 5.112889669554103e-08,
+        "ratio": 2.537943287565546,
+        "cpu_fp64_trace_terminal": "advanced_past_end_certified_miss",
+        "cpu_fp64_trace_certified": true
+      }
+    ],
+    "native_result_admitted": false
+  },
+  "limits": [
+    "No GPU is dispatched by this validator.",
+    "The FP64 CCD reference is not a formal certificate.",
+    "The Galilean-relative bound is a mathematical hypothesis without outward FP32 error accounting.",
+    "The isolated contact overlay changes only the EE iteration bound; all certification predicates and fail-closed exhaustion behavior remain unchanged.",
+    "No thickness, geometry, timestep, or solver acceptance threshold is changed."
+  ]
+}

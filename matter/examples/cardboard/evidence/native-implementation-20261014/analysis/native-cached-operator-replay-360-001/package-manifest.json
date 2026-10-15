@@ -1,0 +1,84 @@
+{
+  "capture_run": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360",
+  "compile": {
+    "command": [
+      "xcrun",
+      "clang++",
+      "-std=c++2b",
+      "-arch",
+      "arm64",
+      "-fobjc-arc",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-I/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/include",
+      "-I/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/include",
+      "-DNUMI_MATTER_METALLIB=\"/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/inputs/runtime/matter/shaders/NumiMatter.metallib\"",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-001/cached_operator_replay.mm",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-101/matter/libnumi_matter_runtime.a",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-101/matter/libnumi_matter_compiler.a",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "Metal",
+      "-o",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-001/build/cached_operator_replay"
+    ],
+    "output_binary_sha256": "c8bb6273a865f6b4b9eb7618eb20dccc9777a01e99169be1322f3747a61cd6aa",
+    "source_sha256": "cb1ef23d45db4caf689afb18011b63319c998a53fc59fc9e8c66585c4ae0a93f",
+    "status": "success",
+    "validation": "clang++ -std=c++2b arm64 ARC, -Wall -Wextra -Wpedantic -Werror"
+  },
+  "correction_magnitude_check": {
+    "capture_contract": "unknown delta_v in m/s; local F direction is grad(delta_v), per second",
+    "environment0_l2_m_per_s": 24346.271154909504,
+    "environment0_max_magnitude_m_per_s": 13760.171400398754,
+    "environment0_max_node": 479,
+    "environment0_max_vector_m_per_s": [
+      -160.436874,
+      8.55699348,
+      -13759.2334
+    ],
+    "environment1_l2_m_per_s": 0.0,
+    "interpretation": "captured linear-solve correction, not a physical velocity; preserved without rescaling"
+  },
+  "cpu_preflight": {
+    "command": [
+      "python3",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-001/preflight.py"
+    ],
+    "script_sha256": "08c0f0d5e983873f105323557f50cc3c2736061f331d8af09a374622cbb75652",
+    "status": "pass"
+  },
+  "input_manifest_sha256": "67211c204f81f3af716bd3ca4fb0862e5b18f3f3208faae54c779d771e290dd3",
+  "input_seal_sha256": "90561d6d6545e120f809715eeaa3f349f4934807d6aea7f6e993e0f89b2d8919",
+  "limits": [
+    "Rejected Newton 23 diagnostic capture, not accepted geometry.",
+    "Complete only for this zero-contact, zero-rigid, zero-field, zero-cohesive mechanical FEM slice.",
+    "No noise floor inferred.",
+    "Cached/fresh same-vector native result remains pending until GPU slot."
+  ],
+  "native_execution": {
+    "expected_physical_transactions": 0,
+    "reason": "Metal dispatch requires parent-owned GPU slot",
+    "status": "not_run"
+  },
+  "payload_sha256": "129758a5bcf1a0072a148ea4373335844c86fa1d4235f60dd607eae5f9aa09e0",
+  "prepared_manifest_native_capture": {
+    "correction_max_abs_m_per_s": 13759.2334,
+    "dt_seconds": 9.999999747378752e-05,
+    "environment_count": 2,
+    "execution_fingerprint_hex": "c330e03d605afd25",
+    "material_state_stride": 15,
+    "newton_iteration": 23,
+    "node_count_per_environment": 882,
+    "parameter_count": 59,
+    "root": 2,
+    "tangent_entries_valid": 3840,
+    "tetrahedron_count_per_environment": 1920,
+    "world_fingerprint_hex": "6de3475316b7e8b9"
+  },
+  "schema": "numi.cardboard.native-cached-operator-replay-package.v1",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101"
+}

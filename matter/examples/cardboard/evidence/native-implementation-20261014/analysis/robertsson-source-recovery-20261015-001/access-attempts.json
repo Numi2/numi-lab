@@ -1,0 +1,68 @@
+{
+  "schema": "numi.cardboard.primary_source_access_audit.v1",
+  "audit_utc": "2026-10-15T15:47:11Z",
+  "primary_only_scope": true,
+  "attempts": [
+    {
+      "url": "https://onlinelibrary.wiley.com/doi/full/10.1002/pts.2774",
+      "route": "official publisher HTML via web reader",
+      "outcome": "accessible article text; article labels Open Access; includes equation/table text and data-availability statement; no retained source bytes or figure pixels",
+      "status": "content-readable-unhashed"
+    },
+    {
+      "url": "https://onlinelibrary.wiley.com/doi/pdf/10.1002/pts.2774",
+      "route": "official publisher PDF reader via web reader",
+      "outcome": "14-page PDF reader text available; no local PDF bytes or rendered pixels returned",
+      "status": "reader-available-bytes-unavailable"
+    },
+    {
+      "url": "https://onlinelibrary.wiley.com/doi/pdf/10.1002/pts.2774",
+      "route": "direct unauthenticated GET",
+      "outcome": "HTTP 403 text/html; content-length 5603",
+      "status": "blocked"
+    },
+    {
+      "url": "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1002/pts.2774",
+      "route": "direct unauthenticated GET",
+      "outcome": "HTTP 403 text/html; content-length 5621",
+      "status": "blocked"
+    },
+    {
+      "url": "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1002/pts.2774?download=true",
+      "route": "direct unauthenticated GET",
+      "outcome": "HTTP 403 text/html; content-length 5699",
+      "status": "blocked"
+    },
+    {
+      "url": "https://onlinelibrary.wiley.com/action/downloadFigures?doi=10.1002%2Fpts.2774&id=pts2774-fig-0004&partId=",
+      "route": "official publisher Figure 4 PowerPoint endpoint via web reader",
+      "outcome": "HTTP 400 in reader: unsupported content-type application/vnd.ms-powerpoint",
+      "status": "asset-not-presented"
+    },
+    {
+      "url": "https://onlinelibrary.wiley.com/action/downloadFigures?doi=10.1002%2Fpts.2774&id=pts2774-fig-0004&partId=",
+      "route": "direct unauthenticated GET",
+      "outcome": "HTTP 403 text/html; content-length 5859",
+      "status": "blocked"
+    },
+    {
+      "url": "https://lup.lub.lu.se/search/publication/ff8ac441-219a-4ec1-8806-81fafe2cd72e",
+      "route": "official Lund University Publications record",
+      "outcome": "metadata and DOI link; no file attachment or source implementation link listed",
+      "status": "metadata-only"
+    },
+    {
+      "url": "https://onlinelibrary.wiley.com/doi/10.1002/pts.2774",
+      "route": "official publisher article; find/search for correction and supplementary information",
+      "outcome": "no correction or supplementary-code statement found; article states all data are presented and simulations used commercial code",
+      "status": "no-public-correction-or-code-link-found"
+    },
+    {
+      "url": "https://github.com/ (exact DOI/title queries)",
+      "route": "public code-host search; author implementation discovery only",
+      "outcome": "no result surfaced in bounded exact-title/exact-DOI search",
+      "status": "no-result-not-proof-of-absence"
+    }
+  ],
+  "conclusion": "No new source asset or primary correction acquired. Preserve Figure 4 as un-digitized and Eq. 18 convention as unresolved."
+}

@@ -1,0 +1,52 @@
+{
+  "files": [
+    {
+      "bytes": 6110,
+      "path": "README.md",
+      "sha256": "ccf50b066cb937bbb34f6c5642d4c19bfcb74735b7ba23fe6d83f88b0c255311"
+    },
+    {
+      "bytes": 5635,
+      "path": "audit.json",
+      "sha256": "d95ff60b5fdd512fcea3379318943c2476487e9029ec404e4cfb463d49724097"
+    },
+    {
+      "bytes": 27168,
+      "path": "preflight.json",
+      "sha256": "4fc08f14811f1ba47c0ae543f788d5f5627f1868c8fe872771c8446f2641cbc6"
+    },
+    {
+      "bytes": 654,
+      "path": "sizeof.cpp",
+      "sha256": "92d30f0ef333fead6e329df47fc3662074ffac61ebadf532083d97222807f24d"
+    },
+    {
+      "bytes": 477,
+      "path": "sizeof.txt",
+      "sha256": "cccfe45af583834e5b4d8aa8566f933886d51ce0035c5d250106d905b020da19"
+    },
+    {
+      "bytes": 3048,
+      "path": "validate_audit.py",
+      "sha256": "420c45a54ab1ffa6fb2204b3fcafa8541eaa74c3b11224797023cd506618c697"
+    },
+    {
+      "bytes": 88,
+      "path": "validation.log",
+      "sha256": "4a7608ebf59a889e98bb6e9aa60116420ca9553e0d88b55d060bd760b7bccaca"
+    }
+  ],
+  "limitations": [
+    "source032 runtime resident is not the full shipping world",
+    "host/device peak for the prepared full topology is unmeasured",
+    "modeled 16 GiB fit is not runtime or solver admission",
+    "full-contact N/T and dense rigid pair gates reject current topology"
+  ],
+  "package": "explicit-flute-shipping-arena-audit-106-002",
+  "schema": "numi.cardboard.audit-package.v1",
+  "source_manifest_sha256": "ddf73f704642711042925fd4be98c7ee83b8bf2f872856a9053ce7ba36e57ae5",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106",
+  "validation_command": "python3 validate_audit.py",
+  "validation_result": "PASS",
+  "validation_scope": "CPU source/hash/formula/sizeof checks; no Metal init or solver run"
+}

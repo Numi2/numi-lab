@@ -1,0 +1,95 @@
+{
+  "artifacts": {
+    "checker_executable_sha256": "5e8364c8d5e4420e41646facea8011bb152314614239b793b3d05b3cec103a81",
+    "metallib_sha256": "3842cd2e3a963500afea6880afdd16d49695c2faf87b957a3880ea076e87c2de"
+  },
+  "base_changed_file_bindings": {
+    "matter/src/metal/contact.metalinc": "b9ec3915b63bdee729ff0902c390e137e0f6b5d005d06e6a7136c534be3d510b",
+    "matter/tools/cardboard_contact_ccd_native_check.mm": "bd2e0ef37446183c22e964a0517114f376e84e6fc85875c8f8946a92962e5528"
+  },
+  "base_frozen_source_json_sha256": "ddf73f704642711042925fd4be98c7ee83b8bf2f872856a9053ce7ba36e57ae5",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106",
+  "commands": {
+    "compile_build": "cmake --build <package>/build-matter --target numi-matter-cardboard-contact-ccd-native-check --clean-first -j2",
+    "compile_configure": "cmake -S <package>/compile-source/matter -B <package>/build-matter -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF",
+    "cpu_contract": "python3 tests/check_contract.py --base <source106> --overlay <package>/compile-source --evidence <package>/evidence/captured-ee-ray.json --source103 <source103>/matter/src/metal/contact.metalinc",
+    "native_run": "intentionally not run in this package"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 4385,
+      "sha256": "736f89a382c53c5e3ef3d08c63810e3dc36ab51ba2d86af67ae233ad7e32e010"
+    },
+    "build-matter/numi-matter-cardboard-contact-ccd-native-check": {
+      "bytes": 92176,
+      "sha256": "5e8364c8d5e4420e41646facea8011bb152314614239b793b3d05b3cec103a81"
+    },
+    "build-matter/shaders/NumiMatter.metallib": {
+      "bytes": 6580540,
+      "sha256": "3842cd2e3a963500afea6880afdd16d49695c2faf87b957a3880ea076e87c2de"
+    },
+    "evidence/captured-ee-ray.json": {
+      "bytes": 5874,
+      "sha256": "eb88cd311abaf7a862e14c93475928eff20703e6dbcd56009b36844dc6ee778f"
+    },
+    "logs/compile-only-build.log": {
+      "bytes": 4252,
+      "sha256": "90af38b0cf65c9c4edfc92a07cbd0aa6983ebe4aa3f24e05a583f4938aa22597"
+    },
+    "logs/cpu-contract-compile-source.json": {
+      "bytes": 645,
+      "sha256": "7148a20be7b9406b1700f0bb3552aaa30748556de46cbe818b535bbeafe0a0e9"
+    },
+    "logs/patch-dry-run.log": {
+      "bytes": 117,
+      "sha256": "c149e3e429212a343c1af4f691cb60a2223e80fc5814dcecef9adee2c720785c"
+    },
+    "overlay/matter/src/metal/contact.metalinc": {
+      "bytes": 406206,
+      "sha256": "1636c24f766abadd9187809aaaf9511842a56b68f9856cea2154bdc31bc1a603"
+    },
+    "overlay/matter/tools/cardboard_contact_ccd_native_check.mm": {
+      "bytes": 30154,
+      "sha256": "a6e913f735e356165106a937312d6b439ba4f31a7f8778fc2ceec02c2a106b5a"
+    },
+    "source106-ccd33.patch": {
+      "bytes": 11211,
+      "sha256": "2243f64d5659664386ada302b135a316ca63a6232de56adbb427a57451d5c63c"
+    },
+    "tests/check_contract.py": {
+      "bytes": 7906,
+      "sha256": "f793838807dcffb00cf175605852b5d7af53a8148623de9bdf280c743137464a"
+    }
+  },
+  "manifest_generator_sha256": "d5bf33d867593e864562384a1219618ba62a0ddc25872a6509e53b013d78ac54",
+  "schema": "numi.cardboard.source106_ccd33_direct_regression_overlay.v1",
+  "scope": {
+    "full_contact_same_build_run_present": false,
+    "native_checker_addition": "Exact captured near-band EE case in direct CCD and Newton helper paths.",
+    "nominal_crossing_claim": false,
+    "other_production_physics_changed": false,
+    "production_change": "Only the production edgeEdgeCCD iteration cap changes 17 to 33.",
+    "vertex_triangle_iteration_cap_unchanged": 16
+  },
+  "source103_function_comparison": {
+    "baseline_native_result_sha256": "8b9b1ef8b0a32adb3938a39254ac57698fceb7b19265bae3fa69329562b3b6cc",
+    "contact_sha256": "427aca061ad2c6d2218b5eae0bc7620132a1ef9fff9f688390ccc96ca8a27ffc",
+    "continuation_native_result_sha256": "c8fd27646a56d117931552dbe99a3c119976ea7061d53365e24080af81bda45b",
+    "production_edge_edge_function_matches_source106_after_bound_normalization": true,
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103"
+  },
+  "status": "sealed_compile_only_overlay",
+  "validation": {
+    "build_exit_code": 0,
+    "build_target": "numi-matter-cardboard-contact-ccd-native-check",
+    "cmake_configure": "Standalone matter/CMakeLists.txt used; the frozen top-level snapshot omits unrelated Swift binding source needed by root configure.",
+    "cpu_contract_test": "pass",
+    "gpu_dispatch_performed": false,
+    "native_executable_invoked": false,
+    "patch_dry_run": "pass",
+    "standalone_matter_compile": "pass",
+    "warnings": [
+      "Two pre-existing Metal warnings in fgmres.metalinc about sharedValid and refinementValid threadgroup initialization; no changed file is implicated."
+    ]
+  }
+}

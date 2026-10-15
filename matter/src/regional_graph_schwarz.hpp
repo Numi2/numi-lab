@@ -15,8 +15,21 @@ namespace numi::matter::detail {
 
 // A graph factor may be retained only for a later Newton iteration in the
 // same solver transaction, and only after the caller has excluded forced
-// rebuilds and selected diagnostic captures. The Metal kernels additionally
-// require that the environment's nonlinear-completion latch is set.
+// rebuilds and the exact selected diagnostic capture iteration. The Metal
+// kernels additionally require that the environment's nonlinear-completion
+// latch is set.
+[[nodiscard]] inline bool regionalGraphCapturePendingForIteration(
+    const bool selectorValidAndEnabled,
+    const bool captureAlreadyCompleted,
+    const std::uint32_t selectorRoot,
+    const std::uint32_t currentRoot,
+    const std::uint32_t selectorIteration,
+    const std::uint32_t currentIteration
+) noexcept {
+    return selectorValidAndEnabled && !captureAlreadyCompleted &&
+        selectorRoot == currentRoot && selectorIteration == currentIteration;
+}
+
 [[nodiscard]] inline bool regionalGraphCompletedTailReuseAllowed(
     const std::uint32_t solverIteration,
     const bool forceRebuild,

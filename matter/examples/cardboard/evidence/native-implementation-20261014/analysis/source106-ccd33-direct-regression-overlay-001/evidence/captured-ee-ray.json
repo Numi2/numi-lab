@@ -1,0 +1,160 @@
+{
+  "capture_case": {
+    "candidate_identity": [
+      92,
+      127,
+      283,
+      1
+    ],
+    "case_index": 21,
+    "kind": "edge_edge",
+    "name": "trial358_ee_edge0_edge0",
+    "points_finish_f32_bits": [
+      "3b0312a4",
+      "325a5b76",
+      "3a8321ae",
+      "3b031269",
+      "314b9a59",
+      "350b6ba8",
+      "b3d8283b",
+      "bb03137f",
+      "3a846d2f",
+      "3b0310a7",
+      "b379acd4",
+      "3a84712b"
+    ],
+    "points_start_f32_bits": [
+      "3b031297",
+      "3236273c",
+      "3a831ea8",
+      "3b03126a",
+      "3120b246",
+      "34dbee94",
+      "b3d85123",
+      "bb03137e",
+      "3a846bdf",
+      "3b0310a7",
+      "b3794115",
+      "3a84703b"
+    ],
+    "primitive_nodes": [
+      [
+        14,
+        5,
+        17
+      ],
+      [
+        28,
+        32,
+        31
+      ]
+    ],
+    "primitive_pair": [
+      92,
+      127
+    ],
+    "record_bytes_sha256": "41d9c804684188137c5576f40b4d3e099a3f11184ed02b78e84376d244ed5f78",
+    "record_f32_bits": [
+      "3f800000",
+      "3727c5ac",
+      "00000000",
+      "00000000",
+      "3b031297",
+      "3236273c",
+      "3a831ea8",
+      "00000000",
+      "3b03126a",
+      "3120b246",
+      "34dbee94",
+      "00000000",
+      "b3d85123",
+      "bb03137e",
+      "3a846bdf",
+      "00000000",
+      "3b0310a7",
+      "b3794115",
+      "3a84703b",
+      "00000000",
+      "3b0312a4",
+      "325a5b76",
+      "3a8321ae",
+      "00000000",
+      "3b031269",
+      "314b9a59",
+      "350b6ba8",
+      "00000000",
+      "b3d8283b",
+      "bb03137f",
+      "3a846d2f",
+      "00000000",
+      "3b0310a7",
+      "b379acd4",
+      "3a84712b",
+      "00000000"
+    ],
+    "thickness_f32_bits": "3727c5ac"
+  },
+  "geometry_interpretation": {
+    "continuation_effective_thickness_m": 1.000190695776837e-05,
+    "independent_sampled_minimum_m": 9.999283199365038e-06,
+    "nominal_crossing_claimed": false,
+    "nominal_thickness_m": 9.999999747378752e-06,
+    "note": "The hit is within the implementation roundoff-expanded band. The independent sampled endpoint is only sub-nanometer inside nominal thickness and is not a lower-bound proof; do not call this a robust nominal-thickness crossing.",
+    "returned_separation_m": 1.000184056465514e-05,
+    "returned_separation_minus_nominal_m": 1.8408172763884068e-09,
+    "roundoff_addition_m": 1.9074091195392384e-09,
+    "sampled_minimum_is_lower_bound": false
+  },
+  "native_source103_comparison": {
+    "baseline": {
+      "certified": false,
+      "continuation_overlay_contact_sha256": null,
+      "hit": false,
+      "metallib_path": "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/compile/diagnostic_pair.metallib",
+      "metallib_sha256": "c7038566197e207275de5ca63f7d25689ccdd3e4edc7ec383591208596dc34cf",
+      "physical_transactions_executed": 0,
+      "prepared_manifest_sha256": "d1e544342095a563e55b18dc160fd344052c8db50eed14a8dbddd178eb019fe9",
+      "result_sha256": "8b9b1ef8b0a32adb3938a39254ac57698fceb7b19265bae3fa69329562b3b6cc",
+      "run": "367",
+      "separation_m": 1.0001956979976967e-05,
+      "source_contact_sha256": "427aca061ad2c6d2218b5eae0bc7620132a1ef9fff9f688390ccc96ca8a27ffc",
+      "source_main_shader_sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168",
+      "terminal_iteration": 16,
+      "toi": 0.9579917192459106,
+      "trace_rows": 17
+    },
+    "baseline_and_continuation_input_corpus_match": true,
+    "continuation": {
+      "certified": true,
+      "continuation_overlay_contact_sha256": "a010a6d5181249fbf24549fbf6a123006517642ce6bf1af9bfab8d1a7dc322e5",
+      "hit": true,
+      "metallib_path": "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-continuation-001/compile/diagnostic_pair.metallib",
+      "metallib_sha256": "d9d0e6f91e785865bee25b024b0c3a6bf097824a9b55f193e27dc20df45c2fb1",
+      "physical_transactions_executed": 0,
+      "prepared_manifest_sha256": "d1e544342095a563e55b18dc160fd344052c8db50eed14a8dbddd178eb019fe9",
+      "result_sha256": "c8fd27646a56d117931552dbe99a3c119976ea7061d53365e24080af81bda45b",
+      "run": "372",
+      "separation_m": 1.000184056465514e-05,
+      "source_contact_sha256": "427aca061ad2c6d2218b5eae0bc7620132a1ef9fff9f688390ccc96ca8a27ffc",
+      "source_main_shader_sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168",
+      "terminal_iteration": 17,
+      "toi": 0.9583277702331543,
+      "trace_rows": 18
+    },
+    "iteration_bound_baseline": 17,
+    "iteration_bound_continuation": 33,
+    "source103_same_input_corpus_sha256": "e116911335b4fbf88683535cde08a97b26ca99bc1975989d67532196c2ff996f"
+  },
+  "schema": "numi.cardboard.source106_ee33_captured_ray_evidence.v1",
+  "scope": "direct CCD regression input only; not a physical contact or full-contact qualification",
+  "source_artifacts": {
+    "adjudication_report": "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-continuation-372-adjudication-001/report.json",
+    "adjudication_report_sha256": "e272cad757586f8958c104f467e0a08a33c095afad447819b31a826f5e10d050",
+    "baseline_native_result": "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-native-367/native-result.json",
+    "baseline_native_result_sha256": "8b9b1ef8b0a32adb3938a39254ac57698fceb7b19265bae3fa69329562b3b6cc",
+    "continuation_native_result": "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-native-continuation-372/native-result.json",
+    "continuation_native_result_sha256": "c8fd27646a56d117931552dbe99a3c119976ea7061d53365e24080af81bda45b",
+    "source103_contact_source": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103/matter/src/metal/contact.metalinc",
+    "source103_contact_source_sha256": "427aca061ad2c6d2218b5eae0bc7620132a1ef9fff9f688390ccc96ca8a27ffc"
+  }
+}

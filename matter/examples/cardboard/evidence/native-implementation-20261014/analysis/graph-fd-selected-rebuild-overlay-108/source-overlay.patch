@@ -1,0 +1,97 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -18479,11 +18479,19 @@
+                         state.femRegionalGraphMatrixFloatCount;
+                     const std::uint32_t graphPivots =
+                         state.femRegionalGraphPivotCount;
++                    const bool selectedFEMOperatorCapturePending =
++                        detail::regionalGraphCapturePendingForIteration(
++                            femOperatorFDTraceEnabled,
++                            femOperatorFDTraceCaptured,
++                            femOperatorFDTraceRoot,
++                            request.controlStep,
++                            femOperatorFDTraceIteration,
++                            operatorMicro.solverIteration);
+                     const std::uint32_t reuseCompletedGraphTail =
+                         detail::regionalGraphCompletedTailReuseAllowed(
+                             operatorMicro.solverIteration,
+                             state.forceCompletedTangentCacheRebuild,
+-                            femOperatorFDTraceEnabled) ? 1u : 0u;
++                            selectedFEMOperatorCapturePending) ? 1u : 0u;
+                     dispatchThreads("nm_fgmres_graph_build_patch_matrices",
+                         environments * graphRows, [&] {
+                         setDispatch();
+--- a/matter/src/regional_graph_schwarz.hpp
++++ b/matter/src/regional_graph_schwarz.hpp
+@@ -15,8 +15,21 @@
+ 
+ // A graph factor may be retained only for a later Newton iteration in the
+ // same solver transaction, and only after the caller has excluded forced
+-// rebuilds and selected diagnostic captures. The Metal kernels additionally
+-// require that the environment's nonlinear-completion latch is set.
++// rebuilds and the exact selected diagnostic capture iteration. The Metal
++// kernels additionally require that the environment's nonlinear-completion
++// latch is set.
++[[nodiscard]] inline bool regionalGraphCapturePendingForIteration(
++    const bool selectorValidAndEnabled,
++    const bool captureAlreadyCompleted,
++    const std::uint32_t selectorRoot,
++    const std::uint32_t currentRoot,
++    const std::uint32_t selectorIteration,
++    const std::uint32_t currentIteration
++) noexcept {
++    return selectorValidAndEnabled && !captureAlreadyCompleted &&
++        selectorRoot == currentRoot && selectorIteration == currentIteration;
++}
++
+ [[nodiscard]] inline bool regionalGraphCompletedTailReuseAllowed(
+     const std::uint32_t solverIteration,
+     const bool forceRebuild,
+--- a/matter/tools/regional_graph_completed_tail_check.cpp
++++ b/matter/tools/regional_graph_completed_tail_check.cpp
+@@ -4,6 +4,7 @@
+ #include <cstdint>
+ #include <iostream>
+ 
++using numi::matter::detail::regionalGraphCapturePendingForIteration;
+ using numi::matter::detail::regionalGraphCompletedTailReuseAllowed;
+ using numi::matter::detail::regionalGraphMaySkipPatchFactorization;
+ 
+@@ -38,6 +39,37 @@
+         "later same-transaction tail may consult its completion latch", checks);
+     ok &= require(!regionalGraphCompletedTailReuseAllowed(4u, true, false),
+         "explicit cache rebuild must suppress reuse", checks);
++    const bool selectedCaptureAtIterationFour =
++        regionalGraphCapturePendingForIteration(
++            true, false, 7u, 7u, 4u, 4u);
++    const bool selectedCaptureAtIterationFive =
++        regionalGraphCapturePendingForIteration(
++            true, false, 7u, 7u, 4u, 5u);
++    const bool selectedCaptureAtOtherRoot =
++        regionalGraphCapturePendingForIteration(
++            true, false, 7u, 8u, 4u, 4u);
++    const bool completedCaptureAtIterationFour =
++        regionalGraphCapturePendingForIteration(
++            true, true, 7u, 7u, 4u, 4u);
++    const bool invalidSelectorAtIterationFour =
++        regionalGraphCapturePendingForIteration(
++            false, false, 7u, 7u, 4u, 4u);
++    ok &= require(selectedCaptureAtIterationFour &&
++                      !regionalGraphCompletedTailReuseAllowed(
++                          4u, false, selectedCaptureAtIterationFour),
++        "validated selected iteration must force its graph rebuild", checks);
++    ok &= require(!selectedCaptureAtIterationFive &&
++                      regionalGraphCompletedTailReuseAllowed(
++                          5u, false, selectedCaptureAtIterationFive),
++        "unselected later iteration must keep completed-tail reuse enabled", checks);
++    ok &= require(!selectedCaptureAtOtherRoot,
++        "capture selector for another root must not disable reuse", checks);
++    ok &= require(!completedCaptureAtIterationFour,
++        "already completed capture must not keep disabling reuse", checks);
++    ok &= require(!invalidSelectorAtIterationFour &&
++                      regionalGraphCompletedTailReuseAllowed(
++                          4u, false, invalidSelectorAtIterationFour),
++        "invalid or disabled selector must fail closed without disabling reuse", checks);
+     ok &= require(!regionalGraphCompletedTailReuseAllowed(4u, false, true),
+         "selected diagnostic generation must suppress reuse", checks);
+     ok &= require(!regionalGraphMaySkipPatchFactorization(true, false, true),

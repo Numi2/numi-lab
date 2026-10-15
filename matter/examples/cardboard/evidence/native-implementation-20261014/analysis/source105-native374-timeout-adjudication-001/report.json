@@ -1,0 +1,41 @@
+{
+  "schema": "numi.cardboard.timeout-adjudication.v1",
+  "native_receipt": {
+    "exit_code": 1,
+    "timed_out": true,
+    "termination_errors": [
+      {
+        "signal": 9,
+        "signal_name": "SIGKILL",
+        "error_type": "PermissionError",
+        "reason": "[Errno 1] Operation not permitted",
+        "errno": 1
+      }
+    ],
+    "error_type": "PermissionError",
+    "reason": "[Errno 1] Operation not permitted",
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": null,
+    "changed_inputs": null,
+    "stage": "execution",
+    "wall_seconds": 2420.3336600419716,
+    "finished_at_utc": "2026-10-15T16:06:28.389044+00:00"
+  },
+  "original_native_receipt_preserved": true,
+  "posthoc_bound_inputs_unchanged": true,
+  "bound_input_count": 791,
+  "accepted_prefix_comparisons": {
+    "compiled.nmatterpack": true,
+    "mesh.json": true,
+    "initial.obj": true,
+    "accepted_step_000001_bent.obj": true,
+    "accepted_step_000001_held_reference.obj": true,
+    "observations_exact_accepted_prefix": true
+  },
+  "diagnostic_capture_returned": false,
+  "production_full_history_parity": false,
+  "verdict": "INCONCLUSIVE_TIMEOUT_WITH_TERMINATION_ERROR",
+  "scope": "Posthoc source/artifact and accepted-prefix checks only. The runner receipt records SIGKILL PermissionError and no final source verification; this audit does not replace it or establish successful reap. Observed PID24466 had no resident/virtual address space and parent1; ps output retained.",
+  "finished_at_utc": "2026-10-15T16:14:41.199717+00:00"
+}

@@ -1,0 +1,8 @@
+test_overall_verdict_remains_fail_closed (__main__.SealedParityReportContract) ... ok
+test_physical_payload_parity_is_separate_and_scoped (__main__.SealedParityReportContract) ... ok
+test_rhs_flag_is_never_normalized (__main__.SealedParityReportContract) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK

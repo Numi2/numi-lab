@@ -1,0 +1,39 @@
+{
+  "base_changed_files": {
+    "matter/tools/cardboard_resolution_study.md": "273b9f3c210e19a404adb571539470492670c9f494a3949977e4167c041fcaa3",
+    "matter/tools/cardboard_resolution_study.py": "8be7c6bd4f9d0905a1be2006805821bf4665764929d3b4f91d922ad7a8effe5a",
+    "matter/tools/test_cardboard_resolution_study.py": "aa544ea55a1a366f09f82af0c91b25fc95dc8aa3fb8be2a7a876fe131e6de677"
+  },
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-ee-ccd-continuation-107",
+  "commands": [
+    "python3 matter/tools/test_cardboard_resolution_study.py",
+    "python3 matter/tools/test_cardboard_convergence.py"
+  ],
+  "evidence_scope": "CPU synthetic contract tests and source audit only; no native run, physical qualification, calibration, or convergence promotion",
+  "overlay_id": "cardboard-convergence-metric-correction-110",
+  "patch_sha256": "69a3fc31cd7a780e59f2f78e971044d92ed71a9f31eb051585f2318c03113075",
+  "python": "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+  "readme_sha256": "116f5aa4952ecd09cde717684170d0352619b39ae7d40e3bfb50b00729f26ea4",
+  "replacement_files": {
+    "matter/tools/cardboard_resolution_study.md": "7ee17070597407716c80104906d9586de9613d56aadcc3e89a8fecb561faafc2",
+    "matter/tools/cardboard_resolution_study.py": "326348a3047124fc5da57404f577aca76e1383ff7fc35266e307cb0b00a5b7be",
+    "matter/tools/test_cardboard_resolution_study.py": "7e7c350f2effee2178f3d006461ae80938b088f5417fccae59998abd5046c3fe"
+  },
+  "results": {
+    "convergence_tests": 19,
+    "resolution_study_tests": 13,
+    "status": "pass"
+  },
+  "schema": "numi.cardboard.convergence_metric_overlay.v1",
+  "test_logs": {
+    "tests-convergence.log": "7136ce75a7f1bd2d2a38cf4412f7ac6838b17583e59a59a6ddc0ed405286f505",
+    "tests-resolution.log": "8650b6382b5978f225836a23f193ffda322a19dd598d21449acfec185630b4d5"
+  },
+  "unchanged_context_bindings": {
+    "matter/examples/cardboard/source-data/README.md": "d36db88d84ad5a8190208cb4b74b8b6abef0381f322126a70276345b26f6390b",
+    "matter/examples/cardboard/source-data/calibration-ensemble-format.md": "255d19e3d077322742edd3a1f5174305c116c71271f5fe230227489f413c36ab",
+    "matter/examples/cardboard/source-data/catalog.json": "f812ca264c3f0cd15e98178aeae090332eb753d127a199906a9ebc800e3a62c1",
+    "matter/tools/cardboard_convergence.py": "db7de31be82f9362b52a3c4c366c72c74d1f6a3df923fdcdab7061eda89dcb7f",
+    "matter/tools/test_cardboard_convergence.py": "ae20faabdc4643d9d378571c926e261aacab67b6794668a2cd8e784be8940bb7"
+  }
+}

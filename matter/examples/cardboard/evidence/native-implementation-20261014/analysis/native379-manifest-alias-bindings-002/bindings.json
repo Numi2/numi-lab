@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.verified-input-aliases.v1",
+  "reason": "Native sealer requires unique external basenames; original paths are also hash-verified by checker and pre/post dispatch.",
+  "aliases": {
+    "/Users/home/cardboard-implementation-20261014/solver/cached-true-residual-certification-coupon-370/output/rejected-conditioning-000002/manifest.json": {
+      "alias": "/Users/home/cardboard-implementation-20261014/analysis/native379-manifest-alias-bindings-002/conditioning-manifest.json",
+      "sha256": "23f8b3bb9f55c6a301c2293bdfb395253121a9ebfed591752f095b3aad444c7b"
+    },
+    "/Users/home/cardboard-implementation-20261014/solver/cached-true-residual-certification-coupon-370/output/manifest.json": {
+      "alias": "/Users/home/cardboard-implementation-20261014/analysis/native379-manifest-alias-bindings-002/source370-manifest.json",
+      "sha256": "67a766eebc35ebfeb26b122899ff9137ae62fb4f0122465cb715e04e8bd1e711"
+    }
+  }
+}

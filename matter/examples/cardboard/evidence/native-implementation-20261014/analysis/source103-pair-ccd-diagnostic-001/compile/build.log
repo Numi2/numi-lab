@@ -1,0 +1,33 @@
+SOURCE103_ROOT=/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103
+PACKAGE_DIR=/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-001
+METAL_VERSION=Apple metal version 32023.883 (metalfe-32023.883)
+CLANG_VERSION=Apple clang version 21.0.0 (clang-2100.0.123.102)
+In file included from /Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-001/diagnostic_pair.metal:3:
+In file included from /Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103/matter/src/matter_kernels.metal:4:
+/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103/matter/src/metal/fgmres.metalinc:3174:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103/matter/src/metal/fgmres.metalinc:3183:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103/matter/src/metal/fgmres.metalinc:3174:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103/matter/src/metal/fgmres.metalinc:3164:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103/matter/src/metal/fgmres.metalinc:3620:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103/matter/src/metal/fgmres.metalinc:3637:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103/matter/src/metal/fgmres.metalinc:3620:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103/matter/src/metal/fgmres.metalinc:3500:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+2 warnings generated.

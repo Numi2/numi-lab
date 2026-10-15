@@ -1,0 +1,73 @@
+{
+  "schema": "numi.cardboard.source_overlay.v1",
+  "overlay_id": "exact-source370-point-replay-111-001",
+  "classification": "single captured material-point native diagnostic; no physics or calibration qualification",
+  "base_snapshot": "source108 frozen checkout contents; apply after integrating budget overlay 109",
+  "base_snapshot_manifest": "snapshots/source-selected-capture-tail-reuse-108/frozen-source.json",
+  "base_snapshot_manifest_sha256": "251a8294ef2c4e7517ab7d8497c5f30d6ccc2d9523e7cb383f96f9ae220c6491",
+  "budget_overlay": "analysis/local-budget-sourcepaper-overlay-109-001/source-overlay.json",
+  "budget_overlay_manifest_sha256": "2c31614868940ff3a49f83ad8a7c4c4e96852cb5aeb2121e170cfbdc1b0e4f1a",
+  "native_run": "solver/cached-true-residual-certification-coupon-370",
+  "native_run_manifest_sha256": "67a766eebc35ebfeb26b122899ff9137ae62fb4f0122465cb715e04e8bd1e711",
+  "compiled_package_sha256": "3c25f41c6c26654ccf3f8b4f4b510bbb64ab0ea0f52b94d05d8b1fa4060fafe5",
+  "rejected_candidate_nodes_sha256": "1ec2da4c997fac19986f5ad196c01dc653457297ae5da767f891d0bd05ea4b92",
+  "accepted_state_export_sha256": "6f1b2031dc933cacec54142e9521e914d30a5f8f2889d6bd589e46878c3bfbbc",
+  "rejected_conditioning_manifest_sha256": "23f8b3bb9f55c6a301c2293bdfb395253121a9ebfed591752f095b3aad444c7b",
+  "medium_asset": "matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+  "medium_asset_sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+  "point": {
+    "environment": 0,
+    "tetrahedron": 1820,
+    "material_index": 1,
+    "candidate_node_count": 1764,
+    "nodes_per_environment": 882,
+    "tetrahedra_per_environment": 1920,
+    "timestep_seconds": 0.0001,
+    "run_requested_local_iterations": 32,
+    "run_compiled_local_iterations": 16,
+    "diagnostic_private_compile_budgets": [
+      16,
+      32
+    ]
+  },
+  "files": [
+    {
+      "path": "matter/CMakeLists.txt",
+      "base_sha256": "031c7f9a497a245aa222d832918812ba561673ec6774925ca0cfb49198425bea",
+      "candidate_sha256": "26be9449b499be7c1e5d4ac4120e5e89bda7a8d7c3afcd4f655fe5d7c8ff2052"
+    },
+    {
+      "path": "matter/tools/cardboard_paper_check.metal",
+      "base_sha256": "ef83c6b0e8d91236446a3ae558e58c100ceaf59258a754645c7ae7c739249bc5",
+      "candidate_sha256": "4660f78dc594adcdcdd4cab6d6943114d16f54f5d1a3cc327270718e16a5e181"
+    },
+    {
+      "path": "matter/tools/cardboard_source370_material_point_check.mm",
+      "base_sha256": null,
+      "candidate_sha256": "2eea53940a37be0b59dd8ddb595b7c3c6e1038d699a62921129edd8aabcf2e2b"
+    },
+    {
+      "path": "matter/src/matter_kernels.metal",
+      "base_sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168",
+      "candidate_sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168",
+      "note": "unchanged production source included by the diagnostic shader"
+    }
+  ],
+  "patch_sha256": "ef43857855f7e5d860e166e39df953ab2ecc35e56c33577688fb5c5857441eb4",
+  "validation": {
+    "host_objective_cpp_syntax_only": "pass",
+    "compiler_target_build": "not_run_root_build_required",
+    "cpu_admission_execution": "not_run_root_build_required",
+    "metal_shader_compile": "not_run_root_build_required",
+    "native_gpu_dispatch": "not_run_no_gpu_by_overlay_author",
+    "physical_transactions": 0
+  },
+  "limits": [
+    "The source-370 run manifest requests 32 local updates while its immutable compiled package records 16; the checker preserves and reports this discrepancy.",
+    "The 16 and 32 point evaluations recompile only the same medium source asset and exact parameter words; the 32-point result is not the source-370 full trajectory.",
+    "Native stress, tangent and projector outputs are diagnostic observations. The checker does not assert a successful projection or material/tangent accuracy.",
+    "No physical Matter transaction, full coupon replay, calibration, or physical validation is performed."
+  ],
+  "base_git_revision": "1648fe0e0483b5b05ce3c1e64d78cbec4885899e",
+  "diagnostic_source107_manifest_sha256": "09ae737a09623ff15fc4b1d13f8a96cb14e5d87e0c245cb7b1deb70bcf145d97"
+}

@@ -1,0 +1,8 @@
+test_only_the_rejected_newton7_trial_status_differs (cardboard-implementation-20261014.analysis.source106-lifetime-parity-371-audit-001.test_report_contract.NativeLifetimeParityReportContract) ... ok
+test_rhs_callback_metadata_observation_is_not_normalized (cardboard-implementation-20261014.analysis.source106-lifetime-parity-371-audit-001.test_report_contract.NativeLifetimeParityReportContract) ... ok
+test_transactions_and_payloads_remain_byte_bound (cardboard-implementation-20261014.analysis.source106-lifetime-parity-371-audit-001.test_report_contract.NativeLifetimeParityReportContract) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK

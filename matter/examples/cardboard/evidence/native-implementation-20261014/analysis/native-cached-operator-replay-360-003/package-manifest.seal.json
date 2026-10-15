@@ -1,0 +1,5 @@
+{
+  "package_manifest_sha256": "756f064c072cc292f99bc1ebefbfa4868a9fc37ff75541c26659f4be696f27e9",
+  "schema": "numi.cardboard.native-cached-operator-replay-package-seal.v1",
+  "statement": "Seals package 003 exact signed-zero input replay preparation and CPU-only bitwise static audit; native GPU replay not run."
+}

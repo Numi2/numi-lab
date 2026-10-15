@@ -1,0 +1,91 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -10,6 +10,7 @@
+ #include "numi/matter/regional_galerkin_bending_basis.hpp"
+ #include "regional_graph_schwarz.hpp"
+ #include "fem_reference_geometry.hpp"
++#include "coupled_capture_manifest_context.hpp"
+ #include "numi/matter/accepted_state_apply_gpu.h"
+ #include "accepted_state_proof_gpu.hpp"
+ #include "metal_encoder_timing.hpp"
+@@ -16141,6 +16142,16 @@
+                 const auto capturedRigidContactConstraintStride =
+                     request.rigidContactConstraintStride;
+                 const auto capturedCoupledArticulatedNv = coupledArticulatedNv;
++                id<MTLBuffer> const capturedSnapshot = snapshot;
++                // The completion handler may execute after this enclosing
++                // encode lambda returns. Snapshot every value it needs from
++                // the lambda's reference-captured state into owned storage.
++                const detail::CoupledCaptureManifestContext capturedManifestContext{
++                    femCoupledCaptureRHSReady,
++                    state.mixedSolverValue.executionBudgets.w == 1u,
++                    femCoupledCaptureCapBytes,
++                    omittedOptional
++                };
+                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                     if (completed.status != MTLCommandBufferStatusCompleted) {
+                         std::fprintf(stderr,
+@@ -16149,7 +16160,7 @@
+                             static_cast<unsigned long>(completed.status));
+                         return;
+                     }
+-                    const auto* data = static_cast<const unsigned char*>(snapshot.contents);
++                    const auto* data = static_cast<const unsigned char*>(capturedSnapshot.contents);
+                     if (data == nullptr) {
+                         std::fprintf(stderr,
+                             "fem_coupled_capture_failed={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"snapshot_contents_missing\"}\n",
+@@ -16498,10 +16509,10 @@
+                         << "\"post_fgmres_workspace\":\"fem_rhs_after_fgmres and solver state are diagnostic workspaces, not the original RHS\","
+                         << "\"transaction\":\"the capture is raw read-only input state for replay and is not an accepted checkpoint\"},"
+                         << "\"center_operator_action\":{\"capture_point\":\"after_fgmres_final_restart_before_armijo\",\"generation\":\"same control step, microtick, Newton iteration, center candidate, accepted material/cohesive state, selected contact samples, and tangent-cache generation as correction\",\"cache_used\":"
+-                        << (state.mixedSolverValue.executionBudgets.w == 1u ? "true" : "false")
++                        << (capturedManifestContext.cachedOperatorUsed ? "true" : "false")
+                         << ",\"status_array\":\"center_operator_diagnostic_status\",\"trial_history_identity\":\"compare contact_histories_used_by_private_trial and deformable_contact_histories_used_by_private_trial from the selected trial phase to the center-used arrays; names preserve distinct algorithmic working-history generations\"},"
+                         << "\"rhs_preserved_before_fgmres\":"
+-                        << (femCoupledCaptureRHSReady ? "true" : "false")
++                        << (capturedManifestContext.rhsPreservedBeforeFGMRES ? "true" : "false")
+                         << ",\"payload\":{\"file\":"
+                         << jsonQuoted(capturedPath + ".coupled.bin")
+                         << ",\"byte_count\":" << capturedPayloadBytes
+@@ -16509,13 +16520,16 @@
+                         << jsonQuoted(sha256Hex(data,
+                             static_cast<std::size_t>(capturedPayloadBytes)))
+                         << "},\"max_payload_bytes\":"
+-                        << femCoupledCaptureCapBytes
++                        << capturedManifestContext.maxPayloadBytes
+                         << ",\"max_arrays\":192"
+                         << ",\"array_count\":" << capturedArrays.size()
+                         << ",\"omitted_optional_buffers\":[";
+-                    for (std::size_t index = 0u; index < omittedOptional.size(); ++index) {
++                    for (std::size_t index = 0u;
++                         index < capturedManifestContext.omittedOptionalBuffers.size();
++                         ++index) {
+                         if (index != 0u) manifest << ',';
+-                        manifest << jsonQuoted(omittedOptional[index]);
++                        manifest << jsonQuoted(
++                            capturedManifestContext.omittedOptionalBuffers[index]);
+                     }
+                     manifest << "],\"arrays\":[";
+                     for (std::size_t index = 0u; index < capturedArrays.size(); ++index) {
+--- /dev/null
++++ b/matter/src/coupled_capture_manifest_context.hpp
+@@ -0,0 +1,19 @@
++#pragma once
++
++#include <cstdint>
++#include <string>
++#include <vector>
++
++namespace numi::matter::detail {
++
++// Values needed by the asynchronous coupled-capture completion handler.
++// Keeping them in an owned value object prevents the handler from reaching
++// through the enclosing encode lambda's reference captures after it returns.
++struct CoupledCaptureManifestContext {
++    bool rhsPreservedBeforeFGMRES = false;
++    bool cachedOperatorUsed = false;
++    std::uint64_t maxPayloadBytes = 0u;
++    std::vector<std::string> omittedOptionalBuffers;
++};
++
++} // namespace numi::matter::detail

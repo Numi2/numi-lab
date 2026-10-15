@@ -1,0 +1,81 @@
+{
+  "classification": "CPU-only selected-point diagnostic; no production source edit or native GPU run",
+  "created_utc": "2026-10-15T15:35:56Z",
+  "inputs_outputs": {
+    "capture": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture",
+      "sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33"
+    },
+    "fp64_reference": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3"
+    },
+    "liner_material_asset": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+      "sha256": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a"
+    },
+    "medium_material_asset": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+      "sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9"
+    },
+    "mp90_equation_reference": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-tangent-state-sensitivity-1634-001/replay.py",
+      "sha256": "3214549746cb872fbf089f59e96ce961b239bae3a724f5da7bbeed9f8b0497f0"
+    },
+    "mp90_helper": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-tangent-state-sensitivity-1634-002/mp90_endpoint_fd.py",
+      "sha256": "042cd63f87206f4cc8698e16d7ec75348637d1b219a0d0f7fc8b148f0d585913"
+    },
+    "prior_directional_helper": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-001/compare_directional_fd.py",
+      "sha256": "742b0920c4f543e284e41ed18f8dbc78253915a31f39b3ef8d32ff7dec01b5e8"
+    },
+    "result_report": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-selected-mp90-002/output/report.json",
+      "sha256": "f029e40fbd720c6a2589451b9f927dab3285ea921ddb45eefca366c77ebe4b37"
+    },
+    "runner": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-selected-mp90-002/replay_selected.py",
+      "sha256": "aa73eda519a30807f00b741d3b6cc9b73fb8434e9082fbf39955739572f5c089"
+    },
+    "selected_summary": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-selected-mp90-002/selected-summary.json",
+      "sha256": "1146ab9891d10074f526d8e0828b4b22d20d50a95ce6183fe1dc339d9ef12941"
+    },
+    "source_frozen_manifest": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/frozen-source.json",
+      "sha256": "3fe62983d15e55d887429f714370df1758ba9e450ae1648b554ce66a41a74680"
+    }
+  },
+  "numerics": {
+    "max_iterations": 48,
+    "mp_fd_subtraction": "MP90 endpoint stresses are subtracted/divided at MP precision before conversion; tangent comparison uses the realized endpoint rate direction, and nominal captured direction is separately reported.",
+    "mp_scaled_newton_correction_tolerance": "1e-70",
+    "mp_scaled_residual_tolerance": "1e-70",
+    "mpmath_dps": 90,
+    "targets_deltaF_frobenius": [
+      1e-05,
+      3e-06,
+      1e-06,
+      3e-07,
+      1e-07,
+      3e-08,
+      1e-08,
+      3e-09,
+      1e-09,
+      3e-10
+    ]
+  },
+  "retention": {
+    "superseded_v1_path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-selected-mp90-001",
+    "v1_center_projection_tangent_results": "retained as cross-check, not overwritten",
+    "v1_superseded_component": "MP endpoint finite differences only; endpoint stresses were converted to float64 before subtraction"
+  },
+  "runner_wall_seconds": 241.1715289170388,
+  "schema": "numi.cardboard.source101-capture360-selected-mp90-package.v1",
+  "validation": {
+    "negative_or_inconclusive_endpoints": "retained; failed MP endpoint projections are not counted as derivative successes",
+    "python_compile": "pass before recorded execution",
+    "runner": "pass; three points and ten epsilon targets each; all output records retained"
+  }
+}

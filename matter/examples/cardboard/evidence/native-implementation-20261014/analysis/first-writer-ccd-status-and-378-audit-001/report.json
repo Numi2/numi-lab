@@ -1,0 +1,1034 @@
+{
+  "378_comparison": {
+    "armijo_prefix": [
+      {
+        "accepted": true,
+        "base_l2": 3.77258698e-06,
+        "iteration": 5,
+        "solver_failing_index": 4294967295,
+        "solver_status_code": 0,
+        "trial_alpha": 0.00048828125,
+        "trial_diagnostics": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "trial_failing_index": 0,
+        "trial_outcome": "selected_trial_accepted",
+        "trial_status_code": 10
+      },
+      {
+        "accepted": true,
+        "base_l2": 3.77079255e-06,
+        "iteration": 6,
+        "solver_failing_index": 4294967295,
+        "solver_status_code": 0,
+        "trial_alpha": 0.001953125,
+        "trial_diagnostics": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "trial_failing_index": 0,
+        "trial_outcome": "selected_trial_accepted",
+        "trial_status_code": 10
+      },
+      {
+        "accepted": true,
+        "base_l2": 3.76308685e-06,
+        "iteration": 7,
+        "solver_failing_index": 4294967295,
+        "solver_status_code": 0,
+        "trial_alpha": 1.90734863e-06,
+        "trial_diagnostics": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "trial_failing_index": 0,
+        "trial_outcome": "selected_trial_accepted",
+        "trial_status_code": 10
+      },
+      {
+        "accepted": true,
+        "base_l2": 3.76308412e-06,
+        "iteration": 8,
+        "solver_failing_index": 4294967295,
+        "solver_status_code": 0,
+        "trial_alpha": 9.53674316e-07,
+        "trial_diagnostics": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "trial_failing_index": 0,
+        "trial_outcome": "selected_trial_accepted",
+        "trial_status_code": 10
+      },
+      {
+        "accepted": false,
+        "base_l2": 3.76308299e-06,
+        "iteration": 9,
+        "solver_failing_index": 9,
+        "solver_status_code": 10,
+        "trial_alpha": 1.1920929e-07,
+        "trial_diagnostics": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "trial_failing_index": 0,
+        "trial_outcome": "no_trial_accepted_status_clear",
+        "trial_status_code": 0
+      }
+    ],
+    "capture_differing_array_count": 22,
+    "capture_differing_arrays": [
+      {
+        "byte_count": 2880,
+        "count_371": 36,
+        "differing_byte_positions": 860,
+        "dtype_371": "record:NMFEMNodeStateGPU",
+        "name": "fem_candidate_nodes"
+      },
+      {
+        "byte_count": 12288,
+        "count_371": 192,
+        "differing_byte_positions": 350,
+        "dtype_371": "record:NMContinuumSurfacePrimitiveGPU",
+        "name": "surface_primitives"
+      },
+      {
+        "byte_count": 3072,
+        "count_371": 48,
+        "differing_byte_positions": 1489,
+        "dtype_371": "record:NMFEMElementVectorGPU",
+        "name": "element_forces"
+      },
+      {
+        "byte_count": 384,
+        "count_371": 1,
+        "differing_byte_positions": 2,
+        "dtype_371": "record:NMCohesiveFaceGPU",
+        "name": "cohesive_faces_candidate"
+      },
+      {
+        "byte_count": 96,
+        "count_371": 1,
+        "differing_byte_positions": 38,
+        "dtype_371": "record:NMCohesiveFaceVectorGPU",
+        "name": "cohesive_face_forces"
+      },
+      {
+        "byte_count": 1248,
+        "count_371": 78,
+        "differing_byte_positions": 305,
+        "dtype_371": "float32x4",
+        "name": "fem_solution_correction"
+      },
+      {
+        "byte_count": 1248,
+        "count_371": 78,
+        "differing_byte_positions": 259,
+        "dtype_371": "float32x4",
+        "name": "full_rhs_before_fgmres"
+      },
+      {
+        "byte_count": 1248,
+        "count_371": 78,
+        "differing_byte_positions": 339,
+        "dtype_371": "float32x4",
+        "name": "center_production_jdelta_action"
+      },
+      {
+        "byte_count": 576,
+        "count_371": 36,
+        "differing_byte_positions": 234,
+        "dtype_371": "float32x4",
+        "name": "fem_direction_workspace"
+      },
+      {
+        "byte_count": 32,
+        "count_371": 1,
+        "differing_byte_positions": 12,
+        "dtype_371": "record:NMFGMRESStateGPU",
+        "name": "fgmres_state"
+      },
+      {
+        "byte_count": 576,
+        "count_371": 36,
+        "differing_byte_positions": 32,
+        "dtype_371": "float32x4",
+        "name": "constraint_reactions"
+      },
+      {
+        "byte_count": 288,
+        "count_371": 2,
+        "differing_byte_positions": 37,
+        "dtype_371": "record:NMRigidStateGPU",
+        "name": "rigid_states"
+      },
+      {
+        "byte_count": 24,
+        "count_371": 6,
+        "differing_byte_positions": 13,
+        "dtype_371": "float32",
+        "name": "coupled_generalized_candidate"
+      },
+      {
+        "byte_count": 11520,
+        "count_371": 72,
+        "differing_byte_positions": 270,
+        "dtype_371": "record:NMContactSampleGPU",
+        "name": "contact_samples"
+      },
+      {
+        "byte_count": 1152,
+        "count_371": 72,
+        "differing_byte_positions": 40,
+        "dtype_371": "float32x4",
+        "name": "contact_histories_candidate"
+      },
+      {
+        "byte_count": 1152,
+        "count_371": 72,
+        "differing_byte_positions": 40,
+        "dtype_371": "float32x4",
+        "name": "contact_history_used_by_newton_center"
+      },
+      {
+        "byte_count": 7921152,
+        "count_371": 18336,
+        "differing_byte_positions": 5585,
+        "dtype_371": "record:NMDeformableContactGPU",
+        "name": "deformable_contacts"
+      },
+      {
+        "byte_count": 880128,
+        "count_371": 18336,
+        "differing_byte_positions": 537,
+        "dtype_371": "record:NMDeformableContactHistoryGPU",
+        "name": "deformable_contact_histories_candidate"
+      },
+      {
+        "byte_count": 880128,
+        "count_371": 18336,
+        "differing_byte_positions": 537,
+        "dtype_371": "record:NMDeformableContactHistoryGPU",
+        "name": "deformable_history_used_by_newton_center"
+      },
+      {
+        "byte_count": 440064,
+        "count_371": 110016,
+        "differing_byte_positions": 661,
+        "dtype_371": "uint32",
+        "name": "deformable_contact_node_incidence"
+      },
+      {
+        "byte_count": 576,
+        "count_371": 36,
+        "differing_byte_positions": 39,
+        "dtype_371": "record:NMIncidenceRangeGPU",
+        "name": "deformable_contact_node_ranges"
+      },
+      {
+        "byte_count": 21216,
+        "count_371": 1326,
+        "differing_byte_positions": 6251,
+        "dtype_371": "float32x4",
+        "name": "fgmres_basis"
+      }
+    ],
+    "capture_layout_equal": true,
+    "capture_payload_sha_371": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+    "capture_payload_sha_378": "19482f9561aac98e1093d95b469ad7af4d96d54730448be85efd458b82f9d5e5",
+    "comparison_class": "separate source variant; not a strict parity pair",
+    "contact_shader_106_sha256": "b9ec3915b63bdee729ff0902c390e137e0f6b5d005d06e6a7136c534be3d510b",
+    "contact_shader_107_sha256": "1636c24f766abadd9187809aaaf9511842a56b68f9856cea2154bdc31bc1a603",
+    "device_fingerprint_371": "a2f17ae449a1605d",
+    "device_fingerprint_378": "465b0d473f9f4973",
+    "edge_edge_iteration_change": {
+      "source_106_line_3365": "for (uint iteration = 0u; iteration < 17u; ++iteration) {",
+      "source_107_line_3365": "for (uint iteration = 0u; iteration < 33u; ++iteration) {",
+      "summary": "The edge-edge distance iteration count changes from 17 to 33."
+    },
+    "interpretation": "The edge-edge CCD implementation changed and the physical trajectory diverged at Newton 5; therefore the Newton-7 status cannot be compared as a same-input status-selection replicate.",
+    "source_physics_fingerprint_371_equals_378": true
+  },
+  "limitations": [
+    "The 362/369/371 evidence preserves the unexpected status difference; no parity normalization is applied.",
+    "The source-level CAS proves first-writer status selection is possible. The run payloads do not include the private candidate list/failure flags, so the precise set of simultaneous CCD failures is unobserved.",
+    "A deterministic fix should be scoped to narrowphase private/production status attribution and preserve earlier-phase status precedence; no global recordFailure or feasibility change is recommended from this audit alone.",
+    "378 uses a changed edge-edge CCD iteration count and a diverged Newton trajectory, so it is a separate result rather than an independent repeat of the 371 failed trial."
+  ],
+  "runs": {
+    "362": {
+      "capture": {
+        "array_count": 145,
+        "iteration": 7,
+        "payload_bytes": 11670948,
+        "payload_sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+        "rhs_preserved_before_fgmres": true,
+        "root": 1201
+      },
+      "device_program_fingerprint": "2865acedaf9f6a1e",
+      "diagnostic_control_log_sha256": "991e2abf46e9c228ae78483bf1e2cffa498e5d968c445ea9100594d667f84588",
+      "later_rows": [
+        {
+          "accepted": false,
+          "iteration": 8,
+          "solver_failing_index": 7,
+          "solver_status_code": 10,
+          "trial_diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "trial_failing_index": 0,
+          "trial_outcome": "blocked_by_pretrial_solver_status",
+          "trial_status_code": 0
+        },
+        {
+          "accepted": false,
+          "iteration": 9,
+          "solver_failing_index": 7,
+          "solver_status_code": 10,
+          "trial_diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "trial_failing_index": 0,
+          "trial_outcome": "blocked_by_pretrial_solver_status",
+          "trial_status_code": 0
+        },
+        {
+          "accepted": false,
+          "iteration": 10,
+          "solver_failing_index": 7,
+          "solver_status_code": 10,
+          "trial_diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "trial_failing_index": 0,
+          "trial_outcome": "blocked_by_pretrial_solver_status",
+          "trial_status_code": 0
+        }
+      ],
+      "newton7": {
+        "accepted": false,
+        "base_l2": 3.77258448e-06,
+        "solver_status_code": 10,
+        "trial_alpha": 1.1920929e-07,
+        "trial_outcome": "last_tested_trial_rejected",
+        "trial_status": {
+          "code": 6,
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostics": [
+            92,
+            127,
+            0,
+            0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 283,
+          "fgmres_iterations": 0,
+          "object_index": 0
+        }
+      },
+      "receipt": {
+        "execution_started": true,
+        "exit_code": 1,
+        "source_inputs_unchanged": true,
+        "timed_out": false,
+        "wall_seconds": 13.969899749965407
+      },
+      "source_physics_fingerprint": "915f50b10edc2e46",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-contact-health-diagnostics-104",
+      "stderr_sha256": "dad60206a57c47e57e6e483583ed3f393cf435100f35d28a8052c64f6995934c"
+    },
+    "369": {
+      "capture": {
+        "array_count": 145,
+        "iteration": 7,
+        "payload_bytes": 11670948,
+        "payload_sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+        "rhs_preserved_before_fgmres": false,
+        "root": 1201
+      },
+      "device_program_fingerprint": "a2f17ae449a1605d",
+      "diagnostic_control_log_sha256": "2ad3fc7e2fe5669d67f2fad9fa02d884248b1ed98db151944df6c6433b9ad4a6",
+      "later_rows": [
+        {
+          "accepted": false,
+          "iteration": 8,
+          "solver_failing_index": 7,
+          "solver_status_code": 10,
+          "trial_diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "trial_failing_index": 0,
+          "trial_outcome": "blocked_by_pretrial_solver_status",
+          "trial_status_code": 0
+        },
+        {
+          "accepted": false,
+          "iteration": 9,
+          "solver_failing_index": 7,
+          "solver_status_code": 10,
+          "trial_diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "trial_failing_index": 0,
+          "trial_outcome": "blocked_by_pretrial_solver_status",
+          "trial_status_code": 0
+        },
+        {
+          "accepted": false,
+          "iteration": 10,
+          "solver_failing_index": 7,
+          "solver_status_code": 10,
+          "trial_diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "trial_failing_index": 0,
+          "trial_outcome": "blocked_by_pretrial_solver_status",
+          "trial_status_code": 0
+        }
+      ],
+      "newton7": {
+        "accepted": false,
+        "base_l2": 3.77258448e-06,
+        "solver_status_code": 10,
+        "trial_alpha": 1.1920929e-07,
+        "trial_outcome": "last_tested_trial_rejected",
+        "trial_status": {
+          "code": 6,
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostics": [
+            92,
+            127,
+            0,
+            0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 283,
+          "fgmres_iterations": 0,
+          "object_index": 0
+        }
+      },
+      "receipt": {
+        "execution_started": true,
+        "exit_code": 1,
+        "source_inputs_unchanged": true,
+        "timed_out": false,
+        "wall_seconds": 8.658764625026379
+      },
+      "source_physics_fingerprint": "915f50b10edc2e46",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-true-residual-certification-105",
+      "stderr_sha256": "8398bfd5ee0145e37d70261b8fe7f92a37df5b9be075ae9b429cfb7d07864ded"
+    },
+    "371": {
+      "capture": {
+        "array_count": 145,
+        "iteration": 7,
+        "payload_bytes": 11670948,
+        "payload_sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+        "rhs_preserved_before_fgmres": true,
+        "root": 1201
+      },
+      "device_program_fingerprint": "a2f17ae449a1605d",
+      "diagnostic_control_log_sha256": "878a18a5d8765d5507edeede9fc5915771ebc2875f1ee4730d10cb78413db7de",
+      "later_rows": [
+        {
+          "accepted": false,
+          "iteration": 8,
+          "solver_failing_index": 7,
+          "solver_status_code": 10,
+          "trial_diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "trial_failing_index": 0,
+          "trial_outcome": "blocked_by_pretrial_solver_status",
+          "trial_status_code": 0
+        },
+        {
+          "accepted": false,
+          "iteration": 9,
+          "solver_failing_index": 7,
+          "solver_status_code": 10,
+          "trial_diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "trial_failing_index": 0,
+          "trial_outcome": "blocked_by_pretrial_solver_status",
+          "trial_status_code": 0
+        },
+        {
+          "accepted": false,
+          "iteration": 10,
+          "solver_failing_index": 7,
+          "solver_status_code": 10,
+          "trial_diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "trial_failing_index": 0,
+          "trial_outcome": "blocked_by_pretrial_solver_status",
+          "trial_status_code": 0
+        }
+      ],
+      "newton7": {
+        "accepted": false,
+        "base_l2": 3.77258448e-06,
+        "solver_status_code": 10,
+        "trial_alpha": 1.1920929e-07,
+        "trial_outcome": "last_tested_trial_rejected",
+        "trial_status": {
+          "code": 6,
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostics": [
+            24,
+            127,
+            1,
+            0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 124,
+          "fgmres_iterations": 0,
+          "object_index": 0
+        }
+      },
+      "receipt": {
+        "execution_started": true,
+        "exit_code": 1,
+        "source_inputs_unchanged": true,
+        "timed_out": false,
+        "wall_seconds": 424.90235062502325
+      },
+      "source_physics_fingerprint": "915f50b10edc2e46",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106",
+      "stderr_sha256": "27dad49627217218990a2b8333043c8512b8da77eebfc190e679ff1542b94a52"
+    },
+    "378": {
+      "capture": {
+        "array_count": 145,
+        "iteration": 7,
+        "payload_bytes": 11670948,
+        "payload_sha256": "19482f9561aac98e1093d95b469ad7af4d96d54730448be85efd458b82f9d5e5",
+        "rhs_preserved_before_fgmres": true,
+        "root": 1201
+      },
+      "device_program_fingerprint": "465b0d473f9f4973",
+      "diagnostic_control_log_sha256": "194eda673f9787a54982e74010fa97a25ca6af54eee56fff2cd7d07c12a7250d",
+      "later_rows": [
+        {
+          "accepted": true,
+          "iteration": 8,
+          "solver_failing_index": 4294967295,
+          "solver_status_code": 0,
+          "trial_diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "trial_failing_index": 0,
+          "trial_outcome": "selected_trial_accepted",
+          "trial_status_code": 10
+        },
+        {
+          "accepted": false,
+          "iteration": 9,
+          "solver_failing_index": 9,
+          "solver_status_code": 10,
+          "trial_diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "trial_failing_index": 0,
+          "trial_outcome": "no_trial_accepted_status_clear",
+          "trial_status_code": 0
+        },
+        {
+          "accepted": false,
+          "iteration": 10,
+          "solver_failing_index": 9,
+          "solver_status_code": 10,
+          "trial_diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "trial_failing_index": 0,
+          "trial_outcome": "blocked_by_pretrial_solver_status",
+          "trial_status_code": 0
+        }
+      ],
+      "newton7": {
+        "accepted": true,
+        "base_l2": 3.76308685e-06,
+        "solver_status_code": 0,
+        "trial_alpha": 1.90734863e-06,
+        "trial_outcome": "selected_trial_accepted",
+        "trial_status": {
+          "code": 10,
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 0,
+          "fgmres_iterations": 0,
+          "object_index": 0
+        }
+      },
+      "receipt": {
+        "execution_started": true,
+        "exit_code": 1,
+        "source_inputs_unchanged": true,
+        "timed_out": false,
+        "wall_seconds": 175.4764981669723
+      },
+      "source_physics_fingerprint": "915f50b10edc2e46",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-ee-ccd-continuation-107",
+      "stderr_sha256": "172138aaa1b0f835d7a4e4f714d6bc1cd04c3c56a4c28136edcc10ebb35d2ece"
+    }
+  },
+  "schema": "numi.cardboard.private_ccd_first_writer_audit.v1",
+  "source_bindings": {
+    "104": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-contact-health-diagnostics-104/matter/src/metal/contact.metalinc",
+      "sha256": "b9ec3915b63bdee729ff0902c390e137e0f6b5d005d06e6a7136c534be3d510b"
+    },
+    "105": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-true-residual-certification-105/matter/src/metal/contact.metalinc",
+      "sha256": "b9ec3915b63bdee729ff0902c390e137e0f6b5d005d06e6a7136c534be3d510b"
+    },
+    "106": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106/matter/src/metal/contact.metalinc",
+      "sha256": "b9ec3915b63bdee729ff0902c390e137e0f6b5d005d06e6a7136c534be3d510b"
+    },
+    "107": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-ee-ccd-continuation-107/matter/src/metal/contact.metalinc",
+      "sha256": "1636c24f766abadd9187809aaaf9511842a56b68f9856cea2154bdc31bc1a603"
+    },
+    "common106": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106/matter/src/metal/common.metalinc",
+      "sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182"
+    },
+    "runtime106": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106/matter/src/runtime.mm",
+      "sha256": "2e26d26a04326a3ce567cccb60d213da8f4a8ceaf178c98153939f1b68752fd7"
+    }
+  },
+  "status_selection": {
+    "causal_limit": "Private trial candidate/failure flags are not in the 145-array center capture. The runs establish two different failing winners at the same root/Newton and identical 371-vs-362 center payload, but do not independently prove both candidates failed in every individual run.",
+    "concurrency_evidence": "private `nm_contact_narrowphase_deformable` dispatch has one invocation per candidate slot and both uncertified branches call recordFailure on the same environment status; winner therefore depends on GPU arrival order when multiple candidates fail.",
+    "deterministic_min_key_found": false,
+    "line_evidence": {
+      "candidate_count_scan_scatter": {
+        "first": 3003,
+        "last": 3095,
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106/matter/src/metal/contact.metalinc",
+        "sha256": "b9ec3915b63bdee729ff0902c390e137e0f6b5d005d06e6a7136c534be3d510b",
+        "text": [
+          "kernel void nm_contact_count_deformable_candidates(",
+          "constant NMMatterDispatchGPU& dispatch [[buffer(0)]],",
+          "constant uint& leafCount [[buffer(1)]],",
+          "device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(2)]],",
+          "device const uint* sortedIndices [[buffer(3)]],",
+          "device const uint* activeCounts [[buffer(4)]],",
+          "device const float4* bounds [[buffer(5)]],",
+          "device const NMFEMTopologyNodeGPU* topologyNodes [[buffer(6)]],",
+          "device const NMContinuumObjectGPU* objects [[buffer(7)]],",
+          "device uint* pairCounts [[buffer(8)]],",
+          "device NMDeformableContactCandidateGPU* candidates [[buffer(9)]],",
+          "device const NMMatterStatusGPU* statuses [[buffer(10)]],",
+          "device const NMIncidenceRangeGPU* cohesiveSurfaceFaceRanges [[buffer(11)]],",
+          "device const nm_uint4* cohesiveSurfaceFaceRefs [[buffer(12)]],",
+          "device const NMCohesiveFaceGPU* cohesiveFaces [[buffer(13)]],",
+          "uint global [[thread_position_in_grid]]",
+          ") {",
+          "const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);",
+          "if (primitiveCount == 0u || global >= dispatch.environmentCount * primitiveCount) return;",
+          "const uint environment = global / primitiveCount;",
+          "const uint order = global - environment * primitiveCount;",
+          "pairCounts[global] = environmentHealthy(statuses, environment) &&",
+          "dispatch.deformableContactCapacity != 0u",
+          "? surfaceBVHPairs<false>(dispatch, leafCount, environment, order,",
+          "activeCounts[environment], primitives, sortedIndices, bounds,",
+          "topologyNodes, objects, cohesiveSurfaceFaceRanges,",
+          "cohesiveSurfaceFaceRefs, cohesiveFaces, candidates, 0u) : 0u;",
+          "}",
+          "",
+          "kernel void nm_contact_scan_deformable_candidate_counts(",
+          "constant NMMatterDispatchGPU& dispatch [[buffer(0)]],",
+          "device const uint* activeCounts [[buffer(1)]],",
+          "device const uint* pairCounts [[buffer(2)]],",
+          "device uint* pairOffsets [[buffer(3)]],",
+          "device uint* candidateCounts [[buffer(4)]],",
+          "device NMMatterStatusGPU* statuses [[buffer(5)]],",
+          "uint lane [[thread_index_in_threadgroup]],",
+          "uint environment [[threadgroup_position_in_grid]]",
+          ") {",
+          "if (lane >= 32u || environment >= dispatch.environmentCount) return;",
+          "const uint count = activeCounts[environment];",
+          "const uint base = environment * continuumSurfacePrimitiveCount(dispatch);",
+          "const uint capacity = dispatch.deformableContactCapacity;",
+          "ulong total = 0ul;",
+          "for (uint first = 0u; first < count; first += 32u) {",
+          "const uint local = first + lane;",
+          "const uint value = local < count ? pairCounts[base + local] : 0u;",
+          "// Metal SIMD reductions support uint, not ulong. Two 16-bit limbs",
+          "// keep both 32-lane sums exact before promotion to a 64-bit total.",
+          "const uint low = value & 0xffffu, high = value >> 16u;",
+          "const ulong prefix = (ulong(simd_prefix_exclusive_sum(high)) << 16u) +",
+          "ulong(simd_prefix_exclusive_sum(low));",
+          "if (local < count)",
+          "pairOffsets[base + local] = uint(min(total + prefix, ulong(capacity) + 1ul));",
+          "total += (ulong(simd_sum(high)) << 16u) + ulong(simd_sum(low));",
+          "}",
+          "if (lane == 0u) {",
+          "candidateCounts[environment] = uint(min(total, ulong(capacity)));",
+          "if (total > ulong(capacity))",
+          "recordFailure(statuses[environment], NM_STATUS_CAPACITY_OVERFLOW,",
+          "NM_INVALID_INDEX, capacity,",
+          "float4(float(total), float(capacity), float(count), 0.0f));",
+          "}",
+          "}",
+          "",
+          "kernel void nm_contact_scatter_deformable_candidates(",
+          "constant NMMatterDispatchGPU& dispatch [[buffer(0)]],",
+          "constant uint& leafCount [[buffer(1)]],",
+          "device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(2)]],",
+          "device const uint* sortedIndices [[buffer(3)]],",
+          "device const uint* activeCounts [[buffer(4)]],",
+          "device const float4* bounds [[buffer(5)]],",
+          "device const NMFEMTopologyNodeGPU* topologyNodes [[buffer(6)]],",
+          "device const NMContinuumObjectGPU* objects [[buffer(7)]],",
+          "device const uint* pairOffsets [[buffer(8)]],",
+          "device NMDeformableContactCandidateGPU* candidates [[buffer(9)]],",
+          "device const NMMatterStatusGPU* statuses [[buffer(10)]],",
+          "device const NMIncidenceRangeGPU* cohesiveSurfaceFaceRanges [[buffer(11)]],",
+          "device const nm_uint4* cohesiveSurfaceFaceRefs [[buffer(12)]],",
+          "device const NMCohesiveFaceGPU* cohesiveFaces [[buffer(13)]],",
+          "uint global [[thread_position_in_grid]]",
+          ") {",
+          "const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);",
+          "if (primitiveCount == 0u || global >= dispatch.environmentCount * primitiveCount) return;",
+          "const uint environment = global / primitiveCount;",
+          "const uint order = global - environment * primitiveCount;",
+          "if (!environmentHealthy(statuses, environment) ||",
+          "dispatch.deformableContactCapacity == 0u) return;",
+          "surfaceBVHPairs<true>(dispatch, leafCount, environment, order,",
+          "activeCounts[environment], primitives, sortedIndices, bounds,",
+          "topologyNodes, objects, cohesiveSurfaceFaceRanges,",
+          "cohesiveSurfaceFaceRefs, cohesiveFaces, candidates,",
+          "order < activeCounts[environment] ? pairOffsets[global] : 0u);"
+        ]
+      },
+      "candidate_kernel": {
+        "first": 3675,
+        "last": 3704,
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106/matter/src/metal/contact.metalinc",
+        "sha256": "b9ec3915b63bdee729ff0902c390e137e0f6b5d005d06e6a7136c534be3d510b",
+        "text": [
+          "kernel void nm_contact_narrowphase_deformable(",
+          "constant NMMatterDispatchGPU& dispatch [[buffer(0)]],",
+          "constant NMMicrostepGPU& microstep [[buffer(1)]],",
+          "device const NMContinuumObjectGPU* objects [[buffer(2)]],",
+          "device const NMMaterialGPU* materials [[buffer(3)]],",
+          "device const NMFEMNodeStateGPU* femNodes [[buffer(4)]],",
+          "device const NMSchedulerStateGPU* schedulers [[buffer(5)]],",
+          "device const NMGridNodeStateGPU* gridNodes [[buffer(6)]],",
+          "device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(7)]],",
+          "device const NMDeformableContactCandidateGPU* candidates [[buffer(8)]],",
+          "device const uint* candidateCounts [[buffer(9)]],",
+          "device const NMDeformableContactHistoryGPU* histories [[buffer(10)]],",
+          "device NMDeformableContactGPU* contacts [[buffer(11)]],",
+          "device NMMatterStatusGPU* statuses [[buffer(12)]],",
+          "device const NMIncidenceRangeGPU* cohesiveSurfaceFaceRanges [[buffer(13)]],",
+          "device const nm_uint4* cohesiveSurfaceFaceRefs [[buffer(14)]],",
+          "device const NMCohesiveFaceGPU* cohesiveFaces [[buffer(15)]],",
+          "uint global [[thread_position_in_grid]]",
+          ") {",
+          "const uint capacity = dispatch.deformableContactCapacity;",
+          "const uint total = dispatch.environmentCount * capacity;",
+          "if (global >= total || capacity == 0u) return;",
+          "const NMDeformableContactHistoryGPU previous = histories[global];",
+          "contacts[global] = {};",
+          "const uint environment = global / capacity;",
+          "const uint slot = global - environment * capacity;",
+          "if (slot >= candidateCounts[environment]) return;",
+          "const NMDeformableContactCandidateGPU candidate = candidates[global];",
+          "if ((candidate.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) return;",
+          "const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);"
+        ]
+      },
+      "point_point_uncertified": {
+        "first": 3789,
+        "last": 3797,
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106/matter/src/metal/contact.metalinc",
+        "sha256": "b9ec3915b63bdee729ff0902c390e137e0f6b5d005d06e6a7136c534be3d510b",
+        "text": [
+          "const bool hit = pointPointCCD(",
+          "start[0], finish[0], start[3], finish[3],",
+          "thickness, toi, normal, point, separation, certified);",
+          "if (!certified) {",
+          "recordFailure(statuses[environment],",
+          "NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,",
+          "float4(float(candidate.identity.x),",
+          "float(candidate.identity.y), 0.0f, 0.0f));",
+          "return;"
+        ]
+      },
+      "point_triangle_uncertified": {
+        "first": 3821,
+        "last": 3833,
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106/matter/src/metal/contact.metalinc",
+        "sha256": "b9ec3915b63bdee729ff0902c390e137e0f6b5d005d06e6a7136c534be3d510b",
+        "text": [
+          "const bool hit = vertexTriangleCCD(",
+          "start[pointBase], finish[pointBase],",
+          "start[triangleBase], finish[triangleBase],",
+          "start[triangleBase + 1u], finish[triangleBase + 1u],",
+          "start[triangleBase + 2u], finish[triangleBase + 2u],",
+          "thickness, toi, normal, barycentric, point, separation,",
+          "certified);",
+          "if (!certified) {",
+          "recordFailure(statuses[environment],",
+          "NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,",
+          "float4(float(candidate.identity.x),",
+          "float(candidate.identity.y), 1.0f, 0.0f));",
+          "return;"
+        ]
+      },
+      "private_narrowphase_dispatch": {
+        "first": 14956,
+        "last": 14980,
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106/matter/src/runtime.mm",
+        "sha256": "2e26d26a04326a3ce567cccb60d213da8f4a8ceaf178c98153939f1b68752fd7",
+        "text": [
+          "dispatchThreads(\"nm_contact_narrowphase_deformable\",",
+          "environments * state.dispatch.deformableContactCapacity,",
+          "[&] {",
+          "setDispatch();",
+          "[encoder setBytes:&micro length:sizeof(micro) atIndex:1u];",
+          "[encoder setBuffer:state.objects offset:0u atIndex:2u];",
+          "[encoder setBuffer:state.materials offset:0u atIndex:3u];",
+          "[encoder setBuffer:trialNodes offset:0u atIndex:4u];",
+          "[encoder setBuffer:state.schedulers offset:0u atIndex:5u];",
+          "[encoder setBuffer:state.gridNodes offset:0u atIndex:6u];",
+          "[encoder setBuffer:state.femArmijoSurfacePrimitives",
+          "offset:0u atIndex:7u];",
+          "[encoder setBuffer:state.femArmijoDeformableCandidates",
+          "offset:0u atIndex:8u];",
+          "[encoder setBuffer:state.femArmijoDeformableCandidateCounts",
+          "offset:0u atIndex:9u];",
+          "[encoder setBuffer:history offset:0u atIndex:10u];",
+          "[encoder setBuffer:state.femArmijoDeformableContacts",
+          "offset:0u atIndex:11u];",
+          "[encoder setBuffer:trialStatuses offset:0u atIndex:12u];",
+          "[encoder setBuffer:state.cohesiveSurfaceFaceRanges",
+          "offset:0u atIndex:13u];",
+          "[encoder setBuffer:state.cohesiveSurfaceFaceRefs",
+          "offset:0u atIndex:14u];",
+          "[encoder setBuffer:cohesiveFaces offset:0u atIndex:15u];"
+        ]
+      },
+      "recordFailure": {
+        "first": 294,
+        "last": 318,
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106/matter/src/metal/common.metalinc",
+        "sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182",
+        "text": [
+          "inline void recordFailure(",
+          "device NMMatterStatusGPU& status,",
+          "const uint code,",
+          "const uint objectIndex,",
+          "const uint failingIndex,",
+          "const float4 diagnostics",
+          ") {",
+          "device atomic_uint* atomicCode =",
+          "reinterpret_cast<device atomic_uint*>(&status.code);",
+          "uint expected = NM_STATUS_SUCCESS;",
+          "while (!atomic_compare_exchange_weak_explicit(",
+          "atomicCode,",
+          "&expected,",
+          "code,",
+          "memory_order_relaxed,",
+          "memory_order_relaxed",
+          ")) {",
+          "if (expected != NM_STATUS_SUCCESS) {",
+          "return;",
+          "}",
+          "}",
+          "status.objectIndex = objectIndex;",
+          "status.failingIndex = failingIndex;",
+          "status.diagnostics = diagnostics;",
+          "}"
+        ]
+      },
+      "stable_candidate_traversal": {
+        "first": 2931,
+        "last": 3000,
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106/matter/src/metal/contact.metalinc",
+        "sha256": "b9ec3915b63bdee729ff0902c390e137e0f6b5d005d06e6a7136c534be3d510b",
+        "text": [
+          "// Stackless left-first traversal emits right leaves in ascending Morton",
+          "// order. Prefixing by left order therefore preserves the old candidate order",
+          "// exactly. Bounds reject only disjoint subtrees; pair eligibility and swept",
+          "// AABB semantics are unchanged. Stop after capacity+1 matches when counting:",
+          "// that is sufficient to prove overflow without scanning an unbounded output.",
+          "template <bool scatter>",
+          "inline uint surfaceBVHPairs(",
+          "const NMMatterDispatchGPU dispatch,",
+          "const uint leafCount,",
+          "const uint environment,",
+          "const uint leftOrder,",
+          "const uint activeCount,",
+          "device const NMContinuumSurfacePrimitiveGPU* primitives,",
+          "device const uint* sortedIndices,",
+          "device const float4* bounds,",
+          "device const NMFEMTopologyNodeGPU* topologyNodes,",
+          "device const NMContinuumObjectGPU* objects,",
+          "device const NMIncidenceRangeGPU* cohesiveSurfaceFaceRanges,",
+          "device const nm_uint4* cohesiveSurfaceFaceRefs,",
+          "device const NMCohesiveFaceGPU* cohesiveFaces,",
+          "device NMDeformableContactCandidateGPU* candidates,",
+          "const uint outputOffset",
+          ") {",
+          "if (leftOrder + 1u >= activeCount || leafCount == 0u) return 0u;",
+          "const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);",
+          "const uint primitiveBase = environment * primitiveCount;",
+          "const uint leftIndex = sortedIndices[primitiveBase + leftOrder];",
+          "const auto left = primitives[primitiveBase + leftIndex];",
+          "const uint treeBase = environment * 2u * leafCount;",
+          "const uint leafDepth = 31u - clz(leafCount);",
+          "const uint capacity = dispatch.deformableContactCapacity;",
+          "uint node = 1u, count = 0u;",
+          "while (node != 0u) {",
+          "const uint depth = 31u - clz(node);",
+          "const uint span = leafCount >> depth;",
+          "const uint first = (node - (1u << depth)) * span;",
+          "const float3 minimum = bounds[2u * (treeBase + node)].xyz;",
+          "const float3 maximum = bounds[2u * (treeBase + node) + 1u].xyz;",
+          "const bool overlaps = first + span > leftOrder + 1u &&",
+          "first < activeCount &&",
+          "all(left.boundsMinimum.xyz <= maximum) &&",
+          "all(minimum <= left.boundsMaximum.xyz);",
+          "if (overlaps && depth < leafDepth) {",
+          "node *= 2u;",
+          "continue;",
+          "}",
+          "if (overlaps && depth == leafDepth) {",
+          "const uint rightIndex = sortedIndices[primitiveBase + first];",
+          "const auto right = primitives[primitiveBase + rightIndex];",
+          "if ((right.identity.w & NM_TOPOLOGY_ACTIVE) != 0u &&",
+          "surfacePairEligible(dispatch, left, right, objects,",
+          "topologyNodes, environment, cohesiveSurfaceFaceRanges,",
+          "cohesiveSurfaceFaceRefs, cohesiveFaces)) {",
+          "if (scatter) {",
+          "const uint output = outputOffset + count;",
+          "if (output < capacity) {",
+          "NMDeformableContactCandidateGPU candidate{};",
+          "candidate.identity = uint4(leftIndex, rightIndex, output, NM_TOPOLOGY_ACTIVE);",
+          "candidates[environment * capacity + output] = candidate;",
+          "}",
+          "}",
+          "++count;",
+          "if (count > capacity) return count;",
+          "}",
+          "}",
+          "// Ascend past completed right subtrees, then visit the next sibling.",
+          "while ((node & 1u) != 0u) node >>= 1u;",
+          "if (node != 0u) ++node;",
+          "}",
+          "return count;"
+        ]
+      }
+    },
+    "mechanism": "atomic first-writer: compare-exchange status.code from SUCCESS; winning thread writes the remaining tuple; subsequent contenders return",
+    "relevant_callsite_mappings": [
+      {
+        "diagnostics": [
+          92,
+          127,
+          0,
+          0
+        ],
+        "failing_index": 283,
+        "meaning": "candidate primitive ids 92,127; point-point CCD not certified",
+        "run": "362/369",
+        "source": "contact.metalinc:3789-3797",
+        "status_code": 6
+      },
+      {
+        "diagnostics": [
+          24,
+          127,
+          1,
+          0
+        ],
+        "failing_index": 124,
+        "meaning": "candidate primitive ids 24,127; point-triangle CCD not certified",
+        "run": "371",
+        "source": "contact.metalinc:3821-3833",
+        "status_code": 6
+      }
+    ]
+  },
+  "strict_same_path_checks": {
+    "362_369_371_capture_payload_identical": true,
+    "362_369_371_receipt_exit1_no_timeout": true,
+    "362_369_371_source104_106_contact_shader_identical": true,
+    "362_369_status_tuple_equal": true,
+    "371_status_tuple_differs": true
+  },
+  "verdicts": {
+    "cross_variant_371_378": "NOT_COMPARABLE_PHYSICAL_SOURCE_CHANGED",
+    "strict_362_369_371": "FAIL_UNEXPECTED_STATUS"
+  }
+}

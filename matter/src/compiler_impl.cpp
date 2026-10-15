@@ -596,6 +596,14 @@ void validateWorld(
             "local material Newton iteration budget must be between 1 and 32",
         });
     }
+    if (options.accurateBilinear15LocalNewtonIterations.has_value() &&
+        (*options.accurateBilinear15LocalNewtonIterations == 0u ||
+         *options.accurateBilinear15LocalNewtonIterations > 32u)) {
+        diagnostics.push_back({
+            Diagnostic::Severity::error, 0u, 0u,
+            "accurate bilinear-15 local Newton iteration budget must be between 1 and 32",
+        });
+    }
     if (options.maximumRateExponent != 0u &&
         std::ranges::any_of(
             source.rigidProxies,
@@ -899,7 +907,8 @@ CompileResult compileWorld(
         const auto firstMaterialProgram=world.scalarPrograms.size();
         program.gpu.localNewtonIterations =
             program.material.genericBilinear15AccurateProjection
-                ? 16u : options.localMaterialNewtonIterations;
+                ? options.accurateBilinear15LocalNewtonIterations.value_or(16u)
+                : options.localMaterialNewtonIterations;
         program.gpu.parameterOffset =
             static_cast<nm_u32>(world.parameters.size());
         program.gpu.stateInitialOffset =

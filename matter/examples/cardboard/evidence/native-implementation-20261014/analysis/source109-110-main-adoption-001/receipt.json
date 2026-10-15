@@ -1,0 +1,28 @@
+{
+  "schema": "numi.cardboard.source109-110-main-adoption.v1",
+  "git_head": "6961dab30061be5614430f834bfce25168b4d2a1",
+  "root_cmake_unchanged_sha256": "41416ae49d88b043712588d8a4d579f59a5b6b7a0bb128b1117f83c27320af37",
+  "source109_files": {
+    "matter/CMakeLists.txt": "031c7f9a497a245aa222d832918812ba561673ec6774925ca0cfb49198425bea",
+    "matter/include/numi/matter/matter.hpp": "798e124cdf0b97370a7e1412526693b0f2469985df2b5e985ad3a8acbe00808a",
+    "matter/src/compiler_impl.cpp": "474e717759ded2ecf81a0590dd7f5cb51da8a1041eacddff33c971ccb96152df",
+    "matter/src/metal/contact.metalinc": "1636c24f766abadd9187809aaaf9511842a56b68f9856cea2154bdc31bc1a603",
+    "matter/src/metal/fgmres.metalinc": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0",
+    "matter/src/regional_graph_schwarz.hpp": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf",
+    "matter/src/runtime.mm": "4d1b86e16819c7811b04e7ae745dfe81ee31ffa1451ad9259fa8b4b92c39d12b",
+    "matter/src/validation_impl.cpp": "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808",
+    "matter/tools/cardboard_bilinear15_projection_policy_check.cpp": "8e76c3435a18b2eeb2680c6b726dd4b6cb9bbd4e64dd48095d401120780b6c2d",
+    "matter/tools/cardboard_contact_ccd_native_check.mm": "a6e913f735e356165106a937312d6b439ba4f31a7f8778fc2ceec02c2a106b5a",
+    "matter/tools/cardboard_probe.mm": "6917e515993e1da26d09d946bf8a3f58c7066ad183b19131aa466e94e8d32e99",
+    "matter/tools/regional_graph_completed_tail_check.cpp": "496ecc347435624c9822905f6ba008241792bba9b381ea8ed967306315b07cca",
+    "matter/tools/fgmres_true_residual_native_check.mm": "b854f1a83d3851e99f5648478e208e7236751d1728a51286bcecfa8d5466b589",
+    "matter/tools/test_true_residual_certification_contract.py": "b03c7aa4cb8bb275d232a172dab662ef3be61762b31c95f4f1e084d087568b2d",
+    "matter/src/coupled_capture_manifest_context.hpp": "7d82c3c8f1fff4546bd65ee1641b4fd5faced73dea9c75501ea780254069bbae"
+  },
+  "evaluator110_files": {
+    "matter/tools/cardboard_resolution_study.md": "7ee17070597407716c80104906d9586de9613d56aadcc3e89a8fecb561faafc2",
+    "matter/tools/cardboard_resolution_study.py": "326348a3047124fc5da57404f577aca76e1383ff7fc35266e307cb0b00a5b7be",
+    "matter/tools/test_cardboard_resolution_study.py": "7e7c350f2effee2178f3d006461ae80938b088f5417fccae59998abd5046c3fe"
+  },
+  "limits": "Build109/CPU74 cover exact native files; evaluator tests run separately. No full physics qualification."
+}

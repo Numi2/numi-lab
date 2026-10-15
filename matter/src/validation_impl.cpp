@@ -1133,14 +1133,14 @@ private:
             }
             if (genericBilinear15AccurateProjection &&
                 (!genericCompensatedProjection || material.stateCount!=15u ||
-                 material.parameterCount!=28u || material.localNewtonIterations!=16u ||
+                 material.parameterCount!=28u ||
                  material.constitutiveKind!=NM_CONSTITUTIVE_BYTECODE ||
                  material.projectionKind!=NM_MATERIAL_PROJECTION_GENERIC ||
                  (material.flags & NM_MATERIAL_HAS_IMPLICIT_STATE)==0u ||
                  (material.flags & (NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER |
                                     NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION))!=0u)) {
                 return failIndexed("material",index,
-                    "accurate bilinear-15 projection requires the 15-state/28-parameter generic implicit compensated layout and a 16-step local budget");
+                    "accurate bilinear-15 projection requires the 15-state/28-parameter generic implicit compensated layout and a valid bounded local budget");
             }
             if ((material.flags & (NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER|NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC|NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION)) != 0u &&
                 !finiteElasticStarchArithmetic &&

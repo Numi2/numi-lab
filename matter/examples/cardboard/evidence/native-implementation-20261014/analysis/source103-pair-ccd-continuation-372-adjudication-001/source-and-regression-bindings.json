@@ -1,0 +1,228 @@
+{
+  "common_metalinc": {
+    "bytes": 96571,
+    "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103/matter/src/metal/common.metalinc",
+    "sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182"
+  },
+  "contact_metalinc": {
+    "bytes": 406189,
+    "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103/matter/src/metal/contact.metalinc",
+    "sha256": "427aca061ad2c6d2218b5eae0bc7620132a1ef9fff9f688390ccc96ca8a27ffc"
+  },
+  "cross_source_function_comparison": {
+    "continuation_bound": 33,
+    "edge_edge_function_equal_after_normalizing_only_iteration_bound": true,
+    "prior_contact_sha256": "4f0362c1902a2a82b46ee14b6184112b062bc4677fc2493d6279531c1dc9211b",
+    "prior_edge_edge_bound": 16,
+    "prior_native_regression_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049",
+    "qualification_note": "Previous direct outputs are from source049 (bound16). Relevant EE function body matches source103 after normalizing only the iteration-bound constant; this is prior evidence, not a rerun of the bound33 metallib.",
+    "source103_baseline_edge_edge_bound": 17,
+    "vertex_triangle_function_equal": true
+  },
+  "direct_checker_source": {
+    "bytes": 23975,
+    "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103/matter/tools/cardboard_contact_ccd_native_check.mm",
+    "sha256": "bd2e0ef37446183c22e964a0517114f376e84e6fc85875c8f8946a92962e5528"
+  },
+  "direct_regression_runs": [
+    {
+      "direct_case_corpus_sha256": "d6cb3b8d79ed71444368963aa79b316b74d8918b9b9a5eb522df3853347ba566",
+      "direct_results": [
+        {
+          "certified": true,
+          "hit": false,
+          "name": "direct_vt_certified_miss",
+          "sampled_minimum_m": 0.100000001,
+          "separation_m": 0.100000001,
+          "toi": 0
+        },
+        {
+          "certified": true,
+          "hit": true,
+          "name": "direct_vt_endpoint_clear_cross",
+          "sampled_minimum_m": 0,
+          "separation_m": 0.0010007486,
+          "toi": 0.49499625
+        },
+        {
+          "certified": true,
+          "hit": true,
+          "name": "direct_ee_endpoint_clear_cross",
+          "sampled_minimum_m": 0,
+          "separation_m": 0.000999897718,
+          "toi": 0.495000511
+        },
+        {
+          "certified": true,
+          "hit": false,
+          "name": "direct_ee_nearparallel_long_tangent_miss",
+          "sampled_minimum_m": 0.0199999996,
+          "separation_m": 0.0199999996,
+          "toi": 0
+        },
+        {
+          "certified": true,
+          "hit": true,
+          "name": "direct_degenerate_collinear_vt_cross",
+          "sampled_minimum_m": 0,
+          "separation_m": 0.00100170227,
+          "toi": 0.494991481
+        },
+        {
+          "certified": false,
+          "hit": false,
+          "name": "captured_vt_clear_ray_direct_uncertified",
+          "sampled_minimum_m": 6.98259082e-09,
+          "separation_m": 6.98547575e-09,
+          "toi": 0.0180399176
+        }
+      ],
+      "helper_case_corpus_sha256": "7dbae7b77822aeb6f070d746c44983c632d48e797b2792aa530fff386c376e15",
+      "json_parse_requires_nonfinite_token_normalization": true,
+      "physical_steps": 0,
+      "run": "097",
+      "schema": "numi.matter.contact-ccd-native-regression.v1",
+      "status": "pass",
+      "stdout": {
+        "bytes": 3064,
+        "path": "/Users/home/cardboard-implementation-20261014/native/certified-newton-ccd-prefix-097/stdout.log",
+        "sha256": "2d5178ee147d467c2aba25c492e8bb8de101b234262597e2a91e578dc5410655"
+      }
+    },
+    {
+      "direct_case_corpus_sha256": "d6cb3b8d79ed71444368963aa79b316b74d8918b9b9a5eb522df3853347ba566",
+      "direct_results": [
+        {
+          "certified": true,
+          "hit": false,
+          "name": "direct_vt_certified_miss",
+          "sampled_minimum_m": 0.100000001,
+          "separation_m": 0.100000001,
+          "toi": 0
+        },
+        {
+          "certified": true,
+          "hit": true,
+          "name": "direct_vt_endpoint_clear_cross",
+          "sampled_minimum_m": 0,
+          "separation_m": 0.0010007486,
+          "toi": 0.49499625
+        },
+        {
+          "certified": true,
+          "hit": true,
+          "name": "direct_ee_endpoint_clear_cross",
+          "sampled_minimum_m": 0,
+          "separation_m": 0.000999897718,
+          "toi": 0.495000511
+        },
+        {
+          "certified": true,
+          "hit": false,
+          "name": "direct_ee_nearparallel_long_tangent_miss",
+          "sampled_minimum_m": 0.0199999996,
+          "separation_m": 0.0199999996,
+          "toi": 0
+        },
+        {
+          "certified": true,
+          "hit": true,
+          "name": "direct_degenerate_collinear_vt_cross",
+          "sampled_minimum_m": 0,
+          "separation_m": 0.00100170227,
+          "toi": 0.494991481
+        },
+        {
+          "certified": false,
+          "hit": false,
+          "name": "captured_vt_clear_ray_direct_uncertified",
+          "sampled_minimum_m": 6.98259082e-09,
+          "separation_m": 6.98547575e-09,
+          "toi": 0.0180399176
+        }
+      ],
+      "helper_case_corpus_sha256": "7dbae7b77822aeb6f070d746c44983c632d48e797b2792aa530fff386c376e15",
+      "json_parse_requires_nonfinite_token_normalization": false,
+      "physical_steps": 0,
+      "run": "102",
+      "schema": "numi.matter.contact-ccd-native-regression.v1",
+      "status": "pass",
+      "stdout": {
+        "bytes": 3065,
+        "path": "/Users/home/cardboard-implementation-20261014/native/certified-newton-ccd-prefix-102/stdout.log",
+        "sha256": "d3b217397a4bc653f90cd5b5a779891402931966639ad2eb398cf49b2c611daa"
+      }
+    },
+    {
+      "direct_case_corpus_sha256": "d6cb3b8d79ed71444368963aa79b316b74d8918b9b9a5eb522df3853347ba566",
+      "direct_results": [
+        {
+          "certified": true,
+          "hit": false,
+          "name": "direct_vt_certified_miss",
+          "sampled_minimum_m": 0.100000001,
+          "separation_m": 0.100000001,
+          "toi": 0
+        },
+        {
+          "certified": true,
+          "hit": true,
+          "name": "direct_vt_endpoint_clear_cross",
+          "sampled_minimum_m": 0,
+          "separation_m": 0.0010007486,
+          "toi": 0.49499625
+        },
+        {
+          "certified": true,
+          "hit": true,
+          "name": "direct_ee_endpoint_clear_cross",
+          "sampled_minimum_m": 0,
+          "separation_m": 0.000999897718,
+          "toi": 0.495000511
+        },
+        {
+          "certified": true,
+          "hit": false,
+          "name": "direct_ee_nearparallel_long_tangent_miss",
+          "sampled_minimum_m": 0.0199999996,
+          "separation_m": 0.0199999996,
+          "toi": 0
+        },
+        {
+          "certified": true,
+          "hit": true,
+          "name": "direct_degenerate_collinear_vt_cross",
+          "sampled_minimum_m": 0,
+          "separation_m": 0.00100170227,
+          "toi": 0.494991481
+        },
+        {
+          "certified": false,
+          "hit": false,
+          "name": "captured_vt_clear_ray_direct_uncertified",
+          "sampled_minimum_m": 6.98259082e-09,
+          "separation_m": 6.98547575e-09,
+          "toi": 0.0180399176
+        }
+      ],
+      "helper_case_corpus_sha256": "7dbae7b77822aeb6f070d746c44983c632d48e797b2792aa530fff386c376e15",
+      "json_parse_requires_nonfinite_token_normalization": false,
+      "physical_steps": 0,
+      "run": "110",
+      "schema": "numi.matter.contact-ccd-native-regression.v1",
+      "status": "pass",
+      "stdout": {
+        "bytes": 3065,
+        "path": "/Users/home/cardboard-implementation-20261014/native/certified-newton-ccd-prefix-110/stdout.log",
+        "sha256": "d3b217397a4bc653f90cd5b5a779891402931966639ad2eb398cf49b2c611daa"
+      }
+    }
+  ],
+  "pending_full_contact_coverage": {
+    "adoption_gate": "Run direct suite plus full-contact transaction using the exact 33-bound metallib and retain a bound17 control.",
+    "continuation_run_physical_transactions": 0,
+    "full_contact_same_build_run_present": false
+  },
+  "schema": "numi.cardboard.source103_pair_ccd_continuation_source_coverage.v1",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103"
+}

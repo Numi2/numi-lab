@@ -1,0 +1,39 @@
+{
+  "schema": "numi.cardboard.native-diagnostic-prediction.v1",
+  "package_manifest_sha256": "756f064c072cc292f99bc1ebefbfa4868a9fc37ff75541c26659f4be696f27e9",
+  "preflight_argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-003/preflight.py"
+  ],
+  "native_argv": [
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-003/build/cached_operator_replay",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/output/compiled.nmatterpack",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-003/prepared/replay-input.bin",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-result-368/result"
+  ],
+  "package_files": {
+    "README.md": "6b25e42ce92720711cd2820dcffc0372b44f807ece4dff8bf02b842cf5ad2411",
+    "build/cached_operator_replay": "eaf90bf06c42342b61de5a7da438dc4ec9b9e13fd507d28c5ffe6845eb570c95",
+    "build-v2/cached_operator_replay": "d09b460ff73f2736da6c8209ca8ff5fcf0750ed2cbf57844148dd080110a7514",
+    "cached_operator_replay.mm": "f6bb34dbf514c9bfbd27474d3f84575f9c38389088d6182970bf0d41f54f5cda",
+    "checker.patch": "4c9b68eda01351a396891d63908af132bf7ae2e1ab5eef8bdc4e62717faa5e13",
+    "package-manifest.json": "756f064c072cc292f99bc1ebefbfa4868a9fc37ff75541c26659f4be696f27e9",
+    "package-manifest.seal.json": "4234269e7ab41a6292e44bba8c5eba3ba638fe6bad64e921832e983d4d5e6d9f",
+    "preflight-report.json": "7dbd994bcbb5563902c665c3e9ef9954fc5bff6b67b7d6208ef241d690fd1c70",
+    "preflight.py": "aa457a682ad6f22bface4847525caaffaf4fa0375fbfed527a661c66749daa49",
+    "prepare_replay.py": "c3520460a4347370ef9600225313c7330e78bc5e32d6ca80783cc009e4c66536",
+    "prepared/input-manifest.json": "b6738b5027a58c257cd0d470570184f616f7affdc6feac74fd64c83ee87daa64",
+    "prepared/input-manifest.seal.json": "b141cd8c9885e8b7877f87382fdb1814935e6e5990201e3920568e0e8bf3a3e7",
+    "prepared/replay-input.bin": "4c21ba6299fcd30753b469ebeb965a40f1b2e550c5e7d5ce508359ece44e4a40",
+    "prepared-v1/input-manifest.json": "4d58d324d7a4a493a46d73c95d99092eb40c04917079c7d781c42c2bef8447ed",
+    "prepared-v1/input-manifest.seal.json": "e5a50f3780594ab5b9ea01f646d5bf7fe2b1ff7ab16182d6e1b44c6477a26283",
+    "prepared-v1/replay-input.bin": "2cddc27d74dfb88d502d76579237cf3ca1d280f19ded2f3d75f720f6f4f9d352",
+    "prepared-v2/input-manifest.json": "5a7d620912a86df53a198d1dc764630ae826058f72a0464fc07d9baf996f3053",
+    "prepared-v2/input-manifest.seal.json": "bc37a9e2f44321f7bf749d91fb59bc690029a2485279590e28cb3de3b7a6c25d",
+    "prepared-v2/replay-input.bin": "129758a5bcf1a0072a148ea4373335844c86fa1d4235f60dd607eae5f9aa09e0"
+  },
+  "question": "Does matched native cached A(delta) explain the control2/Newton23 recurrence/true-residual discrepancy?",
+  "prediction": "Replay exact source101 captured state and unscaled correction through production cached and fresh FEM operator/gather kernels. Require finite healthy complete outputs and matching captured fresh action before attributing any difference. No noise floor inferred and no physical transaction.",
+  "physical_transactions": 0,
+  "started_at_utc": "2026-10-15T15:14:17.876114+00:00"
+}

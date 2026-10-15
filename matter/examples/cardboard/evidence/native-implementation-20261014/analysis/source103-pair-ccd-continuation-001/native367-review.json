@@ -1,0 +1,458 @@
+{
+  "schema": "numi.cardboard.source103_native367_ee_exhaustion_review.v1",
+  "status": "PASS",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103",
+  "bindings": {
+    "native_result_sha256": "8b9b1ef8b0a32adb3938a39254ac57698fceb7b19265bae3fa69329562b3b6cc",
+    "native_receipt_sha256": "dd7f97c7393ff8c1bbf7c46a585bead630252c9ef939902ac2b750a21aa3fcd9",
+    "native_audit_sha256": "ed322d57fb07b20bdd9120f6c8f07669ad848961888ae021c5b20a9b23d3721f",
+    "prepared_manifest_sha256": "d1e544342095a563e55b18dc160fd344052c8db50eed14a8dbddd178eb019fe9",
+    "cases_bin_sha256": "e116911335b4fbf88683535cde08a97b26ca99bc1975989d67532196c2ff996f",
+    "source_contact_sha256": "427aca061ad2c6d2218b5eae0bc7620132a1ef9fff9f688390ccc96ca8a27ffc"
+  },
+  "native_summary": {
+    "case_count": 30,
+    "direct_clone_bitwise_mismatches": 0,
+    "certification_by_kind": {
+      "vertex_triangle": {
+        "count": 12,
+        "certified": 12
+      },
+      "edge_edge": {
+        "count": 18,
+        "certified": 17
+      }
+    },
+    "uncertified_case_count": 1,
+    "physical_transactions": 0
+  },
+  "first_uncertified": {
+    "case": "trial358_ee_edge0_edge0",
+    "query_kind": "edge_edge",
+    "edge_indices": [
+      0,
+      0
+    ],
+    "primitive_pair": [
+      92,
+      127
+    ],
+    "candidate_identity": [
+      92,
+      127,
+      283,
+      1
+    ],
+    "root": 1201,
+    "newton_iteration": 7,
+    "line_search_trial": 23,
+    "production_hit": false,
+    "production_certified": false,
+    "native_iteration_count": 17,
+    "native_terminal_code": 6,
+    "last_native_sample": {
+      "terminal_code": 0,
+      "iteration": 16,
+      "distance_m": 1.0001956979976967e-05,
+      "time": 0.9579917192459106,
+      "step": 0.0003360688569955528
+    },
+    "effective_thickness_m": 1.000190695776837e-05,
+    "production_separation_m": 1.0001956979976967e-05,
+    "distance_gap_m": 5.002220859751105e-11,
+    "distance_gap_nm": 0.05002220859751105,
+    "classification": "EE conservative-advance iteration exhaustion; not a certified miss and not itself a physical collision conclusion"
+  },
+  "neighboring_feature_control": {
+    "case": "trial358_ee_edge0_edge1",
+    "hit": true,
+    "certified": true,
+    "toi": 0.9581208229064941
+  },
+  "fp64_captured_endpoint_recurrence": {
+    "cap17": {
+      "evaluations": 17,
+      "hit_candidate_index": null,
+      "iteration_exhausted": true,
+      "terminal_time_after_last_evaluation": 0.9576565043402854,
+      "trace": [
+        {
+          "iteration": 0,
+          "time": 0.0,
+          "distance_m": 1.0061392608598617e-05,
+          "gap_to_effective_thickness_m": 5.948565083024757e-08,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 1,
+          "time": 0.3996479817647832,
+          "distance_m": 1.0036570457173932e-05,
+          "gap_to_effective_thickness_m": 3.466349940556245e-08,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 2,
+          "time": 0.6325309944743568,
+          "distance_m": 1.0022106238333931e-05,
+          "gap_to_effective_thickness_m": 2.0199280565561534e-08,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 3,
+          "time": 0.7682377001833323,
+          "distance_m": 1.0013677631920052e-05,
+          "gap_to_effective_thickness_m": 1.1770674151683023e-08,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 4,
+          "time": 0.8473177153311038,
+          "distance_m": 1.0008766069947337e-05,
+          "gap_to_effective_thickness_m": 6.85911217896769e-09,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 5,
+          "time": 0.8933999267680308,
+          "distance_m": 1.0005903966851988e-05,
+          "gap_to_effective_thickness_m": 3.997009083619025e-09,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 6,
+          "time": 0.920253404725636,
+          "distance_m": 1.0004236136149184e-05,
+          "gap_to_effective_thickness_m": 2.329178380814715e-09,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 7,
+          "time": 0.9359017405187352,
+          "distance_m": 1.0003264241333547e-05,
+          "gap_to_effective_thickness_m": 1.3572835651774908e-09,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 8,
+          "time": 0.9450205049591484,
+          "distance_m": 1.000269788870201e-05,
+          "gap_to_effective_thickness_m": 7.909309336403533e-10,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 9,
+          "time": 0.9503342898288261,
+          "distance_m": 1.0002367857663025e-05,
+          "gap_to_effective_thickness_m": 4.608998946556517e-10,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 10,
+          "time": 0.9534307964673828,
+          "distance_m": 1.000217553840621e-05,
+          "gap_to_effective_thickness_m": 2.6858063784098113e-10,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 11,
+          "time": 0.9552352267519325,
+          "distance_m": 1.000206346803065e-05,
+          "gap_to_effective_thickness_m": 1.5651026227995568e-10,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 12,
+          "time": 0.9562867242067415,
+          "distance_m": 1.000199816115213e-05,
+          "gap_to_effective_thickness_m": 9.120338375988952e-11,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 13,
+          "time": 0.9568994643842639,
+          "distance_m": 1.0001960104809969e-05,
+          "gap_to_effective_thickness_m": 5.314704159925488e-11,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 14,
+          "time": 0.9572565270979682,
+          "distance_m": 1.0001937928198668e-05,
+          "gap_to_effective_thickness_m": 3.0970430298142776e-11,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 15,
+          "time": 0.9574645986209369,
+          "distance_m": 1.0001925005199513e-05,
+          "gap_to_effective_thickness_m": 1.8047431143931522e-11,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 16,
+          "time": 0.9575858483564957,
+          "distance_m": 1.0001917474566583e-05,
+          "gap_to_effective_thickness_m": 1.0516798213810064e-11,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        }
+      ]
+    },
+    "cap33": {
+      "evaluations": 28,
+      "hit_candidate_index": 27,
+      "iteration_exhausted": false,
+      "terminal_time_after_last_evaluation": 0.9577559264187498,
+      "trace": [
+        {
+          "iteration": 0,
+          "time": 0.0,
+          "distance_m": 1.0061392608598617e-05,
+          "gap_to_effective_thickness_m": 5.948565083024757e-08,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 1,
+          "time": 0.3996479817647832,
+          "distance_m": 1.0036570457173932e-05,
+          "gap_to_effective_thickness_m": 3.466349940556245e-08,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 2,
+          "time": 0.6325309944743568,
+          "distance_m": 1.0022106238333931e-05,
+          "gap_to_effective_thickness_m": 2.0199280565561534e-08,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 3,
+          "time": 0.7682377001833323,
+          "distance_m": 1.0013677631920052e-05,
+          "gap_to_effective_thickness_m": 1.1770674151683023e-08,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 4,
+          "time": 0.8473177153311038,
+          "distance_m": 1.0008766069947337e-05,
+          "gap_to_effective_thickness_m": 6.85911217896769e-09,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 5,
+          "time": 0.8933999267680308,
+          "distance_m": 1.0005903966851988e-05,
+          "gap_to_effective_thickness_m": 3.997009083619025e-09,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 6,
+          "time": 0.920253404725636,
+          "distance_m": 1.0004236136149184e-05,
+          "gap_to_effective_thickness_m": 2.329178380814715e-09,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 7,
+          "time": 0.9359017405187352,
+          "distance_m": 1.0003264241333547e-05,
+          "gap_to_effective_thickness_m": 1.3572835651774908e-09,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 8,
+          "time": 0.9450205049591484,
+          "distance_m": 1.000269788870201e-05,
+          "gap_to_effective_thickness_m": 7.909309336403533e-10,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 9,
+          "time": 0.9503342898288261,
+          "distance_m": 1.0002367857663025e-05,
+          "gap_to_effective_thickness_m": 4.608998946556517e-10,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 10,
+          "time": 0.9534307964673828,
+          "distance_m": 1.000217553840621e-05,
+          "gap_to_effective_thickness_m": 2.6858063784098113e-10,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 11,
+          "time": 0.9552352267519325,
+          "distance_m": 1.000206346803065e-05,
+          "gap_to_effective_thickness_m": 1.5651026227995568e-10,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 12,
+          "time": 0.9562867242067415,
+          "distance_m": 1.000199816115213e-05,
+          "gap_to_effective_thickness_m": 9.120338375988952e-11,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 13,
+          "time": 0.9568994643842639,
+          "distance_m": 1.0001960104809969e-05,
+          "gap_to_effective_thickness_m": 5.314704159925488e-11,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 14,
+          "time": 0.9572565270979682,
+          "distance_m": 1.0001937928198668e-05,
+          "gap_to_effective_thickness_m": 3.0970430298142776e-11,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 15,
+          "time": 0.9574645986209369,
+          "distance_m": 1.0001925005199513e-05,
+          "gap_to_effective_thickness_m": 1.8047431143931522e-11,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 16,
+          "time": 0.9575858483564957,
+          "distance_m": 1.0001917474566583e-05,
+          "gap_to_effective_thickness_m": 1.0516798213810064e-11,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 17,
+          "time": 0.9576565043402854,
+          "distance_m": 1.0001913086232937e-05,
+          "gap_to_effective_thickness_m": 6.128464567284808e-12,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 18,
+          "time": 0.9576976777739026,
+          "distance_m": 1.0001910529014973e-05,
+          "gap_to_effective_thickness_m": 3.5712466038323627e-12,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 19,
+          "time": 0.9577216708121847,
+          "distance_m": 1.0001909038844571e-05,
+          "gap_to_effective_thickness_m": 2.081076201868189e-12,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 20,
+          "time": 0.9577356523000288,
+          "distance_m": 1.0001908170476228e-05,
+          "gap_to_effective_thickness_m": 1.212707858395598e-12,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 21,
+          "time": 0.9577437997480488,
+          "distance_m": 1.0001907664450944e-05,
+          "gap_to_effective_thickness_m": 7.066825745324348e-13,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 22,
+          "time": 0.95774854751933,
+          "distance_m": 1.0001907369574269e-05,
+          "gap_to_effective_thickness_m": 4.118058992359829e-13,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 23,
+          "time": 0.957751314193212,
+          "distance_m": 1.000190719774027e-05,
+          "gap_to_effective_thickness_m": 2.399718997055404e-13,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 24,
+          "time": 0.9577529264187498,
+          "distance_m": 1.0001907097607537e-05,
+          "gap_to_effective_thickness_m": 1.3983916800940684e-13,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 25,
+          "time": 0.9577539264187498,
+          "distance_m": 1.0001907035499102e-05,
+          "gap_to_effective_thickness_m": 7.773073295593534e-14,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 26,
+          "time": 0.9577549264187498,
+          "distance_m": 1.0001906973390674e-05,
+          "gap_to_effective_thickness_m": 1.5622304678727418e-14,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        },
+        {
+          "iteration": 27,
+          "time": 0.9577559264187498,
+          "distance_m": 1.0001906911282239e-05,
+          "gap_to_effective_thickness_m": -4.6486130374744083e-14,
+          "parameter0": 0.0,
+          "parameter1": 1.0
+        }
+      ]
+    },
+    "interpretation": "Independent FP64 closest-segment recurrence over endpoints round-tripped from captured FP32. It reaches the effective band by sample 28, but omits the production swept-axis checks and FP32 arithmetic; this supports only a bounded continuation experiment, not a native certification or physical result."
+  },
+  "adjudication": "The only native uncertified pair query is EE(0,0); every VT query and all other pair queries certify. A continuation overlay may safely provide more conservative-advance evaluations while retaining the exact speed bound, thickness, distance, separating-axis checks, minimum step, and fail-closed exhaustion. Longer budget must never turn exhaustion into a miss.",
+  "limitations": [
+    "Native source-103 baseline still exhausts at 17 evaluations.",
+    "No native run of the continuation overlay is included.",
+    "The FP64 recurrence is diagnostic and is not a formal CCD certificate.",
+    "No physical transactions were executed."
+  ]
+}

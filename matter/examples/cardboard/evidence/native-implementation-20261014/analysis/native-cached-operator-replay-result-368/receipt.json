@@ -1,0 +1,21 @@
+{
+  "schema": "numi.cardboard.native-diagnostic-receipt.v1",
+  "commands": {
+    "preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "postflight": {
+      "exit_code": 0,
+      "timed_out": false
+    }
+  },
+  "wall_seconds": 0.3969758750172332,
+  "prepared_package_unchanged": true,
+  "physical_transactions": 0,
+  "finished_at_utc": "2026-10-15T15:14:18.273384+00:00"
+}

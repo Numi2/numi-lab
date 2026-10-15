@@ -1,0 +1,21 @@
+{
+  "schema": "numi.cardboard.source107-ccd-integration.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-ee-ccd-continuation-107",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106",
+  "scope": "Increase only conservative EE-CCD evaluation bound17to33; exact captured roundoff-band ray regression added. VT16 and distance/speed/roundoff/failclosed recurrence unchanged. Direct/native fullcontact same-build checks pending.",
+  "selected_source_files": 781,
+  "support_files": 1068,
+  "changes": {
+    "matter/src/metal/contact.metalinc": {
+      "before": "b9ec3915b63bdee729ff0902c390e137e0f6b5d005d06e6a7136c534be3d510b",
+      "after": "1636c24f766abadd9187809aaaf9511842a56b68f9856cea2154bdc31bc1a603"
+    },
+    "matter/tools/cardboard_contact_ccd_native_check.mm": {
+      "before": "bd2e0ef37446183c22e964a0517114f376e84e6fc85875c8f8946a92962e5528",
+      "after": "a6e913f735e356165106a937312d6b439ba4f31a7f8778fc2ceec02c2a106b5a"
+    }
+  },
+  "overlay_manifest_sha256": "3d52b03d22bcc20af9669331b0215643734398e88c4bb43b99e59bd822e823c4",
+  "patch_sha256": "2243f64d5659664386ada302b135a316ca63a6232de56adbb427a57451d5c63c",
+  "native_qualification": "pending"
+}

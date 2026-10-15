@@ -1,0 +1,35 @@
+{
+  "schema": "numi.cardboard.overlay_validation.v1",
+  "overlay_id": "exact-source370-point-replay-112-001",
+  "checks": [
+    {
+      "name": "host_objcxx_syntax_only",
+      "status": "pass",
+      "compiler": "xcrun -sdk macosx clang++",
+      "flags": ["-x", "objective-c++", "-std=c++2b", "-fobjc-arc", "-Wall", "-Wextra", "-Wpedantic", "-Werror", "-fsyntax-only"],
+      "result": "exit 0; no diagnostics"
+    },
+    {
+      "name": "patch_dry_run",
+      "status": "pass",
+      "target": "exact overlay111 checker file",
+      "result": "patch --dry-run -p1 completed without rejects"
+    },
+    {
+      "name": "checker_budget_binding_audit",
+      "status": "pass",
+      "result": "Only the private material budget comparison changed; calls explicitly bind expected budgets 16 and 32, while the immutable package is separately required to remain16. All other material policy fields, parameter bits, state initial words and distinct fingerprints remain checked."
+    },
+    {
+      "name": "cpu_admission",
+      "status": "not_run",
+      "reason": "root will integrate 111 plus this correction and run with its source-bound build"
+    },
+    {
+      "name": "native_gpu_dispatch",
+      "status": "not_run",
+      "reason": "no GPU work by overlay author"
+    }
+  ],
+  "syntax_command": "xcrun -sdk macosx clang++ -x objective-c++ -std=c++2b -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fsyntax-only -DNUMI_CARDBOARD_PAPER_METALLIB=\\\"/tmp/cardboard-paper.metallib\\\" -DNUMI_CARDBOARD_SOURCE107_MANIFEST_SHA256=\\\"09ae737a09623ff15fc4b1d13f8a96cb14e5d87e0c245cb7b1deb70bcf145d97\\\" -I <109-candidate>/matter/include -I <108-snapshot>/matter/include -I <108-snapshot>/include <112-candidate>/matter/tools/cardboard_source370_material_point_check.mm"
+}

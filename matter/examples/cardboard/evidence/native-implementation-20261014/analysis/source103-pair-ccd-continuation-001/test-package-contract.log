@@ -1,0 +1,19 @@
+test_binary_tamper_rejected (__main__.PackageContractTests) ... ok
+test_current_prepared_package_and_speed_bounds (__main__.PackageContractTests) ... ok
+test_source_binding_tamper_rejected (__main__.PackageContractTests) ... ok
+test_speed_bound_claim_tamper_rejected (__main__.PackageContractTests) ... ok
+test_synthetic_ee_exhaustion_at_extended_bound_is_admitted_as_unresolved (__main__.PackageContractTests) ... ok
+test_synthetic_native_result_positive_and_exact_host_comparator (__main__.PackageContractTests) ... ok
+test_synthetic_native_result_rejects_compared_bit_mismatch_even_if_flag_true (__main__.PackageContractTests) ... ok
+test_synthetic_native_result_rejects_malformed_word_width (__main__.PackageContractTests) ... ok
+test_synthetic_native_result_rejects_vt_past_its_original_limit (__main__.PackageContractTests) ... ok
+test_synthetic_native_result_rejects_wrong_continuation_hash (__main__.PackageContractTests) ... ok
+test_synthetic_native_result_rejects_wrong_edge_edge_budget (__main__.PackageContractTests) ... ok
+test_synthetic_native_result_rejects_wrong_host_flag (__main__.PackageContractTests) ... ok
+test_synthetic_native_result_rejects_wrong_metallib_hash (__main__.PackageContractTests) ... ok
+test_synthetic_native_result_rejects_wrong_trace_count (__main__.PackageContractTests) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.615s
+
+OK

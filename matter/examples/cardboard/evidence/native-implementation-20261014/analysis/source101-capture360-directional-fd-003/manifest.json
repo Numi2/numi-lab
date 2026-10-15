@@ -1,0 +1,18 @@
+{
+  "capture_path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture",
+  "capture_sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+  "created_utc": "2026-10-15T15:22:00Z",
+  "files": {
+    "README.md": "3327428f7dd91732b8be9eb9b420ac92e921c70612baec074362752d1ae46846",
+    "audit_rows_and_tolerance_subset.py": "dcdeac09bbfeb051c7e204f53f356e12d1dbfbe21345869a48c65ecdba764ff7",
+    "output/all_1728_row_metrics.csv": "226a12e13a5dae5cf17f4189a65d71ba6a5e26c94d14d11407e5712a76979180",
+    "output/report.json": "0b97764b85914b19931984b392a3ec4d7d8e0a29313ff82924f0321248e2791d",
+    "tolerance-sweep-process-control.json": "44952c74a2c2d4277edea0f15d34245356d7da8b3cdd3a977406c15ee9d1d4d2"
+  },
+  "independent_reference": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+  "reference_sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+  "schema": "numi.cardboard.source101-capture360-directional-fd-audit.v1",
+  "scope": "CPU-only exact capture replay for environment 0, Newton 23, liner and medium elements; no native run, no production source edit, no physical qualification.",
+  "source_frozen_file_sha256": "3fe62983d15e55d887429f714370df1758ba9e450ae1648b554ce66a41a74680",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101"
+}

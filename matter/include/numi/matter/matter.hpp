@@ -923,6 +923,10 @@ struct CompileOptions {
     // Kept at the historical per-material value unless a study explicitly
     // selects another count; the cooked NMMaterialGPU carries this value.
     std::uint32_t localMaterialNewtonIterations = 8u;
+    // The accurate 15-state bilinear source-paper policy defaults to 16 local
+    // updates. A caller may explicitly override that bounded budget without
+    // changing this historical generic-material default.
+    std::optional<std::uint32_t> accurateBilinear15LocalNewtonIterations;
 };
 
 struct CompileResult {

@@ -1,0 +1,100 @@
+{
+  "bindings": {
+    "capture": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture",
+      "sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33"
+    },
+    "capture_helper": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-001/compare_directional_fd.py",
+      "sha256": "742b0920c4f543e284e41ed18f8dbc78253915a31f39b3ef8d32ff7dec01b5e8"
+    },
+    "common_metalinc": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/src/metal/common.metalinc",
+      "sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182"
+    },
+    "frozen_source_manifest": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/frozen-source.json",
+      "sha256": "3fe62983d15e55d887429f714370df1758ba9e450ae1648b554ce66a41a74680"
+    },
+    "liner_material": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+      "sha256": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a"
+    },
+    "medium_material": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+      "sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9"
+    },
+    "reference": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3"
+    },
+    "source373v3_report": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-independent-assembled-action-373-003/report.json",
+      "sha256": "76219330ecd17c30f40d2fd6b7ea16213f5e9052eb4c05293d43ec303bb97d87"
+    },
+    "source373v3_vectors": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-independent-assembled-action-373-003/reference-vectors.npz",
+      "sha256": "341c7c9a4fca15878bfca1dbd9d924dbdef3d2adbf066311a4b103175be671bb"
+    }
+  },
+  "classification": "independent CPU recheck of an FP64 reference continuation; not a native projection pass or solver qualification",
+  "created_utc": "2026-10-15T16:16:09.138798+00:00",
+  "independent_replay": {
+    "center_reference_projection_rows": 1,
+    "center_refinement": [
+      {
+        "direct_max_tet_id": 1241,
+        "equilibrated_max_tet_id": 1241,
+        "iteration": 0,
+        "max_componentwise_delta_over_scale_difference": 5.421010862427522e-20,
+        "max_dynamic_correction_direct_solve": 0.00036504522092341735,
+        "max_dynamic_correction_equilibrated_solve": 0.0003650452209234174,
+        "rows_above_2e_minus8": 1031
+      },
+      {
+        "direct_max_tet_id": 781,
+        "equilibrated_max_tet_id": 781,
+        "iteration": 1,
+        "max_componentwise_delta_over_scale_difference": 8.139327349462357e-23,
+        "max_dynamic_correction_direct_solve": 1.94362983304928e-08,
+        "max_dynamic_correction_equilibrated_solve": 1.943629833049281e-08,
+        "rows_above_2e_minus8": 0
+      }
+    ],
+    "conservative_production_raw_residual_upper_bound": 1.3490895735317927e-09,
+    "direct_and_equilibrated_pass_count": 1728,
+    "final_max_direct_dynamic_correction": 1.94362983304928e-08,
+    "final_max_equilibrated_dynamic_correction": 1.943629833049281e-08,
+    "max_correction_tet_id": 781,
+    "maximum_scaled_reference_residual": 1.3490895735317928e-10,
+    "minimum_compensated_production_residual_limit": 2e-08,
+    "paper_rows": 1728,
+    "residual_bound_note": "All authored paper implicit residual equations multiply the independent residual by the same residual_scale=10. Since the reference weighted norm uses weights >=1, 10*max_weighted_reference_residual conservatively bounds production unweighted max residual. This bound is below the minimum 2e-8 compensated projection tolerance.",
+    "rows_above_2e_minus8": 0,
+    "scaled_reference_residual_rows_above_2e_minus10": 0,
+    "stored_final_correction_vector_max_abs_difference": 0.0,
+    "stored_residual_vector_max_abs_difference": 0.0,
+    "uniform_residual_scale": 10.0
+  },
+  "original_report_adjudication": {
+    "assembled_action_is_comparison_only": true,
+    "dynamic_correction_formula_matches_production_coordinates": true,
+    "full_solver_or_physical_qualification": false,
+    "known_limitations": [
+      "FP64 reference continuation is not a native float32 scaled solve.",
+      "No absolute noise floor was measured.",
+      "The 0.742% action match is one rejected Newton direction only and is not whole-solver qualification."
+    ],
+    "native_projection_gate_was_executed": false,
+    "numerical_gate_passed_in_independent_fp64_reference": true
+  },
+  "schema": "numi.cardboard.source101-dynamic-correction-review.v1",
+  "source_check": {
+    "common_source_hash_is_in_frozen_source_manifest": true,
+    "dynamic_formula_equivalence": "J*delta=-r; delta=stateScale*y. Production row equilibration divides each equation by sum(abs(J[row,column])*stateScale[column]); this leaves y and its infinity norm unchanged.",
+    "production_scale_floor": "material parameter index 26 (FB epsilon)",
+    "production_scale_formula": "max(abs(acceptedState[column]),abs(candidateState[column]),scaleFloor)",
+    "production_scaled_correction": "max absolute solution in dimensionless state coordinates",
+    "production_threshold": 2e-08
+  }
+}

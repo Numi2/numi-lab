@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.source109-explicit-budget-integration.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-explicit-material-budget-109",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-selected-capture-tail-reuse-108",
+  "scope": "Honor explicit bounded accurate-bilinear15 local Newton budget while preserving historical default16 and generic default8; requested/effective probe reporting and package policy controls. No thresholds or constitutive equations changed; native failed-row cause remains pending.",
+  "selected_source_files": 781,
+  "support_files": 1068,
+  "changes": {
+    "matter/include/numi/matter/matter.hpp": {
+      "before": "3afd1dbe987b0cf3a386a69d335489ca38342984d9a5f4c52f2ddcd094ded633",
+      "after": "798e124cdf0b97370a7e1412526693b0f2469985df2b5e985ad3a8acbe00808a"
+    },
+    "matter/src/compiler_impl.cpp": {
+      "before": "9dc5cd30bc781704552936531120d28fd6bb95572d2793c7c4a0dd819143272c",
+      "after": "474e717759ded2ecf81a0590dd7f5cb51da8a1041eacddff33c971ccb96152df"
+    },
+    "matter/src/validation_impl.cpp": {
+      "before": "298c8cd8052309610ef0d85c22eb638aadb8cd5a589978b5599a5043e342c048",
+      "after": "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808"
+    },
+    "matter/tools/cardboard_probe.mm": {
+      "before": "af5196370b4c812bc6a71d603987b3ce3ae47d88769bfd54a23851e0c325e059",
+      "after": "6917e515993e1da26d09d946bf8a3f58c7066ad183b19131aa466e94e8d32e99"
+    },
+    "matter/tools/cardboard_bilinear15_projection_policy_check.cpp": {
+      "before": "d7206a61f70b6c5392c97c31201683721aefb9db8c3cdaeb1f07467526d7d6df",
+      "after": "8e76c3435a18b2eeb2680c6b726dd4b6cb9bbd4e64dd48095d401120780b6c2d"
+    }
+  },
+  "overlay_manifest_sha256": "2c31614868940ff3a49f83ad8a7c4c4e96852cb5aeb2121e170cfbdc1b0e4f1a",
+  "patch_sha256": "8cd879a6ab536e3a70a4ead8163f3d0501d375f5d35ec5fe3896fa6fae97a33b",
+  "native_qualification": "pending"
+}

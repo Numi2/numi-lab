@@ -4,8 +4,10 @@
 
 #include "numi/matter/detail.hpp"
 
+#include <cstdint>
 #include <filesystem>
 #include <iostream>
+#include <optional>
 #include <stdexcept>
 #include <string>
 
@@ -16,7 +18,9 @@ void need(const bool condition, const std::string& message) {
 }
 
 numi::matter::CompileResult compileOneMaterial(
-    const numi::matter::MaterialProgram& material) {
+    const numi::matter::MaterialProgram& material,
+    const std::uint32_t localIterations = 8u,
+    const std::optional<std::uint32_t> accurateOverride = std::nullopt) {
     using namespace numi::matter;
     WorldSource source;
     source.materials = {material};
@@ -37,6 +41,8 @@ numi::matter::CompileResult compileOneMaterial(
     CompileOptions options;
     options.maximumRateExponent = 0u;
     options.emitSpecializedMetal = false;
+    options.localMaterialNewtonIterations = localIterations;
+    options.accurateBilinear15LocalNewtonIterations = accurateOverride;
     return compileWorld(source, options);
 }
 
@@ -73,7 +79,7 @@ void checkBilinear15ScaledCorrectionPolicy(const std::filesystem::path& material
           NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION) != 0u,
          "compiled material omitted an opt-in projection policy flag");
     need(compiled.program.gpu.localNewtonIterations == 16u,
-         "the scoped local iteration budget is not 16");
+         "the standalone constitutive compiler default for this policy changed");
     need(compiled.program.fingerprint != legacy.program.fingerprint,
          "material fingerprint did not bind the scaled-correction policy");
     need(compiled.program.implicitResiduals.size() == 15u &&
@@ -107,6 +113,25 @@ void checkBilinear15ScaledCorrectionPolicy(const std::filesystem::path& material
     const auto world = compileOneMaterial(candidate);
     const std::string worldFailure = world.diagnostics.empty() ? "no compiler diagnostic" : world.diagnostics.front().message;
     need(world.succeeded(), "scoped projection world failed compilation: " + worldFailure);
+    need(world.world.materials[0].localNewtonIterations == 16u,
+         "accurate bilinear-15 world default must remain 16 when no override is supplied");
+    const auto explicit16 = compileOneMaterial(candidate, 32u, 16u);
+    const auto explicit32 = compileOneMaterial(candidate, 32u, 32u);
+    need(explicit16.succeeded() && explicit32.succeeded() &&
+         explicit16.world.materials[0].localNewtonIterations == 16u &&
+         explicit32.world.materials[0].localNewtonIterations == 32u,
+         "explicit accurate bilinear-15 budgets 16 and 32 were not preserved by compilation");
+    need(explicit16.world.fingerprint != explicit32.world.fingerprint,
+         "compiled-world fingerprint did not bind the effective local projection budget");
+    const auto explicit8 = compileOneMaterial(candidate, 32u, 8u);
+    need(explicit8.succeeded() &&
+         explicit8.world.materials[0].localNewtonIterations == 8u,
+         "valid explicit accurate bilinear-15 budget 8 was not preserved");
+    for (const std::uint32_t invalidBudget : {0u, 33u}) {
+        const auto invalid = compileOneMaterial(candidate, 32u, invalidBudget);
+        need(!invalid.succeeded(),
+             "compiler admitted an accurate bilinear-15 budget outside 1..32");
+    }
     const auto legacyWorld = compileOneMaterial(compensatedDefault);
     need(legacyWorld.succeeded() &&
          legacyWorld.world.materials[0].localNewtonIterations == 8u &&
@@ -116,12 +141,16 @@ void checkBilinear15ScaledCorrectionPolicy(const std::filesystem::path& material
     std::string error;
     need(validateCompiledWorldLayout(world.world, &error),
          "scoped projection world failed package validation: " + error);
-    auto wrongBudget = world.world;
-    wrongBudget.materials[0].localNewtonIterations = 8u;
-    wrongBudget.fingerprint = compiledWorldFingerprint(wrongBudget);
-    error.clear();
-    need(!validateCompiledWorldLayout(wrongBudget, &error),
-         "validator admitted the scaled-correction flag with the old iteration budget");
+    need(validateCompiledWorldLayout(explicit32.world, &error),
+         "validator rejected a valid explicit accurate bilinear-15 budget: " + error);
+    for (const std::uint32_t invalidBudget : {0u, 33u}) {
+        auto wrongBudget = world.world;
+        wrongBudget.materials[0].localNewtonIterations = invalidBudget;
+        wrongBudget.fingerprint = compiledWorldFingerprint(wrongBudget);
+        error.clear();
+        need(!validateCompiledWorldLayout(wrongBudget, &error),
+             "validator admitted an accurate bilinear-15 budget outside 1..32");
+    }
     auto wrongStateCount = world.world;
     wrongStateCount.materials[0].stateCount = 14u;
     wrongStateCount.fingerprint = compiledWorldFingerprint(wrongStateCount);
@@ -133,21 +162,21 @@ void checkBilinear15ScaledCorrectionPolicy(const std::filesystem::path& material
         "numi-cardboard-bilinear15-scaled-correction-policy.nmatterpkg";
     std::filesystem::remove(packagePath);
     CompileResult package;
-    package.world = world.world;
+    package.world = explicit32.world;
     need(writePackage(package, packagePath, &error),
-         "could not serialize the scoped policy package: " + error);
+         "could not serialize the explicit-32 scoped policy package: " + error);
     CompiledWorld restored;
     need(readPackage(packagePath, restored, nullptr, &error),
-         "could not restore the scoped policy package: " + error);
+         "could not restore the explicit-32 scoped policy package: " + error);
     std::filesystem::remove(packagePath);
     need(validateCompiledWorldLayout(restored, &error) &&
-         restored.fingerprint == world.world.fingerprint &&
-         restored.materials[0].localNewtonIterations == 16u &&
+         restored.fingerprint == explicit32.world.fingerprint &&
+         restored.materials[0].localNewtonIterations == 32u &&
          (restored.materials[0].flags &
           NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) != 0u,
          "package roundtrip lost the local projection policy or iteration budget");
     std::cout << "bilinear15_scaled_correction_policy_cpu_check_passed"
-              << " state_count=15 parameter_count=28 local_iterations=16"
+              << " state_count=15 parameter_count=28 default_iterations=16 explicit_iterations=8,16,32"
               << " package_roundtrip=pass native_metal_execution=not_run"
               << " physical_validation=false\n";
 }

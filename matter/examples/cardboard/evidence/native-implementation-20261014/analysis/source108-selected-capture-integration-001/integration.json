@@ -1,0 +1,25 @@
+{
+  "schema": "numi.cardboard.source108-selected-capture-integration.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-selected-capture-tail-reuse-108",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-ee-ccd-continuation-107",
+  "scope": "Restrict diagnostic-induced graph-factor rebuild suppression to the exact pending selected root/Newton iteration. Default path and Metal kernels unchanged. Native failed-trajectory parity pending.",
+  "selected_source_files": 781,
+  "support_files": 1068,
+  "changes": {
+    "matter/src/runtime.mm": {
+      "before": "2e26d26a04326a3ce567cccb60d213da8f4a8ceaf178c98153939f1b68752fd7",
+      "after": "4d1b86e16819c7811b04e7ae745dfe81ee31ffa1451ad9259fa8b4b92c39d12b"
+    },
+    "matter/src/regional_graph_schwarz.hpp": {
+      "before": "a8a6328d608ba7db4943025f15d35d750968755a8826de32b14b479752c9121d",
+      "after": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf"
+    },
+    "matter/tools/regional_graph_completed_tail_check.cpp": {
+      "before": "bfdc93f22dc12827af3620c36d675aef940f7b1a533bace9d4f8d9f44f2022d3",
+      "after": "496ecc347435624c9822905f6ba008241792bba9b381ea8ed967306315b07cca"
+    }
+  },
+  "overlay_manifest_sha256": "be2b503e33f207b3afe1321dbf9f40589040f03c54508c932ddb2e1fd30f090f",
+  "patch_sha256": "cc31befa94e3d1045700b8ca821353393779e48f355744e0e8cbd1ee0e46ab52",
+  "native_qualification": "pending"
+}

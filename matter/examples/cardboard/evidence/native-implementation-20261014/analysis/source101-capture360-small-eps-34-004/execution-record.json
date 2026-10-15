@@ -1,0 +1,21 @@
+{
+  "command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 /Users/home/.pyenv/versions/3.10.12/bin/python3 replay_34_small_eps.py",
+  "exit_code": 0,
+  "failed_preliminary_attempt": {
+    "cause": "KeyError in result recorder before first row write; no projection result from this attempt was counted.",
+    "exit_code": 1,
+    "output_path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-small-eps-34-004/output",
+    "retained_empty_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "wall_seconds": 1.88
+  },
+  "host": "macOS-26.6-arm64-arm-64bit",
+  "numpy": "2.2.5",
+  "observed_stderr_warnings": [
+    "RuntimeWarning: divide by zero encountered in divide, bilinear15_reference.py:40",
+    "RuntimeWarning: invalid value encountered in divide, bilinear15_reference.py:40"
+  ],
+  "python": "3.10.12 (main, May 15 2025, 18:07:36) [Clang 17.0.0 (clang-1700.0.13.3)]",
+  "reported_wall_seconds": 2.8132610830361955,
+  "schema": "numi.cardboard.source101-small-eps-run-record.v1",
+  "warning_interpretation": "The reference uses np.where over both FB formulas, so the unused rationalized branch can divide by zero while the selected fallback remains finite. Output JSON used allow_nan=False and all 34 row records serialized; the warning is retained and not suppressed."
+}

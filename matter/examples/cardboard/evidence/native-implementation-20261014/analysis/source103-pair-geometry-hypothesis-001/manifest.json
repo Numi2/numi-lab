@@ -1,0 +1,17 @@
+{
+  "schema": "numi.cardboard.source103_pair_geometry_hypothesis_manifest.v1",
+  "status": "CPU_ONLY_HYPOTHESIS_NO_NATIVE_SUBCALL_RESULT",
+  "artifacts": {
+    "analyze.py": "27c9d9f99ad1df5e40aef8871bdec7b392426694bb23dc547a6c66f8cf23efa1",
+    "report.json": "2d1e1dc1ebb857dbc4543376e90749d99ad7cf27dae124efcfd1ac535d074cb3",
+    "README.md": "fc9c897313380fd70fd6c0aa80b0504d0fdb15cef9f2c1ccb7b19a9fe943a4d5"
+  },
+  "inputs": {
+    "prepared_manifest_sha256": "d1e544342095a563e55b18dc160fd344052c8db50eed14a8dbddd178eb019fe9",
+    "prepared_cases_bin_sha256": "e116911335b4fbf88683535cde08a97b26ca99bc1975989d67532196c2ff996f",
+    "contact_metalinc_sha256": "427aca061ad2c6d2218b5eae0bc7620132a1ef9fff9f688390ccc96ca8a27ffc",
+    "private_trial_manifest_sha256": "3d4b183e2f7ba467d6f084ce0aef9c061173dc93ba49d47966428772236eb0cd",
+    "private_trial_payload_sha256": "8126b3baa007e1da436447bd8bfaa91ab51a53be72471ff1c7133897089deea0"
+  },
+  "native_command": "/Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/compile/pair_ccd_native_check /Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/prepared/prepared.json /Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/prepared/cases.bin /Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/compile/diagnostic_pair.metallib /Users/home/cardboard-implementation-20261014/analysis/source103-pair-ccd-diagnostic-003/native-results.json"
+}

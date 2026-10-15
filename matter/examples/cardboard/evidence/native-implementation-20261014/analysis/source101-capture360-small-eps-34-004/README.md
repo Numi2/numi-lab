@@ -1,0 +1,13 @@
+# Smaller-step FP64 replay of 34 directional outliers
+
+This is one CPU-only replay of exactly the 34 tetrahedra whose central directional FP64 finite-difference relative error exceeded 1e-6 in directional003. It uses capture360 root 2 / Newton 23, captured FP32 high+low F words, captured FP32 accepted history and material parameter words, and the captured rate direction and timestep. For each row it evaluates only the three predeclared target Frobenius perturbation sizes 1e-7, 3e-8 and 1e-8. Perturbed projections all reuse the same accepted history.
+
+The run completed all 34 rows in 2.81 s. At targets 1e-7, 3e-8 and 1e-8, respectively, 32/34, 32/34 and 33/34 rows meet the 1e-6 tangent-action comparison after both endpoints pass independent scaled-residual and state-scaled Newton-correction checks and retain the center branch signature. Among only those accepted rows, the maximum relative errors are 3.68e-7, 2.19e-7 and 7.61e-7. These are directional and step-specific observations, not a noise-floor estimate or full derivative qualification.
+
+The remaining cases are retained as inconclusive. Tet 290 (liner), which is close to the smoothed yield transition, stalls the plus endpoint projection at the first two perturbation sizes; it converges at 1e-8. Tet 1241 (liner) returns a center residual of 7.65e-11 but its state-scaled Newton correction is 3.65e-4, so its center does not pass the two-part endpoint gate; all three FD comparisons remain inconclusive even though the recorded numerical ratio is about 4.11e-6. The root's independent 373v2 center continuation should be used before making another derivative claim for this row.
+
+The branch signature records multiplier increment sign, yield-gap sign and the smoothed FB selector. The reference equations expose no separate discrete hardening max/sign predicate; hardening factor is recorded as a continuous value. MP90-v2 independently crosschecks centers 457 and 1635. The MP90 1635 sweep changes branch and fails projection at coarser perturbations; that branch behavior is evidence against treating the original all-no-lambda-change directional003 tag as a smoothness proof.
+
+The stock FP64 reference emitted divide-by-zero and invalid-value warnings from eager evaluation of the unused rationalized FB expression in `np.where`; those warnings are preserved in `execution-record.json`. The selected fallback outputs remained serializable as finite JSON. No native Metal execution, accepted physical step, or native FP32 noise-floor measurement is represented here.
+
+`output/` retains the initial recorder-only failed attempt: an empty rows file and no computed projections. The corrected successful output is in `output-002/`.

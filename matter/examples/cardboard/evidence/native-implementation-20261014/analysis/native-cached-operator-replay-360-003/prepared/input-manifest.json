@@ -1,0 +1,58 @@
+{
+  "capture_sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+  "claim_scope": "captured source101 FEM element action and nodal gather only; no solver step or contact/rigid unknowns",
+  "compiled_package_sha256": "3c25f41c6c26654ccf3f8b4f4b510bbb64ab0ea0f52b94d05d8b1fa4060fafe5",
+  "integrity_record": {
+    "cached_tangent_snapshot_bitwise_guard_included": true,
+    "production_inputs_bitwise_unchanged": true,
+    "record": "integrity"
+  },
+  "limits": [
+    "The replay uses production element/gather kernels with cache enabled and disabled on identical captured inputs.",
+    "The selected Newton was rejected; this is a diagnostic replay of that exact captured linearization, not an accepted physical state.",
+    "The run has zero rigid proxies and zero contact pairs; FEM operator/gather is the complete mechanical linear slice for these captured dimensions.",
+    "No physical transaction, material update, or solver convergence claim is made by the replay."
+  ],
+  "metallib_sha256": "fef3d58618ffecde6f31038b03671c7058e004a0b83c0429e8d6898d9af09030",
+  "native_capture": {
+    "correction_max_abs_m_per_s": 13759.2334,
+    "dt_seconds": 9.999999747378752e-05,
+    "environment_count": 2,
+    "execution_fingerprint_hex": "c330e03d605afd25",
+    "material_state_stride": 15,
+    "newton_iteration": 23,
+    "node_count_per_environment": 882,
+    "parameter_count": 59,
+    "root": 2,
+    "tangent_entries_valid": 3840,
+    "tetrahedron_count_per_environment": 1920,
+    "world_fingerprint_hex": "6de3475316b7e8b9"
+  },
+  "payload_bytes": 2054152,
+  "payload_layout": [
+    "header: <8s6IQfI>",
+    "nodes: E*N*NMFEMNodeStateGPU (5 float4)",
+    "direction: E*N*float4 (captured fem correction delta-v)",
+    "rhs: E*N*float4 (captured pre-FGMRES FEM RHS)",
+    "accepted_material_state: E*T*materialStateStride floats",
+    "tangent_cache: E*T*81 floats row-major local dP/dF",
+    "tangent_cache_valid: E*T uint32",
+    "environment_parameters: E*parameterCount floats",
+    "captured_production_action: E*N*float4 (independent comparison output)",
+    "static_tet_audit: E*T records <4I9ff4I4f>; all integer and finite float words compare bitwise, including signed zero"
+  ],
+  "payload_sha256": "4c21ba6299fcd30753b469ebeb965a40f1b2e550c5e7d5ce508359ece44e4a40",
+  "prediction_sha256": "7bab817e48d15c03587e6effc6e6ba3c888a1f1cb820982ccfb76ba6aebc5e33",
+  "run_directory": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360",
+  "run_receipt_sha256": "d623591647a91ca07626e18fef6c78358e60c0d9ab7c38d465e79a2f6c18c474",
+  "schema": "numi.cardboard.native-cached-operator-replay-input.v1",
+  "source_hashes": {
+    "matter/include/numi/matter/shared.h": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691",
+    "matter/src/metal/common.metalinc": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182",
+    "matter/src/metal/fem.metalinc": "f4b5cd60dbe7ace7a54636746a00b5e7186d6c1f4890eb0718c138af9c753ae4",
+    "matter/src/metal/fgmres.metalinc": "eef8a0919636c513716528dcf04cf9d175801c25e7159125808cbb59a9b696d6",
+    "matter/src/runtime.mm": "836605dca3f6b264d5ee04a9f65b66997ecbdc39f60709039c7e1ac59becb087",
+    "matter/tools/cardboard_probe.mm": "af5196370b4c812bc6a71d603987b3ce3ae47d88769bfd54a23851e0c325e059"
+  },
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101"
+}

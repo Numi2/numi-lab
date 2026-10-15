@@ -145,6 +145,11 @@ endif()
 if(BUILD_TESTING)
     find_package(Python3 COMPONENTS Interpreter QUIET)
     if(Python3_Interpreter_FOUND)
+        add_test(NAME matter.analysis.fgmres_true_residual_contract
+            COMMAND "${Python3_EXECUTABLE}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tools/test_true_residual_certification_contract.py")
+        set_tests_properties(matter.analysis.fgmres_true_residual_contract
+            PROPERTIES TIMEOUT 30 LABELS "matter;fgmres;true-residual;cpu;contract")
         add_test(NAME matter.analysis.cardboard_source_data
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_source_data_test.py")
         add_test(NAME matter.analysis.cardboard_pin_source_observables
@@ -681,6 +686,21 @@ if(APPLE)
         set_tests_properties(matter.compiler.fem_static_surface_map_native_fixture PROPERTIES LABELS "matter;compiler;contact;cpu")
         add_test(NAME matter.metal.fem_static_surface_map COMMAND numi-matter-fem-static-surface-map-native-check)
         set_tests_properties(matter.metal.fem_static_surface_map PROPERTIES LABELS "matter;contact;surface;synthetic" TIMEOUT 120 RUN_SERIAL TRUE)
+    endif()
+    add_executable(numi-matter-fgmres-true-residual-native-check tools/fgmres_true_residual_native_check.mm)
+    add_dependencies(numi-matter-fgmres-true-residual-native-check numi_matter_shaders)
+    target_link_libraries(numi-matter-fgmres-true-residual-native-check PRIVATE
+        numi_matter_compiler "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_definitions(numi-matter-fgmres-true-residual-native-check PRIVATE
+        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+    target_compile_options(numi-matter-fgmres-true-residual-native-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.fgmres_true_residual_kernel_contract
+            COMMAND numi-matter-fgmres-true-residual-native-check)
+        set_tests_properties(matter.metal.fgmres_true_residual_kernel_contract
+            PROPERTIES LABELS "matter;metal;fgmres;true-residual;synthetic"
+            TIMEOUT 120 RUN_SERIAL TRUE)
     endif()
     add_executable(numi-matter-fem-kinematic-release-check tools/fem_kinematic_release_check.mm)
     target_link_libraries(numi-matter-fem-kinematic-release-check PRIVATE numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")

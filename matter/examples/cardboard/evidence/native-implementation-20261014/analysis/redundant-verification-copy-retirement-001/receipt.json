@@ -1,0 +1,32 @@
+{
+  "schema": "numi.cardboard.redundant-copy-retirement.v1",
+  "rows": [
+    {
+      "removed_redundant_verification_copy": "/Users/home/cardboard-implementation-20261014/analysis/source105-restore-cli-verification-001",
+      "exact_source_files_verified": 1848,
+      "original_snapshot_retained": "/Users/home/cardboard-implementation-20261014/snapshots/source-true-residual-certification-105",
+      "restore_manifest_sha256": "6cdc8358535cf7dc687431e45c12a54640a3d75f59511bf808087768ec4e7409",
+      "prior_verification_sha256": "96a146d434faf454123ff3524262dd81b47c1df704069eb6fb5a1698533767f8",
+      "open_handles": false
+    },
+    {
+      "removed_redundant_verification_copy": "/Users/home/cardboard-implementation-20261014/analysis/source106-restore-cli-verification-001",
+      "exact_source_files_verified": 1849,
+      "original_snapshot_retained": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106",
+      "restore_manifest_sha256": "a70399acb9baf020844fe80cb47003d0dae8b684c6af972edd787cc46fa90d7a",
+      "prior_verification_sha256": "c8fae2f284a9c70deab7dcec642fe627142d60579d0694f5b637cd5e63e11638",
+      "open_handles": false
+    },
+    {
+      "removed_redundant_verification_copy": "/Users/home/cardboard-implementation-20261014/analysis/source107-restore-cli-verification-001",
+      "exact_source_files_verified": 1849,
+      "original_snapshot_retained": "/Users/home/cardboard-implementation-20261014/snapshots/source-ee-ccd-continuation-107",
+      "restore_manifest_sha256": "09ae737a09623ff15fc4b1d13f8a96cb14e5d87e0c245cb7b1deb70bcf145d97",
+      "prior_verification_sha256": "3af0b60025aa0fdbb7b5ffa11817ac9f38639c0cc0bcc7fdc9d2ee5fe65cbedb",
+      "open_handles": false
+    }
+  ],
+  "free_bytes_before": 1284485120,
+  "free_bytes_after": 1636564992,
+  "only_redundant_task_owned_verification_copies_removed": true
+}

@@ -1,0 +1,6 @@
+{
+  "status": "FAILED_RECORDER_ON_PREEXISTING_FAILED_BUILD102",
+  "error": "KeyError artifacts_sha256 at build102 which lacks a successful build receipt",
+  "deletion": "No deletion occurred; failure during complete preflight",
+  "limits": "Object001 kept removed-file hashes only in process memory; no exact object-file preimage ledger was emitted. Sources, runtime binaries, build receipts and scientific evidence were not selected for removal."
+}

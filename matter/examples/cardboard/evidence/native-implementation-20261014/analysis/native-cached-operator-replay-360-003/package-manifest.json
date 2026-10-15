@@ -1,0 +1,191 @@
+{
+  "capture_run": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360",
+  "claim_scope": "Exact input preparation and CPU-only bitwise static tetrahedron audit. No native operator replay or physical transaction.",
+  "compile": {
+    "binary_sha256": "eaf90bf06c42342b61de5a7da438dc4ec9b9e13fd507d28c5ffe6845eb570c95",
+    "command": [
+      "xcrun",
+      "clang++",
+      "-std=c++2b",
+      "-arch",
+      "arm64",
+      "-fobjc-arc",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-I/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/include",
+      "-I/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/include",
+      "-DNUMI_MATTER_METALLIB=\"/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/inputs/runtime/matter/shaders/NumiMatter.metallib\"",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-003/cached_operator_replay.mm",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-101/matter/libnumi_matter_runtime.a",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-101/matter/libnumi_matter_compiler.a",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "Metal",
+      "-o",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-003/build/cached_operator_replay"
+    ],
+    "status": "pass",
+    "warnings": "none under -Wall -Wextra -Wpedantic -Werror"
+  },
+  "cpu_preflight": {
+    "command": [
+      "python3",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-003/preflight.py"
+    ],
+    "native_metal_device_created": false,
+    "output": "PASS source101 replay CPU preflight: sealed hashes and all 3840 immutable tetrahedron float/integer words match bitwise, including signed zero; no Metal device created",
+    "physical_transactions": 0,
+    "status": "pass"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 2238,
+      "sha256": "6b25e42ce92720711cd2820dcffc0372b44f807ece4dff8bf02b842cf5ad2411"
+    },
+    "build-v2/cached_operator_replay": {
+      "bytes": 1839816,
+      "sha256": "d09b460ff73f2736da6c8209ca8ff5fcf0750ed2cbf57844148dd080110a7514"
+    },
+    "build/cached_operator_replay": {
+      "bytes": 1839816,
+      "sha256": "eaf90bf06c42342b61de5a7da438dc4ec9b9e13fd507d28c5ffe6845eb570c95"
+    },
+    "cached_operator_replay.mm": {
+      "bytes": 33465,
+      "sha256": "f6bb34dbf514c9bfbd27474d3f84575f9c38389088d6182970bf0d41f54f5cda"
+    },
+    "checker.patch": {
+      "bytes": 6808,
+      "sha256": "4c9b68eda01351a396891d63908af132bf7ae2e1ab5eef8bdc4e62717faa5e13"
+    },
+    "preflight-report.json": {
+      "bytes": 1088,
+      "sha256": "7dbd994bcbb5563902c665c3e9ef9954fc5bff6b67b7d6208ef241d690fd1c70"
+    },
+    "preflight.py": {
+      "bytes": 3122,
+      "sha256": "aa457a682ad6f22bface4847525caaffaf4fa0375fbfed527a661c66749daa49"
+    },
+    "prepare_replay.py": {
+      "bytes": 15852,
+      "sha256": "c3520460a4347370ef9600225313c7330e78bc5e32d6ca80783cc009e4c66536"
+    },
+    "prepared-v1/input-manifest.json": {
+      "bytes": 3335,
+      "sha256": "4d58d324d7a4a493a46d73c95d99092eb40c04917079c7d781c42c2bef8447ed"
+    },
+    "prepared-v1/input-manifest.seal.json": {
+      "bytes": 3430,
+      "sha256": "e5a50f3780594ab5b9ea01f646d5bf7fe2b1ff7ab16182d6e1b44c6477a26283"
+    },
+    "prepared-v1/replay-input.bin": {
+      "bytes": 2025928,
+      "sha256": "2cddc27d74dfb88d502d76579237cf3ca1d280f19ded2f3d75f720f6f4f9d352"
+    },
+    "prepared-v2/input-manifest.json": {
+      "bytes": 3460,
+      "sha256": "5a7d620912a86df53a198d1dc764630ae826058f72a0464fc07d9baf996f3053"
+    },
+    "prepared-v2/input-manifest.seal.json": {
+      "bytes": 3555,
+      "sha256": "bc37a9e2f44321f7bf749d91fb59bc690029a2485279590e28cb3de3b7a6c25d"
+    },
+    "prepared-v2/replay-input.bin": {
+      "bytes": 2054152,
+      "sha256": "129758a5bcf1a0072a148ea4373335844c86fa1d4235f60dd607eae5f9aa09e0"
+    },
+    "prepared/input-manifest.json": {
+      "bytes": 3451,
+      "sha256": "b6738b5027a58c257cd0d470570184f616f7affdc6feac74fd64c83ee87daa64"
+    },
+    "prepared/input-manifest.seal.json": {
+      "bytes": 3546,
+      "sha256": "b141cd8c9885e8b7877f87382fdb1814935e6e5990201e3920568e0e8bf3a3e7"
+    },
+    "prepared/replay-input.bin": {
+      "bytes": 2054152,
+      "sha256": "4c21ba6299fcd30753b469ebeb965a40f1b2e550c5e7d5ce508359ece44e4a40"
+    }
+  },
+  "inputs": {
+    "capture": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture",
+      "sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33"
+    },
+    "compiled_package": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/output/compiled.nmatterpack",
+      "sha256": "3c25f41c6c26654ccf3f8b4f4b510bbb64ab0ea0f52b94d05d8b1fa4060fafe5"
+    },
+    "compiler_archive": {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-101/matter/libnumi_matter_compiler.a",
+      "sha256": "b3298d89a43f3b8ee8caffc5759a19564a744ce6eecd102e38fd73d31f6eca6e"
+    },
+    "metallib": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/inputs/runtime/matter/shaders/NumiMatter.metallib",
+      "sha256": "fef3d58618ffecde6f31038b03671c7058e004a0b83c0429e8d6898d9af09030"
+    },
+    "prediction": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/prediction.json",
+      "sha256": "7bab817e48d15c03587e6effc6e6ba3c888a1f1cb820982ccfb76ba6aebc5e33"
+    },
+    "receipt": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/receipt.json",
+      "sha256": "d623591647a91ca07626e18fef6c78358e60c0d9ab7c38d465e79a2f6c18c474"
+    },
+    "runtime_archive": {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-101/matter/libnumi_matter_runtime.a",
+      "sha256": "a3eade7d0c5cc74e79f7c34355024e8018c1a7081536da66a96fd16190931e62"
+    }
+  },
+  "native_replay": {
+    "reason": "parent owns serialized GPU queue",
+    "status": "not run"
+  },
+  "preserved_artifacts": {
+    "failed_native_365_path": "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-result-365",
+    "failed_native_365_receipt_sha256": "50a17ba5a3bcd2b0e844d0ffd83209714cf789c1b431d96a8d69c5688c6093d7",
+    "package_001_payload_sha256": "2cddc27d74dfb88d502d76579237cf3ca1d280f19ded2f3d75f720f6f4f9d352",
+    "package_002_payload_sha256": "129758a5bcf1a0072a148ea4373335844c86fa1d4235f60dd607eae5f9aa09e0"
+  },
+  "raw_signed_zero_findings": [
+    {
+      "default_python_parse": "integer 0 (sign lost)",
+      "environment": 0,
+      "field": "material_frame_quaternion_xyzw[1]",
+      "payload_word": "80000000",
+      "raw_json_token": "-0",
+      "tet_id": 0,
+      "v3_parse": "float -0.0"
+    },
+    {
+      "default_python_parse": "integer 0 (sign lost)",
+      "environment": 0,
+      "field": "inverse_rest_rows_per_m[2][2]",
+      "payload_word": "80000000",
+      "raw_json_token": "-0",
+      "tet_id": 585,
+      "v3_parse": "float -0.0"
+    }
+  ],
+  "schema": "numi.cardboard.native-cached-operator-replay-package.v3",
+  "source_hashes": {
+    "matter/include/numi/matter/shared.h": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691",
+    "matter/src/metal/common.metalinc": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182",
+    "matter/src/metal/fem.metalinc": "f4b5cd60dbe7ace7a54636746a00b5e7186d6c1f4890eb0718c138af9c753ae4",
+    "matter/src/metal/fgmres.metalinc": "eef8a0919636c513716528dcf04cf9d175801c25e7159125808cbb59a9b696d6",
+    "matter/src/runtime.mm": "836605dca3f6b264d5ee04a9f65b66997ecbdc39f60709039c7e1ac59becb087",
+    "matter/tools/cardboard_probe.mm": "af5196370b4c812bc6a71d603987b3ce3ae47d88769bfd54a23851e0c325e059"
+  },
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101",
+  "static_audit": {
+    "finite_float_words": "bitwise exact including signed zero",
+    "integer_words": "bitwise exact",
+    "nonfinite": "reject",
+    "records_checked": 3840,
+    "status": "pass"
+  },
+  "version": "003"
+}

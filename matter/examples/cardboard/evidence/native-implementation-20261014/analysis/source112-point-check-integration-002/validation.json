@@ -1,0 +1,25 @@
+{
+  "schema": "numi.cardboard.point-check-validation.v1",
+  "build": {
+    "target": "numi-matter-cardboard-source370-material-point-check",
+    "source_build_sha256": "23188416165a39cd4ed038e25f92d1f8875a4b9ff701bf2a3cd172843258fd70",
+    "exit_code": 0
+  },
+  "cpu_admission": {
+    "argv": [
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-112/matter/numi-matter-cardboard-source370-material-point-check",
+      "--cpu-admission",
+      "/Users/home/cardboard-implementation-20261014/solver/cached-true-residual-certification-coupon-370",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-exact-material-point-112/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter"
+    ],
+    "exit_code": 0,
+    "compiled_budgets": [
+      16,
+      32
+    ],
+    "native_metal_execution": false
+  },
+  "native_case": "/Users/home/cardboard-implementation-20261014/native/exact-source370-material-point-379-002",
+  "native_receipt_sha256": "01497fee66e5ddcf1ecbdf26f9541e5468fb987c8b0ed7780a6fdb178e4983a9",
+  "limits": "Native point checker exports residual/state norm but no native scaled correction norm; private descriptor32 is not full370trajectory."
+}

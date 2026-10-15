@@ -1,0 +1,31 @@
+{
+  "schema": "numi.cardboard.source370.native-point-comparison-package.v1",
+  "classification": "source-bound diagnostic comparison only; not a physical transaction or material/coupon qualification",
+  "native_receipt": "/Users/home/cardboard-implementation-20261014/native/exact-source370-material-point-379-002/receipt.json",
+  "native_source_build": {
+    "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-exact-material-point-112",
+    "build_success": true,
+    "finished_at_utc": "2026-10-15T16:24:16.589607+00:00",
+    "source_build_binding_sha256": "23188416165a39cd4ed038e25f92d1f8875a4b9ff701bf2a3cd172843258fd70",
+    "binary_sha256": "7344c10ebc334bf67b86c01ac85c6028ef895ed9c80e6797d4929d932476c262",
+    "metallib_sha256": "e8a5ba80946987158489e8a98d0a759c7853202298dcc812c987167a1077da17"
+  },
+  "comparison_inputs": {
+    "native_run": "native/exact-source370-material-point-379-002",
+    "cpu_source_transcription": "analysis/source105-failure370-exact-tet1820-001",
+    "independent_reference": "analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+    "scaled_policy": "analysis/local-projection-scaled-correction-082/replay_scaled_policy.py"
+  },
+  "files": {
+    "README.md": "d13e0a49df0978b456be9e9d077c34ad5bf80362c2999b7cfdb7d0c62713bbe4",
+    "compare_point.py": "1dba14b0f7ff4c897761a25c8207f3850ed34be6e32d20fde4575e96f48b5f73",
+    "report.json": "1ce171858f20c24f849c8ef8417ca75356bebaad8ef8dd6c5d72d291b4e89450"
+  },
+  "reproduction_command": "python3 /Users/home/cardboard-implementation-20261014/analysis/source370-native-point-comparison-379-001/compare_point.py",
+  "limits": [
+    "Native per-iteration correction norm and Armijo alpha trace are not exported.",
+    "FP64 correction values are independently derived at returned states, not native certificates.",
+    "Budget32 is a point-only private descriptor; immutable source-370 package remains compiled at16.",
+    "No physical transaction, full coupon result, or calibration qualification."
+  ]
+}

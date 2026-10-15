@@ -1,0 +1,783 @@
+{
+  "capture_comparison": {
+    "pairwise": {
+      "362_vs_369": {
+        "array_bytes_and_descriptors_equal": true,
+        "array_count": 145,
+        "device_program_fingerprint": {
+          "362": "2865acedaf9f6a1e",
+          "369": "a2f17ae449a1605d",
+          "different": true
+        },
+        "other_manifest_differences": [
+          [
+            "rhs_preserved_before_fgmres",
+            true,
+            false
+          ]
+        ],
+        "payload_bytes": 11670948,
+        "payload_sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+        "rhs_preserved_before_fgmres": {
+          "362": true,
+          "369": false,
+          "only_metadata_difference": true
+        }
+      },
+      "362_vs_371": {
+        "array_bytes_and_descriptors_equal": true,
+        "array_count": 145,
+        "device_program_fingerprint": {
+          "362": "2865acedaf9f6a1e",
+          "371": "a2f17ae449a1605d",
+          "different": true
+        },
+        "other_manifest_differences": [],
+        "payload_bytes": 11670948,
+        "payload_sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+        "rhs_preserved_before_fgmres": {
+          "362": true,
+          "371": true,
+          "only_metadata_difference": true
+        }
+      },
+      "369_vs_371": {
+        "array_bytes_and_descriptors_equal": true,
+        "array_count": 145,
+        "device_program_fingerprint": {
+          "369": "a2f17ae449a1605d",
+          "371": "a2f17ae449a1605d",
+          "different": false
+        },
+        "other_manifest_differences": [
+          [
+            "rhs_preserved_before_fgmres",
+            false,
+            true
+          ]
+        ],
+        "payload_bytes": 11670948,
+        "payload_sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+        "rhs_preserved_before_fgmres": {
+          "369": false,
+          "371": true,
+          "only_metadata_difference": true
+        }
+      }
+    },
+    "runs": {
+      "362": {
+        "array_count": 145,
+        "full_rhs_sha256": "8a4e896240788def048983382500de46f672d940394f0235d6dbc81ae127d692",
+        "payload_bytes": 11670948,
+        "payload_sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+        "rhs_preserved_before_fgmres": true
+      },
+      "369": {
+        "array_count": 145,
+        "full_rhs_sha256": "8a4e896240788def048983382500de46f672d940394f0235d6dbc81ae127d692",
+        "payload_bytes": 11670948,
+        "payload_sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+        "rhs_preserved_before_fgmres": false
+      },
+      "371": {
+        "array_count": 145,
+        "full_rhs_sha256": "8a4e896240788def048983382500de46f672d940394f0235d6dbc81ae127d692",
+        "payload_bytes": 11670948,
+        "payload_sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+        "rhs_preserved_before_fgmres": true
+      }
+    }
+  },
+  "diagnostic_states_logs_and_armijo": {
+    "armijo_status_differences": [
+      {
+        "differences": [
+          {
+            "field": "environments[0].trial_status.diagnostics[0]",
+            "left": 92,
+            "right": 24
+          },
+          {
+            "field": "environments[0].trial_status.diagnostics[2]",
+            "left": 0,
+            "right": 1
+          },
+          {
+            "field": "environments[0].trial_status.failing_index",
+            "left": 283,
+            "right": 124
+          }
+        ],
+        "log": "fixture-free-body-control-1201.log",
+        "newton_iteration": 7,
+        "pair": "362_vs_371",
+        "record_index": 7
+      },
+      {
+        "differences": [
+          {
+            "field": "environments[0].trial_status.diagnostics[0]",
+            "left": 92,
+            "right": 24
+          },
+          {
+            "field": "environments[0].trial_status.diagnostics[2]",
+            "left": 0,
+            "right": 1
+          },
+          {
+            "field": "environments[0].trial_status.failing_index",
+            "left": 283,
+            "right": 124
+          }
+        ],
+        "log": "stderr.log",
+        "newton_iteration": 7,
+        "pair": "362_vs_371",
+        "record_index": 7
+      },
+      {
+        "differences": [
+          {
+            "field": "environments[0].trial_status.diagnostics[0]",
+            "left": 92,
+            "right": 24
+          },
+          {
+            "field": "environments[0].trial_status.diagnostics[2]",
+            "left": 0,
+            "right": 1
+          },
+          {
+            "field": "environments[0].trial_status.failing_index",
+            "left": 283,
+            "right": 124
+          }
+        ],
+        "log": "fixture-free-body-control-1201.log",
+        "newton_iteration": 7,
+        "pair": "369_vs_371",
+        "record_index": 7
+      },
+      {
+        "differences": [
+          {
+            "field": "environments[0].trial_status.diagnostics[0]",
+            "left": 92,
+            "right": 24
+          },
+          {
+            "field": "environments[0].trial_status.diagnostics[2]",
+            "left": 0,
+            "right": 1
+          },
+          {
+            "field": "environments[0].trial_status.failing_index",
+            "left": 283,
+            "right": 124
+          }
+        ],
+        "log": "stderr.log",
+        "newton_iteration": 7,
+        "pair": "369_vs_371",
+        "record_index": 7
+      }
+    ],
+    "pairwise": {
+      "362_vs_369": {
+        "diagnostic_state": {
+          "diagnostic_logs": [
+            {
+              "armijo_record_differences": [],
+              "armijo_records": 32,
+              "armijo_records_exact_equal": true,
+              "bytes_left": 59037,
+              "bytes_right": 59037,
+              "non_armijo_text_equal_after_run_path_normalization": true,
+              "path": "fixture-free-body-control-1200.log"
+            },
+            {
+              "armijo_record_differences": [],
+              "armijo_records": 32,
+              "armijo_records_exact_equal": true,
+              "bytes_left": 60745,
+              "bytes_right": 60742,
+              "non_armijo_text_equal_after_run_path_normalization": true,
+              "path": "fixture-free-body-control-1201.log"
+            }
+          ],
+          "file_count": 11,
+          "transaction_json": [
+            {
+              "bytes": 6559,
+              "exact_equal": true,
+              "path": "transaction-000000.json",
+              "sha256": "249d5249c1a4f2f165bc8468142a8f086ee615465360aac7080d9b9d6d90c5bf"
+            },
+            {
+              "bytes": 6676,
+              "exact_equal": true,
+              "path": "transaction-000001.json",
+              "sha256": "1920dcf0873634e798740a00313ae9a12fb95fa3fb760eb2a2653cdf40d28e81"
+            },
+            {
+              "bytes": 6676,
+              "exact_equal": true,
+              "path": "transaction-000002.json",
+              "sha256": "f7ecf926320abbec393ad1de6b0295a976d3bbfb340da5d1f9893ce268653ac2"
+            }
+          ],
+          "transaction_state_binary": [
+            {
+              "all_bytes_equal": false,
+              "baseline_sha256": "cb2e5d9f67b3a73ce6963982482f589fab8bef240b178eef70d4cdb7f8959d27",
+              "bytes": 904359,
+              "bytes_equal_outside_device_fingerprint": true,
+              "candidate_sha256": "c91eb6e1801227a1e42b73f8bcf911a77d430076d48b643c5c7b4d74a2d4e601",
+              "device_fingerprint_range": [
+                12,
+                20
+              ],
+              "path": "transaction-000000-after.bin"
+            },
+            {
+              "all_bytes_equal": false,
+              "baseline_sha256": "d4e6af82483e680c5e67250237434ce411ee2e95b58bdd7367c916cdbe06c934",
+              "bytes": 904359,
+              "bytes_equal_outside_device_fingerprint": true,
+              "candidate_sha256": "189303d56486b18251cfc600965637bb2be6f79751d4a88e73b1f50e90ad2209",
+              "device_fingerprint_range": [
+                12,
+                20
+              ],
+              "path": "transaction-000000-before.bin"
+            },
+            {
+              "all_bytes_equal": false,
+              "baseline_sha256": "c53624e73e469bc0712b999957d5c4fc8891e65644c5354e47dd8484d3511010",
+              "bytes": 904359,
+              "bytes_equal_outside_device_fingerprint": true,
+              "candidate_sha256": "63c61bff18a87c631e000e18cea7bfaa87d72cc947200fffbb3fae44e5fe118d",
+              "device_fingerprint_range": [
+                12,
+                20
+              ],
+              "path": "transaction-000001-after.bin"
+            },
+            {
+              "all_bytes_equal": false,
+              "baseline_sha256": "cb2e5d9f67b3a73ce6963982482f589fab8bef240b178eef70d4cdb7f8959d27",
+              "bytes": 904359,
+              "bytes_equal_outside_device_fingerprint": true,
+              "candidate_sha256": "c91eb6e1801227a1e42b73f8bcf911a77d430076d48b643c5c7b4d74a2d4e601",
+              "device_fingerprint_range": [
+                12,
+                20
+              ],
+              "path": "transaction-000001-before.bin"
+            },
+            {
+              "all_bytes_equal": false,
+              "baseline_sha256": "7e742f8c174dddf47b489632d235bdf400f6da5cf80604799965a59a7fe152d3",
+              "bytes": 904359,
+              "bytes_equal_outside_device_fingerprint": true,
+              "candidate_sha256": "bed8d4a211d4cd86468df4727108c9fc3e52e7da9e46725e942c892be216536b",
+              "device_fingerprint_range": [
+                12,
+                20
+              ],
+              "path": "transaction-000002-after.bin"
+            },
+            {
+              "all_bytes_equal": false,
+              "baseline_sha256": "c53624e73e469bc0712b999957d5c4fc8891e65644c5354e47dd8484d3511010",
+              "bytes": 904359,
+              "bytes_equal_outside_device_fingerprint": true,
+              "candidate_sha256": "63c61bff18a87c631e000e18cea7bfaa87d72cc947200fffbb3fae44e5fe118d",
+              "device_fingerprint_range": [
+                12,
+                20
+              ],
+              "path": "transaction-000002-before.bin"
+            }
+          ]
+        },
+        "main_logs": {
+          "stderr.log": {
+            "armijo_record_differences": [],
+            "armijo_records": 32,
+            "armijo_records_exact_equal": true,
+            "non_armijo_text_equal": true
+          },
+          "stdout.log": {
+            "equal_after_run_path_normalization": true,
+            "sha256_left": "6207db36146aa493ad0e5593223b154dc3a3f926f9250cca88d1635188176c5d",
+            "sha256_right": "6207db36146aa493ad0e5593223b154dc3a3f926f9250cca88d1635188176c5d"
+          }
+        }
+      },
+      "362_vs_371": {
+        "diagnostic_state": {
+          "diagnostic_logs": [
+            {
+              "armijo_record_differences": [],
+              "armijo_records": 32,
+              "armijo_records_exact_equal": true,
+              "bytes_left": 59037,
+              "bytes_right": 59037,
+              "non_armijo_text_equal_after_run_path_normalization": true,
+              "path": "fixture-free-body-control-1200.log"
+            },
+            {
+              "armijo_record_differences": [
+                {
+                  "differences": [
+                    {
+                      "field": "environments[0].trial_status.diagnostics[0]",
+                      "left": 92,
+                      "right": 24
+                    },
+                    {
+                      "field": "environments[0].trial_status.diagnostics[2]",
+                      "left": 0,
+                      "right": 1
+                    },
+                    {
+                      "field": "environments[0].trial_status.failing_index",
+                      "left": 283,
+                      "right": 124
+                    }
+                  ],
+                  "newton_iteration": 7,
+                  "record_index": 7
+                }
+              ],
+              "armijo_records": 32,
+              "armijo_records_exact_equal": false,
+              "bytes_left": 60745,
+              "bytes_right": 60745,
+              "non_armijo_text_equal_after_run_path_normalization": true,
+              "path": "fixture-free-body-control-1201.log"
+            }
+          ],
+          "file_count": 11,
+          "transaction_json": [
+            {
+              "bytes": 6559,
+              "exact_equal": true,
+              "path": "transaction-000000.json",
+              "sha256": "249d5249c1a4f2f165bc8468142a8f086ee615465360aac7080d9b9d6d90c5bf"
+            },
+            {
+              "bytes": 6676,
+              "exact_equal": true,
+              "path": "transaction-000001.json",
+              "sha256": "1920dcf0873634e798740a00313ae9a12fb95fa3fb760eb2a2653cdf40d28e81"
+            },
+            {
+              "bytes": 6676,
+              "exact_equal": true,
+              "path": "transaction-000002.json",
+              "sha256": "f7ecf926320abbec393ad1de6b0295a976d3bbfb340da5d1f9893ce268653ac2"
+            }
+          ],
+          "transaction_state_binary": [
+            {
+              "all_bytes_equal": false,
+              "baseline_sha256": "cb2e5d9f67b3a73ce6963982482f589fab8bef240b178eef70d4cdb7f8959d27",
+              "bytes": 904359,
+              "bytes_equal_outside_device_fingerprint": true,
+              "candidate_sha256": "c91eb6e1801227a1e42b73f8bcf911a77d430076d48b643c5c7b4d74a2d4e601",
+              "device_fingerprint_range": [
+                12,
+                20
+              ],
+              "path": "transaction-000000-after.bin"
+            },
+            {
+              "all_bytes_equal": false,
+              "baseline_sha256": "d4e6af82483e680c5e67250237434ce411ee2e95b58bdd7367c916cdbe06c934",
+              "bytes": 904359,
+              "bytes_equal_outside_device_fingerprint": true,
+              "candidate_sha256": "189303d56486b18251cfc600965637bb2be6f79751d4a88e73b1f50e90ad2209",
+              "device_fingerprint_range": [
+                12,
+                20
+              ],
+              "path": "transaction-000000-before.bin"
+            },
+            {
+              "all_bytes_equal": false,
+              "baseline_sha256": "c53624e73e469bc0712b999957d5c4fc8891e65644c5354e47dd8484d3511010",
+              "bytes": 904359,
+              "bytes_equal_outside_device_fingerprint": true,
+              "candidate_sha256": "63c61bff18a87c631e000e18cea7bfaa87d72cc947200fffbb3fae44e5fe118d",
+              "device_fingerprint_range": [
+                12,
+                20
+              ],
+              "path": "transaction-000001-after.bin"
+            },
+            {
+              "all_bytes_equal": false,
+              "baseline_sha256": "cb2e5d9f67b3a73ce6963982482f589fab8bef240b178eef70d4cdb7f8959d27",
+              "bytes": 904359,
+              "bytes_equal_outside_device_fingerprint": true,
+              "candidate_sha256": "c91eb6e1801227a1e42b73f8bcf911a77d430076d48b643c5c7b4d74a2d4e601",
+              "device_fingerprint_range": [
+                12,
+                20
+              ],
+              "path": "transaction-000001-before.bin"
+            },
+            {
+              "all_bytes_equal": false,
+              "baseline_sha256": "7e742f8c174dddf47b489632d235bdf400f6da5cf80604799965a59a7fe152d3",
+              "bytes": 904359,
+              "bytes_equal_outside_device_fingerprint": true,
+              "candidate_sha256": "bed8d4a211d4cd86468df4727108c9fc3e52e7da9e46725e942c892be216536b",
+              "device_fingerprint_range": [
+                12,
+                20
+              ],
+              "path": "transaction-000002-after.bin"
+            },
+            {
+              "all_bytes_equal": false,
+              "baseline_sha256": "c53624e73e469bc0712b999957d5c4fc8891e65644c5354e47dd8484d3511010",
+              "bytes": 904359,
+              "bytes_equal_outside_device_fingerprint": true,
+              "candidate_sha256": "63c61bff18a87c631e000e18cea7bfaa87d72cc947200fffbb3fae44e5fe118d",
+              "device_fingerprint_range": [
+                12,
+                20
+              ],
+              "path": "transaction-000002-before.bin"
+            }
+          ]
+        },
+        "main_logs": {
+          "stderr.log": {
+            "armijo_record_differences": [
+              {
+                "differences": [
+                  {
+                    "field": "environments[0].trial_status.diagnostics[0]",
+                    "left": 92,
+                    "right": 24
+                  },
+                  {
+                    "field": "environments[0].trial_status.diagnostics[2]",
+                    "left": 0,
+                    "right": 1
+                  },
+                  {
+                    "field": "environments[0].trial_status.failing_index",
+                    "left": 283,
+                    "right": 124
+                  }
+                ],
+                "newton_iteration": 7,
+                "record_index": 7
+              }
+            ],
+            "armijo_records": 32,
+            "armijo_records_exact_equal": false,
+            "non_armijo_text_equal": true
+          },
+          "stdout.log": {
+            "equal_after_run_path_normalization": true,
+            "sha256_left": "6207db36146aa493ad0e5593223b154dc3a3f926f9250cca88d1635188176c5d",
+            "sha256_right": "6207db36146aa493ad0e5593223b154dc3a3f926f9250cca88d1635188176c5d"
+          }
+        }
+      },
+      "369_vs_371": {
+        "diagnostic_state": {
+          "diagnostic_logs": [
+            {
+              "armijo_record_differences": [],
+              "armijo_records": 32,
+              "armijo_records_exact_equal": true,
+              "bytes_left": 59037,
+              "bytes_right": 59037,
+              "non_armijo_text_equal_after_run_path_normalization": true,
+              "path": "fixture-free-body-control-1200.log"
+            },
+            {
+              "armijo_record_differences": [
+                {
+                  "differences": [
+                    {
+                      "field": "environments[0].trial_status.diagnostics[0]",
+                      "left": 92,
+                      "right": 24
+                    },
+                    {
+                      "field": "environments[0].trial_status.diagnostics[2]",
+                      "left": 0,
+                      "right": 1
+                    },
+                    {
+                      "field": "environments[0].trial_status.failing_index",
+                      "left": 283,
+                      "right": 124
+                    }
+                  ],
+                  "newton_iteration": 7,
+                  "record_index": 7
+                }
+              ],
+              "armijo_records": 32,
+              "armijo_records_exact_equal": false,
+              "bytes_left": 60742,
+              "bytes_right": 60745,
+              "non_armijo_text_equal_after_run_path_normalization": true,
+              "path": "fixture-free-body-control-1201.log"
+            }
+          ],
+          "file_count": 11,
+          "transaction_json": [
+            {
+              "bytes": 6559,
+              "exact_equal": true,
+              "path": "transaction-000000.json",
+              "sha256": "249d5249c1a4f2f165bc8468142a8f086ee615465360aac7080d9b9d6d90c5bf"
+            },
+            {
+              "bytes": 6676,
+              "exact_equal": true,
+              "path": "transaction-000001.json",
+              "sha256": "1920dcf0873634e798740a00313ae9a12fb95fa3fb760eb2a2653cdf40d28e81"
+            },
+            {
+              "bytes": 6676,
+              "exact_equal": true,
+              "path": "transaction-000002.json",
+              "sha256": "f7ecf926320abbec393ad1de6b0295a976d3bbfb340da5d1f9893ce268653ac2"
+            }
+          ],
+          "transaction_state_binary": [
+            {
+              "all_bytes_equal": true,
+              "baseline_sha256": "c91eb6e1801227a1e42b73f8bcf911a77d430076d48b643c5c7b4d74a2d4e601",
+              "bytes": 904359,
+              "bytes_equal_outside_device_fingerprint": true,
+              "candidate_sha256": "c91eb6e1801227a1e42b73f8bcf911a77d430076d48b643c5c7b4d74a2d4e601",
+              "device_fingerprint_range": [
+                12,
+                20
+              ],
+              "path": "transaction-000000-after.bin"
+            },
+            {
+              "all_bytes_equal": true,
+              "baseline_sha256": "189303d56486b18251cfc600965637bb2be6f79751d4a88e73b1f50e90ad2209",
+              "bytes": 904359,
+              "bytes_equal_outside_device_fingerprint": true,
+              "candidate_sha256": "189303d56486b18251cfc600965637bb2be6f79751d4a88e73b1f50e90ad2209",
+              "device_fingerprint_range": [
+                12,
+                20
+              ],
+              "path": "transaction-000000-before.bin"
+            },
+            {
+              "all_bytes_equal": true,
+              "baseline_sha256": "63c61bff18a87c631e000e18cea7bfaa87d72cc947200fffbb3fae44e5fe118d",
+              "bytes": 904359,
+              "bytes_equal_outside_device_fingerprint": true,
+              "candidate_sha256": "63c61bff18a87c631e000e18cea7bfaa87d72cc947200fffbb3fae44e5fe118d",
+              "device_fingerprint_range": [
+                12,
+                20
+              ],
+              "path": "transaction-000001-after.bin"
+            },
+            {
+              "all_bytes_equal": true,
+              "baseline_sha256": "c91eb6e1801227a1e42b73f8bcf911a77d430076d48b643c5c7b4d74a2d4e601",
+              "bytes": 904359,
+              "bytes_equal_outside_device_fingerprint": true,
+              "candidate_sha256": "c91eb6e1801227a1e42b73f8bcf911a77d430076d48b643c5c7b4d74a2d4e601",
+              "device_fingerprint_range": [
+                12,
+                20
+              ],
+              "path": "transaction-000001-before.bin"
+            },
+            {
+              "all_bytes_equal": true,
+              "baseline_sha256": "bed8d4a211d4cd86468df4727108c9fc3e52e7da9e46725e942c892be216536b",
+              "bytes": 904359,
+              "bytes_equal_outside_device_fingerprint": true,
+              "candidate_sha256": "bed8d4a211d4cd86468df4727108c9fc3e52e7da9e46725e942c892be216536b",
+              "device_fingerprint_range": [
+                12,
+                20
+              ],
+              "path": "transaction-000002-after.bin"
+            },
+            {
+              "all_bytes_equal": true,
+              "baseline_sha256": "63c61bff18a87c631e000e18cea7bfaa87d72cc947200fffbb3fae44e5fe118d",
+              "bytes": 904359,
+              "bytes_equal_outside_device_fingerprint": true,
+              "candidate_sha256": "63c61bff18a87c631e000e18cea7bfaa87d72cc947200fffbb3fae44e5fe118d",
+              "device_fingerprint_range": [
+                12,
+                20
+              ],
+              "path": "transaction-000002-before.bin"
+            }
+          ]
+        },
+        "main_logs": {
+          "stderr.log": {
+            "armijo_record_differences": [
+              {
+                "differences": [
+                  {
+                    "field": "environments[0].trial_status.diagnostics[0]",
+                    "left": 92,
+                    "right": 24
+                  },
+                  {
+                    "field": "environments[0].trial_status.diagnostics[2]",
+                    "left": 0,
+                    "right": 1
+                  },
+                  {
+                    "field": "environments[0].trial_status.failing_index",
+                    "left": 283,
+                    "right": 124
+                  }
+                ],
+                "newton_iteration": 7,
+                "record_index": 7
+              }
+            ],
+            "armijo_records": 32,
+            "armijo_records_exact_equal": false,
+            "non_armijo_text_equal": true
+          },
+          "stdout.log": {
+            "equal_after_run_path_normalization": true,
+            "sha256_left": "6207db36146aa493ad0e5593223b154dc3a3f926f9250cca88d1635188176c5d",
+            "sha256_right": "6207db36146aa493ad0e5593223b154dc3a3f926f9250cca88d1635188176c5d"
+          }
+        }
+      }
+    }
+  },
+  "interpretation": {
+    "callback_fix_evidence": "run369 retains false RHS-ready metadata despite byte-identical RHS; run371 reports true, matching the guarded capture state and identical RHS bytes. This verifies the metadata-lifetime correction for this field.",
+    "no_metadata_normalization": "rhs_preserved_before_fgmres remains compared as observed in every pair.",
+    "remaining_parity_failure": "run371 differs from 362/369 in Newton 7 trial_status for a rejected private trial. This status is preserved, not normalized; strict full-trace parity therefore fails.",
+    "simulation_status": "All three retained native attempts exit 1; parity does not establish a converged physical cycle."
+  },
+  "normalized_invocation": {
+    "environment_keys": [
+      "NM_FEM_COUPLED_CAPTURE_PATH",
+      "NM_FEM_COUPLED_CAPTURE_SELECTOR"
+    ],
+    "native_protocol_id": null,
+    "normalized_argv": [
+      "<built-checker>",
+      "<source-material>",
+      "--sparse-free-body-parity",
+      "--diagnostic-state-output",
+      "<run-output-dir>",
+      "--extended-budget",
+      "--compensated-material-arithmetic"
+    ],
+    "normalized_environment_equal": true,
+    "normalized_physical_argv_equal": true,
+    "true_residual_explicitly_absent_in_all_runs": true
+  },
+  "overall_verdict": "FAIL_UNEXPECTED_STATUS",
+  "runs": {
+    "362": {
+      "directory": "/Users/home/cardboard-implementation-20261014/native/health-and-vt-marker-firstfatal-362",
+      "exit_code": 1,
+      "prediction_sha256": "76e7dbff579bcfdecf505346527ff6c1eb113b794f467d87446a4a3c66a18ee1",
+      "receipt_sha256": "cdcad4c5578618fc1dab90327708d480e8511f9a8bc464dfdcebc17a0cb43c3a",
+      "source_build_sha256": "759eabcfbc4c940cf85c9a8061b394445907b99b2186d3bb26382cebb6bf15f3",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-contact-health-diagnostics-104",
+      "termination_errors": [],
+      "timed_out": false
+    },
+    "369": {
+      "directory": "/Users/home/cardboard-implementation-20261014/native/true-residual-default-parity-369",
+      "exit_code": 1,
+      "prediction_sha256": "720362273ec91171a7deeab87d843fb260a00b8c71f70dccd7dd09b235a332af",
+      "receipt_sha256": "617b77657fa3fd1374d67763f8cc308cacb5ac1934219456f679109c6aa03d72",
+      "source_build_sha256": "41a0b27d8cdab7bfffd81e9fabf065c72a4f8127c35dbe9b22926f4050b58d13",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-true-residual-certification-105",
+      "termination_errors": [],
+      "timed_out": false
+    },
+    "371": {
+      "directory": "/Users/home/cardboard-implementation-20261014/native/capture-lifetime-default-parity-371",
+      "exit_code": 1,
+      "prediction_sha256": "11327303d5b55022c557eeb56974bad3a7dc9003000827d92dfa2a4f7b80eec9",
+      "receipt_sha256": "31639a7dfa579c36142f360e789fe26d19e3a7a4ec1090482dc209119284c05f",
+      "source_build_sha256": "35c8397eb559fef6ddb3ea5fbc474d0e6b9acde086dd9082d95f1d53250b6af3",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106",
+      "termination_errors": [],
+      "timed_out": false
+    }
+  },
+  "schema": "numi.matter.source106_lifetime_parity_audit.v1",
+  "source_lineage": {
+    "source104_to_105": {
+      "changed_source_files": {
+        "matter/CMakeLists.txt": {
+          "source104": "3d7c54b440f76bd70a600ecfcc2e8e27b82554fa437e25744e8e410121c4f868",
+          "source105": "031c7f9a497a245aa222d832918812ba561673ec6774925ca0cfb49198425bea"
+        },
+        "matter/src/metal/fgmres.metalinc": {
+          "source104": "eef8a0919636c513716528dcf04cf9d175801c25e7159125808cbb59a9b696d6",
+          "source105": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0"
+        },
+        "matter/src/runtime.mm": {
+          "source104": "119148dedc593742dfe7f62c1b06c99e488b6c40a783aa839722f70d2da59c20",
+          "source105": "924669986619a88c6e34ec79e306495c1113e6ea35b0c793e8a36cfede887ec2"
+        },
+        "matter/tools/fgmres_true_residual_native_check.mm": {
+          "source104": null,
+          "source105": "b854f1a83d3851e99f5648478e208e7236751d1728a51286bcecfa8d5466b589"
+        },
+        "matter/tools/test_true_residual_certification_contract.py": {
+          "source104": null,
+          "source105": "b03c7aa4cb8bb275d232a172dab662ef3be61762b31c95f4f1e084d087568b2d"
+        }
+      },
+      "source104_file_count": 778,
+      "source104_snapshot_manifest_sha256": "40a978c154980895e6db8609ed2ffeb92ce0608254d5434ee780d838120abe65",
+      "source105_file_count": 780,
+      "source105_integration_sha256": "c7004a2f492e4d2fe505e249320496102c399587d40f0c8ff3b40740bb6d5fba",
+      "source105_overlay_manifest_sha256": "000a882a0c3b9402048bf8a8cc5bd91f6672ae4ac9fbd755a5b4e6bd50a77cae",
+      "source105_patch_sha256": "5c519fb8e86e884616aad687be1009b939c162e2d374e3f295c0d9ed1b8b68dc",
+      "source105_snapshot_manifest_sha256": "3b96c0e56edfb364f717f71d06901c298b4d2bcf8fdf90b6d7a917d8c3c69790"
+    },
+    "source105_to_106": {
+      "changed_source_files": {
+        "matter/src/coupled_capture_manifest_context.hpp": {
+          "source105": null,
+          "source106": "7d82c3c8f1fff4546bd65ee1641b4fd5faced73dea9c75501ea780254069bbae"
+        },
+        "matter/src/runtime.mm": {
+          "source105": "924669986619a88c6e34ec79e306495c1113e6ea35b0c793e8a36cfede887ec2",
+          "source106": "2e26d26a04326a3ce567cccb60d213da8f4a8ceaf178c98153939f1b68752fd7"
+        }
+      },
+      "source105_file_count": 780,
+      "source105_snapshot_sha256": "3b96c0e56edfb364f717f71d06901c298b4d2bcf8fdf90b6d7a917d8c3c69790",
+      "source106_file_count": 781,
+      "source106_integration_sha256": "472fdc01f1bd655feee8db18c0471b9a1fd904680847d4d5e0153538dba71766",
+      "source106_snapshot_sha256": "ddf73f704642711042925fd4be98c7ee83b8bf2f872856a9053ce7ba36e57ae5"
+    }
+  }
+}
