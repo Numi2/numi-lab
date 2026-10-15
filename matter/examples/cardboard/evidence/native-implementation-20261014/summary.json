@@ -59021,13 +59021,21 @@
       "files": [
         {
           "name": "publication-binding-095.json",
-          "bytes": 1064,
-          "sha256": "368211be768263968b8c6008d9df58b31dda176c5c12d5c83866e33365326b08",
+          "bytes": 1400,
+          "sha256": "2c21af7a6c907e09b5c30411ad25cfe73554b2b9173079a291839cd22d978775",
           "external_path": "/Users/home/cardboard-implementation-20261014/publication-binding-095.json",
           "repository_copy": "analysis/publication-binding-095/publication-binding-095.json"
+        },
+        {
+          "name": "publication-binding-095.json.preserved-368211be7682",
+          "bytes": 1064,
+          "sha256": "368211be768263968b8c6008d9df58b31dda176c5c12d5c83866e33365326b08",
+          "external_path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/analysis/publication-binding-095/publication-binding-095.json.preserved-368211be7682",
+          "repository_copy": "analysis/publication-binding-095/publication-binding-095.json.preserved-368211be7682"
         }
       ],
-      "singleton_external_path": "/Users/home/cardboard-implementation-20261014/publication-binding-095.json"
+      "singleton_external_path": "/Users/home/cardboard-implementation-20261014/publication-binding-095.json",
+      "note": "Original first-stage binding retained. A duplicate-finalizer assertion aborted after overwriting only the working copy; d328c115 committed the valid first-stage index/copy pair. This correction retains both binding versions and additionally verifies all774 built source files against the published commit."
     },
     {
       "case": "analysis/three-exact-captured-state-matrices-315-005",
