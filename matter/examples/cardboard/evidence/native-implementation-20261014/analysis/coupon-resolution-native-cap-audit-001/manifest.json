@@ -1,0 +1,99 @@
+{
+  "files": [
+    {
+      "bytes": 5898,
+      "path": "README.md",
+      "sha256": "4f905a3581c59181041307642acc1290790eea0f0ab697641add10357fa5c4d9"
+    },
+    {
+      "bytes": 25106,
+      "path": "audit.json",
+      "sha256": "cc0468a702aa054075c122bb8035e20f8b7ee220b1576543d0ef07c41abc876c"
+    },
+    {
+      "bytes": 9251,
+      "path": "bindings.json",
+      "sha256": "9f48311a4233c3c3cdd1fde43f593db0b963d90f2341372218c8a8bc0f68601a"
+    },
+    {
+      "bytes": 3045,
+      "path": "budgeted-results.csv",
+      "sha256": "5f2afbe74e0d56dad4008f51c9bc0bca1555260fbd64d155af0f63196ed7056d"
+    },
+    {
+      "bytes": 37234,
+      "path": "cardboard_glue_mesh.hpp",
+      "sha256": "8db61e54ff4a0e2e4a47d6bcfe02244699b7820bf97474727bb77f1f9f389260"
+    },
+    {
+      "bytes": 654,
+      "path": "compile-and-run.txt",
+      "sha256": "c07adbd4c88abb9b42ab36acb0703636e3267327fc0c2f0240c5951a9553a0d1"
+    },
+    {
+      "bytes": 1403,
+      "path": "compile-receipt.json",
+      "sha256": "e1521477ccf9d8f4050db5612b919e7148df55f756963379083258be30a3d6b9"
+    },
+    {
+      "bytes": 2856,
+      "path": "intermediate-budgeted-results-before-final-columns.csv",
+      "sha256": "5a865de8787174eaa9e11c45c6743e0de7a21712d37cf546610f04d864a8e963"
+    },
+    {
+      "bytes": 11710,
+      "path": "native-392-manifest.json",
+      "sha256": "fbfcf51db84a3710cc3bd96e016597728163da464974ea033554e82e587cd8eb"
+    },
+    {
+      "bytes": 1451,
+      "path": "native-392-observations.csv",
+      "sha256": "b12d8f9f4d30ba1305495620b13e9f7f2617f73ecbb0369e8e6766f510ce3d42"
+    },
+    {
+      "bytes": 698,
+      "path": "native-392-result.json",
+      "sha256": "214e9619e196ff45fcf97376930fcb9c017f032959075332ff65073a8c213e3d"
+    },
+    {
+      "bytes": 3800,
+      "path": "nonbudgeted-superseded.csv",
+      "sha256": "e614e7d6f657c88b05754816b7e37dc527ad64c61ec88066a6064ee89023f7d6"
+    },
+    {
+      "bytes": 17700,
+      "path": "regional_graph_schwarz.hpp",
+      "sha256": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf"
+    },
+    {
+      "bytes": 83176,
+      "path": "resolution_cap_audit",
+      "sha256": "03d8010453b1051c8af37e4c09fb4ecfd8a5ca84e5edbfdfe1cc4e98834117aa"
+    },
+    {
+      "bytes": 2330,
+      "path": "resolution_cap_audit.cpp",
+      "sha256": "89cdd5b5e491a73f137f2c47353d4f00ee5bfc730023744b3aafac884cab8e14"
+    },
+    {
+      "bytes": 82936,
+      "path": "resolution_cap_audit_direct_superseded",
+      "sha256": "7fb254ea84313e782abbccde07c63c54d7a0602a6db90c9cfe1e886e4b0a4aac"
+    },
+    {
+      "bytes": 2322,
+      "path": "resolution_cap_audit_direct_superseded.cpp",
+      "sha256": "7502b6a99c52d225b0f7992414e7b2bdfdf9b0a262b12cb28f1023b866de2b8c"
+    },
+    {
+      "bytes": 53816,
+      "path": "source118-cardboard_resolution_study.py",
+      "sha256": "8be7c6bd4f9d0905a1be2006805821bf4665764929d3b4f91d922ad7a8effe5a"
+    }
+  ],
+  "native_binding": "dimensionless-certified-coupon-392",
+  "package": "coupon-resolution-native-cap-audit-001",
+  "schema": "numi.cardboard.resolution-cap-audit.package-manifest.v1",
+  "sealed_scope": "CPU-only exact runtime graph-layout preflight for all 27 mesh combinations plus source-bound baseline status; no source edits or GPU execution",
+  "source_snapshot": "source-scaled-material-merit-118"
+}

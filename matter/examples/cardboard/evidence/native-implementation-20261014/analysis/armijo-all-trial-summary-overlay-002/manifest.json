@@ -1,0 +1,114 @@
+{
+  "base_files": [
+    {
+      "path": "overlay/matter/src/runtime.mm",
+      "sha256": "e671e3e7d903cb7ddf01b53d80d03a91579857c2757e8d8586144e06cb62f8c3"
+    }
+  ],
+  "base_snapshot": "sealed armijo-all-trial-summary-overlay-001, based on source-private-ccd-fracture-115",
+  "candidate_status": "diagnostic-only source-extent and payload preflight correction; no native or build qualification",
+  "interface": {
+    "aggregate_payload_cap_bytes": 33554432,
+    "descriptor_count_formula": "8 + 5*B",
+    "environment_alpha_allocation": "A=max(4*E,16) bytes",
+    "environment_counts_tested": [
+      1,
+      2,
+      4
+    ],
+    "fem_line_search_allocation": "max(E*O*16,16) bytes",
+    "fixed_bytes_formula": "160*E + 16*E*O + A",
+    "line_search_budget_range": [
+      1,
+      32
+    ],
+    "max_array_count": 192,
+    "native_E1_O1_B24_expected_bytes": 12480,
+    "native_E4_O1_B32_expected_bytes": 64720,
+    "object_counts_tested": [
+      1,
+      2,
+      4
+    ],
+    "output_suffixes": [
+      ".summary.bin",
+      ".summary.json"
+    ],
+    "path_env": "NM_FEM_COUPLED_TRIAL_SUMMARY_PATH=prefix",
+    "per_trial_bytes_formula": "480*E + 16*E*O + A",
+    "physics_or_acceptance_change": false,
+    "selector_env": "NM_FEM_COUPLED_TRIAL_SUMMARY_SELECTOR=root:zero_based_iteration",
+    "single_object_fixed_bytes_formula": "176*E + A",
+    "single_object_per_trial_bytes_formula": "496*E + A",
+    "stage_count": 8,
+    "typed_scratch_extents": "max(logical_bytes, element_bytes, 16)"
+  },
+  "native393_preserved_outcome": {
+    "admitted_as_payload": false,
+    "capture_outcome": "skipped_before_payload",
+    "diagnosis": "checkedBytes allocates a 16-byte minimum typed sentinel, so E=1 environmentLineSearch is 16 bytes rather than its 4 logical bytes. FEM line-search scratch is per environment-object, not per environment. The old extent guard expected logical lengths.",
+    "exit_code": 1,
+    "payload_exists": false,
+    "reason": "summary_source_extent_does_not_match_environment_layout",
+    "run": "/Users/home/cardboard-implementation-20261014/native/full-contact-all-trial-summary-393",
+    "timed_out": false
+  },
+  "overlay_files": [
+    {
+      "bytes": 1732589,
+      "path": "overlay/matter/src/runtime.mm",
+      "role": "overlay_runtime",
+      "sha256": "feaf5a062138e8dc1a84994090fde27a59a2605e863bb0d5c8ed1280e07b7fc4"
+    },
+    {
+      "bytes": 6183,
+      "path": "overlay.patch",
+      "role": "incremental_patch_from_overlay_001",
+      "sha256": "f8e1599f62d2b3e54b16bfd6410412684748c54f2dda9ff0eea98aad5191fff2"
+    },
+    {
+      "bytes": 5939,
+      "path": "tests/test_descriptor_sum.py",
+      "role": "portable_descriptor_sum_test",
+      "sha256": "f6207f1821581470301345f05f75ad8d72f9d33f20cabce8b2ef9eb682805efb"
+    },
+    {
+      "bytes": 194,
+      "path": "test_descriptor_sum.log",
+      "role": "descriptor_sum_test_output",
+      "sha256": "4dcefb5c4672d176b4815d1c8f3a34e73090a157d5aff43e2e01c9a13541e6f8"
+    },
+    {
+      "bytes": 689,
+      "path": "patch_dry_run.py",
+      "role": "patch_dry_run_script",
+      "sha256": "3fb2621daf0dd54605de6a8e2e8d2721dcf444060aaa22d0487b481e75db2f81"
+    },
+    {
+      "bytes": 38,
+      "path": "patch_dry_run.log",
+      "role": "patch_dry_run_output",
+      "sha256": "ab528016dae9f026c42c8048d6698db21babc58362ca70fa9aabf5ccd30a7d77"
+    },
+    {
+      "bytes": 2638,
+      "path": "README.md",
+      "role": "readme",
+      "sha256": "43d572e59596e39d9730c824171b8310499dc9a6d3b77bcb7643e24164464778"
+    }
+  ],
+  "schema": "numi.matter.armijo_all_trial_summary_overlay.v2",
+  "source115_runtime_sha256": "3c467b04e72512b53a5ba9e1f3ee4132f293b0d2e6ac22acc0c3936512319e74",
+  "superseded_claims": [
+    "Overlay001 preflight omitted the FEM line-search descriptor and validated alpha against its logical rather than allocated extent.",
+    "Earlier 532/548 per-trial formulas counted ten status records per trial. The append layout emits nine: eight stages and one postdecision global status.",
+    "Native393 is a retained failed capture attempt with no summary payload; this patch is not native-qualified."
+  ],
+  "validation": {
+    "metal_compile": "NOT RUN",
+    "native_gpu_run": "NOT RUN",
+    "objcxx_build": "NOT RUN",
+    "patch_dry_run_against_overlay_001": "PASS",
+    "portable_independent_descriptor_sum": "PASS"
+  }
+}

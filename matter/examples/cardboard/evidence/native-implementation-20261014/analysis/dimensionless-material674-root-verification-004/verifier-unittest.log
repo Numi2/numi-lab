@@ -1,0 +1,11 @@
+test_origin390_passes (test_verify_point.VerifierTests) ... ok
+test_rejects_correction_gate_failure (test_verify_point.VerifierTests) ... ok
+test_rejects_f_readback_mismatch (test_verify_point.VerifierTests) ... ok
+test_rejects_native_tangent_error (test_verify_point.VerifierTests) ... ok
+test_rejects_trace_parity_mismatch (test_verify_point.VerifierTests) ... ok
+test_rejects_wrong_package_binding (test_verify_point.VerifierTests) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.032s
+
+OK

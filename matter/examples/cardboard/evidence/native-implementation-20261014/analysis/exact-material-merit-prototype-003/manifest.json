@@ -1,0 +1,92 @@
+{
+  "schema": "numi.cardboard.cpu-merit-experiment.v1",
+  "description": "CPU prototype using native390 input F high/low/rate/dt/temp and accepted-state bits for674, native401 raw F high/low/rate words and admitted zero accepted-state for858. Both packages have identical bytes. Mode0 raw fails674/passes858; mode1 scaled passes674/fails858; mode3 raw until existing raw residual gate, then scaled merit passes both. Final raw and scaled correction gates and budget unchanged. CPU arithmetic is not identical to Metal; this is a candidate pending native trace, derivative and complete coupon qualification.",
+  "files": {
+    "README.md": {
+      "sha256": "e6cc1a0a724024431c1fdddf23aeacc720027caa4a9f7bc0e1351ee3e8e607d6",
+      "bytes": 533
+    },
+    "compile-command.json": {
+      "sha256": "8ed9c71683579dd74ea571e981b0b1e7f81b1c33e1888d0537708b4f56d8f67f",
+      "bytes": 706
+    },
+    "compile.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "prepare.py": {
+      "sha256": "e4c6de4cc8d2a6fb01d96e8bc9d6bf92537062db630b57f65b52ed2dce5bbc41",
+      "bytes": 4072
+    },
+    "replay": {
+      "sha256": "727176d2cdb562a14643ba782b2a1c43015ede6e3b90a8064430965ca91bcbb4",
+      "bytes": 932984
+    },
+    "replay.cpp": {
+      "sha256": "c8166077175a3bc6c4e6b3c107a16f1496db221a49c0c609e69d881dd6f15b54",
+      "bytes": 8286
+    },
+    "results.json": {
+      "sha256": "3fa7d834e789ab35f40e1cad584441e43b885b4ea882eadd9565e47ab63a405e",
+      "bytes": 5759
+    },
+    "tet674-exact-input.bin": {
+      "sha256": "e97233627393531f697b7e44f050aa35eba9161b483182b20949620b9d2c6d38",
+      "bytes": 176
+    },
+    "tet674-mode0.stderr.log": {
+      "sha256": "86bc4df637a9b3fb1fb83bb68f4ea3a8a29817fada1901116c01005cb27004b1",
+      "bytes": 16919
+    },
+    "tet674-mode0.stdout.log": {
+      "sha256": "8b28478761131dc1be78605d65fab780b74ba9b63210b48df3dc2c3aecfded13",
+      "bytes": 914
+    },
+    "tet674-mode1.stderr.log": {
+      "sha256": "64175706a7922e16267780c5301b810da8cf9100c5e215cd0c81f09883739e81",
+      "bytes": 975
+    },
+    "tet674-mode1.stdout.log": {
+      "sha256": "7203620815d2248b3e268f65b30300f04974617c959d5cfa4e0c49f99818cb75",
+      "bytes": 885
+    },
+    "tet674-mode3.stderr.log": {
+      "sha256": "64175706a7922e16267780c5301b810da8cf9100c5e215cd0c81f09883739e81",
+      "bytes": 975
+    },
+    "tet674-mode3.stdout.log": {
+      "sha256": "7203620815d2248b3e268f65b30300f04974617c959d5cfa4e0c49f99818cb75",
+      "bytes": 885
+    },
+    "tet858-exact-input.bin": {
+      "sha256": "ebe4c24bf8b0d3f800be960ce2afa1a7eec138e2f86adc7ce8d2efce149a7479",
+      "bytes": 176
+    },
+    "tet858-mode0.stderr.log": {
+      "sha256": "99b5290d5bdb101df19b24e2a343fc0db611aa509b040c1bba96e702e570c4d8",
+      "bytes": 3497
+    },
+    "tet858-mode0.stdout.log": {
+      "sha256": "c853515d2140c78d4e655f7f71e816357d5af425302b0f9e67539c110e3d11a0",
+      "bytes": 692
+    },
+    "tet858-mode1.stderr.log": {
+      "sha256": "2f96dc32b10a6ab7facff126bd5bcf49d37c17faec622cc1b77fcc699caf4d2b",
+      "bytes": 35592
+    },
+    "tet858-mode1.stdout.log": {
+      "sha256": "3430968f9d5b6aa44693e3eb9f6f40697a592f788884d3e157a047941cb2152d",
+      "bytes": 733
+    },
+    "tet858-mode3.stderr.log": {
+      "sha256": "99b5290d5bdb101df19b24e2a343fc0db611aa509b040c1bba96e702e570c4d8",
+      "bytes": 3497
+    },
+    "tet858-mode3.stdout.log": {
+      "sha256": "c853515d2140c78d4e655f7f71e816357d5af425302b0f9e67539c110e3d11a0",
+      "bytes": 692
+    }
+  },
+  "physical_steps": 0,
+  "physical_validation": false
+}

@@ -1,0 +1,831 @@
+{
+  "admission": {
+    "arena_byte_definition": "builder estimate = environmentCount*(2*matrixFloatCount*4 + pivotCount*4 + totalPatchNodes*16 + patchCount*4) + metadataBytes; two matrix arrays are factor and retained source matrix for one refinement pass. This is bounded preflight accounting, not measured device allocation or peak.",
+    "contact_capacity": "8*T is shown only as a if-contact-enabled diagnostic; selector-5 explicitly requires no contact and this is not a gate for these runs",
+    "limits": {
+      "environment_count_max": 4,
+      "graph_device_arena_max_bytes": 100663296,
+      "node_count_max": 4096,
+      "patch_count_max": 128,
+      "patch_nodes_max": 256,
+      "tetrahedron_count_max": 32768
+    },
+    "runtime_checks": [
+      "each allocated buffer <= MTLDevice.maxBufferLength",
+      "environment-major element counts fit uint32"
+    ],
+    "selector": "regional_galerkin_graph_schwarz_conditioning_only",
+    "source_call": "matter/src/runtime.mm:1331 buildBudgetedRegionalGraphSchwarzLayout(nodes,tetrahedra,sourceFreeMask,environmentCount)"
+  },
+  "findings": {
+    "independent_axis_triplets": "all three declared one-axis triplets pass current budgeted selector-5 resource preflight at environment count 2; CPU admission only",
+    "measurement_boundary": "no refined native runs; no measured device allocation/peak, solver convergence, or physical qualification",
+    "mixed_case_rejections": [
+      {
+        "mesh": [
+          8,
+          4,
+          4
+        ],
+        "reason": "128 patch cap"
+      },
+      {
+        "mesh": [
+          16,
+          2,
+          4
+        ],
+        "reason": "128 patch cap"
+      },
+      {
+        "mesh": [
+          32,
+          2,
+          2
+        ],
+        "reason": "128 patch cap"
+      },
+      {
+        "builder_bytes": 284391332,
+        "mesh": [
+          16,
+          4,
+          2
+        ],
+        "reason": "96 MiB arena"
+      },
+      {
+        "mesh": [
+          16,
+          8,
+          1
+        ],
+        "nodes": 4374,
+        "reason": "node count cap"
+      },
+      {
+        "mesh": [
+          32,
+          8,
+          4
+        ],
+        "nodes": 20682,
+        "reason": "node count cap before layout",
+        "tets": 89088
+      }
+    ],
+    "temporal_series": "all time cases use the combined (32,8,4) mesh and fail the same node count guard before layout",
+    "tightest_selected_layouts": [
+      {
+        "bytes": 99840612,
+        "limit_bytes": 100663296,
+        "margin_bytes": 822684,
+        "mesh": [
+          32,
+          2,
+          1
+        ]
+      },
+      {
+        "bytes": 95828780,
+        "limit_bytes": 100663296,
+        "margin_bytes": 4834516,
+        "mesh": [
+          8,
+          2,
+          4
+        ]
+      }
+    ]
+  },
+  "input_bindings": {
+    "392_manifest.json": "fbfcf51db84a3710cc3bd96e016597728163da464974ea033554e82e587cd8eb",
+    "392_mesh.json": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+    "392_observations.csv": "b12d8f9f4d30ba1305495620b13e9f7f2617f73ecbb0369e8e6766f510ce3d42",
+    "392_result.json": "214e9619e196ff45fcf97376930fcb9c017f032959075332ff65073a8c213e3d",
+    "audit_helper.cpp": "89cdd5b5e491a73f137f2c47353d4f00ee5bfc730023744b3aafac884cab8e14",
+    "budgeted_results.csv": "5f2afbe74e0d56dad4008f51c9bc0bca1555260fbd64d155af0f63196ed7056d",
+    "compiler_impl.cpp": "474e717759ded2ecf81a0590dd7f5cb51da8a1041eacddff33c971ccb96152df",
+    "copied_graph_layout.hpp": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf",
+    "copied_mesh_builder.hpp": "8db61e54ff4a0e2e4a47d6bcfe02244699b7820bf97474727bb77f1f9f389260",
+    "graph_layout.hpp": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf",
+    "intermediate_budgeted_results.csv": "5a865de8787174eaa9e11c45c6743e0de7a21712d37cf546610f04d864a8e963",
+    "mesh_builder.hpp": "8db61e54ff4a0e2e4a47d6bcfe02244699b7820bf97474727bb77f1f9f389260",
+    "probe.mm": "6917e515993e1da26d09d946bf8a3f58c7066ad183b19131aa466e94e8d32e99",
+    "resolution_study.py": "8be7c6bd4f9d0905a1be2006805821bf4665764929d3b4f91d922ad7a8effe5a",
+    "runtime.mm": "3c467b04e72512b53a5ba9e1f3ee4132f293b0d2e6ac22acc0c3936512319e74",
+    "superseded_helper.cpp": "7502b6a99c52d225b0f7992414e7b2bdfdf9b0a262b12cb28f1023b866de2b8c",
+    "superseded_results.csv": "e614e7d6f657c88b05754816b7e37dc527ad64c61ec88066a6064ee89023f7d6",
+    "validation_impl.cpp": "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808"
+  },
+  "mesh_ladder": {
+    "all_27_graph_layout_results": [
+      {
+        "authored_fixed_nodes": 36,
+        "contact_capacity_if_contact_enabled": 15360,
+        "graph_bytes": 75783068,
+        "graph_matrix_floats": 4721337,
+        "graph_patches": 27,
+        "graph_status": "admitted:",
+        "nodes": 882,
+        "nx": 8,
+        "ny": 2,
+        "points2d": 294,
+        "selector5_node_cap_pass": 1,
+        "selector5_tet_cap_pass": 1,
+        "t": 1,
+        "tets": 1920,
+        "triangles2d": 320,
+        "unrelated_fullcontact_capacity_cap_pass": 1
+      },
+      {
+        "authored_fixed_nodes": 60,
+        "contact_capacity_if_contact_enabled": 30720,
+        "graph_bytes": 53085572,
+        "graph_matrix_floats": 3296502,
+        "graph_patches": 26,
+        "graph_status": "admitted:",
+        "nodes": 1398,
+        "nx": 8,
+        "ny": 2,
+        "points2d": 466,
+        "selector5_node_cap_pass": 1,
+        "selector5_tet_cap_pass": 1,
+        "t": 2,
+        "tets": 3840,
+        "triangles2d": 640,
+        "unrelated_fullcontact_capacity_cap_pass": 1
+      },
+      {
+        "authored_fixed_nodes": 108,
+        "contact_capacity_if_contact_enabled": 61440,
+        "graph_bytes": 95828780,
+        "graph_matrix_floats": 5951007,
+        "graph_patches": 45,
+        "graph_status": "admitted:",
+        "nodes": 2430,
+        "nx": 8,
+        "ny": 2,
+        "points2d": 810,
+        "selector5_node_cap_pass": 1,
+        "selector5_tet_cap_pass": 1,
+        "t": 4,
+        "tets": 7680,
+        "triangles2d": 1280,
+        "unrelated_fullcontact_capacity_cap_pass": 1
+      },
+      {
+        "authored_fixed_nodes": 60,
+        "contact_capacity_if_contact_enabled": 30720,
+        "graph_bytes": 59913036,
+        "graph_matrix_floats": 3720609,
+        "graph_patches": 29,
+        "graph_status": "admitted:",
+        "nodes": 1470,
+        "nx": 8,
+        "ny": 4,
+        "points2d": 294,
+        "selector5_node_cap_pass": 1,
+        "selector5_tet_cap_pass": 1,
+        "t": 1,
+        "tets": 3840,
+        "triangles2d": 320,
+        "unrelated_fullcontact_capacity_cap_pass": 1
+      },
+      {
+        "authored_fixed_nodes": 100,
+        "contact_capacity_if_contact_enabled": 61440,
+        "graph_bytes": 93575124,
+        "graph_matrix_floats": 5811003,
+        "graph_patches": 44,
+        "graph_status": "admitted:",
+        "nodes": 2330,
+        "nx": 8,
+        "ny": 4,
+        "points2d": 466,
+        "selector5_node_cap_pass": 1,
+        "selector5_tet_cap_pass": 1,
+        "t": 2,
+        "tets": 7680,
+        "triangles2d": 640,
+        "unrelated_fullcontact_capacity_cap_pass": 1
+      },
+      {
+        "authored_fixed_nodes": 180,
+        "contact_capacity_if_contact_enabled": 122880,
+        "graph_bytes": 0,
+        "graph_matrix_floats": 0,
+        "graph_patches": 0,
+        "graph_status": "rejected:graph Schwarz patch count exceeds its bounded layout",
+        "nodes": 4050,
+        "nx": 8,
+        "ny": 4,
+        "points2d": 810,
+        "selector5_node_cap_pass": 1,
+        "selector5_tet_cap_pass": 1,
+        "t": 4,
+        "tets": 15360,
+        "triangles2d": 1280,
+        "unrelated_fullcontact_capacity_cap_pass": 1
+      },
+      {
+        "authored_fixed_nodes": 108,
+        "contact_capacity_if_contact_enabled": 61440,
+        "graph_bytes": 50717580,
+        "graph_matrix_floats": 3129696,
+        "graph_patches": 89,
+        "graph_status": "admitted:",
+        "nodes": 2646,
+        "nx": 8,
+        "ny": 8,
+        "points2d": 294,
+        "selector5_node_cap_pass": 1,
+        "selector5_tet_cap_pass": 1,
+        "t": 1,
+        "tets": 7680,
+        "triangles2d": 320,
+        "unrelated_fullcontact_capacity_cap_pass": 1
+      },
+      {
+        "authored_fixed_nodes": 180,
+        "contact_capacity_if_contact_enabled": 122880,
+        "graph_bytes": 0,
+        "graph_matrix_floats": 0,
+        "graph_patches": 0,
+        "graph_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+        "nodes": 4194,
+        "nx": 8,
+        "ny": 8,
+        "points2d": 466,
+        "selector5_node_cap_pass": 0,
+        "selector5_tet_cap_pass": 1,
+        "t": 2,
+        "tets": 15360,
+        "triangles2d": 640,
+        "unrelated_fullcontact_capacity_cap_pass": 1
+      },
+      {
+        "authored_fixed_nodes": 324,
+        "contact_capacity_if_contact_enabled": 245760,
+        "graph_bytes": 0,
+        "graph_matrix_floats": 0,
+        "graph_patches": 0,
+        "graph_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+        "nodes": 7290,
+        "nx": 8,
+        "ny": 8,
+        "points2d": 810,
+        "selector5_node_cap_pass": 0,
+        "selector5_tet_cap_pass": 1,
+        "t": 4,
+        "tets": 30720,
+        "triangles2d": 1280,
+        "unrelated_fullcontact_capacity_cap_pass": 0
+      },
+      {
+        "authored_fixed_nodes": 36,
+        "contact_capacity_if_contact_enabled": 24576,
+        "graph_bytes": 57369108,
+        "graph_matrix_floats": 3562713,
+        "graph_patches": 28,
+        "graph_status": "admitted:",
+        "nodes": 1458,
+        "nx": 16,
+        "ny": 2,
+        "points2d": 486,
+        "selector5_node_cap_pass": 1,
+        "selector5_tet_cap_pass": 1,
+        "t": 1,
+        "tets": 3072,
+        "triangles2d": 512,
+        "unrelated_fullcontact_capacity_cap_pass": 1
+      },
+      {
+        "authored_fixed_nodes": 60,
+        "contact_capacity_if_contact_enabled": 49152,
+        "graph_bytes": 89098508,
+        "graph_matrix_floats": 5533290,
+        "graph_patches": 41,
+        "graph_status": "admitted:",
+        "nodes": 2262,
+        "nx": 16,
+        "ny": 2,
+        "points2d": 754,
+        "selector5_node_cap_pass": 1,
+        "selector5_tet_cap_pass": 1,
+        "t": 2,
+        "tets": 6144,
+        "triangles2d": 1024,
+        "unrelated_fullcontact_capacity_cap_pass": 1
+      },
+      {
+        "authored_fixed_nodes": 108,
+        "contact_capacity_if_contact_enabled": 98304,
+        "graph_bytes": 0,
+        "graph_matrix_floats": 0,
+        "graph_patches": 0,
+        "graph_status": "rejected:graph Schwarz patch count exceeds its bounded layout",
+        "nodes": 3870,
+        "nx": 16,
+        "ny": 2,
+        "points2d": 1290,
+        "selector5_node_cap_pass": 1,
+        "selector5_tet_cap_pass": 1,
+        "t": 4,
+        "tets": 12288,
+        "triangles2d": 2048,
+        "unrelated_fullcontact_capacity_cap_pass": 1
+      },
+      {
+        "authored_fixed_nodes": 60,
+        "contact_capacity_if_contact_enabled": 49152,
+        "graph_bytes": 95799220,
+        "graph_matrix_floats": 5949441,
+        "graph_patches": 44,
+        "graph_status": "admitted:",
+        "nodes": 2430,
+        "nx": 16,
+        "ny": 4,
+        "points2d": 486,
+        "selector5_node_cap_pass": 1,
+        "selector5_tet_cap_pass": 1,
+        "t": 1,
+        "tets": 6144,
+        "triangles2d": 512,
+        "unrelated_fullcontact_capacity_cap_pass": 1
+      },
+      {
+        "authored_fixed_nodes": 100,
+        "contact_capacity_if_contact_enabled": 98304,
+        "graph_bytes": 284391332,
+        "graph_matrix_floats": 17717544,
+        "graph_patches": 118,
+        "graph_status": "rejected:graph Schwarz packed device arenas; including source matrices for one refinement pass; exceed the explicit 96 MiB bound",
+        "nodes": 3770,
+        "nx": 16,
+        "ny": 4,
+        "points2d": 754,
+        "selector5_node_cap_pass": 1,
+        "selector5_tet_cap_pass": 1,
+        "t": 2,
+        "tets": 12288,
+        "triangles2d": 1024,
+        "unrelated_fullcontact_capacity_cap_pass": 1
+      },
+      {
+        "authored_fixed_nodes": 180,
+        "contact_capacity_if_contact_enabled": 196608,
+        "graph_bytes": 0,
+        "graph_matrix_floats": 0,
+        "graph_patches": 0,
+        "graph_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+        "nodes": 6450,
+        "nx": 16,
+        "ny": 4,
+        "points2d": 1290,
+        "selector5_node_cap_pass": 0,
+        "selector5_tet_cap_pass": 1,
+        "t": 4,
+        "tets": 24576,
+        "triangles2d": 2048,
+        "unrelated_fullcontact_capacity_cap_pass": 0
+      },
+      {
+        "authored_fixed_nodes": 108,
+        "contact_capacity_if_contact_enabled": 98304,
+        "graph_bytes": 0,
+        "graph_matrix_floats": 0,
+        "graph_patches": 0,
+        "graph_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+        "nodes": 4374,
+        "nx": 16,
+        "ny": 8,
+        "points2d": 486,
+        "selector5_node_cap_pass": 0,
+        "selector5_tet_cap_pass": 1,
+        "t": 1,
+        "tets": 12288,
+        "triangles2d": 512,
+        "unrelated_fullcontact_capacity_cap_pass": 1
+      },
+      {
+        "authored_fixed_nodes": 180,
+        "contact_capacity_if_contact_enabled": 196608,
+        "graph_bytes": 0,
+        "graph_matrix_floats": 0,
+        "graph_patches": 0,
+        "graph_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+        "nodes": 6786,
+        "nx": 16,
+        "ny": 8,
+        "points2d": 754,
+        "selector5_node_cap_pass": 0,
+        "selector5_tet_cap_pass": 1,
+        "t": 2,
+        "tets": 24576,
+        "triangles2d": 1024,
+        "unrelated_fullcontact_capacity_cap_pass": 0
+      },
+      {
+        "authored_fixed_nodes": 324,
+        "contact_capacity_if_contact_enabled": 393216,
+        "graph_bytes": 0,
+        "graph_matrix_floats": 0,
+        "graph_patches": 0,
+        "graph_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+        "nodes": 11610,
+        "nx": 16,
+        "ny": 8,
+        "points2d": 1290,
+        "selector5_node_cap_pass": 0,
+        "selector5_tet_cap_pass": 0,
+        "t": 4,
+        "tets": 49152,
+        "triangles2d": 2048,
+        "unrelated_fullcontact_capacity_cap_pass": 0
+      },
+      {
+        "authored_fixed_nodes": 36,
+        "contact_capacity_if_contact_enabled": 44544,
+        "graph_bytes": 99840612,
+        "graph_matrix_floats": 6200640,
+        "graph_patches": 46,
+        "graph_status": "admitted:",
+        "nodes": 2610,
+        "nx": 32,
+        "ny": 2,
+        "points2d": 870,
+        "selector5_node_cap_pass": 1,
+        "selector5_tet_cap_pass": 1,
+        "t": 1,
+        "tets": 5568,
+        "triangles2d": 928,
+        "unrelated_fullcontact_capacity_cap_pass": 1
+      },
+      {
+        "authored_fixed_nodes": 60,
+        "contact_capacity_if_contact_enabled": 89088,
+        "graph_bytes": 0,
+        "graph_matrix_floats": 0,
+        "graph_patches": 0,
+        "graph_status": "rejected:graph Schwarz patch count exceeds its bounded layout",
+        "nodes": 4038,
+        "nx": 32,
+        "ny": 2,
+        "points2d": 1346,
+        "selector5_node_cap_pass": 1,
+        "selector5_tet_cap_pass": 1,
+        "t": 2,
+        "tets": 11136,
+        "triangles2d": 1856,
+        "unrelated_fullcontact_capacity_cap_pass": 1
+      },
+      {
+        "authored_fixed_nodes": 108,
+        "contact_capacity_if_contact_enabled": 178176,
+        "graph_bytes": 0,
+        "graph_matrix_floats": 0,
+        "graph_patches": 0,
+        "graph_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+        "nodes": 6894,
+        "nx": 32,
+        "ny": 2,
+        "points2d": 2298,
+        "selector5_node_cap_pass": 0,
+        "selector5_tet_cap_pass": 1,
+        "t": 4,
+        "tets": 22272,
+        "triangles2d": 3712,
+        "unrelated_fullcontact_capacity_cap_pass": 0
+      },
+      {
+        "authored_fixed_nodes": 60,
+        "contact_capacity_if_contact_enabled": 89088,
+        "graph_bytes": 0,
+        "graph_matrix_floats": 0,
+        "graph_patches": 0,
+        "graph_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+        "nodes": 4350,
+        "nx": 32,
+        "ny": 4,
+        "points2d": 870,
+        "selector5_node_cap_pass": 0,
+        "selector5_tet_cap_pass": 1,
+        "t": 1,
+        "tets": 11136,
+        "triangles2d": 928,
+        "unrelated_fullcontact_capacity_cap_pass": 1
+      },
+      {
+        "authored_fixed_nodes": 100,
+        "contact_capacity_if_contact_enabled": 178176,
+        "graph_bytes": 0,
+        "graph_matrix_floats": 0,
+        "graph_patches": 0,
+        "graph_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+        "nodes": 6730,
+        "nx": 32,
+        "ny": 4,
+        "points2d": 1346,
+        "selector5_node_cap_pass": 0,
+        "selector5_tet_cap_pass": 1,
+        "t": 2,
+        "tets": 22272,
+        "triangles2d": 1856,
+        "unrelated_fullcontact_capacity_cap_pass": 0
+      },
+      {
+        "authored_fixed_nodes": 180,
+        "contact_capacity_if_contact_enabled": 356352,
+        "graph_bytes": 0,
+        "graph_matrix_floats": 0,
+        "graph_patches": 0,
+        "graph_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+        "nodes": 11490,
+        "nx": 32,
+        "ny": 4,
+        "points2d": 2298,
+        "selector5_node_cap_pass": 0,
+        "selector5_tet_cap_pass": 0,
+        "t": 4,
+        "tets": 44544,
+        "triangles2d": 3712,
+        "unrelated_fullcontact_capacity_cap_pass": 0
+      },
+      {
+        "authored_fixed_nodes": 108,
+        "contact_capacity_if_contact_enabled": 178176,
+        "graph_bytes": 0,
+        "graph_matrix_floats": 0,
+        "graph_patches": 0,
+        "graph_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+        "nodes": 7830,
+        "nx": 32,
+        "ny": 8,
+        "points2d": 870,
+        "selector5_node_cap_pass": 0,
+        "selector5_tet_cap_pass": 1,
+        "t": 1,
+        "tets": 22272,
+        "triangles2d": 928,
+        "unrelated_fullcontact_capacity_cap_pass": 0
+      },
+      {
+        "authored_fixed_nodes": 180,
+        "contact_capacity_if_contact_enabled": 356352,
+        "graph_bytes": 0,
+        "graph_matrix_floats": 0,
+        "graph_patches": 0,
+        "graph_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+        "nodes": 12114,
+        "nx": 32,
+        "ny": 8,
+        "points2d": 1346,
+        "selector5_node_cap_pass": 0,
+        "selector5_tet_cap_pass": 0,
+        "t": 2,
+        "tets": 44544,
+        "triangles2d": 1856,
+        "unrelated_fullcontact_capacity_cap_pass": 0
+      },
+      {
+        "authored_fixed_nodes": 324,
+        "contact_capacity_if_contact_enabled": 712704,
+        "graph_bytes": 0,
+        "graph_matrix_floats": 0,
+        "graph_patches": 0,
+        "graph_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+        "nodes": 20682,
+        "nx": 32,
+        "ny": 8,
+        "points2d": 2298,
+        "selector5_node_cap_pass": 0,
+        "selector5_tet_cap_pass": 0,
+        "t": 4,
+        "tets": 89088,
+        "triangles2d": 3712,
+        "unrelated_fullcontact_capacity_cap_pass": 0
+      }
+    ],
+    "planned_spatial_cases": [
+      {
+        "axis": "baseline",
+        "fixed_nodes": 36,
+        "graph_bytes": 75783068,
+        "graph_status": "admitted:",
+        "id": "coarse-reference",
+        "mesh": [
+          8,
+          2,
+          1
+        ],
+        "nodes": 882,
+        "patches": 27,
+        "tets": 1920
+      },
+      {
+        "axis": "nx",
+        "fixed_nodes": 36,
+        "graph_bytes": 57369108,
+        "graph_status": "admitted:",
+        "id": "nx16-ny2-t1",
+        "mesh": [
+          16,
+          2,
+          1
+        ],
+        "nodes": 1458,
+        "patches": 28,
+        "tets": 3072
+      },
+      {
+        "axis": "nx",
+        "fixed_nodes": 36,
+        "graph_bytes": 99840612,
+        "graph_status": "admitted:",
+        "id": "nx32-ny2-t1",
+        "mesh": [
+          32,
+          2,
+          1
+        ],
+        "nodes": 2610,
+        "patches": 46,
+        "tets": 5568
+      },
+      {
+        "axis": "ny",
+        "fixed_nodes": 60,
+        "graph_bytes": 59913036,
+        "graph_status": "admitted:",
+        "id": "nx8-ny4-t1",
+        "mesh": [
+          8,
+          4,
+          1
+        ],
+        "nodes": 1470,
+        "patches": 29,
+        "tets": 3840
+      },
+      {
+        "axis": "ny",
+        "fixed_nodes": 108,
+        "graph_bytes": 50717580,
+        "graph_status": "admitted:",
+        "id": "nx8-ny8-t1",
+        "mesh": [
+          8,
+          8,
+          1
+        ],
+        "nodes": 2646,
+        "patches": 89,
+        "tets": 7680
+      },
+      {
+        "axis": "thickness",
+        "fixed_nodes": 60,
+        "graph_bytes": 53085572,
+        "graph_status": "admitted:",
+        "id": "nx8-ny2-t2",
+        "mesh": [
+          8,
+          2,
+          2
+        ],
+        "nodes": 1398,
+        "patches": 26,
+        "tets": 3840
+      },
+      {
+        "axis": "thickness",
+        "fixed_nodes": 108,
+        "graph_bytes": 95828780,
+        "graph_status": "admitted:",
+        "id": "nx8-ny2-t4",
+        "mesh": [
+          8,
+          2,
+          4
+        ],
+        "nodes": 2430,
+        "patches": 45,
+        "tets": 7680
+      },
+      {
+        "axis": "combined",
+        "fixed_nodes": 324,
+        "graph_bytes": 0,
+        "graph_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+        "id": "nx32-ny8-t4",
+        "mesh": [
+          32,
+          8,
+          4
+        ],
+        "nodes": 20682,
+        "patches": 0,
+        "tets": 89088
+      }
+    ]
+  },
+  "native_baseline": {
+    "accepted_steps": 0,
+    "failure": "Matter rejected step 0; status, diagnostic state OBJ, and CSV observations were retained; rejected geometry is not an accepted animation frame",
+    "held_reference_environment_advanced": true,
+    "specimen_failure": {
+      "J": 0.9977478981018066,
+      "environment": 0,
+      "status_code": 5,
+      "step": 0,
+      "tetrahedron": 858
+    },
+    "status": "failed",
+    "usable_convergence_baseline": false
+  },
+  "native_run": "dimensionless-certified-coupon-392",
+  "schema": "numi.cardboard.resolution-cap-audit.report.v1",
+  "source_snapshot": "source-scaled-material-merit-118",
+  "superseded_first_pass": {
+    "file": "nonbudgeted-superseded.csv",
+    "reason": "direct buildRegionalGraphSchwarzLayout call omitted runtime budgeted fallback retries; its rejections are superseded by budgeted-results.csv"
+  },
+  "temporal_cases": [
+    {
+      "dt_s": 0.0001,
+      "graph_layout_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+      "id": "nominal",
+      "mesh": [
+        32,
+        8,
+        4
+      ],
+      "phase_steps": {
+        "hold": 3,
+        "loading": 12,
+        "relaxation": 3,
+        "release": 3,
+        "unloading": 6
+      },
+      "physical_phase_durations_s": {
+        "hold": 0.00030000000000000003,
+        "loading": 0.0012000000000000001,
+        "relaxation": 0.00030000000000000003,
+        "release": 0.00030000000000000003,
+        "unloading": 0.0006000000000000001
+      },
+      "relative_residual_tolerance": 9.999999974752427e-07
+    },
+    {
+      "dt_s": 5e-05,
+      "graph_layout_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+      "id": "half_dt",
+      "mesh": [
+        32,
+        8,
+        4
+      ],
+      "phase_steps": {
+        "hold": 6,
+        "loading": 24,
+        "relaxation": 6,
+        "release": 6,
+        "unloading": 12
+      },
+      "physical_phase_durations_s": {
+        "hold": 0.00030000000000000003,
+        "loading": 0.0012000000000000001,
+        "relaxation": 0.00030000000000000003,
+        "release": 0.00030000000000000003,
+        "unloading": 0.0006000000000000001
+      },
+      "relative_residual_tolerance": 4.999999987376214e-07
+    },
+    {
+      "dt_s": 2.5e-05,
+      "graph_layout_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+      "id": "quarter_dt",
+      "mesh": [
+        32,
+        8,
+        4
+      ],
+      "phase_steps": {
+        "hold": 12,
+        "loading": 48,
+        "relaxation": 12,
+        "release": 12,
+        "unloading": 24
+      },
+      "physical_phase_durations_s": {
+        "hold": 0.00030000000000000003,
+        "loading": 0.0012000000000000001,
+        "relaxation": 0.00030000000000000003,
+        "release": 0.00030000000000000003,
+        "unloading": 0.0006000000000000001
+      },
+      "relative_residual_tolerance": 2.499999993688107e-07
+    }
+  ]
+}

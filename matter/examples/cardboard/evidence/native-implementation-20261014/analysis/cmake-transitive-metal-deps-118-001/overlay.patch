@@ -1,0 +1,48 @@
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -563,6 +563,7 @@
+     set(NUMI_MATTER_SHADER_DIR "${CMAKE_CURRENT_BINARY_DIR}/shaders")
+     set(NUMI_MATTER_AIR "${NUMI_MATTER_SHADER_DIR}/NumiMatter.air")
+     set(NUMI_MATTER_METALLIB "${NUMI_MATTER_SHADER_DIR}/NumiMatter.metallib")
++    set(NUMI_MATTER_DEPFILE "${NUMI_MATTER_SHADER_DIR}/NumiMatter.d")
+     set(NUMI_MATTER_PHYSICAL_DIGEST_AIR
+         "${NUMI_MATTER_SHADER_DIR}/NumiMatterPhysicalStateDigest.air")
+     set(NUMI_MATTER_PHYSICAL_DIGEST_METALLIB
+@@ -577,6 +578,7 @@
+             -fno-fast-math
+             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+             -I "${CMAKE_CURRENT_SOURCE_DIR}/../include"
++            -MMD -MF "${NUMI_MATTER_DEPFILE}" -MT "${NUMI_MATTER_METALLIB}"
+             -c "${CMAKE_CURRENT_SOURCE_DIR}/src/matter_kernels.metal"
+             -o "${NUMI_MATTER_AIR}"
+         COMMAND xcrun -sdk macosx metallib
+@@ -612,6 +614,7 @@
+             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/compensated_geometry_gpu.h"
+             "${CMAKE_CURRENT_SOURCE_DIR}/include/numi/matter/human_support_precision_gpu.h"
+             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/rod_gpu_shared.h"
++        DEPFILE "${NUMI_MATTER_DEPFILE}"
+         VERBATIM
+     )
+     add_custom_command(
+@@ -963,11 +966,13 @@
+ if(APPLE)
+     set(NUMI_CARDBOARD_PAPER_AIR "${NUMI_MATTER_SHADER_DIR}/cardboard_paper_check.air")
+     set(NUMI_CARDBOARD_PAPER_METALLIB "${NUMI_MATTER_SHADER_DIR}/cardboard_paper_check.metallib")
++    set(NUMI_CARDBOARD_PAPER_DEPFILE "${NUMI_MATTER_SHADER_DIR}/cardboard_paper_check.d")
+     file(GLOB NUMI_CARDBOARD_PRODUCTION_METAL_DEPENDENCIES CONFIGURE_DEPENDS
+         "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/*.metalinc")
+     add_custom_command(OUTPUT "${NUMI_CARDBOARD_PAPER_METALLIB}"
+         COMMAND "${CMAKE_COMMAND}" -E make_directory "${NUMI_MATTER_SHADER_DIR}"
+         COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
++            -MMD -MF "${NUMI_CARDBOARD_PAPER_DEPFILE}" -MT "${NUMI_CARDBOARD_PAPER_METALLIB}"
+             -I "${CMAKE_CURRENT_SOURCE_DIR}/include" -I "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+             -c "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_paper_check.metal" -o "${NUMI_CARDBOARD_PAPER_AIR}"
+         COMMAND xcrun -sdk macosx metallib "${NUMI_CARDBOARD_PAPER_AIR}" -o "${NUMI_CARDBOARD_PAPER_METALLIB}"
+@@ -981,6 +986,7 @@
+             include/numi/matter/shared.h include/numi/matter/fiber_exp_linear.h
+             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
+             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/rod_gpu_shared.h"
++        DEPFILE "${NUMI_CARDBOARD_PAPER_DEPFILE}"
+         VERBATIM)
+     add_custom_target(numi_cardboard_paper_shaders DEPENDS "${NUMI_CARDBOARD_PAPER_METALLIB}")
+     add_executable(numi-matter-cardboard-paper-gpu-check tools/cardboard_paper_gpu_check.mm)

@@ -1,0 +1,32 @@
+{
+  "schema": "numi.cardboard.cpu-merit-experiment.v1",
+  "description": "SETUP FAILURE before any run: guessed NSSC source filename did not exist. Source and compilation retained. Correct source is hajali2009_medium_hill_bilinear_fit.nmatter.",
+  "files": {
+    "README.md": {
+      "sha256": "af1f6f130abea5ce2a96f4c12695368786f2dfe43fa10b80311cd07189e4a93c",
+      "bytes": 170
+    },
+    "compile-command.json": {
+      "sha256": "42ff9a7209e370415b34ce0496712494eaff0cb7080f83f0078fe89747a9790c",
+      "bytes": 714
+    },
+    "compile.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "prepare-failed.py": {
+      "sha256": "da4e41d0c814dd54d0253c36bc5ed3ce9afefdcf67e1b04d11c7c0c1d2faa645",
+      "bytes": 2340
+    },
+    "replay": {
+      "sha256": "7c1c445e47245efe1a17a8fcd86f5b24e443c3d76e8e1499224b82c2b17f1baf",
+      "bytes": 950072
+    },
+    "replay.cpp": {
+      "sha256": "72131547f9a692a4b1230e52d3912471b1afd2d16466836171eb55aaa41e78f0",
+      "bytes": 12830
+    }
+  },
+  "physical_steps": 0,
+  "physical_validation": false
+}

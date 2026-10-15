@@ -1,0 +1,14 @@
+CPU replay command (exit 0):
+/Users/home/cardboard-implementation-20261014/analysis/coupon-392-status5-audit-002/replay-production-merit /Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/compiled.nmatterpack /Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/rejected-conditioning-000001/candidate_nodes.bin /Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter
+
+ObjC++ host compile (exit 0, Werror):
+xcrun --sdk macosx clang++ -x objective-c++ -std=c++2b -fobjc-arc -Wall -Wextra -Wpedantic -Werror -I/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121/matter/include -I/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121/include -DNUMI_CARDBOARD_BASE_SNAPSHOT_SHA256="769a5e34c1d919293cb263fd27fbd041a482d22016c2818eec41d44e47935752" -DNUMI_CARDBOARD_PAPER_METALLIB="/Users/home/cardboard-implementation-20261014/analysis/coupon-392-status5-audit-002/cardboard_bilinear15_capture_diagnostic.metallib" -c cardboard_bilinear15_capture_diagnostic_check.mm -o cardboard_bilinear15_capture_diagnostic_check.o
+
+Metal compile and metallib link (exit 0):
+xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I source121/matter/include -I source121/include -c cardboard_bilinear15_capture_diagnostic.metal -o cardboard_bilinear15_capture_diagnostic.air
+xcrun -sdk macosx metallib cardboard_bilinear15_capture_diagnostic.air -o cardboard_bilinear15_capture_diagnostic.metallib
+
+Host link (exit 0):
+xcrun --sdk macosx clang++ -std=c++2b -fobjc-arc -Wall -Wextra -Wpedantic -Werror cardboard_bilinear15_capture_diagnostic_check.o /Users/home/numi-cardboard-20261006/build-cardboard-provenance-121/matter/libnumi_matter_compiler.a -framework Foundation -framework Metal -o cardboard_bilinear15_capture_diagnostic_check
+
+No Metal dispatch was run.

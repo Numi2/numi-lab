@@ -1,0 +1,28 @@
+nx,ny,t,points2d,triangles2d,nodes,tets,authored_fixed_nodes,contact_capacity_if_contact_enabled,graph_patches,graph_matrix_floats,graph_bytes,graph_status,selector5_node_cap_pass,selector5_tet_cap_pass,unrelated_fullcontact_capacity_cap_pass
+8,2,1,294,320,882,1920,36,15360,27,4721337,75783068,admitted:,1,1,1
+8,2,2,466,640,1398,3840,60,30720,92,7086528,113755348,rejected:graph Schwarz packed device arenas; including source matrices for one refinement pass; exceed the explicit 96 MiB bound,1,1,1
+8,2,4,810,1280,2430,7680,108,61440,0,0,0,rejected:graph Schwarz patch count exceeds its bounded layout,1,1,1
+8,4,1,294,320,1470,3840,60,30720,72,7675425,123203892,rejected:graph Schwarz packed device arenas; including source matrices for one refinement pass; exceed the explicit 96 MiB bound,1,1,1
+8,4,2,466,640,2330,7680,100,61440,0,0,0,rejected:graph Schwarz patch count exceeds its bounded layout,1,1,1
+8,4,4,810,1280,4050,15360,180,122880,0,0,0,rejected:graph Schwarz patch count exceeds its bounded layout,1,1,1
+8,8,1,294,320,2646,7680,108,61440,0,0,0,rejected:graph Schwarz patch count exceeds its bounded layout,1,1,1
+8,8,2,466,640,4194,15360,180,122880,0,0,0,rejected:graph Schwarz input exceeds its explicit FEM admission bounds,0,1,1
+8,8,4,810,1280,7290,30720,324,245760,0,0,0,rejected:graph Schwarz input exceeds its explicit FEM admission bounds,0,1,0
+16,2,1,486,512,1458,3072,36,24576,64,7670745,123126036,rejected:graph Schwarz packed device arenas; including source matrices for one refinement pass; exceed the explicit 96 MiB bound,1,1,1
+16,2,2,754,1024,2262,6144,60,49152,0,0,0,rejected:graph Schwarz patch count exceeds its bounded layout,1,1,1
+16,2,4,1290,2048,3870,12288,108,98304,0,0,0,rejected:graph Schwarz patch count exceeds its bounded layout,1,1,1
+16,4,1,486,512,2430,6144,60,49152,121,11804571,189484492,rejected:graph Schwarz packed device arenas; including source matrices for one refinement pass; exceed the explicit 96 MiB bound,1,1,1
+16,4,2,754,1024,3770,12288,100,98304,118,17717544,284391332,rejected:graph Schwarz packed device arenas; including source matrices for one refinement pass; exceed the explicit 96 MiB bound,1,1,1
+16,4,4,1290,2048,6450,24576,180,196608,0,0,0,rejected:graph Schwarz input exceeds its explicit FEM admission bounds,0,1,0
+16,8,1,486,512,4374,12288,108,98304,0,0,0,rejected:graph Schwarz input exceeds its explicit FEM admission bounds,0,1,1
+16,8,2,754,1024,6786,24576,180,196608,0,0,0,rejected:graph Schwarz input exceeds its explicit FEM admission bounds,0,1,0
+16,8,4,1290,2048,11610,49152,324,393216,0,0,0,rejected:graph Schwarz input exceeds its explicit FEM admission bounds,0,0,0
+32,2,1,870,928,2610,5568,36,44544,44,12978900,208320052,rejected:graph Schwarz packed device arenas; including source matrices for one refinement pass; exceed the explicit 96 MiB bound,1,1,1
+32,2,2,1346,1856,4038,11136,60,89088,0,0,0,rejected:graph Schwarz patch count exceeds its bounded layout,1,1,1
+32,2,4,2298,3712,6894,22272,108,178176,0,0,0,rejected:graph Schwarz input exceeds its explicit FEM admission bounds,0,1,0
+32,4,1,870,928,4350,11136,60,89088,0,0,0,rejected:graph Schwarz input exceeds its explicit FEM admission bounds,0,1,1
+32,4,2,1346,1856,6730,22272,100,178176,0,0,0,rejected:graph Schwarz input exceeds its explicit FEM admission bounds,0,1,0
+32,4,4,2298,3712,11490,44544,180,356352,0,0,0,rejected:graph Schwarz input exceeds its explicit FEM admission bounds,0,0,0
+32,8,1,870,928,7830,22272,108,178176,0,0,0,rejected:graph Schwarz input exceeds its explicit FEM admission bounds,0,1,0
+32,8,2,1346,1856,12114,44544,180,356352,0,0,0,rejected:graph Schwarz input exceeds its explicit FEM admission bounds,0,0,0
+32,8,4,2298,3712,20682,89088,324,712704,0,0,0,rejected:graph Schwarz input exceeds its explicit FEM admission bounds,0,0,0

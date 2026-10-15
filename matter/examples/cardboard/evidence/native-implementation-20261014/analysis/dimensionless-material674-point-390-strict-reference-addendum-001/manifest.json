@@ -1,0 +1,21 @@
+{
+  "schema": "numi.cardboard.point390.strict-fp64-addendum-manifest.v1",
+  "validation_command": "python3.10 strict_reference.py",
+  "validation_exit_code": 0,
+  "python_version": "3.10.12",
+  "numpy_version": "2.2.5",
+  "files_sha256": {
+    "README.md": "87fc5c37e0e86c225986de6498be5311d8b2115a3b29837592a359bb008aba62",
+    "bilinear15_reference.py": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+    "fp64-reference-vectors-674.json": "7ca8ce806765d8389bde7abdd1d4e14b0951d77be8f874a40e4fe51aa22e83b7",
+    "report.json": "b80092423f724a1e42ad7105159dae13f5abce918073b3fd1fcf9e19d67e802d",
+    "run.log": "b80092423f724a1e42ad7105159dae13f5abce918073b3fd1fcf9e19d67e802d",
+    "strict_reference.py": "419857b04681b651981c910c98fcbc2d59ce93585ad8338aca9fad967f6f583d"
+  },
+  "bound_390_artifacts": {
+    "receipt": "e97fa31c84a3b5fb9050d9722b5ac5baeed6728a3bb0c59a3ae7e9d1a979d86d",
+    "point_input": "7925a6eba993e6bf8b4f536352027d18c221f95c215fe73d1b20ebaec6aeb797",
+    "point_result": "9332767747218a967f711aeeb68ece6de4c6cddad270ce8799e0a6c529dac234",
+    "trace": "eb62b8eed7e26d3593578a8e86840367a2f19fcf059ceea95ee5950b6ddc97aa"
+  }
+}

@@ -1,0 +1,86 @@
+[
+  {
+    "tet": 674,
+    "mode": 0,
+    "command": [
+      "/Users/home/cardboard-implementation-20261014/analysis/exact-material-merit-prototype-003/replay",
+      "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/exact-material-merit-prototype-003/tet674-exact-input.bin"
+    ],
+    "source": "/Users/home/cardboard-implementation-20261014/native/dimensionless-material674-point-390/output/tet674-env0-source380_exact_compiled_budget32-trace.json",
+    "source_sha256": "eb62b8eed7e26d3593578a8e86840367a2f19fcf059ceea95ee5950b6ddc97aa",
+    "input_sha256": "e97233627393531f697b7e44f050aa35eba9161b483182b20949620b9d2c6d38",
+    "exit_code": 0,
+    "result": "valid=0 iterations=14 pre_update_residual=5.2041704279304213e-17 final_residual=5.2041704279304213e-17 bound=2.0410970691386865e-08 scaled_correction=7.2181173038643465e-08 failure=armijo_no_trial_iter_13"
+  },
+  {
+    "tet": 674,
+    "mode": 1,
+    "command": [
+      "/Users/home/cardboard-implementation-20261014/analysis/exact-material-merit-prototype-003/replay",
+      "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/exact-material-merit-prototype-003/tet674-exact-input.bin"
+    ],
+    "source": "/Users/home/cardboard-implementation-20261014/native/dimensionless-material674-point-390/output/tet674-env0-source380_exact_compiled_budget32-trace.json",
+    "source_sha256": "eb62b8eed7e26d3593578a8e86840367a2f19fcf059ceea95ee5950b6ddc97aa",
+    "input_sha256": "e97233627393531f697b7e44f050aa35eba9161b483182b20949620b9d2c6d38",
+    "exit_code": 0,
+    "result": "valid=1 iterations=5 pre_update_residual=5.5511151231257827e-16 final_residual=5.5511151231257827e-16 bound=2.0410970691386865e-08 scaled_correction=1.9617467372778918e-12 failure="
+  },
+  {
+    "tet": 674,
+    "mode": 3,
+    "command": [
+      "/Users/home/cardboard-implementation-20261014/analysis/exact-material-merit-prototype-003/replay",
+      "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/exact-material-merit-prototype-003/tet674-exact-input.bin"
+    ],
+    "source": "/Users/home/cardboard-implementation-20261014/native/dimensionless-material674-point-390/output/tet674-env0-source380_exact_compiled_budget32-trace.json",
+    "source_sha256": "eb62b8eed7e26d3593578a8e86840367a2f19fcf059ceea95ee5950b6ddc97aa",
+    "input_sha256": "e97233627393531f697b7e44f050aa35eba9161b483182b20949620b9d2c6d38",
+    "exit_code": 0,
+    "result": "valid=1 iterations=5 pre_update_residual=5.5511151231257827e-16 final_residual=5.5511151231257827e-16 bound=2.0410970691386865e-08 scaled_correction=1.9617467372778918e-12 failure="
+  },
+  {
+    "tet": 858,
+    "mode": 0,
+    "command": [
+      "/Users/home/cardboard-implementation-20261014/analysis/exact-material-merit-prototype-003/replay",
+      "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/exact-material-merit-prototype-003/tet858-exact-input.bin"
+    ],
+    "source": "/Users/home/cardboard-implementation-20261014/native/source392-tet858-point-401/output/point.json",
+    "source_sha256": "411d522ebd281eae2b75d99f8f7927d2df3521795b1a04dc4a325953aafcc4d8",
+    "input_sha256": "ebe4c24bf8b0d3f800be960ce2afa1a7eec138e2f86adc7ce8d2efce149a7479",
+    "exit_code": 0,
+    "result": "valid=1 iterations=14 pre_update_residual=6.6167259388585919e-13 final_residual=6.6167259388585919e-13 bound=3.9861483003278408e-08 scaled_correction=3.5694680718123539e-12 failure="
+  },
+  {
+    "tet": 858,
+    "mode": 1,
+    "command": [
+      "/Users/home/cardboard-implementation-20261014/analysis/exact-material-merit-prototype-003/replay",
+      "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/exact-material-merit-prototype-003/tet858-exact-input.bin"
+    ],
+    "source": "/Users/home/cardboard-implementation-20261014/native/source392-tet858-point-401/output/point.json",
+    "source_sha256": "411d522ebd281eae2b75d99f8f7927d2df3521795b1a04dc4a325953aafcc4d8",
+    "input_sha256": "ebe4c24bf8b0d3f800be960ce2afa1a7eec138e2f86adc7ce8d2efce149a7479",
+    "exit_code": 0,
+    "result": "valid=0 iterations=32 pre_update_residual=4.3259515762329102 final_residual=4.3091416358947754 bound=4.1786670124110969e-08 scaled_correction=17.340585708618164 failure=iteration_budget_exhausted"
+  },
+  {
+    "tet": 858,
+    "mode": 3,
+    "command": [
+      "/Users/home/cardboard-implementation-20261014/analysis/exact-material-merit-prototype-003/replay",
+      "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/exact-material-merit-prototype-003/tet858-exact-input.bin"
+    ],
+    "source": "/Users/home/cardboard-implementation-20261014/native/source392-tet858-point-401/output/point.json",
+    "source_sha256": "411d522ebd281eae2b75d99f8f7927d2df3521795b1a04dc4a325953aafcc4d8",
+    "input_sha256": "ebe4c24bf8b0d3f800be960ce2afa1a7eec138e2f86adc7ce8d2efce149a7479",
+    "exit_code": 0,
+    "result": "valid=1 iterations=14 pre_update_residual=6.6167259388585919e-13 final_residual=6.6167259388585919e-13 bound=3.9861483003278408e-08 scaled_correction=3.5694680718123539e-12 failure="
+  }
+]

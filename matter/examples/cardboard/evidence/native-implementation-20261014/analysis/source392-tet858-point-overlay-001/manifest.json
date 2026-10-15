@@ -1,0 +1,25 @@
+{
+  "schema": "numi.cardboard.source392-tet-point-overlay-manifest.v1",
+  "status": "sealed_for_parent_integration",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118",
+  "source_build_receipt_sha256": "da94e6051e767ea4bfba58705ccaf321e5dd97e5e9b40b32715f056676980c9f",
+  "files": [
+    {"path":"source/cardboard_source392_tet_point_check.mm","sha256":"ae8e3cbc64dbe4058562ee766ed10ce0d27f841daa4943e6baa7be28a0405900"},
+    {"path":"CMake-fragment.txt","sha256":"275cac4de6c2bfd88f3a3e470d405751b6af6962bc391e7c872952e2c68973a6"},
+    {"path":"README.md","sha256":"217ee3319a1098f60949da00564d4d79e2173f7c463200dc567645f5fb81016d"},
+    {"path":"report.json","sha256":"913c94b48c8d575d655aea533c0df5e547d4de0801f6461d1919f5933512aff0"},
+    {"path":"source392-tet858-point-check","sha256":"f5eda7df8765bc46c93ffb88c82ee549afa91621f1e332ce8fa7549bc9ee03e3"}
+  ],
+  "frozen_inputs": {
+    "run_receipt_sha256":"bc1495a5a63e35a36182b9206350ff2f68480345ae1b205484215a1d53da7bcb",
+    "run_manifest_sha256":"fbfcf51db84a3710cc3bd96e016597728163da464974ea033554e82e587cd8eb",
+    "result_sha256":"214e9619e196ff45fcf97376930fcb9c017f032959075332ff65073a8c213e3d",
+    "compiled_package_sha256":"cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+    "conditioning_manifest_sha256":"ad51b0ceca073a4736ee128d0daf13eee82bf3a398919cc911a81fdff8399ced",
+    "candidate_nodes_sha256":"89846e4efc91c1774b52d6b3732f633e78414a7d341b6cbd8b9b4966e4be0417",
+    "accepted_state_sha256":"e32909672f5ef53992fd7c798419dcdcd257662daa0f0c6cc8d960a1dced5dfd",
+    "medium_asset_sha256":"76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9"
+  },
+  "native_command": "source392-tet858-point-check --native /Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392 858 /Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter /Users/home/cardboard-implementation-20261014/native/source392-tet858-point-121",
+  "native_dispatched": false
+}

@@ -1,0 +1,9 @@
+{
+  "files_removed": 416,
+  "logical_bytes_removed": 59862191,
+  "free_bytes_before": 567668736,
+  "free_bytes_after": 628330496,
+  "all_compiled_artifacts_and_build_metadata_hashes_preserved": true,
+  "source_and_evidence_removed": false,
+  "preflight_sha256": "dfb1315de1212059e1c69d869d15738d46d576c9ae657f6810c1c7da5b494932"
+}

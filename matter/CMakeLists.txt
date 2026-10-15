@@ -563,6 +563,7 @@ if(APPLE)
     set(NUMI_MATTER_SHADER_DIR "${CMAKE_CURRENT_BINARY_DIR}/shaders")
     set(NUMI_MATTER_AIR "${NUMI_MATTER_SHADER_DIR}/NumiMatter.air")
     set(NUMI_MATTER_METALLIB "${NUMI_MATTER_SHADER_DIR}/NumiMatter.metallib")
+    set(NUMI_MATTER_DEPFILE "${NUMI_MATTER_SHADER_DIR}/NumiMatter.d")
     set(NUMI_MATTER_PHYSICAL_DIGEST_AIR
         "${NUMI_MATTER_SHADER_DIR}/NumiMatterPhysicalStateDigest.air")
     set(NUMI_MATTER_PHYSICAL_DIGEST_METALLIB
@@ -577,6 +578,7 @@ if(APPLE)
             -fno-fast-math
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -I "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+            -MMD -MF "${NUMI_MATTER_DEPFILE}" -MT "${NUMI_MATTER_METALLIB}"
             -c "${CMAKE_CURRENT_SOURCE_DIR}/src/matter_kernels.metal"
             -o "${NUMI_MATTER_AIR}"
         COMMAND xcrun -sdk macosx metallib
@@ -612,6 +614,7 @@ if(APPLE)
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/compensated_geometry_gpu.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/numi/matter/human_support_precision_gpu.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/rod_gpu_shared.h"
+        DEPFILE "${NUMI_MATTER_DEPFILE}"
         VERBATIM
     )
     add_custom_command(
@@ -963,13 +966,18 @@ install(DIRECTORY materials/ DESTINATION share/numi-matter/materials)
 if(APPLE)
     set(NUMI_CARDBOARD_PAPER_AIR "${NUMI_MATTER_SHADER_DIR}/cardboard_paper_check.air")
     set(NUMI_CARDBOARD_PAPER_METALLIB "${NUMI_MATTER_SHADER_DIR}/cardboard_paper_check.metallib")
+    set(NUMI_CARDBOARD_PAPER_DEPFILE "${NUMI_MATTER_SHADER_DIR}/cardboard_paper_check.d")
+    file(GLOB NUMI_CARDBOARD_PRODUCTION_METAL_DEPENDENCIES CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/*.metalinc")
     add_custom_command(OUTPUT "${NUMI_CARDBOARD_PAPER_METALLIB}"
         COMMAND "${CMAKE_COMMAND}" -E make_directory "${NUMI_MATTER_SHADER_DIR}"
         COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
+            -MMD -MF "${NUMI_CARDBOARD_PAPER_DEPFILE}" -MT "${NUMI_CARDBOARD_PAPER_METALLIB}"
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include" -I "${CMAKE_CURRENT_SOURCE_DIR}/../include"
             -c "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_paper_check.metal" -o "${NUMI_CARDBOARD_PAPER_AIR}"
         COMMAND xcrun -sdk macosx metallib "${NUMI_CARDBOARD_PAPER_AIR}" -o "${NUMI_CARDBOARD_PAPER_METALLIB}"
-        DEPENDS tools/cardboard_paper_check.metal src/metal/common.metalinc
+        DEPENDS tools/cardboard_paper_check.metal src/matter_kernels.metal
+            ${NUMI_CARDBOARD_PRODUCTION_METAL_DEPENDENCIES}
             include/numi/matter/paper_compensated_bytecode.h
             include/numi/matter/fem_compensated_deformation.h
             include/numi/matter/hill_scalar_initializer.h
@@ -978,6 +986,7 @@ if(APPLE)
             include/numi/matter/shared.h include/numi/matter/fiber_exp_linear.h
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/rod_gpu_shared.h"
+        DEPFILE "${NUMI_CARDBOARD_PAPER_DEPFILE}"
         VERBATIM)
     add_custom_target(numi_cardboard_paper_shaders DEPENDS "${NUMI_CARDBOARD_PAPER_METALLIB}")
     add_executable(numi-matter-cardboard-paper-gpu-check tools/cardboard_paper_gpu_check.mm)
@@ -1017,6 +1026,25 @@ if(APPLE)
     target_compile_definitions(numi-matter-cardboard-bilinear15-captured-point-check PRIVATE
         NUMI_CARDBOARD_PAPER_METALLIB="${NUMI_CARDBOARD_PAPER_METALLIB}"
         NUMI_CARDBOARD_BASE_SNAPSHOT_SHA256="98fe026ee2007982e48f89547a435a2957db3978fb3730e008fdbb99d08f5704")
+    # Exact replay of the source-370 first rejected material candidate. This
+    # diagnostic uses the production FEM deformation/material-frame helpers,
+    # then evaluates the same captured material point with explicit 16/32
+    # local projection budgets. It performs no physical transactions and is
+    # deliberately not a CTest or a full-coupon qualification.
+    # This source-bound replay uses the same metallib as the existing paper
+    # material checks; the production kernel includes above provide the exact
+    # deformation helpers that the older common-only library did not contain.
+    add_executable(numi-matter-cardboard-source370-material-point-check
+        tools/cardboard_source370_material_point_check.mm)
+    add_dependencies(numi-matter-cardboard-source370-material-point-check
+        numi_cardboard_paper_shaders)
+    target_link_libraries(numi-matter-cardboard-source370-material-point-check PRIVATE
+        numi_matter_compiler "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(numi-matter-cardboard-source370-material-point-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_compile_definitions(numi-matter-cardboard-source370-material-point-check PRIVATE
+        NUMI_CARDBOARD_PAPER_METALLIB="${NUMI_CARDBOARD_PAPER_METALLIB}"
+        NUMI_CARDBOARD_SOURCE107_MANIFEST_SHA256="09ae737a09623ff15fc4b1d13f8a96cb14e5d87e0c245cb7b1deb70bcf145d97")
     if(BUILD_TESTING)
         add_test(NAME matter.metal.cardboard_bilinear_paper
             COMMAND numi-matter-cardboard-bilinear-paper-gpu-check
@@ -1667,3 +1695,16 @@ if(APPLE)
             PROPERTIES LABELS "matter;metal;cardboard;synthetic" TIMEOUT 700)
     endif()
 endif()
+
+# Insert adjacent to the source-370 point target in matter/CMakeLists.txt.
+add_executable(numi-matter-cardboard-source392-tet858-point-check
+    tools/cardboard_source392_tet_point_check.mm)
+add_dependencies(numi-matter-cardboard-source392-tet858-point-check
+    numi_cardboard_paper_shaders)
+target_link_libraries(numi-matter-cardboard-source392-tet858-point-check PRIVATE
+    numi_matter_compiler "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+target_compile_options(numi-matter-cardboard-source392-tet858-point-check PRIVATE
+    -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+target_compile_definitions(numi-matter-cardboard-source392-tet858-point-check PRIVATE
+    NUMI_CARDBOARD_PAPER_METALLIB="${NUMI_CARDBOARD_PAPER_METALLIB}"
+    NUMI_CARDBOARD_SOURCE118_BUILD_SHA256="da94e6051e767ea4bfba58705ccaf321e5dd97e5e9b40b32715f056676980c9f")

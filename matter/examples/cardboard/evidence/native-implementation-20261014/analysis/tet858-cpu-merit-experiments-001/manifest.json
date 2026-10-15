@@ -1,0 +1,60 @@
+{
+  "schema": "numi.cardboard.cpu-merit-experiment.v1",
+  "description": "CPU transcription of exact tet858 retained candidate. Raw Armijo converges; frozen scaled merit exhausts32; requiring raw descent as well does not repair it. Terminal out.r is pre-update; the final accepted trial is the native401 final residual. No native candidate validation.",
+  "files": {
+    "README.md": {
+      "sha256": "371e9fa3a4c8557dd59ff2d36b322207aece2aa0256650a42e692b98576395b0",
+      "bytes": 278
+    },
+    "compile-command.json": {
+      "sha256": "f5b52a1e83b34b64a42d039f19cff78aeec380bbbeeffd0356ef2d85f1cc1999",
+      "bytes": 702
+    },
+    "compile.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "mode0.stderr.log": {
+      "sha256": "99b5290d5bdb101df19b24e2a343fc0db611aa509b040c1bba96e702e570c4d8",
+      "bytes": 3497
+    },
+    "mode0.stdout.log": {
+      "sha256": "752409687de5a6e3b1b7c1cab1a559d25413ba1e3eb8526c793e9c8cdad58b01",
+      "bytes": 1977
+    },
+    "mode1.stderr.log": {
+      "sha256": "2f96dc32b10a6ab7facff126bd5bcf49d37c17faec622cc1b77fcc699caf4d2b",
+      "bytes": 35592
+    },
+    "mode1.stdout.log": {
+      "sha256": "c9973c1ba38b6ee27ba42f09ef13f2884e6e19474516ddfe0b053c815089c9f9",
+      "bytes": 1955
+    },
+    "mode2.stderr.log": {
+      "sha256": "2f96dc32b10a6ab7facff126bd5bcf49d37c17faec622cc1b77fcc699caf4d2b",
+      "bytes": 35592
+    },
+    "mode2.stdout.log": {
+      "sha256": "c9973c1ba38b6ee27ba42f09ef13f2884e6e19474516ddfe0b053c815089c9f9",
+      "bytes": 1955
+    },
+    "prepare.py": {
+      "sha256": "77daa201317491a46fcec7ebe66f04abb4e40dcf039cd8bf6b5577327e0ff06e",
+      "bytes": 2540
+    },
+    "replay": {
+      "sha256": "25747840d83e6db152e686dab9404bcf236b293d7fac80c75db8f4621b3981fd",
+      "bytes": 949880
+    },
+    "replay.cpp": {
+      "sha256": "da8904454b12e201443d285ae860410f87c063e83a12db085163237137a35dc8",
+      "bytes": 12768
+    },
+    "results.json": {
+      "sha256": "dd6fe12409dd28850b21a11d1354bf21d2a14552b408f830e71b8a43c76d24eb",
+      "bytes": 708
+    }
+  },
+  "physical_steps": 0,
+  "physical_validation": false
+}

@@ -1,0 +1,13 @@
+[
+  "clang++",
+  "-std=c++20",
+  "-O2",
+  "-ffp-contract=off",
+  "-I/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121/matter/include",
+  "-I/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121/include",
+  "-I/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121/matter/tools",
+  "/Users/home/cardboard-implementation-20261014/analysis/material-two-stage-merit-prototype-001/replay.cpp",
+  "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-121/matter/libnumi_matter_compiler.a",
+  "-o",
+  "/Users/home/cardboard-implementation-20261014/analysis/material-two-stage-merit-prototype-001/replay"
+]

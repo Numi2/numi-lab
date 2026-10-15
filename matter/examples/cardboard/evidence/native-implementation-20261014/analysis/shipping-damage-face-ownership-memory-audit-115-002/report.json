@@ -1,0 +1,90 @@
+{
+  "base_checkout": "/Users/home/numi-cardboard-20261006",
+  "base_git_head": "4fb44c44511609d66eb4443fd8aa3730a39d516b",
+  "base_sources_sha256": {
+    "matter/tools/cardboard_damage_builder.hpp": "889a8d51fb47066a0a38e57e3cd2ffe50ca8e61100b749f6af336eb0fa7b581b",
+    "matter/tools/cardboard_fracture_regularization.hpp": "86ed5f2a2a3168fe4e36a585ad29e785211ff6956afeb70080bc8a82a7315903",
+    "matter/tools/cardboard_retained_matrix_damage.hpp": "58944ad123111a7c4c1c062dbcfab36fec4897f2027b128bde2c8c62b8667384",
+    "matter/tools/cardboard_retained_matrix_damage_check.cpp": "9699073afcdeb25b3fed49f23c207131bcd957bf49da7d6370c196071bfdb863"
+  },
+  "base_worktree_had_unrelated_changes": true,
+  "fixture_observations": {
+    "boundary": {
+      "exact_tolerance_equality_rejected": true,
+      "one_representable_height_step_outside_admitted": true
+    },
+    "geometry_only_sliver": {
+      "centroid_plane_to_base_face_m": 5e-13,
+      "classification_tolerance_m": 1.4142135623730952e-12,
+      "edge_scale_m": 1.4142135623730951,
+      "existing_volume_degeneracy_floor_m3": 8.03887338846093e-14,
+      "height_m": 2e-12,
+      "legacy_default_geometry_returns_positive_area_triangle_on_full_base_face": true,
+      "retained_strict_policy_rejects": true,
+      "volume_m3": 3.3333333333333334e-13,
+      "volume_to_floor_ratio": 4.146518015967299,
+      "x_y_side_m": 1.0
+    },
+    "retained_builder_sliver": {
+      "builder_rejects": true,
+      "centroid_plane_to_base_face_m": 5e-16,
+      "classification_tolerance_m": 1.414213562373095e-15,
+      "height_m": 2e-15,
+      "volume_to_existing_degeneracy_floor_ratio": 4.146518015967301,
+      "x_y_side_m": 0.001
+    },
+    "valid_geometry": {
+      "ordinary_reference_cut_bitwise_matches_original": true,
+      "rotated_material_frame_cut_bitwise_matches_original": true
+    }
+  },
+  "no_claims": [
+    "No full shipping mesh pass is claimed.",
+    "No actual Metal peak memory is measured.",
+    "No corrugated-box physical calibration or qualification is claimed."
+  ],
+  "overlay_sources_sha256": {
+    "matter/tools/cardboard_fracture_regularization.hpp": "d88d5bb677b37a3ee38fd5d0fed1c72d7178718ec768d97c2df61b4bf1393bfb",
+    "matter/tools/cardboard_retained_matrix_damage.hpp": "2542d465c280070837e95acd80ef9fe6bb6444bd3897ed61f1e0998427d83d74",
+    "matter/tools/cardboard_retained_matrix_damage_check.cpp": "5d54910aebb1beb78e0d5108b1fbd57ec3398939a7bb4299e96dedc1dcb44d6f"
+  },
+  "package": "shipping-damage-face-ownership-memory-audit-115-002",
+  "patch_sha256": "51931197efb75de4bbe4224823dae76308a4062eb4291191b95644921194ce31",
+  "prior_immutable_memory_audit": {
+    "manifest_sha256": "ae644c2b55dee8539e51705b906503f6d6389845fe5f1aba8413b63c5ecbdf08",
+    "modified": false,
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-001",
+    "report_sha256": "f01d75dadd802e5a58e7bcd6c1e55d894f95f090ce81a75cdae0b20ff683bc67"
+  },
+  "problem_and_gate": {
+    "existing_polygon_classifier": "signed distance d_i=dot(n_ref, X_i - (centroid + n_ref*offset)); side zero when abs(d_i)<=relativePlaneTolerance*maxEdgeLength",
+    "gate": "For each of four full tetrahedron faces, require max(abs(d_i) over its three vertices) > the exact shared classifier tolerance. Equality is rejected because equality remains side zero.",
+    "memory": "Fixed-size per-plane classifier state only; no mesh-wide FaceRecord vector or additional GPU allocation.",
+    "purpose": "Reject a numerically ambiguous full-face crack cut in a volume-floor-valid thin/sliver tetrahedron.",
+    "scope": "retained_matrix_damage::buildElementProgram opts into the policy for each of its four selected planes; other callers retain default Allow behavior."
+  },
+  "schema": "numi.cardboard.retained_face_ambiguity_overlay.v1",
+  "shared_checkout_modified": false,
+  "shipping_memory_adjudication": {
+    "full_shipping_mesh_guard_result": "not measured; a real full-mesh traversal is still required before admission or qualification",
+    "generic_face_record_cost_is_host_only": true,
+    "generic_face_record_hypothetical_bytes_for_R_1477728": 189149184,
+    "generic_face_record_hypothetical_is_active_retained_path": false,
+    "new_face_guard_mesh_wide_scratch_bytes": 0
+  },
+  "verification": {
+    "compiler_archive_cmake_cache_sha256": "b6c5d3060042bed2e684264aed9d0c47c19a75ed05b55ffc23eb2462466e09fa",
+    "compiler_archive_sha256": "cbfa9bad3cba88f236822cab4974261ed5e4e26f9bb743574605276cbec6d70b",
+    "fresh_full_project_build": false,
+    "full_shipping_mesh_exercised": false,
+    "geometry_boundary_smoke": "PASS",
+    "gpu_or_metal_runtime_used": false,
+    "overlay_checker_syntax_with_Wall_Wextra_Wpedantic_Werror": "PASS",
+    "patch_apply_check": "PASS",
+    "physical_qualification": false,
+    "retained_matrix_checker_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_matrix_checker_stdout_sha256": "26eef34c0be391644269301335ed240420f6dbda786a8a98825c8f0f98cac5a5",
+    "retained_matrix_cpu_checker": "PASS",
+    "retained_matrix_cpu_checker_scope": "compiled modified checker with overlay headers; linked prebuilt compiler archive from source-rationalized-paper-and-native-checkers-091"
+  }
+}

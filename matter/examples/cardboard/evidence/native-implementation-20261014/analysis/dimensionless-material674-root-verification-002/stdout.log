@@ -1,0 +1,230 @@
+{
+  "schema": "numi.cardboard.dimensionless-material674-point390-adjudication.v1",
+  "run": "native/dimensionless-material674-point-390",
+  "receipt": {
+    "sha256": "e97fa31c84a3b5fb9050d9722b5ac5baeed6728a3bb0c59a3ae7e9d1a979d86d",
+    "exit_code": 0,
+    "timed_out": false,
+    "source_inputs_unchanged": true
+  },
+  "source_binding": {
+    "prediction_sha256": "756ea5ae87195fe92488cc316965e860ab5e2576e529960841686765a458a352",
+    "point_result_sha256": "9332767747218a967f711aeeb68ece6de4c6cddad270ce8799e0a6c529dac234",
+    "point_jsonl_sha256": "3272a6a76c6b3a2ccb3e8b481e4b69da5c44fd446f7c2358a167783a8550b1d6",
+    "trace_sha256": "eb62b8eed7e26d3593578a8e86840367a2f19fcf059ceea95ee5950b6ddc97aa",
+    "point_input_sha256": "7925a6eba993e6bf8b4f536352027d18c221f95c215fe73d1b20ebaec6aeb797",
+    "compiled_package_sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+    "medium_asset_sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+    "base_manifest_sha256": "769a5e34c1d919293cb263fd27fbd041a482d22016c2818eec41d44e47935752",
+    "world_fingerprint": "8485105279886344921",
+    "F_high_low_word_confirmation": {
+      "source380_point_input_bits_match_source117_replay_native_readback": true,
+      "source117_budget32_sha256": "f4e52384010b64f0149a2179c5ad0ebe37022cbd620c92f8a437e6c741fe89a8",
+      "source117_receipt_sha256": "d273a6886e45cc776bbdd9e442a64485f1120b2624281b3cdfd2dc4a0f2d0305"
+    }
+  },
+  "native_point_observation": {
+    "environment": 0,
+    "tetrahedron": 674,
+    "material": "hajali2009_medium_hill_bilinear_fit",
+    "compiled_local_iterations": 32,
+    "projection_valid": true,
+    "stress_valid": true,
+    "tangent_valid": true,
+    "projection_iterations": 5,
+    "projection_residual_inf": 5.551115123125783e-16,
+    "projection_state_inf": 0.020548632368445396,
+    "projection_scaled_correction_inf": 3.78150332e-12,
+    "unchanged_raw_residual_tolerance": 2e-08,
+    "raw_residual_limit_at_final_state": 2.0410970691386865e-08,
+    "unchanged_scaled_correction_limit": 2e-08,
+    "direct_vs_tangent_stress_bit_mismatches": 0,
+    "trace_on_vs_off_bit_mismatches": {
+      "stress_direct": 0,
+      "stress_tangent_path": 0,
+      "tangent": 0,
+      "projected_state_high": 0,
+      "projected_state_low": 0
+    },
+    "iterations": [
+      {
+        "iteration": 1,
+        "status": "accepted_trial",
+        "backtrack": 0,
+        "alpha": 1.0,
+        "raw_residual_inf": 5.02028807e-10,
+        "state_inf": 0.0205486324,
+        "scaled_correction_inf": 0.0358283743,
+        "raw_residual_gate": 2.0410972648e-08,
+        "raw_residual_gate_pass": true,
+        "scaled_correction_gate": 2e-08,
+        "scaled_correction_gate_pass": false,
+        "reconstructed_current_dimensionless_merit": 1.2182432328700088e-05,
+        "stored_trial_dimensionless_merit": 2.30229853e-06,
+        "armijo_required_strict_upper_bound": 1.2181214085467218e-05,
+        "armijo_pass": true,
+        "min_row_scale": 1.0027691388359017e-07,
+        "max_row_scale": 0.20553763210773468,
+        "row_scale_reconstruction_max_abs": 9.313225746154785e-10,
+        "row_scale_reconstruction_max_rel": 8.37229165995268e-08
+      },
+      {
+        "iteration": 2,
+        "status": "accepted_trial",
+        "backtrack": 0,
+        "alpha": 1.0,
+        "raw_residual_inf": 7.5185665e-12,
+        "state_inf": 0.0205486324,
+        "scaled_correction_inf": 0.00984750874,
+        "raw_residual_gate": 2.0410972648e-08,
+        "raw_residual_gate_pass": true,
+        "scaled_correction_gate": 2e-08,
+        "scaled_correction_gate_pass": false,
+        "reconstructed_current_dimensionless_merit": 5.236043762124609e-06,
+        "stored_trial_dimensionless_merit": 1.51418163e-07,
+        "armijo_required_strict_upper_bound": 5.235520157748397e-06,
+        "armijo_pass": true,
+        "min_row_scale": 1.0027701335957317e-07,
+        "max_row_scale": 0.20553763210773468,
+        "row_scale_reconstruction_max_abs": 9.313225746154785e-10,
+        "row_scale_reconstruction_max_rel": 9.256545752123202e-08
+      },
+      {
+        "iteration": 3,
+        "status": "accepted_trial",
+        "backtrack": 0,
+        "alpha": 1.0,
+        "raw_residual_inf": 2.17425145e-13,
+        "state_inf": 0.0205486324,
+        "scaled_correction_inf": 0.000301445078,
+        "raw_residual_gate": 2.0410972648e-08,
+        "raw_residual_gate_pass": true,
+        "scaled_correction_gate": 2e-08,
+        "scaled_correction_gate_pass": false,
+        "reconstructed_current_dimensionless_merit": 1.793797963500765e-07,
+        "stored_trial_dimensionless_merit": 1.3953276e-10,
+        "armijo_required_strict_upper_bound": 1.793618583704415e-07,
+        "armijo_pass": true,
+        "min_row_scale": 1.002770417812826e-07,
+        "max_row_scale": 0.20553763210773468,
+        "row_scale_reconstruction_max_abs": 9.313225746154785e-10,
+        "row_scale_reconstruction_max_rel": 8.37229165995268e-08
+      },
+      {
+        "iteration": 4,
+        "status": "accepted_trial",
+        "backtrack": 0,
+        "alpha": 1.0,
+        "raw_residual_inf": 4.16333634e-16,
+        "state_inf": 0.0205486324,
+        "scaled_correction_inf": 2.34846311e-07,
+        "raw_residual_gate": 2.0410972648e-08,
+        "raw_residual_gate_pass": true,
+        "scaled_correction_gate": 2e-08,
+        "scaled_correction_gate_pass": false,
+        "reconstructed_current_dimensionless_merit": 1.4022007166492045e-10,
+        "stored_trial_dimensionless_merit": 1.40351479e-14,
+        "armijo_required_strict_upper_bound": 1.4020604965775395e-10,
+        "armijo_pass": true,
+        "min_row_scale": 1.002770417812826e-07,
+        "max_row_scale": 0.20553763210773468,
+        "row_scale_reconstruction_max_abs": 9.313225746154785e-10,
+        "row_scale_reconstruction_max_rel": 8.37229165995268e-08
+      },
+      {
+        "iteration": 5,
+        "status": "converged",
+        "backtrack": -1,
+        "alpha": 0.0,
+        "raw_residual_inf": 5.55111512e-16,
+        "state_inf": 0.0205486324,
+        "scaled_correction_inf": 3.78150332e-12,
+        "raw_residual_gate": 2.0410972648e-08,
+        "raw_residual_gate_pass": true,
+        "scaled_correction_gate": 2e-08,
+        "scaled_correction_gate_pass": true,
+        "line_search": "not run; both original convergence tests passed before a new line search"
+      }
+    ],
+    "row_scale_reconstruction": {
+      "candidate_state_word": "high FP32 state only, as passed to production solveScaledLocalMaterialSystem",
+      "formula": "max(abs(accepted_i),abs(candidate_high_i),scale_floor); rowScale_r=sum_c(abs(J_rc)*stateScale_c), FP32 ordered accumulation",
+      "scale_floor_from_parameter_26": 9.99999993922529e-09,
+      "max_abs_difference_over_four_line_searches": 9.313225746154785e-10,
+      "max_relative_difference_over_four_line_searches": 9.256545752123202e-08
+    }
+  },
+  "independent_fp64_comparison": {
+    "implementation": "independent handwritten Hill/tensile-hardening 15-state return map; FP64 Newton, complex-step implicit tangent; no production compiler or Metal projector",
+    "reference_projection_iterations": 3,
+    "reference_scaled_residual": 1.6489834539977963e-13,
+    "native_projected_state_vs_fp64_root": {
+      "absolute_l2": 5.346126583249033e-13,
+      "relative_l2": 2.5771351226443752e-11,
+      "max_absolute_component": 5.055296459222092e-13,
+      "max_relative_component_nonzero_reference": 1.8103751466251898e-06
+    },
+    "native_stress_vs_fp64_stress_at_native_projected_state": {
+      "absolute_l2": 0.006719202267881876,
+      "relative_l2": 3.422714776563883e-08,
+      "max_absolute_component": 0.005811952200019732,
+      "max_relative_component_nonzero_reference": 4.537896919354943e-08
+    },
+    "native_stress_vs_fp64_stress_at_fp64_root": {
+      "absolute_l2": 0.006719197146980044,
+      "relative_l2": 3.422712168007857e-08,
+      "max_absolute_component": 0.005811408220324665,
+      "max_relative_component_nonzero_reference": 4.537894418969073e-08
+    },
+    "native_tangent_vs_fp64_tangent_at_native_projected_state": {
+      "absolute_l2": 33.96197391457056,
+      "relative_l2": 1.5038647682989813e-08,
+      "max_absolute_component": 32.63459014892578,
+      "max_relative_component_nonzero_reference": 4.336398741558239e-08
+    },
+    "native_tangent_vs_fp64_tangent_at_fp64_root": {
+      "absolute_l2": 77.07725780817223,
+      "relative_l2": 3.4130458022683465e-08,
+      "max_absolute_component": 63.43051886558533,
+      "max_relative_component_nonzero_reference": 1.5979811831409279e-06
+    },
+    "declared_deformation_direction": [
+      0.7,
+      -0.2,
+      0.4,
+      0.1,
+      0.3,
+      -0.6,
+      -0.25,
+      0.5,
+      0.8
+    ],
+    "rate_direction": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "direction_scope": "one declared nonzero deformation direction; this is an analytic tangent action comparison, not a nine-direction finite-difference or branch/noise-floor qualification"
+  },
+  "verdict": {
+    "local_projection_raw_residual_gate_pass": true,
+    "local_projection_scaled_correction_gate_pass": true,
+    "all_four_scaled_armijo_full_steps_strictly_decrease_merit": true,
+    "one_point_stress_and_tangent_vs_independent_fp64_below_1e-3_vector_relative": true,
+    "physical_steps": 0,
+    "physical_validation": false,
+    "full_coupon_or_solver_qualification": false,
+    "limitations": [
+      "F high/low bits are source-transcribed in the 390 harness result; a separately bound 382 source-117 replay confirms the same words through native deformation readback.",
+      "One material point and one tangent direction only.",
+      "No finite-difference smooth-branch or absolute-noise-floor claim.",
+      "This does not qualify any physical coupon or full solver trajectory."
+    ]
+  }
+}

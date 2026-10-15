@@ -1,5 +1,9 @@
 # Cardboard implementation and evidence ledger
 
+## Current milestone: source121
+
+The [source121 report](solver-milestone-source121.md) records the scaled material merit repair, exact674 point regression, complete rejected-contact trial captures, and the new native858 material failure. Source119 passes70 build targets and74 CPU checks; source121 freshly builds three diagnostic targets. The full coupon still rejects control zero. The previous858 CPU replay used the old merit rule and is retained with an erratum. No full resolution study, calibrated corrugated damage, released shipping assembly, capacity or crush/drop prediction is qualified. Earlier milestone headings below preserve their original revision scope.
+
 ## Current milestone: source104
 
 The diagnostic-only source104 changes pass68 build targets,73 CPU tests and

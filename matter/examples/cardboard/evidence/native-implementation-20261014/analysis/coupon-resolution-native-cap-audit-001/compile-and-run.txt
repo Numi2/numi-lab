@@ -1,0 +1,11 @@
+From this directory, using Apple clang 21.0.0.123 (clang-2100.0.123.102):
+
+Runtime-equivalent budgeted layout helper:
+  /usr/bin/clang++ -std=c++20 -O2 -Wall -Wextra -I. resolution_cap_audit.cpp -o resolution_cap_audit
+  ./resolution_cap_audit > budgeted-results.csv
+
+Superseded non-budgeted first pass:
+  /usr/bin/clang++ -std=c++20 -O2 -Wall -Wextra -I. resolution_cap_audit_direct_superseded.cpp -o resolution_cap_audit_direct_superseded
+  ./resolution_cap_audit_direct_superseded > nonbudgeted-superseded.csv
+
+No application/core target or Metal library was built or run. The helper's source and exact copied headers are hash-bound in bindings.json.

@@ -1,0 +1,16 @@
+{
+  "gpu_run": false,
+  "production_edits": false,
+  "report": "report.md",
+  "report_sha256": "b34a19fe4c0ab97ac3d910113001bc079ac54989d1d35d9a0ba4fbabfbe1f120",
+  "schema": "numi.cardboard.source392_status5_capture_design.v1",
+  "source_bindings": {
+    "matter/src/metal/common.metalinc": "66153b6ac14d361e33f9f74d228b8882db81bb35f6e425c973c206bd196a5f55",
+    "matter/src/metal/fem.metalinc": "742cf561ee1ed91e20ed797e664595f675302437a3d583f8c5768da6cb3d008e",
+    "matter/src/runtime.mm": "3c467b04e72512b53a5ba9e1f3ee4132f293b0d2e6ac22acc0c3936512319e74",
+    "source392/inputs/external/source-build.json": "da94e6051e767ea4bfba58705ccaf321e5dd97e5e9b40b32715f056676980c9f",
+    "source392/output/manifest.json": "fbfcf51db84a3710cc3bd96e016597728163da464974ea033554e82e587cd8eb"
+  },
+  "source_snapshot": "source-scaled-material-merit-118",
+  "status": "design_only_not_executed"
+}

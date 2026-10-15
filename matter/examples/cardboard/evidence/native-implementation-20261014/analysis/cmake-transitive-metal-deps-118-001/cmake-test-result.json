@@ -1,0 +1,25 @@
+{
+  "results": {
+    "Ninja": {
+      "cmake_configure_stdout_sha256": "2bf0ae46b3e6f8ed4d19ad7f5075a02f5809b59d2c74ed7ff260e4e1ade69044",
+      "configured": true,
+      "depfile_contains_transitive_include": true,
+      "incremental_build_stdout_sha256": "ecfb900e9158e8dc3055772030a29c27a8ed405494c5cfc3552b154fabf9ff1f",
+      "initial_build_completed": true,
+      "initial_build_stdout_sha256": "ecfb900e9158e8dc3055772030a29c27a8ed405494c5cfc3552b154fabf9ff1f",
+      "metal_compiler_reinvocations_after_touch": 1,
+      "touched_include_rebuilt_metal": true
+    },
+    "Unix Makefiles": {
+      "cmake_configure_stdout_sha256": "5d17da463d9c90b5279a1e0ba3aa764e330d9de46137d2c97c6bf2688acaca30",
+      "configured": true,
+      "depfile_contains_transitive_include": true,
+      "incremental_build_stdout_sha256": "10a5044454d1c9290045c3cfca13bd5fb2e34f765a55edf2cb78c3a96b1d9244",
+      "initial_build_completed": true,
+      "initial_build_stdout_sha256": "10a5044454d1c9290045c3cfca13bd5fb2e34f765a55edf2cb78c3a96b1d9244",
+      "metal_compiler_reinvocations_after_touch": 1,
+      "touched_include_rebuilt_metal": true
+    }
+  },
+  "schema": "numi.cardboard.metal-cmake-depfile-test.v1"
+}

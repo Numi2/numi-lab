@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.projection_trace_host_capacity_repair.v1",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-padded-trial-summary-120",
+  "base_sha256": "2f10f90acd650b84afb38b5a576cb38c70087397f7e82ebb45b364ccda6b5c66",
+  "overlay_sha256": "48767aab1a2f11a04b43f9bc2bcef4bdead6b02f9275bbcbe0eb7d325cb4abf4",
+  "path": "matter/tools/cardboard_asymmetric_c1_paper_gpu_check.mm",
+  "defect": "Common Metal trace capacity increased from16 to32 in source118, but C1 host retained16. The tangent diagnostic kernel unconditionally writes all11976 trace words when enabled; the old host allocated5992 trace words. Earlier full builds/CPU tests did not exercise that native trace and do not qualify it.",
+  "actual_metal_trace_words": 11976,
+  "source120_host_trace_words": 5992,
+  "repaired_host_trace_words": 11976,
+  "physical_operators_changed": false,
+  "acceptance_thresholds_changed": false,
+  "native_validation": "pending source121 C1 trace under Metal shader validation",
+  "other_trace_host": "bilinear15 capture host already uses32 iterations/11976words",
+  "scope": "only C1 diagnostic host allocation, copy and capacity reporting"
+}

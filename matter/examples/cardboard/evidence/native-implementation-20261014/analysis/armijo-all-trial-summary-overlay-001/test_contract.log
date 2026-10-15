@@ -1,0 +1,1 @@
+PASS source-bound trial summary contract: 8 stages; budgets 1/16/24/32; envs 1/2/4; bytes <= 32 MiB; descriptors <= 192; capture order/config/schema/final fraction checked

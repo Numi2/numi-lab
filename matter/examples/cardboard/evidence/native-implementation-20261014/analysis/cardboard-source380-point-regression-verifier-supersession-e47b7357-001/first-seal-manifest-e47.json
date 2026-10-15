@@ -1,0 +1,35 @@
+{
+  "schema": "numi.cardboard.source380-point-regression-verifier-manifest.v1",
+  "description": "Optional external numerical regression for source-380 env0/tet674; diagnostic only",
+  "validation_command": "python3.10 -m unittest -v test_verify_point.py",
+  "validation_exit_code": 0,
+  "positive_command": "python3.10 verify_point.py with README arguments",
+  "positive_output_status": "pass",
+  "python_version": "3.10.12",
+  "numpy_version": "2.2.5",
+  "files_sha256": {
+    "README.md": "34c5a504ec0e8bf9458eb8666f61443c86d5f0c6eeaf9dcd6569e003c273a8e4",
+    "fp64-reference-vectors-674.json": "7ca8ce806765d8389bde7abdd1d4e14b0951d77be8f874a40e4fe51aa22e83b7",
+    "test_verify_point.py": "7d236e5cede91ecf120e47c680fba4433d3a61525d1d49e61cd19659d539ba35",
+    "validation.log": "8491715486e4d596fdd38a3aa7b05ba97920df0ea2251cac566befa866416ab5",
+    "verify_point.py": "4c3159cc2660f0206d0fbfc462afe52b7f30f7a89ba245926aee7712dfaa78ab"
+  },
+  "source_bindings_sha256": {
+    "origin_fixture": "7925a6eba993e6bf8b4f536352027d18c221f95c215fe73d1b20ebaec6aeb797",
+    "compiled_package": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+    "medium_asset": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+    "FP64_reference_vectors": "7ca8ce806765d8389bde7abdd1d4e14b0951d77be8f874a40e4fe51aa22e83b7"
+  },
+  "bound_example_native_artifacts_sha256": {
+    "390_receipt": "e97fa31c84a3b5fb9050d9722b5ac5baeed6728a3bb0c59a3ae7e9d1a979d86d",
+    "390_point_result": "9332767747218a967f711aeeb68ece6de4c6cddad270ce8799e0a6c529dac234",
+    "390_point_rows": "3272a6a76c6b3a2ccb3e8b481e4b69da5c44fd446f7c2358a167783a8550b1d6",
+    "390_trace": "eb62b8eed7e26d3593578a8e86840367a2f19fcf059ceea95ee5950b6ddc97aa",
+    "382_f_readback": "f4e52384010b64f0149a2179c5ad0ebe37022cbd620c92f8a437e6c741fe89a8",
+    "382_f_readback_binding": "6bad303d87575badc2e4d4c1f12ef9813d0ea30041c6a91e199abee074b65526"
+  },
+  "limits": [
+    "No CMake or default CTest/GPU integration.",
+    "One point and one tangent direction; not calibration, FD/noise-floor, physical-step, or full-coupon qualification."
+  ]
+}

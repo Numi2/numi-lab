@@ -1,0 +1,25 @@
+{
+  "schema": "numi.cardboard.point390.root-reexecution.v1",
+  "finished_at_utc": "2026-10-15T17:50:54.194422+00:00",
+  "strict_reference_report_and_vectors_byte_identical": true,
+  "opt_in_verifier_unittests_passed": 6,
+  "source_packages_unchanged": true,
+  "source_files_sha256": {
+    "/Users/home/cardboard-implementation-20261014/analysis/dimensionless-material674-point-390-strict-reference-addendum-001/strict_reference.py": "419857b04681b651981c910c98fcbc2d59ce93585ad8338aca9fad967f6f583d",
+    "/Users/home/cardboard-implementation-20261014/analysis/dimensionless-material674-point-390-strict-reference-addendum-001/report.json": "b80092423f724a1e42ad7105159dae13f5abce918073b3fd1fcf9e19d67e802d",
+    "/Users/home/cardboard-implementation-20261014/analysis/dimensionless-material674-point-390-strict-reference-addendum-001/run.log": "b80092423f724a1e42ad7105159dae13f5abce918073b3fd1fcf9e19d67e802d",
+    "/Users/home/cardboard-implementation-20261014/analysis/dimensionless-material674-point-390-strict-reference-addendum-001/bilinear15_reference.py": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+    "/Users/home/cardboard-implementation-20261014/analysis/dimensionless-material674-point-390-strict-reference-addendum-001/README.md": "87fc5c37e0e86c225986de6498be5311d8b2115a3b29837592a359bb008aba62",
+    "/Users/home/cardboard-implementation-20261014/analysis/dimensionless-material674-point-390-strict-reference-addendum-001/fp64-reference-vectors-674.json": "7ca8ce806765d8389bde7abdd1d4e14b0951d77be8f874a40e4fe51aa22e83b7",
+    "/Users/home/cardboard-implementation-20261014/analysis/dimensionless-material674-point-390-strict-reference-addendum-001/manifest.json": "7f6addd7c803e1c4c49417d24934e4e9728b51b6b6e0d12d48c6b53ff80d0cf2",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-source380-point-regression-verifier-001/validation.log": "8491715486e4d596fdd38a3aa7b05ba97920df0ea2251cac566befa866416ab5",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-source380-point-regression-verifier-001/verify_point.py": "4c3159cc2660f0206d0fbfc462afe52b7f30f7a89ba245926aee7712dfaa78ab",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-source380-point-regression-verifier-001/README.md": "34c5a504ec0e8bf9458eb8666f61443c86d5f0c6eeaf9dcd6569e003c273a8e4",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-source380-point-regression-verifier-001/fp64-reference-vectors-674.json": "7ca8ce806765d8389bde7abdd1d4e14b0951d77be8f874a40e4fe51aa22e83b7",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-source380-point-regression-verifier-001/manifest.json": "58a972b4b72a6511ea510ea38348100b60fe571d97517d8801c9d8c3d0cb0b5c",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-source380-point-regression-verifier-001/test_verify_point.py": "7d236e5cede91ecf120e47c680fba4433d3a61525d1d49e61cd19659d539ba35",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-source380-point-regression-verifier-001/unittest.log": "0ab9238911b57c6b5a822819b52a27efa96b18fc869e625e69364bcd0feff8c7"
+  },
+  "physical_steps": 0,
+  "physical_validation": false
+}

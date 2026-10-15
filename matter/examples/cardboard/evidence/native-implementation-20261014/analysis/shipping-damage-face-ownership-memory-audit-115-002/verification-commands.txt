@@ -1,0 +1,24 @@
+Base checkout: /Users/home/numi-cardboard-20261006
+Base HEAD: 4fb44c44511609d66eb4443fd8aa3730a39d516b
+
+Patch applicability:
+git -C /Users/home/numi-cardboard-20261006 apply --check /Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-002/overlay.patch
+Result: exit 0
+
+Isolated geometry control:
+/usr/bin/c++ -std=c++2b -Wall -Wextra -Wpedantic -Werror -I/Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-002/src/matter/tools -I/Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-002/tests -o /Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-002/tests/face_boundary_smoke /Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-002/tests/face_boundary_smoke.cpp
+/Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-002/tests/face_boundary_smoke
+Result: exit 0; stdout `face_boundary_smoke_passed`
+
+Overlay checker syntax-only compile:
+/usr/bin/c++ -std=c++2b -Wall -Wextra -Wpedantic -Werror -fsyntax-only -I/Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-002/src/matter/tools -I/Users/home/numi-cardboard-20261006/matter/tools -I/Users/home/numi-cardboard-20261006/matter/include -I/Users/home/numi-cardboard-20261006/include /Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-002/src/matter/tools/cardboard_retained_matrix_damage_check.cpp
+Result: exit 0
+
+Full isolated retained CPU checker build/link:
+/usr/bin/c++ -O3 -DNDEBUG -std=c++2b -arch arm64 -Wall -Wextra -Wpedantic -Werror -I/Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-002/src/matter/tools -I/Users/home/numi-cardboard-20261006/matter/tools -I/Users/home/numi-cardboard-20261006/matter/include -I/Users/home/numi-cardboard-20261006/include -c /Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-002/src/matter/tools/cardboard_retained_matrix_damage_check.cpp -o /Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-002/tests/retained_matrix_damage_check.o
+/usr/bin/c++ -O3 -DNDEBUG -arch arm64 -Wl,-search_paths_first -o /Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-002/tests/retained_matrix_damage_check /Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-002/tests/retained_matrix_damage_check.o /Users/home/numi-cardboard-20261006/build-cardboard-provenance-091/matter/libnumi_matter_compiler.a
+/Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-002/tests/retained_matrix_damage_check /Users/home/numi-cardboard-20261006/matter/materials
+Result: exit 0; stdout captured; stderr empty
+Compiler archive provenance: /Users/home/numi-cardboard-20261006/build-cardboard-provenance-091/CMakeCache.txt names snapshot source-rationalized-paper-and-native-checkers-091. This is not a fresh source115 compiler-library build.
+
+No GPU or runtime initialization was performed.

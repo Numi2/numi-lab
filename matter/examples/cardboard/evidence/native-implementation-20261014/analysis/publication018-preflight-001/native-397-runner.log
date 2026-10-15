@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121/matter/tools/cardboard_source_bound_run.py", line 134, in <module>
+    if relative in bindings: raise ValueError('duplicate external input basename')
+ValueError: duplicate external input basename

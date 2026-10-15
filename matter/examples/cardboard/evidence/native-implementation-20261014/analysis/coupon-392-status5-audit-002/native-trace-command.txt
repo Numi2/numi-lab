@@ -1,0 +1,5 @@
+numi-matter-cardboard-bilinear15-capture-diagnostic-check --native-source392-tet858-trace \
+  /Users/home/cardboard-implementation-20261014/native/source392-tet858-point-401/output/point.json \
+  /Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392 \
+  /Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter \
+  /path/to/fresh-output-dir

@@ -1,0 +1,1 @@
+SUPERSEDED prototype. Tet858 uses correct zero accepted history. Tet674 incorrectly uses zero accepted history; its reported successes are NOT the retained native674 case. Exact-bit accepted-history prototype003 supersedes this comparison.

@@ -1,0 +1,51 @@
+{
+  "schema": "numi.cardboard.source392_status5_cpu_erratum.v1",
+  "source_snapshot": "source-valid-summary-tet858-121",
+  "native_point401": {
+    "sha256": "411d522ebd281eae2b75d99f8f7927d2df3521795b1a04dc4a325953aafcc4d8",
+    "tet_id": 858,
+    "environment": 0,
+    "material_index": 1,
+    "local_updates": 32,
+    "projection_converged": false,
+    "terminal_failure": 7,
+    "residual": 4.309141635894775,
+    "state_norm": 1.089024305343628,
+    "compiled_material_flags": 213,
+    "projection_flags": 63
+  },
+  "corrected_cpu_production_merit_replay": {
+    "executable": "replay-production-merit",
+    "stdout_sha256": "34408ebbf558ec2af000386bdeade176d6a4633fb2703d298e883059316638da",
+    "valid": false,
+    "iterations": 32,
+    "terminal_residual": 4.309141635894775,
+    "tolerance": 4.178048484959618e-08,
+    "scaled_correction": 17.340585708618164,
+    "failure": "iteration_budget_exhausted",
+    "fp64_reference_projection_residual_inf": 1.1102230246251565e-15,
+    "fp64_reference_newton_updates": 15,
+    "fp64_reference_scope": "independent source-law FP64 point reference, not a native first-failure generation capture"
+  },
+  "native_cpu_comparison": {
+    "terminal_residual_abs_difference": 0.0,
+    "max_projected_state_high_word_abs_difference_after_float_rounding": 1.4551915228366852e-11,
+    "max_projected_state_low_word_abs_difference_after_float_rounding": 8.003553375601768e-11,
+    "max_projected_state_high_plus_low_abs_difference": 8.003553375601768e-11,
+    "interpretation": "CPU replay is consistent with the retained native point's failed 32-update state; it does not identify which production dispatch first latched status 5."
+  },
+  "prior_audit_erratum": {
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/coupon-392-status5-audit-001/report.md",
+    "sha256": "9bf2449996bb1e107ed3f2397d51b3f77bb239e21939be6d70996e9ec0b89c0f",
+    "prior_claim": "14-update raw-residual Armijo replay converged",
+    "correction": "that replay used raw-residual merit; source121 compiled flag 213 selects scaled-correction policy, so this is not the production-policy replay and must not be used to clear status 5"
+  },
+  "native_trace_harness": {
+    "source": "cardboard_bilinear15_capture_diagnostic_check.mm",
+    "sha256": "b04bb295db1eba1c10c1001db3b2e90564099e2afb453fd630579bc5a6c76e0d",
+    "cli": "--native-source392-tet858-trace POINT401.json RUN392_DIR MEDIUM.nmatter OUTPUT_DIR",
+    "physical_transactions": 0,
+    "native_execution_performed": false,
+    "host_compile": "Werror ObjC++ compile and link succeeded; Metal source compiled to AIR and metallib; no dispatch run"
+  }
+}

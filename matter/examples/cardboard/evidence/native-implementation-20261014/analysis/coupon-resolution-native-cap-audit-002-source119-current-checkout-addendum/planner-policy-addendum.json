@@ -1,0 +1,25 @@
+{
+  "code_behavior": {
+    "declared_absolute_free_force_residual_limit": "Optional max_free_force_residual_n. When absent, group gate is inconclusive; when present, reported baseline/candidate free-force L2 and max-component residuals are checked against it.",
+    "ratio": "relative_tolerance/dt remains constant by construction",
+    "regularization_floor": "The fixed regularization floor is not scaled with dt; equal tolerance/dt does not establish equivalent solve error.",
+    "source_lines": {
+      "group_requires_force_bound_pass": "cardboard_resolution_study.py:840-864",
+      "pair_force_gate": "cardboard_resolution_study.py:700-730",
+      "plan_documentation": "cardboard_resolution_study.py:385-390",
+      "time_cases": "cardboard_resolution_study.py:357-367"
+    },
+    "time_case_dt": "dt/factor (factor 2 or 4)",
+    "time_case_relative_residual_tolerance": "base_relative_tolerance/factor",
+    "what_the_bound_means": "A numerical bound on observed free-force residuals, not an absolute force-error bound or proof of discretization accuracy."
+  },
+  "docs_vs_code": "Current documentation describes the tightened relative tolerance and separate observed force-residual bound. It also states the tolerance ratio is not an absolute force-error bound. This is consistent with code; no constant-relative-tolerance correction was found in the source119 or current planner files.",
+  "git_checkout_head": "7ebc64a666c4bd5e1ff61b3684655979ab80dc60",
+  "native392_status": "Source118 native baseline failed its first bent step with accepted_steps=0; this resource audit is not numerical convergence evidence.",
+  "planner_current_checkout_sha256": "326348a3047124fc5da57404f577aca76e1383ff7fc35266e307cb0b00a5b7be",
+  "planner_source119_sha256": "326348a3047124fc5da57404f577aca76e1383ff7fc35266e307cb0b00a5b7be",
+  "planner_sources_byte_identical": true,
+  "schema": "numi.cardboard.resolution-planner-policy-addendum.v1",
+  "source118_manifest_sha256": "42a79feef45e5f4293325e6a051910bd50681d0dff31559bb1558298cf6622b4",
+  "source118_package": "/Users/home/cardboard-implementation-20261014/analysis/coupon-resolution-native-cap-audit-001"
+}

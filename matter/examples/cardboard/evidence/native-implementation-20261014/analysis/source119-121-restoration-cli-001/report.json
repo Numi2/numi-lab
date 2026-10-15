@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "restorer_sha256": "d28d1114c4e86f0fef6b8af1c0d62c29fa2cd82710f53bcd7f5e76fa07e05a5b",
+  "restored_snapshots": [
+    {
+      "number": 119,
+      "files": 1818,
+      "exact_bytes_verified": true,
+      "output": "/Users/home/cardboard-implementation-20261014/cardboard-restore119-1xtefe1t/restored",
+      "actual_build_success": true
+    },
+    {
+      "number": 120,
+      "files": 1818,
+      "exact_bytes_verified": true,
+      "output": "/Users/home/cardboard-implementation-20261014/cardboard-restore120-cyajsmt8/restored",
+      "actual_build_success": true
+    },
+    {
+      "number": 121,
+      "files": 1819,
+      "exact_bytes_verified": true,
+      "output": "/Users/home/cardboard-implementation-20261014/cardboard-restore121-l_ll1tjw/restored",
+      "actual_build_success": true
+    }
+  ]
+}

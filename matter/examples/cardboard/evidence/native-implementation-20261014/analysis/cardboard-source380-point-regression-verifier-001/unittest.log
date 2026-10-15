@@ -1,0 +1,11 @@
+test_origin390_passes (cardboard-implementation-20261014.analysis.cardboard-source380-point-regression-verifier-001.test_verify_point.VerifierTests) ... ok
+test_rejects_correction_gate_failure (cardboard-implementation-20261014.analysis.cardboard-source380-point-regression-verifier-001.test_verify_point.VerifierTests) ... ok
+test_rejects_f_readback_mismatch (cardboard-implementation-20261014.analysis.cardboard-source380-point-regression-verifier-001.test_verify_point.VerifierTests) ... ok
+test_rejects_native_tangent_error (cardboard-implementation-20261014.analysis.cardboard-source380-point-regression-verifier-001.test_verify_point.VerifierTests) ... ok
+test_rejects_trace_parity_mismatch (cardboard-implementation-20261014.analysis.cardboard-source380-point-regression-verifier-001.test_verify_point.VerifierTests) ... ok
+test_rejects_wrong_package_binding (cardboard-implementation-20261014.analysis.cardboard-source380-point-regression-verifier-001.test_verify_point.VerifierTests) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.027s
+
+OK

@@ -1,0 +1,2351 @@
+{
+  "capture": {
+    "capture": {
+      "cohesive_face_count": 1,
+      "contact_pair_count": 72,
+      "deformable_contact_capacity": 18336,
+      "device_program_fingerprint": "65c21efe518880f6",
+      "environment_count": 1,
+      "iteration": 9,
+      "line_search_budget": 24,
+      "node_count": 36,
+      "particle_count": 0,
+      "root": 1201,
+      "source_physics_fingerprint": "915f50b10edc2e46",
+      "tetrahedron_count": 48,
+      "unknown_count": 78
+    },
+    "entry_status": {
+      "code": 0,
+      "code_name": "success",
+      "completed_microsteps": 0,
+      "contact_count": 0,
+      "diagnostic_f32_bits": [
+        "0x7f800000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000"
+      ],
+      "diagnostics": [
+        "+Infinity",
+        0.0,
+        0.0,
+        0.0
+      ],
+      "environment": 0,
+      "event_count": 0,
+      "failing_index": 4294967295,
+      "fgmres_iterations": 144,
+      "object_index": 4294967295
+    },
+    "feasible_trial_descent": {
+      "acceptance_codes": [
+        0.0,
+        0.0
+      ],
+      "base_float32_bits": "0x367c8946",
+      "base_l2": 3.7630829865520354e-06,
+      "both_status_clear_through_measurement": true,
+      "interpretation": "The first status-clear samples are rejected: the trial norm is one FP32 ULP above base and unchanged when alpha is halved. This is no-descent evidence, not a measured residual noise floor.",
+      "relative_increase": 6.042217943526289e-08,
+      "tested_alphas": [
+        2.384185791015625e-07,
+        1.1920928955078125e-07
+      ],
+      "trial22_l2": 3.763083213925711e-06,
+      "trial23_l2": 3.763083213925711e-06,
+      "trial_float32_bits": "0x367c8947",
+      "trial_indices": [
+        22,
+        23
+      ],
+      "trial_minus_base": 2.2737367544323206e-13,
+      "ulp_steps": 1
+    },
+    "final_environment_line_search": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "final_fem_status": {
+      "code": 0,
+      "code_name": "success",
+      "completed_microsteps": 0,
+      "contact_count": 0,
+      "diagnostic_f32_bits": [
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000"
+      ],
+      "diagnostics": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "environment": 0,
+      "event_count": 0,
+      "failing_index": 0,
+      "fgmres_iterations": 0,
+      "object_index": 0
+    },
+    "final_global_status": {
+      "code": 10,
+      "code_name": "nonlinear_solver_failure",
+      "completed_microsteps": 0,
+      "contact_count": 0,
+      "diagnostic_f32_bits": [
+        "0x367c8946",
+        "0x367c8947",
+        "0x34000000",
+        "0x41c00000"
+      ],
+      "diagnostics": [
+        3.7630829865520354e-06,
+        3.763083213925711e-06,
+        1.1920928955078125e-07,
+        24.0
+      ],
+      "environment": 0,
+      "event_count": 0,
+      "failing_index": 9,
+      "fgmres_iterations": 144,
+      "object_index": 0
+    },
+    "final_metrics": [
+      3.7630829865520354e-06,
+      3.763083213925711e-06,
+      1.1920928955078125e-07,
+      0.0
+    ],
+    "payload": {
+      "array_count": 128,
+      "bytes": 12480,
+      "fixed_bytes": 192,
+      "formula_fixed_bytes": 192,
+      "formula_per_trial_bytes": 512,
+      "inferred_object_count": 1,
+      "per_trial_bytes": 512,
+      "sha256": "38527430a6e36b378e04c56e353afae0f07f8451044f1a91f99ca2cb0707c7a7"
+    },
+    "source_branch_evidence": {
+      "file": "matter/src/metal/contact.metalinc",
+      "lines": [
+        3962,
+        3978
+      ],
+      "meaning": "vertexTriangleCCD returns certified; when false, production records CONTACT_FAILURE with (candidate.identity.x, candidate.identity.y, vertexIndex, 3+direction) and exits before measuring a residual.",
+      "sha256": "28bfbee02d2ea396e171f10e1b383980da245f2c91426089b2e867493a139e23"
+    },
+    "trials": [
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            24,
+            123
+          ],
+          "direction": 0,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 3
+        },
+        "entry_alpha": 0.0,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x41c00000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40400000"
+          ],
+          "diagnostics": [
+            24.0,
+            123.0,
+            2.0,
+            3.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 123,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.999841570854187,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          1.0,
+          0.0
+        ],
+        "tested_alpha": 1.0,
+        "trial_index": 0,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            24,
+            123
+          ],
+          "direction": 0,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 3
+        },
+        "entry_alpha": 1.0,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x41c00000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40400000"
+          ],
+          "diagnostics": [
+            24.0,
+            123.0,
+            2.0,
+            3.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 123,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9998840093612671,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          0.5,
+          0.0
+        ],
+        "tested_alpha": 0.5,
+        "trial_index": 1,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            24,
+            123
+          ],
+          "direction": 0,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 3
+        },
+        "entry_alpha": 0.5,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x41c00000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40400000"
+          ],
+          "diagnostics": [
+            24.0,
+            123.0,
+            2.0,
+            3.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 123,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999053478240967,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          0.25,
+          0.0
+        ],
+        "tested_alpha": 0.25,
+        "trial_index": 2,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            24,
+            123
+          ],
+          "direction": 0,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 3
+        },
+        "entry_alpha": 0.25,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x41c00000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40400000"
+          ],
+          "diagnostics": [
+            24.0,
+            123.0,
+            2.0,
+            3.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 123,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999158978462219,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          0.125,
+          0.0
+        ],
+        "tested_alpha": 0.125,
+        "trial_index": 3,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            24,
+            123
+          ],
+          "direction": 0,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 3
+        },
+        "entry_alpha": 0.125,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x41c00000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40400000"
+          ],
+          "diagnostics": [
+            24.0,
+            123.0,
+            2.0,
+            3.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 123,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999211430549622,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          0.0625,
+          0.0
+        ],
+        "tested_alpha": 0.0625,
+        "trial_index": 4,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            24,
+            123
+          ],
+          "direction": 1,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 4
+        },
+        "entry_alpha": 0.0625,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x41c00000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40800000"
+          ],
+          "diagnostics": [
+            24.0,
+            123.0,
+            2.0,
+            4.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 123,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.999923825263977,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          0.03125,
+          0.0
+        ],
+        "tested_alpha": 0.03125,
+        "trial_index": 5,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            24,
+            123
+          ],
+          "direction": 1,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 4
+        },
+        "entry_alpha": 0.03125,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x41c00000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40800000"
+          ],
+          "diagnostics": [
+            24.0,
+            123.0,
+            2.0,
+            4.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 123,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999251365661621,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          0.015625,
+          0.0
+        ],
+        "tested_alpha": 0.015625,
+        "trial_index": 6,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            24,
+            123
+          ],
+          "direction": 0,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 3
+        },
+        "entry_alpha": 0.015625,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x41c00000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40400000"
+          ],
+          "diagnostics": [
+            24.0,
+            123.0,
+            2.0,
+            3.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 123,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999257922172546,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          0.0078125,
+          0.0
+        ],
+        "tested_alpha": 0.0078125,
+        "trial_index": 7,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            24,
+            168
+          ],
+          "direction": 0,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 3
+        },
+        "entry_alpha": 0.0078125,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x41c00000",
+            "0x43280000",
+            "0x40000000",
+            "0x40400000"
+          ],
+          "diagnostics": [
+            24.0,
+            168.0,
+            2.0,
+            3.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 131,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999261498451233,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          0.00390625,
+          0.0
+        ],
+        "tested_alpha": 0.00390625,
+        "trial_index": 8,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            24,
+            123
+          ],
+          "direction": 0,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 3
+        },
+        "entry_alpha": 0.00390625,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x41c00000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40400000"
+          ],
+          "diagnostics": [
+            24.0,
+            123.0,
+            2.0,
+            3.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 123,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999263286590576,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          0.001953125,
+          0.0
+        ],
+        "tested_alpha": 0.001953125,
+        "trial_index": 9,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            24,
+            127
+          ],
+          "direction": 0,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 3
+        },
+        "entry_alpha": 0.001953125,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x41c00000",
+            "0x42fe0000",
+            "0x40000000",
+            "0x40400000"
+          ],
+          "diagnostics": [
+            24.0,
+            127.0,
+            2.0,
+            3.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 124,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999263882637024,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          0.0009765625,
+          0.0
+        ],
+        "tested_alpha": 0.0009765625,
+        "trial_index": 10,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            36,
+            123
+          ],
+          "direction": 1,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 4
+        },
+        "entry_alpha": 0.0009765625,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x42100000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40800000"
+          ],
+          "diagnostics": [
+            36.0,
+            123.0,
+            2.0,
+            4.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 173,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999264478683472,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          0.00048828125,
+          0.0
+        ],
+        "tested_alpha": 0.00048828125,
+        "trial_index": 11,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            36,
+            123
+          ],
+          "direction": 1,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 4
+        },
+        "entry_alpha": 0.00048828125,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x42100000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40800000"
+          ],
+          "diagnostics": [
+            36.0,
+            123.0,
+            2.0,
+            4.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 173,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999264478683472,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          0.000244140625,
+          0.0
+        ],
+        "tested_alpha": 0.000244140625,
+        "trial_index": 12,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            36,
+            123
+          ],
+          "direction": 1,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 4
+        },
+        "entry_alpha": 0.000244140625,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x42100000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40800000"
+          ],
+          "diagnostics": [
+            36.0,
+            123.0,
+            2.0,
+            4.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 173,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999264478683472,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          0.0001220703125,
+          0.0
+        ],
+        "tested_alpha": 0.0001220703125,
+        "trial_index": 13,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            36,
+            123
+          ],
+          "direction": 1,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 4
+        },
+        "entry_alpha": 0.0001220703125,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x42100000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40800000"
+          ],
+          "diagnostics": [
+            36.0,
+            123.0,
+            2.0,
+            4.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 173,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999265074729919,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          6.103515625e-05,
+          0.0
+        ],
+        "tested_alpha": 6.103515625e-05,
+        "trial_index": 14,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            36,
+            123
+          ],
+          "direction": 1,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 4
+        },
+        "entry_alpha": 6.103515625e-05,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x42100000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40800000"
+          ],
+          "diagnostics": [
+            36.0,
+            123.0,
+            2.0,
+            4.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 173,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999265074729919,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          3.0517578125e-05,
+          0.0
+        ],
+        "tested_alpha": 3.0517578125e-05,
+        "trial_index": 15,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            36,
+            123
+          ],
+          "direction": 1,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 4
+        },
+        "entry_alpha": 3.0517578125e-05,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x42100000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40800000"
+          ],
+          "diagnostics": [
+            36.0,
+            123.0,
+            2.0,
+            4.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 173,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999265074729919,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          1.52587890625e-05,
+          0.0
+        ],
+        "tested_alpha": 1.52587890625e-05,
+        "trial_index": 16,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            36,
+            123
+          ],
+          "direction": 1,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 4
+        },
+        "entry_alpha": 1.52587890625e-05,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x42100000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40800000"
+          ],
+          "diagnostics": [
+            36.0,
+            123.0,
+            2.0,
+            4.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 173,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999265074729919,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          7.62939453125e-06,
+          0.0
+        ],
+        "tested_alpha": 7.62939453125e-06,
+        "trial_index": 17,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            36,
+            123
+          ],
+          "direction": 1,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 4
+        },
+        "entry_alpha": 7.62939453125e-06,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x42100000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40800000"
+          ],
+          "diagnostics": [
+            36.0,
+            123.0,
+            2.0,
+            4.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 173,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999265074729919,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          3.814697265625e-06,
+          0.0
+        ],
+        "tested_alpha": 3.814697265625e-06,
+        "trial_index": 18,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            36,
+            123
+          ],
+          "direction": 1,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 4
+        },
+        "entry_alpha": 3.814697265625e-06,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x42100000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40800000"
+          ],
+          "diagnostics": [
+            36.0,
+            123.0,
+            2.0,
+            4.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 173,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999265074729919,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          1.9073486328125e-06,
+          0.0
+        ],
+        "tested_alpha": 1.9073486328125e-06,
+        "trial_index": 19,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            36,
+            123
+          ],
+          "direction": 1,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 4
+        },
+        "entry_alpha": 1.9073486328125e-06,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x42100000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40800000"
+          ],
+          "diagnostics": [
+            36.0,
+            123.0,
+            2.0,
+            4.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 173,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999265074729919,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          9.5367431640625e-07,
+          0.0
+        ],
+        "tested_alpha": 9.5367431640625e-07,
+        "trial_index": 20,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": false,
+        "base_l2": 3.7630829865520354e-06,
+        "candidate_failure_decode": {
+          "candidate_identity_xy": [
+            36,
+            123
+          ],
+          "direction": 1,
+          "interpretation": "Matches the vertexTriangleCCD uncertified branch in frozen source120: direction 0 checks left vertices against right triangle; direction 1 checks right vertices against left triangle. This is lack of CCD certification, not proof of hit or penetration.",
+          "point_vertex_index": 2,
+          "vertex_triangle_code": 4
+        },
+        "entry_alpha": 9.5367431640625e-07,
+        "first_nonzero_stage": "deformable_self_narrowphase",
+        "first_status": {
+          "code": 6,
+          "code_name": "contact_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x42100000",
+            "0x42f60000",
+            "0x40000000",
+            "0x40800000"
+          ],
+          "diagnostics": [
+            36.0,
+            123.0,
+            2.0,
+            4.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 173,
+          "fgmres_iterations": 0,
+          "object_index": 0,
+          "stage": "deformable_self_narrowphase"
+        },
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999265074729919,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          "+Infinity",
+          4.76837158203125e-07,
+          0.0
+        ],
+        "tested_alpha": 4.76837158203125e-07,
+        "trial_index": 21,
+        "trial_l2": "+Infinity"
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": true,
+        "base_l2": 3.7630829865520354e-06,
+        "entry_alpha": 4.76837158203125e-07,
+        "first_nonzero_stage": null,
+        "first_status": null,
+        "global_status_after_decision": {
+          "code": 0,
+          "code_name": "success",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x7f800000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "diagnostics": [
+            "+Infinity",
+            0.0,
+            0.0,
+            0.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 4294967295,
+          "fgmres_iterations": 144,
+          "object_index": 4294967295
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999265074729919,
+          1.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          3.763083213925711e-06,
+          2.384185791015625e-07,
+          0.0
+        ],
+        "tested_alpha": 2.384185791015625e-07,
+        "trial_index": 22,
+        "trial_l2": 3.763083213925711e-06
+      },
+      {
+        "acceptance_code": 0.0,
+        "all_stage_statuses_success": true,
+        "base_l2": 3.7630829865520354e-06,
+        "entry_alpha": 2.384185791015625e-07,
+        "first_nonzero_stage": null,
+        "first_status": null,
+        "global_status_after_decision": {
+          "code": 10,
+          "code_name": "nonlinear_solver_failure",
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostic_f32_bits": [
+            "0x367c8946",
+            "0x367c8947",
+            "0x34000000",
+            "0x41c00000"
+          ],
+          "diagnostics": [
+            3.7630829865520354e-06,
+            3.763083213925711e-06,
+            1.1920928955078125e-07,
+            24.0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 9,
+          "fgmres_iterations": 144,
+          "object_index": 0
+        },
+        "loop_entry_inactive": false,
+        "postdecision_environment_line_search_raw": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "postdecision_fem_line_search": [
+          0.0,
+          0.9999265074729919,
+          0.0,
+          9.0
+        ],
+        "postdecision_metrics": [
+          3.7630829865520354e-06,
+          3.763083213925711e-06,
+          1.1920928955078125e-07,
+          0.0
+        ],
+        "tested_alpha": 1.1920928955078125e-07,
+        "trial_index": 23,
+        "trial_l2": 3.763083213925711e-06
+      }
+    ]
+  },
+  "events": {
+    "393": [
+      {
+        "event": "fem_coupled_trial_summary_enabled",
+        "value": {
+          "aggregate_readback_cap_bytes": 33554432,
+          "iteration": 9,
+          "max_trial_budget": 32,
+          "physical_state_changed": false,
+          "root": 1201,
+          "schema": 1,
+          "stage_status_checkpoints": 8
+        }
+      },
+      {
+        "event": "fem_coupled_trial_summary_skipped",
+        "value": {
+          "iteration": 9,
+          "physical_state_changed": false,
+          "reason": "summary_source_extent_does_not_match_environment_layout",
+          "root": 1201,
+          "schema": 1
+        }
+      }
+    ],
+    "395": [
+      {
+        "event": "fem_coupled_trial_summary_enabled",
+        "value": {
+          "aggregate_readback_cap_bytes": 33554432,
+          "iteration": 9,
+          "max_trial_budget": 32,
+          "physical_state_changed": false,
+          "root": 1201,
+          "schema": 1,
+          "stage_status_checkpoints": 8
+        }
+      },
+      {
+        "event": "fem_coupled_trial_summary_complete",
+        "value": {
+          "arrays": 128,
+          "bytes": 12480,
+          "iteration": 9,
+          "line_search_budget": 24,
+          "manifest": "/Users/home/cardboard-implementation-20261014/native/full-contact-padded-trial-summary-395/trial-summary.summary.json",
+          "root": 1201,
+          "schema": "numi.matter.coupled_armijo_trial_summary.v1",
+          "stage_and_decision_status_copy_count": 216
+        }
+      }
+    ]
+  },
+  "lineage": {
+    "391": {
+      "artifacts_verified": 10,
+      "source": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118",
+      "source_build_sha256": "da94e6051e767ea4bfba58705ccaf321e5dd97e5e9b40b32715f056676980c9f",
+      "source_files_verified": 782
+    },
+    "393": {
+      "artifacts_verified": 79,
+      "source": "/Users/home/cardboard-implementation-20261014/snapshots/source-trial-summary-face-guard-119",
+      "source_build_sha256": "f8b60cac5f2d524680647f185b179b255982dc25c511c0e9a080489b2668e96c",
+      "source_files_verified": 782
+    },
+    "395": {
+      "artifacts_verified": 11,
+      "source": "/Users/home/cardboard-implementation-20261014/snapshots/source-padded-trial-summary-120",
+      "source_build_sha256": "ae0470412cb18c72fbc34277531d392c8198348fe1ba00ba8286cef57bc532a1",
+      "source_files_verified": 782
+    }
+  },
+  "parity": {
+    "393_vs_391": {
+      "armijo_row_count": 32,
+      "armijo_rows_exact_equal": true,
+      "diagnostic_state": {
+        "device_fingerprint_only_binary_differences": [],
+        "differences": [],
+        "file_count": 11,
+        "pass": true
+      },
+      "non_summary_environment_equal": true,
+      "normalized_argv": [
+        "numi-matter-cardboard-full-contact-armijo-check",
+        "material-sha256:ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+        "--sparse-free-body-parity",
+        "--diagnostic-state-output",
+        "<diagnostic-state-dir>",
+        "--extended-budget",
+        "--compensated-material-arithmetic"
+      ],
+      "physical_argv_equal": true,
+      "physical_verdict": {
+        "both_failed_fixture": true,
+        "exit_codes": [
+          1,
+          1
+        ],
+        "successful_simulation_claim": false
+      },
+      "production_payload_parity": true,
+      "runs": [
+        "full-contact-all-trial-summary-393",
+        "dimensionless-policy-off-full-contact-391"
+      ],
+      "stderr_exact_equal_after_filtering_only_summary_events": true,
+      "stdout_exact_equal": true
+    },
+    "395_vs_391": {
+      "armijo_row_count": 32,
+      "armijo_rows_exact_equal": true,
+      "diagnostic_state": {
+        "device_fingerprint_only_binary_differences": [],
+        "differences": [],
+        "file_count": 11,
+        "pass": true
+      },
+      "non_summary_environment_equal": true,
+      "normalized_argv": [
+        "numi-matter-cardboard-full-contact-armijo-check",
+        "material-sha256:ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+        "--sparse-free-body-parity",
+        "--diagnostic-state-output",
+        "<diagnostic-state-dir>",
+        "--extended-budget",
+        "--compensated-material-arithmetic"
+      ],
+      "physical_argv_equal": true,
+      "physical_verdict": {
+        "both_failed_fixture": true,
+        "exit_codes": [
+          1,
+          1
+        ],
+        "successful_simulation_claim": false
+      },
+      "production_payload_parity": true,
+      "runs": [
+        "full-contact-padded-trial-summary-395",
+        "dimensionless-policy-off-full-contact-391"
+      ],
+      "stderr_exact_equal_after_filtering_only_summary_events": true,
+      "stdout_exact_equal": true
+    },
+    "395_vs_393": {
+      "armijo_row_count": 32,
+      "armijo_rows_exact_equal": true,
+      "diagnostic_state": {
+        "device_fingerprint_only_binary_differences": [],
+        "differences": [],
+        "file_count": 11,
+        "pass": true
+      },
+      "non_summary_environment_equal": true,
+      "normalized_argv": [
+        "numi-matter-cardboard-full-contact-armijo-check",
+        "material-sha256:ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+        "--sparse-free-body-parity",
+        "--diagnostic-state-output",
+        "<diagnostic-state-dir>",
+        "--extended-budget",
+        "--compensated-material-arithmetic"
+      ],
+      "physical_argv_equal": true,
+      "physical_verdict": {
+        "both_failed_fixture": true,
+        "exit_codes": [
+          1,
+          1
+        ],
+        "successful_simulation_claim": false
+      },
+      "production_payload_parity": true,
+      "runs": [
+        "full-contact-padded-trial-summary-395",
+        "full-contact-all-trial-summary-393"
+      ],
+      "stderr_exact_equal_after_filtering_only_summary_events": true,
+      "stdout_exact_equal": true
+    }
+  },
+  "physical_verdict": {
+    "exit_codes": {
+      "391": 1,
+      "393": 1,
+      "395": 1,
+      "all_no_timeout": true,
+      "fixture_failed_at_newton9": true,
+      "simulation_qualified": false
+    }
+  },
+  "raw_capture_manifest": {
+    "adjudicated_json_status": "strict_json_valid",
+    "adjudication_copy": "/Users/home/cardboard-implementation-20261014/analysis/armijo-all-trial-summary-analyzer-001/395-manifest-adjudicated.json",
+    "adjudication_copy_sha256": "822d9cd24c9567adc3287af7347873376347be9591caf731f09ccddefad4f637",
+    "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-padded-trial-summary-395/trial-summary.summary.json",
+    "qualification": "Raw native JSON remains invalid and untouched. Table decoded only from one-byte-repaired adjudication copy; binary independently hash/extent checked.",
+    "raw_bytes": 43556,
+    "raw_json_status": "invalid_extra_data_preserved",
+    "raw_sha256": "ba41e4bead53b0bf3408fa4297c18dfc2ed208fc03f4d12813808c44371d6837",
+    "repair": "delete one extra closing brace before payload",
+    "repaired_bytes": 43555,
+    "repaired_sha256": "d47f248df37a6f8a9c8be2e2ea6b81a8d2e1122529508890ea78436df3d224ab"
+  },
+  "schema": "numi.cardboard.all_trial_summary_adjudication.v1",
+  "status": "PASS_DIAGNOSTIC_PAYLOAD_AND_PARITY; EXPECTED_PHYSICAL_FAILURE_PRESERVED"
+}

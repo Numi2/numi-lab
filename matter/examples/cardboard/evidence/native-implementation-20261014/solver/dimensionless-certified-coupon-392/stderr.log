@@ -1,0 +1,5 @@
+matter_regional_restart_augmentation={"schema":2,"enabled":true,"environment_count":2,"base_modes":26,"augmented_modes":27,"layout":"environment_major_padded_mode_stride","scope":"one_or_two_environment_contact_free_selector5_current_newton_only"}
+cardboard_step_timing={"schema":1,"control_step":0,"stage":"encode_begin","scope":"prescribed_fem_transaction"}
+fem_residual_armijo_enabled={"schema":1,"root":0,"trials":24,"metric":"per_environment_free_dof_l2_impulse","history":"accepted_state_read_only"}
+cardboard_step_timing={"schema":1,"control_step":0,"stage":"encode_end","encoding_wall_s":0.875687}
+cardboard_step_timing={"schema":1,"control_step":0,"stage":"completed","encoding_wall_s":0.875687,"commit_and_wait_wall_s":708.027,"gpu_wall_s":707.932,"command_buffer_status":4}

@@ -1,0 +1,6 @@
+{
+  "status": "failed_before_clone_or_build",
+  "error": "KeyError: 'overlay_files'",
+  "cause": "Integration harness assumed overlay002 manifest schema for overlay003. No snapshot or build directory was created.",
+  "script_sha256": "372dde12310ea067feeaccbdbccfc8e760eb5efa927c1be6fa8671acd0099275"
+}

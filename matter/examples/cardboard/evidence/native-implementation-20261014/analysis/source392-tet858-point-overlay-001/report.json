@@ -1,0 +1,52 @@
+{
+  "schema": "numi.cardboard.source392_tet_point_overlay.v1",
+  "status": "prepared_cpu_validated_native_pending",
+  "scope": "single point native replay only; no physical transactions",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118",
+  "source_build_receipt_sha256": "da94e6051e767ea4bfba58705ccaf321e5dd97e5e9b40b32715f056676980c9f",
+  "source_build_receipt": "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/inputs/external/source-build.json",
+  "run_directory": "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392",
+  "run_receipt_sha256": "bc1495a5a63e35a36182b9206350ff2f68480345ae1b205484215a1d53da7bcb",
+  "run_manifest_sha256": "fbfcf51db84a3710cc3bd96e016597728163da464974ea033554e82e587cd8eb",
+  "result_sha256": "214e9619e196ff45fcf97376930fcb9c017f032959075332ff65073a8c213e3d",
+  "compiled_package_sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+  "conditioning_manifest_sha256": "ad51b0ceca073a4736ee128d0daf13eee82bf3a398919cc911a81fdff8399ced",
+  "candidate_nodes_sha256": "89846e4efc91c1774b52d6b3732f633e78414a7d341b6cbd8b9b4966e4be0417",
+  "accepted_state_sha256": "e32909672f5ef53992fd7c798419dcdcd257662daa0f0c6cc8d960a1dced5dfd",
+  "medium_source_sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+  "physics_fingerprint": 8485105279886344921,
+  "point": {
+    "environment": 0,
+    "tet_index": 858,
+    "node_ids": [290, 293, 292, 587],
+    "material_index": 1,
+    "state_count": 15,
+    "compiled_local_newton_iterations": 32,
+    "temperature_K_float32": 293.1499938964844,
+    "dt_s_float32": 0.00009999999747378752,
+    "candidate_source": "rejected-conditioning-000001/candidate_nodes.bin",
+    "accepted_state_source": "material_state_000001_bent.json",
+    "accepted_state_is_zero": true,
+    "candidate_is_accepted_physics": false,
+    "exact_first_failure_generation_bound": false
+  },
+  "implementation": {
+    "host_source": "source/cardboard_source392_tet_point_check.mm",
+    "host_source_sha256": "ae8e3cbc64dbe4058562ee766ed10ce0d27f841daa4943e6baa7be28a0405900",
+    "cmake_fragment": "CMake-fragment.txt",
+    "cmake_fragment_sha256": "275cac4de6c2bfd88f3a3e470d405751b6af6962bc391e7c872952e2c68973a6",
+    "readme_sha256": "217ee3319a1098f60949da00564d4d79e2173f7c463200dc567645f5fb81016d",
+    "cpu_executable_sha256": "f5eda7df8765bc46c93ffb88c82ee549afa91621f1e332ce8fa7549bc9ee03e3",
+    "shader_source_sha256": "4660f78dc594adcdcdd4cab6d6943114d16f54f5d1a3cc327270718e16a5e181",
+    "fem_metal_source_sha256": "742cf561ee1ed91e20ed797e664595f675302437a3d583f8c5768da6cb3d008e",
+    "dispatch": "single thread to cardboard_replay_source15_candidate_point; no physical step"
+  },
+  "cpu_validation": {
+    "syntax_compile": "pass with -Wall -Wextra -Wpedantic -Werror -fsyntax-only",
+    "linked_validation": "pass",
+    "command": "source392-tet858-point-check --validate /Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392 858 /Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+    "stdout": "{\"record\":\"input_admission\",\"status\":\"pass\",\"fingerprint\":8485105279886344921,\"tet\":858,\"material\":1,\"native_dispatch\":false}"
+  },
+  "native_status": "not run by this agent; parent owns GPU execution",
+  "remaining_limit": "The candidate snapshot is rejected-conditioning state from control step 0. Its sidecar does not bind the exact first-failure Newton generation; native point output cannot alone establish which dispatch wrote status 5."
+}

@@ -35,7 +35,7 @@ constexpr std::size_t kDiagnosticSlots=4u+NM_MAX_MATERIAL_STATE+
     NM_MAX_MATERIAL_STATE*NM_MAX_MATERIAL_STATE+NM_MAX_MATERIAL_STATE+
     9u*NM_MAX_MATERIAL_STATE+9u+NM_MAX_MATERIAL_STATE+9u;
 constexpr std::size_t kProjectionTraceStateCapacity=16u;
-constexpr std::size_t kProjectionTraceIterationCapacity=16u;
+constexpr std::size_t kProjectionTraceIterationCapacity=32u;
 constexpr std::size_t kProjectionTraceHeaderSlots=8u;
 constexpr std::size_t kProjectionTraceRecordSlots=6u+
     7u*kProjectionTraceStateCapacity+

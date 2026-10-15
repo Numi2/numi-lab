@@ -1,0 +1,138 @@
+{
+  "bindings": [
+    {
+      "binding": "source118",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/tools/cardboard_resolution_study.py",
+      "sha256": "8be7c6bd4f9d0905a1be2006805821bf4665764929d3b4f91d922ad7a8effe5a"
+    },
+    {
+      "binding": "source118",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/src/regional_graph_schwarz.hpp",
+      "sha256": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf"
+    },
+    {
+      "binding": "source118",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/src/runtime.mm",
+      "sha256": "3c467b04e72512b53a5ba9e1f3ee4132f293b0d2e6ac22acc0c3936512319e74"
+    },
+    {
+      "binding": "source118",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/src/compiler_impl.cpp",
+      "sha256": "474e717759ded2ecf81a0590dd7f5cb51da8a1041eacddff33c971ccb96152df"
+    },
+    {
+      "binding": "source118",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/src/validation_impl.cpp",
+      "sha256": "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808"
+    },
+    {
+      "binding": "source118",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/src/metal/fgmres.metalinc",
+      "sha256": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0"
+    },
+    {
+      "binding": "source118",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/tools/cardboard_glue_mesh.hpp",
+      "sha256": "8db61e54ff4a0e2e4a47d6bcfe02244699b7820bf97474727bb77f1f9f389260"
+    },
+    {
+      "binding": "source119",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-trial-summary-face-guard-119/matter/tools/cardboard_resolution_study.py",
+      "sha256": "326348a3047124fc5da57404f577aca76e1383ff7fc35266e307cb0b00a5b7be"
+    },
+    {
+      "binding": "source119",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-trial-summary-face-guard-119/matter/src/regional_graph_schwarz.hpp",
+      "sha256": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf"
+    },
+    {
+      "binding": "source119",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-trial-summary-face-guard-119/matter/src/runtime.mm",
+      "sha256": "e671e3e7d903cb7ddf01b53d80d03a91579857c2757e8d8586144e06cb62f8c3"
+    },
+    {
+      "binding": "source119",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-trial-summary-face-guard-119/matter/src/compiler_impl.cpp",
+      "sha256": "474e717759ded2ecf81a0590dd7f5cb51da8a1041eacddff33c971ccb96152df"
+    },
+    {
+      "binding": "source119",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-trial-summary-face-guard-119/matter/src/validation_impl.cpp",
+      "sha256": "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808"
+    },
+    {
+      "binding": "source119",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-trial-summary-face-guard-119/matter/src/metal/fgmres.metalinc",
+      "sha256": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0"
+    },
+    {
+      "binding": "source119",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-trial-summary-face-guard-119/matter/tools/cardboard_glue_mesh.hpp",
+      "sha256": "8db61e54ff4a0e2e4a47d6bcfe02244699b7820bf97474727bb77f1f9f389260"
+    },
+    {
+      "binding": "current_checkout",
+      "path": "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_resolution_study.py",
+      "sha256": "326348a3047124fc5da57404f577aca76e1383ff7fc35266e307cb0b00a5b7be"
+    },
+    {
+      "binding": "current_checkout",
+      "path": "/Users/home/numi-cardboard-20261006/matter/src/regional_graph_schwarz.hpp",
+      "sha256": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf"
+    },
+    {
+      "binding": "current_checkout",
+      "path": "/Users/home/numi-cardboard-20261006/matter/src/runtime.mm",
+      "sha256": "3c467b04e72512b53a5ba9e1f3ee4132f293b0d2e6ac22acc0c3936512319e74"
+    },
+    {
+      "binding": "current_checkout",
+      "path": "/Users/home/numi-cardboard-20261006/matter/src/compiler_impl.cpp",
+      "sha256": "474e717759ded2ecf81a0590dd7f5cb51da8a1041eacddff33c971ccb96152df"
+    },
+    {
+      "binding": "current_checkout",
+      "path": "/Users/home/numi-cardboard-20261006/matter/src/validation_impl.cpp",
+      "sha256": "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808"
+    },
+    {
+      "binding": "current_checkout",
+      "path": "/Users/home/numi-cardboard-20261006/matter/src/metal/fgmres.metalinc",
+      "sha256": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0"
+    },
+    {
+      "binding": "current_checkout",
+      "path": "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_glue_mesh.hpp",
+      "sha256": "8db61e54ff4a0e2e4a47d6bcfe02244699b7820bf97474727bb77f1f9f389260"
+    }
+  ],
+  "checkout_head": "7ebc64a666c4bd5e1ff61b3684655979ab80dc60",
+  "current_planner_source_sha256": "326348a3047124fc5da57404f577aca76e1383ff7fc35266e307cb0b00a5b7be",
+  "files": [
+    {
+      "bytes": 5486,
+      "path": "README.md",
+      "sha256": "c7f95e8aa006cdc0df5da0641ed627c0040fe0156bbc4a1af263101fd35cb139"
+    },
+    {
+      "bytes": 2753,
+      "path": "graph-scaling-estimate.json",
+      "sha256": "4d91c7a67071a6d94e281a99584ff66ab8474b7c3ab3d9d270a1b457036de1e6"
+    },
+    {
+      "bytes": 1950,
+      "path": "graph_scaling_estimate.py",
+      "sha256": "ed6b45427c76bffb91908188399479f26563a82b5b048ebff445f4e886c31af7"
+    },
+    {
+      "bytes": 2160,
+      "path": "planner-policy-addendum.json",
+      "sha256": "8da1e62650505536479e1a54a19ab73bd1a947ae46cc22b3cfe76afc92f1c51e"
+    }
+  ],
+  "package": "coupon-resolution-native-cap-audit-002-source119-current-checkout-addendum",
+  "schema": "numi.cardboard.resolution-cap-audit-addendum.v1",
+  "scope": "source119/current-checkout planner policy and bounded selector-5 arena scaling audit; no shared source edits or GPU run",
+  "source118_audit_manifest_sha256": "42a79feef45e5f4293325e6a051910bd50681d0dff31559bb1558298cf6622b4",
+  "source119_planner_source_sha256": "326348a3047124fc5da57404f577aca76e1383ff7fc35266e307cb0b00a5b7be"
+}

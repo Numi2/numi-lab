@@ -25,6 +25,7 @@
 namespace numi::cardboard::retained_damage {
 
 using numi::cardboard::FractureVec3;
+using numi::cardboard::FullFaceAmbiguityPolicy;
 using numi::cardboard::TetCrackPlane;
 using numi::cardboard::TetCrackPlaneGeometry;
 using numi::cardboard::computeTetCrackPlaneGeometry;
@@ -431,7 +432,8 @@ inline ElementProgram buildElementProgram(const ElementRequest& request) {
     result.mapping.smoothStrainWidth = request.explicitSet.smoothStrainWidth;
     for (std::size_t i=0;i<4u;++i) {
         result.mapping.planeGeometry[i] = computeTetCrackPlaneGeometry(
-            request.referenceVerticesM,request.selectedMaterialPlanes[i]);
+            request.referenceVerticesM, request.selectedMaterialPlanes[i],
+            FullFaceAmbiguityPolicy::RejectWithinClassificationTolerance);
         if (!result.mapping.planeGeometry[i].hasPositiveAreaCut())
             throw std::invalid_argument("each damage mode needs a positive-area selected plane cut");
         result.mapping.modeLengthM[i] =

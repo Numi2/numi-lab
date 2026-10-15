@@ -1,0 +1,92 @@
+{
+  "schema": "numi.matter.armijo_all_trial_summary_overlay.v1",
+  "candidate_status": "diagnostic-only overlay; not built or natively qualified",
+  "base_snapshot": "source-private-ccd-fracture-115",
+  "base_files": [
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "3c467b04e72512b53a5ba9e1f3ee4132f293b0d2e6ac22acc0c3936512319e74"
+    },
+    {
+      "path": "matter/include/numi/matter/shared.h",
+      "sha256": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691"
+    }
+  ],
+  "overlay_files": [
+    {
+      "role": "overlay_runtime",
+      "path": "overlay/matter/src/runtime.mm",
+      "sha256": "e671e3e7d903cb7ddf01b53d80d03a91579857c2757e8d8586144e06cb62f8c3",
+      "bytes": 1730808
+    },
+    {
+      "role": "unified_patch",
+      "path": "overlay.patch",
+      "sha256": "3f674c445b6843d127d04156b1f5f7206452aaa43d08b1e9453243a94dec0e60",
+      "bytes": 65286
+    },
+    {
+      "role": "portable_contract_test",
+      "path": "tests/test_contract.py",
+      "sha256": "a10c8da9f98abbda4aa0e9eef33f5b36004672fb414e653b4c971a25c0ab21a9",
+      "bytes": 10150
+    },
+    {
+      "role": "contract_test_output",
+      "path": "test_contract.log",
+      "sha256": "e83d7454e0477e561ece3657b4aab5015b85df2e82780fc804052cc64b4d370b",
+      "bytes": 172
+    },
+    {
+      "role": "patch_dry_run_output",
+      "path": "patch_dry_run.log",
+      "sha256": "ab528016dae9f026c42c8048d6698db21babc58362ca70fa9aabf5ccd30a7d77",
+      "bytes": 38
+    },
+    {
+      "role": "readme",
+      "path": "README.md",
+      "sha256": "6bb7a7b9d2745306410a0e0ab12704f3e7a44cf602898e2358b5583905264021",
+      "bytes": 2468
+    }
+  ],
+  "interface": {
+    "selector_env": "NM_FEM_COUPLED_TRIAL_SUMMARY_SELECTOR=root:zero_based_iteration",
+    "path_env": "NM_FEM_COUPLED_TRIAL_SUMMARY_PATH=prefix",
+    "output_suffixes": [
+      ".summary.bin",
+      ".summary.json"
+    ],
+    "stage_count": 8,
+    "line_search_budget_range": [
+      1,
+      32
+    ],
+    "environment_cases_contract_tested": [
+      1,
+      2,
+      4
+    ],
+    "array_count_formula": "8 + 5*budget; maximum 168 at budget 32",
+    "payload_bytes_formula": "E*(180 + 532*budget) for 48-byte status, 16-byte metrics and 4-byte environment alpha",
+    "aggregate_payload_cap_bytes": 33554432,
+    "max_array_count": 192,
+    "device_max_buffer_length_checked": true,
+    "physics_or_acceptance_change": false
+  },
+  "validation": {
+    "portable_source_bound_contract": "PASS",
+    "patch_dry_run": "PASS against immutable base without writing it",
+    "objective_cpp_or_objcxx_build": "NOT RUN",
+    "metal_compile": "NOT RUN",
+    "native_gpu_run": "NOT RUN",
+    "on_off_physical_history_parity": "PENDING root integration/native run"
+  },
+  "notes": [
+    "Summary readbacks are guarded by the selected root/Newton capture and existing full-contact/source-scope admission.",
+    "Full trial, center, and operator-FD readbacks are mutually exclusive with this summary mode.",
+    "Every trial slot is represented, including loop-entry metrics that identify inactive slots after an earlier acceptance.",
+    "The final selected fraction is copied from the production environmentLineSearch buffer, not reconstructed.",
+    "Off-mode measure_trial command stream is preserved: no unconditional barrier was added; capture barriers are inside the selected readback helpers."
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "schema": "numi.cardboard.lossless_source_snapshots.v1",
+  "git_base_revision": "7ebc64a666c4bd5e1ff61b3684655979ab80dc60",
+  "snapshots": [
+    {
+      "number": 119,
+      "manifest": "source-119.json.gz",
+      "compressed_sha256": "c0c2bffbe67ee2710acc3f434234b8f0849ac22b0c1b6d63babf38f101cb9942",
+      "uncompressed_sha256": "f86b64603f0c5a0e917ac77aa17a45b56c2a9fe907917b1cdfa3f69985e1ef8d",
+      "files": 1818,
+      "all_reconstructed_bytes_verified": true,
+      "complete_disk_restoration_verified": true
+    },
+    {
+      "number": 120,
+      "manifest": "source-120.json.gz",
+      "compressed_sha256": "2f458afe964295e04e7ddf08c5104953c092f00d8d7cfd781cd79c0f47e9d538",
+      "uncompressed_sha256": "531735452a8f4cb8627e856176116d366ed45e98e9cd621a13941576f87cf296",
+      "files": 1818,
+      "all_reconstructed_bytes_verified": true,
+      "complete_disk_restoration_verified": true
+    },
+    {
+      "number": 121,
+      "manifest": "source-121.json.gz",
+      "compressed_sha256": "e33320b5e2fc5c83dee6ce3c33d61964b0b4f53c4178a8023b30a03f2f09f68f",
+      "uncompressed_sha256": "9bb507f9dc1130b14ab860c4bd004d437a1a8de61a68f54a887fd5e14789024f",
+      "files": 1819,
+      "all_reconstructed_bytes_verified": true,
+      "complete_disk_restoration_verified": true
+    }
+  ],
+  "unique_gzip_source_blobs": 20,
+  "physical_qualification": false,
+  "scope": "Reconstructs exact source119/120/121 selected build sources plus verified root-CMake support from the fixed published Git base. No binary or scientific outcome is reclassified."
+}

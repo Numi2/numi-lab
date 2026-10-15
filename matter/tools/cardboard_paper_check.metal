@@ -1,4 +1,7 @@
-#include "../src/metal/common.metalinc"
+// Include the production Matter kernel set so the source-370 point replay can
+// call the actual FEM deformation and material-frame helpers before it enters
+// the shared constitutive evaluator.
+#include "../src/matter_kernels.metal"
 
 // Replays exact captured source15 inputs through the same production material
 // evaluator.  The second direction matrix is d(Fdot)/d(direction), supplied
@@ -56,6 +59,110 @@ kernel void cardboard_bilinear15_captured_point(
     output[22u+NM_MAX_MATERIAL_STATE]=float(iterations);
     output[23u+NM_MAX_MATERIAL_STATE]=float(flags);
     output[24u+NM_MAX_MATERIAL_STATE]=float(failure);
+}
+
+// Reconstructs a single rejected source-paper material point from the exact
+// compiled tetrahedron/object and candidate node-state buffer. This diagnostic
+// invokes the production FEM deformation, compensated local-F, velocity
+// gradient, stress, and tangent entry points. It performs no FEM transaction.
+kernel void cardboard_replay_source15_candidate_point(
+    constant NMContinuumObjectGPU& object [[buffer(0)]],
+    constant NMTetrahedronGPU& tetrahedron [[buffer(1)]],
+    constant NMMaterialGPU& material [[buffer(2)]],
+    device const NMScalarProgramGPU* programs [[buffer(3)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(4)]],
+    device const float* parameters [[buffer(5)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(6)]],
+    device const float* acceptedState [[buffer(7)]],
+    device float* output [[buffer(8)]],
+    device const float* timestepTemperature [[buffer(9)]],
+    uint index [[thread_position_in_grid]]) {
+    if (index != 0u) return;
+    using namespace numi_matter_metal;
+    for (uint i=0u;i<160u;++i) output[i]=0.0f;
+
+    const float3x3 deformation=tetrahedronDeformation(
+        tetrahedron,candidateNodes,0u);
+    const float determinantValue=determinant(deformation);
+    float deformationLow[9];
+    const float3x3 localF=femMaterialDeformationWords(
+        object,tetrahedron,material,candidateNodes,0u,deformation,
+        deformationLow);
+    const float3x3 deformationRate=tetrahedronVelocityGradient(
+        tetrahedron,candidateNodes,0u);
+    const float3x3 localRate=femMaterialInput(
+        object,tetrahedron,deformationRate);
+    const float timestep=timestepTemperature[0];
+    const float temperature=timestepTemperature[1];
+
+    bool directValid=isfinite(determinantValue) &&
+        determinantValue>=material.validity.x &&
+        determinantValue<=material.validity.y;
+    const float3x3 directLocalStress=evaluateAlgorithmicStress(
+        material,programs,instructions,parameters,acceptedState,
+        localF,localRate,timestep,temperature,directValid,deformationLow);
+    const float3x3 directWorldStress=femMaterialOutput(
+        object,tetrahedron,directLocalStress);
+
+    float3x3 direction(0.0f),rateDirection(0.0f);
+    direction[0][0]=1.0f;
+    rateDirection[0][0]=1.0f/timestep;
+    bool tangentValid=isfinite(determinantValue) &&
+        determinantValue>=material.validity.x &&
+        determinantValue<=material.validity.y;
+    float3x3 tangentLocalStress(0.0f),tangentLocalAction(0.0f);
+    float projectedState[NM_MAX_MATERIAL_STATE]={0.0f};
+    float projectedLow[NM_MAX_MATERIAL_STATE]={0.0f};
+    uint stageFlags=0u,iterations=0u,terminalFailure=0u;
+    float residualNorm=-1.0f,stateNorm=0.0f;
+    evaluateAlgorithmicStressTangent(
+        material,programs,instructions,parameters,acceptedState,
+        localF,direction,localRate,rateDirection,timestep,temperature,
+        tangentLocalStress,tangentLocalAction,tangentValid,projectedState,
+        &stageFlags,&residualNorm,&stateNorm,&iterations,&terminalFailure,
+        deformationLow,projectedLow);
+    const float3x3 tangentWorldStress=femMaterialOutput(
+        object,tetrahedron,tangentLocalStress);
+    const float3x3 tangentWorldAction=femMaterialOutput(
+        object,tetrahedron,tangentLocalAction);
+
+    output[0]=1.0f; // completed native point evaluation
+    output[1]=determinantValue;
+    output[2]=directValid?1.0f:0.0f;
+    float fHigh[9],fLow[9],fDot[9],directStress[9],directWorld[9];
+    float tangentStress[9],tangentWorld[9],tangentAction[9],actionWorld[9];
+    matrixComponents(localF,fHigh);
+    for(uint i=0u;i<9u;++i) fLow[i]=deformationLow[i];
+    matrixComponents(localRate,fDot);
+    matrixComponents(directLocalStress,directStress);
+    matrixComponents(directWorldStress,directWorld);
+    matrixComponents(tangentLocalStress,tangentStress);
+    matrixComponents(tangentWorldStress,tangentWorld);
+    matrixComponents(tangentLocalAction,tangentAction);
+    matrixComponents(tangentWorldAction,actionWorld);
+    for(uint i=0u;i<9u;++i) {
+        output[3u+i]=fHigh[i];
+        output[12u+i]=fLow[i];
+        output[21u+i]=fDot[i];
+        output[30u+i]=directStress[i];
+        output[39u+i]=directWorld[i];
+        output[120u+i]=tangentStress[i];
+        output[129u+i]=tangentWorld[i];
+        output[138u+i]=tangentAction[i];
+        output[147u+i]=actionWorld[i];
+    }
+    output[48]=tangentValid?1.0f:0.0f;
+    output[49]=float(stageFlags);
+    output[50]=residualNorm;
+    output[51]=stateNorm;
+    output[52]=float(iterations);
+    output[53]=float(terminalFailure);
+    output[54]=float(material.localNewtonIterations);
+    output[55]=(stageFlags&kMaterialDiagProjectionConverged)!=0u?1.0f:0.0f;
+    for(uint i=0u;i<NM_MAX_MATERIAL_STATE;++i) {
+        output[56u+i]=projectedState[i];
+        output[88u+i]=projectedLow[i];
+    }
 }
 
 // Instrument only: calls the production material projection, stress and

@@ -1,0 +1,28 @@
+{
+  "schema": "numi.cardboard.coupon392.status5.replay-attempts.v1",
+  "attempts": [
+    {
+      "argv": [
+        "/Users/home/cardboard-implementation-20261014/analysis/coupon-392-status5-audit-001/replay",
+        "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/rejected-conditioning-000001/candidate_nodes.bin",
+        "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/structured-paper-and-glue/finite-glue-elastic-001/inputs/nagasawa2013_medium_orthotropic.nmatter.gz"
+      ],
+      "exit_code": 2,
+      "stderr": "FAIL: medium source parse failed",
+      "status": "failed_input_format"
+    },
+    {
+      "argv": [
+        "/Users/home/cardboard-implementation-20261014/analysis/coupon-392-status5-audit-001/replay",
+        "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/compiled.nmatterpack",
+        "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/rejected-conditioning-000001/candidate_nodes.bin",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter"
+      ],
+      "exit_code": 0,
+      "stdout_file": "/Users/home/cardboard-implementation-20261014/analysis/coupon-392-status5-audit-001/replay-success.stdout.log",
+      "stderr_file": "/Users/home/cardboard-implementation-20261014/analysis/coupon-392-status5-audit-001/replay-success.stderr.log",
+      "status": "completed"
+    }
+  ]
+}

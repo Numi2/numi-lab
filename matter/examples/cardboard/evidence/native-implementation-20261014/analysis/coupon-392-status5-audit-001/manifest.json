@@ -1,0 +1,90 @@
+{
+  "schema": "numi.cardboard.coupon392.status5.cpu-audit.v1",
+  "status": "cpu_replay_complete_first_failure_site_unresolved",
+  "source_snapshot": "source-valid-summary-tet858-121",
+  "bound_files": {
+    "probe_receipt": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/receipt.json",
+      "sha256": "bc1495a5a63e35a36182b9206350ff2f68480345ae1b205484215a1d53da7bcb",
+      "bytes": 305
+    },
+    "probe_manifest": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/manifest.json",
+      "sha256": "fbfcf51db84a3710cc3bd96e016597728163da464974ea033554e82e587cd8eb",
+      "bytes": 11710
+    },
+    "compiled_package": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/compiled.nmatterpack",
+      "sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+      "bytes": 1984768
+    },
+    "result": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/result.json",
+      "sha256": "214e9619e196ff45fcf97376930fcb9c017f032959075332ff65073a8c213e3d",
+      "bytes": 698
+    },
+    "candidate_nodes": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/rejected-conditioning-000001/candidate_nodes.bin",
+      "sha256": "89846e4efc91c1774b52d6b3732f633e78414a7d341b6cbd8b9b4966e4be0417",
+      "bytes": 141120
+    },
+    "rejected_manifest": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/rejected-conditioning-000001/manifest.json",
+      "sha256": "ad51b0ceca073a4736ee128d0daf13eee82bf3a398919cc911a81fdff8399ced",
+      "bytes": 5545
+    },
+    "medium_asset": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+      "sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+      "bytes": 15906
+    },
+    "replay_source": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupon-392-status5-audit-001/replay.cpp",
+      "sha256": "e95016ce08d119becc7698cb1629852561c6577f3b39e4ba5d990c364a62fb37",
+      "bytes": 11922
+    },
+    "replay_binary": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupon-392-status5-audit-001/replay",
+      "sha256": "f5d4fd4316baca63fd469087a3446d4d6bc71e05111dcfcf984d704fa94d2519",
+      "bytes": 1959864
+    },
+    "replay_stdout": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupon-392-status5-audit-001/replay-success.stdout.log",
+      "sha256": "5c97fa96426b5030aac0b9c72c712ffebb271a15e22fe70e9195b18e994fcc12",
+      "bytes": 2005
+    },
+    "replay_stderr": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupon-392-status5-audit-001/replay-success.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "status5_design": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source392-status5-capture-design-001/report.md",
+      "sha256": "b34a19fe4c0ab97ac3d910113001bc079ac54989d1d35d9a0ba4fbabfbe1f120",
+      "bytes": 8321
+    },
+    "fem_source": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121/matter/src/metal/fem.metalinc",
+      "sha256": "742cf561ee1ed91e20ed797e664595f675302437a3d583f8c5768da6cb3d008e",
+      "bytes": 236395
+    },
+    "common_source": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121/matter/src/metal/common.metalinc",
+      "sha256": "66153b6ac14d361e33f9f74d228b8882db81bb35f6e425c973c206bd196a5f55",
+      "bytes": 100685
+    },
+    "runtime_source": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121/matter/src/runtime.mm",
+      "sha256": "ac3b2bc725a6787f342b20c1c11e8adc57ad47a80b78d9281e82cce41b9ed38c",
+      "bytes": 1732588
+    }
+  },
+  "replay_attempts_sha256": "a72dc0ce4fd217aef5561140009ec1358efde2e082441ce32cf87a7ed0ecf946",
+  "report_sha256": "9bf2449996bb1e107ed3f2397d51b3f77bb239e21939be6d70996e9ec0b89c0f",
+  "conclusion": {
+    "first_failure_site": "unresolved",
+    "native_failure_preserved": true,
+    "candidate_generation_matches_first_failure": "not_proven",
+    "gpu_observer_run": false
+  }
+}

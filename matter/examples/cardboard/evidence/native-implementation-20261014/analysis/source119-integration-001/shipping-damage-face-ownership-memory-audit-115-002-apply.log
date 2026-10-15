@@ -1,0 +1,3 @@
+patching file 'matter/tools/cardboard_fracture_regularization.hpp'
+patching file 'matter/tools/cardboard_retained_matrix_damage.hpp'
+patching file 'matter/tools/cardboard_retained_matrix_damage_check.cpp'

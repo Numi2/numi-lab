@@ -1,0 +1,266 @@
+{
+  "schema": "numi.cardboard.point390.fp64-dynamic-root-addendum.v1",
+  "bindings": {
+    "point_input_sha256": "7925a6eba993e6bf8b4f536352027d18c221f95c215fe73d1b20ebaec6aeb797",
+    "native_point_run_sha256": "9332767747218a967f711aeeb68ece6de4c6cddad270ce8799e0a6c529dac234",
+    "native_trace_sha256": "eb62b8eed7e26d3593578a8e86840367a2f19fcf059ceea95ee5950b6ddc97aa",
+    "reference_implementation_sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+    "point": "source380 env0/tet674 medium, source-117 exact F high/low corroboration in separate run382"
+  },
+  "method": "The existing independent FP64 project() stops on its own 2e-10 weighted residual criterion. To compare with production, recompute the production dynamic state scale max(abs(accepted),abs(candidate),parameter[26]), current complex-step J row scales, and next Newton correction. Take one extra FP64 Newton update when this stricter correction check fails; do not alter production tolerances or equations.",
+  "initial_reference_return": {
+    "legacy_scaled_residual": 1.6489834539977963e-13,
+    "reference_iterations": 3,
+    "production_dynamic_metrics": {
+      "raw_residual_inf": 1.6489834539977963e-17,
+      "raw_gate_limit": 2.041097264601469e-08,
+      "raw_gate_pass": true,
+      "dynamic_scaled_residual_inf": 1.3671430603637297e-10,
+      "dynamic_scaled_correction_inf": 2.2897632845921917e-07,
+      "dynamic_scaled_correction_limit": 2e-08,
+      "dynamic_scaled_correction_pass": false,
+      "row_scale_min": 1.0027704528385554e-08,
+      "row_scale_max": 0.02055376350832728
+    }
+  },
+  "one_extra_reference_newton_update": {
+    "production_dynamic_metrics": {
+      "raw_residual_inf": 2.168404344971009e-19,
+      "raw_gate_limit": 2.0410972646014685e-08,
+      "raw_gate_pass": true,
+      "dynamic_scaled_residual_inf": 2.1746471931883614e-16,
+      "dynamic_scaled_correction_inf": 7.925690040088121e-14,
+      "dynamic_scaled_correction_limit": 2e-08,
+      "dynamic_scaled_correction_pass": true,
+      "correction_vector": [
+        8.583600091734036e-26,
+        1.5900217813869558e-25,
+        -2.448571117342998e-25,
+        -2.4515660753088399e-23,
+        7.92568999191997e-22,
+        -1.1227583415507866e-26,
+        -4.632352381531183e-23,
+        -2.1687072883932117e-19,
+        1.0842067874773183e-19,
+        -1.2514990769133713e-20,
+        -3.8204678368036753e-20,
+        2.4843912615722865e-24,
+        4.053624515238885e-24,
+        4.040262449706994e-24,
+        1.1796205802096002e-26
+      ],
+      "row_scale_min": 1.0027704528451617e-08,
+      "row_scale_max": 0.02055376350832728
+    },
+    "both_original_gates_pass": true
+  },
+  "native_candidate_promoted_fp64": {
+    "production_dynamic_metrics": {
+      "raw_residual_inf": 5.053978069380349e-13,
+      "raw_gate_limit": 2.0410972646004577e-08,
+      "raw_gate_pass": true,
+      "dynamic_scaled_residual_inf": 1.1615137769235262e-10,
+      "dynamic_scaled_correction_inf": 5.167074116788655e-09,
+      "dynamic_scaled_correction_limit": 2e-08,
+      "dynamic_scaled_correction_pass": true,
+      "correction_vector": [
+        5.597327648476889e-21,
+        1.0366816061324907e-20,
+        -1.5964117853732542e-20,
+        -1.597851687436434e-18,
+        5.167074085385912e-17,
+        -7.318419512547411e-22,
+        5.053947862529206e-13,
+        -1.292072154517319e-13,
+        -8.416360578484746e-16,
+        6.743353952714507e-17,
+        6.090961353650562e-15,
+        2.0050825255869114e-18,
+        2.6428903122606813e-19,
+        2.6336591487821277e-19,
+        7.670358379168567e-22
+      ],
+      "row_scale_min": 1.0027704528450221e-08,
+      "row_scale_max": 0.02055376350832728
+    },
+    "both_original_gates_pass": true
+  },
+  "native_point_vs_refined_root": {
+    "state": {
+      "abs_l2": 5.21685437237215e-13,
+      "rel_l2": 2.5148186118330408e-11,
+      "max_abs": 5.05394337491083e-13,
+      "max_component_rel_nonzero": 4.1796122299313205e-08
+    },
+    "stress": {
+      "abs_l2": 0.006719202380785037,
+      "rel_l2": 3.422714834076067e-08,
+      "max_abs": 0.005811964743770659,
+      "max_component_rel_nonzero": 4.5378969543253745e-08
+    },
+    "tangent_one_declared_direction": {
+      "abs_l2": 35.662254718108386,
+      "rel_l2": 1.579154632319389e-08,
+      "max_abs": 34.24691820144653,
+      "max_component_rel_nonzero": 1.2475618896761929e-07
+    }
+  },
+  "refined_reference_vectors": {
+    "parameters_from_exact_fp32_input": [
+      679.0,
+      4524848640.0,
+      1631051264.0,
+      17900030.0,
+      293591136.0,
+      213716.359375,
+      192867.015625,
+      1039000000.0,
+      226340000.0,
+      198720000.0,
+      9391000.0,
+      5.612051963806152,
+      2.841099262237549,
+      -1.8410991430282593,
+      76554.5859375,
+      76554.5859375,
+      9.998966217041016,
+      1880207232.0,
+      287131232.0,
+      0.9448831081390381,
+      0.9235268235206604,
+      1.0,
+      3.7709527015686035,
+      9.99999993922529e-09,
+      0.0010000000474974513,
+      1.9999999949504854e-06,
+      9.99999993922529e-09,
+      10.0
+    ],
+    "accepted_state_from_exact_fp32_input": [
+      8.411798140635016e-14,
+      1.5579616589878054e-13,
+      -2.3991415408139427e-13,
+      -2.4015969768420575e-11,
+      7.765962872774423e-10,
+      -1.0999520725133403e-14,
+      0.020548632368445396,
+      0.0011103369761258364,
+      0.0004985451232641935,
+      -7.897568866610527e-05,
+      0.0025538101326674223,
+      -0.0002769384009297937,
+      3.972190198292536e-12,
+      3.958302869505603e-12,
+      1.1557203829473846e-14
+    ],
+    "F_high": [
+      [
+        0.8430395722389221,
+        7.277122904270072e-07,
+        -0.5379590392112732
+      ],
+      [
+        -2.8473269253481703e-07,
+        0.9999986886978149,
+        1.0985808103214367e-06
+      ],
+      [
+        0.537930965423584,
+        -5.264365427137818e-06,
+        0.8432806134223938
+      ]
+    ],
+    "F_low": [
+      [
+        9.33983823614426e-09,
+        0.0,
+        -1.31475088593902e-08
+      ],
+      [
+        1.0184902881737578e-14,
+        -1.65029039322917e-08,
+        -3.9138055182809037e-14
+      ],
+      [
+        -1.634909629899539e-08,
+        -2.2737367544323206e-13,
+        -1.0117878979087891e-08
+      ]
+    ],
+    "deformation_direction": [
+      [
+        0.699999988079071,
+        -0.20000000298023224,
+        0.4000000059604645
+      ],
+      [
+        0.10000000149011612,
+        0.30000001192092896,
+        -0.6000000238418579
+      ],
+      [
+        -0.25,
+        0.5,
+        0.800000011920929
+      ]
+    ],
+    "projected_state": [
+      1.3391958097200177e-13,
+      2.480344533967894e-13,
+      -3.8195404114505473e-13,
+      -3.823438786689464e-11,
+      1.236371963286267e-09,
+      -1.7511727953051193e-14,
+      0.020548632300734296,
+      0.0011103369498747348,
+      0.0004985451358625486,
+      -7.897508778921361e-05,
+      0.0025537879196307262,
+      -0.00027693838768014126,
+      6.323883695392817e-12,
+      6.301774583098815e-12,
+      1.8399525055190558e-14
+    ],
+    "stress_Pa": [
+      [
+        149781.53706196474,
+        -1793.5293454930397,
+        17699.66257879629
+      ],
+      [
+        -2600.753544089859,
+        10427.160376762935,
+        -741.6557499150392
+      ],
+      [
+        124029.81582231534,
+        -2024.4905057840751,
+        16849.101350817014
+      ]
+    ],
+    "tangent_Pa_per_s": [
+      [
+        1797091075.3135905,
+        182885684.46453544,
+        19788551.531255726
+      ],
+      [
+        208177220.359772,
+        623165049.6665277,
+        -13738748.94779567
+      ],
+      [
+        1180742365.7530818,
+        100400097.65387923,
+        22554735.717469186
+      ]
+    ],
+    "temperature_K": 293.1499938964844,
+    "state_scale_floor": 9.99999993922529e-09
+  },
+  "limits": [
+    "This is one local material point and one declared deformation direction.",
+    "It is analytic implicit tangent agreement, not nine-direction finite-difference/noise-floor qualification.",
+    "No physical step, coupon, material calibration, or solver qualification."
+  ]
+}

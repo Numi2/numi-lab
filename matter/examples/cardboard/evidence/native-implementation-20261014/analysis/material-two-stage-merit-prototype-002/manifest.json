@@ -1,0 +1,84 @@
+{
+  "schema": "numi.cardboard.cpu-merit-experiment.v1",
+  "description": "SUPERSEDED prototype. Tet858 uses correct zero accepted history. Tet674 incorrectly uses zero accepted history; its reported successes are NOT the retained native674 case. Exact-bit accepted-history prototype003 supersedes this comparison.",
+  "files": {
+    "README.md": {
+      "sha256": "09ede2a754148c67358e688a36c5dea4e6926535db9e327e2100376a575b2a68",
+      "bytes": 240
+    },
+    "compile-command.json": {
+      "sha256": "8b7df8406642d53ab59d3fc0f8b5afc07a85e7d75baddf6a5071994ad7df63e9",
+      "bytes": 714
+    },
+    "compile.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "prepare.py": {
+      "sha256": "cd4443a600f3d3bdfcb3f8cf769849e22c536d1c3b8baad057922c4dea378a86",
+      "bytes": 2242
+    },
+    "replay": {
+      "sha256": "7c1c445e47245efe1a17a8fcd86f5b24e443c3d76e8e1499224b82c2b17f1baf",
+      "bytes": 950072
+    },
+    "replay.cpp": {
+      "sha256": "72131547f9a692a4b1230e52d3912471b1afd2d16466836171eb55aaa41e78f0",
+      "bytes": 12830
+    },
+    "results.json": {
+      "sha256": "6dc932c18a9fa261954bbcb2713f5901f12b0f940146a6f606643f3de7e01fc2",
+      "bytes": 4929
+    },
+    "tet674-mode0.stderr.log": {
+      "sha256": "3d1ac37c0d07f084158af96f607dfe8d81d2c3af785e5296918730c8579a005c",
+      "bytes": 3914
+    },
+    "tet674-mode0.stdout.log": {
+      "sha256": "69bfcf8884ea229d6505e250c5a5a6ecdd87968c297c8e4b59a7562cf59e50f8",
+      "bytes": 2628
+    },
+    "tet674-mode1.stderr.log": {
+      "sha256": "3d1ac37c0d07f084158af96f607dfe8d81d2c3af785e5296918730c8579a005c",
+      "bytes": 3914
+    },
+    "tet674-mode1.stdout.log": {
+      "sha256": "69bfcf8884ea229d6505e250c5a5a6ecdd87968c297c8e4b59a7562cf59e50f8",
+      "bytes": 2628
+    },
+    "tet674-mode3.stderr.log": {
+      "sha256": "3d1ac37c0d07f084158af96f607dfe8d81d2c3af785e5296918730c8579a005c",
+      "bytes": 3914
+    },
+    "tet674-mode3.stdout.log": {
+      "sha256": "69bfcf8884ea229d6505e250c5a5a6ecdd87968c297c8e4b59a7562cf59e50f8",
+      "bytes": 2628
+    },
+    "tet858-mode0.stderr.log": {
+      "sha256": "99b5290d5bdb101df19b24e2a343fc0db611aa509b040c1bba96e702e570c4d8",
+      "bytes": 3497
+    },
+    "tet858-mode0.stdout.log": {
+      "sha256": "752409687de5a6e3b1b7c1cab1a559d25413ba1e3eb8526c793e9c8cdad58b01",
+      "bytes": 1977
+    },
+    "tet858-mode1.stderr.log": {
+      "sha256": "2f96dc32b10a6ab7facff126bd5bcf49d37c17faec622cc1b77fcc699caf4d2b",
+      "bytes": 35592
+    },
+    "tet858-mode1.stdout.log": {
+      "sha256": "c9973c1ba38b6ee27ba42f09ef13f2884e6e19474516ddfe0b053c815089c9f9",
+      "bytes": 1955
+    },
+    "tet858-mode3.stderr.log": {
+      "sha256": "99b5290d5bdb101df19b24e2a343fc0db611aa509b040c1bba96e702e570c4d8",
+      "bytes": 3497
+    },
+    "tet858-mode3.stdout.log": {
+      "sha256": "752409687de5a6e3b1b7c1cab1a559d25413ba1e3eb8526c793e9c8cdad58b01",
+      "bytes": 1977
+    }
+  },
+  "physical_steps": 0,
+  "physical_validation": false
+}

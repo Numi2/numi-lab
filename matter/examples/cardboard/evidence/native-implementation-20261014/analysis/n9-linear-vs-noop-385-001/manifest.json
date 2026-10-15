@@ -1,0 +1,16 @@
+{
+  "files": {
+    "README.md": "ed2595f66c8ffb631d7a1fc310906bb956252119bdc908edd89bd8132edf79f5",
+    "report.json": "37735a0b31c32a80ad848ba568d56b619a5c0981c02e1e1181ffd966368ac2dc"
+  },
+  "inputs": {
+    "basis_report_sha256": "ab111b65c50d872a1bf83c86f81d02da6f49ea50fda663e8bbc3b1cd1465f3e6",
+    "capture_manifest_sha256": "1ba486f1da055b18d59c1e54303a1170a49c1547ccb6c2800562a84f5eb6737a",
+    "capture_payload_sha256": "0c4ad7045f9c6020edbb45bfae71d3146c68294fd397ad54c42004c754c61c3a",
+    "source_build_sha256": "a8aebb8893481fddac6f6bd972f9931733a24f9ce642ecccc59eb96ee89f0c04",
+    "source_fem_sha256": "f4b5cd60dbe7ace7a54636746a00b5e7186d6c1f4890eb0718c138af9c753ae4",
+    "source_fgmres_sha256": "eef8a0919636c513716528dcf04cf9d175801c25e7159125808cbb59a9b696d6"
+  },
+  "schema": "numi.cardboard.n9_linear_completion_vs_noop_audit_package.v1",
+  "status": "SEALED_CPU_SOURCE_AND_CAPTURE_AUDIT"
+}

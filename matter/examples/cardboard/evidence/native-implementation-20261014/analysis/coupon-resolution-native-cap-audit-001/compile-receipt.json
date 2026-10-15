@@ -1,0 +1,18 @@
+{
+  "assertions": "PASS: 27 mesh combinations; baseline node/tet/fixed counts 882/1920/36; all three independent spatial axis triplets admitted; combined 32x8x4 rejected at the 4096 node cap; source392 failed status5 first specimen step retained",
+  "binary_sha256": "03d8010453b1051c8af37e4c09fb4ecfd8a5ca84e5edbfdfe1cc4e98834117aa",
+  "budgeted_csv_sha256": "5f2afbe74e0d56dad4008f51c9bc0bca1555260fbd64d155af0f63196ed7056d",
+  "command": "/usr/bin/clang++ -std=c++20 -O2 -Wall -Wextra -I. resolution_cap_audit.cpp -o resolution_cap_audit",
+  "compiler": "Apple clang 21.0.0.123 (clang-2100.0.123.102)",
+  "copied_graph_layout_sha256": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf",
+  "copied_mesh_builder_sha256": "8db61e54ff4a0e2e4a47d6bcfe02244699b7820bf97474727bb77f1f9f389260",
+  "deterministic_rebuild_compare": "PASS: regenerated budgeted and superseded CSV outputs byte-match packaged tables",
+  "exit_code": 0,
+  "gpu_used": false,
+  "helper_sha256": "89cdd5b5e491a73f137f2c47353d4f00ee5bfc730023744b3aafac884cab8e14",
+  "run_command": "./resolution_cap_audit > budgeted-results.csv",
+  "run_exit_code": 0,
+  "schema": "numi.cardboard.resolution-cap-audit.compile-receipt.v1",
+  "superseded_binary_sha256": "7fb254ea84313e782abbccde07c63c54d7a0602a6db90c9cfe1e886e4b0a4aac",
+  "superseded_csv_sha256": "e614e7d6f657c88b05754816b7e37dc527ad64c61ec88066a6064ee89023f7d6"
+}

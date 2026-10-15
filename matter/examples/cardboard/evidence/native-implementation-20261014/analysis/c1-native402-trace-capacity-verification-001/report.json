@@ -1,0 +1,36 @@
+{
+  "status": "PASS_NATIVE_COMPLETE_C1_TRACE_API_VALIDATION",
+  "receipt": {
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": true,
+    "changed_inputs": [],
+    "exit_code": 0,
+    "timed_out": false,
+    "termination_errors": [],
+    "wall_seconds": 74.23549270798685,
+    "finished_at_utc": "2026-10-15T18:25:09.091593+00:00"
+  },
+  "stdout_sha256": "e555268f835930682e050b0402f826c175f5d80fef5a8a45cdd91504ba54af40",
+  "stderr_sha256": "8402f6cf130b564cc0f8bb412ea4a0e8f872ebe9e4244315191afd91e544af27",
+  "host_trace_capacity": 32,
+  "metal_trace_capacity": 32,
+  "trace_float_words": 11976,
+  "material_results": [
+    {
+      "material": "hajali2009_liner_hill_asymmetric_c1_transfer",
+      "attempted_iterations": 20,
+      "trace_records": 20,
+      "residual": 2.664535259e-14
+    },
+    {
+      "material": "hajali2009_medium_hill_asymmetric_c1_transfer",
+      "attempted_iterations": 7,
+      "trace_records": 7,
+      "residual": 1.930712923e-09
+    }
+  ],
+  "shader_validation": "native400timeout retained; longer403run separate and pending at this verification",
+  "physical_steps": 0,
+  "physical_validation": false
+}

@@ -1,0 +1,1 @@
+PASS independent descriptor ledger: exact buffer extents, object-sized FEM line-search, checkedBytes sentinel tails; environments 1/2/4, objects 1/2/4, budgets 1/16/24/32; 32 MiB/192-array caps

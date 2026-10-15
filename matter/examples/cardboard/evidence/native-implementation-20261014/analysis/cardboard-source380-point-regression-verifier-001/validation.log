@@ -1,0 +1,70 @@
+{
+  "schema": "numi.cardboard.source380-point-regression-verifier-result.v1",
+  "status": "pass",
+  "point": "environment 0 / tetrahedron 674 / medium bilinear15",
+  "compiled_budget": 32,
+  "projection_iterations": 5,
+  "final_raw_residual_inf": 5.551115123125783e-16,
+  "final_raw_gate_limit": 2.041097264736891e-08,
+  "final_scaled_correction_inf": 3.781503322280999e-12,
+  "scaled_correction_gate_limit": 2e-08,
+  "accepted_armijo_trials": 4,
+  "line_searches": [
+    {
+      "iteration": 1,
+      "alpha": 1.0,
+      "backtrack": 0,
+      "current_merit": 1.2182432328700088e-05,
+      "trial_merit": 2.3022985260467976e-06
+    },
+    {
+      "iteration": 2,
+      "alpha": 1.0,
+      "backtrack": 0,
+      "current_merit": 5.236043762124609e-06,
+      "trial_merit": 1.5141816334107716e-07
+    },
+    {
+      "iteration": 3,
+      "alpha": 1.0,
+      "backtrack": 0,
+      "current_merit": 1.793797963500765e-07,
+      "trial_merit": 1.3953276034595063e-10
+    },
+    {
+      "iteration": 4,
+      "alpha": 1.0,
+      "backtrack": 0,
+      "current_merit": 1.4022007166492045e-10,
+      "trial_merit": 1.4035147894689466e-14
+    }
+  ],
+  "row_scale_reconstruction_max_abs": 9.313225746154785e-10,
+  "fp64_vector_metrics": {
+    "state": {
+      "relative_l2": 2.5148186118330408e-11,
+      "max_absolute_component": 5.05394337491083e-13,
+      "max_relative_component_nonzero": 4.1796122299313205e-08
+    },
+    "stress": {
+      "relative_l2": 3.422714834076067e-08,
+      "max_absolute_component": 0.005811964743770659,
+      "max_relative_component_nonzero": 4.5378969543253745e-08
+    },
+    "tangent_one_declared_direction": {
+      "relative_l2": 1.579154632319389e-08,
+      "max_absolute_component": 34.24691820144653,
+      "max_relative_component_nonzero": 1.2475618896761929e-07
+    }
+  },
+  "trace_on_off_bit_mismatches": {
+    "stress_direct": 0,
+    "stress_tangent_path": 0,
+    "tangent": 0,
+    "projected_state_high": 0,
+    "projected_state_low": 0
+  },
+  "physical_steps": 0,
+  "physical_validation": false,
+  "qualification_claim": false
+}

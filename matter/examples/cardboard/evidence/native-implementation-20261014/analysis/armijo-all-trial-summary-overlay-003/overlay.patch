@@ -1,0 +1,11 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -17970,7 +17970,7 @@
+                         if (i != 0u) manifest << ',';
+                         manifest << jsonQuoted(phaseOrder[i]);
+                     }
+-                    manifest << "]},\"payload\":{\"file\":"
++                    manifest << "],\"payload\":{\"file\":"
+                         << jsonQuoted(capturePath +
+                             (summaryMode ? ".summary.bin" : ".coupled.bin"))
+                         << ",\"byte_count\":" << payloadBytes

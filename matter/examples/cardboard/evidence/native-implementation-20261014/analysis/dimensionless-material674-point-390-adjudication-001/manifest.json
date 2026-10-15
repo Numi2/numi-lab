@@ -1,0 +1,31 @@
+{
+  "schema": "numi.cardboard.dimensionless-material674-point390-adjudication-manifest.v1",
+  "base_run": "native/dimensionless-material674-point-390",
+  "corroborating_native_F_readback": "native/exact-source380-material674-point-382",
+  "validation_command": "python3.10 adjudicate.py",
+  "validation_exit_code": 0,
+  "python_version": "3.10.12",
+  "numpy_version": "2.2.5",
+  "package_files_sha256": {
+    "README.md": "51669f6ae40873fd13e4d899e3e4af159dfe2fc38852bc7959c5b39451f04afb",
+    "adjudicate.py": "1056ae251b64c56c8174a886f2809df3b9d2cdc35be2f54426957819c4005c13",
+    "bilinear15_reference.py": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+    "report.json": "af02c12ad7fce8722699d31799d7527caf28a56d700c853cdb2b369ca41534a4",
+    "run.log": "af02c12ad7fce8722699d31799d7527caf28a56d700c853cdb2b369ca41534a4"
+  },
+  "bound_native_artifacts_sha256": {
+    "390/receipt.json": "e97fa31c84a3b5fb9050d9722b5ac5baeed6728a3bb0c59a3ae7e9d1a979d86d",
+    "390/prediction.json": "756ea5ae87195fe92488cc316965e860ab5e2576e529960841686765a458a352",
+    "390/output/source380-point-run.json": "9332767747218a967f711aeeb68ece6de4c6cddad270ce8799e0a6c529dac234",
+    "390/output/paper-points-source380_exact_compiled_budget32.jsonl": "3272a6a76c6b3a2ccb3e8b481e4b69da5c44fd446f7c2358a167783a8550b1d6",
+    "390/output/tet674-env0-source380_exact_compiled_budget32-trace.json": "eb62b8eed7e26d3593578a8e86840367a2f19fcf059ceea95ee5950b6ddc97aa",
+    "390/inputs/external/native_point_input_674_v2.json": "7925a6eba993e6bf8b4f536352027d18c221f95c215fe73d1b20ebaec6aeb797",
+    "382/receipt.json": "d273a6886e45cc776bbdd9e442a64485f1120b2624281b3cdfd2dc4a0f2d0305",
+    "382/output/budget16.json": "e7e095be0d511ebdffc3ca270b1fd8972a2ce8c1725c1b1395a69fb13d32f9a6",
+    "382/output/budget32.json": "f4e52384010b64f0149a2179c5ad0ebe37022cbd620c92f8a437e6c741fe89a8"
+  },
+  "limits": [
+    "The 390 diagnostic itself labels F high/low as CPU transcription, not native readback. The independently run 382 diagnostic readback reproduces the same FP32 F high/low words.",
+    "One point and one declared tangent direction; no nine-direction FD/noise-floor or physical coupon claim."
+  ]
+}

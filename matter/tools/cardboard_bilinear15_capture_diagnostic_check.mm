@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 #import <CommonCrypto/CommonDigest.h>
 #include "numi/matter/matter.hpp"
+#include "numi/matter/compiler.hpp"
 #include "numi/matter/detail.hpp"
 #include "numi/matter/shared.h"
 #include <algorithm>
@@ -27,7 +28,15 @@
 namespace {
 using namespace numi::matter;
 constexpr std::uint32_t kInputStride=47u, kOutputStride=65u, kStateCount=15u;
-constexpr std::uint32_t kTraceSlots=5992u;
+constexpr std::uint32_t kTraceStateCapacity=kStateCount+1u;
+constexpr std::uint32_t kTraceIterationCapacity=32u;
+constexpr std::uint32_t kTraceSummarySlots=73u;
+constexpr std::uint32_t kTraceHeaderFailureSlot=7u;
+static_assert(NM_MAX_MATERIAL_STATE>=kTraceStateCapacity);
+constexpr std::uint32_t kTraceRecordSlots=6u+7u*kTraceStateCapacity+
+    kTraceStateCapacity*kTraceStateCapacity;
+constexpr std::uint32_t kTraceSlots=8u+kTraceIterationCapacity*kTraceRecordSlots;
+static_assert(kTraceSlots==11976u);
 constexpr char kCaptureSchema[]="numi.cardboard.fem-newton-capture.v1";
 constexpr char kLinerSHA[]="a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a";
 constexpr char kMediumSHA[]="76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9";
@@ -168,6 +177,187 @@ Capture readCapture(const std::filesystem::path& path){
          "required first-failure liner tet env0/tet1528 is missing");
     return result;
 }
+NSDictionary* readJSONDocument(const std::filesystem::path& path) {
+    NSData* data=[NSData dataWithContentsOfFile:
+        [NSString stringWithUTF8String:path.string().c_str()]];
+    need(data!=nil,"cannot read bound point input JSON");
+    NSError* error=nil;
+    id value=[NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+    NSDictionary* result=[value isKindOfClass:[NSDictionary class]]?(NSDictionary*)value:nil;
+    need(result!=nil,"bound point input is not a JSON object");
+    return result;
+}
+std::vector<std::uint32_t> bitVector(id value,const std::size_t expected,const std::string& label) {
+    need([value isKindOfClass:[NSArray class]],label+" is not an array");
+    std::vector<std::uint32_t> out;out.reserve(expected);
+    auto append=[&](auto&& self,id x)->void {
+        if([x isKindOfClass:[NSArray class]]) {
+            for(id child in (NSArray*)x) self(self,child);
+            return;
+        }
+        const auto text=stringValue(x,label);
+        need(text.size()==10u&&text.rfind("0x",0u)==0u,label+" must contain eight-digit 0x words");
+        std::size_t used=0u;const auto word=std::stoul(text.substr(2u),&used,16);
+        need(used==8u&&word<=UINT32_MAX,label+" contains invalid word");
+        out.push_back(static_cast<std::uint32_t>(word));
+    };
+    append(append,value);
+    need(out.size()==expected,label+" has wrong flattened length");
+    return out;
+}
+void verifyFloatWords(const float* values,const std::vector<std::uint32_t>& words,const std::string& label) {
+    need(words.size()>0u,label+" is empty");
+    for(std::size_t i=0u;i<words.size();++i)
+        need(std::bit_cast<std::uint32_t>(values[i])==words[i],
+             label+" numeric/raw word mismatch at "+std::to_string(i));
+}
+Record readBoundPoint(const std::filesystem::path& path,NSDictionary** bindingOut) {
+    NSDictionary* root=readJSONDocument(path);
+    need(stringValue(field(root,"schema"),"point schema")==
+         "numi.cardboard.source380-native-material-point-input.v2",
+         "unexpected source380 point input schema");
+    need(number(field(root,"case_count"),"case count")==1.0,
+         "source380 point input must contain one case");
+    NSDictionary* binding=(NSDictionary*)field(root,"run_binding");
+    need(stringValue(field(binding,"run_name"),"run name")=="explicit32-certified-coupon-380",
+         "point input is not bound to source380 run");
+    need(stringValue(field(binding,"source_medium_asset_sha256"),"source medium SHA")==kMediumSHA,
+         "point input medium source SHA differs from this diagnostic");
+    NSArray* cases=(NSArray*)field(root,"cases");
+    need([cases isKindOfClass:[NSArray class]]&&cases.count==1u,
+         "source380 point input case list shape mismatch");
+    NSDictionary* c=(NSDictionary*)cases[0];
+    Record row;
+    row.env=static_cast<std::uint32_t>(number(field(c,"environment"),"environment"));
+    row.tet=static_cast<std::uint32_t>(number(field(c,"tet_id"),"tet id"));
+    row.material=static_cast<std::uint32_t>(number(field(c,"material_index"),"material index"));
+    row.materialName=stringValue(field(c,"material_name"),"material name");
+    need(row.env==0u&&row.tet==674u&&row.material==1u&&row.materialName==kMediumName,
+         "source380 point identity differs from exact env0/tet674 medium case");
+    const auto f=flatArray<9>(field(c,"F_high"),"F_high");
+    const auto flo=flatArray<9>(field(c,"F_low"),"F_low");
+    const auto fdot=flatArray<9>(field(c,"Fdot"),"Fdot");
+    const auto direction=flatArray<9>(field(c,"deformation_direction"),"deformation_direction");
+    const auto rateDirection=flatArray<9>(field(c,"rate_direction"),"rate_direction");
+    std::copy(f.begin(),f.end(),row.input.begin());
+    std::copy(flo.begin(),flo.end(),row.input.begin()+9);
+    std::copy(fdot.begin(),fdot.end(),row.input.begin()+18);
+    std::copy(direction.begin(),direction.end(),row.input.begin()+27);
+    std::copy(rateDirection.begin(),rateDirection.end(),row.input.begin()+36);
+    row.input[45]=static_cast<float>(number(field(c,"dt_seconds"),"dt seconds"));
+    row.input[46]=static_cast<float>(number(field(c,"temperature_K"),"temperature K"));
+    need(row.input[45]>0.0f&&row.input[46]>0.0f,
+         "point input timestep/temperature is invalid");
+    const auto state=flatVector(field(c,"accepted_state"),kStateCount,"accepted state");
+    std::copy(state.begin(),state.end(),row.accepted.begin());
+    const auto packedBits=bitVector(field(c,"packed_input_f32_bits"),kInputStride,
+                                    "packed input bits");
+    verifyFloatWords(row.input.data(),packedBits,"packed input");
+    const auto stateBits=bitVector(field(c,"accepted_state_f32_bits"),kStateCount,
+                                   "accepted-state bits");
+    verifyFloatWords(row.accepted.data(),stateBits,"accepted state");
+    const auto highBits=bitVector(field(c,"F_high_bits"),9u,"F-high bits");
+    const auto lowBits=bitVector(field(c,"F_low_bits"),9u,"F-low bits");
+    verifyFloatWords(row.input.data(),highBits,"F-high");
+    verifyFloatWords(row.input.data()+9u,lowBits,"F-low");
+    if(bindingOut)*bindingOut=binding;
+    return row;
+}
+struct SourceArtifactBinding {
+    std::string candidateSHA,historySHA,meshSHA;
+};
+std::string expectedRunArtifact(NSDictionary* binding,const std::string& relativePath) {
+    NSDictionary* artifacts=(NSDictionary*)field(binding,"artifact_sha256");
+    return stringValue(field(artifacts,relativePath.c_str()),"source artifact SHA");
+}
+void verifyAcceptedHistory(const std::filesystem::path& historyPath,const Record& row) {
+    NSDictionary* history=readJSONDocument(historyPath);
+    need(number(field(history,"environment"),"history environment")==double(row.env),
+         "accepted history environment differs from the bound point");
+    NSArray* tetrahedra=(NSArray*)field(history,"tetrahedra");
+    need(tetrahedra.count>row.tet,"accepted history omits the selected tetrahedron");
+    NSDictionary* selected=(NSDictionary*)tetrahedra[row.tet];
+    need(number(field(selected,"index"),"history tetrahedron index")==double(row.tet)&&
+         number(field(selected,"material_index"),"history material index")==double(row.material),
+         "accepted history selected tetrahedron/material identity differs");
+    const auto state=flatVector(field(selected,"state"),kStateCount,"accepted history state");
+    for(std::size_t i=0u;i<kStateCount;++i)
+        need(std::bit_cast<std::uint32_t>(static_cast<float>(state[i]))==
+             std::bit_cast<std::uint32_t>(row.accepted[i]),
+             "point accepted state differs from source380 rollback history at component "+
+             std::to_string(i));
+}
+SourceArtifactBinding verifySource380Artifacts(
+    NSDictionary* inputBinding,const std::filesystem::path& candidatePath,
+    const std::filesystem::path& historyPath,const std::filesystem::path& meshPath,
+    const Record& row) {
+    const std::string candidateRelative=
+        "output/rejected-conditioning-000002/candidate_nodes.bin";
+    const std::string historyRelative="output/material_state_000002_bent.json";
+    const std::string meshRelative="output/mesh.json";
+    need(std::filesystem::path(stringValue(field(inputBinding,"run_path"),"run path")+
+             "/"+candidateRelative).lexically_normal()==candidatePath.lexically_normal(),
+         "candidate-node path is not the source-bound run artifact");
+    need(std::filesystem::path(stringValue(field(inputBinding,"run_path"),"run path")+
+             "/"+historyRelative).lexically_normal()==historyPath.lexically_normal(),
+         "accepted-history path is not the source-bound run artifact");
+    need(std::filesystem::path(stringValue(field(inputBinding,"run_path"),"run path")+
+             "/"+meshRelative).lexically_normal()==meshPath.lexically_normal(),
+         "mesh path is not the source-bound run artifact");
+    SourceArtifactBinding result{sha256(candidatePath),sha256(historyPath),sha256(meshPath)};
+    need(result.candidateSHA==expectedRunArtifact(inputBinding,candidateRelative)&&
+         result.historySHA==expectedRunArtifact(inputBinding,historyRelative)&&
+         result.meshSHA==expectedRunArtifact(inputBinding,meshRelative),
+         "candidate/history/mesh artifact bytes differ from the bound source380 run");
+    NSDictionary* identity=(NSDictionary*)field(inputBinding,"source_candidate_identity");
+    need(result.candidateSHA==stringValue(field(identity,"candidate_nodes_sha256"),"candidate hash")&&
+         result.historySHA==stringValue(field(identity,"accepted_history_sha256"),"history hash")&&
+         result.meshSHA==stringValue(field(identity,"mesh_sha256"),"mesh hash"),
+         "source candidate identity hashes do not match the run artifacts");
+    verifyAcceptedHistory(historyPath,row);
+    return result;
+}
+void verifyBoundPackage(const CompiledWorld& world,const Record& row,
+                        NSDictionary* inputBinding,const std::string& expectedFingerprint) {
+    need(std::to_string(world.fingerprint)==expectedFingerprint,
+         "compiled package world fingerprint differs from explicit source380 binding");
+    need(stringValue(field(inputBinding,"compiled_world_fingerprint"),"bound package fingerprint")==expectedFingerprint,
+         "point input fingerprint differs from CLI binding");
+    NSDictionary* descriptor=(NSDictionary*)field(inputBinding,"material_descriptor_expectation");
+    need(world.materials.size()>row.material,"compiled package lacks the selected material");
+    need(world.fem.tetrahedra.size()>row.tet&&
+         world.fem.tetrahedra[row.tet].identity.x==row.material,
+         "compiled package tetrahedron/material identity differs from selected point");
+    const auto& material=world.materials[row.material];
+    const auto flags=static_cast<std::uint32_t>(number(field(descriptor,"flags"),"expected flags"));
+    const auto stateCount=static_cast<std::uint32_t>(number(field(descriptor,"state_count"),"expected state count"));
+    const auto parameterCount=static_cast<std::uint32_t>(number(field(descriptor,"parameter_count"),"expected parameter count"));
+    const auto iterations=static_cast<std::uint32_t>(number(field(descriptor,"local_newton_iterations"),"expected local iterations"));
+    need(material.flags==flags&&material.stateCount==stateCount&&
+         material.parameterCount==parameterCount&&material.localNewtonIterations==iterations,
+         "compiled source380 selected material descriptor differs from its run binding");
+    const auto required=NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC|
+        NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION|
+        NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
+    need((material.flags&required)==required&&material.stateCount==15u&&
+         material.parameterCount==28u&&material.localNewtonIterations==32u,
+         "compiled source380 material flags/state/local budget are not the expected explicit accurate 15-state mode");
+    const auto parameters=flatVector(field(inputBinding,"point_parameters"),
+                                     28u,"point parameter values");
+    need(material.parameterOffset+material.parameterCount<=world.parameters.size(),
+         "compiled source380 material parameter range is invalid");
+    for(std::size_t i=0u;i<parameters.size();++i){
+        const float actual=world.parameters[material.parameterOffset+i].valueAndBounds.x;
+        const float expected=static_cast<float>(parameters[i]);
+        need(std::bit_cast<std::uint32_t>(actual)==std::bit_cast<std::uint32_t>(expected),
+             "compiled source380 parameter word differs at "+std::to_string(i));
+    }
+    const float expectedTemperature=static_cast<float>(number(field(descriptor,"temperature_K"),"expected temperature"));
+    need(std::bit_cast<std::uint32_t>(material.bulk.y)==std::bit_cast<std::uint32_t>(expectedTemperature)&&
+         std::bit_cast<std::uint32_t>(row.input[46])==std::bit_cast<std::uint32_t>(expectedTemperature),
+         "point temperature does not match the exact compiled material bulk.y word");
+}
+
 CompiledWorld compileSources(const std::filesystem::path& linerPath,const std::filesystem::path& mediumPath,const bool accurate){
     auto l=parseMatterFile(linerPath.string()),m=parseMatterFile(mediumPath.string());
     need(l.succeeded()&&m.succeeded(),"paper source material parse failed");
@@ -261,10 +451,10 @@ std::vector<float> acceptedRows(const std::vector<Record>& rows){std::vector<flo
 std::vector<float> inputRows(const std::vector<Record>& rows){std::vector<float> x;x.reserve(rows.size()*kInputStride);for(const auto& r:rows)x.insert(x.end(),r.input.begin(),r.input.end());return x;}
 std::vector<std::uint32_t> materialRows(const std::vector<Record>& rows){std::vector<std::uint32_t>x;x.reserve(rows.size());for(const auto&r:rows)x.push_back(r.material);return x;}
 void writeBatch(const std::filesystem::path& path,const std::string& policy,const CompiledWorld& world,
-                const std::vector<Record>& rows,const std::vector<float>& out,const std::string& captureHash){
+                const std::vector<Record>& rows,const std::vector<float>& out,const std::string& captureHash,const bool pointInput=false){
     std::ofstream f(path);need(f.good(),"cannot write batch output");
     f<<"{\"record\":\"header\",\"schema\":\"numi.cardboard.bilinear15-capture-diagnostic.v1\",\"policy\":\""<<policy
-     <<"\",\"base_snapshot_manifest_sha256\":\""<<kBaseSnapshotSHA<<"\",\"capture_sha256\":\""<<captureHash<<"\",\"record_count\":"<<rows.size()
+     <<"\",\"base_snapshot_manifest_sha256\":\""<<kBaseSnapshotSHA<<"\","<<(pointInput?"\"point_input_sha256\":\"":"\"capture_sha256\":\"")<<captureHash<<"\",\"record_count\":"<<rows.size()
      <<",\"compiled_local_iterations_liner\":"<<world.materials[0].localNewtonIterations
      <<",\"compiled_local_iterations_medium\":"<<world.materials[1].localNewtonIterations
      <<",\"physical_validation\":false,\"interpretation\":\"direct stress and tangent projection status comparison only; not a material calibration or full solver qualification\"}\n";
@@ -289,10 +479,10 @@ void writeBatch(const std::filesystem::path& path,const std::string& policy,cons
      <<",\"status\":\"diagnostic_complete\",\"not_qualification\":true}\n";
 }
 void writeTrace(const std::filesystem::path& path,const std::string& policy,const CompiledWorld& world,
-                const Record& row,const float* out,const std::string& captureHash){
+                const Record& row,const float* out,const std::string& captureHash,const bool pointInput=false){
     std::ofstream f(path);need(f.good(),"cannot write selected projection trace");
     f<<"{\"record\":\"header\",\"schema\":\"numi.cardboard.bilinear15-selected-projection-trace.v1\",\"policy\":\""<<policy
-     <<"\",\"base_snapshot_manifest_sha256\":\""<<kBaseSnapshotSHA<<"\",\"capture_sha256\":\""<<captureHash<<"\",\"compiled_local_iterations\":"<<world.materials[row.material].localNewtonIterations
+     <<"\",\"base_snapshot_manifest_sha256\":\""<<kBaseSnapshotSHA<<"\","<<(pointInput?"\"point_input_sha256\":\"":"\"capture_sha256\":\"")<<captureHash<<"\",\"compiled_local_iterations\":"<<world.materials[row.material].localNewtonIterations
      <<",\"point\":";inputRecordJSON(f,row);f<<",\"summary\":{\"direct_project_valid\":"<<(out[0]==1?"true":"false")
      <<",\"direct_projection_residual\":";numberJSON(f,out[1]);f<<",\"direct_state_norm\":";numberJSON(f,out[2]);
     f<<",\"direct_iterations\":";numberJSON(f,out[3]);f<<",\"direct_flags\":";numberJSON(f,out[4]);f<<",\"direct_failure\":";numberJSON(f,out[5]);
@@ -303,14 +493,14 @@ void writeTrace(const std::filesystem::path& path,const std::string& policy,cons
     f<<",\"tangent\":";floatArrayJSON(f,out+32,9);f<<",\"projected_state_high\":";floatArrayJSON(f,out+41,15);
     f<<",\"projected_state_low\":";floatArrayJSON(f,out+56,15);f<<"},\"summary_f32_bits\":";
     bitsArrayJSON(f,out,73u);
-    const float traceStatus=out[80u];
-    const char* traceDisposition=traceStatus==-1.0f?"unsupported_by_existing_16_iteration_trace_capacity":"trace_recorded";
+    const float traceStatus=out[kTraceSummarySlots+kTraceHeaderFailureSlot];
+    const char* traceDisposition=traceStatus==-1.0f?"unsupported_by_trace_capacity":"trace_recorded";
     f<<",\"trace_status_code\":";numberJSON(f,traceStatus);
-    f<<",\"trace_disposition\":\""<<traceDisposition<<"\",\"packing_sentinels\":[\"0x3e200000\",\"0x3ea00000\"],\"trace_layout\":{\"header_slots\":8,\"iteration_slots\":374,\"record_slot5\":\"scaled_correction_norm; -1 when the legacy solve path has no scaled metric\",\"max_iterations\":16,\"slots\":"<<kTraceSlots<<"},\"trace_f32\":";
-    floatArrayJSON(f,out+73,kTraceSlots);f<<",\"trace_f32_bits\":";bitsArrayJSON(f,out+73,kTraceSlots);f<<"}\n";
+    f<<",\"trace_disposition\":\""<<traceDisposition<<"\",\"packing_sentinels\":[\"0x3e200000\",\"0x3ea00000\"],\"trace_layout\":{\"header_slots\":8,\"iteration_slots\":374,\"record_slot5\":\"scaled_correction_norm; -1 when the legacy solve path has no scaled metric\",\"max_iterations\":"<<kTraceIterationCapacity<<",\"slots\":"<<kTraceSlots<<"},\"trace_f32\":";
+    floatArrayJSON(f,out+kTraceSummarySlots,kTraceSlots);f<<",\"trace_f32_bits\":";bitsArrayJSON(f,out+kTraceSummarySlots,kTraceSlots);f<<"}\n";
 }
-void runBatch(Metal& metal,const CompiledWorld& world,const std::string& policy,const std::vector<Record>& rows,
-              const std::filesystem::path& outdir,const std::string& captureHash){
+std::vector<float> runBatch(Metal& metal,const CompiledWorld& world,const std::string& policy,const std::vector<Record>& rows,
+              const std::filesystem::path& outdir,const std::string& captureHash,const bool pointInput=false){
     auto params=materialParameters(world);auto acc=acceptedRows(rows);auto inputs=inputRows(rows);auto ids=materialRows(rows);
     std::vector<float> out(rows.size()*kOutputStride,0.0f);
     std::vector<id<MTLBuffer>> bs{buffer(metal.device,world.materials),buffer(metal.device,world.scalarPrograms),
@@ -319,12 +509,13 @@ void runBatch(Metal& metal,const CompiledWorld& world,const std::string& policy,
     need(std::all_of(bs.begin(),bs.end(),[](id<MTLBuffer> b){return b!=nil;}),"batch Metal buffer allocation failed");
     metal.dispatch(metal.batch,bs,static_cast<std::uint32_t>(rows.size()),8u);
     const auto* data=static_cast<const float*>(bs[7].contents);std::copy(data,data+out.size(),out.begin());
-    writeBatch(outdir/("paper-points-"+policy+".jsonl"),policy,world,rows,out,captureHash);
+    writeBatch(outdir/("paper-points-"+policy+".jsonl"),policy,world,rows,out,captureHash,pointInput);
+    return out;
 }
-void runTrace(Metal& metal,const CompiledWorld& world,const std::string& policy,const Record& row,
-              const std::filesystem::path& outdir,const std::string& captureHash){
+std::vector<float> runTrace(Metal& metal,const CompiledWorld& world,const std::string& policy,const Record& row,
+              const std::filesystem::path& outdir,const std::string& captureHash,const bool pointInput=false){
     auto params=materialParameters(world);std::vector<float> acc(row.accepted.begin(),row.accepted.end());
-    std::vector<float> inputs(row.input.begin(),row.input.end());std::vector<float> out(73u+kTraceSlots,0.0f);
+    std::vector<float> inputs(row.input.begin(),row.input.end());std::vector<float> out(kTraceSummarySlots+kTraceSlots,0.0f);
     std::uint32_t mat=row.material;
     std::vector<id<MTLBuffer>> bs{buffer(metal.device,world.materials),buffer(metal.device,world.scalarPrograms),
        buffer(metal.device,world.instructions),buffer(metal.device,params),buffer(metal.device,acc),
@@ -340,7 +531,8 @@ void runTrace(Metal& metal,const CompiledWorld& world,const std::string& policy,
     need(std::bit_cast<std::uint32_t>(data[71])==0x3e200000u&&
          std::bit_cast<std::uint32_t>(data[72])==0x3ea00000u,
          "selected trace high/low state packing sentinel was overwritten");
-    writeTrace(outdir/("tet1528-env0-"+policy+"-trace.json"),policy,world,row,data,captureHash);
+    writeTrace(outdir/("tet"+std::to_string(row.tet)+"-env"+std::to_string(row.env)+"-"+policy+"-trace.json"),policy,world,row,data,captureHash,pointInput);
+    return std::vector<float>(data,data+out.size());
 }
 // Reserve evidence exclusively before dispatch; failures retain partial evidence.
 struct ExclusiveSweepOutput {
@@ -474,15 +666,111 @@ void runDerivativeSweep(Metal& metal,const CompiledWorld& world,const std::strin
     evidence.writeAll(file.str());
 }
 
+
+void writePointRunManifest(const std::filesystem::path& path,const std::string& inputSHA,
+                           const std::string& packageSHA,const std::string& mediumSHA,
+                           const std::string& fingerprint,const CompiledWorld& world,
+                           const SourceArtifactBinding& sourceArtifacts,
+                           const Record& row,const std::vector<float>& trace,
+                           const std::vector<float>& batch) {
+    need(trace.size()==kTraceSummarySlots+kTraceSlots&&batch.size()==kOutputStride,
+         "point trace/batch output sizes are inconsistent");
+    const auto& material=world.materials[row.material];
+    std::array<unsigned,5> mismatch{};
+    const std::array<std::pair<unsigned,unsigned>,5> spans={{{14u,8u},{23u,17u},{32u,26u},{41u,35u},{56u,50u}}};
+    const std::array<unsigned,5> lengths={9u,9u,9u,15u,15u};
+    for(std::size_t span=0;span<spans.size();++span){
+        for(unsigned i=0;i<lengths[span];++i){
+            if(std::bit_cast<std::uint32_t>(trace[spans[span].first+i])!=
+               std::bit_cast<std::uint32_t>(batch[spans[span].second+i]))++mismatch[span];
+        }
+    }
+    std::ofstream f(path);need(f.good(),"cannot write source380 point run manifest");
+    f<<"{\"schema\":\"numi.cardboard.source380-native-material-point-result.v1\",\"run_name\":\"explicit32-certified-coupon-380\",\"environment\":"<<row.env
+     <<",\"tet_id\":"<<row.tet<<",\"material_index\":"<<row.material<<",\"material_name\":\""<<row.materialName
+     <<"\",\"input_sha256\":\""<<inputSHA<<"\",\"compiled_package_sha256\":\""<<packageSHA
+     <<"\",\"source_medium_asset_sha256\":\""<<mediumSHA<<"\",\"compiled_world_fingerprint\":\""<<fingerprint
+     <<"\",\"source112_base_snapshot_sha256\":\""<<kBaseSnapshotSHA<<"\",\"observation_status\":\"native diagnostic dispatch completed; constitutive result reported without an expected pass/fail assertion\""
+     <<",\"source380_artifacts\":{\"candidate_nodes_sha256\":\""<<sourceArtifacts.candidateSHA
+     <<"\",\"accepted_history_sha256\":\""<<sourceArtifacts.historySHA
+     <<"\",\"mesh_sha256\":\""<<sourceArtifacts.meshSHA
+     <<"\",\"accepted_history_verified_against_point_state\":true,\"F_words_native_readback\":false}"
+     <<",\"compiled_material\":{\"flags\":"<<material.flags<<",\"state_count\":"<<material.stateCount
+     <<",\"parameter_count\":"<<material.parameterCount<<",\"local_newton_iterations\":"<<material.localNewtonIterations
+     <<",\"parameter_offset\":"<<material.parameterOffset<<",\"bulk_temperature_word\":";numberJSON(f,material.bulk.y);
+    f<<"},\"input_provenance\":{\"F_high_low_source\":\"CPU transcription from source380 candidate nodes and compiled tetrahedron; separately requested production-kernel readback remains pending\",\"F_words_native_readback\":false,\"accepted_history_source\":\"source380 post-rollback accepted-state export, independently hash- and word-checked\"}"
+     <<",\"trace_capacity\":{\"state_slots\":"<<kTraceStateCapacity<<",\"iteration_slots\":"<<kTraceIterationCapacity<<",\"total_float_slots\":"<<kTraceSlots
+     <<"},\"direct_trace_vs_trace_off_batch_bit_mismatches\":{\"stress_direct\":"<<mismatch[0]<<",\"stress_tangent_path\":"<<mismatch[1]
+     <<",\"tangent\":"<<mismatch[2]<<",\"projected_state_high\":"<<mismatch[3]<<",\"projected_state_low\":"<<mismatch[4]
+     <<"},\"trace_observed\":{\"projection_valid\":"<<(trace[0]==1.0f?"true":"false")<<",\"projection_iterations\":";numberJSON(f,trace[3]);
+    f<<",\"projection_flags\":";numberJSON(f,trace[4]);f<<",\"projection_failure\":";numberJSON(f,trace[5]);
+    f<<",\"projection_residual\":";numberJSON(f,trace[1]);f<<",\"projection_state_norm\":";numberJSON(f,trace[2]);
+    f<<",\"stress_valid\":"<<(trace[6]==1.0f?"true":"false")<<",\"tangent_valid\":"<<(trace[7]==1.0f?"true":"false")
+     <<",\"tangent_projection_valid\":"<<(trace[8]==1.0f?"true":"false")<<",\"tangent_failure\":";numberJSON(f,trace[13]);
+    f<<",\"trace_status\":";numberJSON(f,trace[80]);f<<"},\"raw_input_f32_bits\":";bitsArrayJSON(f,row.input.data(),row.input.size());
+    f<<",\"raw_accepted_state_f32_bits\":";bitsArrayJSON(f,row.accepted.data(),row.accepted.size());
+    f<<",\"receipt_kind\":\"diagnostic_observation_only\",\"physical_steps\":0,\"physical_validation\":false,\"full_solver_qualification\":false}\n";
+    need(f.good(),"source380 point result manifest write failed");
+}
+int runExactSource380Point(const std::string& expectedInputSHA,const std::string& expectedPackageSHA,
+                           const std::string& expectedFingerprint,const std::filesystem::path& inputPath,
+                           const std::filesystem::path& packagePath,const std::filesystem::path& mediumPath,
+                           const std::filesystem::path& candidatePath,
+                           const std::filesystem::path& historyPath,
+                           const std::filesystem::path& meshPath,
+                           const std::filesystem::path& outdir) {
+    need(expectedInputSHA.size()==64u&&expectedPackageSHA.size()==64u,
+         "explicit input/package SHA binding must be 64 hexadecimal characters");
+    for(const auto* value:{&expectedInputSHA,&expectedPackageSHA})
+        need(std::all_of(value->begin(),value->end(),[](unsigned char c){return std::isxdigit(c)!=0;}),
+             "explicit SHA binding contains a non-hexadecimal character");
+    const std::string inputSHA=sha256(inputPath),packageSHA=sha256(packagePath),assetSHA=sha256(mediumPath);
+    need(inputSHA==expectedInputSHA,"source380 input SHA differs from CLI binding");
+    need(packageSHA==expectedPackageSHA,"compiled source380 package SHA differs from CLI binding");
+    need(assetSHA==kMediumSHA,"source380 medium source asset SHA differs from exact source binding");
+    NSDictionary* inputBinding=nil;const Record row=readBoundPoint(inputPath,&inputBinding);
+    need(stringValue(field(inputBinding,"compiled_package_sha256"),"package SHA in input") == packageSHA,
+         "point input package SHA differs from exact package bytes");
+    need(stringValue(field(inputBinding,"source_medium_asset_sha256"),"medium asset SHA in input") == assetSHA,
+         "point input medium SHA differs from exact source asset bytes");
+    need(stringValue(field(inputBinding,"compiled_world_fingerprint"),"world fingerprint in input") == expectedFingerprint,
+         "point input world fingerprint differs from CLI binding");
+    const SourceArtifactBinding sourceArtifacts=
+        verifySource380Artifacts(inputBinding,candidatePath,historyPath,meshPath,row);
+    CompiledWorld world;std::string error;
+    need(readPackage(packagePath,world,nullptr,&error),"source380 compiled package rejected: "+error);
+    verifyBoundPackage(world,row,inputBinding,expectedFingerprint);
+    std::filesystem::create_directories(outdir);
+    Metal metal;
+    const std::string policy="source380_exact_compiled_budget32";
+    const auto trace=runTrace(metal,world,policy,row,outdir,inputSHA,true);
+    const auto batch=runBatch(metal,world,policy,std::vector<Record>{row},outdir,inputSHA,true);
+    writePointRunManifest(outdir/"source380-point-run.json",inputSHA,packageSHA,assetSHA,
+                          expectedFingerprint,world,sourceArtifacts,row,trace,batch);
+    std::cout<<"{\"record\":\"source380_point_diagnostic\",\"status\":\"dispatch_complete_observation_emitted\",\"input_sha256\":\""
+             <<inputSHA<<"\",\"package_sha256\":\""<<packageSHA<<"\",\"world_fingerprint\":\""<<expectedFingerprint
+             <<"\",\"environment\":"<<row.env<<",\"tet_id\":"<<row.tet<<",\"local_newton_iterations\":"
+             <<world.materials[row.material].localNewtonIterations<<",\"projection_valid\":"<<(trace[0]==1.0f?"true":"false")
+             <<",\"projection_iterations\":";numberJSON(std::cout,trace[3]);std::cout<<",\"projection_failure\":";
+    numberJSON(std::cout,trace[5]);std::cout<<",\"physical_steps\":0,\"physical_validation\":false}\n";
+    return 0;
+}
+
 }
 
 int main(int argc,char** argv){@autoreleasepool{try{
+    const bool nativeExactPoint=argc==15&&std::string(argv[1])=="--native-source380-point"&&
+        std::string(argv[2])=="--expected-input-sha256"&&std::string(argv[4])=="--expected-package-sha256"&&
+        std::string(argv[6])=="--expected-world-fingerprint";
+    if(nativeExactPoint)
+        return runExactSource380Point(argv[3],argv[5],argv[7],argv[8],argv[9],argv[10],
+                                      argv[11],argv[12],argv[13],argv[14]);
     const bool cpu=argc==7&&std::string(argv[1])=="--cpu-admission"&&std::string(argv[2])=="--expected-capture-sha256";
     const bool nativeSelected=argc==9&&std::string(argv[1])=="--native"&&std::string(argv[2])=="--selected-only"&&std::string(argv[3])=="--expected-capture-sha256";
     const bool nativeAll=argc==9&&std::string(argv[1])=="--native"&&std::string(argv[2])=="--all-points"&&std::string(argv[3])=="--expected-capture-sha256";
     const bool nativeSweep=argc==9&&std::string(argv[1])=="--native"&&std::string(argv[2])=="--derivative-sweep"&&std::string(argv[3])=="--expected-capture-sha256";
     const bool native=nativeSelected||nativeAll||nativeSweep;
-    need(cpu||native,"usage: capture-diagnostic --cpu-admission --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter | --native --selected-only|--all-points|--derivative-sweep --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter OUTPUT_DIR");
+    need(cpu||native||nativeExactPoint,"usage: capture-diagnostic --cpu-admission --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter | --native --selected-only|--all-points|--derivative-sweep --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter OUTPUT_DIR | --native-source380-point --expected-input-sha256 SHA --expected-package-sha256 SHA --expected-world-fingerprint DEC INPUT.json PACKAGE.nmatterpack MEDIUM.nmatter CANDIDATE_NODES.bin ACCEPTED_HISTORY.json MESH.json OUTPUT_DIR");
     const std::string expectedCaptureSHA=argv[cpu?3:4];
     need(expectedCaptureSHA.size()==64u&&std::all_of(expectedCaptureSHA.begin(),expectedCaptureSHA.end(),[](unsigned char c){return std::isxdigit(c)!=0;}),
          "expected capture SHA must be exactly 64 hexadecimal characters");

@@ -1,0 +1,12 @@
+{
+  "status": "pass",
+  "source_build_sha256": "3bb6aeab624ea28693107bfa34fc6b74c4062c71f882f0b84c6e90d858f54a45",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118",
+  "compiler_archive": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-118-full/matter/libnumi_matter_compiler.a",
+  "compiler_archive_sha256": "0a89ba7ccc9d44ad95264b0d95bfe8938a621b241a5dcc2dd588314a6ac39e41",
+  "overlay_manifest_sha256": "483d94eedc5e36ffa8fffc31548e8a64062de8aa64ee774dff35bf92369c807e",
+  "checker_sha256": "32dd6fddf52c8fcdd2917dd3127e08c3ab0ff98769513c5c9ab9d11e1e3e77da",
+  "gpu_used": false,
+  "full_shipping_mesh_traversal": false,
+  "physical_validation": false
+}

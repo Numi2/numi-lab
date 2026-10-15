@@ -1,0 +1,17 @@
+[
+  {
+    "mode": 0,
+    "exit_code": 0,
+    "projection": "production_projection_valid=1 iterations=14 residual=6.6167259388585919e-13 tolerance=3.9861483003278408e-08 scaled_correction=3.5694680718123539e-12 failure="
+  },
+  {
+    "mode": 1,
+    "exit_code": 0,
+    "projection": "production_projection_valid=0 iterations=32 residual=4.3259515762329102 tolerance=4.1786670124110969e-08 scaled_correction=17.340585708618164 failure=iteration_budget_exhausted"
+  },
+  {
+    "mode": 2,
+    "exit_code": 0,
+    "projection": "production_projection_valid=0 iterations=32 residual=4.3259515762329102 tolerance=4.1786670124110969e-08 scaled_correction=17.340585708618164 failure=iteration_budget_exhausted"
+  }
+]

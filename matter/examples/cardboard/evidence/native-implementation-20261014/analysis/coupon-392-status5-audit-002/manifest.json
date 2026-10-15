@@ -1,0 +1,55 @@
+{
+  "schema": "numi.cardboard.source392_status5_audit.v2",
+  "created_utc": "2026-10-15",
+  "scope": "CPU production-scaled-merit replay erratum plus a source-bound point trace host overlay; no physical transactions or GPU dispatch",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121",
+  "base_snapshot_manifest_sha256": "9f6f621ab0e2a46f4a76092208a613686abfd79fb1071e4408f64f12f5af6adf",
+  "source_files_sha256": {
+    "source121/frozen-source.json": "9f6f621ab0e2a46f4a76092208a613686abfd79fb1071e4408f64f12f5af6adf",
+    "source121/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": "f6c9a44a4d1c1142590e9818cb2de02ba61b152b613f5e6f41f8bd5f33b8aaa1",
+    "source121/matter/tools/cardboard_bilinear15_capture_diagnostic.metal": "23f6f758cda7ccc0e0651e45a298644e6b71a3c25cd5ef2f7c9cbe4ceca40628",
+    "source121/matter/src/metal/common.metalinc": "66153b6ac14d361e33f9f74d228b8882db81bb35f6e425c973c206bd196a5f55",
+    "source121/matter/include/numi/matter/paper_compensated_bytecode.h": "f578310307a4698692fc57117340794ac4ce2d3813cdfcf705da6a018a5976aa",
+    "source121/matter/include/numi/matter/hill_scalar_initializer.h": "aa47b464d4d9157df57a7f223b1ac77122249d8a0c00f45e9a03723f2a58bd49",
+    "source121/matter/include/numi/matter/fem_compensated_deformation.h": "47d61e2f85bfbea5aac370211e56251ff67f0c7a28d577c276fd285b88225f33"
+  },
+  "evidence_sha256": {
+    "source392/source-build.json": "8c934e5070e10a8522dc67bdc9385a985012c990d291cfa2597760b0a81643a7",
+    "source392/run-receipt.json": "bc1495a5a63e35a36182b9206350ff2f68480345ae1b205484215a1d53da7bcb",
+    "source392/output/manifest.json": "fbfcf51db84a3710cc3bd96e016597728163da464974ea033554e82e587cd8eb",
+    "source392/output/compiled.nmatterpack": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+    "source392/rejected candidate_nodes.bin": "89846e4efc91c1774b52d6b3732f633e78414a7d341b6cbd8b9b4966e4be0417",
+    "source392/conditioning manifest": "ad51b0ceca073a4736ee128d0daf13eee82bf3a398919cc911a81fdff8399ced",
+    "source392/accepted history state": "e32909672f5ef53992fd7c798419dcdcd257662daa0f0c6cc8d960a1dced5dfd",
+    "native401/point.json": "411d522ebd281eae2b75d99f8f7927d2df3521795b1a04dc4a325953aafcc4d8",
+    "medium source asset": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+    "superseded audit001 report": "9bf2449996bb1e107ed3f2397d51b3f77bb239e21939be6d70996e9ec0b89c0f"
+  },
+  "artifact_sha256": {
+    "README.md": "4204409fb606891cb083e3cb3107d5f2b8e1b832422a35f44323ef4861ed9994",
+    "report.md": "8c29552f85fb87c3bbaff1055942207ac8aa508e0be886b4da3c3c6bc5c30c0d",
+    "cpu-replay-summary.json": "0ed3c2d035d44e89fd6e38b5b858cc2a06f7c8bf2256824aa29403b74e994195",
+    "native-trace-command.txt": "006de273391efb5da62b85f8592b7236cc413869013a57c5ffbc87ec84148c9f",
+    "validation.txt": "2ea133c11d9b7a7811900d7d42e6f2086924799b14832e51d32c79134d38de9d",
+    "source-overlay.patch": "e3a9c8a07bb302bc318c1263a19f510fcae5fc85aefca05b7dc46f6f442c3ccb",
+    "replay-production-merit.cpp": "be7b892b06bdf7c07c5fa528de9778c9f64445d3bafea648cb8e6edaa57535fd",
+    "replay-production-merit": "ec6c6ee3c7bda413e65fd605b9f820c00ce029b26014123d3d9fc3c150ad475b",
+    "replay-production-merit.stdout.log": "34408ebbf558ec2af000386bdeade176d6a4633fb2703d298e883059316638da",
+    "replay-production-merit.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cardboard_bilinear15_capture_diagnostic_check.mm": "b04bb295db1eba1c10c1001db3b2e90564099e2afb453fd630579bc5a6c76e0d",
+    "cardboard_bilinear15_capture_diagnostic_check.o": "028d896dd6e628a5d9787d76f2a24921c781f604e973def78e0b8f40aa7abae8",
+    "cardboard_bilinear15_capture_diagnostic_check": "2a6a5c6c272495a57ef626555c94df41585553909648cd565f44367865a5c28c",
+    "cardboard_bilinear15_capture_diagnostic.metal": "23f6f758cda7ccc0e0651e45a298644e6b71a3c25cd5ef2f7c9cbe4ceca40628",
+    "cardboard_bilinear15_capture_diagnostic.air": "bab926f0836f9689bdb3e908b7e4228e65bd9c13e1c422ea420f55d81e631dbb",
+    "cardboard_bilinear15_capture_diagnostic.metallib": "2d2e84ccd4c803bdfb64dc349ca61f2a5039cad5ee4b58a8e692ca5b8d0dcbe3"
+  },
+  "validation": {
+    "cpu_replay_exit_code": 0,
+    "objcxx_host_compile_werror": true,
+    "metal_compile": true,
+    "metallib_link": true,
+    "native_dispatch_performed": false
+  },
+  "native_trace_cli": "numi-matter-cardboard-bilinear15-capture-diagnostic-check --native-source392-tet858-trace POINT401.json RUN392_DIR MEDIUM.nmatter OUTPUT_DIR (OUTPUT_DIR must not exist)",
+  "interpretation": "The earlier raw-merit 14-update projection pass is superseded as an evaluation of production flag 213. Correct scaled-merit replay matches native401 terminal residual/state to the reported limits, but the exact first status-5 generation remains unobserved."
+}

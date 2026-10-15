@@ -12,6 +12,8 @@ retained convergence/contact failures, and the remaining material/assembly
 limits. Its source-bound bundle preserves the original runtime identities;
 the current host execution-policy revision is 2.
 
+The [source121 solver milestone](examples/cardboard/solver-milestone-source121.md) records the current scaled material globalization, full rejected-trial diagnostics and remaining native coupon failure. It preserves separate solver, convergence, calibration, analogue-validation, assembly and crush/impact verdicts.
+
 ## Starting material
 
 The default `--preset literature2009` builds a 31.6 × 20 × 4.210 mm C-flute coupon with

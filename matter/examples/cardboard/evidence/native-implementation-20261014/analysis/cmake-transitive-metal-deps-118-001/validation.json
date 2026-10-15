@@ -1,0 +1,105 @@
+{
+  "artifact_hashes": {
+    "README.md": "c13c62698d9b08c77609bffd06093eadba4bf0e1f0093c0915c23f882c34c267",
+    "build-make-configure.log": "5d17da463d9c90b5279a1e0ba3aa764e330d9de46137d2c97c6bf2688acaca30",
+    "build-make-incremental-build.log": "10a5044454d1c9290045c3cfca13bd5fb2e34f765a55edf2cb78c3a96b1d9244",
+    "build-make-initial-build.log": "10a5044454d1c9290045c3cfca13bd5fb2e34f765a55edf2cb78c3a96b1d9244",
+    "build-ninja-configure.log": "2bf0ae46b3e6f8ed4d19ad7f5075a02f5809b59d2c74ed7ff260e4e1ade69044",
+    "build-ninja-incremental-build.log": "ecfb900e9158e8dc3055772030a29c27a8ed405494c5cfc3552b154fabf9ff1f",
+    "build-ninja-initial-build.log": "ecfb900e9158e8dc3055772030a29c27a8ed405494c5cfc3552b154fabf9ff1f",
+    "cmake-test-result.json": "9ce584fd034bc465963bd60de6dd04443da239da825a81961ddcf7f29077aa21",
+    "run_depfile_cmake_test.py": "13fe23b78d50f2ee837886337187382eef1f94df15f5f4c25b61ef40b0562997"
+  },
+  "base_frozen_source_manifest_sha256": "90a55444fdb2991d520a95a82b2711b4eea1e2e58023e374fba446cc1a933dda",
+  "base_snapshot": "source-scaled-material-merit-118",
+  "cmake_incremental_test": {
+    "results": {
+      "Ninja": {
+        "cmake_configure_stdout_sha256": "2bf0ae46b3e6f8ed4d19ad7f5075a02f5809b59d2c74ed7ff260e4e1ade69044",
+        "configured": true,
+        "depfile_contains_transitive_include": true,
+        "incremental_build_stdout_sha256": "ecfb900e9158e8dc3055772030a29c27a8ed405494c5cfc3552b154fabf9ff1f",
+        "initial_build_completed": true,
+        "initial_build_stdout_sha256": "ecfb900e9158e8dc3055772030a29c27a8ed405494c5cfc3552b154fabf9ff1f",
+        "metal_compiler_reinvocations_after_touch": 1,
+        "touched_include_rebuilt_metal": true
+      },
+      "Unix Makefiles": {
+        "cmake_configure_stdout_sha256": "5d17da463d9c90b5279a1e0ba3aa764e330d9de46137d2c97c6bf2688acaca30",
+        "configured": true,
+        "depfile_contains_transitive_include": true,
+        "incremental_build_stdout_sha256": "10a5044454d1c9290045c3cfca13bd5fb2e34f765a55edf2cb78c3a96b1d9244",
+        "initial_build_completed": true,
+        "initial_build_stdout_sha256": "10a5044454d1c9290045c3cfca13bd5fb2e34f765a55edf2cb78c3a96b1d9244",
+        "metal_compiler_reinvocations_after_touch": 1,
+        "touched_include_rebuilt_metal": true
+      }
+    },
+    "schema": "numi.cardboard.metal-cmake-depfile-test.v1"
+  },
+  "git_apply_check": {
+    "exit_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  "limitations": [
+    "The CMake overlay was not applied to the frozen snapshot and no full project build was performed.",
+    "The helper replay is a source-bound single-material-point diagnostic, not a full physical-step or coupon result."
+  ],
+  "overlay_patch_sha256": "d4da81c4041e12548995cbb1fe2d0c3723a0a5a6b1d87cabb6ef0cfa3f66192e",
+  "overlay_target": "matter/CMakeLists.txt only",
+  "schema": "numi.cardboard.cmake-metal-dependency-review.v1",
+  "source117_native382": {
+    "budget16_direct_tangent_valid": [
+      false,
+      false
+    ],
+    "budget16_output_sha256": "e7e095be0d511ebdffc3ca270b1fd8972a2ce8c1725c1b1395a69fb13d32f9a6",
+    "budget16_terminal_failure": 6,
+    "budget32_direct_tangent_valid": [
+      false,
+      false
+    ],
+    "budget32_output_sha256": "f4e52384010b64f0149a2179c5ad0ebe37022cbd620c92f8a437e6c741fe89a8",
+    "budget32_terminal_failure": 6,
+    "exit_code": 0,
+    "physical_steps": 0,
+    "point_ledger_sha256": "6bad303d87575badc2e4d4c1f12ef9813d0ea30041c6a91e199abee074b65526",
+    "receipt_sha256": "d273a6886e45cc776bbdd9e442a64485f1120b2624281b3cdfd2dc4a0f2d0305",
+    "source_build_manifest_sha256": "2a19a662dc28c5975c8193519bab2452b0fe3e0179add9d737ad14cefceabdcc"
+  },
+  "source117_point_checker_hash_matches_expected": true,
+  "source117_point_checker_sha256": "f02bae340982ad889f5e48488d82c42d25394c82b5af96bc4a51338277c25f21",
+  "transitive_metal_inputs": {
+    "depfile_mode": "xcrun metal -MMD -MF <depfile> -MT <metallib> -E; same Metal version/include roots as source118",
+    "paper_depfile_input_count": 39,
+    "paper_explicit_dependencies_missing_count": 13,
+    "paper_missing_explicit_dependencies": [
+      "include/metalrobo/constraint_ir_shared.h",
+      "include/metalrobo/gpu_types.h",
+      "include/metalrobo/numi_human_stand_gpu.h",
+      "include/metalrobo/numi_human_tendon_gpu.h",
+      "include/metalrobo/numi_human_timed_root_force.h",
+      "matter/include/numi/matter/accepted_state_apply_gpu.h",
+      "matter/include/numi/matter/accepted_state_proof_gpu.h",
+      "matter/include/numi/matter/fixed_convex_contact_step.h",
+      "matter/include/numi/matter/human_equality_gpu.h",
+      "matter/include/numi/matter/human_limits_gpu.h",
+      "matter/include/numi/matter/human_support_precision_gpu.h",
+      "matter/include/numi/matter/mortar_shared_edge_guard.h",
+      "matter/include/numi/matter/numi_human_shared.h"
+    ],
+    "production_depfile_input_count": 38,
+    "production_explicit_dependencies_missing_count": 8,
+    "production_missing_explicit_dependencies": [
+      "include/metalrobo/constraint_ir_shared.h",
+      "include/metalrobo/gpu_types.h",
+      "include/metalrobo/numi_human_stand_gpu.h",
+      "include/metalrobo/numi_human_tendon_gpu.h",
+      "include/metalrobo/numi_human_timed_root_force.h",
+      "matter/include/numi/matter/accepted_state_apply_gpu.h",
+      "matter/include/numi/matter/fixed_convex_contact_step.h",
+      "matter/include/numi/matter/numi_human_shared.h"
+    ]
+  }
+}

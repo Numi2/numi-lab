@@ -1,0 +1,1 @@
+CPU transcription of exact tet858 retained candidate. Raw Armijo converges; frozen scaled merit exhausts32; requiring raw descent as well does not repair it. Terminal out.r is pre-update; the final accepted trial is the native401 final residual. No native candidate validation.

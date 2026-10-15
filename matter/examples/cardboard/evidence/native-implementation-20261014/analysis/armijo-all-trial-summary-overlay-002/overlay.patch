@@ -1,0 +1,106 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -17303,23 +17303,6 @@
+                     static_cast<std::uint64_t>(environments);
+                 const std::uint64_t statusBytes =
+                     static_cast<std::uint64_t>(state.statuses.length);
+-                const std::uint64_t expectedStatusBytes = envCount *
+-                    sizeof(NMMatterStatusGPU);
+-                const std::uint64_t expectedMetricBytes = envCount *
+-                    sizeof(nm_float4);
+-                const std::uint64_t expectedEnvironmentAlphaBytes = envCount *
+-                    sizeof(float);
+-                if (envCount == 0u ||
+-                    envCount != state.dispatch.environmentCount ||
+-                    statusBytes != expectedStatusBytes ||
+-                    state.femArmijoStatuses.length != expectedStatusBytes ||
+-                    state.femArmijoMetrics.length != expectedMetricBytes ||
+-                    state.femLineSearch.length != expectedMetricBytes ||
+-                    state.environmentLineSearch.length !=
+-                        expectedEnvironmentAlphaBytes) {
+-                    skip("summary_source_extent_does_not_match_environment_layout");
+-                    return true;
+-                }
+                 const auto checkedMultiply = [](std::uint64_t a,
+                                                 std::uint64_t b,
+                                                 std::uint64_t& result) {
+@@ -17337,10 +17320,54 @@
+                     result = a + b;
+                     return true;
+                 };
++                std::uint64_t expectedStatusBytes = 0u;
++                std::uint64_t expectedMetricBytes = 0u;
++                std::uint64_t expectedEnvironmentAlphaLogicalBytes = 0u;
++                std::uint64_t expectedEnvironmentAlphaBytes = 0u;
++                std::uint64_t objectTotalCount = 0u;
++                std::uint64_t objectLineSearchLogicalBytes = 0u;
++                std::uint64_t objectLineSearchBytes = 0u;
++                const bool sourceExtentsComputed =
++                    checkedMultiply(envCount, sizeof(NMMatterStatusGPU),
++                        expectedStatusBytes) &&
++                    checkedMultiply(envCount, sizeof(nm_float4),
++                        expectedMetricBytes) &&
++                    checkedMultiply(envCount, sizeof(float),
++                        expectedEnvironmentAlphaLogicalBytes) &&
++                    checkedMultiply(envCount,
++                        static_cast<std::uint64_t>(state.dispatch.objectCount),
++                        objectTotalCount) &&
++                    checkedMultiply(objectTotalCount, sizeof(nm_float4),
++                        objectLineSearchLogicalBytes);
++                if (!sourceExtentsComputed) {
++                    skip("summary_source_extent_arithmetic_overflow");
++                    return true;
++                }
++                // privateScratch uses checkedBytes(), so even a smaller logical
++                // range is allocated as one complete typed element and at least
++                // 16 bytes. The summary blits whole source buffers; include that
++                // sentinel tail in both validation and payload budgeting.
++                expectedEnvironmentAlphaBytes = std::max<std::uint64_t>(
++                    expectedEnvironmentAlphaLogicalBytes,
++                    std::max<std::uint64_t>(sizeof(float), 16u));
++                objectLineSearchBytes = std::max<std::uint64_t>(
++                    objectLineSearchLogicalBytes,
++                    std::max<std::uint64_t>(sizeof(nm_float4), 16u));
++                if (envCount == 0u ||
++                    envCount != state.dispatch.environmentCount ||
++                    statusBytes != expectedStatusBytes ||
++                    state.femArmijoStatuses.length != expectedStatusBytes ||
++                    state.femArmijoMetrics.length != expectedMetricBytes ||
++                    state.femLineSearch.length != objectLineSearchBytes ||
++                    state.environmentLineSearch.length !=
++                        expectedEnvironmentAlphaBytes) {
++                    skip("summary_source_extent_does_not_match_checked_scratch_layout");
++                    return true;
++                }
+                 std::uint64_t stageRecords = 0u;
+                 std::uint64_t stageBytes = 0u;
+                 std::uint64_t perTrialBytes = 0u;
+-                std::uint64_t threeMetricBytes = 0u;
++                std::uint64_t perTrialMetricBytes = 0u;
+                 std::uint64_t totalBytes = 0u;
+                 std::uint64_t budgetBytes = 0u;
+                 std::uint64_t arraysExpected = 0u;
+@@ -17349,16 +17376,17 @@
+                     !checkedMultiply(stageRecords,
+                         sizeof(NMMatterStatusGPU), stageBytes) ||
+                     !checkedMultiply(expectedMetricBytes, 3u,
+-                        threeMetricBytes) ||
+-                    !checkedAdd(threeMetricBytes, expectedStatusBytes,
++                        perTrialMetricBytes) ||
++                    !checkedAdd(perTrialMetricBytes, objectLineSearchBytes,
++                        perTrialBytes) ||
++                    !checkedAdd(perTrialBytes, expectedStatusBytes,
+                         perTrialBytes) ||
+                     !checkedAdd(perTrialBytes,
+                         expectedEnvironmentAlphaBytes, perTrialBytes) ||
+                     !checkedMultiply(budget, perTrialBytes, budgetBytes) ||
+-                    !checkedMultiply(statusBytes, 3u, totalBytes) ||
+-                    !checkedMultiply(expectedMetricBytes, 2u,
+-                        threeMetricBytes) ||
+-                    !checkedAdd(totalBytes, threeMetricBytes, totalBytes) ||
++                    !checkedMultiply(expectedStatusBytes, 3u, totalBytes) ||
++                    !checkedAdd(totalBytes, expectedMetricBytes, totalBytes) ||
++                    !checkedAdd(totalBytes, objectLineSearchBytes, totalBytes) ||
+                     !checkedAdd(totalBytes, expectedEnvironmentAlphaBytes,
+                         totalBytes) ||
+                     !checkedAdd(totalBytes, stageBytes, totalBytes) ||

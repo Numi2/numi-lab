@@ -35,6 +35,7 @@
 #include <dlfcn.h>
 #include <filesystem>
 #include <fcntl.h>
+#include <functional>
 #include <iomanip>
 #include <initializer_list>
 #include <limits>
@@ -10855,13 +10856,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
             bool femCoupledTrialCaptureFinalized = false;
             bool femCoupledTrialCaptureFailed = false;
             bool femCoupledTrialCaptureStarted = false;
+            bool femCoupledTrialSummaryMode = false;
+            bool femCoupledTrialSummaryStatusArrayReserved = false;
             std::uint32_t femCoupledTrialCaptureRoot = 0u;
             std::uint32_t femCoupledTrialCaptureIteration = 0u;
             std::uint32_t femCoupledTrialCaptureTrial = 0u;
+            std::uint32_t femCoupledTrialSummaryBudget = 0u;
+            std::uint64_t femCoupledTrialSummaryStatusOffset = 0u;
+            std::uint64_t femCoupledTrialSummaryStatusBytes = 0u;
+            std::uint64_t femCoupledTrialSummaryDecisionStatusOffset = 0u;
+            std::uint64_t femCoupledTrialSummaryDecisionStatusBytes = 0u;
             std::string femCoupledTrialCapturePhase;
             std::string femCoupledTrialCapturePath;
             std::uint64_t femCoupledTrialCaptureBytes = 0u;
             id<MTLBuffer> femCoupledTrialCaptureSnapshot = nil;
+            std::function<bool(std::uint32_t, std::uint32_t, const char*)>
+                captureTrialSummaryStatus;
             struct FemCoupledTrialCaptureArray {
                 std::string name;
                 std::string phase;
@@ -10882,6 +10892,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 femCoupledTrialCaptureArrays;
             std::vector<std::string> femCoupledTrialCapturePhaseOrder;
             std::vector<std::string> femCoupledTrialCaptureOmittedOptional;
+            const std::array<const char*, 8> femCoupledTrialSummaryStageNames{{
+                "geometry_validation",
+                "bulk_material_mechanical",
+                "cohesive_residual",
+                "private_rigid_contact",
+                "deformable_sweep_ccd",
+                "deformable_self_narrowphase",
+                "free_body_full_residual",
+                "measured_predecision"}};
+            std::uint64_t femCoupledTrialSummaryStatusCopies = 0u;
             const char* trialCaptureSelector = std::getenv(
                 "NM_FEM_COUPLED_TRIAL_CAPTURE_SELECTOR");
             const char* trialCapturePathText = std::getenv(
@@ -10967,6 +10987,84 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 femCoupledTrialCaptureIteration,
                                 femCoupledTrialCaptureTrial,
                                 jsonQuoted(phase).c_str());
+                        }
+                    }
+                }
+            }
+
+            const char* trialSummarySelector = std::getenv(
+                "NM_FEM_COUPLED_TRIAL_SUMMARY_SELECTOR");
+            const char* trialSummaryPathText = std::getenv(
+                "NM_FEM_COUPLED_TRIAL_SUMMARY_PATH");
+            const bool trialSummaryRequested = trialSummarySelector != nullptr ||
+                trialSummaryPathText != nullptr;
+            if (trialSummaryRequested) {
+                femCoupledTrialSummaryMode = true;
+                femCoupledTrialCaptureRequested = true;
+                const auto summaryError = [&](const char* reason) {
+                    femCoupledTrialCaptureConfigValid = false;
+                    std::fprintf(stderr,
+                        "fem_coupled_trial_summary_error={\"schema\":1,\"reason\":\"%s\",\"physical_state_changed\":false}\n",
+                        reason);
+                };
+                const bool fullTrialRequested = trialCaptureSelector != nullptr ||
+                    trialCapturePathText != nullptr;
+                if (fullTrialRequested || femCoupledCaptureRequested) {
+                    summaryError("summary_cannot_share_full_trial_or_center_readback");
+                } else if (trialSummarySelector == nullptr ||
+                           trialSummaryPathText == nullptr ||
+                           trialSummarySelector[0] == '\0' ||
+                           trialSummaryPathText[0] == '\0') {
+                    summaryError("selector_and_nonempty_summary_path_are_both_required");
+                } else if (std::getenv("NM_FEM_OPERATOR_FD_SELECTOR") != nullptr) {
+                    summaryError("operator_fd_capture_cannot_share_bounded_readback");
+                } else if (!femFullContactResidualArmijoEnabled) {
+                    summaryError("summary_requires_full_contact_residual_armijo");
+                } else if (const char* reason = femCoupledCaptureScopeFailure()) {
+                    summaryError(reason);
+                } else {
+                    const char* separator = std::strchr(trialSummarySelector, ':');
+                    const char* end = trialSummarySelector +
+                        std::strlen(trialSummarySelector);
+                    const auto parseSummaryUnsigned = [](
+                            const char* begin, const char* finish,
+                            std::uint64_t& value) {
+                        if (begin >= finish) return false;
+                        value = 0u;
+                        for (const char* cursor = begin; cursor != finish;
+                             ++cursor) {
+                            if (*cursor < '0' || *cursor > '9') return false;
+                            const std::uint32_t digit =
+                                static_cast<std::uint32_t>(*cursor - '0');
+                            if (value >
+                                (std::numeric_limits<std::uint64_t>::max() - digit) /
+                                    10u) return false;
+                            value = value * 10u + digit;
+                        }
+                        return true;
+                    };
+                    std::uint64_t root = 0u, iteration = 0u;
+                    const bool parsed = separator != nullptr &&
+                        std::strchr(separator + 1, ':') == nullptr &&
+                        parseSummaryUnsigned(trialSummarySelector, separator, root) &&
+                        parseSummaryUnsigned(separator + 1, end, iteration);
+                    if (!parsed || root >
+                            std::numeric_limits<std::uint32_t>::max() ||
+                        iteration > 255u) {
+                        summaryError("selector_must_be_root_colon_zero_based_iteration_0_to_255");
+                    } else {
+                        femCoupledTrialCaptureRoot =
+                            static_cast<std::uint32_t>(root);
+                        femCoupledTrialCaptureIteration =
+                            static_cast<std::uint32_t>(iteration);
+                        femCoupledTrialCaptureTrial = 0u;
+                        femCoupledTrialCapturePhase = "summary";
+                        femCoupledTrialCapturePath = trialSummaryPathText;
+                        if (femCoupledTrialCaptureRoot == request.controlStep) {
+                            std::fprintf(stderr,
+                                "fem_coupled_trial_summary_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"max_trial_budget\":32,\"stage_status_checkpoints\":8,\"aggregate_readback_cap_bytes\":33554432,\"physical_state_changed\":false}\n",
+                                femCoupledTrialCaptureRoot,
+                                femCoupledTrialCaptureIteration);
                         }
                     }
                 }
@@ -14802,6 +14900,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             // incidence and contact record is separate from the transaction's
             // production arenas; accepted friction history is input-only.
             const auto encodeArmijoDeformableContact = [&] (
+                    const std::uint32_t trialIndex,
                     id<MTLBuffer> trialNodes,
                     id<MTLBuffer> trialStatuses,
                     id<MTLBuffer> history,
@@ -14965,6 +15064,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                offset:0u atIndex:11u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                if (captureTrialSummaryStatus &&
+                    !captureTrialSummaryStatus(trialIndex, 4u,
+                        "deformable_sweep_ccd")) return false;
                 const std::uint32_t narrowphaseDeterministicFailureSelection = 1u;
                 dispatchThreads("nm_contact_narrowphase_deformable",
                     environments * state.dispatch.deformableContactCapacity,
@@ -15008,6 +15110,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:trialStatuses offset:0u atIndex:3u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                if (captureTrialSummaryStatus &&
+                    !captureTrialSummaryStatus(trialIndex, 5u,
+                        "deformable_self_narrowphase")) return false;
                 dispatchGroups32("nm_contact_compact_deformable",
                     environments, [&] {
                     setDispatch();
@@ -16877,6 +16982,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     const char* arrayName, const char* phaseName,
                     const std::uint32_t trialIndex) -> bool {
                 if (!femCoupledTrialCaptureSelected ||
+                    femCoupledTrialSummaryMode ||
                     trialIndex != femCoupledTrialCaptureTrial ||
                     femCoupledTrialCapturePhase == "pre") return true;
                 return appendTrialCapturePhase(phaseName, {
@@ -17158,6 +17264,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const auto captureTrialMeasurement = [&] (
                     const std::uint32_t trialIndex) -> bool {
                 if (!femCoupledTrialCaptureSelected ||
+                    femCoupledTrialSummaryMode ||
                     trialIndex != femCoupledTrialCaptureTrial) return true;
                 if (femCoupledTrialCapturePhase == "pre") return true;
                 return appendTrialCapturePhase(
@@ -17171,6 +17278,435 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         sizeof(nm_float4), state.femLineSearch, true),
                     trialCaptureSpec("environment_line_search", "float32x4",
                         sizeof(nm_float4), state.environmentLineSearch, true)});
+            };
+            const auto captureTrialSummaryEntryAndReserve = [&]() -> bool {
+                if (!femCoupledTrialCaptureSelected ||
+                    !femCoupledTrialSummaryMode ||
+                    femCoupledTrialCaptureFailed) return true;
+                const std::uint32_t budget =
+                    state.mixedSolverValue.nonlinearIterations.w;
+                constexpr std::uint32_t maximumBudget = 32u;
+                constexpr std::uint32_t stageCount = 8u;
+                constexpr std::uint64_t captureArrayLimit = 192u;
+                const auto skip = [&](const char* reason) {
+                    femCoupledTrialCaptureFailed = true;
+                    std::fprintf(stderr,
+                        "fem_coupled_trial_summary_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"%s\",\"physical_state_changed\":false}\n",
+                        femCoupledTrialCaptureRoot,
+                        femCoupledTrialCaptureIteration, reason);
+                };
+                if (budget == 0u || budget > maximumBudget) {
+                    skip("line_search_budget_outside_1_to_32");
+                    return true;
+                }
+                const std::uint64_t envCount =
+                    static_cast<std::uint64_t>(environments);
+                const std::uint64_t statusBytes =
+                    static_cast<std::uint64_t>(state.statuses.length);
+                const auto checkedMultiply = [](std::uint64_t a,
+                                                std::uint64_t b,
+                                                std::uint64_t& result) {
+                    if (a != 0u && b >
+                            std::numeric_limits<std::uint64_t>::max() / a)
+                        return false;
+                    result = a * b;
+                    return true;
+                };
+                const auto checkedAdd = [](std::uint64_t a,
+                                          std::uint64_t b,
+                                          std::uint64_t& result) {
+                    if (b > std::numeric_limits<std::uint64_t>::max() - a)
+                        return false;
+                    result = a + b;
+                    return true;
+                };
+                std::uint64_t expectedStatusBytes = 0u;
+                std::uint64_t expectedMetricBytes = 0u;
+                std::uint64_t expectedEnvironmentAlphaLogicalBytes = 0u;
+                std::uint64_t expectedEnvironmentAlphaBytes = 0u;
+                std::uint64_t objectTotalCount = 0u;
+                std::uint64_t objectLineSearchLogicalBytes = 0u;
+                std::uint64_t objectLineSearchBytes = 0u;
+                const bool sourceExtentsComputed =
+                    checkedMultiply(envCount, sizeof(NMMatterStatusGPU),
+                        expectedStatusBytes) &&
+                    checkedMultiply(envCount, sizeof(nm_float4),
+                        expectedMetricBytes) &&
+                    checkedMultiply(envCount, sizeof(float),
+                        expectedEnvironmentAlphaLogicalBytes) &&
+                    checkedMultiply(envCount,
+                        static_cast<std::uint64_t>(state.dispatch.objectCount),
+                        objectTotalCount) &&
+                    checkedMultiply(objectTotalCount, sizeof(nm_float4),
+                        objectLineSearchLogicalBytes);
+                if (!sourceExtentsComputed) {
+                    skip("summary_source_extent_arithmetic_overflow");
+                    return true;
+                }
+                // privateScratch uses checkedBytes(), so even a smaller logical
+                // range is allocated as one complete typed element and at least
+                // 16 bytes. The summary blits whole source buffers; include that
+                // sentinel tail in both validation and payload budgeting.
+                expectedEnvironmentAlphaBytes = std::max<std::uint64_t>(
+                    expectedEnvironmentAlphaLogicalBytes,
+                    std::max<std::uint64_t>(sizeof(float), 16u));
+                objectLineSearchBytes = std::max<std::uint64_t>(
+                    objectLineSearchLogicalBytes,
+                    std::max<std::uint64_t>(sizeof(nm_float4), 16u));
+                if (envCount == 0u ||
+                    envCount != state.dispatch.environmentCount ||
+                    statusBytes != expectedStatusBytes ||
+                    state.femArmijoStatuses.length != expectedStatusBytes ||
+                    state.femArmijoMetrics.length != expectedMetricBytes ||
+                    state.femLineSearch.length != objectLineSearchBytes ||
+                    state.environmentLineSearch.length !=
+                        expectedEnvironmentAlphaBytes) {
+                    skip("summary_source_extent_does_not_match_checked_scratch_layout");
+                    return true;
+                }
+                std::uint64_t stageRecords = 0u;
+                std::uint64_t stageBytes = 0u;
+                std::uint64_t perTrialBytes = 0u;
+                std::uint64_t perTrialMetricBytes = 0u;
+                std::uint64_t totalBytes = 0u;
+                std::uint64_t budgetBytes = 0u;
+                std::uint64_t arraysExpected = 0u;
+                if (!checkedMultiply(budget, stageCount, stageRecords) ||
+                    !checkedMultiply(stageRecords, envCount, stageRecords) ||
+                    !checkedMultiply(stageRecords,
+                        sizeof(NMMatterStatusGPU), stageBytes) ||
+                    !checkedMultiply(expectedMetricBytes, 3u,
+                        perTrialMetricBytes) ||
+                    !checkedAdd(perTrialMetricBytes, objectLineSearchBytes,
+                        perTrialBytes) ||
+                    !checkedAdd(perTrialBytes, expectedStatusBytes,
+                        perTrialBytes) ||
+                    !checkedAdd(perTrialBytes,
+                        expectedEnvironmentAlphaBytes, perTrialBytes) ||
+                    !checkedMultiply(budget, perTrialBytes, budgetBytes) ||
+                    !checkedMultiply(expectedStatusBytes, 3u, totalBytes) ||
+                    !checkedAdd(totalBytes, expectedMetricBytes, totalBytes) ||
+                    !checkedAdd(totalBytes, objectLineSearchBytes, totalBytes) ||
+                    !checkedAdd(totalBytes, expectedEnvironmentAlphaBytes,
+                        totalBytes) ||
+                    !checkedAdd(totalBytes, stageBytes, totalBytes) ||
+                    !checkedAdd(totalBytes, budgetBytes, totalBytes) ||
+                    !checkedMultiply(budget, 5u, arraysExpected) ||
+                    !checkedAdd(arraysExpected, 8u, arraysExpected) ||
+                    totalBytes > femCoupledCaptureCapBytes ||
+                    totalBytes > static_cast<std::uint64_t>(
+                        state.device.maxBufferLength) ||
+                    arraysExpected > captureArrayLimit) {
+                    skip("checked_summary_extent_exceeds_32_mib_or_192_arrays");
+                    return true;
+                }
+                femCoupledTrialSummaryBudget = budget;
+                if (!appendTrialCapturePhase("armijo_entry_global_status", {
+                        trialCaptureSpec("armijo_entry_global_status",
+                            "record:NMMatterStatusGPU",
+                            sizeof(NMMatterStatusGPU), state.statuses, true)}))
+                    return false;
+                if (femCoupledTrialCaptureFailed) return true;
+                if (femCoupledTrialCaptureSnapshot == nil ||
+                    femCoupledTrialCaptureBytes > femCoupledCaptureCapBytes ||
+                    stageBytes > femCoupledCaptureCapBytes -
+                        femCoupledTrialCaptureBytes ||
+                    stageBytes > static_cast<std::uint64_t>(
+                        state.device.maxBufferLength) ||
+                    femCoupledTrialCaptureArrays.size() + 1u >
+                        captureArrayLimit) {
+                    skip("packed_status_array_reservation_failed_closed");
+                    return true;
+                }
+                femCoupledTrialSummaryStatusOffset =
+                    femCoupledTrialCaptureBytes;
+                femCoupledTrialSummaryStatusBytes = stageBytes;
+                FemCoupledTrialCaptureArray stageArray;
+                stageArray.name = "armijo_trial_status_checkpoints";
+                stageArray.phase = "packed_trial_stage_statuses";
+                stageArray.dtype = "record:NMMatterStatusGPU";
+                stageArray.offset = femCoupledTrialSummaryStatusOffset;
+                stageArray.byteCount = stageBytes;
+                stageArray.elementBytes = sizeof(NMMatterStatusGPU);
+                stageArray.count = stageRecords;
+                femCoupledTrialCaptureArrays.push_back(std::move(stageArray));
+                femCoupledTrialCaptureBytes += stageBytes;
+                femCoupledTrialCapturePhaseOrder.emplace_back(
+                    "armijo_trial_status_slots_reserved_fixed_trial_stage_environment_order");
+                std::uint64_t decisionStatusRecords = 0u;
+                std::uint64_t decisionStatusBytes = 0u;
+                if (!checkedMultiply(budget, envCount,
+                        decisionStatusRecords) ||
+                    !checkedMultiply(decisionStatusRecords,
+                        sizeof(NMMatterStatusGPU), decisionStatusBytes) ||
+                    femCoupledTrialCaptureBytes > femCoupledCaptureCapBytes ||
+                    decisionStatusBytes > femCoupledCaptureCapBytes -
+                        femCoupledTrialCaptureBytes ||
+                    decisionStatusBytes > static_cast<std::uint64_t>(
+                        state.device.maxBufferLength) ||
+                    femCoupledTrialCaptureArrays.size() + 1u >
+                        captureArrayLimit) {
+                    skip("decision_status_array_reservation_failed_closed");
+                    return true;
+                }
+                femCoupledTrialSummaryDecisionStatusOffset =
+                    femCoupledTrialCaptureBytes;
+                femCoupledTrialSummaryDecisionStatusBytes =
+                    decisionStatusBytes;
+                FemCoupledTrialCaptureArray decisionStatusArray;
+                decisionStatusArray.name =
+                    "armijo_trial_global_status_after_decision";
+                decisionStatusArray.phase = "packed_trial_global_status";
+                decisionStatusArray.dtype = "record:NMMatterStatusGPU";
+                decisionStatusArray.offset =
+                    femCoupledTrialSummaryDecisionStatusOffset;
+                decisionStatusArray.byteCount = decisionStatusBytes;
+                decisionStatusArray.elementBytes = sizeof(NMMatterStatusGPU);
+                decisionStatusArray.count = decisionStatusRecords;
+                femCoupledTrialCaptureArrays.push_back(
+                    std::move(decisionStatusArray));
+                femCoupledTrialCaptureBytes += decisionStatusBytes;
+                femCoupledTrialCapturePhaseOrder.emplace_back(
+                    "armijo_trial_global_status_slots_reserved_trial_environment_order");
+                femCoupledTrialSummaryStatusArrayReserved = true;
+                return true;
+            };
+            if (femCoupledTrialCaptureSelected &&
+                femCoupledTrialSummaryMode) {
+                captureTrialSummaryStatus = [&] (
+                    const std::uint32_t trialIndex,
+                    const std::uint32_t stageIndex,
+                    const char* stageName) -> bool {
+                    if (!femCoupledTrialCaptureSelected ||
+                        !femCoupledTrialSummaryMode ||
+                        femCoupledTrialCaptureFailed) return true;
+                    const auto skip = [&](const char* reason) {
+                        femCoupledTrialCaptureFailed = true;
+                        std::fprintf(stderr,
+                            "fem_coupled_trial_summary_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"trial_index\":%u,\"stage_index\":%u,\"stage\":%s,\"reason\":%s,\"physical_state_changed\":false}\n",
+                            femCoupledTrialCaptureRoot,
+                            femCoupledTrialCaptureIteration, trialIndex, stageIndex,
+                            jsonQuoted(stageName).c_str(),
+                            jsonQuoted(reason).c_str());
+                    };
+                    if (!femCoupledTrialSummaryStatusArrayReserved ||
+                        femCoupledTrialCaptureSnapshot == nil ||
+                        trialIndex >= femCoupledTrialSummaryBudget ||
+                        stageIndex >= femCoupledTrialSummaryStageNames.size() ||
+                        std::strcmp(stageName,
+                            femCoupledTrialSummaryStageNames[stageIndex]) != 0) {
+                        skip("status_checkpoint_outside_reserved_layout");
+                        return true;
+                    }
+                    id<MTLBuffer> source = state.femArmijoStatuses;
+                    const std::uint64_t sourceBytes =
+                        static_cast<std::uint64_t>(source.length);
+                    const std::uint64_t expectedBytes =
+                        static_cast<std::uint64_t>(environments) *
+                        sizeof(NMMatterStatusGPU);
+                    const std::uint64_t checkpointIndex =
+                        static_cast<std::uint64_t>(trialIndex) *
+                            femCoupledTrialSummaryStageNames.size() + stageIndex;
+                    const std::uint64_t destinationOffset =
+                        femCoupledTrialSummaryStatusOffset + checkpointIndex *
+                            expectedBytes;
+                    if (source == nil || sourceBytes != expectedBytes ||
+                        source.device == nil ||
+                        source.device.registryID != state.device.registryID ||
+                        destinationOffset > femCoupledTrialCaptureBytes ||
+                        expectedBytes > femCoupledTrialCaptureBytes -
+                            destinationOffset ||
+                        destinationOffset >
+                            static_cast<std::uint64_t>(
+                                femCoupledTrialCaptureSnapshot.length) ||
+                        expectedBytes > static_cast<std::uint64_t>(
+                                femCoupledTrialCaptureSnapshot.length) -
+                            destinationOffset) {
+                        skip("status_source_or_destination_extent_invalid");
+                        return true;
+                    }
+                    std::ostringstream phase;
+                    phase << "trial_" << trialIndex << "_status_" << stageName;
+                    femCoupledTrialCapturePhaseOrder.emplace_back(phase.str());
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    [encoder endEncoding];
+                    encoder = nil;
+                    id<MTLBlitCommandEncoder> copy =
+                        [commandBuffer blitCommandEncoder];
+                    if (copy == nil) {
+                        skip("status_checkpoint_blit_encoder_unavailable");
+                        encoder = [commandBuffer computeCommandEncoder];
+                        if (encoder == nil) {
+                            diagnostics.message =
+                                "failed to resume Matter after trial summary status blit";
+                            return false;
+                        }
+                        [encoder setLabel:
+                            @"Numi Matter trial summary capture continuation"];
+                        return true;
+                    }
+                    [copy copyFromBuffer:source sourceOffset:0u
+                        toBuffer:femCoupledTrialCaptureSnapshot
+                        destinationOffset:static_cast<NSUInteger>(destinationOffset)
+                        size:static_cast<NSUInteger>(expectedBytes)];
+                    [copy endEncoding];
+                    encoder = [commandBuffer computeCommandEncoder];
+                    if (encoder == nil) {
+                        diagnostics.message =
+                            "failed to resume Matter after trial summary status blit";
+                        return false;
+                    }
+                    [encoder setLabel:
+                        @"Numi Matter trial summary capture continuation"];
+                    ++femCoupledTrialSummaryStatusCopies;
+                    return true;
+                };
+            }
+            const auto captureTrialSummaryPreDecision = [&] (
+                    const std::uint32_t trialIndex) -> bool {
+                if (!femCoupledTrialCaptureSelected ||
+                    !femCoupledTrialSummaryMode ||
+                    femCoupledTrialCaptureFailed) return true;
+                const std::string phase = "trial_" +
+                    std::to_string(trialIndex) + "_predecision";
+                const std::string name = "trial_" +
+                    std::to_string(trialIndex) + "_metrics_predecision";
+                return appendTrialCapturePhase(phase.c_str(), {
+                    trialCaptureSpec(name.c_str(), "float32x4",
+                        sizeof(nm_float4), state.femArmijoMetrics, true)});
+            };
+            const auto captureTrialSummaryStart = [&] (
+                    const std::uint32_t trialIndex) -> bool {
+                if (!femCoupledTrialCaptureSelected ||
+                    !femCoupledTrialSummaryMode ||
+                    femCoupledTrialCaptureFailed) return true;
+                const std::string phase = "trial_" +
+                    std::to_string(trialIndex) + "_loop_entry";
+                const std::string name = "trial_" +
+                    std::to_string(trialIndex) + "_metrics_loop_entry";
+                return appendTrialCapturePhase(phase.c_str(), {
+                    trialCaptureSpec(name.c_str(), "float32x4",
+                        sizeof(nm_float4), state.femArmijoMetrics, true)});
+            };
+            const auto captureTrialSummaryDecisionStatus = [&] (
+                    const std::uint32_t trialIndex) -> bool {
+                if (!femCoupledTrialCaptureSelected ||
+                    !femCoupledTrialSummaryMode ||
+                    femCoupledTrialCaptureFailed) return true;
+                if (!femCoupledTrialSummaryStatusArrayReserved ||
+                    trialIndex >= femCoupledTrialSummaryBudget ||
+                    femCoupledTrialSummaryDecisionStatusBytes == 0u) {
+                    femCoupledTrialCaptureFailed = true;
+                    std::fprintf(stderr,
+                        "fem_coupled_trial_summary_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"trial_index\":%u,\"reason\":\"decision_status_outside_reserved_layout\",\"physical_state_changed\":false}\n",
+                        femCoupledTrialCaptureRoot,
+                        femCoupledTrialCaptureIteration, trialIndex);
+                    return true;
+                }
+                const std::uint64_t sourceBytes =
+                    static_cast<std::uint64_t>(state.statuses.length);
+                const std::uint64_t expectedBytes =
+                    static_cast<std::uint64_t>(environments) *
+                    sizeof(NMMatterStatusGPU);
+                const std::uint64_t destinationOffset =
+                    femCoupledTrialSummaryDecisionStatusOffset +
+                    static_cast<std::uint64_t>(trialIndex) * expectedBytes;
+                if (state.statuses == nil || sourceBytes != expectedBytes ||
+                    state.statuses.device == nil ||
+                    state.statuses.device.registryID !=
+                        state.device.registryID ||
+                    destinationOffset > femCoupledTrialCaptureBytes ||
+                    expectedBytes > femCoupledTrialCaptureBytes -
+                        destinationOffset ||
+                    destinationOffset > static_cast<std::uint64_t>(
+                        femCoupledTrialCaptureSnapshot.length) ||
+                    expectedBytes > static_cast<std::uint64_t>(
+                        femCoupledTrialCaptureSnapshot.length) -
+                        destinationOffset) {
+                    femCoupledTrialCaptureFailed = true;
+                    std::fprintf(stderr,
+                        "fem_coupled_trial_summary_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"trial_index\":%u,\"reason\":\"decision_status_source_or_destination_extent_invalid\",\"physical_state_changed\":false}\n",
+                        femCoupledTrialCaptureRoot,
+                        femCoupledTrialCaptureIteration, trialIndex);
+                    return true;
+                }
+                std::ostringstream phase;
+                phase << "trial_" << trialIndex << "_global_status_after_decision";
+                femCoupledTrialCapturePhaseOrder.emplace_back(phase.str());
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                [encoder endEncoding];
+                encoder = nil;
+                id<MTLBlitCommandEncoder> copy =
+                    [commandBuffer blitCommandEncoder];
+                if (copy == nil) {
+                    femCoupledTrialCaptureFailed = true;
+                    encoder = [commandBuffer computeCommandEncoder];
+                    if (encoder == nil) {
+                        diagnostics.message =
+                            "failed to resume Matter after trial decision status blit";
+                        return false;
+                    }
+                    [encoder setLabel:
+                        @"Numi Matter trial summary capture continuation"];
+                    return true;
+                }
+                [copy copyFromBuffer:state.statuses sourceOffset:0u
+                    toBuffer:femCoupledTrialCaptureSnapshot
+                    destinationOffset:static_cast<NSUInteger>(destinationOffset)
+                    size:static_cast<NSUInteger>(expectedBytes)];
+                [copy endEncoding];
+                encoder = [commandBuffer computeCommandEncoder];
+                if (encoder == nil) {
+                    diagnostics.message =
+                        "failed to resume Matter after trial decision status blit";
+                    return false;
+                }
+                [encoder setLabel:
+                    @"Numi Matter trial summary capture continuation"];
+                ++femCoupledTrialSummaryStatusCopies;
+                return true;
+            };
+            const auto captureTrialSummaryPostDecision = [&] (
+                    const std::uint32_t trialIndex) -> bool {
+                if (!femCoupledTrialCaptureSelected ||
+                    !femCoupledTrialSummaryMode ||
+                    femCoupledTrialCaptureFailed) return true;
+                const std::string phase = "trial_" +
+                    std::to_string(trialIndex) + "_postdecision";
+                const std::string metricsName = "trial_" +
+                    std::to_string(trialIndex) + "_metrics_postdecision";
+                const std::string lineSearchName = "trial_" +
+                    std::to_string(trialIndex) + "_fem_line_search_postdecision";
+                const std::string environmentAlphaName = "trial_" +
+                    std::to_string(trialIndex) +
+                    "_environment_line_search_postdecision";
+                return appendTrialCapturePhase(phase.c_str(), {
+                    trialCaptureSpec(metricsName.c_str(), "float32x4",
+                        sizeof(nm_float4), state.femArmijoMetrics, true),
+                    trialCaptureSpec(lineSearchName.c_str(), "float32x4",
+                        sizeof(nm_float4), state.femLineSearch, true),
+                    trialCaptureSpec(environmentAlphaName.c_str(), "float32",
+                        sizeof(float), state.environmentLineSearch, true)});
+            };
+            const auto captureTrialSummaryFinal = [&]() -> bool {
+                if (!femCoupledTrialCaptureSelected ||
+                    !femCoupledTrialSummaryMode ||
+                    femCoupledTrialCaptureFailed) return true;
+                return appendTrialCapturePhase("armijo_final_selected_state", {
+                    trialCaptureSpec("armijo_final_global_status",
+                        "record:NMMatterStatusGPU", sizeof(NMMatterStatusGPU),
+                        state.statuses, true),
+                    trialCaptureSpec("armijo_final_fem_status",
+                        "record:NMMatterStatusGPU", sizeof(NMMatterStatusGPU),
+                        state.femArmijoStatuses, true),
+                    trialCaptureSpec("armijo_final_metrics", "float32x4",
+                        sizeof(nm_float4), state.femArmijoMetrics, true),
+                    trialCaptureSpec("armijo_final_fem_line_search",
+                        "float32x4", sizeof(nm_float4), state.femLineSearch,
+                        true),
+                    trialCaptureSpec("armijo_final_environment_line_search",
+                        "float32", sizeof(float), state.environmentLineSearch,
+                        true)});
             };
             const auto finishFEMCoupledTrialCapture = [&] () -> bool {
                 if (!femCoupledTrialCaptureSelected ||
@@ -17191,9 +17727,29 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 static_assert(prePhaseMaximum == 71u && postPhaseMaximum == 109u &&
                     bothPhaseMaximum == 136u && bothPhaseMaximum <= captureArrayLimit);
                 const std::size_t selectedPhaseMaximum =
-                    femCoupledTrialCapturePhase == "pre" ? prePhaseMaximum :
-                    femCoupledTrialCapturePhase == "post" ? postPhaseMaximum :
-                    bothPhaseMaximum;
+                    femCoupledTrialSummaryMode
+                        ? static_cast<std::size_t>(8u +
+                            5u * femCoupledTrialSummaryBudget)
+                        : femCoupledTrialCapturePhase == "pre"
+                            ? prePhaseMaximum
+                            : femCoupledTrialCapturePhase == "post"
+                                ? postPhaseMaximum : bothPhaseMaximum;
+                if (femCoupledTrialSummaryMode &&
+                    femCoupledTrialSummaryStatusCopies !=
+                        static_cast<std::uint64_t>(
+                            femCoupledTrialSummaryBudget) * 9u) {
+                    femCoupledTrialCaptureFailed = true;
+                    std::fprintf(stderr,
+                        "fem_coupled_trial_summary_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"status_checkpoint_sequence_incomplete\",\"expected_status_copies\":%llu,\"observed_status_copies\":%llu,\"physical_state_changed\":false}\n",
+                        femCoupledTrialCaptureRoot,
+                        femCoupledTrialCaptureIteration,
+                        static_cast<unsigned long long>(
+                            static_cast<std::uint64_t>(
+                                femCoupledTrialSummaryBudget) * 9u),
+                        static_cast<unsigned long long>(
+                            femCoupledTrialSummaryStatusCopies));
+                    return true;
+                }
                 if (femCoupledTrialCaptureArrays.size() > selectedPhaseMaximum) {
                     femCoupledTrialCaptureFailed = true;
                     std::fprintf(stderr,
@@ -17229,6 +17785,21 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const auto root = femCoupledTrialCaptureRoot;
                 const auto iteration = femCoupledTrialCaptureIteration;
                 const auto trial = femCoupledTrialCaptureTrial;
+                const bool summaryMode = femCoupledTrialSummaryMode;
+                const auto summaryBudget = femCoupledTrialSummaryBudget;
+                const auto summaryStatusCopies =
+                    femCoupledTrialSummaryStatusCopies;
+                std::vector<std::string> summaryStageNames;
+                summaryStageNames.reserve(
+                    femCoupledTrialSummaryStageNames.size());
+                for (const char* stageName : femCoupledTrialSummaryStageNames)
+                    summaryStageNames.emplace_back(stageName);
+                const std::string captureSchema = summaryMode
+                    ? "numi.matter.coupled_armijo_trial_summary.v1"
+                    : "numi.matter.coupled_armijo_trial_capture.v1";
+                const char* captureEventPrefix = summaryMode
+                    ? "fem_coupled_trial_summary" :
+                      "fem_coupled_trial_capture";
                 const auto selectedPhase = femCoupledTrialCapturePhase;
                 const auto physicsFingerprint = state.worldFingerprint;
                 const auto programFingerprint = state.executionFingerprint;
@@ -17258,8 +17829,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
                     if (completed.status != MTLCommandBufferStatusCompleted) {
                         std::fprintf(stderr,
-                            "fem_coupled_trial_capture_failed={\"schema\":\"numi.matter.coupled_armijo_trial_capture.v1\",\"root\":%u,\"iteration\":%u,\"trial\":%u,\"reason\":\"command_buffer_not_completed\",\"command_buffer_status\":%lu}\n",
-                            root, iteration, trial,
+                            "%s_failed={\"schema\":%s,\"root\":%u,\"iteration\":%u,\"trial\":%u,\"reason\":\"command_buffer_not_completed\",\"command_buffer_status\":%lu}\n",
+                            captureEventPrefix,
+                            jsonQuoted(captureSchema).c_str(), root, iteration, trial,
                             static_cast<unsigned long>(completed.status));
                         return;
                     }
@@ -17267,23 +17839,42 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         snapshot.contents);
                     if (data == nullptr) {
                         std::fprintf(stderr,
-                            "fem_coupled_trial_capture_failed={\"schema\":\"numi.matter.coupled_armijo_trial_capture.v1\",\"root\":%u,\"iteration\":%u,\"trial\":%u,\"reason\":\"snapshot_contents_missing\"}\n",
-                            root, iteration, trial);
+                            "%s_failed={\"schema\":%s,\"root\":%u,\"iteration\":%u,\"trial\":%u,\"reason\":\"snapshot_contents_missing\"}\n",
+                            captureEventPrefix,
+                            jsonQuoted(captureSchema).c_str(), root, iteration, trial);
                         return;
                     }
                     std::ostringstream manifest;
                     manifest << std::setprecision(9)
-                        << "{\"schema\":\"numi.matter.coupled_armijo_trial_capture.v1\","
+                        << "{\"schema\":" << jsonQuoted(captureSchema) << ','
                         << "\"byte_order\":\"little_endian\","
-                        << "\"capture_kind\":\"observational_private_trial_not_checkpoint\","
-                        << "\"capture_point_order\":["
-                        << "\"candidate_after_geometry_and_rigid_projection_before_private_force_or_contact_rebuild\","
-                        << "\"private_residual_after_bulk_mechanical_before_cohesive\","
-                        << "\"private_residual_after_cohesive_before_rigid_contact\","
-                        << "\"private_residual_after_rigid_contact_before_deformable_rebuild\","
-                        << "\"candidate_after_private_contact_rebuild_before_armijo_measurement\","
-                        << "\"private_residual_before_armijo_measurement\","
-                        << "\"armijo_measurement_before_decision\"],"
+                        << "\"capture_kind\":"
+                        << jsonQuoted(summaryMode
+                            ? "observational_all_trial_summary_not_checkpoint"
+                            : "observational_private_trial_not_checkpoint") << ','
+                        << "\"capture_point_order\":[";
+                    if (summaryMode) {
+                        manifest << "\"entry_global_status\","
+                            << "\"metrics_loop_entry_before_begin_bounded_trial\",";
+                        for (std::size_t i = 0u;
+                             i < summaryStageNames.size(); ++i) {
+                            if (i != 0u) manifest << ',';
+                            manifest << jsonQuoted(summaryStageNames[i]);
+                        }
+                        manifest << ",\"predecision_metrics\","
+                            << "\"postdecision_metrics_and_selected_steps\","
+                            << "\"global_status_after_each_decision\","
+                            << "\"final_selected_state\"]";
+                    } else {
+                        manifest << "\"candidate_after_geometry_and_rigid_projection_before_private_force_or_contact_rebuild\","
+                            << "\"private_residual_after_bulk_mechanical_before_cohesive\","
+                            << "\"private_residual_after_cohesive_before_rigid_contact\","
+                            << "\"private_residual_after_rigid_contact_before_deformable_rebuild\","
+                            << "\"candidate_after_private_contact_rebuild_before_armijo_measurement\","
+                            << "\"private_residual_before_armijo_measurement\","
+                            << "\"armijo_measurement_before_decision\"]";
+                    }
+                    manifest << ','
                         << "\"source_physics_fingerprint\":"
                         << jsonQuoted(hexU64(physicsFingerprint)) << ','
                         << "\"device_program_fingerprint\":"
@@ -17291,10 +17882,35 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         << "\"device\":{\"name\":" << jsonQuoted(deviceName)
                         << ",\"registry_id\":" << deviceRegistryID << "},"
                         << "\"root\":" << root
-                        << ",\"iteration\":" << iteration
-                        << ",\"trial\":" << trial
-                        << ",\"selected_phase\":" << jsonQuoted(selectedPhase)
-                        << ",\"control_step\":" << capturedMicro.controlStep
+                        << ",\"iteration\":" << iteration;
+                    if (summaryMode) {
+                        manifest << ",\"line_search_budget\":"
+                            << summaryBudget
+                            << ",\"status_stage_count\":"
+                            << summaryStageNames.size()
+                            << ",\"stage_and_decision_status_copy_count\":"
+                            << summaryStatusCopies
+                            << ",\"status_copy_count_scope\":\"per-trial 8 stage checkpoints plus 1 global status after decision; entry and final status arrays excluded\""
+                            << ",\"summary_semantics\":{"
+                            << "\"checkpoint_order\":\"trial_index_then_stage_then_environment\","
+                            << "\"metrics_loop_entry\":\"raw metrics before begin_bounded_trial; acceptance_code > 0.5 means an earlier candidate already ended evaluation and this loop slot is inactive\","
+                            << "\"stage_status_source\":\"state.femArmijoStatuses\","
+                            << "\"global_status_after_decision_source\":\"state.statuses\","
+                            << "\"metrics_float4\":[\"base_residual_l2\",\"trial_residual_l2\",\"tested_alpha\",\"acceptance_code_0_reject_1_armijo_2_certified_noop\"],"
+                            << "\"fem_line_search_float4\":\"raw production state.femLineSearch after each decision\","
+                            << "\"environment_line_search_float\":\"raw production state.environmentLineSearch after each decision; shared fraction later applied\","
+                            << "\"final_selected_fraction\":\"armijo_final_environment_line_search array; captured from production after the loop without reconstruction\"},"
+                            << "\"status_stage_names\":[";
+                        for (std::size_t i = 0u; i < summaryStageNames.size(); ++i) {
+                            if (i != 0u) manifest << ',';
+                            manifest << jsonQuoted(summaryStageNames[i]);
+                        }
+                        manifest << ']';
+                    } else {
+                        manifest << ",\"trial\":" << trial
+                            << ",\"selected_phase\":" << jsonQuoted(selectedPhase);
+                    }
+                    manifest << ",\"control_step\":" << capturedMicro.controlStep
                         << ",\"physics_substep\":" << capturedPhysicsSubstep
                         << ",\"physics_substeps\":" << capturedPhysicsSubsteps
                         << ",\"rigid_world_physics_substep\":"
@@ -17330,23 +17946,33 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         << capturedExternalWrenchCount
                         << ",\"external_wrench_stride\":"
                         << capturedExternalWrenchStride << "}"
-                        << ",\"producer_semantics\":{"
-                        << "\"candidate_contact_sweep\":\"pre snapshot precedes nm_contact_validate_armijo_deformable_sweep; post snapshot follows it, with femCandidate at buffer 5 and femArmijoCandidate at buffer 6\","
-                        << "\"private_contact_narrowphase\":\"post snapshot follows nm_contact_narrowphase_deformable, which consumes the trialNodes and frozen-history arguments before private residual accumulation\","
-                        << "\"material_projected_trial_stress_state\":\"not_exported_by_production_internal_force_kernel\","
-                        << "\"material_history_candidate_production\":\"captured pre-existing production candidate buffer; private Armijo evaluation reads accepted history and does not commit candidate history\","
-                        << "\"material_history\":\"accepted_state_is_captured; candidate history mutation is not committed by this diagnostic\","
-                        << "\"element_force_nodes\":\"captured after the private internal-force kernel\","
-                        << "\"deformable_sweep_validation\":\"nm_contact_validate_armijo_deformable_sweep binds state.femCandidate at buffer 5 and state.femArmijoCandidate at buffer 6; pre snapshot precedes validation and post snapshot follows it\","
-                        << "\"endpoint_narrowphase\":\"nm_contact_narrowphase_deformable receives trialNodes at buffer 4, history at buffer 10, and cohesiveFaces at buffer 15; caller passes state.femArmijoCandidate as trialNodes\","
-                        << "\"toi_semantics\":\"no standalone TOI scalar is exported; retain kernel status and captured contact/candidate records, and do not infer TOI from endpoint geometry\","
-                        << "\"phase_order\":[";
+                        << ",\"producer_semantics\":{";
+                    if (summaryMode) {
+                        manifest << "\"stage_statuses\":\"read-only blits from production per-trial status after each named stage\","
+                            << "\"measured_predecision\":\"captured after nm_fem_armijo_measure_trial and before nm_fem_armijo_decide\","
+                            << "\"postdecision\":\"metrics and both production step fractions captured after nm_fem_armijo_decide\","
+                            << "\"global_status_after_decision\":\"captured separately for each trial from state.statuses\","
+                            << "\"physical_state\":\"diagnostic adds same-command-buffer blits and host serialization only\"}"
+                            << ",\"phase_order\":[";
+                    } else {
+                        manifest << "\"candidate_contact_sweep\":\"pre snapshot precedes nm_contact_validate_armijo_deformable_sweep; post snapshot follows it, with femCandidate at buffer 5 and femArmijoCandidate at buffer 6\","
+                            << "\"private_contact_narrowphase\":\"post snapshot follows nm_contact_narrowphase_deformable, which consumes the trialNodes and frozen-history arguments before private residual accumulation\","
+                            << "\"material_projected_trial_stress_state\":\"not_exported_by_production_internal_force_kernel\","
+                            << "\"material_history_candidate_production\":\"captured pre-existing production candidate buffer; private Armijo evaluation reads accepted history and does not commit candidate history\","
+                            << "\"material_history\":\"accepted_state_is_captured; candidate history mutation is not committed by this diagnostic\","
+                            << "\"element_force_nodes\":\"captured after the private internal-force kernel\","
+                            << "\"deformable_sweep_validation\":\"nm_contact_validate_armijo_deformable_sweep binds state.femCandidate at buffer 5 and state.femArmijoCandidate at buffer 6; pre snapshot precedes validation and post snapshot follows it\","
+                            << "\"endpoint_narrowphase\":\"nm_contact_narrowphase_deformable receives trialNodes at buffer 4, history at buffer 10, and cohesiveFaces at buffer 15; caller passes state.femArmijoCandidate as trialNodes\","
+                            << "\"toi_semantics\":\"no standalone TOI scalar is exported; retain kernel status and captured contact/candidate records, and do not infer TOI from endpoint geometry\"}"
+                            << ",\"phase_order\":[";
+                    }
                     for (std::size_t i = 0u; i < phaseOrder.size(); ++i) {
                         if (i != 0u) manifest << ',';
                         manifest << jsonQuoted(phaseOrder[i]);
                     }
-                    manifest << "]},\"payload\":{\"file\":"
-                        << jsonQuoted(capturePath + ".coupled.bin")
+                    manifest << "],\"payload\":{\"file\":"
+                        << jsonQuoted(capturePath +
+                            (summaryMode ? ".summary.bin" : ".coupled.bin"))
                         << ",\"byte_count\":" << payloadBytes
                         << ",\"sha256\":"
                         << jsonQuoted(sha256Hex(data,
@@ -17372,18 +17998,32 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             << ",\"byte_count\":" << array.byteCount
                             << ",\"sha256\":"
                             << jsonQuoted(sha256Hex(data + array.offset,
-                                static_cast<std::size_t>(array.byteCount))) << '}';
+                                static_cast<std::size_t>(array.byteCount)));
+                        if (summaryMode && array.name ==
+                                "armijo_trial_status_checkpoints") {
+                            manifest << ",\"shape\":[" << summaryBudget
+                                << ',' << summaryStageNames.size() << ','
+                                << capturedDispatch.environmentCount << ']';
+                        } else if (summaryMode && array.name ==
+                                "armijo_trial_global_status_after_decision") {
+                            manifest << ",\"shape\":[" << summaryBudget
+                                << ',' << capturedDispatch.environmentCount << ']';
+                        }
+                        manifest << '}';
                     }
                     manifest << "]}\n";
                     const std::string manifestText = manifest.str();
-                    const std::string binaryPath = capturePath + ".coupled.bin";
-                    const std::string manifestPath = capturePath + ".coupled.json";
+                    const std::string binaryPath = capturePath +
+                        (summaryMode ? ".summary.bin" : ".coupled.bin");
+                    const std::string manifestPath = capturePath +
+                        (summaryMode ? ".summary.json" : ".coupled.json");
                     int binaryFD = ::open(binaryPath.c_str(),
                         O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
                     if (binaryFD < 0) {
                         std::fprintf(stderr,
-                            "fem_coupled_trial_capture_failed={\"schema\":\"numi.matter.coupled_armijo_trial_capture.v1\",\"root\":%u,\"iteration\":%u,\"trial\":%u,\"reason\":\"binary_exclusive_create_failed\",\"errno\":%d}\n",
-                            root, iteration, trial, errno);
+                            "%s_failed={\"schema\":%s,\"root\":%u,\"iteration\":%u,\"trial\":%u,\"reason\":\"binary_exclusive_create_failed\",\"errno\":%d}\n",
+                            captureEventPrefix,
+                            jsonQuoted(captureSchema).c_str(), root, iteration, trial, errno);
                         return;
                     }
                     int manifestFD = ::open(manifestPath.c_str(),
@@ -17393,8 +18033,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         ::close(binaryFD);
                         ::unlink(binaryPath.c_str());
                         std::fprintf(stderr,
-                            "fem_coupled_trial_capture_failed={\"schema\":\"numi.matter.coupled_armijo_trial_capture.v1\",\"root\":%u,\"iteration\":%u,\"trial\":%u,\"reason\":\"manifest_exclusive_create_failed\",\"errno\":%d}\n",
-                            root, iteration, trial, savedErrno);
+                            "%s_failed={\"schema\":%s,\"root\":%u,\"iteration\":%u,\"trial\":%u,\"reason\":\"manifest_exclusive_create_failed\",\"errno\":%d}\n",
+                            captureEventPrefix,
+                            jsonQuoted(captureSchema).c_str(), root, iteration, trial,
+                            savedErrno);
                         return;
                     }
                     const bool binaryWritten = writeAllBytes(binaryFD, data,
@@ -17408,16 +18050,31 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         ::unlink(binaryPath.c_str());
                         ::unlink(manifestPath.c_str());
                         std::fprintf(stderr,
-                            "fem_coupled_trial_capture_failed={\"schema\":\"numi.matter.coupled_armijo_trial_capture.v1\",\"root\":%u,\"iteration\":%u,\"trial\":%u,\"reason\":\"payload_write_or_close_failed\",\"errno\":%d}\n",
-                            root, iteration, trial, errno);
+                            "%s_failed={\"schema\":%s,\"root\":%u,\"iteration\":%u,\"trial\":%u,\"reason\":\"payload_write_or_close_failed\",\"errno\":%d}\n",
+                            captureEventPrefix,
+                            jsonQuoted(captureSchema).c_str(), root, iteration, trial,
+                            errno);
                         return;
                     }
-                    std::fprintf(stderr,
-                        "fem_coupled_trial_capture_complete={\"schema\":\"numi.matter.coupled_armijo_trial_capture.v1\",\"root\":%u,\"iteration\":%u,\"trial\":%u,\"bytes\":%llu,\"arrays\":%lu,\"manifest\":%s}\n",
-                        root, iteration, trial,
-                        static_cast<unsigned long long>(payloadBytes),
-                        static_cast<unsigned long>(arrays.size()),
-                        jsonQuoted(manifestPath).c_str());
+                    if (summaryMode) {
+                        std::fprintf(stderr,
+                            "%s_complete={\"schema\":%s,\"root\":%u,\"iteration\":%u,\"line_search_budget\":%u,\"stage_and_decision_status_copy_count\":%llu,\"bytes\":%llu,\"arrays\":%lu,\"manifest\":%s}\n",
+                            captureEventPrefix,
+                            jsonQuoted(captureSchema).c_str(), root, iteration,
+                            summaryBudget,
+                            static_cast<unsigned long long>(summaryStatusCopies),
+                            static_cast<unsigned long long>(payloadBytes),
+                            static_cast<unsigned long>(arrays.size()),
+                            jsonQuoted(manifestPath).c_str());
+                    } else {
+                        std::fprintf(stderr,
+                            "%s_complete={\"schema\":%s,\"root\":%u,\"iteration\":%u,\"trial\":%u,\"bytes\":%llu,\"arrays\":%lu,\"manifest\":%s}\n",
+                            captureEventPrefix,
+                            jsonQuoted(captureSchema).c_str(), root, iteration, trial,
+                            static_cast<unsigned long long>(payloadBytes),
+                            static_cast<unsigned long>(arrays.size()),
+                            jsonQuoted(manifestPath).c_str());
+                    }
                 }];
                 encoder = [commandBuffer computeCommandEncoder];
                 if (encoder == nil) {
@@ -21492,9 +22149,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 // feasible alpha and no later limiter may shrink the chosen
                 // trial before the normal apply/certificate path.
                 encodeFEMResidualArmijoBaseStatus();
+                if (!captureTrialSummaryEntryAndReserve()) {
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
                 for (std::uint32_t trialIndex = 0u;
                      trialIndex < state.mixedSolverValue
                          .nonlinearIterations.w; ++trialIndex) {
+                    if (!captureTrialSummaryStart(trialIndex)) {
+                        ownership->preDynamicsOpen = false;
+                        return diagnostics;
+                    }
                     dispatchThreads(
                         "nm_fem_armijo_begin_bounded_trial",
                         environments, [&] {
@@ -21545,6 +22210,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:9u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    if (captureTrialSummaryStatus &&
+                        !captureTrialSummaryStatus(trialIndex, 0u,
+                            "geometry_validation")) {
+                        ownership->preDynamicsOpen = false;
+                        return diagnostics;
+                    }
                     if (femFreeRigidResidualArmijoEnabled) {
                         dispatchThreads(
                             "nm_fem_armijo_copy_rigid_states",
@@ -21596,7 +22267,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         });
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     }
-                    if (femCoupledTrialCaptureSelected &&
+                    if (!femCoupledTrialSummaryMode &&
+                        femCoupledTrialCaptureSelected &&
                         trialIndex == femCoupledTrialCaptureTrial &&
                         femCoupledTrialCapturePhase != "post") {
                         if (!appendTrialContext(
@@ -21713,6 +22385,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         ownership->preDynamicsOpen = false;
                         return diagnostics;
                     }
+                    if (captureTrialSummaryStatus &&
+                        !captureTrialSummaryStatus(trialIndex, 1u,
+                            "bulk_material_mechanical")) {
+                        ownership->preDynamicsOpen = false;
+                        return diagnostics;
+                    }
                     if (femCohesiveResidualArmijoEnabled) {
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                         if (state.femArmijoTiledCohesiveRequested) {
@@ -21741,6 +22419,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     if (!captureTrialResidualStage(
                             "residual_after_cohesive",
                             "after_cohesive_before_rigid_contact", trialIndex)) {
+                        ownership->preDynamicsOpen = false;
+                        return diagnostics;
+                    }
+                    if (captureTrialSummaryStatus &&
+                        !captureTrialSummaryStatus(trialIndex, 2u,
+                            "cohesive_residual")) {
                         ownership->preDynamicsOpen = false;
                         return diagnostics;
                     }
@@ -22023,9 +22707,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         ownership->preDynamicsOpen = false;
                         return diagnostics;
                     }
+                    if (captureTrialSummaryStatus &&
+                        !captureTrialSummaryStatus(trialIndex, 3u,
+                            "private_rigid_contact")) {
+                        ownership->preDynamicsOpen = false;
+                        return diagnostics;
+                    }
                     if (femFullContactResidualArmijoEnabled) {
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                         if (!encodeArmijoDeformableContact(
+                                trialIndex,
                                 state.femArmijoCandidate,
                                 state.femArmijoStatuses,
                                 nonlinearDeformableContactHistories,
@@ -22038,7 +22729,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             return diagnostics;
                         }
                     }
-                    if (femCoupledTrialCaptureSelected &&
+                    if (!femCoupledTrialSummaryMode &&
+                        femCoupledTrialCaptureSelected &&
                         trialIndex == femCoupledTrialCaptureTrial &&
                         femCoupledTrialCapturePhase != "pre") {
                         const bool includeShared =
@@ -22175,6 +22867,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         ownership->preDynamicsOpen = false;
                         return diagnostics;
                     }
+                    if (captureTrialSummaryStatus &&
+                        !captureTrialSummaryStatus(trialIndex, 6u,
+                            "free_body_full_residual")) {
+                        ownership->preDynamicsOpen = false;
+                        return diagnostics;
+                    }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     dispatchThreads(
                         "nm_fem_armijo_measure_trial", environments, [&] {
@@ -22184,7 +22882,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:3u];
                         [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:4u];
                     });
-                    if (femCoupledTrialCaptureSelected &&
+                    if (captureTrialSummaryStatus &&
+                        !captureTrialSummaryStatus(trialIndex, 7u,
+                            "measured_predecision")) {
+                        ownership->preDynamicsOpen = false;
+                        return diagnostics;
+                    }
+                    if (!captureTrialSummaryPreDecision(trialIndex)) {
+                        ownership->preDynamicsOpen = false;
+                        return diagnostics;
+                    }
+                    if (!femCoupledTrialSummaryMode &&
+                        femCoupledTrialCaptureSelected &&
                         trialIndex == femCoupledTrialCaptureTrial &&
                         femCoupledTrialCapturePhase != "pre") {
                         if (!captureTrialMeasurement(trialIndex)) {
@@ -22215,6 +22924,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.environmentLineSearch offset:0u atIndex:10u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    if (!captureTrialSummaryPostDecision(trialIndex) ||
+                        !captureTrialSummaryDecisionStatus(trialIndex)) {
+                        ownership->preDynamicsOpen = false;
+                        return diagnostics;
+                    }
+                }
+                if (!captureTrialSummaryFinal() ||
+                    !finishFEMCoupledTrialCapture()) {
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
                 }
                 emitTrialCaptureIncomplete();
                 if (!encodeFEMResidualArmijoTrace()) {

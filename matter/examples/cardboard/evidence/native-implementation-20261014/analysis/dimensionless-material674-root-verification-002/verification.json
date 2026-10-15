@@ -1,0 +1,11 @@
+{
+  "status": "pass",
+  "original_manifest_sha256": "2ee312b8fba0ad5ac5962668eed85260c612f190fb536aec74edd696f7396e41",
+  "script_sha256": "1056ae251b64c56c8174a886f2809df3b9d2cdc35be2f54426957819c4005c13",
+  "output_only_override": "/Users/home/cardboard-implementation-20261014/analysis/dimensionless-material674-root-verification-002",
+  "all_scientific_code_and_inputs_unchanged": true,
+  "report_sha256": "af02c12ad7fce8722699d31799d7527caf28a56d700c853cdb2b369ca41534a4",
+  "report_byte_identical": true,
+  "physical_steps": 0,
+  "physical_validation": false
+}

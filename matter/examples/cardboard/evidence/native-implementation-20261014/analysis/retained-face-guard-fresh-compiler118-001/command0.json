@@ -1,0 +1,20 @@
+[
+  "/usr/bin/c++",
+  "-O3",
+  "-DNDEBUG",
+  "-std=c++2b",
+  "-arch",
+  "arm64",
+  "-Wall",
+  "-Wextra",
+  "-Wpedantic",
+  "-Werror",
+  "-I/Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-002/src/matter/tools",
+  "-I/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/tools",
+  "-I/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/include",
+  "-I/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/include",
+  "-c",
+  "/Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-002/src/matter/tools/cardboard_retained_matrix_damage_check.cpp",
+  "-o",
+  "/Users/home/cardboard-implementation-20261014/analysis/retained-face-guard-fresh-compiler118-001/check.o"
+]

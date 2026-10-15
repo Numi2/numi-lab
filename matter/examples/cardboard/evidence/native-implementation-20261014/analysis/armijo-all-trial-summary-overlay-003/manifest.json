@@ -1,0 +1,35 @@
+{
+  "base": {
+    "frozen_source_runtime_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-padded-trial-summary-120/matter/src/runtime.mm",
+    "frozen_source_runtime_sha256": "feaf5a062138e8dc1a84994090fde27a59a2605e863bb0d5c8ed1280e07b7fc4",
+    "overlay": "armijo-all-trial-summary-overlay-002",
+    "overlay002_manifest_sha256": "5ef31d7c02ca6d3058a4c0ba4a94da1c4c63844a1922b1679b2f9b9341af6adf",
+    "runtime_path": "/Users/home/cardboard-implementation-20261014/analysis/armijo-all-trial-summary-overlay-002/overlay/matter/src/runtime.mm",
+    "runtime_sha256": "feaf5a062138e8dc1a84994090fde27a59a2605e863bb0d5c8ed1280e07b7fc4"
+  },
+  "candidate_runtime_sha256": "ac3b2bc725a6787f342b20c1c11e8adc57ad47a80b78d9281e82cce41b9ed38c",
+  "change": "Remove one extra closing brace between phase_order and payload in the common coupled capture manifest writer; no capture fields or runtime decisions changed.",
+  "files": {
+    "README.md": "b81cc26a6da956156f3b1a34361a7202d7eecfc05b6857b47010c7debbed1f66",
+    "overlay.patch": "32027f48662524d927d122d92e43a1fcae03539b6ba590f345a449712bfa9407",
+    "overlay/matter/src/runtime.mm": "ac3b2bc725a6787f342b20c1c11e8adc57ad47a80b78d9281e82cce41b9ed38c",
+    "patch_dry_run.log": "a3eab9756b65d00807503b578438d91ea00de1b4ff9e4fb1a06d5dda4dbc88e6",
+    "patch_dry_run.py": "13e942bfa023ac10cf1e36ad4544d27ec0ca272fb4836d78421881458542739e",
+    "test_serializer_roundtrip.log": "fa2229bcfe3d79ca26c10a1acc46f46ecc7c9a385f0c5f87e07ef30fd4b36494",
+    "tests/test_serializer_roundtrip.py": "f10cbd9e5c346f3ef64245791e45b8761cee565cdd40ccbca0c107c270b85533"
+  },
+  "raw_triggering_run": {
+    "adjudication": "Preserved raw JSON; separate analyzer copy removes exactly one extra brace for diagnosis only.",
+    "array_count": 128,
+    "manifest_sha256": "ba41e4bead53b0bf3408fa4297c18dfc2ed208fc03f4d12813808c44371d6837",
+    "payload_bytes": 12480,
+    "raw_json_valid": false,
+    "run": "395"
+  },
+  "schema": "numi.matter.armijo_trial_summary_serializer_overlay.v1",
+  "status": "SEALED_CANDIDATE_STATIC_JSON_TESTS_PASS_NATIVE_SOURCE121_PENDING",
+  "tests": {
+    "patch_dry_run": "overlay002 base hash, patch dry-run/apply, candidate runtime hash",
+    "serializer_roundtrip": "strict JSON source-bound seam test checks actual summary and trial_capture schema names and rejects former malformed separator"
+  }
+}

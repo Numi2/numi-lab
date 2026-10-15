@@ -1,0 +1,80 @@
+[
+  {
+    "tet": 858,
+    "mode": 0,
+    "command": [
+      "/Users/home/cardboard-implementation-20261014/analysis/material-two-stage-merit-prototype-002/replay",
+      "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/rejected-conditioning-000001/candidate_nodes.bin",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+      "858"
+    ],
+    "exit_code": 0,
+    "projection": "production_projection_valid=1 iterations=14 residual=6.6167259388585919e-13 tolerance=3.9861483003278408e-08 scaled_correction=3.5694680718123539e-12 failure="
+  },
+  {
+    "tet": 858,
+    "mode": 1,
+    "command": [
+      "/Users/home/cardboard-implementation-20261014/analysis/material-two-stage-merit-prototype-002/replay",
+      "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/rejected-conditioning-000001/candidate_nodes.bin",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+      "858"
+    ],
+    "exit_code": 0,
+    "projection": "production_projection_valid=0 iterations=32 residual=4.3259515762329102 tolerance=4.1786670124110969e-08 scaled_correction=17.340585708618164 failure=iteration_budget_exhausted"
+  },
+  {
+    "tet": 858,
+    "mode": 3,
+    "command": [
+      "/Users/home/cardboard-implementation-20261014/analysis/material-two-stage-merit-prototype-002/replay",
+      "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/rejected-conditioning-000001/candidate_nodes.bin",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+      "858"
+    ],
+    "exit_code": 0,
+    "projection": "production_projection_valid=1 iterations=14 residual=6.6167259388585919e-13 tolerance=3.9861483003278408e-08 scaled_correction=3.5694680718123539e-12 failure="
+  },
+  {
+    "tet": 674,
+    "mode": 0,
+    "command": [
+      "/Users/home/cardboard-implementation-20261014/analysis/material-two-stage-merit-prototype-002/replay",
+      "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380/output/rejected-conditioning-000002/candidate_nodes.bin",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+      "674"
+    ],
+    "exit_code": 0,
+    "projection": "production_projection_valid=1 iterations=17 residual=1.3877787807814457e-16 tolerance=2.0410970691386865e-08 scaled_correction=9.7325966730288371e-12 failure="
+  },
+  {
+    "tet": 674,
+    "mode": 1,
+    "command": [
+      "/Users/home/cardboard-implementation-20261014/analysis/material-two-stage-merit-prototype-002/replay",
+      "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380/output/rejected-conditioning-000002/candidate_nodes.bin",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+      "674"
+    ],
+    "exit_code": 0,
+    "projection": "production_projection_valid=1 iterations=17 residual=1.3877787807814457e-16 tolerance=2.0410970691386865e-08 scaled_correction=9.7325966730288371e-12 failure="
+  },
+  {
+    "tet": 674,
+    "mode": 3,
+    "command": [
+      "/Users/home/cardboard-implementation-20261014/analysis/material-two-stage-merit-prototype-002/replay",
+      "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380/output/rejected-conditioning-000002/candidate_nodes.bin",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+      "674"
+    ],
+    "exit_code": 0,
+    "projection": "production_projection_valid=1 iterations=17 residual=1.3877787807814457e-16 tolerance=2.0410970691386865e-08 scaled_correction=9.7325966730288371e-12 failure="
+  }
+]

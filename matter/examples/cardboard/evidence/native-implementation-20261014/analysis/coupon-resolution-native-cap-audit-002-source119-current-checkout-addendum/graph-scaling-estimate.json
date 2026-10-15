@@ -1,0 +1,61 @@
+{
+  "bounded_partial_local_patch_candidate": {
+    "active_patch_scalar_extent_at_64_nodes": 192,
+    "block_inverse_additional_bytes_for_two_environments": 1985472,
+    "existing_inverse_diagonal_bytes_for_two_environments": 661824,
+    "factorization_flop_order_approximate_two_environments": 1207959552.0,
+    "graph_cap_headroom_bytes": 24079788,
+    "graph_device_MiB": 73.03572463989258,
+    "graph_device_bytes_including_both_dense_matrices_and_two_environments": 76583508,
+    "graph_plus_block_plus_regional_basis_estimate_bytes": 131552820,
+    "largest_graph_factor_search_scratch_bytes": 3072,
+    "largest_graph_factor_threadgroup_scalar_extent": 192,
+    "largest_graph_solve_explicit_threadgroup_array_length_each": 768,
+    "largest_graph_solve_explicit_threadgroup_float_arrays_bytes": 9216,
+    "limitations": [
+      "partial patches cannot by themselves provide local correction to every free node",
+      "requires exact block-Jacobi fallback on uncovered nodes and unchanged coarse RAP",
+      "does not establish native operator parity, convergence, device allocation, or 16 GiB total residency"
+    ],
+    "matrix_float_count_per_environment": 4718592,
+    "max_patch_scalar_dofs": 192,
+    "max_unique_graph_covered_nodes": 8192,
+    "metadata_bytes": 626260,
+    "minimum_uncovered_free_nodes": 12166,
+    "nodes_per_patch": 64,
+    "patch_count": 128,
+    "pivot_count_per_environment": 24576,
+    "regional_basis_AP_and_coarse_estimate_bytes_if_M32": 52983840,
+    "total_patch_node_slots": 8192
+  },
+  "current_hard_bounds": {
+    "environments": 4,
+    "graph_layout_device_bytes": 100663296,
+    "nodes": 4096,
+    "nodes_per_patch": 256,
+    "patches": 128,
+    "tetrahedra": 32768
+  },
+  "full_node_coverage_with_128_equal_dense_patches": {
+    "cap_excess_bytes": 368040340,
+    "conclusion": "current dense patch representation cannot cover all free nodes in 128 patches within its 96 MiB layout cap; the current builder also rejects the target before this calculation due N/T caps",
+    "full_graph_MiB": 446.9906196594238,
+    "full_graph_estimated_device_bytes": 468703636,
+    "matrix_float_count_per_environment": 29140938,
+    "patch_node_distribution": {
+      "patches_with_159_nodes": 122,
+      "patches_with_160_nodes": 6
+    },
+    "two_environment_factor_plus_source_matrix_bytes_before_metadata": 466255008
+  },
+  "schema": "numi.cardboard.graph-schwarz-scaling-model.v1",
+  "status": "bounded arithmetic estimate only; no layout builder, native admission, allocation, or convergence executed for target mesh",
+  "target": {
+    "authored_fixed_nodes": 324,
+    "basis_modes_assumed": 32,
+    "environment_count": 2,
+    "free_nodes": 20358,
+    "node_count": 20682,
+    "tetrahedron_count": 89088
+  }
+}

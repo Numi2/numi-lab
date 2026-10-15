@@ -1,0 +1,210 @@
+--- a/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm
++++ b/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm
+@@ -6,6 +6,7 @@
+ #include "numi/matter/detail.hpp"
+ #include "numi/matter/shared.h"
+ #include <algorithm>
++#include <numeric>
+ #include <array>
+ #include <bit>
+ #include <cmath>
+@@ -22,6 +23,7 @@
+ #include <sstream>
+ #include <stdexcept>
+ #include <string>
++#include <string_view>
+ #include <tuple>
+ #include <vector>
+ 
+@@ -712,6 +714,172 @@
+     f<<",\"receipt_kind\":\"diagnostic_observation_only\",\"physical_steps\":0,\"physical_validation\":false,\"full_solver_qualification\":false}\n";
+     need(f.good(),"source380 point result manifest write failed");
+ }
++int runExactSource392Tet858Trace(const std::filesystem::path& pointPath,
++                                  const std::filesystem::path& runPath,
++                                  const std::filesystem::path& mediumPath,
++                                  const std::filesystem::path& outdir) {
++    constexpr std::string_view pointSHA="411d522ebd281eae2b75d99f8f7927d2df3521795b1a04dc4a325953aafcc4d8";
++    constexpr std::string_view receiptSHA="bc1495a5a63e35a36182b9206350ff2f68480345ae1b205484215a1d53da7bcb";
++    constexpr std::string_view runManifestSHA="fbfcf51db84a3710cc3bd96e016597728163da464974ea033554e82e587cd8eb";
++    constexpr std::string_view packageSHA="cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c";
++    constexpr std::string_view candidateSHA="89846e4efc91c1774b52d6b3732f633e78414a7d341b6cbd8b9b4966e4be0417";
++    constexpr std::string_view conditioningSHA="ad51b0ceca073a4736ee128d0daf13eee82bf3a398919cc911a81fdff8399ced";
++    constexpr std::string_view acceptedSHA="e32909672f5ef53992fd7c798419dcdcd257662daa0f0c6cc8d960a1dced5dfd";
++    const auto output=runPath/"output";
++    const auto receiptPath=runPath/"receipt.json";
++    const auto runManifestPath=output/"manifest.json";
++    const auto packagePath=output/"compiled.nmatterpack";
++    const auto candidatePath=output/"rejected-conditioning-000001/candidate_nodes.bin";
++    const auto conditioningPath=output/"rejected-conditioning-000001/manifest.json";
++    const auto acceptedPath=output/"material_state_000001_bent.json";
++    need(sha256(pointPath)==pointSHA,"native401 point output SHA changed");
++    need(sha256(receiptPath)==receiptSHA&&sha256(runManifestPath)==runManifestSHA&&
++         sha256(packagePath)==packageSHA&&sha256(candidatePath)==candidateSHA&&
++         sha256(conditioningPath)==conditioningSHA&&sha256(acceptedPath)==acceptedSHA,
++         "source392 source artifact hashes differ from the retained native401 case");
++    need(sha256(mediumPath)==kMediumSHA,"source392 medium asset SHA changed");
++
++    NSDictionary* point=readJSONDocument(pointPath);
++    need(stringValue(field(point,"schema"),"source392 point schema")==
++             "numi.cardboard.source392-tet-point.v1"&&
++         number(field(point,"environment"),"source392 environment")==0.0&&
++         number(field(point,"tet_id"),"source392 tet")==858.0&&
++         number(field(point,"material_index"),"source392 material index")==1.0&&
++         number(field(point,"control_step"),"source392 control step")==0.0,
++         "source392 point identity differs from env0/tet858/material1/control0");
++    need(stringValue(field(point,"receipt_sha256"),"point receipt binding")==receiptSHA&&
++         stringValue(field(point,"run_manifest_sha256"),"point run manifest binding")==runManifestSHA&&
++         stringValue(field(point,"package_sha256"),"point package binding")==packageSHA&&
++         stringValue(field(point,"candidate_nodes_sha256"),"point candidate binding")==candidateSHA&&
++         stringValue(field(point,"conditioning_manifest_sha256"),"point conditioning binding")==conditioningSHA&&
++         stringValue(field(point,"accepted_state_sha256"),"point accepted history binding")==acceptedSHA&&
++         stringValue(field(point,"medium_asset_sha256"),"point material asset binding")==kMediumSHA,
++         "native401 point bindings differ from immutable source392 artifacts");
++    need([(NSNumber*)field(point,"physics_fingerprint") unsignedLongLongValue]==8485105279886344921ull&&
++         number(field(point,"projection_flags"),"source392 projection flags")==63.0&&
++         number(field(point,"local_updates"),"source392 local updates")==32.0&&
++         number(field(point,"terminal_failure"),"source392 projection failure")==7.0&&
++         ![(NSNumber*)field(point,"projection_converged") boolValue],
++         "native401 projection outcome/compiled world identity changed");
++
++    NSDictionary* runManifest=readJSONDocument(runManifestPath);
++    need([(NSNumber*)field(runManifest,"compiled_world_fingerprint") unsignedLongLongValue]==8485105279886344921ull,
++         "source392 run manifest fingerprint differs from point diagnostic");
++    NSDictionary* receipt=readJSONDocument(receiptPath);
++    need([(NSNumber*)field(receipt,"execution_started") boolValue]&&
++         [(NSNumber*)field(receipt,"source_inputs_unchanged") boolValue]&&
++         number(field(receipt,"exit_code"),"native source392 point exit code")==2.0,
++         "source392 coupon receipt is not the retained failed physical run");
++    NSDictionary* condition=readJSONDocument(conditioningPath);
++    need(number(field(condition,"control_step"),"conditioning step") == 0.0&&
++         number(field(condition,"accepted_physical_state"),"conditioning accepted state")==0.0&&
++         stringValue(field(condition,"source_physics_fingerprint"),"conditioning fingerprint")==
++             "8485105279886344921",
++         "source392 point candidate is not the exact rejected step-0 conditioning snapshot");
++    NSDictionary* state=readJSONDocument(acceptedPath);
++    need(number(field(state,"environment"),"accepted history environment")==0.0&&
++         number(field(state,"status_code"),"accepted history status")==5.0,
++         "source392 accepted history is not the status-5 rollback export");
++    NSArray* stateRows=(NSArray*)field(state,"tetrahedra");
++    need(stateRows.count==1920u,"source392 accepted history tet count mismatch");
++    NSDictionary* selectedState=(NSDictionary*)stateRows[858u];
++    need(number(field(selectedState,"index"),"accepted state tet index")==858.0&&
++         number(field(selectedState,"material_index"),"accepted state material index")==1.0,
++         "source392 accepted state row identity mismatch");
++    const auto accepted=flatVector(field(selectedState,"state"),15u,"source392 accepted history state");
++    need(std::all_of(accepted.begin(),accepted.end(),[](float value){return value==0.0f;}),
++         "source392 accepted rollback history is not all zeros");
++
++    const auto rawWords=bitVector(field(point,"raw_160_f32_words"),160u,"native401 raw output words");
++    const auto FHigh=flatArray<9>(field(point,"F_high"),"native401 F_high");
++    const auto FLow=flatArray<9>(field(point,"F_low"),"native401 F_low");
++    const auto FDot=flatArray<9>(field(point,"Fdot_local"),"native401 Fdot_local");
++    verifyFloatWords(FHigh.data(),std::vector<std::uint32_t>(rawWords.begin()+3u,rawWords.begin()+12u),"native401 F high");
++    verifyFloatWords(FLow.data(),std::vector<std::uint32_t>(rawWords.begin()+12u,rawWords.begin()+21u),"native401 F low");
++    verifyFloatWords(FDot.data(),std::vector<std::uint32_t>(rawWords.begin()+21u,rawWords.begin()+30u),"native401 Fdot");
++    Record row;row.env=0u;row.tet=858u;row.material=1u;row.materialName=kMediumName;
++    std::copy(FHigh.begin(),FHigh.end(),row.input.begin());
++    std::copy(FLow.begin(),FLow.end(),row.input.begin()+9u);
++    std::copy(FDot.begin(),FDot.end(),row.input.begin()+18u);
++    // Match the source392 point instrument's explicit tangent direction.
++    row.input[27u]=1.0f;
++    const float dt=static_cast<float>(number(field(point,"dt_s"),"native401 dt"));
++    const float temperature=static_cast<float>(number(field(point,"temperature_K"),"native401 temperature"));
++    need(dt==9.999999747378752e-5f&&temperature==293.1499938964844f,
++         "native401 timestep or temperature float word changed");
++    row.input[36u]=1.0f/dt;row.input[45u]=dt;row.input[46u]=temperature;
++    for(std::size_t i=0u;i<accepted.size();++i)row.accepted[i]=accepted[i];
++
++    CompiledWorld world;std::string packageError;
++    need(readPackage(packagePath,world,nullptr,&packageError),
++         "source392 compiled package rejected: "+packageError);
++    need(world.fingerprint==8485105279886344921ull&&world.dispatch.environmentCount==2u&&
++         world.dispatch.femNodeCount==882u&&world.dispatch.tetrahedronCount==1920u&&
++         world.materials.size()==3u&&world.materials[1].stateCount==15u&&
++         world.materials[1].parameterCount==28u&&world.materials[1].flags==213u&&
++         world.materials[1].localNewtonIterations==32u&&
++         world.fem.tetrahedra.size()>858u&&world.fem.tetrahedra[858u].identity.x==1u&&
++         world.fem.tetrahedra[858u].nodes.x==290u&&world.fem.tetrahedra[858u].nodes.y==293u&&
++         world.fem.tetrahedra[858u].nodes.z==292u&&world.fem.tetrahedra[858u].nodes.w==587u,
++         "source392 compiled package/material/tet descriptor differs from the exact point");
++    const ParseResult parsed=parseMatterFile(mediumPath.string());
++    need(parsed.succeeded()&&parsed.material.name==kMediumName&&
++         parsed.material.parameters.size()==28u,"source392 medium source parse/binding failed");
++    const auto& compiledMaterial=world.materials[1];
++    for(std::size_t i=0u;i<28u;++i){
++        need(compiledMaterial.parameterOffset+i<world.parameters.size(),"source392 parameter range invalid");
++        const float compiled=world.parameters[compiledMaterial.parameterOffset+i].valueAndBounds.x;
++        const float source=static_cast<float>(parsed.material.parameters[i].defaultValue);
++        need(std::bit_cast<std::uint32_t>(compiled)==std::bit_cast<std::uint32_t>(source),
++             "compiled source392 material parameter word differs at index "+std::to_string(i));
++    }
++    need(!std::filesystem::exists(outdir),"source392 trace output directory already exists");
++    need(std::filesystem::create_directories(outdir),"could not exclusively create source392 trace output directory");
++    const std::string inputSHA=std::string(pointSHA);
++    Metal metal;
++    const auto trace=runTrace(metal,world,"source392_tet858_exact401_trace",row,outdir,inputSHA,true);
++    const auto batch=runBatch(metal,world,"source392_tet858_trace_off",std::vector<Record>{row},outdir,inputSHA,true);
++    const std::array<std::pair<unsigned,unsigned>,5> spans={{{14u,8u},{23u,17u},{32u,26u},{41u,35u},{56u,50u}}};
++    const std::array<unsigned,5> lengths={9u,9u,9u,15u,15u};
++    std::array<unsigned,5> mismatches{};
++    for(std::size_t span=0u;span<spans.size();++span)
++        for(unsigned i=0u;i<lengths[span];++i)
++            mismatches[span]+=std::bit_cast<std::uint32_t>(trace[spans[span].first+i])!=
++                              std::bit_cast<std::uint32_t>(batch[spans[span].second+i]);
++    const auto& outputPath=outdir/"source392-tet858-trace-run.json";
++    std::ofstream result(outputPath);need(result.good(),"cannot create source392 trace-run manifest");
++    result<<std::setprecision(17)
++      <<"{\"schema\":\"numi.cardboard.source392-tet858-projection-trace.v1\","
++      <<"\"source_snapshot\":\"source-valid-summary-tet858-121\","
++      <<"\"point401_sha256\":\""<<pointSHA<<"\",\"coupon_receipt_sha256\":\""<<receiptSHA
++      <<"\",\"run_manifest_sha256\":\""<<runManifestSHA<<"\",\"compiled_package_sha256\":\""<<packageSHA
++      <<"\",\"medium_asset_sha256\":\""<<kMediumSHA<<"\",\"candidate_nodes_sha256\":\""<<candidateSHA
++      <<"\",\"accepted_state_sha256\":\""<<acceptedSHA<<"\",\"conditioning_manifest_sha256\":\""<<conditioningSHA
++      <<"\",\"world_fingerprint\":8485105279886344921,\"environment\":0,\"tet_id\":858,\"material_index\":1,"
++      <<"\"candidate_is_rejected_conditioning_snapshot\":true,\"first_failure_generation_bound\":false,"
++      <<"\"input_f32_bits\":";bitsArrayJSON(result,row.input.data(),row.input.size());
++    result<<",\"accepted_history_f32_bits\":";bitsArrayJSON(result,row.accepted.data(),row.accepted.size());
++    result<<",\"native401_projection\":{\"converged\":false,\"iterations\":32,\"failure\":7,\"residual\":"
++      <<number(field(point,"projection_residual"),"native401 projection residual")<<",\"state_norm\":"
++      <<number(field(point,"projection_state_norm"),"native401 state norm")<<"},"
++      <<"\"trace_projection\":{\"converged\":"<<(trace[0]==1.0f?"true":"false")<<",\"iterations\":"<<trace[3]
++      <<",\"flags\":"<<trace[4]<<",\"failure\":"<<trace[5]<<",\"raw_residual\":"<<trace[1]
++      <<",\"state_norm\":"<<trace[2]<<"},\"trace_off_bit_mismatches\":{"
++      <<"\"direct_stress\":"<<mismatches[0]<<",\"tangent_path_stress\":"<<mismatches[1]
++      <<",\"tangent\":"<<mismatches[2]<<",\"projected_state_high\":"<<mismatches[3]
++      <<",\"projected_state_low\":"<<mismatches[4]<<"},\"physical_transactions\":0,"
++      <<"\"physical_validation\":false,\"full_solver_qualification\":false}\n";
++    result.flush();need(result.good(),"source392 trace-run manifest write failed");
++    std::cout<<"{\"record\":\"source392_tet858_trace\",\"status\":\"diagnostic_dispatch_complete\","
++      <<"\"point401_sha256\":\""<<pointSHA<<"\",\"package_sha256\":\""<<packageSHA
++      <<"\",\"projection_valid\":"<<(trace[0]==1.0f?"true":"false")
++      <<",\"iterations\":"<<trace[3]<<",\"failure\":"<<trace[5]
++      <<",\"trace_off_total_mismatches\":"
++      <<std::accumulate(mismatches.begin(),mismatches.end(),0u)
++      <<",\"physical_transactions\":0}\n";
++    return 0;
++}
++
+ int runExactSource380Point(const std::string& expectedInputSHA,const std::string& expectedPackageSHA,
+                            const std::string& expectedFingerprint,const std::filesystem::path& inputPath,
+                            const std::filesystem::path& packagePath,const std::filesystem::path& mediumPath,
+@@ -759,6 +927,9 @@
+ }
+ 
+ int main(int argc,char** argv){@autoreleasepool{try{
++    const bool native392Trace=argc==6&&std::string(argv[1])=="--native-source392-tet858-trace";
++    if(native392Trace)
++        return runExactSource392Tet858Trace(argv[2],argv[3],argv[4],argv[5]);
+     const bool nativeExactPoint=argc==15&&std::string(argv[1])=="--native-source380-point"&&
+         std::string(argv[2])=="--expected-input-sha256"&&std::string(argv[4])=="--expected-package-sha256"&&
+         std::string(argv[6])=="--expected-world-fingerprint";
+@@ -770,7 +941,7 @@
+     const bool nativeAll=argc==9&&std::string(argv[1])=="--native"&&std::string(argv[2])=="--all-points"&&std::string(argv[3])=="--expected-capture-sha256";
+     const bool nativeSweep=argc==9&&std::string(argv[1])=="--native"&&std::string(argv[2])=="--derivative-sweep"&&std::string(argv[3])=="--expected-capture-sha256";
+     const bool native=nativeSelected||nativeAll||nativeSweep;
+-    need(cpu||native||nativeExactPoint,"usage: capture-diagnostic --cpu-admission --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter | --native --selected-only|--all-points|--derivative-sweep --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter OUTPUT_DIR | --native-source380-point --expected-input-sha256 SHA --expected-package-sha256 SHA --expected-world-fingerprint DEC INPUT.json PACKAGE.nmatterpack MEDIUM.nmatter CANDIDATE_NODES.bin ACCEPTED_HISTORY.json MESH.json OUTPUT_DIR");
++    need(cpu||native||nativeExactPoint||native392Trace,"usage: capture-diagnostic --cpu-admission --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter | --native --selected-only|--all-points|--derivative-sweep --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter OUTPUT_DIR | --native-source380-point --expected-input-sha256 SHA --expected-package-sha256 SHA --expected-world-fingerprint DEC INPUT.json PACKAGE.nmatterpack MEDIUM.nmatter CANDIDATE_NODES.bin ACCEPTED_HISTORY.json MESH.json OUTPUT_DIR | --native-source392-tet858-trace POINT401.json RUN392_DIR MEDIUM.nmatter OUTPUT_DIR");
+     const std::string expectedCaptureSHA=argv[cpu?3:4];
+     need(expectedCaptureSHA.size()==64u&&std::all_of(expectedCaptureSHA.begin(),expectedCaptureSHA.end(),[](unsigned char c){return std::isxdigit(c)!=0;}),
+          "expected capture SHA must be exactly 64 hexadecimal characters");

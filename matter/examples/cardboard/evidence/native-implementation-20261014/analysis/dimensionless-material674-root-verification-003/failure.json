@@ -1,0 +1,5 @@
+{
+  "status": "failed verification harness setup",
+  "reason": "Redirected output PKG also used to hash reference implementation; missing copy in new output folder. No sealed source package changed.",
+  "physical_steps": 0
+}

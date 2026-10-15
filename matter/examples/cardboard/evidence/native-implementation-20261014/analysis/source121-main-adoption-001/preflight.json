@@ -1,0 +1,66 @@
+{
+  "schema": "numi.cardboard.reviewed_main_adoption.v1",
+  "git_base": "7ebc64a666c4bd5e1ff61b3684655979ab80dc60",
+  "source121_build_sha256": "8c934e5070e10a8522dc67bdc9385a985012c990d291cfa2597760b0a81643a7",
+  "paths": [
+    {
+      "path": "matter/CMakeLists.txt",
+      "prior_sha256": "031c7f9a497a245aa222d832918812ba561673ec6774925ca0cfb49198425bea",
+      "source121_sha256": "d64689e33063913c13493d6e621767124519c29432b45ee236deab01ca1c7448"
+    },
+    {
+      "path": "matter/src/metal/common.metalinc",
+      "prior_sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182",
+      "source121_sha256": "66153b6ac14d361e33f9f74d228b8882db81bb35f6e425c973c206bd196a5f55"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "prior_sha256": "3c467b04e72512b53a5ba9e1f3ee4132f293b0d2e6ac22acc0c3936512319e74",
+      "source121_sha256": "ac3b2bc725a6787f342b20c1c11e8adc57ad47a80b78d9281e82cce41b9ed38c"
+    },
+    {
+      "path": "matter/tools/cardboard_asymmetric_c1_paper_gpu_check.mm",
+      "prior_sha256": "2f10f90acd650b84afb38b5a576cb38c70087397f7e82ebb45b364ccda6b5c66",
+      "source121_sha256": "48767aab1a2f11a04b43f9bc2bcef4bdead6b02f9275bbcbe0eb7d325cb4abf4"
+    },
+    {
+      "path": "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm",
+      "prior_sha256": "1154df63e3acabe95ca4931d463ad928826992cd4d47dd5eba767a6c8ced7d8f",
+      "source121_sha256": "f6c9a44a4d1c1142590e9818cb2de02ba61b152b613f5e6f41f8bd5f33b8aaa1"
+    },
+    {
+      "path": "matter/tools/cardboard_fracture_regularization.hpp",
+      "prior_sha256": "86ed5f2a2a3168fe4e36a585ad29e785211ff6956afeb70080bc8a82a7315903",
+      "source121_sha256": "d88d5bb677b37a3ee38fd5d0fed1c72d7178718ec768d97c2df61b4bf1393bfb"
+    },
+    {
+      "path": "matter/tools/cardboard_paper_check.metal",
+      "prior_sha256": "ef83c6b0e8d91236446a3ae558e58c100ceaf59258a754645c7ae7c739249bc5",
+      "source121_sha256": "4660f78dc594adcdcdd4cab6d6943114d16f54f5d1a3cc327270718e16a5e181"
+    },
+    {
+      "path": "matter/tools/cardboard_retained_matrix_damage.hpp",
+      "prior_sha256": "58944ad123111a7c4c1c062dbcfab36fec4897f2027b128bde2c8c62b8667384",
+      "source121_sha256": "2542d465c280070837e95acd80ef9fe6bb6444bd3897ed61f1e0998427d83d74"
+    },
+    {
+      "path": "matter/tools/cardboard_retained_matrix_damage_check.cpp",
+      "prior_sha256": "9699073afcdeb25b3fed49f23c207131bcd957bf49da7d6370c196071bfdb863",
+      "source121_sha256": "5d54910aebb1beb78e0d5108b1fbd57ec3398939a7bb4299e96dedc1dcb44d6f"
+    },
+    {
+      "path": "matter/tools/cardboard_source370_material_point_check.mm",
+      "prior_sha256": null,
+      "source121_sha256": "f02bae340982ad889f5e48488d82c42d25394c82b5af96bc4a51338277c25f21"
+    },
+    {
+      "path": "matter/tools/cardboard_source392_tet_point_check.mm",
+      "prior_sha256": null,
+      "source121_sha256": "ae8e3cbc64dbe4058562ee766ed10ce0d27f841daa4943e6baa7be28a0405900"
+    }
+  ],
+  "source119_full_build_and_74_cpu_checks": true,
+  "source121_native_summary396_strict_payload_and_production_parity": true,
+  "physical_coupon392_failed": true,
+  "all_physical_thresholds_unchanged": true
+}

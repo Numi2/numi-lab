@@ -1,0 +1,18 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118",
+  "source_overlay_sha256": "034882884a999c66df264ccaf7120c5b5b73f217a970ca9da9bb1842d5b9cdc9",
+  "common_base_sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182",
+  "common_candidate_sha256": "66153b6ac14d361e33f9f74d228b8882db81bb35f6e425c973c206bd196a5f55",
+  "source115_production_changes": {
+    "matter/src/runtime.mm": "3c467b04e72512b53a5ba9e1f3ee4132f293b0d2e6ac22acc0c3936512319e74",
+    "matter/src/metal/contact.metalinc": "28bfbee02d2ea396e171f10e1b383980da245f2c91426089b2e867493a139e23",
+    "matter/tools/cardboard_contact_ccd_native_check.mm": "676ff1f75b2c8634a8bbf5a78046037533c125f21622f4d5172533364a5feb4b",
+    "matter/tools/cardboard_damage_builder.hpp": "889a8d51fb47066a0a38e57e3cd2ffe50ca8e61100b749f6af336eb0fa7b581b",
+    "matter/tools/cardboard_damage_builder_check.cpp": "e420c7dc197ffecf32794172a68603f170141788a62a2c2fb12549a4d03cbe32"
+  },
+  "all_source_bytes_verified_after_APFS_clone": true,
+  "selected_source_files": 782,
+  "support_files": 1068,
+  "production_equations_tolerances_and_iteration_budgets_unchanged": true,
+  "line_search_merit_changed_only_for_existing_accurate_policy": true
+}

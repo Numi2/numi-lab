@@ -1,0 +1,19 @@
+{
+  "number": 118,
+  "argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/retained-source-snapshot118-001/restore.py",
+    "--repository",
+    "/Users/home/numi-cardboard-20261006",
+    "--number",
+    "118",
+    "--output",
+    "/Users/home/cardboard-implementation-20261014/cardboard-source118-cli-0pw_s3c5/restored"
+  ],
+  "exit_code": 0,
+  "selected_files": 782,
+  "support_files": 1068,
+  "all_restored_disk_bytes_verified": true,
+  "source_package_manifest_sha256": "18095fc8bc1013aa7248d0dcc9e78b9e3eecdbfd54314e6fcc6f4df020a2b590",
+  "physical_qualification": false
+}

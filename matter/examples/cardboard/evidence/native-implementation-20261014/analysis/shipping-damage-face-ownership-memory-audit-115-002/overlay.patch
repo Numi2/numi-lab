@@ -1,0 +1,258 @@
+--- a/matter/tools/cardboard_fracture_regularization.hpp
++++ b/matter/tools/cardboard_fracture_regularization.hpp
+@@ -134,11 +134,20 @@
+ 
+ } // namespace fracture_detail
+ 
+-// Computes the actual intersection polygon of a selected plane with one
+-// reference tetrahedron. Volume is abs(det)/6, so arbitrary input vertex
+-// winding is admitted without changing the result. A zero-area/no-cut result
+-// has no characteristic length and contributes zero fracture area.
+-inline TetCrackPlaneGeometry computeTetCrackPlaneGeometry(
++struct TetCrackPlaneClassification {
++    double edgeScaleM = 0.0;
++    double referenceVolumeM3 = 0.0;
++    FractureVec3 referenceUnitNormal{};
++    FractureVec3 planePointReferenceM{};
++    double distanceToleranceM = 0.0;
++    std::array<double, 4> signedDistanceM{};
++    std::array<int, 4> side{};
++};
++
++// This is the single source of centroid, rotated normal, signed-distance, and
++// tolerance arithmetic used by both polygon construction and the retained
++// builder's full-face ambiguity gate.
++inline TetCrackPlaneClassification classifyTetCrackPlane(
+     const std::array<FractureVec3, 4>& referenceVerticesM,
+     const TetCrackPlane& plane) {
+     for (const FractureVec3 vertex : referenceVerticesM) {
+@@ -153,18 +162,21 @@
+     if (!fractureFinite(plane.normal))
+         throw std::invalid_argument("crack-plane normal is nonfinite");
+ 
+-    const double edgeScale = fracture_detail::maxEdgeLength(referenceVerticesM);
+-    if (!(std::isfinite(edgeScale) && edgeScale > 0.0))
++    TetCrackPlaneClassification classification;
++    classification.edgeScaleM = fracture_detail::maxEdgeLength(referenceVerticesM);
++    if (!(std::isfinite(classification.edgeScaleM) && classification.edgeScaleM > 0.0))
+         throw std::invalid_argument("tetrahedron has zero or invalid edge scale");
+     const FractureVec3 a = referenceVerticesM[0];
+     const FractureVec3 b = referenceVerticesM[1];
+     const FractureVec3 c = referenceVerticesM[2];
+     const FractureVec3 d = referenceVerticesM[3];
+     const double signedSixVolume = fractureDot(b - a, fractureCross(c - a, d - a));
+-    const double volume = std::abs(signedSixVolume) / 6.0;
++    classification.referenceVolumeM3 = std::abs(signedSixVolume) / 6.0;
+     const double degeneracyFloor = 128.0 * std::numeric_limits<double>::epsilon() *
+-                                   edgeScale * edgeScale * edgeScale;
+-    if (!(std::isfinite(volume) && volume > degeneracyFloor))
++                                   classification.edgeScaleM * classification.edgeScaleM *
++                                   classification.edgeScaleM;
++    if (!(std::isfinite(classification.referenceVolumeM3) &&
++          classification.referenceVolumeM3 > degeneracyFloor))
+         throw std::invalid_argument("tetrahedron reference volume is degenerate");
+ 
+     FractureVec3 normal = plane.normal;
+@@ -178,19 +190,74 @@
+     if (!(std::isfinite(normalLength) && normalLength > 0.0))
+         throw std::invalid_argument("crack-plane normal must be nonzero");
+     normal = normal / normalLength;
++    classification.referenceUnitNormal = normal;
+ 
+     FractureVec3 centroid{};
+     for (FractureVec3 vertex : referenceVerticesM) centroid = centroid + vertex;
+     centroid = centroid / 4.0;
+-    const FractureVec3 planePoint = centroid + normal * plane.offsetFromCentroidM;
+-    const double distanceTolerance = plane.relativePlaneTolerance * edgeScale;
+-    std::array<double, 4> distance{};
+-    std::array<int, 4> side{};
++    classification.planePointReferenceM =
++        centroid + normal * plane.offsetFromCentroidM;
++    classification.distanceToleranceM = plane.relativePlaneTolerance *
++                                        classification.edgeScaleM;
+     for (std::size_t i = 0; i < 4; ++i) {
+-        distance[i] = fractureDot(normal, referenceVerticesM[i] - planePoint);
+-        side[i] = distance[i] > distanceTolerance ? 1 :
+-                  (distance[i] < -distanceTolerance ? -1 : 0);
+-    }
++        classification.signedDistanceM[i] = fractureDot(
++            normal, referenceVerticesM[i] - classification.planePointReferenceM);
++        classification.side[i] =
++            classification.signedDistanceM[i] > classification.distanceToleranceM ? 1 :
++            (classification.signedDistanceM[i] < -classification.distanceToleranceM ? -1 : 0);
++    }
++    return classification;
++}
++
++// A face is numerically ambiguous when all three of its vertices lie in the
++// exact classifier's on-plane band. This check uses the already-computed
++// signed distances, so its threshold cannot drift from polygon construction.
++inline bool tetCrackPlaneClearsEveryFullFace(
++    const TetCrackPlaneClassification& classification) {
++    constexpr std::array<std::array<std::size_t, 3>, 4> faces{{
++        {{1, 2, 3}}, {{0, 3, 2}}, {{0, 1, 3}}, {{0, 2, 1}},
++    }};
++    for (const auto& face : faces) {
++        double maximumAbsoluteDistance = 0.0;
++        for (const std::size_t vertex : face) {
++            const double distance = classification.signedDistanceM[vertex];
++            if (!std::isfinite(distance)) return false;
++            maximumAbsoluteDistance = std::max(maximumAbsoluteDistance, std::abs(distance));
++        }
++        if (!(maximumAbsoluteDistance > classification.distanceToleranceM)) return false;
++    }
++    return std::isfinite(classification.distanceToleranceM) &&
++           classification.distanceToleranceM > 0.0;
++}
++
++// Computes the actual intersection polygon of a selected plane with one
++// reference tetrahedron. Volume is abs(det)/6, so arbitrary input vertex
++// winding is admitted without changing the result. A zero-area/no-cut result
++// has no characteristic length and contributes zero fracture area.
++enum class FullFaceAmbiguityPolicy {
++    Allow,
++    RejectWithinClassificationTolerance,
++};
++
++inline TetCrackPlaneGeometry computeTetCrackPlaneGeometry(
++    const std::array<FractureVec3, 4>& referenceVerticesM,
++    const TetCrackPlane& plane,
++    const FullFaceAmbiguityPolicy facePolicy = FullFaceAmbiguityPolicy::Allow) {
++    const TetCrackPlaneClassification classification =
++        classifyTetCrackPlane(referenceVerticesM, plane);
++    if (facePolicy == FullFaceAmbiguityPolicy::RejectWithinClassificationTolerance &&
++        !tetCrackPlaneClearsEveryFullFace(classification))
++        throw std::invalid_argument(
++            "crack plane is within classification tolerance of an entire tetrahedron face");
++    if (facePolicy != FullFaceAmbiguityPolicy::Allow &&
++        facePolicy != FullFaceAmbiguityPolicy::RejectWithinClassificationTolerance)
++        throw std::invalid_argument("unknown full-face ambiguity policy");
++    const double edgeScale = classification.edgeScaleM;
++    const double volume = classification.referenceVolumeM3;
++    const FractureVec3 normal = classification.referenceUnitNormal;
++    const double distanceTolerance = classification.distanceToleranceM;
++    const auto& distance = classification.signedDistanceM;
++    const auto& side = classification.side;
+ 
+     TetCrackPlaneGeometry result;
+     result.referenceVolumeM3 = volume;
+--- a/matter/tools/cardboard_retained_matrix_damage.hpp
++++ b/matter/tools/cardboard_retained_matrix_damage.hpp
+@@ -25,6 +25,7 @@
+ namespace numi::cardboard::retained_damage {
+ 
+ using numi::cardboard::FractureVec3;
++using numi::cardboard::FullFaceAmbiguityPolicy;
+ using numi::cardboard::TetCrackPlane;
+ using numi::cardboard::TetCrackPlaneGeometry;
+ using numi::cardboard::computeTetCrackPlaneGeometry;
+@@ -431,7 +432,8 @@
+     result.mapping.smoothStrainWidth = request.explicitSet.smoothStrainWidth;
+     for (std::size_t i=0;i<4u;++i) {
+         result.mapping.planeGeometry[i] = computeTetCrackPlaneGeometry(
+-            request.referenceVerticesM,request.selectedMaterialPlanes[i]);
++            request.referenceVerticesM, request.selectedMaterialPlanes[i],
++            FullFaceAmbiguityPolicy::RejectWithinClassificationTolerance);
+         if (!result.mapping.planeGeometry[i].hasPositiveAreaCut())
+             throw std::invalid_argument("each damage mode needs a positive-area selected plane cut");
+         result.mapping.modeLengthM[i] =
+--- a/matter/tools/cardboard_retained_matrix_damage_check.cpp
++++ b/matter/tools/cardboard_retained_matrix_damage_check.cpp
+@@ -494,6 +494,77 @@
+             "pool incorrectly quantized distinct physical characteristic lengths");
+ }
+ 
++void checkFullFaceClassificationBoundary() {
++    using numi::cardboard::FullFaceAmbiguityPolicy;
++    using numi::cardboard::TetCrackPlane;
++    using numi::cardboard::classifyTetCrackPlane;
++    using numi::cardboard::computeTetCrackPlaneGeometry;
++    using numi::cardboard::tetCrackPlaneClearsEveryFullFace;
++
++    const TetCrackPlane zPlane{{0,0,1},FractureNormalFrame::Reference,0.0,{},1.0e-12};
++    auto verticesForHeight = [](const double height) {
++        return std::array<FractureVec3,4>{{
++            {0,0,0}, {1,0,0}, {0,1,0}, {0,0,height}}};
++    };
++
++    const auto ordinary = verticesForHeight(1.0);
++    const auto ordinaryClassification = classifyTetCrackPlane(ordinary,zPlane);
++    require(tetCrackPlaneClearsEveryFullFace(ordinaryClassification),
++            "ordinary tetrahedron unexpectedly aliases a full face within plane tolerance");
++    (void)computeTetCrackPlaneGeometry(
++        ordinary,zPlane,FullFaceAmbiguityPolicy::RejectWithinClassificationTolerance);
++
++    // The existing volume degeneracy floor accepts this flattened tetrahedron,
++    // while the ordinary polygon classifier classifies the entire base face as
++    // on-plane. The retained builder must reject it before using that face as
++    // a positive-area interior crack band.
++    const auto sliver = verticesForHeight(2.0e-12);
++    const auto sliverClassification = classifyTetCrackPlane(sliver,zPlane);
++    require(sliverClassification.referenceVolumeM3 >
++                128.0*std::numeric_limits<double>::epsilon()*
++                    sliverClassification.edgeScaleM*sliverClassification.edgeScaleM*
++                    sliverClassification.edgeScaleM,
++            "sliver fixture no longer clears the existing volume floor");
++    require(!tetCrackPlaneClearsEveryFullFace(sliverClassification),
++            "sliver full-face ambiguity was not detected by the shared classifier");
++    const auto legacySliverGeometry = computeTetCrackPlaneGeometry(sliver,zPlane);
++    require(legacySliverGeometry.hasPositiveAreaCut() &&
++                legacySliverGeometry.cutPolygonReferenceM.size()==3u,
++            "fixture no longer demonstrates the old positive-area full-face cut");
++    bool rejected = false;
++    try {
++        (void)computeTetCrackPlaneGeometry(
++            sliver,zPlane,FullFaceAmbiguityPolicy::RejectWithinClassificationTolerance);
++    } catch(const std::invalid_argument&) { rejected=true; }
++    require(rejected,"strict face policy accepted the ambiguous sliver cut");
++
++    // Exact threshold equality is ambiguous: the classification itself uses
++    // <= tolerance for its on-plane category, so admission is strictly greater.
++    const double boundaryHeight = 4.0*ordinaryClassification.distanceToleranceM;
++    const auto boundary = verticesForHeight(boundaryHeight);
++    const auto boundaryClassification = classifyTetCrackPlane(boundary,zPlane);
++    require(std::abs(boundaryClassification.signedDistanceM[0]) ==
++                boundaryClassification.distanceToleranceM,
++            "constructed equality fixture did not land exactly on classifier tolerance");
++    require(!tetCrackPlaneClearsEveryFullFace(boundaryClassification),
++            "exact tolerance boundary was not rejected");
++    const auto outside = verticesForHeight(std::nextafter(
++        boundaryHeight,std::numeric_limits<double>::infinity()));
++    const auto outsideClassification = classifyTetCrackPlane(outside,zPlane);
++    require(tetCrackPlaneClearsEveryFullFace(outsideClassification),
++            "one-representable-step outside face boundary did not clear the strict gate");
++
++    // Rotation is handled by the same classifier. A valid proper material
++    // rotation of an ordinary tetrahedron remains admitted.
++    TetCrackPlane rotated{{1,0,0},FractureNormalFrame::ElementMaterial,0.0,{},1.0e-12};
++    rotated.materialToReference.value = {0,-1,0, 1,0,0, 0,0,1};
++    const auto rotatedClassification = classifyTetCrackPlane(ordinary,rotated);
++    require(tetCrackPlaneClearsEveryFullFace(rotatedClassification),
++            "valid rotated material-plane control was rejected");
++    (void)computeTetCrackPlaneGeometry(
++        ordinary,rotated,FullFaceAmbiguityPolicy::RejectWithinClassificationTolerance);
++}
++
+ void checkFailClosed(const std::filesystem::path& materials) {
+     const auto source=parse(materials/"hajali2009_liner_hill_ideal.nmatter");
+     auto bad=request(source,"liner",0u,{0,0,0},0.001);
+@@ -511,6 +582,11 @@
+     rejected=false;
+     try {(void)buildElementProgram(bad);} catch(const std::invalid_argument&) {rejected=true;}
+     require(rejected,"builder accepted a negative energy-derived softening interval");
++    bad=request(source,"liner",1u,{0,0,0},0.001);
++    bad.referenceVerticesM[3].z=2.0e-15;
++    rejected=false;
++    try {(void)buildElementProgram(bad);} catch(const std::invalid_argument&) {rejected=true;}
++    require(rejected,"retained builder accepted a sliver whose zero-offset plane aliases a full tetrahedron face");
+ }
+ 
+ double relativeError(const std::vector<double>& a,const std::vector<double>& b) {
+@@ -1317,6 +1393,7 @@
+         checkComposition(materials);
+         checkExactPool(materials);
+         checkFailClosed(materials);
++        checkFullFaceClassificationBoundary();
+         checkHistoryTangentAndWork(materials);
+         std::cout << "cardboard_retained_matrix_damage_cpu_passed\n"
+                   << "matrix=Haj-Ali liner/NSSC source program and density retained\n"

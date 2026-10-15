@@ -1,0 +1,295 @@
+ITER 0 raw 46.531326293945312 bound 4.1877914469523603e-08 corr 13267.06640625 scaled 0.69938385486602783
+TRIAL 0 0 alpha 1 raw 7.1959152221679688 scaled 54.110141754150391 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 0 1 alpha 0.5 raw 24.235979080200195 scaled 9.4282474517822266 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 0 2 alpha 0.25 raw 35.091476440429688 scaled 1.9422401189804077 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 0 3 alpha 0.125 raw 40.758594512939453 scaled 0.61261749267578125 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 1 raw 40.758594512939453 bound 4.1877552092728365e-08 corr 8.9096078872680664 scaled 0.67082172632217407
+TRIAL 1 0 alpha 1 raw 6.8785820007324219 scaled 2.7553660869598389 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 1 1 alpha 0.5 raw 21.365468978881836 scaled 0.5311545729637146 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 2 raw 21.365468978881836 bound 4.1875935608004511e-08 corr 3.0913197994232178 scaled 0.51649332046508789
+TRIAL 2 0 alpha 1 raw 5.4201726913452148 scaled 0.47840169072151184 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 3 raw 5.4201726913452148 bound 4.1869821387763295e-08 corr 7.7212433815002441 scaled 0.30097219347953796
+TRIAL 3 0 alpha 1 raw 7.5430417060852051 scaled 2.6409432888031006 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 3 1 alpha 0.5 raw 4.6049365997314453 scaled 0.87156873941421509 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 3 2 alpha 0.25 raw 4.5263981819152832 scaled 0.40413841605186462 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 3 3 alpha 0.125 raw 4.8556275367736816 scaled 0.30706492066383362 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 3 4 alpha 0.0625 raw 5.1093225479125977 scaled 0.29294347763061523 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 4 raw 5.1093225479125977 bound 4.1865920508143972e-08 corr 7.9724421501159668 scaled 0.27288368344306946
+TRIAL 4 0 alpha 1 raw 9.2988624572753906 scaled 4.0007739067077637 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 4 1 alpha 0.5 raw 4.9663529396057129 scaled 1.2905722856521606 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 4 2 alpha 0.25 raw 4.4257116317749023 scaled 0.49667644500732422 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 4 3 alpha 0.125 raw 4.6165790557861328 scaled 0.3108447790145874 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 4 4 alpha 0.0625 raw 4.8260817527770996 scaled 0.27364939451217651 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 4 5 alpha 0.03125 raw 4.9586267471313477 scaled 0.2687821090221405 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 5 raw 4.9586267471313477 bound 4.186293622865378e-08 corr 8.6087226867675781 scaled 0.25891461968421936
+TRIAL 5 0 alpha 1 raw 10.69157886505127 scaled 5.3851056098937988 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 5 1 alpha 0.5 raw 5.3142857551574707 scaled 1.7408018112182617 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 5 2 alpha 0.25 raw 4.4225912094116211 scaled 0.60843133926391602 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 5 3 alpha 0.125 raw 4.5121493339538574 scaled 0.32930773496627808 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 5 4 alpha 0.0625 raw 4.6916203498840332 scaled 0.2681824266910553 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 5 5 alpha 0.03125 raw 4.8143362998962402 scaled 0.25714805722236633 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 6 raw 4.8143362998962402 bound 4.1858900345914662e-08 corr 9.9187021255493164 scaled 0.24911829829216003
+TRIAL 6 0 alpha 1 raw 12.639681816101074 scaled 7.9225525856018066 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 6 1 alpha 0.5 raw 5.8537979125976562 scaled 2.6022260189056396 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 6 2 alpha 0.25 raw 4.4755411148071289 scaled 0.83722406625747681 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 6 3 alpha 0.125 raw 4.4262857437133789 scaled 0.38038134574890137 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 6 4 alpha 0.0625 raw 4.5663957595825195 scaled 0.27385225892066956 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 6 5 alpha 0.03125 raw 4.6770572662353516 scaled 0.25135603547096252 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 6 6 alpha 0.015625 raw 4.7423954010009766 scaled 0.24772386252880096 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 7 raw 4.7423954010009766 bound 4.1855955146274937e-08 corr 10.95152473449707 scaled 0.24324274063110352
+TRIAL 7 0 alpha 1 raw 13.902271270751953 scaled 10.115139007568359 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 7 1 alpha 0.5 raw 6.226172924041748 scaled 3.3667054176330566 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 7 2 alpha 0.25 raw 4.5307598114013672 scaled 1.0454715490341187 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 7 3 alpha 0.125 raw 4.390815258026123 scaled 0.42924958467483521 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 7 4 alpha 0.0625 raw 4.505793571472168 scaled 0.28181540966033936 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 7 5 alpha 0.03125 raw 4.6090683937072754 scaled 0.24901960790157318 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 7 6 alpha 0.015625 raw 4.6720032691955566 scaled 0.24277694523334503 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 8 raw 4.6720032691955566 bound 4.1852196375202766e-08 corr 12.401937484741211 scaled 0.23892360925674438
+TRIAL 8 0 alpha 1 raw 15.330746650695801 scaled 13.447554588317871 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 8 1 alpha 0.5 raw 6.6638956069946289 scaled 4.549140453338623 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 8 2 alpha 0.25 raw 4.6059927940368652 scaled 1.3744696378707886 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 8 3 alpha 0.125 raw 4.361569881439209 scaled 0.51021158695220947 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 8 4 alpha 0.0625 raw 4.4478650093078613 scaled 0.29892906546592712 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 8 5 alpha 0.03125 raw 4.5428853034973145 scaled 0.25010868906974792 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 8 6 alpha 0.015625 raw 4.6032123565673828 scaled 0.23984053730964661 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 8 7 alpha 0.0078125 raw 4.6365537643432617 scaled 0.23821781575679779 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 9 raw 4.6365537643432617 bound 4.1849709475627606e-08 corr 13.310407638549805 scaled 0.23592014610767365
+TRIAL 9 0 alpha 1 raw 16.057971954345703 scaled 15.805705070495605 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 9 1 alpha 0.5 raw 6.8914666175842285 scaled 5.3909516334533691 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 9 2 alpha 0.25 raw 4.6465129852294922 scaled 1.6102856397628784 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 9 3 alpha 0.125 raw 4.3475651741027832 scaled 0.56846356391906738 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 9 4 alpha 0.0625 raw 4.4188766479492188 scaled 0.31132939457893372 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 9 5 alpha 0.03125 raw 4.5096015930175781 scaled 0.25099152326583862 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 9 6 alpha 0.015625 raw 4.5685811042785645 scaled 0.23782998323440552 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 9 7 alpha 0.0078125 raw 4.601447582244873 scaled 0.23547400534152985 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 10 raw 4.601447582244873 bound 4.1846771381415238e-08 corr 14.367789268493652 scaled 0.23335683345794678
+TRIAL 10 0 alpha 1 raw 16.723770141601562 scaled 18.791414260864258 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 10 1 alpha 0.5 raw 7.1013379096984863 scaled 6.4568486213684082 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 10 2 alpha 0.25 raw 4.6828627586364746 scaled 1.9101954698562622 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 10 3 alpha 0.125 raw 4.3327779769897461 scaled 0.64348417520523071 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 10 4 alpha 0.0625 raw 4.3899426460266113 scaled 0.32824409008026123 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 10 5 alpha 0.03125 raw 4.4765839576721191 scaled 0.25332370400428772 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 10 6 alpha 0.015625 raw 4.5342702865600586 scaled 0.23650795221328735 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 10 7 alpha 0.0078125 raw 4.5666770935058594 scaled 0.23323063552379608 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 11 raw 4.5666770935058594 bound 4.1843279063868977e-08 corr 15.569287300109863 scaled 0.23133420944213867
+TRIAL 11 0 alpha 1 raw 17.22770881652832 scaled 22.564451217651367 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 11 1 alpha 0.5 raw 7.2584757804870605 scaled 7.7940645217895508 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 11 2 alpha 0.25 raw 4.7052755355834961 scaled 2.2861754894256592 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 11 3 alpha 0.125 raw 4.3147158622741699 scaled 0.7383044958114624 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 11 4 alpha 0.0625 raw 4.3604354858398438 scaled 0.35049760341644287 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 11 5 alpha 0.03125 raw 4.4436712265014648 scaled 0.25738433003425598 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 11 6 alpha 0.015625 raw 4.5002355575561523 scaled 0.23601868748664856 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 11 7 alpha 0.0078125 raw 4.5322265625 scaled 0.23159877955913544 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 11 8 alpha 0.00390625 raw 4.5491452217102051 scaled 0.23094815015792847 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 12 raw 4.5491452217102051 bound 4.1841172304657448e-08 corr 16.195257186889648 scaled 0.22978070378303528
+TRIAL 12 0 alpha 1 raw 17.355932235717773 scaled 24.793367385864258 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 12 1 alpha 0.5 raw 7.2951450347900391 scaled 8.5721569061279297 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 12 2 alpha 0.25 raw 4.7049093246459961 scaled 2.5030114650726318 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 12 3 alpha 0.125 raw 4.3026514053344727 scaled 0.79260200262069702 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 12 4 alpha 0.0625 raw 4.3448200225830078 scaled 0.36295002698898315 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 12 5 alpha 0.03125 raw 4.4268918037414551 scaled 0.25934633612632751 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 12 6 alpha 0.015625 raw 4.4830284118652344 scaled 0.23535431921482086 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 12 7 alpha 0.0078125 raw 4.5148439407348633 scaled 0.23027335107326508 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 12 8 alpha 0.00390625 raw 4.531684398651123 scaled 0.2294546514749527 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 13 raw 4.531684398651123 bound 4.1838845277197834e-08 corr 16.831449508666992 scaled 0.22833894193172455
+TRIAL 13 0 alpha 1 raw 17.372762680053711 scaled 27.254232406616211 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 13 1 alpha 0.5 raw 7.2937860488891602 scaled 9.41827392578125 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 13 2 alpha 0.25 raw 4.6940937042236328 scaled 2.7368621826171875 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 13 3 alpha 0.125 raw 4.2879815101623535 scaled 0.85115689039230347 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 13 4 alpha 0.0625 raw 4.3286056518554688 scaled 0.37653708457946777 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 13 5 alpha 0.03125 raw 4.4100155830383301 scaled 0.26167282462120056 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 13 6 alpha 0.015625 raw 4.465850830078125 scaled 0.23486387729644775 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 13 7 alpha 0.0078125 raw 4.4975223541259766 scaled 0.22907477617263794 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 13 8 alpha 0.00390625 raw 4.5142927169799805 scaled 0.22807647287845612 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 14 raw 4.5142927169799805 bound 4.183628021792174e-08 corr 17.460599899291992 scaled 0.22701753675937653
+TRIAL 14 0 alpha 1 raw 17.248889923095703 scaled 29.936634063720703 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 14 1 alpha 0.5 raw 7.244318962097168 scaled 10.320737838745117 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 14 2 alpha 0.25 raw 4.6700296401977539 scaled 2.98313307762146 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 14 3 alpha 0.125 raw 4.269991397857666 scaled 0.91269427537918091 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 14 4 alpha 0.0625 raw 4.311612606048584 scaled 0.39093947410583496 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 14 5 alpha 0.03125 raw 4.3929963111877441 scaled 0.26429009437561035 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 14 6 alpha 0.015625 raw 4.4486880302429199 scaled 0.23453530669212341 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 14 7 alpha 0.0078125 raw 4.4802560806274414 scaled 0.22800643742084503 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 14 8 alpha 0.00390625 raw 4.4969663619995117 scaled 0.22682085633277893 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 15 raw 4.4969663619995117 bound 4.1833438046978699e-08 corr 18.05970573425293 scaled 0.22582344710826874
+TRIAL 15 0 alpha 1 raw 16.954900741577148 scaled 32.808418273925781 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 15 1 alpha 0.5 raw 7.1369452476501465 scaled 11.2576904296875 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 15 2 alpha 0.25 raw 4.6300506591796875 scaled 3.2340669631958008 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 15 3 alpha 0.125 raw 4.2480034828186035 scaled 0.9751097559928894 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 15 4 alpha 0.0625 raw 4.293668270111084 scaled 0.40562832355499268 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 15 5 alpha 0.03125 raw 4.3757882118225098 scaled 0.26707100868225098 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 15 6 alpha 0.015625 raw 4.4315266609191895 scaled 0.2343420684337616 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 15 7 alpha 0.0078125 raw 4.463038444519043 scaled 0.22706691920757294 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 15 8 alpha 0.00390625 raw 4.479701042175293 scaled 0.22569273412227631 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 16 raw 4.479701042175293 bound 4.1830301000800318e-08 corr 18.600521087646484 scaled 0.22476106882095337
+TRIAL 16 0 alpha 1 raw 16.465518951416016 scaled 35.808620452880859 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 16 1 alpha 0.5 raw 6.9638142585754395 scaled 12.194991111755371 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 16 2 alpha 0.25 raw 4.5721116065979004 scaled 3.478358268737793 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 16 3 alpha 0.125 raw 4.2215056419372559 scaled 1.0353915691375732 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 16 4 alpha 0.0625 raw 4.2746434211730957 scaled 0.41984611749649048 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 16 5 alpha 0.03125 raw 4.3583555221557617 scaled 0.26982951164245605 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 16 6 alpha 0.015625 raw 4.4143552780151367 scaled 0.23424094915390015 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 16 7 alpha 0.0078125 raw 4.445864200592041 scaled 0.22624869644641876 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 16 8 alpha 0.00390625 raw 4.4624924659729004 scaled 0.2246934175491333 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 17 raw 4.4624924659729004 bound 4.1826844210390846e-08 corr 19.051315307617188 scaled 0.223830446600914
+TRIAL 17 0 alpha 1 raw 15.765057563781738 scaled 38.841880798339844 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 17 1 alpha 0.5 raw 6.7210803031921387 scaled 13.085623741149902 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 17 2 alpha 0.25 raw 4.4953823089599609 scaled 3.7013990879058838 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 17 3 alpha 0.125 raw 4.1903014183044434 scaled 1.0897210836410522 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 17 4 alpha 0.0625 raw 4.254486083984375 scaled 0.43263339996337891 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 17 5 alpha 0.03125 raw 4.3406820297241211 scaled 0.27232611179351807 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 17 6 alpha 0.015625 raw 4.3971652984619141 scaled 0.2341722697019577 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 17 7 alpha 0.0078125 raw 4.4287276268005371 scaled 0.22553694248199463 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 17 8 alpha 0.00390625 raw 4.4453349113464355 scaled 0.223819300532341 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 18 raw 4.4453349113464355 bound 4.1823042806754529e-08 corr 19.380342483520508 scaled 0.22302590310573578
+TRIAL 18 0 alpha 1 raw 14.853474617004395 scaled 41.777942657470703 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 18 1 alpha 0.5 raw 6.411005973815918 scaled 13.872341156005859 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 18 2 alpha 0.25 raw 4.400813102722168 scaled 3.8866233825683594 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 18 3 alpha 0.125 raw 4.1546545028686523 scaled 1.1338651180267334 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 18 4 alpha 0.0625 raw 4.2332606315612793 scaled 0.4429287314414978 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 18 5 alpha 0.03125 raw 4.3227810859680176 scaled 0.27429214119911194 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 18 6 alpha 0.015625 raw 4.3799567222595215 scaled 0.2340647280216217 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 18 7 alpha 0.0078125 raw 4.4116244316101074 scaled 0.22490954399108887 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 18 8 alpha 0.00390625 raw 4.428225040435791 scaled 0.22306057810783386 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 18 9 alpha 0.001953125 raw 4.4367165565490723 scaled 0.22281669080257416 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 19 raw 4.4367165565490723 bound 4.1820964469252431e-08 corr 19.474056243896484 scaled 0.22230301797389984
+TRIAL 19 0 alpha 1 raw 14.316658020019531 scaled 43.126014709472656 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 19 1 alpha 0.5 raw 6.2310285568237305 scaled 14.194355010986328 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 19 2 alpha 0.25 raw 4.3470191955566406 scaled 3.9559082984924316 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 19 3 alpha 0.125 raw 4.1351795196533203 scaled 1.1495605707168579 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 19 4 alpha 0.0625 raw 4.2222084999084473 scaled 0.44624072313308716 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 19 5 alpha 0.03125 raw 4.3136916160583496 scaled 0.27458125352859497 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 19 6 alpha 0.015625 raw 4.3712882995605469 scaled 0.23359972238540649 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 19 7 alpha 0.0078125 raw 4.4030270576477051 scaled 0.22425387799739838 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 19 8 alpha 0.00390625 raw 4.4196286201477051 scaled 0.22235590219497681 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 19 9 alpha 0.001953125 raw 4.4281115531921387 scaled 0.22209906578063965 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 20 raw 4.4281115531921387 bound 4.1818800866622041e-08 corr 19.527484893798828 scaled 0.22160060703754425
+TRIAL 20 0 alpha 1 raw 13.737775802612305 scaled 44.383800506591797 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 20 1 alpha 0.5 raw 6.0389490127563477 scaled 14.466485977172852 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 20 2 alpha 0.25 raw 4.2902054786682129 scaled 4.0096487998962402 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 20 3 alpha 0.125 raw 4.1149697303771973 scaled 1.1612143516540527 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 20 4 alpha 0.0625 raw 4.2109847068786621 scaled 0.44855263829231262 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 20 5 alpha 0.03125 raw 4.3045697212219238 scaled 0.274635910987854 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 20 6 alpha 0.015625 raw 4.3626217842102051 scaled 0.23309139907360077 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 20 7 alpha 0.0078125 raw 4.3944406509399414 scaled 0.22360266745090485 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 20 8 alpha 0.00390625 raw 4.4110450744628906 scaled 0.22166764736175537 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 20 9 alpha 0.001953125 raw 4.4195208549499512 scaled 0.22140087187290192 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 21 raw 4.4195208549499512 bound 4.1816544893436003e-08 corr 19.539243698120117 scaled 0.22091744840145111
+TRIAL 21 0 alpha 1 raw 13.122941970825195 scaled 45.530906677246094 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 21 1 alpha 0.5 raw 5.8371624946594238 scaled 14.682785987854004 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 21 2 alpha 0.25 raw 4.2310614585876465 scaled 4.0466113090515137 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 21 3 alpha 0.125 raw 4.0942020416259766 scaled 1.1685489416122437 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 21 4 alpha 0.0625 raw 4.1996326446533203 scaled 0.44979667663574219 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 21 5 alpha 0.03125 raw 4.2954258918762207 scaled 0.27443838119506836 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 21 6 alpha 0.015625 raw 4.3539605140686035 scaled 0.23253446817398071 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 21 7 alpha 0.0078125 raw 4.3858656883239746 scaled 0.22295369207859039 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 21 8 alpha 0.00390625 raw 4.4024748802185059 scaled 0.22099436819553375 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 21 9 alpha 0.001953125 raw 4.4109435081481934 scaled 0.22072085738182068 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 22 raw 4.4109435081481934 bound 4.1814203655121673e-08 corr 19.508844375610352 scaled 0.22025220096111298
+TRIAL 22 0 alpha 1 raw 12.479251861572266 scaled 46.548126220703125 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 22 1 alpha 0.5 raw 5.6283359527587891 scaled 14.838561058044434 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 22 2 alpha 0.25 raw 4.1703367233276367 scaled 4.066004753112793 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 22 3 alpha 0.125 raw 4.0730671882629395 scaled 1.1714046001434326 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 22 4 alpha 0.0625 raw 4.1882009506225586 scaled 0.44993466138839722 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 22 5 alpha 0.03125 raw 4.2862725257873535 scaled 0.27397838234901428 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 22 6 alpha 0.015625 raw 4.345306396484375 scaled 0.231925368309021 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 22 7 alpha 0.0078125 raw 4.3773026466369629 scaled 0.2223050594329834 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 22 8 alpha 0.00390625 raw 4.3939180374145508 scaled 0.22033457458019257 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 22 9 alpha 0.001953125 raw 4.4023795127868652 scaled 0.22005762159824371 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 23 raw 4.4023795127868652 bound 4.1811777151679053e-08 corr 19.436695098876953 scaled 0.21960331499576569
+TRIAL 23 0 alpha 1 raw 11.814483642578125 scaled 47.418212890625 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 23 1 alpha 0.5 raw 5.4152774810791016 scaled 14.930639266967773 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 23 2 alpha 0.25 raw 4.1088056564331055 scaled 4.0675253868103027 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 23 3 alpha 0.125 raw 4.0517611503601074 scaled 1.1697473526000977 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 23 4 alpha 0.0625 raw 4.1767368316650391 scaled 0.44895988702774048 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 23 5 alpha 0.03125 raw 4.2771210670471191 scaled 0.27325320243835449 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 23 6 alpha 0.015625 raw 4.3366632461547852 scaled 0.23126229643821716 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 23 7 alpha 0.0078125 raw 4.3687524795532227 scaled 0.22165516018867493 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 23 8 alpha 0.00390625 raw 4.3853740692138672 scaled 0.21968670189380646 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 23 9 alpha 0.001953125 raw 4.3938288688659668 scaled 0.21940961480140686 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 24 raw 4.3938288688659668 bound 4.1809261830394462e-08 corr 19.324087142944336 scaled 0.21896913647651672
+TRIAL 24 0 alpha 1 raw 11.136787414550781 scaled 48.126659393310547 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 24 1 alpha 0.5 raw 5.2008132934570312 scaled 14.957546234130859 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 24 2 alpha 0.25 raw 4.0472307205200195 scaled 4.0513691902160645 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 24 3 alpha 0.125 raw 4.0304756164550781 scaled 1.163670539855957 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 24 4 alpha 0.0625 raw 4.1652894020080566 scaled 0.4468970000743866 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 24 5 alpha 0.03125 raw 4.2679834365844727 scaled 0.27226799726486206 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 24 6 alpha 0.015625 raw 4.3280329704284668 scaled 0.2305452823638916 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 24 7 alpha 0.0078125 raw 4.3602156639099121 scaled 0.22100278735160828 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 24 8 alpha 0.00390625 raw 4.3768434524536133 scaled 0.21904921531677246 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 24 9 alpha 0.001953125 raw 4.385291576385498 scaled 0.21877524256706238 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 25 raw 4.385291576385498 bound 4.1806675454836295e-08 corr 19.173112869262695 scaled 0.21834807097911835
+TRIAL 25 0 alpha 1 raw 10.454352378845215 scaled 48.662376403808594 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 25 1 alpha 0.5 raw 4.9876666069030762 scaled 14.919605255126953 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 25 2 alpha 0.25 raw 3.9863293170928955 scaled 4.0182218551635742 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 25 3 alpha 0.125 raw 4.0093903541564941 scaled 1.1533873081207275 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 25 4 alpha 0.0625 raw 4.153902530670166 scaled 0.44380050897598267 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 25 5 alpha 0.03125 raw 4.2588710784912109 scaled 0.27103531360626221 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 25 6 alpha 0.015625 raw 4.3194193840026855 scaled 0.22977630794048309 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 25 7 alpha 0.0078125 raw 4.3516926765441895 scaled 0.22034721076488495 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 25 8 alpha 0.00390625 raw 4.3683266639709473 scaled 0.21842075884342194 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 25 9 alpha 0.001953125 raw 4.3767681121826172 scaled 0.21815292537212372 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 26 raw 4.3767681121826172 bound 4.1804007366863516e-08 corr 18.986566543579102 scaled 0.21773841977119446
+TRIAL 26 0 alpha 1 raw 9.7750577926635742 scaled 49.018016815185547 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 26 1 alpha 0.5 raw 4.7783341407775879 scaled 14.818835258483887 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 26 2 alpha 0.25 raw 3.9267451763153076 scaled 3.9691882133483887 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 26 3 alpha 0.125 raw 3.9886643886566162 scaled 1.1392117738723755 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 26 4 alpha 0.0625 raw 4.142615795135498 scaled 0.43974956870079041 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 26 5 alpha 0.03125 raw 4.249793529510498 scaled 0.26957368850708008 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 26 6 alpha 0.015625 raw 4.3108243942260742 scaled 0.22895874083042145 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 26 7 alpha 0.0078125 raw 4.3431844711303711 scaled 0.21968802809715271 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 26 8 alpha 0.00390625 raw 4.3598237037658691 scaled 0.21779991686344147 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 26 9 alpha 0.001953125 raw 4.3682575225830078 scaled 0.21754106879234314 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 27 raw 4.3682575225830078 bound 4.1801264671903482e-08 corr 18.767736434936523 scaled 0.21713851392269135
+TRIAL 27 0 alpha 1 raw 9.1061849594116211 scaled 49.190208435058594 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 27 1 alpha 0.5 raw 4.5750064849853516 scaled 14.658782958984375 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 27 2 alpha 0.25 raw 3.8690264225006104 scaled 3.9057152271270752 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 27 3 alpha 0.125 raw 3.968433141708374 scaled 1.1215367317199707 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 27 4 alpha 0.0625 raw 4.1314630508422852 scaled 0.43484261631965637 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 27 5 alpha 0.03125 raw 4.2407588958740234 scaled 0.2679065465927124 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 27 6 alpha 0.015625 raw 4.3022499084472656 scaled 0.22809717059135437 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 27 7 alpha 0.0078125 raw 4.3346915245056152 scaled 0.2190251350402832 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 27 8 alpha 0.00390625 raw 4.3513340950012207 scaled 0.21718545258045197 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 27 9 alpha 0.001953125 raw 4.3597607612609863 scaled 0.21693812310695648 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 28 raw 4.3597607612609863 bound 4.179845802809723e-08 corr 18.52031135559082 scaled 0.21654680371284485
+TRIAL 28 0 alpha 1 raw 8.454228401184082 scaled 49.179756164550781 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 28 1 alpha 0.5 raw 4.3795123100280762 scaled 14.444333076477051 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 28 2 alpha 0.25 raw 3.8136160373687744 scaled 3.8295168876647949 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 28 3 alpha 0.125 raw 3.9488046169281006 scaled 1.1008148193359375 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 28 4 alpha 0.0625 raw 4.1204705238342285 scaled 0.42919239401817322 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 28 5 alpha 0.03125 raw 4.2317748069763184 scaled 0.26606088876724243 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 28 6 alpha 0.015625 raw 4.2936983108520508 scaled 0.22719718515872955 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 28 7 alpha 0.0078125 raw 4.3262143135070801 scaled 0.21835877001285553 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 28 8 alpha 0.00390625 raw 4.3428587913513184 scaled 0.21657624840736389 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 28 9 alpha 0.001953125 raw 4.3512778282165527 scaled 0.21634261310100555 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 29 raw 4.3512778282165527 bound 4.179558388273108e-08 corr 18.248165130615234 scaled 0.21596187353134155
+TRIAL 29 0 alpha 1 raw 7.8246707916259766 scaled 48.991230010986328 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 29 1 alpha 0.5 raw 4.1932768821716309 scaled 14.181312561035156 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 29 2 alpha 0.25 raw 3.760845422744751 scaled 3.7424511909484863 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 29 3 alpha 0.125 raw 3.9298586845397949 scaled 1.0775259733200073 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 29 4 alpha 0.0625 raw 4.1096587181091309 scaled 0.42291799187660217 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 29 5 alpha 0.03125 raw 4.2228450775146484 scaled 0.26406532526016235 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 29 6 alpha 0.015625 raw 4.2851700782775879 scaled 0.22626489400863647 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 29 7 alpha 0.0078125 raw 4.3177533149719238 scaled 0.2176893949508667 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 29 8 alpha 0.00390625 raw 4.3343977928161621 scaled 0.21597136557102203 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 29 9 alpha 0.001953125 raw 4.342808723449707 scaled 0.21575328707695007 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 30 raw 4.342808723449707 bound 4.1792649341232391e-08 corr 17.955240249633789 scaled 0.21538238227367401
+TRIAL 30 0 alpha 1 raw 7.2219605445861816 scaled 48.632774353027344 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 30 1 alpha 0.5 raw 4.017336368560791 scaled 13.876220703125 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 30 2 alpha 0.25 raw 3.7109394073486328 scaled 3.64644455909729 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 30 3 alpha 0.125 raw 3.9116482734680176 scaled 1.0521596670150757 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 30 4 alpha 0.0625 raw 4.0990400314331055 scaled 0.41614064574241638 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 30 5 alpha 0.03125 raw 4.2139739990234375 scaled 0.26194912195205688 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 30 6 alpha 0.015625 raw 4.2766671180725098 scaled 0.22530658543109894 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 30 7 alpha 0.0078125 raw 4.3093085289001465 scaled 0.21701757609844208 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 30 8 alpha 0.00390625 raw 4.3259515762329102 scaled 0.21536992490291595 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1
+ITER 31 raw 4.3259515762329102 bound 4.1786670124110969e-08 corr 17.340585708618164 scaled 0.21491338312625885
+TRIAL 31 0 alpha 1 raw 6.1018896102905273 scaled 47.513595581054688 rawAccept 0 scaledAccept 0 rawGuard 0 accepted 0
+TRIAL 31 1 alpha 0.5 raw 3.6965582370758057 scaled 13.181416511535645 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 31 2 alpha 0.25 raw 3.6196467876434326 scaled 3.4389338493347168 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 31 3 alpha 0.125 raw 3.8774325847625732 scaled 0.99846851825714111 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 31 4 alpha 0.0625 raw 4.0784101486206055 scaled 0.4023740291595459 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 31 5 alpha 0.03125 raw 4.1964430809020996 scaled 0.25817292928695679 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 31 6 alpha 0.015625 raw 4.2597742080688477 scaled 0.22401633858680725 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 31 7 alpha 0.0078125 raw 4.2925081253051758 scaled 0.21634538471698761 rawAccept 1 scaledAccept 0 rawGuard 1 accepted 0
+TRIAL 31 8 alpha 0.00390625 raw 4.3091416358947754 scaled 0.21485109627246857 rawAccept 1 scaledAccept 1 rawGuard 1 accepted 1

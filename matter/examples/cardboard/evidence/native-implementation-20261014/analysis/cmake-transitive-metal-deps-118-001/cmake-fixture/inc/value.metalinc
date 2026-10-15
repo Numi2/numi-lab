@@ -1,0 +1,1 @@
+inline float probe_value() { return 2.0f; }

@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.external-verifier-manifest-supersession.v1",
+  "status": "reconstructed_and_hash_verified",
+  "original_manifest_sha256": "e47b7357bdfd5c6a3a404f384387a3aec8c591e3c0ad715ca8ec56953d859e6d",
+  "original_package": "analysis/cardboard-source380-point-regression-verifier-001",
+  "superseding_manifest_sha256": "58a972b4b72a6511ea510ea38348100b60fe571d97517d8801c9d8c3d0cb0b5c",
+  "superseding_change": "Added and hashed unittest.log; no verifier, fixture, reference-vector, or validation-output bytes changed. The first seal is preserved separately and the final verifier package was not changed.",
+  "reconstruction_method": "Rebuilt the pre-unittest manifest from the preserved prior manifest fields and verified SHA-256; verified every pre-existing listed file against its recorded hash."
+}

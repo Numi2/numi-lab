@@ -1,0 +1,19 @@
+Change Dir: '/Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture/build-make'
+
+Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile probe
+/opt/homebrew/bin/cmake -S/Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture -B/Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture/build-make --check-build-system CMakeFiles/Makefile.cmake 0
+/Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/Makefile2 probe
+/opt/homebrew/bin/cmake -S/Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture -B/Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture/build-make --check-build-system CMakeFiles/Makefile.cmake 0
+/opt/homebrew/bin/cmake -E cmake_progress_start /Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture/build-make/CMakeFiles 1
+/Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/Makefile2 CMakeFiles/probe.dir/all
+/Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/probe.dir/build.make CMakeFiles/probe.dir/depend
+cd /Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture/build-make && /opt/homebrew/bin/cmake -E cmake_depends "Unix Makefiles" /Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture /Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture /Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture/build-make /Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture/build-make /Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture/build-make/CMakeFiles/probe.dir/DependInfo.cmake "--color="
+Dependencies file "probe.d" is newer than depends file "/Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture/build-make/CMakeFiles/probe.dir/compiler_depend.internal".
+Consolidate compiler generated dependencies of target probe
+/Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/probe.dir/build.make CMakeFiles/probe.dir/build
+[100%] Generating probe.metallib
+xcrun -sdk macosx metal -std=metal4.0 -MMD -MF /Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture/build-make/probe.d -MT /Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture/build-make/probe.metallib -c /Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture/main.metal -o /Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture/build-make/probe.air
+xcrun -sdk macosx metallib /Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture/build-make/probe.air -o /Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture/build-make/probe.metallib
+[100%] Built target probe
+/opt/homebrew/bin/cmake -E cmake_progress_start /Users/home/cardboard-implementation-20261014/analysis/cmake-transitive-metal-deps-118-001/cmake-fixture/build-make/CMakeFiles 0
+

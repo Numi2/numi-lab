@@ -1,0 +1,116 @@
+{
+  "armijo": {
+    "all_trial_records": 32,
+    "base_norm": 3.7630829865520354e-06,
+    "early_trials_uncertified_deformable_ccd": 22,
+    "improved_on_halving": false,
+    "one_ulp_increase": 2.2737367544323206e-13,
+    "physical_verdict": "Newton 9 line search failed; no accepted physical transaction is claimed.",
+    "status_clear_trial_indices": [
+      22,
+      23
+    ],
+    "tested_alphas": [
+      2.384185791015625e-07,
+      1.1920928955078125e-07
+    ],
+    "trial_norm": 3.763083213925711e-06
+  },
+  "capture": {
+    "capture_arrays_hashes_verified": true,
+    "manifest_sha256": "1ba486f1da055b18d59c1e54303a1170a49c1547ccb6c2800562a84f5eb6737a",
+    "newton_iteration": 9,
+    "payload_sha256": "0c4ad7045f9c6020edbb45bfae71d3146c68294fd397ad54c42004c754c61c3a",
+    "rhs_preserved_before_fgmres": true,
+    "root": 1201
+  },
+  "comparison": {
+    "armijo_rows_exact_equal": true,
+    "limitation": "385 is the center diagnostic run, 386 the no-center-capture control. Both exit 1 at the expected fixture failure; parity demonstrates capture did not alter the history.",
+    "physical_inputs_identical_after_output_path_normalization": true,
+    "run385": {
+      "armijo_records": 32,
+      "canonical_input_map_sha256": "4cf9d588ad91b41f4e17b86309d2104d9e52cfdb1cd4fc6e4829f9d1e9775b5c",
+      "executable_sha256": "82a4f52848b60bad228f8c348dc5c165c65afd168b2062a447c7912374e80f67",
+      "exit_code": 1,
+      "input_file_count": 792,
+      "prediction_sha256": "687e2a7e9aec6def3be16f599fbfdf27fdc282e549a7c0443c4acbca12b50fa1",
+      "receipt_sha256": "41a1ec05d3b59f1fd0108c45eec50a729af6b41f8bb3fe1632af38f238615f64",
+      "source_build_sha256": "a8aebb8893481fddac6f6bd972f9931733a24f9ce642ecccc59eb96ee89f0c04",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-ccd-fracture-115",
+      "timed_out": false,
+      "wall_seconds": 9.219994958024472
+    },
+    "run386": {
+      "armijo_records": 32,
+      "canonical_input_map_sha256": "4cf9d588ad91b41f4e17b86309d2104d9e52cfdb1cd4fc6e4829f9d1e9775b5c",
+      "executable_sha256": "82a4f52848b60bad228f8c348dc5c165c65afd168b2062a447c7912374e80f67",
+      "exit_code": 1,
+      "input_file_count": 792,
+      "prediction_sha256": "94b01e7535fdc86d1f10fd8bc79566e4fd5ddfbe7530ab1d8e2e18f84559a3f7",
+      "receipt_sha256": "20aee604b9aa57cf8c86e4e1977fc119524f23a79555a11999de4d6df5f5753a",
+      "source_build_sha256": "a8aebb8893481fddac6f6bd972f9931733a24f9ce642ecccc59eb96ee89f0c04",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-ccd-fracture-115",
+      "timed_out": false,
+      "wall_seconds": 9.28645937499823
+    },
+    "runs": [
+      "383",
+      "385",
+      "386"
+    ],
+    "transaction_state_and_stdout_exact_equal": true
+  },
+  "linear_gate": {
+    "arnoldi_estimate": 8.176974120033265e-08,
+    "arnoldi_minus_fp64_replay": 4.12928989332969e-12,
+    "first_newton_norm": 0.019994786009192467,
+    "forcing_coefficient": 0.015625,
+    "forcing_target": 5.87981771545589e-08,
+    "independent_fp64_b_minus_jdelta_l2": 8.176561191043932e-08,
+    "interpretation": "The cycle was admitted by the outer absolute threshold branch, not by the scheduled relative forcing branch. The offline same-generation replay independently lies below the same absolute threshold, but was not the native latch input.",
+    "jdelta_l2": 3.7548819182694667e-06,
+    "nonlinear_converged_latch": false,
+    "outer_threshold": 1e-07,
+    "outer_threshold_formula": "max(regularization.x, residualTolerances.x * max(state.nonlinear.x, 1))",
+    "reached_forcing_target": false,
+    "reached_outer_target": true,
+    "regularization_floor": 1e-08,
+    "relative_residual_tolerance": 1e-07,
+    "rhs_l2": 3.7630833378917694e-06
+  },
+  "noop_gate": {
+    "base_l2": 3.7630829865520354e-06,
+    "base_to_noop_bound_ratio": 37.6308337891769,
+    "noop_selected": false,
+    "reason": "base residual exceeds the required bound; alpha-zero no-op cannot be certified",
+    "residual_tolerance": 1e-07
+  },
+  "prior_source_bound_analysis_report_sha256": "ab111b65c50d872a1bf83c86f81d02da6f49ea50fda663e8bbc3b1cd1465f3e6",
+  "schema": "numi.cardboard.n9_linear_completion_vs_noop_audit.v1",
+  "source": {
+    "basis": "In the native default path, finalization compares Arnoldi estimate. The FP64 true-residual is an offline independent replay of exact captured RHS and same-generation production J delta.",
+    "fem_path": "matter/src/metal/fem.metalinc",
+    "fem_sha256": "f4b5cd60dbe7ace7a54636746a00b5e7186d6c1f4890eb0718c138af9c753ae4",
+    "fgmres_path": "matter/src/metal/fgmres.metalinc",
+    "fgmres_sha256": "eef8a0919636c513716528dcf04cf9d175801c25e7159125808cbb59a9b696d6",
+    "line_bindings": {
+      "armijo_certified_noop_gate": [
+        4490,
+        4495
+      ],
+      "cycle_outer_target_acceptance": [
+        5811,
+        5818
+      ],
+      "measure_true_residual_replace_guard": [
+        5328,
+        5331
+      ]
+    },
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-ccd-fracture-115",
+    "source_build_sha256": "a8aebb8893481fddac6f6bd972f9931733a24f9ce642ecccc59eb96ee89f0c04",
+    "true_residual_replacement_enabled_in_385": false
+  },
+  "verdict": "OUTER_THRESHOLD_ADMISSION_CONFIRMED; NONLINEAR_LINE_SEARCH_FAILURE_PRESERVED"
+}

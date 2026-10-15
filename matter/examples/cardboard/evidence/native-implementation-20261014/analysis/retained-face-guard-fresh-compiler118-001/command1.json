@@ -1,0 +1,12 @@
+[
+  "/usr/bin/c++",
+  "-O3",
+  "-DNDEBUG",
+  "-arch",
+  "arm64",
+  "-Wl,-search_paths_first",
+  "-o",
+  "/Users/home/cardboard-implementation-20261014/analysis/retained-face-guard-fresh-compiler118-001/check",
+  "/Users/home/cardboard-implementation-20261014/analysis/retained-face-guard-fresh-compiler118-001/check.o",
+  "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-118-full/matter/libnumi_matter_compiler.a"
+]

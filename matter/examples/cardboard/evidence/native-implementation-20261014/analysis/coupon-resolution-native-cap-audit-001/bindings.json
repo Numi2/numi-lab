@@ -1,0 +1,221 @@
+{
+  "cpu_environment": {
+    "compiler": "Apple clang 21.0.0.123 (clang-2100.0.123.102)",
+    "gpu_used": false,
+    "platform": "macOS-26.6-arm64-arm-64bit",
+    "standard": "C++20"
+  },
+  "files": {
+    "392_manifest.json": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/manifest.json",
+      "sha256": "fbfcf51db84a3710cc3bd96e016597728163da464974ea033554e82e587cd8eb"
+    },
+    "392_mesh.json": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/mesh.json",
+      "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56"
+    },
+    "392_observations.csv": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/observations.csv",
+      "sha256": "b12d8f9f4d30ba1305495620b13e9f7f2617f73ecbb0369e8e6766f510ce3d42"
+    },
+    "392_result.json": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/output/result.json",
+      "sha256": "214e9619e196ff45fcf97376930fcb9c017f032959075332ff65073a8c213e3d"
+    },
+    "README.md": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupon-resolution-native-cap-audit-001/README.md",
+      "sha256": "4f905a3581c59181041307642acc1290790eea0f0ab697641add10357fa5c4d9"
+    },
+    "audit_helper.cpp": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupon-resolution-native-cap-audit-001/resolution_cap_audit.cpp",
+      "sha256": "89cdd5b5e491a73f137f2c47353d4f00ee5bfc730023744b3aafac884cab8e14"
+    },
+    "budgeted_results.csv": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupon-resolution-native-cap-audit-001/budgeted-results.csv",
+      "sha256": "5f2afbe74e0d56dad4008f51c9bc0bca1555260fbd64d155af0f63196ed7056d"
+    },
+    "compiler_impl.cpp": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/src/compiler_impl.cpp",
+      "sha256": "474e717759ded2ecf81a0590dd7f5cb51da8a1041eacddff33c971ccb96152df"
+    },
+    "copied_graph_layout.hpp": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupon-resolution-native-cap-audit-001/regional_graph_schwarz.hpp",
+      "sha256": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf"
+    },
+    "copied_mesh_builder.hpp": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupon-resolution-native-cap-audit-001/cardboard_glue_mesh.hpp",
+      "sha256": "8db61e54ff4a0e2e4a47d6bcfe02244699b7820bf97474727bb77f1f9f389260"
+    },
+    "graph_layout.hpp": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/src/regional_graph_schwarz.hpp",
+      "sha256": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf"
+    },
+    "intermediate_budgeted_results.csv": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupon-resolution-native-cap-audit-001/intermediate-budgeted-results-before-final-columns.csv",
+      "sha256": "5a865de8787174eaa9e11c45c6743e0de7a21712d37cf546610f04d864a8e963"
+    },
+    "mesh_builder.hpp": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/tools/cardboard_glue_mesh.hpp",
+      "sha256": "8db61e54ff4a0e2e4a47d6bcfe02244699b7820bf97474727bb77f1f9f389260"
+    },
+    "probe.mm": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/tools/cardboard_probe.mm",
+      "sha256": "6917e515993e1da26d09d946bf8a3f58c7066ad183b19131aa466e94e8d32e99"
+    },
+    "resolution_study.py": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/tools/cardboard_resolution_study.py",
+      "sha256": "8be7c6bd4f9d0905a1be2006805821bf4665764929d3b4f91d922ad7a8effe5a"
+    },
+    "runtime.mm": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/src/runtime.mm",
+      "sha256": "3c467b04e72512b53a5ba9e1f3ee4132f293b0d2e6ac22acc0c3936512319e74"
+    },
+    "superseded_helper.cpp": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupon-resolution-native-cap-audit-001/resolution_cap_audit_direct_superseded.cpp",
+      "sha256": "7502b6a99c52d225b0f7992414e7b2bdfdf9b0a262b12cb28f1023b866de2b8c"
+    },
+    "superseded_results.csv": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupon-resolution-native-cap-audit-001/nonbudgeted-superseded.csv",
+      "sha256": "e614e7d6f657c88b05754816b7e37dc527ad64c61ec88066a6064ee89023f7d6"
+    },
+    "validation_impl.cpp": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-material-merit-118/matter/src/validation_impl.cpp",
+      "sha256": "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808"
+    }
+  },
+  "native392": {
+    "mesh": {
+      "fixed_grip_nodes": 36,
+      "free_nodes": 846,
+      "max_extent_m": [
+        0.031599998474121094,
+        0.019999999552965164,
+        0.004209999926388264
+      ],
+      "min_extent_m": [
+        0,
+        0,
+        0
+      ],
+      "nodes": 882,
+      "nx_per_pitch": 8,
+      "ny": 2,
+      "shared_node_total_mass_relative_error": 5.120883733346625e-09,
+      "tetrahedra": 1920,
+      "thickness_slices": 1
+    },
+    "observations_environment_ids": [
+      0,
+      1
+    ],
+    "result": {
+      "accepted_steps": 0,
+      "authored_region_map_sha256": "8513c9e0e7f3f784ed3de52b609ac26837197d4ba3d0bf5d33a067136afafec4",
+      "compiled_world_fingerprint": 8485105279886344921,
+      "damage_overlay_mapping_sha256": "",
+      "failure": "Matter rejected step 0; status, diagnostic state OBJ, and CSV observations were retained; rejected geometry is not an accepted animation frame",
+      "frame_map_sha256": "94e426a5d9d06445e3f44d1046f8b49bdae23a5752691f9776118222f4d7b740",
+      "material_map_sha256": "a695cb1bf6c22547013c15007998b171fc7639433c438380a15972cf36483f7b",
+      "nodes": 882,
+      "physical_validation": false,
+      "schema": "numi.cardboard.probe-result.v1",
+      "status": "failed",
+      "tetrahedra": 1920
+    },
+    "solver": {
+      "deformable_contact_capacity_compiled": 15360,
+      "deformable_self_contact": false,
+      "dt_s": 0.0001,
+      "fgmres_iteration_budget": 1024,
+      "fgmres_preconditioner": "regional_galerkin_graph_schwarz_conditioning_only",
+      "fgmres_restart": 16,
+      "hold_steps": 3,
+      "local_material_newton_iterations": 32,
+      "relative_residual_tolerance": 9.999999974752427e-07,
+      "relax_steps": 3,
+      "release_steps": 3,
+      "steps": 12,
+      "unload_steps": 6
+    },
+    "time_cases": [
+      {
+        "dt_s": 0.0001,
+        "graph_layout_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+        "id": "nominal",
+        "mesh": [
+          32,
+          8,
+          4
+        ],
+        "phase_steps": {
+          "hold": 3,
+          "loading": 12,
+          "relaxation": 3,
+          "release": 3,
+          "unloading": 6
+        },
+        "physical_phase_durations_s": {
+          "hold": 0.00030000000000000003,
+          "loading": 0.0012000000000000001,
+          "relaxation": 0.00030000000000000003,
+          "release": 0.00030000000000000003,
+          "unloading": 0.0006000000000000001
+        },
+        "relative_residual_tolerance": 9.999999974752427e-07
+      },
+      {
+        "dt_s": 5e-05,
+        "graph_layout_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+        "id": "half_dt",
+        "mesh": [
+          32,
+          8,
+          4
+        ],
+        "phase_steps": {
+          "hold": 6,
+          "loading": 24,
+          "relaxation": 6,
+          "release": 6,
+          "unloading": 12
+        },
+        "physical_phase_durations_s": {
+          "hold": 0.00030000000000000003,
+          "loading": 0.0012000000000000001,
+          "relaxation": 0.00030000000000000003,
+          "release": 0.00030000000000000003,
+          "unloading": 0.0006000000000000001
+        },
+        "relative_residual_tolerance": 4.999999987376214e-07
+      },
+      {
+        "dt_s": 2.5e-05,
+        "graph_layout_status": "rejected:graph Schwarz input exceeds its explicit FEM admission bounds",
+        "id": "quarter_dt",
+        "mesh": [
+          32,
+          8,
+          4
+        ],
+        "phase_steps": {
+          "hold": 12,
+          "loading": 48,
+          "relaxation": 12,
+          "release": 12,
+          "unloading": 24
+        },
+        "physical_phase_durations_s": {
+          "hold": 0.00030000000000000003,
+          "loading": 0.0012000000000000001,
+          "relaxation": 0.00030000000000000003,
+          "release": 0.00030000000000000003,
+          "unloading": 0.0006000000000000001
+        },
+        "relative_residual_tolerance": 2.499999993688107e-07
+      }
+    ]
+  },
+  "native_run": "dimensionless-certified-coupon-392",
+  "schema": "numi.cardboard.resolution-cap-audit.bindings.v1",
+  "source_snapshot": "source-scaled-material-merit-118"
+}
