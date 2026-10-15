@@ -1,0 +1,9 @@
+{
+  "status": "pass",
+  "production_kernel_preserved_byte_exact": true,
+  "reuse_buffers_state_capacity": "NM_MAX_MATERIAL_STATE (32 float words each)",
+  "diagnostic_function_emitted": true,
+  "metal_compile": "pass",
+  "metallib_symbols": "pass",
+  "physical_steps": 0
+}

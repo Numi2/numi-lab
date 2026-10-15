@@ -1,0 +1,2535 @@
+{
+  "schema": "numi.cardboard.regenerable-build-retirement.v1",
+  "created_at_utc": "2026-10-15T18:57:31.332473+00:00",
+  "build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087",
+  "verified_closed": true,
+  "protected": {
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/lib/libmetalrobo.dylib": "c1b7da184ebebdc4bb064e96371ab7b7ddd8c6d6582e2940537243ee5c33c004",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-asymmetric-c1-paper-gpu-check": "b07651d4ca2d0ae8b4ee7ff6564ffb8c5bec2dbdb7478f18728b648646e50566",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-barrier-scale-check": "88c733c2fdd9acca93828f15dc5df37accad295fb618ba21f2fa6ea56a46177a",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-bilinear-paper-gpu-check": "f3ce620bb35234256f4e4fdeaa5f7ed42fcb70c07fe864cc879d087ce5fd5db6",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-bilinear15-captured-point-check": "4e26ed76edbfa57e1fcade911d9a0b86d508144a7b64ba3a2b1d95d901db0909",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-bilinear15-projection-policy-check": "92eb56377ea0bb8ded2e90bb6f45444ac040da70d5f8f02996fde7e31b5a4f80",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-box-assembly-controller-check": "ad9a3dcd5997dd2263a30de0f3d446ee37f706135c85abd548f420ce8c235c65",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-box-blank-check": "d5a867a0f61d6102f3e222b0e6e564feb61e9b1bc6cf9987f33260a09027e68c",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-capsule-armijo-check": "2d085accc5e14627e13b63ad9f5a11ac216966909977456672d45b83fb1cce6b",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-cohesive-armijo-tiles-check": "db4b2df2ebf02a4332095ea74b8bc2c3d58800de92dca58c12bc034f4084f894",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-cohesive-face-check": "fbab74f363dbfe99637c2189720fdcfa0d9a0dced9d08f012875251d0954fa6e",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-compensated-deformation-check": "9f3a61851aea368941b79a5be79bf9cb67db9516e1f5139dc7212e3903da2d42",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-contact-candidate-domain-check": "11654dae8b322251f2c4e1d9aa81ebef7f859d53d1841ccc2e2ae4ccaa441d7e",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-contact-ccd-native-check": "65490bcaf83e79e069559b5207851d9875f97399fcac0578643edcad651cb95f",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-contact-node-incidence-sort-check": "5c24a571932064c39574cadb00f0212878909cb89174c8fc6f2417c991a24bc3",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-contact-node-incidence-sort-native-check": "a52bbc13757698807758a1a075338aa1f5b14919a4a701f402ddea6323e619a6",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-coupled-free-box-operator-check": "1c4259dccd59e8ef76de34a7044806cdcdd34d08b5535119560d987d6cf523a3",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-damage-builder-check": "73f8648fbb62eda7462df80976e03da7fa93baf6b979ba95224b0ff8e9a77cda",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-damage-cohesive-transaction-check": "2ba784161daac3e9419895586f8c08d8eedd5537d285399d594f8b4b4bd606f6",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-delamination-reference-check": "7caea115515a596ab9b5587953a52864a35e555c456ab6c0e3bd89d439e215dc",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-expression-cache-check": "1b082b209675509fff20c226cfdbb8976ac14c528e67120174cbd2c1f957fc61",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-fracture-regularization-check": "fbb8be22f1ff5c889c4d03d67fbc943bcdf798c9fb66a0cc95695bba370bfa6e",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-free-box-angular-native-check": "9f98aecb9a534bd943e25d1a79fb7d59170037eec94f75e7ee46753ace94cf15",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-full-contact-armijo-check": "632ac251140ed01b7dea6615d3c1ac3293bfe1f03d2e527e53ae244c54ceb0c3",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-generic-compensated-projection-check": "d910dc35b63e8e1afea0b1ac12dd9cbebd8d8bfc5e737167abcb891d2f309eb5",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-glue-mesh-check": "766a9252dc4c51b0b5f762f9fffe3a905f41003f4a930685c9ff705e944ca8dc",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-gpu-check": "c3efe3eb4dcca7903ec679966a11378fd33de4b1e1716195e1e503203385caa8",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-graph-lu-search-native-check": "5c32296ea25158f345fcfc08340361d9396b1e43902c19fc98f2930c4bbfb65a",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-material-check": "a16a73eaaedacfef094e9cea7f84c9ec2638d63d0c53728145acfa84ca9e22e9",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-mixed-cohesive-check": "f206e5db98d106a78a5937c92ab7bfec0e9f6052490a13c7ba228e92c227b546",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-mixed-cohesive-face-check": "c4ee2c11f6bc05089b8df2ba6a163bc946cf0a9a7ceaa6dcaab57ea5614d5a27",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-mixed-cohesive-frame-check": "1ae7fb7c2f77714ba78f0f61d2251e3b8edc43f7b77e02b468b08ac345de6a7d",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-paper-gpu-check": "c17988fe2dafb7766ed6887c351fc39833e1daae32cc47601386c15e304e9f37",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-paper-material-check": "69cfa163a9664db9e8d3690f7708d795cf82a0bf3da52c484dd8062393d18ad1",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-pin-adhesion-fixture-check": "451949527a8eb26cea29afa1edb814580f5172f946df726d043ce8a96284acc9",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-preconditioner-gpu-check": "2a54d28a3e93655c42641f553d99faab53e776d3e055c23a2bc57429e7d9df0b",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-probe": "6ee8bf1386a70ceeb3ca8a8452124934f2063d7eb4049478dc1d9c5d97228531",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-profile-check": "8159d9ded974d49104aca894098549063374c4340924fe8b7f50244aab200b9f",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-reaction-observables-check": "627b3ddb67182ac9230e99df505d794468326f3909ad4cbf49912b082a04b0c9",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-regional-recycle-masked-basis-native-check": "99943ccb3a50cc764c5502db3e68bbc53ceb9a17eb3a451c8da3b56575763bf4",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-retained-damage-fp64-oracle-check": "88c28f65aaec0253cbc8e6a3cad83426cd94439d1d72224c555af40b0832c825",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-retained-matrix-damage-check": "818914d5b1cc7f747edeb2aa9d16b7fc7cbdfbc7dbda5c6c0e4ed0f4f883b632",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-retained-matrix-damage-metal-check": "dac58a8842aaf21b215581c97794998ed7626891465e00e5a26f703d9ac4576f",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-shipping-closure-mesh-check": "41862da2ccabeb24b46fd3e94754539b900785a45fdbbab141790e904eef0c8c",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-shipping-driver-check": "b2e4262fbd4b9def7402e073db53e4ef587175d7c3ffd10f90b486c8e49c13bf",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-shipping-memory-check": "bc6af960ff4b908574e17e5682ac3cf921fb8de41ae234aab2b6fe3a7e404630",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-shipping-protocol-check": "5ec99cf92ef9e119005e8f062a751e49d374bc9167c7e5f5614e853a8e0e904d",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-shipping-snapshot-check": "44dc746a113149ac9308ef18cca32d1eed0b17786009336923b1e4104803ad94",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-solver-pair-replay": "130fe10bef5983d8bc5d080ec1e08ac4622e5e010082c6ea3331ccccf31d06d7",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-solver-replay": "be1f2df9660530b35ed2db1588449e8d452c25d754453c54bc821db350e7732e",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-starch-interface-mesh-check": "5bec153ee843f64dcd63fdf6f7d54c7864b37f8222c19b5f03251171112be0b2",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-cardboard-tooling-check": "1762dd129658a0e84740d1ae7949c933748ac4e7299f93d66c90c03b2fa5c35a",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-fem-material-frame-check": "675eb23de42574dbe65259da88fdea2d8ad23055c03f9431f01f8d5085cff0bf",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-fem-material-frame-compiler-check": "53e10a920f68d00e2b27e0a2d58faa9ab7b8a45807b56a422c4c18436bff71a4",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-fem-reference-check": "9a82e7004f5509e7c6da59c7eb68ed40b86e8c63389ae47c98b06ee105f8d231",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-fem-regional-galerkin-compiler-check": "14fead6879faa36fc5dde65c620b2050a7c63f98f048ffe41e9cedac251d58a4",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-fem-regional-galerkin-native-check": "a3f680841e415fa865f44597ddf3f1a806d0c08cffbaa476c26413a71aaf474b",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-fem-regional-material-check": "26c7a844d015819f3cab1ec6384cb73bce40f5dc9936e03597ebec3a483f7925",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-fem-static-surface-map-check": "c1c1c90a6fde74dde0cc2c1fcccc2807b0e97a78fca9c0f6005c05f295e1b8ee",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-fixed-convex-contact-step-check": "81df5b9e395257456c2eb4141fa4ebfee22b508972059c15e9a98a52096483f6",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-regional-graph-completed-tail-check": "7e402c43be81b9bdbbc80785a5fc7baa37d94286603f03a93e9964a7d09ad545",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-regional-graph-schwarz-layout-check": "aeb2580910f9f26d0b91800808b8a33db90ad255f21c3563d3b95e0c5813c4d7",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-robertsson-fem-coupling-check": "e064c7af854dd46d2b6a7eba79eba0b83649ae0f49914b4ceedf51170b206097",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/numi-matter-stateful-check": "1f0a8a581d87327b9fe2370e4726db638c5665b3cdabdd27ebe2f6e1904c81bf",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/shaders/NumiMatter.metallib": "51c38a9b27b750227d61fae7f38a09de4030ede739d00e29557adfcf3db27bca",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/shaders/cardboard_paper_check.metallib": "a129573c4f5f67de208ddac16afaa032c09d595cc2b9f4c7137bcf37b7e0bbc6",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/shaders/cardboard_retained_matrix_damage_check.metallib": "cf978b1c2e17c0e775939173d9ad4c4d536122cd0043e0be90ad61766e34ae8e",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/numi-matter-cardboard-shipping-rigid-driver-check": "585cda0c516034265da1027d76159b02173ae69b8c22a584008b1129a1790679",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/numi-matter-cardboard-shipping-rigid-native-check": "7cf1c01ac3503d844bc874638355309adee85aca7762c644b11c91f77386700d",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/shaders/MetalRobo.metallib": "61a548c69e6ec9c5c95480d54dbcf2fd851744e2a5e799397c59960e2fb27334",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/shaders/MetalRoboHyperPolicy.metallib": "0229cfae6afd3f1c75244e6814dd542e07a0f2a8082a636b1a6038dfa2573cef",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/shaders/NumiNeuron.metallib": "e7243f197f9312ff28abefc6ffe5b17b3f52916175b445e65e026f760e42665a",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeCache.txt": "ea623a9a11b0acf0c144d96d56cb02f7119f3b1b63298d579b94a6f0597e0dcd",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/compile_commands.json": "b5ec3bec8ada9fe2ea8effb4423f64848e586b20335822818f7aba514cadffdb",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/source-build.json": "d76a1f5c72bfb63a635e7f8f3597e007068f1e08578a3940411fdf0778b60b51"
+  },
+  "files": [
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/apple/CaptureManifestJSON.mm.o",
+      "bytes": 53248,
+      "sha256": "bd871e98595c5d2f21cc00381a556c76efecd0dac7300a18d0e77314560c8f57",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/apple/CaptureManifestJSON.mm.o.d",
+      "bytes": 198820,
+      "sha256": "5fafc3487e20a3a920992db8a83cf1ee37cae7685f1636992843aab23484c6e4",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/apple/EnvironmentCooker.mm.o",
+      "bytes": 57080,
+      "sha256": "b2188c912302973dd65b153bdbee724ce3698157e1c4983a0c14a5d7dd10a48d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/apple/EnvironmentCooker.mm.o.d",
+      "bytes": 286054,
+      "sha256": "aa7e4c1fcdc3594d3daaf65c4741cac36e1dc2627ea2d9093cf68ef78d91be81",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/apple/HardwareOutcomeJSON.mm.o",
+      "bytes": 41816,
+      "sha256": "69990fcfe050853d78fe63546c03e01e46f1ce0481a2cb7d58fc8f1d8035a9be",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/apple/HardwareOutcomeJSON.mm.o.d",
+      "bytes": 202190,
+      "sha256": "90bcfb310be2e28a918d71a5391108c2cb7dd986925980f7b836bab71a03de0b",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/apple/VisualAssetCooker.mm.o",
+      "bytes": 328304,
+      "sha256": "7a15c81fdde7adcaa80bd99938d05a8da1f91602f2d5c683b062b73a234b2562",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/apple/VisualAssetCooker.mm.o.d",
+      "bytes": 342940,
+      "sha256": "e65edd6d441d5766cd9e20c8ae893e25a39b6809cd0b6a0c7d442eec6004748f",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/c_api.cpp.o",
+      "bytes": 570376,
+      "sha256": "2b6c59186a1e02525b1622bb5a9d03c522f867f476068bff93fbeb19b1e04b60",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/c_api.cpp.o.d",
+      "bytes": 152314,
+      "sha256": "8a2f695ab281f4941f79f5edc1a2887897f73690ae713f651e4898a40c3fc85f",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ArticulatedActuation.cpp.o",
+      "bytes": 10776,
+      "sha256": "ae837091d9f90102b6175070a8929ca6b64d39b7318f9610340de0f41681eac7",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ArticulatedActuation.cpp.o.d",
+      "bytes": 119250,
+      "sha256": "f069761963d7ef7d61b3d3aac60e10290a959f6f988059ee1dd6645ac2679ba1",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ArticulatedCollision.cpp.o",
+      "bytes": 16800,
+      "sha256": "b4e82513722faeb9a2f8fc82e4bbe354d61920f61681ec318f0167205578fe09",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ArticulatedCollision.cpp.o.d",
+      "bytes": 113204,
+      "sha256": "b529c901a9b201287a8f43f7af0f73c687b7ecea229f498e9f58897692a2d6e5",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ArticulatedContact.cpp.o",
+      "bytes": 33424,
+      "sha256": "7b27eb979bd4a22b6bf5e754a343123e5383e69e063b3a9fefa3da622300038e",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ArticulatedContact.cpp.o.d",
+      "bytes": 110816,
+      "sha256": "ffdca85e73a4bafd280803755e3d06c07910eb170d75317db4ffec1baa7635fa",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ArticulatedDynamics.cpp.o",
+      "bytes": 59144,
+      "sha256": "c8eb5cfdbd82a76afe2c857479ac3c955b89c97dadbb1135228f3bc8e7525476",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ArticulatedDynamics.cpp.o.d",
+      "bytes": 111488,
+      "sha256": "aa8a3e3b4a734273c469d2bfd1da9e9cc881fd547f382d9a5ec14a9faa88e4a1",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ArticulatedJointLimits.cpp.o",
+      "bytes": 25144,
+      "sha256": "c09368c1689617d8ab9aedaa979e1cd16777fcfa862701a07d5af63261712d07",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ArticulatedJointLimits.cpp.o.d",
+      "bytes": 119552,
+      "sha256": "613fca29a4058e2eddbf3a639b0795489f71c7b7d7d9d93ff05b368ea42a3ce2",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ArticulatedMixedConstraints.cpp.o",
+      "bytes": 19440,
+      "sha256": "f73f068786d00e8f5d0f50e2edd8985eca92bda23db1ad72c840e5f66d262c6f",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ArticulatedMixedConstraints.cpp.o.d",
+      "bytes": 119849,
+      "sha256": "a3a56e8e576eeef280515624bb85d9dc6b7ca8f0eeffc1ac3bac859aa8ef3625",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidCollision.cpp.o",
+      "bytes": 87696,
+      "sha256": "b9e1b266d87f675f1c9fd8a3db797d3c03cbb98414a65a82351dae97cbf51074",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidCollision.cpp.o.d",
+      "bytes": 121826,
+      "sha256": "f1296e13bb09359304a879047c582b73ee3a71b8f59e66118640f9d8180b5212",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidWorld.cpp.o",
+      "bytes": 75408,
+      "sha256": "146bdec1d2f2a1524d6e517b04ec52bfcad6c73050b97f1bcab32186666a0965",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidWorld.cpp.o.d",
+      "bytes": 123172,
+      "sha256": "9d070c3fdb6ad95275aba6bf4d5b6d3b89b9b240081d6d707c78a579a7576586",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ArticulatedWorld.cpp.o",
+      "bytes": 54120,
+      "sha256": "512a72da5ee52c4886582e00a98cc43634b69263fcd020bd0a5c17db9a93d2ac",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ArticulatedWorld.cpp.o.d",
+      "bytes": 121937,
+      "sha256": "609b11608400856a03d7b2de4a2ac4451083584a4eee4c2251deb267b67e7ffc",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/Collision.cpp.o",
+      "bytes": 108992,
+      "sha256": "4abc2686eda4e05f881895a7badede83430eca3d01c4806adabce028c6ee3d07",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/Collision.cpp.o.d",
+      "bytes": 108755,
+      "sha256": "76e6b67a033a38792ed148235cc3c6a12f766098e983f42ee6824f36943e5448",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedContactProgram.cpp.o",
+      "bytes": 46304,
+      "sha256": "a199d3f92701f1b9c56576b92e1a58972521586c93577cfbc1e46e91c53b38e9",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedContactProgram.cpp.o.d",
+      "bytes": 86206,
+      "sha256": "80241ae13bbc0975167ba13f8ddbdb6ed2c95df45a17a6369c3b2eedec46a990",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedProgram.cpp.o",
+      "bytes": 47616,
+      "sha256": "a1f5fc3b975e203502d532ab8ff1eb362aa8844b381994d8662f138aa7c8e3c7",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedProgram.cpp.o.d",
+      "bytes": 114975,
+      "sha256": "ff05778281aedfd109606dcc7951c66c21954630a10b37260d0c13efbf306903",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ConstraintIR.cpp.o",
+      "bytes": 77384,
+      "sha256": "6de3dc72f802666bf139a6ff4b66896d8559e65d311e2743449e7d317d4a78b1",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ConstraintIR.cpp.o.d",
+      "bytes": 113875,
+      "sha256": "e7c5f3112a319c65581fd07bd10ed1d66804305fd81e134791cec1d7692ded4c",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ConstraintSolver.cpp.o",
+      "bytes": 28360,
+      "sha256": "a621c610bba8755c3640bb24dd949635d135abe0c448138b60b3221736184f89",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ConstraintSolver.cpp.o.d",
+      "bytes": 112344,
+      "sha256": "b4301ab4042341f8d081f9e10f7d5ccf90e88c7d47cb1b673197d9414d19bc2d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/CoupledArticulatedRigidContact.cpp.o",
+      "bytes": 43896,
+      "sha256": "817ddd43fafbef7fdcc68fe22ab529cb24df1be3dbbf5715f68cf8c2c7e7e27e",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/CoupledArticulatedRigidContact.cpp.o.d",
+      "bytes": 119177,
+      "sha256": "bae57b65b46ed0729189332c52eb9617e969e930bc4ba94629ece83340cf4e0b",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/CpuDynamics.cpp.o",
+      "bytes": 21944,
+      "sha256": "7b9eebb822439546f6327cac49807eb92a6d2b3fcb8dde7a69854d27b32db8e9",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/CpuDynamics.cpp.o.d",
+      "bytes": 105884,
+      "sha256": "810e4a3555a1ab082e75e4e6dc98f091230b8e9ea623f8c7c781de076488565d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/DiscreteElasticRod.cpp.o",
+      "bytes": 50200,
+      "sha256": "da02b57db88ffe4b6fe69648b0d2107d6b349242859bd4131d4a174299262051",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/DiscreteElasticRod.cpp.o.d",
+      "bytes": 115199,
+      "sha256": "fb1f316bb206b5f2e2636d2bb092ac57b4094388b8ae142a78659769d66c3248",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/EmbodiedTactile.cpp.o",
+      "bytes": 60288,
+      "sha256": "510a168eb592a760febc6d3c72041e73e69b1c00c1ca6e0450cac2af82d3587a",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/EmbodiedTactile.cpp.o.d",
+      "bytes": 113082,
+      "sha256": "5f2b83842e587a1c2a024c491ce3cb01379f3a87be8cdd4239ab949c404cd33e",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/EngineModel.cpp.o",
+      "bytes": 43688,
+      "sha256": "47b69ff47ea3747ad803ac65642892665f277fc3eb3d693a34339ae7167b9d29",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/EngineModel.cpp.o.d",
+      "bytes": 111206,
+      "sha256": "1f148df118a81a96be41e16378555874024dc418656407781623cf10d6810146",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/EngineModelComposer.cpp.o",
+      "bytes": 58664,
+      "sha256": "5f511a5808a6e0a6d8556a562601755e15e7ba8f1a8c3373e0194b8c701150b1",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/EngineModelComposer.cpp.o.d",
+      "bytes": 121197,
+      "sha256": "033a271e52bf9c63350175ab842d344bdc3ab753caba65e7bbac5c632fdb88ea",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/EpisodeTwinCompiler.cpp.o",
+      "bytes": 165616,
+      "sha256": "b6510170407b19bf065b9d1a596df4a93cae777d0c4d7c355a6d1692ff9a03dc",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/EpisodeTwinCompiler.cpp.o.d",
+      "bytes": 138581,
+      "sha256": "facb946ed8035105e13c977500759d263b546438ecd70c130107662bdbfc2659",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/Franka.cpp.o",
+      "bytes": 13184,
+      "sha256": "e2842cf40402f4620c34ad68e00d59a977da77540041bf8e503f1251a5880d75",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/Franka.cpp.o.d",
+      "bytes": 78276,
+      "sha256": "1218e4bdd1bf0cdbd98a5bfcc9b0597d91cc403aa7efe3398fb33fe2b7d2f41d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/FrankaEngine.cpp.o",
+      "bytes": 20320,
+      "sha256": "7a1f866eee670a20f5f216ab2b8dc3737e194f2b6e6b3fad9b60147705bcd45c",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/FrankaEngine.cpp.o.d",
+      "bytes": 83190,
+      "sha256": "5aba9d25696fc9096a6a50c89fd035d4b5c83e45a7bce8c13a4a0c12e434d009",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/FrankaHand.cpp.o",
+      "bytes": 25096,
+      "sha256": "123bf22d9407387fbd0715d4611edee9dd44d291d966c18ea0c590904c311cb6",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/FrankaHand.cpp.o.d",
+      "bytes": 110507,
+      "sha256": "5535737d6f269030dd37a4b658a5e9290738b9144f543401fb7b22f3d390864d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/FrankaWorld.cpp.o",
+      "bytes": 140808,
+      "sha256": "8668d7f53e9eea1af99609782f1e5bbc91f8a735ed78cb4ae2eec8cc96f33057",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/FrankaWorld.cpp.o.d",
+      "bytes": 131115,
+      "sha256": "388862fc7d9b46bd95c314cdd10527b7e69bbeafc7197146d8b6ce548284b38a",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/FreeBodyDynamics.cpp.o",
+      "bytes": 15344,
+      "sha256": "146533f8805cb6c4ee7129d0d446ac7f90059b5bc3b62d226f86dd700a0d0a0c",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/FreeBodyDynamics.cpp.o.d",
+      "bytes": 106321,
+      "sha256": "fee081be8d0594a03923dc195b1cc653f597d2e008457bdcf1d27f2b42ccd96b",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/G1.cpp.o",
+      "bytes": 92864,
+      "sha256": "5475d4b23d13b56a9071059fcdf79cee4edd041b8f95d0c31bdd07344ba95290",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/G1.cpp.o.d",
+      "bytes": 110876,
+      "sha256": "cfb7606704b238ba741383a5014e45b9e291d5f333aad7e6f43ef56dc6eb019a",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/GeometryCooker.cpp.o",
+      "bytes": 65120,
+      "sha256": "56b7eb16398d6f33e8e4a1adff1e54bca665dfd82dae2cedd1afc9fa7e4fbf0b",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/GeometryCooker.cpp.o.d",
+      "bytes": 115147,
+      "sha256": "f961bd8c9f298fcc6fd4f573204be738f62a382dd833671ac162a0d0ef28cd11",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/HeterogeneousWorld.cpp.o",
+      "bytes": 83568,
+      "sha256": "e512316546e2317b253aeb53fa7aae9c3ce87d08b16013ff4b1d0420fe53c897",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/HeterogeneousWorld.cpp.o.d",
+      "bytes": 122000,
+      "sha256": "6db8ad9d79a944d25322e42cfa95aa717f0ab2bd3d0ae53ba9ce5e6445bf9161",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorAcceptedStateRoot.cpp.o",
+      "bytes": 10832,
+      "sha256": "145cbe25ff78dfc5aceb1aa694efd1657bb846bcb63c2094b326a5e7f22c1901",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorAcceptedStateRoot.cpp.o.d",
+      "bytes": 97994,
+      "sha256": "c5b10a7aeb4e818fe25dda60341e2167ebe1195758185f5be43a41c313a3fbbe",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorNativeAudit.cpp.o",
+      "bytes": 1312,
+      "sha256": "b4263e0d7bdd1eb7b1dae5dee50e480c275e9cd38f889f4ca462e3cf7ac6e6d6",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorNativeAudit.cpp.o.d",
+      "bytes": 130555,
+      "sha256": "8e50691fabe96854c691ad72f95f0aaedf7b39fb82c226f89ed48e4d7b933488",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorProgram.cpp.o",
+      "bytes": 20728,
+      "sha256": "d900493f33042792b3cd1713d8c2df8332e4395a94d0aa23aee7c908b42a44d0",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorProgram.cpp.o.d",
+      "bytes": 109493,
+      "sha256": "faa34ce48ebb9120534d82071c5ef42ad6e51437e2a59bfca3738d1451f753bf",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorStateComponents.cpp.o",
+      "bytes": 12912,
+      "sha256": "aebeb87269a4e4ad78e21854f184916f85e0be33436aa752f24f453d8593d808",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorStateComponents.cpp.o.d",
+      "bytes": 97691,
+      "sha256": "9a29caaec14e9116e678bdeefa0851b3d462a35f847d4260cc904ab1086a6045",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorTrial.cpp.o",
+      "bytes": 55584,
+      "sha256": "980cb38c3cc7656ff7c536d11fb765c40972ce7a5cb712e9179388eefed6433d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorTrial.cpp.o.d",
+      "bytes": 110392,
+      "sha256": "3bf6272524f483ad88c5da7bc46056cce418d24e66078a1371ea7b224d7aac03",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/HyperPolicyPacks.cpp.o",
+      "bytes": 36480,
+      "sha256": "90bdfedcd4d0455935a8e9fac8d745c99aac613bf3a723bba563887e4fff5c08",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/HyperPolicyPacks.cpp.o.d",
+      "bytes": 133237,
+      "sha256": "d7f55274ef69e343646aaec787bef21cce8fded35accad7f59d01020643fa6ea",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/HyperPolicyProgram.cpp.o",
+      "bytes": 41280,
+      "sha256": "6ca5955104c7e126f360c0f63e168180a434283e4de061bc663c0ac4f9692f83",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/HyperPolicyProgram.cpp.o.d",
+      "bytes": 124346,
+      "sha256": "a4a3da34eb38a0f944d6b723ef040c887601ec4b488327c63dd65e69be87074e",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/LearningPacks.cpp.o",
+      "bytes": 143208,
+      "sha256": "f12d0852ae152d9d70a04fee9578e7600e2cb80ee6c5a5471f494c69642f1c9d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/LearningPacks.cpp.o.d",
+      "bytes": 132709,
+      "sha256": "9bfb8ead7c1545d32669e466c50ead3b41e5b0a3146e1c88264edca0f1b06387",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/LocomotionWorld.cpp.o",
+      "bytes": 191936,
+      "sha256": "9280e1d446982cee370f3a4e6bffbddc59d9f6ba8d9091b27de54aa03bca20d8",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/LocomotionWorld.cpp.o.d",
+      "bytes": 129888,
+      "sha256": "f9e9891324e78a33ddf3ff5dc6bad235eb51faff55d61979f5545a2827e6c6df",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/MatterSnapshotArchive.cpp.o",
+      "bytes": 57112,
+      "sha256": "44e289043104b5faff7aa93acb6b2aab0a60a2fe3d0afdd443adb6415df7e682",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/MatterSnapshotArchive.cpp.o.d",
+      "bytes": 102176,
+      "sha256": "7b4f6cd5be326377a0e41886f6fccae9c1a323e476d2da3f6182acd56bf50c48",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/MillardMuscleReference.cpp.o",
+      "bytes": 22144,
+      "sha256": "1c439cf22ddb7266bb6d2da7ba21fac2e74aec49e5f70b59ae2a31b345c8f364",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/MillardMuscleReference.cpp.o.d",
+      "bytes": 111774,
+      "sha256": "8a9ad9230a76abac6831950c76b6dbadc8894b76bd5ab070facee9920b231e16",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/Model.cpp.o",
+      "bytes": 9448,
+      "sha256": "a87d547790041d80d80c4100c3977761f6ef76e2eae522f72557f383491cdc14",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/Model.cpp.o.d",
+      "bytes": 91338,
+      "sha256": "5b50e55ea8e06af3c27ad29985a9def17e2ea631e62b2d67ce382317226b0185",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/MotionCompiler.cpp.o",
+      "bytes": 23256,
+      "sha256": "df0aeb64f8bdb7c49f48c6ae31e248c42c7cfa2bdfdc7b080db87c9d8fb78b37",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/MotionCompiler.cpp.o.d",
+      "bytes": 128829,
+      "sha256": "1fb384fc89b79786f92c63a580b5e24029714ba18cb2fa2998c8daa6def4fed7",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/MujocoMuscleReference.cpp.o",
+      "bytes": 37736,
+      "sha256": "f6d938a11fb164d4d6700ae6887b60453d328c6dde752d3f87b6cbc62f27de4b",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/MujocoMuscleReference.cpp.o.d",
+      "bytes": 111508,
+      "sha256": "01068d5eb7816f0143ffbc340d3530da566f05eab91404168552e1252738e86d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/MultiArticulatedContact.cpp.o",
+      "bytes": 114528,
+      "sha256": "c8734b86ae561882cf10ee5c5dc96bbff7ffd79a4b68e3256e3305e52f259ca0",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/MultiArticulatedContact.cpp.o.d",
+      "bytes": 119836,
+      "sha256": "7361846b5f9d7c04c909bccaf8578c216362d0ecd6a6224ae6c7745f1988cbad",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/MultiArticulatedWorld.cpp.o",
+      "bytes": 31784,
+      "sha256": "333e7c38dcf45866951bf4bcdf87b870694ec65f8bd756fb141aa51b77a78fb3",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/MultiArticulatedWorld.cpp.o.d",
+      "bytes": 119547,
+      "sha256": "8242250f21d040fd67b6f99652d05e0c9d68b9ff935ca13472aed5d0ccf21c06",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/Multicopter.cpp.o",
+      "bytes": 3000,
+      "sha256": "3ad09d82f12aa836c67e9013a7f281e67c544f2f2f37b259daae1af53772231e",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/Multicopter.cpp.o.d",
+      "bytes": 92542,
+      "sha256": "452ebc2a5a83d5781b57716e54e19c327328ccce552014e2ef198e2896f9e9aa",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NeuronCulture.cpp.o",
+      "bytes": 47544,
+      "sha256": "008abdd6afa1363c324bd31ec064df63d9876b377641b66ae421ab6b89363006",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NeuronCulture.cpp.o.d",
+      "bytes": 125237,
+      "sha256": "ede930e37e2a45260cd1e016a0ab693c1913f29f97f16fd6f25cc9d2afa1a590",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NeuronCultureArtifacts.cpp.o",
+      "bytes": 67568,
+      "sha256": "08731f15871eeaee94d6ebb03052ec494669e063c4e86e35c77638c11385eefb",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NeuronCultureArtifacts.cpp.o.d",
+      "bytes": 128183,
+      "sha256": "4130a6c43a222fcd11224ad2752a34b254d379ef8eed02918a28ec2e05e590e0",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NeuronCultureEmbodiment.cpp.o",
+      "bytes": 1904,
+      "sha256": "30740da64da572ffd97b075ebecb51c5d0dd08017eba0c8c3b7b300258348488",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NeuronCultureEmbodiment.cpp.o.d",
+      "bytes": 121032,
+      "sha256": "6caada720aa49ce6450e442fcb411a1412146c3295b5ec5591a2515fbf532189",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NeuronCultureProtocol.cpp.o",
+      "bytes": 28552,
+      "sha256": "990b8d849afcfe8223e2d052cfbefea283986ee34455dcfee1a39c920f0a398d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NeuronCultureProtocol.cpp.o.d",
+      "bytes": 124113,
+      "sha256": "b53304947a2648aacbe5c042b8422a045f1419afbb7acec0145d70e8b0ac4c3b",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumanXExactTransaction.cpp.o",
+      "bytes": 19808,
+      "sha256": "d78e1bd7940a44078d6f3380354df2e5d0989eea014b93026c94437fb3ffbc67",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumanXExactTransaction.cpp.o.d",
+      "bytes": 16161,
+      "sha256": "19728444899d22561686ce8516c677e409e04bfc0d41b368808cb8b48a50e073",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanCartilage.cpp.o",
+      "bytes": 10824,
+      "sha256": "935fd9a1602cd1546e027b200161bca1b140968f1f853149b5fcaabee3ec061b",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanCartilage.cpp.o.d",
+      "bytes": 105783,
+      "sha256": "06654d7e7ee39e7623cd606d30d47845dce0d64aa0a2c593247e27f0425805a9",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanContinuumMap.cpp.o",
+      "bytes": 37736,
+      "sha256": "777b56e704d4e655c97b6357a29cfe7a14e0440d9a5bb04c06065b25e4cf6827",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanContinuumMap.cpp.o.d",
+      "bytes": 123529,
+      "sha256": "60579cb3b6fc119416f5fc4048cfa9ce149a95c0e5b89eafdf61f342145991f8",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanInitialState.cpp.o",
+      "bytes": 35568,
+      "sha256": "48b07e673e1e7f2d0d9d8261e6044a744f123e05988996a173df05d2d81ed91f",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanInitialState.cpp.o.d",
+      "bytes": 108103,
+      "sha256": "6520ac491d69d9db764ac1adcfa09b71a77b051cc2acd9a96ec282e7a770dd49",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanJointEquality.cpp.o",
+      "bytes": 8384,
+      "sha256": "c28ab51f7224413ab47f09ee8d40380c325541470d46de38933ae92813796c64",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanJointEquality.cpp.o.d",
+      "bytes": 106487,
+      "sha256": "6e4a62175b7b4ebe2ed5b715cb059a3c76e7d3e54d4c59f518b22728ad4f91b9",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanKnee.cpp.o",
+      "bytes": 27456,
+      "sha256": "fe2757ec191d288efb7c47ae3776eed03cfc11be591ffee7540a7fdae9fb0226",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanKnee.cpp.o.d",
+      "bytes": 105768,
+      "sha256": "23a3497f802826a08260adf220a76aae63b95194ac8c0cc17edcedda3dc351af",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanKneeContact.cpp.o",
+      "bytes": 40056,
+      "sha256": "4e62e220d9dad72c9da9dbe9b6d0062d46f5123e1c5dd5c89a574cbcb634ab34",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanKneeContact.cpp.o.d",
+      "bytes": 110875,
+      "sha256": "4e89e4733b62537c5a1351b5cb3568d5da30e3920446a186e32c7d3f6f54d79b",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o",
+      "bytes": 245712,
+      "sha256": "1fd4d3c6968ae1f4e6ec3b37d36afabc725ce3bb19433d378dd67b4d5343d75b",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o.d",
+      "bytes": 136404,
+      "sha256": "9b815b12425969c951dd7f8b752a611ff646538f5d42d9acadd5d902979f02eb",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKneeNumanX.cpp.o",
+      "bytes": 7512,
+      "sha256": "7fdc6349caf42557eccb4aed69b8981bf69607b139192a5aa95a79386775ac08",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKneeNumanX.cpp.o.d",
+      "bytes": 96841,
+      "sha256": "25371579ea59f835e658f9fca11ca15dae6834d0a9c000d2de71cd4bd17f5da4",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanMuscleEquilibrium.cpp.o",
+      "bytes": 171496,
+      "sha256": "46bd8d1d13294f02bfc55c2f915fa6941bf79d6200fd8fd9044b28d494610ffd",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanMuscleEquilibrium.cpp.o.d",
+      "bytes": 229694,
+      "sha256": "3f4725ab58fb0a71ae7557fcd97382dd12dea1d1dc16161f2d921c9385e40de2",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerEvidenceWriter.cpp.o",
+      "bytes": 17800,
+      "sha256": "685986175e643adb658f041ddbc348947d42c678d9a2eaeeabdf20fac99514f7",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerEvidenceWriter.cpp.o.d",
+      "bytes": 117928,
+      "sha256": "9b8c3d27503737c0073166fc3f99743b2af1d34bded2a39557472531998160bc",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerSnapshot.cpp.o",
+      "bytes": 41152,
+      "sha256": "bb30e53729b216bf8c66ced6311d09012ceb4806b6a795cbb2dd402fb4f5130a",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerSnapshot.cpp.o.d",
+      "bytes": 120605,
+      "sha256": "3acf3bb38568f036c22be4bcef7078f56108d7f9bdc5b9f3cac512775778b7f4",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanRuntimeIdentity.cpp.o",
+      "bytes": 1784,
+      "sha256": "abbb6a18a266a53970a2e8256448f73a4251260878f19f5a0e64bed6c370ab8d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanRuntimeIdentity.cpp.o.d",
+      "bytes": 54547,
+      "sha256": "1f537d888d4581d2475b2d0e88d17be0cb33590bd0a67ac04073b064aba25b12",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanSourceConstraints.cpp.o",
+      "bytes": 27856,
+      "sha256": "8fc56be6bfb38612b151b175631380f1cc331f58312aea82f45afef5163e6107",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanSourceConstraints.cpp.o.d",
+      "bytes": 132408,
+      "sha256": "be21a80a1383db7ffce3e292f6053c4d9e57807f567d23c2c9a35f3a15f1695f",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanSupport.cpp.o",
+      "bytes": 8984,
+      "sha256": "0059e923a46f9cf745638f4b33420bad527eeb131516c773f71a734a1dbe4faa",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanSupport.cpp.o.d",
+      "bytes": 109629,
+      "sha256": "8ccfce950c47bbaad579eb6a7de658f354f22e1c3508d91eeab24ece3f9c2a40",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanTendon.cpp.o",
+      "bytes": 28832,
+      "sha256": "311f2615a7e0bc60a82318f2d467ada1f8ddb06e18e95cb73c14baef2b99d107",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanTendon.cpp.o.d",
+      "bytes": 110808,
+      "sha256": "6b617adce19cb1b34179825be63efff590bd989e4c5cf3e0bbc34ae56222e34a",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanTensionNetwork.cpp.o",
+      "bytes": 17544,
+      "sha256": "1102b7a575c048a68043900b3f0f0485fd223bcb5cad8ab708fc722a31043886",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanTensionNetwork.cpp.o.d",
+      "bytes": 108507,
+      "sha256": "61d6c0894438c9efd22928e0a0fd781b972c233226b6b946166da504d637452e",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueBinding.cpp.o",
+      "bytes": 52816,
+      "sha256": "88c3969fc337e80a8392914f8ed1b34677b2a17f27ce6cea59d3ae0a184df45f",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueBinding.cpp.o.d",
+      "bytes": 128839,
+      "sha256": "b251f61a46a422ccb8a2ed5c299ccd09429064f57a1c26cd8f00c967504520d0",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueMass.cpp.o",
+      "bytes": 35216,
+      "sha256": "f2ba6bee2abfd863826ed499acda42baa5d4648f7744b630ab2b5011ce2f888f",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueMass.cpp.o.d",
+      "bytes": 112052,
+      "sha256": "beaa34e701b2f54ed7f046ad44628a3bda737ceb307f115e2387f03bbb0f2d94",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/OpenSimFunction.cpp.o",
+      "bytes": 8192,
+      "sha256": "8ae77f5ab68387d0e2ea52f44fea25ef5a1a7be9ab3232ab66326ce7d8b2644a",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/OpenSimFunction.cpp.o.d",
+      "bytes": 105520,
+      "sha256": "e5ee6cdb00a8e53797927f1b051d252f018b45674c50084a39fb8518196100f1",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/OpenSimMobileRoot.cpp.o",
+      "bytes": 46600,
+      "sha256": "45da218ae90d2a54c8b2e008de72d3a8bc951f91b568821f8d0056e76539d9a7",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/OpenSimMobileRoot.cpp.o.d",
+      "bytes": 111496,
+      "sha256": "a8d1b15c240b927fcda505bd74bb8d65ea7c828e8055bda6b62061bf6d6b0006",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/OpenSimSpatialTransform.cpp.o",
+      "bytes": 18464,
+      "sha256": "d572ae3a697098ab3a6cc8a5be2c68c5b2053dc6be015f949d2d8d7a132fdeb8",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/OpenSimSpatialTransform.cpp.o.d",
+      "bytes": 105956,
+      "sha256": "1ce8adea050fe051594fdb13abb24a0fe894ad42056816d01637c337919fca81",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/PX4X500.cpp.o",
+      "bytes": 3024,
+      "sha256": "42e1941a051a5992d114a1dc40e36277c00b273bb4d0016f326d1ff84c47470d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/PX4X500.cpp.o.d",
+      "bytes": 54099,
+      "sha256": "fac0897e9246b38a508bf59104a98d515bfc922db869ec4331ce4ad3aacc41d0",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ParallelABASchedule.cpp.o",
+      "bytes": 28608,
+      "sha256": "347916e8338f819b885ce8668e7bab09507e0cd8eedf7d4aa9aa759e6953a409",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ParallelABASchedule.cpp.o.d",
+      "bytes": 120605,
+      "sha256": "13e311c3600f16d1ba78b59a7b50e81d77ea23eb3c1fbde6abf75e68f67d5698",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/PolicyProgram.cpp.o",
+      "bytes": 42200,
+      "sha256": "5d5041cb0f42e43f11077a366f6cc1840706b5610101bd7b2f5dddb514fc6bf9",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/PolicyProgram.cpp.o.d",
+      "bytes": 121773,
+      "sha256": "deb15b8b13a4f977afd9360566020e7ec033a85497fa18f8c9c09e2e9432825a",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/QualityContactSolver.cpp.o",
+      "bytes": 53064,
+      "sha256": "a5c8b63114e3a5324c5c8170a21b56d306f3132d954d23ad32c7ee2e2697b1d1",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/QualityContactSolver.cpp.o.d",
+      "bytes": 225043,
+      "sha256": "6881bf18765d8f722e5d5c95885a81ba509f10f48fbdf0ae792796ee09e5a5b9",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/R2S2R.cpp.o",
+      "bytes": 160352,
+      "sha256": "1ce4e8321b8776d9b3693d60fb6b20ce2c492ad10d18dd1c0f97b6d79462b956",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/R2S2R.cpp.o.d",
+      "bytes": 141522,
+      "sha256": "cc20ba695045609db92d654788e0ec5e895e68ea2b0cd7af709104c5665bee85",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ReferenceConicSolver.cpp.o",
+      "bytes": 18680,
+      "sha256": "30acbd79a8c1a403f327ac78716c75ae0792c45f1c49de3459faddfa39664ac8",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/ReferenceConicSolver.cpp.o.d",
+      "bytes": 109732,
+      "sha256": "cac3c5282ba31839e642c650b2a85d8381874c9cdc9af14e225fc37ccaf3a479",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/RigidBodyWorld.cpp.o",
+      "bytes": 42440,
+      "sha256": "536db3e9c83cfb33e8ed41c7d2c87b892a7cc4437efa7810c4ecbd24d56f549a",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/RigidBodyWorld.cpp.o.d",
+      "bytes": 117573,
+      "sha256": "ef93fb8941c1d80a1d94551bf34006ca86097a2d17842e3586925190052e0413",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/RobotDescriptionCooker.cpp.o",
+      "bytes": 203032,
+      "sha256": "0b61cc674623af69dfb794fdbf6288ff131215134801175f301d4ede639298b3",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/RobotDescriptionCooker.cpp.o.d",
+      "bytes": 140982,
+      "sha256": "a8ad7a13db3ea6d87965250cf71e1db6f1b5bf959b1cbe8c0c0817bc70b54bb9",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/RunProgram.cpp.o",
+      "bytes": 198456,
+      "sha256": "e2ba9339d7021ba1d2223f4bc08e37e1158b77f22ed924392f82eff9b38796f0",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/RunProgram.cpp.o.d",
+      "bytes": 140233,
+      "sha256": "a7d17cffd11158bf50f6a77eb3bb8666c32e250a326d7de16d8f447681322e15",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/SurgicalAssets.cpp.o",
+      "bytes": 34720,
+      "sha256": "998f95a29c399cca44e2aa1a644907c46e218f4c7b9714e5e10b67abaa8d5a2d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/SurgicalAssets.cpp.o.d",
+      "bytes": 106187,
+      "sha256": "f2db593a1df1eea3a1a1118594ab8906b0058c0ac7de61aa1b9a67e3178b2b91",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/SurgicalKnot.cpp.o",
+      "bytes": 20024,
+      "sha256": "db67721bc57fc4f066e6088ac4db814db5097a49ffff7436ed2d30e64883263f",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/SurgicalKnot.cpp.o.d",
+      "bytes": 113987,
+      "sha256": "ca42f37c0fb827cb441c06c6176a2355c450e14cfccc4724a6d65c5778ae6967",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/SurgicalPSM.cpp.o",
+      "bytes": 47768,
+      "sha256": "6d426b43effebba45e49d72e425360cf6dba6fffda87e0464155741fdaab25cd",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/SurgicalPSM.cpp.o.d",
+      "bytes": 111338,
+      "sha256": "6c526e5ed752405edeba9bf12adcca3f66f1cc7a8a432ef047f4110269e9b9ee",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/SurgicalThreadTargeting.cpp.o",
+      "bytes": 40456,
+      "sha256": "c891d5397a5964e835f449eca6bebfc17fd5211c49aec6c8fcdb521270f210a0",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/SurgicalThreadTargeting.cpp.o.d",
+      "bytes": 105924,
+      "sha256": "14b63dfc7cdbe4f7f13e8e4285432768c3e24deb8577763d7e5cd42e34f0edf3",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/SurgicalVisual.cpp.o",
+      "bytes": 56880,
+      "sha256": "82fa708d40aeae7fbbe4a34c6744af7ff6f09a56b7759a0ac7de35d846f8856d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/SurgicalVisual.cpp.o.d",
+      "bytes": 126445,
+      "sha256": "5abf36cbfa4bc0abe7eda997661489627f5adda9b8f72059dbbe483405bed1c0",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/SurgicalWorld.cpp.o",
+      "bytes": 51208,
+      "sha256": "c34b925f1db23f13f8e6512b9450b93147464dc1dc170cc8db7c263d0c789c0b",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/SurgicalWorld.cpp.o.d",
+      "bytes": 119635,
+      "sha256": "5add56d0028794418afaf7eb6eca6170fe302e6d71ca0203983546acaf5cb600",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/Tactile.cpp.o",
+      "bytes": 75976,
+      "sha256": "604c7dc8883ab889cbc764ea0203e9abd9be5563e3b32970d64ae0781e9f99fe",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/Tactile.cpp.o.d",
+      "bytes": 132723,
+      "sha256": "836c75c8e1b56cd1087eb44928f764cd34c8786bf0848ce1fac3564bb8413fb1",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/TactileDebug.cpp.o",
+      "bytes": 22624,
+      "sha256": "12a4d3821995e49b810932ae4f59864598ca79e5551fced1193fda2d2938cbd7",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/TactileDebug.cpp.o.d",
+      "bytes": 125303,
+      "sha256": "79f1e026e92c6427ca3728b1cfa20258a15e8de7ff526a8e6622e8418fc7c494",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o",
+      "bytes": 169032,
+      "sha256": "f3e5da70aaea00f3aded16c72eb091e961210f63fcb7bee2befde7cbf19092e7",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o.d",
+      "bytes": 116380,
+      "sha256": "6c960fa63be865710c8ec2c79a0aa0a8ea1dc8162116c12fb293f36433f9ec30",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/VisualPlatform.cpp.o",
+      "bytes": 127120,
+      "sha256": "4ad5cf1d069fa68489603cdf49adb06e3f24ee5744f7cc6f43841deb3b40f14a",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/VisualPlatform.cpp.o.d",
+      "bytes": 144983,
+      "sha256": "335c37b24b916f00eb3d5f0593240760111bd37fe91a2f56a57ca0999bebf4e1",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/VisualPresentation.cpp.o",
+      "bytes": 135608,
+      "sha256": "4913b670524d2323ca84374bf333f42cdc3c2222263a26670b920dcfa50ae534",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/VisualPresentation.cpp.o.d",
+      "bytes": 136027,
+      "sha256": "1def0d0cbb8d42d0539916f4ef6ffaee634aa0de13f55de051c6f20c3806edb7",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/Wave.cpp.o",
+      "bytes": 177264,
+      "sha256": "653a1762f2935550bd8e1ee65464549a71fb392323a7fc3108dcc5fa3c9ac8fd",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/Wave.cpp.o.d",
+      "bytes": 136524,
+      "sha256": "54f9f80b57e6cdb7db4969d17bc3ba211b242b438821966fa75f051fe7305f97",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/WorldCompiler.cpp.o",
+      "bytes": 125112,
+      "sha256": "c0cf8184e94b4f68dd9e20ce2e1c3ea63174291f981523058a9d13694d09612a",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/WorldCompiler.cpp.o.d",
+      "bytes": 114492,
+      "sha256": "097175326a3d3b507d482a2714d0df61b18b6edac22782b287f34fd822b1a048",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/WorldPack.cpp.o",
+      "bytes": 119168,
+      "sha256": "0f48ebf7b6379f1136b790da41e9578a504848b5d9cb87d544941d0bbf433d14",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/core/WorldPack.cpp.o.d",
+      "bytes": 102592,
+      "sha256": "41cda5ef5df0be65e2bc5e080f550fea8aa830e9d0493627cce479ac68fa0003",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedABA.mm.o",
+      "bytes": 72072,
+      "sha256": "c26451fe87fa6d1bed929d3925eb790a44ec816768aa256cc3954eee1fa74e92",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedABA.mm.o.d",
+      "bytes": 250363,
+      "sha256": "fc7d8baa0a560b50c747e506ce424c14d2f3c014ce4eb308971182a23f9e9183",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedInverseMass.mm.o",
+      "bytes": 70408,
+      "sha256": "3c79cb3dd3d220b84df8bc7a5187ffa9370fa9f60ce84f00692c68c282a0859a",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedInverseMass.mm.o.d",
+      "bytes": 250387,
+      "sha256": "6390bba993234bc60ca520902ca2d94dd81aed48308e508537319fb81ef377e3",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o",
+      "bytes": 638736,
+      "sha256": "179444f9ab2947560079212922b643bfcd356bc74136eb95ddc607e89aaa9b76",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o.d",
+      "bytes": 296683,
+      "sha256": "72d96131216af03243dff9723606c40ad0b8e9dde3695e847563df487ee19b10",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalDiscreteElasticRod.mm.o",
+      "bytes": 95280,
+      "sha256": "2e08e1c17f5eaffb4cbe30e73c951f15019d583557601ec39d41c7ea39191ba5",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalDiscreteElasticRod.mm.o.d",
+      "bytes": 254608,
+      "sha256": "269c7dc9782f62b7b46ab59763599f30cb2f674a285c20b5eb3ee5a6c081c64f",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalHumanBehaviorTelemetry.mm.o",
+      "bytes": 47736,
+      "sha256": "51e9ad7ec10c8d94f9f8f492f76460370447c8042dff74079a6fcfd96ebca799",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalHumanBehaviorTelemetry.mm.o.d",
+      "bytes": 234650,
+      "sha256": "3ecdc0667fa4b4b49210d114cbc04de94c59a995dc953c2042d5b13c6924d00a",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o",
+      "bytes": 278336,
+      "sha256": "ecd0ea60b0c0fae8845e6d23fa9392e46e2f8b157ea6d8a5249ccfb0f24e7bb1",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o.d",
+      "bytes": 266830,
+      "sha256": "c3037804ae65a4dbc5a1415b04160ac48124b8db61d389472d457720441e3ab5",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalHyperPolicy.mm.o",
+      "bytes": 45488,
+      "sha256": "98ce457af7ddc6948f1012c0194461cbae44186747b20f7847f3cf380e0c6b3d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalHyperPolicy.mm.o.d",
+      "bytes": 246079,
+      "sha256": "775c2c16bb544bd1ef0aaa17e8d4b05981d11ed33d988aa1f3e9aea63d763f6f",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedABA.mm.o",
+      "bytes": 41096,
+      "sha256": "de0e4b8155e5ed07e27c9e3802366ad20cefb7dc1d1858ca0f238b300b4a89cf",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedABA.mm.o.d",
+      "bytes": 253085,
+      "sha256": "a1d65bab60ea5275351cdd5d817f931cb19eff66d9e02368265dabd286fbba4d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedConstraints.mm.o",
+      "bytes": 129728,
+      "sha256": "1fa3fb6ea5c9ce836f3d842210481f7b8731266966828b08aaaa851ba704f349",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedConstraints.mm.o.d",
+      "bytes": 257453,
+      "sha256": "6246c084d255ec43284536a0a9262c9d7d96d8d8824665d6f0b44dcadd9b7caf",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedContact.mm.o",
+      "bytes": 127000,
+      "sha256": "261c938667cd55430a346bb0afe49fc6a6d2be686930bff06744c658b671aeed",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedContact.mm.o.d",
+      "bytes": 257663,
+      "sha256": "35786a94c88c5db5a6181c64107c4cde58e1369c37108229ec0fa299ba5b0e39",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedInverseMass.mm.o",
+      "bytes": 39208,
+      "sha256": "c7106468271585fd240044d33e022aaacee663638c0762b344dffadf412edbbd",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedInverseMass.mm.o.d",
+      "bytes": 253109,
+      "sha256": "ccd604c1461205b6909c36ebf3bdeda2e544e88328325a30e680fccacf3d1004",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalNeuronCulture.mm.o",
+      "bytes": 87496,
+      "sha256": "c82c9ed68a88dd28cd8153e52371aec547aaa7f09443c5d4bf9261f8f23ca224",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalNeuronCulture.mm.o.d",
+      "bytes": 215684,
+      "sha256": "a2fa57d590997e3eaec2c0cd8071f8bb22da239c6e9f5ccf1f322c6b0f7990d2",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXCoupledHuman.mm.o",
+      "bytes": 48008,
+      "sha256": "c12c31dcdc401a58997009c11605f1ec4cc1e1ba2d64af16e5104310f567448d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXCoupledHuman.mm.o.d",
+      "bytes": 243956,
+      "sha256": "8d9e2ee30a7fef7e034efd426efa693ab70ad5ab5af5c9e1532d6852ea6292a2",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanIO.mm.o",
+      "bytes": 186968,
+      "sha256": "e92442fd37b6d3ca19c2ba8fa940fba592877dd33a4fbe34f587da618f11b396",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanIO.mm.o.d",
+      "bytes": 254654,
+      "sha256": "e8eec47570ef8dccc20a3db42dd749b050bbdfb2b8e07fe39453f69f7084764b",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanMatter.mm.o",
+      "bytes": 114608,
+      "sha256": "92b0ac8c07eaa3321b86bc2a5921b1c6a09185bf60fb7316bf13bf043acf23bd",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanMatter.mm.o.d",
+      "bytes": 248890,
+      "sha256": "41e08b98f21694f635a694ec1fffa4c160b50974d2340c21389cfad37dbdf38b",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalQualityContactSolver.mm.o",
+      "bytes": 31312,
+      "sha256": "cd8ff28ff7c9e062a3bc04c18d494b44d857737899346e1d340dcde2a386d68f",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalQualityContactSolver.mm.o.d",
+      "bytes": 242424,
+      "sha256": "304e32b354ff654ac2ff22dc4b381af5ebf5b43f0975dea0eb7ccb6403ac2be2",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalRunInspector.mm.o",
+      "bytes": 18120,
+      "sha256": "fe5a011898d9575427a4545a7427c624a78ce170fccdbc17a1782b4aef1bea90",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalRunInspector.mm.o.d",
+      "bytes": 259147,
+      "sha256": "a3fe9cdaf5677c7e5595adab91ac4aad4dbbbfd25a7691de70f97d04f9ae547c",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalTactile.mm.o",
+      "bytes": 106120,
+      "sha256": "b0cea4d3e08b22753185e0bc7c19b0321a09ab619b50093ef6b90d09a15539f0",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalTactile.mm.o.d",
+      "bytes": 257911,
+      "sha256": "40f294693c46fde837cbd7b441dbb160eddf4f9be5949a32d34188ede2a88036",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalUnifiedQualitySolver.mm.o",
+      "bytes": 42488,
+      "sha256": "6e199ab8c6a6665323f57da8fef5b6c5eca1beeabf7d47bfc1b5d2575e277ba9",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalUnifiedQualitySolver.mm.o.d",
+      "bytes": 242284,
+      "sha256": "eafa88c4cbd4dc6ae053e0f303047f00f0ee922a82a334c90c166b31a1af2d57",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o",
+      "bytes": 823664,
+      "sha256": "a9cecfa3178db7e4dd26e6019f29e4db7afbe34913b1414d611ef43c447574e5",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o.d",
+      "bytes": 255454,
+      "sha256": "f1e64caa63193792825413c0de3e40db1770a49563a67f9419ec154a10196a12",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalWorldFamily.mm.o",
+      "bytes": 148936,
+      "sha256": "469460d8df6ee8afd188163fae2ac33ce3b64c98f06e2cfa49408d58d40c19d3",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/MetalWorldFamily.mm.o.d",
+      "bytes": 255183,
+      "sha256": "2896450fb6c2e7b48a8fa63dcbc949a937245804e6364bdadc77ee152516775c",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/NumanXBridgeV1.mm.o",
+      "bytes": 121184,
+      "sha256": "b606ba081976b6947d6a325c3c911a21dcae5bb370fc69117e1ab247a0c1bdf5",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/NumanXBridgeV1.mm.o.d",
+      "bytes": 217413,
+      "sha256": "2df4023370b6b99759c462b372dc0562b30156d4f43947e6ebd7c538c6b59534",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/NumanXRuntimeV1.mm.o",
+      "bytes": 439824,
+      "sha256": "49ee770d5d781d238662d4dc79191b56f7fbd366ac27ad996ca20e9e746e1c16",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/NumanXRuntimeV1.mm.o.d",
+      "bytes": 256641,
+      "sha256": "4068fa45d164c63a3d30e065245b5f0855d3eb26eda489973c93b5085c1ec6e5",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/NumiHumanExtensorHoodMetal.mm.o",
+      "bytes": 38328,
+      "sha256": "cc0d492b54019fe5bd65483cf46f7c83bbb9632b906eb58fbffcccea3e8e38a2",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/NumiHumanExtensorHoodMetal.mm.o.d",
+      "bytes": 242352,
+      "sha256": "cfe6388d57318f7c69891ed9b6e7e26324e9332879872996d82d125573a72b1a",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/NumiHumanLoadedKneeBinding.mm.o",
+      "bytes": 465128,
+      "sha256": "44168057282e6050f0aa2c5bf461009cc54de8b9aa5da8987739c231f8b525dc",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/NumiHumanLoadedKneeBinding.mm.o.d",
+      "bytes": 228519,
+      "sha256": "78c349c299ec56ea89531a8f51ccb9080b8a70a95164dfea2e753d3f489a2a2f",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/NumiHumanTendonMetal.mm.o",
+      "bytes": 28704,
+      "sha256": "d2102255eb263f5a2258514c9d7625554950e32afbcff0b0ea00b7dd46021ece",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/metalrobo.dir/src/metal/NumiHumanTendonMetal.mm.o.d",
+      "bytes": 245509,
+      "sha256": "cc989b2408941dbb45c67ca1fb7d180f701d336e29c799814eab062baee16b85",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/numi-matter-cardboard-shipping-rigid-driver-check.dir/matter/tools/cardboard_shipping_rigid_driver_check.cpp.o",
+      "bytes": 112312,
+      "sha256": "3632ee253589b22cd31ec0c0e1d6d70b4e69fe123010fa64decdf8c6f73bf75f",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/numi-matter-cardboard-shipping-rigid-driver-check.dir/matter/tools/cardboard_shipping_rigid_driver_check.cpp.o.d",
+      "bytes": 139986,
+      "sha256": "9206d868ebc4e77695cce5eada87451c2c9d400deddfcb2df49f55e3e2bdfd55",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/numi-matter-cardboard-shipping-rigid-native-check.dir/matter/tools/cardboard_shipping_rigid_native_check.mm.o",
+      "bytes": 182072,
+      "sha256": "49451aa19ae4841437e2fdbd519880a8ff167312286d0672d8c32b7ac635b73c",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/CMakeFiles/numi-matter-cardboard-shipping-rigid-native-check.dir/matter/tools/cardboard_shipping_rigid_native_check.mm.o.d",
+      "bytes": 253822,
+      "sha256": "f6fae1fe86832843c91bc581b0c43b2a74888e6f7de3d78e617984e9b81c6bdf",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-asymmetric-c1-paper-gpu-check.dir/tools/cardboard_asymmetric_c1_paper_gpu_check.mm.o",
+      "bytes": 298264,
+      "sha256": "4964b2a059feabe2c39fdd2856fbf0c74720dbc30e924b230d6fe6cf49390f2d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-asymmetric-c1-paper-gpu-check.dir/tools/cardboard_asymmetric_c1_paper_gpu_check.mm.o.d",
+      "bytes": 246062,
+      "sha256": "c4d80df4bade342ff6a5d2d8b178dd010135b0bf3ddb37b20452b22c61004c9e",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-barrier-scale-check.dir/tools/cardboard_prescribed_barrier_scale_check.cpp.o",
+      "bytes": 119072,
+      "sha256": "4de49e18d1262cf9834ba4cc3a04e1c10799874dc3e2a7007f084b0f174fd051",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-barrier-scale-check.dir/tools/cardboard_prescribed_barrier_scale_check.cpp.o.d",
+      "bytes": 110064,
+      "sha256": "9c40e09fb7aa7c91d241625122b4d0f6db27525aa3b35f71dbf441188044df4a",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-bilinear-paper-gpu-check.dir/tools/cardboard_bilinear_paper_gpu_check.mm.o",
+      "bytes": 210112,
+      "sha256": "a767c3ffab8fa4aec5d0019e381c4209ff50fc303577493bf95dfc582b6a6370",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-bilinear-paper-gpu-check.dir/tools/cardboard_bilinear_paper_gpu_check.mm.o.d",
+      "bytes": 245318,
+      "sha256": "d700a848b81487ab689bea23204b26416baf5386e404f8da44918b0bb3b469d0",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-bilinear15-captured-point-check.dir/tools/cardboard_bilinear15_captured_point_check.mm.o",
+      "bytes": 174336,
+      "sha256": "0ec019f10681b17a568f0f82a6051e5c1889cb1aaf38c9bf038933de47ba5bcc",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-bilinear15-captured-point-check.dir/tools/cardboard_bilinear15_captured_point_check.mm.o.d",
+      "bytes": 247241,
+      "sha256": "6723d98220b5d67628c6c64998723ca14cba051b7a34ecae2a8549a69fd61eee",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-bilinear15-projection-policy-check.dir/tools/cardboard_bilinear15_projection_policy_check.cpp.o",
+      "bytes": 450984,
+      "sha256": "7ebcda1a44682e653d78449b38768cdbd64612f5a289c52a0ba540f2b4d44f34",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-bilinear15-projection-policy-check.dir/tools/cardboard_bilinear15_projection_policy_check.cpp.o.d",
+      "bytes": 136786,
+      "sha256": "6fabdb9a36b3ac27579248226c76b5c9034de03b216b1f85236288e999b4951b",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-box-assembly-controller-check.dir/tools/cardboard_box_assembly_controller_check.cpp.o",
+      "bytes": 182552,
+      "sha256": "736a70f27606240b5b433d82fe8e511974c76d1744b9bb7d00047ea603dc5e81",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-box-assembly-controller-check.dir/tools/cardboard_box_assembly_controller_check.cpp.o.d",
+      "bytes": 133657,
+      "sha256": "543b38948b015110bdc42db6f63c24a4e03a95d1faed76089095a39c612e5a72",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-box-blank-check.dir/tools/cardboard_box_blank_check.cpp.o",
+      "bytes": 112152,
+      "sha256": "756ae9ee8dfb7c77e8a29f9962427363852e79f18c2ae02f75fc8f4e80e7dfc7",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-box-blank-check.dir/tools/cardboard_box_blank_check.cpp.o.d",
+      "bytes": 127131,
+      "sha256": "20c23594b194c0da9ece604719fb7d9591b1a2b08911081b0016c55023068d1b",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-capsule-armijo-check.dir/tools/cardboard_capsule_armijo_check.mm.o",
+      "bytes": 225456,
+      "sha256": "83b2317bf2a42a37e283a233daba4e3ed2cda61ae9360210f62eecb8f5692dc8",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-capsule-armijo-check.dir/tools/cardboard_capsule_armijo_check.mm.o.d",
+      "bytes": 243768,
+      "sha256": "05aaed872acd8c0bfd69de47698fc593121689f04fc9f3409a047ea19a126fc2",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-cohesive-armijo-tiles-check.dir/tools/cardboard_cohesive_armijo_tiles_check.cpp.o",
+      "bytes": 18848,
+      "sha256": "49b16d8e9391ebc37cf63925383f472f905c0b1dc073fabf6f93f0723dfe999b",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-cohesive-armijo-tiles-check.dir/tools/cardboard_cohesive_armijo_tiles_check.cpp.o.d",
+      "bytes": 121925,
+      "sha256": "d516c5659a849633c34b7410d3ccc00171de690c8779f6bda50da164523b91d6",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-cohesive-face-check.dir/tools/cardboard_cohesive_face_check.mm.o",
+      "bytes": 215680,
+      "sha256": "c05eef88e3db84577505487a77473db731a776ab21b790afef2b5b41c1ff086f",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-cohesive-face-check.dir/tools/cardboard_cohesive_face_check.mm.o.d",
+      "bytes": 244595,
+      "sha256": "5748c4d4f32671c142f065350ca578fc7b6edaea76c69e282535504dabec16d2",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-compensated-deformation-check.dir/tools/cardboard_compensated_deformation_check.cpp.o",
+      "bytes": 28960,
+      "sha256": "85f811c7bdfd155cefc2d32f06150ffd54a607fb77ca3dd371df51b0c5576b8d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-compensated-deformation-check.dir/tools/cardboard_compensated_deformation_check.cpp.o.d",
+      "bytes": 129509,
+      "sha256": "fb046fbfcadfa0aafa260a2605ea71c939d76f46e0d0b5708121ac422c6be019",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-contact-candidate-domain-check.dir/tools/cardboard_contact_candidate_domain_check.cpp.o",
+      "bytes": 57608,
+      "sha256": "71f3e6aca625db5b4da1af8aa98061a9da79889fd00e982454872b1073cbf847",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-contact-candidate-domain-check.dir/tools/cardboard_contact_candidate_domain_check.cpp.o.d",
+      "bytes": 124263,
+      "sha256": "5367ce5eb2dc713e64bdb45bf626d926a61bdda52e4ead61720cee7c0788a8c6",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-contact-ccd-native-check.dir/tools/cardboard_contact_ccd_native_check.mm.o",
+      "bytes": 50336,
+      "sha256": "d8012d0454eb8b7c9b033c7052176912139c12da12680a3daddc3aca7d6ee824",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-contact-ccd-native-check.dir/tools/cardboard_contact_ccd_native_check.mm.o.d",
+      "bytes": 235736,
+      "sha256": "50c4aecd624407345d6faebae798dfcd653c2510a03311df2a2d2732f2c58803",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-contact-node-incidence-sort-check.dir/tools/cardboard_contact_node_incidence_sort_check.cpp.o",
+      "bytes": 26208,
+      "sha256": "4e342aff0c567672db7b584b54742b0c4a44292e0005fa6e315498d80265a175",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-contact-node-incidence-sort-check.dir/tools/cardboard_contact_node_incidence_sort_check.cpp.o.d",
+      "bytes": 122896,
+      "sha256": "024941ef40ac44b56e22884e43bd0ba4b2fe0bb675e34a89e281561277092c7e",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-contact-node-incidence-sort-native-check.dir/tools/cardboard_contact_node_incidence_sort_native_check.mm.o",
+      "bytes": 45376,
+      "sha256": "2ef0e114242ccf02be2a5d98ca8073d895b2028db7d7e403d5ca36cec994b8c6",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-contact-node-incidence-sort-native-check.dir/tools/cardboard_contact_node_incidence_sort_native_check.mm.o.d",
+      "bytes": 237141,
+      "sha256": "25e2078b295597e3a899f35f64851f24522d39ee5f42829df3e5513ab6d488af",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-coupled-free-box-operator-check.dir/tools/cardboard_coupled_free_box_operator_check.mm.o",
+      "bytes": 226624,
+      "sha256": "60e27eb54fe6e4610c0f8443aedbfdbea66f4f20ad30dbb726aad10becc982e7",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-coupled-free-box-operator-check.dir/tools/cardboard_coupled_free_box_operator_check.mm.o.d",
+      "bytes": 252673,
+      "sha256": "3614c6aa2f72e0bc354b01c28b819b97a0e64675e156df89da2296f069b64588",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-damage-builder-check.dir/tools/cardboard_damage_builder_check.cpp.o",
+      "bytes": 271152,
+      "sha256": "c1e27617c69070d592b412a7f534a83a1001c2368ec7b9f2f38010e916f6785f",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-damage-builder-check.dir/tools/cardboard_damage_builder_check.cpp.o.d",
+      "bytes": 133604,
+      "sha256": "541e4a790658b98713bbe43d187cf36a5207daecab52394ca710f927a8bf8852",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-damage-cohesive-transaction-check.dir/tools/cardboard_damage_cohesive_transaction_check.mm.o",
+      "bytes": 312280,
+      "sha256": "151ab8166dbb31ad545d5ea2fde51a4401af58979d260485edfc7c19737906c5",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-damage-cohesive-transaction-check.dir/tools/cardboard_damage_cohesive_transaction_check.mm.o.d",
+      "bytes": 248810,
+      "sha256": "bcaeb9b8a304a8d17dfbeb193d1fbbf41d62e48b75250e38f557ae60efe97a37",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-delamination-reference-check.dir/tools/cardboard_bleached_delamination_check.cpp.o",
+      "bytes": 37880,
+      "sha256": "5f0b4b355fa98fc35161b5d6daa5debc2a8c4ba88c5a9b63342fb9e178093ef7",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-delamination-reference-check.dir/tools/cardboard_bleached_delamination_check.cpp.o.d",
+      "bytes": 124128,
+      "sha256": "7513ad94096156e4f085a9ba9dec02654a9804cc5b4a39e49888f9a77637c3cb",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-expression-cache-check.dir/tools/cardboard_expression_cache_check.cpp.o",
+      "bytes": 124000,
+      "sha256": "7df8e0a2c68848463ee23c88ad41988b169d4570fb64b58eb2a11234a7611d00",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-expression-cache-check.dir/tools/cardboard_expression_cache_check.cpp.o.d",
+      "bytes": 131258,
+      "sha256": "689e4902603f334fd65b380653e36f56867a1e83a0ba1ed51a852c1cfbd409f3",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-fracture-regularization-check.dir/tools/cardboard_fracture_regularization_check.cpp.o",
+      "bytes": 45744,
+      "sha256": "4782135a80382a20f3fc1910ac260fc8e7c818aaf42201b09965de8edf1075f0",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-fracture-regularization-check.dir/tools/cardboard_fracture_regularization_check.cpp.o.d",
+      "bytes": 121799,
+      "sha256": "c85044add7d2c0b689d7e46ebaad87880d16962d3b8c58f28d128a889de67c83",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-free-box-angular-native-check.dir/tools/cardboard_free_box_angular_native_check.mm.o",
+      "bytes": 126992,
+      "sha256": "f8c3e95f262dceaf3a473840da4010a906e7d6e432f7812093253c83f6d737e0",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-free-box-angular-native-check.dir/tools/cardboard_free_box_angular_native_check.mm.o.d",
+      "bytes": 245181,
+      "sha256": "53b98ad43b9fbb353dc39edf065b4734695b2eb57542ea055507b067624060f3",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-full-contact-armijo-check.dir/tools/cardboard_full_contact_armijo_check.mm.o",
+      "bytes": 906176,
+      "sha256": "51b19c591b15357a04416d655c712731039240e64d0995093b9934a9ca49a4d6",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-full-contact-armijo-check.dir/tools/cardboard_full_contact_armijo_check.mm.o.d",
+      "bytes": 253116,
+      "sha256": "25bbfd8b4723209567e3bb6dcb8cf905da17b3af79409aacf6fef878cd01d32d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-generic-compensated-projection-check.dir/tools/cardboard_generic_compensated_projection_check.cpp.o",
+      "bytes": 512616,
+      "sha256": "4c90f39e074835aac26c69638bc8474adf44eeacfd105345c116f0a392e2b62c",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-generic-compensated-projection-check.dir/tools/cardboard_generic_compensated_projection_check.cpp.o.d",
+      "bytes": 137393,
+      "sha256": "b10d3244263be435dc8307b2d53043478540642cf68441b548fd5b03f727315f",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-glue-mesh-check.dir/tools/cardboard_glue_mesh_check.cpp.o",
+      "bytes": 61552,
+      "sha256": "08b908da6d81d3c338d8860cfd3d27c8e6b566a8feb17ea4f53ad78c7b6db622",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-glue-mesh-check.dir/tools/cardboard_glue_mesh_check.cpp.o.d",
+      "bytes": 124655,
+      "sha256": "58f9a91287874624b086f5c1a4699374a0a8a95d109682672c499cf9348fe4a7",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-gpu-check.dir/tools/cardboard_gpu_check.mm.o",
+      "bytes": 118376,
+      "sha256": "62f7738f310e55ee4809fa849d3ef0f31d7127662335ba8a72373c5ad27d6441",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-gpu-check.dir/tools/cardboard_gpu_check.mm.o.d",
+      "bytes": 243144,
+      "sha256": "6cca6f631849cf45ec76bc87b31d9acbbc4777d9bb763b8d3b4ca4f34b505b56",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-graph-lu-search-native-check.dir/tools/cardboard_graph_lu_search_native_check.mm.o",
+      "bytes": 85480,
+      "sha256": "4e31280b9f2291868ec72f03332cf4dc648af10d8489076bf0145ba4379e1f69",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-graph-lu-search-native-check.dir/tools/cardboard_graph_lu_search_native_check.mm.o.d",
+      "bytes": 214781,
+      "sha256": "ad98f179b55b190a7be8fb2a3c75b53bf0986366565dfc0f705ed7268260e7f1",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-material-check.dir/tools/cardboard_material_check.cpp.o",
+      "bytes": 102768,
+      "sha256": "9829e866599b8f7c994db8558755f363235294b930307cde5f88807619dc2689",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-material-check.dir/tools/cardboard_material_check.cpp.o.d",
+      "bytes": 134004,
+      "sha256": "10f56122bb27e98a98b823d97f6785f36770c739b2a2d2740c00b4fa040c48dc",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-mixed-cohesive-check.dir/tools/cardboard_mixed_cohesive_check.cpp.o",
+      "bytes": 21768,
+      "sha256": "451f404a258880f1435d4b207c866a4236124b9086effcf908f514a78ded6458",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-mixed-cohesive-check.dir/tools/cardboard_mixed_cohesive_check.cpp.o.d",
+      "bytes": 119958,
+      "sha256": "a05f910389f04279ae39f9cb383a2c5dcbbe58122a312b90ef04e91953fd5a13",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-mixed-cohesive-face-check.dir/tools/cardboard_mixed_cohesive_face_check.mm.o",
+      "bytes": 197872,
+      "sha256": "fdea2e3ca44dc766b6e8680b96a853e36bb5bed971039d1ecea490ca3e9b21cb",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-mixed-cohesive-face-check.dir/tools/cardboard_mixed_cohesive_face_check.mm.o.d",
+      "bytes": 244330,
+      "sha256": "4454d2f6cac6e5f04043d4d5a6c2326760bbde09a3931339186734e41abe0171",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-mixed-cohesive-frame-check.dir/tools/cardboard_mixed_cohesive_frame_check.cpp.o",
+      "bytes": 24440,
+      "sha256": "bc42c46e38a077e642b102598a363d0b3b38777d6cce50532bf352ec1a0e9893",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-mixed-cohesive-frame-check.dir/tools/cardboard_mixed_cohesive_frame_check.cpp.o.d",
+      "bytes": 119976,
+      "sha256": "eaec308fa6bbe844dfb18325698a1eda71f32c29ab0b81e06da35972a42fe11f",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-paper-gpu-check.dir/tools/cardboard_paper_gpu_check.mm.o",
+      "bytes": 381288,
+      "sha256": "6819aad3f88d6560089e9e35f42ab5516d82569ab9fe89844404feb11c94cdc4",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-paper-gpu-check.dir/tools/cardboard_paper_gpu_check.mm.o.d",
+      "bytes": 244004,
+      "sha256": "e5f1bd4425e553404dc4df8f0117b4df2f866054873463405cd3f25a023ade36",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-paper-material-check.dir/tools/cardboard_paper_material_check.cpp.o",
+      "bytes": 503624,
+      "sha256": "472957c186820c6b2b2a505f2f661f4b23c86c8120b6b3364bc0ec35d42ce078",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-paper-material-check.dir/tools/cardboard_paper_material_check.cpp.o.d",
+      "bytes": 135852,
+      "sha256": "46e9703305fff02625aafa7dff1341d9df82f21df7458dcd4daf94627f0443a8",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-pin-adhesion-fixture-check.dir/tools/cardboard_pin_adhesion_fixture_check.cpp.o",
+      "bytes": 40736,
+      "sha256": "830f82ec3021c0f1f587b6a50c93469407aee068b25e7d15469e67f90c189d8d",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-pin-adhesion-fixture-check.dir/tools/cardboard_pin_adhesion_fixture_check.cpp.o.d",
+      "bytes": 130093,
+      "sha256": "1a341873eb3ca423dc4b3dc4a86ee31e4fbb856a544531b6438cfe9df2892366",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-preconditioner-gpu-check.dir/tools/cardboard_fgmres_preconditioner_gpu_check.mm.o",
+      "bytes": 155264,
+      "sha256": "9683dacc3b6b9cd593ae31aa0f4b7a0ad2558cec27f484f83c44910c40aefd32",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-preconditioner-gpu-check.dir/tools/cardboard_fgmres_preconditioner_gpu_check.mm.o.d",
+      "bytes": 249691,
+      "sha256": "06cf8c733c020c41cefa9e02d4353dc8168721cfdab7e28edfd058b55ed206e1",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o",
+      "bytes": 1987368,
+      "sha256": "cb3fe2177b6702d4b97adb6708b9eb0c40b2822ac4eaab490851f147de662992",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o.d",
+      "bytes": 269915,
+      "sha256": "8f10e8b596e8099558fe43effe447e22253fd2cafbe549cf731c45569792ca31",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-profile-check.dir/tools/cardboard_profile_check.cpp.o",
+      "bytes": 28792,
+      "sha256": "36b251bfbc629d5a96cf9c2dec5b3cd7973ec71b9651bb4a13caf672963c6586",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-profile-check.dir/tools/cardboard_profile_check.cpp.o.d",
+      "bytes": 121861,
+      "sha256": "4f383e8de71274dccb7407e996aa46b335336c5b0aaf16f359bcb74670c14885",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-reaction-observables-check.dir/tools/cardboard_reaction_observables_check.cpp.o",
+      "bytes": 19584,
+      "sha256": "e0aa4551564340f3701640d023dbff2cc1701f4b48f95b38d67cc026681f0889",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-reaction-observables-check.dir/tools/cardboard_reaction_observables_check.cpp.o.d",
+      "bytes": 97313,
+      "sha256": "31c0b5de8c9788667da512f7c1ec13f27d3c3e917ac306555a1c1fbfb1ddf58f",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-regional-recycle-masked-basis-native-check.dir/tools/cardboard_regional_recycle_masked_basis_native_check.mm.o",
+      "bytes": 36040,
+      "sha256": "6f36f5fc8ec1a718509d18dfe1a876b2b8cdf1c5c4a273a85cd83514abf6e2ca",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-regional-recycle-masked-basis-native-check.dir/tools/cardboard_regional_recycle_masked_basis_native_check.mm.o.d",
+      "bytes": 210797,
+      "sha256": "4ffd35856c1038888e65cab3de30ddd965d987f4cc11a646b7246766a4ee8f26",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-retained-damage-fp64-oracle-check.dir/tools/cardboard_retained_damage_fp64_oracle_check.cpp.o",
+      "bytes": 40768,
+      "sha256": "299b447a216e1f05ab515ea699460d12de9e0638d77e855fdea6c97784377af5",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-retained-damage-fp64-oracle-check.dir/tools/cardboard_retained_damage_fp64_oracle_check.cpp.o.d",
+      "bytes": 130614,
+      "sha256": "5dc395e81536a5a21c22610104d17d7c921b2d60390447ef79ad7a9c626dc8ed",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-retained-matrix-damage-check.dir/tools/cardboard_retained_matrix_damage_check.cpp.o",
+      "bytes": 351640,
+      "sha256": "18924852940b966eecc47eb059b965d3588ef037de195186deaaa21e132ed393",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-retained-matrix-damage-check.dir/tools/cardboard_retained_matrix_damage_check.cpp.o.d",
+      "bytes": 136614,
+      "sha256": "0bef336592a85629d2383f63102ffa790eef09c1bac5242e44f0207e6b5b4812",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-retained-matrix-damage-metal-check.dir/tools/cardboard_retained_matrix_damage_gpu_check.mm.o",
+      "bytes": 346128,
+      "sha256": "e28c26ebdccceec3a1203c44a72a5e68d0ef8aa45a38ba6f7c853fe300b860d5",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-retained-matrix-damage-metal-check.dir/tools/cardboard_retained_matrix_damage_gpu_check.mm.o.d",
+      "bytes": 248107,
+      "sha256": "c4971dd3fee31ea4cb1cccc44bfaf0ef45d12a2c2fe0788c5249775e8df5e207",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-shipping-closure-mesh-check.dir/tools/cardboard_shipping_closure_mesh_check.cpp.o",
+      "bytes": 76280,
+      "sha256": "b2835c87c5f34cc400fd7413d91954d1eea18c3c1b1642daea5c07c7e8dcbac2",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-shipping-closure-mesh-check.dir/tools/cardboard_shipping_closure_mesh_check.cpp.o.d",
+      "bytes": 132657,
+      "sha256": "a79e5562af19ff120819ae94ed98e3c53ae55ea002d755ca40a21fc9ba41feab",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-shipping-driver-check.dir/tools/cardboard_shipping_driver_check.cpp.o",
+      "bytes": 86336,
+      "sha256": "4bf00fec7ea7d6b956bd787508f4491b73c9f5b13aa00bac886d3fd9e4fa2982",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-shipping-driver-check.dir/tools/cardboard_shipping_driver_check.cpp.o.d",
+      "bytes": 133041,
+      "sha256": "c9fc5f895ddf084af26142b2fe2a021a1478de008febaca1c4db3044957d59f4",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-shipping-memory-check.dir/tools/cardboard_shipping_memory_check.cpp.o",
+      "bytes": 178728,
+      "sha256": "5ed4edfd8e9a67468504a716770e6a28b9239a98b22c277214f1d5fcc8ba0ece",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-shipping-memory-check.dir/tools/cardboard_shipping_memory_check.cpp.o.d",
+      "bytes": 135032,
+      "sha256": "56ffea079970ea7659fb64297af0e0638a2391ce15c2885ee21849a6037578cc",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-shipping-protocol-check.dir/tools/cardboard_shipping_protocol_check.cpp.o",
+      "bytes": 266712,
+      "sha256": "acbb28e31bd8a016d0c5fbe3d1eedd1d2b977ebccf6b1b977b139bfc13402fe4",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-shipping-protocol-check.dir/tools/cardboard_shipping_protocol_check.cpp.o.d",
+      "bytes": 134636,
+      "sha256": "ad055347d50d3beff582fe64c65f1934b252573afdaf9dcb5a35a60e89521754",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-shipping-snapshot-check.dir/tools/cardboard_shipping_snapshot_check.cpp.o",
+      "bytes": 212008,
+      "sha256": "bb0fcef9aff5c8932da23a33476a81fd737425d071c33b68e2b5c316e51f2e3a",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-shipping-snapshot-check.dir/tools/cardboard_shipping_snapshot_check.cpp.o.d",
+      "bytes": 135844,
+      "sha256": "fd3da3b053fd874f4c687b874c2beef1153bafb6a6c6d55ee32de5442032b841",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-solver-pair-replay.dir/tools/cardboard_solver_pair_replay.cpp.o",
+      "bytes": 84200,
+      "sha256": "6da9d23e69dfb5cc3f01461f1b16ee1ea5d52009d7710a18ed7fd0b416d653f4",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-solver-pair-replay.dir/tools/cardboard_solver_pair_replay.cpp.o.d",
+      "bytes": 131576,
+      "sha256": "e8d3d038d70d01948f20adce29894f143941f4c7ffb742192d146c1f32b32537",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-solver-replay.dir/tools/cardboard_solver_replay.cpp.o",
+      "bytes": 59792,
+      "sha256": "9b2a94ea0960be5ccda7f2220593f5230ddfc74bee1547d7f871e4152151a7cc",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-solver-replay.dir/tools/cardboard_solver_replay.cpp.o.d",
+      "bytes": 123497,
+      "sha256": "959cd5f2307e131251ff85a3da865d76bf07d61a8113038cf065d9ecb3343cb8",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-starch-interface-mesh-check.dir/tools/cardboard_starch_interface_mesh_check.cpp.o",
+      "bytes": 73080,
+      "sha256": "3c6b688e25c8f64130be7febc486da40ea3f80c541716f7202973ebdb54791a6",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-starch-interface-mesh-check.dir/tools/cardboard_starch_interface_mesh_check.cpp.o.d",
+      "bytes": 125891,
+      "sha256": "19c5396b511060f8c87dba3305d37e64035aeca71d2e33caf275cb3d1542f1ba",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-tooling-check.dir/tools/cardboard_tooling_check.cpp.o",
+      "bytes": 24648,
+      "sha256": "1f22a8044c301ad9fb24283e9d0c122d1255181b0271a4a346e3e6e471c2e8a5",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-cardboard-tooling-check.dir/tools/cardboard_tooling_check.cpp.o.d",
+      "bytes": 130041,
+      "sha256": "68e3a0535cc9190fd3fd5c99d431d0aa7d8aa31de2fe7c169cc7a0b1fc7fd0e8",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-fem-material-frame-check.dir/tools/fem_material_frame_check.mm.o",
+      "bytes": 333144,
+      "sha256": "073cb17c664f59989cd6d60199747a81ac87307002cac07a8e1a76232edbca7c",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-fem-material-frame-check.dir/tools/fem_material_frame_check.mm.o.d",
+      "bytes": 248258,
+      "sha256": "0a89097e5fb1f44c4207ec88e6253d6303bdb6d55dd311b408a99c2e94aa38bd",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-fem-material-frame-compiler-check.dir/tools/fem_material_frame_compiler_check.cpp.o",
+      "bytes": 167256,
+      "sha256": "8a6aa9bc7d7f6d48d06e498c274c57d063e942298c3c9dbd193084aef9bf5c7b",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-fem-material-frame-compiler-check.dir/tools/fem_material_frame_compiler_check.cpp.o.d",
+      "bytes": 108848,
+      "sha256": "47023e3649e175c9119a89d341d3683cf67ac264de9e187dbbd6274e50866cd7",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-fem-reference-check.dir/tools/fem_reference_check.mm.o",
+      "bytes": 571120,
+      "sha256": "1e3473bc1d014f175f1b701608ffa4590646dcf3fe7b35b23b6bd9e3df5cd907",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-fem-reference-check.dir/tools/fem_reference_check.mm.o.d",
+      "bytes": 247834,
+      "sha256": "e251214493e3a6a197ec52b80d55761939d98f036676bdee9c7e6f0240502372",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-fem-regional-galerkin-compiler-check.dir/tools/fem_regional_galerkin_compiler_check.cpp.o",
+      "bytes": 157984,
+      "sha256": "116f81ce6460f941bccdbb9e63ee529aaad8a95cd0d40240817d7135c95f858e",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-fem-regional-galerkin-compiler-check.dir/tools/fem_regional_galerkin_compiler_check.cpp.o.d",
+      "bytes": 134881,
+      "sha256": "f45fbc57f6f39d27f85e6192b1030dfda567f873409d35ebc45e386a006eac2b",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-fem-regional-galerkin-native-check.dir/tools/fem_regional_galerkin_native_check.mm.o",
+      "bytes": 314384,
+      "sha256": "d74f5a3922d9a6fcb3d8e601d119fd207dd5e04dc30e18bd75a5314dec578182",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-fem-regional-galerkin-native-check.dir/tools/fem_regional_galerkin_native_check.mm.o.d",
+      "bytes": 244886,
+      "sha256": "03a2a844052ce6a119afa77010285ac1c2fbac4d3c6882b46d2762a3059ea223",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-fem-regional-material-check.dir/tools/fem_regional_material_check.mm.o",
+      "bytes": 551760,
+      "sha256": "8951c7f76fdf5f3458745f344741be22dd0535c98c14d84a3e9e303ceadbbf31",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-fem-regional-material-check.dir/tools/fem_regional_material_check.mm.o.d",
+      "bytes": 247587,
+      "sha256": "3597fc141ef9cea6c7207d4beae82fe93717daa5184b6c3534641c4ad93b1c4c",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-fem-static-surface-map-check.dir/tools/fem_static_surface_map_check.cpp.o",
+      "bytes": 150760,
+      "sha256": "49a8cff96f0eee75b4638bed03ba88be8a0c28a8f87c9fde5f432ffc821d3616",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-fem-static-surface-map-check.dir/tools/fem_static_surface_map_check.cpp.o.d",
+      "bytes": 109340,
+      "sha256": "7ad4a4bfd4f6007b8f0422a3b8d321f56cd07e36700f7bc33fb36493c9e29b8e",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-fixed-convex-contact-step-check.dir/tools/fixed_convex_contact_step_check.cpp.o",
+      "bytes": 9256,
+      "sha256": "7207ab5113d7949b62fd96f6bafc084d604639d4658fe6ab9d04522dd9da350b",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-fixed-convex-contact-step-check.dir/tools/fixed_convex_contact_step_check.cpp.o.d",
+      "bytes": 128882,
+      "sha256": "e34fc3d87e1e2353d5e449c5207bc66ac1fd2b56893558d1cd6c2fa1c5eacb79",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-regional-graph-completed-tail-check.dir/tools/regional_graph_completed_tail_check.cpp.o",
+      "bytes": 4520,
+      "sha256": "936f81778d43528708c765bc92f76db142421846b81229aa619e54cc20f4c8c9",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-regional-graph-completed-tail-check.dir/tools/regional_graph_completed_tail_check.cpp.o.d",
+      "bytes": 123703,
+      "sha256": "9c86f7808d3d3c71d1982db66f77c2bc1923ba63229dd4421e81e76cdce95c8f",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-regional-graph-schwarz-layout-check.dir/tools/regional_graph_schwarz_layout_check.cpp.o",
+      "bytes": 50944,
+      "sha256": "d931e42d015988e481fc860ea2f68d904159bd82665b2cb86a85c13c0af7007a",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-regional-graph-schwarz-layout-check.dir/tools/regional_graph_schwarz_layout_check.cpp.o.d",
+      "bytes": 123703,
+      "sha256": "1ac03d84de49c9eb12dcef993bb0534e869599730790c842e2201182875afbe0",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-robertsson-fem-coupling-check.dir/tools/robertsson_fem_coupling_check.mm.o",
+      "bytes": 235696,
+      "sha256": "74e27ebe5c253601ad8f9fed66dd10764e15a8dce2bb6752d9ce940aef87b63a",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-robertsson-fem-coupling-check.dir/tools/robertsson_fem_coupling_check.mm.o.d",
+      "bytes": 246519,
+      "sha256": "c022eb0a9ad8b5430ca8e9d735e4e85e027cafc5bd108c90d92181bd38ee3bfc",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-stateful-check.dir/tools/stateful_check.cpp.o",
+      "bytes": 119136,
+      "sha256": "9f162180e4a65da203787e4879fd088c0972cacd39615cc17eadef5f7275fcc0",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi-matter-stateful-check.dir/tools/stateful_check.cpp.o.d",
+      "bytes": 129167,
+      "sha256": "b368eacd8de61bc185db2d1b35c1b5e03981f2320d4091152dd02106eff0790e",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o",
+      "bytes": 215616,
+      "sha256": "555f7166728e87bd245b82e9dff6f3f10d953c5df83fbd04ea87c577879c3e49",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o.d",
+      "bytes": 136916,
+      "sha256": "77e609638cfe78b8f0eef97e64f8b253c0aa3e61161b239bac72fbea5178a908",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o",
+      "bytes": 85520,
+      "sha256": "3347ad2e201beec0149ceb8159c16d2e92780f8b03d1c1478754200a7ca8e5d4",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o.d",
+      "bytes": 129849,
+      "sha256": "95d2482ae30706c52724cd39124c1155a279bca8a878d7da0f99ae0569e3f35a",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o",
+      "bytes": 8800,
+      "sha256": "b499c225796b023c8036b3076655e12fbb08ecf6766a7fb1fd1f26f592d9ebc2",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o.d",
+      "bytes": 125453,
+      "sha256": "cbf4d3075abd1bd769fddc0e19562bb65df97e47b3311e39a1bd4d4cfed00e40",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o",
+      "bytes": 103704,
+      "sha256": "687b864aa800095d3296f51ce8d7018baa118c4b2abc8b3b848717f506068862",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o.d",
+      "bytes": 133462,
+      "sha256": "92a0d9854f14e57c370357cb671a13c07b51b8ac0041b27e8e4ef34b03147113",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o",
+      "bytes": 10016,
+      "sha256": "00681d871aa66396881fb2fa08847fbddc9b7070645a4a901541dacfb43d07aa",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o.d",
+      "bytes": 125042,
+      "sha256": "2f5fe4a7fef7917831febaccdd30ee980c1ce3806841ba9d4c650e3fa3fe5664",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o",
+      "bytes": 122624,
+      "sha256": "db33c2de62dc56318ae3fbea1a242c62d5a3e234ed18eefd825293492ba4d1c4",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o.d",
+      "bytes": 130267,
+      "sha256": "c6a51469177d205e32ae296258d5887459f3f906f657b08dda4846165f7edfd0",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o",
+      "bytes": 32000,
+      "sha256": "c0a544353dd5070ab403a68a440fc05cee6c679020ef4c2c8c72b64da6e9c3e6",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o.d",
+      "bytes": 125720,
+      "sha256": "65de8b201e871dd0a2467108f4accb1bd231e7e06b81192b9b727e2535543c8b",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o",
+      "bytes": 87216,
+      "sha256": "6059fc55ba6951df58d18444ee5602e2e59fc2a1978d9faafe2c9c111abe514c",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o.d",
+      "bytes": 129039,
+      "sha256": "2e76044f227230b5bfad27ce21b6aa0ec21eaf4e9b81fe6a3bd94d77271ebaab",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o",
+      "bytes": 141864,
+      "sha256": "2891f6aecee03f9c36161501eb0ac0169369bfe751c25f17674f507fefa5b087",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o.d",
+      "bytes": 128637,
+      "sha256": "b33103f1c667fe32660f4c5d68588eeb4e10ff358e8ac3303a670ae395fe7266",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o",
+      "bytes": 75520,
+      "sha256": "4ebf749940ec069267a143c35ed574965c666f3cedb2935a33c3a9b2c7075315",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o.d",
+      "bytes": 222993,
+      "sha256": "0e3ef4537ca86b1d6bbd919d8b17a87fdc011b4b194afc7d0800611dc7fe86dd",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o",
+      "bytes": 3784,
+      "sha256": "2c56945952f9243378748cbb62403e93994a5c0f6070732072fe7c700215a67e",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o.d",
+      "bytes": 105867,
+      "sha256": "306e0e11b471af56a150df6ae0e7b4a858a5dd068b4d43cfa24447262e616612",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o",
+      "bytes": 133936,
+      "sha256": "4fbac845bd866e4a931b43bb8a1373846018833bd2d1b58273a78583d2521b62",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o.d",
+      "bytes": 247231,
+      "sha256": "188edde6b90de3fc63344fb4bf76dc3e8f2348582ab69527ecc2410147cb3a41",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o",
+      "bytes": 1369968,
+      "sha256": "362628e47dcdc8e15cba375be5742bd053e7eab332723d45a425e479c60d3857",
+      "kind": "regenerable closed CMake object/dependency"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-087/matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o.d",
+      "bytes": 250618,
+      "sha256": "66622290d81ac90c7f34b465d8ff2c1bf7b28f7b96d2317f302316ab77e149b7",
+      "kind": "regenerable closed CMake object/dependency"
+    }
+  ],
+  "free_bytes_before": 486510592
+}

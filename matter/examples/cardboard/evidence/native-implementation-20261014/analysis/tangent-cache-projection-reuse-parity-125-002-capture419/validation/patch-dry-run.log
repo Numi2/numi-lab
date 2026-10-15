@@ -1,0 +1,3 @@
+Command: patch --dry-run -p1 -d /Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-check-130 < prototype/checker-capture419.patch
+
+Result: patching file matter/tools/cardboard_tangent_cache_projection_reuse_check.mm; exit 0.

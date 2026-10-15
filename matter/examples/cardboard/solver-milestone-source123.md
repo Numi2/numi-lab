@@ -1,5 +1,9 @@
 # Source123: two-stage local material merit
 
+The [source125 continuation](solver-milestone-source125.md) captures the next
+global failure, independently checks its material/assembled action, and retains
+the unresolved native finite differences and subsequent diagnostic failures.
+
 The accurate 15-state bilinear paper return map now uses raw-residual Armijo descent until its existing raw convergence gate is met, then the frozen row-scaled merit to resolve the correction gate. Both final stopping gates, material equations, parameters, local iteration budget and global production certificate remain unchanged. The scaled Newton solve remains active throughout. This repairs two complementary retained failures: a raw-only search stalls near the tet 674 root, while a scaled-only search takes tiny steps far from the tet 858 root.
 
 Native 407 resolves the exact retained tet 858 candidate in 14 updates, with valid direct stress and tangent. Against an independently projected FP64 root, state, stress and the declared local Fxx tangent action differ by 2.47e-13, 5.20e-8 and 3.44e-8 relative respectively. The promoted native state also meets both unchanged gates under the independent equations. Native 408 retains the tet 674 repair in 5 updates; all five trace/direct/tangent output comparisons have zero bit mismatches. Native 411 traces tet 858's 14 updates with the same parity. These are material-point results. The retained snapshot still lacks the first failure's dispatch-generation identity.

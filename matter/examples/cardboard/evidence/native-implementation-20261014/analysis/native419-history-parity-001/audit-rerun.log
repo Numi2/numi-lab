@@ -1,0 +1,11 @@
+{
+  "verdict": "production_histories_match; operator_fd_capture_integrity_pass; physical_run_remains_failed",
+  "output419_vs415": 35,
+  "armijo_records": 64,
+  "true_residual_records": 4096,
+  "clean_stderr_lines": 4164,
+  "operator_capture_records": 5606,
+  "operator_capture_bytes": 38811258,
+  "fd_tets": 3840,
+  "fd_nodes": 1764
+}

@@ -1,0 +1,9 @@
+{
+  "status": "failed_attempt_preserved",
+  "error": "ValueError: capture hill_q_lambda_a_b fields were JSON null; parser must treat these captured branch auxiliaries as unavailable, not numeric inputs",
+  "input_capture_sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+  "failed_script_sha256": "e6af08824588136bf7189fe5d456a802d64761bdacfa542bd094f2c57cf6ec44",
+  "subsequent_script_sha256": "5a44d8028eaa38f951da408a2d2c482bafc21d37a45dfe23b13e297b7f06fe58",
+  "failure_time_utc": "2026-10-15T19:17:48.418794+00:00",
+  "scope": "adapter smoke only; no solver/native state changed"
+}

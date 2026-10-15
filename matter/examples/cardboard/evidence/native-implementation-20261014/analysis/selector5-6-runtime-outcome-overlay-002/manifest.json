@@ -1,0 +1,98 @@
+{
+  "base": {
+    "base_file_sha256": "10fdbe2f68d4f31ee767ca3c949d5bee8c7834fe82b73f466d3460827c2fc461",
+    "candidate_file_sha256": "1b91d8888c178cd5719be48eff8c1b0ee993d8078598ef6179e2dc45c44b1819",
+    "file": "matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm",
+    "frozen_source_sha256": "48dd6286c76f63fbaac93e7bde40a7f89183e760819c637273a41a4ca09728b7",
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-status-includes-129"
+  },
+  "files": [
+    {
+      "bytes": 908,
+      "path": "INTEGRITY-INCIDENT.md",
+      "sha256": "a7f5096b21da140e8ad044d50b794300ae2cfa245f4843a6b3ea750e43a1bc8a"
+    },
+    {
+      "bytes": 1911,
+      "path": "README.md",
+      "sha256": "c59eb102eb4cae8e0824406bb07ccb36576b217feba3e10eb8f9ca33533c74d5"
+    },
+    {
+      "bytes": 84141,
+      "path": "candidate/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm",
+      "sha256": "1b91d8888c178cd5719be48eff8c1b0ee993d8078598ef6179e2dc45c44b1819"
+    },
+    {
+      "bytes": 0,
+      "path": "objcxx-syntax.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 62,
+      "path": "objcxx-syntax.stdout",
+      "sha256": "a0e0088e477fcde59f400eebe134b29c3a0bb7c01d40279db71fe42ed9eba13b"
+    },
+    {
+      "bytes": 283,
+      "path": "patch-dry-run.log",
+      "sha256": "f389e04533f46376edd5c5538d4022ce86468ecf46396ff329198765a18e64b3"
+    },
+    {
+      "bytes": 81383,
+      "path": "post-seal-001-candidate-preserved.mm",
+      "sha256": "4d1aca6a92f2bb28c0c3aa15f37e32bf531dfb091d71cef3792c2ecc9a375d9e"
+    },
+    {
+      "bytes": 21830,
+      "path": "selector-runtime-complete-outcomes.patch",
+      "sha256": "cfafa08a2e9666653fee96fc235c84aff6825615e11a9dddcc7a69aa490c1add"
+    },
+    {
+      "bytes": 116,
+      "path": "source-contract-test.log",
+      "sha256": "61389c10a2fed5e06d60d2e588279f8ea99f24c80158690033e25d71421f61b3"
+    },
+    {
+      "bytes": 978,
+      "path": "validation-commands.txt",
+      "sha256": "05076f1a8056021ce3ad6bbd9e1479e62b9b78cc998a6db4e46eb7e3661f3052"
+    },
+    {
+      "bytes": 257,
+      "path": "validation.log",
+      "sha256": "eaedd94089c73589a8dd5aaf864b9b83af3281c5a12b9a2ba164c5b444510c99"
+    },
+    {
+      "bytes": 822,
+      "path": "verify_manifest.py",
+      "sha256": "e1fe97dc7544c3591c4020d5da801858382fb471d7cd8f54c2c94493175055ae"
+    },
+    {
+      "bytes": 6753,
+      "path": "verify_outcome_capture.py",
+      "sha256": "f3f7a9731f3d6b96ca5b359b69bc56e13a9fc277e849d2624fc0c6fc5d0eea68"
+    }
+  ],
+  "lineage": {
+    "failed_integration_preflight": "Source131 verification stopped before clone/patch; no integration used the changed bytes.",
+    "package_001_expected_candidate_sha256": "2727109d414ed75662d2f135002d4b04bfa6ed1a095459008362c8a7ab5a065f",
+    "package_001_manifest_sha256": "75e1326759f2089a6f8c04cb94cf27d97091465e12d17f6d1105d338d7d8504e",
+    "package_001_patch_sha256": "1dad9db30931b963497c9a0153dd5fb3c04c812f7f1678b59fc33e69845f5598",
+    "post_seal_candidate_preserved_as": "post-seal-001-candidate-preserved.mm",
+    "post_seal_changed_candidate_sha256": "4d1aca6a92f2bb28c0c3aa15f37e32bf531dfb091d71cef3792c2ecc9a375d9e",
+    "restored_001_candidate_verified": true,
+    "supersedes_nothing": true
+  },
+  "package": "selector5-6-runtime-outcome-overlay-002",
+  "patch_sha256": "cfafa08a2e9666653fee96fc235c84aff6825615e11a9dddcc7a69aa490c1add",
+  "schema": "numi.matter.checker-overlay-manifest.v1",
+  "scope": "Checker-only diagnostic: independently execute selector 5 and selector 6, print both complete RuntimeStateSnapshot outcomes including all 59 raw vector fields and scalar metadata, then apply unchanged acceptance gates.",
+  "validation": {
+    "gpu_run_performed": false,
+    "native_run_performed": false,
+    "objcxx_syntax_werror": "PASS",
+    "patch_application_sha_match": "PASS",
+    "patch_dry_run": "PASS",
+    "source_contract_test": "PASS"
+  }
+}

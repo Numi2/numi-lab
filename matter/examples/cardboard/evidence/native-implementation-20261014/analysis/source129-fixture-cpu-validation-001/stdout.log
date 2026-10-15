@@ -1,0 +1,2 @@
+package_roundtrip=pass mode=6 local_material_newton=16
+selector6_compile_only=pass region_id=0 topology=4nodes/1tet physical_validation=false

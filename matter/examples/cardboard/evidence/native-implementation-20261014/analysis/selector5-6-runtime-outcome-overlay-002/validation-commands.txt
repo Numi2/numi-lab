@@ -1,0 +1,5 @@
+Source: /Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-status-includes-129/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm
+Candidate: /Users/home/cardboard-implementation-20261014/analysis/selector5-6-runtime-outcome-overlay-002/candidate/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm
+/usr/bin/clang++ -DNUMI_MATTER_METALLIB=".../build-cardboard-provenance-129/matter/shaders/NumiMatter.metallib" -I snapshot-129/matter/../include -I snapshot-129/matter/include -I snapshot-129/matter/tools -I snapshot-129/matter/src -F /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fsyntax-only candidate/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm
+python3 verify_outcome_capture.py
+patch -p1 --dry-run; patch -p1; verify applied SHA equals candidate SHA

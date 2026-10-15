@@ -1,0 +1,28 @@
+{
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122",
+  "metal_compile": {
+    "command": "xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I /Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include -I /Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include -I /Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src -MMD -MF /Users/home/cardboard-implementation-20261014/analysis/private-vtccd-budget-replay-overlay-001/validation/matter-kernel-dependencies.d -MT vtccd-budget-replay.air -c /Users/home/cardboard-implementation-20261014/analysis/private-vtccd-budget-replay-overlay-001/overlay/matter/src/matter_kernels.metal -o /Users/home/cardboard-implementation-20261014/analysis/private-vtccd-budget-replay-overlay-001/validation/vtccd-budget-replay.air",
+    "exit_code": 0,
+    "warning_count": 2,
+    "warnings_scope": "existing source122 fgmres.metalinc threadgroup sharedValid/refinementValid diagnostics; no contact warnings"
+  },
+  "metallib_link": {
+    "command": "xcrun -sdk macosx metallib /Users/home/cardboard-implementation-20261014/analysis/private-vtccd-budget-replay-overlay-001/validation/vtccd-budget-replay.air -o /Users/home/cardboard-implementation-20261014/analysis/private-vtccd-budget-replay-overlay-001/validation/vtccd-budget-replay.metallib",
+    "exit_code": 0
+  },
+  "objc_syntax": {
+    "command": "xcrun --sdk macosx clang++ -std=c++17 -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fsyntax-only -MMD -MF /Users/home/cardboard-implementation-20261014/analysis/private-vtccd-budget-replay-overlay-001/validation/host-dependencies.d -MT vtccd-budget-replay-checker -I /Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include -I /Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include -DNUMI_MATTER_METALLIB=\\\"/tmp/NumiMatterBudgetReplay.metallib\\\" /Users/home/cardboard-implementation-20261014/analysis/private-vtccd-budget-replay-overlay-001/overlay/matter/tools/cardboard_vtccd_iteration_budget_check.mm",
+    "exit_code": 0
+  },
+  "cpu_source_capture_contract": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 /Users/home/cardboard-implementation-20261014/analysis/private-vtccd-budget-replay-overlay-001/validate_overlay.py",
+    "exit_code": 0
+  },
+  "patch_dry_run": {
+    "command": "patch --dry-run -p1 -i /Users/home/cardboard-implementation-20261014/analysis/private-vtccd-budget-replay-overlay-001/overlay.patch",
+    "base": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122",
+    "exit_code": 0
+  },
+  "metal_toolchain": "Apple metal 32023.883 (metalfe-32023.883)",
+  "native_gpu_replay": "NOT_RUN_BY_THIS_PACKAGE"
+}

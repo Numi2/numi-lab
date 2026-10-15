@@ -1,0 +1,131 @@
+{
+  "schema": "numi.cardboard.vtccd-budget-adjudication.v1",
+  "receipt_sha256": "e3714635623faef1468ae4e23ad33d0c7e47975428e7569b2866ca0e9805396a",
+  "native_output_sha256": "273a91ea7d4ad8d7494a388b65fcf2eaf21ce1475285a03f2687c75744e1a76a",
+  "production_default_budget_unchanged": 16,
+  "physical_transactions": 0,
+  "results": [
+    {
+      "capture": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/trial-capture.coupled.json",
+      "manifest_sha256": "a821cf7e1e166327059258a953aaf519c8ef7e8ca9f0c344f1b6681185845e64",
+      "payload_sha256": "eb6286c09081577e226eec6deb11021b4e483e104583214216b6b77c441190b5",
+      "budget16_return_bitwise_match": true,
+      "budgets": [
+        {
+          "budget": 16,
+          "return": [
+            0,
+            0,
+            0.9422037005,
+            1.000193879e-05
+          ],
+          "iterations": 16,
+          "certified": false,
+          "hit": false,
+          "exhausted_uncertified": true
+        },
+        {
+          "budget": 32,
+          "return": [
+            1,
+            1,
+            0.9433111548,
+            1.000182237e-05
+          ],
+          "iterations": 21,
+          "certified": true,
+          "hit": true,
+          "exhausted_uncertified": false
+        },
+        {
+          "budget": 64,
+          "return": [
+            1,
+            1,
+            0.9433111548,
+            1.000182237e-05
+          ],
+          "iterations": 21,
+          "certified": true,
+          "hit": true,
+          "exhausted_uncertified": false
+        },
+        {
+          "budget": 128,
+          "return": [
+            1,
+            1,
+            0.9433111548,
+            1.000182237e-05
+          ],
+          "iterations": 21,
+          "certified": true,
+          "hit": true,
+          "exhausted_uncertified": false
+        }
+      ]
+    },
+    {
+      "capture": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/trial-capture.coupled.json",
+      "manifest_sha256": "41eb361744412ff47f338bc563a43cd940c29019a3c32c3c4de83e61677d220c",
+      "payload_sha256": "d1c3e4d3c74d3bf75a72ade703557b4cfa9a70d62f1f51683fffbcff8546bd74",
+      "budget16_return_bitwise_match": true,
+      "budgets": [
+        {
+          "budget": 16,
+          "return": [
+            1,
+            1,
+            0.9419823289,
+            1.000182237e-05
+          ],
+          "iterations": 15,
+          "certified": true,
+          "hit": true,
+          "exhausted_uncertified": false
+        },
+        {
+          "budget": 32,
+          "return": [
+            1,
+            1,
+            0.9419823289,
+            1.000182237e-05
+          ],
+          "iterations": 15,
+          "certified": true,
+          "hit": true,
+          "exhausted_uncertified": false
+        },
+        {
+          "budget": 64,
+          "return": [
+            1,
+            1,
+            0.9419823289,
+            1.000182237e-05
+          ],
+          "iterations": 15,
+          "certified": true,
+          "hit": true,
+          "exhausted_uncertified": false
+        },
+        {
+          "budget": 128,
+          "return": [
+            1,
+            1,
+            0.9419823289,
+            1.000182237e-05
+          ],
+          "iterations": 15,
+          "certified": true,
+          "hit": true,
+          "exhausted_uncertified": false
+        }
+      ]
+    }
+  ],
+  "verdict": "Exact retained helper replay only. Trial21 changes from uncertified exhaustion at16 to certified hit at21. Trial22 is already a certified hit at15. Both are contact-rejecting outcomes; a larger budget does not establish full nonlinear fixture convergence.",
+  "qualification": false
+}

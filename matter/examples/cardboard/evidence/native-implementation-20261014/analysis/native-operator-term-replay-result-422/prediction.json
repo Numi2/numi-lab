@@ -1,0 +1,11 @@
+{
+  "question": "Which element/frame/gather/mass layer explains the source125 exact control1 Newton48 action?",
+  "prediction": "Exact source125 production element/gather kernels, cache and fresh paths; unchanged captured candidate, history, direction and dt. Zero physical transactions. Require comparison against captured action before interpreting independent terms.",
+  "package_manifest_sha256": "3be02f1a7509836fa6ccc6b5528aba5b2c68f40589dbf7bc54d1745ee8f4dd5f",
+  "command": [
+    "/Users/home/cardboard-implementation-20261014/analysis/native-operator-term-replay-419-001/build/operator_terms_replay",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-operator-term-replay-419-001/prepared/replay-input.bin",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-operator-term-replay-result-422/result"
+  ]
+}

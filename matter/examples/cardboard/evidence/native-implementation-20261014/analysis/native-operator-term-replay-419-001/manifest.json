@@ -1,0 +1,97 @@
+{
+  "schema": "numi.cardboard.native-operator-term-package.v1",
+  "base_packages": {
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cached-operator-replay-360-003": "756f064c072cc292f99bc1ebefbfa4868a9fc37ff75541c26659f4be696f27e9",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-operator-term-replay-360-001": "3ab46a473baf156359b817798242aa74407e05fb04631ba197e138e86ee18c87"
+  },
+  "capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125",
+  "source_build_sha256": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6",
+  "compile_argv": [
+    "xcrun",
+    "clang++",
+    "-std=c++2b",
+    "-arch",
+    "arm64",
+    "-fobjc-arc",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-I/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/include",
+    "-I/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/include",
+    "-DNUMI_MATTER_METALLIB=\"/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/inputs/runtime/matter/shaders/NumiMatter.metallib\"",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-operator-term-replay-419-001/operator_terms_replay.mm",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-125/matter/libnumi_matter_runtime.a",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-125/matter/libnumi_matter_compiler.a",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "-o",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-operator-term-replay-419-001/build/operator_terms_replay"
+  ],
+  "native_argv": [
+    "/Users/home/cardboard-implementation-20261014/analysis/native-operator-term-replay-419-001/build/operator_terms_replay",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-operator-term-replay-419-001/prepared/replay-input.bin",
+    "OUTPUT_DIRECTORY"
+  ],
+  "preflight_pass": true,
+  "native_dispatched": false,
+  "physical_transactions": 0,
+  "files": {
+    "assemble.py": {
+      "bytes": 3528,
+      "sha256": "fb9d2546a4dac7124d0990493c0debe2e8709502326b98716df165620ae21f6b"
+    },
+    "build/operator_terms_replay": {
+      "bytes": 1864792,
+      "sha256": "0399bece28595833fa7a44de5afb90576face9898219a65340803ade5c2efc57"
+    },
+    "compile.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "compile.stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "operator_terms_replay.mm": {
+      "bytes": 34842,
+      "sha256": "afaaeca806a77cba87a887fa3002e71dc3e95426c4755de4adfc61b5d7935f5a"
+    },
+    "preflight.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "preflight.stdout.log": {
+      "bytes": 156,
+      "sha256": "ea4fdf2697f7a5a951e0ba0b74439c07c568e512dd08a2487de1698fedd51c2b"
+    },
+    "prepare.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "prepare.stdout.log": {
+      "bytes": 552,
+      "sha256": "51ca5369b5f5f5f77b2f6c20ee31a42973c269ef14ee3216eb3203f7fbb9e824"
+    },
+    "prepare_replay.py": {
+      "bytes": 15848,
+      "sha256": "80d817201fe38cac72c6cd8964756ae0bf33df0d15739ebb8633c27f55bc4d69"
+    },
+    "prepared/input-manifest.json": {
+      "bytes": 3446,
+      "sha256": "c2c5c067244a04e1968e46be5d5d91f757b376d35ff4cac3f7def42c05569b46"
+    },
+    "prepared/input-manifest.seal.json": {
+      "bytes": 3541,
+      "sha256": "70e15601835da86b903c51b203e776b3f1715b3a6e43bd684b0981616c04b40f"
+    },
+    "prepared/replay-input.bin": {
+      "bytes": 2054152,
+      "sha256": "79b38a5ebec4019f50d2ee79eef5753c3f771e29807eadd3e66ab920b1ddf222"
+    }
+  }
+}

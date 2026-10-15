@@ -1,0 +1,17 @@
+{
+  "results": [
+    {
+      "build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-130",
+      "status": "removed-generated-objects-only",
+      "files_removed": 28,
+      "logical_bytes_removed": 4978242,
+      "free_bytes_before": 202633216,
+      "free_bytes_after": 207659008,
+      "all_compiled_artifacts_and_build_metadata_hashes_preserved": true,
+      "source_and_evidence_removed": false,
+      "preflight_sha256": "63b991d95dd61ad99e4398615bcfd48a2d3022275553b99c0487c9483c0c9fe6"
+    }
+  ],
+  "logical_bytes_removed": 4978242,
+  "free_bytes_after": 207659008
+}

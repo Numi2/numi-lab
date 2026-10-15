@@ -1,0 +1,62 @@
+{
+  "base": {
+    "base_file_sha256": "10fdbe2f68d4f31ee767ca3c949d5bee8c7834fe82b73f466d3460827c2fc461",
+    "candidate_file_sha256": "2727109d414ed75662d2f135002d4b04bfa6ed1a095459008362c8a7ab5a065f",
+    "file": "matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm",
+    "frozen_source_sha256": "48dd6286c76f63fbaac93e7bde40a7f89183e760819c637273a41a4ca09728b7",
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-status-includes-129"
+  },
+  "files": [
+    {
+      "bytes": 1671,
+      "path": "README.md",
+      "sha256": "fdff98a383e5c99f015e784694e7a7b03b0a30a414939d71a1781e0ca9d8032b"
+    },
+    {
+      "bytes": 75833,
+      "path": "candidate/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm",
+      "sha256": "2727109d414ed75662d2f135002d4b04bfa6ed1a095459008362c8a7ab5a065f"
+    },
+    {
+      "bytes": 0,
+      "path": "objcxx-syntax.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "objcxx-syntax.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 74,
+      "path": "patch-dry-run.log",
+      "sha256": "f3f8159afbd7ce3f83082700ba6c97ce48f338c8c90dd37a56af1978e5fcbc33"
+    },
+    {
+      "bytes": 13306,
+      "path": "selector-runtime-outcomes.patch",
+      "sha256": "1dad9db30931b963497c9a0153dd5fb3c04c812f7f1678b59fc33e69845f5598"
+    },
+    {
+      "bytes": 135,
+      "path": "source-contract-test.log",
+      "sha256": "5500659a42a17b1dcd1f603664062ccb8e3944bbef681c5a4250def14d2be439"
+    },
+    {
+      "bytes": 2204,
+      "path": "verify_outcome_capture.py",
+      "sha256": "3b51aed8821778f1771fe0a1b4e7dbedc62787966da1cdb1c5363d57af45812c"
+    }
+  ],
+  "package": "selector5-6-runtime-outcome-overlay-001",
+  "patch_sha256": "1dad9db30931b963497c9a0153dd5fb3c04c812f7f1678b59fc33e69845f5598",
+  "schema": "numi.matter.checker-overlay-manifest.v1",
+  "scope": "Diagnostic-only checker edit. Runs selector5 and selector6 separately even when the first outcome fails, and emits raw full status/certificate/FEM-node vectors before the unchanged acceptance gates.",
+  "validation": {
+    "gpu_run_performed": false,
+    "native_run_performed": false,
+    "objcxx_syntax_werror": "PASS",
+    "patch_dry_run": "PASS",
+    "source_contract_test": "PASS"
+  }
+}

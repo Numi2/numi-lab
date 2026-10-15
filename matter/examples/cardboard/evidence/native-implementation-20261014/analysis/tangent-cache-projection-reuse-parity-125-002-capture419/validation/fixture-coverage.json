@@ -1,0 +1,259 @@
+{
+  "cpu_only": true,
+  "multirate_constitutive_coverage": false,
+  "reports": [
+    {
+      "all_candidate_node_float_words_match_capture": true,
+      "capture_node_rows": 1764,
+      "capture_parameter_count": 59,
+      "capture_sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+      "capture_tetrahedron_rows": 3840,
+      "compiled_package_shape": {
+        "abi": 45,
+        "objects_element_size": 176,
+        "objects_section_10": 1,
+        "parameters_element_size": 16,
+        "parameters_section_6": 59,
+        "section_count": 65
+      },
+      "coverage": {
+        "env0_material0": {
+          "Fdot_frobenius_norm_max_per_s": 266.15614004139314,
+          "Fdot_frobenius_norm_min_per_s": 0.2852215659462048,
+          "accepted_accumulated_multiplier_abs_gt_1e-12_count": 110,
+          "candidate_multiplier_increment_gt_1e-12_count": 278,
+          "candidate_multiplier_increment_le_1e-12_count": 874,
+          "nonidentity_frame_rows_xyz_norm_gt_1e-6": 0,
+          "nonzero_Fdot_rows_norm_gt_1e-12_per_s": 1152,
+          "stateful_rows": 1152,
+          "tetrahedra": 1152,
+          "unique_material_frame_quaternion_count": 1
+        },
+        "env0_material1": {
+          "Fdot_frobenius_norm_max_per_s": 242.90012566631086,
+          "Fdot_frobenius_norm_min_per_s": 0.34838885797827196,
+          "accepted_accumulated_multiplier_abs_gt_1e-12_count": 365,
+          "candidate_multiplier_increment_gt_1e-12_count": 255,
+          "candidate_multiplier_increment_le_1e-12_count": 321,
+          "nonidentity_frame_rows_xyz_norm_gt_1e-6": 576,
+          "nonzero_Fdot_rows_norm_gt_1e-12_per_s": 576,
+          "stateful_rows": 576,
+          "tetrahedra": 576,
+          "unique_material_frame_quaternion_count": 10
+        },
+        "env0_material2": {
+          "Fdot_frobenius_norm_max_per_s": 224.87362616186186,
+          "Fdot_frobenius_norm_min_per_s": 0.8309161851771621,
+          "accepted_accumulated_multiplier_abs_gt_1e-12_count": 0,
+          "candidate_multiplier_increment_gt_1e-12_count": 0,
+          "candidate_multiplier_increment_le_1e-12_count": 0,
+          "nonidentity_frame_rows_xyz_norm_gt_1e-6": 192,
+          "nonzero_Fdot_rows_norm_gt_1e-12_per_s": 192,
+          "stateful_rows": 0,
+          "tetrahedra": 192,
+          "unique_material_frame_quaternion_count": 4
+        },
+        "env1_material0": {
+          "Fdot_frobenius_norm_max_per_s": 0.0,
+          "Fdot_frobenius_norm_min_per_s": 0.0,
+          "accepted_accumulated_multiplier_abs_gt_1e-12_count": 0,
+          "candidate_multiplier_increment_gt_1e-12_count": 0,
+          "candidate_multiplier_increment_le_1e-12_count": 1152,
+          "nonidentity_frame_rows_xyz_norm_gt_1e-6": 0,
+          "nonzero_Fdot_rows_norm_gt_1e-12_per_s": 0,
+          "stateful_rows": 1152,
+          "tetrahedra": 1152,
+          "unique_material_frame_quaternion_count": 1
+        },
+        "env1_material1": {
+          "Fdot_frobenius_norm_max_per_s": 0.0,
+          "Fdot_frobenius_norm_min_per_s": 0.0,
+          "accepted_accumulated_multiplier_abs_gt_1e-12_count": 0,
+          "candidate_multiplier_increment_gt_1e-12_count": 0,
+          "candidate_multiplier_increment_le_1e-12_count": 576,
+          "nonidentity_frame_rows_xyz_norm_gt_1e-6": 576,
+          "nonzero_Fdot_rows_norm_gt_1e-12_per_s": 0,
+          "stateful_rows": 576,
+          "tetrahedra": 576,
+          "unique_material_frame_quaternion_count": 10
+        },
+        "env1_material2": {
+          "Fdot_frobenius_norm_max_per_s": 0.0,
+          "Fdot_frobenius_norm_min_per_s": 0.0,
+          "accepted_accumulated_multiplier_abs_gt_1e-12_count": 0,
+          "candidate_multiplier_increment_gt_1e-12_count": 0,
+          "candidate_multiplier_increment_le_1e-12_count": 0,
+          "nonidentity_frame_rows_xyz_norm_gt_1e-6": 192,
+          "nonzero_Fdot_rows_norm_gt_1e-12_per_s": 0,
+          "stateful_rows": 0,
+          "tetrahedra": 192,
+          "unique_material_frame_quaternion_count": 4
+        }
+      },
+      "coverage_threshold_note": "State classification uses |accepted lambda| > 1e-12 and projected lambda increment > 1e-12; the capture does not serialize a separate branch label. These counts are observable state thresholds, not an exact constitutive branch certificate.",
+      "env0_accepted_state_sidecar_bitmatches_capture": true,
+      "environment_count": 2,
+      "material_assets": [
+        {
+          "has_Fdot_identifier_in_noncomment_text": false,
+          "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+          "sha256": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a"
+        },
+        {
+          "has_Fdot_identifier_in_noncomment_text": false,
+          "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+          "sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9"
+        },
+        {
+          "has_Fdot_identifier_in_noncomment_text": false,
+          "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/materials/starch2007_finite_glue_elastic.nmatter",
+          "sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1"
+        }
+      ],
+      "native_cache_comparison_scope": "The checker rebuilds old and projection-reuse cache kernels from one source125 metallib on identical fixture inputs; historical captured cache matrices are an auxiliary comparison, not the parity gate.",
+      "newton_iteration": 23,
+      "nodes_per_environment": 882,
+      "package_sha256": "3c25f41c6c26654ccf3f8b4f4b510bbb64ab0ea0f52b94d05d8b1fa4060fafe5",
+      "performance_claim": false,
+      "physical_validation": false,
+      "production_qualification": false,
+      "rate_coverage": "Fdot is nonzero in the active environment and the captured direction contract binds deltaFdot=deltaF/dt, but none of these three authored assets references Fdot in equation text. This does not cover a rate-dependent constitutive law or compare multiple physical rates.",
+      "root": 2,
+      "run_id": "360",
+      "run_receipt_sha256": "d623591647a91ca07626e18fef6c78358e60c0d9ab7c38d465e79a2f6c18c474",
+      "source_build_sha256": "b40d30669b286449a3c5d50da2c865a052cd69c1e9f556132f0fc4bc66cd9fb0",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101",
+      "status": "admitted_exact_capture_fixture",
+      "tets_per_environment": 1920,
+      "valid_cached_tangent_entries": 3840,
+      "world_fingerprint_hex": "6de3475316b7e8b9"
+    },
+    {
+      "all_candidate_node_float_words_match_capture": true,
+      "capture_node_rows": 1764,
+      "capture_parameter_count": 59,
+      "capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+      "capture_tetrahedron_rows": 3840,
+      "compiled_package_shape": {
+        "abi": 45,
+        "objects_element_size": 176,
+        "objects_section_10": 1,
+        "parameters_element_size": 16,
+        "parameters_section_6": 59,
+        "section_count": 65
+      },
+      "coverage": {
+        "env0_material0": {
+          "Fdot_frobenius_norm_max_per_s": 300.6571809034571,
+          "Fdot_frobenius_norm_min_per_s": 0.29668297696657625,
+          "accepted_accumulated_multiplier_abs_gt_1e-12_count": 77,
+          "candidate_multiplier_increment_gt_1e-12_count": 153,
+          "candidate_multiplier_increment_le_1e-12_count": 999,
+          "nonidentity_frame_rows_xyz_norm_gt_1e-6": 0,
+          "nonzero_Fdot_rows_norm_gt_1e-12_per_s": 1152,
+          "stateful_rows": 1152,
+          "tetrahedra": 1152,
+          "unique_material_frame_quaternion_count": 1
+        },
+        "env0_material1": {
+          "Fdot_frobenius_norm_max_per_s": 78.34059691543528,
+          "Fdot_frobenius_norm_min_per_s": 0.7266398210241837,
+          "accepted_accumulated_multiplier_abs_gt_1e-12_count": 276,
+          "candidate_multiplier_increment_gt_1e-12_count": 356,
+          "candidate_multiplier_increment_le_1e-12_count": 220,
+          "nonidentity_frame_rows_xyz_norm_gt_1e-6": 576,
+          "nonzero_Fdot_rows_norm_gt_1e-12_per_s": 576,
+          "stateful_rows": 576,
+          "tetrahedra": 576,
+          "unique_material_frame_quaternion_count": 10
+        },
+        "env0_material2": {
+          "Fdot_frobenius_norm_max_per_s": 33.85266964305694,
+          "Fdot_frobenius_norm_min_per_s": 0.36980583621832075,
+          "accepted_accumulated_multiplier_abs_gt_1e-12_count": 0,
+          "candidate_multiplier_increment_gt_1e-12_count": 0,
+          "candidate_multiplier_increment_le_1e-12_count": 0,
+          "nonidentity_frame_rows_xyz_norm_gt_1e-6": 192,
+          "nonzero_Fdot_rows_norm_gt_1e-12_per_s": 192,
+          "stateful_rows": 0,
+          "tetrahedra": 192,
+          "unique_material_frame_quaternion_count": 4
+        },
+        "env1_material0": {
+          "Fdot_frobenius_norm_max_per_s": 0.0,
+          "Fdot_frobenius_norm_min_per_s": 0.0,
+          "accepted_accumulated_multiplier_abs_gt_1e-12_count": 0,
+          "candidate_multiplier_increment_gt_1e-12_count": 0,
+          "candidate_multiplier_increment_le_1e-12_count": 1152,
+          "nonidentity_frame_rows_xyz_norm_gt_1e-6": 0,
+          "nonzero_Fdot_rows_norm_gt_1e-12_per_s": 0,
+          "stateful_rows": 1152,
+          "tetrahedra": 1152,
+          "unique_material_frame_quaternion_count": 1
+        },
+        "env1_material1": {
+          "Fdot_frobenius_norm_max_per_s": 0.0,
+          "Fdot_frobenius_norm_min_per_s": 0.0,
+          "accepted_accumulated_multiplier_abs_gt_1e-12_count": 0,
+          "candidate_multiplier_increment_gt_1e-12_count": 0,
+          "candidate_multiplier_increment_le_1e-12_count": 576,
+          "nonidentity_frame_rows_xyz_norm_gt_1e-6": 576,
+          "nonzero_Fdot_rows_norm_gt_1e-12_per_s": 0,
+          "stateful_rows": 576,
+          "tetrahedra": 576,
+          "unique_material_frame_quaternion_count": 10
+        },
+        "env1_material2": {
+          "Fdot_frobenius_norm_max_per_s": 0.0,
+          "Fdot_frobenius_norm_min_per_s": 0.0,
+          "accepted_accumulated_multiplier_abs_gt_1e-12_count": 0,
+          "candidate_multiplier_increment_gt_1e-12_count": 0,
+          "candidate_multiplier_increment_le_1e-12_count": 0,
+          "nonidentity_frame_rows_xyz_norm_gt_1e-6": 192,
+          "nonzero_Fdot_rows_norm_gt_1e-12_per_s": 0,
+          "stateful_rows": 0,
+          "tetrahedra": 192,
+          "unique_material_frame_quaternion_count": 4
+        }
+      },
+      "coverage_threshold_note": "State classification uses |accepted lambda| > 1e-12 and projected lambda increment > 1e-12; the capture does not serialize a separate branch label. These counts are observable state thresholds, not an exact constitutive branch certificate.",
+      "env0_accepted_state_sidecar_bitmatches_capture": true,
+      "environment_count": 2,
+      "material_assets": [
+        {
+          "has_Fdot_identifier_in_noncomment_text": false,
+          "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+          "sha256": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a"
+        },
+        {
+          "has_Fdot_identifier_in_noncomment_text": false,
+          "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+          "sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9"
+        },
+        {
+          "has_Fdot_identifier_in_noncomment_text": false,
+          "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/materials/starch2007_finite_glue_elastic.nmatter",
+          "sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1"
+        }
+      ],
+      "native_cache_comparison_scope": "The checker rebuilds old and projection-reuse cache kernels from one source125 metallib on identical fixture inputs; historical captured cache matrices are an auxiliary comparison, not the parity gate.",
+      "newton_iteration": 48,
+      "nodes_per_environment": 882,
+      "package_sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+      "performance_claim": false,
+      "physical_validation": false,
+      "production_qualification": false,
+      "rate_coverage": "Fdot is nonzero in the active environment and the captured direction contract binds deltaFdot=deltaF/dt, but none of these three authored assets references Fdot in equation text. This does not cover a rate-dependent constitutive law or compare multiple physical rates.",
+      "root": 1,
+      "run_id": "419",
+      "run_receipt_sha256": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d",
+      "source_build_sha256": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125",
+      "status": "admitted_exact_capture_fixture",
+      "tets_per_environment": 1920,
+      "valid_cached_tangent_entries": 3840,
+      "world_fingerprint_hex": "75c1264bc96ac2d9"
+    }
+  ],
+  "schema": "numi.cardboard.tangent-cache-projection-reuse-fixture-coverage.v1"
+}

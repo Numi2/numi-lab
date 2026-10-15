@@ -1,0 +1,45 @@
+{
+  "schema": "numi.cardboard.lossless_source_snapshots.v1",
+  "git_base_revision": "8c00ae13d78331c938311ca80d78857c4deefe75",
+  "snapshots": [
+    {
+      "number": 124,
+      "manifest": "source-124.json.gz",
+      "compressed_sha256": "11e70401800b1b86fd6b94543a43dcb31bf29f14783e92119b61d21a351d4dc4",
+      "uncompressed_sha256": "5408478c5a23c38c524ce53be632f00a10be32d217e82da520896e98a8cdccf2",
+      "files": 1820,
+      "all_reconstructed_bytes_verified": true,
+      "complete_disk_restoration_verified": true
+    },
+    {
+      "number": 125,
+      "manifest": "source-125.json.gz",
+      "compressed_sha256": "f6c8456e10766c92dc4a8e912c804408634b9059adcbace6f3ebc25d6c9d6e59",
+      "uncompressed_sha256": "6585dee9f698b5cd267673af1239aa2231dcd2bfd9137d0ef6fdb759e221f632",
+      "files": 1820,
+      "all_reconstructed_bytes_verified": true,
+      "complete_disk_restoration_verified": true
+    },
+    {
+      "number": 126,
+      "manifest": "source-126.json.gz",
+      "compressed_sha256": "e1ebccee8d5b7c5aa199f018c0790637e659953eb04e51ecb19159b9f91b7815",
+      "uncompressed_sha256": "d33da2408a28cc7b23f9ff4f0e57af3d2645acee8fea9e341296ed9484fc7f2c",
+      "files": 1820,
+      "all_reconstructed_bytes_verified": true,
+      "complete_disk_restoration_verified": true
+    },
+    {
+      "number": 127,
+      "manifest": "source-127.json.gz",
+      "compressed_sha256": "0472691e6f5c8722a55d151e671a3b29866a80a060e2c921da43d9653944b85f",
+      "uncompressed_sha256": "79c9bbbb50b77c353d3d031501842a3bf4a3d9fb2c60a78d9644d453b1f72d9f",
+      "files": 1820,
+      "all_reconstructed_bytes_verified": true,
+      "complete_disk_restoration_verified": true
+    }
+  ],
+  "unique_gzip_source_blobs": 29,
+  "physical_qualification": false,
+  "scope": "Reconstructs exact source122/123 selected build sources plus verified root-CMake support from the fixed published Git base. No binary or scientific outcome is reclassified."
+}

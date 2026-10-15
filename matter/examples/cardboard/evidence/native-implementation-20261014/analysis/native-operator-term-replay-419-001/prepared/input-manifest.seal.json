@@ -1,0 +1,59 @@
+{
+  "capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+  "claim_scope": "captured source125 FEM element action and nodal gather only; no solver step or contact/rigid unknowns",
+  "compiled_package_sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+  "input_manifest_sha256": "c2c5c067244a04e1968e46be5d5d91f757b376d35ff4cac3f7def42c05569b46",
+  "integrity_record": {
+    "cached_tangent_snapshot_bitwise_guard_included": true,
+    "production_inputs_bitwise_unchanged": true,
+    "record": "integrity"
+  },
+  "limits": [
+    "The replay uses production element/gather kernels with cache enabled and disabled on identical captured inputs.",
+    "The selected Newton was rejected; this is a diagnostic replay of that exact captured linearization, not an accepted physical state.",
+    "The run has zero rigid proxies and zero contact pairs; FEM operator/gather is the complete mechanical linear slice for these captured dimensions.",
+    "No physical transaction, material update, or solver convergence claim is made by the replay."
+  ],
+  "metallib_sha256": "ebd03ada31996d8227ee425c6115ab142bcab6dd1e2ccf6c07e5037a284da5a0",
+  "native_capture": {
+    "correction_max_abs_m_per_s": 94.290123,
+    "dt_seconds": 9.999999747378752e-05,
+    "environment_count": 2,
+    "execution_fingerprint_hex": "7fad2607fcd060e7",
+    "material_state_stride": 15,
+    "newton_iteration": 48,
+    "node_count_per_environment": 882,
+    "parameter_count": 59,
+    "root": 1,
+    "tangent_entries_valid": 3840,
+    "tetrahedron_count_per_environment": 1920,
+    "world_fingerprint_hex": "75c1264bc96ac2d9"
+  },
+  "payload_bytes": 2054152,
+  "payload_layout": [
+    "header: <8s6IQfI>",
+    "nodes: E*N*NMFEMNodeStateGPU (5 float4)",
+    "direction: E*N*float4 (captured fem correction delta-v)",
+    "rhs: E*N*float4 (captured pre-FGMRES FEM RHS)",
+    "accepted_material_state: E*T*materialStateStride floats",
+    "tangent_cache: E*T*81 floats row-major local dP/dF",
+    "tangent_cache_valid: E*T uint32",
+    "environment_parameters: E*parameterCount floats",
+    "captured_production_action: E*N*float4 (independent comparison output)",
+    "static_tet_audit: E*T records <4I9ff4I4f>; all integer and finite float words compare bitwise, including signed zero"
+  ],
+  "payload_sha256": "79b38a5ebec4019f50d2ee79eef5753c3f771e29807eadd3e66ab920b1ddf222",
+  "prediction_sha256": "41b37af2747cfa551fae60eaddd7681cd7c7dbc859a402e641677ec23bd957d6",
+  "run_directory": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419",
+  "run_receipt_sha256": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d",
+  "schema": "numi.cardboard.native-cached-operator-replay-input.v1",
+  "source_hashes": {
+    "matter/include/numi/matter/shared.h": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+    "matter/src/metal/common.metalinc": "441a3f86f21979a086a0356f5fd2b91f692ba94dbd09a28d07ea9756c1246a5a",
+    "matter/src/metal/fem.metalinc": "70c2f396045f9abdcfdc32f5714e6e3a400f5566e5a7824353e11b307de52b7d",
+    "matter/src/metal/fgmres.metalinc": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0",
+    "matter/src/runtime.mm": "1719f14310d643ca96c520eb47b3028f8259f85e3da0d263460921b06d94ac74",
+    "matter/tools/cardboard_probe.mm": "6917e515993e1da26d09d946bf8a3f58c7066ad183b19131aa466e94e8d32e99"
+  },
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125"
+}

@@ -1,0 +1,27 @@
+--- /Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-fixture-repaired-126/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm	2026-10-15 21:04:52
++++ /Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-status-bound-128/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm	2026-10-15 21:13:02
+@@ -1,5 +1,7 @@
+ #import <Foundation/Foundation.h>
+ #import <Metal/Metal.h>
++
++#include "metalrobo/engine_types.h"
+ 
+ #include "cardboard_paper_reference.hpp"
+ #include "numi/matter/compiler.hpp"
+@@ -1230,10 +1232,16 @@
+     targets[2] = {0.0f, 0.0f, 0.0f, 2.0f};
+     const auto forceBuffer = makeBuffer(device, forces);
+     const auto targetBuffer = makeBuffer(device, targets);
++    std::vector<MRMetalWorldStatusGPU> worldStatuses(world.dispatch.environmentCount);
++    for (std::uint32_t environment = 0; environment < world.dispatch.environmentCount;
++         ++environment)
++        worldStatuses[environment].environment = environment;
++    const auto statusBuffer = makeBuffer(device, worldStatuses);
+     id<MTLCommandBuffer> command = [queue commandBuffer];
+     need(command != nil, "cannot create selector parity command buffer");
+     EncodeRequest request;
+     request.commandBuffer = (__bridge void*)command;
++    request.environmentStatuses = (__bridge void*)statusBuffer;
+     request.controlStep = 0u;
+     request.physicsSubstep = 0u;
+     request.physicsSubsteps = 1u;

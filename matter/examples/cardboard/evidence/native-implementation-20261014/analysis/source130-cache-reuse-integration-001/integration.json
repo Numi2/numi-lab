@@ -1,0 +1,24 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-check-130",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125",
+  "overlay_manifest_sha256": "b9ae9a790c17219cd3691063720f755c7e12e9a82bc32f19ee99babeaad16a03",
+  "changed_files": {
+    "matter/CMakeLists.txt": {
+      "base": "bd6b3f7b92e75dcb9982c67c36f82150d4f433369b5017655adf60b0c0c9d019",
+      "candidate": "7502aed814034a83e1768328f5f3d80dea1d60cdaaa602aaa304346868d4d3fc"
+    },
+    "matter/src/metal/common.metalinc": {
+      "base": "441a3f86f21979a086a0356f5fd2b91f692ba94dbd09a28d07ea9756c1246a5a",
+      "candidate": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380"
+    },
+    "matter/src/metal/fem.metalinc": {
+      "base": "70c2f396045f9abdcfdc32f5714e6e3a400f5566e5a7824353e11b307de52b7d",
+      "candidate": "2bf83fafcf4abbf46b4914d9fc2d3690c78f978fab331b704a91b645611456e0"
+    },
+    "matter/tools/cardboard_tangent_cache_projection_reuse_check.mm": {
+      "base": null,
+      "candidate": "92a37afe2bcbc1c21b75890616730bb6549327d68021337940712b68cc9fd2dd"
+    }
+  },
+  "physical_steps": 0
+}

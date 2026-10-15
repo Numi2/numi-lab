@@ -1,0 +1,30 @@
+{
+  "all_archived_payloads_verified": true,
+  "binding_declared_file_count": 850,
+  "case_count": 56,
+  "current_external_source_drift_count": 0,
+  "current_external_source_drift_examples": [],
+  "current_external_source_missing_count": 0,
+  "current_external_source_missing_examples": [],
+  "direct_mismatches": [],
+  "direct_payloads_verified": 813,
+  "duplicate_archive_targets": [],
+  "gzip_compressed_mismatches": [],
+  "gzip_expanded_mismatches": [],
+  "gzip_payloads_verified": 37,
+  "indexed_file_count": 850,
+  "inputs": {
+    "new419_adjudication_manifest_sha256": "9bf06b37ec20b0640802b32b1f50cd2996b2641fb406fad6824ffa1e64cb0e24",
+    "new419_adjudication_report_sha256": "9d840db47f6e898779998b0f0f7ab51355c0f323798e85dc64823bf2d88a4193",
+    "publication_binding_sha256": "8c82c640427eac706c43ac1aeb7b48ccad2f3dad5977dbd4686411c8adb841e4",
+    "source020_milestone": "Exact source125 control1/Newton48 paired failure captured with accepted history, material state, frames, constraints, masses, correction and signed endpoints. Diagnostic production histories match409/415. Exact source125 native operator and residual replay preserve captured words; smaller native perturbations do not resolve a derivative. Full cycle remains failed after one accepted step. Higher CCD replay budget changes an uncertified query to a hit; complete contact and experimental hybrid runtime parity remain unqualified.",
+    "summary_declared_sha256": "588335cbdd7062ab2c33d7b80b7e086168ab86548ab56885f788f65060115abd",
+    "summary_sha256": "588335cbdd7062ab2c33d7b80b7e086168ab86548ab56885f788f65060115abd"
+  },
+  "limitations": [
+    "This verifies archive index and copied bytes, not scientific correctness or source conclusions. Current external source drift/missing files are reported separately from archived-byte integrity."
+  ],
+  "missing_payloads": 0,
+  "schema": "numi.cardboard.reference020-independent-integrity-audit.v1",
+  "status": "complete_diagnostic"
+}

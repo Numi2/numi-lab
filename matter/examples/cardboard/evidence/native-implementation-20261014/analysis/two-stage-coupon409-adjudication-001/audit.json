@@ -1,0 +1,315 @@
+{
+  "claim_limit": "Source-bound native failure adjudication only; not material or physical qualification.",
+  "event_counts": {
+    "armijo_records": 64,
+    "fgmres_true_residual_records": 4096,
+    "newton48_active_cycle_restarts": [
+      0,
+      1,
+      2
+    ],
+    "newton48_static_tail_cycles": 61,
+    "newton49_to63_gated_cycle_rows": 960
+  },
+  "evidence_hashes": {
+    "compiled_nmatterpack": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+    "frozen_source": "9a7f6bcbb6110dbd2a82f898b110ae0dd9c7290ab838155808c999a69679597e",
+    "material_state": "fb270a40f77d2251451e1ca1ab2c09e1c4779775a9f073fde25a6b6218ef2ee4",
+    "mesh_json": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+    "observations": "e2d7d7c09d87aa6989f4923691a57b2e99c6db7e6babaacb585cad8ace138d17",
+    "output_manifest": "8020222f13e2feab1f083fa3add78afc39390e5c0b5140154a801e267c230927",
+    "prediction": "8368b5dc3d5eea58a09ca59514f98b73a30f0653ffca4923e25b1069330b10e2",
+    "result": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba",
+    "run_receipt": "c769db491e80efcc5c415bdd3277174c33437665fee1c7985825ef790ba3ee7e",
+    "source_build": "fc96e2521b363c821132d7a493da091aa7d36d1c125951ffa09e2d38e91d0952",
+    "stderr": "7fa9d24eec8c3a66aa7cb2bcb3962cac7eb669b6de7055078dbf578b10bd4bcb",
+    "stdout": "9e9e87625cf0549628c2668a29decf5dfeec04db6a5f649642e4c81a51e79fc3"
+  },
+  "failure_localization": {
+    "base_raw_residual_impulse_norm": 0.00018444375,
+    "candidate_count_exhausted": 24,
+    "failed_newton_failing_index": 48,
+    "failed_newton_last_trial_status_code": 0,
+    "failed_newton_pretrial_status_code": 0,
+    "failed_newton_result_status_code": 10,
+    "first_line_search_failure_newton_iteration_zero_based": 48,
+    "last_minus_base_raw_residual": 8.700000000473086e-11,
+    "last_minus_base_relative": 4.7168852294930497e-07,
+    "last_tested_alpha": 1.1920929e-07,
+    "last_tested_raw_residual_impulse_norm": 0.000184443837,
+    "later_gated_env0_true_residual_cycle_slots": 960,
+    "later_gated_newton_records": 15,
+    "later_gated_status": {
+      "operator_status_code": 4,
+      "solver_status_code": 10
+    },
+    "local_material_scope_note": "Pretrial solver and final recorded trial statuses are clear; the run does not contain every per-tetrahedron projection for every line-search candidate, so it cannot establish that every candidate projection was valid. No recorded terminal status identifies a local material failure.",
+    "minimum_J": 0.998457968,
+    "preceding_selected_newton_updates": 48,
+    "selected_alpha": 0,
+    "solver_terminal_is_local_material_invalid": false,
+    "trial_outcome": "no_trial_accepted_status_clear"
+  },
+  "linear_solve": {
+    "active_fgmres_cycles": 3,
+    "active_fgmres_iterations": 44,
+    "all_active_cycles_operator_status_code": 0,
+    "all_active_cycles_solver_status_code": 0,
+    "converged_flag_on_last_active_cycle": 1,
+    "interpretation": "Inner FGMRES returned success under its forcing condition; this does not satisfy or certify the outer nonlinear equilibrium criterion.",
+    "newton_iteration": 48,
+    "rhs_norm_impulse": 0.000184443808,
+    "true_residual_norm_impulse": 2.50240851e-06,
+    "true_residual_over_rhs": 0.013567321869650404
+  },
+  "protocol": {
+    "accepted_bent_controls": 1,
+    "completed_later_hold_unload_relax_release_controls": 0,
+    "failed_bent_control": 1,
+    "held_reference_controls_accepted_as_noop": 2,
+    "observed_macro_step_indices": [
+      0,
+      1
+    ],
+    "observed_phases": [
+      "loading"
+    ],
+    "observed_rows": 4,
+    "physical_validation": false,
+    "planned_macro_control_count": 27,
+    "planned_macro_controls": {
+      "--hold-steps": 3,
+      "--relax-steps": 3,
+      "--release-steps": 3,
+      "--steps": 12,
+      "--unload-steps": 6
+    }
+  },
+  "recommended_bounded_rerun_capture": {
+    "limits": "Diagnostic-on/off parity must be checked; selectors do not make the failed run converged. This run has no self-contact or cohesive interaction, so contact CCD tracing is not the relevant observer.",
+    "operator_capture_path": "NM_FEM_OPERATOR_FD_CAPTURE_PATH=<fresh unique JSONL path>",
+    "operator_selector": "NM_FEM_OPERATOR_FD_SELECTOR=1:48",
+    "reason": "The rich selected-Newton operator capture records center/per-tet local projection and paired operator data immediately before the Newton correction; selecting step 1, Newton 48 targets the pretrial state at the first failure. The current trace does not identify all 24 candidate-local outcomes.",
+    "retain": {
+      "NM_FEM_RESIDUAL_ARMIJO_ROOT": "all",
+      "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": "1",
+      "NM_FEM_TRUE_RESIDUAL_CERTIFY": "1",
+      "NM_FEM_TRUE_RESIDUAL_NEWTON_SELECTOR": "48",
+      "NM_FEM_TRUE_RESIDUAL_RESTART": "0",
+      "NM_FEM_TRUE_RESIDUAL_ROOT": "1"
+    },
+    "scope": "same source123 physics and command; fresh unique capture paths only"
+  },
+  "rollback": {
+    "accepted_bent_obj": "/Users/home/cardboard-implementation-20261014/solver/two-stage-certified-coupon-409/output/accepted_step_000001_bent.obj",
+    "accepted_bent_obj_sha256": "42fbb543657063c3c3df7eed3ec4d07dc820f5f2ab887e2d3ceb6c3bfd68a522",
+    "byte_identical": true,
+    "held_reference_obj_hashes_equal": true,
+    "post_failure_certificate_raw_accepted_flag": 0,
+    "post_failure_material_status_code": 10,
+    "rejected_diagnostic_bent_obj": "/Users/home/cardboard-implementation-20261014/solver/two-stage-certified-coupon-409/output/rejected_step_diagnostic_000002_bent.obj",
+    "rejected_diagnostic_bent_obj_sha256": "42fbb543657063c3c3df7eed3ec4d07dc820f5f2ab887e2d3ceb6c3bfd68a522"
+  },
+  "run_binding": {
+    "command_argv": [
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-123a/matter/numi-matter-cardboard-probe",
+      "--preset",
+      "literature2009",
+      "--line-search-steps",
+      "24",
+      "--without-self-contact",
+      "--reference-displacement-gradient",
+      "--compensated-paper-arithmetic",
+      "--residual-tolerance",
+      "1e-6",
+      "--newton-iterations",
+      "64",
+      "--fgmres-restart",
+      "16",
+      "--fgmres-iterations",
+      "1024",
+      "--fgmres-preconditioner",
+      "regional-galerkin-schwarz",
+      "--steps",
+      "12",
+      "--hold-steps",
+      "3",
+      "--unload-steps",
+      "6",
+      "--relax-steps",
+      "3",
+      "--release-steps",
+      "3",
+      "--nx",
+      "8",
+      "--ny",
+      "2",
+      "--thickness-slices",
+      "1",
+      "--bend-angle",
+      ".375",
+      "--dt",
+      ".0001",
+      "--material-iterations",
+      "32",
+      "--metallib",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-123a/matter/shaders/NumiMatter.metallib",
+      "--output",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-certified-coupon-409/output",
+      "--liner-material",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+      "--medium-material",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+      "--cache-fem-algorithmic-tangent",
+      "--compensated-source-paper-projection",
+      "--accurate-source-paper-projection"
+    ],
+    "environment": {
+      "NM_FEM_GRAPH_PARALLEL_LU_SEARCH": "1",
+      "NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION": "1",
+      "NM_FEM_RESIDUAL_ARMIJO_ROOT": "all",
+      "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": "1",
+      "NM_FEM_TRUE_RESIDUAL_CERTIFY": "1",
+      "NM_FEM_TRUE_RESIDUAL_ROOT": "1",
+      "NUMI_CARDBOARD_STEP_TIMING": "1"
+    },
+    "exit_code": 2,
+    "finished_at_utc": "2026-10-15T18:54:20.829798+00:00",
+    "materials": {
+      "glue": {
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123/matter/materials/starch2007_finite_glue_elastic.nmatter",
+        "sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1"
+      },
+      "liner": {
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+        "sha256": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a"
+      },
+      "medium": {
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+        "sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9"
+      }
+    },
+    "observations_sha256": "e2d7d7c09d87aa6989f4923691a57b2e99c6db7e6babaacb585cad8ace138d17",
+    "output_manifest_sha256": "8020222f13e2feab1f083fa3add78afc39390e5c0b5140154a801e267c230927",
+    "prediction_sha256": "8368b5dc3d5eea58a09ca59514f98b73a30f0653ffca4923e25b1069330b10e2",
+    "receipt_sha256": "c769db491e80efcc5c415bdd3277174c33437665fee1c7985825ef790ba3ee7e",
+    "rejected_conditioning_files": {
+      "AP.bin": {
+        "bytes": 733824,
+        "sha256": "d181a9d064474ef2147c1c5c4be5b841b8120c3f4aaf5c7e660a87fb0acff48e"
+      },
+      "P.bin": {
+        "bytes": 366912,
+        "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5"
+      },
+      "candidate_nodes.bin": {
+        "bytes": 141120,
+        "sha256": "c4f2b8d790494949da5be98e876b911db2655dc88e7417416906c91412557269"
+      },
+      "effective_P.bin": {
+        "bytes": 733824,
+        "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c"
+      },
+      "factor_valid.bin": {
+        "bytes": 8,
+        "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5"
+      },
+      "node_block_inverse.bin": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "pivoted_RAP.bin": {
+        "bytes": 5408,
+        "sha256": "3ee151c5d64838a16fe82e3f90e92b73f97c7b834ce7f855017492de4c6a87e9"
+      },
+      "pivots.bin": {
+        "bytes": 208,
+        "sha256": "b15351752746ad304892b36595184c9b83246883ef1d0628cdfda0983a499369"
+      },
+      "restart_Aq.bin": {
+        "bytes": 14112,
+        "sha256": "0f97790543329f8249a5b0ede1f5847b264bf4a2d08f661a948bd69bd96836e7"
+      },
+      "restart_Aq_by_environment.bin": {
+        "bytes": 28224,
+        "sha256": "58addadd982be00456b092d551a587a0a25373b1465956ed31bafb61416471f3"
+      },
+      "restart_attempt_counts_by_environment.bin": {
+        "bytes": 8,
+        "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+      },
+      "restart_factor_valid_by_environment.bin": {
+        "bytes": 8,
+        "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8"
+      },
+      "restart_generations_by_environment.bin": {
+        "bytes": 32,
+        "sha256": "af9613760f72635fbdb44a5a0a63c39f12af30f950a6ee5c971be188e89c4051"
+      },
+      "restart_mode_scales_by_environment.bin": {
+        "bytes": 8,
+        "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+      },
+      "restart_mode_valid_by_environment.bin": {
+        "bytes": 8,
+        "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+      },
+      "restart_pivoted_RAP.bin": {
+        "bytes": 2916,
+        "sha256": "3dae92d06f364fa6ea8e434c89a3d9d40cb995af8e46e50fff5ff91bd28fe112"
+      },
+      "restart_pivoted_RAP_by_environment.bin": {
+        "bytes": 5832,
+        "sha256": "d1575943c8a4713d0cdfc917aff7903805fab6350d7fcdc2000ccd7839ccd134"
+      },
+      "restart_pivots.bin": {
+        "bytes": 108,
+        "sha256": "77133f431d5e12dd850002c0d3d4e0fecbe3a7a699d604dc8c5eae9976e1d260"
+      },
+      "restart_pivots_by_environment.bin": {
+        "bytes": 216,
+        "sha256": "a5645e7a3fa0866cde8842c4dab96567507c3d1a3c028b816bc63f6966367b70"
+      },
+      "restart_q.bin": {
+        "bytes": 14112,
+        "sha256": "0f97790543329f8249a5b0ede1f5847b264bf4a2d08f661a948bd69bd96836e7"
+      },
+      "restart_q_by_environment.bin": {
+        "bytes": 28224,
+        "sha256": "58addadd982be00456b092d551a587a0a25373b1465956ed31bafb61416471f3"
+      },
+      "restart_raw_norm_squared_by_environment.bin": {
+        "bytes": 8,
+        "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+      },
+      "restart_target_scales_by_environment.bin": {
+        "bytes": 8,
+        "sha256": "2431a542b1d360d60cb12534b6a57b80e36c8dc2fbbf8276fecb598f8bd1554b"
+      }
+    },
+    "rejected_conditioning_manifest_sha256": "ae12386ef0921a0768c8ab96514bf19cbcfae46fc20d1aa4d55826ec99f9548c",
+    "result_sha256": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba",
+    "stderr_sha256": "7fa9d24eec8c3a66aa7cb2bcb3962cac7eb669b6de7055078dbf578b10bd4bcb",
+    "stdout_sha256": "9e9e87625cf0549628c2668a29decf5dfeec04db6a5f649642e4c81a51e79fc3",
+    "timed_out": false,
+    "wall_seconds": 676.329438832996,
+    "world_fingerprint": 8485105279886344921
+  },
+  "run_dir": "/Users/home/cardboard-implementation-20261014/solver/two-stage-certified-coupon-409",
+  "schema": "numi.cardboard.two-stage-coupon409-adjudication.v1",
+  "source_binding": {
+    "build_artifact_count_verified": 11,
+    "build_metadata_count_verified": 2,
+    "changed_source_files": [],
+    "executable_sha256": "5cdf14b437eded9f6cc6c1aea402943f33a4bfa7069c207ce7d70788eded4f0c",
+    "frozen_source_sha256": "9a7f6bcbb6110dbd2a82f898b110ae0dd9c7290ab838155808c999a69679597e",
+    "metallib_sha256": "14e64d56961421ce2007512c72ce2e8c48ba6c4c2ef85302a42af7538da33db3",
+    "platform_limitation": "Compiler system headers and OS/driver are not archived.",
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123",
+    "source_build_manifest_sha256": "fc96e2521b363c821132d7a493da091aa7d36d1c125951ffa09e2d38e91d0952",
+    "source_build_success": true,
+    "source_file_count_verified": 783,
+    "source_inputs_unchanged": true
+  },
+  "verdict": "failed_incomplete_not_converged"
+}

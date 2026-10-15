@@ -1,0 +1,153 @@
+{
+  "schema": "numi.cardboard.vtccd_absolute_capture_path_overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125",
+  "source_build_manifest": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-125/source-build.json",
+  "source_build_manifest_sha256": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6",
+  "base_source_file_hashes": {
+    "matter/tools/cardboard_vtccd_iteration_budget_check.mm": {
+      "base_sha256": "eddbea0492d2a566896f5d1838cdf3642f16ba67d922399a067f1f9001529c9e",
+      "candidate_sha256": "bc6bb9a08393c9faf23e747ca0827a7b136690cdb55d518e202b24a8106befac"
+    },
+    "source-build.json": {
+      "sha256": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6",
+      "source_manifest_file_sha256": "eddbea0492d2a566896f5d1838cdf3642f16ba67d922399a067f1f9001529c9e"
+    }
+  },
+  "exact_captures": [
+    {
+      "trial": 21,
+      "manifest_path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/trial-capture.coupled.json",
+      "manifest_sha256": "a821cf7e1e166327059258a953aaf519c8ef7e8ca9f0c344f1b6681185845e64",
+      "expected_manifest_sha256": "a821cf7e1e166327059258a953aaf519c8ef7e8ca9f0c344f1b6681185845e64",
+      "payload_path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/trial-capture.coupled.bin",
+      "payload_sha256": "eb6286c09081577e226eec6deb11021b4e483e104583214216b6b77c441190b5",
+      "expected_payload_sha256": "eb6286c09081577e226eec6deb11021b4e483e104583214216b6b77c441190b5",
+      "observer_record_sha256": "ed119deb040fcc91e33e4eafe73e948cdd34946960c4e1ecee2decc6d600d097"
+    },
+    {
+      "trial": 22,
+      "manifest_path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/trial-capture.coupled.json",
+      "manifest_sha256": "41eb361744412ff47f338bc563a43cd940c29019a3c32c3c4de83e61677d220c",
+      "expected_manifest_sha256": "41eb361744412ff47f338bc563a43cd940c29019a3c32c3c4de83e61677d220c",
+      "payload_path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/trial-capture.coupled.bin",
+      "payload_sha256": "d1c3e4d3c74d3bf75a72ade703557b4cfa9a70d62f1f51683fffbcff8546bd74",
+      "expected_payload_sha256": "d1c3e4d3c74d3bf75a72ade703557b4cfa9a70d62f1f51683fffbcff8546bd74",
+      "observer_record_sha256": "981fb3efe37dd2463b86e756b5a312ce33c619c8a93110c7ea4580a16d5c2277"
+    }
+  ],
+  "preserved_native_414": {
+    "path": "/Users/home/cardboard-implementation-20261014/native/exact-vtccd-budget-replay-414",
+    "files_sha256": {
+      "stderr.log": "60610a148931832368437d4333cf99e600db0b77c9745fad80b1d6658a049e78",
+      "stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "receipt.json": "1ca3f519aa49d72889f44247512685cbd932b17e5118e2b5e8ce7942ade88f6e",
+      "prediction.json": "b165677b8f97cf242eb756074a20041574cff1bfd0a5e5868e505a4a62e18ace"
+    }
+  },
+  "patch": {
+    "path": "patch.diff",
+    "sha256": "1030599218a02ce0d2b66ea554c5eede0928808ba9f9781f97a4606d24b9ed5b"
+  },
+  "scope": "Reader-only change: allow an absolute payload path only if symlink-resolved parent equals symlink-resolved manifest parent; keep relative paths restricted to adjacent basenames. Keep exact manifest/payload/observer hashes and extents, input fingerprints, exact tuple/return-word checks, and normal budget16 bitwise replay gate. Add a CPU-only input-validation CLI path that exits before device creation.",
+  "validation": {
+    "strict_objcxx_syntax": {
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cpu_exact_capture_path_contract": {
+      "exit_code": 0,
+      "stdout_sha256": "112ca0288766c81b54fbcdc6d5137004842d9b4fc797fd010a4f228300add433",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "test_script_sha256": "5ab98f54639c9763c490c74f29eb29b772e78d16aaa356db01d539ce740532c5",
+      "metal_initialized": false
+    },
+    "patch_reconstruction": {
+      "exit_code": 0,
+      "log_sha256": "cf6785f6250c757d4c732ffb14c8ba0b81543e7564b9fd101bf2d367623eb697"
+    },
+    "native414_failure_preserved": {
+      "stderr": "FAIL payload filename must be an adjacent basename",
+      "files_sha256": {
+        "stderr.log": "60610a148931832368437d4333cf99e600db0b77c9745fad80b1d6658a049e78",
+        "stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt.json": "1ca3f519aa49d72889f44247512685cbd932b17e5118e2b5e8ce7942ade88f6e",
+        "prediction.json": "b165677b8f97cf242eb756074a20041574cff1bfd0a5e5868e505a4a62e18ace"
+      }
+    },
+    "gpu_replay": "not run; no native CCD qualification claim",
+    "sealed_budget_replay_overlay_001": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/private-vtccd-budget-replay-overlay-001",
+      "seal_sha256": "8812552e6c84883a74dddfa16cd277aaa8dec3b9554caa65fe2949b1dd582889",
+      "manifest_sha256": "a7a6a0a361862c0afa409793e35a1091f5eceefedd0aa266378658f85ea112a3",
+      "unchanged": true
+    }
+  },
+  "artifact_inventory": [
+    {
+      "path": "README.md",
+      "sha256": "2310f7e1fc1f439b7ebe700b99d1e213ca22d240ad631f975f6e4e9c36d6c1ac",
+      "bytes": 1589
+    },
+    {
+      "path": "candidate/matter/tools/cardboard_vtccd_iteration_budget_check.mm",
+      "sha256": "bc6bb9a08393c9faf23e747ca0827a7b136690cdb55d518e202b24a8106befac",
+      "bytes": 21027
+    },
+    {
+      "path": "checker.o",
+      "sha256": "28f53b5ebb4c0ca1b61023960da74591b79babd48e615071744b4a7dc7dbb89e",
+      "bytes": 67696
+    },
+    {
+      "path": "numi-matter-cardboard-vtccd-budget-replay-check",
+      "sha256": "e212fbf19a96085620851beb686c64fc03ff7beb94a4e6353f52af1146284ff4",
+      "bytes": 93936
+    },
+    {
+      "path": "objc-syntax.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "objc-syntax.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "patch-apply-validation.log",
+      "sha256": "cf6785f6250c757d4c732ffb14c8ba0b81543e7564b9fd101bf2d367623eb697",
+      "bytes": 136
+    },
+    {
+      "path": "patch.diff",
+      "sha256": "1030599218a02ce0d2b66ea554c5eede0928808ba9f9781f97a4606d24b9ed5b",
+      "bytes": 5463
+    },
+    {
+      "path": "patch.sha256",
+      "sha256": "9d044e580710d0fa0b9a5500f66246703c35d4b0a9fa5711751c316169a79462",
+      "bytes": 77
+    },
+    {
+      "path": "validate_inputs.py",
+      "sha256": "5ab98f54639c9763c490c74f29eb29b772e78d16aaa356db01d539ce740532c5",
+      "bytes": 2829
+    },
+    {
+      "path": "validation.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "validation.stdout.log",
+      "sha256": "112ca0288766c81b54fbcdc6d5137004842d9b4fc797fd010a4f228300add433",
+      "bytes": 289
+    },
+    {
+      "path": "validation_commands.txt",
+      "sha256": "f8664ae971961af2938190d3d5ac908cddb00049a9702fe4ef6de07b1a5d718d",
+      "bytes": 2612
+    }
+  ]
+}

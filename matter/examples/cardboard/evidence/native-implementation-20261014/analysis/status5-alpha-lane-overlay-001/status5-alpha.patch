@@ -1,0 +1,100 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -8366,11 +8366,11 @@
+             const std::uint32_t domain, const std::uint32_t indexKind,
+             const std::uint32_t trialIndex, const NMMicrostepGPU& micro,
+             id<MTLBuffer> statuses, id<MTLBuffer> candidate,
+-            id<MTLBuffer> lineSearch) {
++            id<MTLBuffer> trialMetrics) {
+             if (!status5Selected || status5CaptureBuffer == nil ||
+                 domain > NM_STATUS5_CAPTURE_DOMAIN_PRIVATE) return;
+             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+-            const std::uint32_t hasLineSearch = lineSearch != nil ? 1u : 0u;
++            const std::uint32_t hasTrialMetrics = trialMetrics != nil ? 1u : 0u;
+             dispatchThreads("nm_fem_status5_capture",
+                 state.dispatch.environmentCount, [&] {
+                 [encoder setBytes:&frameDispatch length:sizeof(frameDispatch)
+@@ -8388,14 +8388,14 @@
+                 [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:9u];
+                 [encoder setBuffer:state.environmentParameters offset:0u atIndex:10u];
+                 [encoder setBuffer:statuses offset:0u atIndex:11u];
+-                [encoder setBuffer:lineSearch != nil ? lineSearch : state.dummy
++                [encoder setBuffer:trialMetrics != nil ? trialMetrics : state.dummy
+                              offset:0u atIndex:12u];
+                 [encoder setBuffer:status5CaptureBuffer offset:0u atIndex:13u];
+                 [encoder setBytes:&stageID length:sizeof(stageID) atIndex:14u];
+                 [encoder setBytes:&domain length:sizeof(domain) atIndex:15u];
+                 [encoder setBytes:&indexKind length:sizeof(indexKind) atIndex:16u];
+                 [encoder setBytes:&trialIndex length:sizeof(trialIndex) atIndex:17u];
+-                [encoder setBytes:&hasLineSearch length:sizeof(hasLineSearch) atIndex:18u];
++                [encoder setBytes:&hasTrialMetrics length:sizeof(hasTrialMetrics) atIndex:18u];
+             });
+             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+         };
+@@ -21943,7 +21943,7 @@
+                     captureStatus5(30u, NM_STATUS5_CAPTURE_DOMAIN_PRIVATE,
+                         NM_STATUS5_INDEX_SOLVER_ITERATION, trialIndex, micro,
+                         state.femArmijoStatuses, state.femArmijoCandidate,
+-                        state.femLineSearch);
++                        state.femArmijoMetrics);
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                     dispatchThreads("nm_fem_internal_forces", tetrahedronTotal, [&] {
+                         setDispatch();
+@@ -21969,7 +21969,7 @@
+                     captureStatus5(31u, NM_STATUS5_CAPTURE_DOMAIN_PRIVATE,
+                         NM_STATUS5_INDEX_TETRAHEDRON, trialIndex, micro,
+                         state.femArmijoStatuses, state.femArmijoCandidate,
+-                        state.femLineSearch);
++                        state.femArmijoMetrics);
+                     if (femCohesiveResidualArmijoEnabled &&
+                         !state.femArmijoTiledCohesiveRequested) {
+                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+@@ -22508,7 +22508,7 @@
+                     captureStatus5(40u, NM_STATUS5_CAPTURE_DOMAIN_PRIVATE,
+                         NM_STATUS5_INDEX_SOLVER_ITERATION, trialIndex, micro,
+                         state.femArmijoStatuses, state.femArmijoCandidate,
+-                        state.femLineSearch);
++                        state.femArmijoMetrics);
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                     if (captureTrialSummaryStatus &&
+                         !captureTrialSummaryStatus(trialIndex, 0u,
+@@ -22612,7 +22612,7 @@
+                     captureStatus5(41u, NM_STATUS5_CAPTURE_DOMAIN_PRIVATE,
+                         NM_STATUS5_INDEX_TETRAHEDRON, trialIndex, micro,
+                         state.femArmijoStatuses, state.femArmijoCandidate,
+-                        state.femLineSearch);
++                        state.femArmijoMetrics);
+                     if (femCohesiveResidualArmijoEnabled &&
+                         !state.femArmijoTiledCohesiveRequested) {
+                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+--- a/matter/src/metal/fem.metalinc
++++ b/matter/src/metal/fem.metalinc
+@@ -5045,13 +5045,13 @@
+     device const float* acceptedMaterialState [[buffer(9)]],
+     device const float* environmentParameters [[buffer(10)]],
+     device const NMMatterStatusGPU* statuses [[buffer(11)]],
+-    device const float4* lineSearch [[buffer(12)]],
++    device const float4* trialMetrics [[buffer(12)]],
+     device NMFEMStatus5CaptureGPU* captures [[buffer(13)]],
+     constant uint& stageID [[buffer(14)]],
+     constant uint& domain [[buffer(15)]],
+     constant uint& indexKind [[buffer(16)]],
+     constant uint& trialIndex [[buffer(17)]],
+-    constant uint& hasLineSearch [[buffer(18)]],
++    constant uint& hasTrialMetrics [[buffer(18)]],
+     uint environment [[thread_position_in_grid]])
+ {
+     if (environment >= dispatch.environmentCount || domain > 1u) return;
+@@ -5070,8 +5070,10 @@
+     record.status = status;
+     record.microstep = microstep;
+     record.scalars = float4(0.0f, 0.0f, 0.0f, 0.0f);
+-    if (hasLineSearch != 0u) {
+-        record.scalars.y = lineSearch[environment].x;
++    // Private Armijo alpha is stored in metrics.z by begin_trial. The object
++    // line-search buffer is separate scratch and its x lane is not this value.
++    if (hasTrialMetrics != 0u) {
++        record.scalars.y = trialMetrics[environment].z;
+         record.payload.x |= 64u;
+     }
+ 

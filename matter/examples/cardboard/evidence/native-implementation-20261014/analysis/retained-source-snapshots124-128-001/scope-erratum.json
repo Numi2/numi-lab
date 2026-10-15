@@ -1,0 +1,12 @@
+{
+  "original_manifest_sha256": "892eeed0f3d087debd2f65d54fecb5df620b14da3dd5a442e365304e54615dec",
+  "actual_snapshot_numbers": [
+    124,
+    125,
+    126,
+    127
+  ],
+  "folder_label": "124-128 reserved before128completed; explicit members are authoritative",
+  "correct_scope": "Exact selected source/build closure and verified root-CMake support for sources124,125,126,127 against published8c00ae13. Source bytes and full disk restoration were verified. No binary or scientific outcome reclassified.",
+  "erratum": "The original human-readable scope sentence copied source122/123 names from the template; per-snapshot manifests and source/build hashes were correct and remain unchanged."
+}

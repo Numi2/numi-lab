@@ -1,0 +1,17 @@
+device=Apple M4 kernel=nm_fgmres_build_tangent_fem_preconditioner physical_steps=0
+package_roundtrip=pass mode=1 local_material_newton=16
+hajali2009_liner_hill_ideal.nmatter direct_kernel_diagonal_entries=12 accepted_lambda=0 fd_relative_max=2.72786e-05 fd_absolute_max=54.3262
+package_roundtrip=pass mode=1 local_material_newton=16
+hajali2009_medium_hill_ideal.nmatter direct_kernel_diagonal_entries=12 accepted_lambda=0 fd_relative_max=2.69773e-05 fd_absolute_max=41.7709
+package_roundtrip=pass mode=1 local_material_newton=16
+hajali2009_liner_hill_ideal.nmatter yielded_state_fd_entries=12 lambda=0.00235114 q=1 work_MPa=0.0538882 fd_relative_max=4.15745e-05 fd_absolute_max=15.6455
+package_roundtrip=pass mode=1 local_material_newton=16
+hajali2009_medium_hill_ideal.nmatter yielded_state_fd_entries=12 lambda=0.00521895 q=1 work_MPa=0.0490112 fd_relative_max=0.000206869 fd_absolute_max=397.676
+selector6_native_probe_device=Apple M4 max_buffer_length=14302248960 peak_resident_memory=not_measured
+package_roundtrip=pass mode=6 local_material_newton=16
+selector6_hybrid_apply=pass rhs_distinct_from_P0=1 offdiagonal_block=1 fixed_row_zero=1 candidate_unchanged=1
+selector6_invalid_RAP=fail_closed status=7
+selector6_invalid_patch_LU=fail_closed factor_and_solve=1
+selector6_native_fixture topology=compiled_exact nodes=4 tets=1 patches=2 patch_nodes=4 graph_arena_bytes=988 block_arena_bytes=192 exact_shipping_topology=false peak_resident_memory=not_measured
+package_roundtrip=pass mode=5 local_material_newton=16
+package_roundtrip=pass mode=6 local_material_newton=16

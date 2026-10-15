@@ -1,0 +1,38 @@
+{
+  "files": {
+    "audit_reference020.py": {
+      "bytes": 6167,
+      "sha256": "5295eec6d27fff5b86a12333068fd9c95e9645580765453c2f40460ebcc1636f"
+    },
+    "index-audit.json": {
+      "bytes": 1967,
+      "sha256": "e716981f199b4bc13319fabb18a9ef77b7c7cc21c454656fab3a94a74b271d6b"
+    },
+    "milestone-draft.json": {
+      "bytes": 4829,
+      "sha256": "fd51eb75d2f0984e3d3a3061223a7742f71cebb9c62c5e170bcc9dcaa7091e65"
+    },
+    "milestone-draft.md": {
+      "bytes": 7838,
+      "sha256": "a006fa140d83cd26b16306262bc34eabdbbf6425a9185ebb0bf7081aad11f6ed"
+    }
+  },
+  "inputs": {
+    "reference020_independent_audit_report_sha256": "e716981f199b4bc13319fabb18a9ef77b7c7cc21c454656fab3a94a74b271d6b",
+    "reference020_independent_audit_script_sha256": "5295eec6d27fff5b86a12333068fd9c95e9645580765453c2f40460ebcc1636f",
+    "reference020_publication_binding_sha256": "8c82c640427eac706c43ac1aeb7b48ccad2f3dad5977dbd4686411c8adb841e4",
+    "reference020_source_summary_sha256": "588335cbdd7062ab2c33d7b80b7e086168ab86548ab56885f788f65060115abd",
+    "reference020_summary_sha256": "588335cbdd7062ab2c33d7b80b7e086168ab86548ab56885f788f65060115abd",
+    "run419_adjudication_manifest_sha256": "9bf06b37ec20b0640802b32b1f50cd2996b2641fb406fad6824ffa1e64cb0e24",
+    "run419_adjudication_report_sha256": "9d840db47f6e898779998b0f0f7ab51355c0f323798e85dc64823bf2d88a4193"
+  },
+  "limitations": [
+    "Draft only; not a qualification claim",
+    "No source/main edits",
+    "No GPU or native solver run"
+  ],
+  "package": "milestone-draft-reference020-419-001",
+  "schema": "numi.cardboard.analysis_package.v1",
+  "scope": "Source-bound six-axis milestone draft integrating reference020 archive integrity and run419 independent operator/FD adjudication",
+  "status": "draft"
+}

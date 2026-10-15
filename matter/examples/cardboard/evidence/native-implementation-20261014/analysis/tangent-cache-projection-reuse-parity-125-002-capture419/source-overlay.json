@@ -1,0 +1,94 @@
+{
+  "base": {
+    "sealed_001_checker_sha256": "92a37afe2bcbc1c21b75890616730bb6549327d68021337940712b68cc9fd2dd",
+    "sealed_001_source_overlay_sha256": "b9ae9a790c17219cd3691063720f755c7e12e9a82bc32f19ee99babeaad16a03",
+    "source125_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125",
+    "source125_snapshot_manifest_sha256": "dc354c1d0c9619b07d33de0c867239dc260f7fe572372769d6e5e9dde7b023e5",
+    "source130_checker_sha256": "92a37afe2bcbc1c21b75890616730bb6549327d68021337940712b68cc9fd2dd",
+    "source130_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-check-130"
+  },
+  "change": {
+    "changes": [
+      "add fixed run419 profile and --cpu-admission-419/--native-419 modes",
+      "bind source-build JSON/source snapshot, receipt and result hashes for both captures",
+      "validate compiled package section counts: objects ID10=1, params ID6=59",
+      "write dynamic world fingerprint and generic capture-source fields"
+    ],
+    "checker_sha256": "6c6bbad3f33ef8e3043042422caa34c0828443c25e1cc76fd9eaf0829b3f9a4e",
+    "files_changed": [
+      "matter/tools/cardboard_tangent_cache_projection_reuse_check.mm"
+    ],
+    "no_changes": [
+      "Metal kernel",
+      "CMake",
+      "runtime",
+      "solver equations",
+      "tolerances",
+      "physical history"
+    ],
+    "patch_sha256": "29886bfd596f84e54171a5dfed8d82d801aa49c55d1be0176cd6fa68f168f777"
+  },
+  "claims": {
+    "native_parity": false,
+    "performance_speedup": false,
+    "physical_validation": false,
+    "production_qualification": false
+  },
+  "coverage_report_sha256": "fccb060ae88272551b58ea861f4cf15485b64ec09f524c3b10934721e81669b0",
+  "files_sha256": {
+    "README.md": "0df15284d35e52f9bca6af3724ad03283507db5076cc5b59e603f64d9cf98dbd",
+    "prototype/cardboard_tangent_cache_projection_reuse_check.mm": "6c6bbad3f33ef8e3043042422caa34c0828443c25e1cc76fd9eaf0829b3f9a4e",
+    "prototype/checker-capture419.patch": "29886bfd596f84e54171a5dfed8d82d801aa49c55d1be0176cd6fa68f168f777",
+    "validation/audit_fixture_coverage.py": "4b47d800070c8f624de62f809444f4b16cdde3ffcef91e43c8af387cfe8dd30c",
+    "validation/fixture-coverage.json": "fccb060ae88272551b58ea861f4cf15485b64ec09f524c3b10934721e81669b0",
+    "validation/host-syntax.log": "aac38813d97e0231b1c81af1c61eafbbf00f5e6117719f66a472de71dd6d4130",
+    "validation/patch-dry-run.log": "24f9e3b7196f0f4441409648ad5d882e2bfd27e2f0644f2e4a8ec621a8b964ac"
+  },
+  "fixtures": {
+    "run360": {
+      "accepted_state_sha256": "e352376a5e63ae33802d6eedb225839e4e71d0245076679fe51b5fe938a45a2b",
+      "candidate_nodes_sha256": "dcd6b8ea62c05c3ef9a04dc4d46ece7e7fbad58101d8d55d2bee6dfd9d7e8614",
+      "capture_sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+      "compiled_package_sha256": "3c25f41c6c26654ccf3f8b4f4b510bbb64ab0ea0f52b94d05d8b1fa4060fafe5",
+      "conditioning_manifest_sha256": "f2775bdc8f1747dcda5136b2bbe890e1d0645804df304c66bfe3143e90d955ad",
+      "conditioning_step": 3,
+      "newton_iteration": 23,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360",
+      "receipt_sha256": "d623591647a91ca07626e18fef6c78358e60c0d9ab7c38d465e79a2f6c18c474",
+      "result_sha256": "4afcdb2310cf87130417399775dc132cb0509f805f537bfe0fa28b3c3ae7b2d5",
+      "root": 2,
+      "run_manifest_sha256": "2a34ad4f3328616fb5660fe22022941ca9ace9383ca9f1f1b7262ecfd4350ec8",
+      "source_build_sha256": "b40d30669b286449a3c5d50da2c865a052cd69c1e9f556132f0fc4bc66cd9fb0",
+      "source_snapshot": "source-boundary-reset-order-101",
+      "world_fingerprint_hex": "6de3475316b7e8b9"
+    },
+    "run419": {
+      "accepted_state_sha256": "fb270a40f77d2251451e1ca1ab2c09e1c4779775a9f073fde25a6b6218ef2ee4",
+      "candidate_nodes_sha256": "c4f2b8d790494949da5be98e876b911db2655dc88e7417416906c91412557269",
+      "capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+      "compiled_package_sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+      "conditioning_manifest_sha256": "40e918b680ab35c6b5dd571796221311535f36215a43a80331b50b28fce4456d",
+      "conditioning_step": 2,
+      "newton_iteration": 48,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419",
+      "receipt_sha256": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d",
+      "result_sha256": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba",
+      "root": 1,
+      "run_manifest_sha256": "bcc9d5c5085635ea845d4d34f37bbf4c26b5af9086c15f5e02bb4597d2c2c3f5",
+      "source_build_sha256": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6",
+      "source_snapshot": "source-status5-vtccd-diagnostics-125",
+      "world_fingerprint_hex": "75c1264bc96ac2d9"
+    }
+  },
+  "package": "/Users/home/cardboard-implementation-20261014/analysis/tangent-cache-projection-reuse-parity-125-002-capture419",
+  "purpose": "Checker-only extension for exact capture run419 plus correction of the source130 parameter-count admission bug; leaves sealed original overlay unchanged.",
+  "schema": "numi.cardboard.tangent-cache-projection-reuse-capture-extension.v1",
+  "validation": {
+    "cpp_cpu_admission_invocation": "not run; source130 target must be rebuilt with checker patch",
+    "host_objective_cpp_syntax": "pass: xcrun clang++ -std=c++20 -fobjc-arc -fsyntax-only -Werror -Wall -Wextra -Wpedantic",
+    "native_parity": "not run by this package owner; parent owns serialized GPU queue",
+    "patch_dry_run_source130": "pass",
+    "python_fixture_coverage_audit": "pass: both runs exact file hashes; package section counts, candidate node words and env0 sidecar checked",
+    "retained_failure": "source130 native run 423 remains failed before dispatch with compiled object/parameter layout mismatch; the checker expected 84 rather than the validated 59 parameters"
+  }
+}

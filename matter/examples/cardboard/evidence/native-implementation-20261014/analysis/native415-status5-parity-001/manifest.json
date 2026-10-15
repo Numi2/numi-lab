@@ -1,0 +1,69 @@
+{
+  "schema": "numi.cardboard.native_adjudication_manifest.v1",
+  "package": "native415-status5-parity-001",
+  "scope": "read-only 415 versus 409 physical-history/output and status5 adjudication",
+  "verdict": "physical traces and output files match apart from identified metadata; captured private alpha-1 trial is inadmissible; no full coupon convergence/physical qualification",
+  "inputs": {
+    "source_409": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123",
+      "frozen_source_sha256": "9a7f6bcbb6110dbd2a82f898b110ae0dd9c7290ab838155808c999a69679597e"
+    },
+    "source_415": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125",
+      "frozen_source_sha256": "dc354c1d0c9619b07d33de0c867239dc260f7fe572372769d6e5e9dde7b023e5"
+    },
+    "run_409": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-certified-coupon-409",
+      "receipt_sha256": "c769db491e80efcc5c415bdd3277174c33437665fee1c7985825ef790ba3ee7e",
+      "prediction_sha256": "8368b5dc3d5eea58a09ca59514f98b73a30f0653ffca4923e25b1069330b10e2"
+    },
+    "run_415": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-coupon-first-descent-capture-415",
+      "receipt_sha256": "ab0b5f5cabf7a9a76029b4e4292bb1d762a6e84bcd8924ac2283a35506bed337",
+      "prediction_sha256": "9becc77147cb384376338ec2a79e22ce07d5564c4add25529893d596c25c7a45",
+      "status5_payload_sha256": "0f3ae7cd18df40df8ad3bbed0b55491b43f1ee67c321eab2287c46e18a43239f"
+    }
+  },
+  "validation": {
+    "command": "python3 audit_415.py",
+    "log": "audit-rerun.log",
+    "result": "pass; output tree comparison and trace equality checks as reported in audit.json"
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 3020,
+      "sha256": "5306d043ade3c2af6471a8d276d503a0f01964102fb1dac5e9dec1a5940a3484"
+    },
+    {
+      "path": "audit-rerun.log",
+      "bytes": 326,
+      "sha256": "6638e41f368435b4bd9a54db83c799fea41253a7b7065147053f43788166f79a"
+    },
+    {
+      "path": "audit.json",
+      "bytes": 6194,
+      "sha256": "819a39434265f08aba36acb5da11e351a8787980b94dbc8f95c94f9892527d3f"
+    },
+    {
+      "path": "audit_415.py",
+      "bytes": 9964,
+      "sha256": "f728cba1a2298396f0b8ac45f2b04d91d9786e0d934acbb5d161083ff2bc98fa"
+    },
+    {
+      "path": "decode_status5",
+      "bytes": 69088,
+      "sha256": "d4c0f7427d1970e2c177f217cd28fff959a31df1b1390e9552cf421a4ad5459e"
+    },
+    {
+      "path": "decode_status5.cpp",
+      "bytes": 4975,
+      "sha256": "2e56c9b72419d6bd80fe5657a143e61d654dd1f933ea73ae4546dd936362b714"
+    },
+    {
+      "path": "decoded-status5.json",
+      "bytes": 1616,
+      "sha256": "2e19648d890cf865e5d0114478d16c107712f7b21f50a5aba42ed3822a5b9333"
+    }
+  ]
+}

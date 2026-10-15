@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-129/matter/numi-matter-cardboard-preconditioner-gpu-check",
+    "--selector6-compile-only",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-status-includes-129/matter/materials/hajali2009_liner_hill_ideal.nmatter"
+  ],
+  "started_at_utc": "2026-10-15T19:16:07.122902+00:00",
+  "finished_at_utc": "2026-10-15T19:16:07.555530+00:00",
+  "exit_code": 0,
+  "source_build_sha256": "d532d50e76b45c6bfaa279a11d94b0f172aadfc4a672b64a4805c3f08fe87dac",
+  "gpu_runtime_created": false,
+  "physical_steps": 0
+}

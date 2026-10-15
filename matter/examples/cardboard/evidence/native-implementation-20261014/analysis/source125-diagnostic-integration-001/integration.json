@@ -1,0 +1,42 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123",
+  "overlay1_sha256": "1fb105ca0cf421c4ec2e97bdb6f3141ef81f49dd2d94aa27065864063d2665b2",
+  "overlay2_sha256": "a7a6a0a361862c0afa409793e35a1091f5eceefedd0aa266378658f85ea112a3",
+  "changes": {
+    "matter/CMakeLists.txt": {
+      "source123": "d64689e33063913c13493d6e621767124519c29432b45ee236deab01ca1c7448",
+      "source125": "bd6b3f7b92e75dcb9982c67c36f82150d4f433369b5017655adf60b0c0c9d019"
+    },
+    "matter/include/numi/matter/shared.h": {
+      "source123": "bd13b1baf8790956404cd564685919c5a18e339d79e7c5c5165956f94d2f010c",
+      "source125": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+    },
+    "matter/src/metal/common.metalinc": {
+      "source123": "fd05012c41c53a702f17ba1289f5df54aad54227b5c36900e71dac13059f446c",
+      "source125": "441a3f86f21979a086a0356f5fd2b91f692ba94dbd09a28d07ea9756c1246a5a"
+    },
+    "matter/src/metal/contact.metalinc": {
+      "source123": "ea5a9caf6f47588258aeeb5e8be57168826acfb94a566ecbfea7e647ad50fb5c",
+      "source125": "cd5aaee17244b52e0b6eebb81cf2fcaff4fbbfb47fe43726fc5bbacec2e9527a"
+    },
+    "matter/src/metal/fem.metalinc": {
+      "source123": "742cf561ee1ed91e20ed797e664595f675302437a3d583f8c5768da6cb3d008e",
+      "source125": "70c2f396045f9abdcfdc32f5714e6e3a400f5566e5a7824353e11b307de52b7d"
+    },
+    "matter/src/runtime.mm": {
+      "source123": "3ddb3a29452f9006f811fe31f33293763d32be0bddb467646e4a55c72dc31ac6",
+      "source125": "1719f14310d643ca96c520eb47b3028f8259f85e3da0d263460921b06d94ac74"
+    },
+    "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": {
+      "source123": "b04bb295db1eba1c10c1001db3b2e90564099e2afb453fd630579bc5a6c76e0d",
+      "source125": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81"
+    },
+    "matter/tools/cardboard_vtccd_iteration_budget_check.mm": {
+      "source123": null,
+      "source125": "eddbea0492d2a566896f5d1838cdf3642f16ba67d922399a067f1f9001529c9e"
+    }
+  },
+  "physical_steps": 0,
+  "native_scalability_qualified": false
+}

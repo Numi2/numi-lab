@@ -1,0 +1,62 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-regional-preconditioner-124",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123",
+  "overlay1_sha256": "f9641811e5296f9b55ec98acf2a8800e47b216b8be7115c98477518329b8b554",
+  "overlay2_sha256": "f8cb30b6134a13f2763ad7b8b02d21da8ad7dd0a34b2b30f864e5dfcd8c2e96e",
+  "changes": {
+    "matter/CMakeLists.txt": {
+      "source123": "d64689e33063913c13493d6e621767124519c29432b45ee236deab01ca1c7448",
+      "source124": "851573889682141ff1bae2d3e9efc703c8e58cd6bc52f658f0d9f98740e8cdd3"
+    },
+    "matter/include/numi/matter/matter.hpp": {
+      "source123": "798e124cdf0b97370a7e1412526693b0f2469985df2b5e985ad3a8acbe00808a",
+      "source124": "1476e0764f144451dadc5d807a48df542d538ea2b2c3cdd7944334ce11b33ecc"
+    },
+    "matter/src/compiler_impl.cpp": {
+      "source123": "474e717759ded2ecf81a0590dd7f5cb51da8a1041eacddff33c971ccb96152df",
+      "source124": "3bf5240897a0a5653136d6e84cc75d3cb023e6e1c6d0e68dabefc93a02bdc777"
+    },
+    "matter/src/metal/common.metalinc": {
+      "source123": "fd05012c41c53a702f17ba1289f5df54aad54227b5c36900e71dac13059f446c",
+      "source124": "441a3f86f21979a086a0356f5fd2b91f692ba94dbd09a28d07ea9756c1246a5a"
+    },
+    "matter/src/metal/fgmres.metalinc": {
+      "source123": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0",
+      "source124": "389c04e11a7046ba69db1f10c69f4b98528fc8d0f4eb233ef6763529c79bb2e8"
+    },
+    "matter/src/regional_graph_schwarz.hpp": {
+      "source123": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf",
+      "source124": "0c010c16d80bd8652c6d277ead3863f7a38a877b8c2cc943725475a071e9ed5f"
+    },
+    "matter/src/runtime.mm": {
+      "source123": "3ddb3a29452f9006f811fe31f33293763d32be0bddb467646e4a55c72dc31ac6",
+      "source124": "ae49a795dc2e540ffc993c71190c339c82d620857dc38ebfe6790586ccf92717"
+    },
+    "matter/src/validation_impl.cpp": {
+      "source123": "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808",
+      "source124": "cccb4f38d9fe1d78456c7127a5737d3a747cd7479c43d19a7b9ccf0e4849e88d"
+    },
+    "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": {
+      "source123": "b04bb295db1eba1c10c1001db3b2e90564099e2afb453fd630579bc5a6c76e0d",
+      "source124": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81"
+    },
+    "matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm": {
+      "source123": "ac901501f0608d0d0881e83f9e63aaca43ee8aa47de755a056bb71b818a27d2f",
+      "source124": "b9386ff65709cc51dff58d756f6f6fcac34c2cf8c613862cddf2c76bc241b2c1"
+    },
+    "matter/tools/cardboard_probe.mm": {
+      "source123": "6917e515993e1da26d09d946bf8a3f58c7066ad183b19131aa466e94e8d32e99",
+      "source124": "76b1dca7480741a561ae4b3dc426a7e0bfe7ac49215fc89034352023b562644b"
+    },
+    "matter/tools/fem_regional_galerkin_compiler_check.cpp": {
+      "source123": "d234bab123a4bcd2cc94063bb15d63dfbc35b787d33c5163cfb9af6ef209aa91",
+      "source124": "825dfec8c0b1ffd58212795383adae3bc31834b2236a1d25aa5fda46080be04b"
+    },
+    "matter/tools/regional_graph_schwarz_layout_check.cpp": {
+      "source123": "30ffe32c3f4eebb135cd7aa9b735192a5154bdb03dca84463a30b7a0135ae841",
+      "source124": "bcbbd968b2c96b64317fd9a4694889097f490fee0be231dbed72d2c8ac15b964"
+    }
+  },
+  "physical_steps": 0,
+  "native_scalability_qualified": false
+}

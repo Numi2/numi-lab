@@ -1,0 +1,72 @@
+{
+  "files": [
+    {
+      "bytes": 1979,
+      "path": "README.md",
+      "sha256": "b0eec7de28ae5a9827c40b86cc6944bc2210ce8775f4728ca8582d76151c705a"
+    },
+    {
+      "bytes": 336,
+      "path": "audit-rerun.log",
+      "sha256": "eb3d47c3e74e9f6e3cdf68017f1e89cc5d3b45b64db294a196de0387c4a72a47"
+    },
+    {
+      "bytes": 33731,
+      "path": "audit.json",
+      "sha256": "5c8c1ebb511707e77f2dde40c34aec60e87f301300d432cfd8b0f22efa858b5f"
+    },
+    {
+      "bytes": 12701,
+      "path": "audit_419.py",
+      "sha256": "c628ea81e15751977afee887321f70be18c25e2c407966c1bd77f0ad4fa86cb6"
+    }
+  ],
+  "package": "native419-history-parity-001",
+  "runs": {
+    "409": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-certified-coupon-409",
+      "prediction_sha256": "8368b5dc3d5eea58a09ca59514f98b73a30f0653ffca4923e25b1069330b10e2",
+      "receipt_sha256": "c769db491e80efcc5c415bdd3277174c33437665fee1c7985825ef790ba3ee7e",
+      "result_sha256": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba",
+      "source_inputs_unchanged": true,
+      "stderr_sha256": "7fa9d24eec8c3a66aa7cb2bcb3962cac7eb669b6de7055078dbf578b10bd4bcb",
+      "stdout_sha256": "9e9e87625cf0549628c2668a29decf5dfeec04db6a5f649642e4c81a51e79fc3"
+    },
+    "415": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-coupon-first-descent-capture-415",
+      "prediction_sha256": "9becc77147cb384376338ec2a79e22ce07d5564c4add25529893d596c25c7a45",
+      "receipt_sha256": "ab0b5f5cabf7a9a76029b4e4292bb1d762a6e84bcd8924ac2283a35506bed337",
+      "result_sha256": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba",
+      "source_inputs_unchanged": true,
+      "stderr_sha256": "2100717358fafdee98e88df2723e01be8fd95352a6ca7431b0f3eec1c6cef42f",
+      "stdout_sha256": "9e9e87625cf0549628c2668a29decf5dfeec04db6a5f649642e4c81a51e79fc3"
+    },
+    "419": {
+      "operator_capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419",
+      "prediction_sha256": "41b37af2747cfa551fae60eaddd7681cd7c7dbc859a402e641677ec23bd957d6",
+      "receipt_sha256": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d",
+      "result_sha256": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba",
+      "source_inputs_unchanged": true,
+      "stderr_sha256": "f6fe513bfafc9ae4f4f38b2377c1cddaeb1ce78374886295cb92db2bf6c48198",
+      "stdout_sha256": "9e9e87625cf0549628c2668a29decf5dfeec04db6a5f649642e4c81a51e79fc3"
+    }
+  },
+  "schema": "numi.cardboard.native_adjudication_manifest.v1",
+  "source_bindings": {
+    "409": {
+      "frozen_source_sha256": "9a7f6bcbb6110dbd2a82f898b110ae0dd9c7290ab838155808c999a69679597e",
+      "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123"
+    },
+    "415_419": {
+      "frozen_source_sha256": "dc354c1d0c9619b07d33de0c867239dc260f7fe572372769d6e5e9dde7b023e5",
+      "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125"
+    }
+  },
+  "validation": {
+    "command": "python3 audit_419.py",
+    "log": "audit-rerun.log",
+    "result": "PASS"
+  },
+  "verdict": "production histories match; rich FD capture validated; physical run failed"
+}

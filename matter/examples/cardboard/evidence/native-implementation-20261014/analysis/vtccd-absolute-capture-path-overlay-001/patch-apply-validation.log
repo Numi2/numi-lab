@@ -1,0 +1,4 @@
+dry_run=pass
+apply=pass
+candidate_hash_match=pass
+reconstructed_sha256=bc6bb9a08393c9faf23e747ca0827a7b136690cdb55d518e202b24a8106befac

@@ -1,0 +1,108 @@
+{
+  "archive_integrity": {
+    "case_count": 56,
+    "direct_payloads_verified": 813,
+    "external_source_drift": 0,
+    "file_count": 850,
+    "gzip_payloads_verified": 37,
+    "mismatches": 0,
+    "reference": "020",
+    "scientific_validation": false
+  },
+  "bindings": {
+    "reference020_independent_audit_report_sha256": "e716981f199b4bc13319fabb18a9ef77b7c7cc21c454656fab3a94a74b271d6b",
+    "reference020_independent_audit_script_sha256": "5295eec6d27fff5b86a12333068fd9c95e9645580765453c2f40460ebcc1636f",
+    "reference020_publication_binding_sha256": "8c82c640427eac706c43ac1aeb7b48ccad2f3dad5977dbd4686411c8adb841e4",
+    "reference020_source_summary_sha256": "588335cbdd7062ab2c33d7b80b7e086168ab86548ab56885f788f65060115abd",
+    "reference020_summary_sha256": "588335cbdd7062ab2c33d7b80b7e086168ab86548ab56885f788f65060115abd",
+    "run419_adjudication_manifest_sha256": "9bf06b37ec20b0640802b32b1f50cd2996b2641fb406fad6824ffa1e64cb0e24",
+    "run419_adjudication_report_sha256": "9d840db47f6e898779998b0f0f7ab51355c0f323798e85dc64823bf2d88a4193"
+  },
+  "evidence_class": "archive integrity plus source-bound native and CPU diagnostics; not complete scientific qualification",
+  "explicit_nonclaims": [
+    "complete_coupon",
+    "spatial_or_timestep_convergence",
+    "calibrated_full_material_recipe",
+    "physical_assembly_in_simulation",
+    "capacity_determination",
+    "crush_prediction",
+    "impact_prediction"
+  ],
+  "remaining_plan": [
+    "resolve exact-state local and assembled derivative gates without relaxing tolerances",
+    "complete the full coupon protocol and paired controls with accepted-only measurements and rollback evidence",
+    "run x, y, z, combined spatial refinement; accepted-dt/count timestep refinement; and a separate slower-load case",
+    "complete grade-specific component calibration and held-out analogue validation",
+    "complete explicit-flute score/fold/bond/release/settle assembly checkpoints",
+    "only after prior gates pass, freeze peak force/capacity-derived mass and run separate gravity-crush and drop-impact validation cases"
+  ],
+  "run419": {
+    "all_center_projection_rows_passed": 1728,
+    "independent_fp64_epsilon_2^-22_all_endpoint_projections_passed": true,
+    "independent_fp64_epsilon_2^-22_assembled_secant_relative_error": 2.246205000497411e-05,
+    "independent_fp64_epsilon_2^-22_liner_tangent_relative_error": 3.658719285908296e-08,
+    "independent_fp64_epsilon_2^-22_medium_tangent_relative_error": 1.06556684764926e-07,
+    "independent_fp64_vs_native_fresh_action_relative": 2.8227460308936193e-05,
+    "max_center_dynamic_correction": 1.9212223083515108e-08,
+    "max_center_scaled_residual": 1.9936917607130692e-10,
+    "native424_all_retained_endpoint_words_equal": true,
+    "native424_best_admitted_fd_epsilon": 6.103515625e-05,
+    "native424_best_admitted_fd_relative_error": 1.0948066880685303
+  },
+  "schema": "numi.cardboard.milestone-draft.v1",
+  "six_verdict_axes": [
+    {
+      "axis": "solver_correctness",
+      "limits": [
+        "run419 is a failed partial coupon run",
+        "native424 finite-difference derivative gate is unresolved",
+        "status5 first record is one private Armijo tet, not a per-tet side-array classification"
+      ],
+      "verdict": "component checks qualified; complete contact-cycle solver behavior open"
+    },
+    {
+      "axis": "numerical_convergence",
+      "limits": [
+        "no complete x/y/z and combined spatial refinement",
+        "no accepted-dt/count timestep convergence series",
+        "no separate slower-load convergence result",
+        "selector6 preflight ran zero physics"
+      ],
+      "verdict": "unqualified"
+    },
+    {
+      "axis": "component_calibration",
+      "limits": [
+        "Robertsson absolute-energy convention remains open",
+        "no transfer of coefficients between grades",
+        "adhesive fracture and local paper damage parameters remain uncalibrated"
+      ],
+      "verdict": "source data and executable slices exist; native forward calibration open"
+    },
+    {
+      "axis": "analogue_validation",
+      "limits": [
+        "no completed held-out whole-fixture validation qualifies the current recipe"
+      ],
+      "verdict": "open"
+    },
+    {
+      "axis": "physical_assembly_in_simulation",
+      "limits": [
+        "no complete scored, folded, bonded, released and settled shipping-box checkpoint",
+        "explicit-flute shipping path retains admission/runtime blockers"
+      ],
+      "verdict": "unexecuted"
+    },
+    {
+      "axis": "crush_impact_prediction",
+      "limits": [
+        "no qualified compression curve or frozen peak force",
+        "no capacity-derived mass",
+        "no gravity-crush or drop-impact result"
+      ],
+      "verdict": "unexecuted"
+    }
+  ],
+  "status": "draft_source_bound"
+}

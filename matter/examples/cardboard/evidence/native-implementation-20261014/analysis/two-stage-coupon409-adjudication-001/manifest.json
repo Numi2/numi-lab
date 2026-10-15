@@ -1,0 +1,39 @@
+{
+  "build_artifacts_verified": 11,
+  "build_metadata_verified": 2,
+  "frozen_source_manifest_sha256": "9a7f6bcbb6110dbd2a82f898b110ae0dd9c7290ab838155808c999a69679597e",
+  "gpu_run_performed_by_auditor": false,
+  "package": "two-stage-coupon409-adjudication-001",
+  "package_files_sha256": {
+    "README.md": "b86c3348ec8f00be23e0555fda9fe4d9f6554feb77b72b8cdae92eb176d6ae27",
+    "audit.json": "1cb6a25e94410a7bb1b81a17364a8cd1e659039dc64929c576a6f97371322492",
+    "audit_coupon409.py": "386c3ac3bac3fcbdb371115a79087556b8b5d761bd7a3a73349a500e355eba14",
+    "report.md": "845ed9e62691c411c03b03ce1cedbea9d9531ed7b516f56ff2a8c02ff9c3393c"
+  },
+  "read_only": true,
+  "run_dir": "/Users/home/cardboard-implementation-20261014/solver/two-stage-certified-coupon-409",
+  "schema": "numi.cardboard.source-bound-analysis-package.v1",
+  "source_build_manifest_sha256": "fc96e2521b363c821132d7a493da091aa7d36d1c125951ffa09e2d38e91d0952",
+  "source_file_count_verified": 783,
+  "source_run_files_sha256": {
+    "accepted_bent_obj": "42fbb543657063c3c3df7eed3ec4d07dc820f5f2ab887e2d3ceb6c3bfd68a522",
+    "compiled_nmatterpack": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+    "held_reference_step1": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+    "held_reference_step2": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+    "material_state": "fb270a40f77d2251451e1ca1ab2c09e1c4779775a9f073fde25a6b6218ef2ee4",
+    "mesh": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+    "observations": "e2d7d7c09d87aa6989f4923691a57b2e99c6db7e6babaacb585cad8ace138d17",
+    "output_manifest": "8020222f13e2feab1f083fa3add78afc39390e5c0b5140154a801e267c230927",
+    "prediction": "8368b5dc3d5eea58a09ca59514f98b73a30f0653ffca4923e25b1069330b10e2",
+    "receipt": "c769db491e80efcc5c415bdd3277174c33437665fee1c7985825ef790ba3ee7e",
+    "rejected_bent_obj": "42fbb543657063c3c3df7eed3ec4d07dc820f5f2ab887e2d3ceb6c3bfd68a522",
+    "rejected_conditioning_manifest": "ae12386ef0921a0768c8ab96514bf19cbcfae46fc20d1aa4d55826ec99f9548c",
+    "result": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba",
+    "source_build": "fc96e2521b363c821132d7a493da091aa7d36d1c125951ffa09e2d38e91d0952",
+    "stderr": "7fa9d24eec8c3a66aa7cb2bcb3962cac7eb669b6de7055078dbf578b10bd4bcb",
+    "stdout": "9e9e87625cf0549628c2668a29decf5dfeec04db6a5f649642e4c81a51e79fc3"
+  },
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123",
+  "verdict": "failed_incomplete_not_converged",
+  "verification_command": "/Users/home/.pyenv/versions/3.10.12/bin/python3 audit_coupon409.py --output <new-path>"
+}

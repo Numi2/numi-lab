@@ -1,0 +1,13 @@
+Base: source-padded-trial-summary-120 (parent revision 7ebc64a666c4bd5e1ff61b3684655979ab80dc60)
+Patch SHA-256: 4689299eb9788270f1cc428b66c757e3ff12b8d21c10b1a731e0c2d2166829d4
+
+Results:
+- Metal source syntax: PASS; two warnings identical to frozen base (sharedValid, refinementValid).
+- runtime.mm Objective-C++ syntax: PASS.
+- compiler_impl.cpp syntax: PASS.
+- validation_impl.cpp syntax: PASS.
+- cardboard_probe.mm syntax: PASS (unused helper warning suppressed).
+- fem_regional_galerkin_compiler_check.cpp syntax: PASS.
+- regional_graph_schwarz_layout_check.cpp build and execution: PASS, 40 checks.
+- Full CMake build/CTest: NOT RUN.
+- GPU/native test: NOT RUN.

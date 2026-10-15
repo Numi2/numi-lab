@@ -1,0 +1,196 @@
+{
+  "schema": "numi.cardboard.vtccd_budget_metal_compile_inputs.v1",
+  "count": 38,
+  "files": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/private-vtccd-budget-replay-overlay-001/overlay/matter/src/matter_kernels.metal",
+      "bytes": 561,
+      "sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/private-vtccd-budget-replay-overlay-001/overlay/matter/src/metal/contact.metalinc",
+      "bytes": 417426,
+      "sha256": "cd5aaee17244b52e0b6eebb81cf2fcaff4fbbfb47fe43726fc5bbacec2e9527a"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include/metalrobo/compensated_geometry_gpu.h",
+      "bytes": 6421,
+      "sha256": "1bf85c7e7b8b2102c5e0e6f3fbba88e2b30530e6b5fbb33375fb581d5261d84e"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include/metalrobo/compensated_translation_gpu.h",
+      "bytes": 7828,
+      "sha256": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include/metalrobo/constraint_ir_shared.h",
+      "bytes": 10182,
+      "sha256": "1abad282fa1e88b809da2271c8e98bc0fcde6adc6629b61a7f8f7d7633c5403f"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include/metalrobo/engine_types.h",
+      "bytes": 63651,
+      "sha256": "2eacf034dcce6b4cafb56b1db90a24e3bbc1a8d75b324722daed34a95d21dcb2"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include/metalrobo/gpu_types.h",
+      "bytes": 3809,
+      "sha256": "55777caa42851b167780255c76e02c40e2285ee43cc6dda77063d8639f6728d8"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include/metalrobo/numi_human_stand_gpu.h",
+      "bytes": 16282,
+      "sha256": "f48905aa6736af0460fc2cb15a447161f36ad68ab9eb2dd03e0fe94aaee043a1"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include/metalrobo/numi_human_tendon_gpu.h",
+      "bytes": 2594,
+      "sha256": "1ab91d0618a17981e598d1b16774efc94c05b53d3800d00da67437fa93318058"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include/metalrobo/numi_human_timed_root_force.h",
+      "bytes": 2419,
+      "sha256": "7588072673196c9e9005d91cb23be106941a7b271e9cc1f8681a5fa1548163ef"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include/metalrobo/rod_gpu_shared.h",
+      "bytes": 9612,
+      "sha256": "0e8a2fc59a2969ca2493aaa0ee9d6e51cac723a22a63cb2e6d03b00807fd373d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/accepted_state_apply_gpu.h",
+      "bytes": 12505,
+      "sha256": "4f369f557838368895c6a62375866863b0681bc230085c263babf9aa58a50ba7"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/accepted_state_proof_gpu.h",
+      "bytes": 5313,
+      "sha256": "d0b17b52cbdd54c5116a3e400435e60a833c92b5b6e309d1fbc74f3062e1c24e"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/fem_compensated_deformation.h",
+      "bytes": 1702,
+      "sha256": "47d61e2f85bfbea5aac370211e56251ff67f0c7a28d577c276fd285b88225f33"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/fiber_exp_linear.h",
+      "bytes": 3404,
+      "sha256": "26ca19f47c8ece392409fe233708cc87d96b31eb010359cb987b1eed38dee49c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/fixed_convex_contact_step.h",
+      "bytes": 1318,
+      "sha256": "52b888b21082fae2570d69c270e70d365e95ff8bebebdc922c8a7f224745805c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/hill_scalar_initializer.h",
+      "bytes": 13511,
+      "sha256": "aa47b464d4d9157df57a7f223b1ac77122249d8a0c00f45e9a03723f2a58bd49"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/human_equality_gpu.h",
+      "bytes": 1084,
+      "sha256": "7bf03f512c0fbdf9be0382a8bd655fb8f0d90b1703ddaf74302e60a38656f519"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/human_limits_gpu.h",
+      "bytes": 899,
+      "sha256": "adff1dd6bb8e7d67767bca38e959b03880376ec973f0d8a556564e4a87921dd9"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/human_support_precision_gpu.h",
+      "bytes": 643,
+      "sha256": "d84b419be157c7feba0fe9eb9bfe2379262e38bc5fa4f2bd4641a6b0d8b671a1"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/mortar_shared_edge_guard.h",
+      "bytes": 37885,
+      "sha256": "b4953028b1e3ffd8fba0100b34cc3aad28f7eac812fb1cfd711aaf7cf7b5bbaa"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/numi_human_shared.h",
+      "bytes": 13827,
+      "sha256": "84734933d8d5c3eb50c2af074912fa70eacfaa5dd9bd8f9f4d17886a607e8376"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/paper_compensated_bytecode.h",
+      "bytes": 14539,
+      "sha256": "f578310307a4698692fc57117340794ac4ce2d3813cdfcf705da6a018a5976aa"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/shared.h",
+      "bytes": 56614,
+      "sha256": "bd13b1baf8790956404cd564685919c5a18e339d79e7c5c5165956f94d2f010c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/accepted_state_proof.metalinc",
+      "bytes": 57229,
+      "sha256": "1782bb5ea45d2dc67d7e50a92d403c1508942989edfd9dce7d4a6f08ea459987"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/adaptive.metalinc",
+      "bytes": 26326,
+      "sha256": "48575bba875c8e7b6eba0138d542ac521acce8261a544a01390997d3eef0a332"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/common.metalinc",
+      "bytes": 100685,
+      "sha256": "66153b6ac14d361e33f9f74d228b8882db81bb35f6e425c973c206bd196a5f55"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/fem.metalinc",
+      "bytes": 236395,
+      "sha256": "742cf561ee1ed91e20ed797e664595f675302437a3d583f8c5768da6cb3d008e"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/fgmres.metalinc",
+      "bytes": 393469,
+      "sha256": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/human_equality.metalinc",
+      "bytes": 14923,
+      "sha256": "7d258cd6479fd54655d17dc16668713209ae418e62d73d44e1992c7e34b0c927"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/human_limits.metalinc",
+      "bytes": 7795,
+      "sha256": "cb63fbad03fe852e532acbdf984f5147d5897595c21b68572de430793a15a87e"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/identification_scheduler.metalinc",
+      "bytes": 37743,
+      "sha256": "94f3056e9b22b59b1dc90c2d05d0e0112e7dd22553871be39b16666853f972a7"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/mixed_fem.metalinc",
+      "bytes": 46773,
+      "sha256": "9f3fba45290c92cc782393c420520b25c7d630fa080b9e2aff1d9f52a33d1681"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/mpm.metalinc",
+      "bytes": 45856,
+      "sha256": "eb0198a7b62252ef102fd94fbc908beb9e95da6d74bffb21ea68101013710643"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/numi_human.metalinc",
+      "bytes": 86748,
+      "sha256": "f211dc328beced30cb199af32b294ad9f21da9eaf1ca2d3ccbe441eb3806fda4"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/topology_mutation.metalinc",
+      "bytes": 156284,
+      "sha256": "77b99f7395dc77bea95945996ec3d963c5ecb4c79ea0325a11b43de8a6b9c726"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/vascular.metalinc",
+      "bytes": 96838,
+      "sha256": "407ded09d29938ab2556ca3f5b9c38ba3a610b00993484a0051b2e124d772d09"
+    },
+    {
+      "path": "/private/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.5.188.0.rIrnGw/Metal.xctoolchain/usr/metal/32023/lib/clang/32023.883/include/metal/module.modulemap",
+      "bytes": 5314,
+      "sha256": "525bf8e2cd0f8c5c1e7a22f6468a02c1d5a70e8950c5b28842a382f7fedeaf01"
+    }
+  ]
+}

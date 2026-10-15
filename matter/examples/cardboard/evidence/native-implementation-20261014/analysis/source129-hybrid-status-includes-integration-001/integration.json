@@ -1,0 +1,13 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-status-includes-129",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-status-bound-128",
+  "fixture_patch_sha256": "d2b46e0efab5c807f580765c07d837a04554e7778029c1132f2b16ed149a5d60",
+  "changed_files": {
+    "matter/CMakeLists.txt": {
+      "base": "851573889682141ff1bae2d3e9efc703c8e58cd6bc52f658f0d9f98740e8cdd3",
+      "candidate": "d4f8e67d073265a7ba6b41a32d27ce0f92af9c5674194cc45e74ba03358c84d7"
+    }
+  },
+  "production_changes": false,
+  "physical_steps": 0
+}

@@ -1,0 +1,13 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-outcome-capture-131",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-status-includes-129",
+  "overlay_manifest_sha256": "b699fd6aabb1dc82d95741fca03b142945519722ad6509808abc9049b9341575",
+  "changed_files": {
+    "matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm": {
+      "base": "10fdbe2f68d4f31ee767ca3c949d5bee8c7834fe82b73f466d3460827c2fc461",
+      "candidate": "1b91d8888c178cd5719be48eff8c1b0ee993d8078598ef6179e2dc45c44b1819"
+    }
+  },
+  "production_changes": false,
+  "physical_steps": 0
+}

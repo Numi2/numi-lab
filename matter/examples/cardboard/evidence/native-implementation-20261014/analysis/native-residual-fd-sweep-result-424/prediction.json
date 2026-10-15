@@ -1,0 +1,11 @@
+{
+  "question": "Does the captured control1 Newton48 residual have a resolved native derivative as representable perturbations decrease?",
+  "prediction": "Production source125 candidate preparation, geometry validation, internal force and residual kernels replay exact capture419 center and signed corrections across binary32 step sizes. Same accepted node/material history, dt and parameters. Check exact retained endpoint parity before interpreting new smaller steps. Invalid endpoints and near-zero noise remain inconclusive.",
+  "package_manifest_sha256": "8fdc04c247e4fb2b8b28cd43b9ca139c345765ac68ea9888f7dc6745de6be024",
+  "command": [
+    "/Users/home/cardboard-implementation-20261014/analysis/native-residual-fd-sweep-419-001/build/native_residual_sweep",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-residual-fd-sweep-419-001/replay-input.bin",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-residual-fd-sweep-result-424/result"
+  ]
+}

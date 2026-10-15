@@ -1,0 +1,17 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-fixture-repaired-126",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-regional-preconditioner-124",
+  "overlay_manifest_sha256": "2cd76e336c32568f47d1865cfb71d8117d9560dd98b491ec723b4530bec057af",
+  "changed_files": {
+    "matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm": {
+      "base": "b9386ff65709cc51dff58d756f6f6fcac34c2cf8c613862cddf2c76bc241b2c1",
+      "candidate": "6b2990606fb95016cb30ccf79d023878b01c1e0bf2dea534d5f22bccf29c7f5b"
+    },
+    "matter/tools/stateful_check.cpp": {
+      "base": "60f2cc1b18cb5c857d78e6bbcef916281749f2b404f50ce93aa3f9a467fb8f80",
+      "candidate": "d7b735f37d3142649c945613b5b3e25f15b9542ec42765f26d6264f72680e48b"
+    }
+  },
+  "production_changes": false,
+  "physical_steps": 0
+}

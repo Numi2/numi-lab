@@ -1,0 +1,22 @@
+{
+  "accepted_state_rows_env0_bitmatched": 1920,
+  "candidate_node_float_words_bitmatched": 35280,
+  "capture_node_rows": 1764,
+  "capture_tet_rows": 3840,
+  "expected_sha256": {
+    "operator-capture": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+    "output/compiled.nmatterpack": "3c25f41c6c26654ccf3f8b4f4b510bbb64ab0ea0f52b94d05d8b1fa4060fafe5",
+    "output/manifest.json": "2a34ad4f3328616fb5660fe22022941ca9ace9383ca9f1f1b7262ecfd4350ec8",
+    "output/material_state_000003_bent.json": "e352376a5e63ae33802d6eedb225839e4e71d0245076679fe51b5fe938a45a2b",
+    "output/rejected-conditioning-000003/candidate_nodes.bin": "dcd6b8ea62c05c3ef9a04dc4d46ece7e7fbad58101d8d55d2bee6dfd9d7e8614",
+    "output/rejected-conditioning-000003/manifest.json": "f2775bdc8f1747dcda5136b2bbe890e1d0645804df304c66bfe3143e90d955ad"
+  },
+  "newton_iteration": 23,
+  "physical_steps": 0,
+  "root": 2,
+  "run_id": "360",
+  "schema": "numi.cardboard.tangent-cache-projection-reuse-cpu-admission.v1",
+  "source125_metallib_dispatch_required": true,
+  "state_layout": "per-environment/per-tet accepted_state from capture; sidecar confirms bent env0",
+  "status": "pass"
+}

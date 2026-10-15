@@ -1,0 +1,148 @@
+{
+  "claim_limit": "Read-only native evidence; both runs fail and neither qualifies a complete physical cycle.",
+  "limitations": [
+    "Coupled candidate capture was skipped because environment_count=2 is outside its scope; no complete coupled capture was produced.",
+    "status5 capture records only the first private status-5 witness for this root and does not show every trial.",
+    "Both coupon runs exit 2 after one accepted step and remain failed/incomplete; parity does not imply convergence or physical qualification."
+  ],
+  "log_comparison": {
+    "armijo_iteration_records": 64,
+    "armijo_iteration_records_byte_identical": true,
+    "fresh_true_residual_records": 4096,
+    "fresh_true_residual_records_byte_identical": true,
+    "remaining_stderr_lines_byte_identical": true,
+    "stderr_lines_after_removing_timing_and_declared_capture_metadata": 4164,
+    "stdout_byte_identical": true
+  },
+  "runs": {
+    "409": {
+      "exit_code": 2,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-certified-coupon-409",
+      "receipt_sha256": "c769db491e80efcc5c415bdd3277174c33437665fee1c7985825ef790ba3ee7e",
+      "stderr_sha256": "7fa9d24eec8c3a66aa7cb2bcb3962cac7eb669b6de7055078dbf578b10bd4bcb",
+      "timed_out": false
+    },
+    "415": {
+      "exit_code": 2,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-coupon-first-descent-capture-415",
+      "receipt_sha256": "ab0b5f5cabf7a9a76029b4e4292bb1d762a6e84bcd8924ac2283a35506bed337",
+      "stderr_sha256": "2100717358fafdee98e88df2723e01be8fd95352a6ca7431b0f3eec1c6cef42f",
+      "timed_out": false
+    }
+  },
+  "schema": "numi.cardboard.native415_status5_parity.v1",
+  "shared_output": {
+    "byte_identical_count": 33,
+    "compiled_nmatterpack_sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+    "differences": [
+      {
+        "equal": false,
+        "json_differences": [
+          {
+            "field": "$/materials/glue_path",
+            "left": "/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123/matter/materials/starch2007_finite_glue_elastic.nmatter",
+            "right": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/materials/starch2007_finite_glue_elastic.nmatter"
+          },
+          {
+            "field": "$/materials/liner_path",
+            "left": "/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+            "right": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter"
+          },
+          {
+            "field": "$/materials/medium_path",
+            "left": "/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+            "right": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter"
+          }
+        ],
+        "left_bytes": 11719,
+        "left_sha256": "8020222f13e2feab1f083fa3add78afc39390e5c0b5140154a801e267c230927",
+        "path": "manifest.json",
+        "right_bytes": 11722,
+        "right_sha256": "bcc9d5c5085635ea845d4d34f37bbf4c26b5af9086c15f5e02bb4597d2c2c3f5"
+      },
+      {
+        "equal": false,
+        "json_differences": [
+          {
+            "field": "$/device_program_fingerprint",
+            "left": "11556075638100088382",
+            "right": "9200051429535932647"
+          }
+        ],
+        "left_bytes": 5545,
+        "left_sha256": "ae12386ef0921a0768c8ab96514bf19cbcfae46fc20d1aa4d55826ec99f9548c",
+        "path": "rejected-conditioning-000002/manifest.json",
+        "right_bytes": 5544,
+        "right_sha256": "40e918b680ab35c6b5dd571796221311535f36215a43a80331b50b28fce4456d"
+      }
+    ],
+    "path_count": 35,
+    "result_json_byte_identical": true
+  },
+  "source_bindings": {
+    "source-status5-vtccd-diagnostics-125": {
+      "file_count": 784,
+      "frozen_source_manifest_sha256": "dc354c1d0c9619b07d33de0c867239dc260f7fe572372769d6e5e9dde7b023e5"
+    },
+    "source-two-stage-material-merit-123": {
+      "file_count": 783,
+      "frozen_source_manifest_sha256": "9a7f6bcbb6110dbd2a82f898b110ae0dd9c7290ab838155808c999a69679597e"
+    }
+  },
+  "status5": {
+    "actual_selected_newton26_alpha_from_armijo_trace": 0.0078125,
+    "alpha_lane_flag": true,
+    "alpha_lane_value_in_capture": 0,
+    "alpha_value_is_known_incorrect": true,
+    "capture": [
+      1,
+      31,
+      1,
+      2
+    ],
+    "context": [
+      1,
+      0,
+      1,
+      26
+    ],
+    "detF": 0.9959471822,
+    "identity": [
+      0,
+      1464,
+      1464,
+      0
+    ],
+    "local_status_semantics": "Private trial index 0, stage 31; status 5 at tetrahedron 1464. Newton 26 later accepts alpha 1/128. The capture does not store the per-trial alpha correctly.",
+    "manifest_sha256": "0f37df5d00a405c36a289a1f0df54284fc1be8217679a23df9fad137ef18e8a3",
+    "material_validity": [
+      0.200000003,
+      2.5,
+      1000000000,
+      1000000000
+    ],
+    "payload_bytes": 13568,
+    "payload_sha256": "0f3ae7cd18df40df8ad3bbed0b55491b43f1ee67c321eab2287c46e18a43239f",
+    "qualification": "Stress exceeds the material maximum by 17.918528%. This is a rejected private candidate, not accepted state or the terminal Newton-48 failure. Because the capture does not include the projection-valid bit, it does not prove projection succeeded; the stress threshold condition is independently violated.",
+    "records_present": 1,
+    "reported_max_abs_transformed_stress": 1179185280,
+    "status": [
+      5,
+      0,
+      0,
+      1464,
+      0,
+      0,
+      0,
+      0,
+      0.9959471822,
+      1179185280,
+      0,
+      0
+    ],
+    "stress_limit": 1000000000,
+    "stress_limit_ratio": 1.17918528,
+    "trial_index": 0
+  },
+  "verdict": "physical_trace_and_outputs_match_with_expected_metadata_differences; captured_private_trial_is_inadmissible"
+}

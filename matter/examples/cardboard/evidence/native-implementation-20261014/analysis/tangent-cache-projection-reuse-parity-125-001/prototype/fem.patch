@@ -1,0 +1,149 @@
+--- a/matter/src/metal/fem.metalinc
++++ b/matter/src/metal/fem.metalinc
+@@ -2987,6 +2987,146 @@
+             materialTangent,
+             valid, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+             deformationLow
++        );
++        if (!valid) return;
++        float responseComponents[9];
++        matrixComponents(materialTangent, responseComponents);
++        for (uint row = 0u; row < 9u; ++row) {
++            if (!isfinite(responseComponents[row])) return;
++            tangentCache[cacheBase + row * 9u + column] =
++                responseComponents[row];
++        }
++    }
++    validEntries[global] = 1u;
++}
++
++kernel void nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant NMMicrostepGPU& microstep [[buffer(1)]],
++    device const NMContinuumObjectGPU* objects [[buffer(2)]],
++    device const NMMaterialGPU* materials [[buffer(3)]],
++    device const NMScalarProgramGPU* programs [[buffer(4)]],
++    device const NMExpressionInstructionGPU* instructions [[buffer(5)]],
++    device const float* environmentParameters [[buffer(6)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
++    device const NMTetrahedronGPU* tetrahedra [[buffer(8)]],
++    device const float* acceptedMaterialState [[buffer(9)]],
++    device const NMSchedulerStateGPU* schedulers [[buffer(10)]],
++    device const NMAdaptiveStateGPU* adaptive [[buffer(11)]],
++    device float* tangentCache [[buffer(12)]],
++    device uint* validEntries [[buffer(13)]],
++    device const NMMatterStatusGPU* statuses [[buffer(14)]],
++    device const NMFGMRESStateGPU* fgmresStates [[buffer(15)]],
++    constant uint& forceCompletedCacheRebuild [[buffer(16)]],
++    uint global [[thread_position_in_grid]]
++) {
++    const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
++    if (global >= total || dispatch.tetrahedronCount == 0u) return;
++    const uint environment = global / dispatch.tetrahedronCount;
++    // The full nonlinear convergence latch is written only after the
++    // production residual/correction/support gates pass. Later statically
++    // encoded Newton-tail iterations leave the accepted candidate unchanged;
++    // retain its exact cache instead of projecting all 9 columns again.
++    // Newton iteration zero always rebuilds, even if this state buffer still
++    // carries a latch from the preceding transaction.
++    if (forceCompletedCacheRebuild == 0u &&
++        microstep.solverIteration > 0u &&
++        fgmresStates[environment].nonlinear.w > 0.5f)
++        return;
++    validEntries[global] = 0u;
++
++    const uint tetrahedronIndex =
++        global - environment * dispatch.tetrahedronCount;
++    if (!environmentHealthy(statuses, environment)) return;
++
++    const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
++        dispatch, tetrahedra, environment, tetrahedronIndex
++    );
++    const uint objectIndex = tetrahedron.identity.y;
++    if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
++        objectIndex >= dispatch.objectCount)
++        return;
++    const NMContinuumObjectGPU object = objects[objectIndex];
++    const NMSchedulerStateGPU scheduler =
++        schedulers[environment * dispatch.objectCount + objectIndex];
++    const NMAdaptiveStateGPU adaptiveState =
++        adaptive[environment * dispatch.objectCount + objectIndex];
++    if (object.representation != NM_REPRESENTATION_FEM ||
++        !objectDue(object, scheduler, adaptiveState, microstep) ||
++        (object.flags & NM_OBJECT_MIXED_FEM) != 0u)
++        return;
++
++    const uint nodeBase = environment * dispatch.femNodeCount;
++    const float3x3 deformation = tetrahedronDeformation(
++        tetrahedron, candidate, nodeBase
++    );
++    const float3x3 deformationRate = tetrahedronVelocityGradient(
++        tetrahedron, candidate, nodeBase
++    );
++    const NMMaterialGPU material = materials[tetrahedron.identity.x];
++    float deformationLow[9];
++    const float3x3 preciseLocalF = femMaterialDeformationWords(
++        object, tetrahedron, material, candidate, nodeBase,
++        deformation, deformationLow
++    );
++    device const float* internalState = material.stateCount == 0u
++        ? nullptr
++        : acceptedMaterialState + global * dispatch.materialStateStride;
++    const uint parameterBase = environment * dispatch.parameterCount;
++    const float dt = objectTimestep(dispatch, scheduler);
++    const float3x3 localRate = femMaterialInput(
++        object, tetrahedron, deformationRate
++    );
++    const uint cacheBase = global * 81u;
++    const bool reuseAccuratePaperProjection =
++        material.stateCount == 15u &&
++        material.projectionKind == NM_MATERIAL_PROJECTION_GENERIC &&
++        usesCompensatedImplicitCandidate(material) &&
++        usesScaledCorrectionProjection(material);
++    // The evaluator initializes/returns up to NM_MAX_MATERIAL_STATE words.
++    // Keep full-size local arrays even though this reuse policy is 15-state.
++    float reusedProjectedState[NM_MAX_MATERIAL_STATE];
++    float reusedProjectedLow[NM_MAX_MATERIAL_STATE];
++
++    // matrixComponents uses row-major scalar order even though Metal matrices
++    // are column-major. Store each evaluated response as one column of that
++    // explicit row-major linear map.
++    for (uint column = 0u; column < 9u; ++column) {
++        float directionComponents[9];
++        for (uint component = 0u; component < 9u; ++component)
++            directionComponents[component] = component == column ? 1.0f : 0.0f;
++        const float3x3 localDirection = componentsMatrix(directionComponents);
++        const float3x3 localRateDirection =
++            localDirection / max(dt, 1.0e-12f);
++        bool valid = true;
++        float3x3 analytic;
++        float3x3 materialTangent;
++        evaluateAlgorithmicStressTangent(
++            material,
++            programs,
++            instructions,
++            environmentParameters + parameterBase,
++            internalState,
++            preciseLocalF,
++            localDirection,
++            localRate,
++            localRateDirection,
++            dt,
++            material.bulk.y,
++            analytic,
++            materialTangent,
++            valid,
++            reuseAccuratePaperProjection && column == 0u
++                ? reusedProjectedState : nullptr,
++            nullptr, nullptr, nullptr, nullptr, nullptr,
++            deformationLow,
++            reuseAccuratePaperProjection && column == 0u
++                ? reusedProjectedLow : nullptr,
++            nullptr,
++            reuseAccuratePaperProjection && column > 0u
++                ? reusedProjectedState : nullptr,
++            reuseAccuratePaperProjection && column > 0u
++                ? reusedProjectedLow : nullptr
+         );
+         if (!valid) return;
+         float responseComponents[9];

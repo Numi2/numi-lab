@@ -1,0 +1,16 @@
+{
+  "commands": {
+    "preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "native": {
+      "exit_code": 0,
+      "timed_out": false
+    }
+  },
+  "wall_seconds": 0.24635183298960328,
+  "prepared_package_unchanged": true,
+  "physical_transactions": 0,
+  "finished_at_utc": "2026-10-15T19:23:53.372661+00:00"
+}

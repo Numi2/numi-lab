@@ -1,0 +1,8 @@
+{
+  "status": "failed_attempt_preserved",
+  "error": "ValueError: too many values to unpack (expected 2) at reference.project return unpack",
+  "input_capture_sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+  "initial_script_sha256": null,
+  "failure_time_utc": "2026-10-15T19:17:18.302655+00:00",
+  "scope": "adapter smoke only; no solver/native state changed"
+}

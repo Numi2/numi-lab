@@ -1,0 +1,101 @@
+{
+  "artifact_sha256": {
+    "README.md": "92e9f1039f313a7510bd6ee844881b8bd0a273b7dd522d723fb72fb1f6f478a1",
+    "overlay.patch": "d36e5cacf56741fce5a5d885084d67fa73b8bd132483d9fa28034f2245c35316",
+    "status5.air": "abbc5b8916ee4d7f5752ec98a73053ad79e78046a18e5f6d0310c51b90e5fd4b",
+    "status5.d": "6dbe50a93da29de26d4026c047571f39d85d7c5f50b7626491eefe072f59121f",
+    "status5.metallib": "207d8d036b761ae2ff3916158a0788cd0186e8a92fd82d357c2bfaeba46dd50a",
+    "tests/status5_capture_contract_check.cpp": "6d9993a2745410bfb14bd45ea7919597508a4ad56e2b12db4da9ce94657223ec",
+    "tests/status5_capture_source_contract_check.py": "a8e7df139c76fe96efd647ba328863d2da7da0b2abda8459f8ea74f4179754f8"
+  },
+  "base_frozen_source_manifest_sha256": "4e19bfca0faf140ff64fb9a33058d4da24ee5f6988ddb068d242b79525056369",
+  "base_parent_revision": "7ebc64a666c4bd5e1ff61b3684655979ab80dc60",
+  "base_scope": "Source121 plus exact point401-bound tet858 native local trace host and opt-in inline private VTCCD call observer. No physical operator or acceptance change.",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122",
+  "changed_production_files": [
+    {
+      "base_sha256": "bd13b1baf8790956404cd564685919c5a18e339d79e7c5c5165956f94d2f010c",
+      "overlay_sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+      "path": "matter/include/numi/matter/shared.h"
+    },
+    {
+      "base_sha256": "742cf561ee1ed91e20ed797e664595f675302437a3d583f8c5768da6cb3d008e",
+      "overlay_sha256": "70c2f396045f9abdcfdc32f5714e6e3a400f5566e5a7824353e11b307de52b7d",
+      "path": "matter/src/metal/fem.metalinc"
+    },
+    {
+      "base_sha256": "3ddb3a29452f9006f811fe31f33293763d32be0bddb467646e4a55c72dc31ac6",
+      "overlay_sha256": "1719f14310d643ca96c520eb47b3028f8259f85e3da0d263460921b06d94ac74",
+      "path": "matter/src/runtime.mm"
+    }
+  ],
+  "non_claims": [
+    "No source392 status-5 event has been identified by this package.",
+    "The instrument is diagnostic-only and has not been run natively.",
+    "Geometry-validator events preserve solverIteration as the original failing index and do not claim a tetrahedron material tuple."
+  ],
+  "overlay_dependency_closure_sha256": {
+    "matter/include/numi/matter/shared.h": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+    "matter/src/matter_kernels.metal": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168",
+    "matter/src/metal/accepted_state_proof.metalinc": "1782bb5ea45d2dc67d7e50a92d403c1508942989edfd9dce7d4a6f08ea459987",
+    "matter/src/metal/adaptive.metalinc": "48575bba875c8e7b6eba0138d542ac521acce8261a544a01390997d3eef0a332",
+    "matter/src/metal/common.metalinc": "66153b6ac14d361e33f9f74d228b8882db81bb35f6e425c973c206bd196a5f55",
+    "matter/src/metal/contact.metalinc": "ea5a9caf6f47588258aeeb5e8be57168826acfb94a566ecbfea7e647ad50fb5c",
+    "matter/src/metal/fem.metalinc": "70c2f396045f9abdcfdc32f5714e6e3a400f5566e5a7824353e11b307de52b7d",
+    "matter/src/metal/fgmres.metalinc": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0",
+    "matter/src/metal/human_equality.metalinc": "7d258cd6479fd54655d17dc16668713209ae418e62d73d44e1992c7e34b0c927",
+    "matter/src/metal/human_limits.metalinc": "cb63fbad03fe852e532acbdf984f5147d5897595c21b68572de430793a15a87e",
+    "matter/src/metal/identification_scheduler.metalinc": "94f3056e9b22b59b1dc90c2d05d0e0112e7dd22553871be39b16666853f972a7",
+    "matter/src/metal/mixed_fem.metalinc": "9f3fba45290c92cc782393c420520b25c7d630fa080b9e2aff1d9f52a33d1681",
+    "matter/src/metal/mpm.metalinc": "eb0198a7b62252ef102fd94fbc908beb9e95da6d74bffb21ea68101013710643",
+    "matter/src/metal/numi_human.metalinc": "f211dc328beced30cb199af32b294ad9f21da9eaf1ca2d3ccbe441eb3806fda4",
+    "matter/src/metal/physical_state_digest.metalinc": "d3ceee9e4fc00d2b426e4d84e294d1c7c68702708acb49ad4459217d4baa6cec",
+    "matter/src/metal/sha256.metalinc": "c74148c9ce8ec4949edae4170341ab5a7dc3d791637d5147a165c76c653aff64",
+    "matter/src/metal/sha256_kernels.metalinc": "849e78fe9cb80b79019e26f659f1ee42930c9d787bf0ceb7a8976df0b53618bc",
+    "matter/src/metal/topology_mutation.metalinc": "77b99f7395dc77bea95945996ec3d963c5ecb4c79ea0325a11b43de8a6b9c726",
+    "matter/src/metal/vascular.metalinc": "407ded09d29938ab2556ca3f5b9c38ba3a610b00993484a0051b2e124d772d09",
+    "matter/src/runtime.mm": "1719f14310d643ca96c520eb47b3028f8259f85e3da0d263460921b06d94ac74"
+  },
+  "package": "source392-status5-observer-overlay-122",
+  "patch_sha256": "d36e5cacf56741fce5a5d885084d67fa73b8bd132483d9fa28034f2245c35316",
+  "readme_sha256": "92e9f1039f313a7510bd6ee844881b8bd0a273b7dd522d723fb72fb1f6f478a1",
+  "schema": "numi.matter.status5_observer_overlay.v1",
+  "validation": {
+    "cpp_layout_slot_contract": {
+      "binary_sha256": "c35620d84ef3aa2fb49c8081714c83ddb62c13053313ebcd209bf3761c8ffff4",
+      "command": "xcrun --sdk macosx clang++ -std=c++23 -Wall -Wextra -Wpedantic -Werror -I overlay/matter/include tests/status5_capture_contract_check.cpp -o status5_capture_contract_check && ./status5_capture_contract_check",
+      "exit_code": 0,
+      "test_source_sha256": "6d9993a2745410bfb14bd45ea7919597508a4ad56e2b12db4da9ce94657223ec"
+    },
+    "gpu_execution": "not run",
+    "metal_compile": {
+      "air_sha256": "abbc5b8916ee4d7f5752ec98a73053ad79e78046a18e5f6d0310c51b90e5fd4b",
+      "command": "xcrun --sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I overlay/matter/include -I base/matter/include -I base/matter/src -I base/include -I overlay/matter/src -MMD -MF status5.d -c overlay/matter/src/matter_kernels.metal -o status5.air",
+      "dependency_file_sha256": "6dbe50a93da29de26d4026c047571f39d85d7c5f50b7626491eefe072f59121f",
+      "exit_code": 0,
+      "tool": "Apple metal 32023.883",
+      "warnings": [
+        "pre-existing maybe-uninitialized sharedValid in fgmres.metalinc",
+        "pre-existing maybe-uninitialized refinementValid in fgmres.metalinc"
+      ]
+    },
+    "metallib_link": {
+      "command": "xcrun --sdk macosx metallib status5.air -o status5.metallib",
+      "exit_code": 0,
+      "export_found": true,
+      "metallib_sha256": "207d8d036b761ae2ff3916158a0788cd0186e8a92fd82d357c2bfaeba46dd50a",
+      "required_export": "numi_matter_metal::nm_fem_status5_capture"
+    },
+    "native_execution": "not run",
+    "python_source_contract": {
+      "command": "/Users/home/.pyenv/versions/3.10.12/bin/python3 tests/status5_capture_source_contract_check.py",
+      "exit_code": 0,
+      "result": "status5 capture source contract: PASS",
+      "test_sha256": "a8e7df139c76fe96efd647ba328863d2da7da0b2abda8459f8ea74f4179754f8"
+    },
+    "runtime_objcpp_syntax": {
+      "command": "xcrun --sdk macosx clang++ -fsyntax-only -x objective-c++ -std=c++23 -fobjc-arc -fblocks -fobjc-runtime=macosx-15.0 -Wall -Wextra -Wpedantic -I overlay/matter/include -I base/matter/include -I base/matter/src -I base/include -I overlay/matter/src overlay/matter/src/runtime.mm",
+      "exit_code": 0
+    }
+  }
+}

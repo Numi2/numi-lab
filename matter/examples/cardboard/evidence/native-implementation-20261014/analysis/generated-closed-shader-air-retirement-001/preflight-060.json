@@ -1,0 +1,423 @@
+{
+  "schema": "numi.cardboard.regenerable-build-retirement.v1",
+  "created_at_utc": "2026-10-15T19:12:08.905873+00:00",
+  "build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060",
+  "verified_closed": true,
+  "protected": {
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/lib/libmetalrobo.dylib": "4020c553afd778c6f8a75d527d2374b3bad34fcc7a4252de0eac529ee259060b",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-asymmetric-c1-paper-gpu-check": "d0f862b2d54f49d81f6dcf532144e1f821dae9b9a31443dde8d4de5d681963de",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-barrier-scale-check": "256f1c709be8f4adf4e46418314417d3fdb46d466a070b6735cdea248cbb7d10",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-bilinear-paper-gpu-check": "be8b194bc89ab25353855fbbe78df0dc16cfcf4627ccbc590516ac2bfa3840dd",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-box-assembly-controller-check": "ad9a3dcd5997dd2263a30de0f3d446ee37f706135c85abd548f420ce8c235c65",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-box-blank-check": "d5a867a0f61d6102f3e222b0e6e564feb61e9b1bc6cf9987f33260a09027e68c",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-capsule-armijo-check": "1b0d5015e59b695778479d545ca8ab50a9ba0a3d06275f7bc46a0b3a0f4fa2fd",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-cohesive-face-check": "62318ee76ad4669ba5509e61712b364ee10a08f802f598dd050b6dcfa9be166c",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-compensated-deformation-check": "9f3a61851aea368941b79a5be79bf9cb67db9516e1f5139dc7212e3903da2d42",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-contact-candidate-domain-check": "11654dae8b322251f2c4e1d9aa81ebef7f859d53d1841ccc2e2ae4ccaa441d7e",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-contact-ccd-native-check": "1b080ef90478ad02e811e7eb32255b4a5c22437a36342ca3b9f1ea3dac42d669",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-damage-builder-check": "6f2aa05e419da7e4739f80e668af5db40d23fd80e4a19e944e79319d2da14863",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-delamination-reference-check": "7caea115515a596ab9b5587953a52864a35e555c456ab6c0e3bd89d439e215dc",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-expression-cache-check": "16a58b0f20cd1534a82c2afe39949f90743a1392e4884ba5d028f2561bd66035",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-fracture-regularization-check": "fbb8be22f1ff5c889c4d03d67fbc943bcdf798c9fb66a0cc95695bba370bfa6e",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-full-contact-armijo-check": "926ed6f45121f71340992fecc4f6bd2f61e4c6bc7e6b5ca08ac54cadf6ab896d",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-generic-compensated-projection-check": "842ecce1a523ff5c1b23591da7e7d4845bafdae5671f496334b4331ecd088448",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-glue-mesh-check": "766a9252dc4c51b0b5f762f9fffe3a905f41003f4a930685c9ff705e944ca8dc",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-gpu-check": "e261d7f6aa58498ae192f7e867fede74d4e531901fa25cb9ab8008bb52ca5cd5",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-material-check": "50da9be2a3af05fece5d87e1fcc772e3758ab8116c8a18dd4ae7342e4511a288",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-mixed-cohesive-check": "f206e5db98d106a78a5937c92ab7bfec0e9f6052490a13c7ba228e92c227b546",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-mixed-cohesive-face-check": "5d14b8966e01cddc9e6caf582580b6fa9fe2ff8ddebf0a6da9a715744c4af77e",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-mixed-cohesive-frame-check": "1ae7fb7c2f77714ba78f0f61d2251e3b8edc43f7b77e02b468b08ac345de6a7d",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-paper-gpu-check": "9bcf2ed76c79f67bde2a78273b4b2770a0951be55d040a6929eda79de47206bc",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-paper-material-check": "e3680ebfa407d1ecdf3e4962d2e4e3df95c357cd6c02ccec854899e8d5ec7b85",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-pin-adhesion-fixture-check": "451949527a8eb26cea29afa1edb814580f5172f946df726d043ce8a96284acc9",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-preconditioner-gpu-check": "93fe1050b5451991f461dad5d00c212e7986b8995e9c7a69a34a660e03312e0c",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-probe": "5d9612547b0c5c90b42813fb98ab08f0866f55631aeb90e30a08f6bc89046648",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-profile-check": "8159d9ded974d49104aca894098549063374c4340924fe8b7f50244aab200b9f",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-reaction-observables-check": "627b3ddb67182ac9230e99df505d794468326f3909ad4cbf49912b082a04b0c9",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-retained-damage-fp64-oracle-check": "4dd8b110a8fa6ae064a7eaaac761a29de65a5476b96a746386a08575dd8ccade",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-retained-matrix-damage-check": "4de5d1fb6c74b538e5b9074ce2e2e749f584bd4e7d0d87e8083c39a165e810ca",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-retained-matrix-damage-metal-check": "6578e3f16ad4c4177ab3d18ee64a4e27f33d5e2ab7620826c58fa4033b57c2b6",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-shipping-closure-mesh-check": "41862da2ccabeb24b46fd3e94754539b900785a45fdbbab141790e904eef0c8c",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-shipping-driver-check": "b2e4262fbd4b9def7402e073db53e4ef587175d7c3ffd10f90b486c8e49c13bf",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-shipping-memory-check": "736ddde4ced1824f95c08631d573e665285cab18d373a7411e2706e149f15a64",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-shipping-protocol-check": "e7abc7b8b63e6c6a6beb014a57184c0b4883222eb0c138be95b9e0698094a151",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-shipping-snapshot-check": "44dc746a113149ac9308ef18cca32d1eed0b17786009336923b1e4104803ad94",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-solver-pair-replay": "83240bc8f3162b6cbdcb04889ec3bf7677e0edb718c0ebac93e5877f60a086fb",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-solver-replay": "be1f2df9660530b35ed2db1588449e8d452c25d754453c54bc821db350e7732e",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-starch-interface-mesh-check": "5bec153ee843f64dcd63fdf6f7d54c7864b37f8222c19b5f03251171112be0b2",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-cardboard-tooling-check": "1762dd129658a0e84740d1ae7949c933748ac4e7299f93d66c90c03b2fa5c35a",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-fem-material-frame-check": "f184a30d47a8e904a61375d17944973b81a3750dda25ee766049bb7cc0cf764e",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-fem-material-frame-compiler-check": "ff228c755ce0b98d48fe3284b18972f3491ab87901ecd33d8f81af50b680f47e",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-fem-reference-check": "2b5f4f5521acb76b9617688555483133a30d906a17e33f12e56c84ee054b914d",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-fem-regional-galerkin-compiler-check": "1ddad246cb48578f5f65641123d22e215ad350bb4522cdf2e01809752ff1a921",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-fem-regional-galerkin-native-check": "5a14593e5444a4974b72420c15a63a3a9699a4023f9c3bd3709fcb33fea42cb5",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-fem-regional-material-check": "76c8183709ee8988dceeb62c7644d36cf239fdce944669a47ddb350d1107bf49",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-fem-static-surface-map-check": "015dc79b362cdae8318328d27396c86d1d69f6934750f265a08abe79e98f3000",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-fixed-convex-contact-step-check": "81df5b9e395257456c2eb4141fa4ebfee22b508972059c15e9a98a52096483f6",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-robertsson-fem-coupling-check": "9c4a6b83dce0d7990752a5e0dc3bdb6a068a32d4426578e04c299b81d3f3e7a4",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/numi-matter-stateful-check": "5eaf8f946592eae348d975ca7f35816a42e97005e0298fe083f0f497d200af7b",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/shaders/NumiMatter.metallib": "2f64ba5258db2d53322f00f6d3223ac7b897daf47e920e2d5f11d15df7c4c56a",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/shaders/cardboard_paper_check.metallib": "9345e91b7d77b5615f42d3fe91778d8aab2a61b208c367f2d43f7645c00f2a8c",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/shaders/cardboard_retained_matrix_damage_check.metallib": "63e382fc2cbb31cf9d4bc93179db4b442bc1ac285a66759a49ad02352afc9be5",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/numi-matter-cardboard-shipping-rigid-driver-check": "ce300fccdf040cc2105e15fd5bec7362e3d08ea3af809b6819cd3e6368538c07",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/numi-matter-cardboard-shipping-rigid-native-check": "dc0b6269fbd025276975f431e5b91d58d0e97830c5100876f780db4d5e970e21",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRobo.metallib": "61a548c69e6ec9c5c95480d54dbcf2fd851744e2a5e799397c59960e2fb27334",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboHyperPolicy.metallib": "0229cfae6afd3f1c75244e6814dd542e07a0f2a8082a636b1a6038dfa2573cef",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/NumiNeuron.metallib": "e7243f197f9312ff28abefc6ffe5b17b3f52916175b445e65e026f760e42665a",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/CMakeCache.txt": "d50c8eaf4cdf68897eef2778f91cb71395d17e5368f2ec0d331004443457794f",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/compile_commands.json": "ad58949ed1d6c2e07fd64908038be602b227dac42860272dd44f76a105298f21",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/source-build.json": "e4e1b279927396ccde43cf2ec114881ad4ec5c063d5972d136e6c734387dab76"
+  },
+  "files": [
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/shaders/NumiMatter.air",
+      "bytes": 1263232,
+      "sha256": "bc3822ee4054e2da5f01857c73854fe974c9ace251190eaf5648ffdd20a3daff",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/shaders/NumiMatterPhysicalStateDigest.air",
+      "bytes": 32560,
+      "sha256": "949f0a7df928f783e8bf270b930f4eac18eb7922bdf2acc08f19e5a202f1797e",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/shaders/cardboard_paper_check.air",
+      "bytes": 185984,
+      "sha256": "173bcbe1546a0f188de6aa517e27652379a2b50813052d500c39eecd1f118b52",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/matter/shaders/cardboard_retained_matrix_damage_check.air",
+      "bytes": 171440,
+      "sha256": "f0ea4c1d7d82eb58d25b937222fc825e20c6e8cce6214830220650db4605e595",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboArticulatedABA.air",
+      "bytes": 35616,
+      "sha256": "80fb8608afa479557ec3993c47952393de9c4b3efa4f097da8f267e03bfcc6d7",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboArticulatedABASmall.air",
+      "bytes": 35632,
+      "sha256": "75eb09c5d645f5f46de7afe125ac7fcf34f5bb3f73103899c4fd92574d66f949",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboArticulatedInverseMass.air",
+      "bytes": 36656,
+      "sha256": "789dfdc05f756f2fb6159f4ca62e48ff084ee42269cc0e5710b002e6a182663e",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboArticulatedOperator.air",
+      "bytes": 67408,
+      "sha256": "d072509417ec26e3b17b54235be06f28c2de3b1999523a228cd5e5f27217a24c",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboArticulatedOperatorCompensated.air",
+      "bytes": 75952,
+      "sha256": "66429b6fb4f20b893cd8d96fce7023ff5ef74f85f0d86f43bb0588705e9cdb9a",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboCollision.air",
+      "bytes": 295232,
+      "sha256": "1e5401d8559e3ac826182a408270aed4f0c84e782860daa56b7e776ed5676309",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboCompensatedTranslationCheck.air",
+      "bytes": 15040,
+      "sha256": "6db54fe8f2eda560d9d25a898077658b7ba7885c39b20c206e92f3b1270b8d17",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboConstraintSolver.air",
+      "bytes": 29744,
+      "sha256": "1d5fab60962a2afb200de8167f58e8858de1fec0bdb91e8231aa37e51675d7ea",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboDeterministicBroadphase.air",
+      "bytes": 23072,
+      "sha256": "18a921c4cd94ff02b09a50eff8303afd509f2e9f0c39aad02ad4a1f895c6c375",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboDiscreteElasticRod.air",
+      "bytes": 70768,
+      "sha256": "f3e109e903396cbe29cccc31fd72697c3a6f450f32d176d90f1b7d4de1e5fcd3",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboEnvironmentPrefilter.air",
+      "bytes": 14704,
+      "sha256": "d472d2138431b1ea4594808c2bd4a420bcdc3eb6807e5a59245da7a626f71b80",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboFreeBodyDynamics.air",
+      "bytes": 21440,
+      "sha256": "515087eb750a72e891896cf50013fe4421c8da8dfd4cf1f48c345a861d8cc88f",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboFunctionBasedDenseDynamics.air",
+      "bytes": 62032,
+      "sha256": "033f53c1cb2d0f016f0619a087183f16ad7684c76ae3b494e21d280641013764",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboGeneralizedConstraints.air",
+      "bytes": 34640,
+      "sha256": "5543ebbc89dbcf35193d201c6d51c380aae1257f4a0c5bc3a926ba47c64750a3",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboHumanBehavior.air",
+      "bytes": 31760,
+      "sha256": "2038bd394125313bcb73686f2310fb239c00bb9df5b96f2faa1d2fc3db71401d",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboHybridRenderer.air",
+      "bytes": 142096,
+      "sha256": "db449bbfe186a73d7c639f70f905401dc9eae282f95cdc6abd7a81a9026509ab",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboHyperPolicy.air",
+      "bytes": 27696,
+      "sha256": "6de8066a6e96231e1dc3a5de0649160931fe8f940d3901b34452e58a477137a0",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboLocomotionTask.air",
+      "bytes": 124384,
+      "sha256": "feea7417ee7fc781efe06bf25346a2976085225b7afc28c9ed8069034d3e491a",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboMillardMuscleReference.air",
+      "bytes": 29728,
+      "sha256": "df5c6aecbc611a84934789c942ba8c9f5e650208716d6ee633a2fc9d486954b6",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboMujocoMuscleReference.air",
+      "bytes": 49168,
+      "sha256": "6f6d38c49417acbdb47772ce45ba5eb5516577611b64fad2f0a02fd1fc7e2823",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboMujocoMuscleReferenceCached.air",
+      "bytes": 41968,
+      "sha256": "c2d54ced15aded1135fe81ff654e9ead6473b5aeb09ad879e72a841a237fa6bc",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboMujocoMuscleReferenceCompensated.air",
+      "bytes": 49520,
+      "sha256": "a0c0dc9125b68e4c08756cf6790760541449320c22b2d566de14efc53b032038",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboMultiArticulatedABA.air",
+      "bytes": 36304,
+      "sha256": "8d0d033740797c6c1bc43a44975af9a32659ffb91639d66b7251098425ceb96e",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboMultiArticulatedContact.air",
+      "bytes": 38608,
+      "sha256": "87354e82b52ba4c23b9f4efb644858c3b3371a218ac4780ec4893061fc1f9ab9",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboMultiArticulatedInverseMass.air",
+      "bytes": 69856,
+      "sha256": "571fdb6c7c267c5b513ff985f2f3ca255c615d0a047e7fafe433cb050f0da42b",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboMulticopterDynamics.air",
+      "bytes": 20112,
+      "sha256": "4b38913aa8ae43a03c199a3bec7908c0a80c930b02605ae1a8d21fd14f23397d",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboNumanXCoupledHuman.air",
+      "bytes": 36256,
+      "sha256": "49e229446f13348402d7f24b944c5311d61e141aee29501da7a6658a7ac61817",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboNumanXHumanIO.air",
+      "bytes": 54656,
+      "sha256": "b01ed997a936164a257de2964d82ce713dd1a5286ba69192d0a182244e276000",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboNumanXHumanMatter.air",
+      "bytes": 30656,
+      "sha256": "d287f6a2c2f29b4b4a2c4d4929f95c1392988627c93e726a5bc5f33d55c9b6ba",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboNumanXHumanMatterOwner.air",
+      "bytes": 76320,
+      "sha256": "d67a5cc8348fb5e8e15b6cf5c12a73a6049e164dad6195b99efe9e62774d80eb",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboNumiHumanExtensorHood.air",
+      "bytes": 35968,
+      "sha256": "b91b4b5e6950e5b95ae21017865bddd2e288cde38c09de713c467e2812b27222",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboNumiHumanExtensorHoodCompensated.air",
+      "bytes": 37824,
+      "sha256": "6fc574b6851b2ba820cca73ecf67d3bee6130773f16efa53b2e4d19cf42797e9",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboNumiHumanStand.air",
+      "bytes": 301696,
+      "sha256": "7997f439687185f4daae40f7a1811c0881470eecf569b08bc4f0081d96593ffa",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboNumiHumanTendonTransfer.air",
+      "bytes": 14496,
+      "sha256": "5522285b4c40932700f2a7bca99317e1aa02a5a1d8c697c7cfbb21c5a55d50ec",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboNumiHumanTendonTransferCompensated.air",
+      "bytes": 19168,
+      "sha256": "015f571770fdd31a55450136407da6fa2b00156ca7f3988e13a442bfd05e5d53",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboOpenSimSpatialTransform.air",
+      "bytes": 14912,
+      "sha256": "37bb09b66fec2c88494e7cc4acae732b69eadd87698cbdca4a5939ada8f5fd9e",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboParallelArticulatedABA.air",
+      "bytes": 42560,
+      "sha256": "169b8ce73f5897ba57afac7bf1fd5c9bcf2802d32c194fbe94347d21355f62e0",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboParallelArticulatedABASmall.air",
+      "bytes": 42592,
+      "sha256": "c82f3c5e9c572fb83ede2d0ff6930bf3b9d73fd49412e6038d8e1665534bdfda",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboParallelMultiArticulatedABA.air",
+      "bytes": 43280,
+      "sha256": "eba12d34ae7b77369d8112d81dfc9d33c4fcd105832ac6c716794ac7c4809fcc",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboParallelParameterizedArticulatedABA.air",
+      "bytes": 43408,
+      "sha256": "78ab0be0ac8938edf830dbfb57ce7a5fe37b2e62f66d781ac1df9028dc7eddb6",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboParameterizedArticulatedABA.air",
+      "bytes": 36256,
+      "sha256": "4d1028fcbc7928c460954b01d5d3319b705adceee084ec20ad1e4400abf563de",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboParameterizedArticulatedOperator.air",
+      "bytes": 58160,
+      "sha256": "f9fda67dbff39531c8cac7afbbdba3cf25434e781572eed0e4be622c62979f99",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboParameterizedMultiArticulatedInverseMass.air",
+      "bytes": 73328,
+      "sha256": "7564a380619049aa73e3083e965d570733bc7e1dfb61ce6db254eefc91a914d5",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboPolicyInference.air",
+      "bytes": 10288,
+      "sha256": "5134f33b49981ac80b2a85284f02daa4fbd5d60a8a8906259b315585dd8e2559",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboQualityContactSolver.air",
+      "bytes": 21968,
+      "sha256": "7409d15b713cea16842f4266fdd442f46df7582b318bbc2bf1a5ddd8282a44f2",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboSceneQuery.air",
+      "bytes": 40096,
+      "sha256": "3ccdd13e7d2cdf461c0063fda1658df6f699d924998c2c6ecbb1ef86dac5294e",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboStreamingArticulatedInverseMass.air",
+      "bytes": 87920,
+      "sha256": "ca8094aa9ebba28c14664acd43d88cfc101528acecdac0e822c356933ecf5de3",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboTactile.air",
+      "bytes": 32576,
+      "sha256": "3e158e8b489a9fb62c371576bfc27b684c4950ba1a788350a50e2e8814a11099",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboUnifiedQualitySolver.air",
+      "bytes": 37456,
+      "sha256": "ed7d92d424057bf4bab3a97d074193e33a0a3e4a69d5b7380793ed08b1617780",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboVisualAssetCook.air",
+      "bytes": 6128,
+      "sha256": "7b18b947a562db57d684bc96c00926737e7110dee2428518c49b56b4ae2b901c",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboWorld.air",
+      "bytes": 42240,
+      "sha256": "68e013e2e648bc9c6a9f3f8fa511f8fc51ffb1ed70c3528e1151bb3d629dd38b",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboWorldCompiler.air",
+      "bytes": 20752,
+      "sha256": "821da67e6851697f711e4a211c8d97b2d26f75915e246d836f012ca94a9ad233",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/MetalRoboWorldContact.air",
+      "bytes": 298064,
+      "sha256": "bc2fec53db3912edb4ec2beb5e5377e6eea58c25fa2417764f4627766bfeea2f",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-060/shaders/NumiNeuron.air",
+      "bytes": 28640,
+      "sha256": "cb276aeb95c907f5458041cb72ecec19ac74457aa15ed5c91b620fad974b70ab",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    }
+  ],
+  "free_bytes_before": 276340736
+}

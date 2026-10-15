@@ -1,0 +1,10 @@
+{
+  "verdict": "physical_trace_and_outputs_match_with_expected_metadata_differences; captured_private_trial_is_inadmissible",
+  "output_byte_identical_count": 33,
+  "output_count": 35,
+  "armijo_exact": 64,
+  "true_residual_exact": 4096,
+  "stress": 1179185280,
+  "limit": 1000000000,
+  "accepted_alpha_newton26": 0.0078125
+}

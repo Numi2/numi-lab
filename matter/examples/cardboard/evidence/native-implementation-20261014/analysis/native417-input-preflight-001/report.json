@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-127/matter/numi-matter-cardboard-vtccd-budget-replay-check",
+    "--validate-inputs-only",
+    "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/trial-capture.coupled.json",
+    "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/trial-capture.coupled.json"
+  ],
+  "exit_code": 0,
+  "source_build_sha256": "fdb975c436a9a685c1d36fbe998e867026eddc956d36b46666ee2484f68b14a2",
+  "gpu_runtime_created": false,
+  "physical_steps": 0
+}

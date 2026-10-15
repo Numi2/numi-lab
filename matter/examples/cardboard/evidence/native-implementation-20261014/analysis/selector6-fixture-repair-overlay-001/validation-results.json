@@ -1,0 +1,30 @@
+{
+  "strict_objcxx_syntax": {
+    "exit_code": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stateful_cpu_check": {
+    "exit_code": 0,
+    "stdout_sha256": "48a5dccf690e82b9e38183de3556d1887da9c3945ccfd7dd8849ca01c3baaaba",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "binary_sha256": "0a0d3880f57afa3d246fadaab1230ad5095eb0e0ed47bbc0d33fdf30194a50f6"
+  },
+  "selector6_compile_only": {
+    "exit_code": 0,
+    "stdout_sha256": "d06d8fc41b0af0b1cee34f3049c25b3364323bd23252bfc77f0fb4d94f7136e5",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "binary_sha256": "ed308903fd816417162c50ed62a617d5fe467b499c17cfb5612eaccb8ad4e3a6",
+    "gpu_initialized": false,
+    "physical_validation": false
+  },
+  "patch_reconstruction": {
+    "exit_code": 0,
+    "result": "dry-run and apply on temporary copy passed; both reconstructed candidate hashes matched"
+  },
+  "prior_native_and_cpu_failures": {
+    "412": "wrong material fixture arguments; retained, not used as repaired baseline",
+    "413": "corrected material arguments; selector6 compilation failed because fixture had no authored regional ID; retained, not overwritten",
+    "cpu_checks_124": "73/74 passed; only stateful_roundtrip used selector 6 as invalid; preserved log and receipt"
+  }
+}

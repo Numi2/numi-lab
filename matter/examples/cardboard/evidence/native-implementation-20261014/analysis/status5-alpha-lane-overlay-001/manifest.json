@@ -1,0 +1,116 @@
+{
+  "base": {
+    "files": {
+      "matter/src/metal/fem.metalinc": {
+        "candidate_sha256": "fb6de8976d4d34365c15529b5d43e6d37e61f3ff5fed89aee314bdcb55fd7e23",
+        "sha256": "70c2f396045f9abdcfdc32f5714e6e3a400f5566e5a7824353e11b307de52b7d"
+      },
+      "matter/src/runtime.mm": {
+        "candidate_sha256": "a13c731584f39f0aa1b0c76863ef18794836d76298c608ed1e0dcdf03dbd655f",
+        "sha256": "1719f14310d643ca96c520eb47b3028f8259f85e3da0d263460921b06d94ac74"
+      }
+    },
+    "frozen_source_sha256": "dc354c1d0c9619b07d33de0c867239dc260f7fe572372769d6e5e9dde7b023e5",
+    "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125"
+  },
+  "claim_limit": "Diagnostic-only buffer binding correction. Global capture stages keep alpha unavailable. No physics, solver status, or acceptance change. No native GPU qualification.",
+  "files": [
+    {
+      "bytes": 2062,
+      "path": "README.md",
+      "sha256": "e1023820d42c2823981e49f46b4ab592c492d6136496d967d1e0ae5e077c204b"
+    },
+    {
+      "bytes": 244011,
+      "path": "candidate/matter/src/metal/fem.metalinc",
+      "sha256": "fb6de8976d4d34365c15529b5d43e6d37e61f3ff5fed89aee314bdcb55fd7e23"
+    },
+    {
+      "bytes": 1758083,
+      "path": "candidate/matter/src/runtime.mm",
+      "sha256": "a13c731584f39f0aa1b0c76863ef18794836d76298c608ed1e0dcdf03dbd655f"
+    },
+    {
+      "bytes": 1570976,
+      "path": "logs/NumiMatter.air",
+      "sha256": "e83556d2f0901e672eb204c1443c7f5ce8b1511a0ea789d31e40f1ee70029a7b"
+    },
+    {
+      "bytes": 4803,
+      "path": "logs/NumiMatter.d",
+      "sha256": "cdd1d27a1ce99b83c85cf2fa381cda7d4696d3b25bef795b6c57c903dae4589b"
+    },
+    {
+      "bytes": 6666886,
+      "path": "logs/NumiMatter.metallib",
+      "sha256": "fa101ad4122a9d0a0d2f00a5a01cc06caf3e2bac34b525bf505e5be81b983ecf"
+    },
+    {
+      "bytes": 1897,
+      "path": "logs/metal-compile.stderr",
+      "sha256": "d57e5562f4afd9321bf2281a4b6ad4282d4fe8dcf7574525226aa996ae29e666"
+    },
+    {
+      "bytes": 0,
+      "path": "logs/metal-compile.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "logs/metallib-link.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "logs/metallib-link.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "logs/objcxx-syntax.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "logs/objcxx-syntax.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 84,
+      "path": "logs/patch-dry-run.log",
+      "sha256": "668ada9ce208f8b2580e0d2ca86e5ea43b3243e5038e878d5c0ae8b5617a916b"
+    },
+    {
+      "bytes": 118,
+      "path": "logs/source-contract-test.log",
+      "sha256": "a072491972cc2594dacd1a27135042846416e744bad9be9126764d7acbeb87f5"
+    },
+    {
+      "bytes": 136,
+      "path": "logs/validation-summary.txt",
+      "sha256": "d1ba42e7ee09c7d5abf7ad9c9e9e374ec10458fc6ee09cbbcf06f256344980f6"
+    },
+    {
+      "bytes": 5729,
+      "path": "status5-alpha.patch",
+      "sha256": "cfb51e0eb91ecdfdad7114ae1a591d16d39a763a482d6547a63075703678210e"
+    },
+    {
+      "bytes": 2130,
+      "path": "verify_alpha_lane.py",
+      "sha256": "2bf471100c34526c48739874676e1a5b488789e60aeec58377d6c24060433da3"
+    }
+  ],
+  "package": "status5-alpha-lane-overlay-001",
+  "patch_sha256": "cfb51e0eb91ecdfdad7114ae1a591d16d39a763a482d6547a63075703678210e",
+  "schema": "numi.matter.observer-overlay-manifest.v1",
+  "validation": {
+    "gpu_run_performed": false,
+    "metal_compile": "PASS",
+    "metallib_link": "PASS",
+    "objcxx_syntax": "PASS",
+    "patch_dry_run": "PASS",
+    "source_contract": "PASS",
+    "temporary_validation_mirror": "/tmp/status5-alpha-lane-validation-20261015-001"
+  }
+}

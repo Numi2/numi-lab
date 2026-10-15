@@ -1,0 +1,29 @@
+{
+  "schema": "numi.cardboard.regenerable-build-retirement.v1",
+  "created_at_utc": "2026-10-15T19:21:32.521681+00:00",
+  "build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-129",
+  "verified_closed": true,
+  "protected": {
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-129/matter/numi-matter-cardboard-preconditioner-gpu-check": "7bc2898b82be15f3138085a3b522954a9078a5959a2427e62d353670149bcfde",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-129/matter/shaders/NumiMatter.metallib": "94ee6d3e084f0226150307d3608c5c35c1740e15b1ee8babf377774145b1d48a",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-129/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-129/CMakeCache.txt": "9af2a8a8dbc35834444a26d19dab6ebf61dc5d8acac9ccf56375cb894303cc06",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-129/compile_commands.json": "4e772b4b671e538b93d8f90fbc7f80528355d2f8cbc73b92aad73f53ca0d3950",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-129/source-build.json": "d532d50e76b45c6bfaa279a11d94b0f172aadfc4a672b64a4805c3f08fe87dac"
+  },
+  "files": [
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-129/matter/shaders/NumiMatter.air",
+      "bytes": 1546160,
+      "sha256": "1d0546db018274fe87a4f8a90bee38ab141d0bbe5d57239d9cb26927968261c9",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-129/matter/shaders/NumiMatterPhysicalStateDigest.air",
+      "bytes": 32464,
+      "sha256": "c685b7117c74f9bfbec60a4660090faea417f07899c0bb65e050c7569e5c200d",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    }
+  ],
+  "free_bytes_before": 371826688
+}

@@ -1,0 +1,1166 @@
+{
+  "bindings": {
+    "captured_residual_sweep_report_sha256": "ccf8bb7d2b3e5d1f7e73279445882c40eb7916d460a8cd831468e2e28be645e3",
+    "geometry_helper_sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+    "independent_reference_sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+    "input_npz_sha256": "e20eeb559f5976e6b9ddb2ae605ea6860908cde3a1d255ea80832b24840c8353",
+    "native_fd_cpu_audit_report_sha256": "c918a287f0de7966d50813a70fa7d9d3917746a6fc5de8dca57283fbf375ba76",
+    "native_fd_cpu_audit_script_sha256": "33dd948eb955d3b02dab0c24aadedf766f6fe201586b42cba6e014a8ce261505",
+    "projection_helper_sha256": "742b0920c4f543e284e41ed18f8dbc78253915a31f39b3ef8d32ff7dec01b5e8",
+    "run_capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "run_prediction_sha256": "41b37af2747cfa551fae60eaddd7681cd7c7dbc859a402e641677ec23bd957d6",
+    "run_receipt_sha256": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d",
+    "source125_runtime_mm_sha256": "1719f14310d643ca96c520eb47b3028f8259f85e3da0d263460921b06d94ac74",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125",
+    "term_files_sha256": {
+      "captured-fresh-action.float4.bin": "f83ad29edbe7710768c44daf79d16d4b226dec9dcd707e2be3bef56bbf4cdfe9",
+      "fresh-action.float4.bin": "f83ad29edbe7710768c44daf79d16d4b226dec9dcd707e2be3bef56bbf4cdfe9",
+      "fresh-elements.float4x4.bin": "63af3ae17dd4e98c45623e1e32b399ce33e7f6dce0e8e1432a5f3c024002111a",
+      "mass-only-action.float4.bin": "777897e35ff7cfc640007ac3ae5015fb0f8704ca8dfb169181d7c6ff1488f73a"
+    },
+    "term_replay_manifest_sha256": "29e5dc2f13f5f210b4991ba8fddc48c59a985137893a18aefb83b3b73bd1db9e",
+    "term_replay_receipt_sha256": "ac6eefcb0adbfe2dc5f2b371b9872f86e1d9956aa28b919f61aeb732d82dce41",
+    "term_replay_report_sha256": "e440d6f80e49c80c09b77d27f5a985e7961aa77e0ad10c2a571edd2e6a0f8f7c"
+  },
+  "caveats": [
+    "Epsilon 1/64 uses the exact captured FP32 high+low side F endpoints; smaller epsilon F endpoints are unquantized FP64 center-F plus/minus epsilon*dt*captured H.",
+    "All side projections use the same captured accepted history; independent projection must satisfy the existing residual and dynamic-correction gates.",
+    "Only lambda-increment positivity and yield residual are summarized as branch indicators; this is not a complete active-set signature.",
+    "Native 424 smaller-epsilon residual sweep is bound separately; no native per-tet material states were captured for those new epsilons.",
+    "A finite secant far from the local tangent may reflect nonlinear response or branch/root changes; it is not by itself proof that the algorithmic tangent is wrong.",
+    "No convergence, calibration, or physical qualification is claimed."
+  ],
+  "center_action_vs_saved_independent_action": {
+    "actual_l2": 0.00018444849085536545,
+    "difference_l2": 1.4171062195584349e-11,
+    "max_component_abs": 8.29423683106409e-12,
+    "reference_l2": 0.00018444849064302578,
+    "relative_to_reference": 7.682937467355292e-08
+  },
+  "center_projection": {
+    "0": {
+      "failure_examples": [],
+      "max_dynamic_correction": 1.4126033066354257e-08,
+      "max_reference_scaled_residual": 6.886903722870286e-11,
+      "max_updates": 9,
+      "name": "hajali2009_liner_hill_bilinear_fit",
+      "projection_success": 1152,
+      "rows": 1152
+    },
+    "1": {
+      "failure_examples": [],
+      "max_dynamic_correction": 1.9212223083515108e-08,
+      "max_reference_scaled_residual": 1.9936917607130692e-10,
+      "max_updates": 8,
+      "name": "hajali2009_medium_hill_bilinear_fit",
+      "projection_success": 576,
+      "rows": 576
+    }
+  },
+  "evidence_class": "source-bound CPU constitutive-curvature diagnostic; not solver/physical qualification",
+  "finished_at_utc": "2026-10-15T19:31:52.636748+00:00",
+  "independent_fp64_epsilon_sweep": [
+    {
+      "all_center_and_endpoint_projection_rows_passed": false,
+      "assembled_fp64_A_endpoint_action_vs_419_independent_center_action": {
+        "actual_l2": NaN,
+        "difference_l2": NaN,
+        "max_component_abs": NaN,
+        "reference_l2": 0.00018444849064302578,
+        "relative_to_reference": NaN
+      },
+      "assembled_fp64_A_endpoint_action_vs_center_tangent_action": {
+        "actual_l2": NaN,
+        "difference_l2": NaN,
+        "max_component_abs": NaN,
+        "reference_l2": 0.00018444849085536545,
+        "relative_to_reference": NaN
+      },
+      "endpoint_mode": "exact captured FP32 high+low side F",
+      "epsilon": 0.015625,
+      "material": {
+        "0": {
+          "fd_tangent_vs_center_tangent": {
+            "actual_l2": NaN,
+            "difference_l2": NaN,
+            "max_component_abs": NaN,
+            "reference_l2": 12694599201097.896,
+            "relative_to_reference": NaN
+          },
+          "minus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [
+              {
+                "reason": "RuntimeError: FP64 return map stalled iteration1 rows[0] norm[84.50961364]",
+                "tet_id": 3
+              }
+            ],
+            "lambda_activity_crossing_rows_vs_center": 1,
+            "lambda_activity_crossing_tet_ids": [
+              279
+            ],
+            "max_abs_yield_residual_on_valid_rows": 0.9871647928844289,
+            "max_dynamic_correction": 3.4958052156838904e-13,
+            "max_reference_scaled_residual": 1.7256678052417578e-10,
+            "max_updates": 21,
+            "minimum_abs_yield_residual_on_valid_rows": 4.440892098500626e-15,
+            "projection_success": 1151,
+            "rows": 1152
+          },
+          "plus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [],
+            "lambda_activity_crossing_rows_vs_center": 3,
+            "lambda_activity_crossing_tet_ids": [
+              279,
+              1027,
+              1028
+            ],
+            "max_abs_yield_residual_on_valid_rows": 0.9884224414193078,
+            "max_dynamic_correction": 1.6556846711602693e-08,
+            "max_reference_scaled_residual": 1.725839255237199e-10,
+            "max_updates": 16,
+            "minimum_abs_yield_residual_on_valid_rows": 8.881784197001252e-16,
+            "projection_success": 1152,
+            "rows": 1152
+          }
+        },
+        "1": {
+          "fd_tangent_vs_center_tangent": {
+            "actual_l2": 1861541155322.128,
+            "difference_l2": 338243387884.56354,
+            "max_component_abs": 55172915228.8687,
+            "reference_l2": 1877029630360.1042,
+            "relative_to_reference": 0.1802014110025915
+          },
+          "minus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [],
+            "lambda_activity_crossing_rows_vs_center": 18,
+            "lambda_activity_crossing_tet_ids": [
+              666,
+              711,
+              727,
+              738,
+              785,
+              838,
+              857,
+              860,
+              861,
+              862,
+              1687,
+              1743,
+              1781,
+              1815,
+              1818,
+              1819,
+              1821,
+              1823
+            ],
+            "max_abs_yield_residual_on_valid_rows": 0.9780458170236327,
+            "max_dynamic_correction": 1.7602307828304327e-08,
+            "max_reference_scaled_residual": 1.6700112158902698e-10,
+            "max_updates": 11,
+            "minimum_abs_yield_residual_on_valid_rows": 9.35695965154082e-13,
+            "projection_success": 576,
+            "rows": 576
+          },
+          "plus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [],
+            "lambda_activity_crossing_rows_vs_center": 23,
+            "lambda_activity_crossing_tet_ids": [
+              594,
+              607,
+              647,
+              653,
+              666,
+              719,
+              725,
+              738,
+              785,
+              834,
+              836,
+              839,
+              862,
+              1605,
+              1612,
+              1677,
+              1683,
+              1707,
+              1743,
+              1781,
+              1794,
+              1797,
+              1805
+            ],
+            "max_abs_yield_residual_on_valid_rows": 0.9839575726216073,
+            "max_dynamic_correction": 1.9213744645033003e-08,
+            "max_reference_scaled_residual": 1.9916005390434667e-10,
+            "max_updates": 9,
+            "minimum_abs_yield_residual_on_valid_rows": 1.4570566975180554e-12,
+            "projection_success": 576,
+            "rows": 576
+          }
+        },
+        "2": {
+          "analytic_stateless": true,
+          "fd_tangent_vs_center_tangent": {
+            "actual_l2": 681657990347.6237,
+            "difference_l2": 285200348.41611373,
+            "max_component_abs": 42521558.32346344,
+            "reference_l2": 681658710988.3708,
+            "relative_to_reference": 0.00041839170220914153
+          },
+          "name": "starch2007_finite_glue_elastic"
+        }
+      },
+      "native_captured_endpoint_comparison": {
+        "independent_stress_vs_native_captured_endpoint_Pa": {
+          "minus_material_0": {
+            "actual_l2": 1047744648.7031326,
+            "difference_l2": NaN,
+            "max_component_abs": NaN,
+            "reference_l2": NaN,
+            "relative_to_reference": NaN
+          },
+          "minus_material_1": {
+            "actual_l2": 5673648.494797505,
+            "difference_l2": 0.14399900949429387,
+            "max_component_abs": 0.03083775599952787,
+            "reference_l2": 5673648.484091421,
+            "relative_to_reference": 2.5380319189329174e-08
+          },
+          "plus_material_0": {
+            "actual_l2": 1054374770.1635224,
+            "difference_l2": 31.59667140215598,
+            "max_component_abs": 15.04731285572052,
+            "reference_l2": 1054374777.7637637,
+            "relative_to_reference": 2.9967210965696414e-08
+          },
+          "plus_material_1": {
+            "actual_l2": 5125239.223558878,
+            "difference_l2": 0.13817994065029274,
+            "max_component_abs": 0.03120660048443824,
+            "reference_l2": 5125239.234120133,
+            "relative_to_reference": 2.6960681119115514e-08
+          }
+        },
+        "native_fd_vs_center_tangent_action": {
+          "actual_l2": 3.172489386849778,
+          "difference_l2": 3.1724981248777575,
+          "max_component_abs": 1.589489716912449,
+          "reference_l2": 0.00018444849085536545,
+          "relative_to_reference": 17199.91370038077
+        },
+        "native_fd_vs_independent_fp64_endpoint_action": {
+          "actual_l2": 3.172489386849778,
+          "difference_l2": NaN,
+          "max_component_abs": NaN,
+          "reference_l2": NaN,
+          "relative_to_reference": NaN
+        },
+        "native_minus_residual_l2_Ns": 0.11535720575907367,
+        "native_plus_residual_l2_Ns": 0.11514200372407284,
+        "native_side_statuses_from_event": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "all_center_and_endpoint_projection_rows_passed": false,
+      "assembled_fp64_A_endpoint_action_vs_419_independent_center_action": {
+        "actual_l2": NaN,
+        "difference_l2": NaN,
+        "max_component_abs": NaN,
+        "reference_l2": 0.00018444849064302578,
+        "relative_to_reference": NaN
+      },
+      "assembled_fp64_A_endpoint_action_vs_center_tangent_action": {
+        "actual_l2": NaN,
+        "difference_l2": NaN,
+        "max_component_abs": NaN,
+        "reference_l2": 0.00018444849085536545,
+        "relative_to_reference": NaN
+      },
+      "endpoint_mode": "unquantized FP64 Fcenter +/- epsilon*dt*H along captured direction",
+      "epsilon": 0.0009765625,
+      "material": {
+        "0": {
+          "fd_tangent_vs_center_tangent": {
+            "actual_l2": NaN,
+            "difference_l2": NaN,
+            "max_component_abs": NaN,
+            "reference_l2": 12694599201097.896,
+            "relative_to_reference": NaN
+          },
+          "minus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [],
+            "lambda_activity_crossing_rows_vs_center": 1,
+            "lambda_activity_crossing_tet_ids": [
+              423
+            ],
+            "max_abs_yield_residual_on_valid_rows": 0.9928503971078687,
+            "max_dynamic_correction": 1.7115332399894265e-08,
+            "max_reference_scaled_residual": 1.489721304078049e-10,
+            "max_updates": 7,
+            "minimum_abs_yield_residual_on_valid_rows": 1.929478798956552e-11,
+            "projection_success": 1152,
+            "rows": 1152
+          },
+          "plus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [
+              {
+                "reason": "RuntimeError: FP64 return map stalled iteration2 rows[0] norm[93.04129086]",
+                "tet_id": 1442
+              }
+            ],
+            "lambda_activity_crossing_rows_vs_center": 0,
+            "lambda_activity_crossing_tet_ids": [],
+            "max_abs_yield_residual_on_valid_rows": 0.9947715871766846,
+            "max_dynamic_correction": 1.4264052546507355e-08,
+            "max_reference_scaled_residual": 1.2699319518551395e-10,
+            "max_updates": 9,
+            "minimum_abs_yield_residual_on_valid_rows": 7.858158568296858e-13,
+            "projection_success": 1151,
+            "rows": 1152
+          }
+        },
+        "1": {
+          "fd_tangent_vs_center_tangent": {
+            "actual_l2": NaN,
+            "difference_l2": NaN,
+            "max_component_abs": NaN,
+            "reference_l2": 1877029630360.1042,
+            "relative_to_reference": NaN
+          },
+          "minus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [],
+            "lambda_activity_crossing_rows_vs_center": 3,
+            "lambda_activity_crossing_tet_ids": [
+              666,
+              1743,
+              1815
+            ],
+            "max_abs_yield_residual_on_valid_rows": 0.9787554979904055,
+            "max_dynamic_correction": 1.9814943521047795e-08,
+            "max_reference_scaled_residual": 1.7303396324067297e-10,
+            "max_updates": 9,
+            "minimum_abs_yield_residual_on_valid_rows": 2.1449508835758024e-12,
+            "projection_success": 576,
+            "rows": 576
+          },
+          "plus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [
+              {
+                "reason": "RuntimeError: FP64 return map stalled iteration0 rows[0] norm[58.28281428]",
+                "tet_id": 1818
+              }
+            ],
+            "lambda_activity_crossing_rows_vs_center": 1,
+            "lambda_activity_crossing_tet_ids": [
+              794
+            ],
+            "max_abs_yield_residual_on_valid_rows": 0.9844477780385914,
+            "max_dynamic_correction": 1.6388858690968556e-08,
+            "max_reference_scaled_residual": 1.8425233573626058e-10,
+            "max_updates": 16,
+            "minimum_abs_yield_residual_on_valid_rows": 2.0330404026935867e-12,
+            "projection_success": 575,
+            "rows": 576
+          }
+        },
+        "2": {
+          "analytic_stateless": true,
+          "fd_tangent_vs_center_tangent": {
+            "actual_l2": 681658707691.9376,
+            "difference_l2": 1113583.4203160324,
+            "max_component_abs": 165644.84029197693,
+            "reference_l2": 681658710988.3708,
+            "relative_to_reference": 1.6336377755686454e-06
+          },
+          "name": "starch2007_finite_glue_elastic"
+        }
+      },
+      "native_captured_endpoint_comparison": null
+    },
+    {
+      "all_center_and_endpoint_projection_rows_passed": false,
+      "assembled_fp64_A_endpoint_action_vs_419_independent_center_action": {
+        "actual_l2": NaN,
+        "difference_l2": NaN,
+        "max_component_abs": NaN,
+        "reference_l2": 0.00018444849064302578,
+        "relative_to_reference": NaN
+      },
+      "assembled_fp64_A_endpoint_action_vs_center_tangent_action": {
+        "actual_l2": NaN,
+        "difference_l2": NaN,
+        "max_component_abs": NaN,
+        "reference_l2": 0.00018444849085536545,
+        "relative_to_reference": NaN
+      },
+      "endpoint_mode": "unquantized FP64 Fcenter +/- epsilon*dt*H along captured direction",
+      "epsilon": 6.103515625e-05,
+      "material": {
+        "0": {
+          "fd_tangent_vs_center_tangent": {
+            "actual_l2": 12694146509843.266,
+            "difference_l2": 8606352036.878046,
+            "max_component_abs": 3152001826.480648,
+            "reference_l2": 12694599201097.896,
+            "relative_to_reference": 0.0006779538211914341
+          },
+          "minus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [],
+            "lambda_activity_crossing_rows_vs_center": 0,
+            "lambda_activity_crossing_tet_ids": [],
+            "max_abs_yield_residual_on_valid_rows": 0.9935043256625824,
+            "max_dynamic_correction": 1.4185562753379341e-08,
+            "max_reference_scaled_residual": 1.703917938827376e-10,
+            "max_updates": 9,
+            "minimum_abs_yield_residual_on_valid_rows": 1.6915358003188885e-12,
+            "projection_success": 1152,
+            "rows": 1152
+          },
+          "plus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [],
+            "lambda_activity_crossing_rows_vs_center": 0,
+            "lambda_activity_crossing_tet_ids": [],
+            "max_abs_yield_residual_on_valid_rows": 0.9937669194710473,
+            "max_dynamic_correction": 1.4094083836615088e-08,
+            "max_reference_scaled_residual": 1.3545701363717331e-10,
+            "max_updates": 9,
+            "minimum_abs_yield_residual_on_valid_rows": 1.4936940573306856e-12,
+            "projection_success": 1152,
+            "rows": 1152
+          }
+        },
+        "1": {
+          "fd_tangent_vs_center_tangent": {
+            "actual_l2": NaN,
+            "difference_l2": NaN,
+            "max_component_abs": NaN,
+            "reference_l2": 1877029630360.1042,
+            "relative_to_reference": NaN
+          },
+          "minus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [],
+            "lambda_activity_crossing_rows_vs_center": 0,
+            "lambda_activity_crossing_tet_ids": [],
+            "max_abs_yield_residual_on_valid_rows": 0.9771440824506075,
+            "max_dynamic_correction": 1.9466933198342903e-08,
+            "max_reference_scaled_residual": 1.919471102354464e-10,
+            "max_updates": 10,
+            "minimum_abs_yield_residual_on_valid_rows": 2.091216089183945e-12,
+            "projection_success": 576,
+            "rows": 576
+          },
+          "plus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [
+              {
+                "reason": "RuntimeError: FP64 return map stalled iteration1 rows[0] norm[90.89963043]",
+                "tet_id": 1691
+              }
+            ],
+            "lambda_activity_crossing_rows_vs_center": 0,
+            "lambda_activity_crossing_tet_ids": [],
+            "max_abs_yield_residual_on_valid_rows": 0.9769188232183972,
+            "max_dynamic_correction": 1.8958926497104305e-08,
+            "max_reference_scaled_residual": 1.9789969666289336e-10,
+            "max_updates": 8,
+            "minimum_abs_yield_residual_on_valid_rows": 2.084332706431269e-12,
+            "projection_success": 575,
+            "rows": 576
+          }
+        },
+        "2": {
+          "analytic_stateless": true,
+          "fd_tangent_vs_center_tangent": {
+            "actual_l2": 681658710976.4675,
+            "difference_l2": 4352.167712798302,
+            "max_component_abs": 647.4320182800293,
+            "reference_l2": 681658710988.3708,
+            "relative_to_reference": 6.384672626698891e-09
+          },
+          "name": "starch2007_finite_glue_elastic"
+        }
+      },
+      "native_captured_endpoint_comparison": null
+    },
+    {
+      "all_center_and_endpoint_projection_rows_passed": true,
+      "assembled_fp64_A_endpoint_action_vs_419_independent_center_action": {
+        "actual_l2": 0.0001844661504902829,
+        "difference_l2": 3.1834093618152047e-07,
+        "max_component_abs": 1.439729640644179e-07,
+        "reference_l2": 0.00018444849064302578,
+        "relative_to_reference": 0.0017259069731160055
+      },
+      "assembled_fp64_A_endpoint_action_vs_center_tangent_action": {
+        "actual_l2": 0.0001844661504902829,
+        "difference_l2": 3.183411968367826e-07,
+        "max_component_abs": 1.4397288931340456e-07,
+        "reference_l2": 0.00018444849085536545,
+        "relative_to_reference": 0.0017259083842892952
+      },
+      "endpoint_mode": "unquantized FP64 Fcenter +/- epsilon*dt*H along captured direction",
+      "epsilon": 3.814697265625e-06,
+      "material": {
+        "0": {
+          "fd_tangent_vs_center_tangent": {
+            "actual_l2": 12694597447552.09,
+            "difference_l2": 29070450.734898582,
+            "max_component_abs": 10440844.901657104,
+            "reference_l2": 12694599201097.896,
+            "relative_to_reference": 2.289985707653095e-06
+          },
+          "minus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [],
+            "lambda_activity_crossing_rows_vs_center": 0,
+            "lambda_activity_crossing_tet_ids": [],
+            "max_abs_yield_residual_on_valid_rows": 0.9936342254716759,
+            "max_dynamic_correction": 1.4132427362122354e-08,
+            "max_reference_scaled_residual": 7.410945996834698e-11,
+            "max_updates": 9,
+            "minimum_abs_yield_residual_on_valid_rows": 1.595168441781425e-12,
+            "projection_success": 1152,
+            "rows": 1152
+          },
+          "plus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [],
+            "lambda_activity_crossing_rows_vs_center": 0,
+            "lambda_activity_crossing_tet_ids": [],
+            "max_abs_yield_residual_on_valid_rows": 0.9936506551815678,
+            "max_dynamic_correction": 1.4119055581735185e-08,
+            "max_reference_scaled_residual": 6.419186569431869e-11,
+            "max_updates": 9,
+            "minimum_abs_yield_residual_on_valid_rows": 1.5827339439056232e-12,
+            "projection_success": 1152,
+            "rows": 1152
+          }
+        },
+        "1": {
+          "fd_tangent_vs_center_tangent": {
+            "actual_l2": 1877029627426.8782,
+            "difference_l2": 368588.94574913156,
+            "max_component_abs": 206378.86308288574,
+            "reference_l2": 1877029630360.1042,
+            "relative_to_reference": 1.9636820846478515e-07
+          },
+          "minus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [],
+            "lambda_activity_crossing_rows_vs_center": 0,
+            "lambda_activity_crossing_tet_ids": [],
+            "max_abs_yield_residual_on_valid_rows": 0.9770387736738714,
+            "max_dynamic_correction": 1.922810088511842e-08,
+            "max_reference_scaled_residual": 1.9412248717629617e-10,
+            "max_updates": 8,
+            "minimum_abs_yield_residual_on_valid_rows": 2.0881074647149944e-12,
+            "projection_success": 576,
+            "rows": 576
+          },
+          "plus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [],
+            "lambda_activity_crossing_rows_vs_center": 0,
+            "lambda_activity_crossing_tet_ids": [],
+            "max_abs_yield_residual_on_valid_rows": 0.9770246947993947,
+            "max_dynamic_correction": 1.9196350803450896e-08,
+            "max_reference_scaled_residual": 1.981474011708007e-10,
+            "max_updates": 8,
+            "minimum_abs_yield_residual_on_valid_rows": 2.0872192862952943e-12,
+            "projection_success": 576,
+            "rows": 576
+          }
+        },
+        "2": {
+          "analytic_stateless": true,
+          "fd_tangent_vs_center_tangent": {
+            "actual_l2": 681658710996.3501,
+            "difference_l2": 2055.6763590166456,
+            "max_component_abs": 281.85923355817795,
+            "reference_l2": 681658710988.3708,
+            "relative_to_reference": 3.0156973363342167e-09
+          },
+          "name": "starch2007_finite_glue_elastic"
+        }
+      },
+      "native_captured_endpoint_comparison": null
+    },
+    {
+      "all_center_and_endpoint_projection_rows_passed": true,
+      "assembled_fp64_A_endpoint_action_vs_419_independent_center_action": {
+        "actual_l2": 0.00018444853635284547,
+        "difference_l2": 4.142922160497251e-09,
+        "max_component_abs": 7.576256995933918e-10,
+        "reference_l2": 0.00018444849064302578,
+        "relative_to_reference": 2.2461133436517495e-05
+      },
+      "assembled_fp64_A_endpoint_action_vs_center_tangent_action": {
+        "actual_l2": 0.00018444853635284547,
+        "difference_l2": 4.1430912249352284e-09,
+        "max_component_abs": 7.576256993080476e-10,
+        "reference_l2": 0.00018444849085536545,
+        "relative_to_reference": 2.246205000497411e-05
+      },
+      "endpoint_mode": "unquantized FP64 Fcenter +/- epsilon*dt*H along captured direction",
+      "epsilon": 2.384185791015625e-07,
+      "material": {
+        "0": {
+          "fd_tangent_vs_center_tangent": {
+            "actual_l2": 12694599202759.924,
+            "difference_l2": 464459.7492393292,
+            "max_component_abs": 41100.93413925171,
+            "reference_l2": 12694599201097.896,
+            "relative_to_reference": 3.658719285908296e-08
+          },
+          "minus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [],
+            "lambda_activity_crossing_rows_vs_center": 0,
+            "lambda_activity_crossing_tet_ids": [],
+            "max_abs_yield_residual_on_valid_rows": 0.9936419535308872,
+            "max_dynamic_correction": 1.412644916043131e-08,
+            "max_reference_scaled_residual": 7.015150416203446e-11,
+            "max_updates": 9,
+            "minimum_abs_yield_residual_on_valid_rows": 1.589173237448449e-12,
+            "projection_success": 1152,
+            "rows": 1152
+          },
+          "plus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [],
+            "lambda_activity_crossing_rows_vs_center": 0,
+            "lambda_activity_crossing_tet_ids": [],
+            "max_abs_yield_residual_on_valid_rows": 0.9936429803920351,
+            "max_dynamic_correction": 1.4125614696797014e-08,
+            "max_reference_scaled_residual": 6.980917166054404e-11,
+            "max_updates": 9,
+            "minimum_abs_yield_residual_on_valid_rows": 1.588507103633674e-12,
+            "projection_success": 1152,
+            "rows": 1152
+          }
+        },
+        "1": {
+          "fd_tangent_vs_center_tangent": {
+            "actual_l2": 1877029626052.613,
+            "difference_l2": 200010.0546167072,
+            "max_component_abs": 19634.95951271057,
+            "reference_l2": 1877029630360.1042,
+            "relative_to_reference": 1.06556684764926e-07
+          },
+          "minus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [],
+            "lambda_activity_crossing_rows_vs_center": 0,
+            "lambda_activity_crossing_tet_ids": [],
+            "max_abs_yield_residual_on_valid_rows": 0.9770321753002784,
+            "max_dynamic_correction": 1.9213215284320665e-08,
+            "max_reference_scaled_residual": 1.966765662861243e-10,
+            "max_updates": 8,
+            "minimum_abs_yield_residual_on_valid_rows": 2.0874413309002193e-12,
+            "projection_success": 576,
+            "rows": 576
+          },
+          "plus": {
+            "branch_scope": "lambda increment > 0 and reported Hill yield residual only; not a complete active-set signature",
+            "failure_examples": [],
+            "lambda_activity_crossing_rows_vs_center": 0,
+            "lambda_activity_crossing_tet_ids": [],
+            "max_abs_yield_residual_on_valid_rows": 0.9770312953711331,
+            "max_dynamic_correction": 1.9211230904264902e-08,
+            "max_reference_scaled_residual": 1.976219672294607e-10,
+            "max_updates": 8,
+            "minimum_abs_yield_residual_on_valid_rows": 2.0874413309002193e-12,
+            "projection_success": 576,
+            "rows": 576
+          }
+        },
+        "2": {
+          "analytic_stateless": true,
+          "fd_tangent_vs_center_tangent": {
+            "actual_l2": 681658710356.128,
+            "difference_l2": 33947.41550459745,
+            "max_component_abs": 4868.210419178009,
+            "reference_l2": 681658710988.3708,
+            "relative_to_reference": 4.980119076799503e-08
+          },
+          "name": "starch2007_finite_glue_elastic"
+        }
+      },
+      "native_captured_endpoint_comparison": null
+    }
+  ],
+  "native_endpoint_projection_validation": {},
+  "operator_action_crosscheck": {
+    "422_term_selection": {
+      "control_step": 1,
+      "newton_iteration": 48
+    },
+    "independent_fp64_center_action_vs_native422_fresh_action": {
+      "actual_l2": 0.000184449280610251,
+      "difference_l2": 5.206512448669199e-09,
+      "max_component_abs": 2.233191149791393e-09,
+      "reference_l2": 0.00018444849064302578,
+      "relative_to_reference": 2.8227460308936193e-05
+    },
+    "native422_reported": {
+      "correction_l2_m_per_s": 188.12041150008727,
+      "free_nodes": 846,
+      "fresh_action_l2_Ns": 0.00018444928061025096,
+      "fresh_rhs_minus_Ax_l2_Ns": 2.501605015163572e-06,
+      "fresh_vs_captured_action_difference_l2_Ns": 0,
+      "rhs_l2_Ns": 0.00018444380407784303
+    },
+    "native_captured_action_vs_independent_fp64_center_action": {
+      "actual_l2": 0.000184449280610251,
+      "difference_l2": 5.206512448669199e-09,
+      "max_component_abs": 2.233191149791393e-09,
+      "reference_l2": 0.00018444849064302578,
+      "relative_to_reference": 2.8227460308936193e-05
+    },
+    "native_fresh_action_vs_native_capture": {
+      "actual_l2": 0.000184449280610251,
+      "difference_l2": 0.0,
+      "max_component_abs": 0.0,
+      "reference_l2": 0.000184449280610251,
+      "relative_to_reference": 0.0
+    },
+    "source125_world_fingerprint_hex": "75c1264bc96ac2d9",
+    "term_replay_operator_path": "production nm_fem_apply_operator_elements plus nm_fgmres_gather_nodes; same captured candidate, accepted history, parameters, direction, and dt; useCache=1 versus useCache=0"
+  },
+  "schema": "numi.cardboard.operator-fd-independent-smallstep.v1",
+  "scope": "environment 0, root1/Newton48, fixed captured accepted history, 1920 tetrahedra",
+  "selection": {
+    "dt_seconds": 9.999999747378752e-05,
+    "environment": 0,
+    "eps_native_exact_endpoint": 0.015625,
+    "newton_iteration": 48,
+    "nodes": 882,
+    "root": 1,
+    "tets": 1920
+  },
+  "status": "complete_diagnostic",
+  "wall_seconds": 1.9253345420002006,
+  "warnings": [
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    }
+  ]
+}

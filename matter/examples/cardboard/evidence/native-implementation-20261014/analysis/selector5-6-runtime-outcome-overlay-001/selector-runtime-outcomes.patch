@@ -1,0 +1,236 @@
+--- a/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm
++++ b/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm
+@@ -19,6 +19,7 @@
+ #include <filesystem>
+ #include <functional>
+ #include <iostream>
++#include <iomanip>
+ #include <stdexcept>
+ #include <string>
+ #include <string_view>
+@@ -1209,11 +1210,85 @@
+          "selector5/6 compile changed a solver control besides the selector");
+ }
+ 
++template <typename T>
++std::string rawVectorHex(const std::vector<T>& values) {
++    static constexpr char digits[] = "0123456789abcdef";
++    const auto* bytes = reinterpret_cast<const std::uint8_t*>(values.data());
++    const std::size_t byteCount = values.size() * sizeof(T);
++    std::string result;
++    result.resize(byteCount * 2u);
++    for (std::size_t i = 0u; i < byteCount; ++i) {
++        result[2u * i] = digits[bytes[i] >> 4u];
++        result[2u * i + 1u] = digits[bytes[i] & 0x0fu];
++    }
++    return result;
++}
++
++std::string rawStringHex(const std::string& value) {
++    static constexpr char digits[] = "0123456789abcdef";
++    std::string result;
++    result.resize(value.size() * 2u);
++    for (std::size_t i = 0u; i < value.size(); ++i) {
++        const auto byte = static_cast<std::uint8_t>(value[i]);
++        result[2u * i] = digits[byte >> 4u];
++        result[2u * i + 1u] = digits[byte & 0x0fu];
++    }
++    return result;
++}
++
++void printSelectorRuntimeOutcome(
++    const char* label,
++    const RuntimeStateSnapshot& snapshot,
++    const std::string& error,
++    const std::size_t residentBytes
++) {
++    std::cout << "selector_runtime_outcome label=" << label
++              << " snapshot_available=" << snapshot.available
++              << " source_fingerprint=" << snapshot.sourcePhysicsFingerprint
++              << " device_program_fingerprint=" << snapshot.deviceProgramFingerprint
++              << " control_step=" << snapshot.controlStep
++              << " physics_substep=" << snapshot.physicsSubstep
++              << " status_count=" << snapshot.statuses.size()
++              << " certificate_count=" << snapshot.solverCertificates.size()
++              << " fem_node_count=" << snapshot.femNodes.size()
++              << " resident_bytes_reported=" << residentBytes
++              << " message_hex=" << rawStringHex(snapshot.message)
++              << " error_hex=" << rawStringHex(error)
++              << " statuses_raw_hex=" << rawVectorHex(snapshot.statuses)
++              << " certificates_raw_hex=" << rawVectorHex(snapshot.solverCertificates)
++              << " fem_nodes_raw_hex=" << rawVectorHex(snapshot.femNodes) << '\n';
++    std::cout << std::setprecision(9);
++    for (std::size_t i = 0u; i < snapshot.statuses.size(); ++i) {
++        const auto& status = snapshot.statuses[i];
++        std::cout << "selector_runtime_status label=" << label << " index=" << i
++                  << " code=" << status.code << " environment=" << status.environment
++                  << " object=" << status.objectIndex << " failing_index=" << status.failingIndex
++                  << " completed_microsteps=" << status.completedMicrosteps
++                  << " fgmres_iterations=" << status.fgmresIterations
++                  << " contact_count=" << status.contactCount << " event_count=" << status.eventCount
++                  << " diagnostics=" << status.diagnostics.x << ',' << status.diagnostics.y << ','
++                  << status.diagnostics.z << ',' << status.diagnostics.w << '\n';
++    }
++    for (std::size_t i = 0u; i < snapshot.solverCertificates.size(); ++i) {
++        const auto& certificate = snapshot.solverCertificates[i];
++        std::cout << "selector_runtime_certificate label=" << label << " index=" << i
++                  << " nonlinear=" << certificate.nonlinear.x << ',' << certificate.nonlinear.y << ','
++                  << certificate.nonlinear.z << ',' << certificate.nonlinear.w
++                  << " contact=" << certificate.contact.x << ',' << certificate.contact.y << ','
++                  << certificate.contact.z << ',' << certificate.contact.w
++                  << " transport=" << certificate.transport.x << ',' << certificate.transport.y << ','
++                  << certificate.transport.z << ',' << certificate.transport.w
++                  << " validity=" << certificate.validity.x << ',' << certificate.validity.y << ','
++                  << certificate.validity.z << ',' << certificate.validity.w << '\n';
++    }
++}
++
+ RuntimeStateSnapshot runOneAcceptedRelease(
+     const CompiledWorld& world,
+     id<MTLDevice> device,
+     id<MTLCommandQueue> queue,
+-    const float appliedForce
++    const float appliedForce,
++    std::size_t& residentBytes
+ ) {
+     RuntimeConfiguration configuration;
+     configuration.metallib = std::filesystem::path(NUMI_MATTER_METALLIB);
+@@ -1223,6 +1298,13 @@
+     configuration.adaptiveTransfer = false;
+     Runtime runtime;
+     const RuntimeDiagnostics initialized = runtime.initialize(world, configuration);
++    residentBytes = initialized.residentBytes;
++    std::cout << "selector_runtime_initialization mode="
++              << world.mixedSolver.executionBudgets.z
++              << " encoded=" << initialized.encoded
++              << " resident_bytes_reported=" << initialized.residentBytes
++              << " device_hex=" << rawStringHex(initialized.device)
++              << " message_hex=" << rawStringHex(initialized.message) << '\n';
+     need(initialized.encoded,
+          "selector runtime initialization failed: " + initialized.message);
+ 
+@@ -1253,45 +1335,27 @@
+     request.femKinematicTargetCount = static_cast<std::uint32_t>(targets.size());
+     request.phase = EncodePhase::preDynamics;
+     RuntimeDiagnostics encoded = runtime.encode(request);
++    std::cout << "selector_runtime_encode mode=" << world.mixedSolver.executionBudgets.z
++              << " phase=preDynamics encoded=" << encoded.encoded
++              << " message_hex=" << rawStringHex(encoded.message) << '\n';
+     need(encoded.encoded, "selector preDynamics failed: " + encoded.message);
+     request.phase = EncodePhase::postCommit;
+     encoded = runtime.encode(request);
++    std::cout << "selector_runtime_encode mode=" << world.mixedSolver.executionBudgets.z
++              << " phase=postCommit encoded=" << encoded.encoded
++              << " message_hex=" << rawStringHex(encoded.message) << '\n';
+     need(encoded.encoded, "selector postCommit failed: " + encoded.message);
+     [command commit];
+     [command waitUntilCompleted];
++    std::cout << "selector_runtime_command mode=" << world.mixedSolver.executionBudgets.z
++              << " command_status=" << static_cast<unsigned>(command.status)
++              << " error_hex=" << rawStringHex(command.error == nil ? std::string{} :
++                    std::string([[command.error.localizedDescription description] UTF8String]))
++              << '\n';
+     need(command.status == MTLCommandBufferStatusCompleted,
+          command.error == nil ? "selector parity command failed" :
+          std::string([[command.error.localizedDescription description] UTF8String]));
+-    RuntimeStateSnapshot snapshot = runtime.snapshot();
+-    need(snapshot.available, "selector parity snapshot failed: " + snapshot.message);
+-    need(snapshot.statuses.size() == world.dispatch.environmentCount &&
+-             snapshot.statuses[0].code == NM_STATUS_SUCCESS &&
+-             snapshot.solverCertificates.size() == world.dispatch.environmentCount &&
+-             snapshot.solverCertificates[0].validity.w > 0.5f,
+-         "selector did not produce the same accepted-status/certificate outcome");
+-    const float relativeCorrection = snapshot.solverCertificates[0].nonlinear.y;
+-    need(std::isfinite(relativeCorrection) && relativeCorrection > 0.0f,
+-         "selector runtime fixture accepted without a nonzero mechanical correction; "
+-         "the initial nonlinear latch may have bypassed Krylov work");
+-    need(snapshot.femNodes.size() == world.dispatch.femNodeCount &&
+-             snapshot.femNodes[2].restAndFixed.w == 0.0f &&
+-             snapshot.femNodes[3].restAndFixed.w == 1.0f,
+-         "selector release/remaining-fixed postcondition failed");
+-    const auto& initialLoadedNode = world.fem.nodes[2].positionAndMass;
+-    const auto& finalLoadedNode = snapshot.femNodes[2].positionAndMass;
+-    const double loadedNodeMotion = std::sqrt(
+-        std::pow(double(finalLoadedNode.x - initialLoadedNode.x), 2.0) +
+-        std::pow(double(finalLoadedNode.y - initialLoadedNode.y), 2.0) +
+-        std::pow(double(finalLoadedNode.z - initialLoadedNode.z), 2.0));
+-    need(std::isfinite(loadedNodeMotion) && loadedNodeMotion > 1.0e-8,
+-         "selector runtime fixture produced no representable loaded-node motion");
+-    std::cout << "selector_runtime_accounting mode="
+-              << world.mixedSolver.executionBudgets.z
+-              << " resident_bytes_reported=" << initialized.residentBytes
+-              << " accepted_relative_correction=" << relativeCorrection
+-              << " loaded_node_motion_m=" << loadedNodeMotion
+-              << " accounting_only=1 peak_resident_memory=not_measured\n";
+-    return snapshot;
++    return runtime.snapshot();
+ }
+ 
+ void checkSelector5And6AcceptanceParity(const std::filesystem::path& materialPath) {
+@@ -1303,10 +1367,62 @@
+     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+     need(device != nil, "selector parity requires a Metal device");
+     id<MTLCommandQueue> queue = [device newCommandQueue];
+-    const RuntimeStateSnapshot fiveState = runOneAcceptedRelease(
+-        five.world, device, queue, 1.0e-2f);
+-    const RuntimeStateSnapshot sixState = runOneAcceptedRelease(
+-        six.world, device, queue, 1.0e-2f);
++    RuntimeStateSnapshot fiveState{};
++    RuntimeStateSnapshot sixState{};
++    std::string fiveError, sixError;
++    std::size_t fiveResidentBytes = 0u, sixResidentBytes = 0u;
++    try {
++        fiveState = runOneAcceptedRelease(five.world, device, queue, 1.0e-2f,
++                                          fiveResidentBytes);
++    } catch (const std::exception& error) {
++        fiveError = error.what();
++    }
++    try {
++        sixState = runOneAcceptedRelease(six.world, device, queue, 1.0e-2f,
++                                         sixResidentBytes);
++    } catch (const std::exception& error) {
++        sixError = error.what();
++    }
++    printSelectorRuntimeOutcome("selector5", fiveState, fiveError, fiveResidentBytes);
++    printSelectorRuntimeOutcome("selector6", sixState, sixError, sixResidentBytes);
++    const auto acceptedOutcome = [](const RuntimeStateSnapshot& state,
++                                    const std::string& error,
++                                    const std::uint32_t environmentCount) {
++        return error.empty() && state.available &&
++            state.statuses.size() == environmentCount &&
++            state.statuses[0].code == NM_STATUS_SUCCESS &&
++            state.solverCertificates.size() == environmentCount &&
++            state.solverCertificates[0].validity.w > 0.5f;
++    };
++    need(acceptedOutcome(fiveState, fiveError, five.world.dispatch.environmentCount) &&
++             acceptedOutcome(sixState, sixError, six.world.dispatch.environmentCount),
++         "selector accepted-status/certificate gate failed; both complete outcomes were emitted above");
++    for (const auto* state : {&fiveState, &sixState}) {
++        const float relativeCorrection = state->solverCertificates[0].nonlinear.y;
++        need(std::isfinite(relativeCorrection) && relativeCorrection > 0.0f,
++             "selector runtime fixture accepted without a nonzero mechanical correction; "
++             "the initial nonlinear latch may have bypassed Krylov work");
++        need(state->femNodes.size() == five.world.dispatch.femNodeCount &&
++                 state->femNodes[2].restAndFixed.w == 0.0f &&
++                 state->femNodes[3].restAndFixed.w == 1.0f,
++             "selector release/remaining-fixed postcondition failed");
++    }
++    const auto requireLoadedMotion = [](const RuntimeStateSnapshot& state,
++                                        const CompiledWorld& world) {
++        const auto& initialLoadedNode = world.fem.nodes[2].positionAndMass;
++        const auto& finalLoadedNode = state.femNodes[2].positionAndMass;
++        const double loadedNodeMotion = std::sqrt(
++            std::pow(double(finalLoadedNode.x - initialLoadedNode.x), 2.0) +
++            std::pow(double(finalLoadedNode.y - initialLoadedNode.y), 2.0) +
++            std::pow(double(finalLoadedNode.z - initialLoadedNode.z), 2.0));
++        need(std::isfinite(loadedNodeMotion) && loadedNodeMotion > 1.0e-8,
++             "selector runtime fixture produced no representable loaded-node motion");
++        return loadedNodeMotion;
++    };
++    const double fiveLoadedMotion = requireLoadedMotion(fiveState, five.world);
++    const double sixLoadedMotion = requireLoadedMotion(sixState, six.world);
++    std::cout << "selector_runtime_loaded_motion mode=5 metres=" << fiveLoadedMotion << '\n'
++              << "selector_runtime_loaded_motion mode=6 metres=" << sixLoadedMotion << '\n';
+     double maxPositionDifference = 0.0;
+     double maxVelocityDifference = 0.0;
+     for (std::size_t node = 0u; node < fiveState.femNodes.size(); ++node) {

@@ -1,0 +1,25 @@
+{
+  "schema": "numi.cardboard.audit-evidence.v1",
+  "files": {
+    "audit.py": {
+      "bytes": 5263,
+      "sha256": "d06847678b78716c67966c5ca1772a79d7faa66edfc46c79da50f15715982ced"
+    },
+    "environment-0-per-element.json": {
+      "bytes": 835088,
+      "sha256": "3da98c6ae04069a919f354050a1a1f6c1ea3bf924d456a985ca0ec7c966206ea"
+    },
+    "environment-1-per-element.json": {
+      "bytes": 682221,
+      "sha256": "12f5c3fd8572e1ed8891aea2d248c76238f3b43357ad4d65188b029c38436a77"
+    },
+    "report.json": {
+      "bytes": 22911,
+      "sha256": "40ac2b18f8f2544797072bfb22f1141c967b32b6485cc9c2646d2cfe348d612f"
+    },
+    "vectors.npz": {
+      "bytes": 237676,
+      "sha256": "c17ee67ba021bdcd28314e7a90eeed73f6c1613bf0b47e53abc668948be34574"
+    }
+  }
+}

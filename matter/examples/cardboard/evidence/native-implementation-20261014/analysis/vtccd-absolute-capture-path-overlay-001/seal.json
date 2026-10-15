@@ -1,0 +1,8 @@
+{
+  "schema": "numi.cardboard.overlay-seal.v1",
+  "manifest": "manifest.json",
+  "manifest_sha256": "c683971fac987e7090ba04b7af1ee6c15bbebd923027f6eae899807a871548eb",
+  "patch_sha256": "1030599218a02ce0d2b66ea554c5eede0928808ba9f9781f97a4606d24b9ed5b",
+  "artifact_count": 13,
+  "artifact_inventory_sha256": "e5741f98e7e8713335d8629b7b1dc8a582d36bb8a78d23fde19a8ca48ffcd680"
+}

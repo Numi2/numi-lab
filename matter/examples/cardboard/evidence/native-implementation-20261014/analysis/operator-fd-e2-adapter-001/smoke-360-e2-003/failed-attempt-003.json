@@ -1,0 +1,9 @@
+{
+  "status": "failed_attempt_preserved",
+  "error": "ValueError: analytic glue stress used unexpanded per-tet mu/lambda vectors; broadcasting shape mismatch, fixed by explicit [n,1,1] dimensions",
+  "input_capture_sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+  "failed_script_sha256": "previous adapter revision before broadcast fix",
+  "subsequent_script_sha256": "84feb8a76e9aebc0105f4ec55ac4009e15b41bef956d48823016c686a373d479",
+  "failure_time_utc": "2026-10-15T19:18:02.906599+00:00",
+  "scope": "adapter smoke only; no solver/native state changed"
+}

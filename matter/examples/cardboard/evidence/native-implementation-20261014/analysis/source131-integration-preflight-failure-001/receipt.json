@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.source-integration-rejection.v1",
+  "time_utc": "2026-10-15T19:29:50.569718+00:00",
+  "source131_created": false,
+  "patch_applied": false,
+  "reason": "Source overlay candidate changed after seal; hash verification rejected before clone or mutation.",
+  "overlay_manifest_sha256": "75e1326759f2089a6f8c04cb94cf27d97091465e12d17f6d1105d338d7d8504e",
+  "path": "candidate/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm",
+  "expected_sha256": "2727109d414ed75662d2f135002d4b04bfa6ed1a095459008362c8a7ab5a065f",
+  "observed_sha256": "4d1aca6a92f2bb28c0c3aa15f37e32bf531dfb091d71cef3792c2ecc9a375d9e",
+  "patch_sha256": "1dad9db30931b963497c9a0153dd5fb3c04c812f7f1678b59fc33e69845f5598",
+  "owner_acknowledged_post_seal_edit": true,
+  "scientific_result_reclassified": false
+}

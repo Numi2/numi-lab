@@ -1,0 +1,22 @@
+[
+  "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+  "/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-status-includes-129/matter/tools/cardboard_source_bound_run.py",
+  "--source-snapshot",
+  "/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-status-includes-129",
+  "--runtime-dir",
+  "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-129",
+  "--build-provenance",
+  "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-129/source-build.json",
+  "--case",
+  "/Users/home/cardboard-implementation-20261014/native/hybrid-status-bound-native-420",
+  "--timeout",
+  "900",
+  "--question",
+  "Does selector6 preserve the native operator and pass exact covered/uncovered/fixed-node, fatal-invalid-factor and accepted-release checks?",
+  "--prediction",
+  "Conditioning only. Existing physical operator and acceptance gates unchanged. Check actual basis-column RHS rather than P0, covered Schwarz and uncovered certified block inverse, fixed zero, and selector5/6 accepted runtime parity. Tiny fixture success does not qualify shipping mesh, peak allocation or convergence. Preserve failure/timeout.",
+  "--",
+  "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-129/matter/numi-matter-cardboard-preconditioner-gpu-check",
+  "/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-status-includes-129/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+  "/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-status-includes-129/matter/materials/hajali2009_medium_hill_ideal.nmatter"
+]

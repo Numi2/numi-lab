@@ -1,0 +1,11 @@
+--- /Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-status-bound-128/matter/CMakeLists.txt	2026-10-15 20:51:58
++++ /Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-status-includes-129/matter/CMakeLists.txt	2026-10-15 21:14:48
+@@ -1601,6 +1601,8 @@
+         tools/cardboard_fgmres_preconditioner_gpu_check.mm)
+     target_link_libraries(numi-matter-cardboard-preconditioner-gpu-check PRIVATE
+         numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
++    target_include_directories(numi-matter-cardboard-preconditioner-gpu-check PRIVATE
++        "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+     target_compile_definitions(numi-matter-cardboard-preconditioner-gpu-check PRIVATE
+         NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+     target_compile_options(numi-matter-cardboard-preconditioner-gpu-check PRIVATE

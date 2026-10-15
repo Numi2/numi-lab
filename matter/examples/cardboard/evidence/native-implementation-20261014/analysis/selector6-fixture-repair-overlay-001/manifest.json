@@ -1,0 +1,184 @@
+{
+  "schema": "numi.cardboard.selector6_fixture_repair.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-regional-preconditioner-124",
+  "base_source_build_manifest": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-124/source-build.json",
+  "base_source_build_manifest_sha256": "af34879a438320a64c8ee375be309cf12df30329474e439bc304149a106da9a9",
+  "base_source_file_hashes": {
+    "matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm": {
+      "sha256": "b9386ff65709cc51dff58d756f6f6fcac34c2cf8c613862cddf2c76bc241b2c1",
+      "candidate_sha256": "6b2990606fb95016cb30ccf79d023878b01c1e0bf2dea534d5f22bccf29c7f5b"
+    },
+    "matter/tools/stateful_check.cpp": {
+      "sha256": "60f2cc1b18cb5c857d78e6bbcef916281749f2b404f50ce93aa3f9a467fb8f80",
+      "candidate_sha256": "d7b735f37d3142649c945613b5b3e25f15b9542ec42765f26d6264f72680e48b"
+    },
+    "matter/materials/hajali2009_liner_hill_ideal.nmatter": {
+      "sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d"
+    },
+    "source-build.json": {
+      "sha256": "af34879a438320a64c8ee375be309cf12df30329474e439bc304149a106da9a9"
+    }
+  },
+  "preserved_failure_inputs": {
+    "native/412/stdout.log": {
+      "sha256": "b0135def453e46467fce2186b0436409f2d79a852b0e81482ddc1542828cd385"
+    },
+    "native/412/stderr.log": {
+      "sha256": "7f34ba2022480b74b9f8c17dfb586c286160640da8ade816be7f343ddaf30705"
+    },
+    "native/412/receipt.json": {
+      "sha256": "55c22e43868ce81ffff0704be95acc0b411937ec54f450d1e3e15085a62b483a"
+    },
+    "native/412/prediction.json": {
+      "sha256": "59a41541804772be66c768649971b8d5f055ed01da0bcbb706d221cd0718ed2f"
+    },
+    "native/413/stdout.log": {
+      "sha256": "5caba7d22ba6bdfb80219164218c80c2c57c19eac7db5c7fb4bc209bb8835d6d"
+    },
+    "native/413/stderr.log": {
+      "sha256": "8b939c20d552173d27c862821529f71139744808e1f4ac8c5c9ab0e21034c6ff"
+    },
+    "native/413/receipt.json": {
+      "sha256": "47f1827808f70d1e045275942b38f07c00e51c4cdf7a4a34d33eb9420ed98445"
+    },
+    "native/413/prediction.json": {
+      "sha256": "9ec702b488195d333923f486b0aef69b91070ab90fa57724d8db5c959dea97a4"
+    },
+    "cpu-checks-124/stdout.log": {
+      "sha256": "a4784910b05259a10ba8d90c80e0e6b94ce115505422493032d820c3d0309e3d"
+    },
+    "cpu-checks-124/receipt.json": {
+      "sha256": "dc497627c72812e2944f46d21d51557aa32285cbe48cbd377890a0315c3e3ff1"
+    }
+  },
+  "candidate_files": {
+    "matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm": {
+      "sha256": "6b2990606fb95016cb30ccf79d023878b01c1e0bf2dea534d5f22bccf29c7f5b"
+    },
+    "matter/tools/stateful_check.cpp": {
+      "sha256": "d7b735f37d3142649c945613b5b3e25f15b9542ec42765f26d6264f72680e48b"
+    }
+  },
+  "patch": {
+    "path": "patch.diff",
+    "sha256": "8efbfd8bdd03a7c9f338023ac555abdad15531aae47bdead0ac226adc75020b9"
+  },
+  "scope": "Fixture-only: author compact region 0 for regional Galerkin preconditioner test worlds; clear it from scalar control world; update invalid selector test from 6 to 7; add no-GPU selector6 compile-only entry point. No production validation, runtime, kernels, solver policy, physical operator, tolerances, or capture behavior changed.",
+  "validation": {
+    "strict_objcxx_syntax": {
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stateful_cpu_check": {
+      "exit_code": 0,
+      "stdout_sha256": "48a5dccf690e82b9e38183de3556d1887da9c3945ccfd7dd8849ca01c3baaaba",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "binary_sha256": "0a0d3880f57afa3d246fadaab1230ad5095eb0e0ed47bbc0d33fdf30194a50f6"
+    },
+    "selector6_compile_only": {
+      "exit_code": 0,
+      "stdout_sha256": "d06d8fc41b0af0b1cee34f3049c25b3364323bd23252bfc77f0fb4d94f7136e5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "binary_sha256": "ed308903fd816417162c50ed62a617d5fe467b499c17cfb5612eaccb8ad4e3a6",
+      "gpu_initialized": false,
+      "physical_validation": false
+    },
+    "patch_reconstruction": {
+      "exit_code": 0,
+      "result": "dry-run and apply on temporary copy passed; both reconstructed candidate hashes matched"
+    },
+    "prior_native_and_cpu_failures": {
+      "412": "wrong material fixture arguments; retained, not used as repaired baseline",
+      "413": "corrected material arguments; selector6 compilation failed because fixture had no authored regional ID; retained, not overwritten",
+      "cpu_checks_124": "73/74 passed; only stateful_roundtrip used selector 6 as invalid; preserved log and receipt"
+    }
+  },
+  "artifact_inventory": [
+    {
+      "path": "README.md",
+      "sha256": "321ee330168c3615d5b26ce6d6d1130289bf6b716ca48ae2e7a4bdc4e6f5fd78",
+      "bytes": 2169
+    },
+    {
+      "path": "candidate/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm",
+      "sha256": "6b2990606fb95016cb30ccf79d023878b01c1e0bf2dea534d5f22bccf29c7f5b",
+      "bytes": 69006
+    },
+    {
+      "path": "candidate/matter/tools/stateful_check.cpp",
+      "sha256": "d7b735f37d3142649c945613b5b3e25f15b9542ec42765f26d6264f72680e48b",
+      "bytes": 30225
+    },
+    {
+      "path": "clang-syntax.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "clang-syntax.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "numi-matter-cardboard-preconditioner-gpu-check",
+      "sha256": "ed308903fd816417162c50ed62a617d5fe467b499c17cfb5612eaccb8ad4e3a6",
+      "bytes": 1831152
+    },
+    {
+      "path": "numi-matter-stateful-check",
+      "sha256": "0a0d3880f57afa3d246fadaab1230ad5095eb0e0ed47bbc0d33fdf30194a50f6",
+      "bytes": 658888
+    },
+    {
+      "path": "patch.diff",
+      "sha256": "8efbfd8bdd03a7c9f338023ac555abdad15531aae47bdead0ac226adc75020b9",
+      "bytes": 3808
+    },
+    {
+      "path": "patch.sha256",
+      "sha256": "a7552e6ef937bc864ccd830d0329c33713ccdd2ace14af1578c4fd3aeeb7847f",
+      "bytes": 77
+    },
+    {
+      "path": "preconditioner_gpu_check.o",
+      "sha256": "0cba94016eb9e7edda34bf87cef1ee8b99d17fbaf2d8ee0ca2c5e50b42c53173",
+      "bytes": 240384
+    },
+    {
+      "path": "selector6-compile-only.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "selector6-compile-only.stdout.log",
+      "sha256": "d06d8fc41b0af0b1cee34f3049c25b3364323bd23252bfc77f0fb4d94f7136e5",
+      "bytes": 142
+    },
+    {
+      "path": "stateful-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "stateful-check.stdout.log",
+      "sha256": "48a5dccf690e82b9e38183de3556d1887da9c3945ccfd7dd8849ca01c3baaaba",
+      "bytes": 126
+    },
+    {
+      "path": "stateful_check.cpp.o",
+      "sha256": "0d47d95d345878976578b4b468d55d5242c4a829952a4c8a1307f7853bffdc4a",
+      "bytes": 119488
+    },
+    {
+      "path": "validation-results.json",
+      "sha256": "f1885fa73f720b4ee310d9cc64eacd825e5e5af1eb4527c83973c7b8aaaed57a",
+      "bytes": 1482
+    },
+    {
+      "path": "validation_commands.txt",
+      "sha256": "93a782f0dedab6b54eded9adfa13e33e9a24b26609b10b15929a63502b7700af",
+      "bytes": 1859
+    }
+  ]
+}

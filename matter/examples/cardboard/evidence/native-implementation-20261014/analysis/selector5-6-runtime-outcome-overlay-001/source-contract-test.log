@@ -1,0 +1,1 @@
+PASS: frozen checker base; both modes run independently; raw status/certificate/node outcomes emitted before unchanged acceptance gate

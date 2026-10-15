@@ -1,0 +1,5 @@
+Objective-C++ syntax: PASS
+Metal compile: PASS
+Metal library link: PASS
+Source contract and dry-run: PASS
+Native GPU run: NOT PERFORMED

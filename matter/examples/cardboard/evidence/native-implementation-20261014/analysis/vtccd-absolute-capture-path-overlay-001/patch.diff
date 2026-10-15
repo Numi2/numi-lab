@@ -1,0 +1,93 @@
+--- a/matter/tools/cardboard_vtccd_iteration_budget_check.mm
++++ b/matter/tools/cardboard_vtccd_iteration_budget_check.mm
+@@ -81,6 +81,39 @@
+     require([value isKindOfClass:[NSString class]],
+         std::string("missing string JSON field ") + [key UTF8String]);
+     return [value UTF8String];
++}
++
++NSString* resolveAdjacentPayloadPath(NSString* manifestPath,
++                                     const std::string& payloadValue) {
++    NSString* manifestInput = [manifestPath stringByStandardizingPath];
++    NSURL* manifestURL = [NSURL fileURLWithPath:manifestInput];
++    NSURL* resolvedManifestURL = [manifestURL URLByResolvingSymlinksInPath];
++    require(resolvedManifestURL != nil,
++        "capture manifest path cannot be resolved");
++    NSString* manifestDirectory = [[resolvedManifestURL.URLByDeletingLastPathComponent
++        path] stringByStandardizingPath];
++    NSString* payloadInput = [NSString stringWithUTF8String:payloadValue.c_str()];
++    require(payloadInput != nil && payloadValue.size() > 0u,
++        "capture payload path is empty or invalid UTF-8");
++
++    NSString* candidatePath = nil;
++    if ([payloadInput isAbsolutePath]) {
++        candidatePath = payloadInput;
++    } else {
++        require(payloadValue.find('/') == std::string::npos &&
++                    payloadValue.find('\\') == std::string::npos,
++            "relative capture payload must be an adjacent basename");
++        candidatePath = [manifestDirectory stringByAppendingPathComponent:payloadInput];
++    }
++    NSURL* resolvedPayloadURL = [[NSURL fileURLWithPath:candidatePath]
++        URLByResolvingSymlinksInPath];
++    require(resolvedPayloadURL != nil,
++        "capture payload path cannot be resolved");
++    NSString* resolvedPayloadParent = [[resolvedPayloadURL.URLByDeletingLastPathComponent
++        path] stringByStandardizingPath];
++    require([resolvedPayloadParent isEqualToString:manifestDirectory],
++        "capture payload must resolve to a sibling of its manifest");
++    return resolvedPayloadURL.path;
+ }
+ 
+ struct CapturedInput {
+@@ -119,11 +152,8 @@
+ 
+     NSDictionary* payloadSpec = root[@"payload"];
+     require([payloadSpec isKindOfClass:[NSDictionary class]], "capture payload descriptor missing");
+-    const std::string payloadLeaf = stringValue(payloadSpec, @"file");
+-    require(payloadLeaf.find('/') == std::string::npos && payloadLeaf.find('\\') == std::string::npos,
+-        "payload filename must be an adjacent basename");
+-    NSString* payloadPath = [[manifestNS stringByDeletingLastPathComponent]
+-        stringByAppendingPathComponent:[NSString stringWithUTF8String:payloadLeaf.c_str()]];
++    const std::string payloadValue = stringValue(payloadSpec, @"file");
++    NSString* payloadPath = resolveAdjacentPayloadPath(manifestNS, payloadValue);
+     NSData* payload = [NSData dataWithContentsOfFile:payloadPath
+         options:NSDataReadingMappedIfSafe error:&error];
+     require(payload != nil, error != nil
+@@ -298,15 +328,33 @@
+ int main(int argc, const char* argv[]) {
+     @autoreleasepool {
+         try {
+-            require(argc == 3, "usage: checker <trial21-capture.json> <trial22-capture.json>");
+-            const CapturedInput trial21 = loadCapturedInput(argv[1],
++            const bool validateInputsOnly = argc == 4 &&
++                std::string(argv[1]) == "--validate-inputs-only";
++            require(validateInputsOnly || argc == 3,
++                "usage: checker [--validate-inputs-only] <trial21-capture.json> <trial22-capture.json>");
++            const int inputOffset = validateInputsOnly ? 2 : 1;
++            const CapturedInput trial21 = loadCapturedInput(argv[inputOffset],
+                 kTrial21ManifestSHA, kTrial21PayloadSHA, kTrial21ObserverSHA);
+-            const CapturedInput trial22 = loadCapturedInput(argv[2],
++            const CapturedInput trial22 = loadCapturedInput(argv[inputOffset + 1],
+                 kTrial22ManifestSHA, kTrial22PayloadSHA, kTrial22ObserverSHA);
+             require(trial21.record.result.x == 0.0f && trial21.record.result.y == 0.0f,
+                 "trial21 input no longer records the retained uncertified result");
+             require(trial22.record.result.x == 1.0f && trial22.record.result.y == 1.0f,
+                 "trial22 input no longer records the retained certified hit");
++            if (validateInputsOnly) {
++                std::cout << "{\"schema\":\"numi.matter.vtccd_capture_input_validation.v1\","
++                    << "\"status\":\"PASS_CAPTURE_INPUTS\",\"metal_initialized\":false,"
++                    << "\"captures\":[{\"manifest\":" << jsonQuote(trial21.capturePath)
++                    << ",\"manifest_sha256\":" << jsonQuote(trial21.captureManifestSHA)
++                    << ",\"payload_sha256\":" << jsonQuote(trial21.payloadSHA)
++                    << ",\"observer_sha256\":" << jsonQuote(trial21.observerSHA)
++                    << "},{\"manifest\":" << jsonQuote(trial22.capturePath)
++                    << ",\"manifest_sha256\":" << jsonQuote(trial22.captureManifestSHA)
++                    << ",\"payload_sha256\":" << jsonQuote(trial22.payloadSHA)
++                    << ",\"observer_sha256\":" << jsonQuote(trial22.observerSHA)
++                    << "}]}\n";
++                return 0;
++            }
+             id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+             require(device != nil, "Metal device unavailable");
+             NSError* error = nil;

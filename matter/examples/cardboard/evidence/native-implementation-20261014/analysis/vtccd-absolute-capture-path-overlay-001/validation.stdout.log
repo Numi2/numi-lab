@@ -1,0 +1,1 @@
+{"metal_initialized": false, "negative": "cross-directory absolute payload rejected before payload hash admission", "positive": "405/406 manifests, payload SHA/extents, observer arrays and return words loaded before Metal initialization", "status": "PASS_CPU_EXACT_CAPTURE_PATH_CONTRACT"}

@@ -1,0 +1,12 @@
+source overlay: partial-graph-hybrid-selector6-native-check-overlay-002
+base: source-padded-trial-summary-120 plus sealed partial-graph-hybrid-selector6-overlay-001
+
+PASS: Objective-C++ syntax-only compile of the updated existing checker with -Wall -Wextra -Wpedantic -Werror.
+PASS: standalone CPU layout fixture compile/run with -Wall -Wextra -Wpedantic -Werror.
+PASS: source-overlay.patch dry-run and apply against the exact parent-001 CMake file and source-120 checker; applied outputs matched overlay hashes.
+NOT RUN: full CMake target build, CTest, native Metal/GPU test, or shipping-mesh peak-memory measurement.
+
+CPU layout output:
+selector6_exact_fixture_layout=pass nodes=4 tets=1 patches=2 flat_patch_nodes=4 coverage=2,2,0,0 graph_bytes=988 block_bytes=192 exact_shipping_topology=false peak_measured=false
+
+The direct production Metal kernel calls and Runtime selector-5/6 runs are in the checker and await the parent's single-worker native schedule.

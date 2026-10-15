@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.generated-dependency-table-retirement.v1",
+  "preflight_sha256": "d56fe3fe0e66338a2f077741c9fa931f4a0b00047ecf9a5be9c03124b9b4fa25",
+  "files_removed": 3872,
+  "bytes_removed": 225648513,
+  "free_bytes_before": 328753152,
+  "free_bytes_after": 565993472,
+  "physical_evidence_removed": false
+}

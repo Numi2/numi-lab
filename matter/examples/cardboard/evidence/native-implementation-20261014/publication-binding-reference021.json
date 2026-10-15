@@ -1,0 +1,25 @@
+{
+  "schema": "numi.cardboard.reference021-publication-binding.v1",
+  "cases": [
+    "analysis/operator-fd-e2-adapter-001",
+    "analysis/operator-fd-e2-independent-adjudication-419-001",
+    "analysis/milestone-draft-reference020-419-001",
+    "analysis/selector5-6-runtime-outcome-overlay-001",
+    "analysis/selector5-6-runtime-outcome-overlay-002",
+    "analysis/source131-hybrid-outcome-integration-001",
+    "analysis/source132-cache-reuse-integration-001",
+    "analysis/retained-source-snapshots131-132-001",
+    "analysis/tangent-cache-projection-reuse-parity-125-002-capture419",
+    "analysis/cache-reuse-native427428-inputs-001",
+    "analysis/generated-dependency-table-retirement-005",
+    "native/hybrid-full-runtime-outcomes-425",
+    "native/hybrid-runtime-armijo-outcomes-426",
+    "native/tangent-cache-reuse-run360-427",
+    "native/tangent-cache-reuse-run419-428",
+    "analysis/publication021-preflight-001"
+  ],
+  "summary_sha256": "1d4179111b0a694263bde5c023af1ed4cc05a4702d75002ffd112664d6783df7",
+  "copied_files": 160,
+  "all_archived_bytes_verified": true,
+  "physical_validation": false
+}

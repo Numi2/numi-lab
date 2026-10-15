@@ -1,0 +1,45 @@
+{
+  "bound_input_sha256": {
+    "419_prediction_sha256": "41b37af2747cfa551fae60eaddd7681cd7c7dbc859a402e641677ec23bd957d6",
+    "419_rich_capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "419_run_receipt_sha256": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d",
+    "419_status5_json_sha256": "bc767b8f690b1edfb17cb3c24b873ce683ef37feb16c4e9b7af2916f013f791b",
+    "419_status5_payload_sha256": "0f3ae7cd18df40df8ad3bbed0b55491b43f1ee67c321eab2287c46e18a43239f",
+    "coupon_003_environment0_npz_sha256": "e20eeb559f5976e6b9ddb2ae605ea6860908cde3a1d255ea80832b24840c8353",
+    "coupon_003_report_sha256": "c918a287f0de7966d50813a70fa7d9d3917746a6fc5de8dca57283fbf375ba76",
+    "native422_fresh_action_sha256": "f83ad29edbe7710768c44daf79d16d4b226dec9dcd707e2be3bef56bbf4cdfe9",
+    "native422_mass_action_sha256": "777897e35ff7cfc640007ac3ae5015fb0f8704ca8dfb169181d7c6ff1488f73a",
+    "native422_receipt_sha256": "ac6eefcb0adbfe2dc5f2b371b9872f86e1d9956aa28b919f61aeb732d82dce41",
+    "native422_replay_report_sha256": "e440d6f80e49c80c09b77d27f5a985e7961aa77e0ad10c2a571edd2e6a0f8f7c",
+    "native424_manifest_sha256": "0a5d6dd0c6f57a9300cccaa5c21432dc662d682753eab8eb16d10d88795338de",
+    "native424_report_sha256": "ccf8bb7d2b3e5d1f7e73279445882c40eb7916d460a8cd831468e2e28be645e3",
+    "smallstep_003_report_sha256": "a6ac5f941aa15b66e39ee6b2938076da93e137c2e6b5af4360fa70189ef1e984",
+    "source_snapshot_frozen_source_sha256": "dc354c1d0c9619b07d33de0c867239dc260f7fe572372769d6e5e9dde7b023e5",
+    "status5_decoded_419_sha256": "2e19648d890cf865e5d0114478d16c107712f7b21f50a5aba42ed3822a5b9333",
+    "status5_decoder_sha256": "d4c0f7427d1970e2c177f217cd28fff959a31df1b1390e9552cf421a4ad5459e",
+    "status5_decoder_source_sha256": "2e56c9b72419d6bd80fe5657a143e61d654dd1f933ea73ae4546dd936362b714"
+  },
+  "command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python3 adjudicate_419.py",
+  "files": {
+    "README.md": {
+      "bytes": 2947,
+      "sha256": "9d6bf1e881f7bbf8566d7dd6cd9993ce884d35973cfdecc3018ba44099ae41e6"
+    },
+    "adjudicate_419.py": {
+      "bytes": 15466,
+      "sha256": "223191cd5eace6b48ff9b82b7cb3642d28125fd9044a53aa0f18aea4121a9a1a"
+    },
+    "report.json": {
+      "bytes": 7028,
+      "sha256": "9d840db47f6e898779998b0f0f7ab51355c0f323798e85dc64823bf2d88a4193"
+    }
+  },
+  "limitations": [
+    "No GPU run performed",
+    "No source, material parameter, tolerance, accepted history, or native endpoint changed",
+    "Does not qualify full solver convergence or physical calibration"
+  ],
+  "package": "operator-fd-e2-independent-adjudication-419-001",
+  "schema": "numi.cardboard.analysis_package.v1",
+  "scope": "CPU-only independent audit of source125 run419 center response, native422 operator replay, and native424 FD endpoint sweep"
+}

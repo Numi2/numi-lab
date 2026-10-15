@@ -1,0 +1,71 @@
+{
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125",
+  "source_build_sha256": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6",
+  "capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+  "compile_argv": [
+    "xcrun",
+    "clang++",
+    "-std=c++2b",
+    "-arch",
+    "arm64",
+    "-fobjc-arc",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-I/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/include",
+    "-I/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/include",
+    "-DNUMI_MATTER_METALLIB=\"/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/inputs/runtime/matter/shaders/NumiMatter.metallib\"",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-residual-fd-sweep-419-001/native_residual_sweep.mm",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-125/matter/libnumi_matter_runtime.a",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-125/matter/libnumi_matter_compiler.a",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "-o",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-residual-fd-sweep-419-001/build/native_residual_sweep"
+  ],
+  "native_argv": [
+    "/Users/home/cardboard-implementation-20261014/analysis/native-residual-fd-sweep-419-001/build/native_residual_sweep",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-residual-fd-sweep-419-001/replay-input.bin",
+    "OUTPUT_DIRECTORY"
+  ],
+  "preflight_pass": true,
+  "physical_transactions": 0,
+  "files": {
+    "build/native_residual_sweep": {
+      "bytes": 1891336,
+      "sha256": "d48da5139480c11f92366f81bd2bd02fe20a6f9847f90ff5074a936fa7c31e73"
+    },
+    "compile.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "compile.stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native_residual_sweep.mm": {
+      "bytes": 42884,
+      "sha256": "029830785f14ac276f34558a1a4d69b3e0cc4a9baa63439220ed23bed19986b9"
+    },
+    "preflight.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "preflight.stdout.log": {
+      "bytes": 156,
+      "sha256": "ea4fdf2697f7a5a951e0ba0b74439c07c568e512dd08a2487de1698fedd51c2b"
+    },
+    "prepare.py": {
+      "bytes": 10890,
+      "sha256": "8286f49c3a845065ff50a3555215899d8fc1f25e89e533603087b9929de1c624"
+    },
+    "replay-input.bin": {
+      "bytes": 2195272,
+      "sha256": "30c472a120d7ff091d81c04e342939d571a392e02c249c8bfef8402f120852a8"
+    }
+  }
+}

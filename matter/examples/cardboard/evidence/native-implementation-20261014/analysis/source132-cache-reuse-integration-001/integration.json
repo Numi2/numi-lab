@@ -1,0 +1,12 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-capture419-132",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-check-130",
+  "overlay_manifest_sha256": "06ceee2e126b9fd4fc50bc54215607ccd36cc495fde8c09df435becd779cf487",
+  "changed_files": {
+    "matter/tools/cardboard_tangent_cache_projection_reuse_check.mm": {
+      "base": "92a37afe2bcbc1c21b75890616730bb6549327d68021337940712b68cc9fd2dd",
+      "candidate": "6c6bbad3f33ef8e3043042422caa34c0828443c25e1cc76fd9eaf0829b3f9a4e"
+    }
+  },
+  "physical_steps": 0
+}

@@ -1,0 +1,3 @@
+patching file 'matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm'
+patching file 'matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm'
+PASS patch dry-run and application; applied SHA-256 1b91d8888c178cd5719be48eff8c1b0ee993d8078598ef6179e2dc45c44b1819 matches candidate

@@ -1,0 +1,18 @@
+Base snapshot: /Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125
+Base build: /Users/home/numi-cardboard-20261006/build-cardboard-provenance-125
+
+Strict Objective-C++ syntax check, passed:
+/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\"/Users/home/numi-cardboard-20261006/build-cardboard-provenance-125/matter/shaders/NumiMatter.metallib\" -I/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/include -I/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/include -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fsyntax-only candidate/matter/tools/cardboard_vtccd_iteration_budget_check.mm
+
+Fresh external checker object compile, passed:
+/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\"/Users/home/numi-cardboard-20261006/build-cardboard-provenance-125/matter/shaders/NumiMatter.metallib\" -I/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/include -I/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/include -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o checker.o -c candidate/matter/tools/cardboard_vtccd_iteration_budget_check.mm
+
+Fresh external link against source125 static libraries, passed:
+/usr/bin/c++ -O3 -DNDEBUG -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names checker.o -o numi-matter-cardboard-vtccd-budget-replay-check -framework Foundation -framework Metal /Users/home/numi-cardboard-20261006/build-cardboard-provenance-125/matter/libnumi_matter_runtime.a /Users/home/numi-cardboard-20261006/build-cardboard-provenance-125/matter/libnumi_matter_compiler.a
+
+CPU exact input validation, passed without creating a Metal device:
+python3 validate_inputs.py
+
+That test reads exact 405/406 capture manifests, checks payload SHA/extents and observer record extent/hash, confirms the expected selected identity/return words, verifies a cross-directory absolute path is rejected, and asserts `metal_initialized=false`. `patch-apply-validation.log` records that the patch applies to a temporary source125 copy and reconstructs the exact candidate hash.
+
+No Metal replay or GPU dispatch was run in this package.

@@ -1,0 +1,56 @@
+{
+  "schema": "numi.cardboard.source-overlay.v2",
+  "name": "partial-graph-hybrid-selector6-native-check-overlay-002",
+  "parent_overlay": "/Users/home/cardboard-implementation-20261014/analysis/partial-graph-hybrid-selector6-overlay-001",
+  "parent_overlay_manifest_sha256": "f9641811e5296f9b55ec98acf2a8800e47b216b8be7115c98477518329b8b554",
+  "parent_overlay_patch_sha256": "4689299eb9788270f1cc428b66c757e3ff12b8d21c10b1a731e0c2d2166829d4",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-padded-trial-summary-120",
+  "base_revision": "7ebc64a666c4bd5e1ff61b3684655979ab80dc60",
+  "base_source_manifest_sha256": "6cb779cd0f0555becf269ec6b189c0e2289295660d08197c7f77a8e132b94e1a",
+  "qualification": "Objective-C++ syntax-only and CPU fixture-layout checks passed. No full source build, CTest Metal execution, GPU run, shipping-topology admission, or peak-resident-memory measurement was performed.",
+  "scope": "Extend the existing preconditioner GPU checker with selector-6 production-kernel tests and selector-5/6 Runtime acceptance comparison; increase the existing CTest timeout to 900 seconds. No solver/runtime/material changes.",
+  "limitations": [
+    "Native Metal tests are prepared but not executed in this overlay.",
+    "The compiled native fixture is four FEM nodes and one tetrahedron; it is not the shipping mesh topology.",
+    "Device maxBufferLength and Runtime residentBytes are reported as limits/accounting only; peak memory is not measured.",
+    "RuntimeStateSnapshot does not expose FGMRES Arnoldi iteration counts; the test instead requires nonzero accepted relative correction and representable loaded-node motion.",
+    "Acceptance parity means both selector runs accept the same authored physical fixture; selector-to-selector state deltas are reported without a calibrated error threshold."
+  ],
+  "source_overlay_patch_sha256": "10438beb52ffc1f562e90e947cc47605dc09bf1cdcd5bc8b673feb2a256477fb",
+  "files": [
+    {
+      "path": "matter/CMakeLists.txt",
+      "base_bytes": 109696,
+      "base_sha256": "014da6489dbfaedb1f55e11c7b1ba7def234ebde056e75538d4e71f8c75f5a01",
+      "overlay_bytes": 109696,
+      "overlay_sha256": "0fd8e36aa74c701a50aff24187da71e09c0dd6480c04ccbb03a77b1093588625"
+    },
+    {
+      "path": "matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm",
+      "base_bytes": 28874,
+      "base_sha256": "ac901501f0608d0d0881e83f9e63aaca43ee8aa47de755a056bb71b818a27d2f",
+      "overlay_bytes": 66859,
+      "overlay_sha256": "b9386ff65709cc51dff58d756f6f6fcac34c2cf8c613862cddf2c76bc241b2c1"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "matter/src/regional_graph_schwarz.hpp",
+      "source": "parent overlay 001",
+      "sha256": "0c010c16d80bd8652c6d277ead3863f7a38a877b8c2cc943725475a071e9ed5f"
+    }
+  ],
+  "cpu_fixture_sha256": "0fce1f58542027ff3c2470a7ceb86c61f78c14499e6692465419feadf4091f48",
+  "package_artifacts": [
+    {
+      "path": "README.md",
+      "bytes": 3931,
+      "sha256": "86d64b981acbd97c30adbbd57fe550537482358638a9f64532aadd43506a9a83"
+    },
+    {
+      "path": "validation.txt",
+      "bytes": 963,
+      "sha256": "7e3663cfe210d553e1a3534e1822d527249462d19cc8d14d013dbb896dcc0daf"
+    }
+  ]
+}

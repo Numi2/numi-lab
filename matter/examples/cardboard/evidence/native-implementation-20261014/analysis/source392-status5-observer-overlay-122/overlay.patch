@@ -1,0 +1,548 @@
+--- a/matter/include/numi/matter/shared.h
++++ b/matter/include/numi/matter/shared.h
+@@ -54,6 +54,13 @@
+ // twelve hardening variables, a plastic multiplier and damage history.
+ // Packages cooked with the old sixteen-state layout must be recooked.
+ #define NM_MAX_MATERIAL_STATE 32u
++#define NM_STATUS5_CAPTURE_MAX_PARAMETER_WORDS 512u
++#define NM_STATUS5_INDEX_NONE 0u
++#define NM_STATUS5_INDEX_NODE 1u
++#define NM_STATUS5_INDEX_TETRAHEDRON 2u
++#define NM_STATUS5_INDEX_SOLVER_ITERATION 3u
++#define NM_STATUS5_CAPTURE_DOMAIN_GLOBAL 0u
++#define NM_STATUS5_CAPTURE_DOMAIN_PRIVATE 1u
+ #define NM_MIXED_NEWTON_ITERATIONS 7u
+ // Maximum supported compiled basis depth.
+ #define NM_MIXED_FGMRES_RESTART 16u
+@@ -1423,6 +1430,35 @@
+     nm_float4 diagnostics;
+ } NMMatterStatusGPU;
+ 
++// Diagnostic-only, bounded snapshot written by nm_fem_status5_capture.
++// The runtime allocates two records per environment: the first global
++// status-5 event and the first private Armijo status-5 event. This is not a
++// solver input and must never be used to alter status, history, or rollback.
++typedef struct NM_ALIGN16 NMFEMStatus5CaptureGPU {
++    // present, stage ID, domain (0 global / 1 private), index kind.
++    nm_uint4 capture;
++    // control step, microtick, microtick count, Newton solver iteration.
++    nm_uint4 context;
++    // object index, status failing index, typed subject index, trial index.
++    nm_uint4 identity;
++    // payload flags, material index, state count, parameter count.
++    nm_uint4 payload;
++    // exact material dt, line-search alpha when supplied, det(F), reserved.
++    nm_float4 scalars;
++    NMMatterStatusGPU status;
++    NMMicrostepGPU microstep;
++    NMMaterialGPU material;
++    NMTetrahedronGPU tetrahedron;
++    NMFEMNodeStateGPU acceptedNodes[4];
++    NMFEMNodeStateGPU candidateNodes[4];
++    // Three row-major float4 rows; lane w is zero.
++    nm_float4 deformationHigh[3];
++    nm_float4 deformationLow[3];
++    nm_float4 deformationRate[3];
++    float acceptedInternalState[NM_MAX_MATERIAL_STATE];
++    float parameterWords[NM_STATUS5_CAPTURE_MAX_PARAMETER_WORDS];
++} NMFEMStatus5CaptureGPU;
++
+ #ifndef __METAL_VERSION__
+ static_assert(sizeof(nm_float4) == 16);
+ static_assert(sizeof(nm_uint4) == 16);
+@@ -1443,6 +1479,7 @@
+ static_assert(sizeof(NMFEMHumanAttachmentGPU) == 32);
+ static_assert(alignof(NMFEMHumanAttachmentGPU) == 16);
+ static_assert(sizeof(NMFEMNodeStateGPU) == 80);
++static_assert(sizeof(NMFEMStatus5CaptureGPU) % 16 == 0);
+ static_assert(sizeof(NMDeformableVTCCDAuditGPU) == 336);
+ static_assert(sizeof(NMAdaptiveStateGPU) == 160);
+ static_assert(sizeof(NMSchedulerStateGPU) == 80);
+--- a/matter/src/metal/fem.metalinc
++++ b/matter/src/metal/fem.metalinc
+@@ -5026,5 +5026,146 @@
+     }
+ }
+ 
++// Read-only status-5 witness. One environment thread examines the already
++// latched status after a producer dispatch. Global and private Armijo statuses
++// use distinct host-provided record domains, so an earlier rejected trial
++// cannot hide a later global failure. This kernel writes only the diagnostic
++// capture arena and never invokes a constitutive program or modifies solver
++// state.
++kernel void nm_fem_status5_capture(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant NMMicrostepGPU& microstep [[buffer(1)]],
++    device const NMContinuumObjectGPU* objects [[buffer(2)]],
++    device const NMMaterialGPU* materials [[buffer(3)]],
++    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
++    device const NMSchedulerStateGPU* schedulers [[buffer(5)]],
++    device const NMAdaptiveStateGPU* adaptive [[buffer(6)]],
++    device const NMFEMNodeStateGPU* accepted [[buffer(7)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(8)]],
++    device const float* acceptedMaterialState [[buffer(9)]],
++    device const float* environmentParameters [[buffer(10)]],
++    device const NMMatterStatusGPU* statuses [[buffer(11)]],
++    device const float4* lineSearch [[buffer(12)]],
++    device NMFEMStatus5CaptureGPU* captures [[buffer(13)]],
++    constant uint& stageID [[buffer(14)]],
++    constant uint& domain [[buffer(15)]],
++    constant uint& indexKind [[buffer(16)]],
++    constant uint& trialIndex [[buffer(17)]],
++    constant uint& hasLineSearch [[buffer(18)]],
++    uint environment [[thread_position_in_grid]])
++{
++    if (environment >= dispatch.environmentCount || domain > 1u) return;
++    const uint slot = environment * 2u + domain;
++    if (captures[slot].capture.x != 0u ||
++        statuses[environment].code != NM_STATUS_INVALID_DEFORMATION) return;
++
++    NMFEMStatus5CaptureGPU record = {};
++    const NMMatterStatusGPU status = statuses[environment];
++    record.capture = uint4(1u, stageID, domain, indexKind);
++    record.context = uint4(microstep.controlStep, microstep.microtick,
++        microstep.microtickCount, microstep.solverIteration);
++    record.identity = uint4(status.objectIndex, status.failingIndex,
++        NM_INVALID_INDEX, trialIndex);
++    record.payload = uint4(1u, NM_INVALID_INDEX, 0u, 0u);
++    record.status = status;
++    record.microstep = microstep;
++    record.scalars = float4(0.0f, 0.0f, 0.0f, 0.0f);
++    if (hasLineSearch != 0u) {
++        record.scalars.y = lineSearch[environment].x;
++        record.payload.x |= 64u;
++    }
++
++    const uint nodeBase = environment * dispatch.femNodeCount;
++    if (indexKind == NM_STATUS5_INDEX_NODE &&
++        status.failingIndex < dispatch.femNodeCount) {
++        const uint node = nodeBase + status.failingIndex;
++        record.identity.z = status.failingIndex;
++        record.acceptedNodes[0] = accepted[node];
++        record.candidateNodes[0] = candidate[node];
++        record.payload.x |= 4u;
++    } else if (indexKind == NM_STATUS5_INDEX_TETRAHEDRON &&
++               status.failingIndex < dispatch.tetrahedronCount) {
++        const uint localTet = status.failingIndex;
++        const uint globalTet = environment * dispatch.tetrahedronCount + localTet;
++        const NMTetrahedronGPU tetrahedron = tetrahedra[globalTet];
++        const uint materialIndex = tetrahedron.identity.x;
++        record.identity.z = localTet;
++        record.tetrahedron = tetrahedron;
++        record.payload.y = materialIndex;
++        if (tetrahedron.identity.y < dispatch.objectCount &&
++            materialIndex < dispatch.materialCount &&
++            tetrahedron.nodes.x < dispatch.femNodeCount &&
++            tetrahedron.nodes.y < dispatch.femNodeCount &&
++            tetrahedron.nodes.z < dispatch.femNodeCount &&
++            tetrahedron.nodes.w < dispatch.femNodeCount) {
++            record.payload.x |= 2u;
++            const NMContinuumObjectGPU object = objects[tetrahedron.identity.y];
++            const NMMaterialGPU material = materials[materialIndex];
++            record.material = material;
++            record.payload.z = material.stateCount;
++            record.payload.w = material.parameterCount;
++            const uint nodes[4] = {tetrahedron.nodes.x, tetrahedron.nodes.y,
++                tetrahedron.nodes.z, tetrahedron.nodes.w};
++            for (uint corner = 0u; corner < 4u; ++corner) {
++                record.acceptedNodes[corner] = accepted[nodeBase + nodes[corner]];
++                record.candidateNodes[corner] = candidate[nodeBase + nodes[corner]];
++            }
++            float deformationLow[9];
++            const float3x3 deformation = tetrahedronDeformation(
++                tetrahedron, candidate, nodeBase);
++            const float3x3 preciseF = femMaterialDeformationWords(
++                object, tetrahedron, material, candidate, nodeBase,
++                deformation, deformationLow);
++            float deformationHigh[9];
++            float rateComponents[9];
++            matrixComponents(preciseF, deformationHigh);
++            const float3x3 rate = femMaterialInput(object, tetrahedron,
++                tetrahedronVelocityGradient(tetrahedron, candidate, nodeBase));
++            matrixComponents(rate, rateComponents);
++            for (uint row = 0u; row < 3u; ++row) {
++                record.deformationHigh[row] = float4(
++                    deformationHigh[row * 3u], deformationHigh[row * 3u + 1u],
++                    deformationHigh[row * 3u + 2u], 0.0f);
++                record.deformationLow[row] = float4(
++                    deformationLow[row * 3u], deformationLow[row * 3u + 1u],
++                    deformationLow[row * 3u + 2u], 0.0f);
++                record.deformationRate[row] = float4(
++                    rateComponents[row * 3u], rateComponents[row * 3u + 1u],
++                    rateComponents[row * 3u + 2u], 0.0f);
++            }
++            record.payload.x |= 8u | 16u;
++            record.scalars.x = objectTimestep(dispatch,
++                schedulers[environment * dispatch.objectCount +
++                    tetrahedron.identity.y]);
++            record.scalars.z = determinant(deformation);
++            if (material.stateCount <= NM_MAX_MATERIAL_STATE &&
++                material.stateCount <= dispatch.materialStateStride) {
++                const uint historyBase = globalTet * dispatch.materialStateStride;
++                for (uint state = 0u; state < material.stateCount; ++state)
++                    record.acceptedInternalState[state] =
++                        acceptedMaterialState[historyBase + state];
++                record.payload.x |= 32u;
++            }
++            if (material.parameterCount <=
++                    NM_STATUS5_CAPTURE_MAX_PARAMETER_WORDS &&
++                material.parameterOffset <= dispatch.parameterCount &&
++                material.parameterCount <= dispatch.parameterCount -
++                    material.parameterOffset) {
++                const uint parameterBase =
++                    environment * dispatch.parameterCount +
++                    material.parameterOffset;
++                for (uint parameter = 0u;
++                     parameter < material.parameterCount; ++parameter)
++                    record.parameterWords[parameter] =
++                        environmentParameters[parameterBase + parameter];
++                record.payload.x |= 128u;
++            }
++        }
++    }
++    // Geometry validation records the solver iteration in failingIndex. Keep
++    // it as such; no post-hoc determinant scan is used to guess a tetrahedron.
++    captures[slot] = record;
++}
++
+ 
+ } // namespace numi_matter_metal
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -4000,6 +4000,7 @@
+             "nm_mpm_p2g",
+             "nm_mpm_compact_active_nodes",
+             "nm_fem_internal_forces",
++            "nm_fem_status5_capture",
+             "nm_fem_build_algorithmic_tangent_cache",
+             "nm_fem_cohesive_face_forces",
+             "nm_fem_accumulate_cohesive_page_forces",
+@@ -7214,6 +7215,95 @@
+             return diagnostics;
+         }
+         State& state = *state_;
++        const char* status5PathText = std::getenv("NM_FEM_STATUS5_CAPTURE_PATH");
++        const char* status5RootText = std::getenv("NM_FEM_STATUS5_CAPTURE_ROOT");
++        const bool status5Requested = status5PathText != nullptr ||
++            status5RootText != nullptr;
++        bool status5RootValid = false;
++        std::uint32_t status5Root = 0u;
++        if (status5RootText != nullptr && *status5RootText != '\0') {
++            std::uint64_t parsed = 0u;
++            bool digits = true;
++            for (const char* cursor = status5RootText; *cursor != '\0'; ++cursor) {
++                if (*cursor < '0' || *cursor > '9') { digits = false; break; }
++                const std::uint32_t digit = static_cast<std::uint32_t>(*cursor - '0');
++                if (parsed > (std::numeric_limits<std::uint32_t>::max() - digit) / 10u) {
++                    digits = false; break;
++                }
++                parsed = parsed * 10u + digit;
++            }
++            if (digits) {
++                status5Root = static_cast<std::uint32_t>(parsed);
++                status5RootValid = true;
++            }
++        }
++        const bool status5Selected = status5Requested && status5RootValid &&
++            status5PathText != nullptr && *status5PathText != '\0' &&
++            request.controlStep == status5Root;
++        id<MTLBuffer> status5CaptureBuffer = nil;
++        std::string status5CapturePath;
++        std::uint64_t status5CaptureBytes = 0u;
++        if (status5Requested) {
++            if (!status5RootValid || status5PathText == nullptr ||
++                *status5PathText == '\0') {
++                diagnostics.message =
++                    "status-5 capture requires a decimal root and nonempty output path";
++                return diagnostics;
++            }
++            if (status5Selected) {
++                const std::filesystem::path outputStem(status5PathText);
++                if (!outputStem.is_absolute() ||
++                    !std::filesystem::exists(outputStem.parent_path()) ||
++                    state.dispatch.environmentCount == 0u ||
++                    state.dispatch.environmentCount > 8u ||
++                    state.dispatch.objectCount != 1u ||
++                    state.dispatch.femNodeCount == 0u ||
++                    state.dispatch.tetrahedronCount == 0u ||
++                    state.dispatch.particleCount != 0u ||
++                    state.dispatch.cohesiveFaceCount != 0u ||
++                    state.dispatch.gridNodeCount != 0u ||
++                    state.dispatch.mpmGridCount != 0u ||
++                    state.dispatch.mpmBlockCount != 0u ||
++                    state.dispatch.femHumanAttachmentCount != 0u ||
++                    state.dispatch.materialStateStride > NM_MAX_MATERIAL_STATE ||
++                    state.fgmresLayout.vascularUnknownCount != 0u) {
++                    diagnostics.message =
++                        "status-5 capture source or world is outside the bounded FEM-only scope";
++                    return diagnostics;
++                }
++                status5CapturePath = outputStem.string();
++                if (::access((status5CapturePath + ".bin").c_str(), F_OK) == 0 ||
++                    ::access((status5CapturePath + ".json").c_str(), F_OK) == 0) {
++                    diagnostics.message =
++                        "status-5 capture output already exists; refusing overwrite";
++                    return diagnostics;
++                }
++                const std::uint64_t recordCount =
++                    2u * static_cast<std::uint64_t>(state.dispatch.environmentCount);
++                if (recordCount > 16u ||
++                    recordCount > std::numeric_limits<std::uint64_t>::max() /
++                        sizeof(NMFEMStatus5CaptureGPU)) {
++                    diagnostics.message = "status-5 capture record sizing overflow";
++                    return diagnostics;
++                }
++                status5CaptureBytes = recordCount * sizeof(NMFEMStatus5CaptureGPU);
++                if (status5CaptureBytes == 0u ||
++                    status5CaptureBytes > 1024u * 1024u ||
++                    status5CaptureBytes > std::numeric_limits<NSUInteger>::max()) {
++                    diagnostics.message = "status-5 capture exceeds its one-MiB byte bound";
++                    return diagnostics;
++                }
++                status5CaptureBuffer = [state.device
++                    newBufferWithLength:static_cast<NSUInteger>(status5CaptureBytes)
++                                options:MTLResourceStorageModeShared];
++                if (status5CaptureBuffer == nil || status5CaptureBuffer.contents == nullptr) {
++                    diagnostics.message = "status-5 capture buffer allocation failed";
++                    return diagnostics;
++                }
++                std::memset(status5CaptureBuffer.contents, 0,
++                    static_cast<std::size_t>(status5CaptureBytes));
++            }
++        }
+         // Parse once: endpoint certification and trial scope must select
+         // exactly the same transactions, including the every-step mode.
+         const char* boxArmijoSelector = std::getenv(
+@@ -8271,6 +8361,43 @@
+             );
+             [encoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+                 threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
++        };
++        const auto captureStatus5 = [&](const std::uint32_t stageID,
++            const std::uint32_t domain, const std::uint32_t indexKind,
++            const std::uint32_t trialIndex, const NMMicrostepGPU& micro,
++            id<MTLBuffer> statuses, id<MTLBuffer> candidate,
++            id<MTLBuffer> lineSearch) {
++            if (!status5Selected || status5CaptureBuffer == nil ||
++                domain > NM_STATUS5_CAPTURE_DOMAIN_PRIVATE) return;
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            const std::uint32_t hasLineSearch = lineSearch != nil ? 1u : 0u;
++            dispatchThreads("nm_fem_status5_capture",
++                state.dispatch.environmentCount, [&] {
++                [encoder setBytes:&frameDispatch length:sizeof(frameDispatch)
++                           atIndex:0u];
++                [encoder setBytes:&state.fgmresLayout
++                           length:sizeof(state.fgmresLayout) atIndex:30u];
++                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
++                [encoder setBuffer:state.objects offset:0u atIndex:2u];
++                [encoder setBuffer:state.materials offset:0u atIndex:3u];
++                [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:4u];
++                [encoder setBuffer:state.schedulers offset:0u atIndex:5u];
++                [encoder setBuffer:state.adaptive offset:0u atIndex:6u];
++                [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
++                [encoder setBuffer:candidate offset:0u atIndex:8u];
++                [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:9u];
++                [encoder setBuffer:state.environmentParameters offset:0u atIndex:10u];
++                [encoder setBuffer:statuses offset:0u atIndex:11u];
++                [encoder setBuffer:lineSearch != nil ? lineSearch : state.dummy
++                             offset:0u atIndex:12u];
++                [encoder setBuffer:status5CaptureBuffer offset:0u atIndex:13u];
++                [encoder setBytes:&stageID length:sizeof(stageID) atIndex:14u];
++                [encoder setBytes:&domain length:sizeof(domain) atIndex:15u];
++                [encoder setBytes:&indexKind length:sizeof(indexKind) atIndex:16u];
++                [encoder setBytes:&trialIndex length:sizeof(trialIndex) atIndex:17u];
++                [encoder setBytes:&hasLineSearch length:sizeof(hasLineSearch) atIndex:18u];
++            });
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+         };
+         const auto dispatchGroups32 = [&](
+             const char* name,
+@@ -14256,6 +14383,9 @@
+                     [encoder setBuffer:femKinematicTargets offset:0u atIndex:4u];
+                     [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                 });
++                captureStatus5(10u, NM_STATUS5_CAPTURE_DOMAIN_GLOBAL,
++                    NM_STATUS5_INDEX_NODE, NM_INVALID_INDEX, micro,
++                    state.statuses, state.femCandidate, nil);
+             }
+             if (state.hasPrescribedTranslation) {
+             dispatchThreads("nm_contact_initialize_prescribed_fem_candidate", femNodeTotal, [&] {
+@@ -18356,6 +18486,9 @@
+                 [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
+                 [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
+             });
++            captureStatus5(20u, NM_STATUS5_CAPTURE_DOMAIN_GLOBAL,
++                NM_STATUS5_INDEX_TETRAHEDRON, NM_INVALID_INDEX, micro,
++                state.statuses, state.femCandidate, nil);
+             dispatchThreads("nm_fem_cohesive_face_forces",
+                 cohesiveFaceTotal, [&] {
+                 setDispatch();
+@@ -21807,6 +21940,10 @@
+                         [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:8u];
+                         [encoder setBuffer:state.femLineSearch offset:0u atIndex:9u];
+                     });
++                    captureStatus5(30u, NM_STATUS5_CAPTURE_DOMAIN_PRIVATE,
++                        NM_STATUS5_INDEX_SOLVER_ITERATION, trialIndex, micro,
++                        state.femArmijoStatuses, state.femArmijoCandidate,
++                        state.femLineSearch);
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                     dispatchThreads("nm_fem_internal_forces", tetrahedronTotal, [&] {
+                         setDispatch();
+@@ -21829,6 +21966,10 @@
+                         [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
+                         [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
+                     });
++                    captureStatus5(31u, NM_STATUS5_CAPTURE_DOMAIN_PRIVATE,
++                        NM_STATUS5_INDEX_TETRAHEDRON, trialIndex, micro,
++                        state.femArmijoStatuses, state.femArmijoCandidate,
++                        state.femLineSearch);
+                     if (femCohesiveResidualArmijoEnabled &&
+                         !state.femArmijoTiledCohesiveRequested) {
+                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+@@ -22364,6 +22505,10 @@
+                         [encoder setBuffer:state.femLineSearch
+                                      offset:0u atIndex:9u];
+                     });
++                    captureStatus5(40u, NM_STATUS5_CAPTURE_DOMAIN_PRIVATE,
++                        NM_STATUS5_INDEX_SOLVER_ITERATION, trialIndex, micro,
++                        state.femArmijoStatuses, state.femArmijoCandidate,
++                        state.femLineSearch);
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                     if (captureTrialSummaryStatus &&
+                         !captureTrialSummaryStatus(trialIndex, 0u,
+@@ -22464,6 +22609,10 @@
+                         [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
+                         [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
+                     });
++                    captureStatus5(41u, NM_STATUS5_CAPTURE_DOMAIN_PRIVATE,
++                        NM_STATUS5_INDEX_TETRAHEDRON, trialIndex, micro,
++                        state.femArmijoStatuses, state.femArmijoCandidate,
++                        state.femLineSearch);
+                     if (femCohesiveResidualArmijoEnabled &&
+                         !state.femArmijoTiledCohesiveRequested) {
+                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+@@ -23353,6 +23502,9 @@
+                 [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
+                 [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
+             });
++            captureStatus5(50u, NM_STATUS5_CAPTURE_DOMAIN_GLOBAL,
++                NM_STATUS5_INDEX_TETRAHEDRON, NM_INVALID_INDEX, micro,
++                state.statuses, state.femCandidate, nil);
+             dispatchThreads("nm_fem_cohesive_face_forces",
+                 cohesiveFaceTotal, [&] {
+                 setDispatch();
+@@ -23656,6 +23808,9 @@
+                 [encoder setBuffer:state.femMaterialStateCandidate offset:0u atIndex:12u];
+                 [encoder setBuffer:state.statuses offset:0u atIndex:13u];
+             });
++            captureStatus5(60u, NM_STATUS5_CAPTURE_DOMAIN_GLOBAL,
++                NM_STATUS5_INDEX_TETRAHEDRON, NM_INVALID_INDEX, micro,
++                state.statuses, state.femCandidate, nil);
+             if (humanSupportTotal != 0u) {
+                 dispatchGroups32("nm_human_support_certify", environments, [&] {
+                     setDispatch();
+@@ -24091,6 +24246,104 @@
+         });
+ 
+         [encoder endEncoding];
++        if (status5Selected && status5CaptureBuffer != nil) {
++            const auto captureBuffer = status5CaptureBuffer;
++            const std::string captureStem = status5CapturePath;
++            const std::uint64_t payloadBytes = status5CaptureBytes;
++            const std::uint32_t capturedRoot = request.controlStep;
++            const std::uint32_t capturedEnvironments = state.dispatch.environmentCount;
++            const std::uint64_t capturedSourceFingerprint = state.sourcePhysicsFingerprint;
++            const std::uint64_t capturedWorldFingerprint = state.worldFingerprint;
++            const std::uint64_t capturedExecutionFingerprint = state.executionFingerprint;
++            const std::uint64_t capturedDeviceRegistry = state.device.registryID;
++            const std::string capturedDeviceName = nsString(state.device.name);
++            [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
++                if (completed.status != MTLCommandBufferStatusCompleted ||
++                    captureBuffer.contents == nullptr) {
++                    std::fprintf(stderr,
++                        "fem_status5_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"command_buffer_not_completed\"}\n",
++                        capturedRoot);
++                    return;
++                }
++                const void* payload = captureBuffer.contents;
++                const std::string payloadHash = sha256Hex(
++                    payload, static_cast<std::size_t>(payloadBytes));
++                const std::string binaryPath = captureStem + ".bin";
++                const std::string manifestPath = captureStem + ".json";
++                const int binaryFD = ::open(binaryPath.c_str(),
++                    O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
++                if (binaryFD < 0) {
++                    std::fprintf(stderr,
++                        "fem_status5_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"binary_exclusive_create_failed\",\"errno\":%d}\n",
++                        capturedRoot, errno);
++                    return;
++                }
++                const bool binaryWritten = writeAllBytes(binaryFD, payload,
++                    static_cast<std::size_t>(payloadBytes));
++                const int binaryClose = ::close(binaryFD);
++                if (!binaryWritten || binaryClose != 0) {
++                    ::unlink(binaryPath.c_str());
++                    std::fprintf(stderr,
++                        "fem_status5_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"binary_write_failed\",\"errno\":%d}\n",
++                        capturedRoot, errno);
++                    return;
++                }
++                const auto* records = static_cast<const NMFEMStatus5CaptureGPU*>(payload);
++                std::uint32_t present = 0u;
++                for (std::uint64_t slot = 0u;
++                     slot < 2u * capturedEnvironments; ++slot)
++                    present += records[slot].capture.x != 0u ? 1u : 0u;
++                std::ostringstream manifest;
++                manifest << "{\"schema\":\"numi.matter.fem_status5_capture.v1\","
++                    << "\"capture_point\":\"immediately_after_selected_fem_status5_producer_before_next_dispatch_or_rollback\","
++                    << "\"byte_order\":\"native_little_endian_f32_u32\","
++                    << "\"root\":" << capturedRoot
++                    << ",\"environment_count\":" << capturedEnvironments
++                    << ",\"record_count\":" << 2u * capturedEnvironments
++                    << ",\"record_bytes\":" << sizeof(NMFEMStatus5CaptureGPU)
++                    << ",\"payload_bytes\":" << payloadBytes
++                    << ",\"records_present\":" << present
++                    << ",\"status_domains\":[\"global\",\"private_armijo\"]"
++                    << ",\"source_physics_fingerprint\":"
++                    << jsonQuoted(hexU64(capturedSourceFingerprint))
++                    << ",\"world_fingerprint\":"
++                    << jsonQuoted(hexU64(capturedWorldFingerprint))
++                    << ",\"device_program_fingerprint\":"
++                    << jsonQuoted(hexU64(capturedExecutionFingerprint))
++                    << ",\"device\":{\"name\":"
++                    << jsonQuoted(capturedDeviceName)
++                    << ",\"registry_id\":" << capturedDeviceRegistry << '}'
++                    << ",\"payload\":{\"path\":"
++                    << jsonQuoted(binaryPath) << ",\"sha256\":"
++                    << jsonQuoted(payloadHash) << '}'
++                    << ",\"scope\":{\"particle_count\":0,\"cohesive_face_count\":0,\"global_producers\":[10,20,50,60],\"private_producers\":[30,31,40,41],\"truncated\":false}}\n";
++                const std::string manifestText = manifest.str();
++                const int manifestFD = ::open(manifestPath.c_str(),
++                    O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
++                if (manifestFD < 0) {
++                    const int savedErrno = errno;
++                    ::unlink(binaryPath.c_str());
++                    std::fprintf(stderr,
++                        "fem_status5_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"manifest_exclusive_create_failed\",\"errno\":%d}\n",
++                        capturedRoot, savedErrno);
++                    return;
++                }
++                const bool manifestWritten = writeAllBytes(manifestFD,
++                    manifestText.data(), manifestText.size());
++                const int manifestClose = ::close(manifestFD);
++                if (!manifestWritten || manifestClose != 0) {
++                    ::unlink(binaryPath.c_str());
++                    ::unlink(manifestPath.c_str());
++                    std::fprintf(stderr,
++                        "fem_status5_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"manifest_write_failed\",\"errno\":%d}\n",
++                        capturedRoot, errno);
++                    return;
++                }
++                std::fprintf(stderr,
++                    "fem_status5_capture_complete={\"schema\":1,\"root\":%u,\"records_present\":%u,\"manifest\":%s}\n",
++                    capturedRoot, present, jsonQuoted(manifestPath).c_str());
++            }];
++        }
+         if (firstEncodeForCommandBuffer) {
+             ownership->activeCommandBuffer = request.commandBuffer;
+             const std::weak_ptr<State::CommandOwnership> weakOwnership =

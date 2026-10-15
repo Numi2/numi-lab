@@ -1,0 +1,2415 @@
+{
+  "bindings": {
+    "capture_helpers_sha256": "742b0920c4f543e284e41ed18f8dbc78253915a31f39b3ef8d32ff7dec01b5e8",
+    "capture_path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture",
+    "capture_sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+    "case_dir": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360",
+    "geometry_helpers_sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+    "independent_reference_sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+    "native_exit_code": 2,
+    "prediction_sha256": "7bab817e48d15c03587e6effc6e6ba3c888a1f1cb820982ccfb76ba6aebc5e33",
+    "receipt_sha256": "d623591647a91ca07626e18fef6c78358e60c0d9ab7c38d465e79a2f6c18c474",
+    "runtime_mm_sha256": "836605dca3f6b264d5ee04a9f65b66997ecbdc39f60709039c7e1ac59becb087",
+    "source_build_provenance": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-101/source-build.json",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101",
+    "stderr_sha256": "e279be355ef56ff7f7532b16a8a0706fc238d333d91d0ede7aa27a5dda7a1db5"
+  },
+  "environments": [
+    {
+      "captured_direction_consistency": {
+        "absolute_l2_max": 3.593749506111534,
+        "absolute_l2_median": 0.00284822395851928,
+        "global_l2_relative": 9.42091813437082e-08,
+        "maximum_component_absolute": 3.5312416173983365,
+        "per_row_relative_max": 7.862852864264981e-06,
+        "per_row_relative_p50": 8.459108915677661e-08,
+        "per_row_relative_p95": 5.848161850269386e-07,
+        "reference_l2_max": 23451178.65588079,
+        "rows": 1920,
+        "zero_reference_rows": 0
+      },
+      "dt_seconds": 9.999999747378752e-05,
+      "environment": 0,
+      "finite_difference_pairs": [
+        {
+          "branch_crossing": "captured side branch auxiliaries may be null; centered FD is not admitted if native side status fails. Independent side projections are optional and are reported separately.",
+          "epsilon": 0.03125,
+          "finite_difference_admission": {
+            "comparison_admissible": false,
+            "direction_nonzero": true,
+            "endpoint_residual_metrics_finite": false,
+            "input_integrity": true,
+            "operator_status_clear": true,
+            "stage_statuses_clear": false
+          },
+          "independent_A_realized_vs_nominal": {
+            "absolute_l2_max": 4.947311186956887e-06,
+            "absolute_l2_median": 6.263549636970952e-08,
+            "global_l2_relative": 0.014891365858562777,
+            "maximum_component_absolute": 4.944972262713934e-06,
+            "per_row_relative_max": 1.128508361826048,
+            "per_row_relative_p50": 0.016998569341016373,
+            "per_row_relative_p95": 0.15926974107259573,
+            "reference_l2_max": 0.00019084918606716974,
+            "rows": 846,
+            "zero_reference_rows": 0
+          },
+          "independent_side_projection": {
+            "minus_material_0": {
+              "dynamic_refinement": [
+                {
+                  "iteration": 0,
+                  "maximum_dynamic_scaled_correction": 1.1438512313951248e-06,
+                  "rows_above_dynamic_correction_gate": 1
+                },
+                {
+                  "iteration": 1,
+                  "maximum_dynamic_scaled_correction": 5.918154043109394e-13,
+                  "rows_above_dynamic_correction_gate": 0
+                }
+              ],
+              "maximum_reference_dynamic_correction": 5.918154043109394e-13,
+              "maximum_reference_scaled_residual": 1.9424966702541044e-10,
+              "plastic_multiplier_branch_comparison": {
+                "branch_crossing_rows": 2,
+                "branch_crossing_tet_ids": [
+                  500,
+                  1463
+                ],
+                "branch_predicate": "reference plastic multiplier increment > 0; other branch predicates are not inferred",
+                "center_lambda_positive_rows": 1150,
+                "comparable_rows": 1113,
+                "endpoint_lambda_positive_rows": 1113
+              },
+              "projected_state_vs_capture": {
+                "absolute_l2_max": 32189.48117033338,
+                "absolute_l2_median": 2.518586324287991e-10,
+                "global_l2_relative": 0.9810736331261256,
+                "maximum_component_absolute": 30855.431515703385,
+                "per_row_relative_max": 2.0089506146711495,
+                "per_row_relative_p50": 3.8004808310453997e-10,
+                "per_row_relative_p95": 0.1572649949108767,
+                "reference_l2_max": 32189.465269825334,
+                "rows": 1113,
+                "zero_reference_rows": 0
+              },
+              "reference_projection_failure_examples": [
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration22 rows[0] norm[2.15292737e-10]",
+                  "tet_id": 215
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration23 rows[0] norm[1.09139358e-07]",
+                  "tet_id": 302
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration22 rows[0] norm[1.81898999e-08]",
+                  "tet_id": 304
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration24 rows[0] norm[1.81898999e-08]",
+                  "tet_id": 305
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration23 rows[0] norm[1.13653191e-09]",
+                  "tet_id": 313
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration21 rows[0] norm[5.68676157e-10]",
+                  "tet_id": 324
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration27 rows[0] norm[5.68674928e-10]",
+                  "tet_id": 327
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration24 rows[0] norm[3.63797879e-07]",
+                  "tet_id": 362
+                }
+              ],
+              "reference_projection_success": 1113,
+              "rows": 1152,
+              "stress_vs_independent_reference_Pa": {
+                "absolute_l2_max": 15267648264979.28,
+                "absolute_l2_median": 2.27474210823696,
+                "global_l2_relative": 0.9999998843602591,
+                "maximum_component_absolute": 15254138263325.658,
+                "per_row_relative_max": 1.0,
+                "per_row_relative_p50": 4.0571069169651255e-08,
+                "per_row_relative_p95": 1.0,
+                "reference_l2_max": 15267648264979.28,
+                "rows": 1113,
+                "zero_reference_rows": 0
+              }
+            },
+            "minus_material_1": {
+              "dynamic_refinement": [
+                {
+                  "iteration": 0,
+                  "maximum_dynamic_scaled_correction": 3.393714271784224e-13,
+                  "rows_above_dynamic_correction_gate": 0
+                }
+              ],
+              "maximum_reference_dynamic_correction": 3.393714271784224e-13,
+              "maximum_reference_scaled_residual": 1.9398367354142208e-10,
+              "plastic_multiplier_branch_comparison": {
+                "branch_crossing_rows": 13,
+                "branch_crossing_tet_ids": [
+                  583,
+                  584,
+                  616,
+                  621,
+                  666,
+                  819,
+                  1537,
+                  1581,
+                  1601,
+                  1625,
+                  1653,
+                  1659,
+                  1686
+                ],
+                "branch_predicate": "reference plastic multiplier increment > 0; other branch predicates are not inferred",
+                "center_lambda_positive_rows": 563,
+                "comparable_rows": 568,
+                "endpoint_lambda_positive_rows": 568
+              },
+              "projected_state_vs_capture": {
+                "absolute_l2_max": 8.962216833448613,
+                "absolute_l2_median": 9.973863702226233e-11,
+                "global_l2_relative": 0.014724545590916474,
+                "maximum_component_absolute": 8.654440062969307,
+                "per_row_relative_max": 0.21698397166230082,
+                "per_row_relative_p50": 6.041557043276993e-11,
+                "per_row_relative_p95": 0.005059316268554807,
+                "reference_l2_max": 276.4995641697244,
+                "rows": 568,
+                "zero_reference_rows": 0
+              },
+              "reference_projection_failure_examples": [
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration22 rows[0] norm[2.83288742e-10]",
+                  "tet_id": 679
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration19 rows[0] norm[4.27268825e-10]",
+                  "tet_id": 680
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration17 rows[0] norm[5.6741482e-10]",
+                  "tet_id": 684
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration17 rows[0] norm[7.11509311e-10]",
+                  "tet_id": 686
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration19 rows[0] norm[2.85159894e-10]",
+                  "tet_id": 1639
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration20 rows[0] norm[2.85689431e-10]",
+                  "tet_id": 1642
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration18 rows[0] norm[4.27292216e-10]",
+                  "tet_id": 1644
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration25 rows[0] norm[2.85670614e-10]",
+                  "tet_id": 1648
+                }
+              ],
+              "reference_projection_success": 568,
+              "rows": 576,
+              "stress_vs_independent_reference_Pa": {
+                "absolute_l2_max": 4366354054.680694,
+                "absolute_l2_median": 0.49339032201199223,
+                "global_l2_relative": 0.6436484990477784,
+                "maximum_component_absolute": 3131807339.9221597,
+                "per_row_relative_max": 1.0,
+                "per_row_relative_p50": 2.908716021962894e-08,
+                "per_row_relative_p95": 1.0,
+                "reference_l2_max": 4366354054.680694,
+                "rows": 568,
+                "zero_reference_rows": 0
+              }
+            },
+            "plus_material_0": {
+              "dynamic_refinement": [
+                {
+                  "iteration": 0,
+                  "maximum_dynamic_scaled_correction": 1.0272396635434362e-05,
+                  "rows_above_dynamic_correction_gate": 1
+                },
+                {
+                  "iteration": 1,
+                  "maximum_dynamic_scaled_correction": 7.959662751010211e-13,
+                  "rows_above_dynamic_correction_gate": 0
+                }
+              ],
+              "maximum_reference_dynamic_correction": 7.959662751010211e-13,
+              "maximum_reference_scaled_residual": 1.9356956096756026e-10,
+              "plastic_multiplier_branch_comparison": {
+                "branch_crossing_rows": 2,
+                "branch_crossing_tet_ids": [
+                  500,
+                  1463
+                ],
+                "branch_predicate": "reference plastic multiplier increment > 0; other branch predicates are not inferred",
+                "center_lambda_positive_rows": 1150,
+                "comparable_rows": 1114,
+                "endpoint_lambda_positive_rows": 1114
+              },
+              "projected_state_vs_capture": {
+                "absolute_l2_max": 153978.92791047873,
+                "absolute_l2_median": 3.742142367784332e-10,
+                "global_l2_relative": 0.999959172932827,
+                "maximum_component_absolute": 147569.2959065146,
+                "per_row_relative_max": 1.9881880161898777,
+                "per_row_relative_p50": 4.644439374145538e-10,
+                "per_row_relative_p95": 0.15435694086630547,
+                "reference_l2_max": 153978.91172950846,
+                "rows": 1114,
+                "zero_reference_rows": 0
+              },
+              "reference_projection_failure_examples": [
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration23 rows[0] norm[2.27369605e-09]",
+                  "tet_id": 300
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration22 rows[0] norm[4.54743281e-09]",
+                  "tet_id": 301
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration21 rows[0] norm[8.52651283e-10]",
+                  "tet_id": 302
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration23 rows[0] norm[4.54743289e-09]",
+                  "tet_id": 303
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration26 rows[0] norm[1.81898999e-08]",
+                  "tet_id": 304
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration21 rows[0] norm[3.6379794e-08]",
+                  "tet_id": 305
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration17 rows[0] norm[5.68770391e-10]",
+                  "tet_id": 313
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration23 rows[0] norm[5.68192821e-10]",
+                  "tet_id": 325
+                }
+              ],
+              "reference_projection_success": 1114,
+              "rows": 1152,
+              "stress_vs_independent_reference_Pa": {
+                "absolute_l2_max": 159427378313599.9,
+                "absolute_l2_median": 2.001916984432654,
+                "global_l2_relative": 0.9999999927437363,
+                "maximum_component_absolute": 159368864831853.28,
+                "per_row_relative_max": 1.0,
+                "per_row_relative_p50": 3.975866174349823e-08,
+                "per_row_relative_p95": 1.0,
+                "reference_l2_max": 159427378313599.9,
+                "rows": 1114,
+                "zero_reference_rows": 0
+              }
+            },
+            "plus_material_1": {
+              "dynamic_refinement": [
+                {
+                  "iteration": 0,
+                  "maximum_dynamic_scaled_correction": 6.652891500079654e-13,
+                  "rows_above_dynamic_correction_gate": 0
+                }
+              ],
+              "maximum_reference_dynamic_correction": 6.652891500079654e-13,
+              "maximum_reference_scaled_residual": 1.9556917754793027e-10,
+              "plastic_multiplier_branch_comparison": {
+                "branch_crossing_rows": 13,
+                "branch_crossing_tet_ids": [
+                  583,
+                  584,
+                  616,
+                  621,
+                  666,
+                  819,
+                  1537,
+                  1581,
+                  1601,
+                  1625,
+                  1653,
+                  1659,
+                  1686
+                ],
+                "branch_predicate": "reference plastic multiplier increment > 0; other branch predicates are not inferred",
+                "center_lambda_positive_rows": 563,
+                "comparable_rows": 569,
+                "endpoint_lambda_positive_rows": 569
+              },
+              "projected_state_vs_capture": {
+                "absolute_l2_max": 16.989384519540895,
+                "absolute_l2_median": 1.453394916775193e-10,
+                "global_l2_relative": 0.026901662024416004,
+                "maximum_component_absolute": 15.792938161555483,
+                "per_row_relative_max": 1.071045066890602,
+                "per_row_relative_p50": 1.2486797049773816e-10,
+                "per_row_relative_p95": 0.004585247858058481,
+                "reference_l2_max": 270.2882874942179,
+                "rows": 569,
+                "zero_reference_rows": 0
+              },
+              "reference_projection_failure_examples": [
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration30 rows[0] norm[9.95687262e-10]",
+                  "tet_id": 678
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration23 rows[0] norm[2.85144625e-10]",
+                  "tet_id": 679
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration16 rows[0] norm[2.82751626e-10]",
+                  "tet_id": 681
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration18 rows[0] norm[4.24889937e-10]",
+                  "tet_id": 689
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration17 rows[0] norm[2.82748192e-10]",
+                  "tet_id": 1642
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration18 rows[0] norm[2.85652904e-10]",
+                  "tet_id": 1647
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration16 rows[0] norm[4.24886797e-10]",
+                  "tet_id": 1649
+                }
+              ],
+              "reference_projection_success": 569,
+              "rows": 576,
+              "stress_vs_independent_reference_Pa": {
+                "absolute_l2_max": 3831746094.9755836,
+                "absolute_l2_median": 0.5162185821097078,
+                "global_l2_relative": 0.28558747876697044,
+                "maximum_component_absolute": 2673277972.8364534,
+                "per_row_relative_max": 1.0,
+                "per_row_relative_p50": 3.08485108664323e-08,
+                "per_row_relative_p95": 1.0,
+                "reference_l2_max": 4240503053.4841027,
+                "rows": 569,
+                "zero_reference_rows": 0
+              }
+            }
+          },
+          "native_FD_stage_metrics": {
+            "action_dot_fd": null,
+            "action_fd_cosine": null,
+            "centered_fd_l2": null,
+            "direction_nonzero": true,
+            "dt": 9.99999975e-05,
+            "epsilon": 0.03125,
+            "error_l2": null,
+            "free_node_count": 846,
+            "input_integrity_flag": 1,
+            "maximum_delta_velocity": 13760.1719,
+            "maximum_position_perturbation": 0.0430005342,
+            "minimum_j_plus_minus": [
+              0.914639354,
+              0.908961535
+            ],
+            "operator_action_l2": null,
+            "operator_status_code": 0,
+            "position_delta": 3.12499992e-06,
+            "relative_error": null,
+            "residual_minus_l2": null,
+            "residual_plus_l2": null,
+            "stage_status_codes_plus_minus": [
+              5,
+              5
+            ]
+          },
+          "native_fd_vs_captured_native_A_nominal": null,
+          "native_fd_vs_independent_A_nominal": null,
+          "native_fd_vs_independent_A_realized_direction": null,
+          "pair": 0,
+          "plus_minus_captured_projection_status": {
+            "minus": {
+              "captured_side_rows": 1920,
+              "first_nonzero_status_examples": [
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    1.0189006328582764
+                  ],
+                  "tet_id": 2
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    1.0114489793777466
+                  ],
+                  "tet_id": 3
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    1.0171345472335815
+                  ],
+                  "tet_id": 4
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    1.0184468030929565
+                  ],
+                  "tet_id": 5
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    1.0138330459594727
+                  ],
+                  "tet_id": 12
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    1.014979362487793
+                  ],
+                  "tet_id": 13
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    1.0217583179473877
+                  ],
+                  "tet_id": 14
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    1.006231427192688
+                  ],
+                  "tet_id": 15
+                }
+              ],
+              "status_code_counts": {
+                "0.0": 1184,
+                "17.0": 36,
+                "7.0": 700
+              }
+            },
+            "plus": {
+              "captured_side_rows": 1920,
+              "first_nonzero_status_examples": [
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    0.9912309050559998
+                  ],
+                  "tet_id": 0
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    0.9872651696205139
+                  ],
+                  "tet_id": 1
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    0.9809500575065613
+                  ],
+                  "tet_id": 2
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    0.9827122092247009
+                  ],
+                  "tet_id": 4
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    0.9781473875045776
+                  ],
+                  "tet_id": 14
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    0.9936425685882568
+                  ],
+                  "tet_id": 15
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    0.9863647222518921
+                  ],
+                  "tet_id": 24
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    0.9786576628684998
+                  ],
+                  "tet_id": 26
+                }
+              ],
+              "status_code_counts": {
+                "0.0": 1187,
+                "17.0": 34,
+                "7.0": 699
+              }
+            }
+          },
+          "realized_local_F_direction_vs_reported": {
+            "absolute_l2_max": 3.6551036920643014,
+            "absolute_l2_median": 0.006831309891297075,
+            "global_l2_relative": 9.477033963748676e-08,
+            "maximum_component_absolute": 3.5330893737846054,
+            "per_row_relative_max": 7.849230120220861e-06,
+            "per_row_relative_p50": 2.0297406164847232e-07,
+            "per_row_relative_p95": 1.0470201340588502e-06,
+            "reference_l2_max": 23451177.34616514,
+            "rows": 1920,
+            "zero_reference_rows": 0
+          },
+          "realized_local_F_perturbation_roundoff_max": 3.5330893737846054,
+          "realized_velocity_direction_vs_requested": {
+            "absolute_l2_max": 13330.16604262713,
+            "absolute_l2_median": 52.85068231374034,
+            "global_l2_relative": 31.000000000017522,
+            "maximum_component_absolute": 13329.257354736328,
+            "per_row_relative_max": 31.000001275880678,
+            "per_row_relative_p50": 31.0,
+            "per_row_relative_p95": 31.000000000012285,
+            "reference_l2_max": 430.0053562137784,
+            "rows": 846,
+            "zero_reference_rows": 0
+          }
+        },
+        {
+          "branch_crossing": "captured side branch auxiliaries may be null; centered FD is not admitted if native side status fails. Independent side projections are optional and are reported separately.",
+          "epsilon": 0.015625,
+          "finite_difference_admission": {
+            "comparison_admissible": false,
+            "direction_nonzero": true,
+            "endpoint_residual_metrics_finite": false,
+            "input_integrity": true,
+            "operator_status_clear": true,
+            "stage_statuses_clear": false
+          },
+          "independent_A_realized_vs_nominal": {
+            "absolute_l2_max": 4.918492578301372e-06,
+            "absolute_l2_median": 6.658055888296593e-08,
+            "global_l2_relative": 0.014170598840324863,
+            "maximum_component_absolute": 4.917879841717665e-06,
+            "per_row_relative_max": 2.052028733479572,
+            "per_row_relative_p50": 0.017416559162606694,
+            "per_row_relative_p95": 0.16302666825654172,
+            "reference_l2_max": 0.00019084918606716974,
+            "rows": 846,
+            "zero_reference_rows": 0
+          },
+          "independent_side_projection": {
+            "minus_material_0": {
+              "dynamic_refinement": [
+                {
+                  "iteration": 0,
+                  "maximum_dynamic_scaled_correction": 1.0523836094945252e-05,
+                  "rows_above_dynamic_correction_gate": 3
+                },
+                {
+                  "iteration": 1,
+                  "maximum_dynamic_scaled_correction": 4.939249108305677e-13,
+                  "rows_above_dynamic_correction_gate": 0
+                }
+              ],
+              "maximum_reference_dynamic_correction": 4.939249108305677e-13,
+              "maximum_reference_scaled_residual": 1.9414214684339728e-10,
+              "plastic_multiplier_branch_comparison": {
+                "branch_crossing_rows": 2,
+                "branch_crossing_tet_ids": [
+                  500,
+                  1463
+                ],
+                "branch_predicate": "reference plastic multiplier increment > 0; other branch predicates are not inferred",
+                "center_lambda_positive_rows": 1150,
+                "comparable_rows": 1123,
+                "endpoint_lambda_positive_rows": 1123
+              },
+              "projected_state_vs_capture": {
+                "absolute_l2_max": 28886.344661497053,
+                "absolute_l2_median": 9.940335320019818e-12,
+                "global_l2_relative": 0.9626610134522363,
+                "maximum_component_absolute": 27683.908737253332,
+                "per_row_relative_max": 2.520717849092688,
+                "per_row_relative_p50": 3.079057095028e-11,
+                "per_row_relative_p95": 0.07532688533431695,
+                "reference_l2_max": 28886.32773908685,
+                "rows": 1123,
+                "zero_reference_rows": 0
+              },
+              "reference_projection_failure_examples": [
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration22 rows[0] norm[5.68271316e-10]",
+                  "tet_id": 300
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration21 rows[0] norm[5.68271245e-10]",
+                  "tet_id": 301
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration20 rows[0] norm[1.42108547e-09]",
+                  "tet_id": 302
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration20 rows[0] norm[2.84200843e-09]",
+                  "tet_id": 303
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration21 rows[0] norm[4.54749702e-09]",
+                  "tet_id": 304
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration24 rows[0] norm[4.54749702e-09]",
+                  "tet_id": 305
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration24 rows[0] norm[5.69406116e-10]",
+                  "tet_id": 324
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration21 rows[0] norm[1.81898875e-08]",
+                  "tet_id": 362
+                }
+              ],
+              "reference_projection_success": 1123,
+              "rows": 1152,
+              "stress_vs_independent_reference_Pa": {
+                "absolute_l2_max": 12967758817575.025,
+                "absolute_l2_median": 0.3506052377356243,
+                "global_l2_relative": 0.9999994487461242,
+                "maximum_component_absolute": 12961278235753.125,
+                "per_row_relative_max": 1.0,
+                "per_row_relative_p50": 2.7428473341129838e-08,
+                "per_row_relative_p95": 1.0,
+                "reference_l2_max": 12967758817575.025,
+                "rows": 1123,
+                "zero_reference_rows": 0
+              }
+            },
+            "minus_material_1": {
+              "dynamic_refinement": [
+                {
+                  "iteration": 0,
+                  "maximum_dynamic_scaled_correction": 1.617341661062152e-06,
+                  "rows_above_dynamic_correction_gate": 1
+                },
+                {
+                  "iteration": 1,
+                  "maximum_dynamic_scaled_correction": 2.9269272032814004e-13,
+                  "rows_above_dynamic_correction_gate": 0
+                }
+              ],
+              "maximum_reference_dynamic_correction": 2.9269272032814004e-13,
+              "maximum_reference_scaled_residual": 1.909482679045653e-10,
+              "plastic_multiplier_branch_comparison": {
+                "branch_crossing_rows": 13,
+                "branch_crossing_tet_ids": [
+                  583,
+                  584,
+                  616,
+                  621,
+                  666,
+                  819,
+                  1537,
+                  1581,
+                  1601,
+                  1625,
+                  1653,
+                  1659,
+                  1686
+                ],
+                "branch_predicate": "reference plastic multiplier increment > 0; other branch predicates are not inferred",
+                "center_lambda_positive_rows": 563,
+                "comparable_rows": 573,
+                "endpoint_lambda_positive_rows": 573
+              },
+              "projected_state_vs_capture": {
+                "absolute_l2_max": 1.4189920492355754,
+                "absolute_l2_median": 3.3777136124588027e-12,
+                "global_l2_relative": 0.005644064450974335,
+                "maximum_component_absolute": 1.3531037066788727,
+                "per_row_relative_max": 0.27935711400613406,
+                "per_row_relative_p50": 8.038874489144405e-12,
+                "per_row_relative_p95": 4.62199824237537e-05,
+                "reference_l2_max": 69.7262211394886,
+                "rows": 573,
+                "zero_reference_rows": 0
+              },
+              "reference_projection_failure_examples": [
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration17 rows[0] norm[2.17305229e-10]",
+                  "tet_id": 684
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration16 rows[0] norm[3.51443846e-10]",
+                  "tet_id": 1638
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration18 rows[0] norm[3.59189489e-10]",
+                  "tet_id": 1645
+                }
+              ],
+              "reference_projection_success": 573,
+              "rows": 576,
+              "stress_vs_independent_reference_Pa": {
+                "absolute_l2_max": 491996066.4807004,
+                "absolute_l2_median": 0.15038198011781578,
+                "global_l2_relative": 0.23206892662498052,
+                "maximum_component_absolute": 368985630.3287646,
+                "per_row_relative_max": 1.0,
+                "per_row_relative_p50": 2.5520829481609754e-08,
+                "per_row_relative_p95": 1.0,
+                "reference_l2_max": 790815490.0651495,
+                "rows": 573,
+                "zero_reference_rows": 0
+              }
+            },
+            "plus_material_0": {
+              "dynamic_refinement": [
+                {
+                  "iteration": 0,
+                  "maximum_dynamic_scaled_correction": 4.914610521284135e-06,
+                  "rows_above_dynamic_correction_gate": 4
+                },
+                {
+                  "iteration": 1,
+                  "maximum_dynamic_scaled_correction": 4.3536696727393574e-13,
+                  "rows_above_dynamic_correction_gate": 0
+                }
+              ],
+              "maximum_reference_dynamic_correction": 4.3536696727393574e-13,
+              "maximum_reference_scaled_residual": 1.9391796163816782e-10,
+              "plastic_multiplier_branch_comparison": {
+                "branch_crossing_rows": 2,
+                "branch_crossing_tet_ids": [
+                  500,
+                  1463
+                ],
+                "branch_predicate": "reference plastic multiplier increment > 0; other branch predicates are not inferred",
+                "center_lambda_positive_rows": 1150,
+                "comparable_rows": 1123,
+                "endpoint_lambda_positive_rows": 1123
+              },
+              "projected_state_vs_capture": {
+                "absolute_l2_max": 28906.99394759042,
+                "absolute_l2_median": 1.782339056928156e-11,
+                "global_l2_relative": 0.2758153881724192,
+                "maximum_component_absolute": 27704.975986618756,
+                "per_row_relative_max": 2.8163821467461645,
+                "per_row_relative_p50": 3.817374221757545e-11,
+                "per_row_relative_p95": 0.07223019195224654,
+                "reference_l2_max": 92387.43882674394,
+                "rows": 1123,
+                "zero_reference_rows": 0
+              },
+              "reference_projection_failure_examples": [
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration22 rows[0] norm[5.68597084e-10]",
+                  "tet_id": 301
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration24 rows[0] norm[1.36423969e-08]",
+                  "tet_id": 302
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration21 rows[0] norm[5.68271599e-10]",
+                  "tet_id": 303
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration22 rows[0] norm[4.54744998e-09]",
+                  "tet_id": 304
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration22 rows[0] norm[4.54749704e-09]",
+                  "tet_id": 305
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration23 rows[0] norm[4.27295254e-10]",
+                  "tet_id": 324
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration17 rows[0] norm[1.81899006e-08]",
+                  "tet_id": 362
+                },
+                {
+                  "reason": "RuntimeError: FP64 return map stalled iteration17 rows[0] norm[3.63797946e-08]",
+                  "tet_id": 365
+                }
+              ],
+              "reference_projection_success": 1123,
+              "rows": 1152,
+              "stress_vs_independent_reference_Pa": {
+                "absolute_l2_max": 74106560368706.89,
+                "absolute_l2_median": 0.33654064292848057,
+                "global_l2_relative": 0.9999999990577849,
+                "maximum_component_absolute": 74047710863554.66,
+                "per_row_relative_max": 1.0,
+                "per_row_relative_p50": 2.8416711568003287e-08,
+                "per_row_relative_p95": 1.0,
+                "reference_l2_max": 74106560368706.89,
+                "rows": 1123,
+                "zero_reference_rows": 0
+              }
+            },
+            "plus_material_1": {
+              "dynamic_refinement": [
+                {
+                  "iteration": 0,
+                  "maximum_dynamic_scaled_correction": 1.0131136891238533e-12,
+                  "rows_above_dynamic_correction_gate": 0
+                }
+              ],
+              "maximum_reference_dynamic_correction": 1.0131136891238533e-12,
+              "maximum_reference_scaled_residual": 1.997914345843818e-10,
+              "plastic_multiplier_branch_comparison": {
+                "branch_crossing_rows": 13,
+                "branch_crossing_tet_ids": [
+                  583,
+                  584,
+                  616,
+                  621,
+                  666,
+                  819,
+                  1537,
+                  1581,
+                  1601,
+                  1625,
+                  1653,
+                  1659,
+                  1686
+                ],
+                "branch_predicate": "reference plastic multiplier increment > 0; other branch predicates are not inferred",
+                "center_lambda_positive_rows": 563,
+                "comparable_rows": 576,
+                "endpoint_lambda_positive_rows": 576
+              },
+              "projected_state_vs_capture": {
+                "absolute_l2_max": 0.25219012198064755,
+                "absolute_l2_median": 5.162777276431826e-12,
+                "global_l2_relative": 0.0009116946832097817,
+                "maximum_component_absolute": 0.2510876532518585,
+                "per_row_relative_max": 0.46977858964851166,
+                "per_row_relative_p50": 1.1100881406174284e-11,
+                "per_row_relative_p95": 1.887889079281485e-05,
+                "reference_l2_max": 68.88366685910864,
+                "rows": 576,
+                "zero_reference_rows": 0
+              },
+              "reference_projection_failure_examples": [],
+              "reference_projection_success": 576,
+              "rows": 576,
+              "stress_vs_independent_reference_Pa": {
+                "absolute_l2_max": 479119841.0661182,
+                "absolute_l2_median": 0.1428039957463978,
+                "global_l2_relative": 0.26640151619292235,
+                "maximum_component_absolute": 426575541.529393,
+                "per_row_relative_max": 1.0,
+                "per_row_relative_p50": 2.4826973341537398e-08,
+                "per_row_relative_p95": 1.0,
+                "reference_l2_max": 780461642.0443966,
+                "rows": 576,
+                "zero_reference_rows": 0
+              }
+            }
+          },
+          "native_FD_stage_metrics": {
+            "action_dot_fd": null,
+            "action_fd_cosine": null,
+            "centered_fd_l2": null,
+            "direction_nonzero": true,
+            "dt": 9.99999975e-05,
+            "epsilon": 0.015625,
+            "error_l2": null,
+            "free_node_count": 846,
+            "input_integrity_flag": 1,
+            "maximum_delta_velocity": 13760.1719,
+            "maximum_position_perturbation": 0.0215002671,
+            "minimum_j_plus_minus": [
+              0.279992044,
+              0.0675355196
+            ],
+            "operator_action_l2": null,
+            "operator_status_code": 0,
+            "position_delta": 1.56249996e-06,
+            "relative_error": null,
+            "residual_minus_l2": null,
+            "residual_plus_l2": null,
+            "stage_status_codes_plus_minus": [
+              5,
+              5
+            ]
+          },
+          "native_fd_vs_captured_native_A_nominal": null,
+          "native_fd_vs_independent_A_nominal": null,
+          "native_fd_vs_independent_A_realized_direction": null,
+          "pair": 1,
+          "plus_minus_captured_projection_status": {
+            "minus": {
+              "captured_side_rows": 1920,
+              "first_nonzero_status_examples": [
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    1.006324052810669
+                  ],
+                  "tet_id": 1
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    1.006851077079773
+                  ],
+                  "tet_id": 12
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    1.0067119598388672
+                  ],
+                  "tet_id": 16
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    1.0067840814590454
+                  ],
+                  "tet_id": 24
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    1.0064126253128052
+                  ],
+                  "tet_id": 36
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    1.0100765228271484
+                  ],
+                  "tet_id": 50
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    1.0099997520446777
+                  ],
+                  "tet_id": 89
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    1.0118950605392456
+                  ],
+                  "tet_id": 110
+                }
+              ],
+              "status_code_counts": {
+                "0.0": 1471,
+                "17.0": 14,
+                "7.0": 435
+              }
+            },
+            "plus": {
+              "captured_side_rows": 1920,
+              "first_nonzero_status_examples": [
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    0.9929953813552856
+                  ],
+                  "tet_id": 12
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    0.9924265146255493
+                  ],
+                  "tet_id": 13
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    0.989251434803009
+                  ],
+                  "tet_id": 26
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    0.9896314740180969
+                  ],
+                  "tet_id": 38
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    0.9898046255111694
+                  ],
+                  "tet_id": 50
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    0.9940992593765259
+                  ],
+                  "tet_id": 99
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    0.9879463315010071
+                  ],
+                  "tet_id": 110
+                },
+                {
+                  "status_determinant": [
+                    63.0,
+                    7.0,
+                    5.0,
+                    0.9878496527671814
+                  ],
+                  "tet_id": 124
+                }
+              ],
+              "status_code_counts": {
+                "0.0": 1464,
+                "17.0": 13,
+                "7.0": 443
+              }
+            }
+          },
+          "realized_local_F_direction_vs_reported": {
+            "absolute_l2_max": 3.652567524146643,
+            "absolute_l2_median": 0.007106008960671015,
+            "global_l2_relative": 9.748639395280035e-08,
+            "maximum_component_absolute": 3.5304627916739264,
+            "per_row_relative_max": 8.288857259746834e-06,
+            "per_row_relative_p50": 2.1551765687402043e-07,
+            "per_row_relative_p95": 1.0417381829616637e-06,
+            "reference_l2_max": 23451177.34616514,
+            "rows": 1920,
+            "zero_reference_rows": 0
+          },
+          "realized_local_F_perturbation_roundoff_max": 3.5304627916739264,
+          "realized_velocity_direction_vs_requested": {
+            "absolute_l2_max": 13545.168720734018,
+            "absolute_l2_median": 53.70311267363938,
+            "global_l2_relative": 63.00000000015507,
+            "maximum_component_absolute": 13544.245376586914,
+            "per_row_relative_max": 63.000004082553076,
+            "per_row_relative_p50": 63.0,
+            "per_row_relative_p95": 63.000000005866,
+            "reference_l2_max": 215.0026781068892,
+            "rows": 846,
+            "zero_reference_rows": 0
+          }
+        }
+      ],
+      "free_nodes": 846,
+      "independent_assembled_operator_action": {
+        "free_rhs_impulse_l2": 0.0007675436840183076,
+        "independent_A_delta_v_l2": 0.0007835331218071908,
+        "native_A_delta_v_l2": 0.0007835284607949732,
+        "native_A_delta_v_vs_independent_A_delta_v": {
+          "absolute_l2_max": 1.641303350216021e-07,
+          "absolute_l2_median": 3.7440270991021805e-09,
+          "global_l2_relative": 0.0006554835500829805,
+          "maximum_component_absolute": 1.6402493451333718e-07,
+          "per_row_relative_max": 0.35362972560019484,
+          "per_row_relative_p50": 0.0009584116396436477,
+          "per_row_relative_p95": 0.015981835226978935,
+          "reference_l2_max": 0.00019084918606716974,
+          "rows": 846,
+          "zero_reference_rows": 0
+        },
+        "native_captured_element_force_vs_independent_element_force_N_per_s": {
+          "absolute_l2_max": 8.869900755871624,
+          "absolute_l2_median": 0.2017380028459863,
+          "global_l2_relative": 6.074195487365123e-08,
+          "maximum_component_absolute": 7.1448139026761055,
+          "per_row_relative_max": 5.345207781240219e-07,
+          "per_row_relative_p50": 5.613661636169522e-08,
+          "per_row_relative_p95": 2.037453828343207e-07,
+          "reference_l2_max": 90897545.63120921,
+          "rows": 1920,
+          "zero_reference_rows": 0
+        },
+        "operator_sign_contract": "M*delta_v - dt^2*K(delta_v)"
+      },
+      "materials": {
+        "0": {
+          "center_branch": {
+            "branch_scope": "only the captured/reference plastic-multiplier activity predicate is adjudicated; smooth FB/yield proximity is reported numerically, not called a globally smooth branch",
+            "captured_lambda_available_rows": 0,
+            "captured_lambda_increment_positive": 0,
+            "captured_vs_reference_lambda_active_mismatch_on_available_rows": 0,
+            "minimum_absolute_reference_yield_value": 9.399148126476575e-13,
+            "reference_lambda_increment_positive": 1150
+          },
+          "center_capture_candidate_vs_independent_candidate": {
+            "absolute_l2_max": 3.769221938328181e-10,
+            "absolute_l2_median": 1.8524876553226832e-13,
+            "global_l2_relative": 4.744629773892775e-10,
+            "maximum_component_absolute": 3.7653708623297533e-10,
+            "per_row_relative_max": 1.2665127929955958e-08,
+            "per_row_relative_p50": 8.43712976108483e-12,
+            "per_row_relative_p95": 5.1455137514546834e-11,
+            "reference_l2_max": 0.06189382177833993,
+            "rows": 1152,
+            "zero_reference_rows": 0
+          },
+          "dynamic_correction_refinement": [
+            {
+              "iteration": 0,
+              "maximum_dynamic_scaled_correction": 0.00036504522092341735,
+              "rows_above_dynamic_correction_gate": 824
+            },
+            {
+              "iteration": 1,
+              "maximum_dynamic_scaled_correction": 1.7389640903790372e-08,
+              "rows_above_dynamic_correction_gate": 0
+            }
+          ],
+          "family": "independent_15_state_hill_bilinear",
+          "independent_projection_failures": [],
+          "independent_projection_success": 1152,
+          "maximum_reference_newton_updates": 10,
+          "name": "hajali2009_liner_hill_bilinear_fit",
+          "production_local_P_vs_independent_at_captured_candidate_Pa": {
+            "absolute_l2_max": 0.06141762901419086,
+            "absolute_l2_median": 0.009408803831384264,
+            "global_l2_relative": 2.5255321218722287e-08,
+            "maximum_component_absolute": 0.06135537032969296,
+            "per_row_relative_max": 5.861192674987685e-08,
+            "per_row_relative_p50": 2.029012278013914e-08,
+            "per_row_relative_p95": 4.377753373677552e-08,
+            "reference_l2_max": 1403708.462325018,
+            "rows": 1152,
+            "zero_reference_rows": 0
+          },
+          "production_local_tangent_action_vs_independent_at_captured_candidate_Pa_per_s": {
+            "absolute_l2_max": 4268315.4719629465,
+            "absolute_l2_median": 161510.16139924648,
+            "global_l2_relative": 2.545818870116255e-08,
+            "maximum_component_absolute": 4177593.25,
+            "per_row_relative_max": 5.655120739609969e-08,
+            "per_row_relative_p50": 2.2502041399883012e-08,
+            "per_row_relative_p95": 4.14948847713348e-08,
+            "reference_l2_max": 133371960991399.05,
+            "rows": 1152,
+            "zero_reference_rows": 0
+          },
+          "production_local_tangent_action_vs_independent_at_reference_projected_candidate_Pa_per_s": {
+            "absolute_l2_max": 4268312.907548327,
+            "absolute_l2_median": 161498.5551114129,
+            "global_l2_relative": 2.5458699931288324e-08,
+            "maximum_component_absolute": 4177592.296875,
+            "per_row_relative_max": 5.655135965818652e-08,
+            "per_row_relative_p50": 2.2507399692222362e-08,
+            "per_row_relative_p95": 4.149812311845864e-08,
+            "reference_l2_max": 133371960991408.19,
+            "rows": 1152,
+            "zero_reference_rows": 0
+          },
+          "projection_status": "pass",
+          "reference_dynamic_correction_scaled_max": 1.7389640903790372e-08,
+          "reference_projected_residual_scaled_max": 1.3490895735317928e-10,
+          "rows": 1152
+        },
+        "1": {
+          "center_branch": {
+            "branch_scope": "only the captured/reference plastic-multiplier activity predicate is adjudicated; smooth FB/yield proximity is reported numerically, not called a globally smooth branch",
+            "captured_lambda_available_rows": 0,
+            "captured_lambda_increment_positive": 0,
+            "captured_vs_reference_lambda_active_mismatch_on_available_rows": 0,
+            "minimum_absolute_reference_yield_value": 1.2079226507921703e-13,
+            "reference_lambda_increment_positive": 563
+          },
+          "center_capture_candidate_vs_independent_candidate": {
+            "absolute_l2_max": 2.86035319614385e-10,
+            "absolute_l2_median": 5.601896014676363e-13,
+            "global_l2_relative": 5.248838885941314e-10,
+            "maximum_component_absolute": 2.8196764888244186e-10,
+            "per_row_relative_max": 3.306860370474714e-08,
+            "per_row_relative_p50": 5.2911504058095754e-11,
+            "per_row_relative_p95": 8.123562406941463e-10,
+            "reference_l2_max": 0.19647922675991428,
+            "rows": 576,
+            "zero_reference_rows": 0
+          },
+          "dynamic_correction_refinement": [
+            {
+              "iteration": 0,
+              "maximum_dynamic_scaled_correction": 1.9608103023040083e-05,
+              "rows_above_dynamic_correction_gate": 207
+            },
+            {
+              "iteration": 1,
+              "maximum_dynamic_scaled_correction": 1.94362983304928e-08,
+              "rows_above_dynamic_correction_gate": 0
+            }
+          ],
+          "family": "independent_15_state_hill_bilinear",
+          "independent_projection_failures": [],
+          "independent_projection_success": 576,
+          "maximum_reference_newton_updates": 9,
+          "name": "hajali2009_medium_hill_bilinear_fit",
+          "production_local_P_vs_independent_at_captured_candidate_Pa": {
+            "absolute_l2_max": 0.06739301446536367,
+            "absolute_l2_median": 0.0021162216454964885,
+            "global_l2_relative": 2.5566756546823442e-08,
+            "maximum_component_absolute": 0.06160807376727462,
+            "per_row_relative_max": 5.8274455615777646e-08,
+            "per_row_relative_p50": 2.3585329153975133e-08,
+            "per_row_relative_p95": 3.964907518937944e-08,
+            "reference_l2_max": 1843673.107179369,
+            "rows": 576,
+            "zero_reference_rows": 0
+          },
+          "production_local_tangent_action_vs_independent_at_captured_candidate_Pa_per_s": {
+            "absolute_l2_max": 813712.8904308031,
+            "absolute_l2_median": 110884.07422484708,
+            "global_l2_relative": 2.5648372007963826e-08,
+            "maximum_component_absolute": 802011.39453125,
+            "per_row_relative_max": 5.264707101160945e-08,
+            "per_row_relative_p50": 2.37780888401285e-08,
+            "per_row_relative_p95": 3.7882724465231014e-08,
+            "reference_l2_max": 23306646807691.76,
+            "rows": 576,
+            "zero_reference_rows": 0
+          },
+          "production_local_tangent_action_vs_independent_at_reference_projected_candidate_Pa_per_s": {
+            "absolute_l2_max": 813710.8889432285,
+            "absolute_l2_median": 110870.02158505892,
+            "global_l2_relative": 2.565326262651778e-08,
+            "maximum_component_absolute": 802009.4375,
+            "per_row_relative_max": 5.264302936726821e-08,
+            "per_row_relative_p50": 2.381528676221446e-08,
+            "per_row_relative_p95": 3.790219480719183e-08,
+            "reference_l2_max": 23306646807690.867,
+            "rows": 576,
+            "zero_reference_rows": 0
+          },
+          "projection_status": "pass",
+          "reference_dynamic_correction_scaled_max": 1.94362983304928e-08,
+          "reference_projected_residual_scaled_max": 1.2191986455438397e-10,
+          "rows": 576
+        },
+        "2": {
+          "family": "independent_analytic_finite_glue_neo_hookean",
+          "name": "starch2007_finite_glue_elastic",
+          "production_local_P_vs_independent_Pa": {
+            "absolute_l2_max": 0.010589315019448667,
+            "absolute_l2_median": 0.001802339097238604,
+            "global_l2_relative": 2.399206519453964e-08,
+            "maximum_component_absolute": 0.007754747202852741,
+            "per_row_relative_max": 4.6252233205682715e-08,
+            "per_row_relative_p50": 2.297434164680924e-08,
+            "per_row_relative_p95": 3.9637212143471964e-08,
+            "reference_l2_max": 313090.2904248461,
+            "rows": 192,
+            "zero_reference_rows": 0
+          },
+          "production_local_tangent_action_vs_independent_Pa_per_s": {
+            "absolute_l2_max": 582479.6016294648,
+            "absolute_l2_median": 88259.26182521755,
+            "global_l2_relative": 2.3256374151976564e-08,
+            "maximum_component_absolute": 453954.244140625,
+            "per_row_relative_max": 4.3827927849699976e-08,
+            "per_row_relative_p50": 2.3960308646778956e-08,
+            "per_row_relative_p95": 3.485824304298832e-08,
+            "reference_l2_max": 18286886562207.56,
+            "rows": 192,
+            "zero_reference_rows": 0
+          },
+          "projection_status": "not_applicable_stateless_analytic",
+          "rows": 192
+        }
+      },
+      "tetrahedra": 1920
+    },
+    {
+      "captured_direction_consistency": {
+        "absolute_l2_max": 0.0,
+        "absolute_l2_median": 0.0,
+        "global_l2_relative": null,
+        "maximum_component_absolute": 0.0,
+        "per_row_relative_max": null,
+        "per_row_relative_p50": null,
+        "per_row_relative_p95": null,
+        "reference_l2_max": 0.0,
+        "rows": 1920,
+        "zero_reference_rows": 1920
+      },
+      "dt_seconds": 9.999999747378752e-05,
+      "environment": 1,
+      "finite_difference_pairs": [
+        {
+          "branch_crossing": "captured side branch auxiliaries may be null; centered FD is not admitted if native side status fails. Independent side projections are optional and are reported separately.",
+          "epsilon": 0.03125,
+          "finite_difference_admission": {
+            "comparison_admissible": false,
+            "direction_nonzero": false,
+            "endpoint_residual_metrics_finite": true,
+            "input_integrity": true,
+            "operator_status_clear": true,
+            "stage_statuses_clear": true
+          },
+          "independent_A_realized_vs_nominal": {
+            "absolute_l2_max": 0.0,
+            "absolute_l2_median": 0.0,
+            "global_l2_relative": null,
+            "maximum_component_absolute": 0.0,
+            "per_row_relative_max": null,
+            "per_row_relative_p50": null,
+            "per_row_relative_p95": null,
+            "reference_l2_max": 0.0,
+            "rows": 846,
+            "zero_reference_rows": 846
+          },
+          "independent_side_projection": {
+            "minus_material_0": {
+              "dynamic_refinement": [
+                {
+                  "iteration": 0,
+                  "maximum_dynamic_scaled_correction": 5.000009969632559e-09,
+                  "rows_above_dynamic_correction_gate": 0
+                }
+              ],
+              "maximum_reference_dynamic_correction": 5.000009969632559e-09,
+              "maximum_reference_scaled_residual": 5.000009939245144e-13,
+              "plastic_multiplier_branch_comparison": {
+                "branch_crossing_rows": 0,
+                "branch_crossing_tet_ids": [],
+                "branch_predicate": "reference plastic multiplier increment > 0; other branch predicates are not inferred",
+                "center_lambda_positive_rows": 0,
+                "comparable_rows": 1152,
+                "endpoint_lambda_positive_rows": 0
+              },
+              "projected_state_vs_capture": {
+                "absolute_l2_max": 0.0,
+                "absolute_l2_median": 0.0,
+                "global_l2_relative": null,
+                "maximum_component_absolute": 0.0,
+                "per_row_relative_max": null,
+                "per_row_relative_p50": null,
+                "per_row_relative_p95": null,
+                "reference_l2_max": 0.0,
+                "rows": 1152,
+                "zero_reference_rows": 1152
+              },
+              "reference_projection_failure_examples": [],
+              "reference_projection_success": 1152,
+              "rows": 1152,
+              "stress_vs_independent_reference_Pa": {
+                "absolute_l2_max": 0.0,
+                "absolute_l2_median": 0.0,
+                "global_l2_relative": null,
+                "maximum_component_absolute": 0.0,
+                "per_row_relative_max": null,
+                "per_row_relative_p50": null,
+                "per_row_relative_p95": null,
+                "reference_l2_max": 0.0,
+                "rows": 1152,
+                "zero_reference_rows": 1152
+              }
+            },
+            "minus_material_1": {
+              "dynamic_refinement": [
+                {
+                  "iteration": 0,
+                  "maximum_dynamic_scaled_correction": 9.684024786009003e-08,
+                  "rows_above_dynamic_correction_gate": 576
+                },
+                {
+                  "iteration": 1,
+                  "maximum_dynamic_scaled_correction": 8.460061568799145e-16,
+                  "rows_above_dynamic_correction_gate": 0
+                }
+              ],
+              "maximum_reference_dynamic_correction": 8.460061568799145e-16,
+              "maximum_reference_scaled_residual": 9.324481469201276e-21,
+              "plastic_multiplier_branch_comparison": {
+                "branch_crossing_rows": 96,
+                "branch_crossing_tet_ids": [
+                  582,
+                  583,
+                  584,
+                  585,
+                  586,
+                  587,
+                  636,
+                  637,
+                  638,
+                  639,
+                  640,
+                  641,
+                  654,
+                  655,
+                  656,
+                  657,
+                  658,
+                  659,
+                  708,
+                  709,
+                  710,
+                  711,
+                  712,
+                  713,
+                  726,
+                  727,
+                  728,
+                  729,
+                  730,
+                  731,
+                  780,
+                  781
+                ],
+                "branch_predicate": "reference plastic multiplier increment > 0; other branch predicates are not inferred",
+                "center_lambda_positive_rows": 480,
+                "comparable_rows": 576,
+                "endpoint_lambda_positive_rows": 576
+              },
+              "projected_state_vs_capture": {
+                "absolute_l2_max": 4.82483323326375e-13,
+                "absolute_l2_median": 1.4698779613050178e-14,
+                "global_l2_relative": 2.448635704788819e-08,
+                "maximum_component_absolute": 4.814658295258702e-13,
+                "per_row_relative_max": 5.4502859609279196e-08,
+                "per_row_relative_p50": 2.0491789036639397e-09,
+                "per_row_relative_p95": 5.4502859609279196e-08,
+                "reference_l2_max": 1.1395023569596944e-05,
+                "rows": 576,
+                "zero_reference_rows": 0
+              },
+              "reference_projection_failure_examples": [],
+              "reference_projection_success": 576,
+              "rows": 576,
+              "stress_vs_independent_reference_Pa": {
+                "absolute_l2_max": 7.190798840533582e-06,
+                "absolute_l2_median": 1.697237955366549e-06,
+                "global_l2_relative": 3.9714736360633936e-08,
+                "maximum_component_absolute": 7.168796585688142e-06,
+                "per_row_relative_max": 8.649724467054974e-08,
+                "per_row_relative_p50": 1.7982740129565928e-08,
+                "per_row_relative_p95": 8.649724467054974e-08,
+                "reference_l2_max": 107.01066885678392,
+                "rows": 576,
+                "zero_reference_rows": 0
+              }
+            },
+            "plus_material_0": {
+              "dynamic_refinement": [
+                {
+                  "iteration": 0,
+                  "maximum_dynamic_scaled_correction": 5.000009969632559e-09,
+                  "rows_above_dynamic_correction_gate": 0
+                }
+              ],
+              "maximum_reference_dynamic_correction": 5.000009969632559e-09,
+              "maximum_reference_scaled_residual": 5.000009939245144e-13,
+              "plastic_multiplier_branch_comparison": {
+                "branch_crossing_rows": 0,
+                "branch_crossing_tet_ids": [],
+                "branch_predicate": "reference plastic multiplier increment > 0; other branch predicates are not inferred",
+                "center_lambda_positive_rows": 0,
+                "comparable_rows": 1152,
+                "endpoint_lambda_positive_rows": 0
+              },
+              "projected_state_vs_capture": {
+                "absolute_l2_max": 0.0,
+                "absolute_l2_median": 0.0,
+                "global_l2_relative": null,
+                "maximum_component_absolute": 0.0,
+                "per_row_relative_max": null,
+                "per_row_relative_p50": null,
+                "per_row_relative_p95": null,
+                "reference_l2_max": 0.0,
+                "rows": 1152,
+                "zero_reference_rows": 1152
+              },
+              "reference_projection_failure_examples": [],
+              "reference_projection_success": 1152,
+              "rows": 1152,
+              "stress_vs_independent_reference_Pa": {
+                "absolute_l2_max": 0.0,
+                "absolute_l2_median": 0.0,
+                "global_l2_relative": null,
+                "maximum_component_absolute": 0.0,
+                "per_row_relative_max": null,
+                "per_row_relative_p50": null,
+                "per_row_relative_p95": null,
+                "reference_l2_max": 0.0,
+                "rows": 1152,
+                "zero_reference_rows": 1152
+              }
+            },
+            "plus_material_1": {
+              "dynamic_refinement": [
+                {
+                  "iteration": 0,
+                  "maximum_dynamic_scaled_correction": 9.684024786009003e-08,
+                  "rows_above_dynamic_correction_gate": 576
+                },
+                {
+                  "iteration": 1,
+                  "maximum_dynamic_scaled_correction": 8.460061568799145e-16,
+                  "rows_above_dynamic_correction_gate": 0
+                }
+              ],
+              "maximum_reference_dynamic_correction": 8.460061568799145e-16,
+              "maximum_reference_scaled_residual": 9.324481469201276e-21,
+              "plastic_multiplier_branch_comparison": {
+                "branch_crossing_rows": 96,
+                "branch_crossing_tet_ids": [
+                  582,
+                  583,
+                  584,
+                  585,
+                  586,
+                  587,
+                  636,
+                  637,
+                  638,
+                  639,
+                  640,
+                  641,
+                  654,
+                  655,
+                  656,
+                  657,
+                  658,
+                  659,
+                  708,
+                  709,
+                  710,
+                  711,
+                  712,
+                  713,
+                  726,
+                  727,
+                  728,
+                  729,
+                  730,
+                  731,
+                  780,
+                  781
+                ],
+                "branch_predicate": "reference plastic multiplier increment > 0; other branch predicates are not inferred",
+                "center_lambda_positive_rows": 480,
+                "comparable_rows": 576,
+                "endpoint_lambda_positive_rows": 576
+              },
+              "projected_state_vs_capture": {
+                "absolute_l2_max": 4.82483323326375e-13,
+                "absolute_l2_median": 1.4698779613050178e-14,
+                "global_l2_relative": 2.448635704788819e-08,
+                "maximum_component_absolute": 4.814658295258702e-13,
+                "per_row_relative_max": 5.4502859609279196e-08,
+                "per_row_relative_p50": 2.0491789036639397e-09,
+                "per_row_relative_p95": 5.4502859609279196e-08,
+                "reference_l2_max": 1.1395023569596944e-05,
+                "rows": 576,
+                "zero_reference_rows": 0
+              },
+              "reference_projection_failure_examples": [],
+              "reference_projection_success": 576,
+              "rows": 576,
+              "stress_vs_independent_reference_Pa": {
+                "absolute_l2_max": 7.190798840533582e-06,
+                "absolute_l2_median": 1.697237955366549e-06,
+                "global_l2_relative": 3.9714736360633936e-08,
+                "maximum_component_absolute": 7.168796585688142e-06,
+                "per_row_relative_max": 8.649724467054974e-08,
+                "per_row_relative_p50": 1.7982740129565928e-08,
+                "per_row_relative_p95": 8.649724467054974e-08,
+                "reference_l2_max": 107.01066885678392,
+                "rows": 576,
+                "zero_reference_rows": 0
+              }
+            }
+          },
+          "native_FD_stage_metrics": {
+            "action_dot_fd": 0,
+            "action_fd_cosine": null,
+            "centered_fd_l2": 0,
+            "direction_nonzero": false,
+            "dt": 9.99999975e-05,
+            "epsilon": 0.03125,
+            "error_l2": 0,
+            "free_node_count": 846,
+            "input_integrity_flag": 1,
+            "maximum_delta_velocity": 0,
+            "maximum_position_perturbation": 0,
+            "minimum_j_plus_minus": [
+              1,
+              1
+            ],
+            "operator_action_l2": 0,
+            "operator_status_code": 0,
+            "position_delta": 3.12499992e-06,
+            "relative_error": 0,
+            "residual_minus_l2": 6.78000447e-08,
+            "residual_plus_l2": 6.78000447e-08,
+            "stage_status_codes_plus_minus": [
+              0,
+              0
+            ]
+          },
+          "native_fd_vs_captured_native_A_nominal": null,
+          "native_fd_vs_independent_A_nominal": null,
+          "native_fd_vs_independent_A_realized_direction": null,
+          "pair": 0,
+          "plus_minus_captured_projection_status": {
+            "minus": {
+              "captured_side_rows": 1920,
+              "first_nonzero_status_examples": [],
+              "status_code_counts": {
+                "0.0": 1920
+              }
+            },
+            "plus": {
+              "captured_side_rows": 1920,
+              "first_nonzero_status_examples": [],
+              "status_code_counts": {
+                "0.0": 1920
+              }
+            }
+          },
+          "realized_local_F_direction_vs_reported": {
+            "absolute_l2_max": 0.0,
+            "absolute_l2_median": 0.0,
+            "global_l2_relative": null,
+            "maximum_component_absolute": 0.0,
+            "per_row_relative_max": null,
+            "per_row_relative_p50": null,
+            "per_row_relative_p95": null,
+            "reference_l2_max": 0.0,
+            "rows": 1920,
+            "zero_reference_rows": 1920
+          },
+          "realized_local_F_perturbation_roundoff_max": 0.0,
+          "realized_velocity_direction_vs_requested": {
+            "absolute_l2_max": 0.0,
+            "absolute_l2_median": 0.0,
+            "global_l2_relative": null,
+            "maximum_component_absolute": 0.0,
+            "per_row_relative_max": null,
+            "per_row_relative_p50": null,
+            "per_row_relative_p95": null,
+            "reference_l2_max": 0.0,
+            "rows": 846,
+            "zero_reference_rows": 846
+          }
+        },
+        {
+          "branch_crossing": "captured side branch auxiliaries may be null; centered FD is not admitted if native side status fails. Independent side projections are optional and are reported separately.",
+          "epsilon": 0.015625,
+          "finite_difference_admission": {
+            "comparison_admissible": false,
+            "direction_nonzero": false,
+            "endpoint_residual_metrics_finite": true,
+            "input_integrity": true,
+            "operator_status_clear": true,
+            "stage_statuses_clear": true
+          },
+          "independent_A_realized_vs_nominal": {
+            "absolute_l2_max": 0.0,
+            "absolute_l2_median": 0.0,
+            "global_l2_relative": null,
+            "maximum_component_absolute": 0.0,
+            "per_row_relative_max": null,
+            "per_row_relative_p50": null,
+            "per_row_relative_p95": null,
+            "reference_l2_max": 0.0,
+            "rows": 846,
+            "zero_reference_rows": 846
+          },
+          "independent_side_projection": {
+            "minus_material_0": {
+              "dynamic_refinement": [
+                {
+                  "iteration": 0,
+                  "maximum_dynamic_scaled_correction": 5.000009969632559e-09,
+                  "rows_above_dynamic_correction_gate": 0
+                }
+              ],
+              "maximum_reference_dynamic_correction": 5.000009969632559e-09,
+              "maximum_reference_scaled_residual": 5.000009939245144e-13,
+              "plastic_multiplier_branch_comparison": {
+                "branch_crossing_rows": 0,
+                "branch_crossing_tet_ids": [],
+                "branch_predicate": "reference plastic multiplier increment > 0; other branch predicates are not inferred",
+                "center_lambda_positive_rows": 0,
+                "comparable_rows": 1152,
+                "endpoint_lambda_positive_rows": 0
+              },
+              "projected_state_vs_capture": {
+                "absolute_l2_max": 0.0,
+                "absolute_l2_median": 0.0,
+                "global_l2_relative": null,
+                "maximum_component_absolute": 0.0,
+                "per_row_relative_max": null,
+                "per_row_relative_p50": null,
+                "per_row_relative_p95": null,
+                "reference_l2_max": 0.0,
+                "rows": 1152,
+                "zero_reference_rows": 1152
+              },
+              "reference_projection_failure_examples": [],
+              "reference_projection_success": 1152,
+              "rows": 1152,
+              "stress_vs_independent_reference_Pa": {
+                "absolute_l2_max": 0.0,
+                "absolute_l2_median": 0.0,
+                "global_l2_relative": null,
+                "maximum_component_absolute": 0.0,
+                "per_row_relative_max": null,
+                "per_row_relative_p50": null,
+                "per_row_relative_p95": null,
+                "reference_l2_max": 0.0,
+                "rows": 1152,
+                "zero_reference_rows": 1152
+              }
+            },
+            "minus_material_1": {
+              "dynamic_refinement": [
+                {
+                  "iteration": 0,
+                  "maximum_dynamic_scaled_correction": 9.684024786009003e-08,
+                  "rows_above_dynamic_correction_gate": 576
+                },
+                {
+                  "iteration": 1,
+                  "maximum_dynamic_scaled_correction": 8.460061568799145e-16,
+                  "rows_above_dynamic_correction_gate": 0
+                }
+              ],
+              "maximum_reference_dynamic_correction": 8.460061568799145e-16,
+              "maximum_reference_scaled_residual": 9.324481469201276e-21,
+              "plastic_multiplier_branch_comparison": {
+                "branch_crossing_rows": 96,
+                "branch_crossing_tet_ids": [
+                  582,
+                  583,
+                  584,
+                  585,
+                  586,
+                  587,
+                  636,
+                  637,
+                  638,
+                  639,
+                  640,
+                  641,
+                  654,
+                  655,
+                  656,
+                  657,
+                  658,
+                  659,
+                  708,
+                  709,
+                  710,
+                  711,
+                  712,
+                  713,
+                  726,
+                  727,
+                  728,
+                  729,
+                  730,
+                  731,
+                  780,
+                  781
+                ],
+                "branch_predicate": "reference plastic multiplier increment > 0; other branch predicates are not inferred",
+                "center_lambda_positive_rows": 480,
+                "comparable_rows": 576,
+                "endpoint_lambda_positive_rows": 576
+              },
+              "projected_state_vs_capture": {
+                "absolute_l2_max": 4.82483323326375e-13,
+                "absolute_l2_median": 1.4698779613050178e-14,
+                "global_l2_relative": 2.448635704788819e-08,
+                "maximum_component_absolute": 4.814658295258702e-13,
+                "per_row_relative_max": 5.4502859609279196e-08,
+                "per_row_relative_p50": 2.0491789036639397e-09,
+                "per_row_relative_p95": 5.4502859609279196e-08,
+                "reference_l2_max": 1.1395023569596944e-05,
+                "rows": 576,
+                "zero_reference_rows": 0
+              },
+              "reference_projection_failure_examples": [],
+              "reference_projection_success": 576,
+              "rows": 576,
+              "stress_vs_independent_reference_Pa": {
+                "absolute_l2_max": 7.190798840533582e-06,
+                "absolute_l2_median": 1.697237955366549e-06,
+                "global_l2_relative": 3.9714736360633936e-08,
+                "maximum_component_absolute": 7.168796585688142e-06,
+                "per_row_relative_max": 8.649724467054974e-08,
+                "per_row_relative_p50": 1.7982740129565928e-08,
+                "per_row_relative_p95": 8.649724467054974e-08,
+                "reference_l2_max": 107.01066885678392,
+                "rows": 576,
+                "zero_reference_rows": 0
+              }
+            },
+            "plus_material_0": {
+              "dynamic_refinement": [
+                {
+                  "iteration": 0,
+                  "maximum_dynamic_scaled_correction": 5.000009969632559e-09,
+                  "rows_above_dynamic_correction_gate": 0
+                }
+              ],
+              "maximum_reference_dynamic_correction": 5.000009969632559e-09,
+              "maximum_reference_scaled_residual": 5.000009939245144e-13,
+              "plastic_multiplier_branch_comparison": {
+                "branch_crossing_rows": 0,
+                "branch_crossing_tet_ids": [],
+                "branch_predicate": "reference plastic multiplier increment > 0; other branch predicates are not inferred",
+                "center_lambda_positive_rows": 0,
+                "comparable_rows": 1152,
+                "endpoint_lambda_positive_rows": 0
+              },
+              "projected_state_vs_capture": {
+                "absolute_l2_max": 0.0,
+                "absolute_l2_median": 0.0,
+                "global_l2_relative": null,
+                "maximum_component_absolute": 0.0,
+                "per_row_relative_max": null,
+                "per_row_relative_p50": null,
+                "per_row_relative_p95": null,
+                "reference_l2_max": 0.0,
+                "rows": 1152,
+                "zero_reference_rows": 1152
+              },
+              "reference_projection_failure_examples": [],
+              "reference_projection_success": 1152,
+              "rows": 1152,
+              "stress_vs_independent_reference_Pa": {
+                "absolute_l2_max": 0.0,
+                "absolute_l2_median": 0.0,
+                "global_l2_relative": null,
+                "maximum_component_absolute": 0.0,
+                "per_row_relative_max": null,
+                "per_row_relative_p50": null,
+                "per_row_relative_p95": null,
+                "reference_l2_max": 0.0,
+                "rows": 1152,
+                "zero_reference_rows": 1152
+              }
+            },
+            "plus_material_1": {
+              "dynamic_refinement": [
+                {
+                  "iteration": 0,
+                  "maximum_dynamic_scaled_correction": 9.684024786009003e-08,
+                  "rows_above_dynamic_correction_gate": 576
+                },
+                {
+                  "iteration": 1,
+                  "maximum_dynamic_scaled_correction": 8.460061568799145e-16,
+                  "rows_above_dynamic_correction_gate": 0
+                }
+              ],
+              "maximum_reference_dynamic_correction": 8.460061568799145e-16,
+              "maximum_reference_scaled_residual": 9.324481469201276e-21,
+              "plastic_multiplier_branch_comparison": {
+                "branch_crossing_rows": 96,
+                "branch_crossing_tet_ids": [
+                  582,
+                  583,
+                  584,
+                  585,
+                  586,
+                  587,
+                  636,
+                  637,
+                  638,
+                  639,
+                  640,
+                  641,
+                  654,
+                  655,
+                  656,
+                  657,
+                  658,
+                  659,
+                  708,
+                  709,
+                  710,
+                  711,
+                  712,
+                  713,
+                  726,
+                  727,
+                  728,
+                  729,
+                  730,
+                  731,
+                  780,
+                  781
+                ],
+                "branch_predicate": "reference plastic multiplier increment > 0; other branch predicates are not inferred",
+                "center_lambda_positive_rows": 480,
+                "comparable_rows": 576,
+                "endpoint_lambda_positive_rows": 576
+              },
+              "projected_state_vs_capture": {
+                "absolute_l2_max": 4.82483323326375e-13,
+                "absolute_l2_median": 1.4698779613050178e-14,
+                "global_l2_relative": 2.448635704788819e-08,
+                "maximum_component_absolute": 4.814658295258702e-13,
+                "per_row_relative_max": 5.4502859609279196e-08,
+                "per_row_relative_p50": 2.0491789036639397e-09,
+                "per_row_relative_p95": 5.4502859609279196e-08,
+                "reference_l2_max": 1.1395023569596944e-05,
+                "rows": 576,
+                "zero_reference_rows": 0
+              },
+              "reference_projection_failure_examples": [],
+              "reference_projection_success": 576,
+              "rows": 576,
+              "stress_vs_independent_reference_Pa": {
+                "absolute_l2_max": 7.190798840533582e-06,
+                "absolute_l2_median": 1.697237955366549e-06,
+                "global_l2_relative": 3.9714736360633936e-08,
+                "maximum_component_absolute": 7.168796585688142e-06,
+                "per_row_relative_max": 8.649724467054974e-08,
+                "per_row_relative_p50": 1.7982740129565928e-08,
+                "per_row_relative_p95": 8.649724467054974e-08,
+                "reference_l2_max": 107.01066885678392,
+                "rows": 576,
+                "zero_reference_rows": 0
+              }
+            }
+          },
+          "native_FD_stage_metrics": {
+            "action_dot_fd": 0,
+            "action_fd_cosine": null,
+            "centered_fd_l2": 0,
+            "direction_nonzero": false,
+            "dt": 9.99999975e-05,
+            "epsilon": 0.015625,
+            "error_l2": 0,
+            "free_node_count": 846,
+            "input_integrity_flag": 1,
+            "maximum_delta_velocity": 0,
+            "maximum_position_perturbation": 0,
+            "minimum_j_plus_minus": [
+              1,
+              1
+            ],
+            "operator_action_l2": 0,
+            "operator_status_code": 0,
+            "position_delta": 1.56249996e-06,
+            "relative_error": 0,
+            "residual_minus_l2": 6.78000447e-08,
+            "residual_plus_l2": 6.78000447e-08,
+            "stage_status_codes_plus_minus": [
+              0,
+              0
+            ]
+          },
+          "native_fd_vs_captured_native_A_nominal": null,
+          "native_fd_vs_independent_A_nominal": null,
+          "native_fd_vs_independent_A_realized_direction": null,
+          "pair": 1,
+          "plus_minus_captured_projection_status": {
+            "minus": {
+              "captured_side_rows": 1920,
+              "first_nonzero_status_examples": [],
+              "status_code_counts": {
+                "0.0": 1920
+              }
+            },
+            "plus": {
+              "captured_side_rows": 1920,
+              "first_nonzero_status_examples": [],
+              "status_code_counts": {
+                "0.0": 1920
+              }
+            }
+          },
+          "realized_local_F_direction_vs_reported": {
+            "absolute_l2_max": 0.0,
+            "absolute_l2_median": 0.0,
+            "global_l2_relative": null,
+            "maximum_component_absolute": 0.0,
+            "per_row_relative_max": null,
+            "per_row_relative_p50": null,
+            "per_row_relative_p95": null,
+            "reference_l2_max": 0.0,
+            "rows": 1920,
+            "zero_reference_rows": 1920
+          },
+          "realized_local_F_perturbation_roundoff_max": 0.0,
+          "realized_velocity_direction_vs_requested": {
+            "absolute_l2_max": 0.0,
+            "absolute_l2_median": 0.0,
+            "global_l2_relative": null,
+            "maximum_component_absolute": 0.0,
+            "per_row_relative_max": null,
+            "per_row_relative_p50": null,
+            "per_row_relative_p95": null,
+            "reference_l2_max": 0.0,
+            "rows": 846,
+            "zero_reference_rows": 846
+          }
+        }
+      ],
+      "free_nodes": 846,
+      "independent_assembled_operator_action": {
+        "free_rhs_impulse_l2": 6.78000547945946e-08,
+        "independent_A_delta_v_l2": 0.0,
+        "native_A_delta_v_l2": 0.0,
+        "native_A_delta_v_vs_independent_A_delta_v": {
+          "absolute_l2_max": 0.0,
+          "absolute_l2_median": 0.0,
+          "global_l2_relative": null,
+          "maximum_component_absolute": 0.0,
+          "per_row_relative_max": null,
+          "per_row_relative_p50": null,
+          "per_row_relative_p95": null,
+          "reference_l2_max": 0.0,
+          "rows": 846,
+          "zero_reference_rows": 846
+        },
+        "native_captured_element_force_vs_independent_element_force_N_per_s": {
+          "absolute_l2_max": 0.0,
+          "absolute_l2_median": 0.0,
+          "global_l2_relative": null,
+          "maximum_component_absolute": 0.0,
+          "per_row_relative_max": null,
+          "per_row_relative_p50": null,
+          "per_row_relative_p95": null,
+          "reference_l2_max": 0.0,
+          "rows": 1920,
+          "zero_reference_rows": 1920
+        },
+        "operator_sign_contract": "M*delta_v - dt^2*K(delta_v)"
+      },
+      "materials": {
+        "0": {
+          "center_branch": {
+            "branch_scope": "only the captured/reference plastic-multiplier activity predicate is adjudicated; smooth FB/yield proximity is reported numerically, not called a globally smooth branch",
+            "captured_lambda_available_rows": 0,
+            "captured_lambda_increment_positive": 0,
+            "captured_vs_reference_lambda_active_mismatch_on_available_rows": 0,
+            "minimum_absolute_reference_yield_value": 0.999998000000005,
+            "reference_lambda_increment_positive": 0
+          },
+          "center_capture_candidate_vs_independent_candidate": {
+            "absolute_l2_max": 0.0,
+            "absolute_l2_median": 0.0,
+            "global_l2_relative": null,
+            "maximum_component_absolute": 0.0,
+            "per_row_relative_max": null,
+            "per_row_relative_p50": null,
+            "per_row_relative_p95": null,
+            "reference_l2_max": 0.0,
+            "rows": 1152,
+            "zero_reference_rows": 1152
+          },
+          "dynamic_correction_refinement": [
+            {
+              "iteration": 0,
+              "maximum_dynamic_scaled_correction": 5.000009969632559e-09,
+              "rows_above_dynamic_correction_gate": 0
+            }
+          ],
+          "family": "independent_15_state_hill_bilinear",
+          "independent_projection_failures": [],
+          "independent_projection_success": 1152,
+          "maximum_reference_newton_updates": 0,
+          "name": "hajali2009_liner_hill_bilinear_fit",
+          "production_local_P_vs_independent_at_captured_candidate_Pa": {
+            "absolute_l2_max": 0.0,
+            "absolute_l2_median": 0.0,
+            "global_l2_relative": null,
+            "maximum_component_absolute": 0.0,
+            "per_row_relative_max": null,
+            "per_row_relative_p50": null,
+            "per_row_relative_p95": null,
+            "reference_l2_max": 0.0,
+            "rows": 1152,
+            "zero_reference_rows": 1152
+          },
+          "production_local_tangent_action_vs_independent_at_captured_candidate_Pa_per_s": {
+            "absolute_l2_max": 0.0,
+            "absolute_l2_median": 0.0,
+            "global_l2_relative": null,
+            "maximum_component_absolute": 0.0,
+            "per_row_relative_max": null,
+            "per_row_relative_p50": null,
+            "per_row_relative_p95": null,
+            "reference_l2_max": 0.0,
+            "rows": 1152,
+            "zero_reference_rows": 1152
+          },
+          "production_local_tangent_action_vs_independent_at_reference_projected_candidate_Pa_per_s": {
+            "absolute_l2_max": 0.0,
+            "absolute_l2_median": 0.0,
+            "global_l2_relative": null,
+            "maximum_component_absolute": 0.0,
+            "per_row_relative_max": null,
+            "per_row_relative_p50": null,
+            "per_row_relative_p95": null,
+            "reference_l2_max": 0.0,
+            "rows": 1152,
+            "zero_reference_rows": 1152
+          },
+          "projection_status": "pass",
+          "reference_dynamic_correction_scaled_max": 5.000009969632559e-09,
+          "reference_projected_residual_scaled_max": 5.000009939245144e-13,
+          "rows": 1152
+        },
+        "1": {
+          "center_branch": {
+            "branch_scope": "only the captured/reference plastic-multiplier activity predicate is adjudicated; smooth FB/yield proximity is reported numerically, not called a globally smooth branch",
+            "captured_lambda_available_rows": 0,
+            "captured_lambda_increment_positive": 0,
+            "captured_vs_reference_lambda_active_mismatch_on_available_rows": 0,
+            "minimum_absolute_reference_yield_value": 0.9999872342398979,
+            "reference_lambda_increment_positive": 480
+          },
+          "center_capture_candidate_vs_independent_candidate": {
+            "absolute_l2_max": 4.82483323326375e-13,
+            "absolute_l2_median": 1.4698779613050178e-14,
+            "global_l2_relative": 2.448635704788819e-08,
+            "maximum_component_absolute": 4.814658295258702e-13,
+            "per_row_relative_max": 5.4502859609279196e-08,
+            "per_row_relative_p50": 2.0491789036639397e-09,
+            "per_row_relative_p95": 5.4502859609279196e-08,
+            "reference_l2_max": 1.1395023569596944e-05,
+            "rows": 576,
+            "zero_reference_rows": 0
+          },
+          "dynamic_correction_refinement": [
+            {
+              "iteration": 0,
+              "maximum_dynamic_scaled_correction": 9.684024786009003e-08,
+              "rows_above_dynamic_correction_gate": 576
+            },
+            {
+              "iteration": 1,
+              "maximum_dynamic_scaled_correction": 8.460061568799145e-16,
+              "rows_above_dynamic_correction_gate": 0
+            }
+          ],
+          "family": "independent_15_state_hill_bilinear",
+          "independent_projection_failures": [],
+          "independent_projection_success": 576,
+          "maximum_reference_newton_updates": 1,
+          "name": "hajali2009_medium_hill_bilinear_fit",
+          "production_local_P_vs_independent_at_captured_candidate_Pa": {
+            "absolute_l2_max": 7.190798869414816e-06,
+            "absolute_l2_median": 1.6972379205928963e-06,
+            "global_l2_relative": 3.971540349538029e-08,
+            "maximum_component_absolute": 7.168796614109851e-06,
+            "per_row_relative_max": 8.649724501795854e-08,
+            "per_row_relative_p50": 1.798273976112876e-08,
+            "per_row_relative_p95": 8.649724501795854e-08,
+            "reference_l2_max": 107.010668856784,
+            "rows": 576,
+            "zero_reference_rows": 0
+          },
+          "production_local_tangent_action_vs_independent_at_captured_candidate_Pa_per_s": {
+            "absolute_l2_max": 0.0,
+            "absolute_l2_median": 0.0,
+            "global_l2_relative": null,
+            "maximum_component_absolute": 0.0,
+            "per_row_relative_max": null,
+            "per_row_relative_p50": null,
+            "per_row_relative_p95": null,
+            "reference_l2_max": 0.0,
+            "rows": 576,
+            "zero_reference_rows": 576
+          },
+          "production_local_tangent_action_vs_independent_at_reference_projected_candidate_Pa_per_s": {
+            "absolute_l2_max": 0.0,
+            "absolute_l2_median": 0.0,
+            "global_l2_relative": null,
+            "maximum_component_absolute": 0.0,
+            "per_row_relative_max": null,
+            "per_row_relative_p50": null,
+            "per_row_relative_p95": null,
+            "reference_l2_max": 0.0,
+            "rows": 576,
+            "zero_reference_rows": 576
+          },
+          "projection_status": "pass",
+          "reference_dynamic_correction_scaled_max": 8.460061568799145e-16,
+          "reference_projected_residual_scaled_max": 9.324481469201276e-21,
+          "rows": 576
+        },
+        "2": {
+          "family": "independent_analytic_finite_glue_neo_hookean",
+          "name": "starch2007_finite_glue_elastic",
+          "production_local_P_vs_independent_Pa": {
+            "absolute_l2_max": 8.79519549189991e-07,
+            "absolute_l2_median": 7.675360673221977e-07,
+            "global_l2_relative": 3.106357342093353e-08,
+            "maximum_component_absolute": 6.205657143709686e-07,
+            "per_row_relative_max": 4.0597509814927536e-08,
+            "per_row_relative_p50": 3.205258021467872e-08,
+            "per_row_relative_p95": 4.0597509814927536e-08,
+            "reference_l2_max": 27.886775935490597,
+            "rows": 192,
+            "zero_reference_rows": 0
+          },
+          "production_local_tangent_action_vs_independent_Pa_per_s": {
+            "absolute_l2_max": 0.0,
+            "absolute_l2_median": 0.0,
+            "global_l2_relative": null,
+            "maximum_component_absolute": 0.0,
+            "per_row_relative_max": null,
+            "per_row_relative_p50": null,
+            "per_row_relative_p95": null,
+            "reference_l2_max": 0.0,
+            "rows": 192,
+            "zero_reference_rows": 192
+          },
+          "projection_status": "not_applicable_stateless_analytic",
+          "rows": 192
+        }
+      },
+      "tetrahedra": 1920
+    }
+  ],
+  "evidence_class": "source-bound CPU diagnostic; not convergence or physical qualification",
+  "finished_at_utc": "2026-10-15T19:21:37.870561+00:00",
+  "input_contract": {
+    "F": "center and side local F equals separately captured FP32 high plus FP32 low, widened before summation",
+    "FD_pairs": "two captured epsilon pairs; requested and realized directions reported separately",
+    "FP32_restore": "all captured parameters, states, F high/low, directions, masses, inverse-rest, frame quaternion, and volume round through float32 then widen",
+    "accepted_history": "center and all side references hold the captured accepted state fixed",
+    "assembly": "independent 15-state tangent + analytic finite-glue tangent, captured frame/rest geometry, mass and unchanged free-node mask",
+    "rate": "captured maximum rate exponent must be zero; independent 15-state law is rate independent"
+  },
+  "limits": [
+    "The rich capture is a single selected Newton linearization, not a complete solve.",
+    "The independent model is a handwritten FP64 transcription of the captured 15-state paper law and analytic finite-glue law.",
+    "Branch crossing, near-zero directional actions, or failed independent projection are reported separately and are not passed by a relative metric.",
+    "This CPU audit does not alter physical equations, source parameters, solver tolerances, or accepted history."
+  ],
+  "material_population": [],
+  "schema": "numi.cardboard.operator-fd-e2-independent-audit.v1",
+  "selection": {
+    "environment_count": 2,
+    "newton_iteration": 23,
+    "node_count_per_environment": 882,
+    "root": 2,
+    "tetrahedron_count_per_environment": 1920
+  },
+  "status": "complete_diagnostic",
+  "wall_seconds": 34.87011200003326,
+  "warnings": [
+    {
+      "count": 15053,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "count": 14035,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+--- a/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm
++++ b/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm
+@@ -19,6 +19,7 @@
+ #include <iostream>
+ #include <stdexcept>
+ #include <string>
++#include <string_view>
+ #include <system_error>
+ #include <vector>
+ 
+@@ -325,6 +326,19 @@
+     }
+     object.femFixedNodes = fixedNodes;
+     object.tetrahedra = {{{0u, 1u, 2u, 3u}}};
++    if (preconditioner == FEMPreconditionerMode::regionalGalerkin ||
++        preconditioner ==
++            FEMPreconditionerMode::regionalGalerkinBlockJacobi ||
++        preconditioner == FEMPreconditionerMode::regionalGalerkinContact ||
++        preconditioner ==
++            FEMPreconditionerMode::regionalGalerkinGraphSchwarz ||
++        preconditioner ==
++            FEMPreconditionerMode::regionalGalerkinHybridGraphSchwarz) {
++        // Regional Galerkin modes require one authored compact region label
++        // per tetrahedron. This one-tet fixture therefore has the exact
++        // single-region map {0}; it is part of the preconditioner input.
++        object.femPreconditionerRegionIds = {0u};
++    }
+     object.characteristicLength = 0.001;
+     source.objects = {object};
+ 
+@@ -350,6 +364,7 @@
+     WorldSource legacy = source;
+     legacy.mixedSolver.femPreconditioner =
+         FEMPreconditionerMode::scalarDiagonal;
++    legacy.objects[0].femPreconditionerRegionIds.clear();
+     const auto legacyCompiled = compileWorld(legacy, options);
+     need(legacyCompiled.succeeded(), "legacy scalar comparison world did not compile");
+     need(legacyCompiled.world.fingerprint != compiled.world.fingerprint,
+@@ -1317,6 +1332,28 @@
+ int main(int argc, char** argv) {
+     @autoreleasepool {
+         try {
++            if (argc == 3 && std::string_view(argv[1]) ==
++                                 "--selector6-compile-only") {
++                const Fixture fixture = cook(
++                    argv[2], paper::State{}, baselineDeformation,
++                    FEMPreconditionerMode::regionalGalerkinHybridGraphSchwarz,
++                    {2u, 3u});
++                need(fixture.world.mixedSolver.executionBudgets.z == 6u &&
++                         fixture.world.dispatch.environmentCount == 1u &&
++                         fixture.world.dispatch.femNodeCount == 4u &&
++                         fixture.world.dispatch.tetrahedronCount == 1u &&
++                         fixture.world.objects.size() == 1u &&
++                         fixture.world.objects[0].representation ==
++                             NM_REPRESENTATION_FEM &&
++                         fixture.world.objects[0].flags &
++                             NM_OBJECT_DISABLE_DEFORMABLE_CONTACT &&
++                         fixture.world.objects[0].flags &
++                             NM_OBJECT_DISABLE_SELF_CONTACT,
++                     "selector6 compile-only fixture lost its authored single-region contract");
++                std::cout << "selector6_compile_only=pass region_id=0 "
++                             "topology=4nodes/1tet physical_validation=false\n";
++                return 0;
++            }
+             need(argc == 3, "expected liner and medium material paths");
+             MetalCheck gpu;
+             checkMaterial(gpu, argv[1]);
+--- a/matter/tools/stateful_check.cpp
++++ b/matter/tools/stateful_check.cpp
+@@ -796,8 +796,9 @@
+     }
+     {
+         auto candidate = roundTrip;
+-        // Selector values above the defined range remain a mixed-policy error.
+-        candidate.mixedSolver.executionBudgets.z = 6u;
++        // Selector 6 is the supported hybrid graph-Schwarz mode. Values
++        // above the defined range remain a mixed-policy error.
++        candidate.mixedSolver.executionBudgets.z = 7u;
+         requireRejected(std::move(candidate), "mixed solver policy");
+     }
+     {

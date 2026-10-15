@@ -1,0 +1,8 @@
+{
+  "status": "failed_attempt_preserved",
+  "error": "adapter treated node epsilon_pair_plus/minus state dictionaries as residual vectors; corrected to consume the distinct epsilon_pair_residual_impulses_Ns field",
+  "input_capture_sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+  "subsequent_script_sha256": "e2bd2628c6fa28bdd830e7ab7f4619ecda26c31b4706c14eff1c633657bc9bb4",
+  "failure_time_utc": "2026-10-15T19:18:17.944746+00:00",
+  "scope": "adapter smoke only; no solver/native state changed"
+}

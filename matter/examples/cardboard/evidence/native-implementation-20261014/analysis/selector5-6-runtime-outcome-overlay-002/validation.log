@@ -1,0 +1,4 @@
+PASS: frozen base; 59 snapshot vectors and required scalars emitted; both selector outcomes precede unchanged gates
+PASS Objective-C++ syntax -Werror (frozen source-129 headers)
+PASS patch dry-run against frozen source-129 base
+No native GPU run performed.

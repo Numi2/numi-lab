@@ -1,0 +1,13 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-status-bound-128",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-fixture-repaired-126",
+  "fixture_patch_sha256": "04537b027b8ce0774af7b127dc048ae5ce4128f5c830bc9d200c2854d0cdc65c",
+  "changed_files": {
+    "matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm": {
+      "base": "6b2990606fb95016cb30ccf79d023878b01c1e0bf2dea534d5f22bccf29c7f5b",
+      "candidate": "10fdbe2f68d4f31ee767ca3c949d5bee8c7834fe82b73f466d3460827c2fc461"
+    }
+  },
+  "production_changes": false,
+  "physical_steps": 0
+}

@@ -1,0 +1,550 @@
+{
+  "schema": "numi.cardboard.vtccd_budget_replay_overlay_manifest.v1",
+  "package": "private-vtccd-budget-replay-overlay-001",
+  "status": "PASS_CPU_SOURCE_CAPTURE_METAL_AND_OBJC_SYNTAX; NATIVE_REPLAY_NOT_RUN",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122",
+  "base_contact_sha256": "ea5a9caf6f47588258aeeb5e8be57168826acfb94a566ecbfea7e647ad50fb5c",
+  "base_cmake_sha256": "d64689e33063913c13493d6e621767124519c29432b45ee236deab01ca1c7448",
+  "candidate_contact_sha256": "cd5aaee17244b52e0b6eebb81cf2fcaff4fbbfb47fe43726fc5bbacec2e9527a",
+  "overlay_patch_sha256": "73f811484173c10ccd893daa3326ab3800139c0d1247b45c581c1746681037e9",
+  "default_production_iteration_budget": 16,
+  "diagnostic_budgets": [
+    16,
+    32,
+    64,
+    128
+  ],
+  "physical_tolerances_or_roundoff_changed": false,
+  "native_gpu_replay_performed": false,
+  "outputs": [
+    {
+      "path": "README.md",
+      "bytes": 3374,
+      "sha256": "815acb15f6fdf03e2083351c9aaf97d39bb7fd38f573d4d5e935d47cd7d933e9"
+    },
+    {
+      "path": "generate_overlay.py",
+      "bytes": 9854,
+      "sha256": "10c029a2985940330a68621d51d24c90d0cdd95b2afca35396fee19ee0f03553"
+    },
+    {
+      "path": "overlay/matter/CMakeLists.txt",
+      "bytes": 111482,
+      "sha256": "bd6b3f7b92e75dcb9982c67c36f82150d4f433369b5017655adf60b0c0c9d019"
+    },
+    {
+      "path": "overlay/matter/src/matter_kernels.metal",
+      "bytes": 561,
+      "sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168"
+    },
+    {
+      "path": "overlay/matter/src/metal/contact.metalinc",
+      "bytes": 417426,
+      "sha256": "cd5aaee17244b52e0b6eebb81cf2fcaff4fbbfb47fe43726fc5bbacec2e9527a"
+    },
+    {
+      "path": "overlay/matter/tools/cardboard_vtccd_iteration_budget_check.mm",
+      "bytes": 18341,
+      "sha256": "eddbea0492d2a566896f5d1838cdf3642f16ba67d922399a067f1f9001529c9e"
+    },
+    {
+      "path": "overlay.patch",
+      "bytes": 28583,
+      "sha256": "73f811484173c10ccd893daa3326ab3800139c0d1247b45c581c1746681037e9"
+    },
+    {
+      "path": "seal_package.py",
+      "bytes": 5285,
+      "sha256": "4f8da1c0d35e155c22256b4904785802643c9781aa75a87b2fc4dea4413aae64"
+    },
+    {
+      "path": "validate_overlay.py",
+      "bytes": 6330,
+      "sha256": "1c95f46b6c467efd81e5df5900188bb1cda374b3db2a34882f0137f0a5fb624d"
+    },
+    {
+      "path": "validation/commands.json",
+      "bytes": 2935,
+      "sha256": "fd4f30d6113f316c1b7204e55139ec94ef2c32a596f8b242393cdad0889aa9f7"
+    },
+    {
+      "path": "validation/host-dependencies.d",
+      "bytes": 325,
+      "sha256": "d8747fa3d7ba89dd12ba5af3f619ba17e7e14be83e8a70beb2e061f9d920dd49"
+    },
+    {
+      "path": "validation/matter-kernel-dependencies.d",
+      "bytes": 5446,
+      "sha256": "7ffff1c4e131cab0c00fafe54b76ee903afa26221beddee5a355d90be68853e1"
+    },
+    {
+      "path": "validation/metal-compile.log",
+      "bytes": 2320,
+      "sha256": "533c1e35ec47e74329e4fa0ba261b221e4a67adcc2e3cf7300cb5893dbeafc0a"
+    },
+    {
+      "path": "validation/metal-inputs.json",
+      "bytes": 10487,
+      "sha256": "3f2aeb10d7fd819b904a9a84c278f05e63bab66731c077c1b4f1a07163904c5e"
+    },
+    {
+      "path": "validation/metallib-link.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "validation/objc-syntax.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "validation/source-capture-contract.log",
+      "bytes": 980,
+      "sha256": "c26571f2664e6a7dad3ee52ccb1bd3f960a4dc640798241b502a07fcb571c128"
+    },
+    {
+      "path": "validation/vtccd-budget-replay.air",
+      "bytes": 1563408,
+      "sha256": "16ee7d962618872eab898cb105b48e29cb24c74ad1720b962d70c3bdbc5219fa"
+    },
+    {
+      "path": "validation/vtccd-budget-replay.metallib",
+      "bytes": 6638087,
+      "sha256": "141d7d8f3c6801a5502849f70c95c809c46a3cf0f820af9d9e76e90018690d02"
+    }
+  ],
+  "input_evidence": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/contact.metalinc",
+      "label": "source122/contact.metalinc",
+      "bytes": 411676,
+      "sha256": "ea5a9caf6f47588258aeeb5e8be57168826acfb94a566ecbfea7e647ad50fb5c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/matter_kernels.metal",
+      "label": "source122/matter_kernels.metal",
+      "bytes": 561,
+      "sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/CMakeLists.txt",
+      "label": "source122/matter/CMakeLists.txt",
+      "bytes": 110533,
+      "sha256": "d64689e33063913c13493d6e621767124519c29432b45ee236deab01ca1c7448"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/shared.h",
+      "label": "source122/shared.h",
+      "bytes": 56614,
+      "sha256": "bd13b1baf8790956404cd564685919c5a18e339d79e7c5c5165956f94d2f010c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/common.metalinc",
+      "label": "source122/common.metalinc",
+      "bytes": 100685,
+      "sha256": "66153b6ac14d361e33f9f74d228b8882db81bb35f6e425c973c206bd196a5f55"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/private-vtccd-budget-replay-overlay-001/overlay/matter/src/matter_kernels.metal",
+      "label": "compiler dependency",
+      "bytes": 561,
+      "sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/private-vtccd-budget-replay-overlay-001/overlay/matter/src/metal/contact.metalinc",
+      "label": "compiler dependency",
+      "bytes": 417426,
+      "sha256": "cd5aaee17244b52e0b6eebb81cf2fcaff4fbbfb47fe43726fc5bbacec2e9527a"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include/metalrobo/compensated_geometry_gpu.h",
+      "label": "compiler dependency",
+      "bytes": 6421,
+      "sha256": "1bf85c7e7b8b2102c5e0e6f3fbba88e2b30530e6b5fbb33375fb581d5261d84e"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include/metalrobo/compensated_translation_gpu.h",
+      "label": "compiler dependency",
+      "bytes": 7828,
+      "sha256": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include/metalrobo/constraint_ir_shared.h",
+      "label": "compiler dependency",
+      "bytes": 10182,
+      "sha256": "1abad282fa1e88b809da2271c8e98bc0fcde6adc6629b61a7f8f7d7633c5403f"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include/metalrobo/engine_types.h",
+      "label": "compiler dependency",
+      "bytes": 63651,
+      "sha256": "2eacf034dcce6b4cafb56b1db90a24e3bbc1a8d75b324722daed34a95d21dcb2"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include/metalrobo/gpu_types.h",
+      "label": "compiler dependency",
+      "bytes": 3809,
+      "sha256": "55777caa42851b167780255c76e02c40e2285ee43cc6dda77063d8639f6728d8"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include/metalrobo/numi_human_stand_gpu.h",
+      "label": "compiler dependency",
+      "bytes": 16282,
+      "sha256": "f48905aa6736af0460fc2cb15a447161f36ad68ab9eb2dd03e0fe94aaee043a1"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include/metalrobo/numi_human_tendon_gpu.h",
+      "label": "compiler dependency",
+      "bytes": 2594,
+      "sha256": "1ab91d0618a17981e598d1b16774efc94c05b53d3800d00da67437fa93318058"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include/metalrobo/numi_human_timed_root_force.h",
+      "label": "compiler dependency",
+      "bytes": 2419,
+      "sha256": "7588072673196c9e9005d91cb23be106941a7b271e9cc1f8681a5fa1548163ef"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/include/metalrobo/rod_gpu_shared.h",
+      "label": "compiler dependency",
+      "bytes": 9612,
+      "sha256": "0e8a2fc59a2969ca2493aaa0ee9d6e51cac723a22a63cb2e6d03b00807fd373d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/accepted_state_apply_gpu.h",
+      "label": "compiler dependency",
+      "bytes": 12505,
+      "sha256": "4f369f557838368895c6a62375866863b0681bc230085c263babf9aa58a50ba7"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/accepted_state_proof_gpu.h",
+      "label": "compiler dependency",
+      "bytes": 5313,
+      "sha256": "d0b17b52cbdd54c5116a3e400435e60a833c92b5b6e309d1fbc74f3062e1c24e"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/fem_compensated_deformation.h",
+      "label": "compiler dependency",
+      "bytes": 1702,
+      "sha256": "47d61e2f85bfbea5aac370211e56251ff67f0c7a28d577c276fd285b88225f33"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/fiber_exp_linear.h",
+      "label": "compiler dependency",
+      "bytes": 3404,
+      "sha256": "26ca19f47c8ece392409fe233708cc87d96b31eb010359cb987b1eed38dee49c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/fixed_convex_contact_step.h",
+      "label": "compiler dependency",
+      "bytes": 1318,
+      "sha256": "52b888b21082fae2570d69c270e70d365e95ff8bebebdc922c8a7f224745805c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/hill_scalar_initializer.h",
+      "label": "compiler dependency",
+      "bytes": 13511,
+      "sha256": "aa47b464d4d9157df57a7f223b1ac77122249d8a0c00f45e9a03723f2a58bd49"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/human_equality_gpu.h",
+      "label": "compiler dependency",
+      "bytes": 1084,
+      "sha256": "7bf03f512c0fbdf9be0382a8bd655fb8f0d90b1703ddaf74302e60a38656f519"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/human_limits_gpu.h",
+      "label": "compiler dependency",
+      "bytes": 899,
+      "sha256": "adff1dd6bb8e7d67767bca38e959b03880376ec973f0d8a556564e4a87921dd9"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/human_support_precision_gpu.h",
+      "label": "compiler dependency",
+      "bytes": 643,
+      "sha256": "d84b419be157c7feba0fe9eb9bfe2379262e38bc5fa4f2bd4641a6b0d8b671a1"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/mortar_shared_edge_guard.h",
+      "label": "compiler dependency",
+      "bytes": 37885,
+      "sha256": "b4953028b1e3ffd8fba0100b34cc3aad28f7eac812fb1cfd711aaf7cf7b5bbaa"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/numi_human_shared.h",
+      "label": "compiler dependency",
+      "bytes": 13827,
+      "sha256": "84734933d8d5c3eb50c2af074912fa70eacfaa5dd9bd8f9f4d17886a607e8376"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/paper_compensated_bytecode.h",
+      "label": "compiler dependency",
+      "bytes": 14539,
+      "sha256": "f578310307a4698692fc57117340794ac4ce2d3813cdfcf705da6a018a5976aa"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/accepted_state_proof.metalinc",
+      "label": "compiler dependency",
+      "bytes": 57229,
+      "sha256": "1782bb5ea45d2dc67d7e50a92d403c1508942989edfd9dce7d4a6f08ea459987"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/adaptive.metalinc",
+      "label": "compiler dependency",
+      "bytes": 26326,
+      "sha256": "48575bba875c8e7b6eba0138d542ac521acce8261a544a01390997d3eef0a332"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/fem.metalinc",
+      "label": "compiler dependency",
+      "bytes": 236395,
+      "sha256": "742cf561ee1ed91e20ed797e664595f675302437a3d583f8c5768da6cb3d008e"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/fgmres.metalinc",
+      "label": "compiler dependency",
+      "bytes": 393469,
+      "sha256": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/human_equality.metalinc",
+      "label": "compiler dependency",
+      "bytes": 14923,
+      "sha256": "7d258cd6479fd54655d17dc16668713209ae418e62d73d44e1992c7e34b0c927"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/human_limits.metalinc",
+      "label": "compiler dependency",
+      "bytes": 7795,
+      "sha256": "cb63fbad03fe852e532acbdf984f5147d5897595c21b68572de430793a15a87e"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/identification_scheduler.metalinc",
+      "label": "compiler dependency",
+      "bytes": 37743,
+      "sha256": "94f3056e9b22b59b1dc90c2d05d0e0112e7dd22553871be39b16666853f972a7"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/mixed_fem.metalinc",
+      "label": "compiler dependency",
+      "bytes": 46773,
+      "sha256": "9f3fba45290c92cc782393c420520b25c7d630fa080b9e2aff1d9f52a33d1681"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/mpm.metalinc",
+      "label": "compiler dependency",
+      "bytes": 45856,
+      "sha256": "eb0198a7b62252ef102fd94fbc908beb9e95da6d74bffb21ea68101013710643"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/numi_human.metalinc",
+      "label": "compiler dependency",
+      "bytes": 86748,
+      "sha256": "f211dc328beced30cb199af32b294ad9f21da9eaf1ca2d3ccbe441eb3806fda4"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/topology_mutation.metalinc",
+      "label": "compiler dependency",
+      "bytes": 156284,
+      "sha256": "77b99f7395dc77bea95945996ec3d963c5ecb4c79ea0325a11b43de8a6b9c726"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/vascular.metalinc",
+      "label": "compiler dependency",
+      "bytes": 96838,
+      "sha256": "407ded09d29938ab2556ca3f5b9c38ba3a610b00993484a0051b2e124d772d09"
+    },
+    {
+      "path": "/private/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.5.188.0.rIrnGw/Metal.xctoolchain/usr/metal/32023/lib/clang/32023.883/include/metal/module.modulemap",
+      "label": "compiler dependency",
+      "bytes": 5314,
+      "sha256": "525bf8e2cd0f8c5c1e7a22f6468a02c1d5a70e8950c5b28842a382f7fedeaf01"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/private-vtccd-budget-replay-overlay-001/overlay/matter/tools/cardboard_vtccd_iteration_budget_check.mm",
+      "label": "compiler dependency",
+      "bytes": 18341,
+      "sha256": "eddbea0492d2a566896f5d1838cdf3642f16ba67d922399a067f1f9001529c9e"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/prediction.json",
+      "label": "trial21/full-contact-trial21-vtccd-call-405/prediction.json",
+      "bytes": 101812,
+      "sha256": "824c4c8d44bd2057827e494083fe8cf9411aa1a207097130c1017cb155d0fa6a"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/receipt.json",
+      "label": "trial21/full-contact-trial21-vtccd-call-405/receipt.json",
+      "bytes": 306,
+      "sha256": "acc16ee68b597e04dd6df20b5fdf4cc4a248430c274e79e0033652f1b1569838"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/stdout.log",
+      "label": "trial21/full-contact-trial21-vtccd-call-405/stdout.log",
+      "bytes": 1229,
+      "sha256": "6207db36146aa493ad0e5593223b154dc3a3f926f9250cca88d1635188176c5d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/stderr.log",
+      "label": "trial21/full-contact-trial21-vtccd-call-405/stderr.log",
+      "bytes": 62536,
+      "sha256": "b447a63d476081664e5e7dd901a631f1e0293a41a7e1d9df310522a5a9d7bd6a"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/trial-capture.coupled.json",
+      "label": "trial21/full-contact-trial21-vtccd-call-405/trial-capture.coupled.json",
+      "bytes": 37990,
+      "sha256": "a821cf7e1e166327059258a953aaf519c8ef7e8ca9f0c344f1b6681185845e64"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/trial-capture.coupled.bin",
+      "label": "trial21/full-contact-trial21-vtccd-call-405/trial-capture.coupled.bin",
+      "bytes": 19467584,
+      "sha256": "eb6286c09081577e226eec6deb11021b4e483e104583214216b6b77c441190b5"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/prediction.json",
+      "label": "trial21/full-contact-trial21-capture-398/prediction.json",
+      "bytes": 101660,
+      "sha256": "3d627ef693b1918c9a85c9cfaf648fed918e59b810b7877587e830a8a56abc84"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/receipt.json",
+      "label": "trial21/full-contact-trial21-capture-398/receipt.json",
+      "bytes": 305,
+      "sha256": "afc5971f2abc64905e049107fec59fc3ec975dda27a8b5e46e961dc413c1ecb0"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/stdout.log",
+      "label": "trial21/full-contact-trial21-capture-398/stdout.log",
+      "bytes": 1229,
+      "sha256": "6207db36146aa493ad0e5593223b154dc3a3f926f9250cca88d1635188176c5d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/stderr.log",
+      "label": "trial21/full-contact-trial21-capture-398/stderr.log",
+      "bytes": 62317,
+      "sha256": "ea0c6567d3f41e475cf5504710da5a440a6fb8c7cb51e4f51aff6ce4cd833b8a"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/trial-capture.coupled.json",
+      "label": "trial21/full-contact-trial21-capture-398/trial-capture.coupled.json",
+      "bytes": 37237,
+      "sha256": "a8e33e538c0635ba0f3d47a3dc524a09e7b6125dc6a468fc5590b8562d4f47fd"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/trial-capture.coupled.bin",
+      "label": "trial21/full-contact-trial21-capture-398/trial-capture.coupled.bin",
+      "bytes": 19467248,
+      "sha256": "2a55974dad524891abe3a456fbfa37f96360ffb09a99ee11f66733bff312c07a"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/prediction.json",
+      "label": "trial22/full-contact-trial22-vtccd-call-406/prediction.json",
+      "bytes": 101812,
+      "sha256": "3cbf07deedec89ca316fd4d30d5a9c3202479321e40373b68fd62165735bba7d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/receipt.json",
+      "label": "trial22/full-contact-trial22-vtccd-call-406/receipt.json",
+      "bytes": 305,
+      "sha256": "33b73b02404af6b9df54b08854e2dad6d6bfc3f8dbe57a12665890fe240d3277"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/stdout.log",
+      "label": "trial22/full-contact-trial22-vtccd-call-406/stdout.log",
+      "bytes": 1229,
+      "sha256": "6207db36146aa493ad0e5593223b154dc3a3f926f9250cca88d1635188176c5d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/stderr.log",
+      "label": "trial22/full-contact-trial22-vtccd-call-406/stderr.log",
+      "bytes": 62536,
+      "sha256": "1826642c75e4a9afdf8e69a73ce54707402eab3befe81bcd348ea5bf6c6d07f8"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/trial-capture.coupled.json",
+      "label": "trial22/full-contact-trial22-vtccd-call-406/trial-capture.coupled.json",
+      "bytes": 37990,
+      "sha256": "41eb361744412ff47f338bc563a43cd940c29019a3c32c3c4de83e61677d220c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/trial-capture.coupled.bin",
+      "label": "trial22/full-contact-trial22-vtccd-call-406/trial-capture.coupled.bin",
+      "bytes": 19467584,
+      "sha256": "d1c3e4d3c74d3bf75a72ade703557b4cfa9a70d62f1f51683fffbcff8546bd74"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/prediction.json",
+      "label": "trial22/full-contact-trial22-capture-399/prediction.json",
+      "bytes": 101681,
+      "sha256": "8cb50516d98f2fd650cd11ef3c40d921062075a9cb9ecb80ac3ef8186760997e"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/receipt.json",
+      "label": "trial22/full-contact-trial22-capture-399/receipt.json",
+      "bytes": 305,
+      "sha256": "6413a079740b05b9ac0dd7d0cc5bd4e7fbfa5bb5bd0d22bcfb04e9cfa46d5de6"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/stdout.log",
+      "label": "trial22/full-contact-trial22-capture-399/stdout.log",
+      "bytes": 1229,
+      "sha256": "6207db36146aa493ad0e5593223b154dc3a3f926f9250cca88d1635188176c5d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/stderr.log",
+      "label": "trial22/full-contact-trial22-capture-399/stderr.log",
+      "bytes": 62317,
+      "sha256": "56efa15e6014ee73659d13dd27158d543543a123603c980588fd25eebbee00c5"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/trial-capture.coupled.json",
+      "label": "trial22/full-contact-trial22-capture-399/trial-capture.coupled.json",
+      "bytes": 37237,
+      "sha256": "3724f9e63472b606fdd05082a3212e37c5f0dfe44f7d19bcfaeb4a3f7e9bb9da"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/trial-capture.coupled.bin",
+      "label": "trial22/full-contact-trial22-capture-399/trial-capture.coupled.bin",
+      "bytes": 19467248,
+      "sha256": "55980968e3cfa10e2ea89273fbfd3d47004501d214ce80403c559ee5f06fd119"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/trial21-22-exact-vtccd-adjudication-001/README.md",
+      "label": "previous sealed adjudication/README.md",
+      "bytes": 4909,
+      "sha256": "dfba6b04259d62eb1f32daf0a595556dcbe88a15bc7507c43aaaee5ae11d4e11"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/trial21-22-exact-vtccd-adjudication-001/audit.py",
+      "label": "previous sealed adjudication/audit.py",
+      "bytes": 16930,
+      "sha256": "cb3c3a2ef1ee82019904d522aa279f7730a424946e74d4c3bb63097abe1c7f34"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/trial21-22-exact-vtccd-adjudication-001/report.json",
+      "label": "previous sealed adjudication/report.json",
+      "bytes": 20526,
+      "sha256": "1ef5523a0cb37e92894f28a1ad88cd4c0f0d65c5d2a223e0cd60639734b2ace1"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/trial21-22-exact-vtccd-adjudication-001/manifest.json",
+      "label": "previous sealed adjudication/manifest.json",
+      "bytes": 32179,
+      "sha256": "8f153ac029770e2652e92787ca65fd77d5c8e9cd2c1190398fae6c9225d7c5e9"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/trial21-22-exact-vtccd-adjudication-001/seal.json",
+      "label": "previous sealed adjudication/seal.json",
+      "bytes": 655,
+      "sha256": "80e9c44effee04aa775f68de2b2d8f085bdc97c32e1f27ba2befd8e77826b3b9"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/trial21-22-exact-vtccd-adjudication-001/validation.log",
+      "label": "previous sealed adjudication/validation.log",
+      "bytes": 423,
+      "sha256": "2d0004bd196e0626b082e6f6c8567371e30cfe52b0546451f9df5ef3289e1a2a"
+    }
+  ]
+}

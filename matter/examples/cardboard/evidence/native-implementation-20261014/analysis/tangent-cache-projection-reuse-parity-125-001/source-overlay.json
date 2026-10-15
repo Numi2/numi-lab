@@ -1,0 +1,65 @@
+{
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125",
+  "base_snapshot_manifest_sha256": "dc354c1d0c9619b07d33de0c867239dc260f7fe572372769d6e5e9dde7b023e5",
+  "base_source_file_sha256": {
+    "matter/CMakeLists.txt": "bd6b3f7b92e75dcb9982c67c36f82150d4f433369b5017655adf60b0c0c9d019",
+    "matter/src/matter_kernels.metal": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168",
+    "matter/src/metal/common.metalinc": "441a3f86f21979a086a0356f5fd2b91f692ba94dbd09a28d07ea9756c1246a5a",
+    "matter/src/metal/fem.metalinc": "70c2f396045f9abdcfdc32f5714e6e3a400f5566e5a7824353e11b307de52b7d"
+  },
+  "capture_fixture": {
+    "environments": 2,
+    "newton_iteration": 23,
+    "nodes_per_environment": 882,
+    "path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360",
+    "root": 2,
+    "run_id": "360",
+    "sha256": {
+      "operator-capture": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+      "output/compiled.nmatterpack": "3c25f41c6c26654ccf3f8b4f4b510bbb64ab0ea0f52b94d05d8b1fa4060fafe5",
+      "output/manifest.json": "2a34ad4f3328616fb5660fe22022941ca9ace9383ca9f1f1b7262ecfd4350ec8",
+      "output/material_state_000003_bent.json": "e352376a5e63ae33802d6eedb225839e4e71d0245076679fe51b5fe938a45a2b",
+      "output/rejected-conditioning-000003/candidate_nodes.bin": "dcd6b8ea62c05c3ef9a04dc4d46ece7e7fbad58101d8d55d2bee6dfd9d7e8614",
+      "output/rejected-conditioning-000003/manifest.json": "f2775bdc8f1747dcda5136b2bbe890e1d0645804df304c66bfe3143e90d955ad"
+    },
+    "tets_per_environment": 1920,
+    "world_fingerprint_hex": "6de3475316b7e8b9"
+  },
+  "claims": {
+    "native_cache_parity": false,
+    "performance_speedup": false,
+    "physical_validation": false,
+    "production_qualification": false
+  },
+  "native_command": "numi-matter-cardboard-tangent-cache-projection-reuse-check --native RUN360 OUTPUT_DIR",
+  "overlay_files_sha256": {
+    "prototype/CMakeLists.patch": "b58dbc3f9a0e5e54f1111d317433ceee7c276d3dc5d2aef923389a2c86b39eb8",
+    "prototype/common.patch": "906ed2683efdf94aeeb0e9eb9685d07e284ef8388e23ada35eff4e16093f033f",
+    "prototype/fem.patch": "42431f32b7523bfc4fcaca9d1e6e00078530a0427d7a20feb0149cea202726dc",
+    "prototype/matter/CMakeLists.txt": "7502aed814034a83e1768328f5f3d80dea1d60cdaaa602aaa304346868d4d3fc",
+    "prototype/matter/src/matter_kernels.metal": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168",
+    "prototype/matter/src/metal/common.metalinc": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380",
+    "prototype/matter/src/metal/fem.metalinc": "2bf83fafcf4abbf46b4914d9fc2d3690c78f978fab331b704a91b645611456e0",
+    "prototype/matter/tools/cardboard_tangent_cache_projection_reuse_check.mm": "92a37afe2bcbc1c21b75890616730bb6549327d68021337940712b68cc9fd2dd",
+    "validation/capture-admission.json": "34d0625bb8eedced6fa9f7125001e92360697c97a7a79be8503ce82b090e126b",
+    "validation/check_capture_admission.py": "18284a5a15484e74f42732e62be097eb8001a11a2a08e3d82b6af5ba7bd03a75",
+    "validation/check_overlay_contract.py": "c21fcc5a35d079c88dd7ebb3fbb2628c199c755faada171c218fe490d591f944",
+    "validation/compile_metallib.sh": "fe225ab00185436661f228c1437a10cef07a80f0382e7becb121d2dcdbd6ad97",
+    "validation/host-syntax.log": "b65468ded63afe53ae25e01952bfd51c74d4597f9681b961292233b366caa81e",
+    "validation/metal-compile.log": "55eda6bcfb18de2515bcd9c42cb83a644921105b27444cf26f447235c02612d9",
+    "validation/metallib/NumiMatter.air": "b4a0f03e6feaa60013ba7409f9448846e731f78a3756cb9859e25799b90f44f6",
+    "validation/metallib/NumiMatter.metallib": "671cf60821c89edfe9ea3627053ce29b7625c23c62bd6066f23ff4fcf28da933",
+    "validation/overlay-contract.json": "b217d9d4930ac3efa323179af4b66157943a3b5301963905b6134fc4c2964bde"
+  },
+  "package": "/Users/home/cardboard-implementation-20261014/analysis/tangent-cache-projection-reuse-parity-125-001",
+  "schema": "numi.cardboard.tangent-cache-projection-reuse.source-overlay.v1",
+  "status": "source-and-cpu-validated; native-parity-not-run",
+  "validation": {
+    "cmake_patch_dry_run": "pass: all three patches apply cleanly to source125",
+    "cpu_capture_admission": "pass: all 35,280 candidate node float words and all 1,920 env0 accepted-state rows bit-match capture",
+    "cpu_overlay_contract": "pass: original cache kernel byte-exact; sibling cache kernel and required symbols present",
+    "host_objcpp_syntax": "pass: clang++ -std=c++20 -fobjc-arc -fsyntax-only -Werror -Wall -Wextra -Wpedantic",
+    "metal_compile": "pass: isolated source125 metallib compiled and linked; only two warnings in unchanged fgmres.metalinc",
+    "native_dispatch": "not run; parent owns serialized GPU queue"
+  }
+}

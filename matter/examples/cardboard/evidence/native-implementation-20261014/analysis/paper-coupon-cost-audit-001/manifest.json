@@ -1,0 +1,83 @@
+{
+  "artifacts": {
+    "prototype_common_sha256": "903f1725415f479bf2cfbac42656eea6e01c5d7ef6ff42696f4d47562495b93d",
+    "prototype_fem_sha256": "0fdb4c129dad8c59e9ff1ec27c85207ffe940fffc2d011294eb71b5081867c70",
+    "readme_sha256": "5cd1a2c41c144b4f8c94846d537fc827d8d122a576fa56c73aec190d2adae8bc"
+  },
+  "assets": {
+    "liner_sha256": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a",
+    "medium_sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+    "starch_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1"
+  },
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123",
+  "evidence": {
+    "native409": {
+      "accepted_steps": 1,
+      "command_buffer_timings_s": {
+        "control0_encode": 1.01519,
+        "control0_gpu": 153.327,
+        "control1_encode": 0.756079,
+        "control1_gpu": 280.228
+      },
+      "command_sha256": "a484f34d3a802980cbef58e1899fcc7a84787fc5ddb35912db17d15d033a74c8",
+      "directory": "/Users/home/cardboard-implementation-20261014/solver/two-stage-certified-coupon-409",
+      "first_step_fgmres_iterations": {
+        "bent": 22,
+        "held_reference": 4
+      },
+      "observations_sha256": "e2d7d7c09d87aa6989f4923691a57b2e99c6db7e6babaacb585cad8ace138d17",
+      "physical_validation": false,
+      "receipt_sha256": "c769db491e80efcc5c415bdd3277174c33437665fee1c7985825ef790ba3ee7e",
+      "result_sha256": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba",
+      "source_build_sha256": "fc96e2521b363c821132d7a493da091aa7d36d1c125951ffa09e2d38e91d0952",
+      "status": "failed",
+      "stderr_sha256": "7fa9d24eec8c3a66aa7cb2bcb3962cac7eb669b6de7055078dbf578b10bd4bcb",
+      "wall_seconds": 676.329438832996
+    },
+    "native410": {
+      "accurate_jsonl_sha256": "56de51013ea87338b8410a93d7ca078504dfb9d4d2db9553e312bbca96331c58",
+      "directory": "/Users/home/cardboard-implementation-20261014/native/two-stage-controlled-material-sweep-410",
+      "physical_steps": 0,
+      "physical_validation": false,
+      "receipt_sha256": "f7b385ca9f15f0b5993c5887d78aedc31faaf3141893944dcb466122adced5cf",
+      "selected_samples": 1536,
+      "source_build_sha256": "fc96e2521b363c821132d7a493da091aa7d36d1c125951ffa09e2d38e91d0952",
+      "wall_seconds": 0.9062422089627944
+    }
+  },
+  "files": {
+    "matter/src/metal/common.metalinc": {
+      "base_sha256": "fd05012c41c53a702f17ba1289f5df54aad54227b5c36900e71dac13059f446c",
+      "prototype_sha256": "903f1725415f479bf2cfbac42656eea6e01c5d7ef6ff42696f4d47562495b93d"
+    },
+    "matter/src/metal/fem.metalinc": {
+      "base_sha256": "742cf561ee1ed91e20ed797e664595f675302437a3d583f8c5768da6cb3d008e",
+      "prototype_sha256": "0fdb4c129dad8c59e9ff1ec27c85207ffe940fffc2d011294eb71b5081867c70"
+    }
+  },
+  "limits": [
+    "No per-kernel timing evidence",
+    "No source-patch compile or native comparison",
+    "Prototype adds 30 local float slots in tangent-cache kernel; resource impact unmeasured",
+    "Run409 failed on control1 and is not physical validation"
+  ],
+  "patch": {
+    "applied": false,
+    "compiled": false,
+    "native_tested": false,
+    "path": "projection-reuse.patch",
+    "sha256": "a8cb5e415b9bb5da26522d15f560052809aa1ce9acf60b05f8b039f936b60663"
+  },
+  "runtime_untouched_sha256": "3ddb3a29452f9006f811fe31f33293763d32be0bddb467646e4a55c72dc31ac6",
+  "schema": "numi.cardboard.paper-coupon-cost-audit-projection-reuse.v1",
+  "source_build_record": {
+    "declared_source_build_sha256": "fc96e2521b363c821132d7a493da091aa7d36d1c125951ffa09e2d38e91d0952",
+    "path": "/Users/home/cardboard-implementation-20261014/native/two-stage-controlled-material-sweep-410/inputs/external/source-build.json",
+    "sha256": "fc96e2521b363c821132d7a493da091aa7d36d1c125951ffa09e2d38e91d0952"
+  },
+  "verification_script": {
+    "path": "verify_package.py",
+    "performed": "hash and source-shape checks only",
+    "sha256": "c3ba6d91f332d0d906c3f1e9a06d1afa5bc0c3135570141be56c8fa61f0451db"
+  }
+}

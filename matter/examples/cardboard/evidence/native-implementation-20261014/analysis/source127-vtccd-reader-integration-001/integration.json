@@ -1,0 +1,13 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-vtccd-payload-reader-127",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125",
+  "overlay_manifest_sha256": "c683971fac987e7090ba04b7af1ee6c15bbebd923027f6eae899807a871548eb",
+  "changed_files": {
+    "matter/tools/cardboard_vtccd_iteration_budget_check.mm": {
+      "base": "eddbea0492d2a566896f5d1838cdf3642f16ba67d922399a067f1f9001529c9e",
+      "candidate": "bc6bb9a08393c9faf23e747ca0827a7b136690cdb55d518e202b24a8106befac"
+    }
+  },
+  "production_changes": false,
+  "physical_steps": 0
+}

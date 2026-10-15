@@ -1,0 +1,43 @@
+{
+  "results": [
+    {
+      "build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-124",
+      "status": "already-absent"
+    },
+    {
+      "build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-126",
+      "status": "removed-generated-objects-only",
+      "files_removed": 420,
+      "logical_bytes_removed": 60845285,
+      "free_bytes_before": 360185856,
+      "free_bytes_after": 422141952,
+      "all_compiled_artifacts_and_build_metadata_hashes_preserved": true,
+      "source_and_evidence_removed": false,
+      "preflight_sha256": "8e22959bdbaa1fa0c79b8e38f47b0b1905920b8ec808021c1fa490c4ed76d5cf"
+    },
+    {
+      "build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-127",
+      "status": "removed-generated-objects-only",
+      "files_removed": 284,
+      "logical_bytes_removed": 36948376,
+      "free_bytes_before": 421879808,
+      "free_bytes_after": 459808768,
+      "all_compiled_artifacts_and_build_metadata_hashes_preserved": true,
+      "source_and_evidence_removed": false,
+      "preflight_sha256": "82326c5ed519aa3d13be49ed39fb01ba2beea54543298942bd13b828399ab953"
+    },
+    {
+      "build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-129",
+      "status": "removed-generated-objects-only",
+      "files_removed": 28,
+      "logical_bytes_removed": 5088960,
+      "free_bytes_before": 459808768,
+      "free_bytes_after": 464912384,
+      "all_compiled_artifacts_and_build_metadata_hashes_preserved": true,
+      "source_and_evidence_removed": false,
+      "preflight_sha256": "2891c41a9f4a283251c71118bac6eb0e015bfb2c1511b446eeab92a338974825"
+    }
+  ],
+  "logical_bytes_removed": 102882621,
+  "free_bytes_after": 464912384
+}

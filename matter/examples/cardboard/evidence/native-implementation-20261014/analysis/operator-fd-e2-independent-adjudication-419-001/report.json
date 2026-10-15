@@ -1,0 +1,126 @@
+{
+  "adjudication": {
+    "cache_vs_fresh_operator_is_first_failure": false,
+    "center_projection_or_tangent_is_first_failure": false,
+    "first_unresolved_layer": "native finite-difference residual/action response versus captured assembled A at selected Newton48; no native epsilon meets the requested derivative gate",
+    "likely_numerical_context": "large-scale cancellation between mass and stiffness action leaves a small total A*dv; smaller FP64 eps also shows subtraction degradation, while the 1/64 path has substantial finite state changes and limited lambda branch crossings",
+    "no_claim": "This does not diagnose the eventual Newton terminal failure beyond Newton48, and the native partial endpoint run is not convergence or physical qualification."
+  },
+  "center": {
+    "all_tet_projection_rows_passed": 1728,
+    "independent_fp64_A_action_l2_ns": 0.00018444849064302578,
+    "independent_total_A_action_l2_ns_recomputed": 0.00018444849064302578,
+    "independent_vs_native_fresh_A_action_abs_l2_ns": 5.206512448669199e-09,
+    "independent_vs_native_fresh_A_action_relative": 2.8227460308936193e-05,
+    "mass_plus_stiffness_cancellation": true,
+    "mass_term_native_vs_independent_l2_ns": 1.5882253296271356e-12,
+    "maximum_dynamic_correction": 1.9212223083515108e-08,
+    "maximum_reference_scaled_residual": 1.9936917607130692e-10,
+    "native422_fresh_rhs_minus_Ax_l2_ns": 2.501605015163572e-06,
+    "native_cache_vs_fresh_l2_ns": 2.7817059041580608e-08,
+    "native_fresh_A_action_l2_ns": 0.00018444928061025096,
+    "native_fresh_operator_vs_capture_l2_ns": 0,
+    "native_total_A_action_l2_ns_recomputed": 0.000184449280610251,
+    "stiffness_term_native_vs_independent_l2_ns": 5.206529863299229e-09,
+    "tet_rows": 1728
+  },
+  "evidence_class": "source-bound CPU replay/adjudication; not a converged solver, calibration, or physical qualification",
+  "independent_fp64_small_step": {
+    "eps_2^-18": {
+      "all_center_endpoint_projection_rows_passed": true,
+      "assembled_secant_vs_center_tangent_relative": 0.0017259083842892952,
+      "lambda_activity_crossings_liner": 0,
+      "lambda_activity_crossings_medium": 0,
+      "liner_local_tangent_relative": 2.289985707653095e-06,
+      "medium_local_tangent_relative": 1.9636820846478515e-07
+    },
+    "eps_2^-22": {
+      "all_center_endpoint_projection_rows_passed": true,
+      "assembled_secant_vs_center_tangent_relative": 2.246205000497411e-05,
+      "lambda_activity_crossings_liner": 0,
+      "lambda_activity_crossings_medium": 0,
+      "liner_local_tangent_relative": 3.658719285908296e-08,
+      "medium_local_tangent_relative": 1.06556684764926e-07
+    },
+    "eps_2^-24": {
+      "all_center_endpoint_projection_rows_passed": true,
+      "assembled_secant_vs_center_tangent_relative": 8.751302234355572e-05,
+      "interpretation": "the smaller step worsens the assembled secant comparison; measured subtraction floor, not a universal noise floor",
+      "liner_local_tangent_relative": 1.4015591480673663e-07,
+      "medium_local_tangent_relative": 4.370962535590581e-07
+    },
+    "strict_json_unavailable_metrics": "Nonfinite endpoint metrics are encoded as null with explicit unavailable status in the preserved 003 report; this adjudication also serializes with allow_nan=False."
+  },
+  "inputs": {
+    "419_prediction_sha256": "41b37af2747cfa551fae60eaddd7681cd7c7dbc859a402e641677ec23bd957d6",
+    "419_rich_capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "419_run_receipt_sha256": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d",
+    "419_status5_json_sha256": "bc767b8f690b1edfb17cb3c24b873ce683ef37feb16c4e9b7af2916f013f791b",
+    "419_status5_payload_sha256": "0f3ae7cd18df40df8ad3bbed0b55491b43f1ee67c321eab2287c46e18a43239f",
+    "coupon_003_environment0_npz_sha256": "e20eeb559f5976e6b9ddb2ae605ea6860908cde3a1d255ea80832b24840c8353",
+    "coupon_003_report_sha256": "c918a287f0de7966d50813a70fa7d9d3917746a6fc5de8dca57283fbf375ba76",
+    "native422_fresh_action_sha256": "f83ad29edbe7710768c44daf79d16d4b226dec9dcd707e2be3bef56bbf4cdfe9",
+    "native422_mass_action_sha256": "777897e35ff7cfc640007ac3ae5015fb0f8704ca8dfb169181d7c6ff1488f73a",
+    "native422_receipt_sha256": "ac6eefcb0adbfe2dc5f2b371b9872f86e1d9956aa28b919f61aeb732d82dce41",
+    "native422_replay_report_sha256": "e440d6f80e49c80c09b77d27f5a985e7961aa77e0ad10c2a571edd2e6a0f8f7c",
+    "native424_manifest_sha256": "0a5d6dd0c6f57a9300cccaa5c21432dc662d682753eab8eb16d10d88795338de",
+    "native424_report_sha256": "ccf8bb7d2b3e5d1f7e73279445882c40eb7916d460a8cd831468e2e28be645e3",
+    "smallstep_003_report_sha256": "a6ac5f941aa15b66e39ee6b2938076da93e137c2e6b5af4360fa70189ef1e984",
+    "source_snapshot_frozen_source_sha256": "dc354c1d0c9619b07d33de0c867239dc260f7fe572372769d6e5e9dde7b023e5",
+    "status5_decoded_419_sha256": "2e19648d890cf865e5d0114478d16c107712f7b21f50a5aba42ed3822a5b9333",
+    "status5_decoder_sha256": "d4c0f7427d1970e2c177f217cd28fff959a31df1b1390e9552cf421a4ad5459e",
+    "status5_decoder_source_sha256": "2e56c9b72419d6bd80fe5657a143e61d654dd1f933ea73ae4546dd936362b714"
+  },
+  "native_capture": {
+    "dt_seconds": 9.999999747378752e-05,
+    "environment_count": 2,
+    "node_count": 882,
+    "physical_transactions": 0,
+    "run_exit_code": 2,
+    "selection": {
+      "control_step": 1,
+      "newton_iteration": 48
+    },
+    "source_inputs_unchanged": true,
+    "status5_first_record": {
+      "constitutive_kind": 0,
+      "control_step": 1,
+      "determinant": 0.9959471822,
+      "domain": "private_armijo",
+      "interpretation": "one captured failing tet in a private Armijo evaluation; not the per-tet meaning of later FD-side stage status arrays",
+      "microtick": 0,
+      "microtick_count": 1,
+      "newton_iteration": 26,
+      "parameter_count": 28,
+      "producer_stage": "residual_armijo_private_internal_force",
+      "record_present": true,
+      "reported_max_abs_stress_pa": 1179185280,
+      "state_count": 15,
+      "tetrahedron_id": 1464,
+      "validity_max_stress_pa": 1000000000
+    },
+    "tetrahedron_count": 1920,
+    "timed_out": false
+  },
+  "native_fd": {
+    "all_native_endpoint_node_residual_word_mismatches": 0,
+    "best_admitted_native_epsilon": 6.103515625e-05,
+    "best_admitted_native_relative_error": 1.0948066880685303,
+    "best_observed_native_epsilon": 6.103515625e-05,
+    "best_observed_native_relative_error": 1.0948066880685303,
+    "epsilon_1_over_32_status": [
+      5,
+      5
+    ],
+    "epsilon_1_over_64_relative_error": 17199.84005580296,
+    "epsilon_1_over_64_status": [
+      0,
+      0
+    ],
+    "interpretation": "endpoint replay is exact, but residual secants do not resolve the captured A direction; environment status is stage-propagated, not a rowwise tet failure",
+    "source424_exact_endpoint_parity": true,
+    "strict_1e_3_native_tangent_gate_passed": false
+  },
+  "schema": "numi.cardboard.independent_operator_fd_adjudication.v1",
+  "status": "complete_diagnostic"
+}

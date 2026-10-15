@@ -1,0 +1,4 @@
+Command:
+xcrun clang++ -std=c++20 -fobjc-arc -fsyntax-only -Werror -Wall -Wextra -Wpedantic -I /Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/include -I /Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/include -DNUMI_TANGENT_CACHE_METALLIB=\"/tmp/source125-metallib\" -DNUMI_TANGENT_CACHE_SOURCE125_MANIFEST_SHA256=\"dc354c1d0c9619b07d33de0c867239dc260f7fe572372769d6e5e9dde7b023e5\" /Users/home/cardboard-implementation-20261014/analysis/tangent-cache-projection-reuse-parity-125-001/prototype/matter/tools/cardboard_tangent_cache_projection_reuse_check.mm
+
+Result: exit 0, no diagnostics.

@@ -1,0 +1,15 @@
+Base build/library: /Users/home/numi-cardboard-20261006/build-cardboard-provenance-124
+Base source: /Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-regional-preconditioner-124
+
+1. Strict syntax check (passed):
+/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\"/Users/home/numi-cardboard-20261006/build-cardboard-provenance-124/matter/shaders/NumiMatter.metallib\" -I/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-regional-preconditioner-124/matter/include -I/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-regional-preconditioner-124/matter/tools -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fsyntax-only candidate/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm
+
+2. Fresh selector6 fixture compile-only and package round-trip (passed, no GPU dispatch):
+./numi-matter-cardboard-preconditioner-gpu-check --selector6-compile-only /Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-regional-preconditioner-124/matter/materials/hajali2009_liner_hill_ideal.nmatter
+Expected: package_roundtrip=pass mode=6; selector6_compile_only=pass region_id=0 topology=4nodes/1tet physical_validation=false.
+
+3. Fresh stateful CPU-check compile/link/run (passed):
+Compile candidate/matter/tools/stateful_check.cpp using the compile flags in source124 `compile_commands.json`, linking against the source124 `libnumi_matter_compiler.a`; the exact compilation and output artifacts are retained as `stateful_check.cpp.o`, `numi-matter-stateful-check`, and `stateful-check.stdout.log`.
+Expected JSON schema: numi.matter.stateful-compiler.v1.
+
+No full CMake build or native GPU run was performed for this overlay.

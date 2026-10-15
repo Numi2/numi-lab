@@ -1,0 +1,27 @@
+{
+  "schema": "numi.cardboard.lossless_source_snapshots.v1",
+  "git_base_revision": "8c00ae13d78331c938311ca80d78857c4deefe75",
+  "snapshots": [
+    {
+      "number": 128,
+      "manifest": "source-128.json.gz",
+      "compressed_sha256": "f78ec886c01dc489c783d735bba7e1cb5f460ee2cd4e59eed77a42bc2e7fdb34",
+      "uncompressed_sha256": "128627718b77ac75239172f96afede49c00939d4d3944c1ff1fcea21c3b2fd92",
+      "files": 1820,
+      "all_reconstructed_bytes_verified": true,
+      "complete_disk_restoration_verified": true
+    },
+    {
+      "number": 129,
+      "manifest": "source-129.json.gz",
+      "compressed_sha256": "35b8ac6d6302e6d23bbc93d3c03f49b9bd4b636625bc4c9ac9dfd58180ae77aa",
+      "uncompressed_sha256": "39abcdeb2fff93abc2735b48e869adc6b00078649946af39dc80e3c8a0c077d0",
+      "files": 1820,
+      "all_reconstructed_bytes_verified": true,
+      "complete_disk_restoration_verified": true
+    }
+  ],
+  "unique_gzip_source_blobs": 20,
+  "physical_qualification": false,
+  "scope": "Reconstructs exact source128/129 selected build sources plus verified root-CMake support from the fixed published Git base. No binary or scientific outcome is reclassified."
+}

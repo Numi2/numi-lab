@@ -1,0 +1,26 @@
+{
+  "schema": "numi.cardboard.exact-input-aliases.v1",
+  "files": [
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/trial-capture.coupled.json",
+      "alias": "/Users/home/cardboard-implementation-20261014/analysis/vtccd-replay-input-alias-bindings-001/native405-trial-capture.coupled.json",
+      "sha256": "a821cf7e1e166327059258a953aaf519c8ef7e8ca9f0c344f1b6681185845e64"
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/trial-capture.coupled.bin",
+      "alias": "/Users/home/cardboard-implementation-20261014/analysis/vtccd-replay-input-alias-bindings-001/native405-trial-capture.coupled.bin",
+      "sha256": "eb6286c09081577e226eec6deb11021b4e483e104583214216b6b77c441190b5"
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/trial-capture.coupled.json",
+      "alias": "/Users/home/cardboard-implementation-20261014/analysis/vtccd-replay-input-alias-bindings-001/native406-trial-capture.coupled.json",
+      "sha256": "41eb361744412ff47f338bc563a43cd940c29019a3c32c3c4de83e61677d220c"
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/trial-capture.coupled.bin",
+      "alias": "/Users/home/cardboard-implementation-20261014/analysis/vtccd-replay-input-alias-bindings-001/native406-trial-capture.coupled.bin",
+      "sha256": "d1c3e4d3c74d3bf75a72ade703557b4cfa9a70d62f1f51683fffbcff8546bd74"
+    }
+  ],
+  "reason": "Native runner requires unique external basenames. Replay checker independently checks exact original manifest/payload/observer hashes before using actual original paths."
+}

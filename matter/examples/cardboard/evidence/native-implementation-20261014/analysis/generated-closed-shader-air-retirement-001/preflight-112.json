@@ -1,0 +1,22 @@
+{
+  "schema": "numi.cardboard.regenerable-build-retirement.v1",
+  "created_at_utc": "2026-10-15T19:12:24.888654+00:00",
+  "build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-112",
+  "verified_closed": true,
+  "protected": {
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-112/matter/numi-matter-cardboard-source370-material-point-check": "7344c10ebc334bf67b86c01ac85c6028ef895ed9c80e6797d4929d932476c262",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-112/matter/shaders/cardboard_paper_check.metallib": "e8a5ba80946987158489e8a98d0a759c7853202298dcc812c987167a1077da17",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-112/CMakeCache.txt": "fc200d431350ea092ee821deddb68c27c0df2ed0b6edd907a6280e61c90157e0",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-112/compile_commands.json": "4c05d861b4a1af599e6776f6155caf690d6d3e128c99acf15feca01b1c08a76a",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-112/source-build.json": "23188416165a39cd4ed038e25f92d1f8875a4b9ff701bf2a3cd172843258fd70"
+  },
+  "files": [
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-112/matter/shaders/cardboard_paper_check.air",
+      "bytes": 1569200,
+      "sha256": "71dc5e546589a6cdabd834d67b487a8e1f8cda6ac43a8f0a66759ef5ca843151",
+      "kind": "regenerable closed intermediate Metal AIR; final metallib protected"
+    }
+  ],
+  "free_bytes_before": 697982976
+}

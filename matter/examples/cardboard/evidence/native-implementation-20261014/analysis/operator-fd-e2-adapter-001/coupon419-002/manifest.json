@@ -1,0 +1,10 @@
+{
+  "files_sha256": {
+    "README.md": "62f30d6403d429ab5c359ad58fe63b915624213de66d836018ba09641e313d1d",
+    "environment-0.npz": "e20eeb559f5976e6b9ddb2ae605ea6860908cde3a1d255ea80832b24840c8353",
+    "environment-1.npz": "1c4f712ae0dc3a89987ea64b30ebb117e04dee9a0321730e0ab88903924365eb",
+    "report.json": "eda014f126f8fcdce8695a5848c8ded3e72cac072314b2159293c32f11110356"
+  },
+  "report_sha256": "eda014f126f8fcdce8695a5848c8ded3e72cac072314b2159293c32f11110356",
+  "schema": "numi.cardboard.operator-fd-e2-audit-package.v1"
+}
