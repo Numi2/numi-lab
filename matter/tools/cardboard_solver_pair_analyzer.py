@@ -3,8 +3,9 @@
 
 This tool replays the captured 13-state orthotropic Hill paper points through
 the independent CPU reference. It preserves FP32 high/low words and validates
-the sealed native command that enabled the initializer, compensated
-arithmetic, accurate projection, and scaled residuals. Reports are diagnostic;
+the sealed native material policy. The default requires initializer, compensated
+arithmetic, accurate projection and scaled residuals. Explicit ordinary-generic
+reference mode records their absence and excludes residual-norm parity. Reports are diagnostic;
 the tool has no calibrated-noise gate and cannot qualify physical cardboard.
 """
 from __future__ import annotations
@@ -146,7 +147,8 @@ def classify_candidate_q(value: float, branch_band: float) -> str:
 
 
 def validate_run_binding(capture_path: Path, header: dict[str, Any],
-                         prediction: dict[str, Any], receipt: dict[str, Any]) -> dict[str, Any]:
+                         prediction: dict[str, Any], receipt: dict[str, Any],
+                         ordinary_generic_reference: bool = False) -> dict[str, Any]:
     if prediction.get("schema") != "numi.cardboard.native-prediction.v1":
         raise ValueError("prediction file has an unsupported schema")
     if prediction.get("executed_build_verified") is not True:
@@ -174,7 +176,9 @@ def validate_run_binding(capture_path: Path, header: dict[str, Any],
     if not isinstance(argv, list) or not all(isinstance(x, str) for x in argv):
         raise ValueError("prediction argv is missing or malformed")
     missing = [flag for flag in REQUIRED_TRANSFORMS if argv.count(flag) != 1]
-    if missing:
+    if ordinary_generic_reference and any(argv.count(flag) for flag in REQUIRED_TRANSFORMS):
+        raise ValueError("ordinary generic reference requires all four optional builder transforms absent")
+    if missing and not ordinary_generic_reference:
         raise ValueError("native prediction must contain each required builder transform exactly once: " +
                          ", ".join(missing))
     if receipt.get("schema") != "numi.cardboard.native-run-receipt.v2":
@@ -195,7 +199,9 @@ def validate_run_binding(capture_path: Path, header: dict[str, Any],
         "prediction_schema": prediction["schema"],
         "source_snapshot": str(prediction["source_snapshot"]),
         "native_command": argv,
-        "required_transforms_present": list(REQUIRED_TRANSFORMS),
+        "required_transforms_present": [] if ordinary_generic_reference else list(REQUIRED_TRANSFORMS),
+        "native_policy": "ordinary_generic_FP32" if ordinary_generic_reference else "compensated_scaled_paper",
+        "normalized_source_vm_matches_native_residual_policy": not ordinary_generic_reference,
         "input_hash_count": len(prediction["inputs_sha256"]),
         "receipt_exit_code": receipt.get("exit_code"),
         "receipt_timed_out": receipt.get("timed_out"),
@@ -590,7 +596,8 @@ def make_tet_audit(tets: list[dict[str, Any]], sources: dict[str, tuple[dict[str
 
 def analyze(capture_path: Path, prediction_path: Path, receipt_path: Path,
             replay_path: Path, output_path: Path, branch_band: float,
-            reference_derivative_sweep: bool = False) -> dict[str, Any]:
+            reference_derivative_sweep: bool = False,
+            ordinary_generic_reference: bool = False) -> dict[str, Any]:
     if output_path.exists():
         raise FileExistsError(f"refusing to overwrite {output_path}")
     if not replay_path.is_file() or not os.access(replay_path, os.X_OK):
@@ -599,7 +606,8 @@ def analyze(capture_path: Path, prediction_path: Path, receipt_path: Path,
     receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
     records = read_jsonl(capture_path)
     header, tets = validate_capture(records)
-    binding = validate_run_binding(capture_path, header, prediction, receipt)
+    binding = validate_run_binding(capture_path, header, prediction, receipt,
+                                   ordinary_generic_reference)
     rows, sources, metadata = make_replay_rows(header, tets, branch_band)
     output_path.mkdir(parents=True)
     input_path = output_path / "replay-input.tsv"
@@ -622,6 +630,15 @@ def analyze(capture_path: Path, prediction_path: Path, receipt_path: Path,
     if process.returncode not in (0, 2):
         raise RuntimeError(f"independent replay infrastructure failed with {process.returncode}: {process.stderr[-2000:]}")
     audits = make_tet_audit(tets, sources, replay_rows, metadata, branch_band)
+    if ordinary_generic_reference:
+        # The independent reference retains the same constitutive zero-set,
+        # but its normalized compensated VM is not the native FP32 residual
+        # instrument. Never compare differently scaled residual norms as parity.
+        for audit in audits:
+            residual = audit.get("independent_source_residual_at_captured_candidate", {})
+            residual["difference_from_native_reported_residual"] = None
+            residual["source_vm_difference_from_native_reported_residual"] = None
+            residual["native_residual_comparison"] = "unavailable_different_arithmetic_and_row_scaling"
     (output_path / "tetrahedron-audit.jsonl").write_text(
         "".join(json.dumps(row, allow_nan=False, separators=(",", ":")) + "\n" for row in audits),
         encoding="utf-8")
@@ -631,7 +648,7 @@ def analyze(capture_path: Path, prediction_path: Path, receipt_path: Path,
         if side_index != 0 or key not in replay_rows or replay_rows[key].get("valid") is not True:
             continue
         projection = state.get("projection")
-        if isinstance(projection, list) and len(projection) == 4:
+        if not ordinary_generic_reference and isinstance(projection, list) and len(projection) == 4:
             source_residual_differences.append(abs(
                 replay_rows[key]["source_vm_compensated_scaled_residual_inf"] -
                 f32(projection[0], "native reported residual")))
@@ -744,8 +761,11 @@ def analyze(capture_path: Path, prediction_path: Path, receipt_path: Path,
             "scope_note": "a complete selected Newton capture may be analyzed after timeout; timeout does not establish full-history completion",
         },
         "builder_transforms": {
-            "validated_from_sealed_native_argv": list(REQUIRED_TRANSFORMS),
-            "source_equation_note": "initializer and accurate-projection policies produced the captured native candidate; compensated arithmetic and scaled residuals are replayed on transformed source roots; the independent FP64 oracle solves the same zero-set separately",
+            "validated_from_sealed_native_argv": binding["required_transforms_present"],
+            "source_equation_note": (
+                "ordinary FP32 native candidate; normalized compensated source VM is a reference only, not native residual parity; independent FP64 projection solves the same constitutive zero-set"
+                if ordinary_generic_reference else
+                "initializer and accurate-projection policies produced the captured native candidate; compensated arithmetic and scaled residuals are replayed on transformed source roots; the independent FP64 oracle solves the same zero-set separately"),
             "F_replay_contract": "every captured FP32 F high and low word is widened separately then summed in FP64",
             "candidate_state_replay_contract": "every captured FP32 projected-state high and low word is widened separately then summed in FP64",
             "parameter_contract": "per-tet parameter values are read from the selected environment table and exact native material descriptor; defaults are never substituted",
@@ -795,13 +815,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--near-yield-band", type=float, default=1.0e-6)
     parser.add_argument("--reference-derivative-sweep", action="store_true",
                         help="refine independent FP64 perturbations at every captured center; no Metal noise-floor qualification")
+    parser.add_argument("--ordinary-generic-reference", action="store_true",
+                        help="explicitly analyze an untransformed FP32 native capture; normalized reference residuals are not native residual parity")
     args = parser.parse_args(argv)
     if not math.isfinite(args.near_yield_band) or args.near_yield_band <= 0:
         parser.error("--near-yield-band must be finite and positive")
     try:
         result = analyze(args.capture, args.prediction, args.receipt,
                          args.replay, args.output, args.near_yield_band,
-                         args.reference_derivative_sweep)
+                         args.reference_derivative_sweep, args.ordinary_generic_reference)
     except (ValueError, RuntimeError, FileNotFoundError, FileExistsError) as error:
         print(f"FAIL {error}", file=sys.stderr)
         return 2

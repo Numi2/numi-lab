@@ -471,7 +471,11 @@ void checkAcceptedPlasticCacheActions(Device& device,
     paperMaterial.genericCompensatedImplicitProjection=true;
     WorldSource authored=source(paperMaterial,true,false);
     authored.objects.front().femInitialVelocity={0.0,0.0,0.0};
+    authored.mixedSolver.femPreconditioner =
+        FEMPreconditionerMode::regionalTangentDiagonal;
     authored.mixedSolver.cacheFEMAlgorithmicTangent=true;
+    WorldSource directAuthored = authored;
+    directAuthored.mixedSolver.cacheFEMAlgorithmicTangent = false;
     const CompiledWorld world=cook(authored);
     need(world.dispatch.environmentCount==2u&&
          world.dispatch.tetrahedronCount==2u&&
@@ -479,10 +483,102 @@ void checkAcceptedPlasticCacheActions(Device& device,
          "source-derived bilinear paper fixture compiled with an unexpected layout");
 
     Run run(device,authored);
+    Run directRun(device,directAuthored);
+    const auto compareAcceptedRuns = [&](const RuntimeStateSnapshot& direct,
+                                         const RuntimeStateSnapshot& cached,
+                                         const char* phase) {
+        need(direct.femNodes.size() == cached.femNodes.size() &&
+             direct.femMaterialState.size() == cached.femMaterialState.size() &&
+             direct.solverCertificates.size() == cached.solverCertificates.size(),
+             std::string("cached preconditioner changed readback arity at ") + phase);
+        double maximumPositionDifference = 0.0;
+        double displacementScale = 0.0;
+        double maximumDisplacementDifference = 0.0;
+        double maximumStateDifference = 0.0;
+        double stateScale = 0.0;
+        double maximumCertificateDifference = 0.0;
+        double certificateScale = 1.0;
+        for (std::size_t node = 0; node < direct.femNodes.size(); ++node) {
+            const auto& a = direct.femNodes[node];
+            const auto& b = cached.femNodes[node];
+            const auto& reference = world.fem.nodes[node];
+            for (unsigned axis = 0; axis < 3; ++axis) {
+                const double positionA = reinterpret_cast<const float*>(
+                    &a.positionAndMass)[axis];
+                const double positionB = reinterpret_cast<const float*>(
+                    &b.positionAndMass)[axis];
+                const double initial = reinterpret_cast<const float*>(
+                    &reference.positionAndMass)[axis];
+                need(std::isfinite(positionA) && std::isfinite(positionB) &&
+                     std::isfinite(initial),
+                     std::string("nonfinite accepted position at ") + phase);
+                maximumPositionDifference = std::max(
+                    maximumPositionDifference, std::abs(positionA-positionB));
+                maximumDisplacementDifference = std::max(
+                    maximumDisplacementDifference,
+                    std::abs((positionA-initial)-(positionB-initial)));
+                displacementScale = std::max({displacementScale,
+                    std::abs(positionA-initial), std::abs(positionB-initial)});
+            }
+            need(a.positionAndMass.w == b.positionAndMass.w &&
+                 a.velocityAndInverseMass.w == b.velocityAndInverseMass.w &&
+                 a.restAndFixed.w == b.restAndFixed.w,
+                 std::string("cache changed node mass or fixed marker at ") + phase);
+        }
+        for (std::size_t i = 0; i < direct.femMaterialState.size(); ++i) {
+            const double a = direct.femMaterialState[i];
+            const double b = cached.femMaterialState[i];
+            need(std::isfinite(a) && std::isfinite(b),
+                 std::string("nonfinite accepted material state at ") + phase);
+            maximumStateDifference = std::max(maximumStateDifference,
+                std::abs(a-b));
+            stateScale = std::max({stateScale, std::abs(a), std::abs(b)});
+        }
+        for (std::size_t e = 0; e < direct.solverCertificates.size(); ++e) {
+            const auto& a = direct.solverCertificates[e];
+            const auto& b = cached.solverCertificates[e];
+            need(a.validity.w > 0.5f && b.validity.w > 0.5f,
+                 std::string("direct/cache comparison lacks accepted certificate at ") + phase);
+            const float* fieldsA = reinterpret_cast<const float*>(&a);
+            const float* fieldsB = reinterpret_cast<const float*>(&b);
+            for (std::size_t i = 0; i < sizeof(a)/sizeof(float); ++i) {
+                need(std::isfinite(fieldsA[i]) && std::isfinite(fieldsB[i]),
+                     std::string("nonfinite certificate at ") + phase);
+                maximumCertificateDifference = std::max(
+                    maximumCertificateDifference,
+                    std::abs(double(fieldsA[i])-fieldsB[i]));
+                certificateScale = std::max({certificateScale,
+                    std::abs(double(fieldsA[i])), std::abs(double(fieldsB[i]))});
+            }
+        }
+        const double displacementRelative = maximumDisplacementDifference /
+            std::max(displacementScale, 1.0e-12);
+        const double stateRelative = maximumStateDifference /
+            std::max(stateScale, 1.0e-12);
+        std::cout << std::setprecision(12)
+            << "{\"schema\":1,\"record\":\"paper_preconditioner_cache_parity\""
+            << ",\"phase\":\"" << phase << "\""
+            << ",\"state_count\":" << paperMaterial.internalState.size()
+            << ",\"selector\":1"
+            << ",\"position_max_m\":" << maximumPositionDifference
+            << ",\"displacement_relative\":" << displacementRelative
+            << ",\"state_max_abs\":" << maximumStateDifference
+            << ",\"state_relative\":" << stateRelative
+            << ",\"certificate_max_abs\":" << maximumCertificateDifference
+            << ",\"certificate_scale\":" << certificateScale
+            << ",\"physical_validation\":false}\n";
+        need(maximumPositionDifference < 1.0e-7 &&
+             displacementRelative < 3.0e-3 && stateRelative < 3.0e-3 &&
+             maximumCertificateDifference <= 2.0e-6*certificateScale,
+             std::string("cached preconditioner changed accepted solve beyond parity bounds at ") + phase);
+    };
     const auto plasticIndex=materialStateIndex(paperMaterial,
                                                "accumulated_multiplier");
     run.step(0u);
+    directRun.step(0u);
     const RuntimeStateSnapshot elastic=run.state();
+    const RuntimeStateSnapshot directElastic=directRun.state();
+    compareAcceptedRuns(directElastic,elastic,"elastic-initial");
     need(elastic.solverCertificates.size()==2u,
          "elastic bilinear paper snapshot lacks certificates");
     for(const auto& cert:elastic.solverCertificates)
@@ -491,8 +587,12 @@ void checkAcceptedPlasticCacheActions(Device& device,
     checkCachedOperatorActions(device,world,acceptedInputs(elastic),
                                "accepted-elastic-initial");
     const auto loadTargets=paperShearTargets(elastic,5.0e-6f);
+    const auto directLoadTargets=paperShearTargets(directElastic,5.0e-6f);
     run.step(1u,-1,-1,loadTargets);
+    directRun.step(1u,-1,-1,directLoadTargets);
     const RuntimeStateSnapshot loaded=run.state();
+    const RuntimeStateSnapshot directLoaded=directRun.state();
+    compareAcceptedRuns(directLoaded,loaded,"accepted-plastic-load");
     need(loaded.solverCertificates.size()==2u,
          "loaded bilinear paper snapshot lacks certificates");
     for(const auto& cert:loaded.solverCertificates)
@@ -510,7 +610,11 @@ void checkAcceptedPlasticCacheActions(Device& device,
     // irreversible; this is a distinct accepted history, not a trial state.
     const auto unloadTargets=paperShearTargets(elastic,0.0f);
     run.step(2u,-1,-1,unloadTargets);
+    directRun.step(2u,-1,-1,
+                   paperShearTargets(directElastic,0.0f));
     const RuntimeStateSnapshot unloaded=run.state();
+    const RuntimeStateSnapshot directUnloaded=directRun.state();
+    compareAcceptedRuns(directUnloaded,unloaded,"accepted-unload");
     need(unloaded.solverCertificates.size()==2u,
          "unloaded bilinear paper snapshot lacks certificates");
     for(const auto& cert:unloaded.solverCertificates)
@@ -540,6 +644,7 @@ void checkAcceptedPlasticCacheActions(Device& device,
         <<",\"maximum_loaded_plastic_multiplier\":"<<loadedPlastic
         <<",\"maximum_unloaded_plastic_multiplier\":"<<unloadedPlastic
         <<",\"maximum_load_to_unload_state_difference\":"<<maximumHistoryChange
+        <<",\"tangent_preconditioner_direct_cache_history_parity\":true"
         <<",\"physical_validation\":false}\n";
 }
 bool physicalSame(const RuntimeStateSnapshot& a,const RuntimeStateSnapshot& b){return same(a.femNodes,b.femNodes)&&same(a.femFields,b.femFields)&&same(a.femMaterialState,b.femMaterialState)&&same(a.femTopologyTetrahedra,b.femTopologyTetrahedra);}

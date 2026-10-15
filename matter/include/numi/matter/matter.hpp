@@ -400,8 +400,9 @@ struct MixedSolverSource {
     FEMPreconditionerMode femPreconditioner =
         FEMPreconditionerMode::scalarDiagonal;
     // Opt-in per-Newton cache of the complete unsymmetric 9x9 material-frame
-    // algorithmic dP/dF map for pure-FEM FGMRES products. Regional AP,
-    // Armijo trials, and final true-residual certification remain direct.
+    // algorithmic dP/dF map for pure-FEM FGMRES products and conditioning-only
+    // tangent preconditioners/regional AP. Private Armijo trials and final
+    // true-residual certification continue to evaluate the direct path.
     bool cacheFEMAlgorithmicTangent = false;
     double relativeResidual = 1.0e-4;
     double volumeTolerance = 1.0e-4;
@@ -1885,6 +1886,15 @@ struct RuntimeStateSnapshot {
     // Exact FEM candidate node records from the Newton linearization used to
     // form AP/RAP. Present only with the bounded regional readback above.
     std::vector<NMFEMNodeStateGPU> femRegionalGalerkinLinearizationNodes;
+    // Exact accepted constitutive history and per-tet runtime scheduler
+    // exponent sampled at that same AP linearization. These are distinct
+    // from the post-commit femMaterialState/schedulers fields above.
+    std::vector<float> femRegionalGalerkinLinearizationMaterialState;
+    std::vector<std::uint32_t> femRegionalGalerkinLinearizationSchedulerExponent;
+    // Production material-frame F high/low words sampled by the AP capture
+    // kernel, row-major as three float4 rows per tetrahedron.
+    std::vector<nm_float4> femRegionalGalerkinLinearizationLocalFHigh;
+    std::vector<nm_float4> femRegionalGalerkinLinearizationLocalFLow;
     std::vector<nm_float4> femRegionalGalerkinBasisP;
     std::vector<nm_float4> femRegionalGalerkinEffectiveBasisP;
     std::vector<nm_float4> femRegionalGalerkinOperatorAP;

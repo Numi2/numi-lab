@@ -488,6 +488,14 @@ public:
         [encoder setBuffer:outputBuffer offset:0u atIndex:13u];
         [encoder setBuffer:argumentBuffer offset:0u atIndex:14u];
         [encoder setBuffer:statusBuffer offset:0u atIndex:15u];
+        // This direct-kernel fixture tests the uncached branch. The production
+        // cache is opt-in and bound only by Runtime when it has been built for
+        // the current Newton candidate/history.
+        [encoder setBuffer:dummyBuffer offset:0u atIndex:16u];
+        [encoder setBuffer:dummyBuffer offset:0u atIndex:17u];
+        const std::uint32_t useTangentCache = 0u;
+        [encoder setBytes:&useTangentCache length:sizeof(useTangentCache)
+                  atIndex:18u];
         [encoder useResource:dummyBuffer usage:MTLResourceUsageRead];
         [encoder useResource:contactRangeBuffer usage:MTLResourceUsageRead];
         [encoder dispatchThreads:MTLSizeMake(world.dispatch.femNodeCount, 1u, 1u)

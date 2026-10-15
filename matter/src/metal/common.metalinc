@@ -57,6 +57,20 @@ constant uint kMaterialFailureImplicitTangentSolveFailed = 15u;
 constant uint kMaterialFailureImplicitTangentDerivativeInvalid = 16u;
 constant uint kMaterialFailureValidityRejected = 17u;
 
+// Optional single-point material projection trace. Production callers pass
+// nullptr and retain the existing equations, tolerances, and iteration path.
+constant uint kMaterialProjectionTraceStateCapacity = 16u;
+constant uint kMaterialProjectionTraceIterationCapacity = 16u;
+constant uint kMaterialProjectionTraceHeaderSlots = 8u;
+constant uint kMaterialProjectionTraceRecordSlots = 6u +
+    7u * kMaterialProjectionTraceStateCapacity +
+    kMaterialProjectionTraceStateCapacity *
+        kMaterialProjectionTraceStateCapacity;
+constant uint kMaterialProjectionTraceSlots =
+    kMaterialProjectionTraceHeaderSlots +
+    kMaterialProjectionTraceIterationCapacity *
+        kMaterialProjectionTraceRecordSlots;
+
 inline float maximumAbsoluteCoordinate(const float3 value) {
     const float3 magnitude = abs(value);
     return max(max(magnitude.x, magnitude.y), magnitude.z);
@@ -1266,7 +1280,8 @@ inline bool projectMaterialState(
     thread uint* terminalFailureOutput = nullptr
 ,
     thread const float* deformationLow = nullptr,
-    thread float* projectedLowOutput = nullptr
+    thread float* projectedLowOutput = nullptr,
+    thread float* projectionIterationTrace = nullptr
 ) {
     if (residualNormOutput != nullptr) *residualNormOutput = -1.0f;
     if (stateNormOutput != nullptr) *stateNormOutput = 0.0f;
@@ -1274,6 +1289,20 @@ inline bool projectMaterialState(
     if (stageFlagsOutput != nullptr) *stageFlagsOutput = 0u;
     if (terminalFailureOutput != nullptr)
         *terminalFailureOutput = kMaterialFailureNone;
+    const bool traceProjection = projectionIterationTrace != nullptr &&
+        material.stateCount <= kMaterialProjectionTraceStateCapacity &&
+        material.localNewtonIterations <= kMaterialProjectionTraceIterationCapacity;
+    if (projectionIterationTrace != nullptr) {
+        for (uint i=0u;i<kMaterialProjectionTraceSlots;++i)
+            projectionIterationTrace[i]=0.0f;
+        projectionIterationTrace[0]=1.0f; // schema version
+        projectionIterationTrace[1]=float(material.stateCount);
+        projectionIterationTrace[7]=traceProjection ? 0.0f : -1.0f;
+    }
+    if (traceProjection) {
+        projectionIterationTrace[6]=usesCompensatedImplicitCandidate(material)
+            ? 2.0e-8f : 2.0e-5f;
+    }
     if (material.stateCount == 0u) {
         if (stageFlagsOutput != nullptr)
             *stageFlagsOutput = kMaterialDiagProjectionConverged;
@@ -1364,6 +1393,28 @@ inline bool projectMaterialState(
         ? 2.0e-8f : 2.0e-5f;
     for (uint iteration = 0u; iteration < material.localNewtonIterations;
          ++iteration) {
+        const uint traceRecord = kMaterialProjectionTraceHeaderSlots +
+            iteration * kMaterialProjectionTraceRecordSlots;
+        if (traceProjection) {
+            projectionIterationTrace[2]=float(iteration+1u);
+            projectionIterationTrace[traceRecord+0u]=0.0f;
+            projectionIterationTrace[traceRecord+1u]=-1.0f;
+            projectionIterationTrace[traceRecord+2u]=0.0f;
+            projectionIterationTrace[traceRecord+3u]=0.0f;
+            projectionIterationTrace[traceRecord+4u]=0.0f;
+            projectionIterationTrace[traceRecord+5u]=0.0f;
+            for (uint state=0u;state<kMaterialProjectionTraceStateCapacity;++state) {
+                projectionIterationTrace[traceRecord+6u+state]=0.0f;
+                projectionIterationTrace[traceRecord+6u+
+                    kMaterialProjectionTraceStateCapacity+state]=0.0f;
+                projectionIterationTrace[traceRecord+6u+
+                    2u*kMaterialProjectionTraceStateCapacity+state]=0.0f;
+                projectionIterationTrace[traceRecord+6u+
+                    3u*kMaterialProjectionTraceStateCapacity+state]=0.0f;
+                projectionIterationTrace[traceRecord+6u+
+                    4u*kMaterialProjectionTraceStateCapacity+state]=-1.0f;
+            }
+        }
         float stateNormBeforeEvaluation = 0.0f;
         for (uint state = 0u; state < material.stateCount; ++state)
             stateNormBeforeEvaluation = max(
@@ -1382,6 +1433,9 @@ inline bool projectMaterialState(
                 *terminalFailureOutput = implicitNonfinite
                     ? kMaterialFailureImplicitEvaluationNonfinite
                     : kMaterialFailureImplicitEvaluationInvalid;
+            if (traceProjection) projectionIterationTrace[7]=float(
+                implicitNonfinite ? kMaterialFailureImplicitEvaluationNonfinite
+                                  : kMaterialFailureImplicitEvaluationInvalid);
             return false;
         }
         if (stageFlagsOutput != nullptr)
@@ -1391,12 +1445,33 @@ inline bool projectMaterialState(
         for (uint state = 0u; state < material.stateCount; ++state) {
             residualNorm = max(residualNorm, abs(residual[state]));
             stateNorm = max(stateNorm, abs(projectedState[state]));
+            if (traceProjection) {
+                projectionIterationTrace[traceRecord+6u+state]=projectedState[state];
+                projectionIterationTrace[traceRecord+6u+
+                    kMaterialProjectionTraceStateCapacity+state]=candidateLow[state];
+                projectionIterationTrace[traceRecord+6u+
+                    2u*kMaterialProjectionTraceStateCapacity+state]=residual[state];
+            }
             residual[state] = -residual[state];
+        }
+        if (traceProjection) {
+            for (uint i=0u;i<material.stateCount*material.stateCount;++i)
+                projectionIterationTrace[traceRecord+6u+
+                    5u*kMaterialProjectionTraceStateCapacity+i]=jacobian[i];
+            projectionIterationTrace[traceRecord+0u]=1.0f;
+            projectionIterationTrace[traceRecord+3u]=residualNorm;
+            projectionIterationTrace[traceRecord+4u]=stateNorm;
+            projectionIterationTrace[4]=residualNorm;
+            projectionIterationTrace[5]=stateNorm;
         }
         if (residualNormOutput != nullptr) *residualNormOutput = residualNorm;
         if (stateNormOutput != nullptr) *stateNormOutput = stateNorm;
         if (iterationOutput != nullptr) *iterationOutput = iteration + 1u;
         if (residualNorm <= projectionTolerance * (1.0f + stateNorm)) {
+            if (traceProjection) {
+                projectionIterationTrace[traceRecord+0u]=9.0f;
+                projectionIterationTrace[3]=1.0f;
+            }
             if (stageFlagsOutput != nullptr)
                 *stageFlagsOutput |= kMaterialDiagProjectionConverged;
             return true;
@@ -1407,7 +1482,15 @@ inline bool projectMaterialState(
                 jacobian, residual, material.stateCount)) {
             if (terminalFailureOutput != nullptr)
                 *terminalFailureOutput = kMaterialFailureLocalSolveFailed;
+            if (traceProjection) projectionIterationTrace[7]=
+                float(kMaterialFailureLocalSolveFailed);
             return false;
+        }
+        if (traceProjection) {
+            projectionIterationTrace[traceRecord+0u]=3.0f;
+            for (uint state=0u;state<material.stateCount;++state)
+                projectionIterationTrace[traceRecord+6u+
+                    3u*kMaterialProjectionTraceStateCapacity+state]=residual[state];
         }
         if (stageFlagsOutput != nullptr)
             *stageFlagsOutput |= kMaterialDiagLocalSolveSucceeded;
@@ -1440,18 +1523,39 @@ inline bool projectMaterialState(
                     acceptedState, trialCandidate, deformation,
                     float3x3(0.0f), deformationRate, timestep, temperature,
                     trialResidual, jacobian, false, &trialNonfinite, deformationLow)) {
+                if (traceProjection)
+                    projectionIterationTrace[traceRecord+6u+
+                        4u*kMaterialProjectionTraceStateCapacity+backtrack]=-2.0f;
                 step *= 0.5f;
                 continue;
             }
             float trialNorm = 0.0f;
             for (uint state = 0u; state < material.stateCount; ++state)
                 trialNorm = max(trialNorm, abs(trialResidual[state]));
+            if (traceProjection)
+                projectionIterationTrace[traceRecord+6u+
+                    4u*kMaterialProjectionTraceStateCapacity+backtrack]=trialNorm;
             if (trialNorm <= (1.0f - 1.0e-4f * step) * residualNorm) {
                 for (uint state = 0u; state < material.stateCount; ++state) {
                     projectedState[state] = trialState[state];
                     candidateLow[state] = trialLow[state];
                 }
                 acceptedStep = true;
+                if (traceProjection) {
+                    projectionIterationTrace[traceRecord+0u]=7.0f;
+                    projectionIterationTrace[traceRecord+1u]=float(backtrack);
+                    projectionIterationTrace[traceRecord+2u]=step;
+                    for (uint state=0u;state<material.stateCount;++state) {
+                        projectionIterationTrace[traceRecord+6u+
+                            5u*kMaterialProjectionTraceStateCapacity+
+                            kMaterialProjectionTraceStateCapacity*
+                                kMaterialProjectionTraceStateCapacity+state]=trialState[state];
+                        projectionIterationTrace[traceRecord+6u+
+                            6u*kMaterialProjectionTraceStateCapacity+
+                            kMaterialProjectionTraceStateCapacity*
+                                kMaterialProjectionTraceStateCapacity+state]=trialLow[state];
+                    }
+                }
                 if (stageFlagsOutput != nullptr)
                     *stageFlagsOutput |= kMaterialDiagNewtonUpdateAccepted;
                 break;
@@ -1461,6 +1565,8 @@ inline bool projectMaterialState(
         if (!acceptedStep) {
             if (terminalFailureOutput != nullptr)
                 *terminalFailureOutput = kMaterialFailureArmijoNoAcceptedTrial;
+            if (traceProjection) projectionIterationTrace[7]=
+                float(kMaterialFailureArmijoNoAcceptedTrial);
             return false;
         }
     }
@@ -1481,6 +1587,9 @@ inline bool projectMaterialState(
             *terminalFailureOutput = finalNonfinite
                 ? kMaterialFailureImplicitEvaluationNonfinite
                 : kMaterialFailureImplicitEvaluationInvalid;
+        if (traceProjection) projectionIterationTrace[7]=float(
+            finalNonfinite ? kMaterialFailureImplicitEvaluationNonfinite
+                           : kMaterialFailureImplicitEvaluationInvalid);
         return false;
     }
     if (stageFlagsOutput != nullptr)
@@ -1493,8 +1602,17 @@ inline bool projectMaterialState(
     }
     if (residualNormOutput != nullptr) *residualNormOutput = residualNorm;
     if (stateNormOutput != nullptr) *stateNormOutput = stateNorm;
+    if (traceProjection) {
+        projectionIterationTrace[4]=residualNorm;
+        projectionIterationTrace[5]=stateNorm;
+    }
     const bool converged =
         residualNorm <= projectionTolerance * (1.0f + stateNorm);
+    if (traceProjection) {
+        if (converged) projectionIterationTrace[3]=1.0f;
+        else projectionIterationTrace[7]=
+            float(kMaterialFailureProjectionIterationExhausted);
+    }
     if (converged && stageFlagsOutput != nullptr)
         *stageFlagsOutput |= kMaterialDiagProjectionConverged;
     if (!converged && terminalFailureOutput != nullptr)
@@ -1570,7 +1688,8 @@ inline void evaluateAlgorithmicStressTangent(
     thread uint* diagnosticTerminalFailure = nullptr
 ,
     thread const float* deformationLow = nullptr,
-    thread float* returnedProjectedLow = nullptr
+    thread float* returnedProjectedLow = nullptr,
+    thread float* projectionIterationTrace = nullptr
 ) {
     if (returnedProjectedLow != nullptr)
         for (uint i=0u;i<NM_MAX_MATERIAL_STATE;++i) returnedProjectedLow[i]=0.0f;
@@ -1677,7 +1796,7 @@ inline void evaluateAlgorithmicStressTangent(
         diagnosticProjectionResidualNorm, diagnosticProjectionStateNorm,
         diagnosticProjectionIterations, diagnosticStageFlags,
         &projectionFailure
-    , deformationLow, projectedLow);
+    , deformationLow, projectedLow, projectionIterationTrace);
     if (returnedProjectedState != nullptr) {
         for (uint state = 0u; state < material.stateCount; ++state)
             returnedProjectedState[state] = projectedState[state];

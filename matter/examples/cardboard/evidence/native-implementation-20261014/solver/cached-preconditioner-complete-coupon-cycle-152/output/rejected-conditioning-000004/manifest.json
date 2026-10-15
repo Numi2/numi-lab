@@ -1,0 +1,22 @@
+{
+  "schema": "numi.cardboard.regional-conditioning.v1",
+  "accepted_physical_state": false,
+  "control_step": 3,
+  "source_physics_fingerprint": "10666180035123264720",
+  "device_program_fingerprint": "4362160513465011689",
+  "environment_count": 2,
+  "fem_node_count": 882,
+  "mode_count": 26,
+  "byte_order": "native_little_endian",
+  "layout": "P mode-node; effective_P/AP environment-mode-node; RAP pivoted LU environment-row-column; block_inverse environment-node-row",
+  "files": [
+    {"name": "candidate_nodes.bin", "count": 1764, "stride_bytes": 80, "bytes": 141120, "sha256": "c971815537243b4fc0483c0aafd097af7f61f7717fc77bec810383a56322dbc7"},
+    {"name": "P.bin", "count": 22932, "stride_bytes": 16, "bytes": 366912, "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5"},
+    {"name": "effective_P.bin", "count": 45864, "stride_bytes": 16, "bytes": 733824, "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c"},
+    {"name": "AP.bin", "count": 45864, "stride_bytes": 16, "bytes": 733824, "sha256": "ea035a1c2613be0f6e5a648c9dfe279916daaf0bf71aa0f32d44945740e861fa"},
+    {"name": "pivoted_RAP.bin", "count": 1352, "stride_bytes": 4, "bytes": 5408, "sha256": "c74aa83fbdc58d90a247db93b715b599f3b3721c3e2a5670110ce304328a122f"},
+    {"name": "pivots.bin", "count": 52, "stride_bytes": 4, "bytes": 208, "sha256": "b15351752746ad304892b36595184c9b83246883ef1d0628cdfda0983a499369"},
+    {"name": "factor_valid.bin", "count": 2, "stride_bytes": 4, "bytes": 8, "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5"},
+    {"name": "node_block_inverse.bin", "count": 5292, "stride_bytes": 16, "bytes": 84672, "sha256": "65da529ef5175491ac36eba3405ff5cb28b5615d9105d6c83e192053d397c475"}
+  ]
+}

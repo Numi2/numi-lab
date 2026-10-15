@@ -206,7 +206,8 @@ PaperParameters paperParameters(const MaterialProgram& material) {
 WorldSource paperSource(MaterialProgram material,
                         const FEMPreconditionerMode mode,
                         const double displacementScale,
-                        const bool rotateMaterialAxes = false) {
+                        const bool rotateMaterialAxes = false,
+                        const bool useTangentCache = false) {
     need(material.internalState.size() == 13u,
          "paper regional fixture requires a 13-state source program");
     material.paperHillScalarInitializer = true;
@@ -215,6 +216,7 @@ WorldSource paperSource(MaterialProgram material,
     for (Parameter& parameter : material.parameters)
         parameter.identifiable = false;
     WorldSource world = source(material, mode);
+    world.mixedSolver.cacheFEMAlgorithmicTangent = useTangentCache;
     world.gravity = {0.0, 0.0, -9.81};
     ObjectSource& object = world.objects.front();
     object.name = "source_bound_haj_ali_ideal_hill_native_regional_fixture";
@@ -712,7 +714,14 @@ std::vector<Vec> fp64AP(const CompiledWorld& world,
 std::vector<Vec> fp64PaperAP(const CompiledWorld& world,
                              const RuntimeStateSnapshot& snapshot,
                              const BasisResult& basis,
-                             const PaperParameters& parameters) {
+                             const PaperParameters& parameters,
+                             double* maximumPositionVsReferenceFInputDifference = nullptr,
+                             double* maximumReconstructedVsCapturedLocalFWordDifference = nullptr,
+                             std::uint32_t* referenceDisplacementTetCount = nullptr,
+                             std::uint32_t* minimumSchedulerExponent = nullptr,
+                             std::uint32_t* maximumSchedulerExponent = nullptr,
+                             double* minimumOperatorTimestep = nullptr,
+                             double* maximumOperatorTimestep = nullptr) {
     using namespace numi_cardboard_solver;
     const std::size_t nodes = world.dispatch.femNodeCount;
     const std::size_t tetrahedra = world.fem.tetrahedra.size();
@@ -720,27 +729,89 @@ std::vector<Vec> fp64PaperAP(const CompiledWorld& world,
     need(snapshot.femRegionalGalerkinLinearizationNodes.size() == nodes,
          "paper FP64 AP oracle requires the captured regional linearization nodes");
     need(stateStride == world.dispatch.materialStateStride && stateStride == 13u &&
-         snapshot.femMaterialState.size() == tetrahedra * stateStride,
-         "paper FP64 AP oracle requires one accepted 13-state row per tetrahedron");
-    const double dt = world.dispatch.gravityAndTimestep.w;
+         snapshot.femRegionalGalerkinLinearizationMaterialState.size() ==
+             tetrahedra * stateStride,
+         "paper FP64 AP oracle requires the exact pre-AP accepted 13-state rows");
+    const double frameDt = world.dispatch.gravityAndTimestep.w;
     constexpr double kPascalPerMegapascal = 1.0e6;
+    double maximumPositionVsReferenceFInputDifferenceLocal = 0.0;
+    double maximumReconstructedVsCapturedLocalFWordDifferenceLocal = 0.0;
+    std::uint32_t referenceDisplacementTetCountLocal = 0u;
+    std::uint32_t minimumSchedulerExponentLocal =
+        std::numeric_limits<std::uint32_t>::max();
+    std::uint32_t maximumSchedulerExponentLocal = 0u;
+    double minimumOperatorTimestepLocal = std::numeric_limits<double>::infinity();
+    double maximumOperatorTimestepLocal = 0.0;
+    need(snapshot.femRegionalGalerkinLinearizationSchedulerExponent.size() ==
+             tetrahedra &&
+         snapshot.femRegionalGalerkinLinearizationLocalFHigh.size() ==
+             tetrahedra * 3u &&
+         snapshot.femRegionalGalerkinLinearizationLocalFLow.size() ==
+             tetrahedra * 3u,
+         "paper FP64 AP oracle requires the exact pre-AP exponent and local-F words");
     std::vector<Vec> result(std::size_t(basis.modes) * nodes);
     for (std::uint32_t mode = 0u; mode < basis.modes; ++mode) {
         std::vector<Vec> accumulated(nodes);
         for (std::size_t tetIndex = 0u; tetIndex < tetrahedra; ++tetIndex) {
             const NMTetrahedronGPU& tet = world.fem.tetrahedra[tetIndex];
+            need(tet.identity.y < world.dispatch.objectCount,
+                 "paper AP tetrahedron references an invalid object scheduler");
+            const std::uint32_t activeExponent =
+                snapshot.femRegionalGalerkinLinearizationSchedulerExponent[tetIndex];
+            need(activeExponent <= NM_MAX_RATE_EXPONENT,
+                 "paper AP snapshot scheduler exponent is out of range");
+            const double dt = std::ldexp(frameDt,
+                -static_cast<int>(activeExponent));
+            minimumSchedulerExponentLocal = std::min(
+                minimumSchedulerExponentLocal, activeExponent);
+            maximumSchedulerExponentLocal = std::max(
+                maximumSchedulerExponentLocal, activeExponent);
+            minimumOperatorTimestepLocal = std::min(
+                minimumOperatorTimestepLocal, dt);
+            maximumOperatorTimestepLocal = std::max(
+                maximumOperatorTimestepLocal, dt);
             const std::array<std::uint32_t, 4> ids{
                 tet.nodes.x, tet.nodes.y, tet.nodes.z, tet.nodes.w};
             std::array<Vec, 4> x{};
+            std::array<Vec, 4> displacement{};
             std::array<Vec, 4> direction{};
             for (unsigned local = 0u; local < 4u; ++local) {
-                x[local] = from4(snapshot.femRegionalGalerkinLinearizationNodes[ids[local]]
-                                     .positionAndMass);
+                const NMFEMNodeStateGPU& node =
+                    snapshot.femRegionalGalerkinLinearizationNodes[ids[local]];
+                x[local] = from4(node.positionAndMass);
+                displacement[local] =
+                    from4(node.referenceDisplacementAndMode);
                 direction[local] = basis.vectors[
                     std::size_t(mode) * nodes + ids[local]];
             }
             const Mat invR = inverseRest(tet);
-            const Mat fWorld = gradientFrom(x, invR);
+            const Mat positionFWorld = gradientFrom(x, invR);
+            Mat fWorld = positionFWorld;
+            if ((tet.identity.w &
+                 NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u) {
+                // Reference-displacement FEM uses the stored FP32 u as the
+                // strain unknown. Reconstructing F from materialized X loses
+                // small components when X0 + u rounds back to X0. Widening
+                // the stored float u and compiled inverse-rest matrix before
+                // evaluating I + grad(u) gives the independent FP64 value
+                // represented by production's compensated high/low F input.
+                for (const std::uint32_t id : ids) {
+                    need(snapshot.femRegionalGalerkinLinearizationNodes[id]
+                                 .referenceDisplacementAndMode.w == 1.0f,
+                         "reference-displacement tetrahedron has a node without authoritative u");
+                }
+                const Mat gradU = gradientFrom(displacement, invR);
+                fWorld = gradU;
+                fWorld[0] += 1.0;
+                fWorld[4] += 1.0;
+                fWorld[8] += 1.0;
+                for (std::size_t component = 0u; component < fWorld.size(); ++component) {
+                    maximumPositionVsReferenceFInputDifferenceLocal = std::max(
+                        maximumPositionVsReferenceFInputDifferenceLocal,
+                        std::abs(positionFWorld[component] - fWorld[component]));
+                }
+                ++referenceDisplacementTetCountLocal;
+            }
             const Mat dFWorld = gradientFrom(direction, invR);
             const bool framed =
                 (world.objects.at(tet.identity.y).flags &
@@ -748,10 +819,26 @@ std::vector<Vec> fp64PaperAP(const CompiledWorld& world,
             const Mat q = materialFrameMatrix(tet);
             const Mat f = framed ? multiply(fWorld, q) : fWorld;
             const Mat dF = framed ? multiply(dFWorld, q) : dFWorld;
+            Mat capturedLocalF{};
+            const std::size_t fWordBase = tetIndex * 3u;
+            for (unsigned row = 0u; row < 3u; ++row) {
+                const nm_float4 high = snapshot
+                    .femRegionalGalerkinLinearizationLocalFHigh[fWordBase + row];
+                const nm_float4 low = snapshot
+                    .femRegionalGalerkinLinearizationLocalFLow[fWordBase + row];
+                capturedLocalF[row * 3u] = double(high.x) + double(low.x);
+                capturedLocalF[row * 3u + 1u] = double(high.y) + double(low.y);
+                capturedLocalF[row * 3u + 2u] = double(high.z) + double(low.z);
+            }
+            for (std::size_t component = 0u; component < f.size(); ++component)
+                maximumReconstructedVsCapturedLocalFWordDifferenceLocal = std::max(
+                    maximumReconstructedVsCapturedLocalFWordDifferenceLocal,
+                    std::abs(f[component] - capturedLocalF[component]));
             PaperState accepted{};
             for (std::size_t state = 0u; state < accepted.size(); ++state) {
-                accepted[state] = snapshot.femMaterialState[
-                    tetIndex * stateStride + state];
+                accepted[state] =
+                    snapshot.femRegionalGalerkinLinearizationMaterialState[
+                        tetIndex * stateStride + state];
                 need(std::isfinite(accepted[state]),
                      "paper snapshot contains a nonfinite accepted state");
             }
@@ -790,6 +877,22 @@ std::vector<Vec> fp64PaperAP(const CompiledWorld& world,
             result[std::size_t(mode) * nodes + node] = accumulated[node];
         }
     }
+    if (maximumPositionVsReferenceFInputDifference != nullptr)
+        *maximumPositionVsReferenceFInputDifference =
+            maximumPositionVsReferenceFInputDifferenceLocal;
+    if (maximumReconstructedVsCapturedLocalFWordDifference != nullptr)
+        *maximumReconstructedVsCapturedLocalFWordDifference =
+            maximumReconstructedVsCapturedLocalFWordDifferenceLocal;
+    if (referenceDisplacementTetCount != nullptr)
+        *referenceDisplacementTetCount = referenceDisplacementTetCountLocal;
+    if (minimumSchedulerExponent != nullptr)
+        *minimumSchedulerExponent = minimumSchedulerExponentLocal;
+    if (maximumSchedulerExponent != nullptr)
+        *maximumSchedulerExponent = maximumSchedulerExponentLocal;
+    if (minimumOperatorTimestep != nullptr)
+        *minimumOperatorTimestep = minimumOperatorTimestepLocal;
+    if (maximumOperatorTimestep != nullptr)
+        *maximumOperatorTimestep = maximumOperatorTimestepLocal;
     return result;
 }
 
@@ -1177,7 +1280,22 @@ void checkPaperRegionalExport(const RunResult& regional,
     const BasisResult expectedP = fp64Basis(world);
     const BasisResult effectiveP =
         projectBasisThroughSnapshotMask(expectedP, snapshot);
-    const auto expectedAP = fp64PaperAP(world, snapshot, effectiveP, parameters);
+    double maximumPositionVsReferenceFInputDifference = 0.0;
+    double maximumReconstructedVsCapturedLocalFWordDifference = 0.0;
+    std::uint32_t referenceDisplacementTetCount = 0u;
+    std::uint32_t minimumSchedulerExponent = 0u;
+    std::uint32_t maximumSchedulerExponent = 0u;
+    double minimumOperatorTimestep = 0.0;
+    double maximumOperatorTimestep = 0.0;
+    const auto expectedAP = fp64PaperAP(
+        world, snapshot, effectiveP, parameters,
+        &maximumPositionVsReferenceFInputDifference,
+        &maximumReconstructedVsCapturedLocalFWordDifference,
+        &referenceDisplacementTetCount,
+        &minimumSchedulerExponent,
+        &maximumSchedulerExponent,
+        &minimumOperatorTimestep,
+        &maximumOperatorTimestep);
     const auto expectedAPFlat = flatten(expectedAP);
     const auto nativeAP = flatten(snapshot.femRegionalGalerkinOperatorAP);
     const double apError = relativeError(nativeAP, expectedAPFlat);
@@ -1189,11 +1307,13 @@ void checkPaperRegionalExport(const RunResult& regional,
         for (std::size_t state = 0u; state < 6u; ++state) {
             maximumPlasticStrainState = std::max(
                 maximumPlasticStrainState,
-                std::abs(double(snapshot.femMaterialState[tet * 13u + state])));
+                std::abs(double(snapshot.femRegionalGalerkinLinearizationMaterialState[
+                    tet * 13u + state])));
         }
         maximumMultiplierState = std::max(
             maximumMultiplierState,
-            std::abs(double(snapshot.femMaterialState[tet * 13u + 12u])));
+            std::abs(double(snapshot.femRegionalGalerkinLinearizationMaterialState[
+                tet * 13u + 12u])));
     }
     std::cout << std::setprecision(12)
         << "{\"schema\":1,\"record\":\"native_paper_regional_AP\""
@@ -1210,8 +1330,24 @@ void checkPaperRegionalExport(const RunResult& regional,
         << maximumPlasticStrainState
         << ",\"maximum_accepted_multiplier_state\":"
         << maximumMultiplierState
+        << ",\"reference_displacement_gradient_tet_count\":"
+        << referenceDisplacementTetCount
+        << ",\"maximum_position_vs_reference_F_input_difference\":"
+        << maximumPositionVsReferenceFInputDifference
+        << ",\"maximum_reconstructed_vs_captured_local_F_word_difference\":"
+        << maximumReconstructedVsCapturedLocalFWordDifference
+        << ",\"frame_timestep_seconds\":"
+        << world.dispatch.gravityAndTimestep.w
+        << ",\"minimum_accepted_scheduler_exponent\":"
+        << minimumSchedulerExponent
+        << ",\"maximum_accepted_scheduler_exponent\":"
+        << maximumSchedulerExponent
+        << ",\"minimum_operator_timestep_seconds\":"
+        << minimumOperatorTimestep
+        << ",\"maximum_operator_timestep_seconds\":"
+        << maximumOperatorTimestep
         << ",\"native_AP_relative_error\":" << apError
-        << ",\"FP64_oracle\":\"source-parameterized 13-state Haj-Ali ideal-Hill StVK, analytic implicit tangent\""
+        << ",\"FP64_oracle\":\"source-parameterized 13-state Haj-Ali ideal-Hill StVK, analytic implicit tangent, F reconstructed from authoritative reference displacement when flagged\""
         << ",\"AP_includes_consistent_mass_and_element_tangent\":true}\n";
     need(std::isfinite(apError) && apError < 5.0e-3,
          "native regional AP differs from independent source-parameterized paper tangent: " +
@@ -1251,6 +1387,18 @@ void checkPaperRegionalNative(const MaterialProgram& parsedMaterial) {
                              "low_F_regional_contact_enriched");
     checkInvariance(regional, enriched);
 
+    // Compare the opt-in per-Newton tangent cache through the same regional
+    // FGMRES/RAP solve. The cache is conditioning/operator scratch only; the
+    // final production certificate remains evaluated by the direct path.
+    const CompiledWorld cachedRegionalWorld = cook(paperSource(
+        parsedMaterial, FEMPreconditionerMode::regionalGalerkin,
+        lowDisplacementScale, false, true));
+    NativeRun cachedRegionalRun(cachedRegionalWorld, NUMI_MATTER_METALLIB);
+    const RunResult cachedRegional = cachedRegionalRun.run();
+    checkPaperRegionalExport(cachedRegional, parameters, lowDisplacementScale,
+                             "low_F_regional_cached_tangent");
+    checkInvariance(regional, cachedRegional);
+
     const CompiledWorld rotatedRegionalWorld = cook(paperSource(
         parsedMaterial, FEMPreconditionerMode::regionalGalerkin,
         lowDisplacementScale, true));
@@ -1266,9 +1414,21 @@ void checkPaperRegionalNative(const MaterialProgram& parsedMaterial) {
     checkPaperRegionalExport(rotatedEnriched, parameters, lowDisplacementScale,
                              "rotated_low_F_regional_contact_enriched");
     checkInvariance(rotatedRegional, rotatedEnriched);
+    const CompiledWorld rotatedCachedRegionalWorld = cook(paperSource(
+        parsedMaterial, FEMPreconditionerMode::regionalGalerkin,
+        lowDisplacementScale, true, true));
+    NativeRun rotatedCachedRegionalRun(
+        rotatedCachedRegionalWorld, NUMI_MATTER_METALLIB);
+    const RunResult rotatedCachedRegional = rotatedCachedRegionalRun.run();
+    checkPaperRegionalExport(rotatedCachedRegional, parameters,
+                             lowDisplacementScale,
+                             "rotated_low_F_regional_cached_tangent");
+    checkInvariance(rotatedRegional, rotatedCachedRegional);
 
-    const auto runCompressedHistory = [&](const FEMPreconditionerMode mode) {
-        WorldSource compressedSource = paperSource(parsedMaterial, mode, 0.0, true);
+    const auto runCompressedHistory = [&](const FEMPreconditionerMode mode,
+                                          const bool useTangentCache = false) {
+        WorldSource compressedSource = paperSource(
+            parsedMaterial, mode, 0.0, true, useTangentCache);
         compressedSource.gravity = {0.0, 0.0, 0.0};
         NativeRun compressedRun(cook(compressedSource), NUMI_MATTER_METALLIB);
         const RunResult initial = compressedRun.run(0u);
@@ -1296,20 +1456,27 @@ void checkPaperRegionalNative(const MaterialProgram& parsedMaterial) {
              "manufactured MD compression did not produce accepted paper plastic history");
         checkPaperRegionalExport(held, parameters, 0.0,
             mode == FEMPreconditionerMode::regionalGalerkin
-                ? "accepted_history_regional_scalar_fine"
+                ? (useTangentCache
+                    ? "accepted_history_regional_cached_tangent"
+                    : "accepted_history_regional_scalar_fine")
                 : "accepted_history_regional_contact_enriched");
         return std::pair<RunResult, double>{held, plasticHistory};
     };
     const auto regionalHistory = runCompressedHistory(
         FEMPreconditionerMode::regionalGalerkin);
+    const auto cachedRegionalHistory = runCompressedHistory(
+        FEMPreconditionerMode::regionalGalerkin, true);
     const auto enrichedHistory = runCompressedHistory(
         FEMPreconditionerMode::regionalGalerkinContact);
     checkInvariance(regionalHistory.first, enrichedHistory.first);
+    checkInvariance(regionalHistory.first, cachedRegionalHistory.first);
     std::cout << "PASS native source-bound 13-state paper regional RAP low-F oracle"
               << " source_material=" << parsedMaterial.name
               << " low_F_selector2_and4_transactions=2"
               << " rotated_low_F_selector2_and4_transactions=2"
               << " rotated_accepted_history_selector2_and4_transactions=6"
+              << " cached_tangent_parity_cases=3"
+              << " cached_tangent_additional_transactions=5"
               << " max_accepted_plastic_strain="
               << std::max(regionalHistory.second, enrichedHistory.second)
               << " physical_validation=false" << '\n';

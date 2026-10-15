@@ -1418,12 +1418,20 @@ struct Fixture {
     Fixture(const MeshAndWorld& source, const bool overflow = false,
             const bool prescribeSupportBoxTranslation = false,
             const bool sweepPrescribedSupportBox = false,
-            const bool parkPunch = false)
+            const bool parkPunch = false,
+            const bool aliasProductionSurfaceScratch = false,
+            const bool aliasCohesiveCandidateScratch = false)
         : world(compile(source.world)) {
         translateSupportBox = prescribeSupportBoxTranslation;
         sweepSupportBox = sweepPrescribedSupportBox;
         stationaryPunch = parkPunch;
         setenv("NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT", "all", 1);
+        [[maybe_unused]] const ScopedEnvironmentValue surfaceScratchAlias(
+            "NM_FEM_FULL_CONTACT_REUSE_SELF_SURFACE_SCRATCH",
+            aliasProductionSurfaceScratch ? "1" : nullptr);
+        [[maybe_unused]] const ScopedEnvironmentValue cohesiveScratchAlias(
+            "NM_FEM_FULL_CONTACT_REUSE_COHESIVE_SCRATCH",
+            aliasCohesiveCandidateScratch ? "1" : nullptr);
         unsetenv("NM_FEM_RESIDUAL_ARMIJO_ROOT");
         unsetenv("NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT");
         unsetenv("NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT");
@@ -2123,10 +2131,15 @@ void runDormantUncoveredContact(const MaterialProgram& bulk) {
               << " interface_remained_dormant=true parent_face_contact_history=true\n";
 }
 
-AcceptedRollbackSequence runAcceptedAndRollback(const MaterialProgram& bulk) {
+AcceptedRollbackSequence runAcceptedAndRollback(
+        const MaterialProgram& bulk,
+        const bool aliasProductionSurfaceScratch = false,
+        const bool aliasCohesiveCandidateScratch = false) {
     MeshAndWorld source = makeWorld(bulk, false, true, 5.0e-6);
     verifyPartialMortarSource(source);
-    Fixture run(source);
+    Fixture run(source, false, false, false, false,
+                aliasProductionSurfaceScratch,
+                aliasCohesiveCandidateScratch);
     const RuntimeStateSnapshot initial = run.snapshot();
     require(initial.cohesiveFaces.size() == 1u &&
             (initial.cohesiveFaces[0].adjacency.w &
@@ -2322,20 +2335,21 @@ void requireTraceOperatorParity(const std::string& dense,
 }
 
 void requireSequenceOperatorParity(const AcceptedRollbackSequence& dense,
-                                   const AcceptedRollbackSequence& sparse) {
-    requireSnapshotOperatorParity(dense.initial, sparse.initial, "initial");
+                                   const AcceptedRollbackSequence& candidate,
+                                   const bool expectSparseCandidate) {
+    requireSnapshotOperatorParity(dense.initial, candidate.initial, "initial");
     const std::array<const StepResult*, 3> denseSteps = {
         &dense.activation, &dense.loaded, &dense.rejected};
-    const std::array<const StepResult*, 3> sparseSteps = {
-        &sparse.activation, &sparse.loaded, &sparse.rejected};
+    const std::array<const StepResult*, 3> candidateSteps = {
+        &candidate.activation, &candidate.loaded, &candidate.rejected};
     constexpr std::array<const char*, 3> stageNames = {
         "activation", "loaded", "rejected"};
     for (std::size_t index = 0u; index < stageNames.size(); ++index) {
         requireSnapshotOperatorParity(denseSteps[index]->snapshot,
-                                      sparseSteps[index]->snapshot,
+                                      candidateSteps[index]->snapshot,
                                       stageNames[index]);
         requireTraceOperatorParity(denseSteps[index]->trace,
-                                   sparseSteps[index]->trace,
+                                   candidateSteps[index]->trace,
                                    stageNames[index]);
         const std::string denseMarker =
             "\"private_contact_layout\":\"dense\"";
@@ -2344,11 +2358,19 @@ void requireSequenceOperatorParity(const AcceptedRollbackSequence& dense,
         require(denseSteps[index]->trace.find(denseMarker) != std::string::npos,
                 std::string("dense ") + stageNames[index] +
                     " did not execute the dense private residual path");
-        require(sparseSteps[index]->trace.find(sparseMarker) != std::string::npos &&
-                    sparseSteps[index]->trace.find("\"sparse_parity\":true") !=
+        if (expectSparseCandidate) {
+            require(candidateSteps[index]->trace.find(sparseMarker) !=
+                        std::string::npos &&
+                    candidateSteps[index]->trace.find("\"sparse_parity\":true") !=
                         std::string::npos,
-                std::string("sparse ") + stageNames[index] +
-                    " did not execute the parity-checked sparse path");
+                    std::string("sparse ") + stageNames[index] +
+                        " did not execute the parity-checked sparse path");
+        } else {
+            require(candidateSteps[index]->trace.find(denseMarker) !=
+                        std::string::npos,
+                    std::string("candidate ") + stageNames[index] +
+                        " did not execute the dense private residual path");
+        }
     }
 }
 
@@ -2402,13 +2424,131 @@ void runSparsePrivateParity(const MaterialProgram& bulk) {
         restoreOutput();
         throw;
     }
-    requireSequenceOperatorParity(dense, sparse);
+    requireSequenceOperatorParity(dense, sparse, true);
     std::cout << "sparse_private_dense_parity=pass"
               << " canonical_pair_count=" << pairCount
               << " sparse_capacity=" << (pairCount - 1u)
               << " candidate_set_strictly_bounded_below_dense=true"
               << " internal_sample_field_parity=true"
               << " accepted_and_rollback_histories_bit_identical=true"
+              << " physical_validation=false synthetic_law=true\n";
+}
+
+void runSelfSurfaceScratchAliasParity(const MaterialProgram& bulk) {
+    const std::string outputRoot = diagnosticStateOutputPath;
+    std::unique_ptr<DiagnosticStateOutput> parentDiagnosticOutput =
+        std::move(diagnosticStateOutput);
+    const auto selectOutput = [&](const char* label) {
+        if (outputRoot.empty()) return;
+        diagnosticStateOutput.reset();
+        const auto directory = std::filesystem::path(outputRoot) / label;
+        if (std::filesystem::exists(directory))
+            throw std::runtime_error(
+                "surface scratch parity subdirectory must be new: " +
+                directory.string());
+        diagnosticStateOutputPath = directory.string();
+        diagnosticStateOutput = std::make_unique<DiagnosticStateOutput>(
+            diagnosticStateOutputPath);
+    };
+    const auto restoreOutput = [&]() {
+        diagnosticStateOutput.reset();
+        diagnosticStateOutput = std::move(parentDiagnosticOutput);
+        diagnosticStateOutputPath = outputRoot;
+    };
+
+    AcceptedRollbackSequence baseline;
+    AcceptedRollbackSequence aliased;
+    try {
+        selectOutput("baseline");
+        baseline = runAcceptedAndRollback(bulk, false);
+        selectOutput("aliased");
+        aliased = runAcceptedAndRollback(bulk, true);
+        restoreOutput();
+    } catch (...) {
+        restoreOutput();
+        throw;
+    }
+    requireSequenceOperatorParity(baseline, aliased, false);
+    std::cout << "self_surface_scratch_alias_parity=pass"
+              << " workspace=production_surface_geometry_scratch"
+              << " aliasing_opt_in=true geometry_order_residual_alpha=true"
+              << " accepted_and_rollback_histories_bit_identical=true"
+              << " physical_validation=false synthetic_law=true\n";
+}
+
+void requireExactCohesiveAliasTraceParity(const std::string& baseline,
+                                          const std::string& aliased,
+                                          const char* stage) {
+    const std::string privateMarker =
+        "\"cohesive_scratch_layout\":\"private\"";
+    const std::string aliasMarker =
+        "\"cohesive_scratch_layout\":\"production_candidate_force_alias\"";
+    require(baseline.find(privateMarker) != std::string::npos,
+            std::string("baseline ") + stage +
+                " trace did not identify private cohesive scratch");
+    require(aliased.find(aliasMarker) != std::string::npos,
+            std::string("aliased ") + stage +
+                " trace did not identify production cohesive scratch reuse");
+    std::string normalized = aliased;
+    std::size_t replaced = 0u;
+    for (std::size_t offset = 0u;
+         (offset = normalized.find(aliasMarker, offset)) != std::string::npos;
+         offset += privateMarker.size()) {
+        normalized.replace(offset, aliasMarker.size(), privateMarker);
+        ++replaced;
+    }
+    require(replaced != 0u && normalized == baseline,
+            std::string("cohesive alias ") + stage +
+                " full trace differs beyond the explicit scratch-layout field");
+}
+
+void runCohesiveScratchAliasParity(const MaterialProgram& bulk) {
+    require(!diagnosticStateOutputPath.empty(),
+            "cohesive scratch alias parity requires retained full traces and state snapshots");
+    const std::string outputRoot = diagnosticStateOutputPath;
+    std::unique_ptr<DiagnosticStateOutput> parentDiagnosticOutput =
+        std::move(diagnosticStateOutput);
+    const auto selectOutput = [&](const char* label) {
+        diagnosticStateOutput.reset();
+        const auto directory = std::filesystem::path(outputRoot) / label;
+        if (std::filesystem::exists(directory))
+            throw std::runtime_error(
+                "cohesive scratch parity subdirectory must be new: " +
+                directory.string());
+        diagnosticStateOutputPath = directory.string();
+        diagnosticStateOutput = std::make_unique<DiagnosticStateOutput>(
+            diagnosticStateOutputPath);
+    };
+    const auto restoreOutput = [&]() {
+        diagnosticStateOutput.reset();
+        diagnosticStateOutput = std::move(parentDiagnosticOutput);
+        diagnosticStateOutputPath = outputRoot;
+    };
+
+    AcceptedRollbackSequence baseline;
+    AcceptedRollbackSequence aliased;
+    try {
+        selectOutput("baseline");
+        baseline = runAcceptedAndRollback(bulk);
+        selectOutput("cohesive-aliased");
+        aliased = runAcceptedAndRollback(bulk, false, true);
+        restoreOutput();
+    } catch (...) {
+        restoreOutput();
+        throw;
+    }
+    requireSequenceOperatorParity(baseline, aliased, false);
+    requireExactCohesiveAliasTraceParity(
+        baseline.activation.trace, aliased.activation.trace, "activation");
+    requireExactCohesiveAliasTraceParity(
+        baseline.loaded.trace, aliased.loaded.trace, "loaded");
+    requireExactCohesiveAliasTraceParity(
+        baseline.rejected.trace, aliased.rejected.trace, "rejected");
+    std::cout << "cohesive_scratch_alias_parity=pass"
+              << " workspace=production_candidate_and_force_buffers"
+              << " opt_in=true"
+              << " activation_loaded_rejection_full_trace_byte_identical=true"
+              << " selected_alpha_certificate_and_rollback_bit_identical=true"
               << " physical_validation=false synthetic_law=true\n";
 }
 
@@ -2568,6 +2708,12 @@ void verifySparsePrivateAdmission(const MaterialProgram& bulk,
     // authored scope intentionally excludes free generalized bodies.
     freeBodySource.world.mixedSolver.femPreconditioner =
         FEMPreconditionerMode::scalarDiagonal;
+    // makeWorld() authors all-zero regional labels when the fixture-wide
+    // selector is enabled. The negative free-body case deliberately uses the
+    // scalar preconditioner, so remove those labels as well; otherwise source
+    // compilation rejects the inconsistent selector before sparse-runtime
+    // admission gets a chance to exercise the intended free-DOF guard.
+    freeBodySource.world.objects.at(0u).femPreconditionerRegionIds.clear();
     freeBodySource.world.rigidProxies.at(kAnvilBody).dynamic = true;
     freeBodySource.world.rigidProxies.at(kAnvilBody).sceneBodyIndex = kAnvilBody;
     const CompiledWorld freeBodyWorld = compile(freeBodySource.world);
@@ -3053,7 +3199,7 @@ int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
             require(argc >= 2,
-                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--newton-iterations N] [--diagnostic-state-output DIR]");
+                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--newton-iterations N] [--diagnostic-state-output DIR]");
             bool cpuOnly = false;
             bool overflow = false;
             bool prescribedBoxOverflow = false;
@@ -3064,6 +3210,8 @@ int main(int argc, const char* argv[]) {
             bool sparsePrivateOverflow = false;
             bool sparsePrivateAdmission = false;
             bool sparsePrivateHighPairAdmission = false;
+            bool selfSurfaceScratchAliasParity = false;
+            bool cohesiveScratchAliasParity = false;
             for (int index = 2; index < argc; ++index) {
                 const std::string option(argv[index]);
                 if (option == "--cpu-only") cpuOnly = true;
@@ -3084,6 +3232,10 @@ int main(int argc, const char* argv[]) {
                     sparsePrivateAdmission = true;
                 else if (option == "--sparse-private-high-pair-admission")
                     sparsePrivateHighPairAdmission = true;
+                else if (option == "--self-surface-scratch-alias-parity")
+                    selfSurfaceScratchAliasParity = true;
+                else if (option == "--cohesive-scratch-alias-parity")
+                    cohesiveScratchAliasParity = true;
                 else if (option == "--regional-contact-preconditioner")
                     regionalContactPreconditioner = true;
                 else if (option == "--extended-budget") extendedBudget = true;
@@ -3112,7 +3264,9 @@ int main(int argc, const char* argv[]) {
                                   prescribedBoxSweepReject || prescribedBoxTranslation ||
                                   privateSelfSweep || sparsePrivateParity ||
                                   sparsePrivateOverflow || sparsePrivateAdmission ||
-                                  sparsePrivateHighPairAdmission)),
+                                  sparsePrivateHighPairAdmission ||
+                                  selfSurfaceScratchAliasParity ||
+                                  cohesiveScratchAliasParity)),
                     "CPU and overflow modes are exclusive");
             require(!privateSelfSweep || !(overflow || prescribedBoxOverflow ||
                                   prescribedBoxSweepReject || prescribedBoxTranslation),
@@ -3131,14 +3285,31 @@ int main(int argc, const char* argv[]) {
                 static_cast<unsigned>(sparsePrivateHighPairAdmission);
             require(sparseModeCount <= 1u,
                     "choose only one sparse private-contact regression mode");
+            require(!selfSurfaceScratchAliasParity || sparseModeCount == 0u,
+                    "surface scratch alias parity must run separately from sparse private modes");
+            require(!cohesiveScratchAliasParity || sparseModeCount == 0u,
+                    "cohesive scratch alias parity must run separately from sparse private modes");
+            require(!(selfSurfaceScratchAliasParity && cohesiveScratchAliasParity),
+                    "run one scratch-alias parity mode at a time");
+            require(!selfSurfaceScratchAliasParity ||
+                        !(overflow || prescribedBoxOverflow ||
+                          prescribedBoxSweepReject || prescribedBoxTranslation ||
+                          privateSelfSweep || cohesiveScratchAliasParity),
+                    "surface scratch alias parity must run as its own full-contact sequence");
+            require(!cohesiveScratchAliasParity ||
+                        !(overflow || prescribedBoxOverflow ||
+                          prescribedBoxSweepReject || prescribedBoxTranslation ||
+                          privateSelfSweep),
+                    "cohesive scratch alias parity must run as its own full-contact sequence");
             require(sparseModeCount == 0u ||
                         !(overflow || prescribedBoxOverflow ||
                           prescribedBoxSweepReject || prescribedBoxTranslation ||
                           privateSelfSweep),
                     "sparse private-contact modes must run separately");
             require(diagnosticStateOutputPath.empty() || sparsePrivateParity ||
-                        sparsePrivateOverflow,
-                    "diagnostic state output is supported only for sparse parity or overflow modes");
+                        sparsePrivateOverflow || selfSurfaceScratchAliasParity ||
+                        cohesiveScratchAliasParity,
+                    "diagnostic state output is supported only for retained contact parity or overflow modes");
             require(!(cpuOnly && !diagnosticStateOutputPath.empty()),
                     "diagnostic state export requires a native transaction run");
             if (extendedBudget) std::cout <<
@@ -3234,6 +3405,24 @@ int main(int argc, const char* argv[]) {
             if (sparsePrivateParity) {
                 runSparsePrivateParity(bulk);
                 std::cout << "PASS sparse private-contact parity fixture"
+                          << " checks=" << checks
+                          << " native_fem_transactions_executed="
+                          << nativeFEMTransactionsExecuted
+                          << " physical_validation=false synthetic_law=true\n";
+                return 0;
+            }
+            if (selfSurfaceScratchAliasParity) {
+                runSelfSurfaceScratchAliasParity(bulk);
+                std::cout << "PASS full-contact self-surface scratch alias parity"
+                          << " checks=" << checks
+                          << " native_fem_transactions_executed="
+                          << nativeFEMTransactionsExecuted
+                          << " physical_validation=false synthetic_law=true\n";
+                return 0;
+            }
+            if (cohesiveScratchAliasParity) {
+                runCohesiveScratchAliasParity(bulk);
+                std::cout << "PASS full-contact cohesive scratch alias parity"
                           << " checks=" << checks
                           << " native_fem_transactions_executed="
                           << nativeFEMTransactionsExecuted

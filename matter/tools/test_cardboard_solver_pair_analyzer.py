@@ -98,6 +98,25 @@ def minimal_binding(capture_path: Path) -> tuple[dict, dict]:
 
 
 class PairAnalyzerTests(unittest.TestCase):
+    def test_ordinary_capture_requires_explicit_reference_scope(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            capture = Path(temporary) / "capture.jsonl"
+            capture.touch()
+            header, _ = minimal_capture()
+            prediction, receipt = minimal_binding(capture)
+            prediction["argv"] = ["probe"]
+            with self.assertRaisesRegex(ValueError, "required builder transform"):
+                analyzer.validate_run_binding(capture, header, prediction, receipt)
+            binding = analyzer.validate_run_binding(
+                capture, header, prediction, receipt, ordinary_generic_reference=True)
+            self.assertEqual(binding["native_policy"], "ordinary_generic_FP32")
+            self.assertFalse(binding["normalized_source_vm_matches_native_residual_policy"])
+            self.assertEqual(binding["required_transforms_present"], [])
+            prediction["argv"].append("--scaled-paper-residuals")
+            with self.assertRaisesRegex(ValueError, "all four optional builder transforms absent"):
+                analyzer.validate_run_binding(
+                    capture, header, prediction, receipt, ordinary_generic_reference=True)
+
     def test_all_four_native_builder_transforms_are_required(self):
         with tempfile.TemporaryDirectory() as temporary:
             capture = Path(temporary) / "capture.jsonl"

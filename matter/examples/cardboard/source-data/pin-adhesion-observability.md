@@ -57,6 +57,6 @@ native adjudicator. It requires complete hash-bound native histories and
 certificates, uses the low trace's origin-free 30 N threshold window when
 requested, and keeps the pin work unit and failure locus unavailable. A future
 native run can be compared to these source-side descriptors only as an
-explicitly bounded analogue after supplying user-authored nuisance/grade
+explicitly bounded analogue after supplying explicitly authored nuisance/grade
 transfer intervals. Those intervals must be labeled sensitivity assumptions;
 the public pin publication supplies none.

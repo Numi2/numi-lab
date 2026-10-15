@@ -1487,6 +1487,62 @@ kernel void nm_fgmres_regional_capture_linearization(
     captured[global] = candidate[global];
 }
 
+// Bounded read-only capture of the exact constitutive inputs used by the
+// regional AP build. Material state and scheduler exponent are sampled here,
+// before the accepted transaction can advance either one. The high/low local
+// F words come from the same production helper used by the AP operator.
+kernel void nm_fgmres_regional_capture_constitutive_linearization(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMMaterialGPU* materials [[buffer(2)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(3)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
+    device const float* acceptedMaterialState [[buffer(5)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(6)]],
+    device float* capturedMaterialState [[buffer(7)]],
+    device uint* capturedSchedulerExponent [[buffer(8)]],
+    device float4* capturedLocalFHigh [[buffer(9)]],
+    device float4* capturedLocalFLow [[buffer(10)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
+    if (global >= total || dispatch.tetrahedronCount == 0u) return;
+    const uint environment = global / dispatch.tetrahedronCount;
+    const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+        dispatch, tetrahedra, environment,
+        global - environment * dispatch.tetrahedronCount);
+    if (tetrahedron.identity.y >= dispatch.objectCount ||
+        tetrahedron.identity.x >= dispatch.materialCount) return;
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + tetrahedron.identity.y];
+    capturedSchedulerExponent[global] = scheduler.activeExponent;
+    const uint stateStride = dispatch.materialStateStride;
+    const uint sourceState = global * stateStride;
+    for (uint state = 0u; state < stateStride; ++state)
+        capturedMaterialState[sourceState + state] =
+            acceptedMaterialState[sourceState + state];
+
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const NMContinuumObjectGPU object = objects[tetrahedron.identity.y];
+    const NMMaterialGPU material = materials[tetrahedron.identity.x];
+    const float3x3 deformation = tetrahedronDeformation(
+        tetrahedron, candidate, nodeBase);
+    float localFLow[9];
+    const float3x3 localF = femMaterialDeformationWords(
+        object, tetrahedron, material, candidate, nodeBase,
+        deformation, localFLow);
+    float localFHigh[9];
+    matrixComponents(localF, localFHigh);
+    const uint wordBase = global * 3u;
+    for (uint row = 0u; row < 3u; ++row) {
+        capturedLocalFHigh[wordBase + row] = float4(
+            localFHigh[row * 3u], localFHigh[row * 3u + 1u],
+            localFHigh[row * 3u + 2u], 0.0f);
+        capturedLocalFLow[wordBase + row] = float4(
+            localFLow[row * 3u], localFLow[row * 3u + 1u],
+            localFLow[row * 3u + 2u], 0.0f);
+    }
+}
+
 kernel void nm_fgmres_regional_store_ap(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const float4* operatorValue [[buffer(1)]],
@@ -1863,6 +1919,28 @@ kernel void nm_fgmres_build_preconditioner(
 // alone; mode 2 uses it as the smoother in addition to a separately assembled
 // exact regional P^T A P coarse operator. This kernel is dispatched once per
 // Newton linearization for either opt-in mode.
+inline float3x3 fgmresApplyCachedTangent(
+    device const float* tangentCache,
+    const uint globalTetrahedron,
+    const float3x3 localDirection,
+    thread bool& valid
+) {
+    float directionComponents[9];
+    float responseComponents[9];
+    matrixComponents(localDirection, directionComponents);
+    const uint cacheBase = globalTetrahedron * 81u;
+    for (uint row = 0u; row < 9u; ++row) {
+        float response = 0.0f;
+        for (uint column = 0u; column < 9u; ++column)
+            response += tangentCache[
+                cacheBase + row * 9u + column
+            ] * directionComponents[column];
+        responseComponents[row] = response;
+        valid = valid && isfinite(response);
+    }
+    return componentsMatrix(responseComponents);
+}
+
 kernel void nm_fgmres_build_tangent_fem_preconditioner(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMixedSolverGPU& solver [[buffer(1)]],
@@ -1880,6 +1958,9 @@ kernel void nm_fgmres_build_tangent_fem_preconditioner(
     device float4* inverseDiagonal [[buffer(13)]],
     constant NMPrimalContactArguments& contact [[buffer(14)]],
     device NMMatterStatusGPU* statuses [[buffer(15)]],
+    device const float* tangentCache [[buffer(16)]],
+    device const uint* tangentCacheValid [[buffer(17)]],
+    constant uint& useTangentCache [[buffer(18)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
@@ -1950,15 +2031,23 @@ kernel void nm_fgmres_build_tangent_fem_preconditioner(
             bool valid = true;
             float3x3 analytic;
             float3x3 tangent;
-            evaluateAlgorithmicStressTangent(
-                material, programs, instructions, parameters, internalState,
-                preciseLocalF,
-                femMaterialInput(object, tetrahedron, deformationDirection),
-                femMaterialInput(object, tetrahedron, deformationRate),
-                femMaterialInput(object, tetrahedron, rateDirection),
-                dt, material.bulk.y, analytic, tangent, valid,
-                nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-                deformationLow);
+            const float3x3 localDirection = femMaterialInput(
+                object, tetrahedron, deformationDirection);
+            if (useTangentCache != 0u &&
+                tangentCacheValid[globalTet] == 1u) {
+                tangent = fgmresApplyCachedTangent(
+                    tangentCache, globalTet, localDirection, valid);
+            } else {
+                evaluateAlgorithmicStressTangent(
+                    material, programs, instructions, parameters, internalState,
+                    preciseLocalF,
+                    localDirection,
+                    femMaterialInput(object, tetrahedron, deformationRate),
+                    femMaterialInput(object, tetrahedron, rateDirection),
+                    dt, material.bulk.y, analytic, tangent, valid,
+                    nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+                    deformationLow);
+            }
             (void)analytic;
             const bool finiteTangent = all(isfinite(tangent[0])) &&
                 all(isfinite(tangent[1])) && all(isfinite(tangent[2]));
@@ -2084,6 +2173,9 @@ kernel void nm_fgmres_build_tangent_fem_block_preconditioner(
     constant NMPrimalContactArguments& contact [[buffer(14)]],
     device NMMatterStatusGPU* statuses [[buffer(15)]],
     device float4* inverseBlockRows [[buffer(16)]],
+    device const float* tangentCache [[buffer(17)]],
+    device const uint* tangentCacheValid [[buffer(18)]],
+    constant uint& useTangentCache [[buffer(19)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
@@ -2159,15 +2251,23 @@ kernel void nm_fgmres_build_tangent_fem_block_preconditioner(
             bool valid = true;
             float3x3 analytic;
             float3x3 tangent;
-            evaluateAlgorithmicStressTangent(
-                material, programs, instructions, parameters, internalState,
-                preciseLocalF,
-                femMaterialInput(object, tetrahedron, deformationDirection),
-                femMaterialInput(object, tetrahedron, deformationRate),
-                femMaterialInput(object, tetrahedron, rateDirection),
-                dt, material.bulk.y, analytic, tangent, valid,
-                nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-                deformationLow);
+            const float3x3 localDirection = femMaterialInput(
+                object, tetrahedron, deformationDirection);
+            if (useTangentCache != 0u &&
+                tangentCacheValid[globalTet] == 1u) {
+                tangent = fgmresApplyCachedTangent(
+                    tangentCache, globalTet, localDirection, valid);
+            } else {
+                evaluateAlgorithmicStressTangent(
+                    material, programs, instructions, parameters, internalState,
+                    preciseLocalF,
+                    localDirection,
+                    femMaterialInput(object, tetrahedron, deformationRate),
+                    femMaterialInput(object, tetrahedron, rateDirection),
+                    dt, material.bulk.y, analytic, tangent, valid,
+                    nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+                    deformationLow);
+            }
             (void)analytic;
             const bool finiteTangent = all(isfinite(tangent[0])) &&
                 all(isfinite(tangent[1])) && all(isfinite(tangent[2]));

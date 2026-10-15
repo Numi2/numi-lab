@@ -69,6 +69,7 @@ kernel void cardboard_paper_tangent_diagnostic_check(
     float f[9], h[9], fLow[9];
     for (uint i=0;i<9u;++i) { f[i]=inputs[i]; h[i]=inputs[9u+i]; fLow[i]=inputs[18u+i]; }
     const bool accurateProjection=inputs[27]!=0.0f;
+    const bool captureProjectionTrace=inputs[28]!=0.0f;
     const float3x3 F=componentsMatrix(f), H=componentsMatrix(h);
     float state[NM_MAX_MATERIAL_STATE];
     float stateLow[NM_MAX_MATERIAL_STATE]={0.0f};
@@ -76,11 +77,13 @@ kernel void cardboard_paper_tangent_diagnostic_check(
     uint iterations=0u,flags=0u,failure=0u;
     bool valid=true;
     float3x3 stress(0.0f),tangent(0.0f);
+    float projectionTrace[kMaterialProjectionTraceSlots];
     evaluateAlgorithmicStressTangent(material,programs,instructions,parameters,
         accepted,F,H,float3x3(0.0f),float3x3(0.0f),1.0e-4f,293.15f,
         stress,tangent,valid,state,&flags,&residualNorm,&stateNorm,&iterations,&failure,
         accurateProjection?fLow:nullptr,
-        accurateProjection?stateLow:nullptr);
+        accurateProjection?stateLow:nullptr,
+        captureProjectionTrace?projectionTrace:nullptr);
     const bool projectionValid=(flags&kMaterialDiagProjectionConverged)!=0u;
     float p[9],dp[9]; matrixComponents(stress,p); matrixComponents(tangent,dp);
     output[0]=valid?1.0f:0.0f;
@@ -102,6 +105,11 @@ kernel void cardboard_paper_tangent_diagnostic_check(
     const uint diagnosticCapacity=4u+NM_MAX_MATERIAL_STATE+
         NM_MAX_MATERIAL_STATE*NM_MAX_MATERIAL_STATE+NM_MAX_MATERIAL_STATE+
         9u*NM_MAX_MATERIAL_STATE+9u+NM_MAX_MATERIAL_STATE+9u;
+    if(captureProjectionTrace) {
+        const uint traceOffset=base+diagnosticCapacity;
+        for(uint i=0u;i<kMaterialProjectionTraceSlots;++i)
+            output[traceOffset+i]=projectionTrace[i];
+    }
     for(uint i=0u;i<diagnosticCapacity;++i) output[base+i]=0.0f;
     output[base]=1.0f;
     output[base+1u]=0.0f;

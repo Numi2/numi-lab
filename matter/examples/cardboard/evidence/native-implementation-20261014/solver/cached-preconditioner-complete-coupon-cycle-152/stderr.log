@@ -1,0 +1,16 @@
+cardboard_step_timing={"schema":1,"control_step":0,"stage":"encode_begin","scope":"prescribed_fem_transaction"}
+fem_residual_armijo_enabled={"schema":1,"root":0,"trials":24,"metric":"per_environment_free_dof_l2_impulse","history":"accepted_state_read_only"}
+cardboard_step_timing={"schema":1,"control_step":0,"stage":"encode_end","encoding_wall_s":0.797347}
+cardboard_step_timing={"schema":1,"control_step":0,"stage":"completed","encoding_wall_s":0.797347,"commit_and_wait_wall_s":38.0234,"gpu_wall_s":37.954,"command_buffer_status":4}
+cardboard_step_timing={"schema":1,"control_step":1,"stage":"encode_begin","scope":"prescribed_fem_transaction"}
+fem_residual_armijo_enabled={"schema":1,"root":1,"trials":24,"metric":"per_environment_free_dof_l2_impulse","history":"accepted_state_read_only"}
+cardboard_step_timing={"schema":1,"control_step":1,"stage":"encode_end","encoding_wall_s":0.478229}
+cardboard_step_timing={"schema":1,"control_step":1,"stage":"completed","encoding_wall_s":0.478229,"commit_and_wait_wall_s":38.5583,"gpu_wall_s":38.5416,"command_buffer_status":4}
+cardboard_step_timing={"schema":1,"control_step":2,"stage":"encode_begin","scope":"prescribed_fem_transaction"}
+fem_residual_armijo_enabled={"schema":1,"root":2,"trials":24,"metric":"per_environment_free_dof_l2_impulse","history":"accepted_state_read_only"}
+cardboard_step_timing={"schema":1,"control_step":2,"stage":"encode_end","encoding_wall_s":0.481322}
+cardboard_step_timing={"schema":1,"control_step":2,"stage":"completed","encoding_wall_s":0.481322,"commit_and_wait_wall_s":39.3797,"gpu_wall_s":39.3618,"command_buffer_status":4}
+cardboard_step_timing={"schema":1,"control_step":3,"stage":"encode_begin","scope":"prescribed_fem_transaction"}
+fem_residual_armijo_enabled={"schema":1,"root":3,"trials":24,"metric":"per_environment_free_dof_l2_impulse","history":"accepted_state_read_only"}
+cardboard_step_timing={"schema":1,"control_step":3,"stage":"encode_end","encoding_wall_s":0.586002}
+cardboard_step_timing={"schema":1,"control_step":3,"stage":"completed","encoding_wall_s":0.586002,"commit_and_wait_wall_s":140.289,"gpu_wall_s":140.266,"command_buffer_status":4}

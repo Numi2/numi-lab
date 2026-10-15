@@ -1615,6 +1615,15 @@ struct Runtime::State {
     id<MTLBuffer> femArmijoSurfaceSortIndicesA = nil;
     id<MTLBuffer> femArmijoSurfaceSortIndicesB = nil;
     id<MTLBuffer> femArmijoSurfaceActiveCounts = nil;
+    // Opt-in alias of the ordinary surface-build scratch while private
+    // Armijo trials are serialized in this command buffer. Geometry and
+    // ordering are rebuilt for each trial; accepted contact histories stay
+    // in separate buffers.
+    bool femArmijoAliasesProductionSurfaceScratch = false;
+    // Opt-in combined-path alias. Trials read irreversible history only from
+    // cohesiveFacesAccepted, mutate only candidate-derived face response, and
+    // the selected endpoint rebuilds production forces before their next read.
+    bool femArmijoAliasesCohesiveScratch = false;
     id<MTLBuffer> femArmijoDeformableCandidates = nil;
     id<MTLBuffer> femArmijoDeformableCandidateCounts = nil;
     id<MTLBuffer> femArmijoDeformableContacts = nil;
@@ -1649,8 +1658,9 @@ struct Runtime::State {
     id<MTLBuffer> fgmresRestartCoefficients = nil;
     id<MTLBuffer> fgmresStates = nil;
     // Optional per-tetrahedron unsymmetric 9x9 material-frame dP/dF cache.
-    // It is rebuilt at each Newton linearization and used only by ordinary
-    // FGMRES element products; direct residual/Armijo paths never read it.
+    // It is rebuilt at each Newton linearization and may feed FGMRES,
+    // conditioning-only tangent preconditioners, and regional AP. Direct
+    // residual and Armijo paths never read it.
     id<MTLBuffer> femAlgorithmicTangentCache = nil;
     id<MTLBuffer> femAlgorithmicTangentCacheValid = nil;
     // Source-bound, opt-in regional RAP preconditioner. femRegionalBasis is
@@ -1661,6 +1671,10 @@ struct Runtime::State {
     id<MTLBuffer> femRegionalBasis = nil;
     id<MTLBuffer> femRegionalEffectiveBasis = nil;
     id<MTLBuffer> femRegionalLinearizationNodes = nil;
+    id<MTLBuffer> femRegionalLinearizationMaterialState = nil;
+    id<MTLBuffer> femRegionalLinearizationSchedulerExponent = nil;
+    id<MTLBuffer> femRegionalLinearizationLocalFHigh = nil;
+    id<MTLBuffer> femRegionalLinearizationLocalFLow = nil;
     id<MTLBuffer> femRegionalAP = nil;
     id<MTLBuffer> femRegionalCoarseMatrix = nil;
     id<MTLBuffer> femRegionalCoarsePivots = nil;
@@ -2264,6 +2278,42 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femArmijoSparseContactCapacity =
                 sparseArmijoOptions.capacity;
         }
+        const char* surfaceScratchAlias = std::getenv(
+            "NM_FEM_FULL_CONTACT_REUSE_SELF_SURFACE_SCRATCH");
+        if (surfaceScratchAlias != nullptr &&
+            std::strcmp(surfaceScratchAlias, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_FULL_CONTACT_REUSE_SELF_SURFACE_SCRATCH must be exactly 1";
+            return diagnostics;
+        }
+        if (surfaceScratchAlias != nullptr &&
+            std::getenv("NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT") == nullptr) {
+            diagnostics.message =
+                "self-surface scratch reuse requires the full-contact Armijo selector";
+            return diagnostics;
+        }
+        candidate->femArmijoAliasesProductionSurfaceScratch =
+            surfaceScratchAlias != nullptr;
+        const char* cohesiveScratchAlias = std::getenv(
+            "NM_FEM_FULL_CONTACT_REUSE_COHESIVE_SCRATCH");
+        if (cohesiveScratchAlias != nullptr &&
+            std::strcmp(cohesiveScratchAlias, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_FULL_CONTACT_REUSE_COHESIVE_SCRATCH must be exactly 1";
+            return diagnostics;
+        }
+        if (cohesiveScratchAlias != nullptr &&
+            (std::getenv("NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT") == nullptr ||
+             std::getenv("NM_FEM_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+             std::getenv("NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+             std::getenv("NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+             std::getenv("NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT") != nullptr)) {
+            diagnostics.message =
+                "cohesive scratch reuse requires the exclusive full-contact Armijo selector";
+            return diagnostics;
+        }
+        candidate->femArmijoAliasesCohesiveScratch =
+            cohesiveScratchAlias != nullptr;
         candidate->materialNames.reserve(world.constitutive.size());
         candidate->materialParameterOffsets.reserve(world.constitutive.size());
         candidate->materialParameterNames.reserve(world.constitutive.size());
@@ -3051,6 +3101,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_regional_load_mode",
             "nm_fgmres_regional_project_basis",
             "nm_fgmres_regional_capture_linearization",
+            "nm_fgmres_regional_capture_constitutive_linearization",
             "nm_fgmres_regional_store_ap",
             "nm_fgmres_regional_build_rap",
             "nm_fgmres_regional_factor_rap",
@@ -4671,14 +4722,30 @@ RuntimeDiagnostics Runtime::initialize(
                 world.dispatch.cohesiveFaceCount <= 4096u &&
                 environments <= 4u &&
                 cohesiveArmijoBytes <= maximumCohesiveArmijoBytes) {
-                candidate->femArmijoCohesiveFaces =
-                    privateScratch<NMCohesiveFaceGPU>(candidate->device,
-                        multiplied(world.dispatch.cohesiveFaceCount),
-                        valid, candidate->residentBytes);
-                candidate->femArmijoCohesiveFaceForces =
-                    privateScratch<NMCohesiveFaceVectorGPU>(candidate->device,
-                        multiplied(world.dispatch.cohesiveFaceCount),
-                        valid, candidate->residentBytes);
+                if (candidate->femArmijoAliasesCohesiveScratch) {
+                    candidate->femArmijoCohesiveFaces =
+                        candidate->cohesiveFacesCandidate;
+                    candidate->femArmijoCohesiveFaceForces =
+                        candidate->cohesiveFaceForces;
+                } else {
+                    candidate->femArmijoCohesiveFaces =
+                        privateScratch<NMCohesiveFaceGPU>(candidate->device,
+                            multiplied(world.dispatch.cohesiveFaceCount),
+                            valid, candidate->residentBytes);
+                    candidate->femArmijoCohesiveFaceForces =
+                        privateScratch<NMCohesiveFaceVectorGPU>(candidate->device,
+                            multiplied(world.dispatch.cohesiveFaceCount),
+                            valid, candidate->residentBytes);
+                }
+            }
+            if (candidate->femArmijoAliasesCohesiveScratch &&
+                (candidate->femArmijoCohesiveFaces !=
+                     candidate->cohesiveFacesCandidate ||
+                 candidate->femArmijoCohesiveFaceForces !=
+                     candidate->cohesiveFaceForces)) {
+                diagnostics.message =
+                    "requested cohesive scratch aliases were not admitted exactly";
+                return diagnostics;
             }
             if (std::getenv("NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT") != nullptr &&
                 world.dispatch.contactPairCount != 0u &&
@@ -4777,9 +4844,12 @@ RuntimeDiagnostics Runtime::initialize(
                 std::uint64_t estimatedBytes = 0u;
                 if (supportedCounts) {
                     estimatedBytes = static_cast<std::uint64_t>(environments) * (
-                        primitiveCount * sizeof(NMContinuumSurfacePrimitiveGPU) +
-                        4ull * leafCount * sizeof(nm_float4) +
-                        4ull * primitiveCount * sizeof(std::uint32_t) +
+                        (candidate->femArmijoAliasesProductionSurfaceScratch
+                            ? 0ull
+                            : primitiveCount *
+                                sizeof(NMContinuumSurfacePrimitiveGPU) +
+                              4ull * leafCount * sizeof(nm_float4) +
+                              4ull * primitiveCount * sizeof(std::uint32_t)) +
                         capacity * (sizeof(NMDeformableContactCandidateGPU) +
                             sizeof(NMDeformableContactGPU) +
                             2u * sizeof(std::uint32_t) +
@@ -4791,34 +4861,51 @@ RuntimeDiagnostics Runtime::initialize(
                 if (supportedCounts && estimatedBytes <=
                         maximumDeformableArmijoBytes) {
                     candidate->femArmijoDeformableContactScratchEnabled = true;
-                    candidate->femArmijoSurfacePrimitives =
-                        privateScratch<NMContinuumSurfacePrimitiveGPU>(
-                            candidate->device,
-                            multiplied(static_cast<std::size_t>(primitiveCount)),
-                            valid, candidate->residentBytes);
-                    candidate->femArmijoSurfaceBVHBounds =
-                        privateScratch<nm_float4>(candidate->device,
-                            multiplied(static_cast<std::size_t>(4ull * leafCount)),
-                            valid, candidate->residentBytes);
-                    candidate->femArmijoSurfaceSortKeysA =
-                        privateScratch<std::uint32_t>(candidate->device,
-                            multiplied(static_cast<std::size_t>(primitiveCount)),
-                            valid, candidate->residentBytes);
-                    candidate->femArmijoSurfaceSortKeysB =
-                        privateScratch<std::uint32_t>(candidate->device,
-                            multiplied(static_cast<std::size_t>(primitiveCount)),
-                            valid, candidate->residentBytes);
-                    candidate->femArmijoSurfaceSortIndicesA =
-                        privateScratch<std::uint32_t>(candidate->device,
-                            multiplied(static_cast<std::size_t>(primitiveCount)),
-                            valid, candidate->residentBytes);
-                    candidate->femArmijoSurfaceSortIndicesB =
-                        privateScratch<std::uint32_t>(candidate->device,
-                            multiplied(static_cast<std::size_t>(primitiveCount)),
-                            valid, candidate->residentBytes);
-                    candidate->femArmijoSurfaceActiveCounts =
-                        privateScratch<std::uint32_t>(candidate->device,
-                            environments, valid, candidate->residentBytes);
+                    if (candidate->femArmijoAliasesProductionSurfaceScratch) {
+                        candidate->femArmijoSurfacePrimitives =
+                            candidate->continuumSurfacePrimitives;
+                        candidate->femArmijoSurfaceBVHBounds =
+                            candidate->femSurfaceBVHBounds;
+                        candidate->femArmijoSurfaceSortKeysA =
+                            candidate->femSurfaceSortKeysA;
+                        candidate->femArmijoSurfaceSortKeysB =
+                            candidate->femSurfaceSortKeysB;
+                        candidate->femArmijoSurfaceSortIndicesA =
+                            candidate->femSurfaceSortIndicesA;
+                        candidate->femArmijoSurfaceSortIndicesB =
+                            candidate->femSurfaceSortIndicesB;
+                        candidate->femArmijoSurfaceActiveCounts =
+                            candidate->femSurfaceActiveCounts;
+                    } else {
+                        candidate->femArmijoSurfacePrimitives =
+                            privateScratch<NMContinuumSurfacePrimitiveGPU>(
+                                candidate->device,
+                                multiplied(static_cast<std::size_t>(primitiveCount)),
+                                valid, candidate->residentBytes);
+                        candidate->femArmijoSurfaceBVHBounds =
+                            privateScratch<nm_float4>(candidate->device,
+                                multiplied(static_cast<std::size_t>(4ull * leafCount)),
+                                valid, candidate->residentBytes);
+                        candidate->femArmijoSurfaceSortKeysA =
+                            privateScratch<std::uint32_t>(candidate->device,
+                                multiplied(static_cast<std::size_t>(primitiveCount)),
+                                valid, candidate->residentBytes);
+                        candidate->femArmijoSurfaceSortKeysB =
+                            privateScratch<std::uint32_t>(candidate->device,
+                                multiplied(static_cast<std::size_t>(primitiveCount)),
+                                valid, candidate->residentBytes);
+                        candidate->femArmijoSurfaceSortIndicesA =
+                            privateScratch<std::uint32_t>(candidate->device,
+                                multiplied(static_cast<std::size_t>(primitiveCount)),
+                                valid, candidate->residentBytes);
+                        candidate->femArmijoSurfaceSortIndicesB =
+                            privateScratch<std::uint32_t>(candidate->device,
+                                multiplied(static_cast<std::size_t>(primitiveCount)),
+                                valid, candidate->residentBytes);
+                        candidate->femArmijoSurfaceActiveCounts =
+                            privateScratch<std::uint32_t>(candidate->device,
+                                environments, valid, candidate->residentBytes);
+                    }
                     candidate->femArmijoDeformableCandidates =
                         privateScratch<NMDeformableContactCandidateGPU>(
                             candidate->device,
@@ -4870,6 +4957,26 @@ RuntimeDiagnostics Runtime::initialize(
                         privateScratch<NMIndirectDispatchGPU>(candidate->device,
                             1u, valid, candidate->residentBytes);
                 }
+            }
+            if (candidate->femArmijoAliasesProductionSurfaceScratch &&
+                (!candidate->femArmijoDeformableContactScratchEnabled ||
+                 candidate->femArmijoSurfacePrimitives !=
+                    candidate->continuumSurfacePrimitives ||
+                 candidate->femArmijoSurfaceBVHBounds !=
+                    candidate->femSurfaceBVHBounds ||
+                 candidate->femArmijoSurfaceSortKeysA !=
+                    candidate->femSurfaceSortKeysA ||
+                 candidate->femArmijoSurfaceSortKeysB !=
+                    candidate->femSurfaceSortKeysB ||
+                 candidate->femArmijoSurfaceSortIndicesA !=
+                    candidate->femSurfaceSortIndicesA ||
+                 candidate->femArmijoSurfaceSortIndicesB !=
+                    candidate->femSurfaceSortIndicesB ||
+                 candidate->femArmijoSurfaceActiveCounts !=
+                    candidate->femSurfaceActiveCounts)) {
+                diagnostics.message =
+                    "requested self-surface scratch alias was not admitted exactly";
+                return diagnostics;
             }
             if (candidate->femOperatorFDScratchEnabled) {
                 candidate->femOperatorFDDirection = privateScratch<nm_float4>(
@@ -5007,6 +5114,23 @@ RuntimeDiagnostics Runtime::initialize(
                     privateScratch<NMFEMNodeStateGPU>(
                         candidate->device,
                         multiplied(world.dispatch.femNodeCount), valid,
+                        candidate->residentBytes);
+                candidate->femRegionalLinearizationMaterialState =
+                    privateScratch<float>(candidate->device,
+                        multiplied(world.dispatch.tetrahedronCount) *
+                            world.dispatch.materialStateStride,
+                        valid, candidate->residentBytes);
+                candidate->femRegionalLinearizationSchedulerExponent =
+                    privateScratch<std::uint32_t>(candidate->device,
+                        multiplied(world.dispatch.tetrahedronCount), valid,
+                        candidate->residentBytes);
+                candidate->femRegionalLinearizationLocalFHigh =
+                    privateScratch<nm_float4>(candidate->device,
+                        multiplied(world.dispatch.tetrahedronCount) * 3u, valid,
+                        candidate->residentBytes);
+                candidate->femRegionalLinearizationLocalFLow =
+                    privateScratch<nm_float4>(candidate->device,
+                        multiplied(world.dispatch.tetrahedronCount) * 3u, valid,
                         candidate->residentBytes);
             }
             candidate->femRegionalCoarseMatrix = privateScratch<float>(
@@ -7141,6 +7265,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.prescribedRigidEndpoints offset:0u atIndex:15u];
                 }
             );
+            // postCommit can reject a candidate that already received a
+            // successful preDynamics certificate.  The frame is rolled back
+            // below, so its publication bit must not survive that rejection.
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            dispatchThreads(
+                "nm_invalidate_solver_certificate_after_late_failure",
+                environments, [&] {
+                setDispatch();
+                [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                [encoder setBuffer:state.solverCertificates offset:0u atIndex:2u];
+            });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             const std::uint32_t rigidWorldPhysicsSubstep =
                 request.rigidWorldPhysicsSubstep == NM_INVALID_INDEX
                 ? request.physicsSubstep
@@ -8747,12 +8883,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         femSparsePrivateContactEnabled =
                             state.femArmijoSparseContactRequested;
                         std::fprintf(stderr,
-                            "fem_full_contact_residual_armijo_enabled={\"schema\":1,\"root\":%u,\"trials\":%u,\"rigid_unknowns\":%u,\"metric\":\"exact_production_volume_plus_mixed_cohesive_plus_capsule_box_plus_deformable_contact_free_dof_l2_impulse\",\"history\":\"accepted_history_read_only_per_trial\",\"private_contact_arena_bytes_cap\":%u,\"private_contact_layout\":\"%s\",\"sparse_candidate_capacity\":%u,\"sparse_parity\":%s}\n",
+                            "fem_full_contact_residual_armijo_enabled={\"schema\":1,\"root\":%u,\"trials\":%u,\"rigid_unknowns\":%u,\"metric\":\"exact_production_volume_plus_mixed_cohesive_plus_capsule_box_plus_deformable_contact_free_dof_l2_impulse\",\"history\":\"accepted_history_read_only_per_trial\",\"private_contact_arena_bytes_cap\":%u,\"private_contact_layout\":\"%s\",\"cohesive_scratch_layout\":\"%s\",\"sparse_candidate_capacity\":%u,\"sparse_parity\":%s}\n",
                             static_cast<std::uint32_t>(parsed),
                             static_cast<std::uint32_t>(state.mixedSolverValue.nonlinearIterations.w),
                             state.dispatch.rigidGeneralizedCapacity,
                             128u * 1024u * 1024u,
                             femSparsePrivateContactEnabled ? "sparse" : "dense",
+                            state.femArmijoAliasesCohesiveScratch
+                                ? "production_candidate_force_alias" : "private",
                             femSparsePrivateContactEnabled
                                 ? state.femArmijoSparseContactCapacity : 0u,
                             femSparsePrivateContactEnabled &&
@@ -13145,6 +13283,38 @@ RuntimeDiagnostics Runtime::encodeImpl(
             NMMicrostepGPU trueResidualOperatorMicro = operatorMicro;
             trueResidualOperatorMicro.flags |=
                 NM_MICROSTEP_FGMRES_TRUE_RESIDUAL;
+            // One exact local tangent build now feeds the FGMRES element
+            // operator, the regional RAP/AP applications, and the optional
+            // tangent-based nodal preconditioners. Candidate nodes and
+            // accepted material history remain fixed through this linear
+            // solve; the cache is rebuilt on the next Newton candidate.
+            if (state.mixedSolverValue.executionBudgets.w == 1u) {
+                dispatchThreads("nm_fem_build_algorithmic_tangent_cache",
+                    tetrahedronTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&operatorMicro
+                               length:sizeof(operatorMicro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                    [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                    [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                    [encoder setBuffer:state.environmentParameters
+                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femTetrahedraCandidate
+                                 offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femMaterialStateAccepted
+                                 offset:0u atIndex:9u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:10u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:11u];
+                    [encoder setBuffer:state.femAlgorithmicTangentCache
+                                 offset:0u atIndex:12u];
+                    [encoder setBuffer:state.femAlgorithmicTangentCacheValid
+                                 offset:0u atIndex:13u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:14u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             if (usesRegionalGalerkinPreconditioner(
                     state.mixedSolverValue.executionBudgets.z)) {
                 const std::uint32_t regionalModes =
@@ -13176,6 +13346,36 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:1u];
                         [encoder setBuffer:state.femRegionalLinearizationNodes
                                      offset:0u atIndex:2u];
+                    });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads(
+                    "nm_fgmres_regional_capture_constitutive_linearization",
+                    tetrahedronTotal, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.objects
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:state.materials
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femCandidate
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femTetrahedraCandidate
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femMaterialStateAccepted
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.schedulers
+                                     offset:0u atIndex:6u];
+                        [encoder setBuffer:
+                            state.femRegionalLinearizationMaterialState
+                                     offset:0u atIndex:7u];
+                        [encoder setBuffer:
+                            state.femRegionalLinearizationSchedulerExponent
+                                     offset:0u atIndex:8u];
+                        [encoder setBuffer:
+                            state.femRegionalLinearizationLocalFHigh
+                                     offset:0u atIndex:9u];
+                        [encoder setBuffer:
+                            state.femRegionalLinearizationLocalFLow
+                                     offset:0u atIndex:10u];
                     });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
@@ -13211,6 +13411,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                    offset:0u atIndex:13u];
                         bindPrimalContactArguments(14u);
                         [encoder setBuffer:state.statuses offset:0u atIndex:15u];
+                        [encoder setBuffer:state.femAlgorithmicTangentCache != nil
+                            ? state.femAlgorithmicTangentCache : state.dummy
+                                     offset:0u atIndex:16u];
+                        [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
+                            ? state.femAlgorithmicTangentCacheValid : state.dummy
+                                     offset:0u atIndex:17u];
+                        const std::uint32_t useCache =
+                            state.mixedSolverValue.executionBudgets.w == 1u
+                                ? 1u : 0u;
+                        [encoder setBytes:&useCache length:sizeof(useCache)
+                                  atIndex:18u];
                     });
             }
             if (state.mixedSolverValue.executionBudgets.z >= 3u) {
@@ -13246,6 +13457,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.statuses offset:0u atIndex:15u];
                         [encoder setBuffer:state.femRegionalNodeBlockInverse
                                    offset:0u atIndex:16u];
+                        [encoder setBuffer:state.femAlgorithmicTangentCache != nil
+                            ? state.femAlgorithmicTangentCache : state.dummy
+                                     offset:0u atIndex:17u];
+                        [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
+                            ? state.femAlgorithmicTangentCacheValid : state.dummy
+                                     offset:0u atIndex:18u];
+                        const std::uint32_t useCache =
+                            state.mixedSolverValue.executionBudgets.w == 1u
+                                ? 1u : 0u;
+                        [encoder setBytes:&useCache length:sizeof(useCache)
+                                  atIndex:19u];
                     });
             }
             if (usesRegionalGalerkinPreconditioner(
@@ -13309,9 +13531,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:21u];
                         [encoder setBuffer:state.fgmresStates
                                      offset:0u atIndex:22u];
-                        [encoder setBuffer:state.dummy offset:0u atIndex:23u];
-                        [encoder setBuffer:state.dummy offset:0u atIndex:24u];
-                        const std::uint32_t useCache = 0u;
+                        [encoder setBuffer:state.femAlgorithmicTangentCache != nil
+                            ? state.femAlgorithmicTangentCache : state.dummy
+                                     offset:0u atIndex:23u];
+                        [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
+                            ? state.femAlgorithmicTangentCacheValid : state.dummy
+                                     offset:0u atIndex:24u];
+                        // Mode 2 lets RAP reuse valid cache entries and fall
+                        // back to the unchanged direct evaluator per tet if a
+                        // cache entry is unavailable.
+                        const std::uint32_t useCache =
+                            state.mixedSolverValue.executionBudgets.w == 1u
+                                ? 2u : 0u;
                         [encoder setBytes:&useCache
                                    length:sizeof(useCache) atIndex:25u];
                     });
@@ -13499,35 +13730,6 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.humanSupportContacts
                              offset:0u atIndex:21u];
             });
-            if (restartCycle == 0u &&
-                state.mixedSolverValue.executionBudgets.w == 1u) {
-                dispatchThreads("nm_fem_build_algorithmic_tangent_cache",
-                    tetrahedronTotal, [&] {
-                    setDispatch();
-                    [encoder setBytes:&operatorMicro
-                               length:sizeof(operatorMicro) atIndex:1u];
-                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
-                    [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
-                    [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                    [encoder setBuffer:state.environmentParameters
-                                 offset:0u atIndex:6u];
-                    [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
-                    [encoder setBuffer:state.femTetrahedraCandidate
-                                 offset:0u atIndex:8u];
-                    [encoder setBuffer:state.femMaterialStateAccepted
-                                 offset:0u atIndex:9u];
-                    [encoder setBuffer:state.schedulers offset:0u atIndex:10u];
-                    [encoder setBuffer:state.adaptive offset:0u atIndex:11u];
-                    [encoder setBuffer:state.femAlgorithmicTangentCache
-                                 offset:0u atIndex:12u];
-                    [encoder setBuffer:state.femAlgorithmicTangentCacheValid
-                                 offset:0u atIndex:13u];
-                    [encoder setBuffer:state.statuses offset:0u atIndex:14u];
-                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:15u];
-                });
-                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-            }
             if (state.mixedSolverValue.executionBudgets.z == 0u) {
                 dispatchThreads(
                     "nm_fgmres_build_preconditioner", femNodeTotal, [&] {
@@ -14816,21 +15018,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     });
                     if (femCohesiveResidualArmijoEnabled) {
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                        // Each Armijo trial is evaluated from the same
-                        // activation reference and accepted history, while
-                        // retaining the production candidate face metadata
-                        // (including an explicit activation prepared at the
-                        // start of this transaction). Keep trial evolution
-                        // isolated from the production face arena.
-                        dispatchThreads("nm_fem_armijo_copy_cohesive_faces",
-                            cohesiveFaceTotal, [&] {
-                            setDispatch();
-                            [encoder setBuffer:state.cohesiveFacesCandidate
-                                         offset:0u atIndex:1u];
-                            [encoder setBuffer:state.femArmijoCohesiveFaces
-                                         offset:0u atIndex:2u];
-                        });
-                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        // In the default path each Armijo trial starts from
+                        // a private copy of the transaction's activation
+                        // reference. The opt-in alias path uses the same
+                        // candidate buffer as that reference; the force
+                        // kernel reads irreversible history only from the
+                        // accepted buffer and overwrites all trial-derived
+                        // face outputs before they are consumed.
+                        if (!state.femArmijoAliasesCohesiveScratch) {
+                            dispatchThreads("nm_fem_armijo_copy_cohesive_faces",
+                                cohesiveFaceTotal, [&] {
+                                setDispatch();
+                                [encoder setBuffer:state.cohesiveFacesCandidate
+                                             offset:0u atIndex:1u];
+                                [encoder setBuffer:state.femArmijoCohesiveFaces
+                                             offset:0u atIndex:2u];
+                            });
+                            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        }
                         dispatchThreads("nm_fem_cohesive_face_forces",
                             cohesiveFaceTotal, [&] {
                             setDispatch();
@@ -15395,15 +15600,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     });
                     if (femCohesiveResidualArmijoEnabled) {
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                        dispatchThreads("nm_fem_armijo_copy_cohesive_faces",
-                            cohesiveFaceTotal, [&] {
-                            setDispatch();
-                            [encoder setBuffer:state.cohesiveFacesCandidate
-                                         offset:0u atIndex:1u];
-                            [encoder setBuffer:state.femArmijoCohesiveFaces
-                                         offset:0u atIndex:2u];
-                        });
-                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        if (!state.femArmijoAliasesCohesiveScratch) {
+                            dispatchThreads("nm_fem_armijo_copy_cohesive_faces",
+                                cohesiveFaceTotal, [&] {
+                                setDispatch();
+                                [encoder setBuffer:state.cohesiveFacesCandidate
+                                             offset:0u atIndex:1u];
+                                [encoder setBuffer:state.femArmijoCohesiveFaces
+                                             offset:0u atIndex:2u];
+                            });
+                            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        }
                         dispatchThreads("nm_fem_cohesive_face_forces",
                             cohesiveFaceTotal, [&] {
                             setDispatch();
@@ -22037,6 +22244,10 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         id<MTLBuffer> regionalBasisP = nil;
         id<MTLBuffer> regionalEffectiveBasisP = nil;
         id<MTLBuffer> regionalLinearizationNodes = nil;
+        id<MTLBuffer> regionalLinearizationMaterialState = nil;
+        id<MTLBuffer> regionalLinearizationSchedulerExponent = nil;
+        id<MTLBuffer> regionalLinearizationLocalFHigh = nil;
+        id<MTLBuffer> regionalLinearizationLocalFLow = nil;
         id<MTLBuffer> regionalOperatorAP = nil;
         id<MTLBuffer> regionalPivotedRAP = nil;
         id<MTLBuffer> regionalPivots = nil;
@@ -22064,6 +22275,10 @@ RuntimeStateSnapshot Runtime::snapshot() const {
                     ? 3u * environments * nodes * sizeof(nm_float4)
                     : 0u) +
                 environments * nodes * sizeof(NMFEMNodeStateGPU) +
+                environments * state_->dispatch.tetrahedronCount *
+                    state_->dispatch.materialStateStride * sizeof(float) +
+                environments * state_->dispatch.tetrahedronCount *
+                    (sizeof(std::uint32_t) + 6u * sizeof(nm_float4)) +
                 environments * modes * modes * sizeof(float) +
                 environments * modes * sizeof(std::uint32_t) +
                 environments * sizeof(std::uint32_t);
@@ -22078,6 +22293,14 @@ RuntimeStateSnapshot Runtime::snapshot() const {
                     copy(state_->femRegionalEffectiveBasis);
                 regionalLinearizationNodes =
                     copy(state_->femRegionalLinearizationNodes);
+                regionalLinearizationMaterialState =
+                    copy(state_->femRegionalLinearizationMaterialState);
+                regionalLinearizationSchedulerExponent =
+                    copy(state_->femRegionalLinearizationSchedulerExponent);
+                regionalLinearizationLocalFHigh =
+                    copy(state_->femRegionalLinearizationLocalFHigh);
+                regionalLinearizationLocalFLow =
+                    copy(state_->femRegionalLinearizationLocalFLow);
                 regionalOperatorAP = copy(state_->femRegionalAP);
                 regionalPivotedRAP = copy(state_->femRegionalCoarseMatrix);
                 regionalPivots = copy(state_->femRegionalCoarsePivots);
@@ -22108,6 +22331,10 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             (regionalDiagnosticsMessage == "captured" &&
              (regionalBasisP == nil || regionalEffectiveBasisP == nil ||
               regionalLinearizationNodes == nil ||
+              regionalLinearizationMaterialState == nil ||
+              regionalLinearizationSchedulerExponent == nil ||
+              regionalLinearizationLocalFHigh == nil ||
+              regionalLinearizationLocalFLow == nil ||
               regionalOperatorAP == nil ||
               regionalPivotedRAP == nil || regionalPivots == nil ||
               regionalFactorValid == nil)) ||
@@ -22177,6 +22404,14 @@ RuntimeStateSnapshot Runtime::snapshot() const {
                        regionalEffectiveBasisP);
             encodeCopy(state_->femRegionalLinearizationNodes,
                        regionalLinearizationNodes);
+            encodeCopy(state_->femRegionalLinearizationMaterialState,
+                       regionalLinearizationMaterialState);
+            encodeCopy(state_->femRegionalLinearizationSchedulerExponent,
+                       regionalLinearizationSchedulerExponent);
+            encodeCopy(state_->femRegionalLinearizationLocalFHigh,
+                       regionalLinearizationLocalFHigh);
+            encodeCopy(state_->femRegionalLinearizationLocalFLow,
+                       regionalLinearizationLocalFLow);
             encodeCopy(state_->femRegionalAP, regionalOperatorAP);
             encodeCopy(state_->femRegionalCoarseMatrix, regionalPivotedRAP);
             encodeCopy(state_->femRegionalCoarsePivots, regionalPivots);
@@ -22316,6 +22551,19 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             readCount(regionalLinearizationNodes,
                 snapshot.femRegionalGalerkinLinearizationNodes,
                 environments * nodes);
+            readCount(regionalLinearizationMaterialState,
+                snapshot.femRegionalGalerkinLinearizationMaterialState,
+                environments * state_->dispatch.tetrahedronCount *
+                    state_->dispatch.materialStateStride);
+            readCount(regionalLinearizationSchedulerExponent,
+                snapshot.femRegionalGalerkinLinearizationSchedulerExponent,
+                environments * state_->dispatch.tetrahedronCount);
+            readCount(regionalLinearizationLocalFHigh,
+                snapshot.femRegionalGalerkinLinearizationLocalFHigh,
+                environments * state_->dispatch.tetrahedronCount * 3u);
+            readCount(regionalLinearizationLocalFLow,
+                snapshot.femRegionalGalerkinLinearizationLocalFLow,
+                environments * state_->dispatch.tetrahedronCount * 3u);
             readCount(regionalOperatorAP,
                 snapshot.femRegionalGalerkinOperatorAP,
                 environments * nodes * modes);
@@ -22337,6 +22585,15 @@ RuntimeStateSnapshot Runtime::snapshot() const {
                     environments * nodes * modes &&
                 snapshot.femRegionalGalerkinLinearizationNodes.size() ==
                     environments * nodes &&
+                snapshot.femRegionalGalerkinLinearizationMaterialState.size() ==
+                    environments * state_->dispatch.tetrahedronCount *
+                        state_->dispatch.materialStateStride &&
+                snapshot.femRegionalGalerkinLinearizationSchedulerExponent.size() ==
+                    environments * state_->dispatch.tetrahedronCount &&
+                snapshot.femRegionalGalerkinLinearizationLocalFHigh.size() ==
+                    environments * state_->dispatch.tetrahedronCount * 3u &&
+                snapshot.femRegionalGalerkinLinearizationLocalFLow.size() ==
+                    environments * state_->dispatch.tetrahedronCount * 3u &&
                 snapshot.femRegionalGalerkinOperatorAP.size() ==
                     environments * nodes * modes &&
                 snapshot.femRegionalGalerkinPivotedRAP.size() ==

@@ -2770,10 +2770,10 @@ kernel void nm_fem_build_mechanical_residual(
 // fixed Newton linearization. Each column is evaluated through the same
 // production projection/tangent path as an ordinary operator application;
 // the column's rate direction is dF/dt, matching that path exactly. The
-// cache is scratch only: a failed column leaves valid[global] cleared, and
-// the consuming FGMRES operator reports that failure only if it actually
-// needs the entry. This avoids turning an unused cache into a new rejection
-// of an already-converged/no-op Newton step.
+// cache is scratch only: a failed column leaves valid[global] cleared.
+// Strict FGMRES consumers report that failure only if they need the entry;
+// conditioning-only preconditioner/RAP consumers may use their documented
+// direct-evaluation fallback for an invalid entry.
 kernel void nm_fem_build_algorithmic_tangent_cache(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -2790,7 +2790,6 @@ kernel void nm_fem_build_algorithmic_tangent_cache(
     device float* tangentCache [[buffer(12)]],
     device uint* validEntries [[buffer(13)]],
     device const NMMatterStatusGPU* statuses [[buffer(14)]],
-    device const NMFGMRESStateGPU* fgmresStates [[buffer(15)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
@@ -2800,9 +2799,7 @@ kernel void nm_fem_build_algorithmic_tangent_cache(
     const uint environment = global / dispatch.tetrahedronCount;
     const uint tetrahedronIndex =
         global - environment * dispatch.tetrahedronCount;
-    if (!environmentHealthy(statuses, environment) ||
-        fgmresStates[environment].diagnostics.z > 0.5f)
-        return;
+    if (!environmentHealthy(statuses, environment)) return;
 
     const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
         dispatch, tetrahedra, environment, tetrahedronIndex
@@ -2970,10 +2967,20 @@ kernel void nm_fem_apply_operator_elements(
         ? nullptr
         : acceptedMaterialState + global * dispatch.materialStateStride;
     bool valid = true;
+    bool usedTangentCache = false;
     float3x3 analytic;
     float3x3 tangent;
-    if (useTangentCache != 0u) {
-        if (tangentCacheValid[global] != 1u) {
+    const bool cacheEntryValid = useTangentCache != 0u &&
+        tangentCacheValid[global] == 1u;
+    // Mode 1 is the original strict FGMRES cache contract: every participating
+    // tet must have a valid entry. Mode 2 is only for conditioning-only RAP
+    // construction and falls back to the direct production evaluator when an
+    // entry cannot be formed.
+    const bool requestStrictCache = useTangentCache == 1u;
+    const bool requestFallbackCache = useTangentCache == 2u;
+    if (requestStrictCache ||
+        (requestFallbackCache && cacheEntryValid)) {
+        if (!cacheEntryValid) {
             valid = false;
             analytic = float3x3(0.0f);
             tangent = float3x3(0.0f);
@@ -2996,6 +3003,7 @@ kernel void nm_fem_apply_operator_elements(
             }
             tangent = componentsMatrix(responseComponents);
             analytic = float3x3(0.0f);
+            usedTangentCache = true;
         }
     } else {
         evaluateAlgorithmicStressTangent(
@@ -3015,7 +3023,7 @@ kernel void nm_fem_apply_operator_elements(
             valid, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, deformationLow
         );
     }
-    if (useTangentCache == 0u &&
+    if (useTangentCache != 1u && !usedTangentCache &&
         material.constitutiveKind == NM_CONSTITUTIVE_POLYCONVEX_ICNN) {
         bool found = false;
         for (uint networkIndex = 0u;
