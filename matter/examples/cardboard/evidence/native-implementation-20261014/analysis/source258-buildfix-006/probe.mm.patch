@@ -1,0 +1,11 @@
+--- source258-004/matter/tools/cardboard_probe.mm
++++ source258-006/matter/tools/cardboard_probe.mm
+@@ -5406,7 +5406,7 @@
+         budget.withinLimit =
+             budget.estimatedPeakDomainBytes <= budget.limitBytes &&
+             budget.requiredResidualDescentArenaAdmitted &&
+-            (!input.fullContactArmijoRequired ||
++            (!options.requireFullContactResidualDescent ||
+              (budget.contactIncidenceCountsExact &&
+               budget.contactIncidenceBufferExtentsValid &&
+               budget.contactIncidenceBuffersWithinMaxBufferLength)) &&

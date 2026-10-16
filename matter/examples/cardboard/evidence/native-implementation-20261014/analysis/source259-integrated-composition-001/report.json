@@ -1,0 +1,175 @@
+{
+  "schema": "numi.cardboard.source259-composition.v1",
+  "source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-001",
+  "frozen_sha256": "10c409650c2a19d3fc5c113edccb30a12cf2ab3c5c546cb72ac9298c6923a14f",
+  "configure_support_sha256": "4c8ac958dcaeb2734c5d54b39655b9f16e50df244c7a764eeb3297d54942259b",
+  "base": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-measured-coupon-contact-254-002",
+  "base_frozen_sha256": "6b35572e45d27c534d8671dbad22106720542c13e7b8bfafca66c918862afbb1",
+  "source_files": 852,
+  "changed_files": [
+    "matter/CMakeLists.txt",
+    "matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp",
+    "matter/include/numi/matter/detail/pure_fem_cgls_best_of_policy.hpp",
+    "matter/include/numi/matter/shared.h",
+    "matter/src/metal/base_cgls_runtime.metalinc",
+    "matter/src/metal/contact.metalinc",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_probe.mm",
+    "matter/tools/cardboard_shipping_memory.hpp",
+    "matter/tools/cardboard_shipping_memory_check.cpp",
+    "matter/tools/cardboard_solver_environment.py",
+    "matter/tools/pure_fem_cgls_best_of_contract_check.cpp",
+    "matter/tools/pure_fem_cgls_best_of_kernel_check.mm",
+    "matter/tools/test_cardboard_solver_environment.py"
+  ],
+  "layers": [
+    {
+      "label": "source255-best-of-cgls",
+      "ancestor": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-primary-cache-fd-action-253-003",
+      "ancestor_frozen_sha256": "0ea56b99f98a0dc371e50299db10e01ba41be5150c51c5e876d2bef044141289",
+      "donor": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001",
+      "donor_frozen_sha256": "1efd6df0382dfe74e45d453fb22a81848d1fb251e99c2ab5cf6a8b8a5b062fc4",
+      "changes": [
+        {
+          "path": "matter/CMakeLists.txt",
+          "ancestor_sha256": "916f4b4ef1c35b9de4027494e007ea5902a27f602e05dd96c261ec07e51ae93a",
+          "donor_sha256": "a46b8764bbfd10cab4585ba8a5544e540056e09a9761ca1e2b287d9eb4a84341",
+          "result_sha256": "bd820374abc3f495eb0e515bcaaa0cd7f30b405ee35f4e2176e5ddd3970b80e5",
+          "mode": "three_way_clean"
+        },
+        {
+          "path": "matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp",
+          "ancestor_sha256": "22876b3ab7b168ac65f160063b9fa7bbc42c2a5777d9a52476f63561dc547ffc",
+          "donor_sha256": "3d12ada4682bfa14699e0655a48a666529c91dc0d596b859555fe10000f36ae6",
+          "result_sha256": "3d12ada4682bfa14699e0655a48a666529c91dc0d596b859555fe10000f36ae6",
+          "mode": "direct"
+        },
+        {
+          "path": "matter/include/numi/matter/detail/pure_fem_cgls_best_of_policy.hpp",
+          "ancestor_sha256": null,
+          "donor_sha256": "5be2d83c8e468bb10ea1544e812c1d970a013ec22e38beff023a28e1b2e27ee1",
+          "result_sha256": "5be2d83c8e468bb10ea1544e812c1d970a013ec22e38beff023a28e1b2e27ee1",
+          "mode": "new"
+        },
+        {
+          "path": "matter/src/metal/base_cgls_runtime.metalinc",
+          "ancestor_sha256": "1b9d6541fcd01bea803a70f878ba1bda462d05cfabefa0d1ebe3038c9aab66d9",
+          "donor_sha256": "7e1ca5687cabcb0c37d882bc78dc208e272652a915e06f9727fb82b1e0957fa1",
+          "result_sha256": "7e1ca5687cabcb0c37d882bc78dc208e272652a915e06f9727fb82b1e0957fa1",
+          "mode": "direct"
+        },
+        {
+          "path": "matter/src/runtime.mm",
+          "ancestor_sha256": "6673e21ad676e863a1471d03fe06141acfa48d110df7b8e8dbcf8799acb0cb88",
+          "donor_sha256": "ff18269002d546ef3c96b043a1323e34731d0267de47c3ab5d3f174246422347",
+          "result_sha256": "ff18269002d546ef3c96b043a1323e34731d0267de47c3ab5d3f174246422347",
+          "mode": "direct"
+        },
+        {
+          "path": "matter/tools/cardboard_probe.mm",
+          "ancestor_sha256": "dac72165c1b113376ea13af25c0eb6e82dd9394fbe87a56057f3fb2d8a4df1df",
+          "donor_sha256": "0b6a01c9ceb61571cc1ca7a07583128e539d7364b5bc21843692e17444954b8d",
+          "result_sha256": "1f7bc1a85715ca2b9aebc83413c9a0ec14bef8a3aa0d5ba2a21e7281c727c7b3",
+          "mode": "three_way_clean"
+        },
+        {
+          "path": "matter/tools/cardboard_solver_environment.py",
+          "ancestor_sha256": "64d642e3afcd95bf36205ce399c414505fd0eceef3007de0fab3dbff15a0cd8c",
+          "donor_sha256": "719a63a52b95ddef554f3339f45192080f940a67f59e5129d5d9fca59fa82e69",
+          "result_sha256": "719a63a52b95ddef554f3339f45192080f940a67f59e5129d5d9fca59fa82e69",
+          "mode": "direct"
+        },
+        {
+          "path": "matter/tools/pure_fem_cgls_best_of_contract_check.cpp",
+          "ancestor_sha256": null,
+          "donor_sha256": "797687c72739892853ad7001b4b043e4183e3bca5b63ebb13a3f83df28a65c39",
+          "result_sha256": "797687c72739892853ad7001b4b043e4183e3bca5b63ebb13a3f83df28a65c39",
+          "mode": "new"
+        },
+        {
+          "path": "matter/tools/pure_fem_cgls_best_of_kernel_check.mm",
+          "ancestor_sha256": null,
+          "donor_sha256": "0feb6b8ecc0d07ff1dc1b92449665d8218b3282be1138e04623c852c0acac12f",
+          "result_sha256": "0feb6b8ecc0d07ff1dc1b92449665d8218b3282be1138e04623c852c0acac12f",
+          "mode": "new"
+        },
+        {
+          "path": "matter/tools/test_cardboard_solver_environment.py",
+          "ancestor_sha256": "13042c12e5b6eae5dfacba89ac3ee8a1770f981f5b135f087ac2c646bfda21d4",
+          "donor_sha256": "af1b7efea03a7f0974fad7b3a673325881956fff4868e945d47419d382b0740b",
+          "result_sha256": "af1b7efea03a7f0974fad7b3a673325881956fff4868e945d47419d382b0740b",
+          "mode": "direct"
+        }
+      ],
+      "ancestor_selected_but_not_in_donor": []
+    },
+    {
+      "label": "source257-inline-mortar-ccd-observer",
+      "ancestor": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-freebody-scene-observer-252-002",
+      "ancestor_frozen_sha256": "09d96dd6f4e47ca28ac71cc4efc24884ac01f4ac9a99990c610d7599ae0c8fdf",
+      "donor": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-mortar-first-uncertified-audit-257-006",
+      "donor_frozen_sha256": "0f6d693d369c3cada323cd0b92e755fd45cb58381063f5e1c8a3117fb5ad6725",
+      "changes": [
+        {
+          "path": "matter/include/numi/matter/shared.h",
+          "ancestor_sha256": "ef3c609468c3719c940a968d5da48bc6e02ac63e278997d53f314d2fa69bcda4",
+          "donor_sha256": "e05373980b6262cdb03ec95477ac4563fb70ce81babceb6843fc67d0b1e96bf6",
+          "result_sha256": "e05373980b6262cdb03ec95477ac4563fb70ce81babceb6843fc67d0b1e96bf6",
+          "mode": "direct"
+        },
+        {
+          "path": "matter/src/metal/contact.metalinc",
+          "ancestor_sha256": "058a9271d53fb7a2ad5e40fbac2b751eecaeef038473dd28382cbc2f3d5a6fe6",
+          "donor_sha256": "49da8b3b9e16ae11ab8ee420b5974ce51f79c929ed2cad32fc617346cb33f23a",
+          "result_sha256": "21739553adff58e09513c49980b4d1cfa8fc3292335d08b437590b855a9eefe9",
+          "mode": "three_way_clean"
+        },
+        {
+          "path": "matter/src/runtime.mm",
+          "ancestor_sha256": "b4ca1cf51c24ca42e8d6ab25b811b98dab929d1570ec17ed04fec77b2f48796d",
+          "donor_sha256": "e0dcd871514f925478d6973214eaf8fcf1a63bf4aa73284d9b5b7ee087919b09",
+          "result_sha256": "96e3ada0074e7e3451412026310a716a9c4e1969d3ea5ba03d06143bfceb7a05",
+          "mode": "three_way_clean"
+        }
+      ],
+      "ancestor_selected_but_not_in_donor": []
+    },
+    {
+      "label": "source258-contact-incidence-transition-preflight",
+      "ancestor": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-arena-plan-250-006",
+      "ancestor_frozen_sha256": "72ffa7b67a9799cd8e17d8679358d29c0da38af72086c4a291846d154392c646",
+      "donor": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-arena-plan-258-006",
+      "donor_frozen_sha256": "f5eff2891cd4222e894c5cf70743e11061496ebee204f94a6b156e551ad06e0e",
+      "changes": [
+        {
+          "path": "matter/tools/cardboard_probe.mm",
+          "ancestor_sha256": "acfef802468c4dcb45b61e61006b4cf776e564c466d17f67304d2538f3fa115b",
+          "donor_sha256": "6c46707906d9ef00dd9106be66336976cc33e783e5f95ea71b5fd1c3c38d1a1b",
+          "result_sha256": "b75a7912f2e4f53b38e103ed1f67848b12e5c05e46775b322e1af5cafcdc9f7a",
+          "mode": "three_way_clean"
+        },
+        {
+          "path": "matter/tools/cardboard_shipping_memory.hpp",
+          "ancestor_sha256": "5745ecbc16be72c0faf0a3cd80e8a7e2fef65d47cd28a713175dc81bbd4cd2f5",
+          "donor_sha256": "175e1f502fdb4de39324fc1e93e6c4b09219ae3f617f9702cc3c70441cc66731",
+          "result_sha256": "175e1f502fdb4de39324fc1e93e6c4b09219ae3f617f9702cc3c70441cc66731",
+          "mode": "direct"
+        },
+        {
+          "path": "matter/tools/cardboard_shipping_memory_check.cpp",
+          "ancestor_sha256": "dbbd92853c0ff3d59c755ff3c0f00187e43bd02a787951ce6150b9a04afb5f66",
+          "donor_sha256": "db116060306ffaaaa23dbba1b76cb2e14ef1a937c19ac8f681d843981bd37d96",
+          "result_sha256": "db116060306ffaaaa23dbba1b76cb2e14ef1a937c19ac8f681d843981bd37d96",
+          "mode": "direct"
+        }
+      ],
+      "ancestor_selected_but_not_in_donor": []
+    }
+  ],
+  "GPU_execution": false,
+  "physical_operator_changed_by_this_composition": false,
+  "opt_in_globalization_changed": true,
+  "shipping_peak_inventory_bound": false,
+  "native_combined_source_qualified": false,
+  "created_at_utc": "2026-10-16T15:20:47.672556+00:00"
+}

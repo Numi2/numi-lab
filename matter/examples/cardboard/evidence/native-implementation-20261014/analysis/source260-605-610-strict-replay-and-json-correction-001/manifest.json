@@ -1,0 +1,30 @@
+{
+  "build_record_sha256": "2529a5022374cf7d89a18aebd2002aeedce06832f54511707983dd2b53f2fa8e",
+  "corrected_review_sha256": "b842146c88fe692632e25174d4b7333cba736d4e73cf5acea01eb8584942548c",
+  "decoder_report_sha256": "011aafdc5f04bbfacb7a267500e86ba8fca7a7168b812ab800682e92a9b03942",
+  "files": {
+    "README.md": {
+      "bytes": 1005,
+      "sha256": "a5d3e9bfe5dcdaf8d68a50ba2f696bfe720da18ae505a205ab01188cf6deb6ba"
+    },
+    "audit_replay.py": {
+      "bytes": 1324,
+      "sha256": "51b14b8a78797bc478323f590e245e8781e1d40c94551e4397f5559e70f857bf"
+    },
+    "report.json": {
+      "bytes": 8093,
+      "sha256": "0a715529bca36eb1b4dc4bbfa0b28b60cee10946d46e72cd18f221bc68ddc34d"
+    }
+  },
+  "gpu_dispatched": false,
+  "malformed_review003_sha256": "49c0266aaa42058de43d38e1196793a0e6551c9db21c82e4b0058d17bd764c28",
+  "metallib_sha256": "4ffd1f830f07ef7ec385f457747a8372ff1a2157d5c88b012d133f43d9cee299",
+  "native_runs": [
+    "605",
+    "610"
+  ],
+  "schema": "numi.cardboard.source260-preimplementation-ccd-replay-manifest.v1",
+  "source_contact_sha256": "49da8b3b9e16ae11ab8ee420b5974ce51f79c929ed2cad32fc617346cb33f23a",
+  "source_frozen_sha256": "0f6d693d369c3cada323cd0b92e755fd45cb58381063f5e1c8a3117fb5ad6725",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-mortar-first-uncertified-audit-257-006"
+}

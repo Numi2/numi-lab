@@ -1,0 +1,293 @@
+{
+  "contract": {
+    "capture_prefixes": {
+      "NM_FEM_COUPLED_TRIAL_CAPTURE_PATH": "/Users/n/cardboard-implementation-20261014-host-macmini/native/mortar-inline-observer-on-610/diagnostics/capture-coupled-trial-capture/capture"
+    },
+    "case_directory": "/Users/n/cardboard-implementation-20261014-host-macmini/native/mortar-inline-observer-on-610",
+    "effective": {
+      "NM_CONTACT_NODE_INCIDENCE_SORT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_BASE_CGLS_CAPTURE_NEWTON": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_BASE_CGLS_CAPTURE_PATH": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_BASE_CGLS_DAMPING_KG": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_BASE_CGLS_ITERATIONS": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_BASE_CGLS_PRIMARY_AFTER": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_BASE_CGLS_RIGHT_SCALE": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_BASE_CGLS_STATE_CAPTURE": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_BASE_CGLS_WARM_START_REFINE": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_CACHE_PROJECTION_REUSE": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_CONTACT_TRACE_ITERATION": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_CONTACT_TRACE_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_COUPLED_CAPTURE_PATH": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_COUPLED_CAPTURE_SELECTOR": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_COUPLED_TRIAL_CAPTURE_PATH": {
+        "set": true,
+        "value": "/Users/n/cardboard-implementation-20261014-host-macmini/native/mortar-inline-observer-on-610/diagnostics/capture-coupled-trial-capture/capture"
+      },
+      "NM_FEM_COUPLED_TRIAL_CAPTURE_SELECTOR": {
+        "set": true,
+        "value": "1202:7:7:both"
+      },
+      "NM_FEM_COUPLED_TRIAL_SUMMARY_PATH": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_COUPLED_TRIAL_SUMMARY_SELECTOR": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_COUPLED_TRIAL_VTCCD_AUDIT_SELECTOR": {
+        "set": true,
+        "value": "1202:7:7:0:78:16:99:3:2"
+      },
+      "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_FULL_CONTACT_REUSE_COHESIVE_SCRATCH": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_FULL_CONTACT_REUSE_SELF_SURFACE_SCRATCH": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_FULL_CONTACT_TILED_COHESIVE": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_FULL_CONTACT_TILED_COHESIVE_PAGE_FACES": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_GRAPH_PARALLEL_LU_SEARCH": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_NEWTON_TRACE_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_OPERATOR_FD_CAPTURE_PATH": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_OPERATOR_FD_EPSILON_SCALE": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_OPERATOR_FD_SELECTOR": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_REGIONAL_ACCEPTED_CORRECTION_RECYCLE": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_REGIONAL_RAP_CAPTURE_ONLY": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_RESIDUAL_ARMIJO_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_STATUS5_CAPTURE_PATH": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_STATUS5_CAPTURE_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_STRICT_INNER_FORCING": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_TRUE_RESIDUAL_CERTIFY": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_TRUE_RESIDUAL_NEWTON_SELECTOR": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_TRUE_RESIDUAL_RESTART": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_TRUE_RESIDUAL_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NUMI_CARDBOARD_STEP_TIMING": {
+        "set": false,
+        "value": null
+      },
+      "NUMI_MATTER_GPU_TIMING_DENSE45": {
+        "set": false,
+        "value": null
+      }
+    },
+    "keys": [
+      "NM_CONTACT_NODE_INCIDENCE_SORT",
+      "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
+      "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
+      "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+      "NM_FEM_BASE_CGLS_DAMPING_KG",
+      "NM_FEM_BASE_CGLS_ITERATIONS",
+      "NM_FEM_BASE_CGLS_PRIMARY_AFTER",
+      "NM_FEM_BASE_CGLS_RIGHT_SCALE",
+      "NM_FEM_BASE_CGLS_STATE_CAPTURE",
+      "NM_FEM_BASE_CGLS_WARM_START_REFINE",
+      "NM_FEM_CACHE_PROJECTION_REUSE",
+      "NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT",
+      "NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT",
+      "NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT",
+      "NM_FEM_CONTACT_TRACE_ITERATION",
+      "NM_FEM_CONTACT_TRACE_ROOT",
+      "NM_FEM_COUPLED_CAPTURE_PATH",
+      "NM_FEM_COUPLED_CAPTURE_SELECTOR",
+      "NM_FEM_COUPLED_TRIAL_CAPTURE_PATH",
+      "NM_FEM_COUPLED_TRIAL_CAPTURE_SELECTOR",
+      "NM_FEM_COUPLED_TRIAL_SUMMARY_PATH",
+      "NM_FEM_COUPLED_TRIAL_SUMMARY_SELECTOR",
+      "NM_FEM_COUPLED_TRIAL_VTCCD_AUDIT_SELECTOR",
+      "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT",
+      "NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT",
+      "NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD",
+      "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT",
+      "NM_FEM_FULL_CONTACT_REUSE_COHESIVE_SCRATCH",
+      "NM_FEM_FULL_CONTACT_REUSE_SELF_SURFACE_SCRATCH",
+      "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY",
+      "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY",
+      "NM_FEM_FULL_CONTACT_TILED_COHESIVE",
+      "NM_FEM_FULL_CONTACT_TILED_COHESIVE_PAGE_FACES",
+      "NM_FEM_GRAPH_PARALLEL_LU_SEARCH",
+      "NM_FEM_NEWTON_TRACE_ROOT",
+      "NM_FEM_OPERATOR_FD_CAPTURE_PATH",
+      "NM_FEM_OPERATOR_FD_EPSILON_SCALE",
+      "NM_FEM_OPERATOR_FD_SELECTOR",
+      "NM_FEM_REGIONAL_ACCEPTED_CORRECTION_RECYCLE",
+      "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH",
+      "NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR",
+      "NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION",
+      "NM_FEM_REGIONAL_RAP_CAPTURE_ONLY",
+      "NM_FEM_RESIDUAL_ARMIJO_ROOT",
+      "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT",
+      "NM_FEM_STATUS5_CAPTURE_PATH",
+      "NM_FEM_STATUS5_CAPTURE_ROOT",
+      "NM_FEM_STRICT_INNER_FORCING",
+      "NM_FEM_TRUE_RESIDUAL_CERTIFY",
+      "NM_FEM_TRUE_RESIDUAL_NEWTON_SELECTOR",
+      "NM_FEM_TRUE_RESIDUAL_RESTART",
+      "NM_FEM_TRUE_RESIDUAL_ROOT",
+      "NUMI_CARDBOARD_STEP_TIMING",
+      "NUMI_MATTER_GPU_TIMING_DENSE45"
+    ],
+    "schema": "numi.cardboard.effective-native-diagnostic-controls.v1",
+    "sha256": "29a8280ad14c15e478c866b7784a89dcd4108b210bc621c56ed20bbe1fec003f"
+  },
+  "contract_sha256": "29a8280ad14c15e478c866b7784a89dcd4108b210bc621c56ed20bbe1fec003f",
+  "launch": {
+    "native_controls_scrubbed": true,
+    "removed_inherited_key_names": []
+  },
+  "mode": "diagnostic",
+  "prediction_sha256": "b4b175c85b3d377b1dd7b801c68c9e8317c5976a7ab519c8a88f1b01a3db301e",
+  "producer": "source-bound-diagnostic-runner",
+  "schema": "numi.cardboard.native-diagnostic-environment-run.v1"
+}

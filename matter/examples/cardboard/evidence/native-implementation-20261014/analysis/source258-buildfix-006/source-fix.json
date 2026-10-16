@@ -1,0 +1,18 @@
+{
+  "schema": "numi.cardboard.source258-buildfix.v1",
+  "parent_source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-arena-plan-258-004",
+  "candidate_source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-arena-plan-258-006",
+  "parent_frozen_manifest_sha256": "72ffa7b67a9799cd8e17d8679358d29c0da38af72086c4a291846d154392c646",
+  "candidate_frozen_manifest_sha256": "f5eff2891cd4222e894c5cf70743e11061496ebee204f94a6b156e551ad06e0e",
+  "changed_source_paths_vs_parent_manifest": [
+    "matter/tools/cardboard_probe.mm",
+    "matter/tools/cardboard_shipping_memory.hpp",
+    "matter/tools/cardboard_shipping_memory_check.cpp"
+  ],
+  "corrective_path": "matter/tools/cardboard_probe.mm",
+  "corrective_path_sha256_before": "12e1764b8bf1511761a6b0a6cf78aa9c7ef80236b7084bdea502fbe77432b166",
+  "corrective_path_sha256_after": "6c46707906d9ef00dd9106be66336976cc33e783e5f95ea71b5fd1c3c38d1a1b",
+  "patch_sha256": "c17d77ea985e900c8933db91ca77aa054ea46d25ac6a3d464a91ea7f7cdde25f",
+  "selected_source_entry_count": 842,
+  "corrective_change_count": 1
+}

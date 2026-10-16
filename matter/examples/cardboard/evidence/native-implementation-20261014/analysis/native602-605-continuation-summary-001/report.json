@@ -1,0 +1,188 @@
+{
+  "schema": "numi.cardboard.continuation602-605.v1",
+  "results": {
+    "analysis/native602-corrected-actual-cache-adjudication-002/report.json": "4d2d7c2299c11952e6b9f4b1aaba600bbdf25eb4d1244887f01b214a7b2f2a86",
+    "analysis/native603-integrated254-history-adjudication-001/report.json": "05032a4897a7a09ae49c0a94b8248d53842d7cb308e60eaba4e57f252ab9ee71",
+    "analysis/native604-605-inline-mortar-root-adjudication-002/report.json": "7d254eb0b3a18ab281a5862f2a64b0f99cfac808a1d8a83177fd5f8c0c6f823f"
+  },
+  "actual_cached_action_relative_error_env0": 0.0003281270568094854,
+  "actual_state_capture_scope": "both environments captured and raw-basis identical to596; quantitative cache audit currently environment0",
+  "tiny7phase_production_files_byte_exact": 32,
+  "contact_observer_on_off_production_files_byte_exact": 12,
+  "full_private_trial_common601_arrays_byte_exact": 129,
+  "physical_source_fingerprint_601": "64728e65ab589647",
+  "physical_source_fingerprint_605": "64728e65ab589647",
+  "device_program_fingerprint_601": "0624c535786f15e4",
+  "device_program_fingerprint_605": "fa190e281516dfcb",
+  "crossbuild_comparison_exception": "Eight bytes deviceProgramFingerprint per raw snapshot, parsed and bound by serializer source; every other byte exact. No runtime identity validation or restore policy changed.",
+  "first_uncertified_query": {
+    "attempt": [
+      1,
+      0,
+      78,
+      4
+    ],
+    "candidate_identity": [
+      16,
+      99,
+      78,
+      1
+    ],
+    "cells": [
+      3,
+      1,
+      4294967295,
+      4294967295
+    ],
+    "feature": [
+      2,
+      1,
+      4294967295,
+      4294967295
+    ],
+    "start": [
+      [
+        3.172305440557466e-08,
+        -0.0018000331474468112,
+        0.0010004999348893762,
+        0.0
+      ],
+      [
+        1.420224737813669e-08,
+        1.4822402860659167e-08,
+        0.0010006475495174527,
+        0.0
+      ],
+      [
+        -0.00040000875014811754,
+        -0.00040000773151405156,
+        0.0010005147196352482,
+        0.0
+      ],
+      [
+        -0.00200001522898674,
+        -0.0019999186042696238,
+        0.0010103133972734213,
+        0.0
+      ],
+      [
+        -1.506994529165695e-08,
+        -0.0019998543430119753,
+        0.0010107530979439616,
+        0.0
+      ],
+      [
+        -2.159251977218446e-08,
+        -0.001799854333512485,
+        0.0010108848800882697,
+        0.0
+      ]
+    ],
+    "finish": [
+      [
+        7.402401536182879e-08,
+        -0.0018000848358497024,
+        0.0010011616395786405,
+        0.0
+      ],
+      [
+        3.359140166026009e-08,
+        3.240604939946934e-08,
+        0.0010015269508585334,
+        0.0
+      ],
+      [
+        -0.00040001963498070836,
+        -0.00040002173045650125,
+        0.0010012129787355661,
+        0.0
+      ],
+      [
+        -0.0020000089425593615,
+        -0.0019999158103019,
+        0.0010103570530191064,
+        0.0
+      ],
+      [
+        -9.337449924373686e-09,
+        -0.0019998529460281134,
+        0.0010108245769515634,
+        0.0
+      ],
+      [
+        -1.5788550911111088e-08,
+        -0.0017998528201133013,
+        0.001010955311357975,
+        0.0
+      ]
+    ],
+    "left_bary_map": [
+      [
+        0.0,
+        0.8999999761581421,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.20000000298023224,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "right_bary_map": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.8999999761581421,
+        0.0,
+        0.0
+      ]
+    ],
+    "result_hit_certified_toi_separation": [
+      0.0,
+      0.0,
+      0.648159921169281,
+      1.00017177828704e-05
+    ],
+    "parameters_thickness_leftDt_rightDt_iteration": [
+      9.999999747378752e-06,
+      9.999999747378752e-05,
+      9.999999747378752e-05,
+      7.0
+    ]
+  },
+  "remaining": [
+    "Step19 strict pure FEM target still fails; test optional best-of globalization.",
+    "Fullcontact1202:N7 still fails; repair actual right-VT CCD certification path.",
+    "Full shipping mesh allocation and numerical convergence remain unqualified.",
+    "No physically assembled fullbox checkpoint or qualifiedFpeak exists.",
+    "Crush/drop predictions not executed or validated."
+  ],
+  "six_verdicts": {
+    "solver_correctness": "OPEN",
+    "numerical_convergence": "OPEN",
+    "component_calibration": "OPEN",
+    "analogue_validation": "OPEN",
+    "physical_assembly_in_simulation": "OPEN",
+    "crush_impact_prediction": "OPEN"
+  },
+  "at_utc": "2026-10-16T15:06:15.754473+00:00"
+}

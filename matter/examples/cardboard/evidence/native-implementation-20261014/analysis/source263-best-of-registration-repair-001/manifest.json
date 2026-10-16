@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.source263-best-of-registration-manifest.v1",
+  "files": {
+    "runtime.patch": "287da17cd8c67183c846ee9d1b9b3349fb5f09db3d33abb76d899f2e5c736567",
+    "test_best_of_pipeline_registration.py": "917ff5ba0f885b95af51c67d17a0257ef08094223ad34e314298892a27ea6ab9",
+    "native608-crash.ips": "596090f43e375eb9c72dfc842f1747fb3321091fbe6bef26af79ff7cf8cc5233",
+    "report.json": "c9247233784d21c59d89f6d1e73e35be6cb76715226a6ab8909e24b7aee290e2",
+    "registration-audit-attempt-001.json": "0174a4baced792b4feef45fd24a499065a18b02467c79444a961cb31e67d8b1d",
+    "static-regression.stdout": "2022d6218abf768dcc261e2ad33d5be6ea0dcbdc07c6bae8c5439ad9acbd0ce0",
+    "static-regression.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_frozen_sha256": "b5a39a6bdb9121aa7e5245dd48e18e37ffc00e169126bb881c9bdf4df2d919a3",
+  "runtime_sha256": "f5b1719829863b271a133f9e0d97f28049ed9a709a6526bb24a48a8536e142ab"
+}

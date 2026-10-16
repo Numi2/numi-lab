@@ -1,0 +1,37 @@
+{
+  "schema": "numi.cardboard.source259-composition.v1",
+  "source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-002",
+  "frozen_sha256": "a9b8287bc59d44ceb71af3857762b95841a22572dbe02552c136d3a2918eb3d0",
+  "configure_support_sha256": "4c8ac958dcaeb2734c5d54b39655b9f16e50df244c7a764eeb3297d54942259b",
+  "base": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-001",
+  "base_frozen_sha256": "10c409650c2a19d3fc5c113edccb30a12cf2ab3c5c546cb72ac9298c6923a14f",
+  "source_files": 852,
+  "changed_files": [
+    "matter/src/runtime.mm"
+  ],
+  "layers": [
+    {
+      "label": "source263-best-of-runtime-pipeline-registration",
+      "ancestor": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001",
+      "ancestor_frozen_sha256": "1efd6df0382dfe74e45d453fb22a81848d1fb251e99c2ab5cf6a8b8a5b062fc4",
+      "donor": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-pipeline-registration-263-001",
+      "donor_frozen_sha256": "b5a39a6bdb9121aa7e5245dd48e18e37ffc00e169126bb881c9bdf4df2d919a3",
+      "changes": [
+        {
+          "path": "matter/src/runtime.mm",
+          "ancestor_sha256": "ff18269002d546ef3c96b043a1323e34731d0267de47c3ab5d3f174246422347",
+          "donor_sha256": "f5b1719829863b271a133f9e0d97f28049ed9a709a6526bb24a48a8536e142ab",
+          "result_sha256": "184bf0db71eba5ebe38d205c9788d76025488c7c581ed46fabaab35e60b2ebb1",
+          "mode": "three_way_clean"
+        }
+      ],
+      "ancestor_selected_but_not_in_donor": []
+    }
+  ],
+  "GPU_execution": false,
+  "physical_operator_changed_by_this_composition": false,
+  "repairs_native608_host_encoding_crash": true,
+  "shipping_peak_inventory_bound": false,
+  "native_combined_source_qualified": false,
+  "created_at_utc": "2026-10-16T15:27:56.362038+00:00"
+}

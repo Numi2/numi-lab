@@ -1,0 +1,24 @@
+Test project /Users/n/cardboard-implementation-20261014-host-macmini/build-source259-integrated-001
+    Start 153: matter.compiler.cardboard_constituent_volume_damage
+1/4 Test #153: matter.compiler.cardboard_constituent_volume_damage ...   Passed    0.27 sec
+    Start 201: matter.compiler.cardboard_shipping_protocol
+2/4 Test #201: matter.compiler.cardboard_shipping_protocol ...........   Passed    0.42 sec
+    Start 215: matter.compiler.cardboard_shipping_memory
+3/4 Test #215: matter.compiler.cardboard_shipping_memory .............   Passed    0.32 sec
+    Start 248: matter.compiler.cardboard_free_force_residual
+4/4 Test #248: matter.compiler.cardboard_free_force_residual .........   Passed    0.26 sec
+
+100% tests passed out of 4
+
+Label Time Summary:
+cardboard         =   1.27 sec*proc (4 tests)
+compiler          =   0.42 sec*proc (1 test)
+cpu               =   0.85 sec*proc (3 tests)
+damage            =   0.27 sec*proc (1 test)
+force-residual    =   0.26 sec*proc (1 test)
+geometry          =   0.42 sec*proc (1 test)
+matter            =   0.85 sec*proc (3 tests)
+shipping          =   0.74 sec*proc (2 tests)
+synthetic         =   0.27 sec*proc (1 test)
+
+Total Test time (real) =   1.27 sec

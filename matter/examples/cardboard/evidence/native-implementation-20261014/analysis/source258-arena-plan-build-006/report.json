@@ -1,0 +1,57 @@
+{
+  "schema": "numi.cardboard.source258-arena-plan-build-review.v1",
+  "created_at_utc": "2026-10-16T15:16:57.662878+00:00",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-arena-plan-258-006",
+  "source_snapshot_frozen_manifest_sha256": "f5eff2891cd4222e894c5cf70743e11061496ebee204f94a6b156e551ad06e0e",
+  "source258_fix_record_sha256": "51defbd3a9959691c6c9325647cae5f00b9fc67f267dec330afa17a710c2990a",
+  "source_fix_patch_sha256": "c17d77ea985e900c8933db91ca77aa054ea46d25ac6a3d464a91ea7f7cdde25f",
+  "source_bound_build_record": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source258-006/source-build.json",
+  "source_bound_build_record_sha256": "4b9d57f95ef0456b94f14203e9f48e0dd3c117878b8bfd337a8517011e8d6aef",
+  "source_bound_build_success": true,
+  "source_bound_file_count": 837,
+  "source_bound_artifacts_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source258-006/lib/libmetalrobo.dylib": "28dab29e89c9b4fc7922d3375b53a3c0c766634aa9ee58e3de46fa1b037ec168",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source258-006/matter/numi-matter-cardboard-probe": "34e2f691716e695b903db4f7cf49c7eae4ea750b072546f957a2fa56d11d2d49",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source258-006/matter/numi-matter-cardboard-shipping-memory-check": "53bfeed757c3753321f69b1117d3e6c7723c268d5a42190e96f58d0d163ef706",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source258-006/matter/shaders/NumiMatter.metallib": "030bbf25b6d24606e803324e48fc189b3ccada5e733cbda482e20ca4c4d9a7dc",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source258-006/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source258-006/shaders/MetalRobo.metallib": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source258-006/shaders/MetalRoboHyperPolicy.metallib": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source258-006/shaders/NumiNeuron.metallib": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+  },
+  "source_bound_build_metadata_sha256": {
+    "CMakeCache.txt": "7116b8a2db36aa00d91dec66e38d73ecf63109bb42f785b80e15658def9f0ab9",
+    "compile_commands.json": "fb4cae8ca166d1bf4f3ebefbfa202e437715c454a10e73916fc8b62c5cd6dd37"
+  },
+  "cpu_checks": [
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source258-006/matter/numi-matter-cardboard-shipping-memory-check"
+      ],
+      "exit_code": 0,
+      "stdout_path": "cpu-check.stdout",
+      "stdout_sha256": "7997af31757b9f4a26560db9d48a54a7c2f0e382f48ff25600a16df91a0402eb",
+      "stdout_bytes": 40
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source258-006/matter/numi-matter-cardboard-probe",
+        "--help"
+      ],
+      "exit_code": 0,
+      "stdout_path": "probe-help.stdout",
+      "stdout_sha256": "6b05092fb5b10614dd2eb392a7b53ae1a0f376654d350a44230d8556bb37db43",
+      "stdout_bytes": 8045
+    }
+  ],
+  "failed_258_004_source_bound_record": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source258-004/source-build.json",
+  "failed_258_004_source_bound_sha256": "c081326e0142503f2e7426591c7b3209adad3b4d53af250a25e87dcc7718cb4a",
+  "failed_258_004_compile_log": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source258-004/provenance-command-1.log",
+  "failed_258_004_compile_log_sha256": "9b7d633a69cb78eee592410b65ea067ba4e72d99a152fbf5e9bfce0476607446",
+  "failed_258_004_reason": "cardboard_probe.mm used the out-of-scope identifier input in the regional prebuild budget branch; retained unchanged.",
+  "limitations": [
+    "CPU preflight tests and probe CLI help only; no GPU dispatch.",
+    "No full runtime allocation inventory or measured peak claim.",
+    "No shipping admission or compact-sample parity claim."
+  ]
+}

@@ -1,0 +1,174 @@
+{
+  "schema": "numi.cardboard.native611-integrated259-default-off-history-adjudication.v1",
+  "verdict": "PASS_COMPLETE_TINY_SEVEN_PHASE_HISTORY_BYTE_PARITY",
+  "case": "solver/integrated259-default-off-seven-phase-611",
+  "comparison_case": "solver/best-of255-default-off-seven-phase-607",
+  "production_files": [
+    {
+      "path": "accepted_step_000001_bent.obj",
+      "sha256": "6b6fddc5c17afae8f013fb94073e32bb3e671152c7d10d33a2cf2045c1ece592",
+      "bytes": 62001
+    },
+    {
+      "path": "accepted_step_000001_held_reference.obj",
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "bytes": 56470
+    },
+    {
+      "path": "accepted_step_000002_bent.obj",
+      "sha256": "a3b78c8371975339b2bd30f1abd58299255b62bc2c01ed890753ac1a154b390a",
+      "bytes": 62027
+    },
+    {
+      "path": "accepted_step_000002_held_reference.obj",
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "bytes": 56470
+    },
+    {
+      "path": "accepted_step_000003_bent.obj",
+      "sha256": "a3b78c8371975339b2bd30f1abd58299255b62bc2c01ed890753ac1a154b390a",
+      "bytes": 62027
+    },
+    {
+      "path": "accepted_step_000003_held_reference.obj",
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "bytes": 56470
+    },
+    {
+      "path": "accepted_step_000004_bent.obj",
+      "sha256": "ea6050fbb0396d19d69eb0207a005e65c788130f986e0891aa55987a692513c7",
+      "bytes": 62157
+    },
+    {
+      "path": "accepted_step_000004_held_reference.obj",
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "bytes": 56470
+    },
+    {
+      "path": "accepted_step_000005_bent.obj",
+      "sha256": "ea6050fbb0396d19d69eb0207a005e65c788130f986e0891aa55987a692513c7",
+      "bytes": 62157
+    },
+    {
+      "path": "accepted_step_000005_held_reference.obj",
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "bytes": 56470
+    },
+    {
+      "path": "accepted_step_000006_bent.obj",
+      "sha256": "051742bdd8eaf0f514e186fb369355d184010afd50da7633f51615c9e3c44a97",
+      "bytes": 62333
+    },
+    {
+      "path": "accepted_step_000006_held_reference.obj",
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "bytes": 56470
+    },
+    {
+      "path": "accepted_step_000007_bent.obj",
+      "sha256": "051742bdd8eaf0f514e186fb369355d184010afd50da7633f51615c9e3c44a97",
+      "bytes": 62333
+    },
+    {
+      "path": "accepted_step_000007_held_reference.obj",
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "bytes": 56470
+    },
+    {
+      "path": "compiled.nmatterpack",
+      "sha256": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+      "bytes": 1984768
+    },
+    {
+      "path": "initial.obj",
+      "sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+      "bytes": 56470
+    },
+    {
+      "path": "manifest.json",
+      "sha256": "4186fa67c214331ca88fcdae4414b471ac075f388060a28fcba0cd88de8b2ada",
+      "bytes": 11947
+    },
+    {
+      "path": "material_state_000002_bent.json",
+      "sha256": "5ee242030c70898c22b6b86c68d8d8ef8f29647685d0f1e172bb43e879d61da4",
+      "bytes": 973692
+    },
+    {
+      "path": "material_state_000002_held_reference.json",
+      "sha256": "a77af2e3158a14ebc3e8e7c2d58faf3f6637289a638a4bff72840333fb0d742e",
+      "bytes": 405586
+    },
+    {
+      "path": "material_state_000003_bent.json",
+      "sha256": "40286943f095e1b3888215dcf862055ca6c476208788ff593017a0c048967d49",
+      "bytes": 920385
+    },
+    {
+      "path": "material_state_000003_held_reference.json",
+      "sha256": "c01b29901484af7e6b95dcac86e52c817e9bbe25b439195418f30008adbb9888",
+      "bytes": 405778
+    },
+    {
+      "path": "material_state_000004_bent.json",
+      "sha256": "bf344a1f96c51eee5209230418abf368ca422269495917510b37af737bcd883a",
+      "bytes": 975680
+    },
+    {
+      "path": "material_state_000004_held_reference.json",
+      "sha256": "1e1ed2708bcf52c32ef46bc00ef2eadfd4480c8277d3c8ffea2c38dc831772fc",
+      "bytes": 405010
+    },
+    {
+      "path": "material_state_000005_bent.json",
+      "sha256": "e50d4764d0e2d2355148272b55c7fc8a04e953903600e9ffa58f60a5213aadb2",
+      "bytes": 921880
+    },
+    {
+      "path": "material_state_000005_held_reference.json",
+      "sha256": "b31283a4358e7df00652bdcff64d6af33f466f972b852e82b0ffd5cc2dbeec4a",
+      "bytes": 405682
+    },
+    {
+      "path": "material_state_000006_bent.json",
+      "sha256": "eed89fe61d315fa670abef5a044c636b521328299e76ae1512f619b3ff808a04",
+      "bytes": 978698
+    },
+    {
+      "path": "material_state_000006_held_reference.json",
+      "sha256": "6a65a7de7f679959cba6b93b00412b9cb7b5685d66bd8d08b63e6037452bb004",
+      "bytes": 405874
+    },
+    {
+      "path": "material_state_000007_bent.json",
+      "sha256": "b3fed62740e94ba173701719e9d1a7b04da6a16ad653fd0fc7f0997988f14ece",
+      "bytes": 923644
+    },
+    {
+      "path": "material_state_000007_held_reference.json",
+      "sha256": "b2a4e45d1e94338f3ba6211c256d283ea63b685f5973d4e43631c1708f9c2a9f",
+      "bytes": 405778
+    },
+    {
+      "path": "mesh.json",
+      "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+      "bytes": 160425
+    },
+    {
+      "path": "observations.csv",
+      "sha256": "c08d13ee2f2132cb660cf739cee28caa9c056a8ce07488432e12e525da36c042",
+      "bytes": 6917
+    },
+    {
+      "path": "result.json",
+      "sha256": "5946d7221983016322e0a844f219de8c30e96b93f150cf1daaf3af5c869b2c7e",
+      "bytes": 559
+    }
+  ],
+  "wall_seconds": 108.93285050056875,
+  "full_target_coupon_or_convergence_qualified": false,
+  "shipping_only_observable_changes_exercised": false,
+  "scope": "Integrated259-003 completes the unchanged .01degree seven-control coupon regression with best-of disabled. All32 production files are byte-identical to607/603. The263 pipeline-registration repair and current420b4f86 Human source are included. Enabled best-of requires its own fresh native history.",
+  "all_six_full_sequence_axes_open": true,
+  "at_utc": "2026-10-16T15:34:59.820803+00:00"
+}

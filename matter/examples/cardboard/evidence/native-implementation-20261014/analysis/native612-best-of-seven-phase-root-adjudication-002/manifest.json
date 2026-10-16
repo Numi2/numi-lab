@@ -1,0 +1,13 @@
+{
+  "inputs": {
+    "adjudicate_native612_best_of_002.py": "4a4914988601e7999a2a3bc7996f41eddc8394edfb0c9cd0ca54d323881520c6",
+    "solver/integrated259-best-of-seven-phase-612/receipt.json": "6fdefebd55652b0b8abae635aafab6ebe5a96a609166d37938f3711f896a1eea",
+    "solver/integrated259-best-of-seven-phase-612/stderr.log": "d0e57da76158934e3b5fac16f867b8681487b97c31bfb21923c788a81ad8c815",
+    "solver/integrated259-best-of-seven-phase-612/output/result.json": "5946d7221983016322e0a844f219de8c30e96b93f150cf1daaf3af5c869b2c7e",
+    "solver/integrated259-best-of-seven-phase-612/output/observations.csv": "6f3a275acaba3a149f07bc98b494dd0d6d0aefc99caa050583c1501e1b3c2798",
+    "analysis/native612-command-001/command.json": "49593d27fe1400b1d60a220fc47fa0049b594786f818ca790bc4c3a58f2e1a5e",
+    "snapshots/source-integrated-globalization-contact-memory-259-003/frozen-source.json": "663a2bf205f2439200077d997804c429c33635d8606462f7a3f700a2d29a2743",
+    "build-source259-integrated-003/source-build.json": "f524a5bc44c8bbe2e30dd8662bc5e3e7dcfaa475bc0f84b2b1e1057abe47aa54"
+  },
+  "report_sha256": "10887fd0c4a106768f3cddc9b2c99204d62301fcc6ca96943001543e11446da9"
+}

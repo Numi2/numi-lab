@@ -1,0 +1,205 @@
+{
+  "schema": "numi.cardboard.publication041-root-audit.v1",
+  "verdict": "PASS_WITH_SIX_FULL_SEQUENCE_AXES_OPEN",
+  "parent": "b18cf2bb62ed492ab307ece760b4ec108fd37f69",
+  "paths": 14332,
+  "payloads": 14291,
+  "historical_records_exact": 2144,
+  "new_records": 90,
+  "original_bytes": 1885270137,
+  "stored_bytes": 843779384,
+  "source_count": 849,
+  "configure_support_count": 1034,
+  "source_changed": [
+    "matter/CMakeLists.txt",
+    "matter/include/numi/matter/detail/fem_primary_operator_cache_mode.hpp",
+    "matter/include/numi/matter/detail/shipping_contact_page_plan.hpp",
+    "matter/src/metal/contact.metalinc",
+    "matter/src/metal/fem.metalinc",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/metal/identification_scheduler.metalinc",
+    "matter/src/metal/mixed_fem.metalinc",
+    "matter/src/runtime.mm",
+    "matter/tools/bct_capacity_history_producer.py",
+    "matter/tools/cardboard_cached_operator_audit.py",
+    "matter/tools/cardboard_calibration_ensemble.py",
+    "matter/tools/cardboard_calibration_ensemble_test.py",
+    "matter/tools/cardboard_cohesive_page_runtime_kernel_check.mm",
+    "matter/tools/cardboard_constituent_volume_damage.hpp",
+    "matter/tools/cardboard_constituent_volume_damage_check.cpp",
+    "matter/tools/cardboard_contact_sample_compaction_check.metal",
+    "matter/tools/cardboard_contact_sample_compaction_check.mm",
+    "matter/tools/cardboard_free_force_residual.hpp",
+    "matter/tools/cardboard_free_force_residual_check.cpp",
+    "matter/tools/cardboard_full_contact_armijo_check.mm",
+    "matter/tools/cardboard_probe.mm",
+    "matter/tools/cardboard_shipping_contact_page_native_check.mm",
+    "matter/tools/cardboard_shipping_contact_page_plan_check.cpp",
+    "matter/tools/cardboard_shipping_crush.hpp",
+    "matter/tools/cardboard_shipping_memory.hpp",
+    "matter/tools/cardboard_shipping_memory_check.cpp",
+    "matter/tools/cardboard_shipping_peak.py",
+    "matter/tools/cardboard_shipping_protocol_check.cpp",
+    "matter/tools/cardboard_stage_resolution_study.md",
+    "matter/tools/cardboard_stage_resolution_study.py",
+    "matter/tools/test_bct_capacity_history_producer.py",
+    "matter/tools/test_cardboard_primary_cache_action.py",
+    "matter/tools/test_cardboard_probe_argument_admission.py",
+    "matter/tools/test_cardboard_solver_environment.py",
+    "matter/tools/test_cardboard_stage_resolution_study.py",
+    "matter/tools/test_true_residual_certification_contract.py"
+  ],
+  "source_frozen_sha256": "6b35572e45d27c534d8671dbad22106720542c13e7b8bfafca66c918862afbb1",
+  "summary_sha256": "288db5ca09516e4ffd4bd9a683516a6818dc05f1d3129ad7c2392f0b0b2aa518",
+  "binding_sha256": "c6fa53f039bf6a0df8c5bee920557ccf8951b392829fc22613fa21374d6b58a5",
+  "variant_checks": [
+    {
+      "name": "source-activation-full-residual-armijo-244-002",
+      "actual_inputs_reconstructible": 1867,
+      "declared_binding_valid": true,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-contact-compaction-fixture-249-001",
+      "actual_inputs_reconstructible": 1873,
+      "declared_binding_valid": true,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-freebody-scene-observer-252-001",
+      "actual_inputs_reconstructible": 1867,
+      "declared_binding_valid": false,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-freebody-scene-observer-252-002",
+      "actual_inputs_reconstructible": 1867,
+      "declared_binding_valid": true,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-fullbox-force-accuracy-246-001",
+      "actual_inputs_reconstructible": 1869,
+      "declared_binding_valid": true,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-integrated-measured-coupon-contact-254-001",
+      "actual_inputs_reconstructible": 1880,
+      "declared_binding_valid": true,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-integrated-measured-coupon-contact-254-002",
+      "actual_inputs_reconstructible": 1880,
+      "declared_binding_valid": true,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-legacy-program-primary-cache-observer-256-002",
+      "actual_inputs_reconstructible": 1867,
+      "declared_binding_valid": true,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-primary-cache-fd-action-253-002",
+      "actual_inputs_reconstructible": 1875,
+      "declared_binding_valid": true,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-primary-cache-fd-action-253-003",
+      "actual_inputs_reconstructible": 1875,
+      "declared_binding_valid": true,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-shipping-arena-plan-250-001",
+      "actual_inputs_reconstructible": 1873,
+      "declared_binding_valid": false,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-shipping-arena-plan-250-003",
+      "actual_inputs_reconstructible": 1873,
+      "declared_binding_valid": true,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-shipping-arena-plan-250-005",
+      "actual_inputs_reconstructible": 1873,
+      "declared_binding_valid": true,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-shipping-arena-plan-250-006",
+      "actual_inputs_reconstructible": 1873,
+      "declared_binding_valid": true,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-shipping-arena-plan-250-006-prep-failed-001",
+      "actual_inputs_reconstructible": 1873,
+      "declared_binding_valid": false,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-shipping-contact-sample-pages-235-001",
+      "actual_inputs_reconstructible": 1862,
+      "declared_binding_valid": false,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-shipping-contact-sample-pages-235-002",
+      "actual_inputs_reconstructible": 1862,
+      "declared_binding_valid": false,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-shipping-contact-sample-pages-235-003",
+      "actual_inputs_reconstructible": 1862,
+      "declared_binding_valid": false,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-shipping-contact-sample-pages-235-004",
+      "actual_inputs_reconstructible": 1862,
+      "declared_binding_valid": false,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-shipping-contact-sample-pages-235-005",
+      "actual_inputs_reconstructible": 1862,
+      "declared_binding_valid": false,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-shipping-contact-sample-pages-235-006",
+      "actual_inputs_reconstructible": 1864,
+      "declared_binding_valid": false,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-shipping-contact-sample-pages-235-007",
+      "actual_inputs_reconstructible": 1864,
+      "declared_binding_valid": true,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-shipping-first-local-peak-248-001",
+      "actual_inputs_reconstructible": 1870,
+      "declared_binding_valid": true,
+      "invalid_drafts_not_qualified": true
+    },
+    {
+      "name": "source-strict-contact-sample-pages-247-001",
+      "actual_inputs_reconstructible": 1873,
+      "declared_binding_valid": true,
+      "invalid_drafts_not_qualified": true
+    }
+  ],
+  "all_six_statuses_open": true,
+  "canonical_native_trajectory_pending": true,
+  "active602_255_257_inventory_excluded": true,
+  "at_utc": "2026-10-16T14:43:55.583633+00:00"
+}

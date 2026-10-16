@@ -1,0 +1,9 @@
+{
+  "script_sha256": null,
+  "report_sha256": "b0d6c6d448c6d73f65b4e34fc67ca9b15f91e5baa4c93870cd577c373a89ccef",
+  "input_reports": {
+    "analysis/native602-corrected-actual-cache-adjudication-002/report.json": "4d2d7c2299c11952e6b9f4b1aaba600bbdf25eb4d1244887f01b214a7b2f2a86",
+    "analysis/native603-integrated254-history-adjudication-001/report.json": "05032a4897a7a09ae49c0a94b8248d53842d7cb308e60eaba4e57f252ab9ee71",
+    "analysis/native604-605-inline-mortar-root-adjudication-002/report.json": "7d254eb0b3a18ab281a5862f2a64b0f99cfac808a1d8a83177fd5f8c0c6f823f"
+  }
+}

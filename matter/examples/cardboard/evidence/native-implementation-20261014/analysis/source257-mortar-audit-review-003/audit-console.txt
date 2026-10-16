@@ -1,0 +1,90 @@
+{
+  "all_checks_pass": true,
+  "checks": {
+    "snapshot_map_has_836_entries_and_matches_all_bytes": true,
+    "complete_map_delta_is_exactly_intended_three_files": true,
+    "patch_and_frozen_binding_match": true,
+    "target_build_succeeded": true,
+    "build_map_is_exact_selected_subset": true,
+    "all_build_inputs_match_snapshot": true,
+    "all_artifacts_match_build_receipt": true,
+    "384_byte_ABI_bound": true,
+    "no_new_environment_keys": true,
+    "only_reserved_selector_3_2_added": true,
+    "capture_array_post_rebuild_only": true,
+    "selected_candidate_initializes_record_before_early_return": true,
+    "first_writer_guard_present": true,
+    "certification_accumulation_present": true,
+    "native601_payload_hash_valid": true,
+    "native601_pair_slot_identity_valid": true,
+    "native601_maps_nondegenerate_and_separated_at_sampled_endpoints": true
+  },
+  "source_count": 836,
+  "build_input_count": 831,
+  "geom": {
+    "start": {
+      "candidate_slot78": [
+        16,
+        99,
+        78,
+        1
+      ],
+      "nodes16": [
+        9,
+        10,
+        13
+      ],
+      "nodes99": [
+        27,
+        28,
+        31
+      ],
+      "parent_areas_m2": [
+        2.0001872898654757e-06,
+        2.0000003708300616e-06
+      ],
+      "mapped_patch_areas_m2": [
+        6.000561556642742e-07,
+        6.000000799565746e-07
+      ],
+      "paired_vertex_distances_m": [
+        1.0428896282683462e-05,
+        1.0398630233008279e-05,
+        1.1090509040691215e-05
+      ],
+      "maps_bitwise_equal": true
+    },
+    "finish": {
+      "candidate_slot78": [
+        16,
+        99,
+        78,
+        1
+      ],
+      "nodes16": [
+        9,
+        10,
+        13
+      ],
+      "nodes99": [
+        27,
+        28,
+        31
+      ],
+      "parent_areas_m2": [
+        2.0004416698043702e-06,
+        2.0000006728451964e-06
+      ],
+      "mapped_patch_areas_m2": [
+        6.001324696419625e-07,
+        6.000001705611104e-07
+      ],
+      "paired_vertex_distances_m": [
+        1.0286094287471088e-05,
+        9.936118069945574e-06,
+        1.0475077887968087e-05
+      ],
+      "maps_bitwise_equal": true
+    }
+  }
+}

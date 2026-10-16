@@ -1,0 +1,11 @@
+{
+  "schema": "numi.cardboard.native604-605-inline-mortar-trace-command.v1",
+  "source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-mortar-first-uncertified-audit-257-006",
+  "build": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-007",
+  "source_sha256": "0f6d693d369c3cada323cd0b92e755fd45cb58381063f5e1c8a3117fb5ad6725",
+  "build_sha256": "2529a5022374cf7d89a18aebd2002aeedce06832f54511707983dd2b53f2fa8e",
+  "material": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-mortar-first-uncertified-audit-257-006/matter/materials/starch2007_finite_glue_elastic.nmatter",
+  "policy": "Fresh identical native591 free-body fixture, full activation residual descent enabled. 604 has observers disabled;605 adds only bounded fullprivate trial0 post-rebuild and inline first-uncertified mortar CCD trace at1202:N7 env0 slot78 pair16/99. Require all production transaction files bitwise identical to each other and591. This locates a failure; it does not qualify contact or assembly.",
+  "selector": "1202:7:0:0:78:16:99:3:2",
+  "gpu_workers": 1
+}

@@ -1,0 +1,55 @@
+{
+  "schema": "numi.cardboard.source263-best-of-registration-repair.v1",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001",
+  "base_frozen_sha256": "1efd6df0382dfe74e45d453fb22a81848d1fb251e99c2ab5cf6a8b8a5b062fc4",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-pipeline-registration-263-001",
+  "source_frozen_sha256": "b5a39a6bdb9121aa7e5245dd48e18e37ffc00e169126bb881c9bdf4df2d919a3",
+  "changed_files": {
+    "matter/src/runtime.mm": {
+      "before_sha256": "ff18269002d546ef3c96b043a1323e34731d0267de47c3ab5d3f174246422347",
+      "after_sha256": "f5b1719829863b271a133f9e0d97f28049ed9a709a6526bb24a48a8536e142ab"
+    }
+  },
+  "crash_report_sha256": "596090f43e375eb9c72dfc842f1747fb3321091fbe6bef26af79ff7cf8cc5233",
+  "kernel_names": [
+    "nm_fgmres_base_cgls_best_of_save",
+    "nm_fgmres_base_cgls_best_of_save_direction",
+    "nm_fgmres_base_cgls_best_of_resolve",
+    "nm_fgmres_base_cgls_best_of_restore_direction",
+    "nm_fgmres_base_cgls_best_of_measure_committed"
+  ],
+  "registration_count_before": {
+    "nm_fgmres_base_cgls_best_of_save": 0,
+    "nm_fgmres_base_cgls_best_of_save_direction": 0,
+    "nm_fgmres_base_cgls_best_of_resolve": 0,
+    "nm_fgmres_base_cgls_best_of_restore_direction": 0,
+    "nm_fgmres_base_cgls_best_of_measure_committed": 0
+  },
+  "registration_count_after": {
+    "nm_fgmres_base_cgls_best_of_save": 1,
+    "nm_fgmres_base_cgls_best_of_save_direction": 1,
+    "nm_fgmres_base_cgls_best_of_resolve": 1,
+    "nm_fgmres_base_cgls_best_of_restore_direction": 1,
+    "nm_fgmres_base_cgls_best_of_measure_committed": 1
+  },
+  "dispatch_site_count": {
+    "nm_fgmres_base_cgls_best_of_save": 1,
+    "nm_fgmres_base_cgls_best_of_save_direction": 1,
+    "nm_fgmres_base_cgls_best_of_resolve": 1,
+    "nm_fgmres_base_cgls_best_of_restore_direction": 1,
+    "nm_fgmres_base_cgls_best_of_measure_committed": 1
+  },
+  "metal_definition_count": {
+    "nm_fgmres_base_cgls_best_of_save": 1,
+    "nm_fgmres_base_cgls_best_of_save_direction": 1,
+    "nm_fgmres_base_cgls_best_of_resolve": 1,
+    "nm_fgmres_base_cgls_best_of_restore_direction": 1,
+    "nm_fgmres_base_cgls_best_of_measure_committed": 1
+  },
+  "static_regression_exit_code": 0,
+  "static_regression_stdout": "PASS: all five best-of CGLS dispatches are registered and have Metal implementations",
+  "gpu_execution": false,
+  "fix": "Add the five newly dispatched best-of kernels to Runtime::build pipeline registration kernelNames[] so state.pipeline(name) resolves before dispatch.",
+  "limitation": "Static registration regression and CPU build do not replace native enabled-path validation; root owns GPU rerun.",
+  "at_utc": "2026-10-16T15:27:19.747549+00:00"
+}

@@ -1,0 +1,91 @@
+[  0%] Generating shaders/NumiMatter.metallib
+[  0%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+In file included from /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/matter/src/matter_kernels.metal:4:
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/matter/src/metal/fgmres.metalinc:3289:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/matter/src/metal/fgmres.metalinc:3298:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/matter/src/metal/fgmres.metalinc:3289:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/matter/src/metal/fgmres.metalinc:3279:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/matter/src/metal/fgmres.metalinc:3735:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/matter/src/metal/fgmres.metalinc:3752:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/matter/src/metal/fgmres.metalinc:3735:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/matter/src/metal/fgmres.metalinc:3615:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+[  0%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[  5%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+2 warnings generated.
+[  5%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[  5%] Generating shaders/NumiMatterPhysicalStateDigest.metallib
+[  5%] Built target numi_matter_shaders
+[  5%] Generating shaders/MetalRobo.metallib
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/src/metal/NumiHumanStand.metal:2524:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns = (equalityColumnsEnd + nv) * nv;
+               ^
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/src/metal/NumiHumanStand.metal:2638:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns =
+               ^
+2 warnings generated.
+[  5%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+In file included from /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/src/metal/MujocoMuscleReferenceCompensated.metal:4:
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+[  5%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[  5%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[  5%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[  5%] Built target metalrobo_shaders
+[ 10%] Generating shaders/NumiNeuron.metallib
+[ 10%] Built target metalrobo_neuron_culture_shaders
+[ 10%] Generating shaders/MetalRoboHyperPolicy.metallib
+[ 10%] Built target metalrobo_hyper_policy_shaders
+[ 10%] Generating generated/VisualKernelHashes.h
+[ 10%] Built target metalrobo_visual_kernel_hashes
+[ 10%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[ 15%] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+[ 15%] Built target numi_matter_compiler_objects
+[ 15%] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/matter/src/runtime.mm:25002:24: warning: unused variable 'encodeBaseCGLSBestOfCommittedTrace' [-Wunused-variable]
+ 25002 |             const auto encodeBaseCGLSBestOfCommittedTrace = [&]() -> bool {
+       |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/matter/src/runtime.mm:27973:17: error: use of undeclared identifier 'baseCGLSBestOfSelectedNewton'
+ 27973 |             if (baseCGLSBestOfSelectedNewton) {
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[ 15%] Linking CXX static library libnumi_matter_compiler.a
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/matter/src/runtime.mm:27987:22: error: use of undeclared identifier 'encodeBaseCGLSBestOfCommittedTrace'
+ 27987 |                 if (!encodeBaseCGLSBestOfCommittedTrace()) {
+       |                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[ 15%] Built target numi_matter_compiler
+[ 15%] Building CXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+1 warning and 2 errors generated.
+make[3]: *** [matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o] Error 1
+make[3]: *** Waiting for unfinished jobs....
+make[2]: *** [matter/CMakeFiles/numi_matter_runtime_objects.dir/all] Error 2
+make[1]: *** [matter/CMakeFiles/numi-matter-cardboard-probe.dir/rule] Error 2
+make: *** [numi-matter-cardboard-probe] Error 2

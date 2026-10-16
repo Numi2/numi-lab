@@ -1,0 +1,14 @@
+{
+  "results": [
+    {
+      "number": 610,
+      "case": "/Users/n/cardboard-implementation-20261014-host-macmini/native/mortar-inline-observer-on-610",
+      "observer_on": true,
+      "exit_code": 1,
+      "receipt_sha256": "8d659a7ed7f206dd1add8ca3490b0ac4020861ac9ac0ceb103de7110673c4b3e"
+    }
+  ],
+  "source_inputs_unchanged": true,
+  "artifacts_unchanged": true,
+  "at_utc": "2026-10-16T15:07:23.220140+00:00"
+}

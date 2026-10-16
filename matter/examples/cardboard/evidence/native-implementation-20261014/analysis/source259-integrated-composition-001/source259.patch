@@ -1,0 +1,2278 @@
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -192,6 +192,17 @@
+             COMMAND numi-matter-pure-fem-armijo-cgls-arena-plan-check)
+         set_tests_properties(matter.analysis.pure_fem_armijo_cgls_arena_plan
+             PROPERTIES TIMEOUT 30 LABELS "matter;fgmres;armijo;cgls;cpu;admission")
++        add_executable(numi-matter-pure-fem-cgls-best-of-contract-check
++            tools/pure_fem_cgls_best_of_contract_check.cpp)
++        target_include_directories(numi-matter-pure-fem-cgls-best-of-contract-check PRIVATE
++            "${CMAKE_CURRENT_SOURCE_DIR}/include")
++        target_compile_options(numi-matter-pure-fem-cgls-best-of-contract-check PRIVATE
++            -Wall -Wextra -Wpedantic -Werror)
++        add_test(NAME matter.analysis.pure_fem_cgls_best_of_contract
++            COMMAND numi-matter-pure-fem-cgls-best-of-contract-check)
++        set_tests_properties(matter.analysis.pure_fem_cgls_best_of_contract
++            PROPERTIES TIMEOUT 30 LABELS "matter;fgmres;cgls;cpu;transaction")
++
+         set(NUMI_FEM_CGLS_ARENA_8192_CHECK_DIR "${CMAKE_CURRENT_BINARY_DIR}/shaders")
+         set(NUMI_FEM_CGLS_ARENA_8192_CHECK_AIR "${NUMI_FEM_CGLS_ARENA_8192_CHECK_DIR}/FEMPureCGLSArena8192Check.air")
+         set(NUMI_FEM_CGLS_ARENA_8192_CHECK_METALLIB "${NUMI_FEM_CGLS_ARENA_8192_CHECK_DIR}/FEMPureCGLSArena8192Check.metallib")
+@@ -235,6 +246,23 @@
+                 PROPERTIES TIMEOUT 120 RUN_SERIAL TRUE
+                     LABELS "matter;fgmres;cgls;metal;synthetic;arena")
+         endif()
++        add_executable(numi-matter-fem-cgls-best-of-kernel-check
++            tools/pure_fem_cgls_best_of_kernel_check.mm)
++        add_dependencies(numi-matter-fem-cgls-best-of-kernel-check
++            numi_fem_cgls_arena_8192_check_shaders)
++        target_include_directories(numi-matter-fem-cgls-best-of-kernel-check PRIVATE
++            "${CMAKE_CURRENT_SOURCE_DIR}/include")
++        target_link_libraries(numi-matter-fem-cgls-best-of-kernel-check PRIVATE
++            "${NUMI_FEM_CGLS_CHECK_FOUNDATION}" "${NUMI_FEM_CGLS_CHECK_METAL}")
++        target_compile_definitions(numi-matter-fem-cgls-best-of-kernel-check PRIVATE
++            NUMI_FEM_CGLS_ARENA_METALLIB="${NUMI_FEM_CGLS_ARENA_8192_CHECK_METALLIB}")
++        target_compile_options(numi-matter-fem-cgls-best-of-kernel-check PRIVATE
++            -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
++        add_test(NAME matter.metal.fem_cgls_best_of_transaction
++            COMMAND numi-matter-fem-cgls-best-of-kernel-check)
++        set_tests_properties(matter.metal.fem_cgls_best_of_transaction
++            PROPERTIES TIMEOUT 120 RUN_SERIAL TRUE
++                LABELS "matter;fgmres;cgls;metal;synthetic;transaction")
+         add_test(NAME matter.analysis.cardboard_source_data
+             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_source_data_test.py")
+         add_test(NAME matter.analysis.cardboard_pin_source_observables
+--- a/matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp
++++ b/matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp
+@@ -8,19 +8,19 @@
+ namespace numi::matter::detail {
+ inline constexpr std::uint64_t kFEMPureArmijoMaximumScratchBytes=64ull*1024ull*1024ull;
+ inline constexpr std::uint64_t kFEMPureArmijoAccountedResidentCeiling=16ull*1024ull*1024ull*1024ull;
+-inline constexpr std::size_t kFEMPureArmijoMaximumArenaBuffers=25u;
++inline constexpr std::size_t kFEMPureArmijoMaximumArenaBuffers=34u;
+ struct FEMPureArmijoArenaShape {
+  std::uint64_t environmentCount=0,femNodeCount=0,tetrahedronCount=0,unknownCount=0;
+  std::uint64_t contactPairCount=0,cohesiveFaceCount=0,rigidGeneralizedCapacity=0,rigidQCapacity=0;
+  std::uint64_t fieldBoundaryCount=0,punctureChannelCount=0,mpmActiveNodeCapacity=0;
+  std::uint64_t particleCount=0,mpmGridCount=0,mpmBlockCount=0;
+  std::uint64_t maxBufferLength=0,accountedResidentBytes=0;
+- bool oneStaticExplicitFEM=false,unsupportedMatterFlags=false,includeCauchy=false,includeCGLS=false,includeRightScale=false;
++ bool oneStaticExplicitFEM=false,unsupportedMatterFlags=false,includeCauchy=false,includeCGLS=false,includeRightScale=false,includeBestOf=false;
+ };
+ struct FEMPureArmijoArenaBuffer {const char* name=nullptr;std::uint64_t logicalCount=0,elementBytes=0,allocatedBytes=0;};
+ enum class FEMPureArmijoArenaFailure : std::uint32_t {
+  none=0,environment_count,fem_node_count,tetrahedron_count,unsupported_world,unknown_count,cgls_layout,
+- right_scale_layout,arithmetic_overflow,dispatch_index_overflow,per_buffer_limit,scratch_limit,accounted_resident_limit
++ right_scale_layout,best_of_layout,arithmetic_overflow,dispatch_index_overflow,per_buffer_limit,scratch_limit,accounted_resident_limit
+ };
+ struct FEMPureArmijoArenaPlan {
+  FEMPureArmijoArenaFailure failure=FEMPureArmijoArenaFailure::none;
+@@ -28,7 +28,7 @@
+  std::size_t bufferCount=0;
+  std::uint64_t unknownCount=0,scratchBytes=0,maximumScratchBytes=kFEMPureArmijoMaximumScratchBytes;
+  std::uint64_t accountedResidentPlusScratchBytes=0,accountedResidentCeiling=kFEMPureArmijoAccountedResidentCeiling;
+- bool includeCGLS=false;
++ bool includeCGLS=false,includeBestOf=false;
+  [[nodiscard]] bool admitted() const noexcept{return failure==FEMPureArmijoArenaFailure::none;}
+ };
+ [[nodiscard]] inline bool femPureArmijoCheckedMultiply(std::uint64_t a,std::uint64_t b,std::uint64_t& r) noexcept {
+@@ -54,9 +54,11 @@
+  if(!s.oneStaticExplicitFEM||s.unsupportedMatterFlags||s.contactPairCount||s.cohesiveFaceCount||
+     s.rigidGeneralizedCapacity||s.rigidQCapacity||s.fieldBoundaryCount||s.punctureChannelCount||s.mpmActiveNodeCapacity||s.particleCount||s.mpmGridCount||s.mpmBlockCount){
+   p.failure=FEMPureArmijoArenaFailure::unsupported_world;return p;}
+- p.includeCGLS=s.includeCGLS;
++ p.includeCGLS=s.includeCGLS;p.includeBestOf=s.includeBestOf;
+  if(s.includeCGLS&&(!s.includeCauchy||s.environmentCount>2u)){p.failure=FEMPureArmijoArenaFailure::cgls_layout;return p;}
+  if(s.includeRightScale&&!s.includeCGLS){p.failure=FEMPureArmijoArenaFailure::right_scale_layout;return p;}
++ if(s.includeBestOf&&(!s.includeCGLS||!s.includeCauchy||s.environmentCount>2u)){
++  p.failure=FEMPureArmijoArenaFailure::best_of_layout;return p;}
+  std::uint64_t en=0,et=0,un=0,n3=0;
+  if(!femPureArmijoCheckedMultiply(s.environmentCount,s.femNodeCount,en)||
+     !femPureArmijoCheckedMultiply(s.environmentCount,s.tetrahedronCount,et)||
+@@ -95,6 +97,15 @@
+  }
+  if(s.includeRightScale&&(!add("cgls_right_scale_rows",n3,sizeof(nm_float4))||
+                            !add("cgls_right_scale_physical",un,sizeof(nm_float4))))return p;
++ if(s.includeBestOf&&(!add("cgls_best_direction",un,sizeof(nm_float4))||
++    !add("cgls_best_metrics",e,sizeof(nm_float4))||
++    !add("cgls_best_line_search",e,sizeof(nm_float4))||
++    !add("cgls_best_environment_line_search",e,sizeof(float))||
++    !add("cgls_best_certificate",e,sizeof(float))||
++    !add("cgls_best_statuses",e,sizeof(NMMatterStatusGPU))||
++    !add("cgls_best_trial_statuses",e,sizeof(NMMatterStatusGPU))||
++    !add("cgls_best_flags",e,sizeof(std::uint32_t))||
++    !add("cgls_best_committed",e,sizeof(nm_float4))))return p;
+  if(p.scratchBytes>p.maximumScratchBytes){p.failure=FEMPureArmijoArenaFailure::scratch_limit;return p;}
+  if(!femPureArmijoCheckedAdd(s.accountedResidentBytes,p.scratchBytes,p.accountedResidentPlusScratchBytes)){
+   p.failure=FEMPureArmijoArenaFailure::arithmetic_overflow;return p;}
+@@ -112,6 +123,7 @@
+  case FEMPureArmijoArenaFailure::unknown_count:return "pure_fem_armijo_unknown_count_mismatch_or_uint32_overflow";
+  case FEMPureArmijoArenaFailure::cgls_layout:return "pure_fem_armijo_cgls_requires_cauchy_and_at_most_two_environments";
+  case FEMPureArmijoArenaFailure::right_scale_layout:return "pure_fem_armijo_right_scale_requires_cgls";
++ case FEMPureArmijoArenaFailure::best_of_layout:return "pure_fem_armijo_best_of_requires_selected_cauchy_cgls_and_at_most_two_environments";
+  case FEMPureArmijoArenaFailure::arithmetic_overflow:return "pure_fem_armijo_arena_checked_arithmetic_overflow";
+  case FEMPureArmijoArenaFailure::dispatch_index_overflow:return "pure_fem_armijo_arena_exceeds_uint32_dispatch_range";
+  case FEMPureArmijoArenaFailure::per_buffer_limit:return "pure_fem_armijo_arena_exceeds_device_max_buffer_length";
+--- a/matter/include/numi/matter/detail/pure_fem_cgls_best_of_policy.hpp
++++ b/matter/include/numi/matter/detail/pure_fem_cgls_best_of_policy.hpp
+@@ -0,0 +1,40 @@
++#pragma once
++#include <cmath>
++#include <cstdint>
++#include <cstring>
++
++namespace numi::matter::detail {
++struct FEMPureCGLSBestOfEligibility {
++    bool selectedNewton=false, accepted=false, healthy=false, originalCertificate=false;
++    float baseResidual=0.0f, residualTolerance=0.0f, acceptedResidual=0.0f, alpha=0.0f;
++};
++[[nodiscard]] inline bool femPureCGLSBestOfEligible(
++        const FEMPureCGLSBestOfEligibility& v) noexcept {
++    return v.selectedNewton && v.accepted && v.healthy && v.originalCertificate &&
++        std::isfinite(v.baseResidual) && std::isfinite(v.residualTolerance) &&
++        v.residualTolerance>=0.0f && std::isfinite(v.acceptedResidual) &&
++        v.acceptedResidual>=0.0f && v.acceptedResidual<v.baseResidual &&
++        v.baseResidual>v.residualTolerance && std::isfinite(v.alpha) && v.alpha>0.0f;
++}
++struct FEMPureCGLSBestOfChoice {
++    bool savedNewtonCandidate=false, cglsAccepted=false, cglsHealthy=false, cglsFinite=false;
++    float newtonResidual=0.0f, cglsResidual=0.0f;
++};
++[[nodiscard]] inline bool femPureCGLSBestOfSelect(
++        const FEMPureCGLSBestOfChoice& v) noexcept {
++    return v.savedNewtonCandidate && v.cglsAccepted && v.cglsHealthy && v.cglsFinite &&
++        std::isfinite(v.newtonResidual) && std::isfinite(v.cglsResidual) &&
++        v.newtonResidual>=0.0f && v.cglsResidual>=0.0f &&
++        v.cglsResidual<v.newtonResidual;
++}
++template <std::size_t N>
++inline bool femPureCGLSBestOfResolveBytes(
++        const FEMPureCGLSBestOfChoice& v,
++        const unsigned char (&newtonSnapshot)[N],
++        const unsigned char (&currentCGLSState)[N],
++        unsigned char (&selectedState)[N]) noexcept {
++    const bool chooseCGLS=femPureCGLSBestOfSelect(v);
++    std::memcpy(selectedState,chooseCGLS?currentCGLSState:newtonSnapshot,N);
++    return chooseCGLS;
++}
++} // namespace numi::matter::detail
+--- a/matter/include/numi/matter/shared.h
++++ b/matter/include/numi/matter/shared.h
+@@ -644,6 +644,24 @@
+     nm_float4 parameters;
+ } NMDeformableVTCCDAuditGPU;
+ 
++// Optional first-uncertified mortar-complement CCD query, written inline by
++// the selected production candidate thread. attempt.w: 1=partition invalid,
++// 2=paired-boundary rejection, 3=left VT, 4=right VT, 5=EE. start/finish hold
++// exact subtriangle endpoints (parent endpoints for invalid partitions);
++// leftBary/rightBary preserve each cell map. This is diagnostic-only storage.
++typedef struct NM_ALIGN16 NMMortarComplementAuditGPU {
++    nm_uint4 attempt; // written, environment, candidate slot, query kind
++    nm_uint4 candidateIdentity; // source primitive pair and production flags
++    nm_uint4 cells; // left cell, right cell, left patch, right patch
++    nm_uint4 feature; // VT vertex/direction or EE endpoint indices
++    nm_float4 start[6]; // left subtriangle xyz[0..2], right xyz[3..5]
++    nm_float4 finish[6];
++    nm_float4 leftBary[3];
++    nm_float4 rightBary[3];
++    nm_float4 result; // hit, certified, TOI, separation
++    nm_float4 parameters; // thickness, left dt, right dt, solver iteration
++} NMMortarComplementAuditGPU;
++
+ enum NMDeformableContactKind : nm_u32 {
+     NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE = 0u,
+     NM_DEFORMABLE_CONTACT_EDGE_EDGE = 1u,
+@@ -1517,6 +1535,7 @@
+ static_assert(sizeof(NMFEMNodeStateGPU) == 80);
+ static_assert(sizeof(NMFEMStatus5CaptureGPU) % 16 == 0);
+ static_assert(sizeof(NMDeformableVTCCDAuditGPU) == 336);
++static_assert(sizeof(NMMortarComplementAuditGPU) == 384);
+ static_assert(sizeof(NMAdaptiveStateGPU) == 160);
+ static_assert(sizeof(NMSchedulerStateGPU) == 80);
+ static_assert(sizeof(NMEventTokenGPU) == 48);
+--- a/matter/src/metal/base_cgls_runtime.metalinc
++++ b/matter/src/metal/base_cgls_runtime.metalinc
+@@ -26,6 +26,227 @@
+         states[environment].diagnostics.z > 0.5f &&
+         baseResidualIsUnconverged;
+     if (eligible) metrics[environment].w = 3.0f;
++}
++
++
++// Best-of globalization is a request-local transaction. Flag 1 denotes a
++// healthy accepted Newton candidate saved for comparison, flag 2 denotes the
++// pre-existing exhausted-Newton CGLS fallback, and flag 0 means this
++// environment must be restored exactly after the alternative pass.
++kernel void nm_fgmres_base_cgls_best_of_save(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant NMMixedSolverGPU& solver [[buffer(1)]],
++    device float4* metrics [[buffer(2)]],
++    device float4* lineSearch [[buffer(3)]],
++    device float* environmentLineSearch [[buffer(4)]],
++    device const NMFGMRESStateGPU* states [[buffer(5)]],
++    device NMMatterStatusGPU* statuses [[buffer(6)]],
++    device NMMatterStatusGPU* trialStatuses [[buffer(7)]],
++    device float4* savedMetrics [[buffer(8)]],
++    device float4* savedLineSearch [[buffer(9)]],
++    device float* savedEnvironmentLineSearch [[buffer(10)]],
++    device float* savedCertificate [[buffer(11)]],
++    device NMMatterStatusGPU* savedStatuses [[buffer(12)]],
++    device NMMatterStatusGPU* savedTrialStatuses [[buffer(13)]],
++    device uint* flags [[buffer(14)]],
++    uint environment [[thread_position_in_grid]]) {
++    if (environment >= dispatch.environmentCount ||
++        dispatch.objectCount != 1u) return;
++    const uint slot = environment * dispatch.objectCount;
++    const float4 metric = metrics[environment];
++    const float4 line = lineSearch[slot];
++    const float certificate = states[environment].diagnostics.z;
++    savedMetrics[environment] = metric;
++    savedLineSearch[environment] = line;
++    savedEnvironmentLineSearch[environment] =
++        environmentLineSearch[environment];
++    savedCertificate[environment] = certificate;
++    savedStatuses[environment] = statuses[environment];
++    savedTrialStatuses[environment] = trialStatuses[environment];
++    flags[environment] = 0u;
++
++    // Preserve ordinary exhausted-Newton CGLS fallback behavior as its own
++    // transaction. Only an accepted, non-noop Newton point is compared.
++    if (metric.w == 3.0f) {
++        flags[environment] = 2u;
++        return;
++    }
++    const bool testedAlphaMatches = isfinite(metric.z) &&
++        isfinite(line.x) && isfinite(environmentLineSearch[environment]) &&
++        metric.z > 0.0f && metric.z == line.x &&
++        metric.z == environmentLineSearch[environment];
++    const bool eligible = metric.w == 1.0f &&
++        environmentHealthy(statuses, environment) &&
++        isfinite(metric.x) && isfinite(metric.y) && isfinite(metric.z) &&
++        metric.x > solver.residualTolerances.x &&
++        metric.y >= 0.0f && metric.y < metric.x &&
++        testedAlphaMatches &&
++        isfinite(certificate) && certificate > 0.5f;
++    if (eligible) {
++        flags[environment] = 1u;
++        // Reuse the existing CGLS selector marker. The complete saved metric
++        // vector remains intact in private scratch for bitwise restoration.
++        metrics[environment].w = 3.0f;
++    }
++}
++
++kernel void nm_fgmres_base_cgls_best_of_save_direction(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
++    device const float4* solution [[buffer(1)]],
++    device float4* savedDirection [[buffer(2)]],
++    device const uint* flags [[buffer(3)]],
++    uint global [[thread_position_in_grid]]) {
++    if (global >= layout.unknownCount || dispatch.femNodeCount == 0u) return;
++    const uint mechanicalRows = dispatch.environmentCount *
++        dispatch.femNodeCount;
++    const uint local = global < mechanicalRows
++        ? global : global - mechanicalRows;
++    const uint environment = local / dispatch.femNodeCount;
++    if (environment < dispatch.environmentCount && flags[environment] != 2u)
++        savedDirection[global] = solution[global];
++}
++
++kernel void nm_fgmres_base_cgls_best_of_resolve(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device float4* metrics [[buffer(1)]],
++    device float4* lineSearch [[buffer(2)]],
++    device float* environmentLineSearch [[buffer(3)]],
++    device NMFGMRESStateGPU* states [[buffer(4)]],
++    device NMMatterStatusGPU* statuses [[buffer(5)]],
++    device NMMatterStatusGPU* trialStatuses [[buffer(6)]],
++    device float4* savedMetrics [[buffer(7)]],
++    device const float4* savedLineSearch [[buffer(8)]],
++    device const float* savedEnvironmentLineSearch [[buffer(9)]],
++    device const float* savedCertificate [[buffer(10)]],
++    device const NMMatterStatusGPU* savedStatuses [[buffer(11)]],
++    device const NMMatterStatusGPU* savedTrialStatuses [[buffer(12)]],
++    device const uint* flags [[buffer(13)]],
++    uint environment [[thread_position_in_grid]]) {
++    if (environment >= dispatch.environmentCount ||
++        dispatch.objectCount != 1u) return;
++    const uint flag = flags[environment];
++    const uint slot = environment * dispatch.objectCount;
++    if (flag == 2u) {
++        // This was the existing exhausted-Newton path, not a best-of
++        // comparison. Leave its selected CGLS result untouched.
++        const float4 current = metrics[environment];
++        const float alpha = lineSearch[slot].x;
++        savedMetrics[environment] = float4(
++            current.x, current.y, alpha, 4.0f);
++        return;
++    }
++    const float4 oldMetric = savedMetrics[environment];
++    if (flag == 1u) {
++        const float4 cglsMetric = metrics[environment];
++        const bool cglsAlphaMatches = isfinite(cglsMetric.z) &&
++            isfinite(lineSearch[slot].x) &&
++            isfinite(environmentLineSearch[environment]) &&
++            cglsMetric.z > 0.0f &&
++            cglsMetric.z == lineSearch[slot].x &&
++            cglsMetric.z == environmentLineSearch[environment];
++        const bool cglsAccepted = cglsMetric.w == 1.0f &&
++            environmentHealthy(statuses, environment) &&
++            isfinite(cglsMetric.x) && isfinite(cglsMetric.y) &&
++            isfinite(cglsMetric.z) && cglsMetric.x >= 0.0f &&
++            cglsMetric.y >= 0.0f && cglsMetric.y < cglsMetric.x &&
++            cglsAlphaMatches;
++        const bool chooseCGLS = cglsAccepted &&
++            isfinite(oldMetric.y) && oldMetric.y >= 0.0f &&
++            cglsMetric.y < oldMetric.y;
++        if (chooseCGLS) {
++            savedMetrics[environment] = float4(
++                oldMetric.y, cglsMetric.y, cglsMetric.z, 2.0f);
++            return;
++        }
++        const float cglsResidual = cglsAccepted ? cglsMetric.y : NAN;
++        const float cglsAlpha = cglsAccepted ? cglsMetric.z : NAN;
++        metrics[environment] = oldMetric;
++        lineSearch[slot] = savedLineSearch[environment];
++        environmentLineSearch[environment] =
++            savedEnvironmentLineSearch[environment];
++        states[environment].diagnostics.z =
++            savedCertificate[environment];
++        statuses[environment] = savedStatuses[environment];
++        trialStatuses[environment] = savedTrialStatuses[environment];
++        savedMetrics[environment] = float4(
++            oldMetric.y, cglsResidual, cglsAlpha,
++            cglsAccepted ? 1.0f : 3.0f);
++        return;
++    }
++
++    // No accepted Newton snapshot was eligible for comparison. Restore all
++    // per-environment Armijo scratch modified by the second no-op pass.
++    metrics[environment] = oldMetric;
++    lineSearch[slot] = savedLineSearch[environment];
++    environmentLineSearch[environment] =
++        savedEnvironmentLineSearch[environment];
++    states[environment].diagnostics.z =
++        savedCertificate[environment];
++    statuses[environment] = savedStatuses[environment];
++    trialStatuses[environment] = savedTrialStatuses[environment];
++    savedMetrics[environment] = float4(0.0f);
++}
++
++// Recompute the post-apply production residual norm for the actually
++// selected candidate. This is an audit-only comparison with the accepted
++// Armijo residual saved by the best-of resolver; it is never a new gate.
++kernel void nm_fgmres_base_cgls_best_of_measure_committed(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(1)]],
++    device const float4* residual [[buffer(2)]],
++    device const float4* outcome [[buffer(3)]],
++    device float4* committed [[buffer(4)]],
++    device const NMMatterStatusGPU* statuses [[buffer(5)]],
++    uint environment [[thread_position_in_grid]]) {
++    if (environment >= dispatch.environmentCount ||
++        dispatch.objectCount != 1u) return;
++    const float code = outcome[environment].w;
++    const bool cglsWon = code == 2.0f || code == 4.0f;
++    const float tested = cglsWon
++        ? outcome[environment].y : outcome[environment].x;
++    const uint base = environment * dispatch.femNodeCount;
++    float norm2 = 0.0f;
++    bool valid = environmentHealthy(statuses, environment) &&
++        isfinite(tested) && tested >= 0.0f;
++    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
++        const NMFEMNodeStateGPU state = candidate[base + node];
++        if (!isfinite(state.restAndFixed.w) ||
++            !isfinite(state.positionAndMass.w)) {
++            valid = false;
++            continue;
++        }
++        if (state.restAndFixed.w > 0.5f ||
++            state.positionAndMass.w <= 0.0f) continue;
++        const float3 value = residual[base + node].xyz;
++        valid = valid && all(isfinite(value));
++        norm2 += dot(value, value);
++    }
++    const float rebuilt = valid && isfinite(norm2)
++        ? sqrt(max(norm2, 0.0f)) : NAN;
++    committed[environment] = float4(
++        tested, rebuilt, fabs(rebuilt - tested),
++        valid && isfinite(rebuilt) ? 1.0f : 0.0f);
++}
++
++kernel void nm_fgmres_base_cgls_best_of_restore_direction(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
++    device float4* solution [[buffer(1)]],
++    device const float4* savedDirection [[buffer(2)]],
++    device const float4* outcome [[buffer(3)]],
++    device const uint* flags [[buffer(4)]],
++    uint global [[thread_position_in_grid]]) {
++    if (global >= layout.unknownCount || dispatch.femNodeCount == 0u) return;
++    const uint mechanicalRows = dispatch.environmentCount *
++        dispatch.femNodeCount;
++    const uint local = global < mechanicalRows
++        ? global : global - mechanicalRows;
++    const uint environment = local / dispatch.femNodeCount;
++    if (environment < dispatch.environmentCount &&
++        (flags[environment] == 0u ||
++         (flags[environment] == 1u && outcome[environment].w != 2.0f)))
++        solution[global] = savedDirection[global];
+ }
+ 
+ // Runtime-only adapters for the bounded, default-off CGLS direction experiment.
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -2154,6 +2154,67 @@
+     (void)pointTriangle;
+ }
+ 
++constant uint kMortarAuditSelectorSentinel = 0xfffffffeu;
++
++inline NMMortarComplementAuditGPU makeMortarComplementAudit(
++    const uint environment,
++    const uint slot,
++    const uint queryKind,
++    const uint4 candidateIdentity,
++    const uint4 cells,
++    const uint4 feature,
++    thread const float3* leftStart,
++    thread const float3* leftFinish,
++    thread const float3* rightStart,
++    thread const float3* rightFinish,
++    const bool subtriangleEndpoints,
++    const NMMortarContactSubtriangle leftTriangle,
++    const NMMortarContactSubtriangle rightTriangle,
++    const float thickness,
++    const float leftDt,
++    const float rightDt,
++    const uint iteration,
++    const bool hit,
++    const bool certified,
++    const float toi,
++    const float separation
++) {
++    NMMortarComplementAuditGPU observed{};
++    observed.attempt = uint4(1u, environment, slot, queryKind);
++    observed.candidateIdentity = candidateIdentity;
++    observed.cells = cells;
++    observed.feature = feature;
++    for (uint local = 0u; local < 3u; ++local) {
++        observed.start[local] = float4(leftStart[local], 0.0f);
++        observed.start[local + 3u] = float4(rightStart[local], 0.0f);
++        observed.finish[local] = float4(leftFinish[local], 0.0f);
++        observed.finish[local + 3u] = float4(rightFinish[local], 0.0f);
++        if (subtriangleEndpoints) {
++            observed.leftBary[local] = float4(leftTriangle.bary[local], 0.0f);
++            observed.rightBary[local] = float4(rightTriangle.bary[local], 0.0f);
++        }
++    }
++    observed.result = float4(hit ? 1.0f : 0.0f,
++                            certified ? 1.0f : 0.0f, toi, separation);
++    observed.parameters = float4(thickness, leftDt, rightDt,
++                                  float(iteration));
++    return observed;
++}
++
++inline void storeMortarComplementAudit(
++    device NMMortarComplementAuditGPU* audit,
++    const uint4 selector,
++    const uint global,
++    const NMMortarComplementAuditGPU observed
++) {
++    // One selected candidate thread owns this slot; preserve its first query.
++    if (selector.x != global || selector.w != kMortarAuditSelectorSentinel ||
++        selector.y != observed.candidateIdentity.x ||
++        selector.z != observed.candidateIdentity.y ||
++        audit[0].attempt.x != 0u) return;
++    audit[0] = observed;
++}
++
+ inline void considerMortarEdgeEdge(
+     const float3 leftStart0,
+     const float3 leftFinish0,
+@@ -2170,7 +2231,24 @@
+     const uint2 rightEdge,
+     const NMMortarPairedBoundary pairedBoundary,
+     thread NMMortarContactData& best,
+-    thread bool& certified
++    thread bool& certified,
++    device NMMortarComplementAuditGPU* mortarAudit,
++    const uint4 mortarAuditSelector,
++    const uint global,
++    const uint environment,
++    const uint slot,
++    const uint4 candidateIdentity,
++    const uint leftCell,
++    const uint rightCell,
++    const uint leftPatch,
++    const uint rightPatch,
++    thread const float3* leftSubStart,
++    thread const float3* leftSubFinish,
++    thread const float3* rightSubStart,
++    thread const float3* rightSubFinish,
++    const uint solverIteration,
++    const float leftDt,
++    const float rightDt
+ ) {
+     float toi, separation;
+     float3 normal, point;
+@@ -2181,6 +2259,19 @@
+         rightStart0, rightFinish0, rightStart1, rightFinish1,
+         thickness, toi, normal, parameters, point, separation,
+         localCertified);
++    if (!localCertified && mortarAuditSelector.x == global &&
++        mortarAuditSelector.w == kMortarAuditSelectorSentinel) {
++        const NMMortarComplementAuditGPU observed =
++            makeMortarComplementAudit(
++                environment, slot, 5u, candidateIdentity,
++                uint4(leftCell, rightCell, leftPatch, rightPatch),
++                uint4(leftEdge.x, leftEdge.y, rightEdge.x, rightEdge.y),
++                leftSubStart, leftSubFinish, rightSubStart, rightSubFinish,
++                true, leftTriangle, rightTriangle, thickness, leftDt, rightDt,
++                solverIteration, hit, localCertified, toi, separation);
++        storeMortarComplementAudit(
++            mortarAudit, mortarAuditSelector, global, observed);
++    }
+     certified = certified && localCertified;
+     if (!localCertified || !hit || !(toi < best.toi)) return;
+     const float3 leftBarycentric = mix(
+@@ -2443,7 +2534,16 @@
+     thread const float3* rightStart,
+     thread const float3* rightFinish,
+     const float thickness,
+-    thread NMMortarContactData& best
++    thread NMMortarContactData& best,
++    device NMMortarComplementAuditGPU* mortarAudit,
++    const uint4 mortarAuditSelector,
++    const uint global,
++    const uint environment,
++    const uint slot,
++    const uint4 candidateIdentity,
++    const uint solverIteration,
++    const float leftDt,
++    const float rightDt
+ ) {
+     constexpr uint2 edges[3] = {
+         uint2(0u, 1u), uint2(1u, 2u), uint2(2u, 0u)
+@@ -2509,7 +2609,35 @@
+                     rightTriangle.coveredPatchIndex, leftPrimitive,
+                     rightPrimitive, gridNodeCount, faces, faceBase,
+                     leftStart, rightStart,
+-                    pairedBoundary)) return false;
++                    pairedBoundary)) {
++                if (mortarAuditSelector.x == global &&
++                    mortarAuditSelector.w == kMortarAuditSelectorSentinel) {
++                    float3 traceLS[3], traceLF[3], traceRS[3], traceRF[3];
++                    for (uint local = 0u; local < 3u; ++local) {
++                        traceLS[local] = mortarBaryPoint(
++                            leftTriangle.bary[local], leftStart);
++                        traceLF[local] = mortarBaryPoint(
++                            leftTriangle.bary[local], leftFinish);
++                        traceRS[local] = mortarBaryPoint(
++                            rightTriangle.bary[local], rightStart);
++                        traceRF[local] = mortarBaryPoint(
++                            rightTriangle.bary[local], rightFinish);
++                    }
++                    const NMMortarComplementAuditGPU observed =
++                        makeMortarComplementAudit(
++                            environment, slot, 2u, candidateIdentity,
++                            uint4(leftIndex, rightIndex,
++                                leftTriangle.coveredPatchIndex,
++                                rightTriangle.coveredPatchIndex),
++                            uint4(NM_INVALID_INDEX), traceLS, traceLF,
++                            traceRS, traceRF, true, leftTriangle, rightTriangle,
++                            thickness, leftDt, rightDt, solverIteration,
++                            false, false, 0.0f, 0.0f);
++                    storeMortarComplementAudit(
++                        mortarAudit, mortarAuditSelector, global, observed);
++                }
++                return false;
++            }
+ 
+             float3 leftSubStart[3], leftSubFinish[3];
+             float3 rightSubStart[3], rightSubFinish[3];
+@@ -2535,6 +2663,24 @@
+                     rightSubStart[2], rightSubFinish[2],
+                     thickness, toi, normal, barycentric, point,
+                     separation, certified);
++                if (!certified && mortarAuditSelector.x == global &&
++                    mortarAuditSelector.w == kMortarAuditSelectorSentinel) {
++                    const NMMortarComplementAuditGPU observed =
++                        makeMortarComplementAudit(
++                            environment, slot, 3u, candidateIdentity,
++                            uint4(leftIndex, rightIndex,
++                                leftTriangle.coveredByCohesive != 0u
++                                    ? leftTriangle.coveredPatchIndex : NM_INVALID_INDEX,
++                                rightTriangle.coveredByCohesive != 0u
++                                    ? rightTriangle.coveredPatchIndex : NM_INVALID_INDEX),
++                            uint4(leftVertex, 0u, NM_INVALID_INDEX, NM_INVALID_INDEX),
++                            leftSubStart, leftSubFinish, rightSubStart,
++                            rightSubFinish, true, leftTriangle, rightTriangle,
++                            thickness, leftDt, rightDt, solverIteration,
++                            hit, certified, toi, separation);
++                    storeMortarComplementAudit(
++                        mortarAudit, mortarAuditSelector, global, observed);
++                }
+                 allCertified = allCertified && certified;
+                 if (certified && hit && toi < best.toi) {
+                     const float previousTOI = best.toi;
+@@ -2568,6 +2714,24 @@
+                     leftSubStart[2], leftSubFinish[2],
+                     thickness, toi, normal, barycentric, point,
+                     separation, certified);
++                if (!certified && mortarAuditSelector.x == global &&
++                    mortarAuditSelector.w == kMortarAuditSelectorSentinel) {
++                    const NMMortarComplementAuditGPU observed =
++                        makeMortarComplementAudit(
++                            environment, slot, 4u, candidateIdentity,
++                            uint4(leftIndex, rightIndex,
++                                leftTriangle.coveredByCohesive != 0u
++                                    ? leftTriangle.coveredPatchIndex : NM_INVALID_INDEX,
++                                rightTriangle.coveredByCohesive != 0u
++                                    ? rightTriangle.coveredPatchIndex : NM_INVALID_INDEX),
++                            uint4(rightVertex, 1u, NM_INVALID_INDEX, NM_INVALID_INDEX),
++                            leftSubStart, leftSubFinish, rightSubStart,
++                            rightSubFinish, true, leftTriangle, rightTriangle,
++                            thickness, leftDt, rightDt, solverIteration,
++                            hit, certified, toi, separation);
++                    storeMortarComplementAudit(
++                        mortarAudit, mortarAuditSelector, global, observed);
++                }
+                 allCertified = allCertified && certified;
+                 if (certified && hit && toi < best.toi) {
+                     const float previousTOI = best.toi;
+@@ -2605,7 +2769,15 @@
+                         rightSubFinish[edges[rightEdge].y],
+                         thickness, leftTriangle, edges[leftEdge],
+                         rightTriangle, edges[rightEdge], pairedBoundary,
+-                        best, certified);
++                        best, certified, mortarAudit, mortarAuditSelector,
++                        global, environment, slot, candidateIdentity,
++                        leftIndex, rightIndex,
++                        leftTriangle.coveredByCohesive != 0u
++                            ? leftTriangle.coveredPatchIndex : NM_INVALID_INDEX,
++                        rightTriangle.coveredByCohesive != 0u
++                            ? rightTriangle.coveredPatchIndex : NM_INVALID_INDEX,
++                        leftSubStart, leftSubFinish, rightSubStart,
++                        rightSubFinish, solverIteration, leftDt, rightDt);
+                     if (best.toi < previousTOI) {
+                         best.auditLeftCell = leftIndex;
+                         best.auditRightCell = rightIndex;
+@@ -2819,7 +2991,9 @@
+         leftPartition, rightPartition, mortarPatches, left, right,
+         dispatch.gridNodeCount, cohesiveFaces,
+         environment * dispatch.cohesiveFaceCount,
+-        start, finish, start + 3u, finish + 3u, collisionThickness, sweep);
++        start, finish, start + 3u, finish + 3u, collisionThickness, sweep,
++        nullptr, uint4(NM_INVALID_INDEX), global, environment, slot,
++        uint4(NM_INVALID_INDEX), 0u, 0.0f, 0.0f);
+     if (!validPartitions || !certified) {
+         const uint failureCode = !leftPartitionValid
+             ? leftPartitionFailureStage
+@@ -2947,7 +3121,9 @@
+         leftPartition, rightPartition, patches, left, right,
+         dispatch.gridNodeCount, cohesiveFaces,
+         environment * dispatch.cohesiveFaceCount,
+-        start, finish, start + 3u, finish + 3u, thickness, sweep);
++        start, finish, start + 3u, finish + 3u, thickness, sweep,
++        nullptr, uint4(NM_INVALID_INDEX), global, environment, slot,
++        uint4(NM_INVALID_INDEX), 0u, 0.0f, 0.0f);
+     output[0] = float4(float(leftPartition.count),
+                        float(rightPartition.count),
+                        validPartitions ? 1.0f : 0.0f,
+@@ -4139,6 +4315,7 @@
+     device NMMatterStatusGPU* candidateStatuses [[buffer(17)]],
+     device NMDeformableVTCCDAuditGPU* vtccdAudit [[buffer(18)]],
+     constant nm_uint4& vtccdAuditSelector [[buffer(19)]],
++    device NMMortarComplementAuditGPU* mortarAudit [[buffer(20)]],
+     uint global [[thread_position_in_grid]]
+ ) {
+     const uint capacity = dispatch.deformableContactCapacity;
+@@ -4148,6 +4325,9 @@
+     // Clearing here also makes a missing candidate/feature an explicit empty
+     // record, without another dispatch, barrier, or host/GPU wait.
+     if (vtccdAuditSelector.x == global) vtccdAudit[0] = {};
++    if (vtccdAuditSelector.x == global &&
++        vtccdAuditSelector.w == kMortarAuditSelectorSentinel)
++        mortarAudit[0] = {};
+     if (deterministicStatusSelection != 0u)
+         candidateStatuses[global] = {};
+     const NMDeformableContactHistoryGPU previous = histories[global];
+@@ -4353,7 +4533,39 @@
+                     left, right, dispatch.gridNodeCount, cohesiveFaces,
+                     environment * dispatch.cohesiveFaceCount,
+                     start, finish, start + 3u, finish + 3u,
+-                    thickness, selected);
++                    thickness, selected, mortarAudit, vtccdAuditSelector,
++                    global, environment, slot, candidate.identity,
++                    microstep.solverIteration,
++                    objectTimestep(dispatch,
++                        schedulers[environment * dispatch.objectCount +
++                            left.nodesAndObject.w]),
++                    objectTimestep(dispatch,
++                        schedulers[environment * dispatch.objectCount +
++                            right.nodesAndObject.w]));
++            if (!validPartitions &&
++                vtccdAuditSelector.x == global &&
++                vtccdAuditSelector.w == kMortarAuditSelectorSentinel &&
++                vtccdAuditSelector.y == candidate.identity.x &&
++                vtccdAuditSelector.z == candidate.identity.y) {
++                const NMMortarContactSubtriangle emptyTriangle{};
++                const NMMortarComplementAuditGPU observed =
++                    makeMortarComplementAudit(
++                        environment, slot, 1u, candidate.identity,
++                        uint4(NM_INVALID_INDEX),
++                        uint4(leftPartitionFailureStage,
++                              rightPartitionFailureStage, 0u, 0u),
++                        start, finish, start + 3u, finish + 3u, false,
++                        emptyTriangle, emptyTriangle, thickness,
++                        objectTimestep(dispatch,
++                            schedulers[environment * dispatch.objectCount +
++                                left.nodesAndObject.w]),
++                        objectTimestep(dispatch,
++                            schedulers[environment * dispatch.objectCount +
++                                right.nodesAndObject.w]),
++                        microstep.solverIteration, false, false, 0.0f, 0.0f);
++                storeMortarComplementAudit(
++                    mortarAudit, vtccdAuditSelector, global, observed);
++            }
+             if (!validPartitions || !certified) {
+                 recordDeformableNarrowphaseFailure(
+                     deterministicStatusSelection, statuses, candidateStatuses,
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -2795,6 +2795,16 @@
+     id<MTLBuffer> femBaseCGLSScalars = nil;
+     id<MTLBuffer> femBaseCGLSControl = nil;
+     id<MTLBuffer> femBaseCGLSErrors = nil;
++    bool femBaseCGLSBestOfScratchEnabled = false;
++    id<MTLBuffer> femBaseCGLSBestOfDirection = nil;
++    id<MTLBuffer> femBaseCGLSBestOfMetrics = nil;
++    id<MTLBuffer> femBaseCGLSBestOfLineSearch = nil;
++    id<MTLBuffer> femBaseCGLSBestOfEnvironmentLineSearch = nil;
++    id<MTLBuffer> femBaseCGLSBestOfCertificate = nil;
++    id<MTLBuffer> femBaseCGLSBestOfStatuses = nil;
++    id<MTLBuffer> femBaseCGLSBestOfTrialStatuses = nil;
++    id<MTLBuffer> femBaseCGLSBestOfFlags = nil;
++    id<MTLBuffer> femBaseCGLSBestOfCommitted = nil;
+     bool femBaseCGLSRightScaleScratchEnabled = false;
+     id<MTLBuffer> femBaseCGLSRightScaleRows = nil;
+     id<MTLBuffer> femBaseCGLSRightScalePhysical = nil;
+@@ -6729,6 +6739,14 @@
+             std::getenv("NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR") != nullptr;
+         const bool baseCGLSRequested =
+             std::getenv("NM_FEM_BASE_CGLS_ITERATIONS") != nullptr;
++        const char* bestOfRequestedText =
++            std::getenv("NM_FEM_BASE_CGLS_BEST_OF");
++        const bool baseCGLSBestOfRequested =
++            bestOfRequestedText != nullptr;
++        if (baseCGLSBestOfRequested &&
++            std::strcmp(bestOfRequestedText, "1") != 0) {
++            valid = false;
++        }
+         candidate->femBaseCGLSScratchEnabled =
+             baseCGLSRequested &&
+             candidate->femBaseCauchyScratchEnabled &&
+@@ -6794,7 +6812,8 @@
+                 .includeCauchy = candidate->femBaseCauchyScratchEnabled,
+                 .includeCGLS = baseCGLSRequested,
+                 .includeRightScale =
+-                    std::getenv("NM_FEM_BASE_CGLS_RIGHT_SCALE") != nullptr});
++                    std::getenv("NM_FEM_BASE_CGLS_RIGHT_SCALE") != nullptr,
++                .includeBestOf = baseCGLSBestOfRequested});
+             if (!plan.admitted()) {
+                 diagnostics.message =
+                     detail::femPureArmijoCGLSArenaFailureReason(plan.failure);
+@@ -6814,6 +6833,8 @@
+             }
+             candidate->femBaseCGLSScratchEnabled =
+                 baseCGLSRequested && plan.includeCGLS;
++            candidate->femBaseCGLSBestOfScratchEnabled =
++                baseCGLSBestOfRequested && plan.includeBestOf;
+         }
+         if (candidate->femResidualArmijoScratchEnabled) {
+             candidate->femArmijoCandidate = privateScratch<NMFEMNodeStateGPU>(
+@@ -6889,6 +6910,36 @@
+                     candidate->device, environments, valid, candidate->residentBytes);
+                 candidate->femBaseCGLSErrors = privateScratch<std::uint32_t>(
+                     candidate->device, environments, valid, candidate->residentBytes);
++                if (candidate->femBaseCGLSBestOfScratchEnabled) {
++                    candidate->femBaseCGLSBestOfDirection =
++                        privateScratch<nm_float4>(candidate->device,
++                            candidate->fgmresLayout.unknownCount,
++                            valid, candidate->residentBytes);
++                    candidate->femBaseCGLSBestOfMetrics =
++                        privateScratch<nm_float4>(candidate->device,
++                            environments, valid, candidate->residentBytes);
++                    candidate->femBaseCGLSBestOfLineSearch =
++                        privateScratch<nm_float4>(candidate->device,
++                            environments, valid, candidate->residentBytes);
++                    candidate->femBaseCGLSBestOfEnvironmentLineSearch =
++                        privateScratch<float>(candidate->device,
++                            environments, valid, candidate->residentBytes);
++                    candidate->femBaseCGLSBestOfCertificate =
++                        privateScratch<float>(candidate->device,
++                            environments, valid, candidate->residentBytes);
++                    candidate->femBaseCGLSBestOfStatuses =
++                        privateScratch<NMMatterStatusGPU>(candidate->device,
++                            environments, valid, candidate->residentBytes);
++                    candidate->femBaseCGLSBestOfTrialStatuses =
++                        privateScratch<NMMatterStatusGPU>(candidate->device,
++                            environments, valid, candidate->residentBytes);
++                    candidate->femBaseCGLSBestOfFlags =
++                        privateScratch<std::uint32_t>(candidate->device,
++                            environments, valid, candidate->residentBytes);
++                    candidate->femBaseCGLSBestOfCommitted =
++                        privateScratch<nm_float4>(candidate->device,
++                            environments, valid, candidate->residentBytes);
++                }
+                 if (candidate->femBaseCGLSRightScaleScratchEnabled) {
+                     candidate->femBaseCGLSRightScaleRows =
+                         privateScratch<nm_float4>(candidate->device,
+@@ -12864,6 +12915,9 @@
+                 NM_INVALID_INDEX, NM_INVALID_INDEX, NM_INVALID_INDEX,
+                 NM_INVALID_INDEX};
+             id<MTLBuffer> femCoupledTrialVTCCDAuditBuffer = nil;
++            id<MTLBuffer> femCoupledTrialMortarAuditBuffer = nil;
++            bool femCoupledTrialVTCCDAuditMortar = false;
++            constexpr std::uint32_t mortarAuditSelectorSentinel = 0xfffffffeu;
+             if (const char* text = std::getenv(
+                     "NM_FEM_COUPLED_TRIAL_VTCCD_AUDIT_SELECTOR")) {
+                 femCoupledTrialVTCCDAuditRequested = true;
+@@ -12926,16 +12980,22 @@
+                         f[2] == femCoupledTrialCaptureTrial &&
+                         (femCoupledTrialCapturePhase == "both" ||
+                          femCoupledTrialCapturePhase == "post");
++                    const bool mortarComplementAudit =
++                        f[7] == 3u && f[8] == 2u;
++                    const bool ordinaryVTCCDAudit =
++                        f[7] < 3u && f[8] < 2u;
+                     if (!parsed || !selectorMatchesCapture ||
+                         f[3] >= environments ||
+                         f[4] >= state.dispatch.deformableContactCapacity ||
+                         f[5] >= state.dispatch.surfaceFaceCount ||
+                         f[6] >= state.dispatch.surfaceFaceCount ||
+-                        f[7] >= 3u || f[8] >= 2u ||
++                        (!ordinaryVTCCDAudit && !mortarComplementAudit) ||
+                         globalCandidate > std::numeric_limits<std::uint32_t>::max()) {
+-                        auditError("selector_must_be_matching_root_iteration_trial_environment_slot_pair_vertex_direction");
++                        auditError("selector_must_match_trial_pair_and_use_vt_vertex_direction_or_reserved_mortar_3_2");
+                     } else {
+-                        const std::uint32_t packedFeature = f[8] * 3u + f[7];
++                        femCoupledTrialVTCCDAuditMortar = mortarComplementAudit;
++                        const std::uint32_t packedFeature = mortarComplementAudit
++                            ? mortarAuditSelectorSentinel : f[8] * 3u + f[7];
+                         femCoupledTrialVTCCDAuditBinding = nm_uint4{
+                             static_cast<std::uint32_t>(globalCandidate),
+                             f[5], f[6], packedFeature};
+@@ -12949,12 +13009,33 @@
+                                 state.device.maxBufferLength) {
+                             femCoupledTrialVTCCDAuditBuffer = nil;
+                             auditError("bounded_observer_buffer_allocation_failed");
+-                        } else if (f[0] == request.controlStep) {
++                        } else if (mortarComplementAudit) {
++                            femCoupledTrialMortarAuditBuffer = [state.device
++                                newBufferWithLength:sizeof(NMMortarComplementAuditGPU)
++                                options:MTLResourceStorageModePrivate];
++                            if (femCoupledTrialMortarAuditBuffer == nil ||
++                                femCoupledTrialMortarAuditBuffer.length !=
++                                    sizeof(NMMortarComplementAuditGPU) ||
++                                femCoupledTrialMortarAuditBuffer.length >
++                                    state.device.maxBufferLength) {
++                                femCoupledTrialMortarAuditBuffer = nil;
++                                femCoupledTrialVTCCDAuditBuffer = nil;
++                                auditError("bounded_mortar_observer_buffer_allocation_failed");
++                            }
++                        }
++                        if (femCoupledTrialVTCCDAuditConfigValid &&
++                            f[0] == request.controlStep) {
+                             std::fprintf(stderr,
+-                                "fem_coupled_trial_vtccd_audit_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"trial\":%u,\"environment\":%u,\"slot\":%u,\"primitive_pair\":[%u,%u],\"vertex\":%u,\"direction\":%u,\"buffer_bytes\":%lu,\"physical_state_changed\":false}\n",
++                                "fem_coupled_trial_vtccd_audit_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"trial\":%u,\"environment\":%u,\"slot\":%u,\"primitive_pair\":[%u,%u],\"audit_kind\":\"%s\",\"vertex\":%u,\"direction\":%u,\"vt_buffer_bytes\":%lu,\"mortar_buffer_bytes\":%lu,\"physical_state_changed\":false}\n",
+                                 f[0], f[1], f[2], f[3], f[4], f[5], f[6],
+-                                f[7], f[8], static_cast<unsigned long>(
+-                                    sizeof(NMDeformableVTCCDAuditGPU)));
++                                mortarComplementAudit
++                                    ? "first_uncertified_mortar_complement_query"
++                                    : "single_vtccd_call",
++                                f[7], f[8],
++                                static_cast<unsigned long>(
++                                    sizeof(NMDeformableVTCCDAuditGPU)),
++                                static_cast<unsigned long>(mortarComplementAudit
++                                    ? sizeof(NMMortarComplementAuditGPU) : 0u));
+                         }
+                     }
+                 }
+@@ -13154,6 +13235,16 @@
+                 femBaseCGLSPrimaryStartNewton =
+                     static_cast<std::uint32_t>(parsed);
+             }
++            bool femBaseCGLSBestOfRequested = false;
++            if (const char* bestOf = std::getenv("NM_FEM_BASE_CGLS_BEST_OF")) {
++                if (std::strcmp(bestOf, "1") != 0) {
++                    diagnostics.message =
++                        "best-of CGLS selector must be exactly 1";
++                    ownership->preDynamicsOpen = false;
++                    return diagnostics;
++                }
++                femBaseCGLSBestOfRequested = true;
++            }
+             std::uint32_t femBaseCGLSIterations = 0u;
+             if (const char* cglsIterations = std::getenv("NM_FEM_BASE_CGLS_ITERATIONS")) {
+                 if (!femBaseCauchyFallbackRequested ||
+@@ -13280,6 +13371,11 @@
+                     !femBaseCGLSPrimaryPolicyRequested &&
+                     dampingPilotText != nullptr &&
+                     std::strcmp(dampingPilotText, "1e-3") == 0;
++                const bool bestOfAllNewtonScope =
++                    femBaseCGLSBestOfRequested &&
++                    femBaseCGLSIterations != 0u &&
++                    !femBaseCGLSPrimaryPolicyRequested &&
++                    allNewtonIterations;
+                 if (separator == nullptr ||
+                     (!everyControlStep && rootEnd != separator) ||
+                     (!allNewtonIterations && iterationEnd != end) ||
+@@ -13293,6 +13389,7 @@
+                         "selector_must_be_control_step_colon_all_or_newton_0_to_256_or_exact_all_colon_all");
+                 } else if (everyControlStep &&
+                            !dampedFallbackControlScope &&
++                           !bestOfAllNewtonScope &&
+                            (!allNewtonIterations ||
+                             femBaseCGLSIterations == 0u ||
+                             !femBaseCGLSPrimaryPolicyRequested)) {
+@@ -13301,7 +13398,7 @@
+                     // The later damping admission rejects primary, right-scale
+                     // and warm-start combinations before physical execution.
+                     rejectBaseCauchy(
+-                        "all_control_steps_requires_cgls_primary_all_newton_or_bounded_damped_fallback");
++                        "all_control_steps_requires_cgls_primary_damped_fallback_or_best_of_all_newton");
+                 } else {
+                     femBaseCauchyFallbackRoot =
+                         static_cast<std::uint32_t>(root);
+@@ -13392,6 +13489,28 @@
+                 ownership->preDynamicsOpen = false;
+                 [encoder endEncoding];
+                 encoder = nil;
++                return diagnostics;
++            }
++            if (femBaseCGLSBestOfRequested &&
++                (femBaseCGLSIterations == 0u ||
++                 !femBaseCauchyFallbackRequested ||
++                 femBaseCGLSPrimaryPolicyRequested ||
++                 !state.femBaseCGLSBestOfScratchEnabled ||
++                 state.femBaseCGLSBestOfDirection == nil ||
++                 state.femBaseCGLSBestOfMetrics == nil ||
++                 state.femBaseCGLSBestOfLineSearch == nil ||
++                 state.femBaseCGLSBestOfEnvironmentLineSearch == nil ||
++                 state.femBaseCGLSBestOfCertificate == nil ||
++                 state.femBaseCGLSBestOfStatuses == nil ||
++                 state.femBaseCGLSBestOfTrialStatuses == nil ||
++                 state.femBaseCGLSBestOfFlags == nil ||
++                 state.femBaseCGLSBestOfCommitted == nil)) {
++                std::fprintf(stderr,
++                    "fem_base_cgls_best_of_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"requires_bounded_cgls_and_selected_newton_scope\"}\n",
++                    request.controlStep);
++                diagnostics.message =
++                    "best-of CGLS requires the bounded CGLS path and an admitted Newton selector";
++                ownership->preDynamicsOpen = false;
+                 return diagnostics;
+             }
+             if (femBaseCGLSPrimaryPolicyRequested &&
+@@ -16967,6 +17086,8 @@
+                         [encoder setBytes:&femCoupledTrialVTCCDAuditDisabled
+                                    length:sizeof(femCoupledTrialVTCCDAuditDisabled)
+                                   atIndex:19u];
++                        [encoder setBuffer:state.deformableContactFailures
++                                   offset:0u atIndex:20u];
+                     }
+                 );
+                 if (state.captureDiagnostics) {
+@@ -17620,6 +17741,14 @@
+                         : femCoupledTrialVTCCDAuditDisabled;
+                     [encoder setBytes:&auditSelector length:sizeof(auditSelector)
+                               atIndex:19u];
++                    const bool mortarAuditThisTrial =
++                        femCoupledTrialVTCCDAuditCurrentTrial &&
++                        femCoupledTrialVTCCDAuditMortar &&
++                        femCoupledTrialMortarAuditBuffer != nil;
++                    [encoder setBuffer:(mortarAuditThisTrial
++                            ? femCoupledTrialMortarAuditBuffer
++                            : state.deformableContactFailures)
++                               offset:0u atIndex:20u];
+                 });
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 dispatchThreads("nm_contact_reduce_deformable_narrowphase_failures",
+@@ -17690,6 +17819,8 @@
+                 });
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+             }
++            bool baseCGLSBestOfSelectedNewtonForCommittedAudit = false;
++            std::uint32_t baseCGLSBestOfSelectedNewtonIteration = 0u;
+             for (std::uint32_t nonlinearIteration = 0u;
+                  nonlinearIteration < nonlinearIterationBudget;
+                  ++nonlinearIteration) {
+@@ -19682,10 +19813,23 @@
+                     push("fem_armijo_constraint_reactions", "float32x4",
+                         sizeof(nm_float4), state.femArmijoConstraintReactions);
+                     if (femCoupledTrialVTCCDAuditCurrentTrial) {
+-                        push("actual_vertex_triangle_ccd_call",
+-                            "record:NMDeformableVTCCDAuditGPU",
+-                            sizeof(NMDeformableVTCCDAuditGPU),
+-                            femCoupledTrialVTCCDAuditBuffer, true);
++                        if (femCoupledTrialVTCCDAuditMortar) {
++                            // The record is initialized and written by the
++                            // private narrowphase, so capture it only in the
++                            // post-rebuild phase, never from uninitialized
++                            // private-buffer contents before that dispatch.
++                            if (postRebuild) {
++                                push("actual_mortar_complement_first_uncertified_query",
++                                    "record:NMMortarComplementAuditGPU",
++                                    sizeof(NMMortarComplementAuditGPU),
++                                    femCoupledTrialMortarAuditBuffer, true);
++                            }
++                        } else {
++                            push("actual_vertex_triangle_ccd_call",
++                                "record:NMDeformableVTCCDAuditGPU",
++                                sizeof(NMDeformableVTCCDAuditGPU),
++                                femCoupledTrialVTCCDAuditBuffer, true);
++                        }
+                     }
+                 }
+                 push(postRebuild ? "contact_samples_private_trial"
+@@ -20356,6 +20500,9 @@
+                     request.rigidWorldPhysicsSubstep;
+                 const bool capturedVTCCDAuditSelected =
+                     femCoupledTrialVTCCDAuditCurrentTrial;
++                const bool capturedMortarAuditSelected =
++                    capturedVTCCDAuditSelected &&
++                    femCoupledTrialVTCCDAuditMortar;
+                 const auto capturedVTCCDAuditFields =
+                     femCoupledTrialVTCCDAuditFields;
+                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+@@ -20444,12 +20591,19 @@
+                     }
+                     if (!summaryMode && capturedVTCCDAuditSelected) {
+                         const auto& f = capturedVTCCDAuditFields;
+-                        manifest << ",\"vtccd_audit_selector\":{\"environment\":"
+-                            << f[3] << ",\"candidate_slot\":" << f[4]
+-                            << ",\"primitive_pair\":[" << f[5] << ',' << f[6]
+-                            << "],\"vertex\":" << f[7]
+-                            << ",\"direction\":" << f[8]
+-                            << ",\"execution\":\"same production call\"}";
++                        if (capturedMortarAuditSelected) {
++                            manifest << ",\"mortar_complement_audit_selector\":{\"environment\":"
++                                << f[3] << ",\"candidate_slot\":" << f[4]
++                                << ",\"primitive_pair\":[" << f[5] << ',' << f[6]
++                                << "],\"sentinel\":[3,2],\"execution\":\"same production complement traversal\"}";
++                        } else {
++                            manifest << ",\"vtccd_audit_selector\":{\"environment\":"
++                                << f[3] << ",\"candidate_slot\":" << f[4]
++                                << ",\"primitive_pair\":[" << f[5] << ',' << f[6]
++                                << "],\"vertex\":" << f[7]
++                                << ",\"direction\":" << f[8]
++                                << ",\"execution\":\"same production call\"}";
++                        }
+                     }
+                     manifest << ",\"control_step\":" << capturedMicro.controlStep
+                         << ",\"physics_substep\":" << capturedPhysicsSubstep
+@@ -20506,7 +20660,11 @@
+                             << "\"endpoint_narrowphase\":\"nm_contact_narrowphase_deformable receives trialNodes at buffer 4, history at buffer 10, and cohesiveFaces at buffer 15; caller passes state.femArmijoCandidate as trialNodes\","
+                             << "\"toi_semantics\":\"no standalone TOI scalar is exported unless actual_vertex_triangle_ccd_call is present\"";
+                         if (capturedVTCCDAuditSelected) {
+-                            manifest << ",\"vtccd_audit_semantics\":\"record is written inline at the exact production vertexTriangleCCD call return; endpoints, hit, certified, TOI, and separation are copied from that call without helper replay; normal, barycentric, and point are valid only when hit=1 and certified=1 and are otherwise zero-initialized; written=0 means the selected pair/feature call was not reached\"";
++                            if (capturedMortarAuditSelected) {
++                                manifest << ",\"mortar_complement_audit_semantics\":\"first record is written inline at the exact production partition/boundary/VT/EE decision; cells, patch IDs, feature indices, subtriangle bary maps, endpoints, helper hit/certified/TOI/separation, and thickness are copied without replay; query kind 1=partition,2=paired-boundary,3=left-VT,4=right-VT,5=EE; written=0 means no uncertified decision was reached\"";
++                            } else {
++                                manifest << ",\"vtccd_audit_semantics\":\"record is written inline at the exact production vertexTriangleCCD call return; endpoints, hit, certified, TOI, and separation are copied from that call without helper replay; normal, barycentric, and point are valid only when hit=1 and certified=1 and are otherwise zero-initialized; written=0 means the selected pair/feature call was not reached\"";
++                            }
+                         }
+                         manifest << "}"
+                             << ",\"phase_order\":[";
+@@ -20995,6 +21153,16 @@
+                 femBaseCGLSPrimaryPolicyRequested &&
+                 femBaseCGLSIterations != 0u &&
+                 nonlinearIteration >= femBaseCGLSPrimaryStartNewton;
++            const bool baseCGLSBestOfSelectedNewton =
++                baseCauchyNewtonSelected && femBaseCGLSBestOfRequested;
++            baseCGLSBestOfSelectedNewtonForCommittedAudit =
++                baseCGLSBestOfSelectedNewton;
++            baseCGLSBestOfSelectedNewtonIteration = nonlinearIteration;
++            if (baseCGLSBestOfSelectedNewton) {
++                std::fprintf(stderr,
++                    "fem_base_cgls_best_of_enabled={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"selection\":\"strictly_lower_recomputed_armijo_residual\",\"operator_changed\":false,\"linear_solve_claim\":false}\n",
++                    request.controlStep, nonlinearIteration);
++            }
+             if (baseCauchyNewtonSelected) {
+                 dispatchThreads("nm_fgmres_capture_base_cauchy_rhs",
+                     state.fgmresLayout.unknownCount, [&] {
+@@ -24836,6 +25004,73 @@
+                 return true;
+             };
+ 
++            const auto encodeBaseCGLSBestOfResolutionTrace = [&]() -> bool {
++                if (!baseCGLSBestOfSelectedNewton) return true;
++                const NSUInteger metricBytes = environments * sizeof(nm_float4);
++                const NSUInteger lineBytes = environments * sizeof(nm_float4);
++                const NSUInteger alphaBytes = environments * sizeof(float);
++                const NSUInteger bytes = metricBytes + lineBytes + alphaBytes;
++                id<MTLBuffer> snapshot = [state.device newBufferWithLength:bytes
++                    options:MTLResourceStorageModeShared];
++                if (snapshot == nil) {
++                    diagnostics.message =
++                        "best-of CGLS resolution trace allocation failed";
++                    return false;
++                }
++                [encoder endEncoding];
++                encoder = nil;
++                id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
++                if (copy == nil) {
++                    diagnostics.message =
++                        "best-of CGLS resolution blit unavailable";
++                    return false;
++                }
++                [copy copyFromBuffer:state.femBaseCGLSBestOfMetrics
++                    sourceOffset:0u toBuffer:snapshot destinationOffset:0u
++                    size:metricBytes];
++                [copy copyFromBuffer:state.femLineSearch sourceOffset:0u
++                    toBuffer:snapshot destinationOffset:metricBytes
++                    size:lineBytes];
++                [copy copyFromBuffer:state.environmentLineSearch sourceOffset:0u
++                    toBuffer:snapshot destinationOffset:metricBytes + lineBytes
++                    size:alphaBytes];
++                [copy endEncoding];
++                const auto root = request.controlStep;
++                const auto iteration = nonlinearIteration;
++                const auto envCount = environments;
++                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
++                    if (completed.status != MTLCommandBufferStatusCompleted) {
++                        std::fprintf(stderr,
++                            "fem_base_cgls_best_of_resolution_failed={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"command_buffer_status\":%lu}\n",
++                            root, iteration,
++                            static_cast<unsigned long>(completed.status));
++                        return;
++                    }
++                    const auto* data =
++                        static_cast<const unsigned char*>(snapshot.contents);
++                    const auto* outcome =
++                        reinterpret_cast<const nm_float4*>(data);
++                    const auto* selectedLine =
++                        reinterpret_cast<const nm_float4*>(data + metricBytes);
++                    const auto* envAlpha =
++                        reinterpret_cast<const float*>(data + metricBytes + lineBytes);
++                    for (std::uint32_t env = 0u; env < envCount; ++env) {
++                        std::fprintf(stderr,
++                            "fem_base_cgls_best_of_resolution={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"environment\":%u,\"newton_tested_residual\":%.9g,\"cgls_tested_residual\":%.9g,\"cgls_tested_alpha\":%.9g,\"outcome_code\":%.0f,\"selected_alpha\":%.9g,\"environment_alpha\":%.9g,\"selected_residual\":%.9g,\"certificate_policy\":\"original_FGMRES_certificate_preserved_only_for_Newton_winner; CGLS remains uncertified by it; post_apply_residual_recomputed\"}\n",
++                            root, iteration, env, outcome[env].x, outcome[env].y,
++                            outcome[env].z, outcome[env].w, selectedLine[env].x,
++                            envAlpha[env], selectedLine[env].y);
++                    }
++                }];
++                encoder = [commandBuffer computeCommandEncoder];
++                if (encoder == nil) {
++                    diagnostics.message =
++                        "failed to resume after best-of CGLS resolution trace";
++                    return false;
++                }
++                [encoder setLabel:@"Numi Matter best-of CGLS resolution trace continuation"];
++                return true;
++            };
+             const auto encodeBaseCauchyDirectionTrace = [&](
+                 bool primaryPolicy = false) -> bool {
+                 const bool warmStartRefinementThisNewton =
+@@ -25571,6 +25806,56 @@
+                 for (std::uint32_t directionPass = 0u;
+                      directionPass < directionPassCount; ++directionPass) {
+                 if (directionPass == 1u) {
++                    if (baseCGLSBestOfSelectedNewton) {
++                        dispatchThreads(
++                            "nm_fgmres_base_cgls_best_of_save",
++                            environments, [&] {
++                            setDispatch();
++                            [encoder setBuffer:state.mixedSolver
++                                         offset:0u atIndex:1u];
++                            [encoder setBuffer:state.femArmijoMetrics
++                                         offset:0u atIndex:2u];
++                            [encoder setBuffer:state.femLineSearch
++                                         offset:0u atIndex:3u];
++                            [encoder setBuffer:state.environmentLineSearch
++                                         offset:0u atIndex:4u];
++                            [encoder setBuffer:state.fgmresStates
++                                         offset:0u atIndex:5u];
++                            [encoder setBuffer:state.statuses
++                                         offset:0u atIndex:6u];
++                            [encoder setBuffer:state.femArmijoStatuses
++                                         offset:0u atIndex:7u];
++                            [encoder setBuffer:state.femBaseCGLSBestOfMetrics
++                                         offset:0u atIndex:8u];
++                            [encoder setBuffer:state.femBaseCGLSBestOfLineSearch
++                                         offset:0u atIndex:9u];
++                            [encoder setBuffer:
++                                state.femBaseCGLSBestOfEnvironmentLineSearch
++                                         offset:0u atIndex:10u];
++                            [encoder setBuffer:state.femBaseCGLSBestOfCertificate
++                                         offset:0u atIndex:11u];
++                            [encoder setBuffer:state.femBaseCGLSBestOfStatuses
++                                         offset:0u atIndex:12u];
++                            [encoder setBuffer:state.femBaseCGLSBestOfTrialStatuses
++                                         offset:0u atIndex:13u];
++                            [encoder setBuffer:state.femBaseCGLSBestOfFlags
++                                         offset:0u atIndex:14u];
++                        });
++                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                        dispatchThreads("nm_fgmres_base_cgls_best_of_save_direction",
++                            state.fgmresLayout.unknownCount, [&] {
++                            setDispatch();
++                            [encoder setBytes:&state.fgmresLayout
++                                   length:sizeof(state.fgmresLayout) atIndex:30u];
++                            [encoder setBuffer:state.femSolution
++                                         offset:0u atIndex:1u];
++                            [encoder setBuffer:state.femBaseCGLSBestOfDirection
++                                         offset:0u atIndex:2u];
++                            [encoder setBuffer:state.femBaseCGLSBestOfFlags
++                                         offset:0u atIndex:3u];
++                        });
++                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                    }
+                     if (!encodeBaseCGLSStateCapture()) {
+                         ownership->preDynamicsOpen = false;
+                         return diagnostics;
+@@ -25783,11 +26068,70 @@
+                 if (!encodeFEMResidualArmijoTrace(
+                         directionPass == 1u
+                             ? (femBaseCGLSIterations != 0u
+-                                ? "base_cgls" : "base_cauchy")
++                                ? (baseCGLSBestOfSelectedNewton
++                                    ? "base_cgls_best_of_candidate"
++                                    : "base_cgls")
++                                : "base_cauchy")
+                             : (baseCGLSPrimaryPolicySelectedNewton
+                                 ? "base_cgls_primary_policy" : "newton"))) {
+                     ownership->preDynamicsOpen = false;
+                     return diagnostics;
++                }
++                if (directionPass == 1u &&
++                    baseCGLSBestOfSelectedNewton) {
++                    dispatchThreads(
++                        "nm_fgmres_base_cgls_best_of_resolve",
++                        environments, [&] {
++                        setDispatch();
++                        [encoder setBuffer:state.femArmijoMetrics
++                                     offset:0u atIndex:1u];
++                        [encoder setBuffer:state.femLineSearch
++                                     offset:0u atIndex:2u];
++                        [encoder setBuffer:state.environmentLineSearch
++                                     offset:0u atIndex:3u];
++                        [encoder setBuffer:state.fgmresStates
++                                     offset:0u atIndex:4u];
++                        [encoder setBuffer:state.statuses
++                                     offset:0u atIndex:5u];
++                        [encoder setBuffer:state.femArmijoStatuses
++                                     offset:0u atIndex:6u];
++                        [encoder setBuffer:state.femBaseCGLSBestOfMetrics
++                                     offset:0u atIndex:7u];
++                        [encoder setBuffer:state.femBaseCGLSBestOfLineSearch
++                                     offset:0u atIndex:8u];
++                        [encoder setBuffer:
++                            state.femBaseCGLSBestOfEnvironmentLineSearch
++                                     offset:0u atIndex:9u];
++                        [encoder setBuffer:state.femBaseCGLSBestOfCertificate
++                                     offset:0u atIndex:10u];
++                        [encoder setBuffer:state.femBaseCGLSBestOfStatuses
++                                     offset:0u atIndex:11u];
++                        [encoder setBuffer:state.femBaseCGLSBestOfTrialStatuses
++                                     offset:0u atIndex:12u];
++                        [encoder setBuffer:state.femBaseCGLSBestOfFlags
++                                     offset:0u atIndex:13u];
++                    });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                    dispatchThreads(
++                        "nm_fgmres_base_cgls_best_of_restore_direction",
++                        state.fgmresLayout.unknownCount, [&] {
++                        setDispatch();
++                        [encoder setBytes:&state.fgmresLayout
++                               length:sizeof(state.fgmresLayout) atIndex:30u];
++                        [encoder setBuffer:state.femSolution
++                                     offset:0u atIndex:1u];
++                        [encoder setBuffer:state.femBaseCGLSBestOfDirection
++                                     offset:0u atIndex:2u];
++                        [encoder setBuffer:state.femBaseCGLSBestOfMetrics
++                                     offset:0u atIndex:3u];
++                        [encoder setBuffer:state.femBaseCGLSBestOfFlags
++                                     offset:0u atIndex:4u];
++                    });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                    if (!encodeBaseCGLSBestOfResolutionTrace()) {
++                        ownership->preDynamicsOpen = false;
++                        return diagnostics;
++                    }
+                 }
+                 } // Primary Newton and optional same-history Cauchy pass.
+             } else {
+@@ -27637,6 +27981,86 @@
+                 [encoder setBuffer:state.vascularCompartments offset:0u atIndex:6u];
+                 [encoder setBuffer:state.vascularConnections offset:0u atIndex:7u];
+             });
++            const auto encodeBaseCGLSBestOfCommittedTrace = [&]() -> bool {
++                if (!baseCGLSBestOfSelectedNewtonForCommittedAudit) return true;
++                const NSUInteger metricBytes = environments * sizeof(nm_float4);
++                const NSUInteger committedBytes = environments * sizeof(nm_float4);
++                const NSUInteger bytes = metricBytes + committedBytes;
++                id<MTLBuffer> snapshot = [state.device newBufferWithLength:bytes
++                    options:MTLResourceStorageModeShared];
++                if (snapshot == nil) {
++                    diagnostics.message =
++                        "best-of CGLS committed-residual trace allocation failed";
++                    return false;
++                }
++                [encoder endEncoding];
++                encoder = nil;
++                id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
++                if (copy == nil) {
++                    diagnostics.message =
++                        "best-of CGLS committed-residual blit unavailable";
++                    return false;
++                }
++                [copy copyFromBuffer:state.femBaseCGLSBestOfMetrics
++                    sourceOffset:0u toBuffer:snapshot destinationOffset:0u
++                    size:metricBytes];
++                [copy copyFromBuffer:state.femBaseCGLSBestOfCommitted
++                    sourceOffset:0u toBuffer:snapshot destinationOffset:metricBytes
++                    size:committedBytes];
++                [copy endEncoding];
++                const auto root = request.controlStep;
++                const auto iteration = baseCGLSBestOfSelectedNewtonIteration;
++                const auto envCount = environments;
++                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
++                    if (completed.status != MTLCommandBufferStatusCompleted) {
++                        std::fprintf(stderr,
++                            "fem_base_cgls_best_of_commit_audit_failed={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"command_buffer_status\":%lu}\n",
++                            root, iteration,
++                            static_cast<unsigned long>(completed.status));
++                        return;
++                    }
++                    const auto* data =
++                        static_cast<const unsigned char*>(snapshot.contents);
++                    const auto* outcome =
++                        reinterpret_cast<const nm_float4*>(data);
++                    const auto* committed =
++                        reinterpret_cast<const nm_float4*>(data + metricBytes);
++                    for (std::uint32_t env = 0u; env < envCount; ++env) {
++                        std::fprintf(stderr,
++                            "fem_base_cgls_best_of_commit_audit={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"environment\":%u,\"tested_winning_residual\":%.9g,\"reconstructed_residual\":%.9g,\"absolute_gap\":%.9g,\"outcome_code\":%.0f,\"finite\":%s,\"rebuild\":\"nm_fem_apply_solution_then_full_production_residual_assembly_from_accepted_material_history\",\"qualification_gate_changed\":false}\n",
++                            root, iteration, env, committed[env].x,
++                            committed[env].y, committed[env].z, outcome[env].w,
++                            committed[env].w > 0.5f ? "true" : "false");
++                    }
++                }];
++                encoder = [commandBuffer computeCommandEncoder];
++                if (encoder == nil) {
++                    diagnostics.message =
++                        "failed to resume after best-of committed-residual trace";
++                    return false;
++                }
++                [encoder setLabel:@"Numi Matter best-of CGLS committed residual trace continuation"];
++                return true;
++            };
++            if (baseCGLSBestOfSelectedNewtonForCommittedAudit) {
++                dispatchThreads(
++                    "nm_fgmres_base_cgls_best_of_measure_committed",
++                    environments, [&] {
++                    setDispatch();
++                    [encoder setBuffer:state.femCandidate offset:0u atIndex:1u];
++                    [encoder setBuffer:state.femResidual offset:0u atIndex:2u];
++                    [encoder setBuffer:state.femBaseCGLSBestOfMetrics
++                                 offset:0u atIndex:3u];
++                    [encoder setBuffer:state.femBaseCGLSBestOfCommitted
++                                 offset:0u atIndex:4u];
++                    [encoder setBuffer:state.statuses offset:0u atIndex:5u];
++                });
++                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                if (!encodeBaseCGLSBestOfCommittedTrace()) {
++                    ownership->preDynamicsOpen = false;
++                    return diagnostics;
++                }
++            }
+             dispatchGroups32("nm_mixed_certify", objectTotal, [&] {
+                 setDispatch();
+                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -5170,12 +5170,35 @@
+     input.rigidGeneralizedCapacity = dispatch.rigidGeneralizedCapacity;
+     input.rigidQCapacity = dispatch.rigidQCapacity;
+     input.rigidProxyCount = dispatch.rigidProxyCount;
++    input.contactNodeIncidenceCount = compiled.world.contact.nodeIncidence.size();
++    input.contactNodeRangeCount = compiled.world.contact.nodeRanges.size();
++    input.rigidIncidenceCount = compiled.world.contact.rigidIncidence.size();
++    input.rigidRangeCount = compiled.world.contact.rigidRanges.size();
++    input.contactIncidenceCountsExact = true;
++    input.bodyProxyOwnerLayoutExact = true;
++    std::uint64_t runtimeBodyProxyOwnerIndexPlusOne = 0u;
+     for (const auto& proxy : compiled.world.contact.rigidProxies) {
+         if (proxy.bodyIndex != NM_INVALID_INDEX)
+             input.rigidBodyCount = std::max<std::uint64_t>(
+                 input.rigidBodyCount,
+                 static_cast<std::uint64_t>(proxy.bodyIndex) + 1u);
+-    }
++        if (proxy.bodyIndex != NM_INVALID_INDEX &&
++            (proxy.flags & (NM_RIGID_ARTICULATED | NM_RIGID_DYNAMIC)) != 0u) {
++            // Runtime::bodyProxyOwners records these proxies even when the
++            // earlier requiredBodyWrenchCount pass excludes suture strands.
++            ++input.bodyProxyIncidenceCount;
++            runtimeBodyProxyOwnerIndexPlusOne = std::max<std::uint64_t>(
++                runtimeBodyProxyOwnerIndexPlusOne,
++                static_cast<std::uint64_t>(proxy.bodyIndex) + 1u);
++            if ((proxy.flags & NM_RIGID_SUTURE_STRAND) == 0u) {
++                input.bodyProxyRangeCount = std::max<std::uint64_t>(
++                    input.bodyProxyRangeCount,
++                    static_cast<std::uint64_t>(proxy.bodyIndex) + 1u);
++            }
++        }
++    }
++    input.bodyProxyOwnerIndicesWithinRange =
++        runtimeBodyProxyOwnerIndexPlusOne <= input.bodyProxyRangeCount;
+     input.materialStateStride = dispatch.materialStateStride;
+     input.environmentCount = dispatch.environmentCount;
+     input.fgmresRestart = std::clamp<std::uint64_t>(
+@@ -5406,6 +5429,10 @@
+         budget.withinLimit =
+             budget.estimatedPeakDomainBytes <= budget.limitBytes &&
+             budget.requiredResidualDescentArenaAdmitted &&
++            (!options.requireFullContactResidualDescent ||
++             (budget.contactIncidenceCountsExact &&
++              budget.contactIncidenceBufferExtentsValid &&
++              budget.contactIncidenceBuffersWithinMaxBufferLength)) &&
+             (!budget.acceptedInsideClearanceWorkspaceRequired ||
+              budget.acceptedInsideClearanceWorkspaceAdmitted);
+     }
+@@ -5550,7 +5577,11 @@
+     result.privateArenaAvailable = budget.requiredResidualDescentArenaAdmitted;
+     result.memoryLimitAvailable = budget.estimatedPeakDomainBytes <= budget.limitBytes &&
+         (!budget.acceptedInsideClearanceWorkspaceRequired ||
+-         budget.acceptedInsideClearanceWorkspaceAdmitted);
++         budget.acceptedInsideClearanceWorkspaceAdmitted) &&
++        (!budgetInput.fullContactArmijoRequired ||
++         (budget.contactIncidenceCountsExact &&
++          budget.contactIncidenceBufferExtentsValid &&
++          budget.contactIncidenceBuffersWithinMaxBufferLength));
+     if (!result.privateArenaAvailable)
+         add(budget.requiredResidualDescentArenaFailure.empty()
+                 ? "required private residual-descent arenas exceed runtime caps"
+@@ -5560,8 +5591,13 @@
+         add(budget.acceptedInsideClearanceWorkspaceFailure.empty()
+                 ? "accepted inside-clearance workspace exceeds its checked topology or 1 GiB cap"
+                 : budget.acceptedInsideClearanceWorkspaceFailure);
++    if (budgetInput.fullContactArmijoRequired &&
++        (!budget.contactIncidenceCountsExact ||
++         !budget.contactIncidenceBufferExtentsValid ||
++         !budget.contactIncidenceBuffersWithinMaxBufferLength))
++        add("compiled contact incidence/range extents or per-buffer max are not exactly bound");
+     if (!result.memoryLimitAvailable)
+-        add("required arena envelope exceeds the 16 GiB shipping budget");
++        add("modeled peak exceeds 16 GiB or a required per-buffer extent is unbound");
+     result.physicsExecutionAdmitted = result.runtimeShapeAvailable &&
+         result.privateArenaAvailable && result.memoryLimitAvailable;
+     return result;
+@@ -5917,13 +5953,45 @@
+                << "    \"rigid_contact_buffer_plan\": [";
+         numi::cardboard::ShippingMemoryBudgetInput contactPlanInput;
+         contactPlanInput.environmentCount = world.dispatch.environmentCount;
++        contactPlanInput.nodeCount = world.dispatch.femNodeCount;
++        contactPlanInput.gridNodeCount = world.dispatch.gridNodeCount;
+         contactPlanInput.contactPairCount = world.dispatch.contactPairCount;
++        contactPlanInput.rigidProxyCount = world.dispatch.rigidProxyCount;
++        contactPlanInput.contactNodeIncidenceCount =
++            world.contact.nodeIncidence.size();
++        contactPlanInput.contactNodeRangeCount = world.contact.nodeRanges.size();
++        contactPlanInput.rigidIncidenceCount = world.contact.rigidIncidence.size();
++        contactPlanInput.rigidRangeCount = world.contact.rigidRanges.size();
++        contactPlanInput.contactIncidenceCountsExact = true;
++        contactPlanInput.bodyProxyOwnerLayoutExact = true;
++        std::uint64_t runtimeBodyProxyOwnerIndexPlusOne = 0u;
++        for (const auto& proxy : world.contact.rigidProxies) {
++            if (proxy.bodyIndex == NM_INVALID_INDEX) continue;
++            contactPlanInput.rigidBodyCount = std::max<std::uint64_t>(
++                contactPlanInput.rigidBodyCount,
++                static_cast<std::uint64_t>(proxy.bodyIndex) + 1u);
++            if ((proxy.flags & (NM_RIGID_ARTICULATED | NM_RIGID_DYNAMIC)) == 0u)
++                continue;
++            ++contactPlanInput.bodyProxyIncidenceCount;
++            runtimeBodyProxyOwnerIndexPlusOne = std::max<std::uint64_t>(
++                runtimeBodyProxyOwnerIndexPlusOne,
++                static_cast<std::uint64_t>(proxy.bodyIndex) + 1u);
++            if ((proxy.flags & NM_RIGID_SUTURE_STRAND) == 0u)
++                contactPlanInput.bodyProxyRangeCount = std::max<std::uint64_t>(
++                    contactPlanInput.bodyProxyRangeCount,
++                    static_cast<std::uint64_t>(proxy.bodyIndex) + 1u);
++        }
++        contactPlanInput.bodyProxyOwnerIndicesWithinRange =
++            runtimeBodyProxyOwnerIndexPlusOne <=
++                contactPlanInput.bodyProxyRangeCount;
+         contactPlanInput.activeContactCapacity = budget->rigidContactActiveCapacity;
+         contactPlanInput.rigidContactSampleCapacity = budget->rigidContactSampleCapacity;
+         contactPlanInput.rigidContactSampleCompactionParityQualified = false;
+         contactPlanInput.maxBufferLength = budget->rigidContactMaxBufferLength;
+         const auto contactPlan = numi::cardboard::planShippingRigidContactArena(
+             contactPlanInput);
++        const auto incidencePlan =
++            numi::cardboard::planShippingContactIncidenceArena(contactPlanInput);
+         for (std::size_t i = 0u; i < contactPlan.buffers.size(); ++i) {
+             const auto& b = contactPlan.buffers[i];
+             if (i != 0u) output << ',';
+@@ -5943,6 +6011,45 @@
+                << (contactPlan.admitted ? "true" : "false") << ",\n"
+                << "    \"rigid_contact_plan_failure\": \""
+                << (contactPlan.failure == nullptr ? "" : contactPlan.failure) << "\",\n"
++               << "    \"contact_incidence_range_plan\": {\n"
++               << "      \"counts_exact_from_compiled_world\": "
++               << (incidencePlan.countsExact ? "true" : "false") << ",\n"
++               << "      \"buffer_extents_valid\": "
++               << (incidencePlan.extentsValid ? "true" : "false") << ",\n"
++               << "      \"body_proxy_owner_layout_exact\": "
++               << (incidencePlan.bodyProxyOwnerLayoutExact ? "true" : "false") << ",\n"
++               << "      \"body_proxy_owner_indices_within_wrench_range\": "
++               << (incidencePlan.bodyProxyOwnerIndicesWithinRange ? "true" : "false") << ",\n"
++               << "      \"all_within_device_max\": "
++               << (incidencePlan.allBuffersWithinMaxBufferLength ? "true" : "false") << ",\n"
++               << "      \"admitted\": "
++               << (incidencePlan.admitted ? "true" : "false") << ",\n"
++               << "      \"failure\": \""
++               << (incidencePlan.failure == nullptr ? "" : incidencePlan.failure) << "\",\n"
++               << "      \"resident_bytes_subset_of_rigid_runtime_envelope\": "
++               << incidencePlan.residentBytes << ",\n"
++               << "      \"UploadPlan_one_staging_bytes\": "
++               << incidencePlan.uploadStagingBytes << ",\n"
++               << "      \"rows\": [";
++        for (std::size_t i = 0u; i < incidencePlan.buffers.size(); ++i) {
++            const auto& b = incidencePlan.buffers[i];
++            if (i != 0u) output << ',';
++            output << "{\"name\":\"" << b.name
++                   << "\",\"logical_count\":" << b.logicalCount
++                   << ",\"element_bytes\":" << b.elementBytes
++                   << ",\"allocated_bytes\":" << b.allocatedBytes
++                   << ",\"upload_staging_bytes\":" << b.uploadStagingBytes
++                   << ",\"count_exact\":" << (b.countExact ? "true" : "false")
++                   << ",\"within_device_max\":"
++                   << (b.withinMaxBufferLength ? "true" : "false")
++                   << ",\"device_storage\":\"private output\",\"upload_lifetime\":\"shared UploadPlan staging held to plan destruction after finish\"}";
++        }
++        output << "]\n    },\n"
++               << "    \"metalworld_transition_peak\": {\n"
++               << "      \"binding_status\": \"not_bound: exact 252 MRMetalWorld rows, old/new heap sizes, uploads, and readbacks are not supplied by shipping preflight\",\n"
++               << "      \"planner_status\": \"generic fail-closed transition helper; no missing allocation is substituted with zero\",\n"
++               << "      \"includes_old_plus_replacements\": true\n"
++               << "    },\n"
+                << "    \"measured_base_and_contact_envelope_bytes\": "
+                << budget->measuredBaseAndContactEnvelopeBytes << ",\n"
+                << "    \"static_fem_solver_floor_bytes\": "
+@@ -12755,9 +12862,10 @@
+     return shippingJsonStringField(dictionary, key, label);
+ }
+ 
+-constexpr std::array<std::string_view, 54u> kSource161DiagnosticEnvironmentKeys{
++constexpr std::array<std::string_view, 55u> kSource161DiagnosticEnvironmentKeys{
+     "NM_CONTACT_NODE_INCIDENCE_SORT",
+     "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
++    "NM_FEM_BASE_CGLS_BEST_OF",
+     "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
+     "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+     "NM_FEM_BASE_CGLS_DAMPING_KG",
+@@ -12919,7 +13027,7 @@
+             ? contract[@"capture_prefixes"] : nil);
+     require([keysValue isKindOfClass:[NSArray class]] && effective != nil &&
+                 prefixes != nil && [(NSArray*)keysValue count] >= 49u &&
+-                [(NSArray*)keysValue count] <= 54u,
++                [(NSArray*)keysValue count] <= 55u,
+             "source-bound contract registry or maps are missing");
+     NSArray* const keys = (NSArray*)keysValue;
+     require(effective.count == keys.count,
+@@ -12933,6 +13041,8 @@
+     NSMutableDictionary* expectedOverrides = [NSMutableDictionary dictionary];
+     RuntimePathMap contractPaths;
+     std::vector<std::pair<std::string, std::string>> contractNativeSettings;
++    const bool contractHasBestOfKey =
++        [keys containsObject:@"NM_FEM_BASE_CGLS_BEST_OF"];
+     const bool contractHasWarmStartKey = keys.count >= 50u;
+     const bool contractHasIncidenceSortKey = keys.count >= 51u;
+     const bool contractHasDampingKey = keys.count >= 52u;
+@@ -12945,7 +13055,8 @@
+         NSUInteger(contractHasIncidenceSortKey) +
+         NSUInteger(contractHasDampingKey) +
+         NSUInteger(contractHasStrictInnerKey) +
+-        NSUInteger(contractHasTrialTraceSlotKey);
++        NSUInteger(contractHasTrialTraceSlotKey) +
++        NSUInteger(contractHasBestOfKey);
+     require(keys.count == expectedRegistryCount,
+             "source-bound diagnostic registry omits or adds an unregistered key");
+     std::ostringstream runnerNonOutputSettings;
+@@ -12962,6 +13073,9 @@
+         std::size_t expectedIndex = 0u;
+         for (const std::string_view expectedKey :
+                 kSource161DiagnosticEnvironmentKeys) {
++            if (expectedKey == "NM_FEM_BASE_CGLS_BEST_OF" &&
++                !contractHasBestOfKey)
++                continue;
+             if (expectedKey == "NM_FEM_BASE_CGLS_WARM_START_REFINE" &&
+                 !contractHasWarmStartKey)
+                 continue;
+@@ -12979,7 +13093,7 @@
+                 continue;
+             if (expectedIndex == keyIndex) {
+                 require(key == expectedKey,
+-                        "source-bound diagnostic key registry differs from the exact 49/50/51/52/53/54-key source contract");
++                        "source-bound diagnostic key registry differs from the exact 49-through-55-key source contract");
+                 break;
+             }
+             ++expectedIndex;
+--- a/matter/tools/cardboard_shipping_memory.hpp
++++ b/matter/tools/cardboard_shipping_memory.hpp
+@@ -106,6 +106,18 @@
+     std::uint64_t rigidQCapacity = 0u;
+     std::uint64_t rigidBodyCount = 0u;
+     std::uint64_t rigidProxyCount = 0u;
++    std::uint64_t contactNodeIncidenceCount = 0u;
++    std::uint64_t contactNodeRangeCount = 0u;
++    std::uint64_t rigidIncidenceCount = 0u;
++    std::uint64_t rigidRangeCount = 0u;
++    std::uint64_t bodyProxyIncidenceCount = 0u;
++    std::uint64_t bodyProxyRangeCount = 0u;
++    // Runtime bodyProxyOwners also includes dynamic/articulated suture proxies,
++    // while requiredBodyWrenchCount excludes them. Bind this cross-check so a
++    // suture owner beyond the allocated wrench-range extent cannot be admitted.
++    bool bodyProxyOwnerLayoutExact = false;
++    bool bodyProxyOwnerIndicesWithinRange = false;
++    bool contactIncidenceCountsExact = false;
+     std::uint64_t materialStateStride = 0u;
+     std::uint64_t compactPreconditionerRegionCount = 0u;
+     std::uint64_t environmentCount = 1u;
+@@ -165,6 +177,11 @@
+     std::uint64_t rigidContactPairMapBytes = 0u;
+     bool rigidContactBufferExtentsValid = false;
+     bool rigidContactBuffersWithinMaxBufferLength = false;
++    std::uint64_t contactIncidenceRangeBytes = 0u;
++    std::uint64_t contactIncidenceUploadStagingBytes = 0u;
++    bool contactIncidenceCountsExact = false;
++    bool contactIncidenceBufferExtentsValid = false;
++    bool contactIncidenceBuffersWithinMaxBufferLength = false;
+     bool wholeRuntimeAllocationInventoryComplete = false;
+     std::uint64_t measuredBaseAndContactEnvelopeBytes = 0u;
+     std::uint64_t cohesiveRuntimeBytes = 0u;
+@@ -713,6 +730,200 @@
+ }
+ // Exact main rigid-contact extents. Pair maps and all three canonical histories
+ // remain full-P; only the sample buffer may shrink after native parity is bound.
++
++struct ShippingContactIncidenceBuffer {
++    const char* name=nullptr;
++    std::uint64_t logicalCount=0u,elementBytes=0u,allocatedBytes=0u,uploadStagingBytes=0u;
++    bool countExact=false,withinMaxBufferLength=false;
++};
++struct ShippingContactIncidenceArenaPlan {
++    static constexpr std::size_t kBufferCount=6u;
++    std::array<ShippingContactIncidenceBuffer,kBufferCount> buffers{};
++    std::uint64_t residentBytes=0u,uploadStagingBytes=0u;
++    bool countsExact=false,bodyProxyOwnerLayoutExact=false;
++    bool bodyProxyOwnerIndicesWithinRange=false;
++    bool extentsValid=false,allBuffersWithinMaxBufferLength=false,admitted=false;
++    const char* failure="uninitialized";
++};
++// Compiler emits these exact immutable incidence arrays; Runtime uses UploadPlan::one.
++// A source-only caller without CompiledWorld lengths gets visible upper-bound rows but
++// cannot admit them as exact.
++inline ShippingContactIncidenceArenaPlan planShippingContactIncidenceArena(
++    const ShippingMemoryBudgetInput& input) {
++    ShippingContactIncidenceArenaPlan p{};
++    std::uint64_t fallbackNodeRanges=0u;
++    try {
++        fallbackNodeRanges=shippingMemoryCheckedAdd(input.nodeCount,input.gridNodeCount);
++    } catch(const std::overflow_error&) {
++        p.failure="contact_incidence_buffer_arithmetic_overflow";return p;
++    }
++    const std::array<std::uint64_t,6> counts{{
++        input.contactIncidenceCountsExact?input.contactNodeIncidenceCount:input.contactPairCount,
++        input.contactIncidenceCountsExact?input.contactNodeRangeCount:fallbackNodeRanges,
++        input.contactIncidenceCountsExact?input.rigidIncidenceCount:input.contactPairCount,
++        input.contactIncidenceCountsExact?input.rigidRangeCount:input.rigidProxyCount,
++        input.contactIncidenceCountsExact?input.bodyProxyIncidenceCount:input.rigidProxyCount,
++        input.contactIncidenceCountsExact?input.bodyProxyRangeCount:input.rigidBodyCount
++    }};
++    constexpr std::array<std::uint64_t,6> elems{{
++        sizeof(std::uint32_t),sizeof(NMIncidenceRangeGPU),
++        sizeof(std::uint32_t),sizeof(NMIncidenceRangeGPU),
++        sizeof(std::uint32_t),sizeof(NMIncidenceRangeGPU)
++    }};
++    constexpr std::array<const char*,6> names{{
++        "contact_node_incidence","contact_node_ranges","rigid_incidence",
++        "rigid_ranges","body_proxy_incidence","body_proxy_ranges"}};
++    p.countsExact=input.contactIncidenceCountsExact;
++    if(!input.environmentCount||input.contactPairCount>UINT32_MAX||
++       input.rigidProxyCount>UINT32_MAX||input.rigidBodyCount>UINT32_MAX) {
++        p.failure="invalid_contact_incidence_count";return p;
++    }
++    std::uint64_t expectedNodeRangeCount=0u;
++    try {
++        expectedNodeRangeCount=shippingMemoryCheckedAdd(
++            input.nodeCount,input.gridNodeCount);
++    } catch(const std::overflow_error&) {
++        p.failure="contact_incidence_buffer_arithmetic_overflow";return p;
++    }
++    if(p.countsExact&&
++       (input.contactNodeIncidenceCount!=input.contactPairCount||
++        input.rigidIncidenceCount!=input.contactPairCount||
++        input.contactNodeRangeCount!=expectedNodeRangeCount||
++        input.rigidRangeCount!=input.rigidProxyCount||
++        input.bodyProxyIncidenceCount>input.rigidProxyCount||
++        input.bodyProxyRangeCount>input.rigidBodyCount)) {
++        p.failure="contact_incidence_extents_do_not_match_compiler_contract";return p;
++    }
++    p.bodyProxyOwnerLayoutExact=input.bodyProxyOwnerLayoutExact;
++    p.bodyProxyOwnerIndicesWithinRange=input.bodyProxyOwnerIndicesWithinRange;
++    if(p.countsExact&&!p.bodyProxyOwnerLayoutExact) {
++        p.failure="body_proxy_owner_layout_unbound";return p;
++    }
++    if(p.countsExact&&!p.bodyProxyOwnerIndicesWithinRange) {
++        p.failure="body_proxy_owner_index_outside_wrench_range";return p;
++    }
++    bool all=input.maxBufferLength!=0u;
++    try {
++        for(std::size_t i=0u;i<6u;++i) {
++            const auto raw=shippingMemoryCheckedMultiply(counts[i],elems[i]);
++            const auto bytes=std::max<std::uint64_t>({16u,elems[i],raw});
++            const auto stage=counts[i]==0u?0u:bytes;
++            p.buffers[i]={names[i],counts[i],elems[i],bytes,stage,p.countsExact,
++                input.maxBufferLength!=0u&&bytes<=input.maxBufferLength};
++            p.residentBytes=shippingMemoryCheckedAdd(p.residentBytes,bytes);
++            p.uploadStagingBytes=shippingMemoryCheckedAdd(p.uploadStagingBytes,stage);
++            all=all&&p.buffers[i].withinMaxBufferLength;
++        }
++    } catch(const std::overflow_error&) {
++        p.failure="contact_incidence_buffer_arithmetic_overflow";return p;
++    }
++    p.extentsValid=true;p.allBuffersWithinMaxBufferLength=all;
++    if(!p.countsExact) {p.failure="contact_incidence_counts_unbound";return p;}
++    if(!input.maxBufferLength) {p.failure="device_max_buffer_length_unavailable";return p;}
++    if(!all) {p.failure="contact_incidence_buffer_exceeds_device_max_buffer_length";return p;}
++    p.admitted=true;p.failure=nullptr;return p;
++}
++
++struct ShippingMetalWorldTransitionRow {
++    std::uint32_t slot=0u;
++    const char* name=nullptr;
++    std::uint64_t logicalCount=0u,elementBytes=0u;
++    std::uint64_t oldSharedBytes=0u,proposedSharedBytes=0u;
++    std::uint64_t oldBufferCapacityBytes=0u,proposedBufferCapacityBytes=0u;
++    std::uint64_t oldUploadBytes=0u,proposedUploadBytes=0u;
++    std::uint64_t oldReadbackBytes=0u,proposedReadbackBytes=0u;
++    // 0=shared standalone, 1=immutable heap, 2=persistent heap, 3=transient heap.
++    std::uint32_t heapClass=0u;
++    bool replace=false,bound=false;
++};
++struct ShippingMetalWorldTransitionInput {
++    static constexpr std::size_t kBufferCount=252u;
++    std::array<ShippingMetalWorldTransitionRow,kBufferCount> rows{};
++    std::array<std::uint64_t,3> oldHeapBytes{};
++    std::array<std::uint64_t,3> proposedHeapBytes{};
++    bool heapSizesBound=false;
++    std::uint64_t maxBufferLength=0u;
++    std::uint64_t peakLimitBytes=kShippingPeakMemoryLimitBytes;
++};
++struct ShippingMetalWorldTransitionPlan {
++    std::uint64_t oldResidentBytes=0u,oldUploadBytes=0u,oldReadbackBytes=0u,oldHeapBytes=0u;
++    std::uint64_t replacementSharedBytes=0u,replacementUploadBytes=0u;
++    std::uint64_t replacementReadbackBytes=0u,replacementHeapBytes=0u;
++    std::uint64_t modeledTransitionPeakBytes=0u;
++    bool allRowsBound=false,perBufferLimitsKnown=false,allPerBufferLimitsPass=false;
++    bool extentsValid=false,withinPeakLimit=false,admitted=false;
++    const char* failure="uninitialized";
++};
++// Models MetalWorld's allocate-before-swap path. Heap sizes must come from the
++// actual device sizeAndAlign calculation; omitted values are not zero.
++inline ShippingMetalWorldTransitionPlan planShippingMetalWorldTransition(
++    const ShippingMetalWorldTransitionInput& input) {
++    ShippingMetalWorldTransitionPlan p{};
++    if(!input.heapSizesBound) {p.failure="metalworld_heap_transition_bytes_unbound";return p;}
++    if(!input.maxBufferLength||!input.peakLimitBytes) {
++        p.failure="metalworld_device_or_peak_limit_unavailable";return p;
++    }
++    bool all=true;
++    try {
++        for(std::size_t i=0u;i<input.rows.size();++i) {
++            const auto& row=input.rows[i];
++            if(!row.bound||row.slot!=i||!row.name||!row.elementBytes||row.heapClass>3u) {
++                p.failure="metalworld_252_slot_binding_incomplete";return p;
++            }
++            const auto logical=shippingMemoryCheckedMultiply(row.logicalCount,row.elementBytes);
++            const auto required=std::max<std::uint64_t>(logical,row.elementBytes);
++            const auto capacity=row.replace?row.proposedBufferCapacityBytes:row.oldBufferCapacityBytes;
++            if(capacity<required||capacity>input.maxBufferLength||
++               row.oldBufferCapacityBytes>input.maxBufferLength||
++               row.oldUploadBytes>input.maxBufferLength||
++               row.oldReadbackBytes>input.maxBufferLength||
++               (row.replace&&
++                (row.proposedBufferCapacityBytes>input.maxBufferLength||
++                 row.proposedUploadBytes>input.maxBufferLength||
++                 row.proposedReadbackBytes>input.maxBufferLength))) all=false;
++            if(row.heapClass==0u) {
++                if(row.oldSharedBytes!=row.oldBufferCapacityBytes||
++                   (row.replace&&row.proposedSharedBytes!=row.proposedBufferCapacityBytes)) {
++                    p.failure="metalworld_shared_buffer_capacity_binding_mismatch";return p;
++                }
++                p.oldResidentBytes=shippingMemoryCheckedAdd(p.oldResidentBytes,row.oldSharedBytes);
++                if(row.replace) p.replacementSharedBytes=shippingMemoryCheckedAdd(
++                    p.replacementSharedBytes,row.proposedSharedBytes);
++            } else {
++                if(row.oldSharedBytes||row.proposedSharedBytes) {
++                    p.failure="metalworld_heap_buffer_double_count";return p;
++                }
++            }
++            p.oldUploadBytes=shippingMemoryCheckedAdd(p.oldUploadBytes,row.oldUploadBytes);
++            p.oldReadbackBytes=shippingMemoryCheckedAdd(p.oldReadbackBytes,row.oldReadbackBytes);
++            if(row.replace) p.replacementUploadBytes=shippingMemoryCheckedAdd(
++                p.replacementUploadBytes,row.proposedUploadBytes);
++            if(row.replace)
++                p.replacementReadbackBytes=shippingMemoryCheckedAdd(
++                    p.replacementReadbackBytes,row.proposedReadbackBytes);
++        }
++        for(std::size_t i=0u;i<3u;++i) {
++            p.oldHeapBytes=shippingMemoryCheckedAdd(p.oldHeapBytes,input.oldHeapBytes[i]);
++            p.replacementHeapBytes=shippingMemoryCheckedAdd(
++                p.replacementHeapBytes,input.proposedHeapBytes[i]);
++        }
++        const auto old=shippingMemoryCheckedAdd(
++            shippingMemoryCheckedAdd(p.oldResidentBytes,p.oldHeapBytes),
++            shippingMemoryCheckedAdd(p.oldUploadBytes,p.oldReadbackBytes));
++        const auto repl=shippingMemoryCheckedAdd(
++            shippingMemoryCheckedAdd(p.replacementSharedBytes,p.replacementHeapBytes),
++            shippingMemoryCheckedAdd(p.replacementUploadBytes,p.replacementReadbackBytes));
++        p.modeledTransitionPeakBytes=shippingMemoryCheckedAdd(old,repl);
++    } catch(const std::overflow_error&) {
++        p.failure="metalworld_transition_byte_arithmetic_overflow";return p;
++    }
++    p.allRowsBound=true;p.perBufferLimitsKnown=true;p.allPerBufferLimitsPass=all;
++    p.extentsValid=true;p.withinPeakLimit=p.modeledTransitionPeakBytes<=input.peakLimitBytes;
++    if(!all) {p.failure="metalworld_buffer_exceeds_device_max_buffer_length";return p;}
++    if(!p.withinPeakLimit) {p.failure="metalworld_transition_exceeds_peak_limit";return p;}
++    p.admitted=true;p.failure=nullptr;return p;
++}
++
+ inline ShippingRigidContactArenaPlan planShippingRigidContactArena(
+     const ShippingMemoryBudgetInput& input) {
+     ShippingRigidContactArenaPlan p{};
+@@ -915,6 +1126,12 @@
+         persistentContactBase, result.deformableNodeIncidenceSortBytes);
+     const std::uint64_t persistentContact = result.persistentContactBytes;
+     result.rigidContactRuntimeBytes = shippingRigidContactRuntimeBytes(input);
++    const auto incidenceArena=planShippingContactIncidenceArena(input);
++    result.contactIncidenceRangeBytes=incidenceArena.residentBytes;
++    result.contactIncidenceUploadStagingBytes=incidenceArena.uploadStagingBytes;
++    result.contactIncidenceCountsExact=incidenceArena.countsExact;
++    result.contactIncidenceBufferExtentsValid=incidenceArena.extentsValid;
++    result.contactIncidenceBuffersWithinMaxBufferLength=incidenceArena.allBuffersWithinMaxBufferLength;
+     const auto rigidArena=planShippingRigidContactArena(input);
+     result.rigidContactActiveCapacity=rigidArena.activeContactCapacity;
+     result.rigidContactSampleCapacity=rigidArena.sampleCapacity;
+@@ -1259,7 +1476,10 @@
+         shippingCombinedAllocationPeakBytes(result);
+     result.withinLimit = result.estimatedPeakDomainBytes <= result.limitBytes &&
+         (!input.fullContactArmijoRequired ||
+-         result.requiredResidualDescentArenaAdmitted) &&
++         (result.requiredResidualDescentArenaAdmitted &&
++          result.contactIncidenceCountsExact &&
++          result.contactIncidenceBufferExtentsValid &&
++          result.contactIncidenceBuffersWithinMaxBufferLength)) &&
+         (!input.acceptedInsideClearanceWorkspaceRequired ||
+          result.acceptedInsideClearanceWorkspaceAdmitted);
+     return result;
+--- a/matter/tools/cardboard_shipping_memory_check.cpp
++++ b/matter/tools/cardboard_shipping_memory_check.cpp
+@@ -247,6 +247,135 @@
+         "out-of-ABI contact identities did not fail closed");
+ }
+ 
++
++void checkContactIncidenceAndMetalWorldTransitionPlans() {
++    ShippingMemoryBudgetInput x;
++    x.environmentCount=1u;x.nodeCount=528444u;x.tetrahedronCount=1477728u;
++    x.contactPairCount=6335568u;x.rigidProxyCount=12u;x.rigidBodyCount=9u;
++    x.contactNodeIncidenceCount=x.contactPairCount;
++    x.contactNodeRangeCount=x.nodeCount;
++    x.rigidIncidenceCount=x.contactPairCount;
++    x.rigidRangeCount=x.rigidProxyCount;
++    x.bodyProxyIncidenceCount=1u;x.bodyProxyRangeCount=9u;
++    x.contactIncidenceCountsExact=true;
++    x.bodyProxyOwnerLayoutExact=true;
++    x.bodyProxyOwnerIndicesWithinRange=true;
++    x.maxBufferLength=14302248960ull;
++    const auto plan=planShippingContactIncidenceArena(x);
++    const std::array<const char*,6> names{{
++        "contact_node_incidence","contact_node_ranges","rigid_incidence",
++        "rigid_ranges","body_proxy_incidence","body_proxy_ranges"}};
++    const std::array<std::uint64_t,6> counts{{6335568u,528444u,6335568u,12u,1u,9u}};
++    const std::array<std::uint64_t,6> elems{{
++        sizeof(std::uint32_t),sizeof(NMIncidenceRangeGPU),
++        sizeof(std::uint32_t),sizeof(NMIncidenceRangeGPU),
++        sizeof(std::uint32_t),sizeof(NMIncidenceRangeGPU)}};
++    std::uint64_t total=0u,stage=0u;
++    for(std::size_t i=0;i<6u;++i) {
++        const auto& row=plan.buffers[i];
++        const auto bytes=std::max<std::uint64_t>(
++            {16u,elems[i],shippingMemoryCheckedMultiply(counts[i],elems[i])});
++        require(row.name&&std::string(row.name)==names[i]&&row.logicalCount==counts[i]&&
++                row.countExact&&row.elementBytes==elems[i]&&row.allocatedBytes==bytes&&
++                row.uploadStagingBytes==bytes&&row.withinMaxBufferLength,
++                "incidence row differs from compiled-world checkedBytes binding");
++        total=shippingMemoryCheckedAdd(total,bytes);
++        stage=shippingMemoryCheckedAdd(stage,row.uploadStagingBytes);
++    }
++    require(plan.admitted&&plan.residentBytes==total&&plan.uploadStagingBytes==stage&&
++                total==59140000ull,
++            "six compiled incidence/range allocations or staging subtotal differ");
++    auto unbound=x;unbound.contactIncidenceCountsExact=false;
++    const auto unboundPlan=planShippingContactIncidenceArena(unbound);
++    require(!unboundPlan.admitted&&
++                std::string(unboundPlan.failure)=="contact_incidence_counts_unbound",
++            "contact incidence planner admitted fallback counts as exact");
++    auto ownerUnbound=x;ownerUnbound.bodyProxyOwnerLayoutExact=false;
++    const auto ownerUnboundPlan=planShippingContactIncidenceArena(ownerUnbound);
++    require(!ownerUnboundPlan.admitted&&
++                std::string(ownerUnboundPlan.failure)=="body_proxy_owner_layout_unbound",
++            "body proxy owners were admitted without an exact range cross-check");
++    auto ownerOutside=x;ownerOutside.bodyProxyOwnerIndicesWithinRange=false;
++    const auto ownerOutsidePlan=planShippingContactIncidenceArena(ownerOutside);
++    require(!ownerOutsidePlan.admitted&&
++                std::string(ownerOutsidePlan.failure)==
++                    "body_proxy_owner_index_outside_wrench_range",
++            "runtime-owned suture proxy beyond the wrench range was admitted");
++    auto malformed=x;malformed.contactNodeIncidenceCount--;
++    const auto malformedPlan=planShippingContactIncidenceArena(malformed);
++    require(!malformedPlan.admitted&&std::string(malformedPlan.failure)==
++                "contact_incidence_extents_do_not_match_compiler_contract",
++            "exact incidence counts that contradict compiler one-entry-per-pair layout were admitted");
++    auto over=x;over.maxBufferLength=25342271u;
++    const auto overPlan=planShippingContactIncidenceArena(over);
++    require(!overPlan.admitted&&std::string(overPlan.failure)==
++                "contact_incidence_buffer_exceeds_device_max_buffer_length",
++            "contact incidence planner ignored an individual MTLBuffer maximum");
++    over=x;over.maxBufferLength=25342272u;
++    require(planShippingContactIncidenceArena(over).admitted,
++            "exact maximum-buffer boundary rejected a correctly sized incidence allocation");
++    over=x;over.maxBufferLength=0u;
++    require(!planShippingContactIncidenceArena(over).admitted,
++            "contact incidence planner admitted unknown device maximum");
++
++    ShippingMetalWorldTransitionInput m;
++    m.maxBufferLength=1024u;
++    for(std::uint32_t i=0;i<m.kBufferCount;++i) {
++        auto& row=m.rows[i];row.slot=i;row.name="slot";
++        row.logicalCount=1u;row.elementBytes=4u;
++        row.oldBufferCapacityBytes=4u;row.proposedBufferCapacityBytes=4u;
++        row.oldSharedBytes=4u;row.proposedSharedBytes=4u;
++        row.replace=false;row.bound=true;
++    }
++    m.rows[0].oldBufferCapacityBytes=64u;m.rows[0].proposedBufferCapacityBytes=128u;
++    m.rows[0].oldSharedBytes=64u;m.rows[0].proposedSharedBytes=128u;
++    m.rows[0].replace=true;
++    for(std::uint32_t i=1u;i<=3u;++i) {
++        m.rows[i].heapClass=i;m.rows[i].oldSharedBytes=0u;
++        m.rows[i].proposedSharedBytes=0u;
++        m.rows[i].oldBufferCapacityBytes=4u;
++        m.rows[i].proposedBufferCapacityBytes=4u;
++        m.rows[i].replace=true;
++    }
++    m.rows[4].oldUploadBytes=16u;m.rows[4].proposedUploadBytes=32u;m.rows[4].replace=true;
++    m.rows[5].oldReadbackBytes=16u;m.rows[5].proposedReadbackBytes=40u;
++    m.rows[5].replace=true;
++    m.oldHeapBytes={{100u,200u,300u}};m.proposedHeapBytes={{120u,220u,320u}};
++    m.heapSizesBound=true;
++    const auto mp=planShippingMetalWorldTransition(m);
++    require(mp.admitted&&mp.oldResidentBytes==1056u&&mp.oldHeapBytes==600u&&
++                mp.oldUploadBytes==16u&&mp.oldReadbackBytes==16u&&
++                mp.replacementSharedBytes==136u&&mp.replacementHeapBytes==660u&&
++                mp.replacementUploadBytes==32u&&mp.replacementReadbackBytes==40u&&
++                mp.modeledTransitionPeakBytes==2556u,
++            "MetalWorld transition failed to retain old and replacement allocations through swap");
++    auto noHeap=m;noHeap.heapSizesBound=false;
++    require(!planShippingMetalWorldTransition(noHeap).admitted&&
++                std::string(planShippingMetalWorldTransition(noHeap).failure)==
++                    "metalworld_heap_transition_bytes_unbound",
++            "MetalWorld planner treated missing heap sizes as zero");
++    auto incomplete=m;incomplete.rows[251].bound=false;
++    require(!planShippingMetalWorldTransition(incomplete).admitted&&
++                std::string(planShippingMetalWorldTransition(incomplete).failure)==
++                    "metalworld_252_slot_binding_incomplete",
++            "MetalWorld planner admitted an incomplete raw-slot inventory");
++    auto maxFail=m;maxFail.maxBufferLength=100u;
++    require(!planShippingMetalWorldTransition(maxFail).admitted&&
++                std::string(planShippingMetalWorldTransition(maxFail).failure)==
++                    "metalworld_buffer_exceeds_device_max_buffer_length",
++            "MetalWorld planner did not check per-buffer proposed capacity");
++    auto peakFail=m;peakFail.peakLimitBytes=1000u;
++    require(!planShippingMetalWorldTransition(peakFail).admitted&&
++                std::string(planShippingMetalWorldTransition(peakFail).failure)==
++                    "metalworld_transition_exceeds_peak_limit",
++            "MetalWorld planner omitted old+replacement overlap");
++    auto overflow=m;overflow.oldHeapBytes[0]=std::numeric_limits<std::uint64_t>::max();
++    require(!planShippingMetalWorldTransition(overflow).admitted&&
++                std::string(planShippingMetalWorldTransition(overflow).failure)==
++                    "metalworld_transition_byte_arithmetic_overflow",
++            "MetalWorld planner failed to reject aggregate overflow");
++}
++
+ void checkTiledCohesivePreflight() {
+     ShippingPrebuildArenaOptions options;
+     configureShippingTiledCohesiveTrial(options, nullptr, nullptr, false, false);
+@@ -445,6 +574,7 @@
+     checkExactRigidContactPlanAndCompactionFailClosed();
+     checkDeformableIncidenceSortMemoryAccounting();
+     checkSelectedRequiredRigidArenaIsOneAllocation();
++    checkContactIncidenceAndMetalWorldTransitionPlans();
+     checkTiledCohesivePreflight();
+     checkRuntimeEnvironmentAdmission();
+     const auto single = estimateShippingStaticMemoryLowerBound(1000u, 2000u, 1u);
+--- a/matter/tools/cardboard_solver_environment.py
++++ b/matter/tools/cardboard_solver_environment.py
+@@ -29,6 +29,7 @@
+ NATIVE_ENV_KEYS = tuple(sorted({
+     "NM_CONTACT_NODE_INCIDENCE_SORT",
+     "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
++    "NM_FEM_BASE_CGLS_BEST_OF",
+     "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
+     "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+     "NM_FEM_BASE_CGLS_DAMPING_KG",
+@@ -152,6 +153,8 @@
+         raise ValueError(f"NUL is not allowed in environment value for {key}")
+     if key == "NM_CONTACT_NODE_INCIDENCE_SORT" and value != "1":
+         raise ValueError("NM_CONTACT_NODE_INCIDENCE_SORT must be exactly 1 when set")
++    if key == "NM_FEM_BASE_CGLS_BEST_OF" and value != "1":
++        raise ValueError("NM_FEM_BASE_CGLS_BEST_OF must be exactly 1 when set")
+     if key in NUMERIC_SELECTOR_KEYS:
+         # Empty is a source-supported explicit disable for selector controls;
+         # it remains distinct from an absent key in the hashed contract.
+--- a/matter/tools/pure_fem_cgls_best_of_contract_check.cpp
++++ b/matter/tools/pure_fem_cgls_best_of_contract_check.cpp
+@@ -0,0 +1,38 @@
++#include "numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp"
++#include "numi/matter/detail/pure_fem_cgls_best_of_policy.hpp"
++#include <cstring>
++#include <iostream>
++#include <limits>
++#include <stdexcept>
++using namespace numi::matter::detail;
++static void require(bool v){if(!v)throw std::runtime_error("best-of CGLS contract failed");}
++int main(){
++ FEMPureArmijoArenaShape s{};s.environmentCount=2;s.femNodeCount=8192;s.tetrahedronCount=32768;
++ s.unknownCount=4u*8192u;s.maxBufferLength=512ull*1024ull*1024ull;
++ s.accountedResidentBytes=6ull*1024ull*1024ull*1024ull;s.oneStaticExplicitFEM=true;
++ s.includeCauchy=true;s.includeCGLS=true;s.includeRightScale=true;s.includeBestOf=true;
++ auto p=planFEMPureArmijoCGLSArena(s);require(p.admitted()&&p.includeBestOf&&p.bufferCount==34u);
++ require(std::strcmp(p.buffers[p.bufferCount-9u].name,"cgls_best_direction")==0);
++ require(std::strcmp(p.buffers[p.bufferCount-1u].name,"cgls_best_committed")==0);
++ auto bad=s;bad.includeRightScale=false;bad.includeCGLS=false;
++ require(planFEMPureArmijoCGLSArena(bad).failure==FEMPureArmijoArenaFailure::best_of_layout);
++ bad=s;bad.includeBestOf=false;bad.includeRightScale=false;bad.includeCauchy=false;
++ require(planFEMPureArmijoCGLSArena(bad).failure==FEMPureArmijoArenaFailure::cgls_layout);
++ bad=s;bad.environmentCount=3;bad.unknownCount=6u*8192u;
++ require(planFEMPureArmijoCGLSArena(bad).failure==FEMPureArmijoArenaFailure::cgls_layout);
++ FEMPureCGLSBestOfEligibility e{true,true,true,true,1.e-3f,1.e-7f,9.e-4f,.25f};
++ require(femPureCGLSBestOfEligible(e));e.originalCertificate=false;require(!femPureCGLSBestOfEligible(e));
++ e.originalCertificate=true;e.acceptedResidual=1.e-3f;require(!femPureCGLSBestOfEligible(e));
++ e.acceptedResidual=9.e-4f;e.baseResidual=1.e-7f;require(!femPureCGLSBestOfEligible(e));
++ const unsigned char n[16]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
++ const unsigned char cgls[16]={15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0};unsigned char out[16]{};
++ FEMPureCGLSBestOfChoice c{true,true,true,true,.25f,.20f};
++ require(femPureCGLSBestOfResolveBytes(c,n,cgls,out)&&std::memcmp(out,cgls,16)==0);
++ auto reject=[&](FEMPureCGLSBestOfChoice x){std::memset(out,0xaa,16);
++   require(!femPureCGLSBestOfResolveBytes(x,n,cgls,out)&&std::memcmp(out,n,16)==0);};
++ c.cglsResidual=.25f;reject(c);c.cglsResidual=.3f;reject(c);
++ c.cglsResidual=.2f;c.cglsAccepted=false;reject(c);c.cglsAccepted=true;c.cglsHealthy=false;reject(c);
++ c.cglsHealthy=true;c.cglsFinite=false;reject(c);c.cglsFinite=true;c.savedNewtonCandidate=false;reject(c);
++ c.savedNewtonCandidate=true;c.newtonResidual=std::numeric_limits<float>::quiet_NaN();reject(c);
++ std::cout<<"pure_fem_cgls_best_of_contract=PASS scratch="<<p.scratchBytes<<" buffers="<<p.bufferCount<<"\n";
++}
+--- a/matter/tools/pure_fem_cgls_best_of_kernel_check.mm
++++ b/matter/tools/pure_fem_cgls_best_of_kernel_check.mm
+@@ -0,0 +1,140 @@
++#import <Foundation/Foundation.h>
++#import <Metal/Metal.h>
++#include "numi/matter/shared.h"
++#include <algorithm>
++#include <cmath>
++#include <cstdint>
++#include <cstring>
++#include <functional>
++#include <iostream>
++#include <stdexcept>
++#include <string>
++#ifndef NUMI_FEM_CGLS_ARENA_METALLIB
++#error "Build must define NUMI_FEM_CGLS_ARENA_METALLIB"
++#endif
++namespace {
++using U=std::uint32_t;
++struct alignas(16) F4{float x,y,z,w;};
++unsigned checks=0;
++void need(bool ok,const char* text){++checks;if(!ok)throw std::runtime_error(text);}
++id<MTLComputePipelineState> pipeline(id<MTLDevice>d,id<MTLLibrary>l,const char*n){
++ NSString*name=[NSString stringWithFormat:@"numi_matter_metal::%s",n];
++ id<MTLFunction>f=[l newFunctionWithName:name];need(f!=nil,"missing kernel");
++ NSError*err=nil;id<MTLComputePipelineState>p=[d newComputePipelineStateWithFunction:f error:&err];
++ if(p==nil){const char*detail=err.localizedDescription.UTF8String;throw std::runtime_error(detail?detail:"kernel pipeline failed");}return p;
++}
++using Bind=std::function<void(id<MTLComputeCommandEncoder>)>;
++void launch(id<MTLCommandQueue>q,id<MTLComputePipelineState>p,U n,const Bind&bind){
++ id<MTLCommandBuffer>c=[q commandBuffer];id<MTLComputeCommandEncoder>e=[c computeCommandEncoder];need(c&&e,"encoder");
++ [e setComputePipelineState:p];bind(e);
++ NSUInteger w=std::max<NSUInteger>(1,std::min<NSUInteger>(256,p.maxTotalThreadsPerThreadgroup));
++ [e dispatchThreads:MTLSizeMake(n,1,1) threadsPerThreadgroup:MTLSizeMake(w,1,1)];
++ [e endEncoding];[c commit];[c waitUntilCompleted];need(c.status==MTLCommandBufferStatusCompleted,"dispatch failed");
++}
++template<class T>void arg(id<MTLComputeCommandEncoder>e,const T&v,NSUInteger i){[e setBytes:&v length:sizeof(T) atIndex:i];}
++template<class T>id<MTLBuffer> buf(id<MTLDevice>d,const T*p,size_t n){
++ return [d newBufferWithBytes:p length:n*sizeof(T) options:MTLResourceStorageModeShared];
++}
++template<class T>id<MTLBuffer> zero(id<MTLDevice>d,size_t n){
++ id<MTLBuffer>b=[d newBufferWithLength:n*sizeof(T) options:MTLResourceStorageModeShared];
++ need(b!=nil,"buffer allocation");std::memset(b.contents,0,n*sizeof(T));return b;
++}
++struct Input{
++ const char*name;
++ float cglsResidual;
++ float cglsAlpha;
++ bool accepted,healthy,eligible,exhausted;
++ bool environmentAlphaMismatch,newtonAlphaMismatch;
++ float outcome;
++ bool keepCgls;
++};
++void run(id<MTLDevice>d,id<MTLCommandQueue>q,id<MTLLibrary>lib,const Input&t){
++ constexpr U E=2,N=2,UCount=8;
++ NMMatterDispatchGPU ds{};ds.environmentCount=E;ds.objectCount=1;ds.femNodeCount=N;
++ NMMixedSolverGPU sv{};sv.residualTolerances.x=.1f;
++ NMFGMRESLayoutGPU ly{};ly.unknownCount=UCount;
++ const float newtonAlpha=t.newtonAlphaMismatch?.5f:.5f;
++ F4 met[E]={{1.f,.8f,newtonAlpha,t.eligible?1.f:0.f},{.25f,.2f,.125f,0.f}};
++ F4 line[E]={{newtonAlpha,.8f,0.f,0.f},{.25f,.6f,0.f,0.f}};
++ float ea[E]={t.newtonAlphaMismatch?.25f:newtonAlpha,.25f};
++ NMFGMRESStateGPU st[E]{};st[0].diagnostics.z=1.f;st[1].diagnostics.z=.25f;
++ NMMatterStatusGPU status[E]{},trial[E]{};
++ F4 old[UCount],sol[UCount],oldSol[UCount],newSol[UCount]{};
++ for(U i=0;i<UCount;++i)old[i]=sol[i]=oldSol[i]={float(i+1),float(i+10),float(i+20),float(i+30)};
++ if(t.exhausted)met[0].w=3.f;
++ const F4 oldMet[E]={met[0],met[1]},oldLine[E]={line[0],line[1]};
++ const float oldEA[E]={ea[0],ea[1]};
++ const NMFGMRESStateGPU oldSt[E]={st[0],st[1]};
++ const NMMatterStatusGPU oldStatus[E]={status[0],status[1]},oldTrial[E]={trial[0],trial[1]};
++ auto bds=buf(d,&ds,1),bsv=buf(d,&sv,1),bly=buf(d,&ly,1);
++ auto bm=buf(d,met,E),bl=buf(d,line,E),bea=buf(d,ea,E),bst=buf(d,st,E);
++ auto bs=buf(d,status,E),bt=buf(d,trial,E),bm0=zero<F4>(d,E),bl0=zero<F4>(d,E);
++ auto be0=zero<float>(d,E),bc0=zero<float>(d,E),bs0=zero<NMMatterStatusGPU>(d,E);
++ auto bt0=zero<NMMatterStatusGPU>(d,E),bf=zero<U>(d,E),bsol=buf(d,sol,UCount),bnew=buf(d,newSol,UCount);
++ auto ps=pipeline(d,lib,"nm_fgmres_base_cgls_best_of_save");
++ auto pd=pipeline(d,lib,"nm_fgmres_base_cgls_best_of_save_direction");
++ auto pr=pipeline(d,lib,"nm_fgmres_base_cgls_best_of_resolve");
++ auto px=pipeline(d,lib,"nm_fgmres_base_cgls_best_of_restore_direction");
++ launch(q,ps,E,[&](id<MTLComputeCommandEncoder>e){
++ [e setBuffer:bds offset:0 atIndex:0];[e setBuffer:bsv offset:0 atIndex:1];[e setBuffer:bm offset:0 atIndex:2];[e setBuffer:bl offset:0 atIndex:3];[e setBuffer:bea offset:0 atIndex:4];[e setBuffer:bst offset:0 atIndex:5];[e setBuffer:bs offset:0 atIndex:6];[e setBuffer:bt offset:0 atIndex:7];[e setBuffer:bm0 offset:0 atIndex:8];[e setBuffer:bl0 offset:0 atIndex:9];[e setBuffer:be0 offset:0 atIndex:10];[e setBuffer:bc0 offset:0 atIndex:11];[e setBuffer:bs0 offset:0 atIndex:12];[e setBuffer:bt0 offset:0 atIndex:13];[e setBuffer:bf offset:0 atIndex:14];});
++ const U flag=t.exhausted?2u:(t.eligible&&!t.newtonAlphaMismatch?1u:0u);
++ need(static_cast<U*>(bf.contents)[0]==flag,"eligibility flag");need(static_cast<U*>(bf.contents)[1]==0,"unselected flag");
++ launch(q,pd,UCount,[&](id<MTLComputeCommandEncoder>e){[e setBuffer:bds offset:0 atIndex:0];[e setBuffer:bly offset:0 atIndex:30];[e setBuffer:bsol offset:0 atIndex:1];[e setBuffer:bnew offset:0 atIndex:2];[e setBuffer:bf offset:0 atIndex:3];});
++ auto*m=static_cast<F4*>(bm.contents);auto*l=static_cast<F4*>(bl.contents);auto*a=static_cast<float*>(bea.contents);auto*s=static_cast<NMFGMRESStateGPU*>(bst.contents);auto*stp=static_cast<NMMatterStatusGPU*>(bs.contents);auto*tp=static_cast<NMMatterStatusGPU*>(bt.contents);auto*x=static_cast<F4*>(bsol.contents);
++ m[0]={1.f,t.cglsResidual,t.cglsAlpha,t.accepted?1.f:0.f};
++ l[0]={t.cglsAlpha,.2f,0.f,0.f};
++ a[0]=t.environmentAlphaMismatch?std::nextafter(t.cglsAlpha,0.f):t.cglsAlpha;
++ if(t.exhausted)m[0].w=1.f;
++ s[0].diagnostics.z=0.f;
++ stp[0].code=t.healthy?NM_STATUS_SUCCESS:1u;tp[0].code=t.accepted?NM_STATUS_SUCCESS:77u;
++ for(U i=0;i<UCount;++i)x[i]={-float(i+1),-float(i+10),-float(i+20),-float(i+30)};
++ // Adversarially mutate every unknown row, including both environment blocks.
++ // The losing/unselected restoration must recover the full saved vector.
++ m[1]={91.f,92.f,93.f,94.f};l[1]={81.f,82.f,83.f,84.f};a[1]=71.f;
++ s[1].diagnostics.z=61.f;stp[1].code=51u;tp[1].code=41u;
++ F4 cgls[UCount];std::memcpy(cgls,x,sizeof(cgls));
++ launch(q,pr,E,[&](id<MTLComputeCommandEncoder>e){
++ [e setBuffer:bds offset:0 atIndex:0];[e setBuffer:bm offset:0 atIndex:1];[e setBuffer:bl offset:0 atIndex:2];[e setBuffer:bea offset:0 atIndex:3];[e setBuffer:bst offset:0 atIndex:4];[e setBuffer:bs offset:0 atIndex:5];[e setBuffer:bt offset:0 atIndex:6];[e setBuffer:bm0 offset:0 atIndex:7];[e setBuffer:bl0 offset:0 atIndex:8];[e setBuffer:be0 offset:0 atIndex:9];[e setBuffer:bc0 offset:0 atIndex:10];[e setBuffer:bs0 offset:0 atIndex:11];[e setBuffer:bt0 offset:0 atIndex:12];[e setBuffer:bf offset:0 atIndex:13];});
++ launch(q,px,UCount,[&](id<MTLComputeCommandEncoder>e){[e setBuffer:bds offset:0 atIndex:0];[e setBuffer:bly offset:0 atIndex:30];[e setBuffer:bsol offset:0 atIndex:1];[e setBuffer:bnew offset:0 atIndex:2];[e setBuffer:bm0 offset:0 atIndex:3];[e setBuffer:bf offset:0 atIndex:4];});
++ const auto*out=static_cast<const F4*>(bm0.contents);
++ const auto*final=static_cast<const F4*>(bsol.contents);
++ const auto*fm=static_cast<const F4*>(bm.contents);
++ const auto*fl=static_cast<const F4*>(bl.contents);
++ const auto*fa=static_cast<const float*>(bea.contents);
++ const auto*fs=static_cast<const NMFGMRESStateGPU*>(bst.contents);
++ const auto*fst=static_cast<const NMMatterStatusGPU*>(bs.contents);
++ const auto*ft=static_cast<const NMMatterStatusGPU*>(bt.contents);
++ need(out[0].w==t.outcome,t.name);
++ for(U i=0;i<UCount;++i){U rows=E*N,local=i<rows?i:i-rows,env=local/N;bool restore=env==1u||!t.keepCgls;
++ const F4&want=restore?oldSol[i]:cgls[i];need(std::memcmp(final+i,&want,sizeof(F4))==0,t.name);}
++ // Environment 1 is outside this CGLS transaction. Every saved metadata and
++ // status field must remain byte-identical in every outcome.
++ need(std::memcmp(fm+1,oldMet+1,sizeof(F4))==0,"unselected metrics changed");
++ need(std::memcmp(fl+1,oldLine+1,sizeof(F4))==0,"unselected line search changed");
++ need(std::memcmp(fa+1,oldEA+1,sizeof(float))==0,"unselected environment alpha changed");
++ need(std::memcmp(fs+1,oldSt+1,sizeof(NMFGMRESStateGPU))==0,"unselected certificate/state changed");
++ need(std::memcmp(fst+1,oldStatus+1,sizeof(NMMatterStatusGPU))==0,"unselected status changed");
++ need(std::memcmp(ft+1,oldTrial+1,sizeof(NMMatterStatusGPU))==0,"unselected trial status changed");
++ if(t.keepCgls&&!t.exhausted){need(fm[0].y==t.cglsResidual,"winner metric");need(fs[0].diagnostics.z==0.f,"CGLS inherited Newton certificate");
++   if(t.accepted&&t.healthy&&!t.environmentAlphaMismatch){need(fm[0].z==fl[0].x&&fm[0].z==fa[0],"winner applied alpha mismatch");need(out[0].z==fm[0].z,"winner outcome alpha mismatch");}}
++ if(!t.keepCgls&&!t.exhausted){need(std::memcmp(fm,oldMet,sizeof(oldMet))==0,"metrics restore");need(std::memcmp(fl,oldLine,sizeof(oldLine))==0,"line restore");need(std::memcmp(fa,oldEA,sizeof(oldEA))==0,"environment alpha restore");need(std::memcmp(fs,oldSt,sizeof(oldSt))==0,"certificate restore");need(std::memcmp(fst,oldStatus,sizeof(oldStatus))==0,"status restore");need(std::memcmp(ft,oldTrial,sizeof(oldTrial))==0,"trial status restore");}
++}
++}
++int main(){@autoreleasepool{try{
++ id<MTLDevice>d=MTLCreateSystemDefaultDevice();need(d!=nil,"no Metal device");
++ id<MTLCommandQueue>q=[d newCommandQueue];need(q!=nil,"no queue");
++ NSError*err=nil;id<MTLLibrary>lib=[d newLibraryWithURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:NUMI_FEM_CGLS_ARENA_METALLIB]] error:&err];
++ if(lib==nil){const char*detail=err.localizedDescription.UTF8String;throw std::runtime_error(detail?detail:"metallib load failed");}
++ run(d,q,lib,{"win",.7f,.125f,true,true,true,false,false,false,2.f,true});
++ run(d,q,lib,{"tie",.8f,.125f,true,true,true,false,false,false,1.f,false});
++ run(d,q,lib,{"worse",.9f,.125f,true,true,true,false,false,false,1.f,false});
++ run(d,q,lib,{"nonfinite",NAN,.125f,true,true,true,false,false,false,3.f,false});
++ run(d,q,lib,{"bad-status",.7f,.125f,true,false,true,false,false,false,3.f,false});
++ run(d,q,lib,{"rejected-armijo",.7f,.125f,false,true,true,false,false,false,3.f,false});
++ run(d,q,lib,{"alpha-mismatch",.7f,.125f,true,true,true,false,true,false,3.f,false});
++ run(d,q,lib,{"no-newton",.7f,.125f,true,true,false,false,false,false,0.f,false});
++ run(d,q,lib,{"newton-alpha-mismatch",.7f,.125f,true,true,true,false,false,true,0.f,false});
++ run(d,q,lib,{"legacy-fallback",.7f,.125f,true,true,false,true,false,false,4.f,true});
++ std::cout<<"pure_fem_cgls_best_of_production_kernel=PASS checks="<<checks<<" physical_transactions=0\n";
++ return 0;
++}catch(const std::exception&e){std::cerr<<"pure_fem_cgls_best_of_production_kernel=FAIL "<<e.what()<<'\n';return 1;}}}
+--- a/matter/tools/test_cardboard_solver_environment.py
++++ b/matter/tools/test_cardboard_solver_environment.py
+@@ -20,9 +20,10 @@
+     def test_registry_matches_checkout_and_detects_unregistered_control(self):
+         env.validate_source_registry(SOURCE_ROOT)
+         self.assertEqual(env.source_key_registry(SOURCE_ROOT), env.NATIVE_ENV_KEYS)
+-        self.assertEqual(len(env.NATIVE_ENV_KEYS), 54)
++        self.assertEqual(len(env.NATIVE_ENV_KEYS), 55)
+         self.assertIn("NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR", env.NATIVE_ENV_KEYS)
+         self.assertIn("NM_FEM_BASE_CGLS_DAMPING_KG", env.NATIVE_ENV_KEYS)
++        self.assertIn("NM_FEM_BASE_CGLS_BEST_OF", env.NATIVE_ENV_KEYS)
+         self.assertIn("NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT", env.NATIVE_ENV_KEYS)
+         with tempfile.TemporaryDirectory() as temporary:
+             root = Path(temporary)
+@@ -82,6 +83,28 @@
+         historical["sha256"] = env._contract_digest(historical)
+         with self.assertRaisesRegex(ValueError, "registry differs"):
+             env.validate_contract(historical)
++
++    def test_best_of_cgls_is_explicitly_bound_and_preserves_all_selector(self):
++        absent = env.make_contract()
++        selected = env.make_contract({
++            "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR": "all:all",
++            "NM_FEM_BASE_CGLS_ITERATIONS": "64",
++            "NM_FEM_BASE_CGLS_BEST_OF": "1",
++        })
++        self.assertNotEqual(absent["sha256"], selected["sha256"])
++        self.assertEqual(selected["effective"]["NM_FEM_BASE_CGLS_BEST_OF"],
++                         {"set": True, "value": "1"})
++        self.assertEqual(selected["effective"]["NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR"],
++                         {"set": True, "value": "all:all"})
++        parent = {"PATH": "/bin", "NM_FEM_BASE_CGLS_BEST_OF": "1",
++                  "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR": "2:34"}
++        child, removed = env.child_environment(parent, absent)
++        self.assertEqual(child, {"PATH": "/bin"})
++        self.assertEqual(removed, ["NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
++                                   "NM_FEM_BASE_CGLS_BEST_OF"])
++        for invalid in ("", "0", "true", "all"):
++            with self.subTest(invalid=invalid), self.assertRaises(ValueError):
++                env.make_contract({"NM_FEM_BASE_CGLS_BEST_OF": invalid})
+ 
+     def test_damped_cgls_is_a_physical_source_bound_setting(self):
+         absent = env.make_contract()

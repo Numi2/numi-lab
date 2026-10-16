@@ -1,0 +1,21 @@
+Updating 89da10e5..420b4f86
+Fast-forward
+ .../whole-geometry-replay-20261016/README.md       |  37 ++++++
+ .../final-source-native-binary-identity.json       |   9 ++
+ .../legacy-skin-parity.json                        |   9 ++
+ .../native-input-regression.json                   |  63 +++++++++
+ .../replay-build-report.json                       |  36 ++++++
+ .../replay-precleanup-build-report.json            |  36 ++++++
+ .../viewer-build-report.json                       | 144 +++++++++++++++++++++
+ .../whole-geometry-parity.json                     |  13 ++
+ apps/NumiHumanRestingVisual.hpp                    |  61 +++++++++
+ apps/human_resting_skin_replay.mm                  | 104 +++++++++++++--
+ 10 files changed, 502 insertions(+), 10 deletions(-)
+ create mode 100644 .numi/evidence/human-resting/whole-geometry-replay-20261016/README.md
+ create mode 100644 .numi/evidence/human-resting/whole-geometry-replay-20261016/final-source-native-binary-identity.json
+ create mode 100644 .numi/evidence/human-resting/whole-geometry-replay-20261016/legacy-skin-parity.json
+ create mode 100644 .numi/evidence/human-resting/whole-geometry-replay-20261016/native-input-regression.json
+ create mode 100644 .numi/evidence/human-resting/whole-geometry-replay-20261016/replay-build-report.json
+ create mode 100644 .numi/evidence/human-resting/whole-geometry-replay-20261016/replay-precleanup-build-report.json
+ create mode 100644 .numi/evidence/human-resting/whole-geometry-replay-20261016/viewer-build-report.json
+ create mode 100644 .numi/evidence/human-resting/whole-geometry-replay-20261016/whole-geometry-parity.json

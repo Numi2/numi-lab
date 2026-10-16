@@ -1,0 +1,434 @@
+// Shared common-field volume/Jacobian/Newton implementation. Included by the
+// production Human Metal source and the focused Metal solver fixture.
+constant uchar nmHumanRestingCommonExponents[120][7] = {
+    {0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,1},
+    {0,0,0,0,0,0,2},
+    {0,0,0,0,0,0,3},
+    {0,0,0,0,0,1,0},
+    {0,0,0,0,0,1,1},
+    {0,0,0,0,0,1,2},
+    {0,0,0,0,0,2,0},
+    {0,0,0,0,0,2,1},
+    {0,0,0,0,0,3,0},
+    {0,0,0,0,1,0,0},
+    {0,0,0,0,1,0,1},
+    {0,0,0,0,1,0,2},
+    {0,0,0,0,1,1,0},
+    {0,0,0,0,1,1,1},
+    {0,0,0,0,1,2,0},
+    {0,0,0,0,2,0,0},
+    {0,0,0,0,2,0,1},
+    {0,0,0,0,2,1,0},
+    {0,0,0,0,3,0,0},
+    {0,0,0,1,0,0,0},
+    {0,0,0,1,0,0,1},
+    {0,0,0,1,0,0,2},
+    {0,0,0,1,0,1,0},
+    {0,0,0,1,0,1,1},
+    {0,0,0,1,0,2,0},
+    {0,0,0,1,1,0,0},
+    {0,0,0,1,1,0,1},
+    {0,0,0,1,1,1,0},
+    {0,0,0,1,2,0,0},
+    {0,0,0,2,0,0,0},
+    {0,0,0,2,0,0,1},
+    {0,0,0,2,0,1,0},
+    {0,0,0,2,1,0,0},
+    {0,0,0,3,0,0,0},
+    {0,0,1,0,0,0,0},
+    {0,0,1,0,0,0,1},
+    {0,0,1,0,0,0,2},
+    {0,0,1,0,0,1,0},
+    {0,0,1,0,0,1,1},
+    {0,0,1,0,0,2,0},
+    {0,0,1,0,1,0,0},
+    {0,0,1,0,1,0,1},
+    {0,0,1,0,1,1,0},
+    {0,0,1,0,2,0,0},
+    {0,0,1,1,0,0,0},
+    {0,0,1,1,0,0,1},
+    {0,0,1,1,0,1,0},
+    {0,0,1,1,1,0,0},
+    {0,0,1,2,0,0,0},
+    {0,0,2,0,0,0,0},
+    {0,0,2,0,0,0,1},
+    {0,0,2,0,0,1,0},
+    {0,0,2,0,1,0,0},
+    {0,0,2,1,0,0,0},
+    {0,0,3,0,0,0,0},
+    {0,1,0,0,0,0,0},
+    {0,1,0,0,0,0,1},
+    {0,1,0,0,0,0,2},
+    {0,1,0,0,0,1,0},
+    {0,1,0,0,0,1,1},
+    {0,1,0,0,0,2,0},
+    {0,1,0,0,1,0,0},
+    {0,1,0,0,1,0,1},
+    {0,1,0,0,1,1,0},
+    {0,1,0,0,2,0,0},
+    {0,1,0,1,0,0,0},
+    {0,1,0,1,0,0,1},
+    {0,1,0,1,0,1,0},
+    {0,1,0,1,1,0,0},
+    {0,1,0,2,0,0,0},
+    {0,1,1,0,0,0,0},
+    {0,1,1,0,0,0,1},
+    {0,1,1,0,0,1,0},
+    {0,1,1,0,1,0,0},
+    {0,1,1,1,0,0,0},
+    {0,1,2,0,0,0,0},
+    {0,2,0,0,0,0,0},
+    {0,2,0,0,0,0,1},
+    {0,2,0,0,0,1,0},
+    {0,2,0,0,1,0,0},
+    {0,2,0,1,0,0,0},
+    {0,2,1,0,0,0,0},
+    {0,3,0,0,0,0,0},
+    {1,0,0,0,0,0,0},
+    {1,0,0,0,0,0,1},
+    {1,0,0,0,0,0,2},
+    {1,0,0,0,0,1,0},
+    {1,0,0,0,0,1,1},
+    {1,0,0,0,0,2,0},
+    {1,0,0,0,1,0,0},
+    {1,0,0,0,1,0,1},
+    {1,0,0,0,1,1,0},
+    {1,0,0,0,2,0,0},
+    {1,0,0,1,0,0,0},
+    {1,0,0,1,0,0,1},
+    {1,0,0,1,0,1,0},
+    {1,0,0,1,1,0,0},
+    {1,0,0,2,0,0,0},
+    {1,0,1,0,0,0,0},
+    {1,0,1,0,0,0,1},
+    {1,0,1,0,0,1,0},
+    {1,0,1,0,1,0,0},
+    {1,0,1,1,0,0,0},
+    {1,0,2,0,0,0,0},
+    {1,1,0,0,0,0,0},
+    {1,1,0,0,0,0,1},
+    {1,1,0,0,0,1,0},
+    {1,1,0,0,1,0,0},
+    {1,1,0,1,0,0,0},
+    {1,1,1,0,0,0,0},
+    {1,2,0,0,0,0,0},
+    {2,0,0,0,0,0,0},
+    {2,0,0,0,0,0,1},
+    {2,0,0,0,0,1,0},
+    {2,0,0,0,1,0,0},
+    {2,0,0,1,0,0,0},
+    {2,0,1,0,0,0,0},
+    {2,1,0,0,0,0,0},
+    {3,0,0,0,0,0,0}
+};
+
+inline float nmHumanRestingCommonCoefficient(constant MRHumanRestingCommonFieldGPU& p,uint row,uint term) {
+    return p.volumePolynomial[row][term>>2][term&3u];
+}
+inline float nmHumanRestingCommonPower(float x,uint exponent) {
+    float r=1.0f; for(uint i=0;i<exponent;++i) r*=x; return r;
+}
+inline float nmHumanRestingCommonMonomial(thread const float* x,constant const uchar* e) {
+    float r=1.0f; for(uint i=0;i<7;++i) r*=nmHumanRestingCommonPower(x[i],e[i]); return r;
+}
+inline void nmHumanRestingCommonPowers(thread const float* x,thread float* powers) {
+    for(uint k=0;k<7;++k) {
+        powers[k*4]=1.0f;
+        for(uint exponent=1;exponent<4;++exponent)
+            powers[k*4+exponent]=powers[k*4+exponent-1]*x[k];
+    }
+}
+inline bool nmHumanRestingCommonEvaluateValues(constant MRHumanRestingCommonFieldGPU& p,
+    thread const float* powers,thread float* values) {
+#if defined(__clang__)
+#pragma clang fp contract(off)
+#endif
+    for(uint r=0;r<7;++r) values[r]=0.0f;
+    for(uint term=0;term<120;++term) {
+        constant const uchar* e=nmHumanRestingCommonExponents[term];
+        float monomial=1.0f;
+        for(uint k=0;k<7;++k) monomial*=powers[k*4+e[k]];
+        for(uint r=0;r<7;++r)
+            values[r]+=nmHumanRestingCommonCoefficient(p,r,term)*monomial;
+    }
+    for(uint r=0;r<7;++r) if(!isfinite(values[r])) return false;
+    return true;
+}
+inline bool nmHumanRestingCommonEvaluateJacobian(constant MRHumanRestingCommonFieldGPU& p,
+    thread const float* powers,thread float* jacobian) {
+#if defined(__clang__)
+#pragma clang fp contract(off)
+#endif
+    for(uint r=0;r<7;++r) for(uint c=0;c<7;++c) jacobian[r*7+c]=0.0f;
+    for(uint term=0;term<120;++term) {
+        constant const uchar* e=nmHumanRestingCommonExponents[term];
+        float derivatives[7];
+        for(uint c=0;c<7;++c) {
+            const uint power=e[c];
+            if(!power) { derivatives[c]=0.0f; continue; }
+            float derivative=float(power);
+            for(uint k=0;k<7;++k)
+                derivative*=powers[k*4+e[k]-(k==c?1u:0u)];
+            derivatives[c]=derivative;
+        }
+        for(uint r=0;r<7;++r) {
+            const float coefficient=nmHumanRestingCommonCoefficient(p,r,term);
+            for(uint c=0;c<7;++c) if(e[c])
+                jacobian[r*7+c]+=coefficient*derivatives[c];
+        }
+    }
+    for(uint r=0;r<7;++r)
+        for(uint c=0;c<7;++c) if(!isfinite(jacobian[r*7+c])) return false;
+    return true;
+}
+inline bool nmHumanRestingCommonEvaluate(constant MRHumanRestingCommonFieldGPU& p,
+    thread const float* x,thread float* values,thread float* jacobian) {
+    float powers[28];
+    nmHumanRestingCommonPowers(x,powers);
+    return nmHumanRestingCommonEvaluateValues(p,powers,values)&&
+        nmHumanRestingCommonEvaluateJacobian(p,powers,jacobian);
+}
+inline float nmHumanRestingCommonResidual(thread const float* value,thread const float* target) {
+#if defined(__clang__)
+#pragma clang fp contract(off)
+#endif
+    float result=0.0f; for(uint i=0;i<7;++i) result=max(result,abs(value[i]-target[i])); return result;
+}
+inline bool nmHumanRestingCommonInsideTrial(constant MRHumanRestingCommonFieldGPU& p,thread const float* x) {
+    for(uint i=0;i<7;++i) {
+        const float low=i<4?p.trialLower[0][i]:p.trialLower[1][i-4];
+        const float high=i<4?p.trialUpper[0][i]:p.trialUpper[1][i-4];
+        if(!isfinite(x[i])||x[i]<low||x[i]>high) return false;
+    } return true;
+}
+inline bool nmHumanRestingCommonInCertifiedUnion(device const MRHumanRestingCommonCoordinateBoxGPU* boxes,
+    uint count,thread const float* x,thread uint& matched) {
+    for(uint b=0;b<count;++b) {
+        bool inside=true;
+        for(uint i=0;i<7;++i) {
+            const float low=i<4?boxes[b].lower[0][i]:boxes[b].lower[1][i-4];
+            const float high=i<4?boxes[b].upper[0][i]:boxes[b].upper[1][i-4];
+            inside=inside&&x[i]>=low&&x[i]<=high;
+        } if(inside){matched=b;return true;}
+    } return false;
+}
+inline uint nmHumanRestingCommonSolve(constant MRHumanRestingCommonFieldGPU& p,
+    device const MRHumanRestingCommonCoordinateBoxGPU* boxes,thread const float* targetVolumes,
+    thread float* x,thread uint& iterations,thread uint& matched,thread float& residualOut) {
+#if defined(__clang__)
+#pragma clang fp contract(off)
+#endif
+    if(p.countsAndFlags.y!=1u||p.countsAndFlags.x==0u||!isfinite(p.solver.x)||p.solver.x<=0.0f) return 1u;
+    float target[7],values[7],jacobian[49],augmented[56],delta[7],trial[7],trialValues[7],trialPowers[28];
+    for(uint i=0;i<7;++i) {
+        const float reference=i<4?p.sourceReferenceVolumes[0][i]:p.sourceReferenceVolumes[1][i-4];
+        if(!isfinite(targetVolumes[i])||!isfinite(reference)||reference<=0.0f) return 1u;
+        target[i]=targetVolumes[i]/reference; x[i]=0.0f;
+    }
+    if(!nmHumanRestingCommonInsideTrial(p,x)) return 1u;
+    const uint maxIterations=12u,maxBacktracks=12u; const float tolerance=p.solver.x;
+    for(uint iteration=0;iteration<maxIterations;++iteration) {
+        iterations=iteration;
+        if(!nmHumanRestingCommonEvaluate(p,x,values,jacobian)) return 1u;
+        const float residual=nmHumanRestingCommonResidual(values,target); residualOut=residual;
+        if(residual<=tolerance)
+            return nmHumanRestingCommonInCertifiedUnion(boxes,p.countsAndFlags.x,x,matched)?0u:5u;
+        for(uint r=0;r<7;++r) {
+            for(uint c=0;c<7;++c) augmented[r*8+c]=jacobian[r*7+c];
+            augmented[r*8+7]=values[r]-target[r];
+        }
+        for(uint pivot=0;pivot<7;++pivot) {
+            uint best=pivot; float magnitude=abs(augmented[pivot*8+pivot]);
+            for(uint r=pivot+1;r<7;++r) { const float candidate=abs(augmented[r*8+pivot]);
+                if(candidate>magnitude){magnitude=candidate;best=r;} }
+            if(!isfinite(magnitude)||magnitude<=1.e-12f) return 2u;
+            if(best!=pivot) for(uint c=pivot;c<8;++c) {
+                const float swap=augmented[pivot*8+c]; augmented[pivot*8+c]=augmented[best*8+c]; augmented[best*8+c]=swap;
+            }
+            const float diagonal=augmented[pivot*8+pivot];
+            for(uint c=pivot;c<8;++c) augmented[pivot*8+c]/=diagonal;
+            for(uint r=0;r<7;++r) if(r!=pivot) { const float factor=augmented[r*8+pivot];
+                for(uint c=pivot;c<8;++c) augmented[r*8+c]-=factor*augmented[pivot*8+c]; }
+        }
+        for(uint i=0;i<7;++i) delta[i]=augmented[i*8+7];
+        bool accepted=false; float scale=1.0f;
+        for(uint backtrack=0;backtrack<maxBacktracks;++backtrack) {
+            for(uint i=0;i<7;++i) trial[i]=x[i]-scale*delta[i];
+            if(nmHumanRestingCommonInsideTrial(p,trial)) {
+                nmHumanRestingCommonPowers(trial,trialPowers);
+                if(nmHumanRestingCommonEvaluateValues(p,trialPowers,trialValues)) {
+                    const float next=nmHumanRestingCommonResidual(trialValues,target);
+                    if(isfinite(next)&&next<residual&&
+                       nmHumanRestingCommonEvaluateJacobian(p,trialPowers,jacobian)) {
+                        for(uint i=0;i<7;++i) x[i]=trial[i];
+                        accepted=true; break;
+                    }
+                }
+            } scale*=.5f;
+        } if(!accepted) return 3u;
+    }
+    if(nmHumanRestingCommonEvaluate(p,x,values,jacobian)) {
+        residualOut=nmHumanRestingCommonResidual(values,target);
+        if(residualOut<=tolerance)
+            return nmHumanRestingCommonInCertifiedUnion(boxes,p.countsAndFlags.x,x,matched)?0u:5u;
+    } return 4u;
+}
+
+inline bool nmHumanRestingCommonEvaluateValuesSimd(
+    constant MRHumanRestingCommonFieldGPU& p,thread const float* powers,uint lane,
+    thread float& rowValue) {
+#if defined(__clang__)
+#pragma clang fp contract(off)
+#endif
+    rowValue=0.0f;
+    if(lane<7u) {
+        for(uint term=0;term<120;++term) {
+            constant const uchar* e=nmHumanRestingCommonExponents[term];
+            float monomial=1.0f;
+            for(uint k=0;k<7;++k) monomial*=powers[k*4+e[k]];
+            rowValue+=nmHumanRestingCommonCoefficient(p,lane,term)*monomial;
+        }
+    }
+    const bool finiteRow=lane>=7u||isfinite(rowValue);
+    return simd_all(finiteRow);
+}
+inline bool nmHumanRestingCommonEvaluateJacobianSimd(
+    constant MRHumanRestingCommonFieldGPU& p,thread const float* powers,uint lane,
+    thread float* rowJacobian) {
+#if defined(__clang__)
+#pragma clang fp contract(off)
+#endif
+    for(uint c=0;c<7;++c) rowJacobian[c]=0.0f;
+    if(lane<7u) {
+        for(uint term=0;term<120;++term) {
+            constant const uchar* e=nmHumanRestingCommonExponents[term];
+            float derivatives[7];
+            for(uint c=0;c<7;++c) {
+                const uint power=e[c];
+                if(!power) { derivatives[c]=0.0f; continue; }
+                float derivative=float(power);
+                for(uint k=0;k<7;++k)
+                    derivative*=powers[k*4+e[k]-(k==c?1u:0u)];
+                derivatives[c]=derivative;
+            }
+            const float coefficient=nmHumanRestingCommonCoefficient(p,lane,term);
+            for(uint c=0;c<7;++c) if(e[c])
+                rowJacobian[c]+=coefficient*derivatives[c];
+        }
+    }
+    bool finiteRow=true;
+    if(lane<7u) for(uint c=0;c<7;++c)
+        if(!isfinite(rowJacobian[c])) finiteRow=false;
+    return simd_all(finiteRow);
+}
+inline float nmHumanRestingCommonResidualSimd(float rowValue,thread const float* target) {
+#if defined(__clang__)
+#pragma clang fp contract(off)
+#endif
+    float result=0.0f;
+    for(uint row=0;row<7;++row) {
+        const float value=simd_broadcast(rowValue,row);
+        result=max(result,abs(value-target[row]));
+    }
+    return result;
+}
+// One SIMD lane owns each output polynomial row. All row-local term and
+// coefficient accumulations remain in source order; SIMD only distributes
+// independent rows and the independent Gaussian-elimination row updates.
+inline uint nmHumanRestingCommonSolveSimd(
+    constant MRHumanRestingCommonFieldGPU& p,
+    device const MRHumanRestingCommonCoordinateBoxGPU* boxes,
+    thread const float* targetVolumes,thread float* x,uint lane,
+    thread uint& iterations,thread uint& matched,thread float& residualOut) {
+#if defined(__clang__)
+#pragma clang fp contract(off)
+#endif
+    if(p.countsAndFlags.y!=1u||p.countsAndFlags.x==0u||
+       !isfinite(p.solver.x)||p.solver.x<=0.0f) return 1u;
+    float target[7],powers[28],trialPowers[28],rowValue=0.0f;
+    float rowJacobian[7],augmented[8],trial[7],trialValue=0.0f;
+    for(uint i=0;i<7;++i) {
+        const float reference=i<4?p.sourceReferenceVolumes[0][i]:p.sourceReferenceVolumes[1][i-4];
+        if(!isfinite(targetVolumes[i])||!isfinite(reference)||reference<=0.0f) return 1u;
+        target[i]=targetVolumes[i]/reference;
+        x[i]=0.0f;
+    }
+    if(!nmHumanRestingCommonInsideTrial(p,x)) return 1u;
+    const uint maxIterations=12u,maxBacktracks=12u;
+    const float tolerance=p.solver.x;
+    for(uint iteration=0;iteration<maxIterations;++iteration) {
+        iterations=iteration;
+        // Every accepted backtrack already evaluates and validates both the
+        // trial value and Jacobian. Keep those identical rounded results for
+        // the next Newton iteration instead of recomputing the same point.
+        if(iteration==0u) {
+            nmHumanRestingCommonPowers(x,powers);
+            if(!nmHumanRestingCommonEvaluateValuesSimd(p,powers,lane,rowValue)||
+               !nmHumanRestingCommonEvaluateJacobianSimd(p,powers,lane,rowJacobian)) return 1u;
+        }
+        const float residual=nmHumanRestingCommonResidualSimd(rowValue,target);
+        residualOut=residual;
+        if(residual<=tolerance)
+            return nmHumanRestingCommonInCertifiedUnion(
+                boxes,p.countsAndFlags.x,x,matched)?0u:5u;
+        for(uint c=0;c<7;++c) augmented[c]=lane<7u?rowJacobian[c]:0.0f;
+        augmented[7]=lane<7u?rowValue-target[lane]:0.0f;
+        for(uint pivot=0;pivot<7;++pivot) {
+            uint best=pivot;
+            float magnitude=abs(simd_broadcast(augmented[pivot],pivot));
+            for(uint r=pivot+1;r<7;++r) {
+                const float candidate=abs(simd_broadcast(augmented[pivot],r));
+                if(candidate>magnitude) { magnitude=candidate; best=r; }
+            }
+            if(!isfinite(magnitude)||magnitude<=1.e-12f) return 2u;
+            if(best!=pivot) for(uint c=pivot;c<8;++c) {
+                const float pivotValue=simd_broadcast(augmented[c],pivot);
+                const float bestValue=simd_broadcast(augmented[c],best);
+                if(lane==pivot) augmented[c]=bestValue;
+                else if(lane==best) augmented[c]=pivotValue;
+            }
+            const float diagonal=simd_broadcast(augmented[pivot],pivot);
+            if(lane==pivot) for(uint c=pivot;c<8;++c) augmented[c]/=diagonal;
+            const float factor=augmented[pivot];
+            for(uint c=pivot;c<8;++c) {
+                const float pivotValue=simd_broadcast(augmented[c],pivot);
+                if(lane!=pivot) augmented[c]-=factor*pivotValue;
+            }
+        }
+        bool accepted=false;
+        float scale=1.0f;
+        for(uint backtrack=0;backtrack<maxBacktracks;++backtrack) {
+            for(uint i=0;i<7;++i) {
+                const float delta=simd_broadcast(augmented[7],i);
+                trial[i]=x[i]-scale*delta;
+            }
+            if(nmHumanRestingCommonInsideTrial(p,trial)) {
+                nmHumanRestingCommonPowers(trial,trialPowers);
+                if(nmHumanRestingCommonEvaluateValuesSimd(
+                    p,trialPowers,lane,trialValue)) {
+                    const float next=nmHumanRestingCommonResidualSimd(trialValue,target);
+                    if(isfinite(next)&&next<residual&&
+                       nmHumanRestingCommonEvaluateJacobianSimd(
+                           p,trialPowers,lane,rowJacobian)) {
+                        for(uint i=0;i<7;++i) x[i]=trial[i];
+                        rowValue=trialValue;
+                        accepted=true;
+                        break;
+                    }
+                }
+            }
+            scale*=.5f;
+        }
+        if(!accepted) return 3u;
+    }
+    nmHumanRestingCommonPowers(x,powers);
+    if(nmHumanRestingCommonEvaluateValuesSimd(p,powers,lane,rowValue)&&
+       nmHumanRestingCommonEvaluateJacobianSimd(p,powers,lane,rowJacobian)) {
+        residualOut=nmHumanRestingCommonResidualSimd(rowValue,target);
+        if(residualOut<=tolerance)
+            return nmHumanRestingCommonInCertifiedUnion(
+                boxes,p.countsAndFlags.x,x,matched)?0u:5u;
+    }
+    return 4u;
+}

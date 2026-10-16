@@ -1,0 +1,35 @@
+{
+  "schema": "numi.cardboard.native612-best-of-seven-phase-root-adjudication.v1",
+  "verdict": "PASS_COMPLETE_TINY_SEVEN_PHASE_PRODUCTION_CERTIFICATES_AND_TESTED_CGLS_ALPHA",
+  "case": "solver/integrated259-best-of-seven-phase-612",
+  "accepted_controls": 7,
+  "environment_rows": 14,
+  "phases": [
+    "loading",
+    "loading",
+    "hold",
+    "unloading",
+    "relaxation",
+    "release",
+    "post_release_relaxation"
+  ],
+  "resolution_records": 896,
+  "outcomes": {
+    "2": 11,
+    "0": 875,
+    "1": 10
+  },
+  "maximum_final_certificate_residual": 4.013595855667518e-07,
+  "final_production_tolerance": 5e-07,
+  "winning_CGLS_trials_have_strictly_lower_recomputed_residual_and_exact_applied_alpha": true,
+  "physical_operator_and_acceptance_criteria_changed": false,
+  "trace_errata": {
+    "selected_residual": "Mislabels femLineSearch.y (minimum determinant) as residual. Exclude this field from quantitative residual evidence; actual comparison residuals are outcome.x/y from femArmijoMetrics and kernel selection. Fresh host-only observer correction265 is required.",
+    "final_commit_comparison": "All14 final iterations are outcome0/ineligible; zero tested_winning_residual is an unavailable comparison, not a measured winning residual. Reconstructed norms match final physical certificates, but these records do not compare a selected winning CGLS trial after application.",
+    "per_selected_winner_post_apply_comparison_qualified": false
+  },
+  "full_strict_coupon_or_mesh_time_convergence_qualified": false,
+  "all_six_full_sequence_axes_open": true,
+  "wall_seconds": 123.77209670841694,
+  "at_utc": "2026-10-16T15:42:32.756829+00:00"
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "numi.cardboard.reference042-publication-binding.v1",
+  "parent": "420b4f866decdfaed1f5a81ef102d3cb6efbb442",
+  "source259": {
+    "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-003",
+    "frozen_source_sha256": "663a2bf205f2439200077d997804c429c33635d8606462f7a3f700a2d29a2743",
+    "source_files": 852,
+    "configure_support_files": 1034,
+    "configure_support_sha256": "e019984b42109c08119e8e07a8a3ef20250c73761539bb0dc5f4b882a558d97e",
+    "source_build_sha256": "f524a5bc44c8bbe2e30dd8662bc5e3e7dcfaa475bc0f84b2b1e1057abe47aa54",
+    "changed_sources": [
+      "matter/CMakeLists.txt",
+      "matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp",
+      "matter/include/numi/matter/detail/pure_fem_cgls_best_of_policy.hpp",
+      "matter/include/numi/matter/shared.h",
+      "matter/src/metal/base_cgls_runtime.metalinc",
+      "matter/src/metal/contact.metalinc",
+      "matter/src/runtime.mm",
+      "matter/tools/cardboard_probe.mm",
+      "matter/tools/cardboard_shipping_memory.hpp",
+      "matter/tools/cardboard_shipping_memory_check.cpp",
+      "matter/tools/cardboard_solver_environment.py",
+      "matter/tools/pure_fem_cgls_best_of_contract_check.cpp",
+      "matter/tools/pure_fem_cgls_best_of_kernel_check.mm",
+      "matter/tools/test_cardboard_solver_environment.py"
+    ],
+    "tiny_native_trajectory_qualified": true,
+    "full_target_trajectory_qualified": false,
+    "physical_operator_equations_changed_by_composition": false
+  },
+  "historical_records_preserved": 2234,
+  "new_records": 59,
+  "summary_sha256": "7515dddcf83461a36c01efe4d0a1e25dab87ed43bbb780c1fd063e9cb63563f8",
+  "case_selection_sha256": "217aeb8aa186a5f2cd30ed19411db36c75980c54bdb5428702f97cfa965596a1",
+  "all_six_full_sequence_axes_open": true,
+  "actual_cached602_adjudication_sha256": "53b672b922ad2055685830546f99abb4f987f09fe17d42e69e0f042464944f1f",
+  "native608_crash_sha256": "e4ceea01c3ca85417e940749afccfc2bef9d45cd69716b45b82f873aa6c09b3d",
+  "native611_adjudication_sha256": "9f4aa87106b6a39ed553f8d57d7609abf15c4ae2bac21ec6c0630c2121c679fa",
+  "native612_adjudication_sha256": "10887fd0c4a106768f3cddc9b2c99204d62301fcc6ca96943001543e11446da9",
+  "native605_610_recomputed_replay_sha256": "5b5333bb35bfb378785202d7a6ef78127c939319c8b8084a4114bc847e0721c9",
+  "all_archived_failures_remain_failures": true,
+  "historical_source_reconstruction_gaps_explicit": true
+}

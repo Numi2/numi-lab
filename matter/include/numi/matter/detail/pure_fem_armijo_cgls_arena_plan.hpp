@@ -8,19 +8,19 @@
 namespace numi::matter::detail {
 inline constexpr std::uint64_t kFEMPureArmijoMaximumScratchBytes=64ull*1024ull*1024ull;
 inline constexpr std::uint64_t kFEMPureArmijoAccountedResidentCeiling=16ull*1024ull*1024ull*1024ull;
-inline constexpr std::size_t kFEMPureArmijoMaximumArenaBuffers=25u;
+inline constexpr std::size_t kFEMPureArmijoMaximumArenaBuffers=34u;
 struct FEMPureArmijoArenaShape {
  std::uint64_t environmentCount=0,femNodeCount=0,tetrahedronCount=0,unknownCount=0;
  std::uint64_t contactPairCount=0,cohesiveFaceCount=0,rigidGeneralizedCapacity=0,rigidQCapacity=0;
  std::uint64_t fieldBoundaryCount=0,punctureChannelCount=0,mpmActiveNodeCapacity=0;
  std::uint64_t particleCount=0,mpmGridCount=0,mpmBlockCount=0;
  std::uint64_t maxBufferLength=0,accountedResidentBytes=0;
- bool oneStaticExplicitFEM=false,unsupportedMatterFlags=false,includeCauchy=false,includeCGLS=false,includeRightScale=false;
+ bool oneStaticExplicitFEM=false,unsupportedMatterFlags=false,includeCauchy=false,includeCGLS=false,includeRightScale=false,includeBestOf=false;
 };
 struct FEMPureArmijoArenaBuffer {const char* name=nullptr;std::uint64_t logicalCount=0,elementBytes=0,allocatedBytes=0;};
 enum class FEMPureArmijoArenaFailure : std::uint32_t {
  none=0,environment_count,fem_node_count,tetrahedron_count,unsupported_world,unknown_count,cgls_layout,
- right_scale_layout,arithmetic_overflow,dispatch_index_overflow,per_buffer_limit,scratch_limit,accounted_resident_limit
+ right_scale_layout,best_of_layout,arithmetic_overflow,dispatch_index_overflow,per_buffer_limit,scratch_limit,accounted_resident_limit
 };
 struct FEMPureArmijoArenaPlan {
  FEMPureArmijoArenaFailure failure=FEMPureArmijoArenaFailure::none;
@@ -28,7 +28,7 @@ struct FEMPureArmijoArenaPlan {
  std::size_t bufferCount=0;
  std::uint64_t unknownCount=0,scratchBytes=0,maximumScratchBytes=kFEMPureArmijoMaximumScratchBytes;
  std::uint64_t accountedResidentPlusScratchBytes=0,accountedResidentCeiling=kFEMPureArmijoAccountedResidentCeiling;
- bool includeCGLS=false;
+ bool includeCGLS=false,includeBestOf=false;
  [[nodiscard]] bool admitted() const noexcept{return failure==FEMPureArmijoArenaFailure::none;}
 };
 [[nodiscard]] inline bool femPureArmijoCheckedMultiply(std::uint64_t a,std::uint64_t b,std::uint64_t& r) noexcept {
@@ -54,9 +54,11 @@ struct FEMPureArmijoArenaPlan {
  if(!s.oneStaticExplicitFEM||s.unsupportedMatterFlags||s.contactPairCount||s.cohesiveFaceCount||
     s.rigidGeneralizedCapacity||s.rigidQCapacity||s.fieldBoundaryCount||s.punctureChannelCount||s.mpmActiveNodeCapacity||s.particleCount||s.mpmGridCount||s.mpmBlockCount){
   p.failure=FEMPureArmijoArenaFailure::unsupported_world;return p;}
- p.includeCGLS=s.includeCGLS;
+ p.includeCGLS=s.includeCGLS;p.includeBestOf=s.includeBestOf;
  if(s.includeCGLS&&(!s.includeCauchy||s.environmentCount>2u)){p.failure=FEMPureArmijoArenaFailure::cgls_layout;return p;}
  if(s.includeRightScale&&!s.includeCGLS){p.failure=FEMPureArmijoArenaFailure::right_scale_layout;return p;}
+ if(s.includeBestOf&&(!s.includeCGLS||!s.includeCauchy||s.environmentCount>2u)){
+  p.failure=FEMPureArmijoArenaFailure::best_of_layout;return p;}
  std::uint64_t en=0,et=0,un=0,n3=0;
  if(!femPureArmijoCheckedMultiply(s.environmentCount,s.femNodeCount,en)||
     !femPureArmijoCheckedMultiply(s.environmentCount,s.tetrahedronCount,et)||
@@ -95,6 +97,15 @@ struct FEMPureArmijoArenaPlan {
  }
  if(s.includeRightScale&&(!add("cgls_right_scale_rows",n3,sizeof(nm_float4))||
                            !add("cgls_right_scale_physical",un,sizeof(nm_float4))))return p;
+ if(s.includeBestOf&&(!add("cgls_best_direction",un,sizeof(nm_float4))||
+    !add("cgls_best_metrics",e,sizeof(nm_float4))||
+    !add("cgls_best_line_search",e,sizeof(nm_float4))||
+    !add("cgls_best_environment_line_search",e,sizeof(float))||
+    !add("cgls_best_certificate",e,sizeof(float))||
+    !add("cgls_best_statuses",e,sizeof(NMMatterStatusGPU))||
+    !add("cgls_best_trial_statuses",e,sizeof(NMMatterStatusGPU))||
+    !add("cgls_best_flags",e,sizeof(std::uint32_t))||
+    !add("cgls_best_committed",e,sizeof(nm_float4))))return p;
  if(p.scratchBytes>p.maximumScratchBytes){p.failure=FEMPureArmijoArenaFailure::scratch_limit;return p;}
  if(!femPureArmijoCheckedAdd(s.accountedResidentBytes,p.scratchBytes,p.accountedResidentPlusScratchBytes)){
   p.failure=FEMPureArmijoArenaFailure::arithmetic_overflow;return p;}
@@ -112,6 +123,7 @@ struct FEMPureArmijoArenaPlan {
  case FEMPureArmijoArenaFailure::unknown_count:return "pure_fem_armijo_unknown_count_mismatch_or_uint32_overflow";
  case FEMPureArmijoArenaFailure::cgls_layout:return "pure_fem_armijo_cgls_requires_cauchy_and_at_most_two_environments";
  case FEMPureArmijoArenaFailure::right_scale_layout:return "pure_fem_armijo_right_scale_requires_cgls";
+ case FEMPureArmijoArenaFailure::best_of_layout:return "pure_fem_armijo_best_of_requires_selected_cauchy_cgls_and_at_most_two_environments";
  case FEMPureArmijoArenaFailure::arithmetic_overflow:return "pure_fem_armijo_arena_checked_arithmetic_overflow";
  case FEMPureArmijoArenaFailure::dispatch_index_overflow:return "pure_fem_armijo_arena_exceeds_uint32_dispatch_range";
  case FEMPureArmijoArenaFailure::per_buffer_limit:return "pure_fem_armijo_arena_exceeds_device_max_buffer_length";

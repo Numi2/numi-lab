@@ -1,0 +1,8 @@
+{
+  "script_sha256": "d837fbdd68a91e0687fb17552c60f36d400098bf10af9d43ed05796c06543a86",
+  "artifacts": {
+    "report.json": "c4baa33b086004e6bf8110bcedc475c6b659a4883d27a2629c3fc2d1a427d067",
+    "source259.patch": "ce1cc1764e7fc95b40918d8ee6ff8d5b7358c79c813c096f0be7eac10bceceb0",
+    "source263-best-of-runtime-pipeline-registration-runtime.mm.merge.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "files": {
+    "report.json": "2d492e41e21198b68d49c1cc6dbe42bbc910d5828b54fbd4f19666ca2e8c01dd",
+    "commands/prepare_publication042_commands_001.py": "d0a167738af3764acc38526ca21fc6775a97ce317c6e5c6f901cc10fcc0b43e0",
+    "commands/audit_publication042_001.py": "85ad3ac53886859fa28464a846009cb150640d193b0c8106e226ac58eb9ddd7f",
+    "commands/publish_publication042_001.py": "e78e94bbeed45c29df9614676caee076d28dccb00d50a3a4533dc6f9df94865c",
+    "commands/prepare_publication042_reproduction_001.py": "c8a6f5dda26a7a4ebf44cac71153c0c1acaaa5e44bc57c35a9a6a07fe6c0b886",
+    "commands/prepare_publication042_audit_publish_001.py": "dc0b7e6cdb7bdb811154ebce07dfc74c512254cca2311e98aae51dfd9b1f1cfe",
+    "commands/archive_publication042_001.py": "447def524b12568c08de0f94ecd2af52b3c66927033571d4a52770f65a414bf2",
+    "commands/reconcile_publication042_upstream_001.py": "1bc175046ba5c66302ba4987cba4f09f3639323255684c1bb6f4ec0c821c5536",
+    "commands/prepare_publication042_support_001.py": "1d7995e07e29cd8df47c3fb10006ea9d5dc0958018e3d0681607872ce33b75e9",
+    "canonical-support/build-cardboard-native-worker/worker.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

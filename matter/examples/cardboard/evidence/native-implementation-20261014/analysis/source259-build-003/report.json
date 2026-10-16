@@ -1,0 +1,164 @@
+{
+  "schema": "numi.cardboard.source259-integrated-build-cpu.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-003",
+  "source_frozen_sha256": "663a2bf205f2439200077d997804c429c33635d8606462f7a3f700a2d29a2743",
+  "source_build_sha256": "f524a5bc44c8bbe2e30dd8662bc5e3e7dcfaa475bc0f84b2b1e1057abe47aa54",
+  "commands": [
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-003/matter/tools/cardboard_source_bound_build.py",
+        "--source-snapshot",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-003",
+        "--build-dir",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source259-integrated-003",
+        "--cmake-source-relative",
+        ".",
+        "--jobs",
+        "2",
+        "--target",
+        "numi-matter-cardboard-probe",
+        "--target",
+        "numi-matter-cardboard-full-contact-armijo-check",
+        "--target",
+        "numi-matter-cardboard-refined-graph-layout-check",
+        "--target",
+        "numi-matter-cardboard-contact-sample-compaction-check",
+        "--target",
+        "numi-matter-cardboard-shipping-memory-check",
+        "--target",
+        "numi-matter-cardboard-shipping-protocol-check",
+        "--target",
+        "numi-matter-cardboard-constituent-volume-damage-check",
+        "--target",
+        "numi-matter-cardboard-free-force-residual-check",
+        "--target",
+        "numi-matter-pure-fem-cgls-best-of-contract-check",
+        "--target",
+        "numi-matter-fem-cgls-best-of-kernel-check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source259-integrated-003/matter/numi-matter-pure-fem-cgls-best-of-contract-check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source259-integrated-003/matter/numi-matter-cardboard-refined-graph-layout-check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source259-integrated-003/matter/numi-matter-cardboard-full-contact-armijo-check",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-003/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+        "--cpu-only"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-003/matter/tools/test_cardboard_shipping_resolution_controls.py",
+        "--probe",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source259-integrated-003/matter/numi-matter-cardboard-probe"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-003/matter/tools/test_cardboard_probe_argument_admission.py",
+        "--probe",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source259-integrated-003/matter/numi-matter-cardboard-probe"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "ctest",
+        "--test-dir",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source259-integrated-003",
+        "-R",
+        "^matter.compiler.cardboard_(constituent_volume_damage|shipping_memory|shipping_protocol|free_force_residual)$",
+        "--output-on-failure"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-003/matter/tools/test_true_residual_certification_contract.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-003/matter/tools/test_cardboard_solver_environment.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-003/matter/tools/test_cardboard_stage_resolution_study.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-003/matter/tools/test_deformable_limit_trace_serializer.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-003/matter/tools/test_cardboard_cached_operator_audit.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-003/matter/tools/test_cardboard_primary_cache_action.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-003/matter/tools/test_bct_capacity_history_producer.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-003/matter/tools/cardboard_calibration_ensemble_test.py"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "all_pass": true,
+  "all_inputs_unchanged": true,
+  "gpu_execution": false,
+  "native_composed_trajectory_qualified": false,
+  "at_utc": "2026-10-16T15:32:55.998424+00:00"
+}

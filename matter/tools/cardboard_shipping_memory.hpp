@@ -106,6 +106,18 @@ struct ShippingMemoryBudgetInput {
     std::uint64_t rigidQCapacity = 0u;
     std::uint64_t rigidBodyCount = 0u;
     std::uint64_t rigidProxyCount = 0u;
+    std::uint64_t contactNodeIncidenceCount = 0u;
+    std::uint64_t contactNodeRangeCount = 0u;
+    std::uint64_t rigidIncidenceCount = 0u;
+    std::uint64_t rigidRangeCount = 0u;
+    std::uint64_t bodyProxyIncidenceCount = 0u;
+    std::uint64_t bodyProxyRangeCount = 0u;
+    // Runtime bodyProxyOwners also includes dynamic/articulated suture proxies,
+    // while requiredBodyWrenchCount excludes them. Bind this cross-check so a
+    // suture owner beyond the allocated wrench-range extent cannot be admitted.
+    bool bodyProxyOwnerLayoutExact = false;
+    bool bodyProxyOwnerIndicesWithinRange = false;
+    bool contactIncidenceCountsExact = false;
     std::uint64_t materialStateStride = 0u;
     std::uint64_t compactPreconditionerRegionCount = 0u;
     std::uint64_t environmentCount = 1u;
@@ -165,6 +177,11 @@ struct ShippingMemoryBudget {
     std::uint64_t rigidContactPairMapBytes = 0u;
     bool rigidContactBufferExtentsValid = false;
     bool rigidContactBuffersWithinMaxBufferLength = false;
+    std::uint64_t contactIncidenceRangeBytes = 0u;
+    std::uint64_t contactIncidenceUploadStagingBytes = 0u;
+    bool contactIncidenceCountsExact = false;
+    bool contactIncidenceBufferExtentsValid = false;
+    bool contactIncidenceBuffersWithinMaxBufferLength = false;
     bool wholeRuntimeAllocationInventoryComplete = false;
     std::uint64_t measuredBaseAndContactEnvelopeBytes = 0u;
     std::uint64_t cohesiveRuntimeBytes = 0u;
@@ -713,6 +730,200 @@ inline bool shippingPlannedBuffer(const char* name,std::uint64_t count,
 }
 // Exact main rigid-contact extents. Pair maps and all three canonical histories
 // remain full-P; only the sample buffer may shrink after native parity is bound.
+
+struct ShippingContactIncidenceBuffer {
+    const char* name=nullptr;
+    std::uint64_t logicalCount=0u,elementBytes=0u,allocatedBytes=0u,uploadStagingBytes=0u;
+    bool countExact=false,withinMaxBufferLength=false;
+};
+struct ShippingContactIncidenceArenaPlan {
+    static constexpr std::size_t kBufferCount=6u;
+    std::array<ShippingContactIncidenceBuffer,kBufferCount> buffers{};
+    std::uint64_t residentBytes=0u,uploadStagingBytes=0u;
+    bool countsExact=false,bodyProxyOwnerLayoutExact=false;
+    bool bodyProxyOwnerIndicesWithinRange=false;
+    bool extentsValid=false,allBuffersWithinMaxBufferLength=false,admitted=false;
+    const char* failure="uninitialized";
+};
+// Compiler emits these exact immutable incidence arrays; Runtime uses UploadPlan::one.
+// A source-only caller without CompiledWorld lengths gets visible upper-bound rows but
+// cannot admit them as exact.
+inline ShippingContactIncidenceArenaPlan planShippingContactIncidenceArena(
+    const ShippingMemoryBudgetInput& input) {
+    ShippingContactIncidenceArenaPlan p{};
+    std::uint64_t fallbackNodeRanges=0u;
+    try {
+        fallbackNodeRanges=shippingMemoryCheckedAdd(input.nodeCount,input.gridNodeCount);
+    } catch(const std::overflow_error&) {
+        p.failure="contact_incidence_buffer_arithmetic_overflow";return p;
+    }
+    const std::array<std::uint64_t,6> counts{{
+        input.contactIncidenceCountsExact?input.contactNodeIncidenceCount:input.contactPairCount,
+        input.contactIncidenceCountsExact?input.contactNodeRangeCount:fallbackNodeRanges,
+        input.contactIncidenceCountsExact?input.rigidIncidenceCount:input.contactPairCount,
+        input.contactIncidenceCountsExact?input.rigidRangeCount:input.rigidProxyCount,
+        input.contactIncidenceCountsExact?input.bodyProxyIncidenceCount:input.rigidProxyCount,
+        input.contactIncidenceCountsExact?input.bodyProxyRangeCount:input.rigidBodyCount
+    }};
+    constexpr std::array<std::uint64_t,6> elems{{
+        sizeof(std::uint32_t),sizeof(NMIncidenceRangeGPU),
+        sizeof(std::uint32_t),sizeof(NMIncidenceRangeGPU),
+        sizeof(std::uint32_t),sizeof(NMIncidenceRangeGPU)
+    }};
+    constexpr std::array<const char*,6> names{{
+        "contact_node_incidence","contact_node_ranges","rigid_incidence",
+        "rigid_ranges","body_proxy_incidence","body_proxy_ranges"}};
+    p.countsExact=input.contactIncidenceCountsExact;
+    if(!input.environmentCount||input.contactPairCount>UINT32_MAX||
+       input.rigidProxyCount>UINT32_MAX||input.rigidBodyCount>UINT32_MAX) {
+        p.failure="invalid_contact_incidence_count";return p;
+    }
+    std::uint64_t expectedNodeRangeCount=0u;
+    try {
+        expectedNodeRangeCount=shippingMemoryCheckedAdd(
+            input.nodeCount,input.gridNodeCount);
+    } catch(const std::overflow_error&) {
+        p.failure="contact_incidence_buffer_arithmetic_overflow";return p;
+    }
+    if(p.countsExact&&
+       (input.contactNodeIncidenceCount!=input.contactPairCount||
+        input.rigidIncidenceCount!=input.contactPairCount||
+        input.contactNodeRangeCount!=expectedNodeRangeCount||
+        input.rigidRangeCount!=input.rigidProxyCount||
+        input.bodyProxyIncidenceCount>input.rigidProxyCount||
+        input.bodyProxyRangeCount>input.rigidBodyCount)) {
+        p.failure="contact_incidence_extents_do_not_match_compiler_contract";return p;
+    }
+    p.bodyProxyOwnerLayoutExact=input.bodyProxyOwnerLayoutExact;
+    p.bodyProxyOwnerIndicesWithinRange=input.bodyProxyOwnerIndicesWithinRange;
+    if(p.countsExact&&!p.bodyProxyOwnerLayoutExact) {
+        p.failure="body_proxy_owner_layout_unbound";return p;
+    }
+    if(p.countsExact&&!p.bodyProxyOwnerIndicesWithinRange) {
+        p.failure="body_proxy_owner_index_outside_wrench_range";return p;
+    }
+    bool all=input.maxBufferLength!=0u;
+    try {
+        for(std::size_t i=0u;i<6u;++i) {
+            const auto raw=shippingMemoryCheckedMultiply(counts[i],elems[i]);
+            const auto bytes=std::max<std::uint64_t>({16u,elems[i],raw});
+            const auto stage=counts[i]==0u?0u:bytes;
+            p.buffers[i]={names[i],counts[i],elems[i],bytes,stage,p.countsExact,
+                input.maxBufferLength!=0u&&bytes<=input.maxBufferLength};
+            p.residentBytes=shippingMemoryCheckedAdd(p.residentBytes,bytes);
+            p.uploadStagingBytes=shippingMemoryCheckedAdd(p.uploadStagingBytes,stage);
+            all=all&&p.buffers[i].withinMaxBufferLength;
+        }
+    } catch(const std::overflow_error&) {
+        p.failure="contact_incidence_buffer_arithmetic_overflow";return p;
+    }
+    p.extentsValid=true;p.allBuffersWithinMaxBufferLength=all;
+    if(!p.countsExact) {p.failure="contact_incidence_counts_unbound";return p;}
+    if(!input.maxBufferLength) {p.failure="device_max_buffer_length_unavailable";return p;}
+    if(!all) {p.failure="contact_incidence_buffer_exceeds_device_max_buffer_length";return p;}
+    p.admitted=true;p.failure=nullptr;return p;
+}
+
+struct ShippingMetalWorldTransitionRow {
+    std::uint32_t slot=0u;
+    const char* name=nullptr;
+    std::uint64_t logicalCount=0u,elementBytes=0u;
+    std::uint64_t oldSharedBytes=0u,proposedSharedBytes=0u;
+    std::uint64_t oldBufferCapacityBytes=0u,proposedBufferCapacityBytes=0u;
+    std::uint64_t oldUploadBytes=0u,proposedUploadBytes=0u;
+    std::uint64_t oldReadbackBytes=0u,proposedReadbackBytes=0u;
+    // 0=shared standalone, 1=immutable heap, 2=persistent heap, 3=transient heap.
+    std::uint32_t heapClass=0u;
+    bool replace=false,bound=false;
+};
+struct ShippingMetalWorldTransitionInput {
+    static constexpr std::size_t kBufferCount=252u;
+    std::array<ShippingMetalWorldTransitionRow,kBufferCount> rows{};
+    std::array<std::uint64_t,3> oldHeapBytes{};
+    std::array<std::uint64_t,3> proposedHeapBytes{};
+    bool heapSizesBound=false;
+    std::uint64_t maxBufferLength=0u;
+    std::uint64_t peakLimitBytes=kShippingPeakMemoryLimitBytes;
+};
+struct ShippingMetalWorldTransitionPlan {
+    std::uint64_t oldResidentBytes=0u,oldUploadBytes=0u,oldReadbackBytes=0u,oldHeapBytes=0u;
+    std::uint64_t replacementSharedBytes=0u,replacementUploadBytes=0u;
+    std::uint64_t replacementReadbackBytes=0u,replacementHeapBytes=0u;
+    std::uint64_t modeledTransitionPeakBytes=0u;
+    bool allRowsBound=false,perBufferLimitsKnown=false,allPerBufferLimitsPass=false;
+    bool extentsValid=false,withinPeakLimit=false,admitted=false;
+    const char* failure="uninitialized";
+};
+// Models MetalWorld's allocate-before-swap path. Heap sizes must come from the
+// actual device sizeAndAlign calculation; omitted values are not zero.
+inline ShippingMetalWorldTransitionPlan planShippingMetalWorldTransition(
+    const ShippingMetalWorldTransitionInput& input) {
+    ShippingMetalWorldTransitionPlan p{};
+    if(!input.heapSizesBound) {p.failure="metalworld_heap_transition_bytes_unbound";return p;}
+    if(!input.maxBufferLength||!input.peakLimitBytes) {
+        p.failure="metalworld_device_or_peak_limit_unavailable";return p;
+    }
+    bool all=true;
+    try {
+        for(std::size_t i=0u;i<input.rows.size();++i) {
+            const auto& row=input.rows[i];
+            if(!row.bound||row.slot!=i||!row.name||!row.elementBytes||row.heapClass>3u) {
+                p.failure="metalworld_252_slot_binding_incomplete";return p;
+            }
+            const auto logical=shippingMemoryCheckedMultiply(row.logicalCount,row.elementBytes);
+            const auto required=std::max<std::uint64_t>(logical,row.elementBytes);
+            const auto capacity=row.replace?row.proposedBufferCapacityBytes:row.oldBufferCapacityBytes;
+            if(capacity<required||capacity>input.maxBufferLength||
+               row.oldBufferCapacityBytes>input.maxBufferLength||
+               row.oldUploadBytes>input.maxBufferLength||
+               row.oldReadbackBytes>input.maxBufferLength||
+               (row.replace&&
+                (row.proposedBufferCapacityBytes>input.maxBufferLength||
+                 row.proposedUploadBytes>input.maxBufferLength||
+                 row.proposedReadbackBytes>input.maxBufferLength))) all=false;
+            if(row.heapClass==0u) {
+                if(row.oldSharedBytes!=row.oldBufferCapacityBytes||
+                   (row.replace&&row.proposedSharedBytes!=row.proposedBufferCapacityBytes)) {
+                    p.failure="metalworld_shared_buffer_capacity_binding_mismatch";return p;
+                }
+                p.oldResidentBytes=shippingMemoryCheckedAdd(p.oldResidentBytes,row.oldSharedBytes);
+                if(row.replace) p.replacementSharedBytes=shippingMemoryCheckedAdd(
+                    p.replacementSharedBytes,row.proposedSharedBytes);
+            } else {
+                if(row.oldSharedBytes||row.proposedSharedBytes) {
+                    p.failure="metalworld_heap_buffer_double_count";return p;
+                }
+            }
+            p.oldUploadBytes=shippingMemoryCheckedAdd(p.oldUploadBytes,row.oldUploadBytes);
+            p.oldReadbackBytes=shippingMemoryCheckedAdd(p.oldReadbackBytes,row.oldReadbackBytes);
+            if(row.replace) p.replacementUploadBytes=shippingMemoryCheckedAdd(
+                p.replacementUploadBytes,row.proposedUploadBytes);
+            if(row.replace)
+                p.replacementReadbackBytes=shippingMemoryCheckedAdd(
+                    p.replacementReadbackBytes,row.proposedReadbackBytes);
+        }
+        for(std::size_t i=0u;i<3u;++i) {
+            p.oldHeapBytes=shippingMemoryCheckedAdd(p.oldHeapBytes,input.oldHeapBytes[i]);
+            p.replacementHeapBytes=shippingMemoryCheckedAdd(
+                p.replacementHeapBytes,input.proposedHeapBytes[i]);
+        }
+        const auto old=shippingMemoryCheckedAdd(
+            shippingMemoryCheckedAdd(p.oldResidentBytes,p.oldHeapBytes),
+            shippingMemoryCheckedAdd(p.oldUploadBytes,p.oldReadbackBytes));
+        const auto repl=shippingMemoryCheckedAdd(
+            shippingMemoryCheckedAdd(p.replacementSharedBytes,p.replacementHeapBytes),
+            shippingMemoryCheckedAdd(p.replacementUploadBytes,p.replacementReadbackBytes));
+        p.modeledTransitionPeakBytes=shippingMemoryCheckedAdd(old,repl);
+    } catch(const std::overflow_error&) {
+        p.failure="metalworld_transition_byte_arithmetic_overflow";return p;
+    }
+    p.allRowsBound=true;p.perBufferLimitsKnown=true;p.allPerBufferLimitsPass=all;
+    p.extentsValid=true;p.withinPeakLimit=p.modeledTransitionPeakBytes<=input.peakLimitBytes;
+    if(!all) {p.failure="metalworld_buffer_exceeds_device_max_buffer_length";return p;}
+    if(!p.withinPeakLimit) {p.failure="metalworld_transition_exceeds_peak_limit";return p;}
+    p.admitted=true;p.failure=nullptr;return p;
+}
+
 inline ShippingRigidContactArenaPlan planShippingRigidContactArena(
     const ShippingMemoryBudgetInput& input) {
     ShippingRigidContactArenaPlan p{};
@@ -915,6 +1126,12 @@ inline ShippingMemoryBudget estimateShippingMemoryBudget(
         persistentContactBase, result.deformableNodeIncidenceSortBytes);
     const std::uint64_t persistentContact = result.persistentContactBytes;
     result.rigidContactRuntimeBytes = shippingRigidContactRuntimeBytes(input);
+    const auto incidenceArena=planShippingContactIncidenceArena(input);
+    result.contactIncidenceRangeBytes=incidenceArena.residentBytes;
+    result.contactIncidenceUploadStagingBytes=incidenceArena.uploadStagingBytes;
+    result.contactIncidenceCountsExact=incidenceArena.countsExact;
+    result.contactIncidenceBufferExtentsValid=incidenceArena.extentsValid;
+    result.contactIncidenceBuffersWithinMaxBufferLength=incidenceArena.allBuffersWithinMaxBufferLength;
     const auto rigidArena=planShippingRigidContactArena(input);
     result.rigidContactActiveCapacity=rigidArena.activeContactCapacity;
     result.rigidContactSampleCapacity=rigidArena.sampleCapacity;
@@ -1259,7 +1476,10 @@ inline ShippingMemoryBudget estimateShippingMemoryBudget(
         shippingCombinedAllocationPeakBytes(result);
     result.withinLimit = result.estimatedPeakDomainBytes <= result.limitBytes &&
         (!input.fullContactArmijoRequired ||
-         result.requiredResidualDescentArenaAdmitted) &&
+         (result.requiredResidualDescentArenaAdmitted &&
+          result.contactIncidenceCountsExact &&
+          result.contactIncidenceBufferExtentsValid &&
+          result.contactIncidenceBuffersWithinMaxBufferLength)) &&
         (!input.acceptedInsideClearanceWorkspaceRequired ||
          result.acceptedInsideClearanceWorkspaceAdmitted);
     return result;

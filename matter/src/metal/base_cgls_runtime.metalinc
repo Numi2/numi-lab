@@ -28,6 +28,227 @@ kernel void nm_fgmres_select_base_cgls_primary_policy(
     if (eligible) metrics[environment].w = 3.0f;
 }
 
+
+// Best-of globalization is a request-local transaction. Flag 1 denotes a
+// healthy accepted Newton candidate saved for comparison, flag 2 denotes the
+// pre-existing exhausted-Newton CGLS fallback, and flag 0 means this
+// environment must be restored exactly after the alternative pass.
+kernel void nm_fgmres_base_cgls_best_of_save(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device float4* metrics [[buffer(2)]],
+    device float4* lineSearch [[buffer(3)]],
+    device float* environmentLineSearch [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    device NMMatterStatusGPU* statuses [[buffer(6)]],
+    device NMMatterStatusGPU* trialStatuses [[buffer(7)]],
+    device float4* savedMetrics [[buffer(8)]],
+    device float4* savedLineSearch [[buffer(9)]],
+    device float* savedEnvironmentLineSearch [[buffer(10)]],
+    device float* savedCertificate [[buffer(11)]],
+    device NMMatterStatusGPU* savedStatuses [[buffer(12)]],
+    device NMMatterStatusGPU* savedTrialStatuses [[buffer(13)]],
+    device uint* flags [[buffer(14)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.objectCount != 1u) return;
+    const uint slot = environment * dispatch.objectCount;
+    const float4 metric = metrics[environment];
+    const float4 line = lineSearch[slot];
+    const float certificate = states[environment].diagnostics.z;
+    savedMetrics[environment] = metric;
+    savedLineSearch[environment] = line;
+    savedEnvironmentLineSearch[environment] =
+        environmentLineSearch[environment];
+    savedCertificate[environment] = certificate;
+    savedStatuses[environment] = statuses[environment];
+    savedTrialStatuses[environment] = trialStatuses[environment];
+    flags[environment] = 0u;
+
+    // Preserve ordinary exhausted-Newton CGLS fallback behavior as its own
+    // transaction. Only an accepted, non-noop Newton point is compared.
+    if (metric.w == 3.0f) {
+        flags[environment] = 2u;
+        return;
+    }
+    const bool testedAlphaMatches = isfinite(metric.z) &&
+        isfinite(line.x) && isfinite(environmentLineSearch[environment]) &&
+        metric.z > 0.0f && metric.z == line.x &&
+        metric.z == environmentLineSearch[environment];
+    const bool eligible = metric.w == 1.0f &&
+        environmentHealthy(statuses, environment) &&
+        isfinite(metric.x) && isfinite(metric.y) && isfinite(metric.z) &&
+        metric.x > solver.residualTolerances.x &&
+        metric.y >= 0.0f && metric.y < metric.x &&
+        testedAlphaMatches &&
+        isfinite(certificate) && certificate > 0.5f;
+    if (eligible) {
+        flags[environment] = 1u;
+        // Reuse the existing CGLS selector marker. The complete saved metric
+        // vector remains intact in private scratch for bitwise restoration.
+        metrics[environment].w = 3.0f;
+    }
+}
+
+kernel void nm_fgmres_base_cgls_best_of_save_direction(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const float4* solution [[buffer(1)]],
+    device float4* savedDirection [[buffer(2)]],
+    device const uint* flags [[buffer(3)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= layout.unknownCount || dispatch.femNodeCount == 0u) return;
+    const uint mechanicalRows = dispatch.environmentCount *
+        dispatch.femNodeCount;
+    const uint local = global < mechanicalRows
+        ? global : global - mechanicalRows;
+    const uint environment = local / dispatch.femNodeCount;
+    if (environment < dispatch.environmentCount && flags[environment] != 2u)
+        savedDirection[global] = solution[global];
+}
+
+kernel void nm_fgmres_base_cgls_best_of_resolve(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float4* metrics [[buffer(1)]],
+    device float4* lineSearch [[buffer(2)]],
+    device float* environmentLineSearch [[buffer(3)]],
+    device NMFGMRESStateGPU* states [[buffer(4)]],
+    device NMMatterStatusGPU* statuses [[buffer(5)]],
+    device NMMatterStatusGPU* trialStatuses [[buffer(6)]],
+    device float4* savedMetrics [[buffer(7)]],
+    device const float4* savedLineSearch [[buffer(8)]],
+    device const float* savedEnvironmentLineSearch [[buffer(9)]],
+    device const float* savedCertificate [[buffer(10)]],
+    device const NMMatterStatusGPU* savedStatuses [[buffer(11)]],
+    device const NMMatterStatusGPU* savedTrialStatuses [[buffer(12)]],
+    device const uint* flags [[buffer(13)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.objectCount != 1u) return;
+    const uint flag = flags[environment];
+    const uint slot = environment * dispatch.objectCount;
+    if (flag == 2u) {
+        // This was the existing exhausted-Newton path, not a best-of
+        // comparison. Leave its selected CGLS result untouched.
+        const float4 current = metrics[environment];
+        const float alpha = lineSearch[slot].x;
+        savedMetrics[environment] = float4(
+            current.x, current.y, alpha, 4.0f);
+        return;
+    }
+    const float4 oldMetric = savedMetrics[environment];
+    if (flag == 1u) {
+        const float4 cglsMetric = metrics[environment];
+        const bool cglsAlphaMatches = isfinite(cglsMetric.z) &&
+            isfinite(lineSearch[slot].x) &&
+            isfinite(environmentLineSearch[environment]) &&
+            cglsMetric.z > 0.0f &&
+            cglsMetric.z == lineSearch[slot].x &&
+            cglsMetric.z == environmentLineSearch[environment];
+        const bool cglsAccepted = cglsMetric.w == 1.0f &&
+            environmentHealthy(statuses, environment) &&
+            isfinite(cglsMetric.x) && isfinite(cglsMetric.y) &&
+            isfinite(cglsMetric.z) && cglsMetric.x >= 0.0f &&
+            cglsMetric.y >= 0.0f && cglsMetric.y < cglsMetric.x &&
+            cglsAlphaMatches;
+        const bool chooseCGLS = cglsAccepted &&
+            isfinite(oldMetric.y) && oldMetric.y >= 0.0f &&
+            cglsMetric.y < oldMetric.y;
+        if (chooseCGLS) {
+            savedMetrics[environment] = float4(
+                oldMetric.y, cglsMetric.y, cglsMetric.z, 2.0f);
+            return;
+        }
+        const float cglsResidual = cglsAccepted ? cglsMetric.y : NAN;
+        const float cglsAlpha = cglsAccepted ? cglsMetric.z : NAN;
+        metrics[environment] = oldMetric;
+        lineSearch[slot] = savedLineSearch[environment];
+        environmentLineSearch[environment] =
+            savedEnvironmentLineSearch[environment];
+        states[environment].diagnostics.z =
+            savedCertificate[environment];
+        statuses[environment] = savedStatuses[environment];
+        trialStatuses[environment] = savedTrialStatuses[environment];
+        savedMetrics[environment] = float4(
+            oldMetric.y, cglsResidual, cglsAlpha,
+            cglsAccepted ? 1.0f : 3.0f);
+        return;
+    }
+
+    // No accepted Newton snapshot was eligible for comparison. Restore all
+    // per-environment Armijo scratch modified by the second no-op pass.
+    metrics[environment] = oldMetric;
+    lineSearch[slot] = savedLineSearch[environment];
+    environmentLineSearch[environment] =
+        savedEnvironmentLineSearch[environment];
+    states[environment].diagnostics.z =
+        savedCertificate[environment];
+    statuses[environment] = savedStatuses[environment];
+    trialStatuses[environment] = savedTrialStatuses[environment];
+    savedMetrics[environment] = float4(0.0f);
+}
+
+// Recompute the post-apply production residual norm for the actually
+// selected candidate. This is an audit-only comparison with the accepted
+// Armijo residual saved by the best-of resolver; it is never a new gate.
+kernel void nm_fgmres_base_cgls_best_of_measure_committed(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(1)]],
+    device const float4* residual [[buffer(2)]],
+    device const float4* outcome [[buffer(3)]],
+    device float4* committed [[buffer(4)]],
+    device const NMMatterStatusGPU* statuses [[buffer(5)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.objectCount != 1u) return;
+    const float code = outcome[environment].w;
+    const bool cglsWon = code == 2.0f || code == 4.0f;
+    const float tested = cglsWon
+        ? outcome[environment].y : outcome[environment].x;
+    const uint base = environment * dispatch.femNodeCount;
+    float norm2 = 0.0f;
+    bool valid = environmentHealthy(statuses, environment) &&
+        isfinite(tested) && tested >= 0.0f;
+    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+        const NMFEMNodeStateGPU state = candidate[base + node];
+        if (!isfinite(state.restAndFixed.w) ||
+            !isfinite(state.positionAndMass.w)) {
+            valid = false;
+            continue;
+        }
+        if (state.restAndFixed.w > 0.5f ||
+            state.positionAndMass.w <= 0.0f) continue;
+        const float3 value = residual[base + node].xyz;
+        valid = valid && all(isfinite(value));
+        norm2 += dot(value, value);
+    }
+    const float rebuilt = valid && isfinite(norm2)
+        ? sqrt(max(norm2, 0.0f)) : NAN;
+    committed[environment] = float4(
+        tested, rebuilt, fabs(rebuilt - tested),
+        valid && isfinite(rebuilt) ? 1.0f : 0.0f);
+}
+
+kernel void nm_fgmres_base_cgls_best_of_restore_direction(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device float4* solution [[buffer(1)]],
+    device const float4* savedDirection [[buffer(2)]],
+    device const float4* outcome [[buffer(3)]],
+    device const uint* flags [[buffer(4)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= layout.unknownCount || dispatch.femNodeCount == 0u) return;
+    const uint mechanicalRows = dispatch.environmentCount *
+        dispatch.femNodeCount;
+    const uint local = global < mechanicalRows
+        ? global : global - mechanicalRows;
+    const uint environment = local / dispatch.femNodeCount;
+    if (environment < dispatch.environmentCount &&
+        (flags[environment] == 0u ||
+         (flags[environment] == 1u && outcome[environment].w != 2.0f)))
+        solution[global] = savedDirection[global];
+}
+
 // Runtime-only adapters for the bounded, default-off CGLS direction experiment.
 // Derive row spaces from the actual Newton candidate, not authored tag guesses.
 kernel void nm_fgmres_prepare_base_cgls_layout(

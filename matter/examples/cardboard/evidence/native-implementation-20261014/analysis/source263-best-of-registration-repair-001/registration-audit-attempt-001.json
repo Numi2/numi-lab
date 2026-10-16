@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.source263-registration-audit-attempt.v1",
+  "verdict": "FAILED_TEST_SCRIPT_ASSERTION",
+  "failure": "Initial audit helper checked two literal indentation patterns rather than C++ whitespace; it falsely rejected the multiline nm_fgmres_base_cgls_best_of_save dispatch. Source patch itself had been applied before this assertion and the corrected regex below passes.",
+  "source_runtime_sha256": "f5b1719829863b271a133f9e0d97f28049ed9a709a6526bb24a48a8536e142ab",
+  "corrected_verifier": "test_best_of_pipeline_registration.py",
+  "corrected_verifier_exit_code": 0,
+  "at_utc": "2026-10-16T15:27:19.745355+00:00"
+}

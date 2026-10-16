@@ -1,0 +1,32 @@
+{
+  "all_checks_pass": false,
+  "checks": {
+    "source_snapshot_has_831_frozen_entries": true,
+    "source_files_match_frozen_map": true,
+    "declared_delta_is_exactly_three_files": false,
+    "patch_hash_matches_overlay": true,
+    "overlay_frozen_hash_matches_snapshot": true,
+    "cpu_contract_passed": true,
+    "record_abi_is_384_bytes": true,
+    "no_new_environment_keys": true,
+    "selector_uses_only_reserved_3_2_extension": true,
+    "capture_array_is_post_rebuild_only": true,
+    "selected_candidate_initializes_first_writer_record": true,
+    "first_writer_guard_is_preserved": true,
+    "production_certification_accumulation_remains": true,
+    "build_source_hashes_match_snapshot": true,
+    "build_succeeded": true,
+    "built_artifacts_match_record": true
+  },
+  "changed_files": [
+    "apps/NumiHumanRestingIntercostalRibAttachment.hpp",
+    "apps/NumiHumanRestingSourceAllocation.hpp",
+    "apps/NumiHumanRestingVisual.hpp",
+    "matter/include/numi/matter/shared.h",
+    "matter/src/metal/contact.metalinc",
+    "matter/src/runtime.mm",
+    "tools/test_intercostal_rib_motion_attachment.mm",
+    "tools/test_resting_referenced_source_attachments.cpp"
+  ],
+  "build_success": true
+}

@@ -1,0 +1,56 @@
+{
+  "schema": "numi.cardboard.publication042-reproduction-support.v1",
+  "canonical_frozen_sha256": "663a2bf205f2439200077d997804c429c33635d8606462f7a3f700a2d29a2743",
+  "support_exceptions": [
+    "build-cardboard-native-worker/worker.lock"
+  ],
+  "scope": "Canonical support bytes absent from the checkout (historical archive-only worker lock) and exact publication/recovery commands. Zero-byte archived locks confer no current worker ownership.",
+  "files": {
+    "canonical-support/build-cardboard-native-worker/worker.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-003/build-cardboard-native-worker/worker.lock"
+    },
+    "commands/archive_publication042_001.py": {
+      "sha256": "447def524b12568c08de0f94ecd2af52b3c66927033571d4a52770f65a414bf2",
+      "bytes": 12824,
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/archive_publication042_001.py"
+    },
+    "commands/audit_publication042_001.py": {
+      "sha256": "85ad3ac53886859fa28464a846009cb150640d193b0c8106e226ac58eb9ddd7f",
+      "bytes": 6587,
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/audit_publication042_001.py"
+    },
+    "commands/prepare_publication042_audit_publish_001.py": {
+      "sha256": "dc0b7e6cdb7bdb811154ebce07dfc74c512254cca2311e98aae51dfd9b1f1cfe",
+      "bytes": 4685,
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/prepare_publication042_audit_publish_001.py"
+    },
+    "commands/prepare_publication042_commands_001.py": {
+      "sha256": "d0a167738af3764acc38526ca21fc6775a97ce317c6e5c6f901cc10fcc0b43e0",
+      "bytes": 9295,
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/prepare_publication042_commands_001.py"
+    },
+    "commands/prepare_publication042_reproduction_001.py": {
+      "sha256": "c8a6f5dda26a7a4ebf44cac71153c0c1acaaa5e44bc57c35a9a6a07fe6c0b886",
+      "bytes": 7502,
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/prepare_publication042_reproduction_001.py"
+    },
+    "commands/prepare_publication042_support_001.py": {
+      "sha256": "1d7995e07e29cd8df47c3fb10006ea9d5dc0958018e3d0681607872ce33b75e9",
+      "bytes": 1622,
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/prepare_publication042_support_001.py"
+    },
+    "commands/publish_publication042_001.py": {
+      "sha256": "e78e94bbeed45c29df9614676caee076d28dccb00d50a3a4533dc6f9df94865c",
+      "bytes": 3556,
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/publish_publication042_001.py"
+    },
+    "commands/reconcile_publication042_upstream_001.py": {
+      "sha256": "1bc175046ba5c66302ba4987cba4f09f3639323255684c1bb6f4ec0c821c5536",
+      "bytes": 1477,
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/reconcile_publication042_upstream_001.py"
+    }
+  },
+  "at_utc": "2026-10-16T15:46:03.892985+00:00"
+}

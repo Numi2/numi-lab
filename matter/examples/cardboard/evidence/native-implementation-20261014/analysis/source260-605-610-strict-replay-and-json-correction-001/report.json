@@ -1,0 +1,169 @@
+{
+  "cases": [
+    {
+      "capture_json_sha256": "729d97c8dc0e07f4ddaf6063b6fbcb8cf74299c4c9ce69160bf7a6eba1028ea7",
+      "identity": {
+        "control_step": 1202,
+        "iteration": 7,
+        "microtick": 0,
+        "physics_substep": 0,
+        "root": 1202,
+        "selector": {
+          "candidate_slot": 78,
+          "environment": 0,
+          "execution": "same production complement traversal",
+          "primitive_pair": [
+            16,
+            99
+          ],
+          "sentinel": [
+            3,
+            2
+          ]
+        },
+        "trial": 0
+      },
+      "native": {
+        "certified": false,
+        "hit": false,
+        "separation_m": 1.00017177828704e-05,
+        "thickness_m": 9.999999747378752e-06,
+        "toi": 0.648159921169281
+      },
+      "payload_sha256": "4d0b6866d6b7d1f5681b7e8cb344556aec2b9a0b6ded118d71fefcae70c24ebc",
+      "record_sha256": "cd2700f032712d5a14a7a60bdf90c2af8231ed8d37eaaf1c56693e08fcbcf527",
+      "reference": {
+        "binary64_bisection_t": 0.6481505716424356,
+        "distance_minus_band_at_native_t_m": -5.527893616620984e-12,
+        "distance_roundoff_m": 1.7166946753022216e-09,
+        "effective_thickness_m": 1.0001716873375699e-05,
+        "exact_binary_rational_endpoint_sign_test": {
+          "finish_barycentric": [
+            "20994377291634826001175/20997955165233278390338",
+            "0",
+            "3577873598452389163/20997955165233278390338"
+          ],
+          "finish_distance_squared_minus_band_squared": {
+            "denominator": "793280317448777414306843241810977191293353984",
+            "numerator": "-3266723378750073213779684530262377"
+          },
+          "finish_feature": "AC",
+          "scope": "exact comparison for the captured binary32 CCD endpoints and binary32 effective thickness; linear interpolation of point/triangle endpoints is continuous, so strict opposite signs establish at least one band crossing for that captured path",
+          "start_barycentric": [
+            "32871146302250231503541447284916515058047887/32875353909226513692647141505362546386265803",
+            "39530368637813683900629844893762912256/32875353909226513692647141505362546386265803",
+            "4168076607644375421793590601137565305660/32875353909226513692647141505362546386265803"
+          ],
+          "start_distance_squared_minus_band_squared": {
+            "denominator": "225817410055867422521588118377230990183311150562987465904570236928",
+            "numerator": "1764246212760567429969859224277341896903745003932278327"
+          },
+          "start_feature": "face",
+          "strict_opposite_signs": true
+        },
+        "limitations": "The opposite endpoint signs establish a finite-thickness crossing for the independently reconstructed affine subtriangle path. This supports a real-contact interpretation of the uncertified query; it is not a formal interval proof of production Metal rounding or a whole-candidate CCD certificate."
+      },
+      "run": "605"
+    },
+    {
+      "capture_json_sha256": "b472aebe7d1fd9b63ba63781827e2ee8c4e1c45bbc7019a16c2f97431ec7dc25",
+      "identity": {
+        "control_step": 1202,
+        "iteration": 7,
+        "microtick": 0,
+        "physics_substep": 0,
+        "root": 1202,
+        "selector": {
+          "candidate_slot": 78,
+          "environment": 0,
+          "execution": "same production complement traversal",
+          "primitive_pair": [
+            16,
+            99
+          ],
+          "sentinel": [
+            3,
+            2
+          ]
+        },
+        "trial": 7
+      },
+      "native": {
+        "certified": false,
+        "hit": false,
+        "separation_m": 1.0001921509683598e-05,
+        "thickness_m": 9.999999747378752e-06,
+        "toi": 0.8289262652397156
+      },
+      "payload_sha256": "1889e11f1bc345b6341a4e2d955606c7286e7707d7cf1712310d424b757ffd00",
+      "record_sha256": "0f2c19fdd4ad9ca791ff2647443fd2e226305a2397adab68a9f4c67eeced1997",
+      "reference": {
+        "binary64_bisection_t": 0.828772287291496,
+        "distance_minus_band_at_native_t_m": -7.366995054830928e-11,
+        "distance_roundoff_m": 1.907572988457673e-09,
+        "effective_thickness_m": 1.000190695776837e-05,
+        "exact_binary_rational_endpoint_sign_test": {
+          "finish_barycentric": [
+            "0",
+            "49928518404867863228416/64194821717949385700113",
+            "14266303313081522471697/64194821717949385700113"
+          ],
+          "finish_distance_squared_minus_band_squared": {
+            "denominator": "77606777460386958400969331245709490292824997888",
+            "numerator": "-126644136019133729987090980143532121"
+          },
+          "finish_feature": "BC",
+          "scope": "exact comparison for the captured binary32 CCD endpoints and binary32 effective thickness; linear interpolation of point/triangle endpoints is continuous, so strict opposite signs establish at least one band crossing for that captured path",
+          "start_barycentric": [
+            "0",
+            "8681666441295457837056/11162333531566747602463",
+            "2480667090271289765407/11162333531566747602463"
+          ],
+          "start_distance_squared_minus_band_squared": {
+            "denominator": "13494433213461188544775813740952993610478911488",
+            "numerator": "109219548441220371027813220827093417"
+          },
+          "start_feature": "BC",
+          "strict_opposite_signs": true
+        },
+        "limitations": "The opposite endpoint signs establish a finite-thickness crossing for the independently reconstructed affine subtriangle path. This supports a real-contact interpretation of the uncertified query; it is not a formal interval proof of production Metal rounding or a whole-candidate CCD certificate."
+      },
+      "run": "610"
+    }
+  ],
+  "conclusion": "Both captured affine subtriangle queries have exact-rational opposite signs for endpoint squared distance minus the stored effective-band squared. This establishes a finite-thickness crossing for each reconstructed continuous endpoint path. Native runs returned hit=false and certified=false at their captured sample; the CPU reference does not establish Metal earliest-TOI or whole-candidate admissibility. Uncertified remains fail-closed.",
+  "gpu_dispatched": false,
+  "review003_json_correction": {
+    "corrected_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source257-mortar-audit-review-correction-004/report.json",
+    "corrected_sha256": "b842146c88fe692632e25174d4b7333cba736d4e73cf5acea01eb8584942548c",
+    "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source257-mortar-audit-review-003/report.json",
+    "original_sha256": "49c0266aaa42058de43d38e1196793a0e6551c9db21c82e4b0058d17bd764c28",
+    "original_strict_parse": "fails with trailing literal backslash-n after JSON object",
+    "semantic_object_unchanged": true
+  },
+  "schema": "numi.cardboard.source260-preimplementation-ccd-replay.v1",
+  "scope": "This package binds and revalidates existing native captures; it does not change production or claim Metal CCD certification.",
+  "source_decoder": {
+    "manifest_sha256": "9b6bc24c68718c61578f2a316ad23db37c0ed4b8d271c0c9a989ac388669902e",
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source257-mortar-query-decoder-001",
+    "report_sha256": "011aafdc5f04bbfacb7a267500e86ba8fca7a7168b812ab800682e92a9b03942",
+    "self_test": {
+      "cases": [
+        "closest-point face reference",
+        "barycentric closure",
+        "binary32 word roundtrip",
+        "384-byte record accepted",
+        "wrong payload length rejected",
+        "offset range rejected",
+        "dtype rejected",
+        "record digest rejected",
+        "count rejected",
+        "element width rejected",
+        "exact rational endpoint distance"
+      ],
+      "passed": 11,
+      "scope": "synthetic CPU parser/geometry contract only; no production GPU evidence"
+    }
+  },
+  "status": "strict_cpu_input_replay_complete_native_ccd_uncertified"
+}

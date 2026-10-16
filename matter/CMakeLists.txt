@@ -192,6 +192,17 @@ if(BUILD_TESTING)
             COMMAND numi-matter-pure-fem-armijo-cgls-arena-plan-check)
         set_tests_properties(matter.analysis.pure_fem_armijo_cgls_arena_plan
             PROPERTIES TIMEOUT 30 LABELS "matter;fgmres;armijo;cgls;cpu;admission")
+        add_executable(numi-matter-pure-fem-cgls-best-of-contract-check
+            tools/pure_fem_cgls_best_of_contract_check.cpp)
+        target_include_directories(numi-matter-pure-fem-cgls-best-of-contract-check PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/include")
+        target_compile_options(numi-matter-pure-fem-cgls-best-of-contract-check PRIVATE
+            -Wall -Wextra -Wpedantic -Werror)
+        add_test(NAME matter.analysis.pure_fem_cgls_best_of_contract
+            COMMAND numi-matter-pure-fem-cgls-best-of-contract-check)
+        set_tests_properties(matter.analysis.pure_fem_cgls_best_of_contract
+            PROPERTIES TIMEOUT 30 LABELS "matter;fgmres;cgls;cpu;transaction")
+
         set(NUMI_FEM_CGLS_ARENA_8192_CHECK_DIR "${CMAKE_CURRENT_BINARY_DIR}/shaders")
         set(NUMI_FEM_CGLS_ARENA_8192_CHECK_AIR "${NUMI_FEM_CGLS_ARENA_8192_CHECK_DIR}/FEMPureCGLSArena8192Check.air")
         set(NUMI_FEM_CGLS_ARENA_8192_CHECK_METALLIB "${NUMI_FEM_CGLS_ARENA_8192_CHECK_DIR}/FEMPureCGLSArena8192Check.metallib")
@@ -235,6 +246,23 @@ if(BUILD_TESTING)
                 PROPERTIES TIMEOUT 120 RUN_SERIAL TRUE
                     LABELS "matter;fgmres;cgls;metal;synthetic;arena")
         endif()
+        add_executable(numi-matter-fem-cgls-best-of-kernel-check
+            tools/pure_fem_cgls_best_of_kernel_check.mm)
+        add_dependencies(numi-matter-fem-cgls-best-of-kernel-check
+            numi_fem_cgls_arena_8192_check_shaders)
+        target_include_directories(numi-matter-fem-cgls-best-of-kernel-check PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/include")
+        target_link_libraries(numi-matter-fem-cgls-best-of-kernel-check PRIVATE
+            "${NUMI_FEM_CGLS_CHECK_FOUNDATION}" "${NUMI_FEM_CGLS_CHECK_METAL}")
+        target_compile_definitions(numi-matter-fem-cgls-best-of-kernel-check PRIVATE
+            NUMI_FEM_CGLS_ARENA_METALLIB="${NUMI_FEM_CGLS_ARENA_8192_CHECK_METALLIB}")
+        target_compile_options(numi-matter-fem-cgls-best-of-kernel-check PRIVATE
+            -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+        add_test(NAME matter.metal.fem_cgls_best_of_transaction
+            COMMAND numi-matter-fem-cgls-best-of-kernel-check)
+        set_tests_properties(matter.metal.fem_cgls_best_of_transaction
+            PROPERTIES TIMEOUT 120 RUN_SERIAL TRUE
+                LABELS "matter;fgmres;cgls;metal;synthetic;transaction")
         add_test(NAME matter.analysis.cardboard_source_data
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_source_data_test.py")
         add_test(NAME matter.analysis.cardboard_pin_source_observables

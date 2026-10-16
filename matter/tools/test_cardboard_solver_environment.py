@@ -20,9 +20,10 @@ class EffectiveEnvironmentTests(unittest.TestCase):
     def test_registry_matches_checkout_and_detects_unregistered_control(self):
         env.validate_source_registry(SOURCE_ROOT)
         self.assertEqual(env.source_key_registry(SOURCE_ROOT), env.NATIVE_ENV_KEYS)
-        self.assertEqual(len(env.NATIVE_ENV_KEYS), 54)
+        self.assertEqual(len(env.NATIVE_ENV_KEYS), 55)
         self.assertIn("NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR", env.NATIVE_ENV_KEYS)
         self.assertIn("NM_FEM_BASE_CGLS_DAMPING_KG", env.NATIVE_ENV_KEYS)
+        self.assertIn("NM_FEM_BASE_CGLS_BEST_OF", env.NATIVE_ENV_KEYS)
         self.assertIn("NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT", env.NATIVE_ENV_KEYS)
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -82,6 +83,28 @@ class EffectiveEnvironmentTests(unittest.TestCase):
         historical["sha256"] = env._contract_digest(historical)
         with self.assertRaisesRegex(ValueError, "registry differs"):
             env.validate_contract(historical)
+
+    def test_best_of_cgls_is_explicitly_bound_and_preserves_all_selector(self):
+        absent = env.make_contract()
+        selected = env.make_contract({
+            "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR": "all:all",
+            "NM_FEM_BASE_CGLS_ITERATIONS": "64",
+            "NM_FEM_BASE_CGLS_BEST_OF": "1",
+        })
+        self.assertNotEqual(absent["sha256"], selected["sha256"])
+        self.assertEqual(selected["effective"]["NM_FEM_BASE_CGLS_BEST_OF"],
+                         {"set": True, "value": "1"})
+        self.assertEqual(selected["effective"]["NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR"],
+                         {"set": True, "value": "all:all"})
+        parent = {"PATH": "/bin", "NM_FEM_BASE_CGLS_BEST_OF": "1",
+                  "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR": "2:34"}
+        child, removed = env.child_environment(parent, absent)
+        self.assertEqual(child, {"PATH": "/bin"})
+        self.assertEqual(removed, ["NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
+                                   "NM_FEM_BASE_CGLS_BEST_OF"])
+        for invalid in ("", "0", "true", "all"):
+            with self.subTest(invalid=invalid), self.assertRaises(ValueError):
+                env.make_contract({"NM_FEM_BASE_CGLS_BEST_OF": invalid})
 
     def test_damped_cgls_is_a_physical_source_bound_setting(self):
         absent = env.make_contract()

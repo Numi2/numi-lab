@@ -1,0 +1,820 @@
+{
+  "cases": [
+    {
+      "capture_identity": {
+        "control_step": 1202,
+        "iteration": 7,
+        "microtick": 0,
+        "physics_substep": 0,
+        "root": 1202,
+        "selector": {
+          "candidate_slot": 78,
+          "environment": 0,
+          "execution": "same production complement traversal",
+          "primitive_pair": [
+            16,
+            99
+          ],
+          "sentinel": [
+            3,
+            2
+          ]
+        },
+        "trial": 0
+      },
+      "capture_json_path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/mortar-inline-observer-on-605/diagnostics/capture-coupled-trial-capture/capture.coupled.json",
+      "capture_json_sha256": "729d97c8dc0e07f4ddaf6063b6fbcb8cf74299c4c9ce69160bf7a6eba1028ea7",
+      "decoded": {
+        "attempt_words": [
+          1,
+          0,
+          78,
+          4
+        ],
+        "candidate_identity": [
+          16,
+          99,
+          78,
+          1
+        ],
+        "cells": [
+          3,
+          1,
+          4294967295,
+          4294967295
+        ],
+        "feature": [
+          2,
+          1,
+          4294967295,
+          4294967295
+        ],
+        "left_cell": 3,
+        "native_certified": false,
+        "native_hit": false,
+        "native_separation_bits": "3727cd0d",
+        "native_separation_m": 1.00017177828704e-05,
+        "native_toi": 0.648159921169281,
+        "native_toi_bits": "3f25edcf",
+        "query_kind": "right_subtriangle_vertex_vs_left_subtriangle",
+        "right_cell": 1,
+        "right_vertex": 2,
+        "thickness_bits": "3727c5ac",
+        "thickness_m": 9.999999747378752e-06
+      },
+      "independent_geometry": {
+        "binary64_bisection_t": 0.6481505716424356,
+        "bisection_barycentric": [
+          0.9998444462030428,
+          0.0,
+          0.0001555537969571977
+        ],
+        "bisection_closest_feature": "AC",
+        "coordinate_scale_m": 0.0018000848358497024,
+        "distance_at_bisection_m": 1.0001716873375831e-05,
+        "distance_at_native_reported_t_m": 1.0001711345482082e-05,
+        "distance_minus_effective_band_at_native_t_m": -5.527893616620984e-12,
+        "distance_roundoff_m": 1.7166946753022216e-09,
+        "effective_thickness_m": 1.0001716873375699e-05,
+        "endpoint_reconstruction": "For query kinds 3/4, the captured start/finish arrays are already the three left/right mortar-subtriangle CCD vertices (makeMortarComplementAudit is passed subtriangleEndpoints=true). They are promoted directly from stored binary32 words; bary arrays are retained as parent-map metadata and are not applied a second time.",
+        "exact_binary_rational_endpoint_sign_test": {
+          "finish_barycentric": [
+            "20994377291634826001175/20997955165233278390338",
+            "0",
+            "3577873598452389163/20997955165233278390338"
+          ],
+          "finish_distance_squared_minus_band_squared": {
+            "denominator": "793280317448777414306843241810977191293353984",
+            "numerator": "-3266723378750073213779684530262377"
+          },
+          "finish_feature": "AC",
+          "scope": "exact comparison for the captured binary32 CCD endpoints and binary32 effective thickness; linear interpolation of point/triangle endpoints is continuous, so strict opposite signs establish at least one band crossing for that captured path",
+          "start_barycentric": [
+            "32871146302250231503541447284916515058047887/32875353909226513692647141505362546386265803",
+            "39530368637813683900629844893762912256/32875353909226513692647141505362546386265803",
+            "4168076607644375421793590601137565305660/32875353909226513692647141505362546386265803"
+          ],
+          "start_distance_squared_minus_band_squared": {
+            "denominator": "225817410055867422521588118377230990183311150562987465904570236928",
+            "numerator": "1764246212760567429969859224277341896903745003932278327"
+          },
+          "start_feature": "face",
+          "strict_opposite_signs": true
+        },
+        "finish_barycentric": [
+          0.9998296084751921,
+          0.0,
+          0.00017039152480791768
+        ],
+        "finish_closest_feature": "AC",
+        "finish_distance_m": 9.79368912506445e-06,
+        "finish_distance_minus_band_m": -2.080277483112497e-07,
+        "interpretation": "The opposite endpoint signs establish a finite-thickness crossing for the independently reconstructed affine subtriangle path. This supports a real-contact interpretation of the uncertified query; it is not a formal interval proof of production Metal rounding or a whole-candidate CCD certificate.",
+        "native_t_barycentric": [
+          0.9998444458087299,
+          0.0,
+          0.00015555419127008847
+        ],
+        "native_t_closest_feature": "AC",
+        "start_barycentric": [
+          0.9998720133329089,
+          1.2024317288556507e-06,
+          0.00012678423536224183
+        ],
+        "start_closest_feature": "face",
+        "start_distance_m": 1.0384943506498018e-05,
+        "start_distance_minus_band_m": 3.8322663312231954e-07,
+        "threshold_crossing_bracketed_by_endpoint_signs": true,
+        "threshold_model": "Production roundoff formula 8*epsilon*max(thickness,query endpoint coordinate scale,1e-12), rounded to binary32 scalar and promoted."
+      },
+      "payload_path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/mortar-inline-observer-on-605/diagnostics/capture-coupled-trial-capture/capture.coupled.bin",
+      "payload_sha256": "4d0b6866d6b7d1f5681b7e8cb344556aec2b9a0b6ded118d71fefcae70c24ebc",
+      "record_raw_hex": "01000000000000004e0000000400000010000000630000004e000000010000000300000001000000ffffffffffffffff0200000001000000ffffffffffffffffde3f083317efebba3523833a0000000025fe73329ea57e322928833a0000000044b8d1b921b8d1b9b423833a00000000b01203bb111103bb7e6c843a00000000297381b2fd0f03bb3f7b843a00000000747ab9b217e9ebbaab7f843a0000000022f79e33d3f0ebba6939833a0000000023461033d42e0b33ab45833a00000000bab9d1b902bad1b9223b833a00000000951203bb051103bbf56d843a000000008a6a20b2f70f03bba57d843a00000000649f87b20ae9ebba0882843a00000000000000006666663f000000000000000000000000000000000000000000000000cdcc4c3e0000000000000000000000000000803f000000000000000000000000000000000000803f0000000000000000000000006666663f00000000000000000000000000000000cfed253f0dcd2737acc5273717b7d13817b7d1380000e040",
+      "record_sha256": "cd2700f032712d5a14a7a60bdf90c2af8231ed8d37eaaf1c56693e08fcbcf527",
+      "run": "605",
+      "source_like_fp32_ca": {
+        "effective_thickness": 1.0001716873375699e-05,
+        "effective_thickness_bits": "3727cd0c",
+        "limitations": "float32 source-order CPU emulation; no Metal bitwise claim; SAT early-separation branches omitted",
+        "outcome": {
+          "certified": false,
+          "hit": false,
+          "separation": 1.00017177828704e-05,
+          "termination": "budget_exhaustion",
+          "toi": 0.648159921169281
+        },
+        "speed_bound": 9.504769877821673e-07,
+        "speed_bound_bits": "357f2448",
+        "trace": [
+          {
+            "bary": [
+              0.9998720288276672,
+              1.2023284625684028e-06,
+              0.00012678430357482284
+            ],
+            "distance": 1.0384945198893547e-05,
+            "distance_bits": "372e3b00",
+            "gap": 3.8322832551784813e-07,
+            "gap_bits": "34cdbe80",
+            "i": 0,
+            "time": 0.0,
+            "time_bits": "00000000"
+          },
+          {
+            "bary": [
+              0.9998548030853271,
+              0.0,
+              0.00014520187687594444
+            ],
+            "distance": 1.0146532076760195e-05,
+            "distance_bits": "372a3b06",
+            "gap": 1.4481520338449627e-07,
+            "gap_bits": "341b7e80",
+            "i": 1,
+            "time": 0.4031957983970642,
+            "time_bits": "3ece6fae"
+          },
+          {
+            "bary": [
+              0.9998483657836914,
+              0.0,
+              0.00015165682998485863
+            ],
+            "distance": 1.0056430255644955e-05,
+            "distance_bits": "3728b80a",
+            "gap": 5.471338226925582e-08,
+            "gap_bits": "336afe00",
+            "i": 2,
+            "time": 0.5555563569068909,
+            "time_bits": "3f0e38f1"
+          },
+          {
+            "bary": [
+              0.9998459219932556,
+              0.0,
+              0.00015406105376314372
+            ],
+            "distance": 1.0022438800660893e-05,
+            "distance_bits": "3728260c",
+            "gap": 2.0721927285194397e-08,
+            "gap_bits": "32b20000",
+            "i": 3,
+            "time": 0.6131204962730408,
+            "time_bits": "3f1cf577"
+          },
+          {
+            "bary": [
+              0.999845027923584,
+              0.0,
+              0.00015498344146180898
+            ],
+            "distance": 1.0009516699938104e-05,
+            "distance_bits": "3727ee8c",
+            "gap": 7.799826562404633e-09,
+            "gap_bits": "32060000",
+            "i": 4,
+            "time": 0.6349220871925354,
+            "time_bits": "3f228a41"
+          },
+          {
+            "bary": [
+              0.9998446702957153,
+              0.0,
+              0.00015534840349573642
+            ],
+            "distance": 1.0004628165916074e-05,
+            "distance_bits": "3727d98d",
+            "gap": 2.9112925403751433e-09,
+            "gap_bits": "31481000",
+            "i": 5,
+            "time": 0.6431283354759216,
+            "time_bits": "3f24a40f"
+          },
+          {
+            "bary": [
+              0.9998445510864258,
+              0.0,
+              0.00015544742927886546
+            ],
+            "distance": 1.000288193608867e-05,
+            "distance_bits": "3727d20d",
+            "gap": 1.165062712971121e-09,
+            "gap_bits": "30a02000",
+            "i": 6,
+            "time": 0.6461912989616394,
+            "time_bits": "3f256ccb"
+          },
+          {
+            "bary": [
+              0.9998445510864258,
+              0.0,
+              0.00015545584028586745
+            ],
+            "distance": 1.0002183444157708e-05,
+            "distance_bits": "3727cf0d",
+            "gap": 4.665707820095122e-10,
+            "gap_bits": "30004000",
+            "i": 7,
+            "time": 0.6474170684814453,
+            "time_bits": "3f25bd20"
+          },
+          {
+            "bary": [
+              0.999844491481781,
+              0.0,
+              0.0001555360940983519
+            ],
+            "distance": 1.0001834198192228e-05,
+            "distance_bits": "3727cd8d",
+            "gap": 1.1732481652870774e-10,
+            "gap_bits": "2f010000",
+            "i": 8,
+            "time": 0.6479079723358154,
+            "time_bits": "3f25dd4c"
+          },
+          {
+            "bary": [
+              0.999844491481781,
+              0.0,
+              0.00015553749108221382
+            ],
+            "distance": 1.0001834198192228e-05,
+            "distance_bits": "3727cd8d",
+            "gap": 1.1732481652870774e-10,
+            "gap_bits": "2f010000",
+            "i": 9,
+            "time": 0.6480314135551453,
+            "time_bits": "3f25e563"
+          },
+          {
+            "bary": [
+              0.9998444318771362,
+              0.0,
+              0.0001555383496452123
+            ],
+            "distance": 1.00017177828704e-05,
+            "distance_bits": "3727cd0d",
+            "gap": 9.094947017729282e-13,
+            "gap_bits": "2b800000",
+            "i": 10,
+            "time": 0.6481548547744751,
+            "time_bits": "3f25ed7a"
+          },
+          {
+            "bary": [
+              0.9998444318771362,
+              0.0,
+              0.0001555383496452123
+            ],
+            "distance": 1.00017177828704e-05,
+            "distance_bits": "3727cd0d",
+            "gap": 9.094947017729282e-13,
+            "gap_bits": "2b800000",
+            "i": 11,
+            "time": 0.6481558680534363,
+            "time_bits": "3f25ed8b"
+          },
+          {
+            "bary": [
+              0.9998444318771362,
+              0.0,
+              0.0001555383496452123
+            ],
+            "distance": 1.00017177828704e-05,
+            "distance_bits": "3727cd0d",
+            "gap": 9.094947017729282e-13,
+            "gap_bits": "2b800000",
+            "i": 12,
+            "time": 0.6481568813323975,
+            "time_bits": "3f25ed9c"
+          },
+          {
+            "bary": [
+              0.9998444318771362,
+              0.0,
+              0.00015553836419712752
+            ],
+            "distance": 1.00017177828704e-05,
+            "distance_bits": "3727cd0d",
+            "gap": 9.094947017729282e-13,
+            "gap_bits": "2b800000",
+            "i": 13,
+            "time": 0.6481578946113586,
+            "time_bits": "3f25edad"
+          },
+          {
+            "bary": [
+              0.9998444318771362,
+              0.0,
+              0.00015553837874904275
+            ],
+            "distance": 1.00017177828704e-05,
+            "distance_bits": "3727cd0d",
+            "gap": 9.094947017729282e-13,
+            "gap_bits": "2b800000",
+            "i": 14,
+            "time": 0.6481589078903198,
+            "time_bits": "3f25edbe"
+          },
+          {
+            "bary": [
+              0.9998444318771362,
+              0.0,
+              0.00015553837874904275
+            ],
+            "distance": 1.00017177828704e-05,
+            "distance_bits": "3727cd0d",
+            "gap": 9.094947017729282e-13,
+            "gap_bits": "2b800000",
+            "i": 15,
+            "time": 0.648159921169281,
+            "time_bits": "3f25edcf"
+          }
+        ]
+      },
+      "source_like_fp32_sample_at_native_t": {
+        "barycentric": [
+          0.9998444318771362,
+          0.0,
+          0.00015553837874904275
+        ],
+        "distance": 1.00017177828704e-05,
+        "distance_bits": "3727cd0d",
+        "effective_thickness": 1.0001716873375699e-05,
+        "effective_thickness_bits": "3727cd0c",
+        "gap": 9.094947017729282e-13,
+        "gap_bits": "2b800000",
+        "time": 0.648159921169281
+      }
+    },
+    {
+      "capture_identity": {
+        "control_step": 1202,
+        "iteration": 7,
+        "microtick": 0,
+        "physics_substep": 0,
+        "root": 1202,
+        "selector": {
+          "candidate_slot": 78,
+          "environment": 0,
+          "execution": "same production complement traversal",
+          "primitive_pair": [
+            16,
+            99
+          ],
+          "sentinel": [
+            3,
+            2
+          ]
+        },
+        "trial": 7
+      },
+      "capture_json_path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/mortar-inline-observer-on-610/diagnostics/capture-coupled-trial-capture/capture.coupled.json",
+      "capture_json_sha256": "b472aebe7d1fd9b63ba63781827e2ee8c4e1c45bbc7019a16c2f97431ec7dc25",
+      "decoded": {
+        "attempt_words": [
+          1,
+          0,
+          78,
+          4
+        ],
+        "candidate_identity": [
+          16,
+          99,
+          78,
+          1
+        ],
+        "cells": [
+          2,
+          0,
+          4294967295,
+          0
+        ],
+        "feature": [
+          1,
+          1,
+          4294967295,
+          4294967295
+        ],
+        "left_cell": 2,
+        "native_certified": false,
+        "native_hit": false,
+        "native_separation_bits": "3727cded",
+        "native_separation_m": 1.0001921509683598e-05,
+        "native_toi": 0.8289262652397156,
+        "native_toi_bits": "3f543483",
+        "query_kind": "right_subtriangle_vertex_vs_left_subtriangle",
+        "right_cell": 0,
+        "right_vertex": 1,
+        "thickness_bits": "3727c5ac",
+        "thickness_m": 9.999999747378752e-06
+      },
+      "independent_geometry": {
+        "binary64_bisection_t": 0.828772287291496,
+        "bisection_barycentric": [
+          0.0,
+          0.777765346726859,
+          0.22223465327314101
+        ],
+        "bisection_closest_feature": "BC",
+        "coordinate_scale_m": 0.002000235253944993,
+        "distance_at_bisection_m": 1.0001906957768173e-05,
+        "distance_at_native_reported_t_m": 1.0001833287817821e-05,
+        "distance_minus_effective_band_at_native_t_m": -7.366995054830928e-11,
+        "distance_roundoff_m": 1.907572988457673e-09,
+        "effective_thickness_m": 1.000190695776837e-05,
+        "endpoint_reconstruction": "For query kinds 3/4, the captured start/finish arrays are already the three left/right mortar-subtriangle CCD vertices (makeMortarComplementAudit is passed subtriangleEndpoints=true). They are promoted directly from stored binary32 words; bary arrays are retained as parent-map metadata and are not applied a second time.",
+        "exact_binary_rational_endpoint_sign_test": {
+          "finish_barycentric": [
+            "0",
+            "49928518404867863228416/64194821717949385700113",
+            "14266303313081522471697/64194821717949385700113"
+          ],
+          "finish_distance_squared_minus_band_squared": {
+            "denominator": "77606777460386958400969331245709490292824997888",
+            "numerator": "-126644136019133729987090980143532121"
+          },
+          "finish_feature": "BC",
+          "scope": "exact comparison for the captured binary32 CCD endpoints and binary32 effective thickness; linear interpolation of point/triangle endpoints is continuous, so strict opposite signs establish at least one band crossing for that captured path",
+          "start_barycentric": [
+            "0",
+            "8681666441295457837056/11162333531566747602463",
+            "2480667090271289765407/11162333531566747602463"
+          ],
+          "start_distance_squared_minus_band_squared": {
+            "denominator": "13494433213461188544775813740952993610478911488",
+            "numerator": "109219548441220371027813220827093417"
+          },
+          "start_feature": "BC",
+          "strict_opposite_signs": true
+        },
+        "finish_barycentric": [
+          0.0,
+          0.7777655123685381,
+          0.2222344876314619
+        ],
+        "finish_closest_feature": "BC",
+        "finish_distance_m": 9.919993611622914e-06,
+        "finish_distance_minus_band_m": -8.191334614545582e-08,
+        "interpretation": "The opposite endpoint signs establish a finite-thickness crossing for the independently reconstructed affine subtriangle path. This supports a real-contact interpretation of the uncertified query; it is not a formal interval proof of production Metal rounding or a whole-candidate CCD certificate.",
+        "native_t_barycentric": [
+          0.0,
+          0.7777653468781451,
+          0.2222346531218548
+        ],
+        "native_t_closest_feature": "BC",
+        "start_barycentric": [
+          0.0,
+          0.7777644716262924,
+          0.22223552837370764
+        ],
+        "start_closest_feature": "BC",
+        "start_distance_m": 1.0398644968309782e-05,
+        "start_distance_minus_band_m": 3.9673801054141284e-07,
+        "threshold_crossing_bracketed_by_endpoint_signs": true,
+        "threshold_model": "Production roundoff formula 8*epsilon*max(thickness,query endpoint coordinate scale,1e-12), rounded to binary32 scalar and promoted."
+      },
+      "payload_path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/mortar-inline-observer-on-610/diagnostics/capture-coupled-trial-capture/capture.coupled.bin",
+      "payload_sha256": "1889e11f1bc345b6341a4e2d955606c7286e7707d7cf1712310d424b757ffd00",
+      "record_raw_hex": "01000000000000004e0000000400000010000000630000004e000000010000000200000000000000ffffffff000000000100000001000000ffffffffffffffff1e1403bb131403bbdf11833a00000000dd3f083317efebba3523833a00000000f6f0ebbae2f0ebba1914833a00000000ef80b7ba9aeaebba5775843a00000000ffb9d1b985e9ebbab87c843a000000003fbfd1b96c401dba4097843a00000000571603bb611603bb0b11833a00000000973b9e33ccf0ebbab939833a00000000e9f4ebbafbf4ebba4716833a00000000c280b7ba7eeaebbaee76843a000000004fb9d1b96ce9ebba9a7e843a000000008cbed1b934401dba1699843a000000000000803f000000000000000000000000000000006666663f00000000000000006666663f0000000000000000000000003333333fcdcc4c3e0000000000000000cdcc4c3e3333333f0000000000000000cdcc4c3ecdcccc3d000000000000000000000000000000008334543fedcd2737acc5273717b7d13817b7d1380000e040",
+      "record_sha256": "0f2c19fdd4ad9ca791ff2647443fd2e226305a2397adab68a9f4c67eeced1997",
+      "run": "610",
+      "source_like_fp32_ca": {
+        "effective_thickness": 1.000190695776837e-05,
+        "effective_thickness_bits": "3727cddd",
+        "limitations": "float32 source-order CPU emulation; no Metal bitwise claim; SAT early-separation branches omitted",
+        "outcome": {
+          "certified": false,
+          "hit": false,
+          "separation": 1.0001921509683598e-05,
+          "termination": "budget_exhaustion",
+          "toi": 0.8287619352340698
+        },
+        "speed_bound": 7.306711609089689e-07,
+        "speed_bound_bits": "35442357",
+        "trace": [
+          {
+            "bary": [
+              0.0,
+              0.7777644395828247,
+              0.2222355455160141
+            ],
+            "distance": 1.0398690392321441e-05,
+            "distance_bits": "372e7609",
+            "gap": 3.9678343455307186e-07,
+            "gap_bits": "34d50580",
+            "i": 0,
+            "time": 0.0,
+            "time_bits": "00000000"
+          },
+          {
+            "bary": [
+              0.0,
+              0.7777650356292725,
+              0.22223494946956635
+            ],
+            "distance": 1.0138694960915018e-05,
+            "distance_bits": "372a195d",
+            "gap": 1.367880031466484e-07,
+            "gap_bits": "3412e000",
+            "i": 1,
+            "time": 0.5430396795272827,
+            "time_bits": "3f0b04a6"
+          },
+          {
+            "bary": [
+              0.0,
+              0.7777652740478516,
+              0.22223475575447083
+            ],
+            "distance": 1.004912792268442e-05,
+            "distance_bits": "372898ad",
+            "gap": 4.7220964916050434e-08,
+            "gap_bits": "334ad000",
+            "i": 2,
+            "time": 0.7302483916282654,
+            "time_bits": "3f3af18f"
+          },
+          {
+            "bary": [
+              0.0,
+              0.7777653336524963,
+              0.22223468124866486
+            ],
+            "distance": 1.0018042303272523e-05,
+            "distance_bits": "3728132a",
+            "gap": 1.613534550415352e-08,
+            "gap_bits": "328a9a00",
+            "i": 3,
+            "time": 0.7948752045631409,
+            "time_bits": "3f4b7cf1"
+          },
+          {
+            "bary": [
+              0.0,
+              0.7777653336524963,
+              0.22223465144634247
+            ],
+            "distance": 1.0007603123085573e-05,
+            "distance_bits": "3727e654",
+            "gap": 5.6961653172038496e-09,
+            "gap_bits": "31c3b800",
+            "i": 4,
+            "time": 0.8169581294059753,
+            "time_bits": "3f51242b"
+          },
+          {
+            "bary": [
+              0.0,
+              0.7777653336524963,
+              0.22223466634750366
+            ],
+            "distance": 1.000389238470234e-05,
+            "distance_bits": "3727d664",
+            "gap": 1.9854269339703023e-09,
+            "gap_bits": "31087000",
+            "i": 5,
+            "time": 0.8247539401054382,
+            "time_bits": "3f532313"
+          },
+          {
+            "bary": [
+              0.0,
+              0.7777653336524963,
+              0.22223465144634247
+            ],
+            "distance": 1.0002500857808627e-05,
+            "distance_bits": "3727d06a",
+            "gap": 5.939000402577221e-10,
+            "gap_bits": "30234000",
+            "i": 6,
+            "time": 0.8274711966514587,
+            "time_bits": "3f53d527"
+          },
+          {
+            "bary": [
+              0.0,
+              0.7777653336524963,
+              0.22223466634750366
+            ],
+            "distance": 1.0002154340327252e-05,
+            "distance_bits": "3727ceed",
+            "gap": 2.473825588822365e-10,
+            "gap_bits": "2f880000",
+            "i": 7,
+            "time": 0.8282840251922607,
+            "time_bits": "3f540a6c"
+          },
+          {
+            "bary": [
+              0.0,
+              0.7777653336524963,
+              0.22223465144634247
+            ],
+            "distance": 1.0001921509683598e-05,
+            "distance_bits": "3727cded",
+            "gap": 1.4551915228366852e-11,
+            "gap_bits": "2d800000",
+            "i": 8,
+            "time": 0.828622579574585,
+            "time_bits": "3f54209c"
+          },
+          {
+            "bary": [
+              0.0,
+              0.7777653336524963,
+              0.22223465144634247
+            ],
+            "distance": 1.0001921509683598e-05,
+            "distance_bits": "3727cded",
+            "gap": 1.4551915228366852e-11,
+            "gap_bits": "2d800000",
+            "i": 9,
+            "time": 0.8286424875259399,
+            "time_bits": "3f5421ea"
+          },
+          {
+            "bary": [
+              0.0,
+              0.7777653932571411,
+              0.22223463654518127
+            ],
+            "distance": 1.0001921509683598e-05,
+            "distance_bits": "3727cded",
+            "gap": 1.4551915228366852e-11,
+            "gap_bits": "2d800000",
+            "i": 10,
+            "time": 0.8286623954772949,
+            "time_bits": "3f542338"
+          },
+          {
+            "bary": [
+              0.0,
+              0.7777653932571411,
+              0.22223463654518127
+            ],
+            "distance": 1.0001921509683598e-05,
+            "distance_bits": "3727cded",
+            "gap": 1.4551915228366852e-11,
+            "gap_bits": "2d800000",
+            "i": 11,
+            "time": 0.8286823034286499,
+            "time_bits": "3f542486"
+          },
+          {
+            "bary": [
+              0.0,
+              0.7777653932571411,
+              0.22223463654518127
+            ],
+            "distance": 1.0001921509683598e-05,
+            "distance_bits": "3727cded",
+            "gap": 1.4551915228366852e-11,
+            "gap_bits": "2d800000",
+            "i": 12,
+            "time": 0.8287022113800049,
+            "time_bits": "3f5425d4"
+          },
+          {
+            "bary": [
+              0.0,
+              0.7777653932571411,
+              0.22223463654518127
+            ],
+            "distance": 1.0001921509683598e-05,
+            "distance_bits": "3727cded",
+            "gap": 1.4551915228366852e-11,
+            "gap_bits": "2d800000",
+            "i": 13,
+            "time": 0.8287221193313599,
+            "time_bits": "3f542722"
+          },
+          {
+            "bary": [
+              0.0,
+              0.7777653932571411,
+              0.22223463654518127
+            ],
+            "distance": 1.0001921509683598e-05,
+            "distance_bits": "3727cded",
+            "gap": 1.4551915228366852e-11,
+            "gap_bits": "2d800000",
+            "i": 14,
+            "time": 0.8287420272827148,
+            "time_bits": "3f542870"
+          },
+          {
+            "bary": [
+              0.0,
+              0.7777653932571411,
+              0.22223463654518127
+            ],
+            "distance": 1.0001921509683598e-05,
+            "distance_bits": "3727cded",
+            "gap": 1.4551915228366852e-11,
+            "gap_bits": "2d800000",
+            "i": 15,
+            "time": 0.8287619352340698,
+            "time_bits": "3f5429be"
+          }
+        ]
+      },
+      "source_like_fp32_sample_at_native_t": {
+        "barycentric": [
+          0.0,
+          0.7777653932571411,
+          0.22223463654518127
+        ],
+        "distance": 1.0001921509683598e-05,
+        "distance_bits": "3727cded",
+        "effective_thickness": 1.000190695776837e-05,
+        "effective_thickness_bits": "3727cddd",
+        "gap": 1.4551915228366852e-11,
+        "gap_bits": "2d800000",
+        "time": 0.8289262652397156
+      }
+    }
+  ],
+  "method": {
+    "ca_shadow": "Source-like float32 recurrence shadow used to inspect near-threshold plateaus. It omits SAT early-separation branches and does not claim Metal bitwise parity or certification.",
+    "claim_boundary": "A threshold sign bracket indicates a contact on this reconstructed path; it never turns the production uncertified result into a certified clear/miss.",
+    "cpu_only": true,
+    "geometry": "Independent binary64 closest-point-on-triangle reference over captured binary32 parent endpoints and barycentric maps.",
+    "gpu_dispatched": false,
+    "solver_inputs_modified": false,
+    "source_anchors": {
+      "capture_layout": "contact.metalinc:2159-2201",
+      "mortar_query_direction": "contact.metalinc:2710-2733",
+      "roundoff_threshold": "common.metalinc:80-86",
+      "vt_ccd_iteration": "contact.metalinc:3648-3777",
+      "vt_wrapper_budget": "contact.metalinc:3779-3801"
+    }
+  },
+  "schema": "numi.cardboard.mortar_uncertified_query_cpu_replay.v1",
+  "self_tests": {
+    "cases": [
+      "closest-point face reference",
+      "barycentric closure",
+      "binary32 word roundtrip",
+      "384-byte record accepted",
+      "wrong payload length rejected",
+      "offset range rejected",
+      "dtype rejected",
+      "record digest rejected",
+      "count rejected",
+      "element width rejected",
+      "exact rational endpoint distance"
+    ],
+    "passed": 11,
+    "scope": "synthetic CPU parser/geometry contract only; no production GPU evidence"
+  },
+  "source": {
+    "NumiMatter_metallib_sha256": "4ffd1f830f07ef7ec385f457747a8372ff1a2157d5c88b012d133f43d9cee299",
+    "build_record_sha256": "2529a5022374cf7d89a18aebd2002aeedce06832f54511707983dd2b53f2fa8e",
+    "checker_sha256": "d256c748139be85fd9f867db685ea0e329d1ee29fe30aa3fed75c116b11fd6d3",
+    "common_metalinc_sha256": "241066108a9dd735396e375a98b0e480c19627a6e2f772fa53aea1945ffbf662",
+    "contact_metalinc_sha256": "49da8b3b9e16ae11ab8ee420b5974ce51f79c929ed2cad32fc617346cb33f23a",
+    "frozen_source_sha256": "0f6d693d369c3cada323cd0b92e755fd45cb58381063f5e1c8a3117fb5ad6725",
+    "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-mortar-first-uncertified-audit-257-006"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "numi.cardboard.native610-smallest-alpha-mortar-trace-command.v1",
+  "source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-mortar-first-uncertified-audit-257-006",
+  "build": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-007",
+  "source_sha256": "0f6d693d369c3cada323cd0b92e755fd45cb58381063f5e1c8a3117fb5ad6725",
+  "build_sha256": "2529a5022374cf7d89a18aebd2002aeedce06832f54511707983dd2b53f2fa8e",
+  "material": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-mortar-first-uncertified-audit-257-006/matter/materials/starch2007_finite_glue_elastic.nmatter",
+  "policy": "Fresh identical native591 free-body fixture, full activation residual descent enabled. Capture the smallest rejected trial7 alpha1/128 at1202:N7 env0 slot78 pair16/99. Compare with605 trial0 and require production transaction parity to604 (sameprogram) and591 physical state. Diagnose accepted-history near-contact versus trial motion; no contact or assembly qualification.",
+  "selector": "1202:7:7:0:78:16:99:3:2",
+  "gpu_workers": 1
+}

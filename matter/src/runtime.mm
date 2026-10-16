@@ -2795,6 +2795,16 @@ struct Runtime::State {
     id<MTLBuffer> femBaseCGLSScalars = nil;
     id<MTLBuffer> femBaseCGLSControl = nil;
     id<MTLBuffer> femBaseCGLSErrors = nil;
+    bool femBaseCGLSBestOfScratchEnabled = false;
+    id<MTLBuffer> femBaseCGLSBestOfDirection = nil;
+    id<MTLBuffer> femBaseCGLSBestOfMetrics = nil;
+    id<MTLBuffer> femBaseCGLSBestOfLineSearch = nil;
+    id<MTLBuffer> femBaseCGLSBestOfEnvironmentLineSearch = nil;
+    id<MTLBuffer> femBaseCGLSBestOfCertificate = nil;
+    id<MTLBuffer> femBaseCGLSBestOfStatuses = nil;
+    id<MTLBuffer> femBaseCGLSBestOfTrialStatuses = nil;
+    id<MTLBuffer> femBaseCGLSBestOfFlags = nil;
+    id<MTLBuffer> femBaseCGLSBestOfCommitted = nil;
     bool femBaseCGLSRightScaleScratchEnabled = false;
     id<MTLBuffer> femBaseCGLSRightScaleRows = nil;
     id<MTLBuffer> femBaseCGLSRightScalePhysical = nil;
@@ -4721,6 +4731,11 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_base_cgls_validate_right_scale",
             "nm_fgmres_base_cgls_apply_right_scale",
             "nm_fgmres_install_base_cgls_direction",
+            "nm_fgmres_base_cgls_best_of_save",
+            "nm_fgmres_base_cgls_best_of_save_direction",
+            "nm_fgmres_base_cgls_best_of_resolve",
+            "nm_fgmres_base_cgls_best_of_restore_direction",
+            "nm_fgmres_base_cgls_best_of_measure_committed",
             "nm_fgmres_preserve_true_rhs",
             "nm_fgmres_clear_true_operator",
             "nm_fgmres_clear_true_auxiliary",
@@ -6729,6 +6744,14 @@ RuntimeDiagnostics Runtime::initialize(
             std::getenv("NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR") != nullptr;
         const bool baseCGLSRequested =
             std::getenv("NM_FEM_BASE_CGLS_ITERATIONS") != nullptr;
+        const char* bestOfRequestedText =
+            std::getenv("NM_FEM_BASE_CGLS_BEST_OF");
+        const bool baseCGLSBestOfRequested =
+            bestOfRequestedText != nullptr;
+        if (baseCGLSBestOfRequested &&
+            std::strcmp(bestOfRequestedText, "1") != 0) {
+            valid = false;
+        }
         candidate->femBaseCGLSScratchEnabled =
             baseCGLSRequested &&
             candidate->femBaseCauchyScratchEnabled &&
@@ -6794,7 +6817,8 @@ RuntimeDiagnostics Runtime::initialize(
                 .includeCauchy = candidate->femBaseCauchyScratchEnabled,
                 .includeCGLS = baseCGLSRequested,
                 .includeRightScale =
-                    std::getenv("NM_FEM_BASE_CGLS_RIGHT_SCALE") != nullptr});
+                    std::getenv("NM_FEM_BASE_CGLS_RIGHT_SCALE") != nullptr,
+                .includeBestOf = baseCGLSBestOfRequested});
             if (!plan.admitted()) {
                 diagnostics.message =
                     detail::femPureArmijoCGLSArenaFailureReason(plan.failure);
@@ -6814,6 +6838,8 @@ RuntimeDiagnostics Runtime::initialize(
             }
             candidate->femBaseCGLSScratchEnabled =
                 baseCGLSRequested && plan.includeCGLS;
+            candidate->femBaseCGLSBestOfScratchEnabled =
+                baseCGLSBestOfRequested && plan.includeBestOf;
         }
         if (candidate->femResidualArmijoScratchEnabled) {
             candidate->femArmijoCandidate = privateScratch<NMFEMNodeStateGPU>(
@@ -6889,6 +6915,36 @@ RuntimeDiagnostics Runtime::initialize(
                     candidate->device, environments, valid, candidate->residentBytes);
                 candidate->femBaseCGLSErrors = privateScratch<std::uint32_t>(
                     candidate->device, environments, valid, candidate->residentBytes);
+                if (candidate->femBaseCGLSBestOfScratchEnabled) {
+                    candidate->femBaseCGLSBestOfDirection =
+                        privateScratch<nm_float4>(candidate->device,
+                            candidate->fgmresLayout.unknownCount,
+                            valid, candidate->residentBytes);
+                    candidate->femBaseCGLSBestOfMetrics =
+                        privateScratch<nm_float4>(candidate->device,
+                            environments, valid, candidate->residentBytes);
+                    candidate->femBaseCGLSBestOfLineSearch =
+                        privateScratch<nm_float4>(candidate->device,
+                            environments, valid, candidate->residentBytes);
+                    candidate->femBaseCGLSBestOfEnvironmentLineSearch =
+                        privateScratch<float>(candidate->device,
+                            environments, valid, candidate->residentBytes);
+                    candidate->femBaseCGLSBestOfCertificate =
+                        privateScratch<float>(candidate->device,
+                            environments, valid, candidate->residentBytes);
+                    candidate->femBaseCGLSBestOfStatuses =
+                        privateScratch<NMMatterStatusGPU>(candidate->device,
+                            environments, valid, candidate->residentBytes);
+                    candidate->femBaseCGLSBestOfTrialStatuses =
+                        privateScratch<NMMatterStatusGPU>(candidate->device,
+                            environments, valid, candidate->residentBytes);
+                    candidate->femBaseCGLSBestOfFlags =
+                        privateScratch<std::uint32_t>(candidate->device,
+                            environments, valid, candidate->residentBytes);
+                    candidate->femBaseCGLSBestOfCommitted =
+                        privateScratch<nm_float4>(candidate->device,
+                            environments, valid, candidate->residentBytes);
+                }
                 if (candidate->femBaseCGLSRightScaleScratchEnabled) {
                     candidate->femBaseCGLSRightScaleRows =
                         privateScratch<nm_float4>(candidate->device,
@@ -12864,6 +12920,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 NM_INVALID_INDEX, NM_INVALID_INDEX, NM_INVALID_INDEX,
                 NM_INVALID_INDEX};
             id<MTLBuffer> femCoupledTrialVTCCDAuditBuffer = nil;
+            id<MTLBuffer> femCoupledTrialMortarAuditBuffer = nil;
+            bool femCoupledTrialVTCCDAuditMortar = false;
+            constexpr std::uint32_t mortarAuditSelectorSentinel = 0xfffffffeu;
             if (const char* text = std::getenv(
                     "NM_FEM_COUPLED_TRIAL_VTCCD_AUDIT_SELECTOR")) {
                 femCoupledTrialVTCCDAuditRequested = true;
@@ -12926,16 +12985,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         f[2] == femCoupledTrialCaptureTrial &&
                         (femCoupledTrialCapturePhase == "both" ||
                          femCoupledTrialCapturePhase == "post");
+                    const bool mortarComplementAudit =
+                        f[7] == 3u && f[8] == 2u;
+                    const bool ordinaryVTCCDAudit =
+                        f[7] < 3u && f[8] < 2u;
                     if (!parsed || !selectorMatchesCapture ||
                         f[3] >= environments ||
                         f[4] >= state.dispatch.deformableContactCapacity ||
                         f[5] >= state.dispatch.surfaceFaceCount ||
                         f[6] >= state.dispatch.surfaceFaceCount ||
-                        f[7] >= 3u || f[8] >= 2u ||
+                        (!ordinaryVTCCDAudit && !mortarComplementAudit) ||
                         globalCandidate > std::numeric_limits<std::uint32_t>::max()) {
-                        auditError("selector_must_be_matching_root_iteration_trial_environment_slot_pair_vertex_direction");
+                        auditError("selector_must_match_trial_pair_and_use_vt_vertex_direction_or_reserved_mortar_3_2");
                     } else {
-                        const std::uint32_t packedFeature = f[8] * 3u + f[7];
+                        femCoupledTrialVTCCDAuditMortar = mortarComplementAudit;
+                        const std::uint32_t packedFeature = mortarComplementAudit
+                            ? mortarAuditSelectorSentinel : f[8] * 3u + f[7];
                         femCoupledTrialVTCCDAuditBinding = nm_uint4{
                             static_cast<std::uint32_t>(globalCandidate),
                             f[5], f[6], packedFeature};
@@ -12949,12 +13014,33 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 state.device.maxBufferLength) {
                             femCoupledTrialVTCCDAuditBuffer = nil;
                             auditError("bounded_observer_buffer_allocation_failed");
-                        } else if (f[0] == request.controlStep) {
+                        } else if (mortarComplementAudit) {
+                            femCoupledTrialMortarAuditBuffer = [state.device
+                                newBufferWithLength:sizeof(NMMortarComplementAuditGPU)
+                                options:MTLResourceStorageModePrivate];
+                            if (femCoupledTrialMortarAuditBuffer == nil ||
+                                femCoupledTrialMortarAuditBuffer.length !=
+                                    sizeof(NMMortarComplementAuditGPU) ||
+                                femCoupledTrialMortarAuditBuffer.length >
+                                    state.device.maxBufferLength) {
+                                femCoupledTrialMortarAuditBuffer = nil;
+                                femCoupledTrialVTCCDAuditBuffer = nil;
+                                auditError("bounded_mortar_observer_buffer_allocation_failed");
+                            }
+                        }
+                        if (femCoupledTrialVTCCDAuditConfigValid &&
+                            f[0] == request.controlStep) {
                             std::fprintf(stderr,
-                                "fem_coupled_trial_vtccd_audit_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"trial\":%u,\"environment\":%u,\"slot\":%u,\"primitive_pair\":[%u,%u],\"vertex\":%u,\"direction\":%u,\"buffer_bytes\":%lu,\"physical_state_changed\":false}\n",
+                                "fem_coupled_trial_vtccd_audit_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"trial\":%u,\"environment\":%u,\"slot\":%u,\"primitive_pair\":[%u,%u],\"audit_kind\":\"%s\",\"vertex\":%u,\"direction\":%u,\"vt_buffer_bytes\":%lu,\"mortar_buffer_bytes\":%lu,\"physical_state_changed\":false}\n",
                                 f[0], f[1], f[2], f[3], f[4], f[5], f[6],
-                                f[7], f[8], static_cast<unsigned long>(
-                                    sizeof(NMDeformableVTCCDAuditGPU)));
+                                mortarComplementAudit
+                                    ? "first_uncertified_mortar_complement_query"
+                                    : "single_vtccd_call",
+                                f[7], f[8],
+                                static_cast<unsigned long>(
+                                    sizeof(NMDeformableVTCCDAuditGPU)),
+                                static_cast<unsigned long>(mortarComplementAudit
+                                    ? sizeof(NMMortarComplementAuditGPU) : 0u));
                         }
                     }
                 }
@@ -13154,6 +13240,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 femBaseCGLSPrimaryStartNewton =
                     static_cast<std::uint32_t>(parsed);
             }
+            bool femBaseCGLSBestOfRequested = false;
+            if (const char* bestOf = std::getenv("NM_FEM_BASE_CGLS_BEST_OF")) {
+                if (std::strcmp(bestOf, "1") != 0) {
+                    diagnostics.message =
+                        "best-of CGLS selector must be exactly 1";
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
+                femBaseCGLSBestOfRequested = true;
+            }
             std::uint32_t femBaseCGLSIterations = 0u;
             if (const char* cglsIterations = std::getenv("NM_FEM_BASE_CGLS_ITERATIONS")) {
                 if (!femBaseCauchyFallbackRequested ||
@@ -13280,6 +13376,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     !femBaseCGLSPrimaryPolicyRequested &&
                     dampingPilotText != nullptr &&
                     std::strcmp(dampingPilotText, "1e-3") == 0;
+                const bool bestOfAllNewtonScope =
+                    femBaseCGLSBestOfRequested &&
+                    femBaseCGLSIterations != 0u &&
+                    !femBaseCGLSPrimaryPolicyRequested &&
+                    allNewtonIterations;
                 if (separator == nullptr ||
                     (!everyControlStep && rootEnd != separator) ||
                     (!allNewtonIterations && iterationEnd != end) ||
@@ -13293,6 +13394,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         "selector_must_be_control_step_colon_all_or_newton_0_to_256_or_exact_all_colon_all");
                 } else if (everyControlStep &&
                            !dampedFallbackControlScope &&
+                           !bestOfAllNewtonScope &&
                            (!allNewtonIterations ||
                             femBaseCGLSIterations == 0u ||
                             !femBaseCGLSPrimaryPolicyRequested)) {
@@ -13301,7 +13403,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     // The later damping admission rejects primary, right-scale
                     // and warm-start combinations before physical execution.
                     rejectBaseCauchy(
-                        "all_control_steps_requires_cgls_primary_all_newton_or_bounded_damped_fallback");
+                        "all_control_steps_requires_cgls_primary_damped_fallback_or_best_of_all_newton");
                 } else {
                     femBaseCauchyFallbackRoot =
                         static_cast<std::uint32_t>(root);
@@ -13392,6 +13494,28 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 ownership->preDynamicsOpen = false;
                 [encoder endEncoding];
                 encoder = nil;
+                return diagnostics;
+            }
+            if (femBaseCGLSBestOfRequested &&
+                (femBaseCGLSIterations == 0u ||
+                 !femBaseCauchyFallbackRequested ||
+                 femBaseCGLSPrimaryPolicyRequested ||
+                 !state.femBaseCGLSBestOfScratchEnabled ||
+                 state.femBaseCGLSBestOfDirection == nil ||
+                 state.femBaseCGLSBestOfMetrics == nil ||
+                 state.femBaseCGLSBestOfLineSearch == nil ||
+                 state.femBaseCGLSBestOfEnvironmentLineSearch == nil ||
+                 state.femBaseCGLSBestOfCertificate == nil ||
+                 state.femBaseCGLSBestOfStatuses == nil ||
+                 state.femBaseCGLSBestOfTrialStatuses == nil ||
+                 state.femBaseCGLSBestOfFlags == nil ||
+                 state.femBaseCGLSBestOfCommitted == nil)) {
+                std::fprintf(stderr,
+                    "fem_base_cgls_best_of_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"requires_bounded_cgls_and_selected_newton_scope\"}\n",
+                    request.controlStep);
+                diagnostics.message =
+                    "best-of CGLS requires the bounded CGLS path and an admitted Newton selector";
+                ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
             if (femBaseCGLSPrimaryPolicyRequested &&
@@ -16967,6 +17091,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBytes:&femCoupledTrialVTCCDAuditDisabled
                                    length:sizeof(femCoupledTrialVTCCDAuditDisabled)
                                   atIndex:19u];
+                        [encoder setBuffer:state.deformableContactFailures
+                                   offset:0u atIndex:20u];
                     }
                 );
                 if (state.captureDiagnostics) {
@@ -17620,6 +17746,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         : femCoupledTrialVTCCDAuditDisabled;
                     [encoder setBytes:&auditSelector length:sizeof(auditSelector)
                               atIndex:19u];
+                    const bool mortarAuditThisTrial =
+                        femCoupledTrialVTCCDAuditCurrentTrial &&
+                        femCoupledTrialVTCCDAuditMortar &&
+                        femCoupledTrialMortarAuditBuffer != nil;
+                    [encoder setBuffer:(mortarAuditThisTrial
+                            ? femCoupledTrialMortarAuditBuffer
+                            : state.deformableContactFailures)
+                               offset:0u atIndex:20u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads("nm_contact_reduce_deformable_narrowphase_failures",
@@ -17690,6 +17824,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
+            bool baseCGLSBestOfSelectedNewtonForCommittedAudit = false;
+            std::uint32_t baseCGLSBestOfSelectedNewtonIteration = 0u;
             for (std::uint32_t nonlinearIteration = 0u;
                  nonlinearIteration < nonlinearIterationBudget;
                  ++nonlinearIteration) {
@@ -19682,10 +19818,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     push("fem_armijo_constraint_reactions", "float32x4",
                         sizeof(nm_float4), state.femArmijoConstraintReactions);
                     if (femCoupledTrialVTCCDAuditCurrentTrial) {
-                        push("actual_vertex_triangle_ccd_call",
-                            "record:NMDeformableVTCCDAuditGPU",
-                            sizeof(NMDeformableVTCCDAuditGPU),
-                            femCoupledTrialVTCCDAuditBuffer, true);
+                        if (femCoupledTrialVTCCDAuditMortar) {
+                            // The record is initialized and written by the
+                            // private narrowphase, so capture it only in the
+                            // post-rebuild phase, never from uninitialized
+                            // private-buffer contents before that dispatch.
+                            if (postRebuild) {
+                                push("actual_mortar_complement_first_uncertified_query",
+                                    "record:NMMortarComplementAuditGPU",
+                                    sizeof(NMMortarComplementAuditGPU),
+                                    femCoupledTrialMortarAuditBuffer, true);
+                            }
+                        } else {
+                            push("actual_vertex_triangle_ccd_call",
+                                "record:NMDeformableVTCCDAuditGPU",
+                                sizeof(NMDeformableVTCCDAuditGPU),
+                                femCoupledTrialVTCCDAuditBuffer, true);
+                        }
                     }
                 }
                 push(postRebuild ? "contact_samples_private_trial"
@@ -20356,6 +20505,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     request.rigidWorldPhysicsSubstep;
                 const bool capturedVTCCDAuditSelected =
                     femCoupledTrialVTCCDAuditCurrentTrial;
+                const bool capturedMortarAuditSelected =
+                    capturedVTCCDAuditSelected &&
+                    femCoupledTrialVTCCDAuditMortar;
                 const auto capturedVTCCDAuditFields =
                     femCoupledTrialVTCCDAuditFields;
                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
@@ -20444,12 +20596,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                     if (!summaryMode && capturedVTCCDAuditSelected) {
                         const auto& f = capturedVTCCDAuditFields;
-                        manifest << ",\"vtccd_audit_selector\":{\"environment\":"
-                            << f[3] << ",\"candidate_slot\":" << f[4]
-                            << ",\"primitive_pair\":[" << f[5] << ',' << f[6]
-                            << "],\"vertex\":" << f[7]
-                            << ",\"direction\":" << f[8]
-                            << ",\"execution\":\"same production call\"}";
+                        if (capturedMortarAuditSelected) {
+                            manifest << ",\"mortar_complement_audit_selector\":{\"environment\":"
+                                << f[3] << ",\"candidate_slot\":" << f[4]
+                                << ",\"primitive_pair\":[" << f[5] << ',' << f[6]
+                                << "],\"sentinel\":[3,2],\"execution\":\"same production complement traversal\"}";
+                        } else {
+                            manifest << ",\"vtccd_audit_selector\":{\"environment\":"
+                                << f[3] << ",\"candidate_slot\":" << f[4]
+                                << ",\"primitive_pair\":[" << f[5] << ',' << f[6]
+                                << "],\"vertex\":" << f[7]
+                                << ",\"direction\":" << f[8]
+                                << ",\"execution\":\"same production call\"}";
+                        }
                     }
                     manifest << ",\"control_step\":" << capturedMicro.controlStep
                         << ",\"physics_substep\":" << capturedPhysicsSubstep
@@ -20506,7 +20665,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             << "\"endpoint_narrowphase\":\"nm_contact_narrowphase_deformable receives trialNodes at buffer 4, history at buffer 10, and cohesiveFaces at buffer 15; caller passes state.femArmijoCandidate as trialNodes\","
                             << "\"toi_semantics\":\"no standalone TOI scalar is exported unless actual_vertex_triangle_ccd_call is present\"";
                         if (capturedVTCCDAuditSelected) {
-                            manifest << ",\"vtccd_audit_semantics\":\"record is written inline at the exact production vertexTriangleCCD call return; endpoints, hit, certified, TOI, and separation are copied from that call without helper replay; normal, barycentric, and point are valid only when hit=1 and certified=1 and are otherwise zero-initialized; written=0 means the selected pair/feature call was not reached\"";
+                            if (capturedMortarAuditSelected) {
+                                manifest << ",\"mortar_complement_audit_semantics\":\"first record is written inline at the exact production partition/boundary/VT/EE decision; cells, patch IDs, feature indices, subtriangle bary maps, endpoints, helper hit/certified/TOI/separation, and thickness are copied without replay; query kind 1=partition,2=paired-boundary,3=left-VT,4=right-VT,5=EE; written=0 means no uncertified decision was reached\"";
+                            } else {
+                                manifest << ",\"vtccd_audit_semantics\":\"record is written inline at the exact production vertexTriangleCCD call return; endpoints, hit, certified, TOI, and separation are copied from that call without helper replay; normal, barycentric, and point are valid only when hit=1 and certified=1 and are otherwise zero-initialized; written=0 means the selected pair/feature call was not reached\"";
+                            }
                         }
                         manifest << "}"
                             << ",\"phase_order\":[";
@@ -20995,6 +21158,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 femBaseCGLSPrimaryPolicyRequested &&
                 femBaseCGLSIterations != 0u &&
                 nonlinearIteration >= femBaseCGLSPrimaryStartNewton;
+            const bool baseCGLSBestOfSelectedNewton =
+                baseCauchyNewtonSelected && femBaseCGLSBestOfRequested;
+            baseCGLSBestOfSelectedNewtonForCommittedAudit =
+                baseCGLSBestOfSelectedNewton;
+            baseCGLSBestOfSelectedNewtonIteration = nonlinearIteration;
+            if (baseCGLSBestOfSelectedNewton) {
+                std::fprintf(stderr,
+                    "fem_base_cgls_best_of_enabled={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"selection\":\"strictly_lower_recomputed_armijo_residual\",\"operator_changed\":false,\"linear_solve_claim\":false}\n",
+                    request.controlStep, nonlinearIteration);
+            }
             if (baseCauchyNewtonSelected) {
                 dispatchThreads("nm_fgmres_capture_base_cauchy_rhs",
                     state.fgmresLayout.unknownCount, [&] {
@@ -24836,6 +25009,73 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 return true;
             };
 
+            const auto encodeBaseCGLSBestOfResolutionTrace = [&]() -> bool {
+                if (!baseCGLSBestOfSelectedNewton) return true;
+                const NSUInteger metricBytes = environments * sizeof(nm_float4);
+                const NSUInteger lineBytes = environments * sizeof(nm_float4);
+                const NSUInteger alphaBytes = environments * sizeof(float);
+                const NSUInteger bytes = metricBytes + lineBytes + alphaBytes;
+                id<MTLBuffer> snapshot = [state.device newBufferWithLength:bytes
+                    options:MTLResourceStorageModeShared];
+                if (snapshot == nil) {
+                    diagnostics.message =
+                        "best-of CGLS resolution trace allocation failed";
+                    return false;
+                }
+                [encoder endEncoding];
+                encoder = nil;
+                id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
+                if (copy == nil) {
+                    diagnostics.message =
+                        "best-of CGLS resolution blit unavailable";
+                    return false;
+                }
+                [copy copyFromBuffer:state.femBaseCGLSBestOfMetrics
+                    sourceOffset:0u toBuffer:snapshot destinationOffset:0u
+                    size:metricBytes];
+                [copy copyFromBuffer:state.femLineSearch sourceOffset:0u
+                    toBuffer:snapshot destinationOffset:metricBytes
+                    size:lineBytes];
+                [copy copyFromBuffer:state.environmentLineSearch sourceOffset:0u
+                    toBuffer:snapshot destinationOffset:metricBytes + lineBytes
+                    size:alphaBytes];
+                [copy endEncoding];
+                const auto root = request.controlStep;
+                const auto iteration = nonlinearIteration;
+                const auto envCount = environments;
+                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                    if (completed.status != MTLCommandBufferStatusCompleted) {
+                        std::fprintf(stderr,
+                            "fem_base_cgls_best_of_resolution_failed={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"command_buffer_status\":%lu}\n",
+                            root, iteration,
+                            static_cast<unsigned long>(completed.status));
+                        return;
+                    }
+                    const auto* data =
+                        static_cast<const unsigned char*>(snapshot.contents);
+                    const auto* outcome =
+                        reinterpret_cast<const nm_float4*>(data);
+                    const auto* selectedLine =
+                        reinterpret_cast<const nm_float4*>(data + metricBytes);
+                    const auto* envAlpha =
+                        reinterpret_cast<const float*>(data + metricBytes + lineBytes);
+                    for (std::uint32_t env = 0u; env < envCount; ++env) {
+                        std::fprintf(stderr,
+                            "fem_base_cgls_best_of_resolution={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"environment\":%u,\"newton_tested_residual\":%.9g,\"cgls_tested_residual\":%.9g,\"cgls_tested_alpha\":%.9g,\"outcome_code\":%.0f,\"selected_alpha\":%.9g,\"environment_alpha\":%.9g,\"selected_residual\":%.9g,\"certificate_policy\":\"original_FGMRES_certificate_preserved_only_for_Newton_winner; CGLS remains uncertified by it; post_apply_residual_recomputed\"}\n",
+                            root, iteration, env, outcome[env].x, outcome[env].y,
+                            outcome[env].z, outcome[env].w, selectedLine[env].x,
+                            envAlpha[env], selectedLine[env].y);
+                    }
+                }];
+                encoder = [commandBuffer computeCommandEncoder];
+                if (encoder == nil) {
+                    diagnostics.message =
+                        "failed to resume after best-of CGLS resolution trace";
+                    return false;
+                }
+                [encoder setLabel:@"Numi Matter best-of CGLS resolution trace continuation"];
+                return true;
+            };
             const auto encodeBaseCauchyDirectionTrace = [&](
                 bool primaryPolicy = false) -> bool {
                 const bool warmStartRefinementThisNewton =
@@ -25571,6 +25811,56 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 for (std::uint32_t directionPass = 0u;
                      directionPass < directionPassCount; ++directionPass) {
                 if (directionPass == 1u) {
+                    if (baseCGLSBestOfSelectedNewton) {
+                        dispatchThreads(
+                            "nm_fgmres_base_cgls_best_of_save",
+                            environments, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.mixedSolver
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:state.femArmijoMetrics
+                                         offset:0u atIndex:2u];
+                            [encoder setBuffer:state.femLineSearch
+                                         offset:0u atIndex:3u];
+                            [encoder setBuffer:state.environmentLineSearch
+                                         offset:0u atIndex:4u];
+                            [encoder setBuffer:state.fgmresStates
+                                         offset:0u atIndex:5u];
+                            [encoder setBuffer:state.statuses
+                                         offset:0u atIndex:6u];
+                            [encoder setBuffer:state.femArmijoStatuses
+                                         offset:0u atIndex:7u];
+                            [encoder setBuffer:state.femBaseCGLSBestOfMetrics
+                                         offset:0u atIndex:8u];
+                            [encoder setBuffer:state.femBaseCGLSBestOfLineSearch
+                                         offset:0u atIndex:9u];
+                            [encoder setBuffer:
+                                state.femBaseCGLSBestOfEnvironmentLineSearch
+                                         offset:0u atIndex:10u];
+                            [encoder setBuffer:state.femBaseCGLSBestOfCertificate
+                                         offset:0u atIndex:11u];
+                            [encoder setBuffer:state.femBaseCGLSBestOfStatuses
+                                         offset:0u atIndex:12u];
+                            [encoder setBuffer:state.femBaseCGLSBestOfTrialStatuses
+                                         offset:0u atIndex:13u];
+                            [encoder setBuffer:state.femBaseCGLSBestOfFlags
+                                         offset:0u atIndex:14u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        dispatchThreads("nm_fgmres_base_cgls_best_of_save_direction",
+                            state.fgmresLayout.unknownCount, [&] {
+                            setDispatch();
+                            [encoder setBytes:&state.fgmresLayout
+                                   length:sizeof(state.fgmresLayout) atIndex:30u];
+                            [encoder setBuffer:state.femSolution
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:state.femBaseCGLSBestOfDirection
+                                         offset:0u atIndex:2u];
+                            [encoder setBuffer:state.femBaseCGLSBestOfFlags
+                                         offset:0u atIndex:3u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    }
                     if (!encodeBaseCGLSStateCapture()) {
                         ownership->preDynamicsOpen = false;
                         return diagnostics;
@@ -25783,11 +26073,70 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 if (!encodeFEMResidualArmijoTrace(
                         directionPass == 1u
                             ? (femBaseCGLSIterations != 0u
-                                ? "base_cgls" : "base_cauchy")
+                                ? (baseCGLSBestOfSelectedNewton
+                                    ? "base_cgls_best_of_candidate"
+                                    : "base_cgls")
+                                : "base_cauchy")
                             : (baseCGLSPrimaryPolicySelectedNewton
                                 ? "base_cgls_primary_policy" : "newton"))) {
                     ownership->preDynamicsOpen = false;
                     return diagnostics;
+                }
+                if (directionPass == 1u &&
+                    baseCGLSBestOfSelectedNewton) {
+                    dispatchThreads(
+                        "nm_fgmres_base_cgls_best_of_resolve",
+                        environments, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femArmijoMetrics
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femLineSearch
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.environmentLineSearch
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.fgmresStates
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.statuses
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femArmijoStatuses
+                                     offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femBaseCGLSBestOfMetrics
+                                     offset:0u atIndex:7u];
+                        [encoder setBuffer:state.femBaseCGLSBestOfLineSearch
+                                     offset:0u atIndex:8u];
+                        [encoder setBuffer:
+                            state.femBaseCGLSBestOfEnvironmentLineSearch
+                                     offset:0u atIndex:9u];
+                        [encoder setBuffer:state.femBaseCGLSBestOfCertificate
+                                     offset:0u atIndex:10u];
+                        [encoder setBuffer:state.femBaseCGLSBestOfStatuses
+                                     offset:0u atIndex:11u];
+                        [encoder setBuffer:state.femBaseCGLSBestOfTrialStatuses
+                                     offset:0u atIndex:12u];
+                        [encoder setBuffer:state.femBaseCGLSBestOfFlags
+                                     offset:0u atIndex:13u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads(
+                        "nm_fgmres_base_cgls_best_of_restore_direction",
+                        state.fgmresLayout.unknownCount, [&] {
+                        setDispatch();
+                        [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                        [encoder setBuffer:state.femSolution
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femBaseCGLSBestOfDirection
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femBaseCGLSBestOfMetrics
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femBaseCGLSBestOfFlags
+                                     offset:0u atIndex:4u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    if (!encodeBaseCGLSBestOfResolutionTrace()) {
+                        ownership->preDynamicsOpen = false;
+                        return diagnostics;
+                    }
                 }
                 } // Primary Newton and optional same-history Cauchy pass.
             } else {
@@ -27637,6 +27986,86 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.vascularCompartments offset:0u atIndex:6u];
                 [encoder setBuffer:state.vascularConnections offset:0u atIndex:7u];
             });
+            const auto encodeBaseCGLSBestOfCommittedTrace = [&]() -> bool {
+                if (!baseCGLSBestOfSelectedNewtonForCommittedAudit) return true;
+                const NSUInteger metricBytes = environments * sizeof(nm_float4);
+                const NSUInteger committedBytes = environments * sizeof(nm_float4);
+                const NSUInteger bytes = metricBytes + committedBytes;
+                id<MTLBuffer> snapshot = [state.device newBufferWithLength:bytes
+                    options:MTLResourceStorageModeShared];
+                if (snapshot == nil) {
+                    diagnostics.message =
+                        "best-of CGLS committed-residual trace allocation failed";
+                    return false;
+                }
+                [encoder endEncoding];
+                encoder = nil;
+                id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
+                if (copy == nil) {
+                    diagnostics.message =
+                        "best-of CGLS committed-residual blit unavailable";
+                    return false;
+                }
+                [copy copyFromBuffer:state.femBaseCGLSBestOfMetrics
+                    sourceOffset:0u toBuffer:snapshot destinationOffset:0u
+                    size:metricBytes];
+                [copy copyFromBuffer:state.femBaseCGLSBestOfCommitted
+                    sourceOffset:0u toBuffer:snapshot destinationOffset:metricBytes
+                    size:committedBytes];
+                [copy endEncoding];
+                const auto root = request.controlStep;
+                const auto iteration = baseCGLSBestOfSelectedNewtonIteration;
+                const auto envCount = environments;
+                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                    if (completed.status != MTLCommandBufferStatusCompleted) {
+                        std::fprintf(stderr,
+                            "fem_base_cgls_best_of_commit_audit_failed={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"command_buffer_status\":%lu}\n",
+                            root, iteration,
+                            static_cast<unsigned long>(completed.status));
+                        return;
+                    }
+                    const auto* data =
+                        static_cast<const unsigned char*>(snapshot.contents);
+                    const auto* outcome =
+                        reinterpret_cast<const nm_float4*>(data);
+                    const auto* committed =
+                        reinterpret_cast<const nm_float4*>(data + metricBytes);
+                    for (std::uint32_t env = 0u; env < envCount; ++env) {
+                        std::fprintf(stderr,
+                            "fem_base_cgls_best_of_commit_audit={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"environment\":%u,\"tested_winning_residual\":%.9g,\"reconstructed_residual\":%.9g,\"absolute_gap\":%.9g,\"outcome_code\":%.0f,\"finite\":%s,\"rebuild\":\"nm_fem_apply_solution_then_full_production_residual_assembly_from_accepted_material_history\",\"qualification_gate_changed\":false}\n",
+                            root, iteration, env, committed[env].x,
+                            committed[env].y, committed[env].z, outcome[env].w,
+                            committed[env].w > 0.5f ? "true" : "false");
+                    }
+                }];
+                encoder = [commandBuffer computeCommandEncoder];
+                if (encoder == nil) {
+                    diagnostics.message =
+                        "failed to resume after best-of committed-residual trace";
+                    return false;
+                }
+                [encoder setLabel:@"Numi Matter best-of CGLS committed residual trace continuation"];
+                return true;
+            };
+            if (baseCGLSBestOfSelectedNewtonForCommittedAudit) {
+                dispatchThreads(
+                    "nm_fgmres_base_cgls_best_of_measure_committed",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femBaseCGLSBestOfMetrics
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femBaseCGLSBestOfCommitted
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                if (!encodeBaseCGLSBestOfCommittedTrace()) {
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
+            }
             dispatchGroups32("nm_mixed_certify", objectTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];

@@ -1,0 +1,70 @@
+{
+  "created_utc": "2026-10-16",
+  "files": {
+    "README.md": {
+      "bytes": 3721,
+      "sha256": "b11a4fcc1eeea39f6a6ce658dd044df6af296fb79f19f88ab46ce0dda2efcfdf"
+    },
+    "attempts.json": {
+      "bytes": 1064,
+      "sha256": "63cdb96882efa9b27a2f16aa5b66344358ea9808a8ff7ce1dea736ef6b1e8e72"
+    },
+    "decode_mortar_query.py": {
+      "bytes": 21765,
+      "sha256": "a5090ab46b1647654178a52ee92aeb54e01b1cb5dbb77e38cb9a7d110c19d491"
+    },
+    "report.json": {
+      "bytes": 30443,
+      "sha256": "011aafdc5f04bbfacb7a267500e86ba8fca7a7168b812ab800682e92a9b03942"
+    }
+  },
+  "limits": [
+    "CPU reference only",
+    "source-like recurrence is not Metal parity, especially for run610 accumulated time",
+    "endpoint sign bracket proves a band crossing only for each captured linearly interpolated subtriangle query path",
+    "does not qualify downstream candidate acceptance"
+  ],
+  "native_capture_bindings": [
+    {
+      "capture_json": "/Users/n/cardboard-implementation-20261014-host-macmini/native/mortar-inline-observer-on-605/diagnostics/capture-coupled-trial-capture/capture.coupled.json",
+      "capture_json_sha256": "729d97c8dc0e07f4ddaf6063b6fbcb8cf74299c4c9ce69160bf7a6eba1028ea7",
+      "payload": "/Users/n/cardboard-implementation-20261014-host-macmini/native/mortar-inline-observer-on-605/diagnostics/capture-coupled-trial-capture/capture.coupled.bin",
+      "payload_sha256": "4d0b6866d6b7d1f5681b7e8cb344556aec2b9a0b6ded118d71fefcae70c24ebc",
+      "record_sha256": "cd2700f032712d5a14a7a60bdf90c2af8231ed8d37eaaf1c56693e08fcbcf527",
+      "run": "605"
+    },
+    {
+      "capture_json": "/Users/n/cardboard-implementation-20261014-host-macmini/native/mortar-inline-observer-on-610/diagnostics/capture-coupled-trial-capture/capture.coupled.json",
+      "capture_json_sha256": "b472aebe7d1fd9b63ba63781827e2ee8c4e1c45bbc7019a16c2f97431ec7dc25",
+      "payload": "/Users/n/cardboard-implementation-20261014-host-macmini/native/mortar-inline-observer-on-610/diagnostics/capture-coupled-trial-capture/capture.coupled.bin",
+      "payload_sha256": "1889e11f1bc345b6341a4e2d955606c7286e7707d7cf1712310d424b757ffd00",
+      "record_sha256": "0f2c19fdd4ad9ca791ff2647443fd2e226305a2397adab68a9f4c67eeced1997",
+      "run": "610"
+    }
+  ],
+  "package": "source257-mortar-query-decoder-001",
+  "schema": "numi.cardboard.source257-mortar-query-decoder-manifest.v1",
+  "source_bindings": {
+    "NumiMatter_metallib_sha256": "4ffd1f830f07ef7ec385f457747a8372ff1a2157d5c88b012d133f43d9cee299",
+    "build_record_sha256": "2529a5022374cf7d89a18aebd2002aeedce06832f54511707983dd2b53f2fa8e",
+    "checker_sha256": "d256c748139be85fd9f867db685ea0e329d1ee29fe30aa3fed75c116b11fd6d3",
+    "common_metalinc_sha256": "241066108a9dd735396e375a98b0e480c19627a6e2f772fa53aea1945ffbf662",
+    "contact_metalinc_sha256": "49da8b3b9e16ae11ab8ee420b5974ce51f79c929ed2cad32fc617346cb33f23a",
+    "frozen_source_sha256": "0f6d693d369c3cada323cd0b92e755fd45cb58381063f5e1c8a3117fb5ad6725",
+    "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-mortar-first-uncertified-audit-257-006"
+  },
+  "verification": {
+    "gpu_dispatched": false,
+    "native_time_sample_separation_bits_match": [
+      true,
+      true
+    ],
+    "production_source_modified": false,
+    "report_strict_json": true,
+    "self_tests_passed": 11,
+    "strict_exact_endpoint_crossings": [
+      true,
+      true
+    ]
+  }
+}

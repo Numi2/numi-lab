@@ -1,0 +1,8 @@
+{
+  "schema": "numi.cardboard.cross-build-comparison-precondition-failure.v1",
+  "script_sha256": "da490cc8e8e929221ad4dbccb8679129d23c0d4c22eb6c0a511d14b3817f7d87",
+  "retained_partial_directory": "analysis/native604-605-inline-mortar-root-adjudication-001",
+  "cause": "Full raw byte comparison against591 fails only bytes12..19 in eight binary snapshots: deviceProgramFingerprint differs after257Metal instrumentation.604off vs605on all12files exact; fourtransactionJSON files exact591.",
+  "repair": "Fresh002 parses and binds the 8-byte program fingerprint to each source-bound capture; compares every other binary byte and every JSON byte exactly. This is offline comparison only, no resume or fingerprint-guard exception.",
+  "at_utc": "2026-10-16T15:02:55.897872+00:00"
+}

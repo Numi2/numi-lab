@@ -1,0 +1,752 @@
+{
+  "schema": "numi.cardboard.native610-smallest-alpha-mortar-root-adjudication.v1",
+  "verdict": "OBSERVER_PARITY_FIRST_UNCERTIFIED_RIGHT_VT_AT_SMALLEST_TRIAL_CAPTURED",
+  "production_transaction_files_byte_exact604": [
+    {
+      "name": "transaction-000000-after.bin",
+      "sha256": "fd1268b90b8c9b3721d3747b4924ef512e942200653d245d92fd2c3b9d969826",
+      "bytes": 904335
+    },
+    {
+      "name": "transaction-000000-before.bin",
+      "sha256": "4e1b900d87e9fcb17cecaeb50d44b08ec80b0d43a8f639b44df0c90a6dccef4e",
+      "bytes": 904335
+    },
+    {
+      "name": "transaction-000000.json",
+      "sha256": "873a0aed90d432ce37083778bbb32debc739751fda0b7bc0a4ec7088b7eb5d82",
+      "bytes": 6556
+    },
+    {
+      "name": "transaction-000001-after.bin",
+      "sha256": "a2e96a443ec952aa3eedec3bc7c9d125e38af611a27b3ed9a64420b78916fabf",
+      "bytes": 904335
+    },
+    {
+      "name": "transaction-000001-before.bin",
+      "sha256": "fd1268b90b8c9b3721d3747b4924ef512e942200653d245d92fd2c3b9d969826",
+      "bytes": 904335
+    },
+    {
+      "name": "transaction-000001.json",
+      "sha256": "1b0cd61d427cab070ecf006f70ed2eb1a5bc4d48b59bdbbd8d30202bb4811472",
+      "bytes": 6684
+    },
+    {
+      "name": "transaction-000002-after.bin",
+      "sha256": "acfc075f9b26b097fec306b6448c0b87f08cbc56b829b86f664b37b15b75df3c",
+      "bytes": 904335
+    },
+    {
+      "name": "transaction-000002-before.bin",
+      "sha256": "a2e96a443ec952aa3eedec3bc7c9d125e38af611a27b3ed9a64420b78916fabf",
+      "bytes": 904335
+    },
+    {
+      "name": "transaction-000002.json",
+      "sha256": "7c6d7069f382f99a4309da3255f456850fb4ded5e9fd5142d6fab4994f2a7abd",
+      "bytes": 6698
+    },
+    {
+      "name": "transaction-000003-after.bin",
+      "sha256": "0a36ffda67660c2a2fae8429710738e2bca1419f07f9b51ed187cf5f3750e7a6",
+      "bytes": 904335
+    },
+    {
+      "name": "transaction-000003-before.bin",
+      "sha256": "acfc075f9b26b097fec306b6448c0b87f08cbc56b829b86f664b37b15b75df3c",
+      "bytes": 904335
+    },
+    {
+      "name": "transaction-000003.json",
+      "sha256": "faa8ce4683e9e3dc97b780127a1941d6c1b11ad3b424118196a2ac2b728e188a",
+      "bytes": 6664
+    }
+  ],
+  "arrays_hash_verified": 130,
+  "capture_bytes": 19683320,
+  "capture_json_sha256": "b472aebe7d1fd9b63ba63781827e2ee8c4e1c45bbc7019a16c2f97431ec7dc25",
+  "capture_binary_sha256": "1889e11f1bc345b6341a4e2d955606c7286e7707d7cf1712310d424b757ffd00",
+  "inline_record_sha256": "0f2c19fdd4ad9ca791ff2647443fd2e226305a2397adab68a9f4c67eeced1997",
+  "decoded_inline_query": {
+    "attempt": [
+      1,
+      0,
+      78,
+      4
+    ],
+    "candidate_identity": [
+      16,
+      99,
+      78,
+      1
+    ],
+    "cells": [
+      2,
+      0,
+      4294967295,
+      0
+    ],
+    "feature": [
+      1,
+      1,
+      4294967295,
+      4294967295
+    ],
+    "start": [
+      [
+        -0.0020001004450023174,
+        -0.0020000978838652372,
+        0.0009999832836911082,
+        0.0
+      ],
+      [
+        3.172305085286098e-08,
+        -0.0018000331474468112,
+        0.0010004999348893762,
+        0.0
+      ],
+      [
+        -0.0018000889103859663,
+        -0.0018000865820795298,
+        0.0010000496404245496,
+        0.0
+      ],
+      [
+        -0.0014000217197462916,
+        -0.001799899386242032,
+        0.0010105770779773593,
+        0.0
+      ],
+      [
+        -0.0004000216431450099,
+        -0.001799867139197886,
+        0.0010107969865202904,
+        0.0
+      ],
+      [
+        -0.0004000607586931437,
+        -0.0005998674314469099,
+        0.001011587679386139,
+        0.0
+      ]
+    ],
+    "finish": [
+      [
+        -0.0020002329256385565,
+        -0.002000235253944993,
+        0.000999958603642881,
+        0.0
+      ],
+      [
+        7.3682876688963e-08,
+        -0.0018000840209424496,
+        0.0010011709528043866,
+        0.0
+      ],
+      [
+        -0.0018002066062763333,
+        -0.0018002087017521262,
+        0.001000114600174129,
+        0.0
+      ],
+      [
+        -0.0014000164810568094,
+        -0.001799896126613021,
+        0.0010106244590133429,
+        0.0
+      ],
+      [
+        -0.0004000165208708495,
+        -0.0017998642288148403,
+        0.001010853098705411,
+        0.0
+      ],
+      [
+        -0.00040005554910749197,
+        -0.0005998641718178988,
+        0.0010116423945873976,
+        0.0
+      ]
+    ],
+    "left_bary_map": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.8999999761581421,
+        0.0,
+        0.0
+      ],
+      [
+        0.8999999761581421,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "right_bary_map": [
+      [
+        0.699999988079071,
+        0.20000000298023224,
+        0.0,
+        0.0
+      ],
+      [
+        0.20000000298023224,
+        0.699999988079071,
+        0.0,
+        0.0
+      ],
+      [
+        0.20000000298023224,
+        0.10000000149011612,
+        0.0,
+        0.0
+      ]
+    ],
+    "result_hit_certified_toi_separation": [
+      0.0,
+      0.0,
+      0.8289262652397156,
+      1.0001921509683598e-05
+    ],
+    "parameters_thickness_leftDt_rightDt_iteration": [
+      9.999999747378752e-06,
+      9.999999747378752e-05,
+      9.999999747378752e-05,
+      7.0
+    ]
+  },
+  "compared_to605_trial0_common_arrays_exact": [
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "dispatch_buffer"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "objects"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "materials"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "mixed_materials"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "scalar_programs"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "instructions"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "environment_parameters"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "fem_accepted_nodes"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "fem_linearization_nodes"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "fem_topology_nodes_candidate"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "material_history_candidate_production"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "tetrahedra_accepted"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "material_history_accepted"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "schedulers"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "adaptive"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "rigid_proxies"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "rigid_states_accepted"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "rigid_current_bodies"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "rigid_scene_bodies"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "external_world_wrenches"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "coupled_generalized_candidate"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "coupled_generalized_output"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "coupled_point_jacobians"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "coupled_inverse_statuses"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "contact_pairs"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "contact_histories_accepted"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "contact_histories_used_by_private_trial"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "deformable_histories_accepted"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "deformable_histories_used_by_private_trial"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "contact_node_ranges_accepted"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "contact_node_incidence_accepted"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "deformable_node_ranges_accepted"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "deformable_node_incidence_accepted"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "cohesive_faces_accepted"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "cohesive_faces_candidate_production"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "cohesive_materials"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "cohesive_node_ranges"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "cohesive_node_incidence"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "cohesive_surface_face_ranges"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "cohesive_surface_face_refs"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "fem_solution_correction"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "tetrahedra_candidate"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "fem_fields_candidate"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "learned_weights_candidate"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "fem_armijo_statuses"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "environment_line_search"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "contact_samples_accepted_before_rebuild"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "contact_active_pairs_accepted_before_rebuild"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "contact_active_slots_accepted_before_rebuild"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "contact_active_counts_accepted_before_rebuild"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "surface_primitives_accepted_before_rebuild"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "surface_sort_keys_a_accepted_before_rebuild"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "surface_sort_keys_b_accepted_before_rebuild"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "surface_sort_indices_a_accepted_before_rebuild"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "surface_sort_indices_b_accepted_before_rebuild"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "surface_active_counts_accepted_before_rebuild"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "surface_bvh_bounds_accepted_before_rebuild"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "deformable_candidates_accepted_before_rebuild"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "deformable_candidate_counts_accepted_before_rebuild"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "deformable_contacts_accepted_before_rebuild"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "deformable_active_indices_accepted_before_rebuild"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "deformable_active_counts_accepted_before_rebuild"
+    },
+    {
+      "phase": "after_bulk_mechanical_before_cohesive",
+      "name": "fem_armijo_statuses"
+    },
+    {
+      "phase": "after_bulk_mechanical_before_cohesive",
+      "name": "environment_line_search"
+    },
+    {
+      "phase": "after_cohesive_before_rigid_contact",
+      "name": "fem_armijo_statuses"
+    },
+    {
+      "phase": "after_cohesive_before_rigid_contact",
+      "name": "environment_line_search"
+    },
+    {
+      "phase": "after_rigid_contact_before_deformable_rebuild",
+      "name": "fem_armijo_statuses"
+    },
+    {
+      "phase": "after_rigid_contact_before_deformable_rebuild",
+      "name": "environment_line_search"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "fem_solution_correction"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "tetrahedra_candidate"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "fem_fields_candidate"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "learned_weights_candidate"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "fem_armijo_statuses"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "environment_line_search"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "contact_active_pairs_private_trial"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "contact_active_slots_private_trial"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "contact_active_counts_private_trial"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "surface_sort_keys_a_private_trial"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "surface_sort_keys_b_private_trial"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "surface_sort_indices_a_private_trial"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "surface_sort_indices_b_private_trial"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "surface_active_counts_private_trial"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "deformable_candidates_private_trial"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "deformable_candidate_counts_private_trial"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "deformable_active_indices_private_trial"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "deformable_active_counts_private_trial"
+    },
+    {
+      "phase": "after_deformable_contact_before_free_body_terms",
+      "name": "fem_armijo_statuses"
+    },
+    {
+      "phase": "after_deformable_contact_before_free_body_terms",
+      "name": "environment_line_search"
+    },
+    {
+      "phase": "full_residual_before_armijo_measure",
+      "name": "fem_armijo_statuses"
+    },
+    {
+      "phase": "full_residual_before_armijo_measure",
+      "name": "environment_line_search"
+    },
+    {
+      "phase": "armijo_measurement_before_decision",
+      "name": "fem_armijo_statuses"
+    },
+    {
+      "phase": "armijo_measurement_before_decision",
+      "name": "environment_line_search"
+    }
+  ],
+  "compared_to605_trial0_common_arrays_changed": [
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "fem_armijo_candidate_nodes"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "fem_armijo_metrics"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "fem_line_search"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "rigid_states_trial"
+    },
+    {
+      "phase": "candidate_before_private_contact_rebuild",
+      "name": "rigid_candidate_trial"
+    },
+    {
+      "phase": "after_bulk_mechanical_before_cohesive",
+      "name": "residual_after_bulk_mechanical"
+    },
+    {
+      "phase": "after_bulk_mechanical_before_cohesive",
+      "name": "fem_armijo_metrics"
+    },
+    {
+      "phase": "after_bulk_mechanical_before_cohesive",
+      "name": "fem_line_search"
+    },
+    {
+      "phase": "after_cohesive_before_rigid_contact",
+      "name": "residual_after_cohesive"
+    },
+    {
+      "phase": "after_cohesive_before_rigid_contact",
+      "name": "fem_armijo_metrics"
+    },
+    {
+      "phase": "after_cohesive_before_rigid_contact",
+      "name": "fem_line_search"
+    },
+    {
+      "phase": "after_rigid_contact_before_deformable_rebuild",
+      "name": "residual_after_rigid_contact"
+    },
+    {
+      "phase": "after_rigid_contact_before_deformable_rebuild",
+      "name": "fem_armijo_metrics"
+    },
+    {
+      "phase": "after_rigid_contact_before_deformable_rebuild",
+      "name": "fem_line_search"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "fem_armijo_candidate_nodes"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "fem_armijo_metrics"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "fem_line_search"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "rigid_states_trial"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "rigid_candidate_trial"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "fem_armijo_element_forces"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "fem_armijo_cohesive_faces_trial"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "fem_armijo_cohesive_face_forces"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "fem_armijo_constraint_reactions"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "actual_mortar_complement_first_uncertified_query"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "contact_samples_private_trial"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "surface_primitives_private_trial"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "surface_bvh_bounds_private_trial"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "deformable_contacts_private_trial"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "deformable_contact_node_ranges_private_trial"
+    },
+    {
+      "phase": "private_contact_rebuild_before_free_body_terms",
+      "name": "deformable_contact_node_incidence_private_trial"
+    },
+    {
+      "phase": "after_deformable_contact_before_free_body_terms",
+      "name": "residual_after_deformable_contact"
+    },
+    {
+      "phase": "after_deformable_contact_before_free_body_terms",
+      "name": "fem_armijo_metrics"
+    },
+    {
+      "phase": "after_deformable_contact_before_free_body_terms",
+      "name": "fem_line_search"
+    },
+    {
+      "phase": "full_residual_before_armijo_measure",
+      "name": "residual_before_armijo_measure"
+    },
+    {
+      "phase": "full_residual_before_armijo_measure",
+      "name": "fem_armijo_metrics"
+    },
+    {
+      "phase": "full_residual_before_armijo_measure",
+      "name": "fem_line_search"
+    },
+    {
+      "phase": "armijo_measurement_before_decision",
+      "name": "fem_armijo_metrics"
+    },
+    {
+      "phase": "armijo_measurement_before_decision",
+      "name": "fem_line_search"
+    }
+  ],
+  "scope": "Same native fixture and accepted history, trial7 alpha1/128. A different complement cell and vertex query is uncertified near thickness. Certified=false cannot be interpreted as no contact. No production decision was changed and no failure waived.",
+  "all_six_full_sequence_axes_open": true,
+  "at_utc": "2026-10-16T15:08:08.659534+00:00"
+}

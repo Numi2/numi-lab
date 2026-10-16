@@ -247,6 +247,135 @@ void checkExactRigidContactPlanAndCompactionFailClosed() {
         "out-of-ABI contact identities did not fail closed");
 }
 
+
+void checkContactIncidenceAndMetalWorldTransitionPlans() {
+    ShippingMemoryBudgetInput x;
+    x.environmentCount=1u;x.nodeCount=528444u;x.tetrahedronCount=1477728u;
+    x.contactPairCount=6335568u;x.rigidProxyCount=12u;x.rigidBodyCount=9u;
+    x.contactNodeIncidenceCount=x.contactPairCount;
+    x.contactNodeRangeCount=x.nodeCount;
+    x.rigidIncidenceCount=x.contactPairCount;
+    x.rigidRangeCount=x.rigidProxyCount;
+    x.bodyProxyIncidenceCount=1u;x.bodyProxyRangeCount=9u;
+    x.contactIncidenceCountsExact=true;
+    x.bodyProxyOwnerLayoutExact=true;
+    x.bodyProxyOwnerIndicesWithinRange=true;
+    x.maxBufferLength=14302248960ull;
+    const auto plan=planShippingContactIncidenceArena(x);
+    const std::array<const char*,6> names{{
+        "contact_node_incidence","contact_node_ranges","rigid_incidence",
+        "rigid_ranges","body_proxy_incidence","body_proxy_ranges"}};
+    const std::array<std::uint64_t,6> counts{{6335568u,528444u,6335568u,12u,1u,9u}};
+    const std::array<std::uint64_t,6> elems{{
+        sizeof(std::uint32_t),sizeof(NMIncidenceRangeGPU),
+        sizeof(std::uint32_t),sizeof(NMIncidenceRangeGPU),
+        sizeof(std::uint32_t),sizeof(NMIncidenceRangeGPU)}};
+    std::uint64_t total=0u,stage=0u;
+    for(std::size_t i=0;i<6u;++i) {
+        const auto& row=plan.buffers[i];
+        const auto bytes=std::max<std::uint64_t>(
+            {16u,elems[i],shippingMemoryCheckedMultiply(counts[i],elems[i])});
+        require(row.name&&std::string(row.name)==names[i]&&row.logicalCount==counts[i]&&
+                row.countExact&&row.elementBytes==elems[i]&&row.allocatedBytes==bytes&&
+                row.uploadStagingBytes==bytes&&row.withinMaxBufferLength,
+                "incidence row differs from compiled-world checkedBytes binding");
+        total=shippingMemoryCheckedAdd(total,bytes);
+        stage=shippingMemoryCheckedAdd(stage,row.uploadStagingBytes);
+    }
+    require(plan.admitted&&plan.residentBytes==total&&plan.uploadStagingBytes==stage&&
+                total==59140000ull,
+            "six compiled incidence/range allocations or staging subtotal differ");
+    auto unbound=x;unbound.contactIncidenceCountsExact=false;
+    const auto unboundPlan=planShippingContactIncidenceArena(unbound);
+    require(!unboundPlan.admitted&&
+                std::string(unboundPlan.failure)=="contact_incidence_counts_unbound",
+            "contact incidence planner admitted fallback counts as exact");
+    auto ownerUnbound=x;ownerUnbound.bodyProxyOwnerLayoutExact=false;
+    const auto ownerUnboundPlan=planShippingContactIncidenceArena(ownerUnbound);
+    require(!ownerUnboundPlan.admitted&&
+                std::string(ownerUnboundPlan.failure)=="body_proxy_owner_layout_unbound",
+            "body proxy owners were admitted without an exact range cross-check");
+    auto ownerOutside=x;ownerOutside.bodyProxyOwnerIndicesWithinRange=false;
+    const auto ownerOutsidePlan=planShippingContactIncidenceArena(ownerOutside);
+    require(!ownerOutsidePlan.admitted&&
+                std::string(ownerOutsidePlan.failure)==
+                    "body_proxy_owner_index_outside_wrench_range",
+            "runtime-owned suture proxy beyond the wrench range was admitted");
+    auto malformed=x;malformed.contactNodeIncidenceCount--;
+    const auto malformedPlan=planShippingContactIncidenceArena(malformed);
+    require(!malformedPlan.admitted&&std::string(malformedPlan.failure)==
+                "contact_incidence_extents_do_not_match_compiler_contract",
+            "exact incidence counts that contradict compiler one-entry-per-pair layout were admitted");
+    auto over=x;over.maxBufferLength=25342271u;
+    const auto overPlan=planShippingContactIncidenceArena(over);
+    require(!overPlan.admitted&&std::string(overPlan.failure)==
+                "contact_incidence_buffer_exceeds_device_max_buffer_length",
+            "contact incidence planner ignored an individual MTLBuffer maximum");
+    over=x;over.maxBufferLength=25342272u;
+    require(planShippingContactIncidenceArena(over).admitted,
+            "exact maximum-buffer boundary rejected a correctly sized incidence allocation");
+    over=x;over.maxBufferLength=0u;
+    require(!planShippingContactIncidenceArena(over).admitted,
+            "contact incidence planner admitted unknown device maximum");
+
+    ShippingMetalWorldTransitionInput m;
+    m.maxBufferLength=1024u;
+    for(std::uint32_t i=0;i<m.kBufferCount;++i) {
+        auto& row=m.rows[i];row.slot=i;row.name="slot";
+        row.logicalCount=1u;row.elementBytes=4u;
+        row.oldBufferCapacityBytes=4u;row.proposedBufferCapacityBytes=4u;
+        row.oldSharedBytes=4u;row.proposedSharedBytes=4u;
+        row.replace=false;row.bound=true;
+    }
+    m.rows[0].oldBufferCapacityBytes=64u;m.rows[0].proposedBufferCapacityBytes=128u;
+    m.rows[0].oldSharedBytes=64u;m.rows[0].proposedSharedBytes=128u;
+    m.rows[0].replace=true;
+    for(std::uint32_t i=1u;i<=3u;++i) {
+        m.rows[i].heapClass=i;m.rows[i].oldSharedBytes=0u;
+        m.rows[i].proposedSharedBytes=0u;
+        m.rows[i].oldBufferCapacityBytes=4u;
+        m.rows[i].proposedBufferCapacityBytes=4u;
+        m.rows[i].replace=true;
+    }
+    m.rows[4].oldUploadBytes=16u;m.rows[4].proposedUploadBytes=32u;m.rows[4].replace=true;
+    m.rows[5].oldReadbackBytes=16u;m.rows[5].proposedReadbackBytes=40u;
+    m.rows[5].replace=true;
+    m.oldHeapBytes={{100u,200u,300u}};m.proposedHeapBytes={{120u,220u,320u}};
+    m.heapSizesBound=true;
+    const auto mp=planShippingMetalWorldTransition(m);
+    require(mp.admitted&&mp.oldResidentBytes==1056u&&mp.oldHeapBytes==600u&&
+                mp.oldUploadBytes==16u&&mp.oldReadbackBytes==16u&&
+                mp.replacementSharedBytes==136u&&mp.replacementHeapBytes==660u&&
+                mp.replacementUploadBytes==32u&&mp.replacementReadbackBytes==40u&&
+                mp.modeledTransitionPeakBytes==2556u,
+            "MetalWorld transition failed to retain old and replacement allocations through swap");
+    auto noHeap=m;noHeap.heapSizesBound=false;
+    require(!planShippingMetalWorldTransition(noHeap).admitted&&
+                std::string(planShippingMetalWorldTransition(noHeap).failure)==
+                    "metalworld_heap_transition_bytes_unbound",
+            "MetalWorld planner treated missing heap sizes as zero");
+    auto incomplete=m;incomplete.rows[251].bound=false;
+    require(!planShippingMetalWorldTransition(incomplete).admitted&&
+                std::string(planShippingMetalWorldTransition(incomplete).failure)==
+                    "metalworld_252_slot_binding_incomplete",
+            "MetalWorld planner admitted an incomplete raw-slot inventory");
+    auto maxFail=m;maxFail.maxBufferLength=100u;
+    require(!planShippingMetalWorldTransition(maxFail).admitted&&
+                std::string(planShippingMetalWorldTransition(maxFail).failure)==
+                    "metalworld_buffer_exceeds_device_max_buffer_length",
+            "MetalWorld planner did not check per-buffer proposed capacity");
+    auto peakFail=m;peakFail.peakLimitBytes=1000u;
+    require(!planShippingMetalWorldTransition(peakFail).admitted&&
+                std::string(planShippingMetalWorldTransition(peakFail).failure)==
+                    "metalworld_transition_exceeds_peak_limit",
+            "MetalWorld planner omitted old+replacement overlap");
+    auto overflow=m;overflow.oldHeapBytes[0]=std::numeric_limits<std::uint64_t>::max();
+    require(!planShippingMetalWorldTransition(overflow).admitted&&
+                std::string(planShippingMetalWorldTransition(overflow).failure)==
+                    "metalworld_transition_byte_arithmetic_overflow",
+            "MetalWorld planner failed to reject aggregate overflow");
+}
+
 void checkTiledCohesivePreflight() {
     ShippingPrebuildArenaOptions options;
     configureShippingTiledCohesiveTrial(options, nullptr, nullptr, false, false);
@@ -445,6 +574,7 @@ void run() {
     checkExactRigidContactPlanAndCompactionFailClosed();
     checkDeformableIncidenceSortMemoryAccounting();
     checkSelectedRequiredRigidArenaIsOneAllocation();
+    checkContactIncidenceAndMetalWorldTransitionPlans();
     checkTiledCohesivePreflight();
     checkRuntimeEnvironmentAdmission();
     const auto single = estimateShippingStaticMemoryLowerBound(1000u, 2000u, 1u);

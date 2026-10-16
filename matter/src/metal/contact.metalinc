@@ -2154,6 +2154,67 @@ inline void considerMortarVertexTriangle(
     (void)pointTriangle;
 }
 
+constant uint kMortarAuditSelectorSentinel = 0xfffffffeu;
+
+inline NMMortarComplementAuditGPU makeMortarComplementAudit(
+    const uint environment,
+    const uint slot,
+    const uint queryKind,
+    const uint4 candidateIdentity,
+    const uint4 cells,
+    const uint4 feature,
+    thread const float3* leftStart,
+    thread const float3* leftFinish,
+    thread const float3* rightStart,
+    thread const float3* rightFinish,
+    const bool subtriangleEndpoints,
+    const NMMortarContactSubtriangle leftTriangle,
+    const NMMortarContactSubtriangle rightTriangle,
+    const float thickness,
+    const float leftDt,
+    const float rightDt,
+    const uint iteration,
+    const bool hit,
+    const bool certified,
+    const float toi,
+    const float separation
+) {
+    NMMortarComplementAuditGPU observed{};
+    observed.attempt = uint4(1u, environment, slot, queryKind);
+    observed.candidateIdentity = candidateIdentity;
+    observed.cells = cells;
+    observed.feature = feature;
+    for (uint local = 0u; local < 3u; ++local) {
+        observed.start[local] = float4(leftStart[local], 0.0f);
+        observed.start[local + 3u] = float4(rightStart[local], 0.0f);
+        observed.finish[local] = float4(leftFinish[local], 0.0f);
+        observed.finish[local + 3u] = float4(rightFinish[local], 0.0f);
+        if (subtriangleEndpoints) {
+            observed.leftBary[local] = float4(leftTriangle.bary[local], 0.0f);
+            observed.rightBary[local] = float4(rightTriangle.bary[local], 0.0f);
+        }
+    }
+    observed.result = float4(hit ? 1.0f : 0.0f,
+                            certified ? 1.0f : 0.0f, toi, separation);
+    observed.parameters = float4(thickness, leftDt, rightDt,
+                                  float(iteration));
+    return observed;
+}
+
+inline void storeMortarComplementAudit(
+    device NMMortarComplementAuditGPU* audit,
+    const uint4 selector,
+    const uint global,
+    const NMMortarComplementAuditGPU observed
+) {
+    // One selected candidate thread owns this slot; preserve its first query.
+    if (selector.x != global || selector.w != kMortarAuditSelectorSentinel ||
+        selector.y != observed.candidateIdentity.x ||
+        selector.z != observed.candidateIdentity.y ||
+        audit[0].attempt.x != 0u) return;
+    audit[0] = observed;
+}
+
 inline void considerMortarEdgeEdge(
     const float3 leftStart0,
     const float3 leftFinish0,
@@ -2170,7 +2231,24 @@ inline void considerMortarEdgeEdge(
     const uint2 rightEdge,
     const NMMortarPairedBoundary pairedBoundary,
     thread NMMortarContactData& best,
-    thread bool& certified
+    thread bool& certified,
+    device NMMortarComplementAuditGPU* mortarAudit,
+    const uint4 mortarAuditSelector,
+    const uint global,
+    const uint environment,
+    const uint slot,
+    const uint4 candidateIdentity,
+    const uint leftCell,
+    const uint rightCell,
+    const uint leftPatch,
+    const uint rightPatch,
+    thread const float3* leftSubStart,
+    thread const float3* leftSubFinish,
+    thread const float3* rightSubStart,
+    thread const float3* rightSubFinish,
+    const uint solverIteration,
+    const float leftDt,
+    const float rightDt
 ) {
     float toi, separation;
     float3 normal, point;
@@ -2181,6 +2259,19 @@ inline void considerMortarEdgeEdge(
         rightStart0, rightFinish0, rightStart1, rightFinish1,
         thickness, toi, normal, parameters, point, separation,
         localCertified);
+    if (!localCertified && mortarAuditSelector.x == global &&
+        mortarAuditSelector.w == kMortarAuditSelectorSentinel) {
+        const NMMortarComplementAuditGPU observed =
+            makeMortarComplementAudit(
+                environment, slot, 5u, candidateIdentity,
+                uint4(leftCell, rightCell, leftPatch, rightPatch),
+                uint4(leftEdge.x, leftEdge.y, rightEdge.x, rightEdge.y),
+                leftSubStart, leftSubFinish, rightSubStart, rightSubFinish,
+                true, leftTriangle, rightTriangle, thickness, leftDt, rightDt,
+                solverIteration, hit, localCertified, toi, separation);
+        storeMortarComplementAudit(
+            mortarAudit, mortarAuditSelector, global, observed);
+    }
     certified = certified && localCertified;
     if (!localCertified || !hit || !(toi < best.toi)) return;
     const float3 leftBarycentric = mix(
@@ -2443,7 +2534,16 @@ inline bool findMortarComplementContact(
     thread const float3* rightStart,
     thread const float3* rightFinish,
     const float thickness,
-    thread NMMortarContactData& best
+    thread NMMortarContactData& best,
+    device NMMortarComplementAuditGPU* mortarAudit,
+    const uint4 mortarAuditSelector,
+    const uint global,
+    const uint environment,
+    const uint slot,
+    const uint4 candidateIdentity,
+    const uint solverIteration,
+    const float leftDt,
+    const float rightDt
 ) {
     constexpr uint2 edges[3] = {
         uint2(0u, 1u), uint2(1u, 2u), uint2(2u, 0u)
@@ -2509,7 +2609,35 @@ inline bool findMortarComplementContact(
                     rightTriangle.coveredPatchIndex, leftPrimitive,
                     rightPrimitive, gridNodeCount, faces, faceBase,
                     leftStart, rightStart,
-                    pairedBoundary)) return false;
+                    pairedBoundary)) {
+                if (mortarAuditSelector.x == global &&
+                    mortarAuditSelector.w == kMortarAuditSelectorSentinel) {
+                    float3 traceLS[3], traceLF[3], traceRS[3], traceRF[3];
+                    for (uint local = 0u; local < 3u; ++local) {
+                        traceLS[local] = mortarBaryPoint(
+                            leftTriangle.bary[local], leftStart);
+                        traceLF[local] = mortarBaryPoint(
+                            leftTriangle.bary[local], leftFinish);
+                        traceRS[local] = mortarBaryPoint(
+                            rightTriangle.bary[local], rightStart);
+                        traceRF[local] = mortarBaryPoint(
+                            rightTriangle.bary[local], rightFinish);
+                    }
+                    const NMMortarComplementAuditGPU observed =
+                        makeMortarComplementAudit(
+                            environment, slot, 2u, candidateIdentity,
+                            uint4(leftIndex, rightIndex,
+                                leftTriangle.coveredPatchIndex,
+                                rightTriangle.coveredPatchIndex),
+                            uint4(NM_INVALID_INDEX), traceLS, traceLF,
+                            traceRS, traceRF, true, leftTriangle, rightTriangle,
+                            thickness, leftDt, rightDt, solverIteration,
+                            false, false, 0.0f, 0.0f);
+                    storeMortarComplementAudit(
+                        mortarAudit, mortarAuditSelector, global, observed);
+                }
+                return false;
+            }
 
             float3 leftSubStart[3], leftSubFinish[3];
             float3 rightSubStart[3], rightSubFinish[3];
@@ -2535,6 +2663,24 @@ inline bool findMortarComplementContact(
                     rightSubStart[2], rightSubFinish[2],
                     thickness, toi, normal, barycentric, point,
                     separation, certified);
+                if (!certified && mortarAuditSelector.x == global &&
+                    mortarAuditSelector.w == kMortarAuditSelectorSentinel) {
+                    const NMMortarComplementAuditGPU observed =
+                        makeMortarComplementAudit(
+                            environment, slot, 3u, candidateIdentity,
+                            uint4(leftIndex, rightIndex,
+                                leftTriangle.coveredByCohesive != 0u
+                                    ? leftTriangle.coveredPatchIndex : NM_INVALID_INDEX,
+                                rightTriangle.coveredByCohesive != 0u
+                                    ? rightTriangle.coveredPatchIndex : NM_INVALID_INDEX),
+                            uint4(leftVertex, 0u, NM_INVALID_INDEX, NM_INVALID_INDEX),
+                            leftSubStart, leftSubFinish, rightSubStart,
+                            rightSubFinish, true, leftTriangle, rightTriangle,
+                            thickness, leftDt, rightDt, solverIteration,
+                            hit, certified, toi, separation);
+                    storeMortarComplementAudit(
+                        mortarAudit, mortarAuditSelector, global, observed);
+                }
                 allCertified = allCertified && certified;
                 if (certified && hit && toi < best.toi) {
                     const float previousTOI = best.toi;
@@ -2568,6 +2714,24 @@ inline bool findMortarComplementContact(
                     leftSubStart[2], leftSubFinish[2],
                     thickness, toi, normal, barycentric, point,
                     separation, certified);
+                if (!certified && mortarAuditSelector.x == global &&
+                    mortarAuditSelector.w == kMortarAuditSelectorSentinel) {
+                    const NMMortarComplementAuditGPU observed =
+                        makeMortarComplementAudit(
+                            environment, slot, 4u, candidateIdentity,
+                            uint4(leftIndex, rightIndex,
+                                leftTriangle.coveredByCohesive != 0u
+                                    ? leftTriangle.coveredPatchIndex : NM_INVALID_INDEX,
+                                rightTriangle.coveredByCohesive != 0u
+                                    ? rightTriangle.coveredPatchIndex : NM_INVALID_INDEX),
+                            uint4(rightVertex, 1u, NM_INVALID_INDEX, NM_INVALID_INDEX),
+                            leftSubStart, leftSubFinish, rightSubStart,
+                            rightSubFinish, true, leftTriangle, rightTriangle,
+                            thickness, leftDt, rightDt, solverIteration,
+                            hit, certified, toi, separation);
+                    storeMortarComplementAudit(
+                        mortarAudit, mortarAuditSelector, global, observed);
+                }
                 allCertified = allCertified && certified;
                 if (certified && hit && toi < best.toi) {
                     const float previousTOI = best.toi;
@@ -2605,7 +2769,15 @@ inline bool findMortarComplementContact(
                         rightSubFinish[edges[rightEdge].y],
                         thickness, leftTriangle, edges[leftEdge],
                         rightTriangle, edges[rightEdge], pairedBoundary,
-                        best, certified);
+                        best, certified, mortarAudit, mortarAuditSelector,
+                        global, environment, slot, candidateIdentity,
+                        leftIndex, rightIndex,
+                        leftTriangle.coveredByCohesive != 0u
+                            ? leftTriangle.coveredPatchIndex : NM_INVALID_INDEX,
+                        rightTriangle.coveredByCohesive != 0u
+                            ? rightTriangle.coveredPatchIndex : NM_INVALID_INDEX,
+                        leftSubStart, leftSubFinish, rightSubStart,
+                        rightSubFinish, solverIteration, leftDt, rightDt);
                     if (best.toi < previousTOI) {
                         best.auditLeftCell = leftIndex;
                         best.auditRightCell = rightIndex;
@@ -2819,7 +2991,9 @@ kernel void nm_contact_validate_armijo_deformable_sweep(
         leftPartition, rightPartition, mortarPatches, left, right,
         dispatch.gridNodeCount, cohesiveFaces,
         environment * dispatch.cohesiveFaceCount,
-        start, finish, start + 3u, finish + 3u, collisionThickness, sweep);
+        start, finish, start + 3u, finish + 3u, collisionThickness, sweep,
+        nullptr, uint4(NM_INVALID_INDEX), global, environment, slot,
+        uint4(NM_INVALID_INDEX), 0u, 0.0f, 0.0f);
     if (!validPartitions || !certified) {
         const uint failureCode = !leftPartitionValid
             ? leftPartitionFailureStage
@@ -2947,7 +3121,9 @@ kernel void nm_contact_debug_armijo_mortar_sweep(
         leftPartition, rightPartition, patches, left, right,
         dispatch.gridNodeCount, cohesiveFaces,
         environment * dispatch.cohesiveFaceCount,
-        start, finish, start + 3u, finish + 3u, thickness, sweep);
+        start, finish, start + 3u, finish + 3u, thickness, sweep,
+        nullptr, uint4(NM_INVALID_INDEX), global, environment, slot,
+        uint4(NM_INVALID_INDEX), 0u, 0.0f, 0.0f);
     output[0] = float4(float(leftPartition.count),
                        float(rightPartition.count),
                        validPartitions ? 1.0f : 0.0f,
@@ -4139,6 +4315,7 @@ kernel void nm_contact_narrowphase_deformable(
     device NMMatterStatusGPU* candidateStatuses [[buffer(17)]],
     device NMDeformableVTCCDAuditGPU* vtccdAudit [[buffer(18)]],
     constant nm_uint4& vtccdAuditSelector [[buffer(19)]],
+    device NMMortarComplementAuditGPU* mortarAudit [[buffer(20)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint capacity = dispatch.deformableContactCapacity;
@@ -4148,6 +4325,9 @@ kernel void nm_contact_narrowphase_deformable(
     // Clearing here also makes a missing candidate/feature an explicit empty
     // record, without another dispatch, barrier, or host/GPU wait.
     if (vtccdAuditSelector.x == global) vtccdAudit[0] = {};
+    if (vtccdAuditSelector.x == global &&
+        vtccdAuditSelector.w == kMortarAuditSelectorSentinel)
+        mortarAudit[0] = {};
     if (deterministicStatusSelection != 0u)
         candidateStatuses[global] = {};
     const NMDeformableContactHistoryGPU previous = histories[global];
@@ -4353,7 +4533,39 @@ kernel void nm_contact_narrowphase_deformable(
                     left, right, dispatch.gridNodeCount, cohesiveFaces,
                     environment * dispatch.cohesiveFaceCount,
                     start, finish, start + 3u, finish + 3u,
-                    thickness, selected);
+                    thickness, selected, mortarAudit, vtccdAuditSelector,
+                    global, environment, slot, candidate.identity,
+                    microstep.solverIteration,
+                    objectTimestep(dispatch,
+                        schedulers[environment * dispatch.objectCount +
+                            left.nodesAndObject.w]),
+                    objectTimestep(dispatch,
+                        schedulers[environment * dispatch.objectCount +
+                            right.nodesAndObject.w]));
+            if (!validPartitions &&
+                vtccdAuditSelector.x == global &&
+                vtccdAuditSelector.w == kMortarAuditSelectorSentinel &&
+                vtccdAuditSelector.y == candidate.identity.x &&
+                vtccdAuditSelector.z == candidate.identity.y) {
+                const NMMortarContactSubtriangle emptyTriangle{};
+                const NMMortarComplementAuditGPU observed =
+                    makeMortarComplementAudit(
+                        environment, slot, 1u, candidate.identity,
+                        uint4(NM_INVALID_INDEX),
+                        uint4(leftPartitionFailureStage,
+                              rightPartitionFailureStage, 0u, 0u),
+                        start, finish, start + 3u, finish + 3u, false,
+                        emptyTriangle, emptyTriangle, thickness,
+                        objectTimestep(dispatch,
+                            schedulers[environment * dispatch.objectCount +
+                                left.nodesAndObject.w]),
+                        objectTimestep(dispatch,
+                            schedulers[environment * dispatch.objectCount +
+                                right.nodesAndObject.w]),
+                        microstep.solverIteration, false, false, 0.0f, 0.0f);
+                storeMortarComplementAudit(
+                    mortarAudit, vtccdAuditSelector, global, observed);
+            }
             if (!validPartitions || !certified) {
                 recordDeformableNarrowphaseFailure(
                     deterministicStatusSelection, statuses, candidateStatuses,

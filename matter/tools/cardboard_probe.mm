@@ -5170,12 +5170,35 @@ numi::cardboard::ShippingMemoryBudgetInput shippingMemoryBudgetInput(
     input.rigidGeneralizedCapacity = dispatch.rigidGeneralizedCapacity;
     input.rigidQCapacity = dispatch.rigidQCapacity;
     input.rigidProxyCount = dispatch.rigidProxyCount;
+    input.contactNodeIncidenceCount = compiled.world.contact.nodeIncidence.size();
+    input.contactNodeRangeCount = compiled.world.contact.nodeRanges.size();
+    input.rigidIncidenceCount = compiled.world.contact.rigidIncidence.size();
+    input.rigidRangeCount = compiled.world.contact.rigidRanges.size();
+    input.contactIncidenceCountsExact = true;
+    input.bodyProxyOwnerLayoutExact = true;
+    std::uint64_t runtimeBodyProxyOwnerIndexPlusOne = 0u;
     for (const auto& proxy : compiled.world.contact.rigidProxies) {
         if (proxy.bodyIndex != NM_INVALID_INDEX)
             input.rigidBodyCount = std::max<std::uint64_t>(
                 input.rigidBodyCount,
                 static_cast<std::uint64_t>(proxy.bodyIndex) + 1u);
+        if (proxy.bodyIndex != NM_INVALID_INDEX &&
+            (proxy.flags & (NM_RIGID_ARTICULATED | NM_RIGID_DYNAMIC)) != 0u) {
+            // Runtime::bodyProxyOwners records these proxies even when the
+            // earlier requiredBodyWrenchCount pass excludes suture strands.
+            ++input.bodyProxyIncidenceCount;
+            runtimeBodyProxyOwnerIndexPlusOne = std::max<std::uint64_t>(
+                runtimeBodyProxyOwnerIndexPlusOne,
+                static_cast<std::uint64_t>(proxy.bodyIndex) + 1u);
+            if ((proxy.flags & NM_RIGID_SUTURE_STRAND) == 0u) {
+                input.bodyProxyRangeCount = std::max<std::uint64_t>(
+                    input.bodyProxyRangeCount,
+                    static_cast<std::uint64_t>(proxy.bodyIndex) + 1u);
+            }
+        }
     }
+    input.bodyProxyOwnerIndicesWithinRange =
+        runtimeBodyProxyOwnerIndexPlusOne <= input.bodyProxyRangeCount;
     input.materialStateStride = dispatch.materialStateStride;
     input.environmentCount = dispatch.environmentCount;
     input.fgmresRestart = std::clamp<std::uint64_t>(
@@ -5406,6 +5429,10 @@ numi::cardboard::ShippingMemoryBudget shippingPrebuildMemoryBudget(
         budget.withinLimit =
             budget.estimatedPeakDomainBytes <= budget.limitBytes &&
             budget.requiredResidualDescentArenaAdmitted &&
+            (!options.requireFullContactResidualDescent ||
+             (budget.contactIncidenceCountsExact &&
+              budget.contactIncidenceBufferExtentsValid &&
+              budget.contactIncidenceBuffersWithinMaxBufferLength)) &&
             (!budget.acceptedInsideClearanceWorkspaceRequired ||
              budget.acceptedInsideClearanceWorkspaceAdmitted);
     }
@@ -5550,7 +5577,11 @@ ShippingResidualDescentAdmission shippingResidualDescentAdmission(
     result.privateArenaAvailable = budget.requiredResidualDescentArenaAdmitted;
     result.memoryLimitAvailable = budget.estimatedPeakDomainBytes <= budget.limitBytes &&
         (!budget.acceptedInsideClearanceWorkspaceRequired ||
-         budget.acceptedInsideClearanceWorkspaceAdmitted);
+         budget.acceptedInsideClearanceWorkspaceAdmitted) &&
+        (!budgetInput.fullContactArmijoRequired ||
+         (budget.contactIncidenceCountsExact &&
+          budget.contactIncidenceBufferExtentsValid &&
+          budget.contactIncidenceBuffersWithinMaxBufferLength));
     if (!result.privateArenaAvailable)
         add(budget.requiredResidualDescentArenaFailure.empty()
                 ? "required private residual-descent arenas exceed runtime caps"
@@ -5560,8 +5591,13 @@ ShippingResidualDescentAdmission shippingResidualDescentAdmission(
         add(budget.acceptedInsideClearanceWorkspaceFailure.empty()
                 ? "accepted inside-clearance workspace exceeds its checked topology or 1 GiB cap"
                 : budget.acceptedInsideClearanceWorkspaceFailure);
+    if (budgetInput.fullContactArmijoRequired &&
+        (!budget.contactIncidenceCountsExact ||
+         !budget.contactIncidenceBufferExtentsValid ||
+         !budget.contactIncidenceBuffersWithinMaxBufferLength))
+        add("compiled contact incidence/range extents or per-buffer max are not exactly bound");
     if (!result.memoryLimitAvailable)
-        add("required arena envelope exceeds the 16 GiB shipping budget");
+        add("modeled peak exceeds 16 GiB or a required per-buffer extent is unbound");
     result.physicsExecutionAdmitted = result.runtimeShapeAvailable &&
         result.privateArenaAvailable && result.memoryLimitAvailable;
     return result;
@@ -5917,13 +5953,45 @@ void writeShippingMemoryReport(
                << "    \"rigid_contact_buffer_plan\": [";
         numi::cardboard::ShippingMemoryBudgetInput contactPlanInput;
         contactPlanInput.environmentCount = world.dispatch.environmentCount;
+        contactPlanInput.nodeCount = world.dispatch.femNodeCount;
+        contactPlanInput.gridNodeCount = world.dispatch.gridNodeCount;
         contactPlanInput.contactPairCount = world.dispatch.contactPairCount;
+        contactPlanInput.rigidProxyCount = world.dispatch.rigidProxyCount;
+        contactPlanInput.contactNodeIncidenceCount =
+            world.contact.nodeIncidence.size();
+        contactPlanInput.contactNodeRangeCount = world.contact.nodeRanges.size();
+        contactPlanInput.rigidIncidenceCount = world.contact.rigidIncidence.size();
+        contactPlanInput.rigidRangeCount = world.contact.rigidRanges.size();
+        contactPlanInput.contactIncidenceCountsExact = true;
+        contactPlanInput.bodyProxyOwnerLayoutExact = true;
+        std::uint64_t runtimeBodyProxyOwnerIndexPlusOne = 0u;
+        for (const auto& proxy : world.contact.rigidProxies) {
+            if (proxy.bodyIndex == NM_INVALID_INDEX) continue;
+            contactPlanInput.rigidBodyCount = std::max<std::uint64_t>(
+                contactPlanInput.rigidBodyCount,
+                static_cast<std::uint64_t>(proxy.bodyIndex) + 1u);
+            if ((proxy.flags & (NM_RIGID_ARTICULATED | NM_RIGID_DYNAMIC)) == 0u)
+                continue;
+            ++contactPlanInput.bodyProxyIncidenceCount;
+            runtimeBodyProxyOwnerIndexPlusOne = std::max<std::uint64_t>(
+                runtimeBodyProxyOwnerIndexPlusOne,
+                static_cast<std::uint64_t>(proxy.bodyIndex) + 1u);
+            if ((proxy.flags & NM_RIGID_SUTURE_STRAND) == 0u)
+                contactPlanInput.bodyProxyRangeCount = std::max<std::uint64_t>(
+                    contactPlanInput.bodyProxyRangeCount,
+                    static_cast<std::uint64_t>(proxy.bodyIndex) + 1u);
+        }
+        contactPlanInput.bodyProxyOwnerIndicesWithinRange =
+            runtimeBodyProxyOwnerIndexPlusOne <=
+                contactPlanInput.bodyProxyRangeCount;
         contactPlanInput.activeContactCapacity = budget->rigidContactActiveCapacity;
         contactPlanInput.rigidContactSampleCapacity = budget->rigidContactSampleCapacity;
         contactPlanInput.rigidContactSampleCompactionParityQualified = false;
         contactPlanInput.maxBufferLength = budget->rigidContactMaxBufferLength;
         const auto contactPlan = numi::cardboard::planShippingRigidContactArena(
             contactPlanInput);
+        const auto incidencePlan =
+            numi::cardboard::planShippingContactIncidenceArena(contactPlanInput);
         for (std::size_t i = 0u; i < contactPlan.buffers.size(); ++i) {
             const auto& b = contactPlan.buffers[i];
             if (i != 0u) output << ',';
@@ -5943,6 +6011,45 @@ void writeShippingMemoryReport(
                << (contactPlan.admitted ? "true" : "false") << ",\n"
                << "    \"rigid_contact_plan_failure\": \""
                << (contactPlan.failure == nullptr ? "" : contactPlan.failure) << "\",\n"
+               << "    \"contact_incidence_range_plan\": {\n"
+               << "      \"counts_exact_from_compiled_world\": "
+               << (incidencePlan.countsExact ? "true" : "false") << ",\n"
+               << "      \"buffer_extents_valid\": "
+               << (incidencePlan.extentsValid ? "true" : "false") << ",\n"
+               << "      \"body_proxy_owner_layout_exact\": "
+               << (incidencePlan.bodyProxyOwnerLayoutExact ? "true" : "false") << ",\n"
+               << "      \"body_proxy_owner_indices_within_wrench_range\": "
+               << (incidencePlan.bodyProxyOwnerIndicesWithinRange ? "true" : "false") << ",\n"
+               << "      \"all_within_device_max\": "
+               << (incidencePlan.allBuffersWithinMaxBufferLength ? "true" : "false") << ",\n"
+               << "      \"admitted\": "
+               << (incidencePlan.admitted ? "true" : "false") << ",\n"
+               << "      \"failure\": \""
+               << (incidencePlan.failure == nullptr ? "" : incidencePlan.failure) << "\",\n"
+               << "      \"resident_bytes_subset_of_rigid_runtime_envelope\": "
+               << incidencePlan.residentBytes << ",\n"
+               << "      \"UploadPlan_one_staging_bytes\": "
+               << incidencePlan.uploadStagingBytes << ",\n"
+               << "      \"rows\": [";
+        for (std::size_t i = 0u; i < incidencePlan.buffers.size(); ++i) {
+            const auto& b = incidencePlan.buffers[i];
+            if (i != 0u) output << ',';
+            output << "{\"name\":\"" << b.name
+                   << "\",\"logical_count\":" << b.logicalCount
+                   << ",\"element_bytes\":" << b.elementBytes
+                   << ",\"allocated_bytes\":" << b.allocatedBytes
+                   << ",\"upload_staging_bytes\":" << b.uploadStagingBytes
+                   << ",\"count_exact\":" << (b.countExact ? "true" : "false")
+                   << ",\"within_device_max\":"
+                   << (b.withinMaxBufferLength ? "true" : "false")
+                   << ",\"device_storage\":\"private output\",\"upload_lifetime\":\"shared UploadPlan staging held to plan destruction after finish\"}";
+        }
+        output << "]\n    },\n"
+               << "    \"metalworld_transition_peak\": {\n"
+               << "      \"binding_status\": \"not_bound: exact 252 MRMetalWorld rows, old/new heap sizes, uploads, and readbacks are not supplied by shipping preflight\",\n"
+               << "      \"planner_status\": \"generic fail-closed transition helper; no missing allocation is substituted with zero\",\n"
+               << "      \"includes_old_plus_replacements\": true\n"
+               << "    },\n"
                << "    \"measured_base_and_contact_envelope_bytes\": "
                << budget->measuredBaseAndContactEnvelopeBytes << ",\n"
                << "    \"static_fem_solver_floor_bytes\": "
@@ -12755,9 +12862,10 @@ std::string couponRunnerString(NSDictionary* dictionary, NSString* key,
     return shippingJsonStringField(dictionary, key, label);
 }
 
-constexpr std::array<std::string_view, 54u> kSource161DiagnosticEnvironmentKeys{
+constexpr std::array<std::string_view, 55u> kSource161DiagnosticEnvironmentKeys{
     "NM_CONTACT_NODE_INCIDENCE_SORT",
     "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
+    "NM_FEM_BASE_CGLS_BEST_OF",
     "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
     "NM_FEM_BASE_CGLS_CAPTURE_PATH",
     "NM_FEM_BASE_CGLS_DAMPING_KG",
@@ -12919,7 +13027,7 @@ couponValidateSourceBoundDiagnosticRunner(
             ? contract[@"capture_prefixes"] : nil);
     require([keysValue isKindOfClass:[NSArray class]] && effective != nil &&
                 prefixes != nil && [(NSArray*)keysValue count] >= 49u &&
-                [(NSArray*)keysValue count] <= 54u,
+                [(NSArray*)keysValue count] <= 55u,
             "source-bound contract registry or maps are missing");
     NSArray* const keys = (NSArray*)keysValue;
     require(effective.count == keys.count,
@@ -12933,6 +13041,8 @@ couponValidateSourceBoundDiagnosticRunner(
     NSMutableDictionary* expectedOverrides = [NSMutableDictionary dictionary];
     RuntimePathMap contractPaths;
     std::vector<std::pair<std::string, std::string>> contractNativeSettings;
+    const bool contractHasBestOfKey =
+        [keys containsObject:@"NM_FEM_BASE_CGLS_BEST_OF"];
     const bool contractHasWarmStartKey = keys.count >= 50u;
     const bool contractHasIncidenceSortKey = keys.count >= 51u;
     const bool contractHasDampingKey = keys.count >= 52u;
@@ -12945,7 +13055,8 @@ couponValidateSourceBoundDiagnosticRunner(
         NSUInteger(contractHasIncidenceSortKey) +
         NSUInteger(contractHasDampingKey) +
         NSUInteger(contractHasStrictInnerKey) +
-        NSUInteger(contractHasTrialTraceSlotKey);
+        NSUInteger(contractHasTrialTraceSlotKey) +
+        NSUInteger(contractHasBestOfKey);
     require(keys.count == expectedRegistryCount,
             "source-bound diagnostic registry omits or adds an unregistered key");
     std::ostringstream runnerNonOutputSettings;
@@ -12962,6 +13073,9 @@ couponValidateSourceBoundDiagnosticRunner(
         std::size_t expectedIndex = 0u;
         for (const std::string_view expectedKey :
                 kSource161DiagnosticEnvironmentKeys) {
+            if (expectedKey == "NM_FEM_BASE_CGLS_BEST_OF" &&
+                !contractHasBestOfKey)
+                continue;
             if (expectedKey == "NM_FEM_BASE_CGLS_WARM_START_REFINE" &&
                 !contractHasWarmStartKey)
                 continue;
@@ -12979,7 +13093,7 @@ couponValidateSourceBoundDiagnosticRunner(
                 continue;
             if (expectedIndex == keyIndex) {
                 require(key == expectedKey,
-                        "source-bound diagnostic key registry differs from the exact 49/50/51/52/53/54-key source contract");
+                        "source-bound diagnostic key registry differs from the exact 49-through-55-key source contract");
                 break;
             }
             ++expectedIndex;

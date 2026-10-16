@@ -1,0 +1,34 @@
+{
+  "schema": "numi.cardboard.source259-upstream-reconciliation.v1",
+  "old": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-002",
+  "source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-003",
+  "upstream": "420b4f866decdfaed1f5a81ef102d3cb6efbb442",
+  "preserved_upstream_paths": [
+    ".numi/evidence/human-resting/whole-geometry-replay-20261016/README.md",
+    ".numi/evidence/human-resting/whole-geometry-replay-20261016/final-source-native-binary-identity.json",
+    ".numi/evidence/human-resting/whole-geometry-replay-20261016/legacy-skin-parity.json",
+    ".numi/evidence/human-resting/whole-geometry-replay-20261016/native-input-regression.json",
+    ".numi/evidence/human-resting/whole-geometry-replay-20261016/replay-build-report.json",
+    ".numi/evidence/human-resting/whole-geometry-replay-20261016/replay-precleanup-build-report.json",
+    ".numi/evidence/human-resting/whole-geometry-replay-20261016/viewer-build-report.json",
+    ".numi/evidence/human-resting/whole-geometry-replay-20261016/whole-geometry-parity.json",
+    "apps/NumiHumanRestingVisual.hpp",
+    "apps/human_resting_skin_replay.mm"
+  ],
+  "overlay": [
+    {
+      "path": "apps/NumiHumanRestingVisual.hpp",
+      "before_sha256": "291a1215314ea7e73f92e2f30763b4537976c0d99ed274f5f93e2f8d1a4eade1",
+      "after_sha256": "a5746b10f27225fca47a636ae4425e15c98a4a4bcc563ba278d9b5ed87d6cfa8"
+    },
+    {
+      "path": "apps/human_resting_skin_replay.mm",
+      "before_sha256": "715b8f153ec310138b0cf305bf09c0c81a0a262bcdfa1d9c1ad4aee59fbc2fb1",
+      "after_sha256": "07cae1b3aa0842c008496e86fffee91aba720699d45c60c05e47282133caa7bd"
+    }
+  ],
+  "all_cardboard_bytes_exact": true,
+  "frozen_sha256": "663a2bf205f2439200077d997804c429c33635d8606462f7a3f700a2d29a2743",
+  "configure_support_sha256": "e019984b42109c08119e8e07a8a3ef20250c73761539bb0dc5f4b882a558d97e",
+  "at_utc": "2026-10-16T15:30:30.027620+00:00"
+}

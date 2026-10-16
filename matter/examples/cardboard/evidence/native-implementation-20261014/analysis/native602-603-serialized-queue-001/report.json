@@ -1,0 +1,8 @@
+{
+  "schema": "numi.cardboard.native602-603-queue-result.v1",
+  "native602_receipt_sha256": "84b2f30a1e27ab43e7b45c3070e68cf433eda370d9270e14183a0b75aca04969",
+  "native603_script_exit_code": 0,
+  "native603_wall_seconds": 107.89489037500005,
+  "gpu_workers": 1,
+  "at_utc": "2026-10-16T15:00:26.100264+00:00"
+}

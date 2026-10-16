@@ -1,0 +1,609 @@
+namespace numi_matter_metal {
+
+// Arm a private CGLS-primary direction only after the base residual and
+// original Newton linear certificate are available. The metrics.w marker is
+// request-local scratch consumed by the existing CGLS layout builder; it is
+// never copied into accepted state or used as a convergence certificate.
+kernel void nm_fgmres_select_base_cgls_primary_policy(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    constant uint& primaryStartNewton [[buffer(2)]],
+    constant uint& currentNewton [[buffer(3)]],
+    device float4* metrics [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    device const NMMatterStatusGPU* statuses [[buffer(6)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.objectCount != 1u) return;
+
+    const float4 metric = metrics[environment];
+    const float residualBound = solver.residualTolerances.x;
+    const bool baseResidualIsUnconverged = isfinite(metric.x) &&
+        isfinite(residualBound) && residualBound >= 0.0f &&
+        metric.x > residualBound;
+    const bool eligible = currentNewton >= primaryStartNewton &&
+        metric.w == 0.0f && environmentHealthy(statuses, environment) &&
+        states[environment].diagnostics.z > 0.5f &&
+        baseResidualIsUnconverged;
+    if (eligible) metrics[environment].w = 3.0f;
+}
+
+
+// Best-of globalization is a request-local transaction. Flag 1 denotes a
+// healthy accepted Newton candidate saved for comparison, flag 2 denotes the
+// pre-existing exhausted-Newton CGLS fallback, and flag 0 means this
+// environment must be restored exactly after the alternative pass.
+kernel void nm_fgmres_base_cgls_best_of_save(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device float4* metrics [[buffer(2)]],
+    device float4* lineSearch [[buffer(3)]],
+    device float* environmentLineSearch [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    device NMMatterStatusGPU* statuses [[buffer(6)]],
+    device NMMatterStatusGPU* trialStatuses [[buffer(7)]],
+    device float4* savedMetrics [[buffer(8)]],
+    device float4* savedLineSearch [[buffer(9)]],
+    device float* savedEnvironmentLineSearch [[buffer(10)]],
+    device float* savedCertificate [[buffer(11)]],
+    device NMMatterStatusGPU* savedStatuses [[buffer(12)]],
+    device NMMatterStatusGPU* savedTrialStatuses [[buffer(13)]],
+    device uint* flags [[buffer(14)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.objectCount != 1u) return;
+    const uint slot = environment * dispatch.objectCount;
+    const float4 metric = metrics[environment];
+    const float4 line = lineSearch[slot];
+    const float certificate = states[environment].diagnostics.z;
+    savedMetrics[environment] = metric;
+    savedLineSearch[environment] = line;
+    savedEnvironmentLineSearch[environment] =
+        environmentLineSearch[environment];
+    savedCertificate[environment] = certificate;
+    savedStatuses[environment] = statuses[environment];
+    savedTrialStatuses[environment] = trialStatuses[environment];
+    flags[environment] = 0u;
+
+    // Preserve ordinary exhausted-Newton CGLS fallback behavior as its own
+    // transaction. Only an accepted, non-noop Newton point is compared.
+    if (metric.w == 3.0f) {
+        flags[environment] = 2u;
+        return;
+    }
+    const bool testedAlphaMatches = isfinite(metric.z) &&
+        isfinite(line.x) && isfinite(environmentLineSearch[environment]) &&
+        metric.z > 0.0f && metric.z == line.x &&
+        metric.z == environmentLineSearch[environment];
+    const bool eligible = metric.w == 1.0f &&
+        environmentHealthy(statuses, environment) &&
+        isfinite(metric.x) && isfinite(metric.y) && isfinite(metric.z) &&
+        metric.x > solver.residualTolerances.x &&
+        metric.y >= 0.0f && metric.y < metric.x &&
+        testedAlphaMatches &&
+        isfinite(certificate) && certificate > 0.5f;
+    if (eligible) {
+        flags[environment] = 1u;
+        // Reuse the existing CGLS selector marker. The complete saved metric
+        // vector remains intact in private scratch for bitwise restoration.
+        metrics[environment].w = 3.0f;
+    }
+}
+
+kernel void nm_fgmres_base_cgls_best_of_save_direction(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const float4* solution [[buffer(1)]],
+    device float4* savedDirection [[buffer(2)]],
+    device const uint* flags [[buffer(3)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= layout.unknownCount || dispatch.femNodeCount == 0u) return;
+    const uint mechanicalRows = dispatch.environmentCount *
+        dispatch.femNodeCount;
+    const uint local = global < mechanicalRows
+        ? global : global - mechanicalRows;
+    const uint environment = local / dispatch.femNodeCount;
+    if (environment < dispatch.environmentCount && flags[environment] != 2u)
+        savedDirection[global] = solution[global];
+}
+
+kernel void nm_fgmres_base_cgls_best_of_resolve(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float4* metrics [[buffer(1)]],
+    device float4* lineSearch [[buffer(2)]],
+    device float* environmentLineSearch [[buffer(3)]],
+    device NMFGMRESStateGPU* states [[buffer(4)]],
+    device NMMatterStatusGPU* statuses [[buffer(5)]],
+    device NMMatterStatusGPU* trialStatuses [[buffer(6)]],
+    device float4* savedMetrics [[buffer(7)]],
+    device const float4* savedLineSearch [[buffer(8)]],
+    device const float* savedEnvironmentLineSearch [[buffer(9)]],
+    device const float* savedCertificate [[buffer(10)]],
+    device const NMMatterStatusGPU* savedStatuses [[buffer(11)]],
+    device const NMMatterStatusGPU* savedTrialStatuses [[buffer(12)]],
+    device const uint* flags [[buffer(13)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.objectCount != 1u) return;
+    const uint flag = flags[environment];
+    const uint slot = environment * dispatch.objectCount;
+    if (flag == 2u) {
+        // This was the existing exhausted-Newton path, not a best-of
+        // comparison. Leave its selected CGLS result untouched.
+        const float4 current = metrics[environment];
+        const float alpha = lineSearch[slot].x;
+        savedMetrics[environment] = float4(
+            current.x, current.y, alpha, 4.0f);
+        return;
+    }
+    const float4 oldMetric = savedMetrics[environment];
+    if (flag == 1u) {
+        const float4 cglsMetric = metrics[environment];
+        const bool cglsAlphaMatches = isfinite(cglsMetric.z) &&
+            isfinite(lineSearch[slot].x) &&
+            isfinite(environmentLineSearch[environment]) &&
+            cglsMetric.z > 0.0f &&
+            cglsMetric.z == lineSearch[slot].x &&
+            cglsMetric.z == environmentLineSearch[environment];
+        const bool cglsAccepted = cglsMetric.w == 1.0f &&
+            environmentHealthy(statuses, environment) &&
+            isfinite(cglsMetric.x) && isfinite(cglsMetric.y) &&
+            isfinite(cglsMetric.z) && cglsMetric.x >= 0.0f &&
+            cglsMetric.y >= 0.0f && cglsMetric.y < cglsMetric.x &&
+            cglsAlphaMatches;
+        const bool chooseCGLS = cglsAccepted &&
+            isfinite(oldMetric.y) && oldMetric.y >= 0.0f &&
+            cglsMetric.y < oldMetric.y;
+        if (chooseCGLS) {
+            savedMetrics[environment] = float4(
+                oldMetric.y, cglsMetric.y, cglsMetric.z, 2.0f);
+            return;
+        }
+        const float cglsResidual = cglsAccepted ? cglsMetric.y : NAN;
+        const float cglsAlpha = cglsAccepted ? cglsMetric.z : NAN;
+        metrics[environment] = oldMetric;
+        lineSearch[slot] = savedLineSearch[environment];
+        environmentLineSearch[environment] =
+            savedEnvironmentLineSearch[environment];
+        states[environment].diagnostics.z =
+            savedCertificate[environment];
+        statuses[environment] = savedStatuses[environment];
+        trialStatuses[environment] = savedTrialStatuses[environment];
+        savedMetrics[environment] = float4(
+            oldMetric.y, cglsResidual, cglsAlpha,
+            cglsAccepted ? 1.0f : 3.0f);
+        return;
+    }
+
+    // No accepted Newton snapshot was eligible for comparison. Restore all
+    // per-environment Armijo scratch modified by the second no-op pass.
+    metrics[environment] = oldMetric;
+    lineSearch[slot] = savedLineSearch[environment];
+    environmentLineSearch[environment] =
+        savedEnvironmentLineSearch[environment];
+    states[environment].diagnostics.z =
+        savedCertificate[environment];
+    statuses[environment] = savedStatuses[environment];
+    trialStatuses[environment] = savedTrialStatuses[environment];
+    savedMetrics[environment] = float4(0.0f);
+}
+
+// Recompute the post-apply production residual norm for the actually
+// selected candidate. This is an audit-only comparison with the accepted
+// Armijo residual saved by the best-of resolver; it is never a new gate.
+kernel void nm_fgmres_base_cgls_best_of_measure_committed(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(1)]],
+    device const float4* residual [[buffer(2)]],
+    device const float4* outcome [[buffer(3)]],
+    device float4* committed [[buffer(4)]],
+    device const NMMatterStatusGPU* statuses [[buffer(5)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.objectCount != 1u) return;
+    const float code = outcome[environment].w;
+    const bool cglsWon = code == 2.0f || code == 4.0f;
+    const float tested = cglsWon
+        ? outcome[environment].y : outcome[environment].x;
+    const uint base = environment * dispatch.femNodeCount;
+    float norm2 = 0.0f;
+    bool valid = environmentHealthy(statuses, environment) &&
+        isfinite(tested) && tested >= 0.0f;
+    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+        const NMFEMNodeStateGPU state = candidate[base + node];
+        if (!isfinite(state.restAndFixed.w) ||
+            !isfinite(state.positionAndMass.w)) {
+            valid = false;
+            continue;
+        }
+        if (state.restAndFixed.w > 0.5f ||
+            state.positionAndMass.w <= 0.0f) continue;
+        const float3 value = residual[base + node].xyz;
+        valid = valid && all(isfinite(value));
+        norm2 += dot(value, value);
+    }
+    const float rebuilt = valid && isfinite(norm2)
+        ? sqrt(max(norm2, 0.0f)) : NAN;
+    committed[environment] = float4(
+        tested, rebuilt, fabs(rebuilt - tested),
+        valid && isfinite(rebuilt) ? 1.0f : 0.0f);
+}
+
+kernel void nm_fgmres_base_cgls_best_of_restore_direction(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device float4* solution [[buffer(1)]],
+    device const float4* savedDirection [[buffer(2)]],
+    device const float4* outcome [[buffer(3)]],
+    device const uint* flags [[buffer(4)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= layout.unknownCount || dispatch.femNodeCount == 0u) return;
+    const uint mechanicalRows = dispatch.environmentCount *
+        dispatch.femNodeCount;
+    const uint local = global < mechanicalRows
+        ? global : global - mechanicalRows;
+    const uint environment = local / dispatch.femNodeCount;
+    if (environment < dispatch.environmentCount &&
+        (flags[environment] == 0u ||
+         (flags[environment] == 1u && outcome[environment].w != 2.0f)))
+        solution[global] = savedDirection[global];
+}
+
+// Runtime-only adapters for the bounded, default-off CGLS direction experiment.
+// Derive row spaces from the actual Newton candidate, not authored tag guesses.
+kernel void nm_fgmres_prepare_base_cgls_layout(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(1)]],
+    device const float4* metrics [[buffer(2)]],
+    device float4* mask [[buffer(3)]],
+    device uint* rowEnvironment [[buffer(4)]],
+    device uint* selected [[buffer(5)]],
+    device const float4* baseRHS [[buffer(6)]],
+    device float4* preparedRHS [[buffer(7)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= layout.unknownCount) return;
+    const uint count = dispatch.environmentCount * dispatch.femNodeCount;
+    if (count == 0u) return;
+    const uint localGlobal = global % count;
+    const uint environment = localGlobal / dispatch.femNodeCount;
+    rowEnvironment[global] = environment;
+    const bool active = metrics[environment].w == 3.0f;
+    preparedRHS[global] = active ? baseRHS[global] : float4(0.0f);
+    float4 value = float4(0.0f);
+    if (global < count) {
+        const NMFEMNodeStateGPU node = candidate[global];
+        const bool free = !femStaticConstraint(node.restAndFixed.w) &&
+            isfinite(node.positionAndMass.w) && node.positionAndMass.w > 0.0f;
+        if (active && free) value = float4(1.0f, 1.0f, 1.0f, 0.0f);
+        if (global % dispatch.femNodeCount == 0u)
+            selected[environment] = metrics[environment].w == 3.0f ? 1u : 0u;
+    }
+    mask[global] = value;
+}
+
+// A denominator-only CGLS breakdown is a normal decline of the opt-in warm
+// refinement only when every private row and scalar is still finite. The row
+// scan is parallel; invalid data adds a distinct error bit so the final
+// one-thread-per-environment classifier cannot mark the decline safe.
+kernel void nm_fgmres_base_cgls_validate_warm_breakdown_rows(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float4* metrics [[buffer(1)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(2)]],
+    device const float4* initialSolution [[buffer(3)]],
+    device const float4* baseRHS [[buffer(4)]],
+    device const float4* baselineResidual [[buffer(5)]],
+    device const float4* rowMask [[buffer(6)]],
+    device const uint* rowEnvironment [[buffer(7)]],
+    device const uint* selected [[buffer(8)]],
+    device const float4* x [[buffer(9)]],
+    device const float4* r [[buffer(10)]],
+    device const float4* s [[buffer(11)]],
+    device const float4* p [[buffer(12)]],
+    device const float4* q [[buffer(13)]],
+    device const float4* rightScaleRows [[buffer(14)]],
+    device const float4* rightScalePhysical [[buffer(15)]],
+    device const uint4* control [[buffer(16)]],
+    device atomic_uint* errors [[buffer(17)]],
+    constant uint& useRightScale [[buffer(18)]],
+    uint index [[thread_position_in_grid]]) {
+    const uint environments = dispatch.environmentCount;
+    const uint nodes = dispatch.femNodeCount;
+    const uint mechanicalRows = environments * nodes;
+    const uint unknownCount = 2u * mechanicalRows;
+    if (index >= unknownCount || environments == 0u || nodes == 0u) return;
+    const bool fieldRow = index >= mechanicalRows;
+    const uint local = fieldRow ? index - mechanicalRows : index;
+    const uint environment = local / nodes;
+    if (environment >= environments || metrics[environment].w != 3.0f ||
+        selected[environment] != 1u || control[environment].x != 5u ||
+        control[environment].w != 1u ||
+        atomic_load_explicit(errors + environment, memory_order_relaxed) !=
+            kBaseCGLSErrorBadDenominator) return;
+    if (useRightScale > 1u) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadShape);
+        return;
+    }
+    if (rowEnvironment[index] != environment) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadShape);
+        return;
+    }
+    const float4 mask = rowMask[index];
+    const float4 rhs = baseRHS[index];
+    const float4 residual = baselineResidual[index];
+    const float4 xi = x[index], ri = r[index], si = s[index];
+    const float4 pi = p[index], qi = q[index];
+    const float4 physical = useRightScale == 1u
+        ? rightScalePhysical[index] : float4(0.0f);
+    const bool finiteRows = baseCGLSFinite4(mask) && baseCGLSFinite4(rhs) &&
+        baseCGLSFinite4(residual) && baseCGLSFinite4(xi) &&
+        baseCGLSFinite4(ri) && baseCGLSFinite4(si) &&
+        baseCGLSFinite4(pi) && baseCGLSFinite4(qi) &&
+        (useRightScale == 0u || baseCGLSFinite4(physical)) &&
+        mask.w == 0.0f && rhs.w == 0.0f && residual.w == 0.0f &&
+        xi.w == 0.0f && ri.w == 0.0f && si.w == 0.0f &&
+        pi.w == 0.0f && qi.w == 0.0f &&
+        (useRightScale == 0u || physical.w == 0.0f);
+    if (!finiteRows) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorNonfinite);
+        return;
+    }
+    uint rowError = 0u;
+    if (!baseCGLSMaskComponent(mask.x) || !baseCGLSMaskComponent(mask.y) ||
+        !baseCGLSMaskComponent(mask.z)) rowError |= kBaseCGLSErrorBadMask;
+    if (fieldRow) {
+        if (!baseCGLSZero4(mask) || !baseCGLSZero4(rhs) ||
+            !baseCGLSZero4(residual) || !baseCGLSZero4(xi) ||
+            !baseCGLSZero4(ri) || !baseCGLSZero4(si) ||
+            !baseCGLSZero4(pi) || !baseCGLSZero4(qi) ||
+            (useRightScale == 1u && !baseCGLSZero4(physical)))
+            rowError |= kBaseCGLSErrorNonzeroConstrainedRow;
+    } else {
+        const NMFEMNodeStateGPU node = candidate[index];
+        const bool finiteNode = baseCGLSFinite4(node.positionAndMass) &&
+            baseCGLSFinite4(node.velocityAndInverseMass) &&
+            baseCGLSFinite4(node.restAndFixed) &&
+            baseCGLSFinite4(node.deltaVelocity) &&
+            baseCGLSFinite4(node.referenceDisplacementAndMode);
+        if (!finiteNode) rowError |= kBaseCGLSErrorNonfinite;
+        const float tag = node.restAndFixed.w;
+        const bool free = tag == 0.0f;
+        if (!isfinite(tag) ||
+            (tag != 0.0f && tag != 1.0f && tag != 3.0f) ||
+            (free && (!isfinite(node.positionAndMass.w) ||
+                      node.positionAndMass.w <= 0.0f)))
+            rowError |= kBaseCGLSErrorUnsupportedConstraint;
+        const float3 expectedMask = free
+            ? float3(1.0f) : float3(0.0f);
+        if (any(mask.xyz != expectedMask))
+            rowError |= kBaseCGLSErrorBadMask;
+        if (!free && (any(rhs.xyz != float3(0.0f)) ||
+                      any(residual.xyz != float3(0.0f)) ||
+                      any(xi.xyz != float3(0.0f)) ||
+                      any(ri.xyz != float3(0.0f)) ||
+                      any(si.xyz != float3(0.0f)) ||
+                      any(pi.xyz != float3(0.0f)) ||
+                      any(qi.xyz != float3(0.0f)) ||
+                      (useRightScale == 1u &&
+                       any(physical.xyz != float3(0.0f)))))
+            rowError |= kBaseCGLSErrorNonzeroConstrainedRow;
+        if (useRightScale == 1u) {
+            const uint block = index * 3u;
+            const float4 row0 = rightScaleRows[block];
+            const float4 row1 = rightScaleRows[block + 1u];
+            const float4 row2 = rightScaleRows[block + 2u];
+            if (!baseCGLSFinite4(row0) || !baseCGLSFinite4(row1) ||
+                !baseCGLSFinite4(row2)) rowError |= kBaseCGLSErrorNonfinite;
+            if (free) {
+                if (row0.w != 1.0f || row1.w != 0.0f || row2.w != 0.0f)
+                    rowError |= kBaseCGLSErrorInvalidRightScale;
+            } else if (any(row0 != float4(0.0f)) ||
+                       any(row1 != float4(0.0f)) ||
+                       any(row2 != float4(0.0f))) {
+                rowError |= kBaseCGLSErrorInvalidRightScale;
+            }
+        }
+    }
+    if (rowError != 0u) baseCGLSMarkError(errors, environment, rowError);
+}
+
+// The finalizer converts any CGLS error to status 5. This exact signature is
+// the only one which can decline the optional warm solve: status 5, selected,
+// exact BadDenominator only, original certificate still present, and all scans
+// above successful. Errors or status changes never authorize this path.
+kernel void nm_fgmres_base_cgls_mark_warm_breakdown_decline(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float4* metrics [[buffer(1)]],
+    device const float4* scalars [[buffer(2)]],
+    device const uint4* control [[buffer(3)]],
+    device const atomic_uint* errors [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    device const NMMatterStatusGPU* statuses [[buffer(6)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount ||
+        metrics[environment].w != 3.0f) return;
+    const uint4 c = control[environment];
+    const float4 scalar = scalars[environment];
+    if (c.x == 5u && c.w == 1u && c.y <= c.z &&
+        (c.z == 32u || c.z == 64u) &&
+        atomic_load_explicit(errors + environment, memory_order_relaxed) ==
+            kBaseCGLSErrorBadDenominator && baseCGLSFinite4(scalar) &&
+        isfinite(metrics[environment].x) && metrics[environment].x > 0.0f &&
+        states[environment].diagnostics.z > 0.5f &&
+        environmentHealthy(statuses, environment)) {
+        metrics[environment].w = 5.0f;
+    }
+}
+
+// Installing x is separate from its construction: the old linear certificate
+// certifies delta only. No CGLS status is a production convergence certificate.
+kernel void nm_fgmres_install_base_cgls_direction(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device float4* metrics [[buffer(1)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(2)]],
+    device const float4* baseRHS [[buffer(3)]],
+    device const float4* x [[buffer(4)]],
+    device const float4* ax [[buffer(5)]],
+    device const uint4* control [[buffer(6)]],
+    device const atomic_uint* errors [[buffer(7)]],
+    device float4* solution [[buffer(8)]],
+    device float4* lineSearch [[buffer(9)]],
+    device float* environmentLineSearch [[buffer(10)]],
+    device float4* trace [[buffer(11)]],
+    device NMFGMRESStateGPU* states [[buffer(12)]],
+    device NMMatterStatusGPU* statuses [[buffer(13)]],
+    device NMMatterStatusGPU* trialStatuses [[buffer(14)]],
+    constant uint& solverIteration [[buffer(15)]],
+    device const float4* baselineResidual [[buffer(16)]],
+    constant uint& requireResidualImprovement [[buffer(17)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount) return;
+    float4 metric = metrics[environment];
+    const bool refinementMode = requireResidualImprovement == 1u;
+    if (metric.w == 5.0f) {
+        const uint4 breakdownControl = control[environment];
+        const uint breakdownErrors = atomic_load_explicit(
+            errors + environment, memory_order_relaxed);
+        bool finiteDecline = refinementMode &&
+            breakdownControl.x == 5u && breakdownControl.w == 1u &&
+            breakdownControl.y <= breakdownControl.z &&
+            breakdownErrors == kBaseCGLSErrorBadDenominator &&
+            environmentHealthy(statuses, environment) &&
+            states[environment].diagnostics.z > 0.5f;
+        const uint base = environment * dispatch.femNodeCount;
+        const uint fieldBase = dispatch.environmentCount * dispatch.femNodeCount;
+        float initialResidual2 = 0.0f, initialCorrection = 0.0f;
+        for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+            const uint global = base + node;
+            const uint field = fieldBase + global;
+            const float4 initial = solution[global];
+            const float4 b = baseRHS[global];
+            const float4 a = ax[global];
+            const float4 residual = baselineResidual[global];
+            const float4 partial = x[global];
+            finiteDecline = finiteDecline && all(isfinite(initial)) &&
+                all(isfinite(b)) && all(isfinite(a)) &&
+                all(isfinite(residual)) && all(isfinite(partial)) &&
+                initial.w == 0.0f && b.w == 0.0f && a.w == 0.0f &&
+                residual.w == 0.0f && partial.w == 0.0f &&
+                all(isfinite(baseRHS[field])) &&
+                all(isfinite(baselineResidual[field])) &&
+                all(isfinite(x[field])) && all(isfinite(ax[field])) &&
+                all(baseRHS[field] == float4(0.0f)) &&
+                all(baselineResidual[field] == float4(0.0f)) &&
+                all(x[field] == float4(0.0f)) &&
+                all(ax[field] == float4(0.0f));
+            const NMFEMNodeStateGPU n = candidate[global];
+            const bool free = !femStaticConstraint(n.restAndFixed.w) &&
+                isfinite(n.positionAndMass.w) && n.positionAndMass.w > 0.0f;
+            if (free) {
+                fgmresCompensatedAdd(initialResidual2, initialCorrection,
+                    dot(residual.xyz, residual.xyz));
+            } else {
+                finiteDecline = finiteDecline && all(initial == float4(0.0f)) &&
+                    all(b == float4(0.0f)) && all(residual == float4(0.0f)) &&
+                    all(partial == float4(0.0f));
+            }
+        }
+        finiteDecline = finiteDecline && isfinite(initialResidual2) &&
+            initialResidual2 >= 0.0f;
+        if (finiteDecline) {
+            trace[environment] = float4(0.0f, sqrt(initialResidual2), 0.0f, 3.0f);
+            metric.w = 0.0f;
+            metrics[environment] = metric;
+            return;
+        }
+        // A later nonfinite operator action or a new error bit invalidates the
+        // pre-action classification. Restore the ordinary fail-closed path.
+        metric.w = 3.0f;
+        metrics[environment] = metric;
+    }
+    if (metric.w != 3.0f) {
+        trace[environment] = float4(0.0f);
+        return;
+    }
+    const uint4 c = control[environment];
+    const bool originalCertified = states[environment].diagnostics.z > 0.5f;
+    bool valid = environmentHealthy(statuses, environment) && originalCertified &&
+        c.w == 1u && (c.x == 2u || c.x == 3u) &&
+        ((c.x == 2u && c.y == c.z) || (c.x == 3u && c.y <= c.z)) &&
+        atomic_load_explicit(errors + environment, memory_order_relaxed) == 0u;
+    const uint base = environment * dispatch.femNodeCount;
+    const uint fieldBase = dispatch.environmentCount * dispatch.femNodeCount;
+    float xn = 0.0f, xc = 0.0f, rn = 0.0f, rc = 0.0f;
+    float descent = 0.0f, dc = 0.0f;
+    float baselineResidual2 = 0.0f, brc = 0.0f;
+    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+        const uint global = base + node;
+        const uint field = fieldBase + global;
+        const NMFEMNodeStateGPU n = candidate[global];
+        const bool free = !femStaticConstraint(n.restAndFixed.w) &&
+            isfinite(n.positionAndMass.w) && n.positionAndMass.w > 0.0f;
+        const float4 v = x[global], b = baseRHS[global], a = ax[global];
+        const float4 initialResidual = baselineResidual[global];
+        valid = valid && all(isfinite(v)) && all(isfinite(b)) &&
+            all(isfinite(a)) && v.w == 0.0f;
+        if (free) {
+            if (refinementMode) {
+                valid = valid && all(isfinite(initialResidual)) &&
+                    initialResidual.w == 0.0f;
+                fgmresCompensatedAdd(baselineResidual2, brc,
+                    dot(initialResidual.xyz, initialResidual.xyz));
+            }
+            fgmresCompensatedAdd(xn, xc, dot(v.xyz, v.xyz));
+            fgmresCompensatedAdd(rn, rc, dot(b.xyz - a.xyz, b.xyz - a.xyz));
+            fgmresCompensatedAdd(descent, dc, dot(b.xyz, a.xyz));
+        } else valid = valid && all(v == float4(0.0f));
+        if (refinementMode && !free)
+            valid = valid && all(baselineResidual[global] == float4(0.0f));
+        valid = valid && field < layout.unknownCount &&
+            all(baseRHS[field] == float4(0.0f)) &&
+            (!refinementMode ||
+             all(baselineResidual[field] == float4(0.0f))) &&
+            all(x[field] == float4(0.0f)) && all(ax[field] == float4(0.0f));
+    }
+    valid = valid && (requireResidualImprovement <= 1u) &&
+        isfinite(xn) && (refinementMode ? xn >= 0.0f : xn > 0.0f) &&
+        isfinite(rn) && rn >= 0.0f &&
+        isfinite(descent) &&
+        (refinementMode ? (isfinite(baselineResidual2) && baselineResidual2 >= 0.0f)
+                        : (descent > 0.0f));
+    const bool refinementAccepted = valid && refinementMode &&
+        rn < baselineResidual2;
+    trace[environment] = float4(valid ? sqrt(xn) : INFINITY,
+        valid ? sqrt(rn) : INFINITY, valid ? descent : INFINITY,
+        refinementMode ? (refinementAccepted ? 2.0f : 1.0f)
+                       : (originalCertified ? 1.0f : 0.0f));
+    if (!valid) {
+        metric.w = 4.0f;
+        metrics[environment] = metric;
+        recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+            NM_INVALID_INDEX, solverIteration,
+            float4(float(c.x), float(c.y), descent, xn));
+        return;
+    }
+    // A failed strict linear-residual improvement is a normal decline of the
+    // optional refinement. Preserve x0 and its original linear certificate;
+    // ordinary nonlinear Armijo will test x0 unchanged.
+    if (refinementMode && !refinementAccepted) {
+        metric.w = 0.0f;
+        metrics[environment] = metric;
+        return;
+    }
+    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+        const uint global = base + node;
+        solution[global] = x[global];
+        solution[fieldBase + global] = float4(0.0f);
+    }
+    states[environment].diagnostics.z = 0.0f;
+    metric.w = 0.0f;
+    metric.y = INFINITY;
+    metric.z = 0.0f;
+    metrics[environment] = metric;
+    lineSearch[environment] = float4(0.0f, INFINITY, 0.0f, float(solverIteration));
+    environmentLineSearch[environment] = 0.0f;
+    trialStatuses[environment] = {};
+}
+
+} // namespace numi_matter_metal

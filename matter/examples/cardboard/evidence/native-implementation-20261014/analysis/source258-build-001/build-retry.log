@@ -1,0 +1,27 @@
+Built target numi-matter-cardboard-shipping-memory-check
+[  0%] Built target metalrobo_shaders
+[  0%] Built target metalrobo_neuron_culture_shaders
+[  0%] Built target numi_matter_shaders
+[  0%] Built target metalrobo_hyper_policy_shaders
+[  0%] Built target metalrobo_visual_kernel_hashes
+[  5%] Built target numi_matter_compiler_objects
+[  5%] Built target numi_matter_compiler
+[ 10%] Built target numi_matter_runtime_objects
+[ 10%] Built target numi_matter_runtime
+[100%] Built target metalrobo
+[100%] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-arena-plan-258-001/matter/tools/cardboard_probe.mm:5919:13: error: no matching function for call to 'shippingMemoryBudgetInput'
+ 5919 |             shippingMemoryBudgetInput(arguments, mesh, world);
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-arena-plan-258-001/matter/tools/cardboard_probe.mm:5105:44: note: candidate function not viable: no known conversion from 'const CompiledWorld' to 'const CompileResult' for 3rd argument
+ 5105 | numi::cardboard::ShippingMemoryBudgetInput shippingMemoryBudgetInput(
+      |                                            ^
+ 5106 |     const Arguments& arguments,
+ 5107 |     const MeshSource& mesh,
+ 5108 |     const CompileResult& compiled) {
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+make[3]: *** [matter/CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o] Error 1
+make[2]: *** [matter/CMakeFiles/numi-matter-cardboard-probe.dir/all] Error 2
+make[1]: *** [matter/CMakeFiles/numi-matter-cardboard-probe.dir/rule] Error 2
+make: *** [numi-matter-cardboard-probe] Error 2

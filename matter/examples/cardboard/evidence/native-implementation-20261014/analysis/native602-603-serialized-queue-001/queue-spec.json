@@ -1,0 +1,8 @@
+{
+  "schema": "numi.cardboard.native602-603-serialized-queue.v1",
+  "wait_for": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native602-command-001/receipt.json",
+  "next_script": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native603_composed254_regression_001.py",
+  "next_script_sha256": "c8957049f607dcbf6546dad63f99cfe26e4bc4149f5c7e0ef3e8c6ece8f140cb",
+  "gpu_workers": 1,
+  "scope": "Independent canonical254 small complete-history regression after actual-state observer602 closes. Failure of either remains explicit and does not qualify full target."
+}

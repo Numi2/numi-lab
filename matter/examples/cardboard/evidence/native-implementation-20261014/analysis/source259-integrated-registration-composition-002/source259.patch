@@ -1,0 +1,14 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -4731,6 +4731,11 @@
+             "nm_fgmres_base_cgls_validate_right_scale",
+             "nm_fgmres_base_cgls_apply_right_scale",
+             "nm_fgmres_install_base_cgls_direction",
++            "nm_fgmres_base_cgls_best_of_save",
++            "nm_fgmres_base_cgls_best_of_save_direction",
++            "nm_fgmres_base_cgls_best_of_resolve",
++            "nm_fgmres_base_cgls_best_of_restore_direction",
++            "nm_fgmres_base_cgls_best_of_measure_committed",
+             "nm_fgmres_preserve_true_rhs",
+             "nm_fgmres_clear_true_operator",
+             "nm_fgmres_clear_true_auxiliary",

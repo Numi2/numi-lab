@@ -1,0 +1,13 @@
+{
+  "inputs": {
+    "check_source259_registration_002.py": "b109f47fc4918b4ff997ef440b0c5a5fc300b74e2c38ea0ca0184ed1cf09d067",
+    "snapshots/source-integrated-globalization-contact-memory-259-002/frozen-source.json": "a9b8287bc59d44ceb71af3857762b95841a22572dbe02552c136d3a2918eb3d0",
+    "snapshots/source-integrated-globalization-contact-memory-259-002/matter/src/runtime.mm": "184bf0db71eba5ebe38d205c9788d76025488c7c581ed46fabaab35e60b2ebb1",
+    "analysis/source263-best-of-registration-repair-001/test_best_of_pipeline_registration.py": "917ff5ba0f885b95af51c67d17a0257ef08094223ad34e314298892a27ea6ab9"
+  },
+  "artifacts": {
+    "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "report.json": "676eb40412396894b838d43db30973a6a3e6b361f9eab452dad4e1243506b2a3",
+    "stdout.log": "2022d6218abf768dcc261e2ad33d5be6ea0dcbdc07c6bae8c5439ad9acbd0ce0"
+  }
+}

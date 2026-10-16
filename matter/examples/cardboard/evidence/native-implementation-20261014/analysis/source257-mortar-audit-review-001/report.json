@@ -1,0 +1,63 @@
+{
+  "schema": "numi.cardboard.source257-mortar-audit-build-review.v1",
+  "candidate": "source-mortar-first-uncertified-audit-257-005",
+  "base": "source-freebody-scene-observer-252-002",
+  "source_frozen_sha256": "53364fd4a33cd5f6cb3ff9ae0d3c13611f9fbd3dc2c1b55962c623c3119ea492",
+  "source_file_count": 831,
+  "source_mismatches": [],
+  "changed_files": [
+    "apps/NumiHumanRestingIntercostalRibAttachment.hpp",
+    "apps/NumiHumanRestingSourceAllocation.hpp",
+    "apps/NumiHumanRestingVisual.hpp",
+    "matter/include/numi/matter/shared.h",
+    "matter/src/metal/contact.metalinc",
+    "matter/src/runtime.mm",
+    "tools/test_intercostal_rib_motion_attachment.mm",
+    "tools/test_resting_referenced_source_attachments.cpp"
+  ],
+  "declared_changed_files": [
+    "matter/include/numi/matter/shared.h",
+    "matter/src/metal/contact.metalinc",
+    "matter/src/runtime.mm"
+  ],
+  "overlay_sha256": "1d6aa2d7eda55887a0a6b055b55e8a7c675fc5f6ba8cb52b79eb19eb33ff1dd6",
+  "patch_sha256": "d6ca025dd050f0211982164bf075f7b14cb5a3211b8de31dc0d6835f01e5f64f",
+  "cpu_contract_sha256": "0e24f778c4c3268344a3f07a9615524972acf2783014329318cc125418f4f6ea",
+  "build_record": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-006/source-build.json",
+  "build_record_sha256": "e722d116edf235c347ca9dd3b77fac14b2a14e68c05e1d53f0e9266e68c83eea",
+  "build_success": true,
+  "target": [
+    "numi-matter-cardboard-full-contact-armijo-check"
+  ],
+  "artifact_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-006/lib/libmetalrobo.dylib": "2c2e595f5b8c4a5a73f4a2c0acae4a52ea1d8c46a965f7b20b98ad163065f5d2",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-006/matter/numi-matter-cardboard-full-contact-armijo-check": "68d8eac715b794fed8b12833f3cb82cd5f02652d2306632e2d870d9c4bff1c72",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-006/matter/shaders/NumiMatter.metallib": "4ffd1f830f07ef7ec385f457747a8372ff1a2157d5c88b012d133f43d9cee299",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-006/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-006/shaders/MetalRobo.metallib": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-006/shaders/MetalRoboHyperPolicy.metallib": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-006/shaders/NumiNeuron.metallib": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+  },
+  "artifact_mismatches": [],
+  "checks": {
+    "source_snapshot_has_831_frozen_entries": true,
+    "source_files_match_frozen_map": true,
+    "declared_delta_is_exactly_three_files": false,
+    "patch_hash_matches_overlay": true,
+    "overlay_frozen_hash_matches_snapshot": true,
+    "cpu_contract_passed": true,
+    "record_abi_is_384_bytes": true,
+    "no_new_environment_keys": true,
+    "selector_uses_only_reserved_3_2_extension": true,
+    "capture_array_is_post_rebuild_only": true,
+    "selected_candidate_initializes_first_writer_record": true,
+    "first_writer_guard_is_preserved": true,
+    "production_certification_accumulation_remains": true,
+    "build_source_hashes_match_snapshot": true,
+    "build_succeeded": true,
+    "built_artifacts_match_record": true
+  },
+  "all_checks_pass": false,
+  "gpu_execution": false,
+  "claim_limit": "source/build validation only; no native query result or physical/contact qualification"
+}

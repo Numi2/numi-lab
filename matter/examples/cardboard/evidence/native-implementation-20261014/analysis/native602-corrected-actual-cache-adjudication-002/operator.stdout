@@ -1,0 +1,1 @@
+{"schema": "numi.cardboard.cached-operator-audit.v1", "output": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native602-corrected-actual-cache-adjudication-002/operator.json", "capture_sha256": "de98790248f233f22767215e5db716ef860d30af910f76720a2aece20135bb29", "action_relative_l2_error": 0.0003281270568094854, "spectral_status": "not_requested"}

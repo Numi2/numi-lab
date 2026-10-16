@@ -1,0 +1,19 @@
+{
+  "schema": "numi.cardboard.publication042-upstream.v1",
+  "old_head": "89da10e5dd7d620db154c3cea279803a112a302a",
+  "new_head": "420b4f866decdfaed1f5a81ef102d3cb6efbb442",
+  "preserved_paths": {
+    ".numi/evidence/human-resting/whole-geometry-replay-20261016/README.md": "da7e7816fd523bd9691dc5c773f20579e03d5c25a37ad862f27f7c87b3bef468",
+    ".numi/evidence/human-resting/whole-geometry-replay-20261016/final-source-native-binary-identity.json": "b26ea1082d23abf5aba45f1232b26be81060fd5e5bbb7a6bebdfb75cef84326a",
+    ".numi/evidence/human-resting/whole-geometry-replay-20261016/legacy-skin-parity.json": "4cc157df3f7a839225f0d32f01ff4f079b1112878aa5da9b7a88ee0285aad02d",
+    ".numi/evidence/human-resting/whole-geometry-replay-20261016/native-input-regression.json": "e27b14b6b5857a8d22d7fa6899e3d322450cda777f06b40998f6cdcc8958a374",
+    ".numi/evidence/human-resting/whole-geometry-replay-20261016/replay-build-report.json": "88033026315b6b3f4f19fb37e32cc46e8f3ffa381d414c90f54f4b890bb3d7f8",
+    ".numi/evidence/human-resting/whole-geometry-replay-20261016/replay-precleanup-build-report.json": "f878c77347465352e1fd9f711626c1b0ad96d6d97e0e49fc3b9cb30e70aa4219",
+    ".numi/evidence/human-resting/whole-geometry-replay-20261016/viewer-build-report.json": "484daf853a9199a3ff8750fc27a78cd6b575277eda0b554d47dc5fb1452ba3c2",
+    ".numi/evidence/human-resting/whole-geometry-replay-20261016/whole-geometry-parity.json": "a6acb089aadf09f6bea3807805cc142bbe773c45a3164f58e0d2604085933dc4",
+    "apps/NumiHumanRestingVisual.hpp": "a5746b10f27225fca47a636ae4425e15c98a4a4bcc563ba278d9b5ed87d6cfa8",
+    "apps/human_resting_skin_replay.mm": "07cae1b3aa0842c008496e86fffee91aba720699d45c60c05e47282133caa7bd"
+  },
+  "clean": true,
+  "at_utc": "2026-10-16T15:33:18.174386+00:00"
+}

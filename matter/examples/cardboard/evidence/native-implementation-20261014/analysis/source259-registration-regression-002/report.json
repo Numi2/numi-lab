@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.source259-registration-regression.v1",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source263-best-of-registration-repair-001/test_best_of_pipeline_registration.py",
+    "--source",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-globalization-contact-memory-259-002"
+  ],
+  "exit_code": 0,
+  "source_frozen_sha256": "a9b8287bc59d44ceb71af3857762b95841a22572dbe02552c136d3a2918eb3d0",
+  "test_sha256": "917ff5ba0f885b95af51c67d17a0257ef08094223ad34e314298892a27ea6ab9",
+  "scope": "Five literal runtime dispatches each have exactly one production pipeline registration and one Metal definition. Static regression only; enabled Runtime requires a native trajectory.",
+  "at_utc": "2026-10-16T15:29:18.377877+00:00"
+}

@@ -1,0 +1,26 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "reason": "initial build artifact path for checker was wrong; FileNotFoundError; corrected to matter/numi-matter-cardboard-full-contact-armijo-check",
+      "status": "script_execution_failed"
+    },
+    {
+      "attempt": 2,
+      "reason": "initial NumiMatter.metallib path was wrong; FileNotFoundError; corrected to matter/shaders/NumiMatter.metallib",
+      "status": "script_execution_failed"
+    },
+    {
+      "attempt": 3,
+      "reason": "synthetic exact-distance assertion expected 1 rather than 3/2 for point (1,1,1) against unit right triangle; corrected to 3/2",
+      "status": "self_test_failed"
+    },
+    {
+      "attempt": 4,
+      "reason": "first decoder draft incorrectly remapped captured subtriangle endpoints through barycentric metadata; fixed from source makeMortarComplementAudit(..., subtriangleEndpoints=true), then reran both captures",
+      "status": "replay_model_corrected"
+    }
+  ],
+  "preserved": true,
+  "schema": "numi.cardboard.source257-mortar-query-decoder-attempts.v1"
+}

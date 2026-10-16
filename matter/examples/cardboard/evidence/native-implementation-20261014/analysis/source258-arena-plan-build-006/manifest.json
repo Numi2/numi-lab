@@ -1,0 +1,17 @@
+{
+  "schema": "numi.cardboard.analysis-manifest.v1",
+  "files": {
+    "cpu-check.stdout": {
+      "sha256": "7997af31757b9f4a26560db9d48a54a7c2f0e382f48ff25600a16df91a0402eb",
+      "bytes": 40
+    },
+    "probe-help.stdout": {
+      "sha256": "6b05092fb5b10614dd2eb392a7b53ae1a0f376654d350a44230d8556bb37db43",
+      "bytes": 8045
+    },
+    "report.json": {
+      "sha256": "b285e84d8190b3837b44d2195049f5c45e6580fbe5334e389482ae9bf8d2be0f",
+      "bytes": 4232
+    }
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "schema": "numi.cardboard.source257-mortar-audit-review.v3",
+  "candidate": "source-mortar-first-uncertified-audit-257-006",
+  "superseded_incomplete_inventory_candidate": "source-mortar-first-uncertified-audit-257-005",
+  "source_frozen_sha256": "0f6d693d369c3cada323cd0b92e755fd45cb58381063f5e1c8a3117fb5ad6725",
+  "base_frozen_sha256": "09d96dd6f4e47ca28ac71cc4efc24884ac01f4ac9a99990c610d7599ae0c8fdf",
+  "source_count": 836,
+  "changed_files": [
+    "matter/include/numi/matter/shared.h",
+    "matter/src/metal/contact.metalinc",
+    "matter/src/runtime.mm"
+  ],
+  "source_mismatches": [],
+  "source_overlay_sha256": "5b09b86323e3c20de1e11ad67745b0db03b9d03d629b40d3a7b519b80949fce8",
+  "patch_sha256": "d6ca025dd050f0211982164bf075f7b14cb5a3211b8de31dc0d6835f01e5f64f",
+  "cpu_contract_sha256": "beb72ab96339781d6dab873f342bcf54eaac19ef7d84f1dd0139d05c5bebe012",
+  "build_record": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-007/source-build.json",
+  "build_record_sha256": "2529a5022374cf7d89a18aebd2002aeedce06832f54511707983dd2b53f2fa8e",
+  "build_success": true,
+  "build_targets": [
+    "numi-matter-cardboard-full-contact-armijo-check"
+  ],
+  "build_input_count": 831,
+  "unchanged_snapshot_files_not_in_selected_target_build": [
+    "apps/NumiHumanRestingIntercostalRibAttachment.hpp",
+    "apps/NumiHumanRestingSourceAllocation.hpp",
+    "apps/NumiHumanRestingVisual.hpp",
+    "tools/test_intercostal_rib_motion_attachment.mm",
+    "tools/test_resting_referenced_source_attachments.cpp"
+  ],
+  "build_artifact_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-007/lib/libmetalrobo.dylib": "d67d0bb29d47497abeae9653876965a8f6f5e361e405c4153ad7cb6b8c05b395",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-007/matter/numi-matter-cardboard-full-contact-armijo-check": "d256c748139be85fd9f867db685ea0e329d1ee29fe30aa3fed75c116b11fd6d3",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-007/matter/shaders/NumiMatter.metallib": "4ffd1f830f07ef7ec385f457747a8372ff1a2157d5c88b012d133f43d9cee299",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-007/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-007/shaders/MetalRobo.metallib": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-007/shaders/MetalRoboHyperPolicy.metallib": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-007/shaders/NumiNeuron.metallib": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+  },
+  "artifact_mismatches": [],
+  "native601_capture_json_sha256": "9e04539ce17fce72992e3d15b648f7c5a51652eb8dfb04fdade2b9746e7ea539",
+  "native601_payload_sha256": "db9f8e0fc68ddc4d7141cfa9d5a7bca459ee7f0db8c1dbab869982fe32d91f7e",
+  "native601_declared_payload_sha256": "db9f8e0fc68ddc4d7141cfa9d5a7bca459ee7f0db8c1dbab869982fe32d91f7e",
+  "native601_source_fingerprint": "64728e65ab589647",
+  "native601_program_fingerprint": "0624c535786f15e4",
+  "native601_pair_geometry": {
+    "start": {
+      "candidate_slot78": [
+        16,
+        99,
+        78,
+        1
+      ],
+      "nodes16": [
+        9,
+        10,
+        13
+      ],
+      "nodes99": [
+        27,
+        28,
+        31
+      ],
+      "parent_areas_m2": [
+        2.0001872898654757e-06,
+        2.0000003708300616e-06
+      ],
+      "mapped_patch_areas_m2": [
+        6.000561556642742e-07,
+        6.000000799565746e-07
+      ],
+      "paired_vertex_distances_m": [
+        1.0428896282683462e-05,
+        1.0398630233008279e-05,
+        1.1090509040691215e-05
+      ],
+      "maps_bitwise_equal": true
+    },
+    "finish": {
+      "candidate_slot78": [
+        16,
+        99,
+        78,
+        1
+      ],
+      "nodes16": [
+        9,
+        10,
+        13
+      ],
+      "nodes99": [
+        27,
+        28,
+        31
+      ],
+      "parent_areas_m2": [
+        2.0004416698043702e-06,
+        2.0000006728451964e-06
+      ],
+      "mapped_patch_areas_m2": [
+        6.001324696419625e-07,
+        6.000001705611104e-07
+      ],
+      "paired_vertex_distances_m": [
+        1.0286094287471088e-05,
+        9.936118069945574e-06,
+        1.0475077887968087e-05
+      ],
+      "maps_bitwise_equal": true
+    }
+  },
+  "checks": {
+    "snapshot_map_has_836_entries_and_matches_all_bytes": true,
+    "complete_map_delta_is_exactly_intended_three_files": true,
+    "patch_and_frozen_binding_match": true,
+    "target_build_succeeded": true,
+    "build_map_is_exact_selected_subset": true,
+    "all_build_inputs_match_snapshot": true,
+    "all_artifacts_match_build_receipt": true,
+    "384_byte_ABI_bound": true,
+    "no_new_environment_keys": true,
+    "only_reserved_selector_3_2_added": true,
+    "capture_array_post_rebuild_only": true,
+    "selected_candidate_initializes_record_before_early_return": true,
+    "first_writer_guard_present": true,
+    "certification_accumulation_present": true,
+    "native601_payload_hash_valid": true,
+    "native601_pair_slot_identity_valid": true,
+    "native601_maps_nondegenerate_and_separated_at_sampled_endpoints": true
+  },
+  "all_checks_pass": true,
+  "scope": "diagnostic-only compile/source audit plus independent endpoint geometry summary from the existing 601 capture",
+  "limits": [
+    "No query result from the new mortar trace yet.",
+    "Mapped paired vertices are not a complete closest-point/contact proof; gaps are near the expected contact scale.",
+    "No contact feasibility, full solver, or physical qualification is claimed.",
+    "No GPU was executed by this review."
+  ]
+}\n

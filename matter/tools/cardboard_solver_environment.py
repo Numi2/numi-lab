@@ -29,6 +29,7 @@ _KEY_RE = re.compile(r"^[A-Z][A-Z0-9_]*$")
 NATIVE_ENV_KEYS = tuple(sorted({
     "NM_CONTACT_NODE_INCIDENCE_SORT",
     "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
+    "NM_FEM_BASE_CGLS_BEST_OF",
     "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
     "NM_FEM_BASE_CGLS_CAPTURE_PATH",
     "NM_FEM_BASE_CGLS_DAMPING_KG",
@@ -152,6 +153,8 @@ def _validate_environment_value(key: str, value: str) -> None:
         raise ValueError(f"NUL is not allowed in environment value for {key}")
     if key == "NM_CONTACT_NODE_INCIDENCE_SORT" and value != "1":
         raise ValueError("NM_CONTACT_NODE_INCIDENCE_SORT must be exactly 1 when set")
+    if key == "NM_FEM_BASE_CGLS_BEST_OF" and value != "1":
+        raise ValueError("NM_FEM_BASE_CGLS_BEST_OF must be exactly 1 when set")
     if key in NUMERIC_SELECTOR_KEYS:
         # Empty is a source-supported explicit disable for selector controls;
         # it remains distinct from an absent key in the hashed contract.

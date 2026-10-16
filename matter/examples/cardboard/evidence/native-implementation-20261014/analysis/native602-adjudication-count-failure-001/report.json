@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.audit-precondition-failure.v1",
+  "failed_script": "adjudicate_native602_corrected_actual_cache_001.py",
+  "failed_script_sha256": "031b2bdc18e036c3ac835f421f564319d41c6fabc81a96e77e77c24762544501",
+  "retained_partial_directory": "analysis/native602-corrected-actual-cache-adjudication-001",
+  "cause": "Audit asserted one-environment counts882/1920; native capture header declares two environments and actual1764/3840 records. All exact-value and production parity checks before the assertion passed. No native input/result changed.",
+  "repair": "Fresh002 asserts declared two-environment record extents; no capture comparisons weakened.",
+  "at_utc": "2026-10-16T15:00:02.193456+00:00"
+}

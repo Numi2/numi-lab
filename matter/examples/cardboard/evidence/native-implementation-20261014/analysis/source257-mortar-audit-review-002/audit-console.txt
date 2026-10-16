@@ -1,0 +1,97 @@
+{
+  "all_checks_pass": false,
+  "checks": {
+    "complete_836_entry_inventory": true,
+    "candidate_source_files_match_frozen_map": true,
+    "candidate_delta_is_exactly_three_files": true,
+    "patch_hash_matches_overlay": true,
+    "candidate_frozen_hash_matches_overlay": true,
+    "base_frozen_hash_matches_overlay": true,
+    "all_omitted_base_entries_restored_in_candidate": true,
+    "cpu_contract_passed": true,
+    "record_abi_384_bytes": true,
+    "no_new_environment_keys": true,
+    "only_reserved_3_2_selector_extension": true,
+    "capture_emitted_only_post_rebuild": true,
+    "selected_candidate_record_clear_precedes_slot_early_return": true,
+    "first_writer_guard_present": true,
+    "production_certification_accumulation_preserved": false,
+    "source_build_map_matches_frozen_map": false,
+    "source_build_success": true,
+    "artifacts_match_build_record": true,
+    "601_payload_hash_matches_capture": true,
+    "601_candidate_pair_is_16_99_slot78": true,
+    "601_paired_maps_have_positive_area_and_no_zero_corresponding_gap": true
+  },
+  "changed_files": [
+    "matter/include/numi/matter/shared.h",
+    "matter/src/metal/contact.metalinc",
+    "matter/src/runtime.mm"
+  ],
+  "geometry": {
+    "start": {
+      "candidate_slot_78": [
+        16,
+        99,
+        78,
+        1
+      ],
+      "primitive16_nodes": [
+        9,
+        10,
+        13
+      ],
+      "primitive99_nodes": [
+        27,
+        28,
+        31
+      ],
+      "parent_triangle_area_m2": [
+        2.0001872898654757e-06,
+        2.0000003708300616e-06
+      ],
+      "mapped_patch_area_m2": [
+        6.000561556642742e-07,
+        6.000000799565746e-07
+      ],
+      "paired_map_vertex_distances_m": [
+        1.0428896282683462e-05,
+        1.0398630233008279e-05,
+        1.1090509040691215e-05
+      ],
+      "all_maps_same_bits": true
+    },
+    "finish": {
+      "candidate_slot_78": [
+        16,
+        99,
+        78,
+        1
+      ],
+      "primitive16_nodes": [
+        9,
+        10,
+        13
+      ],
+      "primitive99_nodes": [
+        27,
+        28,
+        31
+      ],
+      "parent_triangle_area_m2": [
+        2.0004416698043702e-06,
+        2.0000006728451964e-06
+      ],
+      "mapped_patch_area_m2": [
+        6.001324696419625e-07,
+        6.000001705611104e-07
+      ],
+      "paired_map_vertex_distances_m": [
+        1.0286094287471088e-05,
+        9.936118069945574e-06,
+        1.0475077887968087e-05
+      ],
+      "all_maps_same_bits": true
+    }
+  }
+}

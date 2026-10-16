@@ -1,0 +1,20 @@
+{
+  "inputs": {
+    "audit_native605_610_strict_replay_001.py": "d48134475aad71ce602e275a3caa46e93a505026f48792a88f2caf9b7ad059eb",
+    "analysis/source257-mortar-query-decoder-001/decode_mortar_query.py": "a5090ab46b1647654178a52ee92aeb54e01b1cb5dbb77e38cb9a7d110c19d491",
+    "analysis/source260-605-610-strict-replay-and-json-correction-001/report.json": "0a715529bca36eb1b4dc4bbfa0b28b60cee10946d46e72cd18f221bc68ddc34d",
+    "analysis/source260-605-610-strict-replay-and-json-correction-001/manifest.json": "06a83a118b41ee5ed078cee0577264ead33e0a9151b7c8c0248dd5fef21116d2",
+    "native/mortar-inline-observer-on-605/diagnostics/capture-coupled-trial-capture/capture.coupled.json": "729d97c8dc0e07f4ddaf6063b6fbcb8cf74299c4c9ce69160bf7a6eba1028ea7",
+    "native/mortar-inline-observer-on-605/diagnostics/capture-coupled-trial-capture/capture.coupled.bin": "4d0b6866d6b7d1f5681b7e8cb344556aec2b9a0b6ded118d71fefcae70c24ebc",
+    "native/mortar-inline-observer-on-610/diagnostics/capture-coupled-trial-capture/capture.coupled.json": "b472aebe7d1fd9b63ba63781827e2ee8c4e1c45bbc7019a16c2f97431ec7dc25",
+    "native/mortar-inline-observer-on-610/diagnostics/capture-coupled-trial-capture/capture.coupled.bin": "1889e11f1bc345b6341a4e2d955606c7286e7707d7cf1712310d424b757ffd00",
+    "analysis/source257-mortar-audit-review-003/report.json": "49c0266aaa42058de43d38e1196793a0e6551c9db21c82e4b0058d17bd764c28",
+    "analysis/source257-mortar-audit-review-correction-004/report.json": "b842146c88fe692632e25174d4b7333cba736d4e73cf5acea01eb8584942548c"
+  },
+  "artifacts": {
+    "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "report.json": "5b5333bb35bfb378785202d7a6ef78127c939319c8b8084a4114bc847e0721c9",
+    "stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "recomputed.json": "011aafdc5f04bbfacb7a267500e86ba8fca7a7168b812ab800682e92a9b03942"
+  }
+}

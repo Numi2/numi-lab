@@ -1,0 +1,90 @@
+{
+  "schema": "numi.cardboard.native608-pipeline-crash-root-adjudication.v1",
+  "verdict": "FAIL_ENABLED_RUNTIME_SIGSEGV_BEFORE_FIRST_ACCEPTED_PHYSICAL_STEP",
+  "native_exit_code": -11,
+  "source_inputs_unchanged": true,
+  "timeout": false,
+  "accepted_geometry_count": 0,
+  "crash_report_sha256": "596090f43e375eb9c72dfc842f1747fb3321091fbe6bef26af79ff7cf8cc5233",
+  "crash_pid": 15101,
+  "crash_image_uuid": "a2271235-e548-38b1-b360-8a6398ffc444",
+  "faulting_address": "KERN_INVALID_ADDRESS at 0x0000000000000154",
+  "triggered_stack": [
+    {
+      "imageOffset": 2413708,
+      "symbol": "AGX::RayPayloadSizeAlignImpl<AGX::HAL200::Classes>::merge(AGX::RayPayloadSizeAlignImpl<AGX::HAL200::Classes> const&)",
+      "symbolLocation": 28,
+      "imageIndex": 2
+    },
+    {
+      "imageOffset": 3114152,
+      "symbol": "AGX::ComputeContext<AGX::HAL200::Encoders, AGX::HAL200::Classes, AGX::HAL200::ObjClasses, AGX::HAL200::CommandEncoding, AGX::HAL200::EncoderComputeServiceClasses>::setPipelineCommon(AGX::HAL200::ComputePipeline*)",
+      "symbolLocation": 52,
+      "imageIndex": 2
+    },
+    {
+      "imageOffset": 3155556,
+      "symbol": "-[AGXG16XFamilyComputeContext setComputePipelineState:]",
+      "symbolLocation": 68,
+      "imageIndex": 2
+    },
+    {
+      "imageOffset": 1709140,
+      "symbol": "_ZZN4numi6matter7Runtime10encodeImplERKNS0_13EncodeRequestEbENK3$_6clIZNS1_10encodeImplES4_bE5$_255EEDaPKcmRKT_",
+      "symbolLocation": 112,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 1454076,
+      "symbol": "numi::matter::Runtime::encodeImpl(numi::matter::EncodeRequest const&, bool)",
+      "symbolLocation": 64640,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 626016,
+      "symbol": "(anonymous namespace)::NativeRun::step(unsigned int, std::__1::vector<nm_float4, std::__1::allocator<nm_float4>> const&, std::__1::vector<MRBodyStateGPU, std::__1::allocator<MRBodyStateGPU>> const&, std::__1::vector<NMCohesiveActivationCommandGPU, std::__1::allocator<NMCohesiveActivationCommandGPU>> const&, double, bool, std::__1::optional<double>)",
+      "symbolLocation": 3392,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 131752,
+      "symbol": "(anonymous namespace)::execute((anonymous namespace)::Arguments)",
+      "symbolLocation": 46764,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 20456,
+      "symbol": "main",
+      "symbolLocation": 10752,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 132324,
+      "symbol": "start",
+      "symbolLocation": 6992,
+      "imageIndex": 3
+    }
+  ],
+  "missing_runtime_registration_evidence": {
+    "nm_fgmres_base_cgls_best_of_save": [
+      25744
+    ],
+    "nm_fgmres_base_cgls_best_of_save_direction": [
+      25778
+    ],
+    "nm_fgmres_base_cgls_best_of_resolve": [
+      26016
+    ],
+    "nm_fgmres_base_cgls_best_of_restore_direction": [
+      26049
+    ],
+    "nm_fgmres_base_cgls_best_of_measure_committed": [
+      27980
+    ]
+  },
+  "localization": "All five newly dispatched best-of kernels are absent from the runtime pipeline registration list. Native stack enters AGX setComputePipelineState through Runtime dispatchThreads. The direct-library component fixture does not test Runtime registration. Fresh source263 repair and runtime regression are required.",
+  "CPU_and_component_pass_do_not_qualify_enabled_runtime": true,
+  "no_full_coupon_launched": true,
+  "all_six_full_sequence_axes_open": true,
+  "at_utc": "2026-10-16T15:24:36.265940+00:00"
+}

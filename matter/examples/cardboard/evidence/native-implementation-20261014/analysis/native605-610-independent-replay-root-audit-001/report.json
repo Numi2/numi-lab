@@ -1,0 +1,38 @@
+{
+  "schema": "numi.cardboard.native605-610-independent-replay-root-audit.v1",
+  "verdict": "PASS_RECOMPUTED_EXACT_ENDPOINT_CROSSINGS_AND_NATIVE_TIME_SAMPLE_BITS",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source257-mortar-query-decoder-001/decode_mortar_query.py",
+    "--out",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native605-610-independent-replay-root-audit-001/recomputed.json"
+  ],
+  "cases": [
+    {
+      "run": "605",
+      "record_sha256": "cd2700f032712d5a14a7a60bdf90c2af8231ed8d37eaaf1c56693e08fcbcf527",
+      "exact_binary_rational_endpoint_crossing": true,
+      "fp32_cpu_source_order_sample_at_native_time_separation_bits_match": true,
+      "full_fp32_recurrence_toi_equals_native": true,
+      "recurrence_claim": "CPU emulation omits SAT branches; no complete Metal recurrence certificate is inferred, and610 trajectory parity remains inconclusive.",
+      "production_hit": false,
+      "production_certified": false
+    },
+    {
+      "run": "610",
+      "record_sha256": "0f2c19fdd4ad9ca791ff2647443fd2e226305a2397adab68a9f4c67eeced1997",
+      "exact_binary_rational_endpoint_crossing": true,
+      "fp32_cpu_source_order_sample_at_native_time_separation_bits_match": true,
+      "full_fp32_recurrence_toi_equals_native": false,
+      "recurrence_claim": "CPU emulation omits SAT branches; no complete Metal recurrence certificate is inferred, and610 trajectory parity remains inconclusive.",
+      "production_hit": false,
+      "production_certified": false
+    }
+  ],
+  "corrected_json_semantically_equal": true,
+  "GPU_execution": false,
+  "production_CCD_or_whole_candidate_certificate": false,
+  "scope": "Root reruns actual-capture decoder and exact rational endpoint distance calculation, compares complete rational records and captured hashes against the sealed package. These path crossings do not certify earliest TOI or full candidate admissibility.",
+  "at_utc": "2026-10-16T15:34:23.802899+00:00"
+}

@@ -644,6 +644,24 @@ typedef struct NM_ALIGN16 NMDeformableVTCCDAuditGPU {
     nm_float4 parameters;
 } NMDeformableVTCCDAuditGPU;
 
+// Optional first-uncertified mortar-complement CCD query, written inline by
+// the selected production candidate thread. attempt.w: 1=partition invalid,
+// 2=paired-boundary rejection, 3=left VT, 4=right VT, 5=EE. start/finish hold
+// exact subtriangle endpoints (parent endpoints for invalid partitions);
+// leftBary/rightBary preserve each cell map. This is diagnostic-only storage.
+typedef struct NM_ALIGN16 NMMortarComplementAuditGPU {
+    nm_uint4 attempt; // written, environment, candidate slot, query kind
+    nm_uint4 candidateIdentity; // source primitive pair and production flags
+    nm_uint4 cells; // left cell, right cell, left patch, right patch
+    nm_uint4 feature; // VT vertex/direction or EE endpoint indices
+    nm_float4 start[6]; // left subtriangle xyz[0..2], right xyz[3..5]
+    nm_float4 finish[6];
+    nm_float4 leftBary[3];
+    nm_float4 rightBary[3];
+    nm_float4 result; // hit, certified, TOI, separation
+    nm_float4 parameters; // thickness, left dt, right dt, solver iteration
+} NMMortarComplementAuditGPU;
+
 enum NMDeformableContactKind : nm_u32 {
     NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE = 0u,
     NM_DEFORMABLE_CONTACT_EDGE_EDGE = 1u,
@@ -1517,6 +1535,7 @@ static_assert(alignof(NMFEMHumanAttachmentGPU) == 16);
 static_assert(sizeof(NMFEMNodeStateGPU) == 80);
 static_assert(sizeof(NMFEMStatus5CaptureGPU) % 16 == 0);
 static_assert(sizeof(NMDeformableVTCCDAuditGPU) == 336);
+static_assert(sizeof(NMMortarComplementAuditGPU) == 384);
 static_assert(sizeof(NMAdaptiveStateGPU) == 160);
 static_assert(sizeof(NMSchedulerStateGPU) == 80);
 static_assert(sizeof(NMEventTokenGPU) == 48);

@@ -1,0 +1,26 @@
+{
+  "corrected_report": "report.json",
+  "corrected_report_sha256": "b842146c88fe692632e25174d4b7333cba736d4e73cf5acea01eb8584942548c",
+  "files": {
+    "README.md": {
+      "bytes": 742,
+      "sha256": "d782c196c787629a8e52b9a151f54be33604f9a443ddeece35264ed9c20f95c6"
+    },
+    "replay_correction.py": {
+      "bytes": 810,
+      "sha256": "c10667609adafcdead6eb0a9212a53bc28ec2ddefd919918d983d4f31df1ff90"
+    },
+    "report.json": {
+      "bytes": 6007,
+      "sha256": "b842146c88fe692632e25174d4b7333cba736d4e73cf5acea01eb8584942548c"
+    }
+  },
+  "parse_error": "Extra data: line 139 column 2 (char 6006)",
+  "removed_terminal_bytes_hex": "5c6e",
+  "schema": "numi.cardboard.source257-mortar-review-json-correction.v1",
+  "semantic_object_unchanged": true,
+  "source_report": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source257-mortar-audit-review-003/report.json",
+  "source_report_bytes": 6008,
+  "source_report_sha256": "49c0266aaa42058de43d38e1196793a0e6551c9db21c82e4b0058d17bd764c28",
+  "strict_json_allow_nan_false": true
+}

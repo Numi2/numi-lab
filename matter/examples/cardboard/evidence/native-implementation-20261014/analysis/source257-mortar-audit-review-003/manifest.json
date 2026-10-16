@@ -1,0 +1,42 @@
+{
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-freebody-scene-observer-252-002",
+  "build_artifact_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-007/lib/libmetalrobo.dylib": "d67d0bb29d47497abeae9653876965a8f6f5e361e405c4153ad7cb6b8c05b395",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-007/matter/numi-matter-cardboard-full-contact-armijo-check": "d256c748139be85fd9f867db685ea0e329d1ee29fe30aa3fed75c116b11fd6d3",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-007/matter/shaders/NumiMatter.metallib": "4ffd1f830f07ef7ec385f457747a8372ff1a2157d5c88b012d133f43d9cee299",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-007/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-007/shaders/MetalRobo.metallib": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-007/shaders/MetalRoboHyperPolicy.metallib": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-007/shaders/NumiNeuron.metallib": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+  },
+  "build_input_count": 831,
+  "build_record": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source257-mortar-audit-007/source-build.json",
+  "build_record_sha256": "2529a5022374cf7d89a18aebd2002aeedce06832f54511707983dd2b53f2fa8e",
+  "build_success": true,
+  "build_target": [
+    "numi-matter-cardboard-full-contact-armijo-check"
+  ],
+  "candidate_frozen_sha256": "0f6d693d369c3cada323cd0b92e755fd45cb58381063f5e1c8a3117fb5ad6725",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-mortar-first-uncertified-audit-257-006",
+  "native_gpu_execution": false,
+  "overlay_manifest": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source-mortar-first-uncertified-audit-257-006/source-overlay.json",
+  "overlay_manifest_sha256": "5b09b86323e3c20de1e11ad67745b0db03b9d03d629b40d3a7b519b80949fce8",
+  "patch": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source-mortar-first-uncertified-audit-257-006/overlay.patch",
+  "patch_sha256": "d6ca025dd050f0211982164bf075f7b14cb5a3211b8de31dc0d6835f01e5f64f",
+  "review_files_sha256": {
+    "README.md": "9a4f5756a98440e74b2322f427e1b725aed0b24ee920a79b10204f5ac516e1db",
+    "audit-console.txt": "5adb78db7963976747a663d2d95f73608fff3970509436efcecb968aaf0f3b80",
+    "audit.py": "f00414e3354bb733c937af55991686ab7e5ee76051ac5ebf84303c2d5557cbac",
+    "report.json": "49c0266aaa42058de43d38e1196793a0e6551c9db21c82e4b0058d17bd764c28"
+  },
+  "schema": "numi.cardboard.source257-mortar-audit-review-manifest.v1",
+  "source_file_count": 836,
+  "superseded_attempts": [
+    "source257-001 preparation assertion failure",
+    "source257-002 JS syntax failure",
+    "source257-003 Metal compile failure",
+    "source257-004 pre-rebuild capture-lifetime issue",
+    "source257-005 successful build but incomplete frozen inventory; five base paths absent from its map",
+    "review001 corrected map check failed; review002 had two incorrect assertion locations/assumptions"
+  ]
+}

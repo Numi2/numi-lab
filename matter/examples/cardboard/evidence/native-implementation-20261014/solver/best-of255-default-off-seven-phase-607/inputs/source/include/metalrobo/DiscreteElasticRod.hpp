@@ -1,0 +1,221 @@
+#pragma once
+
+#include <array>
+#include <cstdint>
+#include <span>
+#include <string>
+#include <vector>
+
+namespace metalrobo {
+
+inline constexpr std::uint32_t kDiscreteRodNoRigidBody =
+    0xffffffffu;
+
+struct DiscreteRodMaterial {
+    double radius = 1.5e-4;
+    double density = 1100.0;
+    double youngModulus = 5.0e8;
+    double poissonRatio = 0.35;
+};
+
+struct DiscreteElasticRodModel {
+    std::vector<std::array<double, 3>> restPositions;
+    std::vector<double> restTwists;
+    std::vector<double> restLengths;
+    std::vector<double> nodeMasses;
+    std::vector<double> edgeRotationalInertias;
+    std::vector<double> stretchStiffness;
+    std::vector<double> bendStiffness;
+    std::vector<double> twistStiffness;
+    double radius = 0.0;
+    std::string name;
+    std::string fidelityBoundary;
+
+    [[nodiscard]] bool valid(
+        std::string* reason = nullptr
+    ) const;
+};
+
+struct DiscreteElasticRodState {
+    std::vector<std::array<double, 3>> positions;
+    std::vector<std::array<double, 3>> velocities;
+    // One scalar material-frame rotation and rate per edge.
+    std::vector<double> twists;
+    std::vector<double> twistRates;
+};
+
+struct DiscreteRodAttachment {
+    std::uint32_t nodeIndex = 0u;
+    std::array<double, 3> targetPosition{};
+    std::array<double, 3> targetVelocity{};
+    // Zero is a hard attachment; positive values are XPBD compliance.
+    double compliance = 0.0;
+};
+
+// Fixed-slot evidence for one attachment. impulseOnTarget is the equal and
+// opposite impulse exerted by the rod on the attachment target over the
+// complete step; averageForceOnTarget is impulseOnTarget / timestep. This is
+// the force-transfer boundary used by rigid needle and tool coupling.
+struct DiscreteRodAttachmentReaction {
+    std::uint32_t nodeIndex = 0u;
+    std::uint32_t bodyIndex = kDiscreteRodNoRigidBody;
+    std::array<double, 3> impulseOnTarget{};
+    std::array<double, 3> averageForceOnTarget{};
+    double finalPositionError = 0.0;
+};
+
+struct DiscreteRodRigidAttachmentBinding {
+    // Local body index inside each environment. UINT32_MAX leaves the
+    // attachment target explicit.
+    std::uint32_t bodyIndex = kDiscreteRodNoRigidBody;
+    std::array<double, 3> localAnchor{};
+};
+
+// Two-axis clamped-tangent boundary between the first resolved rod edge and a
+// rigid body. The edge endpoint is constrained to the body-local line through
+// localAnchor with direction localTangent: the two transverse rows are hard
+// when complianceRadPerNm is zero, while stretch remains owned by the DER.
+// localDirector supplies one transverse axis and must be unit length and
+// orthogonal to localTangent; their cross product supplies the second. This
+// avoids both an isotropic Cartesian point spring and a second welded node.
+struct DiscreteRodRigidTangentAttachmentBinding {
+    std::uint32_t edgeIndex = 0u;
+    std::uint32_t bodyIndex = kDiscreteRodNoRigidBody;
+    std::array<double, 3> localAnchor{};
+    std::array<double, 3> localTangent{};
+    std::array<double, 3> localDirector{};
+    double complianceRadPerNm = 0.0;
+};
+
+// Material-frame boundary between one rod edge and a dynamic or kinematic
+// rigid body. Reactions update dynamic targets and are one-way constraints
+// against kinematic targets.
+// The local tangent and director are orthonormal body-frame vectors; the
+// coupled world constrains the edge's scalar Cosserat twist to the body's
+// material director about the live edge tangent. Zero compliance is a
+// permanent torsional weld, while a positive value is in rad/Nm. This is a
+// separate boundary from the nodal attachments above: position/tangent alone
+// cannot remove the DER's otherwise free uniform-twist mode.
+struct DiscreteRodRigidTwistAttachmentBinding {
+    std::uint32_t edgeIndex = 0u;
+    std::uint32_t bodyIndex = kDiscreteRodNoRigidBody;
+    std::array<double, 3> localTangent{};
+    std::array<double, 3> localMaterialDirector{};
+    // Persistent world-space reference frame at assembly. The live solver
+    // parallel-transports this pair to the deformed edge before measuring
+    // twist, avoiding the discontinuous least-aligned-axis gauge that would
+    // otherwise jump by pi/2 when a nearly horizontal strand bends.
+    std::array<double, 3> referenceTangentWorld{};
+    std::array<double, 3> referenceMaterialDirectorWorld{};
+    double complianceRadPerNm = 0.0;
+};
+
+struct DiscreteElasticRodEnergy {
+    double stretch = 0.0;
+    double bend = 0.0;
+    double twist = 0.0;
+
+    [[nodiscard]] double total() const noexcept {
+        return stretch + bend + twist;
+    }
+};
+
+enum class DiscreteElasticRodStatus : std::uint32_t {
+    success = 0u,
+    invalidConfiguration,
+    invalidModel,
+    invalidState,
+    invalidAttachment,
+    degenerateGeometry,
+    didNotConverge,
+    nonfiniteResult,
+};
+
+struct DiscreteElasticRodStepConfig {
+    double timestep = 1.0 / 1000.0;
+    std::array<double, 3> gravity{0.0, 0.0, -9.81};
+    std::uint32_t solverIterations = 24u;
+    // Metres of maximum centerline or radius-scaled material-surface motion
+    // in one nonlinear sweep. Twist radians are never compared directly to
+    // this positional tolerance.
+    double constraintTolerance = 1.0e-7;
+    double linearDamping = 0.02;
+    double twistDamping = 0.02;
+    // Relative perturbation for local bend-constraint derivatives.
+    double derivativeStep = 2.0e-6;
+    // Non-adjacent edges are treated as capsules with the model radius.
+    // Contact is regenerated and relinearized on every nonlinear sweep.
+    bool enableSelfCollision = false;
+    double selfCollisionMargin = 0.0;
+    // Zero is a hard unilateral contact; positive values soften it through
+    // the same XPBD compliance convention as attachments.
+    double selfCollisionCompliance = 0.0;
+    // Dimensionless Coulomb coefficient for non-adjacent capsule contact.
+    // A single conservative coefficient owns both sticking and sliding in
+    // this DER path; zero preserves frictionless self-contact.
+    double selfCollisionFriction = 0.0;
+};
+
+struct DiscreteElasticRodDiagnostics {
+    DiscreteElasticRodStatus status =
+        DiscreteElasticRodStatus::success;
+    std::uint32_t iterations = 0u;
+    std::uint32_t projectedStretchConstraints = 0u;
+    std::uint32_t projectedBendConstraints = 0u;
+    std::uint32_t projectedTwistConstraints = 0u;
+    std::uint32_t projectedAttachments = 0u;
+    std::uint32_t projectedSelfContacts = 0u;
+    double maximumConstraintError = 0.0;
+    // Maximum centerline or radius-scaled material-surface correction (m).
+    double maximumPositionCorrection = 0.0;
+    double maximumSelfPenetration = 0.0;
+    DiscreteElasticRodEnergy before{};
+    DiscreteElasticRodEnergy after{};
+    std::string message;
+
+    [[nodiscard]] bool succeeded() const noexcept {
+        return status == DiscreteElasticRodStatus::success;
+    }
+};
+
+// Creates a straight, physically parameterized rod. Stiffnesses are derived
+// from EA, EI, and GJ for a circular cross-section. Defaults are explicit
+// research values, not calibrated suture-package data.
+[[nodiscard]] DiscreteElasticRodModel makeStraightSutureRod(
+    std::uint32_t nodeCount,
+    double length,
+    const DiscreteRodMaterial& material = {}
+);
+
+[[nodiscard]] DiscreteElasticRodState
+makeDiscreteElasticRodDefaultState(
+    const DiscreteElasticRodModel& model
+);
+
+// Evaluates stretch plus curvature-binormal bend and material-frame twist
+// energy. This is the authoritative rod semantic oracle shared by task
+// evidence and later Metal solvers.
+[[nodiscard]] DiscreteElasticRodDiagnostics
+evaluateDiscreteElasticRodEnergy(
+    const DiscreteElasticRodModel& model,
+    const DiscreteElasticRodState& state,
+    DiscreteElasticRodEnergy& output
+);
+
+// Deterministic implicit XPBD/DER reference step. Bend gradients are local
+// numerical derivatives of the exact curvature-binormal constraints; stretch
+// and twist use analytic gradients. State publication is transactional.
+[[nodiscard]] DiscreteElasticRodDiagnostics
+stepDiscreteElasticRodCpu(
+    const DiscreteElasticRodModel& model,
+    DiscreteElasticRodState& state,
+    std::span<const DiscreteRodAttachment> attachments = {},
+    const DiscreteElasticRodStepConfig& config = {},
+    std::span<DiscreteRodAttachmentReaction> reactions = {}
+);
+
+[[nodiscard]] const char* discreteElasticRodStatusName(
+    DiscreteElasticRodStatus status
+) noexcept;
+
+} // namespace metalrobo

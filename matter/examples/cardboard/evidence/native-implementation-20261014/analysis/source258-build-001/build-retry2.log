@@ -1,0 +1,14 @@
+Built target numi-matter-cardboard-shipping-memory-check
+[  0%] Built target metalrobo_shaders
+[  0%] Built target numi_matter_shaders
+[  0%] Built target metalrobo_neuron_culture_shaders
+[  0%] Built target metalrobo_visual_kernel_hashes
+[  0%] Built target metalrobo_hyper_policy_shaders
+[  5%] Built target numi_matter_compiler_objects
+[  5%] Built target numi_matter_compiler
+[ 10%] Built target numi_matter_runtime_objects
+[ 10%] Built target numi_matter_runtime
+[100%] Built target metalrobo
+[100%] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-probe
+[100%] Built target numi-matter-cardboard-probe

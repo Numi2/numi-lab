@@ -1,0 +1,19 @@
+from pathlib import Path
+import json,hashlib,struct,datetime
+q=Path('/Users/n/cardboard-implementation-20261014-host-macmini');d=q/'analysis/native610-smallest-alpha-mortar-root-adjudication-001';d.mkdir(exist_ok=False);c=q/'native/mortar-inline-observer-on-610';base=q/'native/mortar-inline-observer-off-604';sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
+r=json.loads((c/'receipt.json').read_text());assert r['exit_code']==1 and r['source_inputs_unchanged'] and not r['timed_out'];same=[];inputs=[Path(__file__),c/'receipt.json',base/'receipt.json']
+for p in sorted((base/'output/dense').glob('transaction-*')):
+ z=c/'output/dense'/p.name;assert sha(p)==sha(z),p.name;same.append({'name':p.name,'sha256':sha(p),'bytes':p.stat().st_size});inputs.extend([p,z])
+assert len(same)==12
+jp=c/'diagnostics/capture-coupled-trial-capture/capture.coupled.json';bp=jp.with_suffix('.bin');j=json.loads(jp.read_text());raw=bp.read_bytes();assert len(raw)==j['payload']['byte_count'] and sha(bp)==j['payload']['sha256'];assert j['root']==1202 and j['iteration']==7 and j['trial']==7
+for a in j['arrays']:
+ x=raw[a['offset']:a['offset']+a['byte_count']];assert len(x)==a['byte_count'] and hashlib.sha256(x).hexdigest()==a['sha256'],a['name']
+a=next(a for a in j['arrays'] if a['name']=='actual_mortar_complement_first_uncertified_query');assert a['byte_count']==384 and a['phase']=='private_contact_rebuild_before_free_body_terms';x=raw[a['offset']:a['offset']+384];u=struct.unpack('<16I',x[:64]);f=struct.unpack('<80f',x[64:]);v=lambda xs:[list(xs[i:i+4]) for i in range(0,len(xs),4)]
+decoded={'attempt':list(u[:4]),'candidate_identity':list(u[4:8]),'cells':list(u[8:12]),'feature':list(u[12:16]),'start':v(f[:24]),'finish':v(f[24:48]),'left_bary_map':v(f[48:60]),'right_bary_map':v(f[60:72]),'result_hit_certified_toi_separation':list(f[72:76]),'parameters_thickness_leftDt_rightDt_iteration':list(f[76:80])}
+assert decoded['attempt']==[1,0,78,4] and decoded['cells']==[2,0,4294967295,0] and decoded['feature'][:2]==[1,1]
+oldjp=q/'native/mortar-inline-observer-on-605/diagnostics/capture-coupled-trial-capture/capture.coupled.json';oj=json.loads(oldjp.read_text());om={(a['phase'],a['name']):a for a in oj['arrays']};common=[];different=[]
+for a in j['arrays']:
+ key=(a['phase'],a['name'])
+ if key in om:(common if a['sha256']==om[key]['sha256'] else different).append({'phase':key[0],'name':key[1]})
+report={'schema':'numi.cardboard.native610-smallest-alpha-mortar-root-adjudication.v1','verdict':'OBSERVER_PARITY_FIRST_UNCERTIFIED_RIGHT_VT_AT_SMALLEST_TRIAL_CAPTURED','production_transaction_files_byte_exact604':same,'arrays_hash_verified':len(j['arrays']),'capture_bytes':len(raw),'capture_json_sha256':sha(jp),'capture_binary_sha256':sha(bp),'inline_record_sha256':hashlib.sha256(x).hexdigest(),'decoded_inline_query':decoded,'compared_to605_trial0_common_arrays_exact':common,'compared_to605_trial0_common_arrays_changed':different,'scope':'Same native fixture and accepted history, trial7 alpha1/128. A different complement cell and vertex query is uncertified near thickness. Certified=false cannot be interpreted as no contact. No production decision was changed and no failure waived.','all_six_full_sequence_axes_open':True,'at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()}
+(d/'report.json').write_text(json.dumps(report,indent=2)+'\n');inputs.extend([jp,bp,oldjp,q/'analysis/native610-mortar-smallest-alpha-command-001/command-spec.json']);(d/'manifest.json').write_text(json.dumps({'inputs':{str(p.relative_to(q)):sha(p) for p in inputs},'report_sha256':sha(d/'report.json')},indent=2)+'\n');print(json.dumps({'report_sha256':sha(d/'report.json'),'arrays_verified':len(j['arrays']),'exact_transaction_files':len(same),'common605_arrays_exact':len(common),'common605_arrays_changed':len(different)}))

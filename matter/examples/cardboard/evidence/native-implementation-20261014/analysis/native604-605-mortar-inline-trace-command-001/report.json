@@ -1,0 +1,21 @@
+{
+  "results": [
+    {
+      "number": 604,
+      "case": "/Users/n/cardboard-implementation-20261014-host-macmini/native/mortar-inline-observer-off-604",
+      "observer_on": false,
+      "exit_code": 1,
+      "receipt_sha256": "76a047f81dc2479e398a20ee4da0bdf3b3641043446c0c5a75eea0f21c84e8a2"
+    },
+    {
+      "number": 605,
+      "case": "/Users/n/cardboard-implementation-20261014-host-macmini/native/mortar-inline-observer-on-605",
+      "observer_on": true,
+      "exit_code": 1,
+      "receipt_sha256": "6996e8261e3fb847c3324d4979b3816e23817e9c7375599f7ba60d7ed5c4802a"
+    }
+  ],
+  "source_inputs_unchanged": true,
+  "artifacts_unchanged": true,
+  "at_utc": "2026-10-16T15:00:50.693378+00:00"
+}

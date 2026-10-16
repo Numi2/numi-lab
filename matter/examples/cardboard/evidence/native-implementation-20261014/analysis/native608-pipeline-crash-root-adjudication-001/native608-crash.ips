@@ -1,0 +1,141 @@
+{"app_name":"numi-matter-cardboard-probe","timestamp":"2026-10-16 17:23:29.00 +0200","app_version":"","slice_uuid":"a2271235-e548-38b1-b360-8a6398ffc444","build_version":"","platform":1,"share_with_app_devs":0,"is_first_party":1,"bug_type":"309","os_version":"macOS 26.6 (25G72)","roots_installed":0,"incident_id":"35555AAC-458F-4B89-888A-5188D736ADFF","name":"numi-matter-cardboard-probe"}
+{
+  "uptime" : 5400000,
+  "procRole" : "Unspecified",
+  "version" : 2,
+  "userID" : 501,
+  "deployVersion" : 210,
+  "modelCode" : "Mac16,11",
+  "coalitionID" : 894124,
+  "osVersion" : {
+    "train" : "macOS 26.6",
+    "build" : "25G72",
+    "releaseType" : "User"
+  },
+  "captureTime" : "2026-10-16 17:23:21.3129 +0200",
+  "codeSigningMonitor" : 2,
+  "incident" : "35555AAC-458F-4B89-888A-5188D736ADFF",
+  "pid" : 15101,
+  "translated" : false,
+  "cpuType" : "ARM-64",
+  "procLaunch" : "2026-10-16 17:23:21.2120 +0200",
+  "procStartAbsTime" : 130029010600705,
+  "procExitAbsTime" : 130029013013172,
+  "procName" : "numi-matter-cardboard-probe",
+  "procPath" : "\/Users\/USER\/*\/numi-matter-cardboard-probe",
+  "parentProc" : "Python",
+  "parentPid" : 15100,
+  "coalitionName" : "com.openssh.sshd.831084FC-DF6A-474D-B725-4F9E049CF1F4",
+  "crashReporterKey" : "EB33B6CC-AECB-E99D-8A45-563B5C47C755",
+  "appleIntelligenceStatus" : {"state":"available"},
+  "developerMode" : 1,
+  "responsiblePid" : 15094,
+  "codeSigningID" : "numi-matter-cardboard-probe",
+  "codeSigningTeamID" : "",
+  "codeSigningFlags" : 570556929,
+  "codeSigningValidationCategory" : 10,
+  "codeSigningTrustLevel" : 4294967295,
+  "codeSigningAuxiliaryInfo" : 0,
+  "instructionByteStream" : {"beforePC":"\/XtBqfRPwqj\/D1\/WfyMD1f8DAdH2VwGp9E8Cqf17A6n9wwCR8wMAqg==","atPC":"KABAuQkoQCk\/AQhrKIGIGggAALkJjED4KwRA+SwdaJItXRBTbl0QUw=="},
+  "bootSessionUUID" : "DB0C69EC-FD83-4007-8D0E-2A7F7606A82F",
+  "sip" : "enabled",
+  "vmRegionInfo" : "0x154 is not in any region.  Bytes before following region: 4363304620\n      REGION TYPE                    START - END         [ VSIZE] PRT\/MAX SHRMOD  REGION DETAIL\n      UNUSED SPACE AT START\n--->  \n      __TEXT                      10412c000-1043a8000    [ 2544K] r-x\/r-x SM=COW  \/Users\/USER\/*\/numi-matter-cardboard-probe",
+  "exception" : {"codes":"0x0000000000000001, 0x0000000000000154","rawCodes":[1,340],"type":"EXC_BAD_ACCESS","signal":"SIGSEGV","subtype":"KERN_INVALID_ADDRESS at 0x0000000000000154"},
+  "termination" : {"flags":0,"code":11,"namespace":"SIGNAL","indicator":"Segmentation fault: 11","byProc":"exc handler","byPid":15101},
+  "vmregioninfo" : "0x154 is not in any region.  Bytes before following region: 4363304620\n      REGION TYPE                    START - END         [ VSIZE] PRT\/MAX SHRMOD  REGION DETAIL\n      UNUSED SPACE AT START\n--->  \n      __TEXT                      10412c000-1043a8000    [ 2544K] r-x\/r-x SM=COW  \/Users\/USER\/*\/numi-matter-cardboard-probe",
+  "extMods" : {"caller":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"system":{"thread_create":0,"thread_set_state":2774,"task_for_pid":255},"targeted":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"warnings":0},
+  "faultingThread" : 0,
+  "threads" : [{"triggered":true,"id":28352652,"threadState":{"x":[{"value":54150917904},{"value":340},{"value":64},{"value":18446726483666796544},{"value":54133158704},{"value":0},{"value":7311138193232260959},{"value":18446726482597246976},{"value":28432},{"value":54142918680},{"value":367},{"value":90714116200660992},{"value":0},{"value":54150660200},{"value":1},{"value":1},{"value":6517946636,"symbolLocation":0,"symbol":"objc_retain"},{"value":8368553200},{"value":0},{"value":54150917904},{"value":0},{"value":2},{"value":6103528752},{"value":6103538520},{"value":6103535352},{"value":1},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":4487169192},"cpsr":{"value":1073741824},"fp":{"value":6103526544},"sp":{"value":6103526496},"esr":{"value":2449473542,"description":"(Data Abort) byte read Translation fault"},"pc":{"value":4486468748,"matchesCrashFrame":1},"far":{"value":340}},"queue":"com.apple.main-thread","frames":[{"imageOffset":2413708,"symbol":"AGX::RayPayloadSizeAlignImpl<AGX::HAL200::Classes>::merge(AGX::RayPayloadSizeAlignImpl<AGX::HAL200::Classes> const&)","symbolLocation":28,"imageIndex":2},{"imageOffset":3114152,"symbol":"AGX::ComputeContext<AGX::HAL200::Encoders, AGX::HAL200::Classes, AGX::HAL200::ObjClasses, AGX::HAL200::CommandEncoding, AGX::HAL200::EncoderComputeServiceClasses>::setPipelineCommon(AGX::HAL200::ComputePipeline*)","symbolLocation":52,"imageIndex":2},{"imageOffset":3155556,"symbol":"-[AGXG16XFamilyComputeContext setComputePipelineState:]","symbolLocation":68,"imageIndex":2},{"imageOffset":1709140,"symbol":"_ZZN4numi6matter7Runtime10encodeImplERKNS0_13EncodeRequestEbENK3$_6clIZNS1_10encodeImplES4_bE5$_255EEDaPKcmRKT_","symbolLocation":112,"imageIndex":0},{"imageOffset":1454076,"symbol":"numi::matter::Runtime::encodeImpl(numi::matter::EncodeRequest const&, bool)","symbolLocation":64640,"imageIndex":0},{"imageOffset":626016,"symbol":"(anonymous namespace)::NativeRun::step(unsigned int, std::__1::vector<nm_float4, std::__1::allocator<nm_float4>> const&, std::__1::vector<MRBodyStateGPU, std::__1::allocator<MRBodyStateGPU>> const&, std::__1::vector<NMCohesiveActivationCommandGPU, std::__1::allocator<NMCohesiveActivationCommandGPU>> const&, double, bool, std::__1::optional<double>)","symbolLocation":3392,"imageIndex":0},{"imageOffset":131752,"symbol":"(anonymous namespace)::execute((anonymous namespace)::Arguments)","symbolLocation":46764,"imageIndex":0},{"imageOffset":20456,"symbol":"main","symbolLocation":10752,"imageIndex":0},{"imageOffset":132324,"symbol":"start","symbolLocation":6992,"imageIndex":3}]},{"id":28352653,"frames":[],"threadState":{"x":[{"value":6104133632},{"value":5635},{"value":6103597056},{"value":0},{"value":409603},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":0},"fp":{"value":0},"sp":{"value":6104133632},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6522563592},"far":{"value":0}}},{"id":28352655,"frames":[],"threadState":{"x":[{"value":6104707072},{"value":10499},{"value":6104170496},{"value":0},{"value":409604},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":0},"fp":{"value":0},"sp":{"value":6104707072},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6522563592},"far":{"value":0}}},{"id":28352657,"frames":[],"threadState":{"x":[{"value":6105280512},{"value":13315},{"value":6104743936},{"value":0},{"value":409604},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":0},"fp":{"value":0},"sp":{"value":6105280512},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6522563592},"far":{"value":0}}}],
+  "usedImages" : [
+  {
+    "source" : "P",
+    "arch" : "arm64",
+    "base" : 4363304960,
+    "size" : 2605056,
+    "uuid" : "a2271235-e548-38b1-b360-8a6398ffc444",
+    "path" : "\/Users\/USER\/*\/numi-matter-cardboard-probe",
+    "name" : "numi-matter-cardboard-probe"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64",
+    "base" : 4378935296,
+    "size" : 7045120,
+    "uuid" : "ae08d19c-3bb9-3766-bca5-60ce37f6abbd",
+    "path" : "\/Users\/USER\/*\/libmetalrobo.dylib",
+    "name" : "libmetalrobo.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4484055040,
+    "CFBundleShortVersionString" : "353.14",
+    "CFBundleIdentifier" : "com.apple.AGXMetalG16X",
+    "size" : 8880128,
+    "uuid" : "6bc19bf9-f698-33d8-baac-7ee1d1b745ab",
+    "path" : "\/System\/Library\/Extensions\/AGXMetalG16X.bundle\/Contents\/MacOS\/AGXMetalG16X",
+    "name" : "AGXMetalG16X",
+    "CFBundleVersion" : "353.14"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6518472704,
+    "size" : 734464,
+    "uuid" : "df42dd9d-ad11-33a7-8849-9ad5df30a274",
+    "path" : "\/usr\/lib\/dyld",
+    "name" : "dyld"
+  },
+  {
+    "size" : 0,
+    "source" : "A",
+    "base" : 0,
+    "uuid" : "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6517915648,
+    "size" : 338764,
+    "uuid" : "40277974-d20c-3ec8-b25c-43ae30d8cc60",
+    "path" : "\/usr\/lib\/libobjc.A.dylib",
+    "name" : "libobjc.A.dylib"
+  }
+],
+  "sharedCache" : {
+  "base" : 6517342208,
+  "size" : 6010716160,
+  "uuid" : "d64a142b-8533-3e09-968a-6ad3e176e3f6"
+},
+  "vmSummary" : "ReadOnly portion of Libraries: Total=1.2G resident=0K(0%) swapped_out_or_unallocated=1.2G(100%)\nWritable regions: Total=133.6M written=465K(0%) resident=465K(0%) swapped_out=0K(0%) unallocated=133.2M(100%)\n\n                                VIRTUAL   REGION \nREGION TYPE                        SIZE    COUNT (non-coalesced) \n===========                     =======  ======= \nActivity Tracing                   256K        1 \nKernel Alloc Once                   32K        1 \nMALLOC                            59.3M       20 \nMALLOC guard page                 4112K        4 \nMemory Tag 22                     64.0M        1 \nSTACK GUARD                       56.1M        4 \nStack                             9808K        4 \nVM_ALLOCATE                         16K        1 \n__AUTH                            2731K      262 \n__AUTH_CONST                      46.0M      505 \n__CTF                               824        1 \n__DATA                            14.1M      461 \n__DATA_CONST                      25.3M      509 \n__DATA_DIRTY                      3010K      432 \n__FONT_DATA                        2352        1 \n__LINKEDIT                       576.6M        4 \n__OBJC_RO                         79.2M        1 \n__OBJC_RW                         2599K        1 \n__TEXT                           618.8M      525 \n__TPRO_CONST                       128K        2 \nmapped file                      171.2M        6 \npage table in kernel               465K        1 \nshared memory                     1232K       11 \n===========                     =======  ======= \nTOTAL                              1.7G     2758 \n",
+  "legacyInfo" : {
+  "threadTriggered" : {
+    "queue" : "com.apple.main-thread"
+  }
+},
+  "logWritingSignature" : "d76b7b58293ba52074b15aa7d68ddaa771a27800",
+  "bug_type" : "309",
+  "roots_installed" : 0,
+  "trmStatus" : 8192,
+  "trialInfo" : {
+  "rollouts" : [
+    {
+      "rolloutId" : "6434420a89ec2e0a7a38bf5a",
+      "factorPackIds" : [
+
+      ],
+      "deploymentId" : 240000011
+    },
+    {
+      "rolloutId" : "648cada15dbc71671bb3aa1b",
+      "factorPackIds" : [
+        "65a81173096f6a1f1ba46525"
+      ],
+      "deploymentId" : 240000116
+    }
+  ],
+  "experiments" : [
+
+  ]
+}
+}

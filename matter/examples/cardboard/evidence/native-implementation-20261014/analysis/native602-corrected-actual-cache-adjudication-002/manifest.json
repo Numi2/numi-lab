@@ -1,0 +1,364 @@
+{
+  "inputs": {
+    "adjudicate_native602_corrected_actual_cache_002.py": {
+      "sha256": "71013a82fa1c7ec4f1bd2e5a17942c182499d87dd48194d66e6c64d1ce1f06e1",
+      "bytes": 5112
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/receipt.json": {
+      "sha256": "4c3f95fbabe7701f2df89f9f889d6c6490731bae1b50a13894890fc40baa8b3f",
+      "bytes": 821
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/receipt.json": {
+      "sha256": "c0d1ff77d26c3dec490e5f0b3d78f36f58c47ee2c6d65d98a01e55168fc01528",
+      "bytes": 306
+    },
+    "solver/strict-state-source240-control19-final-newton-diagnostic-596/receipt.json": {
+      "sha256": "cde7e300b347177f3d6597ec7d1b697f9855dc2ee29229907743fc13fc8948a2",
+      "bytes": 821
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/accepted_step_000017_bent.obj": {
+      "sha256": "4283a10f3d67f329bc3d75d5f27647ed7d809218efae12971da8bb666cc2c6a2",
+      "bytes": 61997
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/accepted_step_000017_bent.obj": {
+      "sha256": "4283a10f3d67f329bc3d75d5f27647ed7d809218efae12971da8bb666cc2c6a2",
+      "bytes": 61997
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/accepted_step_000017_held_reference.obj": {
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "bytes": 56470
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/accepted_step_000017_held_reference.obj": {
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "bytes": 56470
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/accepted_step_000018_bent.obj": {
+      "sha256": "3c909be8936d77d670ca3f569bf693713e8e3b5dfb30cace264968f40a557eb9",
+      "bytes": 61962
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/accepted_step_000018_bent.obj": {
+      "sha256": "3c909be8936d77d670ca3f569bf693713e8e3b5dfb30cace264968f40a557eb9",
+      "bytes": 61962
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/accepted_step_000018_held_reference.obj": {
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "bytes": 56470
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/accepted_step_000018_held_reference.obj": {
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "bytes": 56470
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/accepted_step_000019_bent.obj": {
+      "sha256": "7b26d777dfee55784f985e6ad632c51c985429585239ca2ebb3e40e308654f14",
+      "bytes": 62001
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/accepted_step_000019_bent.obj": {
+      "sha256": "7b26d777dfee55784f985e6ad632c51c985429585239ca2ebb3e40e308654f14",
+      "bytes": 62001
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/accepted_step_000019_held_reference.obj": {
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "bytes": 56470
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/accepted_step_000019_held_reference.obj": {
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "bytes": 56470
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/accepted_step_000020_held_reference.obj": {
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "bytes": 56470
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/accepted_step_000020_held_reference.obj": {
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "bytes": 56470
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/compiled.nmatterpack": {
+      "sha256": "1ffce171d869c246cbd0c0d29ba194da52fb0ce1a196f0f52fddbb99726216ec",
+      "bytes": 1984768
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/compiled.nmatterpack": {
+      "sha256": "1ffce171d869c246cbd0c0d29ba194da52fb0ce1a196f0f52fddbb99726216ec",
+      "bytes": 1984768
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/manifest.json": {
+      "sha256": "f84c848ccb88b2a42b8faa0493d5bdb2094a03a6f6f91fc666431e9c010c588b",
+      "bytes": 11953
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/manifest.json": {
+      "sha256": "f84c848ccb88b2a42b8faa0493d5bdb2094a03a6f6f91fc666431e9c010c588b",
+      "bytes": 11953
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/material_state_000020_bent.json": {
+      "sha256": "da49636a228c216c947a0ed62725142c09414d563bcd017f58dec01ebfd6069f",
+      "bytes": 967560
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/material_state_000020_bent.json": {
+      "sha256": "da49636a228c216c947a0ed62725142c09414d563bcd017f58dec01ebfd6069f",
+      "bytes": 967560
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/mesh.json": {
+      "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+      "bytes": 160425
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/mesh.json": {
+      "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+      "bytes": 160425
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected_step_diagnostic_000020_bent.obj": {
+      "sha256": "7b26d777dfee55784f985e6ad632c51c985429585239ca2ebb3e40e308654f14",
+      "bytes": 62001
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected_step_diagnostic_000020_bent.obj": {
+      "sha256": "7b26d777dfee55784f985e6ad632c51c985429585239ca2ebb3e40e308654f14",
+      "bytes": 62001
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/AP.bin": {
+      "sha256": "65b4c15781c83fc202e89d03164ef569dbd286bd4caec49626759f0d0b6da42f",
+      "bytes": 733824
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/AP.bin": {
+      "sha256": "65b4c15781c83fc202e89d03164ef569dbd286bd4caec49626759f0d0b6da42f",
+      "bytes": 733824
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/P.bin": {
+      "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+      "bytes": 366912
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/P.bin": {
+      "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+      "bytes": 366912
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/candidate_nodes.bin": {
+      "sha256": "a61e01ead7771868312de715b579b1d3518ff7d30d1d2b163c7475f02a8783d5",
+      "bytes": 141120
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/candidate_nodes.bin": {
+      "sha256": "a61e01ead7771868312de715b579b1d3518ff7d30d1d2b163c7475f02a8783d5",
+      "bytes": 141120
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/effective_P.bin": {
+      "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+      "bytes": 733824
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/effective_P.bin": {
+      "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+      "bytes": 733824
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/factor_valid.bin": {
+      "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+      "bytes": 8
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/factor_valid.bin": {
+      "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+      "bytes": 8
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/linearization_F_high.bin": {
+      "sha256": "8e6c198d334d2f20e53890eaae9fe0923292a74909f6f707749cde55b277a78f",
+      "bytes": 184320
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/linearization_F_high.bin": {
+      "sha256": "8e6c198d334d2f20e53890eaae9fe0923292a74909f6f707749cde55b277a78f",
+      "bytes": 184320
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/linearization_F_low.bin": {
+      "sha256": "2c3c36a83c826194882f7cb5b1155d706a774a6d8ed0a520699ac04c9ebf1876",
+      "bytes": 184320
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/linearization_F_low.bin": {
+      "sha256": "2c3c36a83c826194882f7cb5b1155d706a774a6d8ed0a520699ac04c9ebf1876",
+      "bytes": 184320
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/linearization_accepted_material_history.bin": {
+      "sha256": "287ff04d2308630627cff103a462fce7d892bb500697a388e3cceaef93919fcb",
+      "bytes": 230400
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/linearization_accepted_material_history.bin": {
+      "sha256": "287ff04d2308630627cff103a462fce7d892bb500697a388e3cceaef93919fcb",
+      "bytes": 230400
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/linearization_scheduler_exponents.bin": {
+      "sha256": "0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537",
+      "bytes": 15360
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/linearization_scheduler_exponents.bin": {
+      "sha256": "0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537",
+      "bytes": 15360
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/node_block_inverse.bin": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/node_block_inverse.bin": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/pivoted_RAP.bin": {
+      "sha256": "b76d0598c9b362506f455f1dc385e9299fe495e67f64c7c626b3a5916539cc37",
+      "bytes": 5408
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/pivoted_RAP.bin": {
+      "sha256": "b76d0598c9b362506f455f1dc385e9299fe495e67f64c7c626b3a5916539cc37",
+      "bytes": 5408
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/pivots.bin": {
+      "sha256": "597f99227129b1547848ca0e18805d85fa968787995137c82555489851f1d063",
+      "bytes": 208
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/pivots.bin": {
+      "sha256": "597f99227129b1547848ca0e18805d85fa968787995137c82555489851f1d063",
+      "bytes": 208
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/restart_Aq.bin": {
+      "sha256": "53c08178c89e73737d360480bb8a314ecebb37c897bc0d54b06b7b0abc4d938a",
+      "bytes": 14112
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/restart_Aq.bin": {
+      "sha256": "53c08178c89e73737d360480bb8a314ecebb37c897bc0d54b06b7b0abc4d938a",
+      "bytes": 14112
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/restart_Aq_by_environment.bin": {
+      "sha256": "27adb2ad2346cb426acac47611366914498416d0765e382afe7138723ccef858",
+      "bytes": 28224
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/restart_Aq_by_environment.bin": {
+      "sha256": "27adb2ad2346cb426acac47611366914498416d0765e382afe7138723ccef858",
+      "bytes": 28224
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/restart_attempt_counts_by_environment.bin": {
+      "sha256": "f0a0278e4372459cca6159cd5e71cfee638302a7b9ca9b05c34181ac0a65ac5d",
+      "bytes": 8
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/restart_attempt_counts_by_environment.bin": {
+      "sha256": "f0a0278e4372459cca6159cd5e71cfee638302a7b9ca9b05c34181ac0a65ac5d",
+      "bytes": 8
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/restart_factor_valid_by_environment.bin": {
+      "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+      "bytes": 8
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/restart_factor_valid_by_environment.bin": {
+      "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+      "bytes": 8
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/restart_generations_by_environment.bin": {
+      "sha256": "027e6ec54c30f4cf1f3dd14846481f4e4b3ec8a8f018790eab003408b4b3f530",
+      "bytes": 32
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/restart_generations_by_environment.bin": {
+      "sha256": "027e6ec54c30f4cf1f3dd14846481f4e4b3ec8a8f018790eab003408b4b3f530",
+      "bytes": 32
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/restart_mode_scales_by_environment.bin": {
+      "sha256": "2c961470a57c549db44eec84f629713a727133c376ad5ccdfe2e967f06b7af9c",
+      "bytes": 8
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/restart_mode_scales_by_environment.bin": {
+      "sha256": "2c961470a57c549db44eec84f629713a727133c376ad5ccdfe2e967f06b7af9c",
+      "bytes": 8
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/restart_mode_valid_by_environment.bin": {
+      "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+      "bytes": 8
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/restart_mode_valid_by_environment.bin": {
+      "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+      "bytes": 8
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/restart_pivoted_RAP.bin": {
+      "sha256": "dc254f3dcf4cc808ed41a832819427fe3874c8082e810788794becd78c71b1af",
+      "bytes": 2916
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/restart_pivoted_RAP.bin": {
+      "sha256": "dc254f3dcf4cc808ed41a832819427fe3874c8082e810788794becd78c71b1af",
+      "bytes": 2916
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/restart_pivoted_RAP_by_environment.bin": {
+      "sha256": "5a14d6d9ad86859097652101d6a94da9f73e407598a1ed338d7e3bb62618e6c8",
+      "bytes": 5832
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/restart_pivoted_RAP_by_environment.bin": {
+      "sha256": "5a14d6d9ad86859097652101d6a94da9f73e407598a1ed338d7e3bb62618e6c8",
+      "bytes": 5832
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/restart_pivots.bin": {
+      "sha256": "0cdaf1e4fb5f4e06335538eaabec54aa24e9cd093e1e195adf163a9f3abda339",
+      "bytes": 108
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/restart_pivots.bin": {
+      "sha256": "0cdaf1e4fb5f4e06335538eaabec54aa24e9cd093e1e195adf163a9f3abda339",
+      "bytes": 108
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/restart_pivots_by_environment.bin": {
+      "sha256": "1efd036498fb47b4695a940930c36615ddcdfed8f9b301adef2442dc9a73e45d",
+      "bytes": 216
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/restart_pivots_by_environment.bin": {
+      "sha256": "1efd036498fb47b4695a940930c36615ddcdfed8f9b301adef2442dc9a73e45d",
+      "bytes": 216
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/restart_q.bin": {
+      "sha256": "d46fa25c9867a5b3fb88fe1781167e1632d87fec961b63455cba62740ef8e2b1",
+      "bytes": 14112
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/restart_q.bin": {
+      "sha256": "d46fa25c9867a5b3fb88fe1781167e1632d87fec961b63455cba62740ef8e2b1",
+      "bytes": 14112
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/restart_q_by_environment.bin": {
+      "sha256": "d7190c668cd16f2b72458bb3ff7a38db1b3f3a34cfc4c6cae787619f7ebba57e",
+      "bytes": 28224
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/restart_q_by_environment.bin": {
+      "sha256": "d7190c668cd16f2b72458bb3ff7a38db1b3f3a34cfc4c6cae787619f7ebba57e",
+      "bytes": 28224
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/restart_raw_norm_squared_by_environment.bin": {
+      "sha256": "5a4d746d27e54247571fdb0374ed5fcdd50fa0826171e0d972c0291f0ff9a56a",
+      "bytes": 8
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/restart_raw_norm_squared_by_environment.bin": {
+      "sha256": "5a4d746d27e54247571fdb0374ed5fcdd50fa0826171e0d972c0291f0ff9a56a",
+      "bytes": 8
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/rejected-conditioning-000020/restart_target_scales_by_environment.bin": {
+      "sha256": "b247583b2857f1e31c6bea2be9c4f6f51f70af5b08f43648163e4552a01d7950",
+      "bytes": 8
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/rejected-conditioning-000020/restart_target_scales_by_environment.bin": {
+      "sha256": "b247583b2857f1e31c6bea2be9c4f6f51f70af5b08f43648163e4552a01d7950",
+      "bytes": 8
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/diagnostics/capture-operator-fd-capture/capture": {
+      "sha256": "de98790248f233f22767215e5db716ef860d30af910f76720a2aece20135bb29",
+      "bytes": 39996062
+    },
+    "solver/strict-state-source240-control19-final-newton-diagnostic-596/diagnostics/capture-operator-fd-capture/capture": {
+      "sha256": "d73993d528900ed570c6a1a66c61dbb127180e441dad25cce9c6300185b8fe8b",
+      "bytes": 39995860
+    },
+    "snapshots/source-legacy-program-primary-cache-observer-256-002/frozen-source.json": {
+      "sha256": "258f9b543d18b7316636d9df7cf73b3028f9cafbbf7946697cfd03103da847c0",
+      "bytes": 127868
+    },
+    "solver/primary-cache-strict-control19-final127-diagnostic-602/output/observations.csv": {
+      "sha256": "b8bfd74a89b4d88f8386c9a55060a13502d9f19a2f559440e75b367ff6b26e70",
+      "bytes": 4587
+    },
+    "solver/strict-state-source240-newton128-full-coupon-585/output/observations.csv": {
+      "sha256": "1fc96891551ed93ead2f83ab888e058f8ec4f43abf3617628a0af4f25d4a3ff4",
+      "bytes": 19927
+    }
+  },
+  "artifacts": {
+    "operator.dt2-stiffness.npz": "5c2fc53418812e57ab6ba35ad0a35f131e23f3ceb3d374a7f60805f85323e1b0",
+    "operator.vectors.npz": "1cc9943931019d92a1c50aed0be29427e78b0a3ab8ee48d4a5bd1cb5ea1df70e",
+    "report.json": "4d2d7c2299c11952e6b9f4b1aaba600bbdf25eb4d1244887f01b214a7b2f2a86",
+    "operator.operator.npz": "a699f78b0f52cab8613ecf0233ea5de22a337851118787734bbe4c824c0f08a5",
+    "operator.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "operator.json": "53b672b922ad2055685830546f99abb4f987f09fe17d42e69e0f042464944f1f",
+    "operator.stdout": "c03e8896093eb15f304482361af3edfd449ca364fb8bc7f044bab9a50d44c1d0",
+    "operator.stiffness.npz": "b53eacc3505b990587d370dd2b35d170a1568ffaeb09702c22179e7181f72ae9",
+    "operator.topology.npz": "9ce4bc8ced4a5e9b8071df89b77a1581ac4e89bba0d719d1fae21c225d476d39",
+    "operator.mass.npz": "c400b7dec23c9b9f983270d7824a6fbf84d58aac1ce519d1199546294af4ee7a"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001/matter/tools/cardboard_source_bound_run.py",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-best-of-cgls-255-001",
+    "--runtime-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source255-best-of-005",
+    "--build-provenance",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source255-best-of-005/source-build.json",
+    "--case",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/best-of-cgls-production-selection-606",
+    "--timeout",
+    "120",
+    "--question",
+    "Do actual Metal best-of transaction kernels select a strictly better accepted CGLS trial and restore all rows and metadata for losing, invalid and unselected environments?",
+    "--prediction",
+    "Ten adversarial cases exercise win, tie, worse, nonfinite, unhealthy status, rejected Armijo, alpha mismatch, ineligible Newton, inconsistent Newton alpha and legacy fallback. All 2EN unknown rows and unselected metadata are deliberately mutated. This is a production selection-kernel component test with zero physical transactions, not full FEM convergence.",
+    "--input-file",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native606-best-of-selection-command-001/command.json",
+    "--",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source255-best-of-005/matter/numi-matter-fem-cgls-best-of-kernel-check"
+  ],
+  "gpu_workers_before": [],
+  "script_sha256": "0ab30abf1ceab2956977bd7dfb2413eb5cc1604330823ad7cf82ec73d8f91390"
+}

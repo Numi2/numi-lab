@@ -1,0 +1,10 @@
+{
+  "schema": "numi.cardboard.native606-command.v1",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source255-best-of-005/matter/numi-matter-fem-cgls-best-of-kernel-check"
+  ],
+  "source_frozen_sha256": "1efd6df0382dfe74e45d453fb22a81848d1fb251e99c2ab5cf6a8b8a5b062fc4",
+  "source_build_sha256": "9d80b01f7a3910d64daa9a8a7f05cc1a54553d92f66e674d21a409d5852b7567",
+  "question": "Do actual Metal best-of transaction kernels select a strictly better accepted CGLS trial and restore all rows and metadata for losing, invalid and unselected environments?",
+  "prediction": "Ten adversarial cases exercise win, tie, worse, nonfinite, unhealthy status, rejected Armijo, alpha mismatch, ineligible Newton, inconsistent Newton alpha and legacy fallback. All 2EN unknown rows and unselected metadata are deliberately mutated. This is a production selection-kernel component test with zero physical transactions, not full FEM convergence."
+}
