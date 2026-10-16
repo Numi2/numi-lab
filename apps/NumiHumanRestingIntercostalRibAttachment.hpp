@@ -80,17 +80,19 @@ static inline std::map<unsigned,unsigned> numiHumanParseIntercostalRibAttachment
         "intercostal attachment receipt bindings or provenance are missing");
     const bool has48=bindings[@"intercostal_313_rib48_motion_attachment"]!=nil;
     const bool has49=bindings[@"intercostal_313_rib49_motion_attachment"]!=nil;
+    const bool has50=bindings[@"intercostal_313_rib50_motion_attachment"]!=nil;
     bool hasAny=false;
     for(id rawKey in bindings)if([rawKey isKindOfClass:NSString.class]&&
         [(NSString*)rawKey hasPrefix:@"intercostal_313_rib"]) {
         hasAny=true;
         numiHumanIntercostalAttachmentRequire(
             [(NSString*)rawKey isEqualToString:@"intercostal_313_rib48_motion_attachment"]||
-            [(NSString*)rawKey isEqualToString:@"intercostal_313_rib49_motion_attachment"],
+            [(NSString*)rawKey isEqualToString:@"intercostal_313_rib49_motion_attachment"]||
+            [(NSString*)rawKey isEqualToString:@"intercostal_313_rib50_motion_attachment"],
             "unsupported NHA313 rib-channel attachment key");
     }
     if(!hasAny)return {};
-    numiHumanIntercostalAttachmentRequire(has48||has49,
+    numiHumanIntercostalAttachmentRequire(has48||has49||has50,
         "unsupported NHA313 rib-channel attachment declaration");
     numiHumanIntercostalAttachmentRequire(context.rowStableId==313&&
         context.rowBodyIndex==20&&context.rowLayer==1&&context.rowVertexCount>0,
@@ -120,11 +122,12 @@ static inline std::map<unsigned,unsigned> numiHumanParseIntercostalRibAttachment
     numiHumanIntercostalAttachmentRequire(ribSourceMap!=nil,
         "per-vertex rib attachment lacks the receipt rib-source identity map");
 
-    const std::array<unsigned,2> attachmentRibs{{48,49}};
-    const std::array<const char*,2> attachmentMembers{{"FJ3228","FJ3229"}};
-    const std::array<const char*,2> attachmentMemberSHAs{{
+    const std::array<unsigned,3> attachmentRibs{{48,49,50}};
+    const std::array<const char*,3> attachmentMembers{{"FJ3228","FJ3229","FJ3230"}};
+    const std::array<const char*,3> attachmentMemberSHAs{{
         "803a7134c1e69f640b87f9c6c4a846c869379446e771a1a7c9d18914c331a603",
-        "631b4f63625fa6cc89ad83961b2156abe5878d1baf4a8cb2b2acbaa06bc97f58"}};
+        "631b4f63625fa6cc89ad83961b2156abe5878d1baf4a8cb2b2acbaa06bc97f58",
+        "8c097e93d79c610bed49d6c027d25c8439447c20bfb94fa64009b9c4db4d8f5b"}};
     std::map<unsigned,unsigned> result;
     for(unsigned i=0;i<attachmentRibs.size();++i) {
         const unsigned rib=attachmentRibs[i];

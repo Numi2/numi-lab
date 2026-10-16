@@ -18,7 +18,7 @@ static NSDictionary* attachment(unsigned rib,const std::vector<unsigned>& ids,
     NSString* anatomySHA,NSString* bonesSHA,id channelStable=nil,id channelIndex=nil,
     id channelBody=nil) {
     const bool is48=rib==48;
-    const unsigned actualChannel=is48?12u:13u;
+    const unsigned actualChannel=rib-36u;
     NSMutableArray* idArray=[NSMutableArray array];
     for(unsigned local:ids)[idArray addObject:@(local)];
     NSDictionary* channel=@{
@@ -27,10 +27,11 @@ static NSDictionary* attachment(unsigned rib,const std::vector<unsigned>& ids,
         @"body_index":(channelBody ? channelBody : @20),
         @"channel_kind":@5,
         @"channel_index":(channelIndex ? channelIndex : @(actualChannel)),
-        @"source_member_id":is48?@"FJ3228":@"FJ3229",
+        @"source_member_id":is48?@"FJ3228":(rib==49?@"FJ3229":@"FJ3230"),
         @"source_member_sha256":is48?
             @"803a7134c1e69f640b87f9c6c4a846c869379446e771a1a7c9d18914c331a603":
-            @"631b4f63625fa6cc89ad83961b2156abe5878d1baf4a8cb2b2acbaa06bc97f58"
+            (rib==49?@"631b4f63625fa6cc89ad83961b2156abe5878d1baf4a8cb2b2acbaa06bc97f58":
+            @"8c097e93d79c610bed49d6c027d25c8439447c20bfb94fa64009b9c4db4d8f5b")
     };
     NSDictionary* surface=@{
         @"semantic":@51010,@"stable_id":@313,@"layer":@1,@"body_index":@20,
@@ -60,7 +61,7 @@ static NSDictionary* provenance() {
             @"body_index":@20,@"layer":@1,@"source_member":@"FJ1451M",
             @"source_sha256":@"d4c021ba00dbe2bd3c7e722cb5982df7659d7d68fe6f4ec980588bfd65d31214"
         }},
-        @"rib_source_member_to_stable_id":@{@"FJ3228":@48,@"FJ3229":@49}
+        @"rib_source_member_to_stable_id":@{@"FJ3228":@48,@"FJ3229":@49,@"FJ3230":@50}
     };
 }
 
@@ -89,8 +90,8 @@ int main() {
     @autoreleasepool {
         NSString* anatomySHA=[@"" stringByPaddingToLength:64 withString:@"1" startingAtIndex:0];
         NSString* bonesSHA=[@"" stringByPaddingToLength:64 withString:@"2" startingAtIndex:0];
-        const std::map<unsigned,unsigned> channels{{48,12},{49,13}};
-        const std::map<unsigned,unsigned> boneBodies{{48,20},{49,20}};
+        const std::map<unsigned,unsigned> channels{{48,12},{49,13},{50,14}};
+        const std::map<unsigned,unsigned> boneBodies{{48,20},{49,20},{50,20}};
         const auto ctx=context(channels,boneBodies);
         NSDictionary* good=@{
             @"intercostal_313_rib48_motion_attachment":attachment(48,{3,9},anatomySHA,bonesSHA),
@@ -102,6 +103,22 @@ int main() {
             std::cerr<<"FAIL positive 48/49 channel binding\n";return 1;
         }
         std::cout<<"PASS positive 48/49 channels\n";
+
+        NSDictionary* with50=@{
+            @"intercostal_313_rib48_motion_attachment":attachment(48,{3,9},anatomySHA,bonesSHA),
+            @"intercostal_313_rib49_motion_attachment":attachment(49,{17,23},anatomySHA,bonesSHA),
+            @"intercostal_313_rib50_motion_attachment":attachment(50,{31,37},anatomySHA,bonesSHA)
+        };
+        const auto p50=numiHumanParseIntercostalRibAttachments(with50,provenance(),anatomySHA,bonesSHA,ctx);
+        if(p50.size()!=6||p50.at(31)!=14||p50.at(37)!=14)return 1;
+        std::cout<<"PASS opt-in rib50 existing channel14 and source identity\n";
+        expectReject("duplicate slot across rib channels",
+            @{@"intercostal_313_rib49_motion_attachment":attachment(49,{23},anatomySHA,bonesSHA),
+              @"intercostal_313_rib50_motion_attachment":attachment(50,{23},anatomySHA,bonesSHA)},
+            anatomySHA,bonesSHA,ctx);
+        expectReject("rib50 wrong motion channel",
+            @{@"intercostal_313_rib50_motion_attachment":attachment(50,{31},anatomySHA,bonesSHA,nil,@13,nil)},
+            anatomySHA,bonesSHA,ctx);
 
         NSDictionary* legacy=@{};
         if(!numiHumanParseIntercostalRibAttachments(legacy,provenance(),anatomySHA,bonesSHA,ctx).empty()) {
