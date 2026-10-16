@@ -1,0 +1,24 @@
+test_already_visited_malformed_and_different_case_contract_rejected (test_cardboard_checkpoint_pending_capture.PendingCheckpointCaptureTests) ... ok
+test_checkpoint_metadata_and_path_tampering_rejected (test_cardboard_checkpoint_pending_capture.PendingCheckpointCaptureTests) ... ok
+test_failed_native_or_missing_explicit_checkpoint_rejected (test_cardboard_checkpoint_pending_capture.PendingCheckpointCaptureTests) ... ok
+test_future_checkpoint_is_diagnostic_pending_not_capture_success (test_cardboard_checkpoint_pending_capture.PendingCheckpointCaptureTests) ... ok
+test_nonempty_capture_still_validated_and_bad_entries_rejected (test_cardboard_checkpoint_pending_capture.PendingCheckpointCaptureTests) ... ok
+test_normal_result_and_false_completion_claim_rejected (test_cardboard_checkpoint_pending_capture.PendingCheckpointCaptureTests) ... ok
+test_operator_fd_future_control_supported (test_cardboard_checkpoint_pending_capture.PendingCheckpointCaptureTests) ... ERROR
+
+======================================================================
+ERROR: test_operator_fd_future_control_supported (test_cardboard_checkpoint_pending_capture.PendingCheckpointCaptureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/home/cardboard-implementation-20261014/analysis/diagnostic-checkpoint-prefix-and-portable-tests-001/candidate/matter/tools/test_cardboard_checkpoint_pending_capture.py", line 64, in test_operator_fd_future_control_supported
+    prefixes = env.create_diagnostic_capture_prefixes(self.case, [key])
+  File "/Users/home/cardboard-implementation-20261014/analysis/diagnostic-checkpoint-prefix-and-portable-tests-001/candidate/matter/tools/cardboard_solver_environment.py", line 362, in create_diagnostic_capture_prefixes
+    diagnostics.mkdir(mode=0o700, exist_ok=False)
+  File "/Users/home/.pyenv/versions/3.10.12/lib/python3.10/pathlib.py", line 1175, in mkdir
+    self._accessor.mkdir(self, mode)
+FileExistsError: [Errno 17] File exists: '/private/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/tmpl1op10vw/case/diagnostics'
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.024s
+
+FAILED (errors=1)

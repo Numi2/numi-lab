@@ -1,0 +1,34 @@
+{
+  "algorithm_sources": [
+    {
+      "file": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+      "selection": "complete independent FP64 law"
+    },
+    {
+      "file": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-001/compare_directional_fd.py",
+      "sha256": "742b0920c4f543e284e41ed18f8dbc78253915a31f39b3ef8d32ff7dec01b5e8",
+      "selection": [
+        "project_resilient"
+      ]
+    },
+    {
+      "file": "/Users/home/cardboard-implementation-20261014/analysis/operator-fd-e2-adapter-001/audit_capture.py",
+      "sha256": "33dd948eb955d3b02dab0c24aadedf766f6fe201586b42cba6e014a8ce261505",
+      "selection": [
+        "project_centers",
+        "paper_branch",
+        "glue_stress",
+        "glue_tangent_action"
+      ]
+    },
+    {
+      "file": "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-006/sweep.py",
+      "sha256": "671445300cac39dd404d0292c8b82045090d4c6f33582069e33319598280b4f3",
+      "selection": [
+        "continue_projection_tight"
+      ]
+    }
+  ],
+  "changes": "Independent law copied exactly; projector helper dependency dispatch becomes a direct call in the same module. Tight diagnostic thresholds unchanged. No production bytecode/local projector/compiler is used."
+}

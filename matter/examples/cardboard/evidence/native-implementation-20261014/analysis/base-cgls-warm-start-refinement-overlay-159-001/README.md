@@ -1,0 +1,15 @@
+# Warm-start CGLS residual refinement candidate (source157-based)
+
+This is an isolated, default-off overlay for the base-CGLS primary policy. It is based on the immutable `source-right-grip-telemetry-157` snapshot. It does not alter the physical operator or nonlinear acceptance gates.
+
+When explicitly enabled for the selected all-Newton primary CGLS path with block3 right scaling, the runtime measures `A*x0` using the current Newton operator, seeds private CGLS B with the masked residual `b-A*x0`, solves for a correction `S*y`, forms `x0+S*y` in the existing private X buffer, and recomputes `A*(x0+S*y)`. Installation occurs only when the finite, recomputed unscaled residual norm is strictly smaller than the same-order baseline norm `||b-A*x0||`. A decline leaves the FGMRES solution `x0`, its original linear certificate, and Armijo state unchanged. The certificate is cleared only when the new direction is installed; the ordinary nonlinear Armijo and final certificate remain authoritative.
+
+The new input is `NM_FEM_BASE_CGLS_WARM_START_REFINE=1`. It is absent by default and rejects any value other than the exact string `1`, or any run that does not also select primary CGLS, all Newtons on the selected control step, positive CGLS iterations, and block3 right scaling. This key must be added to the native runner's environment-digest registry. A checkpoint produced without this key cannot be resumed as if the setting were unchanged; start a new candidate-enabled run at control step 0, compare its prefix to the disabled baseline, and retain the trajectories separately. In particular, do not consume the existing source167 checkpoint with this changed digest; no divergent-solver restart is implemented here.
+
+No new persistent arena is allocated. The implementation reuses current CGLS B/Q/X/S and FEM solution scratch, adding two bounded vector dispatches and two operator actions for the opted-in Newton. Warm trace snapshots use version 3 only for Newtons where refinement actually runs; older paths retain their prior trace versions.
+
+## Validation
+
+`native/compile_only.sh` compiled the isolated Metal library from the candidate kernels, then passed Objective-C++ syntax checking for the checker. `native/runtime_syntax_only.py` passed the source157 `runtime.mm` compile command in syntax-only mode with the candidate runtime and candidate metal include paths. The checker links the actual changed production kernels and has controls for fresh residual seeding, `x0+correction`, strict-improvement install, equal-residual decline preserving x0/certificate/Armijo state, legacy installer behavior, and a residual-improving case with negative `b·A*x` (fixture: residual 99 to 91, `b·A*x=-90`). Its Metal kernels were compiled but the checker was not executed. No GPU run or full solver trial was performed.
+
+The CPU fixture precheck validates the test vector construction only; it is not a test of the Metal kernel. The candidate remains experimental until the checker is executed and a fresh candidate-enabled full-history run is compared against the disabled prefix.

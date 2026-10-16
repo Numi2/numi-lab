@@ -1,0 +1,125 @@
+{
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "files": [
+    {
+      "base_sha256": "bfc71d8eb6ee051a22c9311b965011b512508806342a932989483f362902da7e",
+      "bytes": 78635,
+      "change": "modified",
+      "overlay_sha256": "0956116875659a9ade219fea89ad7cd549008d1017bdad8cffe68dd32a1dbbc5",
+      "path": "matter/tools/cardboard_convergence.py"
+    },
+    {
+      "base_sha256": "ec9cfe762640896fb11731b05598153080e57d208f01f5804d77a21c43c1cc66",
+      "bytes": 60145,
+      "change": "modified",
+      "overlay_sha256": "bf5d248c2d96e7975eba8d7e8f6dd285be779f3e61ab3dfc7299f92afb2545c8",
+      "path": "matter/tools/cardboard_resolution_study.py"
+    },
+    {
+      "base_sha256": "fb08ce5428944fd09cea52abf9c07a8e7ff8746ed8763b2a262f2898147ae3ff",
+      "bytes": 15730,
+      "change": "modified",
+      "overlay_sha256": "338c7fc9936ba76914ba409f4aefe8fb9de93db8f5c6f9f6878ddb2bba3a068e",
+      "path": "matter/tools/cardboard_source_bound_run.py"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 29902,
+      "change": "added",
+      "overlay_sha256": "9be1b734ae05f8665f2537b8263889af2f27915209ba37025a9bdc878796882a",
+      "path": "matter/tools/cardboard_solver_environment.py"
+    },
+    {
+      "base_sha256": "efeb505727a9bf4e0ad0bd88f5a51386a63679e15f9dd20411c313a9bc918ec4",
+      "bytes": 38861,
+      "change": "modified",
+      "overlay_sha256": "15dee2bb9f837c676b3e4262584e90c8d3c97636674ca406167a20018802bc41",
+      "path": "matter/tools/test_cardboard_convergence.py"
+    },
+    {
+      "base_sha256": "5c026b66feb30a0aa5eabcf4f1ff50e11bc3879b2cb3d1db27c0d1a9c5bc7c84",
+      "bytes": 27686,
+      "change": "modified",
+      "overlay_sha256": "67722610e0aafbdf1a3b5e4d2de803b8bae9f027e9e5fc5386bb1ba37efbd666",
+      "path": "matter/tools/test_cardboard_resolution_study.py"
+    },
+    {
+      "base_sha256": "2217f80048a73f0d98a59843f18542fc8b090adcfcb17cfa085e3178cb795038",
+      "bytes": 16878,
+      "change": "modified",
+      "overlay_sha256": "dbcd2ada16ae012f83119d62d8e98f76416c553f8f40b3957e703f1538ee39fe",
+      "path": "matter/tools/test_bct_source_bound_harness.py"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 14756,
+      "change": "added",
+      "overlay_sha256": "6e76bf37722a688a7b946432b905b7f20794065380d0e8fe61553bc2a4d99ff8",
+      "path": "matter/tools/test_cardboard_solver_environment.py"
+    },
+    {
+      "base_sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+      "bytes": 49990,
+      "change": "modified",
+      "overlay_sha256": "4a7e9c0cbf09eee0ad1f8f5b2b09314a2c0789a908aaab530b56cfff6a1c82ff",
+      "path": "matter/tools/cardboard_cached_operator_audit.py"
+    },
+    {
+      "base_sha256": "b9c1ee28b5cff89fb42a508ce6c852d0ee8cd6b3d0e6c674215c30d08c662164",
+      "bytes": 26369,
+      "change": "modified",
+      "overlay_sha256": "9aa1e9b07833bc74ee299d5bddf2d38bd62519705d63524efaefeb3a01dda9be",
+      "path": "matter/tools/test_cardboard_cached_operator_audit.py"
+    }
+  ],
+  "gpu_execution_performed": false,
+  "native_execution_performed": false,
+  "overlay_id": "cardboard-effective-solver-environment-source161-002",
+  "patch_sha256": "154c1ce851219615237b6d63c9bf9d543c6750fd9164c42e370932a916150789",
+  "schema": "numi.cardboard.source-overlay.v1",
+  "source160_dependency": {
+    "environment_keys_added_to_source157_probe_contract": [
+      "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH",
+      "NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR"
+    ],
+    "header_sha256": "f97bdbd1e6729861d1f232f6262ef08c405bbe0410a7c5172add180044c662e9",
+    "manifest_sha256": "0363e4cd3ea4fbc014127eb4e51c3ab16177d091687c7a1cfa2bdec727ff7a36",
+    "package": "/Users/home/cardboard-implementation-20261014/analysis/selector5-restart-consumer-capture-source160-002",
+    "runtime_sha256": "ab916ed67b669769bf8bbb8e10974782f62c1245f23434d69ae9f9d45aef6748",
+    "source464_size_preflight_sha256": "775cac7cfab463d0a050d13a671f8934cf6a78df88a3ce6869f365f842997e93",
+    "source_overlay_sha256": "2d7de4d1d7952efea7ed5afbafe7d2f9d94645a86a3d9a0fd5fe4be8f9581997"
+  },
+  "source161_001_ancestor": {
+    "manifest_sha256": "ab0cd2384192597cccb28b2d5de44c39a696c09b12d4da3711c9a5adbb854114",
+    "package": "/Users/home/cardboard-implementation-20261014/analysis/cardboard-effective-solver-environment-source161-001",
+    "patch_sha256": "b95bffbf4339df4b79c30265903ef97924e860b8f4b395ba1b3442b5114e4b05",
+    "relationship": "source161-002 is a complete overlay from source157 retaining its implementation and adding diagnostic-run contracts plus the cached-operator diagnostic consumer binding",
+    "source_overlay_sha256": "d9cef625712c6810bcfd318df861a4d101920efb868b2d53f866bd36d84d51ee"
+  },
+  "source_registry_key_count": 49,
+  "supersedes": {
+    "manifest_path": "historical-first-seal-001/source-overlay.json",
+    "manifest_sha256": "ecc96b0157f87adb7c78f919155271dcc20306e5c24b151b7c9017e8a163f2c6",
+    "patch_path": "historical-first-seal-001/source-overlay.patch",
+    "patch_sha256": "09bfcfbfea5b3940294a8f1ec8b26b1a131cc08b29236f17cd19a3b4be719147",
+    "reason": "The first announced seal is preserved byte-for-byte; this superseding overlay tightens diagnostic operator-FD path binding and corrects its synthetic fixture."
+  },
+  "validation": {
+    "bct_source_bound_tests": "validation/bct-source-bound-tests.log",
+    "cached_operator_audit_tests": "validation/cached-operator-audit-tests-final.log",
+    "diagnostic_contract_tests": "validation/diagnostic-contract-tests-final.log",
+    "patch_apply_receipt": "validation/patch-apply.json",
+    "post_tightening_pycompile": "validation/pycompile-final.log",
+    "python": "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "source160_read_only_review": "validation/source160-read-only-review.md"
+  },
+  "validation_artifact_sha256": {
+    "README.md": "280c13193028db5dbdea5c6c54c6a22801ea71cffd258913375b44996b36850f",
+    "validation/bct-source-bound-tests.log": "9c5c5714ae48ef738261c30651d2e905b97b14281c1e89e7fd8789a215b3ce93",
+    "validation/cached-operator-audit-tests-final.log": "414e6d3dea80466f4f6ec64623e929d6f3e20067c7467e8e97b50900570e115f",
+    "validation/diagnostic-contract-tests-final.log": "02bad61292ada25c50be20340ef3e645c696831ed7d1c8b064a7ed79b7497b6f",
+    "validation/patch-apply.json": "dd45d9ae29255ca3ec42c51fe71b9fbbe5719993636db15baf0d64748df213b8",
+    "validation/pycompile-final.log": "b0cb084dcb2cbead4660234a86905406a7e1c6cf152ead3c8543ab39f71ddffd",
+    "validation/source160-read-only-review.md": "2deecebb35baf6f061ef65762c50459a1f88432c0d985d9ca68d787a13eb9ef8"
+  }
+}

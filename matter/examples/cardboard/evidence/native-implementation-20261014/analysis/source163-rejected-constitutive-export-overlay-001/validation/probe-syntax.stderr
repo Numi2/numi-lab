@@ -1,0 +1,4 @@
+/Users/home/cardboard-implementation-20261014/analysis/source163-rejected-constitutive-export-overlay-001/candidate/matter/tools/cardboard_probe.mm:725:13: warning: unused function 'writeShippingNominalCurveArtifact' [-Wunused-function]
+  725 | std::string writeShippingNominalCurveArtifact(
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.

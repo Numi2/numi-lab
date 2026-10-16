@@ -1,0 +1,17 @@
+{
+  "schema": "numi.cardboard.bilinear-capture-layer-files.v1",
+  "files_sha256": {
+    "arrays.npz": "4361b6aa9f0d269a9733b0bd8f508dbc1204624451611816512dad02c303d27c",
+    "report.json": "b474c14872e15b9834af7fbf0e949e3ba7131dd18f11bae15e2725698e3a3eb7"
+  },
+  "inputs_sha256": {
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/diagnostics/final-newton": "cf42bdb145317b24a044e8e7561a99dc987df44761b841a08d7f3b28e6cd96d2",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/prediction.json": "46c190c84814378cb5b5d0919129e3cebdeffe497af2c92747cfbce2c71982ad",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/receipt.json": "35b856b4d94bcc3acfb5e611847ecc166860a228efc81e841decec019ea7e17f",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/stderr.log": "036e1a7371c78dcd459718f081170aea445c4234a34884cbd4ebc31fefcfb3bb",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/output/manifest.json": "142fa1f08cf14ea4eb0e77039174a2c25030e14c0d38d6c9874a06e561bd3f6f",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-002/candidate/matter/tools/cardboard_bilinear_capture_layers.py": "45f8fa26edb1222c61faaf6a2cfb05afb14476b4949b00e1700a34168802d939",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-002/candidate/matter/tools/cardboard_bilinear_fp64_reference.py": "ea5cba69f600f446cc1c129b03bf1fa578d4f26d2d0d62fa1e63b4fa4c8248d5",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157/matter/tools/cardboard_cached_operator_audit.py": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38"
+  }
+}

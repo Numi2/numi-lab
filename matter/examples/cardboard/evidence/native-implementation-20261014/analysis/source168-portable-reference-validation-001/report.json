@@ -1,0 +1,19 @@
+{
+  "schema": "numi.cardboard.portable-reference-validation.v1",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-reference-jacobian-168",
+  "selected_sources_verified": 802,
+  "source_build_sha256": "b84e9f82b277cd65e8cc8df8a05065ef5886c03b92f7354a5cbffdd1bbebae8d",
+  "cpu_artifacts_verified": 4,
+  "ctest_passed": 6,
+  "fp64_derivative_relative_l2_gate": 1e-06,
+  "projection_acceptance_limits_unchanged": [
+    2e-12,
+    2e-11
+  ],
+  "native_runtime_shader_probe_unchanged_from_source167": true,
+  "source167_native_build_receipt_sha256": "c5117e347334fa2edfbe9b1e21ea8812383f89477aa02b79aa76173a30a4cf24",
+  "scope": "802 source hashes equal current working tree. CPU reference/registration build only. Source167 supplies the separately bound unchanged native probe; its source snapshot remains immutable.",
+  "initial_test_failure": "analysis/reference003-portable-test-attempt-001",
+  "native_gpu_execution": false,
+  "qualification": "Portable numerical regression only. Full nonlinear solve, convergence, calibration, assembly and crush/impact remain unqualified."
+}

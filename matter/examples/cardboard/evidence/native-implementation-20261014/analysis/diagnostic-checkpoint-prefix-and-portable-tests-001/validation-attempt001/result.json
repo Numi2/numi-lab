@@ -1,0 +1,4 @@
+{
+  "exit_code": 1,
+  "failure": "Test fixture attempted to recreate the already-created diagnostic root; production output validation was not the failing layer."
+}

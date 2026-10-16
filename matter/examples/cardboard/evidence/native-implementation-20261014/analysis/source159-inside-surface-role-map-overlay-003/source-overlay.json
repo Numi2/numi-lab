@@ -1,0 +1,66 @@
+{
+  "all_unlisted_source_files_unchanged": true,
+  "base_configure_support_entry_count": 1034,
+  "base_files": {
+    "matter/tools/cardboard_probe.mm": "8bea98e513afca4f283e61a25aed25e8c55f5c8bd628a720654e9253fc10f3cd",
+    "matter/tools/cardboard_shipping_memory.hpp": "937b316f75469559eb2d9ca8484edaee1060376b48cd5748f262b01a6f837c4e"
+  },
+  "base_frozen_source_sha256": "a365fdf346743d45cd4a7e1c4796e718555709485627784b31d4d0833ba68876",
+  "base_overlay_manifest": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157/source-overlay.json",
+  "base_overlay_manifest_sha256": "1d5393fc37e73fba464463221707ac6ce817a91b482f72e267b25040c192de68",
+  "base_probe_sha256": "8bea98e513afca4f283e61a25aed25e8c55f5c8bd628a720654e9253fc10f3cd",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "base_source_hash_entry_count": 787,
+  "changed_source_files": {
+    "matter/tools/cardboard_inside_clearance.hpp": {
+      "base_sha256": null,
+      "candidate_bytes": 85417,
+      "candidate_sha256": "afe2c24cb7ecc879e771d9d4f8779adb9472593e68df015c0200ebc5b9235272",
+      "role": "new"
+    },
+    "matter/tools/cardboard_probe.mm": {
+      "base_sha256": "8bea98e513afca4f283e61a25aed25e8c55f5c8bd628a720654e9253fc10f3cd",
+      "candidate_bytes": 748479,
+      "candidate_sha256": "cd9e774f643c2b108430fc8bac505c4f41d44854f82d6c4cc093c2cb9610fc78",
+      "role": "modified"
+    },
+    "matter/tools/cardboard_shipping_memory.hpp": {
+      "base_sha256": "937b316f75469559eb2d9ca8484edaee1060376b48cd5748f262b01a6f837c4e",
+      "candidate_bytes": 69489,
+      "candidate_sha256": "6eeee9ef31c4c763a4d2a6ffd4c1edf18996bd2006aa56d94b5ef40fa98ca5af",
+      "role": "modified"
+    }
+  },
+  "full_source_build": "not run",
+  "limits": [
+    "No actual accepted shipping geometry or physical assembly was evaluated.",
+    "The topology-scale fixture validates indexing and workspace/work caps only.",
+    "Existing solver/contact runtime admission caps remain independently enforced.",
+    "The clearance workspace is modeled as concurrent with the live world and checkpoints; this is not an observed process peak.",
+    "The 1 mm butt-seam allowance is an engineering tolerance, not a measured kerf or manufacturing validation.",
+    "The 1% dimension comparison is independent of wall/end local opening coverage.",
+    "The FP32 ULP-derived area floor is a numerical bound, and accepted input spacing above 10 micrometres rejects the diagnostic.",
+    "Synthetic slit/seam tests do not establish closure or strength of a physical carton."
+  ],
+  "native_or_gpu_execution": "not launched",
+  "only_source_changes": [
+    "matter/tools/cardboard_inside_clearance.hpp",
+    "matter/tools/cardboard_probe.mm",
+    "matter/tools/cardboard_shipping_memory.hpp"
+  ],
+  "overlay_id": "source159_panel_local_closure_and_bounded_accounting",
+  "patch_bytes": 120136,
+  "patch_file": "/Users/home/cardboard-implementation-20261014/analysis/source159-inside-surface-role-map-overlay-003/source-overlay.patch",
+  "patch_sha256": "074fca9d448b8d79d255faede66bdfe257aa108aca99c58ca8019c99511a2c67",
+  "schema": "numi.cardboard.source159_inside_surface_clearance_overlay.v3",
+  "validation": {
+    "cpu_contracts": "panel-local geometry/seam/work-cap contracts and shipping memory at O0/O3; PASS",
+    "cpu_validation_log_sha256": "f75cf4513894e3b788cdab032c46212e832f39f902aa6f7acf1d486646415138",
+    "patch_application": "source157 files patched in a temporary directory; all three candidate hashes match; PASS",
+    "patch_application_log_sha256": "85345cc55a759a75439b6144b65df8df3fd9af8ee7066539dd0a7bb9aa875de1",
+    "probe": "source-157 compile-command Objective-C++ syntax only; PASS with one pre-existing unused-function warning",
+    "scale": "synthetic combinatorial topology-only fixture; PASS; no geometry/material evaluated; modeled scratch 1028812212 bytes",
+    "scale_result_sha256": "0c84d1e6a03cd4a35a7875cbfae3117c2cf82de8a9bdfdeef265d6fe9f08958c",
+    "scale_validation_log_sha256": "304409a03aa7ffe45a9975ca3ec131df33267eaae836b8b1b734fa9e56c35a16"
+  }
+}

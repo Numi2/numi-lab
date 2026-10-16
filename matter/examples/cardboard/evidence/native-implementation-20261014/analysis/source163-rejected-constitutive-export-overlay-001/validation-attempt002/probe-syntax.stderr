@@ -1,0 +1,4 @@
+/Users/home/cardboard-implementation-20261014/analysis/source163-rejected-constitutive-export-overlay-001/candidate/matter/tools/cardboard_probe.mm:7:10: fatal error: 'cardboard_glue_mesh.hpp' file not found
+    7 | #include "cardboard_glue_mesh.hpp"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.

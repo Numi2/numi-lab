@@ -1,0 +1,9 @@
+{
+  "parent_command_sha256": "1c3f3e44d3b70523c74cd54bf3a2bd85a3aa6c3f1fa3ad5e4d9478f545607ea0",
+  "native_argv_equal": true,
+  "aliases": {
+    "initial-effective-environment.json": "068aac1b96bc41ea5ea65321e845ec6bcd770247f266191c0b0b3688aaaaabb7",
+    "native468-root-complete-report.json": "33893ec1bead16307ce5aed3dc9bc1d023feec37baff6b253c8e8ee5032ced38",
+    "native468-independent-audit-report.json": "d2fdc4b06b90407585909dd6ce9b319ab40da3d60acee720c3ddcf68252686de"
+  }
+}

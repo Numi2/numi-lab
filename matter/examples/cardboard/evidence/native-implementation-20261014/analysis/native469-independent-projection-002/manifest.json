@@ -1,0 +1,220 @@
+{
+  "schema": "numi.cardboard.native469-independent-mp-projection-package.v2",
+  "classification": "independent local MP projection witness; not native trajectory or physical qualification",
+  "canonical_output": "run-sealed002",
+  "reproduction": {
+    "python": "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "python_version": "3.10.12",
+    "mpmath_version": "1.3.0",
+    "numpy_version": "2.2.5",
+    "solver_command": "/Users/home/.pyenv/versions/3.10.12/bin/python3 /Users/home/cardboard-implementation-20261014/analysis/native469-independent-projection-002/solve_mp_projection.py --output /absolute/path/to/new-output",
+    "test_command": "cd /Users/home/cardboard-implementation-20261014/analysis/native469-independent-projection-002 && /Users/home/.pyenv/versions/3.10.12/bin/python3 -m unittest -v test_report.py",
+    "test_exit_code": 0,
+    "syntax_compile": "python -m py_compile solve_mp_projection.py test_report.py passed"
+  },
+  "input_bindings": {
+    "capture_sha256": "cf42bdb145317b24a044e8e7561a99dc987df44761b841a08d7f3b28e6cd96d2",
+    "arrays_sha256": "4361b6aa9f0d269a9733b0bd8f508dbc1204624451611816512dad02c303d27c",
+    "source166_report_sha256": "b474c14872e15b9834af7fbf0e949e3ba7131dd18f11bae15e2725698e3a3eb7",
+    "reader_sha256": "45f8fa26edb1222c61faaf6a2cfb05afb14476b4949b00e1700a34168802d939",
+    "numpy_reference_sha256": "ea5cba69f600f446cc1c129b03bf1fa578d4f26d2d0d62fa1e63b4fa4c8248d5",
+    "cached_operator_audit_sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+    "material_asset_sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+    "authored_constitutive_source_sha256": "f907a680f2ddfd0d1082ad97dc117869f678ea8ff0deb638dea4634f27704260",
+    "source166_snapshot_integrity": {
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+      "verified_file_count": 787,
+      "source_hash_map_sha256": "ee89da136cec1f15fd50fa2a360e597eda75ad00b019d8f886a0668754983227",
+      "frozen_source_metadata_sha256": "2976540a244ba9af686e8033783a3d18da1ac48b030a949b2109fe81108f7cc0"
+    },
+    "source166_native_prediction_sha256": "46c190c84814378cb5b5d0919129e3cebdeffe497af2c92747cfbce2c71982ad",
+    "source166_native_receipt_sha256": "35b856b4d94bcc3acfb5e611847ecc166860a228efc81e841decec019ea7e17f",
+    "source166_native_stderr_sha256": "036e1a7371c78dcd459718f081170aea445c4234a34884cbd4ebc31fefcfb3bb",
+    "material_parameter_source": "capture header parameters_by_environment[0], medium offset 28, 28 FP32 parameters",
+    "captured_input_identity": {
+      "750": {
+        "paper_row": 750,
+        "material_index": 1,
+        "F_center_equals_reader": true,
+        "accepted_history_equals_reader": true
+      },
+      "846": {
+        "paper_row": 846,
+        "material_index": 1,
+        "F_center_equals_reader": true,
+        "accepted_history_equals_reader": true
+      },
+      "1571": {
+        "paper_row": 1475,
+        "material_index": 1,
+        "F_center_equals_reader": true,
+        "accepted_history_equals_reader": true
+      },
+      "1599": {
+        "paper_row": 1503,
+        "material_index": 1,
+        "F_center_equals_reader": true,
+        "accepted_history_equals_reader": true
+      },
+      "1601": {
+        "paper_row": 1505,
+        "material_index": 1,
+        "F_center_equals_reader": true,
+        "accepted_history_equals_reader": true
+      },
+      "1680": {
+        "paper_row": 1584,
+        "material_index": 1,
+        "F_center_equals_reader": true,
+        "accepted_history_equals_reader": true
+      }
+    }
+  },
+  "strict_gates": {
+    "scaled_residual_max_abs": 2e-12,
+    "dynamic_scaled_correction_max_abs": 2e-11,
+    "unchanged": true,
+    "residual_scales": [
+      10000.0,
+      10000.0,
+      10000.0,
+      10000.0,
+      10000.0,
+      10000.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      10000.0,
+      10000.0,
+      10000.0
+    ],
+    "dynamic_state_scale": "max(abs(accepted),abs(candidate),fb_epsilon) per state"
+  },
+  "resolved_rows": [
+    {
+      "tet": 750,
+      "mp_residual": "8.614016029489039640256069151813897502334e-14",
+      "mp_dynamic_correction": "8.53325248480563609129930662056531174915e-18",
+      "state_relative_l2": 2.0507764489594385e-12,
+      "stress_relative_l2": 1.875603386030326e-08,
+      "tangent_matrix_relative_l2": 4.765979865741811e-08,
+      "tangent_worst_column_relative_l2": 5.5312271039775075e-08
+    },
+    {
+      "tet": 846,
+      "mp_residual": "7.510068169447949847004778376634795341582e-14",
+      "mp_dynamic_correction": "2.5282196751076717210818132595249728365e-16",
+      "state_relative_l2": 9.100856329876459e-09,
+      "stress_relative_l2": 1.4590365571056152e-08,
+      "tangent_matrix_relative_l2": 6.109381944390724e-07,
+      "tangent_worst_column_relative_l2": 0.0001453426487212749
+    },
+    {
+      "tet": 1571,
+      "mp_residual": "2.851738097462133810418314831071907950334e-13",
+      "mp_dynamic_correction": "2.83793125837155018234136552198535612955e-17",
+      "state_relative_l2": 2.0354574219599408e-11,
+      "stress_relative_l2": 3.144346623646081e-08,
+      "tangent_matrix_relative_l2": 1.4955740575043906e-08,
+      "tangent_worst_column_relative_l2": 5.103351786858854e-08
+    },
+    {
+      "tet": 1599,
+      "mp_residual": "8.141182947189325907362110952634007709101e-24",
+      "mp_dynamic_correction": "8.062768696668344655903387416387447679343e-28",
+      "state_relative_l2": 3.365302428416986e-11,
+      "stress_relative_l2": 4.283962338538429e-08,
+      "tangent_matrix_relative_l2": 1.6098171423488553e-08,
+      "tangent_worst_column_relative_l2": 3.87367424752463e-08
+    },
+    {
+      "tet": 1601,
+      "mp_residual": "1.520701796625733560526186921792919225842e-23",
+      "mp_dynamic_correction": "1.507964849000215548279851193691765891319e-27",
+      "state_relative_l2": 4.572727516303377e-11,
+      "stress_relative_l2": 3.8697098444364804e-08,
+      "tangent_matrix_relative_l2": 2.506813203666083e-08,
+      "tangent_worst_column_relative_l2": 2.616589407919774e-08
+    },
+    {
+      "tet": 1680,
+      "mp_residual": "8.212069069013046712388505686765380169164e-23",
+      "mp_dynamic_correction": "8.192028303397103337831481659804480464645e-27",
+      "state_relative_l2": 7.332930649390982e-11,
+      "stress_relative_l2": 2.1698675550376023e-08,
+      "tangent_matrix_relative_l2": 5.039861590479216e-08,
+      "tangent_worst_column_relative_l2": 5.76712427227192e-08
+    }
+  ],
+  "max_70_80_110_dynamic_scaled_root_spread": 1.8257523851344277e-71,
+  "preserved_preliminary_attempts": {
+    "run-final": "superseded; first test compared the stability threshold field as though it were observed spread",
+    "run-sealed": "superseded; corrected report field, but test still targeted stale run-final path",
+    "run-evidence": "successful source-map verification output superseded only by final gate labels and final package binding"
+  },
+  "files": {
+    "README.md": {
+      "sha256": "8dc9f712ba95c88c01c38e6d13e0ae34f8ff09f4fdb3745f56f1d17356e9bf9b",
+      "bytes": 4658
+    },
+    "solve_mp_projection.py": {
+      "sha256": "0dbf31f42a84fe73b8a1e0e47f1f1411264ee43c51eba345f1b7087153595eed",
+      "bytes": 25437
+    },
+    "test_report.py": {
+      "sha256": "64a52e68dd4b4effa8d94cba5550651d3cf40a5e8548e031a968f2fa84f68128",
+      "bytes": 3368
+    },
+    "test-stdout.log": {
+      "sha256": "5a1a2dbf2d930804a1dc2feeca6a59ad9fe73b21b803c1910430370456477a84",
+      "bytes": 572
+    },
+    "seal_manifest.py": {
+      "sha256": "5e7fccc9cabf0ae538c77235f3a19fc9ef739f8a309afd20e7caa737845f7e52",
+      "bytes": 4010
+    },
+    "run-sealed002/report.json": {
+      "sha256": "f4ce185b3cf9e7b06eacf5db7292b48fbcf6830848f7916259214121af2f2f13",
+      "bytes": 85166
+    },
+    "run-sealed002/mp_states.npz": {
+      "sha256": "674488b4a68b189ee0a17c2f332baa7cd6172d08ed3c12308b12d022493ac7a7",
+      "bytes": 1907
+    },
+    "run-final/report.json": {
+      "sha256": "71c91a501eef94fda32626c5e1623dc2a95201cfef66fa61c7c1fbc57bc27403",
+      "bytes": 84964
+    },
+    "run-final/mp_states.npz": {
+      "sha256": "674488b4a68b189ee0a17c2f332baa7cd6172d08ed3c12308b12d022493ac7a7",
+      "bytes": 1907
+    },
+    "run-sealed/report.json": {
+      "sha256": "c65cb5e0a66da16cb6401f97a02d9b8b180623e74a3b5455b765407dc42480f7",
+      "bytes": 85475
+    },
+    "run-sealed/mp_states.npz": {
+      "sha256": "674488b4a68b189ee0a17c2f332baa7cd6172d08ed3c12308b12d022493ac7a7",
+      "bytes": 1907
+    },
+    "run-evidence/report.json": {
+      "sha256": "a1af3430e106f15d08be59f2471e845de9a627bba53415f89aec1a9b0be1520d",
+      "bytes": 84443
+    },
+    "run-evidence/mp_states.npz": {
+      "sha256": "674488b4a68b189ee0a17c2f332baa7cd6172d08ed3c12308b12d022493ac7a7",
+      "bytes": 1907
+    }
+  },
+  "limitations": [
+    "No native projection code or native seed used.",
+    "No gate, coefficient, recipe, or constitutive equation was changed.",
+    "Native tangent comparisons here use same-state complex-step FP64 reference after MP projection; no measured native finite-difference noise floor or full-derivative qualification.",
+    "No full-assembly gate is promoted from six repaired center reference rows.",
+    "The current source-166 tet-846 tangent Jacobian comparison is flagged as provisional due to the separately diagnosed quotient differentiation artifact.",
+    "The six reference rows cover center F only; the other four captured deformation states, full assembly gates, and physical closure remain open."
+  ]
+}

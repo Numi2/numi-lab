@@ -1,0 +1,4 @@
+/Users/home/cardboard-implementation-20261014/snapshots/source-diagnostic-and-resume-167-final/matter/tools/cardboard_probe.mm:730:13: warning: unused function 'writeShippingNominalCurveArtifact' [-Wunused-function]
+  730 | std::string writeShippingNominalCurveArtifact(
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.

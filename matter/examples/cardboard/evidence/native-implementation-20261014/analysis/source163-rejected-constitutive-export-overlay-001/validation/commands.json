@@ -1,0 +1,41 @@
+[
+  {
+    "argv": [
+      "/usr/bin/clang++",
+      "-DNUMI_CARDBOARD_MATERIAL_DIR=\"/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157/matter/materials\"",
+      "-DNUMI_CARDBOARD_METALLIB=\"/Users/home/numi-cardboard-20261006/build-cardboard-provenance-157/shaders/NumiMatter.metallib\"",
+      "-I/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157/matter/../include",
+      "-I/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157/matter/include",
+      "-F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks",
+      "-x",
+      "objective-c++",
+      "-O3",
+      "-DNDEBUG",
+      "-std=c++23",
+      "-arch",
+      "arm64",
+      "-fPIE",
+      "-fobjc-arc",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-fsyntax-only",
+      "/Users/home/cardboard-implementation-20261014/analysis/source163-rejected-constitutive-export-overlay-001/candidate/matter/tools/cardboard_probe.mm",
+      "-I/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157/matter/tools"
+    ],
+    "exit_code": 0
+  },
+  {
+    "argv": [
+      "patch",
+      "--dry-run",
+      "--batch",
+      "-p1",
+      "-i",
+      "/Users/home/cardboard-implementation-20261014/analysis/source163-rejected-constitutive-export-overlay-001/overlay.patch",
+      "-d",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157"
+    ],
+    "exit_code": 0
+  }
+]

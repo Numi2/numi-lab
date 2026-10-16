@@ -1,0 +1,332 @@
+{
+  "binding_path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/publication-binding-reference028.json",
+  "binding_sha256": "d720819e837db8e503b8cc06c3f9664709d10089ccf05da24f97fbfb0bf02f0d",
+  "checks": {
+    "active468_run_and_guard_excluded": {
+      "detail": {
+        "active_case_records_in_summary": 0,
+        "forbidden_tokens": [
+          "/solver/cgls-dt-half-cycle-468",
+          "/native468-launch-guard",
+          "launch-guard-468"
+        ]
+      },
+      "pass": true
+    },
+    "active468_status_and_exclusion_explicit": {
+      "detail": {
+        "active_flag": false,
+        "status_note_sha256": "ecc89366c27d0badc9a473cee1b0921e028ca95e0494456424fe8aeb09d388bd"
+      },
+      "pass": true
+    },
+    "all_staged_bytes_equal_worktree": {
+      "detail": {
+        "bytes_compared": 51488434,
+        "files_compared": 722,
+        "mismatch_count": 0,
+        "mismatches": []
+      },
+      "pass": true
+    },
+    "binding_hash": {
+      "detail": {
+        "bytes": 4817,
+        "sha256": "d720819e837db8e503b8cc06c3f9664709d10089ccf05da24f97fbfb0bf02f0d"
+      },
+      "pass": true
+    },
+    "case_list_exact": {
+      "detail": {
+        "cases_sha256": "3559c4c307dd3b348e923b55b2a2041bbb7502cae7822ffdd4417fadede0d87b",
+        "count": 20
+      },
+      "pass": true
+    },
+    "command003_refusal_preserved": {
+      "detail": {
+        "command003_executable": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/numi-matter-cardboard-probe",
+        "refusal": {
+          "case_created": false,
+          "command_sha256": "a866723fba64c9e82c027ca017f9e9fd2eaf2e2023e3cd0af10b6d34105572e0",
+          "exit_code": 1,
+          "launch_guard_created": false,
+          "native_launched": false
+        }
+      },
+      "pass": true
+    },
+    "command004_executable_exact_binding": {
+      "detail": {
+        "actual_sha256": "19492c5cff7dd94148335f7ed53a358bbcebcaa163241cfd8012abbac9f765e0",
+        "binding_sha256": "19492c5cff7dd94148335f7ed53a358bbcebcaa163241cfd8012abbac9f765e0",
+        "build_record_artifact": "19492c5cff7dd94148335f7ed53a358bbcebcaa163241cfd8012abbac9f765e0",
+        "bytes": 2881944,
+        "command004_executable": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-157/numi-matter-cardboard-probe"
+      },
+      "pass": true
+    },
+    "external_archive_and_inventory_hashes": {
+      "detail": {
+        "descriptors": 323,
+        "mismatches": [],
+        "verified": 323
+      },
+      "pass": true
+    },
+    "external_recovery_index_hash_and_case": {
+      "detail": {
+        "archive_descriptors_unique": 323,
+        "bytes": 237204,
+        "pointer_rows": 128,
+        "sha256": "ac63ec0a0f4cba8832709024c1d3ecc56dc54e5b97d65e880292b33c77ebca25"
+      },
+      "pass": true
+    },
+    "external_recovery_pointer_copies": {
+      "detail": {
+        "copies_verified": 128,
+        "mismatches": [],
+        "source_pointers_still_present": 128
+      },
+      "pass": true
+    },
+    "external_recovery_receipt": {
+      "detail": {
+        "archive_count": 128,
+        "index_sha256": "ac63ec0a0f4cba8832709024c1d3ecc56dc54e5b97d65e880292b33c77ebca25",
+        "receipt_index_rows": [
+          {
+            "bytes": 237204,
+            "path": "external-recovery-index.json",
+            "sha256": "ac63ec0a0f4cba8832709024c1d3ecc56dc54e5b97d65e880292b33c77ebca25"
+          }
+        ]
+      },
+      "pass": true
+    },
+    "historical_summary_hash": {
+      "detail": {
+        "bytes": 17798659,
+        "sha256": "855f5b9c193720744ee0b49cd5d5b7a26be53b21509369da7dc408533ae756c6"
+      },
+      "pass": true
+    },
+    "metallib_history_gap_explicit": {
+      "detail": {
+        "evidence_status": "historical operation is not independently reproducible; explicit gap retained",
+        "report_sha256": "0d8f8c7299c2e9f4025edd1f9761a2943f6e5740af375d51518afc0b2c03be12",
+        "report_status": null
+      },
+      "pass": true
+    },
+    "no_staged_deletions": {
+      "detail": {
+        "deleted": []
+      },
+      "pass": true
+    },
+    "no_unstaged_tracked_changes": {
+      "detail": {
+        "count": 0,
+        "paths": []
+      },
+      "pass": true
+    },
+    "pathspec_hashes_and_counts": {
+      "detail": {
+        "027_count": 4849,
+        "027_sha256": "8d14076a060be308f86e2dca697f975d6ebab5d152ccae6e24f22880693a9f0c",
+        "028_count": 5566,
+        "028_sha256": "2014e68375cec1a720edc04feca77f64d2a8d5bc18c5be1949ca1802dba84662"
+      },
+      "pass": true
+    },
+    "pathspec_old_prefix_and_new_delta": {
+      "detail": {
+        "delta_count": 717,
+        "expected_delta_count": 717,
+        "missing": [],
+        "prefix_exact": true,
+        "unexpected": []
+      },
+      "pass": true
+    },
+    "payload_file_totals": {
+      "detail": {
+        "gzip": 8,
+        "payloads": 715,
+        "raw": 707
+      },
+      "pass": true
+    },
+    "payload_source_copy_and_decompression_hashes": {
+      "detail": {
+        "copy_bytes": 14624693,
+        "gzip_verified": 8,
+        "mismatch_count": 0,
+        "mismatches": [],
+        "raw_verified": 707
+      },
+      "pass": true
+    },
+    "qualification_claims_bounded": {
+      "detail": {
+        "binding_statuses": {
+          "analogue_validation": "unqualified_for_requested_full_sequence",
+          "component_calibration": "partial_source_data_only",
+          "crush_impact_prediction": "unexecuted",
+          "numerical_convergence": "unqualified",
+          "physical_assembly_in_simulation": "unqualified",
+          "solver_correctness": "partial_component_evidence; complete_nonlinear_solve_unqualified"
+        },
+        "descriptive_qualification": {
+          "analogue_validation": "Published source grades and separate series retained; no new full-board analogue validation pass.",
+          "component_calibration": "Retained damage path now rejects complete shared-face ownership with rotated/sliver checks; this is not mesh-objective or calibrated damage. Robertsson absolute-energy conflict retained. Kraft/NSSC component and local starch/hot-melt fracture parameter identifiability remain open; public analogues do not close exact-recipe calibration.",
+          "crush_impact_prediction": "No qualified native box compression curve, frozenFpeak, capacity-derived masses, gravity-crush or drop-impact result.",
+          "numerical_convergence": "Native468 command004 is prepared and executable/build checked; command003 was refused before native launch. The active native468 case and launch guard are deliberately excluded. No complete coupon mesh/time/slower-loading study or downstream refinement qualification is published here.",
+          "physical_assembly_in_simulation": "Shipping explicit-flute topology still fails native admission; no fully scored, folded, bonded, released and settled shipping-box checkpoint.",
+          "solver_correctness": "Source157 fixes commanded-grip observations only. Four CPU schedules and ten compiled-reader checks pass; targets and solver are unchanged. A source-bound build is admitted. Complete nonlinear solve, native regional-map/transpose qualification and projected-history/noise-floor questions remain open."
+        },
+        "physical_validation": false,
+        "qualification_axis_count": 6,
+        "required_limit_phrases": {
+          "analogue_validation": "no new full-board analogue validation pass",
+          "component_calibration": "remain open",
+          "crush_impact_prediction": "No qualified",
+          "numerical_convergence": "active native468 case and launch guard are deliberately excluded",
+          "physical_assembly_in_simulation": "no fully scored",
+          "solver_correctness": "Complete nonlinear solve"
+        },
+        "summary_statuses": {
+          "analogue_validation": "unqualified_for_requested_full_sequence",
+          "component_calibration": "partial_source_data_only",
+          "crush_impact_prediction": "unexecuted",
+          "numerical_convergence": "unqualified",
+          "physical_assembly_in_simulation": "unqualified",
+          "solver_correctness": "partial_component_evidence; complete_nonlinear_solve_unqualified"
+        }
+      },
+      "pass": true
+    },
+    "source157_787_hashes": {
+      "detail": {
+        "independently_verified": 787,
+        "mismatches": [],
+        "physical_qualification": false,
+        "source_map_entries": 787,
+        "source_report_count": 787
+      },
+      "pass": true
+    },
+    "staged_integration_paths_outside_evidence_pathspec": {
+      "detail": {
+        "count": 4,
+        "paths": [
+          "matter/examples/cardboard/implementation-20261014.md",
+          "matter/examples/cardboard/solver-milestone-source157.md",
+          "matter/examples/cardboard/solver-progress-20261014.md",
+          "matter/tools/cardboard_probe.mm"
+        ]
+      },
+      "pass": true
+    },
+    "staged_list_hash_and_count": {
+      "detail": {
+        "count_expected_file": 722,
+        "count_git_index": 722,
+        "git_only": [],
+        "list_only": [],
+        "sha256": "639fe00ea24320f0264d47e1fafaa21efd9959ed2e0fce38e54d7a79c1769bf4"
+      },
+      "pass": true
+    },
+    "summary_hash": {
+      "detail": {
+        "bytes": 18187348,
+        "sha256": "d025f2ce80dda69efb980ed24a21001cc8e2c6ac41a68299768bb25c26182196"
+      },
+      "pass": true
+    },
+    "summary_old_prefix_exact": {
+      "detail": {
+        "records": 1460
+      },
+      "pass": true
+    },
+    "summary_record_counts": {
+      "detail": {
+        "current": 1480,
+        "declared_new": 20,
+        "declared_old": 1460,
+        "prior": 1460
+      },
+      "pass": true
+    },
+    "unrelated_untracked_preserved_outside_stage": {
+      "detail": {
+        "expected": [
+          "matter/examples/cardboard/evidence/native-implementation-20261014/solver/regional-bending-captured-cycle-057/analysis-057/replay-build-037/CMakeFiles/4.0.1/CompilerIdOBJCXX/CMakeOBJCXXCompilerId.mm",
+          "matter/tools/evidence/cohesive-scratch-alias/source-audit.json"
+        ],
+        "paths": [
+          "matter/examples/cardboard/evidence/native-implementation-20261014/solver/regional-bending-captured-cycle-057/analysis-057/replay-build-037/CMakeFiles/4.0.1/CompilerIdOBJCXX/CMakeOBJCXXCompilerId.mm",
+          "matter/tools/evidence/cohesive-scratch-alias/source-audit.json"
+        ],
+        "staged_overlap": [],
+        "untracked_count": 2
+      },
+      "pass": true
+    }
+  },
+  "external_recovery": {
+    "index_sha256": "ac63ec0a0f4cba8832709024c1d3ecc56dc54e5b97d65e880292b33c77ebca25",
+    "pointer_copies_verified": 128,
+    "pointer_count": 128,
+    "pointer_sources_present": 128,
+    "unique_indexed_files": 323
+  },
+  "failures": [],
+  "head": "2298e1a1d49dd09fa149c57f65ccbfaab3985c29",
+  "new_cases": 20,
+  "pathspec": {
+    "027_entries": 4849,
+    "028_entries": 5566,
+    "028_sha256": "2014e68375cec1a720edc04feca77f64d2a8d5bc18c5be1949ca1802dba84662",
+    "new_entries": 717,
+    "old_prefix_exact": true
+  },
+  "payloads": {
+    "copy_bytes": 14624693,
+    "gzip": 8,
+    "raw": 707,
+    "total": 715
+  },
+  "repo": "/Users/home/numi-cardboard-20261006",
+  "schema": "numi.cardboard.publication028.independent_byte_audit.v1",
+  "source157": {
+    "mismatch_count": 0,
+    "source_files_verified": 787,
+    "source_map_entries": 787
+  },
+  "staging": {
+    "compared_bytes": 51488434,
+    "outside_evidence_pathspec": [
+      "matter/examples/cardboard/implementation-20261014.md",
+      "matter/examples/cardboard/solver-milestone-source157.md",
+      "matter/examples/cardboard/solver-progress-20261014.md",
+      "matter/tools/cardboard_probe.mm"
+    ],
+    "paths": 722,
+    "stage_list_sha256": "639fe00ea24320f0264d47e1fafaa21efd9959ed2e0fce38e54d7a79c1769bf4",
+    "unstaged_tracked": 0,
+    "untracked_paths": [
+      "matter/examples/cardboard/evidence/native-implementation-20261014/solver/regional-bending-captured-cycle-057/analysis-057/replay-build-037/CMakeFiles/4.0.1/CompilerIdOBJCXX/CMakeOBJCXXCompilerId.mm",
+      "matter/tools/evidence/cohesive-scratch-alias/source-audit.json"
+    ],
+    "worktree_byte_equal": true
+  },
+  "summary_records": 1480,
+  "summary_sha256": "d025f2ce80dda69efb980ed24a21001cc8e2c6ac41a68299768bb25c26182196",
+  "verdict": "PASS"
+}

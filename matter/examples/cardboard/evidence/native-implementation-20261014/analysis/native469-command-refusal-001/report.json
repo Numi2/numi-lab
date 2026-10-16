@@ -1,0 +1,10 @@
+{
+  "schema": "numi.cardboard.prelaunch-refusal.v1",
+  "time_utc": "2026-10-16T01:40:27.784610+00:00",
+  "command_sha256": "1c3f3e44d3b70523c74cd54bf3a2bd85a3aa6c3f1fa3ad5e4d9478f545607ea0",
+  "reason": "two newly added independent analysis inputs share report.json basename; exact input basename uniqueness check rejected before creating case, capacity guard or GPU process",
+  "execution_started": false,
+  "case_exists": false,
+  "exit_code": 1,
+  "error": "AssertionError: duplicate input basename"
+}

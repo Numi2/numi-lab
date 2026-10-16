@@ -1,0 +1,7 @@
+patching file 'matter/tools/cardboard_probe.mm'
+patching file 'matter/tools/cardboard_shipping_memory.hpp'
+patching file 'matter/tools/cardboard_inside_clearance.hpp'
+patching file 'matter/tools/cardboard_probe.mm'
+patching file 'matter/tools/cardboard_shipping_memory.hpp'
+patching file 'matter/tools/cardboard_inside_clearance.hpp'
+source159 patch application: PASS (base files were copied to a disposable temp directory)

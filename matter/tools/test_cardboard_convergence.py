@@ -7,6 +7,7 @@ import csv
 import importlib.util
 import json
 import math
+import hashlib
 import subprocess
 import sys
 import tempfile
@@ -20,10 +21,34 @@ assert SPEC and SPEC.loader
 cc = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = cc
 SPEC.loader.exec_module(cc)
+import cardboard_solver_environment as solver_environment
 
 
 def write_json(path: Path, value: object) -> None:
     path.write_text(json.dumps(value, indent=2) + "\n")
+
+
+def install_diagnostic_environment(run_path: Path, *, capture_key: str = "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH") -> None:
+    """Convert a synthetic run into a valid diagnostic-only environment record."""
+    prefixes = solver_environment.create_diagnostic_capture_prefixes(
+        run_path, [capture_key])
+    overrides = {"NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR": "0:0:7:1:4:0"}
+    contract = solver_environment.make_diagnostic_contract(overrides, run_path, prefixes)
+    prediction_path = run_path / "prediction.json"
+    prediction = json.loads(prediction_path.read_text())
+    prediction.update({
+        "schema": "numi.cardboard.native-diagnostic-prediction.v1",
+        "run_mode": "diagnostic",
+        "environment": {key: state["value"] for key, state in contract["effective"].items()
+                        if state["set"]},
+        "effective_native_environment_contract": contract,
+        "effective_native_environment_contract_sha256": contract["sha256"],
+    })
+    write_json(prediction_path, prediction)
+    record = solver_environment.make_diagnostic_run_record(
+        contract, removed_inherited_keys=[],
+        prediction_sha256=hashlib.sha256(prediction_path.read_bytes()).hexdigest())
+    write_json(run_path / "native-environment.json", record)
 
 
 def fake_run(root: Path, name: str, *, nx: int = 2, dt: float = 1.0,
@@ -34,7 +59,9 @@ def fake_run(root: Path, name: str, *, nx: int = 2, dt: float = 1.0,
              geometry_length: float = 1.0, plastic_liner: float = 0.0,
              plastic_medium: float = 3e-6, moment_scale: float = 1.0,
              raw_status: int = 0, accepted_flag: int = 1,
-             release_constraint_error: bool = False, omit_step_accepted: bool = False) -> Path:
+             release_constraint_error: bool = False, omit_step_accepted: bool = False,
+             environment_overrides: dict[str, str] | None = None,
+             with_environment_contract: bool = True) -> Path:
     path = root / name
     path.mkdir()
     phases = (steps, hold, unload, relax, release, post_release_relax)
@@ -194,6 +221,21 @@ def fake_run(root: Path, name: str, *, nx: int = 2, dt: float = 1.0,
                 "tetrahedra": [{"index": i, "material_index": i, "state": tet_states[i]} for i in range(3)],
             }
             write_json(path / f"material_state_{end:06d}_{arm}.json", state)
+    if with_environment_contract:
+        contract = solver_environment.make_contract(environment_overrides)
+        prediction_path = path / "prediction.json"
+        overrides = {key: state["value"] for key, state in contract["effective"].items() if state["set"]}
+        write_json(prediction_path, {
+            "schema": "numi.cardboard.native-prediction.v1",
+            "environment": overrides,
+            "effective_native_environment_contract": contract,
+            "effective_native_environment_contract_sha256": contract["sha256"],
+        })
+        prediction_sha = hashlib.sha256(prediction_path.read_bytes()).hexdigest()
+        env_record = solver_environment.make_run_record(
+            contract, producer="source-bound-native-runner", removed_inherited_keys=[],
+            prediction_sha256=prediction_sha)
+        write_json(path / "native-environment.json", env_record)
     return path
 
 
@@ -244,6 +286,53 @@ class CardboardConvergenceTests(unittest.TestCase):
         self.assertEqual(result["status"], "incompatible_pair")
         self.assertEqual(result["reasons"][0]["code"], "solver_control_mismatch")
 
+    def test_effective_environment_is_required_for_pairs_but_not_descriptive_loads(self) -> None:
+        legacy = fake_run(self.root, "legacy-environment", with_environment_contract=False)
+        modern = fake_run(self.root, "modern-environment", nx=4)
+        self.assertEqual(cc.analyze_run(legacy)["status"], "analyzed_descriptive")
+        result = cc.analyze_pair(legacy, modern, "spatial")
+        self.assertEqual(result["status"], "inconclusive_evidence")
+        self.assertEqual(result["reasons"][0]["code"], "missing_effective_native_environment")
+
+    def test_environment_absent_empty_mismatch_and_graph_schwarz(self) -> None:
+        absent = fake_run(self.root, "env-absent")
+        empty = fake_run(self.root, "env-empty", nx=4,
+                         environment_overrides={"NM_FEM_TRUE_RESIDUAL_ROOT": ""})
+        result = cc.analyze_pair(absent, empty, "spatial")
+        self.assertEqual(result["status"], "incompatible_pair")
+        self.assertEqual(result["reasons"][0]["code"], "native_environment_mismatch")
+        graph_a = fake_run(self.root, "graph-a")
+        graph_b = fake_run(self.root, "graph-b", nx=4)
+        for run_path in (graph_a, graph_b):
+            manifest_path = run_path / "manifest.json"
+            manifest = json.loads(manifest_path.read_text())
+            manifest["solver"]["fgmres_preconditioner"] = "regional_galerkin_graph_schwarz_conditioning_only"
+            write_json(manifest_path, manifest)
+        self.assertEqual(cc.analyze_pair(graph_a, graph_b, "spatial")["status"], "analyzed_descriptive")
+
+    def test_primary_cache_and_augmentation_environment_mismatches_are_rejected(self) -> None:
+        controls = (
+            ("NM_FEM_BASE_CGLS_PRIMARY_AFTER", "0", "1"),
+            ("NM_FEM_CACHE_PROJECTION_REUSE", "0", "1"),
+            ("NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION", "0", "1"),
+        )
+        for index, (key, left_value, right_value) in enumerate(controls):
+            left = fake_run(self.root, f"env-left-{index}",
+                            environment_overrides={key: left_value})
+            right = fake_run(self.root, f"env-right-{index}", nx=4,
+                             environment_overrides={key: right_value})
+            with self.subTest(key=key):
+                report = cc.analyze_pair(left, right, "spatial")
+                self.assertEqual(report["status"], "incompatible_pair")
+                self.assertEqual(report["reasons"][0]["code"], "native_environment_mismatch")
+
+    def test_environment_sidecar_must_bind_prediction(self) -> None:
+        run_path = fake_run(self.root, "environment-tamper")
+        prediction = run_path / "prediction.json"
+        prediction.write_text(prediction.read_text() + " ")
+        with self.assertRaisesRegex(cc.EvidenceError, "does not bind"):
+            cc._load_run(run_path)
+
     def test_failed_status_not_overridden_by_raw_accepted_flag(self) -> None:
         a = fake_run(self.root, "failed", raw_status=10, accepted_flag=1)
         b = fake_run(self.root, "control", nx=4)
@@ -285,6 +374,14 @@ class CardboardConvergenceTests(unittest.TestCase):
         self.assertEqual(cc.analyze_pair(coarse, no_nest, "temporal")["reasons"][0]["code"], "incommensurate_time_sampling")
         wrong_duration = fake_run(self.root, "wrong-duration", nx=2, dt=.5, steps=5, hold=5, unload=5, relax=5)
         self.assertEqual(cc.analyze_pair(coarse, wrong_duration, "temporal")["reasons"][0]["code"], "phase_duration_mismatch")
+
+    def test_diagnostic_run_is_rejected_from_convergence_pair(self) -> None:
+        baseline = fake_run(self.root, "qualification-baseline")
+        diagnostic = fake_run(self.root, "diagnostic-candidate", nx=4)
+        install_diagnostic_environment(diagnostic)
+        result = cc.analyze_pair(baseline, diagnostic, "spatial")
+        self.assertEqual(result["status"], "inconclusive_evidence")
+        self.assertEqual(result["reasons"][0]["code"], "diagnostic_run_not_qualifiable")
 
     def test_enabled_tool_loading_is_explicitly_unsupported(self) -> None:
         baseline = fake_run(self.root, "baseline")

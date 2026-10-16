@@ -1,0 +1,40 @@
+{
+  "schema": "numi.cardboard.source-overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "base_overlay": "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-002",
+  "base_overlay_manifest_sha256": "978ed3d360db9678caff6e9b0c2ef398a1aa006688f045b0f82e8b6b5924a005",
+  "overlay_id": "bilinear-capture-layer-audit-source166-003",
+  "patch_sha256": "ab49ba81d44c50922bb88804a1d496ea51281ce6a4486acd11279927c0fe3836",
+  "supersedes": {
+    "package": "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-002",
+    "manifest_sha256": "978ed3d360db9678caff6e9b0c2ef398a1aa006688f045b0f82e8b6b5924a005"
+  },
+  "files": [
+    {
+      "path": "matter/tools/cardboard_bilinear_capture_layers.py",
+      "base_source166002_sha256": "45f8fa26edb1222c61faaf6a2cfb05afb14476b4949b00e1700a34168802d939",
+      "overlay_sha256": "45f8fa26edb1222c61faaf6a2cfb05afb14476b4949b00e1700a34168802d939",
+      "changed": false
+    },
+    {
+      "path": "matter/tools/cardboard_bilinear_fp64_reference.py",
+      "base_source166002_sha256": "ea5cba69f600f446cc1c129b03bf1fa578d4f26d2d0d62fa1e63b4fa4c8248d5",
+      "overlay_sha256": "abb2f33b00fd2fbac0097c35814833dbe957313a8a0cc65da3a70c030e8f1a0e",
+      "changed": true
+    },
+    {
+      "path": "matter/tools/test_cardboard_bilinear_capture_layers.py",
+      "base_source166002_sha256": "f5ae31dd095713654ee2896280aabc1dcd2b229e2058ecb6913310df5715d2d2",
+      "overlay_sha256": "f5ae31dd095713654ee2896280aabc1dcd2b229e2058ecb6913310df5715d2d2",
+      "changed": false
+    },
+    {
+      "path": "matter/tools/test_reference_fb_jacobian.py",
+      "base_source166002_sha256": null,
+      "overlay_sha256": "3ff0427cf65497f7f8d7916e1143e894de4c615944f1dab10f0c1aaa9baf0c31",
+      "changed": true
+    }
+  ],
+  "native_execution_performed": false,
+  "qualification": false
+}

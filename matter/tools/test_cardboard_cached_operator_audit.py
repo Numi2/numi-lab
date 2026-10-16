@@ -365,6 +365,117 @@ class AssemblyAdmissionTests(unittest.TestCase):
             self.assertEqual(binding["runtime_and_external_input_hashes_verified_against_prediction"][
                 "external/source-build.json"]["location"], "external_input")
 
+    def test_diagnostic_prediction_requires_valid_contract_and_capture_inventory(self):
+        env = audit.solver_environment
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            snapshot = root / "snapshot"
+            case = root / "case"
+            snapshot.mkdir()
+            case.mkdir()
+            source_hashes = {}
+            registry_text = "\n".join(env.NATIVE_ENV_KEYS) + "\n"
+            for relative in audit.REQUIRED_BOUND_SOURCES:
+                path = snapshot / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                contents = (registry_text if relative == "matter/src/runtime.mm"
+                            else ("probe source\n" if relative == "matter/tools/cardboard_probe.mm"
+                                  else "bound synthetic source\n"))
+                path.write_text(contents)
+                source_hashes[relative] = audit.sha256(path)
+            prefixes = env.create_diagnostic_capture_prefixes(
+                case, ["NM_FEM_OPERATOR_FD_CAPTURE_PATH"])
+            capture = Path(prefixes["NM_FEM_OPERATOR_FD_CAPTURE_PATH"])
+            contract = env.make_diagnostic_contract(
+                {"NM_FEM_OPERATOR_FD_SELECTOR": "2:5"}, case, prefixes)
+            capture.parent.mkdir(parents=True, exist_ok=True)
+            capture.write_text("synthetic diagnostic capture\n")
+            inventory = env.validate_diagnostic_outputs(case, prefixes)
+            receipt_capture_validation = dict(inventory)
+            (case / "diagnostic-captures.json").write_text(json.dumps({
+                "schema": "numi.cardboard.diagnostic-capture-files.v1",
+                "environment_contract_sha256": contract["sha256"],
+                **inventory,
+            }))
+            prediction = case / "prediction.json"
+            prediction.write_text(json.dumps({
+                "schema": "numi.cardboard.native-diagnostic-prediction.v1",
+                "run_mode": "diagnostic",
+                "environment": {
+                    "NM_FEM_OPERATOR_FD_SELECTOR": "2:5",
+                    "NM_FEM_OPERATOR_FD_CAPTURE_PATH": prefixes[
+                        "NM_FEM_OPERATOR_FD_CAPTURE_PATH"],
+                },
+                "effective_native_environment_contract": contract,
+                "effective_native_environment_contract_sha256": contract["sha256"],
+                "source_snapshot": str(snapshot),
+                "inputs_sha256": source_hashes,
+            }))
+            prediction_hash = audit.sha256(prediction)
+            env.write_run_record_new(case / "native-environment.json",
+                env.make_diagnostic_run_record(
+                    contract, removed_inherited_keys=[],
+                    prediction_sha256=prediction_hash))
+            stderr = case / "stderr.log"
+            stderr.write_text(
+                'fem_operator_fd_enabled={"root":2,"iteration":5}\n'
+                'fem_operator_fd_iteration={"root":2,"newton_iteration":5,'
+                '"world_fingerprint":17,"execution_fingerprint":23,'
+                '"cached_tangent_snapshot_available":true,'
+                '"cached_tangent_snapshot_bitwise_guard_included":true,'
+                '"production_inputs_bitwise_unchanged":true,'
+                '"environments":[{"epsilon_pairs":[{"input_integrity_flag":1},'
+                '{"input_integrity_flag":1}]}]}\n')
+            receipt = case / "receipt.json"
+            receipt.write_text(json.dumps({
+                "exit_code": 2, "timed_out": False, "run_mode": "diagnostic",
+                "prediction_sha256": prediction_hash,
+                "capture_sha256": audit.sha256(capture),
+                "diagnostic_capture_validation": receipt_capture_validation,
+            }))
+            binding = audit.bind_inputs(capture, prediction, receipt, stderr, 0)
+            self.assertEqual(binding["prediction_run_mode"], "diagnostic")
+            self.assertEqual(binding["receipt_exit_code"], 2)
+
+            environment_record = case / "native-environment.json"
+            environment_record.rename(case / "native-environment.saved")
+            with self.assertRaisesRegex(ValueError, "lacks its native environment record"):
+                audit.bind_inputs(capture, prediction, receipt, stderr, 0)
+            (case / "native-environment.saved").rename(environment_record)
+
+            valid_prediction = json.loads(prediction.read_text())
+            wrong_path = json.loads(prediction.read_text())
+            wrong_path["environment"]["NM_FEM_OPERATOR_FD_CAPTURE_PATH"] = str(
+                case / "diagnostics" / "other" / "capture")
+            prediction.write_text(json.dumps(wrong_path))
+            receipt.write_text(json.dumps({
+                "exit_code": 2, "timed_out": False, "run_mode": "diagnostic",
+                "prediction_sha256": audit.sha256(prediction),
+                "capture_sha256": audit.sha256(capture),
+                "diagnostic_capture_validation": receipt_capture_validation,
+            }))
+            with self.assertRaisesRegex(ValueError, "invalid diagnostic environment binding"):
+                audit.bind_inputs(capture, prediction, receipt, stderr, 0)
+
+            prediction.write_text(json.dumps(valid_prediction))
+            receipt.write_text(json.dumps({
+                "exit_code": 2, "timed_out": False, "run_mode": "diagnostic",
+                "prediction_sha256": audit.sha256(prediction),
+                "capture_sha256": audit.sha256(capture),
+                "diagnostic_capture_validation": receipt_capture_validation,
+            }))
+            malformed = json.loads(prediction.read_text())
+            malformed.pop("effective_native_environment_contract")
+            prediction.write_text(json.dumps(malformed))
+            receipt.write_text(json.dumps({
+                "exit_code": 2, "timed_out": False, "run_mode": "diagnostic",
+                "prediction_sha256": audit.sha256(prediction),
+                "capture_sha256": audit.sha256(capture),
+                "diagnostic_capture_validation": receipt_capture_validation,
+            }))
+            with self.assertRaisesRegex(ValueError, "invalid diagnostic environment binding"):
+                audit.bind_inputs(capture, prediction, receipt, stderr, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

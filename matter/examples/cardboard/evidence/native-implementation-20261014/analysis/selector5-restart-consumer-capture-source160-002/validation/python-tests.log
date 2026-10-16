@@ -1,0 +1,11 @@
+test_invalid_generation_is_captured_not_promoted (test_capture_validator.CaptureValidatorTests) ... ok
+test_invalid_mode_and_preserved_tail_remain_observable (test_capture_validator.CaptureValidatorTests) ... ok
+test_multitick_or_duplicate_event_metadata_rejects (test_capture_validator.CaptureValidatorTests) ... ok
+test_payload_corruption_fails_checksum (test_capture_validator.CaptureValidatorTests) ... ok
+test_v2_capture_bound_is_64_mib (test_capture_validator.CaptureValidatorTests) ... ok
+test_valid_capture_reconstructs_raw_nonsymmetric_rap (test_capture_validator.CaptureValidatorTests) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.007s
+
+OK

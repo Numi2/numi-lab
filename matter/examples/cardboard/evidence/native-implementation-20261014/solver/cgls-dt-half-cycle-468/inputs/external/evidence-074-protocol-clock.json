@@ -1,0 +1,89 @@
+{
+  "467": {
+    "bend_angle_deg": 0.375,
+    "effective_runtime_dt_s": 9.999999747378752e-05,
+    "phase_counts": {
+      "hold": 3,
+      "loading": 12,
+      "post_release_relaxation": 3,
+      "relaxation": 3,
+      "release": 3,
+      "unloading": 6
+    },
+    "phase_durations_s": {
+      "hold": 0.00029999999242136255,
+      "loading": 0.0011999999696854502,
+      "post_release_relaxation": 0.00029999999242136255,
+      "relaxation": 0.00029999999242136255,
+      "release": 0.00029999999242136255,
+      "unloading": 0.0005999999848427251
+    },
+    "total_duration_s": 0.0029999999242136255
+  },
+  "468": {
+    "bend_angle_deg": 0.375,
+    "effective_runtime_dt_s": 4.999999873689376e-05,
+    "phase_counts": {
+      "hold": 6,
+      "loading": 24,
+      "post_release_relaxation": 6,
+      "relaxation": 6,
+      "release": 6,
+      "unloading": 12
+    },
+    "phase_durations_s": {
+      "hold": 0.00029999999242136255,
+      "loading": 0.0011999999696854502,
+      "post_release_relaxation": 0.00029999999242136255,
+      "relaxation": 0.00029999999242136255,
+      "release": 0.00029999999242136255,
+      "unloading": 0.0005999999848427251
+    },
+    "total_duration_s": 0.0029999999242136255
+  },
+  "common_sample_checks": {
+    "coarse_interval_vs_refined_two_halfsteps_rate_max_abs_difference_deg_s": 0.0,
+    "coarse_step_vs_refined_last_halfstep_rate_max_abs_difference_deg_s": 5.684341886080801e-13,
+    "common_time_max_abs_difference_s": 0.0,
+    "count": 30,
+    "phase_and_right_grip_state_match": true,
+    "target_angle_max_abs_difference_deg": 0.0,
+    "target_coordinate_max_abs_difference_m": 0.0,
+    "target_float32_component_count": 1620,
+    "target_float32_component_matches": 1620
+  },
+  "force_accuracy_contract": {
+    "467_conditional_force_bound_N": 0.010000000252621254,
+    "467_relative_residual_cli_threshold": 1e-06,
+    "468_conditional_force_bound_N": 0.010000000252621254,
+    "468_relative_residual_cli_threshold": 5e-07,
+    "conditional_bounds_equal": true,
+    "postrun_gate": "Verify the residual scale remains 1 for every accepted row and separately compare measured free_force_imbalance_l2_N/max_N; no force-accuracy conclusion can be made from this prepared command.",
+    "units_and_condition": "For this pure mechanical coupon, source runtime forms certificate as generalized residual impulse norm divided by max(reference scale, 1). While the denominator remains 1, certificate is numerically an N s residual; divided by dt it gives the equivalent force bound."
+  },
+  "refined_path_checks": {
+    "coarse_step_chord_speed_at_max_radius_m_s": 0.011480994133503569,
+    "continuous_loading_and_unloading_rate_magnitude_deg_s": 312.50000789441424,
+    "fine_endpoint_count": 60,
+    "fine_step_chord_speed_at_max_radius_m_s": 0.011480994240233024,
+    "fine_vs_coarse_chord_speed_relative_difference": 9.296185821128233e-09,
+    "interpretation": "Underlying prescribed angular path and physical angular rate are unchanged. Per-step chord velocities differ at the expected O(dt^2) sampling level because the same curved rotational path is more finely sampled.",
+    "max_angle_difference_from_same_continuous_piecewise_linear_path_deg": 0.0,
+    "max_right_grip_radius_from_rotation_pivot_m": 0.002105
+  },
+  "source_clock": {
+    "loading_angle": "bend * (zero_based_step_within_loading + 1) / loading_steps",
+    "release_flags": "fillTargets marks right grip free in both release and post_release_relaxation phases",
+    "sample_time": "runtime effective float32 dt * (zero_based_step + 1)",
+    "total_steps": "sum of phase counts",
+    "unloading_angle": "bend * (1 - (zero_based_step_within_unloading + 1) / unloading_steps)"
+  },
+  "telemetry_caveat": {
+    "detail": "fillTargets sets right-grip target w=2 (free) for release and post_release_relaxation, while writeObservation emits right_grip_constrained=0 only when phase == release and emits 1 for post_release_relaxation. Treat this CSV field as incorrect for post-release; derive the grip mode from authored phase/target code and the retained requested phase counts.",
+    "line_ranges": {
+      "CSV_right_grip_constrained": "6180-6187",
+      "target_flags": "4245-4255"
+    },
+    "source_file": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154/matter/tools/cardboard_probe.mm"
+  }
+}

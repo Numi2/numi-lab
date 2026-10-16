@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.native-warm-start-kernel-check.v1",
+  "package_manifest_sha256": "29043b640b6fde5fc66c864ff84d80400cb09771fb5e455368afdd7ae76c7f8d",
+  "argv": [
+    "/Users/home/cardboard-implementation-20261014/analysis/base-cgls-warm-start-refinement-overlay-159-002/native/build/warm_start_check"
+  ],
+  "executable_sha256": "a2d4b704f27f490a5ae8bb82d3ec4e4765ee4062b8cf7c629f2dfec710c012eb",
+  "metallib_sha256": "d96a80106f3624b07260f88865270e05726946d9e85225ba1f8b6c2c2e0c81f0",
+  "baseline_sources_verified": 787,
+  "started_at_utc": "2026-10-16T02:37:47.727978+00:00",
+  "wall_seconds": 0.4330517500056885,
+  "returncode": 1,
+  "gpu_execution": true,
+  "physical_transactions": 0,
+  "full_solver_or_physical_qualification": false
+}

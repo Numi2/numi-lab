@@ -1,0 +1,124 @@
+{
+  "added_test_files": [
+    "tests/coupon_resume_contract_test.cpp"
+  ],
+  "base_files": [
+    {
+      "path": "matter/tools/cardboard_probe.mm",
+      "sha256": "8bea98e513afca4f283e61a25aed25e8c55f5c8bd628a720654e9253fc10f3cd"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_snapshot.hpp",
+      "sha256": "987eade18437c57a5e5ea364065ab7926c8911281d0b966034a44279b4f48475"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_driver.hpp",
+      "sha256": "81844531890af9c6822ad9cde1ae7766a514f99fe14a8ec4459dbd596afeb2d5"
+    }
+  ],
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "candidate_sha256": {
+    "matter/tools/cardboard_coupon_resume.hpp": "5178ef9d0e0084ba7d7c1be70943ccebb5837773f8edec5dae94c33a87490073",
+    "matter/tools/cardboard_probe.mm": "984e7843f654802f49d88eb5298ab3beb4f5b5755ac0a0400424eae75924e18d",
+    "overlay.patch": "a31feb421ee3fcbf0ce939612c9280174d4584c7b8bcbfdf7afb039b80f7e39c",
+    "tests/coupon_resume_contract_test.cpp": "79e72652ae8e9d92e56504accc1038f76fa095d70f5869246b68b1b4b1f56fe4"
+  },
+  "changed_source_files": [
+    "matter/tools/cardboard_probe.mm",
+    "matter/tools/cardboard_coupon_resume.hpp"
+  ],
+  "files": [
+    {
+      "bytes": 2901,
+      "mode": 420,
+      "path": "README.md",
+      "sha256": "56f4d57861579a61e4b24b700523bb5ffb294ddcebb36e09e8ea68f9b76d487b"
+    },
+    {
+      "bytes": 23253,
+      "mode": 420,
+      "path": "candidate/matter/tools/cardboard_coupon_resume.hpp",
+      "sha256": "5178ef9d0e0084ba7d7c1be70943ccebb5837773f8edec5dae94c33a87490073"
+    },
+    {
+      "bytes": 762039,
+      "mode": 420,
+      "path": "candidate/matter/tools/cardboard_probe.mm",
+      "sha256": "984e7843f654802f49d88eb5298ab3beb4f5b5755ac0a0400424eae75924e18d"
+    },
+    {
+      "bytes": 68497,
+      "mode": 420,
+      "path": "overlay.patch",
+      "sha256": "a31feb421ee3fcbf0ce939612c9280174d4584c7b8bcbfdf7afb039b80f7e39c"
+    },
+    {
+      "bytes": 7214,
+      "mode": 420,
+      "path": "tests/coupon_resume_contract_test.cpp",
+      "sha256": "79e72652ae8e9d92e56504accc1038f76fa095d70f5869246b68b1b4b1f56fe4"
+    },
+    {
+      "bytes": 12,
+      "mode": 420,
+      "path": "validation/contract-compile.log",
+      "sha256": "bde294368bfed77c2cddf8cec271d398aee9cdbab3b26e1059281bd33adb0120"
+    },
+    {
+      "bytes": 12,
+      "mode": 420,
+      "path": "validation/contract-run.log",
+      "sha256": "bde294368bfed77c2cddf8cec271d398aee9cdbab3b26e1059281bd33adb0120"
+    },
+    {
+      "bytes": 171,
+      "mode": 420,
+      "path": "validation/patch-dry-run.log",
+      "sha256": "a0f7363187769cadad67465264e7e8c3a58ec317ea6cae0c9612631878a732af"
+    },
+    {
+      "bytes": 1026,
+      "mode": 420,
+      "path": "validation/results.json",
+      "sha256": "6a39299e6767c8abe16b62f044cf02179398bbff357ffd2a50caae24fd2b46d0"
+    },
+    {
+      "bytes": 4712,
+      "mode": 420,
+      "path": "validation/run_validation.py",
+      "sha256": "b0c02c169f97d4b63ffb2330be5e4076ce53b50296325694cb6c1068fdde06a5"
+    },
+    {
+      "bytes": 363,
+      "mode": 420,
+      "path": "validation/syntax-box-native.log",
+      "sha256": "1f435d5fb573faf89a9cf59749ccebb1c85d9c1cccbfa785ed9b2a75f6667914"
+    },
+    {
+      "bytes": 363,
+      "mode": 420,
+      "path": "validation/syntax-coupon.log",
+      "sha256": "1f435d5fb573faf89a9cf59749ccebb1c85d9c1cccbfa785ed9b2a75f6667914"
+    }
+  ],
+  "native_build_or_gpu_run": "not_run",
+  "schema": "numi.cardboard.coupon-accepted-resume-overlay.v1",
+  "status": "sealed_isolated_candidate",
+  "trajectory_parity": "not_established",
+  "validation": {
+    "box_native_probe_syntax": "PASS",
+    "candidate_probe_sha256": "984e7843f654802f49d88eb5298ab3beb4f5b5755ac0a0400424eae75924e18d",
+    "candidate_resume_header_sha256": "5178ef9d0e0084ba7d7c1be70943ccebb5837773f8edec5dae94c33a87490073",
+    "compile_commands_sha256": "2789b25029e0e81b6ac938f0aed53763de29b733dd110f5c6013bfb2990ed53a",
+    "contract_test_sha256": "79e72652ae8e9d92e56504accc1038f76fa095d70f5869246b68b1b4b1f56fe4",
+    "contract_tests": "PASS",
+    "native_build_or_gpu_run": "NOT_RUN",
+    "ordinary_coupon_probe_syntax": "PASS",
+    "overlay_patch_sha256": "a31feb421ee3fcbf0ce939612c9280174d4584c7b8bcbfdf7afb039b80f7e39c",
+    "patch_dry_run": "PASS",
+    "schema": "numi.cardboard.coupon-resume-validation.v1",
+    "source157_driver_header_sha256": "81844531890af9c6822ad9cde1ae7766a514f99fe14a8ec4459dbd596afeb2d5",
+    "source157_probe_sha256": "8bea98e513afca4f283e61a25aed25e8c55f5c8bd628a720654e9253fc10f3cd",
+    "source157_snapshot_header_sha256": "987eade18437c57a5e5ea364065ab7926c8911281d0b966034a44279b4f48475"
+  }
+}

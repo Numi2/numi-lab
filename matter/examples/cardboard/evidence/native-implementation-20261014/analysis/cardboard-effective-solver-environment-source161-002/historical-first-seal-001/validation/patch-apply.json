@@ -1,0 +1,22 @@
+{
+  "all_outputs_match_overlay_source": true,
+  "applied_files": [
+    "matter/tools/cardboard_convergence.py",
+    "matter/tools/cardboard_resolution_study.py",
+    "matter/tools/cardboard_source_bound_run.py",
+    "matter/tools/cardboard_solver_environment.py",
+    "matter/tools/test_cardboard_convergence.py",
+    "matter/tools/test_cardboard_resolution_study.py",
+    "matter/tools/test_bct_source_bound_harness.py",
+    "matter/tools/test_cardboard_solver_environment.py",
+    "matter/tools/cardboard_cached_operator_audit.py",
+    "matter/tools/test_cardboard_cached_operator_audit.py"
+  ],
+  "command": [
+    "patch",
+    "-p1",
+    "-s"
+  ],
+  "exit_code": 0,
+  "patch_sha256": "09bfcfbfea5b3940294a8f1ec8b26b1a131cc08b29236f17cd19a3b4be719147"
+}

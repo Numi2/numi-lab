@@ -1,5 +1,7 @@
 # Native solver progress and unresolved qualification
 
+Source167 implements accepted coupon save/restore and bounded actual-consumer capture. Source168 fixes a demonstrated independent-reference FB derivative cancellation and adds a portable high-precision witness; strict projection tolerances remain unchanged. Native468/469 reject control20 with residual5.424712981e-6 against5e-7; their common structured production traces,42CSV rows and40accepted geometry files are byte-identical. No complete history or resolution series passes. The isolated warm-start CGLS candidate still needs kernel/runtime qualification; its first executed checker failure is retained. Native470 runs a checkpoint prefix and is excluded from the closed evidence milestone. See [the detailed report](solver-milestone-source167.md).
+
 Source154 adds tested opt-in all-control solver routing and a128-Newton driver ceiling. Native466 preserves the complete prior failed attempt; isolated regional observer464 also preserves production history while retaining a selection-metadata defect. No complete coupon or shipping qualification follows. See [the source154 milestone](solver-milestone-source154.md).
 
 ## Current milestone: source142 bounded native CGLS

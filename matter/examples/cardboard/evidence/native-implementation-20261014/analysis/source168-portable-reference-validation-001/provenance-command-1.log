@@ -1,0 +1,12 @@
+[  0%] Building CXX object CMakeFiles/numi-matter-cardboard-coupon-resume-check.dir/tools/cardboard_coupon_resume_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-coupon-resume-check
+[100%] Built target numi-matter-cardboard-coupon-resume-check
+[100%] Building CXX object CMakeFiles/numi-matter-cardboard-inside-clearance-check.dir/tools/cardboard_inside_clearance_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-inside-clearance-check
+[100%] Built target numi-matter-cardboard-inside-clearance-check
+[  0%] Building CXX object CMakeFiles/numi-matter-cardboard-shipping-clearance-memory-check.dir/tools/cardboard_shipping_clearance_memory_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-shipping-clearance-memory-check
+[100%] Built target numi-matter-cardboard-shipping-clearance-memory-check
+Building CXX object CMakeFiles/numi-matter-cardboard-regional-consumer-capture-check.dir/tools/cardboard_regional_consumer_capture_check.cpp.o
+Linking CXX executable numi-matter-cardboard-regional-consumer-capture-check
+Built target numi-matter-cardboard-regional-consumer-capture-check

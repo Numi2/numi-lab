@@ -22,6 +22,7 @@ import sys
 import time
 from pathlib import Path
 from typing import Any, Iterable
+import cardboard_solver_environment as solver_environment
 
 
 SCHEMA = "numi.cardboard.resolution-study.v2"
@@ -103,6 +104,10 @@ def _baseline_contract(path: Path) -> Any:
         run = cc._load_run(path)
     except Exception as exc:
         raise StudyError(f"baseline is not admitted by cardboard_convergence._load_run: {exc}") from exc
+    if run.native_environment is None:
+        raise StudyError("baseline lacks a source-bound effective native environment contract; legacy runs remain descriptive only")
+    if not solver_environment.is_qualification_run_record(run.native_environment):
+        raise StudyError("diagnostic native runs cannot serve as resolution-study baselines")
     mesh = run.manifest["mesh"]
     dims = (mesh["nx_per_pitch"], mesh["ny"], mesh["thickness_slices"])
     if dims != (8, 2, 1):
@@ -137,6 +142,9 @@ def _baseline_material_files(run: Any) -> list[dict[str, str]]:
 
 
 def _default_source_paths(repo_root: Path) -> list[Path]:
+    environment_helper = repo_root / "matter/tools/cardboard_solver_environment.py"
+    if not environment_helper.is_file():
+        environment_helper = Path(__file__).with_name("cardboard_solver_environment.py")
     relative = (
         "matter/tools/cardboard_probe.mm",
         "matter/tools/cardboard_convergence.py",
@@ -144,12 +152,13 @@ def _default_source_paths(repo_root: Path) -> list[Path]:
         "matter/tools/cardboard_glue_mesh.hpp",
         "matter/tools/cardboard_starch_interface_mesh.hpp",
         "matter/src/runtime.mm",
+        "matter/src/metal_encoder_timing.hpp",
         "matter/src/compiler_impl.cpp",
         "matter/src/validation_impl.cpp",
         "matter/src/metal/fem.metalinc",
         "matter/include/numi/matter/shared.h",
     )
-    result = []
+    result = [environment_helper.resolve()]
     for item in relative:
         path = repo_root / item
         if not path.is_file():
@@ -342,6 +351,10 @@ def make_plan(*, baseline_dir: Path, probe: Path, metallib: Path, run_root: Path
 
     repo_root = (source_root.expanduser().resolve() if source_root is not None
                  else Path(__file__).resolve().parents[2])
+    try:
+        solver_environment.validate_source_registry(repo_root)
+    except ValueError as exc:
+        raise StudyError(f"source native environment registry is incomplete: {exc}") from exc
     sources = _default_source_paths(repo_root)
     if source_paths is not None:
         sources.extend(source_paths)
@@ -352,6 +365,7 @@ def make_plan(*, baseline_dir: Path, probe: Path, metallib: Path, run_root: Path
     metallib_binding = {"path": str(metallib), "sha256": _sha256_file(metallib)}
     source_bindings = _hash_bindings([Path(item["path"]) for item in source_bindings] +
                                     [Path(item["path"]) for item in material_bindings])
+    environment_contract = solver_environment.validate_contract(run.native_environment["contract"])
 
     protocol = cc._protocol(run.manifest["solver"])
     common_args = _native_base_arguments(run)
@@ -412,6 +426,8 @@ def make_plan(*, baseline_dir: Path, probe: Path, metallib: Path, run_root: Path
             "parallelism": 1,
             "lock_path": "/tmp/numi-cardboard-resolution-study.gpu.lock",
             "common_native_args": common_args,
+            "effective_native_environment_contract": environment_contract,
+            "effective_native_environment_contract_sha256": environment_contract["sha256"],
             "controlled_flags": sorted(CONTROLLED_FLAGS),
             "failure_policy": "stop at first failed case; preserve output, stdout, stderr, prediction, and prior accepted runs",
         },
@@ -464,6 +480,13 @@ def _verify_bindings(plan: dict[str, Any]) -> None:
     if plan.get("schema") != PLAN_SCHEMA or plan.get("plan_sha256") != _plan_digest(plan):
         raise StudyError("study plan schema/digest is invalid or the prediction was modified")
     execution = plan["execution"]
+    try:
+        environment_contract = solver_environment.validate_contract(
+            execution.get("effective_native_environment_contract"))
+    except ValueError as exc:
+        raise StudyError(f"study plan lacks a valid effective native environment contract: {exc}") from exc
+    if execution.get("effective_native_environment_contract_sha256") != environment_contract["sha256"]:
+        raise StudyError("study plan effective native environment digest mismatch")
     bindings = [execution["probe"], execution["metallib"], *execution["source_files"]]
     bindings.extend(plan["baseline"]["materials"])
     for entry in bindings:
@@ -474,6 +497,10 @@ def _verify_bindings(plan: dict[str, Any]) -> None:
     admitted = cc._load_run(baseline)
     if dict(sorted(admitted.files.items())) != plan["baseline"]["input_sha256"]:
         raise StudyError("baseline evidence changed after the prediction was sealed")
+    if admitted.native_environment is None or admitted.native_environment["contract"]["sha256"] != environment_contract["sha256"]:
+        raise StudyError("baseline effective native environment differs from the sealed study plan")
+    if not solver_environment.is_qualification_run_record(admitted.native_environment):
+        raise StudyError("diagnostic native runs cannot serve as resolution-study baselines")
 
 
 def _native_args(case: dict[str, Any], common: list[str], output: Path,
@@ -776,7 +803,14 @@ def _load_case_runs(plan: dict[str, Any], case_paths: dict[str, Path]) -> tuple[
             statuses[case["id"]] = "not_executed"
             continue
         try:
-            runs[case["id"]] = cc._load_run(path)
+            run = cc._load_run(path)
+            expected = plan["execution"]["effective_native_environment_contract_sha256"]
+            if (run.native_environment is None or
+                    not solver_environment.is_qualification_run_record(run.native_environment)):
+                raise StudyError("diagnostic native runs are not admitted as positive resolution-study cases")
+            if run.native_environment["contract"]["sha256"] != expected:
+                raise StudyError("case effective native environment differs from the sealed plan")
+            runs[case["id"]] = run
             statuses[case["id"]] = "admitted_by_convergence_loader"
         except Exception as exc:
             statuses[case["id"]] = f"rejected_by_convergence_loader: {type(exc).__name__}: {exc}"
@@ -899,6 +933,8 @@ def _write_execution_prediction(case_dir: Path, plan: dict[str, Any], case: dict
         "expected_observation": "each accepted stage should be complete; no outcome is assumed",
         "expected_direction": "resolution differences should decrease on three-level sequences; otherwise retain and report the contrary result",
         "acceptance_thresholds": THRESHOLDS,
+        "effective_native_environment_contract": plan["execution"]["effective_native_environment_contract"],
+        "effective_native_environment_contract_sha256": plan["execution"]["effective_native_environment_contract_sha256"],
         "created_before_native_execution": True,
     }
     _write_json_new(case_dir / "prediction.json", prediction)
@@ -943,6 +979,15 @@ def run_plan(plan_path: Path) -> dict[str, Any]:
             case_dir.mkdir(parents=True, exist_ok=False)
             output_dir = case_dir / "native"
             _write_execution_prediction(case_dir, plan, case)
+            prediction_sha256 = _sha256_file(case_dir / "prediction.json")
+            case_environment, removed_environment_keys = solver_environment.child_environment(
+                os.environ, plan["execution"]["effective_native_environment_contract"])
+            environment_record = solver_environment.make_run_record(
+                plan["execution"]["effective_native_environment_contract"],
+                producer="resolution-study", removed_inherited_keys=removed_environment_keys,
+                prediction_sha256=prediction_sha256, plan_sha256=plan["plan_sha256"],
+                case_id=case["id"])
+            solver_environment.write_run_record_new(case_dir / "native-environment.json", environment_record)
             args = [str(Path(plan["execution"]["probe"]["path"]))]
             args += _native_args(case, plan["execution"]["common_native_args"], output_dir,
                                  Path(plan["execution"]["metallib"]["path"]))
@@ -953,6 +998,7 @@ def run_plan(plan_path: Path) -> dict[str, Any]:
             try:
                 with (case_dir / "stdout.log").open("xb") as stdout, (case_dir / "stderr.log").open("xb") as stderr:
                     completed = subprocess.run(args, cwd=run_root, stdout=stdout, stderr=stderr,
+                                               env=case_environment,
                                                timeout=float(plan["execution"]["timeout_seconds"]), check=False)
                 outcome = {"status": "process_exited", "returncode": completed.returncode}
                 if output_dir.is_dir():

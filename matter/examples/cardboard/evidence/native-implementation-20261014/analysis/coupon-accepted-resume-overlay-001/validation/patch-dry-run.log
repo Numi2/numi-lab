@@ -1,0 +1,4 @@
+exit_code=0
+patching file 'matter/tools/cardboard_probe.mm'
+patching file 'matter/tools/cardboard_coupon_resume.hpp'
+patching file 'tests/coupon_resume_contract_test.cpp'

@@ -1,0 +1,140 @@
+{
+  "base_declared_source_file_count": 787,
+  "base_declared_source_hashes_verified": true,
+  "base_frozen_source_sha256": "2976540a244ba9af686e8033783a3d18da1ac48b030a949b2109fe81108f7cc0",
+  "base_parent_revision": "7ebc64a666c4bd5e1ff61b3684655979ab80dc60",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "base_source_overlay_sha256": "1d5393fc37e73fba464463221707ac6ce817a91b482f72e267b25040c192de68",
+  "checker_controls": [
+    "fresh residual b-A*x0 seeding",
+    "x0 plus CGLS correction",
+    "strict improved residual install",
+    "equal residual decline preserving x0 and certificate",
+    "negative b dot A*x with residual improvement",
+    "zero total x accepted only in warm mode when fresh residual strictly decreases",
+    "zero-norm legacy direction rejected while preserving x0 and certificate"
+  ],
+  "cumulative_source_delta_from_157": {
+    "matter/src/metal/base_cgls.metalinc": {
+      "base": {
+        "bytes": 31219,
+        "sha256": "127d05d6323085ad6abd160ff560b95008981e9421541e9677dddbb3fa253aec"
+      },
+      "candidate": {
+        "bytes": 38489,
+        "sha256": "ef8ab8763a675d34c6ab9bd3323fe9b8a8426ce3d77397cb782243ed1979483f"
+      },
+      "changed_from_base": true
+    },
+    "matter/src/metal/base_cgls_runtime.metalinc": {
+      "base": {
+        "bytes": 7149,
+        "sha256": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903"
+      },
+      "candidate": {
+        "bytes": 8667,
+        "sha256": "db006182e00df7a74eb823264202450d1e7dbd4735f31651fe263bd231fded12"
+      },
+      "changed_from_base": true
+    },
+    "matter/src/runtime.mm": {
+      "base": {
+        "bytes": 1862438,
+        "sha256": "69d012aeaeff6bf7ef45ede8817d9664aea21b756383fe46b38325c75c6ce743"
+      },
+      "candidate": {
+        "bytes": 1869973,
+        "sha256": "db96b3d9c899f2c948ce804f4e48ff50a9834307e42eddecb907972ab03e2ae2"
+      },
+      "changed_from_base": true
+    }
+  },
+  "delta_since_159_001": {
+    "checker_files": [
+      "native/warm_start_check.metal",
+      "native/warm_start_check.mm"
+    ],
+    "production_files": [
+      "matter/src/metal/base_cgls_runtime.metalinc"
+    ],
+    "reason": "allow strict warm residual reduction when total x is zero; preserve legacy xn>0 and original FGMRES compensated accumulation helper; enforce all installer call bindings",
+    "support_files": [
+      "native/compile_only.sh",
+      "native/runtime_syntax_only.py",
+      "tests/source_contract_check.py"
+    ]
+  },
+  "environment_contract": {
+    "checkpoint_compatibility": "candidate-enabled run must start at control step 0; no digest-changing resume is supported",
+    "default": "off",
+    "enabled_value": "1",
+    "new_registry_key": "NM_FEM_BASE_CGLS_WARM_START_REFINE"
+  },
+  "installer_contract": {
+    "legacy_acceptance": "retains xn>0 and positive-descent validity checks",
+    "legacy_accumulation": "installer uses frozen fgmresCompensatedAdd for pre-existing solution/residual/descent sums; checker helper is exact body match",
+    "slot16": "existing CGLS B buffer containing the masked fresh baseline residual b-A*x0; bound in runtime and checker even in legacy mode because the kernel declaration reads it unconditionally",
+    "slot17": "warm/legacy selector; 1 only on explicitly enabled selected-policy Newton, otherwise 0",
+    "warm_acceptance": "finite candidate with strictly smaller recomputed unscaled residual norm; no positive solution-norm requirement"
+  },
+  "new_persistent_arena_bytes": 0,
+  "nonlinear_acceptance_changed": false,
+  "operator_changed": false,
+  "overlay_id": "base_cgls_warm_start_refinement_159_002",
+  "parent_overlay": {
+    "manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/base-cgls-warm-start-refinement-overlay-159-001/source-overlay.json",
+    "manifest_sha256": "0e11ca6c034b3872c7252cb447c0bde3177109d9ed5df366399c26892cf00296",
+    "overlay_id": "base_cgls_warm_start_refinement_159_001",
+    "patch_sha256": "2847fb2b3af60f822bac19a30363a371b5522956c60827b5eac65c837367b8b5",
+    "preserved_immutable": true
+  },
+  "patch": {
+    "bytes": 24287,
+    "sha256": "9a2abf35db908aa19b1fb2a4d017079eac2c730b0df03cdc9f2964f008aa04b6"
+  },
+  "schema": "numi.cardboard.base_cgls_warm_start_refinement_overlay.v2",
+  "selected_zero_seed_invariant": {
+    "assessment": "source-supported for valid one-object FEM node ranges; cycle-zero FGMRES accumulation overwrites a converged zero-column solution with zero",
+    "audit": {
+      "bytes": 2304,
+      "sha256": "56efb9f85a8f45efa84fd3d8493f7b78dddf77d581ddcfa72c2d53d7888cf041"
+    },
+    "limitation": "accumulation skips NM_INVALID_INDEX node ranges; no proof is claimed for orphan rows"
+  },
+  "validation": {
+    "checker_executable_linked_not_run": {
+      "bytes": 306000,
+      "sha256": "a2d4b704f27f490a5ae8bb82d3ec4e4765ee4062b8cf7c629f2dfec710c012eb"
+    },
+    "compile_link_log": {
+      "bytes": 166,
+      "sha256": "873a8d76435fdb7b560a3b3cf7841062832444d9ef20fe093991abba47b2933a"
+    },
+    "compile_script": {
+      "bytes": 1088,
+      "sha256": "d1815cbd508fec8392e30db5d55d4cb43bf6168b2eae067cf3caa7af6d41fde8"
+    },
+    "full_solver_trial": false,
+    "gpu_execution": false,
+    "metal_air": {
+      "bytes": 410704,
+      "sha256": "08060b8273873a7f0b9a32bd641e0c481fd7c42f18df0787c83900efa440c7d8"
+    },
+    "metallib": {
+      "bytes": 1956711,
+      "sha256": "d96a80106f3624b07260f88865270e05726946d9e85225ba1f8b6c2c2e0c81f0"
+    },
+    "native_checker_executed": false,
+    "runtime_syntax_exit_code": 0,
+    "runtime_syntax_only": true,
+    "runtime_syntax_record": {
+      "bytes": 1984,
+      "sha256": "47de157802c5111103ab92ea212cb06548126c6fb101be349e4111d7b7287f0c"
+    },
+    "source_contract": {
+      "bytes": 1385,
+      "sha256": "d84944334988b8bbd299323b3fd79c7678de9903760543bf8d3153eb786f0b45"
+    },
+    "source_contract_result": "pass"
+  }
+}

@@ -1,0 +1,944 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -5,6 +5,7 @@
+ #include "numi/matter/matter.hpp"
+ #include "numi/matter/detail.hpp"
+ #include "numi/matter/regional_restart_augmentation_admission.hpp"
++#include "numi/matter/regional_consumer_capture.hpp"
+ #include "numi/matter/sparse_private_contact_admission.hpp"
+ #include "numi/matter/full_contact_armijo_admission.hpp"
+ #include "numi/matter/regional_galerkin_bending_basis.hpp"
+@@ -1131,6 +1132,221 @@
+     std::fprintf(stderr,
+         "fem_regional_rap_capture_complete={\"schema\":1,\"root\":%u,\"iteration\":%u,\"bytes\":%llu,\"arrays\":%lu,\"manifest\":%s}\n",
+         metadata.controlStep, metadata.solverIteration,
++        static_cast<unsigned long long>(payloadBytes),
++        static_cast<unsigned long>(arrays.size()),
++        jsonQuoted(manifestPath).c_str());
++}
++
++struct RegionalConsumerCaptureMetadata {
++    std::uint32_t controlStep = 0u;
++    std::uint32_t physicsSubstep = 0u;
++    std::uint32_t physicsSubstepCount = 0u;
++    std::uint32_t microtick = 0u;
++    std::uint32_t microtickCount = 0u;
++    std::uint32_t microGeneration = 0u;
++    std::uint32_t maximumRateExponent = 0u;
++    bool selectorAttempted = false;
++    std::uint32_t selectorAttemptCount = 0u;
++    std::uint32_t newtonIteration = 0u;
++    std::uint32_t restartCycle = 0u;
++    std::uint32_t arnoldiColumn = 0u;
++    std::uint64_t globalArnoldiColumn = 0u;
++    std::uint32_t environment = 0u;
++    std::uint32_t environmentCount = 0u;
++    std::uint32_t nodeCount = 0u;
++    std::uint32_t tetrahedronCount = 0u;
++    std::uint32_t preconditionerSelector = 0u;
++    std::uint32_t baseModeCount = 0u;
++    std::uint32_t modeCount = 0u;
++    std::uint32_t modeStride = 0u;
++    std::uint32_t graphPatchCount = 0u;
++    std::uint32_t graphPatchNodeCount = 0u;
++    std::uint32_t graphDofCount = 0u;
++    std::uint32_t graphMatrixFloatCount = 0u;
++    std::uint32_t graphPivotCount = 0u;
++    std::uint32_t graphLayoutChecksum = 0u;
++    std::uint32_t materialStateStride = 0u;
++    std::uint32_t generatorControlStep = 0u;
++    std::uint32_t generatorPhysicsSubstep = 0u;
++    std::uint32_t generatorNewtonIteration = 0u;
++    std::uint32_t generatorRestartCycle = 0u;
++    std::uint64_t worldFingerprint = 0u;
++    std::uint64_t executionFingerprint = 0u;
++    std::uint64_t deviceRegistryID = 0u;
++    float timestepSeconds = 0.0f;
++    bool augmentationEnabled = false;
++    bool tangentCacheUsed = false;
++    std::string graphSourceTopologySHA256;
++    std::string graphSourceFreeMaskSHA256;
++    std::string graphPotentialMaskSHA256;
++    std::string deviceName;
++};
++
++struct RegionalConsumerCaptureRequest {
++    bool enabled = false;
++    bool attempted = false;
++    numi::matter::regional_consumer_capture::Selector selector{};
++    std::string path;
++};
++
++struct RegionalConsumerCaptureNoMatchReporter {
++    RegionalConsumerCaptureRequest* request = nullptr;
++    bool shouldReport = false;
++    ~RegionalConsumerCaptureNoMatchReporter() {
++        if (request != nullptr && request->enabled && shouldReport &&
++            !request->attempted) {
++            const auto& selector = request->selector;
++            std::fprintf(stderr,
++                "fem_regional_consumer_capture_skipped={\"schema\":1,\"reason\":\"selected_consumer_not_reached\",\"control_step\":%u,\"physics_substep\":%u,\"newton\":%u,\"restart\":%u,\"column\":%u,\"environment\":%u}\n",
++                selector.control, selector.physics, selector.newton,
++                selector.restart, selector.column, selector.environment);
++        }
++    }
++};
++
++void writeRegionalConsumerCapture(
++    const void* payload,
++    const std::uint64_t payloadBytes,
++    const std::vector<RegionalRAPCaptureArray>& arrays,
++    const RegionalConsumerCaptureMetadata& metadata,
++    const std::string& basePath
++) {
++    const auto* bytes = static_cast<const unsigned char*>(payload);
++    std::ostringstream manifest;
++    manifest.imbue(std::locale::classic());
++    manifest << std::setprecision(std::numeric_limits<float>::max_digits10)
++        << "{\"schema\":\"numi.matter.selector5_restart_consumer_capture.v2\","
++        << "\"byte_order\":\"little_endian\","
++        << "\"capture_point\":\"after_graph_apply_barrier_before_fem_operator_consumes_z\","
++        << "\"physical_operator_changed\":false,"
++        << "\"candidate_free_tag_encoding\":\"candidate_nodes[N].restAndFixed.w is copied verbatim; nm_fgmres_graph_apply_patches writes zero z for any nonzero tag\","
++        << "\"consumer_state_interpretation\":\"fgmres_state and production_status are raw consumer values; invalid graph/coarse factors, invalid mode, or preserved-tail fallback are captured rather than promoted to a valid augmentation\","
++        << "\"control_step\":" << metadata.controlStep
++        << ",\"physics_substep\":" << metadata.physicsSubstep
++        << ",\"physics_substep_count\":" << metadata.physicsSubstepCount
++        << ",\"microtick\":" << metadata.microtick
++        << ",\"microtick_count\":" << metadata.microtickCount
++        << ",\"micro_generation\":" << metadata.microGeneration
++        << ",\"maximum_rate_exponent\":" << metadata.maximumRateExponent
++        << ",\"selector_attempted\":"
++        << (metadata.selectorAttempted ? "true" : "false")
++        << ",\"selector_attempt_count\":" << metadata.selectorAttemptCount
++        << ",\"newton_iteration\":" << metadata.newtonIteration
++        << ",\"restart_cycle\":" << metadata.restartCycle
++        << ",\"arnoldi_column_in_cycle\":" << metadata.arnoldiColumn
++        << ",\"global_arnoldi_column\":" << metadata.globalArnoldiColumn
++        << ",\"environment\":" << metadata.environment
++        << ",\"environment_count\":" << metadata.environmentCount
++        << ",\"preconditioner_selector\":"
++        << metadata.preconditionerSelector
++        << ",\"augmentation_enabled\":"
++        << (metadata.augmentationEnabled ? "true" : "false")
++        << ",\"base_mode_count\":" << metadata.baseModeCount
++        << ",\"mode_count\":" << metadata.modeCount
++        << ",\"mode_stride\":" << metadata.modeStride
++        << ",\"augmentation_generation_semantics\":\"consumer restart r uses generator tag (control,physics,newton,r-1); inspect raw restart_generation and restart_tail_preserved arrays before claiming a fresh augmentation\","
++        << "\"coarse_matrix_encoding\":\"augmented_coarse_lu is the in-place pivoted LU consumed by the graph coarse solve, not raw RAP; reconstruct raw RAP from augmented_effective_P^T times augmented_AP\","
++        << "\"expected_generator_tag\":["
++        << metadata.generatorControlStep << ','
++        << metadata.generatorPhysicsSubstep << ','
++        << metadata.generatorNewtonIteration << ','
++        << metadata.generatorRestartCycle << "],"
++        << "\"graph\":{\"patch_count\":" << metadata.graphPatchCount
++        << ",\"patch_node_count\":" << metadata.graphPatchNodeCount
++        << ",\"dof_count\":" << metadata.graphDofCount
++        << ",\"matrix_float_count\":" << metadata.graphMatrixFloatCount
++        << ",\"pivot_count\":" << metadata.graphPivotCount
++        << ",\"layout_checksum_fnv1a32\":"
++        << metadata.graphLayoutChecksum
++        << ",\"topology_sha256\":"
++        << jsonQuoted(metadata.graphSourceTopologySHA256)
++        << ",\"free_mask_sha256\":"
++        << jsonQuoted(metadata.graphSourceFreeMaskSHA256)
++        << ",\"potential_node_mask_sha256\":"
++        << jsonQuoted(metadata.graphPotentialMaskSHA256) << "},"
++        << "\"material_state_stride\":" << metadata.materialStateStride
++        << ",\"tangent_cache_used\":"
++        << (metadata.tangentCacheUsed ? "true" : "false")
++        << ",\"dt_seconds\":" << jsonFloat32Token(metadata.timestepSeconds)
++        << ",\"world_fingerprint\":"
++        << jsonQuoted(hexU64(metadata.worldFingerprint))
++        << ",\"execution_fingerprint\":"
++        << jsonQuoted(hexU64(metadata.executionFingerprint))
++        << ",\"device\":{\"name\":" << jsonQuoted(metadata.deviceName)
++        << ",\"registry_id\":" << metadata.deviceRegistryID << "},"
++        << "\"payload\":{\"file\":"
++        << jsonQuoted(basePath + ".consumer.bin")
++        << ",\"byte_count\":" << payloadBytes
++        << ",\"aggregate_cap_bytes\":"
++        << numi::matter::regional_consumer_capture::kAggregatePayloadCapBytes
++        << ",\"sha256\":"
++        << jsonQuoted(sha256Hex(bytes, static_cast<std::size_t>(payloadBytes)))
++        << "},\"arrays\":[";
++    for (std::size_t index = 0u; index < arrays.size(); ++index) {
++        const auto& array = arrays[index];
++        if (index != 0u) manifest << ',';
++        manifest << "{\"name\":" << jsonQuoted(array.name)
++            << ",\"dtype\":" << jsonQuoted(array.dtype)
++            << ",\"shape\":[";
++        for (std::size_t axis = 0u; axis < array.shape.size(); ++axis) {
++            if (axis != 0u) manifest << ',';
++            manifest << array.shape[axis];
++        }
++        manifest << "],\"offset\":" << array.offset
++            << ",\"byte_count\":" << array.byteCount
++            << ",\"element_bytes\":" << array.elementBytes
++            << ",\"sha256\":"
++            << jsonQuoted(sha256Hex(bytes + array.offset,
++                                    static_cast<std::size_t>(array.byteCount)))
++            << '}';
++    }
++    manifest << "]}\n";
++    const std::string manifestText = manifest.str();
++    const std::string binaryPath = basePath + ".consumer.bin";
++    const std::string manifestPath = basePath + ".consumer.json";
++    const int binaryFD = ::open(binaryPath.c_str(),
++        O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
++    if (binaryFD < 0) {
++        std::fprintf(stderr,
++            "fem_regional_consumer_capture_error={\"schema\":1,\"reason\":\"binary_exclusive_create_failed\",\"errno\":%d}\n",
++            errno);
++        return;
++    }
++    const int manifestFD = ::open(manifestPath.c_str(),
++        O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
++    if (manifestFD < 0) {
++        const int savedErrno = errno;
++        ::close(binaryFD);
++        ::unlink(binaryPath.c_str());
++        std::fprintf(stderr,
++            "fem_regional_consumer_capture_error={\"schema\":1,\"reason\":\"manifest_exclusive_create_failed\",\"errno\":%d}\n",
++            savedErrno);
++        return;
++    }
++    const bool binaryWritten = writeAllBytes(binaryFD, bytes,
++        static_cast<std::size_t>(payloadBytes));
++    const bool manifestWritten = binaryWritten && writeAllBytes(
++        manifestFD, manifestText.data(), manifestText.size());
++    const int binaryClose = ::close(binaryFD);
++    const int manifestClose = ::close(manifestFD);
++    if (!binaryWritten || !manifestWritten || binaryClose != 0 ||
++        manifestClose != 0) {
++        ::unlink(binaryPath.c_str());
++        ::unlink(manifestPath.c_str());
++        std::fprintf(stderr,
++            "fem_regional_consumer_capture_error={\"schema\":1,\"reason\":\"write_or_close_failed\",\"errno\":%d}\n",
++            errno);
++        return;
++    }
++    std::fprintf(stderr,
++        "fem_regional_consumer_capture_complete={\"schema\":2,\"control_step\":%u,\"physics_substep\":%u,\"microtick\":%u,\"microtick_count\":%u,\"micro_generation\":%u,\"maximum_rate_exponent\":%u,\"selector_attempted\":%s,\"selector_attempt_count\":%u,\"newton\":%u,\"restart\":%u,\"column\":%u,\"environment\":%u,\"bytes\":%llu,\"arrays\":%lu,\"manifest\":%s}\n",
++        metadata.controlStep, metadata.physicsSubstep,
++        metadata.microtick, metadata.microtickCount, metadata.microGeneration,
++        metadata.maximumRateExponent,
++        metadata.selectorAttempted ? "true" : "false",
++        metadata.selectorAttemptCount,
++        metadata.newtonIteration, metadata.restartCycle,
++        metadata.arnoldiColumn, metadata.environment,
+         static_cast<unsigned long long>(payloadBytes),
+         static_cast<unsigned long>(arrays.size()),
+         jsonQuoted(manifestPath).c_str());
+@@ -11340,6 +11556,78 @@
+                 std::getenv("NM_FEM_COUPLED_CAPTURE_SELECTOR");
+             const char* femCoupledCapturePathText =
+                 std::getenv("NM_FEM_COUPLED_CAPTURE_PATH");
++            RegionalConsumerCaptureRequest regionalConsumerCaptureRequest;
++            RegionalConsumerCaptureNoMatchReporter
++                regionalConsumerCaptureNoMatchReporter{
++                    &regionalConsumerCaptureRequest};
++            const char* regionalConsumerSelectorText = std::getenv(
++                "NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR");
++            const char* regionalConsumerCapturePathText = std::getenv(
++                "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH");
++            if (regionalConsumerSelectorText != nullptr ||
++                regionalConsumerCapturePathText != nullptr) {
++                const auto rejectRegionalConsumerCapture =
++                    [](const char* reason) {
++                        std::fprintf(stderr,
++                            "fem_regional_consumer_capture_error={\"schema\":1,\"reason\":\"%s\",\"physical_state_changed\":false}\n",
++                            reason);
++                    };
++                if (regionalConsumerSelectorText == nullptr ||
++                    regionalConsumerSelectorText[0] == '\0' ||
++                    regionalConsumerCapturePathText == nullptr ||
++                    regionalConsumerCapturePathText[0] == '\0') {
++                    rejectRegionalConsumerCapture(
++                        "selector_and_nonempty_capture_path_are_both_required");
++                } else if (std::getenv("NM_FEM_OPERATOR_FD_SELECTOR") != nullptr ||
++                           std::getenv("NM_FEM_OPERATOR_FD_CAPTURE_PATH") != nullptr ||
++                           std::getenv("NM_FEM_REGIONAL_RAP_CAPTURE_ONLY") != nullptr ||
++                           std::getenv("NM_FEM_COUPLED_CAPTURE_SELECTOR") != nullptr ||
++                           std::getenv("NM_FEM_COUPLED_CAPTURE_PATH") != nullptr ||
++                           std::getenv("NM_FEM_COUPLED_TRIAL_CAPTURE_SELECTOR") != nullptr ||
++                           std::getenv("NM_FEM_COUPLED_TRIAL_CAPTURE_PATH") != nullptr ||
++                           std::getenv("NM_FEM_STATUS5_CAPTURE_PATH") != nullptr ||
++                           std::getenv("NM_FEM_STATUS5_CAPTURE_ROOT") != nullptr ||
++                           std::getenv("NM_FEM_BASE_CGLS_CAPTURE_PATH") != nullptr ||
++                           std::getenv("NM_FEM_BASE_CGLS_STATE_CAPTURE") != nullptr ||
++                           std::getenv("NM_FEM_NEWTON_TRACE_ROOT") != nullptr) {
++                    rejectRegionalConsumerCapture(
++                        "consumer_capture_must_run_without_other_FD_RAP_CGLS_or_Newton_trace_readbacks");
++                } else {
++                    const auto parsed =
++                        numi::matter::regional_consumer_capture::parseSelector(
++                            regionalConsumerSelectorText);
++                    if (!parsed) {
++                        const char* reason = "selector_must_be_six_unsigned_decimal_fields_control_physics_newton_restart_column_environment_with_restart_positive";
++                        if (parsed.error ==
++                            numi::matter::regional_consumer_capture::SelectorError::overflow)
++                            reason = "selector_field_exceeds_uint32";
++                        rejectRegionalConsumerCapture(reason);
++                    } else if (!numi::matter::regional_consumer_capture::singleTickScope(
++                                   state.dispatch.maximumRateExponent,
++                                   micro.microtick, micro.microtickCount)) {
++                        rejectRegionalConsumerCapture(
++                            "requires_zero_rate_exponent_and_exactly_one_microtick");
++                    } else {
++                        regionalConsumerCaptureRequest.enabled = true;
++                        regionalConsumerCaptureRequest.selector = parsed.value;
++                        regionalConsumerCaptureRequest.path =
++                            regionalConsumerCapturePathText;
++                        regionalConsumerCaptureNoMatchReporter.shouldReport =
++                            parsed.value.control == request.controlStep &&
++                            parsed.value.physics == request.physicsSubstep;
++                        std::fprintf(stderr,
++                                "fem_regional_consumer_capture_armed={\"schema\":2,\"control_step\":%u,\"physics_substep\":%u,\"physics_substep_count\":%u,\"microtick\":%u,\"microtick_count\":%u,\"micro_generation\":%u,\"maximum_rate_exponent\":%u,\"newton\":%u,\"restart\":%u,\"column\":%u,\"environment\":%u,\"capture_point\":\"post_graph_apply_pre_operator\",\"payload_cap_bytes\":%llu}\n",
++                            parsed.value.control, parsed.value.physics,
++                            request.physicsSubsteps,
++                            micro.microtick, micro.microtickCount,
++                            micro.reserved, state.dispatch.maximumRateExponent,
++                            parsed.value.newton, parsed.value.restart,
++                            parsed.value.column, parsed.value.environment,
++                            static_cast<unsigned long long>(
++                                numi::matter::regional_consumer_capture::kAggregatePayloadCapBytes));
++                    }
++                }
++            }
+             femCoupledCaptureRequested =
+                 femCoupledCaptureSelector != nullptr ||
+                 femCoupledCapturePathText != nullptr;
+@@ -21331,6 +21619,487 @@
+                                        length:sizeof(regionalModeStride)
+                                       atIndex:13u];
+                         });
++                        const auto& consumerSelector =
++                            regionalConsumerCaptureRequest.selector;
++                        const bool consumerSelectorMatches =
++                            regionalConsumerCaptureRequest.enabled &&
++                            numi::matter::regional_consumer_capture::matches(
++                                consumerSelector, request.controlStep,
++                                request.physicsSubstep,
++                                operatorMicro.solverIteration, restartCycle,
++                                column, consumerSelector.environment);
++                        const bool consumerTickValid =
++                            numi::matter::regional_consumer_capture::singleTickScope(
++                                state.dispatch.maximumRateExponent,
++                                micro.microtick, micro.microtickCount);
++                        if (consumerSelectorMatches && !consumerTickValid) {
++                            regionalConsumerCaptureRequest.enabled = false;
++                            std::fprintf(stderr,
++                                "fem_regional_consumer_capture_error={\"schema\":2,\"reason\":\"selected_event_outside_single_microtick_scope\",\"physical_state_changed\":false}\n");
++                        } else if (consumerSelectorMatches &&
++                                   regionalConsumerCaptureRequest.attempted) {
++                            std::fprintf(stderr,
++                                "fem_regional_consumer_capture_error={\"schema\":2,\"reason\":\"duplicate_selector_match_suppressed_by_one_shot_guard\",\"physical_state_changed\":false}\n");
++                        }
++                        const bool consumerCaptureSelected =
++                            consumerSelectorMatches && consumerTickValid &&
++                            numi::matter::regional_consumer_capture::claimOnce(
++                                regionalConsumerCaptureRequest.attempted,
++                                consumerSelectorMatches);
++                        if (consumerCaptureSelected) {
++                            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                            const std::uint32_t selectedEnvironment =
++                                consumerSelector.environment;
++                            const std::uint64_t captureCap =
++                                numi::matter::regional_consumer_capture::kAggregatePayloadCapBytes;
++                            std::uint64_t payloadBytes = 0u;
++                            bool layoutValid = true;
++                            const char* layoutFailure = nullptr;
++                            const auto failLayout = [&](const char* reason) {
++                                if (layoutValid) layoutFailure = reason;
++                                layoutValid = false;
++                            };
++                            const auto checkedOffset = [](
++                                const std::uint64_t index,
++                                const std::uint64_t stride,
++                                std::uint64_t& result) {
++                                if (stride != 0u && index >
++                                    std::numeric_limits<std::uint64_t>::max() /
++                                        stride) return false;
++                                result = index * stride;
++                                return true;
++                            };
++                            std::vector<RegionalRAPCaptureArray> arrays;
++                            id<MTLBuffer> sources[64] = {};
++                            const auto append = [&](
++                                const char* name,
++                                const char* dtype,
++                                const std::initializer_list<std::uint64_t> shape,
++                                const std::uint64_t elementBytes,
++                                id<MTLBuffer> source,
++                                const std::uint64_t sourceOffset = 0u) {
++                                std::uint64_t byteCount = 0u;
++                                std::uint64_t nextPayloadBytes = 0u;
++                                if (!layoutValid) return;
++                                if (source == nil || arrays.size() >= 64u) {
++                                    failLayout("required_buffer_missing_or_array_limit");
++                                    return;
++                                }
++                                if (!numi::matter::regional_consumer_capture::
++                                        checkedArrayBytes(shape, elementBytes,
++                                            std::numeric_limits<std::uint64_t>::max(),
++                                            byteCount)) {
++                                    failLayout("array_shape_overflow_or_invalid");
++                                    return;
++                                }
++                                if (byteCount > captureCap) {
++                                    failLayout("array_exceeds_aggregate_64MiB_payload_cap");
++                                    return;
++                                }
++                                if (sourceOffset > source.length ||
++                                    byteCount > source.length - sourceOffset) {
++                                    failLayout("source_buffer_range_out_of_bounds");
++                                    return;
++                                }
++                                if (!numi::matter::regional_consumer_capture::
++                                        checkedAppendBytes(payloadBytes,
++                                            byteCount, captureCap,
++                                            nextPayloadBytes)) {
++                                    failLayout("aggregate_64MiB_payload_cap_exceeded");
++                                    return;
++                                }
++                                RegionalRAPCaptureArray array;
++                                array.name = name;
++                                array.dtype = dtype;
++                                array.shape.assign(shape.begin(), shape.end());
++                                array.offset = payloadBytes;
++                                array.byteCount = byteCount;
++                                array.elementBytes = elementBytes;
++                                array.sourceSlot = static_cast<std::uint32_t>(
++                                    arrays.size());
++                                array.sourceOffset = sourceOffset;
++                                sources[array.sourceSlot] = source;
++                                arrays.push_back(std::move(array));
++                                payloadBytes = nextPayloadBytes;
++                            };
++                            if (selectedEnvironment >= environments) {
++                                failLayout("selected_environment_out_of_range");
++                            } else if (state.mixedSolverValue.executionBudgets.z != 5u) {
++                                failLayout("selected_event_is_not_selector5");
++                            } else if (restartCycle == 0u ||
++                                !useRestartAugmentedRegional ||
++                                !state.femRegionalRestartAugmentationEnabled) {
++                                failLayout("selected_event_has_no_augmented_restart_consumer");
++                            } else if (state.femOperatorFDRichCaptureEnabled ||
++                                femRegionalRAPTraceCaptured ||
++                                femCoupledCaptureRequested) {
++                                failLayout("another_bounded_capture_shares_this_command_buffer");
++                            }
++
++                            const std::uint64_t nodeCount =
++                                state.dispatch.femNodeCount;
++                            const std::uint64_t tetCount =
++                                state.dispatch.tetrahedronCount;
++                            const std::uint64_t modeCount = regionalModes;
++                            const std::uint64_t modeStride = regionalModeStride;
++                            const std::uint64_t env = selectedEnvironment;
++                            const std::uint64_t float4Bytes = sizeof(nm_float4);
++                            const std::uint64_t u32Bytes = sizeof(std::uint32_t);
++                            const std::uint64_t floatBytes = sizeof(float);
++                            const std::uint64_t nodeStateBytes =
++                                sizeof(NMFEMNodeStateGPU);
++                            const std::uint64_t historyStride =
++                                state.dispatch.materialStateStride;
++                            std::uint64_t nodeSliceBytes = 0u;
++                            std::uint64_t modeStrideBytes = 0u;
++                            std::uint64_t historySliceBytes = 0u;
++                            std::uint64_t frameSliceBytes = 0u;
++                            if (layoutValid &&
++                                (!checkedOffset(nodeCount, float4Bytes,
++                                                nodeSliceBytes) ||
++                                 !checkedOffset(tetCount, historyStride * floatBytes,
++                                                historySliceBytes) ||
++                                 !checkedOffset(tetCount, 3u * float4Bytes,
++                                                frameSliceBytes) ||
++                                 !checkedOffset(modeStride, nodeSliceBytes,
++                                                modeStrideBytes))) {
++                                failLayout("selected_capture_dimensions_overflow");
++                            }
++
++                            std::uint64_t envNodeOffset = 0u;
++                            std::uint64_t envTetOffset = 0u;
++                            std::uint64_t envModeOffset = 0u;
++                            std::uint64_t envHistoryOffset = 0u;
++                            std::uint64_t envFrameOffset = 0u;
++                            if (layoutValid &&
++                                (!checkedOffset(env, nodeSliceBytes, envNodeOffset) ||
++                                 !checkedOffset(env, tetCount * u32Bytes, envTetOffset) ||
++                                 !checkedOffset(env, modeStrideBytes, envModeOffset) ||
++                                 !checkedOffset(env, historySliceBytes, envHistoryOffset) ||
++                                 !checkedOffset(env, frameSliceBytes, envFrameOffset))) {
++                                failLayout("selected_environment_offset_overflow");
++                            }
++                            const std::uint64_t vectorColumnOffset =
++                                static_cast<std::uint64_t>(columnOffset);
++                            std::uint64_t envVectorOffset = 0u;
++                            if (layoutValid &&
++                                (!checkedOffset(env, nodeSliceBytes,
++                                                envVectorOffset) ||
++                                 vectorColumnOffset >
++                                    std::numeric_limits<std::uint64_t>::max() -
++                                        envVectorOffset)) {
++                                failLayout("selected_vector_offset_overflow");
++                            }
++                            envVectorOffset += vectorColumnOffset;
++
++                            if (layoutValid) {
++                                append("v", "<f4x4", {nodeCount}, float4Bytes,
++                                    state.fgmresBasis, envVectorOffset);
++                                append("z", "<f4x4", {nodeCount}, float4Bytes,
++                                    state.fgmresPreconditionedBasis,
++                                    envVectorOffset);
++                                append("augmented_effective_P", "<f4x4",
++                                    {modeCount, nodeCount}, float4Bytes,
++                                    state.femRegionalEffectiveBasis,
++                                    envModeOffset);
++                                append("augmented_AP", "<f4x4",
++                                    {modeCount, nodeCount}, float4Bytes,
++                                    state.femRegionalAP, envModeOffset);
++                                const std::uint64_t rapElements =
++                                    modeCount * modeCount;
++                                std::uint64_t envRapOffset = 0u;
++                                if (!checkedOffset(env, rapElements * floatBytes,
++                                                   envRapOffset)) {
++                                    failLayout("coarse_factor_offset_overflow");
++                                }
++                                append("augmented_coarse_lu", "<f4",
++                                    {modeCount, modeCount}, floatBytes,
++                                    regionalCoarseMatrix, envRapOffset);
++                                append("augmented_coarse_pivots", "<u4",
++                                    {modeCount}, u32Bytes,
++                                    regionalCoarsePivots,
++                                    env * modeCount * u32Bytes);
++                                append("augmented_coarse_valid", "<u4",
++                                    {1u}, u32Bytes, regionalCoarseValid,
++                                    env * u32Bytes);
++                                append("augmented_coarse_rhs", "<f4",
++                                    {modeCount}, floatBytes,
++                                    regionalCoarseRHS,
++                                    env * modeCount * floatBytes);
++                                append("augmented_coarse_coefficients", "<f4",
++                                    {modeCount}, floatBytes,
++                                    regionalCoarseCoefficients,
++                                    env * modeCount * floatBytes);
++                                const std::uint64_t patchCount =
++                                    state.femRegionalGraphPatchCount;
++                                const std::uint64_t patchNodeCount =
++                                    state.femRegionalGraphPatchNodeCount;
++                                const std::uint64_t graphMatrixFloats =
++                                    state.femRegionalGraphMatrixFloatCount;
++                                const std::uint64_t graphPivotCount =
++                                    state.femRegionalGraphPivotCount;
++                                const std::uint64_t graphDofCount =
++                                    state.femRegionalGraphDofCount;
++                                std::uint64_t graphMatrixOffset = 0u;
++                                std::uint64_t graphPivotOffset = 0u;
++                                std::uint64_t graphValidOffset = 0u;
++                                std::uint64_t graphCorrectionOffset = 0u;
++                                if (!checkedOffset(env,
++                                        graphMatrixFloats * floatBytes,
++                                        graphMatrixOffset) ||
++                                    !checkedOffset(env,
++                                        graphPivotCount * u32Bytes,
++                                        graphPivotOffset) ||
++                                    !checkedOffset(env,
++                                        patchCount * u32Bytes,
++                                        graphValidOffset) ||
++                                    !checkedOffset(env,
++                                        patchNodeCount * float4Bytes,
++                                        graphCorrectionOffset)) {
++                                    failLayout("graph_environment_offset_overflow");
++                                }
++                                append("graph_patches", "<u4x4",
++                                    {patchCount}, 4u * u32Bytes,
++                                    state.femRegionalGraphPatches);
++                                append("graph_patch_nodes", "<u4",
++                                    {patchNodeCount}, u32Bytes,
++                                    state.femRegionalGraphPatchNodes);
++                                append("graph_rows", "<u4x4",
++                                    {graphDofCount}, 4u * u32Bytes,
++                                    state.femRegionalGraphRows);
++                                append("graph_node_patch_offsets", "<u4",
++                                    {nodeCount + 1u}, u32Bytes,
++                                    state.femRegionalGraphNodePatchOffsets);
++                                append("graph_node_patch_values", "<u4",
++                                    {patchNodeCount}, u32Bytes,
++                                    state.femRegionalGraphNodePatchValues);
++                                append("graph_node_coverage", "<u4",
++                                    {nodeCount}, u32Bytes,
++                                    state.femRegionalGraphNodeCoverage);
++                                append("graph_patch_lu", "<f4",
++                                    {graphMatrixFloats}, floatBytes,
++                                    state.femRegionalGraphFactors,
++                                    graphMatrixOffset);
++                                append("graph_patch_original_matrices", "<f4",
++                                    {graphMatrixFloats}, floatBytes,
++                                    state.femRegionalGraphOriginalMatrices,
++                                    graphMatrixOffset);
++                                append("graph_patch_pivots", "<u4",
++                                    {graphPivotCount}, u32Bytes,
++                                    state.femRegionalGraphPivots,
++                                    graphPivotOffset);
++                                append("graph_patch_factor_valid", "<u4",
++                                    {patchCount}, u32Bytes,
++                                    state.femRegionalGraphFactorValid,
++                                    graphValidOffset);
++                                append("graph_patch_corrections", "<f4x4",
++                                    {patchNodeCount}, float4Bytes,
++                                    state.femRegionalGraphPatchCorrections,
++                                    graphCorrectionOffset);
++                                append("candidate_nodes", "struct:NMFEMNodeStateGPU",
++                                    {nodeCount}, nodeStateBytes,
++                                    state.femCandidate,
++                                    env * nodeCount * nodeStateBytes);
++                                append("linearization_nodes",
++                                    "struct:NMFEMNodeStateGPU", {nodeCount},
++                                    nodeStateBytes,
++                                    state.femRegionalLinearizationNodes,
++                                    env * nodeCount * nodeStateBytes);
++                                append("accepted_material_history", "<f4",
++                                    {tetCount, historyStride}, floatBytes,
++                                    state.femRegionalLinearizationMaterialState,
++                                    envHistoryOffset);
++                                append("scheduler_exponents", "<u4",
++                                    {tetCount}, u32Bytes,
++                                    state.femRegionalLinearizationSchedulerExponent,
++                                    envTetOffset);
++                                append("deformation_high", "<f4x4",
++                                    {tetCount, 3u}, float4Bytes,
++                                    state.femRegionalLinearizationLocalFHigh,
++                                    envFrameOffset);
++                                append("deformation_low", "<f4x4",
++                                    {tetCount, 3u}, float4Bytes,
++                                    state.femRegionalLinearizationLocalFLow,
++                                    envFrameOffset);
++                                if (state.femAlgorithmicTangentCache != nil &&
++                                    state.femAlgorithmicTangentCacheValid != nil) {
++                                    append("algorithmic_tangent_cache", "<f4",
++                                        {tetCount, 81u}, floatBytes,
++                                        state.femAlgorithmicTangentCache,
++                                        env * tetCount * 81u * floatBytes);
++                                    append("algorithmic_tangent_cache_valid", "<u4",
++                                        {tetCount}, u32Bytes,
++                                        state.femAlgorithmicTangentCacheValid,
++                                        env * tetCount * u32Bytes);
++                                }
++                                append("fgmres_state", "struct:NMFGMRESStateGPU",
++                                    {1u}, sizeof(NMFGMRESStateGPU),
++                                    state.fgmresStates,
++                                    env * sizeof(NMFGMRESStateGPU));
++                                append("production_status", "struct:NMMatterStatusGPU",
++                                    {1u}, sizeof(NMMatterStatusGPU),
++                                    state.statuses,
++                                    env * sizeof(NMMatterStatusGPU));
++                                const std::uint64_t scalarEnvOffset =
++                                    env * u32Bytes;
++                                append("restart_generation", "<u4",
++                                    {4u}, u32Bytes,
++                                    state.femRegionalRestartGeneration,
++                                    env * 4u * u32Bytes);
++                                append("restart_raw_norm_squared", "<f4",
++                                    {1u}, floatBytes,
++                                    state.femRegionalRestartRawNormSquared,
++                                    env * floatBytes);
++                                append("restart_target_scale", "<f4",
++                                    {1u}, floatBytes,
++                                    state.femRegionalRestartTargetScale,
++                                    env * floatBytes);
++                                append("restart_mode_scale", "<f4",
++                                    {1u}, floatBytes,
++                                    state.femRegionalRestartModeScale,
++                                    env * floatBytes);
++                                append("restart_mode_valid", "<u4",
++                                    {1u}, u32Bytes,
++                                    state.femRegionalRestartModeValid,
++                                    scalarEnvOffset);
++                                append("restart_tail_preserved", "<u4",
++                                    {1u}, u32Bytes,
++                                    state.femRegionalRestartTailPreserved,
++                                    scalarEnvOffset);
++                            }
++                            if (!layoutValid) {
++                                std::fprintf(stderr,
++                                    "fem_regional_consumer_capture_skipped={\"schema\":1,\"reason\":%s,\"control_step\":%u,\"physics_substep\":%u,\"newton\":%u,\"restart\":%u,\"column\":%u,\"environment\":%u,\"bytes\":%llu,\"aggregate_cap_bytes\":%llu}\n",
++                                    jsonQuoted(layoutFailure == nullptr
++                                        ? "invalid_layout" : layoutFailure).c_str(),
++                                    request.controlStep, request.physicsSubstep,
++                                    operatorMicro.solverIteration, restartCycle,
++                                    column, selectedEnvironment,
++                                    static_cast<unsigned long long>(payloadBytes),
++                                    static_cast<unsigned long long>(captureCap));
++                            } else {
++                                id<MTLBuffer> snapshot = [state.device
++                                    newBufferWithLength:static_cast<NSUInteger>(payloadBytes)
++                                    options:MTLResourceStorageModeShared];
++                                if (snapshot == nil || snapshot.length < payloadBytes ||
++                                    snapshot.length > captureCap) {
++                                    std::fprintf(stderr,
++                                        "fem_regional_consumer_capture_skipped={\"schema\":1,\"reason\":\"bounded_snapshot_allocation_failed\",\"bytes\":%llu,\"aggregate_cap_bytes\":%llu}\n",
++                                        static_cast<unsigned long long>(payloadBytes),
++                                        static_cast<unsigned long long>(captureCap));
++                                } else {
++                                    [encoder endEncoding];
++                                    encoder = nil;
++                                    id<MTLBlitCommandEncoder> copy =
++                                        [commandBuffer blitCommandEncoder];
++                                    if (copy == nil) {
++                                        std::fprintf(stderr,
++                                            "fem_regional_consumer_capture_skipped={\"schema\":1,\"reason\":\"blit_encoder_unavailable\"}\n");
++                                    } else {
++                                        for (const auto& array : arrays) {
++                                            [copy copyFromBuffer:sources[array.sourceSlot]
++                                                sourceOffset:static_cast<NSUInteger>(array.sourceOffset)
++                                                toBuffer:snapshot
++                                                destinationOffset:static_cast<NSUInteger>(array.offset)
++                                                size:static_cast<NSUInteger>(array.byteCount)];
++                                        }
++                                        [copy endEncoding];
++                                        RegionalConsumerCaptureMetadata metadata;
++                                        metadata.controlStep = request.controlStep;
++                                        metadata.physicsSubstep = request.physicsSubstep;
++                                        metadata.physicsSubstepCount = request.physicsSubsteps;
++                                        metadata.microtick = micro.microtick;
++                                        metadata.microtickCount = micro.microtickCount;
++                                        metadata.microGeneration = micro.reserved;
++                                        metadata.maximumRateExponent =
++                                            state.dispatch.maximumRateExponent;
++                                        metadata.selectorAttempted = true;
++                                        metadata.selectorAttemptCount = 1u;
++                                        metadata.newtonIteration = operatorMicro.solverIteration;
++                                        metadata.restartCycle = restartCycle;
++                                        metadata.arnoldiColumn = column;
++                                        metadata.globalArnoldiColumn =
++                                            static_cast<std::uint64_t>(restartCycle) *
++                                                restart + column;
++                                        metadata.environment = selectedEnvironment;
++                                        metadata.environmentCount = environments;
++                                        metadata.nodeCount = state.dispatch.femNodeCount;
++                                        metadata.tetrahedronCount = static_cast<std::uint32_t>(tetCount);
++                                        metadata.preconditionerSelector =
++                                            state.mixedSolverValue.executionBudgets.z;
++                                        metadata.baseModeCount = state.femRegionalModeCount;
++                                        metadata.modeCount = regionalModes;
++                                        metadata.modeStride = regionalModeStride;
++                                        metadata.graphPatchCount =
++                                            state.femRegionalGraphPatchCount;
++                                        metadata.graphPatchNodeCount =
++                                            state.femRegionalGraphPatchNodeCount;
++                                        metadata.graphDofCount =
++                                            state.femRegionalGraphDofCount;
++                                        metadata.graphMatrixFloatCount =
++                                            state.femRegionalGraphMatrixFloatCount;
++                                        metadata.graphPivotCount =
++                                            state.femRegionalGraphPivotCount;
++                                        metadata.graphLayoutChecksum =
++                                            state.femRegionalGraphLayoutChecksum;
++                                        metadata.graphSourceTopologySHA256 =
++                                            state.femRegionalGraphSourceTopologySHA256;
++                                        metadata.graphSourceFreeMaskSHA256 =
++                                            state.femRegionalGraphSourceFreeMaskSHA256;
++                                        metadata.graphPotentialMaskSHA256 =
++                                            state.femRegionalGraphPotentialMaskSHA256;
++                                        metadata.materialStateStride =
++                                            state.dispatch.materialStateStride;
++                                        metadata.generatorControlStep = request.controlStep;
++                                        metadata.generatorPhysicsSubstep = request.physicsSubstep;
++                                        metadata.generatorNewtonIteration = operatorMicro.solverIteration;
++                                        metadata.generatorRestartCycle = restartCycle - 1u;
++                                        metadata.worldFingerprint = state.worldFingerprint;
++                                        metadata.executionFingerprint = state.executionFingerprint;
++                                        metadata.deviceRegistryID =
++                                            static_cast<std::uint64_t>(state.device.registryID);
++                                        metadata.timestepSeconds = micro.time.x;
++                                        metadata.augmentationEnabled =
++                                            state.femRegionalRestartAugmentationEnabled;
++                                        metadata.tangentCacheUsed =
++                                            state.mixedSolverValue.executionBudgets.w == 1u;
++                                        metadata.deviceName = nsString(state.device.name);
++                                        const auto capturedArrays = arrays;
++                                        const auto capturedMetadata = metadata;
++                                        const auto capturedPath =
++                                            regionalConsumerCaptureRequest.path;
++                                        const std::uint64_t capturedBytes = payloadBytes;
++                                        [commandBuffer addCompletedHandler:
++                                            ^(id<MTLCommandBuffer> completed) {
++                                            if (completed.status != MTLCommandBufferStatusCompleted) {
++                                                std::fprintf(stderr,
++                                                    "fem_regional_consumer_capture_error={\"schema\":1,\"reason\":\"command_buffer_failed\",\"status\":%lu}\n",
++                                                    static_cast<unsigned long>(completed.status));
++                                                return;
++                                            }
++                                            try {
++                                                writeRegionalConsumerCapture(
++                                                    snapshot.contents, capturedBytes,
++                                                    capturedArrays, capturedMetadata,
++                                                    capturedPath);
++                                            } catch (...) {
++                                                std::fprintf(stderr,
++                                                    "fem_regional_consumer_capture_error={\"schema\":1,\"reason\":\"capture_writer_exception\"}\n");
++                                            }
++                                        }];
++                                    }
++                                    encoder = [commandBuffer computeCommandEncoder];
++                                    if (encoder == nil) {
++                                        diagnostics.message =
++                                            "failed to resume after selector-5 consumer capture";
++                                        ownership->preDynamicsOpen = false;
++                                        return diagnostics;
++                                    }
++                                    [encoder setLabel:
++                                        @"Numi Matter selector-5 consumer capture continuation"];
++                                }
++                            }
++                        }
+                     } else {
+                         dispatchThreads(
+                             useBlockFineCorrection
+--- a/matter/include/numi/matter/regional_consumer_capture.hpp
++++ b/matter/include/numi/matter/regional_consumer_capture.hpp
+@@ -0,0 +1,142 @@
++#pragma once
++
++#include <array>
++#include <charconv>
++#include <cstdint>
++#include <initializer_list>
++#include <limits>
++#include <string_view>
++#include <system_error>
++
++namespace numi::matter::regional_consumer_capture {
++
++inline constexpr std::uint64_t kAggregatePayloadCapBytes =
++    64ull * 1024ull * 1024ull;
++
++struct Selector {
++    std::uint32_t control = 0u;
++    std::uint32_t physics = 0u;
++    std::uint32_t newton = 0u;
++    std::uint32_t restart = 0u;
++    std::uint32_t column = 0u;
++    std::uint32_t environment = 0u;
++};
++
++[[nodiscard]] inline bool singleTickScope(
++    const std::uint32_t maximumRateExponent,
++    const std::uint32_t microtick,
++    const std::uint32_t microtickCount) noexcept {
++    return maximumRateExponent == 0u && microtick == 0u &&
++        microtickCount == 1u;
++}
++
++[[nodiscard]] inline bool claimOnce(
++    bool& attempted,
++    const bool selectorMatches) noexcept {
++    if (!selectorMatches || attempted) return false;
++    attempted = true;
++    return true;
++}
++
++enum class SelectorError {
++    none,
++    empty,
++    wrong_field_count,
++    non_decimal,
++    overflow,
++    restart_zero,
++};
++
++struct SelectorParse {
++    Selector value{};
++    SelectorError error = SelectorError::none;
++    explicit operator bool() const noexcept {
++        return error == SelectorError::none;
++    }
++};
++
++[[nodiscard]] inline SelectorParse parseSelector(
++    const std::string_view text) noexcept {
++    if (text.empty()) return {{}, SelectorError::empty};
++    std::array<std::uint32_t, 6> fields{};
++    std::size_t field = 0u;
++    std::size_t start = 0u;
++    while (start <= text.size()) {
++        const std::size_t separator = text.find(':', start);
++        const std::size_t end = separator == std::string_view::npos
++            ? text.size() : separator;
++        if (field >= fields.size())
++            return {{}, SelectorError::wrong_field_count};
++        if (start == end) return {{}, SelectorError::non_decimal};
++        for (std::size_t i = start; i < end; ++i) {
++            if (text[i] < '0' || text[i] > '9')
++                return {{}, SelectorError::non_decimal};
++        }
++        std::uint32_t value = 0u;
++        const char* first = text.data() + start;
++        const char* last = text.data() + end;
++        const auto result = std::from_chars(first, last, value, 10);
++        if (result.ec == std::errc::result_out_of_range)
++            return {{}, SelectorError::overflow};
++        if (result.ec != std::errc{} || result.ptr != last)
++            return {{}, SelectorError::non_decimal};
++        fields[field++] = value;
++        if (separator == std::string_view::npos) break;
++        start = separator + 1u;
++    }
++    if (field != fields.size())
++        return {{}, SelectorError::wrong_field_count};
++    if (fields[3] == 0u) return {{}, SelectorError::restart_zero};
++    return {{fields[0], fields[1], fields[2], fields[3], fields[4], fields[5]},
++            SelectorError::none};
++}
++
++[[nodiscard]] inline bool matches(
++    const Selector& selector,
++    const std::uint32_t control,
++    const std::uint32_t physics,
++    const std::uint32_t newton,
++    const std::uint32_t restart,
++    const std::uint32_t column,
++    const std::uint32_t environment) noexcept {
++    return selector.control == control && selector.physics == physics &&
++        selector.newton == newton && selector.restart == restart &&
++        selector.column == column && selector.environment == environment;
++}
++
++[[nodiscard]] inline std::array<std::uint32_t, 4> expectedGeneratorTag(
++    const Selector& selector) noexcept {
++    return {selector.control, selector.physics, selector.newton,
++            selector.restart - 1u};
++}
++
++[[nodiscard]] inline bool checkedArrayBytes(
++    const std::initializer_list<std::uint64_t> shape,
++    const std::uint64_t elementBytes,
++    const std::uint64_t cap,
++    std::uint64_t& out) noexcept {
++    if (shape.size() == 0u || elementBytes == 0u) return false;
++    std::uint64_t count = 1u;
++    for (const std::uint64_t extent : shape) {
++        if (extent == 0u ||
++            count > std::numeric_limits<std::uint64_t>::max() / extent)
++            return false;
++        count *= extent;
++    }
++    if (count > std::numeric_limits<std::uint64_t>::max() / elementBytes)
++        return false;
++    out = count * elementBytes;
++    return out <= cap;
++}
++
++[[nodiscard]] inline bool checkedAppendBytes(
++    const std::uint64_t current,
++    const std::uint64_t append,
++    const std::uint64_t cap,
++    std::uint64_t& out) noexcept {
++    if (current > cap || append > cap - current) return false;
++    out = current + append;
++    return true;
++}
++
++} // namespace numi::matter::regional_consumer_capture

@@ -1,0 +1,25 @@
+{
+  "schema": "numi.cardboard.source-overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "overlay_id": "bilinear-capture-layer-audit-source166-001",
+  "patch_sha256": "c6e0365e2806ca1837d09592ff2f71813c4e17cb077bd21ab312e8f5e09d85d5",
+  "files": [
+    {
+      "path": "matter/tools/cardboard_bilinear_capture_layers.py",
+      "base_sha256": null,
+      "overlay_sha256": "013baf483fece2d77883592fc472c5f15393ebea922c4e20e10824b7fec294d7"
+    },
+    {
+      "path": "matter/tools/cardboard_bilinear_fp64_reference.py",
+      "base_sha256": null,
+      "overlay_sha256": "ea5cba69f600f446cc1c129b03bf1fa578d4f26d2d0d62fa1e63b4fa4c8248d5"
+    },
+    {
+      "path": "matter/tools/test_cardboard_bilinear_capture_layers.py",
+      "base_sha256": null,
+      "overlay_sha256": "0da63fd187f3b076fa6be515779597a6a5d46e5f059e529249865202ed0f9df2"
+    }
+  ],
+  "native_execution_performed": false,
+  "qualification": false
+}

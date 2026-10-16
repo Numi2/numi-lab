@@ -1,0 +1,38 @@
+test_elastic_seed_and_resolved_root_match_independent_mp_witness (test_cardboard_reference_fb_jacobian.ReferenceFischerBurmeisterJacobian) ... test_projection_acceptance_limits_remain_strict (test_cardboard_reference_fb_jacobian.ReferenceFischerBurmeisterJacobian) ... ok
+test_empty_branch_side_is_inconclusive (test_cardboard_bilinear_capture_layers.CaptureLayerContracts) ... ok
+test_epsilon_work_bound_precedes_io (test_cardboard_bilinear_capture_layers.CaptureLayerContracts) ... ok
+test_identity_rejects_other_environment_hole_and_bad_fingerprint (test_cardboard_bilinear_capture_layers.CaptureLayerContracts) ... ok
+test_invalid_reference_row_does_not_disappear_from_gate (test_cardboard_bilinear_capture_layers.CaptureLayerContracts) ... ok
+test_nonfinite_report_fields_retain_explicit_locations_and_do_not_change_gates (test_cardboard_bilinear_capture_layers.CaptureLayerContracts) ... ok
+test_uniform_stress_gather_cancels_shared_face (test_cardboard_bilinear_capture_layers.CaptureLayerContracts) ... ok
+test_zero_reference_stays_inconclusive (test_cardboard_bilinear_capture_layers.CaptureLayerContracts) ... ok
+
+======================================================================
+FAIL: test_elastic_seed_and_resolved_root_match_independent_mp_witness (test_cardboard_reference_fb_jacobian.ReferenceFischerBurmeisterJacobian) (state='resolved_root')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/home/numi-cardboard-20261006/matter/tools/test_cardboard_reference_fb_jacobian.py", line 31, in test_elastic_seed_and_resolved_root_match_independent_mp_witness
+    np.testing.assert_allclose(actual, expected, rtol=1e-12, atol=1e-12)
+  File "/Users/home/.pyenv/versions/3.10.12/lib/python3.10/site-packages/numpy/testing/_private/utils.py", line 1715, in assert_allclose
+    assert_array_compare(compare, actual, desired, err_msg=str(err_msg),
+  File "/Users/home/.pyenv/versions/3.10.12/lib/python3.10/site-packages/numpy/testing/_private/utils.py", line 921, in assert_array_compare
+    raise AssertionError(msg)
+AssertionError: 
+Not equal to tolerance rtol=1e-12, atol=1e-12
+
+Mismatched elements: 9 / 15 (60%)
+Max absolute difference among violations: 5.26819779e-08
+Max relative difference among violations: 4.5341457e-09
+ ACTUAL: array([ 0.000000e+00,  0.000000e+00,  0.000000e+00,  0.000000e+00,
+        0.000000e+00,  0.000000e+00,  2.416615e-04,  4.551030e-04,
+       -6.967645e-04, -2.428613e-01, -1.161894e+01, -1.208638e-03,
+       -9.702975e-01, -5.619080e+00, -3.162733e+00])
+ DESIRED: array([ 0.000000e+00,  0.000000e+00,  0.000000e+00,  0.000000e+00,
+        0.000000e+00,  0.000000e+00,  2.416615e-04,  4.551030e-04,
+       -6.967645e-04, -2.428613e-01, -1.161894e+01, -1.208638e-03,
+       -9.702975e-01, -5.619080e+00, -3.162733e+00])
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.003s
+
+FAILED (failures=1)

@@ -1,0 +1,10 @@
+{
+  "schema": "numi.cardboard.reference003-portable-integration.v1",
+  "reference_package_manifest_sha256": "23d77dc36a39e15c4275ba4784816d33e56d1929714c9eabc28d3029ab32c611",
+  "reference_sha256": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995",
+  "fixture_sha256": "391c170098bf0e76583c772c6508969e80ebdf1695982ddf721b466afe28b514",
+  "comment_only_delta_from_sealed_reference": true,
+  "external_absolute_path_test_not_installed": true,
+  "native_source_unchanged": true,
+  "gpu_execution": false
+}

@@ -1,0 +1,8 @@
+{
+  "classification": "retained failed CPU test invocation; no GPU or FEM transactions",
+  "returncode": -6,
+  "failing_check": "regional-consumer-capture",
+  "reason": "source contract checker requires runtime source as argv[1]; CMake test registration and initial root invocation omitted it",
+  "repair": "source167-test-registration-002 and integration004 add exact runtime source argument",
+  "remaining_box_native_syntax_check": "not reached in this attempt"
+}

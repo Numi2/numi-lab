@@ -1,0 +1,21 @@
+{
+  "schema": "numi.cardboard.source168-reference-integration.v1",
+  "base_source_count": 800,
+  "source_count": 802,
+  "base_frozen_sha256": "64a3c2554ced82d754b5513ef01ea056f56aa9d9974ab9ba9386d2dc6b0ff410",
+  "frozen_source_sha256": "c54920e78d1487f1eb85194b750f6f5d7a21d389e8099728496888b2aa8ef16b",
+  "source": "/Users/home/cardboard-implementation-20261014/snapshots/source-reference-jacobian-168",
+  "changed_or_added": {
+    "matter/CMakeLists.txt": "c9087ec48f7daff3a3c6136f10df3b6365ad849d27ba1e660da93b7997183aac",
+    "matter/tools/cardboard_bilinear_fp64_reference.py": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995",
+    "matter/tools/test_cardboard_reference_fb_jacobian.py": "f3b37f81434160f6088c06f97310bad47f02a72250b32b7b007ae8c09de4c1cf",
+    "matter/tools/cardboard_reference_fb_tet846_fixture.json": "391c170098bf0e76583c772c6508969e80ebdf1695982ddf721b466afe28b514"
+  },
+  "native_runtime_shader_probe_unchanged": true,
+  "source166003_manifest_sha256": "23d77dc36a39e15c4275ba4784816d33e56d1929714c9eabc28d3029ab32c611",
+  "fixture_precision_digits": 90,
+  "fp64_derivative_relative_l2_gate": 1e-06,
+  "initial_arbitrary_1e12_test_failure_retained": "analysis/reference003-portable-test-attempt-001",
+  "projection_gates_unchanged": true,
+  "gpu_execution": false
+}

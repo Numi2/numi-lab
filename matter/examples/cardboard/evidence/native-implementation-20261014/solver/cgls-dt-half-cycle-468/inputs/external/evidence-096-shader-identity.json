@@ -1,0 +1,29 @@
+{
+  "build_topology": "source root matter, target numi-matter-cardboard-probe; source157 built with 2 jobs versus source154 4 jobs. CMake source-relative topology and release target are the same; job-count difference is recorded, not hidden.",
+  "host_probe": {
+    "byte_identical": false,
+    "source154_sha256": "d9d6d24da3467b4616a75a65e6cbbe9c28b1c20bc348576d8e58ae81b3864c65",
+    "source157_sha256": "19492c5cff7dd94148335f7ed53a358bbcebcaa163241cfd8012abbac9f765e0"
+  },
+  "schema": "numi.cardboard.source157.shader-identity.v1",
+  "shaders": {
+    "NumiMatter.metallib": {
+      "byte_identical": true,
+      "source154_build_record_sha256": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114",
+      "source154_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/shaders/NumiMatter.metallib",
+      "source154_sha256": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114",
+      "source157_build_record_sha256": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114",
+      "source157_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-157/shaders/NumiMatter.metallib",
+      "source157_sha256": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114"
+    },
+    "NumiMatterPhysicalStateDigest.metallib": {
+      "byte_identical": true,
+      "source154_build_record_sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+      "source154_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "source154_sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+      "source157_build_record_sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+      "source157_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-157/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "source157_sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729"
+    }
+  }
+}

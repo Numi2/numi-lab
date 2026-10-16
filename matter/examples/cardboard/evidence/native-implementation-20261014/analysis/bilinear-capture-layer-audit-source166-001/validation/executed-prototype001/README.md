@@ -1,0 +1,1 @@
+Exact executed prototype source for regression419-001, preserved before strengthening fingerprint admission and adding descriptive force/residual decomposition. The old run reported all six qualification axes false and does not verify native noise or full histories.

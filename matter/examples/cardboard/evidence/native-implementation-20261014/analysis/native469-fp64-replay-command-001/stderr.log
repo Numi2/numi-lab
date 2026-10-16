@@ -1,0 +1,24 @@
+Traceback (most recent call last):
+  File "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-001/candidate/matter/tools/cardboard_bilinear_capture_layers.py", line 258, in <module>
+    if __name__=='__main__':main()
+  File "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-001/candidate/matter/tools/cardboard_bilinear_capture_layers.py", line 255, in main
+    report=audit(args.case,args.output,args.environment)
+  File "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-001/candidate/matter/tools/cardboard_bilinear_capture_layers.py", line 249, in audit
+    (output/'report.json').write_text(json.dumps(report,indent=2,allow_nan=False)+'\n')
+  File "/Users/home/.pyenv/versions/3.10.12/lib/python3.10/json/__init__.py", line 238, in dumps
+    **kw).encode(obj)
+  File "/Users/home/.pyenv/versions/3.10.12/lib/python3.10/json/encoder.py", line 201, in encode
+    chunks = list(chunks)
+  File "/Users/home/.pyenv/versions/3.10.12/lib/python3.10/json/encoder.py", line 431, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "/Users/home/.pyenv/versions/3.10.12/lib/python3.10/json/encoder.py", line 405, in _iterencode_dict
+    yield from chunks
+  File "/Users/home/.pyenv/versions/3.10.12/lib/python3.10/json/encoder.py", line 325, in _iterencode_list
+    yield from chunks
+  File "/Users/home/.pyenv/versions/3.10.12/lib/python3.10/json/encoder.py", line 405, in _iterencode_dict
+    yield from chunks
+  File "/Users/home/.pyenv/versions/3.10.12/lib/python3.10/json/encoder.py", line 397, in _iterencode_dict
+    yield _floatstr(value)
+  File "/Users/home/.pyenv/versions/3.10.12/lib/python3.10/json/encoder.py", line 239, in floatstr
+    raise ValueError(
+ValueError: Out of range float values are not JSON compliant: nan

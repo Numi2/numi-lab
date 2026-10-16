@@ -1,0 +1,1 @@
+Command002 fixes duplicate external input basenames refused in001 before execution. Three newly added external inputs now use explicit unique byte-identical aliases. Physical native argv, overrides, question and prediction are unchanged. The refused command and exact runner/error remain preserved.

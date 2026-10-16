@@ -1,0 +1,1 @@
+Executed source for regression419-002, preserved before strengthening total capture identity and bounded-epsilon admission. Its full center/tangent/force arrays remain diagnostic evidence, with all qualification axes false.

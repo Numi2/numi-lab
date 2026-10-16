@@ -1,0 +1,3 @@
+command: /Users/home/.pyenv/versions/3.10.12/bin/python3 -m py_compile cardboard_cached_operator_audit.py test_cardboard_cached_operator_audit.py cardboard_solver_environment.py
+working_directory: package working/matter/tools
+exit_code: 0

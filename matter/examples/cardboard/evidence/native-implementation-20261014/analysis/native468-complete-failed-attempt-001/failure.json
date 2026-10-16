@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.analysis_attempt_failure.v1",
+  "native_run_changed": false,
+  "exit_code": 1,
+  "observed_exception": "AssertionError at line104: expected CGLS summaries only48..63; runtime emits summaries0..63, with primary-policy summaries48..63 and pre-policy zero/not-converged summaries0..47.",
+  "report_created": false,
+  "source_sha256": "37ea90287d3a8bf1d90d1674cbd82059fbdf5cad806330a93b40d78b89c1b002",
+  "utc": "2026-10-16T01:25:30.337809+00:00"
+}

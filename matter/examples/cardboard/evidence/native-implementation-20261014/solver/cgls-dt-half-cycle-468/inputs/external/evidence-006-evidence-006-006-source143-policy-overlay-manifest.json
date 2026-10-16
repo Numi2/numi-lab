@@ -1,0 +1,39 @@
+{
+  "base_files": {
+    "matter/src/metal/base_cgls_runtime.metalinc": "9c889ffa751411980498f6a4536e1c8ffacbe472a37d559f291b5893874fa74c",
+    "matter/src/metal/fem.metalinc": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170",
+    "matter/src/runtime.mm": "1917384f3d82c43c1c63e040ebe796c43f7ab017cc0ef0f474ca94d3bd511ebb"
+  },
+  "base_frozen_source_sha256": "b0b14da5a0a4f65d7f7fc103be9d04cbf03ec3d2e322af6791e23b1f8125aba6",
+  "base_parent_revision": "7ebc64a666c4bd5e1ff61b3684655979ab80dc60",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142",
+  "changed_source_files": {
+    "matter/src/metal/base_cgls_runtime.metalinc": {
+      "base_sha256": "9c889ffa751411980498f6a4536e1c8ffacbe472a37d559f291b5893874fa74c",
+      "sha256": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903"
+    },
+    "matter/src/runtime.mm": {
+      "base_sha256": "1917384f3d82c43c1c63e040ebe796c43f7ab017cc0ef0f474ca94d3bd511ebb",
+      "sha256": "01162665b98a7f88d4d6341e2bc6ea50afb9f5d831b04fe446ce27d34e7ad5ec"
+    }
+  },
+  "exact_selector_kernel_body_sha256": "3926d5581ef3f8292961941a8228284287ad88d3b30a9ef9929c80e2a8b3676c",
+  "patch_sha256": "4db8d108a4a4eadf0edf65061284bc4acff2665f4e00ca6e27bab40934ec8fa7",
+  "schema": "numi.cardboard.base_cgls_primary_policy_overlay.v1",
+  "status": "sealed_external_overlay_candidate",
+  "test": {
+    "command": "python3 tests/test_base_cgls_primary_policy_contract.py",
+    "compiler": "/usr/bin/c++",
+    "coverage": "CPU compilation/execution of the extracted production Metal selector body; host configuration and transaction sequencing are source-contract audits only",
+    "result": "passed"
+  },
+  "validation_limits": [
+    "No project build or Metal compilation was run.",
+    "No GPU or native simulation was run.",
+    "This overlay is not integrated into source142 or a later production snapshot."
+  ],
+  "verification_files": {
+    "test-result.txt": "d95649744d7590debb32372d8b8ba045659943af5cb5f8b829dfc61240270b02",
+    "tests/test_base_cgls_primary_policy_contract.py": "fd49b89df50453589a247286bdd6ffc1830ef837e6afb846385f3919672e4829"
+  }
+}

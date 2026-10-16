@@ -1,0 +1,130 @@
+{
+  "files": [
+    {
+      "bytes": 4007,
+      "path": "README.md",
+      "sha256": "cd4a25382798b9423bacbaed31ecd3ba45d21090137c5836f3f04ed2a02eca2b"
+    },
+    {
+      "bytes": 85417,
+      "path": "candidate/matter/tools/cardboard_inside_clearance.hpp",
+      "sha256": "afe2c24cb7ecc879e771d9d4f8779adb9472593e68df015c0200ebc5b9235272"
+    },
+    {
+      "bytes": 748479,
+      "path": "candidate/matter/tools/cardboard_probe.mm",
+      "sha256": "cd9e774f643c2b108430fc8bac505c4f41d44854f82d6c4cc093c2cb9610fc78"
+    },
+    {
+      "bytes": 69489,
+      "path": "candidate/matter/tools/cardboard_shipping_memory.hpp",
+      "sha256": "6eeee9ef31c4c763a4d2a6ffd4c1edf18996bd2006aa56d94b5ef40fa98ca5af"
+    },
+    {
+      "bytes": 4148,
+      "path": "source-overlay.json",
+      "sha256": "aa89086262e8d9289318d22e1f831f10dab5e891e35463b5a61b5a86ff5c3d46"
+    },
+    {
+      "bytes": 120136,
+      "path": "source-overlay.patch",
+      "sha256": "074fca9d448b8d79d255faede66bdfe257aa108aca99c58ca8019c99511a2c67"
+    },
+    {
+      "bytes": 1593,
+      "path": "tests/check_patch_application.py",
+      "sha256": "1416a2c764ccdb30fe4da01908c6e01ec0cfab322e18edbf3206bcd9f52d277c"
+    },
+    {
+      "bytes": 31090,
+      "path": "tests/inside_clearance_check.cpp",
+      "sha256": "90102e27bb58b049a3985df0d3f54a13696cf4fe7dd7b3291a7b0a0661f52d15"
+    },
+    {
+      "bytes": 2283,
+      "path": "tests/run_scale_preflight.py",
+      "sha256": "8333390863db961f9c201124547b613af8e43a1a98f9a61485354cc504e2921c"
+    },
+    {
+      "bytes": 3108,
+      "path": "tests/run_validation.py",
+      "sha256": "62495cf0a2a70a555e417fda0dfecb170132b89ad1cc710032455e6b54ffce37"
+    },
+    {
+      "bytes": 6107,
+      "path": "tests/seal_package.py",
+      "sha256": "8f3d50ef48a4da9e44f228d171f2f5142c76a1db72f281a039f8165727bfb03b"
+    },
+    {
+      "bytes": 5009,
+      "path": "tests/shipping_clearance_memory_check.cpp",
+      "sha256": "275cd6e18becdd75faecca4229f1805094a4de0817910704a635c1e4b0abae27"
+    },
+    {
+      "bytes": 7166,
+      "path": "tests/topology_scale_preflight.cpp",
+      "sha256": "5f85fd050bd9d470401cc8d3d6464eb221c02b129a858f80eba8471ff31f6335"
+    },
+    {
+      "bytes": 4410,
+      "path": "validation/cpu-validation-final.log",
+      "sha256": "f75cf4513894e3b788cdab032c46212e832f39f902aa6f7acf1d486646415138"
+    },
+    {
+      "bytes": 4410,
+      "path": "validation/cpu-validation-final2.log",
+      "sha256": "f75cf4513894e3b788cdab032c46212e832f39f902aa6f7acf1d486646415138"
+    },
+    {
+      "bytes": 3125,
+      "path": "validation/cpu-validation-final3.log",
+      "sha256": "4f38df0a64e3a2fb76614e7cb74ac3b4a711317f981ca72bee08f9db7c8a50dc"
+    },
+    {
+      "bytes": 4410,
+      "path": "validation/cpu-validation-final4.log",
+      "sha256": "f75cf4513894e3b788cdab032c46212e832f39f902aa6f7acf1d486646415138"
+    },
+    {
+      "bytes": 4410,
+      "path": "validation/cpu-validation.log",
+      "sha256": "f75cf4513894e3b788cdab032c46212e832f39f902aa6f7acf1d486646415138"
+    },
+    {
+      "bytes": 424,
+      "path": "validation/patch-apply-final.log",
+      "sha256": "85345cc55a759a75439b6144b65df8df3fd9af8ee7066539dd0a7bb9aa875de1"
+    },
+    {
+      "bytes": 424,
+      "path": "validation/patch-apply-final2.log",
+      "sha256": "85345cc55a759a75439b6144b65df8df3fd9af8ee7066539dd0a7bb9aa875de1"
+    },
+    {
+      "bytes": 424,
+      "path": "validation/patch-apply.log",
+      "sha256": "85345cc55a759a75439b6144b65df8df3fd9af8ee7066539dd0a7bb9aa875de1"
+    },
+    {
+      "bytes": 1410,
+      "path": "validation/topology-scale-preflight-final.log",
+      "sha256": "646a40a7afa9e20353c9b014999b91b25bebd8b87147929b2eda9ede588da30c"
+    },
+    {
+      "bytes": 1410,
+      "path": "validation/topology-scale-preflight-final3.log",
+      "sha256": "304409a03aa7ffe45a9975ca3ec131df33267eaae836b8b1b734fa9e56c35a16"
+    },
+    {
+      "bytes": 604,
+      "path": "validation/topology-scale-preflight.json",
+      "sha256": "0c84d1e6a03cd4a35a7875cbfae3117c2cf82de8a9bdfdeef265d6fe9f08958c"
+    },
+    {
+      "bytes": 1410,
+      "path": "validation/topology-scale-preflight.log",
+      "sha256": "304409a03aa7ffe45a9975ca3ec131df33267eaae836b8b1b734fa9e56c35a16"
+    }
+  ],
+  "schema": "numi.cardboard.source159_overlay_package_inventory.v1"
+}

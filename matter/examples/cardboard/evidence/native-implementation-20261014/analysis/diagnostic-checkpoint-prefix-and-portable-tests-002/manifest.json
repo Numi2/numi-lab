@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.analysis-files.v1",
+  "files_sha256": {
+    "README.md": "be8f1db1c54fa010e8a231f43a885cf3c6aa4e6eea4ce2012ee3914a872f31e8",
+    "candidate/matter/tools/cardboard_solver_environment.py": "42c0e016b00c765950b8371e543504d2676cc9dd8fc8a559f2c9540b212b586b",
+    "candidate/matter/tools/cardboard_source_bound_run.py": "6ccd93a467860df58d8552b6f14c7d1ea77be2a896c06a77bfd9ad25392ceb9e",
+    "candidate/matter/tools/test_cardboard_checkpoint_pending_capture.py": "bc4cccfdd1a131dd11ed45e49621c98c27fb260e0b23b1a6c782b01118faa364",
+    "candidate/matter/tools/test_cardboard_resolution_study.py": "fc1552a33cc86f59164a26cce17ed527fff0f1e690e62847b482a4fb0e7e1ba2",
+    "candidate/matter/tools/test_cardboard_solver_environment.py": "64679cdccd1fd431ec7639300c822775e718f0b03c521c2d3c24601e34ce6f7b",
+    "overlay.patch": "514a4a664fd3def4d6de039e4247a263f5b9b4bf64dd9a80f5e0b04e30f53e3e",
+    "source-overlay.json": "fac79caf1409c8890e7d718f7180ab8c1fd544f4926e9a6d42f0630dd8cc6daf",
+    "validate.py": "6b2c3e507414f1ced3b2006807b0a640913b0b1474248c242d4ae9635583e76c",
+    "validation-pass001/patch-00.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "validation-pass001/patch-00.stdout.log": "0de61e455fa3da47c8050d9939867d7f6889a4b4f1df0e922a5e9532ff410993",
+    "validation-pass001/patch-01.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "validation-pass001/patch-01.stdout.log": "5abb529a15f2697355266b8879213cf9efa965843d53c0532c2eb90a174f9c1f",
+    "validation-pass001/patch-02.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "validation-pass001/patch-02.stdout.log": "77cbfd704ab48f6e87611f3cfbe61b35b88560b1ac2ff55c3976cdb51d2f99f8",
+    "validation-pass001/report.json": "0ac502c297d7f2ba47afc980e7702115403f5945422241b8bd8960f2d9327394",
+    "validation-pass001/tests.stderr.log": "1645c578d2352741c1e7309895d34188fc14ff3075a7c611c7e60d2479f315f7",
+    "validation-pass001/tests.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "validation-pass001/validate_pending_capture_overlay.py": "6b2c3e507414f1ced3b2006807b0a640913b0b1474248c242d4ae9635583e76c",
+    "validation-pass002/patch-00.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "validation-pass002/patch-00.stdout.log": "0de61e455fa3da47c8050d9939867d7f6889a4b4f1df0e922a5e9532ff410993",
+    "validation-pass002/patch-01.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "validation-pass002/patch-01.stdout.log": "5abb529a15f2697355266b8879213cf9efa965843d53c0532c2eb90a174f9c1f",
+    "validation-pass002/patch-02.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "validation-pass002/patch-02.stdout.log": "77cbfd704ab48f6e87611f3cfbe61b35b88560b1ac2ff55c3976cdb51d2f99f8",
+    "validation-pass002/report.json": "f4b970d18b1e879b2040c1bacd8980d33e7589fac1c739d45047b37c6a5fae1b",
+    "validation-pass002/tests.stderr.log": "371ad637b0e34713c9202dc0c5e371f253ad476feb9a7689f32eb93b6b8e1af6",
+    "validation-pass002/tests.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "files_sha256": {
+    "README.md": "98f09fdc36d33d8e810f6b6ecea0863175cbd24ea7a81199064a186a871aef7f",
+    "cardboard_bilinear_capture_layers.py": "a216e2438eb3a0c55b9651159482d45ac7e922ca50ca3ada458124018d5a3b0a",
+    "cardboard_bilinear_fp64_reference.py": "ea5cba69f600f446cc1c129b03bf1fa578d4f26d2d0d62fa1e63b4fa4c8248d5"
+  }
+}

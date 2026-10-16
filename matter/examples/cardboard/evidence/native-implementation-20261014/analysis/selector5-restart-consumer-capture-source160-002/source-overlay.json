@@ -1,0 +1,36 @@
+{
+  "artifacts": {
+    "cpp_test_sha256": "6a3b84df691f4d03676d20f111497487df8bab0a00a52f9f167c42a8ecc65435",
+    "python_test_sha256": "bfa7f8ad5e4078d48d6651376809386f68c005d4b3c2e6dadfd444b85385e50f",
+    "readme_sha256": "b5d32d9a7ace77e4b5e297f152b35acde535ddbe2e20f9e98666b57849a8b331",
+    "runtime_sha256": "ab916ed67b669769bf8bbb8e10974782f62c1245f23434d69ae9f9d45aef6748",
+    "selector_header_sha256": "f97bdbd1e6729861d1f232f6262ef08c405bbe0410a7c5172add180044c662e9",
+    "size_preflight_sha256": "775cac7cfab463d0a050d13a671f8934cf6a78df88a3ce6869f365f842997e93",
+    "source464_manifest_sha256": "9a9718888fc5fdc9eed488e258a5c8b188bde96f77c1d8d3c2dc5c3ea0dfe523",
+    "source_overlay_patch_sha256": "21de1e88925af6307696536cf7336d570a1270dc6304ed90060b4ac7ff117f21",
+    "validator_sha256": "788c771b292a229cb4c5ecfd2eb00231c8b2f17a90b0e3666f5984e68b36eb2c"
+  },
+  "changed_sources": {
+    "matter/include/numi/matter/regional_consumer_capture.hpp": {
+      "base_sha256": null,
+      "base_state": "new_file",
+      "overlay_sha256": "f97bdbd1e6729861d1f232f6262ef08c405bbe0410a7c5172add180044c662e9"
+    },
+    "matter/src/runtime.mm": {
+      "base_sha256": "69d012aeaeff6bf7ef45ede8817d9664aea21b756383fe46b38325c75c6ce743",
+      "overlay_sha256": "ab916ed67b669769bf8bbb8e10974782f62c1245f23434d69ae9f9d45aef6748"
+    }
+  },
+  "native_qualification": "not_run",
+  "overlay_id": "source160-selector5-restart-consumer-capture-002",
+  "parent_overlay": "source160-selector5-restart-consumer-capture-001",
+  "parent_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "parent_snapshot": "source-right-grip-telemetry-157",
+  "schema": "numi.matter.source_overlay.v1",
+  "scope": "Adds zero-rate one-microtick one-shot identity and 64 MiB per-payload bound to the default-off selector-5 consumer diagnostic; no solver or acceptance changes.",
+  "unchanged_bindings": {
+    "matter/include/numi/matter/shared.h": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+    "matter/src/matter_kernels.metal": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168",
+    "matter/src/metal/fgmres.metalinc": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8"
+  }
+}

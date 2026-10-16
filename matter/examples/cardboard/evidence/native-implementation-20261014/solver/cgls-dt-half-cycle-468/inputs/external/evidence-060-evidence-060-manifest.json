@@ -1,0 +1,21 @@
+{
+  "created_at_utc": "2026-10-16T00:18:51.141651+00:00",
+  "files": [
+    {
+      "bytes": 903,
+      "path": "README.md",
+      "sha256": "dcb3efdabe37bc4e5ce867db784b8b99e04b94ab0c9a83008e1870c1996e0aca"
+    },
+    {
+      "bytes": 10522,
+      "path": "report.json",
+      "sha256": "721830253cbaf1045dcdc3506f34f9477fc940f86c9bc6bc363ffd19202ca828"
+    },
+    {
+      "bytes": 1251,
+      "path": "stderr-lifecycle-excerpt.txt",
+      "sha256": "0c4475d8b05c1354e4b3208f874f6e02ca81afe5771a524e08942bc7e941c74c"
+    }
+  ],
+  "schema": "numi.cardboard.forensic-package-manifest.v1"
+}

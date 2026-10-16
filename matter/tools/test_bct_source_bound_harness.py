@@ -15,6 +15,7 @@ TOOLS = Path(__file__).resolve().parent
 RUNNER = TOOLS / "cardboard_source_bound_run.py"
 SUPPORT = TOOLS / "cardboard_source_bound_run_support.py"
 BINDING = TOOLS / "cardboard_calibration_case_binding.py"
+ENVIRONMENT = TOOLS / "cardboard_solver_environment.py"
 PRODUCER_TEST_PATH = TOOLS / "test_bct_capacity_history_producer.py"
 
 
@@ -36,7 +37,7 @@ class SourceBoundHarnessTests(unittest.TestCase):
     def _fake_source(self, root: Path) -> tuple[Path, Path]:
         tools = root / "matter" / "tools"
         tools.mkdir(parents=True)
-        for source in (RUNNER, SUPPORT, BINDING, TOOLS / "bct_capacity_history_producer.py",
+        for source in (RUNNER, SUPPORT, BINDING, ENVIRONMENT, TOOLS / "bct_capacity_history_producer.py",
                        TOOLS / "cardboard_calibration_ensemble.py"):
             shutil.copy2(source, tools / source.name)
         (root / "matter" / "materials").mkdir(parents=True)
@@ -108,10 +109,16 @@ class SourceBoundHarnessTests(unittest.TestCase):
             prediction_path, receipt_path = run / "prediction.json", run / "receipt.json"
             prediction = json.loads(prediction_path.read_text())
             receipt = json.loads(receipt_path.read_text())
+            environment = json.loads((run / "native-environment.json").read_text())
             self.assertEqual(prediction["native_protocol_id"], producer.PROTOCOL_ID)
             self.assertEqual(prediction["calibration_case_binding"]["candidate_sha256"],
                              candidate["candidate_sha256"])
             self.assertEqual(receipt["calibration_parameter_validation"]["status"], "passed")
+            self.assertTrue(environment["launch"]["native_controls_scrubbed"])
+            self.assertEqual(environment["contract_sha256"],
+                             prediction["effective_native_environment_contract_sha256"])
+            self.assertEqual(environment["prediction_sha256"],
+                             __import__("hashlib").sha256(prediction_path.read_bytes()).hexdigest())
             self.assertEqual(receipt["calibration_parameter_validation"]["manifest_sha256"],
                              producer.sha256(run / "output/manifest.json"))
             raw_receipt_sha = producer.sha256(receipt_path)

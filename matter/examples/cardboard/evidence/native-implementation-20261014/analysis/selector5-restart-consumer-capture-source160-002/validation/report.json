@@ -1,0 +1,51 @@
+{
+  "base_snapshot": "source-right-grip-telemetry-157",
+  "checks": [
+    {
+      "command": "/usr/bin/clang++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -I source/matter/include tests/regional_consumer_capture_contract_test.cpp -o validation/regional_consumer_capture_contract_test && validation/regional_consumer_capture_contract_test source/matter/src/runtime.mm",
+      "log": "validation/cpp-build.log",
+      "name": "cpp-contract-build-and-run",
+      "result": "pass"
+    },
+    {
+      "command": "/Users/home/.pyenv/versions/3.10.12/bin/python3 -m unittest discover -s tests -v",
+      "log": "validation/python-tests.log",
+      "name": "python-tests",
+      "result": "pass",
+      "tests": 6
+    },
+    {
+      "command": "/usr/bin/clang++ -DNUMI_MATTER_DEFAULT_METALLIB=\"/Users/home/numi-cardboard-20261006/build-cardboard-provenance-157/shaders/NumiMatter.metallib\" -I source/matter/include -I <source157>/matter/src -I <source157>/matter/include -I <source157>/include -x objective-c++ -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fsyntax-only source/matter/src/runtime.mm",
+      "log": "validation/objcpp-syntax.log",
+      "name": "objc-syntax",
+      "result": "pass"
+    },
+    {
+      "array_count": 36,
+      "cap_bytes": 67108864,
+      "cap_headroom_bytes": 27283380,
+      "command": "/Users/home/.pyenv/versions/3.10.12/bin/python3 preflight/size_preflight.py",
+      "log": "preflight/source464-size-preflight.json",
+      "name": "source464-size-preflight",
+      "payload_bytes": 39825484,
+      "result": "pass_size_only"
+    },
+    {
+      "command": "patch -p1 -d validation/apply-check < source-overlay.patch; cmp runtime.mm and new header against overlay",
+      "log": "validation/patch-apply.log",
+      "name": "source-relative-patch-apply-and-byte-compare",
+      "result": "pass"
+    }
+  ],
+  "limits": [
+    "No native build or GPU run.",
+    "The 64 MiB bound is for the serialized selected-environment payload/snapshot only; whole-process and Metal-driver transient peak was not measured.",
+    "The size result is specific to exact source464 dimensions and append inventory; all other layouts remain runtime-checked.",
+    "Other readback modes including NM_FEM_NEWTON_TRACE_ROOT reject while this capture is enabled.",
+    "Schema v1 captures are not accepted by the v2 validator.",
+    "No convergence, solver-parity, or physical qualification."
+  ],
+  "overlay_id": "source160-002",
+  "parent_overlay": "source160-001",
+  "schema": "numi.matter.selector5_restart_consumer_capture.validation.v2"
+}

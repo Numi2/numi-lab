@@ -1,0 +1,17 @@
+{
+  "schema": "numi.cardboard.bilinear-capture-layer-files.v1",
+  "files_sha256": {
+    "arrays.npz": "ddb59a51688e88288ca2d299a2276d1dae5a5caff82650bbce8e1ac4f8cbfd46",
+    "report.json": "ffade46b191ad333e1d2f53b6ecd619cb3801a54d2e58bf24388a1bd096bf325"
+  },
+  "inputs_sha256": {
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/prediction.json": "41b37af2747cfa551fae60eaddd7681cd7c7dbc859a402e641677ec23bd957d6",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/receipt.json": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/stderr.log": "f6fe513bfafc9ae4f4f38b2377c1cddaeb1ce78374886295cb92db2bf6c48198",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/manifest.json": "bcc9d5c5085635ea845d4d34f37bbf4c26b5af9086c15f5e02bb4597d2c2c3f5",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-001/candidate/matter/tools/cardboard_bilinear_capture_layers.py": "013baf483fece2d77883592fc472c5f15393ebea922c4e20e10824b7fec294d7",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-001/candidate/matter/tools/cardboard_bilinear_fp64_reference.py": "ea5cba69f600f446cc1c129b03bf1fa578d4f26d2d0d62fa1e63b4fa4c8248d5",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157/matter/tools/cardboard_cached_operator_audit.py": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38"
+  }
+}

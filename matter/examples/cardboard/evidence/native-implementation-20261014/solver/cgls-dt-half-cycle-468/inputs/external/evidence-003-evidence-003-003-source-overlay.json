@@ -1,0 +1,93 @@
+{
+  "schema": "numi.cardboard.native-base-cgls-mask-repair.v1",
+  "package_root": "/Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-mask-repair-142-001",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-141",
+  "base_helper_sha256": "24563b7d4d54c894c1f6ace75dca060429159752500c394e78a69a4fc0ae3b2c",
+  "repaired_helper_sha256": "439f702b6b92b913cff204ba3fd2a73757280cf68f9b7808c5cefcfa3de9b04e",
+  "mirrored_core_helper_sha256": "439f702b6b92b913cff204ba3fd2a73757280cf68f9b7808c5cefcfa3de9b04e",
+  "original_checker_sha256": "52704cd08ee4a7b5a6666bc99f0a68abf1c3d6f3c18fd5e7d32ec607d883c22f",
+  "compiled_metallib_sha256": "02bb89a3d384ed563d79d31bc4e5670c3cd56f661f8e398ece7e91eb3a96759a",
+  "native446_stage_evidence": "/Users/home/cardboard-implementation-20261014/native/base-cgls-stage-diagnostic-446/attempt-002/stderr.log",
+  "native443_failure_preserved": "/Users/home/cardboard-implementation-20261014/native/base-cgls-direct-kernel-443",
+  "changed_source_files": [
+    "core-v1/source/matter/src/metal/base_cgls.metalinc",
+    "source/matter/src/metal/base_cgls.metalinc"
+  ],
+  "validation": {
+    "cpu_tests": "6/6 pass using Python 3.10.12 with NumPy",
+    "metal_objcxx_compile": "pass",
+    "native_gpu_execution": "not run; parent owns GPU queue"
+  },
+  "limitations": [
+    "This candidate corrects only the initial active-versus-constrained row predicate.",
+    "Native447 must confirm corrected direct-kernel behavior.",
+    "No production nonlinear solve or qualification is claimed."
+  ],
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 1658,
+      "sha256": "e0f5537ddf260ba49c3607069e917611c7c3bf788e6ecd0723ef1dd707677057"
+    },
+    {
+      "path": "core-v1/helper-mask-repair.patch",
+      "bytes": 700,
+      "sha256": "78cc7f1cd4411df5425322d78d599b11633f7020ccad5a30c95d2ec48da163c0"
+    },
+    {
+      "path": "core-v1/source/matter/src/metal/base_cgls.metalinc",
+      "bytes": 23723,
+      "sha256": "439f702b6b92b913cff204ba3fd2a73757280cf68f9b7808c5cefcfa3de9b04e"
+    },
+    {
+      "path": "source/matter/src/metal/base_cgls.metalinc",
+      "bytes": 23723,
+      "sha256": "439f702b6b92b913cff204ba3fd2a73757280cf68f9b7808c5cefcfa3de9b04e"
+    },
+    {
+      "path": "native/base_cgls_native_check.mm",
+      "bytes": 19470,
+      "sha256": "52704cd08ee4a7b5a6666bc99f0a68abf1c3d6f3c18fd5e7d32ec607d883c22f"
+    },
+    {
+      "path": "native/base_cgls_test_actions.metal",
+      "bytes": 3287,
+      "sha256": "40bc30b5a9aadc21f472e84f95b5f2e337c9e791322bf97900783a41384d772d"
+    },
+    {
+      "path": "native/build/BaseCGLSCheck.metallib",
+      "bytes": 63692,
+      "sha256": "02bb89a3d384ed563d79d31bc4e5670c3cd56f661f8e398ece7e91eb3a96759a"
+    },
+    {
+      "path": "native/build/base_cgls_test_actions.air",
+      "bytes": 21024,
+      "sha256": "55dc71d3b398f1bbe087690ad19baf3e37db18418e84179bcc93ae3c3101ba5e"
+    },
+    {
+      "path": "native/compile_only.sh",
+      "bytes": 683,
+      "sha256": "415006717ed3bfec84530486e701ef93c4d04ad8342f9076a360a9bd84c796d8"
+    },
+    {
+      "path": "native/compile-repair.log",
+      "bytes": 171,
+      "sha256": "b20a4d6c0105014c2db7b99a984e1e74b156c0168a5b35443ae6dad76144b822"
+    },
+    {
+      "path": "cpu/cgls_reference.py",
+      "bytes": 13217,
+      "sha256": "f528887b17ace8eb3ddd3b30fff1b7b82f31bf1e1bed68341fba7393526389ea"
+    },
+    {
+      "path": "cpu/test_cgls_reference.py",
+      "bytes": 4591,
+      "sha256": "9d1609b0af1cb1a20beb8ded3f32ed4538ece3e2ba0a160e19489a3684a14276"
+    },
+    {
+      "path": "cpu/test-mask-repair.log",
+      "bytes": 118,
+      "sha256": "8bedc6874fc62f8260070f4ce4b58a71708898276758678073d77065ea41718c"
+    }
+  ]
+}

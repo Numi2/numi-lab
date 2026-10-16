@@ -1,0 +1,16 @@
+{
+  "box_native_probe_syntax": "PASS",
+  "candidate_probe_sha256": "984e7843f654802f49d88eb5298ab3beb4f5b5755ac0a0400424eae75924e18d",
+  "candidate_resume_header_sha256": "5178ef9d0e0084ba7d7c1be70943ccebb5837773f8edec5dae94c33a87490073",
+  "compile_commands_sha256": "2789b25029e0e81b6ac938f0aed53763de29b733dd110f5c6013bfb2990ed53a",
+  "contract_test_sha256": "79e72652ae8e9d92e56504accc1038f76fa095d70f5869246b68b1b4b1f56fe4",
+  "contract_tests": "PASS",
+  "native_build_or_gpu_run": "NOT_RUN",
+  "ordinary_coupon_probe_syntax": "PASS",
+  "overlay_patch_sha256": "a31feb421ee3fcbf0ce939612c9280174d4584c7b8bcbfdf7afb039b80f7e39c",
+  "patch_dry_run": "PASS",
+  "schema": "numi.cardboard.coupon-resume-validation.v1",
+  "source157_driver_header_sha256": "81844531890af9c6822ad9cde1ae7766a514f99fe14a8ec4459dbd596afeb2d5",
+  "source157_probe_sha256": "8bea98e513afca4f283e61a25aed25e8c55f5c8bd628a720654e9253fc10f3cd",
+  "source157_snapshot_header_sha256": "987eade18437c57a5e5ea364065ab7926c8911281d0b966034a44279b4f48475"
+}

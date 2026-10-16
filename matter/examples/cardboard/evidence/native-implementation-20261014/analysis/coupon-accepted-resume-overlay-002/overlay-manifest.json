@@ -1,0 +1,173 @@
+{
+  "added_test_files": [
+    "tests/coupon_resume_contract_test.cpp"
+  ],
+  "base_files": [
+    {
+      "path": "matter/tools/cardboard_probe.mm",
+      "sha256": "8bea98e513afca4f283e61a25aed25e8c55f5c8bd628a720654e9253fc10f3cd"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_snapshot.hpp",
+      "sha256": "987eade18437c57a5e5ea364065ab7926c8911281d0b966034a44279b4f48475"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_driver.hpp",
+      "sha256": "81844531890af9c6822ad9cde1ae7766a514f99fe14a8ec4459dbd596afeb2d5"
+    }
+  ],
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "behavior": {
+    "all_other_NM_and_NUMI_MATTER_settings_remain_strict": true,
+    "default_off": true,
+    "full_protocol_completion": "not_established",
+    "native_build_or_gpu_run": "not_run",
+    "only_registered_output_paths_may_relocate": true,
+    "probe_invents_or_relocates_capture_paths": false,
+    "source_prefix_extra_unlisted_regular_files_rejected": false,
+    "source_prefix_limitation": "Every listed regular file is checked by size and SHA-256, but an unexpected extra regular file added after checkpoint is not rejected.",
+    "trajectory_parity": "not_established"
+  },
+  "candidate_sha256": {
+    "matter/tools/cardboard_coupon_resume.hpp": "bdb41b93688e924b950aebc68aea19e5cc0988f618430b3e0e38634d37e1d282",
+    "matter/tools/cardboard_probe.mm": "45f0b33dcd196a26274b8c92df723a4780fd2874a235021921807ec399700971",
+    "overlay.patch": "14b20ccb42594e005e17b9851b4c69af1a35fd0ba11453981a3d14e70ae81a02",
+    "tests/coupon_resume_contract_test.cpp": "3f12233c3b9b8eb5f805fe91e0ec97a47ff7a937711c873fbf731012998df85f"
+  },
+  "changed_source_files": [
+    "matter/tools/cardboard_probe.mm",
+    "matter/tools/cardboard_coupon_resume.hpp"
+  ],
+  "created_utc_date": "2026-10-16",
+  "files": [
+    {
+      "bytes": 4671,
+      "mode": 420,
+      "path": "README.md",
+      "sha256": "58f4f51f5aaf4798286da4b6c7ccbb3307f8a82c5468e6b877af3a97ae6b88d9"
+    },
+    {
+      "bytes": 36910,
+      "mode": 420,
+      "path": "candidate/matter/tools/cardboard_coupon_resume.hpp",
+      "sha256": "bdb41b93688e924b950aebc68aea19e5cc0988f618430b3e0e38634d37e1d282"
+    },
+    {
+      "bytes": 788055,
+      "mode": 420,
+      "path": "candidate/matter/tools/cardboard_probe.mm",
+      "sha256": "45f0b33dcd196a26274b8c92df723a4780fd2874a235021921807ec399700971"
+    },
+    {
+      "bytes": 4708,
+      "mode": 420,
+      "path": "overlay-manifest.pre-seal.json",
+      "sha256": "30f1a6fbbb13c56a12a8a85b47505ca097904e6bf85f711eeb5bce4a16cdb78c"
+    },
+    {
+      "bytes": 101483,
+      "mode": 420,
+      "path": "overlay.patch",
+      "sha256": "14b20ccb42594e005e17b9851b4c69af1a35fd0ba11453981a3d14e70ae81a02"
+    },
+    {
+      "bytes": 68497,
+      "mode": 420,
+      "path": "overlay.patch.pre-seal",
+      "sha256": "a31feb421ee3fcbf0ce939612c9280174d4584c7b8bcbfdf7afb039b80f7e39c"
+    },
+    {
+      "bytes": 12416,
+      "mode": 420,
+      "path": "tests/coupon_resume_contract_test.cpp",
+      "sha256": "3f12233c3b9b8eb5f805fe91e0ec97a47ff7a937711c873fbf731012998df85f"
+    },
+    {
+      "bytes": 12,
+      "mode": 420,
+      "path": "validation/contract-compile.log",
+      "sha256": "bde294368bfed77c2cddf8cec271d398aee9cdbab3b26e1059281bd33adb0120"
+    },
+    {
+      "bytes": 12,
+      "mode": 420,
+      "path": "validation/contract-run.log",
+      "sha256": "bde294368bfed77c2cddf8cec271d398aee9cdbab3b26e1059281bd33adb0120"
+    },
+    {
+      "bytes": 117,
+      "mode": 420,
+      "path": "validation/patch-dry-run.log",
+      "sha256": "adb4930e5966ec1c6be925f48e1d97521ce55f8b57bac5099b02e0deb2800ac1"
+    },
+    {
+      "bytes": 1328,
+      "mode": 420,
+      "path": "validation/results.json",
+      "sha256": "3211b4df5b96e36715a15d980c9231730b95da55a91efff9da620c753f97e5e0"
+    },
+    {
+      "bytes": 7003,
+      "mode": 420,
+      "path": "validation/run_validation.py",
+      "sha256": "162e943d4df8454720dd63e66b50997cdeb9e80d7d332fafa2475a97e33335ac"
+    },
+    {
+      "bytes": 363,
+      "mode": 420,
+      "path": "validation/syntax-box-native.log",
+      "sha256": "4013ef8daf9c5eb2b7437ebe42defbd0c0b0fc5e555038b7555fb322d37eca9c"
+    },
+    {
+      "bytes": 363,
+      "mode": 420,
+      "path": "validation/syntax-coupon.log",
+      "sha256": "4013ef8daf9c5eb2b7437ebe42defbd0c0b0fc5e555038b7555fb322d37eca9c"
+    }
+  ],
+  "preseal_history": {
+    "note": "The pre-seal manifest described earlier candidate bytes; retained with its original patch for audit. The current v2 manifest binds final candidate and validation outputs.",
+    "superseded_manifest": "overlay-manifest.pre-seal.json",
+    "superseded_manifest_sha256": "30f1a6fbbb13c56a12a8a85b47505ca097904e6bf85f711eeb5bce4a16cdb78c",
+    "superseded_patch": "overlay.patch.pre-seal",
+    "superseded_patch_sha256": "a31feb421ee3fcbf0ce939612c9280174d4584c7b8bcbfdf7afb039b80f7e39c"
+  },
+  "schema": "numi.cardboard.coupon-accepted-resume-overlay.v2",
+  "source161_runner_binding": {
+    "helper_sha256": "9be1b734ae05f8665f2537b8263889af2f27915209ba37025a9bdc878796882a",
+    "native_environment_key_count": 49,
+    "package": "/Users/home/cardboard-implementation-20261014/analysis/cardboard-effective-solver-environment-source161-002",
+    "patch_sha256": "154c1ce851219615237b6d63c9bf9d543c6750fd9164c42e370932a916150789",
+    "registered_output_path_keys": [
+      "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+      "NM_FEM_COUPLED_CAPTURE_PATH",
+      "NM_FEM_COUPLED_TRIAL_CAPTURE_PATH",
+      "NM_FEM_COUPLED_TRIAL_SUMMARY_PATH",
+      "NM_FEM_OPERATOR_FD_CAPTURE_PATH",
+      "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH",
+      "NM_FEM_STATUS5_CAPTURE_PATH"
+    ],
+    "source_overlay_sha256": "83d85efab279dd23c4be513c9c34ee77369ec36e1579b5bcba38625c86de3b90"
+  },
+  "status": "sealed_isolated_candidate",
+  "validation": {
+    "box_native_probe_syntax": "PASS",
+    "candidate_probe_sha256": "45f0b33dcd196a26274b8c92df723a4780fd2874a235021921807ec399700971",
+    "candidate_resume_header_sha256": "bdb41b93688e924b950aebc68aea19e5cc0988f618430b3e0e38634d37e1d282",
+    "compile_commands_sha256": "2789b25029e0e81b6ac938f0aed53763de29b733dd110f5c6013bfb2990ed53a",
+    "contract_test_sha256": "3f12233c3b9b8eb5f805fe91e0ec97a47ff7a937711c873fbf731012998df85f",
+    "contract_tests": "PASS",
+    "native_build_or_gpu_run": "NOT_RUN",
+    "ordinary_coupon_probe_syntax": "PASS",
+    "overlay_patch_sha256": "14b20ccb42594e005e17b9851b4c69af1a35fd0ba11453981a3d14e70ae81a02",
+    "patch_dry_run": "PASS",
+    "schema": "numi.cardboard.coupon-resume-validation.v2",
+    "source157_driver_header_sha256": "81844531890af9c6822ad9cde1ae7766a514f99fe14a8ec4459dbd596afeb2d5",
+    "source157_probe_sha256": "8bea98e513afca4f283e61a25aed25e8c55f5c8bd628a720654e9253fc10f3cd",
+    "source157_snapshot_header_sha256": "987eade18437c57a5e5ea364065ab7926c8911281d0b966034a44279b4f48475",
+    "source161_native_environment_registry": "PASS",
+    "source161_output_path_registry": "PASS",
+    "source161_runner_helper_sha256": "9be1b734ae05f8665f2537b8263889af2f27915209ba37025a9bdc878796882a",
+    "source161_runner_patch_sha256": "154c1ce851219615237b6d63c9bf9d543c6750fd9164c42e370932a916150789"
+  }
+}

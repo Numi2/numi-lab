@@ -1,0 +1,116 @@
+Start testing: Oct 16 04:35 CEST
+----------------------------------------------------------
+25/126 Testing: matter.analysis.cardboard_bilinear_capture_layers
+25/126 Test: matter.analysis.cardboard_bilinear_capture_layers
+Command: "/Users/home/.pyenv/versions/3.10.12/bin/python3" "-m" "unittest" "test_cardboard_bilinear_capture_layers"
+Directory: /Users/home/cardboard-implementation-20261014/snapshots/source-reference-jacobian-168/matter/tools
+"matter.analysis.cardboard_bilinear_capture_layers" start time: Oct 16 04:35 CEST
+Output:
+----------------------------------------------------------
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 0.001s
+
+OK
+<end of output>
+Test time =   0.17 sec
+----------------------------------------------------------
+Test Passed.
+"matter.analysis.cardboard_bilinear_capture_layers" end time: Oct 16 04:35 CEST
+"matter.analysis.cardboard_bilinear_capture_layers" time elapsed: 00:00:00
+----------------------------------------------------------
+
+26/126 Testing: matter.analysis.cardboard_reference_fb_jacobian
+26/126 Test: matter.analysis.cardboard_reference_fb_jacobian
+Command: "/Users/home/.pyenv/versions/3.10.12/bin/python3" "-m" "unittest" "test_cardboard_reference_fb_jacobian"
+Directory: /Users/home/cardboard-implementation-20261014/snapshots/source-reference-jacobian-168/matter/tools
+"matter.analysis.cardboard_reference_fb_jacobian" start time: Oct 16 04:35 CEST
+Output:
+----------------------------------------------------------
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.016s
+
+OK
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"matter.analysis.cardboard_reference_fb_jacobian" end time: Oct 16 04:35 CEST
+"matter.analysis.cardboard_reference_fb_jacobian" time elapsed: 00:00:00
+----------------------------------------------------------
+
+57/126 Testing: matter.compiler.cardboard_coupon_resume
+57/126 Test: matter.compiler.cardboard_coupon_resume
+Command: "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-168/numi-matter-cardboard-coupon-resume-check"
+Directory: /Users/home/numi-cardboard-20261006/build-cardboard-provenance-168
+"matter.compiler.cardboard_coupon_resume" start time: Oct 16 04:35 CEST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.31 sec
+----------------------------------------------------------
+Test Passed.
+"matter.compiler.cardboard_coupon_resume" end time: Oct 16 04:35 CEST
+"matter.compiler.cardboard_coupon_resume" time elapsed: 00:00:00
+----------------------------------------------------------
+
+58/126 Testing: matter.compiler.cardboard_inside_clearance
+58/126 Test: matter.compiler.cardboard_inside_clearance
+Command: "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-168/numi-matter-cardboard-inside-clearance-check"
+Directory: /Users/home/numi-cardboard-20261006/build-cardboard-provenance-168
+"matter.compiler.cardboard_inside_clearance" start time: Oct 16 04:35 CEST
+Output:
+----------------------------------------------------------
+source159 inside-surface tests: PASS
+<end of output>
+Test time =   0.23 sec
+----------------------------------------------------------
+Test Passed.
+"matter.compiler.cardboard_inside_clearance" end time: Oct 16 04:35 CEST
+"matter.compiler.cardboard_inside_clearance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+59/126 Testing: matter.compiler.cardboard_shipping_clearance_memory
+59/126 Test: matter.compiler.cardboard_shipping_clearance_memory
+Command: "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-168/numi-matter-cardboard-shipping-clearance-memory-check"
+Directory: /Users/home/numi-cardboard-20261006/build-cardboard-provenance-168
+"matter.compiler.cardboard_shipping_clearance_memory" start time: Oct 16 04:35 CEST
+Output:
+----------------------------------------------------------
+source159 shipping-memory accounting tests: PASS
+<end of output>
+Test time =   0.23 sec
+----------------------------------------------------------
+Test Passed.
+"matter.compiler.cardboard_shipping_clearance_memory" end time: Oct 16 04:35 CEST
+"matter.compiler.cardboard_shipping_clearance_memory" time elapsed: 00:00:00
+----------------------------------------------------------
+
+60/126 Testing: matter.compiler.cardboard_regional_consumer_capture
+60/126 Test: matter.compiler.cardboard_regional_consumer_capture
+Command: "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-168/numi-matter-cardboard-regional-consumer-capture-check" "/Users/home/cardboard-implementation-20261014/snapshots/source-reference-jacobian-168/matter/src/runtime.mm"
+Directory: /Users/home/numi-cardboard-20261006/build-cardboard-provenance-168
+"matter.compiler.cardboard_regional_consumer_capture" start time: Oct 16 04:35 CEST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.44 sec
+----------------------------------------------------------
+Test Passed.
+"matter.compiler.cardboard_regional_consumer_capture" end time: Oct 16 04:35 CEST
+"matter.compiler.cardboard_regional_consumer_capture" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 16 04:35 CEST
+
+analysis =   0.25 sec*proc
+
+cardboard =   1.47 sec*proc
+
+cpu =   1.47 sec*proc
+
+matter =   1.47 sec*proc
+
+shipping =   1.21 sec*proc
+

@@ -1,0 +1,87 @@
+{
+  "schema": "numi.matter.source143_primary_policy_independent_review.v1",
+  "review_status": "NO_BLOCKING_FINDINGS",
+  "blocking_findings": [],
+  "source_bindings": {
+    "candidate_manifest": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/base-cgls-primary-policy-overlay-143-001/manifest.json",
+      "sha256": "ea4708b3a079cf4f156665fea7f0815bd2d2a767089ea4a63ea4d3d9da072d21"
+    },
+    "base_snapshot": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142",
+      "frozen_source_sha256": "b0b14da5a0a4f65d7f7fc103be9d04cbf03ec3d2e322af6791e23b1f8125aba6",
+      "runtime_sha256": "1917384f3d82c43c1c63e040ebe796c43f7ab017cc0ef0f474ca94d3bd511ebb",
+      "fem_metal_sha256": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170",
+      "fgmres_metal_sha256": "e5ebc5a8942fc4b7b23ccc8beebc2b88370860b9544996eb882a9ace87111b90"
+    },
+    "candidate_files": {
+      "matter/src/runtime.mm": "01162665b98a7f88d4d6341e2bc6ea50afb9f5d831b04fe446ce27d34e7ad5ec",
+      "matter/src/metal/base_cgls_runtime.metalinc": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903",
+      "tests/test_base_cgls_primary_policy_contract.py": "fd49b89df50453589a247286bdd6ffc1830ef837e6afb846385f3919672e4829"
+    },
+    "candidate_patch_sha256": "4db8d108a4a4eadf0edf65061284bc4acff2665f4e00ca6e27bab40934ec8fa7",
+    "candidate_selector_kernel_body_sha256": "3926d5581ef3f8292961941a8228284287ad88d3b30a9ef9929c80e2a8b3676c"
+  },
+  "reviewed_contracts": [
+    {
+      "topic": "default_off_and_configuration_rejection",
+      "result": "PASS",
+      "evidence": [
+        "candidate runtime.mm:11687-11710: the primary selector is inactive when unset; set values must be canonical decimal 0..256",
+        "candidate runtime.mm:11712-11727: CGLS must be explicitly configured to exactly 32 or 64 iterations with reserved scratch and the admitted FEM layout",
+        "candidate runtime.mm:11870-11880: primary mode rejects unless CGLS and the selected control-step all-Newton selector are both configured",
+        "candidate runtime.mm:22808-22823: when primary mode is false, the previous two-pass/fallback condition remains; when true, the candidate explicitly runs one pass"
+      ]
+    },
+    {
+      "topic": "private_selection_and_ordering",
+      "result": "PASS",
+      "evidence": [
+        "candidate base_cgls_runtime.metalinc:7-29: marker is set per environment only at/after configured Newton index, with healthy status, an original linear certificate, finite residual, and residual above the no-op bound",
+        "candidate runtime.mm:22782-22807: selection happens after base residual measurement and before building/installing the CGLS direction and before ordinary Armijo trials",
+        "candidate base_cgls_runtime.metalinc:87-90 and 132-145: install returns without changing solution/certificate for unselected environments; selected direction installation checks the original certificate and valid CGLS completion"
+      ]
+    },
+    {
+      "topic": "no_op_and_direction_certificate",
+      "result": "PASS",
+      "evidence": [
+        "source142 fem.metalinc:4651-4662: unchanged Armijo/no-op gate requires healthy statuses and both base/trial residual norms within the configured absolute bound for alpha zero",
+        "candidate base_cgls_runtime.metalinc:119-130: invalid selected CGLS results fail closed",
+        "candidate base_cgls_runtime.metalinc:137-145: selected install clears diagnostics.z, resets line-search/trial scratch, and does not reuse the Newton certificate as a certificate for the new direction",
+        "source142 fem.metalinc:4663-4716: accepted Armijo publishes the tested alpha; exhausted unsuccessful trials retain the ordinary nonlinear failure path"
+      ]
+    },
+    {
+      "topic": "tested_alpha_final_check_and_rollback",
+      "result": "PASS",
+      "evidence": [
+        "source142 fem.metalinc:4688-4695: the selected FEM trial alpha is published to both FEM and environment-wide line-search buffers in the accepted decision",
+        "candidate runtime.mm:11696-11813: primary mode is admitted only alongside the same-root true-residual certification request used by the bounded CGLS path",
+        "source142 runtime.mm:21964-21988: the production true-residual measurement/replacement and status propagation remain in the solver path",
+        "The candidate does not add an alternate commit path; ordinary transaction status/acceptance/rollback remains authoritative."
+      ]
+    },
+    {
+      "topic": "trace_semantics_and_scope",
+      "result": "PASS_WITH_LIMITS",
+      "evidence": [
+        "candidate runtime.mm:22382-22542: trace records the policy name, start index, per-environment primary_policy_eligible bit, CGLS trace quantities, and original-certificate scope",
+        "candidate runtime.mm:22820-22823 and 11848: primary mode explicitly disables the secondary Armijo fallback pass; this is reported as policy behavior, not hidden",
+        "The installer writes a zero trace for an unselected environment; therefore any derived original_newton_converged=false value in that row is not a fresh reading of that environment's FGMRES certificate. Interpret primary_policy_eligible as the authoritative selection field; this does not alter solver state or certificate."
+      ]
+    }
+  ],
+  "nonblocking_observations": [
+    "Ineligible environments keep their original Newton solution and follow the ordinary Armijo pass. At/after the configured primary index the policy intentionally has no second CGLS fallback pass, including for those environments; the enabled log states armijo_fallback_allowed=false. This is an explicit experimental policy and should remain described as such.",
+    "The portable check compiles and executes the exact extracted selector-kernel body in C++, and its host parser/ordering checks are static source audits only. It does not behaviorally test Objective-C++ environment parsing or the integrated transaction."
+  ],
+  "validation": {
+    "candidate_manifest_test": "passed",
+    "test_command": "python3 tests/test_base_cgls_primary_policy_contract.py",
+    "test_scope": "extracted selector kernel CPU execution plus source-contract audit",
+    "project_build_or_metal_compile": false,
+    "gpu_or_native_run": false,
+    "integration_into_source142": false
+  }
+}

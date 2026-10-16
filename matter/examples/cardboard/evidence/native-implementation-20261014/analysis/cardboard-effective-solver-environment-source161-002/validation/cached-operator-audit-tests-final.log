@@ -1,0 +1,18 @@
+test_binding_requires_sealed_source_selector_and_cache_guard (test_cardboard_cached_operator_audit.AssemblyAdmissionTests) ... ok
+test_binding_resolves_current_source_runtime_and_external_namespaces (test_cardboard_cached_operator_audit.AssemblyAdmissionTests) ... ok
+test_diagnostic_prediction_requires_valid_contract_and_capture_inventory (test_cardboard_cached_operator_audit.AssemblyAdmissionTests) ... ok
+test_operator_assembly_uses_canonical_native_f32_operands (test_cardboard_cached_operator_audit.AssemblyAdmissionTests) ... ok
+test_refuses_incomplete_or_mutated_tangent_cache (test_cardboard_cached_operator_audit.AssemblyAdmissionTests) ... ok
+test_rejects_bad_topology_and_fixed_direction (test_cardboard_cached_operator_audit.AssemblyAdmissionTests) ... ok
+test_synthetic_one_tet_action_parity_and_fixed_elimination (test_cardboard_cached_operator_audit.AssemblyAdmissionTests) ... ok
+test_captured_f32_rejects_overflow_after_json_parse (test_cardboard_cached_operator_audit.LocalOperatorTests) ... ok
+test_captured_f32_roundtrip_is_distinct_from_generic_fp64_input (test_cardboard_cached_operator_audit.LocalOperatorTests) ... ok
+test_inactive_frame_uses_world_coordinates (test_cardboard_cached_operator_audit.LocalOperatorTests) ... ok
+test_local_block_preserves_unsymmetric_tangent_and_frame (test_cardboard_cached_operator_audit.LocalOperatorTests) ... ok
+test_rejects_invalid_quaternion_and_nonfinite_cache (test_cardboard_cached_operator_audit.LocalOperatorTests) ... ok
+test_unit_tangent_element_force_sign (test_cardboard_cached_operator_audit.LocalOperatorTests) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.022s
+
+OK

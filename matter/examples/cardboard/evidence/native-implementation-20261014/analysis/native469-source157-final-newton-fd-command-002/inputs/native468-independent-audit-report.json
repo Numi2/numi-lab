@@ -1,0 +1,100 @@
+{
+  "checks": {
+    "conditioning": {
+      "accepted_physical_state": false,
+      "all_hashes_match": true,
+      "arrays": 23,
+      "meaning": "rejected Newton linearization inputs, not accepted projected candidate state"
+    },
+    "csv_and_state_roles": {
+      "arms": {
+        "bent": {
+          "accepted": 20,
+          "attempted": 21,
+          "last_accepted_step": 19,
+          "rejected": 1
+        },
+        "held_reference": {
+          "accepted": 21,
+          "attempted": 21,
+          "last_accepted_step": 20,
+          "rejected": 0
+        }
+      },
+      "bent_failed_control": 20,
+      "failed_certificate_remains_from_rejected_candidate": true,
+      "failed_residual": 5.4247129810391925e-06,
+      "held_control20_status": "0",
+      "rejected_geometry_matches_last_accepted_fields": [
+        "min_J",
+        "max_J",
+        "max_node_displacement_m",
+        "max_free_displacement_m",
+        "max_free_speed_m_s",
+        "kinetic_energy_J",
+        "max_material_state_change",
+        "measured_right_grip_angle_deg",
+        "current_fixed_nodes"
+      ],
+      "rejected_row_is_not_one_accepted_physical_state": true,
+      "rows": 42
+    },
+    "inputs": {
+      "all_sha256_match": true,
+      "count": 894,
+      "prediction_sha256": "8ca30db69c42dda56d3c3381472a23b3968b49ddf3f7560a904b39dc3364534d"
+    },
+    "qualification_limits": {
+      "claim": "failed incomplete cycle; accepted prefix only descriptive",
+      "full_cycle_completed": false,
+      "initial_full_environment_provenance": false,
+      "physical_qualification": false
+    },
+    "receipt_and_guard": {
+      "exit_code": 2,
+      "space_abort": false,
+      "timed_out": false,
+      "wall_seconds": 1636.4278742499882
+    },
+    "solver_traces": {
+      "all_recorded_structured_events_parse": true,
+      "base_cgls_primary_newton_range": [
+        48,
+        63
+      ],
+      "completed_control_timing_rows": 21,
+      "failed_control_cgls_summary_rows": 64,
+      "failed_control_newton_final_cycle_rows": 64,
+      "total_cgls_direction_events": 1344,
+      "total_true_residual_cycle_events": 86016
+    },
+    "terminal_files": {
+      "analysis_manifest_files": 3,
+      "count": 77,
+      "exact_set_and_sha256_match": true
+    }
+  },
+  "classification": "independent integrity and trace checks pass; native attempt remains failed/incomplete and unqualified",
+  "inputs": {
+    "bound_input_count": 894,
+    "capacity_guard_sha256": "6147a01c871adb1fc1fd888e7715b98952fb94ba0d7ccb6b5083362b96925ad1",
+    "conditioning_manifest_sha256": "74104fec382de2acdf5f6c272ee51dd4806df38cd919c11a1ecc793d562e7db2",
+    "native_result_sha256": "a0f9a523adf715e2c19cea5b5f4ce09f07d78d6d2e0ac43cf5ba5f0e2df79625",
+    "observations_sha256": "4d3a0aca4ef6cdc1f0a48a78b4ed611f8f4672e8359ccd4ceb0a8cf50c1dbb34",
+    "prediction_sha256": "8ca30db69c42dda56d3c3381472a23b3968b49ddf3f7560a904b39dc3364534d",
+    "receipt_sha256": "146cc970e01bb25b5dbeea1300f3632bd3f4804776f60efb0bd7bd3575002567",
+    "source_analysis_manifest_sha256": "f6cf494e39d41baf8ce9667e37e5b992c3f3640800dd589fd18ab7969a96ffa7",
+    "source_analysis_report_sha256": "33893ec1bead16307ce5aed3dc9bc1d023feec37baff6b253c8e8ee5032ced38",
+    "source_analyzer_sha256": "09d9e3c2b80d1bcea2c085aa1a8b35d45b18810496228bb97d4ca3785286955a",
+    "source_executable_sha256": "19492c5cff7dd94148335f7ed53a358bbcebcaa163241cfd8012abbac9f765e0",
+    "stderr_sha256": "f2c2f8745e9786f1f5ae7a62b8dc5076670c2bbbb1634fb4c1120d8b3b6683a2"
+  },
+  "native_solver_convergence_qualification": false,
+  "physical_qualification": false,
+  "schema": "numi.cardboard.native468_independent_audit.v1",
+  "source_analyzer_limitations": [
+    "The source analyzer does not explicitly assert the expected 23-array conditioning count, but this independent audit checks and rehashes all 23 entries.",
+    "The source report summarizes one final recorded residual cycle per Newton iteration; it does not represent every restart row as 64 independent linear solves.",
+    "The accepted-prefix and held-reference records are descriptive only; no full loading/hold/withdrawal/release/relaxation cycle completed."
+  ]
+}

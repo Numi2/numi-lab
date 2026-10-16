@@ -1,0 +1,121 @@
+--- a/matter/tools/cardboard_bilinear_fp64_reference.py
++++ b/matter/tools/cardboard_bilinear_fp64_reference.py
+@@ -54,6 +54,41 @@
+     for col in range(15):
+         q=z.astype(complex);q[...,col]+=1e-25j
+         j[...,col]=np.imag(residual(p,f,old,q))/1e-25
++    # Keep the rationalized Fischer-Burmeister residual value above, but do
++    # not complex-step differentiate its quotient near the cancellation
++    # threshold. Differentiate the authored phi=sqrt(dl^2+y^2+eps^2)-dl-y
++    # directly; its row is smooth because fb_epsilon is positive.
++    s=z[...,6:12]
++    dl=z[...,12]-old[...,12]
++    q,flow=hill(p,s)
++    y=(1+p[...,17]*p[...,19]*p[...,21]*z[...,13]/p[...,10]
++       +p[...,18]*p[...,20]*p[...,22]*z[...,14]/p[...,10]-q)
++    eps=p[...,26]
++    root=np.sqrt(dl*dl+y*y+eps*eps)
++    with np.errstate(divide='ignore',invalid='ignore',over='ignore'):
++        coeff_dl=dl/root-1.0
++        positive_dl=dl>0.0
++        denominator_dl=root*(root+dl)
++        stable_dl=np.divide(-(y*y+eps*eps),denominator_dl,
++                            out=np.full_like(root,np.nan),where=denominator_dl>0.0)
++        coeff_dl=np.where(positive_dl,stable_dl,coeff_dl)
++
++        coeff_y=y/root-1.0
++        positive_y=y>0.0
++        denominator_y=root*(root+y)
++        stable_y=np.divide(-(dl*dl+eps*eps),denominator_y,
++                           out=np.full_like(root,np.nan),where=denominator_y>0.0)
++        coeff_y=np.where(positive_y,stable_y,coeff_y)
++
++    fb_row=np.zeros_like(z)
++    fb_row[...,12]=coeff_dl
++    # Hill's flow helper uses the authored shear half-gradient convention;
++    # y=-q therefore has twice those shear derivatives.
++    fb_row[...,6:9]=-coeff_y[...,None]*flow[...,0:3]
++    fb_row[...,9:12]=-2.0*coeff_y[...,None]*flow[...,3:6]
++    fb_row[...,13]=coeff_y*p[...,17]*p[...,19]*p[...,21]/p[...,10]
++    fb_row[...,14]=coeff_y*p[...,18]*p[...,20]*p[...,22]/p[...,10]
++    j[...,12,:]=fb_row
+     return j
+ 
+ def project(p,f,old,maxiter=80):
+--- /dev/null
++++ b/matter/tools/test_reference_fb_jacobian.py
+@@ -0,0 +1,74 @@
++#!/usr/bin/env python3
++"""High-precision regression for the independent FB Jacobian row."""
++import importlib.util
++from pathlib import Path
++import sys
++import unittest
++
++import numpy as np
++
++HERE = Path(__file__).resolve().parent
++BASE = Path('/Users/home/cardboard-implementation-20261014')
++sys.path.insert(0, str(HERE))
++import cardboard_bilinear_fp64_reference as patched_ref
++
++MP_SCRIPT = BASE / 'analysis/native469-independent-projection-002/solve_mp_projection.py'
++spec = importlib.util.spec_from_file_location('native469_mp_equations', MP_SCRIPT)
++mp_audit = importlib.util.module_from_spec(spec)
++sys.modules[spec.name] = mp_audit
++spec.loader.exec_module(mp_audit)
++
++
++class StableFischerBurmeisterJacobian(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.mp_reference, cls.archive, cls.inputs, cls.header, _, _ = mp_audit.load_capture_bindings()
++        cls.input = cls.inputs[846]
++        p, F, old, E, C, fun = mp_audit.model(cls.input['p'], cls.input['F'], cls.input['old'])
++        cls.mp = mp_audit.mp
++        cls.mp.mp.dps = 80
++        cls.p, cls.F, cls.old, cls.fun = p, F, old, staticmethod(fun)
++        cls.seed = mp_audit.elastic_trial_seed(p, F, old, E, C)
++
++    def assert_fb_row_matches_mp(self, z):
++        self.mp.mp.dps = 80
++        exact_row = []
++        for column in range(15):
++            def one(x):
++                zz = list(z)
++                zz[column] = x
++                return self.fun(zz)[12]
++            exact_row.append(self.mp.diff(one, z[column]))
++        F64 = self.input['F'][None, :, :]
++        old64 = self.input['old'][None, :]
++        z64 = np.asarray([float(x) for x in z], dtype=np.float64)[None, :]
++        actual = patched_ref.jacobian(self.input['p'][None, :], F64, old64, z64)[0, 12]
++        expected = np.asarray([float(x) for x in exact_row], dtype=np.float64)
++        error = np.abs(actual - expected)
++        self.assertTrue(np.isfinite(actual).all())
++        self.assertLess(float(error.max()), 1e-7)
++        if z[12] == self.old[12]:
++            self.assertAlmostEqual(float(actual[12]), -1.0, places=12)
++
++    def test_tet846_elastic_seed_fb_row_matches_80_digit_authored_derivative(self):
++        self.assert_fb_row_matches_mp(self.seed)
++
++    def test_tet846_resolved_mp_root_fb_row_matches_80_digit_authored_derivative(self):
++        report_path = BASE / 'analysis/native469-independent-projection-002/run-sealed002/report.json'
++        import json
++        report = json.loads(report_path.read_text())
++        row = next(item for item in report['resolved_rows'] if item['tet'] == 846)
++        z = [self.mp.mpf(value) for value in row['precision_results']['110']['root_state_mp_decimal']]
++        self.assert_fb_row_matches_mp(z)
++
++    def test_source166_residual_value_and_gate_constants_are_unchanged(self):
++        self.assertEqual(patched_ref.TIGHT_RESIDUAL, 2e-12)
++        self.assertEqual(patched_ref.TIGHT_DYNAMIC_CORRECTION, 2e-11)
++        # Positive epsilon at the zero multiplier remains in the authored smooth law.
++        r = patched_ref.residual(self.input['p'][None, :], self.input['F'][None, :, :],
++                                 self.input['old'][None, :], np.asarray(self.seed, float)[None, :])
++        self.assertTrue(np.isfinite(r).all())
++
++
++if __name__ == '__main__':
++    unittest.main(verbosity=2)

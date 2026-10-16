@@ -6,6 +6,7 @@ from cardboard_source_bound_run_support import wait_with_timeout, write_failure_
 from cardboard_calibration_case_binding import (
     CalibrationBindingError, validate_executed_manifest, validate_pre_run,
 )
+import cardboard_solver_environment as solver_environment
 
 
 def _single_argv_value(argv, flag):
@@ -20,6 +21,11 @@ parser.add_argument('--question', required=True)
 parser.add_argument('--prediction', required=True)
 parser.add_argument('--timeout', type=int, default=1800)
 parser.add_argument('--env', action='append', default=[])
+parser.add_argument('--diagnostic-run', action='store_true',
+                    help='mark this run diagnostic-only; it cannot establish convergence qualification')
+parser.add_argument('--diagnostic-capture', action='append', default=[],
+                    choices=sorted(solver_environment.CAPTURE_PATH_KEYS),
+                    help='request a registered capture path; the runner creates its fresh case-local prefix')
 parser.add_argument('--source-snapshot')
 parser.add_argument('--runtime-dir')
 parser.add_argument('--build-provenance', help='successful fresh-build receipt; checked before native launch')
@@ -28,6 +34,13 @@ parser.add_argument('--ensemble-plan', help='sealed BCT calibration plan; requir
 parser.add_argument('--case-binding', help='prepared candidate/condition binding; required for --shipping-box')
 parser.add_argument('argv', nargs=argparse.REMAINDER)
 args = parser.parse_args()
+environment_overrides = solver_environment.parse_overrides(args.env)
+if args.diagnostic_capture and not args.diagnostic_run:
+    parser.error('--diagnostic-capture requires --diagnostic-run')
+if len(args.diagnostic_capture) != len(set(args.diagnostic_capture)):
+    parser.error('duplicate --diagnostic-capture key')
+effective_environment_contract = None
+diagnostic_prefixes = {}
 repo = Path(__file__).resolve().parents[2]
 case = Path(args.case).resolve()
 # One native GPU worker per checkout. Compilation does not acquire this lock.
@@ -58,6 +71,13 @@ argv = args.argv[1:] if args.argv[0] == '--' else args.argv
 if not argv:
     parser.error('an executable command is required after --')
 argv[0] = str(Path(argv[0]).resolve())
+if args.diagnostic_run:
+    diagnostic_prefixes = solver_environment.create_diagnostic_capture_prefixes(
+        case, args.diagnostic_capture)
+    effective_environment_contract = solver_environment.make_diagnostic_contract(
+        environment_overrides, case, diagnostic_prefixes)
+else:
+    effective_environment_contract = solver_environment.make_contract(environment_overrides)
 calibration_identity = None
 calibration_binding_path = None
 required_calibration_inputs = set()
@@ -144,11 +164,18 @@ for external in sealed_external_inputs:
             raise ValueError('required calibration input is absent from the pre-run hash identity: '+path.name)
     bindings[relative] = copied_sha
     original_bindings[str(path.resolve())] = bindings[relative]
-env_delta = dict(value.split('=', 1) for value in args.env)
-seal = {'schema':'numi.cardboard.native-prediction.v1',
+env_delta = dict(environment_overrides)
+if args.diagnostic_run:
+    env_delta.update({key: effective_environment_contract['effective'][key]['value']
+                      for key in diagnostic_prefixes})
+seal = {'schema':('numi.cardboard.native-diagnostic-prediction.v1' if args.diagnostic_run
+                  else 'numi.cardboard.native-prediction.v1'),
         'sealed_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
         'question':args.question,'prediction':args.prediction,
         'argv':argv,'environment':env_delta,
+        'run_mode':'diagnostic' if args.diagnostic_run else 'qualification',
+        'effective_native_environment_contract': effective_environment_contract,
+        'effective_native_environment_contract_sha256': effective_environment_contract['sha256'],
         'source_snapshot':str(source_root),'runtime_dir':str(runtime_dir),
         'external_inputs':sealed_external_inputs,'inputs_sha256':bindings,
         'native_protocol_id': (calibration_identity['native_protocol_id'] if calibration_identity else None),
@@ -157,9 +184,20 @@ seal = {'schema':'numi.cardboard.native-prediction.v1',
         'build_provenance':args.build_provenance,
         'source_binding_limitation':'Listed source, executable and Metal libraries retained; compiler system headers and OS/driver not archived.',
         'timeout_seconds':args.timeout}
-(case/'prediction.json').write_text(json.dumps(seal,indent=2)+'\n')
-environment = os.environ.copy()
-environment.update(env_delta)
+(case/'prediction.json').write_text(json.dumps(seal,indent=2,sort_keys=True)+'\n')
+prediction_sha256 = hashlib.sha256((case/'prediction.json').read_bytes()).hexdigest()
+environment, removed_environment_keys = solver_environment.child_environment(
+    os.environ, effective_environment_contract)
+if args.diagnostic_run:
+    environment_record = solver_environment.make_diagnostic_run_record(
+        effective_environment_contract, removed_inherited_keys=removed_environment_keys,
+        prediction_sha256=prediction_sha256)
+else:
+    environment_record = solver_environment.make_run_record(
+        effective_environment_contract, producer='source-bound-native-runner',
+        removed_inherited_keys=removed_environment_keys,
+        prediction_sha256=prediction_sha256)
+solver_environment.write_run_record_new(case/'native-environment.json', environment_record)
 started = time.monotonic()
 with (case/'stdout.log').open('w') as out, (case/'stderr.log').open('w') as err:
     process = subprocess.Popen(argv, stdout=out, stderr=err, env=environment, start_new_session=True)
@@ -190,6 +228,25 @@ if calibration_identity is not None and code == 0 and not run_state['timed_out']
         }
 elif calibration_identity is not None:
     calibration_validation = {'status': 'not_run', 'reason': 'native process did not complete successfully'}
+diagnostic_capture_validation = None
+diagnostic_capture_validation_error = None
+if args.diagnostic_run:
+    try:
+        diagnostic_capture_validation = solver_environment.validate_diagnostic_outputs(
+            case, diagnostic_prefixes, native_argv=argv, native_exit_code=code,
+            native_timed_out=run_state['timed_out'],
+            effective_contract=effective_environment_contract)
+        output_record = {
+            'schema': 'numi.cardboard.diagnostic-capture-files.v1',
+            'environment_contract_sha256': effective_environment_contract['sha256'],
+            **diagnostic_capture_validation,
+        }
+        with (case/'diagnostic-captures.json').open('x', encoding='utf-8') as stream:
+            json.dump(output_record, stream, sort_keys=True, indent=2, allow_nan=False)
+            stream.write('\n')
+    except (OSError, ValueError) as error:
+        diagnostic_capture_validation_error = str(error)
+        diagnostic_capture_validation = {'status': 'failed', 'reason': diagnostic_capture_validation_error}
 receipt = {'schema':'numi.cardboard.native-run-receipt.v2',
            'execution_started':execution_started,
            'source_inputs_unchanged':not changed_inputs,
@@ -198,6 +255,9 @@ receipt = {'schema':'numi.cardboard.native-run-receipt.v2',
            'termination_errors':run_state['termination_errors'],
            'wall_seconds':time.monotonic()-started,
            'finished_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()}
+if args.diagnostic_run:
+    receipt['run_mode'] = 'diagnostic'
+    receipt['diagnostic_capture_validation'] = diagnostic_capture_validation
 if calibration_identity is not None:
     receipt.update({
         'native_protocol_id': calibration_identity['native_protocol_id'],
@@ -211,5 +271,5 @@ if calibration_identity is not None:
 (case/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
 print(json.dumps(receipt),flush=True)
 raise SystemExit(124 if run_state['timed_out'] else
-                 (3 if changed_inputs or calibration_validation_error else
+                 (3 if changed_inputs or calibration_validation_error or diagnostic_capture_validation_error else
                   (code if code >= 0 else 128-code)))

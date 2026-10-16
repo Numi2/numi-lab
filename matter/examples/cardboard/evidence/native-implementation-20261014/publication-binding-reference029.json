@@ -1,0 +1,109 @@
+{
+  "schema": "numi.cardboard.reference029-publication-binding.v1",
+  "prior_binding_sha256": "d720819e837db8e503b8cc06c3f9664709d10089ccf05da24f97fbfb0bf02f0d",
+  "prior_pathspec_sha256": "2014e68375cec1a720edc04feca77f64d2a8d5bc18c5be1949ca1802dba84662",
+  "historical_prefix": {
+    "records": 1480,
+    "path": "summary-reference028.json",
+    "sha256": "d025f2ce80dda69efb980ed24a21001cc8e2c6ac41a68299768bb25c26182196"
+  },
+  "prior_pathspec_entries": 5566,
+  "new_case_records": 44,
+  "cases": [
+    "analysis/publication028-commit-and-push-001",
+    "analysis/publication028-independent-byte-audit-002",
+    "solver/cgls-dt-half-cycle-468",
+    "solver/final-newton-fd-capture-469",
+    "analysis/native468-complete-failed-attempt-001",
+    "analysis/native468-complete-failed-attempt-002",
+    "analysis/native468-independent-audit-001",
+    "analysis/native469-command-refusal-001",
+    "analysis/native469-source157-final-newton-fd-command-002",
+    "analysis/native469-launch-guard-001",
+    "analysis/native469-terminal-capture-and-production-parity-001",
+    "analysis/native469-fp64-replay-command-001",
+    "analysis/native469-fp64-replay-command-002",
+    "analysis/native469-bilinear-layer-replay-001",
+    "analysis/native469-bilinear-layer-replay-002",
+    "analysis/native469-independent-projection-002",
+    "analysis/selector5-restart-consumer-capture-source160-002",
+    "analysis/cardboard-effective-solver-environment-source161-002",
+    "analysis/diagnostic-checkpoint-prefix-and-portable-tests-001",
+    "analysis/diagnostic-checkpoint-prefix-and-portable-tests-002",
+    "analysis/coupon-accepted-resume-overlay-001",
+    "analysis/coupon-accepted-resume-overlay-002",
+    "analysis/source159-inside-surface-role-map-overlay-003",
+    "analysis/source163-rejected-constitutive-export-overlay-001",
+    "analysis/bilinear-capture-layer-audit-source166-001",
+    "analysis/bilinear-capture-layer-audit-source166-002",
+    "analysis/source167-test-registration-001",
+    "analysis/source167-test-registration-002",
+    "analysis/source167-combined-integration-001",
+    "analysis/source167-combined-integration-002",
+    "analysis/source167-combined-integration-003",
+    "analysis/source167-combined-integration-004",
+    "analysis/source167-native-build-and-cpu-validation-001",
+    "analysis/source167-native-build-and-cpu-validation-002",
+    "analysis/source167-ctest-registration-validation-001",
+    "analysis/source167-working-tree-integration-001",
+    "analysis/bilinear-capture-layer-audit-source166-003",
+    "analysis/reference003-portable-integration-001",
+    "analysis/reference003-portable-test-attempt-001",
+    "analysis/source168-reference-integration-001",
+    "analysis/source168-portable-reference-validation-001",
+    "analysis/base-cgls-warm-start-refinement-overlay-159-001",
+    "analysis/base-cgls-warm-start-refinement-overlay-159-002",
+    "analysis/warm-start-native-kernel-check-001"
+  ],
+  "already_published_cases_excluded": [],
+  "copied_files": 2808,
+  "raw_files": 2750,
+  "gzip_files": 58,
+  "summary_sha256": "aaf1660cb3c68c02de4b81cd4e480d54a20e3674d7176c65ab5aad74ac2187c7",
+  "excluded_directory_parts": [
+    "__pycache__",
+    "archives",
+    "base",
+    "build",
+    "candidate",
+    "executions",
+    "restore-check"
+  ],
+  "excluded_directory_prefixes": [
+    "CMakeFiles",
+    ".air"
+  ],
+  "exclusion_scope": "Build/candidate/base/scratch copies remain external; changed source patches, exact manifests, compiler/checker receipts and all native histories are retained. Sole recovery archives preserved. No claim of a Git copy for every external scratch file.",
+  "six_axis_verdicts": {
+    "solver_correctness": {
+      "status": "partial_component_evidence; complete_nonlinear_solve_unqualified",
+      "evidence": "Source167 adds accepted coupon checkpoints and actual regional-consumer capture. Source168 fixes the independent FP64 FB Jacobian and adds a portable90-digit witness. Four helper and two Python CTest registrations pass. Native468/469 share byte-identical failed production histories;469 rich capture is retained. Four strict-floor center projection misses remain after the reference repair. Experimental warm-start CGLS is isolated; its first actual kernel check fails due checker mode-state leakage. No complete native solver qualification."
+    },
+    "numerical_convergence": {
+      "status": "unqualified",
+      "evidence": "Native468/469 both reject control20 after20 accepted bent controls; finalresidual5.424712981e-6 vs5e-7tolerance. No complete loading/withdrawal/release coupon history, accepted timestep triplet or mesh convergence. Native470 accepted-checkpoint prefix is active and excluded."
+    },
+    "component_calibration": {
+      "status": "partial_source_data_only",
+      "evidence": "Published-data package remains grade-bound. Exact kraft/NSSC progressive failure and local starch strength/GIc/GIIc remain unidentified."
+    },
+    "analogue_validation": {
+      "status": "unqualified_for_requested_full_sequence",
+      "evidence": "Grade, fixture, conditioning and rate transfer limits remain; no new validation series passed."
+    },
+    "physical_assembly_in_simulation": {
+      "status": "unqualified",
+      "evidence": "Accepted-surface clearance/coverage and bounded host workspace checks implemented; full assembly driver syntax passes. Explicit-flute shipping-scale contact/admission and fullprocess peak remain open. No physically scored/folded/bonded/released300x200x200mm checkpoint."
+    },
+    "crush_impact_prediction": {
+      "status": "unexecuted",
+      "evidence": "No qualified compression first peak, capacity-derived masses, gravity crush or 100mm drop; exact bare-box impact validation unavailable."
+    }
+  },
+  "physical_validation": false,
+  "active_native470_excluded": true,
+  "source168_frozen_sha256": "c54920e78d1487f1eb85194b750f6f5d7a21d389e8099728496888b2aa8ef16b",
+  "source167_native_build_sha256": "c5117e347334fa2edfbe9b1e21ea8812383f89477aa02b79aa76173a30a4cf24",
+  "source168_cpu_build_sha256": "b84e9f82b277cd65e8cc8df8a05065ef5886c03b92f7354a5cbffdd1bbebae8d",
+  "source159_history_errata": "Final003 overlay/inventory verified; initially announced003 seal bytes were overwritten before preservation and could not be recovered. Base-frozen metadata typo is recorded in source167 validation; admission independently verifies actual157files. No synthesized historical bytes."
+}

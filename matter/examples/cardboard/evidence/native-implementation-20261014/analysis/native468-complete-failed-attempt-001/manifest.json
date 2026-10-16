@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.analysis_attempt_failure_manifest.v1",
+  "files": {
+    "README.md": "a8bcbacc9e28056b377123949fa68a8bb514b65d0416dbba1bdc8ad5a5d0f460",
+    "analyze.py": "37ea90287d3a8bf1d90d1674cbd82059fbdf5cad806330a93b40d78b89c1b002",
+    "failure.json": "e6f840c6565eef79fecd0b5db44a182c652ff618f5da63769063ddcb1c24f978"
+  },
+  "native_modified": false
+}

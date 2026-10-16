@@ -1,0 +1,27 @@
+{
+  "attempts": [
+    {
+      "errors": [
+        "GNU ?: conditional-expression extension at three UTF8String fallback expressions under -Werror",
+        "unused install helper layout parameter; checker omitted required kernel buffer 30"
+      ],
+      "id": "checker-build-001",
+      "result": "failed host syntax"
+    },
+    {
+      "errors": [
+        "unused MechanicalRows constant under -Werror",
+        "unused kFailure constant under -Werror"
+      ],
+      "id": "checker-build-002",
+      "result": "failed host syntax"
+    },
+    {
+      "error": "fatal error: 'regional_graph_schwarz.hpp' file not found",
+      "id": "runtime-syntax-001",
+      "result": "failed because syntax command omitted source matter/src include directory"
+    }
+  ],
+  "note": "These are the failed pre-seal validation outputs observed from tool calls before logs were redirected. They are preserved as a transcription, not represented as raw log files.",
+  "schema": "numi.cardboard.warm_start_validation_attempts.v1"
+}

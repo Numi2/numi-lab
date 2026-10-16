@@ -1,0 +1,42 @@
+{
+  "all_live_source_and_build_hashes_match": true,
+  "artifacts": {
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/numi-matter-cardboard-probe": {
+      "actual_sha256": "d9d6d24da3467b4616a75a65e6cbbe9c28b1c20bc348576d8e58ae81b3864c65",
+      "expected_sha256": "d9d6d24da3467b4616a75a65e6cbbe9c28b1c20bc348576d8e58ae81b3864c65",
+      "matches": true
+    },
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/shaders/NumiMatter.metallib": {
+      "actual_sha256": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114",
+      "expected_sha256": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114",
+      "matches": true
+    },
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "actual_sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+      "expected_sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+      "matches": true
+    }
+  },
+  "build_metadata": {
+    "CMakeCache.txt": {
+      "actual_sha256": "ec0d14c1859a2453ca28b7c6fdc58949d4d0437f9b170f9ed00f74b447f2346e",
+      "expected_sha256": "ec0d14c1859a2453ca28b7c6fdc58949d4d0437f9b170f9ed00f74b447f2346e",
+      "matches": true
+    },
+    "compile_commands.json": {
+      "actual_sha256": "ba8b322ac083d06dbcb2c39ca7aa60c2ea16bb2b753880c401bb5d9e95e1bc41",
+      "expected_sha256": "ba8b322ac083d06dbcb2c39ca7aa60c2ea16bb2b753880c401bb5d9e95e1bc41",
+      "matches": true
+    }
+  },
+  "build_topology_erratum_manifest_sha256": "95e92b0c32cb9611211a73e856cb80e2f7a8cc51fa415131a625828a9f965cdd",
+  "build_topology_note": "The source154 build used CMake source root matter and emitted the recorded source-relative target/artifacts; preserve the source154 topology erratum in the inherited evidence. This command reuses that exact build and does not rebuild.",
+  "configure_support_sha256": "7f6f2afa927ae0373fa8027597fade97174cb867415fb38640e4e01767cfe3f1",
+  "schema": "numi.cardboard.native468.source-build-bindings.v1",
+  "source_build_provenance_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/source-build.json",
+  "source_build_provenance_sha256": "bc6200b8fc6db68df0cd85a8d93b2a4ccb04978e16a3fe994a92110510484a22",
+  "source_file_hash_count": 787,
+  "source_file_hash_mismatches": [],
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154",
+  "source_snapshot_manifest_sha256": "a365fdf346743d45cd4a7e1c4796e718555709485627784b31d4d0833ba68876"
+}

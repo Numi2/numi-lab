@@ -1,0 +1,25 @@
+{
+  "schema": "numi.cardboard.capture-layer-reader-validation.v1",
+  "contracts_exit_code": 0,
+  "contracts_command": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "-m",
+    "unittest",
+    "test_cardboard_bilinear_capture_layers"
+  ],
+  "reference_147_matrices_sha256": "c79152b13f1a8a88a00388d1083d558980fde0a54c8f8c8ba765246186950b5e",
+  "regression004_manifest_sha256": "6a685d6d905e2e1be326d7901b328be23208f9fbe1c18a52ad3203f1eb19f064",
+  "native_C_exactly_matches_147": true,
+  "independent_C_max_relative_matrix_change_vs_147": 0.0,
+  "native_matrix_column_relative_error_max": 6.135899309139776e-05,
+  "all_reference_directions_have_adjacent_fp64_pair": true,
+  "independent_realized_endpoint_projection_failures_retained": [
+    18,
+    14,
+    14,
+    14
+  ],
+  "warning_count_retained": 3230,
+  "native_execution_performed": false,
+  "qualification": false
+}

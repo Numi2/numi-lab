@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/home/cardboard-implementation-20261014/run_native469.py", line 40, in <module>
+    assert len({Path(v).name for v in inputs}) == len(inputs), 'duplicate input basename'
+AssertionError: duplicate input basename

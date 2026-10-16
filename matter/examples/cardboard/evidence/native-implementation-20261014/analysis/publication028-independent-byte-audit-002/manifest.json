@@ -1,0 +1,121 @@
+{
+  "audit_command": [
+    "python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/publication028-independent-byte-audit-002/audit_publication028.py"
+  ],
+  "audit_report": {
+    "bytes": 12349,
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/publication028-independent-byte-audit-002/report.json",
+    "sha256": "2ff60ecac3cfde338f0c68e64a708447673950f4459ccb6988df8a0817b88ea1"
+  },
+  "audit_tool": {
+    "bytes": 26658,
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/publication028-independent-byte-audit-002/audit_publication028.py",
+    "sha256": "7ed7d5392d5721432bb487db778bfdee82607852134471af3e7c21bfb74d362e"
+  },
+  "checked_scope": {
+    "active_native468_run_and_guard_published": false,
+    "build_or_gpu_performed": false,
+    "cases": 20,
+    "external_indexed_file_descriptors_hash_checked": 323,
+    "external_recovery_pointer_files_verified": 128,
+    "gzip_payload_files": 8,
+    "payload_files": 715,
+    "physical_qualification": false,
+    "raw_payload_files": 707,
+    "source_code_changes": false,
+    "source_hash_entries_verified": 787,
+    "staged_bytes_compared_to_worktree": 51488434,
+    "staged_paths": 722,
+    "staging_or_commit_performed": false,
+    "unrelated_untracked_paths": 2,
+    "unstaged_tracked_paths": 0
+  },
+  "created_utc": "2026-10-16T01:16:46.041187+00:00",
+  "head": "2298e1a1d49dd09fa149c57f65ccbfaab3985c29",
+  "prior_checker_attempt_001": {
+    "audit_tool": {
+      "bytes": 22304,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/publication028-independent-byte-audit-001/audit_publication028.py",
+      "sha256": "2c6e4633f878f72a770954abcb3919b3277f14706c7d0f2ce61afb940e2cf7c6"
+    },
+    "failed_report": {
+      "bytes": 18005,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/publication028-independent-byte-audit-001/report.json",
+      "sha256": "deca68cb295a8895f1afd472cf3dbb508e1c460aa972beb26d1d6cb8ae516f78"
+    },
+    "false_negative_causes": [
+      "qualification value was a six-axis dictionary, not a boolean",
+      "pathspec027 expected digest had one extra trailing hexadecimal character",
+      "new pathspec paths needed the repository evidence-root prefix",
+      "git returned two untracked files, not directory entries"
+    ],
+    "report_verdict": "FAIL",
+    "restoration_note": "The original 001 report was deterministically regenerated from its unchanged 001 script after the 002 draft was first run with an incorrect output-directory constant; the 001 observed failure checks remain visible in that report."
+  },
+  "publication_inputs": {
+    "binding028": {
+      "bytes": 4817,
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/publication-binding-reference028.json",
+      "sha256": "d720819e837db8e503b8cc06c3f9664709d10089ccf05da24f97fbfb0bf02f0d"
+    },
+    "external_recovery_index": {
+      "bytes": 237204,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/publication028-external-recovery-index-001/external-recovery-index.json",
+      "sha256": "ac63ec0a0f4cba8832709024c1d3ecc56dc54e5b97d65e880292b33c77ebca25"
+    },
+    "external_recovery_index_receipt": {
+      "bytes": 31146,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/publication028-external-recovery-index-001/build-receipt.json",
+      "sha256": "950a6f777212a1aeab08e30f13f91dbe245b8f18b06f8635cbe8fee164096986"
+    },
+    "external_recovery_status_erratum": {
+      "bytes": 1024,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/publication028-external-recovery-index-001/README-current-status.md",
+      "sha256": "ecc89366c27d0badc9a473cee1b0921e028ca95e0494456424fe8aeb09d388bd"
+    },
+    "historical_summary_reference027": {
+      "bytes": 17798659,
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/summary-reference027.json",
+      "sha256": "855f5b9c193720744ee0b49cd5d5b7a26be53b21509369da7dc408533ae756c6"
+    },
+    "pathspec027": {
+      "bytes": 754438,
+      "path": "/Users/home/cardboard-implementation-20261014/publication-reference027-pathspec.nul",
+      "sha256": "8d14076a060be308f86e2dca697f975d6ebab5d152ccae6e24f22880693a9f0c"
+    },
+    "pathspec028": {
+      "bytes": 879100,
+      "path": "/Users/home/cardboard-implementation-20261014/publication-reference028-pathspec.nul",
+      "sha256": "2014e68375cec1a720edc04feca77f64d2a8d5bc18c5be1949ca1802dba84662"
+    },
+    "source_build_record": {
+      "bytes": 95577,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source157-telemetry-native-build-001/build-metadata/source-build.json",
+      "sha256": "78cbe2fac180130174e0585ea2398b7c7f07b2b7a5227ed99f1cd8ee9e6581b5"
+    },
+    "source_snapshot_json_gzip": {
+      "bytes": 99441,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/retained-source-snapshot157-001/source-157.json.gz",
+      "sha256": "f5e22f025de0230e7aa1ca106b7ccb8fc48cd9d41084ffc5f51eaca95deb374d"
+    },
+    "staged_pathlist": {
+      "bytes": 124936,
+      "path": "/Users/home/cardboard-implementation-20261014/publication028-staged-paths.nul",
+      "sha256": "639fe00ea24320f0264d47e1fafaa21efd9959ed2e0fce38e54d7a79c1769bf4"
+    },
+    "summary": {
+      "bytes": 18187348,
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/summary.json",
+      "sha256": "d025f2ce80dda69efb980ed24a21001cc8e2c6ac41a68299768bb25c26182196"
+    }
+  },
+  "readme": {
+    "bytes": 2992,
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/publication028-independent-byte-audit-002/README.md",
+    "sha256": "e45243a6ca94919a5ab1b97b43465a722278e8d4c1bd0847b005275dd23152f4"
+  },
+  "repo": "/Users/home/numi-cardboard-20261006",
+  "schema": "numi.cardboard.publication028.independent_byte_audit_manifest.v1",
+  "verdict": "PASS"
+}

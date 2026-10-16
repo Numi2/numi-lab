@@ -1,0 +1,32 @@
+{
+  "schema": "numi.cardboard.source166003-reference-provenance.v1",
+  "classification": "independent Python FP64 reference only; not the native material projector or a native qualification",
+  "parent": {
+    "package": "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-002",
+    "manifest_sha256": "978ed3d360db9678caff6e9b0c2ef398a1aa006688f045b0f82e8b6b5924a005",
+    "reference_path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-002/candidate/matter/tools/cardboard_bilinear_fp64_reference.py",
+    "reference_sha256": "ea5cba69f600f446cc1c129b03bf1fa578d4f26d2d0d62fa1e63b4fa4c8248d5"
+  },
+  "repair": {
+    "only_changed_numerical_layer": "independent Jacobian output row for smooth Fischer-Burmeister residual",
+    "residual_value": "unchanged rationalized source166-002 formula",
+    "derivative": "dphi=(dl/root-1)*d(dl)+(y/root-1)*d(y), with algebraically equivalent cancellation-safe coefficients when dl>0 or y>0",
+    "y_derivative": "normal stress -Hill flow; shear stress -2*Hill flow; state13 and state14 use authored hardening coefficients",
+    "projection_iterations_and_line_search": "unchanged",
+    "strict_gates": {"scaled_residual_max_abs": 2e-12, "dynamic_scaled_correction_max_abs": 2e-11},
+    "production_or_native_changes": false
+  },
+  "equation_and_witness_bindings": {
+    "material_asset": "/Users/home/cardboard-implementation-20261014/snapshots/source-angular-and-graph-schwarz-integrated-065/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+    "material_asset_sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+    "independent_mp_witness_report": "/Users/home/cardboard-implementation-20261014/analysis/native469-independent-projection-002/run-sealed002/report.json",
+    "independent_mp_witness_sha256": "f4ce185b3cf9e7b06eacf5db7292b48fbcf6830848f7916259214121af2f2f13",
+    "independent_mp_equation_script": "/Users/home/cardboard-implementation-20261014/analysis/native469-independent-projection-002/solve_mp_projection.py",
+    "independent_mp_equation_script_sha256": "0dbf31f42a84fe73b8a1e0e47f1f1411264ee43c51eba345f1b7087153595eed"
+  },
+  "limits": [
+    "The tet846 test validates the independent reference Jacobian against direct high-precision derivatives at its elastic seed and resolved local root.",
+    "Full-reader 419 and 469 runs are diagnostic only. Remaining strict residual-floor misses stay inconclusive.",
+    "No native tangent, full nonlinear solver, physical coupon, or box assembly qualification is made."
+  ]
+}

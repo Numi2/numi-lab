@@ -1,0 +1,58 @@
+{
+  "schema": "numi.cardboard.pending-capture-overlay-validation.v1",
+  "native_execution_performed": false,
+  "commands": [
+    {
+      "command": [
+        "patch",
+        "-p1",
+        "--batch",
+        "--fuzz=0",
+        "-i",
+        "/Users/home/cardboard-implementation-20261014/analysis/selector5-restart-consumer-capture-source160-002/source-overlay.patch"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "patch",
+        "-p1",
+        "--batch",
+        "--fuzz=0",
+        "-i",
+        "/Users/home/cardboard-implementation-20261014/analysis/cardboard-effective-solver-environment-source161-002/source-overlay.patch"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "patch",
+        "-p1",
+        "--batch",
+        "--fuzz=0",
+        "-i",
+        "/Users/home/cardboard-implementation-20261014/analysis/diagnostic-checkpoint-prefix-and-portable-tests-002/overlay.patch"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "test_cardboard_solver_environment",
+        "test_cardboard_checkpoint_pending_capture",
+        "test_cardboard_resolution_study",
+        "test_cardboard_convergence",
+        "test_cardboard_cached_operator_audit",
+        "test_bct_source_bound_harness"
+      ],
+      "returncode": 0
+    }
+  ],
+  "test_source_root": "/Users/home/cardboard-implementation-20261014/cardboard-pending-capture-validation-r4har_c_",
+  "candidate_patch_bytes_verified": true,
+  "affected_test_modules": 6,
+  "success": true
+}

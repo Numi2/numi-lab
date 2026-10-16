@@ -1,0 +1,26 @@
+{
+  "behavioral_execution": false,
+  "checks": {
+    "all_candidate_mm_callers_enumerated": [
+      "candidate/matter/src/runtime.mm",
+      "native/warm_start_check.mm"
+    ],
+    "buffer16_baseline_declared_and_runtime_bound": true,
+    "buffer17_mode_declared_and_runtime_bound": true,
+    "checker_binds_both_installer_inputs": true,
+    "checker_helper_matches_frozen_fgmres": true,
+    "legacy_accumulation_helper_matches_frozen_fgmres": true,
+    "legacy_zero_total_remains_invalid": true,
+    "quiet_unselected_seed_x0_zero_invariant": "conditionally supported by cycle-zero FGMRES accumulation when all FEM node ranges are valid: zero used columns write a zero solution; unreferenced invalid node ranges are not overwritten and remain outside this proof",
+    "warm_gate_allows_zero_total_if_fresh_residual_strictly_decreases": true
+  },
+  "schema": "numi.cardboard.cgls_warm_start_source_contract.v2",
+  "sha256": {
+    "checker_host": "0af2579c41f4a749e4e56f1fb3306985da229d99c7d7f6c0dcb64c4263c7bbd5",
+    "checker_metal": "171cedc019e61d4b8fb05a011bf10819945503ee51594183ce2936ec2385c1b5",
+    "frozen_fgmres": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8",
+    "installer": "db006182e00df7a74eb823264202450d1e7dbd4735f31651fe263bd231fded12",
+    "runtime": "db96b3d9c899f2c948ce804f4e48ff50a9834307e42eddecb907972ab03e2ae2"
+  },
+  "status": "pass"
+}

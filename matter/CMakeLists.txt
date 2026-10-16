@@ -201,6 +201,12 @@ if(BUILD_TESTING)
         add_test(NAME matter.analysis.cardboard_cached_operator_audit
             COMMAND "${Python3_EXECUTABLE}" -m unittest
                 test_cardboard_cached_operator_audit)
+        add_test(NAME matter.analysis.cardboard_bilinear_capture_layers
+            COMMAND "${Python3_EXECUTABLE}" -m unittest
+                test_cardboard_bilinear_capture_layers)
+        add_test(NAME matter.analysis.cardboard_reference_fb_jacobian
+            COMMAND "${Python3_EXECUTABLE}" -m unittest
+                test_cardboard_reference_fb_jacobian)
         add_test(NAME matter.analysis.cardboard_offline_conditioning_study
             COMMAND "${Python3_EXECUTABLE}" -m unittest
                 test_cardboard_offline_conditioning_study)
@@ -221,6 +227,8 @@ if(BUILD_TESTING)
             matter.analysis.cardboard_stage_resolution
             matter.analysis.cardboard_regional_conditioning
             matter.analysis.cardboard_cached_operator_audit
+            matter.analysis.cardboard_bilinear_capture_layers
+            matter.analysis.cardboard_reference_fb_jacobian
             matter.analysis.cardboard_offline_conditioning_study
             matter.analysis.cardboard_diagnostic_history
             matter.analysis.cardboard_solver_pair
@@ -445,17 +453,21 @@ target_include_directories(numi-matter-cardboard-hill-scalar-return-map-check PR
     "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_compile_options(numi-matter-cardboard-hill-scalar-return-map-check PRIVATE
     -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
-foreach(cardboard_helper shipping-driver shipping-memory shipping-closure-mesh shipping-snapshot)
+foreach(cardboard_helper shipping-driver shipping-memory shipping-closure-mesh shipping-snapshot coupon-resume inside-clearance shipping-clearance-memory regional-consumer-capture)
     string(REPLACE "-" "_" cardboard_helper_file "${cardboard_helper}")
     add_executable(numi-matter-cardboard-${cardboard_helper}-check
         tools/cardboard_${cardboard_helper_file}_check.cpp)
     target_include_directories(numi-matter-cardboard-${cardboard_helper}-check PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/../include")
     target_compile_options(numi-matter-cardboard-${cardboard_helper}-check PRIVATE
-        -Wall -Wextra -Wpedantic -Werror)
+        -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
     if(BUILD_TESTING)
+        set(cardboard_helper_arguments)
+        if(cardboard_helper STREQUAL "regional-consumer-capture")
+            set(cardboard_helper_arguments "${CMAKE_CURRENT_SOURCE_DIR}/src/runtime.mm")
+        endif()
         add_test(NAME matter.compiler.cardboard_${cardboard_helper_file}
-            COMMAND numi-matter-cardboard-${cardboard_helper}-check)
+            COMMAND numi-matter-cardboard-${cardboard_helper}-check ${cardboard_helper_arguments})
         set_tests_properties(matter.compiler.cardboard_${cardboard_helper_file}
             PROPERTIES TIMEOUT 60 LABELS "matter;cardboard;shipping;cpu")
     endif()

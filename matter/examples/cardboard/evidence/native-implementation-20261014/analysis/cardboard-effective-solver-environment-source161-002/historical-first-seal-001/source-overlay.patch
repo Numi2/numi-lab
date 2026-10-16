@@ -1,0 +1,1789 @@
+--- a/matter/tools/cardboard_convergence.py
++++ b/matter/tools/cardboard_convergence.py
+@@ -17,6 +17,7 @@
+ from dataclasses import dataclass
+ from pathlib import Path
+ from typing import Any, Iterable
++import cardboard_solver_environment as solver_environment
+ 
+ 
+ ANALYSIS_SCHEMA = "numi.cardboard.convergence-analysis.v1"
+@@ -90,6 +91,8 @@
+     materials_by_index: list[dict[str, Any]]
+     row_by_key: dict[tuple[int, int], dict[str, Any]]
+     phases: list[str]
++    native_environment: dict[str, Any] | None
++    native_environment_sidecar_sha256: str | None
+ 
+ 
+ def _sha256(raw: bytes) -> str:
+@@ -227,6 +230,31 @@
+     manifest = _read_json(path / "manifest.json", files)
+     result = _read_json(path / "result.json", files)
+     mesh = _read_json(path / "mesh.json", files)
++    try:
++        environment_record, environment_path_text = solver_environment.read_run_record(
++            (path / "native-environment.json", path.parent / "native-environment.json"))
++    except ValueError as exc:
++        raise EvidenceError("invalid_native_environment_contract", str(exc)) from exc
++    environment_sha256 = None
++    if environment_record is not None and environment_path_text is not None:
++        environment_path = Path(environment_path_text)
++        environment_raw = environment_path.read_bytes()
++        environment_sha256 = _sha256(environment_raw)
++        files["native-environment.json"] = environment_sha256
++        prediction_path = environment_path.with_name("prediction.json")
++        try:
++            prediction_raw = prediction_path.read_bytes()
++        except OSError as exc:
++            raise EvidenceError("missing_environment_prediction",
++                                "native environment sidecar has no adjacent sealed prediction") from exc
++        if _sha256(prediction_raw) != environment_record.get("prediction_sha256"):
++            raise EvidenceError("environment_prediction_mismatch",
++                                "native environment sidecar does not bind its adjacent prediction")
++        try:
++            solver_environment.validate_prediction_binding(environment_record, prediction_raw)
++        except ValueError as exc:
++            raise EvidenceError("invalid_environment_prediction", str(exc)) from exc
++        files["native-environment-prediction.json"] = _sha256(prediction_raw)
+     if manifest.get("schema") != MANIFEST_SCHEMA:
+         raise EvidenceError("unsupported_manifest_schema", f"unsupported manifest schema {manifest.get('schema')!r}")
+     if manifest.get("specimen", "corrugated_strip") != "corrugated_strip":
+@@ -419,8 +447,10 @@
+     # Varying mesh resolution may change discretized glue volume/area. These
+     # values are retained as measurements rather than pair-admission keys.
+     normalized_rows = [row_by_key[(step, env)] for step in range(expected_steps) for env in (0, 1)]
+-    return RunData(path, manifest, result, mesh, normalized_rows, files, volumes, [cells_by_index[i] for i in range(len(cells_by_index))], row_by_key,
+-                   [phase for phase in PHASE_ORDER if protocol[phase] > 0])
++    return RunData(path, manifest, result, mesh, normalized_rows, files, volumes,
++                   [cells_by_index[i] for i in range(len(cells_by_index))], row_by_key,
++                   [phase for phase in PHASE_ORDER if protocol[phase] > 0],
++                   environment_record, environment_sha256)
+ 
+ 
+ def _phase_ends(run: RunData) -> dict[str, int]:
+@@ -632,6 +662,22 @@
+ 
+ def _same_solver_controls(a: RunData, b: RunData, *,
+                           allow_force_matched_tolerance: bool = False) -> None:
++    if a.native_environment is None or b.native_environment is None:
++        raise EvidenceError(
++            "missing_effective_native_environment",
++            "legacy native exports remain descriptive, but paired convergence requires a source-bound effective environment contract",
++        )
++    if (not solver_environment.is_qualification_run_record(a.native_environment) or
++            not solver_environment.is_qualification_run_record(b.native_environment)):
++        raise EvidenceError(
++            "diagnostic_run_not_qualifiable",
++            "diagnostic native runs are retained for description and failure analysis, not resolution-pair qualification",
++        )
++    contract_a = a.native_environment["contract"]
++    contract_b = b.native_environment["contract"]
++    if contract_a["sha256"] != contract_b["sha256"]:
++        raise IncompatibleError("native_environment_mismatch",
++                                "effective native environment controls differ between runs")
+     sa, sb = a.manifest["solver"], b.manifest["solver"]
+     # Older manifests predate the immutable-reference arithmetic option.
+     # They unambiguously used absolute-position Ds*Dm^-1. Do not admit a
+@@ -644,7 +690,8 @@
+     preconditioners = [s.get("fgmres_preconditioner", "scalar_diagonal") for s in (sa, sb)]
+     if any(value not in {"scalar_diagonal", "regional_tangent_fem_diagonal",
+                          "regional_galerkin_rap", "regional_galerkin_block_jacobi",
+-                         "regional_galerkin_contact_rap"} for value in preconditioners):
++                         "regional_galerkin_contact_rap",
++                         "regional_galerkin_graph_schwarz_conditioning_only"} for value in preconditioners):
+         raise EvidenceError("unknown_preconditioner", "unrecognized FGMRES preconditioner")
+     if preconditioners[0] != preconditioners[1]:
+         raise IncompatibleError("solver_control_mismatch", "FGMRES preconditioner differs")
+@@ -1062,6 +1109,7 @@
+         "physical_validation": False,
+         "compiled_world_fingerprint": run.result["compiled_world_fingerprint"],
+         "input_sha256": dict(sorted(run.files.items())),
++        "effective_native_environment": run.native_environment,
+         "materials": {key: run.manifest["materials"].get(key)
+                       for key in ("liner_sha256", "medium_sha256", "glue_sha256", "regional_map_sha256", "frame_map_sha256")},
+         "protocol": {**_protocol(solver), "phase_durations_s": _phase_durations(run)},
+--- a/matter/tools/cardboard_resolution_study.py
++++ b/matter/tools/cardboard_resolution_study.py
+@@ -22,6 +22,7 @@
+ import time
+ from pathlib import Path
+ from typing import Any, Iterable
++import cardboard_solver_environment as solver_environment
+ 
+ 
+ SCHEMA = "numi.cardboard.resolution-study.v2"
+@@ -103,6 +104,10 @@
+         run = cc._load_run(path)
+     except Exception as exc:
+         raise StudyError(f"baseline is not admitted by cardboard_convergence._load_run: {exc}") from exc
++    if run.native_environment is None:
++        raise StudyError("baseline lacks a source-bound effective native environment contract; legacy runs remain descriptive only")
++    if not solver_environment.is_qualification_run_record(run.native_environment):
++        raise StudyError("diagnostic native runs cannot serve as resolution-study baselines")
+     mesh = run.manifest["mesh"]
+     dims = (mesh["nx_per_pitch"], mesh["ny"], mesh["thickness_slices"])
+     if dims != (8, 2, 1):
+@@ -137,6 +142,9 @@
+ 
+ 
+ def _default_source_paths(repo_root: Path) -> list[Path]:
++    environment_helper = repo_root / "matter/tools/cardboard_solver_environment.py"
++    if not environment_helper.is_file():
++        environment_helper = Path(__file__).with_name("cardboard_solver_environment.py")
+     relative = (
+         "matter/tools/cardboard_probe.mm",
+         "matter/tools/cardboard_convergence.py",
+@@ -144,12 +152,13 @@
+         "matter/tools/cardboard_glue_mesh.hpp",
+         "matter/tools/cardboard_starch_interface_mesh.hpp",
+         "matter/src/runtime.mm",
++        "matter/src/metal_encoder_timing.hpp",
+         "matter/src/compiler_impl.cpp",
+         "matter/src/validation_impl.cpp",
+         "matter/src/metal/fem.metalinc",
+         "matter/include/numi/matter/shared.h",
+     )
+-    result = []
++    result = [environment_helper.resolve()]
+     for item in relative:
+         path = repo_root / item
+         if not path.is_file():
+@@ -342,6 +351,10 @@
+ 
+     repo_root = (source_root.expanduser().resolve() if source_root is not None
+                  else Path(__file__).resolve().parents[2])
++    try:
++        solver_environment.validate_source_registry(repo_root)
++    except ValueError as exc:
++        raise StudyError(f"source native environment registry is incomplete: {exc}") from exc
+     sources = _default_source_paths(repo_root)
+     if source_paths is not None:
+         sources.extend(source_paths)
+@@ -352,6 +365,7 @@
+     metallib_binding = {"path": str(metallib), "sha256": _sha256_file(metallib)}
+     source_bindings = _hash_bindings([Path(item["path"]) for item in source_bindings] +
+                                     [Path(item["path"]) for item in material_bindings])
++    environment_contract = solver_environment.validate_contract(run.native_environment["contract"])
+ 
+     protocol = cc._protocol(run.manifest["solver"])
+     common_args = _native_base_arguments(run)
+@@ -412,6 +426,8 @@
+             "parallelism": 1,
+             "lock_path": "/tmp/numi-cardboard-resolution-study.gpu.lock",
+             "common_native_args": common_args,
++            "effective_native_environment_contract": environment_contract,
++            "effective_native_environment_contract_sha256": environment_contract["sha256"],
+             "controlled_flags": sorted(CONTROLLED_FLAGS),
+             "failure_policy": "stop at first failed case; preserve output, stdout, stderr, prediction, and prior accepted runs",
+         },
+@@ -464,6 +480,13 @@
+     if plan.get("schema") != PLAN_SCHEMA or plan.get("plan_sha256") != _plan_digest(plan):
+         raise StudyError("study plan schema/digest is invalid or the prediction was modified")
+     execution = plan["execution"]
++    try:
++        environment_contract = solver_environment.validate_contract(
++            execution.get("effective_native_environment_contract"))
++    except ValueError as exc:
++        raise StudyError(f"study plan lacks a valid effective native environment contract: {exc}") from exc
++    if execution.get("effective_native_environment_contract_sha256") != environment_contract["sha256"]:
++        raise StudyError("study plan effective native environment digest mismatch")
+     bindings = [execution["probe"], execution["metallib"], *execution["source_files"]]
+     bindings.extend(plan["baseline"]["materials"])
+     for entry in bindings:
+@@ -474,6 +497,10 @@
+     admitted = cc._load_run(baseline)
+     if dict(sorted(admitted.files.items())) != plan["baseline"]["input_sha256"]:
+         raise StudyError("baseline evidence changed after the prediction was sealed")
++    if admitted.native_environment is None or admitted.native_environment["contract"]["sha256"] != environment_contract["sha256"]:
++        raise StudyError("baseline effective native environment differs from the sealed study plan")
++    if not solver_environment.is_qualification_run_record(admitted.native_environment):
++        raise StudyError("diagnostic native runs cannot serve as resolution-study baselines")
+ 
+ 
+ def _native_args(case: dict[str, Any], common: list[str], output: Path,
+@@ -776,7 +803,14 @@
+             statuses[case["id"]] = "not_executed"
+             continue
+         try:
+-            runs[case["id"]] = cc._load_run(path)
++            run = cc._load_run(path)
++            expected = plan["execution"]["effective_native_environment_contract_sha256"]
++            if (run.native_environment is None or
++                    not solver_environment.is_qualification_run_record(run.native_environment)):
++                raise StudyError("diagnostic native runs are not admitted as positive resolution-study cases")
++            if run.native_environment["contract"]["sha256"] != expected:
++                raise StudyError("case effective native environment differs from the sealed plan")
++            runs[case["id"]] = run
+             statuses[case["id"]] = "admitted_by_convergence_loader"
+         except Exception as exc:
+             statuses[case["id"]] = f"rejected_by_convergence_loader: {type(exc).__name__}: {exc}"
+@@ -899,6 +933,8 @@
+         "expected_observation": "each accepted stage should be complete; no outcome is assumed",
+         "expected_direction": "resolution differences should decrease on three-level sequences; otherwise retain and report the contrary result",
+         "acceptance_thresholds": THRESHOLDS,
++        "effective_native_environment_contract": plan["execution"]["effective_native_environment_contract"],
++        "effective_native_environment_contract_sha256": plan["execution"]["effective_native_environment_contract_sha256"],
+         "created_before_native_execution": True,
+     }
+     _write_json_new(case_dir / "prediction.json", prediction)
+@@ -943,6 +979,15 @@
+             case_dir.mkdir(parents=True, exist_ok=False)
+             output_dir = case_dir / "native"
+             _write_execution_prediction(case_dir, plan, case)
++            prediction_sha256 = _sha256_file(case_dir / "prediction.json")
++            case_environment, removed_environment_keys = solver_environment.child_environment(
++                os.environ, plan["execution"]["effective_native_environment_contract"])
++            environment_record = solver_environment.make_run_record(
++                plan["execution"]["effective_native_environment_contract"],
++                producer="resolution-study", removed_inherited_keys=removed_environment_keys,
++                prediction_sha256=prediction_sha256, plan_sha256=plan["plan_sha256"],
++                case_id=case["id"])
++            solver_environment.write_run_record_new(case_dir / "native-environment.json", environment_record)
+             args = [str(Path(plan["execution"]["probe"]["path"]))]
+             args += _native_args(case, plan["execution"]["common_native_args"], output_dir,
+                                  Path(plan["execution"]["metallib"]["path"]))
+@@ -953,6 +998,7 @@
+             try:
+                 with (case_dir / "stdout.log").open("xb") as stdout, (case_dir / "stderr.log").open("xb") as stderr:
+                     completed = subprocess.run(args, cwd=run_root, stdout=stdout, stderr=stderr,
++                                               env=case_environment,
+                                                timeout=float(plan["execution"]["timeout_seconds"]), check=False)
+                 outcome = {"status": "process_exited", "returncode": completed.returncode}
+                 if output_dir.is_dir():
+--- a/matter/tools/cardboard_source_bound_run.py
++++ b/matter/tools/cardboard_source_bound_run.py
+@@ -6,6 +6,7 @@
+ from cardboard_calibration_case_binding import (
+     CalibrationBindingError, validate_executed_manifest, validate_pre_run,
+ )
++import cardboard_solver_environment as solver_environment
+ 
+ 
+ def _single_argv_value(argv, flag):
+@@ -20,6 +21,11 @@
+ parser.add_argument('--prediction', required=True)
+ parser.add_argument('--timeout', type=int, default=1800)
+ parser.add_argument('--env', action='append', default=[])
++parser.add_argument('--diagnostic-run', action='store_true',
++                    help='mark this run diagnostic-only; it cannot establish convergence qualification')
++parser.add_argument('--diagnostic-capture', action='append', default=[],
++                    choices=sorted(solver_environment.CAPTURE_PATH_KEYS),
++                    help='request a registered capture path; the runner creates its fresh case-local prefix')
+ parser.add_argument('--source-snapshot')
+ parser.add_argument('--runtime-dir')
+ parser.add_argument('--build-provenance', help='successful fresh-build receipt; checked before native launch')
+@@ -28,6 +34,13 @@
+ parser.add_argument('--case-binding', help='prepared candidate/condition binding; required for --shipping-box')
+ parser.add_argument('argv', nargs=argparse.REMAINDER)
+ args = parser.parse_args()
++environment_overrides = solver_environment.parse_overrides(args.env)
++if args.diagnostic_capture and not args.diagnostic_run:
++    parser.error('--diagnostic-capture requires --diagnostic-run')
++if len(args.diagnostic_capture) != len(set(args.diagnostic_capture)):
++    parser.error('duplicate --diagnostic-capture key')
++effective_environment_contract = None
++diagnostic_prefixes = {}
+ repo = Path(__file__).resolve().parents[2]
+ case = Path(args.case).resolve()
+ # One native GPU worker per checkout. Compilation does not acquire this lock.
+@@ -58,6 +71,13 @@
+ if not argv:
+     parser.error('an executable command is required after --')
+ argv[0] = str(Path(argv[0]).resolve())
++if args.diagnostic_run:
++    diagnostic_prefixes = solver_environment.create_diagnostic_capture_prefixes(
++        case, args.diagnostic_capture)
++    effective_environment_contract = solver_environment.make_diagnostic_contract(
++        environment_overrides, case, diagnostic_prefixes)
++else:
++    effective_environment_contract = solver_environment.make_contract(environment_overrides)
+ calibration_identity = None
+ calibration_binding_path = None
+ required_calibration_inputs = set()
+@@ -144,11 +164,18 @@
+             raise ValueError('required calibration input is absent from the pre-run hash identity: '+path.name)
+     bindings[relative] = copied_sha
+     original_bindings[str(path.resolve())] = bindings[relative]
+-env_delta = dict(value.split('=', 1) for value in args.env)
+-seal = {'schema':'numi.cardboard.native-prediction.v1',
++env_delta = dict(environment_overrides)
++if args.diagnostic_run:
++    env_delta.update({key: effective_environment_contract['effective'][key]['value']
++                      for key in diagnostic_prefixes})
++seal = {'schema':('numi.cardboard.native-diagnostic-prediction.v1' if args.diagnostic_run
++                  else 'numi.cardboard.native-prediction.v1'),
+         'sealed_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+         'question':args.question,'prediction':args.prediction,
+         'argv':argv,'environment':env_delta,
++        'run_mode':'diagnostic' if args.diagnostic_run else 'qualification',
++        'effective_native_environment_contract': effective_environment_contract,
++        'effective_native_environment_contract_sha256': effective_environment_contract['sha256'],
+         'source_snapshot':str(source_root),'runtime_dir':str(runtime_dir),
+         'external_inputs':sealed_external_inputs,'inputs_sha256':bindings,
+         'native_protocol_id': (calibration_identity['native_protocol_id'] if calibration_identity else None),
+@@ -157,9 +184,20 @@
+         'build_provenance':args.build_provenance,
+         'source_binding_limitation':'Listed source, executable and Metal libraries retained; compiler system headers and OS/driver not archived.',
+         'timeout_seconds':args.timeout}
+-(case/'prediction.json').write_text(json.dumps(seal,indent=2)+'\n')
+-environment = os.environ.copy()
+-environment.update(env_delta)
++(case/'prediction.json').write_text(json.dumps(seal,indent=2,sort_keys=True)+'\n')
++prediction_sha256 = hashlib.sha256((case/'prediction.json').read_bytes()).hexdigest()
++environment, removed_environment_keys = solver_environment.child_environment(
++    os.environ, effective_environment_contract)
++if args.diagnostic_run:
++    environment_record = solver_environment.make_diagnostic_run_record(
++        effective_environment_contract, removed_inherited_keys=removed_environment_keys,
++        prediction_sha256=prediction_sha256)
++else:
++    environment_record = solver_environment.make_run_record(
++        effective_environment_contract, producer='source-bound-native-runner',
++        removed_inherited_keys=removed_environment_keys,
++        prediction_sha256=prediction_sha256)
++solver_environment.write_run_record_new(case/'native-environment.json', environment_record)
+ started = time.monotonic()
+ with (case/'stdout.log').open('w') as out, (case/'stderr.log').open('w') as err:
+     process = subprocess.Popen(argv, stdout=out, stderr=err, env=environment, start_new_session=True)
+@@ -190,6 +228,23 @@
+         }
+ elif calibration_identity is not None:
+     calibration_validation = {'status': 'not_run', 'reason': 'native process did not complete successfully'}
++diagnostic_capture_validation = None
++diagnostic_capture_validation_error = None
++if args.diagnostic_run:
++    try:
++        diagnostic_capture_validation = solver_environment.validate_diagnostic_outputs(
++            case, diagnostic_prefixes)
++        output_record = {
++            'schema': 'numi.cardboard.diagnostic-capture-files.v1',
++            'environment_contract_sha256': effective_environment_contract['sha256'],
++            **diagnostic_capture_validation,
++        }
++        with (case/'diagnostic-captures.json').open('x', encoding='utf-8') as stream:
++            json.dump(output_record, stream, sort_keys=True, indent=2, allow_nan=False)
++            stream.write('\n')
++    except (OSError, ValueError) as error:
++        diagnostic_capture_validation_error = str(error)
++        diagnostic_capture_validation = {'status': 'failed', 'reason': diagnostic_capture_validation_error}
+ receipt = {'schema':'numi.cardboard.native-run-receipt.v2',
+            'execution_started':execution_started,
+            'source_inputs_unchanged':not changed_inputs,
+@@ -198,6 +253,9 @@
+            'termination_errors':run_state['termination_errors'],
+            'wall_seconds':time.monotonic()-started,
+            'finished_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()}
++if args.diagnostic_run:
++    receipt['run_mode'] = 'diagnostic'
++    receipt['diagnostic_capture_validation'] = diagnostic_capture_validation
+ if calibration_identity is not None:
+     receipt.update({
+         'native_protocol_id': calibration_identity['native_protocol_id'],
+@@ -211,5 +269,5 @@
+ (case/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+ print(json.dumps(receipt),flush=True)
+ raise SystemExit(124 if run_state['timed_out'] else
+-                 (3 if changed_inputs or calibration_validation_error else
++                 (3 if changed_inputs or calibration_validation_error or diagnostic_capture_validation_error else
+                   (code if code >= 0 else 128-code)))
+--- /dev/null
++++ b/matter/tools/cardboard_solver_environment.py
+@@ -0,0 +1,558 @@
++"""Strict, source-bound effective native environment contracts for cardboard runs.
++
++Only source-registered native controls and two timing controls are modeled.
++Inherited NM_FEM_* variables are always scrubbed before launch; qualification
++contracts preserve absent, empty, and non-empty values, while output-path
++captures require a separate diagnostic-only contract.
++"""
++from __future__ import annotations
++
++import hashlib
++import json
++import os
++import re
++from pathlib import Path
++from typing import Mapping, Sequence
++
++CONTRACT_SCHEMA = "numi.cardboard.effective-native-controls.v1"
++DIAGNOSTIC_CONTRACT_SCHEMA = "numi.cardboard.effective-native-diagnostic-controls.v1"
++RUN_SCHEMA = "numi.cardboard.native-environment-run.v1"
++DIAGNOSTIC_RUN_SCHEMA = "numi.cardboard.native-diagnostic-environment-run.v1"
++QUALIFIED_PRODUCERS = frozenset({"source-bound-native-runner", "resolution-study"})
++DIAGNOSTIC_PRODUCER = "source-bound-diagnostic-runner"
++_KEY_RE = re.compile(r"^[A-Z][A-Z0-9_]*$")
++
++# Extracted from the combined source160-002 runtime and source157 probe
++# environment read sites. The helper itself is included in study/source
++# bindings; tests compare this registry to the candidate source so a new
++# control cannot disappear.
++NATIVE_ENV_KEYS = tuple(sorted({
++    "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
++    "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
++    "NM_FEM_BASE_CGLS_CAPTURE_PATH",
++    "NM_FEM_BASE_CGLS_ITERATIONS",
++    "NM_FEM_BASE_CGLS_PRIMARY_AFTER",
++    "NM_FEM_BASE_CGLS_RIGHT_SCALE",
++    "NM_FEM_BASE_CGLS_STATE_CAPTURE",
++    "NM_FEM_CACHE_PROJECTION_REUSE",
++    "NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT",
++    "NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT",
++    "NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT",
++    "NM_FEM_CONTACT_TRACE_ITERATION",
++    "NM_FEM_CONTACT_TRACE_ROOT",
++    "NM_FEM_COUPLED_CAPTURE_PATH",
++    "NM_FEM_COUPLED_CAPTURE_SELECTOR",
++    "NM_FEM_COUPLED_TRIAL_CAPTURE_PATH",
++    "NM_FEM_COUPLED_TRIAL_CAPTURE_SELECTOR",
++    "NM_FEM_COUPLED_TRIAL_SUMMARY_PATH",
++    "NM_FEM_COUPLED_TRIAL_SUMMARY_SELECTOR",
++    "NM_FEM_COUPLED_TRIAL_VTCCD_AUDIT_SELECTOR",
++    "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT",
++    "NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD",
++    "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT",
++    "NM_FEM_FULL_CONTACT_REUSE_COHESIVE_SCRATCH",
++    "NM_FEM_FULL_CONTACT_REUSE_SELF_SURFACE_SCRATCH",
++    "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY",
++    "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY",
++    "NM_FEM_FULL_CONTACT_TILED_COHESIVE",
++    "NM_FEM_FULL_CONTACT_TILED_COHESIVE_PAGE_FACES",
++    "NM_FEM_GRAPH_PARALLEL_LU_SEARCH",
++    "NM_FEM_NEWTON_TRACE_ROOT",
++    "NM_FEM_OPERATOR_FD_CAPTURE_PATH",
++    "NM_FEM_OPERATOR_FD_EPSILON_SCALE",
++    "NM_FEM_OPERATOR_FD_SELECTOR",
++    "NM_FEM_REGIONAL_ACCEPTED_CORRECTION_RECYCLE",
++    "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH",
++    "NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR",
++    "NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION",
++    "NM_FEM_REGIONAL_RAP_CAPTURE_ONLY",
++    "NM_FEM_RESIDUAL_ARMIJO_ROOT",
++    "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT",
++    "NM_FEM_STATUS5_CAPTURE_PATH",
++    "NM_FEM_STATUS5_CAPTURE_ROOT",
++    "NM_FEM_TRUE_RESIDUAL_CERTIFY",
++    "NM_FEM_TRUE_RESIDUAL_NEWTON_SELECTOR",
++    "NM_FEM_TRUE_RESIDUAL_RESTART",
++    "NM_FEM_TRUE_RESIDUAL_ROOT",
++    "NUMI_CARDBOARD_STEP_TIMING",
++    "NUMI_MATTER_GPU_TIMING_DENSE45",
++}))
++
++# Only these source controls are output paths. They can be requested only via
++# --diagnostic-capture; the runner materializes a fresh case-local prefix.
++CAPTURE_PATH_KEYS = frozenset(key for key in NATIVE_ENV_KEYS if key.endswith("_PATH"))
++DIAGNOSTIC_CAPTURE_PREFIX_NAMES = {
++    key: "capture-" + key.removeprefix("NM_FEM_").removesuffix("_PATH").lower().replace("_", "-")
++    for key in CAPTURE_PATH_KEYS
++}
++MAX_DIAGNOSTIC_CAPTURE_FILES = 64
++MAX_DIAGNOSTIC_CAPTURE_FILE_BYTES = 64 * 1024 * 1024
++MAX_DIAGNOSTIC_CAPTURE_TOTAL_BYTES = 128 * 1024 * 1024
++UINT32_MAX = (1 << 32) - 1
++# These `_ROOT` controls select a control-step index; they are not filesystem
++# roots. The Armijo roots additionally accept the source-defined `all` token.
++NUMERIC_SELECTOR_KEYS = frozenset(key for key in NATIVE_ENV_KEYS if key.endswith("_ROOT"))
++ALL_CONTROL_SELECTOR_KEYS = frozenset({
++    "NM_FEM_TRUE_RESIDUAL_ROOT",
++    "NM_FEM_RESIDUAL_ARMIJO_ROOT",
++    "NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT",
++    "NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT",
++    "NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT",
++    "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT",
++})
++TIMING_KEYS = frozenset({"NUMI_CARDBOARD_STEP_TIMING", "NUMI_MATTER_GPU_TIMING_DENSE45"})
++_SOURCE_KEY_RE = re.compile(r"\b(?:NM_FEM_[A-Z0-9_]+|NUMI_CARDBOARD_STEP_TIMING|NUMI_MATTER_GPU_TIMING_DENSE45)\b")
++
++
++def source_key_registry(source_root: os.PathLike[str] | str) -> tuple[str, ...]:
++    root = Path(source_root)
++    paths = (root / "matter/src/runtime.mm", root / "matter/tools/cardboard_probe.mm")
++    found: set[str] = set()
++    for path in paths:
++        if not path.is_file():
++            raise ValueError(f"native environment registry source is missing: {path}")
++        found.update(_SOURCE_KEY_RE.findall(path.read_text(encoding="utf-8")))
++    return tuple(sorted(found))
++
++
++def validate_source_registry(source_root: os.PathLike[str] | str) -> None:
++    actual = source_key_registry(source_root)
++    if actual != NATIVE_ENV_KEYS:
++        missing = sorted(set(actual) - set(NATIVE_ENV_KEYS))
++        extra = sorted(set(NATIVE_ENV_KEYS) - set(actual))
++        raise ValueError(f"source native environment registry mismatch; unlisted={missing}, stale={extra}")
++
++
++def canonical_json(value: object) -> bytes:
++    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
++                      allow_nan=False).encode("utf-8")
++
++
++def _contract_payload(contract: Mapping[str, object]) -> dict[str, object]:
++    return {"schema": contract.get("schema"), "keys": contract.get("keys"),
++            "effective": contract.get("effective")}
++
++
++def _contract_digest(contract: Mapping[str, object]) -> str:
++    return hashlib.sha256(canonical_json(_contract_payload(contract))).hexdigest()
++
++
++def _validate_environment_value(key: str, value: str) -> None:
++    if "\x00" in value:
++        raise ValueError(f"NUL is not allowed in environment value for {key}")
++    if key in NUMERIC_SELECTOR_KEYS:
++        # Empty is a source-supported explicit disable for selector controls;
++        # it remains distinct from an absent key in the hashed contract.
++        if value == "":
++            return
++        if value == "all" and key in ALL_CONTROL_SELECTOR_KEYS:
++            return
++        if not re.fullmatch(r"[0-9]+", value):
++            raise ValueError(f"{key} is a numeric control-step selector, not a filesystem path")
++        if int(value, 10) > UINT32_MAX:
++            raise ValueError(f"{key} exceeds the native uint32 control-step range")
++
++
++def parse_overrides(items: Sequence[str]) -> dict[str, str]:
++    """Parse repeated KEY=VALUE arguments without collapsing duplicates/empty values."""
++    overrides: dict[str, str] = {}
++    for item in items:
++        if not isinstance(item, str) or "=" not in item:
++            raise ValueError("environment override must have KEY=VALUE form")
++        key, value = item.split("=", 1)
++        if not _KEY_RE.fullmatch(key):
++            raise ValueError(f"malformed native environment key: {key!r}")
++        if key not in NATIVE_ENV_KEYS:
++            raise ValueError(f"unknown native environment key: {key}")
++        if key in CAPTURE_PATH_KEYS:
++            raise ValueError(f"capture output paths require --diagnostic-capture: {key}")
++        _validate_environment_value(key, value)
++        if key in overrides:
++            raise ValueError(f"duplicate native environment key: {key}")
++        overrides[key] = value
++    return overrides
++
++
++def make_contract(overrides: Mapping[str, str] | None = None) -> dict[str, object]:
++    overrides = dict(overrides or {})
++    parsed = parse_overrides([f"{key}={value}" for key, value in overrides.items()])
++    effective = {
++        key: ({"set": True, "value": parsed[key]} if key in parsed
++              else {"set": False, "value": None})
++        for key in NATIVE_ENV_KEYS
++    }
++    contract: dict[str, object] = {"schema": CONTRACT_SCHEMA,
++                                  "keys": list(NATIVE_ENV_KEYS),
++                                  "effective": effective}
++    contract["sha256"] = _contract_digest(contract)
++    return contract
++
++
++def _diagnostic_contract_payload(contract: Mapping[str, object]) -> dict[str, object]:
++    return {"schema": contract.get("schema"), "keys": contract.get("keys"),
++            "effective": contract.get("effective"),
++            "case_directory": contract.get("case_directory"),
++            "capture_prefixes": contract.get("capture_prefixes")}
++
++
++def _diagnostic_contract_digest(contract: Mapping[str, object]) -> str:
++    return hashlib.sha256(canonical_json(_diagnostic_contract_payload(contract))).hexdigest()
++
++
++def make_diagnostic_contract(overrides: Mapping[str, str] | None, case_directory: os.PathLike[str] | str,
++                             capture_prefixes: Mapping[str, os.PathLike[str] | str]) -> dict[str, object]:
++    """Make a diagnostic-only contract from generated case-local prefixes."""
++    parsed = parse_overrides([f"{key}={value}" for key, value in dict(overrides or {}).items()])
++    case = Path(case_directory)
++    if not case.is_absolute() or case.is_symlink() or not case.is_dir():
++        raise ValueError("diagnostic case directory must be a fresh, existing absolute directory")
++    root = case.resolve(strict=True)
++    prefixes: dict[str, str] = {}
++    for key, raw_prefix in sorted(capture_prefixes.items()):
++        if key not in CAPTURE_PATH_KEYS:
++            raise ValueError(f"unknown diagnostic capture path key: {key}")
++        prefix = Path(raw_prefix)
++        if not prefix.is_absolute() or prefix.is_symlink():
++            raise ValueError(f"diagnostic prefix for {key} must be an absolute nonsymlink path")
++        expected_relative = Path("diagnostics") / DIAGNOSTIC_CAPTURE_PREFIX_NAMES[key] / "capture"
++        if prefix != root / expected_relative:
++            raise ValueError(f"diagnostic prefix for {key} is not the fixed case-local prefix")
++        parent = prefix.parent
++        if parent.is_symlink() or not parent.is_dir() or prefix.exists():
++            raise ValueError(f"diagnostic prefix for {key} is not fresh")
++        prefixes[key] = str(prefix)
++    effective: dict[str, dict[str, object]] = {}
++    for key in NATIVE_ENV_KEYS:
++        if key in prefixes:
++            effective[key] = {"set": True, "value": prefixes[key]}
++        elif key in parsed:
++            effective[key] = {"set": True, "value": parsed[key]}
++        else:
++            effective[key] = {"set": False, "value": None}
++    contract: dict[str, object] = {
++        "schema": DIAGNOSTIC_CONTRACT_SCHEMA,
++        "keys": list(NATIVE_ENV_KEYS),
++        "effective": effective,
++        "case_directory": str(root),
++        "capture_prefixes": prefixes,
++    }
++    contract["sha256"] = _diagnostic_contract_digest(contract)
++    return contract
++
++
++def validate_contract(contract: object) -> dict[str, object]:
++    if not isinstance(contract, dict) or contract.get("schema") != CONTRACT_SCHEMA:
++        raise ValueError("missing or unsupported effective native environment contract")
++    if set(contract) != {"schema", "keys", "effective", "sha256"}:
++        raise ValueError("effective native environment contract has ambiguous fields")
++    if contract.get("keys") != list(NATIVE_ENV_KEYS):
++        raise ValueError("effective native environment key registry differs from this source")
++    effective = contract.get("effective")
++    if not isinstance(effective, dict) or set(effective) != set(NATIVE_ENV_KEYS):
++        raise ValueError("effective native environment must state every registered key")
++    for key in NATIVE_ENV_KEYS:
++        state = effective[key]
++        if (not isinstance(state, dict) or type(state.get("set")) is not bool
++                or set(state) != {"set", "value"}):
++            raise ValueError(f"invalid absent/set representation for {key}")
++        if state["set"]:
++            if not isinstance(state["value"], str) or "\x00" in state["value"]:
++                raise ValueError(f"set environment value for {key} must be a NUL-free string")
++            if key in CAPTURE_PATH_KEYS:
++                raise ValueError(f"capture/output path cannot be qualified: {key}")
++            _validate_environment_value(key, state["value"])
++        elif state["value"] is not None:
++            raise ValueError(f"absent environment value for {key} must be null")
++    expected = _contract_digest(contract)
++    if contract.get("sha256") != expected:
++        raise ValueError("effective native environment contract digest mismatch")
++    return contract
++
++
++def validate_diagnostic_contract(contract: object) -> dict[str, object]:
++    if not isinstance(contract, dict) or contract.get("schema") != DIAGNOSTIC_CONTRACT_SCHEMA:
++        raise ValueError("missing or unsupported diagnostic environment contract")
++    if set(contract) != {"schema", "keys", "effective", "case_directory", "capture_prefixes", "sha256"}:
++        raise ValueError("diagnostic environment contract has ambiguous fields")
++    if contract.get("keys") != list(NATIVE_ENV_KEYS):
++        raise ValueError("diagnostic environment key registry differs from this source")
++    effective = contract.get("effective")
++    if not isinstance(effective, dict) or set(effective) != set(NATIVE_ENV_KEYS):
++        raise ValueError("diagnostic environment must state every registered key")
++    case_text = contract.get("case_directory")
++    if not isinstance(case_text, str) or not Path(case_text).is_absolute():
++        raise ValueError("diagnostic contract case directory must be absolute")
++    case = Path(case_text)
++    if case.is_symlink() or not case.is_dir() or str(case.resolve(strict=True)) != case_text:
++        raise ValueError("diagnostic contract case directory is missing, aliased, or symlinked")
++    diagnostics_root = case / "diagnostics"
++    if (diagnostics_root.is_symlink() or not diagnostics_root.is_dir() or
++            diagnostics_root.resolve(strict=True) != diagnostics_root):
++        raise ValueError("diagnostic contract output root is missing, aliased, or symlinked")
++    prefix_map = contract.get("capture_prefixes")
++    if not isinstance(prefix_map, dict) or not set(prefix_map).issubset(CAPTURE_PATH_KEYS):
++        raise ValueError("diagnostic capture-prefix registry is invalid")
++    expected_keys = set(prefix_map)
++    for key in NATIVE_ENV_KEYS:
++        state = effective[key]
++        if (not isinstance(state, dict) or type(state.get("set")) is not bool
++                or set(state) != {"set", "value"}):
++            raise ValueError(f"invalid diagnostic absent/set representation for {key}")
++        if not state["set"]:
++            if state["value"] is not None or key in expected_keys:
++                raise ValueError(f"invalid absent diagnostic value for {key}")
++            continue
++        value = state["value"]
++        if not isinstance(value, str) or "\x00" in value:
++            raise ValueError(f"set diagnostic value for {key} must be a NUL-free string")
++        if key in CAPTURE_PATH_KEYS:
++            if key not in expected_keys:
++                raise ValueError(f"unregistered diagnostic capture path: {key}")
++            relative = Path("diagnostics") / DIAGNOSTIC_CAPTURE_PREFIX_NAMES[key] / "capture"
++            expected = case / relative
++            if prefix_map[key] != str(expected) or value != str(expected):
++                raise ValueError(f"diagnostic capture path for {key} is not the fixed case-local prefix")
++            if (expected.parent.is_symlink() or not expected.parent.is_dir() or
++                    expected.parent.resolve(strict=True) != expected.parent):
++                raise ValueError(f"diagnostic capture prefix for {key} is not fresh")
++        else:
++            _validate_environment_value(key, value)
++    if _diagnostic_contract_digest(contract) != contract.get("sha256"):
++        raise ValueError("diagnostic environment contract digest mismatch")
++    return contract
++
++
++def validate_any_contract(contract: object) -> dict[str, object]:
++    if isinstance(contract, dict) and contract.get("schema") == DIAGNOSTIC_CONTRACT_SCHEMA:
++        return validate_diagnostic_contract(contract)
++    return validate_contract(contract)
++
++
++def is_qualification_run_record(record: object) -> bool:
++    return (isinstance(record, dict) and record.get("schema") == RUN_SCHEMA and
++            record.get("producer") in QUALIFIED_PRODUCERS and
++            isinstance(record.get("contract"), dict) and
++            record["contract"].get("schema") == CONTRACT_SCHEMA)
++
++
++def child_environment(parent: Mapping[str, str], contract: object) -> tuple[dict[str, str], list[str]]:
++    contract = validate_any_contract(contract)
++    removed = sorted(key for key in parent if key.startswith("NM_FEM_") or key in TIMING_KEYS)
++    child = {key: value for key, value in parent.items()
++             if not key.startswith("NM_FEM_") and key not in TIMING_KEYS}
++    for key, state in contract["effective"].items():
++        if state["set"]:
++            child[key] = state["value"]
++    return child, removed
++
++
++def create_diagnostic_capture_prefixes(case_directory: os.PathLike[str] | str,
++                                       capture_keys: Sequence[str]) -> dict[str, str]:
++    """Create a fresh, exclusive case-local directory for each selected capture."""
++    case = Path(case_directory)
++    if not case.is_absolute() or case.is_symlink() or not case.is_dir():
++        raise ValueError("diagnostic case directory must be a fresh absolute directory")
++    case = case.resolve(strict=True)
++    keys = list(capture_keys)
++    if len(keys) != len(set(keys)):
++        raise ValueError("duplicate diagnostic capture path key")
++    if any(key not in CAPTURE_PATH_KEYS for key in keys):
++        raise ValueError("diagnostic capture key is not a registered native output path")
++    diagnostics = case / "diagnostics"
++    diagnostics.mkdir(mode=0o700, exist_ok=False)
++    if diagnostics.is_symlink() or not diagnostics.is_dir():
++        raise ValueError("diagnostic output root is not a fresh directory")
++    prefixes: dict[str, str] = {}
++    for key in sorted(keys):
++        directory = diagnostics / DIAGNOSTIC_CAPTURE_PREFIX_NAMES[key]
++        directory.mkdir(mode=0o700, exist_ok=False)
++        if directory.is_symlink() or not directory.is_dir():
++            raise ValueError(f"diagnostic output directory for {key} is not fresh")
++        prefix = directory / "capture"
++        if prefix.exists() or prefix.is_symlink():
++            raise ValueError(f"diagnostic output prefix for {key} already exists")
++        prefixes[key] = str(prefix)
++    return prefixes
++
++
++def validate_diagnostic_outputs(case_directory: os.PathLike[str] | str,
++                                capture_prefixes: Mapping[str, str]) -> dict[str, object]:
++    """Validate only new regular files under each fixed prefix and enforce byte caps."""
++    case = Path(case_directory)
++    if not case.is_absolute() or case.is_symlink() or not case.is_dir():
++        raise ValueError("diagnostic case directory is invalid")
++    root = case.resolve(strict=True)
++    diagnostics_root = root / "diagnostics"
++    if (diagnostics_root.is_symlink() or not diagnostics_root.is_dir() or
++            diagnostics_root.resolve(strict=True) != diagnostics_root):
++        raise ValueError("diagnostic output root is missing, aliased, or symlinked")
++    outputs: list[dict[str, object]] = []
++    total = 0
++    if not capture_prefixes:
++        return {"status": "no_capture_paths_requested", "files": [], "total_bytes": 0}
++    for key, raw_prefix in sorted(capture_prefixes.items()):
++        if key not in CAPTURE_PATH_KEYS:
++            raise ValueError(f"unknown diagnostic capture key: {key}")
++        expected = root / "diagnostics" / DIAGNOSTIC_CAPTURE_PREFIX_NAMES[key] / "capture"
++        if (raw_prefix != str(expected) or expected.parent.is_symlink() or
++                not expected.parent.is_dir() or expected.parent.resolve(strict=True) != expected.parent):
++            raise ValueError(f"diagnostic prefix for {key} escaped its fixed case-local directory")
++        entries = sorted(expected.parent.iterdir(), key=lambda item: item.name)
++        if not entries:
++            raise ValueError(f"diagnostic capture produced no files for {key}")
++        if len(entries) > MAX_DIAGNOSTIC_CAPTURE_FILES:
++            raise ValueError(f"diagnostic capture file-count cap exceeded for {key}")
++        for path in entries:
++            if not (path.name == expected.name or path.name.startswith(expected.name + ".") or
++                    path.name.startswith(expected.name + "-")):
++                raise ValueError(f"diagnostic output filename is outside its prefix for {key}")
++            st = path.lstat()
++            if path.is_symlink() or not path.is_file() or st.st_nlink != 1:
++                raise ValueError(f"diagnostic output is not a new regular unlinked file for {key}")
++            if st.st_size < 0 or st.st_size > MAX_DIAGNOSTIC_CAPTURE_FILE_BYTES:
++                raise ValueError(f"diagnostic output file byte cap exceeded for {key}")
++            total += st.st_size
++            if total > MAX_DIAGNOSTIC_CAPTURE_TOTAL_BYTES:
++                raise ValueError("diagnostic aggregate output byte cap exceeded")
++            digest = hashlib.sha256()
++            fd = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
++            try:
++                current = os.fstat(fd)
++                if (current.st_dev, current.st_ino, current.st_size) != (st.st_dev, st.st_ino, st.st_size):
++                    raise ValueError(f"diagnostic output changed during validation for {key}")
++                with os.fdopen(fd, "rb", closefd=False) as stream:
++                    for chunk in iter(lambda: stream.read(1024 * 1024), b""):
++                        digest.update(chunk)
++            finally:
++                os.close(fd)
++            outputs.append({"key": key, "path": str(path.relative_to(root)),
++                            "bytes": st.st_size, "sha256": digest.hexdigest()})
++    return {"status": "validated", "files": outputs, "total_bytes": total,
++            "file_count": len(outputs),
++            "aggregate_cap_bytes": MAX_DIAGNOSTIC_CAPTURE_TOTAL_BYTES,
++            "per_file_cap_bytes": MAX_DIAGNOSTIC_CAPTURE_FILE_BYTES}
++
++
++def make_run_record(contract: object, *, producer: str, removed_inherited_keys: Sequence[str],
++                    prediction_sha256: str, plan_sha256: str | None = None,
++                    case_id: str | None = None) -> dict[str, object]:
++    contract = validate_contract(contract)
++    if not re.fullmatch(r"[0-9a-f]{64}", prediction_sha256):
++        raise ValueError("prediction_sha256 must be a lowercase SHA-256 digest")
++    removed = sorted(set(removed_inherited_keys))
++    if any(not (key.startswith("NM_FEM_") or key in TIMING_KEYS) for key in removed):
++        raise ValueError("launch record may list only scrubbed native control key names")
++    return {"schema": RUN_SCHEMA, "contract": contract,
++            "contract_sha256": contract["sha256"],
++            "prediction_sha256": prediction_sha256,
++            "producer": producer,
++            "plan_sha256": plan_sha256, "case_id": case_id,
++            "launch": {"native_controls_scrubbed": True,
++                       "removed_inherited_key_names": removed}}
++
++
++def make_diagnostic_run_record(contract: object, *, removed_inherited_keys: Sequence[str],
++                               prediction_sha256: str) -> dict[str, object]:
++    contract = validate_diagnostic_contract(contract)
++    if not re.fullmatch(r"[0-9a-f]{64}", prediction_sha256):
++        raise ValueError("prediction_sha256 must be a lowercase SHA-256 digest")
++    removed = sorted(set(removed_inherited_keys))
++    if any(not (key.startswith("NM_FEM_") or key in TIMING_KEYS) for key in removed):
++        raise ValueError("launch record may list only scrubbed native control key names")
++    return {"schema": DIAGNOSTIC_RUN_SCHEMA, "contract": contract,
++            "contract_sha256": contract["sha256"], "prediction_sha256": prediction_sha256,
++            "producer": DIAGNOSTIC_PRODUCER, "mode": "diagnostic",
++            "launch": {"native_controls_scrubbed": True,
++                       "removed_inherited_key_names": removed}}
++
++
++def validate_run_record(record: object) -> dict[str, object]:
++    if not isinstance(record, dict):
++        raise ValueError("missing or unsupported effective native environment run record")
++    diagnostic = record.get("schema") == DIAGNOSTIC_RUN_SCHEMA
++    if not diagnostic and record.get("schema") != RUN_SCHEMA:
++        raise ValueError("missing or unsupported effective native environment run record")
++    contract = (validate_diagnostic_contract(record.get("contract")) if diagnostic
++                else validate_contract(record.get("contract")))
++    if record.get("contract_sha256") != contract["sha256"]:
++        raise ValueError("run record contract hash mismatch")
++    if diagnostic:
++        if record.get("producer") != DIAGNOSTIC_PRODUCER or record.get("mode") != "diagnostic":
++            raise ValueError("diagnostic environment record has the wrong producer or mode")
++    elif record.get("producer") not in QUALIFIED_PRODUCERS:
++        raise ValueError("environment record producer is not an admitted source-bound launcher")
++    if not isinstance(record.get("prediction_sha256"), str) or not re.fullmatch(
++            r"[0-9a-f]{64}", record["prediction_sha256"]):
++        raise ValueError("run record lacks a valid prediction digest")
++    launch = record.get("launch")
++    if not isinstance(launch, dict) or launch.get("native_controls_scrubbed") is not True:
++        raise ValueError("run record does not prove inherited native controls were scrubbed")
++    removed = launch.get("removed_inherited_key_names")
++    if (not isinstance(removed, list) or removed != sorted(set(removed))
++            or any(not isinstance(key, str) or not (key.startswith("NM_FEM_") or key in TIMING_KEYS)
++                   for key in removed)):
++        raise ValueError("invalid scrubbed-key-name record")
++    return record
++
++
++def validate_prediction_binding(record: Mapping[str, object], prediction_raw: bytes) -> None:
++    try:
++        prediction = json.loads(prediction_raw)
++    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
++        raise ValueError(f"environment prediction is not valid UTF-8 JSON: {exc}") from exc
++    if not isinstance(prediction, dict):
++        raise ValueError("environment prediction root must be an object")
++    diagnostic = record.get("schema") == DIAGNOSTIC_RUN_SCHEMA
++    contract = (validate_diagnostic_contract(record.get("contract")) if diagnostic
++                else validate_contract(record.get("contract")))
++    if (prediction.get("effective_native_environment_contract") != contract
++            or prediction.get("effective_native_environment_contract_sha256") != contract["sha256"]):
++        raise ValueError("prediction does not contain the exact effective environment contract")
++    producer = record.get("producer")
++    if producer == DIAGNOSTIC_PRODUCER:
++        if prediction.get("schema") != "numi.cardboard.native-diagnostic-prediction.v1":
++            raise ValueError("diagnostic run record points to the wrong prediction schema")
++        if prediction.get("run_mode") != "diagnostic":
++            raise ValueError("diagnostic prediction has the wrong run mode")
++        expected_delta = {key: state["value"] for key, state in contract["effective"].items()
++                          if state["set"]}
++        if prediction.get("environment") != expected_delta:
++            raise ValueError("diagnostic prediction override list differs from effective contract")
++        return
++    if producer == "source-bound-native-runner":
++        if prediction.get("schema") != "numi.cardboard.native-prediction.v1":
++            raise ValueError("source-bound run record points to the wrong prediction schema")
++        effective = contract["effective"]
++        expected_delta = {key: state["value"] for key, state in effective.items() if state["set"]}
++        if prediction.get("environment") != expected_delta:
++            raise ValueError("source-bound prediction override list differs from effective contract")
++    elif producer == "resolution-study":
++        if prediction.get("schema") != "numi.cardboard.resolution-case-prediction.v1":
++            raise ValueError("resolution-study run record points to the wrong prediction schema")
++        if prediction.get("plan_sha256") != record.get("plan_sha256"):
++            raise ValueError("resolution prediction plan digest differs from environment record")
++        case = prediction.get("case")
++        if not isinstance(case, dict) or case.get("id") != record.get("case_id"):
++            raise ValueError("resolution prediction case identity differs from environment record")
++
++
++def write_run_record_new(path: os.PathLike[str] | str, record: object) -> None:
++    """Write an environment sidecar once; existing evidence is never reused."""
++    record = validate_run_record(record)
++    with open(path, "x", encoding="utf-8") as stream:
++        json.dump(record, stream, sort_keys=True, indent=2, allow_nan=False)
++        stream.write("\n")
++
++
++def read_run_record(paths: Sequence[os.PathLike[str] | str]) -> tuple[dict[str, object] | None, str | None]:
++    existing = [os.fspath(path) for path in paths if os.path.isfile(path)]
++    if not existing:
++        return None, None
++    if len(existing) != 1:
++        raise ValueError("ambiguous native environment sidecar locations")
++    try:
++        with open(existing[0], encoding="utf-8") as stream:
++            value = json.load(stream)
++    except (OSError, json.JSONDecodeError) as exc:
++        raise ValueError(f"cannot read native environment sidecar: {exc}") from exc
++    return validate_run_record(value), existing[0]
+--- a/matter/tools/test_cardboard_convergence.py
++++ b/matter/tools/test_cardboard_convergence.py
+@@ -7,6 +7,7 @@
+ import importlib.util
+ import json
+ import math
++import hashlib
+ import subprocess
+ import sys
+ import tempfile
+@@ -20,10 +21,34 @@
+ cc = importlib.util.module_from_spec(SPEC)
+ sys.modules[SPEC.name] = cc
+ SPEC.loader.exec_module(cc)
++import cardboard_solver_environment as solver_environment
+ 
+ 
+ def write_json(path: Path, value: object) -> None:
+     path.write_text(json.dumps(value, indent=2) + "\n")
++
++
++def install_diagnostic_environment(run_path: Path, *, capture_key: str = "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH") -> None:
++    """Convert a synthetic run into a valid diagnostic-only environment record."""
++    prefixes = solver_environment.create_diagnostic_capture_prefixes(
++        run_path, [capture_key])
++    overrides = {"NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR": "0:0:7:1:4:0"}
++    contract = solver_environment.make_diagnostic_contract(overrides, run_path, prefixes)
++    prediction_path = run_path / "prediction.json"
++    prediction = json.loads(prediction_path.read_text())
++    prediction.update({
++        "schema": "numi.cardboard.native-diagnostic-prediction.v1",
++        "run_mode": "diagnostic",
++        "environment": {key: state["value"] for key, state in contract["effective"].items()
++                        if state["set"]},
++        "effective_native_environment_contract": contract,
++        "effective_native_environment_contract_sha256": contract["sha256"],
++    })
++    write_json(prediction_path, prediction)
++    record = solver_environment.make_diagnostic_run_record(
++        contract, removed_inherited_keys=[],
++        prediction_sha256=hashlib.sha256(prediction_path.read_bytes()).hexdigest())
++    write_json(run_path / "native-environment.json", record)
+ 
+ 
+ def fake_run(root: Path, name: str, *, nx: int = 2, dt: float = 1.0,
+@@ -34,7 +59,9 @@
+              geometry_length: float = 1.0, plastic_liner: float = 0.0,
+              plastic_medium: float = 3e-6, moment_scale: float = 1.0,
+              raw_status: int = 0, accepted_flag: int = 1,
+-             release_constraint_error: bool = False, omit_step_accepted: bool = False) -> Path:
++             release_constraint_error: bool = False, omit_step_accepted: bool = False,
++             environment_overrides: dict[str, str] | None = None,
++             with_environment_contract: bool = True) -> Path:
+     path = root / name
+     path.mkdir()
+     phases = (steps, hold, unload, relax, release, post_release_relax)
+@@ -194,6 +221,21 @@
+                 "tetrahedra": [{"index": i, "material_index": i, "state": tet_states[i]} for i in range(3)],
+             }
+             write_json(path / f"material_state_{end:06d}_{arm}.json", state)
++    if with_environment_contract:
++        contract = solver_environment.make_contract(environment_overrides)
++        prediction_path = path / "prediction.json"
++        overrides = {key: state["value"] for key, state in contract["effective"].items() if state["set"]}
++        write_json(prediction_path, {
++            "schema": "numi.cardboard.native-prediction.v1",
++            "environment": overrides,
++            "effective_native_environment_contract": contract,
++            "effective_native_environment_contract_sha256": contract["sha256"],
++        })
++        prediction_sha = hashlib.sha256(prediction_path.read_bytes()).hexdigest()
++        env_record = solver_environment.make_run_record(
++            contract, producer="source-bound-native-runner", removed_inherited_keys=[],
++            prediction_sha256=prediction_sha)
++        write_json(path / "native-environment.json", env_record)
+     return path
+ 
+ 
+@@ -243,6 +285,53 @@
+         result = cc.analyze_pair(a, b, "spatial")
+         self.assertEqual(result["status"], "incompatible_pair")
+         self.assertEqual(result["reasons"][0]["code"], "solver_control_mismatch")
++
++    def test_effective_environment_is_required_for_pairs_but_not_descriptive_loads(self) -> None:
++        legacy = fake_run(self.root, "legacy-environment", with_environment_contract=False)
++        modern = fake_run(self.root, "modern-environment", nx=4)
++        self.assertEqual(cc.analyze_run(legacy)["status"], "analyzed_descriptive")
++        result = cc.analyze_pair(legacy, modern, "spatial")
++        self.assertEqual(result["status"], "inconclusive_evidence")
++        self.assertEqual(result["reasons"][0]["code"], "missing_effective_native_environment")
++
++    def test_environment_absent_empty_mismatch_and_graph_schwarz(self) -> None:
++        absent = fake_run(self.root, "env-absent")
++        empty = fake_run(self.root, "env-empty", nx=4,
++                         environment_overrides={"NM_FEM_TRUE_RESIDUAL_ROOT": ""})
++        result = cc.analyze_pair(absent, empty, "spatial")
++        self.assertEqual(result["status"], "incompatible_pair")
++        self.assertEqual(result["reasons"][0]["code"], "native_environment_mismatch")
++        graph_a = fake_run(self.root, "graph-a")
++        graph_b = fake_run(self.root, "graph-b", nx=4)
++        for run_path in (graph_a, graph_b):
++            manifest_path = run_path / "manifest.json"
++            manifest = json.loads(manifest_path.read_text())
++            manifest["solver"]["fgmres_preconditioner"] = "regional_galerkin_graph_schwarz_conditioning_only"
++            write_json(manifest_path, manifest)
++        self.assertEqual(cc.analyze_pair(graph_a, graph_b, "spatial")["status"], "analyzed_descriptive")
++
++    def test_primary_cache_and_augmentation_environment_mismatches_are_rejected(self) -> None:
++        controls = (
++            ("NM_FEM_BASE_CGLS_PRIMARY_AFTER", "0", "1"),
++            ("NM_FEM_CACHE_PROJECTION_REUSE", "0", "1"),
++            ("NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION", "0", "1"),
++        )
++        for index, (key, left_value, right_value) in enumerate(controls):
++            left = fake_run(self.root, f"env-left-{index}",
++                            environment_overrides={key: left_value})
++            right = fake_run(self.root, f"env-right-{index}", nx=4,
++                             environment_overrides={key: right_value})
++            with self.subTest(key=key):
++                report = cc.analyze_pair(left, right, "spatial")
++                self.assertEqual(report["status"], "incompatible_pair")
++                self.assertEqual(report["reasons"][0]["code"], "native_environment_mismatch")
++
++    def test_environment_sidecar_must_bind_prediction(self) -> None:
++        run_path = fake_run(self.root, "environment-tamper")
++        prediction = run_path / "prediction.json"
++        prediction.write_text(prediction.read_text() + " ")
++        with self.assertRaisesRegex(cc.EvidenceError, "does not bind"):
++            cc._load_run(run_path)
+ 
+     def test_failed_status_not_overridden_by_raw_accepted_flag(self) -> None:
+         a = fake_run(self.root, "failed", raw_status=10, accepted_flag=1)
+@@ -285,6 +374,14 @@
+         self.assertEqual(cc.analyze_pair(coarse, no_nest, "temporal")["reasons"][0]["code"], "incommensurate_time_sampling")
+         wrong_duration = fake_run(self.root, "wrong-duration", nx=2, dt=.5, steps=5, hold=5, unload=5, relax=5)
+         self.assertEqual(cc.analyze_pair(coarse, wrong_duration, "temporal")["reasons"][0]["code"], "phase_duration_mismatch")
++
++    def test_diagnostic_run_is_rejected_from_convergence_pair(self) -> None:
++        baseline = fake_run(self.root, "qualification-baseline")
++        diagnostic = fake_run(self.root, "diagnostic-candidate", nx=4)
++        install_diagnostic_environment(diagnostic)
++        result = cc.analyze_pair(baseline, diagnostic, "spatial")
++        self.assertEqual(result["status"], "inconclusive_evidence")
++        self.assertEqual(result["reasons"][0]["code"], "diagnostic_run_not_qualifiable")
+ 
+     def test_enabled_tool_loading_is_explicitly_unsupported(self) -> None:
+         baseline = fake_run(self.root, "baseline")
+--- a/matter/tools/test_cardboard_resolution_study.py
++++ b/matter/tools/test_cardboard_resolution_study.py
+@@ -13,6 +13,7 @@
+ import tempfile
+ import unittest
+ from pathlib import Path
++import shutil
+ 
+ 
+ HERE = Path(__file__).resolve().parent
+@@ -33,6 +34,40 @@
+ study = importlib.util.module_from_spec(study_spec)
+ sys.modules[study_spec.name] = study
+ study_spec.loader.exec_module(study)
++
++REPO_BASE = Path(__file__).resolve().parents[5]
++SOURCE157 = REPO_BASE / "snapshots" / "source-right-grip-telemetry-157"
++SOURCE160_PACKAGE = REPO_BASE / "analysis" / "selector5-restart-consumer-capture-source160-002"
++
++
++def combined_source_fixture(destination: Path) -> Path:
++    """Create the minimal source tree needed by the study planner's source binding."""
++    runtime = SOURCE160_PACKAGE / "source/matter/src/runtime.mm"
++    files = (
++        "matter/tools/cardboard_probe.mm",
++        "matter/tools/cardboard_convergence.py",
++        "matter/tools/cardboard_resolution_study.py",
++        "matter/tools/cardboard_glue_mesh.hpp",
++        "matter/tools/cardboard_starch_interface_mesh.hpp",
++        "matter/src/metal_encoder_timing.hpp",
++        "matter/src/compiler_impl.cpp",
++        "matter/src/validation_impl.cpp",
++        "matter/include/numi/matter/shared.h",
++    )
++    if not runtime.is_file():
++        raise FileNotFoundError(runtime)
++    for relative in files:
++        source = SOURCE157 / relative
++        target = destination / relative
++        target.parent.mkdir(parents=True, exist_ok=True)
++        shutil.copy2(source, target)
++    target_runtime = destination / "matter/src/runtime.mm"
++    target_runtime.parent.mkdir(parents=True, exist_ok=True)
++    shutil.copy2(runtime, target_runtime)
++    shutil.copytree(SOURCE157 / "matter/src/metal", destination / "matter/src/metal")
++    shutil.copytree(SOURCE157 / "matter/include/numi/matter", destination / "matter/include/numi/matter",
++                    dirs_exist_ok=True)
++    return destination
+ 
+ 
+ class CardboardResolutionStudyTests(unittest.TestCase):
+@@ -89,24 +124,36 @@
+         metallib.write_bytes(b"synthetic metallib binding\n")
+         extra_source = self.root / "extra-source.mm"
+         extra_source.write_text("synthetic source binding\n")
++        source_root = combined_source_fixture(self.root / "combined-source")
+ 
+         plan = study.make_plan(
+             baseline_dir=baseline, probe=probe, metallib=metallib,
+             run_root=self.root / "study-run-root", timeout_seconds=123.0,
+             slower_load_factor=2, max_free_force_residual_n=0.5,
+-            source_root=Path("/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143"),
++            source_root=source_root,
+             source_paths=[extra_source, HERE / "cardboard_probe.mm"],
+         )
+         self.assertEqual(plan["plan_sha256"], study._plan_digest(plan))
+         self.assertEqual(len(plan["cases"]), 10)
+         self.assertEqual(plan["prediction"]["max_free_force_residual_n"], 0.5)
+         self.assertEqual(plan["execution"]["parallelism"], 1)
++        self.assertEqual(plan["execution"]["effective_native_environment_contract_sha256"],
++                         plan["execution"]["effective_native_environment_contract"]["sha256"])
++        self.assertEqual(plan["baseline"]["input_sha256"]["native-environment.json"],
++                         hashlib.sha256((baseline / "native-environment.json").read_bytes()).hexdigest())
+         self.assertIn({"path": str(extra_source.resolve()),
+                        "sha256": hashlib.sha256(extra_source.read_bytes()).hexdigest()},
+                       plan["execution"]["source_files"])
+         self.assertIn({"path": str((HERE / "cardboard_probe.mm").resolve()),
+                        "sha256": hashlib.sha256((HERE / "cardboard_probe.mm").read_bytes()).hexdigest()},
+                       plan["execution"]["source_files"])
++        replay = fixtures.fake_run(self.root, "replay-with-env-drift", nx=16,
++                                   environment_overrides={"NM_FEM_BASE_CGLS_PRIMARY_AFTER": "1"})
++        replay_runs, replay_status = study._load_case_runs(
++            plan, {plan["cases"][0]["id"]: replay})
++        self.assertNotIn(plan["cases"][0]["id"], replay_runs)
++        self.assertIn("effective native environment differs",
++                      replay_status[plan["cases"][0]["id"]])
+         time_cases = [case for case in plan["cases"] if case["kind"] == "temporal"]
+         self.assertEqual([case["time_refinement_factor"] for case in time_cases], [2, 4])
+         for case in time_cases:
+@@ -203,6 +250,13 @@
+         self.assertEqual(args[args.index("--fgmres-preconditioner") + 1], "regional-galerkin-schwarz")
+         self.assertEqual(args[args.index("--fgmres-restart") + 1], "16")
+         self.assertEqual(args[args.index("--line-search-steps") + 1], "24")
++        # The descriptive preconditioner reader and the study command builder
++        # must agree on this source-defined graph-Schwarz selector.
++        pair_b = cc._load_run(self._release_run("source15-schwarz-pair", nx=16))
++        solver_b = pair_b.manifest["solver"]
++        solver_b.update({"fgmres_preconditioner": solver["fgmres_preconditioner"],
++                         "fgmres_restart": 16, "line_search_steps": 24})
++        cc._same_solver_controls(run, pair_b)
+         # Reconstruction cannot claim the native graph's refined mesh scope.
+         # The native admission gate remains authoritative for each actual case.
+         solver["fgmres_restart"] = 17
+@@ -212,6 +266,87 @@
+         solver["fgmres_preconditioner"] = "unknown_preconditioner"
+         with self.assertRaisesRegex(study.StudyError, "unsupported or missing preconditioner"):
+             study._native_base_arguments(run)
++
++    def test_plan_refuses_legacy_baseline_and_replay_environment_drift(self) -> None:
++        baseline = self._release_run("legacy-baseline", nx=8)
++        (baseline / "native-environment.json").unlink()
++        (baseline / "prediction.json").unlink()
++        probe = self.root / "probe"
++        probe.write_text("fixture")
++        probe.chmod(probe.stat().st_mode | 0o111)
++        metallib = self.root / "library.metallib"
++        metallib.write_bytes(b"fixture")
++        with self.assertRaisesRegex(study.StudyError, "legacy runs remain descriptive"):
++            study.make_plan(baseline_dir=baseline, probe=probe, metallib=metallib,
++                            run_root=self.root / "legacy-study", timeout_seconds=20,
++                            source_root=Path("/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157"))
++
++        baseline = self._release_run("bound-baseline", nx=8)
++        # Build a valid source-bound plan from the ordinary synthetic contract.
++        manifest_path = baseline / "manifest.json"
++        manifest = json.loads(manifest_path.read_text())
++        manifest["preset"] = "literature2009"
++        manifest["mesh"]["ny"] = 2
++        manifest["tooling"] = {"enabled": False}
++        manifest["solver"]["fgmres_preconditioner"] = "scalar_diagonal"
++        for path_key, digest_key, role in (
++            ("liner_path", "liner_sha256", "liner"),
++            ("medium_path", "medium_sha256", "medium"),
++            ("glue_path", "glue_sha256", "glue"),
++        ):
++            material = self.root / f"bound-{role}.nmatter"
++            material.write_text(role)
++            manifest["materials"][path_key] = str(material)
++            manifest["materials"][digest_key] = hashlib.sha256(material.read_bytes()).hexdigest()
++        manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
++        source_root = combined_source_fixture(self.root / "combined-source-bound")
++        plan = study.make_plan(baseline_dir=baseline, probe=probe, metallib=metallib,
++                               run_root=self.root / "bound-study", timeout_seconds=20,
++                               source_root=source_root)
++        plan["execution"]["effective_native_environment_contract"] = __import__(
++            "cardboard_solver_environment").make_contract({"NM_FEM_BASE_CGLS_PRIMARY_AFTER": "1"})
++        plan["execution"]["effective_native_environment_contract_sha256"] = plan["execution"]["effective_native_environment_contract"]["sha256"]
++        plan["plan_sha256"] = study._plan_digest(plan)
++        with self.assertRaisesRegex(study.StudyError, "baseline effective native environment differs"):
++            study._verify_bindings(plan)
++
++    def test_diagnostic_run_cannot_be_a_resolution_baseline_or_positive_case(self) -> None:
++        baseline = self._release_run("diagnostic-baseline", nx=8)
++        fixtures.install_diagnostic_environment(baseline)
++        with self.assertRaisesRegex(study.StudyError, "diagnostic native runs"):
++            study._baseline_contract(baseline)
++
++        # Positive case admission has the same hard boundary, independently
++        # of whether its effective controls happen to match the sealed plan.
++        ordinary_baseline = self._release_run("ordinary-baseline", nx=8)
++        manifest_path = ordinary_baseline / "manifest.json"
++        manifest = json.loads(manifest_path.read_text())
++        manifest["preset"] = "literature2009"
++        manifest["mesh"]["ny"] = 2
++        manifest["tooling"] = {"enabled": False}
++        manifest["solver"]["fgmres_preconditioner"] = "scalar_diagonal"
++        for role in ("liner", "medium", "glue"):
++            material = self.root / f"positive-{role}.nmatter"
++            material.write_text(role)
++            manifest["materials"][role + "_path"] = str(material)
++            manifest["materials"][role + "_sha256"] = hashlib.sha256(material.read_bytes()).hexdigest()
++        manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
++        probe = self.root / "probe"
++        probe.write_text("fixture")
++        probe.chmod(probe.stat().st_mode | 0o111)
++        metallib = self.root / "library.metallib"
++        metallib.write_bytes(b"fixture")
++        source_root = combined_source_fixture(self.root / "combined-source-diagnostic")
++        plan = study.make_plan(
++            baseline_dir=ordinary_baseline, probe=probe, metallib=metallib,
++            run_root=self.root / "diagnostic-study", timeout_seconds=20,
++            source_root=source_root)
++        diagnostic_case = self._release_run("diagnostic-positive", nx=16)
++        fixtures.install_diagnostic_environment(diagnostic_case)
++        runs, statuses = study._load_case_runs(plan, {plan["cases"][0]["id"]: diagnostic_case})
++        self.assertNotIn(plan["cases"][0]["id"], runs)
++        self.assertIn("diagnostic native runs are not admitted",
++                      statuses[plan["cases"][0]["id"]])
+ 
+     def test_admitted_pair_has_force_work_springback_and_force_residual_observables(self) -> None:
+         coarse = self._release_run("coarse", nx=2)
+--- a/matter/tools/test_bct_source_bound_harness.py
++++ b/matter/tools/test_bct_source_bound_harness.py
+@@ -15,6 +15,7 @@
+ RUNNER = TOOLS / "cardboard_source_bound_run.py"
+ SUPPORT = TOOLS / "cardboard_source_bound_run_support.py"
+ BINDING = TOOLS / "cardboard_calibration_case_binding.py"
++ENVIRONMENT = TOOLS / "cardboard_solver_environment.py"
+ PRODUCER_TEST_PATH = TOOLS / "test_bct_capacity_history_producer.py"
+ 
+ 
+@@ -36,7 +37,7 @@
+     def _fake_source(self, root: Path) -> tuple[Path, Path]:
+         tools = root / "matter" / "tools"
+         tools.mkdir(parents=True)
+-        for source in (RUNNER, SUPPORT, BINDING, TOOLS / "bct_capacity_history_producer.py",
++        for source in (RUNNER, SUPPORT, BINDING, ENVIRONMENT, TOOLS / "bct_capacity_history_producer.py",
+                        TOOLS / "cardboard_calibration_ensemble.py"):
+             shutil.copy2(source, tools / source.name)
+         (root / "matter" / "materials").mkdir(parents=True)
+@@ -108,10 +109,16 @@
+             prediction_path, receipt_path = run / "prediction.json", run / "receipt.json"
+             prediction = json.loads(prediction_path.read_text())
+             receipt = json.loads(receipt_path.read_text())
++            environment = json.loads((run / "native-environment.json").read_text())
+             self.assertEqual(prediction["native_protocol_id"], producer.PROTOCOL_ID)
+             self.assertEqual(prediction["calibration_case_binding"]["candidate_sha256"],
+                              candidate["candidate_sha256"])
+             self.assertEqual(receipt["calibration_parameter_validation"]["status"], "passed")
++            self.assertTrue(environment["launch"]["native_controls_scrubbed"])
++            self.assertEqual(environment["contract_sha256"],
++                             prediction["effective_native_environment_contract_sha256"])
++            self.assertEqual(environment["prediction_sha256"],
++                             __import__("hashlib").sha256(prediction_path.read_bytes()).hexdigest())
+             self.assertEqual(receipt["calibration_parameter_validation"]["manifest_sha256"],
+                              producer.sha256(run / "output/manifest.json"))
+             raw_receipt_sha = producer.sha256(receipt_path)
+--- /dev/null
++++ b/matter/tools/test_cardboard_solver_environment.py
+@@ -0,0 +1,263 @@
++from __future__ import annotations
++
++import unittest
++import tempfile
++import hashlib
++import json
++import shutil
++import subprocess
++import sys
++from pathlib import Path
++
++import cardboard_solver_environment as env
++
++
++BASE = Path(__file__).resolve().parents[5]
++SOURCE157 = BASE / "snapshots" / "source-right-grip-telemetry-157"
++SOURCE160_PACKAGE = BASE / "analysis" / "selector5-restart-consumer-capture-source160-002"
++
++
++class EffectiveEnvironmentTests(unittest.TestCase):
++    def test_registry_matches_combined_source160_runtime_and_161_candidate(self):
++        runtime = SOURCE160_PACKAGE / "source/matter/src/runtime.mm"
++        overlay = json.loads((SOURCE160_PACKAGE / "source-overlay.json").read_text())
++        expected_runtime_sha = overlay["changed_sources"]["matter/src/runtime.mm"]["overlay_sha256"]
++        self.assertEqual(hashlib.sha256(runtime.read_bytes()).hexdigest(), expected_runtime_sha)
++        with tempfile.TemporaryDirectory() as temporary:
++            root = Path(temporary)
++            (root / "matter/src").mkdir(parents=True)
++            (root / "matter/tools").mkdir(parents=True)
++            shutil.copy2(runtime, root / "matter/src/runtime.mm")
++            shutil.copy2(SOURCE157 / "matter/tools/cardboard_probe.mm",
++                         root / "matter/tools/cardboard_probe.mm")
++            shutil.copy2(Path(__file__).with_name("cardboard_solver_environment.py"),
++                         root / "matter/tools/cardboard_solver_environment.py")
++            env.validate_source_registry(root)
++            self.assertEqual(env.source_key_registry(root), env.NATIVE_ENV_KEYS)
++            self.assertEqual(len(env.NATIVE_ENV_KEYS), 49)
++            self.assertIn("NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR", env.NATIVE_ENV_KEYS)
++            self.assertIn("NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH", env.NATIVE_ENV_KEYS)
++        with self.assertRaisesRegex(ValueError, "stale=.*NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH"):
++            env.validate_source_registry(SOURCE157)
++        contract = env.make_contract()
++        self.assertTrue(all(state == {"set": False, "value": None}
++                            for state in contract["effective"].values()))
++        contract = env.make_contract()
++        self.assertEqual(set(contract["effective"]), set(env.NATIVE_ENV_KEYS))
++        self.assertTrue(all(state == {"set": False, "value": None}
++                            for state in contract["effective"].values()))
++
++    def test_absent_empty_and_explicit_values_are_distinct(self):
++        absent = env.make_contract()
++        empty = env.make_contract({"NM_FEM_TRUE_RESIDUAL_ROOT": ""})
++        selected = env.make_contract({"NM_FEM_TRUE_RESIDUAL_ROOT": "all"})
++        self.assertNotEqual(absent["sha256"], empty["sha256"])
++        self.assertNotEqual(empty["sha256"], selected["sha256"])
++        self.assertEqual(empty["effective"]["NM_FEM_TRUE_RESIDUAL_ROOT"], {"set": True, "value": ""})
++
++    def test_inherited_controls_are_scrubbed_but_unrelated_environment_is_kept(self):
++        contract = env.make_contract({"NM_FEM_BASE_CGLS_ITERATIONS": "64"})
++        parent = {"PATH": "/bin", "NM_FEM_BASE_CGLS_ITERATIONS": "8",
++                  "NM_FEM_UNREGISTERED_LEAK": "secret-value",
++                  "NUMI_CARDBOARD_STEP_TIMING": "1", "USER": "tester"}
++        child, removed = env.child_environment(parent, contract)
++        self.assertEqual(child["NM_FEM_BASE_CGLS_ITERATIONS"], "64")
++        self.assertNotIn("NM_FEM_UNREGISTERED_LEAK", child)
++        self.assertNotIn("NUMI_CARDBOARD_STEP_TIMING", child)
++        self.assertEqual(child["PATH"], "/bin")
++        self.assertEqual(child["USER"], "tester")
++        self.assertEqual(removed, ["NM_FEM_BASE_CGLS_ITERATIONS", "NM_FEM_UNREGISTERED_LEAK",
++                                   "NUMI_CARDBOARD_STEP_TIMING"])
++        self.assertNotIn("secret-value", str(env.make_run_record(
++            contract, producer="test", removed_inherited_keys=removed,
++            prediction_sha256="0" * 64)))
++
++    def test_rejects_malformed_duplicate_unknown_and_capture_paths(self):
++        for entries in (("NM_FEM_TRUE_RESIDUAL_ROOT",),
++                        ("NM_FEM_TRUE_RESIDUAL_ROOT=1", "NM_FEM_TRUE_RESIDUAL_ROOT=2"),
++                        ("NM_FEM_NOT_IN_SOURCE=1",),
++                        ("NM_FEM_OPERATOR_FD_CAPTURE_PATH=/tmp/capture",),
++                        ("NM_FEM_CONTACT_TRACE_ROOT=/tmp/trace",),
++                        ("bad-key=1",)):
++            with self.subTest(entries=entries), self.assertRaises(ValueError):
++                env.parse_overrides(entries)
++
++    def test_trace_root_is_numeric_control_selector_not_output_path(self):
++        # Newton trace is numeric-only; Armijo roots support the source-defined `all` token.
++        numeric = env.make_contract({"NM_FEM_CONTACT_TRACE_ROOT": "48"})
++        every = env.make_contract({"NM_FEM_RESIDUAL_ARMIJO_ROOT": "all"})
++        self.assertEqual(numeric["effective"]["NM_FEM_CONTACT_TRACE_ROOT"],
++                         {"set": True, "value": "48"})
++        self.assertEqual(every["effective"]["NM_FEM_RESIDUAL_ARMIJO_ROOT"],
++                         {"set": True, "value": "all"})
++        with self.assertRaisesRegex(ValueError, "numeric control-step selector"):
++            env.make_contract({"NM_FEM_CONTACT_TRACE_ROOT": "/tmp/trace"})
++        with self.assertRaisesRegex(ValueError, "uint32"):
++            env.make_contract({"NM_FEM_NEWTON_TRACE_ROOT": str(1 << 32)})
++
++    def test_diagnostic_capture_prefix_is_case_local_fresh_and_bounded(self):
++        with tempfile.TemporaryDirectory() as temporary:
++            case = Path(temporary) / "case"
++            case.mkdir()
++            key = "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH"
++            prefixes = env.create_diagnostic_capture_prefixes(case, [key])
++            prefix = Path(prefixes[key])
++            contract = env.make_diagnostic_contract(
++                {"NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR": "3:0:7:1:4:0"},
++                case, prefixes)
++            self.assertEqual(contract["effective"][key], {"set": True, "value": str(prefix)})
++            with self.assertRaisesRegex(ValueError, "unsupported effective native environment contract"):
++                env.validate_contract(contract)
++            child, _ = env.child_environment({}, contract)
++            self.assertEqual(child[key], str(prefix))
++            (prefix.parent / "capture.consumer.bin").write_bytes(b"binary")
++            (prefix.parent / "capture.consumer.json").write_bytes(b"{}\n")
++            outputs = env.validate_diagnostic_outputs(case, prefixes)
++            self.assertEqual(outputs["status"], "validated")
++            self.assertEqual(outputs["file_count"], 2)
++
++            external = Path(temporary) / "outside.json"
++            external.write_text("{}\n")
++            linked = prefix.parent / "capture.untrusted.json"
++            linked.symlink_to(external)
++            with self.assertRaisesRegex(ValueError, "not a new regular unlinked file"):
++                env.validate_diagnostic_outputs(case, prefixes)
++            linked.unlink()
++
++            linked.hardlink_to(prefix.parent / "capture.consumer.bin")
++            with self.assertRaisesRegex(ValueError, "not a new regular unlinked file"):
++                env.validate_diagnostic_outputs(case, prefixes)
++            linked.unlink()
++
++            oversized = prefix.parent / "capture.oversized"
++            with oversized.open("wb") as stream:
++                stream.truncate(env.MAX_DIAGNOSTIC_CAPTURE_FILE_BYTES + 1)
++            with self.assertRaisesRegex(ValueError, "byte cap exceeded"):
++                env.validate_diagnostic_outputs(case, prefixes)
++            oversized.unlink()
++            with self.assertRaises(FileExistsError):
++                env.create_diagnostic_capture_prefixes(case, [key])
++
++    def test_diagnostic_paths_reject_traversal_symlinks_and_reuse(self):
++        with tempfile.TemporaryDirectory() as temporary:
++            root = Path(temporary)
++            case = root / "case"
++            case.mkdir()
++            with self.assertRaisesRegex(ValueError, "not a registered"):
++                env.create_diagnostic_capture_prefixes(case, ["../outside"])
++            outside = root / "outside"
++            outside.mkdir()
++            diagnostics = case / "diagnostics"
++            diagnostics.symlink_to(outside, target_is_directory=True)
++            with self.assertRaises((FileExistsError, ValueError)):
++                env.create_diagnostic_capture_prefixes(case, ["NM_FEM_OPERATOR_FD_CAPTURE_PATH"])
++
++            safe_case = root / "safe-case"
++            safe_case.mkdir()
++            key = "NM_FEM_OPERATOR_FD_CAPTURE_PATH"
++            prefixes = env.create_diagnostic_capture_prefixes(safe_case, [key])
++            contract = env.make_diagnostic_contract({}, safe_case, prefixes)
++            real_diagnostics = safe_case / "diagnostics-real"
++            (safe_case / "diagnostics").rename(real_diagnostics)
++            (safe_case / "diagnostics").symlink_to(outside, target_is_directory=True)
++            with self.assertRaisesRegex(ValueError, "output root is missing, aliased, or symlinked"):
++                env.validate_diagnostic_contract(contract)
++
++    def test_diagnostic_records_are_not_qualification_records(self):
++        with tempfile.TemporaryDirectory() as temporary:
++            case = Path(temporary) / "case"
++            case.mkdir()
++            prefixes = env.create_diagnostic_capture_prefixes(
++                case, ["NM_FEM_OPERATOR_FD_CAPTURE_PATH"])
++            contract = env.make_diagnostic_contract(
++                {"NM_FEM_OPERATOR_FD_SELECTOR": "1:0"}, case, prefixes)
++            record = env.make_diagnostic_run_record(
++                contract, removed_inherited_keys=[], prediction_sha256="a" * 64)
++            self.assertFalse(env.is_qualification_run_record(record))
++            with self.assertRaisesRegex(ValueError, "unsupported effective native environment contract"):
++                env.make_run_record(contract, producer="source-bound-native-runner",
++                                    removed_inherited_keys=[], prediction_sha256="a" * 64)
++
++    def test_source_bound_runner_materializes_and_validates_case_local_capture(self):
++        with tempfile.TemporaryDirectory() as temporary:
++            root = Path(temporary)
++            source = root / "source"
++            for relative in ("matter/tools", "matter/materials", "matter/src",
++                             "matter/include", "matter/examples/cardboard/source-data"):
++                (source / relative).mkdir(parents=True, exist_ok=True)
++            (source / "matter/CMakeLists.txt").write_text("# diagnostic runner fixture\n")
++            runtime = root / "runtime"
++            runtime.mkdir()
++            case = root / "case"
++            native = root / "fake-native.sh"
++            native.write_text(
++                "#!/bin/sh\n"
++                'printf "diagnostic-ok\\n" > "${NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH}.json"\n')
++            native.chmod(0o755)
++            key = "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH"
++            runner = Path(__file__).with_name("cardboard_source_bound_run.py")
++            worker_dir = runner.resolve().parents[2] / "build-cardboard-native-worker"
++            worker_existed = worker_dir.exists()
++            command = [
++                sys.executable, str(runner), "--case", str(case),
++                "--question", "diagnostic capture path integration fixture",
++                "--prediction", "one bounded case-local output file",
++                "--timeout", "10", "--source-snapshot", str(source),
++                "--runtime-dir", str(runtime), "--diagnostic-run",
++                "--diagnostic-capture", key,
++                "--env", "NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR=0:0:7:1:4:0",
++                "--", str(native),
++            ]
++            try:
++                completed = subprocess.run(command, capture_output=True, text=True,
++                                           check=False, timeout=30)
++                self.assertEqual(completed.returncode, 0, completed.stderr)
++                receipt = json.loads((case / "receipt.json").read_text())
++                self.assertEqual(receipt["exit_code"], 0)
++                self.assertEqual(receipt["run_mode"], "diagnostic")
++                capture = case / "diagnostics/capture-regional-consumer-capture/capture.json"
++                self.assertEqual(capture.read_text(), "diagnostic-ok\n")
++                output_record = json.loads((case / "diagnostic-captures.json").read_text())
++                self.assertEqual(output_record["status"], "validated")
++                self.assertEqual(output_record["file_count"], 1)
++                record, _ = env.read_run_record([case / "native-environment.json"])
++                self.assertFalse(env.is_qualification_run_record(record))
++                prediction_raw = (case / "prediction.json").read_bytes()
++                env.validate_prediction_binding(record, prediction_raw)
++            finally:
++                if not worker_existed and worker_dir.exists():
++                    lock = worker_dir / "worker.lock"
++                    if lock.is_file():
++                        lock.unlink()
++                    try:
++                        worker_dir.rmdir()
++                    except OSError:
++                        pass
++
++    def test_rejects_tampered_or_ambiguous_contract_and_run_record(self):
++        contract = env.make_contract()
++        corrupted = dict(contract)
++        corrupted["effective"] = dict(contract["effective"])
++        corrupted["effective"]["NM_FEM_GRAPH_PARALLEL_LU_SEARCH"] = {"set": True, "value": "1"}
++        with self.assertRaisesRegex(ValueError, "digest mismatch"):
++            env.validate_contract(corrupted)
++        record = env.make_run_record(contract, producer="source-bound-native-runner", removed_inherited_keys=[],
++                                     prediction_sha256="a" * 64)
++        record["launch"] = {"native_controls_scrubbed": False, "removed_inherited_key_names": []}
++        with self.assertRaisesRegex(ValueError, "does not prove"):
++            env.validate_run_record(record)
++
++    def test_environment_sidecar_creation_is_exclusive(self):
++        record = env.make_run_record(env.make_contract(), producer="source-bound-native-runner",
++                                     removed_inherited_keys=[], prediction_sha256="a" * 64)
++        with tempfile.TemporaryDirectory() as directory:
++            sidecar = Path(directory) / "native-environment.json"
++            env.write_run_record_new(sidecar, record)
++            first = sidecar.read_bytes()
++            with self.assertRaises(FileExistsError):
++                env.write_run_record_new(sidecar, record)
++            self.assertEqual(sidecar.read_bytes(), first)
++
++
++if __name__ == "__main__":
++    unittest.main()
+--- a/matter/tools/cardboard_cached_operator_audit.py
++++ b/matter/tools/cardboard_cached_operator_audit.py
+@@ -20,6 +20,7 @@
+ import numpy as np
+ from scipy import sparse
+ from scipy.sparse.linalg import ArpackNoConvergence, eigsh, svds
++import cardboard_solver_environment as solver_environment
+ 
+ 
+ CAPTURE_SCHEMA = "numi.cardboard.fem-newton-capture.v1"
+@@ -214,10 +215,77 @@
+                 source_snapshot_override: Path | None = None) -> dict:
+     prediction = json.loads(prediction_path.read_text())
+     receipt = json.loads(receipt_path.read_text())
+-    if prediction.get("schema") != "numi.cardboard.native-prediction.v1":
+-        raise ValueError("prediction schema is not the cardboard native-prediction schema")
++    prediction_schema = prediction.get("schema")
++    diagnostic_prediction = (
++        prediction_schema == "numi.cardboard.native-diagnostic-prediction.v1")
++    if prediction_schema not in {
++            "numi.cardboard.native-prediction.v1",
++            "numi.cardboard.native-diagnostic-prediction.v1"}:
++        raise ValueError("prediction schema is not a supported cardboard native prediction")
+     if not isinstance(prediction.get("environment"), dict):
+         raise ValueError("prediction has no sealed environment map")
++    environment_record = None
++    if diagnostic_prediction:
++        if prediction.get("run_mode") != "diagnostic":
++            raise ValueError("diagnostic prediction has the wrong run mode")
++        if receipt.get("run_mode") != "diagnostic":
++            raise ValueError("diagnostic receipt does not identify a diagnostic run")
++        environment_path = prediction_path.parent / "native-environment.json"
++        if not environment_path.is_file():
++            raise ValueError("diagnostic prediction lacks its native environment record")
++        try:
++            environment_record = solver_environment.validate_run_record(
++                json.loads(environment_path.read_text()))
++            prediction_raw = prediction_path.read_bytes()
++            solver_environment.validate_prediction_binding(
++                environment_record, prediction_raw)
++            if environment_record.get("prediction_sha256") != sha256(prediction_path):
++                raise ValueError("diagnostic environment record prediction hash mismatch")
++            if environment_record.get("schema") != \
++                    solver_environment.DIAGNOSTIC_RUN_SCHEMA:
++                raise ValueError("diagnostic prediction is paired with a non-diagnostic environment record")
++            contract = environment_record["contract"]
++            if prediction.get("effective_native_environment_contract_sha256") != \
++                    contract.get("sha256"):
++                raise ValueError("diagnostic prediction environment contract hash mismatch")
++            diagnostic_snapshot = (source_snapshot_override or
++                Path(prediction.get("source_snapshot", "")))
++            if not diagnostic_snapshot.is_dir():
++                raise ValueError("diagnostic prediction does not identify an available source snapshot")
++            solver_environment.validate_source_registry(diagnostic_snapshot)
++        except (OSError, ValueError, TypeError) as error:
++            raise ValueError(f"invalid diagnostic environment binding: {error}") from error
++        diagnostic_inventory_path = prediction_path.parent / "diagnostic-captures.json"
++        if not diagnostic_inventory_path.is_file():
++            raise ValueError("diagnostic prediction lacks validated capture inventory")
++        try:
++            inventory = json.loads(diagnostic_inventory_path.read_text())
++        except (OSError, json.JSONDecodeError) as error:
++            raise ValueError("diagnostic capture inventory is unreadable") from error
++        if (not isinstance(inventory, dict) or
++                inventory.get("schema") != "numi.cardboard.diagnostic-capture-files.v1" or
++                inventory.get("status") != "validated" or
++                inventory.get("environment_contract_sha256") !=
++                    environment_record["contract_sha256"] or
++                not isinstance(inventory.get("files"), list)):
++            raise ValueError("diagnostic capture inventory is not validated for this environment contract")
++        receipt_inventory = receipt.get("diagnostic_capture_validation")
++        inventory_payload = {key: value for key, value in inventory.items()
++                             if key not in {"schema", "environment_contract_sha256"}}
++        if receipt_inventory != inventory_payload:
++            raise ValueError("diagnostic capture inventory differs from the terminal receipt")
++        try:
++            capture_relative = str(capture.resolve(strict=True).relative_to(
++                prediction_path.parent.resolve(strict=True)))
++        except (OSError, ValueError) as error:
++            raise ValueError("diagnostic capture is not retained under its source-bound case") from error
++        capture_hash = sha256(capture)
++        if not any(isinstance(item, dict) and item.get("path") == capture_relative and
++                   item.get("sha256") == capture_hash
++                   for item in inventory["files"]):
++            raise ValueError("diagnostic capture is not listed with matching bytes in the validated inventory")
++    elif prediction_schema != "numi.cardboard.native-prediction.v1":
++        raise ValueError("prediction schema is not the cardboard native-prediction schema")
+     selector = prediction["environment"].get("NM_FEM_OPERATOR_FD_SELECTOR")
+     if not isinstance(selector, str) or not re.fullmatch(r"\d+:\d+", selector):
+         raise ValueError("prediction does not bind an operator-FD root:iteration selector")
+@@ -316,6 +384,10 @@
+         "source_snapshot": str(snapshot),
+         "prediction_selector": selector,
+         "prediction_environment": prediction["environment"],
++        "prediction_run_mode": "diagnostic" if diagnostic_prediction else "qualification",
++        "diagnostic_environment_record_sha256": (
++            sha256(prediction_path.parent / "native-environment.json")
++            if diagnostic_prediction else None),
+         "source_hashes_verified_against_prediction": checked,
+         "runtime_and_external_input_hashes_verified_against_prediction": checked_runtime,
+         "receipt_exit_code": receipt.get("exit_code"),
+--- a/matter/tools/test_cardboard_cached_operator_audit.py
++++ b/matter/tools/test_cardboard_cached_operator_audit.py
+@@ -365,6 +365,95 @@
+             self.assertEqual(binding["runtime_and_external_input_hashes_verified_against_prediction"][
+                 "external/source-build.json"]["location"], "external_input")
+ 
++    def test_diagnostic_prediction_requires_valid_contract_and_capture_inventory(self):
++        env = audit.solver_environment
++        with tempfile.TemporaryDirectory() as temp:
++            root = Path(temp)
++            snapshot = root / "snapshot"
++            case = root / "case"
++            snapshot.mkdir()
++            case.mkdir()
++            source_hashes = {}
++            registry_text = "\n".join(env.NATIVE_ENV_KEYS) + "\n"
++            for relative in audit.REQUIRED_BOUND_SOURCES:
++                path = snapshot / relative
++                path.parent.mkdir(parents=True, exist_ok=True)
++                contents = (registry_text if relative == "matter/src/runtime.mm"
++                            else ("probe source\n" if relative == "matter/tools/cardboard_probe.mm"
++                                  else "bound synthetic source\n"))
++                path.write_text(contents)
++                source_hashes[relative] = audit.sha256(path)
++            prefixes = env.create_diagnostic_capture_prefixes(
++                case, ["NM_FEM_OPERATOR_FD_CAPTURE_PATH"])
++            capture = Path(prefixes["NM_FEM_OPERATOR_FD_CAPTURE_PATH"] + ".jsonl")
++            capture.write_text("synthetic diagnostic capture\n")
++            contract = env.make_diagnostic_contract(
++                {"NM_FEM_OPERATOR_FD_SELECTOR": "2:5"}, case, prefixes)
++            inventory = env.validate_diagnostic_outputs(case, prefixes)
++            receipt_capture_validation = dict(inventory)
++            (case / "diagnostic-captures.json").write_text(json.dumps({
++                "schema": "numi.cardboard.diagnostic-capture-files.v1",
++                "environment_contract_sha256": contract["sha256"],
++                **inventory,
++            }))
++            prediction = case / "prediction.json"
++            prediction.write_text(json.dumps({
++                "schema": "numi.cardboard.native-diagnostic-prediction.v1",
++                "run_mode": "diagnostic",
++                "environment": {
++                    "NM_FEM_OPERATOR_FD_SELECTOR": "2:5",
++                    "NM_FEM_OPERATOR_FD_CAPTURE_PATH": prefixes[
++                        "NM_FEM_OPERATOR_FD_CAPTURE_PATH"],
++                },
++                "effective_native_environment_contract": contract,
++                "effective_native_environment_contract_sha256": contract["sha256"],
++                "source_snapshot": str(snapshot),
++                "inputs_sha256": source_hashes,
++            }))
++            prediction_hash = audit.sha256(prediction)
++            env.write_run_record_new(case / "native-environment.json",
++                env.make_diagnostic_run_record(
++                    contract, removed_inherited_keys=[],
++                    prediction_sha256=prediction_hash))
++            stderr = case / "stderr.log"
++            stderr.write_text(
++                'fem_operator_fd_enabled={"root":2,"iteration":5}\n'
++                'fem_operator_fd_iteration={"root":2,"newton_iteration":5,'
++                '"world_fingerprint":17,"execution_fingerprint":23,'
++                '"cached_tangent_snapshot_available":true,'
++                '"cached_tangent_snapshot_bitwise_guard_included":true,'
++                '"production_inputs_bitwise_unchanged":true,'
++                '"environments":[{"epsilon_pairs":[{"input_integrity_flag":1},'
++                '{"input_integrity_flag":1}]}]}\n')
++            receipt = case / "receipt.json"
++            receipt.write_text(json.dumps({
++                "exit_code": 2, "timed_out": False, "run_mode": "diagnostic",
++                "prediction_sha256": prediction_hash,
++                "capture_sha256": audit.sha256(capture),
++                "diagnostic_capture_validation": receipt_capture_validation,
++            }))
++            binding = audit.bind_inputs(capture, prediction, receipt, stderr, 0)
++            self.assertEqual(binding["prediction_run_mode"], "diagnostic")
++            self.assertEqual(binding["receipt_exit_code"], 2)
++
++            environment_record = case / "native-environment.json"
++            environment_record.rename(case / "native-environment.saved")
++            with self.assertRaisesRegex(ValueError, "lacks its native environment record"):
++                audit.bind_inputs(capture, prediction, receipt, stderr, 0)
++            (case / "native-environment.saved").rename(environment_record)
++
++            malformed = json.loads(prediction.read_text())
++            malformed.pop("effective_native_environment_contract")
++            prediction.write_text(json.dumps(malformed))
++            receipt.write_text(json.dumps({
++                "exit_code": 2, "timed_out": False, "run_mode": "diagnostic",
++                "prediction_sha256": audit.sha256(prediction),
++                "capture_sha256": audit.sha256(capture),
++                "diagnostic_capture_validation": receipt_capture_validation,
++            }))
++            with self.assertRaisesRegex(ValueError, "invalid diagnostic environment binding"):
++                audit.bind_inputs(capture, prediction, receipt, stderr, 0)
++
+ 
+ if __name__ == "__main__":
+     unittest.main()

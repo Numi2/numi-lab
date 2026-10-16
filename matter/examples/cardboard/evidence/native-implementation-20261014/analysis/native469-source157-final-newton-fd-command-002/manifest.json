@@ -1,0 +1,11 @@
+{
+  "files_sha256": {
+    "README.md": "78c79c88ddcdabd2ac22254030477544c2882558397e3769d8e13106476fa6b2",
+    "initial-effective-environment.json": "068aac1b96bc41ea5ea65321e845ec6bcd770247f266191c0b0b3688aaaaabb7",
+    "inputs/initial-effective-environment.json": "068aac1b96bc41ea5ea65321e845ec6bcd770247f266191c0b0b3688aaaaabb7",
+    "inputs/native468-independent-audit-report.json": "d2fdc4b06b90407585909dd6ce9b319ab40da3d60acee720c3ddcf68252686de",
+    "inputs/native468-root-complete-report.json": "33893ec1bead16307ce5aed3dc9bc1d023feec37baff6b253c8e8ee5032ced38",
+    "native-469-command.json": "bd06928508eff13b08359b44f32e0ff4dc447c8df31d6f8ecbda558c25c47674",
+    "parent-binding.json": "431feea9292ae7eb0df0fe2224c044d0ae179950bbd86734be372a6327ac4e12"
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "returncode": 1,
+  "reason": "Initial portable test assumed1e-12 derivative accuracy. Actual FP64/MP root-row discrepancy maxabs5.2682e-8 and relative4.5342e-9; user gate is1e-6. Solver projection gates unchanged."
+}

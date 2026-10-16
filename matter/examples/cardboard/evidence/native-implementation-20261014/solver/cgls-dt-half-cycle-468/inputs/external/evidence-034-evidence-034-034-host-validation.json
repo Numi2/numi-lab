@@ -1,0 +1,44 @@
+{
+  "schema": "numi.cardboard.source154_host_validation.v1",
+  "binary_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/numi-matter-cardboard-probe",
+  "binary_sha256": "d9d6d24da3467b4616a75a65e6cbbe9c28b1c20bc348576d8e58ae81b3864c65",
+  "help_newton_range": "1..128",
+  "valid_128_compile_only": {
+    "status": "compile_only",
+    "compiled_newton_iteration_budget": 128,
+    "compiled_local_material_newton_iterations": [
+      32,
+      32,
+      32
+    ],
+    "physical_validation": false,
+    "accepted_steps": 0,
+    "compiled_world_fingerprint": 18424858654715171865
+  },
+  "invalid_bounds": [
+    {
+      "value": 0,
+      "exit_code": 1,
+      "expected_message": "global Newton iterations must be 1..128",
+      "output_directory_created": false,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "0f33fe6a1cf0d709a17f5214aa0e2ab7ca942fd832b41fc1d08dc60744a63016"
+    },
+    {
+      "value": 129,
+      "exit_code": 1,
+      "expected_message": "global Newton iterations must be 1..128",
+      "output_directory_created": false,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "0f33fe6a1cf0d709a17f5214aa0e2ab7ca942fd832b41fc1d08dc60744a63016"
+    }
+  ],
+  "cgls_restart_and_physics_unchanged": {
+    "fgmres_restart": 16,
+    "fgmres_budget": 1024,
+    "local_material_iterations": 32,
+    "residual_tolerance": "1e-6",
+    "same_mesh": "nx8/ny2/thickness1",
+    "native_execution": false
+  }
+}

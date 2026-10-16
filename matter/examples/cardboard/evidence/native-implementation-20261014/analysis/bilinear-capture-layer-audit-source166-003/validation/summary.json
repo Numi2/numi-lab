@@ -1,0 +1,1357 @@
+{
+  "schema": "numi.cardboard.source166003-full-reader-regression-audit.v1",
+  "classification": "CPU full-reader regressions of an independent reference Jacobian fix; no native execution or physical qualification",
+  "source166_003": {
+    "reader_sha256": "45f8fa26edb1222c61faaf6a2cfb05afb14476b4949b00e1700a34168802d939",
+    "reference_sha256": "abb2f33b00fd2fbac0097c35814833dbe957313a8a0cc65da3a70c030e8f1a0e",
+    "base_source166_002_reference_sha256": "ea5cba69f600f446cc1c129b03bf1fa578d4f26d2d0d62fa1e63b4fa4c8248d5",
+    "patch_scope": "only the independent reference Jacobian FB output row and a new MP regression test; rationalized residual value and strict gates unchanged"
+  },
+  "mp_witness": {
+    "report": "/Users/home/cardboard-implementation-20261014/analysis/native469-independent-projection-002/run-sealed002/report.json",
+    "report_sha256": "f4ce185b3cf9e7b06eacf5db7292b48fbcf6830848f7916259214121af2f2f13",
+    "states": "/Users/home/cardboard-implementation-20261014/analysis/native469-independent-projection-002/run-sealed002/mp_states.npz",
+    "states_sha256": "674488b4a68b189ee0a17c2f332baa7cd6172d08ed3c12308b12d022493ac7a7"
+  },
+  "runs": [
+    {
+      "case": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419",
+      "output": "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-003/validation/regression419-005",
+      "scope": {
+        "environment": 0,
+        "control": 1,
+        "newton": 48,
+        "tets": 1920,
+        "nodes": 882,
+        "dt_s": 9.999999747378752e-05
+      },
+      "capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+      "prediction_sha256": "41b37af2747cfa551fae60eaddd7681cd7c7dbc859a402e641677ec23bd957d6",
+      "receipt_sha256": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d",
+      "output_manifest_sha256": "6f0e8f76a04cad44107a4f5bd15be5abfd06d6b0eb64a1a4554792050cf6528c",
+      "report_sha256": "265b3671d7dc7a6499c60506bb6a251b4fbd93b3ab66e558079638c16c9702a0",
+      "arrays_sha256": "6d84944c7eb1b203dcb75d102e3ba55985bac819743c4a37a759825125208642",
+      "five_state_projection": [
+        {
+          "state": 0,
+          "valid": 1728,
+          "rows": 1728,
+          "failure_count": 0,
+          "failures": [],
+          "max_scaled_residual": 1.9965211331745533e-12,
+          "max_dynamic_correction": 1.067312320402794e-11
+        },
+        {
+          "state": 1,
+          "valid": 1710,
+          "rows": 1728,
+          "failure_count": 18,
+          "failures": [
+            {
+              "tet": 482,
+              "reason": "tight diagnostic residual descent stalled at residual 2.200964332809728e-12, correction 4.068240326413295e-16"
+            },
+            {
+              "tet": 484,
+              "reason": "tight diagnostic residual descent stalled at residual 6.6823829314766438e-12, correction 2.9208306244707966e-16"
+            },
+            {
+              "tet": 485,
+              "reason": "tight diagnostic residual descent stalled at residual 2.2010974069784411e-12, correction 1.5089317186446624e-16"
+            },
+            {
+              "tet": 498,
+              "reason": "tight diagnostic residual descent stalled at residual 2.0927947364433748e-12, correction 5.1974054459249126e-16"
+            },
+            {
+              "tet": 506,
+              "reason": "tight diagnostic residual descent stalled at residual 1.450497182358785e-10, correction 2.1915616049970401e-16"
+            },
+            {
+              "tet": 508,
+              "reason": "tight diagnostic residual descent stalled at residual 3.8496531778049448e-11, correction 2.8523500426521146e-16"
+            },
+            {
+              "tet": 509,
+              "reason": "tight diagnostic residual descent stalled at residual 7.4023663013535772e-11, correction 6.1904936694644998e-16"
+            },
+            {
+              "tet": 727,
+              "reason": "tight diagnostic residual descent stalled at residual 2.2633414741006273e-12, correction 3.1882453820890694e-16"
+            },
+            {
+              "tet": 752,
+              "reason": "tight diagnostic residual descent stalled at residual 2.2160058362288072e-12, correction 6.3915856509105839e-16"
+            },
+            {
+              "tet": 1440,
+              "reason": "tight diagnostic residual descent stalled at residual 2.2502101426072001e-12, correction 1.6283316219146772e-16"
+            },
+            {
+              "tet": 1441,
+              "reason": "tight diagnostic residual descent stalled at residual 1.5516790770463013e-11, correction 9.7640001182944047e-16"
+            },
+            {
+              "tet": 1443,
+              "reason": "tight diagnostic residual descent stalled at residual 2.2508769936932932e-12, correction 1.138226052410746e-16"
+            },
+            {
+              "tet": 1464,
+              "reason": "tight diagnostic residual descent stalled at residual 2.9427039024941913e-12, correction 4.0603741956766124e-16"
+            },
+            {
+              "tet": 1465,
+              "reason": "tight diagnostic residual descent stalled at residual 7.3996979712566568e-11, correction 3.5512046722378154e-16"
+            },
+            {
+              "tet": 1467,
+              "reason": "tight diagnostic residual descent stalled at residual 3.3306690738754696e-12, correction 4.1924549909760207e-16"
+            },
+            {
+              "tet": 1640,
+              "reason": "tight diagnostic residual descent stalled at residual 2.0233441409806533e-12, correction 8.0614584151609329e-16"
+            },
+            {
+              "tet": 1784,
+              "reason": "tight diagnostic residual descent stalled at residual 2.0079311224968123e-12, correction 1.4039011180009663e-15"
+            },
+            {
+              "tet": 1786,
+              "reason": "tight diagnostic residual descent stalled at residual 2.3407569317418621e-12, correction 3.433288385225194e-16"
+            }
+          ],
+          "max_scaled_residual": 1.992381736697245e-12,
+          "max_dynamic_correction": 1.3351292081859653e-12
+        },
+        {
+          "state": 2,
+          "valid": 1715,
+          "rows": 1728,
+          "failure_count": 13,
+          "failures": [
+            {
+              "tet": 360,
+              "reason": "tight diagnostic residual descent stalled at residual 2.1679042555859346e-12, correction 2.3566304125642755e-16"
+            },
+            {
+              "tet": 485,
+              "reason": "tight diagnostic residual descent stalled at residual 1.5817954544486615e-11, correction 7.1357017119581132e-16"
+            },
+            {
+              "tet": 506,
+              "reason": "tight diagnostic residual descent stalled at residual 3.2577658676622061e-11, correction 3.1603883140590911e-16"
+            },
+            {
+              "tet": 508,
+              "reason": "tight diagnostic residual descent stalled at residual 2.9798656708936459e-12, correction 4.1155811769190316e-16"
+            },
+            {
+              "tet": 509,
+              "reason": "tight diagnostic residual descent stalled at residual 3.2547297229552989e-11, correction 2.0229787898051668e-16"
+            },
+            {
+              "tet": 606,
+              "reason": "tight diagnostic residual descent stalled at residual 2.1784119770682425e-12, correction 5.1696291747581795e-16"
+            },
+            {
+              "tet": 646,
+              "reason": "tight diagnostic residual descent stalled at residual 2.5246506980127048e-12, correction 5.8058583877980927e-16"
+            },
+            {
+              "tet": 1440,
+              "reason": "tight diagnostic residual descent stalled at residual 2.0046371472870207e-12, correction 5.2538013549550123e-16"
+            },
+            {
+              "tet": 1441,
+              "reason": "tight diagnostic residual descent stalled at residual 2.0088880148480612e-12, correction 2.0211181913320606e-16"
+            },
+            {
+              "tet": 1464,
+              "reason": "tight diagnostic residual descent stalled at residual 1.0363063113044175e-10, correction 3.2289126179073312e-16"
+            },
+            {
+              "tet": 1465,
+              "reason": "tight diagnostic residual descent stalled at residual 1.0363068467499148e-10, correction 4.8567512193947284e-16"
+            },
+            {
+              "tet": 1467,
+              "reason": "tight diagnostic residual descent stalled at residual 6.8073093538167997e-11, correction 1.7460027069904765e-16"
+            },
+            {
+              "tet": 1582,
+              "reason": "tight diagnostic residual descent stalled at residual 2.0909583665986235e-12, correction 3.7574466628158186e-16"
+            }
+          ],
+          "max_scaled_residual": 1.993046493235973e-12,
+          "max_dynamic_correction": 2.5973785862866073e-13
+        },
+        {
+          "state": 3,
+          "valid": 1715,
+          "rows": 1728,
+          "failure_count": 13,
+          "failures": [
+            {
+              "tet": 222,
+              "reason": "tight diagnostic residual descent stalled at residual 2.6486607012039547e-12, correction 6.3632001902967343e-16"
+            },
+            {
+              "tet": 400,
+              "reason": "tight diagnostic residual descent stalled at residual 2.184918579065402e-12, correction 3.3289289235429117e-16"
+            },
+            {
+              "tet": 485,
+              "reason": "tight diagnostic residual descent stalled at residual 5.6102513501730797e-12, correction 4.9410562918484139e-16"
+            },
+            {
+              "tet": 506,
+              "reason": "tight diagnostic residual descent stalled at residual 1.431036261368062e-11, correction 3.0603347115490319e-16"
+            },
+            {
+              "tet": 508,
+              "reason": "tight diagnostic residual descent stalled at residual 1.2449821117296048e-11, correction 4.4695133862262731e-16"
+            },
+            {
+              "tet": 509,
+              "reason": "tight diagnostic residual descent stalled at residual 3.5678683718847066e-12, correction 6.0068151102456619e-16"
+            },
+            {
+              "tet": 753,
+              "reason": "tight diagnostic residual descent stalled at residual 2.4870964621040323e-12, correction 4.8061814437740597e-16"
+            },
+            {
+              "tet": 1440,
+              "reason": "tight diagnostic residual descent stalled at residual 3.5880295187748711e-12, correction 1.9658013328475055e-16"
+            },
+            {
+              "tet": 1443,
+              "reason": "tight diagnostic residual descent stalled at residual 3.7194496406313573e-12, correction 6.4390363004289166e-16"
+            },
+            {
+              "tet": 1464,
+              "reason": "tight diagnostic residual descent stalled at residual 2.3183867369424458e-11, correction 3.726608431218998e-16"
+            },
+            {
+              "tet": 1465,
+              "reason": "tight diagnostic residual descent stalled at residual 4.0947657180662045e-11, correction 6.4873703801173901e-16"
+            },
+            {
+              "tet": 1467,
+              "reason": "tight diagnostic residual descent stalled at residual 1.2457971902966134e-11, correction 3.5691889955794038e-16"
+            },
+            {
+              "tet": 1574,
+              "reason": "tight diagnostic residual descent stalled at residual 2.2252007308745089e-12, correction 4.1611828726331122e-16"
+            }
+          ],
+          "max_scaled_residual": 1.9966311112355878e-12,
+          "max_dynamic_correction": 1.3575007954421874e-12
+        },
+        {
+          "state": 4,
+          "valid": 1716,
+          "rows": 1728,
+          "failure_count": 12,
+          "failures": [
+            {
+              "tet": 484,
+              "reason": "tight diagnostic residual descent stalled at residual 2.3974491803447831e-12, correction 7.9312148428747577e-16"
+            },
+            {
+              "tet": 485,
+              "reason": "tight diagnostic residual descent stalled at residual 2.4057038452243999e-12, correction 4.5292559826488727e-16"
+            },
+            {
+              "tet": 506,
+              "reason": "tight diagnostic residual descent stalled at residual 3.5274034347706328e-12, correction 1.8854288971171352e-16"
+            },
+            {
+              "tet": 508,
+              "reason": "tight diagnostic residual descent stalled at residual 3.6609310863155929e-12, correction 3.4177873205307123e-16"
+            },
+            {
+              "tet": 509,
+              "reason": "tight diagnostic residual descent stalled at residual 5.2210954406514356e-12, correction 1.733873933837336e-16"
+            },
+            {
+              "tet": 616,
+              "reason": "tight diagnostic residual descent stalled at residual 2.3075722673365918e-12, correction 3.7199375979704741e-16"
+            },
+            {
+              "tet": 1441,
+              "reason": "tight diagnostic residual descent stalled at residual 3.7983409713594605e-12, correction 5.0179665509379674e-16"
+            },
+            {
+              "tet": 1443,
+              "reason": "tight diagnostic residual descent stalled at residual 4.0155947341704572e-12, correction 3.5073921726661343e-16"
+            },
+            {
+              "tet": 1464,
+              "reason": "tight diagnostic residual descent stalled at residual 1.2415205426316792e-11, correction 1.9881299115896005e-16"
+            },
+            {
+              "tet": 1465,
+              "reason": "tight diagnostic residual descent stalled at residual 5.3491233493402193e-12, correction 4.6290813791108489e-16"
+            },
+            {
+              "tet": 1467,
+              "reason": "tight diagnostic residual descent stalled at residual 1.4096612511969311e-11, correction 2.3379335198608329e-16"
+            },
+            {
+              "tet": 1783,
+              "reason": "tight diagnostic residual descent stalled at residual 2.0542505802508734e-12, correction 2.0849794229709653e-16"
+            }
+          ],
+          "max_scaled_residual": 1.9916109389338877e-12,
+          "max_dynamic_correction": 4.6780422202918045e-12
+        }
+      ],
+      "center_tangent_columns": {
+        "matrix_shape": [
+          1920,
+          9,
+          9
+        ],
+        "compared_rows": 17280,
+        "finite_rows": 17280,
+        "max_valid_row_relative_l2": 6.135899309139688e-05,
+        "relative_gate": 0.001,
+        "all_rows_at_gate": true
+      },
+      "fp64_sweep": {
+        "rows": 1728,
+        "rows_with_two_adjacent_declared_grid_points_at_1e_6": 1728,
+        "all_rows_have_resolved_pair": true,
+        "rows_with_reference_pair_and_inferred_native_center_predicate_agreement": 1491,
+        "native_branch_derivative_qualified": false,
+        "grid": [
+          {
+            "epsilon": 0.00390625,
+            "power_of_two": -8,
+            "smooth_rows": 1723,
+            "rows_at_1e_6": 1143,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1723,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 9427064697263.445,
+              "max_reference_l2": 1247744849615.446,
+              "max_relative_l2": 10.02470889688367,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1727,
+            "minus_branch_preserving_rows": 1724,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1727,
+              "finite_rows": 1727,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 77549473700196.62,
+              "max_reference_l2": 1247744849615.446,
+              "max_relative_l2": 82.51047171624114,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1724,
+              "finite_rows": 1724,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 78361475093517.11,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 83.38586518625634,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 0.0009765625,
+            "power_of_two": -10,
+            "smooth_rows": 1725,
+            "rows_at_1e_6": 1242,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1725,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 999289044002.1459,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 1.0556369664697076,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1726,
+            "minus_branch_preserving_rows": 1727,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1726,
+              "finite_rows": 1726,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 22584000766707.473,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 24.03175768787551,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1727,
+              "finite_rows": 1727,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 23005894286685.348,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 24.47888497829888,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 0.000244140625,
+            "power_of_two": -12,
+            "smooth_rows": 1725,
+            "rows_at_1e_6": 1379,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1725,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 46942929432.12794,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 0.1946332826920758,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1727,
+            "minus_branch_preserving_rows": 1726,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1727,
+              "finite_rows": 1727,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 5681427406340.96,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 6.045469281942284,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1726,
+              "finite_rows": 1726,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 5707344786190.663,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 6.072938084353182,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 6.103515625e-05,
+            "power_of_two": -14,
+            "smooth_rows": 1724,
+            "rows_at_1e_6": 1581,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1724,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 12640546482.177954,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 0.1608939808345875,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1726,
+            "minus_branch_preserving_rows": 1726,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1726,
+              "finite_rows": 1726,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 1422726980501.6055,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 1.5138805997113833,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1726,
+              "finite_rows": 1726,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 1424345707128.8755,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 1.5155972322322362,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 1.52587890625e-05,
+            "power_of_two": -16,
+            "smooth_rows": 1724,
+            "rows_at_1e_6": 1666,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1724,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 13578525476.2567,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 0.02924351443786385,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1726,
+            "minus_branch_preserving_rows": 1726,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1726,
+              "finite_rows": 1726,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 355832543699.7461,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 0.378630110383959,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1726,
+              "finite_rows": 1726,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 355933703823.46094,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 0.37873739903653325,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 3.814697265625e-06,
+            "power_of_two": -18,
+            "smooth_rows": 1727,
+            "rows_at_1e_6": 1709,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1727,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 11236055.88471587,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 1.7808104236900584e-05,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1727,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 88967605766.05618,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 0.0946675710125196,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1727,
+              "finite_rows": 1727,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 88973926614.93135,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 0.09467427637162608,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 9.5367431640625e-07,
+            "power_of_two": -20,
+            "smooth_rows": 1722,
+            "rows_at_1e_6": 1717,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1722,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 701861.7448643796,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 1.2764862987113368e-06,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1725,
+            "minus_branch_preserving_rows": 1725,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1725,
+              "finite_rows": 1725,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 22242495240.759995,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 0.02366752154381757,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1725,
+              "finite_rows": 1725,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 22242886282.35559,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 0.023667937502117944,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 2.384185791015625e-07,
+            "power_of_two": -22,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 1618,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 50769.95043533439,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 4.106835102985177e-06,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 5560648446.219389,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 0.005916934224931242,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 5560697717.3042,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 0.005916937459527805,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 5.960464477539063e-08,
+            "power_of_two": -24,
+            "smooth_rows": 1726,
+            "rows_at_1e_6": 1107,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1726,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 148341.5896586983,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 2.8361628884567084e-05,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1726,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 1390232502.4298155,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 0.0014792189787178765,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1726,
+              "finite_rows": 1726,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 1390092107.5066447,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 0.0014792197430267965,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 1.4901161193847656e-08,
+            "power_of_two": -26,
+            "smooth_rows": 1727,
+            "rows_at_1e_6": 668,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1727,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 619904.892490203,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 7.348735474401481e-05,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1727,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 347376234.3101284,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 0.00036960835708455827,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1727,
+              "finite_rows": 1727,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 347780173.9477345,
+              "max_reference_l2": 1269958627094.0852,
+              "max_relative_l2": 0.0003699586319347556,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          }
+        ],
+        "scope": "Independent-reference branch only: ideal unquantized FP64 endpoints at fixed accepted history; per-tet captured direction only. Inferred native-center predicates are reported separately and are not native internal branch traces. This does not measure native FP32 noise or verify every FP64 basis column."
+      },
+      "qualification_axes": {
+        "solver_correctness": false,
+        "numerical_convergence": false,
+        "component_calibration": false,
+        "analogue_validation": false,
+        "physical_assembly": false,
+        "crush_impact_prediction": false
+      }
+    },
+    {
+      "case": "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469",
+      "output": "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-003/validation/regression469-001",
+      "scope": {
+        "environment": 0,
+        "control": 20,
+        "newton": 63,
+        "tets": 1920,
+        "nodes": 882,
+        "dt_s": 4.999999873689376e-05
+      },
+      "capture_sha256": "cf42bdb145317b24a044e8e7561a99dc987df44761b841a08d7f3b28e6cd96d2",
+      "prediction_sha256": "46c190c84814378cb5b5d0919129e3cebdeffe497af2c92747cfbce2c71982ad",
+      "receipt_sha256": "35b856b4d94bcc3acfb5e611847ecc166860a228efc81e841decec019ea7e17f",
+      "output_manifest_sha256": "b32b6658c582df91ee21584543b7b48fbfe1969fef2909695280ffa078536498",
+      "report_sha256": "2e0642b2a2277cccd6e1ed6d97a5c201fca6fb1fa28cefbd3c6f6927addf3864",
+      "arrays_sha256": "db2b54b24a81c9ac0a6b3bd7d5412ef802be831eb1247e798688079e541801e1",
+      "five_state_projection": [
+        {
+          "state": 0,
+          "valid": 1724,
+          "rows": 1728,
+          "failure_count": 4,
+          "failures": [
+            {
+              "tet": 750,
+              "reason": "tight diagnostic residual descent stalled at residual 2.1170815008669719e-12, correction 2.6687769273946615e-16"
+            },
+            {
+              "tet": 1571,
+              "reason": "tight diagnostic residual descent stalled at residual 2.245319354213528e-12, correction 4.6730737239205767e-16"
+            },
+            {
+              "tet": 1599,
+              "reason": "tight diagnostic residual descent stalled at residual 2.0005045016376851e-12, correction 4.2513274265942777e-16"
+            },
+            {
+              "tet": 1680,
+              "reason": "tight diagnostic residual descent stalled at residual 2.1414906047840083e-12, correction 2.1368802007088503e-16"
+            }
+          ],
+          "max_scaled_residual": 1.9970263527506247e-12,
+          "max_dynamic_correction": 6.31768830436025e-13
+        },
+        {
+          "state": 1,
+          "valid": 1722,
+          "rows": 1728,
+          "failure_count": 6,
+          "failures": [
+            {
+              "tet": 633,
+              "reason": "tight diagnostic residual descent stalled at residual 2.0830636403134694e-12, correction 5.6338236007137403e-16"
+            },
+            {
+              "tet": 652,
+              "reason": "tight diagnostic residual descent stalled at residual 2.5234886476179697e-12, correction 2.510665566318695e-16"
+            },
+            {
+              "tet": 681,
+              "reason": "tight diagnostic residual descent stalled at residual 2.4834751549442385e-12, correction 4.0596125385127072e-16"
+            },
+            {
+              "tet": 1317,
+              "reason": "tight diagnostic residual descent stalled at residual 2.423296511551721e-12, correction 2.5671687371888874e-16"
+            },
+            {
+              "tet": 1568,
+              "reason": "tight diagnostic residual descent stalled at residual 2.0834030986597121e-12, correction 2.7739313275837777e-16"
+            },
+            {
+              "tet": 1611,
+              "reason": "tight diagnostic residual descent stalled at residual 2.3151078347558471e-12, correction 3.2651005442214055e-16"
+            }
+          ],
+          "max_scaled_residual": 1.9935589092278028e-12,
+          "max_dynamic_correction": 2.3701385426858794e-12
+        },
+        {
+          "state": 2,
+          "valid": 1725,
+          "rows": 1728,
+          "failure_count": 3,
+          "failures": [
+            {
+              "tet": 640,
+              "reason": "tight diagnostic residual descent stalled at residual 2.266391232768629e-12, correction 7.1357168118862275e-16"
+            },
+            {
+              "tet": 680,
+              "reason": "tight diagnostic residual descent stalled at residual 2.4230125612276933e-12, correction 2.5243598526943692e-16"
+            },
+            {
+              "tet": 1751,
+              "reason": "tight diagnostic residual descent stalled at residual 2.1328465250681791e-12, correction 4.2418553661344692e-16"
+            }
+          ],
+          "max_scaled_residual": 1.988664615230574e-12,
+          "max_dynamic_correction": 1.7230321144738375e-12
+        },
+        {
+          "state": 3,
+          "valid": 1725,
+          "rows": 1728,
+          "failure_count": 3,
+          "failures": [
+            {
+              "tet": 644,
+              "reason": "tight diagnostic residual descent stalled at residual 2.0368835955516506e-12, correction 1.303832867343884e-15"
+            },
+            {
+              "tet": 789,
+              "reason": "tight diagnostic residual descent stalled at residual 2.440878582602245e-12, correction 1.0579689223675829e-15"
+            },
+            {
+              "tet": 1641,
+              "reason": "tight diagnostic residual descent stalled at residual 2.1962330074076887e-12, correction 2.1780544685017286e-16"
+            }
+          ],
+          "max_scaled_residual": 1.997177314700853e-12,
+          "max_dynamic_correction": 1.5779659290642e-12
+        },
+        {
+          "state": 4,
+          "valid": 1727,
+          "rows": 1728,
+          "failure_count": 1,
+          "failures": [
+            {
+              "tet": 1553,
+              "reason": "tight diagnostic residual descent stalled at residual 2.2660084074322172e-12, correction 2.5648111994421208e-16"
+            }
+          ],
+          "max_scaled_residual": 1.9974149792597864e-12,
+          "max_dynamic_correction": 2.0936702604072205e-13
+        }
+      ],
+      "center_tangent_columns": {
+        "matrix_shape": [
+          1920,
+          9,
+          9
+        ],
+        "compared_rows": 17280,
+        "finite_rows": 17244,
+        "max_valid_row_relative_l2": 0.0005722942085338964,
+        "relative_gate": 0.001,
+        "all_rows_at_gate": false
+      },
+      "fp64_sweep": {
+        "rows": 1728,
+        "rows_with_two_adjacent_declared_grid_points_at_1e_6": 1720,
+        "all_rows_have_resolved_pair": false,
+        "rows_with_reference_pair_and_inferred_native_center_predicate_agreement": 1367,
+        "native_branch_derivative_qualified": false,
+        "grid": [
+          {
+            "epsilon": 0.00390625,
+            "power_of_two": -8,
+            "smooth_rows": 1718,
+            "rows_at_1e_6": 1455,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1718,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 4546077233.553046,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 2.3669116484848787,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1719,
+            "minus_branch_preserving_rows": 1723,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1719,
+              "finite_rows": 1719,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 3119401924.5195932,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.9677742928157306,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1723,
+              "finite_rows": 1723,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 9091382012.187399,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 4.733421118904789,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 0.0009765625,
+            "power_of_two": -10,
+            "smooth_rows": 1720,
+            "rows_at_1e_6": 1625,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1720,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 62309294.82277679,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.134473633392234,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1722,
+            "minus_branch_preserving_rows": 1722,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1722,
+              "finite_rows": 1722,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 207392169.9810852,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.24201147586146848,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1722,
+              "finite_rows": 1722,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 207431043.70822704,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.2696075391315999,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 0.000244140625,
+            "power_of_two": -12,
+            "smooth_rows": 1718,
+            "rows_at_1e_6": 1705,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1718,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 65152.224737621415,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.00014060914040151705,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1724,
+            "minus_branch_preserving_rows": 1718,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1724,
+              "finite_rows": 1724,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 51851692.8751763,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.06050710193416964,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1718,
+              "finite_rows": 1718,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 51854113.14785044,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.060509971779552814,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 6.103515625e-05,
+            "power_of_two": -14,
+            "smooth_rows": 1721,
+            "rows_at_1e_6": 1703,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1721,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 3659.0815980534326,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 1.0792019269739376e-05,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1723,
+            "minus_branch_preserving_rows": 1722,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1723,
+              "finite_rows": 1723,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 12963296.339969892,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.015126922963476999,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1722,
+              "finite_rows": 1722,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 12963251.616804108,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.015127259362489397,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 1.52587890625e-05,
+            "power_of_two": -16,
+            "smooth_rows": 1716,
+            "rows_at_1e_6": 1512,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1716,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 1162.4526852740312,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 1.0011805351047579e-05,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1723,
+            "minus_branch_preserving_rows": 1717,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1723,
+              "finite_rows": 1723,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 3240833.1025454123,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.0037815088454696373,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1717,
+              "finite_rows": 1717,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 3241008.7834790926,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.003782121505595884,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 3.814697265625e-06,
+            "power_of_two": -18,
+            "smooth_rows": 1719,
+            "rows_at_1e_6": 1023,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1719,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 4609.535304698448,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 7.342678844970358e-05,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1724,
+            "minus_branch_preserving_rows": 1719,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1724,
+              "finite_rows": 1724,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 810031.9669651061,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.0009467028665388245,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1719,
+              "finite_rows": 1719,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 811283.0807594655,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.0009450165404876133,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 9.5367431640625e-07,
+            "power_of_two": -20,
+            "smooth_rows": 1721,
+            "rows_at_1e_6": 495,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1721,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 18745.22655988399,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.0003559819209312595,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1723,
+            "minus_branch_preserving_rows": 1722,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1723,
+              "finite_rows": 1723,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 203165.66995796908,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.0009114116284378539,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1722,
+              "finite_rows": 1722,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 196784.28595377906,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.000519075142344135,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 2.384185791015625e-07,
+            "power_of_two": -22,
+            "smooth_rows": 1721,
+            "rows_at_1e_6": 78,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1721,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 75531.90089606175,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.001363922869280241,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1723,
+            "minus_branch_preserving_rows": 1721,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1723,
+              "finite_rows": 1723,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 110468.32319736754,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.0013548097200399727,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1721,
+              "finite_rows": 1721,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 87861.23134417081,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.0036389174673458796,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 5.960464477539063e-08,
+            "power_of_two": -24,
+            "smooth_rows": 1718,
+            "rows_at_1e_6": 4,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1718,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 260452.46018268942,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.010319097420423428,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1723,
+            "minus_branch_preserving_rows": 1718,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1723,
+              "finite_rows": 1723,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 419371.95633756806,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.019402905983668665,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1718,
+              "finite_rows": 1718,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 409711.01109140326,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.0036570978576986424,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 1.4901161193847656e-08,
+            "power_of_two": -26,
+            "smooth_rows": 1721,
+            "rows_at_1e_6": 2,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1721,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 1122469.8673807452,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.014143788513482925,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1722,
+            "minus_branch_preserving_rows": 1722,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1722,
+              "finite_rows": 1722,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 1554652.1344063978,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.014434178463216329,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1722,
+              "finite_rows": 1722,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 1797707.7459431011,
+              "max_reference_l2": 24318763577.8375,
+              "max_relative_l2": 0.0290220138868545,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          }
+        ],
+        "scope": "Independent-reference branch only: ideal unquantized FP64 endpoints at fixed accepted history; per-tet captured direction only. Inferred native-center predicates are reported separately and are not native internal branch traces. This does not measure native FP32 noise or verify every FP64 basis column."
+      },
+      "qualification_axes": {
+        "solver_correctness": false,
+        "numerical_convergence": false,
+        "component_calibration": false,
+        "analogue_validation": false,
+        "physical_assembly": false,
+        "crush_impact_prediction": false
+      }
+    }
+  ],
+  "tet846_mp_state_comparison": {
+    "global_tet_id": 846,
+    "paper_row": 846,
+    "l2_absolute": 2.3728602859784407e-14,
+    "max_abs_component": 2.366162821232365e-14,
+    "interpretation": "The FP64 reader passes this point after the analytic FB-row fix; it is compared to the independent 110-digit local MP root."
+  },
+  "global_interpretation": "The analytic row resolves the independent-reference tet846 FB derivative artifact. Remaining 469 strict residual misses stay inconclusive; 419 side-state misses remain visible. All qualification axes remain false."
+}

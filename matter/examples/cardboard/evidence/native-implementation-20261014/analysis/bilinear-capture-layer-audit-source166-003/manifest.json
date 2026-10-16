@@ -1,0 +1,133 @@
+{
+  "schema": "numi.cardboard.bilinear-capture-layer-audit-source166-003.v1",
+  "classification": "reference-only FB Jacobian correction; complete 419/469 reader runs are diagnostic, not qualification",
+  "source_overlay": "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-003/source-overlay.json",
+  "source_overlay_sha256": "80cbf81d71eb3f0ac5fd8f68b51c6d15700cdb080cd0b48430267b11e311cc0f",
+  "patch_sha256": "ab49ba81d44c50922bb88804a1d496ea51281ce6a4486acd11279927c0fe3836",
+  "base_source166002_manifest_sha256": "978ed3d360db9678caff6e9b0c2ef398a1aa006688f045b0f82e8b6b5924a005",
+  "validation_summary": "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-003/validation/summary.json",
+  "validation_summary_sha256": "20be62bd67cd3a2fc83b8f7f7b8af9e345373ddb83f2889b768cec4d7ea4a5d5",
+  "input_file_hashes": {
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/prediction.json": "41b37af2747cfa551fae60eaddd7681cd7c7dbc859a402e641677ec23bd957d6",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/receipt.json": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/stderr.log": "f6fe513bfafc9ae4f4f38b2377c1cddaeb1ce78374886295cb92db2bf6c48198",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/manifest.json": "bcc9d5c5085635ea845d4d34f37bbf4c26b5af9086c15f5e02bb4597d2c2c3f5",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-003/validation/regression419-005/report.json": "265b3671d7dc7a6499c60506bb6a251b4fbd93b3ab66e558079638c16c9702a0",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-003/validation/regression419-005/arrays.npz": "6d84944c7eb1b203dcb75d102e3ba55985bac819743c4a37a759825125208642",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-003/validation/regression419-005/manifest.json": "6f0e8f76a04cad44107a4f5bd15be5abfd06d6b0eb64a1a4554792050cf6528c",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/prediction.json": "46c190c84814378cb5b5d0919129e3cebdeffe497af2c92747cfbce2c71982ad",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/receipt.json": "35b856b4d94bcc3acfb5e611847ecc166860a228efc81e841decec019ea7e17f",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/stderr.log": "036e1a7371c78dcd459718f081170aea445c4234a34884cbd4ebc31fefcfb3bb",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/output/manifest.json": "142fa1f08cf14ea4eb0e77039174a2c25030e14c0d38d6c9874a06e561bd3f6f",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-003/validation/regression469-001/report.json": "2e0642b2a2277cccd6e1ed6d97a5c201fca6fb1fa28cefbd3c6f6927addf3864",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-003/validation/regression469-001/arrays.npz": "db2b54b24a81c9ac0a6b3bd7d5412ef802be831eb1247e798688079e541801e1",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-003/validation/regression469-001/manifest.json": "b32b6658c582df91ee21584543b7b48fbfe1969fef2909695280ffa078536498",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-002/manifest.json": "978ed3d360db9678caff6e9b0c2ef398a1aa006688f045b0f82e8b6b5924a005",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-002/candidate/matter/tools/cardboard_bilinear_fp64_reference.py": "ea5cba69f600f446cc1c129b03bf1fa578d4f26d2d0d62fa1e63b4fa4c8248d5",
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-independent-projection-002/manifest.json": "9b1e94196fff4b7dee99a60abfbd470d0bc8168cd8934499b345c96200e64835",
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-independent-projection-002/run-sealed002/report.json": "f4ce185b3cf9e7b06eacf5db7292b48fbcf6830848f7916259214121af2f2f13",
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-independent-projection-002/run-sealed002/mp_states.npz": "674488b4a68b189ee0a17c2f332baa7cd6172d08ed3c12308b12d022493ac7a7",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157/matter/tools/cardboard_cached_operator_audit.py": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38"
+  },
+  "changed_files": [
+    "matter/tools/cardboard_bilinear_fp64_reference.py",
+    "matter/tools/test_reference_fb_jacobian.py"
+  ],
+  "unchanged_reader_and_existing_contract_test": [
+    "matter/tools/cardboard_bilinear_capture_layers.py",
+    "matter/tools/test_cardboard_bilinear_capture_layers.py"
+  ],
+  "validation": {
+    "unittest_count": 10,
+    "unittest_returncode": 0,
+    "py_compile_returncode": 0,
+    "full_reader_runs": 2,
+    "native_runs": 0,
+    "gpu_runs": 0
+  },
+  "package_files": {
+    "README.md": {
+      "sha256": "41748cdaac30cff598a7751bd8eb410c6cd338d49095830e8fdfa2f581140ebf",
+      "bytes": 4434
+    },
+    "candidate/matter/tools/cardboard_bilinear_capture_layers.py": {
+      "sha256": "45f8fa26edb1222c61faaf6a2cfb05afb14476b4949b00e1700a34168802d939",
+      "bytes": 24729
+    },
+    "candidate/matter/tools/cardboard_bilinear_fp64_reference.py": {
+      "sha256": "abb2f33b00fd2fbac0097c35814833dbe957313a8a0cc65da3a70c030e8f1a0e",
+      "bytes": 17623
+    },
+    "candidate/matter/tools/test_cardboard_bilinear_capture_layers.py": {
+      "sha256": "f5ae31dd095713654ee2896280aabc1dcd2b229e2058ecb6913310df5715d2d2",
+      "bytes": 3896
+    },
+    "candidate/matter/tools/test_reference_fb_jacobian.py": {
+      "sha256": "3ff0427cf65497f7f8d7916e1143e894de4c615944f1dab10f0c1aaa9baf0c31",
+      "bytes": 3292
+    },
+    "overlay.patch": {
+      "sha256": "ab49ba81d44c50922bb88804a1d496ea51281ce6a4486acd11279927c0fe3836",
+      "bytes": 5427
+    },
+    "reference-provenance.json": {
+      "sha256": "6711478c9a8c05d37d02a1f29fc6772dc87a43cc66e3b611cadebf3058674d35",
+      "bytes": 2616
+    },
+    "seal_package.py": {
+      "sha256": "914c5ced58f9d64c97c0522d3a703b46377e0315101c060d03f1351afe526226",
+      "bytes": 5683
+    },
+    "source-overlay.json": {
+      "sha256": "80cbf81d71eb3f0ac5fd8f68b51c6d15700cdb080cd0b48430267b11e311cc0f",
+      "bytes": 1963
+    },
+    "validation/commands.json": {
+      "sha256": "1026ebd2de436a4b83bcb2faf912dbca183e83fe34e1fe7f4fe10ac732363fea",
+      "bytes": 2403
+    },
+    "validation/pycompile.log": {
+      "sha256": "87b184764f9a4e91dd61207eb673c79af213b8d4509aeefceae96f73d8ce9196",
+      "bytes": 108
+    },
+    "validation/regression-verifier.log": {
+      "sha256": "8c2aff251dbfc779e0a20ae1387361ed5fb6bb32eb81296aa36fe59140d543f8",
+      "bytes": 235
+    },
+    "validation/regression419-005/arrays.npz": {
+      "sha256": "6d84944c7eb1b203dcb75d102e3ba55985bac819743c4a37a759825125208642",
+      "bytes": 6589528
+    },
+    "validation/regression419-005/report.json": {
+      "sha256": "265b3671d7dc7a6499c60506bb6a251b4fbd93b3ab66e558079638c16c9702a0",
+      "bytes": 386293
+    },
+    "validation/regression469-001/arrays.npz": {
+      "sha256": "db2b54b24a81c9ac0a6b3bd7d5412ef802be831eb1247e798688079e541801e1",
+      "bytes": 6612654
+    },
+    "validation/regression469-001/report.json": {
+      "sha256": "2e0642b2a2277cccd6e1ed6d97a5c201fca6fb1fa28cefbd3c6f6927addf3864",
+      "bytes": 397149
+    },
+    "validation/summary.json": {
+      "sha256": "20be62bd67cd3a2fc83b8f7f7b8af9e345373ddb83f2889b768cec4d7ea4a5d5",
+      "bytes": 64065
+    },
+    "validation/unit-tests.log": {
+      "sha256": "1da9831134bf8c691b70286e1f9017cdecfc91d2ddeb4dca7ac051b3d2919f53",
+      "bytes": 2449
+    },
+    "verify_regressions.py": {
+      "sha256": "4feab785b94536e1e761200f69da2e30aa5cf6676136af36aa1e249daea0c7ea",
+      "bytes": 6820
+    }
+  },
+  "limits": [
+    "The rationalized residual value and all strict residual/correction gates are unchanged.",
+    "469 retains four center strict-floor projection failures and state-specific failures; 419 retains side-state failures.",
+    "All solver correctness, numerical convergence, calibration, analogue, assembly, and crush-impact qualification axes remain false.",
+    "The tangent matrix comparison is an independent FP64 reader check of all nine columns, not a native finite-difference/noise-floor qualification."
+  ]
+}

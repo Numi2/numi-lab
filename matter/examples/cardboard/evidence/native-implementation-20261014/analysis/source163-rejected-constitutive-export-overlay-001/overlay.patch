@@ -1,0 +1,39 @@
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -12425,6 +12425,17 @@
+             << jsonEscape(snapshot.femRegionalGalerkinDiagnosticsMessage) << "\",\n"
+             << "  \"regional_readback_bytes\": "
+             << snapshot.femRegionalGalerkinDiagnosticReadbackBytes << ",\n"
++            << "  \"linearization_constitutive_inputs\": {\n"
++            << "    \"available\": "
++            << (snapshot.femRegionalGalerkinDiagnosticsAvailable ? "true" : "false") << ",\n"
++            << "    \"material_state_stride\": " << snapshot.materialStateStride << ",\n"
++            << "    \"tetrahedra_per_environment\": "
++            << compiled.world.dispatch.tetrahedronCount << ",\n"
++            << "    \"history_kind\": \"accepted_history_at_AP_linearization_not_current_projected_state\",\n"
++            << "    \"F_layout\": \"environment_tetrahedron_row_float4_high_plus_low_in_material_frame\",\n"
++            << "    \"scheduler_layout\": \"environment_tetrahedron_uint32_rate_exponent\",\n"
++            << "    \"exact_newton_correction_available\": false,\n"
++            << "    \"perturbed_projected_states_available\": false\n  },\n"
+             << "  \"restart_augmentation\": {\n"
+             << "    \"diagnostics_available\": "
+             << (snapshot.femRegionalRestartAugmentationDiagnosticsAvailable ? "true" : "false") << ",\n"
+@@ -12475,6 +12486,18 @@
+                 << sha256Arena(values) << "\"}";
+         };
+         writeArena("candidate_nodes", snapshot.femRegionalGalerkinLinearizationNodes);
++        // These arrays were already read back under Runtime's existing
++        // regional 64 MiB bound. Preserve the exact AP linearization inputs
++        // instead of leaving them only in the in-memory snapshot. This is
++        // accepted constitutive history, never a current projected state.
++        writeArena("linearization_accepted_material_history",
++                   snapshot.femRegionalGalerkinLinearizationMaterialState);
++        writeArena("linearization_scheduler_exponents",
++                   snapshot.femRegionalGalerkinLinearizationSchedulerExponent);
++        writeArena("linearization_F_high",
++                   snapshot.femRegionalGalerkinLinearizationLocalFHigh);
++        writeArena("linearization_F_low",
++                   snapshot.femRegionalGalerkinLinearizationLocalFLow);
+         writeArena("P", snapshot.femRegionalGalerkinBasisP);
+         writeArena("effective_P", snapshot.femRegionalGalerkinEffectiveBasisP);
+         writeArena("AP", snapshot.femRegionalGalerkinOperatorAP);

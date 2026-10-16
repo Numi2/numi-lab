@@ -1,0 +1,6 @@
+{
+  "exit_code": 1,
+  "stage": "compile_commands selection",
+  "observed_exception": "AssertionError: two compile commands for same probe.mm (probe and box-driver targets), expected one. CPU full/empty writer O0/O3 checks had already passed.",
+  "source_or_native_changed": false
+}

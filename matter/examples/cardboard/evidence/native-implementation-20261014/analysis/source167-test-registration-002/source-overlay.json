@@ -1,0 +1,63 @@
+{
+  "schema": "numi.cardboard.source-overlay.v1",
+  "overlay_id": "source167-test-registration-002",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "patch_sha256": "55b00ec93793e995a9a9e0860eefc67a0bfa4c96d1ee9b0a5be13b005579f1df",
+  "files": [
+    {
+      "path": "matter/CMakeLists.txt",
+      "base_sha256": "2763c841225947f88218450536f77d428009a8878bc053bd278b2c353e262293",
+      "overlay_sha256": "4a5eb0b1f72adf2bf9fee7d6572f46bff08d9fe50e2418c99d10f633c1902295"
+    },
+    {
+      "path": "matter/tools/cardboard_coupon_resume_check.cpp",
+      "base_sha256": null,
+      "overlay_sha256": "1497708f9a6d5b05131ca76eaaf05763fd557f9bc1825e58d46413dc6bd0fe49"
+    },
+    {
+      "path": "matter/tools/cardboard_inside_clearance_check.cpp",
+      "base_sha256": null,
+      "overlay_sha256": "90102e27bb58b049a3985df0d3f54a13696cf4fe7dd7b3291a7b0a0661f52d15"
+    },
+    {
+      "path": "matter/tools/cardboard_regional_consumer_capture_check.cpp",
+      "base_sha256": null,
+      "overlay_sha256": "6a3b84df691f4d03676d20f111497487df8bab0a00a52f9f167c42a8ecc65435"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_clearance_memory_check.cpp",
+      "base_sha256": null,
+      "overlay_sha256": "257398cb058aa2d899a8754cef9aee0562bc38b936826e723b32b408f7a8f471"
+    }
+  ],
+  "test_origins": [
+    {
+      "origin": "/Users/home/cardboard-implementation-20261014/analysis/coupon-accepted-resume-overlay-002/tests/coupon_resume_contract_test.cpp",
+      "origin_sha256": "3f12233c3b9b8eb5f805fe91e0ec97a47ff7a937711c873fbf731012998df85f",
+      "path": "matter/tools/cardboard_coupon_resume_check.cpp",
+      "transformation": "checkout-local include only"
+    },
+    {
+      "origin": "/Users/home/cardboard-implementation-20261014/analysis/source159-inside-surface-role-map-overlay-003/tests/inside_clearance_check.cpp",
+      "origin_sha256": "90102e27bb58b049a3985df0d3f54a13696cf4fe7dd7b3291a7b0a0661f52d15",
+      "path": "matter/tools/cardboard_inside_clearance_check.cpp",
+      "transformation": "byte-identical"
+    },
+    {
+      "origin": "/Users/home/cardboard-implementation-20261014/analysis/source159-inside-surface-role-map-overlay-003/tests/shipping_clearance_memory_check.cpp",
+      "origin_sha256": "275cd6e18becdd75faecca4229f1805094a4de0817910704a635c1e4b0abae27",
+      "path": "matter/tools/cardboard_shipping_clearance_memory_check.cpp",
+      "transformation": "checkout-local include only"
+    },
+    {
+      "origin": "/Users/home/cardboard-implementation-20261014/analysis/selector5-restart-consumer-capture-source160-002/tests/regional_consumer_capture_contract_test.cpp",
+      "origin_sha256": "6a3b84df691f4d03676d20f111497487df8bab0a00a52f9f167c42a8ecc65435",
+      "path": "matter/tools/cardboard_regional_consumer_capture_check.cpp",
+      "transformation": "byte-identical"
+    }
+  ],
+  "scope": "Register retained CPU contract checks as portable native CMake targets; keep assertions active in Release checks. Consumer source-contract checker receives its required exact runtime source argument.",
+  "native_execution_performed": false,
+  "physical_qualification": false,
+  "supersedes": "/Users/home/cardboard-implementation-20261014/analysis/source167-test-registration-001"
+}

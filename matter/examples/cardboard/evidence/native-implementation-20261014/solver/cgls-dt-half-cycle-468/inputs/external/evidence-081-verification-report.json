@@ -1,0 +1,139 @@
+{
+  "artifacts_sha256": {
+    "NumiMatter.metallib": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114",
+    "NumiMatterPhysicalStateDigest.metallib": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+    "numi-matter-cardboard-probe": "19492c5cff7dd94148335f7ed53a358bbcebcaa163241cfd8012abbac9f765e0"
+  },
+  "build_metadata_files": {
+    "CMakeCache.txt": "c1eb143c01191b44269eb76e6e7e79461723d8a51a9bcabf8255d22734aef496",
+    "compile_commands.json": "2789b25029e0e81b6ac938f0aed53763de29b733dd110f5c6013bfb2990ed53a",
+    "provenance-command-0.log": "ba3163e0466ad515da9bf5e313d8abef7b45cbf1bde28f27e54d5b110ef5529d",
+    "provenance-command-1.log": "a6b693f7290d28caf192bf7bce5432d96cdbe322d73ad6b40912a9de0f72f234",
+    "source-build.json": "78cbe2fac180130174e0585ea2398b7c7f07b2b7a5227ed99f1cd8ee9e6581b5"
+  },
+  "cmake_source_relative_to_root": "matter",
+  "compile_only_material_input_hashes": {
+    "matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter": {
+      "byte_identical": true,
+      "parent_sha256": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a",
+      "source157_sha256": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a"
+    },
+    "matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter": {
+      "byte_identical": true,
+      "parent_sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+      "source157_sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9"
+    }
+  },
+  "compile_only_protocols": {
+    "128": {
+      "accepted_steps": 0,
+      "compiled_pack_sha256": "494a67ec1e4794e158aaa708e178050f9a1f63fe99189527e7df1f1238e95db6",
+      "compiled_world_fingerprint": 18424858654715171865,
+      "manifest_sha256": "5006f0584d2486f18fbec6ad690c7cf7a57960f8cdc18f64f90d6d72e1c2df32",
+      "newton_iteration_budget": 128,
+      "nodes": 882,
+      "result_sha256": "518781ddfef801c7419f4cd11eefd468a3b27b289578647f4cf486a092bcf7ef",
+      "runtime_execution": false,
+      "status": "compile_only",
+      "tetrahedra": 1920
+    },
+    "64": {
+      "accepted_steps": 0,
+      "compiled_pack_sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+      "compiled_world_fingerprint": 8485105279886344921,
+      "manifest_sha256": "2903111d9aa3a5f8e19b9d061be2da5b17e15dd846e9b82fa930f1ee1b75791e",
+      "newton_iteration_budget": 64,
+      "nodes": 882,
+      "result_sha256": "c4821c575d261163648cb87f0beb48f793c0bd0839e7400898a328573e826849",
+      "runtime_execution": false,
+      "status": "compile_only",
+      "tetrahedra": 1920
+    }
+  },
+  "configure_support_count": 1034,
+  "jobs": 2,
+  "metallib_source154_comparison": {
+    "NumiMatter.metallib": {
+      "byte_identical_to_source154": true,
+      "bytes": 6976068,
+      "source154_sha256": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114",
+      "source157_sha256": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114"
+    },
+    "NumiMatterPhysicalStateDigest.metallib": {
+      "byte_identical_to_source154": true,
+      "bytes": 80076,
+      "source154_sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+      "source157_sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729"
+    }
+  },
+  "native_or_gpu_execution": "not performed",
+  "parent_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154",
+  "physical_steps": 0,
+  "qualification_boundary": "compile-only protocol admission is not a physical/native trajectory validation",
+  "recovery_metadata_sha256": "d9f7f7b7f111e077c80c14db6f7ec8c4873717fd373fe614fb2bc0015d698301",
+  "resource_preflight_after_build": {
+    "df_k_sha256": "5c3972bfe1d7070a9d94ca8aae324fbb7dda076efeb4588207d58f196d8d5c8e",
+    "minimum_free_space_floor_bytes": 536870912,
+    "record_path": "/Users/home/cardboard-implementation-20261014/analysis/source157-telemetry-native-build-001/resource-preflight.txt"
+  },
+  "schema": "numi.cardboard.source157.native-build-verification.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "source157_build_record_path": "/Users/home/cardboard-implementation-20261014/analysis/source157-telemetry-native-build-001/build-metadata/source-build.json",
+  "source157_build_record_sha256": "78cbe2fac180130174e0585ea2398b7c7f07b2b7a5227ed99f1cd8ee9e6581b5",
+  "source157_frozen_sha256": "2976540a244ba9af686e8033783a3d18da1ac48b030a949b2109fe81108f7cc0",
+  "source157_overlay_sha256": "1d5393fc37e73fba464463221707ac6ce817a91b482f72e267b25040c192de68",
+  "source_bound_build_record_sha256": "78cbe2fac180130174e0585ea2398b7c7f07b2b7a5227ed99f1cd8ee9e6581b5",
+  "source_bound_source_count": 787,
+  "source_diff_vs_parent": [
+    "matter/tools/cardboard_probe.mm"
+  ],
+  "target": "numi-matter-cardboard-probe",
+  "topology_comparison": {
+    "jobs_source154": 4,
+    "jobs_source157": 2,
+    "same_cmake_source_relative": "matter",
+    "same_release_config_and_compile_commands": true,
+    "same_target": true,
+    "source154_build_command": [
+      "cmake",
+      "--build",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154",
+      "--target",
+      "numi-matter-cardboard-probe",
+      "-j",
+      "4"
+    ],
+    "source154_cmake_command": [
+      "cmake",
+      "-S",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154/matter",
+      "-B",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+      "-DPython3_EXECUTABLE=/Users/home/.pyenv/versions/3.10.12/bin/python3"
+    ],
+    "source157_build_command": [
+      "cmake",
+      "--build",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-157",
+      "--target",
+      "numi-matter-cardboard-probe",
+      "-j",
+      "2"
+    ],
+    "source157_cmake_command": [
+      "cmake",
+      "-S",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157/matter",
+      "-B",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-157",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+      "-DPython3_EXECUTABLE=/Users/home/.pyenv/versions/3.10.12/bin/python3"
+    ]
+  },
+  "warnings": [
+    "Build completed with the two existing Metal sharedValid/refinementValid initialization warnings in fgmres.metalinc, plus one existing unused-function warning in cardboard_probe.mm."
+  ]
+}

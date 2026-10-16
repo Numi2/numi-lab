@@ -20,6 +20,7 @@ from typing import Any
 import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import ArpackNoConvergence, eigsh, svds
+import cardboard_solver_environment as solver_environment
 
 
 CAPTURE_SCHEMA = "numi.cardboard.fem-newton-capture.v1"
@@ -214,10 +215,84 @@ def bind_inputs(capture: Path, prediction_path: Path, receipt_path: Path,
                 source_snapshot_override: Path | None = None) -> dict:
     prediction = json.loads(prediction_path.read_text())
     receipt = json.loads(receipt_path.read_text())
-    if prediction.get("schema") != "numi.cardboard.native-prediction.v1":
-        raise ValueError("prediction schema is not the cardboard native-prediction schema")
+    prediction_schema = prediction.get("schema")
+    diagnostic_prediction = (
+        prediction_schema == "numi.cardboard.native-diagnostic-prediction.v1")
+    if prediction_schema not in {
+            "numi.cardboard.native-prediction.v1",
+            "numi.cardboard.native-diagnostic-prediction.v1"}:
+        raise ValueError("prediction schema is not a supported cardboard native prediction")
     if not isinstance(prediction.get("environment"), dict):
         raise ValueError("prediction has no sealed environment map")
+    environment_record = None
+    if diagnostic_prediction:
+        if prediction.get("run_mode") != "diagnostic":
+            raise ValueError("diagnostic prediction has the wrong run mode")
+        if receipt.get("run_mode") != "diagnostic":
+            raise ValueError("diagnostic receipt does not identify a diagnostic run")
+        environment_path = prediction_path.parent / "native-environment.json"
+        if not environment_path.is_file():
+            raise ValueError("diagnostic prediction lacks its native environment record")
+        try:
+            environment_record = solver_environment.validate_run_record(
+                json.loads(environment_path.read_text()))
+            prediction_raw = prediction_path.read_bytes()
+            solver_environment.validate_prediction_binding(
+                environment_record, prediction_raw)
+            if environment_record.get("prediction_sha256") != sha256(prediction_path):
+                raise ValueError("diagnostic environment record prediction hash mismatch")
+            if environment_record.get("schema") != \
+                    solver_environment.DIAGNOSTIC_RUN_SCHEMA:
+                raise ValueError("diagnostic prediction is paired with a non-diagnostic environment record")
+            contract = environment_record["contract"]
+            if prediction.get("effective_native_environment_contract_sha256") != \
+                    contract.get("sha256"):
+                raise ValueError("diagnostic prediction environment contract hash mismatch")
+            fd_capture_prefix = contract.get("capture_prefixes", {}).get(
+                "NM_FEM_OPERATOR_FD_CAPTURE_PATH")
+            if (not isinstance(fd_capture_prefix, str) or
+                    prediction["environment"].get(
+                        "NM_FEM_OPERATOR_FD_CAPTURE_PATH") != fd_capture_prefix or
+                    capture.resolve(strict=True) != Path(fd_capture_prefix).resolve(strict=True)):
+                raise ValueError("diagnostic capture is not the exact operator-FD path in the environment contract")
+            diagnostic_snapshot = (source_snapshot_override or
+                Path(prediction.get("source_snapshot", "")))
+            if not diagnostic_snapshot.is_dir():
+                raise ValueError("diagnostic prediction does not identify an available source snapshot")
+            solver_environment.validate_source_registry(diagnostic_snapshot)
+        except (OSError, ValueError, TypeError) as error:
+            raise ValueError(f"invalid diagnostic environment binding: {error}") from error
+        diagnostic_inventory_path = prediction_path.parent / "diagnostic-captures.json"
+        if not diagnostic_inventory_path.is_file():
+            raise ValueError("diagnostic prediction lacks validated capture inventory")
+        try:
+            inventory = json.loads(diagnostic_inventory_path.read_text())
+        except (OSError, json.JSONDecodeError) as error:
+            raise ValueError("diagnostic capture inventory is unreadable") from error
+        if (not isinstance(inventory, dict) or
+                inventory.get("schema") != "numi.cardboard.diagnostic-capture-files.v1" or
+                inventory.get("status") != "validated" or
+                inventory.get("environment_contract_sha256") !=
+                    environment_record["contract_sha256"] or
+                not isinstance(inventory.get("files"), list)):
+            raise ValueError("diagnostic capture inventory is not validated for this environment contract")
+        receipt_inventory = receipt.get("diagnostic_capture_validation")
+        inventory_payload = {key: value for key, value in inventory.items()
+                             if key not in {"schema", "environment_contract_sha256"}}
+        if receipt_inventory != inventory_payload:
+            raise ValueError("diagnostic capture inventory differs from the terminal receipt")
+        try:
+            capture_relative = str(capture.resolve(strict=True).relative_to(
+                prediction_path.parent.resolve(strict=True)))
+        except (OSError, ValueError) as error:
+            raise ValueError("diagnostic capture is not retained under its source-bound case") from error
+        capture_hash = sha256(capture)
+        if not any(isinstance(item, dict) and item.get("path") == capture_relative and
+                   item.get("sha256") == capture_hash
+                   for item in inventory["files"]):
+            raise ValueError("diagnostic capture is not listed with matching bytes in the validated inventory")
+    elif prediction_schema != "numi.cardboard.native-prediction.v1":
+        raise ValueError("prediction schema is not the cardboard native-prediction schema")
     selector = prediction["environment"].get("NM_FEM_OPERATOR_FD_SELECTOR")
     if not isinstance(selector, str) or not re.fullmatch(r"\d+:\d+", selector):
         raise ValueError("prediction does not bind an operator-FD root:iteration selector")
@@ -316,6 +391,10 @@ def bind_inputs(capture: Path, prediction_path: Path, receipt_path: Path,
         "source_snapshot": str(snapshot),
         "prediction_selector": selector,
         "prediction_environment": prediction["environment"],
+        "prediction_run_mode": "diagnostic" if diagnostic_prediction else "qualification",
+        "diagnostic_environment_record_sha256": (
+            sha256(prediction_path.parent / "native-environment.json")
+            if diagnostic_prediction else None),
         "source_hashes_verified_against_prediction": checked,
         "runtime_and_external_input_hashes_verified_against_prediction": checked_runtime,
         "receipt_exit_code": receipt.get("exit_code"),

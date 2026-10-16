@@ -1,0 +1,15 @@
+test_empty_branch_side_is_inconclusive (cardboard-implementation-20261014.analysis.bilinear-capture-layer-audit-source166-003.candidate.matter.tools.test_cardboard_bilinear_capture_layers.CaptureLayerContracts) ... ok
+test_epsilon_work_bound_precedes_io (cardboard-implementation-20261014.analysis.bilinear-capture-layer-audit-source166-003.candidate.matter.tools.test_cardboard_bilinear_capture_layers.CaptureLayerContracts) ... ok
+test_identity_rejects_other_environment_hole_and_bad_fingerprint (cardboard-implementation-20261014.analysis.bilinear-capture-layer-audit-source166-003.candidate.matter.tools.test_cardboard_bilinear_capture_layers.CaptureLayerContracts) ... ok
+test_invalid_reference_row_does_not_disappear_from_gate (cardboard-implementation-20261014.analysis.bilinear-capture-layer-audit-source166-003.candidate.matter.tools.test_cardboard_bilinear_capture_layers.CaptureLayerContracts) ... ok
+test_nonfinite_report_fields_retain_explicit_locations_and_do_not_change_gates (cardboard-implementation-20261014.analysis.bilinear-capture-layer-audit-source166-003.candidate.matter.tools.test_cardboard_bilinear_capture_layers.CaptureLayerContracts) ... ok
+test_uniform_stress_gather_cancels_shared_face (cardboard-implementation-20261014.analysis.bilinear-capture-layer-audit-source166-003.candidate.matter.tools.test_cardboard_bilinear_capture_layers.CaptureLayerContracts) ... ok
+test_zero_reference_stays_inconclusive (cardboard-implementation-20261014.analysis.bilinear-capture-layer-audit-source166-003.candidate.matter.tools.test_cardboard_bilinear_capture_layers.CaptureLayerContracts) ... ok
+test_source166_residual_value_and_gate_constants_are_unchanged (cardboard-implementation-20261014.analysis.bilinear-capture-layer-audit-source166-003.candidate.matter.tools.test_reference_fb_jacobian.StableFischerBurmeisterJacobian) ... ok
+test_tet846_elastic_seed_fb_row_matches_80_digit_authored_derivative (cardboard-implementation-20261014.analysis.bilinear-capture-layer-audit-source166-003.candidate.matter.tools.test_reference_fb_jacobian.StableFischerBurmeisterJacobian) ... ok
+test_tet846_resolved_mp_root_fb_row_matches_80_digit_authored_derivative (cardboard-implementation-20261014.analysis.bilinear-capture-layer-audit-source166-003.candidate.matter.tools.test_reference_fb_jacobian.StableFischerBurmeisterJacobian) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.313s
+
+OK

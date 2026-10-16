@@ -1,0 +1,9 @@
+{
+  "base": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "file": "matter/tools/cardboard_probe.mm",
+  "base_sha256": "8bea98e513afca4f283e61a25aed25e8c55f5c8bd628a720654e9253fc10f3cd",
+  "candidate_sha256": "8ae6e1eba89b84dd4298ca33fb2dcb8c05dccc0fabcb845b4b7ac1178ba19d91",
+  "patch_sha256": "63419e9fdeea367e7687d8c1915e5683b325170eb98abc510a0f319cf2d3f1a5",
+  "physics_changed": false,
+  "extra_gpu_readback_bytes": 0
+}

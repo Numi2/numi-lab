@@ -1,0 +1,11 @@
+# Selected-zero CGLS seed audit
+
+This is a source-flow audit, not a runtime measurement. It answers whether the `selected == 0` check in `nm_fgmres_base_cgls_seed_residual` is consistent with the normal converged-environment path.
+
+In frozen source157, `nm_fgmres_begin` clears the environment's least-squares coefficients for each cycle, then records zero used columns when its residual is already converged (see `matter/src/metal/fgmres.metalinc:1305-1316` and `1380-1385`). Runtime still dispatches the cycle-zero accumulation. `nm_fgmres_accumulate` starts each row value at zero and overwrites the solution on cycle zero with the sum over `used` columns; when `used == 0`, that sum is exactly zero (`fgmres.metalinc:6148-6176`). The field accumulation follows the same pattern (`fgmres.metalinc:6179-6206`). Thus a normally indexed, converged environment has a zero FGMRES correction before the inactive CGLS seed is validated.
+
+The limit matters: both accumulation kernels return without writing for a node whose incidence range has `objectIndex == NM_INVALID_INDEX` or lies outside `dispatch.objectCount` (`fgmres.metalinc:6160-6165`, `6191-6196`). The candidate seed kernel then requires exact-zero `x0` for `selected == 0` (`candidate/matter/src/metal/base_cgls.metalinc:131-138`). The invariant is therefore source-supported for the admitted one-object FEM layout when all FEM rows have valid incidence ranges; this audit does not prove it for orphan/unreferenced rows. Such rows should remain a fail-closed case rather than being treated as evidence that every arbitrary buffer value is zero.
+
+The installer itself returns before reading its row inputs when the per-environment policy marker is not armed (`candidate/matter/src/metal/base_cgls_runtime.metalinc`, installer body). For armed environments, slot16 is bound to `state.femBaseCGLSB`, which the seed kernel writes as masked `b-A*x0` and the CGLS recurrence treats as its fixed right-hand side. Slot17 selects warm refinement or legacy installation. Both are bound in the runtime and the sole checker caller.
+
+Frozen-source binding: `source-right-grip-telemetry-157`, frozen-source SHA-256 `2976540a244ba9af686e8033783a3d18da1ac48b030a949b2109fe81108f7cc0`. The relevant source files are individually hashed in `source-overlay.json`.

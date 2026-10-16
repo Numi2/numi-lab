@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/home/cardboard-implementation-20261014/validate_source163_attempt002.py", line 118, in <module>
+    run(clean,'probe-syntax')
+  File "/Users/home/cardboard-implementation-20261014/validate_source163_attempt002.py", line 75, in run
+    assert q.returncode==0,(name,q.stderr)
+AssertionError: ('probe-syntax', '/Users/home/cardboard-implementation-20261014/analysis/source163-rejected-constitutive-export-overlay-001/candidate/matter/tools/cardboard_probe.mm:7:10: fatal error: \'cardboard_glue_mesh.hpp\' file not found\n    7 | #include "cardboard_glue_mesh.hpp"\n      |          ^~~~~~~~~~~~~~~~~~~~~~~~~\n1 error generated.\n')

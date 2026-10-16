@@ -1,0 +1,212 @@
+{
+  "error": "AssertionError({'extra': ['matter/CMakeLists.txt.orig', 'matter/include/numi/matter/regional_consumer_capture.hpp.orig', 'matter/src/runtime.mm.orig', 'matter/tools/cardboard_bilinear_capture_layers.py.orig', 'matter/tools/cardboard_bilinear_fp64_reference.py.orig', 'matter/tools/cardboard_cached_operator_audit.py.orig', 'matter/tools/cardboard_convergence.py.orig', 'matter/tools/cardboard_coupon_resume.hpp.orig', 'matter/tools/cardboard_coupon_resume_check.cpp.orig', 'matter/tools/cardboard_inside_clearance.hpp.orig', 'matter/tools/cardboard_inside_clearance_check.cpp.orig', 'matter/tools/cardboard_probe.mm.orig', 'matter/tools/cardboard_regional_consumer_capture_check.cpp.orig', 'matter/tools/cardboard_resolution_study.py.orig', 'matter/tools/cardboard_shipping_clearance_memory_check.cpp.orig', 'matter/tools/cardboard_shipping_memory.hpp.orig', 'matter/tools/cardboard_solver_environment.py.orig', 'matter/tools/cardboard_source_bound_run.py.orig', 'matter/tools/test_bct_source_bound_harness.py.orig', 'matter/tools/test_cardboard_bilinear_capture_layers.py.orig', 'matter/tools/test_cardboard_cached_operator_audit.py.orig', 'matter/tools/test_cardboard_checkpoint_pending_capture.py.orig', 'matter/tools/test_cardboard_convergence.py.orig', 'matter/tools/test_cardboard_resolution_study.py.orig', 'matter/tools/test_cardboard_solver_environment.py.orig'], 'missing': []})",
+  "patches": [
+    {
+      "spec": {
+        "package": "/Users/home/cardboard-implementation-20261014/analysis/selector5-restart-consumer-capture-source160-002",
+        "manifest": "manifest.json",
+        "manifest_sha256": "0363e4cd3ea4fbc014127eb4e51c3ab16177d091687c7a1cfa2bdec727ff7a36",
+        "patch": "source-overlay.patch",
+        "patch_sha256": "21de1e88925af6307696536cf7336d570a1270dc6304ed90060b4ac7ff117f21",
+        "paths": [
+          "matter/include/numi/matter/regional_consumer_capture.hpp",
+          "matter/src/runtime.mm"
+        ]
+      },
+      "command": [
+        "patch",
+        "-p1",
+        "--batch",
+        "--fuzz=0",
+        "-V",
+        "never",
+        "-i",
+        "/Users/home/cardboard-implementation-20261014/analysis/selector5-restart-consumer-capture-source160-002/source-overlay.patch"
+      ],
+      "returncode": 0
+    },
+    {
+      "spec": {
+        "package": "/Users/home/cardboard-implementation-20261014/analysis/cardboard-effective-solver-environment-source161-002",
+        "manifest": "source-overlay.json",
+        "manifest_sha256": "83d85efab279dd23c4be513c9c34ee77369ec36e1579b5bcba38625c86de3b90",
+        "patch": "source-overlay.patch",
+        "patch_sha256": "154c1ce851219615237b6d63c9bf9d543c6750fd9164c42e370932a916150789",
+        "paths": [
+          "matter/tools/cardboard_cached_operator_audit.py",
+          "matter/tools/cardboard_convergence.py",
+          "matter/tools/cardboard_resolution_study.py",
+          "matter/tools/cardboard_solver_environment.py",
+          "matter/tools/cardboard_source_bound_run.py",
+          "matter/tools/test_bct_source_bound_harness.py",
+          "matter/tools/test_cardboard_cached_operator_audit.py",
+          "matter/tools/test_cardboard_convergence.py",
+          "matter/tools/test_cardboard_resolution_study.py",
+          "matter/tools/test_cardboard_solver_environment.py"
+        ]
+      },
+      "command": [
+        "patch",
+        "-p1",
+        "--batch",
+        "--fuzz=0",
+        "-V",
+        "never",
+        "-i",
+        "/Users/home/cardboard-implementation-20261014/analysis/cardboard-effective-solver-environment-source161-002/source-overlay.patch"
+      ],
+      "returncode": 0
+    },
+    {
+      "spec": {
+        "package": "/Users/home/cardboard-implementation-20261014/analysis/diagnostic-checkpoint-prefix-and-portable-tests-002",
+        "manifest": "manifest.json",
+        "manifest_sha256": "1e112957dab5e0bedc6864763a8b267ac570bcfde79fac805d14af86669ec0e6",
+        "patch": "overlay.patch",
+        "patch_sha256": "514a4a664fd3def4d6de039e4247a263f5b9b4bf64dd9a80f5e0b04e30f53e3e",
+        "paths": [
+          "matter/tools/cardboard_solver_environment.py",
+          "matter/tools/cardboard_source_bound_run.py",
+          "matter/tools/test_cardboard_checkpoint_pending_capture.py",
+          "matter/tools/test_cardboard_resolution_study.py",
+          "matter/tools/test_cardboard_solver_environment.py"
+        ]
+      },
+      "command": [
+        "patch",
+        "-p1",
+        "--batch",
+        "--fuzz=0",
+        "-V",
+        "never",
+        "-i",
+        "/Users/home/cardboard-implementation-20261014/analysis/diagnostic-checkpoint-prefix-and-portable-tests-002/overlay.patch"
+      ],
+      "returncode": 0
+    },
+    {
+      "spec": {
+        "package": "/Users/home/cardboard-implementation-20261014/analysis/coupon-accepted-resume-overlay-002",
+        "manifest": "overlay-manifest.json",
+        "manifest_sha256": "703cd37fe28c85cfa9093c6752dd8733f9590f195820eb86c054fcb68a6452f7",
+        "patch": "overlay.patch",
+        "patch_sha256": "14b20ccb42594e005e17b9851b4c69af1a35fd0ba11453981a3d14e70ae81a02",
+        "paths": [
+          "matter/tools/cardboard_coupon_resume.hpp",
+          "matter/tools/cardboard_probe.mm"
+        ]
+      },
+      "command": [
+        "patch",
+        "-p1",
+        "--batch",
+        "--fuzz=0",
+        "-V",
+        "never",
+        "-i",
+        "/Users/home/cardboard-implementation-20261014/analysis/coupon-accepted-resume-overlay-002/overlay.patch"
+      ],
+      "returncode": 0
+    },
+    {
+      "spec": {
+        "package": "/Users/home/cardboard-implementation-20261014/analysis/source159-inside-surface-role-map-overlay-003",
+        "manifest": "source-overlay.json",
+        "manifest_sha256": "aa89086262e8d9289318d22e1f831f10dab5e891e35463b5a61b5a86ff5c3d46",
+        "patch": "source-overlay.patch",
+        "patch_sha256": "074fca9d448b8d79d255faede66bdfe257aa108aca99c58ca8019c99511a2c67",
+        "paths": [
+          "matter/tools/cardboard_inside_clearance.hpp",
+          "matter/tools/cardboard_probe.mm",
+          "matter/tools/cardboard_shipping_memory.hpp"
+        ]
+      },
+      "command": [
+        "patch",
+        "-p1",
+        "--batch",
+        "--fuzz=0",
+        "-V",
+        "never",
+        "-i",
+        "/Users/home/cardboard-implementation-20261014/analysis/source159-inside-surface-role-map-overlay-003/source-overlay.patch"
+      ],
+      "returncode": 0
+    },
+    {
+      "spec": {
+        "package": "/Users/home/cardboard-implementation-20261014/analysis/source163-rejected-constitutive-export-overlay-001",
+        "manifest": "manifest.json",
+        "manifest_sha256": "485317cacab26661cb93f4d468d422573844813b0c0e3d4a6d694e1e250b848e",
+        "patch": "overlay.patch",
+        "patch_sha256": "63419e9fdeea367e7687d8c1915e5683b325170eb98abc510a0f319cf2d3f1a5",
+        "paths": [
+          "matter/tools/cardboard_probe.mm"
+        ]
+      },
+      "command": [
+        "patch",
+        "-p1",
+        "--batch",
+        "--fuzz=0",
+        "-V",
+        "never",
+        "-i",
+        "/Users/home/cardboard-implementation-20261014/analysis/source163-rejected-constitutive-export-overlay-001/overlay.patch"
+      ],
+      "returncode": 0
+    },
+    {
+      "spec": {
+        "package": "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-002",
+        "manifest": "manifest.json",
+        "manifest_sha256": "978ed3d360db9678caff6e9b0c2ef398a1aa006688f045b0f82e8b6b5924a005",
+        "patch": "overlay.patch",
+        "patch_sha256": "07f6f6057e269dd060710af690346a32fc9f3b5f05eee649ffa2bf6b9aa4ca9b",
+        "paths": [
+          "matter/tools/cardboard_bilinear_capture_layers.py",
+          "matter/tools/cardboard_bilinear_fp64_reference.py",
+          "matter/tools/test_cardboard_bilinear_capture_layers.py"
+        ]
+      },
+      "command": [
+        "patch",
+        "-p1",
+        "--batch",
+        "--fuzz=0",
+        "-V",
+        "never",
+        "-i",
+        "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-002/overlay.patch"
+      ],
+      "returncode": 0
+    },
+    {
+      "spec": {
+        "package": "/Users/home/cardboard-implementation-20261014/analysis/source167-test-registration-001",
+        "manifest": "source-overlay.json",
+        "manifest_sha256": "1af028dd282830e6dae55336d15141dc4e788d9c95e7733e23b7dc9984a3e975",
+        "patch": "overlay.patch",
+        "patch_sha256": "125cde4a128a3d427be0b76de95a239f13a9e9700acc185839fe1ee6b5e17288",
+        "paths": [
+          "matter/CMakeLists.txt",
+          "matter/tools/cardboard_coupon_resume_check.cpp",
+          "matter/tools/cardboard_inside_clearance_check.cpp",
+          "matter/tools/cardboard_regional_consumer_capture_check.cpp",
+          "matter/tools/cardboard_shipping_clearance_memory_check.cpp"
+        ]
+      },
+      "command": [
+        "patch",
+        "-p1",
+        "--batch",
+        "--fuzz=0",
+        "-V",
+        "never",
+        "-i",
+        "/Users/home/cardboard-implementation-20261014/analysis/source167-test-registration-001/overlay.patch"
+      ],
+      "returncode": 0
+    }
+  ]
+}

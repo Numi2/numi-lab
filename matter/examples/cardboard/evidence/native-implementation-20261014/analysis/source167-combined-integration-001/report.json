@@ -1,0 +1,237 @@
+{
+  "schema": "numi.cardboard.combined-source-integration.v1",
+  "created_at_utc": "2026-10-16T02:16:26.325459+00:00",
+  "base": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "target": "/Users/home/cardboard-implementation-20261014/snapshots/source-diagnostic-and-resume-167",
+  "overlay_spec_sha256": "8d6a1e3a3a73dd81a21cd846e9224e522f58535f7326abd88b3ae6ca954ec8b4",
+  "patches": [
+    {
+      "spec": {
+        "package": "/Users/home/cardboard-implementation-20261014/analysis/selector5-restart-consumer-capture-source160-002",
+        "manifest": "manifest.json",
+        "manifest_sha256": "0363e4cd3ea4fbc014127eb4e51c3ab16177d091687c7a1cfa2bdec727ff7a36",
+        "patch": "source-overlay.patch",
+        "patch_sha256": "21de1e88925af6307696536cf7336d570a1270dc6304ed90060b4ac7ff117f21",
+        "paths": [
+          "matter/include/numi/matter/regional_consumer_capture.hpp",
+          "matter/src/runtime.mm"
+        ]
+      },
+      "command": [
+        "patch",
+        "-p1",
+        "--batch",
+        "--fuzz=0",
+        "-i",
+        "/Users/home/cardboard-implementation-20261014/analysis/selector5-restart-consumer-capture-source160-002/source-overlay.patch"
+      ],
+      "returncode": 0
+    },
+    {
+      "spec": {
+        "package": "/Users/home/cardboard-implementation-20261014/analysis/cardboard-effective-solver-environment-source161-002",
+        "manifest": "source-overlay.json",
+        "manifest_sha256": "83d85efab279dd23c4be513c9c34ee77369ec36e1579b5bcba38625c86de3b90",
+        "patch": "source-overlay.patch",
+        "patch_sha256": "154c1ce851219615237b6d63c9bf9d543c6750fd9164c42e370932a916150789",
+        "paths": [
+          "matter/tools/cardboard_cached_operator_audit.py",
+          "matter/tools/cardboard_convergence.py",
+          "matter/tools/cardboard_resolution_study.py",
+          "matter/tools/cardboard_solver_environment.py",
+          "matter/tools/cardboard_source_bound_run.py",
+          "matter/tools/test_bct_source_bound_harness.py",
+          "matter/tools/test_cardboard_cached_operator_audit.py",
+          "matter/tools/test_cardboard_convergence.py",
+          "matter/tools/test_cardboard_resolution_study.py",
+          "matter/tools/test_cardboard_solver_environment.py"
+        ]
+      },
+      "command": [
+        "patch",
+        "-p1",
+        "--batch",
+        "--fuzz=0",
+        "-i",
+        "/Users/home/cardboard-implementation-20261014/analysis/cardboard-effective-solver-environment-source161-002/source-overlay.patch"
+      ],
+      "returncode": 0
+    },
+    {
+      "spec": {
+        "package": "/Users/home/cardboard-implementation-20261014/analysis/diagnostic-checkpoint-prefix-and-portable-tests-002",
+        "manifest": "manifest.json",
+        "manifest_sha256": "1e112957dab5e0bedc6864763a8b267ac570bcfde79fac805d14af86669ec0e6",
+        "patch": "overlay.patch",
+        "patch_sha256": "514a4a664fd3def4d6de039e4247a263f5b9b4bf64dd9a80f5e0b04e30f53e3e",
+        "paths": [
+          "matter/tools/cardboard_solver_environment.py",
+          "matter/tools/cardboard_source_bound_run.py",
+          "matter/tools/test_cardboard_checkpoint_pending_capture.py",
+          "matter/tools/test_cardboard_resolution_study.py",
+          "matter/tools/test_cardboard_solver_environment.py"
+        ]
+      },
+      "command": [
+        "patch",
+        "-p1",
+        "--batch",
+        "--fuzz=0",
+        "-i",
+        "/Users/home/cardboard-implementation-20261014/analysis/diagnostic-checkpoint-prefix-and-portable-tests-002/overlay.patch"
+      ],
+      "returncode": 0
+    },
+    {
+      "spec": {
+        "package": "/Users/home/cardboard-implementation-20261014/analysis/coupon-accepted-resume-overlay-002",
+        "manifest": "overlay-manifest.json",
+        "manifest_sha256": "703cd37fe28c85cfa9093c6752dd8733f9590f195820eb86c054fcb68a6452f7",
+        "patch": "overlay.patch",
+        "patch_sha256": "14b20ccb42594e005e17b9851b4c69af1a35fd0ba11453981a3d14e70ae81a02",
+        "paths": [
+          "matter/tools/cardboard_coupon_resume.hpp",
+          "matter/tools/cardboard_probe.mm"
+        ]
+      },
+      "command": [
+        "patch",
+        "-p1",
+        "--batch",
+        "--fuzz=0",
+        "-i",
+        "/Users/home/cardboard-implementation-20261014/analysis/coupon-accepted-resume-overlay-002/overlay.patch"
+      ],
+      "returncode": 0
+    },
+    {
+      "spec": {
+        "package": "/Users/home/cardboard-implementation-20261014/analysis/source159-inside-surface-role-map-overlay-003",
+        "manifest": "source-overlay.json",
+        "manifest_sha256": "aa89086262e8d9289318d22e1f831f10dab5e891e35463b5a61b5a86ff5c3d46",
+        "patch": "source-overlay.patch",
+        "patch_sha256": "074fca9d448b8d79d255faede66bdfe257aa108aca99c58ca8019c99511a2c67",
+        "paths": [
+          "matter/tools/cardboard_inside_clearance.hpp",
+          "matter/tools/cardboard_probe.mm",
+          "matter/tools/cardboard_shipping_memory.hpp"
+        ]
+      },
+      "command": [
+        "patch",
+        "-p1",
+        "--batch",
+        "--fuzz=0",
+        "-i",
+        "/Users/home/cardboard-implementation-20261014/analysis/source159-inside-surface-role-map-overlay-003/source-overlay.patch"
+      ],
+      "returncode": 0
+    },
+    {
+      "spec": {
+        "package": "/Users/home/cardboard-implementation-20261014/analysis/source163-rejected-constitutive-export-overlay-001",
+        "manifest": "manifest.json",
+        "manifest_sha256": "485317cacab26661cb93f4d468d422573844813b0c0e3d4a6d694e1e250b848e",
+        "patch": "overlay.patch",
+        "patch_sha256": "63419e9fdeea367e7687d8c1915e5683b325170eb98abc510a0f319cf2d3f1a5",
+        "paths": [
+          "matter/tools/cardboard_probe.mm"
+        ]
+      },
+      "command": [
+        "patch",
+        "-p1",
+        "--batch",
+        "--fuzz=0",
+        "-i",
+        "/Users/home/cardboard-implementation-20261014/analysis/source163-rejected-constitutive-export-overlay-001/overlay.patch"
+      ],
+      "returncode": 0
+    },
+    {
+      "spec": {
+        "package": "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-002",
+        "manifest": "manifest.json",
+        "manifest_sha256": "978ed3d360db9678caff6e9b0c2ef398a1aa006688f045b0f82e8b6b5924a005",
+        "patch": "overlay.patch",
+        "patch_sha256": "07f6f6057e269dd060710af690346a32fc9f3b5f05eee649ffa2bf6b9aa4ca9b",
+        "paths": [
+          "matter/tools/cardboard_bilinear_capture_layers.py",
+          "matter/tools/cardboard_bilinear_fp64_reference.py",
+          "matter/tools/test_cardboard_bilinear_capture_layers.py"
+        ]
+      },
+      "command": [
+        "patch",
+        "-p1",
+        "--batch",
+        "--fuzz=0",
+        "-i",
+        "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-002/overlay.patch"
+      ],
+      "returncode": 0
+    },
+    {
+      "spec": {
+        "package": "/Users/home/cardboard-implementation-20261014/analysis/source167-test-registration-001",
+        "manifest": "source-overlay.json",
+        "manifest_sha256": "1af028dd282830e6dae55336d15141dc4e788d9c95e7733e23b7dc9984a3e975",
+        "patch": "overlay.patch",
+        "patch_sha256": "125cde4a128a3d427be0b76de95a239f13a9e9700acc185839fe1ee6b5e17288",
+        "paths": [
+          "matter/CMakeLists.txt",
+          "matter/tools/cardboard_coupon_resume_check.cpp",
+          "matter/tools/cardboard_inside_clearance_check.cpp",
+          "matter/tools/cardboard_regional_consumer_capture_check.cpp",
+          "matter/tools/cardboard_shipping_clearance_memory_check.cpp"
+        ]
+      },
+      "command": [
+        "patch",
+        "-p1",
+        "--batch",
+        "--fuzz=0",
+        "-i",
+        "/Users/home/cardboard-implementation-20261014/analysis/source167-test-registration-001/overlay.patch"
+      ],
+      "returncode": 0
+    }
+  ],
+  "base_files_verified": 1821,
+  "selected_source_files": 801,
+  "configure_support_files": 1035,
+  "frozen_source_sha256": "edcf8eae331c8d0cff1bc5631840216f47197446c79010905869f57fb26f3116",
+  "configure_support_sha256": "cf5d038118ac3fb081ec0000922f03df9797dca9cfbf6e01ed2e479621d92bd0",
+  "changed_or_added": {
+    "matter/CMakeLists.txt": "8f39e8c6c18cdd0786fbb98a3edc9a959ff0f6c01ce2c2bbb15c34c70f4c3365",
+    "matter/include/numi/matter/regional_consumer_capture.hpp": "f97bdbd1e6729861d1f232f6262ef08c405bbe0410a7c5172add180044c662e9",
+    "matter/src/runtime.mm": "ab916ed67b669769bf8bbb8e10974782f62c1245f23434d69ae9f9d45aef6748",
+    "matter/tools/__pycache__/cardboard_source_bound_build.cpython-310.pyc": "fc2e739e6b55cdf4903b0d44f5078fa82e8571c8b3d642400227b6fdb5dfa027",
+    "matter/tools/cardboard_bilinear_capture_layers.py": "45f8fa26edb1222c61faaf6a2cfb05afb14476b4949b00e1700a34168802d939",
+    "matter/tools/cardboard_bilinear_fp64_reference.py": "ea5cba69f600f446cc1c129b03bf1fa578d4f26d2d0d62fa1e63b4fa4c8248d5",
+    "matter/tools/cardboard_cached_operator_audit.py": "4a7e9c0cbf09eee0ad1f8f5b2b09314a2c0789a908aaab530b56cfff6a1c82ff",
+    "matter/tools/cardboard_convergence.py": "0956116875659a9ade219fea89ad7cd549008d1017bdad8cffe68dd32a1dbbc5",
+    "matter/tools/cardboard_coupon_resume.hpp": "bdb41b93688e924b950aebc68aea19e5cc0988f618430b3e0e38634d37e1d282",
+    "matter/tools/cardboard_coupon_resume_check.cpp": "1497708f9a6d5b05131ca76eaaf05763fd557f9bc1825e58d46413dc6bd0fe49",
+    "matter/tools/cardboard_inside_clearance.hpp": "afe2c24cb7ecc879e771d9d4f8779adb9472593e68df015c0200ebc5b9235272",
+    "matter/tools/cardboard_inside_clearance_check.cpp": "90102e27bb58b049a3985df0d3f54a13696cf4fe7dd7b3291a7b0a0661f52d15",
+    "matter/tools/cardboard_probe.mm": "448f8b4f59a5b287d7cb81e36e6fa077687b407a43e63a45d173393340e16bd1",
+    "matter/tools/cardboard_probe.mm.orig": "fa805b5909361fef4cd3bdd585b89fd75f6249a1feefcfb405da7e597af9db04",
+    "matter/tools/cardboard_regional_consumer_capture_check.cpp": "6a3b84df691f4d03676d20f111497487df8bab0a00a52f9f167c42a8ecc65435",
+    "matter/tools/cardboard_resolution_study.py": "bf5d248c2d96e7975eba8d7e8f6dd285be779f3e61ab3dfc7299f92afb2545c8",
+    "matter/tools/cardboard_shipping_clearance_memory_check.cpp": "257398cb058aa2d899a8754cef9aee0562bc38b936826e723b32b408f7a8f471",
+    "matter/tools/cardboard_shipping_memory.hpp": "6eeee9ef31c4c763a4d2a6ffd4c1edf18996bd2006aa56d94b5ef40fa98ca5af",
+    "matter/tools/cardboard_solver_environment.py": "42c0e016b00c765950b8371e543504d2676cc9dd8fc8a559f2c9540b212b586b",
+    "matter/tools/cardboard_source_bound_run.py": "6ccd93a467860df58d8552b6f14c7d1ea77be2a896c06a77bfd9ad25392ceb9e",
+    "matter/tools/test_bct_source_bound_harness.py": "dbcd2ada16ae012f83119d62d8e98f76416c553f8f40b3957e703f1538ee39fe",
+    "matter/tools/test_cardboard_bilinear_capture_layers.py": "f5ae31dd095713654ee2896280aabc1dcd2b229e2058ecb6913310df5715d2d2",
+    "matter/tools/test_cardboard_cached_operator_audit.py": "9aa1e9b07833bc74ee299d5bddf2d38bd62519705d63524efaefeb3a01dda9be",
+    "matter/tools/test_cardboard_checkpoint_pending_capture.py": "bc4cccfdd1a131dd11ed45e49621c98c27fb260e0b23b1a6c782b01118faa364",
+    "matter/tools/test_cardboard_convergence.py": "15dee2bb9f837c676b3e4262584e90c8d3c97636674ca406167a20018802bc41",
+    "matter/tools/test_cardboard_resolution_study.py": "fc1552a33cc86f59164a26cce17ed527fff0f1e690e62847b482a4fb0e7e1ba2",
+    "matter/tools/test_cardboard_solver_environment.py": "64679cdccd1fd431ec7639300c822775e718f0b03c521c2d3c24601e34ce6f7b"
+  },
+  "removed": [],
+  "native_execution_performed": false,
+  "physics_qualification": false
+}

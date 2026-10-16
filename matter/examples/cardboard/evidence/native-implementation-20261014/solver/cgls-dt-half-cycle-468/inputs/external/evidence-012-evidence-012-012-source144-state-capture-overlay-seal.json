@@ -1,0 +1,62 @@
+{
+  "base_runtime_sha256": "01162665b98a7f88d4d6341e2bc6ea50afb9f5d831b04fe446ce27d34e7ad5ec",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143",
+  "candidate_runtime_sha256": "1a9fcbdda74c921a36b6529033851ae47a460ce51c8373e3794cc8967c5eca7f",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "9216f2317f56125dae23a00250e2ce3c1cf32573e9e46b5acab7333ac1263130",
+      "size_bytes": 3678
+    },
+    {
+      "path": "candidate/matter/src/runtime.mm",
+      "sha256": "1a9fcbdda74c921a36b6529033851ae47a460ce51c8373e3794cc8967c5eca7f",
+      "size_bytes": 1850188
+    },
+    {
+      "path": "generation-report.json",
+      "sha256": "51c00c5b781edcc68919493787e11d43299b3f28ecf203991c5f3bebea53003f",
+      "size_bytes": 701
+    },
+    {
+      "path": "overlay-manifest.json",
+      "sha256": "51c00c5b781edcc68919493787e11d43299b3f28ecf203991c5f3bebea53003f",
+      "size_bytes": 701
+    },
+    {
+      "path": "overlay.patch",
+      "sha256": "c679ee17e25a50c2f4be5cd08ab6220c3687a19f46f7cf591623516cac505bb8",
+      "size_bytes": 33439
+    },
+    {
+      "path": "tests/test_source_contract.py",
+      "sha256": "8af1234979a60fa63f4f7fb878817217969a926f749cdeab5d4a83f4ca812d05",
+      "size_bytes": 5758
+    },
+    {
+      "path": "tests/test_state_capture_reader.py",
+      "sha256": "4e3781963c4780a9ac4b5da0ec3f3177603d6037030a5b298657ff690028da0d",
+      "size_bytes": 8876
+    },
+    {
+      "path": "tools/make_overlay.py",
+      "sha256": "6f84e4412b5e154b388f3e31c65d58eb5f14b8e794a295cc953944eeab1a2212",
+      "size_bytes": 34616
+    },
+    {
+      "path": "tools/read_state_capture.py",
+      "sha256": "91ba3e3bca1d7ef9fa35c1784ebf6296c9b6917b39aeed4ca40dba381386f9d9",
+      "size_bytes": 15850
+    },
+    {
+      "path": "validation.txt",
+      "sha256": "3dadf20e1a97039b092ce7bbc494520523a5d81b14a0635d54e44cf5b9e102be",
+      "size_bytes": 1026
+    }
+  ],
+  "native_or_build_qualification": false,
+  "overlay_patch_sha256": "c679ee17e25a50c2f4be5cd08ab6220c3687a19f46f7cf591623516cac505bb8",
+  "package": "base-cgls-state-capture-overlay-144-001",
+  "schema": "numi.matter.diagnostic_overlay_package_seal.v1",
+  "validation_file": "validation.txt"
+}

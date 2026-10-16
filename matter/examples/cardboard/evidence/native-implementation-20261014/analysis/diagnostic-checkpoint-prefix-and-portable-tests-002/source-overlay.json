@@ -1,0 +1,36 @@
+{
+  "schema": "numi.cardboard.source-overlay.v1",
+  "overlay_id": "diagnostic-checkpoint-prefix-and-portable-tests-002",
+  "base_package": "/Users/home/cardboard-implementation-20261014/analysis/cardboard-effective-solver-environment-source161-002",
+  "base_manifest_sha256": "83d85efab279dd23c4be513c9c34ee77369ec36e1579b5bcba38625c86de3b90",
+  "patch_sha256": "514a4a664fd3def4d6de039e4247a263f5b9b4bf64dd9a80f5e0b04e30f53e3e",
+  "files": [
+    {
+      "path": "matter/tools/cardboard_solver_environment.py",
+      "base_sha256": "9be1b734ae05f8665f2537b8263889af2f27915209ba37025a9bdc878796882a",
+      "overlay_sha256": "42c0e016b00c765950b8371e543504d2676cc9dd8fc8a559f2c9540b212b586b"
+    },
+    {
+      "path": "matter/tools/cardboard_source_bound_run.py",
+      "base_sha256": "338c7fc9936ba76914ba409f4aefe8fb9de93db8f5c6f9f6878ddb2bba3a068e",
+      "overlay_sha256": "6ccd93a467860df58d8552b6f14c7d1ea77be2a896c06a77bfd9ad25392ceb9e"
+    },
+    {
+      "path": "matter/tools/test_cardboard_checkpoint_pending_capture.py",
+      "base_sha256": null,
+      "overlay_sha256": "bc4cccfdd1a131dd11ed45e49621c98c27fb260e0b23b1a6c782b01118faa364"
+    },
+    {
+      "path": "matter/tools/test_cardboard_resolution_study.py",
+      "base_sha256": "67722610e0aafbdf1a3b5e4d2de803b8bae9f027e9e5fc5386bb1ba37efbd666",
+      "overlay_sha256": "fc1552a33cc86f59164a26cce17ed527fff0f1e690e62847b482a4fb0e7e1ba2"
+    },
+    {
+      "path": "matter/tools/test_cardboard_solver_environment.py",
+      "base_sha256": "6e76bf37722a688a7b946432b905b7f20794065380d0e8fe61553bc2a4d99ff8",
+      "overlay_sha256": "64679cdccd1fd431ec7639300c822775e718f0b03c521c2d3c24601e34ce6f7b"
+    }
+  ],
+  "native_execution_performed": false,
+  "positive_qualification_allowed": false
+}

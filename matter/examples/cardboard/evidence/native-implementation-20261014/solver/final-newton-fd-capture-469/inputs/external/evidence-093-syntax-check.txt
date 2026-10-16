@@ -1,0 +1,8 @@
+exit_code=0
+elapsed_seconds=2.017
+command=/usr/bin/clang++ '-DNUMI_CARDBOARD_MATERIAL_DIR="/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154/matter/materials"' '-DNUMI_CARDBOARD_METALLIB="/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/shaders/NumiMatter.metallib"' -I/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154/matter/../include -I/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154/matter/include -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic /Users/home/cardboard-implementation-20261014/analysis/source157-right-grip-telemetry-fix-001/source/matter/tools/cardboard_probe.mm -I/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154/matter/tools -fsyntax-only
+--- output ---
+/Users/home/cardboard-implementation-20261014/analysis/source157-right-grip-telemetry-fix-001/source/matter/tools/cardboard_probe.mm:725:13: warning: unused function 'writeShippingNominalCurveArtifact' [-Wunused-function]
+  725 | std::string writeShippingNominalCurveArtifact(
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.

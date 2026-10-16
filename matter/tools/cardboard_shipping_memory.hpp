@@ -6,6 +6,7 @@
 
 #include "numi/matter/shared.h"
 #include "numi/matter/sparse_private_contact_admission.hpp"
+#include "cardboard_inside_clearance.hpp"
 #include "cardboard_cohesive_armijo_tiles.hpp"
 
 #include <algorithm>
@@ -104,6 +105,12 @@ struct ShippingMemoryBudgetInput {
     std::uint64_t retainedCompleteCheckpointCount = 0u;
     std::uint64_t estimatedSnapshotPayloadBytes = 0u;
     std::uint64_t uploadStagingBytes = 0u;
+    // Host-side accepted-state inside-clearance map. It runs after release
+    // while the compiled world, source mesh, and checkpoints remain alive.
+    bool acceptedInsideClearanceWorkspaceRequired = false;
+    bool acceptedInsideClearanceWorkspaceAdmitted = true;
+    std::uint64_t acceptedInsideClearanceWorkspaceBytes = 0u;
+    std::string acceptedInsideClearanceWorkspaceFailure;
     bool regionalGalerkinDiagnosticsCapture = false;
     bool regionalGalerkinEnabled = false;
     bool regionalGalerkinBlockFineEnabled = false;
@@ -169,11 +176,16 @@ struct ShippingMemoryBudget {
     std::uint64_t estimatedMetalPeakBytes = 0u;
     std::uint64_t hostMeshAndCompileBytes = 0u;
     std::uint64_t hostCheckpointBytes = 0u;
+    bool acceptedInsideClearanceWorkspaceRequired = false;
+    std::uint64_t acceptedInsideClearanceWorkspaceBytes = 0u;
+    bool acceptedInsideClearanceWorkspaceAdmitted = true;
+    std::string acceptedInsideClearanceWorkspaceFailure;
     // Host-only subtotal, including upload/readback reserves shared with the
     // Metal envelope. This is not an observed process-footprint measurement.
     std::uint64_t estimatedHostPeakBytes = 0u;
     // Conservative modeled simultaneous allocation total:
-    // Metal envelope + host mesh/compile objects + retained checkpoints.
+    // Metal envelope + host mesh/compile objects + retained checkpoints +
+    // accepted-state inside-clearance host scratch.
     // Shared upload/readback reserves are already in the Metal envelope and
     // are therefore not added again from the host subtotal.
     std::uint64_t estimatedPeakDomainBytes = 0u;
@@ -193,6 +205,19 @@ inline std::uint64_t shippingMemoryCheckedAdd(
     if (left > std::numeric_limits<std::uint64_t>::max() - right)
         throw std::overflow_error("shipping memory estimate overflow");
     return left + right;
+}
+
+inline bool shippingAcceptedInsideClearanceWorkspaceBytes(
+    const std::uint64_t tetrahedronCount,
+    const std::uint64_t nodeCount,
+    const std::uint64_t surfaceFaceCount,
+    std::uint64_t& workspaceBytes) {
+    std::uint64_t hashCapacity = 0u;
+    std::uint64_t hashBytes = 0u;
+    return inside_clearance_detail::ExteriorFaceIndex::capacityFor(
+               tetrahedronCount, hashCapacity, hashBytes) &&
+        inside_clearance_detail::estimateWorkspaceBytes(
+               hashBytes, nodeCount, surfaceFaceCount, workspaceBytes);
 }
 
 // Before mesh preparation, the exact reference shipping blank has a known
@@ -219,10 +244,11 @@ inline std::uint64_t shippingPrebuildTetrahedronUpperBound(
 
 inline std::uint64_t shippingCombinedAllocationPeakBytes(
     const ShippingMemoryBudget& budget) {
-    return shippingMemoryCheckedAdd(
+    return shippingMemoryCheckedAdd(shippingMemoryCheckedAdd(
         shippingMemoryCheckedAdd(budget.estimatedMetalPeakBytes,
                                  budget.hostMeshAndCompileBytes),
-        budget.hostCheckpointBytes);
+        budget.hostCheckpointBytes),
+        budget.acceptedInsideClearanceWorkspaceBytes);
 }
 
 inline std::uint64_t shippingMemoryCheckedMultiply3(
@@ -983,9 +1009,30 @@ inline ShippingMemoryBudget estimateShippingMemoryBudget(
     result.hostCheckpointBytes = shippingMemoryCheckedMultiply(
         input.estimatedSnapshotPayloadBytes,
         input.retainedCompleteCheckpointCount);
+    result.acceptedInsideClearanceWorkspaceRequired =
+        input.acceptedInsideClearanceWorkspaceRequired;
+    result.acceptedInsideClearanceWorkspaceAdmitted =
+        input.acceptedInsideClearanceWorkspaceAdmitted;
+    result.acceptedInsideClearanceWorkspaceFailure =
+        input.acceptedInsideClearanceWorkspaceFailure;
+    if (input.acceptedInsideClearanceWorkspaceRequired &&
+        input.acceptedInsideClearanceWorkspaceAdmitted) {
+        if (input.acceptedInsideClearanceWorkspaceBytes == 0u ||
+            input.acceptedInsideClearanceWorkspaceBytes >
+                inside_clearance_detail::maximumWorkspaceBytes) {
+            result.acceptedInsideClearanceWorkspaceAdmitted = false;
+            result.acceptedInsideClearanceWorkspaceFailure =
+                "accepted inside-clearance workspace is outside its checked 1 GiB cap";
+        } else {
+            result.acceptedInsideClearanceWorkspaceBytes =
+                input.acceptedInsideClearanceWorkspaceBytes;
+        }
+    }
     result.estimatedHostPeakBytes = shippingMemoryCheckedAdd(
-        shippingMemoryCheckedAdd(result.hostMeshAndCompileBytes,
-                                 result.hostCheckpointBytes),
+        shippingMemoryCheckedAdd(
+            shippingMemoryCheckedAdd(result.hostMeshAndCompileBytes,
+                                     result.hostCheckpointBytes),
+            result.acceptedInsideClearanceWorkspaceBytes),
         shippingMemoryCheckedAdd(result.uploadStagingBytes,
                                  result.snapshotReadbackBytes));
     // This is a modeled allocation inventory, not a comparison of observed
@@ -997,7 +1044,9 @@ inline ShippingMemoryBudget estimateShippingMemoryBudget(
         shippingCombinedAllocationPeakBytes(result);
     result.withinLimit = result.estimatedPeakDomainBytes <= result.limitBytes &&
         (!input.fullContactArmijoRequired ||
-         result.requiredResidualDescentArenaAdmitted);
+         result.requiredResidualDescentArenaAdmitted) &&
+        (!input.acceptedInsideClearanceWorkspaceRequired ||
+         result.acceptedInsideClearanceWorkspaceAdmitted);
     return result;
 }
 
@@ -1123,6 +1172,7 @@ struct ShippingPrebuildArenaOptions {
     std::uint64_t rigidGeneralizedCapacity = 6u;
     std::uint64_t fgmresRestart = kShippingFgmresRestartCeiling;
     bool compactImmutableSurfaceMap = false;
+    bool includeAcceptedInsideClearanceWorkspace = false;
     bool requireFullContactResidualDescent = false;
     bool deformableSelfContactEnabled = false;
     bool fullContactArmijoTiledCohesive = false;
@@ -1217,6 +1267,22 @@ inline ShippingMemoryBudget estimateShippingPrebuildMemoryBudget(
     input.environmentCount = 1u;
     input.fgmresRestart = options.fgmresRestart;
     input.compactImmutableSurfaceMap = options.compactImmutableSurfaceMap;
+    input.acceptedInsideClearanceWorkspaceRequired =
+        options.includeAcceptedInsideClearanceWorkspace;
+    if (input.acceptedInsideClearanceWorkspaceRequired) {
+        // Before compilation the surface count is unknown. Reserve the
+        // diagnostic's full checked workspace ceiling; after compile, exact
+        // tet/surface counts replace this bound. The map rejects before any
+        // allocations if its actual workspace estimate exceeds this ceiling.
+        input.acceptedInsideClearanceWorkspaceBytes =
+            inside_clearance_detail::maximumWorkspaceBytes;
+        if (input.tetrahedronCount >
+            inside_clearance_detail::maximumIndexedTetrahedra) {
+            input.acceptedInsideClearanceWorkspaceAdmitted = false;
+            input.acceptedInsideClearanceWorkspaceFailure =
+                "prebuild tetrahedron upper bound exceeds the accepted inside-clearance topology cap";
+        }
+    }
     input.fullContactArmijoRequired =
         options.requireFullContactResidualDescent;
     input.deformableSelfContactEnabled =

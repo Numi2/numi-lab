@@ -1,0 +1,5 @@
+patching file 'matter/CMakeLists.txt'
+patching file 'matter/tools/cardboard_coupon_resume_check.cpp'
+patching file 'matter/tools/cardboard_inside_clearance_check.cpp'
+patching file 'matter/tools/cardboard_shipping_clearance_memory_check.cpp'
+patching file 'matter/tools/cardboard_regional_consumer_capture_check.cpp'

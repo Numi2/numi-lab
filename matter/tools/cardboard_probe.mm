@@ -8,9 +8,11 @@
 #include "cardboard_box_blank.hpp"
 #include "cardboard_box_assembly_controller.hpp"
 #include "cardboard_shipping_protocol.hpp"
+#include "cardboard_inside_clearance.hpp"
 #include "cardboard_shipping_driver.hpp"
 #include "cardboard_shipping_memory.hpp"
 #include "cardboard_shipping_snapshot.hpp"
+#include "cardboard_coupon_resume.hpp"
 #include "cardboard_reaction_observables.hpp"
 #include "cardboard_shipping_closure_mesh.hpp"
 #include "cardboard_shipping_crush.hpp"
@@ -145,6 +147,9 @@ struct Arguments {
     bool compensatedSourcePaperProjection = false;
     bool accurateSourcePaperProjection = false;
     bool cacheFEMAlgorithmicTangent = false;
+    std::optional<std::uint32_t> couponCheckpointAfterControl;
+    std::filesystem::path couponResumeCheckpoint;
+    std::filesystem::path couponResumeMetadata;
     std::array<double, 13> linerProjectionScales{};
     std::array<double, 13> mediumProjectionScales{};
     std::array<double, 3> shippingInsideM{0.300, 0.200, 0.200};
@@ -1269,6 +1274,8 @@ void printUsage() {
         << NM_MIXED_FGMRES_RESTART << "] (default "
         << NM_MIXED_FGMRES_DEFAULT_RESTART << ")\n"
         << "  --line-search-steps N  nonlinear/contact trial steps [1, 32] (default 8)\n"
+        << "  --coupon-checkpoint-after-control N  save an accepted two-environment checkpoint after zero-based control N and stop with a prefix-only result\n"
+        << "  --coupon-resume-checkpoint FILE --coupon-resume-metadata FILE  resume a diagnostic segment at the next control index\n"
         << "  --accurate-paper-projection  opt-in strict Hill state projection; requires compensated arithmetic (pair with --scaled-paper-residuals in the comparison study)\n"
         << "  --compensated-implicit-projection  opt in to compensated residual evaluation for retained-matrix generic implicit damage overlays\n"
         << "  --compensated-source-paper-projection  opt in to generic compensated projection for the 15-state source bilinear/C1 liner+medium pair; also requires --compensated-paper-arithmetic\n"
@@ -1439,6 +1446,22 @@ Arguments parseArguments(const int argc, const char* argv[]) {
             continue;
         }
         if (option == "--pin-adhesion") { arguments.pinAdhesion = true; continue; }
+        if (option == "--coupon-checkpoint-after-control") {
+            require(index + 1 < argc, "missing value for " + option);
+            arguments.couponCheckpointAfterControl = parseUnsigned(
+                argv[++index], option);
+            continue;
+        }
+        if (option == "--coupon-resume-checkpoint" ||
+            option == "--coupon-resume-metadata") {
+            require(index + 1 < argc, "missing value for " + option);
+            const std::filesystem::path value = argv[++index];
+            if (option == "--coupon-resume-checkpoint")
+                arguments.couponResumeCheckpoint = value;
+            else
+                arguments.couponResumeMetadata = value;
+            continue;
+        }
         if (option == "--without-self-contact") { arguments.disableSelfContact = true; continue; }
         if (option == "--help" || option == "-h") {
             arguments.help = true;
@@ -2020,6 +2043,31 @@ Arguments parseArguments(const int argc, const char* argv[]) {
     require(arguments.postReleaseRelaxSteps == 0u ||
                 (!arguments.shippingBox && !arguments.crease && !arguments.pinAdhesion),
             "post-release relaxation is supported only by the end-grip coupon protocol; shipping assembly has its own released settle stage");
+    const bool hasResumeCheckpoint = !arguments.couponResumeCheckpoint.empty();
+    const bool hasResumeMetadata = !arguments.couponResumeMetadata.empty();
+    numi::cardboard::coupon_resume::Request couponResumeRequest;
+    couponResumeRequest.saveControlRequested =
+        arguments.couponCheckpointAfterControl.has_value();
+    couponResumeRequest.saveControlIndex =
+        arguments.couponCheckpointAfterControl.value_or(0u);
+    couponResumeRequest.checkpointProvided = hasResumeCheckpoint;
+    couponResumeRequest.metadataProvided = hasResumeMetadata;
+    couponResumeRequest.shipping = arguments.shippingBox;
+    couponResumeRequest.pin = arguments.pinAdhesion;
+    couponResumeRequest.blank = arguments.boxBlank;
+    couponResumeRequest.assembly = arguments.boxAssemblyNative;
+    couponResumeRequest.fixtureJoint = arguments.boxFixtureJoint;
+    couponResumeRequest.crease = arguments.crease;
+    couponResumeRequest.compileOnly = arguments.compileOnly;
+    couponResumeRequest.environmentCount = arguments.environmentCount;
+    couponResumeRequest.totalControls = std::uint64_t(arguments.steps) +
+        arguments.holdSteps + arguments.unloadSteps + arguments.relaxSteps +
+        arguments.releaseSteps + arguments.postReleaseRelaxSteps;
+    try {
+        numi::cardboard::coupon_resume::validateRequest(couponResumeRequest);
+    } catch (const std::invalid_argument& error) {
+        require(false, error.what());
+    }
     require(arguments.fgmresIterations >= NM_MIXED_FGMRES_DEFAULT_RESTART &&
                 arguments.fgmresIterations <= NM_MIXED_FGMRES_MAX_ITERATIONS,
             "--fgmres-iterations must lie between the compiled restart size and native operational ceiling");
@@ -4778,6 +4826,16 @@ public:
 
     [[nodiscard]] const Runtime& runtime() const { return runtime_; }
 
+    // RuntimeStateSnapshot is the only restart source. This wrapper is
+    // available to the ordinary coupon driver, independent of the shipping
+    // rigid-world compile-time adapter.
+    void restoreAcceptedCheckpoint(const RuntimeStateSnapshot& checkpoint) {
+        const auto restored = runtime_.restore(checkpoint);
+        require(restored.encoded,
+                "coupon continuation could not restore its accepted native checkpoint: " +
+                    restored.message);
+    }
+
 #ifdef NUMI_CARDBOARD_METAL_WORLD
     [[nodiscard]] const std::vector<MRBodyStateGPU>& shippingRigidSceneBodies() const noexcept {
         return shippingRigidRunner_ != nullptr
@@ -4999,6 +5057,20 @@ numi::cardboard::ShippingMemoryBudgetInput shippingMemoryBudgetInput(
     input.compactImmutableSurfaceMap =
         (dispatch.flags & NM_MATTER_STATIC_FEM_SURFACE_MAP) != 0u;
     input.surfaceFaceCount = dispatch.surfaceFaceCount;
+    if (arguments.shippingBox && dispatch.environmentCount == 1u) {
+        input.acceptedInsideClearanceWorkspaceRequired = true;
+        std::uint64_t workspaceBytes = 0u;
+        if (shippingAcceptedInsideClearanceWorkspaceBytes(
+                dispatch.tetrahedronCount, dispatch.femNodeCount,
+                dispatch.surfaceFaceCount,
+                workspaceBytes)) {
+            input.acceptedInsideClearanceWorkspaceBytes = workspaceBytes;
+        } else {
+            input.acceptedInsideClearanceWorkspaceAdmitted = false;
+            input.acceptedInsideClearanceWorkspaceFailure =
+                "compiled counts exceed the accepted inside-clearance topology or 1 GiB workspace bound";
+        }
+    }
     input.gridNodeCount = dispatch.gridNodeCount;
     input.rigidGeneralizedCapacity = dispatch.rigidGeneralizedCapacity;
     input.rigidQCapacity = dispatch.rigidQCapacity;
@@ -5162,6 +5234,7 @@ numi::cardboard::ShippingMemoryBudget shippingPrebuildMemoryBudget(
     options.rigidGeneralizedCapacity = arguments.shippingBox ? 6u : 0u;
     options.fgmresRestart = arguments.fgmresRestart;
     options.compactImmutableSurfaceMap = arguments.compactImmutableSurfaces;
+    options.includeAcceptedInsideClearanceWorkspace = arguments.shippingBox;
     options.requireFullContactResidualDescent = arguments.shippingBox;
     options.deformableSelfContactEnabled = arguments.shippingBox &&
         !arguments.glueMaterial.empty() && !arguments.disableSelfContact;
@@ -5229,7 +5302,9 @@ numi::cardboard::ShippingMemoryBudget shippingPrebuildMemoryBudget(
             shippingCombinedAllocationPeakBytes(budget);
         budget.withinLimit =
             budget.estimatedPeakDomainBytes <= budget.limitBytes &&
-            budget.requiredResidualDescentArenaAdmitted;
+            budget.requiredResidualDescentArenaAdmitted &&
+            (!budget.acceptedInsideClearanceWorkspaceRequired ||
+             budget.acceptedInsideClearanceWorkspaceAdmitted);
     }
     return budget;
 }
@@ -5370,11 +5445,18 @@ ShippingResidualDescentAdmission shippingResidualDescentAdmission(
 
     result.runtimeShapeAvailable = result.blockers.empty();
     result.privateArenaAvailable = budget.requiredResidualDescentArenaAdmitted;
-    result.memoryLimitAvailable = budget.estimatedPeakDomainBytes <= budget.limitBytes;
+    result.memoryLimitAvailable = budget.estimatedPeakDomainBytes <= budget.limitBytes &&
+        (!budget.acceptedInsideClearanceWorkspaceRequired ||
+         budget.acceptedInsideClearanceWorkspaceAdmitted);
     if (!result.privateArenaAvailable)
         add(budget.requiredResidualDescentArenaFailure.empty()
                 ? "required private residual-descent arenas exceed runtime caps"
                 : budget.requiredResidualDescentArenaFailure);
+    if (budget.acceptedInsideClearanceWorkspaceRequired &&
+        !budget.acceptedInsideClearanceWorkspaceAdmitted)
+        add(budget.acceptedInsideClearanceWorkspaceFailure.empty()
+                ? "accepted inside-clearance workspace exceeds its checked topology or 1 GiB cap"
+                : budget.acceptedInsideClearanceWorkspaceFailure);
     if (!result.memoryLimitAvailable)
         add("required arena envelope exceeds the 16 GiB shipping budget");
     result.physicsExecutionAdmitted = result.runtimeShapeAvailable &&
@@ -5420,6 +5502,14 @@ void writeShippingResidualDescentAdmission(
            << budget.requiredRigidContactArmijoBytes
            << ", \"cohesive\": "
            << budget.requiredCohesiveArmijoBytes << "},\n"
+           << "  \"accepted_inside_clearance_workspace\": {\"required\": "
+           << (budget.acceptedInsideClearanceWorkspaceRequired ? "true" : "false")
+           << ", \"admitted\": "
+           << (budget.acceptedInsideClearanceWorkspaceAdmitted ? "true" : "false")
+           << ", \"bytes\": " << budget.acceptedInsideClearanceWorkspaceBytes
+           << ", \"failure\": \""
+           << jsonEscape(budget.acceptedInsideClearanceWorkspaceFailure)
+           << "\"},\n"
            << "  \"requested_runtime_options\": {\"sparse_private_contact\": "
            << (budgetInput.sparsePrivateContactRequested ? "true" : "false")
            << ", \"sparse_capacity\": "
@@ -5600,7 +5690,7 @@ void writeShippingPrebuildMemoryScreen(
            << "  \"modeled_host_subtotal_including_shared_reserves_bytes\": "
            << budget.estimatedHostPeakBytes << ",\n"
            << "  \"shared_upload_and_readback_reserves_counted_once\": true,\n"
-           << "  \"allocation_accounting_basis\": \"modeled Metal envelope + host mesh/compile allocations + retained checkpoints\",\n"
+           << "  \"allocation_accounting_basis\": \"modeled Metal envelope + host mesh/compile allocations + retained checkpoints + accepted inside-clearance transient scratch; scratch is concurrent with the live world/checkpoints, upload staging and one snapshot readback are counted once\",\n"
            << "  \"budget_components_bytes\": {\"measured_base_and_contact_envelope\": "
            << budget.measuredBaseAndContactEnvelopeBytes << ", \"cohesive_faces\": "
            << budget.cohesiveRuntimeBytes << ", \"persistent_contact_surface\": "
@@ -5617,7 +5707,9 @@ void writeShippingPrebuildMemoryScreen(
            << budget.regionalGalerkinBytes << ", \"upload_staging\": "
            << budget.uploadStagingBytes << ", \"host_mesh_compile\": "
            << budget.hostMeshAndCompileBytes << ", \"host_checkpoints\": "
-           << budget.hostCheckpointBytes << "},\n"
+           << budget.hostCheckpointBytes
+           << ", \"accepted_inside_clearance_scratch\": "
+           << budget.acceptedInsideClearanceWorkspaceBytes << "},\n"
            << "  \"estimate_method\": \"Pre-allocation gate uses all prepared nodes and tetrahedra: exact counts for the fixed reference topology, otherwise the 25%-padded cardinality estimates. The all-node rigid-pair upper bound includes the starch-side split and counts interior FEM nodes, so it is conservative for contact-eligible nodes. Sparse trial-sample capacity is modeled only when explicitly requested; persistent canonical pair/history storage remains dense. The bounded free-BOX scope is a candidate based on the fixed shipping recipe, not an admission: the compiled proxy/body layout and runtime still recheck it. Full-contact node/tet/cohesive arena caps remain separately mandatory, and an optimistic sparse rigid estimate cannot override them. After compile, exact dispatch capacities and proxy layout replace these bounds\",\n"
            << "  \"exact_compiled_arena_report_still_required\": true,\n"
            << "  \"native_runtime_observation_still_required\": true,\n"
@@ -5742,6 +5834,16 @@ void writeShippingMemoryReport(
                << budget->hostMeshAndCompileBytes << ",\n"
                << "    \"host_checkpoint_payload_bytes\": "
                << budget->hostCheckpointBytes << ",\n"
+               << "    \"accepted_inside_clearance_workspace_required\": "
+               << (budget->acceptedInsideClearanceWorkspaceRequired ? "true" : "false")
+               << ",\n"
+               << "    \"accepted_inside_clearance_workspace_admitted\": "
+               << (budget->acceptedInsideClearanceWorkspaceAdmitted ? "true" : "false")
+               << ",\n"
+               << "    \"accepted_inside_clearance_workspace_failure\": \""
+               << jsonEscape(budget->acceptedInsideClearanceWorkspaceFailure) << "\",\n"
+               << "    \"accepted_inside_clearance_workspace_bytes\": "
+               << budget->acceptedInsideClearanceWorkspaceBytes << ",\n"
                << "    \"modeled_host_subtotal_including_shared_reserves_bytes\": "
                << budget->estimatedHostPeakBytes << ",\n"
                << "    \"estimated_combined_allocation_bytes\": "
@@ -5750,7 +5852,7 @@ void writeShippingMemoryReport(
                << "    \"admission_passed_before_native_initialization\": "
                << (budget->withinLimit ? "true" : "false") << ",\n"
                << "    \"shared_upload_and_readback_reserves_counted_once\": true,\n"
-               << "    \"accounting_basis\": \"modeled Metal envelope + host mesh/compile allocations + retained checkpoints; upload staging and one snapshot readback are counted once\"\n  }";
+               << "    \"accounting_basis\": \"modeled Metal envelope + host mesh/compile allocations + retained checkpoints + accepted inside-clearance transient scratch concurrent with the live world; upload staging and one snapshot readback are counted once\"\n  }";
     } else {
         output << ",\n  \"estimated_arena_budget\": null";
     }
@@ -8495,6 +8597,7 @@ int executeBoxAssemblyNative(
     std::uint32_t releasedSettleSteps = 0u;
     double releasedAssemblyMaximumSpeedMPerS = std::numeric_limits<double>::infinity();
     bool releasedAssemblySettled = false;
+    numi::cardboard::BoxInsideClearanceResult releasedInsideClearance;
     std::vector<NMFEMNodeStateGPU> heldBeforeClampReleaseNodes;
     bool heldBeforeClampReleaseAvailable = false;
     std::uint32_t heldBeforeClampReleaseStep = NM_INVALID_INDEX;
@@ -8879,6 +8982,33 @@ int executeBoxAssemblyNative(
             if (!releasedAssemblySettled && !nativeFailure)
                 stopReason = "accepted released assembly remained above the explicit 1e-4 m/s settle speed gate";
         }
+        }
+    }
+    if (arguments.shippingBox && fullShippingActionSequence &&
+        releasedAssemblySettled && !nativeFailure) {
+        releasedInsideClearance.evaluated = true;
+        if (!mesh.boxBlank || !arguments.shippingDesign) {
+            releasedInsideClearance.status = "rejected";
+            releasedInsideClearance.reason = "authored blank or inside-dimension target is unavailable";
+        } else if (arguments.environmentCount != 1u) {
+            releasedInsideClearance.status = "rejected";
+            releasedInsideClearance.reason = "inside-clearance gate currently requires exactly one accepted environment";
+        } else {
+            try {
+                const auto& inside = arguments.shippingDesign->defaults.inside;
+                releasedInsideClearance =
+                    numi::cardboard::measureAcceptedInsideClearance(
+                        *mesh.boxBlank, currentSnapshot.femNodes, nodeCount,
+                        compiled.world.fem.tetrahedra,
+                        compiled.world.fem.surfaceFaces,
+                        {inside.lengthX, inside.heightY, inside.widthZ},
+                        0.01, 0u, 0u);
+            } catch (const std::exception& error) {
+                releasedInsideClearance.evaluated = true;
+                releasedInsideClearance.status = "rejected";
+                releasedInsideClearance.reason = std::string(
+                    "inside-clearance observer failed closed: ") + error.what();
+            }
         }
     }
     if (fullShippingActionSequence) {
@@ -10904,6 +11034,8 @@ int executeBoxAssemblyNative(
         "completed_boundary_actions";
     const bool shippingSimulationProcessComplete = arguments.shippingBox &&
         fullShippingActionSequence && releasedAssemblySettled && !nativeFailure;
+    const bool releasedAssemblySimulationGatePassed =
+        shippingSimulationProcessComplete && releasedInsideClearance.gatePassed;
     if (arguments.shippingBox && lastAcceptedNativeStep != NM_INVALID_INDEX) {
         const auto observables = shippingHistoryAreaObservables(
             compiled.world, mesh, currentSnapshot, 0u);
@@ -11059,8 +11191,180 @@ int executeBoxAssemblyNative(
            << ",\n"
            << "  \"released_assembly_simulation_process_complete\": "
            << (shippingSimulationProcessComplete ? "true" : "false") << ",\n"
-           << "  \"released_assembly_simulation_gate_passed\": false,\n"
-           << "  \"released_assembly_simulation_gate_status\": \"not_evaluated_no_measured_inside_dimensions\",\n"
+           << "  \"released_assembly_simulation_gate_passed\": "
+           << (releasedAssemblySimulationGatePassed ? "true" : "false") << ",\n"
+           << "  \"released_assembly_simulation_gate_status\": \""
+           << (releasedAssemblySimulationGatePassed ? "passed" :
+               releasedInsideClearance.evaluated ? releasedInsideClearance.status.c_str() :
+               "not_evaluated_no_accepted_inside_surface_map") << "\",\n"
+           << "  \"released_inside_clearance_measurement\": {\n"
+           << "    \"schema\": \"numi.cardboard.accepted-inside-surface-map.v3\",\n"
+           << "    \"evaluated\": " << (releasedInsideClearance.evaluated ? "true" : "false") << ",\n"
+           << "    \"status\": \"" << jsonEscape(releasedInsideClearance.status) << "\",\n"
+           << "    \"reason\": \"" << jsonEscape(releasedInsideClearance.reason) << "\",\n"
+           << "    \"topology_complete\": " << (releasedInsideClearance.topologyComplete ? "true" : "false") << ",\n"
+           << "    \"authored_role_coverage_complete\": " << (releasedInsideClearance.roleCoverageComplete ? "true" : "false") << ",\n"
+           << "    \"face_provenance_map_complete\": " << (releasedInsideClearance.faceProvenanceMapComplete ? "true" : "false") << ",\n"
+           << "    \"authored_surface_area_coverage_complete\": " << (releasedInsideClearance.authoredSurfaceCoverageComplete ? "true" : "false") << ",\n"
+           << "    \"authored_wall_local_coverage_complete\": " << (releasedInsideClearance.wallLocalCoverageComplete ? "true" : "false") << ",\n"
+           << "    \"coverage_semantics\": \"accepted wall broad-face triangles exactly cover each authored wall panel's own accepted topological broad-face domain outside authored slots; adjacent panel/flap nodes do not enlarge the domain; authored flap area remains compared against panel rectangles minus slot rectangles; each end permits only a maximum 1 mm exposed butt seam bounded by the two accepted authored major-flap free edges, while exact clipped coverage outside that corridor must pass; the 1 mm is an explicit engineering screen, not a measured kerf; clipped-area acceptance uses a separately reported FP32-coordinate roundoff bound derived from world-coordinate ULP times domain perimeter and rejects source spacing above 10 micrometres; target dimensions are compared separately; bounded topology, exact-pair and grid work\",\n"
+           << "    \"flap_overlap_measured\": " << (releasedInsideClearance.overlapMeasured ? "true" : "false") << ",\n"
+           << "    \"flap_overlap_complete\": " << (releasedInsideClearance.overlapComplete ? "true" : "false") << ",\n"
+           << "    \"end_footprint_coverage_complete\": " << (releasedInsideClearance.endFootprintCoverageComplete ? "true" : "false") << ",\n"
+           << "    \"end_outside_seam_coverage_complete\": " << (releasedInsideClearance.endOutsideSeamCoverageComplete ? "true" : "false") << ",\n"
+           << "    \"butt_seam_geometry_valid\": " << (releasedInsideClearance.buttSeamGeometryValid ? "true" : "false") << ",\n"
+           << "    \"end_footprint_union_coverage\": ["
+           << releasedInsideClearance.endFootprintCoverage[0] << ','
+           << releasedInsideClearance.endFootprintCoverage[1] << "],\n"
+           << "    \"end_footprint_area_m2\": ["
+           << releasedInsideClearance.endFootprintAreaM2[0] << ','
+           << releasedInsideClearance.endFootprintAreaM2[1] << "],\n"
+           << "    \"end_footprint_uncovered_area_m2\": ["
+           << releasedInsideClearance.endFootprintUncoveredAreaM2[0] << ','
+           << releasedInsideClearance.endFootprintUncoveredAreaM2[1] << "],\n"
+           << "    \"wall_uncovered_area_m2\": ["
+           << releasedInsideClearance.wallUncoveredAreaM2[0] << ','
+           << releasedInsideClearance.wallUncoveredAreaM2[1] << ','
+           << releasedInsideClearance.wallUncoveredAreaM2[2] << ','
+           << releasedInsideClearance.wallUncoveredAreaM2[3] << "],\n"
+           << "    \"wall_domain_area_m2\": ["
+           << releasedInsideClearance.wallDomainAreaM2[0] << ','
+           << releasedInsideClearance.wallDomainAreaM2[1] << ','
+           << releasedInsideClearance.wallDomainAreaM2[2] << ','
+           << releasedInsideClearance.wallDomainAreaM2[3] << "],\n"
+           << "    \"wall_area_roundoff_bound_m2\": ["
+           << releasedInsideClearance.wallAreaRoundoffBoundM2[0] << ','
+           << releasedInsideClearance.wallAreaRoundoffBoundM2[1] << ','
+           << releasedInsideClearance.wallAreaRoundoffBoundM2[2] << ','
+           << releasedInsideClearance.wallAreaRoundoffBoundM2[3] << "],\n"
+           << "    \"end_outside_seam_uncovered_area_m2\": ["
+           << releasedInsideClearance.endOutsideSeamUncoveredAreaM2[0] << ','
+           << releasedInsideClearance.endOutsideSeamUncoveredAreaM2[1] << "],\n"
+           << "    \"end_outside_seam_area_roundoff_bound_m2\": ["
+           << releasedInsideClearance.endOutsideSeamAreaRoundoffBoundM2[0] << ','
+           << releasedInsideClearance.endOutsideSeamAreaRoundoffBoundM2[1] << "],\n"
+           << "    \"maximum_butt_seam_gap_m\": ["
+           << releasedInsideClearance.maximumButtSeamGapM[0] << ','
+           << releasedInsideClearance.maximumButtSeamGapM[1] << "],\n"
+           << "    \"butt_seam_corridor_area_m2\": ["
+           << releasedInsideClearance.buttSeamCorridorAreaM2[0] << ','
+           << releasedInsideClearance.buttSeamCorridorAreaM2[1] << "],\n"
+           << "    \"maximum_butt_seam_gap_limit_m\": " << numi::cardboard::inside_clearance_detail::maximumButtSeamGapM << ",\n"
+           << "    \"planar_geometry_valid\": " << (releasedInsideClearance.planarGeometryValid ? "true" : "false") << ",\n"
+           << "    \"dimensions_within_one_percent\": " << (releasedInsideClearance.dimensionsWithinTolerance ? "true" : "false") << ",\n"
+           << "    \"gate_passed\": " << (releasedInsideClearance.gatePassed ? "true" : "false") << ",\n"
+           << "    \"environment_count_observed\": "
+           << (arguments.shippingBox && fullShippingActionSequence
+                   ? arguments.environmentCount : 0u) << ",\n"
+           << "    \"accepted_checkpoint_file\": ";
+    if (!releasedAssemblyCheckpointPath.empty())
+        result << "\"checkpoints/" << jsonEscape(releasedAssemblyCheckpointPath.filename().string()) << "\"";
+    else result << "null";
+    result << ",\n    \"accepted_checkpoint_sha256\": ";
+    if (!releasedAssemblyCheckpointPath.empty())
+        result << "\"" << hexDigest(sha256File(releasedAssemblyCheckpointPath)) << "\"";
+    else result << "null";
+    result << ",\n    \"measured_inside_dimensions_m\": ";
+    if (releasedInsideClearance.roleCoverageComplete && releasedInsideClearance.planarGeometryValid) {
+        result << '[' << releasedInsideClearance.measuredInsideM[0] << ','
+               << releasedInsideClearance.measuredInsideM[1] << ','
+               << releasedInsideClearance.measuredInsideM[2] << ']';
+    } else result << "null";
+    result << ",\n    \"target_inside_dimensions_m\": ";
+    if (releasedInsideClearance.evaluated &&
+        std::all_of(releasedInsideClearance.targetInsideM.begin(),
+                    releasedInsideClearance.targetInsideM.end(),
+                    [](double value) { return std::isfinite(value) && value > 0.0; }))
+        result << '[' << releasedInsideClearance.targetInsideM[0] << ','
+               << releasedInsideClearance.targetInsideM[1] << ','
+               << releasedInsideClearance.targetInsideM[2] << ']';
+    else result << "null";
+    result << ",\n    \"relative_dimension_errors\": ";
+    if (releasedInsideClearance.roleCoverageComplete &&
+        releasedInsideClearance.planarGeometryValid) {
+        result << '[' << releasedInsideClearance.relativeError[0] << ','
+               << releasedInsideClearance.relativeError[1] << ','
+               << releasedInsideClearance.relativeError[2] << ']';
+    } else result << "null";
+    result << ",\n    \"inside_face_counts_by_region_panel\": [";
+    for (std::size_t region = 0u; region < 3u; ++region) {
+        if (region != 0u) result << ',';
+        result << '[';
+        for (std::size_t panel = 0u; panel < 4u; ++panel) {
+            if (panel != 0u) result << ',';
+            result << releasedInsideClearance.insideFaceCount[region][panel];
+        }
+        result << ']';
+    }
+    result << "],\n    \"minor_flap_overlap_coverage\": [";
+    for (std::size_t end = 0u; end < 2u; ++end) {
+        if (end != 0u) result << ',';
+        result << '[' << releasedInsideClearance.minorFlapCoverage[end][0] << ','
+               << releasedInsideClearance.minorFlapCoverage[end][1] << ']';
+    }
+    result << "],\n    \"expected_authored_inside_rest_area_m2\": [";
+    for (std::size_t region = 0u; region < 3u; ++region) {
+        if (region != 0u) result << ',';
+        result << '[';
+        for (std::size_t panel = 0u; panel < 4u; ++panel) {
+            if (panel != 0u) result << ',';
+            result << releasedInsideClearance.expectedInsideRestAreaM2[region][panel];
+        }
+        result << ']';
+    }
+    result << "],\n    \"inside_rest_area_coverage_fraction\": [";
+    for (std::size_t region = 0u; region < 3u; ++region) {
+        if (region != 0u) result << ',';
+        result << '[';
+        for (std::size_t panel = 0u; panel < 4u; ++panel) {
+            if (panel != 0u) result << ',';
+            result << releasedInsideClearance.insideRestCoverageFraction[region][panel];
+        }
+        result << ']';
+    }
+    result << "],\n    \"face_provenance_records\": [";
+    for (std::size_t i=0u;i<releasedInsideClearance.faceRecords.size();++i) {
+        if (i!=0u) result << ',';
+        const auto& face=releasedInsideClearance.faceRecords[i];
+        result << '[' << face.surfaceFaceIndex << ',' << face.tetrahedronIndex << ','
+               << face.panelIndex << ',' << static_cast<unsigned>(face.region) << ','
+               << static_cast<unsigned>(face.broadSide) << ','
+               << (face.cavityFacing ? 1 : 0) << ',' << face.authoredRestAreaM2 << ','
+               << face.acceptedAreaM2 << ']';
+    }
+    result << "],\n    \"maximum_wall_planarity_residual_m\": ["
+           << releasedInsideClearance.maximumWallPlanarityResidualM[0] << ','
+           << releasedInsideClearance.maximumWallPlanarityResidualM[1] << "],\n"
+           << "    \"major_flap_plane_separation_m\": ["
+           << releasedInsideClearance.endMajorPlaneSeparationM[0] << ','
+           << releasedInsideClearance.endMajorPlaneSeparationM[1] << "],\n"
+           << "    \"maximum_accepted_floor_projection_m\": ";
+    if (std::isfinite(releasedInsideClearance.maximumAcceptedFloorProjectionM))
+        result << releasedInsideClearance.maximumAcceptedFloorProjectionM;
+    else result << "null";
+    result << ",\n    \"minimum_accepted_roof_projection_m\": ";
+    if (std::isfinite(releasedInsideClearance.minimumAcceptedRoofProjectionM))
+        result << releasedInsideClearance.minimumAcceptedRoofProjectionM;
+    else result << "null";
+    result << ",\n    \"accepted_fp32_position_ulp_m\": ";
+    if (std::isfinite(releasedInsideClearance.acceptedPositionUlpM))
+        result << releasedInsideClearance.acceptedPositionUlpM;
+    else result << "null";
+    result << ",\n    \"maximum_coverage_position_ulp_m\": "
+           << numi::cardboard::inside_clearance_detail::maximumCoveragePositionUlpM << ",\n"
+           << "    \"exterior_face_count\": " << releasedInsideClearance.exteriorFaceCount << ",\n"
+           << "    \"authored_broad_face_count\": " << releasedInsideClearance.broadFaceCount << ",\n"
+           << "    \"tetrahedra_observed\": " << releasedInsideClearance.tetrahedronCountObserved << ",\n"
+           << "    \"surface_faces_observed\": " << releasedInsideClearance.surfaceFaceCountObserved << ",\n"
+           << "    \"topology_hash_capacity\": " << releasedInsideClearance.topologyHashCapacity << ",\n"
+           << "    \"topology_probe_steps\": " << releasedInsideClearance.topologyProbeSteps << ",\n"
+           << "    \"estimated_workspace_bytes\": " << releasedInsideClearance.estimatedWorkspaceBytes << ",\n"
+           << "    \"overlap_pair_tests_observed\": " << releasedInsideClearance.overlapPairTestsObserved << ",\n"
+           << "    \"overlap_pair_test_cap\": " << releasedInsideClearance.overlapPairTestCap << ",\n"
+           << "    \"overlap_grid_work_units_observed\": " << releasedInsideClearance.overlapGridWorkUnitsObserved << ",\n"
+           << "    \"overlap_grid_work_unit_cap\": " << releasedInsideClearance.overlapGridWorkUnitCap << ",\n"
+           << "    \"overlap_grid_work_unit_semantics\": \"one unit per triangle-to-cell posting visit in both grid-build passes, two cell-directory passes per constructed grid, each query cell examined (including empty cells), and each query posting examined; total accumulates across mapper calls and fails closed at the cap\",\n"
+           << "    \"target_is_comparison_only\": true\n  },\n"
            << "  \"source_grade_calibration_gate_passed\": false,\n"
            << "  \"physical_shipping_box_validation_passed\": false,\n"
            << "  \"released_assembly_qualification\": false,\n"
@@ -12026,6 +12330,949 @@ int executePinAdhesion(const Arguments& arguments,
     return completed ? 0 : 2;
 }
 
+Digest sha256FilePrefix(const std::filesystem::path& path,
+                        const std::uint64_t prefixBytes) {
+    std::error_code error;
+    const auto size = std::filesystem::file_size(path, error);
+    require(!error && size >= prefixBytes,
+            "coupon source-prefix file is missing or shorter than its recorded prefix: " +
+                path.string());
+    std::ifstream input(path, std::ios::binary);
+    require(input.good(), "cannot open coupon source-prefix file: " + path.string());
+    CC_SHA256_CTX context;
+    CC_SHA256_Init(&context);
+    std::array<char, 64u * 1024u> buffer{};
+    std::uint64_t remaining = prefixBytes;
+    while (remaining > 0u) {
+        const auto chunk = static_cast<std::streamsize>(
+            std::min<std::uint64_t>(remaining, buffer.size()));
+        input.read(buffer.data(), chunk);
+        require(input.gcount() == chunk,
+                "coupon source-prefix file was truncated while hashing: " + path.string());
+        CC_SHA256_Update(&context, buffer.data(), static_cast<CC_LONG>(chunk));
+        remaining -= static_cast<std::uint64_t>(chunk);
+    }
+    Digest digest;
+    CC_SHA256_Final(digest.bytes.data(), &context);
+    return digest;
+}
+
+Digest sha256BoundedFile(const std::filesystem::path& path,
+                        const std::uint64_t maximumBytes) {
+    std::error_code error;
+    const auto size = std::filesystem::file_size(path, error);
+    require(!error && size <= maximumBytes,
+            "coupon checkpoint artifact is unavailable or exceeds its hashing bound: " +
+                path.string());
+    std::ifstream input(path, std::ios::binary);
+    require(input.good(), "cannot open coupon checkpoint artifact: " + path.string());
+    CC_SHA256_CTX context;
+    CC_SHA256_Init(&context);
+    std::array<char, 64u * 1024u> buffer{};
+    while (input) {
+        input.read(buffer.data(), static_cast<std::streamsize>(buffer.size()));
+        const std::streamsize count = input.gcount();
+        if (count > 0)
+            CC_SHA256_Update(&context, buffer.data(), static_cast<CC_LONG>(count));
+    }
+    require(input.eof(), "failed while hashing coupon checkpoint artifact: " + path.string());
+    Digest digest;
+    CC_SHA256_Final(digest.bytes.data(), &context);
+    return digest;
+}
+
+std::uint64_t fileBytesOrThrow(const std::filesystem::path& path) {
+    std::error_code error;
+    const auto size = std::filesystem::file_size(path, error);
+    require(!error, "cannot measure coupon checkpoint artifact: " + path.string());
+    return size;
+}
+
+std::vector<std::pair<std::string, std::string>> couponRuntimeEnvironmentVariables() {
+    NSDictionary<NSString*, NSString*>* environment =
+        NSProcessInfo.processInfo.environment;
+    std::vector<std::pair<std::string, std::string>> variables;
+    variables.reserve(environment.count);
+    for (NSString* name in environment) {
+        const char* nameUTF8 = name.UTF8String;
+        NSString* valueObject = environment[name];
+        const char* valueUTF8 = valueObject.UTF8String;
+        if (nameUTF8 == nullptr || valueUTF8 == nullptr) {
+            throw std::runtime_error(
+                "coupon runtime environment contains a non-UTF-8 binding");
+        }
+        std::string key(nameUTF8);
+        if (!key.starts_with("NM_") && !key.starts_with("NUMI_MATTER_") &&
+            key != "NUMI_CARDBOARD_STEP_TIMING")
+            continue;
+        variables.emplace_back(std::move(key), std::string(valueUTF8));
+    }
+    return variables;
+}
+
+std::string couponRuntimeSettingsSha256(
+    const std::vector<std::pair<std::string, std::string>>& variables) {
+    using namespace numi::cardboard::coupon_resume;
+    return hexDigest(sha256(canonicalCouponRuntimeSettings(variables)));
+}
+
+std::string couponReadBoundedRunnerFile(const std::filesystem::path& path,
+                                        const std::uint64_t maximumBytes) {
+    namespace fs = std::filesystem;
+    require(!fs::is_symlink(path) && fs::is_regular_file(path),
+            "source-bound runner file is missing, aliased, or not regular: " +
+                path.string());
+    const std::uintmax_t size = fs::file_size(path);
+    require(size > 0u && size <= maximumBytes,
+            "source-bound runner file exceeds its bounded input size: " +
+                path.string());
+    std::ifstream input(path, std::ios::binary);
+    require(input.good(), "cannot open source-bound runner file: " + path.string());
+    std::string contents(static_cast<std::size_t>(size), '\0');
+    input.read(contents.data(), static_cast<std::streamsize>(contents.size()));
+    require((input.good() || input.eof()) &&
+                static_cast<std::size_t>(input.gcount()) == contents.size(),
+            "source-bound runner file was truncated while reading: " + path.string());
+    return contents;
+}
+
+std::string couponCanonicalDiagnosticJson(id const value) {
+    if (value == nil || value == [NSNull null]) return "null";
+    if ([value isKindOfClass:[NSString class]]) {
+        const char* utf8 = [(NSString*)value UTF8String];
+        require(utf8 != nullptr,
+                "source-bound runner JSON contains invalid UTF-8 text");
+        return "\"" + jsonEscape(utf8) + "\"";
+    }
+    if ([value isKindOfClass:[NSNumber class]]) {
+        if (CFGetTypeID((__bridge CFTypeRef)value) == CFBooleanGetTypeID())
+            return [(NSNumber*)value boolValue] ? "true" : "false";
+        require(false,
+                "source-bound diagnostic contract may contain only strings and booleans");
+    }
+    if ([value isKindOfClass:[NSArray class]]) {
+        NSArray* array = (NSArray*)value;
+        std::string result = "[";
+        for (NSUInteger index = 0u; index < array.count; ++index) {
+            if (index != 0u) result.push_back(',');
+            result += couponCanonicalDiagnosticJson(array[index]);
+        }
+        result.push_back(']');
+        return result;
+    }
+    if ([value isKindOfClass:[NSDictionary class]]) {
+        NSDictionary* dictionary = (NSDictionary*)value;
+        std::vector<std::pair<std::string, id>> entries;
+        entries.reserve(dictionary.count);
+        for (id keyValue in dictionary) {
+            require([keyValue isKindOfClass:[NSString class]],
+                    "source-bound diagnostic contract has a non-string object key");
+            const char* keyUTF8 = [(NSString*)keyValue UTF8String];
+            require(keyUTF8 != nullptr,
+                    "source-bound diagnostic contract key is not UTF-8");
+            entries.emplace_back(keyUTF8, dictionary[keyValue]);
+        }
+        std::sort(entries.begin(), entries.end(),
+            [](const auto& left, const auto& right) {
+                return left.first < right.first;
+            });
+        std::string result = "{";
+        for (std::size_t index = 0u; index < entries.size(); ++index) {
+            if (index != 0u) result.push_back(',');
+            result += "\"" + jsonEscape(entries[index].first) + "\":" +
+                couponCanonicalDiagnosticJson(entries[index].second);
+        }
+        result.push_back('}');
+        return result;
+    }
+    require(false, "source-bound diagnostic contract has an unsupported JSON value");
+    return {};
+}
+
+NSDictionary* couponParseRunnerJson(const std::string& bytes,
+                                    const std::string& label) {
+    NSData* const data = [NSData dataWithBytes:bytes.data() length:bytes.size()];
+    NSError* error = nil;
+    id const parsed = [NSJSONSerialization JSONObjectWithData:data
+        options:NSJSONReadingFragmentsAllowed error:&error];
+    require(parsed != nil && [parsed isKindOfClass:[NSDictionary class]],
+            "source-bound runner JSON is invalid: " + label);
+    return (NSDictionary*)parsed;
+}
+
+std::string couponRunnerString(NSDictionary* dictionary, NSString* key,
+                               const std::string& label) {
+    return shippingJsonStringField(dictionary, key, label);
+}
+
+constexpr std::array<std::string_view, 49u> kSource161DiagnosticEnvironmentKeys{
+    "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
+    "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
+    "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+    "NM_FEM_BASE_CGLS_ITERATIONS",
+    "NM_FEM_BASE_CGLS_PRIMARY_AFTER",
+    "NM_FEM_BASE_CGLS_RIGHT_SCALE",
+    "NM_FEM_BASE_CGLS_STATE_CAPTURE",
+    "NM_FEM_CACHE_PROJECTION_REUSE",
+    "NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT",
+    "NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT",
+    "NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT",
+    "NM_FEM_CONTACT_TRACE_ITERATION",
+    "NM_FEM_CONTACT_TRACE_ROOT",
+    "NM_FEM_COUPLED_CAPTURE_PATH",
+    "NM_FEM_COUPLED_CAPTURE_SELECTOR",
+    "NM_FEM_COUPLED_TRIAL_CAPTURE_PATH",
+    "NM_FEM_COUPLED_TRIAL_CAPTURE_SELECTOR",
+    "NM_FEM_COUPLED_TRIAL_SUMMARY_PATH",
+    "NM_FEM_COUPLED_TRIAL_SUMMARY_SELECTOR",
+    "NM_FEM_COUPLED_TRIAL_VTCCD_AUDIT_SELECTOR",
+    "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT",
+    "NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD",
+    "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT",
+    "NM_FEM_FULL_CONTACT_REUSE_COHESIVE_SCRATCH",
+    "NM_FEM_FULL_CONTACT_REUSE_SELF_SURFACE_SCRATCH",
+    "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY",
+    "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY",
+    "NM_FEM_FULL_CONTACT_TILED_COHESIVE",
+    "NM_FEM_FULL_CONTACT_TILED_COHESIVE_PAGE_FACES",
+    "NM_FEM_GRAPH_PARALLEL_LU_SEARCH",
+    "NM_FEM_NEWTON_TRACE_ROOT",
+    "NM_FEM_OPERATOR_FD_CAPTURE_PATH",
+    "NM_FEM_OPERATOR_FD_EPSILON_SCALE",
+    "NM_FEM_OPERATOR_FD_SELECTOR",
+    "NM_FEM_REGIONAL_ACCEPTED_CORRECTION_RECYCLE",
+    "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH",
+    "NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR",
+    "NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION",
+    "NM_FEM_REGIONAL_RAP_CAPTURE_ONLY",
+    "NM_FEM_RESIDUAL_ARMIJO_ROOT",
+    "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT",
+    "NM_FEM_STATUS5_CAPTURE_PATH",
+    "NM_FEM_STATUS5_CAPTURE_ROOT",
+    "NM_FEM_TRUE_RESIDUAL_CERTIFY",
+    "NM_FEM_TRUE_RESIDUAL_NEWTON_SELECTOR",
+    "NM_FEM_TRUE_RESIDUAL_RESTART",
+    "NM_FEM_TRUE_RESIDUAL_ROOT",
+    "NUMI_CARDBOARD_STEP_TIMING",
+    "NUMI_MATTER_GPU_TIMING_DENSE45",
+};
+
+numi::cardboard::coupon_resume::DiagnosticRunnerProof
+couponValidateSourceBoundDiagnosticRunner(
+    const std::filesystem::path& requestedCaseDirectory,
+    const std::vector<std::pair<std::string, std::string>>& actualVariables,
+    const numi::cardboard::coupon_resume::RuntimePathMap& expectedPaths,
+    const bool compareActualEnvironment = true) {
+    using namespace numi::cardboard::coupon_resume;
+    namespace fs = std::filesystem;
+    std::error_code error;
+    const fs::path caseDirectory = fs::weakly_canonical(requestedCaseDirectory, error);
+    require(!error && fs::is_directory(caseDirectory) &&
+                requestedCaseDirectory.is_absolute() &&
+                !fs::is_symlink(requestedCaseDirectory) &&
+                caseDirectory == requestedCaseDirectory.lexically_normal(),
+            "source-bound diagnostic runner case directory is not canonical");
+    const fs::path predictionPath = caseDirectory / "prediction.json";
+    const fs::path environmentPath = caseDirectory / "native-environment.json";
+    const std::string predictionBytes = couponReadBoundedRunnerFile(
+        predictionPath, 4u * 1024u * 1024u);
+    const std::string environmentBytes = couponReadBoundedRunnerFile(
+        environmentPath, 4u * 1024u * 1024u);
+    NSDictionary* const prediction = couponParseRunnerJson(
+        predictionBytes, predictionPath.string());
+    NSDictionary* const record = couponParseRunnerJson(
+        environmentBytes, environmentPath.string());
+    require(couponRunnerString(prediction, @"schema", "prediction.schema") ==
+                "numi.cardboard.native-diagnostic-prediction.v1" &&
+            couponRunnerString(prediction, @"run_mode", "prediction.run_mode") ==
+                "diagnostic" &&
+            couponRunnerString(record, @"schema", "environment.schema") ==
+                "numi.cardboard.native-diagnostic-environment-run.v1" &&
+            couponRunnerString(record, @"producer", "environment.producer") ==
+                "source-bound-diagnostic-runner" &&
+            couponRunnerString(record, @"mode", "environment.mode") == "diagnostic",
+            "coupon path relocation requires source-bound diagnostic runner records");
+    NSDictionary* const launch =
+        [record[@"launch"] isKindOfClass:[NSDictionary class]]
+            ? record[@"launch"] : nil;
+    require(launch != nil &&
+                [launch[@"native_controls_scrubbed"] isKindOfClass:[NSNumber class]] &&
+                CFGetTypeID((__bridge CFTypeRef)launch[@"native_controls_scrubbed"]) ==
+                    CFBooleanGetTypeID() &&
+                [(NSNumber*)launch[@"native_controls_scrubbed"] boolValue],
+            "source-bound diagnostic runner did not record native-control scrubbing");
+
+    const std::string caseText = caseDirectory.string();
+    NSDictionary* const predictionContract =
+        [prediction[@"effective_native_environment_contract"]
+            isKindOfClass:[NSDictionary class]]
+            ? prediction[@"effective_native_environment_contract"] : nil;
+    NSDictionary* const recordContract =
+        [record[@"contract"] isKindOfClass:[NSDictionary class]]
+            ? record[@"contract"] : nil;
+    require(predictionContract != nil && recordContract != nil &&
+                [predictionContract isEqualToDictionary:recordContract],
+            "source-bound runner prediction and environment contracts differ");
+    NSDictionary* const contract = predictionContract;
+    require(couponRunnerString(contract, @"schema", "contract.schema") ==
+                "numi.cardboard.effective-native-diagnostic-controls.v1" &&
+            couponRunnerString(contract, @"case_directory", "contract.case_directory") ==
+                caseText,
+            "source-bound diagnostic contract is bound to another case directory");
+    const std::string contractSha = couponRunnerString(
+        contract, @"sha256", "contract.sha256");
+    NSDictionary* const digestPayload = @{
+        @"schema": contract[@"schema"],
+        @"keys": contract[@"keys"],
+        @"effective": contract[@"effective"],
+        @"case_directory": contract[@"case_directory"],
+        @"capture_prefixes": contract[@"capture_prefixes"]};
+    require(contract.count == 6u &&
+                isLowerSha256(contractSha) &&
+                hexDigest(sha256(couponCanonicalDiagnosticJson(digestPayload))) ==
+                    contractSha &&
+                couponRunnerString(prediction,
+                    @"effective_native_environment_contract_sha256",
+                    "prediction.contract_sha256") == contractSha &&
+                couponRunnerString(record, @"contract_sha256",
+                    "environment.contract_sha256") == contractSha,
+            "source-bound diagnostic contract digest is invalid");
+
+    id keysValue = contract[@"keys"];
+    NSDictionary* const effective =
+        [contract[@"effective"] isKindOfClass:[NSDictionary class]]
+            ? contract[@"effective"] : nil;
+    NSDictionary* const prefixes =
+        [contract[@"capture_prefixes"] isKindOfClass:[NSDictionary class]]
+            ? contract[@"capture_prefixes"] : nil;
+    require([keysValue isKindOfClass:[NSArray class]] && effective != nil &&
+                prefixes != nil &&
+                [(NSArray*)keysValue count] ==
+                    kSource161DiagnosticEnvironmentKeys.size(),
+            "source-bound diagnostic contract registry or maps are missing");
+    NSArray* const keys = (NSArray*)keysValue;
+    require(effective.count == keys.count,
+            "source-bound diagnostic effective map differs from its key registry");
+    std::string previousKey;
+    std::map<std::string, std::string> actual;
+    for (const auto& [name, value] : actualVariables) {
+        if (!actual.emplace(name, value).second)
+            throw std::runtime_error("duplicate native runtime environment key");
+    }
+    NSMutableDictionary* expectedOverrides = [NSMutableDictionary dictionary];
+    RuntimePathMap contractPaths;
+    std::ostringstream runnerNonOutputSettings;
+    runnerNonOutputSettings << "numi.cardboard.source161-runner-non-output-settings.v1\n";
+    for (NSUInteger keyIndex = 0u; keyIndex < keys.count; ++keyIndex) {
+        id const keyValue = keys[keyIndex];
+        require([keyValue isKindOfClass:[NSString class]],
+                "source-bound diagnostic key registry contains a non-string key");
+        const char* keyUTF8 = [(NSString*)keyValue UTF8String];
+        require(keyUTF8 != nullptr, "source-bound diagnostic key is not UTF-8");
+        const std::string key(keyUTF8);
+        require(previousKey.empty() || previousKey < key,
+                "source-bound diagnostic key registry is not sorted and unique");
+        require(key == kSource161DiagnosticEnvironmentKeys[keyIndex],
+                "source-bound diagnostic key registry differs from source161");
+        previousKey = key;
+        NSDictionary* const state =
+            [effective[keyValue] isKindOfClass:[NSDictionary class]]
+                ? effective[keyValue] : nil;
+        require(state != nil && state.count == 2u &&
+                    [state[@"set"] isKindOfClass:[NSNumber class]] &&
+                    CFGetTypeID((__bridge CFTypeRef)state[@"set"]) ==
+                        CFBooleanGetTypeID(),
+                "source-bound diagnostic effective state is malformed");
+        const bool set = [(NSNumber*)state[@"set"] boolValue];
+        id value = state[@"value"];
+        std::string text;
+        if (set) {
+            require([value isKindOfClass:[NSString class]],
+                    "set source-bound diagnostic value is not text");
+            const char* valueUTF8 = [(NSString*)value UTF8String];
+            require(valueUTF8 != nullptr,
+                    "source-bound diagnostic value is not UTF-8");
+            text = valueUTF8;
+            expectedOverrides[keyValue] = value;
+            const auto actualValue = actual.find(key);
+            if (compareActualEnvironment && isRegisteredOutputPathKey(key))
+                require(actualValue != actual.end() && actualValue->second == text,
+                        "current runtime environment differs from its source-bound contract: " + key);
+        } else {
+            require(value == [NSNull null],
+                    "absent source-bound diagnostic value is not null: " + key);
+            if (compareActualEnvironment && isRegisteredOutputPathKey(key))
+                require(!actual.contains(key),
+                        "absent source-bound value differs from current runtime: " + key);
+        }
+        if (isRegisteredOutputPathKey(key)) {
+            contractPaths.push_back({key, set, set ? text : std::string{}});
+        } else {
+            runnerNonOutputSettings << key.size() << ':' << key;
+            if (set)
+                runnerNonOutputSettings << "set" << text.size() << ':' << text;
+            else
+                runnerNonOutputSettings << "absent";
+            runnerNonOutputSettings << '\n';
+        }
+    }
+    require([prediction[@"environment"] isKindOfClass:[NSDictionary class]] &&
+                [prediction[@"environment"] isEqualToDictionary:expectedOverrides],
+            "source-bound diagnostic prediction overrides differ from its contract");
+    require(contractPaths.size() == kRegisteredOutputPathKeys.size() &&
+                canonicalCouponOutputPathMap(contractPaths) ==
+                    canonicalCouponOutputPathMap(expectedPaths) &&
+                prefixes.count == static_cast<NSUInteger>(std::count_if(
+                    contractPaths.begin(), contractPaths.end(),
+                    [](const RuntimePathBinding& binding) { return binding.present; })),
+            "source-bound diagnostic path map differs from the effective environment");
+    for (const RuntimePathBinding& binding : contractPaths) {
+        NSString* const key = [NSString stringWithUTF8String:binding.key.c_str()];
+        id prefixValue = prefixes[key];
+        if (!binding.present) {
+            require(prefixValue == nil,
+                    "absent diagnostic output path has a runner capture prefix");
+            continue;
+        }
+        require([prefixValue isKindOfClass:[NSString class]],
+                "set diagnostic output path lacks its source-runner prefix");
+        const char* prefixUTF8 = [(NSString*)prefixValue UTF8String];
+        require(prefixUTF8 != nullptr && binding.value == prefixUTF8,
+                "diagnostic output path differs from the source-runner prefix");
+        const fs::path prefixPath(binding.value);
+        require(prefixPath.is_absolute() && prefixPath.string().find("/../") ==
+                    std::string::npos,
+                "diagnostic output prefix is not an absolute case-local path");
+        const fs::path prefixDirectory = prefixPath.parent_path();
+        require(fs::is_directory(prefixDirectory) &&
+                    !fs::is_symlink(prefixDirectory) &&
+                    fs::weakly_canonical(prefixDirectory, error) == prefixDirectory &&
+                    !error,
+                "diagnostic output prefix directory is missing or aliased");
+        const fs::path canonicalPrefix = fs::weakly_canonical(prefixPath, error);
+        require(!error && canonicalPrefix.string().starts_with(
+                    caseDirectory.string() + "/diagnostics/"),
+                "diagnostic output prefix escapes the source-runner case");
+    }
+    const std::string predictionSha = hexDigest(sha256(
+        predictionBytes.data(), predictionBytes.size()));
+    require(couponRunnerString(record, @"prediction_sha256",
+                "environment.prediction_sha256") == predictionSha,
+            "source-bound runner environment record is not bound to its prediction bytes");
+    return {caseText,
+        hexDigest(sha256(environmentBytes.data(), environmentBytes.size())),
+        hexDigest(sha256(runnerNonOutputSettings.str())), predictionSha,
+        contractSha, std::move(contractPaths)};
+}
+
+void writeCouponTextAtomically(const std::filesystem::path& path,
+                               const std::string& contents) {
+    const auto partial = std::filesystem::path(path.string() + ".partial");
+    require(!std::filesystem::exists(path) && !std::filesystem::exists(partial),
+            "coupon checkpoint metadata destination already exists");
+    std::ofstream output(partial, std::ios::binary | std::ios::out);
+    require(output.good(), "cannot create coupon checkpoint metadata: " + partial.string());
+    output.write(contents.data(), static_cast<std::streamsize>(contents.size()));
+    output.flush();
+    require(output.good(), "coupon checkpoint metadata write failed");
+    output.close();
+    std::error_code error;
+    std::filesystem::rename(partial, path, error);
+    require(!error, "cannot publish coupon checkpoint metadata: " + error.message());
+}
+
+bool couponEnvironmentAccepted(const RuntimeStateSnapshot& snapshot,
+                               const CompiledWorld& world,
+                               const std::uint32_t environment) {
+    if (environment >= snapshot.statuses.size() ||
+        environment >= snapshot.solverCertificates.size()) return false;
+    const auto& status = snapshot.statuses[environment];
+    const auto& certificate = snapshot.solverCertificates[environment];
+    return status.code == NM_STATUS_SUCCESS && certificate.validity.w > 0.5f &&
+        std::isfinite(certificate.nonlinear.x) &&
+        std::isfinite(certificate.nonlinear.y) &&
+        std::isfinite(certificate.nonlinear.z) &&
+        std::isfinite(certificate.nonlinear.w) &&
+        certificate.nonlinear.x <= world.mixedSolver.residualTolerances.x &&
+        certificate.nonlinear.z <= world.mixedSolver.residualTolerances.y &&
+        certificate.nonlinear.w <= world.mixedSolver.residualTolerances.z;
+}
+
+std::uint64_t doubleBits(const double value) {
+    std::uint64_t bits = 0u;
+    std::memcpy(&bits, &value, sizeof(bits));
+    return bits;
+}
+
+std::uint32_t floatBits(const float value) {
+    std::uint32_t bits = 0u;
+    std::memcpy(&bits, &value, sizeof(bits));
+    return bits;
+}
+
+std::filesystem::path writeCouponAcceptedCheckpoint(
+    const std::filesystem::path& outputDirectory,
+    const RuntimeStateSnapshot& snapshot,
+    const CompiledWorld& world,
+    const Arguments& arguments,
+    const std::uint32_t controlIndex) {
+    using namespace numi::cardboard::coupon_resume;
+    require(arguments.couponCheckpointAfterControl == controlIndex,
+            "coupon checkpoint cursor differs from the requested boundary");
+    require(snapshot.controlStep == controlIndex,
+            "native snapshot control cursor does not match the accepted boundary");
+    require(snapshot.available && snapshot.statuses.size() == kEnvironmentCount &&
+                snapshot.solverCertificates.size() == kEnvironmentCount &&
+                couponEnvironmentAccepted(snapshot, world, 0u) &&
+                couponEnvironmentAccepted(snapshot, world, 1u),
+            "coupon checkpoint requires accepted native certificates in both environments");
+    numi::cardboard::shipping_snapshot_detail::validateAcceptedSnapshot(snapshot);
+    numi::cardboard::shipping_snapshot_detail::validateShippingCheckpointShape(
+        snapshot, world, kEnvironmentCount, true);
+    const auto runtimeVariables = couponRuntimeEnvironmentVariables();
+    const RuntimePathMap outputPaths = couponRuntimePathMap(runtimeVariables);
+    std::optional<DiagnosticRunnerProof> runnerProof;
+    if (couponOutputPathMapHasAnySetValue(outputPaths)) {
+        runnerProof = couponValidateSourceBoundDiagnosticRunner(
+            std::filesystem::weakly_canonical(outputDirectory.parent_path()),
+            runtimeVariables, outputPaths);
+    }
+
+    const auto checkpointDirectory = outputDirectory / "checkpoints";
+    std::error_code error;
+    std::filesystem::create_directories(checkpointDirectory, error);
+    require(!error, "cannot create coupon checkpoint directory: " + error.message());
+    const std::string stem = "coupon-control-" + stepLabel(controlIndex);
+    const auto checkpointPath = checkpointDirectory / (stem + ".nmcb");
+    const auto prefixPath = checkpointDirectory / (stem + ".prefix");
+    const auto metadataPath = checkpointDirectory / (stem + ".resume");
+    numi::cardboard::writeShippingAcceptedSnapshot(checkpointPath, snapshot);
+    const auto checkpointBytes = fileBytesOrThrow(checkpointPath);
+    constexpr std::uint64_t kMaximumCouponCheckpointBytes = 2ull * 1024ull * 1024ull * 1024ull;
+    require(checkpointBytes > 0u && checkpointBytes <= kMaximumCouponCheckpointBytes,
+            "coupon checkpoint exceeds its 2 GiB bounded snapshot limit");
+
+    PrefixManifest prefix;
+    prefix.sourceRunDirectory = std::filesystem::weakly_canonical(outputDirectory).string();
+    prefix.acceptedControlIndex = controlIndex;
+    std::uint64_t totalPrefixBytes = 0u;
+    const auto sourceRoot = std::filesystem::weakly_canonical(outputDirectory);
+    for (std::filesystem::recursive_directory_iterator it(outputDirectory), end;
+         it != end; ++it) {
+        const auto relative = it->path().lexically_relative(outputDirectory);
+        if (relative.empty()) continue;
+        const auto first = relative.begin();
+        if (first != relative.end() && first->string() == "checkpoints") {
+            if (it->is_directory()) it.disable_recursion_pending();
+            continue;
+        }
+        const auto filename = it->path().filename().string();
+        if (filename == "result.json" || filename == "failure.txt") continue;
+        if (it->is_symlink()) {
+            if (it->is_directory()) it.disable_recursion_pending();
+            continue;
+        }
+        if (!it->is_regular_file()) continue;
+        const std::string relativeName = relative.generic_string();
+        require(safeRelativePath(relativeName),
+                "coupon prefix contains an unsafe relative path");
+        const std::uint64_t bytes = fileBytesOrThrow(it->path());
+        require(bytes <= kMaximumCouponCheckpointBytes - totalPrefixBytes,
+                "coupon source-prefix manifest exceeds its 2 GiB bound");
+        totalPrefixBytes += bytes;
+        const std::string digest = hexDigest(sha256BoundedFile(
+            it->path(), kMaximumCouponCheckpointBytes));
+        const bool observations = relativeName == "observations.csv";
+        prefix.files.push_back({relativeName, bytes, digest, observations});
+        if (observations) {
+            prefix.observationsPrefixBytes = bytes;
+            prefix.observationsPrefixSha256 = digest;
+        }
+    }
+    std::sort(prefix.files.begin(), prefix.files.end(),
+        [](const PrefixEntry& a, const PrefixEntry& b) {
+            return a.relativePath < b.relativePath;
+        });
+    require(!prefix.files.empty() &&
+                std::any_of(prefix.files.begin(), prefix.files.end(),
+                    [](const PrefixEntry& entry) {
+                        return entry.relativePath == "observations.csv";
+                    }),
+            "coupon checkpoint has no flushed source observations prefix");
+    (void)sourceRoot;
+    const std::string prefixContents = serializePrefixManifest(prefix);
+    writeCouponTextAtomically(prefixPath, prefixContents);
+
+    const std::string protocolDigest = hexDigest(
+        sha256BoundedFile(outputDirectory / "manifest.json",
+                          kMaximumCouponCheckpointBytes));
+    const std::uint32_t nextControl = controlIndex + 1u;
+    const LoadPoint nextPoint = loadingPoint(arguments, nextControl);
+    const float timestepF32 = static_cast<float>(arguments.timestepSeconds);
+    Metadata metadata;
+    metadata.checkpointSha256 = hexDigest(sha256BoundedFile(
+        checkpointPath, kMaximumCouponCheckpointBytes));
+    metadata.checkpointBytes = checkpointBytes;
+    metadata.sourcePhysicsFingerprint = snapshot.sourcePhysicsFingerprint;
+    metadata.deviceProgramFingerprint = snapshot.deviceProgramFingerprint;
+    metadata.protocolManifestSha256 = protocolDigest;
+    const std::string pathMapBytes = canonicalCouponOutputPathMap(outputPaths);
+    metadata.runtimeEnvironmentSha256 =
+        couponRuntimeSettingsSha256(runtimeVariables);
+    metadata.runtimeOutputPathMapHex = couponHexEncode(pathMapBytes);
+    metadata.runtimeOutputPathMapSha256 = hexDigest(sha256(pathMapBytes));
+    if (runnerProof.has_value()) {
+        metadata.sourceRunnerCaseDirectory = runnerProof->caseDirectory;
+        metadata.sourceRunnerEnvironmentRecordSha256 =
+            runnerProof->environmentRecordSha256;
+        metadata.sourceRunnerNonOutputSettingsSha256 =
+            runnerProof->nonOutputSettingsSha256;
+        metadata.sourceRunnerPredictionSha256 = runnerProof->predictionSha256;
+        metadata.sourceRunnerContractSha256 = runnerProof->contractSha256;
+    }
+    metadata.prefixManifestSha256 = hexDigest(sha256(prefixContents));
+    metadata.prefixManifestFile = prefixPath.filename().string();
+    metadata.sourceRunDirectory = prefix.sourceRunDirectory;
+    metadata.sourceRunId = hexDigest(sha256(
+        protocolDigest + metadata.checkpointSha256 + prefix.sourceRunDirectory));
+    metadata.environmentCount = arguments.environmentCount;
+    metadata.nodeCount = world.dispatch.femNodeCount;
+    metadata.tetrahedronCount = world.dispatch.tetrahedronCount;
+    metadata.materialStateStride = snapshot.materialStateStride;
+    metadata.acceptedControlIndex = controlIndex;
+    metadata.nextControlIndex = nextControl;
+    metadata.physicsSubstep = snapshot.physicsSubstep;
+    metadata.sourcePrefixControlCount = nextControl;
+    metadata.timestepFloatBits = floatBits(timestepF32);
+    metadata.scheduledElapsedSecondsBits = doubleBits(
+        static_cast<double>(nextControl) * arguments.timestepSeconds);
+    metadata.phase = loadingPoint(arguments, controlIndex).phase;
+    metadata.nextPhase = nextPoint.phase;
+    metadata.nextTargetAngleBits = doubleBits(nextPoint.angleDegrees);
+    writeCouponTextAtomically(metadataPath, serializeMetadata(metadata));
+    return checkpointPath;
+}
+
+struct LoadedCouponResume {
+    RuntimeStateSnapshot snapshot;
+    numi::cardboard::coupon_resume::Metadata metadata;
+    std::filesystem::path checkpointPath;
+    numi::cardboard::coupon_resume::RuntimePathMap sourceOutputPaths;
+    numi::cardboard::coupon_resume::RuntimePathMap currentOutputPaths;
+    std::string currentRunnerEnvironmentRecordSha256 = "none";
+    std::string currentRunnerNonOutputSettingsSha256 = "none";
+    std::string currentRunnerPredictionSha256 = "none";
+    std::string currentRunnerContractSha256 = "none";
+    bool outputPathMapRelocated = false;
+};
+
+void verifyCouponPrefix(const std::filesystem::path& prefixPath,
+                        const std::filesystem::path& sourceRunDirectory,
+                        const std::uint32_t expectedControl,
+                        const std::string& expectedDigest) {
+    using namespace numi::cardboard::coupon_resume;
+    require(std::filesystem::is_regular_file(prefixPath),
+            "coupon prefix manifest is missing");
+    require(hexDigest(sha256BoundedFile(prefixPath,
+                2ull * 1024ull * 1024ull * 1024ull)) == expectedDigest,
+            "coupon prefix manifest SHA-256 does not match metadata");
+    std::ifstream input(prefixPath, std::ios::binary);
+    require(input.good(), "cannot open coupon prefix manifest");
+    const PrefixManifest prefix = parsePrefixManifest(input, prefixPath.string());
+    const auto canonicalSource = std::filesystem::weakly_canonical(sourceRunDirectory);
+    require(prefix.sourceRunDirectory == canonicalSource.string() &&
+                prefix.acceptedControlIndex == expectedControl,
+            "coupon prefix manifest source run or accepted cursor differs");
+    constexpr std::uint64_t kMaximumPrefixBytes = 2ull * 1024ull * 1024ull * 1024ull;
+    std::uint64_t totalBytes = 0u;
+    for (const PrefixEntry& entry : prefix.files) {
+        require(entry.bytes <= kMaximumPrefixBytes - totalBytes,
+                "coupon prefix file inventory exceeds its bound");
+        totalBytes += entry.bytes;
+        const auto candidate = canonicalSource / std::filesystem::path(entry.relativePath);
+        require(!std::filesystem::is_symlink(candidate) &&
+                    std::filesystem::is_regular_file(candidate),
+                "coupon source-prefix file is missing or replaced by a non-file: " +
+                    entry.relativePath);
+        const auto canonicalFile = std::filesystem::weakly_canonical(candidate);
+        const auto relativeCheck = canonicalFile.lexically_relative(canonicalSource);
+        require(!relativeCheck.empty() && *relativeCheck.begin() != "..",
+                "coupon source-prefix file resolves outside its original run directory");
+        if (entry.observationsPrefix) {
+            require(fileBytesOrThrow(canonicalFile) == entry.bytes &&
+                        hexDigest(sha256FilePrefix(canonicalFile, entry.bytes)) == entry.sha256,
+                    "coupon source observations file changed after the saved prefix stopped");
+        } else {
+            require(fileBytesOrThrow(canonicalFile) == entry.bytes &&
+                        hexDigest(sha256BoundedFile(canonicalFile,
+                            kMaximumPrefixBytes)) == entry.sha256,
+                    "coupon accepted-prefix artifact changed after checkpoint creation: " +
+                        entry.relativePath);
+        }
+    }
+}
+
+LoadedCouponResume loadCouponResume(
+    const Arguments& arguments, const CompileResult& compiled,
+    const Runtime& runtime,
+    const std::filesystem::path& currentOutputDirectory) {
+    using namespace numi::cardboard::coupon_resume;
+    require(!arguments.couponResumeCheckpoint.empty() &&
+                !arguments.couponResumeMetadata.empty(),
+            "coupon resume paths are incomplete");
+    require(std::filesystem::is_regular_file(arguments.couponResumeMetadata),
+            "coupon resume metadata file is unavailable");
+    require(!std::filesystem::is_symlink(arguments.couponResumeMetadata) &&
+                !std::filesystem::is_symlink(arguments.couponResumeCheckpoint),
+            "coupon resume metadata/checkpoint may not be symlinks");
+    require(fileBytesOrThrow(arguments.couponResumeMetadata) <= 64u * 1024u,
+            "coupon resume metadata exceeds its 64 KiB bound");
+    std::ifstream metadataInput(arguments.couponResumeMetadata, std::ios::binary);
+    require(metadataInput.good(), "cannot open coupon resume metadata");
+    Metadata metadata = parseMetadata(metadataInput,
+        arguments.couponResumeMetadata.string());
+    require(std::filesystem::is_regular_file(arguments.couponResumeCheckpoint),
+            "coupon resume checkpoint file is unavailable");
+    require(fileBytesOrThrow(arguments.couponResumeCheckpoint) == metadata.checkpointBytes &&
+                hexDigest(sha256BoundedFile(arguments.couponResumeCheckpoint,
+                    2ull * 1024ull * 1024ull * 1024ull)) ==
+                    metadata.checkpointSha256,
+            "coupon checkpoint bytes or SHA-256 do not match metadata");
+    const auto sourceRun = std::filesystem::weakly_canonical(
+        metadata.sourceRunDirectory);
+    require(std::filesystem::path(metadata.sourceRunDirectory).is_absolute() &&
+                sourceRun.string() == metadata.sourceRunDirectory,
+            "coupon source run directory is not its canonical absolute path");
+    const auto currentRun = std::filesystem::weakly_canonical(currentOutputDirectory);
+    require(sourceRun != currentRun,
+            "coupon resume output must be a separate diagnostic segment directory");
+    require(std::filesystem::is_regular_file(sourceRun / "manifest.json") &&
+                hexDigest(sha256BoundedFile(sourceRun / "manifest.json",
+                    2ull * 1024ull * 1024ull * 1024ull)) ==
+                    metadata.protocolManifestSha256 &&
+                hexDigest(sha256BoundedFile(currentOutputDirectory / "manifest.json",
+                    2ull * 1024ull * 1024ull * 1024ull)) ==
+                    metadata.protocolManifestSha256,
+            "coupon source/current protocol manifest differs from the checkpoint binding");
+    require(metadata.sourceRunId == hexDigest(sha256(
+                metadata.protocolManifestSha256 + metadata.checkpointSha256 +
+                sourceRun.string())),
+            "coupon source run identity does not match its protocol/checkpoint binding");
+    validateRuntimeFingerprints(metadata, runtime.sourcePhysicsFingerprint(),
+                                runtime.deviceProgramFingerprint());
+    const auto runtimeVariables = couponRuntimeEnvironmentVariables();
+    require(metadata.runtimeEnvironmentSha256 ==
+                couponRuntimeSettingsSha256(runtimeVariables),
+            "coupon checkpoint non-path NM_/NUMI_MATTER_ settings differ");
+    const RuntimePathMap sourceOutputPaths = parseCouponOutputPathMap(
+        couponHexDecode(metadata.runtimeOutputPathMapHex));
+    const RuntimePathMap currentOutputPaths =
+        couponRuntimePathMap(runtimeVariables);
+    const std::string sourcePathBytes =
+        canonicalCouponOutputPathMap(sourceOutputPaths);
+    require(hexDigest(sha256(sourcePathBytes)) ==
+                metadata.runtimeOutputPathMapSha256,
+            "coupon checkpoint registered output-path map digest is invalid");
+    const bool sourceRunnerPresent =
+        metadata.sourceRunnerPredictionSha256 != "none";
+    if (sourceRunnerPresent) {
+        const auto sourceRunnerCase = std::filesystem::weakly_canonical(
+            metadata.sourceRunnerCaseDirectory);
+        require(sourceRunnerCase == sourceRun.parent_path() &&
+                    sourceRunnerCase.string() ==
+                        metadata.sourceRunnerCaseDirectory,
+                "coupon source runner case differs from the accepted source run");
+        const auto sourceProof = couponValidateSourceBoundDiagnosticRunner(
+            sourceRunnerCase, {}, sourceOutputPaths, false);
+        validateDiagnosticRunnerProof(sourceProof,
+            metadata.sourceRunnerCaseDirectory, sourceOutputPaths);
+        require(sourceProof.environmentRecordSha256 ==
+                    metadata.sourceRunnerEnvironmentRecordSha256 &&
+                    sourceProof.nonOutputSettingsSha256 ==
+                    metadata.sourceRunnerNonOutputSettingsSha256 &&
+                    sourceProof.predictionSha256 ==
+                    metadata.sourceRunnerPredictionSha256 &&
+                    sourceProof.contractSha256 ==
+                    metadata.sourceRunnerContractSha256,
+                "coupon source runner receipt no longer matches checkpoint metadata");
+    } else {
+        require(!couponOutputPathMapHasAnySetValue(sourceOutputPaths),
+                "coupon source output paths have no bound source-runner receipt");
+    }
+    const bool currentRunnerPresent =
+        couponOutputPathMapHasAnySetValue(currentOutputPaths);
+    DiagnosticRunnerProof currentProof;
+    if (currentRunnerPresent) {
+        currentProof = couponValidateSourceBoundDiagnosticRunner(
+            std::filesystem::weakly_canonical(currentOutputDirectory.parent_path()),
+            runtimeVariables, currentOutputPaths);
+        validateDiagnosticRunnerProof(currentProof,
+            std::filesystem::weakly_canonical(
+                currentOutputDirectory.parent_path()).string(),
+            currentOutputPaths);
+        if (sourceRunnerPresent)
+            require(currentProof.nonOutputSettingsSha256 ==
+                        metadata.sourceRunnerNonOutputSettingsSha256,
+                    "coupon source/resume runner non-output overrides differ");
+    }
+    const bool outputPathMapRelocated = validateCouponOutputPathMapTransition(
+        sourceOutputPaths, currentOutputPaths, sourceRunnerPresent,
+        currentRunnerPresent);
+    require(metadata.sourcePhysicsFingerprint == compiled.world.physicsFingerprint &&
+                metadata.environmentCount == arguments.environmentCount &&
+                metadata.nodeCount == compiled.world.dispatch.femNodeCount &&
+                metadata.tetrahedronCount == compiled.world.dispatch.tetrahedronCount &&
+                metadata.nextControlIndex < totalSteps(arguments) &&
+                metadata.sourcePrefixControlCount == metadata.nextControlIndex &&
+                metadata.timestepFloatBits ==
+                    floatBits(static_cast<float>(arguments.timestepSeconds)) &&
+                metadata.scheduledElapsedSecondsBits == doubleBits(
+                    static_cast<double>(metadata.nextControlIndex) *
+                        arguments.timestepSeconds),
+            "coupon checkpoint source, environment, layout, timestep, or schedule does not match");
+    require(metadata.acceptedControlIndex + 1u == metadata.nextControlIndex &&
+                metadata.nextControlIndex > 0u,
+            "coupon checkpoint control cursor is invalid");
+    const LoadPoint acceptedPoint = loadingPoint(
+        arguments, metadata.acceptedControlIndex);
+    const LoadPoint nextPoint = loadingPoint(arguments, metadata.nextControlIndex);
+    require(metadata.phase == acceptedPoint.phase &&
+                metadata.nextPhase == nextPoint.phase &&
+                metadata.nextTargetAngleBits == doubleBits(nextPoint.angleDegrees),
+            "coupon checkpoint phase/target cursor differs from the compiled protocol");
+    const auto prefixPath = arguments.couponResumeCheckpoint.parent_path() /
+        metadata.prefixManifestFile;
+    require(!std::filesystem::is_symlink(prefixPath) &&
+                fileBytesOrThrow(prefixPath) <= 4u * 1024u * 1024u,
+            "coupon prefix manifest is missing, aliased, or exceeds its 4 MiB bound");
+    verifyCouponPrefix(prefixPath, sourceRun,
+        metadata.acceptedControlIndex, metadata.prefixManifestSha256);
+    RuntimeStateSnapshot snapshot = numi::cardboard::readShippingAcceptedSnapshot(
+        arguments.couponResumeCheckpoint, runtime.sourcePhysicsFingerprint(),
+        runtime.deviceProgramFingerprint(), 2ull * 1024ull * 1024ull * 1024ull);
+    require(snapshot.controlStep == metadata.acceptedControlIndex &&
+                snapshot.physicsSubstep == metadata.physicsSubstep &&
+                snapshot.materialStateStride == metadata.materialStateStride &&
+                snapshot.sourcePhysicsFingerprint == metadata.sourcePhysicsFingerprint &&
+                snapshot.deviceProgramFingerprint == metadata.deviceProgramFingerprint &&
+                snapshot.statuses.size() == kEnvironmentCount &&
+                snapshot.solverCertificates.size() == kEnvironmentCount &&
+                couponEnvironmentAccepted(snapshot, compiled.world, 0u) &&
+                couponEnvironmentAccepted(snapshot, compiled.world, 1u),
+            "coupon checkpoint cursor or both-environment accepted certificate is invalid");
+    numi::cardboard::shipping_snapshot_detail::validateShippingCheckpointShape(
+        snapshot, compiled.world, kEnvironmentCount, true);
+    return {std::move(snapshot), std::move(metadata),
+            arguments.couponResumeCheckpoint, sourceOutputPaths,
+            currentOutputPaths,
+            currentRunnerPresent ? currentProof.environmentRecordSha256 : "none",
+            currentRunnerPresent ? currentProof.nonOutputSettingsSha256 : "none",
+            currentRunnerPresent ? currentProof.predictionSha256 : "none",
+            currentRunnerPresent ? currentProof.contractSha256 : "none",
+            outputPathMapRelocated};
+}
+
+void writeCouponResumeSegmentReport(
+    const std::filesystem::path& path,
+    const LoadedCouponResume& resume,
+    const std::uint32_t segmentAcceptedControls,
+    const std::string& status) {
+    std::ofstream output(path);
+    require(output.good(), "cannot write coupon resume segment report");
+    output << "{\n  \"schema\": \"numi.cardboard.coupon-resume-segment.v1\",\n"
+        << "  \"evidence_class\": \"diagnostic_resumed_segment\",\n"
+        << "  \"status\": \"" << jsonEscape(status) << "\",\n"
+        << "  \"source_run_id\": \"" << jsonEscape(resume.metadata.sourceRunId) << "\",\n"
+        << "  \"source_run_directory\": \""
+        << jsonEscape(resume.metadata.sourceRunDirectory) << "\",\n"
+        << "  \"source_prefix_accepted_control_count\": "
+        << resume.metadata.sourcePrefixControlCount << ",\n"
+        << "  \"segment_start_control_index\": "
+        << resume.metadata.nextControlIndex << ",\n"
+        << "  \"segment_accepted_controls\": " << segmentAcceptedControls << ",\n"
+        << "  \"checkpoint_file\": \""
+        << jsonEscape(resume.checkpointPath.filename().string()) << "\",\n"
+        << "  \"checkpoint_sha256\": \""
+        << resume.metadata.checkpointSha256 << "\",\n"
+        << "  \"protocol_manifest_sha256\": \""
+        << resume.metadata.protocolManifestSha256 << "\",\n"
+        << "  \"runtime_settings_sha256\": \""
+        << resume.metadata.runtimeEnvironmentSha256 << "\",\n"
+        << "  \"registered_output_path_map_schema\": "
+        << "\"numi.cardboard.registered-diagnostic-output-path-map.v1\",\n"
+        << "  \"registered_output_path_map_relocated\": "
+        << (resume.outputPathMapRelocated ? "true" : "false") << ",\n"
+        << "  \"source_registered_output_paths\": {";
+    auto writePathMap = [&](const numi::cardboard::coupon_resume::RuntimePathMap& pathMap) {
+        for (std::size_t index = 0u; index < pathMap.size(); ++index) {
+            const auto& binding = pathMap[index];
+            if (index != 0u) output << ',';
+            output << "\n    \"" << jsonEscape(binding.key) << "\": {\"set\": "
+                   << (binding.present ? "true" : "false");
+            if (binding.present)
+                output << ", \"value\": \"" << jsonEscape(binding.value) << "\"";
+            else
+                output << ", \"value\": null";
+            output << '}';
+        }
+        if (!pathMap.empty()) output << '\n' << "  ";
+    };
+    writePathMap(resume.sourceOutputPaths);
+    output << "},\n  \"current_registered_output_paths\": {";
+    writePathMap(resume.currentOutputPaths);
+    output << "},\n"
+        << "  \"source_runner_case_directory\": \""
+        << jsonEscape(resume.metadata.sourceRunnerCaseDirectory) << "\",\n"
+        << "  \"source_runner_environment_record_sha256\": \""
+        << resume.metadata.sourceRunnerEnvironmentRecordSha256 << "\",\n"
+        << "  \"source_runner_non_output_settings_sha256\": \""
+        << resume.metadata.sourceRunnerNonOutputSettingsSha256 << "\",\n"
+        << "  \"source_runner_prediction_sha256\": \""
+        << resume.metadata.sourceRunnerPredictionSha256 << "\",\n"
+        << "  \"source_runner_contract_sha256\": \""
+        << resume.metadata.sourceRunnerContractSha256 << "\",\n"
+        << "  \"current_runner_environment_record_sha256\": \""
+        << resume.currentRunnerEnvironmentRecordSha256 << "\",\n"
+        << "  \"current_runner_non_output_settings_sha256\": \""
+        << resume.currentRunnerNonOutputSettingsSha256 << "\",\n"
+        << "  \"current_runner_prediction_sha256\": \""
+        << resume.currentRunnerPredictionSha256 << "\",\n"
+        << "  \"current_runner_contract_sha256\": \""
+        << resume.currentRunnerContractSha256 << "\",\n"
+        << "  \"output_paths_were_created_by_probe\": false,\n"
+        << "  \"accepted_state_restored_from_native_snapshot\": true,\n"
+        << "  \"accepted_prefix_reconstructed_from_obj_or_json\": false,\n"
+        << "  \"trajectory_parity_established\": false,\n"
+        << "  \"full_protocol_complete\": false,\n"
+        << "  \"physical_validation\": false\n}\n";
+    require(output.good(), "failed writing coupon resume segment report");
+}
+
+void writeCouponCheckpointPrefixReport(
+    const std::filesystem::path& path,
+    const std::uint32_t acceptedControl,
+    const std::uint32_t nextControl,
+    const std::string& checkpointFile,
+    const std::string& checkpointSha256,
+    const std::string& metadataFile,
+    const std::string& metadataSha256) {
+    std::ofstream output(path);
+    require(output.good(), "cannot write accepted coupon checkpoint prefix report");
+    output << "{\n  \"schema\": \"numi.cardboard.coupon-checkpoint-prefix.v1\",\n"
+        << "  \"status\": \"accepted_checkpoint_prefix_saved\",\n"
+        << "  \"accepted_control_index\": " << acceptedControl << ",\n"
+        << "  \"next_control_index\": " << nextControl << ",\n"
+        << "  \"checkpoint_file\": \"" << jsonEscape(checkpointFile) << "\",\n"
+        << "  \"checkpoint_sha256\": \"" << checkpointSha256 << "\",\n"
+        << "  \"metadata_file\": \"" << jsonEscape(metadataFile) << "\",\n"
+        << "  \"metadata_sha256\": \"" << metadataSha256 << "\",\n"
+        << "  \"full_protocol_complete\": false,\n"
+        << "  \"trajectory_parity_established\": false,\n"
+        << "  \"physical_validation\": false\n}\n";
+    output.flush();
+    require(output.good(), "failed writing accepted coupon checkpoint prefix report");
+}
+
 int execute(Arguments arguments) {
     if (arguments.shippingBox) {
         require(arguments.shippingDesign.has_value(),
@@ -12391,6 +13638,12 @@ int execute(Arguments arguments) {
             shippingArenaBudget ? &*shippingArenaBudget : nullptr);
 
     NativeRun run(compiled.world, arguments.metallib, arguments.shippingBox);
+    std::optional<LoadedCouponResume> couponResume;
+    if (!arguments.couponResumeCheckpoint.empty())
+        couponResume = loadCouponResume(
+            arguments, compiled, run.runtime(), arguments.output);
+    if (couponResume)
+        run.restoreAcceptedCheckpoint(couponResume->snapshot);
     // These are the last Newton linearization, including after rollback. They
     // are diagnostic conditioning data, never accepted physical geometry.
     const auto writeRejectedRegionalConditioning = [&](const std::uint32_t step,
@@ -12425,6 +13678,17 @@ int execute(Arguments arguments) {
             << jsonEscape(snapshot.femRegionalGalerkinDiagnosticsMessage) << "\",\n"
             << "  \"regional_readback_bytes\": "
             << snapshot.femRegionalGalerkinDiagnosticReadbackBytes << ",\n"
+            << "  \"linearization_constitutive_inputs\": {\n"
+            << "    \"available\": "
+            << (snapshot.femRegionalGalerkinDiagnosticsAvailable ? "true" : "false") << ",\n"
+            << "    \"material_state_stride\": " << snapshot.materialStateStride << ",\n"
+            << "    \"tetrahedra_per_environment\": "
+            << compiled.world.dispatch.tetrahedronCount << ",\n"
+            << "    \"history_kind\": \"accepted_history_at_AP_linearization_not_current_projected_state\",\n"
+            << "    \"F_layout\": \"environment_tetrahedron_row_float4_high_plus_low_in_material_frame\",\n"
+            << "    \"scheduler_layout\": \"environment_tetrahedron_uint32_rate_exponent\",\n"
+            << "    \"exact_newton_correction_available\": false,\n"
+            << "    \"perturbed_projected_states_available\": false\n  },\n"
             << "  \"restart_augmentation\": {\n"
             << "    \"diagnostics_available\": "
             << (snapshot.femRegionalRestartAugmentationDiagnosticsAvailable ? "true" : "false") << ",\n"
@@ -12475,6 +13739,18 @@ int execute(Arguments arguments) {
                 << sha256Arena(values) << "\"}";
         };
         writeArena("candidate_nodes", snapshot.femRegionalGalerkinLinearizationNodes);
+        // These arrays were already read back under Runtime's existing
+        // regional 64 MiB bound. Preserve the exact AP linearization inputs
+        // instead of leaving them only in the in-memory snapshot. This is
+        // accepted constitutive history, never a current projected state.
+        writeArena("linearization_accepted_material_history",
+                   snapshot.femRegionalGalerkinLinearizationMaterialState);
+        writeArena("linearization_scheduler_exponents",
+                   snapshot.femRegionalGalerkinLinearizationSchedulerExponent);
+        writeArena("linearization_F_high",
+                   snapshot.femRegionalGalerkinLinearizationLocalFHigh);
+        writeArena("linearization_F_low",
+                   snapshot.femRegionalGalerkinLinearizationLocalFLow);
         writeArena("P", snapshot.femRegionalGalerkinBasisP);
         writeArena("effective_P", snapshot.femRegionalGalerkinEffectiveBasisP);
         writeArena("AP", snapshot.femRegionalGalerkinOperatorAP);
@@ -12515,7 +13791,10 @@ int execute(Arguments arguments) {
     bool failed = false;
     std::string failure;
     std::uint32_t acceptedSteps = 0u;
-    for (std::uint32_t step = 0u; step < totalSteps(arguments); ++step) {
+    bool couponCheckpointWritten = false;
+    const std::uint32_t firstControl = couponResume
+        ? couponResume->metadata.nextControlIndex : 0u;
+    for (std::uint32_t step = firstControl; step < totalSteps(arguments); ++step) {
         std::vector<nm_float4> targets;
         fillTargets(arguments, mesh, step, targets);
         RunState current;
@@ -12541,12 +13820,8 @@ int execute(Arguments arguments) {
             const NMMatterStatusGPU& status =
                 current.snapshot.statuses[environment];
             const auto& certificate = current.snapshot.solverCertificates.at(environment);
-            const bool accepted = status.code == NM_STATUS_SUCCESS && certificate.validity.w > 0.5f &&
-                std::isfinite(certificate.nonlinear.x) && std::isfinite(certificate.nonlinear.y) &&
-                std::isfinite(certificate.nonlinear.z) && std::isfinite(certificate.nonlinear.w) &&
-                certificate.nonlinear.x <= compiled.world.mixedSolver.residualTolerances.x &&
-                certificate.nonlinear.z <= compiled.world.mixedSolver.residualTolerances.y &&
-                certificate.nonlinear.w <= compiled.world.mixedSolver.residualTolerances.z;
+            const bool accepted = couponEnvironmentAccepted(
+                current.snapshot, compiled.world, environment);
             ReactionMetrics reaction;
             if (accepted) {
                 reaction = reactionMetrics(
@@ -12638,11 +13913,60 @@ int execute(Arguments arguments) {
             diagnostic << failure << '\n';
             break;
         }
+        if (arguments.couponCheckpointAfterControl &&
+            *arguments.couponCheckpointAfterControl == step) {
+            observations.flush();
+            require(observations.good(),
+                    "cannot flush coupon observations before accepted checkpoint");
+            const auto checkpointPath = writeCouponAcceptedCheckpoint(
+                arguments.output, current.snapshot, compiled.world, arguments, step);
+            couponCheckpointWritten = true;
+            std::ofstream saved(arguments.output / "coupon-checkpoint-saved.txt");
+            require(saved.good(), "cannot record coupon checkpoint reference");
+            saved << "schema=numi.cardboard.accepted-coupon-checkpoint-reference.v1\n"
+                << "checkpoint=" << std::filesystem::relative(
+                    checkpointPath, arguments.output).generic_string() << '\n'
+                << "control_index=" << step << '\n'
+                << "next_control_index=" << (step + 1u) << '\n'
+                << "continuation_parity_established=false\n";
+            require(saved.good(), "failed recording coupon checkpoint reference");
+            const std::string checkpointSha = hexDigest(sha256BoundedFile(
+                checkpointPath, 2ull * 1024ull * 1024ull * 1024ull));
+            const std::string metadataFile = std::filesystem::relative(
+                checkpointPath.parent_path() /
+                    (checkpointPath.stem().string() + ".resume"),
+                arguments.output).generic_string();
+            const auto metadataPath = arguments.output / metadataFile;
+            writeCouponCheckpointPrefixReport(
+                arguments.output / "coupon-checkpoint-prefix.json",
+                step, step + 1u,
+                std::filesystem::relative(checkpointPath, arguments.output).generic_string(),
+                checkpointSha, metadataFile,
+                hexDigest(sha256BoundedFile(metadataPath, 64u * 1024u)));
+            if (numi::cardboard::coupon_resume::stopAfterAcceptedCheckpoint(
+                    true, *arguments.couponCheckpointAfterControl, step))
+                break;
+        }
     }
 
-    const std::string resultStatus = failed ? "failed" : "completed";
+    if (arguments.couponCheckpointAfterControl && !couponCheckpointWritten) {
+        std::ofstream missing(arguments.output / "coupon-checkpoint-not-created.txt");
+        require(missing.good(), "cannot record missing coupon checkpoint");
+        missing << "requested_control_index="
+            << *arguments.couponCheckpointAfterControl << '\n'
+            << "reason=control_was_not_accepted_before_run_exit\n";
+    }
+    const std::string resultStatus = couponResume
+        ? (failed ? "resumed_diagnostic_segment_failed"
+                  : "resumed_diagnostic_segment_reached_schedule_end")
+        : (couponCheckpointWritten ? "accepted_checkpoint_prefix_saved"
+           : failed ? "failed" : "completed");
     writeSummaryJson(arguments.output / "result.json", resultStatus,
                      mesh, compiled, acceptedSteps, failure);
+    if (couponResume)
+        writeCouponResumeSegmentReport(
+            arguments.output / "coupon-resume-segment.json", *couponResume,
+            acceptedSteps, resultStatus);
     printResult(resultStatus, compiled, acceptedSteps, failure);
     return failed ? 2 : 0;
 }

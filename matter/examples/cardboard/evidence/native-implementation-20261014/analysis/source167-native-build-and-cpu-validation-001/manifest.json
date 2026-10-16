@@ -1,0 +1,14 @@
+{
+  "files_sha256": {
+    "coupon-resume.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "coupon-resume.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "executed-verify.py": "20d558506abcb84ebb9edac1eefcba1bf49818b63098bc8a7c0ee267294672dd",
+    "failure.json": "755f57030c410d59115ce76e1f0ae546698b241c9058bacd84d590cf4f4cf083",
+    "inside-clearance.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inside-clearance.stdout.log": "1f7e3c449e897bd4e62bed7006c16b553c4f59ae931f21bea713adb1b7bc186b",
+    "regional-consumer-capture.stderr.log": "211637b4b4113786ea28de618ffcff1c0498b602b7247d7c56245033bdbf8b5e",
+    "regional-consumer-capture.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shipping-clearance-memory.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shipping-clearance-memory.stdout.log": "a96e6835cbfaab58d4519f8e672b54e7d30bc99879662b7d0eb9240402591f2e"
+  }
+}

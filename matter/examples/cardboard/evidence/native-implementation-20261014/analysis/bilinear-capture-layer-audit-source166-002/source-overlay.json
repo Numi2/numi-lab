@@ -1,0 +1,30 @@
+{
+  "schema": "numi.cardboard.source-overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "overlay_id": "bilinear-capture-layer-audit-source166-002",
+  "patch_sha256": "07f6f6057e269dd060710af690346a32fc9f3b5f05eee649ffa2bf6b9aa4ca9b",
+  "supersedes": {
+    "package": "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-001",
+    "manifest_sha256": "4276c1fa7ca8b414041c40f31ccfa35f9fc05e9830a1254e166a05fef25ba3e3",
+    "failed_command": "/Users/home/cardboard-implementation-20261014/analysis/native469-fp64-replay-command-001"
+  },
+  "files": [
+    {
+      "path": "matter/tools/cardboard_bilinear_capture_layers.py",
+      "base_sha256": null,
+      "overlay_sha256": "45f8fa26edb1222c61faaf6a2cfb05afb14476b4949b00e1700a34168802d939"
+    },
+    {
+      "path": "matter/tools/cardboard_bilinear_fp64_reference.py",
+      "base_sha256": null,
+      "overlay_sha256": "ea5cba69f600f446cc1c129b03bf1fa578d4f26d2d0d62fa1e63b4fa4c8248d5"
+    },
+    {
+      "path": "matter/tools/test_cardboard_bilinear_capture_layers.py",
+      "base_sha256": null,
+      "overlay_sha256": "f5ae31dd095713654ee2896280aabc1dcd2b229e2058ecb6913310df5715d2d2"
+    }
+  ],
+  "native_execution_performed": false,
+  "qualification": false
+}

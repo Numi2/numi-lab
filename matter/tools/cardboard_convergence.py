@@ -17,6 +17,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
+import cardboard_solver_environment as solver_environment
 
 
 ANALYSIS_SCHEMA = "numi.cardboard.convergence-analysis.v1"
@@ -90,6 +91,8 @@ class RunData:
     materials_by_index: list[dict[str, Any]]
     row_by_key: dict[tuple[int, int], dict[str, Any]]
     phases: list[str]
+    native_environment: dict[str, Any] | None
+    native_environment_sidecar_sha256: str | None
 
 
 def _sha256(raw: bytes) -> str:
@@ -227,6 +230,31 @@ def _load_run(path: Path) -> RunData:
     manifest = _read_json(path / "manifest.json", files)
     result = _read_json(path / "result.json", files)
     mesh = _read_json(path / "mesh.json", files)
+    try:
+        environment_record, environment_path_text = solver_environment.read_run_record(
+            (path / "native-environment.json", path.parent / "native-environment.json"))
+    except ValueError as exc:
+        raise EvidenceError("invalid_native_environment_contract", str(exc)) from exc
+    environment_sha256 = None
+    if environment_record is not None and environment_path_text is not None:
+        environment_path = Path(environment_path_text)
+        environment_raw = environment_path.read_bytes()
+        environment_sha256 = _sha256(environment_raw)
+        files["native-environment.json"] = environment_sha256
+        prediction_path = environment_path.with_name("prediction.json")
+        try:
+            prediction_raw = prediction_path.read_bytes()
+        except OSError as exc:
+            raise EvidenceError("missing_environment_prediction",
+                                "native environment sidecar has no adjacent sealed prediction") from exc
+        if _sha256(prediction_raw) != environment_record.get("prediction_sha256"):
+            raise EvidenceError("environment_prediction_mismatch",
+                                "native environment sidecar does not bind its adjacent prediction")
+        try:
+            solver_environment.validate_prediction_binding(environment_record, prediction_raw)
+        except ValueError as exc:
+            raise EvidenceError("invalid_environment_prediction", str(exc)) from exc
+        files["native-environment-prediction.json"] = _sha256(prediction_raw)
     if manifest.get("schema") != MANIFEST_SCHEMA:
         raise EvidenceError("unsupported_manifest_schema", f"unsupported manifest schema {manifest.get('schema')!r}")
     if manifest.get("specimen", "corrugated_strip") != "corrugated_strip":
@@ -419,8 +447,10 @@ def _load_run(path: Path) -> RunData:
     # Varying mesh resolution may change discretized glue volume/area. These
     # values are retained as measurements rather than pair-admission keys.
     normalized_rows = [row_by_key[(step, env)] for step in range(expected_steps) for env in (0, 1)]
-    return RunData(path, manifest, result, mesh, normalized_rows, files, volumes, [cells_by_index[i] for i in range(len(cells_by_index))], row_by_key,
-                   [phase for phase in PHASE_ORDER if protocol[phase] > 0])
+    return RunData(path, manifest, result, mesh, normalized_rows, files, volumes,
+                   [cells_by_index[i] for i in range(len(cells_by_index))], row_by_key,
+                   [phase for phase in PHASE_ORDER if protocol[phase] > 0],
+                   environment_record, environment_sha256)
 
 
 def _phase_ends(run: RunData) -> dict[str, int]:
@@ -632,6 +662,22 @@ def _source_projection_policy(manifest: dict[str, Any]) -> bool:
 
 def _same_solver_controls(a: RunData, b: RunData, *,
                           allow_force_matched_tolerance: bool = False) -> None:
+    if a.native_environment is None or b.native_environment is None:
+        raise EvidenceError(
+            "missing_effective_native_environment",
+            "legacy native exports remain descriptive, but paired convergence requires a source-bound effective environment contract",
+        )
+    if (not solver_environment.is_qualification_run_record(a.native_environment) or
+            not solver_environment.is_qualification_run_record(b.native_environment)):
+        raise EvidenceError(
+            "diagnostic_run_not_qualifiable",
+            "diagnostic native runs are retained for description and failure analysis, not resolution-pair qualification",
+        )
+    contract_a = a.native_environment["contract"]
+    contract_b = b.native_environment["contract"]
+    if contract_a["sha256"] != contract_b["sha256"]:
+        raise IncompatibleError("native_environment_mismatch",
+                                "effective native environment controls differ between runs")
     sa, sb = a.manifest["solver"], b.manifest["solver"]
     # Older manifests predate the immutable-reference arithmetic option.
     # They unambiguously used absolute-position Ds*Dm^-1. Do not admit a
@@ -644,7 +690,8 @@ def _same_solver_controls(a: RunData, b: RunData, *,
     preconditioners = [s.get("fgmres_preconditioner", "scalar_diagonal") for s in (sa, sb)]
     if any(value not in {"scalar_diagonal", "regional_tangent_fem_diagonal",
                          "regional_galerkin_rap", "regional_galerkin_block_jacobi",
-                         "regional_galerkin_contact_rap"} for value in preconditioners):
+                         "regional_galerkin_contact_rap",
+                         "regional_galerkin_graph_schwarz_conditioning_only"} for value in preconditioners):
         raise EvidenceError("unknown_preconditioner", "unrecognized FGMRES preconditioner")
     if preconditioners[0] != preconditioners[1]:
         raise IncompatibleError("solver_control_mismatch", "FGMRES preconditioner differs")
@@ -1062,6 +1109,7 @@ def _run_report(run: RunData, phases: list[str]) -> dict[str, Any]:
         "physical_validation": False,
         "compiled_world_fingerprint": run.result["compiled_world_fingerprint"],
         "input_sha256": dict(sorted(run.files.items())),
+        "effective_native_environment": run.native_environment,
         "materials": {key: run.manifest["materials"].get(key)
                       for key in ("liner_sha256", "medium_sha256", "glue_sha256", "regional_map_sha256", "frame_map_sha256")},
         "protocol": {**_protocol(solver), "phase_durations_s": _phase_durations(run)},

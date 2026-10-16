@@ -1,0 +1,101 @@
+{
+  "base_declared_source_file_count": 787,
+  "base_declared_source_hashes_verified": true,
+  "base_frozen_source_sha256": "2976540a244ba9af686e8033783a3d18da1ac48b030a949b2109fe81108f7cc0",
+  "base_overlay_id": "source157_right_grip_telemetry_fix",
+  "base_parent_revision": "7ebc64a666c4bd5e1ff61b3684655979ab80dc60",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "base_source_overlay_sha256": "1d5393fc37e73fba464463221707ac6ce817a91b482f72e267b25040c192de68",
+  "changed_source_files": {
+    "matter/src/metal/base_cgls.metalinc": {
+      "base_sha256": "127d05d6323085ad6abd160ff560b95008981e9421541e9677dddbb3fa253aec",
+      "candidate": {
+        "bytes": 38489,
+        "sha256": "ef8ab8763a675d34c6ab9bd3323fe9b8a8426ce3d77397cb782243ed1979483f"
+      }
+    },
+    "matter/src/metal/base_cgls_runtime.metalinc": {
+      "base_sha256": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903",
+      "candidate": {
+        "bytes": 8688,
+        "sha256": "a0c81e0a0257ee8b3a62fc64653d246432aface3966f81915f1c8b07867c5dc1"
+      }
+    },
+    "matter/src/runtime.mm": {
+      "base_sha256": "69d012aeaeff6bf7ef45ede8817d9664aea21b756383fe46b38325c75c6ce743",
+      "candidate": {
+        "bytes": 1869973,
+        "sha256": "db96b3d9c899f2c948ce804f4e48ff50a9834307e42eddecb907972ab03e2ae2"
+      }
+    }
+  },
+  "environment_contract": {
+    "checkpoint_compatibility": "must start candidate-enabled control step 0; source167 checkpoint lacks this setting and must not be reused with a changed digest",
+    "default": "off",
+    "digest_must_include_key": true,
+    "enabled_value": "1"
+  },
+  "full_solver_trial": "not run",
+  "native_or_gpu_execution": "not run",
+  "new_environment_registry_key": "NM_FEM_BASE_CGLS_WARM_START_REFINE",
+  "new_persistent_arena_bytes": 0,
+  "new_source_file_count": 0,
+  "nonlinear_acceptance_changed": false,
+  "operator_changed": false,
+  "overlay_id": "base_cgls_warm_start_refinement_159_001",
+  "patch": {
+    "bytes": 24515,
+    "sha256": "2847fb2b3af60f822bac19a30363a371b5522956c60827b5eac65c837367b8b5"
+  },
+  "requires_fresh_control0_candidate_run": true,
+  "schema": "numi.cardboard.base_cgls_warm_start_refinement_overlay.v1",
+  "validation": {
+    "failed_preseal_attempt_transcript": {
+      "bytes": 1013,
+      "sha256": "905e5d69a12b7a89ce435d5165f94df7db68a4a62ec7e6ef5fe51a7d80e70ba6"
+    },
+    "fixture_precheck": {
+      "bytes": 802,
+      "sha256": "9ccfd09eed24fa6359080b2ff1116f9ee61e0e9188201d3c8806aca423c1a2e9"
+    },
+    "metal_host_checker": {
+      "air": {
+        "bytes": 410720,
+        "sha256": "8087a44e4737de3342670860a47ca3c30d679199e5ff84f1d7ae0df77183d9e0"
+      },
+      "compile_log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "compile_script": {
+        "bytes": 943,
+        "sha256": "d1ade20573a45aad4642c7f65f8241374b1ea495eb32f5b47926d192ca63fcb7"
+      },
+      "metal_library": {
+        "bytes": 1956727,
+        "sha256": "1b25f3b94678881b49fb0385f5201583523a7247e965d2c2ebb01771b46bbdee"
+      },
+      "metal_source": {
+        "bytes": 1825,
+        "sha256": "d25d77f7043eace31ab62e2263d6e4816ae70dad55780a5ce4c7f4fb8b729104"
+      },
+      "objcxx_host_source": {
+        "bytes": 17429,
+        "sha256": "7fcdbb28726b9bf1c7fe529a64631b5b43983616f3294cd73c3cc50637c3a539"
+      },
+      "status": "pass_compile_only_no_execution"
+    },
+    "runtime_objcxx_syntax": {
+      "bytes": 1984,
+      "sha256": "e73b638ca0aba070dd1e43a020cbb41698cbf1507994a12f3bbec1118686de5a"
+    },
+    "runtime_objcxx_syntax_stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runtime_objcxx_syntax_stdout": {
+      "bytes": 140,
+      "sha256": "319302f4ebd98ad58d5e2c9cd56381c66ddc494c0edaf29c5d5ee147f42026dd"
+    }
+  }
+}

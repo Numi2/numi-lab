@@ -1,0 +1,466 @@
+--- a/matter/src/metal/base_cgls.metalinc
++++ b/matter/src/metal/base_cgls.metalinc
+@@ -62,6 +62,180 @@
+     const float next = sum + adjusted;
+     correction = (next - sum) - adjusted;
+     sum = next;
++}
++
++// Replace the private CGLS right-hand side with the fresh residual of the
++// retained Newton solution. The production solution itself is read-only here
++// and remains available as x0 until the final strict residual comparison.
++kernel void nm_fgmres_base_cgls_seed_residual(
++    constant uint& unknownCount [[buffer(0)]],
++    constant uint& environmentCount [[buffer(1)]],
++    device const float4* rowMask [[buffer(2)]],
++    device const uint* rowEnvironment [[buffer(3)]],
++    device const uint* selected [[buffer(4)]],
++    device const float4* baseRHS [[buffer(5)]],
++    device const float4* initialSolution [[buffer(6)]],
++    device const float4* initialAction [[buffer(7)]],
++    device float4* residualRHS [[buffer(8)]],
++    device atomic_uint* errors [[buffer(9)]],
++    uint index [[thread_position_in_grid]]) {
++    if (index >= unknownCount) return;
++    if (!baseCGLSVectorLayoutValid(unknownCount, environmentCount)) {
++        if (environmentCount > 0u)
++            baseCGLSMarkError(errors, 0u, kBaseCGLSErrorBadShape);
++        residualRHS[index] = float4(0.0f);
++        return;
++    }
++
++    const uint mechanicalRows = unknownCount / 2u;
++    const uint nodeCount = mechanicalRows / environmentCount;
++    const bool fieldRow = index >= mechanicalRows;
++    const uint local = fieldRow ? index - mechanicalRows : index;
++    const uint environment = local / nodeCount;
++    if (environment >= environmentCount ||
++        rowEnvironment[index] != environment) {
++        baseCGLSMarkError(errors, environment < environmentCount ? environment : 0u,
++            kBaseCGLSErrorBadShape);
++        residualRHS[index] = float4(0.0f);
++        return;
++    }
++    const uint selectedValue = selected[environment];
++    if (selectedValue > 1u) {
++        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadSelection);
++        residualRHS[index] = float4(0.0f);
++        return;
++    }
++    const float4 mask = rowMask[index];
++    const float4 b = baseRHS[index];
++    const float4 x0 = initialSolution[index];
++    const float4 ax0 = initialAction[index];
++    bool valid = selectedValue <= 1u && baseCGLSFinite4(mask) &&
++        baseCGLSFinite4(b) && baseCGLSFinite4(x0) &&
++        baseCGLSFinite4(ax0) && mask.w == 0.0f && b.w == 0.0f &&
++        x0.w == 0.0f && ax0.w == 0.0f;
++    if (!valid) {
++        baseCGLSMarkError(errors, environment,
++            kBaseCGLSErrorNonfinite | kBaseCGLSErrorBadMask);
++        residualRHS[index] = float4(0.0f);
++        return;
++    }
++    if (fieldRow) {
++        if (!baseCGLSZero4(mask) || !baseCGLSZero4(b) ||
++            !baseCGLSZero4(x0) || !baseCGLSZero4(ax0)) {
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorNonzeroConstrainedRow);
++        }
++        residualRHS[index] = float4(0.0f);
++        return;
++    }
++    if (selectedValue == 0u) {
++        if (!baseCGLSZero4(mask) || !baseCGLSZero4(b) ||
++            !baseCGLSZero4(x0) || !baseCGLSZero4(ax0)) {
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorNonzeroConstrainedRow);
++        }
++        residualRHS[index] = float4(0.0f);
++        return;
++    }
++    if (!baseCGLSMaskComponent(mask.x) ||
++        !baseCGLSMaskComponent(mask.y) ||
++        !baseCGLSMaskComponent(mask.z)) {
++        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadMask);
++        residualRHS[index] = float4(0.0f);
++        return;
++    }
++    if (any((mask.xyz == float3(0.0f)) &
++            ((b.xyz != float3(0.0f)) | (x0.xyz != float3(0.0f))))) {
++        baseCGLSMarkError(errors, environment,
++            kBaseCGLSErrorNonzeroConstrainedRow);
++        residualRHS[index] = float4(0.0f);
++        return;
++    }
++    const float3 residual = (b.xyz - ax0.xyz) * mask.xyz;
++    if (!all(isfinite(residual))) {
++        baseCGLSMarkError(errors, environment, kBaseCGLSErrorNonfinite);
++        residualRHS[index] = float4(0.0f);
++        return;
++    }
++    residualRHS[index] = float4(residual, 0.0f);
++}
++
++// Convert the converged correction y into the total candidate x0+S*y in
++// private CGLS scratch. This never writes the production solution buffer.
++kernel void nm_fgmres_base_cgls_add_initial_solution(
++    constant uint& unknownCount [[buffer(0)]],
++    constant uint& environmentCount [[buffer(1)]],
++    device const float4* rowMask [[buffer(2)]],
++    device const uint* rowEnvironment [[buffer(3)]],
++    device const uint* selected [[buffer(4)]],
++    device const float4* initialSolution [[buffer(5)]],
++    device float4* candidateSolution [[buffer(6)]],
++    device atomic_uint* errors [[buffer(7)]],
++    uint index [[thread_position_in_grid]]) {
++    if (index >= unknownCount) return;
++    if (!baseCGLSVectorLayoutValid(unknownCount, environmentCount)) {
++        if (environmentCount > 0u)
++            baseCGLSMarkError(errors, 0u, kBaseCGLSErrorBadShape);
++        candidateSolution[index] = float4(0.0f);
++        return;
++    }
++    const uint mechanicalRows = unknownCount / 2u;
++    const uint nodeCount = mechanicalRows / environmentCount;
++    const bool fieldRow = index >= mechanicalRows;
++    const uint local = fieldRow ? index - mechanicalRows : index;
++    const uint environment = local / nodeCount;
++    if (environment >= environmentCount ||
++        rowEnvironment[index] != environment) {
++        baseCGLSMarkError(errors, environment < environmentCount ? environment : 0u,
++            kBaseCGLSErrorBadShape);
++        candidateSolution[index] = float4(0.0f);
++        return;
++    }
++    const uint selectedValue = selected[environment];
++    if (selectedValue > 1u) {
++        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadSelection);
++        candidateSolution[index] = float4(0.0f);
++        return;
++    }
++    const float4 mask = rowMask[index];
++    const float4 initial = initialSolution[index];
++    const float4 correction = candidateSolution[index];
++    bool valid = selectedValue <= 1u && baseCGLSFinite4(mask) &&
++        baseCGLSFinite4(initial) && baseCGLSFinite4(correction) &&
++        mask.w == 0.0f && initial.w == 0.0f && correction.w == 0.0f;
++    if (!valid) {
++        baseCGLSMarkError(errors, environment,
++            kBaseCGLSErrorNonfinite | kBaseCGLSErrorBadMask);
++        candidateSolution[index] = float4(0.0f);
++        return;
++    }
++    if (fieldRow || selectedValue == 0u) {
++        if (!baseCGLSZero4(mask) || !baseCGLSZero4(initial) ||
++            !baseCGLSZero4(correction)) {
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorNonzeroConstrainedRow);
++        }
++        candidateSolution[index] = float4(0.0f);
++        return;
++    }
++    if (!baseCGLSMaskComponent(mask.x) ||
++        !baseCGLSMaskComponent(mask.y) ||
++        !baseCGLSMaskComponent(mask.z) ||
++        any((mask.xyz == float3(0.0f)) &
++            ((initial.xyz != float3(0.0f)) |
++             (correction.xyz != float3(0.0f))))) {
++        baseCGLSMarkError(errors, environment,
++            kBaseCGLSErrorNonzeroConstrainedRow | kBaseCGLSErrorBadMask);
++        candidateSolution[index] = float4(0.0f);
++        return;
++    }
++    const float3 total = initial.xyz + correction.xyz;
++    if (!all(isfinite(total))) {
++        baseCGLSMarkError(errors, environment, kBaseCGLSErrorNonfinite);
++        candidateSolution[index] = float4(0.0f);
++        return;
++    }
++    candidateSolution[index] = float4(total * mask.xyz, 0.0f);
+ }
+ 
+ // Per-environment state layout:
+--- a/matter/src/metal/base_cgls_runtime.metalinc
++++ b/matter/src/metal/base_cgls_runtime.metalinc
+@@ -81,6 +81,8 @@
+     device NMMatterStatusGPU* statuses [[buffer(13)]],
+     device NMMatterStatusGPU* trialStatuses [[buffer(14)]],
+     constant uint& solverIteration [[buffer(15)]],
++    device const float4* baselineResidual [[buffer(16)]],
++    constant uint& requireResidualImprovement [[buffer(17)]],
+     uint environment [[thread_position_in_grid]]) {
+     if (environment >= dispatch.environmentCount) return;
+     float4 metric = metrics[environment];
+@@ -98,6 +100,8 @@
+     const uint fieldBase = dispatch.environmentCount * dispatch.femNodeCount;
+     float xn = 0.0f, xc = 0.0f, rn = 0.0f, rc = 0.0f;
+     float descent = 0.0f, dc = 0.0f;
++    float baselineResidual2 = 0.0f, brc = 0.0f;
++    const bool refinementMode = requireResidualImprovement == 1u;
+     for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+         const uint global = base + node;
+         const uint field = fieldBase + global;
+@@ -105,28 +109,54 @@
+         const bool free = !femStaticConstraint(n.restAndFixed.w) &&
+             isfinite(n.positionAndMass.w) && n.positionAndMass.w > 0.0f;
+         const float4 v = x[global], b = baseRHS[global], a = ax[global];
++        const float4 initialResidual = baselineResidual[global];
+         valid = valid && all(isfinite(v)) && all(isfinite(b)) &&
+             all(isfinite(a)) && v.w == 0.0f;
+         if (free) {
++            if (refinementMode) {
++                valid = valid && all(isfinite(initialResidual)) &&
++                    initialResidual.w == 0.0f;
++                fgmresCompensatedAdd(baselineResidual2, brc,
++                    dot(initialResidual.xyz, initialResidual.xyz));
++            }
+             fgmresCompensatedAdd(xn, xc, dot(v.xyz, v.xyz));
+             fgmresCompensatedAdd(rn, rc, dot(b.xyz - a.xyz, b.xyz - a.xyz));
+             fgmresCompensatedAdd(descent, dc, dot(b.xyz, a.xyz));
+         } else valid = valid && all(v == float4(0.0f));
++        if (refinementMode && !free)
++            valid = valid && all(baselineResidual[global] == float4(0.0f));
+         valid = valid && field < layout.unknownCount &&
+             all(baseRHS[field] == float4(0.0f)) &&
++            (!refinementMode ||
++             all(baselineResidual[field] == float4(0.0f))) &&
+             all(x[field] == float4(0.0f)) && all(ax[field] == float4(0.0f));
+     }
+-    valid = valid && isfinite(xn) && xn > 0.0f && isfinite(rn) && rn >= 0.0f &&
+-        isfinite(descent) && descent > 0.0f;
++    valid = valid && (requireResidualImprovement <= 1u) &&
++        isfinite(xn) && (refinementMode ? xn >= 0.0f : xn > 0.0f) &&
++        isfinite(rn) && rn >= 0.0f &&
++        isfinite(descent) &&
++        (refinementMode ? (isfinite(baselineResidual2) && baselineResidual2 >= 0.0f)
++                        : (descent > 0.0f));
++    const bool refinementAccepted = valid && refinementMode &&
++        rn < baselineResidual2;
+     trace[environment] = float4(valid ? sqrt(xn) : INFINITY,
+         valid ? sqrt(rn) : INFINITY, valid ? descent : INFINITY,
+-        originalCertified ? 1.0f : 0.0f);
++        refinementMode ? (refinementAccepted ? 2.0f : 1.0f)
++                       : (originalCertified ? 1.0f : 0.0f));
+     if (!valid) {
+         metric.w = 4.0f;
+         metrics[environment] = metric;
+         recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+             NM_INVALID_INDEX, solverIteration,
+             float4(float(c.x), float(c.y), descent, xn));
++        return;
++    }
++    // A failed strict linear-residual improvement is a normal decline of the
++    // optional refinement. Preserve x0 and its original linear certificate;
++    // ordinary nonlinear Armijo will test x0 unchanged.
++    if (refinementMode && !refinementAccepted) {
++        metric.w = 0.0f;
++        metrics[environment] = metric;
+         return;
+     }
+     for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -4382,6 +4382,8 @@
+             "nm_fgmres_build_base_cauchy_direction",
+             "nm_fgmres_select_base_cgls_primary_policy",
+             "nm_fgmres_prepare_base_cgls_layout",
++            "nm_fgmres_base_cgls_seed_residual",
++            "nm_fgmres_base_cgls_add_initial_solution",
+             "nm_fgmres_base_cgls_initialize_state",
+             "nm_fgmres_base_cgls_initialize_vectors",
+             "nm_fgmres_base_cgls_measure_initial",
+@@ -12145,6 +12147,28 @@
+                     "base CGLS primary policy requires CGLS and the selected control-step all-Newton selector";
+                 ownership->preDynamicsOpen = false;
+                 return diagnostics;
++            }
++            bool femBaseCGLSWarmStartRefine = false;
++            if (const char* warmStart = std::getenv(
++                    "NM_FEM_BASE_CGLS_WARM_START_REFINE")) {
++                if (std::strcmp(warmStart, "1") != 0 ||
++                    !femBaseCGLSPrimaryPolicyRequested ||
++                    !femBaseCauchyFallbackSelectedRoot ||
++                    !femBaseCauchyFallbackAllNewtonIterations ||
++                    femBaseCGLSIterations == 0u ||
++                    !femBaseCGLSRightScaleEnabled) {
++                    std::fprintf(stderr,
++                        "fem_base_cgls_warm_start_refine_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"requires_primary_cgls_all_newton_exact_block3_and_value_1\",\"physical_operator_changed\":false}\n",
++                        request.controlStep);
++                    diagnostics.message =
++                        "CGLS warm-start refinement requires the selected all-Newton primary CGLS block3 experiment";
++                    ownership->preDynamicsOpen = false;
++                    return diagnostics;
++                }
++                femBaseCGLSWarmStartRefine = true;
++                std::fprintf(stderr,
++                    "fem_base_cgls_warm_start_refine_enabled={\"schema\":1,\"root\":%u,\"initial_guess\":\"current_fgmres_solution\",\"fresh_residual\":\"b_minus_Ax0\",\"acceptance\":\"strict_recomputed_true_linear_residual_reduction\",\"fallback\":\"preserve_x0_and_original_certificate\",\"physical_operator_changed\":false}\n",
++                    femBaseCauchyFallbackRoot);
+             }
+             const auto emitFEMNewtonTraceSkip = [&](std::uint32_t root,
+                                                      const char* reason) {
+@@ -22959,6 +22983,9 @@
+ 
+             const auto encodeBaseCauchyDirectionTrace = [&](
+                 bool primaryPolicy = false) -> bool {
++                const bool warmStartRefinementThisNewton =
++                    femBaseCGLSWarmStartRefine && primaryPolicy &&
++                    baseCGLSPrimaryPolicySelectedNewton;
+                 const NSUInteger traceBytes = environments * sizeof(nm_float4);
+                 const NSUInteger primarySelectionOffset = traceBytes;
+                 const NSUInteger bytes = traceBytes + (primaryPolicy
+@@ -22991,6 +23018,8 @@
+                 // Header uint32[8]: magic CGLS, version, E, N, U, cap, segmentCount,0.
+                 // Version 1 has twelve aligned segments. Version 2 adds the
+                 // selected Newton's fresh three-row-per-node inverse blocks.
++                // Version 3 means B/R are the fresh residual b-A*x0 and X is
++                // the total candidate x0+S*y after the strict comparison.
+                 id<MTLBuffer> cglsSnapshot = nil;
+                 NSUInteger cglsSnapshotBytes = 0u;
+                 const bool captureCGLS = femBaseCGLSIterations != 0u &&
+@@ -23035,7 +23064,8 @@
+                     }
+                     std::memset(cglsSnapshot.contents, 0, cglsSnapshotBytes);
+                     const std::array<std::uint32_t, 8> header = {
+-                        0x534c4743u, femBaseCGLSRightScaleEnabled ? 2u : 1u,
++                        0x534c4743u, warmStartRefinementThisNewton ? 3u :
++                            (femBaseCGLSRightScaleEnabled ? 2u : 1u),
+                         static_cast<std::uint32_t>(environments),
+                         state.dispatch.femNodeCount, unknowns,
+                         femBaseCGLSIterations,
+@@ -23054,6 +23084,8 @@
+                 const auto capturedCGLSIterations = femBaseCGLSIterations;
+                 const auto capturedCGLSRightScale = femBaseCGLSRightScaleEnabled;
+                 const auto capturedPrimaryPolicy = primaryPolicy;
++                const auto capturedWarmStartRefinement =
++                    warmStartRefinementThisNewton;
+                 const auto capturedPrimarySelectionOffset = primarySelectionOffset;
+                 const auto capturedPrimaryStartNewton =
+                     femBaseCGLSPrimaryStartNewton;
+@@ -23098,6 +23130,12 @@
+                              << ",\"right_scale\":"
+                              << (capturedCGLSRightScale ? "\"block3\"" : "null")
+                              << ",\"original_newton_certificate_applies_to_direction\":false";
++                        if (capturedWarmStartRefinement) {
++                            line << ",\"warm_start_refinement\":true"
++                                 << ",\"initial_guess\":\"current_fgmres_solution\""
++                                 << ",\"candidate_represents\":\"x0_plus_Sy\""
++                                 << ",\"acceptance\":\"strict_recomputed_true_linear_residual_reduction\"";
++                        }
+                         if (capturedPrimaryPolicy) {
+                             line << ",\"selection_policy\":\"base_cgls_primary_policy\",\"start_newton_inclusive\":"
+                                  << capturedPrimaryStartNewton;
+@@ -23122,6 +23160,10 @@
+                         } else {
+                             line << ",\"original_newton_converged\":"
+                                  << (values[e].w > 0.5f ? "true" : "false");
++                        }
++                        if (capturedWarmStartRefinement) {
++                            line << ",\"refinement_installed\":"
++                                 << (values[e].w > 1.5f ? "true" : "false");
+                         }
+                         line << '}';
+                     }
+@@ -23231,6 +23273,9 @@
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 };
+                 if (femBaseCGLSIterations != 0u) {
++                    const bool warmStartRefinementThisNewton =
++                        femBaseCGLSWarmStartRefine &&
++                        baseCGLSPrimaryPolicySelectedNewton;
+                     const std::uint32_t cglsUnknowns = state.fgmresLayout.unknownCount;
+                     const std::uint32_t cglsEnvironments = state.dispatch.environmentCount;
+                     const auto rows = [&]() {
+@@ -23322,6 +23367,43 @@
+                                          offset:0u atIndex:4u];
+                             [encoder setBuffer:state.femBaseCGLSErrors
+                                          offset:0u atIndex:5u];
++                        }); barrier();
++                    }
++                    if (warmStartRefinementThisNewton) {
++                        // Measure the exact current Newton operator on x0,
++                        // then form the residual in private CGLS B scratch.
++                        // The production solution and FGMRES certificate stay
++                        // unchanged until install has compared fresh residuals.
++                        dispatchThreads("nm_fgmres_clear_true_operator",
++                            cglsUnknowns, [&] {
++                            setDispatch();
++                            [encoder setBuffer:state.femBaseCGLSQ
++                                         offset:0u atIndex:1u];
++                        }); barrier();
++                        action(4u, state.femSolution, state.femBaseCGLSQ);
++                        dispatchThreads(
++                            "nm_fgmres_base_cgls_seed_residual",
++                            cglsUnknowns, [&] {
++                            [encoder setBytes:&cglsUnknowns
++                                       length:sizeof(cglsUnknowns) atIndex:0u];
++                            [encoder setBytes:&cglsEnvironments
++                                       length:sizeof(cglsEnvironments) atIndex:1u];
++                            [encoder setBuffer:state.femBaseCGLSMask
++                                         offset:0u atIndex:2u];
++                            [encoder setBuffer:state.femBaseCGLSEnvironment
++                                         offset:0u atIndex:3u];
++                            [encoder setBuffer:state.femBaseCGLSSelected
++                                         offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femBaseCauchyRightHandSide
++                                         offset:0u atIndex:5u];
++                            [encoder setBuffer:state.femSolution
++                                         offset:0u atIndex:6u];
++                            [encoder setBuffer:state.femBaseCGLSQ
++                                         offset:0u atIndex:7u];
++                            [encoder setBuffer:state.femBaseCGLSB
++                                         offset:0u atIndex:8u];
++                            [encoder setBuffer:state.femBaseCGLSErrors
++                                         offset:0u atIndex:9u];
+                         }); barrier();
+                     }
+                     dispatchThreads("nm_fgmres_clear_true_operator", cglsUnknowns, [&] {
+@@ -23441,6 +23523,34 @@
+                     if (femBaseCGLSRightScaleEnabled)
+                         applyRightScale(state.femBaseCGLSX,
+                             state.femBaseCGLSX, 0u);
++                    if (warmStartRefinementThisNewton) {
++                        dispatchThreads(
++                            "nm_fgmres_base_cgls_add_initial_solution",
++                            cglsUnknowns, [&] {
++                            [encoder setBytes:&cglsUnknowns
++                                       length:sizeof(cglsUnknowns) atIndex:0u];
++                            [encoder setBytes:&cglsEnvironments
++                                       length:sizeof(cglsEnvironments) atIndex:1u];
++                            [encoder setBuffer:state.femBaseCGLSMask
++                                         offset:0u atIndex:2u];
++                            [encoder setBuffer:state.femBaseCGLSEnvironment
++                                         offset:0u atIndex:3u];
++                            [encoder setBuffer:state.femBaseCGLSSelected
++                                         offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femSolution
++                                         offset:0u atIndex:5u];
++                            [encoder setBuffer:state.femBaseCGLSX
++                                         offset:0u atIndex:6u];
++                            [encoder setBuffer:state.femBaseCGLSErrors
++                                         offset:0u atIndex:7u];
++                        }); barrier();
++                        dispatchThreads("nm_fgmres_clear_true_operator",
++                            cglsUnknowns, [&] {
++                            setDispatch();
++                            [encoder setBuffer:state.femBaseCGLSQ
++                                         offset:0u atIndex:1u];
++                        }); barrier();
++                    }
+                     action(4u, state.femBaseCGLSX, state.femBaseCGLSQ);
+                     dispatchThreads("nm_fgmres_install_base_cgls_direction", environments, [&] {
+                         setDispatch();
+@@ -23459,6 +23569,13 @@
+                         [encoder setBuffer:state.statuses offset:0u atIndex:13u];
+                         [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:14u];
+                         [encoder setBytes:&nonlinearIteration length:sizeof(nonlinearIteration) atIndex:15u];
++                        [encoder setBuffer:state.femBaseCGLSB
++                                     offset:0u atIndex:16u];
++                        const std::uint32_t requireResidualImprovement =
++                            warmStartRefinementThisNewton ? 1u : 0u;
++                        [encoder setBytes:&requireResidualImprovement
++                                   length:sizeof(requireResidualImprovement)
++                                  atIndex:17u];
+                     }); barrier();
+                     return;
+                 }

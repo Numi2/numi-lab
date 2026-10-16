@@ -1,5 +1,7 @@
 # Cardboard implementation and evidence ledger
 
+Source167 adds strict accepted coupon checkpoints, sealed diagnostic environments and captures at the actual regional preconditioner consumer. Source168 repairs independent FP64 Fischer–Burmeister differentiation and carries a portable 90-digit regression witness. Six targeted CPU CTest registrations pass. Native468/469 retain identical complete failed production histories; four strict-floor center projection misses remain after the reference repair. Experimental warm-start CGLS and the active native470 checkpoint prefix remain outside physical qualification. See [the source167/168 milestone](solver-milestone-source167.md).
+
 Source157 corrects the reported right-grip release mode without changing the generated targets or solver. Four complete CPU schedules and ten checks of the compiled production reader pass; its source-bound native build is admitted. Native468 is a separate half-timestep experiment and remains excluded from this closed milestone while running. See [the source157 milestone](solver-milestone-source157.md).
 
 Source154 adds tested opt-in all-control solver routing and a128-Newton driver ceiling. Native466 preserves the complete prior failed attempt; isolated regional observer464 also preserves production history while retaining a selection-metadata defect. No complete coupon or shipping qualification follows. See [the source154 milestone](solver-milestone-source154.md).

@@ -1,0 +1,5 @@
+exit_code=0
+/Users/home/cardboard-implementation-20261014/analysis/coupon-accepted-resume-overlay-001/candidate/matter/tools/cardboard_probe.mm:729:13: warning: unused function 'writeShippingNominalCurveArtifact' [-Wunused-function]
+  729 | std::string writeShippingNominalCurveArtifact(
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.

@@ -1,0 +1,25 @@
+{
+  "audit_report_sha256": "d2fdc4b06b90407585909dd6ce9b319ab40da3d60acee720c3ddcf68252686de",
+  "capacity_guard_sha256": "6147a01c871adb1fc1fd888e7715b98952fb94ba0d7ccb6b5083362b96925ad1",
+  "files": {
+    "README.md": "58268fec0e15dab722c75f7db461d0cef1eeb27945540ebbfea9a11a546c574c",
+    "audit.py": "445795ec4f56078a94e1fbb1cc52eb0ad8b96738d8843400b0225ccbc28096dc",
+    "report.json": "d2fdc4b06b90407585909dd6ce9b319ab40da3d60acee720c3ddcf68252686de",
+    "seal_audit.py": "bc0dc16d87c2736f1c066416629b2074db4c6d538bacb0bb78bb4b9a740b1f5e"
+  },
+  "physical_qualification": false,
+  "run_inputs": {
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-dt-half-cycle-468/output/observations.csv": "4d3a0aca4ef6cdc1f0a48a78b4ed611f8f4672e8359ccd4ceb0a8cf50c1dbb34",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-dt-half-cycle-468/output/result.json": "a0f9a523adf715e2c19cea5b5f4ce09f07d78d6d2e0ac43cf5ba5f0e2df79625",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-dt-half-cycle-468/prediction.json": "8ca30db69c42dda56d3c3381472a23b3968b49ddf3f7560a904b39dc3364534d",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-dt-half-cycle-468/receipt.json": "146cc970e01bb25b5dbeea1300f3632bd3f4804776f60efb0bd7bd3575002567",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-dt-half-cycle-468/stderr.log": "f2c2f8745e9786f1f5ae7a62b8dc5076670c2bbbb1634fb4c1120d8b3b6683a2"
+  },
+  "schema": "numi.cardboard.native468_independent_audit_manifest.v1",
+  "source_analysis_inputs": {
+    "/Users/home/cardboard-implementation-20261014/analysis/native468-complete-failed-attempt-002/README.md": "d2076897c73a4c47c67133b8d48006cf246216d8d2f644937aa9028f8fd59f00",
+    "/Users/home/cardboard-implementation-20261014/analysis/native468-complete-failed-attempt-002/analyze.py": "09d9e3c2b80d1bcea2c085aa1a8b35d45b18810496228bb97d4ca3785286955a",
+    "/Users/home/cardboard-implementation-20261014/analysis/native468-complete-failed-attempt-002/manifest.json": "f6cf494e39d41baf8ce9667e37e5b992c3f3640800dd589fd18ab7969a96ffa7",
+    "/Users/home/cardboard-implementation-20261014/analysis/native468-complete-failed-attempt-002/report.json": "33893ec1bead16307ce5aed3dc9bc1d023feec37baff6b253c8e8ee5032ced38"
+  }
+}

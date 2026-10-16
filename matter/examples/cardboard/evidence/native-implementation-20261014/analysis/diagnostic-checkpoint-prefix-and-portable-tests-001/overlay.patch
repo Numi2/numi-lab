@@ -1,0 +1,414 @@
+--- a/matter/tools/cardboard_solver_environment.py
++++ b/matter/tools/cardboard_solver_environment.py
+@@ -375,8 +375,113 @@
+     return prefixes
+ 
+ 
++
++def _pending_checkpoint_capture(case: Path, key: str,
++                                native_argv: Sequence[str], native_exit_code: int | None,
++                                effective_contract: Mapping[str, object] | None) -> dict[str, object]:
++    """Prove a requested capture is strictly after a saved accepted prefix.
++
++    Only the two explicit selectors used by coupon continuation are supported.
++    A normal completed/failed run or an already-visited target cannot use this
++    exception. The returned status is diagnostic-only, never a missing-capture
++    success or a completed loading history.
++    """
++    if native_exit_code != 0 or effective_contract is None:
++        raise ValueError("missing diagnostic capture has no successful accepted checkpoint boundary")
++    validate_diagnostic_contract(effective_contract)
++    if effective_contract.get("schema") != DIAGNOSTIC_CONTRACT_SCHEMA:
++        raise ValueError("pending checkpoint capture requires a diagnostic contract")
++    if (effective_contract.get("case_directory") != str(case)
++            or key not in effective_contract["capture_prefixes"]):
++        raise ValueError("pending checkpoint capture contract belongs to another case/path")
++    flag = "--coupon-checkpoint-after-control"
++    indices = [i for i, value in enumerate(native_argv) if value == flag]
++    if len(indices) != 1 or indices[0]+1 >= len(native_argv):
++        raise ValueError("missing diagnostic capture has no explicit coupon checkpoint request")
++    raw_control = native_argv[indices[0]+1]
++    if not re.fullmatch(r"[0-9]+", raw_control) or int(raw_control) >= UINT32_MAX:
++        raise ValueError("invalid coupon checkpoint control")
++    control = int(raw_control)
++    output = case / "output"
++    if output.is_symlink() or not output.is_dir() or output.resolve(strict=True) != output:
++        raise ValueError("coupon checkpoint output directory is aliased")
++    def regular_file(relative: str, cap: int) -> Path:
++        if not isinstance(relative, str):
++            raise ValueError("coupon checkpoint reference must be a relative path string")
++        rel = Path(relative)
++        path = output / rel
++        if (rel.is_absolute() or not rel.parts or ".." in rel.parts or path.is_symlink()
++                or not path.is_file() or path.resolve(strict=True) != path):
++            raise ValueError("coupon checkpoint reference escaped its output directory")
++        stat = path.stat()
++        if stat.st_nlink != 1 or not 0 < stat.st_size <= cap:
++            raise ValueError("coupon checkpoint reference is not a bounded regular file")
++        return path
++    def digest(path: Path) -> str:
++        result = hashlib.sha256()
++        with path.open("rb") as stream:
++            for block in iter(lambda: stream.read(1024*1024), b""):
++                result.update(block)
++        return result.hexdigest()
++    result_path = regular_file("result.json", 64*1024)
++    prefix_path = regular_file("coupon-checkpoint-prefix.json", 64*1024)
++    result, prefix = (json.loads(p.read_text()) for p in (result_path, prefix_path))
++    if (result.get("schema") != "numi.cardboard.probe-result.v1"
++            or result.get("status") != "accepted_checkpoint_prefix_saved"
++            or type(result.get("accepted_steps")) is not int
++            or result["accepted_steps"] != control+1 or result.get("physical_validation") is not False
++            or prefix.get("schema") != "numi.cardboard.coupon-checkpoint-prefix.v1"
++            or prefix.get("status") != "accepted_checkpoint_prefix_saved"
++            or type(prefix.get("accepted_control_index")) is not int
++            or prefix["accepted_control_index"] != control
++            or type(prefix.get("next_control_index")) is not int
++            or prefix["next_control_index"] != control+1
++            or any(prefix.get(k) is not False for k in
++                   ("full_protocol_complete", "trajectory_parity_established", "physical_validation"))):
++        raise ValueError("missing capture is not bounded by an incomplete accepted checkpoint prefix")
++    checkpoint = regular_file(prefix.get("checkpoint_file", ""), 2*1024**3)
++    metadata = regular_file(prefix.get("metadata_file", ""), 64*1024)
++    if (digest(checkpoint) != prefix.get("checkpoint_sha256")
++            or digest(metadata) != prefix.get("metadata_sha256")):
++        raise ValueError("accepted checkpoint prefix reference hash mismatch")
++    values = {}
++    for line in metadata.read_text().splitlines():
++        name, separator, value = line.partition("=")
++        if not separator or name in values:
++            raise ValueError("accepted checkpoint metadata has malformed/duplicate fields")
++        values[name] = value
++    if (values.get("schema") not in ("numi.cardboard.accepted-coupon-resume.v1",
++                                     "numi.cardboard.accepted-coupon-resume.v2")
++            or values.get("accepted_control_index") != str(control)
++            or values.get("next_control_index") != str(control+1)
++            or values.get("both_environments_accepted") != "true"
++            or values.get("checkpoint_sha256") != prefix["checkpoint_sha256"]
++            or values.get("checkpoint_bytes") != str(checkpoint.stat().st_size)):
++        raise ValueError("accepted checkpoint metadata does not certify this prefix boundary")
++    selectors = {
++        "NM_FEM_OPERATOR_FD_CAPTURE_PATH": ("NM_FEM_OPERATOR_FD_SELECTOR", 2),
++        "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH": ("NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR", 6),
++    }
++    if key not in selectors:
++        raise ValueError("this missing capture selector is not supported by coupon continuation")
++    selector_key, fields = selectors[key]
++    state = effective_contract["effective"][selector_key]
++    raw = state.get("value") if state.get("set") else None
++    parts = raw.split(":") if isinstance(raw, str) else []
++    if (len(parts) != fields or any(not re.fullmatch(r"[0-9]+", p) or int(p)>UINT32_MAX for p in parts)
++            or int(parts[0]) <= control):
++        raise ValueError("missing diagnostic capture target is not strictly after the saved prefix")
++    return {"key": key, "selector_key": selector_key, "selector": raw,
++            "target_control": int(parts[0]), "accepted_control": control,
++            "status": "not_yet_visited_at_accepted_checkpoint",
++            "result_sha256": digest(result_path), "prefix_report_sha256": digest(prefix_path),
++            "checkpoint_sha256": prefix["checkpoint_sha256"],
++            "metadata_sha256": prefix["metadata_sha256"], "positive_qualification_allowed": False}
++
+ def validate_diagnostic_outputs(case_directory: os.PathLike[str] | str,
+-                                capture_prefixes: Mapping[str, str]) -> dict[str, object]:
++                                capture_prefixes: Mapping[str, str], *,
++                                native_argv: Sequence[str] = (), native_exit_code: int | None = None,
++                                effective_contract: Mapping[str, object] | None = None) -> dict[str, object]:
+     """Validate only new regular files under each fixed prefix and enforce byte caps."""
+     case = Path(case_directory)
+     if not case.is_absolute() or case.is_symlink() or not case.is_dir():
+@@ -387,6 +492,7 @@
+             diagnostics_root.resolve(strict=True) != diagnostics_root):
+         raise ValueError("diagnostic output root is missing, aliased, or symlinked")
+     outputs: list[dict[str, object]] = []
++    pending: list[dict[str, object]] = []
+     total = 0
+     if not capture_prefixes:
+         return {"status": "no_capture_paths_requested", "files": [], "total_bytes": 0}
+@@ -399,7 +505,11 @@
+             raise ValueError(f"diagnostic prefix for {key} escaped its fixed case-local directory")
+         entries = sorted(expected.parent.iterdir(), key=lambda item: item.name)
+         if not entries:
+-            raise ValueError(f"diagnostic capture produced no files for {key}")
++            if not native_argv:
++                raise ValueError(f"diagnostic capture produced no files for {key}")
++            pending.append(_pending_checkpoint_capture(
++                root, key, native_argv, native_exit_code, effective_contract))
++            continue
+         if len(entries) > MAX_DIAGNOSTIC_CAPTURE_FILES:
+             raise ValueError(f"diagnostic capture file-count cap exceeded for {key}")
+         for path in entries:
+@@ -427,7 +537,8 @@
+                 os.close(fd)
+             outputs.append({"key": key, "path": str(path.relative_to(root)),
+                             "bytes": st.st_size, "sha256": digest.hexdigest()})
+-    return {"status": "validated", "files": outputs, "total_bytes": total,
++    return {"status": "validated_with_pending_checkpoint_targets" if pending else "validated",
++            "pending_captures": pending, "files": outputs, "total_bytes": total,
+             "file_count": len(outputs),
+             "aggregate_cap_bytes": MAX_DIAGNOSTIC_CAPTURE_TOTAL_BYTES,
+             "per_file_cap_bytes": MAX_DIAGNOSTIC_CAPTURE_FILE_BYTES}
+--- a/matter/tools/cardboard_source_bound_run.py
++++ b/matter/tools/cardboard_source_bound_run.py
+@@ -233,7 +233,8 @@
+ if args.diagnostic_run:
+     try:
+         diagnostic_capture_validation = solver_environment.validate_diagnostic_outputs(
+-            case, diagnostic_prefixes)
++            case, diagnostic_prefixes, native_argv=argv, native_exit_code=code,
++            effective_contract=effective_environment_contract)
+         output_record = {
+             'schema': 'numi.cardboard.diagnostic-capture-files.v1',
+             'environment_contract_sha256': effective_environment_contract['sha256'],
+--- /dev/null
++++ b/matter/tools/test_cardboard_checkpoint_pending_capture.py
+@@ -0,0 +1,138 @@
++import hashlib
++import json
++import tempfile
++import unittest
++from pathlib import Path
++
++import cardboard_solver_environment as env
++
++
++class PendingCheckpointCaptureTests(unittest.TestCase):
++    def setUp(self):
++        self.temporary = tempfile.TemporaryDirectory()
++        self.case = Path(self.temporary.name) / 'case'
++        self.case.mkdir()
++        self.key = 'NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH'
++        self.prefixes = env.create_diagnostic_capture_prefixes(self.case, [self.key])
++        self.contract = env.make_diagnostic_contract(
++            {'NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR': '20:0:63:1:0:0'},
++            self.case, self.prefixes)
++        self.output = self.case / 'output'
++        self.output.mkdir()
++        self.checkpoint = self.output / 'accepted.nmcb'
++        self.checkpoint.write_bytes(b'opaque native checkpoint fixture')
++        digest = hashlib.sha256(self.checkpoint.read_bytes()).hexdigest()
++        self.metadata = self.output / 'accepted.resume'
++        self.metadata.write_text('schema=numi.cardboard.accepted-coupon-resume.v2\n'
++            'accepted_control_index=19\nnext_control_index=20\nboth_environments_accepted=true\n'
++            f'checkpoint_sha256={digest}\ncheckpoint_bytes={self.checkpoint.stat().st_size}\n')
++        self.result = dict(schema='numi.cardboard.probe-result.v1',
++            status='accepted_checkpoint_prefix_saved', accepted_steps=20, physical_validation=False)
++        self.prefix = dict(schema='numi.cardboard.coupon-checkpoint-prefix.v1',
++            status='accepted_checkpoint_prefix_saved', accepted_control_index=19, next_control_index=20,
++            checkpoint_file='accepted.nmcb', checkpoint_sha256=digest,
++            metadata_file='accepted.resume', metadata_sha256=hashlib.sha256(self.metadata.read_bytes()).hexdigest(),
++            full_protocol_complete=False, trajectory_parity_established=False, physical_validation=False)
++        self.write_reports()
++        self.argv = ['probe', '--coupon-checkpoint-after-control', '19']
++
++    def tearDown(self):
++        self.temporary.cleanup()
++
++    def write_reports(self):
++        for name, report in [('result.json', self.result), ('coupon-checkpoint-prefix.json', self.prefix)]:
++            (self.output / name).write_text(json.dumps(report))
++
++    def validate(self, **changes):
++        arguments = dict(native_argv=self.argv, native_exit_code=0, effective_contract=self.contract)
++        arguments.update(changes)
++        return env.validate_diagnostic_outputs(self.case, self.prefixes, **arguments)
++
++    def test_future_checkpoint_is_diagnostic_pending_not_capture_success(self):
++        result = self.validate()
++        self.assertEqual(result['status'], 'validated_with_pending_checkpoint_targets')
++        self.assertEqual(result['files'], [])
++        pending = result['pending_captures'][0]
++        self.assertEqual((pending['accepted_control'], pending['target_control']), (19,20))
++        self.assertFalse(pending['positive_qualification_allowed'])
++        self.assertEqual(pending['checkpoint_sha256'], self.prefix['checkpoint_sha256'])
++        with self.assertRaisesRegex(ValueError, 'no files'):
++            env.validate_diagnostic_outputs(self.case, self.prefixes)
++
++    def test_operator_fd_future_control_supported(self):
++        key = 'NM_FEM_OPERATOR_FD_CAPTURE_PATH'
++        Path(self.prefixes[self.key]).parent.rmdir()
++        (self.case/'diagnostics').rmdir()
++        prefixes = env.create_diagnostic_capture_prefixes(self.case, [key])
++        contract = env.make_diagnostic_contract({'NM_FEM_OPERATOR_FD_SELECTOR':'20:63'}, self.case, prefixes)
++        result = env.validate_diagnostic_outputs(self.case, prefixes, native_argv=self.argv,
++            native_exit_code=0, effective_contract=contract)
++        self.assertEqual(result['pending_captures'][0]['selector'], '20:63')
++
++    def test_failed_native_or_missing_explicit_checkpoint_rejected(self):
++        for changes in [dict(native_exit_code=2),dict(native_exit_code=-15),dict(native_exit_code=None),
++                        dict(native_argv=['probe']),dict(native_argv=self.argv+self.argv[1:]),
++                        dict(effective_contract=None)]:
++            with self.subTest(changes=changes), self.assertRaises(ValueError):
++                self.validate(**changes)
++
++    def test_normal_result_and_false_completion_claim_rejected(self):
++        for status in ['failed','completed','resumed_diagnostic_segment_reached_schedule_end']:
++            self.result['status'] = status
++            self.write_reports()
++            with self.subTest(status=status), self.assertRaises(ValueError):
++                self.validate()
++        self.result['status'] = 'accepted_checkpoint_prefix_saved'
++        for key in ['full_protocol_complete','trajectory_parity_established','physical_validation']:
++            self.prefix[key] = True
++            self.write_reports()
++            with self.subTest(key=key), self.assertRaises(ValueError):
++                self.validate()
++            self.prefix[key] = False
++
++    def test_already_visited_malformed_and_different_case_contract_rejected(self):
++        for selector in ['19:0:63:1:0:0','0:0:63:1:0:0','all','20:0:63', '4294967296:0:63:1:0:0']:
++            contract = env.make_diagnostic_contract(
++                {'NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR':selector},self.case,self.prefixes)
++            with self.subTest(selector=selector), self.assertRaises(ValueError):
++                self.validate(effective_contract=contract)
++        other = self.case.parent / 'other'
++        other.mkdir()
++        prefixes = env.create_diagnostic_capture_prefixes(other,[self.key])
++        contract = env.make_diagnostic_contract(
++            {'NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR':'20:0:63:1:0:0'},other,prefixes)
++        with self.assertRaisesRegex(ValueError, 'another case'):
++            self.validate(effective_contract=contract)
++
++    def test_checkpoint_metadata_and_path_tampering_rejected(self):
++        self.checkpoint.write_bytes(b'modified')
++        with self.assertRaisesRegex(ValueError,'hash mismatch'):
++            self.validate()
++        self.checkpoint.write_bytes(b'opaque native checkpoint fixture')
++        self.metadata.write_text(self.metadata.read_text()+'both_environments_accepted=true\n')
++        self.prefix['metadata_sha256'] = hashlib.sha256(self.metadata.read_bytes()).hexdigest()
++        self.write_reports()
++        with self.assertRaisesRegex(ValueError,'duplicate'):
++            self.validate()
++        self.prefix['metadata_file'] = '../outside.resume'
++        self.write_reports()
++        with self.assertRaisesRegex(ValueError,'escaped'):
++            self.validate()
++
++    def test_nonempty_capture_still_validated_and_bad_entries_rejected(self):
++        directory = Path(self.prefixes[self.key]).parent
++        file = directory/'capture.json'
++        file.write_text('{}')
++        result = self.validate(native_exit_code=2)
++        self.assertEqual(result['status'],'validated')
++        self.assertEqual(result['pending_captures'],[])
++        file.unlink()
++        outside = self.case.parent/'outside'
++        outside.write_text('payload')
++        file.symlink_to(outside)
++        with self.assertRaisesRegex(ValueError,'not a new regular'):
++            self.validate()
++
++
++if __name__ == '__main__':
++    unittest.main()
+--- a/matter/tools/test_cardboard_resolution_study.py
++++ b/matter/tools/test_cardboard_resolution_study.py
+@@ -12,6 +12,7 @@
+ import sys
+ import tempfile
+ import unittest
++import os
+ from pathlib import Path
+ import shutil
+ 
+@@ -35,14 +36,12 @@
+ sys.modules[study_spec.name] = study
+ study_spec.loader.exec_module(study)
+ 
+-REPO_BASE = Path(__file__).resolve().parents[5]
+-SOURCE157 = REPO_BASE / "snapshots" / "source-right-grip-telemetry-157"
+-SOURCE160_PACKAGE = REPO_BASE / "analysis" / "selector5-restart-consumer-capture-source160-002"
++SOURCE_ROOT = Path(os.environ.get("CARDBOARD_TEST_SOURCE_ROOT", Path(__file__).resolve().parents[2]))
+ 
+ 
+ def combined_source_fixture(destination: Path) -> Path:
+     """Create the minimal source tree needed by the study planner's source binding."""
+-    runtime = SOURCE160_PACKAGE / "source/matter/src/runtime.mm"
++    runtime = SOURCE_ROOT / "matter/src/runtime.mm"
+     files = (
+         "matter/tools/cardboard_probe.mm",
+         "matter/tools/cardboard_convergence.py",
+@@ -57,15 +56,15 @@
+     if not runtime.is_file():
+         raise FileNotFoundError(runtime)
+     for relative in files:
+-        source = SOURCE157 / relative
++        source = SOURCE_ROOT / relative
+         target = destination / relative
+         target.parent.mkdir(parents=True, exist_ok=True)
+         shutil.copy2(source, target)
+     target_runtime = destination / "matter/src/runtime.mm"
+     target_runtime.parent.mkdir(parents=True, exist_ok=True)
+     shutil.copy2(runtime, target_runtime)
+-    shutil.copytree(SOURCE157 / "matter/src/metal", destination / "matter/src/metal")
+-    shutil.copytree(SOURCE157 / "matter/include/numi/matter", destination / "matter/include/numi/matter",
++    shutil.copytree(SOURCE_ROOT / "matter/src/metal", destination / "matter/src/metal")
++    shutil.copytree(SOURCE_ROOT / "matter/include/numi/matter", destination / "matter/include/numi/matter",
+                     dirs_exist_ok=True)
+     return destination
+ 
+@@ -279,7 +278,7 @@
+         with self.assertRaisesRegex(study.StudyError, "legacy runs remain descriptive"):
+             study.make_plan(baseline_dir=baseline, probe=probe, metallib=metallib,
+                             run_root=self.root / "legacy-study", timeout_seconds=20,
+-                            source_root=Path("/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157"))
++                            source_root=SOURCE_ROOT)
+ 
+         baseline = self._release_run("bound-baseline", nx=8)
+         # Build a valid source-bound plan from the ordinary synthetic contract.
+--- a/matter/tools/test_cardboard_solver_environment.py
++++ b/matter/tools/test_cardboard_solver_environment.py
+@@ -1,6 +1,7 @@
+ from __future__ import annotations
+ 
+ import unittest
++import os
+ import tempfile
+ import hashlib
+ import json
+@@ -12,33 +13,25 @@
+ import cardboard_solver_environment as env
+ 
+ 
+-BASE = Path(__file__).resolve().parents[5]
+-SOURCE157 = BASE / "snapshots" / "source-right-grip-telemetry-157"
+-SOURCE160_PACKAGE = BASE / "analysis" / "selector5-restart-consumer-capture-source160-002"
++SOURCE_ROOT = Path(os.environ.get("CARDBOARD_TEST_SOURCE_ROOT", Path(__file__).resolve().parents[2]))
+ 
+ 
+ class EffectiveEnvironmentTests(unittest.TestCase):
+-    def test_registry_matches_combined_source160_runtime_and_161_candidate(self):
+-        runtime = SOURCE160_PACKAGE / "source/matter/src/runtime.mm"
+-        overlay = json.loads((SOURCE160_PACKAGE / "source-overlay.json").read_text())
+-        expected_runtime_sha = overlay["changed_sources"]["matter/src/runtime.mm"]["overlay_sha256"]
+-        self.assertEqual(hashlib.sha256(runtime.read_bytes()).hexdigest(), expected_runtime_sha)
++    def test_registry_matches_checkout_and_detects_unregistered_control(self):
++        env.validate_source_registry(SOURCE_ROOT)
++        self.assertEqual(env.source_key_registry(SOURCE_ROOT), env.NATIVE_ENV_KEYS)
++        self.assertEqual(len(env.NATIVE_ENV_KEYS), 49)
++        self.assertIn("NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR", env.NATIVE_ENV_KEYS)
+         with tempfile.TemporaryDirectory() as temporary:
+             root = Path(temporary)
+-            (root / "matter/src").mkdir(parents=True)
+-            (root / "matter/tools").mkdir(parents=True)
+-            shutil.copy2(runtime, root / "matter/src/runtime.mm")
+-            shutil.copy2(SOURCE157 / "matter/tools/cardboard_probe.mm",
+-                         root / "matter/tools/cardboard_probe.mm")
+-            shutil.copy2(Path(__file__).with_name("cardboard_solver_environment.py"),
+-                         root / "matter/tools/cardboard_solver_environment.py")
+-            env.validate_source_registry(root)
+-            self.assertEqual(env.source_key_registry(root), env.NATIVE_ENV_KEYS)
+-            self.assertEqual(len(env.NATIVE_ENV_KEYS), 49)
+-            self.assertIn("NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR", env.NATIVE_ENV_KEYS)
+-            self.assertIn("NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH", env.NATIVE_ENV_KEYS)
+-        with self.assertRaisesRegex(ValueError, "stale=.*NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH"):
+-            env.validate_source_registry(SOURCE157)
++            for relative in ("matter/src/runtime.mm", "matter/tools/cardboard_probe.mm"):
++                target = root / relative
++                target.parent.mkdir(parents=True, exist_ok=True)
++                shutil.copy2(SOURCE_ROOT / relative, target)
++            with (root / "matter/src/runtime.mm").open("a") as stream:
++                stream.write('\nconst char *unregistered = "NM_FEM_UNREGISTERED_TEST_CONTROL";\n')
++            with self.assertRaisesRegex(ValueError, "unlisted=.*NM_FEM_UNREGISTERED_TEST_CONTROL"):
++                env.validate_source_registry(root)
+         contract = env.make_contract()
+         self.assertTrue(all(state == {"set": False, "value": None}
+                             for state in contract["effective"].values()))

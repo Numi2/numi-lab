@@ -1,0 +1,8 @@
+{
+  "exit_code": 1,
+  "stage": "standalone candidate probe syntax command",
+  "error": "Candidate file is outside the frozen source tools directory, so quoted cardboard_glue_mesh.hpp include was not found. The compile command needed the frozen tools include directory.",
+  "writer_checks_completed_before_failure": 4,
+  "native_run": false,
+  "candidate_changed": false
+}

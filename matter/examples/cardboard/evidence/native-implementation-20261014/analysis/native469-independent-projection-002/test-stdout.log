@@ -1,0 +1,10 @@
+test_all_three_mp_precisions_meet_unchanged_gates_and_stability (test_report.WitnessTests) ... ok
+test_exact_rows_and_original_failures_are_retained (test_report.WitnessTests) ... ok
+test_native_comparisons_are_reported_without_promoting_fd_qualification (test_report.WitnessTests) ... ok
+test_saved_state_archive_matches_110_digit_roots_after_float_export (test_report.WitnessTests) ... ok
+test_tet846_records_quotient_derivative_artifact (test_report.WitnessTests) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.002s
+
+OK

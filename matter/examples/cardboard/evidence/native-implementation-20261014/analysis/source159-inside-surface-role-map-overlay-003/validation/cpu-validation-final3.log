@@ -1,0 +1,20 @@
+/Users/home/cardboard-implementation-20261014/analysis/source159-inside-surface-role-map-overlay-003/tests/inside_clearance_check.cpp:273:11: error: no matching function for call to 'singleSetCoverageOnDomain'
+  273 |     check(singleSetCoverageOnDomain(subdividedCover,rectangleTriangles(0.0,1.0,0.0,1.0),
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/source159-inside-surface-role-map-overlay-003/candidate/matter/tools/cardboard_inside_clearance.hpp:903:13: note: candidate function not viable: no known conversion from 'std::array<Triangle2, 2>' to 'const std::vector<Triangle2>' for 2nd argument
+  903 | inline bool singleSetCoverageOnDomain(
+      |             ^
+  904 |     const std::vector<Triangle2>& cover,const std::vector<Triangle2>& domain,
+      |                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+$ clang++ -O0 -std=c++20 -Wall -Wextra -Wpedantic -Werror -I/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157/matter/tools -I/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157/matter/include -I/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157/include -I/Users/home/cardboard-implementation-20261014/analysis/source159-inside-surface-role-map-overlay-003/candidate/matter/tools /Users/home/cardboard-implementation-20261014/analysis/source159-inside-surface-role-map-overlay-003/tests/inside_clearance_check.cpp -o /tmp/source159-inside-clearance-0
+Traceback (most recent call last):
+  File "/Users/home/cardboard-implementation-20261014/analysis/source159-inside-surface-role-map-overlay-003/tests/run_validation.py", line 78, in <module>
+    main()
+  File "/Users/home/cardboard-implementation-20261014/analysis/source159-inside-surface-role-map-overlay-003/tests/run_validation.py", line 42, in main
+    run(base_flags[:1] + [optimization] + base_flags[1:] + ["-o", str(binary)])
+  File "/Users/home/cardboard-implementation-20261014/analysis/source159-inside-surface-role-map-overlay-003/tests/run_validation.py", line 25, in run
+    subprocess.run(args, cwd=cwd, check=True)
+  File "/Users/home/.pyenv/versions/3.10.12/lib/python3.10/subprocess.py", line 526, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['clang++', '-O0', '-std=c++20', '-Wall', '-Wextra', '-Wpedantic', '-Werror', '-I/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157/matter/tools', '-I/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157/matter/include', '-I/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157/include', '-I/Users/home/cardboard-implementation-20261014/analysis/source159-inside-surface-role-map-overlay-003/candidate/matter/tools', '/Users/home/cardboard-implementation-20261014/analysis/source159-inside-surface-role-map-overlay-003/tests/inside_clearance_check.cpp', '-o', '/tmp/source159-inside-clearance-0']' returned non-zero exit status 1.

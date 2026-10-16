@@ -1,0 +1,168 @@
+{
+  "schema": "numi.cardboard.initial-diagnostic-environment.v1",
+  "created_at_utc": "2026-10-16T01:39:16.811376+00:00",
+  "mode": "diagnostic_only",
+  "source_runtime_sha256": "69d012aeaeff6bf7ef45ede8817d9664aea21b756383fe46b38325c75c6ce743",
+  "source_control_count": 47,
+  "controls": {
+    "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR": {
+      "state": "set",
+      "value": "all:all"
+    },
+    "NM_FEM_BASE_CGLS_CAPTURE_NEWTON": {
+      "state": "absent"
+    },
+    "NM_FEM_BASE_CGLS_CAPTURE_PATH": {
+      "state": "absent"
+    },
+    "NM_FEM_BASE_CGLS_ITERATIONS": {
+      "state": "set",
+      "value": "64"
+    },
+    "NM_FEM_BASE_CGLS_PRIMARY_AFTER": {
+      "state": "set",
+      "value": "48"
+    },
+    "NM_FEM_BASE_CGLS_RIGHT_SCALE": {
+      "state": "set",
+      "value": "block3"
+    },
+    "NM_FEM_BASE_CGLS_STATE_CAPTURE": {
+      "state": "absent"
+    },
+    "NM_FEM_CACHE_PROJECTION_REUSE": {
+      "state": "set",
+      "value": "1"
+    },
+    "NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT": {
+      "state": "absent"
+    },
+    "NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT": {
+      "state": "absent"
+    },
+    "NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT": {
+      "state": "absent"
+    },
+    "NM_FEM_CONTACT_TRACE_ITERATION": {
+      "state": "absent"
+    },
+    "NM_FEM_CONTACT_TRACE_ROOT": {
+      "state": "absent"
+    },
+    "NM_FEM_COUPLED_CAPTURE_PATH": {
+      "state": "absent"
+    },
+    "NM_FEM_COUPLED_CAPTURE_SELECTOR": {
+      "state": "absent"
+    },
+    "NM_FEM_COUPLED_TRIAL_CAPTURE_PATH": {
+      "state": "absent"
+    },
+    "NM_FEM_COUPLED_TRIAL_CAPTURE_SELECTOR": {
+      "state": "absent"
+    },
+    "NM_FEM_COUPLED_TRIAL_SUMMARY_PATH": {
+      "state": "absent"
+    },
+    "NM_FEM_COUPLED_TRIAL_SUMMARY_SELECTOR": {
+      "state": "absent"
+    },
+    "NM_FEM_COUPLED_TRIAL_VTCCD_AUDIT_SELECTOR": {
+      "state": "absent"
+    },
+    "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT": {
+      "state": "absent"
+    },
+    "NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD": {
+      "state": "absent"
+    },
+    "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT": {
+      "state": "absent"
+    },
+    "NM_FEM_FULL_CONTACT_REUSE_COHESIVE_SCRATCH": {
+      "state": "absent"
+    },
+    "NM_FEM_FULL_CONTACT_REUSE_SELF_SURFACE_SCRATCH": {
+      "state": "absent"
+    },
+    "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY": {
+      "state": "absent"
+    },
+    "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY": {
+      "state": "absent"
+    },
+    "NM_FEM_FULL_CONTACT_TILED_COHESIVE": {
+      "state": "absent"
+    },
+    "NM_FEM_FULL_CONTACT_TILED_COHESIVE_PAGE_FACES": {
+      "state": "absent"
+    },
+    "NM_FEM_GRAPH_PARALLEL_LU_SEARCH": {
+      "state": "set",
+      "value": "1"
+    },
+    "NM_FEM_NEWTON_TRACE_ROOT": {
+      "state": "absent"
+    },
+    "NM_FEM_OPERATOR_FD_CAPTURE_PATH": {
+      "state": "set",
+      "value": "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/diagnostics/final-newton"
+    },
+    "NM_FEM_OPERATOR_FD_EPSILON_SCALE": {
+      "state": "absent"
+    },
+    "NM_FEM_OPERATOR_FD_SELECTOR": {
+      "state": "set",
+      "value": "20:63"
+    },
+    "NM_FEM_REGIONAL_ACCEPTED_CORRECTION_RECYCLE": {
+      "state": "absent"
+    },
+    "NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION": {
+      "state": "set",
+      "value": "1"
+    },
+    "NM_FEM_REGIONAL_RAP_CAPTURE_ONLY": {
+      "state": "absent"
+    },
+    "NM_FEM_RESIDUAL_ARMIJO_ROOT": {
+      "state": "set",
+      "value": "all"
+    },
+    "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": {
+      "state": "absent"
+    },
+    "NM_FEM_STATUS5_CAPTURE_PATH": {
+      "state": "absent"
+    },
+    "NM_FEM_STATUS5_CAPTURE_ROOT": {
+      "state": "absent"
+    },
+    "NM_FEM_TRUE_RESIDUAL_CERTIFY": {
+      "state": "set",
+      "value": "1"
+    },
+    "NM_FEM_TRUE_RESIDUAL_NEWTON_SELECTOR": {
+      "state": "absent"
+    },
+    "NM_FEM_TRUE_RESIDUAL_RESTART": {
+      "state": "absent"
+    },
+    "NM_FEM_TRUE_RESIDUAL_ROOT": {
+      "state": "set",
+      "value": "all"
+    },
+    "NUMI_CARDBOARD_NATIVE_TIMING": {
+      "state": "absent"
+    },
+    "NUMI_CARDBOARD_STEP_TIMING": {
+      "state": "set",
+      "value": "1"
+    }
+  },
+  "parent_policy": "Remove every NM_FEM_* key and the two explicitly registered NUMI timing controls from the wrapper parent; the source-bound wrapper then adds exactly the13 declared overrides.",
+  "capture_path": "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/diagnostics/final-newton",
+  "capture_path_policy": "Fresh case-local diagnostics directory, no preexisting case or prefix; runtime capture writer uses exclusive creation.",
+  "positive_qualification_allowed": false,
+  "legacy_pair_limitation": "native468 only has a during-run environment observation, not initial absent/set proof."
+}

@@ -1,0 +1,18 @@
+{
+  "schema": "numi.cardboard.native469-terminal-capture-files.v1",
+  "inputs": {
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/prediction.json": "46c190c84814378cb5b5d0919129e3cebdeffe497af2c92747cfbce2c71982ad",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/receipt.json": "35b856b4d94bcc3acfb5e611847ecc166860a228efc81e841decec019ea7e17f",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/stderr.log": "036e1a7371c78dcd459718f081170aea445c4234a34884cbd4ebc31fefcfb3bb",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/output/result.json": "a0f9a523adf715e2c19cea5b5f4ce09f07d78d6d2e0ac43cf5ba5f0e2df79625",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/output/observations.csv": "4d3a0aca4ef6cdc1f0a48a78b4ed611f8f4672e8359ccd4ceb0a8cf50c1dbb34",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-dt-half-cycle-468/receipt.json": "146cc970e01bb25b5dbeea1300f3632bd3f4804776f60efb0bd7bd3575002567",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-dt-half-cycle-468/stderr.log": "f2c2f8745e9786f1f5ae7a62b8dc5076670c2bbbb1634fb4c1120d8b3b6683a2",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-dt-half-cycle-468/output/observations.csv": "4d3a0aca4ef6cdc1f0a48a78b4ed611f8f4672e8359ccd4ceb0a8cf50c1dbb34",
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-source157-final-newton-fd-command-002/initial-effective-environment.json": "068aac1b96bc41ea5ea65321e845ec6bcd770247f266191c0b0b3688aaaaabb7"
+  },
+  "files": {
+    "analyze.py": "91f93de00e67e6209473bf15f8d25f5758b474e357ea54d85ff8a20c3a091d65",
+    "report.json": "00eae6459361f8e197578d8d7fd6ada17c5e9b60b51ab9691675d7b32749062f"
+  }
+}

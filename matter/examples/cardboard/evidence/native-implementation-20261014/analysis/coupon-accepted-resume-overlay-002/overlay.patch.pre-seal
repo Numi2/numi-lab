@@ -1,0 +1,1307 @@
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -11,6 +11,7 @@
+ #include "cardboard_shipping_driver.hpp"
+ #include "cardboard_shipping_memory.hpp"
+ #include "cardboard_shipping_snapshot.hpp"
++#include "cardboard_coupon_resume.hpp"
+ #include "cardboard_reaction_observables.hpp"
+ #include "cardboard_shipping_closure_mesh.hpp"
+ #include "cardboard_shipping_crush.hpp"
+@@ -145,6 +146,9 @@
+     bool compensatedSourcePaperProjection = false;
+     bool accurateSourcePaperProjection = false;
+     bool cacheFEMAlgorithmicTangent = false;
++    std::optional<std::uint32_t> couponCheckpointAfterControl;
++    std::filesystem::path couponResumeCheckpoint;
++    std::filesystem::path couponResumeMetadata;
+     std::array<double, 13> linerProjectionScales{};
+     std::array<double, 13> mediumProjectionScales{};
+     std::array<double, 3> shippingInsideM{0.300, 0.200, 0.200};
+@@ -1269,6 +1273,8 @@
+         << NM_MIXED_FGMRES_RESTART << "] (default "
+         << NM_MIXED_FGMRES_DEFAULT_RESTART << ")\n"
+         << "  --line-search-steps N  nonlinear/contact trial steps [1, 32] (default 8)\n"
++        << "  --coupon-checkpoint-after-control N  save an accepted two-environment checkpoint after zero-based control N and stop with a prefix-only result\n"
++        << "  --coupon-resume-checkpoint FILE --coupon-resume-metadata FILE  resume a diagnostic segment at the next control index\n"
+         << "  --accurate-paper-projection  opt-in strict Hill state projection; requires compensated arithmetic (pair with --scaled-paper-residuals in the comparison study)\n"
+         << "  --compensated-implicit-projection  opt in to compensated residual evaluation for retained-matrix generic implicit damage overlays\n"
+         << "  --compensated-source-paper-projection  opt in to generic compensated projection for the 15-state source bilinear/C1 liner+medium pair; also requires --compensated-paper-arithmetic\n"
+@@ -1439,6 +1445,22 @@
+             continue;
+         }
+         if (option == "--pin-adhesion") { arguments.pinAdhesion = true; continue; }
++        if (option == "--coupon-checkpoint-after-control") {
++            require(index + 1 < argc, "missing value for " + option);
++            arguments.couponCheckpointAfterControl = parseUnsigned(
++                argv[++index], option);
++            continue;
++        }
++        if (option == "--coupon-resume-checkpoint" ||
++            option == "--coupon-resume-metadata") {
++            require(index + 1 < argc, "missing value for " + option);
++            const std::filesystem::path value = argv[++index];
++            if (option == "--coupon-resume-checkpoint")
++                arguments.couponResumeCheckpoint = value;
++            else
++                arguments.couponResumeMetadata = value;
++            continue;
++        }
+         if (option == "--without-self-contact") { arguments.disableSelfContact = true; continue; }
+         if (option == "--help" || option == "-h") {
+             arguments.help = true;
+@@ -2020,6 +2042,31 @@
+     require(arguments.postReleaseRelaxSteps == 0u ||
+                 (!arguments.shippingBox && !arguments.crease && !arguments.pinAdhesion),
+             "post-release relaxation is supported only by the end-grip coupon protocol; shipping assembly has its own released settle stage");
++    const bool hasResumeCheckpoint = !arguments.couponResumeCheckpoint.empty();
++    const bool hasResumeMetadata = !arguments.couponResumeMetadata.empty();
++    numi::cardboard::coupon_resume::Request couponResumeRequest;
++    couponResumeRequest.saveControlRequested =
++        arguments.couponCheckpointAfterControl.has_value();
++    couponResumeRequest.saveControlIndex =
++        arguments.couponCheckpointAfterControl.value_or(0u);
++    couponResumeRequest.checkpointProvided = hasResumeCheckpoint;
++    couponResumeRequest.metadataProvided = hasResumeMetadata;
++    couponResumeRequest.shipping = arguments.shippingBox;
++    couponResumeRequest.pin = arguments.pinAdhesion;
++    couponResumeRequest.blank = arguments.boxBlank;
++    couponResumeRequest.assembly = arguments.boxAssemblyNative;
++    couponResumeRequest.fixtureJoint = arguments.boxFixtureJoint;
++    couponResumeRequest.crease = arguments.crease;
++    couponResumeRequest.compileOnly = arguments.compileOnly;
++    couponResumeRequest.environmentCount = arguments.environmentCount;
++    couponResumeRequest.totalControls = std::uint64_t(arguments.steps) +
++        arguments.holdSteps + arguments.unloadSteps + arguments.relaxSteps +
++        arguments.releaseSteps + arguments.postReleaseRelaxSteps;
++    try {
++        numi::cardboard::coupon_resume::validateRequest(couponResumeRequest);
++    } catch (const std::invalid_argument& error) {
++        require(false, error.what());
++    }
+     require(arguments.fgmresIterations >= NM_MIXED_FGMRES_DEFAULT_RESTART &&
+                 arguments.fgmresIterations <= NM_MIXED_FGMRES_MAX_ITERATIONS,
+             "--fgmres-iterations must lie between the compiled restart size and native operational ceiling");
+@@ -4777,6 +4824,16 @@
+     }
+ 
+     [[nodiscard]] const Runtime& runtime() const { return runtime_; }
++
++    // RuntimeStateSnapshot is the only restart source. This wrapper is
++    // available to the ordinary coupon driver, independent of the shipping
++    // rigid-world compile-time adapter.
++    void restoreAcceptedCheckpoint(const RuntimeStateSnapshot& checkpoint) {
++        const auto restored = runtime_.restore(checkpoint);
++        require(restored.encoded,
++                "coupon continuation could not restore its accepted native checkpoint: " +
++                    restored.message);
++    }
+ 
+ #ifdef NUMI_CARDBOARD_METAL_WORLD
+     [[nodiscard]] const std::vector<MRBodyStateGPU>& shippingRigidSceneBodies() const noexcept {
+@@ -12026,6 +12083,461 @@
+     return completed ? 0 : 2;
+ }
+ 
++Digest sha256FilePrefix(const std::filesystem::path& path,
++                        const std::uint64_t prefixBytes) {
++    std::error_code error;
++    const auto size = std::filesystem::file_size(path, error);
++    require(!error && size >= prefixBytes,
++            "coupon source-prefix file is missing or shorter than its recorded prefix: " +
++                path.string());
++    std::ifstream input(path, std::ios::binary);
++    require(input.good(), "cannot open coupon source-prefix file: " + path.string());
++    CC_SHA256_CTX context;
++    CC_SHA256_Init(&context);
++    std::array<char, 64u * 1024u> buffer{};
++    std::uint64_t remaining = prefixBytes;
++    while (remaining > 0u) {
++        const auto chunk = static_cast<std::streamsize>(
++            std::min<std::uint64_t>(remaining, buffer.size()));
++        input.read(buffer.data(), chunk);
++        require(input.gcount() == chunk,
++                "coupon source-prefix file was truncated while hashing: " + path.string());
++        CC_SHA256_Update(&context, buffer.data(), static_cast<CC_LONG>(chunk));
++        remaining -= static_cast<std::uint64_t>(chunk);
++    }
++    Digest digest;
++    CC_SHA256_Final(digest.bytes.data(), &context);
++    return digest;
++}
++
++Digest sha256BoundedFile(const std::filesystem::path& path,
++                        const std::uint64_t maximumBytes) {
++    std::error_code error;
++    const auto size = std::filesystem::file_size(path, error);
++    require(!error && size <= maximumBytes,
++            "coupon checkpoint artifact is unavailable or exceeds its hashing bound: " +
++                path.string());
++    std::ifstream input(path, std::ios::binary);
++    require(input.good(), "cannot open coupon checkpoint artifact: " + path.string());
++    CC_SHA256_CTX context;
++    CC_SHA256_Init(&context);
++    std::array<char, 64u * 1024u> buffer{};
++    while (input) {
++        input.read(buffer.data(), static_cast<std::streamsize>(buffer.size()));
++        const std::streamsize count = input.gcount();
++        if (count > 0)
++            CC_SHA256_Update(&context, buffer.data(), static_cast<CC_LONG>(count));
++    }
++    require(input.eof(), "failed while hashing coupon checkpoint artifact: " + path.string());
++    Digest digest;
++    CC_SHA256_Final(digest.bytes.data(), &context);
++    return digest;
++}
++
++std::uint64_t fileBytesOrThrow(const std::filesystem::path& path) {
++    std::error_code error;
++    const auto size = std::filesystem::file_size(path, error);
++    require(!error, "cannot measure coupon checkpoint artifact: " + path.string());
++    return size;
++}
++
++std::string couponRuntimeEnvironmentSha256() {
++    using namespace numi::cardboard::coupon_resume;
++    NSDictionary<NSString*, NSString*>* environment =
++        NSProcessInfo.processInfo.environment;
++    std::vector<std::pair<std::string, std::string>> variables;
++    variables.reserve(environment.count);
++    for (NSString* name in environment) {
++        const char* nameUTF8 = name.UTF8String;
++        NSString* valueObject = environment[name];
++        const char* valueUTF8 = valueObject.UTF8String;
++        if (nameUTF8 == nullptr || valueUTF8 == nullptr) {
++            throw std::runtime_error(
++                "coupon runtime environment contains a non-UTF-8 binding");
++        }
++        std::string key(nameUTF8);
++        if (!key.starts_with("NM_") && !key.starts_with("NUMI_MATTER_"))
++            continue;
++        variables.emplace_back(std::move(key), std::string(valueUTF8));
++    }
++    return hexDigest(sha256(canonicalRuntimeEnvironment(std::move(variables))));
++}
++
++void writeCouponTextAtomically(const std::filesystem::path& path,
++                               const std::string& contents) {
++    const auto partial = std::filesystem::path(path.string() + ".partial");
++    require(!std::filesystem::exists(path) && !std::filesystem::exists(partial),
++            "coupon checkpoint metadata destination already exists");
++    std::ofstream output(partial, std::ios::binary | std::ios::out);
++    require(output.good(), "cannot create coupon checkpoint metadata: " + partial.string());
++    output.write(contents.data(), static_cast<std::streamsize>(contents.size()));
++    output.flush();
++    require(output.good(), "coupon checkpoint metadata write failed");
++    output.close();
++    std::error_code error;
++    std::filesystem::rename(partial, path, error);
++    require(!error, "cannot publish coupon checkpoint metadata: " + error.message());
++}
++
++bool couponEnvironmentAccepted(const RuntimeStateSnapshot& snapshot,
++                               const CompiledWorld& world,
++                               const std::uint32_t environment) {
++    if (environment >= snapshot.statuses.size() ||
++        environment >= snapshot.solverCertificates.size()) return false;
++    const auto& status = snapshot.statuses[environment];
++    const auto& certificate = snapshot.solverCertificates[environment];
++    return status.code == NM_STATUS_SUCCESS && certificate.validity.w > 0.5f &&
++        std::isfinite(certificate.nonlinear.x) &&
++        std::isfinite(certificate.nonlinear.y) &&
++        std::isfinite(certificate.nonlinear.z) &&
++        std::isfinite(certificate.nonlinear.w) &&
++        certificate.nonlinear.x <= world.mixedSolver.residualTolerances.x &&
++        certificate.nonlinear.z <= world.mixedSolver.residualTolerances.y &&
++        certificate.nonlinear.w <= world.mixedSolver.residualTolerances.z;
++}
++
++std::uint64_t doubleBits(const double value) {
++    std::uint64_t bits = 0u;
++    std::memcpy(&bits, &value, sizeof(bits));
++    return bits;
++}
++
++std::uint32_t floatBits(const float value) {
++    std::uint32_t bits = 0u;
++    std::memcpy(&bits, &value, sizeof(bits));
++    return bits;
++}
++
++std::filesystem::path writeCouponAcceptedCheckpoint(
++    const std::filesystem::path& outputDirectory,
++    const RuntimeStateSnapshot& snapshot,
++    const CompiledWorld& world,
++    const Arguments& arguments,
++    const std::uint32_t controlIndex) {
++    using namespace numi::cardboard::coupon_resume;
++    require(arguments.couponCheckpointAfterControl == controlIndex,
++            "coupon checkpoint cursor differs from the requested boundary");
++    require(snapshot.controlStep == controlIndex,
++            "native snapshot control cursor does not match the accepted boundary");
++    require(snapshot.available && snapshot.statuses.size() == kEnvironmentCount &&
++                snapshot.solverCertificates.size() == kEnvironmentCount &&
++                couponEnvironmentAccepted(snapshot, world, 0u) &&
++                couponEnvironmentAccepted(snapshot, world, 1u),
++            "coupon checkpoint requires accepted native certificates in both environments");
++    numi::cardboard::shipping_snapshot_detail::validateAcceptedSnapshot(snapshot);
++    numi::cardboard::shipping_snapshot_detail::validateShippingCheckpointShape(
++        snapshot, world, kEnvironmentCount, true);
++
++    const auto checkpointDirectory = outputDirectory / "checkpoints";
++    std::error_code error;
++    std::filesystem::create_directories(checkpointDirectory, error);
++    require(!error, "cannot create coupon checkpoint directory: " + error.message());
++    const std::string stem = "coupon-control-" + stepLabel(controlIndex);
++    const auto checkpointPath = checkpointDirectory / (stem + ".nmcb");
++    const auto prefixPath = checkpointDirectory / (stem + ".prefix");
++    const auto metadataPath = checkpointDirectory / (stem + ".resume");
++    numi::cardboard::writeShippingAcceptedSnapshot(checkpointPath, snapshot);
++    const auto checkpointBytes = fileBytesOrThrow(checkpointPath);
++    constexpr std::uint64_t kMaximumCouponCheckpointBytes = 2ull * 1024ull * 1024ull * 1024ull;
++    require(checkpointBytes > 0u && checkpointBytes <= kMaximumCouponCheckpointBytes,
++            "coupon checkpoint exceeds its 2 GiB bounded snapshot limit");
++
++    PrefixManifest prefix;
++    prefix.sourceRunDirectory = std::filesystem::weakly_canonical(outputDirectory).string();
++    prefix.acceptedControlIndex = controlIndex;
++    std::uint64_t totalPrefixBytes = 0u;
++    const auto sourceRoot = std::filesystem::weakly_canonical(outputDirectory);
++    for (std::filesystem::recursive_directory_iterator it(outputDirectory), end;
++         it != end; ++it) {
++        const auto relative = it->path().lexically_relative(outputDirectory);
++        if (relative.empty()) continue;
++        const auto first = relative.begin();
++        if (first != relative.end() && first->string() == "checkpoints") {
++            if (it->is_directory()) it.disable_recursion_pending();
++            continue;
++        }
++        const auto filename = it->path().filename().string();
++        if (filename == "result.json" || filename == "failure.txt") continue;
++        if (it->is_symlink()) {
++            if (it->is_directory()) it.disable_recursion_pending();
++            continue;
++        }
++        if (!it->is_regular_file()) continue;
++        const std::string relativeName = relative.generic_string();
++        require(safeRelativePath(relativeName),
++                "coupon prefix contains an unsafe relative path");
++        const std::uint64_t bytes = fileBytesOrThrow(it->path());
++        require(bytes <= kMaximumCouponCheckpointBytes - totalPrefixBytes,
++                "coupon source-prefix manifest exceeds its 2 GiB bound");
++        totalPrefixBytes += bytes;
++        const std::string digest = hexDigest(sha256BoundedFile(
++            it->path(), kMaximumCouponCheckpointBytes));
++        const bool observations = relativeName == "observations.csv";
++        prefix.files.push_back({relativeName, bytes, digest, observations});
++        if (observations) {
++            prefix.observationsPrefixBytes = bytes;
++            prefix.observationsPrefixSha256 = digest;
++        }
++    }
++    std::sort(prefix.files.begin(), prefix.files.end(),
++        [](const PrefixEntry& a, const PrefixEntry& b) {
++            return a.relativePath < b.relativePath;
++        });
++    require(!prefix.files.empty() &&
++                std::any_of(prefix.files.begin(), prefix.files.end(),
++                    [](const PrefixEntry& entry) {
++                        return entry.relativePath == "observations.csv";
++                    }),
++            "coupon checkpoint has no flushed source observations prefix");
++    (void)sourceRoot;
++    const std::string prefixContents = serializePrefixManifest(prefix);
++    writeCouponTextAtomically(prefixPath, prefixContents);
++
++    const std::string protocolDigest = hexDigest(
++        sha256BoundedFile(outputDirectory / "manifest.json",
++                          kMaximumCouponCheckpointBytes));
++    const std::uint32_t nextControl = controlIndex + 1u;
++    const LoadPoint nextPoint = loadingPoint(arguments, nextControl);
++    const float timestepF32 = static_cast<float>(arguments.timestepSeconds);
++    Metadata metadata;
++    metadata.checkpointSha256 = hexDigest(sha256BoundedFile(
++        checkpointPath, kMaximumCouponCheckpointBytes));
++    metadata.checkpointBytes = checkpointBytes;
++    metadata.sourcePhysicsFingerprint = snapshot.sourcePhysicsFingerprint;
++    metadata.deviceProgramFingerprint = snapshot.deviceProgramFingerprint;
++    metadata.protocolManifestSha256 = protocolDigest;
++    metadata.runtimeEnvironmentSha256 = couponRuntimeEnvironmentSha256();
++    metadata.prefixManifestSha256 = hexDigest(sha256(prefixContents));
++    metadata.prefixManifestFile = prefixPath.filename().string();
++    metadata.sourceRunDirectory = prefix.sourceRunDirectory;
++    metadata.sourceRunId = hexDigest(sha256(
++        protocolDigest + metadata.checkpointSha256 + prefix.sourceRunDirectory));
++    metadata.environmentCount = arguments.environmentCount;
++    metadata.nodeCount = world.dispatch.femNodeCount;
++    metadata.tetrahedronCount = world.dispatch.tetrahedronCount;
++    metadata.materialStateStride = snapshot.materialStateStride;
++    metadata.acceptedControlIndex = controlIndex;
++    metadata.nextControlIndex = nextControl;
++    metadata.physicsSubstep = snapshot.physicsSubstep;
++    metadata.sourcePrefixControlCount = nextControl;
++    metadata.timestepFloatBits = floatBits(timestepF32);
++    metadata.scheduledElapsedSecondsBits = doubleBits(
++        static_cast<double>(nextControl) * arguments.timestepSeconds);
++    metadata.phase = loadingPoint(arguments, controlIndex).phase;
++    metadata.nextPhase = nextPoint.phase;
++    metadata.nextTargetAngleBits = doubleBits(nextPoint.angleDegrees);
++    writeCouponTextAtomically(metadataPath, serializeMetadata(metadata));
++    return checkpointPath;
++}
++
++struct LoadedCouponResume {
++    RuntimeStateSnapshot snapshot;
++    numi::cardboard::coupon_resume::Metadata metadata;
++    std::filesystem::path checkpointPath;
++};
++
++void verifyCouponPrefix(const std::filesystem::path& prefixPath,
++                        const std::filesystem::path& sourceRunDirectory,
++                        const std::uint32_t expectedControl,
++                        const std::string& expectedDigest) {
++    using namespace numi::cardboard::coupon_resume;
++    require(std::filesystem::is_regular_file(prefixPath),
++            "coupon prefix manifest is missing");
++    require(hexDigest(sha256BoundedFile(prefixPath,
++                2ull * 1024ull * 1024ull * 1024ull)) == expectedDigest,
++            "coupon prefix manifest SHA-256 does not match metadata");
++    std::ifstream input(prefixPath, std::ios::binary);
++    require(input.good(), "cannot open coupon prefix manifest");
++    const PrefixManifest prefix = parsePrefixManifest(input, prefixPath.string());
++    const auto canonicalSource = std::filesystem::weakly_canonical(sourceRunDirectory);
++    require(prefix.sourceRunDirectory == canonicalSource.string() &&
++                prefix.acceptedControlIndex == expectedControl,
++            "coupon prefix manifest source run or accepted cursor differs");
++    constexpr std::uint64_t kMaximumPrefixBytes = 2ull * 1024ull * 1024ull * 1024ull;
++    std::uint64_t totalBytes = 0u;
++    for (const PrefixEntry& entry : prefix.files) {
++        require(entry.bytes <= kMaximumPrefixBytes - totalBytes,
++                "coupon prefix file inventory exceeds its bound");
++        totalBytes += entry.bytes;
++        const auto candidate = canonicalSource / std::filesystem::path(entry.relativePath);
++        require(!std::filesystem::is_symlink(candidate) &&
++                    std::filesystem::is_regular_file(candidate),
++                "coupon source-prefix file is missing or replaced by a non-file: " +
++                    entry.relativePath);
++        const auto canonicalFile = std::filesystem::weakly_canonical(candidate);
++        const auto relativeCheck = canonicalFile.lexically_relative(canonicalSource);
++        require(!relativeCheck.empty() && *relativeCheck.begin() != "..",
++                "coupon source-prefix file resolves outside its original run directory");
++        if (entry.observationsPrefix) {
++            require(fileBytesOrThrow(canonicalFile) == entry.bytes &&
++                        hexDigest(sha256FilePrefix(canonicalFile, entry.bytes)) == entry.sha256,
++                    "coupon source observations file changed after the saved prefix stopped");
++        } else {
++            require(fileBytesOrThrow(canonicalFile) == entry.bytes &&
++                        hexDigest(sha256BoundedFile(canonicalFile,
++                            kMaximumPrefixBytes)) == entry.sha256,
++                    "coupon accepted-prefix artifact changed after checkpoint creation: " +
++                        entry.relativePath);
++        }
++    }
++}
++
++LoadedCouponResume loadCouponResume(
++    const Arguments& arguments, const CompileResult& compiled,
++    const Runtime& runtime,
++    const std::filesystem::path& currentOutputDirectory) {
++    using namespace numi::cardboard::coupon_resume;
++    require(!arguments.couponResumeCheckpoint.empty() &&
++                !arguments.couponResumeMetadata.empty(),
++            "coupon resume paths are incomplete");
++    require(std::filesystem::is_regular_file(arguments.couponResumeMetadata),
++            "coupon resume metadata file is unavailable");
++    require(!std::filesystem::is_symlink(arguments.couponResumeMetadata) &&
++                !std::filesystem::is_symlink(arguments.couponResumeCheckpoint),
++            "coupon resume metadata/checkpoint may not be symlinks");
++    require(fileBytesOrThrow(arguments.couponResumeMetadata) <= 64u * 1024u,
++            "coupon resume metadata exceeds its 64 KiB bound");
++    std::ifstream metadataInput(arguments.couponResumeMetadata, std::ios::binary);
++    require(metadataInput.good(), "cannot open coupon resume metadata");
++    Metadata metadata = parseMetadata(metadataInput,
++        arguments.couponResumeMetadata.string());
++    require(std::filesystem::is_regular_file(arguments.couponResumeCheckpoint),
++            "coupon resume checkpoint file is unavailable");
++    require(fileBytesOrThrow(arguments.couponResumeCheckpoint) == metadata.checkpointBytes &&
++                hexDigest(sha256BoundedFile(arguments.couponResumeCheckpoint,
++                    2ull * 1024ull * 1024ull * 1024ull)) ==
++                    metadata.checkpointSha256,
++            "coupon checkpoint bytes or SHA-256 do not match metadata");
++    const auto sourceRun = std::filesystem::weakly_canonical(
++        metadata.sourceRunDirectory);
++    require(std::filesystem::path(metadata.sourceRunDirectory).is_absolute() &&
++                sourceRun.string() == metadata.sourceRunDirectory,
++            "coupon source run directory is not its canonical absolute path");
++    const auto currentRun = std::filesystem::weakly_canonical(currentOutputDirectory);
++    require(sourceRun != currentRun,
++            "coupon resume output must be a separate diagnostic segment directory");
++    require(std::filesystem::is_regular_file(sourceRun / "manifest.json") &&
++                hexDigest(sha256BoundedFile(sourceRun / "manifest.json",
++                    2ull * 1024ull * 1024ull * 1024ull)) ==
++                    metadata.protocolManifestSha256 &&
++                hexDigest(sha256BoundedFile(currentOutputDirectory / "manifest.json",
++                    2ull * 1024ull * 1024ull * 1024ull)) ==
++                    metadata.protocolManifestSha256,
++            "coupon source/current protocol manifest differs from the checkpoint binding");
++    require(metadata.sourceRunId == hexDigest(sha256(
++                metadata.protocolManifestSha256 + metadata.checkpointSha256 +
++                sourceRun.string())),
++            "coupon source run identity does not match its protocol/checkpoint binding");
++    validateRuntimeFingerprints(metadata, runtime.sourcePhysicsFingerprint(),
++                                runtime.deviceProgramFingerprint());
++    require(metadata.runtimeEnvironmentSha256 ==
++                couponRuntimeEnvironmentSha256(),
++            "coupon checkpoint NM_/NUMI_MATTER_ runtime environment differs");
++    require(metadata.sourcePhysicsFingerprint == compiled.world.physicsFingerprint &&
++                metadata.environmentCount == arguments.environmentCount &&
++                metadata.nodeCount == compiled.world.dispatch.femNodeCount &&
++                metadata.tetrahedronCount == compiled.world.dispatch.tetrahedronCount &&
++                metadata.nextControlIndex < totalSteps(arguments) &&
++                metadata.sourcePrefixControlCount == metadata.nextControlIndex &&
++                metadata.timestepFloatBits ==
++                    floatBits(static_cast<float>(arguments.timestepSeconds)) &&
++                metadata.scheduledElapsedSecondsBits == doubleBits(
++                    static_cast<double>(metadata.nextControlIndex) *
++                        arguments.timestepSeconds),
++            "coupon checkpoint source, environment, layout, timestep, or schedule does not match");
++    require(metadata.acceptedControlIndex + 1u == metadata.nextControlIndex &&
++                metadata.nextControlIndex > 0u,
++            "coupon checkpoint control cursor is invalid");
++    const LoadPoint acceptedPoint = loadingPoint(
++        arguments, metadata.acceptedControlIndex);
++    const LoadPoint nextPoint = loadingPoint(arguments, metadata.nextControlIndex);
++    require(metadata.phase == acceptedPoint.phase &&
++                metadata.nextPhase == nextPoint.phase &&
++                metadata.nextTargetAngleBits == doubleBits(nextPoint.angleDegrees),
++            "coupon checkpoint phase/target cursor differs from the compiled protocol");
++    const auto prefixPath = arguments.couponResumeCheckpoint.parent_path() /
++        metadata.prefixManifestFile;
++    require(!std::filesystem::is_symlink(prefixPath) &&
++                fileBytesOrThrow(prefixPath) <= 4u * 1024u * 1024u,
++            "coupon prefix manifest is missing, aliased, or exceeds its 4 MiB bound");
++    verifyCouponPrefix(prefixPath, sourceRun,
++        metadata.acceptedControlIndex, metadata.prefixManifestSha256);
++    RuntimeStateSnapshot snapshot = numi::cardboard::readShippingAcceptedSnapshot(
++        arguments.couponResumeCheckpoint, runtime.sourcePhysicsFingerprint(),
++        runtime.deviceProgramFingerprint(), 2ull * 1024ull * 1024ull * 1024ull);
++    require(snapshot.controlStep == metadata.acceptedControlIndex &&
++                snapshot.physicsSubstep == metadata.physicsSubstep &&
++                snapshot.materialStateStride == metadata.materialStateStride &&
++                snapshot.sourcePhysicsFingerprint == metadata.sourcePhysicsFingerprint &&
++                snapshot.deviceProgramFingerprint == metadata.deviceProgramFingerprint &&
++                snapshot.statuses.size() == kEnvironmentCount &&
++                snapshot.solverCertificates.size() == kEnvironmentCount &&
++                couponEnvironmentAccepted(snapshot, compiled.world, 0u) &&
++                couponEnvironmentAccepted(snapshot, compiled.world, 1u),
++            "coupon checkpoint cursor or both-environment accepted certificate is invalid");
++    numi::cardboard::shipping_snapshot_detail::validateShippingCheckpointShape(
++        snapshot, compiled.world, kEnvironmentCount, true);
++    return {std::move(snapshot), std::move(metadata),
++            arguments.couponResumeCheckpoint};
++}
++
++void writeCouponResumeSegmentReport(
++    const std::filesystem::path& path,
++    const LoadedCouponResume& resume,
++    const std::uint32_t segmentAcceptedControls,
++    const std::string& status) {
++    std::ofstream output(path);
++    require(output.good(), "cannot write coupon resume segment report");
++    output << "{\n  \"schema\": \"numi.cardboard.coupon-resume-segment.v1\",\n"
++        << "  \"evidence_class\": \"diagnostic_resumed_segment\",\n"
++        << "  \"status\": \"" << jsonEscape(status) << "\",\n"
++        << "  \"source_run_id\": \"" << jsonEscape(resume.metadata.sourceRunId) << "\",\n"
++        << "  \"source_run_directory\": \""
++        << jsonEscape(resume.metadata.sourceRunDirectory) << "\",\n"
++        << "  \"source_prefix_accepted_control_count\": "
++        << resume.metadata.sourcePrefixControlCount << ",\n"
++        << "  \"segment_start_control_index\": "
++        << resume.metadata.nextControlIndex << ",\n"
++        << "  \"segment_accepted_controls\": " << segmentAcceptedControls << ",\n"
++        << "  \"checkpoint_file\": \""
++        << jsonEscape(resume.checkpointPath.filename().string()) << "\",\n"
++        << "  \"checkpoint_sha256\": \""
++        << resume.metadata.checkpointSha256 << "\",\n"
++        << "  \"protocol_manifest_sha256\": \""
++        << resume.metadata.protocolManifestSha256 << "\",\n"
++        << "  \"accepted_state_restored_from_native_snapshot\": true,\n"
++        << "  \"accepted_prefix_reconstructed_from_obj_or_json\": false,\n"
++        << "  \"trajectory_parity_established\": false,\n"
++        << "  \"full_protocol_complete\": false,\n"
++        << "  \"physical_validation\": false\n}\n";
++    require(output.good(), "failed writing coupon resume segment report");
++}
++
++void writeCouponCheckpointPrefixReport(
++    const std::filesystem::path& path,
++    const std::uint32_t acceptedControl,
++    const std::uint32_t nextControl,
++    const std::string& checkpointFile,
++    const std::string& checkpointSha256,
++    const std::string& metadataFile,
++    const std::string& metadataSha256) {
++    std::ofstream output(path);
++    require(output.good(), "cannot write accepted coupon checkpoint prefix report");
++    output << "{\n  \"schema\": \"numi.cardboard.coupon-checkpoint-prefix.v1\",\n"
++        << "  \"status\": \"accepted_checkpoint_prefix_saved\",\n"
++        << "  \"accepted_control_index\": " << acceptedControl << ",\n"
++        << "  \"next_control_index\": " << nextControl << ",\n"
++        << "  \"checkpoint_file\": \"" << jsonEscape(checkpointFile) << "\",\n"
++        << "  \"checkpoint_sha256\": \"" << checkpointSha256 << "\",\n"
++        << "  \"metadata_file\": \"" << jsonEscape(metadataFile) << "\",\n"
++        << "  \"metadata_sha256\": \"" << metadataSha256 << "\",\n"
++        << "  \"full_protocol_complete\": false,\n"
++        << "  \"trajectory_parity_established\": false,\n"
++        << "  \"physical_validation\": false\n}\n";
++    output.flush();
++    require(output.good(), "failed writing accepted coupon checkpoint prefix report");
++}
++
+ int execute(Arguments arguments) {
+     if (arguments.shippingBox) {
+         require(arguments.shippingDesign.has_value(),
+@@ -12391,6 +12903,12 @@
+             shippingArenaBudget ? &*shippingArenaBudget : nullptr);
+ 
+     NativeRun run(compiled.world, arguments.metallib, arguments.shippingBox);
++    std::optional<LoadedCouponResume> couponResume;
++    if (!arguments.couponResumeCheckpoint.empty())
++        couponResume = loadCouponResume(
++            arguments, compiled, run.runtime(), arguments.output);
++    if (couponResume)
++        run.restoreAcceptedCheckpoint(couponResume->snapshot);
+     // These are the last Newton linearization, including after rollback. They
+     // are diagnostic conditioning data, never accepted physical geometry.
+     const auto writeRejectedRegionalConditioning = [&](const std::uint32_t step,
+@@ -12515,7 +13033,10 @@
+     bool failed = false;
+     std::string failure;
+     std::uint32_t acceptedSteps = 0u;
+-    for (std::uint32_t step = 0u; step < totalSteps(arguments); ++step) {
++    bool couponCheckpointWritten = false;
++    const std::uint32_t firstControl = couponResume
++        ? couponResume->metadata.nextControlIndex : 0u;
++    for (std::uint32_t step = firstControl; step < totalSteps(arguments); ++step) {
+         std::vector<nm_float4> targets;
+         fillTargets(arguments, mesh, step, targets);
+         RunState current;
+@@ -12541,12 +13062,8 @@
+             const NMMatterStatusGPU& status =
+                 current.snapshot.statuses[environment];
+             const auto& certificate = current.snapshot.solverCertificates.at(environment);
+-            const bool accepted = status.code == NM_STATUS_SUCCESS && certificate.validity.w > 0.5f &&
+-                std::isfinite(certificate.nonlinear.x) && std::isfinite(certificate.nonlinear.y) &&
+-                std::isfinite(certificate.nonlinear.z) && std::isfinite(certificate.nonlinear.w) &&
+-                certificate.nonlinear.x <= compiled.world.mixedSolver.residualTolerances.x &&
+-                certificate.nonlinear.z <= compiled.world.mixedSolver.residualTolerances.y &&
+-                certificate.nonlinear.w <= compiled.world.mixedSolver.residualTolerances.z;
++            const bool accepted = couponEnvironmentAccepted(
++                current.snapshot, compiled.world, environment);
+             ReactionMetrics reaction;
+             if (accepted) {
+                 reaction = reactionMetrics(
+@@ -12638,11 +13155,60 @@
+             diagnostic << failure << '\n';
+             break;
+         }
+-    }
+-
+-    const std::string resultStatus = failed ? "failed" : "completed";
++        if (arguments.couponCheckpointAfterControl &&
++            *arguments.couponCheckpointAfterControl == step) {
++            observations.flush();
++            require(observations.good(),
++                    "cannot flush coupon observations before accepted checkpoint");
++            const auto checkpointPath = writeCouponAcceptedCheckpoint(
++                arguments.output, current.snapshot, compiled.world, arguments, step);
++            couponCheckpointWritten = true;
++            std::ofstream saved(arguments.output / "coupon-checkpoint-saved.txt");
++            require(saved.good(), "cannot record coupon checkpoint reference");
++            saved << "schema=numi.cardboard.accepted-coupon-checkpoint-reference.v1\n"
++                << "checkpoint=" << std::filesystem::relative(
++                    checkpointPath, arguments.output).generic_string() << '\n'
++                << "control_index=" << step << '\n'
++                << "next_control_index=" << (step + 1u) << '\n'
++                << "continuation_parity_established=false\n";
++            require(saved.good(), "failed recording coupon checkpoint reference");
++            const std::string checkpointSha = hexDigest(sha256BoundedFile(
++                checkpointPath, 2ull * 1024ull * 1024ull * 1024ull));
++            const std::string metadataFile = std::filesystem::relative(
++                checkpointPath.parent_path() /
++                    (checkpointPath.stem().string() + ".resume"),
++                arguments.output).generic_string();
++            const auto metadataPath = arguments.output / metadataFile;
++            writeCouponCheckpointPrefixReport(
++                arguments.output / "coupon-checkpoint-prefix.json",
++                step, step + 1u,
++                std::filesystem::relative(checkpointPath, arguments.output).generic_string(),
++                checkpointSha, metadataFile,
++                hexDigest(sha256BoundedFile(metadataPath, 64u * 1024u)));
++            if (numi::cardboard::coupon_resume::stopAfterAcceptedCheckpoint(
++                    true, *arguments.couponCheckpointAfterControl, step))
++                break;
++        }
++    }
++
++    if (arguments.couponCheckpointAfterControl && !couponCheckpointWritten) {
++        std::ofstream missing(arguments.output / "coupon-checkpoint-not-created.txt");
++        require(missing.good(), "cannot record missing coupon checkpoint");
++        missing << "requested_control_index="
++            << *arguments.couponCheckpointAfterControl << '\n'
++            << "reason=control_was_not_accepted_before_run_exit\n";
++    }
++    const std::string resultStatus = couponResume
++        ? (failed ? "resumed_diagnostic_segment_failed"
++                  : "resumed_diagnostic_segment_reached_schedule_end")
++        : (couponCheckpointWritten ? "accepted_checkpoint_prefix_saved"
++           : failed ? "failed" : "completed");
+     writeSummaryJson(arguments.output / "result.json", resultStatus,
+                      mesh, compiled, acceptedSteps, failure);
++    if (couponResume)
++        writeCouponResumeSegmentReport(
++            arguments.output / "coupon-resume-segment.json", *couponResume,
++            acceptedSteps, resultStatus);
+     printResult(resultStatus, compiled, acceptedSteps, failure);
+     return failed ? 2 : 0;
+ }
+--- /dev/null
++++ b/matter/tools/cardboard_coupon_resume.hpp
+@@ -0,0 +1,473 @@
++#pragma once
++
++// Strict metadata and source-prefix contracts for diagnostic coupon resume.
++// The native RuntimeStateSnapshot remains the sole source of restored state.
++
++#include <algorithm>
++#include <charconv>
++#include <array>
++#include <cstdint>
++#include <istream>
++#include <limits>
++#include <map>
++#include <set>
++#include <sstream>
++#include <stdexcept>
++#include <string>
++#include <string_view>
++#include <type_traits>
++#include <utility>
++#include <vector>
++
++namespace numi::cardboard::coupon_resume {
++
++inline bool isLowerSha256(const std::string_view value) {
++    if (value.size() != 64u) return false;
++    for (const char c : value)
++        if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'))) return false;
++    return true;
++}
++
++inline std::string trim(std::string value) {
++    const auto first = value.find_first_not_of(" \t\r\n");
++    if (first == std::string::npos) return {};
++    const auto last = value.find_last_not_of(" \t\r\n");
++    return value.substr(first, last - first + 1u);
++}
++
++inline std::map<std::string, std::string> parseProperties(
++    std::istream& input, const std::set<std::string>& allowed,
++    const std::string_view sourceName) {
++    std::map<std::string, std::string> result;
++    std::string line;
++    std::uint32_t lineNumber = 0u;
++    while (std::getline(input, line)) {
++        ++lineNumber;
++        line = trim(std::move(line));
++        if (line.empty() || line.front() == '#') continue;
++        const auto separator = line.find('=');
++        if (separator == std::string::npos)
++            throw std::invalid_argument(std::string(sourceName) + ":" +
++                std::to_string(lineNumber) + " must use key=value syntax");
++        const std::string key = trim(line.substr(0u, separator));
++        const std::string value = trim(line.substr(separator + 1u));
++        if (key.empty() || value.empty() || !allowed.contains(key))
++            throw std::invalid_argument(std::string(sourceName) + ":" +
++                std::to_string(lineNumber) + " has an empty or unsupported property");
++        if (!result.emplace(key, value).second)
++            throw std::invalid_argument(std::string(sourceName) + ":" +
++                std::to_string(lineNumber) + " repeats property '" + key + "'");
++    }
++    if (!input.eof())
++        throw std::invalid_argument(std::string(sourceName) + " read failed");
++    return result;
++}
++
++inline const std::string& property(
++    const std::map<std::string, std::string>& values, const char* name) {
++    const auto found = values.find(name);
++    if (found == values.end())
++        throw std::invalid_argument(std::string("coupon resume is missing '") + name + "'");
++    return found->second;
++}
++
++template<class UInt>
++inline UInt parseUnsigned(const std::string& value, const char* name) {
++    static_assert(std::is_unsigned_v<UInt>);
++    if (value.empty()) throw std::invalid_argument(std::string("invalid ") + name);
++    for (const char c : value)
++        if (c < '0' || c > '9')
++            throw std::invalid_argument(std::string("invalid ") + name);
++    UInt parsed{};
++    const auto [end, error] = std::from_chars(
++        value.data(), value.data() + value.size(), parsed);
++    if (error != std::errc{} || end != value.data() + value.size())
++        throw std::invalid_argument(std::string("invalid ") + name);
++    return parsed;
++}
++
++struct Metadata {
++    std::string checkpointSha256;
++    std::uint64_t checkpointBytes = 0u;
++    std::uint64_t sourcePhysicsFingerprint = 0u;
++    std::uint64_t deviceProgramFingerprint = 0u;
++    std::string protocolManifestSha256;
++    std::string runtimeEnvironmentSha256;
++    std::string prefixManifestSha256;
++    std::string prefixManifestFile;
++    std::string sourceRunDirectory;
++    std::string sourceRunId;
++    std::string phase;
++    std::string nextPhase;
++    std::uint32_t environmentCount = 0u;
++    std::uint32_t nodeCount = 0u;
++    std::uint32_t tetrahedronCount = 0u;
++    std::uint32_t materialStateStride = 0u;
++    std::uint32_t acceptedControlIndex = 0u;
++    std::uint32_t nextControlIndex = 0u;
++    std::uint32_t physicsSubstep = 0u;
++    std::uint32_t sourcePrefixControlCount = 0u;
++    std::uint32_t timestepFloatBits = 0u;
++    std::uint64_t scheduledElapsedSecondsBits = 0u;
++    std::uint64_t nextTargetAngleBits = 0u;
++};
++
++inline std::string canonicalRuntimeEnvironment(
++    std::vector<std::pair<std::string, std::string>> variables) {
++    variables.erase(std::remove_if(variables.begin(), variables.end(),
++        [](const auto& variable) {
++            return !variable.first.starts_with("NM_") &&
++                !variable.first.starts_with("NUMI_MATTER_");
++        }), variables.end());
++    std::sort(variables.begin(), variables.end(),
++        [](const auto& left, const auto& right) {
++            return left.first < right.first;
++        });
++    std::ostringstream output;
++    output << "numi.cardboard.coupon-runtime-environment.v1\n";
++    std::string previous;
++    for (const auto& [name, value] : variables) {
++        if (name.empty() || name == previous ||
++            name.find('\n') != std::string::npos ||
++            name.find('=') != std::string::npos ||
++            value.find('\n') != std::string::npos ||
++            value.find('\r') != std::string::npos)
++            throw std::invalid_argument(
++                "coupon runtime environment contains an invalid or duplicate binding");
++        previous = name;
++        output << name.size() << ':' << name << value.size() << ':' << value << '\n';
++    }
++    return output.str();
++}
++
++inline void validateRuntimeFingerprints(const Metadata& metadata,
++                                        const std::uint64_t sourcePhysics,
++                                        const std::uint64_t deviceProgram) {
++    if (metadata.sourcePhysicsFingerprint != sourcePhysics ||
++        metadata.deviceProgramFingerprint != deviceProgram)
++        throw std::invalid_argument(
++            "coupon checkpoint runtime source/program fingerprints differ");
++}
++
++struct Request {
++    bool saveControlRequested = false;
++    std::uint32_t saveControlIndex = 0u;
++    bool checkpointProvided = false;
++    bool metadataProvided = false;
++    bool shipping = false;
++    bool pin = false;
++    bool blank = false;
++    bool assembly = false;
++    bool fixtureJoint = false;
++    bool crease = false;
++    bool compileOnly = false;
++    std::uint32_t environmentCount = 0u;
++    std::uint64_t totalControls = 0u;
++};
++
++inline void validateRequest(const Request& request) {
++    if (request.checkpointProvided != request.metadataProvided)
++        throw std::invalid_argument(
++            "coupon resume requires both checkpoint and metadata paths");
++    const bool requested = request.saveControlRequested ||
++        request.checkpointProvided;
++    if (requested && (request.shipping || request.pin || request.blank ||
++        request.assembly || request.fixtureJoint || request.crease ||
++        request.compileOnly || request.environmentCount != 2u))
++        throw std::invalid_argument(
++            "accepted coupon resume is limited to the two-environment corrugated-strip diagnostic protocol");
++    if (request.saveControlRequested && request.checkpointProvided)
++        throw std::invalid_argument(
++            "coupon checkpoint creation and resume cannot be combined in one invocation");
++    if (request.saveControlRequested &&
++        std::uint64_t(request.saveControlIndex) + 1u >= request.totalControls)
++        throw std::invalid_argument(
++            "coupon checkpoint must leave at least one scheduled control for continuation");
++}
++
++inline bool stopAfterAcceptedCheckpoint(const bool checkpointRequested,
++                                        const std::uint32_t requestedControl,
++                                        const std::uint32_t controlIndex) {
++    return checkpointRequested && requestedControl == controlIndex;
++}
++
++inline bool safeSingleFilename(const std::string& value) {
++    return !value.empty() && value != "." && value != ".." &&
++        value.find('/') == std::string::npos &&
++        value.find('\\') == std::string::npos &&
++        value.find('\n') == std::string::npos &&
++        value.find('\r') == std::string::npos;
++}
++
++inline void validate(const Metadata& value) {
++    if (!isLowerSha256(value.checkpointSha256) || value.checkpointBytes == 0u ||
++        !isLowerSha256(value.protocolManifestSha256) ||
++        !isLowerSha256(value.runtimeEnvironmentSha256) ||
++        !isLowerSha256(value.prefixManifestSha256) ||
++        !safeSingleFilename(value.prefixManifestFile) ||
++        value.sourceRunDirectory.empty() || value.sourceRunId.empty() ||
++        value.sourceRunDirectory.find('\n') != std::string::npos ||
++        value.sourceRunDirectory.find('\r') != std::string::npos ||
++        value.environmentCount != 2u || value.nodeCount == 0u ||
++        value.tetrahedronCount == 0u || value.materialStateStride == 0u ||
++        value.acceptedControlIndex == std::numeric_limits<std::uint32_t>::max() ||
++        value.nextControlIndex == 0u ||
++        value.nextControlIndex != value.acceptedControlIndex + 1u ||
++        value.sourcePrefixControlCount != value.nextControlIndex ||
++        value.timestepFloatBits == 0u ||
++        value.scheduledElapsedSecondsBits == 0u || value.phase.empty() ||
++        value.nextPhase.empty())
++        throw std::invalid_argument("coupon resume metadata is inconsistent");
++}
++
++inline Metadata parseMetadata(std::istream& input,
++                              const std::string_view sourceName) {
++    const std::set<std::string> keys{
++        "schema", "checkpoint_sha256", "checkpoint_bytes",
++        "source_physics_fingerprint", "device_program_fingerprint",
++        "protocol_manifest_sha256", "prefix_manifest_sha256",
++        "runtime_environment_sha256",
++        "prefix_manifest_file", "source_run_directory", "source_run_id",
++        "environment_count", "node_count", "tetrahedron_count",
++        "material_state_stride", "accepted_control_index",
++        "next_control_index", "physics_substep",
++        "source_prefix_control_count", "timestep_f32_bits",
++        "scheduled_elapsed_seconds_f64_bits", "phase", "next_phase",
++        "next_target_angle_f64_bits",
++        "both_environments_accepted"};
++    const auto values = parseProperties(input, keys, sourceName);
++    if (property(values, "schema") !=
++            "numi.cardboard.accepted-coupon-resume.v1" ||
++        property(values, "both_environments_accepted") != "true")
++        throw std::invalid_argument("coupon resume schema or accepted-state gate is invalid");
++    Metadata result;
++    result.checkpointSha256 = property(values, "checkpoint_sha256");
++    result.checkpointBytes = parseUnsigned<std::uint64_t>(
++        property(values, "checkpoint_bytes"), "checkpoint byte count");
++    result.sourcePhysicsFingerprint = parseUnsigned<std::uint64_t>(
++        property(values, "source_physics_fingerprint"), "source physics fingerprint");
++    result.deviceProgramFingerprint = parseUnsigned<std::uint64_t>(
++        property(values, "device_program_fingerprint"), "device program fingerprint");
++    result.protocolManifestSha256 = property(values, "protocol_manifest_sha256");
++    result.runtimeEnvironmentSha256 = property(values, "runtime_environment_sha256");
++    result.prefixManifestSha256 = property(values, "prefix_manifest_sha256");
++    result.prefixManifestFile = property(values, "prefix_manifest_file");
++    result.sourceRunDirectory = property(values, "source_run_directory");
++    result.sourceRunId = property(values, "source_run_id");
++    result.environmentCount = parseUnsigned<std::uint32_t>(
++        property(values, "environment_count"), "environment count");
++    result.nodeCount = parseUnsigned<std::uint32_t>(
++        property(values, "node_count"), "node count");
++    result.tetrahedronCount = parseUnsigned<std::uint32_t>(
++        property(values, "tetrahedron_count"), "tetrahedron count");
++    result.materialStateStride = parseUnsigned<std::uint32_t>(
++        property(values, "material_state_stride"), "material state stride");
++    result.acceptedControlIndex = parseUnsigned<std::uint32_t>(
++        property(values, "accepted_control_index"), "accepted control index");
++    result.nextControlIndex = parseUnsigned<std::uint32_t>(
++        property(values, "next_control_index"), "next control index");
++    result.physicsSubstep = parseUnsigned<std::uint32_t>(
++        property(values, "physics_substep"), "physics substep");
++    result.sourcePrefixControlCount = parseUnsigned<std::uint32_t>(
++        property(values, "source_prefix_control_count"), "source prefix control count");
++    result.timestepFloatBits = parseUnsigned<std::uint32_t>(
++        property(values, "timestep_f32_bits"), "timestep bits");
++    result.scheduledElapsedSecondsBits = parseUnsigned<std::uint64_t>(
++        property(values, "scheduled_elapsed_seconds_f64_bits"),
++        "scheduled elapsed time bits");
++    result.phase = property(values, "phase");
++    result.nextPhase = property(values, "next_phase");
++    result.nextTargetAngleBits = parseUnsigned<std::uint64_t>(
++        property(values, "next_target_angle_f64_bits"), "next target angle bits");
++    validate(result);
++    return result;
++}
++
++inline std::string serializeMetadata(const Metadata& value) {
++    validate(value);
++    std::ostringstream output;
++    output << "schema=numi.cardboard.accepted-coupon-resume.v1\n"
++        << "checkpoint_sha256=" << value.checkpointSha256 << '\n'
++        << "checkpoint_bytes=" << value.checkpointBytes << '\n'
++        << "source_physics_fingerprint=" << value.sourcePhysicsFingerprint << '\n'
++        << "device_program_fingerprint=" << value.deviceProgramFingerprint << '\n'
++        << "protocol_manifest_sha256=" << value.protocolManifestSha256 << '\n'
++        << "runtime_environment_sha256=" << value.runtimeEnvironmentSha256 << '\n'
++        << "prefix_manifest_sha256=" << value.prefixManifestSha256 << '\n'
++        << "prefix_manifest_file=" << value.prefixManifestFile << '\n'
++        << "source_run_directory=" << value.sourceRunDirectory << '\n'
++        << "source_run_id=" << value.sourceRunId << '\n'
++        << "environment_count=" << value.environmentCount << '\n'
++        << "node_count=" << value.nodeCount << '\n'
++        << "tetrahedron_count=" << value.tetrahedronCount << '\n'
++        << "material_state_stride=" << value.materialStateStride << '\n'
++        << "accepted_control_index=" << value.acceptedControlIndex << '\n'
++        << "next_control_index=" << value.nextControlIndex << '\n'
++        << "physics_substep=" << value.physicsSubstep << '\n'
++        << "source_prefix_control_count=" << value.sourcePrefixControlCount << '\n'
++        << "timestep_f32_bits=" << value.timestepFloatBits << '\n'
++        << "scheduled_elapsed_seconds_f64_bits="
++        << value.scheduledElapsedSecondsBits << '\n'
++        << "phase=" << value.phase << '\n'
++        << "next_phase=" << value.nextPhase << '\n'
++        << "next_target_angle_f64_bits=" << value.nextTargetAngleBits << '\n'
++        << "both_environments_accepted=true\n";
++    return output.str();
++}
++
++struct PrefixEntry {
++    std::string relativePath;
++    std::uint64_t bytes = 0u;
++    std::string sha256;
++    bool observationsPrefix = false;
++};
++
++struct PrefixManifest {
++    std::string sourceRunDirectory;
++    std::uint32_t acceptedControlIndex = 0u;
++    std::uint64_t observationsPrefixBytes = 0u;
++    std::string observationsPrefixSha256;
++    std::vector<PrefixEntry> files;
++};
++
++inline bool safeRelativePath(const std::string& path) {
++    if (path.empty() || path.front() == '/' ||
++        path.find('\\') != std::string::npos || path.find('|') != std::string::npos ||
++        path.find('\n') != std::string::npos || path.find('\r') != std::string::npos)
++        return false;
++    std::istringstream parts(path);
++    std::string part;
++    while (std::getline(parts, part, '/'))
++        if (part.empty() || part == "." || part == "..") return false;
++    return true;
++}
++
++inline std::string serializePrefixManifest(const PrefixManifest& value) {
++    if (value.sourceRunDirectory.empty() || value.files.empty() ||
++        value.files.size() > 8192u ||
++        !isLowerSha256(value.observationsPrefixSha256) ||
++        value.sourceRunDirectory.find('\n') != std::string::npos ||
++        value.sourceRunDirectory.find('\r') != std::string::npos)
++        throw std::invalid_argument("coupon prefix manifest is incomplete");
++    std::ostringstream output;
++    output << "schema=numi.cardboard.accepted-coupon-prefix.v1\n"
++        << "source_run_directory=" << value.sourceRunDirectory << '\n'
++        << "accepted_control_index=" << value.acceptedControlIndex << '\n'
++        << "observations_prefix_bytes=" << value.observationsPrefixBytes << '\n'
++        << "observations_prefix_sha256=" << value.observationsPrefixSha256 << '\n';
++    const PrefixEntry* observationsEntry = nullptr;
++    std::set<std::string> unique;
++    std::uint64_t totalBytes = 0u;
++    for (const auto& entry : value.files) {
++        if (!safeRelativePath(entry.relativePath) ||
++            !isLowerSha256(entry.sha256) || !unique.insert(entry.relativePath).second)
++            throw std::invalid_argument("coupon prefix manifest has an invalid entry");
++        if (entry.bytes > 2ull * 1024ull * 1024ull * 1024ull - totalBytes)
++            throw std::invalid_argument("coupon prefix manifest exceeds its byte bound");
++        totalBytes += entry.bytes;
++        if (entry.relativePath == "observations.csv") {
++            if (!entry.observationsPrefix)
++                throw std::invalid_argument("observations.csv must be a prefix entry");
++            observationsEntry = &entry;
++        } else if (entry.observationsPrefix) {
++            throw std::invalid_argument("only observations.csv may be a prefix entry");
++        }
++        output << "file=" << entry.relativePath << '|' << entry.bytes << '|'
++            << entry.sha256 << '|' << (entry.observationsPrefix ? 1 : 0) << '\n';
++    }
++    if (observationsEntry == nullptr ||
++        observationsEntry->bytes != value.observationsPrefixBytes ||
++        observationsEntry->sha256 != value.observationsPrefixSha256)
++        throw std::invalid_argument("coupon prefix manifest omits observations.csv");
++    return output.str();
++}
++
++inline PrefixManifest parsePrefixManifest(std::istream& input,
++                                          const std::string_view sourceName) {
++    PrefixManifest result;
++    std::set<std::string> unique;
++    bool schemaSeen = false, dirSeen = false, controlSeen = false;
++    bool bytesSeen = false, hashSeen = false, observationsSeen = false;
++    std::uint64_t totalBytes = 0u;
++    std::string line;
++    std::uint32_t lineNumber = 0u;
++    while (std::getline(input, line)) {
++        ++lineNumber;
++        line = trim(std::move(line));
++        if (line.empty()) continue;
++        const auto separator = line.find('=');
++        if (separator == std::string::npos)
++            throw std::invalid_argument(std::string(sourceName) + ":" +
++                std::to_string(lineNumber) + " has malformed line");
++        const std::string key = line.substr(0u, separator);
++        const std::string value = line.substr(separator + 1u);
++        if (key == "schema") {
++            if (schemaSeen || value != "numi.cardboard.accepted-coupon-prefix.v1")
++                throw std::invalid_argument("coupon prefix schema is invalid");
++            schemaSeen = true;
++        } else if (key == "source_run_directory") {
++            if (dirSeen || value.empty() ||
++                value.find('\n') != std::string::npos ||
++                value.find('\r') != std::string::npos)
++                throw std::invalid_argument("coupon prefix source directory is invalid");
++            result.sourceRunDirectory = value; dirSeen = true;
++        } else if (key == "accepted_control_index") {
++            if (controlSeen) throw std::invalid_argument("coupon prefix control is duplicated");
++            result.acceptedControlIndex = parseUnsigned<std::uint32_t>(value, "prefix control");
++            controlSeen = true;
++        } else if (key == "observations_prefix_bytes") {
++            if (bytesSeen) throw std::invalid_argument("coupon prefix observation size is duplicated");
++            result.observationsPrefixBytes = parseUnsigned<std::uint64_t>(value, "prefix observation size");
++            bytesSeen = true;
++        } else if (key == "observations_prefix_sha256") {
++            if (hashSeen || !isLowerSha256(value)) throw std::invalid_argument("coupon prefix observation hash is invalid");
++            result.observationsPrefixSha256 = value; hashSeen = true;
++        } else if (key == "file") {
++            if (result.files.size() >= 8192u)
++                throw std::invalid_argument("coupon prefix manifest exceeds its file-count bound");
++            std::array<std::string, 4> fields{};
++            std::size_t cursor = 0u;
++            for (std::size_t field = 0u; field < fields.size(); ++field) {
++                const auto end = value.find('|', cursor);
++                if (field + 1u == fields.size()) {
++                    if (end != std::string::npos) throw std::invalid_argument("coupon prefix file has extra fields");
++                    fields[field] = value.substr(cursor);
++                } else {
++                    if (end == std::string::npos) throw std::invalid_argument("coupon prefix file is truncated");
++                    fields[field] = value.substr(cursor, end - cursor);
++                    cursor = end + 1u;
++                }
++            }
++            PrefixEntry entry;
++            entry.relativePath = fields[0];
++            entry.bytes = parseUnsigned<std::uint64_t>(fields[1], "prefix file byte count");
++            entry.sha256 = fields[2];
++            const auto isPrefix = parseUnsigned<std::uint32_t>(fields[3], "prefix file kind");
++            if (isPrefix > 1u || !safeRelativePath(entry.relativePath) ||
++                !isLowerSha256(entry.sha256) || !unique.insert(entry.relativePath).second)
++                throw std::invalid_argument("coupon prefix file entry is invalid or repeated");
++            entry.observationsPrefix = isPrefix == 1u;
++            if (entry.relativePath == "observations.csv") {
++                if (!entry.observationsPrefix || observationsSeen ||
++                    entry.bytes != result.observationsPrefixBytes ||
++                    entry.sha256 != result.observationsPrefixSha256)
++                    throw std::invalid_argument("coupon prefix observations entry does not match its prefix digest");
++                observationsSeen = true;
++            } else if (entry.observationsPrefix) {
++                throw std::invalid_argument("only observations.csv may be a prefix entry");
++            }
++            if (entry.bytes > 2ull * 1024ull * 1024ull * 1024ull - totalBytes)
++                throw std::invalid_argument("coupon prefix manifest exceeds its byte bound");
++            totalBytes += entry.bytes;
++            result.files.push_back(std::move(entry));
++        } else {
++            throw std::invalid_argument(std::string(sourceName) + " has unsupported key '" + key + "'");
++        }
++    }
++    if (!input.eof() || !schemaSeen || !dirSeen || !controlSeen || !bytesSeen ||
++        !hashSeen || !observationsSeen || result.files.empty())
++        throw std::invalid_argument("coupon prefix manifest is incomplete");
++    return result;
++}
++
++} // namespace numi::cardboard::coupon_resume
+--- /dev/null
++++ b/tests/coupon_resume_contract_test.cpp
+@@ -0,0 +1,161 @@
++#include "../candidate/matter/tools/cardboard_coupon_resume.hpp"
++
++#include <cassert>
++#include <sstream>
++
++using namespace numi::cardboard::coupon_resume;
++
++static Metadata validMetadata() {
++    Metadata value;
++    value.checkpointSha256 = std::string(64u, 'a');
++    value.checkpointBytes = 4096u;
++    value.sourcePhysicsFingerprint = 17u;
++    value.deviceProgramFingerprint = 19u;
++    value.protocolManifestSha256 = std::string(64u, 'b');
++    value.runtimeEnvironmentSha256 = std::string(64u, 'f');
++    value.prefixManifestSha256 = std::string(64u, 'c');
++    value.prefixManifestFile = "coupon-control-000019.prefix";
++    value.sourceRunDirectory = "/tmp/accepted-source-run";
++    value.sourceRunId = "test-run-identity";
++    value.environmentCount = 2u;
++    value.nodeCount = 160u;
++    value.tetrahedronCount = 384u;
++    value.materialStateStride = 15u;
++    value.acceptedControlIndex = 19u;
++    value.nextControlIndex = 20u;
++    value.physicsSubstep = 1u;
++    value.sourcePrefixControlCount = 20u;
++    value.timestepFloatBits = 0x38d1b717u;
++    value.scheduledElapsedSecondsBits = 0x3fb999999999999au;
++    value.phase = "loading";
++    value.nextPhase = "loading";
++    value.nextTargetAngleBits = 0x3fb999999999999au;
++    return value;
++}
++
++static void mustReject(const auto& thunk) {
++    bool rejected = false;
++    try { thunk(); }
++    catch (const std::exception&) { rejected = true; }
++    assert(rejected);
++}
++
++int main() {
++    const std::string environmentA = canonicalRuntimeEnvironment({
++        {"NUMI_MATTER_MODE", "coupon"}, {"NM_FEM_CGLS", "64"},
++        {"PATH", "/ignored"}});
++    const std::string environmentB = canonicalRuntimeEnvironment({
++        {"NM_FEM_CGLS", "64"}, {"PATH", "/different"},
++        {"NUMI_MATTER_MODE", "coupon"}});
++    assert(environmentA == environmentB);
++    assert(environmentA != canonicalRuntimeEnvironment({
++        {"NUMI_MATTER_MODE", "coupon"}, {"NM_FEM_CGLS", "32"}}));
++    mustReject([&] {
++        (void)canonicalRuntimeEnvironment({
++            {"NM_FEM_CGLS", "64"}, {"NM_FEM_CGLS", "32"}});
++    });
++
++    const Metadata original = validMetadata();
++    const std::string encoded = serializeMetadata(original);
++    std::istringstream validInput(encoded);
++    const Metadata decoded = parseMetadata(validInput, "valid-test");
++    assert(decoded.checkpointSha256 == original.checkpointSha256);
++    assert(decoded.protocolManifestSha256 == original.protocolManifestSha256);
++    assert(decoded.nextControlIndex == 20u);
++    assert(decoded.nextTargetAngleBits == original.nextTargetAngleBits);
++    assert(decoded.scheduledElapsedSecondsBits == original.scheduledElapsedSecondsBits);
++    validateRuntimeFingerprints(decoded, 17u, 19u);
++    mustReject([&] { validateRuntimeFingerprints(decoded, 17u, 23u); });
++
++    std::istringstream duplicate(encoded + "next_control_index=20\n");
++    mustReject([&] { (void)parseMetadata(duplicate, "duplicate-test"); });
++    std::string badHash = encoded;
++    const auto hashPosition = badHash.find(std::string(64u, 'a'));
++    badHash.replace(hashPosition, 64u, std::string(64u, 'A'));
++    std::istringstream invalidHash(badHash);
++    mustReject([&] { (void)parseMetadata(invalidHash, "hash-test"); });
++    std::istringstream unknown(encoded + "unexpected=true\n");
++    mustReject([&] { (void)parseMetadata(unknown, "unknown-test"); });
++    std::string falseAcceptance = encoded;
++    const auto acceptedPosition = falseAcceptance.find("both_environments_accepted=true");
++    falseAcceptance.replace(acceptedPosition,
++        std::string("both_environments_accepted=true").size(),
++        "both_environments_accepted=false");
++    std::istringstream rejectedState(falseAcceptance);
++    mustReject([&] { (void)parseMetadata(rejectedState, "acceptance-test"); });
++    std::string cursorMismatch = encoded;
++    const auto cursorPosition = cursorMismatch.find("next_control_index=20");
++    cursorMismatch.replace(cursorPosition,
++        std::string("next_control_index=20").size(), "next_control_index=21");
++    std::istringstream cursor(cursorMismatch);
++    mustReject([&] { (void)parseMetadata(cursor, "cursor-test"); });
++    mustReject([&] {
++        Metadata invalid = original;
++        invalid.prefixManifestFile = "../escape.prefix";
++        (void)serializeMetadata(invalid);
++    });
++
++    PrefixManifest prefix;
++    prefix.sourceRunDirectory = "/tmp/accepted-source-run";
++    prefix.acceptedControlIndex = 19u;
++    prefix.observationsPrefixBytes = 192u;
++    prefix.observationsPrefixSha256 = std::string(64u, 'd');
++    prefix.files = {
++        {"manifest.json", 128u, std::string(64u, 'e'), false},
++        {"observations.csv", 192u, prefix.observationsPrefixSha256, true},
++    };
++    const std::string prefixBytes = serializePrefixManifest(prefix);
++    std::istringstream prefixInput(prefixBytes);
++    const PrefixManifest prefixDecoded = parsePrefixManifest(prefixInput, "prefix-test");
++    assert(prefixDecoded.files.size() == 2u);
++    assert(prefixDecoded.acceptedControlIndex == 19u);
++    assert(prefixDecoded.files[1].observationsPrefix);
++    PrefixManifest inconsistentPrefix = prefix;
++    ++inconsistentPrefix.observationsPrefixBytes;
++    mustReject([&] { (void)serializePrefixManifest(inconsistentPrefix); });
++    std::string traversal = prefixBytes;
++    const auto manifestPosition = traversal.find("manifest.json");
++    traversal.replace(manifestPosition, std::string("manifest.json").size(), "../manifest.json");
++    std::istringstream traversalInput(traversal);
++    mustReject([&] { (void)parsePrefixManifest(traversalInput, "traversal-test"); });
++    std::istringstream missingObservation(
++        "schema=numi.cardboard.accepted-coupon-prefix.v1\n"
++        "source_run_directory=/tmp/run\naccepted_control_index=2\n"
++        "observations_prefix_bytes=0\nobservations_prefix_sha256=" +
++        std::string(64u, '0') + "\n");
++    mustReject([&] { (void)parsePrefixManifest(missingObservation, "missing-prefix"); });
++
++    Request request;
++    request.saveControlRequested = true;
++    request.saveControlIndex = 19u;
++    request.environmentCount = 2u;
++    request.totalControls = 64u;
++    validateRequest(request);
++    request.checkpointProvided = true;
++    request.metadataProvided = false;
++    mustReject([&] { validateRequest(request); });
++    request.checkpointProvided = true;
++    request.metadataProvided = true;
++    mustReject([&] { validateRequest(request); });
++    request.saveControlRequested = false;
++    request.shipping = true;
++    mustReject([&] { validateRequest(request); });
++    request.shipping = false;
++    request.environmentCount = 1u;
++    mustReject([&] { validateRequest(request); });
++    request.environmentCount = 2u;
++    request.metadataProvided = false;
++    mustReject([&] { validateRequest(request); });
++    request.checkpointProvided = false;
++    request.saveControlRequested = true;
++    request.saveControlIndex = 63u;
++    request.totalControls = 64u;
++    mustReject([&] { validateRequest(request); });
++    request.saveControlIndex = 62u;
++    request.compileOnly = true;
++    mustReject([&] { validateRequest(request); });
++
++    assert(stopAfterAcceptedCheckpoint(true, 19u, 19u));
++    assert(!stopAfterAcceptedCheckpoint(true, 19u, 18u));
++    assert(!stopAfterAcceptedCheckpoint(false, 19u, 19u));
++}

@@ -1,0 +1,40 @@
+{
+  "bound_inputs": {
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-convergence-145-independent-review-001/admission.log": "8c44d88f70f9eaa0d3d12625284980a7f62136065ec7c1d2fe9f3442208edeeb",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-convergence-145-independent-review-001/convergence.log": "417fa9cad6650dd37323ea28c281e5652d1ea923f9e0051ae8ea2b04d8b948f8",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-convergence-145-independent-review-001/resolution.log": "28c66942347d09f24bce098b437daba4872e1cb488a78ff3b0765c3f831e8d7f",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-convergence-145-independent-review-001/shipping.log": "3b00acc732f66031321049f9b581cc4368d7da5dbf65c0d3df7821886b64dc44",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-convergence-tool-overlay-145-001/manifest.json": "aca1ab6014af96cb3d757eae52f6d4f3f2bc7366affd33b0f2fd3f2cba5d9014",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-convergence-tool-overlay-145-001/overlay/matter/tools/cardboard_convergence.py": "bfc71d8eb6ee051a22c9311b965011b512508806342a932989483f362902da7e",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-convergence-tool-overlay-145-001/overlay/matter/tools/cardboard_probe.mm": "d2d4812ccbe95e31cb4fd266cfc94a727b74ce12f1830b6fe017460e7e8a37c9",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-convergence-tool-overlay-145-001/overlay/matter/tools/cardboard_resolution_study.py": "ec9cfe762640896fb11731b05598153080e57d208f01f5804d77a21c43c1cc66",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-convergence-tool-overlay-145-001/overlay/matter/tools/test_cardboard_convergence.py": "efeb505727a9bf4e0ad0bd88f5a51386a63679e15f9dd20411c313a9bc918ec4",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-convergence-tool-overlay-145-001/overlay/matter/tools/test_cardboard_resolution_study.py": "5c026b66feb30a0aa5eabcf4f1ff50e11bc3879b2cb3d1db27c0d1a9c5bc7c84",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-convergence-tool-overlay-145-001/post-release-relaxation.patch": "03a2096821094c9ef73934d9dcfe18f908d65101e069b3336bec0908313a7cff",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-convergence-tool-overlay-145-001/report.json": "7115b2598aebfe5bc892cc6dc5f193b0db2903c80dbf5dd996c16c7b49bd5bfb",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-convergence-tool-overlay-145-001/run_audit.py": "74335165dcb254881ba237968342d58d36f861e8e29c1f27c9ddb96968a129e1",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143/matter/CMakeLists.txt": "2763c841225947f88218450536f77d428009a8878bc053bd278b2c353e262293",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143/matter/tools/cardboard_convergence.py": "db7de31be82f9362b52a3c4c366c72c74d1f6a3df923fdcdab7061eda89dcb7f",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143/matter/tools/cardboard_probe.mm": "6917e515993e1da26d09d946bf8a3f58c7066ad183b19131aa466e94e8d32e99",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143/matter/tools/cardboard_resolution_study.py": "326348a3047124fc5da57404f577aca76e1383ff7fc35266e307cb0b00a5b7be",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143/matter/tools/cardboard_stage_resolution_study.py": "8fe20bad44a32038d64de0f7c93db85735365ccf03081691e00e3fb21ce2c21f",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143/matter/tools/test_cardboard_convergence.py": "ae20faabdc4643d9d378571c926e261aacab67b6794668a2cd8e784be8940bb7",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143/matter/tools/test_cardboard_resolution_study.py": "7e7c350f2effee2178f3d006461ae80938b088f5417fccae59998abd5046c3fe",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143/matter/tools/test_cardboard_stage_resolution_study.py": "0610a641b56929a1bd859cfe4b2be0881ff5bd4f6594429d3c9356bb8a9f906b"
+  },
+  "files": {
+    "README.md": "8d13566270dea6e7cad7d86bb04d41e5cc76d3db0d8209c47e9ec4299e3b0429",
+    "admission.log": "8c44d88f70f9eaa0d3d12625284980a7f62136065ec7c1d2fe9f3442208edeeb",
+    "convergence.log": "417fa9cad6650dd37323ea28c281e5652d1ea923f9e0051ae8ea2b04d8b948f8",
+    "report.json": "8e5c554bfdaf172a8689568eb26a19494cb5c1eeb3075bfeceef4c9bffb7af31",
+    "resolution.log": "28c66942347d09f24bce098b437daba4872e1cb488a78ff3b0765c3f831e8d7f",
+    "shipping.log": "3b00acc732f66031321049f9b581cc4368d7da5dbf65c0d3df7821886b64dc44"
+  },
+  "overlay_package_manifest_sha256": "aca1ab6014af96cb3d757eae52f6d4f3f2bc7366affd33b0f2fd3f2cba5d9014",
+  "readme_sha256": "8d13566270dea6e7cad7d86bb04d41e5cc76d3db0d8209c47e9ec4299e3b0429",
+  "review_report_sha256": "8e5c554bfdaf172a8689568eb26a19494cb5c1eeb3075bfeceef4c9bffb7af31",
+  "schema": "numi.cardboard.post_release_145_independent_review_manifest.v1",
+  "seal_script_sha256": "f8b3ae47b1dbc627ed12791d44b187a868cd3606bc26505b1a24e6c23ab65955",
+  "test_total": 68,
+  "verdict": "PASS_SOFTWARE_SCOPE_ONLY"
+}

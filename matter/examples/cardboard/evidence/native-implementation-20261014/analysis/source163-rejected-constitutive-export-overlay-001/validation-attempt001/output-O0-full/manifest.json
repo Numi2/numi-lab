@@ -1,0 +1,5 @@
+{"files":[    {"name": "candidate_nodes.bin", "count": 1, "stride_bytes": 80, "bytes": 80, "sha256": "eda31bae396a63b169206c822acc39b8486d2a01cc88dc2acca122e8fc4c457e"},
+    {"name": "linearization_accepted_material_history.bin", "count": 4, "stride_bytes": 4, "bytes": 16, "sha256": "2b8fc0b4be5be9f99ed4ccee0d6f178635fa311d25227898b53cfb9c2ff6494d"},
+    {"name": "linearization_scheduler_exponents.bin", "count": 3, "stride_bytes": 4, "bytes": 12, "sha256": "87fa498592c87cce6f973bfd6aeb542c8d045f18160697c2628b158cb4a3a123"},
+    {"name": "linearization_F_high.bin", "count": 3, "stride_bytes": 16, "bytes": 48, "sha256": "31cfe40cbf2cff090f2776a574a157ff4dc1119954f6be87cf98c285b067ee98"},
+    {"name": "linearization_F_low.bin", "count": 3, "stride_bytes": 16, "bytes": 48, "sha256": "57ea3900e95c248884751f2f13bfb573ab5620b2b5c9fad35c5c5ab630ec2b49"}]}

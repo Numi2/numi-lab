@@ -1,0 +1,47 @@
+{
+  "schema": "numi.cardboard.rejected_constitutive_export_cpu_validation.v1",
+  "checks": [
+    {
+      "optimization": "O0",
+      "fixture": "full",
+      "arrays": 5,
+      "all_bytes_and_sha256_verified": true,
+      "source_directory": "/Users/home/cardboard-implementation-20261014/analysis/source163-rejected-constitutive-export-overlay-001/validation-attempt002/output-O0-full"
+    },
+    {
+      "optimization": "O0",
+      "fixture": "empty",
+      "arrays": 5,
+      "all_bytes_and_sha256_verified": true,
+      "source_directory": "/Users/home/cardboard-implementation-20261014/analysis/source163-rejected-constitutive-export-overlay-001/validation-attempt002/output-O0-empty"
+    },
+    {
+      "optimization": "O3",
+      "fixture": "full",
+      "arrays": 5,
+      "all_bytes_and_sha256_verified": true,
+      "source_directory": "/Users/home/cardboard-implementation-20261014/analysis/source163-rejected-constitutive-export-overlay-001/validation-attempt002/output-O3-full"
+    },
+    {
+      "optimization": "O3",
+      "fixture": "empty",
+      "arrays": 5,
+      "all_bytes_and_sha256_verified": true,
+      "source_directory": "/Users/home/cardboard-implementation-20261014/analysis/source163-rejected-constitutive-export-overlay-001/validation-attempt002/output-O3-empty"
+    }
+  ],
+  "writer_extracted_from_candidate": true,
+  "probe_syntax_exit_code": 0,
+  "patch_dry_run_exit_code": 0,
+  "extra_gpu_readback_bytes": 0,
+  "native_physics_transactions": 0,
+  "failed_validation_setup_attempts_preserved": [
+    "validation-attempt001",
+    "validation-attempt002"
+  ],
+  "limits": [
+    "Source-derived actual writer exercised with synthetic bytes, plus full probe TU syntax only; no app build or native capture parity.",
+    "Exported history is accepted history at AP linearization, not current projected constitutive state.",
+    "Exact Newton correction and perturbed projected states remain unavailable in this export."
+  ]
+}

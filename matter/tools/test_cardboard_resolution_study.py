@@ -12,7 +12,9 @@ import json
 import sys
 import tempfile
 import unittest
+import os
 from pathlib import Path
+import shutil
 
 
 HERE = Path(__file__).resolve().parent
@@ -33,6 +35,38 @@ assert study_spec and study_spec.loader
 study = importlib.util.module_from_spec(study_spec)
 sys.modules[study_spec.name] = study
 study_spec.loader.exec_module(study)
+
+SOURCE_ROOT = Path(os.environ.get("CARDBOARD_TEST_SOURCE_ROOT", Path(__file__).resolve().parents[2]))
+
+
+def combined_source_fixture(destination: Path) -> Path:
+    """Create the minimal source tree needed by the study planner's source binding."""
+    runtime = SOURCE_ROOT / "matter/src/runtime.mm"
+    files = (
+        "matter/tools/cardboard_probe.mm",
+        "matter/tools/cardboard_convergence.py",
+        "matter/tools/cardboard_resolution_study.py",
+        "matter/tools/cardboard_glue_mesh.hpp",
+        "matter/tools/cardboard_starch_interface_mesh.hpp",
+        "matter/src/metal_encoder_timing.hpp",
+        "matter/src/compiler_impl.cpp",
+        "matter/src/validation_impl.cpp",
+        "matter/include/numi/matter/shared.h",
+    )
+    if not runtime.is_file():
+        raise FileNotFoundError(runtime)
+    for relative in files:
+        source = SOURCE_ROOT / relative
+        target = destination / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+    target_runtime = destination / "matter/src/runtime.mm"
+    target_runtime.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(runtime, target_runtime)
+    shutil.copytree(SOURCE_ROOT / "matter/src/metal", destination / "matter/src/metal")
+    shutil.copytree(SOURCE_ROOT / "matter/include/numi/matter", destination / "matter/include/numi/matter",
+                    dirs_exist_ok=True)
+    return destination
 
 
 class CardboardResolutionStudyTests(unittest.TestCase):
@@ -89,24 +123,36 @@ class CardboardResolutionStudyTests(unittest.TestCase):
         metallib.write_bytes(b"synthetic metallib binding\n")
         extra_source = self.root / "extra-source.mm"
         extra_source.write_text("synthetic source binding\n")
+        source_root = combined_source_fixture(self.root / "combined-source")
 
         plan = study.make_plan(
             baseline_dir=baseline, probe=probe, metallib=metallib,
             run_root=self.root / "study-run-root", timeout_seconds=123.0,
             slower_load_factor=2, max_free_force_residual_n=0.5,
-            source_root=Path("/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-primary-policy-143"),
+            source_root=source_root,
             source_paths=[extra_source, HERE / "cardboard_probe.mm"],
         )
         self.assertEqual(plan["plan_sha256"], study._plan_digest(plan))
         self.assertEqual(len(plan["cases"]), 10)
         self.assertEqual(plan["prediction"]["max_free_force_residual_n"], 0.5)
         self.assertEqual(plan["execution"]["parallelism"], 1)
+        self.assertEqual(plan["execution"]["effective_native_environment_contract_sha256"],
+                         plan["execution"]["effective_native_environment_contract"]["sha256"])
+        self.assertEqual(plan["baseline"]["input_sha256"]["native-environment.json"],
+                         hashlib.sha256((baseline / "native-environment.json").read_bytes()).hexdigest())
         self.assertIn({"path": str(extra_source.resolve()),
                        "sha256": hashlib.sha256(extra_source.read_bytes()).hexdigest()},
                       plan["execution"]["source_files"])
         self.assertIn({"path": str((HERE / "cardboard_probe.mm").resolve()),
                        "sha256": hashlib.sha256((HERE / "cardboard_probe.mm").read_bytes()).hexdigest()},
                       plan["execution"]["source_files"])
+        replay = fixtures.fake_run(self.root, "replay-with-env-drift", nx=16,
+                                   environment_overrides={"NM_FEM_BASE_CGLS_PRIMARY_AFTER": "1"})
+        replay_runs, replay_status = study._load_case_runs(
+            plan, {plan["cases"][0]["id"]: replay})
+        self.assertNotIn(plan["cases"][0]["id"], replay_runs)
+        self.assertIn("effective native environment differs",
+                      replay_status[plan["cases"][0]["id"]])
         time_cases = [case for case in plan["cases"] if case["kind"] == "temporal"]
         self.assertEqual([case["time_refinement_factor"] for case in time_cases], [2, 4])
         for case in time_cases:
@@ -203,6 +249,13 @@ class CardboardResolutionStudyTests(unittest.TestCase):
         self.assertEqual(args[args.index("--fgmres-preconditioner") + 1], "regional-galerkin-schwarz")
         self.assertEqual(args[args.index("--fgmres-restart") + 1], "16")
         self.assertEqual(args[args.index("--line-search-steps") + 1], "24")
+        # The descriptive preconditioner reader and the study command builder
+        # must agree on this source-defined graph-Schwarz selector.
+        pair_b = cc._load_run(self._release_run("source15-schwarz-pair", nx=16))
+        solver_b = pair_b.manifest["solver"]
+        solver_b.update({"fgmres_preconditioner": solver["fgmres_preconditioner"],
+                         "fgmres_restart": 16, "line_search_steps": 24})
+        cc._same_solver_controls(run, pair_b)
         # Reconstruction cannot claim the native graph's refined mesh scope.
         # The native admission gate remains authoritative for each actual case.
         solver["fgmres_restart"] = 17
@@ -212,6 +265,87 @@ class CardboardResolutionStudyTests(unittest.TestCase):
         solver["fgmres_preconditioner"] = "unknown_preconditioner"
         with self.assertRaisesRegex(study.StudyError, "unsupported or missing preconditioner"):
             study._native_base_arguments(run)
+
+    def test_plan_refuses_legacy_baseline_and_replay_environment_drift(self) -> None:
+        baseline = self._release_run("legacy-baseline", nx=8)
+        (baseline / "native-environment.json").unlink()
+        (baseline / "prediction.json").unlink()
+        probe = self.root / "probe"
+        probe.write_text("fixture")
+        probe.chmod(probe.stat().st_mode | 0o111)
+        metallib = self.root / "library.metallib"
+        metallib.write_bytes(b"fixture")
+        with self.assertRaisesRegex(study.StudyError, "legacy runs remain descriptive"):
+            study.make_plan(baseline_dir=baseline, probe=probe, metallib=metallib,
+                            run_root=self.root / "legacy-study", timeout_seconds=20,
+                            source_root=SOURCE_ROOT)
+
+        baseline = self._release_run("bound-baseline", nx=8)
+        # Build a valid source-bound plan from the ordinary synthetic contract.
+        manifest_path = baseline / "manifest.json"
+        manifest = json.loads(manifest_path.read_text())
+        manifest["preset"] = "literature2009"
+        manifest["mesh"]["ny"] = 2
+        manifest["tooling"] = {"enabled": False}
+        manifest["solver"]["fgmres_preconditioner"] = "scalar_diagonal"
+        for path_key, digest_key, role in (
+            ("liner_path", "liner_sha256", "liner"),
+            ("medium_path", "medium_sha256", "medium"),
+            ("glue_path", "glue_sha256", "glue"),
+        ):
+            material = self.root / f"bound-{role}.nmatter"
+            material.write_text(role)
+            manifest["materials"][path_key] = str(material)
+            manifest["materials"][digest_key] = hashlib.sha256(material.read_bytes()).hexdigest()
+        manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
+        source_root = combined_source_fixture(self.root / "combined-source-bound")
+        plan = study.make_plan(baseline_dir=baseline, probe=probe, metallib=metallib,
+                               run_root=self.root / "bound-study", timeout_seconds=20,
+                               source_root=source_root)
+        plan["execution"]["effective_native_environment_contract"] = __import__(
+            "cardboard_solver_environment").make_contract({"NM_FEM_BASE_CGLS_PRIMARY_AFTER": "1"})
+        plan["execution"]["effective_native_environment_contract_sha256"] = plan["execution"]["effective_native_environment_contract"]["sha256"]
+        plan["plan_sha256"] = study._plan_digest(plan)
+        with self.assertRaisesRegex(study.StudyError, "baseline effective native environment differs"):
+            study._verify_bindings(plan)
+
+    def test_diagnostic_run_cannot_be_a_resolution_baseline_or_positive_case(self) -> None:
+        baseline = self._release_run("diagnostic-baseline", nx=8)
+        fixtures.install_diagnostic_environment(baseline)
+        with self.assertRaisesRegex(study.StudyError, "diagnostic native runs"):
+            study._baseline_contract(baseline)
+
+        # Positive case admission has the same hard boundary, independently
+        # of whether its effective controls happen to match the sealed plan.
+        ordinary_baseline = self._release_run("ordinary-baseline", nx=8)
+        manifest_path = ordinary_baseline / "manifest.json"
+        manifest = json.loads(manifest_path.read_text())
+        manifest["preset"] = "literature2009"
+        manifest["mesh"]["ny"] = 2
+        manifest["tooling"] = {"enabled": False}
+        manifest["solver"]["fgmres_preconditioner"] = "scalar_diagonal"
+        for role in ("liner", "medium", "glue"):
+            material = self.root / f"positive-{role}.nmatter"
+            material.write_text(role)
+            manifest["materials"][role + "_path"] = str(material)
+            manifest["materials"][role + "_sha256"] = hashlib.sha256(material.read_bytes()).hexdigest()
+        manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
+        probe = self.root / "probe"
+        probe.write_text("fixture")
+        probe.chmod(probe.stat().st_mode | 0o111)
+        metallib = self.root / "library.metallib"
+        metallib.write_bytes(b"fixture")
+        source_root = combined_source_fixture(self.root / "combined-source-diagnostic")
+        plan = study.make_plan(
+            baseline_dir=ordinary_baseline, probe=probe, metallib=metallib,
+            run_root=self.root / "diagnostic-study", timeout_seconds=20,
+            source_root=source_root)
+        diagnostic_case = self._release_run("diagnostic-positive", nx=16)
+        fixtures.install_diagnostic_environment(diagnostic_case)
+        runs, statuses = study._load_case_runs(plan, {plan["cases"][0]["id"]: diagnostic_case})
+        self.assertNotIn(plan["cases"][0]["id"], runs)
+        self.assertIn("diagnostic native runs are not admitted",
+                      statuses[plan["cases"][0]["id"]])
 
     def test_admitted_pair_has_force_work_springback_and_force_residual_observables(self) -> None:
         coarse = self._release_run("coarse", nx=2)
