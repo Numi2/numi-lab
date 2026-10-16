@@ -1,0 +1,63 @@
+{
+  "status": "PASS_ADDITIVE_ACCEPTED_CARDIAC_INPUT_CAPTURE_NATIVE_REGRESSION",
+  "pins": {
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/verify_accepted_cardiac_input_capture_995.py": "8a5078a0ea6c57d7ad594f1175237ea637609d1f166032934bdf6fb66312841c",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/intercostal313-diagonal972-owner973-skin893-native-source-emission-974/native-run/accepted-geometry/step-0.mrvpack": "464b6aef05034a4a73a699e468ef403fa1c6f0f8140f8bc133a06eb04121172d",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/accepted-cardiac-input-capture-regression-995/native-run/accepted-geometry/step-0.mrvpack": "464b6aef05034a4a73a699e468ef403fa1c6f0f8140f8bc133a06eb04121172d",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/intercostal313-diagonal972-owner973-skin893-native-source-emission-974/native-run/accepted-geometry/step-0.receipt.json": "6b9b02c60b2440b0af9c518ed3b5c334a1fa6e5ddf7792d619f02b3060ca8a6f",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/accepted-cardiac-input-capture-regression-995/native-run/accepted-geometry/step-0.receipt.json": "37a7373b520f440c13ce020634daa0454833d5a7d7dfdc8bf4f4b063820ca449",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/accepted-cardiac-input-capture-regression-995/native-run/accepted-geometry/step-0.cardiac-q.bin": "ef99cfd192ee2fe43a68cef2af40c85c2c215759f491c1b3fa09ed0f794f9201",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/accepted-cardiac-input-capture-regression-995/native-run/accepted-geometry/step-0.cardiac-wall-q.bin": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/accepted-cardiac-input-capture-regression-995/native-run/accepted-geometry/step-0.common-coordinates.bin": "f322799816fd4d1f678177c294391a395a6f402684f59d97c43773d7ab37fcd5"
+  },
+  "exact_sections": {
+    "2": {
+      "bytes": 233259440,
+      "elements": 2915743,
+      "stride": 80,
+      "sha256": "b64560ab65914a0daacff605780dd33db2030afe2923cbc4fecf86e29086ba4b"
+    },
+    "3": {
+      "bytes": 61966584,
+      "elements": 15491646,
+      "stride": 4,
+      "sha256": "7aa19d9d35eec1c76e312b7929d2fb6474b0af6a75be907098bf9bfa0abfcb22"
+    },
+    "4": {
+      "bytes": 56064,
+      "elements": 876,
+      "stride": 64,
+      "sha256": "58d11d60e4209c28adea2a1543eddd07928c610d507e76d31a839a133c43339f"
+    }
+  },
+  "cardiac_buffers": {
+    "cardiac_q": {
+      "bytes": 16,
+      "path": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/accepted-cardiac-input-capture-regression-995/native-run/accepted-geometry/step-0.cardiac-q.bin",
+      "record_type": "mr_float4",
+      "sha256": "ef99cfd192ee2fe43a68cef2af40c85c2c215759f491c1b3fa09ed0f794f9201"
+    },
+    "cardiac_wall_q": {
+      "bytes": 16,
+      "path": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/accepted-cardiac-input-capture-regression-995/native-run/accepted-geometry/step-0.cardiac-wall-q.bin",
+      "record_type": "mr_float4",
+      "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb"
+    },
+    "common_coordinates": {
+      "bytes": 64,
+      "path": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/accepted-cardiac-input-capture-regression-995/native-run/accepted-geometry/step-0.common-coordinates.bin",
+      "record_type": "MRHumanRestingCommonCoordinatesGPU",
+      "sha256": "f322799816fd4d1f678177c294391a395a6f402684f59d97c43773d7ab37fcd5"
+    }
+  },
+  "all_vertex_index_primitive_bytes_exact": true,
+  "body_respiration_states_exact": true,
+  "coupled_physiology_trace_exact": true,
+  "cardiac_and_common_coordinates_exact_float32_roundtrip_against_same_completed_frame_trace": true,
+  "selected_step_time_trace_rows": 2,
+  "inactive_legacy_cardiac_q_is_explicit_nan_in_common_geometry_mode": true,
+  "native_duration_seconds": 0.002,
+  "anatomical_admission": false,
+  "duration_admission": false,
+  "elapsed_seconds": 0.8213251249981113
+}

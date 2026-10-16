@@ -1,0 +1,5 @@
+{
+  "source_sha256": "4bd4953a098c8157558bff0946812352f9388814853060e1672086acd8429b36",
+  "stage": "trace frame selection",
+  "explanation": "The two rows share step/time and cardiac/common coordinates but differ in body/contact audit values. Compare the captured coordinate bytes against every trace row at that step/time; body-state parity is independently established by the accepted receipt hash."
+}

@@ -350,6 +350,37 @@ class NumiHumanRestingVisual {
             @"rib_swept_volume_m3":@(presentedRespiration.motion.y),
             @"diaphragm_volume_velocity_m3_s":@(presentedRespiration.motion.z),
             @"rib_volume_velocity_m3_s":@(presentedRespiration.motion.w)};
+        // Opt-in accepted geometry evidence retains the exact cardiac inputs
+        // consumed by this completed renderer command. Body/respiration poses
+        // alone cannot replay the common cardiac deformation field.
+        const auto retainCardiacInput=[&](const char* suffix,id<MTLBuffer> buffer,
+                                          std::size_t size,const char* recordType) {
+            require(buffer&&buffer.contents&&buffer.length==size,
+                "accepted cardiac geometry input buffer has an invalid ABI span");
+            const auto path=acceptedGeometryDirectory/
+                ("step-"+std::to_string(step)+"."+suffix+".bin");
+            require(!std::filesystem::exists(path),
+                "refusing to overwrite accepted cardiac geometry input evidence");
+            const auto digest=loadedKneeSHA256Hex(loadedKneeSHA256(buffer.contents,size));
+            NSData* blob=[NSData dataWithBytes:buffer.contents length:size];NSError* error=nil;
+            require([blob writeToURL:[NSURL fileURLWithPath:loadedKneeNSString(path.string())]
+                options:NSDataWritingAtomic error:&error],
+                "accepted cardiac geometry input evidence write failed");
+            require(loadedKneeSHA256Hex(loadedKneeFileSHA256(path))==digest,
+                "accepted cardiac geometry input evidence differs from completed GPU bytes");
+            return @{@"path":loadedKneeNSString(path.string()),
+                @"sha256":loadedKneeNSString(digest),@"bytes":@(size),
+                @"record_type":loadedKneeNSString(recordType)};
+        };
+        NSMutableDictionary* cardiacInputs=[NSMutableDictionary dictionary];
+        cardiacInputs[@"cardiac_q"]=retainCardiacInput("cardiac-q",cardiacQ,
+            sizeof(mr_float4),"mr_float4");
+        cardiacInputs[@"cardiac_wall_q"]=retainCardiacInput("cardiac-wall-q",cardiacWallQ,
+            sizeof(mr_float4),"mr_float4");
+        if(commonCardiacGeometry)
+            cardiacInputs[@"common_coordinates"]=retainCardiacInput("common-coordinates",
+                commonFieldCoordinates,sizeof(MRHumanRestingCommonCoordinatesGPU),
+                "MRHumanRestingCommonCoordinatesGPU");
         NSError* jsonError=nil;
         NSDictionary* receipt=@{
             @"schema":@"numi.human.accepted-render-geometry.v1",
@@ -368,6 +399,7 @@ class NumiHumanRestingVisual {
             @"surface_audit":surfaceAuditOutcome,
             @"accepted_respiration_state_sha256":loadedKneeNSString(respirationSHA),
             @"accepted_respiratory_motion":respiratoryMotion,
+            @"accepted_cardiac_geometry_buffers":cardiacInputs,
             @"ventricular_wall_map_sha256":loadedKneeNSString(cardiacWallMapSHA256),
             @"ventricular_wall_parameters_sha256":loadedKneeNSString(cardiacWallParametersSHA256),
             @"ventricular_wall_coefficient_bundle_sha256":loadedKneeNSString(cardiacWallBundleSHA256),
