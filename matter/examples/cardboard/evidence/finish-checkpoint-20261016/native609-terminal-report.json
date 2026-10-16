@@ -1,0 +1,40 @@
+{
+  "schema": "numi.cardboard.native609-terminal-checkpoint.v1",
+  "case": "solver/integrated259-best-of-strict-full-coupon-609",
+  "verdict": "FAIL_INCOMPLETE_FULL_COUPON",
+  "accepted_controls": 2,
+  "requested_controls": 60,
+  "failed_zero_based_control": 2,
+  "last_newton_iteration": 127,
+  "terminal_residual": 2.502691131667234e-06,
+  "unchanged_tolerance": 5e-07,
+  "terminal_status": 10,
+  "source_frozen_sha256": "663a2bf205f2439200077d997804c429c33635d8606462f7a3f700a2d29a2743",
+  "source_build_sha256": "f524a5bc44c8bbe2e30dd8662bc5e3e7dcfaa475bc0f84b2b1e1057abe47aa54",
+  "full_target_trajectory_qualified": false,
+  "all_six_full_sequence_axes_open": true,
+  "wrapper": {
+    "exit_code": 2,
+    "timed_out": false,
+    "wall_seconds": 1084.515617291443,
+    "all_inputs_unchanged": true,
+    "at_utc": "2026-10-16T16:00:44.121609+00:00"
+  },
+  "native_receipt": {
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": true,
+    "changed_inputs": [],
+    "exit_code": 2,
+    "timed_out": false,
+    "termination_errors": [],
+    "wall_seconds": 1084.1785080842674,
+    "finished_at_utc": "2026-10-16T16:00:43.920380+00:00"
+  },
+  "native612": "Complete seven-control tiny fixture only; source265 observer repair still needs native parity.",
+  "at_utc": "2026-10-16T16:27:31.823479+00:00",
+  "archive_sha256": "677e4db3aba78a287e6dd5349e36ed9bb424114610713773fde5499aa2c538db",
+  "archive_bytes": 23997298,
+  "archive_file_count": 910,
+  "archive_round_trip_verified": true
+}
