@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.contact-control-environment-fix.v1",
+  "base_source_sha256": {
+    "cardboard_solver_environment.py": "4538956f04ed2e4925f449e79f066485dc2c3669e40e20c20307a28bb7355aac",
+    "test_cardboard_solver_environment.py": "6c45fb80d97602f5f4710ef8cfd805a9a4e872eed905af4b5d48d76d196e6f17"
+  },
+  "gpu_executed": false,
+  "files_sha256": {
+    "patch.diff": "19ca54c0895caf2a62d1fc0963b2d83e71b215d5c0dab67a68d96d39eca2e3a6",
+    "README.md": "17b65a8d0bef2be51e141545116064484b4b170b14ecf3bd3c495a1a5249460c",
+    "candidate/matter/tools/cardboard_solver_environment.py": "3df07ccc35445a1cc5c5e29d8d1e4cc20c7462eb5a9ff54930b55ed17912a6bd",
+    "candidate/matter/tools/test_cardboard_solver_environment.py": "5868277c47c69ea206603e3751c1c5ef75241c878784d8b0438fcd968aaabe59"
+  }
+}

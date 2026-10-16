@@ -1,0 +1,1 @@
+Source173 control19 checkpoint attempt. Restore accepted476 control0; preserve exact477 physical controls, environment, tolerances and complete protocol definition, requesting an explicit prefix-only stop after accepted19. No full-protocol or convergence claim. Default preflight only. Single GPU worker, unchanged disk guards.

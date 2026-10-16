@@ -12424,6 +12424,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 !femBaseCauchyFallbackConfigValid) {
                 diagnostics.message = "requested base-state Cauchy fallback is unsupported";
                 ownership->preDynamicsOpen = false;
+                [encoder endEncoding];
+                encoder = nil;
                 return diagnostics;
             }
             if (femBaseCGLSPrimaryPolicyRequested &&

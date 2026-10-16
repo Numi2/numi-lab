@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/usr/bin/c++",
+    "-O3",
+    "-DNDEBUG",
+    "-arch",
+    "arm64",
+    "-isysroot",
+    "/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+    "-Wl,-search_paths_first",
+    "-Wl,-headerpad_max_install_names",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/probe-argument-preflight-source180-host-build-002/probe.o",
+    "-o",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/probe-argument-preflight-source180-host-build-002/numi-matter-cardboard-probe",
+    "libnumi_matter_runtime.a",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "libnumi_matter_compiler.a"
+  ],
+  "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source173-001"
+}

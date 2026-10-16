@@ -1,0 +1,11 @@
+{
+  "schema": "numi.cardboard.host-build-preflight-failure.v1",
+  "host": "macmini",
+  "failure": "bootstrap invoked before rsync session44757 completed; snapshot file not yet available",
+  "assertion_path": "tools/evidence/resting-anatomy-parent-bindings-m6-1384/anatomy-parents-native-024-001-control/resting-anatomy-receipt.json.gz",
+  "returncode": 1,
+  "gpu_dispatch_requested": false,
+  "build_started": false,
+  "bootstrap_sha256": "4b19c31532b5e6c3ff35c2c1a478481c713a09f507e572a9bb85e34b5fa76f8a",
+  "recorded_utc": "2026-10-16T04:56:27.902343+00:00"
+}

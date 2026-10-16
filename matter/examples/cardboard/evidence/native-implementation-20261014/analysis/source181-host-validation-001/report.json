@@ -1,0 +1,57 @@
+{
+  "schema": "numi.cardboard.macmini-source181-validation.v1",
+  "host_tag": "macmini",
+  "source_frozen_sha256": "f3ac253b7924dc4cb6ba1d5d9580ceea42150b5e49c6eee569e36b0e204fef7a",
+  "source_build_sha256": "d5ed1e058065435d7faeb48897681306907e61a7b9f765f3c131c38261e1c5be",
+  "source_files_verified": 805,
+  "artifact_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source181-001/numi-matter-cardboard-coupon-resume-check": "f3da60391ccd493d89dd92ae5dba803031f9fa2b0c5c81635cc1f3db36b34b4f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source181-001/numi-matter-cardboard-probe": "97addac56b3bb2c51f3d85d24fc2b28ec12325325c51fd1ab93897c473db02e6",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source181-001/numi-matter-cardboard-shipping-snapshot-check": "f67f720ae5f8017987a8fff87c17b6e4fceeb14994bf229e45ec50c3a53d1080",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source181-001/numi-matter-cardboard-warm-start-check": "931c67b659321847c25164609c5d029286f435ee659b2ee76f57a5c848159f6e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source181-001/shaders/CardboardWarmStartCheck.metallib": "66e3c8739bfd49930295e5e0d160a71108a01b56071f47a9b2b8e7fdaa36a4c6",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source181-001/shaders/NumiMatter.metallib": "c3c8499f29ecb97f0181543c826fa8feb85fe2de1193f3c6275ecb46e8bc1df2",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source181-001/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+  },
+  "cpu_ctest_entries": 3,
+  "environment_test_cases": 12,
+  "argument_cases_within_ctest": 8,
+  "native_helper_checks": 0,
+  "physical_transactions": 0,
+  "receipts": [
+    {
+      "argv": [
+        "/opt/homebrew/bin/ctest",
+        "--test-dir",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source181-001",
+        "-R",
+        "^matter\\.(compiler\\.cardboard_(shipping_snapshot|coupon_resume)|cli\\.cardboard_argument_admission)$",
+        "--output-on-failure",
+        "-j",
+        "1"
+      ],
+      "returncode": 0,
+      "wall_seconds": 1.0124737080186605,
+      "gpu_kernel_execution": false,
+      "physical_transactions": 0,
+      "stdout_sha256": "cf12a3fe40593f78d72a96ca70c66706af79536a956f358fa21c13adeabefa9e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-admission-encoder-181/matter/tools/test_cardboard_solver_environment.py"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.3950049579143524,
+      "gpu_kernel_execution": false,
+      "physical_transactions": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "732208d8d0b92a2469bc04355a79a5fd93ba8885c43341f4dd7c3814b3cf1ac7"
+    }
+  ],
+  "finished_at_utc": "2026-10-16T04:57:38.290217+00:00",
+  "full_solver_qualification": false,
+  "original_m4_host_memory_qualification": false
+}

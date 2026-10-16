@@ -1,0 +1,1 @@
+Closed remote native runs independently checked against byte inventories. 477 fails the requested full coupon; 478 is an invalid diagnostic configuration followed by encoder teardown abort; 175 passes only a native scan component differential checker. All six qualification axes remain open. Active479 excluded.

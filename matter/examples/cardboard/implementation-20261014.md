@@ -485,3 +485,8 @@ The probe can explicitly compile the compensated generic15-state source bilinear
 Source145 milestone: see [exact-state, derivative and full-phase evidence](solver-milestone-source145.md). Default-zero native459 attempted-history parity passes; the complete nonlinear coupon, convergence, released shipping assembly and crush/drop remain unqualified.
 
 Source149 milestone: [native block scaling and complete disabled-history parity](solver-milestone-source149.md) are now measured. Native463 improves its final private trial residual but still fails and rolls back control1; no complete coupon or downstream physical qualification is inferred.
+
+Source181 records accepted checkpoint19 and exact observed replay of the failed
+control20. CPU argument admission, contact environment binding and rejected
+encoder cleanup pass their bounded checks. The full coupon and downstream
+qualification gates remain open. See [the source181 milestone](solver-milestone-source181.md).

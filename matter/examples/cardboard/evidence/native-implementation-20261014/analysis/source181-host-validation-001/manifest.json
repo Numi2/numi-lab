@@ -1,0 +1,11 @@
+{
+  "files_sha256": {
+    "command-00.receipt.json": "0ab397df03f5a6dbaad51429304492f1dea4a6f73da024d16f28dcd381b4fced",
+    "command-00.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "command-00.stdout.log": "cf12a3fe40593f78d72a96ca70c66706af79536a956f358fa21c13adeabefa9e",
+    "command-01.receipt.json": "55fe19e84b2e99352b61407a257e89ef68291694a97d848450e496c80e80c46f",
+    "command-01.stderr.log": "732208d8d0b92a2469bc04355a79a5fd93ba8885c43341f4dd7c3814b3cf1ac7",
+    "command-01.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "report.json": "80523a52605901fc861e29ee24fb6519328ca58c657619944440ba3818faa45c"
+  }
+}

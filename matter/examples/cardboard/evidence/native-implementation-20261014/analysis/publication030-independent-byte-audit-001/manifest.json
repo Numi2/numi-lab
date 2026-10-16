@@ -1,0 +1,91 @@
+{
+  "schema": "numi.cardboard.publication030-independent-byte-audit-manifest.v1",
+  "verdict": "PASS",
+  "files": {
+    "README.md": {
+      "bytes": 1119,
+      "sha256": "f429d48109081eaaa89fc96ad40c4f229d2433585cac4ba7fd8f6dcd6692a3a4"
+    },
+    "audit.py": {
+      "bytes": 20168,
+      "sha256": "7dcfef85040e252555121215e31f423dae0f7dcd494e55cc67dc0f77970dfad6"
+    },
+    "report.json": {
+      "bytes": 16877,
+      "sha256": "5ee1e426247f8178844f9a962aed0ea226a7386472e005dcef79cc86c4998817"
+    }
+  },
+  "inputs": {
+    "summary": {
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/summary.json",
+      "exists": true,
+      "sha256": "9a5906110ade11be67fd64313ff106d15f7ceb8b61a63e1be254960fc1bbaeb8",
+      "bytes": 21328527
+    },
+    "historical_summary": {
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/summary-reference029.json",
+      "exists": true,
+      "sha256": "aaf1660cb3c68c02de4b81cd4e480d54a20e3674d7176c65ab5aad74ac2187c7",
+      "bytes": 19909807
+    },
+    "binding": {
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/publication-binding-reference030.json",
+      "exists": true,
+      "sha256": "da8232ba73ec65540c2a61376bbf9451d5b7494cf3c5b148c036bf8685d2f25f",
+      "bytes": 6131
+    },
+    "old_binding": {
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/publication-binding-reference029.json",
+      "exists": true,
+      "sha256": "2eaec51662d8a00f8d57476c29bceb61db71a84ac34cd4bd53d464cb9ea512fc",
+      "bytes": 6440
+    },
+    "old_pathspec": {
+      "path": "/Users/home/cardboard-implementation-20261014/publication-reference029-pathspec.nul",
+      "exists": true,
+      "sha256": "2a3f1391a727810fd77b90ccc0c7ff37d3e4cf327186d44d31a55fbe5ff7e06b",
+      "bytes": 1326113
+    },
+    "pathspec": {
+      "path": "/Users/home/cardboard-implementation-20261014/publication-reference030-pathspec.nul",
+      "exists": true,
+      "sha256": "9ac91a5d6961bf8ee3c7cbc1b5434b63f3c29d8604c23049115ca7dbc9bb396a",
+      "bytes": 1688543
+    },
+    "frozen_manifest": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/frozen-source.json",
+      "exists": true,
+      "sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+      "bytes": 96036
+    },
+    "build_metadata": {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-173/source-build.json",
+      "exists": true,
+      "sha256": "0306631506b565f12a77cd44fb3acaabb012cb0dbeefe1e0eb82a9befd43b9a2",
+      "bytes": 98788
+    },
+    "archive_script": {
+      "path": "/Users/home/cardboard-implementation-20261014/archive_reference030.py",
+      "exists": true,
+      "sha256": "323aa763265658c600ce76159d3453d4256b50d327ed172aa14627c58827ea7a",
+      "bytes": 10955
+    },
+    "payload_preflight": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/publication030-payload-preflight-001/report.json",
+      "exists": true,
+      "sha256": "d9581249f075d2119dbd1270bc91b93c360a3c843dd8f3ca0d7e1c15066973c0",
+      "bytes": 512
+    }
+  },
+  "publication_binding_sha256": "da8232ba73ec65540c2a61376bbf9451d5b7494cf3c5b148c036bf8685d2f25f",
+  "publication_summary_sha256": "9a5906110ade11be67fd64313ff106d15f7ceb8b61a63e1be254960fc1bbaeb8",
+  "publication_pathspec_sha256": "9ac91a5d6961bf8ee3c7cbc1b5434b63f3c29d8604c23049115ca7dbc9bb396a",
+  "source173_frozen_manifest_sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+  "source173_build_metadata_sha256": "0306631506b565f12a77cd44fb3acaabb012cb0dbeefe1e0eb82a9befd43b9a2",
+  "payload_rows_verified": 2278,
+  "source173_files_verified": 804,
+  "limitations": [
+    "No Git staging or remote commit audit was performed.",
+    "Byte and source/build checks do not establish solver, physical assembly, calibration, analogue, or crush qualification."
+  ]
+}

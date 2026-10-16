@@ -1,0 +1,105 @@
+{
+  "schema": "numi.cardboard.reference031-publication-binding.v1",
+  "prior_binding_sha256": "da8232ba73ec65540c2a61376bbf9451d5b7494cf3c5b148c036bf8685d2f25f",
+  "prior_pathspec_sha256": "9ac91a5d6961bf8ee3c7cbc1b5434b63f3c29d8604c23049115ca7dbc9bb396a",
+  "historical_prefix": {
+    "records": 1567,
+    "path": "summary-reference030.json",
+    "sha256": "9a5906110ade11be67fd64313ff106d15f7ceb8b61a63e1be254960fc1bbaeb8"
+  },
+  "prior_pathspec_entries": 10656,
+  "new_case_records": 40,
+  "cases": [
+    "solver/macmini-warm-cgls-control0-prefix-476",
+    "solver/macmini-warm-cgls-control0-resume-477",
+    "solver/macmini-warm-cgls-uninterrupted-478",
+    "solver/macmini-warm-cgls-control19-checkpoint-479",
+    "solver/macmini-warm-cgls-control19-checkpoint-480",
+    "solver/macmini-warm-cgls-control20-capture-481",
+    "solver/macmini-warm-cgls-control20-capture-off-482",
+    "solver/macmini-rejected-encoder-cleanup-483",
+    "analysis/native476477-macmini-host-command-and-prefix-001",
+    "analysis/native476-macmini-checkpoint-adjudication-001",
+    "analysis/native478-uninterrupted-command-001",
+    "analysis/native479-control19-checkpoint-command-001",
+    "analysis/native480-control19-checkpoint-command-001",
+    "analysis/native481482-warm-control20-capture-command-001",
+    "analysis/native483-rejected-encoder-cleanup-command-001",
+    "analysis/closed-macmini-transfer-inventories-031-002",
+    "analysis/closed-native477-478-175-adjudication-002",
+    "analysis/closed-native479480483-transfer-inventory-001",
+    "analysis/closed-native479480481482483-transfer-inventory-001",
+    "analysis/native479480483-independent-adjudication-001",
+    "analysis/native481482-independent-adjudication-001",
+    "analysis/contact-control-environment-fix-178-001",
+    "analysis/contact-control-environment-fix-178-002",
+    "analysis/probe-argument-preflight-source180-001",
+    "analysis/probe-argument-preflight-source180-002",
+    "analysis/probe-argument-preflight-source180-host-build-001",
+    "analysis/probe-argument-preflight-source180-host-build-002",
+    "analysis/integration-contact-controls-and-argument-preflight-180-001",
+    "analysis/source181-admission-encoder-integration-001",
+    "analysis/source181-transfer-before-complete-failure-001",
+    "analysis/source181-host-build-001",
+    "analysis/source181-host-validation-001",
+    "analysis/source181-host-artifacts-001",
+    "analysis/source181-publication-source-binding-001",
+    "analysis/publication030-payload-preflight-001",
+    "analysis/publication030-independent-byte-audit-001",
+    "analysis/publication030-commit-and-push-001",
+    "analysis/publication030-commit-and-push-002",
+    "analysis/closed-build-intermediate-compaction-031",
+    "native/sparse-private-scan-175-buildfix003-command-001/executions/attempt-0001"
+  ],
+  "copied_files": 925,
+  "raw_files": 892,
+  "gzip_files": 33,
+  "summary_sha256": "83fcfeb3f1604a2b1ca2fb5b4b82e35367f7bbcd5fb535d2f72002dafaf5e613",
+  "six_axis_verdicts": {
+    "solver_correctness": {
+      "status": "partial_component_evidence; complete_nonlinear_solve_unqualified",
+      "evidence": "Source181 binds the existing contact-incidence switch, adds CPU argument preflight, and balances the encoder on an unsupported Cauchy configuration. Native483 now rejects cleanly where invalid478 aborted. Source173 native476/480 write accepted checkpoints; control19 observed histories match independent prefix/resume histories exactly. Native481 cannot capture because the strict resume guard rejects observer-setting changes. Warm CGLS still fails the nonlinear control20; no global tolerance change is made."
+    },
+    "numerical_convergence": {
+      "status": "unqualified",
+      "evidence": "Native477 fails control20 after accepting controls0 through19. Native482 restores checkpoint19 and reproduces both control20 observation rows,35 shared physical files,4096 true-residual records and64 CGLS direction records exactly. The bent environment residual remains1.8810844267e-5 against5e-7. No complete loading, withdrawal, release or relaxation cycle, mesh series or timestep triplet passes."
+    },
+    "component_calibration": {
+      "status": "partial_source_data_only",
+      "evidence": "Published-data package remains grade-bound. Exact kraft/NSSC progressive failure and local starch strength/GIc/GIIc remain unidentified."
+    },
+    "analogue_validation": {
+      "status": "unqualified_for_requested_full_sequence",
+      "evidence": "Grade, fixture, conditioning and rate transfer limits remain; no new validation series passed."
+    },
+    "physical_assembly_in_simulation": {
+      "status": "unqualified",
+      "evidence": "The source175 sparse scan passes49 actual native cases and12910103 checks. This is a sparse-compaction component result. The explicit-flute shipping mesh still exceeds the8192-node/32768-tet full-contact scope; a whole-process16GiB preflight and physically scored, folded, bonded, clamp-free shipping checkpoint remain open."
+    },
+    "crush_impact_prediction": {
+      "status": "unexecuted",
+      "evidence": "No qualified compression first peak, capacity-derived masses, gravity crush or 100mm drop; exact bare-box impact validation unavailable."
+    }
+  },
+  "source181_frozen_sha256": "f3ac253b7924dc4cb6ba1d5d9580ceea42150b5e49c6eee569e36b0e204fef7a",
+  "source181_host_build_sha256": "d5ed1e058065435d7faeb48897681306907e61a7b9f765f3c131c38261e1c5be",
+  "changed_source_files": {
+    "matter/CMakeLists.txt": "af77ec3e93163a5cf29f7c62b3ac7f6b44f760ce4e49cd4e26404e35c7af6b6e",
+    "matter/src/runtime.mm": "ef596b6cb573c0e29bf1a0e1ba52317c3766a27af3de84eab2daf5b10190cd1b",
+    "matter/tools/cardboard_probe.mm": "961d562a3961a1a4ab64cedaab0324674d81cabd8df8d6c8f870b2f35efdd3c1",
+    "matter/tools/cardboard_solver_environment.py": "a4af927c920af6d49707aa8a723809d88bed7696658226c489ddb70dc9ba6e6e",
+    "matter/tools/test_cardboard_probe_argument_admission.py": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e",
+    "matter/tools/test_cardboard_solver_environment.py": "bba5173a1eec73ed798832735c730a49565ce229a77a75f9db77c230f5d216d5"
+  },
+  "excluded_directory_parts": [
+    "__pycache__",
+    "archives",
+    "base",
+    "build",
+    "inputs",
+    "restore-check",
+    "restore-test"
+  ],
+  "exclusion_scope": "Closed cases only. Duplicate input snapshots, build trees, restored recovery copies and recovery archives remain external with original manifests and hashes. Ongoing material, contact and diagnostic-replay overlays are excluded. Native174/484/485/488 results are reserved for a later milestone. No qualification of a full physical box.",
+  "physical_validation": false
+}

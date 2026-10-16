@@ -1,0 +1,44 @@
+{
+  "archive_sha256": "465b177c22235d4fb085358b5f36b3e9dbc6f4be28d6ea96ebf78fec336a97d8",
+  "df_after_remove": {
+    "free_bytes": 1486467072,
+    "free_kib": 1451628,
+    "raw": "Filesystem   1024-blocks      Used Available Capacity iused    ifree %iused  Mounted on\n/dev/disk3s5   482766932 433792628   1451628   100% 4016035 14516280   22%   /System/Volumes/Data"
+  },
+  "df_before_remove": {
+    "free_bytes": 1482584064,
+    "free_kib": 1447836,
+    "raw": "Filesystem   1024-blocks      Used Available Capacity iused    ifree %iused  Mounted on\n/dev/disk3s5   482766932 433796420   1447836   100% 4016918 14478360   22%   /System/Volumes/Data"
+  },
+  "inventory_gzip_sha256": "96e057e455b61e095ca9c58fbe748624f76b07822c50ddb5dde63c0b18060b0e",
+  "key": "build-cardboard-provenance-069__matter",
+  "lsof_before_delete": {
+    "command": [
+      "/usr/sbin/lsof",
+      "+D",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-069/matter/CMakeFiles"
+    ],
+    "exit_code": 1,
+    "open_handle_rows": []
+  },
+  "measured_df_free_change_bytes": 3883008,
+  "process_before_delete": {
+    "process_snapshot_command": [
+      "/bin/ps",
+      "-axo",
+      "pid=,comm=,args="
+    ],
+    "target_matches": []
+  },
+  "remaining_paths": [
+    ".",
+    "RESTORE_FROM_COMPACTION.txt"
+  ],
+  "removed_allocated_bytes": 3444736,
+  "removed_directories": 173,
+  "removed_files": 711,
+  "removed_logical_bytes": 992770,
+  "retained_pointer": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-069/matter/CMakeFiles/RESTORE_FROM_COMPACTION.txt",
+  "schema": "numi.cardboard.closed-cmakefiles-removal.v1",
+  "target": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-069/matter/CMakeFiles"
+}

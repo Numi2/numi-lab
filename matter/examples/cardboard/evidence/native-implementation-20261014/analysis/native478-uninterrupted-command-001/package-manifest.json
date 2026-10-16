@@ -1,0 +1,13 @@
+{
+  "schema": "numi.cardboard.macmini-native478-package.v1",
+  "parent_package_sha256": "4ac10d7523c45d5c9ab461b182bfdddba77ac4c72ad5b1e20af6e785099755ba",
+  "files_sha256": {
+    "runner.py": "28210ad6163cbd69da36af69995a2e74098c2c2007a30d3cd2efc160c6053825",
+    "command-spec.json": "fa82acf2241efc2be72f9c056def6e64d68e61741865bf535c018ed2a8c40b1e",
+    "capacity-helper.py": "8e4a395c27d0dda8f43351760da7d5b6d0c42dbad0d16680777383d94364cc03",
+    "README.md": "c62f6747251226c0393451e52a8e379ead78fa12724dc9f20710a397a8e1b498",
+    "inputs/host-validation-report.json": "79e762a2a18ef3c056ebdbb7145c09711be2c83445ae196132366e9de4ca525e",
+    "inputs/host-validation-manifest.json": "625785981a3538e3cc97ea0875b46648060535192b3a5e0a899eebc82dff09ac"
+  },
+  "gpu_executed": false
+}

@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.13/bin/python3.13",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-admission-encoder-181/matter/tools/test_cardboard_solver_environment.py"
+  ],
+  "returncode": 0,
+  "wall_seconds": 0.3950049579143524,
+  "gpu_kernel_execution": false,
+  "physical_transactions": 0,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "732208d8d0b92a2469bc04355a79a5fd93ba8885c43341f4dd7c3814b3cf1ac7"
+}

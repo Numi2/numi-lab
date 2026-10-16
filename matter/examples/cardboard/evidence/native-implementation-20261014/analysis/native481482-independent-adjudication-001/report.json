@@ -1,0 +1,45 @@
+{
+  "schema": "numi.cardboard.native481482.adjudication.v1",
+  "inventory_sha256": "aa7b8f2d7f1440fa27e394887b26c35c6b47b5678882f067fc0fad7a46e27fdd",
+  "transfers": {
+    "481": {
+      "files": 10,
+      "bytes": 2341441,
+      "duplicate_inputs_preserved_remote": 825,
+      "terminal_receipt_sha256": "c9224a942e47087b79f00dec6a08de85ae7a5b0773761b670bef623c3a0081e1"
+    },
+    "482": {
+      "files": 44,
+      "bytes": 10485239,
+      "duplicate_inputs_preserved_remote": 825,
+      "terminal_receipt_sha256": "3d554626c02cd487d32479fc5466e8ea24f9029011b5eb38817bcb3b632a8177"
+    }
+  },
+  "native481": {
+    "verdict": "INVALID_DIAGNOSTIC_RESUME_ADMISSION",
+    "native_exit_code": 1,
+    "wrapper_exit_code": 3,
+    "physical_step_executed": false,
+    "reason": "Original strict checkpoint guard rejects changed diagnostic selectors before stepping; capture is missing. Source182 must preserve physical bindings and separately admit authenticated observer changes."
+  },
+  "native482": {
+    "verdict": "PASS_FAILED_STEP_REPRODUCTION_ONLY",
+    "control20_observation_rows_identical": true,
+    "common_physical_output_files_identical": 35,
+    "true_residual_cycle_records_identical": 4096,
+    "cgls_direction_records_identical": 64,
+    "timing_excluded": true,
+    "complete_protocol": false,
+    "accepted_bent_steps": 0,
+    "retained_control19_rollback_angle_deg": 0.3124979679274037,
+    "final_nonlinear_residual": 1.8810844267136417e-05
+  },
+  "qualification_axes": {
+    "solver_correctness": false,
+    "numerical_convergence": false,
+    "component_calibration": false,
+    "analogue_validation": false,
+    "physical_assembly": false,
+    "crush_impact_prediction": false
+  }
+}

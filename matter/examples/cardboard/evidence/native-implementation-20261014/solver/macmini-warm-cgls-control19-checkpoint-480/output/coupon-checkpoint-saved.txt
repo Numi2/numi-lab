@@ -1,0 +1,5 @@
+schema=numi.cardboard.accepted-coupon-checkpoint-reference.v1
+checkpoint=checkpoints/coupon-control-000019.nmcb
+control_index=19
+next_control_index=20
+continuation_parity_established=false

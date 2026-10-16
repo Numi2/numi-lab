@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.argument-preflight-source180.v2",
+  "parent_overlay_manifest_sha256": "da6e1af1c352d0b7e665fe20479f91c58b23c0ee0ace5e45a757c5ca44389de1",
+  "parent_source_files": {
+    "matter/CMakeLists.txt": "e1d9fef5b4e2e61c1caa8557749dc889a0581d2173aa211990ebdecb35adda26",
+    "matter/tools/cardboard_probe.mm": "448f8b4f59a5b287d7cb81e36e6fa077687b407a43e63a45d173393340e16bd1"
+  },
+  "files_sha256": {
+    "README.md": "29b0ad029e4999ce645a31d64ac0f468644952f23e14d7d214444fc422154b00",
+    "candidate/matter/CMakeLists.txt": "af77ec3e93163a5cf29f7c62b3ac7f6b44f760ce4e49cd4e26404e35c7af6b6e",
+    "candidate/matter/tools/cardboard_probe.mm": "961d562a3961a1a4ab64cedaab0324674d81cabd8df8d6c8f870b2f35efdd3c1",
+    "candidate/matter/tools/test_cardboard_probe_argument_admission.py": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e",
+    "patch.diff": "09881ee5befe29086fb9be8f12881cb62db233261a4a822e59845ffef116a06f"
+  },
+  "native_gpu_executed": false
+}

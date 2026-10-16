@@ -1,0 +1,10 @@
+{
+  "schema": "numi.cardboard.macmini476477-package.v1",
+  "files_sha256": {
+    "capacity-helper.py": "8e4a395c27d0dda8f43351760da7d5b6d0c42dbad0d16680777383d94364cc03",
+    "command-spec.json": "401d3e3d3a81ab0896eeedd879708b234d63610ddef947b5ff507a215a6dbe46",
+    "inputs/host-validation-manifest.json": "625785981a3538e3cc97ea0875b46648060535192b3a5e0a899eebc82dff09ac",
+    "inputs/host-validation-report.json": "79e762a2a18ef3c056ebdbb7145c09711be2c83445ae196132366e9de4ca525e",
+    "runner.py": "7281239f2fb96a52063619a058fc9f2b43f8e55fdd5f50411cfcfb384920f207"
+  }
+}

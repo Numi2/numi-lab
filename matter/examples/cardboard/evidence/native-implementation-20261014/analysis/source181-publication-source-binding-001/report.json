@@ -1,0 +1,15 @@
+{
+  "selected_source_files_verified": 805,
+  "all_selected_match_current_repository": true,
+  "source_frozen_sha256": "f3ac253b7924dc4cb6ba1d5d9580ceea42150b5e49c6eee569e36b0e204fef7a",
+  "source_build_sha256": "d5ed1e058065435d7faeb48897681306907e61a7b9f765f3c131c38261e1c5be",
+  "changed_source_files": {
+    "matter/CMakeLists.txt": "af77ec3e93163a5cf29f7c62b3ac7f6b44f760ce4e49cd4e26404e35c7af6b6e",
+    "matter/src/runtime.mm": "ef596b6cb573c0e29bf1a0e1ba52317c3766a27af3de84eab2daf5b10190cd1b",
+    "matter/tools/cardboard_probe.mm": "961d562a3961a1a4ab64cedaab0324674d81cabd8df8d6c8f870b2f35efdd3c1",
+    "matter/tools/cardboard_solver_environment.py": "a4af927c920af6d49707aa8a723809d88bed7696658226c489ddb70dc9ba6e6e",
+    "matter/tools/test_cardboard_probe_argument_admission.py": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e",
+    "matter/tools/test_cardboard_solver_environment.py": "bba5173a1eec73ed798832735c730a49565ce229a77a75f9db77c230f5d216d5"
+  },
+  "physical_solver_qualification": false
+}

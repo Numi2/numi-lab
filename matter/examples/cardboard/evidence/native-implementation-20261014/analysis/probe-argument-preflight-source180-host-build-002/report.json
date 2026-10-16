@@ -1,0 +1,78 @@
+{
+  "schema": "numi.cardboard.argument-preflight-host-build.v1",
+  "verdict": "PASS_CPU_parser_only",
+  "host": "macmini",
+  "parent_frozen_sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+  "parent_source_build_sha256": "96396de7fa14197a6759583d8b7bb053c412e08f1051b947502c1cc38b185229",
+  "source_files_verified": 804,
+  "overlay_manifest_sha256": "da6e1af1c352d0b7e665fe20479f91c58b23c0ee0ace5e45a757c5ca44389de1",
+  "overlay_probe_sha256": "961d562a3961a1a4ab64cedaab0324674d81cabd8df8d6c8f870b2f35efdd3c1",
+  "linked_parent_libraries": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source173-001/libnumi_matter_runtime.a": "b611fc41b956d875f84e16869199c3f7f8704962bf12f840ad5b823dedd3c316",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source173-001/libnumi_matter_compiler.a": "65703d9d857ec15d2d1e8ae93cac605ef5f46964b5a1d836f1af1b0eaf916047"
+  },
+  "checker_sha256": "8e6cf5d951bf386ad5576b6ade929534382dc01c9b4c091717dbeaba5d07d2c7",
+  "native_gpu_dispatch_requested": false,
+  "physical_execution_qualified": false,
+  "receipts": [
+    {
+      "stage": "compile",
+      "returncode": 0,
+      "wall_seconds": 9.18391254171729
+    },
+    {
+      "stage": "link",
+      "returncode": 0,
+      "wall_seconds": 0.06205458287149668
+    },
+    {
+      "stage": "checkpoint0",
+      "returncode": 0,
+      "expected_returncode": 0,
+      "wall_seconds": 0.37083904165774584,
+      "no_output_created": true
+    },
+    {
+      "stage": "checkpoint19",
+      "returncode": 0,
+      "expected_returncode": 0,
+      "wall_seconds": 0.01387441623955965,
+      "no_output_created": true
+    },
+    {
+      "stage": "combined-resume-save",
+      "returncode": 1,
+      "expected_returncode": 1,
+      "wall_seconds": 0.009014791809022427,
+      "no_output_created": true
+    },
+    {
+      "stage": "invalid-dt",
+      "returncode": 1,
+      "expected_returncode": 1,
+      "wall_seconds": 0.0064094578847289085,
+      "no_output_created": true
+    },
+    {
+      "stage": "restart-over-ceiling",
+      "returncode": 1,
+      "expected_returncode": 1,
+      "wall_seconds": 0.006829334422945976,
+      "no_output_created": true
+    },
+    {
+      "stage": "invalid-newton",
+      "returncode": 1,
+      "expected_returncode": 1,
+      "wall_seconds": 0.005982750095427036,
+      "no_output_created": true
+    },
+    {
+      "stage": "invalid-material-budget",
+      "returncode": 1,
+      "expected_returncode": 1,
+      "wall_seconds": 0.005299124866724014,
+      "no_output_created": true
+    }
+  ]
+}

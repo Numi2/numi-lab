@@ -1,7 +1,7 @@
 """Strict, source-bound effective native environment contracts for cardboard runs.
 
 Only source-registered native controls and two timing controls are modeled.
-Inherited NM_FEM_* variables are always scrubbed before launch; qualification
+Inherited NM_FEM_* and NM_CONTACT_* variables are always scrubbed before launch; qualification
 contracts preserve absent, empty, and non-empty values, while output-path
 captures require a separate diagnostic-only contract.
 """
@@ -27,6 +27,7 @@ _KEY_RE = re.compile(r"^[A-Z][A-Z0-9_]*$")
 # bindings; tests compare this registry to the candidate source so a new
 # control cannot disappear.
 NATIVE_ENV_KEYS = tuple(sorted({
+    "NM_CONTACT_NODE_INCIDENCE_SORT",
     "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
     "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
     "NM_FEM_BASE_CGLS_CAPTURE_PATH",
@@ -103,6 +104,7 @@ ALL_CONTROL_SELECTOR_KEYS = frozenset({
 })
 TIMING_KEYS = frozenset({"NUMI_CARDBOARD_STEP_TIMING", "NUMI_MATTER_GPU_TIMING_DENSE45"})
 _SOURCE_KEY_RE = re.compile(r"\b(?:NM_FEM_[A-Z0-9_]+|NUMI_CARDBOARD_STEP_TIMING|NUMI_MATTER_GPU_TIMING_DENSE45)\b")
+_CONTACT_READ_KEY_RE = re.compile(r'getenv\s*\(\s*"(NM_CONTACT_[A-Z0-9_]+)"')
 
 
 def source_key_registry(source_root: os.PathLike[str] | str) -> tuple[str, ...]:
@@ -112,7 +114,9 @@ def source_key_registry(source_root: os.PathLike[str] | str) -> tuple[str, ...]:
     for path in paths:
         if not path.is_file():
             raise ValueError(f"native environment registry source is missing: {path}")
-        found.update(_SOURCE_KEY_RE.findall(path.read_text(encoding="utf-8")))
+        text = path.read_text(encoding="utf-8")
+        found.update(_SOURCE_KEY_RE.findall(text))
+        found.update(_CONTACT_READ_KEY_RE.findall(text))
     return tuple(sorted(found))
 
 
@@ -141,6 +145,8 @@ def _contract_digest(contract: Mapping[str, object]) -> str:
 def _validate_environment_value(key: str, value: str) -> None:
     if "\x00" in value:
         raise ValueError(f"NUL is not allowed in environment value for {key}")
+    if key == "NM_CONTACT_NODE_INCIDENCE_SORT" and value != "1":
+        raise ValueError("NM_CONTACT_NODE_INCIDENCE_SORT must be exactly 1 when set")
     if key in NUMERIC_SELECTOR_KEYS:
         # Empty is a source-supported explicit disable for selector controls;
         # it remains distinct from an absent key in the hashed contract.
@@ -338,9 +344,9 @@ def is_qualification_run_record(record: object) -> bool:
 
 def child_environment(parent: Mapping[str, str], contract: object) -> tuple[dict[str, str], list[str]]:
     contract = validate_any_contract(contract)
-    removed = sorted(key for key in parent if key.startswith("NM_FEM_") or key in TIMING_KEYS)
+    removed = sorted(key for key in parent if key.startswith(("NM_FEM_", "NM_CONTACT_")) or key in TIMING_KEYS)
     child = {key: value for key, value in parent.items()
-             if not key.startswith("NM_FEM_") and key not in TIMING_KEYS}
+             if not key.startswith(("NM_FEM_", "NM_CONTACT_")) and key not in TIMING_KEYS}
     for key, state in contract["effective"].items():
         if state["set"]:
             child[key] = state["value"]
@@ -560,7 +566,7 @@ def make_run_record(contract: object, *, producer: str, removed_inherited_keys: 
     if not re.fullmatch(r"[0-9a-f]{64}", prediction_sha256):
         raise ValueError("prediction_sha256 must be a lowercase SHA-256 digest")
     removed = sorted(set(removed_inherited_keys))
-    if any(not (key.startswith("NM_FEM_") or key in TIMING_KEYS) for key in removed):
+    if any(not (key.startswith(("NM_FEM_", "NM_CONTACT_")) or key in TIMING_KEYS) for key in removed):
         raise ValueError("launch record may list only scrubbed native control key names")
     return {"schema": RUN_SCHEMA, "contract": contract,
             "contract_sha256": contract["sha256"],
@@ -577,7 +583,7 @@ def make_diagnostic_run_record(contract: object, *, removed_inherited_keys: Sequ
     if not re.fullmatch(r"[0-9a-f]{64}", prediction_sha256):
         raise ValueError("prediction_sha256 must be a lowercase SHA-256 digest")
     removed = sorted(set(removed_inherited_keys))
-    if any(not (key.startswith("NM_FEM_") or key in TIMING_KEYS) for key in removed):
+    if any(not (key.startswith(("NM_FEM_", "NM_CONTACT_")) or key in TIMING_KEYS) for key in removed):
         raise ValueError("launch record may list only scrubbed native control key names")
     return {"schema": DIAGNOSTIC_RUN_SCHEMA, "contract": contract,
             "contract_sha256": contract["sha256"], "prediction_sha256": prediction_sha256,
@@ -609,7 +615,7 @@ def validate_run_record(record: object) -> dict[str, object]:
         raise ValueError("run record does not prove inherited native controls were scrubbed")
     removed = launch.get("removed_inherited_key_names")
     if (not isinstance(removed, list) or removed != sorted(set(removed))
-            or any(not isinstance(key, str) or not (key.startswith("NM_FEM_") or key in TIMING_KEYS)
+            or any(not isinstance(key, str) or not (key.startswith(("NM_FEM_", "NM_CONTACT_")) or key in TIMING_KEYS)
                    for key in removed)):
         raise ValueError("invalid scrubbed-key-name record")
     return record

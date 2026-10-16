@@ -1,0 +1,177 @@
+[
+  {
+    "path": "accepted_step_000021_held_reference.obj",
+    "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+    "bytes": 56470
+  },
+  {
+    "path": "compiled.nmatterpack",
+    "sha256": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+    "bytes": 1984768
+  },
+  {
+    "path": "initial.obj",
+    "sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+    "bytes": 56470
+  },
+  {
+    "path": "manifest.json",
+    "sha256": "315102605605164ed388056567251a92b4bdb4d5820f154d4923d4bf4cadf327",
+    "bytes": 11809
+  },
+  {
+    "path": "material_state_000021_bent.json",
+    "sha256": "4d2e0635802a5b3969dc512279d9d9bb8105ce6c09c2cc17f2435a3b1c66b8a7",
+    "bytes": 967380
+  },
+  {
+    "path": "mesh.json",
+    "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+    "bytes": 160425
+  },
+  {
+    "path": "rejected-conditioning-000021/AP.bin",
+    "sha256": "219b3e9287227b25167c4ab95ab6c4d020e265cd45da81c374c6759e7e5f9d2d",
+    "bytes": 733824
+  },
+  {
+    "path": "rejected-conditioning-000021/P.bin",
+    "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+    "bytes": 366912
+  },
+  {
+    "path": "rejected-conditioning-000021/candidate_nodes.bin",
+    "sha256": "e49162194aafeb96e8e510cc695f9a7a68aa991eeba9e166de4d65776cc29ffc",
+    "bytes": 141120
+  },
+  {
+    "path": "rejected-conditioning-000021/effective_P.bin",
+    "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+    "bytes": 733824
+  },
+  {
+    "path": "rejected-conditioning-000021/factor_valid.bin",
+    "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+    "bytes": 8
+  },
+  {
+    "path": "rejected-conditioning-000021/linearization_F_high.bin",
+    "sha256": "a3bfa284150af5680761c9c61c62f9e0b957169e53a8d494c4930d14dc576519",
+    "bytes": 184320
+  },
+  {
+    "path": "rejected-conditioning-000021/linearization_F_low.bin",
+    "sha256": "131d6985cd4694ec0e43df38f1eeab6c18d5d030ec9435b478a03a449e371222",
+    "bytes": 184320
+  },
+  {
+    "path": "rejected-conditioning-000021/linearization_accepted_material_history.bin",
+    "sha256": "9224199b2c1302c03ae0a0512e9dbc08cba45889c02f1b29f6d3dc681894b320",
+    "bytes": 230400
+  },
+  {
+    "path": "rejected-conditioning-000021/linearization_scheduler_exponents.bin",
+    "sha256": "0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537",
+    "bytes": 15360
+  },
+  {
+    "path": "rejected-conditioning-000021/manifest.json",
+    "sha256": "eb16d0e1ef9148922ef2c1f47623e1414a1ee7145520cfb60fb0744efd1c8557",
+    "bytes": 6755
+  },
+  {
+    "path": "rejected-conditioning-000021/node_block_inverse.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  {
+    "path": "rejected-conditioning-000021/pivoted_RAP.bin",
+    "sha256": "39db94b8aa9c59ca377826726f5ecbfb79a12236170656d94d3394e8bfe8158b",
+    "bytes": 5408
+  },
+  {
+    "path": "rejected-conditioning-000021/pivots.bin",
+    "sha256": "dafeb7db7b33d8d845b83a7998899c6723d9653f0c5a8ef4b68f5302d8a10a1d",
+    "bytes": 208
+  },
+  {
+    "path": "rejected-conditioning-000021/restart_Aq.bin",
+    "sha256": "b20c27988e12dd2e8651f1ff1e5910cb8e37d58b97ab66dcd324fb1144ad9f24",
+    "bytes": 14112
+  },
+  {
+    "path": "rejected-conditioning-000021/restart_Aq_by_environment.bin",
+    "sha256": "2e4a38bf6a137e84c0ab8794e3ee35435d4da654ef287ce80fce1790753bd7b2",
+    "bytes": 28224
+  },
+  {
+    "path": "rejected-conditioning-000021/restart_attempt_counts_by_environment.bin",
+    "sha256": "35be322d094f9d154a8aba4733b8497f180353bd7ae7b0a15f90b586b549f28b",
+    "bytes": 8
+  },
+  {
+    "path": "rejected-conditioning-000021/restart_factor_valid_by_environment.bin",
+    "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+    "bytes": 8
+  },
+  {
+    "path": "rejected-conditioning-000021/restart_generations_by_environment.bin",
+    "sha256": "253c7631fa3b61d83450fad34c0e2bd4124165800d886634792b5cf4577e0262",
+    "bytes": 32
+  },
+  {
+    "path": "rejected-conditioning-000021/restart_mode_scales_by_environment.bin",
+    "sha256": "a092692dabe65971105ca06905f480f59c25aa7ae8d3e49187d265341d4b48d7",
+    "bytes": 8
+  },
+  {
+    "path": "rejected-conditioning-000021/restart_mode_valid_by_environment.bin",
+    "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+    "bytes": 8
+  },
+  {
+    "path": "rejected-conditioning-000021/restart_pivoted_RAP.bin",
+    "sha256": "4e7cff83366da900cb294db056ada7eb7bcceff91722a3133d89f8e50fdf173b",
+    "bytes": 2916
+  },
+  {
+    "path": "rejected-conditioning-000021/restart_pivoted_RAP_by_environment.bin",
+    "sha256": "5fddb0ca74ed063282e98faede8c7be1271e0fd05d6c4e3e1734e42006ef7cd6",
+    "bytes": 5832
+  },
+  {
+    "path": "rejected-conditioning-000021/restart_pivots.bin",
+    "sha256": "8f4b3b96b8c48d79a3666e9f96ec1150529d7daa3adf656ac4cb0f3fddc31b4e",
+    "bytes": 108
+  },
+  {
+    "path": "rejected-conditioning-000021/restart_pivots_by_environment.bin",
+    "sha256": "c29f4a6348dbc267b93475d95fe9c560d9ca2970d9a2a70d8381e87a2604a7b2",
+    "bytes": 216
+  },
+  {
+    "path": "rejected-conditioning-000021/restart_q.bin",
+    "sha256": "897041aa836c3fe7981bbb3c3f1d795af36f347a07b83b9d38c23fcf9e7dfeed",
+    "bytes": 14112
+  },
+  {
+    "path": "rejected-conditioning-000021/restart_q_by_environment.bin",
+    "sha256": "acae9b4f0e025a7eae6304f3ca3d86aed3c6df6a1f9069304fdb4cd9192b9c23",
+    "bytes": 28224
+  },
+  {
+    "path": "rejected-conditioning-000021/restart_raw_norm_squared_by_environment.bin",
+    "sha256": "d2c2b946dbf4ce575076301e559bb107dd7487ef7a68a3557d6f98db25103e73",
+    "bytes": 8
+  },
+  {
+    "path": "rejected-conditioning-000021/restart_target_scales_by_environment.bin",
+    "sha256": "4731d914e686c9203667cb0d2d6202da76a2b67a48883c0ab814d5344d0fbd4b",
+    "bytes": 8
+  },
+  {
+    "path": "rejected_step_diagnostic_000021_bent.obj",
+    "sha256": "608aa649a2be0be7681d1a82c7ccb6b4ebea986687c03f190256a595962a8ccf",
+    "bytes": 62011
+  }
+]

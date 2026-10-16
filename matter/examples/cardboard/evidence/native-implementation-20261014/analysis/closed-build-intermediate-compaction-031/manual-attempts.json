@@ -1,0 +1,26 @@
+{
+  "schema": "numi.cardboard.closed-cmakefiles-manual-attempts.v1",
+  "attempts": [
+    {
+      "command": [
+        "python3",
+        "/Users/home/cardboard-implementation-20261014/analysis/closed-build-intermediate-compaction-031/compact_trees.py",
+        "compact",
+        "build-cardboard-provenance-137__matter"
+      ],
+      "outcome": "refused_before_any_archive_or_source_removal",
+      "exit_code": 1,
+      "measured_df_before_kib": 581408,
+      "error": "insufficient per-tree archive/restore headroom",
+      "guard": "requires current free bytes >= 512 MiB plus twice the selected tree logical file bytes",
+      "target": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-137/matter/CMakeFiles",
+      "source_state": "target remained present; a subsequent separate successful archive/restore verification and removal receipt for this exact target is recorded in receipts/build-cardboard-provenance-137__matter.json and receipts/build-cardboard-provenance-137__matter-removed.json"
+    },
+    {
+      "attempt": "early inventory probe using os.listxattr",
+      "outcome": "read-only probe stopped because this Python runtime has no os.listxattr attribute",
+      "source_mutation": false,
+      "resolution": "used the existing macOS xattr CLI based inventory_cmakefiles.py, which records com.apple.provenance values"
+    }
+  ]
+}

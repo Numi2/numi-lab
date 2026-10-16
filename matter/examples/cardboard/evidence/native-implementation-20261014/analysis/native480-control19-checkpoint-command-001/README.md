@@ -1,0 +1,1 @@
+Uninterrupted source173 control19 checkpoint attempt. Exact476 accepted command changes only output and checkpoint index0 to19. No resume/checkpoint combination. All original ROOT selectors retained. Prefix-only diagnostic, never convergence. SoleGPU and unchanged disk guards. Failed479 request preserved separately.

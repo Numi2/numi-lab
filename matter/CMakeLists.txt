@@ -907,6 +907,14 @@ if(APPLE)
         NUMI_CARDBOARD_MATERIAL_DIR="${CMAKE_CURRENT_SOURCE_DIR}/materials"
         NUMI_CARDBOARD_METALLIB="${NUMI_MATTER_METALLIB}")
     if(BUILD_TESTING)
+        if(Python3_Interpreter_FOUND)
+            add_test(NAME matter.cli.cardboard_argument_admission
+                COMMAND "${Python3_EXECUTABLE}"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/tools/test_cardboard_probe_argument_admission.py"
+                    --probe $<TARGET_FILE:numi-matter-cardboard-probe>)
+            set_tests_properties(matter.cli.cardboard_argument_admission PROPERTIES
+                TIMEOUT 120 LABELS "matter;cardboard;cpu;cli")
+        endif()
         add_test(NAME matter.compiler.cardboard_pin_fixture_preflight COMMAND numi-matter-cardboard-probe
             --pin-adhesion --preset literature2009 --compile-only
             --output "${CMAKE_CURRENT_BINARY_DIR}/cardboard-pin-fixture-cpu-preflight")

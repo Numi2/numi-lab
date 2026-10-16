@@ -1,0 +1,107 @@
+{
+  "allocated_file_bytes": 4104192,
+  "archive": "/Users/home/cardboard-implementation-20261014/analysis/closed-build-intermediate-compaction-031/archives/build-cardboard-provenance-118__matter.tar.gz",
+  "archive_bytes": 321034,
+  "archive_command": [
+    "/usr/bin/tar",
+    "--format=pax",
+    "--mac-metadata",
+    "--acls",
+    "--fflags",
+    "--xattrs",
+    "--numeric-owner",
+    "-czf",
+    "/Users/home/cardboard-implementation-20261014/analysis/closed-build-intermediate-compaction-031/archives/build-cardboard-provenance-118__matter.tar.gz.partial",
+    "-C",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-118/matter",
+    "CMakeFiles"
+  ],
+  "archive_sha256": "a05813544295e30a4567f30fb7e34584872034fef914991f7cf5fd5bd395c784",
+  "birthtime_limit": "Original birthtime is recorded in the inventory; archive extraction creates new birthtimes. File hashes, relative paths, modes, uid/gid, nanosecond mtimes, flags, links, extended attributes, and ACL listing were verified exactly.",
+  "build": "build-cardboard-provenance-118",
+  "df_after_archive": {
+    "free_bytes": 1297645568,
+    "free_kib": 1267232,
+    "raw": "Filesystem   1024-blocks      Used Available Capacity iused    ifree %iused  Mounted on\n/dev/disk3s5   482766932 433977024   1267232   100% 4061860 12672320   24%   /System/Volumes/Data"
+  },
+  "df_after_restore_test_cleanup": {
+    "free_bytes": 1297543168,
+    "free_kib": 1267132,
+    "raw": "Filesystem   1024-blocks      Used Available Capacity iused    ifree %iused  Mounted on\n/dev/disk3s5   482766932 433977124   1267132   100% 4061857 12671320   24%   /System/Volumes/Data"
+  },
+  "df_before_archive": {
+    "free_bytes": 1298259968,
+    "free_kib": 1267832,
+    "raw": "Filesystem   1024-blocks      Used Available Capacity iused    ifree %iused  Mounted on\n/dev/disk3s5   482766932 433976424   1267832   100% 4061856 12678320   24%   /System/Volumes/Data"
+  },
+  "directory_count": 207,
+  "file_count": 844,
+  "inventory": "/Users/home/cardboard-implementation-20261014/analysis/closed-build-intermediate-compaction-031/inventories/build-cardboard-provenance-118__matter.json.gz",
+  "inventory_entries": 1051,
+  "inventory_gzip_sha256": "623c88efcb514ca91ef3efab401dadd129e838b6e8c82f6c5d8be98a2abeeb4a",
+  "inventory_uncompressed_sha256": "15a29dfc00c0b5abf444d498bda0cadc95fd0f9cd23b6bd98b1a8685441af21e",
+  "key": "build-cardboard-provenance-118__matter",
+  "logical_file_bytes": 1174459,
+  "lsof_before_archive": {
+    "command": [
+      "/usr/sbin/lsof",
+      "+D",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-118/matter/CMakeFiles"
+    ],
+    "exit_code": 1,
+    "open_handle_rows": []
+  },
+  "lsof_before_delete": {
+    "command": [
+      "/usr/sbin/lsof",
+      "+D",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-118/matter/CMakeFiles"
+    ],
+    "exit_code": 1,
+    "open_handle_rows": []
+  },
+  "process_before": {
+    "process_snapshot_command": [
+      "/bin/ps",
+      "-axo",
+      "pid=,comm=,args="
+    ],
+    "target_matches": []
+  },
+  "process_before_delete": {
+    "process_snapshot_command": [
+      "/bin/ps",
+      "-axo",
+      "pid=,comm=,args="
+    ],
+    "target_matches": []
+  },
+  "relative_target": "build-cardboard-provenance-118/matter/CMakeFiles",
+  "restore_command": [
+    "/usr/bin/tar",
+    "--mac-metadata",
+    "--acls",
+    "--fflags",
+    "--xattrs",
+    "--numeric-owner",
+    "-xzf",
+    "/Users/home/cardboard-implementation-20261014/analysis/closed-build-intermediate-compaction-031/archives/build-cardboard-provenance-118__matter.tar.gz",
+    "-C",
+    "/Users/home/cardboard-implementation-20261014/analysis/closed-build-intermediate-compaction-031/restore-test/build-cardboard-provenance-118__matter-q7kzhk90"
+  ],
+  "restore_test": {
+    "acl_entries": 0,
+    "directories": 207,
+    "exact_paths_hashes_metadata": true,
+    "files": 844,
+    "restore_path_count": 1051,
+    "xattr_entries": 1051,
+    "xattr_names": [
+      "com.apple.provenance"
+    ]
+  },
+  "schema": "numi.cardboard.closed-cmakefiles-compaction-tree.v1",
+  "target": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-118/matter/CMakeFiles",
+  "tracked_files_before": [],
+  "tracked_files_before_delete": []
+}

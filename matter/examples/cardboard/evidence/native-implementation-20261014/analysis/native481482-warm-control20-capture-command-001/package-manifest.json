@@ -1,0 +1,13 @@
+{
+  "schema": "numi.cardboard.native481482-package.v1",
+  "parent_manifest_sha256": "4ac10d7523c45d5c9ab461b182bfdddba77ac4c72ad5b1e20af6e785099755ba",
+  "files_sha256": {
+    "README.md": "446622c5471c04c185dd4f270fbdb8771f3dc12eea04afc1493c1d0960de4da5",
+    "capacity-helper.py": "8e4a395c27d0dda8f43351760da7d5b6d0c42dbad0d16680777383d94364cc03",
+    "command-spec.json": "352c64f149863620b9b55e28158268dd1d4a23ab687ec386e852070ff96ae53b",
+    "inputs/host-validation-manifest.json": "625785981a3538e3cc97ea0875b46648060535192b3a5e0a899eebc82dff09ac",
+    "inputs/host-validation-report.json": "79e762a2a18ef3c056ebdbb7145c09711be2c83445ae196132366e9de4ca525e",
+    "runner.py": "961f6bbcf4ebf0f2f79ea08d2c9d44ff18ff22729d341de6fe0dc7bbafbffdce"
+  },
+  "gpu_executed": false
+}

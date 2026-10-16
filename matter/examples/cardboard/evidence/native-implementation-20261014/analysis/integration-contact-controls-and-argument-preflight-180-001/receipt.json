@@ -1,0 +1,36 @@
+{
+  "changes": [
+    {
+      "path": "matter/tools/cardboard_solver_environment.py",
+      "before": "4538956f04ed2e4925f449e79f066485dc2c3669e40e20c20307a28bb7355aac",
+      "after": "a4af927c920af6d49707aa8a723809d88bed7696658226c489ddb70dc9ba6e6e",
+      "package": "analysis/contact-control-environment-fix-178-002"
+    },
+    {
+      "path": "matter/tools/test_cardboard_solver_environment.py",
+      "before": "6c45fb80d97602f5f4710ef8cfd805a9a4e872eed905af4b5d48d76d196e6f17",
+      "after": "bba5173a1eec73ed798832735c730a49565ce229a77a75f9db77c230f5d216d5",
+      "package": "analysis/contact-control-environment-fix-178-002"
+    },
+    {
+      "path": "matter/CMakeLists.txt",
+      "before": "e1d9fef5b4e2e61c1caa8557749dc889a0581d2173aa211990ebdecb35adda26",
+      "after": "af77ec3e93163a5cf29f7c62b3ac7f6b44f760ce4e49cd4e26404e35c7af6b6e",
+      "package": "analysis/probe-argument-preflight-source180-002"
+    },
+    {
+      "path": "matter/tools/cardboard_probe.mm",
+      "before": "448f8b4f59a5b287d7cb81e36e6fa077687b407a43e63a45d173393340e16bd1",
+      "after": "961d562a3961a1a4ab64cedaab0324674d81cabd8df8d6c8f870b2f35efdd3c1",
+      "package": "analysis/probe-argument-preflight-source180-002"
+    },
+    {
+      "path": "matter/tools/test_cardboard_probe_argument_admission.py",
+      "before": null,
+      "after": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e",
+      "package": "analysis/probe-argument-preflight-source180-002"
+    }
+  ],
+  "native_physics_execution": false,
+  "pending_fresh_integrated_build": true
+}

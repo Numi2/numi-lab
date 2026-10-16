@@ -1,0 +1,7 @@
+{
+  "environment_contract_sha256": "4b8eda1cc0a112739acb69c0833f481866a0cab349b159caa7aa5551a23e99b0",
+  "files": [],
+  "schema": "numi.cardboard.diagnostic-capture-files.v1",
+  "status": "no_capture_paths_requested",
+  "total_bytes": 0
+}

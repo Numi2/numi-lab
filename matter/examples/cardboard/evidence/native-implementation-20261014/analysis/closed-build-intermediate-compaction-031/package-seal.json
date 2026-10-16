@@ -1,0 +1,21 @@
+{
+  "2GiB_floor_reached": false,
+  "archive_count": 160,
+  "final_df_after_package_write": {
+    "free_bytes": 1375825920,
+    "free_kib": 1343580,
+    "raw": "Filesystem   1024-blocks      Used Available Capacity iused    ifree %iused  Mounted on\n/dev/disk3s5   482766932 433900676   1343580   100% 3999647 13435800   23%   /System/Volumes/Data"
+  },
+  "final_df_before_seal_write": {
+    "free_bytes": 1375830016,
+    "free_kib": 1343584,
+    "raw": "Filesystem   1024-blocks      Used Available Capacity iused    ifree %iused  Mounted on\n/dev/disk3s5   482766932 433900672   1343584   100% 3999646 13435840   23%   /System/Volumes/Data"
+  },
+  "inventory_count": 160,
+  "package_file_count_excluding_manifest_and_seal": 653,
+  "package_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-build-intermediate-compaction-031/package-manifest.json",
+  "package_manifest_sha256": "2e92425c0a7ead5fa121959e9a02836d3666705c025d8de7d9a1918dfef1e2a2",
+  "package_seal_sha256_excluding_self": "not_self_referential",
+  "schema": "numi.cardboard.closed-build-intermediate-compaction-seal.v1",
+  "target_count": 160
+}

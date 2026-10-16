@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "-B",
+    "/Users/home/cardboard-implementation-20261014/analysis/contact-control-environment-fix-178-002/validation/working/matter/tools/test_cardboard_solver_environment.py"
+  ],
+  "returncode": 0,
+  "gpu_executed": false,
+  "source_root": "/Users/home/numi-cardboard-20261006",
+  "source_sha256": {
+    "cardboard_solver_environment.py": "a4af927c920af6d49707aa8a723809d88bed7696658226c489ddb70dc9ba6e6e",
+    "cardboard_calibration_case_binding.py": "03adc449fd4d5c8d7f44ade757f02f2a1f432d88b1ff008d833dbc533ce4a2e5",
+    "cardboard_source_bound_run.py": "6ccd93a467860df58d8552b6f14c7d1ea77be2a896c06a77bfd9ad25392ceb9e",
+    "cardboard_source_bound_run_support.py": "5ce3ec12e48d88ba8a76b7e498d29b7dd991f0c930de43e17bb5cb96d379685e",
+    "test_cardboard_solver_environment.py": "bba5173a1eec73ed798832735c730a49565ce229a77a75f9db77c230f5d216d5"
+  }
+}

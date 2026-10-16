@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.publication030-payload-preflight.v1",
+  "cases": 43,
+  "payloads": 2278,
+  "raw": 2202,
+  "gzip": 76,
+  "summary_records": 1567,
+  "old_records": 1524,
+  "summary_sha256": "9a5906110ade11be67fd64313ff106d15f7ceb8b61a63e1be254960fc1bbaeb8",
+  "binding_sha256": "da8232ba73ec65540c2a61376bbf9451d5b7494cf3c5b148c036bf8685d2f25f",
+  "pathspec_sha256": "9ac91a5d6961bf8ee3c7cbc1b5434b63f3c29d8604c23049115ca7dbc9bb396a",
+  "pathspec_entries": 10656,
+  "active_results_excluded": true
+}

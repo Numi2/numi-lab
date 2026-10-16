@@ -1,0 +1,10 @@
+{
+  "schema": "numi.cardboard.argument-preflight-source180.v1",
+  "parent_probe_sha256": "448f8b4f59a5b287d7cb81e36e6fa077687b407a43e63a45d173393340e16bd1",
+  "files_sha256": {
+    "README.md": "7f45a17a7612bf5c9d9d0f041671849c99e61e9163acbc9bb594335c7098c4a0",
+    "candidate/matter/tools/cardboard_probe.mm": "961d562a3961a1a4ab64cedaab0324674d81cabd8df8d6c8f870b2f35efdd3c1",
+    "patch.diff": "c17cbdcfe3538bb60f095c8f616a2ddf973a2384ac38f26511b142e73f810e06"
+  },
+  "native_gpu_executed": false
+}

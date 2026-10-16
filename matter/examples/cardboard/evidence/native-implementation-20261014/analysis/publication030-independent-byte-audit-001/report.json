@@ -1,0 +1,491 @@
+{
+  "schema": "numi.cardboard.publication030-independent-byte-audit.v1",
+  "verdict": "PASS",
+  "scope": "Read-only independent verification of publication030 summary history, payload bytes, pathspec extension, selected source173 hashes, and stated evidence boundaries. No source or archive files were modified.",
+  "binding_sha256": "da8232ba73ec65540c2a61376bbf9451d5b7494cf3c5b148c036bf8685d2f25f",
+  "summary_sha256": "9a5906110ade11be67fd64313ff106d15f7ceb8b61a63e1be254960fc1bbaeb8",
+  "pathspec_sha256": "9ac91a5d6961bf8ee3c7cbc1b5434b63f3c29d8604c23049115ca7dbc9bb396a",
+  "source173_frozen_manifest_sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+  "source173_build_metadata_sha256": "0306631506b565f12a77cd44fb3acaabb012cb0dbeefe1e0eb82a9befd43b9a2",
+  "historical_prefix": {
+    "records": 1524,
+    "summary_sha256": "aaf1660cb3c68c02de4b81cd4e480d54a20e3674d7176c65ab5aad74ac2187c7",
+    "old_pathspec_entries": 8376,
+    "current_summary_prefix_exact": true,
+    "prior_pathspec_bytes_exact_prefix": true
+  },
+  "new_publication_payloads": {
+    "cases": 43,
+    "files": 2278,
+    "raw_files": 2202,
+    "gzip_files": 76,
+    "raw_bytes": 54939238,
+    "compressed_payload_bytes": 92821513,
+    "pathspec_entries": 10656,
+    "appended_pathspec_entries": 2280
+  },
+  "source173_selected_hashes": {
+    "expected_files": 804,
+    "snapshot_mismatches": 0,
+    "checkout_mismatches": 0,
+    "build_source_map_matches": true,
+    "build_artifact_mismatches": 0
+  },
+  "six_axis_verdicts": {
+    "solver_correctness": "partial_component_evidence; complete_nonlinear_solve_unqualified",
+    "numerical_convergence": "unqualified",
+    "component_calibration": "partial_source_data_only",
+    "analogue_validation": "unqualified_for_requested_full_sequence",
+    "physical_assembly_in_simulation": "unqualified",
+    "crush_impact_prediction": "unexecuted"
+  },
+  "active_476_477_results_included": false,
+  "checks": {
+    "historical_summary_hash": {
+      "passed": true,
+      "detail": {
+        "expected": "aaf1660cb3c68c02de4b81cd4e480d54a20e3674d7176c65ab5aad74ac2187c7",
+        "observed": "aaf1660cb3c68c02de4b81cd4e480d54a20e3674d7176c65ab5aad74ac2187c7"
+      }
+    },
+    "historical_summary_record_count": {
+      "passed": true,
+      "detail": {
+        "observed": 1524
+      }
+    },
+    "summary_historical_prefix_exact": {
+      "passed": true,
+      "detail": {
+        "current_records": 1567,
+        "prefix_records": 1524
+      }
+    },
+    "prior_binding_digest": {
+      "passed": true,
+      "detail": {
+        "expected": "2eaec51662d8a00f8d57476c29bceb61db71a84ac34cd4bd53d464cb9ea512fc",
+        "observed": "2eaec51662d8a00f8d57476c29bceb61db71a84ac34cd4bd53d464cb9ea512fc"
+      }
+    },
+    "prior_pathspec_digest": {
+      "passed": true,
+      "detail": {
+        "expected": "2a3f1391a727810fd77b90ccc0c7ff37d3e4cf327186d44d31a55fbe5ff7e06b",
+        "observed": "2a3f1391a727810fd77b90ccc0c7ff37d3e4cf327186d44d31a55fbe5ff7e06b"
+      }
+    },
+    "prior_pathspec_entry_count": {
+      "passed": true,
+      "detail": {
+        "observed": 8376,
+        "binding": 8376
+      }
+    },
+    "summary_historical_snapshot_pointer": {
+      "passed": true,
+      "detail": {
+        "path": "summary-reference029.json",
+        "sha256": "aaf1660cb3c68c02de4b81cd4e480d54a20e3674d7176c65ab5aad74ac2187c7"
+      }
+    },
+    "new_record_count_and_order": {
+      "passed": true,
+      "detail": {
+        "binding_cases": 43,
+        "summary_new_records": 43
+      }
+    },
+    "summary_total_records": {
+      "passed": true,
+      "detail": {
+        "observed": 1567
+      }
+    },
+    "case_uniqueness": {
+      "passed": true,
+      "detail": {
+        "unique": 43,
+        "total": 43
+      }
+    },
+    "active_476_477_case_exclusion": {
+      "passed": true,
+      "detail": {
+        "forbidden_case_entries": [],
+        "binding_exclusion_flag": true
+      }
+    },
+    "physical_qualification_false:solver/accepted-checkpoint-prefix-470": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:solver/source169-default-off-parity-472": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/source169-warm-start-integration-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/source169-build-cpu-validation-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/warm-start-native-kernel-check-002": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/shipping-checkpoint-physical-arena-overlay-171-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/base-cgls-warm-finite-breakdown-overlay-172-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/base-cgls-warm-finite-breakdown-overlay-172-002": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/hierarchical-sparse-private-contact-scan-overlay-170-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native-sparse-private-scan-check-170-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/source175-sparse-private-scan-integration-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native469-material-replay-174-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native469-mp-fallback-004": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native469-mp-fallback-005": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native469-mixed-reference-assembly-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native469-mixed-reference-assembly-002": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native469-mixed-reference-assembly-003": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native469-mixed-reference-adjudication-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native469-mixed-reference-assembly-adjudication-002": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native470-accepted-checkpoint-prefix-command-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native470-accepted-checkpoint-prefix-command-002": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native470-accepted-checkpoint-prefix-command-002/executions": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native470-accepted-prefix-adjudication-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native470-checkpoint-write-failure-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native471-checkpoint-resume-command-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native472-source169-default-off-command-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native472-source169-default-off-command-002": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native472-source169-default-off-command-003": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native472-source169-default-off-command-003/executions": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native472-default-off-production-parity-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/native473-474-warm-checkpoint-smoke-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/source173-integration-preflight-refusal-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/source173-checkpoint-warm-integration-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/source173-build-cpu-validation-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/source173-warm-kernel-check-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/source173-repository-integration-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/source173-macmini-host-build-and-check-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/publication029-staged-source-check-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/publication029-payload-preflight-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/publication029-independent-byte-audit-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/publication029-commit-and-push-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/publication029-duplicate-staging-retirement-001": {
+      "passed": true,
+      "detail": false
+    },
+    "physical_qualification_false:analysis/closed-published-output-compaction-030": {
+      "passed": true,
+      "detail": false
+    },
+    "payload_sources_and_copies": {
+      "passed": true,
+      "detail": []
+    },
+    "payload_file_counts": {
+      "passed": true,
+      "detail": {
+        "observed_total": 2278,
+        "observed_raw": 2202,
+        "observed_gzip": 76,
+        "binding": [
+          2278,
+          2202,
+          76
+        ]
+      }
+    },
+    "preflight_matches_binding": {
+      "passed": true,
+      "detail": {
+        "preflight": {
+          "schema": "numi.cardboard.publication030-payload-preflight.v1",
+          "cases": 43,
+          "payloads": 2278,
+          "raw": 2202,
+          "gzip": 76,
+          "summary_records": 1567,
+          "old_records": 1524,
+          "summary_sha256": "9a5906110ade11be67fd64313ff106d15f7ceb8b61a63e1be254960fc1bbaeb8",
+          "binding_sha256": "da8232ba73ec65540c2a61376bbf9451d5b7494cf3c5b148c036bf8685d2f25f",
+          "pathspec_sha256": "9ac91a5d6961bf8ee3c7cbc1b5434b63f3c29d8604c23049115ca7dbc9bb396a",
+          "pathspec_entries": 10656,
+          "active_results_excluded": true
+        }
+      }
+    },
+    "pathspec_prior_bytes_prefix": {
+      "passed": true,
+      "detail": {
+        "old_bytes": 1326113,
+        "new_bytes": 1688543
+      }
+    },
+    "pathspec_unique_entries": {
+      "passed": true,
+      "detail": {
+        "entries": 10656,
+        "unique": 10656
+      }
+    },
+    "pathspec_entries_exact": {
+      "passed": true,
+      "detail": {
+        "total": 10656,
+        "old": 8376,
+        "appended": 2280,
+        "expected_appended": 2280,
+        "missing": [],
+        "unexpected": []
+      }
+    },
+    "pathspec_excludes_476_477_native_results": {
+      "passed": true,
+      "detail": []
+    },
+    "source173_manifest_has_804_hashes": {
+      "passed": true,
+      "detail": {
+        "observed": 804
+      }
+    },
+    "source173_snapshot_files_match": {
+      "passed": true,
+      "detail": []
+    },
+    "source173_current_checkout_files_match": {
+      "passed": true,
+      "detail": []
+    },
+    "source173_build_source_map_matches": {
+      "passed": true,
+      "detail": {
+        "build_count": 804,
+        "frozen_count": 804
+      }
+    },
+    "source173_build_success_and_snapshot": {
+      "passed": true,
+      "detail": {
+        "success": true,
+        "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173"
+      }
+    },
+    "source173_snapshot_digest": {
+      "passed": true,
+      "detail": {
+        "expected": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+        "observed": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3"
+      }
+    },
+    "source173_build_metadata_digest": {
+      "passed": true,
+      "detail": {
+        "expected": "0306631506b565f12a77cd44fb3acaabb012cb0dbeefe1e0eb82a9befd43b9a2",
+        "observed": "0306631506b565f12a77cd44fb3acaabb012cb0dbeefe1e0eb82a9befd43b9a2"
+      }
+    },
+    "source173_build_artifacts_match": {
+      "passed": true,
+      "detail": []
+    },
+    "six_axis_verdict_boundaries": {
+      "passed": true,
+      "detail": {
+        "axis_statuses": {
+          "solver_correctness": "partial_component_evidence; complete_nonlinear_solve_unqualified",
+          "numerical_convergence": "unqualified",
+          "component_calibration": "partial_source_data_only",
+          "analogue_validation": "unqualified_for_requested_full_sequence",
+          "physical_assembly_in_simulation": "unqualified",
+          "crush_impact_prediction": "unexecuted"
+        },
+        "physical_validation": false
+      }
+    },
+    "no_complete_coupon_or_assembly_claim": {
+      "passed": true,
+      "detail": {
+        "solver_correctness": "partial_component_evidence; complete_nonlinear_solve_unqualified",
+        "numerical_convergence": "unqualified",
+        "component_calibration": "partial_source_data_only",
+        "analogue_validation": "unqualified_for_requested_full_sequence",
+        "physical_assembly_in_simulation": "unqualified",
+        "crush_impact_prediction": "unexecuted"
+      }
+    }
+  },
+  "failed_checks": [],
+  "input_hashes": {
+    "summary": {
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/summary.json",
+      "exists": true,
+      "sha256": "9a5906110ade11be67fd64313ff106d15f7ceb8b61a63e1be254960fc1bbaeb8",
+      "bytes": 21328527
+    },
+    "historical_summary": {
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/summary-reference029.json",
+      "exists": true,
+      "sha256": "aaf1660cb3c68c02de4b81cd4e480d54a20e3674d7176c65ab5aad74ac2187c7",
+      "bytes": 19909807
+    },
+    "binding": {
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/publication-binding-reference030.json",
+      "exists": true,
+      "sha256": "da8232ba73ec65540c2a61376bbf9451d5b7494cf3c5b148c036bf8685d2f25f",
+      "bytes": 6131
+    },
+    "old_binding": {
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/publication-binding-reference029.json",
+      "exists": true,
+      "sha256": "2eaec51662d8a00f8d57476c29bceb61db71a84ac34cd4bd53d464cb9ea512fc",
+      "bytes": 6440
+    },
+    "old_pathspec": {
+      "path": "/Users/home/cardboard-implementation-20261014/publication-reference029-pathspec.nul",
+      "exists": true,
+      "sha256": "2a3f1391a727810fd77b90ccc0c7ff37d3e4cf327186d44d31a55fbe5ff7e06b",
+      "bytes": 1326113
+    },
+    "pathspec": {
+      "path": "/Users/home/cardboard-implementation-20261014/publication-reference030-pathspec.nul",
+      "exists": true,
+      "sha256": "9ac91a5d6961bf8ee3c7cbc1b5434b63f3c29d8604c23049115ca7dbc9bb396a",
+      "bytes": 1688543
+    },
+    "frozen_manifest": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/frozen-source.json",
+      "exists": true,
+      "sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+      "bytes": 96036
+    },
+    "build_metadata": {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-173/source-build.json",
+      "exists": true,
+      "sha256": "0306631506b565f12a77cd44fb3acaabb012cb0dbeefe1e0eb82a9befd43b9a2",
+      "bytes": 98788
+    },
+    "archive_script": {
+      "path": "/Users/home/cardboard-implementation-20261014/archive_reference030.py",
+      "exists": true,
+      "sha256": "323aa763265658c600ce76159d3453d4256b50d327ed172aa14627c58827ea7a",
+      "bytes": 10955
+    },
+    "payload_preflight": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/publication030-payload-preflight-001/report.json",
+      "exists": true,
+      "sha256": "d9581249f075d2119dbd1270bc91b93c360a3c843dd8f3ca0d7e1c15066973c0",
+      "bytes": 512
+    }
+  }
+}

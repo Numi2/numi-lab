@@ -1,0 +1,11 @@
+{
+  "schema": "numi.cardboard.publication030-stage-refusal.v1",
+  "reason": "Three exact audited evidence paths ignored by gitignore; git add requires explicit force for source-bound build metadata and state-digest shaders. No commit or push occurred.",
+  "staged_paths": 2291,
+  "missing": [
+    "matter/examples/cardboard/evidence/native-implementation-20261014/analysis/source173-macmini-host-build-and-check-001/fresh-build/compile_commands.json",
+    "matter/examples/cardboard/evidence/native-implementation-20261014/solver/accepted-checkpoint-prefix-470/inputs/runtime/shaders/NumiMatterPhysicalStateDigest.metallib",
+    "matter/examples/cardboard/evidence/native-implementation-20261014/solver/source169-default-off-parity-472/inputs/runtime/shaders/NumiMatterPhysicalStateDigest.metallib"
+  ],
+  "pathlist_sha256": "d924692fd059543501c881d15ea097489999ea55d712db1d14504c2a3b409628"
+}

@@ -20,7 +20,7 @@ class EffectiveEnvironmentTests(unittest.TestCase):
     def test_registry_matches_checkout_and_detects_unregistered_control(self):
         env.validate_source_registry(SOURCE_ROOT)
         self.assertEqual(env.source_key_registry(SOURCE_ROOT), env.NATIVE_ENV_KEYS)
-        self.assertEqual(len(env.NATIVE_ENV_KEYS), 50)
+        self.assertEqual(len(env.NATIVE_ENV_KEYS), 51)
         self.assertIn("NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR", env.NATIVE_ENV_KEYS)
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -39,6 +39,47 @@ class EffectiveEnvironmentTests(unittest.TestCase):
         self.assertEqual(set(contract["effective"]), set(env.NATIVE_ENV_KEYS))
         self.assertTrue(all(state == {"set": False, "value": None}
                             for state in contract["effective"].values()))
+
+    def test_contact_control_binding_and_inherited_scrubbing(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for relative in ("matter/src/runtime.mm", "matter/tools/cardboard_probe.mm"):
+                target = root / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(SOURCE_ROOT / relative, target)
+            with (root / "matter/src/runtime.mm").open("a") as stream:
+                stream.write('\nconst char *contact = std::getenv("NM_CONTACT_UNREGISTERED_TEST_CONTROL");\n')
+            with self.assertRaisesRegex(ValueError, "unlisted=.*NM_CONTACT_UNREGISTERED_TEST_CONTROL"):
+                env.validate_source_registry(root)
+        absent = env.make_contract()
+        selected = env.make_contract({"NM_CONTACT_NODE_INCIDENCE_SORT": "1"})
+        self.assertNotEqual(absent["sha256"], selected["sha256"])
+        self.assertEqual(absent["effective"]["NM_CONTACT_NODE_INCIDENCE_SORT"],
+                         {"set": False, "value": None})
+        parent = {"PATH": "/bin", "NM_CONTACT_NODE_INCIDENCE_SORT": "1",
+                  "NM_CONTACT_UNREGISTERED_LEAK": "private-value"}
+        child, removed = env.child_environment(parent, absent)
+        self.assertEqual(child, {"PATH": "/bin"})
+        self.assertEqual(removed, ["NM_CONTACT_NODE_INCIDENCE_SORT",
+                                   "NM_CONTACT_UNREGISTERED_LEAK"])
+        record = env.make_run_record(absent, producer="source-bound-native-runner",
+                                     removed_inherited_keys=removed,
+                                     prediction_sha256="0" * 64)
+        env.validate_run_record(record)
+        self.assertNotIn("private-value", json.dumps(record))
+        selected_child, _ = env.child_environment(parent, selected)
+        self.assertEqual(selected_child["NM_CONTACT_NODE_INCIDENCE_SORT"], "1")
+        for value in ("", "0", "true", "2"):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "exactly 1"):
+                env.make_contract({"NM_CONTACT_NODE_INCIDENCE_SORT": value})
+        with self.assertRaisesRegex(ValueError, "unknown native environment key"):
+            env.make_contract({"NM_CONTACT_UNKNOWN_CONTROL": "1"})
+        historical = env.make_contract()
+        historical["keys"].remove("NM_CONTACT_NODE_INCIDENCE_SORT")
+        del historical["effective"]["NM_CONTACT_NODE_INCIDENCE_SORT"]
+        historical["sha256"] = env._contract_digest(historical)
+        with self.assertRaisesRegex(ValueError, "registry differs"):
+            env.validate_contract(historical)
 
     def test_absent_empty_and_explicit_values_are_distinct(self):
         absent = env.make_contract()

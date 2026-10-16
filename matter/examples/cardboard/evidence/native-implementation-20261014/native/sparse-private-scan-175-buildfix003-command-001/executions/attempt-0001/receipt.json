@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/numi-matter-cardboard-sparse-private-scan-native-check"
+  ],
+  "checker_output_contract": {
+    "checks": 12910103,
+    "passed": true,
+    "reason": null
+  },
+  "end_utc": "2026-10-16T04:29:25.458839+00:00",
+  "exit_code": 0,
+  "gpu_dispatch_requested": true,
+  "pid": 21325,
+  "preflight": {
+    "active_workers": [],
+    "available_bytes": 112682434560,
+    "checker_sha256": "e5a2ee1edfa6d2395b6d1c512bfc34f94e270fd27aeb6a0276994ce264ffff70",
+    "environment_pair_slots": 6366845,
+    "gpu_dispatch_occurred": false,
+    "host": "Mac.domain_not_set.invalid",
+    "metallib_sha256": "59a7df8c8fd4d336fbcb9e28b7fe3942d86063a4a1fbafe36963e41a0c007cc9",
+    "native_cases": 49,
+    "schema": "numi.cardboard.native-sparse-private-scan-preflight.v1",
+    "source_manifest_sha256": "6e4f8dad1377af79b1dc2ddeeb0f07e6a273598d291cb030e6222e8aebb5a007"
+  },
+  "reserve": {
+    "allocated_bytes": 134217728,
+    "size_bytes": 134217728
+  },
+  "schema": "numi.cardboard.native-sparse-private-scan-execution.v1",
+  "space_abort": false,
+  "start_utc": "2026-10-16T04:29:23.426363+00:00",
+  "stderr_bytes": 0,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_bytes": 3737,
+  "stdout_sha256": "377e7b6312959457ea2b141e944344c75e5a5ab0c848788856d7d7ef073b4d8d",
+  "timed_out": false,
+  "timeout_seconds": 900,
+  "wall_seconds": 2.028786457143724
+}

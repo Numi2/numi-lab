@@ -1253,3 +1253,8 @@ Source149 milestone: see [native block scaling and complete disabled-history par
 # Source157 continuation
 
 The coupon CSV reads the actual right-grip target modes, correcting the post-release-relaxation observation. Four complete CPU schedule cases and ten checks of the compiled production reader pass; the generated physical targets are unchanged. See [the source157 milestone](solver-milestone-source157.md). Native468 runs a separate half-timestep experiment; its active case is not evidence of a complete cycle or convergence.
+
+Source181 records accepted checkpoint19 and exact observed replay of the failed
+control20. CPU argument admission, contact environment binding and rejected
+encoder cleanup pass their bounded checks. The full coupon and downstream
+qualification gates remain open. See [the source181 milestone](solver-milestone-source181.md).

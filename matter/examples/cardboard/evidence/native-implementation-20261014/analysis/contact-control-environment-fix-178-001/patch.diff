@@ -1,0 +1,125 @@
+--- a/matter/tools/cardboard_solver_environment.py
++++ b/matter/tools/cardboard_solver_environment.py
+@@ -1,7 +1,7 @@
+ """Strict, source-bound effective native environment contracts for cardboard runs.
+ 
+ Only source-registered native controls and two timing controls are modeled.
+-Inherited NM_FEM_* variables are always scrubbed before launch; qualification
++Inherited NM_FEM_* and NM_CONTACT_* variables are always scrubbed before launch; qualification
+ contracts preserve absent, empty, and non-empty values, while output-path
+ captures require a separate diagnostic-only contract.
+ """
+@@ -27,6 +27,7 @@
+ # bindings; tests compare this registry to the candidate source so a new
+ # control cannot disappear.
+ NATIVE_ENV_KEYS = tuple(sorted({
++    "NM_CONTACT_NODE_INCIDENCE_SORT",
+     "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
+     "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
+     "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+@@ -102,7 +103,7 @@
+     "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT",
+ })
+ TIMING_KEYS = frozenset({"NUMI_CARDBOARD_STEP_TIMING", "NUMI_MATTER_GPU_TIMING_DENSE45"})
+-_SOURCE_KEY_RE = re.compile(r"\b(?:NM_FEM_[A-Z0-9_]+|NUMI_CARDBOARD_STEP_TIMING|NUMI_MATTER_GPU_TIMING_DENSE45)\b")
++_SOURCE_KEY_RE = re.compile(r"\b(?:NM_(?:FEM|CONTACT)_[A-Z0-9_]+|NUMI_CARDBOARD_STEP_TIMING|NUMI_MATTER_GPU_TIMING_DENSE45)\b")
+ 
+ 
+ def source_key_registry(source_root: os.PathLike[str] | str) -> tuple[str, ...]:
+@@ -141,6 +142,8 @@
+ def _validate_environment_value(key: str, value: str) -> None:
+     if "\x00" in value:
+         raise ValueError(f"NUL is not allowed in environment value for {key}")
++    if key == "NM_CONTACT_NODE_INCIDENCE_SORT" and value != "1":
++        raise ValueError("NM_CONTACT_NODE_INCIDENCE_SORT must be exactly 1 when set")
+     if key in NUMERIC_SELECTOR_KEYS:
+         # Empty is a source-supported explicit disable for selector controls;
+         # it remains distinct from an absent key in the hashed contract.
+@@ -338,9 +341,9 @@
+ 
+ def child_environment(parent: Mapping[str, str], contract: object) -> tuple[dict[str, str], list[str]]:
+     contract = validate_any_contract(contract)
+-    removed = sorted(key for key in parent if key.startswith("NM_FEM_") or key in TIMING_KEYS)
++    removed = sorted(key for key in parent if key.startswith(("NM_FEM_", "NM_CONTACT_")) or key in TIMING_KEYS)
+     child = {key: value for key, value in parent.items()
+-             if not key.startswith("NM_FEM_") and key not in TIMING_KEYS}
++             if not key.startswith(("NM_FEM_", "NM_CONTACT_")) and key not in TIMING_KEYS}
+     for key, state in contract["effective"].items():
+         if state["set"]:
+             child[key] = state["value"]
+@@ -560,7 +563,7 @@
+     if not re.fullmatch(r"[0-9a-f]{64}", prediction_sha256):
+         raise ValueError("prediction_sha256 must be a lowercase SHA-256 digest")
+     removed = sorted(set(removed_inherited_keys))
+-    if any(not (key.startswith("NM_FEM_") or key in TIMING_KEYS) for key in removed):
++    if any(not (key.startswith(("NM_FEM_", "NM_CONTACT_")) or key in TIMING_KEYS) for key in removed):
+         raise ValueError("launch record may list only scrubbed native control key names")
+     return {"schema": RUN_SCHEMA, "contract": contract,
+             "contract_sha256": contract["sha256"],
+@@ -577,7 +580,7 @@
+     if not re.fullmatch(r"[0-9a-f]{64}", prediction_sha256):
+         raise ValueError("prediction_sha256 must be a lowercase SHA-256 digest")
+     removed = sorted(set(removed_inherited_keys))
+-    if any(not (key.startswith("NM_FEM_") or key in TIMING_KEYS) for key in removed):
++    if any(not (key.startswith(("NM_FEM_", "NM_CONTACT_")) or key in TIMING_KEYS) for key in removed):
+         raise ValueError("launch record may list only scrubbed native control key names")
+     return {"schema": DIAGNOSTIC_RUN_SCHEMA, "contract": contract,
+             "contract_sha256": contract["sha256"], "prediction_sha256": prediction_sha256,
+@@ -609,7 +612,7 @@
+         raise ValueError("run record does not prove inherited native controls were scrubbed")
+     removed = launch.get("removed_inherited_key_names")
+     if (not isinstance(removed, list) or removed != sorted(set(removed))
+-            or any(not isinstance(key, str) or not (key.startswith("NM_FEM_") or key in TIMING_KEYS)
++            or any(not isinstance(key, str) or not (key.startswith(("NM_FEM_", "NM_CONTACT_")) or key in TIMING_KEYS)
+                    for key in removed)):
+         raise ValueError("invalid scrubbed-key-name record")
+     return record
+--- a/matter/tools/test_cardboard_solver_environment.py
++++ b/matter/tools/test_cardboard_solver_environment.py
+@@ -20,7 +20,7 @@
+     def test_registry_matches_checkout_and_detects_unregistered_control(self):
+         env.validate_source_registry(SOURCE_ROOT)
+         self.assertEqual(env.source_key_registry(SOURCE_ROOT), env.NATIVE_ENV_KEYS)
+-        self.assertEqual(len(env.NATIVE_ENV_KEYS), 50)
++        self.assertEqual(len(env.NATIVE_ENV_KEYS), 51)
+         self.assertIn("NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR", env.NATIVE_ENV_KEYS)
+         with tempfile.TemporaryDirectory() as temporary:
+             root = Path(temporary)
+@@ -39,6 +39,37 @@
+         self.assertEqual(set(contract["effective"]), set(env.NATIVE_ENV_KEYS))
+         self.assertTrue(all(state == {"set": False, "value": None}
+                             for state in contract["effective"].values()))
++
++    def test_contact_control_binding_and_inherited_scrubbing(self):
++        absent = env.make_contract()
++        selected = env.make_contract({"NM_CONTACT_NODE_INCIDENCE_SORT": "1"})
++        self.assertNotEqual(absent["sha256"], selected["sha256"])
++        self.assertEqual(absent["effective"]["NM_CONTACT_NODE_INCIDENCE_SORT"],
++                         {"set": False, "value": None})
++        parent = {"PATH": "/bin", "NM_CONTACT_NODE_INCIDENCE_SORT": "1",
++                  "NM_CONTACT_UNREGISTERED_LEAK": "private-value"}
++        child, removed = env.child_environment(parent, absent)
++        self.assertEqual(child, {"PATH": "/bin"})
++        self.assertEqual(removed, ["NM_CONTACT_NODE_INCIDENCE_SORT",
++                                   "NM_CONTACT_UNREGISTERED_LEAK"])
++        record = env.make_run_record(absent, producer="source-bound-native-runner",
++                                     removed_inherited_keys=removed,
++                                     prediction_sha256="0" * 64)
++        env.validate_run_record(record)
++        self.assertNotIn("private-value", json.dumps(record))
++        selected_child, _ = env.child_environment(parent, selected)
++        self.assertEqual(selected_child["NM_CONTACT_NODE_INCIDENCE_SORT"], "1")
++        for value in ("", "0", "true", "2"):
++            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "exactly 1"):
++                env.make_contract({"NM_CONTACT_NODE_INCIDENCE_SORT": value})
++        with self.assertRaisesRegex(ValueError, "unknown native environment key"):
++            env.make_contract({"NM_CONTACT_UNKNOWN_CONTROL": "1"})
++        historical = env.make_contract()
++        historical["keys"].remove("NM_CONTACT_NODE_INCIDENCE_SORT")
++        del historical["effective"]["NM_CONTACT_NODE_INCIDENCE_SORT"]
++        historical["sha256"] = env._contract_digest(historical)
++        with self.assertRaisesRegex(ValueError, "registry differs"):
++            env.validate_contract(historical)
+ 
+     def test_absent_empty_and_explicit_values_are_distinct(self):
+         absent = env.make_contract()

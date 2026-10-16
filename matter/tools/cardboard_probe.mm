@@ -193,6 +193,7 @@ struct Arguments {
     std::string preset = "literature2009";
     bool withoutMedium = false;
     bool compileOnly = false;
+    bool validateArgumentsOnly = false;
     bool help = false;
     std::uint32_t steps = 8u;
     std::uint32_t holdSteps = 0u;
@@ -1291,6 +1292,7 @@ void printUsage() {
         << "  --thickness-slices N   elements through each paper layer\n"
         << "  --length-mm N --width-mm N --height-mm N --pitch-mm N\n"
         << "  --liner-thickness-mm N --medium-thickness-mm N\n"
+        << "  --validate-only        check argument combinations and exit before file admission, mesh generation or Metal runtime creation\n"
         << "  --compile-only         write package and initial OBJ without creating a Metal runtime\n";
     std::cout << "  --metallib FILE         explicit retained native Metal image for replay\n";
 }
@@ -1469,6 +1471,10 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         }
         if (option == "--without-medium") {
             arguments.withoutMedium = true;
+            continue;
+        }
+        if (option == "--validate-only") {
+            arguments.validateArgumentsOnly = true;
             continue;
         }
         if (option == "--compile-only") {
@@ -13980,6 +13986,10 @@ int main(const int argc, const char* argv[]) {
             arguments = parseArguments(argc, argv);
             if (arguments.help) {
                 printUsage();
+                return 0;
+            }
+            if (arguments.validateArgumentsOnly) {
+                std::cout << "{\"schema\":\"numi.cardboard.probe-argument-validation.v1\",\"arguments_valid\":true,\"file_inputs_validated\":false,\"mesh_generated\":false,\"native_runtime_created\":false}\n";
                 return 0;
             }
             if (!arguments.shippingCapacityQualificationFile.empty())
