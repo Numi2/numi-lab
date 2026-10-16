@@ -1,0 +1,1 @@
+regional_rap_tail_preserve=pass cases=E2_mixed,active_RAP_and_LU,preserve_valid_and_invalid_LU,invalid_fallback_and_identity,invalid_extra_clear,newton_reset physical_transactions=0

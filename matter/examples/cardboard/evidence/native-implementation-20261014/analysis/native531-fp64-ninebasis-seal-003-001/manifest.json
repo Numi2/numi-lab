@@ -1,0 +1,7 @@
+{
+  "files_sha256": {
+    "README.md": "6bd623d132dc991bb450a1159d281d9ead7610ea00250f233b0f10c3ab99459c",
+    "seal.json": "6d993f95149227d6a19ffc3241ce4bed5af5c2b32fb03a109b576a2954aa393e"
+  },
+  "schema": "numi.cardboard.native531-ninebasis-seal-files.v1"
+}

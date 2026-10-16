@@ -1,0 +1,10 @@
+{
+  "attempt": 2,
+  "checkpoint_metadata_sha256": "cf59888c98e77849f976fc641c0ac37736bbbbcadf8b576cd1040716dc94effa",
+  "failure": "first runner correction recognized absent source-runner metadata but did not yet independently replay the source-bound diagnostic runner proof",
+  "result": "failed",
+  "runner_sha256_before": "b847382517017acb318efd2fd41edc974805142f73c0656bb432373cb98e6e09",
+  "schema": "numi.cardboard.native531-preflight-attempt.v1",
+  "scope": "preflight only; no native execution",
+  "time_utc": "2026-10-16T08:44:49.577108+00:00"
+}

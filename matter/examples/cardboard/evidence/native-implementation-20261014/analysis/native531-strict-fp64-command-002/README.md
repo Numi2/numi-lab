@@ -1,0 +1,1 @@
+CPU-only strict FP64 layer replay. Version002 compares the captured FP32 timestep by representable bits, and preserves the terminal receipt if post-run scope validation fails. No numerical/reference or native controls changed. The original unexecuted001 package remains.

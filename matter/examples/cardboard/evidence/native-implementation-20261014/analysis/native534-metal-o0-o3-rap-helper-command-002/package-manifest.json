@@ -1,0 +1,78 @@
+{
+  "O0_linked_metallib_sha256": "77d4d17de455d7439bc033a2fc0c2f36ed9b28fe52b349a6306acdab2a6131bc",
+  "O3_metallib_sha256": "db4c1dd3a96a633b7b850022744bbdb22386af265b9e8770d07155ace7404739",
+  "build_artifacts": {
+    "host-debug-compile-only": {
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o0-001/numi-matter-cardboard-regional-rap-tail-preserve-native-check": "e6bb549caf648dd889bc323bc5b34a891d3d600678bc5ef6365b8918e2c109cf",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o0-001/shaders/NumiMatter.metallib": "db4c1dd3a96a633b7b850022744bbdb22386af265b9e8770d07155ace7404739",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o0-001/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "host-release-used": {
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3-003/numi-matter-cardboard-regional-rap-tail-preserve-native-check": "5f9d65d818393769adc7a182344fdc3cc6101fd6776747a97f7f4b00ee5e0e83",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3-003/shaders/NumiMatter.metallib": "db4c1dd3a96a633b7b850022744bbdb22386af265b9e8770d07155ace7404739",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3-003/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    }
+  },
+  "files": {
+    "README.md": {
+      "bytes": 3496,
+      "sha256": "0ed4ff20f2dc5eee6e811b01fee7404d4faabd7d8a3e404d118a9ae30a855d7a"
+    },
+    "command-spec.json": {
+      "bytes": 106245,
+      "sha256": "5ecb8445c58cc977c234138227fcf6f32b3a35b41dd43382a0b5f774605c9c2b"
+    },
+    "metal-o0-link-record.json": {
+      "bytes": 848,
+      "sha256": "d5fa70e05c44cbffa8ad6075c393e477cfe828a78c6d31892455bf9d5d55bb5d"
+    },
+    "prefix-parity-outline.json": {
+      "bytes": 694,
+      "sha256": "df9b8318db1ac09dc6549558d2ac8b36a925518f7f032b3ec88cb5cb8e65c923"
+    },
+    "preflight-receipt-001.json": {
+      "bytes": 1073,
+      "sha256": "395d3b18505a8bf9f3bdd0e1b495c782717afe4290aa72d92b3ba72e8ce9da26"
+    },
+    "runner.py": {
+      "bytes": 9567,
+      "sha256": "f72569ad6428cab2a1804f115c08641c91de270d2fd978c3530d36d354d2359c"
+    }
+  },
+  "native_output_path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/regional-rap-tail-preserve-534",
+  "package": "native534-metal-o0-o3-rap-helper-command-002",
+  "preflight": {
+    "exit_code": 0,
+    "file": "preflight-receipt-001.json",
+    "launched": false,
+    "status": "ready"
+  },
+  "qualification_limit": "Synthetic 4-node E2 production-kernel dispatch only; no FEM solve, physical transaction, coupon trajectory, solver parity or performance qualification.",
+  "runs": [
+    {
+      "host_binary_sha256": "5f9d65d818393769adc7a182344fdc3cc6101fd6776747a97f7f4b00ee5e0e83",
+      "label": "metal-o0",
+      "metal_optimization": "O0",
+      "metallib_sha256": "77d4d17de455d7439bc033a2fc0c2f36ed9b28fe52b349a6306acdab2a6131bc"
+    },
+    {
+      "host_binary_sha256": "5f9d65d818393769adc7a182344fdc3cc6101fd6776747a97f7f4b00ee5e0e83",
+      "label": "metal-o3",
+      "metal_optimization": "O3",
+      "metallib_sha256": "db4c1dd3a96a633b7b850022744bbdb22386af265b9e8770d07155ace7404739"
+    }
+  ],
+  "schema": "numi.cardboard.native534.package-manifest.v2",
+  "source_build_receipts": {
+    "host-debug-compile-only": "988aa648e221996bd1c9b0efefb61a7e452eabebe38f7003db7a06cac077e7ea",
+    "host-release-used": "23e476252b01f317f5eeadd96d2c19f6f753c49a01b966a2f74bb73aef71f2b9"
+  },
+  "source_count": 817,
+  "source_snapshot_sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789",
+  "status": "sealed-guarded-command-prepared-not-executed",
+  "supersedes": {
+    "manifest_sha256": "2a5867768290dd6e85209e443795a3b6f8821f6e01ffd36bbd572d8229cce4d7",
+    "package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-regional-rap-tail-preserve-command-001",
+    "reason": "The superseded package varied host Debug/Release while using the same O3 Metal library; it did not implement the requested Metal O0/O3 comparison."
+  }
+}

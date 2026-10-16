@@ -1,0 +1,20 @@
+{
+  "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+  "air_sha256": "e02f8d50785a92555f2c19880cc476dcfd184f82eefc9bc66cb98808e964bb7e",
+  "argv": [
+    "xcrun",
+    "-sdk",
+    "macosx",
+    "metallib",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-metal-o0/NumiMatter.air",
+    "-o",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-metal-o0/NumiMatter.metallib"
+  ],
+  "execution": "Metal library link only; no device dispatch",
+  "exit_code": 0,
+  "metallib_sha256": "77d4d17de455d7439bc033a2fc0c2f36ed9b28fe52b349a6306acdab2a6131bc",
+  "schema": "numi.cardboard.source201.metal-o0-link.v1",
+  "stderr": "",
+  "stdout": "",
+  "tool_path": "/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.XhhgAx/Metal.xctoolchain/usr/bin/metallib"
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "numi.cardboard.native531-fp64-fd-refinement-attempt-history.v1",
+  "attempts": [
+    {
+      "attempt": 1,
+      "stage": "local source staging",
+      "outcome": "failed before remote write",
+      "detail": "Local here-document setup failed with ENOSPC. No numerical command ran."
+    },
+    {
+      "attempt": 2,
+      "stage": "remote source staging",
+      "outcome": "failed before numerical execution",
+      "detail": "A PTY paste truncated/corrupted the assertion line in the initial script; the file was replaced by the corrected source before any audit was run. The exact corrupted file bytes were not retained, so only the tool echo is available."
+    },
+    {
+      "attempt": 3,
+      "stage": "parent input admission",
+      "outcome": "failed closed before numerical execution",
+      "detail": "The first stable script used a mistyped parent layer-manifest SHA. The exact file digest was re-read, the script digest assertion corrected, and the audit then ran once. No partial layer output existed before the successful run."
+    },
+    {
+      "attempt": 4,
+      "stage": "refined calculation",
+      "outcome": "completed",
+      "detail": "Strict layer reader returned successfully for 1,728 paper rows on epsilon powers 10 through 24; 17.09320587478578 seconds; native_transactions=0."
+    }
+  ],
+  "qualification": false
+}

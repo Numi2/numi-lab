@@ -1,0 +1,32 @@
+{
+  "schema": "numi.cardboard.native531-ninebasis-files.v1",
+  "qualification": false,
+  "parent_inputs_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-replay-001/layers/manifest.json": "1db4342cdf9b866cd8280209a86cdc7cb70cd712ddb8ea68b2d42b0eb89253da",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-replay-001/layers/report.json": "de9603063717a6f5864e9e65e7ca6c8c933b6c42de6a84fdf7922495ad9f3761",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-replay-001/layers/arrays.npz": "038551564ac89f298148426da9b5e6259e40fd256f091e63aa8a7d57f0f7cc65"
+  },
+  "refinement_manifest_sha256": "f949f99199d542dc4b4ba78d6ae85a53aa663383d6037827f2487af242b6fc52",
+  "native_case_inputs_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/prediction.json": "b1c333332ccd527f97160af8545b5ab041620c72823291a616880ed9277dd743",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/receipt.json": "f3dc5b3ca9b3c0bd23ae034c18fe157c062a4dcda894a56675881d868c41f5e3",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/stderr.log": "ea7390fccb1f9e9efd6194e3e28afef02211ec060b5d518a2531cbfb5300f60f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/manifest.json": "1eb17e823eea389ce40d72acc859f0bcd8e34313a0a5e207b8b02075a6918bbe"
+  },
+  "capture_sha256": "c9a538bd6357136130fc3d971c7d2f1e61fc52bdef2a0737ba00790bd34d8ec2",
+  "reference_source_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001/matter/tools/cardboard_bilinear_fp64_reference.py": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001/matter/tools/cardboard_compensated_fp64_reference.py": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001/matter/tools/cardboard_compensated_fp64_base.py": "b135c6ff0091f0833c8dad89239abdde209fc6e0eb91babeb72313b29a88bb6c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001/matter/tools/cardboard_dd_fp64.py": "8edfd60beb2c38d181a08023d9f97bea0fec80b0f6fa04f8690c7dfe234330c2",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001/matter/tools/cardboard_cached_operator_audit.py": "4a7e9c0cbf09eee0ad1f8f5b2b09314a2c0789a908aaab530b56cfff6a1c82ff"
+  },
+  "reader_sha256": "45a986d399afc3c36770ef65eb4a2bf9abbef138813e9353d4c223089863252b",
+  "files_sha256": {
+    "arrays.npz": "701df2c6349d540c796d031fa80e3101abbbf1818813d3958a66b373051fcd24",
+    "audit9basis.py": "1bc75cfadc11a8439f9a7dd73b7fcf097898f9396837ff46d10a6dc1289ff92e",
+    "progress.jsonl": "3ac7f8d714e9b2f43e5b07541f01adfb3fdc765d95c8821b0afa3026d90095b9",
+    "report.json": "7073a49e303eb4e4f64f6aa754cda862910bc00cb00d4069379b626a15929264",
+    "run.command.json": "d54820183db1d00835de9093d14a0906d49302f3087aea028fd8ba33ce274959"
+  }
+}

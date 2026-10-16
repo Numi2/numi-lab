@@ -1,0 +1,7 @@
+{
+  "schema": "numi.cardboard.replay-parity-files.v1",
+  "files_sha256": {
+    "report.json": "8dd02e04a2a18c36c7ffd9c03a9912d5c7e009dea7ee35d3bf3b86c4506d7d41",
+    "verify.py": "6fd7688acb73ac27c9b4593c17c5bcccc443f509d6bcd272429b5b137fc39de4"
+  }
+}

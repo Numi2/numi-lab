@@ -1,0 +1,51 @@
+{
+  "coverage_limits": [
+    "No native full-runtime transaction or solver trajectory was executed for source201.",
+    "The direct Metal checker seeds tailPreserved for its preserved environment; it does not execute restart_form_mode as the marker producer.",
+    "The checker verifies reset tail and factor-valid markers but does not assert the generation, raw-norm, scale, mode-validity, and target-scale reset outputs, although source assignments are present.",
+    "Compilation/source-contract evidence is not runtime parity or physical qualification."
+  ],
+  "findings": [
+    {
+      "claim": "The original nm_fgmres_regional_build_rap and nm_fgmres_regional_factor_rap Metal function bodies are byte-identical between source198 and source201.",
+      "severity": "none"
+    },
+    {
+      "claim": "Initial/base RAP dispatch remains on the original kernels with E*regionalModes*regionalModes groups. Restart RAP uses the new restart-only builder with E*augmentedModes*augmentedModes groups, and the kernel derives environment from group/(modeCount*modeCount).",
+      "severity": "none"
+    },
+    {
+      "claim": "The per-Newton reset clears generation, raw norm, scale, mode validity, target scale, augmented factor validity, and tail-preserved marker. restart_form_mode marks a completed environment from FGMRES diagnostics.z and clears the marker for active environments.",
+      "severity": "none"
+    },
+    {
+      "claim": "Restart-only AP storage, projection/measurement/scaling, RAP build/factor, identity fallback, factor-invalid fallback, and invalid-mode clearing all guard the completed environment; runtime barriers order the marker producer and subsequent readers.",
+      "severity": "none"
+    },
+    {
+      "claim": "The direct E2 Metal checker loads and calls the production restart-only kernels. It checks active nonsymmetric RAP assembly, preserved valid and invalid matrix/pivots/validity, fallback and identity behavior, extra-basis/AP sentinels, Newton reset, and E2 rebuild.",
+      "severity": "none"
+    }
+  ],
+  "independent_checks": {
+    "base_dispatch_E_times_m_squared": true,
+    "checker_binds_restart_only_metal_symbols": true,
+    "consumer_guards_source_reviewed": true,
+    "legacy_build_kernel_body_identical": true,
+    "legacy_factor_kernel_body_identical": true,
+    "native_full_runtime_execution": false,
+    "restart_dispatch_E_times_augmented_m_squared": true,
+    "restart_group_to_environment_mapping": true,
+    "tail_reset_and_producer_source_reviewed": true
+  },
+  "schema": "numi.cardboard.source201-owner-review.v1",
+  "source": {
+    "base_frozen_manifest_sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc",
+    "base_snapshot": "snapshots/source-contact-damped-memory-198-001",
+    "candidate_frozen_manifest_sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789",
+    "candidate_snapshot": "snapshots/source-regional-rap-tail-preserve-201",
+    "overlay_manifest_sha256": "f88ada73e730582db6db629c35dd50472362975f1f249cddb6df92218c725786",
+    "patch_sha256": "3236a469a28e28e4a524330cf6169a86cf2ba575f88df9155c987c5a598c3563"
+  },
+  "verdict": "NO_BLOCKING_SOURCE_FINDING"
+}

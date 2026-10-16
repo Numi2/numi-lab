@@ -1,0 +1,11 @@
+{
+  "schema": "numi.cardboard.native530-command-package.v1",
+  "files_sha256": {
+    "runner.py": "010c8dcfff0086bf3c0b6545eebfed8d84d8681a3b065e53c20d10cb0d7d2195",
+    "command-spec.json": "5e9c22404f19062662147bd9198e1eb65816b5c2665b275ab364677fce173033",
+    "host-validation-binding.json": "05b07bd71977e016c42b803c71c65b9e82acb25b988d8d1aa1ca7ad07551bfb8",
+    "capacity-helper.py": "8e4a395c27d0dda8f43351760da7d5b6d0c42dbad0d16680777383d94364cc03"
+  },
+  "parent_package_sha256": "f128a385b6fa357960ff06bf0011f58ebb60bf076c046d5e61551a6321a317b7",
+  "native_execution": false
+}

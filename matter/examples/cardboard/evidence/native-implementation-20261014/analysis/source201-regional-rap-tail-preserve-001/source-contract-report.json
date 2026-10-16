@@ -1,0 +1,25 @@
+{
+  "base_source_sha256": {
+    "fgmres.metalinc": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8",
+    "runtime.mm": "cb711f469ed3d97400b1ac449ea386667d2973e45409a7e292e083b59e287f68"
+  },
+  "candidate_source_sha256": {
+    "fgmres.metalinc": "238a2c5b7cda924d4d28ac716a38dd0c63641eb261464a4620cb5f239b593b69",
+    "native_checker.mm": "af3cd88959007c2b2838ecfe5117818c4557f7b855246b413f461118b4ef327c",
+    "runtime.mm": "739f0471eafec2391a2a80b49d6b7034be25d1ea0d8c65557145a8f328d6bbcb"
+  },
+  "checks": {
+    "E2_initial_base_build_extent": true,
+    "E2_restart_build_extent": true,
+    "checker_dispatches_E2_m2": true,
+    "checker_rebuilds_after_reset": true,
+    "checker_uses_restart_only_kernels": true,
+    "legacy_kernel_unchanged_nm_fgmres_regional_build_rap": true,
+    "legacy_kernel_unchanged_nm_fgmres_regional_factor_rap": true,
+    "restart_tail_guard_nm_fgmres_regional_restart_build_rap": true,
+    "restart_tail_guard_nm_fgmres_regional_restart_factor_rap": true,
+    "tail_buffer_conditional_allocation": true
+  },
+  "schema": "numi.cardboard.rap-tail-source-contract.v1",
+  "scope": "Static source contract only; production kernel execution remains unrun."
+}

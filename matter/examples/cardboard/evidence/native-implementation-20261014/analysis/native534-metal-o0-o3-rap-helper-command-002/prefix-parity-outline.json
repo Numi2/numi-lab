@@ -1,0 +1,21 @@
+{
+  "baseline": "source198 accepted prefix/checkpoint 530 after control16",
+  "candidate": "fresh-from-zero source201 complete 60-control coupon using source198 numerical settings",
+  "checkpoint_milestone": "save source201 state after control16 and continue the same full run",
+  "compare_controls": [
+    0,
+    16
+  ],
+  "comparison": [
+    "source/build/material/input bindings",
+    "accepted state and transactions by control and environment",
+    "explain E2-specific divergence where relevant to corrected launch extent"
+  ],
+  "no_claims": [
+    "no coupon result",
+    "no full-schedule parity",
+    "no physical qualification"
+  ],
+  "not_run": true,
+  "status": "planned_not_run"
+}

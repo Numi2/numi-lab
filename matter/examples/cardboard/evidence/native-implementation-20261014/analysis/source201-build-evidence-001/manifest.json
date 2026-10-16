@@ -1,0 +1,40 @@
+{
+  "limitations": [
+    "Build receipts bind artifacts by hash and path; build products are not duplicated in this metadata package.",
+    "No FEM solve or physical transaction."
+  ],
+  "records": {
+    "debug_helper_build.json": {
+      "bytes": 99734,
+      "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o0-001/source-build.json",
+      "sha256": "988aa648e221996bd1c9b0efefb61a7e452eabebe38f7003db7a06cac077e7ea"
+    },
+    "failed_release_checker_attempt.json": {
+      "bytes": 98870,
+      "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3-002/source-build.json",
+      "sha256": "bc66b5299311e68c7a67e516a554eae2f14fc34f2c8bf0d16a9655922e2c3a3d"
+    },
+    "failed_release_path_attempt.json": {
+      "bytes": 98636,
+      "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3/source-build.json",
+      "sha256": "11c048955b7d0df4be87ef53982277e6cf3f13337b1b54d7d6d1a54965fadaaa"
+    },
+    "release_helper_build.json": {
+      "bytes": 99700,
+      "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3-003/source-build.json",
+      "sha256": "23e476252b01f317f5eeadd96d2c19f6f753c49a01b966a2f74bb73aef71f2b9"
+    },
+    "source198_frozen_source.json": {
+      "bytes": 99608,
+      "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001/frozen-source.json",
+      "sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc"
+    },
+    "source201_frozen_source.json": {
+      "bytes": 100469,
+      "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-regional-rap-tail-preserve-201/frozen-source.json",
+      "sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789"
+    }
+  },
+  "schema": "numi.cardboard.source201-build-evidence.v1",
+  "source201_sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789"
+}

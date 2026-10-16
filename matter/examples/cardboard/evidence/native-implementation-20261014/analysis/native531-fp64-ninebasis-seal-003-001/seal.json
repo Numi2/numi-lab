@@ -1,0 +1,50 @@
+{
+  "limits": [
+    "CPU-only compensated-FP64 local material derivative self-consistency at one captured control17/Newton34 center; not native arithmetic noise qualification or solver qualification.",
+    "The 23 misses remain unresolved; no measured absolute noise floor was established.",
+    "The tet222 errors in basis2 and basis6 are large and must not be explained away as a floor without independent high-precision evidence.",
+    "The constitutive reference uses Green strain and direct PK1=F*S; it has no polar/SVD/eigenbasis path. Hill q and Fischer-Burmeister smoothing plus the implicit 15-state Jacobian remain audit targets.",
+    "Three unsuccessful preflight attempts were noted in the execution history before the successful run (existing-output directory refusal, then expected parent-manifest digest mismatch twice). Their exact stdout/stderr artifacts were not retained in this package; they are recorded as history only, not as computational attempts or evidence.",
+    "The successful run emitted NumPy warnings from eager np.where evaluation of the rationalized FB quotient at reference line40 for inactive denominator branches; the chosen outputs and strict projections were finite/valid. The run did not capture a warning ledger or demonstrate the warning was harmless for all inputs; this is explicitly an implementation warning, not a noise-floor finding."
+  ],
+  "schema": "numi.cardboard.native531-ninebasis-seal.v1",
+  "source_arrays_sha256": "701df2c6349d540c796d031fa80e3101abbbf1818813d3958a66b373051fcd24",
+  "source_command_sha256": "d54820183db1d00835de9093d14a0906d49302f3087aea028fd8ba33ce274959",
+  "source_manifest_sha256": "12eec0f15fd19a1ab367bc48bb5e37ad462fddd22c827f3e1acc8170438ad718",
+  "source_package": "analysis/native531-fp64-ninebasis-003",
+  "source_progress_sha256": "3ac7f8d714e9b2f43e5b07541f01adfb3fdc765d95c8821b0afa3026d90095b9",
+  "source_report_sha256": "7073a49e303eb4e4f64f6aa754cda862910bc00cb00d4069379b626a15929264",
+  "source_script_sha256": "1bc75cfadc11a8439f9a7dd73b7fcf097898f9396837ff46d10a6dc1289ff92e",
+  "unresolved_summary": {
+    "all_reasons": "not invalid projection, not branch crossing, not zero reference direction",
+    "all_status": "no_adjacent_1e-6_pair_in_declared_grid",
+    "severe_tet222_basis_columns": [
+      2,
+      5,
+      6,
+      7,
+      8
+    ],
+    "tet222_relative_errors": {
+      "basis2": 0.31129120900113716,
+      "basis5": 1.6013846122141197e-05,
+      "basis6": 0.30591095696402554,
+      "basis7": 1.595991888382252e-05,
+      "basis8": 5.475280758338509e-07
+    }
+  },
+  "verified": {
+    "all_15552x15x2_basis_endpoint_projections_valid": true,
+    "all_1728x9_tangent_rows_match_parent_reference_C_bitwise": true,
+    "all_basis_endpoint_branch_crossings": 0,
+    "center_projection_all1728_strictvalid": true,
+    "center_state_matches_parent_bitwise": true,
+    "declared_files_hashmatch": true,
+    "resolved_pairs": 15529,
+    "unresolved_pairs": 23
+  },
+  "warnings_note": {
+    "classification": "observed eager-where divide warning during calculation; output finite for this run; no error suppression or general harmlessness claim",
+    "source_line": "snapshots/source-contact-damped-memory-198-001/matter/tools/cardboard_bilinear_fp64_reference.py:40"
+  }
+}

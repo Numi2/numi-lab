@@ -1,0 +1,21 @@
+{
+  "files_sha256": {
+    "README.md": "4939171a14b9f1a4e0147263a4be48f23e947899de246cb6bfb21c660448df0f",
+    "capacity_helper_531.py": "8e4a395c27d0dda8f43351760da7d5b6d0c42dbad0d16680777383d94364cc03",
+    "command-spec.json": "8a3e4f535dfec10d1d0d8fb41432505d648a32b32311c7495f1f14205f3ece5f",
+    "host-validation-binding.json": "5f10462dc5983982ba021a6ed2a92eeb5924334c7fc0f93c0926b079b9539364",
+    "parent-521-command-spec.json": "796b422271e2e120da8d3a358796013b42daf01a32557676ed2488affbd4ef64",
+    "parent-530-command-spec.json": "5e9c22404f19062662147bd9198e1eb65816b5c2665b275ab364677fce173033",
+    "parent-530-host-validation-binding.json": "05b07bd71977e016c42b803c71c65b9e82acb25b988d8d1aa1ca7ad07551bfb8",
+    "preflight-attempt-002.json": "4c854f5944e9e566bb8d079909e1f257d1ecbf05cc27e51701cf381843b92188",
+    "runner.py": "6982920001d6089647f03107f210f4313ac66285d19fa69e046fa39c13c9553b"
+  },
+  "native_execution": false,
+  "parent_521_package_manifest_sha256": "f128a385b6fa357960ff06bf0011f58ebb60bf076c046d5e61551a6321a317b7",
+  "parent_530_package_manifest_sha256": "ec0d2fb7393ec49c8da996a2b29ae4794c798f89f173d831384aff85a33adcd1",
+  "schema": "numi.cardboard.native531-package-manifest.v1",
+  "supersedes_preflight_attempts": [
+    "preflight-attempt-001.json",
+    "preflight-attempt-002.json"
+  ]
+}

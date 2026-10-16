@@ -1,0 +1,19 @@
+{
+  "schema": "numi.cardboard.native531-cached-operator-files.v1",
+  "files_sha256": {
+    "launch.json": "b842f352dcd261e3114d538563eb8cd507543b644257367582000ec34d1c0f5e",
+    "operator": "e7e87978d14579ee9ae22e97c122430c0c1226454f21e4e3da841a7ae6867813",
+    "operator.dt2-stiffness.npz": "aa4847ab9762555a92b5334f4778f6ef6d5d08fa343c2427e097046ee468d658",
+    "operator.mass.npz": "c400b7dec23c9b9f983270d7824a6fbf84d58aac1ce519d1199546294af4ee7a",
+    "operator.operator.npz": "de7634dc46818fd65b8ca97b50d1e6a79a472e1471b570b7e8fdf66b70583f67",
+    "operator.stiffness.npz": "e55d492c15bad983dabfaca07a16966535bffb49302b29b037d8a54c4e40abb7",
+    "operator.topology.npz": "a27d8399d64330c97123d350668a42eb019d23cfe97478376541de7ab4e665d0",
+    "operator.vectors.npz": "a9880116577d08be87012291ed7ba43218f32f780445fc44f03a25c58b49c0c4",
+    "receipt.json": "981df2d59893a4a36cb90d9d07e541d5ffbcb9c7d6e97c1d5df1f329c372c96a",
+    "run.py": "dd6b2b12132d10f8617a1bc1412017bf8b85fb5e9395c19fca1dd704e05869ac",
+    "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout.log": "3f65d29d17891b23dcbb1503b2274ac024315c623bc1b160a89bda480bb08fb0"
+  },
+  "native_transactions": 0,
+  "qualification": false
+}

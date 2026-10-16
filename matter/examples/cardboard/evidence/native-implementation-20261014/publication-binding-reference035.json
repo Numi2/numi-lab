@@ -1,0 +1,98 @@
+{
+  "case_selection_sha256": "bbace38fd2ae742f2c3682a48b8418e7a10bfc6197f22196cfe6650b7f17a21b",
+  "cases": [
+    "analysis/source201-regional-rap-tail-preserve-001",
+    "analysis/source201-owner-review-001",
+    "analysis/source201-build-evidence-001",
+    "analysis/native534-regional-rap-tail-preserve-command-001",
+    "analysis/native534-metal-o0-o3-rap-helper-command-002",
+    "native/regional-rap-tail-preserve-534",
+    "analysis/native530-native521-accepted-prefix-parity-001",
+    "analysis/native530-accepted-prefix-checkpoint-command-001",
+    "analysis/native531532-complete-replay-parity-002",
+    "analysis/native531-fp64-fd-refinement-002",
+    "analysis/native531-fp64-ninebasis-003",
+    "analysis/native531-fp64-ninebasis-seal-003-001",
+    "analysis/native531-recovered-fp32-material-frames-001",
+    "analysis/native531-cached-operator-001",
+    "analysis/native531-strict-fp64-replay-001",
+    "analysis/native531-strict-fp64-command-002",
+    "analysis/native531-root17-newton34-replay-command-001",
+    "solver/control17-root17-newton34-replay-531",
+    "solver/control17-root17-diagnostic-off-532",
+    "solver/accepted-prefix-checkpoint-530"
+  ],
+  "changed_source_files": [
+    "matter/CMakeLists.txt",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_regional_rap_tail_preserve_native_check.mm"
+  ],
+  "copied_files": 258,
+  "documentation_changes": [
+    "matter/examples/cardboard/implementation-20261014.md",
+    "matter/examples/cardboard/solver-milestone-source201.md"
+  ],
+  "excluded_active": [
+    "native535 command package and run products"
+  ],
+  "gzip_files": 24,
+  "historical_prefix": {
+    "path": "summary-reference034.json",
+    "records": 1843,
+    "sha256": "43caf119ea501d4487e170f35b3eae1687a0cc447c443aafc9501013b40ea626"
+  },
+  "new_case_records": 20,
+  "original_payload_bytes": 172657005,
+  "parent": "93cf390eaa840b22ac91ae9dac84ad21b27df77e",
+  "prior_binding_sha256": "51fc4827be1140bf2788cfdff596001942d18691e4534cf6eb4813227d40a0cb",
+  "prior_diagnostics": {
+    "native530_prefix_parity_report_sha256": "074c69bea77963a8ac1249affd1ec853dd17f9b8328c3030bce9f0aba2699fc2",
+    "native531532_parity_report_sha256": "8dd02e04a2a18c36c7ffd9c03a9912d5c7e009dea7ee35d3bf3b86c4506d7d41",
+    "native531_fp64_ninebasis_report_sha256": "7073a49e303eb4e4f64f6aa754cda862910bc00cb00d4069379b626a15929264",
+    "source_binding": "These prior replay/refinement data are source198-bound and are not source201 solver outcomes."
+  },
+  "qualification": {
+    "all_six_axes_open": true,
+    "full_coupon": false,
+    "full_protocol_qualification": false,
+    "physical_assembly": false
+  },
+  "raw_files": 234,
+  "schema": "numi.cardboard.reference035-publication-binding.v1",
+  "source201": {
+    "base_frozen_source_sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc",
+    "build_evidence_manifest_sha256": "f9c510cd63e240e796586a4271ec28a1935704e2f459120350590032736c433e",
+    "changed_sources": {
+      "matter/CMakeLists.txt": "834628140bfcd3a9c8a0f4aa2aa4c4ae7ff1c18d1c5bf34790fe13fe1fdf8f22",
+      "matter/src/metal/fgmres.metalinc": "238a2c5b7cda924d4d28ac716a38dd0c63641eb261464a4620cb5f239b593b69",
+      "matter/src/runtime.mm": "739f0471eafec2391a2a80b49d6b7034be25d1ea0d8c65557145a8f328d6bbcb",
+      "matter/tools/cardboard_regional_rap_tail_preserve_native_check.mm": "af3cd88959007c2b2838ecfe5117818c4557f7b855246b413f461118b4ef327c"
+    },
+    "frozen_source_sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789",
+    "limitations": [
+      "synthetic E2 Metal helper only",
+      "no FEM transaction",
+      "no solver trajectory or performance qualification"
+    ],
+    "native534_output_parity": true,
+    "native534_physical_transactions": 0,
+    "native534_receipt_sha256": "ddfa2f36f8435a821519042fb95e177d71ce94025e2e52c57b9d4227ca558db7",
+    "owner_review_manifest_sha256": "492bd4e1b6b8307ed16f463c230f051df00935b808f018c9605cb632727d130e",
+    "publication_composition": {
+      "full_composed_source201_rebuild_claimed": false,
+      "preserved_checker_path": "matter/tools/cardboard_full_contact_armijo_check.mm",
+      "preserved_checker_sha256": "1db145ef8679a79dc2eafc74fd416f7a5ee67c7b343e46b7f8a150980b19a233",
+      "reason": "The source201 solver snapshot is based on source198; this publication keeps the independent source199 strict-fault checker from the parent checkout. This one source-map difference is intentional and not overwritten.",
+      "retained_strict_checker_source": "source199",
+      "source199_frozen_source_sha256": "183cc74a29bfb90fe8d050e9096000c5a430601f2eb31d899f3b323f0a383ad4",
+      "source201_snapshot_base": "source198",
+      "source201_snapshot_checker_sha256": "d96f4d6717ac40f47e71150666382ed5557c9c1e83b23b32a1c94877dbdb8db6"
+    },
+    "selected_source_files": 817,
+    "source_overlay_sha256": "f88ada73e730582db6db629c35dd50472362975f1f249cddb6df92218c725786"
+  },
+  "stored_payload_bytes": 47507063,
+  "summary_sha256": "af24934ca100aa7bf9e92e0ad6690856ff990c018ace454a044256e4c91fc352",
+  "verified_historical_overlaps": []
+}

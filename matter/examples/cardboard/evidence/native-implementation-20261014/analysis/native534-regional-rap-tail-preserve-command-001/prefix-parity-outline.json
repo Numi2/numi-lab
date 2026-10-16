@@ -1,0 +1,22 @@
+{
+  "checkpoint_milestone": "save source201 control-16 checkpoint, then continue the same run to the full scheduled end",
+  "comparison_requirements": [
+    "bind each source/build/material/input set",
+    "compare accepted states and per-control transaction histories separately for each environment",
+    "report environment-specific divergence, since corrected E*m*m dispatch can change environment 1 coverage",
+    "if a separate resume is later used, resume only a source201-produced checkpoint"
+  ],
+  "comparison_window_controls": [
+    0,
+    16
+  ],
+  "limits": [
+    "no coupon was launched by this package",
+    "no full schedule result or parity claim",
+    "no physical or resolution qualification"
+  ],
+  "not_run": true,
+  "source198_baseline": "accepted prefix/checkpoint 530 after control 16",
+  "source201_candidate": "fresh-from-zero 60-control coupon with same numerical arguments and solver settings as source198",
+  "status": "planned_not_run"
+}

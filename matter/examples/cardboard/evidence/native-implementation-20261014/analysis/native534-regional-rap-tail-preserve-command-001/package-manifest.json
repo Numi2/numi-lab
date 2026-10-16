@@ -1,0 +1,62 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 3562,
+      "sha256": "069affac7bfe6cf6b938351289d92ee582aee53248015de77ca0cca469059535"
+    },
+    "command-spec.json": {
+      "bytes": 106758,
+      "sha256": "18b29a404ec9026873f5c4be0efd582951f314151606a0f647010befa14f4eb8"
+    },
+    "prefix-parity-outline.json": {
+      "bytes": 968,
+      "sha256": "200cc9ebf481f06d8f7a417e316903a21934e282bb870aa28519500948e42c45"
+    },
+    "preflight-source-root-mismatch-001.json": {
+      "bytes": 261,
+      "sha256": "013d88a62f83a2ba9a1a4aad168a7834fb639e5851b8039f107ac4e91222e641"
+    },
+    "preflight-worker-guard-001.json": {
+      "bytes": 3522,
+      "sha256": "332024d5d5df12b531342b5127c07c2c1912a7ebab69f82256cdcc5ab6523f30"
+    },
+    "preflight-worker-guard-002.json": {
+      "bytes": 3516,
+      "sha256": "c36db917280efd013a30ebe47f90669695715aa6c2519e58948bb57ce0a279f3"
+    },
+    "runner.py": {
+      "bytes": 11322,
+      "sha256": "fce1c050bcc13d6f2a9a17eb7a74428a12be05964d0f5e8d151db5e990b62d62"
+    }
+  },
+  "native_artifacts": {
+    "o0-host-debug": {
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o0-001/numi-matter-cardboard-regional-rap-tail-preserve-native-check": "e6bb549caf648dd889bc323bc5b34a891d3d600678bc5ef6365b8918e2c109cf",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o0-001/shaders/NumiMatter.metallib": "db4c1dd3a96a633b7b850022744bbdb22386af265b9e8770d07155ace7404739",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o0-001/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "o3-host-release": {
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3-003/numi-matter-cardboard-regional-rap-tail-preserve-native-check": "5f9d65d818393769adc7a182344fdc3cc6101fd6776747a97f7f4b00ee5e0e83",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3-003/shaders/NumiMatter.metallib": "db4c1dd3a96a633b7b850022744bbdb22386af265b9e8770d07155ace7404739",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3-003/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    }
+  },
+  "native_execution": "not run; root retains GPU ownership",
+  "output_path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/regional-rap-tail-preserve-534",
+  "package": "native534-regional-rap-tail-preserve-command-001",
+  "qualification_limit": "Synthetic 4-node E2 production-kernel dispatch only. No FEM solve, physical transactions, coupon trajectory, native solver parity, or performance qualification.",
+  "schema": "numi.cardboard.native534.package-manifest.v1",
+  "source_build_receipts": {
+    "o0-host-debug": "988aa648e221996bd1c9b0efefb61a7e452eabebe38f7003db7a06cac077e7ea",
+    "o3-host-release": "23e476252b01f317f5eeadd96d2c19f6f753c49a01b966a2f74bb73aef71f2b9"
+  },
+  "source_count": 817,
+  "source_snapshot_sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789",
+  "state": "sealed-command-package-not-executed",
+  "worker_guard_evidence": {
+    "exit_code": 75,
+    "launched": false,
+    "preflight": "preflight-worker-guard-002.json",
+    "refusal": "native532-root17-diagnostic-off active"
+  }
+}

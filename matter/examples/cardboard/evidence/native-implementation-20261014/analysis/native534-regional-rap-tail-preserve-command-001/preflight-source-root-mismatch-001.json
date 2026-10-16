@@ -1,0 +1,7 @@
+{
+  "exit_code": 2,
+  "command": "runner.py --preflight-only",
+  "stderr": "source201 native534 command refused: source hash mismatch: CMakeLists.txt\n",
+  "launched": false,
+  "disposition": "Superseded after source hash root correction; no output created."
+}

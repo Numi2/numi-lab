@@ -1,0 +1,28 @@
+{
+  "command": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-metal-o0-o3-rap-helper-command-002/runner.py",
+    "--preflight-only"
+  ],
+  "exit_code": 0,
+  "result": {
+    "active_native_workers": [],
+    "binding_check": {
+      "frozen_source_sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789",
+      "metal_o0_sha256": "77d4d17de455d7439bc033a2fc0c2f36ed9b28fe52b349a6306acdab2a6131bc",
+      "metal_o3_sha256": "db4c1dd3a96a633b7b850022744bbdb22386af265b9e8770d07155ace7404739",
+      "output_absent": true,
+      "same_host_binary": true,
+      "source_build_count": 2,
+      "source_count": 817
+    },
+    "disk_guard_minimum_free_bytes": 2147483648,
+    "free_bytes_before": 101296271360,
+    "launched": false,
+    "output_path_absent": true,
+    "schema": "numi.cardboard.native534.metal-optimization-preflight.v1",
+    "status": "ready",
+    "worker_guard_passed": true
+  },
+  "launched": false
+}

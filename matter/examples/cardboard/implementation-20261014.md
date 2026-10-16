@@ -497,3 +497,8 @@ Source198 implements exact shared contact trials, bounded damped corrections and
 ## Strict fault regression and fresh coupon failure
 
 [Source199 and native521/528/529](solver-milestone-source199.md) retain the exact fault signature, negative control and failed full coupon. All six qualification axes remain open.
+
+
+## Source201 regional RAP tail preservation
+
+[Source201 and its O0/O3 E2 kernel check](solver-milestone-source201.md) preserve a completed environment's same-Newton augmented RAP state across restart tails and fix the E2 restart dispatch extent. Native534 passes synthetic checks at both Metal optimization levels with zero physical transactions. Earlier source198-bound native531/532 replays, the 530 accepted-prefix checkpoint, and independent FP64 refinements are retained separately. The full source201 coupon was active at the publication cut and is excluded; all six qualification axes remain open.

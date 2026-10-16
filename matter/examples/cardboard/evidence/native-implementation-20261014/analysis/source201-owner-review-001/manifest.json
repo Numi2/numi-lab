@@ -1,0 +1,77 @@
+{
+  "created_at_utc": "2026-10-16T08:49:00.350110+00:00",
+  "input_files": {
+    "analysis/source201-owner-review-001/report.json": {
+      "bytes": 3189,
+      "sha256": "c1ba989c080bd377d95422275af11fda8cdee48ccec9dd521d70a8d5d36afdbe"
+    },
+    "analysis/source201-regional-rap-tail-preserve-001/README.md": {
+      "bytes": 1979,
+      "sha256": "8975d42eab0c6de3ed64940792bc5497c6d2a59a4205e4aef3d46f58f252b08c"
+    },
+    "analysis/source201-regional-rap-tail-preserve-001/metal-o0-compile.log": {
+      "bytes": 2401,
+      "sha256": "200875929f4aa5168fd67116049d7257699d71156857595d773c97e2024e12ad"
+    },
+    "analysis/source201-regional-rap-tail-preserve-001/overlay.patch": {
+      "bytes": 45074,
+      "sha256": "3236a469a28e28e4a524330cf6169a86cf2ba575f88df9155c987c5a598c3563"
+    },
+    "analysis/source201-regional-rap-tail-preserve-001/patch-dry-run.txt": {
+      "bytes": 240,
+      "sha256": "d31f2dcef93ad5b313c63d4de5cf21d6fba825050428cfb8671d8dc361626df2"
+    },
+    "analysis/source201-regional-rap-tail-preserve-001/source-contract-report.json": {
+      "bytes": 1203,
+      "sha256": "3676f521d57c01a23872069887ad8ace4c50da24391eec5a6bf85e62fb738254"
+    },
+    "analysis/source201-regional-rap-tail-preserve-001/source-overlay.json": {
+      "bytes": 7628,
+      "sha256": "f88ada73e730582db6db629c35dd50472362975f1f249cddb6df92218c725786"
+    },
+    "analysis/source201-regional-rap-tail-preserve-001/source-overlay.sha256": {
+      "bytes": 86,
+      "sha256": "51db5aa28fb1f4059abe6a996e5b3a303bc5c44fb99328e5dc641c14a6f0c66e"
+    },
+    "analysis/source201-regional-rap-tail-preserve-001/verify_rap_tail_source.py": {
+      "bytes": 3832,
+      "sha256": "d2fe29c645efff60771bc6e8a6f5b0edb7e736fde2e945aff970e792ae1f3a11"
+    },
+    "snapshots/source-contact-damped-memory-198-001/frozen-source.json": {
+      "bytes": 99608,
+      "sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc"
+    },
+    "snapshots/source-contact-damped-memory-198-001/matter/src/metal/fgmres.metalinc": {
+      "bytes": 401689,
+      "sha256": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8"
+    },
+    "snapshots/source-contact-damped-memory-198-001/matter/src/runtime.mm": {
+      "bytes": 1928834,
+      "sha256": "cb711f469ed3d97400b1ac449ea386667d2973e45409a7e292e083b59e287f68"
+    },
+    "snapshots/source-regional-rap-tail-preserve-201/frozen-source.json": {
+      "bytes": 100469,
+      "sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789"
+    },
+    "snapshots/source-regional-rap-tail-preserve-201/matter/CMakeLists.txt": {
+      "bytes": 120452,
+      "sha256": "834628140bfcd3a9c8a0f4aa2aa4c4ae7ff1c18d1c5bf34790fe13fe1fdf8f22"
+    },
+    "snapshots/source-regional-rap-tail-preserve-201/matter/src/metal/fgmres.metalinc": {
+      "bytes": 407110,
+      "sha256": "238a2c5b7cda924d4d28ac716a38dd0c63641eb261464a4620cb5f239b593b69"
+    },
+    "snapshots/source-regional-rap-tail-preserve-201/matter/src/runtime.mm": {
+      "bytes": 1929659,
+      "sha256": "739f0471eafec2391a2a80b49d6b7034be25d1ea0d8c65557145a8f328d6bbcb"
+    },
+    "snapshots/source-regional-rap-tail-preserve-201/matter/tools/cardboard_regional_rap_tail_preserve_native_check.mm": {
+      "bytes": 20526,
+      "sha256": "af3cd88959007c2b2838ecfe5117818c4557f7b855246b413f461118b4ef327c"
+    }
+  },
+  "report": "report.json",
+  "report_sha256": "c1ba989c080bd377d95422275af11fda8cdee48ccec9dd521d70a8d5d36afdbe",
+  "schema": "numi.cardboard.source201-owner-review-manifest.v1",
+  "scope": "Read-only code review of the source201 overlay, kernels, host dispatch, direct Metal checker, and prior build/source-contract artifacts. No source edits and no GPU dispatch."
+}

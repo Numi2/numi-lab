@@ -1,0 +1,13 @@
+{
+  "at_utc": "2026-10-16T08:37:26.646732+00:00",
+  "exit_code": 0,
+  "timed_out": false,
+  "space_abort": false,
+  "errors": [],
+  "wall_seconds": 844.11693475,
+  "minimum_available_bytes": 101444435968,
+  "source_and_artifacts_unchanged": true,
+  "full_protocol_qualification": false,
+  "source_build_sha256": "8f6c95304c23b6c7149ec6b270d54eafdf4507ea26f3420e39e523c09dd500ad",
+  "wrapper_sha256": "c90d54982ef926289c119d44b28131fde62735c507904239156b8b035c4ef21a"
+}

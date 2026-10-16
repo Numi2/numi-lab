@@ -1,0 +1,779 @@
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -1801,6 +1801,25 @@
+ 
+ 
+ if(APPLE)
++    add_executable(numi-matter-cardboard-regional-rap-tail-preserve-native-check
++        tools/cardboard_regional_rap_tail_preserve_native_check.mm)
++    target_link_libraries(numi-matter-cardboard-regional-rap-tail-preserve-native-check PRIVATE
++        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
++    target_include_directories(numi-matter-cardboard-regional-rap-tail-preserve-native-check PRIVATE
++        "${CMAKE_CURRENT_SOURCE_DIR}/../include")
++    target_compile_definitions(numi-matter-cardboard-regional-rap-tail-preserve-native-check PRIVATE
++        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
++    target_compile_options(numi-matter-cardboard-regional-rap-tail-preserve-native-check PRIVATE
++        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
++    if(BUILD_TESTING)
++        add_test(NAME matter.metal.cardboard_regional_rap_tail_preserve
++            COMMAND numi-matter-cardboard-regional-rap-tail-preserve-native-check)
++        set_tests_properties(matter.metal.cardboard_regional_rap_tail_preserve
++            PROPERTIES RUN_SERIAL TRUE LABELS "matter;metal;cardboard;synthetic" TIMEOUT 120)
++    endif()
++endif()
++
++if(APPLE)
+     add_executable(numi-matter-cardboard-regional-recycle-masked-basis-native-check
+         tools/cardboard_regional_recycle_masked_basis_native_check.mm)
+     target_link_libraries(numi-matter-cardboard-regional-recycle-masked-basis-native-check PRIVATE
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -2374,6 +2374,7 @@
+     device float4* regionalAP [[buffer(2)]],
+     device const uint* modeValid [[buffer(3)]],
+     constant uint& baseModeCount [[buffer(4)]],
++    device const uint* tailPreserved [[buffer(5)]],
+     uint global [[thread_position_in_grid]]) {
+     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+     if (dispatch.environmentCount == 0u || global >= totalNodes ||
+@@ -2381,7 +2382,8 @@
+         baseModeCount >= 32u) return;
+     const uint environment = global / dispatch.femNodeCount;
+     const uint node = global - environment * dispatch.femNodeCount;
+-    if (modeValid[environment] != 0u) return;
++    if (tailPreserved[environment] != 0u ||
++        modeValid[environment] != 0u) return;
+     const uint index =
+         (environment * (baseModeCount + 1u) + baseModeCount) *
+             dispatch.femNodeCount + node;
+@@ -2395,11 +2397,13 @@
+     device const uint* modeValid [[buffer(2)]],
+     device const float* targetScale [[buffer(3)]],
+     constant uint& modeCount [[buffer(4)]],
++    device const uint* tailPreserved [[buffer(5)]],
+     uint lane [[thread_index_in_threadgroup]],
+     uint environment [[threadgroup_position_in_grid]]) {
+     if (lane != 0u || environment >= dispatch.environmentCount ||
+         modeCount < 2u ||
+         modeCount > 32u) return;
++    if (tailPreserved[environment] != 0u) return;
+     const uint matrixBase = environment * modeCount * modeCount;
+     if (modeValid[environment] != 0u) return;
+     const uint last = modeCount - 1u;
+@@ -2417,9 +2421,11 @@
+     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+     device const uint* coarseValid [[buffer(1)]],
+     device uint* modeValid [[buffer(2)]],
++    device const uint* tailPreserved [[buffer(3)]],
+     uint lane [[thread_index_in_threadgroup]],
+     uint environment [[threadgroup_position_in_grid]]) {
+-    if (lane != 0u || environment >= dispatch.environmentCount) return;
++    if (lane != 0u || environment >= dispatch.environmentCount ||
++        tailPreserved[environment] != 0u) return;
+     if (coarseValid[environment] == 0u) modeValid[environment] = 0u;
+ }
+ 
+@@ -2515,6 +2521,44 @@
+ // In-place partial-pivoted LU for the small, generally nonsymmetric exact RAP
+ // matrix. Failure only disables the coarse correction; the fine diagonal
+ // preconditioner and the physical FGMRES/certification path remain intact.
++kernel void nm_fgmres_regional_restart_build_rap(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const float4* regionalBasis [[buffer(1)]],
++    device const float4* regionalAP [[buffer(2)]],
++    device float* coarseMatrix [[buffer(3)]],
++    constant uint& modeCount [[buffer(4)]],
++    constant uint& modeStride [[buffer(5)]],
++    device const uint* tailPreserved [[buffer(6)]],
++    uint lane [[thread_index_in_threadgroup]],
++    uint group [[threadgroup_position_in_grid]]
++) {
++    if (modeCount == 0u || modeCount > 32u || modeStride < modeCount ||
++        modeStride > 32u ||
++        dispatch.femNodeCount == 0u) return;
++    const uint entriesPerEnvironment = modeCount * modeCount;
++    const uint environment = group / entriesPerEnvironment;
++    if (environment >= dispatch.environmentCount ||
++        tailPreserved[environment] != 0u) return;
++    const uint pair = group - environment * entriesPerEnvironment;
++    const uint row = pair / modeCount;
++    const uint column = pair - row * modeCount;
++    const uint apBase = (environment * modeStride + column) *
++        dispatch.femNodeCount;
++    float sum = 0.0f;
++    for (uint node = lane; node < dispatch.femNodeCount; node += 32u) {
++        const float4 p = regionalBasis[
++            (environment * modeStride + row) * dispatch.femNodeCount + node];
++        const float4 ap = regionalAP[apBase + node];
++        sum += dot(p.xyz, ap.xyz);
++    }
++    sum = simd_sum(sum);
++    if (lane == 0u)
++        coarseMatrix[(environment * modeCount + row) * modeCount + column] = sum;
++}
++
++// In-place partial-pivoted LU for the small, generally nonsymmetric exact RAP
++// matrix. Failure only disables the coarse correction; the fine diagonal
++// preconditioner and the physical FGMRES/certification path remain intact.
+ kernel void nm_fgmres_regional_factor_rap(
+     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+     device float* coarseMatrix [[buffer(1)]],
+@@ -2526,6 +2570,78 @@
+ ) {
+     if (lane != 0u || environment >= dispatch.environmentCount ||
+         modeCount == 0u || modeCount > 32u) return;
++    const uint matrixBase = environment * modeCount * modeCount;
++    const uint pivotBase = environment * modeCount;
++    valid[environment] = 0u;
++    float scale = 0.0f;
++    for (uint row = 0u; row < modeCount; ++row) {
++        pivots[pivotBase + row] = row;
++        for (uint column = 0u; column < modeCount; ++column) {
++            const float value = coarseMatrix[
++                matrixBase + row * modeCount + column];
++            if (!isfinite(value)) return;
++            scale = max(scale, abs(value));
++        }
++    }
++    if (!(scale > 0.0f) || !isfinite(scale)) return;
++    const float pivotFloor = max(scale * 1.0e-10f, 1.0e-30f);
++    for (uint pivotColumn = 0u; pivotColumn < modeCount; ++pivotColumn) {
++        uint pivotRow = pivotColumn;
++        float pivotMagnitude = 0.0f;
++        for (uint row = pivotColumn; row < modeCount; ++row) {
++            const float magnitude = abs(coarseMatrix[
++                matrixBase + row * modeCount + pivotColumn]);
++            if (magnitude > pivotMagnitude) {
++                pivotMagnitude = magnitude;
++                pivotRow = row;
++            }
++        }
++        if (!(pivotMagnitude > pivotFloor) || !isfinite(pivotMagnitude))
++            return;
++        if (pivotRow != pivotColumn) {
++            for (uint column = 0u; column < modeCount; ++column) {
++                const uint a = matrixBase + pivotColumn * modeCount + column;
++                const uint b = matrixBase + pivotRow * modeCount + column;
++                const float temporary = coarseMatrix[a];
++                coarseMatrix[a] = coarseMatrix[b];
++                coarseMatrix[b] = temporary;
++            }
++            const uint temporary = pivots[pivotBase + pivotColumn];
++            pivots[pivotBase + pivotColumn] = pivots[pivotBase + pivotRow];
++            pivots[pivotBase + pivotRow] = temporary;
++        }
++        const float diagonal = coarseMatrix[
++            matrixBase + pivotColumn * modeCount + pivotColumn];
++        if (!(abs(diagonal) > pivotFloor) || !isfinite(diagonal)) return;
++        for (uint row = pivotColumn + 1u; row < modeCount; ++row) {
++            const uint lowerIndex = matrixBase + row * modeCount + pivotColumn;
++            const float lower = coarseMatrix[lowerIndex] / diagonal;
++            if (!isfinite(lower)) return;
++            coarseMatrix[lowerIndex] = lower;
++            for (uint column = pivotColumn + 1u;
++                 column < modeCount; ++column) {
++                const uint index = matrixBase + row * modeCount + column;
++                coarseMatrix[index] -= lower * coarseMatrix[
++                    matrixBase + pivotColumn * modeCount + column];
++                if (!isfinite(coarseMatrix[index])) return;
++            }
++        }
++    }
++    valid[environment] = 1u;
++}
++kernel void nm_fgmres_regional_restart_factor_rap(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device float* coarseMatrix [[buffer(1)]],
++    device uint* pivots [[buffer(2)]],
++    device uint* valid [[buffer(3)]],
++    constant uint& modeCount [[buffer(4)]],
++    device const uint* tailPreserved [[buffer(5)]],
++    uint lane [[thread_index_in_threadgroup]],
++    uint environment [[threadgroup_position_in_grid]]
++) {
++    if (lane != 0u || environment >= dispatch.environmentCount ||
++        modeCount == 0u || modeCount > 32u ||
++        tailPreserved[environment] != 0u) return;
+     const uint matrixBase = environment * modeCount * modeCount;
+     const uint pivotBase = environment * modeCount;
+     valid[environment] = 0u;
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -4655,6 +4655,8 @@
+             "nm_fgmres_regional_capture_restart_scale",
+             "nm_fgmres_regional_build_rap",
+             "nm_fgmres_regional_factor_rap",
++            "nm_fgmres_regional_restart_build_rap",
++            "nm_fgmres_regional_restart_factor_rap",
+             "nm_fgmres_graph_build_patch_matrices",
+             "nm_fgmres_graph_validate_mask",
+             "nm_fgmres_graph_factor_patches",
+@@ -22871,8 +22873,8 @@
+                 });
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 const auto buildAndFactorRestartRAP = [&] {
+-                    dispatchGroups32("nm_fgmres_regional_build_rap",
+-                        augmentedModes * augmentedModes, [&] {
++                    dispatchGroups32("nm_fgmres_regional_restart_build_rap",
++                        environments * augmentedModes * augmentedModes, [&] {
+                         setDispatch();
+                         [encoder setBuffer:state.femRegionalEffectiveBasis offset:0u atIndex:1u];
+                         [encoder setBuffer:state.femRegionalAP offset:0u atIndex:2u];
+@@ -22880,6 +22882,8 @@
+                         [encoder setBytes:&augmentedModes length:sizeof(augmentedModes) atIndex:4u];
+                         [encoder setBytes:&augmentedModes
+                                    length:sizeof(augmentedModes) atIndex:5u];
++                        [encoder setBuffer:state.femRegionalRestartTailPreserved
++                                     offset:0u atIndex:6u];
+                     });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                     dispatchGroups32("nm_fgmres_regional_restart_identity_if_invalid",
+@@ -22889,14 +22893,18 @@
+                         [encoder setBuffer:state.femRegionalRestartModeValid offset:0u atIndex:2u];
+                         [encoder setBuffer:state.femRegionalRestartTargetScale offset:0u atIndex:3u];
+                         [encoder setBytes:&augmentedModes length:sizeof(augmentedModes) atIndex:4u];
++                        [encoder setBuffer:state.femRegionalRestartTailPreserved
++                                     offset:0u atIndex:5u];
+                     });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+-                    dispatchGroups32("nm_fgmres_regional_factor_rap", environments, [&] {
++                    dispatchGroups32("nm_fgmres_regional_restart_factor_rap", environments, [&] {
+                         setDispatch();
+                         [encoder setBuffer:state.femRegionalAugmentedCoarseMatrix offset:0u atIndex:1u];
+                         [encoder setBuffer:state.femRegionalAugmentedCoarsePivots offset:0u atIndex:2u];
+                         [encoder setBuffer:state.femRegionalAugmentedCoarseValid offset:0u atIndex:3u];
+                         [encoder setBytes:&augmentedModes length:sizeof(augmentedModes) atIndex:4u];
++                        [encoder setBuffer:state.femRegionalRestartTailPreserved
++                                     offset:0u atIndex:5u];
+                     });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 };
+@@ -22907,6 +22915,8 @@
+                     setDispatch();
+                     [encoder setBuffer:state.femRegionalAugmentedCoarseValid offset:0u atIndex:1u];
+                     [encoder setBuffer:state.femRegionalRestartModeValid offset:0u atIndex:2u];
++                    [encoder setBuffer:state.femRegionalRestartTailPreserved
++                                 offset:0u atIndex:3u];
+                 });
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 dispatchThreads(
+@@ -22916,6 +22926,8 @@
+                     [encoder setBuffer:state.femRegionalAP offset:0u atIndex:2u];
+                     [encoder setBuffer:state.femRegionalRestartModeValid offset:0u atIndex:3u];
+                     [encoder setBytes:&baseModes length:sizeof(baseModes) atIndex:4u];
++                    [encoder setBuffer:state.femRegionalRestartTailPreserved
++                                 offset:0u atIndex:5u];
+                 });
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 buildAndFactorRestartRAP();
+--- a/matter/tools/cardboard_regional_rap_tail_preserve_native_check.mm
++++ b/matter/tools/cardboard_regional_rap_tail_preserve_native_check.mm
+@@ -0,0 +1,384 @@
++#import <Foundation/Foundation.h>
++#import <Metal/Metal.h>
++
++#include "numi/matter/shared.h"
++
++#include <algorithm>
++#include <array>
++#include <cmath>
++#include <cstdint>
++#include <cstring>
++#include <iostream>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++#ifndef NUMI_MATTER_METALLIB
++#error "CMake must define NUMI_MATTER_METALLIB"
++#endif
++
++namespace {
++constexpr std::uint32_t kEnvironmentCount = 2u;
++constexpr std::uint32_t kNodeCount = 4u;
++constexpr std::uint32_t kModeCount = 3u;
++
++void need(bool ok, const std::string& message) {
++    if (!ok) throw std::runtime_error(message);
++}
++
++template<class T>
++id<MTLBuffer> makeBuffer(id<MTLDevice> device, const std::vector<T>& values) {
++    need(!values.empty(), "test buffer must not be empty");
++    id<MTLBuffer> result = [device newBufferWithBytes:values.data()
++        length:values.size() * sizeof(T) options:MTLResourceStorageModeShared];
++    need(result != nil, "Metal test-buffer allocation failed");
++    return result;
++}
++
++id<MTLComputePipelineState> makePipeline(id<MTLDevice> device,
++                                         id<MTLLibrary> library,
++                                         const char* shortName) {
++    NSString* qualified = [NSString stringWithFormat:
++        @"numi_matter_metal::%s", shortName];
++    id<MTLFunction> function = [library newFunctionWithName:qualified];
++    need(function != nil, std::string("missing production kernel: ") + shortName);
++    NSError* error = nil;
++    id<MTLComputePipelineState> result =
++        [device newComputePipelineStateWithFunction:function error:&error];
++    need(result != nil, std::string("pipeline compile failed: ") + shortName +
++        (error ? std::string(": ") + error.localizedDescription.UTF8String : ""));
++    return result;
++}
++
++void runGroups(id<MTLDevice> device, id<MTLComputePipelineState> pipeline,
++               std::uint32_t groups,
++               void (^bind)(id<MTLComputeCommandEncoder>)) {
++    id<MTLCommandQueue> queue = [device newCommandQueue];
++    need(queue != nil, "Metal queue creation failed");
++    id<MTLCommandBuffer> command = [queue commandBuffer];
++    id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
++    need(encoder != nil, "Metal encoder creation failed");
++    [encoder setComputePipelineState:pipeline];
++    bind(encoder);
++    [encoder dispatchThreadgroups:MTLSizeMake(groups, 1u, 1u)
++        threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
++    [encoder endEncoding];
++    [command commit];
++    [command waitUntilCompleted];
++    need(command.status == MTLCommandBufferStatusCompleted,
++         command.error ? command.error.localizedDescription.UTF8String :
++                         "Metal command did not complete");
++}
++
++void runThreads(id<MTLDevice> device, id<MTLComputePipelineState> pipeline,
++                std::uint32_t threads,
++                void (^bind)(id<MTLComputeCommandEncoder>)) {
++    id<MTLCommandQueue> queue = [device newCommandQueue];
++    need(queue != nil, "Metal queue creation failed");
++    id<MTLCommandBuffer> command = [queue commandBuffer];
++    id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
++    need(encoder != nil, "Metal encoder creation failed");
++    [encoder setComputePipelineState:pipeline];
++    bind(encoder);
++    [encoder dispatchThreads:MTLSizeMake(threads, 1u, 1u)
++        threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
++    [encoder endEncoding];
++    [command commit];
++    [command waitUntilCompleted];
++    need(command.status == MTLCommandBufferStatusCompleted,
++         command.error ? command.error.localizedDescription.UTF8String :
++                         "Metal command did not complete");
++}
++
++void setBuffer(id<MTLComputeCommandEncoder> e, id<MTLBuffer> b, NSUInteger i) {
++    [e setBuffer:b offset:0u atIndex:i];
++}
++void setU32(id<MTLComputeCommandEncoder> e, std::uint32_t x, NSUInteger i) {
++    [e setBytes:&x length:sizeof(x) atIndex:i];
++}
++void exact(float actual, float expected, const char* label) {
++    need(std::memcmp(&actual, &expected, sizeof(float)) == 0,
++         std::string(label) + " changed");
++}
++std::size_t regionalVectorIndex(std::uint32_t env, std::uint32_t mode, std::uint32_t node) {
++    return (env * kModeCount + mode) * kNodeCount + node;
++}
++std::size_t matrixIndex(std::uint32_t env, std::uint32_t row,
++                        std::uint32_t column) {
++    return (env * kModeCount + row) * kModeCount + column;
++}
++std::size_t extraIndex(std::uint32_t env, std::uint32_t node) {
++    return (env * (kModeCount + 1u) + kModeCount) * kNodeCount + node;
++}
++}
++
++int main(int argc, char** argv) {
++    @autoreleasepool {
++        try {
++            const char* libraryPath = argc > 1 ? argv[1] : NUMI_MATTER_METALLIB;
++            id<MTLDevice> device = MTLCreateSystemDefaultDevice();
++            need(device != nil, "Metal device unavailable");
++            NSError* error = nil;
++            id<MTLLibrary> library = [device newLibraryWithURL:
++                [NSURL fileURLWithPath:[NSString stringWithUTF8String:libraryPath]]
++                error:&error];
++            need(library != nil, error ? error.localizedDescription.UTF8String :
++                 "source-bound metallib load failed");
++
++            const auto build = makePipeline(device, library,
++                "nm_fgmres_regional_restart_build_rap");
++            const auto factor = makePipeline(device, library,
++                "nm_fgmres_regional_restart_factor_rap");
++            const auto fallback = makePipeline(device, library,
++                "nm_fgmres_regional_restart_fallback_if_factor_invalid");
++            const auto identity = makePipeline(device, library,
++                "nm_fgmres_regional_restart_identity_if_invalid");
++            const auto clear = makePipeline(device, library,
++                "nm_fgmres_regional_restart_clear_if_invalid");
++            const auto reset = makePipeline(device, library,
++                "nm_fgmres_regional_restart_reset_metadata");
++
++            NMMatterDispatchGPU dispatch{};
++            dispatch.environmentCount = kEnvironmentCount;
++            dispatch.femNodeCount = kNodeCount;
++            const auto dispatchBuffer = makeBuffer(device,
++                std::vector<NMMatterDispatchGPU>{dispatch});
++
++            // Active env 0 forms a nonsymmetric, invertible 3x3 RAP matrix.
++            // Preserved env 1 starts with per-entry sentinels.
++            const float p[kModeCount][kNodeCount] = {
++                {1, 0, 1, 0}, {0, 1, 1, 0}, {0, 0, 0, 1}
++            };
++            std::vector<nm_float4> basis(kEnvironmentCount*kModeCount*kNodeCount);
++            std::vector<nm_float4> ap(basis.size());
++            for (unsigned mode=0; mode<kModeCount; ++mode) {
++                for (unsigned node=0; node<kNodeCount; ++node) {
++                    basis[regionalVectorIndex(0,mode,node)] = {p[mode][node],0,0,0};
++                    ap[regionalVectorIndex(0,mode,node)] = {
++                        float(mode+2u)*p[mode][node],0,0,0};
++                    basis[regionalVectorIndex(1,mode,node)] = {
++                        float(10u+mode+node),float(20u+mode),float(node),0};
++                    ap[regionalVectorIndex(1,mode,node)] = {
++                        float(30u+mode),float(40u+node),float(mode+node),0};
++                }
++            }
++            std::vector<float> rap(kEnvironmentCount*kModeCount*kModeCount);
++            for (unsigned i=0;i<kModeCount*kModeCount;++i) rap[i]=91.0f;
++            for (unsigned i=kModeCount*kModeCount;i<rap.size();++i)
++                rap[i]=500.0f+float(i);
++            const auto rapBefore = rap;
++            std::vector<std::uint32_t> tail{0u,1u};
++            const auto basisBuffer=makeBuffer(device,basis);
++            const auto apBuffer=makeBuffer(device,ap);
++            const auto rapBuffer=makeBuffer(device,rap);
++            const auto tailBuffer=makeBuffer(device,tail);
++
++            runGroups(device,build,kEnvironmentCount*kModeCount*kModeCount,
++                ^(id<MTLComputeCommandEncoder> e) {
++                    setBuffer(e,dispatchBuffer,0); setBuffer(e,basisBuffer,1);
++                    setBuffer(e,apBuffer,2); setBuffer(e,rapBuffer,3);
++                    setU32(e,kModeCount,4); setU32(e,kModeCount,5);
++                    setBuffer(e,tailBuffer,6);
++                });
++            const float expected[9]={4,3,0,2,6,0,0,0,4};
++            const auto* actualRap=static_cast<const float*>(rapBuffer.contents);
++            for(unsigned i=0;i<9;++i) exact(actualRap[i],expected[i],"active RAP");
++            for(unsigned i=9;i<rap.size();++i)
++                exact(actualRap[i],rapBefore[i],"preserved RAP sentinel");
++
++            // A valid active factor must be produced. A preserved invalid
++            // factor (including NaN matrix words) must stay byte-identical.
++            std::vector<float> factorMatrix(actualRap,actualRap+rap.size());
++            const std::uint32_t qnan=0x7fc12345u;
++            for(unsigned i=9;i<18;++i)
++                std::memcpy(&factorMatrix[i],&qnan,sizeof(qnan));
++            const auto factorMatrixBefore=factorMatrix;
++            auto factorMatrixBuffer=makeBuffer(device,factorMatrix);
++            std::vector<std::uint32_t> pivots(6u,0xdeadbeefu);
++            const auto pivotsBefore=pivots;
++            auto pivotsBuffer=makeBuffer(device,pivots);
++            std::vector<std::uint32_t> valid{0u,0u};
++            auto validBuffer=makeBuffer(device,valid);
++            runGroups(device,factor,kEnvironmentCount,
++                ^(id<MTLComputeCommandEncoder> e) {
++                    setBuffer(e,dispatchBuffer,0); setBuffer(e,factorMatrixBuffer,1);
++                    setBuffer(e,pivotsBuffer,2); setBuffer(e,validBuffer,3);
++                    setU32(e,kModeCount,4); setBuffer(e,tailBuffer,5);
++                });
++            const auto* validOut=static_cast<const std::uint32_t*>(validBuffer.contents);
++            need(validOut[0]==1u,"active RAP factor did not become valid");
++            need(validOut[1]==0u,"preserved invalid RAP flag changed");
++            need(std::memcmp(static_cast<const float*>(factorMatrixBuffer.contents)+9,
++                    factorMatrixBefore.data()+9,9u*sizeof(float))==0,
++                 "preserved invalid RAP matrix changed");
++            need(std::memcmp(static_cast<const std::uint32_t*>(pivotsBuffer.contents)+3,
++                    pivotsBefore.data()+3,3u*sizeof(std::uint32_t))==0,
++                 "preserved invalid RAP pivots changed");
++
++            // Also preserve a valid factor. The active singular matrix must
++            // remain invalid, demonstrating the ordinary failure path.
++            std::vector<float> singular(actualRap,actualRap+rap.size());
++            std::fill(singular.begin(),singular.begin()+9u,0.0f);
++            for(unsigned i=9;i<18;++i) singular[i]=float(i+1u);
++            const auto singularBefore=singular;
++            auto singularBuffer=makeBuffer(device,singular);
++            std::vector<std::uint32_t> pivots2(6u,0xcafef00du);
++            const auto pivots2Before=pivots2;
++            auto pivots2Buffer=makeBuffer(device,pivots2);
++            auto valid2Buffer=makeBuffer(device,std::vector<std::uint32_t>{0u,1u});
++            runGroups(device,factor,kEnvironmentCount,
++                ^(id<MTLComputeCommandEncoder> e) {
++                    setBuffer(e,dispatchBuffer,0); setBuffer(e,singularBuffer,1);
++                    setBuffer(e,pivots2Buffer,2); setBuffer(e,valid2Buffer,3);
++                    setU32(e,kModeCount,4); setBuffer(e,tailBuffer,5);
++                });
++            const auto* valid2=static_cast<const std::uint32_t*>(valid2Buffer.contents);
++            need(valid2[0]==0u && valid2[1]==1u,
++                 "active-invalid/preserved-valid factor result mismatch");
++            need(std::memcmp(static_cast<const float*>(singularBuffer.contents)+9,
++                    singularBefore.data()+9,9u*sizeof(float))==0,
++                 "preserved valid RAP matrix changed");
++            need(std::memcmp(static_cast<const std::uint32_t*>(pivots2Buffer.contents)+3,
++                    pivots2Before.data()+3,3u*sizeof(std::uint32_t))==0,
++                 "preserved valid RAP pivots changed");
++
++            // Invalid fallback only changes active env 0; preserved env 1
++            // retains an already-valid or invalid mode-valid byte.
++            auto coarseInvalid=makeBuffer(device,std::vector<std::uint32_t>{0u,0u});
++            auto modeValid=makeBuffer(device,std::vector<std::uint32_t>{1u,1u});
++            runGroups(device,fallback,kEnvironmentCount,
++                ^(id<MTLComputeCommandEncoder> e) {
++                    setBuffer(e,dispatchBuffer,0); setBuffer(e,coarseInvalid,1);
++                    setBuffer(e,modeValid,2); setBuffer(e,tailBuffer,3);
++                });
++            const auto* modesAfter=static_cast<const std::uint32_t*>(modeValid.contents);
++            need(modesAfter[0]==0u && modesAfter[1]==1u,
++                 "active/preserved factor fallback mismatch");
++            auto invalidMode=makeBuffer(device,std::vector<std::uint32_t>{1u,0u});
++            runGroups(device,fallback,kEnvironmentCount,
++                ^(id<MTLComputeCommandEncoder> e) {
++                    setBuffer(e,dispatchBuffer,0); setBuffer(e,coarseInvalid,1);
++                    setBuffer(e,invalidMode,2); setBuffer(e,tailBuffer,3);
++                });
++            const auto* invalidAfter=static_cast<const std::uint32_t*>(invalidMode.contents);
++            need(invalidAfter[0]==0u && invalidAfter[1]==0u,
++                 "preserved invalid mode-valid byte changed");
++
++            // Active invalid mode gets the exact fallback identity row/column;
++            // preserved invalid mode's full matrix remains sentinel bytes.
++            std::vector<float> identityMatrix(18u);
++            for(unsigned i=0;i<identityMatrix.size();++i) identityMatrix[i]=70.0f+float(i);
++            const auto identityBefore=identityMatrix;
++            auto identityBuffer=makeBuffer(device,identityMatrix);
++            auto targetScale=makeBuffer(device,std::vector<float>{5.0f,7.0f});
++            auto invalidModes=makeBuffer(device,std::vector<std::uint32_t>{0u,0u});
++            runGroups(device,identity,kEnvironmentCount,
++                ^(id<MTLComputeCommandEncoder> e) {
++                    setBuffer(e,dispatchBuffer,0); setBuffer(e,identityBuffer,1);
++                    setBuffer(e,invalidModes,2); setBuffer(e,targetScale,3);
++                    setU32(e,kModeCount,4); setBuffer(e,tailBuffer,5);
++                });
++            const auto* identityOut=static_cast<const float*>(identityBuffer.contents);
++            for(unsigned row=0;row<kModeCount;++row) {
++                exact(identityOut[matrixIndex(0,row,2)],
++                      row==2u?5.0f:0.0f,"active fallback identity column");
++                exact(identityOut[matrixIndex(0,2,row)],
++                      row==2u?5.0f:0.0f,"active fallback identity row");
++            }
++            need(std::memcmp(identityOut+9,identityBefore.data()+9,9u*sizeof(float))==0,
++                 "preserved invalid-mode coarse matrix changed");
++
++            // Clear only the active invalid extra mode; preserve every word
++            // of the tail environment's basis and AP arrays.
++            std::vector<nm_float4> q(kEnvironmentCount*(kModeCount+1u)*kNodeCount);
++            std::vector<nm_float4> aq(q.size());
++            for(unsigned i=0;i<q.size();++i) {
++                q[i]={float(i+1u),-2.0f,3.0f,4.0f};
++                aq[i]={5.0f,float(i+2u),-1.0f,6.0f};
++            }
++            const auto qBefore=q, aqBefore=aq;
++            auto qBuffer=makeBuffer(device,q), aqBuffer=makeBuffer(device,aq);
++            auto invalids=makeBuffer(device,std::vector<std::uint32_t>{0u,0u});
++            runThreads(device,clear,kEnvironmentCount*kNodeCount,
++                ^(id<MTLComputeCommandEncoder> e) {
++                    setBuffer(e,dispatchBuffer,0); setBuffer(e,qBuffer,1);
++                    setBuffer(e,aqBuffer,2); setBuffer(e,invalids,3);
++                    setU32(e,kModeCount,4); setBuffer(e,tailBuffer,5);
++                });
++            const auto* qOut=static_cast<const nm_float4*>(qBuffer.contents);
++            const auto* aqOut=static_cast<const nm_float4*>(aqBuffer.contents);
++            const nm_float4 zero{};
++            for(unsigned node=0;node<kNodeCount;++node) {
++                const auto active=extraIndex(0,node), preserved=extraIndex(1,node);
++                need(std::memcmp(&qOut[active],&zero,sizeof(zero))==0 &&
++                     std::memcmp(&aqOut[active],&zero,sizeof(zero))==0,
++                     "active invalid extra mode/AP was not cleared");
++                need(std::memcmp(&qOut[preserved],&qBefore[preserved],sizeof(zero))==0 &&
++                     std::memcmp(&aqOut[preserved],&aqBefore[preserved],sizeof(zero))==0,
++                     "preserved invalid extra mode/AP sentinel changed");
++            }
++
++            // The existing per-Newton reset invalidates both environments'
++            // stale preservation bits and factor validity.
++            std::vector<std::uint32_t> generation(8u,0xdeadbeefu);
++            auto generationBuffer=makeBuffer(device,generation);
++            auto raw=makeBuffer(device,std::vector<float>{2.0f,3.0f});
++            auto scaleOut=makeBuffer(device,std::vector<float>{4.0f,5.0f});
++            auto modeScaleValid=makeBuffer(device,std::vector<std::uint32_t>{1u,1u});
++            auto resetTarget=makeBuffer(device,std::vector<float>{6.0f,7.0f});
++            auto factorValid=makeBuffer(device,std::vector<std::uint32_t>{1u,1u});
++            auto staleTail=makeBuffer(device,std::vector<std::uint32_t>{1u,1u});
++            runGroups(device,reset,kEnvironmentCount,
++                ^(id<MTLComputeCommandEncoder> e) {
++                    setBuffer(e,dispatchBuffer,0); setBuffer(e,generationBuffer,1);
++                    setBuffer(e,raw,2); setBuffer(e,scaleOut,3);
++                    setBuffer(e,modeScaleValid,4); setBuffer(e,resetTarget,5);
++                    setBuffer(e,factorValid,6); setBuffer(e,staleTail,7);
++                });
++            const auto* tailOut=static_cast<const std::uint32_t*>(staleTail.contents);
++            const auto* factorOut=static_cast<const std::uint32_t*>(factorValid.contents);
++            need(tailOut[0]==0u && tailOut[1]==0u &&
++                 factorOut[0]==0u && factorOut[1]==0u,
++                 "Newton reset failed to clear tail/factor markers");
++
++            // After the reset, both E2 environments must be eligible to rebuild
++            // their next-Newton RAP. This catches a stale preservation marker
++            // and proves the host/kernel E*m^2 launch extent covers env 1.
++            std::vector<float> nextRAP(rap.size(), -123.0f);
++            auto nextRAPBuffer = makeBuffer(device, nextRAP);
++            runGroups(device,build,kEnvironmentCount*kModeCount*kModeCount,
++                ^(id<MTLComputeCommandEncoder> e) {
++                    setBuffer(e,dispatchBuffer,0); setBuffer(e,basisBuffer,1);
++                    setBuffer(e,apBuffer,2); setBuffer(e,nextRAPBuffer,3);
++                    setU32(e,kModeCount,4); setU32(e,kModeCount,5);
++                    setBuffer(e,staleTail,6);
++                });
++            const auto* nextRAPOut =
++                static_cast<const float*>(nextRAPBuffer.contents);
++            for (unsigned env=0; env<kEnvironmentCount; ++env) {
++                for (unsigned row=0; row<kModeCount; ++row) {
++                    for (unsigned column=0; column<kModeCount; ++column) {
++                        float expectedValue=0.0f;
++                        for (unsigned node=0; node<kNodeCount; ++node) {
++                            const auto& pv=basis[regionalVectorIndex(env,row,node)];
++                            const auto& av=ap[regionalVectorIndex(env,column,node)];
++                            expectedValue += pv.x*av.x + pv.y*av.y + pv.z*av.z;
++                        }
++                        exact(nextRAPOut[matrixIndex(env,row,column)],
++                              expectedValue,"next-Newton E2 RAP rebuild");
++                    }
++                }
++            }
++
++            std::cout << "regional_rap_tail_preserve=pass cases=E2_mixed,"
++                "active_RAP_and_LU,preserve_valid_and_invalid_LU,"
++                "invalid_fallback_and_identity,invalid_extra_clear,newton_reset"
++                " physical_transactions=0\n";
++        } catch (const std::exception& error) {
++            std::cerr << "regional RAP tail preserve checker failed: "
++                      << error.what() << "\n";
++            return 1;
++        }
++    }
++    return 0;
++}
+--- a/frozen-source.json
++++ b/frozen-source.json
+@@ -1,8 +1,48 @@
+ {
++  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001",
++  "clean_source_parent": {
++    "declared_source_bytes_unchanged": 816,
++    "excluded_undeclared_backup": {
++      "matter/src/runtime.mm.orig": "441425a7eb68f8d0a4ee7f39734888bbd061d76391439a1d5729f89ed3bafb6a"
++    },
++    "frozen_sha256": "3af1c0026640a3d9454b653f99804a94fbcfd835a385a1f70567c864af0bdcf3",
++    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-193-001"
++  },
++  "created_at_utc": "2026-10-16T08:40:44.146882+00:00",
++  "memory_overlay_parent": {
++    "frozen_sha256": "b6687f8b250a2e0a1a0522697b75d251112240d6f26b473bfefc423f8fa382c2",
++    "overlay_changed_files": {
++      "matter/tools/cardboard_probe.mm": "c3e14bc267883e53fa67797a9661796e8e221202e6d5c3c4ac846f6862163385",
++      "matter/tools/cardboard_shipping_memory.hpp": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c",
++      "matter/tools/cardboard_shipping_memory_check.cpp": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
++    },
++    "runtime_unchanged_from197": true,
++    "source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-damped-control-selector-197-001",
++    "source196_manifest_sha256": "a874d979b901ba421722bc3aebc19508e29571036ad8768497a14b21a9b312ff"
++  },
++  "parent_revision": "a5ccffa52ffe368b49c877094a5081b7ee246ebf",
++  "regional_rap_tail_preserve_parent": {
++    "changed_sources": [
++      "matter/CMakeLists.txt",
++      "matter/src/metal/fgmres.metalinc",
++      "matter/src/runtime.mm",
++      "matter/tools/cardboard_regional_rap_tail_preserve_native_check.mm"
++    ],
++    "frozen_source_sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc",
++    "scope": "Tail-preserving restart-only RAP/factor/fallback work plus E2 restart build launch extent correction; legacy initial/base RAP source kernels unchanged.",
++    "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001"
++  },
+   "schema": "numi.cardboard.frozen-source.v1",
+-  "parent_revision": "a5ccffa52ffe368b49c877094a5081b7ee246ebf",
+-  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix003",
+-  "scope": "Source189003 shared exact FEM trial and CCD geometry plus sealed190 full-zero damped CGLS pilot,191002 FEM-only full-residual contact policy,192 single-count memory estimate. Global physical operator, residual tolerance, final certificate and transactional rollback unchanged.",
++  "scope": "Source198 base with opt-in same-Newton selector-5 regional restart RAP/factor/fallback preservation for completed environments; original base RAP build/factor kernels remain byte-identical. Corrects restart RAP host dispatch extent to E*m^2. Physical operator, residual tolerance, iteration budget, final certificate and transactional rollback unchanged.",
++  "selector_policy_parent": {
++    "changed_files": [
++      "matter/src/runtime.mm"
++    ],
++    "frozen_sha256": "d5bf1eb738d25e29cba80f3c9c936963b0d1e8b533652384f60705008b946b82",
++    "reason": "Allow existing exact damped numeric-Newton pilot to repeat full capability gates at each control; old all-control guard otherwise makes prepared all:3 unsupported. Physical operator/tolerances/certificate unchanged.",
++    "source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001"
++  },
++  "snapshot_label": "source-regional-rap-tail-preserve-201",
+   "source_sha256": {
+     "CMakeLists.txt": "41416ae49d88b043712588d8a4d579f59a5b6b7a0bb128b1117f83c27320af37",
+     "cmake/GenerateVisualKernelHashes.cmake": "08839c542d3fb84ac7ec0f443b064cdea66254860aab233279a9ed3898e953b3",
+@@ -179,7 +219,7 @@
+     "include/metalrobo/unified_quality_shared.h": "22d658c8dd27daf4136945f3e953620add0c65040c051cfccf684eee37f8a4b9",
+     "include/metalrobo/visual_platform_types.h": "0e4dbb0fce94713c26fb33e1eef206213d962568e22e79f8efd8f41108886601",
+     "include/metalrobo/world_compiler_types.h": "f8cee3f615b509b8338f2bcdff6e6359101f469ea72e86142df2155ad9274c0d",
+-    "matter/CMakeLists.txt": "47564b029c911a1949caf10f60551550df292c2968df25082118fb4f66b18569",
++    "matter/CMakeLists.txt": "834628140bfcd3a9c8a0f4aa2aa4c4ae7ff1c18d1c5bf34790fe13fe1fdf8f22",
+     "matter/examples/cardboard/cardboard_shipping_300x200_protocol.json": "bab102563b32104c683ad5e9b2ed80f7e04c656708fb92b407177cc1659bd917",
+     "matter/examples/cardboard/source-data/README.md": "d36db88d84ad5a8190208cb4b74b8b6abef0381f322126a70276345b26f6390b",
+     "matter/examples/cardboard/source-data/aduke_2024_fold_ratio.csv": "0037003fb4a14567215a967b3b719fd08c07ef14629e7d589ff56e07116461f2",
+@@ -299,7 +339,7 @@
+     "matter/src/metal/common.metalinc": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380",
+     "matter/src/metal/contact.metalinc": "1f6f91a70c3c738f50c4d4fc86e429a2fc841028a81094700355b5e5d33ee538",
+     "matter/src/metal/fem.metalinc": "bbd6abd764f723e6f0b266b80a3c99e100384e68e5ca5ae7cdd29cad36fb6a43",
+-    "matter/src/metal/fgmres.metalinc": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8",
++    "matter/src/metal/fgmres.metalinc": "238a2c5b7cda924d4d28ac716a38dd0c63641eb261464a4620cb5f239b593b69",
+     "matter/src/metal/human_equality.metalinc": "7d258cd6479fd54655d17dc16668713209ae418e62d73d44e1992c7e34b0c927",
+     "matter/src/metal/human_limits.metalinc": "cb63fbad03fe852e532acbdf984f5147d5897595c21b68572de430793a15a87e",
+     "matter/src/metal/identification_scheduler.metalinc": "94f3056e9b22b59b1dc90c2d05d0e0112e7dd22553871be39b16666853f972a7",
+@@ -317,7 +357,7 @@
+     "matter/src/package_impl.cpp": "02aa83df6568dad36a3260ff74973c6b7c7de4c659fa87f36188d0c492188d3c",
+     "matter/src/physical_state_digest_kernels.metal": "c16160197348c18ecfc69c906300f1ef51fe0f5b31537abf857dc8306594f895",
+     "matter/src/regional_graph_schwarz.hpp": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf",
+-    "matter/src/runtime.mm": "cb711f469ed3d97400b1ac449ea386667d2973e45409a7e292e083b59e287f68",
++    "matter/src/runtime.mm": "739f0471eafec2391a2a80b49d6b7034be25d1ea0d8c65557145a8f328d6bbcb",
+     "matter/src/surgical_tissue.cpp": "3e6ff5ae889ca3ed496b5be762bc7af34f38c5eeac853b74aa0287aa06d01c52",
+     "matter/src/validation_impl.cpp": "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808",
+     "matter/src/vascular_impl.cpp": "255560baffedbf4b1206eacd83c6b4da0f461da61e985a9648d290f96ac2ad75",
+@@ -442,6 +482,7 @@
+     "matter/tools/cardboard_regional_conditioning_audit.md": "96013dcf0f1d50a184dd784f11e779034ff97ad7a3a448114b772945733ebaa1",
+     "matter/tools/cardboard_regional_conditioning_audit.py": "b604c4237aa02de11f9c2d086f4cf7cdd60c081d1a706990fc9b7c0936efa1fc",
+     "matter/tools/cardboard_regional_consumer_capture_check.cpp": "6a3b84df691f4d03676d20f111497487df8bab0a00a52f9f167c42a8ecc65435",
++    "matter/tools/cardboard_regional_rap_tail_preserve_native_check.mm": "af3cd88959007c2b2838ecfe5117818c4557f7b855246b413f461118b4ef327c",
+     "matter/tools/cardboard_regional_recycle_masked_basis_native_check.mm": "6d5bd01778d09112ef02272a58e7347ca791387ceced1ed5a43537f0a9312447",
+     "matter/tools/cardboard_resolution_study.md": "b44a8ce6746714ce2fdaf130267fa639201f12380b0c9eaa3bd903bf8c849942",
+     "matter/tools/cardboard_resolution_study.py": "bf5d248c2d96e7975eba8d7e8f6dd285be779f3e61ab3dfc7299f92afb2545c8",
+@@ -820,34 +861,5 @@
+     "src/metal/hyper_policy/HyperPolicy.01.metalinc": "f0b93c764f4b4df23779819ff5bfec663b0d54963d83981bc2ee1e29d9fc2c61",
+     "src/metal/hyper_policy/HyperPolicy.02.metalinc": "2bafb5746b522f4d64d28f7182e4d0bc81824e1f44b85fc5893c43c5b71aa4e0",
+     "src/metal/hyper_policy/HyperPolicy.03.metalinc": "e1de18327a9119d6d3f0a170dfa68918c75b2ce916b73f36ff773a16b5883e87"
+-  },
+-  "snapshot_label": "source-contact-damped-memory-198-001",
+-  "created_at_utc": "2026-10-16T07:41:45.638091+00:00",
+-  "clean_source_parent": {
+-    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-193-001",
+-    "frozen_sha256": "3af1c0026640a3d9454b653f99804a94fbcfd835a385a1f70567c864af0bdcf3",
+-    "declared_source_bytes_unchanged": 816,
+-    "excluded_undeclared_backup": {
+-      "matter/src/runtime.mm.orig": "441425a7eb68f8d0a4ee7f39734888bbd061d76391439a1d5729f89ed3bafb6a"
+-    }
+-  },
+-  "selector_policy_parent": {
+-    "source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001",
+-    "frozen_sha256": "d5bf1eb738d25e29cba80f3c9c936963b0d1e8b533652384f60705008b946b82",
+-    "changed_files": [
+-      "matter/src/runtime.mm"
+-    ],
+-    "reason": "Allow existing exact damped numeric-Newton pilot to repeat full capability gates at each control; old all-control guard otherwise makes prepared all:3 unsupported. Physical operator/tolerances/certificate unchanged."
+-  },
+-  "memory_overlay_parent": {
+-    "source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-damped-control-selector-197-001",
+-    "frozen_sha256": "b6687f8b250a2e0a1a0522697b75d251112240d6f26b473bfefc423f8fa382c2",
+-    "source196_manifest_sha256": "a874d979b901ba421722bc3aebc19508e29571036ad8768497a14b21a9b312ff",
+-    "overlay_changed_files": {
+-      "matter/tools/cardboard_probe.mm": "c3e14bc267883e53fa67797a9661796e8e221202e6d5c3c4ac846f6862163385",
+-      "matter/tools/cardboard_shipping_memory.hpp": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c",
+-      "matter/tools/cardboard_shipping_memory_check.cpp": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+-    },
+-    "runtime_unchanged_from197": true
+   }
+ }

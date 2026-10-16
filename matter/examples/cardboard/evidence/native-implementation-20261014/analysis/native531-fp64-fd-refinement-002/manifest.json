@@ -1,0 +1,56 @@
+{
+  "schema": "numi.cardboard.native531-fp64-fd-refinement-files.v1",
+  "classification": "CPU-only compensated FP64 epsilon-grid refinement; selected captured direction only; not native FP32 noise-floor or physical qualification",
+  "parent_output": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-replay-001/layers",
+  "parent_inputs_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-replay-001/layers/manifest.json": "1db4342cdf9b866cd8280209a86cdc7cb70cd712ddb8ea68b2d42b0eb89253da",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-replay-001/layers/report.json": "de9603063717a6f5864e9e65e7ca6c8c933b6c42de6a84fdf7922495ad9f3761",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-replay-001/layers/arrays.npz": "038551564ac89f298148426da9b5e6259e40fd256f091e63aa8a7d57f0f7cc65"
+  },
+  "native_case_inputs_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/prediction.json": "b1c333332ccd527f97160af8545b5ab041620c72823291a616880ed9277dd743",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/receipt.json": "f3dc5b3ca9b3c0bd23ae034c18fe157c062a4dcda894a56675881d868c41f5e3",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/stderr.log": "ea7390fccb1f9e9efd6194e3e28afef02211ec060b5d518a2531cbfb5300f60f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/manifest.json": "1eb17e823eea389ce40d72acc859f0bcd8e34313a0a5e207b8b02075a6918bbe"
+  },
+  "capture_sha256": "c9a538bd6357136130fc3d971c7d2f1e61fc52bdef2a0737ba00790bd34d8ec2",
+  "source198_reference_tool_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001/matter/tools/cardboard_bilinear_fp64_reference.py": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001/matter/tools/cardboard_compensated_fp64_reference.py": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001/matter/tools/cardboard_compensated_fp64_base.py": "b135c6ff0091f0833c8dad89239abdde209fc6e0eb91babeb72313b29a88bb6c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001/matter/tools/cardboard_dd_fp64.py": "8edfd60beb2c38d181a08023d9f97bea0fec80b0f6fa04f8690c7dfe234330c2",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001/matter/tools/cardboard_cached_operator_audit.py": "4a7e9c0cbf09eee0ad1f8f5b2b09314a2c0789a908aaab530b56cfff6a1c82ff",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001/matter/tools/cardboard_solver_environment.py": "e3ef5898174dc2081542d952f0c94ea3f0798510508e2a5672e42d877148d0f7"
+  },
+  "strict_layer_reader_sha256": "45a986d399afc3c36770ef65eb4a2bf9abbef138813e9353d4c223089863252b",
+  "run_script_sha256": "06df352f392c888c918eda2131782727ddb280667a561a5b41c005dbcafa515f",
+  "grid_powers": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "files_sha256": {
+    "README.md": "883a25a419028fd8cd9bb14e5041dede355ac823cf222cac02670e548e41b5d3",
+    "attempt-history.json": "a97750f9a6723bd856dbc482a35b03c413ef754500b3cb278b4b1cd226eb10a3",
+    "layers/arrays.npz": "4f625da156de644d3871058bc9a93ac640ff9eb3d4d2ce3684c5e0ec501b4b34",
+    "layers/report.json": "94aa51000ff5578a669137c806f6d0bf167e2205636e5761b336053b6c4ad59d",
+    "reference-tools.json": "f99b01578fb3ff65c862ff2738874bb62eea2c0002193e7dc6c16e486b0826e1",
+    "refine.py": "06df352f392c888c918eda2131782727ddb280667a561a5b41c005dbcafa515f",
+    "run.command.json": "b31aee62192d6d9928ba6e404e9911d49cbe0baf47d75ac96bfa06946f23b211",
+    "seal.py": "bfe2f30e0a6e7a93f8cb7eaf5eea832aab29465e2d37326801a315d38bb4b87e",
+    "unresolved-rows.json": "dea535c86184ab7984e5fb8c0aa181bb62f932cdde47fcb916bc0242acf48a48"
+  },
+  "qualification": false
+}

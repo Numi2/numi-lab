@@ -1,0 +1,1 @@
+Use frame_rows_f32 in ascending tet_id order, environment 0. Convert to FP64 without renormalizing. Keep original capture and previous FP64 quaternion reconstructions. This recovery validates geometry at 5 captured states; it is not a nonlinear solver certificate.

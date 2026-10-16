@@ -1,0 +1,21 @@
+{
+  "CGLS_capture_selector_changes": false,
+  "capture_scope": [
+    "OP-FD at17:34",
+    "Armijo trace root17 in stdout/stderr"
+  ],
+  "diagnostic_delta": {
+    "NM_FEM_OPERATOR_FD_SELECTOR": "17:34",
+    "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": "17"
+  },
+  "fallback_selector": "all:3",
+  "numeric_policy_unchanged": true,
+  "parent_521_package_manifest_sha256": "f128a385b6fa357960ff06bf0011f58ebb60bf076c046d5e61551a6321a317b7",
+  "parent_521_spec_sha256": "796b422271e2e120da8d3a358796013b42daf01a32557676ed2488affbd4ef64",
+  "parent_530_package_manifest_sha256": "ec0d2fb7393ec49c8da996a2b29ae4794c798f89f173d831384aff85a33adcd1",
+  "parent_530_spec_sha256": "5e9c22404f19062662147bd9198e1eb65816b5c2665b275ab364677fce173033",
+  "qualification": "diagnostic only",
+  "schema": "numi.cardboard.native531-host-validation-binding.v1",
+  "source_build_sha256": "8f6c95304c23b6c7149ec6b270d54eafdf4507ea26f3420e39e523c09dd500ad",
+  "source_frozen_sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc"
+}

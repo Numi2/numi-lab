@@ -1,6 +1,6 @@
 {
   "schema": "numi.cardboard.native-evidence-index.v1",
-  "milestone": "Source199 makes intended fault coverage strict and preserves its positive and negative native regressions. Terminal fresh native521 failure and its exact accepted-prefix parity are retained. Source198 physical operator remains unchanged. All six full-protocol qualification axes remain open; active530, helper-reinitialization and source201 work are excluded.",
+  "milestone": "Source199 makes intended fault coverage strict and preserves its positive and negative native regressions. Terminal fresh native521 failure and its exact accepted-prefix parity are retained. Source198 physical operator remains unchanged. All six full-protocol qualification axes remain open; active530, helper-reinitialization and source201 work are excluded. Source201 adds same-Newton preservation of completed regional RAP restart state and an E2 restart dispatch extent fix. Native534 passes synthetic E2 production-kernel checks at Metal O0 and O3 with zero physical transactions. Source198-bound native531/532 replay, 530 accepted-prefix checkpoint and independent FP64 refinements are retained separately. The fresh source201 full coupon was active at the publication cut and is excluded; all six qualification axes remain open. The accepted-prefix package contains 34 accepted rows across two environments (17 per environment); the source198 strict layer separately covers 1,728 paper centers and 17,280 directional actions at Newton34.",
   "records": [
     {
       "case": "solver/candidate-precision-cycle-009",
@@ -17722,7 +17722,7 @@
       "question": "Does fixing the scalar and block tangent preconditioner optional-buffer arguments permit complete physical coupon loading and release with unchanged acceptance criteria?",
       "prediction": "All27controls must complete with fresh direct terminal residual<=1e-6 and unchanged physical inputs/restart16. Only buffers and deformation low-word delivery are repaired; neither equations nor tolerances change. Failure/prefix/timeout are retained.",
       "executed_build_verified": true,
-      "note": "600-second timeout, two of27 controls complete. GPU207\u2013216sec/step; no complete coupon or mesh/time convergence."
+      "note": "600-second timeout, two of27 controls complete. GPU207–216sec/step; no complete coupon or mesh/time convergence."
     },
     {
       "case": "build/source-build-050",
@@ -315877,6 +315877,2024 @@
           "total_bytes": 0
         }
       }
+    },
+    {
+      "case": "analysis/source201-regional-rap-tail-preserve-001",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-regional-rap-tail-preserve-001",
+      "files": [
+        {
+          "bytes": 1979,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-regional-rap-tail-preserve-001/README.md",
+          "name": "README.md",
+          "repository_copy": "analysis/source201-regional-rap-tail-preserve-001/README.md",
+          "sha256": "8975d42eab0c6de3ed64940792bc5497c6d2a59a4205e4aef3d46f58f252b08c"
+        },
+        {
+          "bytes": 2401,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-regional-rap-tail-preserve-001/metal-o0-compile.log",
+          "name": "metal-o0-compile.log",
+          "repository_copy": "analysis/source201-regional-rap-tail-preserve-001/metal-o0-compile.log",
+          "sha256": "200875929f4aa5168fd67116049d7257699d71156857595d773c97e2024e12ad"
+        },
+        {
+          "bytes": 45074,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-regional-rap-tail-preserve-001/overlay.patch",
+          "name": "overlay.patch",
+          "repository_copy": "analysis/source201-regional-rap-tail-preserve-001/overlay.patch",
+          "sha256": "3236a469a28e28e4a524330cf6169a86cf2ba575f88df9155c987c5a598c3563"
+        },
+        {
+          "bytes": 240,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-regional-rap-tail-preserve-001/patch-dry-run.txt",
+          "name": "patch-dry-run.txt",
+          "repository_copy": "analysis/source201-regional-rap-tail-preserve-001/patch-dry-run.txt",
+          "sha256": "d31f2dcef93ad5b313c63d4de5cf21d6fba825050428cfb8671d8dc361626df2"
+        },
+        {
+          "bytes": 1203,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-regional-rap-tail-preserve-001/source-contract-report.json",
+          "name": "source-contract-report.json",
+          "repository_copy": "analysis/source201-regional-rap-tail-preserve-001/source-contract-report.json",
+          "sha256": "3676f521d57c01a23872069887ad8ace4c50da24391eec5a6bf85e62fb738254"
+        },
+        {
+          "bytes": 7628,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-regional-rap-tail-preserve-001/source-overlay.json",
+          "name": "source-overlay.json",
+          "repository_copy": "analysis/source201-regional-rap-tail-preserve-001/source-overlay.json",
+          "sha256": "f88ada73e730582db6db629c35dd50472362975f1f249cddb6df92218c725786"
+        },
+        {
+          "bytes": 86,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-regional-rap-tail-preserve-001/source-overlay.sha256",
+          "name": "source-overlay.sha256",
+          "repository_copy": "analysis/source201-regional-rap-tail-preserve-001/source-overlay.sha256",
+          "sha256": "51db5aa28fb1f4059abe6a996e5b3a303bc5c44fb99328e5dc641c14a6f0c66e"
+        },
+        {
+          "bytes": 3832,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-regional-rap-tail-preserve-001/verify_rap_tail_source.py",
+          "name": "verify_rap_tail_source.py",
+          "repository_copy": "analysis/source201-regional-rap-tail-preserve-001/verify_rap_tail_source.py",
+          "sha256": "d2fe29c645efff60771bc6e8a6f5b0edb7e736fde2e945aff970e792ae1f3a11"
+        }
+      ],
+      "physical_box_qualification": false
+    },
+    {
+      "case": "analysis/source201-owner-review-001",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-owner-review-001",
+      "files": [
+        {
+          "bytes": 3727,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-owner-review-001/manifest.json",
+          "name": "manifest.json",
+          "repository_copy": "analysis/source201-owner-review-001/manifest.json",
+          "sha256": "492bd4e1b6b8307ed16f463c230f051df00935b808f018c9605cb632727d130e"
+        },
+        {
+          "bytes": 3189,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-owner-review-001/report.json",
+          "name": "report.json",
+          "repository_copy": "analysis/source201-owner-review-001/report.json",
+          "sha256": "c1ba989c080bd377d95422275af11fda8cdee48ccec9dd521d70a8d5d36afdbe"
+        }
+      ],
+      "physical_box_qualification": false
+    },
+    {
+      "case": "analysis/source201-build-evidence-001",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-build-evidence-001",
+      "files": [
+        {
+          "bytes": 359,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-build-evidence-001/README.md",
+          "name": "README.md",
+          "repository_copy": "analysis/source201-build-evidence-001/README.md",
+          "sha256": "d5d726216d00ae4863d9e03b56a5898d1873437d98ebbe0abc4318ddfd89cb0a"
+        },
+        {
+          "bytes": 99734,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-build-evidence-001/debug_helper_build.json",
+          "name": "debug_helper_build.json",
+          "repository_copy": "analysis/source201-build-evidence-001/debug_helper_build.json",
+          "sha256": "988aa648e221996bd1c9b0efefb61a7e452eabebe38f7003db7a06cac077e7ea"
+        },
+        {
+          "bytes": 98870,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-build-evidence-001/failed_release_checker_attempt.json",
+          "name": "failed_release_checker_attempt.json",
+          "repository_copy": "analysis/source201-build-evidence-001/failed_release_checker_attempt.json",
+          "sha256": "bc66b5299311e68c7a67e516a554eae2f14fc34f2c8bf0d16a9655922e2c3a3d"
+        },
+        {
+          "bytes": 98636,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-build-evidence-001/failed_release_path_attempt.json",
+          "name": "failed_release_path_attempt.json",
+          "repository_copy": "analysis/source201-build-evidence-001/failed_release_path_attempt.json",
+          "sha256": "11c048955b7d0df4be87ef53982277e6cf3f13337b1b54d7d6d1a54965fadaaa"
+        },
+        {
+          "bytes": 2042,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-build-evidence-001/manifest.json",
+          "name": "manifest.json",
+          "repository_copy": "analysis/source201-build-evidence-001/manifest.json",
+          "sha256": "f9c510cd63e240e796586a4271ec28a1935704e2f459120350590032736c433e"
+        },
+        {
+          "bytes": 99700,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-build-evidence-001/release_helper_build.json",
+          "name": "release_helper_build.json",
+          "repository_copy": "analysis/source201-build-evidence-001/release_helper_build.json",
+          "sha256": "23e476252b01f317f5eeadd96d2c19f6f753c49a01b966a2f74bb73aef71f2b9"
+        },
+        {
+          "bytes": 99608,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-build-evidence-001/source198_frozen_source.json",
+          "name": "source198_frozen_source.json",
+          "repository_copy": "analysis/source201-build-evidence-001/source198_frozen_source.json",
+          "sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc"
+        },
+        {
+          "bytes": 100469,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-build-evidence-001/source201_frozen_source.json",
+          "name": "source201_frozen_source.json",
+          "repository_copy": "analysis/source201-build-evidence-001/source201_frozen_source.json",
+          "sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789"
+        }
+      ],
+      "physical_box_qualification": false
+    },
+    {
+      "case": "analysis/native534-regional-rap-tail-preserve-command-001",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-regional-rap-tail-preserve-command-001",
+      "files": [
+        {
+          "bytes": 3562,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-regional-rap-tail-preserve-command-001/README.md",
+          "name": "README.md",
+          "repository_copy": "analysis/native534-regional-rap-tail-preserve-command-001/README.md",
+          "sha256": "069affac7bfe6cf6b938351289d92ee582aee53248015de77ca0cca469059535"
+        },
+        {
+          "bytes": 106758,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-regional-rap-tail-preserve-command-001/command-spec.json",
+          "name": "command-spec.json",
+          "repository_copy": "analysis/native534-regional-rap-tail-preserve-command-001/command-spec.json",
+          "sha256": "18b29a404ec9026873f5c4be0efd582951f314151606a0f647010befa14f4eb8"
+        },
+        {
+          "bytes": 3385,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-regional-rap-tail-preserve-command-001/package-manifest.json",
+          "name": "package-manifest.json",
+          "repository_copy": "analysis/native534-regional-rap-tail-preserve-command-001/package-manifest.json",
+          "sha256": "2a5867768290dd6e85209e443795a3b6f8821f6e01ffd36bbd572d8229cce4d7"
+        },
+        {
+          "bytes": 88,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-regional-rap-tail-preserve-command-001/package-manifest.sha256",
+          "name": "package-manifest.sha256",
+          "repository_copy": "analysis/native534-regional-rap-tail-preserve-command-001/package-manifest.sha256",
+          "sha256": "4ad5f9f355248a5807c9883f7296d7e27d55e87035244edd788966841c5f168b"
+        },
+        {
+          "bytes": 968,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-regional-rap-tail-preserve-command-001/prefix-parity-outline.json",
+          "name": "prefix-parity-outline.json",
+          "repository_copy": "analysis/native534-regional-rap-tail-preserve-command-001/prefix-parity-outline.json",
+          "sha256": "200cc9ebf481f06d8f7a417e316903a21934e282bb870aa28519500948e42c45"
+        },
+        {
+          "bytes": 261,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-regional-rap-tail-preserve-command-001/preflight-source-root-mismatch-001.json",
+          "name": "preflight-source-root-mismatch-001.json",
+          "repository_copy": "analysis/native534-regional-rap-tail-preserve-command-001/preflight-source-root-mismatch-001.json",
+          "sha256": "013d88a62f83a2ba9a1a4aad168a7834fb639e5851b8039f107ac4e91222e641"
+        },
+        {
+          "bytes": 3522,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-regional-rap-tail-preserve-command-001/preflight-worker-guard-001.json",
+          "name": "preflight-worker-guard-001.json",
+          "repository_copy": "analysis/native534-regional-rap-tail-preserve-command-001/preflight-worker-guard-001.json",
+          "sha256": "332024d5d5df12b531342b5127c07c2c1912a7ebab69f82256cdcc5ab6523f30"
+        },
+        {
+          "bytes": 3516,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-regional-rap-tail-preserve-command-001/preflight-worker-guard-002.json",
+          "name": "preflight-worker-guard-002.json",
+          "repository_copy": "analysis/native534-regional-rap-tail-preserve-command-001/preflight-worker-guard-002.json",
+          "sha256": "c36db917280efd013a30ebe47f90669695715aa6c2519e58948bb57ce0a279f3"
+        },
+        {
+          "bytes": 11322,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-regional-rap-tail-preserve-command-001/runner.py",
+          "name": "runner.py",
+          "repository_copy": "analysis/native534-regional-rap-tail-preserve-command-001/runner.py",
+          "sha256": "fce1c050bcc13d6f2a9a17eb7a74428a12be05964d0f5e8d151db5e990b62d62"
+        }
+      ],
+      "physical_box_qualification": false
+    },
+    {
+      "case": "analysis/native534-metal-o0-o3-rap-helper-command-002",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-metal-o0-o3-rap-helper-command-002",
+      "files": [
+        {
+          "bytes": 3496,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-metal-o0-o3-rap-helper-command-002/README.md",
+          "name": "README.md",
+          "repository_copy": "analysis/native534-metal-o0-o3-rap-helper-command-002/README.md",
+          "sha256": "0ed4ff20f2dc5eee6e811b01fee7404d4faabd7d8a3e404d118a9ae30a855d7a"
+        },
+        {
+          "bytes": 106245,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-metal-o0-o3-rap-helper-command-002/command-spec.json",
+          "name": "command-spec.json",
+          "repository_copy": "analysis/native534-metal-o0-o3-rap-helper-command-002/command-spec.json",
+          "sha256": "5ecb8445c58cc977c234138227fcf6f32b3a35b41dd43382a0b5f774605c9c2b"
+        },
+        {
+          "bytes": 848,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-metal-o0-o3-rap-helper-command-002/metal-o0-link-record.json",
+          "name": "metal-o0-link-record.json",
+          "repository_copy": "analysis/native534-metal-o0-o3-rap-helper-command-002/metal-o0-link-record.json",
+          "sha256": "d5fa70e05c44cbffa8ad6075c393e477cfe828a78c6d31892455bf9d5d55bb5d"
+        },
+        {
+          "bytes": 4262,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-metal-o0-o3-rap-helper-command-002/package-manifest.json",
+          "name": "package-manifest.json",
+          "repository_copy": "analysis/native534-metal-o0-o3-rap-helper-command-002/package-manifest.json",
+          "sha256": "c885ea3099fbb1cebd7d97a83532a560d2d038a7ffdcf391352ae653cf4f1046"
+        },
+        {
+          "bytes": 88,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-metal-o0-o3-rap-helper-command-002/package-manifest.sha256",
+          "name": "package-manifest.sha256",
+          "repository_copy": "analysis/native534-metal-o0-o3-rap-helper-command-002/package-manifest.sha256",
+          "sha256": "530fd371d2759af46eb471aa13c747f3ee53ac9fdcb2fc3eae1d9fd417cbd943"
+        },
+        {
+          "bytes": 694,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-metal-o0-o3-rap-helper-command-002/prefix-parity-outline.json",
+          "name": "prefix-parity-outline.json",
+          "repository_copy": "analysis/native534-metal-o0-o3-rap-helper-command-002/prefix-parity-outline.json",
+          "sha256": "df9b8318db1ac09dc6549558d2ac8b36a925518f7f032b3ec88cb5cb8e65c923"
+        },
+        {
+          "bytes": 1073,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-metal-o0-o3-rap-helper-command-002/preflight-receipt-001.json",
+          "name": "preflight-receipt-001.json",
+          "repository_copy": "analysis/native534-metal-o0-o3-rap-helper-command-002/preflight-receipt-001.json",
+          "sha256": "395d3b18505a8bf9f3bdd0e1b495c782717afe4290aa72d92b3ba72e8ce9da26"
+        },
+        {
+          "bytes": 9567,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native534-metal-o0-o3-rap-helper-command-002/runner.py",
+          "name": "runner.py",
+          "repository_copy": "analysis/native534-metal-o0-o3-rap-helper-command-002/runner.py",
+          "sha256": "f72569ad6428cab2a1804f115c08641c91de270d2fd978c3530d36d354d2359c"
+        }
+      ],
+      "physical_box_qualification": false
+    },
+    {
+      "case": "native/regional-rap-tail-preserve-534",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/native/regional-rap-tail-preserve-534",
+      "files": [
+        {
+          "bytes": 3166,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/regional-rap-tail-preserve-534/run-receipt.json",
+          "name": "run-receipt.json",
+          "repository_copy": "native/regional-rap-tail-preserve-534/run-receipt.json",
+          "sha256": "ddfa2f36f8435a821519042fb95e177d71ce94025e2e52c57b9d4227ca558db7"
+        },
+        {
+          "bytes": 0,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/regional-rap-tail-preserve-534/metal-o0/stderr.bin",
+          "name": "metal-o0/stderr.bin",
+          "repository_copy": "native/regional-rap-tail-preserve-534/metal-o0/stderr.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 182,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/regional-rap-tail-preserve-534/metal-o0/stdout.bin",
+          "name": "metal-o0/stdout.bin",
+          "repository_copy": "native/regional-rap-tail-preserve-534/metal-o0/stdout.bin",
+          "sha256": "8bfc3fea81ef1c634542ea4ffbe802de05c41a614952baf7c2c751eaa2910ae0"
+        },
+        {
+          "bytes": 0,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/regional-rap-tail-preserve-534/metal-o3/stderr.bin",
+          "name": "metal-o3/stderr.bin",
+          "repository_copy": "native/regional-rap-tail-preserve-534/metal-o3/stderr.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 182,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/regional-rap-tail-preserve-534/metal-o3/stdout.bin",
+          "name": "metal-o3/stdout.bin",
+          "repository_copy": "native/regional-rap-tail-preserve-534/metal-o3/stdout.bin",
+          "sha256": "8bfc3fea81ef1c634542ea4ffbe802de05c41a614952baf7c2c751eaa2910ae0"
+        }
+      ],
+      "physical_box_qualification": false
+    },
+    {
+      "case": "analysis/native530-native521-accepted-prefix-parity-001",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native530-native521-accepted-prefix-parity-001",
+      "files": [
+        {
+          "bytes": 246,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native530-native521-accepted-prefix-parity-001/manifest.json",
+          "name": "manifest.json",
+          "repository_copy": "analysis/native530-native521-accepted-prefix-parity-001/manifest.json",
+          "sha256": "4a23c30c6b68f19edd84b709aee01e7e040ccdf1bcfbb29615c650a538faee57"
+        },
+        {
+          "bytes": 10810,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native530-native521-accepted-prefix-parity-001/report.json",
+          "name": "report.json",
+          "repository_copy": "analysis/native530-native521-accepted-prefix-parity-001/report.json",
+          "sha256": "074c69bea77963a8ac1249affd1ec853dd17f9b8328c3030bce9f0aba2699fc2"
+        },
+        {
+          "bytes": 1782,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native530-native521-accepted-prefix-parity-001/verify.py",
+          "name": "verify.py",
+          "repository_copy": "analysis/native530-native521-accepted-prefix-parity-001/verify.py",
+          "sha256": "0d68e32700462d182f317e2b68ad5f4e430c9158e54af9453ae5ab1731afd2e4"
+        }
+      ],
+      "physical_box_qualification": false
+    },
+    {
+      "case": "analysis/native530-accepted-prefix-checkpoint-command-001",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native530-accepted-prefix-checkpoint-command-001",
+      "files": [
+        {
+          "bytes": 20653,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native530-accepted-prefix-checkpoint-command-001/capacity-helper.py",
+          "name": "capacity-helper.py",
+          "repository_copy": "analysis/native530-accepted-prefix-checkpoint-command-001/capacity-helper.py",
+          "sha256": "8e4a395c27d0dda8f43351760da7d5b6d0c42dbad0d16680777383d94364cc03"
+        },
+        {
+          "bytes": 4990,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native530-accepted-prefix-checkpoint-command-001/command-spec.json",
+          "name": "command-spec.json",
+          "repository_copy": "analysis/native530-accepted-prefix-checkpoint-command-001/command-spec.json",
+          "sha256": "5e9c22404f19062662147bd9198e1eb65816b5c2665b275ab364677fce173033"
+        },
+        {
+          "bytes": 9987,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native530-accepted-prefix-checkpoint-command-001/host-validation-binding.json",
+          "name": "host-validation-binding.json",
+          "repository_copy": "analysis/native530-accepted-prefix-checkpoint-command-001/host-validation-binding.json",
+          "sha256": "05b07bd71977e016c42b803c71c65b9e82acb25b988d8d1aa1ca7ad07551bfb8"
+        },
+        {
+          "bytes": 586,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native530-accepted-prefix-checkpoint-command-001/package-manifest.json",
+          "name": "package-manifest.json",
+          "repository_copy": "analysis/native530-accepted-prefix-checkpoint-command-001/package-manifest.json",
+          "sha256": "ec0d2fb7393ec49c8da996a2b29ae4794c798f89f173d831384aff85a33adcd1"
+        },
+        {
+          "bytes": 0,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native530-accepted-prefix-checkpoint-command-001/preflight.stderr",
+          "name": "preflight.stderr",
+          "repository_copy": "analysis/native530-accepted-prefix-checkpoint-command-001/preflight.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 4857,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native530-accepted-prefix-checkpoint-command-001/preflight.stdout",
+          "name": "preflight.stdout",
+          "repository_copy": "analysis/native530-accepted-prefix-checkpoint-command-001/preflight.stdout",
+          "sha256": "493f23ddac7a9e9ffff1180889b09c4ba5b244cf5126fa894451ace3df2b0a70"
+        },
+        {
+          "bytes": 7503,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native530-accepted-prefix-checkpoint-command-001/runner.py",
+          "name": "runner.py",
+          "repository_copy": "analysis/native530-accepted-prefix-checkpoint-command-001/runner.py",
+          "sha256": "010c8dcfff0086bf3c0b6545eebfed8d84d8681a3b065e53c20d10cb0d7d2195"
+        },
+        {
+          "bytes": 5358,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native530-accepted-prefix-checkpoint-command-001/execution-530/launch.json",
+          "name": "execution-530/launch.json",
+          "repository_copy": "analysis/native530-accepted-prefix-checkpoint-command-001/execution-530/launch.json",
+          "sha256": "97e6efc92697d819fe90a22deb0770552a79259eecf5894636d6f978245a46fe"
+        },
+        {
+          "bytes": 469,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native530-accepted-prefix-checkpoint-command-001/execution-530/receipt.json",
+          "name": "execution-530/receipt.json",
+          "repository_copy": "analysis/native530-accepted-prefix-checkpoint-command-001/execution-530/receipt.json",
+          "sha256": "9df6ddf5b90f44eb861dc28682a7667c5b17a45997b60ac4f24b902e9774f8f0"
+        },
+        {
+          "bytes": 417,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native530-accepted-prefix-checkpoint-command-001/execution-530/wrapper.log",
+          "name": "execution-530/wrapper.log",
+          "repository_copy": "analysis/native530-accepted-prefix-checkpoint-command-001/execution-530/wrapper.log",
+          "sha256": "c90d54982ef926289c119d44b28131fde62735c507904239156b8b035c4ef21a"
+        }
+      ],
+      "physical_box_qualification": false
+    },
+    {
+      "case": "analysis/native531532-complete-replay-parity-002",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531532-complete-replay-parity-002",
+      "files": [
+        {
+          "bytes": 252,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531532-complete-replay-parity-002/manifest.json",
+          "name": "manifest.json",
+          "repository_copy": "analysis/native531532-complete-replay-parity-002/manifest.json",
+          "sha256": "4da1f4c6572395d6f30464ce9bd0a626f1815c23c0ea4168a7b39a8f2c3325de"
+        },
+        {
+          "bytes": 6533,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531532-complete-replay-parity-002/report.json",
+          "name": "report.json",
+          "repository_copy": "analysis/native531532-complete-replay-parity-002/report.json",
+          "sha256": "8dd02e04a2a18c36c7ffd9c03a9912d5c7e009dea7ee35d3bf3b86c4506d7d41"
+        },
+        {
+          "bytes": 4838,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531532-complete-replay-parity-002/verify.py",
+          "name": "verify.py",
+          "repository_copy": "analysis/native531532-complete-replay-parity-002/verify.py",
+          "sha256": "6fd7688acb73ac27c9b4593c17c5bcccc443f509d6bcd272429b5b137fc39de4"
+        }
+      ],
+      "physical_box_qualification": false
+    },
+    {
+      "case": "analysis/native531-fp64-fd-refinement-002",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-fd-refinement-002",
+      "files": [
+        {
+          "bytes": 4261,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-fd-refinement-002/README.md",
+          "name": "README.md",
+          "repository_copy": "analysis/native531-fp64-fd-refinement-002/README.md",
+          "sha256": "883a25a419028fd8cd9bb14e5041dede355ac823cf222cac02670e548e41b5d3"
+        },
+        {
+          "bytes": 1360,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-fd-refinement-002/attempt-history.json",
+          "name": "attempt-history.json",
+          "repository_copy": "analysis/native531-fp64-fd-refinement-002/attempt-history.json",
+          "sha256": "a97750f9a6723bd856dbc482a35b03c413ef754500b3cb278b4b1cd226eb10a3"
+        },
+        {
+          "bytes": 4448,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-fd-refinement-002/manifest.json",
+          "name": "manifest.json",
+          "repository_copy": "analysis/native531-fp64-fd-refinement-002/manifest.json",
+          "sha256": "f949f99199d542dc4b4ba78d6ae85a53aa663383d6037827f2487af242b6fc52"
+        },
+        {
+          "bytes": 1608,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-fd-refinement-002/reference-tools.json",
+          "name": "reference-tools.json",
+          "repository_copy": "analysis/native531-fp64-fd-refinement-002/reference-tools.json",
+          "sha256": "f99b01578fb3ff65c862ff2738874bb62eea2c0002193e7dc6c16e486b0826e1"
+        },
+        {
+          "bytes": 4371,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-fd-refinement-002/refine.py",
+          "name": "refine.py",
+          "repository_copy": "analysis/native531-fp64-fd-refinement-002/refine.py",
+          "sha256": "06df352f392c888c918eda2131782727ddb280667a561a5b41c005dbcafa515f"
+        },
+        {
+          "bytes": 906,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-fd-refinement-002/run.command.json",
+          "name": "run.command.json",
+          "repository_copy": "analysis/native531-fp64-fd-refinement-002/run.command.json",
+          "sha256": "b31aee62192d6d9928ba6e404e9911d49cbe0baf47d75ac96bfa06946f23b211"
+        },
+        {
+          "bytes": 3021,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-fd-refinement-002/seal.py",
+          "name": "seal.py",
+          "repository_copy": "analysis/native531-fp64-fd-refinement-002/seal.py",
+          "sha256": "bfe2f30e0a6e7a93f8cb7eaf5eea832aab29465e2d37326801a315d38bb4b87e"
+        },
+        {
+          "bytes": 38995,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-fd-refinement-002/unresolved-rows.json",
+          "name": "unresolved-rows.json",
+          "repository_copy": "analysis/native531-fp64-fd-refinement-002/unresolved-rows.json",
+          "sha256": "dea535c86184ab7984e5fb8c0aa181bb62f932cdde47fcb916bc0242acf48a48"
+        },
+        {
+          "bytes": 6664254,
+          "compressed_bytes": 6570755,
+          "compressed_sha256": "7e75b782a88290fdbcbada0afc1007db70b700cd300daa2e21cbb17c88f9b2b9",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-fd-refinement-002/layers/arrays.npz",
+          "name": "layers/arrays.npz",
+          "repository_compressed_copy": "analysis/native531-fp64-fd-refinement-002/layers/arrays.npz.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "4f625da156de644d3871058bc9a93ac640ff9eb3d4d2ce3684c5e0ec501b4b34"
+        },
+        {
+          "bytes": 1928,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-fd-refinement-002/layers/manifest.json",
+          "name": "layers/manifest.json",
+          "repository_copy": "analysis/native531-fp64-fd-refinement-002/layers/manifest.json",
+          "sha256": "d62949e0825d78c0315d0e9d54782041f0f5db9712313ca37f2ecc8287232236"
+        },
+        {
+          "bytes": 470837,
+          "compressed_bytes": 53924,
+          "compressed_sha256": "07c53c7978a3515b49d5a29ea5755b5411f3b1bfb715859206f0ff757c94468f",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-fd-refinement-002/layers/report.json",
+          "name": "layers/report.json",
+          "repository_compressed_copy": "analysis/native531-fp64-fd-refinement-002/layers/report.json.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "94aa51000ff5578a669137c806f6d0bf167e2205636e5761b336053b6c4ad59d"
+        }
+      ],
+      "physical_box_qualification": false
+    },
+    {
+      "case": "analysis/native531-fp64-ninebasis-003",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-ninebasis-003",
+      "files": [
+        {
+          "bytes": 15518446,
+          "compressed_bytes": 15511302,
+          "compressed_sha256": "5541adb68ef4163f90d085d4fdd1c9b033aa8b3337a0e50ff2f1d35f4c001429",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-ninebasis-003/arrays.npz",
+          "name": "arrays.npz",
+          "repository_compressed_copy": "analysis/native531-fp64-ninebasis-003/arrays.npz.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "701df2c6349d540c796d031fa80e3101abbbf1818813d3958a66b373051fcd24"
+        },
+        {
+          "bytes": 18790,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-ninebasis-003/audit9basis.py",
+          "name": "audit9basis.py",
+          "repository_copy": "analysis/native531-fp64-ninebasis-003/audit9basis.py",
+          "sha256": "1bc75cfadc11a8439f9a7dd73b7fcf097898f9396837ff46d10a6dc1289ff92e"
+        },
+        {
+          "bytes": 3397,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-ninebasis-003/manifest.json",
+          "name": "manifest.json",
+          "repository_copy": "analysis/native531-fp64-ninebasis-003/manifest.json",
+          "sha256": "12eec0f15fd19a1ab367bc48bb5e37ad462fddd22c827f3e1acc8170438ad718"
+        },
+        {
+          "bytes": 30668,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-ninebasis-003/progress.jsonl",
+          "name": "progress.jsonl",
+          "repository_copy": "analysis/native531-fp64-ninebasis-003/progress.jsonl",
+          "sha256": "3ac7f8d714e9b2f43e5b07541f01adfb3fdc765d95c8821b0afa3026d90095b9"
+        },
+        {
+          "bytes": 80082,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-ninebasis-003/report.json",
+          "name": "report.json",
+          "repository_copy": "analysis/native531-fp64-ninebasis-003/report.json",
+          "sha256": "7073a49e303eb4e4f64f6aa754cda862910bc00cb00d4069379b626a15929264"
+        },
+        {
+          "bytes": 732,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-ninebasis-003/run.command.json",
+          "name": "run.command.json",
+          "repository_copy": "analysis/native531-fp64-ninebasis-003/run.command.json",
+          "sha256": "d54820183db1d00835de9093d14a0906d49302f3087aea028fd8ba33ce274959"
+        }
+      ],
+      "physical_box_qualification": false
+    },
+    {
+      "case": "analysis/native531-fp64-ninebasis-seal-003-001",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-ninebasis-seal-003-001",
+      "files": [
+        {
+          "bytes": 2158,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-ninebasis-seal-003-001/README.md",
+          "name": "README.md",
+          "repository_copy": "analysis/native531-fp64-ninebasis-seal-003-001/README.md",
+          "sha256": "6bd623d132dc991bb450a1159d281d9ead7610ea00250f233b0f10c3ab99459c"
+        },
+        {
+          "bytes": 261,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-ninebasis-seal-003-001/manifest.json",
+          "name": "manifest.json",
+          "repository_copy": "analysis/native531-fp64-ninebasis-seal-003-001/manifest.json",
+          "sha256": "2b879d98cd2436891290ad4e61af2e35a5860724c26c22d1b9f84f2f7be8d88a"
+        },
+        {
+          "bytes": 3282,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-ninebasis-seal-003-001/seal.json",
+          "name": "seal.json",
+          "repository_copy": "analysis/native531-fp64-ninebasis-seal-003-001/seal.json",
+          "sha256": "6d993f95149227d6a19ffc3241ce4bed5af5c2b32fb03a109b576a2954aa393e"
+        }
+      ],
+      "physical_box_qualification": false
+    },
+    {
+      "case": "analysis/native531-recovered-fp32-material-frames-001",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-recovered-fp32-material-frames-001",
+      "files": [
+        {
+          "bytes": 265,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-recovered-fp32-material-frames-001/README.md",
+          "name": "README.md",
+          "repository_copy": "analysis/native531-recovered-fp32-material-frames-001/README.md",
+          "sha256": "745e81aad487febaa5673ee0cced2eb6267a1301f37dc990d46ef5e93d72a1bd"
+        },
+        {
+          "bytes": 69030,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-recovered-fp32-material-frames-001/frames.npz",
+          "name": "frames.npz",
+          "repository_copy": "analysis/native531-recovered-fp32-material-frames-001/frames.npz",
+          "sha256": "d564c39671c482fd0e1ed7db006c5c1558381196683006aa345b884ba507ae95"
+        },
+        {
+          "bytes": 255,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-recovered-fp32-material-frames-001/manifest.json",
+          "name": "manifest.json",
+          "repository_copy": "analysis/native531-recovered-fp32-material-frames-001/manifest.json",
+          "sha256": "37c1b929ebed67333a7ade7cfc198a4e5cd2564604990266f3f45a331243d713"
+        },
+        {
+          "bytes": 33480,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-recovered-fp32-material-frames-001/report.json",
+          "name": "report.json",
+          "repository_copy": "analysis/native531-recovered-fp32-material-frames-001/report.json",
+          "sha256": "658544b9684f92a2d5492d56b9320e9a65908868653f5da511af11789e35d0da"
+        }
+      ],
+      "physical_box_qualification": false
+    },
+    {
+      "case": "analysis/native531-cached-operator-001",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-cached-operator-001",
+      "files": [
+        {
+          "bytes": 1371,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-cached-operator-001/launch.json",
+          "name": "launch.json",
+          "repository_copy": "analysis/native531-cached-operator-001/launch.json",
+          "sha256": "b842f352dcd261e3114d538563eb8cd507543b644257367582000ec34d1c0f5e"
+        },
+        {
+          "bytes": 1242,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-cached-operator-001/manifest.json",
+          "name": "manifest.json",
+          "repository_copy": "analysis/native531-cached-operator-001/manifest.json",
+          "sha256": "0dcf09b168d5a179097f4d998db8d7b9b7da3c538068f4bfefe3c950bf78e1d5"
+        },
+        {
+          "bytes": 119535,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-cached-operator-001/operator",
+          "name": "operator",
+          "repository_copy": "analysis/native531-cached-operator-001/operator",
+          "sha256": "e7e87978d14579ee9ae22e97c122430c0c1226454f21e4e3da841a7ae6867813"
+        },
+        {
+          "bytes": 511904,
+          "compressed_bytes": 506226,
+          "compressed_sha256": "d6f786b967f04eed0bf46d37877d39a8e6ae263d42dc40dfb973b01db96e2832",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-cached-operator-001/operator.dt2-stiffness.npz",
+          "name": "operator.dt2-stiffness.npz",
+          "repository_compressed_copy": "analysis/native531-cached-operator-001/operator.dt2-stiffness.npz.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "aa4847ab9762555a92b5334f4778f6ef6d5d08fa343c2427e097046ee468d658"
+        },
+        {
+          "bytes": 10621,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-cached-operator-001/operator.mass.npz",
+          "name": "operator.mass.npz",
+          "repository_copy": "analysis/native531-cached-operator-001/operator.mass.npz",
+          "sha256": "c400b7dec23c9b9f983270d7824a6fbf84d58aac1ce519d1199546294af4ee7a"
+        },
+        {
+          "bytes": 511906,
+          "compressed_bytes": 506253,
+          "compressed_sha256": "0116faddb99d28ef61001b3934524be85cf1a9242d1a3f286336de5e7e7ba632",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-cached-operator-001/operator.operator.npz",
+          "name": "operator.operator.npz",
+          "repository_compressed_copy": "analysis/native531-cached-operator-001/operator.operator.npz.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "de7634dc46818fd65b8ca97b50d1e6a79a472e1471b570b7e8fdf66b70583f67"
+        },
+        {
+          "bytes": 510323,
+          "compressed_bytes": 504592,
+          "compressed_sha256": "b7944dc7cc1328f1e86002bb3df877a88a6711d0ea3aa21a7f3119726b8fd463",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-cached-operator-001/operator.stiffness.npz",
+          "name": "operator.stiffness.npz",
+          "repository_compressed_copy": "analysis/native531-cached-operator-001/operator.stiffness.npz.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "e55d492c15bad983dabfaca07a16966535bffb49302b29b037d8a54c4e40abb7"
+        },
+        {
+          "bytes": 21667,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-cached-operator-001/operator.topology.npz",
+          "name": "operator.topology.npz",
+          "repository_copy": "analysis/native531-cached-operator-001/operator.topology.npz",
+          "sha256": "a27d8399d64330c97123d350668a42eb019d23cfe97478376541de7ab4e665d0"
+        },
+        {
+          "bytes": 134372,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-cached-operator-001/operator.vectors.npz",
+          "name": "operator.vectors.npz",
+          "repository_copy": "analysis/native531-cached-operator-001/operator.vectors.npz",
+          "sha256": "a9880116577d08be87012291ed7ba43218f32f780445fc44f03a25c58b49c0c4"
+        },
+        {
+          "bytes": 261,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-cached-operator-001/receipt.json",
+          "name": "receipt.json",
+          "repository_copy": "analysis/native531-cached-operator-001/receipt.json",
+          "sha256": "981df2d59893a4a36cb90d9d07e541d5ffbcb9c7d6e97c1d5df1f329c372c96a"
+        },
+        {
+          "bytes": 1942,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-cached-operator-001/run.py",
+          "name": "run.py",
+          "repository_copy": "analysis/native531-cached-operator-001/run.py",
+          "sha256": "dd6b2b12132d10f8617a1bc1412017bf8b85fb5e9395c19fca1dd704e05869ac"
+        },
+        {
+          "bytes": 0,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-cached-operator-001/stderr.log",
+          "name": "stderr.log",
+          "repository_copy": "analysis/native531-cached-operator-001/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 343,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-cached-operator-001/stdout.log",
+          "name": "stdout.log",
+          "repository_copy": "analysis/native531-cached-operator-001/stdout.log",
+          "sha256": "3f65d29d17891b23dcbb1503b2274ac024315c623bc1b160a89bda480bb08fb0"
+        }
+      ],
+      "physical_box_qualification": false
+    },
+    {
+      "case": "analysis/native531-strict-fp64-replay-001",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-replay-001",
+      "files": [
+        {
+          "bytes": 3551,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-replay-001/launch.json",
+          "name": "launch.json",
+          "repository_copy": "analysis/native531-strict-fp64-replay-001/launch.json",
+          "sha256": "d891d1b24e0f94d5f92dc5105e89b36f8f34f593ad07bb22657bd3f386d0c790"
+        },
+        {
+          "bytes": 331,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-replay-001/receipt.json",
+          "name": "receipt.json",
+          "repository_copy": "analysis/native531-strict-fp64-replay-001/receipt.json",
+          "sha256": "a4b8ff75be90d3d3166e5951a8e6779e7bf0a9a7e9d3f635663bd9c05e0033de"
+        },
+        {
+          "bytes": 0,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-replay-001/stderr.log",
+          "name": "stderr.log",
+          "repository_copy": "analysis/native531-strict-fp64-replay-001/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 491,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-replay-001/stdout.log",
+          "name": "stdout.log",
+          "repository_copy": "analysis/native531-strict-fp64-replay-001/stdout.log",
+          "sha256": "29d354537ad28dd7382196413a96ec4d9013b33efb9b912546adfa54016c7430"
+        },
+        {
+          "bytes": 6594513,
+          "compressed_bytes": 6504741,
+          "compressed_sha256": "48e77f7c63fbf20b060c9b7dfc733e31d6ce33413ae639337fa9dc9ec5471020",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-replay-001/layers/arrays.npz",
+          "name": "layers/arrays.npz",
+          "repository_compressed_copy": "analysis/native531-strict-fp64-replay-001/layers/arrays.npz.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "038551564ac89f298148426da9b5e6259e40fd256f091e63aa8a7d57f0f7cc65"
+        },
+        {
+          "bytes": 1928,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-replay-001/layers/manifest.json",
+          "name": "layers/manifest.json",
+          "repository_copy": "analysis/native531-strict-fp64-replay-001/layers/manifest.json",
+          "sha256": "1db4342cdf9b866cd8280209a86cdc7cb70cd712ddb8ea68b2d42b0eb89253da"
+        },
+        {
+          "bytes": 375424,
+          "compressed_bytes": 52711,
+          "compressed_sha256": "a412216b70bc1767b4658aed9b15cb8d657ad1cd10033956c5e88084e37cf2b9",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-replay-001/layers/report.json",
+          "name": "layers/report.json",
+          "repository_compressed_copy": "analysis/native531-strict-fp64-replay-001/layers/report.json.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "de9603063717a6f5864e9e65e7ca6c8c933b6c42de6a84fdf7922495ad9f3761"
+        }
+      ],
+      "physical_box_qualification": false
+    },
+    {
+      "case": "analysis/native531-strict-fp64-command-002",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-command-002",
+      "files": [
+        {
+          "bytes": 271,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-command-002/README.md",
+          "name": "README.md",
+          "repository_copy": "analysis/native531-strict-fp64-command-002/README.md",
+          "sha256": "df6087b3392920873d494e73bb922d3d4b148157290d087ade1bfd58fbad55f7"
+        },
+        {
+          "bytes": 1719,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-command-002/change.patch",
+          "name": "change.patch",
+          "repository_copy": "analysis/native531-strict-fp64-command-002/change.patch",
+          "sha256": "e37b08c8157aceeac1d97247a8fef68449feb74ba5923be8490272c678f34f35"
+        },
+        {
+          "bytes": 548,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-command-002/manifest.json",
+          "name": "manifest.json",
+          "repository_copy": "analysis/native531-strict-fp64-command-002/manifest.json",
+          "sha256": "18d236f1df2cb99561b280d600a9341b36b0090b31ba9f6f40c600f26fd9b4f0"
+        },
+        {
+          "bytes": 4870,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-strict-fp64-command-002/runner.py",
+          "name": "runner.py",
+          "repository_copy": "analysis/native531-strict-fp64-command-002/runner.py",
+          "sha256": "71511ec405f1eb76a69067a7a28fcced61b3c1c8aa26b9bdd1234ce2849c16fe"
+        }
+      ],
+      "physical_box_qualification": false
+    },
+    {
+      "case": "analysis/native531-root17-newton34-replay-command-001",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-root17-newton34-replay-command-001",
+      "files": [
+        {
+          "bytes": 1302,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-root17-newton34-replay-command-001/README.md",
+          "name": "README.md",
+          "repository_copy": "analysis/native531-root17-newton34-replay-command-001/README.md",
+          "sha256": "4939171a14b9f1a4e0147263a4be48f23e947899de246cb6bfb21c660448df0f"
+        },
+        {
+          "bytes": 20653,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-root17-newton34-replay-command-001/capacity_helper_531.py",
+          "name": "capacity_helper_531.py",
+          "repository_copy": "analysis/native531-root17-newton34-replay-command-001/capacity_helper_531.py",
+          "sha256": "8e4a395c27d0dda8f43351760da7d5b6d0c42dbad0d16680777383d94364cc03"
+        },
+        {
+          "bytes": 18289,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-root17-newton34-replay-command-001/command-spec.json",
+          "name": "command-spec.json",
+          "repository_copy": "analysis/native531-root17-newton34-replay-command-001/command-spec.json",
+          "sha256": "8a3e4f535dfec10d1d0d8fb41432505d648a32b32311c7495f1f14205f3ece5f"
+        },
+        {
+          "bytes": 1022,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-root17-newton34-replay-command-001/host-validation-binding.json",
+          "name": "host-validation-binding.json",
+          "repository_copy": "analysis/native531-root17-newton34-replay-command-001/host-validation-binding.json",
+          "sha256": "5f10462dc5983982ba021a6ed2a92eeb5924334c7fc0f93c0926b079b9539364"
+        },
+        {
+          "bytes": 1331,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-root17-newton34-replay-command-001/package-manifest.json",
+          "name": "package-manifest.json",
+          "repository_copy": "analysis/native531-root17-newton34-replay-command-001/package-manifest.json",
+          "sha256": "d13301428d9de07ff8a3db013eb7f1a1f3f95fc6ef740c5db83f2aea521e72f2"
+        },
+        {
+          "bytes": 5407,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-root17-newton34-replay-command-001/parent-521-command-spec.json",
+          "name": "parent-521-command-spec.json",
+          "repository_copy": "analysis/native531-root17-newton34-replay-command-001/parent-521-command-spec.json",
+          "sha256": "796b422271e2e120da8d3a358796013b42daf01a32557676ed2488affbd4ef64"
+        },
+        {
+          "bytes": 4990,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-root17-newton34-replay-command-001/parent-530-command-spec.json",
+          "name": "parent-530-command-spec.json",
+          "repository_copy": "analysis/native531-root17-newton34-replay-command-001/parent-530-command-spec.json",
+          "sha256": "5e9c22404f19062662147bd9198e1eb65816b5c2665b275ab364677fce173033"
+        },
+        {
+          "bytes": 9987,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-root17-newton34-replay-command-001/parent-530-host-validation-binding.json",
+          "name": "parent-530-host-validation-binding.json",
+          "repository_copy": "analysis/native531-root17-newton34-replay-command-001/parent-530-host-validation-binding.json",
+          "sha256": "05b07bd71977e016c42b803c71c65b9e82acb25b988d8d1aa1ca7ad07551bfb8"
+        },
+        {
+          "bytes": 555,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-root17-newton34-replay-command-001/preflight-attempt-002.json",
+          "name": "preflight-attempt-002.json",
+          "repository_copy": "analysis/native531-root17-newton34-replay-command-001/preflight-attempt-002.json",
+          "sha256": "4c854f5944e9e566bb8d079909e1f257d1ecbf05cc27e51701cf381843b92188"
+        },
+        {
+          "bytes": 14365,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-root17-newton34-replay-command-001/runner.py",
+          "name": "runner.py",
+          "repository_copy": "analysis/native531-root17-newton34-replay-command-001/runner.py",
+          "sha256": "6982920001d6089647f03107f210f4313ac66285d19fa69e046fa39c13c9553b"
+        },
+        {
+          "bytes": 3976,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-root17-newton34-replay-command-001/execution-531/launch.json",
+          "name": "execution-531/launch.json",
+          "repository_copy": "analysis/native531-root17-newton34-replay-command-001/execution-531/launch.json",
+          "sha256": "a95d68ccce320ceae56be17d59c57900e4721c1db13129e901a7a99478840409"
+        },
+        {
+          "bytes": 946,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-root17-newton34-replay-command-001/execution-531/receipt.json",
+          "name": "execution-531/receipt.json",
+          "repository_copy": "analysis/native531-root17-newton34-replay-command-001/execution-531/receipt.json",
+          "sha256": "a4a63f7c3f40e470612497af1107c0ae42765a5f8ba5a59d29964cf0e1e58b72"
+        },
+        {
+          "bytes": 0,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-root17-newton34-replay-command-001/execution-531/runner.lock",
+          "name": "execution-531/runner.lock",
+          "repository_copy": "analysis/native531-root17-newton34-replay-command-001/execution-531/runner.lock",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 713,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-root17-newton34-replay-command-001/execution-531/wrapper.log",
+          "name": "execution-531/wrapper.log",
+          "repository_copy": "analysis/native531-root17-newton34-replay-command-001/execution-531/wrapper.log",
+          "sha256": "8ab03fc7eb7379ffd883ab553fcab3910eddfec3dd07267cf014bbbce3e9f0e1"
+        }
+      ],
+      "physical_box_qualification": false
+    },
+    {
+      "case": "solver/control17-root17-newton34-replay-531",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531",
+      "files": [
+        {
+          "bytes": 580,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/diagnostic-captures.json",
+          "name": "diagnostic-captures.json",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/diagnostic-captures.json",
+          "sha256": "3c11527e761f45838b4d460b5e4253d51de5b4e4e0e69989d55289f193838186"
+        },
+        {
+          "bytes": 8488,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/native-environment.json",
+          "name": "native-environment.json",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/native-environment.json",
+          "sha256": "94a1726603b134a074facc27fb5b2ca59807926c48344e81617dccb90bf2aade"
+        },
+        {
+          "bytes": 120859,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/prediction.json",
+          "name": "prediction.json",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/prediction.json",
+          "sha256": "b1c333332ccd527f97160af8545b5ab041620c72823291a616880ed9277dd743"
+        },
+        {
+          "bytes": 821,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/receipt.json",
+          "name": "receipt.json",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/receipt.json",
+          "sha256": "f3dc5b3ca9b3c0bd23ae034c18fe157c062a4dcda894a56675881d868c41f5e3"
+        },
+        {
+          "bytes": 4378355,
+          "compressed_bytes": 85763,
+          "compressed_sha256": "e708dcdd40d7cd30eee79e6eaa2bd899d4b682d2b235500ad1acf8fd99fee690",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/stderr.log",
+          "name": "stderr.log",
+          "repository_compressed_copy": "solver/control17-root17-newton34-replay-531/stderr.log.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "ea7390fccb1f9e9efd6194e3e28afef02211ec060b5d518a2531cbfb5300f60f"
+        },
+        {
+          "bytes": 371,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/stdout.log",
+          "name": "stdout.log",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/stdout.log",
+          "sha256": "a50e125aaf7888e0d5dc1f2afff1574ab6244f3f6af49681ed15cb042d5ffe2b"
+        },
+        {
+          "bytes": 38862680,
+          "compressed_bytes": 7117255,
+          "compressed_sha256": "bdb398911ed6e6a9d01c80ea536489d88e7532b2835afca4848d5c1c0c5bebc6",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/diagnostics/capture-operator-fd-capture/capture",
+          "name": "diagnostics/capture-operator-fd-capture/capture",
+          "repository_compressed_copy": "solver/control17-root17-newton34-replay-531/diagnostics/capture-operator-fd-capture/capture.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "c9a538bd6357136130fc3d971c7d2f1e61fc52bdef2a0737ba00790bd34d8ec2"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/accepted_step_000018_held_reference.obj",
+          "name": "output/accepted_step_000018_held_reference.obj",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/accepted_step_000018_held_reference.obj",
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        {
+          "bytes": 1984768,
+          "compressed_bytes": 110347,
+          "compressed_sha256": "aaef046c4e1825ec1d8322345c5fb62559e6e737ba4d5bd0f64f790d2079796b",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/compiled.nmatterpack",
+          "name": "output/compiled.nmatterpack",
+          "repository_compressed_copy": "solver/control17-root17-newton34-replay-531/output/compiled.nmatterpack.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1"
+        },
+        {
+          "bytes": 3318,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/coupon-resume-segment.json",
+          "name": "output/coupon-resume-segment.json",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/coupon-resume-segment.json",
+          "sha256": "a6decafe589d17e5a4deb09b73ef9c00e339eef55b38873b9dcaee8881b8d35d"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/initial.obj",
+          "name": "output/initial.obj",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/initial.obj",
+          "sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af"
+        },
+        {
+          "bytes": 11809,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/manifest.json",
+          "name": "output/manifest.json",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/manifest.json",
+          "sha256": "1eb17e823eea389ce40d72acc859f0bcd8e34313a0a5e207b8b02075a6918bbe"
+        },
+        {
+          "bytes": 967618,
+          "compressed_bytes": 353424,
+          "compressed_sha256": "d3c89e92292a1428a07eabd29bf6b7e8366556d8f2f6c55cc538961d3ee672fa",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/material_state_000018_bent.json",
+          "name": "output/material_state_000018_bent.json",
+          "repository_compressed_copy": "solver/control17-root17-newton34-replay-531/output/material_state_000018_bent.json.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "2c5d19f8a2a94ce538dd52beff3deb83994fae07d689ffe608c7dff6272a672e"
+        },
+        {
+          "bytes": 160425,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/mesh.json",
+          "name": "output/mesh.json",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/mesh.json",
+          "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56"
+        },
+        {
+          "bytes": 1630,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/observations.csv",
+          "name": "output/observations.csv",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/observations.csv",
+          "sha256": "9dbbf02bc31c0e93ea9f719d665890236cef7d1e9acc5fb27f1223c1c207107d"
+        },
+        {
+          "bytes": 61988,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected_step_diagnostic_000018_bent.obj",
+          "name": "output/rejected_step_diagnostic_000018_bent.obj",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected_step_diagnostic_000018_bent.obj",
+          "sha256": "3b3353529728108195b575555f5add2d26fd2f753ab1d1d554d9bf1bb8cf763d"
+        },
+        {
+          "bytes": 726,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/result.json",
+          "name": "output/result.json",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/result.json",
+          "sha256": "e2d15726bd3ddc2c30420bc11f12af97b016abe8af35c4b0bd5b152708b638a0"
+        },
+        {
+          "bytes": 733824,
+          "compressed_bytes": 353594,
+          "compressed_sha256": "75862481a1177834b531d4b248ed52a9b886241796a770a939bf5a9160f16789",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/AP.bin",
+          "name": "output/rejected-conditioning-000018/AP.bin",
+          "repository_compressed_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/AP.bin.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "026ff4c589323ea16dd6e2f0828fdf7ee2ec87a4f2a3b3f3a6463442e83264e1"
+        },
+        {
+          "bytes": 366912,
+          "compressed_bytes": 119480,
+          "compressed_sha256": "70e630d1b99568e9b75535ff0cf04d34af4ae12138c9ddaf733b2fde46a42ff2",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/P.bin",
+          "name": "output/rejected-conditioning-000018/P.bin",
+          "repository_compressed_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/P.bin.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5"
+        },
+        {
+          "bytes": 141120,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/candidate_nodes.bin",
+          "name": "output/rejected-conditioning-000018/candidate_nodes.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/candidate_nodes.bin",
+          "sha256": "db75dfcc037c193bb43ab0b3ffc2ffa90b3ed7f88f2b188fbe5d3da1b4a03994"
+        },
+        {
+          "bytes": 733824,
+          "compressed_bytes": 239069,
+          "compressed_sha256": "b4c2b8a2dcad7d257395cedf1e60db96fb0dc7276fb20f3f0613b48ff062157e",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/effective_P.bin",
+          "name": "output/rejected-conditioning-000018/effective_P.bin",
+          "repository_compressed_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/effective_P.bin.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c"
+        },
+        {
+          "bytes": 8,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/factor_valid.bin",
+          "name": "output/rejected-conditioning-000018/factor_valid.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/factor_valid.bin",
+          "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5"
+        },
+        {
+          "bytes": 184320,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/linearization_F_high.bin",
+          "name": "output/rejected-conditioning-000018/linearization_F_high.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/linearization_F_high.bin",
+          "sha256": "9a33428635909002c30bb3d15554fccf5879b1016fa4d22eaba4d696750a8682"
+        },
+        {
+          "bytes": 184320,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/linearization_F_low.bin",
+          "name": "output/rejected-conditioning-000018/linearization_F_low.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/linearization_F_low.bin",
+          "sha256": "6b1e7c99663cd6a95d11c4514a657e241d4f214e5c54157b3b79d8a3298f751a"
+        },
+        {
+          "bytes": 230400,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/linearization_accepted_material_history.bin",
+          "name": "output/rejected-conditioning-000018/linearization_accepted_material_history.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/linearization_accepted_material_history.bin",
+          "sha256": "add94d454227570f20f25d3520daefc72834981218a00b58cdc30f170dad50ff"
+        },
+        {
+          "bytes": 15360,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/linearization_scheduler_exponents.bin",
+          "name": "output/rejected-conditioning-000018/linearization_scheduler_exponents.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/linearization_scheduler_exponents.bin",
+          "sha256": "0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"
+        },
+        {
+          "bytes": 6749,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/manifest.json",
+          "name": "output/rejected-conditioning-000018/manifest.json",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/manifest.json",
+          "sha256": "e1512610135489efb9b0ca0e513d2d366e6dabb14f0f4e87a50453a779f503ad"
+        },
+        {
+          "bytes": 0,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/node_block_inverse.bin",
+          "name": "output/rejected-conditioning-000018/node_block_inverse.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/node_block_inverse.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 5408,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/pivoted_RAP.bin",
+          "name": "output/rejected-conditioning-000018/pivoted_RAP.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/pivoted_RAP.bin",
+          "sha256": "3275cb36689d6c93c49a075dbc779efffabb02a54c3b7bd8fd733e891f72ff9d"
+        },
+        {
+          "bytes": 208,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/pivots.bin",
+          "name": "output/rejected-conditioning-000018/pivots.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/pivots.bin",
+          "sha256": "b15351752746ad304892b36595184c9b83246883ef1d0628cdfda0983a499369"
+        },
+        {
+          "bytes": 14112,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_Aq.bin",
+          "name": "output/rejected-conditioning-000018/restart_Aq.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_Aq.bin",
+          "sha256": "0f97790543329f8249a5b0ede1f5847b264bf4a2d08f661a948bd69bd96836e7"
+        },
+        {
+          "bytes": 28224,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_Aq_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_Aq_by_environment.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_Aq_by_environment.bin",
+          "sha256": "58addadd982be00456b092d551a587a0a25373b1465956ed31bafb61416471f3"
+        },
+        {
+          "bytes": 8,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_attempt_counts_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_attempt_counts_by_environment.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_attempt_counts_by_environment.bin",
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+        },
+        {
+          "bytes": 8,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_factor_valid_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_factor_valid_by_environment.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_factor_valid_by_environment.bin",
+          "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8"
+        },
+        {
+          "bytes": 32,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_generations_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_generations_by_environment.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_generations_by_environment.bin",
+          "sha256": "af9613760f72635fbdb44a5a0a63c39f12af30f950a6ee5c971be188e89c4051"
+        },
+        {
+          "bytes": 8,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_mode_scales_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_mode_scales_by_environment.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_mode_scales_by_environment.bin",
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+        },
+        {
+          "bytes": 8,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_mode_valid_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_mode_valid_by_environment.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_mode_valid_by_environment.bin",
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+        },
+        {
+          "bytes": 2916,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_pivoted_RAP.bin",
+          "name": "output/rejected-conditioning-000018/restart_pivoted_RAP.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_pivoted_RAP.bin",
+          "sha256": "3dae92d06f364fa6ea8e434c89a3d9d40cb995af8e46e50fff5ff91bd28fe112"
+        },
+        {
+          "bytes": 5832,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_pivoted_RAP_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_pivoted_RAP_by_environment.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_pivoted_RAP_by_environment.bin",
+          "sha256": "d1575943c8a4713d0cdfc917aff7903805fab6350d7fcdc2000ccd7839ccd134"
+        },
+        {
+          "bytes": 108,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_pivots.bin",
+          "name": "output/rejected-conditioning-000018/restart_pivots.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_pivots.bin",
+          "sha256": "77133f431d5e12dd850002c0d3d4e0fecbe3a7a699d604dc8c5eae9976e1d260"
+        },
+        {
+          "bytes": 216,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_pivots_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_pivots_by_environment.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_pivots_by_environment.bin",
+          "sha256": "a5645e7a3fa0866cde8842c4dab96567507c3d1a3c028b816bc63f6966367b70"
+        },
+        {
+          "bytes": 14112,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_q.bin",
+          "name": "output/rejected-conditioning-000018/restart_q.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_q.bin",
+          "sha256": "0f97790543329f8249a5b0ede1f5847b264bf4a2d08f661a948bd69bd96836e7"
+        },
+        {
+          "bytes": 28224,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_q_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_q_by_environment.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_q_by_environment.bin",
+          "sha256": "58addadd982be00456b092d551a587a0a25373b1465956ed31bafb61416471f3"
+        },
+        {
+          "bytes": 8,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_raw_norm_squared_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_raw_norm_squared_by_environment.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_raw_norm_squared_by_environment.bin",
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+        },
+        {
+          "bytes": 8,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_target_scales_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_target_scales_by_environment.bin",
+          "repository_copy": "solver/control17-root17-newton34-replay-531/output/rejected-conditioning-000018/restart_target_scales_by_environment.bin",
+          "sha256": "7b48be53bbaa59d559548e450bb60062ee8fbcc9f1df7cd1bed86508a438612f"
+        }
+      ],
+      "physical_box_qualification": false
+    },
+    {
+      "case": "solver/control17-root17-diagnostic-off-532",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532",
+      "files": [
+        {
+          "bytes": 239,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/diagnostic-captures.json",
+          "name": "diagnostic-captures.json",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/diagnostic-captures.json",
+          "sha256": "c79e52e8aa5980f8e8446d1b190a2c55c45fa53dcc770a2b8ee66a8c1411bd25"
+        },
+        {
+          "bytes": 8146,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/native-environment.json",
+          "name": "native-environment.json",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/native-environment.json",
+          "sha256": "6b0c67259e8f19c5e358b1527863685c14f53ce5eec89b23d31ea7ca6ab468b1"
+        },
+        {
+          "bytes": 120198,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/prediction.json",
+          "name": "prediction.json",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/prediction.json",
+          "sha256": "30fb8b9a3883d88578c6a197afc3623115ec3e4039212403637de1ed3309342c"
+        },
+        {
+          "bytes": 457,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/receipt.json",
+          "name": "receipt.json",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/receipt.json",
+          "sha256": "0e269186717b4fb23327c4ae80b313d8fbdc352ca5d6369a19e1251239de6d71"
+        },
+        {
+          "bytes": 4188020,
+          "compressed_bytes": 36167,
+          "compressed_sha256": "acc7cf324ef196266120a6aca783fed0646ee9a69392a373ad598dc34674f5a7",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/stderr.log",
+          "name": "stderr.log",
+          "repository_compressed_copy": "solver/control17-root17-diagnostic-off-532/stderr.log.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "75ef4a5504d118f6d02fde00614dca40687aaf4d70aea764e8b1bee64f216626"
+        },
+        {
+          "bytes": 371,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/stdout.log",
+          "name": "stdout.log",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/stdout.log",
+          "sha256": "a50e125aaf7888e0d5dc1f2afff1574ab6244f3f6af49681ed15cb042d5ffe2b"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/accepted_step_000018_held_reference.obj",
+          "name": "output/accepted_step_000018_held_reference.obj",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/accepted_step_000018_held_reference.obj",
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        {
+          "bytes": 1984768,
+          "compressed_bytes": 110347,
+          "compressed_sha256": "aaef046c4e1825ec1d8322345c5fb62559e6e737ba4d5bd0f64f790d2079796b",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/compiled.nmatterpack",
+          "name": "output/compiled.nmatterpack",
+          "repository_compressed_copy": "solver/control17-root17-diagnostic-off-532/output/compiled.nmatterpack.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1"
+        },
+        {
+          "bytes": 3175,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/coupon-resume-segment.json",
+          "name": "output/coupon-resume-segment.json",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/coupon-resume-segment.json",
+          "sha256": "b011babb5d9591274ee96f0986a394833a6242618e66ec5608875507eaea362e"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/initial.obj",
+          "name": "output/initial.obj",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/initial.obj",
+          "sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af"
+        },
+        {
+          "bytes": 11809,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/manifest.json",
+          "name": "output/manifest.json",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/manifest.json",
+          "sha256": "1eb17e823eea389ce40d72acc859f0bcd8e34313a0a5e207b8b02075a6918bbe"
+        },
+        {
+          "bytes": 967618,
+          "compressed_bytes": 353424,
+          "compressed_sha256": "d3c89e92292a1428a07eabd29bf6b7e8366556d8f2f6c55cc538961d3ee672fa",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/material_state_000018_bent.json",
+          "name": "output/material_state_000018_bent.json",
+          "repository_compressed_copy": "solver/control17-root17-diagnostic-off-532/output/material_state_000018_bent.json.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "2c5d19f8a2a94ce538dd52beff3deb83994fae07d689ffe608c7dff6272a672e"
+        },
+        {
+          "bytes": 160425,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/mesh.json",
+          "name": "output/mesh.json",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/mesh.json",
+          "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56"
+        },
+        {
+          "bytes": 1630,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/observations.csv",
+          "name": "output/observations.csv",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/observations.csv",
+          "sha256": "9dbbf02bc31c0e93ea9f719d665890236cef7d1e9acc5fb27f1223c1c207107d"
+        },
+        {
+          "bytes": 61988,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected_step_diagnostic_000018_bent.obj",
+          "name": "output/rejected_step_diagnostic_000018_bent.obj",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected_step_diagnostic_000018_bent.obj",
+          "sha256": "3b3353529728108195b575555f5add2d26fd2f753ab1d1d554d9bf1bb8cf763d"
+        },
+        {
+          "bytes": 726,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/result.json",
+          "name": "output/result.json",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/result.json",
+          "sha256": "e2d15726bd3ddc2c30420bc11f12af97b016abe8af35c4b0bd5b152708b638a0"
+        },
+        {
+          "bytes": 733824,
+          "compressed_bytes": 353594,
+          "compressed_sha256": "75862481a1177834b531d4b248ed52a9b886241796a770a939bf5a9160f16789",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/AP.bin",
+          "name": "output/rejected-conditioning-000018/AP.bin",
+          "repository_compressed_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/AP.bin.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "026ff4c589323ea16dd6e2f0828fdf7ee2ec87a4f2a3b3f3a6463442e83264e1"
+        },
+        {
+          "bytes": 366912,
+          "compressed_bytes": 119480,
+          "compressed_sha256": "70e630d1b99568e9b75535ff0cf04d34af4ae12138c9ddaf733b2fde46a42ff2",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/P.bin",
+          "name": "output/rejected-conditioning-000018/P.bin",
+          "repository_compressed_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/P.bin.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5"
+        },
+        {
+          "bytes": 141120,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/candidate_nodes.bin",
+          "name": "output/rejected-conditioning-000018/candidate_nodes.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/candidate_nodes.bin",
+          "sha256": "db75dfcc037c193bb43ab0b3ffc2ffa90b3ed7f88f2b188fbe5d3da1b4a03994"
+        },
+        {
+          "bytes": 733824,
+          "compressed_bytes": 239069,
+          "compressed_sha256": "b4c2b8a2dcad7d257395cedf1e60db96fb0dc7276fb20f3f0613b48ff062157e",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/effective_P.bin",
+          "name": "output/rejected-conditioning-000018/effective_P.bin",
+          "repository_compressed_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/effective_P.bin.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c"
+        },
+        {
+          "bytes": 8,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/factor_valid.bin",
+          "name": "output/rejected-conditioning-000018/factor_valid.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/factor_valid.bin",
+          "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5"
+        },
+        {
+          "bytes": 184320,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/linearization_F_high.bin",
+          "name": "output/rejected-conditioning-000018/linearization_F_high.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/linearization_F_high.bin",
+          "sha256": "9a33428635909002c30bb3d15554fccf5879b1016fa4d22eaba4d696750a8682"
+        },
+        {
+          "bytes": 184320,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/linearization_F_low.bin",
+          "name": "output/rejected-conditioning-000018/linearization_F_low.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/linearization_F_low.bin",
+          "sha256": "6b1e7c99663cd6a95d11c4514a657e241d4f214e5c54157b3b79d8a3298f751a"
+        },
+        {
+          "bytes": 230400,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/linearization_accepted_material_history.bin",
+          "name": "output/rejected-conditioning-000018/linearization_accepted_material_history.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/linearization_accepted_material_history.bin",
+          "sha256": "add94d454227570f20f25d3520daefc72834981218a00b58cdc30f170dad50ff"
+        },
+        {
+          "bytes": 15360,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/linearization_scheduler_exponents.bin",
+          "name": "output/rejected-conditioning-000018/linearization_scheduler_exponents.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/linearization_scheduler_exponents.bin",
+          "sha256": "0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"
+        },
+        {
+          "bytes": 6749,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/manifest.json",
+          "name": "output/rejected-conditioning-000018/manifest.json",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/manifest.json",
+          "sha256": "e1512610135489efb9b0ca0e513d2d366e6dabb14f0f4e87a50453a779f503ad"
+        },
+        {
+          "bytes": 0,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/node_block_inverse.bin",
+          "name": "output/rejected-conditioning-000018/node_block_inverse.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/node_block_inverse.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 5408,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/pivoted_RAP.bin",
+          "name": "output/rejected-conditioning-000018/pivoted_RAP.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/pivoted_RAP.bin",
+          "sha256": "3275cb36689d6c93c49a075dbc779efffabb02a54c3b7bd8fd733e891f72ff9d"
+        },
+        {
+          "bytes": 208,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/pivots.bin",
+          "name": "output/rejected-conditioning-000018/pivots.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/pivots.bin",
+          "sha256": "b15351752746ad304892b36595184c9b83246883ef1d0628cdfda0983a499369"
+        },
+        {
+          "bytes": 14112,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_Aq.bin",
+          "name": "output/rejected-conditioning-000018/restart_Aq.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_Aq.bin",
+          "sha256": "0f97790543329f8249a5b0ede1f5847b264bf4a2d08f661a948bd69bd96836e7"
+        },
+        {
+          "bytes": 28224,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_Aq_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_Aq_by_environment.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_Aq_by_environment.bin",
+          "sha256": "58addadd982be00456b092d551a587a0a25373b1465956ed31bafb61416471f3"
+        },
+        {
+          "bytes": 8,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_attempt_counts_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_attempt_counts_by_environment.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_attempt_counts_by_environment.bin",
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+        },
+        {
+          "bytes": 8,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_factor_valid_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_factor_valid_by_environment.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_factor_valid_by_environment.bin",
+          "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8"
+        },
+        {
+          "bytes": 32,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_generations_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_generations_by_environment.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_generations_by_environment.bin",
+          "sha256": "af9613760f72635fbdb44a5a0a63c39f12af30f950a6ee5c971be188e89c4051"
+        },
+        {
+          "bytes": 8,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_mode_scales_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_mode_scales_by_environment.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_mode_scales_by_environment.bin",
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+        },
+        {
+          "bytes": 8,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_mode_valid_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_mode_valid_by_environment.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_mode_valid_by_environment.bin",
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+        },
+        {
+          "bytes": 2916,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_pivoted_RAP.bin",
+          "name": "output/rejected-conditioning-000018/restart_pivoted_RAP.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_pivoted_RAP.bin",
+          "sha256": "3dae92d06f364fa6ea8e434c89a3d9d40cb995af8e46e50fff5ff91bd28fe112"
+        },
+        {
+          "bytes": 5832,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_pivoted_RAP_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_pivoted_RAP_by_environment.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_pivoted_RAP_by_environment.bin",
+          "sha256": "d1575943c8a4713d0cdfc917aff7903805fab6350d7fcdc2000ccd7839ccd134"
+        },
+        {
+          "bytes": 108,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_pivots.bin",
+          "name": "output/rejected-conditioning-000018/restart_pivots.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_pivots.bin",
+          "sha256": "77133f431d5e12dd850002c0d3d4e0fecbe3a7a699d604dc8c5eae9976e1d260"
+        },
+        {
+          "bytes": 216,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_pivots_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_pivots_by_environment.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_pivots_by_environment.bin",
+          "sha256": "a5645e7a3fa0866cde8842c4dab96567507c3d1a3c028b816bc63f6966367b70"
+        },
+        {
+          "bytes": 14112,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_q.bin",
+          "name": "output/rejected-conditioning-000018/restart_q.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_q.bin",
+          "sha256": "0f97790543329f8249a5b0ede1f5847b264bf4a2d08f661a948bd69bd96836e7"
+        },
+        {
+          "bytes": 28224,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_q_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_q_by_environment.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_q_by_environment.bin",
+          "sha256": "58addadd982be00456b092d551a587a0a25373b1465956ed31bafb61416471f3"
+        },
+        {
+          "bytes": 8,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_raw_norm_squared_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_raw_norm_squared_by_environment.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_raw_norm_squared_by_environment.bin",
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+        },
+        {
+          "bytes": 8,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_target_scales_by_environment.bin",
+          "name": "output/rejected-conditioning-000018/restart_target_scales_by_environment.bin",
+          "repository_copy": "solver/control17-root17-diagnostic-off-532/output/rejected-conditioning-000018/restart_target_scales_by_environment.bin",
+          "sha256": "7b48be53bbaa59d559548e450bb60062ee8fbcc9f1df7cd1bed86508a438612f"
+        }
+      ],
+      "physical_box_qualification": false
+    },
+    {
+      "case": "solver/accepted-prefix-checkpoint-530",
+      "external_root": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530",
+      "files": [
+        {
+          "bytes": 239,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/diagnostic-captures.json",
+          "name": "diagnostic-captures.json",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/diagnostic-captures.json",
+          "sha256": "1e52414a57946384348d19651c7de4b64a5436a226a7f96c275292228fa6456d"
+        },
+        {
+          "bytes": 8141,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/native-environment.json",
+          "name": "native-environment.json",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/native-environment.json",
+          "sha256": "79d3370fc9de2f7c81a38b5739f7d1c8802362f83efc259cd3c3559a21eda3d7"
+        },
+        {
+          "bytes": 116786,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/prediction.json",
+          "name": "prediction.json",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/prediction.json",
+          "sha256": "064fda9fa79c1c52516ba4ef3cccdc5d529c63d7139a1bceef5256d227a6ba09"
+        },
+        {
+          "bytes": 457,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/receipt.json",
+          "name": "receipt.json",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/receipt.json",
+          "sha256": "ca65b2023d847346bf9a41c4f0d0001fae07d86774a2f21ede65df9cdf580798"
+        },
+        {
+          "bytes": 73423090,
+          "compressed_bytes": 588491,
+          "compressed_sha256": "464ea9815c8ddaedc8013ca385c1e6082989c1c57c7ad70d6acf9a6903aa7efc",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/stderr.log",
+          "name": "stderr.log",
+          "repository_compressed_copy": "solver/accepted-prefix-checkpoint-530/stderr.log.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "d50f756b7afa81a0851f438b968bed4e72202329bb97b2f16f3682abc7501c5e"
+        },
+        {
+          "bytes": 228,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/stdout.log",
+          "name": "stdout.log",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/stdout.log",
+          "sha256": "fc0d3eeaa0897239efdb7193ea8dd37a8b386651f4041bcb66098133ece15516"
+        },
+        {
+          "bytes": 61996,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000001_bent.obj",
+          "name": "output/accepted_step_000001_bent.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000001_bent.obj",
+          "sha256": "e232da37a2b177fa42864620ba0f97189a3709a26fbc8f9e5e37b503c2f2bf39"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000001_held_reference.obj",
+          "name": "output/accepted_step_000001_held_reference.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000001_held_reference.obj",
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        {
+          "bytes": 61998,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000002_bent.obj",
+          "name": "output/accepted_step_000002_bent.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000002_bent.obj",
+          "sha256": "1c17716b9d8fbc6ca0e15313b2348690dfb8e371674446c8f34f98fadb3b5496"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000002_held_reference.obj",
+          "name": "output/accepted_step_000002_held_reference.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000002_held_reference.obj",
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        {
+          "bytes": 61982,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000003_bent.obj",
+          "name": "output/accepted_step_000003_bent.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000003_bent.obj",
+          "sha256": "0dc570d1a25e91c993cf209b5f704a21937e5844f8a0970fea6bfafe8dad388a"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000003_held_reference.obj",
+          "name": "output/accepted_step_000003_held_reference.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000003_held_reference.obj",
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        {
+          "bytes": 61955,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000004_bent.obj",
+          "name": "output/accepted_step_000004_bent.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000004_bent.obj",
+          "sha256": "fe5d9dcefcf3936b481988877f452dee75188fc7184a7318ba134f1d32d55c0f"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000004_held_reference.obj",
+          "name": "output/accepted_step_000004_held_reference.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000004_held_reference.obj",
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        {
+          "bytes": 61965,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000005_bent.obj",
+          "name": "output/accepted_step_000005_bent.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000005_bent.obj",
+          "sha256": "2898562d05576cd0aeccc84c92362d41d1563bfce34832fc6af44817327ce47f"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000005_held_reference.obj",
+          "name": "output/accepted_step_000005_held_reference.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000005_held_reference.obj",
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        {
+          "bytes": 61974,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000006_bent.obj",
+          "name": "output/accepted_step_000006_bent.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000006_bent.obj",
+          "sha256": "969fa1f6d1080d003c656f384ffe1df2d8eb8c3762ac2a7293241b2c59e543a2"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000006_held_reference.obj",
+          "name": "output/accepted_step_000006_held_reference.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000006_held_reference.obj",
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        {
+          "bytes": 61974,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000007_bent.obj",
+          "name": "output/accepted_step_000007_bent.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000007_bent.obj",
+          "sha256": "68f6b05732e77e27e718c5c01bc4479ef0581062df4c32d4af640aaa8f61a0ee"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000007_held_reference.obj",
+          "name": "output/accepted_step_000007_held_reference.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000007_held_reference.obj",
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        {
+          "bytes": 61962,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000008_bent.obj",
+          "name": "output/accepted_step_000008_bent.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000008_bent.obj",
+          "sha256": "e36086a870ac461ae2432137edb10b2dbf60c959d5445c8faaf1638c5aea3eb7"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000008_held_reference.obj",
+          "name": "output/accepted_step_000008_held_reference.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000008_held_reference.obj",
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        {
+          "bytes": 61982,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000009_bent.obj",
+          "name": "output/accepted_step_000009_bent.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000009_bent.obj",
+          "sha256": "ca60969e299674ab150d554350c0f2d5e97a278b8d87b7f289c1625f87d1d1ff"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000009_held_reference.obj",
+          "name": "output/accepted_step_000009_held_reference.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000009_held_reference.obj",
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        {
+          "bytes": 61994,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000010_bent.obj",
+          "name": "output/accepted_step_000010_bent.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000010_bent.obj",
+          "sha256": "4c1db9491564f8e8aee2422f5227b6767b8599c23452d35a383311596442d090"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000010_held_reference.obj",
+          "name": "output/accepted_step_000010_held_reference.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000010_held_reference.obj",
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        {
+          "bytes": 61966,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000011_bent.obj",
+          "name": "output/accepted_step_000011_bent.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000011_bent.obj",
+          "sha256": "38f93570f3083bdb1fad4c864e349047c7ccf9a34b375bc0956275b0c031bdb1"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000011_held_reference.obj",
+          "name": "output/accepted_step_000011_held_reference.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000011_held_reference.obj",
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        {
+          "bytes": 61967,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000012_bent.obj",
+          "name": "output/accepted_step_000012_bent.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000012_bent.obj",
+          "sha256": "3f6797967553569e2e12ea7189671377b9d66db3e9f1fc8545b8412e95a88a3c"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000012_held_reference.obj",
+          "name": "output/accepted_step_000012_held_reference.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000012_held_reference.obj",
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        {
+          "bytes": 61991,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000013_bent.obj",
+          "name": "output/accepted_step_000013_bent.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000013_bent.obj",
+          "sha256": "43dee8438268192986bc6db1625276f186856741a1937e4d5c432c07d2a148a1"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000013_held_reference.obj",
+          "name": "output/accepted_step_000013_held_reference.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000013_held_reference.obj",
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        {
+          "bytes": 61972,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000014_bent.obj",
+          "name": "output/accepted_step_000014_bent.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000014_bent.obj",
+          "sha256": "e701eb08bd111f78674bde8e57ca7922bbae410d37992bb4f72b376f4979ec2b"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000014_held_reference.obj",
+          "name": "output/accepted_step_000014_held_reference.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000014_held_reference.obj",
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        {
+          "bytes": 62006,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000015_bent.obj",
+          "name": "output/accepted_step_000015_bent.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000015_bent.obj",
+          "sha256": "5d24b501cda29f32967f2a800d1b623115255521988d50b756ea991e26d709ea"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000015_held_reference.obj",
+          "name": "output/accepted_step_000015_held_reference.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000015_held_reference.obj",
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        {
+          "bytes": 61975,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000016_bent.obj",
+          "name": "output/accepted_step_000016_bent.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000016_bent.obj",
+          "sha256": "72b578c47b729248259b6ff55d8ed8b50c5c2313212cce688031f8b3bd12c28e"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000016_held_reference.obj",
+          "name": "output/accepted_step_000016_held_reference.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000016_held_reference.obj",
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        {
+          "bytes": 61988,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000017_bent.obj",
+          "name": "output/accepted_step_000017_bent.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000017_bent.obj",
+          "sha256": "3b3353529728108195b575555f5add2d26fd2f753ab1d1d554d9bf1bb8cf763d"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/accepted_step_000017_held_reference.obj",
+          "name": "output/accepted_step_000017_held_reference.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/accepted_step_000017_held_reference.obj",
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        {
+          "bytes": 1984768,
+          "compressed_bytes": 110347,
+          "compressed_sha256": "aaef046c4e1825ec1d8322345c5fb62559e6e737ba4d5bd0f64f790d2079796b",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/compiled.nmatterpack",
+          "name": "output/compiled.nmatterpack",
+          "repository_compressed_copy": "solver/accepted-prefix-checkpoint-530/output/compiled.nmatterpack.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1"
+        },
+        {
+          "bytes": 584,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/coupon-checkpoint-prefix.json",
+          "name": "output/coupon-checkpoint-prefix.json",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/coupon-checkpoint-prefix.json",
+          "sha256": "def6f8b073b9b7924eecfb70d8e684fb1dad2e28283d40d7adf0f327652b1922"
+        },
+        {
+          "bytes": 189,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/coupon-checkpoint-saved.txt",
+          "name": "output/coupon-checkpoint-saved.txt",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/coupon-checkpoint-saved.txt",
+          "sha256": "95c103da7e1d27ee7d31a83948fd3fb897baea5eb53a664c6eaf97a3d2557e98"
+        },
+        {
+          "bytes": 56470,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/initial.obj",
+          "name": "output/initial.obj",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/initial.obj",
+          "sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af"
+        },
+        {
+          "bytes": 11809,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/manifest.json",
+          "name": "output/manifest.json",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/manifest.json",
+          "sha256": "1eb17e823eea389ce40d72acc859f0bcd8e34313a0a5e207b8b02075a6918bbe"
+        },
+        {
+          "bytes": 160425,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/mesh.json",
+          "name": "output/mesh.json",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/mesh.json",
+          "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56"
+        },
+        {
+          "bytes": 17164,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/observations.csv",
+          "name": "output/observations.csv",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/observations.csv",
+          "sha256": "b1c34adc6bd158f19f75b35aa4186a7c71470db2dc77caa2f9b532acf26cf1d9"
+        },
+        {
+          "bytes": 583,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/result.json",
+          "name": "output/result.json",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/result.json",
+          "sha256": "576f18633dcd579eb384acca597416817ecec6c9a07741fc1bd53a3263fa25a0"
+        },
+        {
+          "bytes": 2302494,
+          "compressed_bytes": 220609,
+          "compressed_sha256": "ec0f071c7d4df0f280c91fc9d11bee72f88b4e59e18eec8ec8053b98f7044648",
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/checkpoints/coupon-control-000016.nmcb",
+          "name": "output/checkpoints/coupon-control-000016.nmcb",
+          "repository_compressed_copy": "solver/accepted-prefix-checkpoint-530/output/checkpoints/coupon-control-000016.nmcb.gz",
+          "restore": "gzip decompression; verify original SHA-256",
+          "sha256": "fbee60ec02c89cd877afc358cd575371927b04e1a46a42be0ee9b61793aeba51"
+        },
+        {
+          "bytes": 4629,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/checkpoints/coupon-control-000016.prefix",
+          "name": "output/checkpoints/coupon-control-000016.prefix",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/checkpoints/coupon-control-000016.prefix",
+          "sha256": "47329bfe67d29b602cc755dddffd8ab4d59914c26d8eb1941b79dc5c88d85cc9"
+        },
+        {
+          "bytes": 2125,
+          "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/accepted-prefix-checkpoint-530/output/checkpoints/coupon-control-000016.resume",
+          "name": "output/checkpoints/coupon-control-000016.resume",
+          "repository_copy": "solver/accepted-prefix-checkpoint-530/output/checkpoints/coupon-control-000016.resume",
+          "sha256": "cf59888c98e77849f976fc641c0ac37736bbbbcadf8b576cd1040716dc94effa"
+        }
+      ],
+      "physical_box_qualification": false
     }
   ],
   "verdicts": {
@@ -315980,6 +317998,10 @@
     "reference033": {
       "path": "summary-reference033.json",
       "sha256": "bd20ddc8711092ab3e8086257b216c85419d852531d81882c591d09b9ea2d5d3"
+    },
+    "reference034": {
+      "path": "summary-reference034.json",
+      "sha256": "43caf119ea501d4487e170f35b3eae1687a0cc447c443aafc9501013b40ea626"
     }
   }
 }

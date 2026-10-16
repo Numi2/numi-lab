@@ -1,0 +1,26 @@
+--- 001/runner.py
++++ 002/runner.py
+@@ -1,6 +1,6 @@
+ 
+ from pathlib import Path
+-import argparse,datetime,hashlib,json,os,subprocess,sys,time
++import argparse,datetime,hashlib,json,os,struct,subprocess,sys,time
+ Q=Path('/Users/n/cardboard-implementation-20261014-host-macmini')
+ P=Path(__file__).resolve().parent
+ CASE=Q/'solver/control17-root17-newton34-replay-531'
+@@ -54,8 +54,13 @@
+  result_path=OUTPUT/'layers/report.json';report=json.loads(result_path.read_text()) if result_path.is_file() else None
+  completed=rc==0 and not timed and error is None and unchanged and report is not None
+  if completed:
+-  assert report['scope']=={'environment':0,'control':17,'newton':34,'tets':1920,'nodes':882,'dt_s':float(header['dt_seconds'])}
+-  assert len(report['states'])==5 and all(v is False for v in report['six_qualification_axes'].values())
++  try:
++   scope=dict(report['scope']);dt=scope.pop('dt_s')
++   assert scope=={'environment':0,'control':17,'newton':34,'tets':1920,'nodes':882}
++   assert struct.pack('<f',dt)==struct.pack('<f',float(header['dt_seconds']))
++   assert len(report['states'])==5 and all(v is False for v in report['six_qualification_axes'].values())
++  except BaseException as exc:
++   completed=False;error='Post-run scope validation failed: '+repr(exc)
+  rec={'schema':'numi.cardboard.native531-strict-fp64-receipt.v1','exit_code':rc,'timed_out':timed,'error':error,'complete_diagnostic':completed,'inputs_unchanged':unchanged,'wall_seconds':time.monotonic()-start,'native_transactions':0,'qualification':False,'finished_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()}
+  (OUTPUT/'receipt.json').write_text(json.dumps(rec,indent=2)+'\n')
+  print(json.dumps(rec),flush=True)

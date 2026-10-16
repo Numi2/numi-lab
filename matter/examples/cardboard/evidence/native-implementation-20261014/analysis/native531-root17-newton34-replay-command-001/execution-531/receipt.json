@@ -1,0 +1,23 @@
+{
+  "checkpoint": {
+    "accepted_control_index": 16,
+    "checkpoint_sha256": "fbee60ec02c89cd877afc358cd575371927b04e1a46a42be0ee9b61793aeba51",
+    "environment_count": 2,
+    "metadata_sha256": "cf59888c98e77849f976fc641c0ac37736bbbbcadf8b576cd1040716dc94effa",
+    "next_control_index": 17,
+    "prefix_bytes_verified": 4244273,
+    "prefix_files_verified": 39,
+    "prefix_manifest_sha256": "47329bfe67d29b602cc755dddffd8ab4d59914c26d8eb1941b79dc5c88d85cc9",
+    "protocol_manifest_sha256": "1eb17e823eea389ce40d72acc859f0bcd8e34313a0a5e207b8b02075a6918bbe",
+    "status": "checkpoint_ready"
+  },
+  "errors": [],
+  "exit_code": 2,
+  "minimum_free_bytes": 101248327680,
+  "physical_qualification": false,
+  "schema": "numi.cardboard.native531-runner-receipt.v1",
+  "source_build_sha256": "8f6c95304c23b6c7149ec6b270d54eafdf4507ea26f3420e39e523c09dd500ad",
+  "space_abort": false,
+  "timed_out": false,
+  "wall_seconds": 227.10264887474477
+}

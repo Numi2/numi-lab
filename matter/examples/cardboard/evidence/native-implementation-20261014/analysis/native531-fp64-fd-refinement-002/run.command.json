@@ -1,0 +1,22 @@
+{
+  "schema": "numi.cardboard.native531-fp64-fd-refinement-command.v1",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-fp64-fd-refinement-002/refine.py"
+  ],
+  "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini",
+  "environment": {
+    "PYTHONPATH": "snapshots/source-contact-damped-memory-198-001/matter/tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "audit_call": "strict_layers.audit(CASE, OUT/layers, environment=0, epsilon_powers=list(range(10,25)))",
+  "execution": "CPU-only reference replay; no native transactions",
+  "wall_seconds": 17.09320587478578,
+  "python": "3.13.14",
+  "numpy": "2.2.5"
+}

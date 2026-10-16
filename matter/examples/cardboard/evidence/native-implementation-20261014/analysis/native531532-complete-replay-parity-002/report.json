@@ -1,0 +1,84 @@
+{
+  "accepted_prefix_0_to16_separately_bound_by": "analysis/native530-native521-accepted-prefix-parity-001",
+  "all_control17_common_trace_records_equal": {
+    "fem_base_cgls_damped_enabled": 1,
+    "fem_base_cgls_direction": 1,
+    "fem_base_cgls_enabled": 1,
+    "fem_true_residual_cycle": 4096
+  },
+  "capture_production_inputs_bitwise_unchanged": true,
+  "capture_sha256": "c9a538bd6357136130fc3d971c7d2f1e61fc52bdef2a0737ba00790bd34d8ec2",
+  "created_at_utc": "2026-10-16T09:01:06.244458+00:00",
+  "full_protocol_complete": false,
+  "native_checkpoint_replay_parity_at_failed_control17": true,
+  "observer_on_off_exact_production_files": 37,
+  "observer_on_off_files_sha256": {
+    "accepted_step_000018_held_reference.obj": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+    "compiled.nmatterpack": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+    "initial.obj": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+    "manifest.json": "1eb17e823eea389ce40d72acc859f0bcd8e34313a0a5e207b8b02075a6918bbe",
+    "material_state_000018_bent.json": "2c5d19f8a2a94ce538dd52beff3deb83994fae07d689ffe608c7dff6272a672e",
+    "mesh.json": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+    "observations.csv": "9dbbf02bc31c0e93ea9f719d665890236cef7d1e9acc5fb27f1223c1c207107d",
+    "rejected-conditioning-000018/AP.bin": "026ff4c589323ea16dd6e2f0828fdf7ee2ec87a4f2a3b3f3a6463442e83264e1",
+    "rejected-conditioning-000018/P.bin": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+    "rejected-conditioning-000018/candidate_nodes.bin": "db75dfcc037c193bb43ab0b3ffc2ffa90b3ed7f88f2b188fbe5d3da1b4a03994",
+    "rejected-conditioning-000018/effective_P.bin": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+    "rejected-conditioning-000018/factor_valid.bin": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+    "rejected-conditioning-000018/linearization_F_high.bin": "9a33428635909002c30bb3d15554fccf5879b1016fa4d22eaba4d696750a8682",
+    "rejected-conditioning-000018/linearization_F_low.bin": "6b1e7c99663cd6a95d11c4514a657e241d4f214e5c54157b3b79d8a3298f751a",
+    "rejected-conditioning-000018/linearization_accepted_material_history.bin": "add94d454227570f20f25d3520daefc72834981218a00b58cdc30f170dad50ff",
+    "rejected-conditioning-000018/linearization_scheduler_exponents.bin": "0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537",
+    "rejected-conditioning-000018/manifest.json": "e1512610135489efb9b0ca0e513d2d366e6dabb14f0f4e87a50453a779f503ad",
+    "rejected-conditioning-000018/node_block_inverse.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rejected-conditioning-000018/pivoted_RAP.bin": "3275cb36689d6c93c49a075dbc779efffabb02a54c3b7bd8fd733e891f72ff9d",
+    "rejected-conditioning-000018/pivots.bin": "b15351752746ad304892b36595184c9b83246883ef1d0628cdfda0983a499369",
+    "rejected-conditioning-000018/restart_Aq.bin": "0f97790543329f8249a5b0ede1f5847b264bf4a2d08f661a948bd69bd96836e7",
+    "rejected-conditioning-000018/restart_Aq_by_environment.bin": "58addadd982be00456b092d551a587a0a25373b1465956ed31bafb61416471f3",
+    "rejected-conditioning-000018/restart_attempt_counts_by_environment.bin": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+    "rejected-conditioning-000018/restart_factor_valid_by_environment.bin": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+    "rejected-conditioning-000018/restart_generations_by_environment.bin": "af9613760f72635fbdb44a5a0a63c39f12af30f950a6ee5c971be188e89c4051",
+    "rejected-conditioning-000018/restart_mode_scales_by_environment.bin": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+    "rejected-conditioning-000018/restart_mode_valid_by_environment.bin": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+    "rejected-conditioning-000018/restart_pivoted_RAP.bin": "3dae92d06f364fa6ea8e434c89a3d9d40cb995af8e46e50fff5ff91bd28fe112",
+    "rejected-conditioning-000018/restart_pivoted_RAP_by_environment.bin": "d1575943c8a4713d0cdfc917aff7903805fab6350d7fcdc2000ccd7839ccd134",
+    "rejected-conditioning-000018/restart_pivots.bin": "77133f431d5e12dd850002c0d3d4e0fecbe3a7a699d604dc8c5eae9976e1d260",
+    "rejected-conditioning-000018/restart_pivots_by_environment.bin": "a5645e7a3fa0866cde8842c4dab96567507c3d1a3c028b816bc63f6966367b70",
+    "rejected-conditioning-000018/restart_q.bin": "0f97790543329f8249a5b0ede1f5847b264bf4a2d08f661a948bd69bd96836e7",
+    "rejected-conditioning-000018/restart_q_by_environment.bin": "58addadd982be00456b092d551a587a0a25373b1465956ed31bafb61416471f3",
+    "rejected-conditioning-000018/restart_raw_norm_squared_by_environment.bin": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+    "rejected-conditioning-000018/restart_target_scales_by_environment.bin": "7b48be53bbaa59d559548e450bb60062ee8fbcc9f1df7cd1bed86508a438612f",
+    "rejected_step_diagnostic_000018_bent.obj": "3b3353529728108195b575555f5add2d26fd2f753ab1d1d554d9bf1bb8cf763d",
+    "result.json": "e2d15726bd3ddc2c30420bc11f12af97b016abe8af35c4b0bd5b152708b638a0"
+  },
+  "receipts": {
+    "control17-root17-diagnostic-off-532": {
+      "exit_code": 2,
+      "sha256": "0e269186717b4fb23327c4ae80b313d8fbdc352ca5d6369a19e1251239de6d71",
+      "wall_seconds": 225.7593127908185
+    },
+    "control17-root17-newton34-replay-531": {
+      "exit_code": 2,
+      "sha256": "f3dc5b3ca9b3c0bd23ae034c18fe157c062a4dcda894a56675881d868c41f5e3",
+      "wall_seconds": 226.74594987463206
+    },
+    "fresh-damped-cgls-complete-coupon-521": {
+      "exit_code": 2,
+      "sha256": "09056ae665d77bfbe63125d3eae93016ee60f2b20ae9c7b5d2ae066ff2f4e7c0",
+      "wall_seconds": 1063.4548380412161
+    }
+  },
+  "same_files_as_original521": 35,
+  "same_original521_observation_rows": 2,
+  "schema": "numi.cardboard.native531532-replay-parity.v1",
+  "scope": "Exact observer parity for the complete failed resumed control17 segment and original521, including rejected geometry/material/conditioning and full common solver traces. Accepted prefix0..16 qualification is separately measured; no completed loading/release/relaxation claim.",
+  "six_qualification_axes": {
+    "analogue_validation": false,
+    "component_calibration": false,
+    "crush_impact_prediction": false,
+    "numerical_convergence": false,
+    "physical_assembly": false,
+    "solver_correctness": false
+  },
+  "verdict": "PASS"
+}

@@ -2374,6 +2374,7 @@ kernel void nm_fgmres_regional_restart_clear_if_invalid(
     device float4* regionalAP [[buffer(2)]],
     device const uint* modeValid [[buffer(3)]],
     constant uint& baseModeCount [[buffer(4)]],
+    device const uint* tailPreserved [[buffer(5)]],
     uint global [[thread_position_in_grid]]) {
     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
     if (dispatch.environmentCount == 0u || global >= totalNodes ||
@@ -2381,7 +2382,8 @@ kernel void nm_fgmres_regional_restart_clear_if_invalid(
         baseModeCount >= 32u) return;
     const uint environment = global / dispatch.femNodeCount;
     const uint node = global - environment * dispatch.femNodeCount;
-    if (modeValid[environment] != 0u) return;
+    if (tailPreserved[environment] != 0u ||
+        modeValid[environment] != 0u) return;
     const uint index =
         (environment * (baseModeCount + 1u) + baseModeCount) *
             dispatch.femNodeCount + node;
@@ -2395,11 +2397,13 @@ kernel void nm_fgmres_regional_restart_identity_if_invalid(
     device const uint* modeValid [[buffer(2)]],
     device const float* targetScale [[buffer(3)]],
     constant uint& modeCount [[buffer(4)]],
+    device const uint* tailPreserved [[buffer(5)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]) {
     if (lane != 0u || environment >= dispatch.environmentCount ||
         modeCount < 2u ||
         modeCount > 32u) return;
+    if (tailPreserved[environment] != 0u) return;
     const uint matrixBase = environment * modeCount * modeCount;
     if (modeValid[environment] != 0u) return;
     const uint last = modeCount - 1u;
@@ -2417,9 +2421,11 @@ kernel void nm_fgmres_regional_restart_fallback_if_factor_invalid(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const uint* coarseValid [[buffer(1)]],
     device uint* modeValid [[buffer(2)]],
+    device const uint* tailPreserved [[buffer(3)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]) {
-    if (lane != 0u || environment >= dispatch.environmentCount) return;
+    if (lane != 0u || environment >= dispatch.environmentCount ||
+        tailPreserved[environment] != 0u) return;
     if (coarseValid[environment] == 0u) modeValid[environment] = 0u;
 }
 
@@ -2515,6 +2521,44 @@ kernel void nm_fgmres_regional_build_rap(
 // In-place partial-pivoted LU for the small, generally nonsymmetric exact RAP
 // matrix. Failure only disables the coarse correction; the fine diagonal
 // preconditioner and the physical FGMRES/certification path remain intact.
+kernel void nm_fgmres_regional_restart_build_rap(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* regionalBasis [[buffer(1)]],
+    device const float4* regionalAP [[buffer(2)]],
+    device float* coarseMatrix [[buffer(3)]],
+    constant uint& modeCount [[buffer(4)]],
+    constant uint& modeStride [[buffer(5)]],
+    device const uint* tailPreserved [[buffer(6)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (modeCount == 0u || modeCount > 32u || modeStride < modeCount ||
+        modeStride > 32u ||
+        dispatch.femNodeCount == 0u) return;
+    const uint entriesPerEnvironment = modeCount * modeCount;
+    const uint environment = group / entriesPerEnvironment;
+    if (environment >= dispatch.environmentCount ||
+        tailPreserved[environment] != 0u) return;
+    const uint pair = group - environment * entriesPerEnvironment;
+    const uint row = pair / modeCount;
+    const uint column = pair - row * modeCount;
+    const uint apBase = (environment * modeStride + column) *
+        dispatch.femNodeCount;
+    float sum = 0.0f;
+    for (uint node = lane; node < dispatch.femNodeCount; node += 32u) {
+        const float4 p = regionalBasis[
+            (environment * modeStride + row) * dispatch.femNodeCount + node];
+        const float4 ap = regionalAP[apBase + node];
+        sum += dot(p.xyz, ap.xyz);
+    }
+    sum = simd_sum(sum);
+    if (lane == 0u)
+        coarseMatrix[(environment * modeCount + row) * modeCount + column] = sum;
+}
+
+// In-place partial-pivoted LU for the small, generally nonsymmetric exact RAP
+// matrix. Failure only disables the coarse correction; the fine diagonal
+// preconditioner and the physical FGMRES/certification path remain intact.
 kernel void nm_fgmres_regional_factor_rap(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device float* coarseMatrix [[buffer(1)]],
@@ -2526,6 +2570,78 @@ kernel void nm_fgmres_regional_factor_rap(
 ) {
     if (lane != 0u || environment >= dispatch.environmentCount ||
         modeCount == 0u || modeCount > 32u) return;
+    const uint matrixBase = environment * modeCount * modeCount;
+    const uint pivotBase = environment * modeCount;
+    valid[environment] = 0u;
+    float scale = 0.0f;
+    for (uint row = 0u; row < modeCount; ++row) {
+        pivots[pivotBase + row] = row;
+        for (uint column = 0u; column < modeCount; ++column) {
+            const float value = coarseMatrix[
+                matrixBase + row * modeCount + column];
+            if (!isfinite(value)) return;
+            scale = max(scale, abs(value));
+        }
+    }
+    if (!(scale > 0.0f) || !isfinite(scale)) return;
+    const float pivotFloor = max(scale * 1.0e-10f, 1.0e-30f);
+    for (uint pivotColumn = 0u; pivotColumn < modeCount; ++pivotColumn) {
+        uint pivotRow = pivotColumn;
+        float pivotMagnitude = 0.0f;
+        for (uint row = pivotColumn; row < modeCount; ++row) {
+            const float magnitude = abs(coarseMatrix[
+                matrixBase + row * modeCount + pivotColumn]);
+            if (magnitude > pivotMagnitude) {
+                pivotMagnitude = magnitude;
+                pivotRow = row;
+            }
+        }
+        if (!(pivotMagnitude > pivotFloor) || !isfinite(pivotMagnitude))
+            return;
+        if (pivotRow != pivotColumn) {
+            for (uint column = 0u; column < modeCount; ++column) {
+                const uint a = matrixBase + pivotColumn * modeCount + column;
+                const uint b = matrixBase + pivotRow * modeCount + column;
+                const float temporary = coarseMatrix[a];
+                coarseMatrix[a] = coarseMatrix[b];
+                coarseMatrix[b] = temporary;
+            }
+            const uint temporary = pivots[pivotBase + pivotColumn];
+            pivots[pivotBase + pivotColumn] = pivots[pivotBase + pivotRow];
+            pivots[pivotBase + pivotRow] = temporary;
+        }
+        const float diagonal = coarseMatrix[
+            matrixBase + pivotColumn * modeCount + pivotColumn];
+        if (!(abs(diagonal) > pivotFloor) || !isfinite(diagonal)) return;
+        for (uint row = pivotColumn + 1u; row < modeCount; ++row) {
+            const uint lowerIndex = matrixBase + row * modeCount + pivotColumn;
+            const float lower = coarseMatrix[lowerIndex] / diagonal;
+            if (!isfinite(lower)) return;
+            coarseMatrix[lowerIndex] = lower;
+            for (uint column = pivotColumn + 1u;
+                 column < modeCount; ++column) {
+                const uint index = matrixBase + row * modeCount + column;
+                coarseMatrix[index] -= lower * coarseMatrix[
+                    matrixBase + pivotColumn * modeCount + column];
+                if (!isfinite(coarseMatrix[index])) return;
+            }
+        }
+    }
+    valid[environment] = 1u;
+}
+kernel void nm_fgmres_regional_restart_factor_rap(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float* coarseMatrix [[buffer(1)]],
+    device uint* pivots [[buffer(2)]],
+    device uint* valid [[buffer(3)]],
+    constant uint& modeCount [[buffer(4)]],
+    device const uint* tailPreserved [[buffer(5)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane != 0u || environment >= dispatch.environmentCount ||
+        modeCount == 0u || modeCount > 32u ||
+        tailPreserved[environment] != 0u) return;
     const uint matrixBase = environment * modeCount * modeCount;
     const uint pivotBase = environment * modeCount;
     valid[environment] = 0u;

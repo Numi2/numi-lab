@@ -1,0 +1,135 @@
+{
+  "artifacts": {
+    "metal_O0_AIR": {
+      "bytes": 2387536,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-metal-o0/NumiMatter.air",
+      "sha256": "e02f8d50785a92555f2c19880cc476dcfd184f82eefc9bc66cb98808e964bb7e"
+    },
+    "metal_O0_compile_log": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-regional-rap-tail-preserve-001/metal-o0-compile.log",
+      "sha256": "200875929f4aa5168fd67116049d7257699d71156857595d773c97e2024e12ad"
+    },
+    "patch": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-regional-rap-tail-preserve-001/overlay.patch",
+      "sha256": "3236a469a28e28e4a524330cf6169a86cf2ba575f88df9155c987c5a598c3563"
+    },
+    "patch_dry_run": {
+      "command": "cd <source198> && patch --dry-run -p1 < overlay.patch",
+      "outcome": "success; all five files apply cleanly",
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-regional-rap-tail-preserve-001/patch-dry-run.txt",
+      "sha256": "d31f2dcef93ad5b313c63d4de5cf21d6fba825050428cfb8671d8dc361626df2"
+    },
+    "source_bound_debug_build": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o0-001/source-build.json",
+      "sha256": "988aa648e221996bd1c9b0efefb61a7e452eabebe38f7003db7a06cac077e7ea"
+    },
+    "source_bound_release_build": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3-003/source-build.json",
+      "sha256": "23e476252b01f317f5eeadd96d2c19f6f753c49a01b966a2f74bb73aef71f2b9"
+    },
+    "source_contract_report": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-regional-rap-tail-preserve-001/source-contract-report.json",
+      "sha256": "3676f521d57c01a23872069887ad8ace4c50da24391eec5a6bf85e62fb738254"
+    },
+    "source_contract_script": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source201-regional-rap-tail-preserve-001/verify_rap_tail_source.py",
+      "sha256": "d2fe29c645efff60771bc6e8a6f5b0edb7e736fde2e945aff970e792ae1f3a11"
+    },
+    "source_snapshot_frozen_manifest": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-regional-rap-tail-preserve-201/frozen-source.json",
+      "sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789"
+    }
+  },
+  "base_frozen_source_sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001",
+  "build_receipts": {
+    "debug": {
+      "artifacts": {
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o0-001/numi-matter-cardboard-regional-rap-tail-preserve-native-check": "e6bb549caf648dd889bc323bc5b34a891d3d600678bc5ef6365b8918e2c109cf",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o0-001/shaders/NumiMatter.metallib": "db4c1dd3a96a633b7b850022744bbdb22386af265b9e8770d07155ace7404739",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o0-001/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+      },
+      "changed_during_build": [],
+      "cmake_build_type": "Debug; clang command has -g and no optimization flag; CMake shader target remains -O3",
+      "source_count": 817,
+      "success": true
+    },
+    "release": {
+      "artifacts": {
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3-003/numi-matter-cardboard-regional-rap-tail-preserve-native-check": "5f9d65d818393769adc7a182344fdc3cc6101fd6776747a97f7f4b00ee5e0e83",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3-003/shaders/NumiMatter.metallib": "db4c1dd3a96a633b7b850022744bbdb22386af265b9e8770d07155ace7404739",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3-003/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+      },
+      "changed_during_build": [],
+      "cmake_build_type": "Release",
+      "source_count": 817,
+      "success": true
+    }
+  },
+  "candidate_frozen_source_sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-regional-rap-tail-preserve-201",
+  "changed_sources": {
+    "matter/CMakeLists.txt": "834628140bfcd3a9c8a0f4aa2aa4c4ae7ff1c18d1c5bf34790fe13fe1fdf8f22",
+    "matter/src/metal/fgmres.metalinc": "238a2c5b7cda924d4d28ac716a38dd0c63641eb261464a4620cb5f239b593b69",
+    "matter/src/runtime.mm": "739f0471eafec2391a2a80b49d6b7034be25d1ea0d8c65557145a8f328d6bbcb",
+    "matter/tools/cardboard_regional_rap_tail_preserve_native_check.mm": "af3cd88959007c2b2838ecfe5117818c4557f7b855246b413f461118b4ef327c"
+  },
+  "execution_status": "Compile-only. Production kernel checker was not executed; no GPU solver or physical transactions were run.",
+  "failed_attempts": [
+    {
+      "outcome": "failed before configure because noninteractive PATH omitted /opt/homebrew/bin",
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3/source-build.json",
+      "sha256": "11c048955b7d0df4be87ef53982277e6cf3f13337b1b54d7d6d1a54965fadaaa"
+    },
+    {
+      "outcome": "C++ checker compile failed on pIndex collision with Apple AERegistry; preserved; checker helper then renamed regionalVectorIndex",
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3-002/source-build.json",
+      "sha256": "bc66b5299311e68c7a67e516a554eae2f14fc34f2c8bf0d16a9655922e2c3a3d"
+    }
+  ],
+  "metal_O0_command": [
+    "xcrun",
+    "-sdk",
+    "macosx",
+    "metal",
+    "-std=metal4.0",
+    "-O0",
+    "-fno-fast-math",
+    "-I",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-regional-rap-tail-preserve-201/matter/include",
+    "-I",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-regional-rap-tail-preserve-201/include",
+    "-MMD",
+    "-MF",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-metal-o0/NumiMatter.d",
+    "-MT",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-metal-o0/NumiMatter.air",
+    "-c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-regional-rap-tail-preserve-201/matter/src/matter_kernels.metal",
+    "-o",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-metal-o0/NumiMatter.air"
+  ],
+  "overlay_id": "source-regional-rap-tail-preserve-201",
+  "patch_file_paths": [
+    "matter/CMakeLists.txt",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_regional_rap_tail_preserve_native_check.mm",
+    "frozen-source.json"
+  ],
+  "schema": "numi.cardboard.regional_rap_tail_preserve_overlay.v1",
+  "snapshot_metadata_changes": {
+    "frozen-source.json": {
+      "included_in_overlay_patch": true,
+      "not_in_source_bound_build_input_set": true,
+      "sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789"
+    }
+  },
+  "source_build_input_count": 817,
+  "source_changed_relative_to_base": [
+    "matter/CMakeLists.txt",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_regional_rap_tail_preserve_native_check.mm"
+  ]
+}

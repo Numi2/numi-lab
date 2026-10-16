@@ -1,0 +1,10 @@
+{
+  "schema": "numi.cardboard.native531-strict-fp64-command.v1",
+  "parent_manifest_sha256": "9c382c625740848b4eda69d6268215b305c3ca5b13179eb7f61a9504acfbc74a",
+  "files_sha256": {
+    "README.md": "df6087b3392920873d494e73bb922d3d4b148157290d087ade1bfd58fbad55f7",
+    "change.patch": "e37b08c8157aceeac1d97247a8fef68449feb74ba5923be8490272c678f34f35",
+    "runner.py": "71511ec405f1eb76a69067a7a28fcced61b3c1c8aa26b9bdd1234ce2849c16fe"
+  },
+  "scope": "CPU diagnostic only; source198 paper reference unchanged; no native physical transaction."
+}

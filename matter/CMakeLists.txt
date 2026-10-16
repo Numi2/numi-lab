@@ -1801,6 +1801,25 @@ endif()
 
 
 if(APPLE)
+    add_executable(numi-matter-cardboard-regional-rap-tail-preserve-native-check
+        tools/cardboard_regional_rap_tail_preserve_native_check.mm)
+    target_link_libraries(numi-matter-cardboard-regional-rap-tail-preserve-native-check PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_include_directories(numi-matter-cardboard-regional-rap-tail-preserve-native-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_compile_definitions(numi-matter-cardboard-regional-rap-tail-preserve-native-check PRIVATE
+        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+    target_compile_options(numi-matter-cardboard-regional-rap-tail-preserve-native-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.cardboard_regional_rap_tail_preserve
+            COMMAND numi-matter-cardboard-regional-rap-tail-preserve-native-check)
+        set_tests_properties(matter.metal.cardboard_regional_rap_tail_preserve
+            PROPERTIES RUN_SERIAL TRUE LABELS "matter;metal;cardboard;synthetic" TIMEOUT 120)
+    endif()
+endif()
+
+if(APPLE)
     add_executable(numi-matter-cardboard-regional-recycle-masked-basis-native-check
         tools/cardboard_regional_recycle_masked_basis_native_check.mm)
     target_link_libraries(numi-matter-cardboard-regional-recycle-masked-basis-native-check PRIVATE

@@ -1,0 +1,48 @@
+{
+  "command": "venvs/cardboard-reference-185/bin/python3 runner.py --preflight-only",
+  "exit_code": 75,
+  "stdout_json": {
+    "active_native_workers": [
+      {
+        "command": "/opt/homebrew/Cellar/python@3.13/3.13.14_1/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python /Users/n/cardboard-implementation-20261014-host-macmini/analysis/native532-root17-diagnostic-off-command-001/runner.py --execute",
+        "pid": 75552,
+        "state": "Ss"
+      },
+      {
+        "command": "/opt/homebrew/Cellar/python@3.13/3.13.14_1/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python -B /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001/matter/tools/cardboard_source_bound_run.py --source-snapshot /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001 --runtime-dir /Users/n/cardboard-implementation-20261014-host-macmini/build-source198-001 --build-prov",
+        "pid": 75555,
+        "state": "Ss"
+      },
+      {
+        "command": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source198-001/numi-matter-cardboard-probe --preset literature2009 --line-search-steps 24 --without-self-contact --reference-displacement-gradient --compensated-paper-arithmetic --residual-tolerance 5e-7 --newton-iterations 64 --fgmres-restart 16 --fgmres-iterations 1024 --fgmres-preconditioner regional-galerkin-schwarz --steps 24 --hold-steps 6 --unload-steps 12 --relax-steps 6 --post-release-relax-steps 6 --release-steps 6 --nx 8 --n",
+        "pid": 75558,
+        "state": "Us"
+      }
+    ],
+    "binding_check": {
+      "debug_artifact_sha256": {
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o0-001/numi-matter-cardboard-regional-rap-tail-preserve-native-check": "e6bb549caf648dd889bc323bc5b34a891d3d600678bc5ef6365b8918e2c109cf",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o0-001/shaders/NumiMatter.metallib": "db4c1dd3a96a633b7b850022744bbdb22386af265b9e8770d07155ace7404739",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o0-001/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+      },
+      "frozen_source_sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789",
+      "release_artifact_sha256": {
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3-003/numi-matter-cardboard-regional-rap-tail-preserve-native-check": "5f9d65d818393769adc7a182344fdc3cc6101fd6776747a97f7f4b00ee5e0e83",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3-003/shaders/NumiMatter.metallib": "db4c1dd3a96a633b7b850022744bbdb22386af265b9e8770d07155ace7404739",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3-003/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+      },
+      "source_count": 817,
+      "unique_output_absent": true
+    },
+    "disk_guard_minimum_free_bytes": 2147483648,
+    "free_bytes_before": 101183029248,
+    "launched": false,
+    "mode": "preflight-only",
+    "output_path_absent": true,
+    "schema": "numi.cardboard.native534.preflight.v1",
+    "status": "refused_active_native_worker",
+    "worker_guard_passed": false
+  },
+  "stderr": "",
+  "launched": false
+}

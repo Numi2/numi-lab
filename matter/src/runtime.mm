@@ -4655,6 +4655,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_regional_capture_restart_scale",
             "nm_fgmres_regional_build_rap",
             "nm_fgmres_regional_factor_rap",
+            "nm_fgmres_regional_restart_build_rap",
+            "nm_fgmres_regional_restart_factor_rap",
             "nm_fgmres_graph_build_patch_matrices",
             "nm_fgmres_graph_validate_mask",
             "nm_fgmres_graph_factor_patches",
@@ -22871,8 +22873,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 const auto buildAndFactorRestartRAP = [&] {
-                    dispatchGroups32("nm_fgmres_regional_build_rap",
-                        augmentedModes * augmentedModes, [&] {
+                    dispatchGroups32("nm_fgmres_regional_restart_build_rap",
+                        environments * augmentedModes * augmentedModes, [&] {
                         setDispatch();
                         [encoder setBuffer:state.femRegionalEffectiveBasis offset:0u atIndex:1u];
                         [encoder setBuffer:state.femRegionalAP offset:0u atIndex:2u];
@@ -22880,6 +22882,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBytes:&augmentedModes length:sizeof(augmentedModes) atIndex:4u];
                         [encoder setBytes:&augmentedModes
                                    length:sizeof(augmentedModes) atIndex:5u];
+                        [encoder setBuffer:state.femRegionalRestartTailPreserved
+                                     offset:0u atIndex:6u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     dispatchGroups32("nm_fgmres_regional_restart_identity_if_invalid",
@@ -22889,14 +22893,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femRegionalRestartModeValid offset:0u atIndex:2u];
                         [encoder setBuffer:state.femRegionalRestartTargetScale offset:0u atIndex:3u];
                         [encoder setBytes:&augmentedModes length:sizeof(augmentedModes) atIndex:4u];
+                        [encoder setBuffer:state.femRegionalRestartTailPreserved
+                                     offset:0u atIndex:5u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                    dispatchGroups32("nm_fgmres_regional_factor_rap", environments, [&] {
+                    dispatchGroups32("nm_fgmres_regional_restart_factor_rap", environments, [&] {
                         setDispatch();
                         [encoder setBuffer:state.femRegionalAugmentedCoarseMatrix offset:0u atIndex:1u];
                         [encoder setBuffer:state.femRegionalAugmentedCoarsePivots offset:0u atIndex:2u];
                         [encoder setBuffer:state.femRegionalAugmentedCoarseValid offset:0u atIndex:3u];
                         [encoder setBytes:&augmentedModes length:sizeof(augmentedModes) atIndex:4u];
+                        [encoder setBuffer:state.femRegionalRestartTailPreserved
+                                     offset:0u atIndex:5u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 };
@@ -22907,6 +22915,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     setDispatch();
                     [encoder setBuffer:state.femRegionalAugmentedCoarseValid offset:0u atIndex:1u];
                     [encoder setBuffer:state.femRegionalRestartModeValid offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femRegionalRestartTailPreserved
+                                 offset:0u atIndex:3u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads(
@@ -22916,6 +22926,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femRegionalAP offset:0u atIndex:2u];
                     [encoder setBuffer:state.femRegionalRestartModeValid offset:0u atIndex:3u];
                     [encoder setBytes:&baseModes length:sizeof(baseModes) atIndex:4u];
+                    [encoder setBuffer:state.femRegionalRestartTailPreserved
+                                 offset:0u atIndex:5u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 buildAndFactorRestartRAP();
