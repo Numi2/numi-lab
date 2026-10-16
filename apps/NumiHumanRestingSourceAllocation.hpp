@@ -46,7 +46,7 @@ inline std::uint32_t numiHumanRestingSourceAllocationBase(
 // its referenced subset. Every declared motion channel must remain represented.
 inline std::set<unsigned> numiHumanRestingReferencedSourceAttachmentVertices(
     const std::map<unsigned,unsigned>& channels,
-    const std::set<unsigned>& referencedVertices,
+    const std::vector<unsigned>& referencedVertices,
     unsigned sourceBase,unsigned sourceVertexCount) {
     const auto requireRange=[](bool valid) {
         if(!valid)throw std::runtime_error("resting source attachment reference is outside its allocation");

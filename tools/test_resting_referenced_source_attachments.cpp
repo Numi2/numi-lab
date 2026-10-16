@@ -8,7 +8,7 @@ template<class F> void rejected(F function) {
 }
 int main() {
     const std::map<unsigned,unsigned> channels{{0,12},{1,12},{4,13}};
-    const std::set<unsigned> referenced{101,102,104};
+    const std::vector<unsigned> referenced{101,102,104};
     const auto result=numiHumanRestingReferencedSourceAttachmentVertices(channels,referenced,100,5);
     assert((result==std::set<unsigned>{1,4}));
     assert(channels.size()==3&&channels.contains(0));
