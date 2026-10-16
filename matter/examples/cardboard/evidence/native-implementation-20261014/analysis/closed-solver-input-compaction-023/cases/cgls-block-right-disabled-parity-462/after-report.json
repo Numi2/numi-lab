@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 16355786,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-023/archives/cgls-block-right-disabled-parity-462/inputs.tar.gz",
+  "archive_sha256": "c9d084711b024cc0f74ab7846812f1ee0acf5929127f8d67b8c9a716b7c420a4",
+  "before_manifest_sha256": "a8fc49f736c43d8c05b7030a9e8be1100b31ba52cc8f3d75033f3ae2213e8312",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cgls-block-right-disabled-parity-462",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 539127808,
+  "filesystem_available_before_bytes": 505696256,
+  "filesystem_delta_bytes": 33431552,
+  "original_allocated_bytes": 52420608,
+  "original_input_files_removed": 826,
+  "original_logical_bytes": 50716692,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/cgls-block-right-disabled-parity-462/inputs.compaction.json",
+  "pointer_sha256": "d3dd794c658e32dfdeba78679d5f630c284d5dc47361e19aaf03a41840ffcc5c",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 50716692,
+    "verified_dirs": 32,
+    "verified_files": 826
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

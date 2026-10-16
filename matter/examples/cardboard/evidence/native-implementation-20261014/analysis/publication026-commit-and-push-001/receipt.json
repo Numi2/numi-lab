@@ -1,0 +1,12 @@
+{
+  "schema": "numi.cardboard.publication026_commit_push.v1",
+  "parent": "cc244f185d7614af64904072da69a9805c00ecf1",
+  "commit": "67ba06be7f48981dda142ea35eedd792d7cd2ca5",
+  "remote_main": "67ba06be7f48981dda142ea35eedd792d7cd2ca5",
+  "remote_verified": true,
+  "commit_exit_code": 0,
+  "push_exit_code": 0,
+  "audit_sha256": "38ff4dec5afccc76d3f9782f9237dc1aec7c070783282ddbd1b2a9b7ee268be4",
+  "finished_at_utc": "2026-10-15T23:52:52.874652+00:00",
+  "qualification": "scoped native conditioning milestone; no complete coupon or downstream physical qualification"
+}

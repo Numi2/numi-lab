@@ -1,0 +1,169 @@
+{
+  "bound_inputs": {
+    "419_free_csr.npz": {
+      "bytes": 506678,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/A_free_csr.npz",
+      "sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed"
+    },
+    "419_operator_capture": {
+      "bytes": 38811258,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture",
+      "sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a"
+    },
+    "464_cgls_capture.bin": {
+      "bytes": 409368,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin",
+      "sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099"
+    },
+    "464_receipt.json": {
+      "bytes": 306,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/receipt.json",
+      "sha256": "b83049818c15e6f5d19f52d1e2af69ac2b1675257ad247d3b639e40e00b0b994"
+    },
+    "464_regional_manifest.json": {
+      "bytes": 11320,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.regional.json",
+      "sha256": "9a9718888fc5fdc9eed488e258a5c8b188bde96f77c1d8d3c2dc5c3ea0dfe523"
+    },
+    "464_regional_payload.bin": {
+      "bytes": 77619992,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.regional.bin",
+      "sha256": "70b77616dd823adcca6516af248493dfc41dee482b4add7f85665277f1c6c873"
+    },
+    "464_state_manifest.json": {
+      "bytes": 8680,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.state.json",
+      "sha256": "16f75668da71ea1a2b64a4137177b82ed07103540c092056caf2861c23c743e8"
+    },
+    "464_state_payload.bin": {
+      "bytes": 4327464,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.state.bin",
+      "sha256": "1a99fa72a4f45c68c67a53dcace37f0f01df6587d6db1a178606247a9fdef5b6"
+    },
+    "graph_bindings.json": {
+      "bytes": 17389,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/source151-regional-capture-bindings.json",
+      "sha256": "22ce94f66f2d067840538b30fba13115952da9f3d28a87966586e1c654f7dec9"
+    },
+    "graph_input.bin": {
+      "bytes": 31614,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/actual-graph-input.bin",
+      "sha256": "950f983c8e8a0303b473fa09fde2ded2a65746e2fa14f50e3a9574f171900cfd"
+    },
+    "graph_reference.py": {
+      "bytes": 30098,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/regional-rap-selector5-reference-151-002/selector5_graph_reference.py",
+      "sha256": "6f3176997ae50370e44a80c8ae9032a352f7a2af03dbf228e991d653cf06365d"
+    },
+    "regional_reader.py": {
+      "bytes": 10224,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/validator/read_regional_capture_v2.py",
+      "sha256": "785a298456e67ebf111466a7f2f22a73656f3da7af6032e16f563ddc9cae1bec"
+    },
+    "source151_base_cgls_runtime.metalinc": {
+      "bytes": 7149,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151/matter/src/metal/base_cgls_runtime.metalinc",
+      "sha256": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903"
+    },
+    "source151_runtime.mm": {
+      "bytes": 1905656,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151/matter/src/runtime.mm",
+      "sha256": "1c0d2fd0d376ecc5e7ea9007ab6cc67a77fbd19bbba9f3b22fcbeca4c5c06a08"
+    },
+    "state_reader.py": {
+      "bytes": 16068,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/base-cgls-state-reader-abi-repair-148-001/tools/read_state_capture.py",
+      "sha256": "ee400288607bf220502fd4670923972f7b79cce2d810f247d6889ed4665f4b48"
+    }
+  },
+  "claim_scope": "CPU-only exact state/operator join and source-derived numeric reference comparisons; no native Metal replay or convergence/physical/shipping qualification",
+  "files": {
+    "README.md": {
+      "bytes": 2873,
+      "sha256": "c187fde910ae66af318d893699002b0fa61f306154db9f842ee28a1bae974ddb"
+    },
+    "audit_native464_v3.py": {
+      "bytes": 38279,
+      "sha256": "4ce247f1f6cdc6c87b221151ab00b28ebf5f8f28589651d9e8a729487ae2f382"
+    },
+    "audit_native464_v4.py": {
+      "bytes": 41327,
+      "sha256": "6cf1c4bb95c0631f8c350194603374911b64062ac84efc9aeac7f277303a522e"
+    },
+    "command-v3.json": {
+      "bytes": 694,
+      "sha256": "c7957c62c6ae1e052408913c015f6abf15ea925810a3148b88d9c8de489b2901"
+    },
+    "command-v4.json": {
+      "bytes": 534,
+      "sha256": "18ca03236f84bfff4e4cd3d66dbc66a0bf9e139f629d0e90bd8d6f684be6ae82"
+    },
+    "cpu-tests-v4.txt": {
+      "bytes": 1351,
+      "sha256": "44179b5637ccadbb9aecbb8a49b56db922a310a256faf80788e9a51dd70980a6"
+    },
+    "native464-audit-v3.json": {
+      "bytes": 23475,
+      "sha256": "aa3045f659fcf3142a60d6a5ffe142dd3d512e40427cd791f9bf0ac9fb3190b1"
+    },
+    "native464-audit-v4-reproduced.json": {
+      "bytes": 36655,
+      "sha256": "234a5330da46b28791b2be2d7fcd444e6f98d79f70cdd73457c82c9c89042656"
+    },
+    "native464-audit-v4.json": {
+      "bytes": 36655,
+      "sha256": "234a5330da46b28791b2be2d7fcd444e6f98d79f70cdd73457c82c9c89042656"
+    },
+    "prior-attempts.json": {
+      "bytes": 1304,
+      "sha256": "694ba7c34b93bf7ce78f5ae2457c17eb6b670e7959b7a21cf42d7af2e5cc9493"
+    },
+    "prior-cpu-tests-v3.txt": {
+      "bytes": 490,
+      "sha256": "eb89fa3e36826947d99d5a7552b77c917876c4667e6e605ebce0c7a249ebd06b"
+    },
+    "pycompile-v4.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "test_audit_native464_v3.py": {
+      "bytes": 2762,
+      "sha256": "837b8ea48fd968c5aa5333ad860e53aa722d114700f528e4c2280d4eb0f0530b"
+    },
+    "test_audit_native464_v4.py": {
+      "bytes": 2022,
+      "sha256": "aec82681bae1217f1e47fcf0de56dc8fb121cf05a20792924b37fca302e5982f"
+    }
+  },
+  "package_id": "native464-regional-capture-audit-003",
+  "prior_package_preserved": "native464-regional-capture-audit-002 (v3/v4 drafts retained unchanged)",
+  "result": {
+    "actual_augmented_consuming_view_admitted": {
+      "error": "actual selected view unsupported: augmented consuming restart generation is absent",
+      "refused": true
+    },
+    "all_entry_frobenius_relative_l2": 5.926118342203329e-08,
+    "capture_join_admissible": true,
+    "free_free_frobenius_relative_l2": 7.4665773032055e-08,
+    "free_free_max_abs": 7.339122992666702e-08,
+    "patch_matrix_gate_atol": 1e-09,
+    "patch_matrix_within_atol": false,
+    "worst_free_free_entry": {
+      "abs_error": 7.339122992666702e-08,
+      "global_column_dof": 1029,
+      "global_row_dof": 1029,
+      "local_column": 393,
+      "local_row": 393,
+      "observed_value": 0.4552142918109894,
+      "patch_index": 0,
+      "reference_magnitude": 0.4552143652022193,
+      "reference_value": 0.4552143652022193
+    }
+  },
+  "schema": "numi.cardboard.native464_regional_capture_audit_package.v1",
+  "validation": {
+    "py_compile": "pass",
+    "unit_tests": "7/7 pass",
+    "v4_reproduction_byte_equal": true
+  }
+}

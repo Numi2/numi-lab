@@ -11829,9 +11829,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 }
             }
             if (const char* selector = std::getenv("NM_FEM_TRUE_RESIDUAL_ROOT")) {
+                const bool everyControlStep = std::strcmp(selector, "all") == 0;
                 char* end = nullptr;
-                const unsigned long parsed = std::strtoul(selector, &end, 10);
-                if (end == selector || *end != '\0' ||
+                const unsigned long parsed = everyControlStep
+                    ? request.controlStep : std::strtoul(selector, &end, 10);
+                if ((!everyControlStep && (end == selector || *end != '\0')) ||
                     parsed > std::numeric_limits<std::uint32_t>::max()) {
                     std::fprintf(stderr,
                         "fem_true_residual_error={\"schema\":1,\"reason\":\"invalid_control_step_selector\"}\n");
@@ -12013,22 +12015,37 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 };
                 char* rootEnd = nullptr;
                 char* iterationEnd = nullptr;
-                const unsigned long root = std::strtoul(
-                    baseCauchySelector, &rootEnd, 10);
+                const bool everyControlStep = separator != nullptr &&
+                    separator - baseCauchySelector == 3 &&
+                    std::strncmp(baseCauchySelector, "all", 3) == 0;
+                const unsigned long root = everyControlStep
+                    ? request.controlStep : std::strtoul(
+                        baseCauchySelector, &rootEnd, 10);
                 const bool allNewtonIterations = separator != nullptr &&
                     std::strcmp(separator + 1, "all") == 0;
                 const unsigned long iteration = separator == nullptr ||
                     allNewtonIterations ? 0ul :
                     std::strtoul(separator + 1, &iterationEnd, 10);
-                if (separator == nullptr || rootEnd != separator ||
+                if (separator == nullptr ||
+                    (!everyControlStep && rootEnd != separator) ||
                     (!allNewtonIterations && iterationEnd != end) ||
-                    !digitsOnly(baseCauchySelector, separator) ||
+                    (!everyControlStep &&
+                     !digitsOnly(baseCauchySelector, separator)) ||
                     (!allNewtonIterations &&
                      !digitsOnly(separator + 1, end)) ||
                     root > std::numeric_limits<std::uint32_t>::max() ||
                     iteration > 256ul) {
                     rejectBaseCauchy(
-                        "selector_must_be_control_step_colon_all_or_newton_0_to_256");
+                        "selector_must_be_control_step_colon_all_or_newton_0_to_256_or_exact_all_colon_all");
+                } else if (everyControlStep &&
+                           (!allNewtonIterations ||
+                            femBaseCGLSIterations == 0u ||
+                            !femBaseCGLSPrimaryPolicyRequested)) {
+                    // All-control scope is admitted only for the existing
+                    // bounded CGLS primary policy. Every selected control still
+                    // passes the complete original capability/certificate gate.
+                    rejectBaseCauchy(
+                        "all_control_steps_requires_cgls_primary_policy_and_all_newton_suffix");
                 } else {
                     femBaseCauchyFallbackRoot =
                         static_cast<std::uint32_t>(root);
@@ -12037,9 +12054,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     femBaseCauchyFallbackAllNewtonIterations =
                         allNewtonIterations;
                     if (request.controlStep != femBaseCauchyFallbackRoot) {
-                        // The numerical fallback remains bounded to one
-                        // explicit control step. The suffix may select one
-                        // Newton state or every Newton state in that step.
+                        // A numeric selector remains bounded to its explicit
+                        // control step. Exact all:all resolves to this control
+                        // and repeats the full bounded capability gate below.
                     } else if (!state.femBaseCauchyScratchEnabled ||
                                state.femBaseCauchyRightHandSide == nil ||
                                state.femBaseCauchyTrace == nil) {
@@ -12098,8 +12115,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         }
                         if (femBaseCauchyFallbackAllNewtonIterations) {
                             std::fprintf(stderr,
-                                "fem_base_cauchy_all_newton_enabled={\"schema\":1,\"root\":%u,\"scope\":\"all_newton_iterations_on_one_control_step\",\"maximum_trace_records\":512,\"physical_operator_changed\":false}\n",
-                                femBaseCauchyFallbackRoot);
+                                "fem_base_cauchy_all_newton_enabled={\"schema\":1,\"root\":%u,\"scope\":\"%s\",\"maximum_trace_records\":512,\"physical_operator_changed\":false}\n",
+                                femBaseCauchyFallbackRoot,
+                                everyControlStep
+                                    ? "all_newton_iterations_on_all_control_steps"
+                                    : "all_newton_iterations_on_one_control_step");
                         } else if (femBaseCGLSIterations == 0u) std::fprintf(stderr,
                             "fem_base_cauchy_fallback_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"direction\":\"base_state_A_transpose_b\",\"certificate_scope\":\"original_newton_delta_only\",\"armijo_trials\":%u}\n",
                             femBaseCauchyFallbackRoot,

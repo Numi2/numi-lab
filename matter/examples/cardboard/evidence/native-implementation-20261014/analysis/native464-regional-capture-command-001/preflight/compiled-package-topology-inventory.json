@@ -1,0 +1,485 @@
+{
+  "compiled_package": "/Users/home/cardboard-implementation-20261014/solver/cgls-block-right-disabled-parity-462/output/compiled.nmatterpack",
+  "compiled_package_bytes": 1984768,
+  "compiled_package_sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+  "dispatch": {
+    "environment_count": 2,
+    "material_count": 3,
+    "material_state_stride": 15,
+    "node_count": 882,
+    "object_count": 1,
+    "parameter_count": 59,
+    "tetrahedron_count": 1920
+  },
+  "fixed_mask_encoding": "raw u8, 1=free, 0=fixed; source tag restAndFixed.w read from byte offset 44 of 80-byte NMFEMNodeStateGPU",
+  "fixed_nodes": 36,
+  "free_nodes": 846,
+  "graph_input_bytes": 31614,
+  "graph_input_sha256": "950f983c8e8a0303b473fa09fde2ded2a65746e2fa14f50e3a9574f171900cfd",
+  "matter_abi": 45,
+  "package_fingerprint_u64_hex": "75c1264bc96ac2d9",
+  "package_version": 19,
+  "physics_fingerprint_u64_hex": "75c1264bc96ac2d9",
+  "potential_node_mask_sha256": "7c62147f8709c6be3af1de14e5fc926756a8ee13a8883b6ac13db58cf7e6f3b6",
+  "schema": "numi.cardboard.regional-graph-preflight-input.v1",
+  "sections": {
+    "1": {
+      "byte_count": 192,
+      "content_hash_u64": "e8026783082d2990",
+      "element_count": 1,
+      "element_size": 192,
+      "offset": 88
+    },
+    "10": {
+      "byte_count": 176,
+      "content_hash_u64": "301684ef9510ba8a",
+      "element_count": 1,
+      "element_size": 176,
+      "offset": 1475184
+    },
+    "11": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 160,
+      "offset": 1475392
+    },
+    "12": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 64,
+      "offset": 1475424
+    },
+    "13": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 80,
+      "offset": 1475456
+    },
+    "14": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 32,
+      "offset": 1475488
+    },
+    "15": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 4,
+      "offset": 1475520
+    },
+    "16": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 32,
+      "offset": 1475552
+    },
+    "17": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 4,
+      "offset": 1475584
+    },
+    "18": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 16,
+      "offset": 1475616
+    },
+    "19": {
+      "byte_count": 70560,
+      "content_hash_u64": "5defd026504589e9",
+      "element_count": 882,
+      "element_size": 80,
+      "offset": 1475648
+    },
+    "2": {
+      "byte_count": 96,
+      "content_hash_u64": "f35d9235c4c60ace",
+      "element_count": 1,
+      "element_size": 96,
+      "offset": 312
+    },
+    "20": {
+      "byte_count": 184320,
+      "content_hash_u64": "60d4099d94e56dbc",
+      "element_count": 1920,
+      "element_size": 96,
+      "offset": 1546240
+    },
+    "21": {
+      "byte_count": 151040,
+      "content_hash_u64": "fcad666656f6877f",
+      "element_count": 4720,
+      "element_size": 32,
+      "offset": 1730592
+    },
+    "22": {
+      "byte_count": 30720,
+      "content_hash_u64": "a68641c02294eec3",
+      "element_count": 7680,
+      "element_size": 4,
+      "offset": 1881664
+    },
+    "23": {
+      "byte_count": 14112,
+      "content_hash_u64": "4629e729fde012c5",
+      "element_count": 882,
+      "element_size": 16,
+      "offset": 1912416
+    },
+    "24": {
+      "byte_count": 32,
+      "content_hash_u64": "a79ea4bfecdad836",
+      "element_count": 1,
+      "element_size": 32,
+      "offset": 1926560
+    },
+    "25": {
+      "byte_count": 28224,
+      "content_hash_u64": "703f70bb0c227683",
+      "element_count": 882,
+      "element_size": 32,
+      "offset": 1926624
+    },
+    "26": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 48,
+      "offset": 1954880
+    },
+    "27": {
+      "byte_count": 14112,
+      "content_hash_u64": "8d22c27bea79d03a",
+      "element_count": 882,
+      "element_size": 16,
+      "offset": 1954912
+    },
+    "28": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 384,
+      "offset": 1969056
+    },
+    "29": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 64,
+      "offset": 1969088
+    },
+    "3": {
+      "byte_count": 480,
+      "content_hash_u64": "1838ee9ed57ab9d6",
+      "element_count": 3,
+      "element_size": 160,
+      "offset": 440
+    },
+    "30": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 48,
+      "offset": 1969120
+    },
+    "31": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 32,
+      "offset": 1969152
+    },
+    "32": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 80,
+      "offset": 1969184
+    },
+    "33": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 16,
+      "offset": 1969216
+    },
+    "34": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 4,
+      "offset": 1969248
+    },
+    "35": {
+      "byte_count": 14112,
+      "content_hash_u64": "4604fb4ba8dd1903",
+      "element_count": 882,
+      "element_size": 16,
+      "offset": 1969280
+    },
+    "36": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 4,
+      "offset": 1983424
+    },
+    "37": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 16,
+      "offset": 1983456
+    },
+    "38": {
+      "byte_count": 160,
+      "content_hash_u64": "95d0181bf1ef4b97",
+      "element_count": 1,
+      "element_size": 160,
+      "offset": 1983488
+    },
+    "39": {
+      "byte_count": 80,
+      "content_hash_u64": "689edb201b0ef807",
+      "element_count": 1,
+      "element_size": 80,
+      "offset": 1983680
+    },
+    "4": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 32,
+      "offset": 952
+    },
+    "40": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 48,
+      "offset": 1983792
+    },
+    "41": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 64,
+      "offset": 1983824
+    },
+    "42": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 32,
+      "offset": 1983856
+    },
+    "43": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 4,
+      "offset": 1983888
+    },
+    "44": {
+      "byte_count": 80,
+      "content_hash_u64": "c3b584ef67d3af43",
+      "element_count": 1,
+      "element_size": 80,
+      "offset": 1983920
+    },
+    "45": {
+      "byte_count": 96,
+      "content_hash_u64": "2b20d83c8eacc803",
+      "element_count": 1,
+      "element_size": 96,
+      "offset": 1984032
+    },
+    "46": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 32,
+      "offset": 1984160
+    },
+    "47": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 96,
+      "offset": 1984192
+    },
+    "48": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 48,
+      "offset": 1984224
+    },
+    "49": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 96,
+      "offset": 1984256
+    },
+    "5": {
+      "byte_count": 288,
+      "content_hash_u64": "8e53d07c12813e85",
+      "element_count": 3,
+      "element_size": 96,
+      "offset": 984
+    },
+    "50": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 32,
+      "offset": 1984288
+    },
+    "51": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 32,
+      "offset": 1984320
+    },
+    "52": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 16,
+      "offset": 1984352
+    },
+    "53": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 4,
+      "offset": 1984384
+    },
+    "54": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 16,
+      "offset": 1984416
+    },
+    "55": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 4,
+      "offset": 1984448
+    },
+    "56": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 16,
+      "offset": 1984480
+    },
+    "57": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 4,
+      "offset": 1984512
+    },
+    "58": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 16,
+      "offset": 1984544
+    },
+    "59": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 1,
+      "offset": 1984736
+    },
+    "6": {
+      "byte_count": 944,
+      "content_hash_u64": "f8f12e10535367a1",
+      "element_count": 59,
+      "element_size": 16,
+      "offset": 1304
+    },
+    "60": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 96,
+      "offset": 1984576
+    },
+    "61": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 32,
+      "offset": 1984608
+    },
+    "62": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 4,
+      "offset": 1984640
+    },
+    "63": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 4,
+      "offset": 1984672
+    },
+    "64": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 16,
+      "offset": 1984704
+    },
+    "65": {
+      "byte_count": 0,
+      "content_hash_u64": "14650fb0739d0383",
+      "element_count": 0,
+      "element_size": 1,
+      "offset": 1984768
+    },
+    "7": {
+      "byte_count": 120,
+      "content_hash_u64": "a11671953e858723",
+      "element_count": 30,
+      "element_size": 4,
+      "offset": 2280
+    },
+    "8": {
+      "byte_count": 1458816,
+      "content_hash_u64": "1ae9530b8a4b2c8d",
+      "element_count": 45588,
+      "element_size": 32,
+      "offset": 2432
+    },
+    "9": {
+      "byte_count": 13872,
+      "content_hash_u64": "65f320a9968351e3",
+      "element_count": 867,
+      "element_size": 16,
+      "offset": 1461280
+    }
+  },
+  "source_free_mask_sha256": "dae5a5047292398f5a4ebfae0f961daa5a76ec53af59bab106f326de08aeefd8",
+  "source_topology_sha256": "52d495969f0220838a87b2dd7984961265fc0e6b1891f2d3e157b2ef17ae7511",
+  "tetrahedron_encoding": "little-endian u32x4 first 16 bytes of each 96-byte NMTetrahedronGPU"
+}

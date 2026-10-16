@@ -1,0 +1,34 @@
+{
+  "H_adjoint_dot_defect": 4.440892098500626e-16,
+  "S_adjoint_dot_defect": 1.1102230246251565e-16,
+  "augmented_selected_view_supported": false,
+  "base_RAP_factor": {
+    "atol": 1e-12,
+    "comparison_available": true,
+    "factor_valid": true,
+    "fresh_PtAP_max_abs": 3.0,
+    "max_abs_difference": 0.0,
+    "relative_to_fresh_max_abs": 0.0,
+    "within_atol": true
+  },
+  "base_mode_count": 2,
+  "fixed_output_is_zero": true,
+  "native_selector5_apply_verified": false,
+  "overlapping_patches": 2,
+  "patch_factor_reconstruction": [
+    {
+      "max_abs": 2.710505431213761e-20,
+      "relative_to_max_abs": 5.4210108624275225e-21,
+      "scale": 5.0
+    },
+    {
+      "max_abs": 0.0,
+      "relative_to_max_abs": 0.0,
+      "scale": 5.0
+    }
+  ],
+  "patch_membership_count": 4,
+  "schema": "numi.matter.selector5_graph_reference_synthetic.v1",
+  "scope": "synthetic binary64 algebraic reference; no native execution",
+  "shared_node_coverage": 2
+}

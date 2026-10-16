@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.publication027.postseal_compaction_addendum.v1",
+  "reason": "Terminal native464/466/467 duplicate inputs were losslessly compacted after prospective027 archiving. The resulting three recovery pointers must be included; first strict independent inventory audit refused the missing464 pointer.",
+  "prior_prospective_binding_sha256": "f4650f209c282f535594200875d0f5f4815a1de3d6053204f1137980b556fe01",
+  "prior_prospective_summary_sha256": "70a2104fc93ea00202813708723c33866050eb4e1bb0b870b85fca2330a12d22",
+  "prior_prospective_pathspec_sha256": "d4fbfe6ddc87c1706b75af86e4ee460cc2d472e99e56db3498b269440fc59856",
+  "prior_prospective_pathspec_entries": 4811,
+  "historical_prefix_records_unchanged": 1424,
+  "added_cases": [
+    "analysis/closed-solver-input-compaction-024",
+    "analysis/mortar-union-four-patch-buildhost-compaction-020",
+    "analysis/publication027-postseal-compaction-addendum-001"
+  ],
+  "no_existing_payload_or_native_history_rewritten": true,
+  "archive_policy": "Same published exclusion rules; sole external recovery archives retained. Restore proofs and pointers included. Existing two command input-alias exceptions unchanged."
+}

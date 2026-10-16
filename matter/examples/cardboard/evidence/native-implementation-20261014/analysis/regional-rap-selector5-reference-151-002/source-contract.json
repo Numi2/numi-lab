@@ -1,0 +1,83 @@
+{
+  "kernel_bodies": {
+    "nm_fgmres_graph_apply_patches": {
+      "body_sha256": "16c3ac36dd7bbd21256c76d7acd458b28d08abac1136f855b2f0510314f22fe4",
+      "line": 3751
+    },
+    "nm_fgmres_graph_solve_patches": {
+      "body_sha256": "8800f0c2cd53e013ebc578861efb8091b292a835e7aed4adfe08bb700b894195",
+      "line": 3449
+    },
+    "nm_fgmres_regional_project_basis": {
+      "body_sha256": "89b16f3213bc52f48c83f6125a6b6b8ffe3e877c15d18fa1946234841b3a69af",
+      "line": 1702
+    },
+    "nm_fgmres_regional_project_rhs": {
+      "body_sha256": "54d0f88cb3d282c3d47c1a9779929d4ce8a79732a6aa940693d3c2811fab10a1",
+      "line": 2589
+    },
+    "nm_fgmres_regional_solve_rap": {
+      "body_sha256": "538925c9056cd24200dc54b3fd1ce7a538c2ff13c3e97643444e573c5d42e6b2",
+      "line": 2617
+    }
+  },
+  "native_or_physical_qualification": false,
+  "schema": "numi.matter.selector5_graph_reference_source_contract.v1",
+  "source151_equals_source149_fgmres": true,
+  "source_algorithm_summary": {
+    "augmented_map": "not supported as an actual selected-view claim; restart-cycle consumption is not bound at the callback. Base view may be analyzed only with explicit reference-only label",
+    "base_selector5_map": "S=H+(P-H AP)R^-1 P^T",
+    "base_view": "modeCount base P/effective_P/AP and base RAP factor only; modeStride is retained for environment-major storage",
+    "completed_tail": "source graph kernels test fgmresStates[env].diagnostics.z > 0.5 and zero graph output; reference models this exact zero latch",
+    "graph_map": "H=G D E; local RHS is free-row E(r-AP c); patch D is one original-A residual refinement after pivoted LU; G sums membership-index corrections and divides nodeCoverage",
+    "invalid_base_rap": "source writes zero coarse coefficients, so the remaining algebraic map is H; this does not make an invalid graph factor admissible",
+    "transpose": "S^T=H^T+P R^-T(P^T-(AP)^T H^T); H^T=E^T D^T G^T; D^T=2F^T-F^T A_p^T F^T in exact arithmetic"
+  },
+  "source_anchors": {
+    "coarse_rhs_from_PtR": true,
+    "graph_apply_zeroes_constrained_candidate": true,
+    "graph_gather_divides_coverage": true,
+    "graph_local_rhs_subtracts_APc": true,
+    "graph_refinement_uses_original_A": true,
+    "invalid_rap_zeroes_coefficients": true,
+    "project_fixed_mask": true,
+    "runtime_layout_fnv": true
+  },
+  "source_files": {
+    "source149_base_cgls": {
+      "expected_sha256": "127d05d6323085ad6abd160ff560b95008981e9421541e9677dddbb3fa253aec",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/matter/src/metal/base_cgls.metalinc",
+      "sha256": "127d05d6323085ad6abd160ff560b95008981e9421541e9677dddbb3fa253aec"
+    },
+    "source149_fgmres": {
+      "expected_sha256": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/matter/src/metal/fgmres.metalinc",
+      "sha256": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8"
+    },
+    "source149_runtime": {
+      "expected_sha256": "f859b1ee45390dd844fcbd883356b931ab71d2c36260f53a4b03600b04fb3959",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/matter/src/runtime.mm",
+      "sha256": "f859b1ee45390dd844fcbd883356b931ab71d2c36260f53a4b03600b04fb3959"
+    },
+    "source151_fgmres": {
+      "expected_sha256": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151/matter/src/metal/fgmres.metalinc",
+      "sha256": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8"
+    },
+    "source151_graph_builder": {
+      "expected_sha256": null,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151/matter/src/regional_graph_schwarz.hpp",
+      "sha256": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf"
+    },
+    "source151_runtime": {
+      "expected_sha256": "1c0d2fd0d376ecc5e7ea9007ab6cc67a77fbd19bbba9f3b22fcbeca4c5c06a08",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151/matter/src/runtime.mm",
+      "sha256": "1c0d2fd0d376ecc5e7ea9007ab6cc67a77fbd19bbba9f3b22fcbeca4c5c06a08"
+    },
+    "source151_shared": {
+      "expected_sha256": null,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151/matter/include/numi/matter/shared.h",
+      "sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+    }
+  }
+}

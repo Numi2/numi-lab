@@ -1,0 +1,362 @@
+{
+  "captured_runtime_warnings_during_six_runs": [
+    {
+      "category": "RuntimeWarning",
+      "count": 3216,
+      "message": "divide by zero encountered in matmul"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 3216,
+      "message": "invalid value encountered in matmul"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 3216,
+      "message": "overflow encountered in matmul"
+    }
+  ],
+  "cgls_cap": 64,
+  "dimensions": {
+    "base_mode_count": 26,
+    "csr_nnz": 71046,
+    "environment": 0,
+    "environment_count": 2,
+    "fixed_nodes": 36,
+    "free_nodes": 846,
+    "nodes": 882,
+    "patch_count": 27,
+    "rhs_l2": 0.00018444380407784322,
+    "unknowns": 2538
+  },
+  "elapsed_cpu_seconds_all_six_runs": 2.979137897491455,
+  "fast_map_vs_source_reference": [
+    {
+      "ST_max_abs": 4.933099262416363e-09,
+      "ST_rel_l2": 5.482843814284816e-14,
+      "S_max_abs": 9.604264050722122e-09,
+      "S_rel_l2": 7.926455975167082e-14,
+      "direction": 0
+    },
+    {
+      "ST_max_abs": 8.576535037718713e-09,
+      "ST_rel_l2": 1.0526644013550425e-13,
+      "S_max_abs": 1.5657860785722733e-08,
+      "S_rel_l2": 1.0435140878685865e-13,
+      "direction": 1
+    }
+  ],
+  "finite_result_guard": "every CGLS preconditioned direction, A action, alpha, y/r iterate, preconditioned normal residual, search direction, and final candidate/residual is checked finite; nonfinite values stop the case with a named status",
+  "lineage": {
+    "419_A_free_csr_sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed",
+    "419_operator_capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "464_base_cgls_sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099",
+    "464_receipt_sha256": "b83049818c15e6f5d19f52d1e2af69ac2b1675257ad247d3b639e40e00b0b994",
+    "464_regional_manifest_sha256": "9a9718888fc5fdc9eed488e258a5c8b188bde96f77c1d8d3c2dc5c3ea0dfe523",
+    "464_regional_payload_sha256": "70b77616dd823adcca6516af248493dfc41dee482b4add7f85665277f1c6c873",
+    "464_state_manifest_sha256": "16f75668da71ea1a2b64a4137177b82ed07103540c092056caf2861c23c743e8",
+    "464_state_payload_sha256": "1a99fa72a4f45c68c67a53dcace37f0f01df6587d6db1a178606247a9fdef5b6",
+    "actual_selected_view_admissible": false,
+    "base_capture_view_label": "captured_base_view_reference_only_not_actual_callback_selection",
+    "benchmark_map_latch_override": "reference clone only: cleared completed-tail output latch to evaluate source-defined underlying base S/S^T formulas; this is not proof of what FGMRES consumed",
+    "completed_tail_latch_captured": true,
+    "source151_graph_kernel_sha256": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903",
+    "source151_runtime_sha256": "1c0d2fd0d376ecc5e7ea9007ab6cc67a77fbd19bbba9f3b22fcbeca4c5c06a08"
+  },
+  "method_notes": [
+    "CGLS solves min_y ||A S y-b||_2 with recurrence r=b-A S y, s=S^T A^T r; physical correction reported is x=S y.",
+    "block3 is inverse of captured 419 A diagonal 3x3 free-node blocks; the transpose action uses inverse-block transpose, not an SPD assumption.",
+    "base_graph is the source-151 unaugmented captured base map with captured graph patch factors and base RAP. Its underlying formula is evaluated with the graph reference latch cleared on a clone; the actual consuming restart-augmented view is unadmitted.",
+    "FP32 CPU arithmetic is an approximate recurrence with scipy/NumPy CPU operation order; it is not shader emulation or native parity.",
+    "CGLS uses a fixed maximum of 64 with no solver tolerance or physics/acceptance change. Breakdown/nonfinite states are reported, not converted into passes."
+  ],
+  "not_claimed": [
+    "native CGLS trajectory or FP32 Metal action parity",
+    "that selector-5 augmented map was consumed",
+    "solver convergence/acceptance or physical/shipping qualification",
+    "runtime speedup or complete-coupon improvement"
+  ],
+  "patch_matrix_gate_context": {
+    "max_entry_error": 7.339122992666702e-08,
+    "per_entry_atol": 1e-09,
+    "within_atol": false
+  },
+  "precision_methods": {
+    "fp32_cpu_arithmetic": {
+      "base_graph": {
+        "b_dot_Ax": 4.965216488518633e-09,
+        "b_l2": 0.00018444380407784322,
+        "checkpoints": [
+          {
+            "b_dot_Ax": 8.185571090468136e-10,
+            "iteration": 8,
+            "mapped_direction_l2": 0.015485410227844141,
+            "recursive_residual_l2": 0.00018220379737742313,
+            "relative_true_residual": 0.9878555977864631,
+            "true_residual_l2": 0.0001822038443353271
+          },
+          {
+            "b_dot_Ax": 1.261359904121738e-09,
+            "iteration": 16,
+            "mapped_direction_l2": 0.02226311120063705,
+            "recursive_residual_l2": 0.00018102481454194134,
+            "relative_true_residual": 0.981463420339605,
+            "true_residual_l2": 0.00018102484681068798
+          },
+          {
+            "b_dot_Ax": 1.821472230899409e-09,
+            "iteration": 32,
+            "mapped_direction_l2": 0.02912699882445215,
+            "recursive_residual_l2": 0.0001794409655088624,
+            "relative_true_residual": 0.9728762154205345,
+            "true_residual_l2": 0.00017944099006901866
+          },
+          {
+            "b_dot_Ax": 4.965216488518633e-09,
+            "iteration": 64,
+            "mapped_direction_l2": 0.05958203775275144,
+            "recursive_residual_l2": 0.00017031613080912316,
+            "relative_true_residual": 0.9234036552438938,
+            "true_residual_l2": 0.00017031608287256902
+          }
+        ],
+        "final_normal_residual_l2": 6.0099518388104654e-05,
+        "final_relative_true_residual": 0.9234036552438938,
+        "final_true_residual_l2": 0.00017031608287256902,
+        "iterations": 64,
+        "mapped_direction_l2": 0.05958203775275144,
+        "status": "iteration_cap"
+      },
+      "block3": {
+        "b_dot_Ax": 3.3747574754128443e-08,
+        "b_l2": 0.00018444380407784322,
+        "checkpoints": [
+          {
+            "b_dot_Ax": 3.042157678784643e-08,
+            "iteration": 8,
+            "mapped_direction_l2": 0.015518680668155928,
+            "recursive_residual_l2": 5.998283712123981e-05,
+            "relative_true_residual": 0.3252092942733742,
+            "true_residual_l2": 5.998283935725189e-05
+          },
+          {
+            "b_dot_Ax": 3.271533035344331e-08,
+            "iteration": 16,
+            "mapped_direction_l2": 0.021025583932896504,
+            "recursive_residual_l2": 3.611346019723527e-05,
+            "relative_true_residual": 0.1957965428843327,
+            "true_residual_l2": 3.611345919487689e-05
+          },
+          {
+            "b_dot_Ax": 3.351616605363716e-08,
+            "iteration": 32,
+            "mapped_direction_l2": 0.025741864160969356,
+            "recursive_residual_l2": 2.2430319906511397e-05,
+            "relative_true_residual": 0.12161059375875687,
+            "true_residual_l2": 2.2430320529030334e-05
+          },
+          {
+            "b_dot_Ax": 3.3747574754128443e-08,
+            "iteration": 64,
+            "mapped_direction_l2": 0.029218534754149872,
+            "recursive_residual_l2": 1.656147018139125e-05,
+            "relative_true_residual": 0.08979141763815049,
+            "true_residual_l2": 1.6561470642722825e-05
+          }
+        ],
+        "final_normal_residual_l2": 4.805768175138662e-07,
+        "final_relative_true_residual": 0.08979141763815049,
+        "final_true_residual_l2": 1.6561470642722825e-05,
+        "iterations": 64,
+        "mapped_direction_l2": 0.029218534754149872,
+        "status": "iteration_cap"
+      },
+      "identity": {
+        "b_dot_Ax": 3.213388064370001e-08,
+        "b_l2": 0.00018444380407784322,
+        "checkpoints": [
+          {
+            "b_dot_Ax": 2.3883504043837378e-08,
+            "iteration": 8,
+            "mapped_direction_l2": 0.0010241890975309096,
+            "recursive_residual_l2": 0.00010067781729596394,
+            "relative_true_residual": 0.5458454952137619,
+            "true_residual_l2": 0.0001006778195759804
+          },
+          {
+            "b_dot_Ax": 2.8364963298833175e-08,
+            "iteration": 16,
+            "mapped_direction_l2": 0.0016895085599901672,
+            "recursive_residual_l2": 7.519660720791579e-05,
+            "relative_true_residual": 0.4076938399212524,
+            "true_residual_l2": 7.519660273417906e-05
+          },
+          {
+            "b_dot_Ax": 3.094639137148546e-08,
+            "iteration": 32,
+            "mapped_direction_l2": 0.002434297435781778,
+            "recursive_residual_l2": 5.54156258736239e-05,
+            "relative_true_residual": 0.3004471954230135,
+            "true_residual_l2": 5.541562364833978e-05
+          },
+          {
+            "b_dot_Ax": 3.213388064370001e-08,
+            "iteration": 64,
+            "mapped_direction_l2": 0.0033211652312431414,
+            "recursive_residual_l2": 4.345778067069963e-05,
+            "relative_true_residual": 0.23561530874606343,
+            "true_residual_l2": 4.3457783844099465e-05
+          }
+        ],
+        "final_normal_residual_l2": 2.482146392284747e-06,
+        "final_relative_true_residual": 0.23561530874606343,
+        "final_true_residual_l2": 4.3457783844099465e-05,
+        "iterations": 64,
+        "mapped_direction_l2": 0.0033211652312431414,
+        "status": "iteration_cap"
+      }
+    },
+    "fp64": {
+      "base_graph": {
+        "b_dot_Ax": 2.2638149060906998e-08,
+        "b_l2": 0.00018444380407784322,
+        "checkpoints": [
+          {
+            "b_dot_Ax": 9.104550609127561e-10,
+            "iteration": 8,
+            "mapped_direction_l2": 0.01659976357765194,
+            "recursive_residual_l2": 0.00018195895636610623,
+            "relative_true_residual": 0.9865278873196068,
+            "true_residual_l2": 0.00018195895636610615
+          },
+          {
+            "b_dot_Ax": 1.5955263482375261e-09,
+            "iteration": 16,
+            "mapped_direction_l2": 0.02683893643536102,
+            "recursive_residual_l2": 0.00018006538434498176,
+            "relative_true_residual": 0.9762614973446676,
+            "true_residual_l2": 0.00018006538434498174
+          },
+          {
+            "b_dot_Ax": 3.661471106108786e-09,
+            "iteration": 32,
+            "mapped_direction_l2": 0.04656903068662404,
+            "recursive_residual_l2": 0.00017423350739047326,
+            "relative_true_residual": 0.9446427775743478,
+            "true_residual_l2": 0.00017423350739047264
+          },
+          {
+            "b_dot_Ax": 2.2638149060906998e-08,
+            "iteration": 64,
+            "mapped_direction_l2": 0.1463815411883305,
+            "recursive_residual_l2": 0.00010680207244789962,
+            "relative_true_residual": 0.5790493911241555,
+            "true_residual_l2": 0.00010680207244789816
+          }
+        ],
+        "final_normal_residual_l2": 3.28620496221894e-05,
+        "final_relative_true_residual": 0.5790493911241555,
+        "final_true_residual_l2": 0.00010680207244789816,
+        "iterations": 64,
+        "mapped_direction_l2": 0.1463815411883305,
+        "status": "iteration_cap"
+      },
+      "block3": {
+        "b_dot_Ax": 3.3753231202203145e-08,
+        "b_l2": 0.00018444380407784322,
+        "checkpoints": [
+          {
+            "b_dot_Ax": 3.042157525247333e-08,
+            "iteration": 8,
+            "mapped_direction_l2": 0.015518676959192896,
+            "recursive_residual_l2": 5.9982844299286845e-05,
+            "relative_true_residual": 0.3252093210676326,
+            "true_residual_l2": 5.9982844299286845e-05
+          },
+          {
+            "b_dot_Ax": 3.271533741054446e-08,
+            "iteration": 16,
+            "mapped_direction_l2": 0.02102559138921988,
+            "recursive_residual_l2": 3.6113424819052655e-05,
+            "relative_true_residual": 0.19579635650873498,
+            "true_residual_l2": 3.6113424819052655e-05
+          },
+          {
+            "b_dot_Ax": 3.3516400432491756e-08,
+            "iteration": 32,
+            "mapped_direction_l2": 0.025741851231869946,
+            "recursive_residual_l2": 2.2430257025133595e-05,
+            "relative_true_residual": 0.12161024945932614,
+            "true_residual_l2": 2.243025702513359e-05
+          },
+          {
+            "b_dot_Ax": 3.3753231202203145e-08,
+            "iteration": 64,
+            "mapped_direction_l2": 0.029416368196416052,
+            "recursive_residual_l2": 1.6314775512216205e-05,
+            "relative_true_residual": 0.088453909274885,
+            "true_residual_l2": 1.631477551221621e-05
+          }
+        ],
+        "final_normal_residual_l2": 4.5676422852291966e-07,
+        "final_relative_true_residual": 0.088453909274885,
+        "final_true_residual_l2": 1.631477551221621e-05,
+        "iterations": 64,
+        "mapped_direction_l2": 0.029416368196416052,
+        "status": "iteration_cap"
+      },
+      "identity": {
+        "b_dot_Ax": 3.22249990564105e-08,
+        "b_l2": 0.00018444380407784322,
+        "checkpoints": [
+          {
+            "b_dot_Ax": 2.3883485118763888e-08,
+            "iteration": 8,
+            "mapped_direction_l2": 0.0010241879612867466,
+            "recursive_residual_l2": 0.00010067786124040359,
+            "relative_true_residual": 0.5458457211059972,
+            "true_residual_l2": 0.00010067786124040359
+          },
+          {
+            "b_dot_Ax": 2.8364983943793366e-08,
+            "iteration": 16,
+            "mapped_direction_l2": 0.0016895077976041035,
+            "recursive_residual_l2": 7.519662837463293e-05,
+            "relative_true_residual": 0.407693978936244,
+            "true_residual_l2": 7.519662837463293e-05
+          },
+          {
+            "b_dot_Ax": 3.097019905245995e-08,
+            "iteration": 32,
+            "mapped_direction_l2": 0.002443770005071281,
+            "recursive_residual_l2": 5.522062848664403e-05,
+            "relative_true_residual": 0.29938998906864095,
+            "true_residual_l2": 5.522062848664404e-05
+          },
+          {
+            "b_dot_Ax": 3.22249990564105e-08,
+            "iteration": 64,
+            "mapped_direction_l2": 0.003448367404352111,
+            "recursive_residual_l2": 4.236075755173878e-05,
+            "relative_true_residual": 0.22966755518586424,
+            "true_residual_l2": 4.236075755173879e-05
+          }
+        ],
+        "final_normal_residual_l2": 2.532997749247715e-06,
+        "final_relative_true_residual": 0.22966755518586424,
+        "final_true_residual_l2": 4.236075755173879e-05,
+        "iterations": 64,
+        "mapped_direction_l2": 0.003448367404352111,
+        "status": "iteration_cap"
+      }
+    }
+  },
+  "schema": "numi.cardboard.native464_cgls_preconditioner_cpu_experiment.v1",
+  "scope": "offline descriptive CGLS on captured env0 A,b; maps are identity, exact captured A_nn inverse 3x3 blocks, and algebraic unlatched source-151 BASE S/S^T only",
+  "source_map_transpose_dot_identity": {
+    "STu_dot_v": -445219.5892227892,
+    "absolute_gap": 6.105983629822731e-08,
+    "relative_gap": 1.3714543963532658e-13,
+    "u_dot_Sv": -445219.5892228503
+  }
+}

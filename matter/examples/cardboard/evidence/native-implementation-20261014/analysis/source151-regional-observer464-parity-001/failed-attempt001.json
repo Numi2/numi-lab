@@ -1,0 +1,9 @@
+{
+  "argv462_sha256": "82920344390c3d1ecfd1418267459046776d014415d7880e7ec6d684a35e8c3c",
+  "argv464_sha256": "828f54f1b803a5e94984ead5b8d49f8954f11a58d8a35a8a9591645a23da2bb9",
+  "attempt": "001",
+  "audit_sha256_at_failure": "2ac4d650be0da282ed82ee69e60b31ed0b2e287114b05680554bd9e64ed590f1",
+  "failure": "normalized native argv differed because the first comparator version used distinct normalized tokens for source149/source151 and build149/build151 paths. Inspection showed values differed only at executable, metallib, output, and material paths; comparator was corrected to map each path pair to a shared token. No native outputs were changed.",
+  "schema": "numi.cardboard.parity-attempt-failure.v1",
+  "status": "failed_comparator_preflight"
+}

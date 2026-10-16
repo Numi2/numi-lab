@@ -1,5 +1,7 @@
 # Cardboard implementation and evidence ledger
 
+Source154 adds tested opt-in all-control solver routing and a128-Newton driver ceiling. Native466 preserves the complete prior failed attempt; isolated regional observer464 also preserves production history while retaining a selection-metadata defect. No complete coupon or shipping qualification follows. See [the source154 milestone](solver-milestone-source154.md).
+
 ## Current milestone: source142 bounded native CGLS
 
 The [source142 report](solver-cgls-source142.md) records the repaired native CGLS helper, closely agreeing selected operator actions and a 73.68% nonlinear residual decrease at control 1/Newton 48. Capture-on/off runs preserve the complete attempted history, but both fail and roll back the control. Independent FP64 intervals resolve every captured paper direction at the 1e-6 gate; the native FP32 derivative comparison remains noise-inconclusive. The negative captured stiffness work is dominated by compressive geometric stiffness. No complete coupon, resolution study, calibrated corrugated failure, released shipping assembly or crush/drop result is qualified. Earlier reports retain their original scope.

@@ -1,0 +1,766 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -1151,6 +1151,7 @@
+     std::uint32_t physicsSubstep = 0u;
+     std::uint32_t microtick = 0u;
+     std::uint32_t microtickCount = 0u;
++    std::uint32_t microGeneration = 0u;
+     std::uint32_t newtonIteration = 0u;
+     std::uint32_t environmentCount = 0u;
+     std::uint32_t objectCount = 0u;
+@@ -1207,6 +1208,7 @@
+         << ",\"physics_substep\":" << metadata.physicsSubstep
+         << ",\"microtick\":" << metadata.microtick
+         << ",\"microtick_count\":" << metadata.microtickCount
++        << ",\"micro_generation\":" << metadata.microGeneration
+         << ",\"newton_iteration\":" << metadata.newtonIteration
+         << ",\"environment_count\":" << metadata.environmentCount
+         << ",\"object_count\":" << metadata.objectCount
+@@ -1315,6 +1317,220 @@
+     }
+     std::fprintf(stderr,
+         "fem_base_cgls_state_capture={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"bytes\":%llu,\"array_count\":%llu,\"complete\":true,\"manifest\":%s}\n",
++        metadata.controlStep, metadata.newtonIteration,
++        static_cast<unsigned long long>(payloadBytes),
++        static_cast<unsigned long long>(arrays.size()),
++        jsonQuoted(manifestPath).c_str());
++}
++
++struct BaseCGLSRegionalCaptureMetadata {
++    std::uint32_t controlStep = 0u;
++    std::uint32_t physicsSubstep = 0u;
++    std::uint32_t microtick = 0u;
++    std::uint32_t microtickCount = 0u;
++    std::uint32_t microGeneration = 0u;
++    std::uint32_t newtonIteration = 0u;
++    std::uint32_t environmentCount = 0u;
++    std::uint32_t objectCount = 0u;
++    std::uint32_t nodeCount = 0u;
++    std::uint32_t tetrahedronCount = 0u;
++    std::uint32_t materialStateStride = 0u;
++    std::uint32_t unknownCount = 0u;
++    std::uint32_t preconditionerSelector = 0u;
++    std::uint32_t baseModeCount = 0u;
++    std::uint32_t modeStride = 0u;
++    std::uint32_t augmentedModeCount = 0u;
++    std::uint32_t augmentationEnabled = 0u;
++    std::uint32_t restartGenerationInitialized = 0u;
++    std::uint32_t acceptedCorrectionRecycleEnabled = 0u;
++    std::uint32_t tangentCacheEnabled = 0u;
++    std::uint32_t tangentCacheForceRebuild = 0u;
++    std::uint32_t cglsIterations = 0u;
++    std::uint32_t cglsRightScale = 0u;
++    std::uint32_t baseCauchyNewtonSelected = 0u;
++    std::uint32_t primaryPolicyRequested = 0u;
++    std::uint32_t primaryPolicySelectedNewton = 0u;
++    std::uint32_t graphPatchCount = 0u;
++    std::uint32_t graphPatchNodeCount = 0u;
++    std::uint32_t graphDofCount = 0u;
++    std::uint32_t graphMatrixFloatCount = 0u;
++    std::uint32_t graphPivotCount = 0u;
++    std::uint32_t graphLayoutChecksum = 0u;
++    std::uint64_t sourcePhysicsFingerprint = 0u;
++    std::uint64_t worldFingerprint = 0u;
++    std::uint64_t executionFingerprint = 0u;
++    std::uint64_t deviceRegistryID = 0u;
++    std::string deviceName;
++    std::string stateCapturePayloadSHA256;
++    std::string graphSourceTopologySHA256;
++    std::string graphSourceFreeMaskSHA256;
++    std::string graphPotentialMaskSHA256;
++    std::string cglsCaptureFile;
++    float dtSeconds = 0.0f;
++};
++
++void writeBaseCGLSRegionalCapture(
++    const void* payload,
++    const std::uint64_t payloadBytes,
++    const std::vector<BaseCGLSStateCaptureArray>& arrays,
++    const BaseCGLSRegionalCaptureMetadata& metadata,
++    const std::string& basePath
++) {
++    const auto* bytes = static_cast<const unsigned char*>(payload);
++    const std::string payloadHash = sha256Hex(
++        bytes, static_cast<std::size_t>(payloadBytes));
++    const std::string binaryPath = basePath + ".bin";
++    const std::string manifestPath = basePath + ".json";
++    const std::string payloadName =
++        std::filesystem::path(binaryPath).filename().string();
++    std::ostringstream manifest;
++    manifest.imbue(std::locale::classic());
++    manifest << "{\"schema\":\"numi.matter.base_cgls_regional_state_capture.v1\","
++        << "\"complete\":true,\"byte_order\":\"little_endian\","
++        << "\"capture_point\":\"selected_newton_after_fgmres_regional_rap_before_cgls_direction_construction_or_installation\","
++        << "\"physical_state_changed\":false,"
++        << "\"array_count\":" << arrays.size()
++        << ",\"root\":" << metadata.controlStep
++        << ",\"control_step\":" << metadata.controlStep
++        << ",\"physics_substep\":" << metadata.physicsSubstep
++        << ",\"microtick\":" << metadata.microtick
++        << ",\"microtick_count\":" << metadata.microtickCount
++        << ",\"micro_generation\":" << metadata.microGeneration
++        << ",\"linearization_generation\":\""
++        << hexU64((static_cast<std::uint64_t>(metadata.microGeneration) << 32u) |
++                  metadata.newtonIteration) << "\""
++        << ",\"newton_iteration\":" << metadata.newtonIteration
++        << ",\"environment_count\":" << metadata.environmentCount
++        << ",\"object_count\":" << metadata.objectCount
++        << ",\"node_count\":" << metadata.nodeCount
++        << ",\"tetrahedron_count\":" << metadata.tetrahedronCount
++        << ",\"material_state_stride\":" << metadata.materialStateStride
++        << ",\"unknown_count\":" << metadata.unknownCount
++        << ",\"preconditioner_selector\":" << metadata.preconditionerSelector
++        << ",\"base_mode_count\":" << metadata.baseModeCount
++        << ",\"mode_stride\":" << metadata.modeStride
++        << ",\"augmented_mode_count\":" << metadata.augmentedModeCount
++        << ",\"same_newton_restart_augmentation_enabled\":"
++        << (metadata.augmentationEnabled != 0u ? "true" : "false")
++        << ",\"restart_generation_initialized_host_observation\":"
++        << (metadata.restartGenerationInitialized != 0u ? "true" : "false")
++        << ",\"accepted_correction_recycle_enabled\":"
++        << (metadata.acceptedCorrectionRecycleEnabled != 0u ? "true" : "false")
++        << ",\"cgls_iteration_budget\":" << metadata.cglsIterations
++        << ",\"cgls_right_scale\":"
++        << (metadata.cglsRightScale != 0u ? jsonQuoted("block3") : "null")
++        << ",\"base_cauchy_newton_selected\":"
++        << (metadata.baseCauchyNewtonSelected != 0u ? "true" : "false")
++        << ",\"primary_policy_requested\":"
++        << (metadata.primaryPolicyRequested != 0u ? "true" : "false")
++        << ",\"primary_policy_selected_newton\":"
++        << (metadata.primaryPolicySelectedNewton != 0u ? "true" : "false")
++        << ",\"primary_selection_semantics\":"
++        << jsonQuoted(metadata.primaryPolicySelectedNewton != 0u
++            ? "captured_after_primary_selection_kernel"
++            : "not_materialized_at_capture_point")
++        << ",\"tangent_cache_enabled_by_solver_policy\":"
++        << (metadata.tangentCacheEnabled != 0u ? "true" : "false")
++        << ",\"tangent_cache_force_rebuild_requested\":"
++        << (metadata.tangentCacheForceRebuild != 0u ? "true" : "false")
++        << ",\"candidate_state_binding\":{\"schema\":\"numi.matter.base_cgls_state_capture.v1\",\"manifest_file\":"
++        << jsonQuoted(metadata.cglsCaptureFile + ".state.json")
++        << ",\"payload_file\":"
++        << jsonQuoted(metadata.cglsCaptureFile + ".state.bin")
++        << ",\"payload_sha256\":"
++        << jsonQuoted(metadata.stateCapturePayloadSHA256)
++        << ",\"claim\":\"both payloads were blitted from this command buffer; the state payload binds candidate nodes, accepted history, scheduler and tangent cache; candidate material history is not asserted current for this Newton projection\"}"
++        << ",\"regional_buffer_semantics\":{\"P\":\"immutable authored basis\",\"effective_P_and_AP\":\"raw environment-major buffers with mode_stride padding; use restart generation and mode-valid words to determine whether augmented slot is current\",\"base_RAP\":\"raw factorized coarse matrix, pivots and validity from this linearization\",\"augmented_RAP\":\"raw buffer contents only; reader must verify per-environment restart_generation equals root/substep/Newton and augmented validity before treating as current\",\"graph\":\"selector-5 topology, operator matrices, LU, pivots and validity copied without reconstruction\"}"
++        << ",\"regional_apply_replay\":{\"row_mapping\":\"candidate_nodes are environment-major; restAndFixed.w is the raw fixed-node tag; node_ranges is included for selectors 2-4; selector 5 carries graph_rows\",\"fgmres_health\":\"read fgmres_state.diagnostics from the joined state payload\",\"fine_diagonal\":\"inverse_diagonal is captured for selectors 2-4\",\"fine_block\":\"node_block_inverse contains three float4 rows per node, including row0.w validity/fallback marker, for selectors 3-4\",\"native_arbitrary_vector_action\":\"not captured; coarse RHS and coefficients only describe the last recorded coarse input\"}"
++        << ",\"graph_schwarz\":{\"enabled\":"
++        << (metadata.preconditionerSelector == 5u ? "true" : "false")
++        << ",\"patch_count\":" << metadata.graphPatchCount
++        << ",\"patch_node_count\":" << metadata.graphPatchNodeCount
++        << ",\"dof_count\":" << metadata.graphDofCount
++        << ",\"matrix_float_count\":" << metadata.graphMatrixFloatCount
++        << ",\"pivot_count\":" << metadata.graphPivotCount
++        << ",\"layout_checksum_fnv1a32\":" << metadata.graphLayoutChecksum
++        << ",\"source_topology_sha256\":"
++        << jsonQuoted(metadata.graphSourceTopologySHA256)
++        << ",\"source_free_mask_sha256\":"
++        << jsonQuoted(metadata.graphSourceFreeMaskSHA256)
++        << ",\"potential_node_mask_sha256\":"
++        << jsonQuoted(metadata.graphPotentialMaskSHA256) << '}'
++        << ",\"source_physics_fingerprint_u64_hex\":"
++        << jsonQuoted(hexU64(metadata.sourcePhysicsFingerprint))
++        << ",\"world_fingerprint_u64_hex\":"
++        << jsonQuoted(hexU64(metadata.worldFingerprint))
++        << ",\"device_program_fingerprint_u64_hex\":"
++        << jsonQuoted(hexU64(metadata.executionFingerprint))
++        << ",\"device\":{\"name\":" << jsonQuoted(metadata.deviceName)
++        << ",\"registry_id\":" << metadata.deviceRegistryID << '}'
++        << ",\"dt_seconds\":" << jsonFloat32Token(metadata.dtSeconds)
++        << ",\"payload\":{\"file\":" << jsonQuoted(payloadName)
++        << ",\"byte_count\":" << payloadBytes
++        << ",\"sha256\":" << jsonQuoted(payloadHash) << "},\"arrays\":[";
++    for (std::size_t index = 0u; index < arrays.size(); ++index) {
++        const auto& array = arrays[index];
++        if (index != 0u) manifest << ',';
++        manifest << "{\"name\":" << jsonQuoted(array.name)
++            << ",\"dtype\":" << jsonQuoted(array.dtype)
++            << ",\"semantic\":" << jsonQuoted(array.semantic)
++            << ",\"shape\":[";
++        for (std::size_t axis = 0u; axis < array.shape.size(); ++axis) {
++            if (axis != 0u) manifest << ',';
++            manifest << array.shape[axis];
++        }
++        manifest << "],\"offset\":" << array.offset
++            << ",\"byte_count\":" << array.byteCount
++            << ",\"element_bytes\":" << array.elementBytes
++            << ",\"sha256\":"
++            << jsonQuoted(sha256Hex(bytes + array.offset,
++                static_cast<std::size_t>(array.byteCount))) << '}';
++    }
++    manifest << "]}\n";
++    const std::string manifestText = manifest.str();
++    const int binaryFD = ::open(binaryPath.c_str(),
++        O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
++    if (binaryFD < 0) {
++        std::fprintf(stderr,
++            "fem_base_cgls_regional_capture={\"schema\":1,\"root\":%u,\"complete\":false,\"reason\":\"binary_exclusive_create_failed\",\"errno\":%d}\n",
++            metadata.controlStep, errno);
++        return;
++    }
++    const bool binaryWritten = writeAllBytes(binaryFD, bytes,
++        static_cast<std::size_t>(payloadBytes));
++    const bool binarySynced = binaryWritten && ::fsync(binaryFD) == 0;
++    const int binaryClose = ::close(binaryFD);
++    if (!binaryWritten || !binarySynced || binaryClose != 0) {
++        ::unlink(binaryPath.c_str());
++        std::fprintf(stderr,
++            "fem_base_cgls_regional_capture={\"schema\":1,\"root\":%u,\"complete\":false,\"reason\":\"binary_write_sync_or_close_failed\",\"errno\":%d}\n",
++            metadata.controlStep, errno);
++        return;
++    }
++    const int manifestFD = ::open(manifestPath.c_str(),
++        O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
++    if (manifestFD < 0) {
++        const int savedErrno = errno;
++        ::unlink(binaryPath.c_str());
++        std::fprintf(stderr,
++            "fem_base_cgls_regional_capture={\"schema\":1,\"root\":%u,\"complete\":false,\"reason\":\"manifest_exclusive_create_failed\",\"errno\":%d}\n",
++            metadata.controlStep, savedErrno);
++        return;
++    }
++    const bool manifestWritten = writeAllBytes(manifestFD,
++        manifestText.data(), manifestText.size());
++    const bool manifestSynced = manifestWritten && ::fsync(manifestFD) == 0;
++    const int manifestClose = ::close(manifestFD);
++    if (!manifestWritten || !manifestSynced || manifestClose != 0) {
++        ::unlink(binaryPath.c_str());
++        ::unlink(manifestPath.c_str());
++        std::fprintf(stderr,
++            "fem_base_cgls_regional_capture={\"schema\":1,\"root\":%u,\"complete\":false,\"reason\":\"manifest_write_sync_or_close_failed\",\"errno\":%d}\n",
++            metadata.controlStep, errno);
++        return;
++    }
++    std::fprintf(stderr,
++        "fem_base_cgls_regional_capture={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"bytes\":%llu,\"array_count\":%llu,\"complete\":true,\"manifest\":%s}\n",
+         metadata.controlStep, metadata.newtonIteration,
+         static_cast<unsigned long long>(payloadBytes),
+         static_cast<unsigned long long>(arrays.size()),
+@@ -11991,6 +12207,50 @@
+                     ownership->preDynamicsOpen = false;
+                     return diagnostics;
+                 }
++            }
++            bool femBaseCGLSRegionalStateCaptureRequested = false;
++            std::string femBaseCGLSRegionalStateCapturePath;
++            if (const char* regionalCapture = std::getenv(
++                    "NM_FEM_BASE_CGLS_STATE_CAPTURE_REGIONAL")) {
++                if (std::strcmp(regionalCapture, "0") != 0 &&
++                    std::strcmp(regionalCapture, "1") != 0) {
++                    diagnostics.message =
++                        "regional CGLS state capture must be exactly 0 or 1";
++                    ownership->preDynamicsOpen = false;
++                    return diagnostics;
++                }
++                femBaseCGLSRegionalStateCaptureRequested =
++                    std::strcmp(regionalCapture, "1") == 0;
++                if (femBaseCGLSRegionalStateCaptureRequested &&
++                    (!femBaseCGLSStateCaptureRequested ||
++                     femBaseCGLSIterations == 0u ||
++                     femBaseCGLSCapturePath.empty() ||
++                     !state.femBaseCGLSScratchEnabled ||
++                     !usesRegionalGalerkinPreconditioner(
++                         state.mixedSolverValue.executionBudgets.z) ||
++                     state.femRegionalModeCount == 0u)) {
++                    diagnostics.message =
++                        "regional CGLS capture requires the selected base-state capture and an admitted regional preconditioner";
++                    ownership->preDynamicsOpen = false;
++                    return diagnostics;
++                }
++                if (femBaseCGLSRegionalStateCaptureRequested &&
++                    (std::getenv("NM_FEM_OPERATOR_FD_SELECTOR") != nullptr ||
++                     std::getenv("NM_FEM_COUPLED_CAPTURE_SELECTOR") != nullptr ||
++                     std::getenv("NM_FEM_COUPLED_CAPTURE_PATH") != nullptr ||
++                     std::getenv("NM_FEM_COUPLED_TRIAL_CAPTURE_SELECTOR") != nullptr ||
++                     std::getenv("NM_FEM_COUPLED_TRIAL_CAPTURE_PATH") != nullptr ||
++                     std::getenv("NM_FEM_COUPLED_TRIAL_SUMMARY_SELECTOR") != nullptr ||
++                     std::getenv("NM_FEM_COUPLED_TRIAL_SUMMARY_PATH") != nullptr ||
++                     std::getenv("NM_FEM_REGIONAL_RAP_CAPTURE_ONLY") != nullptr)) {
++                    diagnostics.message =
++                        "regional CGLS state capture cannot share this bounded readback transaction with another selected observer";
++                    ownership->preDynamicsOpen = false;
++                    return diagnostics;
++                }
++                if (femBaseCGLSRegionalStateCaptureRequested)
++                    femBaseCGLSRegionalStateCapturePath =
++                        femBaseCGLSCapturePath + ".regional";
+             }
+             if (femBaseCauchyFallbackRequested) {
+                 const auto rejectBaseCauchy = [&](const char* reason) {
+@@ -22630,6 +22890,456 @@
+                     return diagnostics;
+                 }
+             }
++            const auto encodeBaseCGLSRegionalStateCapture = [&](
++                id<MTLBuffer> stateSnapshot,
++                const std::uint64_t statePayloadBytes) -> bool {
++                if (!femBaseCGLSRegionalStateCaptureRequested) return true;
++                const auto skip = [&](const char* reason,
++                                      const std::uint64_t bytes = 0u) {
++                    std::fprintf(stderr,
++                        "fem_base_cgls_regional_capture_skipped={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"reason\":\"%s\",\"regional_bytes\":%llu,\"state_bytes\":%llu,\"physical_state_changed\":false}\n",
++                        request.controlStep, nonlinearIteration, reason,
++                        static_cast<unsigned long long>(bytes),
++                        static_cast<unsigned long long>(statePayloadBytes));
++                    return true;
++                };
++                const std::uint64_t envCount = state.dispatch.environmentCount;
++                const std::uint64_t nodeCount = state.dispatch.femNodeCount;
++                const std::uint64_t tetCount = state.dispatch.tetrahedronCount;
++                const std::uint64_t modeCount = state.femRegionalModeCount;
++                const std::uint64_t modeStride =
++                    state.femRegionalRestartAugmentationEnabled
++                        ? state.femRegionalAugmentedModeCount : modeCount;
++                const std::uint64_t augModeCount =
++                    state.femRegionalRestartAugmentationEnabled
++                        ? state.femRegionalAugmentedModeCount : 0u;
++                const std::uint32_t preconditioner =
++                    state.mixedSolverValue.executionBudgets.z;
++                constexpr std::uint64_t maximumReadbackBytes =
++                    96u * 1024u * 1024u;
++                if (stateSnapshot == nil || statePayloadBytes == 0u ||
++                    statePayloadBytes > stateSnapshot.length ||
++                    envCount == 0u || envCount > 2u || nodeCount == 0u ||
++                    nodeCount > 4096u || tetCount == 0u || tetCount > 32768u ||
++                    modeCount == 0u || modeCount > 32u || modeStride < modeCount ||
++                    (preconditioner < 2u || preconditioner > 5u)) {
++                    return skip("unsupported_regional_dispatch_or_state_extent");
++                }
++                std::vector<BaseCGLSStateCaptureArray> arrays;
++                std::vector<id<MTLBuffer>> sourceBuffers;
++                std::uint64_t cursor = 0u;
++                const auto checkedBytes = [](const std::uint64_t count,
++                    const std::uint64_t elementBytes, std::uint64_t& result) {
++                    if (elementBytes == 0u || count >
++                        std::numeric_limits<std::uint64_t>::max() / elementBytes)
++                        return false;
++                    result = count * elementBytes;
++                    return true;
++                };
++                const auto append = [&](const char* name, const char* dtype,
++                    const char* semantic, const std::uint64_t elementBytes,
++                    const std::vector<std::uint64_t>& shape,
++                    const std::uint64_t byteCount, id<MTLBuffer> source) {
++                    if (arrays.size() >= 32u || elementBytes == 0u ||
++                        cursor > std::numeric_limits<std::uint64_t>::max() - 15u ||
++                        byteCount > std::numeric_limits<std::uint64_t>::max() - 15u)
++                        return false;
++                    std::uint64_t elements = 1u;
++                    for (const std::uint64_t axis : shape) {
++                        if (axis == 0u || elements >
++                            std::numeric_limits<std::uint64_t>::max() / axis)
++                            return false;
++                        elements *= axis;
++                    }
++                    std::uint64_t expectedBytes = 0u;
++                    if (!checkedBytes(elements, elementBytes, expectedBytes) ||
++                        expectedBytes != byteCount || source == nil ||
++                        source.length < byteCount)
++                        return false;
++                    const std::uint64_t aligned = (cursor + 15u) &
++                        ~std::uint64_t(15u);
++                    if (aligned > maximumReadbackBytes ||
++                        byteCount > maximumReadbackBytes - aligned)
++                        return false;
++                    BaseCGLSStateCaptureArray array;
++                    array.name = name;
++                    array.dtype = dtype;
++                    array.semantic = semantic;
++                    array.shape = shape;
++                    array.offset = aligned;
++                    array.byteCount = byteCount;
++                    array.elementBytes = elementBytes;
++                    arrays.push_back(std::move(array));
++                    sourceBuffers.push_back(source);
++                    cursor = aligned + byteCount;
++                    return true;
++                };
++                const auto appendTyped = [&](const char* name, const char* dtype,
++                    const char* semantic, const std::uint64_t elementBytes,
++                    const std::vector<std::uint64_t>& shape,
++                    id<MTLBuffer> source) {
++                    std::uint64_t elements = 1u;
++                    for (const std::uint64_t axis : shape) {
++                        if (axis == 0u || elements >
++                            std::numeric_limits<std::uint64_t>::max() / axis)
++                            return false;
++                        elements *= axis;
++                    }
++                    std::uint64_t bytes = 0u;
++                    return checkedBytes(elements, elementBytes, bytes) &&
++                        append(name, dtype, semantic, elementBytes, shape,
++                               bytes, source);
++                };
++                std::uint64_t effectiveScalars = 0u;
++                std::uint64_t baseRAPScalars = 0u;
++                std::uint64_t augRAPScalars = 0u;
++                std::uint64_t effectiveModeCount = 0u;
++                std::uint64_t baseModeCountSquared = 0u;
++                std::uint64_t augmentedModeCountSquared = 0u;
++                if (!checkedBytes(envCount, modeStride, effectiveModeCount) ||
++                    !checkedBytes(effectiveModeCount, nodeCount,
++                                  effectiveScalars) ||
++                    !checkedBytes(envCount, modeCount, baseModeCountSquared) ||
++                    !checkedBytes(baseModeCountSquared, modeCount,
++                                  baseRAPScalars) ||
++                    (augModeCount != 0u &&
++                     (!checkedBytes(envCount, augModeCount,
++                                    augmentedModeCountSquared) ||
++                      !checkedBytes(augmentedModeCountSquared, augModeCount,
++                                    augRAPScalars))))
++                    return skip("regional_shape_arithmetic_overflow");
++                if (!appendTyped("P", "float32x4",
++                        "immutable authored coarse basis; mode/node order",
++                        sizeof(nm_float4), {modeCount, nodeCount},
++                        state.femRegionalBasis) ||
++                    !appendTyped("effective_P", "float32x4",
++                        "raw environment-major projected basis; padded mode_stride",
++                        sizeof(nm_float4), {envCount, modeStride, nodeCount},
++                        state.femRegionalEffectiveBasis) ||
++                    !appendTyped("AP", "float32x4",
++                        "raw environment-major production operator action on effective_P; padded mode_stride",
++                        sizeof(nm_float4), {envCount, modeStride, nodeCount},
++                        state.femRegionalAP) ||
++                    !appendTyped("base_RAP_lu", "float32",
++                        "base coarse RAP matrix overwritten in place by pivoted LU",
++                        sizeof(float), {envCount, modeCount, modeCount},
++                        state.femRegionalCoarseMatrix) ||
++                    !appendTyped("base_RAP_pivots", "uint32",
++                        "base coarse LU pivot rows",
++                        sizeof(std::uint32_t), {envCount, modeCount},
++                        state.femRegionalCoarsePivots) ||
++                    !appendTyped("base_RAP_valid", "uint32",
++                        "base coarse factor validity per environment",
++                        sizeof(std::uint32_t), {envCount},
++                        state.femRegionalCoarseValid) ||
++                    !appendTyped("base_coarse_rhs", "float32",
++                        "raw last base coarse right-hand side; not an operator identity",
++                        sizeof(float), {envCount, modeCount},
++                        state.femRegionalCoarseRHS) ||
++                    !appendTyped("base_coarse_coefficients", "float32",
++                        "raw last base coarse solution coefficients",
++                        sizeof(float), {envCount, modeCount},
++                        state.femRegionalCoarseCoefficients))
++                    return skip("required_base_regional_buffer_missing_or_extent_mismatch");
++
++                // Selectors 2-4 use the nodal diagonal as the fine smoother;
++                // selectors 3-4 additionally use the resident 3x3 inverse rows.
++                // Capture the exact buffers consumed by regional_apply_rap so
++                // an offline apply/transpose reconstruction does not infer them
++                // from the candidate geometry.
++                if (preconditioner >= 2u && preconditioner <= 4u) {
++                    if (!appendTyped("inverse_diagonal", "float32x4",
++                            "exact nodal fine-smoother diagonal inverse used by regional RAP apply",
++                            sizeof(nm_float4), {envCount, nodeCount},
++                            state.femPreconditioned) ||
++                        !appendTyped("node_ranges", "record:NMIncidenceRangeGPU",
++                            "exact environment-major node-to-object incidence ranges used for FEM row ownership",
++                            sizeof(NMIncidenceRangeGPU), {envCount, nodeCount},
++                            state.femNodeRanges))
++                        return skip("required_fine_regional_apply_buffer_missing_or_extent_mismatch");
++                }
++
++                if (state.femRegionalRestartAugmentationEnabled) {
++                    const std::uint64_t generationBytes = envCount * sizeof(nm_uint4);
++                    const std::uint64_t envU32Bytes = envCount * sizeof(std::uint32_t);
++                    const std::uint64_t envFloatBytes = envCount * sizeof(float);
++                    if (augModeCount != modeCount + 1u ||
++                        !appendTyped("augmented_RAP_lu", "float32",
++                            "raw augmented coarse matrix overwritten in place by pivoted LU; currentness requires matching restart_generation",
++                            sizeof(float), {envCount, augModeCount, augModeCount},
++                            state.femRegionalAugmentedCoarseMatrix) ||
++                        !appendTyped("augmented_RAP_pivots", "uint32",
++                            "raw augmented LU pivot rows; currentness requires matching restart_generation",
++                            sizeof(std::uint32_t), {envCount, augModeCount},
++                            state.femRegionalAugmentedCoarsePivots) ||
++                        !appendTyped("augmented_RAP_valid", "uint32",
++                            "raw augmented factor validity per environment",
++                            sizeof(std::uint32_t), {envCount},
++                            state.femRegionalAugmentedCoarseValid) ||
++                        !appendTyped("augmented_coarse_rhs", "float32",
++                            "raw augmented coarse right-hand side",
++                            sizeof(float), {envCount, augModeCount},
++                            state.femRegionalAugmentedCoarseRHS) ||
++                        !appendTyped("augmented_coarse_coefficients", "float32",
++                            "raw augmented coarse coefficients",
++                            sizeof(float), {envCount, augModeCount},
++                            state.femRegionalAugmentedCoarseCoefficients) ||
++                        !append("restart_generation", "uint32x4",
++                            "raw per-environment root/substep/Newton/restart-cycle generation tags",
++                            sizeof(nm_uint4), {envCount}, generationBytes,
++                            state.femRegionalRestartGeneration) ||
++                        !append("restart_mode_valid", "uint32",
++                            "raw augmentation mode validity per environment",
++                            sizeof(std::uint32_t), {envCount}, envU32Bytes,
++                            state.femRegionalRestartModeValid) ||
++                        !append("restart_tail_preserved", "uint32",
++                            "raw completed-tail preservation words per environment",
++                            sizeof(std::uint32_t), {envCount}, envU32Bytes,
++                            state.femRegionalRestartTailPreserved) ||
++                        !append("restart_target_scale", "float32",
++                            "raw augmentation target scales per environment",
++                            sizeof(float), {envCount}, envFloatBytes,
++                            state.femRegionalRestartTargetScale) ||
++                        !append("restart_raw_norm_squared", "float32",
++                            "raw augmentation unscaled norm-squared per environment",
++                            sizeof(float), {envCount}, envFloatBytes,
++                            state.femRegionalRestartRawNormSquared) ||
++                        !append("restart_mode_scale", "float32",
++                            "raw accepted augmentation scale per environment",
++                            sizeof(float), {envCount}, envFloatBytes,
++                            state.femRegionalRestartModeScale))
++                        return skip("required_augmented_regional_buffer_missing_or_extent_mismatch");
++                }
++                if (state.femRegionalNodeBlockInverse != nil) {
++                    if (!appendTyped("node_block_inverse", "float32x4",
++                            "raw per-environment three-row nodal inverse blocks",
++                            sizeof(nm_float4), {envCount, nodeCount, 3u},
++                            state.femRegionalNodeBlockInverse))
++                        return skip("node_block_inverse_extent_mismatch");
++                }
++                if (preconditioner == 5u) {
++                    const std::uint64_t graphEnv = envCount;
++                    if (state.femRegionalGraphPatchCount == 0u ||
++                        state.femRegionalGraphPatchNodeCount == 0u ||
++                        state.femRegionalGraphDofCount == 0u ||
++                        !appendTyped("graph_patches", "uint32x4",
++                            "immutable source graph patch descriptors",
++                            sizeof(nm_uint4), {state.femRegionalGraphPatchCount},
++                            state.femRegionalGraphPatches) ||
++                        !appendTyped("graph_patch_nodes", "uint32",
++                            "immutable sorted node membership by patch",
++                            sizeof(std::uint32_t),
++                            {state.femRegionalGraphPatchNodeCount},
++                            state.femRegionalGraphPatchNodes) ||
++                        !appendTyped("graph_rows", "uint32x4",
++                            "immutable compiled graph row layout",
++                            sizeof(nm_uint4), {state.femRegionalGraphDofCount},
++                            state.femRegionalGraphRows) ||
++                        !appendTyped("graph_node_patch_offsets", "uint32",
++                            "immutable CSR node-to-patch offsets",
++                            sizeof(std::uint32_t), {nodeCount + 1u},
++                            state.femRegionalGraphNodePatchOffsets) ||
++                        !appendTyped("graph_node_patch_values", "uint32",
++                            "immutable CSR node-to-patch values",
++                            sizeof(std::uint32_t),
++                            {state.femRegionalGraphPatchNodeCount},
++                            state.femRegionalGraphNodePatchValues) ||
++                        !appendTyped("graph_node_coverage", "uint32",
++                            "immutable graph node coverage counts",
++                            sizeof(std::uint32_t), {nodeCount},
++                            state.femRegionalGraphNodeCoverage) ||
++                        !appendTyped("graph_original_matrices", "float32",
++                            "environment-major source patch matrices before factorization",
++                            sizeof(float), {graphEnv,
++                                state.femRegionalGraphMatrixFloatCount},
++                            state.femRegionalGraphOriginalMatrices) ||
++                        !appendTyped("graph_patch_lu", "float32",
++                            "environment-major production pivoted patch LU factors",
++                            sizeof(float), {graphEnv,
++                                state.femRegionalGraphMatrixFloatCount},
++                            state.femRegionalGraphFactors) ||
++                        !appendTyped("graph_pivots", "uint32",
++                            "environment-major production patch pivot rows",
++                            sizeof(std::uint32_t), {graphEnv,
++                                state.femRegionalGraphPivotCount},
++                            state.femRegionalGraphPivots) ||
++                        !appendTyped("graph_factor_valid", "uint32",
++                            "environment-major patch factor validity",
++                            sizeof(std::uint32_t), {graphEnv,
++                                state.femRegionalGraphPatchCount},
++                            state.femRegionalGraphFactorValid))
++                        return skip("required_selector5_graph_buffer_missing_or_extent_mismatch");
++                }
++                if (baseCGLSPrimaryPolicySelectedNewton &&
++                    !appendTyped("primary_policy_selected_environment", "uint32",
++                        "per-environment CGLS primary-policy selection already written before this capture",
++                        sizeof(std::uint32_t), {envCount},
++                        state.femBaseCGLSSelected))
++                    return skip("primary_policy_selection_buffer_missing_or_extent_mismatch");
++                if (arrays.empty() || cursor == 0u || cursor > maximumReadbackBytes ||
++                    cursor > state.device.maxBufferLength ||
++                    statePayloadBytes > maximumReadbackBytes - cursor)
++                    return skip("state_and_regional_readback_exceed_96_mib_cap", cursor);
++                const std::uint64_t vectorBytes =
++                    state.fgmresLayout.unknownCount * sizeof(nm_float4);
++                std::array<std::uint64_t, 12> cglsSizes = {
++                    vectorBytes, vectorBytes, vectorBytes, vectorBytes,
++                    vectorBytes, vectorBytes, vectorBytes,
++                    static_cast<std::uint64_t>(state.fgmresLayout.unknownCount) *
++                        sizeof(std::uint32_t),
++                    envCount * sizeof(nm_float4), envCount * sizeof(nm_uint4),
++                    envCount * sizeof(std::uint32_t), envCount * sizeof(std::uint32_t)};
++                std::uint64_t cglsSnapshotBytes = 8u * sizeof(std::uint32_t);
++                for (const std::uint64_t size : cglsSizes) {
++                    if (cglsSnapshotBytes >
++                        std::numeric_limits<std::uint64_t>::max() - 15u)
++                        return skip("cgls_snapshot_bound_overflow", cursor);
++                    cglsSnapshotBytes =
++                        (cglsSnapshotBytes + 15u) & ~std::uint64_t(15u);
++                    if (size > std::numeric_limits<std::uint64_t>::max() -
++                                   cglsSnapshotBytes)
++                        return skip("cgls_snapshot_bound_overflow", cursor);
++                    cglsSnapshotBytes += size;
++                }
++                if (femBaseCGLSRightScaleEnabled) {
++                    std::uint64_t rightScaleRows = 0u;
++                    std::uint64_t rightScaleBytes = 0u;
++                    if (!checkedBytes(envCount, nodeCount, rightScaleRows) ||
++                        !checkedBytes(rightScaleRows, 3u, rightScaleRows) ||
++                        !checkedBytes(rightScaleRows, sizeof(nm_float4),
++                                      rightScaleBytes) ||
++                        cglsSnapshotBytes >
++                            std::numeric_limits<std::uint64_t>::max() - 15u)
++                        return skip("right_scale_snapshot_bound_overflow", cursor);
++                    cglsSnapshotBytes =
++                        (cglsSnapshotBytes + 15u) & ~std::uint64_t(15u);
++                    if (rightScaleBytes > std::numeric_limits<std::uint64_t>::max() -
++                                              cglsSnapshotBytes)
++                        return skip("right_scale_snapshot_bound_overflow", cursor);
++                    cglsSnapshotBytes += rightScaleBytes;
++                }
++                const std::uint64_t traceBytes =
++                    envCount * (sizeof(nm_float4) + sizeof(std::uint32_t));
++                const std::uint64_t otherBytes = cglsSnapshotBytes + traceBytes;
++                if (otherBytes < cglsSnapshotBytes ||
++                    statePayloadBytes > maximumReadbackBytes - cursor ||
++                    otherBytes > maximumReadbackBytes - statePayloadBytes - cursor)
++                    return skip("aggregate_state_regional_and_cgls_readback_exceeds_96_mib_cap", cursor);
++                id<MTLBuffer> regionalSnapshot = [state.device
++                    newBufferWithLength:static_cast<NSUInteger>(cursor)
++                    options:MTLResourceStorageModeShared];
++                if (regionalSnapshot == nil || regionalSnapshot.length < cursor ||
++                    regionalSnapshot.length > state.device.maxBufferLength)
++                    return skip("regional_snapshot_allocation_failed", cursor);
++                std::memset(regionalSnapshot.contents, 0,
++                    static_cast<std::size_t>(cursor));
++                id<MTLBlitCommandEncoder> regionalCopy =
++                    [commandBuffer blitCommandEncoder];
++                if (regionalCopy == nil)
++                    return skip("regional_blit_encoder_unavailable", cursor);
++                for (std::size_t index = 0u; index < arrays.size(); ++index) {
++                    [regionalCopy copyFromBuffer:sourceBuffers[index]
++                        sourceOffset:0u toBuffer:regionalSnapshot
++                        destinationOffset:static_cast<NSUInteger>(arrays[index].offset)
++                        size:static_cast<NSUInteger>(arrays[index].byteCount)];
++                }
++                [regionalCopy endEncoding];
++                BaseCGLSRegionalCaptureMetadata metadata;
++                metadata.controlStep = request.controlStep;
++                metadata.physicsSubstep = request.physicsSubstep;
++                metadata.microtick = micro.microtick;
++                metadata.microtickCount = micro.microtickCount;
++                metadata.microGeneration = micro.reserved;
++                metadata.newtonIteration = nonlinearIteration;
++                metadata.environmentCount = state.dispatch.environmentCount;
++                metadata.objectCount = state.dispatch.objectCount;
++                metadata.nodeCount = state.dispatch.femNodeCount;
++                metadata.tetrahedronCount = state.dispatch.tetrahedronCount;
++                metadata.materialStateStride = state.dispatch.materialStateStride;
++                metadata.unknownCount = state.fgmresLayout.unknownCount;
++                metadata.preconditionerSelector = preconditioner;
++                metadata.baseModeCount = state.femRegionalModeCount;
++                metadata.modeStride = static_cast<std::uint32_t>(modeStride);
++                metadata.augmentedModeCount =
++                    state.femRegionalRestartAugmentationEnabled
++                        ? state.femRegionalAugmentedModeCount : 0u;
++                metadata.augmentationEnabled =
++                    state.femRegionalRestartAugmentationEnabled ? 1u : 0u;
++                metadata.restartGenerationInitialized =
++                    state.femRegionalRestartGenerationInitialized.load(
++                        std::memory_order_acquire) ? 1u : 0u;
++                metadata.acceptedCorrectionRecycleEnabled =
++                    state.femRegionalAcceptedCorrectionRecycleEnabled ? 1u : 0u;
++                metadata.tangentCacheEnabled =
++                    state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
++                metadata.tangentCacheForceRebuild =
++                    state.forceCompletedTangentCacheRebuild ? 1u : 0u;
++                metadata.cglsIterations = femBaseCGLSIterations;
++                metadata.cglsRightScale =
++                    femBaseCGLSRightScaleEnabled ? 1u : 0u;
++                metadata.baseCauchyNewtonSelected =
++                    baseCauchyNewtonSelected ? 1u : 0u;
++                metadata.primaryPolicyRequested =
++                    femBaseCGLSPrimaryPolicyRequested ? 1u : 0u;
++                metadata.primaryPolicySelectedNewton =
++                    baseCGLSPrimaryPolicySelectedNewton ? 1u : 0u;
++                metadata.graphPatchCount = state.femRegionalGraphPatchCount;
++                metadata.graphPatchNodeCount =
++                    state.femRegionalGraphPatchNodeCount;
++                metadata.graphDofCount = state.femRegionalGraphDofCount;
++                metadata.graphMatrixFloatCount =
++                    state.femRegionalGraphMatrixFloatCount;
++                metadata.graphPivotCount = state.femRegionalGraphPivotCount;
++                metadata.graphLayoutChecksum =
++                    state.femRegionalGraphLayoutChecksum;
++                metadata.sourcePhysicsFingerprint = state.sourcePhysicsFingerprint;
++                metadata.worldFingerprint = state.worldFingerprint;
++                metadata.executionFingerprint = state.executionFingerprint;
++                metadata.deviceRegistryID =
++                    static_cast<std::uint64_t>(state.device.registryID);
++                metadata.deviceName = nsString(state.device.name);
++                metadata.graphSourceTopologySHA256 =
++                    state.femRegionalGraphSourceTopologySHA256;
++                metadata.graphSourceFreeMaskSHA256 =
++                    state.femRegionalGraphSourceFreeMaskSHA256;
++                metadata.graphPotentialMaskSHA256 =
++                    state.femRegionalGraphPotentialMaskSHA256;
++                metadata.cglsCaptureFile =
++                    std::filesystem::path(femBaseCGLSCapturePath).filename().string();
++                metadata.dtSeconds = micro.time.x;
++                const auto capturedArrays = arrays;
++                const auto capturedMetadata = metadata;
++                const auto capturedBasePath =
++                    femBaseCGLSRegionalStateCapturePath;
++                const auto capturedRegionalBytes = cursor;
++                const auto capturedStateSnapshot = stateSnapshot;
++                const auto capturedStateBytes = statePayloadBytes;
++                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
++                    if (completed.status != MTLCommandBufferStatusCompleted) {
++                        std::fprintf(stderr,
++                            "fem_base_cgls_regional_capture_skipped={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"reason\":\"command_buffer_not_completed\",\"command_buffer_status\":%lu,\"physical_state_changed\":false}\n",
++                            capturedMetadata.controlStep,
++                            capturedMetadata.newtonIteration,
++                            static_cast<unsigned long>(completed.status));
++                        return;
++                    }
++                    auto finalMetadata = capturedMetadata;
++                    finalMetadata.stateCapturePayloadSHA256 = sha256Hex(
++                        capturedStateSnapshot.contents,
++                        static_cast<std::size_t>(capturedStateBytes));
++                    try {
++                        writeBaseCGLSRegionalCapture(
++                            regionalSnapshot.contents, capturedRegionalBytes,
++                            capturedArrays, finalMetadata, capturedBasePath);
++                    } catch (...) {
++                        std::fprintf(stderr,
++                            "fem_base_cgls_regional_capture={\"schema\":1,\"root\":%u,\"complete\":false,\"reason\":\"capture_writer_exception\"}\n",
++                            capturedMetadata.controlStep);
++                    }
++                }];
++                return true;
++            };
++
+             const auto encodeBaseCGLSStateCapture = [&]() -> bool {
+                 if (!femBaseCGLSStateCaptureRequested ||
+                     femBaseCGLSStateCaptureCaptured ||
+@@ -22858,11 +23568,18 @@
+                         size:static_cast<NSUInteger>(arrays[index].byteCount)];
+                 }
+                 [copy endEncoding];
++                if (femBaseCGLSRegionalStateCaptureRequested &&
++                    !encodeBaseCGLSRegionalStateCapture(snapshot, payloadBytes)) {
++                    diagnostics.message =
++                        "regional CGLS state capture could not be encoded";
++                    return false;
++                }
+                 BaseCGLSStateCaptureMetadata metadata;
+                 metadata.controlStep = request.controlStep;
+                 metadata.physicsSubstep = request.physicsSubstep;
+                 metadata.microtick = micro.microtick;
+                 metadata.microtickCount = micro.microtickCount;
++                metadata.microGeneration = micro.reserved;
+                 metadata.newtonIteration = nonlinearIteration;
+                 metadata.environmentCount = state.dispatch.environmentCount;
+                 metadata.objectCount = state.dispatch.objectCount;

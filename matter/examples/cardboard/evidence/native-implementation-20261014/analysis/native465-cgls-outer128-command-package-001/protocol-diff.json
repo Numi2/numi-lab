@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.native465_protocol_delta.v1",
+  "base_run": "463",
+  "delta": {
+    "source_snapshot": "153-derived source154",
+    "build": "fresh source154 build",
+    "outer_newton_budget": {
+      "before": 64,
+      "after": 128
+    },
+    "case": "cgls-block-right-primary48-outer128-465"
+  },
+  "unchanged": "All physical protocol, material inputs, phase durations, timestep, mesh, tolerances, line search, primary-CGLS selection, CGLS64, block3 scale, FGMRES budget/restart, environment selectors and input evidence are copied from463; only run/source/build paths and the outer Newton ceiling change.",
+  "not_a_claim": "Preparation only; no simulation or convergence claim."
+}

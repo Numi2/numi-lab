@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.native464_regional_capture_audit_command.v1",
+  "argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-audit-002/audit_native464_v3.py",
+    "--case",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464",
+    "--environment",
+    "0",
+    "--output",
+    "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-audit-002/native464-audit-v3.json"
+  ],
+  "exit_code": 0,
+  "result": "exact operator/state join established; numeric comparisons and unsupported augmented-view refusal retained in report"
+}

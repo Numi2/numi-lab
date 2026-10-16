@@ -1,0 +1,17 @@
+[
+  {
+    "source": "/Users/home/cardboard-implementation-20261014/solver/cgls-state-sidecar-observer-455/receipt.json",
+    "alias": "/Users/home/cardboard-implementation-20261014/analysis/post-release-default459-inputs-001/native455-default-phase-baseline-receipt.json",
+    "sha256": "0eea54025b2468593ba37e9d2d34cab3e5feded3d2084ef1fe173b8db12f55e6"
+  },
+  {
+    "source": "/Users/home/cardboard-implementation-20261014/analysis/source145-post-release-integration-001/integration-manifest.json",
+    "alias": "/Users/home/cardboard-implementation-20261014/analysis/post-release-default459-inputs-001/source145-default-phase-integration-manifest.json",
+    "sha256": "273b89ddff7211b8f3161c1ec7cb8b296e59cfdd1c608e7240b6bb02cc1486e0"
+  },
+  {
+    "source": "/Users/home/cardboard-implementation-20261014/analysis/cardboard-convergence-145-independent-review-001/manifest.json",
+    "alias": "/Users/home/cardboard-implementation-20261014/analysis/post-release-default459-inputs-001/source145-default-phase-review-manifest.json",
+    "sha256": "1c3684fe2a78c0d55824f881d7f1aab4dc1f3da9e3ea9c4208bb13443bb44f91"
+  }
+]

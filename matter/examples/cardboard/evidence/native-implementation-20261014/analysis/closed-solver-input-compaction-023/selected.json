@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.closed_input_compaction_selection.v1",
+  "cases": [
+    "cgls-block-right-disabled-parity-462",
+    "cgls-block-right-primary48-463"
+  ],
+  "source_compactor_sha256": "efe18f9ca667027674b19d3183c748b682b4bd11b7b0e904227387b20ed0b7ab",
+  "policy": "Only task-owned closed input copies; full disk restoration/hash/mode/mtime and lsof check before unlink. All native outputs, original source snapshots/build artifacts and evidence remain. Keep sole recovery archives."
+}

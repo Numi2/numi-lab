@@ -1,0 +1,58 @@
+{
+  "schema": "numi.cardboard.operational-incident.v1",
+  "recorded_at_utc": "2026-10-15T21:50:37.410575+00:00",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-448",
+  "wrapper_observed_exit_code": 120,
+  "observation_source": "root exec session 58122 completion; disk-full observations retained in conversation and cleanup017",
+  "receipt_present": false,
+  "cgls_capture_present": false,
+  "verdict": "incomplete_evidence_due_to_disk_exhaustion",
+  "limitations": [
+    "Do not infer whether the selected CGLS recurrence executed.",
+    "CSV fgmres_iterations is not the Newton iteration index.",
+    "Partial output cannot qualify production acceptance or derivative correctness.",
+    "A fresh same-protocol case is required; the original case remains preserved."
+  ],
+  "retained_noninput_files": {
+    "output/accepted_step_000001_bent.obj": {
+      "bytes": 61946,
+      "sha256": "42fbb543657063c3c3df7eed3ec4d07dc820f5f2ab887e2d3ceb6c3bfd68a522"
+    },
+    "output/accepted_step_000001_held_reference.obj": {
+      "bytes": 56470,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    "output/compiled.nmatterpack": {
+      "bytes": 1984768,
+      "sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c"
+    },
+    "output/initial.obj": {
+      "bytes": 56470,
+      "sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af"
+    },
+    "output/manifest.json": {
+      "bytes": 11740,
+      "sha256": "b5261b0f60e2ed24b88d3571f9c9c9369c48a496ed570776642e518d2f7626b7"
+    },
+    "output/mesh.json": {
+      "bytes": 160425,
+      "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56"
+    },
+    "output/observations.csv": {
+      "bytes": 2231,
+      "sha256": "c15c81cef5098398c04bb16db8313bed1a96efe14b07a9a486ff611ea2fe8f6d"
+    },
+    "prediction.json": {
+      "bytes": 104936,
+      "sha256": "35a216e0dc37963152c666472f8e09cb4ee53d991dd4bf639bf9ed4ac3abbcd2"
+    },
+    "stderr.log": {
+      "bytes": 4069,
+      "sha256": "28725d6fad39b11bb5499eaeecf07d4041db1d1135f2e9934b878ab0b51d137f"
+    },
+    "stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

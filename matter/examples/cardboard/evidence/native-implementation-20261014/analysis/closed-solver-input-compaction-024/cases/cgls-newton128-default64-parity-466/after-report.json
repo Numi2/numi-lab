@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 10025535,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-024/archives/cgls-newton128-default64-parity-466/inputs.tar.gz",
+  "archive_sha256": "80434d9a624e2474262310c4306fb7db9bd13f6e46c817f601cb17281ef0113c",
+  "before_manifest_sha256": "124a15af49be2e63383d13fbe8ca13cf1900b41ac00c8c92f04ef34c3df6b769",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cgls-newton128-default64-parity-466",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 1652981760,
+  "filesystem_available_before_bytes": 1636233216,
+  "filesystem_delta_bytes": 16748544,
+  "original_allocated_bytes": 39174144,
+  "original_input_files_removed": 838,
+  "original_logical_bytes": 37440202,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/cgls-newton128-default64-parity-466/inputs.compaction.json",
+  "pointer_sha256": "1aaeeb8306627036471c5e59d4fcb95549608b0d06b2a73037fa8eafecfe0e14",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 37440202,
+    "verified_dirs": 29,
+    "verified_files": 838
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

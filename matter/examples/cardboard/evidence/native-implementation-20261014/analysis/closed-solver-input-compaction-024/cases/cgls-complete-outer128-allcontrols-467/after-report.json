@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 10031540,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-024/archives/cgls-complete-outer128-allcontrols-467/inputs.tar.gz",
+  "archive_sha256": "a150cbddb1fdebb57103d4ff595aa1e398f644f9c3d942d17d53b66c65797eb6",
+  "before_manifest_sha256": "56dc31f6b1bbd003da0da58d3c01895d1e4f13321222a16fe563f0da376b59df",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cgls-complete-outer128-allcontrols-467",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 1682624512,
+  "filesystem_available_before_bytes": 1652367360,
+  "filesystem_delta_bytes": 30257152,
+  "original_allocated_bytes": 39219200,
+  "original_input_files_removed": 845,
+  "original_logical_bytes": 37465967,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/cgls-complete-outer128-allcontrols-467/inputs.compaction.json",
+  "pointer_sha256": "5b0ace1bfaeaabfaab8262b5a710637799d97bcb6409cc912d80dff3e96eafd3",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 37465967,
+    "verified_dirs": 29,
+    "verified_files": 845
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

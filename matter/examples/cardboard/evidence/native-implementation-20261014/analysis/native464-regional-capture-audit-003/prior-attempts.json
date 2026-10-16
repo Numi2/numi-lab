@@ -1,0 +1,25 @@
+{
+  "schema": "numi.cardboard.native464_regional_capture_audit_attempts.v1",
+  "retained_attempts": [
+    {
+      "attempt": "initial-selection-parse-failure",
+      "artifact": "../native464-regional-capture-audit-prep-001/attempt-001-error.json",
+      "outcome": "incomplete_or_rejected",
+      "reason": "the draft tried to infer a selected environment from a pre-layout selection buffer containing [0,0]",
+      "use": "retained failure; v3 instead derives from same-capture metrics/FGMRES state and checks final CGLS selected words"
+    },
+    {
+      "attempt": "scalar-patch-comparison-resource-stop",
+      "command_script": "../native464-regional-capture-audit-prep-001/audit_native464.py",
+      "outcome": "interrupted_no_result",
+      "observation": "process reached about 3m54s and 1.1 GiB resident memory while doing Python-level per-entry patch comparisons; no complete report was produced",
+      "use": "v3 replaces only this audit computation with a vectorized equivalent; physics/source and acceptance are untouched"
+    },
+    {
+      "attempt": "v3-final-audit",
+      "artifact": "native464-audit-v3.json",
+      "outcome": "completed",
+      "note": "the exact input join passes; patch absolute tolerance does not pass, and augmented consuming-view proof is refused"
+    }
+  ]
+}

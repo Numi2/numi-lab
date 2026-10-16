@@ -1,0 +1,13 @@
+test_augmented_capture_is_base_reference_only_and_actual_request_rejects (test_selector5_graph_reference.Selector5GraphReferenceTests) ... ok
+test_fixed_mask_and_overlap_are_required_not_approximated (test_selector5_graph_reference.Selector5GraphReferenceTests) ... ok
+test_global_A_patch_principal_comparison_and_identity_gate (test_selector5_graph_reference.Selector5GraphReferenceTests) ... ok
+test_invalid_base_rap_retains_graph_only_action_and_transpose (test_selector5_graph_reference.Selector5GraphReferenceTests) ... ok
+test_invalid_local_factor_fails_closed_but_completed_tail_zeroes (test_selector5_graph_reference.Selector5GraphReferenceTests) ... ok
+test_nonfinite_rhs_rejected (test_selector5_graph_reference.Selector5GraphReferenceTests) ... ok
+test_overlapping_nonsymmetric_pivoted_map_and_transpose (test_selector5_graph_reference.Selector5GraphReferenceTests) ... ok
+test_source_layout_checksum_uses_canonical_word_order (test_selector5_graph_reference.Selector5GraphReferenceTests) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.003s
+
+OK

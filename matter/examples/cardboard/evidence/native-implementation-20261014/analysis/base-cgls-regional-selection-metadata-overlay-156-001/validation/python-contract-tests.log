@@ -1,0 +1,28 @@
+test_absolute_payload_path_rejected (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_augmented_generation_is_explicitly_joined (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_augmented_wrong_generation_not_admitted (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_block_regional_apply_missing_inverse_rows_rejected (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_block_regional_apply_requires_diagonal_ranges_and_inverse_rows (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_cgls_policy_capture_requires_single_static_object_scope (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_duplicate_json_key_rejected (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_final_selection_requires_matching_post_layout_trace (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_linearization_generation_mismatch_rejected (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_missing_full_state_identity_rejected (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_node_record_abi_width_is_checked (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_nonstandard_json_constant_rejected (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_overlapping_array_extent_rejected (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_payload_corruption_rejected (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_selector5_graph_structure_is_checked (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_selector5_inconsistent_row_map_rejected (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_state_identity_mismatch_rejected (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_v1_pre_layout_selection_words_are_ignored_as_stale_scratch (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_v2_invocation_before_start_gate_rejected (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_v2_marker_must_agree_with_status_certificate_and_residual_gates (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_v2_policy_eligibility_is_not_final_layout_selection (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_v2_requested_but_not_yet_invoked_is_not_eligibility (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+test_valid_minimal_join (test_read_regional_capture.RegionalCaptureReaderTests) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.111s
+
+OK

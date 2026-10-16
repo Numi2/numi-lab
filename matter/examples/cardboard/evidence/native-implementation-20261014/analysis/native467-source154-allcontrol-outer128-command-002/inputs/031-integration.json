@@ -1,0 +1,62 @@
+{
+  "schema": "numi.cardboard.source154_newton_budget_integration.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-153",
+  "base_frozen_source_sha256": "fdba689d8390fff2a7e8974cd553de4d61dbab740cfe17ba4fe9cfb1abaf4a89",
+  "frozen_source_sha256": "a365fdf346743d45cd4a7e1c4796e718555709485627784b31d4d0833ba68876",
+  "source_hash_entry_count": 787,
+  "all_declared_source_hashes_match": true,
+  "changed_source_paths": [
+    "matter/tools/cardboard_probe.mm"
+  ],
+  "all_other_source_files_byte_identical_to_base": true,
+  "configure_support_entry_count": 1034,
+  "configure_support_sha256": "7f6f2afa927ae0373fa8027597fade97174cb867415fb38640e4e01767cfe3f1",
+  "configure_support_hashes_preserved": true,
+  "overlay_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/source154-newton-budget-integration-001/source-overlay.json",
+  "overlay_manifest_sha256": "737362aaf49e10cd7d07f0535b11bc3bf9474236c6b8d7432d3dae5b50f6d58f",
+  "overlay_patch_path": "/Users/home/cardboard-implementation-20261014/analysis/source154-newton-budget-integration-001/source-overlay.patch",
+  "overlay_patch_sha256": "1a0c077cb0199f56432e9551c76d46314c63a23be7e3493fccf4ee120161a4f7",
+  "build_status": "passed",
+  "build_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154",
+  "build_target": "numi-matter-cardboard-probe",
+  "jobs": 4,
+  "source_build_receipt_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/source-build.json",
+  "source_build_receipt_sha256": "bc6200b8fc6db68df0cd85a8d93b2a4ccb04978e16a3fe994a92110510484a22",
+  "build_outputs": {
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/numi-matter-cardboard-probe": {
+      "bytes": 2881944,
+      "sha256": "d9d6d24da3467b4616a75a65e6cbbe9c28b1c20bc348576d8e58ae81b3864c65"
+    },
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/shaders/NumiMatter.metallib": {
+      "bytes": 6976068,
+      "sha256": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114"
+    },
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729"
+    }
+  },
+  "host_validation_path": "/Users/home/cardboard-implementation-20261014/analysis/source154-newton-budget-integration-001/host-validation.json",
+  "host_validation_sha256": "db09417f5272e00ed057e0ca637071b108b686b07ee2ef9310ab3c5865cc3318",
+  "compile_only_128_manifest_sha256": "f21df542952135d3bbea4df74cb4b0e21273fd5f582f20d8346099e7f58155e5",
+  "compile_only_128_result_sha256": "518781ddfef801c7419f4cd11eefd468a3b27b289578647f4cf486a092bcf7ef",
+  "native_probe_or_gpu_simulation": "not launched",
+  "limits": "The 128-iteration budget is parser/compiler-admitted only. No physical run, solver behavior, convergence, or performance claim.",
+  "scope_review_path": "/Users/home/cardboard-implementation-20261014/analysis/source154-newton-budget-integration-001/scope-review.md",
+  "scope_review_sha256": "1aa1889106ae3773cb8abec09a75ba33eb0cddc1c57c16e5b2eb67ad693f0992",
+  "superseded_source149_preflight_path": "/Users/home/cardboard-implementation-20261014/analysis/source154-newton-budget-integration-001/superseded-source149-preflight.json",
+  "superseded_source149_preflight_sha256": "bab9dcb45b2b4cf27914ed036a84e245b92a1179e9e0c9e46672822c2caec405",
+  "build_command_logs": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source154-newton-budget-integration-001/provenance-command-0.log",
+      "bytes": 648,
+      "sha256": "cf716e7fbac30ccb737adc3334a8164880386e22faaf4d02a6240550aa4dbdc5"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source154-newton-budget-integration-001/provenance-command-1.log",
+      "bytes": 4552,
+      "sha256": "cdeb0c92358de74bb0e7b1677f6eaf73463cb7c9d64f99f73b0d32fdf8ad18b2"
+    }
+  ]
+}

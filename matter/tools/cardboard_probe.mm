@@ -1261,7 +1261,7 @@ void printUsage() {
         << "  --hold-steps N --unload-steps N --relax-steps N  loading cycle phases\n"
         << "  --release-steps N      release right grip after preceding phases; left remains fixed\n"
         << "  --post-release-relax-steps N  continue free motion after release; separate accepted phase (default 0)\n"
-        << "  --newton-iterations N  global nonlinear budget (1..64)\n"
+        << "  --newton-iterations N  global nonlinear budget (1..128)\n"
         << "  --material-iterations N  local constitutive Newton budget (1..32; default16)\n"
         << "  --fgmres-iterations N  Krylov-column budget (max "
         << NM_MIXED_FGMRES_MAX_ITERATIONS << ")\n"
@@ -2001,7 +2001,7 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         require(!arguments.withoutMedium && arguments.glueGapM > 0 && arguments.bondWidthM > 0 &&
                 arguments.bondWidthM < 0.45 * arguments.pitchM, "finite glue dimensions or medium are invalid");
     }
-    require(arguments.newtonIterations > 0 && arguments.newtonIterations <= 64, "global Newton iterations must be 1..64");
+    require(arguments.newtonIterations > 0 && arguments.newtonIterations <= 128, "global Newton iterations must be 1..128");
     require(arguments.localMaterialIterations >= 1u && arguments.localMaterialIterations <= 32u, "material iterations must be 1..32");
     require(arguments.preset == "nagasawa2013" || arguments.preset == "literature2009",
             "unsupported preset");

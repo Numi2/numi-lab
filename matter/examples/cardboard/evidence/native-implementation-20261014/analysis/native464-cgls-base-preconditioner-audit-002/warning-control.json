@@ -1,0 +1,27 @@
+{
+  "input_values_finite": true,
+  "numpy": "2.2.5",
+  "output_finite": true,
+  "output_l2": 3777.761577230635,
+  "python": "3.10.12",
+  "schema": "numi.cardboard.numpy-matmul-warning-control.v1",
+  "scipy": "1.15.3",
+  "shape_A": [
+    2646,
+    26
+  ],
+  "warnings": [
+    {
+      "category": "RuntimeWarning",
+      "message": "divide by zero encountered in matmul"
+    },
+    {
+      "category": "RuntimeWarning",
+      "message": "overflow encountered in matmul"
+    },
+    {
+      "category": "RuntimeWarning",
+      "message": "invalid value encountered in matmul"
+    }
+  ]
+}

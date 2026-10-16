@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 16479561,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-024/archives/cgls-regional-state-capture-464/inputs.tar.gz",
+  "archive_sha256": "3d2f48418766ba3a74f5cde6c2f4c1254d0c8b9b36dc9d2cbb21c15a29396877",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-024/cases/cgls-regional-state-capture-464/before-inventory.json",
+  "before_manifest_sha256": "644347e8f31289e0a0842953bda6617ac722b600be2ded8d62a8d12883dd1b87",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-024/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

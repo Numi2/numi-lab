@@ -1,0 +1,21 @@
+{
+  "schema": "numi.cardboard.buildhost-restore-drill.v1",
+  "004": {
+    "command": "python3 restore_build_host.py 004 --target-root <temporary-build-host-copy>",
+    "exit_status": 0,
+    "result": "restored archive to a temporary copy and validated every manifest path and file hash plus mode, uid, gid, exact nanosecond mtime, flags, link count, and extended attributes; no ACL entries were present",
+    "restored_entries": 3381,
+    "file_field_mismatches": 0,
+    "directory_or_file_field_mismatches": 0
+  },
+  "005": {
+    "command": "python3 restore_build_host.py 005 --target-root <temporary-build-host-copy>",
+    "exit_status": 0,
+    "result": "restored archive to a temporary copy and validated every manifest path and file hash plus mode, uid, gid, exact nanosecond mtime, flags, link count, and extended attributes; no ACL entries were present",
+    "restored_entries": 3380,
+    "file_field_mismatches": 0,
+    "directory_or_file_field_mismatches": 0,
+    "extraction_artifact": "ditto produced an empty CMakeFiles/CMakeScratch directory absent from the source archive; it was removed only after confirming it was empty"
+  },
+  "birthtime": "All restored entries receive filesystem-created birthtimes, which differ from the original inventory and are not restored."
+}

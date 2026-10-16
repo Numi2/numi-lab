@@ -1,0 +1,98 @@
+{
+  "base": {
+    "frozen_source_sha256": "bb8910da55f41bd821f41b0b036d1719af383b55a1e745489b516fe26270c370",
+    "reader_sha256": "6c79c4a50e8826dd4595b6eeec35952d42099ba31e1708b14c4a20739db8925c",
+    "runtime_sha256": "1c0d2fd0d376ecc5e7ea9007ab6cc67a77fbd19bbba9f3b22fcbeca4c5c06a08",
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151",
+    "source151_overlay_manifest_sha256": "c2dd66dfdb1d9d1400825f68aa7b27cd0f87b58358c3e47e36a51625659a4db3",
+    "source_file_count": 789,
+    "test_sha256": "77c8c71cb88c58cc1c44410bc75b836b7b06ac36c756a91baafa7c40c3a1a44f"
+  },
+  "changes": {
+    "patch": "patch/source151-relative.patch",
+    "patch_sha256": "6c4e26a8f3178155ab7899d1c3855812bbf6cd09c40960099d731fcc1c062478",
+    "source_files": [
+      {
+        "base_sha256": "1c0d2fd0d376ecc5e7ea9007ab6cc67a77fbd19bbba9f3b22fcbeca4c5c06a08",
+        "candidate_sha256": "eb057490028d9be2e591394c9154184205d947115bff0c579e4640a4ba4edf0b",
+        "path": "matter/src/runtime.mm"
+      },
+      {
+        "base_sha256": "6c79c4a50e8826dd4595b6eeec35952d42099ba31e1708b14c4a20739db8925c",
+        "candidate_sha256": "c94f3ee736837310370ab384e2e1302b4f39feea66e185127745e13cabae059a",
+        "path": "matter/tools/read_regional_capture.py"
+      },
+      {
+        "base_sha256": "77c8c71cb88c58cc1c44410bc75b836b7b06ac36c756a91baafa7c40c3a1a44f",
+        "candidate_sha256": "82a8cb5c7db0d795d4bb7d7d6d0a0a1adae88f6cf2df2d6b5f2886bfcc650f84",
+        "path": "matter/tools/test_read_regional_capture.py"
+      }
+    ]
+  },
+  "inventory": {
+    "README.md": {
+      "bytes": 2457,
+      "sha256": "3b52645b20d10d57020efbfd1177a7e5e32054d0c9c4353c1edd5a80ecee0f31"
+    },
+    "candidate/matter/src/runtime.mm": {
+      "bytes": 1905730,
+      "sha256": "eb057490028d9be2e591394c9154184205d947115bff0c579e4640a4ba4edf0b"
+    },
+    "candidate/matter/tools/read_regional_capture.py": {
+      "bytes": 41187,
+      "sha256": "c94f3ee736837310370ab384e2e1302b4f39feea66e185127745e13cabae059a"
+    },
+    "candidate/matter/tools/test_read_regional_capture.py": {
+      "bytes": 28013,
+      "sha256": "82a8cb5c7db0d795d4bb7d7d6d0a0a1adae88f6cf2df2d6b5f2886bfcc650f84"
+    },
+    "patch/source151-relative.patch": {
+      "bytes": 33662,
+      "sha256": "6c4e26a8f3178155ab7899d1c3855812bbf6cd09c40960099d731fcc1c062478"
+    },
+    "validation/objective-cxx-syntax.log": {
+      "bytes": 761,
+      "sha256": "d4325fba9d1a524f13ac38f20d64ce83e6afdbd739dc4fea9dd6aaf5dbaa8fa2"
+    },
+    "validation/patch-apply.log": {
+      "bytes": 151,
+      "sha256": "deb8c3c1c9b1a4f8a76c2f7458b99b5153a2f3b9ba251f1dd0929a64056b9225"
+    },
+    "validation/patch-dry-run.log": {
+      "bytes": 151,
+      "sha256": "deb8c3c1c9b1a4f8a76c2f7458b99b5153a2f3b9ba251f1dd0929a64056b9225"
+    },
+    "validation/python-contract-tests.log": {
+      "bytes": 2633,
+      "sha256": "e16829659aba02729e44be6df9a69968a60885118cd502eadb283752e1f52322"
+    },
+    "validation/python-syntax-check.log": {
+      "bytes": 48,
+      "sha256": "5446b118ee0c26958e050ec00c3f194cc83dc5f289feebe7d23a08b6ea25299c"
+    }
+  },
+  "limitations": [
+    "No native selector-5 action parity",
+    "No physical or full-solver qualification",
+    "Projected candidate material history currentness remains unavailable"
+  ],
+  "package": "base-cgls-regional-selection-metadata-overlay-156-001",
+  "schema": "numi.cardboard.base_cgls_regional_selection_metadata_overlay.v1",
+  "semantics": {
+    "admitted_scope": "single explicit static FEM object, E<=2, N<=4096, T<=32768; no solver/physical qualification",
+    "eligibility": "same-generation armijo_metrics.w marker after start/status/original-certificate/base-residual gates",
+    "final_selected_environment": "unavailable in pre-layout regional sidecar; optional post-layout fem_base_cgls_direction trace is required and cross-checked against eligibility",
+    "legacy_v1": "accepted for compatibility; legacy selected-environment array is stale pre-layout scratch and never final selection",
+    "policy_invoked": "same root/Newton start-gated policy kernel dispatch was selected",
+    "policy_requested": "host option was configured; does not imply invocation or eligibility"
+  },
+  "validation": {
+    "compile_commands_sha256": "6d811ad39fc1404b7548b1bb83aff173458c18c36892a59553d72de4f9aed563",
+    "native_gpu_run": "NOT RUN",
+    "patch_dry_run_apply_and_exact_recreation": "PASS",
+    "python_contract_tests": "PASS 23 tests",
+    "python_syntax": "PASS compile() without bytecode",
+    "runtime_objective_cxx_syntax": "PASS source-151 compile flags and headers, candidate runtime only",
+    "source151_build_receipt_sha256": "50d19ae10c7dd405b0c0ee76dec3bf4313df5560526703fecdf3748b1b4d7184"
+  }
+}

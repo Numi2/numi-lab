@@ -1,0 +1,14 @@
+{
+  "inputs": {
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/frozen-source.json": "f98cbfc0aac642d0578d7f0efefb19c288632b73f7b5607b70e19a15e7963bb5",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154/frozen-source.json": "a365fdf346743d45cd4a7e1c4796e718555709485627784b31d4d0833ba68876",
+    "/Users/home/cardboard-implementation-20261014/analysis/source154-default64-native466-parity-001/report.json": "a94ba8c9fed80ad86ac87a7be2a0e15b192a959f455976e6c508ecf4084f39fb",
+    "/Users/home/cardboard-implementation-20261014/analysis/cgls-all-controls-review-independent-153-002/manifest.json": "b9d74ce0d21703347d4532ec48bd6a76706878f05558217245b2cb373f56f8a3",
+    "/Users/home/cardboard-implementation-20261014/analysis/source154-build-topology-erratum-001/manifest.json": "95e92b0c32cb9611211a73e856cb80e2f7a8cc51fa415131a625828a9f965cdd"
+  },
+  "files": {
+    "report.json": "78779010c9d1ef0b34322d85f93250b28cae3f1f3beb3ee20a7bf672727af8db",
+    "root.patch": "628021801be01c8e908b7dba5b44448782a052c1c0c868823f3778a31712c16e",
+    "integrate.py": "796cba5e8f945986120bc0058a3859cf4a70d3b779eaad286ff11cd585be96e0"
+  }
+}

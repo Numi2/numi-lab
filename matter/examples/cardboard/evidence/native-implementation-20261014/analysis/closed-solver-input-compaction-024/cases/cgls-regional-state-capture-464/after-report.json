@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 16479561,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-024/archives/cgls-regional-state-capture-464/inputs.tar.gz",
+  "archive_sha256": "3d2f48418766ba3a74f5cde6c2f4c1254d0c8b9b36dc9d2cbb21c15a29396877",
+  "before_manifest_sha256": "644347e8f31289e0a0842953bda6617ac722b600be2ded8d62a8d12883dd1b87",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 1636540416,
+  "filesystem_available_before_bytes": 1596260352,
+  "filesystem_delta_bytes": 40280064,
+  "original_allocated_bytes": 52908032,
+  "original_input_files_removed": 851,
+  "original_logical_bytes": 51155470,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/inputs.compaction.json",
+  "pointer_sha256": "61d81edd40a3b92cf68771635be77ce7b0d95bb5deffc91a1558823db153a307",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 51155470,
+    "verified_dirs": 32,
+    "verified_files": 851
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

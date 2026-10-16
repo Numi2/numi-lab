@@ -1,0 +1,19 @@
+{
+  "schema": "numi.cardboard.native464_cgls_cpu_attempts.v1",
+  "attempts": [
+    {
+      "attempt": 1,
+      "command": "run_cgls_preconditioners.py --output results.json",
+      "outcome": "failed before recurrence: RHS reshape expected (2,882,4), but the source capture arena is 3528 float4 records (U=4*882); inspection showed first two 882-node float4 groups are env0/env1 mechanical RHS and the remaining groups are zero field/scratch rows",
+      "failure_class": "input-layout parser error, not solver result",
+      "retained_observation": "state sidecar declares U=2*E*N float4 records; use only env0 mechanical first 882 records for the 2538 free mechanical CSR system"
+    },
+    {
+      "attempt": 2,
+      "command": "OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 OMP_NUM_THREADS=1 run_cgls_preconditioners.py --output results.json",
+      "outcome": "completed 64-iteration CPU runs for identity, block3, and captured base graph S/S^T in FP64 and CPU-FP32",
+      "exit_code": 0,
+      "result_file": "results.json"
+    }
+  ]
+}

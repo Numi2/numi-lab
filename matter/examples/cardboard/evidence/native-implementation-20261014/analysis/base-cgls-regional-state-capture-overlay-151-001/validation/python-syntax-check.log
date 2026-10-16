@@ -1,0 +1,2 @@
+PASS compile(candidate/tools/read_regional_capture.py)
+PASS compile(candidate/tools/test_read_regional_capture.py)

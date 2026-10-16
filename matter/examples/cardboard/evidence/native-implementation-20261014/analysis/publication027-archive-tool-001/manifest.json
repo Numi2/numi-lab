@@ -1,0 +1,9 @@
+{
+  "script_sha256": "399526e1d43d4f727d18c30092c465d792a626a4384b70158a82c80265837c4e",
+  "case_list_sha256": "ed0b97da3b26f4ca64e5994fdb2f3005606ca7ad96476c3052be26ef755bd38a",
+  "cases": 33,
+  "prior_records": 1424,
+  "prior_pathspec_entries": 4344,
+  "native467": "terminal_capacity_SIGTERM_not_timeout_or_nonlinear_failure",
+  "exact_exclusions": "Same prior filter with two explicit unique-input-alias exceptions; archived cases are closed/sealed."
+}

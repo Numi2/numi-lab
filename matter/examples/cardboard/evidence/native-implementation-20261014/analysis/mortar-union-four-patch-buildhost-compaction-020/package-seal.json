@@ -1,0 +1,114 @@
+{
+  "files": [
+    {
+      "bytes": 2120,
+      "mode": 420,
+      "path": "README.md",
+      "sha256": "324f4e1937000f6151f0d16b4f53720e608514172306b7418c2a32b1c7bad97f"
+    },
+    {
+      "bytes": 2499,
+      "mode": 420,
+      "path": "archive-manifest.json",
+      "sha256": "72f69498d932e9e45c1daa290fd132ec2485b32194d5dbab84e34cf33e0bb3c5"
+    },
+    {
+      "bytes": 35246754,
+      "mode": 420,
+      "path": "archives/overlay-004-build-host.zip",
+      "sha256": "e52e1708f53d6f45654e2dfd5b194c56eb7e65b4bce0aa3aaeba95f80748f3cd"
+    },
+    {
+      "bytes": 35251853,
+      "mode": 420,
+      "path": "archives/overlay-005-build-host.zip",
+      "sha256": "bf663ccaf20b09724e010689e22413c8b6a45ef66b76e8259577b77b51fe13ae"
+    },
+    {
+      "bytes": 1665177,
+      "mode": 420,
+      "path": "current-original-004.json",
+      "sha256": "3ecbd14e067c54551ddcb8c0de55785645ab7f7ca8cb7821cbcc19bf8ab47994"
+    },
+    {
+      "bytes": 1664795,
+      "mode": 420,
+      "path": "current-original-005.json",
+      "sha256": "5cd4e6aea4dc9af6606d918cbb3481f17f9689f626cf985650f53f9ea5409823"
+    },
+    {
+      "bytes": 3983,
+      "mode": 420,
+      "path": "inventory_build_host.py",
+      "sha256": "d8306b935ed30987e25730706b95362626732c81658cc39b38c4daca14c18087"
+    },
+    {
+      "bytes": 1160,
+      "mode": 420,
+      "path": "predelete-gates.json",
+      "sha256": "f0ed628abe4548e94fe752f06443df3ef53bcf6344407d555852004bef733e45"
+    },
+    {
+      "bytes": 3786852,
+      "mode": 420,
+      "path": "preinventory.json",
+      "sha256": "b265202b417a6068a092cd69eedae35c7697a297372afccd281d4421db45a0bd"
+    },
+    {
+      "bytes": 909,
+      "mode": 420,
+      "path": "removal-004.json",
+      "sha256": "088b597209c27b24847e9551abacacba8f786e9b4ed60e9fea8c649e817ce5d3"
+    },
+    {
+      "bytes": 909,
+      "mode": 420,
+      "path": "removal-005.json",
+      "sha256": "73775f73b11dab147b8fe578c03c75fae583b53c66a3d1a9e9fa83c7497c8b35"
+    },
+    {
+      "bytes": 4429,
+      "mode": 493,
+      "path": "remove_archived_build_host.py",
+      "sha256": "0069d86bcc84fbe8c3d4974fe557c72e18635ad48e0de8db1dda677a6fec8e86"
+    },
+    {
+      "bytes": 1285,
+      "mode": 420,
+      "path": "restore-drill.json",
+      "sha256": "ff2762eedc38a3ed238d49cb23e0c2b2ab07f8b362a808be7aef52636a851f4f"
+    },
+    {
+      "bytes": 1665203,
+      "mode": 420,
+      "path": "restore-test/overlay-004-restored-inventory.json",
+      "sha256": "b5ffa706f41c7e7708684c7a12b71011874369b299def56c00ced6eaddd679f9"
+    },
+    {
+      "bytes": 1664821,
+      "mode": 420,
+      "path": "restore-test/overlay-005-restored-inventory.json",
+      "sha256": "6d09a2efd1603b9dd07bcefcca7b556c632d9efcb90caa19aa5ee34ac88dcc5c"
+    },
+    {
+      "bytes": 5032,
+      "mode": 493,
+      "path": "restore_build_host.py",
+      "sha256": "fa75d833acee471583a2c631a5073980e0677a723ebd78a579c64d2ef065064b"
+    },
+    {
+      "bytes": 1195,
+      "mode": 493,
+      "path": "restore_metadata_from_inventory.py",
+      "sha256": "2127f33ada5d8ad081edafad81d9f26d932377177897405ab61f7951ed0bc55e"
+    },
+    {
+      "bytes": 2633,
+      "mode": 420,
+      "path": "verification-report.json",
+      "sha256": "c65dbbaf600a588a94f0744956e76ec692aa141ce8764c0496e036c8531d3666"
+    }
+  ],
+  "root": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-buildhost-compaction-020",
+  "schema": "numi.cardboard.buildhost-compaction-package-seal.v1"
+}

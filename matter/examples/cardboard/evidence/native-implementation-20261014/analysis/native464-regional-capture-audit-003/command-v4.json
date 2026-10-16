@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.native464_regional_capture_audit_command.v2",
+  "argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "audit_native464_v4.py",
+    "--case",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464",
+    "--environment",
+    "0",
+    "--output",
+    "native464-audit-v4-reproduced.json"
+  ],
+  "exit_code": 0,
+  "reproduction_equal_to_sealed_report": true,
+  "reproduced_report_sha256": "234a5330da46b28791b2be2d7fcd444e6f98d79f70cdd73457c82c9c89042656"
+}

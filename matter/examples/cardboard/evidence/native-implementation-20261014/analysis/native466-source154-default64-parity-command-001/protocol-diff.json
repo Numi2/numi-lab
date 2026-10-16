@@ -1,0 +1,7 @@
+{
+  "schema": "numi.cardboard.native466_protocol_delta.v1",
+  "base_run": "463/source149 with same physical protocol",
+  "changes": "Source/build paths and run identity; outer Newton64, reproducing463 numeric selector/capture settings.",
+  "unchanged": "CGLS64, block3 right scaling, primary Newton48, FGMRES restart16/budget1024, material iterations32, strict residual1e-6, physical dimensions/mesh/materials/dt, loading/hold/unload/release phases and line search remain bound to463.",
+  "native_run": "not launched"
+}

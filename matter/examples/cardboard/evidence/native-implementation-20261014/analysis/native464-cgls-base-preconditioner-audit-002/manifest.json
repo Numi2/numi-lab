@@ -1,0 +1,191 @@
+{
+  "bound_inputs": {
+    "419_A_free_csr.npz": {
+      "bytes": 506678,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/A_free_csr.npz",
+      "sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed"
+    },
+    "419_CSR_manifest.json": {
+      "bytes": 5809,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/manifest.json",
+      "sha256": "03c713a1aeeb57544d47430c7bd519b6128ea4b8243142d9e798cd114f1e0348"
+    },
+    "419_operator_capture": {
+      "bytes": 38811258,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture",
+      "sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a"
+    },
+    "464_base_cgls.bin": {
+      "bytes": 409368,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin",
+      "sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099"
+    },
+    "464_receipt.json": {
+      "bytes": 306,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/receipt.json",
+      "sha256": "b83049818c15e6f5d19f52d1e2af69ac2b1675257ad247d3b639e40e00b0b994"
+    },
+    "464_regional_manifest.json": {
+      "bytes": 11320,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.regional.json",
+      "sha256": "9a9718888fc5fdc9eed488e258a5c8b188bde96f77c1d8d3c2dc5c3ea0dfe523"
+    },
+    "464_regional_payload.bin": {
+      "bytes": 77619992,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.regional.bin",
+      "sha256": "70b77616dd823adcca6516af248493dfc41dee482b4add7f85665277f1c6c873"
+    },
+    "464_state_manifest.json": {
+      "bytes": 8680,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.state.json",
+      "sha256": "16f75668da71ea1a2b64a4137177b82ed07103540c092056caf2861c23c743e8"
+    },
+    "464_state_payload.bin": {
+      "bytes": 4327464,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.state.bin",
+      "sha256": "1a99fa72a4f45c68c67a53dcace37f0f01df6587d6db1a178606247a9fdef5b6"
+    },
+    "audit464_v4_manifest.json": {
+      "bytes": 7537,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-audit-003/manifest.json",
+      "sha256": "0fd62dd4329e6d8a6a52abf68035e33db832dd6f4d8df09059bd1e61b81a7c50"
+    },
+    "audit464_v4_report.json": {
+      "bytes": 36655,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-audit-003/native464-audit-v4.json",
+      "sha256": "234a5330da46b28791b2be2d7fcd444e6f98d79f70cdd73457c82c9c89042656"
+    },
+    "audit464_v4_script.py": {
+      "bytes": 41327,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-audit-003/audit_native464_v4.py",
+      "sha256": "6cf1c4bb95c0631f8c350194603374911b64062ac84efc9aeac7f277303a522e"
+    },
+    "graph_bindings.json": {
+      "bytes": 17389,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/source151-regional-capture-bindings.json",
+      "sha256": "22ce94f66f2d067840538b30fba13115952da9f3d28a87966586e1c654f7dec9"
+    },
+    "graph_input.bin": {
+      "bytes": 31614,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/actual-graph-input.bin",
+      "sha256": "950f983c8e8a0303b473fa09fde2ded2a65746e2fa14f50e3a9574f171900cfd"
+    },
+    "graph_reference_manifest.json": {
+      "bytes": 3009,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/regional-rap-selector5-reference-151-002/manifest.json",
+      "sha256": "0d918a2cc5c36b3cf7f91e8d729db1969154ef70b52053869c4767299d4222a7"
+    },
+    "regional_rap_reference.py": {
+      "bytes": 15247,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/regional-rap-selector5-reference-151-002/regional_rap_reference.py",
+      "sha256": "40ab7f04c5e4fec0c9f574ad533e1d59bbfb3b8037d1815f306c1c14fd292728"
+    },
+    "selector5_graph_reference.py": {
+      "bytes": 30098,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/regional-rap-selector5-reference-151-002/selector5_graph_reference.py",
+      "sha256": "6f3176997ae50370e44a80c8ae9032a352f7a2af03dbf228e991d653cf06365d"
+    },
+    "source151_graph_kernel.metalinc": {
+      "bytes": 7149,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151/matter/src/metal/base_cgls_runtime.metalinc",
+      "sha256": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903"
+    },
+    "source151_runtime.mm": {
+      "bytes": 1905656,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151/matter/src/runtime.mm",
+      "sha256": "1c0d2fd0d376ecc5e7ea9007ab6cc67a77fbd19bbba9f3b22fcbeca4c5c06a08"
+    }
+  },
+  "files": {
+    "README.md": {
+      "bytes": 2989,
+      "sha256": "86b2216dae274209db16d84227f96582878d4db594e018e83caf0ecb1f095ad4"
+    },
+    "attempts.json": {
+      "bytes": 1046,
+      "sha256": "437de6f1421bf768b2406e7385be7d4096674e4ffaf1823cefbea28d3ab97ee5"
+    },
+    "command.json": {
+      "bytes": 516,
+      "sha256": "1053c26ed1fa1847e0d6e48f24707a36bf78465780b09f437baa4f433dfee2a8"
+    },
+    "cpu-tests.txt": {
+      "bytes": 637,
+      "sha256": "7f2ad7e6e7440f49cc20f1fb1de22cb17695b683e25f30176017d950376358ee"
+    },
+    "pycompile.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "results.json": {
+      "bytes": 15223,
+      "sha256": "204746d22d06b6dd5447fb4a364f1c4cac3088bd5c74db541179a70d320df353"
+    },
+    "run_cgls_preconditioners.py": {
+      "bytes": 20659,
+      "sha256": "4e3d003f2bd5c9c27b2e28d73e8ca347d3b262cb8eab0748903c310a2574dd31"
+    },
+    "test_results.py": {
+      "bytes": 2984,
+      "sha256": "ec35ed0c2a7a08e16c6a5c97c062c3670a0754df853e5b3af5697c35369c46bd"
+    },
+    "warning-control.json": {
+      "bytes": 584,
+      "sha256": "806365b570baafb6a77b4d5eb4b437fb60e80008b1edfc0cd513f1c17772716d"
+    }
+  },
+  "limitations": [
+    "native CGLS trajectory or FP32 Metal action parity",
+    "that selector-5 augmented map was consumed",
+    "solver convergence/acceptance or physical/shipping qualification",
+    "runtime speedup or complete-coupon improvement"
+  ],
+  "package_id": "native464-cgls-base-preconditioner-audit-002",
+  "results": {
+    "actual_selector5_augmented_consuming_view_admissible": false,
+    "all_six_cases_finite_iteration_cap": true,
+    "base_map_vs_source_formula_relative_l2_max": 1.0526644013550425e-13,
+    "fp32_cpu_relative_true_residual_at64": {
+      "base_graph": 0.9234036552438938,
+      "block3": 0.08979141763815049,
+      "identity": 0.23561530874606343
+    },
+    "fp64_relative_true_residual_at64": {
+      "base_graph": 0.5790493911241555,
+      "block3": 0.088453909274885,
+      "identity": 0.22966755518586424
+    },
+    "free_mechanical_unknowns": 2538,
+    "iteration_cap": 64,
+    "matmul_runtime_warnings": [
+      {
+        "category": "RuntimeWarning",
+        "count": 3216,
+        "message": "divide by zero encountered in matmul"
+      },
+      {
+        "category": "RuntimeWarning",
+        "count": 3216,
+        "message": "invalid value encountered in matmul"
+      },
+      {
+        "category": "RuntimeWarning",
+        "count": 3216,
+        "message": "overflow encountered in matmul"
+      }
+    ],
+    "matmul_warning_control_finite": true,
+    "patch_matrix_entry_gate_atol": 1e-09,
+    "patch_matrix_entry_gate_pass": false,
+    "rhs_l2": 0.00018444380407784322,
+    "transpose_dot_relative_gap": 1.3714543963532658e-13
+  },
+  "runtime": {
+    "BLAS_threads": 1,
+    "numpy": "2.2.5",
+    "python": "3.10.12",
+    "scipy": "1.15.3"
+  },
+  "schema": "numi.cardboard.native464_cgls_preconditioner_cpu_package.v1",
+  "scope": "offline bounded CPU CGLS on exact 464/419 env0 free mechanical A and b; no GPU, native replay, convergence qualification, physical claim, or production change"
+}

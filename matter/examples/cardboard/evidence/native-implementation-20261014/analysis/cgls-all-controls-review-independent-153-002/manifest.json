@@ -1,0 +1,32 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 2174,
+      "sha256": "6814e75058a56ab5117493d152999ede29c30e4137368dc6cb5da6780579d478"
+    },
+    "audit.log": {
+      "bytes": 1253,
+      "sha256": "fb09a1c2ddce81066e900c17684a8086b6f765c4d3e80450fb39e5c60fade9f6"
+    },
+    "audit.py": {
+      "bytes": 7974,
+      "sha256": "f854fbd67774d727f55834b7be1104ed3621925f3545ce2e232f6ee271b580de"
+    },
+    "independent-review.json": {
+      "bytes": 2659,
+      "sha256": "f4e31a65c1f22cc5c9e3a9557cd2df79186b3166ba6a4983b13a6ea41ca613f4"
+    },
+    "seal.py": {
+      "bytes": 1586,
+      "sha256": "d8aba9f1b01aefdd78181cae0301e026dee68ce0a8a598ff567fcb3b72a82e9b"
+    }
+  },
+  "native_or_physical_qualification": false,
+  "overlay_patch_sha256": "6cc16a36c35a2b4d1055bfcf014e8665ecafec1fbdda554f9d98aa50fbcf4614",
+  "parent_runtime_sha256": "f859b1ee45390dd844fcbd883356b931ab71d2c36260f53a4b03600b04fb3959",
+  "review_sha256": "f4e31a65c1f22cc5c9e3a9557cd2df79186b3166ba6a4983b13a6ea41ca613f4",
+  "schema": "numi.cardboard.source153_independent_review_manifest.v1",
+  "source_build_receipt_sha256": "8bb7093cf2e2db35f2ef769725b874b14c0e2a07b723469aaa3b4d722a9e6b54",
+  "source_runtime_sha256": "69d012aeaeff6bf7ef45ede8817d9664aea21b756383fe46b38325c75c6ce743",
+  "source_snapshot_manifest_sha256": "fdba689d8390fff2a7e8974cd553de4d61dbab740cfe17ba4fe9cfb1abaf4a89"
+}

@@ -1,0 +1,60 @@
+{
+  "audit_log": {
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/publication026-independent-byte-audit-001/audit.log",
+    "sha256": "38ff4dec5afccc76d3f9782f9237dc1aec7c070783282ddbd1b2a9b7ee268be4"
+  },
+  "audit_script": {
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/publication026-independent-byte-audit-001/audit.py",
+    "sha256": "dae3d9efeccf91dd2f081f155f956b8aac03cde04346194ca8ca1a84939b298a"
+  },
+  "git_head": "cc244f185d7614af64904072da69a9805c00ecf1",
+  "inputs": {
+    "archive_tool": {
+      "bytes": 7564,
+      "path": "/Users/home/cardboard-implementation-20261014/archive_reference026.py",
+      "sha256": "5c0209664d900861e896758cb17c54161158b5558a80f1bfdb2324e23e749133"
+    },
+    "binding_025": {
+      "bytes": 5880,
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/publication-binding-reference025.json",
+      "sha256": "908a12e88c411c8240d4ab4c0f220976f6e4cff7d0d939b3bb83bf81406c66fd"
+    },
+    "binding_026": {
+      "bytes": 4254,
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/publication-binding-reference026.json",
+      "sha256": "eee5d5ad5c72eaaf0a5ab2a44318da14993ff9778f48727828a5b859a2e39390"
+    },
+    "current_summary": {
+      "bytes": 17177519,
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/summary.json",
+      "sha256": "555ed422bb0e41a7c946c8e327d31bcf94c4955e4318716e508fe99a6404aeed"
+    },
+    "historical_summary_025": {
+      "bytes": 16784254,
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/summary-reference025.json",
+      "sha256": "0592e4164c784c1ed3d920abe37f673b95144cc3c8c305ae49c8ceff6341b786"
+    },
+    "new_pathspec": {
+      "bytes": 679499,
+      "path": "/Users/home/cardboard-implementation-20261014/publication-reference026-pathspec.nul",
+      "sha256": "080bf009c9b226bacf5587112a901807b253a351d202de413a6ad23edcf634bf"
+    },
+    "prepared_cases": {
+      "bytes": 1464,
+      "path": "/Users/home/cardboard-implementation-20261014/publication026-cases-prepared.json",
+      "sha256": "14152dc4a594d3bc2d0fe7a52da850c7d2868dfb7d73ad0d022ced19ea2eb5df"
+    },
+    "prior_pathspec": {
+      "bytes": 640015,
+      "path": "/Users/home/cardboard-implementation-20261014/publication-reference025-pathspec.nul",
+      "sha256": "177caced30e617b4c311b705943d12d30b4d0373d1e7308847b93f542067610d"
+    }
+  },
+  "mutation_boundary": "Read-only audit of repository/archive and external evidence. No repository, index, source, or raw archive files were changed by this audit.",
+  "report": {
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/publication026-independent-byte-audit-001/report.json",
+    "sha256": "38ff4dec5afccc76d3f9782f9237dc1aec7c070783282ddbd1b2a9b7ee268be4"
+  },
+  "schema": "numi.cardboard.publication026-independent-byte-audit-manifest.v1",
+  "verdict": "PASS_BYTE_AND_PREFIX_AUDIT; physical qualification not evaluated"
+}

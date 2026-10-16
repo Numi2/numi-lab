@@ -1,0 +1,305 @@
+{
+  "attempt_outcome": {
+    "accepted_steps": 1,
+    "physical_validation": false,
+    "receipts": "both exit 2; neither timed out; no termination error; source inputs unchanged",
+    "same_result_json": true,
+    "status": "failed",
+    "stdout_byte_identical": true
+  },
+  "builds": {
+    "462": {
+      "all_source_hashes_match_frozen_snapshot": true,
+      "artifact_hashes_verified": {
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/lib/libmetalrobo.dylib": "895a9c5f8941224a737eb72a1eec295eb1d4f8d6f60419d7abbdbf75693e73e3",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/matter/numi-matter-cardboard-probe": "d298084d1e527954fcdfab99b5267b17937b6e5f8e9d95ee922d9364ae6f7cea",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/matter/shaders/NumiMatter.metallib": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/shaders/MetalRobo.metallib": "61a548c69e6ec9c5c95480d54dbcf2fd851744e2a5e799397c59960e2fb27334",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/shaders/MetalRoboHyperPolicy.metallib": "0229cfae6afd3f1c75244e6814dd542e07a0f2a8082a636b1a6038dfa2573cef",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/shaders/NumiNeuron.metallib": "e7243f197f9312ff28abefc6ffe5b17b3f52916175b445e65e026f760e42665a"
+      },
+      "source_build_json": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/source-build.json",
+      "source_build_json_sha256": "62432124b2960344cf33fe4207e2987c0e28a53e46881dffc6ba4e103115a210",
+      "source_file_count": 787,
+      "success": true
+    },
+    "464": {
+      "all_source_hashes_match_frozen_snapshot": true,
+      "artifact_hashes_verified": {
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151/lib/libmetalrobo.dylib": "1ea48941c512986b0eadacbee086ef6158bb117932320852f0b1305a60bcf8af",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151/matter/numi-matter-cardboard-probe": "ff9add93b60d344b17fafa8d641fbea1c4b17e0ebe9d30ba2df9869f6c98481e",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151/matter/shaders/NumiMatter.metallib": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151/shaders/MetalRobo.metallib": "61a548c69e6ec9c5c95480d54dbcf2fd851744e2a5e799397c59960e2fb27334",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151/shaders/MetalRoboHyperPolicy.metallib": "0229cfae6afd3f1c75244e6814dd542e07a0f2a8082a636b1a6038dfa2573cef",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151/shaders/NumiNeuron.metallib": "e7243f197f9312ff28abefc6ffe5b17b3f52916175b445e65e026f760e42665a"
+      },
+      "source_build_json": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151/source-build.json",
+      "source_build_json_sha256": "50d19ae10c7dd405b0c0ee76dec3bf4313df5560526703fecdf3748b1b4d7184",
+      "source_file_count": 789,
+      "success": true
+    }
+  },
+  "claim": "The source151 regional state observer did not change the attempted physical/solver history relative to source149; both runs retain the same failed control-step outcome.",
+  "environment_difference": {
+    "462_only_mutually_exclusive_legacy_coupled_observer": {
+      "NM_FEM_COUPLED_CAPTURE_PATH": "run-local path; coupled observer skipped because environment_count=2",
+      "NM_FEM_COUPLED_CAPTURE_SELECTOR": "1:48"
+    },
+    "464_only_regional_observer": {
+      "NM_FEM_BASE_CGLS_STATE_CAPTURE_REGIONAL": "1"
+    },
+    "all_other_environment_values_equal_after_path_mapping": true
+  },
+  "legacy_capture_payloads": {
+    "base-cgls.bin": {
+      "byte_identical": true,
+      "bytes": 409368,
+      "sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099"
+    },
+    "base-cgls.bin.state.bin": {
+      "byte_identical": true,
+      "bytes": 4327464,
+      "sha256": "1a99fa72a4f45c68c67a53dcace37f0f01df6587d6db1a178606247a9fdef5b6"
+    },
+    "first-status5.bin": {
+      "byte_identical": true,
+      "bytes": 13568,
+      "sha256": "0f3ae7cd18df40df8ad3bbed0b55491b43f1ee67c321eab2287c46e18a43239f"
+    }
+  },
+  "legacy_sidecar_metadata_differences": {
+    "payloads_remain_byte_identical": true,
+    "state_json": [
+      {
+        "left": "missing",
+        "path": "/micro_generation",
+        "right": 2
+      }
+    ],
+    "status5_json": [
+      {
+        "left": "/Users/home/cardboard-implementation-20261014/solver/cgls-block-right-disabled-parity-462/first-status5.bin",
+        "path": "/payload/path",
+        "right": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/first-status5.bin"
+      }
+    ]
+  },
+  "limitations": [
+    "The experiment is full attempted-history parity for an observer-only change, not a successful solver or physical qualification.",
+    "Both coupon attempts fail the same step after one accepted step.",
+    "The legacy coupled observer was omitted from 464 because the two observers are mutually exclusive; its 462 marker records an environment-count-out-of-scope skip with zero payload.",
+    "The regional observer does not establish that the augmented RAP belongs to the consumed restart cycle."
+  ],
+  "native_argv_after_path_mapping_equal": true,
+  "output_tree": {
+    "byte_identical_files": 34,
+    "file_count_each": 35,
+    "normalized_manifest_differences": [
+      "/materials/glue_path",
+      "/materials/liner_path",
+      "/materials/medium_path"
+    ],
+    "raw_difference": [
+      "manifest.json"
+    ],
+    "relative_names_equal": true
+  },
+  "production_trace": {
+    "all_common_non_timing_event_rows_equal": true,
+    "armijo_rows": 112,
+    "cgls_direction_rows": 64,
+    "common_non_timing_row_count": 4282,
+    "explicit_observer_rows": {
+      "462": [
+        "fem_coupled_capture_enabled",
+        "fem_coupled_capture_skipped"
+      ],
+      "464": [
+        "fem_base_cgls_regional_capture"
+      ]
+    },
+    "timing_rows_excluded": {
+      "462": 6,
+      "464": 6
+    },
+    "true_residual_cycle_rows": 4096
+  },
+  "regional_observer": {
+    "interpretation_limit": "The reader confirms exact joined state, topology, graph layout, finite arrays, and valid base data. Augmented RAP is unadmitted because the consuming restart cycle is not captured; projected material-history currentness is unavailable. This sidecar is diagnostic only.",
+    "manifest": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.regional.json",
+    "manifest_sha256": "9a9718888fc5fdc9eed488e258a5c8b188bde96f77c1d8d3c2dc5c3ea0dfe523",
+    "payload": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.regional.bin",
+    "payload_sha256": "70b77616dd823adcca6516af248493dfc41dee482b4add7f85665277f1c6c873",
+    "reader_result": {
+      "all_operator_arrays_finite": true,
+      "augmented_RAP_pivots_are_permutations_when_valid": true,
+      "augmented_generation": [
+        {
+          "augmented_data_admissible_for_same_newton": false,
+          "consumer_restart_cycle": null,
+          "environment": 0,
+          "factor_valid": 1,
+          "mode_valid": 1,
+          "producer_generation_tag": [
+            1,
+            0,
+            48,
+            2
+          ],
+          "producer_restart_cycle": 2,
+          "reason": "consumed_restart_cycle_not_captured_independently",
+          "required_relation": "producer_cycle + 1 == consumed_restart_cycle",
+          "root_substep_newton_match": true
+        },
+        {
+          "augmented_data_admissible_for_same_newton": false,
+          "consumer_restart_cycle": null,
+          "environment": 1,
+          "factor_valid": 0,
+          "mode_valid": 0,
+          "producer_generation_tag": [
+            4294967295,
+            4294967295,
+            4294967295,
+            4294967295
+          ],
+          "producer_restart_cycle": 4294967295,
+          "reason": "consumed_restart_cycle_not_captured_independently",
+          "required_relation": "producer_cycle + 1 == consumed_restart_cycle",
+          "root_substep_newton_match": false
+        }
+      ],
+      "augmented_regional_arrays_admission": "UNADMITTED: consumed restart cycle is not recorded; do not infer it from producer tag",
+      "base_RAP_pivots_are_permutations_when_valid": true,
+      "base_factor_replay_status": {
+        "all_pivots_in_range": true,
+        "valid_by_environment": [
+          1,
+          1
+        ]
+      },
+      "base_regional_arrays_admission": "structurally validated; any native operator replay must independently verify action and currentness",
+      "fine_preconditioner_replay_status": {
+        "block_validity_markers_boolean": true,
+        "inverse_diagonal_finite": null,
+        "node_ranges_well_formed": null
+      },
+      "graph_arrays_finite": true,
+      "graph_layout_checksum_recomputed": true,
+      "graph_patch_pivots_are_permutations_when_valid": true,
+      "graph_schwarz_captured": true,
+      "graph_source_free_mask_matches_joined_state": true,
+      "graph_source_topology_matches_joined_state": true,
+      "identity_joined": true,
+      "manifest_path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.regional.json",
+      "native_or_physical_qualification": false,
+      "operator_arrays_finite": {
+        "AP": true,
+        "P": true,
+        "base_RAP_lu": true,
+        "base_coarse_coefficients": true,
+        "base_coarse_rhs": true,
+        "effective_P": true,
+        "graph_original_matrices": true,
+        "graph_patch_lu": true
+      },
+      "primary_policy_selection_captured": true,
+      "projected_material_history_currentness": "unavailable_not_persisted",
+      "reader_schema": "numi.matter.base_cgls_regional_state_capture.reader.v2",
+      "regional_array_count": 30,
+      "regional_payload_bytes": 77619992,
+      "regional_payload_sha256": "70b77616dd823adcca6516af248493dfc41dee482b4add7f85665277f1c6c873",
+      "state_array_count": 24,
+      "state_payload_sha256": "1a99fa72a4f45c68c67a53dcace37f0f01df6587d6db1a178606247a9fdef5b6"
+    },
+    "selection_field_caveat": {
+      "admission": "do not use this field as authoritative current selection; retain as a metadata defect pending a separately versioned observer repair.",
+      "array": "primary_policy_selected_environment",
+      "meaning": "Source runtime capture code appends this buffer before CGLS direction construction/installation; the selection buffer is only written by the later CGLS layout/selection path. The serialized words are therefore pre-layout scratch, not current selection state. They are zero for both environments in this capture.",
+      "raw_words": [
+        0,
+        0
+      ],
+      "source_line_bindings": {
+        "capture_array_append": {
+          "file": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151/matter/src/runtime.mm",
+          "line": 23173
+        },
+        "capture_invocation_before_direction_construction": {
+          "file": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151/matter/src/runtime.mm",
+          "line": 24204
+        },
+        "later_cgls_selection_buffer_use": {
+          "file": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151/matter/src/runtime.mm",
+          "line": 23948
+        }
+      }
+    }
+  },
+  "runs": {
+    "462": {
+      "build_provenance": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/source-build.json",
+      "case": "/Users/home/cardboard-implementation-20261014/solver/cgls-block-right-disabled-parity-462",
+      "executed_build_verified": true,
+      "prediction_sha256": "34a3dc1338fedb558c230a929260c54149018a4d80409c58f5604eed1fabb3b7",
+      "receipt": {
+        "changed_inputs": [],
+        "execution_started": true,
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-15T23:40:42.917830+00:00",
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "source_inputs_unchanged": true,
+        "termination_errors": [],
+        "timed_out": false,
+        "wall_seconds": 367.4796550000319
+      },
+      "receipt_sha256": "a502d65efe0e39af75fe795095aa7f190427783933180672dd8b35bd3bc72845",
+      "runtime_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149"
+    },
+    "464": {
+      "build_provenance": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151/source-build.json",
+      "case": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464",
+      "executed_build_verified": true,
+      "prediction_sha256": "6a1920e4448c9bc86b7b24806ed1b59271a96c06444aba6b1417af19936fed68",
+      "receipt": {
+        "changed_inputs": [],
+        "execution_started": true,
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-15T23:55:36.064008+00:00",
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "source_inputs_unchanged": true,
+        "termination_errors": [],
+        "timed_out": false,
+        "wall_seconds": 367.24417987500783
+      },
+      "receipt_sha256": "b83049818c15e6f5d19f52d1e2af69ac2b1675257ad247d3b639e40e00b0b994",
+      "runtime_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151"
+    }
+  },
+  "schema": "numi.cardboard.source151_regional_observer_full_attempt_parity.v1",
+  "source_changes": {
+    "matter/src/runtime.mm": {
+      "source149": "f859b1ee45390dd844fcbd883356b931ab71d2c36260f53a4b03600b04fb3959",
+      "source151": "1c0d2fd0d376ecc5e7ea9007ab6cc67a77fbd19bbba9f3b22fcbeca4c5c06a08"
+    },
+    "matter/tools/read_regional_capture.py": {
+      "source149": null,
+      "source151": "6c79c4a50e8826dd4595b6eeec35952d42099ba31e1708b14c4a20739db8925c"
+    },
+    "matter/tools/test_read_regional_capture.py": {
+      "source149": null,
+      "source151": "77c8c71cb88c58cc1c44410bc75b836b7b06ac36c756a91baafa7c40c3a1a44f"
+    }
+  },
+  "source_snapshot_inventory": {
+    "149_count": 787,
+    "151_count": 789,
+    "all_frozen_hashes_reverified": true,
+    "interpretation": "source151 adds the regional observer runtime change and two reader/test tools; no other frozen source file hashes differ."
+  },
+  "verdict": "PASS_FULL_ATTEMPT_PARITY_WITH_OBSERVER_METADATA_DEFECT"
+}

@@ -1,0 +1,99 @@
+{
+  "schema": "numi.cardboard.reference027-publication-binding.v1",
+  "prior_binding_sha256": "eee5d5ad5c72eaaf0a5ab2a44318da14993ff9778f48727828a5b859a2e39390",
+  "prior_pathspec_sha256": "080bf009c9b226bacf5587112a901807b253a351d202de413a6ad23edcf634bf",
+  "prior_pathspec_entries": 4344,
+  "historical_prefix": {
+    "path": "summary-reference026.json",
+    "records": 1424,
+    "sha256": "555ed422bb0e41a7c946c8e327d31bcf94c4955e4318716e508fe99a6404aeed"
+  },
+  "cases": [
+    "analysis/base-cgls-regional-state-capture-overlay-151-001",
+    "analysis/native464-regional-capture-command-001",
+    "analysis/native464-regional-capture-audit-prep-001",
+    "analysis/native464-regional-capture-audit-002",
+    "analysis/native464-regional-capture-audit-003",
+    "analysis/native464-cgls-base-preconditioner-audit-002",
+    "analysis/regional-rap-selector5-reference-151-002",
+    "analysis/cgls-all-controls-selector-overlay-153-001",
+    "analysis/cgls-all-controls-review-independent-153-002",
+    "analysis/source154-newton-budget-integration-001",
+    "analysis/source154-build-topology-erratum-001",
+    "analysis/native465-cgls-outer128-command-package-001",
+    "analysis/native466-source154-default64-parity-command-001",
+    "analysis/native466-source154-default64-parity-command-002",
+    "analysis/native467-source154-allcontrol-outer128-command-001",
+    "analysis/native467-source154-allcontrol-outer128-command-002",
+    "analysis/native467-source154-allcontrol-outer128-command-003",
+    "analysis/native466-launch-guard-001",
+    "analysis/native467-launch-guard-001",
+    "analysis/source154-default64-native466-parity-001",
+    "analysis/source154-root-integration-001",
+    "analysis/source151-regional-observer464-parity-001",
+    "analysis/retained-source-snapshots151-153-154-001",
+    "analysis/publication026-commit-and-push-001",
+    "analysis/publication026-independent-byte-audit-001",
+    "analysis/publication026-staged-source-check-001",
+    "analysis/base-cgls-regional-selection-metadata-overlay-156-001",
+    "analysis/native467-capacity-interruption-audit-001",
+    "analysis/closed-solver-input-compaction-023",
+    "solver/cgls-regional-state-capture-464",
+    "solver/cgls-newton128-default64-parity-466",
+    "solver/cgls-complete-outer128-allcontrols-467",
+    "analysis/publication027-archive-tool-001"
+  ],
+  "summary_sha256": "70a2104fc93ea00202813708723c33866050eb4e1bb0b870b85fca2330a12d22",
+  "previous_prefix_records": 1424,
+  "new_case_records": 33,
+  "copied_files": 465,
+  "raw_files": 440,
+  "gzip_files": 25,
+  "all_archived_bytes_verified": true,
+  "physical_validation": false,
+  "six_axis_verdicts": {
+    "solver_correctness": {
+      "status": "partial_component_evidence; complete_nonlinear_solve_unqualified",
+      "evidence": "Native466 preserves the full native463 attempted history across source154 controls. Isolated observer464 preserves native462 history with a retained pre-layout selection metadata defect. Source156 CPU-only repair is not integrated or natively qualified. Captured patch absolute entry gate fails despite small relative error; current projected history and native FP32 derivative floor remain unresolved."
+    },
+    "numerical_convergence": {
+      "status": "unqualified",
+      "evidence": "Native467 requests the full 128-Newton all-control cycle but the disk guard interrupts control1 after control0 completed. SIGTERM exit-15, no timeout, unchanged inputs. No complete coupon mesh/time/slower-loading study; bounded CPU base-regional preconditioning worsens truncated residual."
+    },
+    "component_calibration": {
+      "status": "partial_source_data_only",
+      "evidence": "Published-data package remains grade-bound. Exact kraft/NSSC progressive failure and local starch strength/GIc/GIIc remain unidentified."
+    },
+    "analogue_validation": {
+      "status": "unqualified_for_requested_full_sequence",
+      "evidence": "Grade, fixture, conditioning and rate transfer limits remain; no new validation series passed."
+    },
+    "physical_assembly_in_simulation": {
+      "status": "unqualified",
+      "evidence": "No completed 12-score folding, lap/end bonding and released settled 300x200x200mm shipping box. Explicit-flute contact/memory admission remains open."
+    },
+    "crush_impact_prediction": {
+      "status": "unexecuted",
+      "evidence": "No qualified compression first peak, capacity-derived masses, gravity crush or 100mm drop; exact bare-box impact validation unavailable."
+    }
+  },
+  "excluded_directory_parts": [
+    "__pycache__",
+    "archives",
+    "base",
+    "build",
+    "candidate",
+    "inputs",
+    "restore-check"
+  ],
+  "excluded_directory_prefixes": [
+    "CMakeFiles",
+    ".air"
+  ],
+  "input_directory_exceptions": [
+    "analysis/native466-source154-default64-parity-command-002",
+    "analysis/native467-source154-allcontrol-outer128-command-002"
+  ],
+  "input_exception_reason": "Versioned command packages contain small uniquely renamed byte-identical input aliases required by the wrapper basename contract; their repair manifests bind originals and aliases.",
+  "external_recovery_archives": "Closed-input compaction019/020/023 archives remain external sole recovery archives; keep them. Restore metadata is published."
+}

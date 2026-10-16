@@ -1,0 +1,55 @@
+{
+  "preinventory": {
+    "path": "preinventory.json",
+    "sha256": "b265202b417a6068a092cd69eedae35c7697a297372afccd281d4421db45a0bd"
+  },
+  "restoration_limits": {
+    "birthtime": "Filesystem-created birthtime changes on extraction and is not restored. File bytes, modes, uid/gid, nanosecond mtimes, flags, link counts, and extended attributes were verified. Neither source tree has ACL entries.",
+    "ditto_zip_extraction": "For target 005, ditto extraction created an empty CMakeFiles/CMakeScratch directory absent from the archive and source; it was pruned after verifying it was empty. The restore script applies this same fail-closed rule."
+  },
+  "schema": "numi.cardboard.buildhost-compaction.v1",
+  "supporting_artifact_bindings": {
+    "overlay_004_bound_binary": {
+      "archive_member": "build-host/matter/numi-matter-cardboard-full-contact-armijo-check",
+      "sha256": "b51647e154bc6b7c89378ab39ee230ef86f7fbb00fcdbce92b76afc2bb4abe4f"
+    },
+    "overlay_004_manifest": {
+      "path": "../mortar-union-four-patch-overlay-004/manifest.json",
+      "sha256": "000a17e756f3d488c9687a02274f898fb021af544c2be791adb792685dfb21d2"
+    },
+    "overlay_005_build_log": {
+      "path": "../mortar-union-four-patch-overlay-005/build-output.txt",
+      "sha256": "70f3aef9caca7ee5232469edc054ce42eb07874b286297856d14ef9a59bdddd4"
+    },
+    "overlay_005_manifest": {
+      "path": "../mortar-union-four-patch-overlay-005/manifest.json",
+      "sha256": "b7ffe857a24eae2a0b865ea05185d475b1501075769af0362ace6a5a2b8582da"
+    }
+  },
+  "targets": {
+    "004": {
+      "acl_entries": 0,
+      "allocated_file_bytes": 168443904,
+      "archive": "archives/overlay-004-build-host.zip",
+      "archive_bytes": 35246754,
+      "archive_sha256": "e52e1708f53d6f45654e2dfd5b194c56eb7e65b4bce0aa3aaeba95f80748f3cd",
+      "entries": 3381,
+      "logical_file_bytes": 159518035,
+      "regular_files": 2764,
+      "relative_target": "analysis/mortar-union-four-patch-overlay-004/build-host",
+      "xattr_entries": 3381
+    },
+    "005": {
+      "acl_entries": 0,
+      "allocated_file_bytes": 168443904,
+      "archive": "archives/overlay-005-build-host.zip",
+      "archive_bytes": 35251853,
+      "archive_sha256": "bf663ccaf20b09724e010689e22413c8b6a45ef66b76e8259577b77b51fe13ae",
+      "entries": 3380,
+      "logical_file_bytes": 159519484,
+      "regular_files": 2764,
+      "relative_target": "analysis/mortar-union-four-patch-overlay-005/build-host",
+      "xattr_entries": 3380
+    }
+  }
+}

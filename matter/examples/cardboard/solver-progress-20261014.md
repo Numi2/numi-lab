@@ -1,5 +1,7 @@
 # Native solver progress and unresolved qualification
 
+Source154 adds tested opt-in all-control solver routing and a128-Newton driver ceiling. Native466 preserves the complete prior failed attempt; isolated regional observer464 also preserves production history while retaining a selection-metadata defect. No complete coupon or shipping qualification follows. See [the source154 milestone](solver-milestone-source154.md).
+
 ## Current milestone: source142 bounded native CGLS
 
 The [source142 report](solver-cgls-source142.md) records 678 direct helper checks, selected actual FEM forward/transpose action errors below 1.5e-7 and a 73.68% nonlinear residual decrease at the difficult state. Observer parity covers all 35 outputs, 64 Armijo records and 4,096 true-residual records; both complete attempts still fail. Later observed Newton steps accept small fractions, and the final Armijo branch is outside the trace cap. Pointwise FP64 derivative intervals pass for every captured paper direction; native FP32 finite differences remain noise-inconclusive. Complete coupon, convergence, calibration, assembly and crush/drop qualification remain open.

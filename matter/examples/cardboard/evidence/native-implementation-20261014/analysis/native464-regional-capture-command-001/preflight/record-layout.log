@@ -1,0 +1,14 @@
+NMMatterDispatchGPU=192
+NMFEMNodeStateGPU=80
+NMTetrahedronGPU=96
+NMContinuumObjectGPU=176
+NMMaterialGPU=160
+NMScalarProgramGPU=16
+NMExpressionInstructionGPU=32
+NMSchedulerStateGPU=80
+NMAdaptiveStateGPU=160
+NMFGMRESStateGPU=32
+NMMixedSolverGPU=96
+NMMatterStatusGPU=48
+NMIncidenceRangeGPU=16
+restAndFixed.w=44

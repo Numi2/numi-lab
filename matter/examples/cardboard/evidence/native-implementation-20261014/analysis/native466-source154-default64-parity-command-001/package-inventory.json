@@ -1,0 +1,31 @@
+{
+  "schema": "numi.cardboard.native466_command_package_inventory.v1",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 323,
+      "sha256": "261bbd007882e5ccb02c93ca6ea7ef2f7ffaf63ffe3aabd39d06c6f28bb7c57f"
+    },
+    {
+      "path": "input-bindings.json",
+      "bytes": 12801,
+      "sha256": "ba21db6337a40c6371d157632bce57b9b90b237d4cb2674001517589cd5c5665"
+    },
+    {
+      "path": "native-466-command.json",
+      "bytes": 10552,
+      "sha256": "04d8c5e59e24794d9e5b7105ebcd5e1861845d2b24478e99d32bb9dfc5c66909"
+    },
+    {
+      "path": "preflight.json",
+      "bytes": 670,
+      "sha256": "595dbe8b6109dd9010799e206a64cb60830470a886534610c8bb7ea85fc73682"
+    },
+    {
+      "path": "protocol-diff.json",
+      "bytes": 520,
+      "sha256": "50eea34592aee7037a31297827cdd288a8134abda27e5d15be4262dca6bfcb4c"
+    }
+  ],
+  "note": "Inventory excludes itself."
+}

@@ -1,0 +1,12 @@
+test_bad_header_rejected (cardboard-implementation-20261014.analysis.native464-regional-capture-audit-003.test_audit_native464_v3.Native464AuditTests) ... ok
+test_final_capture_selection_segment_is_well_formed (cardboard-implementation-20261014.analysis.native464-regional-capture-audit-003.test_audit_native464_v3.Native464AuditTests) ... ok
+test_numeric_gates_and_refusal_are_preserved (cardboard-implementation-20261014.analysis.native464-regional-capture-audit-003.test_audit_native464_v3.Native464AuditTests) ... ok
+test_selected_environment_cross_check_and_sidecar_erratum (cardboard-implementation-20261014.analysis.native464-regional-capture-audit-003.test_audit_native464_v3.Native464AuditTests) ... ok
+test_failed_entry_gate_is_retained (cardboard-implementation-20261014.analysis.native464-regional-capture-audit-003.test_audit_native464_v4.Native464FrobeniusTests) ... ok
+test_frobenius_result_does_not_promote_entry_gate (cardboard-implementation-20261014.analysis.native464-regional-capture-audit-003.test_audit_native464_v4.Native464FrobeniusTests) ... ok
+test_global_frobenius_metrics_are_consistent (cardboard-implementation-20261014.analysis.native464-regional-capture-audit-003.test_audit_native464_v4.Native464FrobeniusTests) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.004s
+
+OK

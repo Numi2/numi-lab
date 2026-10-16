@@ -1,0 +1,14 @@
+{
+  "files": {
+    "admission-inputs/admission-00-source154-default64-native466-parity-001-report.json": "a94ba8c9fed80ad86ac87a7be2a0e15b192a959f455976e6c508ecf4084f39fb",
+    "admission-inputs/admission-01-source154-default64-native466-parity-001-manifest.json": "63b42ab545e1b477854ddcb3b0198e852746a6eae62677395425bb9666692423",
+    "admission-inputs/admission-02-cgls-newton128-default64-parity-466-receipt.json": "b4522a3c3e6dde1727cd785508287eda49624e3b71d8686512d60e15cca10d04",
+    "admission-inputs/admission-03-native466-launch-guard-001-receipt.json": "70eec401d77da67f034d8cf0010f27c19d995140a9553814e9832113ccd8b03b",
+    "admission-inputs/admission-04-source154-build-topology-erratum-001-manifest.json": "95e92b0c32cb9611211a73e856cb80e2f7a8cc51fa415131a625828a9f965cdd",
+    "admission.json": "771e39d8e9f33af892fe5f9f964692404916b8410b2bb1210992646c20f37b2b",
+    "native-467-command.json": "ec6728fbb21e49ddff71fa13a0b47d081c56db8042888413f2cc86dcea4f9d30",
+    "prepare.py": "43a9881b7bf765a8a2154deb31b78a219c4c68b42f0019791ae4642b2228d2c9",
+    "prior-runner.py": "c3872f9ff1a22a3d25e15c1785f2e5b4f24095fe46bee2d76d34d47e8b07e5c2",
+    "runner.py": "2d8bd6e8724dd7db1db6b7326e24c5cb3e8a2297b335cf0d79ec68129dbc4d27"
+  }
+}

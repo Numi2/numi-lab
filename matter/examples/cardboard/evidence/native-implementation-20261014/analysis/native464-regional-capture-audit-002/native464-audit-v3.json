@@ -1,0 +1,624 @@
+{
+  "audit_only": true,
+  "authoritative_environment_selection": {
+    "armijo_metrics_by_environment": [
+      [
+        0.00018444375018589199,
+        Infinity,
+        0.0,
+        3.0
+      ],
+      [
+        6.780004468964762e-08,
+        Infinity,
+        0.0,
+        0.0
+      ]
+    ],
+    "derived_and_final_selection_agree": true,
+    "fgmres_state_by_environment": [
+      {
+        "diagnostics": [
+          2.502408506188658e-06,
+          0.0001844438083935529,
+          1.0,
+          0.0
+        ],
+        "nonlinear": [
+          0.004854729864746332,
+          0.0001844438083935529,
+          94.31155395507812,
+          0.0
+        ]
+      },
+      {
+        "diagnostics": [
+          6.780005890050234e-08,
+          6.780005890050234e-08,
+          1.0,
+          0.0
+        ],
+        "nonlinear": [
+          6.780005890050234e-08,
+          6.780005890050234e-08,
+          0.0,
+          1.0
+        ]
+      }
+    ],
+    "final_cgls_selected_capture": {
+      "environment_count": 2,
+      "header_and_all_segment_extents_valid": true,
+      "iteration_cap": 64,
+      "magic": 1397507907,
+      "nodes_per_environment": 882,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin",
+      "segment_count": 12,
+      "selected_environment_words": [
+        1,
+        0
+      ],
+      "selection_offset": 409360,
+      "sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099",
+      "unknown_count": 3528,
+      "version": 1
+    },
+    "final_cgls_selected_environments": [
+      0
+    ],
+    "marker_and_healthy_environments": [
+      0
+    ],
+    "marker_selected_environments": [
+      0
+    ],
+    "regional_primary_policy_selected_environment_words": null,
+    "regional_primary_policy_selected_environment_words_are_authoritative": false,
+    "selection_source": "same-capture armijo_metrics.w==3 plus fgmres_state.diagnostics.z>0.5, cross-checked against final CGLS binary selected segment"
+  },
+  "capture_manifest": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.regional.json",
+  "capture_payload_sha256": "70b77616dd823adcca6516af248493dfc41dee482b4add7f85665277f1c6c873",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464",
+  "compiled_graph_input": {
+    "environment_count": 2,
+    "fixed_nodes": 36,
+    "free_nodes": 846,
+    "node_count": 882,
+    "sha256": "950f983c8e8a0303b473fa09fde2ded2a65746e2fa14f50e3a9574f171900cfd",
+    "tetrahedron_count": 1920
+  },
+  "limits": [
+    "The 419 CSR comparison is FP64 arithmetic over the exact captured CSR, not a Metal bitwise action replay.",
+    "Source151 primary_policy_selected_environment sidecar bytes are copied before the CGLS layout writer; the zero words are a metadata defect. Environment selection is derived from same-capture armijo_metrics.w and FGMRES state, then checked against the final CGLS capture segment.",
+    "Captured graph patch matrices are FP32-vs-FP64 CSR comparisons; reported nonzero differences are not byte-identity claims.",
+    "No augmented restart map is claimed to have been consumed; producer generation does not prove consumer-cycle currentness.",
+    "Captured selector-5 graph/AP/RAP comparisons are bounded to the selected environment and one exact Newton linearization.",
+    "This audit is not a solver-convergence, physical, mesh-scaling, or shipping qualification."
+  ],
+  "lineage_state_comparison_464_vs_462_463_455": {
+    "455": {
+      "array_comparisons": {
+        "accepted_material_history": {
+          "exact_bytes": true,
+          "left_sha256": "6da0c36e2de32d4c188ca8d0f9f4e38c0150caa26c17e9369a68f7cf9c97f6af",
+          "right_sha256": "6da0c36e2de32d4c188ca8d0f9f4e38c0150caa26c17e9369a68f7cf9c97f6af"
+        },
+        "accepted_nodes": {
+          "exact_bytes": true,
+          "left_sha256": "c5e9f8efc8dec7b9da7e4589b5accd1448bb6fb4740ae0344441f713ceba6d14",
+          "right_sha256": "c5e9f8efc8dec7b9da7e4589b5accd1448bb6fb4740ae0344441f713ceba6d14"
+        },
+        "accepted_tetrahedra": {
+          "exact_bytes": true,
+          "left_sha256": "78fdb3e6e8c362621d440f7a86b4cf509f5e7481648b71c23fad716e788f3a53",
+          "right_sha256": "78fdb3e6e8c362621d440f7a86b4cf509f5e7481648b71c23fad716e788f3a53"
+        },
+        "algorithmic_tangent_cache": {
+          "exact_bytes": true,
+          "left_sha256": "cfadecf48d7aa2d7c762333e0ab522929eded263b0172d6ba3ffc140f9503544",
+          "right_sha256": "cfadecf48d7aa2d7c762333e0ab522929eded263b0172d6ba3ffc140f9503544"
+        },
+        "algorithmic_tangent_cache_valid": {
+          "exact_bytes": true,
+          "left_sha256": "78e9b4b3487d7b781cb357ae049000d8bb4072b20bd93faa18d291334597d722",
+          "right_sha256": "78e9b4b3487d7b781cb357ae049000d8bb4072b20bd93faa18d291334597d722"
+        },
+        "base_residual_rhs": {
+          "exact_bytes": true,
+          "left_sha256": "66aae13d1ff50f246a59356f70b1077d7a687ed3dee3184ae64eb7007f136295",
+          "right_sha256": "66aae13d1ff50f246a59356f70b1077d7a687ed3dee3184ae64eb7007f136295"
+        },
+        "candidate_nodes": {
+          "exact_bytes": true,
+          "left_sha256": "c4f2b8d790494949da5be98e876b911db2655dc88e7417416906c91412557269",
+          "right_sha256": "c4f2b8d790494949da5be98e876b911db2655dc88e7417416906c91412557269"
+        },
+        "candidate_tetrahedra": {
+          "exact_bytes": true,
+          "left_sha256": "78fdb3e6e8c362621d440f7a86b4cf509f5e7481648b71c23fad716e788f3a53",
+          "right_sha256": "78fdb3e6e8c362621d440f7a86b4cf509f5e7481648b71c23fad716e788f3a53"
+        },
+        "environment_parameters": {
+          "exact_bytes": true,
+          "left_sha256": "9cd6d3f22d0c3250482f3b796af298ca9c0f87d748d65be5fbd19dc2c471d789",
+          "right_sha256": "9cd6d3f22d0c3250482f3b796af298ca9c0f87d748d65be5fbd19dc2c471d789"
+        },
+        "original_newton_correction": {
+          "exact_bytes": true,
+          "left_sha256": "208a26fa399363a253570c609d1454de1eeedb227e53cab4e895bc6049b9131e",
+          "right_sha256": "208a26fa399363a253570c609d1454de1eeedb227e53cab4e895bc6049b9131e"
+        }
+      },
+      "generation_fields_missing_in_one_or_both_legacy_captures": [
+        "micro_generation"
+      ],
+      "root_newton_generation_matches": null
+    },
+    "462": {
+      "array_comparisons": {
+        "accepted_material_history": {
+          "exact_bytes": true,
+          "left_sha256": "6da0c36e2de32d4c188ca8d0f9f4e38c0150caa26c17e9369a68f7cf9c97f6af",
+          "right_sha256": "6da0c36e2de32d4c188ca8d0f9f4e38c0150caa26c17e9369a68f7cf9c97f6af"
+        },
+        "accepted_nodes": {
+          "exact_bytes": true,
+          "left_sha256": "c5e9f8efc8dec7b9da7e4589b5accd1448bb6fb4740ae0344441f713ceba6d14",
+          "right_sha256": "c5e9f8efc8dec7b9da7e4589b5accd1448bb6fb4740ae0344441f713ceba6d14"
+        },
+        "accepted_tetrahedra": {
+          "exact_bytes": true,
+          "left_sha256": "78fdb3e6e8c362621d440f7a86b4cf509f5e7481648b71c23fad716e788f3a53",
+          "right_sha256": "78fdb3e6e8c362621d440f7a86b4cf509f5e7481648b71c23fad716e788f3a53"
+        },
+        "algorithmic_tangent_cache": {
+          "exact_bytes": true,
+          "left_sha256": "cfadecf48d7aa2d7c762333e0ab522929eded263b0172d6ba3ffc140f9503544",
+          "right_sha256": "cfadecf48d7aa2d7c762333e0ab522929eded263b0172d6ba3ffc140f9503544"
+        },
+        "algorithmic_tangent_cache_valid": {
+          "exact_bytes": true,
+          "left_sha256": "78e9b4b3487d7b781cb357ae049000d8bb4072b20bd93faa18d291334597d722",
+          "right_sha256": "78e9b4b3487d7b781cb357ae049000d8bb4072b20bd93faa18d291334597d722"
+        },
+        "base_residual_rhs": {
+          "exact_bytes": true,
+          "left_sha256": "66aae13d1ff50f246a59356f70b1077d7a687ed3dee3184ae64eb7007f136295",
+          "right_sha256": "66aae13d1ff50f246a59356f70b1077d7a687ed3dee3184ae64eb7007f136295"
+        },
+        "candidate_nodes": {
+          "exact_bytes": true,
+          "left_sha256": "c4f2b8d790494949da5be98e876b911db2655dc88e7417416906c91412557269",
+          "right_sha256": "c4f2b8d790494949da5be98e876b911db2655dc88e7417416906c91412557269"
+        },
+        "candidate_tetrahedra": {
+          "exact_bytes": true,
+          "left_sha256": "78fdb3e6e8c362621d440f7a86b4cf509f5e7481648b71c23fad716e788f3a53",
+          "right_sha256": "78fdb3e6e8c362621d440f7a86b4cf509f5e7481648b71c23fad716e788f3a53"
+        },
+        "environment_parameters": {
+          "exact_bytes": true,
+          "left_sha256": "9cd6d3f22d0c3250482f3b796af298ca9c0f87d748d65be5fbd19dc2c471d789",
+          "right_sha256": "9cd6d3f22d0c3250482f3b796af298ca9c0f87d748d65be5fbd19dc2c471d789"
+        },
+        "original_newton_correction": {
+          "exact_bytes": true,
+          "left_sha256": "208a26fa399363a253570c609d1454de1eeedb227e53cab4e895bc6049b9131e",
+          "right_sha256": "208a26fa399363a253570c609d1454de1eeedb227e53cab4e895bc6049b9131e"
+        }
+      },
+      "generation_fields_missing_in_one_or_both_legacy_captures": [
+        "micro_generation"
+      ],
+      "root_newton_generation_matches": null
+    },
+    "463": {
+      "array_comparisons": {
+        "accepted_material_history": {
+          "exact_bytes": true,
+          "left_sha256": "6da0c36e2de32d4c188ca8d0f9f4e38c0150caa26c17e9369a68f7cf9c97f6af",
+          "right_sha256": "6da0c36e2de32d4c188ca8d0f9f4e38c0150caa26c17e9369a68f7cf9c97f6af"
+        },
+        "accepted_nodes": {
+          "exact_bytes": true,
+          "left_sha256": "c5e9f8efc8dec7b9da7e4589b5accd1448bb6fb4740ae0344441f713ceba6d14",
+          "right_sha256": "c5e9f8efc8dec7b9da7e4589b5accd1448bb6fb4740ae0344441f713ceba6d14"
+        },
+        "accepted_tetrahedra": {
+          "exact_bytes": true,
+          "left_sha256": "78fdb3e6e8c362621d440f7a86b4cf509f5e7481648b71c23fad716e788f3a53",
+          "right_sha256": "78fdb3e6e8c362621d440f7a86b4cf509f5e7481648b71c23fad716e788f3a53"
+        },
+        "algorithmic_tangent_cache": {
+          "exact_bytes": true,
+          "left_sha256": "cfadecf48d7aa2d7c762333e0ab522929eded263b0172d6ba3ffc140f9503544",
+          "right_sha256": "cfadecf48d7aa2d7c762333e0ab522929eded263b0172d6ba3ffc140f9503544"
+        },
+        "algorithmic_tangent_cache_valid": {
+          "exact_bytes": true,
+          "left_sha256": "78e9b4b3487d7b781cb357ae049000d8bb4072b20bd93faa18d291334597d722",
+          "right_sha256": "78e9b4b3487d7b781cb357ae049000d8bb4072b20bd93faa18d291334597d722"
+        },
+        "base_residual_rhs": {
+          "exact_bytes": true,
+          "left_sha256": "66aae13d1ff50f246a59356f70b1077d7a687ed3dee3184ae64eb7007f136295",
+          "right_sha256": "66aae13d1ff50f246a59356f70b1077d7a687ed3dee3184ae64eb7007f136295"
+        },
+        "candidate_nodes": {
+          "exact_bytes": true,
+          "left_sha256": "c4f2b8d790494949da5be98e876b911db2655dc88e7417416906c91412557269",
+          "right_sha256": "c4f2b8d790494949da5be98e876b911db2655dc88e7417416906c91412557269"
+        },
+        "candidate_tetrahedra": {
+          "exact_bytes": true,
+          "left_sha256": "78fdb3e6e8c362621d440f7a86b4cf509f5e7481648b71c23fad716e788f3a53",
+          "right_sha256": "78fdb3e6e8c362621d440f7a86b4cf509f5e7481648b71c23fad716e788f3a53"
+        },
+        "environment_parameters": {
+          "exact_bytes": true,
+          "left_sha256": "9cd6d3f22d0c3250482f3b796af298ca9c0f87d748d65be5fbd19dc2c471d789",
+          "right_sha256": "9cd6d3f22d0c3250482f3b796af298ca9c0f87d748d65be5fbd19dc2c471d789"
+        },
+        "original_newton_correction": {
+          "exact_bytes": true,
+          "left_sha256": "208a26fa399363a253570c609d1454de1eeedb227e53cab4e895bc6049b9131e",
+          "right_sha256": "208a26fa399363a253570c609d1454de1eeedb227e53cab4e895bc6049b9131e"
+        }
+      },
+      "generation_fields_missing_in_one_or_both_legacy_captures": [
+        "micro_generation"
+      ],
+      "root_newton_generation_matches": null
+    }
+  },
+  "operator_capture": {
+    "header": {
+      "dt_seconds": 9.99999975e-05,
+      "environment_count": 2,
+      "execution_fingerprint_hex": "7fad2607fcd060e7",
+      "newton_iteration": 48,
+      "node_count_per_environment": 882,
+      "root": 1,
+      "tetrahedron_count_per_environment": 1920,
+      "world_fingerprint_hex": "75c1264bc96ac2d9"
+    },
+    "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture",
+    "record_counts": {
+      "nodes": 1764,
+      "tetrahedra": 3840
+    },
+    "sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a"
+  },
+  "operator_comparison": {
+    "available": true,
+    "base_RAP": {
+      "base_LU_reconstruction_vs_CSR_PtAP": {
+        "l2_abs": 1.5356458190554318e-08,
+        "max_abs": 7.834875137557873e-09,
+        "max_abs_reference": 0.0678300330681006,
+        "observed_l2": 0.12512644342425175,
+        "reference_l2": 0.12512645092762167,
+        "relative_l2": 1.2272751346105972e-07,
+        "shape": [
+          26,
+          26
+        ]
+      },
+      "base_LU_reconstruction_vs_capture_AP_PtAP": {
+        "l2_abs": 1.4864607130518733e-08,
+        "max_abs": 8.835032032361578e-09,
+        "max_abs_reference": 0.0678300323150948,
+        "observed_l2": 0.12512644342425175,
+        "reference_l2": 0.12512645035332357,
+        "relative_l2": 1.1879668198486463e-07,
+        "shape": [
+          26,
+          26
+        ]
+      },
+      "base_factor_pivots": [
+        0,
+        1,
+        8,
+        9,
+        10,
+        5,
+        6,
+        13,
+        14,
+        15,
+        16,
+        11,
+        12,
+        7,
+        18,
+        22,
+        19,
+        17,
+        25,
+        4,
+        20,
+        21,
+        3,
+        23,
+        24,
+        2
+      ],
+      "base_factor_valid": true,
+      "captured_PtAP_vs_CSR_PtAP": {
+        "l2_abs": 4.545404001504327e-09,
+        "max_abs": 1.42963901264212e-09,
+        "max_abs_reference": 0.0678300330681006,
+        "observed_l2": 0.12512645035332357,
+        "reference_l2": 0.12512645092762167,
+        "relative_l2": 3.632648387137247e-08,
+        "shape": [
+          26,
+          26
+        ]
+      }
+    },
+    "captured_AP_vs_419_A_times_P": {
+      "l2_abs": 3.1043049757511876e-08,
+      "max_abs": 6.538203013717325e-09,
+      "max_abs_reference": 0.035598951410820735,
+      "observed_l2": 0.2976798700805807,
+      "reference_l2": 0.29767987228456505,
+      "relative_l2": 1.0428333470875882e-07,
+      "shape": [
+        2646,
+        26
+      ]
+    },
+    "global_A_source": "419 exact FP64 free CSR, reconstructed into source fixed-row identity view",
+    "patch_matrices": {
+      "atol": 1e-09,
+      "fixed_identity_and_cross_max_abs": 0.0,
+      "fixed_identity_cross_entries": 2700,
+      "free_free_entries": 4718637,
+      "free_free_max_abs": 7.339122992666702e-08,
+      "implementation": "vectorized exact equivalent of source151 reference scalar comparison",
+      "same_generation_identity_bound": true,
+      "within_atol": false
+    },
+    "selected_environment": 0,
+    "view_admission": {
+      "actual_selected_view_admissible": false,
+      "actual_view_request_refused": {
+        "error": "actual selected view unsupported: augmented consuming restart generation is absent",
+        "refused": true
+      },
+      "augmentation_enabled": true,
+      "augmented_RAP_valid": [
+        1,
+        0
+      ],
+      "field_backing_rhs_and_correction_exact_zero": true,
+      "label": "captured_base_view_reference_only_not_actual_callback_selection",
+      "primary_policy_selection_semantics": "captured_after_primary_selection_kernel",
+      "primary_policy_selection_words_pre_layout_stale": [
+        0,
+        0
+      ],
+      "restart_generation_by_environment": [
+        [
+          1,
+          0,
+          48,
+          2
+        ],
+        [
+          4294967295,
+          4294967295,
+          4294967295,
+          4294967295
+        ]
+      ],
+      "restart_mode_valid": [
+        1,
+        0
+      ]
+    }
+  },
+  "run_receipts": {
+    "455": {
+      "available": true,
+      "changed_inputs": [],
+      "execution_started": true,
+      "exit_code": 2,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-state-sidecar-observer-455/receipt.json",
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "sha256": "0eea54025b2468593ba37e9d2d34cab3e5feded3d2084ef1fe173b8db12f55e6",
+      "source_inputs_unchanged": true,
+      "timed_out": false,
+      "wall_seconds": 367.0796778330114
+    },
+    "462": {
+      "available": true,
+      "changed_inputs": [],
+      "execution_started": true,
+      "exit_code": 2,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-block-right-disabled-parity-462/receipt.json",
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "sha256": "a502d65efe0e39af75fe795095aa7f190427783933180672dd8b35bd3bc72845",
+      "source_inputs_unchanged": true,
+      "timed_out": false,
+      "wall_seconds": 367.4796550000319
+    },
+    "463": {
+      "available": true,
+      "changed_inputs": [],
+      "execution_started": true,
+      "exit_code": 2,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-block-right-primary48-463/receipt.json",
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "sha256": "909d9d0a6b612153c662a81c9ef6b2bc8a81273ebb2cf5a757f9485704d8f4b3",
+      "source_inputs_unchanged": true,
+      "timed_out": false,
+      "wall_seconds": 413.84661379101453
+    },
+    "464": {
+      "available": true,
+      "changed_inputs": [],
+      "execution_started": true,
+      "exit_code": 2,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/receipt.json",
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "sha256": "b83049818c15e6f5d19f52d1e2af69ac2b1675257ad247d3b639e40e00b0b994",
+      "source_inputs_unchanged": true,
+      "timed_out": false,
+      "wall_seconds": 367.24417987500783
+    }
+  },
+  "schema": "numi.cardboard.native464_regional_capture_audit.v3",
+  "state_to_419_exact_input_join": {
+    "all_required_operator_arrays_exact_or_tet_signedzero_only": true,
+    "array_comparisons": {
+      "accepted_material_history": {
+        "bytes": 230400,
+        "exact_bytes": true,
+        "mismatch_bytes": 0
+      },
+      "accepted_nodes": {
+        "bytes": 141120,
+        "exact_bytes": true,
+        "mismatch_bytes": 0
+      },
+      "accepted_tetrahedra": {
+        "equal_after_signedzero_only_canonicalization": 3840,
+        "exact_records": 3840,
+        "other_mismatch_records": 0,
+        "records": 3840,
+        "signedzero_only_records": 0
+      },
+      "algorithmic_tangent_cache": {
+        "bytes": 1244160,
+        "exact_bytes": true,
+        "mismatch_bytes": 0
+      },
+      "algorithmic_tangent_cache_valid": {
+        "bytes": 15360,
+        "exact_bytes": true,
+        "mismatch_bytes": 0
+      },
+      "base_residual_rhs": {
+        "bytes": 56448,
+        "exact_bytes": true,
+        "mismatch_bytes": 0
+      },
+      "candidate_material_state_buffer": {
+        "semantic": "raw arena only; current-Newton projected history unavailable",
+        "sha256": "6da0c36e2de32d4c188ca8d0f9f4e38c0150caa26c17e9369a68f7cf9c97f6af"
+      },
+      "candidate_nodes": {
+        "bytes": 141120,
+        "exact_bytes": true,
+        "mismatch_bytes": 0
+      },
+      "candidate_tetrahedra": {
+        "equal_after_signedzero_only_canonicalization": 3840,
+        "exact_records": 3840,
+        "other_mismatch_records": 0,
+        "records": 3840,
+        "signedzero_only_records": 0
+      },
+      "environment_parameters": {
+        "bytes": 472,
+        "exact_bytes": true,
+        "mismatch_bytes": 0
+      },
+      "original_newton_correction": {
+        "bytes": 56448,
+        "exact_bytes": true,
+        "mismatch_bytes": 0
+      }
+    },
+    "candidate_material_state_buffer_semantics": "raw scratch; not proven current Newton projected history",
+    "compiled_topology_matches_accepted_state": true,
+    "dimensions_world_dt_match": true,
+    "exact_operator_join_admissible": true,
+    "selected_free_mask_matches_compiled_input": true
+  },
+  "strict_regional_reader": {
+    "all_operator_arrays_finite": true,
+    "augmented_RAP_pivots_are_permutations_when_valid": true,
+    "augmented_generation": [
+      {
+        "augmented_data_admissible_for_same_newton": false,
+        "consumer_restart_cycle": null,
+        "environment": 0,
+        "factor_valid": 1,
+        "mode_valid": 1,
+        "producer_generation_tag": [
+          1,
+          0,
+          48,
+          2
+        ],
+        "producer_restart_cycle": 2,
+        "reason": "consumed_restart_cycle_not_captured_independently",
+        "required_relation": "producer_cycle + 1 == consumed_restart_cycle",
+        "root_substep_newton_match": true
+      },
+      {
+        "augmented_data_admissible_for_same_newton": false,
+        "consumer_restart_cycle": null,
+        "environment": 1,
+        "factor_valid": 0,
+        "mode_valid": 0,
+        "producer_generation_tag": [
+          4294967295,
+          4294967295,
+          4294967295,
+          4294967295
+        ],
+        "producer_restart_cycle": 4294967295,
+        "reason": "consumed_restart_cycle_not_captured_independently",
+        "required_relation": "producer_cycle + 1 == consumed_restart_cycle",
+        "root_substep_newton_match": false
+      }
+    ],
+    "augmented_regional_arrays_admission": "UNADMITTED: consumed restart cycle is not recorded; do not infer it from producer tag",
+    "base_RAP_pivots_are_permutations_when_valid": true,
+    "base_factor_replay_status": {
+      "all_pivots_in_range": true,
+      "valid_by_environment": [
+        1,
+        1
+      ]
+    },
+    "base_regional_arrays_admission": "structurally validated; any native operator replay must independently verify action and currentness",
+    "fine_preconditioner_replay_status": {
+      "block_validity_markers_boolean": true,
+      "inverse_diagonal_finite": null,
+      "node_ranges_well_formed": null
+    },
+    "graph_arrays_finite": true,
+    "graph_layout_checksum_recomputed": true,
+    "graph_patch_pivots_are_permutations_when_valid": true,
+    "graph_schwarz_captured": true,
+    "graph_source_free_mask_matches_joined_state": true,
+    "graph_source_topology_matches_joined_state": true,
+    "identity_joined": true,
+    "manifest_path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.regional.json",
+    "native_or_physical_qualification": false,
+    "operator_arrays_finite": {
+      "AP": true,
+      "P": true,
+      "base_RAP_lu": true,
+      "base_coarse_coefficients": true,
+      "base_coarse_rhs": true,
+      "effective_P": true,
+      "graph_original_matrices": true,
+      "graph_patch_lu": true
+    },
+    "primary_policy_selection_captured": true,
+    "projected_material_history_currentness": "unavailable_not_persisted",
+    "reader_schema": "numi.matter.base_cgls_regional_state_capture.reader.v2",
+    "regional_array_count": 30,
+    "regional_payload_bytes": 77619992,
+    "regional_payload_sha256": "70b77616dd823adcca6516af248493dfc41dee482b4add7f85665277f1c6c873",
+    "state_array_count": 24,
+    "state_payload_sha256": "1a99fa72a4f45c68c67a53dcace37f0f01df6587d6db1a178606247a9fdef5b6"
+  }
+}

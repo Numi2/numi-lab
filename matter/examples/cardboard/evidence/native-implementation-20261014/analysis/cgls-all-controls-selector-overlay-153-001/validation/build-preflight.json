@@ -1,0 +1,31 @@
+{
+  "schema": "numi.cardboard.source153_build.v1",
+  "started_at_utc": "2026-10-15T23:39:42.440459+00:00",
+  "available_before_clone": 1966317568,
+  "base": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149",
+  "target": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-153",
+  "base_manifest_sha256": "f98cbfc0aac642d0578d7f0efefb19c288632b73f7b5607b70e19a15e7963bb5",
+  "source_count": 787,
+  "configure_support_count": 1034,
+  "physical_or_native_probe_execution": false,
+  "changed_files": [
+    "frozen-source.json",
+    "matter/src/runtime.mm"
+  ],
+  "source_manifest_sha256": "fdba689d8390fff2a7e8974cd553de4d61dbab740cfe17ba4fe9cfb1abaf4a89",
+  "available_after_clone": 1961996288,
+  "command": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-153/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-153",
+    "--build-dir",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-153",
+    "--cmake-source-relative",
+    ".",
+    "--jobs",
+    "4",
+    "--target",
+    "numi-matter-cardboard-probe"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 10031540,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-024/archives/cgls-complete-outer128-allcontrols-467/inputs.tar.gz",
+  "archive_sha256": "a150cbddb1fdebb57103d4ff595aa1e398f644f9c3d942d17d53b66c65797eb6",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-024/cases/cgls-complete-outer128-allcontrols-467/before-inventory.json",
+  "before_manifest_sha256": "56dc31f6b1bbd003da0da58d3c01895d1e4f13321222a16fe563f0da376b59df",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cgls-complete-outer128-allcontrols-467",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-024/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

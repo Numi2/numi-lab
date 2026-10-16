@@ -1,0 +1,578 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -1350,6 +1350,7 @@
+     std::uint32_t baseCauchyNewtonSelected = 0u;
+     std::uint32_t primaryPolicyRequested = 0u;
+     std::uint32_t primaryPolicySelectedNewton = 0u;
++    std::uint32_t primaryPolicyStartNewton = 0u;
+     std::uint32_t graphPatchCount = 0u;
+     std::uint32_t graphPatchNodeCount = 0u;
+     std::uint32_t graphDofCount = 0u;
+@@ -1385,7 +1386,7 @@
+         std::filesystem::path(binaryPath).filename().string();
+     std::ostringstream manifest;
+     manifest.imbue(std::locale::classic());
+-    manifest << "{\"schema\":\"numi.matter.base_cgls_regional_state_capture.v1\","
++    manifest << "{\"schema\":\"numi.matter.base_cgls_regional_state_capture.v2\","
+         << "\"complete\":true,\"byte_order\":\"little_endian\","
+         << "\"capture_point\":\"selected_newton_after_fgmres_regional_rap_before_cgls_direction_construction_or_installation\","
+         << "\"physical_state_changed\":false,"
+@@ -1423,12 +1424,14 @@
+         << (metadata.baseCauchyNewtonSelected != 0u ? "true" : "false")
+         << ",\"primary_policy_requested\":"
+         << (metadata.primaryPolicyRequested != 0u ? "true" : "false")
+-        << ",\"primary_policy_selected_newton\":"
++        << ",\"primary_policy_kernel_invoked_for_newton\":"
+         << (metadata.primaryPolicySelectedNewton != 0u ? "true" : "false")
+-        << ",\"primary_selection_semantics\":"
+-        << jsonQuoted(metadata.primaryPolicySelectedNewton != 0u
+-            ? "captured_after_primary_selection_kernel"
+-            : "not_materialized_at_capture_point")
++        << ",\"primary_policy_start_newton_inclusive\":"
++        << metadata.primaryPolicyStartNewton
++        << ",\"primary_policy_eligibility_semantics\":"
++        << jsonQuoted("armijo_metrics.w == 3.0 after same-generation policy kernel; denotes eligibility after residual, status and original-certificate gates, not final CGLS layout selection")
++        << ",\"base_cgls_selected_environment_status\":"
++        << jsonQuoted("not_captured_before_prepare_base_cgls_layout")
+         << ",\"tangent_cache_enabled_by_solver_policy\":"
+         << (metadata.tangentCacheEnabled != 0u ? "true" : "false")
+         << ",\"tangent_cache_force_rebuild_requested\":"
+@@ -23170,12 +23173,6 @@
+                             state.femRegionalGraphFactorValid))
+                         return skip("required_selector5_graph_buffer_missing_or_extent_mismatch");
+                 }
+-                if (baseCGLSPrimaryPolicySelectedNewton &&
+-                    !appendTyped("primary_policy_selected_environment", "uint32",
+-                        "per-environment CGLS primary-policy selection already written before this capture",
+-                        sizeof(std::uint32_t), {envCount},
+-                        state.femBaseCGLSSelected))
+-                    return skip("primary_policy_selection_buffer_missing_or_extent_mismatch");
+                 if (arrays.empty() || cursor == 0u || cursor > maximumReadbackBytes ||
+                     cursor > state.device.maxBufferLength ||
+                     statePayloadBytes > maximumReadbackBytes - cursor)
+@@ -23283,6 +23280,8 @@
+                     femBaseCGLSPrimaryPolicyRequested ? 1u : 0u;
+                 metadata.primaryPolicySelectedNewton =
+                     baseCGLSPrimaryPolicySelectedNewton ? 1u : 0u;
++                metadata.primaryPolicyStartNewton =
++                    femBaseCGLSPrimaryStartNewton;
+                 metadata.graphPatchCount = state.femRegionalGraphPatchCount;
+                 metadata.graphPatchNodeCount =
+                     state.femRegionalGraphPatchNodeCount;
+@@ -23797,7 +23796,8 @@
+                              << ",\"original_newton_certificate_applies_to_direction\":false";
+                         if (capturedPrimaryPolicy) {
+                             line << ",\"selection_policy\":\"base_cgls_primary_policy\",\"start_newton_inclusive\":"
+-                                 << capturedPrimaryStartNewton;
++                                 << capturedPrimaryStartNewton
++                                 << ",\"selection_capture_point\":\"after_prepare_base_cgls_layout\"";
+                         }
+                         line << ",\"environments\":[";
+                     } else line << "fem_base_cauchy_direction={\"schema\":1,\"root\":"
+@@ -23814,7 +23814,7 @@
+                         line << (capturedCGLSIterations != 0u ? ",\"b_dot_Ax\":" : ",\"tau\":");
+                         formatFloat(line, values[e].z);
+                         if (primarySelection != nullptr) {
+-                            line << ",\"primary_policy_eligible\":"
++                            line << ",\"base_cgls_selected_environment\":"
+                                  << (primarySelection[e] != 0u ? "true" : "false");
+                         } else {
+                             line << ",\"original_newton_converged\":"
+--- a/matter/tools/read_regional_capture.py
++++ b/matter/tools/read_regional_capture.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Strict reader for the opt-in CGLS regional sidecar (schema v1).
++"""Strict reader for opt-in CGLS regional sidecars (schemas v1 and v2).
+ 
+ This validates bytes and provenance joins. It does not certify a solver result,
+ and it never treats raw augmented buffers as current without matching tags.
+@@ -18,7 +18,8 @@
+ 
+ MAX_BYTES = 96 * 1024 * 1024
+ MAX_ARRAYS = 32
+-SCHEMA = "numi.matter.base_cgls_regional_state_capture.v1"
++SCHEMA = "numi.matter.base_cgls_regional_state_capture.v2"
++LEGACY_SCHEMA = "numi.matter.base_cgls_regional_state_capture.v1"
+ STATE_SCHEMA = "numi.matter.base_cgls_state_capture.v1"
+ EXPECTED_CAPTURE_POINT = (
+     "selected_newton_after_fgmres_regional_rap_before_cgls_direction_"
+@@ -187,12 +188,81 @@
+         _integer(manifest.get(key), key)
+ 
+ 
+-def read_capture(manifest_path: str | Path) -> dict[str, Any]:
+-    """Read and validate an adjacent `.regional.json` manifest and `.state` join."""
++def read_base_cgls_direction_record(record_line: str,
++                                    regional_manifest: dict[str, Any], *,
++                                    policy_start: int | None,
++                                    policy_invoked: bool) -> dict[str, Any]:
++    """Read the post-layout CGLS trace that contains the final selected[] words.
++
++    The regional capture occurs before layout construction and never supplies
++    final selection. This separate trace is emitted after the selected buffer
++    has been populated by prepare_base_cgls_layout and consumed by CGLS.
++    """
++    prefix = "fem_base_cgls_direction="
++    if not policy_invoked or not record_line.startswith(prefix):
++        raise CaptureError("final selection requires the matching post-layout CGLS direction trace")
++    try:
++        record = json.loads(record_line[len(prefix):].strip(),
++                            object_pairs_hook=_pairs, parse_constant=_bad_constant)
++    except (json.JSONDecodeError, CaptureError) as exc:
++        raise CaptureError(f"invalid CGLS direction trace JSON: {exc}") from exc
++    if not isinstance(record, dict) or _integer(record.get("schema"), "trace.schema") != 1:
++        raise CaptureError("unsupported CGLS direction trace")
++    for key, manifest_key in (("root", "root"),
++                              ("newton_iteration", "newton_iteration")):
++        if _integer(record.get(key), f"trace.{key}") != regional_manifest.get(manifest_key):
++            raise CaptureError(f"CGLS direction trace identity mismatch: {key}")
++    if record.get("selection_policy") != "base_cgls_primary_policy":
++        raise CaptureError("CGLS direction trace is not the primary-policy path")
++    if record.get("selection_capture_point") != "after_prepare_base_cgls_layout":
++        raise CaptureError("CGLS selection trace does not attest to the post-layout capture point")
++    if record.get("direction_kind") not in (
++            "truncated_unregularized_CGLS",
++            "right_preconditioned_truncated_unregularized_CGLS"):
++        raise CaptureError("unexpected primary CGLS direction kind")
++    if record.get("original_newton_certificate_applies_to_direction") is not False:
++        raise CaptureError("CGLS trace misattributes the original Newton certificate")
++    if (_integer(record.get("iteration_budget"), "trace.iteration_budget") !=
++            regional_manifest.get("cgls_iteration_budget")):
++        raise CaptureError("CGLS direction trace budget mismatch")
++    trace_start = _integer(record.get("start_newton_inclusive"),
++                           "trace.start_newton_inclusive")
++    if policy_start is not None and trace_start != policy_start:
++        raise CaptureError("CGLS direction trace start-Newton mismatch")
++    environments = record.get("environments")
++    expected_count = _integer(regional_manifest.get("environment_count"),
++                              "environment_count", 1)
++    if not isinstance(environments, list) or len(environments) != expected_count:
++        raise CaptureError("CGLS direction trace environment count mismatch")
++    selected: list[bool] = []
++    for index, entry in enumerate(environments):
++        if (not isinstance(entry, dict) or
++                _integer(entry.get("environment"), "trace.environment") != index):
++            raise CaptureError("CGLS direction trace environment order mismatch")
++        if "primary_policy_eligible" in entry:
++            raise CaptureError("legacy ambiguous primary_policy_eligible label is not a final selection")
++        value = entry.get("base_cgls_selected_environment")
++        if not isinstance(value, bool):
++            raise CaptureError("CGLS direction trace lacks final selected[] word")
++        selected.append(value)
++    return {
++        "capture_point": "after_prepare_base_cgls_layout",
++        "root": record["root"],
++        "newton_iteration": record["newton_iteration"],
++        "selected_by_environment": selected,
++        "source": "post-layout femBaseCGLSSelected trace",
++    }
++
++
++def read_capture(manifest_path: str | Path, *,
++                 base_cgls_direction_record: str | None = None) -> dict[str, Any]:
++    """Validate a regional/state join; optional direction record binds final selection."""
+     path = Path(manifest_path)
+     manifest = _strict_json(path)
+-    if manifest.get("schema") != SCHEMA or manifest.get("complete") is not True:
++    schema = manifest.get("schema")
++    if schema not in (SCHEMA, LEGACY_SCHEMA) or manifest.get("complete") is not True:
+         raise CaptureError("unsupported or incomplete regional capture")
++    legacy_v1 = schema == LEGACY_SCHEMA
+     if manifest.get("byte_order") != "little_endian":
+         raise CaptureError("regional payload is not declared little endian")
+     if manifest.get("capture_point") != EXPECTED_CAPTURE_POINT:
+@@ -206,6 +276,7 @@
+         "augmented_mode_count", "cgls_iteration_budget",
+     ))
+     if not (1 <= manifest["environment_count"] <= 2 and
++            manifest["object_count"] == 1 and
+             1 <= manifest["node_count"] <= 4096 and
+             1 <= manifest["tetrahedron_count"] <= 32768 and
+             1 <= manifest["material_state_stride"] <= 64 and
+@@ -255,7 +326,7 @@
+     state_payload_path, state_payload = _local_payload(state_path, state_payload_entry)
+     if state_payload_path.name != state_payload_name or _sha(state_payload) != state_binding.get("payload_sha256"):
+         raise CaptureError("state payload digest does not match regional binding")
+-    _validate_arrays(state_manifest, state_payload, strict_dtype=False)
++    state_arrays = _validate_arrays(state_manifest, state_payload, strict_dtype=False)
+     state_entries = {entry["name"]: entry for entry in state_manifest["arrays"]}
+     required_state_arrays = {
+         "accepted_nodes": ("record:NMFEMNodeStateGPU", (env, manifest["node_count"]), 80),
+@@ -270,6 +341,9 @@
+         "algorithmic_tangent_cache_valid": ("uint32", (env, manifest["tetrahedron_count"]), 4),
+         "fgmres_state": ("record:NMFGMRESStateGPU", (env,), 32),
+         "armijo_metrics": ("float32x4", (env,), 16),
++        "production_statuses": ("record:NMMatterStatusGPU", (env,), 48),
++        "armijo_statuses": ("record:NMMatterStatusGPU", (env,), 48),
++        "mixed_solver": ("record:NMMixedSolverGPU", (1,), 96),
+     }
+     for name, (dtype, shape, element_bytes) in required_state_arrays.items():
+         entry = state_entries.get(name)
+@@ -384,14 +458,97 @@
+     if selector == 5:
+         row_ranges_well_formed = None
+         inverse_diagonal_finite = None
+-    selected_policy = manifest.get("primary_policy_selected_newton") is True
+-    selected_array = entries.get("primary_policy_selected_environment")
+-    if selected_policy:
+-        if (selected_array is None or tuple(selected_array.get("shape", ())) != (env,) or
+-                selected_array.get("dtype") != "uint32" or selected_array.get("element_bytes") != 4):
+-            raise CaptureError("selected CGLS policy is missing its per-environment selection words")
+-    elif selected_array is not None:
+-        raise CaptureError("unselected CGLS policy unexpectedly carries selection words")
++    if legacy_v1:
++        policy_invoked = manifest.get("primary_policy_selected_newton")
++        if not isinstance(policy_invoked, bool):
++            raise CaptureError("legacy policy invocation flag is missing")
++        legacy_scratch = entries.get("primary_policy_selected_environment")
++        if policy_invoked:
++            if (legacy_scratch is None or tuple(legacy_scratch.get("shape", ())) != (env,) or
++                    legacy_scratch.get("dtype") != "uint32" or
++                    legacy_scratch.get("element_bytes") != 4):
++                raise CaptureError("legacy pre-layout scratch descriptor is missing")
++        elif legacy_scratch is not None:
++            raise CaptureError("legacy pre-layout scratch is present without policy invocation")
++        policy_start = None
++    else:
++        policy_invoked = manifest.get("primary_policy_kernel_invoked_for_newton")
++        if not isinstance(policy_invoked, bool):
++            raise CaptureError("policy kernel invocation flag is missing")
++        policy_start = _integer(
++            manifest.get("primary_policy_start_newton_inclusive"),
++            "primary_policy_start_newton_inclusive")
++        if policy_start > 256:
++            raise CaptureError("primary policy start Newton exceeds authored bound")
++        if manifest.get("primary_policy_eligibility_semantics") != (
++                "armijo_metrics.w == 3.0 after same-generation policy kernel; denotes eligibility after residual, status and original-certificate gates, not final CGLS layout selection"):
++            raise CaptureError("v2 eligibility marker semantics are missing")
++        if manifest.get("base_cgls_selected_environment_status") != (
++                "not_captured_before_prepare_base_cgls_layout"):
++            raise CaptureError("v2 final selection is mislabeled at the pre-layout capture point")
++        if "primary_policy_selected_environment" in entries:
++            raise CaptureError("v2 capture must not serialize pre-layout selection scratch as final selection")
++    policy_requested = manifest.get("primary_policy_requested")
++    if not isinstance(policy_requested, bool) or (policy_invoked and not policy_requested):
++        raise CaptureError("policy invocation is inconsistent with the requested policy")
++
++    # The selector kernel's eligibility marker is armijo_metrics.w==3. It is
++    # evaluated before the layout kernel. Validate the same-point status,
++    # original Newton certificate, and residual bound gates, but never call it
++    # the final per-environment selected[] word.
++    metric_words = _f32_values(state_arrays["armijo_metrics"])
++    fgmres_words = _f32_values(state_arrays["fgmres_state"])
++    status_words = _u32_words(state_arrays["production_statuses"])
++    residual_bound = struct.unpack_from("<f", state_arrays["mixed_solver"], 32)[0]
++    if not math.isfinite(residual_bound) or residual_bound < 0.0:
++        raise CaptureError("invalid captured primary-policy residual bound")
++    policy_eligibility: list[bool | None] = []
++    marker_words: list[float] = []
++    for environment in range(env):
++        metric_base = environment * 4
++        fgmres_base = environment * 8
++        status_base = environment * 12
++        marker = metric_words[metric_base + 3]
++        base_residual = metric_words[metric_base]
++        certificate = fgmres_words[fgmres_base + 2]
++        status_healthy = status_words[status_base] == 0
++        if not all(math.isfinite(value) for value in (marker, base_residual, certificate)):
++            raise CaptureError("nonfinite same-generation primary-policy gate input")
++        if policy_invoked and marker not in (0.0, 3.0):
++            raise CaptureError("unexpected primary-policy eligibility marker")
++        if legacy_v1:
++            # Invocation proves the host passed its start-Newton dispatch gate,
++            # but v1 did not serialize the exact threshold value.
++            gate_without_serialized_start = (
++                status_healthy and certificate > 0.5 and
++                base_residual > residual_bound)
++            if policy_invoked and ((marker == 3.0) != gate_without_serialized_start):
++                raise CaptureError("legacy eligibility marker disagrees with captured status/certificate/residual gates")
++            policy_eligibility.append(marker == 3.0 if policy_invoked else None)
++        else:
++            start_gate = manifest["newton_iteration"] >= policy_start
++            if policy_invoked and not start_gate:
++                raise CaptureError("policy kernel invocation precedes its start-Newton gate")
++            expected_gates = (start_gate and status_healthy and certificate > 0.5 and
++                              base_residual > residual_bound)
++            expected_eligible = policy_invoked and expected_gates
++            if policy_invoked and ((marker == 3.0) != expected_gates):
++                raise CaptureError("v2 eligibility marker disagrees with same-generation gates")
++            if not policy_invoked and marker == 3.0:
++                raise CaptureError("eligibility marker is set although policy kernel was not invoked")
++            policy_eligibility.append(expected_eligible if policy_invoked else None)
++        marker_words.append(marker)
++
++    final_selection: dict[str, Any] | None = None
++    if base_cgls_direction_record is not None:
++        final_selection = read_base_cgls_direction_record(
++            base_cgls_direction_record, manifest, policy_start=policy_start,
++            policy_invoked=policy_invoked)
++        selected_words = final_selection["selected_by_environment"]
++        expected_selection = [marker == 3.0 for marker in marker_words]
++        if selected_words != expected_selection:
++            raise CaptureError(
++                "post-layout selected[] words disagree with same-generation eligibility markers")
+ 
+     augmented = manifest.get("same_newton_restart_augmentation_enabled") is True
+     generation_state: list[dict[str, Any]] = []
+@@ -564,14 +721,6 @@
+     if node_inverse is not None and tuple(node_inverse["shape"]) != (env, nodes, 3):
+         raise CaptureError("node block inverse dimensions mismatch")
+ 
+-    primary = manifest.get("primary_policy_selected_newton") is True
+-    selection = arrays.get("primary_policy_selected_environment")
+-    if primary != (selection is not None):
+-        raise CaptureError("primary selection array provenance mismatch")
+-    if selection is not None:
+-        selection_words = _u32_words(selection)
+-        if len(selection_words) != env or any(word not in (0, 1) for word in selection_words):
+-            raise CaptureError("invalid primary CGLS environment selection words")
+ 
+     return {
+         "manifest_path": str(path),
+@@ -593,7 +742,12 @@
+             "inverse_diagonal_finite": inverse_diagonal_finite,
+             "block_validity_markers_boolean": block_markers_boolean,
+         },
+-        "primary_policy_selection_captured": primary,
++        "primary_policy_requested": policy_requested,
++        "primary_policy_kernel_invoked_for_newton": policy_invoked,
++        "primary_policy_eligibility_by_environment": policy_eligibility,
++        "primary_policy_marker_by_environment": marker_words,
++        "final_base_cgls_selected_environment": final_selection,
++        "pre_layout_selection_scratch_used_as_final_selection": False,
+         "native_or_physical_qualification": False,
+     }
+ 
+--- a/matter/tools/test_read_regional_capture.py
++++ b/matter/tools/test_read_regional_capture.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""CPU contract tests for the v1 regional sidecar reader.
++"""CPU contract tests for the v1/v2 regional sidecar reader.
+ 
+ The fixtures are synthetic parser inputs, not native solver evidence.
+ """
+@@ -53,7 +53,14 @@
+ def make_capture(directory: Path, *, augmented: bool = False,
+                  graph: bool = False, selector: int | None = None,
+                  block_inverse: bool = False,
+-                 primary_selected: bool = False) -> Path:
++                 policy_invoked: bool = False,
++                 policy_requested: bool | None = None,
++                 legacy_v1: bool = False,
++                 marker_override: float | None = None,
++                 certificate: float = 1.0,
++                 status_code: int = 0,
++                 base_residual: float = 2.0,
++                 residual_bound: float = 1.0) -> Path:
+     root, substep, microtick, microcount, newton = 7, 2, 1, 3, 4
+     source_fp = "00000000000000a1"
+     world_fp = "00000000000000b2"
+@@ -71,8 +78,18 @@
+         ("base_residual_rhs", "float32x4", [2], 16, bytes(32)),
+         ("algorithmic_tangent_cache", "float32", [1, 1, 9, 9], 4, bytes(324)),
+         ("algorithmic_tangent_cache_valid", "uint32", [1, 1], 4, bytes(4)),
+-        ("fgmres_state", "record:NMFGMRESStateGPU", [1], 32, bytes(32)),
+-        ("armijo_metrics", "float32x4", [1], 16, bytes(16)),
++        ("fgmres_state", "record:NMFGMRESStateGPU", [1], 32,
++         struct.pack("<8f", 0.0, 0.0, certificate, 0.0, 0.0, 0.0, 0.0, 0.0)),
++        ("armijo_metrics", "float32x4", [1], 16,
++         struct.pack("<4f", base_residual, 0.0, 0.0,
++                     (3.0 if policy_invoked else 0.0)
++                     if marker_override is None else marker_override)),
++        ("production_statuses", "record:NMMatterStatusGPU", [1], 48,
++         struct.pack("<12I", status_code, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
++        ("armijo_statuses", "record:NMMatterStatusGPU", [1], 48, bytes(48)),
++        ("mixed_solver", "record:NMMixedSolverGPU", [1], 96,
++         struct.pack("<8I4f12f", *([0] * 8), residual_bound, 0.0, 0.0, 0.0,
++                     *([0.0] * 12))),
+     ]
+     state_payload, state_entries = payload_and_entries(state_specs)
+     state_name = "case.state.bin"
+@@ -111,6 +128,7 @@
+     augmented_count = 2 if augmented else 0
+     effective_words = mode_stride * 4
+     actual_selector = selector if selector is not None else (5 if graph else 2)
++    requested = policy_invoked if policy_requested is None else policy_requested
+     specs = [
+         ("P", "float32x4", [1, 1], 16, struct.pack("<4f", 1, 0, 0, 0)),
+         ("effective_P", "float32x4", [1, mode_stride, 1], 16,
+@@ -135,9 +153,9 @@
+     if actual_selector in (3, 4) and block_inverse:
+         specs.append(("node_block_inverse", "float32x4", [1, 1, 3], 16,
+                       struct.pack("<12f", 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0)))
+-    if primary_selected:
++    if legacy_v1 and policy_invoked:
+         specs.append(("primary_policy_selected_environment", "uint32", [1], 4,
+-                      struct.pack("<I", 1)))
++                      struct.pack("<I", 0xFFFFFFFF)))
+     if augmented:
+         specs.extend([
+             ("augmented_RAP_lu", "float32", [1, 2, 2], 4,
+@@ -177,7 +195,7 @@
+     regional_name = "case.regional.bin"
+     regional_manifest_name = "case.regional.json"
+     regional_manifest = {
+-        "schema": reader.SCHEMA,
++        "schema": reader.LEGACY_SCHEMA if legacy_v1 else reader.SCHEMA,
+         "complete": True,
+         "byte_order": "little_endian",
+         "capture_point": reader.EXPECTED_CAPTURE_POINT,
+@@ -226,7 +244,18 @@
+             "source_free_mask_sha256": "2" * 64 if graph else "",
+             "potential_node_mask_sha256": "3" * 64 if graph else "",
+         },
+-        "primary_policy_selected_newton": primary_selected,
++        ("primary_policy_selected_newton" if legacy_v1 else
++         "primary_policy_kernel_invoked_for_newton"): policy_invoked,
++        "primary_policy_requested": requested,
++        **({} if legacy_v1 else {
++            "primary_policy_start_newton_inclusive": 2,
++            "primary_policy_eligibility_semantics": (
++                "armijo_metrics.w == 3.0 after same-generation policy kernel; "
++                "denotes eligibility after residual, status and original-certificate gates, "
++                "not final CGLS layout selection"),
++            "base_cgls_selected_environment_status":
++                "not_captured_before_prepare_base_cgls_layout",
++        }),
+         "regional_apply_replay": {
+             "row_mapping": "candidate_nodes are environment-major; restAndFixed.w is the raw fixed-node tag; node_ranges is included for selectors 2-4; selector 5 carries graph_rows",
+             "fgmres_health": "read fgmres_state.diagnostics from the joined state payload",
+@@ -290,21 +319,125 @@
+                                         "selector-3/4 block apply"):
+                 reader.read_capture(manifest)
+ 
+-    def test_primary_selection_words_are_required_only_when_selected(self):
+-        with tempfile.TemporaryDirectory() as temp:
+-            manifest = make_capture(Path(temp), primary_selected=True)
+-            self.assertTrue(reader.read_capture(manifest)["identity_joined"])
+-        with tempfile.TemporaryDirectory() as temp:
+-            manifest = make_capture(Path(temp), primary_selected=True)
++    def test_v2_policy_eligibility_is_not_final_layout_selection(self):
++        with tempfile.TemporaryDirectory() as temp:
++            manifest = make_capture(Path(temp), policy_invoked=True)
++            result = reader.read_capture(manifest)
++            self.assertEqual(result["primary_policy_eligibility_by_environment"], [True])
++            self.assertIsNone(result["final_base_cgls_selected_environment"])
++            self.assertFalse(result["pre_layout_selection_scratch_used_as_final_selection"])
++            entries = json.loads(manifest.read_text(encoding="utf-8"))["arrays"]
++            self.assertNotIn("primary_policy_selected_environment",
++                             {entry["name"] for entry in entries})
++
++    def test_v2_invocation_before_start_gate_rejected(self):
++        with tempfile.TemporaryDirectory() as temp:
++            manifest = make_capture(Path(temp), policy_invoked=True)
+             data = json.loads(manifest.read_text(encoding="utf-8"))
+-            for entry in data["arrays"]:
+-                if entry["name"] == "primary_policy_selected_environment":
+-                    entry["name"] = "unbound_selection"
+-                    break
++            data["primary_policy_start_newton_inclusive"] = 5
+             manifest.write_text(json.dumps(data), encoding="utf-8")
+             with self.assertRaisesRegex(reader.CaptureError,
+-                                        "per-environment selection words"):
++                                        "precedes its start-Newton gate"):
+                 reader.read_capture(manifest)
++
++    def test_v2_requested_but_not_yet_invoked_is_not_eligibility(self):
++        with tempfile.TemporaryDirectory() as temp:
++            manifest = make_capture(Path(temp), policy_requested=True,
++                                    policy_invoked=False)
++            data = json.loads(manifest.read_text(encoding="utf-8"))
++            data["primary_policy_start_newton_inclusive"] = 5
++            manifest.write_text(json.dumps(data), encoding="utf-8")
++            result = reader.read_capture(manifest)
++            self.assertTrue(result["primary_policy_requested"])
++            self.assertFalse(result["primary_policy_kernel_invoked_for_newton"])
++            self.assertEqual(result["primary_policy_eligibility_by_environment"],
++                             [None])
++
++    def test_cgls_policy_capture_requires_single_static_object_scope(self):
++        with tempfile.TemporaryDirectory() as temp:
++            manifest = make_capture(Path(temp), policy_invoked=True)
++            data = json.loads(manifest.read_text(encoding="utf-8"))
++            data["object_count"] = 2
++            manifest.write_text(json.dumps(data), encoding="utf-8")
++            with self.assertRaisesRegex(reader.CaptureError,
++                                        "dimensions exceed admitted bounds"):
++                reader.read_capture(manifest)
++
++    def test_v2_marker_must_agree_with_status_certificate_and_residual_gates(self):
++        with tempfile.TemporaryDirectory() as temp:
++            manifest = make_capture(Path(temp), policy_invoked=True,
++                                    status_code=7)
++            with self.assertRaisesRegex(reader.CaptureError,
++                                        "eligibility marker disagrees"):
++                reader.read_capture(manifest)
++        with tempfile.TemporaryDirectory() as temp:
++            manifest = make_capture(Path(temp), policy_invoked=False,
++                                    marker_override=3.0)
++            with self.assertRaisesRegex(reader.CaptureError,
++                                        "marker is set although policy kernel was not invoked"):
++                reader.read_capture(manifest)
++
++    def test_v1_pre_layout_selection_words_are_ignored_as_stale_scratch(self):
++        with tempfile.TemporaryDirectory() as temp:
++            manifest = make_capture(Path(temp), policy_invoked=True, legacy_v1=True)
++            result = reader.read_capture(manifest)
++            self.assertEqual(result["primary_policy_eligibility_by_environment"], [True])
++            self.assertIsNone(result["final_base_cgls_selected_environment"])
++            self.assertFalse(result["pre_layout_selection_scratch_used_as_final_selection"])
++
++    def test_final_selection_requires_matching_post_layout_trace(self):
++        with tempfile.TemporaryDirectory() as temp:
++            manifest = make_capture(Path(temp), policy_invoked=True)
++            record = {
++                "schema": 1, "root": 7, "newton_iteration": 4,
++                "direction_kind": "truncated_unregularized_CGLS",
++                "iteration_budget": 32, "right_scale": None,
++                "original_newton_certificate_applies_to_direction": False,
++                "selection_policy": "base_cgls_primary_policy",
++                "start_newton_inclusive": 2,
++                "selection_capture_point": "after_prepare_base_cgls_layout",
++                "environments": [
++                    {"environment": 0, "candidate_l2": 1.0,
++                     "linear_residual_l2": 0.0, "b_dot_Ax": 1.0,
++                     "base_cgls_selected_environment": True}
++                ],
++            }
++            line = "fem_base_cgls_direction=" + json.dumps(record)
++            result = reader.read_capture(
++                manifest, base_cgls_direction_record=line)
++            self.assertEqual(
++                result["final_base_cgls_selected_environment"]["selected_by_environment"],
++                [True])
++            record["schema"] = True
++            with self.assertRaisesRegex(reader.CaptureError,
++                                        "invalid integer trace.schema"):
++                reader.read_capture(
++                    manifest,
++                    base_cgls_direction_record="fem_base_cgls_direction=" +
++                    json.dumps(record))
++            record["schema"] = 1
++            record["environments"][0]["environment"] = False
++            with self.assertRaisesRegex(reader.CaptureError,
++                                        "invalid integer trace.environment"):
++                reader.read_capture(
++                    manifest,
++                    base_cgls_direction_record="fem_base_cgls_direction=" +
++                    json.dumps(record))
++            record["environments"][0]["environment"] = 0
++            record["environments"][0]["base_cgls_selected_environment"] = False
++            mismatched = "fem_base_cgls_direction=" + json.dumps(record)
++            with self.assertRaisesRegex(reader.CaptureError,
++                                        r"selected\[\] words disagree"):
++                reader.read_capture(manifest,
++                                    base_cgls_direction_record=mismatched)
++            record["environments"][0]["base_cgls_selected_environment"] = True
++            record["environments"][0]["primary_policy_eligible"] = True
++            del record["environments"][0]["base_cgls_selected_environment"]
++            ambiguous = "fem_base_cgls_direction=" + json.dumps(record)
++            with self.assertRaisesRegex(reader.CaptureError,
++                                        "legacy ambiguous"):
++                reader.read_capture(manifest,
++                                    base_cgls_direction_record=ambiguous)
+ 
+     def test_nonstandard_json_constant_rejected(self):
+         with tempfile.TemporaryDirectory() as temp:

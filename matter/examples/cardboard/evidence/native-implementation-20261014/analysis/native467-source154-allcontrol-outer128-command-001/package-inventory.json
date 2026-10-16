@@ -1,0 +1,41 @@
+{
+  "schema": "numi.cardboard.native467_command_package_inventory.v1",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 323,
+      "sha256": "502d28105e842d0dc07b0a9531a0b1a0664306d24473715d5046b8edcb86dd76"
+    },
+    {
+      "path": "input-bindings.json",
+      "bytes": 13319,
+      "sha256": "58bb337de8d89ff1f9d3b1e52cc94b281236b98b92e87f8fde7b673375fd0496"
+    },
+    {
+      "path": "native-467-command.json",
+      "bytes": 10488,
+      "sha256": "7e0ed8ab0335cac422f4812f7587f6fe471c55d50cd252f2dd060f53994ad567"
+    },
+    {
+      "path": "preflight.json",
+      "bytes": 671,
+      "sha256": "395f6b539b8c1e67ec99894518a4fadca68fe07c90cdb01fd2c558a4b27d9514"
+    },
+    {
+      "path": "protocol-diff.json",
+      "bytes": 579,
+      "sha256": "be6721a7071208e2a3eea96a3fa3eee3f42922ae8408f404d16b99da27cffdd9"
+    },
+    {
+      "path": "static-validation.json",
+      "bytes": 1502,
+      "sha256": "c75ca2b6720fe5b895393260da3d6a14f4904934463db7f65227d40d8339d337"
+    },
+    {
+      "path": "verify_prepared_commands.py",
+      "bytes": 7281,
+      "sha256": "81c3171b7353a4ab29cfd52132ea63edb234f5a6b589b035bdb85c67aa980113"
+    }
+  ],
+  "note": "Inventory excludes itself."
+}

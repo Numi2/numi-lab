@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.all_controls_selector_preparation.v1",
+  "base": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/matter/src/runtime.mm",
+  "base_sha256": "f859b1ee45390dd844fcbd883356b931ab71d2c36260f53a4b03600b04fb3959",
+  "candidate_sha256": "69d012aeaeff6bf7ef45ede8817d9664aea21b756383fe46b38325c75c6ce743",
+  "patch_sha256": "6cc16a36c35a2b4d1055bfcf014e8665ecafec1fbdda554f9d98aa50fbcf4614",
+  "scope": "opt-in exact all:all selector; existing per-control capability, private update, true residual, acceptance and rollback unchanged",
+  "native_execution": false
+}

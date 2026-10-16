@@ -1,0 +1,381 @@
+{
+  "bindings": {
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/source151-regional-capture-bindings.json",
+    "sha256": "22ce94f66f2d067840538b30fba13115952da9f3d28a87966586e1c654f7dec9"
+  },
+  "command": {
+    "input_file_count": 54,
+    "input_files": [
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-runtime-review-140-001/manifest.json",
+        "sha256": "bb0f4b8f24d6f79bc7fcc8dab611d45c3291621e87bf7bee800a6cd28c95cdcb"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/native/base-cgls-mask-repair-check-447/receipt.json",
+        "sha256": "0f0674b66e58d302d93ea7817a8775bae6a90b2953d5a32599cfb8b4f3b43134"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native445-cgls-disabled-history-parity-001/report.json",
+        "sha256": "86294fcfbf6a7435f6d19d3c100058e87198e20990adaaea405bb5cc95479a6c"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-mask-repair-142-001/source-overlay.json",
+        "sha256": "1c461e0e0feb53b518b3199288b908ed536f4d1334346d9c8681544122658ba8"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native448-incomplete-io-incident-001/incident.json",
+        "sha256": "4dd2c25224991670dd8dc325283037c4fab1f1a8e5339c01009fbec9910f4bfa"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/primary-cgls453-inputs-001/source143-independent-policy-review.json",
+        "sha256": "4b06e22a80bc44910f98c4f82616e4effacf78c1cc1027f2e4d25a0c2d5dea4f"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/primary-cgls453-inputs-001/source143-policy-overlay-manifest.json",
+        "sha256": "ea4708b3a079cf4f156665fea7f0815bd2d2a767089ea4a63ea4d3d9da072d21"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/primary-cgls453-inputs-001/source143-host-parser-report.json",
+        "sha256": "3151a05e5e862a59eba3ddefbb6efb4b823efc57b78e9ef7c4039ae0294b026d"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/primary-cgls453-inputs-001/native450-root-adjudication.json",
+        "sha256": "7b6589d34e1fbc8507d040c251e65e58a340e520320a0312551585104cbf2d73"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/primary-cgls453-inputs-001/native450-baseline-receipt.json",
+        "sha256": "958e07dc51d541c7e483d44403bdfa1ee6f6b8058d0025c50a2063f89f64b34c"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/primary-cgls453-inputs-001/input-bindings.json",
+        "sha256": "e5a7ddd04c47c1e9a27b19307bfaf1225cf254033257bdcae79261c5b3bc8c1e"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/state-sidecar455-inputs-001/native453-observer-baseline-receipt.json",
+        "sha256": "6bf62bf387064b81b40bddedb30fe58483950ab4cd1e2b70b5cc46847339cbe7"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/state-sidecar455-inputs-001/source144-state-capture-overlay-seal.json",
+        "sha256": "ec27cdbfa38f62cce25a54ab35c38f0a687a99f4e24f6d74edb84ef662b44c77"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/state-sidecar455-inputs-001/source144-root-source-review.json",
+        "sha256": "2319bc01813e4147604c4f21dd194645f6386de086dba97a8f858da006cac4f5"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/state-sidecar455-inputs-001/bindings.json",
+        "sha256": "b05b182295fd290a8a79e4efbfe7ff654709c21171e367543fd949de1067db1f"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/post-release-default459-inputs-001/native455-default-phase-baseline-receipt.json",
+        "sha256": "0eea54025b2468593ba37e9d2d34cab3e5feded3d2084ef1fe173b8db12f55e6"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/post-release-default459-inputs-001/source145-default-phase-integration-manifest.json",
+        "sha256": "273b89ddff7211b8f3161c1ec7cb8b296e59cfdd1c608e7240b6bb02cc1486e0"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/post-release-default459-inputs-001/source145-default-phase-review-manifest.json",
+        "sha256": "1c3684fe2a78c0d55824f881d7f1aab4dc1f3da9e3ea9c4208bb13443bb44f91"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/post-release-default459-inputs-001/source145-default-phase-bindings.json",
+        "sha256": "5cd8fced4d0cb58fd7a2ecef0d3f40fea394a6022d64dbf4f363d61f80c710dd"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-source-overlay.json",
+        "sha256": "e158080398d47e1974e34ffcd71af5cd7e563d0fd08c4eb4e53482e7f9a94906"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-source-overlay.patch",
+        "sha256": "e23ed54a067f2f2ad822d84172d21df225aa112e28307f0cbe6299a175da8a86"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-overlay-cpu-test-receipt.txt",
+        "sha256": "e2f0f3de900a00125ca47c48980eea4093b9785911390380c8e385b68fd092f7"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-frozen-source.json",
+        "sha256": "f98cbfc0aac642d0578d7f0efefb19c288632b73f7b5607b70e19a15e7963bb5"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-integration-manifest.json",
+        "sha256": "331015ee6223471d80ec7f960767392867941a043f3c330979522d9c55ac650c"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-integration-evidence.json",
+        "sha256": "ceac1c5b826aafbf15624fd9bf26dee942c019b0b86c28e2aef6ff9eae1bc777"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-post-build.json",
+        "sha256": "703113f3ecc1c941bd6fe0fedc6500892df3a5489fa0c1bd2d9566a479e126e6"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-scope-review.json",
+        "sha256": "ba9fbbaab66ef39fc6e83baad7c0a12983d07e705c622db08d3c2df630c25d2c"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-source-build-receipt.json",
+        "sha256": "62432124b2960344cf33fe4207e2987c0e28a53e46881dffc6ba4e103115a210"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-right-scale-checker-manifest.json",
+        "sha256": "3619c4e2b5b5208548f36562ffcb1373cdbca4e41971171294b6e1345d67fe0e"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-right-scale-checker-build-only-receipt.json",
+        "sha256": "a69df23907240f7ad4b2e51baf3b15b4f6cc2c648c9d9e683baef48b66cfa4d2"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/149-input-bindings.json",
+        "sha256": "823799808819cb8ef8c1f8b52e988fe3edeb91ab5557ea38445372094cb80e92"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/source151-regional-capture-bindings.json",
+        "sha256": "22ce94f66f2d067840538b30fba13115952da9f3d28a87966586e1c654f7dec9"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/compiled-package-topology-inventory.json",
+        "sha256": "ec8c56b5cfc0319f2f9e4d53a8ded2d9db85bff53e4fc14931c12371304d5819"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/actual-graph-input.bin",
+        "sha256": "950f983c8e8a0303b473fa09fde2ded2a65746e2fa14f50e3a9574f171900cfd"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/graph-layout.json",
+        "sha256": "79a30c90383fc7f0b963fcbcc70b706696432539c808cde309c39267a775106d"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/capture-capacity-preflight.json",
+        "sha256": "37f38291f6fd0e325546dcf129d60fd6208ef63648188540f07fbbc1b800229f"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/build_graph_input.py",
+        "sha256": "94540bf32acfa0dadf943c51e4753231f956d9dcd43e2a4af7536668b4bc62cc"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/graph_layout_check.cpp",
+        "sha256": "dcef57e30fad32cad653da3931f7352ff072d6e324f0aa976072018c0dfdff58"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/preflight_capacity.py",
+        "sha256": "af326bac639e54195c346091d84baca858902aa870565e0d7c627e13b808e120"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/validator/read_regional_capture.py",
+        "sha256": "6c79c4a50e8826dd4595b6eeec35952d42099ba31e1708b14c4a20739db8925c"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/validator/read_regional_capture_v1.py",
+        "sha256": "6c79c4a50e8826dd4595b6eeec35952d42099ba31e1708b14c4a20739db8925c"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/validator/read_regional_capture_v2.py",
+        "sha256": "785a298456e67ebf111466a7f2f22a73656f3da7af6032e16f563ddc9cae1bec"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/validator/test_reader_v1.py",
+        "sha256": "77c8c71cb88c58cc1c44410bc75b836b7b06ac36c756a91baafa7c40c3a1a44f"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/validator/test_reader_v2.py",
+        "sha256": "36d7a960519a4e10545eaa91255809cabe0eaf59b6497d80e5fffef100e636a6"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/reader-cpu-tests.log",
+        "sha256": "38771b77cb154b706edb940bddc2d93a796004a178a83a7e19be396298f5b8c3"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/reader-python-syntax.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/validate_plan.py",
+        "sha256": "ba8b8adcdfe45c43fc69e7ab3aa9b473b26903f87db62b16fa2b9e23dfc5d257"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/seal_bindings.py",
+        "sha256": "d1478db0abd65b64ec0bdd04d84cfee62631c53ee29283a3b3b3efd1f2fd8fb5"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/command-validation.json",
+        "sha256": "0ec955f46173cd3d099d0048e3612135d608e87591e51b6282aaf72622c10078"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/command-validation.log",
+        "sha256": "323503418d36fb9f3f2e6f9db7734bd086f9d1545daaa50dfae2f13f3408ab14"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/graph_layout_check",
+        "sha256": "aba6cc70cb52adddf61b279646c9dedd994e23f0d822d9693d7e2f8571fd2905"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/record_layout",
+        "sha256": "c2a795ecbf3ef88945d7434ec510a54407a4ffdf484c46f161449b5ab9f2954a"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/run_native464.py",
+        "sha256": "40959521bd5029a246b790f6cb3fc303411a2e863f6c420d63585c571afe0ebd"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/README.md",
+        "sha256": "2e516d6ed8c47bf7ddcee8e1002e932ec69e379faac72f6ec7f1e9adeeba4bc7"
+      }
+    ],
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/native-464-command.json",
+    "sha256": "828f54f1b803a5e94984ead5b8d49f8954f11a58d8a35a8a9591645a23da2bb9"
+  },
+  "files": [
+    {
+      "bytes": 1805,
+      "path": "README.md",
+      "sha256": "2e516d6ed8c47bf7ddcee8e1002e932ec69e379faac72f6ec7f1e9adeeba4bc7"
+    },
+    {
+      "bytes": 11717,
+      "path": "native-464-command.json",
+      "sha256": "828f54f1b803a5e94984ead5b8d49f8954f11a58d8a35a8a9591645a23da2bb9"
+    },
+    {
+      "bytes": 31614,
+      "path": "preflight/actual-graph-input.bin",
+      "sha256": "950f983c8e8a0303b473fa09fde2ded2a65746e2fa14f50e3a9574f171900cfd"
+    },
+    {
+      "bytes": 5139,
+      "path": "preflight/build_graph_input.py",
+      "sha256": "94540bf32acfa0dadf943c51e4753231f956d9dcd43e2a4af7536668b4bc62cc"
+    },
+    {
+      "bytes": 10062,
+      "path": "preflight/capture-capacity-preflight.json",
+      "sha256": "37f38291f6fd0e325546dcf129d60fd6208ef63648188540f07fbbc1b800229f"
+    },
+    {
+      "bytes": 1318,
+      "path": "preflight/command-validation.json",
+      "sha256": "0ec955f46173cd3d099d0048e3612135d608e87591e51b6282aaf72622c10078"
+    },
+    {
+      "bytes": 1318,
+      "path": "preflight/command-validation.log",
+      "sha256": "323503418d36fb9f3f2e6f9db7734bd086f9d1545daaa50dfae2f13f3408ab14"
+    },
+    {
+      "bytes": 12115,
+      "path": "preflight/compiled-package-topology-inventory.json",
+      "sha256": "ec8c56b5cfc0319f2f9e4d53a8ded2d9db85bff53e4fc14931c12371304d5819"
+    },
+    {
+      "bytes": 343,
+      "path": "preflight/graph-layout.json",
+      "sha256": "79a30c90383fc7f0b963fcbcc70b706696432539c808cde309c39267a775106d"
+    },
+    {
+      "bytes": 59536,
+      "path": "preflight/graph_layout_check",
+      "sha256": "aba6cc70cb52adddf61b279646c9dedd994e23f0d822d9693d7e2f8571fd2905"
+    },
+    {
+      "bytes": 2720,
+      "path": "preflight/graph_layout_check.cpp",
+      "sha256": "dcef57e30fad32cad653da3931f7352ff072d6e324f0aa976072018c0dfdff58"
+    },
+    {
+      "bytes": 6482,
+      "path": "preflight/make_command.py",
+      "sha256": "6c878dabc5efdca83adb9467d121fb04dbfa926c297823b8ef163636d26bd627"
+    },
+    {
+      "bytes": 5734,
+      "path": "preflight/preflight_capacity.py",
+      "sha256": "af326bac639e54195c346091d84baca858902aa870565e0d7c627e13b808e120"
+    },
+    {
+      "bytes": 2597,
+      "path": "preflight/reader-cpu-tests.log",
+      "sha256": "38771b77cb154b706edb940bddc2d93a796004a178a83a7e19be396298f5b8c3"
+    },
+    {
+      "bytes": 0,
+      "path": "preflight/reader-python-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 308,
+      "path": "preflight/record-layout.log",
+      "sha256": "1355863f70300c70af42a7410fb538126a96fe889541c72b4db363e8a16c31fa"
+    },
+    {
+      "bytes": 38528,
+      "path": "preflight/record_layout",
+      "sha256": "c2a795ecbf3ef88945d7434ec510a54407a4ffdf484c46f161449b5ab9f2954a"
+    },
+    {
+      "bytes": 548,
+      "path": "preflight/record_layout.cpp",
+      "sha256": "b33e2a99f8f723e92c3f7ac71190704b82398ee8dde72435923c3eca438dce22"
+    },
+    {
+      "bytes": 5985,
+      "path": "preflight/seal_bindings.py",
+      "sha256": "d1478db0abd65b64ec0bdd04d84cfee62631c53ee29283a3b3b3efd1f2fd8fb5"
+    },
+    {
+      "bytes": 5972,
+      "path": "preflight/validate_plan.py",
+      "sha256": "ba8b8adcdfe45c43fc69e7ab3aa9b473b26903f87db62b16fa2b9e23dfc5d257"
+    },
+    {
+      "bytes": 4725,
+      "path": "run_native464.py",
+      "sha256": "40959521bd5029a246b790f6cb3fc303411a2e863f6c420d63585c571afe0ebd"
+    },
+    {
+      "bytes": 17389,
+      "path": "source151-regional-capture-bindings.json",
+      "sha256": "22ce94f66f2d067840538b30fba13115952da9f3d28a87966586e1c654f7dec9"
+    },
+    {
+      "bytes": 31668,
+      "path": "validator/read_regional_capture.py",
+      "sha256": "6c79c4a50e8826dd4595b6eeec35952d42099ba31e1708b14c4a20739db8925c"
+    },
+    {
+      "bytes": 31668,
+      "path": "validator/read_regional_capture_v1.py",
+      "sha256": "6c79c4a50e8826dd4595b6eeec35952d42099ba31e1708b14c4a20739db8925c"
+    },
+    {
+      "bytes": 10224,
+      "path": "validator/read_regional_capture_v2.py",
+      "sha256": "785a298456e67ebf111466a7f2f22a73656f3da7af6032e16f563ddc9cae1bec"
+    },
+    {
+      "bytes": 20251,
+      "path": "validator/test_reader_v1.py",
+      "sha256": "77c8c71cb88c58cc1c44410bc75b836b7b06ac36c756a91baafa7c40c3a1a44f"
+    },
+    {
+      "bytes": 3018,
+      "path": "validator/test_reader_v2.py",
+      "sha256": "36d7a960519a4e10545eaa91255809cabe0eaf59b6497d80e5fffef100e636a6"
+    }
+  ],
+  "limits": [
+    "82,441,544-byte readback upper bound under unchanged 96 MiB cap is preflight only",
+    "augmented RAP same-Newton admission is false because consumed restart cycle is not independently recorded",
+    "no solver, physical, or assembly qualification claimed"
+  ],
+  "native_executed": false,
+  "planned_case": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464",
+  "runner": {
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/run_native464.py",
+    "sha256": "40959521bd5029a246b790f6cb3fc303411a2e863f6c420d63585c571afe0ebd"
+  },
+  "schema": "numi.cardboard.native464-command-package.v1",
+  "source151_build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151",
+  "source151_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151",
+  "verdict": "READY_FOR_PARENT_TO_LAUNCH"
+}

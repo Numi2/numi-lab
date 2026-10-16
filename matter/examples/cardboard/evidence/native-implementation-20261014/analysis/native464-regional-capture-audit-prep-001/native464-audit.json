@@ -1,0 +1,8 @@
+{
+  "audit_only": true,
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464",
+  "error": "capture must identify exactly one selected environment, got []",
+  "error_type": "AuditError",
+  "schema": "numi.cardboard.native464_regional_capture_audit.v1",
+  "status": "incomplete_or_rejected"
+}

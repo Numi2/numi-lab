@@ -1,0 +1,57 @@
+{
+  "files": {
+    "assemble_source145.py": {
+      "bytes": 10074,
+      "sha256": "fecf15fc8d09183ee82e6238ef894b435a1d0122025890e3e5a3371d1a584132"
+    },
+    "base-inventory.json": {
+      "bytes": 354027,
+      "sha256": "64d596c4652aeddaab4cbcf944b76db6dad58e86cfefa8742ee4808b6ae4db04"
+    },
+    "build-command.json": {
+      "bytes": 517,
+      "sha256": "aba5d6709fcfdb2d82bf878996899160d126e1b7f479aacb3ae214eb5540a464"
+    },
+    "build-runner.log": {
+      "bytes": 136,
+      "sha256": "16db367e2c7fe584eebbbf6492fc26c9cbfb1825440b9974290272fbd5ce2a3c"
+    },
+    "clone.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "clone.stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "finalize_build_evidence.py": {
+      "bytes": 6067,
+      "sha256": "befc237d3888493a4a6e6761f1be671dedfb698e9fdb20932df30378cd8ac60e"
+    },
+    "integration.json": {
+      "bytes": 5257,
+      "sha256": "a9c4de356e06c12b2459a802c52d09574b8f6880e48de97435df03c71a3ef7fe"
+    },
+    "patch.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "patch.stdout.log": {
+      "bytes": 284,
+      "sha256": "21c5ed4be856a0b557910c17fa6c775d5a2c5d7a8539c017d7bd4ab6b08e8cbc"
+    },
+    "post-build.json": {
+      "bytes": 4115,
+      "sha256": "f4bb7114b512435b2d7fbe7124bfdf9952a296e6efa9f3e84e38b8dc98386a03"
+    },
+    "preflight.json": {
+      "bytes": 1106,
+      "sha256": "63acfae4ae7e9ba0cfd3f01d4a3a23a16ee2dbb8864ac02a6ce979ff6a4613f5"
+    },
+    "source145-inventory.json": {
+      "bytes": 354027,
+      "sha256": "fdf679b22bc692547a42158779331c0468c8ee5504da632590463a1c5e3f0897"
+    }
+  },
+  "schema": "numi.cardboard.source145_integration_manifest.v1"
+}

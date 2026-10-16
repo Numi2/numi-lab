@@ -1,0 +1,45 @@
+{
+  "schema": "numi.cardboard.source153_build.v1",
+  "started_at_utc": "2026-10-15T23:39:42.440459+00:00",
+  "available_before_clone": 1966317568,
+  "base": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149",
+  "target": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-153",
+  "base_manifest_sha256": "f98cbfc0aac642d0578d7f0efefb19c288632b73f7b5607b70e19a15e7963bb5",
+  "source_count": 787,
+  "configure_support_count": 1034,
+  "physical_or_native_probe_execution": false,
+  "changed_files": [
+    "frozen-source.json",
+    "matter/src/runtime.mm"
+  ],
+  "source_manifest_sha256": "fdba689d8390fff2a7e8974cd553de4d61dbab740cfe17ba4fe9cfb1abaf4a89",
+  "available_after_clone": 1961996288,
+  "command": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-153/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-153",
+    "--build-dir",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-153",
+    "--cmake-source-relative",
+    ".",
+    "--jobs",
+    "4",
+    "--target",
+    "numi-matter-cardboard-probe"
+  ],
+  "exit_code": 0,
+  "minimum_observed_available_bytes": 1890004992,
+  "space_abort": false,
+  "finished_at_utc": "2026-10-15T23:41:21.682371+00:00",
+  "source_build_sha256": "bb7b659edd342b315871b6e3a228f649ddc57f335d06bf723fbfa77c5a4084ef",
+  "artifacts_sha256": {
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-153/lib/libmetalrobo.dylib": "650435dc1f19252490adf97361b31f6196422bbf069c949d33465126765dd326",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-153/matter/numi-matter-cardboard-probe": "428fb6021ff80bb1cbe80bee7f894cdfdc857bbd36c8f0311cc03c9d13bed4a0",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-153/matter/shaders/NumiMatter.metallib": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-153/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-153/shaders/MetalRobo.metallib": "61a548c69e6ec9c5c95480d54dbcf2fd851744e2a5e799397c59960e2fb27334",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-153/shaders/MetalRoboHyperPolicy.metallib": "0229cfae6afd3f1c75244e6814dd542e07a0f2a8082a636b1a6038dfa2573cef",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-153/shaders/NumiNeuron.metallib": "e7243f197f9312ff28abefc6ffe5b17b3f52916175b445e65e026f760e42665a"
+  }
+}

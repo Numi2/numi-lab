@@ -1,0 +1,11 @@
+test_actual_consumed_view_not_claimed (test_results.Captured464CGLSTests) ... ok
+test_all_cases_run_full_bounded_cap_with_finite_outputs (test_results.Captured464CGLSTests) ... ok
+test_entrywise_gate_failure_is_retained (test_results.Captured464CGLSTests) ... ok
+test_measured_truncated_residual_ordering_is_data_bound (test_results.Captured464CGLSTests) ... ok
+test_source_map_actions_and_transpose_are_checked (test_results.Captured464CGLSTests) ... ok
+test_warning_control_keeps_finite_result (test_results.Captured464CGLSTests) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.000s
+
+OK

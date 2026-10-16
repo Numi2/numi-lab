@@ -1,0 +1,20 @@
+{
+  "schema": "numi.cardboard.extracted_selector_cpu_contract.v1",
+  "source_sha256": "69d012aeaeff6bf7ef45ede8817d9664aea21b756383fe46b38325c75c6ce743",
+  "harness_sha256": "12d5e0562b21d43fe4c17022f9f6a0237713bf71602f1706ef5e0cef03005b4c",
+  "compile": [
+    "/usr/bin/clang++",
+    "-std=c++17",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "/Users/home/cardboard-implementation-20261014/analysis/cgls-all-controls-selector-overlay-153-001/validation/extracted-selectors.cpp",
+    "-o",
+    "/Users/home/cardboard-implementation-20261014/analysis/cgls-all-controls-selector-overlay-153-001/validation/extracted-selectors"
+  ],
+  "compile_exit_code": 0,
+  "run_exit_code": 0,
+  "stdout": "selector_checks=44 passed\n",
+  "scope": "actual extracted source parser only; no native solve or physical qualification"
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.publication026_staged_source_check.v1",
+  "root_source149_hashes_verified": 787,
+  "staged_source_blobs_exact": [
+    "matter/src/runtime.mm",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/metal/base_cgls.metalinc"
+  ],
+  "staged_paths": 281,
+  "all_staged_paths_in_explicit_allowed_scope": true,
+  "source_and_milestone_whitespace_check_exit": 0,
+  "native_disabled_parity462": true,
+  "native_enabled463_failed_transaction_retained": true
+}

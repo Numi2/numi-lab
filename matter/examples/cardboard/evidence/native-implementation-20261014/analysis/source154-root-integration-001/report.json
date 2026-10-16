@@ -1,0 +1,19 @@
+{
+  "schema": "numi.cardboard.source154-root-integration.v1",
+  "integrated_at_utc": "2026-10-16T00:07:31.816715+00:00",
+  "parent_revision": "67ba06be7f48981dda142ea35eedd792d7cd2ca5",
+  "source_files_verified": 787,
+  "all_selected_root_source_hashes_equal_snapshot154": true,
+  "changed_source_paths": [
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_probe.mm"
+  ],
+  "source154_frozen_sha256": "a365fdf346743d45cd4a7e1c4796e718555709485627784b31d4d0833ba68876",
+  "source154_build_sha256": "bc6200b8fc6db68df0cd85a8d93b2a4ccb04978e16a3fe994a92110510484a22",
+  "native466_default64_parity_passed": true,
+  "native466_parity_report_sha256": "a94ba8c9fed80ad86ac87a7be2a0e15b192a959f455976e6c508ecf4084f39fb",
+  "new128_allcontrol_behavior": "native467 running from immutable154; outcome not claimed",
+  "operator_and_acceptance_thresholds": "unchanged",
+  "build_topology_limit": "Source154 built standalone matter with three artifacts; source153 root build passed before the two probe CLI/help edits. Native466 measures default numeric-policy complete-attempt parity across these build topologies. Root full-project rebuild of154 is not claimed.",
+  "scope": "Exact opt-in all-control selector routing and probe outer Newton ceiling128; no complete coupon or convergence claim."
+}

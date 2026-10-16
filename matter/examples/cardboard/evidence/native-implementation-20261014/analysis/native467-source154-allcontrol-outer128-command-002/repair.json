@@ -1,0 +1,314 @@
+{
+  "schema": "numi.cardboard.external-input-basename-repair.v1",
+  "created_at_utc": "2026-10-15T23:57:44.863449+00:00",
+  "prior_command": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-001/native-467-command.json",
+  "prior_command_sha256": "7e0ed8ab0335cac422f4812f7587f6fe471c55d50cd252f2dd060f53994ad567",
+  "command_sha256": "8578decb2ff5f33fcd14feb7c9c65fd7a10859e348b9204f66ffe3558ac711e1",
+  "inputs": [
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-runtime-review-140-001/manifest.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/000-manifest.json",
+      "sha256": "bb0f4b8f24d6f79bc7fcc8dab611d45c3291621e87bf7bee800a6cd28c95cdcb",
+      "bytes": 3953
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/native/base-cgls-mask-repair-check-447/receipt.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/001-receipt.json",
+      "sha256": "0f0674b66e58d302d93ea7817a8775bae6a90b2953d5a32599cfb8b4f3b43134",
+      "bytes": 1586
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native445-cgls-disabled-history-parity-001/report.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/002-report.json",
+      "sha256": "86294fcfbf6a7435f6d19d3c100058e87198e20990adaaea405bb5cc95479a6c",
+      "bytes": 4774
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-mask-repair-142-001/source-overlay.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/003-source-overlay.json",
+      "sha256": "1c461e0e0feb53b518b3199288b908ed536f4d1334346d9c8681544122658ba8",
+      "bytes": 3757
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native448-incomplete-io-incident-001/incident.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/004-incident.json",
+      "sha256": "4dd2c25224991670dd8dc325283037c4fab1f1a8e5339c01009fbec9910f4bfa",
+      "bytes": 2292
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/primary-cgls453-inputs-001/source143-independent-policy-review.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/005-source143-independent-policy-review.json",
+      "sha256": "4b06e22a80bc44910f98c4f82616e4effacf78c1cc1027f2e4d25a0c2d5dea4f",
+      "bytes": 6387
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/primary-cgls453-inputs-001/source143-policy-overlay-manifest.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/006-source143-policy-overlay-manifest.json",
+      "sha256": "ea4708b3a079cf4f156665fea7f0815bd2d2a767089ea4a63ea4d3d9da072d21",
+      "bytes": 2192
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/primary-cgls453-inputs-001/source143-host-parser-report.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/007-source143-host-parser-report.json",
+      "sha256": "3151a05e5e862a59eba3ddefbb6efb4b823efc57b78e9ef7c4039ae0294b026d",
+      "bytes": 1295
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/primary-cgls453-inputs-001/native450-root-adjudication.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/008-native450-root-adjudication.json",
+      "sha256": "7b6589d34e1fbc8507d040c251e65e58a340e520320a0312551585104cbf2d73",
+      "bytes": 7115
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/primary-cgls453-inputs-001/native450-baseline-receipt.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/009-native450-baseline-receipt.json",
+      "sha256": "958e07dc51d541c7e483d44403bdfa1ee6f6b8058d0025c50a2063f89f64b34c",
+      "bytes": 305
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/primary-cgls453-inputs-001/input-bindings.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/010-input-bindings.json",
+      "sha256": "e5a7ddd04c47c1e9a27b19307bfaf1225cf254033257bdcae79261c5b3bc8c1e",
+      "bytes": 1744
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/state-sidecar455-inputs-001/native453-observer-baseline-receipt.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/011-native453-observer-baseline-receipt.json",
+      "sha256": "6bf62bf387064b81b40bddedb30fe58483950ab4cd1e2b70b5cc46847339cbe7",
+      "bytes": 306
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/state-sidecar455-inputs-001/source144-state-capture-overlay-seal.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/012-source144-state-capture-overlay-seal.json",
+      "sha256": "ec27cdbfa38f62cce25a54ab35c38f0a687a99f4e24f6d74edb84ef662b44c77",
+      "bytes": 2238
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/state-sidecar455-inputs-001/source144-root-source-review.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/013-source144-root-source-review.json",
+      "sha256": "2319bc01813e4147604c4f21dd194645f6386de086dba97a8f858da006cac4f5",
+      "bytes": 865
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/state-sidecar455-inputs-001/bindings.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/014-bindings.json",
+      "sha256": "b05b182295fd290a8a79e4efbfe7ff654709c21171e367543fd949de1067db1f",
+      "bytes": 1070
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/post-release-default459-inputs-001/native455-default-phase-baseline-receipt.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/015-native455-default-phase-baseline-receipt.json",
+      "sha256": "0eea54025b2468593ba37e9d2d34cab3e5feded3d2084ef1fe173b8db12f55e6",
+      "bytes": 305
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/post-release-default459-inputs-001/source145-default-phase-integration-manifest.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/016-source145-default-phase-integration-manifest.json",
+      "sha256": "273b89ddff7211b8f3161c1ec7cb8b296e59cfdd1c608e7240b6bb02cc1486e0",
+      "bytes": 1883
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/post-release-default459-inputs-001/source145-default-phase-review-manifest.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/017-source145-default-phase-review-manifest.json",
+      "sha256": "1c3684fe2a78c0d55824f881d7f1aab4dc1f3da9e3ea9c4208bb13443bb44f91",
+      "bytes": 5360
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/post-release-default459-inputs-001/source145-default-phase-bindings.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/018-source145-default-phase-bindings.json",
+      "sha256": "5cd8fced4d0cb58fd7a2ecef0d3f40fea394a6022d64dbf4f363d61f80c710dd",
+      "bytes": 1119
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-source-overlay.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/019-149-source-overlay.json",
+      "sha256": "e158080398d47e1974e34ffcd71af5cd7e563d0fd08c4eb4e53482e7f9a94906",
+      "bytes": 4890
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-source-overlay.patch",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/020-149-source-overlay.patch",
+      "sha256": "e23ed54a067f2f2ad822d84172d21df225aa112e28307f0cbe6299a175da8a86",
+      "bytes": 31644
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-overlay-cpu-test-receipt.txt",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/021-149-overlay-cpu-test-receipt.txt",
+      "sha256": "e2f0f3de900a00125ca47c48980eea4093b9785911390380c8e385b68fd092f7",
+      "bytes": 1763
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-frozen-source.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/022-149-frozen-source.json",
+      "sha256": "f98cbfc0aac642d0578d7f0efefb19c288632b73f7b5607b70e19a15e7963bb5",
+      "bytes": 94220
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-integration-manifest.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/023-149-integration-manifest.json",
+      "sha256": "331015ee6223471d80ec7f960767392867941a043f3c330979522d9c55ac650c",
+      "bytes": 1883
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-integration-evidence.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/024-149-integration-evidence.json",
+      "sha256": "ceac1c5b826aafbf15624fd9bf26dee942c019b0b86c28e2aef6ff9eae1bc777",
+      "bytes": 5334
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-post-build.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/025-149-post-build.json",
+      "sha256": "703113f3ecc1c941bd6fe0fedc6500892df3a5489fa0c1bd2d9566a479e126e6",
+      "bytes": 3861
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-scope-review.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/026-149-scope-review.json",
+      "sha256": "ba9fbbaab66ef39fc6e83baad7c0a12983d07e705c622db08d3c2df630c25d2c",
+      "bytes": 3090
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-source-build-receipt.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/027-149-source-build-receipt.json",
+      "sha256": "62432124b2960344cf33fe4207e2987c0e28a53e46881dffc6ba4e103115a210",
+      "bytes": 96301
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-right-scale-checker-manifest.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/028-149-right-scale-checker-manifest.json",
+      "sha256": "3619c4e2b5b5208548f36562ffcb1373cdbca4e41971171294b6e1345d67fe0e",
+      "bytes": 4386
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/input149/149-right-scale-checker-build-only-receipt.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/029-149-right-scale-checker-build-only-receipt.json",
+      "sha256": "a69df23907240f7ad4b2e51baf3b15b4f6cc2c648c9d9e683baef48b66cfa4d2",
+      "bytes": 483
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/149-input-bindings.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/030-149-input-bindings.json",
+      "sha256": "823799808819cb8ef8c1f8b52e988fe3edeb91ab5557ea38445372094cb80e92",
+      "bytes": 4889
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/source154-newton-budget-integration-001/integration.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/031-integration.json",
+      "sha256": "3cd0fb1bbe4186611deac083922528f1fdb1aa484adbb00bb5e0511e6ca7e11d",
+      "bytes": 4144
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/source154-newton-budget-integration-001/source-overlay.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/032-source-overlay.json",
+      "sha256": "737362aaf49e10cd7d07f0535b11bc3bf9474236c6b8d7432d3dae5b50f6d58f",
+      "bytes": 1832
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/source154-newton-budget-integration-001/source-overlay.patch",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/033-source-overlay.patch",
+      "sha256": "1a0c077cb0199f56432e9551c76d46314c63a23be7e3493fccf4ee120161a4f7",
+      "bytes": 3700
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/source154-newton-budget-integration-001/host-validation.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/034-host-validation.json",
+      "sha256": "db09417f5272e00ed057e0ca637071b108b686b07ee2ef9310ab3c5865cc3318",
+      "bytes": 1564
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/source154-newton-budget-integration-001/scope-review.md",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/035-scope-review.md",
+      "sha256": "1aa1889106ae3773cb8abec09a75ba33eb0cddc1c57c16e5b2eb67ad693f0992",
+      "bytes": 2009
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/source154-newton-budget-integration-001/compile-only-128/manifest.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/036-manifest.json",
+      "sha256": "f21df542952135d3bbea4df74cb4b0e21273fd5f582f20d8346099e7f58155e5",
+      "bytes": 11772
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/source154-newton-budget-integration-001/compile-only-128/result.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/037-result.json",
+      "sha256": "518781ddfef801c7419f4cd11eefd468a3b27b289578647f4cf486a092bcf7ef",
+      "bytes": 563
+    },
+    {
+      "original": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/source-build.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/038-source-build.json",
+      "sha256": "bc6200b8fc6db68df0cd85a8d93b2a4ccb04978e16a3fe994a92110510484a22",
+      "bytes": 95598
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-audit-463-002/manifest.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/039-manifest.json",
+      "sha256": "77167a1d226ca29937a41560e198989878814794fe29c7e27f715928e68ed7cd",
+      "bytes": 4529
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-audit-463-002/report.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/040-report.json",
+      "sha256": "86ea8bbc951e564f7ddd811c98e8098bd853eb69bab9a14227da4d47daa875f3",
+      "bytes": 40103
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native462-463-right-scale-command-package-001/native-463-command.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/041-native-463-command.json",
+      "sha256": "82151f17d4f53e4c51f51ae8ec851bb99890bde85e511152047a191a2df1ab4c",
+      "bytes": 8400
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154/frozen-source.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/042-frozen-source.json",
+      "sha256": "a365fdf346743d45cd4a7e1c4796e718555709485627784b31d4d0833ba68876",
+      "bytes": 94012
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154/configure-support-source.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/043-configure-support-source.json",
+      "sha256": "7f6f2afa927ae0373fa8027597fade97174cb867415fb38640e4e01767cfe3f1",
+      "bytes": 148389
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native465-cgls-outer128-command-package-001/native-465-command.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/044-native-465-command.json",
+      "sha256": "ce55efbbee9fbeb1736c99907a5fd0af59da36dcfbb210e84554be16d730b5df",
+      "bytes": 10235
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native465-cgls-outer128-command-package-001/input-bindings.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/045-input-bindings.json",
+      "sha256": "c6abd6db6c1e25528934914f8f5c38000c9fc564808bac4b025d9f58de79cc06",
+      "bytes": 12872
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native465-cgls-outer128-command-package-001/preflight.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/046-preflight.json",
+      "sha256": "f1dbba1ea5f68166552f4bbd6b2b7edcafde7ddbc473e8fdef421cf8070d2c4e",
+      "bytes": 538
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native466-source154-default64-parity-command-001/native-466-command.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/047-native-466-command.json",
+      "sha256": "04d8c5e59e24794d9e5b7105ebcd5e1861845d2b24478e99d32bb9dfc5c66909",
+      "bytes": 10552
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native466-source154-default64-parity-command-001/preflight.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/inputs/048-preflight.json",
+      "sha256": "595dbe8b6109dd9010799e206a64cb60830470a886534610c8bb7ea85fc73682",
+      "bytes": 670
+    }
+  ],
+  "original_duplicate_basenames": {
+    "manifest.json": 3,
+    "report.json": 2,
+    "source-overlay.json": 2,
+    "input-bindings.json": 2,
+    "preflight.json": 2
+  },
+  "physical_arguments_changed": false,
+  "environment_changed": false,
+  "gpu_execution": "not started",
+  "reason": "Wrapper keys external inputs by basename. Original packages checked unique paths only. All aliases preserve input bytes."
+}

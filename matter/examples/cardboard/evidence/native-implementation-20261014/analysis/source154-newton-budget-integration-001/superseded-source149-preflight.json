@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.source154_rejected_base_preparation.v1",
+  "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-newton128-154-prep-from149-rejected",
+  "status": "rejected preparation; never built or run",
+  "reason": "Created before the source153-base correction. It is based on source149, so it cannot be the source154 used for the requested outer-128 experiment. Preserved without modification after renaming.",
+  "probe_sha256": "328e237da1f775f8cc04f6893c8e86323b524c7bb1ffe5831276b66c37b56297",
+  "frozen_source_json_sha256": "f98cbfc0aac642d0578d7f0efefb19c288632b73f7b5607b70e19a15e7963bb5",
+  "native_or_gpu_execution": "not launched"
+}

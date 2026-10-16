@@ -1,0 +1,10 @@
+{
+  "schema": "numi.cardboard.closed_input_compaction_selection.v1",
+  "cases": [
+    "cgls-regional-state-capture-464",
+    "cgls-newton128-default64-parity-466",
+    "cgls-complete-outer128-allcontrols-467"
+  ],
+  "source_compactor_sha256": "0d17e0b91bcb8e6fa25db1a09f216395e510c386da1906fefeb0c43312eec22a",
+  "policy": "Only duplicate input copies of terminal task-owned cases; complete archive restoration, SHA/mode/mtime and lsof gates before exact unlink; preserve all outputs, receipts, original snapshots/binaries and sole recovery archives. Native467 is terminal capacity SIGTERM, not timeout/nonlinear failure."
+}

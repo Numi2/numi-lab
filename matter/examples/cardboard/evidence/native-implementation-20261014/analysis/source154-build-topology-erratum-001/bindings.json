@@ -1,0 +1,47 @@
+{
+  "schema": "numi.cardboard.source154_build_topology_erratum.v1",
+  "source154": {
+    "integration_json": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source154-newton-budget-integration-001/integration.json",
+      "sha256": "3cd0fb1bbe4186611deac083922528f1fdb1aa484adbb00bb5e0511e6ca7e11d"
+    },
+    "build_command_json": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source154-newton-budget-integration-001/build-command.json",
+      "sha256": "7811911d338e3cc3ee634c3c4ca3d768411278742f9297103287baf255dea388"
+    },
+    "build_receipt": {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/source-build.json",
+      "sha256": "bc6200b8fc6db68df0cd85a8d93b2a4ccb04978e16a3fe994a92110510484a22"
+    },
+    "frozen_source_sha256": "a365fdf346743d45cd4a7e1c4796e718555709485627784b31d4d0833ba68876"
+  },
+  "source153": {
+    "build_receipt": {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-153/source-build.json",
+      "sha256": "bb7b659edd342b315871b6e3a228f649ddc57f335d06bf723fbfa77c5a4084ef"
+    },
+    "frozen_source_sha256": "fdba689d8390fff2a7e8974cd553de4d61dbab740cfe17ba4fe9cfb1abaf4a89"
+  },
+  "source149": {
+    "integration_json": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source149-right-block-cgls-integration-001/integration.json",
+      "sha256": "ceac1c5b826aafbf15624fd9bf26dee942c019b0b86c28e2aef6ff9eae1bc777"
+    },
+    "build_command_json": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source149-right-block-cgls-integration-001/build-command.json",
+      "sha256": "c9ded9b62268de6457b97a1fca435f5d07fab1dae06ac98de26eb531b777c895"
+    },
+    "build_receipt": {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/source-build.json",
+      "sha256": "62432124b2960344cf33fe4207e2987c0e28a53e46881dffc6ba4e103115a210"
+    }
+  },
+  "interpretation": {
+    "source154_cmake_source_relative": "matter",
+    "source154_artifact_count": 3,
+    "source149_cmake_source_relative": ".",
+    "source153_cmake_source": "snapshot root",
+    "source153_artifact_set_includes_libmetalrobo": true,
+    "native_simulation_launched": false
+  }
+}

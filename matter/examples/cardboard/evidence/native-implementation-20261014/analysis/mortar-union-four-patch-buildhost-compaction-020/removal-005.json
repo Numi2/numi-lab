@@ -1,0 +1,17 @@
+{
+  "archive": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-buildhost-compaction-020/archives/overlay-005-build-host.zip",
+  "archive_sha256": "bf663ccaf20b09724e010689e22413c8b6a45ef66b76e8259577b77b51fe13ae",
+  "pointer": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-overlay-005/build-host/RESTORE_FROM_COMPACTION.txt",
+  "preinventory_sha256": "b265202b417a6068a092cd69eedae35c7697a297372afccd281d4421db45a0bd",
+  "remaining_entries": [
+    ".",
+    "RESTORE_FROM_COMPACTION.txt"
+  ],
+  "removed_allocated_file_bytes": 168443904,
+  "removed_directories": 615,
+  "removed_logical_file_bytes": 159519484,
+  "removed_regular_files": 2764,
+  "schema": "numi.cardboard.buildhost-removal-receipt.v1",
+  "target": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-overlay-005/build-host",
+  "target_key": "005"
+}

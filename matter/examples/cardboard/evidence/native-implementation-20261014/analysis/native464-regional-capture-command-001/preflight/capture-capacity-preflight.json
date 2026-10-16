@@ -1,0 +1,426 @@
+{
+  "additional_capture_scratch": {
+    "cgls_snapshot_bytes": 494048,
+    "right_scale_included": true,
+    "trace_bytes": 40
+  },
+  "admission": "planned checked upper bound; actual native capture must report complete and pass runtime cap; this is not a runtime or physical qualification",
+  "aggregate_cap_bytes": 100663296,
+  "aggregate_fits_96MiB": true,
+  "aggregate_readback_bytes": 82441544,
+  "arrays": {
+    "regional": [
+      {
+        "bytes": 366912,
+        "count": 22932,
+        "element_bytes": 16,
+        "name": "P",
+        "offset": 0
+      },
+      {
+        "bytes": 762048,
+        "count": 47628,
+        "element_bytes": 16,
+        "name": "effective_P",
+        "offset": 366912
+      },
+      {
+        "bytes": 762048,
+        "count": 47628,
+        "element_bytes": 16,
+        "name": "AP",
+        "offset": 1128960
+      },
+      {
+        "bytes": 5408,
+        "count": 1352,
+        "element_bytes": 4,
+        "name": "base_RAP_lu",
+        "offset": 1891008
+      },
+      {
+        "bytes": 208,
+        "count": 52,
+        "element_bytes": 4,
+        "name": "base_RAP_pivots",
+        "offset": 1896416
+      },
+      {
+        "bytes": 8,
+        "count": 2,
+        "element_bytes": 4,
+        "name": "base_RAP_valid",
+        "offset": 1896624
+      },
+      {
+        "bytes": 208,
+        "count": 52,
+        "element_bytes": 4,
+        "name": "base_coarse_rhs",
+        "offset": 1896640
+      },
+      {
+        "bytes": 208,
+        "count": 52,
+        "element_bytes": 4,
+        "name": "base_coarse_coefficients",
+        "offset": 1896848
+      },
+      {
+        "bytes": 5832,
+        "count": 1458,
+        "element_bytes": 4,
+        "name": "augmented_RAP_lu",
+        "offset": 1897056
+      },
+      {
+        "bytes": 216,
+        "count": 54,
+        "element_bytes": 4,
+        "name": "augmented_RAP_pivots",
+        "offset": 1902896
+      },
+      {
+        "bytes": 8,
+        "count": 2,
+        "element_bytes": 4,
+        "name": "augmented_RAP_valid",
+        "offset": 1903120
+      },
+      {
+        "bytes": 216,
+        "count": 54,
+        "element_bytes": 4,
+        "name": "augmented_coarse_rhs",
+        "offset": 1903136
+      },
+      {
+        "bytes": 216,
+        "count": 54,
+        "element_bytes": 4,
+        "name": "augmented_coarse_coefficients",
+        "offset": 1903360
+      },
+      {
+        "bytes": 32,
+        "count": 2,
+        "element_bytes": 16,
+        "name": "restart_generation",
+        "offset": 1903584
+      },
+      {
+        "bytes": 8,
+        "count": 2,
+        "element_bytes": 4,
+        "name": "restart_mode_valid",
+        "offset": 1903616
+      },
+      {
+        "bytes": 8,
+        "count": 2,
+        "element_bytes": 4,
+        "name": "restart_tail_preserved",
+        "offset": 1903632
+      },
+      {
+        "bytes": 8,
+        "count": 2,
+        "element_bytes": 4,
+        "name": "restart_target_scale",
+        "offset": 1903648
+      },
+      {
+        "bytes": 8,
+        "count": 2,
+        "element_bytes": 4,
+        "name": "restart_raw_norm_squared",
+        "offset": 1903664
+      },
+      {
+        "bytes": 8,
+        "count": 2,
+        "element_bytes": 4,
+        "name": "restart_mode_scale",
+        "offset": 1903680
+      },
+      {
+        "bytes": 432,
+        "count": 27,
+        "element_bytes": 16,
+        "name": "graph_patches",
+        "offset": 1903696
+      },
+      {
+        "bytes": 8356,
+        "count": 2089,
+        "element_bytes": 4,
+        "name": "graph_patch_nodes",
+        "offset": 1904128
+      },
+      {
+        "bytes": 100272,
+        "count": 6267,
+        "element_bytes": 16,
+        "name": "graph_rows",
+        "offset": 1912496
+      },
+      {
+        "bytes": 3532,
+        "count": 883,
+        "element_bytes": 4,
+        "name": "graph_node_patch_offsets",
+        "offset": 2012768
+      },
+      {
+        "bytes": 8356,
+        "count": 2089,
+        "element_bytes": 4,
+        "name": "graph_node_patch_values",
+        "offset": 2016304
+      },
+      {
+        "bytes": 3528,
+        "count": 882,
+        "element_bytes": 4,
+        "name": "graph_node_coverage",
+        "offset": 2024672
+      },
+      {
+        "bytes": 37770696,
+        "count": 9442674,
+        "element_bytes": 4,
+        "name": "graph_original_matrices",
+        "offset": 2028208
+      },
+      {
+        "bytes": 37770696,
+        "count": 9442674,
+        "element_bytes": 4,
+        "name": "graph_patch_lu",
+        "offset": 39798912
+      },
+      {
+        "bytes": 50136,
+        "count": 12534,
+        "element_bytes": 4,
+        "name": "graph_pivots",
+        "offset": 77569616
+      },
+      {
+        "bytes": 216,
+        "count": 54,
+        "element_bytes": 4,
+        "name": "graph_factor_valid",
+        "offset": 77619760
+      },
+      {
+        "bytes": 8,
+        "count": 2,
+        "element_bytes": 4,
+        "name": "primary_policy_selected_environment",
+        "offset": 77619984
+      }
+    ],
+    "regional_max_count": 30,
+    "regional_payload_bytes": 77619992,
+    "state": [
+      {
+        "bytes": 141120,
+        "count": 1764,
+        "element_bytes": 80,
+        "name": "accepted_nodes",
+        "offset": 0
+      },
+      {
+        "bytes": 141120,
+        "count": 1764,
+        "element_bytes": 80,
+        "name": "candidate_nodes",
+        "offset": 141120
+      },
+      {
+        "bytes": 368640,
+        "count": 3840,
+        "element_bytes": 96,
+        "name": "accepted_tetrahedra",
+        "offset": 282240
+      },
+      {
+        "bytes": 368640,
+        "count": 3840,
+        "element_bytes": 96,
+        "name": "candidate_tetrahedra",
+        "offset": 650880
+      },
+      {
+        "bytes": 230400,
+        "count": 57600,
+        "element_bytes": 4,
+        "name": "accepted_material_history",
+        "offset": 1019520
+      },
+      {
+        "bytes": 230400,
+        "count": 57600,
+        "element_bytes": 4,
+        "name": "candidate_material_state_buffer",
+        "offset": 1249920
+      },
+      {
+        "bytes": 176,
+        "count": 1,
+        "element_bytes": 176,
+        "name": "objects",
+        "offset": 1480320
+      },
+      {
+        "bytes": 480,
+        "count": 3,
+        "element_bytes": 160,
+        "name": "materials",
+        "offset": 1480496
+      },
+      {
+        "bytes": 13872,
+        "count": 867,
+        "element_bytes": 16,
+        "name": "scalar_programs",
+        "offset": 1480976
+      },
+      {
+        "bytes": 1458816,
+        "count": 45588,
+        "element_bytes": 32,
+        "name": "expression_instructions",
+        "offset": 1494848
+      },
+      {
+        "bytes": 472,
+        "count": 118,
+        "element_bytes": 4,
+        "name": "environment_parameters",
+        "offset": 2953664
+      },
+      {
+        "bytes": 160,
+        "count": 2,
+        "element_bytes": 80,
+        "name": "schedulers",
+        "offset": 2954144
+      },
+      {
+        "bytes": 320,
+        "count": 2,
+        "element_bytes": 160,
+        "name": "adaptive_state",
+        "offset": 2954304
+      },
+      {
+        "bytes": 56448,
+        "count": 3528,
+        "element_bytes": 16,
+        "name": "original_newton_correction",
+        "offset": 2954624
+      },
+      {
+        "bytes": 56448,
+        "count": 3528,
+        "element_bytes": 16,
+        "name": "base_residual_rhs",
+        "offset": 3011072
+      },
+      {
+        "bytes": 1244160,
+        "count": 311040,
+        "element_bytes": 4,
+        "name": "algorithmic_tangent_cache",
+        "offset": 3067520
+      },
+      {
+        "bytes": 15360,
+        "count": 3840,
+        "element_bytes": 4,
+        "name": "algorithmic_tangent_cache_valid",
+        "offset": 4311680
+      },
+      {
+        "bytes": 64,
+        "count": 2,
+        "element_bytes": 32,
+        "name": "fgmres_state",
+        "offset": 4327040
+      },
+      {
+        "bytes": 96,
+        "count": 1,
+        "element_bytes": 96,
+        "name": "mixed_solver",
+        "offset": 4327104
+      },
+      {
+        "bytes": 32,
+        "count": 2,
+        "element_bytes": 16,
+        "name": "armijo_metrics",
+        "offset": 4327200
+      },
+      {
+        "bytes": 96,
+        "count": 2,
+        "element_bytes": 48,
+        "name": "armijo_statuses",
+        "offset": 4327232
+      },
+      {
+        "bytes": 96,
+        "count": 2,
+        "element_bytes": 48,
+        "name": "production_statuses",
+        "offset": 4327328
+      },
+      {
+        "bytes": 32,
+        "count": 2,
+        "element_bytes": 16,
+        "name": "fem_line_search",
+        "offset": 4327424
+      },
+      {
+        "bytes": 8,
+        "count": 2,
+        "element_bytes": 4,
+        "name": "environment_line_search",
+        "offset": 4327456
+      }
+    ],
+    "state_count": 24,
+    "state_payload_bytes": 4327464
+  },
+  "compiled_package_sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+  "graph_layout": {
+    "device_bytes": 75783068,
+    "dof_count": 6267,
+    "environment_count": 2,
+    "fixed_nodes": 36,
+    "free_nodes": 846,
+    "layout_checksum_fnv1a32": 1292406985,
+    "matrix_float_count": 4721337,
+    "metadata_bytes": 124476,
+    "node_count": 882,
+    "patch_count": 27,
+    "patch_node_count": 2089,
+    "pivot_count": 6267,
+    "schema": "numi.cardboard.graph-layout-preflight.v1",
+    "tetrahedron_count": 1920
+  },
+  "regional_augmentation_expected": {
+    "augmented_modes": 27,
+    "base_modes": 26,
+    "cycle_currentness": "unadmitted by reader v2: raw tag cycle records producer cycle c; consumer uses c+1, and capture has no independent consumed-cycle value",
+    "enabled": true,
+    "mode_stride": 27
+  },
+  "schema": "numi.cardboard.native464.capture-preflight.v1",
+  "source151_expected_roles": "environment 0 active/eligible, environment 1 quiet per corrected 463 audit; actual 464 capture must validate selection/health words and must not rely on this expectation alone",
+  "source_snapshot": "source-cgls-regional-state-capture-151"
+}

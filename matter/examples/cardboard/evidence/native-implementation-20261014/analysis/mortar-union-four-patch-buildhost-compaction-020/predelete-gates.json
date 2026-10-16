@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.buildhost-predelete-gates.v1",
+  "targets": [
+    "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-overlay-004/build-host",
+    "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-overlay-005/build-host"
+  ],
+  "checks": {
+    "open_handles": "The removal script ran lsof +D on each exact target immediately before unlink and refused removal if any output was present.",
+    "content_and_metadata": "The removal script re-inventoried each complete tree immediately before deletion and matched all preinventory paths, hashes, sizes, modes, uid/gid, exact nanosecond mtimes, flags, link counts, and xattrs.",
+    "symlink_and_acl": "Both trees had no symlinks, unsupported file types, or ACL entries.",
+    "source_bindings": "Overlay manifests and manifest-bound outputs were rehashed before deletion; 004 executable was also hashed from the retained ZIP afterward.",
+    "scope": "Only the two named build-host directories were removed; each was left with its restore pointer. No overlay source, patch, manifest, log, active build, or native evidence was removed."
+  }
+}

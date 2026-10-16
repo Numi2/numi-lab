@@ -1,0 +1,11 @@
+{
+  "schema": "numi.cardboard.native-launch-capacity-guard.v1",
+  "started_at_utc": "2026-10-15T23:49:28.395808+00:00",
+  "command_sha256": "828f54f1b803a5e94984ead5b8d49f8954f11a58d8a35a8a9591645a23da2bb9",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464",
+  "available_before_launch": 1774174208,
+  "emergency_reserve_allocated_bytes": 134217728,
+  "abort_floor_bytes": 536870912,
+  "space_abort": false,
+  "native_child_process_groups_signalled": []
+}

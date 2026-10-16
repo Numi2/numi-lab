@@ -1,0 +1,27 @@
+{
+  "actual_selector5_payload_present": false,
+  "findings": [
+    "Copy-only bounded observer has no production state write path.",
+    "Augmented capture is not replay-admissible because consuming restart cycle is absent and reader ignores generation tag word 3.",
+    "Graph hashes are syntactically checked but not recomputed against source topology/free-mask inputs; graph pivot permutations and all graph matrix/LU finiteness are not validated.",
+    "No actual selector5 same-generation capture exists; retain selector5 UNSUPPORTED despite schema coverage."
+  ],
+  "native_arbitrary_vector_output_present": false,
+  "overlay": "base-cgls-regional-state-capture-overlay-151-001",
+  "overlay_manifest_sha256": "c2dd66dfdb1d9d1400825f68aa7b27cd0f87b58358c3e47e36a51625659a4db3",
+  "reader_contract_tests": "17/17 PASS (rerun with PYTHONDONTWRITEBYTECODE=1)",
+  "reader_sha256": "6c79c4a50e8826dd4595b6eeec35952d42099ba31e1708b14c4a20739db8925c",
+  "reader_tests_sha256": "77c8c71cb88c58cc1c44410bc75b836b7b06ac36c756a91baafa7c40c3a1a44f",
+  "report_sha256": "721fb834c65abf37369c7ca20f5983f909f525334d082019501c4f204ed639bf",
+  "schema": "numi.cardboard.source151_independent_review.v1",
+  "selector5_reference_package": "/Users/home/cardboard-implementation-20261014/analysis/regional-rap-transpose-reference-149-001",
+  "source149_contract_sha256": "2e34cfedac5e9d988ec999f8537f26c3f63d0b6dd50bc4a631f98e54e8da16eb",
+  "source149_cpu_result": "7/7 tests PASS; source contract matches three runtime/kernel hashes",
+  "source149_reference_sha256": "40ab7f04c5e4fec0c9f574ad533e1d59bbfb3b8037d1815f306c1c14fd292728",
+  "source149_report_sha256": "8892689b4315724c48d58719bb9e5de59820c129dd149fba00512c86ce03c052",
+  "source151_build_receipt_sha256": "50d19ae10c7dd405b0c0ee76dec3bf4313df5560526703fecdf3748b1b4d7184",
+  "source151_runtime_sha256": "1c0d2fd0d376ecc5e7ea9007ab6cc67a77fbd19bbba9f3b22fcbeca4c5c06a08",
+  "source_edits": false,
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151",
+  "source_snapshot_frozen_manifest_sha256": "bb8910da55f41bd821f41b0b036d1719af383b55a1e745489b516fe26270c370"
+}

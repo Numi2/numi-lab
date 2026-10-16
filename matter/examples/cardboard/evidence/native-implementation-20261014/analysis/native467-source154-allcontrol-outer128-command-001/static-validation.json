@@ -1,0 +1,38 @@
+{
+  "schema": "numi.cardboard.native466_467_static_preflight.v1",
+  "status": "pass",
+  "runner_invoked": false,
+  "native_or_gpu_execution": "not launched",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154",
+  "source_frozen_sha256": "a365fdf346743d45cd4a7e1c4796e718555709485627784b31d4d0833ba68876",
+  "source_build_receipt_sha256": "bc6200b8fc6db68df0cd85a8d93b2a4ccb04978e16a3fe994a92110510484a22",
+  "probe_sha256": "d9d6d24da3467b4616a75a65e6cbbe9c28b1c20bc348576d8e58ae81b3864c65",
+  "metallib_sha256": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114",
+  "466": {
+    "command_sha256": "04d8c5e59e24794d9e5b7105ebcd5e1861845d2b24478e99d32bb9dfc5c66909",
+    "numeric_selectors_exactly_match463_after_path_rebinding": true,
+    "outer_newton": "64"
+  },
+  "467": {
+    "command_sha256": "7e0ed8ab0335cac422f4812f7587f6fe471c55d50cd252f2dd060f53994ad567",
+    "all_control_selectors": {
+      "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR": "all:all",
+      "NM_FEM_TRUE_RESIDUAL_ROOT": "all",
+      "NM_FEM_RESIDUAL_ARMIJO_ROOT": "all"
+    },
+    "forbidden_singleton_capture_keys_absent": true,
+    "post_release_relax_steps": 3,
+    "timeout_seconds": 14400
+  },
+  "live_disk_preflight": {
+    "available_bytes": 1703378944,
+    "required_bytes": 1610612736,
+    "passes": true,
+    "abort_below_bytes": 536870912,
+    "protected_reserve_bytes": 134217728
+  },
+  "input_files": {
+    "466": 47,
+    "467": 49
+  }
+}

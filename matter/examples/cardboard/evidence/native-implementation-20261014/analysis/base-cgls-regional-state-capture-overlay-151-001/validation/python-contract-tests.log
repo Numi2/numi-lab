@@ -1,0 +1,22 @@
+test_absolute_payload_path_rejected (__main__.RegionalCaptureReaderTests) ... ok
+test_augmented_generation_is_explicitly_joined (__main__.RegionalCaptureReaderTests) ... ok
+test_augmented_wrong_generation_not_admitted (__main__.RegionalCaptureReaderTests) ... ok
+test_block_regional_apply_missing_inverse_rows_rejected (__main__.RegionalCaptureReaderTests) ... ok
+test_block_regional_apply_requires_diagonal_ranges_and_inverse_rows (__main__.RegionalCaptureReaderTests) ... ok
+test_duplicate_json_key_rejected (__main__.RegionalCaptureReaderTests) ... ok
+test_linearization_generation_mismatch_rejected (__main__.RegionalCaptureReaderTests) ... ok
+test_missing_full_state_identity_rejected (__main__.RegionalCaptureReaderTests) ... ok
+test_node_record_abi_width_is_checked (__main__.RegionalCaptureReaderTests) ... ok
+test_nonstandard_json_constant_rejected (__main__.RegionalCaptureReaderTests) ... ok
+test_overlapping_array_extent_rejected (__main__.RegionalCaptureReaderTests) ... ok
+test_payload_corruption_rejected (__main__.RegionalCaptureReaderTests) ... ok
+test_primary_selection_words_are_required_only_when_selected (__main__.RegionalCaptureReaderTests) ... ok
+test_selector5_graph_structure_is_checked (__main__.RegionalCaptureReaderTests) ... ok
+test_selector5_inconsistent_row_map_rejected (__main__.RegionalCaptureReaderTests) ... ok
+test_state_identity_mismatch_rejected (__main__.RegionalCaptureReaderTests) ... ok
+test_valid_minimal_join (__main__.RegionalCaptureReaderTests) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.016s
+
+OK

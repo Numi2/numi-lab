@@ -1,0 +1,17 @@
+{
+  "schema": "numi.cardboard.native467_preflight.v1",
+  "status": "prepared_only_conditional_parent_dispatch",
+  "command_sha256": "7e0ed8ab0335cac422f4812f7587f6fe471c55d50cd252f2dd060f53994ad567",
+  "input_file_count": 49,
+  "all_input_files_present": true,
+  "current_free_bytes_at_preparation": 1708281856,
+  "disk_policy": {
+    "dispatch_preflight_minimum_free_bytes": 1610612736,
+    "runtime_abort_below_free_bytes": 536870912,
+    "protected_reserve_bytes": 134217728,
+    "meets_dispatch_preflight_now": true
+  },
+  "gpu_policy": "one serialized GPU worker; parent owns GPU execution",
+  "timeout_seconds": 14400,
+  "native_or_gpu_execution": "not launched"
+}

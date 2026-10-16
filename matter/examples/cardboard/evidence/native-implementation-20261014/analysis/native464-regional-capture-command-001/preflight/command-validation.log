@@ -1,0 +1,39 @@
+{
+  "schema": "numi.cardboard.native464.command-preflight.v1",
+  "native_executed": false,
+  "source_build_success": true,
+  "source_sha256_entries_checked": 789,
+  "build_artifacts_checked": 7,
+  "run_argv_physics_solver_match_source462_after_path_normalization": true,
+  "removed_only_incompatible_observer_envs": [
+    "NM_FEM_COUPLED_CAPTURE_PATH",
+    "NM_FEM_COUPLED_CAPTURE_SELECTOR"
+  ],
+  "added_only_regional_observer_env": [
+    "NM_FEM_BASE_CGLS_STATE_CAPTURE_REGIONAL"
+  ],
+  "same_liner_material_bytes": true,
+  "same_medium_material_bytes": true,
+  "input_files_unique_regular": 54,
+  "source151_regional_state_capture_requested": true,
+  "selector5_graph_preflight": {
+    "schema": "numi.cardboard.graph-layout-preflight.v1",
+    "environment_count": 2,
+    "node_count": 882,
+    "tetrahedron_count": 1920,
+    "free_nodes": 846,
+    "fixed_nodes": 36,
+    "patch_count": 27,
+    "patch_node_count": 2089,
+    "dof_count": 6267,
+    "matrix_float_count": 4721337,
+    "pivot_count": 6267,
+    "metadata_bytes": 124476,
+    "device_bytes": 75783068,
+    "layout_checksum_fnv1a32": 1292406985
+  },
+  "aggregate_readback_upper_bound_bytes": 82441544,
+  "aggregate_cap_bytes": 100663296,
+  "case_path_unoccupied": true,
+  "verdict": "READY_FOR_PARENT_TO_LAUNCH; no native run or qualification claimed"
+}

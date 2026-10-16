@@ -1,0 +1,28 @@
+{
+  "build_preflight_sha256": "1718a60aa3fd629a2b18327e5e9e8d85ee6c5829e993d4c6d0dff059e71d67d8",
+  "candidate_runtime_sha256": "69d012aeaeff6bf7ef45ede8817d9664aea21b756383fe46b38325c75c6ce743",
+  "extracted_selector_binary_sha256": "fc089a26440f3f6351547eb15ff27db36f69a0c61fc5e68c05242f35134306e4",
+  "extracted_selector_cpp_sha256": "12d5e0562b21d43fe4c17022f9f6a0237713bf71602f1706ef5e0cef03005b4c",
+  "extracted_selector_harness_sha256": "9f6851210c4475c4fb9654adf3ef3525d6cfa1b6f69e66640f566762f8dd9b01",
+  "findings": [
+    "Exact all selectors preserve numeric parsing and route through existing capability/certificate gates.",
+    "all:all is fail-closed unless CGLS iteration budget and primary CGLS policy are present.",
+    "Singleton CGLS/state/regional capture paths collide under repeated all-control selection; omit these capture options or add per-control namespacing before use."
+  ],
+  "native_or_gpu_execution": false,
+  "patch_sha256": "6cc16a36c35a2b4d1055bfcf014e8665ecafec1fbdda554f9d98aa50fbcf4614",
+  "preparation_sha256": "41700f1d2ad2aa4649a2f455688207734e4b2c130abea8cd425201389658869b",
+  "report_sha256": "4e3b4e40c7ca4ecd86c15138d25e59301685cdff74d2db552efbd3db2ce6a4a6",
+  "schema": "numi.cardboard.source153_independent_review.v1",
+  "selector_cpu_result": "selector_checks=44 passed",
+  "selector_result_sha256": "c68e96908d817e1f93dd17119356d619a3790c3f22c5748c5617d6f132c5cba6",
+  "source149_runtime_sha256": "f859b1ee45390dd844fcbd883356b931ab71d2c36260f53a4b03600b04fb3959",
+  "source153_runtime_sha256": "69d012aeaeff6bf7ef45ede8817d9664aea21b756383fe46b38325c75c6ce743",
+  "source_build_receipt_sha256": "bb7b659edd342b315871b6e3a228f649ddc57f335d06bf723fbfa77c5a4084ef",
+  "source_build_success": true,
+  "source_build_targets": [
+    "numi-matter-cardboard-probe"
+  ],
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-153",
+  "source_snapshot_manifest_sha256": "fdba689d8390fff2a7e8974cd553de4d61dbab740cfe17ba4fe9cfb1abaf4a89"
+}

@@ -1,0 +1,1 @@
+External input basename repair only. Original001 packages remain intact. The466 runner refused its input preflight before creating a case or starting GPU work;467 was not launched. Every renamed input is byte-identical to its original and the protocol/environment are unchanged.

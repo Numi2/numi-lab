@@ -1,0 +1,157 @@
+{
+  "base": {
+    "configure_support_file_count": 1034,
+    "configure_support_sha256": "7f6f2afa927ae0373fa8027597fade97174cb867415fb38640e4e01767cfe3f1",
+    "frozen_source_sha256": "f98cbfc0aac642d0578d7f0efefb19c288632b73f7b5607b70e19a15e7963bb5",
+    "runtime_sha256": "f859b1ee45390dd844fcbd883356b931ab71d2c36260f53a4b03600b04fb3959",
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149",
+    "source_file_count": 787
+  },
+  "cpu_validation": {
+    "python_syntax": "PASS compile() without bytecode",
+    "reader_contract_tests": "PASS 17/17",
+    "source_bound_build": {
+      "artifact_sha256": {
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151/lib/libmetalrobo.dylib": "1ea48941c512986b0eadacbee086ef6158bb117932320852f0b1305a60bcf8af",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151/matter/numi-matter-cardboard-probe": "ff9add93b60d344b17fafa8d641fbea1c4b17e0ebe9d30ba2df9869f6c98481e",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151/matter/shaders/NumiMatter.metallib": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151/shaders/MetalRobo.metallib": "61a548c69e6ec9c5c95480d54dbcf2fd851744e2a5e799397c59960e2fb27334",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151/shaders/MetalRoboHyperPolicy.metallib": "0229cfae6afd3f1c75244e6814dd542e07a0f2a8082a636b1a6038dfa2573cef",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151/shaders/NumiNeuron.metallib": "e7243f197f9312ff28abefc6ffe5b17b3f52916175b445e65e026f760e42665a"
+      },
+      "build_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151",
+      "build_metadata_sha256": {
+        "CMakeCache.txt": "ee8bcf148bf239df8b9192268b8e14b81c7de2ecd27d73a7790a5fb85cddf59f",
+        "compile_commands.json": "6d811ad39fc1404b7548b1bb83aff173458c18c36892a59553d72de4f9aed563"
+      },
+      "changed_sources": [],
+      "commands": [
+        [
+          "cmake",
+          "-S",
+          "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151",
+          "-B",
+          "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+          "-DPython3_EXECUTABLE=/Users/home/.pyenv/versions/3.10.12/bin/python3"
+        ],
+        [
+          "cmake",
+          "--build",
+          "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151",
+          "--target",
+          "numi-matter-cardboard-probe",
+          "-j",
+          "4"
+        ]
+      ],
+      "receipt_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-151/source-build.json",
+      "receipt_sha256": "50d19ae10c7dd405b0c0ee76dec3bf4313df5560526703fecdf3748b1b4d7184",
+      "success": true,
+      "targets": [
+        "numi-matter-cardboard-probe"
+      ]
+    }
+  },
+  "file_inventory": {
+    "README.md": {
+      "bytes": 5420,
+      "role": "overlay scope, limitations, and validation",
+      "sha256": "5d987bdc61e3b232ea031875cb16779abfb245751bd2da1058978b60063b3ca4"
+    },
+    "candidate/matter/src/runtime.mm": {
+      "bytes": 1905656,
+      "role": "merged runtime candidate",
+      "sha256": "1c0d2fd0d376ecc5e7ea9007ab6cc67a77fbd19bbba9f3b22fcbeca4c5c06a08"
+    },
+    "candidate/tools/read_regional_capture.py": {
+      "bytes": 31668,
+      "role": "strict offline reader",
+      "sha256": "6c79c4a50e8826dd4595b6eeec35952d42099ba31e1708b14c4a20739db8925c"
+    },
+    "candidate/tools/test_read_regional_capture.py": {
+      "bytes": 20251,
+      "role": "synthetic CPU contract suite",
+      "sha256": "77c8c71cb88c58cc1c44410bc75b836b7b06ac36c756a91baafa7c40c3a1a44f"
+    },
+    "patch/runtime.patch": {
+      "bytes": 47594,
+      "role": "source149-relative runtime patch",
+      "sha256": "ab360988cea1ac482b43b22805fe7869527939a13a1ef311b8d2dbff4f7c2381"
+    },
+    "rebase/from149.patch": {
+      "bytes": 45785,
+      "role": "preserved historical rebase patch intermediate; not the sealed runtime patch",
+      "sha256": "250265031de3af1f1f63bc29dd2b1ee71705d41e91f5e25e23b9f78425cd0e98"
+    },
+    "rebase/runtime.mm": {
+      "bytes": 1903847,
+      "role": "preserved earlier rebase candidate intermediate; not the final candidate",
+      "sha256": "0fa7690f4ecc1a2b8bdca2df2a5144d4ca51007fad66f69ea5f94b28091fb2b2"
+    },
+    "tools/read_regional_capture.py": {
+      "bytes": 31668,
+      "role": "reader copy used by package-local test entry",
+      "sha256": "6c79c4a50e8826dd4595b6eeec35952d42099ba31e1708b14c4a20739db8925c"
+    },
+    "tools/test_read_regional_capture.py": {
+      "bytes": 20251,
+      "role": "test copy used by package-local package tools",
+      "sha256": "77c8c71cb88c58cc1c44410bc75b836b7b06ac36c756a91baafa7c40c3a1a44f"
+    },
+    "validation/patch-dry-run.log": {
+      "bytes": 144,
+      "role": "patch dry-run/apply and byte-comparison output",
+      "sha256": "ceea09283bc55b036fdba51cfa9e4eb8f7674bf375734103b37a79c99fb4e055"
+    },
+    "validation/python-contract-tests.log": {
+      "bytes": 1599,
+      "role": "17-test CPU reader contract output",
+      "sha256": "bffce557e2cc8d60ba856ab925fd453a8671dc43f9bb31168b824648962f9a25"
+    },
+    "validation/python-syntax-check.log": {
+      "bytes": 115,
+      "role": "Python compile() syntax check output",
+      "sha256": "559e96e8f088e96c9982273a6ccb1002ad5e1f1a42503aa10c541e041e758c30"
+    },
+    "validation/source-build-151.json": {
+      "bytes": 96520,
+      "role": "source-bound build receipt copied from build directory",
+      "sha256": "50d19ae10c7dd405b0c0ee76dec3bf4313df5560526703fecdf3748b1b4d7184"
+    },
+    "work/runtime.mm": {
+      "bytes": 1892922,
+      "role": "preserved pre-rebase source145 work intermediate",
+      "sha256": "acac121781879b1b9571386c44334db037f86faf9674059ec44352139af7f3db"
+    }
+  },
+  "limitations": {
+    "arbitrary_vector_native_regional_apply_output": false,
+    "native_or_gpu_run": false,
+    "physical_or_solver_qualification": false,
+    "projected_material_history_currentness": "unavailable_not_persisted",
+    "selector5_native_capture_available": false
+  },
+  "package": "base-cgls-regional-state-capture-overlay-151-001",
+  "patch": {
+    "dry_run_and_apply": "PASS; exact resulting runtime byte comparison passed",
+    "path": "patch/runtime.patch",
+    "sha256": "ab360988cea1ac482b43b22805fe7869527939a13a1ef311b8d2dbff4f7c2381"
+  },
+  "schema": "numi.cardboard.cgls_regional_state_capture_overlay.v1",
+  "source_candidate": {
+    "added_source_bindings": [
+      "matter/tools/read_regional_capture.py",
+      "matter/tools/test_read_regional_capture.py"
+    ],
+    "configure_support_file_count": 1034,
+    "configure_support_sha256": "7f6f2afa927ae0373fa8027597fade97174cb867415fb38640e4e01767cfe3f1",
+    "frozen_source_sha256": "bb8910da55f41bd821f41b0b036d1719af383b55a1e745489b516fe26270c370",
+    "inherited_source_bindings_verified": 787,
+    "runtime_sha256": "1c0d2fd0d376ecc5e7ea9007ab6cc67a77fbd19bbba9f3b22fcbeca4c5c06a08",
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151",
+    "source_file_count": 789
+  }
+}
