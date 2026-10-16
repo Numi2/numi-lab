@@ -323,12 +323,12 @@ void run() {
             "shipping estimate admitted required full-contact arenas beyond the native pair cap");
     require(requiredFullDefaultCapacityBudget.rigidContactPairDomainUpperBound ==
                 kShippingReferencePreparedNodes * observedProxyCount &&
-                requiredFullDefaultCapacityBudget.estimatedPeakDomainBytes >
-                    29'000'000'000ull &&
-                requiredFullDefaultCapacityBudget.estimatedPeakDomainBytes <
-                    31'000'000'000ull &&
+                requiredFullDefaultCapacityBudget.requiredFullContactArmijoBytes ==
+                    7'260'122'128ull &&
+                requiredFullDefaultCapacityBudget.estimatedPeakDomainBytes ==
+                    31'115'178'266ull &&
                 !requiredFullDefaultCapacityBudget.sparsePrivateContactRequested,
-            "dense default no longer uses the prepared-node pair upper bound or near-30-GB planning envelope");
+            "dense default changed its prepared-node pair domain or complete private arena inventory");
 
     ShippingPrebuildArenaOptions sparsePrebuildOptions = fullWorldOptions;
     sparsePrebuildOptions.requireFullContactResidualDescent = true;
@@ -654,6 +654,22 @@ void run() {
                 unaliasedSparseBudget.requiredCohesiveArmijoBytes > 0u &&
                 sparseBudget.requiredCohesiveArmijoBytes == 0u,
             "private scratch aliases incorrectly changed persistent arenas or were ignored");
+    // The former 480-byte slot model admitted this two-environment arena.
+    // Its per-candidate status records add 48 bytes per slot, putting the
+    // actual private allocation above the unchanged 128 MiB limit.
+    auto oversizedPrivateContact = sparseFullContact;
+    oversizedPrivateContact.environmentCount = 2u;
+    oversizedPrivateContact.deformableContactCapacity = 131072u;
+    const auto oversizedPrivateBudget =
+        estimateShippingMemoryBudget(oversizedPrivateContact);
+    require(oversizedPrivateBudget.requiredFullContactArmijoBytes ==
+                138416192u &&
+                !oversizedPrivateBudget.requiredResidualDescentArenaAdmitted,
+            "private candidate status storage was omitted from shipping admission");
+    oversizedPrivateContact.fullContactArmijoEnabled = true;
+    expectFailure([&] {
+        (void)estimateShippingMemoryBudget(oversizedPrivateContact);
+    }, "enabled private contact arena exceeded 128 MiB without rejection");
     auto noFreeBoxException = sparseFullContact;
     noFreeBoxException.sparsePrivateContactBoundedFreeBoxScope = false;
     const auto rejectedSparseFreeBody = estimateShippingMemoryBudget(noFreeBoxException);

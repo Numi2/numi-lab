@@ -1,0 +1,13 @@
+# Coupon diagnostic replay overlay 182-003
+
+This isolated overlay is based on immutable source 181. It carries forward the proof-report correction from sealed 182-002, adds a warning-clean default initializer for the proof settings vector, and adds lasting regression coverage to the existing coupon-resume CTest. It supersedes 182-002; earlier packages and the failed 182-002 build remain preserved.
+
+Diagnostic replay still requires the original and current source-bound runner records, unchanged checkpoint and protocol manifest, exact native source/device fingerprints, accepted-prefix proof, and the full effective-environment contract. It permits differences only in the five registered read-only selectors and seven registered output paths. A registered diagnostic path may transition between absent and set only after both source and current runner proofs validate. All other `NM_*` and `NUMI_MATTER_*` values remain exact, including timing settings.
+
+The report publishes current runner proof digests whenever the current proof was validated, even when the validated runner has no output paths. It also records explicit source and current proof modes. Tests cover validated no-path proofs, malformed and missing digests, both directions of explicitly permitted path-presence changes, rejection when source proof is missing, and rejection of diagnostic replay without an accepted checkpoint. The ordinary resume regression retains strict canonical runtime-setting equality; the replay-only comparison ignores only the registered observer selectors and output paths.
+
+The added `effectiveNativeSettings` vector has an explicit empty default so older six-field aggregate initializers remain warning-clean under the repository's `-Wmissing-field-initializers -Werror` settings. The patch changes three existing files: `matter/tools/cardboard_probe.mm`, `matter/tools/cardboard_coupon_resume.hpp`, and `matter/tools/cardboard_coupon_resume_check.cpp`. A standalone C++ contract test independently exercises the resume header.
+
+ObjC++ validation compiles the actual candidate probe in both CMake target configurations with `-fsyntax-only`. The fresh source-bound build also compiles the existing coupon-resume checker under repository warning settings and runs the targeted CTests and solver-environment contract test. No native checkpoint-resume replay was run. This overlay does not claim restored-trajectory parity or physical qualification.
+
+The manifest binds candidate/base hashes, patch, tests, validation scripts, and logs. It excludes only the manifest and its seal from its own inventory; the manifest SHA-256 is recorded in `validation/seal.txt` after all other files are frozen.

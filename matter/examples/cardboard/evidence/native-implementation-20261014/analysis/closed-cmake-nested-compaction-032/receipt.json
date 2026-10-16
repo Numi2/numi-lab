@@ -1,0 +1,6 @@
+{
+  "removed_files": 12,
+  "allocated_bytes": 224989184,
+  "archive": "macmini:/Users/n/cardboard-implementation-20261014-host-macmini/analysis/closed-cmake-nested-compaction-032",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused   ifree %iused  Mounted on\n/dev/disk3s5   482766932 434942032    302224   100% 4008746 3022240   57%   /System/Volumes/Data\n"
+}

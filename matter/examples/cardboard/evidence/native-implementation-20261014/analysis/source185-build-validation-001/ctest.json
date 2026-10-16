@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/ctest",
+    "--test-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source185-001",
+    "-R",
+    "^matter.compiler.cardboard_(shipping_memory|full_contact_scratch_budget|coupon_resume)$|^matter.cli.cardboard_argument_admission$|^matter.analysis.cardboard_compensated_fp64_reference$",
+    "--output-on-failure",
+    "-j",
+    "1"
+  ],
+  "returncode": 8,
+  "wall_seconds": 1.363877666182816,
+  "output_sha256": "dc230444022cf5bf6f157e380421d8dc6ceef6fcf095eee8ba2746446884ddf5"
+}

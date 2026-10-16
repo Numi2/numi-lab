@@ -1,0 +1,50 @@
+{
+  "schema": "numi.cardboard.coupon-diagnostic-replay-overlay-validation.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-admission-encoder-181",
+  "base_frozen_source_sha256": "f3ac253b7924dc4cb6ba1d5d9580ceea42150b5e49c6eee569e36b0e204fef7a",
+  "base_source_build_json_sha256": "d5ed1e058065435d7faeb48897681306907e61a7b9f765f3c131c38261e1c5be",
+  "base_compile_commands_sha256": "050008734269639ebd1b27163f4b4d5e7e099d56de42c73ad89abb25163a34af",
+  "base_file_sha256": {
+    "cardboard_coupon_resume.hpp": "bdb41b93688e924b950aebc68aea19e5cc0988f618430b3e0e38634d37e1d282",
+    "cardboard_probe.mm": "961d562a3961a1a4ab64cedaab0324674d81cabd8df8d6c8f870b2f35efdd3c1",
+    "cardboard_coupon_resume_check.cpp": "1497708f9a6d5b05131ca76eaaf05763fd557f9bc1825e58d46413dc6bd0fe49"
+  },
+  "candidate_file_sha256": {
+    "cardboard_coupon_resume.hpp": "c9b4a29736367e4afb524c8cbcf6ae304b87b779fdf10a81c519cd1184b436a9",
+    "cardboard_probe.mm": "4cf213c4a673b34fca924b03769cd9ea19f1cd9b084ecedaf58a0d351b4a4624",
+    "cardboard_coupon_resume_check.cpp": "51c08f828d8df1f2380dc95369b1d5d2e3e450ee9a8a4fcf055bfa6a7a3f7aef"
+  },
+  "patch_sha256": "74f43025ce969a5477e045911c06cee47311c3dbae929ea7f3fed4611a6b591d",
+  "contract_test_sha256": "6b6648f136528c1ef40eef43bcece6630279bb43a54489f9d5441590977d3f17",
+  "validation_script_sha256": "93ecbdcfa2212d365678d306a4e833c11471514e7dcd5b9a5eeb980e056a100c",
+  "host_bindings_sha256": "acf82f073fcdc4ac538c44df42b1b0362f036eb87cf5b28114b31c3cd4cc72ca",
+  "remote_syntax_runner_sha256": "d060dc69a3ab063f63becce3a3c3c7f41c054f5c7bae673de928e40c88525094",
+  "objcxx_syntax_log_sha256": "cd6b7aa877eb889a50174d2941adc73e9d55b26e6c87b11429b6531f1de16b3c",
+  "objcxx_syntax_targets": [
+    "default",
+    "box-native"
+  ],
+  "contract_test": {
+    "schema": "numi.cardboard.coupon-diagnostic-replay-validation.v1",
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I",
+      "/Users/home/cardboard-implementation-20261014/analysis/coupon-diagnostic-replay-overlay-182-003/candidate/matter/tools",
+      "/Users/home/cardboard-implementation-20261014/analysis/coupon-diagnostic-replay-overlay-182-003/tests/coupon_resume_contract_test.cpp",
+      "-o",
+      "/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/coupon-contract-182-_zut25ri/coupon_resume_contract_test"
+    ],
+    "compile_exit": 0,
+    "compile_output": "",
+    "run_exit": 0,
+    "run_output": "coupon diagnostic replay contract checks passed\n"
+  },
+  "source_registry_count": 51,
+  "source_registry_consistency": "PASS",
+  "patch_application": "PASS",
+  "native_resume_replay": "NOT_RUN"
+}

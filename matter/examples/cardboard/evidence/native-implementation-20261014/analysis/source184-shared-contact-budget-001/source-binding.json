@@ -1,0 +1,17 @@
+{
+  "schema": "numi.cardboard.source184-shared-budget.v1",
+  "parent_frozen_sha256": "c2e6e23be57d3245c490c7f10f4abee55271a4fe051db6a5ef313de2de798394",
+  "frozen_sha256": "405a37ff7af30dceb267c1126b257145e409842de8d61fcc0cc52e4018084f60",
+  "source_files_verified": 807,
+  "changed": {
+    "matter/CMakeLists.txt": "2575a4a269db5fcbb58a8c5124d99c6492897b59a6a457c56100d1e1eff235b9",
+    "matter/src/runtime.mm": "60bd26def9d1fde3cee4060a21b7d983e8fa817accf3f0dbd5c8bee8e194a2f6",
+    "matter/tools/cardboard_shipping_memory.hpp": "f2f1c451cc33764e9b7095d48242e5c441b0fe4931e41490cbbc31a0c99f294f",
+    "matter/tools/cardboard_shipping_memory_check.cpp": "4cea25161774e98438f9b694bacdae2cb3e244d72c9bc9315fc1f08f568d1bf6"
+  },
+  "added": {
+    "matter/include/numi/matter/detail/full_contact_armijo_scratch_budget.hpp": "b36e8e8f2a5fc414f479c631eb0f0bd7554a0492379b5b7acd23e85019f045da",
+    "matter/tools/cardboard_full_contact_armijo_scratch_budget_check.cpp": "41dcbfdd49c2f7861004239333031b120dc39a3e20aed4a158aba5eea7c14508"
+  },
+  "gpu_dispatch": false
+}

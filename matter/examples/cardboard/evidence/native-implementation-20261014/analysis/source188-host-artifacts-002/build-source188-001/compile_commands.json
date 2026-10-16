@@ -1,0 +1,704 @@
+[
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/matter.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/matter.cpp",
+  "output": "CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/language_impl.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/language_impl.cpp",
+  "output": "CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/constitutive_impl.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/constitutive_impl.cpp",
+  "output": "CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/compiler_impl.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/compiler_impl.cpp",
+  "output": "CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/vascular_impl.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/vascular_impl.cpp",
+  "output": "CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/fingerprint_impl.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/fingerprint_impl.cpp",
+  "output": "CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/validation_impl.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/validation_impl.cpp",
+  "output": "CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/package_impl.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/package_impl.cpp",
+  "output": "CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/surgical_tissue.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/surgical_tissue.cpp",
+  "output": "CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matterc.dir/tools/matterc.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/matterc.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/matterc.cpp",
+  "output": "CMakeFiles/numi-matterc.dir/tools/matterc.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++   -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-regional-graph-schwarz-layout-check.dir/tools/regional_graph_schwarz_layout_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/regional_graph_schwarz_layout_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/regional_graph_schwarz_layout_check.cpp",
+  "output": "CMakeFiles/numi-matter-regional-graph-schwarz-layout-check.dir/tools/regional_graph_schwarz_layout_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++   -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-regional-graph-completed-tail-check.dir/tools/regional_graph_completed_tail_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/regional_graph_completed_tail_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/regional_graph_completed_tail_check.cpp",
+  "output": "CMakeFiles/numi-matter-regional-graph-completed-tail-check.dir/tools/regional_graph_completed_tail_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++   -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-contact-node-incidence-sort-check.dir/tools/cardboard_contact_node_incidence_sort_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_contact_node_incidence_sort_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_contact_node_incidence_sort_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-contact-node-incidence-sort-check.dir/tools/cardboard_contact_node_incidence_sort_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-mortar-exact-tiling-check.dir/tools/mortar_exact_tiling_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/mortar_exact_tiling_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/mortar_exact_tiling_check.cpp",
+  "output": "CMakeFiles/numi-matter-mortar-exact-tiling-check.dir/tools/mortar_exact_tiling_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-regional-restart-augmentation-admission-check.dir/tools/regional_restart_augmentation_admission_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/regional_restart_augmentation_admission_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/regional_restart_augmentation_admission_check.cpp",
+  "output": "CMakeFiles/numi-matter-regional-restart-augmentation-admission-check.dir/tools/regional_restart_augmentation_admission_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-cohesive-armijo-tiles-check.dir/tools/cardboard_cohesive_armijo_tiles_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_cohesive_armijo_tiles_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_cohesive_armijo_tiles_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-cohesive-armijo-tiles-check.dir/tools/cardboard_cohesive_armijo_tiles_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++   -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-solver-replay.dir/tools/cardboard_solver_replay.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_solver_replay.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_solver_replay.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-solver-replay.dir/tools/cardboard_solver_replay.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-solver-pair-replay.dir/tools/cardboard_solver_pair_replay.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_solver_pair_replay.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_solver_pair_replay.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-solver-pair-replay.dir/tools/cardboard_solver_pair_replay.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-tooling-check.dir/tools/cardboard_tooling_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_tooling_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_tooling_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-tooling-check.dir/tools/cardboard_tooling_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-contact-candidate-domain-check.dir/tools/cardboard_contact_candidate_domain_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_contact_candidate_domain_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_contact_candidate_domain_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-contact-candidate-domain-check.dir/tools/cardboard_contact_candidate_domain_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-reaction-observables-check.dir/tools/cardboard_reaction_observables_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_reaction_observables_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_reaction_observables_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-reaction-observables-check.dir/tools/cardboard_reaction_observables_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-barrier-scale-check.dir/tools/cardboard_prescribed_barrier_scale_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_prescribed_barrier_scale_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_prescribed_barrier_scale_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-barrier-scale-check.dir/tools/cardboard_prescribed_barrier_scale_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++   -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-profile-check.dir/tools/cardboard_profile_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_profile_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_profile_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-profile-check.dir/tools/cardboard_profile_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++   -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-glue-mesh-check.dir/tools/cardboard_glue_mesh_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_glue_mesh_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_glue_mesh_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-glue-mesh-check.dir/tools/cardboard_glue_mesh_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++   -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-fracture-regularization-check.dir/tools/cardboard_fracture_regularization_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_fracture_regularization_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_fracture_regularization_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-fracture-regularization-check.dir/tools/cardboard_fracture_regularization_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++   -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-starch-interface-mesh-check.dir/tools/cardboard_starch_interface_mesh_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_starch_interface_mesh_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_starch_interface_mesh_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-starch-interface-mesh-check.dir/tools/cardboard_starch_interface_mesh_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++   -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-box-blank-check.dir/tools/cardboard_box_blank_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_box_blank_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_box_blank_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-box-blank-check.dir/tools/cardboard_box_blank_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-box-assembly-controller-check.dir/tools/cardboard_box_assembly_controller_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_box_assembly_controller_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_box_assembly_controller_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-box-assembly-controller-check.dir/tools/cardboard_box_assembly_controller_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-shipping-protocol-check.dir/tools/cardboard_shipping_protocol_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_shipping_protocol_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_shipping_protocol_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-shipping-protocol-check.dir/tools/cardboard_shipping_protocol_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-paper-material-check.dir/tools/cardboard_paper_material_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_paper_material_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_paper_material_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-paper-material-check.dir/tools/cardboard_paper_material_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-damage-builder-check.dir/tools/cardboard_damage_builder_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_damage_builder_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_damage_builder_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-damage-builder-check.dir/tools/cardboard_damage_builder_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-retained-matrix-damage-check.dir/tools/cardboard_retained_matrix_damage_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_retained_matrix_damage_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_retained_matrix_damage_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-retained-matrix-damage-check.dir/tools/cardboard_retained_matrix_damage_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -ffp-contract=off -fno-fast-math -o CMakeFiles/numi-matter-cardboard-compensated-deformation-check.dir/tools/cardboard_compensated_deformation_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_compensated_deformation_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_compensated_deformation_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-compensated-deformation-check.dir/tools/cardboard_compensated_deformation_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-fem-regional-galerkin-compiler-check.dir/tools/fem_regional_galerkin_compiler_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_regional_galerkin_compiler_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_regional_galerkin_compiler_check.cpp",
+  "output": "CMakeFiles/numi-matter-fem-regional-galerkin-compiler-check.dir/tools/fem_regional_galerkin_compiler_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -o CMakeFiles/numi-matter-fem-static-surface-map-check.dir/tools/fem_static_surface_map_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_static_surface_map_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_static_surface_map_check.cpp",
+  "output": "CMakeFiles/numi-matter-fem-static-surface-map-check.dir/tools/fem_static_surface_map_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -o CMakeFiles/numi-matter-cardboard-pin-adhesion-fixture-check.dir/tools/cardboard_pin_adhesion_fixture_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_pin_adhesion_fixture_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_pin_adhesion_fixture_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-pin-adhesion-fixture-check.dir/tools/cardboard_pin_adhesion_fixture_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-retained-damage-fp64-oracle-check.dir/tools/cardboard_retained_damage_fp64_oracle_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_retained_damage_fp64_oracle_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_retained_damage_fp64_oracle_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-retained-damage-fp64-oracle-check.dir/tools/cardboard_retained_damage_fp64_oracle_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-generic-compensated-projection-check.dir/tools/cardboard_generic_compensated_projection_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_generic_compensated_projection_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_generic_compensated_projection_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-generic-compensated-projection-check.dir/tools/cardboard_generic_compensated_projection_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-bilinear15-projection-policy-check.dir/tools/cardboard_bilinear15_projection_policy_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_bilinear15_projection_policy_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_bilinear15_projection_policy_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-bilinear15-projection-policy-check.dir/tools/cardboard_bilinear15_projection_policy_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-fixed-convex-contact-step-check.dir/tools/fixed_convex_contact_step_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fixed_convex_contact_step_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fixed_convex_contact_step_check.cpp",
+  "output": "CMakeFiles/numi-matter-fixed-convex-contact-step-check.dir/tools/fixed_convex_contact_step_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off -o CMakeFiles/numi-matter-cardboard-hill-scalar-return-map-check.dir/tools/cardboard_hill_scalar_return_map_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_hill_scalar_return_map_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_hill_scalar_return_map_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-hill-scalar-return-map-check.dir/tools/cardboard_hill_scalar_return_map_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -UNDEBUG -o CMakeFiles/numi-matter-cardboard-shipping-driver-check.dir/tools/cardboard_shipping_driver_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_shipping_driver_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_shipping_driver_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-shipping-driver-check.dir/tools/cardboard_shipping_driver_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -UNDEBUG -o CMakeFiles/numi-matter-cardboard-shipping-memory-check.dir/tools/cardboard_shipping_memory_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_shipping_memory_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_shipping_memory_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-shipping-memory-check.dir/tools/cardboard_shipping_memory_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -UNDEBUG -o CMakeFiles/numi-matter-cardboard-shipping-closure-mesh-check.dir/tools/cardboard_shipping_closure_mesh_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_shipping_closure_mesh_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_shipping_closure_mesh_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-shipping-closure-mesh-check.dir/tools/cardboard_shipping_closure_mesh_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -UNDEBUG -o CMakeFiles/numi-matter-cardboard-shipping-snapshot-check.dir/tools/cardboard_shipping_snapshot_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_shipping_snapshot_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_shipping_snapshot_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-shipping-snapshot-check.dir/tools/cardboard_shipping_snapshot_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -UNDEBUG -o CMakeFiles/numi-matter-cardboard-coupon-resume-check.dir/tools/cardboard_coupon_resume_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_coupon_resume_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_coupon_resume_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-coupon-resume-check.dir/tools/cardboard_coupon_resume_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -UNDEBUG -o CMakeFiles/numi-matter-cardboard-inside-clearance-check.dir/tools/cardboard_inside_clearance_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_inside_clearance_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_inside_clearance_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-inside-clearance-check.dir/tools/cardboard_inside_clearance_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -UNDEBUG -o CMakeFiles/numi-matter-cardboard-shipping-clearance-memory-check.dir/tools/cardboard_shipping_clearance_memory_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_shipping_clearance_memory_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_shipping_clearance_memory_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-shipping-clearance-memory-check.dir/tools/cardboard_shipping_clearance_memory_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -UNDEBUG -o CMakeFiles/numi-matter-cardboard-regional-consumer-capture-check.dir/tools/cardboard_regional_consumer_capture_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_regional_consumer_capture_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_regional_consumer_capture_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-regional-consumer-capture-check.dir/tools/cardboard_regional_consumer_capture_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++   -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-mixed-cohesive-check.dir/tools/cardboard_mixed_cohesive_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_mixed_cohesive_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_mixed_cohesive_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-mixed-cohesive-check.dir/tools/cardboard_mixed_cohesive_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++   -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-mixed-cohesive-frame-check.dir/tools/cardboard_mixed_cohesive_frame_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_mixed_cohesive_frame_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_mixed_cohesive_frame_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-mixed-cohesive-frame-check.dir/tools/cardboard_mixed_cohesive_frame_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-expression-cache-check.dir/tools/cardboard_expression_cache_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_expression_cache_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_expression_cache_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-expression-cache-check.dir/tools/cardboard_expression_cache_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++   -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-delamination-reference-check.dir/tools/cardboard_bleached_delamination_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_bleached_delamination_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_bleached_delamination_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-delamination-reference-check.dir/tools/cardboard_bleached_delamination_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -o CMakeFiles/numi-matter-cardboard-material-check.dir/tools/cardboard_material_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_material_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_material_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-material-check.dir/tools/cardboard_material_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardiac-material-check.dir/tools/cardiac_material_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardiac_material_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardiac_material_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardiac-material-check.dir/tools/cardiac_material_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-fem-material-frame-compiler-check.dir/tools/fem_material_frame_compiler_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_material_frame_compiler_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_material_frame_compiler_check.cpp",
+  "output": "CMakeFiles/numi-matter-fem-material-frame-compiler-check.dir/tools/fem_material_frame_compiler_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++ -DNUMI_MATTER_STATEFUL_MATERIAL=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/materials/damageable_silicone.nmatter\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-stateful-check.dir/tools/stateful_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/stateful_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/stateful_check.cpp",
+  "output": "CMakeFiles/numi-matter-stateful-check.dir/tools/stateful_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_DEFAULT_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/runtime.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/runtime.mm",
+  "output": "CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_DEFAULT_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/human_physiology.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/human_physiology.mm",
+  "output": "CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++ -DNUMI_MATTER_DEFAULT_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/metal_world.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/metal_world.cpp",
+  "output": "CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_DEFAULT_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/numi_human.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/src/numi_human.mm",
+  "output": "CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_WARM_START_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/CardboardWarmStartCheck.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-warm-start-check.dir/tools/cardboard_base_cgls_warm_start_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_base_cgls_warm_start_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_base_cgls_warm_start_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-warm-start-check.dir/tools/cardboard_base_cgls_warm_start_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-fem-static-surface-map-native-check.dir/tools/fem_static_surface_map_native_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_static_surface_map_native_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_static_surface_map_native_check.mm",
+  "output": "CMakeFiles/numi-matter-fem-static-surface-map-native-check.dir/tools/fem_static_surface_map_native_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-fgmres-true-residual-native-check.dir/tools/fgmres_true_residual_native_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fgmres_true_residual_native_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fgmres_true_residual_native_check.mm",
+  "output": "CMakeFiles/numi-matter-fgmres-true-residual-native-check.dir/tools/fgmres_true_residual_native_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-fem-kinematic-release-check.dir/tools/fem_kinematic_release_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_kinematic_release_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_kinematic_release_check.mm",
+  "output": "CMakeFiles/numi-matter-fem-kinematic-release-check.dir/tools/fem_kinematic_release_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-fem-mutable-snapshot-check.dir/tools/fem_mutable_snapshot_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_mutable_snapshot_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_mutable_snapshot_check.mm",
+  "output": "CMakeFiles/numi-matter-fem-mutable-snapshot-check.dir/tools/fem_mutable_snapshot_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-tooling-native-check.dir/tools/cardboard_tooling_native_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_tooling_native_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_tooling_native_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-tooling-native-check.dir/tools/cardboard_tooling_native_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-capsule-armijo-check.dir/tools/cardboard_capsule_armijo_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_capsule_armijo_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_capsule_armijo_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-capsule-armijo-check.dir/tools/cardboard_capsule_armijo_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-contact-ccd-native-check.dir/tools/cardboard_contact_ccd_native_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_contact_ccd_native_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_contact_ccd_native_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-contact-ccd-native-check.dir/tools/cardboard_contact_ccd_native_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-vtccd-budget-replay-check.dir/tools/cardboard_vtccd_iteration_budget_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_vtccd_iteration_budget_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_vtccd_iteration_budget_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-vtccd-budget-replay-check.dir/tools/cardboard_vtccd_iteration_budget_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-full-contact-scratch-budget-check.dir/tools/cardboard_full_contact_armijo_scratch_budget_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_full_contact_armijo_scratch_budget_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_full_contact_armijo_scratch_budget_check.cpp",
+  "output": "CMakeFiles/numi-matter-cardboard-full-contact-scratch-budget-check.dir/tools/cardboard_full_contact_armijo_scratch_budget_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-full-contact-armijo-check.dir/tools/cardboard_full_contact_armijo_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_full_contact_armijo_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_full_contact_armijo_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-full-contact-armijo-check.dir/tools/cardboard_full_contact_armijo_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-free-box-angular-native-check.dir/tools/cardboard_free_box_angular_native_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_free_box_angular_native_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_free_box_angular_native_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-free-box-angular-native-check.dir/tools/cardboard_free_box_angular_native_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-coupled-free-box-operator-check.dir/tools/cardboard_coupled_free_box_operator_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_coupled_free_box_operator_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_coupled_free_box_operator_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-coupled-free-box-operator-check.dir/tools/cardboard_coupled_free_box_operator_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-contact-node-incidence-sort-native-check.dir/tools/cardboard_contact_node_incidence_sort_native_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_contact_node_incidence_sort_native_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_contact_node_incidence_sort_native_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-contact-node-incidence-sort-native-check.dir/tools/cardboard_contact_node_incidence_sort_native_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-graph-lu-search-native-check.dir/tools/cardboard_graph_lu_search_native_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_graph_lu_search_native_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_graph_lu_search_native_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-graph-lu-search-native-check.dir/tools/cardboard_graph_lu_search_native_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_CARDBOARD_MATERIAL_DIR=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/materials\\\" -DNUMI_CARDBOARD_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_probe.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_probe.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_CARDBOARD_BOX_NATIVE_DRIVER=1 -DNUMI_CARDBOARD_MATERIAL_DIR=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/materials\\\" -DNUMI_CARDBOARD_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/numi-matter-cardboard-box-native-driver.dir/tools/cardboard_probe.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_probe.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_probe.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-box-native-driver.dir/tools/cardboard_probe.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/numi-matter-cardboard-gpu-check.dir/tools/cardboard_gpu_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_gpu_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_gpu_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-gpu-check.dir/tools/cardboard_gpu_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_HUMAN_RESPIRATION_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/HumanRespiration.metallib\\\" -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../../numi-brain/Sources/NumiBrainABI/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/numi-human-resting.dir/tools/human_resting.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/human_resting.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/human_resting.mm",
+  "output": "CMakeFiles/numi-human-resting.dir/tools/human_resting.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_HUMAN_RESPIRATION_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/HumanRespiration.metallib\\\" -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../../numi-brain/Sources/NumiBrainABI/include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/numi-human-gas-transport-fixture.dir/tools/human_resting_gas_transport_fixture.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/human_resting_gas_transport_fixture.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/human_resting_gas_transport_fixture.mm",
+  "output": "CMakeFiles/numi-human-gas-transport-fixture.dir/tools/human_resting_gas_transport_fixture.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_CARDBOARD_GEOMETRY_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/cardboard_contact_geometry_check.metallib\\\" -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-contact-geometry-check.dir/tools/cardboard_contact_geometry_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_contact_geometry_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_contact_geometry_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-contact-geometry-check.dir/tools/cardboard_contact_geometry_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_CARDBOARD_PAPER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/cardboard_paper_check.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-paper-gpu-check.dir/tools/cardboard_paper_gpu_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_paper_gpu_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_paper_gpu_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-paper-gpu-check.dir/tools/cardboard_paper_gpu_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_CARDBOARD_PAPER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/cardboard_paper_check.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-bilinear-paper-gpu-check.dir/tools/cardboard_bilinear_paper_gpu_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_bilinear_paper_gpu_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_bilinear_paper_gpu_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-bilinear-paper-gpu-check.dir/tools/cardboard_bilinear_paper_gpu_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_CARDBOARD_BASE_SNAPSHOT_SHA256=\\\"98fe026ee2007982e48f89547a435a2957db3978fb3730e008fdbb99d08f5704\\\" -DNUMI_CARDBOARD_PAPER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/cardboard_paper_check.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-bilinear15-captured-point-check.dir/tools/cardboard_bilinear15_captured_point_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_bilinear15_captured_point_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_bilinear15_captured_point_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-bilinear15-captured-point-check.dir/tools/cardboard_bilinear15_captured_point_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_CARDBOARD_PAPER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/cardboard_paper_check.metallib\\\" -DNUMI_CARDBOARD_SOURCE107_MANIFEST_SHA256=\\\"09ae737a09623ff15fc4b1d13f8a96cb14e5d87e0c245cb7b1deb70bcf145d97\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-source370-material-point-check.dir/tools/cardboard_source370_material_point_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_source370_material_point_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_source370_material_point_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-source370-material-point-check.dir/tools/cardboard_source370_material_point_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_CARDBOARD_BASE_SNAPSHOT_SHA256=\\\"769a5e34c1d919293cb263fd27fbd041a482d22016c2818eec41d44e47935752\\\" -DNUMI_CARDBOARD_PAPER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/cardboard_bilinear15_capture_diagnostic.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-bilinear15-capture-diagnostic-check.dir/tools/cardboard_bilinear15_capture_diagnostic_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-bilinear15-capture-diagnostic-check.dir/tools/cardboard_bilinear15_capture_diagnostic_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_CARDBOARD_PAPER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/cardboard_paper_check.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-asymmetric-c1-paper-gpu-check.dir/tools/cardboard_asymmetric_c1_paper_gpu_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_asymmetric_c1_paper_gpu_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_asymmetric_c1_paper_gpu_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-asymmetric-c1-paper-gpu-check.dir/tools/cardboard_asymmetric_c1_paper_gpu_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_CARDBOARD_BLEACHED_DELAMINATION_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/cardboard_bleached_delamination_check.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-delamination-gpu-check.dir/tools/cardboard_bleached_delamination_gpu_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_bleached_delamination_gpu_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_bleached_delamination_gpu_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-delamination-gpu-check.dir/tools/cardboard_bleached_delamination_gpu_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_CARDBOARD_EXPRESSION_CACHE_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/cardboard_expression_cache_check.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-expression-cache-gpu-check.dir/tools/cardboard_expression_cache_gpu_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_expression_cache_gpu_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_expression_cache_gpu_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-expression-cache-gpu-check.dir/tools/cardboard_expression_cache_gpu_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_CARDBOARD_BULK_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/cardboard_bleached_delamination_check.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-bulk-damage-gpu-check.dir/tools/cardboard_bulk_damage_gpu_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_bulk_damage_gpu_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_bulk_damage_gpu_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-bulk-damage-gpu-check.dir/tools/cardboard_bulk_damage_gpu_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_CARDBOARD_RETAINED_DAMAGE_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/cardboard_retained_matrix_damage_check.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-retained-matrix-damage-metal-check.dir/tools/cardboard_retained_matrix_damage_gpu_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_retained_matrix_damage_gpu_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_retained_matrix_damage_gpu_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-retained-matrix-damage-metal-check.dir/tools/cardboard_retained_matrix_damage_gpu_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-damage-cohesive-transaction-check.dir/tools/cardboard_damage_cohesive_transaction_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_damage_cohesive_transaction_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_damage_cohesive_transaction_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-damage-cohesive-transaction-check.dir/tools/cardboard_damage_cohesive_transaction_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-cohesive-face-check.dir/tools/cardboard_cohesive_face_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_cohesive_face_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_cohesive_face_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-cohesive-face-check.dir/tools/cardboard_cohesive_face_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-mixed-cohesive-face-check.dir/tools/cardboard_mixed_cohesive_face_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_mixed_cohesive_face_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_mixed_cohesive_face_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-mixed-cohesive-face-check.dir/tools/cardboard_mixed_cohesive_face_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_FIBER_CHECK_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/fiber_exp_linear_check.metallib\\\" -DNUMI_FIBER_SOURCE_MATERIAL=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/materials/open_knee_ligament_febio_exp_linear.nmatter\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-fiber-check.dir/tools/fiber_exp_linear_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fiber_exp_linear_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fiber_exp_linear_check.mm",
+  "output": "CMakeFiles/numi-matter-fiber-check.dir/tools/fiber_exp_linear_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_SHA256_CHECK_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/sha256_gpu_check.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-sha256-gpu-check.dir/tools/sha256_gpu_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/sha256_gpu_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/sha256_gpu_check.mm",
+  "output": "CMakeFiles/numi-matter-sha256-gpu-check.dir/tools/sha256_gpu_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_PHYSICAL_DIGEST_CHECK_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatterPhysicalStateDigest.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-physical-state-digest-gpu-check.dir/tools/physical_state_digest_gpu_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/physical_state_digest_gpu_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/physical_state_digest_gpu_check.mm",
+  "output": "CMakeFiles/numi-matter-physical-state-digest-gpu-check.dir/tools/physical_state_digest_gpu_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-vascular-compiler-check.dir/tools/vascular_compiler_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/vascular_compiler_check.cpp",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/vascular_compiler_check.cpp",
+  "output": "CMakeFiles/numi-matter-vascular-compiler-check.dir/tools/vascular_compiler_check.cpp.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-physiologyc.dir/tools/physiologyc.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/physiologyc.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/physiologyc.mm",
+  "output": "CMakeFiles/numi-matter-physiologyc.dir/tools/physiologyc.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_MATERIAL=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/materials/silicone.nmatter\\\" -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-vascular-check.dir/tools/vascular_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/vascular_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/vascular_check.mm",
+  "output": "CMakeFiles/numi-matter-vascular-check.dir/tools/vascular_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Werror -o CMakeFiles/numi-matter-cardiac-check.dir/tools/cardiac_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardiac_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardiac_check.mm",
+  "output": "CMakeFiles/numi-matter-cardiac-check.dir/tools/cardiac_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Werror -o CMakeFiles/numi-matter-cvsim-check.dir/tools/cvsim_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cvsim_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cvsim_check.mm",
+  "output": "CMakeFiles/numi-matter-cvsim-check.dir/tools/cvsim_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Werror -o CMakeFiles/numi-matter-cardiac-transaction-check.dir/tools/cardiac_transaction_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardiac_transaction_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardiac_transaction_check.mm",
+  "output": "CMakeFiles/numi-matter-cardiac-transaction-check.dir/tools/cardiac_transaction_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-fem-regional-galerkin-native-check.dir/tools/fem_regional_galerkin_native_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_regional_galerkin_native_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_regional_galerkin_native_check.mm",
+  "output": "CMakeFiles/numi-matter-fem-regional-galerkin-native-check.dir/tools/fem_regional_galerkin_native_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-fem-regional-material-check.dir/tools/fem_regional_material_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_regional_material_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_regional_material_check.mm",
+  "output": "CMakeFiles/numi-matter-fem-regional-material-check.dir/tools/fem_regional_material_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-fem-material-frame-check.dir/tools/fem_material_frame_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_material_frame_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_material_frame_check.mm",
+  "output": "CMakeFiles/numi-matter-fem-material-frame-check.dir/tools/fem_material_frame_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-vascular-human-binding-check.dir/tools/vascular_human_binding_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/vascular_human_binding_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/vascular_human_binding_check.mm",
+  "output": "CMakeFiles/numi-matter-vascular-human-binding-check.dir/tools/vascular_human_binding_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++  -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-vessel-registration-check.dir/tools/vessel_registration_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/vessel_registration_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/vessel_registration_check.mm",
+  "output": "CMakeFiles/numi-matter-vessel-registration-check.dir/tools/vessel_registration_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-vascular-cavity-check.dir/tools/vascular_cavity_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/vascular_cavity_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/vascular_cavity_check.mm",
+  "output": "CMakeFiles/numi-matter-vascular-cavity-check.dir/tools/vascular_cavity_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-preconditioner-gpu-check.dir/tools/cardboard_fgmres_preconditioner_gpu_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-preconditioner-gpu-check.dir/tools/cardboard_fgmres_preconditioner_gpu_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-fem-reference-check.dir/tools/fem_reference_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_reference_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/fem_reference_check.mm",
+  "output": "CMakeFiles/numi-matter-fem-reference-check.dir/tools/fem_reference_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-robertsson-fem-coupling-check.dir/tools/robertsson_fem_coupling_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/robertsson_fem_coupling_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/robertsson_fem_coupling_check.mm",
+  "output": "CMakeFiles/numi-matter-robertsson-fem-coupling-check.dir/tools/robertsson_fem_coupling_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-directional-valve-check.dir/tools/directional_valve_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/directional_valve_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/directional_valve_check.mm",
+  "output": "CMakeFiles/numi-matter-directional-valve-check.dir/tools/directional_valve_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wno-deprecated-declarations -o CMakeFiles/numi-matter-wet-lab.dir/tools/wet_lab_geometry.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/wet_lab_geometry.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/wet_lab_geometry.mm",
+  "output": "CMakeFiles/numi-matter-wet-lab.dir/tools/wet_lab_geometry.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_MATTER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/NumiMatter.metallib\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-regional-recycle-masked-basis-native-check.dir/tools/cardboard_regional_recycle_masked_basis_native_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_regional_recycle_masked_basis_native_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_regional_recycle_masked_basis_native_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-regional-recycle-masked-basis-native-check.dir/tools/cardboard_regional_recycle_masked_basis_native_check.mm.o"
+},
+{
+  "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001",
+  "command": "/usr/bin/clang++ -DNUMI_CARDBOARD_PAPER_METALLIB=\\\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-001/shaders/cardboard_paper_check.metallib\\\" -DNUMI_CARDBOARD_SOURCE118_BUILD_SHA256=\\\"da94e6051e767ea4bfba58705ccaf321e5dd97e5e9b40b32715f056676980c9f\\\" -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-source392-tet858-point-check.dir/tools/cardboard_source392_tet_point_check.mm.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_source392_tet_point_check.mm",
+  "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188/matter/tools/cardboard_source392_tet_point_check.mm",
+  "output": "CMakeFiles/numi-matter-cardboard-source392-tet858-point-check.dir/tools/cardboard_source392_tet_point_check.mm.o"
+}
+]

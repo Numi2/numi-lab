@@ -1,0 +1,23 @@
+{
+  "schema": "numi.cardboard.source182-build-validation.v1",
+  "host": "macmini",
+  "platform": "macOS-26.6-arm64-arm-64bit-Mach-O",
+  "source181_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-admission-encoder-181",
+  "source182_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-admission-encoder-182",
+  "base_frozen_source_sha256": "f3ac253b7924dc4cb6ba1d5d9580ceea42150b5e49c6eee569e36b0e204fef7a",
+  "base_source_build_sha256": "d5ed1e058065435d7faeb48897681306907e61a7b9f765f3c131c38261e1c5be",
+  "base_compile_commands_sha256": "050008734269639ebd1b27163f4b4d5e7e099d56de42c73ad89abb25163a34af",
+  "overlay_manifest_sha256": "6c0ab2856281bc5ff2530786c3e5200293432b750eee49890c3d041b847c50cf",
+  "overlay_patch_sha256": "c291856a8c52d5887b1f36def014716161a067497565e77c58bcfcf9a9b0cd99",
+  "source181_selected_files_verified": 805,
+  "source181_configure_support_files_verified": 1034,
+  "targets": [
+    "numi-matter-cardboard-probe",
+    "numi-matter-cardboard-warm-start-check",
+    "numi-matter-cardboard-shipping-snapshot-check",
+    "numi-matter-cardboard-coupon-resume-check"
+  ],
+  "gpu_dispatch": false,
+  "native_trajectory_or_resume_replay": "NOT_RUN",
+  "started_at_utc": "2026-10-16T05:26:34.325455+00:00"
+}

@@ -1,0 +1,839 @@
+{
+  "inputs": {
+    "analysis/base-cgls-state-reader-abi-repair-148-001/tools/read_state_capture.py": {
+      "bytes": 16068,
+      "role": "state_capture_reader",
+      "sha256": "ee400288607bf220502fd4670923972f7b79cce2d810f247d6889ed4665f4b48"
+    },
+    "analysis/native481482-warm-control20-capture-command-001/command-spec.json": {
+      "bytes": 7028,
+      "role": "run482_command_spec",
+      "sha256": "352c64f149863620b9b55e28158268dd1d4a23ab687ec386e852070ff96ae53b"
+    },
+    "analysis/native497-cached-cgls-audit-001/audit_native497.py": {
+      "bytes": 42127,
+      "role": "prior_replay_script",
+      "sha256": "011a18cbcb9a2d0525d8d575786949c8bc8cf3f9057a54c426ae8cf4cde6df4b"
+    },
+    "analysis/native497-cached-cgls-audit-001/manifest.json": {
+      "bytes": 11134,
+      "role": "sealed_prior_package_manifest",
+      "sha256": "974a10ffff2ede266a84bd1c7bdd89d080649ab930f840f36fb9ba58c0407bdb"
+    },
+    "analysis/native497-cached-cgls-audit-001/report-v2.json": {
+      "bytes": 299820,
+      "role": "sealed_prior_cached_operator_report",
+      "sha256": "97631b4778273f29efaf7aebcb9f7fd789956057f5dd4231d187934fae883b4a"
+    },
+    "analysis/native497498-diagnostic-replay-command-002/command-spec.json": {
+      "bytes": 9427,
+      "role": "run497_498_command_spec",
+      "sha256": "635c639f25828a22c67726187329fccaaa2de89d279138a3559fed7621ad43e6"
+    },
+    "analysis/native497498-diagnostic-replay-command-002/execution-497/launch.json": {
+      "bytes": 8735,
+      "role": "run497_runner_launch",
+      "sha256": "d970b13e5528592104b1256c9234e67f15e7603f1d73a3a82e01d3bf58cc0157"
+    },
+    "analysis/native497498-diagnostic-replay-command-002/execution-497/receipt.json": {
+      "bytes": 502,
+      "role": "run497_runner_receipt",
+      "sha256": "1293113f185b5e1cecc3b837d737c94a9816b97a8db68228cbd1c8d73ddd8484"
+    },
+    "analysis/native497498-diagnostic-replay-command-002/execution-498/launch.json": {
+      "bytes": 8392,
+      "role": "run498_runner_launch",
+      "sha256": "f365a52bab95c228a57e931487b54342f5eea312dff232d7cb3fd4dea6bdade7"
+    },
+    "analysis/native497498-diagnostic-replay-command-002/execution-498/receipt.json": {
+      "bytes": 502,
+      "role": "run498_runner_receipt",
+      "sha256": "2c3d189f821db950ee9e54da0d54009cf9db3241534ba9dc9aad0519da3b4bc3"
+    },
+    "analysis/native497498-diagnostic-replay-command-002/package-manifest.json": {
+      "bytes": 685,
+      "role": "run497_498_command_manifest",
+      "sha256": "909f5b836e25d4226b553889368ce69055710384e01d911f577cc89704cbef81"
+    },
+    "analysis/source173-macmini-host-build-and-check-001/fresh-build/source-build.json": {
+      "bytes": 98926,
+      "role": "source173_build_provenance",
+      "sha256": "96396de7fa14197a6759583d8b7bb053c412e08f1051b947502c1cc38b185229"
+    },
+    "analysis/source182-host-artifacts-003/numi-matter-cardboard-probe": {
+      "bytes": 3217688,
+      "role": "source182_probe_copy",
+      "sha256": "a306f1b7b39ebc87a9bf2fac797d45558e10a92c9285f2e4b83c4ba47442698c"
+    },
+    "analysis/source182-host-artifacts-003/shaders/NumiMatter.metallib": {
+      "bytes": 7008448,
+      "role": "source182_metallib_copy",
+      "sha256": "c3c8499f29ecb97f0181543c826fa8feb85fe2de1193f3c6275ecb46e8bc1df2"
+    },
+    "analysis/source182-host-artifacts-003/source-build.json": {
+      "bytes": 99031,
+      "role": "source182_build_provenance",
+      "sha256": "5f88957ec2d7173f86b03499e79b2d20950e98a0e93fdc5bdd08536c1d9ffe25"
+    },
+    "snapshots/source-admission-encoder-182-003/frozen-source.json": {
+      "bytes": 96314,
+      "role": "source182_frozen_manifest",
+      "sha256": "c2e6e23be57d3245c490c7f10f4abee55271a4fe051db6a5ef313de2de798394"
+    },
+    "snapshots/source-admission-encoder-182-003/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 49990,
+      "role": "cached_operator_replay_module",
+      "sha256": "4a7e9c0cbf09eee0ad1f8f5b2b09314a2c0789a908aaab530b56cfff6a1c82ff"
+    },
+    "snapshots/source-checkpoint-warm-breakdown-173/frozen-source.json": {
+      "bytes": 96036,
+      "role": "source173_frozen_manifest",
+      "sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/diagnostic-captures.json": {
+      "bytes": 239,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "e60590b160155b110f2a1b1ca7567586a999117862f1ee3a058e5f0288b48880"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/native-environment.json": {
+      "bytes": 7883,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "33dc02f6ac20a548c781be64b004e24b75f33ebefb0bfc58f441931fc80a00b9"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/accepted_step_000021_held_reference.obj": {
+      "bytes": 56470,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/compiled.nmatterpack": {
+      "bytes": 1984768,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/coupon-resume-segment.json": {
+      "bytes": 2751,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "c3d3f06baa90207665928cf2f33236df10b20231420dc17837d44e8857eb49e1"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/initial.obj": {
+      "bytes": 56470,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/manifest.json": {
+      "bytes": 11809,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "315102605605164ed388056567251a92b4bdb4d5820f154d4923d4bf4cadf327"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/material_state_000021_bent.json": {
+      "bytes": 967380,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "4d2e0635802a5b3969dc512279d9d9bb8105ce6c09c2cc17f2435a3b1c66b8a7"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/mesh.json": {
+      "bytes": 160425,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/observations.csv": {
+      "bytes": 1691,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "72b0a4a3d021ec4d10acfa4dd699ad1ffed386a4b090e14d7a31633ec0ad8d8e"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/AP.bin": {
+      "bytes": 733824,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "219b3e9287227b25167c4ab95ab6c4d020e265cd45da81c374c6759e7e5f9d2d"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/P.bin": {
+      "bytes": 366912,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/candidate_nodes.bin": {
+      "bytes": 141120,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "e49162194aafeb96e8e510cc695f9a7a68aa991eeba9e166de4d65776cc29ffc"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/effective_P.bin": {
+      "bytes": 733824,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/factor_valid.bin": {
+      "bytes": 8,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/linearization_F_high.bin": {
+      "bytes": 184320,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "a3bfa284150af5680761c9c61c62f9e0b957169e53a8d494c4930d14dc576519"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/linearization_F_low.bin": {
+      "bytes": 184320,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "131d6985cd4694ec0e43df38f1eeab6c18d5d030ec9435b478a03a449e371222"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/linearization_accepted_material_history.bin": {
+      "bytes": 230400,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "9224199b2c1302c03ae0a0512e9dbc08cba45889c02f1b29f6d3dc681894b320"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/linearization_scheduler_exponents.bin": {
+      "bytes": 15360,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/manifest.json": {
+      "bytes": 6755,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "eb16d0e1ef9148922ef2c1f47623e1414a1ee7145520cfb60fb0744efd1c8557"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/node_block_inverse.bin": {
+      "bytes": 0,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/pivoted_RAP.bin": {
+      "bytes": 5408,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "39db94b8aa9c59ca377826726f5ecbfb79a12236170656d94d3394e8bfe8158b"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/pivots.bin": {
+      "bytes": 208,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "dafeb7db7b33d8d845b83a7998899c6723d9653f0c5a8ef4b68f5302d8a10a1d"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/restart_Aq.bin": {
+      "bytes": 14112,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "b20c27988e12dd2e8651f1ff1e5910cb8e37d58b97ab66dcd324fb1144ad9f24"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/restart_Aq_by_environment.bin": {
+      "bytes": 28224,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "2e4a38bf6a137e84c0ab8794e3ee35435d4da654ef287ce80fce1790753bd7b2"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/restart_attempt_counts_by_environment.bin": {
+      "bytes": 8,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "35be322d094f9d154a8aba4733b8497f180353bd7ae7b0a15f90b586b549f28b"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/restart_factor_valid_by_environment.bin": {
+      "bytes": 8,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/restart_generations_by_environment.bin": {
+      "bytes": 32,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "253c7631fa3b61d83450fad34c0e2bd4124165800d886634792b5cf4577e0262"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/restart_mode_scales_by_environment.bin": {
+      "bytes": 8,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "a092692dabe65971105ca06905f480f59c25aa7ae8d3e49187d265341d4b48d7"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/restart_mode_valid_by_environment.bin": {
+      "bytes": 8,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/restart_pivoted_RAP.bin": {
+      "bytes": 2916,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "4e7cff83366da900cb294db056ada7eb7bcceff91722a3133d89f8e50fdf173b"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/restart_pivoted_RAP_by_environment.bin": {
+      "bytes": 5832,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "5fddb0ca74ed063282e98faede8c7be1271e0fd05d6c4e3e1734e42006ef7cd6"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/restart_pivots.bin": {
+      "bytes": 108,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "8f4b3b96b8c48d79a3666e9f96ec1150529d7daa3adf656ac4cb0f3fddc31b4e"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/restart_pivots_by_environment.bin": {
+      "bytes": 216,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "c29f4a6348dbc267b93475d95fe9c560d9ca2970d9a2a70d8381e87a2604a7b2"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/restart_q.bin": {
+      "bytes": 14112,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "897041aa836c3fe7981bbb3c3f1d795af36f347a07b83b9d38c23fcf9e7dfeed"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/restart_q_by_environment.bin": {
+      "bytes": 28224,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "acae9b4f0e025a7eae6304f3ca3d86aed3c6df6a1f9069304fdb4cd9192b9c23"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/restart_raw_norm_squared_by_environment.bin": {
+      "bytes": 8,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "d2c2b946dbf4ce575076301e559bb107dd7487ef7a68a3557d6f98db25103e73"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected-conditioning-000021/restart_target_scales_by_environment.bin": {
+      "bytes": 8,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "4731d914e686c9203667cb0d2d6202da76a2b67a48883c0ab814d5344d0fbd4b"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/rejected_step_diagnostic_000021_bent.obj": {
+      "bytes": 62011,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "608aa649a2be0be7681d1a82c7ccb6b4ebea986687c03f190256a595962a8ccf"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/output/result.json": {
+      "bytes": 726,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "d4518269b0b19ccee04c34ad1c4c711ffc7dbcf8f8180a92461f75e157c06aa3"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/prediction.json": {
+      "bytes": 117354,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "636608127ccaac9fbc6bd66801a389ad8e7c8cf00ab1407f0c6f23cca0ec175e"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/receipt.json": {
+      "bytes": 457,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "fc6bfdf5dc6079839f9702e86e41cad89b3ed13267590cc815641cfec3df478a"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/stderr.log": {
+      "bytes": 4358151,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "a212d9f1caf39021de313b7b42f71e79e514a96b88bb6de33d298934a84a19c9"
+    },
+    "solver/macmini-warm-cgls-control20-capture-off-482/stdout.log": {
+      "bytes": 371,
+      "role": "native_run_482_retained_inputs_and_outputs",
+      "sha256": "91b301e5469d1c009eb9f64925cd169eb22dc62c889ce9dd7bcc24dbb4c801d2"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostic-captures.json": {
+      "bytes": 1284,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "4e8f7ebb0284b90515e59fffa8f58784c8d9464eefd78966ac7d30b113f283d0"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture": {
+      "bytes": 494048,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.bin": {
+      "bytes": 4327464,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.json": {
+      "bytes": 8657,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "b03e1bf2ee33162b2cca750ac14127d1e4a1b2e6df68c1fe71b081b0b251975c"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-operator-fd-capture/capture": {
+      "bytes": 38795294,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/native-environment.json": {
+      "bytes": 8712,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "163393847f5f9d7053191d80b742a93332f01bca4657d2727b9b50742c6054dd"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/accepted_step_000021_held_reference.obj": {
+      "bytes": 56470,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/compiled.nmatterpack": {
+      "bytes": 1984768,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/coupon-resume-segment.json": {
+      "bytes": 3474,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "328b4de2ec76ee6c2104197f8977c4e3900b25b5d618e15b7da75cc58ec921d8"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/initial.obj": {
+      "bytes": 56470,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/manifest.json": {
+      "bytes": 11809,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "315102605605164ed388056567251a92b4bdb4d5820f154d4923d4bf4cadf327"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/material_state_000021_bent.json": {
+      "bytes": 967380,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "4d2e0635802a5b3969dc512279d9d9bb8105ce6c09c2cc17f2435a3b1c66b8a7"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/mesh.json": {
+      "bytes": 160425,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/observations.csv": {
+      "bytes": 1691,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "72b0a4a3d021ec4d10acfa4dd699ad1ffed386a4b090e14d7a31633ec0ad8d8e"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/AP.bin": {
+      "bytes": 733824,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "219b3e9287227b25167c4ab95ab6c4d020e265cd45da81c374c6759e7e5f9d2d"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/P.bin": {
+      "bytes": 366912,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/candidate_nodes.bin": {
+      "bytes": 141120,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "e49162194aafeb96e8e510cc695f9a7a68aa991eeba9e166de4d65776cc29ffc"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/effective_P.bin": {
+      "bytes": 733824,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/factor_valid.bin": {
+      "bytes": 8,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/linearization_F_high.bin": {
+      "bytes": 184320,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "a3bfa284150af5680761c9c61c62f9e0b957169e53a8d494c4930d14dc576519"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/linearization_F_low.bin": {
+      "bytes": 184320,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "131d6985cd4694ec0e43df38f1eeab6c18d5d030ec9435b478a03a449e371222"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/linearization_accepted_material_history.bin": {
+      "bytes": 230400,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "9224199b2c1302c03ae0a0512e9dbc08cba45889c02f1b29f6d3dc681894b320"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/linearization_scheduler_exponents.bin": {
+      "bytes": 15360,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/manifest.json": {
+      "bytes": 6755,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "eb16d0e1ef9148922ef2c1f47623e1414a1ee7145520cfb60fb0744efd1c8557"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/node_block_inverse.bin": {
+      "bytes": 0,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/pivoted_RAP.bin": {
+      "bytes": 5408,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "39db94b8aa9c59ca377826726f5ecbfb79a12236170656d94d3394e8bfe8158b"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/pivots.bin": {
+      "bytes": 208,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "dafeb7db7b33d8d845b83a7998899c6723d9653f0c5a8ef4b68f5302d8a10a1d"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/restart_Aq.bin": {
+      "bytes": 14112,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "b20c27988e12dd2e8651f1ff1e5910cb8e37d58b97ab66dcd324fb1144ad9f24"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/restart_Aq_by_environment.bin": {
+      "bytes": 28224,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "2e4a38bf6a137e84c0ab8794e3ee35435d4da654ef287ce80fce1790753bd7b2"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/restart_attempt_counts_by_environment.bin": {
+      "bytes": 8,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "35be322d094f9d154a8aba4733b8497f180353bd7ae7b0a15f90b586b549f28b"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/restart_factor_valid_by_environment.bin": {
+      "bytes": 8,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/restart_generations_by_environment.bin": {
+      "bytes": 32,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "253c7631fa3b61d83450fad34c0e2bd4124165800d886634792b5cf4577e0262"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/restart_mode_scales_by_environment.bin": {
+      "bytes": 8,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "a092692dabe65971105ca06905f480f59c25aa7ae8d3e49187d265341d4b48d7"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/restart_mode_valid_by_environment.bin": {
+      "bytes": 8,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/restart_pivoted_RAP.bin": {
+      "bytes": 2916,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "4e7cff83366da900cb294db056ada7eb7bcceff91722a3133d89f8e50fdf173b"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/restart_pivoted_RAP_by_environment.bin": {
+      "bytes": 5832,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "5fddb0ca74ed063282e98faede8c7be1271e0fd05d6c4e3e1734e42006ef7cd6"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/restart_pivots.bin": {
+      "bytes": 108,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "8f4b3b96b8c48d79a3666e9f96ec1150529d7daa3adf656ac4cb0f3fddc31b4e"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/restart_pivots_by_environment.bin": {
+      "bytes": 216,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "c29f4a6348dbc267b93475d95fe9c560d9ca2970d9a2a70d8381e87a2604a7b2"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/restart_q.bin": {
+      "bytes": 14112,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "897041aa836c3fe7981bbb3c3f1d795af36f347a07b83b9d38c23fcf9e7dfeed"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/restart_q_by_environment.bin": {
+      "bytes": 28224,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "acae9b4f0e025a7eae6304f3ca3d86aed3c6df6a1f9069304fdb4cd9192b9c23"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/restart_raw_norm_squared_by_environment.bin": {
+      "bytes": 8,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "d2c2b946dbf4ce575076301e559bb107dd7487ef7a68a3557d6f98db25103e73"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/restart_target_scales_by_environment.bin": {
+      "bytes": 8,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "4731d914e686c9203667cb0d2d6202da76a2b67a48883c0ab814d5344d0fbd4b"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/rejected_step_diagnostic_000021_bent.obj": {
+      "bytes": 62011,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "608aa649a2be0be7681d1a82c7ccb6b4ebea986687c03f190256a595962a8ccf"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/output/result.json": {
+      "bytes": 726,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "d4518269b0b19ccee04c34ad1c4c711ffc7dbcf8f8180a92461f75e157c06aa3"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/prediction.json": {
+      "bytes": 120097,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "ef393185594d6e4b01de162c7b253c44678dcc91ed47e8bee0162eda4eed8a45"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/receipt.json": {
+      "bytes": 1560,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "263bc8e740e06173b89aac743108c791b5c942fb8168e392ced0a842cf2f6294"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/stderr.log": {
+      "bytes": 4687748,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "5fa88ac463656bb5565705de2995c12525c60cc6eb271440175ca694c2b67305"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-497/stdout.log": {
+      "bytes": 371,
+      "role": "native_run_497_retained_inputs_and_outputs",
+      "sha256": "91b301e5469d1c009eb9f64925cd169eb22dc62c889ce9dd7bcc24dbb4c801d2"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/diagnostic-captures.json": {
+      "bytes": 239,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "91148da71edac2ca5f84559b3e282822dc059501e2f855de520cc079b4f181e8"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/native-environment.json": {
+      "bytes": 8028,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "f4bc4a81a8e7b5eef687389b6394a3b41dd091457794971e3143baca9177c208"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/accepted_step_000021_held_reference.obj": {
+      "bytes": 56470,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/compiled.nmatterpack": {
+      "bytes": 1984768,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/coupon-resume-segment.json": {
+      "bytes": 3179,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "d099d186bc2e58be474881d783572ffc59c9d662c2ca2cba09a9e9752627e553"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/initial.obj": {
+      "bytes": 56470,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/manifest.json": {
+      "bytes": 11809,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "315102605605164ed388056567251a92b4bdb4d5820f154d4923d4bf4cadf327"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/material_state_000021_bent.json": {
+      "bytes": 967380,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "4d2e0635802a5b3969dc512279d9d9bb8105ce6c09c2cc17f2435a3b1c66b8a7"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/mesh.json": {
+      "bytes": 160425,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/observations.csv": {
+      "bytes": 1691,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "72b0a4a3d021ec4d10acfa4dd699ad1ffed386a4b090e14d7a31633ec0ad8d8e"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/AP.bin": {
+      "bytes": 733824,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "219b3e9287227b25167c4ab95ab6c4d020e265cd45da81c374c6759e7e5f9d2d"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/P.bin": {
+      "bytes": 366912,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/candidate_nodes.bin": {
+      "bytes": 141120,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "e49162194aafeb96e8e510cc695f9a7a68aa991eeba9e166de4d65776cc29ffc"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/effective_P.bin": {
+      "bytes": 733824,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/factor_valid.bin": {
+      "bytes": 8,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/linearization_F_high.bin": {
+      "bytes": 184320,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "a3bfa284150af5680761c9c61c62f9e0b957169e53a8d494c4930d14dc576519"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/linearization_F_low.bin": {
+      "bytes": 184320,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "131d6985cd4694ec0e43df38f1eeab6c18d5d030ec9435b478a03a449e371222"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/linearization_accepted_material_history.bin": {
+      "bytes": 230400,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "9224199b2c1302c03ae0a0512e9dbc08cba45889c02f1b29f6d3dc681894b320"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/linearization_scheduler_exponents.bin": {
+      "bytes": 15360,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/manifest.json": {
+      "bytes": 6755,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "eb16d0e1ef9148922ef2c1f47623e1414a1ee7145520cfb60fb0744efd1c8557"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/node_block_inverse.bin": {
+      "bytes": 0,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/pivoted_RAP.bin": {
+      "bytes": 5408,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "39db94b8aa9c59ca377826726f5ecbfb79a12236170656d94d3394e8bfe8158b"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/pivots.bin": {
+      "bytes": 208,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "dafeb7db7b33d8d845b83a7998899c6723d9653f0c5a8ef4b68f5302d8a10a1d"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/restart_Aq.bin": {
+      "bytes": 14112,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "b20c27988e12dd2e8651f1ff1e5910cb8e37d58b97ab66dcd324fb1144ad9f24"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/restart_Aq_by_environment.bin": {
+      "bytes": 28224,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "2e4a38bf6a137e84c0ab8794e3ee35435d4da654ef287ce80fce1790753bd7b2"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/restart_attempt_counts_by_environment.bin": {
+      "bytes": 8,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "35be322d094f9d154a8aba4733b8497f180353bd7ae7b0a15f90b586b549f28b"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/restart_factor_valid_by_environment.bin": {
+      "bytes": 8,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/restart_generations_by_environment.bin": {
+      "bytes": 32,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "253c7631fa3b61d83450fad34c0e2bd4124165800d886634792b5cf4577e0262"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/restart_mode_scales_by_environment.bin": {
+      "bytes": 8,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "a092692dabe65971105ca06905f480f59c25aa7ae8d3e49187d265341d4b48d7"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/restart_mode_valid_by_environment.bin": {
+      "bytes": 8,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/restart_pivoted_RAP.bin": {
+      "bytes": 2916,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "4e7cff83366da900cb294db056ada7eb7bcceff91722a3133d89f8e50fdf173b"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/restart_pivoted_RAP_by_environment.bin": {
+      "bytes": 5832,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "5fddb0ca74ed063282e98faede8c7be1271e0fd05d6c4e3e1734e42006ef7cd6"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/restart_pivots.bin": {
+      "bytes": 108,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "8f4b3b96b8c48d79a3666e9f96ec1150529d7daa3adf656ac4cb0f3fddc31b4e"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/restart_pivots_by_environment.bin": {
+      "bytes": 216,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "c29f4a6348dbc267b93475d95fe9c560d9ca2970d9a2a70d8381e87a2604a7b2"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/restart_q.bin": {
+      "bytes": 14112,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "897041aa836c3fe7981bbb3c3f1d795af36f347a07b83b9d38c23fcf9e7dfeed"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/restart_q_by_environment.bin": {
+      "bytes": 28224,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "acae9b4f0e025a7eae6304f3ca3d86aed3c6df6a1f9069304fdb4cd9192b9c23"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/restart_raw_norm_squared_by_environment.bin": {
+      "bytes": 8,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "d2c2b946dbf4ce575076301e559bb107dd7487ef7a68a3557d6f98db25103e73"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected-conditioning-000021/restart_target_scales_by_environment.bin": {
+      "bytes": 8,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "4731d914e686c9203667cb0d2d6202da76a2b67a48883c0ab814d5344d0fbd4b"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/rejected_step_diagnostic_000021_bent.obj": {
+      "bytes": 62011,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "608aa649a2be0be7681d1a82c7ccb6b4ebea986687c03f190256a595962a8ccf"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/output/result.json": {
+      "bytes": 726,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "d4518269b0b19ccee04c34ad1c4c711ffc7dbcf8f8180a92461f75e157c06aa3"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/prediction.json": {
+      "bytes": 118852,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "7411357081dc861e2eabf6e7dd0b8568d48ae0d82862e072301e8f75cb225fa8"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/receipt.json": {
+      "bytes": 458,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "c239c7da3b647c4cca1d4fa9857482c29bb8061f0388910ab322bc20389dadc1"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/stderr.log": {
+      "bytes": 4358151,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "7240cad8359bd716df751cd3e2cc846772c6518e979ff007adcf90473bcc6117"
+    },
+    "solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/stdout.log": {
+      "bytes": 371,
+      "role": "native_run_498_retained_inputs_and_outputs",
+      "sha256": "91b301e5469d1c009eb9f64925cd169eb22dc62c889ce9dd7bcc24dbb4c801d2"
+    }
+  },
+  "limitations": [
+    "All three runs are failed resumed segments, accepted_steps=0; no full coupon completion.",
+    "497 cached operator is a selected FEM-only block, excluding rigid/contact/cohesive unknowns.",
+    "No exact condition estimate or direct solve for this same 497 matrix is included.",
+    "482 is source173 while 497/498 are source182; parity across this revision is observational only."
+  ],
+  "package_files": [
+    {
+      "bytes": 3806,
+      "path": "analysis/native497-cached-cgls-audit-002/README.md",
+      "sha256": "96e12f932d03b6d3e438f1fb9169615da801d9f1e358030197d14576bfa8be74"
+    },
+    {
+      "bytes": 25937,
+      "path": "analysis/native497-cached-cgls-audit-002/audit_native497498.py",
+      "sha256": "3e2a42c5a51305275923f4b49eb1ebf5483d3cfd89e0c9c8b0f80283d085c7a3"
+    },
+    {
+      "bytes": 38490,
+      "path": "analysis/native497-cached-cgls-audit-002/report-v2.json",
+      "sha256": "4bd9dd5f22560e1305fa36646cd49e0562991e031b63378e0f706911c06efbbb"
+    },
+    {
+      "bytes": 38490,
+      "path": "analysis/native497-cached-cgls-audit-002/report-v3.json",
+      "sha256": "4bd9dd5f22560e1305fa36646cd49e0562991e031b63378e0f706911c06efbbb"
+    },
+    {
+      "bytes": 38705,
+      "path": "analysis/native497-cached-cgls-audit-002/report-v4.json",
+      "sha256": "c6b8070c6e29c46840000ab40a43877aa9733d412a7c3d5668f14a9e3b0aa1fb"
+    },
+    {
+      "bytes": 34843,
+      "path": "analysis/native497-cached-cgls-audit-002/report.json",
+      "sha256": "78e492a112ba142dfa04e2b151a842ccf3f45bde3dadc03451ab43a4e37da789"
+    },
+    {
+      "bytes": 3043,
+      "path": "analysis/native497-cached-cgls-audit-002/test_native497498.py",
+      "sha256": "8fc96e4c352b9fafc346a85585eeaaf4507887d14bab2b84c37d5d18a36a8c7d"
+    },
+    {
+      "bytes": 572,
+      "path": "analysis/native497-cached-cgls-audit-002/validation.log",
+      "sha256": "34646f4ef2890903fd19df6bae94a4ec1a1cd988bf8ee50f2dfaaf20431c129c"
+    }
+  ],
+  "report": "analysis/native497-cached-cgls-audit-002/report-v4.json",
+  "report_sha256": "c6b8070c6e29c46840000ab40a43877aa9733d412a7c3d5668f14a9e3b0aa1fb",
+  "schema": "numi.cardboard.native497_498_482_comparison_package.v1",
+  "scope": "Compare native production outputs and traces from 482, 497 and 498; derive relative residual/action scales from previously sealed 497 FP64 cached-operator replay. No GPU/native execution or source modifications.",
+  "status": "SEALED_CPU_ONLY_READONLY_AUDIT",
+  "superseded_report_attempts": {
+    "report-v2.json": "Intermediate pass before command/source-lineage annotation; retained, not final.",
+    "report-v3.json": "Intermediate pass before incidence-sort-unset contract annotation; retained, not final.",
+    "report.json": "Initial unsealed pass before direct source/environment checks; retained, not final."
+  },
+  "validation": {
+    "command": "python3 -c ast.parse(audit_native497498.py and test_native497498.py); python3 test_native497498.py",
+    "log": "analysis/native497-cached-cgls-audit-002/validation.log",
+    "log_sha256": "34646f4ef2890903fd19df6bae94a4ec1a1cd988bf8ee50f2dfaaf20431c129c",
+    "python_syntax_passed": true,
+    "tests_passed": 5
+  }
+}

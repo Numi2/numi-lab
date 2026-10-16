@@ -8,6 +8,7 @@
 #include "numi/matter/regional_consumer_capture.hpp"
 #include "numi/matter/sparse_private_contact_admission.hpp"
 #include "numi/matter/full_contact_armijo_admission.hpp"
+#include "numi/matter/detail/full_contact_armijo_scratch_budget.hpp"
 #include "numi/matter/regional_galerkin_bending_basis.hpp"
 #include "regional_graph_schwarz.hpp"
 #include "fem_reference_geometry.hpp"
@@ -6820,7 +6821,7 @@ RuntimeDiagnostics Runtime::initialize(
             }
             if (std::getenv("NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT") != nullptr) {
                 constexpr std::uint64_t maximumDeformableArmijoBytes =
-                    128ull * 1024ull * 1024ull;
+                    detail::kFullContactArmijoScratchBudgetBytes;
                 const std::uint64_t primitiveCount =
                     continuumSurfacePrimitiveCount(world.dispatch);
                 const std::uint64_t leafCount =
@@ -6838,24 +6839,14 @@ RuntimeDiagnostics Runtime::initialize(
                     capacity <= 131072u &&
                     primitiveCount <= std::numeric_limits<std::uint32_t>::max() &&
                     leafCount <= std::numeric_limits<std::uint32_t>::max() / 4u;
-                std::uint64_t estimatedBytes = 0u;
-                if (supportedCounts) {
-                    estimatedBytes = static_cast<std::uint64_t>(environments) * (
-                        (candidate->femArmijoAliasesProductionSurfaceScratch
-                            ? 0ull
-                            : primitiveCount *
-                                sizeof(NMContinuumSurfacePrimitiveGPU) +
-                              4ull * leafCount * sizeof(nm_float4) +
-                              4ull * primitiveCount * sizeof(std::uint32_t)) +
-                        capacity * (sizeof(NMDeformableContactCandidateGPU) +
-                            sizeof(NMDeformableContactGPU) +
-                            2u * sizeof(std::uint32_t) +
-                            6u * sizeof(std::uint32_t)) +
-                        nodeCount * sizeof(NMIncidenceRangeGPU) +
-                        4u * sizeof(std::uint32_t) +
-                        sizeof(NMIndirectDispatchGPU));
-                }
-                if (supportedCounts && estimatedBytes <=
+                detail::FullContactArmijoScratchBytes scratchBytes;
+                const bool scratchBytesValid = supportedCounts &&
+                    detail::estimateFullContactArmijoScratchBytes(
+                        environments, primitiveCount, leafCount, capacity,
+                        nodeCount,
+                        candidate->femArmijoAliasesProductionSurfaceScratch,
+                        scratchBytes);
+                if (scratchBytesValid && scratchBytes.total <=
                         maximumDeformableArmijoBytes) {
                     candidate->femArmijoDeformableContactScratchEnabled = true;
                     if (candidate->femArmijoAliasesProductionSurfaceScratch) {

@@ -1,0 +1,38 @@
+{
+  "command": "PYTHONWARNINGS=error python3 run_experiment.py",
+  "experiment": "completed with finite outputs and allow_nan=False JSON serialization",
+  "experiment_verdict": "CPU-only fixed-cached-operator Krylov comparison; no native preconditioner execution, no physical qualification",
+  "input_bindings": {
+    "cgls": {
+      "bytes": 494048,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture",
+      "sha256": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646"
+    },
+    "fd": {
+      "bytes": 38795294,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-operator-fd-capture/capture",
+      "sha256": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3"
+    },
+    "helper": {
+      "bytes": 49990,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-admission-encoder-182-003/matter/tools/cardboard_cached_operator_audit.py",
+      "sha256": "4a7e9c0cbf09eee0ad1f8f5b2b09314a2c0789a908aaab530b56cfff6a1c82ff"
+    },
+    "payload": {
+      "bytes": 4327464,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.bin",
+      "sha256": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1"
+    },
+    "state": {
+      "bytes": 8657,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.json",
+      "sha256": "b03e1bf2ee33162b2cca750ac14127d1e4a1b2e6df68c1fe71b081b0b251975c"
+    }
+  },
+  "py_compile": "pass",
+  "python": "3.9.6",
+  "schema": "numi.cardboard.native497.preconditioner.validation.v1",
+  "source_basis_geometry": "runtime.mm buildRegionalGalerkinBasis rigid 6 modes per compact region; volume-overlap weights, two-pass modified Gram-Schmidt; rest geometry and region tags are from exact capture; optional global bending enrichment omitted",
+  "source_snapshot_manifest_sha256": "c2e6e23be57d3245c490c7f10f4abee55271a4fe051db6a5ef313de2de798394",
+  "status": "PRELIMINARY_SUPERSEDED_SOURCE_BASIS_MISMATCH"
+}

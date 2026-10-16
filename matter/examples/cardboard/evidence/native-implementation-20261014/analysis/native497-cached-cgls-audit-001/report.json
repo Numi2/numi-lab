@@ -1,0 +1,612 @@
+{
+  "capture_identity": {
+    "device_program_fingerprint": "430c1fc2739f9879",
+    "dt_seconds": 4.99999987e-05,
+    "environment_count": 2,
+    "newton_iteration": 63,
+    "node_count": 882,
+    "operator_fd_execution_fingerprint": "430c1fc2739f9879",
+    "operator_fd_world_fingerprint": "48d3b8b313356bd9",
+    "root": 20,
+    "tetrahedron_count": 1920,
+    "unknown_count": 3528,
+    "world_fingerprint": "48d3b8b313356bd9"
+  },
+  "cgls_binary_header": {
+    "environment_count": 2,
+    "file_bytes": 494048,
+    "iteration_cap": 64,
+    "magic_hex": "0x534c4743",
+    "node_count_per_environment": 882,
+    "segment_count": 13,
+    "segments": [
+      {
+        "byte_count": 56448,
+        "dtype": "<f4",
+        "name": "x",
+        "offset": 32,
+        "shape": [
+          3528,
+          4
+        ]
+      },
+      {
+        "byte_count": 56448,
+        "dtype": "<f4",
+        "name": "r",
+        "offset": 56480,
+        "shape": [
+          3528,
+          4
+        ]
+      },
+      {
+        "byte_count": 56448,
+        "dtype": "<f4",
+        "name": "s",
+        "offset": 112928,
+        "shape": [
+          3528,
+          4
+        ]
+      },
+      {
+        "byte_count": 56448,
+        "dtype": "<f4",
+        "name": "p",
+        "offset": 169376,
+        "shape": [
+          3528,
+          4
+        ]
+      },
+      {
+        "byte_count": 56448,
+        "dtype": "<f4",
+        "name": "q",
+        "offset": 225824,
+        "shape": [
+          3528,
+          4
+        ]
+      },
+      {
+        "byte_count": 56448,
+        "dtype": "<f4",
+        "name": "b",
+        "offset": 282272,
+        "shape": [
+          3528,
+          4
+        ]
+      },
+      {
+        "byte_count": 56448,
+        "dtype": "<f4",
+        "name": "mask",
+        "offset": 338720,
+        "shape": [
+          3528,
+          4
+        ]
+      },
+      {
+        "byte_count": 14112,
+        "dtype": "<u4",
+        "name": "row_environment",
+        "offset": 395168,
+        "shape": [
+          3528
+        ]
+      },
+      {
+        "byte_count": 32,
+        "dtype": "<f4",
+        "name": "scalars",
+        "offset": 409280,
+        "shape": [
+          2,
+          4
+        ]
+      },
+      {
+        "byte_count": 32,
+        "dtype": "<u4",
+        "name": "control",
+        "offset": 409312,
+        "shape": [
+          2,
+          4
+        ]
+      },
+      {
+        "byte_count": 8,
+        "dtype": "<u4",
+        "name": "errors",
+        "offset": 409344,
+        "shape": [
+          2
+        ]
+      },
+      {
+        "byte_count": 8,
+        "dtype": "<u4",
+        "name": "selected",
+        "offset": 409360,
+        "shape": [
+          2
+        ]
+      },
+      {
+        "byte_count": 84672,
+        "dtype": "<f4",
+        "name": "right_scale_rows",
+        "offset": 409376,
+        "shape": [
+          2,
+          882,
+          3,
+          4
+        ]
+      }
+    ],
+    "sha256": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646",
+    "unknown_count": 3528,
+    "version": 3
+  },
+  "interpretation": [
+    "All reconstructed entries originate in native497's captured FP32 tangent cache and geometry; no constitutive law is reevaluated.",
+    "Comparisons against FP64 sparse arithmetic quantify cached-operator reconstruction and subtraction behavior only.",
+    "Residual subtraction cancellation and any optional condition estimate are separate diagnostics; neither is a solver or physical qualification."
+  ],
+  "native_trace": {
+    "acceptance": "strict_recomputed_true_linear_residual_reduction",
+    "candidate_represents": "x0_plus_Sy",
+    "direction_kind": "right_preconditioned_truncated_unregularized_CGLS",
+    "environments": [
+      {
+        "b_dot_Ax": 3.55226626e-10,
+        "candidate_l2": 4.83631706,
+        "environment": 0,
+        "linear_residual_l2": 2.64973288e-08,
+        "primary_policy_eligible": true,
+        "refinement_installed": true
+      },
+      {
+        "b_dot_Ax": 0,
+        "candidate_l2": 0,
+        "environment": 1,
+        "linear_residual_l2": 0,
+        "primary_policy_eligible": false,
+        "refinement_installed": false
+      }
+    ],
+    "initial_guess": "current_fgmres_solution",
+    "iteration_budget": 64,
+    "newton_iteration": 63,
+    "original_newton_certificate_applies_to_direction": false,
+    "right_scale": "block3",
+    "root": 20,
+    "schema": 1,
+    "selection_policy": "base_cgls_primary_policy",
+    "start_newton_inclusive": 48,
+    "warm_start_refinement": true
+  },
+  "per_environment_operator_replay": [
+    {
+      "CGLS_state": {
+        "control_u32_status_iterations_cap_selected": [
+          2,
+          64,
+          64,
+          1
+        ],
+        "errors": 0,
+        "native_direction_trace": {
+          "b_dot_Ax": 3.55226626e-10,
+          "candidate_l2": 4.83631706,
+          "environment": 0,
+          "linear_residual_l2": 2.64973288e-08,
+          "primary_policy_eligible": true,
+          "refinement_installed": true
+        },
+        "native_q_is_AX_after_total_candidate_by_source_order": true,
+        "selected_word": 1
+      },
+      "algebraic_consistency": {
+        "linear_residual_trace_l2": 2.64973288e-08,
+        "r_final_equals_r0_minus_A_delta_fp64_l2": 1.2896333672136108e-17,
+        "r_final_equals_r0_minus_A_delta_fp64_max_abs": 4.967359733795971e-18,
+        "trace_vs_fp64_final_residual_relative": 0.0019403426955053756
+      },
+      "limits": [
+        "The replay matrix is derived from the captured FP32 production tangent cache; no constitutive law is reevaluated.",
+        "FP64 sparse arithmetic is an offline reconstruction, not a native FP64 operator execution.",
+        "A small residual/cancellation fraction does not establish poor conditioning; no singular-value estimate is included unless separately requested.",
+        "This audit concerns one selected Newton and the admitted FEM-only CGLS block, not the full contact/coupled physical operator or the whole failed coupon."
+      ],
+      "mass_stiffness_separation": {
+        "delta": {
+          "A_delta_l2": 2.080846900995997e-07,
+          "M_delta_l2": 3.818268564329028e-11,
+          "dt2_K_delta_l2": 2.0807878513459108e-07
+        },
+        "interpretation_limit": "small residual relative to b and A*x indicates subtraction cancellation in this captured operator action; it is not by itself a condition-number estimate",
+        "total_X": {
+          "A_X_l2": 1.8848655347193697e-05,
+          "M_X_l2": 2.2734016118029946e-06,
+          "b_minus_AX_cancellation_fraction": 0.0007043090661033968,
+          "dt2_K_X_l2": 1.9293523153993592e-05,
+          "r_final_l2": 2.6548842652915708e-08
+        },
+        "x0": {
+          "A_x0_l2": 1.8866875007956084e-05,
+          "M_x0_l2": 2.2734008581212126e-06,
+          "b_minus_Ax0_cancellation_fraction": 0.005556633161346299,
+          "dt2_K_x0_l2": 1.931122634334218e-05,
+          "r0_l2": 2.095578359180791e-07
+        }
+      },
+      "native_vector_comparisons": {
+        "captured_B_vs_FP64_b_minus_Ax0": {
+          "actual_l2": 2.0964327342218526e-07,
+          "difference_l2": 2.4229396116509198e-09,
+          "finite": true,
+          "max_abs_difference": 9.843805910710845e-10,
+          "reconstructed_l2": 2.095578359180791e-07,
+          "relative_to_reconstructed": 0.011562152286197981,
+          "rows": 2538
+        },
+        "captured_Q_vs_FP64_A_total_X": {
+          "actual_l2": 1.8848711872723502e-05,
+          "difference_l2": 1.686201813593525e-09,
+          "finite": true,
+          "max_abs_difference": 4.929680262792431e-10,
+          "reconstructed_l2": 1.8848655347193697e-05,
+          "relative_to_reconstructed": 8.946005869031803e-05,
+          "rows": 2538
+        },
+        "captured_R_vs_FP64_b_minus_A_total_X": {
+          "actual_l2": 2.6087779838842947e-08,
+          "difference_l2": 4.896457748462034e-09,
+          "finite": true,
+          "max_abs_difference": 2.3324626204942823e-09,
+          "reconstructed_l2": 2.6548842652915708e-08,
+          "relative_to_reconstructed": 0.18443206027756107,
+          "rows": 2538
+        },
+        "captured_R_vs_FP64_r0_minus_A_delta": {
+          "actual_l2": 2.6087779838842947e-08,
+          "difference_l2": 4.8964577500411745e-09,
+          "finite": true,
+          "max_abs_difference": 2.3324626250812255e-09,
+          "reconstructed_l2": 2.654884265255805e-08,
+          "relative_to_reconstructed": 0.18443206033952625,
+          "rows": 2538
+        }
+      },
+      "operator": {
+        "cached_tangent_valid_count": 1920,
+        "dimension": 2538,
+        "dt_seconds": 4.999999873689376e-05,
+        "fixed_nodes": 36,
+        "free_nodes": 846,
+        "mass_diagonal_min_max": [
+          5.633233968183049e-08,
+          1.0476492207089905e-06
+        ],
+        "native_original_newton_action_parity": {
+          "assembled_action_l2_Ns": 1.886687500795592e-05,
+          "classification": "measured comparison; no noise-floor qualification",
+          "difference_l2_Ns": 2.338941360357487e-09,
+          "fixed_correction_max_abs_m_per_s": 0.0,
+          "fixed_rows_max_abs_native_action_Ns": 0.0,
+          "max_abs_component_error_Ns": 6.84189560762048e-10,
+          "native_action_l2_Ns": 1.886740065560459e-05,
+          "native_action_max_abs_component_Ns": 6.080987986933906e-06,
+          "relative_l2_error": 0.000123967334083336
+        },
+        "nnz": 71046,
+        "relative_skew_norm": 0.0004870525615645034,
+        "source_fp32_cache_is_not_recomputed": true
+      },
+      "source_semantics": {
+        "CGLS_v3_B": "fresh residual b-A*x0 in CGLS scratch; compared against FP64 reconstruction",
+        "CGLS_v3_R": "CGLS recurrence residual; compared against fresh FP64 b-A*X and recurrence identity",
+        "CGLS_v3_X": "total captured candidate x0+S*y per source182 writer semantics",
+        "operator": "A = M + dt^2 K reconstructed in FP64 from captured FP32 production dP/dF cache and captured candidate geometry",
+        "scope": "mechanical free FEM rows only; field backing and constrained rows must be zero; no rigid/contact/cohesive unknown block is reconstructed here",
+        "state_x0": "original Newton correction captured before CGLS; not a constitutive reference solution"
+      },
+      "vector_norms": {
+        "candidate_total_X_l2": 4.836317037642793,
+        "delta_X_minus_x0_l2": 5.8461529254856474e-05,
+        "original_b_l2": 1.8846220284320863e-05,
+        "r0_fp64_l2": 2.095578359180791e-07,
+        "r_final_fp64_l2": 2.6548842652915708e-08,
+        "residual_reduction_ratio_fp64": 0.12668981112829517,
+        "x0_l2": 4.836315978382837
+      }
+    },
+    {
+      "CGLS_state": {
+        "control_u32_status_iterations_cap_selected": [
+          5,
+          0,
+          64,
+          0
+        ],
+        "errors": 16,
+        "native_direction_trace": {
+          "b_dot_Ax": 0,
+          "candidate_l2": 0,
+          "environment": 1,
+          "linear_residual_l2": 0,
+          "primary_policy_eligible": false,
+          "refinement_installed": false
+        },
+        "native_q_is_AX_after_total_candidate_by_source_order": true,
+        "selected_word": 0
+      },
+      "algebraic_consistency": {
+        "linear_residual_trace_l2": 0,
+        "r_final_equals_r0_minus_A_delta_fp64_l2": 0.0,
+        "r_final_equals_r0_minus_A_delta_fp64_max_abs": 0.0,
+        "trace_vs_fp64_final_residual_relative": 1.0
+      },
+      "limits": [
+        "The replay matrix is derived from the captured FP32 production tangent cache; no constitutive law is reevaluated.",
+        "FP64 sparse arithmetic is an offline reconstruction, not a native FP64 operator execution.",
+        "A small residual/cancellation fraction does not establish poor conditioning; no singular-value estimate is included unless separately requested.",
+        "This audit concerns one selected Newton and the admitted FEM-only CGLS block, not the full contact/coupled physical operator or the whole failed coupon."
+      ],
+      "mass_stiffness_separation": {
+        "delta": {
+          "A_delta_l2": 0.0,
+          "M_delta_l2": 0.0,
+          "dt2_K_delta_l2": 0.0
+        },
+        "interpretation_limit": "small residual relative to b and A*x indicates subtraction cancellation in this captured operator action; it is not by itself a condition-number estimate",
+        "total_X": {
+          "A_X_l2": 0.0,
+          "M_X_l2": 0.0,
+          "b_minus_AX_cancellation_fraction": 1.0,
+          "dt2_K_X_l2": 0.0,
+          "r_final_l2": 3.3900027181104695e-08
+        },
+        "x0": {
+          "A_x0_l2": 0.0,
+          "M_x0_l2": 0.0,
+          "b_minus_Ax0_cancellation_fraction": 1.0,
+          "dt2_K_x0_l2": 0.0,
+          "r0_l2": 3.3900027181104695e-08
+        }
+      },
+      "native_vector_comparisons": {
+        "captured_B_vs_FP64_b_minus_Ax0": {
+          "actual_l2": 0.0,
+          "difference_l2": 3.3900027181104695e-08,
+          "finite": true,
+          "max_abs_difference": 4.328408742537704e-09,
+          "reconstructed_l2": 3.3900027181104695e-08,
+          "relative_to_reconstructed": 1.0,
+          "rows": 2538
+        },
+        "captured_Q_vs_FP64_A_total_X": {
+          "actual_l2": 0.0,
+          "difference_l2": 0.0,
+          "finite": true,
+          "max_abs_difference": 0.0,
+          "reconstructed_l2": 0.0,
+          "relative_to_reconstructed": null,
+          "rows": 2538
+        },
+        "captured_R_vs_FP64_b_minus_A_total_X": {
+          "actual_l2": 0.0,
+          "difference_l2": 3.3900027181104695e-08,
+          "finite": true,
+          "max_abs_difference": 4.328408742537704e-09,
+          "reconstructed_l2": 3.3900027181104695e-08,
+          "relative_to_reconstructed": 1.0,
+          "rows": 2538
+        },
+        "captured_R_vs_FP64_r0_minus_A_delta": {
+          "actual_l2": 0.0,
+          "difference_l2": 3.3900027181104695e-08,
+          "finite": true,
+          "max_abs_difference": 4.328408742537704e-09,
+          "reconstructed_l2": 3.3900027181104695e-08,
+          "relative_to_reconstructed": 1.0,
+          "rows": 2538
+        }
+      },
+      "operator": {
+        "cached_tangent_valid_count": 1920,
+        "dimension": 2538,
+        "dt_seconds": 4.999999873689376e-05,
+        "fixed_nodes": 36,
+        "free_nodes": 846,
+        "mass_diagonal_min_max": [
+          5.633233968183049e-08,
+          1.0476492207089905e-06
+        ],
+        "native_original_newton_action_parity": {
+          "assembled_action_l2_Ns": 0.0,
+          "classification": "measured comparison; no noise-floor qualification",
+          "difference_l2_Ns": 0.0,
+          "fixed_correction_max_abs_m_per_s": 0.0,
+          "fixed_rows_max_abs_native_action_Ns": 0.0,
+          "max_abs_component_error_Ns": 0.0,
+          "native_action_l2_Ns": 0.0,
+          "native_action_max_abs_component_Ns": 0.0,
+          "relative_l2_error": null
+        },
+        "nnz": 65261,
+        "relative_skew_norm": 7.49074699067766e-17,
+        "source_fp32_cache_is_not_recomputed": true
+      },
+      "source_semantics": {
+        "CGLS_v3_B": "fresh residual b-A*x0 in CGLS scratch; compared against FP64 reconstruction",
+        "CGLS_v3_R": "CGLS recurrence residual; compared against fresh FP64 b-A*X and recurrence identity",
+        "CGLS_v3_X": "total captured candidate x0+S*y per source182 writer semantics",
+        "operator": "A = M + dt^2 K reconstructed in FP64 from captured FP32 production dP/dF cache and captured candidate geometry",
+        "scope": "mechanical free FEM rows only; field backing and constrained rows must be zero; no rigid/contact/cohesive unknown block is reconstructed here",
+        "state_x0": "original Newton correction captured before CGLS; not a constitutive reference solution"
+      },
+      "vector_norms": {
+        "candidate_total_X_l2": 0.0,
+        "delta_X_minus_x0_l2": 0.0,
+        "original_b_l2": 3.3900027181104695e-08,
+        "r0_fp64_l2": 3.3900027181104695e-08,
+        "r_final_fp64_l2": 3.3900027181104695e-08,
+        "residual_reduction_ratio_fp64": 1.0,
+        "x0_l2": 0.0
+      }
+    }
+  ],
+  "run": {
+    "case": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497",
+    "exit_code": 2,
+    "prediction_sha256": "ef393185594d6e4b01de162c7b253c44678dcc91ed47e8bee0162eda4eed8a45",
+    "receipt_diagnostic_files_verified": [
+      {
+        "bytes": 494048,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture",
+        "sha256": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646"
+      },
+      {
+        "bytes": 4327464,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.bin",
+        "sha256": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1"
+      },
+      {
+        "bytes": 8657,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.json",
+        "sha256": "b03e1bf2ee33162b2cca750ac14127d1e4a1b2e6df68c1fe71b081b0b251975c"
+      },
+      {
+        "bytes": 38795294,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-operator-fd-capture/capture",
+        "sha256": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3"
+      }
+    ],
+    "receipt_sha256": "263bc8e740e06173b89aac743108c791b5c942fb8168e392ced0a842cf2f6294",
+    "source_inputs_unchanged": true,
+    "stderr_sha256": "5fa88ac463656bb5565705de2995c12525c60cc6eb271440175ca694c2b67305",
+    "timed_out": false,
+    "verified_prediction_inputs": {
+      "all_declared_prediction_inputs_verified": false,
+      "declared_count": 829,
+      "missing": [
+        {
+          "candidate": "/Users/home/cardboard-implementation-20261014/solver/warm-cgls-control19-checkpoint-480/output/coupon-checkpoint-prefix.json",
+          "key": "external/coupon-checkpoint-prefix.json"
+        },
+        {
+          "candidate": "/Users/home/cardboard-implementation-20261014/solver/warm-cgls-control19-checkpoint-480/output/coupon-checkpoint-saved.txt",
+          "key": "external/coupon-checkpoint-saved.txt"
+        },
+        {
+          "candidate": "/Users/home/cardboard-implementation-20261014/solver/warm-cgls-control19-checkpoint-480/output/checkpoints/coupon-control-000019.nmcb",
+          "key": "external/coupon-control-000019.nmcb"
+        },
+        {
+          "candidate": "/Users/home/cardboard-implementation-20261014/solver/warm-cgls-control19-checkpoint-480/output/checkpoints/coupon-control-000019.prefix",
+          "key": "external/coupon-control-000019.prefix"
+        },
+        {
+          "candidate": "/Users/home/cardboard-implementation-20261014/solver/warm-cgls-control19-checkpoint-480/output/checkpoints/coupon-control-000019.resume",
+          "key": "external/coupon-control-000019.resume"
+        },
+        {
+          "candidate": "/Users/home/cardboard-implementation-20261014/solver/warm-cgls-control19-checkpoint-480/diagnostic-captures.json",
+          "key": "external/diagnostic-captures.json"
+        },
+        {
+          "candidate": "/Users/home/cardboard-implementation-20261014/solver/warm-cgls-control19-checkpoint-480/output/manifest.json",
+          "key": "external/manifest.json"
+        },
+        {
+          "candidate": "/Users/home/cardboard-implementation-20261014/solver/warm-cgls-control19-checkpoint-480/native-environment.json",
+          "key": "external/native-environment.json"
+        },
+        {
+          "candidate": "/Users/home/cardboard-implementation-20261014/solver/warm-cgls-control19-checkpoint-480/output/observations.csv",
+          "key": "external/observations.csv"
+        },
+        {
+          "candidate": "/Users/home/cardboard-implementation-20261014/solver/warm-cgls-control19-checkpoint-480/prediction.json",
+          "key": "external/prediction.json"
+        },
+        {
+          "candidate": "/Users/home/cardboard-implementation-20261014/solver/warm-cgls-control19-checkpoint-480/receipt.json",
+          "key": "external/receipt.json"
+        },
+        {
+          "candidate": "/Users/home/cardboard-implementation-20261014/solver/warm-cgls-control19-checkpoint-480/output/result.json",
+          "key": "external/result.json"
+        }
+      ],
+      "missing_count": 12,
+      "verified_by_class": {
+        "external": 20,
+        "runtime": 4,
+        "source": 805
+      },
+      "verified_count": 817
+    }
+  },
+  "schema": "numi.cardboard.native497_cached_cgls_operator_audit.v1",
+  "source_binding": {
+    "cached_operator_module_sha256": "4a7e9c0cbf09eee0ad1f8f5b2b09314a2c0789a908aaab530b56cfff6a1c82ff",
+    "cgls_binary_sha256": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646",
+    "frozen_source_manifest_sha256": "c2e6e23be57d3245c490c7f10f4abee55271a4fe051db6a5ef313de2de798394",
+    "operator_fd_capture_sha256": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-admission-encoder-182-003",
+    "state_manifest_sha256": "b03e1bf2ee33162b2cca750ac14127d1e4a1b2e6df68c1fe71b081b0b251975c",
+    "state_payload_sha256": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1",
+    "state_reader_sha256": "ee400288607bf220502fd4670923972f7b79cce2d810f247d6889ed4665f4b48"
+  },
+  "state_reader_validation": {
+    "array_count": 24,
+    "environment_count": 2,
+    "manifest": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.json",
+    "newton_iteration": 63,
+    "node_count": 882,
+    "payload": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.bin",
+    "payload_bytes": 4327464,
+    "payload_sha256": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1",
+    "projected_history_status": "unavailable_not_persisted",
+    "root": 20,
+    "schema": "numi.matter.base_cgls_state_capture.v1",
+    "tetrahedron_count": 1920
+  },
+  "state_to_operator_capture_join": {
+    "all_geometry_cache_rhs_and_history_joins_exact_or_signedzero_only": true,
+    "counts": {
+      "node": 1764,
+      "tetrahedron": 3840
+    },
+    "exact_word_tallies": {
+      "accepted_history_exact": 3840,
+      "accepted_nodes_exact": 1764,
+      "accepted_nodes_signedzero_only": 0,
+      "accepted_tetrahedra_exact": 956,
+      "accepted_tetrahedra_signedzero_only": 2884,
+      "base_rhs_float4_exact": 1764,
+      "cache_valid_exact": 3840,
+      "cache_values_exact": 3840,
+      "candidate_nodes_exact": 1764,
+      "candidate_nodes_signedzero_only": 0,
+      "candidate_tetrahedra_exact": 956,
+      "candidate_tetrahedra_signedzero_only": 2884,
+      "newton_correction_xyz_exact": 1764
+    },
+    "expected_counts": {
+      "node": 1764,
+      "tetrahedron": 3840
+    },
+    "mismatches": {}
+  },
+  "verdict": "CPU-only reconstruction of the captured FP32 cached FEM operator; not an independent constitutive reference, native FP64 run, or physical qualification"
+}

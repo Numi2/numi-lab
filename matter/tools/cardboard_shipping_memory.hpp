@@ -6,6 +6,7 @@
 
 #include "numi/matter/shared.h"
 #include "numi/matter/sparse_private_contact_admission.hpp"
+#include "numi/matter/detail/full_contact_armijo_scratch_budget.hpp"
 #include "cardboard_inside_clearance.hpp"
 #include "cardboard_cohesive_armijo_tiles.hpp"
 
@@ -878,34 +879,15 @@ inline ShippingMemoryBudget estimateShippingMemoryBudget(
         input.fullContactArmijoRequired) {
         const std::uint64_t leafCount = primitiveCount == 0u ? 0u :
             static_cast<std::uint64_t>(std::bit_ceil(primitiveCount));
-        const std::uint64_t privateSurfaceBytes =
-            input.fullContactArmijoAliasesSurfaceScratch ? 0u :
-                shippingMemoryCheckedAdd(
-                    shippingMemoryCheckedMultiply3(
-                        environments, primitiveCount,
-                        sizeof(NMContinuumSurfacePrimitiveGPU) +
-                            4u * sizeof(std::uint32_t)),
-                    shippingMemoryCheckedMultiply3(
-                        environments, leafCount,
-                        4u * sizeof(nm_float4)));
-        constexpr std::uint64_t perDeformableCandidateBytes =
-            sizeof(NMDeformableContactCandidateGPU) +
-            sizeof(NMDeformableContactGPU) +
-            2u * sizeof(std::uint32_t) + 6u * sizeof(std::uint32_t);
-        const std::uint64_t candidateBytes = shippingMemoryCheckedMultiply3(
-            environments, input.deformableContactCapacity,
-            perDeformableCandidateBytes);
-        const std::uint64_t nodeRangeBytes = shippingMemoryCheckedMultiply3(
-            environments,
-            shippingMemoryCheckedAdd(input.nodeCount, input.gridNodeCount),
-            sizeof(NMIncidenceRangeGPU));
-        const std::uint64_t perEnvironmentBytes = shippingMemoryCheckedAdd(
-            shippingMemoryCheckedAdd(candidateBytes, nodeRangeBytes),
-            shippingMemoryCheckedMultiply(
-                environments, 4u * sizeof(std::uint32_t) +
-                    sizeof(NMIndirectDispatchGPU)));
-        deformableArmijoBytes = shippingMemoryCheckedAdd(
-            privateSurfaceBytes, perEnvironmentBytes);
+        numi::matter::detail::FullContactArmijoScratchBytes scratchBytes;
+        if (!numi::matter::detail::estimateFullContactArmijoScratchBytes(
+                environments, primitiveCount, leafCount,
+                input.deformableContactCapacity,
+                shippingMemoryCheckedAdd(input.nodeCount, input.gridNodeCount),
+                input.fullContactArmijoAliasesSurfaceScratch, scratchBytes))
+            throw std::length_error(
+                "shipping full-contact Armijo scratch byte inventory overflow");
+        deformableArmijoBytes = scratchBytes.total;
         const bool countsSupported = environments <= 4u &&
             input.tetrahedronCount <= 32768u &&
             input.nodeCount <= kShippingFullContactArmijoNodeLimit &&
@@ -913,7 +895,8 @@ inline ShippingMemoryBudget estimateShippingMemoryBudget(
             primitiveCount <= std::numeric_limits<std::uint32_t>::max() &&
             leafCount <= std::numeric_limits<std::uint32_t>::max() / 4u;
         const bool admitted = countsSupported &&
-            deformableArmijoBytes <= 128ull * 1024ull * 1024ull &&
+            deformableArmijoBytes <=
+                numi::matter::detail::kFullContactArmijoScratchBudgetBytes &&
             input.environmentCount <= 4u && input.tetrahedronCount <= 32768u &&
             input.nodeCount <= kShippingFullContactArmijoNodeLimit &&
             input.deformableContactCapacity <= 131072u;

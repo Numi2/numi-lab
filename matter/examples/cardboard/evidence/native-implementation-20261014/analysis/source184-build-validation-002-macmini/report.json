@@ -1,0 +1,29 @@
+{
+  "schema": "numi.cardboard.source184-build-validation.v1",
+  "host": "macmini",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-budget-184",
+  "build_dir": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source184-002",
+  "source_frozen_sha256": "405a37ff7af30dceb267c1126b257145e409842de8d61fcc0cc52e4018084f60",
+  "source_build_sha256": "64076d3edfb48ac0f7a9014fa83e5a92563b5a640dec3f12a2b9576abe08eebd",
+  "compile_commands_sha256": "78e04e084620bcc7ef47e9d3525d97118dbf40024805cf8d9703dad4f443e5a4",
+  "selected_files_verified": 807,
+  "configure_support_files_verified": 1034,
+  "transfer_verification_sha256": "b26296a725436c34daba1e33f75b3338be1f68186ee83d732d2724760066b5ef",
+  "build_started_after_verified_complete_transfer": true,
+  "first_build_qualification": "UNQUALIFIED_TRANSFER_OVERLAP; preserved",
+  "ctest_count": 4,
+  "environment_cases": 12,
+  "artifacts_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source184-002/numi-matter-cardboard-coupon-resume-check": "a7b47d845686b56b5c83cbb1a2a80ce3817c65a19a95936c94480f8266edcb2e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source184-002/numi-matter-cardboard-full-contact-scratch-budget-check": "78a82c52e3ffaf74bd46581cdd4d136a971fb11205624fa6f8fb7204c95bdc00",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source184-002/numi-matter-cardboard-probe": "66ad6d1b637a5bcef1f115047cb1a2df376001741d1a119969c0b674ad2f93d3",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source184-002/numi-matter-cardboard-shipping-memory-check": "7fef813482c6f49b854e388ddd138e95e4a5793f95ffdaa814082b5567150924",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source184-002/shaders/NumiMatter.metallib": "c3c8499f29ecb97f0181543c826fa8feb85fe2de1193f3c6275ecb46e8bc1df2",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source184-002/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+  },
+  "production_metallib_unchanged": true,
+  "gpu_dispatch": false,
+  "shipping_allocation_measured": false,
+  "full_protocol_qualification": false,
+  "finished_at_utc": "2026-10-16T05:55:30.260343+00:00"
+}

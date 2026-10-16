@@ -1,0 +1,153 @@
+{
+  "artifact": "native174-fp64-direction-units-erratum-001",
+  "bindings": {
+    "capture_arrays": {
+      "bytes": 6610397,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native469-bilinear-layer-replay-002/arrays.npz",
+      "sha256": "4361b6aa9f0d269a9733b0bd8f508dbc1204624451611816512dad02c303d27c"
+    },
+    "capture_generator": {
+      "bytes": 24729,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-003/candidate/matter/tools/cardboard_bilinear_capture_layers.py",
+      "sha256": "45f8fa26edb1222c61faaf6a2cfb05afb14476b4949b00e1700a34168802d939"
+    },
+    "correct_direction_input": {
+      "bytes": 64202,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-direction-units-audit-001/captured-gradient-direction.npz",
+      "sha256": "86d8a5004301386621e4188dc154f1db4c36c973e0fdfd0507ea083db4613afe"
+    },
+    "direction_audit_manifest": {
+      "bytes": 305,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-direction-units-audit-001/manifest.json",
+      "sha256": "a6f3e97626ec8393546c7f0d05e63eb501cc3a20f782b101da2dc54060385615"
+    },
+    "direction_audit_report": {
+      "bytes": 1491,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-direction-units-audit-001/report.json",
+      "sha256": "fc4bfee339a51f6bf6caafc495d3cfadc73504161bb83a70209d01b628f48adf"
+    },
+    "exact_epsilon_native_inputs": {
+      "bytes": 10613558,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native469-material-replay-174-host-macmini-002/runs/invocations/20261016T040030Z-f41839901e414db49c077be20a95edf6/native-output/epsilon-grid-inputs.jsonl",
+      "sha256": "5827115ed4ad6716605e2286b9ddcf55aa4142dc7a9de8e7415c1c7b979d6c08"
+    },
+    "mixed_mp_arrays": {
+      "bytes": 5159472,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-005/run-002/mixed_reference_arrays.npz",
+      "sha256": "107e942cc2e131eed8f8db7759f8deb3e86fcdc42d8da249996daf51d6ed11ad"
+    },
+    "profile_cumulative": {
+      "bytes": 4323,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/run-011-profile-eps12-plus-32/profile-top-cumulative.txt",
+      "sha256": "d39c90dd10d9cd937568f8adaa57f933314073e2ff3bef8049af9ac5f7e34b57"
+    },
+    "profile_inputs": {
+      "bytes": 14618,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/run-011-profile-eps12-plus-32/input.npz",
+      "sha256": "4b17cecc56486eb588c6e2f39dba5f8cb1e504de5af74686eca56aa5fe9f2baa"
+    },
+    "profile_pstats": {
+      "bytes": 25899,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/run-011-profile-eps12-plus-32/profile.pstats",
+      "sha256": "f739df4fd778a77288611c50d5b545ed0e40b600c65476d2a2ba637957d7db1f"
+    },
+    "profile_run_state": {
+      "bytes": 1334,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/run-011-profile-eps12-plus-32/run-state.json",
+      "sha256": "a9ecb8680d5fc36bfe114a89bc67ee445597c06f6dc66c75bc3e7d1a8f4068a4"
+    },
+    "profile_script": {
+      "bytes": 6357,
+      "hash_provenance": "Recorded in the pre-run file inventory immediately before run-011 dispatch; exact historical bytes no longer retained, so this is transcript evidence, not a recomputable current-file hash.",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/profile_directional_subset.py",
+      "sha256": "e775821bfc93bb0ecbe93bec2a4b9b3dbe138bf08ffa788fa33c7aa9f220836e"
+    },
+    "profile_script_current_unexecuted": {
+      "bytes": 7516,
+      "note": "Later classifier-safe edit targeting run-012; never executed because root identified the direction-unit defect.",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/profile_directional_subset.py",
+      "sha256": "b870fea40f6c4e50036879c6a14493a05f94a3eb9829c3042a1d6bea581c48d4"
+    },
+    "profile_total": {
+      "bytes": 4218,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/run-011-profile-eps12-plus-32/profile-top-total.txt",
+      "sha256": "0bded7d12707c7c546917088aa4024a4772c3d5bccc42077af9fe5b1f093bcbb"
+    },
+    "run006_attempt": {
+      "bytes": 1850,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/run-006/attempt.json",
+      "sha256": "4cb5c7d58bf4283badac39a4b85d0cbcb4b1bf71f8d67a28556b858346dc369e"
+    },
+    "run006_cpu_profile": {
+      "bytes": 839522,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/run-006/cpu-profile-18m.sample.txt",
+      "sha256": "286bd623c3f6edc168342ea8412561f53f9a1402751dac6a4962a9df5373663c"
+    },
+    "run006_qualifier": {
+      "bytes": 30215,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/qualify.py",
+      "sha256": "8131f158b7f726b5e8c07444c632b56e11becb0b0404a5c2cdd42511221f0547"
+    },
+    "run007_center_projection": {
+      "bytes": 429414,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/run-007/projection-center.npz",
+      "sha256": "320004cabcb3bf327fdd8c87ad1f82b42e0531d7e311e75fef207daf0dc5346a"
+    },
+    "run007_center_tangent": {
+      "bytes": 820395,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/run-007/center-tangent.partial.npz",
+      "sha256": "185663c6e4172968586f2af05c85b78fd166f76f0442d6d9984205fe60ba1a92"
+    },
+    "run007_center_tangent_summary": {
+      "bytes": 1009,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/run-007/center-tangent-summary.partial.json",
+      "sha256": "4059a2dbc46bbd35515c2b3c1f436c6eb79e37ed8bc3cf44dbe0a5c0ff74809d"
+    },
+    "run007_incremental_qualifier": {
+      "bytes": 33115,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/qualify_incremental.py",
+      "sha256": "16be29511408dfbc13297416fe3554595b834d85a678c44414e157e974813ab5"
+    },
+    "run007_mp_root_rows": {
+      "bytes": 6602,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/run-007/mp-root-tangent-comparisons.jsonl",
+      "sha256": "6e7163b423cceef5b332254915ae9293e37985b44be465352a8da46e497b0093"
+    },
+    "run007_progress": {
+      "bytes": 1173,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/run-007/progress.jsonl",
+      "sha256": "d5680f08e57968b44e6d148dfde34e1ed0220079cc690a5ce8acc3420fc17169"
+    },
+    "run007_stop_record": {
+      "bytes": 4535,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/run-007-stop-record.json",
+      "sha256": "18cf05256baba6c2e1c869237e828da6be0a1f321632ab3416522d15fedf87fb"
+    },
+    "source003_endpoint_arrays": {
+      "bytes": 151789,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-realized-epsilon-reference-003/endpoint-reference-arrays.npz",
+      "sha256": "c7284baf8f48bc0a4d7cdd469031525daca6acad135c047eacb226e2aca2865b"
+    },
+    "source003_pairs": {
+      "bytes": 361972,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-realized-epsilon-reference-003/pair-comparisons.jsonl",
+      "sha256": "957780aaaca11ea196e8fc9e1aad0487b7b6a980640abf645eb57f16b5ed72d4"
+    },
+    "v2_dd_reference": {
+      "bytes": 5683,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/compensated_reference_v2.py",
+      "sha256": "8c7703c54a573368aebc1f7494751cd534e55bc26e661a27a9f50968a8979953"
+    },
+    "v2_focused_tests": {
+      "bytes": 6286,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/test_compensated_reference_v2.py",
+      "sha256": "24a706168b8379822fd864bbe8acb159cbaf6c85d84ead40079745e2df210521"
+    }
+  },
+  "created_utc": "2026-10-16",
+  "readme_path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-direction-units-erratum-001/README.md",
+  "readme_sha256": "14efa82bcd996ff7c40263e830cbd46e3799e5b523bbe8149010eb4513030f43",
+  "report_path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-direction-units-erratum-001/report.json",
+  "report_sha256": "4a2b361171e74f59c603350628a20a77f20230b26b4f6a7195cf3990a6fb7e99",
+  "schema": "numi.cardboard.analysis-artifact-manifest.v1"
+}

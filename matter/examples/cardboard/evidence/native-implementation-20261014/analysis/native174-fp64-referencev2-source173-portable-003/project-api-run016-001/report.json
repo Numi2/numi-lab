@@ -1,0 +1,70 @@
+{
+  "all_api_gates_pass": true,
+  "cases": [
+    {
+      "all_reasons": [],
+      "elapsed_seconds": 0.6490785829955712,
+      "exact_correction_match": true,
+      "exact_iteration_match": true,
+      "exact_residual_match": true,
+      "exact_state_match_rows": 1728,
+      "expected_valid_rows": 1728,
+      "input_sha256": "320004cabcb3bf327fdd8c87ad1f82b42e0531d7e311e75fef207daf0dc5346a",
+      "max_dynamic_correction": 3.8829937654268817e-13,
+      "max_scaled_residual": 1.8930536904633616e-12,
+      "max_state_abs_delta": 0.0,
+      "name": "centers",
+      "public_project_api_matches_detailed": true,
+      "rows": 1728,
+      "strict_correction_gate_pass": true,
+      "strict_fail_rows": 0,
+      "strict_pass_rows": 1728,
+      "strict_residual_gate_pass": true
+    },
+    {
+      "all_reasons": [],
+      "elapsed_seconds": 0.4748830419848673,
+      "exact_correction_match": true,
+      "exact_iteration_match": true,
+      "exact_residual_match": true,
+      "exact_state_match_rows": 576,
+      "expected_valid_rows": 576,
+      "input_sha256": "44fdd524f6af2c7e848ad3e2c77eb73a74e91de61b53d3b953de077fc8bc064c",
+      "max_dynamic_correction": 1.43154926882288e-15,
+      "max_scaled_residual": 1.9086701356769944e-12,
+      "max_state_abs_delta": 0.0,
+      "name": "realized_endpoints",
+      "public_project_api_matches_detailed": true,
+      "rows": 576,
+      "strict_correction_gate_pass": true,
+      "strict_fail_rows": 0,
+      "strict_pass_rows": 576,
+      "strict_residual_gate_pass": true
+    }
+  ],
+  "portable_hashes": {
+    "cardboard_bilinear_fp64_reference.py": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995",
+    "cardboard_compensated_fp64_base.py": "b135c6ff0091f0833c8dad89239abdde209fc6e0eb91babeb72313b29a88bb6c",
+    "cardboard_compensated_fp64_fixture.py": "a395f157399823a9fe58ba47fb47f073e01147a81a935acac0c1413aa7eea0a3",
+    "cardboard_compensated_fp64_reference.py": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "cardboard_dd_fp64.py": "8edfd60beb2c38d181a08023d9f97bea0fec80b0f6fa04f8690c7dfe234330c2"
+  },
+  "run016_inputs": {
+    "centers": {
+      "expected_valid_rows": 1728,
+      "rows": 1728,
+      "sha256": "320004cabcb3bf327fdd8c87ad1f82b42e0531d7e311e75fef207daf0dc5346a"
+    },
+    "realized_endpoints": {
+      "expected_valid_rows": 576,
+      "rows": 576,
+      "sha256": "44fdd524f6af2c7e848ad3e2c77eb73a74e91de61b53d3b953de077fc8bc064c"
+    }
+  },
+  "schema": "numi.cardboard.strict-v2-projection-api-run016-replay.v1",
+  "source_sha256": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995",
+  "strict_gates": {
+    "dynamic_correction_max": 2e-11,
+    "scaled_residual_max": 2e-12
+  }
+}

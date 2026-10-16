@@ -1,0 +1,116 @@
+{
+  "classification": "CPU-only source173 reference tool seal; not native/physical/calibration/full-coupon qualification",
+  "created_utc": "2026-10-16",
+  "gates": {
+    "centered_derivative_relative_l2": 1e-06,
+    "dynamic_scaled_correction": 2e-11,
+    "scaled_residual": 2e-12
+  },
+  "hashes": {
+    "portable_integration_patch": {
+      "path": "portable-integration.patch",
+      "sha256": "b230b07cad9c271c33901c5dd1b6b129d2a3490296c47a03d7797a37a76b0df1"
+    },
+    "portable_modules": {
+      "cardboard_compensated_fp64_base.py": {
+        "path": "r-ready/matter/tools/cardboard_compensated_fp64_base.py",
+        "sha256": "d5e591b0fd58ed8440194ec225d21a425ccf1ea9cf711393ddaaa0ce749bdf91"
+      },
+      "cardboard_compensated_fp64_reference.py": {
+        "path": "r-ready/matter/tools/cardboard_compensated_fp64_reference.py",
+        "sha256": "fcfb49e4906d49b2a65fab405797c5d06bdfc7e7e03c11e20ea6de38929ae989"
+      },
+      "cardboard_dd_fp64.py": {
+        "path": "r-ready/matter/tools/cardboard_dd_fp64.py",
+        "sha256": "7601e019d3f6b5faf3d3b5fae04d9a5694f7529354fe62295ceac0f96734a4eb"
+      }
+    },
+    "reference_tests_and_failed_attempts": {
+      "run018_readme": {
+        "path": "run-018-source173-nine-basis-eps8-26/README.md",
+        "sha256": "27795ab1b59795c00e005214c0eb496c589650ae0069e13e957bc7282dd76bd2"
+      },
+      "test-initial-failure-erratum.md": {
+        "path": "test-initial-failure-erratum.md",
+        "sha256": "2338140e6d9275bcfe20b9b46611e464ea86031cf11728e25568ef217e68ecbe"
+      },
+      "test_referencev2_source173.initial-failure.py": {
+        "path": "test_referencev2_source173.initial-failure.py",
+        "sha256": "76f4b05cd65464f0c2520746752924e7a4e59c74c68d2e9fe233258b084e28d3"
+      }
+    },
+    "run018": {
+      "arrays": {
+        "path": "run-018-source173-nine-basis-eps8-26/nine-basis-fd-arrays.npz",
+        "sha256": "626ad3fe6d6bd147b3b18e8d8a688d63a430a43af33c2aeb9ca4f103a8811808"
+      },
+      "center_projection": {
+        "path": "run-018-source173-nine-basis-eps8-26/center-projection.npz",
+        "sha256": "dc7a1642c2f4772b203ac72b862ecec9b217737f56725dfe5e14d09245b12bf3"
+      },
+      "center_tangent": {
+        "path": "run-018-source173-nine-basis-eps8-26/center-implicit-tangent.npz",
+        "sha256": "029ed30587aa8c1d67885a367e4f28cce406ef7e3a00660c703271a9e5b7a9f5"
+      },
+      "portable_tools_used": {
+        "cardboard_compensated_fp64_base.py": {
+          "path": "run-018-source173-nine-basis-eps8-26/portable-tools-used/matter/tools/cardboard_compensated_fp64_base.py",
+          "sha256": "f680ba94208fb135bf7abeec49a904937367794ebc4258e8efb0a7e7f6f462e3"
+        },
+        "cardboard_compensated_fp64_reference.py": {
+          "path": "run-018-source173-nine-basis-eps8-26/portable-tools-used/matter/tools/cardboard_compensated_fp64_reference.py",
+          "sha256": "0e55737db7b3e3a98cc9c6ecbd633196c49cae60ed0cac2850f67806757b669b"
+        },
+        "cardboard_dd_fp64.py": {
+          "path": "run-018-source173-nine-basis-eps8-26/portable-tools-used/matter/tools/cardboard_dd_fp64.py",
+          "sha256": "7601e019d3f6b5faf3d3b5fae04d9a5694f7529354fe62295ceac0f96734a4eb"
+        }
+      },
+      "report": {
+        "path": "run-018-source173-nine-basis-eps8-26/report.json",
+        "sha256": "d62f5929828eb82199f65ff0b623d5745b9fc644f929f8d03e55a8828ec3af24"
+      },
+      "unresolved16": {
+        "path": "run-018-source173-nine-basis-eps8-26/unresolved-row-directions.json",
+        "sha256": "972a8ade31ae7e70c318a424b4a4757efd2533bec2f2ceec5799241d2232ade8"
+      }
+    },
+    "source173_equation": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/matter/tools/cardboard_bilinear_fp64_reference.py",
+      "sha256": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995"
+    },
+    "tests": {
+      "test_r_ready_relative_imports.py": {
+        "path": "test_r_ready_relative_imports.py",
+        "sha256": "f55f1b4a7e7a8303f8a8bdf134e59190f1972713a17b4e9d556adbf63962df25"
+      },
+      "test_referencev2_source173.py": {
+        "path": "test_referencev2_source173.py",
+        "sha256": "5a91710ab8f307ddd466f7cf52533c840dde2bfffbe79d01f5b74a4616975d6f"
+      }
+    }
+  },
+  "limitations": [
+    "16 of 15,552 row/direction combinations lack two adjacent sampled derivative passes; four have zero sampled passes and twelve have one.",
+    "No measured absolute noise floor is established.",
+    "The run is CPU FP64 reference validation only; native Metal, calibration, assembled/full-cycle, and physical qualification remain open.",
+    "Earlier test harness failures are preserved as explicitly superseded artifacts."
+  ],
+  "portable_test_receipt": {
+    "command": "/Users/home/.pyenv/versions/3.10.12/bin/python3 -m unittest -v test_referencev2_source173 test_r_ready_relative_imports",
+    "exit_code": 0,
+    "tests_failed": 0,
+    "tests_passed": 7
+  },
+  "preseal_validation": {
+    "portable_patch_dry_run_and_exact_output_comparison": "PASS",
+    "py_compile_exit_code": 0,
+    "qualified_python": "/Users/home/.pyenv/versions/3.10.12/bin/python3"
+  },
+  "schema": "numi.cardboard.compensated-fp64-portable-reference-seal.v1",
+  "scope": {
+    "nine_basis_run": "run018 exact source173 full nine-basis FD audit",
+    "portable_reference": "additive relative-import modules and patch; no existing source edited",
+    "unresolved_derivatives": 16
+  }
+}

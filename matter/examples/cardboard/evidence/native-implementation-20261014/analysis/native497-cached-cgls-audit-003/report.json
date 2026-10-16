@@ -1,0 +1,286 @@
+{
+  "assembly_and_precision": {
+    "float32_sparse_action_proxy": {
+      "LU_solution_rounded_to_FP32": {
+        "csr_float32_residual_l2": 6.1769372868121374e-09,
+        "difference_l2": 5.240570203908615e-09,
+        "fp64_replay_residual_l2_for_same_stored_vector": 2.7310690449274773e-09,
+        "scope_note": "float32 sparse-CSR arithmetic proxy; not native Metal element/gather accumulation order"
+      },
+      "total_X": {
+        "csr_float32_residual_l2": 2.7136339616028704e-08,
+        "difference_l2": 6.05875865537065e-09,
+        "fp64_replay_residual_l2_for_same_stored_vector": 2.6548842652915708e-08,
+        "scope_note": "float32 sparse-CSR arithmetic proxy; not native Metal element/gather accumulation order"
+      },
+      "x0": {
+        "csr_float32_residual_l2": 2.0980655113756769e-07,
+        "difference_l2": 5.6191422832944775e-09,
+        "fp64_replay_residual_l2_for_same_stored_vector": 2.095578359180791e-07,
+        "scope_note": "float32 sparse-CSR arithmetic proxy; not native Metal element/gather accumulation order"
+      }
+    },
+    "global_duplicate_entry_resummation": {
+      "changed_stiffness_entries": 13181,
+      "compensated_residual_l2": 3.327300207243954e-17,
+      "compensated_solution_difference_l2": 6.006077916259158e-12,
+      "compensated_solution_relative_to_direct_l2": 1.243408489613473e-12,
+      "method": "recompute the same FP64 local element entries from the captured FP32 cache, then math.fsum duplicate global (row,column) terms",
+      "relative_stiffness_difference_l2": 9.760030772166548e-17,
+      "scope_note": "only global accumulation of already-computed FP64 element entries changes; local tensor/geometry arithmetic remains binary64 and identical",
+      "stiffness_difference_l2_from_source_COO_assembly": 2.0121025472225398e-16,
+      "stiffness_difference_max_abs": 2.7755575615628914e-17
+    },
+    "separate_mass_and_stiffness": {
+      "dt2_stiffness_l2_frobenius": 2.0615739788040544,
+      "dt2_stiffness_nnz": 71046,
+      "mass_diagonal_l2": 2.653912528676425e-05,
+      "mass_nnz": 2538,
+      "operator_l2_frobenius": 2.061587551895961,
+      "relative_skew_norm": 0.0004870525615645034
+    }
+  },
+  "baseline_report_summary": {
+    "baseline_verdict": "CPU-only reconstruction of the captured FP32 cached FEM operator; not an independent constitutive reference, native FP64 run, or physical qualification",
+    "native_trace_control": [
+      {
+        "b_dot_Ax": 3.55226626e-10,
+        "candidate_l2": 4.83631706,
+        "environment": 0,
+        "linear_residual_l2": 2.64973288e-08,
+        "primary_policy_eligible": true,
+        "refinement_installed": true
+      },
+      {
+        "b_dot_Ax": 0,
+        "candidate_l2": 0,
+        "environment": 1,
+        "linear_residual_l2": 0,
+        "primary_policy_eligible": false,
+        "refinement_installed": false
+      }
+    ],
+    "source_binding": {
+      "cached_operator_module_sha256": "4a7e9c0cbf09eee0ad1f8f5b2b09314a2c0789a908aaab530b56cfff6a1c82ff",
+      "cgls_binary_sha256": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646",
+      "frozen_source_manifest_sha256": "c2e6e23be57d3245c490c7f10f4abee55271a4fe051db6a5ef313de2de798394",
+      "operator_fd_capture_sha256": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-admission-encoder-182-003",
+      "state_manifest_sha256": "b03e1bf2ee33162b2cca750ac14127d1e4a1b2e6df68c1fe71b081b0b251975c",
+      "state_payload_sha256": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1",
+      "state_reader_sha256": "ee400288607bf220502fd4670923972f7b79cce2d810f247d6889ed4665f4b48"
+    }
+  },
+  "capture": {
+    "captured_cgls_selected_words": [
+      1,
+      0
+    ],
+    "constraint_tag_counts": {
+      "0": 846,
+      "1": 36
+    },
+    "device_program_fingerprint": "430c1fc2739f9879",
+    "dt_seconds": 4.999999873689376e-05,
+    "environment": 0,
+    "environment_count": 2,
+    "field_backing_dofs_excluded": true,
+    "fixed_node_count": 36,
+    "fixed_xyz_dofs_eliminated": 108,
+    "free_node_count": 846,
+    "mass_diagonal_min_max": [
+      5.633233968183049e-08,
+      1.0476492207089905e-06
+    ],
+    "native_case": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497",
+    "newton_iteration": 63,
+    "nodes_per_environment": 882,
+    "operator_dimension_free_xyz_only": 2538,
+    "operator_nnz": 71046,
+    "rigid_contact_cohesive_unknowns_excluded": true,
+    "root": 20,
+    "selected_environment_only": "env0 is selected; env1 is unselected private scratch and is excluded from solve/condition metrics",
+    "tets_per_environment": 1920,
+    "world_fingerprint": "48d3b8b313356bd9"
+  },
+  "conditioning": {
+    "A_infinity_norm_exact_sparse": 0.48969842774065436,
+    "A_one_norm_exact_sparse": 0.48969842774065436,
+    "condition_one_estimates": [
+      3195230.6028210437,
+      3195230.6028210437,
+      3195230.6028210437
+    ],
+    "interpretation": "onenormest returns an estimate/lower estimate for inverse norm, not a certified upper bound; condition values are diagnostic estimates, not rigorous bounds",
+    "inverse_one_norm_estimates": [
+      6524894.5510465205,
+      6524894.5510465205,
+      6524894.5510465205
+    ],
+    "iteration_limit": 5,
+    "method": "Hager-Higham 1-norm estimator via scipy.sparse.linalg.onenormest applied to SuperLU solve and transpose solve LinearOperator",
+    "parameter_t": 2,
+    "repeated_runs": 3
+  },
+  "input_bindings": {
+    "cached_operator_helper": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-admission-encoder-182-003/matter/tools/cardboard_cached_operator_audit.py",
+      "sha256": "4a7e9c0cbf09eee0ad1f8f5b2b09314a2c0789a908aaab530b56cfff6a1c82ff"
+    },
+    "cgls_capture": {
+      "bytes": 494048,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture",
+      "sha256": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646"
+    },
+    "operator_fd_capture": {
+      "bytes": 38795294,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-operator-fd-capture/capture",
+      "sha256": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3"
+    },
+    "prior_audit_001": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native497-cached-cgls-audit-001/report-v2.json",
+      "sha256": "97631b4778273f29efaf7aebcb9f7fd789956057f5dd4231d187934fae883b4a"
+    },
+    "prior_audit_002_adjudicated_report_v4": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native497-cached-cgls-audit-002/report-v4.json",
+      "sha256": "c6b8070c6e29c46840000ab40a43877aa9733d412a7c3d5668f14a9e3b0aa1fb"
+    },
+    "prior_audit_002_manifest": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native497-cached-cgls-audit-002/manifest.json",
+      "sha256": "f04b224849cf6127c56b5e34823e3eb14c35f57c758b774c87935a6c619bff46"
+    },
+    "source_snapshot_manifest": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-admission-encoder-182-003/frozen-source.json",
+      "sha256": "c2e6e23be57d3245c490c7f10f4abee55271a4fe051db6a5ef313de2de798394"
+    },
+    "state_manifest": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.json",
+      "sha256": "b03e1bf2ee33162b2cca750ac14127d1e4a1b2e6df68c1fe71b081b0b251975c"
+    },
+    "state_payload": {
+      "bytes": 4327464,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.bin",
+      "sha256": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1"
+    },
+    "state_reader": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/base-cgls-state-reader-abi-repair-148-001/tools/read_state_capture.py",
+      "sha256": "ee400288607bf220502fd4670923972f7b79cce2d810f247d6889ed4665f4b48"
+    }
+  },
+  "limits": [
+    "Direct solve and condition estimates apply only to the reconstructed environment-0 free-mechanical-xyz cached FEM block at captured root/Newton.",
+    "The exact operator coefficients come from a captured FP32 production cache; this is not a constitutive FP64 oracle.",
+    "Fixed xyz DOFs are eliminated, and all field backing, rigid, contact and cohesive rows are excluded.",
+    "The condition number is estimated in the one norm; no certified upper bound or independent full-system conditioning result is provided.",
+    "Global compensated resummation tests only duplicate-entry assembly; it does not emulate native Metal element/gather order or FP32 atomic arithmetic.",
+    "The native run remains a failed/incomplete coupon segment with zero accepted controls; no convergence or physical qualification is implied."
+  ],
+  "operator_provenance": {
+    "A": "M + dt^2 K reconstructed in binary64 from captured FP32 algorithmic dP/dF cache and geometry using the frozen source182 helper",
+    "mass": "lumped captured nodal masses on free xyz rows, diagonal",
+    "not_claimed": [
+      "constitutive re-evaluation",
+      "native binary64 operator action",
+      "full coupled residual Jacobian",
+      "whole-run convergence"
+    ],
+    "stiffness": "captured full unsymmetric local tangent; no symmetrization"
+  },
+  "schema": "numi.cardboard.native497_cached_operator_direct_solve_conditioning.v1",
+  "sparse_direct_solve": {
+    "iterative_refinement": [
+      {
+        "correction_l2": 2.4454552113833203e-12,
+        "iteration": 1,
+        "residual_after_l2": 1.2595252470847116e-17,
+        "residual_before_l2": 2.9576591944446404e-17
+      },
+      {
+        "correction_l2": 1.6061808474261682e-12,
+        "iteration": 2,
+        "residual_after_l2": 1.1199585226517323e-17,
+        "residual_before_l2": 1.2595252470847116e-17
+      },
+      {
+        "correction_l2": 2.736268173549646e-12,
+        "iteration": 3,
+        "residual_after_l2": 1.2383502117033403e-17,
+        "residual_before_l2": 1.1199585226517323e-17
+      }
+    ],
+    "lu_pivot_diagnostics": {
+      "U_to_A_max_entry_ratio": 1.5782569186661883,
+      "abs_U_diagonal_max": 0.2148236195584322,
+      "abs_U_diagonal_min": 6.284952673243493e-06,
+      "abs_U_diagonal_min_over_max": 2.9256339159363154e-05,
+      "column_permutation_length": 2538,
+      "column_permutation_moved_count": 2535,
+      "column_permutation_sha256_le_i64": "92f29219625988985c63eb49d7a18580c68bd03dd445f6cf5116073978190b3b",
+      "column_permutation_unique": true,
+      "max_abs_A_entry": 0.16408759723921607,
+      "max_abs_U_entry": 0.2589723856101037,
+      "row_permutation_length": 2538,
+      "row_permutation_moved_count": 2535,
+      "row_permutation_sha256_le_i64": "790d53cbf28f2b095c39d6b6c2e9fc8405fe0b7e1b1004e843d5619ee9ef0316",
+      "row_permutation_unique": true
+    },
+    "method": "SciPy SuperLU sparse LU on CSC A, COLAMD ordering, default pivoting threshold 1.0",
+    "solve_vectors": {
+      "FP32_rounded_FP64_solution": {
+        "componentwise_backward_error_inf": 4.424996665191545e-08,
+        "finite": true,
+        "forward_error_l2_vs_LU_solution": 1.39231205689778e-07,
+        "normwise_backward_error_1": 8.756580223531105e-10,
+        "normwise_backward_error_inf": 3.3978214251824e-09,
+        "relative_forward_error_l2_vs_LU_solution": 2.8824345202903558e-08,
+        "residual_l1": 3.06291914933881e-08,
+        "residual_l2": 2.7310690449274773e-09,
+        "residual_linf": 1.6999357168884503e-09,
+        "residual_over_rhs_l2": 0.00014491335682835,
+        "rhs_l2": 1.8846220284320863e-05,
+        "solution_l2": 4.8303337043792665
+      },
+      "FP64_sparse_LU_solution": {
+        "componentwise_backward_error_inf": 2.0778434014056991e-16,
+        "finite": true,
+        "normwise_backward_error_1": 3.499524878256437e-18,
+        "normwise_backward_error_inf": 1.0853473533097149e-17,
+        "residual_l1": 1.2240808048625298e-16,
+        "residual_l2": 1.1199585226517323e-17,
+        "residual_linf": 5.430010587492099e-18,
+        "residual_over_rhs_l2": 5.94261610952029e-13,
+        "rhs_l2": 1.8846220284320863e-05,
+        "solution_l2": 4.830333688751162
+      },
+      "captured_original_Newton_x0": {
+        "componentwise_backward_error_inf": 0.0006794041905228403,
+        "finite": true,
+        "forward_error_l2_vs_LU_solution": 0.007129543850895302,
+        "normwise_backward_error_1": 1.145214401256841e-07,
+        "normwise_backward_error_inf": 8.531791705544397e-08,
+        "relative_forward_error_l2_vs_LU_solution": 0.001475994063825967,
+        "residual_l1": 4.012931848712861e-06,
+        "residual_l2": 2.095578359180791e-07,
+        "residual_linf": 4.2737066663819266e-08,
+        "residual_over_rhs_l2": 0.011119356176284376,
+        "rhs_l2": 1.8846220284320863e-05,
+        "solution_l2": 4.836315978382837
+      },
+      "captured_total_warm_CGLS_X": {
+        "componentwise_backward_error_inf": 0.00040113805255754766,
+        "finite": true,
+        "forward_error_l2_vs_LU_solution": 0.007129886254797882,
+        "normwise_backward_error_1": 1.9010365538196708e-08,
+        "normwise_backward_error_inf": 8.765217445548038e-09,
+        "relative_forward_error_l2_vs_LU_solution": 0.0014760649500058136,
+        "residual_l1": 6.661390532129988e-07,
+        "residual_l2": 2.6548842652915708e-08,
+        "residual_linf": 4.390634259875133e-09,
+        "residual_over_rhs_l2": 0.00140870913384171,
+        "rhs_l2": 1.8846220284320863e-05,
+        "solution_l2": 4.836317037642793
+      }
+    }
+  },
+  "verdict": "CPU-only sparse direct solve and condition estimate for one captured FP32-derived FEM operator; not a constitutive reference, native FP64 execution, or full coupled/physical qualification"
+}

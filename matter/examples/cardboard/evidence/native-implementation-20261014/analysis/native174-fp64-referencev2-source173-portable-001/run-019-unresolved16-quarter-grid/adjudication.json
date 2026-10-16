@@ -1,0 +1,48 @@
+{
+  "capture_sha256": "4361b6aa9f0d269a9733b0bd8f508dbc1204624451611816512dad02c303d27c",
+  "cases_with_adjacent_quarter_grid_pass": 15,
+  "centered_derivative_pass_records": 297,
+  "classification": "selected post-hoc CPU FP64 diagnostic; the full nine-basis qualification remains unresolved",
+  "endpoint_count": 1568,
+  "epsilon_grid_count": 49,
+  "interpretation": "The denser post-hoc scan found adjacent quarter-power pass points for 15 of the 16 previously unresolved row-directions. The remaining case is F[2,0], paper row/tet 172: its two sampled passing points are isolated (powers 30.75 and 31.75), with nearby non-passing values and nonmonotone error at the smallest deltas. This pattern is consistent with a cancellation/rounding-limited finite-difference regime but does not establish an absolute noise floor or prove the derivative gate. It remains unresolved.",
+  "limitations": [
+    "Cases were selected because they lacked adjacent passes in run018; this targeted grid cannot promote the full nine-basis gate.",
+    "Branch transitions and failed endpoints are retained with status and reason.",
+    "No absolute numerical noise floor is claimed; repeated deterministic FP64 evaluation is not a measured floor."
+  ],
+  "mp_arrays_sha256": "107e942cc2e131eed8f8db7759f8deb3e86fcdc42d8da249996daf51d6ed11ad",
+  "records": 784,
+  "remaining_unresolved": [
+    {
+      "best_absolute_l2": 21.029452977808557,
+      "best_power": 31.75,
+      "best_relative_l2": 8.077212312347724e-07,
+      "direction_index": 6,
+      "paper_row": 172,
+      "passing_powers": [
+        30.75,
+        31.75
+      ],
+      "reference_action_l2": 26035533.25651797,
+      "tet": 172
+    }
+  ],
+  "run018_arrays_sha256": "626ad3fe6d6bd147b3b18e8d8a688d63a430a43af33c2aeb9ca4f103a8811808",
+  "run018_report_sha256": "d62f5929828eb82199f65ff0b623d5745b9fc644f929f8d03e55a8828ec3af24",
+  "run019_progress_sha256": "8d3e5f9daf2b8438933605e43348f91c670280885ff197fcedc5fd82cc4540b4",
+  "run019_records_sha256": "43a77e35c360bdaa1c719f54f61266df478d48f0631c0b129159306f1993c131",
+  "run019_report_sha256": "d94ad30f9cd5f017cdfcbe4699f6e1855b83c1657655b053e14152cc8400cdf4",
+  "same_center_branch_both_sides": 784,
+  "schema": "numi.cardboard.bilinear15.dense-grid-adjudication.v1",
+  "script_sha256": "2fc3ab23bdc0673d961a3a6a0b944030a23a4630f50e5a3e86ae058e410f8909",
+  "selected_case_count": 16,
+  "source173_sha256": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995",
+  "strict_minus_endpoint_passes": 784,
+  "strict_plus_endpoint_passes": 784,
+  "unchanged_gates": {
+    "centered_relative_l2": 1e-06,
+    "dynamic_scaled_correction": 2e-11,
+    "scaled_residual": 2e-12
+  }
+}

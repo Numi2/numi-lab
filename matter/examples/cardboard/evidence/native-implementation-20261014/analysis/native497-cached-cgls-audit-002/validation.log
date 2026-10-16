@@ -1,0 +1,11 @@
+AST syntax checks: PASS
+test_physical_outputs_and_production_logs_are_exact (__main__.NativeParityAuditTests) ... ok
+test_residual_scale_and_no_false_condition_claim (__main__.NativeParityAuditTests) ... ok
+test_source_revision_is_separate_from_observer_parity (__main__.NativeParityAuditTests) ... ok
+test_three_runs_are_clean_expected_terminal_failures (__main__.NativeParityAuditTests) ... ok
+test_trace_extent_and_observer_scope (__main__.NativeParityAuditTests) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.000s
+
+OK

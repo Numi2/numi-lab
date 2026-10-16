@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/opt/homebrew/Cellar/python@3.13/3.13.14_1/bin/python3.13",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-budget-184/matter/tools/test_cardboard_solver_environment.py"
+  ],
+  "returncode": 0,
+  "wall_seconds": 0.5450093746185303,
+  "output_sha256": "cfdaab72a9c11d6ac95bec52efa0eb7da81a5d4e871dcf3a6f9e5b079873a4ce"
+}

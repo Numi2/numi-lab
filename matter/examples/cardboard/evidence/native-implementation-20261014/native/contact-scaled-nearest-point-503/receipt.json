@@ -1,0 +1,29 @@
+{
+  "schema": "numi.cardboard.native503-readonly-launch.v1",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-scaled-nearest-point-overlay-187-002/geometry-replay",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-scaled-nearest-point-overlay-187-002/geometry-replay.metallib",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-scaled-nearest-point-503/output.bin"
+  ],
+  "started_at_utc": "2026-10-16T06:08:17.268225+00:00",
+  "runner_sha256": "ed93260a85cafc9ace9b6164006bd37489766c5d31d62c096435dd5c1cced6ce",
+  "build_receipt_sha256": "5e7eb34dafbc8171968b32cf2a41e5658d7f3d5ef4b367e6cdbfd43d71b676e3",
+  "source_frozen_sha256": "4f6d4569ea271ecf604b5e3c1b99299e8fcc9ebefcefcd2e3b171a232ace9cb6",
+  "host_sha256": "a33f96e086194a686e6a2381887565264fe045525345e176c39b8c8d6b8e18ee",
+  "kernel_sha256": "431b59711e8ce4860196d8f28e85250fca82e76d1fe55ddfa4a37544bf767a68",
+  "metallib_sha256": "ad1c9f749c1ab320c3234639ebc1ddecdbc5348626eb9ca16fa4c243716a97fc",
+  "workers": [],
+  "physical_transactions": 0,
+  "prediction": "48 source-bound analytical nearest-feature cases, four physical scales, origin and translated coordinates. Candidate dimensionless barycentric/segment parameters and normalized nearest-point errors must be <=1e-3; preserve all original baseline failures.",
+  "returncode": 0,
+  "seconds": 0.4198256656527519,
+  "outputs_sha256": {
+    "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout.log": "0c1ea071fa8dd9a4c620855c4da9d6d2d9c0db07c4a413374cbf4f0031c220f9",
+    "prediction.json": "4bc110afdfce868f27985899cc9aabd62579866cbdef3a76e2977bc549ba6060",
+    "output.bin": "8d8675f642fa6449c0dc68d280a2b09826a7f07df68d40763eb4200421d7a482"
+  },
+  "finished_at_utc": "2026-10-16T06:08:17.688722+00:00",
+  "production_integration": false,
+  "physical_qualification": false
+}

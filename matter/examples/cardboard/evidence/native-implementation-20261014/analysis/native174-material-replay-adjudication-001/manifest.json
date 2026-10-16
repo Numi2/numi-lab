@@ -1,0 +1,31 @@
+{
+  "files": [
+    {
+      "bytes": 20562,
+      "path": "adjudicate.py",
+      "sha256": "90f21c3acf6f15f94a4a7bb62d7598c84ee9dfab35df1410d79fa4ee0d192fe2"
+    },
+    {
+      "bytes": 12906,
+      "path": "input-bindings.json",
+      "sha256": "e2ab752d9628921dabf1447d892bb051ca6208fa05accb0daa61727b0aebd7e2"
+    },
+    {
+      "bytes": 9221,
+      "path": "remote-output-inventory-verification.json",
+      "sha256": "289cd0e7e75a22502f99aef3b1dc4f96e65b7bd83774a391f0f69dfaf30d29ff"
+    },
+    {
+      "bytes": 37439,
+      "path": "report.json",
+      "sha256": "20b7cee7c344a71222c4e6db239c85da102b4760035466acb3fcfa7391d6ee77"
+    },
+    {
+      "bytes": 3144,
+      "path": "report.md",
+      "sha256": "fb2b747fd1ac8c83a1a444ddf9de296731ada6b6049b3b9b8f68d1a266dba269"
+    }
+  ],
+  "input_remote_inventory_sha256": "b7cb3ff4d7d4293f4ae75cfebc7075f1ccbd9e17668ba1064d6b93a5ccf44607",
+  "schema": "numi.cardboard.native174-material-adjudication-package.v1"
+}

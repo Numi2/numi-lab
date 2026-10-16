@@ -1,0 +1,60 @@
+{
+  "fixture": {
+    "accepted_history_hash_context": "sibling fixture bound by hash",
+    "material_index": 1,
+    "paper_row": 750,
+    "parameters_are_fp32_widened": true,
+    "tet": 750
+  },
+  "independent_mp_source": {
+    "IFT_90_vs_110_relative_l2": "1.6347644237233135e-92",
+    "path": "analysis/native469-mp-fallback-005/run-002/mixed_reference_arrays.npz",
+    "root_stability_70_90_110_relative_spread": "1.308701836096306e-71",
+    "sha256": "107e942cc2e131eed8f8db7759f8deb3e86fcdc42d8da249996daf51d6ed11ad"
+  },
+  "limits": [
+    "MP fixture is an independent CPU return-map/IFT result, not native validation.",
+    "Tangent comparison covers one mixed direction only."
+  ],
+  "schema": "numi.cardboard.portable003-fixture-mp-comparison.v1",
+  "state_vs_MP_root": {
+    "interpretation": "regression comparison only; not a native or physical gate",
+    "max_abs": 3.4475894361563064e-14,
+    "relative_l2": 2.4433211493445563e-12
+  },
+  "strict_project_api": {
+    "gate": 2e-12,
+    "iterations": 7,
+    "passed": true,
+    "scaled_residual": 4.1756374571485504e-13
+  },
+  "tangent_direction": {
+    "H": "identity 3x3 (sum of basis directions F00,F11,F22)",
+    "absolute_l2": 1.397331915748669e-06,
+    "gate": 1e-06,
+    "mp_ift_value": [
+      4697020549.840086,
+      30308.25264942221,
+      -2715806.7808492514,
+      23497.278527274688,
+      1915238933.8189297,
+      5085.02460440775,
+      739991293.0491512,
+      -157977.03193744126,
+      17819473.74477703
+    ],
+    "native_api_value": [
+      4697020549.840086,
+      30308.252649417227,
+      -2715806.780848401,
+      23497.278527275397,
+      1915238933.818929,
+      5085.024604443926,
+      739991293.049152,
+      -157977.03193740555,
+      17819473.74477717
+    ],
+    "passed": true,
+    "relative_l2": 2.725856418218199e-16
+  }
+}

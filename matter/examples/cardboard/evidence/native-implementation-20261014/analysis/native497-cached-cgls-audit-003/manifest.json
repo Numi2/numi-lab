@@ -1,0 +1,71 @@
+{
+  "claims_scope": "one captured environment-0 free-xyz FEM operator reconstructed from captured FP32 production tangent cache",
+  "environment": {
+    "numpy": "2.2.5",
+    "platform": "macOS-26.6-arm64-arm-64bit",
+    "python": "3.10.12 (main, May 15 2025, 18:07:36) [Clang 17.0.0 (clang-1700.0.13.3)]",
+    "scipy": "1.15.3"
+  },
+  "files": [
+    {
+      "bytes": 3388,
+      "path": "README.md",
+      "sha256": "5b44cbed7438304672cc6846d6e78b97bd953605f06c2a9efa4434044b450330"
+    },
+    {
+      "bytes": 629,
+      "path": "attempts.jsonl",
+      "sha256": "4907f6db2620b93c40209ad89e85fb38f4a2d56f652d96fb60328efefe1a7b6c"
+    },
+    {
+      "bytes": 27044,
+      "path": "audit_condition_497.py",
+      "sha256": "0ec2b80a135a6e8eabacd4d685c36388766182e874092ae080f5660c859fb037"
+    },
+    {
+      "bytes": 16055,
+      "path": "report-v2.json",
+      "sha256": "986373bbf125ab3d8fd4d6f3de57870b3f70c949cdfe11d618af1aee60db3932"
+    },
+    {
+      "bytes": 14120,
+      "path": "report.json",
+      "sha256": "79ceab5823eee81968d47db0ffd65e1a8388a90226b32582491e26d6467a1317"
+    },
+    {
+      "bytes": 3339,
+      "path": "test_condition_497.py",
+      "sha256": "34500038b38573b6a614cf56cec202c3667c55a943723a97ae4db275f4ca404e"
+    },
+    {
+      "bytes": 664,
+      "path": "validation.log",
+      "sha256": "641f5ff24c046d8c2ab4c78766742f8b46f67147e43ab9c97f4895ad063b73fe"
+    }
+  ],
+  "gpu_launched": false,
+  "method": {
+    "compensated_assembly": "math.fsum duplicate global entries from same binary64 local element contributions",
+    "conditioning": "three Hager-Higham one-norm estimates with scipy.sparse.linalg.onenormest; estimate is not an upper bound",
+    "direct_solve": "SciPy SuperLU sparse LU, nonsymmetric matrix retained, iterative refinement bounded to four attempts"
+  },
+  "native_qualification": false,
+  "parent_bindings": {
+    "audit001_report_v2_sha256": "97631b4778273f29efaf7aebcb9f7fd789956057f5dd4231d187934fae883b4a",
+    "audit002_manifest_sha256": "f04b224849cf6127c56b5e34823e3eb14c35f57c758b774c87935a6c619bff46",
+    "audit002_report_v4_sha256": "c6b8070c6e29c46840000ab40a43877aa9733d412a7c3d5668f14a9e3b0aa1fb",
+    "captured_cgls_sha256": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646",
+    "captured_operator_fd_sha256": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3",
+    "captured_state_payload_sha256": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1",
+    "native497_prediction_sha256": "ef393185594d6e4b01de162c7b253c44678dcc91ed47e8bee0162eda4eed8a45",
+    "native497_receipt_sha256": "263bc8e740e06173b89aac743108c791b5c942fb8168e392ced0a842cf2f6294",
+    "source182_manifest_sha256": "c2e6e23be57d3245c490c7f10f4abee55271a4fe051db6a5ef313de2de798394"
+  },
+  "schema": "numi.cardboard.native497_cached_cgls_direct_solve_conditioning_package.v1",
+  "status": "sealed_cpu_only_diagnostic",
+  "tests": {
+    "count": 6,
+    "log": "validation.log",
+    "passed": 6
+  }
+}

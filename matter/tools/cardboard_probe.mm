@@ -150,6 +150,7 @@ struct Arguments {
     std::optional<std::uint32_t> couponCheckpointAfterControl;
     std::filesystem::path couponResumeCheckpoint;
     std::filesystem::path couponResumeMetadata;
+    bool couponResumeDiagnosticReplay = false;
     std::array<double, 13> linerProjectionScales{};
     std::array<double, 13> mediumProjectionScales{};
     std::array<double, 3> shippingInsideM{0.300, 0.200, 0.200};
@@ -1277,6 +1278,7 @@ void printUsage() {
         << "  --line-search-steps N  nonlinear/contact trial steps [1, 32] (default 8)\n"
         << "  --coupon-checkpoint-after-control N  save an accepted two-environment checkpoint after zero-based control N and stop with a prefix-only result\n"
         << "  --coupon-resume-checkpoint FILE --coupon-resume-metadata FILE  resume a diagnostic segment at the next control index\n"
+        << "  --coupon-resume-diagnostic-replay  explicitly permit only source-bound read-only diagnostic selector changes during resume\n"
         << "  --accurate-paper-projection  opt-in strict Hill state projection; requires compensated arithmetic (pair with --scaled-paper-residuals in the comparison study)\n"
         << "  --compensated-implicit-projection  opt in to compensated residual evaluation for retained-matrix generic implicit damage overlays\n"
         << "  --compensated-source-paper-projection  opt in to generic compensated projection for the 15-state source bilinear/C1 liner+medium pair; also requires --compensated-paper-arithmetic\n"
@@ -1462,6 +1464,10 @@ Arguments parseArguments(const int argc, const char* argv[]) {
                 arguments.couponResumeCheckpoint = value;
             else
                 arguments.couponResumeMetadata = value;
+            continue;
+        }
+        if (option == "--coupon-resume-diagnostic-replay") {
+            arguments.couponResumeDiagnosticReplay = true;
             continue;
         }
         if (option == "--without-self-contact") { arguments.disableSelfContact = true; continue; }
@@ -2058,6 +2064,8 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         arguments.couponCheckpointAfterControl.value_or(0u);
     couponResumeRequest.checkpointProvided = hasResumeCheckpoint;
     couponResumeRequest.metadataProvided = hasResumeMetadata;
+    couponResumeRequest.diagnosticReplayRequested =
+        arguments.couponResumeDiagnosticReplay;
     couponResumeRequest.shipping = arguments.shippingBox;
     couponResumeRequest.pin = arguments.pinAdhesion;
     couponResumeRequest.blank = arguments.boxBlank;
@@ -12511,7 +12519,8 @@ std::string couponRunnerString(NSDictionary* dictionary, NSString* key,
     return shippingJsonStringField(dictionary, key, label);
 }
 
-constexpr std::array<std::string_view, 49u> kSource161DiagnosticEnvironmentKeys{
+constexpr std::array<std::string_view, 51u> kSource161DiagnosticEnvironmentKeys{
+    "NM_CONTACT_NODE_INCIDENCE_SORT",
     "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
     "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
     "NM_FEM_BASE_CGLS_CAPTURE_PATH",
@@ -12519,6 +12528,7 @@ constexpr std::array<std::string_view, 49u> kSource161DiagnosticEnvironmentKeys{
     "NM_FEM_BASE_CGLS_PRIMARY_AFTER",
     "NM_FEM_BASE_CGLS_RIGHT_SCALE",
     "NM_FEM_BASE_CGLS_STATE_CAPTURE",
+    "NM_FEM_BASE_CGLS_WARM_START_REFINE",
     "NM_FEM_CACHE_PROJECTION_REUSE",
     "NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT",
     "NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT",
@@ -12653,8 +12663,9 @@ couponValidateSourceBoundDiagnosticRunner(
             ? contract[@"capture_prefixes"] : nil;
     require([keysValue isKindOfClass:[NSArray class]] && effective != nil &&
                 prefixes != nil &&
-                [(NSArray*)keysValue count] ==
-                    kSource161DiagnosticEnvironmentKeys.size(),
+                ([(NSArray*)keysValue count] == 49u ||
+                 [(NSArray*)keysValue count] == 50u ||
+                 [(NSArray*)keysValue count] == 51u),
             "source-bound diagnostic contract registry or maps are missing");
     NSArray* const keys = (NSArray*)keysValue;
     require(effective.count == keys.count,
@@ -12667,6 +12678,9 @@ couponValidateSourceBoundDiagnosticRunner(
     }
     NSMutableDictionary* expectedOverrides = [NSMutableDictionary dictionary];
     RuntimePathMap contractPaths;
+    std::vector<std::pair<std::string, std::string>> contractNativeSettings;
+    const bool contractHasWarmStartKey = keys.count >= 50u;
+    const bool contractHasIncidenceSortKey = keys.count == 51u;
     std::ostringstream runnerNonOutputSettings;
     runnerNonOutputSettings << "numi.cardboard.source161-runner-non-output-settings.v1\n";
     for (NSUInteger keyIndex = 0u; keyIndex < keys.count; ++keyIndex) {
@@ -12678,8 +12692,22 @@ couponValidateSourceBoundDiagnosticRunner(
         const std::string key(keyUTF8);
         require(previousKey.empty() || previousKey < key,
                 "source-bound diagnostic key registry is not sorted and unique");
-        require(key == kSource161DiagnosticEnvironmentKeys[keyIndex],
-                "source-bound diagnostic key registry differs from source161");
+        std::size_t expectedIndex = 0u;
+        for (const std::string_view expectedKey :
+                kSource161DiagnosticEnvironmentKeys) {
+            if (expectedKey == "NM_FEM_BASE_CGLS_WARM_START_REFINE" &&
+                !contractHasWarmStartKey)
+                continue;
+            if (expectedKey == "NM_CONTACT_NODE_INCIDENCE_SORT" &&
+                !contractHasIncidenceSortKey)
+                continue;
+            if (expectedIndex == keyIndex) {
+                require(key == expectedKey,
+                        "source-bound diagnostic key registry differs from the exact 49/50/51-key source contract");
+                break;
+            }
+            ++expectedIndex;
+        }
         previousKey = key;
         NSDictionary* const state =
             [effective[keyValue] isKindOfClass:[NSDictionary class]]
@@ -12700,6 +12728,7 @@ couponValidateSourceBoundDiagnosticRunner(
                     "source-bound diagnostic value is not UTF-8");
             text = valueUTF8;
             expectedOverrides[keyValue] = value;
+            contractNativeSettings.emplace_back(key, text);
             const auto actualValue = actual.find(key);
             if (compareActualEnvironment && isRegisteredOutputPathKey(key))
                 require(actualValue != actual.end() && actualValue->second == text,
@@ -12732,6 +12761,15 @@ couponValidateSourceBoundDiagnosticRunner(
                     contractPaths.begin(), contractPaths.end(),
                     [](const RuntimePathBinding& binding) { return binding.present; })),
             "source-bound diagnostic path map differs from the effective environment");
+    if (compareActualEnvironment) {
+        std::sort(contractNativeSettings.begin(), contractNativeSettings.end());
+        std::vector<std::pair<std::string, std::string>> actualSettings;
+        actualSettings.reserve(actual.size());
+        for (const auto& binding : actual) actualSettings.push_back(binding);
+        require(couponSourceBoundEnvironmentMatches(
+                    contractNativeSettings, actualSettings),
+                "current native environment differs from every source-bound diagnostic contract binding");
+    }
     for (const RuntimePathBinding& binding : contractPaths) {
         NSString* const key = [NSString stringWithUTF8String:binding.key.c_str()];
         id prefixValue = prefixes[key];
@@ -12768,7 +12806,8 @@ couponValidateSourceBoundDiagnosticRunner(
     return {caseText,
         hexDigest(sha256(environmentBytes.data(), environmentBytes.size())),
         hexDigest(sha256(runnerNonOutputSettings.str())), predictionSha,
-        contractSha, std::move(contractPaths)};
+        contractSha, std::move(contractPaths),
+        std::move(contractNativeSettings)};
 }
 
 void writeCouponTextAtomically(const std::filesystem::path& path,
@@ -12969,7 +13008,10 @@ struct LoadedCouponResume {
     std::string currentRunnerNonOutputSettingsSha256 = "none";
     std::string currentRunnerPredictionSha256 = "none";
     std::string currentRunnerContractSha256 = "none";
+    std::string sourceRunnerProofMode = "not_validated";
+    std::string currentRunnerProofMode = "not_validated";
     bool outputPathMapRelocated = false;
+    bool diagnosticReplayEnabled = false;
 };
 
 void verifyCouponPrefix(const std::filesystem::path& prefixPath,
@@ -13067,9 +13109,12 @@ LoadedCouponResume loadCouponResume(
     validateRuntimeFingerprints(metadata, runtime.sourcePhysicsFingerprint(),
                                 runtime.deviceProgramFingerprint());
     const auto runtimeVariables = couponRuntimeEnvironmentVariables();
-    require(metadata.runtimeEnvironmentSha256 ==
-                couponRuntimeSettingsSha256(runtimeVariables),
-            "coupon checkpoint non-path NM_/NUMI_MATTER_ settings differ");
+    const bool diagnosticReplay = arguments.couponResumeDiagnosticReplay;
+    const std::string currentRuntimeSettingsSha256 =
+        couponRuntimeSettingsSha256(runtimeVariables);
+    if (!diagnosticReplay)
+        require(metadata.runtimeEnvironmentSha256 == currentRuntimeSettingsSha256,
+                "coupon checkpoint non-path NM_/NUMI_MATTER_ settings differ");
     const RuntimePathMap sourceOutputPaths = parseCouponOutputPathMap(
         couponHexDecode(metadata.runtimeOutputPathMapHex));
     const RuntimePathMap currentOutputPaths =
@@ -13081,34 +13126,44 @@ LoadedCouponResume loadCouponResume(
             "coupon checkpoint registered output-path map digest is invalid");
     const bool sourceRunnerPresent =
         metadata.sourceRunnerPredictionSha256 != "none";
-    if (sourceRunnerPresent) {
+    const bool sourceRunnerValidated = sourceRunnerPresent || diagnosticReplay;
+    DiagnosticRunnerProof sourceProof;
+    if (sourceRunnerValidated) {
+        const std::filesystem::path sourceRunnerDirectory = sourceRunnerPresent
+            ? std::filesystem::path(metadata.sourceRunnerCaseDirectory)
+            : sourceRun.parent_path();
         const auto sourceRunnerCase = std::filesystem::weakly_canonical(
-            metadata.sourceRunnerCaseDirectory);
+            sourceRunnerDirectory);
         require(sourceRunnerCase == sourceRun.parent_path() &&
-                    sourceRunnerCase.string() ==
-                        metadata.sourceRunnerCaseDirectory,
+                    sourceRunnerCase.string() == sourceRunnerDirectory.string(),
                 "coupon source runner case differs from the accepted source run");
-        const auto sourceProof = couponValidateSourceBoundDiagnosticRunner(
+        sourceProof = couponValidateSourceBoundDiagnosticRunner(
             sourceRunnerCase, {}, sourceOutputPaths, false);
         validateDiagnosticRunnerProof(sourceProof,
-            metadata.sourceRunnerCaseDirectory, sourceOutputPaths);
-        require(sourceProof.environmentRecordSha256 ==
-                    metadata.sourceRunnerEnvironmentRecordSha256 &&
+            sourceRunnerCase.string(), sourceOutputPaths);
+        if (sourceRunnerPresent)
+            require(sourceProof.environmentRecordSha256 ==
+                        metadata.sourceRunnerEnvironmentRecordSha256 &&
                     sourceProof.nonOutputSettingsSha256 ==
-                    metadata.sourceRunnerNonOutputSettingsSha256 &&
+                        metadata.sourceRunnerNonOutputSettingsSha256 &&
                     sourceProof.predictionSha256 ==
-                    metadata.sourceRunnerPredictionSha256 &&
+                        metadata.sourceRunnerPredictionSha256 &&
                     sourceProof.contractSha256 ==
-                    metadata.sourceRunnerContractSha256,
-                "coupon source runner receipt no longer matches checkpoint metadata");
+                        metadata.sourceRunnerContractSha256,
+                    "coupon source runner receipt no longer matches checkpoint metadata");
+        require(couponRuntimeSettingsSha256(
+                    sourceProof.effectiveNativeSettings) ==
+                    metadata.runtimeEnvironmentSha256,
+                "source-bound runner contract does not reproduce the checkpoint runtime settings");
     } else {
         require(!couponOutputPathMapHasAnySetValue(sourceOutputPaths),
                 "coupon source output paths have no bound source-runner receipt");
     }
     const bool currentRunnerPresent =
         couponOutputPathMapHasAnySetValue(currentOutputPaths);
+    const bool currentRunnerValidated = currentRunnerPresent || diagnosticReplay;
     DiagnosticRunnerProof currentProof;
-    if (currentRunnerPresent) {
+    if (currentRunnerValidated) {
         currentProof = couponValidateSourceBoundDiagnosticRunner(
             std::filesystem::weakly_canonical(currentOutputDirectory.parent_path()),
             runtimeVariables, currentOutputPaths);
@@ -13116,14 +13171,28 @@ LoadedCouponResume loadCouponResume(
             std::filesystem::weakly_canonical(
                 currentOutputDirectory.parent_path()).string(),
             currentOutputPaths);
-        if (sourceRunnerPresent)
+        require(couponRuntimeSettingsSha256(
+                    currentProof.effectiveNativeSettings) ==
+                    currentRuntimeSettingsSha256,
+                "current source-bound runner contract does not reproduce the native runtime settings");
+        if (sourceRunnerPresent && !diagnosticReplay)
             require(currentProof.nonOutputSettingsSha256 ==
                         metadata.sourceRunnerNonOutputSettingsSha256,
                     "coupon source/resume runner non-output overrides differ");
     }
+    if (diagnosticReplay) {
+        validateDiagnosticReplaySelectors(
+            currentProof.effectiveNativeSettings,
+            metadata.acceptedControlIndex, metadata.environmentCount);
+        require(sourceRunnerValidated && currentRunnerValidated &&
+                    couponDiagnosticReplaySettingsMatch(
+                        sourceProof.effectiveNativeSettings,
+                        currentProof.effectiveNativeSettings),
+                "diagnostic replay may change only the five registered observer selectors and seven output paths");
+    }
     const bool outputPathMapRelocated = validateCouponOutputPathMapTransition(
-        sourceOutputPaths, currentOutputPaths, sourceRunnerPresent,
-        currentRunnerPresent);
+        sourceOutputPaths, currentOutputPaths, sourceRunnerValidated,
+        currentRunnerValidated, diagnosticReplay);
     require(metadata.sourcePhysicsFingerprint == compiled.world.physicsFingerprint &&
                 metadata.environmentCount == arguments.environmentCount &&
                 metadata.nodeCount == compiled.world.dispatch.femNodeCount &&
@@ -13171,11 +13240,19 @@ LoadedCouponResume loadCouponResume(
     return {std::move(snapshot), std::move(metadata),
             arguments.couponResumeCheckpoint, sourceOutputPaths,
             currentOutputPaths,
-            currentRunnerPresent ? currentProof.environmentRecordSha256 : "none",
-            currentRunnerPresent ? currentProof.nonOutputSettingsSha256 : "none",
-            currentRunnerPresent ? currentProof.predictionSha256 : "none",
-            currentRunnerPresent ? currentProof.contractSha256 : "none",
-            outputPathMapRelocated};
+            couponValidatedRunnerDigest(currentRunnerValidated,
+                                        currentProof.environmentRecordSha256),
+            couponValidatedRunnerDigest(currentRunnerValidated,
+                                        currentProof.nonOutputSettingsSha256),
+            couponValidatedRunnerDigest(currentRunnerValidated,
+                                        currentProof.predictionSha256),
+            couponValidatedRunnerDigest(currentRunnerValidated,
+                                        currentProof.contractSha256),
+            couponSourceRunnerProofMode(sourceRunnerValidated,
+                                        sourceRunnerPresent, diagnosticReplay),
+            couponCurrentRunnerProofMode(currentRunnerValidated,
+                                         diagnosticReplay, currentRunnerPresent),
+            outputPathMapRelocated, diagnosticReplay};
 }
 
 void writeCouponResumeSegmentReport(
@@ -13208,6 +13285,12 @@ void writeCouponResumeSegmentReport(
         << "\"numi.cardboard.registered-diagnostic-output-path-map.v1\",\n"
         << "  \"registered_output_path_map_relocated\": "
         << (resume.outputPathMapRelocated ? "true" : "false") << ",\n"
+        << "  \"diagnostic_replay_mode\": "
+        << (resume.diagnosticReplayEnabled ? "true" : "false") << ",\n"
+        << "  \"source_runner_proof_mode\": \""
+        << jsonEscape(resume.sourceRunnerProofMode) << "\",\n"
+        << "  \"current_runner_proof_mode\": \""
+        << jsonEscape(resume.currentRunnerProofMode) << "\",\n"
         << "  \"source_registered_output_paths\": {";
     auto writePathMap = [&](const numi::cardboard::coupon_resume::RuntimePathMap& pathMap) {
         for (std::size_t index = 0u; index < pathMap.size(); ++index) {

@@ -1,0 +1,9 @@
+CPU validation only; no GPU/native command was launched by this package.
+
+Command: python3 audit_condition_497.py
+Result: exit 0; wrote report-v2.json after sealed audit-001 input validation and exact sparse reconstruction.
+
+Command: python3 -m unittest -v /Users/home/cardboard-implementation-20261014/analysis/native497-cached-cgls-audit-003/test_condition_497.py
+Result: 6 tests passed.
+
+Exploratory report.json is retained. Its computed capture, solve, condition, assembly, and input-binding sections compare equal to report-v2.json. report-v2.json additionally carries the complete native run receipt/prediction/stderr and diagnostic-file validation summary.

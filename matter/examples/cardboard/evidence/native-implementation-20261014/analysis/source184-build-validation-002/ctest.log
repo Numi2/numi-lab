@@ -1,0 +1,22 @@
+Test project /Users/n/cardboard-implementation-20261014-host-macmini/build-source184-002
+    Start 54: matter.compiler.cardboard_shipping_memory
+1/4 Test #54: matter.compiler.cardboard_shipping_memory ...............   Passed    0.02 sec
+    Start 57: matter.compiler.cardboard_coupon_resume
+2/4 Test #57: matter.compiler.cardboard_coupon_resume .................   Passed    0.00 sec
+    Start 79: matter.compiler.cardboard_full_contact_scratch_budget
+3/4 Test #79: matter.compiler.cardboard_full_contact_scratch_budget ...   Passed    0.00 sec
+    Start 85: matter.cli.cardboard_argument_admission
+4/4 Test #85: matter.cli.cardboard_argument_admission .................   Passed    0.05 sec
+
+100% tests passed out of 4
+
+Label Time Summary:
+cardboard    =   0.07 sec*proc (4 tests)
+cli          =   0.05 sec*proc (1 test)
+contact      =   0.00 sec*proc (1 test)
+cpu          =   0.07 sec*proc (4 tests)
+matter       =   0.07 sec*proc (4 tests)
+memory       =   0.00 sec*proc (1 test)
+shipping     =   0.02 sec*proc (2 tests)
+
+Total Test time (real) =   0.07 sec

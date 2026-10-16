@@ -1,0 +1,36 @@
+{
+  "aggregate_cap_bytes": 134217728,
+  "environment_contract_sha256": "c2dc380553694062e2c4ce856011aa2d8d8f5732b169b7d46c4f6e57405a9492",
+  "file_count": 4,
+  "files": [
+    {
+      "bytes": 494048,
+      "key": "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+      "path": "diagnostics/capture-base-cgls-capture/capture",
+      "sha256": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646"
+    },
+    {
+      "bytes": 4327464,
+      "key": "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+      "path": "diagnostics/capture-base-cgls-capture/capture.state.bin",
+      "sha256": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1"
+    },
+    {
+      "bytes": 8657,
+      "key": "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+      "path": "diagnostics/capture-base-cgls-capture/capture.state.json",
+      "sha256": "b03e1bf2ee33162b2cca750ac14127d1e4a1b2e6df68c1fe71b081b0b251975c"
+    },
+    {
+      "bytes": 38795294,
+      "key": "NM_FEM_OPERATOR_FD_CAPTURE_PATH",
+      "path": "diagnostics/capture-operator-fd-capture/capture",
+      "sha256": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3"
+    }
+  ],
+  "pending_captures": [],
+  "per_file_cap_bytes": 67108864,
+  "schema": "numi.cardboard.diagnostic-capture-files.v1",
+  "status": "validated",
+  "total_bytes": 43625463
+}

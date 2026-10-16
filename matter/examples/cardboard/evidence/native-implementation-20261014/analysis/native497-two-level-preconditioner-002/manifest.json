@@ -1,0 +1,76 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 517,
+      "sha256": "a4e553e44018a144ccb7934b8dd2f705c75f2934a192f33a5cae7747c6710f2d"
+    },
+    "captured_block3_right_scale_free_xyz.npy": {
+      "bytes": 61040,
+      "sha256": "6b2a5048fee7c7dd9bfb75e1cdb1ea80b6e954b3d30f2caf0053fd093a579379"
+    },
+    "exact_lu_solution_free_xyz.npy": {
+      "bytes": 20432,
+      "sha256": "cc92ba1ace846d1ca27a8de480d90a11d3368ac13f718e513f67bffacd42a111"
+    },
+    "patch_run.py": {
+      "bytes": 4999,
+      "sha256": "e67573d794050dba804c8708d9d6b7e02f67b9161861d07f016a07d42b4f892d"
+    },
+    "report.json": {
+      "bytes": 112635,
+      "sha256": "10d64241ff0cc70398658bcdd7d8ff70b31b292dcc245f9cc5e35ee728691777"
+    },
+    "run_experiment.py": {
+      "bytes": 17484,
+      "sha256": "edf0763ef68afc03fe3446e0b27962b3aa6f871e899ca4a6ef4e306a157b3122"
+    },
+    "source_rigid_basis_free_xyz.npy": {
+      "bytes": 365600,
+      "sha256": "3b52dd3abf3dcf14c2c4ea3894f508e86027d479c7fbf7961104cc3d680a8759"
+    },
+    "validation.json": {
+      "bytes": 2459,
+      "sha256": "764d5c51953308da0933050393940595658932432eb45c4542ec0c76fee94afc"
+    }
+  },
+  "host": "macmini",
+  "inputs": {
+    "cgls": {
+      "bytes": 494048,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture",
+      "sha256": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646"
+    },
+    "fd": {
+      "bytes": 38795294,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-operator-fd-capture/capture",
+      "sha256": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3"
+    },
+    "helper": {
+      "bytes": 49990,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-admission-encoder-182-003/matter/tools/cardboard_cached_operator_audit.py",
+      "sha256": "4a7e9c0cbf09eee0ad1f8f5b2b09314a2c0789a908aaab530b56cfff6a1c82ff"
+    },
+    "payload": {
+      "bytes": 4327464,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.bin",
+      "sha256": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1"
+    },
+    "state": {
+      "bytes": 8657,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.json",
+      "sha256": "b03e1bf2ee33162b2cca750ac14127d1e4a1b2e6df68c1fe71b081b0b251975c"
+    }
+  },
+  "limits": [
+    "Only selected environment 0 free mechanical xyz block; field backing, env1, rigid/contact/cohesive rows excluded.",
+    "A is reconstructed from native FP32 tangent cache in binary64, not re-evaluated material law or native GPU action.",
+    "P uses captured accepted positionAndMass for source regional translation/rotation modes; optional global bending enrichment remains unknown because executionBudgets.z is not captured, and production P/AP/RAP are not captured.",
+    "H is exact same-generation captured right scale; GMRES with fixed H is not native CGLS/FGMRES replay.",
+    "All methods use the same A, b, x0 and binary64 residual history; no acceptance tolerance/gate is altered.",
+    "Exact LU is a numerical reference for this captured matrix only, not nonlinear convergence or physical assembly qualification."
+  ],
+  "package": "native497-two-level-preconditioner-002",
+  "schema": "numi.cardboard.analysis-package.v1",
+  "scope": "CPU-only numerical replay; no native or physical qualification",
+  "status": "CPU_ONLY_CORRECTED_BASIS_REPLAY"
+}

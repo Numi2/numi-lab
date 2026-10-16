@@ -1,0 +1,133 @@
+{
+  "classification": "Portable CPU reference/helper correction and focused FD diagnostic; no native or physical qualification",
+  "files": [
+    {
+      "bytes": 1765,
+      "path": "README.md",
+      "sha256": "edebd813a86326d802f8126a3065dbe0ed84aa09480f0e355568ba4e81122596"
+    },
+    {
+      "bytes": 28968,
+      "path": "portable-integration.patch",
+      "sha256": "bd895f828862488632317bc2aecee7a279c98312b6a3799e3bd2f554e69f34c7"
+    },
+    {
+      "bytes": 9448,
+      "path": "r-ready/matter/tools/cardboard_compensated_fp64_base.py",
+      "sha256": "b135c6ff0091f0833c8dad89239abdde209fc6e0eb91babeb72313b29a88bb6c"
+    },
+    {
+      "bytes": 1942,
+      "path": "r-ready/matter/tools/cardboard_compensated_fp64_fixture.py",
+      "sha256": "8d9d82cde0b9cb2158dbb7faf86ff47eb9b87258cb0e303d30aa2ae7be7467cd"
+    },
+    {
+      "bytes": 5703,
+      "path": "r-ready/matter/tools/cardboard_compensated_fp64_reference.py",
+      "sha256": "65d4794aba5ad7ab7aefbbcd37563cc7e0052ee3ec909b862a89dac575585db0"
+    },
+    {
+      "bytes": 5157,
+      "path": "r-ready/matter/tools/cardboard_dd_fp64.py",
+      "sha256": "8edfd60beb2c38d181a08023d9f97bea0fec80b0f6fa04f8690c7dfe234330c2"
+    },
+    {
+      "bytes": 4865,
+      "path": "r-ready/matter/tools/test_cardboard_compensated_fp64_reference.py",
+      "sha256": "0625952626ac688d4ae900c1c8792a1148e85f0522f0a8c45fae51e90a56a7c0"
+    },
+    {
+      "bytes": 17620,
+      "path": "validation/matter/tools/cardboard_bilinear_fp64_reference.py",
+      "sha256": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995"
+    },
+    {
+      "bytes": 9448,
+      "path": "validation/matter/tools/cardboard_compensated_fp64_base.py",
+      "sha256": "b135c6ff0091f0833c8dad89239abdde209fc6e0eb91babeb72313b29a88bb6c"
+    },
+    {
+      "bytes": 1942,
+      "path": "validation/matter/tools/cardboard_compensated_fp64_fixture.py",
+      "sha256": "8d9d82cde0b9cb2158dbb7faf86ff47eb9b87258cb0e303d30aa2ae7be7467cd"
+    },
+    {
+      "bytes": 5703,
+      "path": "validation/matter/tools/cardboard_compensated_fp64_reference.py",
+      "sha256": "65d4794aba5ad7ab7aefbbcd37563cc7e0052ee3ec909b862a89dac575585db0"
+    },
+    {
+      "bytes": 5157,
+      "path": "validation/matter/tools/cardboard_dd_fp64.py",
+      "sha256": "8edfd60beb2c38d181a08023d9f97bea0fec80b0f6fa04f8690c7dfe234330c2"
+    },
+    {
+      "bytes": 4865,
+      "path": "validation/matter/tools/test_cardboard_compensated_fp64_reference.py",
+      "sha256": "0625952626ac688d4ae900c1c8792a1148e85f0522f0a8c45fae51e90a56a7c0"
+    },
+    {
+      "bytes": 1357,
+      "path": "validation-attempts/cpu-tests-final.log",
+      "sha256": "49149d5585b2d700237696706fafc23d095fda1843e99935cd393f12ed19697b"
+    },
+    {
+      "bytes": 349,
+      "path": "validation-attempts/initial-fixture-import-failure.txt",
+      "sha256": "27f72f33de216433c2fc4373461adbf0838db2699c25f10f9966738dcb014b76"
+    },
+    {
+      "bytes": 893,
+      "path": "validation-attempts/patch-apply-receipt.json",
+      "sha256": "e4c26365218f4baf8a2599e5def3502c802d408a86f204dcf45412f55da4c8d0"
+    }
+  ],
+  "fix": {
+    "file": "r-ready/matter/tools/cardboard_compensated_fp64_base.py",
+    "new_expression": "values[use_quotient] = quotient",
+    "old_expression": "values[use_quotient] = quotient[use_quotient]",
+    "reason": "quotient is already compacted to the count of true mask entries"
+  },
+  "limits": [
+    "No measured absolute numerical noise floor is established.",
+    "run019 is post-hoc and only covers the 16 earlier misses; it does not revise the predeclared run018 score.",
+    "No native Metal, calibration, whole-coupon, or physical qualification is claimed."
+  ],
+  "permanent_test": {
+    "command": "python3 -m unittest discover -s validation/matter/tools -p test_cardboard_compensated_fp64_reference.py -v",
+    "exit_code": 0,
+    "failed": 0,
+    "no_absolute_workspace_paths": true,
+    "passed": 5,
+    "path": "r-ready/matter/tools/test_cardboard_compensated_fp64_reference.py",
+    "qualified_interpreter": "/Users/home/.pyenv/versions/3.10.12/bin/python3"
+  },
+  "previous_seal": {
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-referencev2-source173-portable-001/portable-reference-seal-001/manifest.json",
+    "preserved_unchanged": true,
+    "sha256": "45bb0a98695b7e7d9aad6787d9cb3c80f2320f928d5d9f45f90517764421c369"
+  },
+  "run018": {
+    "original_grid_unresolved": 16,
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-referencev2-source173-portable-001/run-018-source173-nine-basis-eps8-26",
+    "qualified_status": "not fully qualified",
+    "report_sha256": "d62f5929828eb82199f65ff0b623d5745b9fc644f929f8d03e55a8828ec3af24",
+    "total_row_directions": 15552
+  },
+  "run019": {
+    "focused_adjacent_passes": 15,
+    "focused_remaining_unresolved": 1,
+    "manifest_sha256": "680069568385ede73028db7de2f060222958f3cbb87e1c4a44bab0d0aa1c20bd",
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-referencev2-source173-portable-001/run-019-unresolved16-quarter-grid",
+    "remaining_case": "direction F[2,0], paper row/tet 172; isolated passes only at powers 30.75 and 31.75"
+  },
+  "schema": "numi.cardboard.compensated-fp64-portable-reference-seal.v2",
+  "source173_equation_sha256": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995",
+  "validation": {
+    "patch_apply_exit_code": 0,
+    "patch_dry_run_exit_code": 0,
+    "patch_outputs_byte_identical": true,
+    "py_compile_exit_code": 0,
+    "warnings": "The source173 equation module reports eager np.where divide-by-zero/invalid warnings during a projection; the test output remains finite."
+  }
+}

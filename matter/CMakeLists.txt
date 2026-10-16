@@ -207,6 +207,9 @@ if(BUILD_TESTING)
         add_test(NAME matter.analysis.cardboard_reference_fb_jacobian
             COMMAND "${Python3_EXECUTABLE}" -m unittest
                 test_cardboard_reference_fb_jacobian)
+        add_test(NAME matter.analysis.cardboard_compensated_fp64_reference
+            COMMAND "${Python3_EXECUTABLE}" -m unittest
+                test_cardboard_compensated_fp64_reference)
         add_test(NAME matter.analysis.cardboard_offline_conditioning_study
             COMMAND "${Python3_EXECUTABLE}" -m unittest
                 test_cardboard_offline_conditioning_study)
@@ -229,6 +232,7 @@ if(BUILD_TESTING)
             matter.analysis.cardboard_cached_operator_audit
             matter.analysis.cardboard_bilinear_capture_layers
             matter.analysis.cardboard_reference_fb_jacobian
+            matter.analysis.cardboard_compensated_fp64_reference
             matter.analysis.cardboard_offline_conditioning_study
             matter.analysis.cardboard_diagnostic_history
             matter.analysis.cardboard_solver_pair
@@ -820,6 +824,19 @@ if(APPLE)
         NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
     target_compile_options(numi-matter-cardboard-vtccd-budget-replay-check PRIVATE
         -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    add_executable(numi-matter-cardboard-full-contact-scratch-budget-check
+        tools/cardboard_full_contact_armijo_scratch_budget_check.cpp)
+    target_include_directories(numi-matter-cardboard-full-contact-scratch-budget-check
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include"
+                "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_compile_options(numi-matter-cardboard-full-contact-scratch-budget-check
+        PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.compiler.cardboard_full_contact_scratch_budget
+            COMMAND numi-matter-cardboard-full-contact-scratch-budget-check)
+        set_tests_properties(matter.compiler.cardboard_full_contact_scratch_budget
+            PROPERTIES TIMEOUT 10 LABELS "matter;cardboard;contact;memory;cpu")
+    endif()
     add_executable(numi-matter-cardboard-full-contact-armijo-check tools/cardboard_full_contact_armijo_check.mm)
     target_link_libraries(numi-matter-cardboard-full-contact-armijo-check PRIVATE
         numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
@@ -1059,6 +1076,40 @@ if(APPLE)
         DEPFILE "${NUMI_CARDBOARD_PAPER_DEPFILE}"
         VERBATIM)
     add_custom_target(numi_cardboard_paper_shaders DEPENDS "${NUMI_CARDBOARD_PAPER_METALLIB}")
+    # Analytical checks of the production contact helpers at physical board scales.
+    set(NUMI_CARDBOARD_GEOMETRY_AIR "${NUMI_MATTER_SHADER_DIR}/cardboard_contact_geometry_check.air")
+    set(NUMI_CARDBOARD_GEOMETRY_METALLIB "${NUMI_MATTER_SHADER_DIR}/cardboard_contact_geometry_check.metallib")
+    set(NUMI_CARDBOARD_GEOMETRY_DEPFILE "${NUMI_MATTER_SHADER_DIR}/cardboard_contact_geometry_check.d")
+    add_custom_command(OUTPUT "${NUMI_CARDBOARD_GEOMETRY_METALLIB}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${NUMI_MATTER_SHADER_DIR}"
+        COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
+            -MMD -MF "${NUMI_CARDBOARD_GEOMETRY_DEPFILE}" -MT "${NUMI_CARDBOARD_GEOMETRY_METALLIB}"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include" -I "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+            -c "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_contact_geometry_check.metal" -o "${NUMI_CARDBOARD_GEOMETRY_AIR}"
+        COMMAND xcrun -sdk macosx metallib "${NUMI_CARDBOARD_GEOMETRY_AIR}" -o "${NUMI_CARDBOARD_GEOMETRY_METALLIB}"
+        DEPENDS tools/cardboard_contact_geometry_check.metal src/matter_kernels.metal
+            ${NUMI_CARDBOARD_PRODUCTION_METAL_DEPENDENCIES}
+            include/numi/matter/paper_compensated_bytecode.h
+            include/numi/matter/fem_compensated_deformation.h
+            include/numi/matter/hill_scalar_initializer.h
+            "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/compensated_geometry_gpu.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/compensated_translation_gpu.h"
+            include/numi/matter/shared.h include/numi/matter/fiber_exp_linear.h
+            "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/rod_gpu_shared.h"
+        DEPFILE "${NUMI_CARDBOARD_GEOMETRY_DEPFILE}"
+        VERBATIM)
+    add_custom_target(numi_cardboard_contact_geometry_shaders DEPENDS "${NUMI_CARDBOARD_GEOMETRY_METALLIB}")
+    add_executable(numi-matter-cardboard-contact-geometry-check tools/cardboard_contact_geometry_check.mm)
+    add_dependencies(numi-matter-cardboard-contact-geometry-check numi_cardboard_contact_geometry_shaders)
+    target_link_libraries(numi-matter-cardboard-contact-geometry-check PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(numi-matter-cardboard-contact-geometry-check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_compile_definitions(numi-matter-cardboard-contact-geometry-check PRIVATE NUMI_CARDBOARD_GEOMETRY_METALLIB="${NUMI_CARDBOARD_GEOMETRY_METALLIB}")
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.cardboard_contact_geometry COMMAND numi-matter-cardboard-contact-geometry-check)
+        set_tests_properties(matter.metal.cardboard_contact_geometry PROPERTIES
+            LABELS "matter;cardboard;contact;native-geometry" TIMEOUT 60 RUN_SERIAL TRUE)
+    endif()
     add_executable(numi-matter-cardboard-paper-gpu-check tools/cardboard_paper_gpu_check.mm)
     add_dependencies(numi-matter-cardboard-paper-gpu-check numi_cardboard_paper_shaders)
     target_link_libraries(numi-matter-cardboard-paper-gpu-check PRIVATE numi_matter_compiler "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")

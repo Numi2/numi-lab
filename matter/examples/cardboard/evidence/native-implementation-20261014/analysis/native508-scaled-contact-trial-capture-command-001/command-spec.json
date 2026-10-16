@@ -1,0 +1,34 @@
+{
+  "schema": "numi.cardboard.source188-contact-loaded-capture-command.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188-buildfix002",
+  "build_directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-002",
+  "source_frozen_sha256": "1f61fd7893eb3a10dfcf1ee0e748f1320b23171d67d37668b319b170a5c20185",
+  "files_sha256": {
+    "numi-matter-cardboard-full-contact-armijo-check": "24ad376f45a8ae490082e076e2d661420c0d20ed0eb1b2eeaf43fca7aef947e8",
+    "shaders/NumiMatter.metallib": "156c9e22186a8754d123e3738a75aef30562388b7afffde9271908c213160cd8",
+    "CMakeCache.txt": "aaffbfc7b897b1a47a3a515566d77f23212337c6ec5638bd47b43d108c913251",
+    "compile_commands.json": "470c3f058d004321c7dbb0d0c86583964a3ce38ece7cf9285e8a8cf5dacb392c",
+    "source-build.json": "34746e379a39086ec9305c51abb922377bf52ff3c5107d244997b4c713056a0e"
+  },
+  "material_relative_path": "matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+  "material_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+  "cases": {
+    "508": [
+      "--compensated-material-arithmetic",
+      "--diagnostic-state-output",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-activation-capture-508",
+      "--self-surface-scratch-alias-parity"
+    ]
+  },
+  "timeout_s": 300,
+  "qualification": "Read-only capture of source188 root2 N9 global residual failure; preserve failed transactions and compare production histories against506.",
+  "case_outputs": {
+    "508": "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-activation-capture-508"
+  },
+  "environment": {
+    "508": {
+      "NM_FEM_COUPLED_TRIAL_CAPTURE_SELECTOR": "2:9:0:both",
+      "NM_FEM_COUPLED_TRIAL_CAPTURE_PATH": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native508-scaled-contact-trial-capture-command-001/capture"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.scaled-nearest-point-overlay.v1",
+  "base_source185_frozen_sha256": "4f6d4569ea271ecf604b5e3c1b99299e8fcc9ebefcefcd2e3b171a232ace9cb6",
+  "base_contact_sha256": "cd5aaee17244b52e0b6eebb81cf2fcaff4fbbfb47fe43726fc5bbacec2e9527a",
+  "candidate_sha256": "8cbbea8c64446acad19f8210cd9e0a62ab5a3b89a6b9b949a859e88c35526ab4",
+  "functions_sha256": "63359abe966123a0c3042ea80f59349b8c568abf00680413c14eaed2973ce69a",
+  "gpu_dispatch": false,
+  "scope": "Candidate dimensionless closest-feature queries. No production integration, energy/CCD/physical qualification yet."
+}

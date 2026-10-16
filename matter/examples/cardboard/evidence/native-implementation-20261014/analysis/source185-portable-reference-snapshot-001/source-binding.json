@@ -1,0 +1,16 @@
+{
+  "parent_frozen_sha256": "405a37ff7af30dceb267c1126b257145e409842de8d61fcc0cc52e4018084f60",
+  "frozen_sha256": "4f6d4569ea271ecf604b5e3c1b99299e8fcc9ebefcefcd2e3b171a232ace9cb6",
+  "selected_files": 812,
+  "changed": {
+    "matter/CMakeLists.txt": "38c7b216dd94bce342f602bfa3bcf2adaf5ee1a0b1b5ab5353c28ba6e4ecb145"
+  },
+  "added": {
+    "matter/tools/cardboard_compensated_fp64_base.py": "b135c6ff0091f0833c8dad89239abdde209fc6e0eb91babeb72313b29a88bb6c",
+    "matter/tools/cardboard_compensated_fp64_fixture.py": "a395f157399823a9fe58ba47fb47f073e01147a81a935acac0c1413aa7eea0a3",
+    "matter/tools/cardboard_compensated_fp64_reference.py": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "matter/tools/cardboard_dd_fp64.py": "8edfd60beb2c38d181a08023d9f97bea0fec80b0f6fa04f8690c7dfe234330c2",
+    "matter/tools/test_cardboard_compensated_fp64_reference.py": "7e004e0614290938a1973621be20fc5278392ab58aa02d9f411ae69ba95cde3d"
+  },
+  "gpu_dispatch": false
+}

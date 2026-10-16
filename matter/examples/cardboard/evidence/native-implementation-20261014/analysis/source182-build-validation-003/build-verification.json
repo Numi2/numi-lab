@@ -1,0 +1,18 @@
+{
+  "schema": "numi.cardboard.source182-003-build-verification.v1",
+  "source_build_json_sha256": "5f88957ec2d7173f86b03499e79b2d20950e98a0e93fdc5bdd08536c1d9ffe25",
+  "compile_commands_sha256": "cd374caa9c552ef9a663450272efdbe9755d272ad06fae7a18693e12c78c9131",
+  "source_file_count": 805,
+  "configure_support_file_count": 1034,
+  "changed_sources": [],
+  "artifacts_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source182-003/numi-matter-cardboard-coupon-resume-check": "a7b47d845686b56b5c83cbb1a2a80ce3817c65a19a95936c94480f8266edcb2e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source182-003/numi-matter-cardboard-probe": "a306f1b7b39ebc87a9bf2fac797d45558e10a92c9285f2e4b83c4ba47442698c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source182-003/numi-matter-cardboard-shipping-snapshot-check": "f67f720ae5f8017987a8fff87c17b6e4fceeb14994bf229e45ec50c3a53d1080",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source182-003/numi-matter-cardboard-warm-start-check": "2bcca1b0416e32e1747a1923d415d3d58f90f2c1d275417622db84ebfa4be3e7",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source182-003/shaders/CardboardWarmStartCheck.metallib": "66e3c8739bfd49930295e5e0d160a71108a01b56071f47a9b2b8e7fdaa36a4c6",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source182-003/shaders/NumiMatter.metallib": "c3c8499f29ecb97f0181543c826fa8feb85fe2de1193f3c6275ecb46e8bc1df2",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source182-003/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+  },
+  "gpu_dispatch": false
+}

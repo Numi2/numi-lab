@@ -1,0 +1,132 @@
+{
+  "commands": {
+    "cxx": "clang++ -std=c++17 -O2 -fno-fast-math -Wall -Wextra -Werror -I <source176>/include <package>/closest_vt_dd.cpp -o closest_vt_dd",
+    "independent_replays": "decimal_reference.py; energy_armijo_analysis.py; add_slope.py; realized_gradient.py",
+    "native_output_replay": "closest_vt_dd <native500>/output.bin > dd-output.jsonl",
+    "worker_limits": {
+      "OMP_NUM_THREADS": 1,
+      "OPENBLAS_NUM_THREADS": 1,
+      "VECLIB_MAXIMUM_THREADS": 1
+    }
+  },
+  "files": {
+    "README.md": {
+      "bytes": 4912,
+      "sha256": "d2f62ce30cdbc3191b9fdfcac2f8168c5fd4f0432c8e5a5deacc72720b4c474b"
+    },
+    "add_slope.py": {
+      "bytes": 1325,
+      "sha256": "f5550bb4866a12d578e614c0361068f771a2522f1c53e359e275a80a5f869d27"
+    },
+    "closest_vt_dd": {
+      "bytes": 40160,
+      "sha256": "86f0da8a23fd03a3d3c984e16e31578bfde4c6a2d36c2679619a6ccc71adba09"
+    },
+    "closest_vt_dd.cpp": {
+      "bytes": 4154,
+      "sha256": "ab4f3997bedf651c6189c427359c001a015650f34a70198fbe2f4635bd31741a"
+    },
+    "closest_vt_dd.rebuilt": {
+      "bytes": 40168,
+      "sha256": "84fe7ee1788a21895f3aa9cdceeed45744f630a72f7c36b0f68cecc4a3900b88"
+    },
+    "dd-output.jsonl": {
+      "bytes": 10739,
+      "sha256": "d748eccc4daa231104a29fb9482241ee4e18dbfbc7f0f09ba17df99c07b69a35"
+    },
+    "dd-output.rebuilt.jsonl": {
+      "bytes": 10739,
+      "sha256": "d748eccc4daa231104a29fb9482241ee4e18dbfbc7f0f09ba17df99c07b69a35"
+    },
+    "decimal-reference.jsonl": {
+      "bytes": 12893,
+      "sha256": "d9d02df84010fc05bfb696cd72bd006fdcd8ad93c04bcc1d3cc516aafd023794"
+    },
+    "decimal-reference.rebuilt.jsonl": {
+      "bytes": 12893,
+      "sha256": "d9d02df84010fc05bfb696cd72bd006fdcd8ad93c04bcc1d3cc516aafd023794"
+    },
+    "decimal_reference.py": {
+      "bytes": 2647,
+      "sha256": "303cef80a33246fd66f657203e7e3bcc37bea720990dd2967343d48ffe8d07fc"
+    },
+    "energy-armijo.json": {
+      "bytes": 30168,
+      "sha256": "772676beae1b7aa39b31e56858018f7bcaefde4a179b5ca5edf1325b1dcc6bf6"
+    },
+    "energy-armijo.rebuilt.json": {
+      "bytes": 30168,
+      "sha256": "772676beae1b7aa39b31e56858018f7bcaefde4a179b5ca5edf1325b1dcc6bf6"
+    },
+    "energy_armijo_analysis.py": {
+      "bytes": 6806,
+      "sha256": "d511271f2218be3f5900a8ae0dae3b76003f73eb7ea989b5e4626ff49e8cb71c"
+    },
+    "exact-dd-slope.json": {
+      "bytes": 5659,
+      "sha256": "d4c2272054c7e9f0bda0ab523b75839a4f8b51112b58bdb27bbe56b4fc3b5437"
+    },
+    "realized-gradient-summary.json": {
+      "bytes": 7410,
+      "sha256": "11b9ecb7f94de32e245cab5d7895a4b3c14f8c195289062feaf3e1f0c6ca7e6a"
+    },
+    "realized-gradient-summary.rebuilt.json": {
+      "bytes": 7410,
+      "sha256": "11b9ecb7f94de32e245cab5d7895a4b3c14f8c195289062feaf3e1f0c6ca7e6a"
+    },
+    "realized-gradient.json": {
+      "bytes": 18292,
+      "sha256": "d291507039d05e2db1622767be9f4a3c54fb39aeced7cb6b056986179c328308"
+    },
+    "realized_gradient.py": {
+      "bytes": 1785,
+      "sha256": "ec9dd5ecb840ba65d52443b9906857fe4c5cadd37016b4defe1a965da1ac3ab1"
+    },
+    "report.md": {
+      "bytes": 6559,
+      "sha256": "471daf13a4cc32ccffa6ce6b3b1274c18c9ea0fc1998d7c195324ee7a2a7502f"
+    }
+  },
+  "input_hashes": {
+    "accepted-nodes.bin": "928da924ab7b58bfad074124a460aa807687c6466c6d8e2295a8af349503f39d",
+    "alphas.bin": "ae4c873080e3027604a3d81ec76c7fd26db9f464f3a769b7a0642a2af0aa1e95",
+    "candidate-nodes.bin": "cf79a4e8b241e221a321f52124b5c691a2dbfc5e2833e3ca6a165eeafac4a146",
+    "contacts.bin": "0db686ce367abd925176f497df442500cee46cd6c8e0ae6ba537427af4c7246b",
+    "correction.bin": "04dacef2468fa1216b86444d21bb0ab9a4145086c5cc8acd55b0681401b3cf08",
+    "timestep.bin": "0f2f3591427956b004ca17393783192e0f81858c06bb5496aa2cea004f1ee863"
+  },
+  "native_run": {
+    "ccd_qualification": false,
+    "host_sha256": "97c0b4953a9e8b60058f62227a8febe0d9bc2cc843c1bf63a948b93377b5b4f4",
+    "input_manifest_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-armijo-energy-replay-499-001/case-496-inputs-v3/manifest.json",
+    "input_manifest_sha256": "dc62eb0462fbf4af9f495363c63bb5ef692213643da0f318602eba3b91c08370",
+    "metallib_sha256": "5e91e698eaa76a28dee887e884f29df7bf412e3f3241bd1d6a489d72d44a9f9e",
+    "output_sha256": "cb1f014b70d5bd21e08f385e4fbea2c6d857328b2fd4a9c0506d64cb18ff0237",
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-barrier-energy-replay-500",
+    "physical_transactions": 0,
+    "receipt_sha256": "6afd312a22f209201f2b05594f56e02b25f3b5a096438cdcb61270368bc20787",
+    "returncode": 0,
+    "source_closure_sha256": "8427a7f247282ac8488061975174830b9ccfaaba4918dff626a2b9673b03ca41"
+  },
+  "package": "native500-compensated-feature-001",
+  "reproducibility": {
+    "rebuilt_binary_and_outputs_byte_identical": true,
+    "strict_json_nonfinite_rejection_checked": true
+  },
+  "schema": "numi.cardboard.native500_compensated_feature_audit.v1",
+  "scope": "CPU-only exact-input replay of native500 slot-7 VT barrier energy; no production source changes and no GPU dispatch by this audit.",
+  "source_snapshot": {
+    "frozen_source_entries": 808,
+    "frozen_source_sha256": "3bb43be51637a47494e33ead26c33702060cb09ab1f12c90f33602974bca6d92",
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-full-contact-private-scratch-176-003",
+    "selected_source_sha256": {
+      "include/metalrobo/compensated_geometry_gpu.h": "1bf85c7e7b8b2102c5e0e6f3fbba88e2b30530e6b5fbb33375fb581d5261d84e",
+      "include/metalrobo/compensated_translation_gpu.h": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097",
+      "matter/include/numi/matter/shared.h": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+      "matter/src/metal/common.metalinc": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380",
+      "matter/src/metal/contact.metalinc": "b1dc8d0e6843d5aed3a8c6d28449dae8c4d3a60488e644195e9fed5ed121d346",
+      "matter/src/metal/fem.metalinc": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170"
+    }
+  },
+  "verdict": "All eight compensated limiter-path energies rise and fail the recorded Armijo bound. FEM-applied paths pass only for alpha <= 1/8. Compensated distance fixes cancellation but not the mismatch; limiter endpoint construction differs from FEM-applied state. This identifies a shared FEM endpoint helper as an implementation candidate. It does not prove swept CCD conservativeness or full contact qualification."
+}

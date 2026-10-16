@@ -1,0 +1,164 @@
+inline float3 closestPointOnTriangle(
+    const float3 point,
+    const float3 a,
+    const float3 b,
+    const float3 c,
+    thread float3& barycentric
+) {
+    // Nearest-point coordinates are dimensionless. A fixed physical floor on
+    // dot products (m^2) and area determinants (m^4) changes the answer under
+    // mesh refinement. Normalize before the Voronoi-region tests instead.
+    const float3 worldAB = b - a;
+    const float3 worldAC = c - a;
+    const float3 worldAP = point - a;
+    const float scale = max(maximumAbsoluteCoordinate(worldAB),
+        max(maximumAbsoluteCoordinate(worldAC),
+            maximumAbsoluteCoordinate(worldAP)));
+    if (!isfinite(scale)) {
+        barycentric = float3(NAN);
+        return float3(NAN);
+    }
+    if (!(scale > 0.0f)) {
+        barycentric = float3(1.0f, 0.0f, 0.0f);
+        return a;
+    }
+    const float3 ab = worldAB / scale;
+    const float3 ac = worldAC / scale;
+    const float3 ap = worldAP / scale;
+    const float d1 = dot(ab, ap);
+    const float d2 = dot(ac, ap);
+    if (d1 <= 0.0f && d2 <= 0.0f) {
+        barycentric = float3(1.0f, 0.0f, 0.0f);
+        return a;
+    }
+    const float3 bp = (point - b) / scale;
+    const float d3 = dot(ab, bp);
+    const float d4 = dot(ac, bp);
+    if (d3 >= 0.0f && d4 <= d3) {
+        barycentric = float3(0.0f, 1.0f, 0.0f);
+        return b;
+    }
+    const float vc = d1 * d4 - d3 * d2;
+    if (vc <= 0.0f && d1 >= 0.0f && d3 <= 0.0f) {
+        const float denominator = d1 - d3;
+        const float v = denominator > 0.0f ? d1 / denominator : 0.0f;
+        barycentric = float3(1.0f - v, v, 0.0f);
+        return a + v * worldAB;
+    }
+    const float3 cp = (point - c) / scale;
+    const float d5 = dot(ab, cp);
+    const float d6 = dot(ac, cp);
+    if (d6 >= 0.0f && d5 <= d6) {
+        barycentric = float3(0.0f, 0.0f, 1.0f);
+        return c;
+    }
+    const float vb = d5 * d2 - d1 * d6;
+    if (vb <= 0.0f && d2 >= 0.0f && d6 <= 0.0f) {
+        const float denominator = d2 - d6;
+        const float w = denominator > 0.0f ? d2 / denominator : 0.0f;
+        barycentric = float3(1.0f - w, 0.0f, w);
+        return a + w * worldAC;
+    }
+    const float va = d3 * d6 - d5 * d4;
+    if (va <= 0.0f && d4 - d3 >= 0.0f && d5 - d6 >= 0.0f) {
+        const float denominator = (d4 - d3) + (d5 - d6);
+        const float w = denominator > 0.0f ? (d4 - d3) / denominator : 0.0f;
+        barycentric = float3(0.0f, 1.0f - w, w);
+        return b + w * (c - b);
+    }
+    const float denominator = va + vb + vc;
+    if (denominator > 0.0f) {
+        const float v = vb / denominator;
+        const float w = vc / denominator;
+        barycentric = float3(1.0f - v - w, v, w);
+        return a + v * worldAB + w * worldAC;
+    }
+    // Exact degeneracy has no face interior. Select the nearest of its three
+    // closed segments; no unit-dependent epsilon changes the feature domain.
+    float best = INFINITY;
+    float3 bestBary = float3(1.0f, 0.0f, 0.0f);
+    const float3 vertices[3] = {float3(0.0f), ab, ac};
+    for (uint edge = 0u; edge < 3u; ++edge) {
+        const uint next = (edge + 1u) % 3u;
+        const float3 direction = vertices[next] - vertices[edge];
+        const float norm2 = dot(direction, direction);
+        const float t = norm2 > 0.0f
+            ? clamp(dot(ap - vertices[edge], direction) / norm2, 0.0f, 1.0f)
+            : 0.0f;
+        const float3 offset = ap - (vertices[edge] + t * direction);
+        const float distance2 = dot(offset, offset);
+        if (distance2 < best) {
+            best = distance2;
+            bestBary = float3(0.0f);
+            bestBary[edge] = 1.0f - t;
+            bestBary[next] = t;
+        }
+    }
+    barycentric = bestBary;
+    return a + bestBary.y * worldAB + bestBary.z * worldAC;
+}
+
+inline void closestPointsOnSegments(
+    const float3 p0,
+    const float3 p1,
+    const float3 q0,
+    const float3 q1,
+    thread float& s,
+    thread float& t,
+    thread float3& pointP,
+    thread float3& pointQ
+) {
+    const float3 worldDP = p1 - p0;
+    const float3 worldDQ = q1 - q0;
+    const float3 worldR = p0 - q0;
+    const float scale = max(maximumAbsoluteCoordinate(worldDP),
+        max(maximumAbsoluteCoordinate(worldDQ),
+            maximumAbsoluteCoordinate(worldR)));
+    if (!isfinite(scale)) {
+        s = t = NAN;
+        pointP = pointQ = float3(NAN);
+        return;
+    }
+    if (!(scale > 0.0f)) {
+        s = t = 0.0f;
+        pointP = p0;
+        pointQ = q0;
+        return;
+    }
+    const float3 dP = worldDP / scale;
+    const float3 dQ = worldDQ / scale;
+    const float3 r = worldR / scale;
+    const float a = dot(dP, dP);
+    const float e = dot(dQ, dQ);
+    const float f = dot(dQ, r);
+    if (!(a > 0.0f) && !(e > 0.0f)) {
+        s = t = 0.0f;
+    } else if (!(a > 0.0f)) {
+        s = 0.0f;
+        t = clamp(f / e, 0.0f, 1.0f);
+    } else {
+        const float c = dot(dP, r);
+        if (!(e > 0.0f)) {
+            t = 0.0f;
+            s = clamp(-c / a, 0.0f, 1.0f);
+        } else {
+            const float b = dot(dP, dQ);
+            const float3 perpendicular = cross(dP, dQ);
+            const float denominator = dot(perpendicular, perpendicular);
+            s = denominator > 0.0f
+                ? clamp(dot(cross(dQ, r), perpendicular) / denominator, 0.0f, 1.0f)
+                : 0.0f;
+            t = (b * s + f) / e;
+            if (t < 0.0f) {
+                t = 0.0f;
+                s = clamp(-c / a, 0.0f, 1.0f);
+            } else if (t > 1.0f) {
+                t = 1.0f;
+                s = clamp((b - c) / a, 0.0f, 1.0f);
+            }
+        }
+    }
+    pointP = p0 + s * worldDP;
+    pointQ = q0 + t * worldDQ;
+}
+

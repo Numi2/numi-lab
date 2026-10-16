@@ -1,0 +1,137 @@
+--- a/matter/tools/cardboard_compensated_fp64_reference.py
++++ b/matter/tools/cardboard_compensated_fp64_reference.py
+@@ -99,12 +99,57 @@
+     return r
+ 
+ 
++STRICT_RESIDUAL = 2.0e-12
++STRICT_DYNAMIC_CORRECTION = 2.0e-11
++
++
++def project_with_metrics(ref, p, f, old, maxiter=80):
++    """Run the source173-qualified projection and return both strict gates.
++
++    The qualified path first uses source173's safeguarded projection/refinement,
++    then its bounded continuation until both the unchanged scaled-residual
++    (2e-12) and dynamic-correction (2e-11) gates pass.  The ceilings and row
++    scales come from the hash-bound equation source; callers cannot loosen them.
++    """
++    p = v1._real_array(p, 'parameters')
++    f = v1._real_array(f, 'deformation')
++    old = v1._real_array(old, 'accepted state')
++    if maxiter != 80:
++        raise ValueError('strict v2 projection uses the fixed qualified 80-iteration seed ceiling')
++    class _SeedProjection:
++        # project_centers calls project_resilient, whose seed calls project.
++        # Keep that seed on the documented initial safeguarded path without
++        # recursively re-entering this strict wrapper. Residual/Jacobian remain
++        # the compensated v2 equations throughout.
++        residual = ref.residual
++        jacobian = ref.jacobian
++
++        @staticmethod
++        def project(sp, sf, sold, maxiter=80):
++            return v1.project(ref, sp, sf, sold, maxiter=maxiter)
++
++    initial = ref.base.project_centers(_SeedProjection, p, f, old, p[:, 26])
++    return ref.base.continue_projection_tight(ref, p, f, old, p[:, 26], initial)
++
++
+ class Reference:
+     def __init__(self, base):
+         self.base = base
+         self.residual = lambda p, f, old, z: residual(base, p, f, old, z)
+         self.jacobian = lambda p, f, old, z: jacobian(base, p, f, old, z)
+-        self.project = lambda p, f, old, maxiter=80: v1.project(self, p, f, old, maxiter)
++
++    def project_with_metrics(self, p, f, old):
++        return project_with_metrics(self, p, f, old)
++
++    def project(self, p, f, old, maxiter=80):
++        z, iterations, scaled_residual, correction, ok, reasons, provenance = \
++            project_with_metrics(self, p, f, old, maxiter=maxiter)
++        if not np.all(ok):
++            bad = np.flatnonzero(~ok)
++            details = [(int(i), str(reasons[i]), float(scaled_residual[i]),
++                        float(correction[i])) for i in bad[:8]]
++            raise RuntimeError(f'strict v2 projection gates failed for rows {details}')
++        return z, iterations, scaled_residual
+ 
+ 
+ def tangent(base, p, f, old, z, h):
+--- a/matter/tools/cardboard_compensated_fp64_fixture.py
++++ b/matter/tools/cardboard_compensated_fp64_fixture.py
+@@ -1,4 +1,8 @@
+-"""Small captured source173 fixture for portable compensated-reference tests."""
++"""Small captured source173 fixture for portable compensated-reference tests.
++
++The independent MP state and IFT tangent come from native469-mp-fallback-005
++runs at 70/90/110 decimal digits; their content hash is bound below.
++"""
+ from __future__ import annotations
+ 
+ import numpy as np
+@@ -11,3 +15,8 @@
+ F_CENTER = np.asarray([[[0.9878187536264189, 8.97275640454609e-06, -0.13530186354148155], [2.5653838392177887e-06, 0.9999676332745224, 0.0009178220051117026], [0.1556826342890072, -7.749240467092022e-05, 0.9871477835976155]]], dtype=np.float64)
+ MP_ROOT_STATE = np.asarray([[4.561989728948239e-07, 8.634714997190975e-07, -1.3196705863007592e-06, 0.0004174559612415056, 0.009960550089326824, -1.001563051237316e-07, 0.0041935993298519774, -0.005500279670578095, -0.006890139119806416, 0.00010939840833702414, 0.0025777200539366307, -4.8144194450542784e-05, 5.0961931349825816e-05, 5.096190180045779e-05, 6.35983397616839e-27]], dtype=np.float64)
+ FB_BRANCH_STATES = np.asarray([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 4.900309431832284e-05, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1e+20, -100000.0, 0.0]], dtype=np.float64)
++
++
++# Independent 90/110-digit MP IFT result from native469-mp-fallback-005/run-002/mixed_reference_arrays.npz.
++MP_TANGENT_SOURCE_SHA256 = "107e942cc2e131eed8f8db7759f8deb3e86fcdc42d8da249996daf51d6ed11ad"
++MP_TANGENT = np.asarray([[4410203894.328112, -9202.088839687633, -189940.2741943976, 20244.854817881143, 286585046.6630015, 149311.8623113796, 694870357.2137394, 126345.38636923493, 231608.8489735466], [-9202.091468167988, 1009954874.096111, 157823.69517229067, 1021923889.4868975, 14516.262494723182, -3683597.1794768437, 78089.12458680425, 155464555.9800596, 24994.08162286702], [-189939.82151374893, 157823.69517253336, 321653.45124622766, 2541.7199996006902, -146244.74338395233, -1142895.3631202409, 26406.47585847773, -1125652.0218452073, -2379622.2159515503], [20244.855196951172, 1021923889.4868975, 2541.7199984220074, 1034531471.4019223, 2849.61440505958, 23252.372115376915, -75845.02279261935, 161056723.33968723, 402.80892526393524], [286585046.668776, 14516.262665525523, -146244.77279924278, 2849.6143804425596, 1628445698.4494128, 21402.98880913756, 45048869.330366194, -105878.47111619286, 208188.70074081747], [149311.88143468837, -3683597.1794768325, -1142895.3631204201, 23252.372115426555, 21402.990051772184, 27160221.748285156, -1141228.6722314432, 26875900.966765806, -165629.8468820528], [694870357.6758808, 78089.1250013286, 26406.404511174107, -75845.02285116151, 45048869.359486125, -1141228.6752452978, 109585585.74469866, -1142674.1014091067, 72066.01378432375], [126345.40523930342, 155464555.9800596, -1125652.0218430802, 161056723.3396873, -105878.46988998442, 26875900.966765903, -1142674.0984328107, 51554414.08178314, -178443.96728676028], [231608.92028988438, 24994.081623063554, -2379622.2159788124, 402.8089254267984, 208188.70537462138, -165629.84688317627, 72066.02499670783, -178443.96728823183, 17379676.119112525]], dtype=np.float64)
+--- a/matter/tools/test_cardboard_compensated_fp64_reference.py
++++ b/matter/tools/test_cardboard_compensated_fp64_reference.py
+@@ -17,7 +17,7 @@
+ SOURCE = HERE / "cardboard_bilinear_fp64_reference.py"
+ FIXTURE = HERE / "cardboard_compensated_fp64_fixture.py"
+ EXPECTED_SOURCE_SHA256 = "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995"
+-EXPECTED_FIXTURE_SHA256 = "8d9d82cde0b9cb2158dbb7faf86ff47eb9b87258cb0e303d30aa2ae7be7467cd"
++EXPECTED_FIXTURE_SHA256 = "a395f157399823a9fe58ba47fb47f073e01147a81a935acac0c1413aa7eea0a3"
+ 
+ sys.path.insert(0, str(HERE))
+ import cardboard_compensated_fp64_base as helpers
+@@ -88,15 +88,37 @@
+         self.assertLessEqual(float(np.max(scaled_residual)), 2.0e-10)
+         self.assertGreaterEqual(int(iterations[0]), 0)
+ 
+-    def test_v2_projection_and_tangent_paths(self):
+-        state, iterations, scaled_residual = self.ref.project(self.parameters, self.F, self.old)
++    def test_v2_projection_and_tangent_match_independent_mp_fixture(self):
++        detailed = self.ref.project_with_metrics(self.parameters, self.F, self.old)
++        state, iterations, scaled_residual, correction, ok, reasons, provenance = detailed
++        self.assertTrue(np.all(ok), reasons)
+         self.assertTrue(np.isfinite(state).all())
+-        self.assertLessEqual(float(np.max(scaled_residual)), 2.0e-10)
++        self.assertTrue(np.isfinite(scaled_residual).all())
++        self.assertTrue(np.isfinite(correction).all())
++        self.assertLessEqual(float(np.max(scaled_residual)), 2.0e-12)
++        self.assertLessEqual(float(np.max(correction)), 2.0e-11)
++        self.assertEqual(provenance['tight_gate_residual'], 2.0e-12)
++        self.assertEqual(provenance['tight_gate_dynamic_correction'], 2.0e-11)
++        api_state, api_iterations, api_residual = self.ref.project(
++            self.parameters, self.F, self.old)
++        np.testing.assert_array_equal(api_state, state)
++        np.testing.assert_array_equal(api_iterations, iterations)
++        np.testing.assert_array_equal(api_residual, scaled_residual)
++        self.assertEqual(fixture.MP_TANGENT_SOURCE_SHA256,
++                         "107e942cc2e131eed8f8db7759f8deb3e86fcdc42d8da249996daf51d6ed11ad")
++        state_rel = np.linalg.norm(state - self.root) / np.linalg.norm(self.root)
++        self.assertLessEqual(float(state_rel), 1.0e-10)
++        # One mixed diagonal direction exercises multiple tensor components
++        # while remaining a single independent implicit solve.
++        h = np.eye(3, dtype=np.float64)[None, :, :]
+         tangent = reference_v2.tangent(
+-            self.base, self.parameters, self.F, self.old, self.root,
+-            np.eye(3, dtype=np.float64)[None, :, :])
+-        self.assertEqual(tangent.shape, (1, 3, 3))
++            self.base, self.parameters, self.F, self.old, state, h).reshape(9)
++        hvec = h.reshape(9)
++        expected_tangent = fixture.MP_TANGENT @ hvec
++        self.assertEqual(tangent.shape, expected_tangent.shape)
+         self.assertTrue(np.isfinite(tangent).all())
++        tangent_rel = np.linalg.norm(tangent - expected_tangent) / np.linalg.norm(expected_tangent)
++        self.assertLessEqual(float(tangent_rel), 1.0e-6)
+         self.assertGreaterEqual(int(iterations[0]), 0)
+ 
+     def test_explicit_loader_rejects_missing_source(self):

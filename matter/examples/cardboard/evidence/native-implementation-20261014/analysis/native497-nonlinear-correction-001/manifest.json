@@ -1,0 +1,24 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 575,
+      "sha256": "f83c6a47a6cbc96f4f58d2749fc0330dc906d9e5486691f0c0396d88b07759a6"
+    },
+    "curve.json": {
+      "bytes": 9148,
+      "sha256": "04abdcf22ba62f21a8fc2d65cc4a0ef58d41bbe73cce915a93dbdd424d119ffd"
+    },
+    "replay.py": {
+      "bytes": 15584,
+      "sha256": "aecdf360fe9a52ec3a3dd622eae7de21d138317afc6e82b396b146d25c5070d4"
+    },
+    "report.json": {
+      "bytes": 20253,
+      "sha256": "fd175bf87f3aed58284e0e9b4c2e4569e77beb34bb8f704dcd838e6ca082cd9b"
+    }
+  },
+  "host": "macmini",
+  "package": "native497-nonlinear-correction-001",
+  "schema": "numi.cardboard.analysis-package.v1",
+  "scope": "CPU-only read-only replay"
+}

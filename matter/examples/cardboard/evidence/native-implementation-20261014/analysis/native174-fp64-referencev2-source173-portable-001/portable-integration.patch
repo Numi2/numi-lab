@@ -1,0 +1,534 @@
+diff --git a/matter/tools/cardboard_compensated_fp64_base.py b/matter/tools/cardboard_compensated_fp64_base.py
+new file mode 100644
+--- /dev/null
++++ b/matter/tools/cardboard_compensated_fp64_base.py
+@@ -0,0 +1,236 @@
++"""Compensated FP64 helpers around an explicitly selected equation reference.
++
++Only the Hill invariant / flow, yield gap, and Fischer--Burmeister row are
++evaluated with two-word binary64 expansions. All words and intermediate
++operations remain IEEE binary64. The authored equations and strict gates are
++unchanged. This is a CPU diagnostic reference, not production code.
++"""
++from __future__ import annotations
++
++import importlib.util
++import sys
++from pathlib import Path
++
++import numpy as np
++
++from cardboard_dd_fp64 import DD, add, div, mul, neg, sqrt, sub
++
++
++
++def import_reference(path):
++    if path is None:
++        raise ValueError('an explicitly hash-bound source reference path is required')
++    spec = importlib.util.spec_from_file_location('cardboard_source_bound_equation_base', path)
++    module = importlib.util.module_from_spec(spec)
++    sys.modules[spec.name] = module
++    spec.loader.exec_module(module)
++    return module
++
++
++def _real_array(x, name):
++    a = np.asarray(x)
++    if np.iscomplexobj(a):
++        raise TypeError(f'{name}: complex inputs are unsupported by the DD reference')
++    a = np.asarray(a, dtype=np.float64)
++    if not np.all(np.isfinite(a)):
++        raise ValueError(f'{name}: nonfinite input to the DD reference')
++    return a
++
++
++def _constant(x):
++    return DD.from_value(x)
++
++
++def _take(a: DD, mask):
++    return DD(a.hi[mask], a.lo[mask])
++
++
++def _mul3(a, b, c):
++    return mul(mul(a, b), c)
++
++
++def hill_dd(p, stress):
++    """Return the authored Hill q and flow as binary64-rounded DD values."""
++    p = _real_array(p, 'parameters')
++    s = _real_array(stress, 'stress')
++    if p.ndim != 2 or p.shape[1] < 27 or s.shape != (len(p), 6):
++        raise ValueError('hill_dd expects parameters[N,>=27] and stress[N,6]')
++    f, g, h, l, m, n = (_constant(p[:, k]) for k in range(11, 17))
++    a, b, c, d, e, v = (_constant(s[:, k]) for k in range(6))
++    eps = _constant(p[:, 25])
++    bc = sub(b, c)
++    ca = sub(c, a)
++    ab = sub(a, b)
++    terms = [
++        mul(f, mul(bc, bc)),
++        mul(g, mul(ca, ca)),
++        mul(h, mul(ab, ab)),
++        mul(_constant(2.0), mul(l, mul(d, d))),
++        mul(_constant(2.0), mul(m, mul(e, e))),
++        mul(_constant(2.0), mul(n, mul(v, v))),
++        mul(eps, eps),
++    ]
++    q2 = terms[0]
++    for term in terms[1:]:
++        q2 = add(q2, term)
++    q = sqrt(q2)
++    if np.any(q.hi <= 0.0):
++        raise ArithmeticError('nonpositive Hill norm in DD reference')
++    numerators = [
++        add(mul(g, sub(a, c)), mul(h, sub(a, b))),
++        add(mul(f, sub(b, c)), mul(h, sub(b, a))),
++        add(mul(f, sub(c, b)), mul(g, sub(c, a))),
++        mul(l, d), mul(m, e), mul(n, v),
++    ]
++    flow = [div(vv, q) for vv in numerators]
++    return q, flow
++
++
++def _fb_row(p, old, z):
++    """Compute only the FB row, retaining q/y low words through evaluation."""
++    nrow = len(p)
++    q, flow = hill_dd(p, z[:, 6:12])
++    dl = sub(_constant(z[:, 12]), _constant(old[:, 12]))
++    eps = _constant(p[:, 26])
++    hard1 = div(_mul3(_constant(p[:, 17]), _constant(p[:, 19]),
++                      _constant(p[:, 21])), _constant(p[:, 10]))
++    hard2 = div(_mul3(_constant(p[:, 18]), _constant(p[:, 20]),
++                      _constant(p[:, 22])), _constant(p[:, 10]))
++    hard1 = mul(hard1, _constant(z[:, 13]))
++    hard2 = mul(hard2, _constant(z[:, 14]))
++    base = add(add(_constant(np.ones(nrow, dtype=np.float64)), hard1), hard2)
++    y = sub(base, q)
++    root = sqrt(add(add(mul(dl, dl), mul(y, y)), mul(eps, eps)))
++    den = add(add(root, dl), y)
++    # Match source166003's representation branch; only the arithmetic within
++    # each algebraically equivalent branch is more accurate.
++    use_quotient = den.rounded() > 1.0e-14
++    numerator = sub(mul(eps, eps), mul(_constant(2.0), mul(dl, y)))
++    direct = sub(sub(root, dl), y)
++    values = direct.rounded().copy()
++    if np.any(use_quotient):
++        quotient = div(_take(numerator, use_quotient), _take(den, use_quotient)).rounded()
++        values[use_quotient] = quotient[use_quotient]
++    if not np.all(np.isfinite(values)):
++        raise ArithmeticError('nonfinite FB value in DD reference')
++    branches = {
++        'q': q.rounded(), 'q_low': q.lo.copy(),
++        'yield_y': y.rounded(), 'yield_y_low': y.lo.copy(),
++        'dl': dl.rounded(), 'dl_low': dl.lo.copy(),
++        'fb_denominator': den.rounded(), 'fb_quotient_branch': use_quotient,
++    }
++    return values, (q, flow, dl, y, eps, root), branches
++
++
++def residual_dd(base, p, f, old, z):
++    p = _real_array(p, 'parameters')
++    f = _real_array(f, 'deformation')
++    old = _real_array(old, 'accepted state')
++    z = _real_array(z, 'candidate state')
++    if p.ndim != 2 or f.shape != (len(p), 3, 3) or old.shape != z.shape or z.shape != (len(p), 15):
++        raise ValueError('residual_dd shape mismatch')
++    r = base.residual(p, f, old, z)
++    fb, _, _ = _fb_row(p, old, z)
++    r[:, 12] = fb
++    if not np.all(np.isfinite(r)):
++        raise ArithmeticError('nonfinite residual in DD reference')
++    return r
++
++
++def jacobian_dd(base, p, f, old, z):
++    p = _real_array(p, 'parameters')
++    f = _real_array(f, 'deformation')
++    old = _real_array(old, 'accepted state')
++    z = _real_array(z, 'candidate state')
++    if p.ndim != 2 or f.shape != (len(p), 3, 3) or old.shape != z.shape or z.shape != (len(p), 15):
++        raise ValueError('jacobian_dd shape mismatch')
++    j = base.jacobian(p, f, old, z)
++    _, parts, _ = _fb_row(p, old, z)
++    q, flow, dl, y, eps, root = parts
++    one = _constant(np.ones(len(p), dtype=np.float64))
++    coeff_dl = sub(div(dl, root), one).rounded()
++    coeff_y = sub(div(y, root), one).rounded()
++    positive_dl = dl.rounded() > 0.0
++    positive_y = y.rounded() > 0.0
++    if np.any(positive_dl):
++        dl_pos, y_pos, eps_pos, root_pos = (_take(v, positive_dl) for v in (dl, y, eps, root))
++        den_dl = mul(root_pos, add(root_pos, dl_pos))
++        coeff_dl[positive_dl] = neg(div(add(mul(y_pos, y_pos), mul(eps_pos, eps_pos)), den_dl)).rounded()
++    if np.any(positive_y):
++        dl_pos, y_pos, eps_pos, root_pos = (_take(v, positive_y) for v in (dl, y, eps, root))
++        den_y = mul(root_pos, add(root_pos, y_pos))
++        coeff_y[positive_y] = neg(div(add(mul(dl_pos, dl_pos), mul(eps_pos, eps_pos)), den_y)).rounded()
++    row = np.zeros((len(p), 15), dtype=np.float64)
++    row[:, 12] = coeff_dl
++    for k in range(3):
++        row[:, 6 + k] = -mul(_constant(coeff_y), flow[k]).rounded()
++    for k in range(3, 6):
++        row[:, 6 + k] = -mul(_constant(2.0 * coeff_y), flow[k]).rounded()
++    h13 = div(_mul3(_constant(p[:, 17]), _constant(p[:, 19]),
++                    _constant(p[:, 21])), _constant(p[:, 10]))
++    h14 = div(_mul3(_constant(p[:, 18]), _constant(p[:, 20]),
++                    _constant(p[:, 22])), _constant(p[:, 10]))
++    row[:, 13] = mul(_constant(coeff_y), h13).rounded()
++    row[:, 14] = mul(_constant(coeff_y), h14).rounded()
++    j[:, 12, :] = row
++    if not np.all(np.isfinite(j)):
++        raise ArithmeticError('nonfinite Jacobian in DD reference')
++    return j
++
++
++def project(ref, p, f, old, maxiter=80):
++    """Source166003 safeguarded Newton loop with compensated residual/Jacobian."""
++    p = _real_array(p, 'parameters')
++    f = _real_array(f, 'deformation')
++    old = _real_array(old, 'accepted state')
++    z = old.copy()
++    z[:, 6:12] = np.einsum('nij,nj->ni', ref.base.stiffness(p),
++                           ref.base.strain(f) - old[:, :6])
++    counts = np.zeros(len(p), dtype=np.int32)
++    scale = np.array([1e4] * 6 + [1.0] * 6 + [1e4] * 3, dtype=np.float64)
++    for iteration in range(maxiter):
++        r = ref.residual(p, f, old, z)
++        norm = np.max(np.abs(r) * scale, axis=1)
++        active = norm > 2e-10
++        if not active.any():
++            return z, counts, norm
++        ids = np.flatnonzero(active)
++        pa, fa, oa, za = p[ids], f[ids], old[ids], z[ids]
++        try:
++            j = ref.jacobian(pa, fa, oa, za)
++            d = np.linalg.solve(j, -r[ids, :, None])[:, :, 0]
++        except Exception:
++            if len(ids) == 1:
++                raise
++            # Let source166003's resilient wrapper split the batch.
++            raise RuntimeError('batched DD Newton linear solve failed')
++        alpha = np.ones(len(ids), dtype=np.float64)
++        pending = np.ones(len(ids), dtype=bool)
++        trial = za.copy()
++        for _ in range(30):
++            candidate = za + alpha[:, None] * d
++            trial_norm = np.max(np.abs(ref.residual(pa, fa, oa, candidate)) * scale, axis=1)
++            accepted = pending & np.isfinite(trial_norm) & (trial_norm < norm[ids])
++            trial[accepted] = candidate[accepted]
++            pending[accepted] = False
++            if not np.any(pending):
++                break
++            alpha[pending] *= 0.5
++        if np.any(pending):
++            raise RuntimeError(f'DD FP64 Newton Armijo stalled at iteration {iteration}; rows={ids[pending][:8].tolist()}')
++        z[ids] = trial
++        counts[ids] += 1
++    raise RuntimeError('DD FP64 Newton iteration ceiling')
++
++
++class Reference:
++    def __init__(self, base=None):
++        self.base = base or import_reference()
++        self.residual = lambda p, f, old, z: residual_dd(self.base, p, f, old, z)
++        self.jacobian = lambda p, f, old, z: jacobian_dd(self.base, p, f, old, z)
++        self.project = lambda p, f, old, maxiter=80: project(self, p, f, old, maxiter=maxiter)
++
++    def hill(self, p, s):
++        q, flow = hill_dd(p, s)
++        return q.rounded(), np.stack([x.rounded() for x in flow], axis=-1)
++
+diff --git a/matter/tools/cardboard_compensated_fp64_reference.py b/matter/tools/cardboard_compensated_fp64_reference.py
+new file mode 100644
+--- /dev/null
++++ b/matter/tools/cardboard_compensated_fp64_reference.py
+@@ -0,0 +1,126 @@
++"""Optional DD wrapper for the explicitly loaded paper equation reference."""
++from __future__ import annotations
++
++import numpy as np
++
++import cardboard_compensated_fp64_base as v1
++from cardboard_dd_fp64 import DD, add, div, mul, neg, sqrt, sub
++
++
++def fb_row(p, old, z):
++    """Compensated FB row with correct masked quotient scatter for mixed batches."""
++    nrow = len(p)
++    q, flow = v1.hill_dd(p, z[:, 6:12])
++    dl = sub(DD.from_value(z[:, 12]), DD.from_value(old[:, 12]))
++    eps = DD.from_value(p[:, 26])
++    hard1 = div(mul(mul(DD.from_value(p[:, 17]), DD.from_value(p[:, 19])),
++                    DD.from_value(p[:, 21])), DD.from_value(p[:, 10]))
++    hard2 = div(mul(mul(DD.from_value(p[:, 18]), DD.from_value(p[:, 20])),
++                    DD.from_value(p[:, 22])), DD.from_value(p[:, 10]))
++    hard1 = mul(hard1, DD.from_value(z[:, 13]))
++    hard2 = mul(hard2, DD.from_value(z[:, 14]))
++    y = sub(add(add(DD.from_value(np.ones(nrow)), hard1), hard2), q)
++    root = sqrt(add(add(mul(dl, dl), mul(y, y)), mul(eps, eps)))
++    denominator = add(add(root, dl), y)
++    use_quotient = denominator.rounded() > 1.0e-14
++    numerator = sub(mul(eps, eps), mul(DD.from_value(2.0), mul(dl, y)))
++    values = sub(sub(root, dl), y).rounded().copy()
++    ids = np.flatnonzero(use_quotient)
++    if ids.size:
++        quotient = div(DD(numerator.hi[ids], numerator.lo[ids]),
++                       DD(denominator.hi[ids], denominator.lo[ids])).rounded()
++        values[ids] = quotient
++    if not np.all(np.isfinite(values)):
++        raise ArithmeticError('nonfinite FB value in compensated FP64 reference v2')
++    branches = {'q': q.rounded(), 'q_low': q.lo.copy(), 'yield_y': y.rounded(),
++                'yield_y_low': y.lo.copy(), 'dl': dl.rounded(), 'dl_low': dl.lo.copy(),
++                'fb_denominator': denominator.rounded(), 'fb_quotient_branch': use_quotient}
++    return values, (q, flow, dl, y, eps, root), branches
++
++
++def jacobian(base, p, f, old, z):
++    """Source166003 analytic Jacobian with a corrected DD FB row scatter."""
++    p = v1._real_array(p, 'parameters')
++    f = v1._real_array(f, 'deformation')
++    old = v1._real_array(old, 'accepted state')
++    z = v1._real_array(z, 'candidate state')
++    j = base.jacobian(p, f, old, z)
++    _, parts, _ = fb_row(p, old, z)
++    q, flow, dl, y, eps, root = parts
++    one = DD.from_value(np.ones(len(p)))
++    coeff_dl = sub(div(dl, root), one).rounded()
++    coeff_y = sub(div(y, root), one).rounded()
++    positive_dl = dl.rounded() > 0.0
++    positive_y = y.rounded() > 0.0
++    if np.any(positive_dl):
++        ids = np.flatnonzero(positive_dl)
++        dl_p = DD(dl.hi[ids], dl.lo[ids]); y_p = DD(y.hi[ids], y.lo[ids])
++        e_p = DD(eps.hi[ids], eps.lo[ids]); r_p = DD(root.hi[ids], root.lo[ids])
++        d = mul(r_p, add(r_p, dl_p))
++        coeff_dl[ids] = neg(div(add(mul(y_p, y_p), mul(e_p, e_p)), d)).rounded()
++    if np.any(positive_y):
++        ids = np.flatnonzero(positive_y)
++        dl_p = DD(dl.hi[ids], dl.lo[ids]); y_p = DD(y.hi[ids], y.lo[ids])
++        e_p = DD(eps.hi[ids], eps.lo[ids]); r_p = DD(root.hi[ids], root.lo[ids])
++        d = mul(r_p, add(r_p, y_p))
++        coeff_y[ids] = neg(div(add(mul(dl_p, dl_p), mul(e_p, e_p)), d)).rounded()
++    row = np.zeros((len(p), 15), dtype=np.float64)
++    row[:, 12] = coeff_dl
++    for k in range(3): row[:, 6+k] = -mul(DD.from_value(coeff_y), flow[k]).rounded()
++    for k in range(3, 6): row[:, 6+k] = -mul(DD.from_value(2.0*coeff_y), flow[k]).rounded()
++    h13 = div(mul(mul(DD.from_value(p[:,17]), DD.from_value(p[:,19])),
++                  DD.from_value(p[:,21])), DD.from_value(p[:,10]))
++    h14 = div(mul(mul(DD.from_value(p[:,18]), DD.from_value(p[:,20])),
++                  DD.from_value(p[:,22])), DD.from_value(p[:,10]))
++    row[:,13] = mul(DD.from_value(coeff_y), h13).rounded()
++    row[:,14] = mul(DD.from_value(coeff_y), h14).rounded()
++    j[:,12,:] = row
++    if not np.all(np.isfinite(j)):
++        raise ArithmeticError('nonfinite DD Jacobian')
++    return j
++
++
++def residual(base, p, f, old, z):
++    """Same source166003 equations; DD evaluation of q-dependent residuals."""
++    r = base.residual(p, f, old, z)
++    _, flow, dl, _, _, _ = fb_row(p, old, z)[1]
++    dl_dd = dl
++    z0 = DD.from_value(z[:, :6])
++    old0 = DD.from_value(old[:, :6])
++    for k in range(6):
++        zk = DD(z0.hi[:, k], z0.lo[:, k])
++        ok = DD(old0.hi[:, k], old0.lo[:, k])
++        value = sub(sub(zk, ok), mul(dl_dd, flow[k]))
++        r[:, k] = value.rounded()
++    fb, _, _ = fb_row(p, old, z)
++    r[:, 12] = fb
++    if not np.all(np.isfinite(r)):
++        raise ArithmeticError('nonfinite residual in compensated FP64 reference v2')
++    return r
++
++
++class Reference:
++    def __init__(self, base):
++        self.base = base
++        self.residual = lambda p, f, old, z: residual(base, p, f, old, z)
++        self.jacobian = lambda p, f, old, z: jacobian(base, p, f, old, z)
++        self.project = lambda p, f, old, maxiter=80: v1.project(self, p, f, old, maxiter)
++
++
++def tangent(base, p, f, old, z, h):
++    """Implicit tangent using DD Jacobian and exact complex-step F derivative."""
++    p = v1._real_array(p, 'parameters')
++    f = v1._real_array(f, 'deformation')
++    old = v1._real_array(old, 'accepted state')
++    z = v1._real_array(z, 'candidate state')
++    h = v1._real_array(h, 'deformation direction')
++    if h.shape != f.shape:
++        raise ValueError('tangent direction shape mismatch')
++    step = 1e-25
++    fc = f.astype(np.complex128) + 1j * step * h
++    rf = np.imag(base.residual(p, fc, old, z)) / step
++    j = jacobian(base, p, f, old, z)
++    dz = np.linalg.solve(j, -rf[..., None])[..., 0]
++    zc = z.astype(np.complex128) + 1j * step * dz
++    return np.imag(base.stress(p, fc, zc)) / step
++
+diff --git a/matter/tools/cardboard_dd_fp64.py b/matter/tools/cardboard_dd_fp64.py
+new file mode 100644
+--- /dev/null
++++ b/matter/tools/cardboard_dd_fp64.py
+@@ -0,0 +1,157 @@
++"""Small binary64 double-double primitives used by the isolated reference.
++
++Each value is an unevaluated pair of ordinary IEEE-754 binary64 numbers.
++There is no wider floating type or arbitrary-precision arithmetic in this
++module. Unsupported nonfinite, complex, overflow, and underflow cases fail
++closed instead of silently changing the claimed arithmetic.
++"""
++from __future__ import annotations
++
++from dataclasses import dataclass
++import numpy as np
++
++_SPLITTER = np.float64(134217729.0)  # 2**27 + 1, for a 53-bit significand.
++
++
++def _as_f64(x):
++    a = np.asarray(x)
++    if np.iscomplexobj(a):
++        raise TypeError("complex inputs are unsupported by the FP64 DD path")
++    a = np.asarray(a, dtype=np.float64)
++    if not np.all(np.isfinite(a)):
++        raise ValueError("nonfinite input to FP64 DD arithmetic")
++    return a
++
++
++@dataclass(frozen=True)
++class DD:
++    hi: np.ndarray
++    lo: np.ndarray
++
++    @classmethod
++    def from_value(cls, value):
++        a = _as_f64(value)
++        return cls(a, np.zeros_like(a))
++
++    def rounded(self):
++        out = self.hi + self.lo
++        if not np.all(np.isfinite(out)):
++            raise ArithmeticError("nonfinite rounded FP64 DD result")
++        return out
++
++
++def _two_sum(a, b):
++    s = a + b
++    bp = s - a
++    e = (a - (s - bp)) + (b - bp)
++    return s, e
++
++
++def _normalise(a, b):
++    h, l = _two_sum(a, b)
++    if not np.all(np.isfinite(h)) or not np.all(np.isfinite(l)):
++        raise ArithmeticError("FP64 DD addition overflow")
++    return DD(h, l)
++
++
++def add(a: DD, b: DD) -> DD:
++    s, e = _two_sum(a.hi, b.hi)
++    t, f = _two_sum(a.lo, b.lo)
++    e = e + t
++    h, l = _two_sum(s, e)
++    l = l + f
++    return _normalise(h, l)
++
++
++def neg(a: DD) -> DD:
++    return DD(-a.hi, -a.lo)
++
++
++def sub(a: DD, b: DD) -> DD:
++    return add(a, neg(b))
++
++
++def _two_product(a, b):
++    """Return p,e with p+e the exact product when it is representable.
++
++    Splitting normalized significands avoids overflow in splitter*x for large
++    but otherwise ordinary operands. A product outside the normal binary64
++    range is rejected because an unevaluated pair cannot recover its lost
++    underflow bits on this path.
++    """
++    ma, ea = np.frexp(a)
++    mb, eb = np.frexp(b)
++    k = ea + eb
++    ca = _SPLITTER * ma
++    cb = _SPLITTER * mb
++    ah = ca - (ca - ma)
++    bh = cb - (cb - mb)
++    al = ma - ah
++    bl = mb - bh
++    pm = ma * mb
++    em = ((ah * bh - pm) + ah * bl + al * bh) + al * bl
++    with np.errstate(over="ignore", under="ignore", invalid="ignore"):
++        p = np.ldexp(pm, k)
++        e = np.ldexp(em, k)
++    if np.any(~np.isfinite(p)) or np.any(~np.isfinite(e)):
++        raise ArithmeticError("FP64 DD product overflow")
++    nonzero = (a != 0.0) & (b != 0.0)
++    if np.any(nonzero & (p == 0.0)):
++        raise ArithmeticError("FP64 DD product underflow")
++    if np.any(nonzero & (np.abs(p) < np.finfo(np.float64).tiny)):
++        raise ArithmeticError("subnormal FP64 DD product is unsupported")
++    return p, e
++
++
++def mul(a: DD, b: DD) -> DD:
++    p, e = _two_product(a.hi, b.hi)
++    with np.errstate(over="ignore", under="ignore", invalid="ignore"):
++        cross = a.hi * b.lo + a.lo * b.hi
++        low_low = a.lo * b.lo
++        e = e + cross + low_low
++    if np.any(~np.isfinite(e)):
++        raise ArithmeticError("FP64 DD product correction overflow")
++    return _normalise(p, e)
++
++
++def div(a: DD, b: DD) -> DD:
++    if np.any(b.hi == 0.0):
++        raise ZeroDivisionError("zero denominator in FP64 DD division")
++    with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
++        q = DD(a.hi / b.hi, np.zeros_like(a.hi))
++    if not np.all(np.isfinite(q.hi)):
++        raise ArithmeticError("nonfinite initial FP64 DD quotient")
++    # Two residual corrections give roughly 106 useful significand bits.
++    for _ in range(2):
++        rem = sub(a, mul(b, q))
++        with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
++            qi = (rem.hi + rem.lo) / b.hi
++        if not np.all(np.isfinite(qi)):
++            raise ArithmeticError("nonfinite FP64 DD quotient correction")
++        q = add(q, DD(qi, np.zeros_like(qi)))
++    return q
++
++
++def sqrt(a: DD) -> DD:
++    if np.any(a.hi < 0.0) or np.any((a.hi == 0.0) & (a.lo < 0.0)):
++        raise ValueError("negative radicand in FP64 DD square root")
++    if np.any(a.hi == 0.0):
++        if np.any(a.lo != 0.0):
++            raise ArithmeticError("unnormalized near-zero FP64 DD radicand")
++        return DD(np.zeros_like(a.hi), np.zeros_like(a.lo))
++    x = DD(np.sqrt(a.hi), np.zeros_like(a.hi))
++    if not np.all(np.isfinite(x.hi)) or np.any(x.hi == 0.0):
++        raise ArithmeticError("unsupported FP64 DD square-root scale")
++    for _ in range(2):
++        rem = sub(a, mul(x, x))
++        correction = div(rem, DD(2.0 * x.hi, np.zeros_like(x.hi)))
++        x = add(x, correction)
++    if np.any(x.hi < 0.0) or not np.all(np.isfinite(x.hi + x.lo)):
++        raise ArithmeticError("invalid FP64 DD square-root result")
++    return x
++
++
++def scaled_norm_error(value: DD, reference: float) -> float:
++    """Return the absolute rounded error against a supplied binary64 value."""
++    return float(np.max(np.abs(value.rounded() - np.float64(reference))))
++

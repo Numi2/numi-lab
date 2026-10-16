@@ -1,0 +1,323 @@
+{
+  "schema": "numi.cardboard.bilinear15.nine-basis-fp64-fd-audit.v1",
+  "classification": "CPU-only independent compensated FP64 return-map and tangent audit; not native, physical, calibration, or whole-box qualification",
+  "equation_source_sha256": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995",
+  "capture_sha256": "4361b6aa9f0d269a9733b0bd8f508dbc1204624451611816512dad02c303d27c",
+  "mp_parameter_binding_sha256": "107e942cc2e131eed8f8db7759f8deb3e86fcdc42d8da249996daf51d6ed11ad",
+  "portable_module_hashes": {
+    "cardboard_compensated_fp64_base.py": "f680ba94208fb135bf7abeec49a904937367794ebc4258e8efb0a7e7f6f462e3",
+    "cardboard_compensated_fp64_reference.py": "0e55737db7b3e3a98cc9c6ecbd633196c49cae60ed0cac2850f67806757b669b",
+    "cardboard_dd_fp64.py": "7601e019d3f6b5faf3d3b5fae04d9a5694f7529354fe62295ceac0f96734a4eb"
+  },
+  "paper_rows": 1728,
+  "all_nine_basis_components": true,
+  "epsilon_powers": [
+    8
+  ],
+  "strict_gates_unchanged": {
+    "scaled_residual": 2e-12,
+    "dynamic_scaled_correction": 2e-11,
+    "centered_derivative_relative_l2": 1e-06
+  },
+  "perturbation": "Each endpoint changes exactly one captured F component by plus/minus 2^-power; all denominators use realized FP64 component differences. The authored material is rate-independent; no Fdot averaging is used.",
+  "center_projection": {
+    "strict_pass": 1728,
+    "strict_fail": 0,
+    "max_scaled_residual": 1.8930536904633616e-12,
+    "max_dynamic_scaled_correction": 3.8829937654268817e-13,
+    "iterations_min_max": [
+      1,
+      12
+    ]
+  },
+  "per_basis_direction": [
+    {
+      "direction_index": 0,
+      "F_component": [
+        0,
+        0
+      ],
+      "rows": 1728,
+      "rows_with_any_resolved_centered_comparison": 1728,
+      "rows_with_any_centered_pass": 0,
+      "rows_with_adjacent_centered_passes": 0,
+      "row_direction_inconclusive_no_resolved_comparison": 0,
+      "zero_reference_action_rows": 0,
+      "maximum_centered_relative_error_over_eligible": 0.27997804868846166,
+      "maximum_centered_absolute_error": 1257239807.5887902,
+      "one_sided_plus_passes_at_any_grid_point": 0,
+      "one_sided_minus_passes_at_any_grid_point": 0
+    },
+    {
+      "direction_index": 1,
+      "F_component": [
+        0,
+        1
+      ],
+      "rows": 1728,
+      "rows_with_any_resolved_centered_comparison": 1728,
+      "rows_with_any_centered_pass": 0,
+      "rows_with_adjacent_centered_passes": 0,
+      "row_direction_inconclusive_no_resolved_comparison": 0,
+      "zero_reference_action_rows": 0,
+      "maximum_centered_relative_error_over_eligible": 0.5627911143981567,
+      "maximum_centered_absolute_error": 971709400.9427574,
+      "one_sided_plus_passes_at_any_grid_point": 0,
+      "one_sided_minus_passes_at_any_grid_point": 0
+    },
+    {
+      "direction_index": 2,
+      "F_component": [
+        0,
+        2
+      ],
+      "rows": 1728,
+      "rows_with_any_resolved_centered_comparison": 1728,
+      "rows_with_any_centered_pass": 0,
+      "rows_with_adjacent_centered_passes": 0,
+      "row_direction_inconclusive_no_resolved_comparison": 0,
+      "zero_reference_action_rows": 0,
+      "maximum_centered_relative_error_over_eligible": 19.98410310470985,
+      "maximum_centered_absolute_error": 305339788.8560576,
+      "one_sided_plus_passes_at_any_grid_point": 0,
+      "one_sided_minus_passes_at_any_grid_point": 0
+    },
+    {
+      "direction_index": 3,
+      "F_component": [
+        1,
+        0
+      ],
+      "rows": 1728,
+      "rows_with_any_resolved_centered_comparison": 1728,
+      "rows_with_any_centered_pass": 0,
+      "rows_with_adjacent_centered_passes": 0,
+      "row_direction_inconclusive_no_resolved_comparison": 0,
+      "zero_reference_action_rows": 0,
+      "maximum_centered_relative_error_over_eligible": 0.5635684000326643,
+      "maximum_centered_absolute_error": 972625134.1101676,
+      "one_sided_plus_passes_at_any_grid_point": 0,
+      "one_sided_minus_passes_at_any_grid_point": 0
+    },
+    {
+      "direction_index": 4,
+      "F_component": [
+        1,
+        1
+      ],
+      "rows": 1728,
+      "rows_with_any_resolved_centered_comparison": 1728,
+      "rows_with_any_centered_pass": 0,
+      "rows_with_adjacent_centered_passes": 0,
+      "row_direction_inconclusive_no_resolved_comparison": 0,
+      "zero_reference_action_rows": 0,
+      "maximum_centered_relative_error_over_eligible": 0.2942937397075739,
+      "maximum_centered_absolute_error": 487684507.9234788,
+      "one_sided_plus_passes_at_any_grid_point": 0,
+      "one_sided_minus_passes_at_any_grid_point": 0
+    },
+    {
+      "direction_index": 5,
+      "F_component": [
+        1,
+        2
+      ],
+      "rows": 1728,
+      "rows_with_any_resolved_centered_comparison": 1728,
+      "rows_with_any_centered_pass": 0,
+      "rows_with_adjacent_centered_passes": 0,
+      "row_direction_inconclusive_no_resolved_comparison": 0,
+      "zero_reference_action_rows": 0,
+      "maximum_centered_relative_error_over_eligible": 0.9693025862616068,
+      "maximum_centered_absolute_error": 272661578.56744117,
+      "one_sided_plus_passes_at_any_grid_point": 0,
+      "one_sided_minus_passes_at_any_grid_point": 0
+    },
+    {
+      "direction_index": 6,
+      "F_component": [
+        2,
+        0
+      ],
+      "rows": 1728,
+      "rows_with_any_resolved_centered_comparison": 1728,
+      "rows_with_any_centered_pass": 0,
+      "rows_with_adjacent_centered_passes": 0,
+      "row_direction_inconclusive_no_resolved_comparison": 0,
+      "zero_reference_action_rows": 0,
+      "maximum_centered_relative_error_over_eligible": 6.968994302842948,
+      "maximum_centered_absolute_error": 772926354.7825145,
+      "one_sided_plus_passes_at_any_grid_point": 0,
+      "one_sided_minus_passes_at_any_grid_point": 0
+    },
+    {
+      "direction_index": 7,
+      "F_component": [
+        2,
+        1
+      ],
+      "rows": 1728,
+      "rows_with_any_resolved_centered_comparison": 1728,
+      "rows_with_any_centered_pass": 0,
+      "rows_with_adjacent_centered_passes": 0,
+      "row_direction_inconclusive_no_resolved_comparison": 0,
+      "zero_reference_action_rows": 0,
+      "maximum_centered_relative_error_over_eligible": 0.9573951259912301,
+      "maximum_centered_absolute_error": 426737472.42289305,
+      "one_sided_plus_passes_at_any_grid_point": 0,
+      "one_sided_minus_passes_at_any_grid_point": 0
+    },
+    {
+      "direction_index": 8,
+      "F_component": [
+        2,
+        2
+      ],
+      "rows": 1728,
+      "rows_with_any_resolved_centered_comparison": 1728,
+      "rows_with_any_centered_pass": 0,
+      "rows_with_adjacent_centered_passes": 0,
+      "row_direction_inconclusive_no_resolved_comparison": 0,
+      "zero_reference_action_rows": 0,
+      "maximum_centered_relative_error_over_eligible": 0.964392880425427,
+      "maximum_centered_absolute_error": 241691972.3470138,
+      "one_sided_plus_passes_at_any_grid_point": 0,
+      "one_sided_minus_passes_at_any_grid_point": 0
+    }
+  ],
+  "epsilon_summaries": [
+    {
+      "direction_index": 0,
+      "power": 8,
+      "strict_plus": 1728,
+      "strict_minus": 1728,
+      "branch_preserving_plus": 1728,
+      "branch_preserving_minus": 1728,
+      "branch_preserving_both": 1728,
+      "centered_eligible": 1728,
+      "centered_pass_le_1e_6": 0,
+      "centered_max_rel_eligible": 0.27997804868846166,
+      "plus_one_sided_eligible": 1728,
+      "minus_one_sided_eligible": 1728
+    },
+    {
+      "direction_index": 1,
+      "power": 8,
+      "strict_plus": 1728,
+      "strict_minus": 1728,
+      "branch_preserving_plus": 1728,
+      "branch_preserving_minus": 1728,
+      "branch_preserving_both": 1728,
+      "centered_eligible": 1728,
+      "centered_pass_le_1e_6": 0,
+      "centered_max_rel_eligible": 0.5627911143981567,
+      "plus_one_sided_eligible": 1728,
+      "minus_one_sided_eligible": 1728
+    },
+    {
+      "direction_index": 2,
+      "power": 8,
+      "strict_plus": 1728,
+      "strict_minus": 1728,
+      "branch_preserving_plus": 1728,
+      "branch_preserving_minus": 1728,
+      "branch_preserving_both": 1728,
+      "centered_eligible": 1728,
+      "centered_pass_le_1e_6": 0,
+      "centered_max_rel_eligible": 19.98410310470985,
+      "plus_one_sided_eligible": 1728,
+      "minus_one_sided_eligible": 1728
+    },
+    {
+      "direction_index": 3,
+      "power": 8,
+      "strict_plus": 1728,
+      "strict_minus": 1728,
+      "branch_preserving_plus": 1728,
+      "branch_preserving_minus": 1728,
+      "branch_preserving_both": 1728,
+      "centered_eligible": 1728,
+      "centered_pass_le_1e_6": 0,
+      "centered_max_rel_eligible": 0.5635684000326643,
+      "plus_one_sided_eligible": 1728,
+      "minus_one_sided_eligible": 1728
+    },
+    {
+      "direction_index": 4,
+      "power": 8,
+      "strict_plus": 1728,
+      "strict_minus": 1728,
+      "branch_preserving_plus": 1728,
+      "branch_preserving_minus": 1728,
+      "branch_preserving_both": 1728,
+      "centered_eligible": 1728,
+      "centered_pass_le_1e_6": 0,
+      "centered_max_rel_eligible": 0.2942937397075739,
+      "plus_one_sided_eligible": 1728,
+      "minus_one_sided_eligible": 1728
+    },
+    {
+      "direction_index": 5,
+      "power": 8,
+      "strict_plus": 1728,
+      "strict_minus": 1728,
+      "branch_preserving_plus": 1728,
+      "branch_preserving_minus": 1728,
+      "branch_preserving_both": 1728,
+      "centered_eligible": 1728,
+      "centered_pass_le_1e_6": 0,
+      "centered_max_rel_eligible": 0.9693025862616068,
+      "plus_one_sided_eligible": 1728,
+      "minus_one_sided_eligible": 1728
+    },
+    {
+      "direction_index": 6,
+      "power": 8,
+      "strict_plus": 1728,
+      "strict_minus": 1728,
+      "branch_preserving_plus": 1728,
+      "branch_preserving_minus": 1728,
+      "branch_preserving_both": 1728,
+      "centered_eligible": 1728,
+      "centered_pass_le_1e_6": 0,
+      "centered_max_rel_eligible": 6.968994302842948,
+      "plus_one_sided_eligible": 1728,
+      "minus_one_sided_eligible": 1728
+    },
+    {
+      "direction_index": 7,
+      "power": 8,
+      "strict_plus": 1728,
+      "strict_minus": 1728,
+      "branch_preserving_plus": 1728,
+      "branch_preserving_minus": 1728,
+      "branch_preserving_both": 1728,
+      "centered_eligible": 1728,
+      "centered_pass_le_1e_6": 0,
+      "centered_max_rel_eligible": 0.9573951259912301,
+      "plus_one_sided_eligible": 1728,
+      "minus_one_sided_eligible": 1728
+    },
+    {
+      "direction_index": 8,
+      "power": 8,
+      "strict_plus": 1728,
+      "strict_minus": 1728,
+      "branch_preserving_plus": 1728,
+      "branch_preserving_minus": 1728,
+      "branch_preserving_both": 1728,
+      "centered_eligible": 1728,
+      "centered_pass_le_1e_6": 0,
+      "centered_max_rel_eligible": 0.964392880425427,
+      "plus_one_sided_eligible": 1728,
+      "minus_one_sided_eligible": 1728
+    }
+  ],
+  "interpretation_limits": [
+    "A row-direction is a sampled-grid pass only if two adjacent epsilon entries both pass the unchanged 1e-6 relative-L2 gate with strict endpoints and both endpoint branches matching the center.",
+    "Branch-crossing endpoints are retained and excluded from centered smooth-branch gates; one-sided branch-preserving comparisons are reported separately.",
+    "Zero realized endpoint deltas and zero reference action norms are inconclusive. FP64 repeatability is not a measured native/noise floor; this audit does not claim an absolute floor.",
+    "This verifies the independent FP64 reference\u2019s local derivatives on this captured center set; it does not qualify native Metal finite differences or the full coupon trajectory."
+  ],
+  "elapsed_seconds": 23.373192332976032
+}

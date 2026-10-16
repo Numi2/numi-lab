@@ -1,0 +1,25 @@
+{
+  "air_byte_count": 1571904,
+  "air_sha256": "d86b72cb522e19413ca590bcc3a05c6a33a94e0686079a317eba50c0d49a4acc",
+  "command": [
+    "xcrun",
+    "-sdk",
+    "macosx",
+    "metal",
+    "-c",
+    "/Users/home/cardboard-implementation-20261014/analysis/source186-scaled-feature-mollifier-overlay-001/tests/mollifier_cases.metal",
+    "-I",
+    "/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/source186-metal-compile-s0tsfo57/matter/src",
+    "-I",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-portable-paper-reference-185/matter/include",
+    "-I",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-portable-paper-reference-185/include",
+    "-o",
+    "/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/source186-metal-compile-s0tsfo57/mollifier.air"
+  ],
+  "returncode": 0,
+  "schema": "numi.cardboard.source186_mollifier_metal_compile.v1",
+  "scope": "Metal compile only; no metallib link, Metal device creation, or GPU dispatch.",
+  "stderr": "In file included from /Users/home/cardboard-implementation-20261014/analysis/source186-scaled-feature-mollifier-overlay-001/tests/mollifier_cases.metal:1:\nIn file included from /var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/source186-metal-compile-s0tsfo57/matter/src/matter_kernels.metal:4:\n/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/source186-metal-compile-s0tsfo57/matter/src/metal/fgmres.metalinc:3174:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]\n    if (lane == 0u) {\n        ^~~~~~~~~~\n/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/source186-metal-compile-s0tsfo57/matter/src/metal/fgmres.metalinc:3183:9: note: uninitialized use occurs here\n    if (sharedValid == 0u) return;\n        ^~~~~~~~~~~\n/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/source186-metal-compile-s0tsfo57/matter/src/metal/fgmres.metalinc:3174:5: note: remove the 'if' if its condition is always true\n    if (lane == 0u) {\n    ^~~~~~~~~~~~~~~~\n/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/source186-metal-compile-s0tsfo57/matter/src/metal/fgmres.metalinc:3164:33: note: initialize the variable 'sharedValid' to silence this warning\n    threadgroup uint sharedValid;\n                                ^\n                                 = 0\n/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/source186-metal-compile-s0tsfo57/matter/src/metal/fgmres.metalinc:3620:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]\n    if (lane == 0u) {\n        ^~~~~~~~~~\n/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/source186-metal-compile-s0tsfo57/matter/src/metal/fgmres.metalinc:3637:9: note: uninitialized use occurs here\n    if (refinementValid == 0u) {\n        ^~~~~~~~~~~~~~~\n/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/source186-metal-compile-s0tsfo57/matter/src/metal/fgmres.metalinc:3620:5: note: remove the 'if' if its condition is always true\n    if (lane == 0u) {\n    ^~~~~~~~~~~~~~~~\n/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/source186-metal-compile-s0tsfo57/matter/src/metal/fgmres.metalinc:3500:37: note: initialize the variable 'refinementValid' to silence this warning\n    threadgroup uint refinementValid;\n                                    ^\n                                     = 0\n2 warnings generated.\n",
+  "stdout": ""
+}

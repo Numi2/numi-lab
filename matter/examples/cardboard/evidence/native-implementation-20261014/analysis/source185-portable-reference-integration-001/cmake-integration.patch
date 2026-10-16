@@ -1,0 +1,42 @@
+diff --git a/matter/CMakeLists.txt b/matter/CMakeLists.txt
+index 2e5fed1c..a4aa1919 100644
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -207,6 +207,9 @@ if(BUILD_TESTING)
+         add_test(NAME matter.analysis.cardboard_reference_fb_jacobian
+             COMMAND "${Python3_EXECUTABLE}" -m unittest
+                 test_cardboard_reference_fb_jacobian)
++        add_test(NAME matter.analysis.cardboard_compensated_fp64_reference
++            COMMAND "${Python3_EXECUTABLE}" -m unittest
++                test_cardboard_compensated_fp64_reference)
+         add_test(NAME matter.analysis.cardboard_offline_conditioning_study
+             COMMAND "${Python3_EXECUTABLE}" -m unittest
+                 test_cardboard_offline_conditioning_study)
+@@ -229,6 +232,7 @@ if(BUILD_TESTING)
+             matter.analysis.cardboard_cached_operator_audit
+             matter.analysis.cardboard_bilinear_capture_layers
+             matter.analysis.cardboard_reference_fb_jacobian
++            matter.analysis.cardboard_compensated_fp64_reference
+             matter.analysis.cardboard_offline_conditioning_study
+             matter.analysis.cardboard_diagnostic_history
+             matter.analysis.cardboard_solver_pair
+@@ -820,6 +824,19 @@ if(APPLE)
+         NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+     target_compile_options(numi-matter-cardboard-vtccd-budget-replay-check PRIVATE
+         -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
++    add_executable(numi-matter-cardboard-full-contact-scratch-budget-check
++        tools/cardboard_full_contact_armijo_scratch_budget_check.cpp)
++    target_include_directories(numi-matter-cardboard-full-contact-scratch-budget-check
++        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include"
++                "${CMAKE_CURRENT_SOURCE_DIR}/../include")
++    target_compile_options(numi-matter-cardboard-full-contact-scratch-budget-check
++        PRIVATE -Wall -Wextra -Wpedantic -Werror)
++    if(BUILD_TESTING)
++        add_test(NAME matter.compiler.cardboard_full_contact_scratch_budget
++            COMMAND numi-matter-cardboard-full-contact-scratch-budget-check)
++        set_tests_properties(matter.compiler.cardboard_full_contact_scratch_budget
++            PROPERTIES TIMEOUT 10 LABELS "matter;cardboard;contact;memory;cpu")
++    endif()
+     add_executable(numi-matter-cardboard-full-contact-armijo-check tools/cardboard_full_contact_armijo_check.mm)
+     target_link_libraries(numi-matter-cardboard-full-contact-armijo-check PRIVATE
+         numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")

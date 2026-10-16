@@ -1,0 +1,17 @@
+{
+  "applied_outputs_byte_identical": true,
+  "applied_target": "/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/cardboard-portable-patch-002-final-fvelj7eu",
+  "apply_exit_code": 0,
+  "dry_run_exit_code": 0,
+  "files_added": [
+    "matter/tools/cardboard_dd_fp64.py",
+    "matter/tools/cardboard_compensated_fp64_base.py",
+    "matter/tools/cardboard_compensated_fp64_reference.py",
+    "matter/tools/cardboard_compensated_fp64_fixture.py",
+    "matter/tools/test_cardboard_compensated_fp64_reference.py"
+  ],
+  "note": "Temporary target is a source173 snapshot copy; patch adds tools/tests only and does not alter the equation file.",
+  "patch_sha256": "bd895f828862488632317bc2aecee7a279c98312b6a3799e3bd2f554e69f34c7",
+  "schema": "numi.cardboard.portable-reference-patch-apply-receipt.v1",
+  "source173_sibling_hash": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995"
+}

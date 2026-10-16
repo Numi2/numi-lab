@@ -1,0 +1,1 @@
+Attempt 001 (retained failure): first run of the new sibling-fixture test failed during import with SyntaxError because the fixture generator emitted literal backslash-n separators instead of physical newlines. No assertion ran and no scientific gate was evaluated. The fixture source was then corrected and will be hash-bound in the final package.

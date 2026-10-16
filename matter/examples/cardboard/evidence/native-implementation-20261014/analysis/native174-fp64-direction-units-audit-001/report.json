@@ -1,0 +1,36 @@
+{
+  "schema": "numi.cardboard.fp64-direction-units-audit.v1",
+  "capture_sha256": "cf42bdb145317b24a044e8e7561a99dc987df44761b841a08d7f3b28e6cd96d2",
+  "source_arrays_sha256": "4361b6aa9f0d269a9733b0bd8f508dbc1204624451611816512dad02c303d27c",
+  "creator_sha256": "45f8fa26edb1222c61faaf6a2cfb05afb14476b4949b00e1700a34168802d939",
+  "correct_direction": {
+    "source": "center.F_direction_local_per_s",
+    "units": "s^-1",
+    "rows": 1920,
+    "all_finite": true,
+    "component_min_max": [
+      -1086.3255615234375,
+      1185.80078125
+    ],
+    "bitwise_ideal_epsilon_dt_deltaF_match": true
+  },
+  "incorrect_array": {
+    "name": "reference_directional_action",
+    "definition": "C @ F_direction_local_per_s",
+    "units": "Pa/s",
+    "bitwise_source_reconstruction_match": true,
+    "finite_components": 17226,
+    "nonfinite_components": 54,
+    "finite_component_min_max": [
+      -21968478308.262905,
+      24193663559.06931
+    ]
+  },
+  "invalid_attempts": [
+    "native174-fp64-derivative-qualification-002/run-006 directional sweep",
+    "native174-fp64-derivative-qualification-002/run-007 directional sweep",
+    "agent small-row profiles derived from same wrong direction"
+  ],
+  "scope": "Units/input preparation defect in unintegrated diagnostic, not evidence of constitutive nonconvergence. Already-saved center/tangent/MP comparisons do not use the mistaken directional array and retain their separate scope. No production changes.",
+  "physical_validation": false
+}

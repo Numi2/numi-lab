@@ -1,0 +1,38 @@
+{
+  "schema": "numi.cardboard.source182-003-build-validation-followup-manifest.v1",
+  "files": {
+    "contract-compile.json": {
+      "bytes": 706,
+      "sha256": "fa6fe0f2e2ceb2945f88d5f92e92dd7906902e00da197cf6165eb85427365e1a"
+    },
+    "contract-run.json": {
+      "bytes": 372,
+      "sha256": "9019e4266dd6efee5d5b7c0669734e1b7f3a80b1a1d230ce572661f313cc5373"
+    },
+    "coupon_resume_contract_test": {
+      "bytes": 505608,
+      "sha256": "2636be796c65e32a4087bb2eee0be4c55f3d11a44480dff04c91c642231d6c60"
+    },
+    "ctest.json": {
+      "bytes": 1291,
+      "sha256": "2c56a118664902f87f76df70c98201204f358c468bcc3cf9ae39de0cc408a496"
+    },
+    "ctest.log": {
+      "bytes": 794,
+      "sha256": "639f07483fde4788783e5ed87c05372be156932e7eaf02d0dfdc6017c87f612e"
+    },
+    "environment-tests.json": {
+      "bytes": 526,
+      "sha256": "60380110255cd88c73be8f635b8cae2c32f06b976d6d88f3746102f689174f10"
+    },
+    "environment-tests.log": {
+      "bytes": 111,
+      "sha256": "39e8565b622606341e5e498997fde2228389d51ffa9ea67eaef371fcc9211b20"
+    },
+    "report.json": {
+      "bytes": 2889,
+      "sha256": "fd2248f3af85cca3803f6278e3524b866eac7c29ac1324928ea42fcedf0ae7aa"
+    }
+  },
+  "report_sha256": "fd2248f3af85cca3803f6278e3524b866eac7c29ac1324928ea42fcedf0ae7aa"
+}

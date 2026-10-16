@@ -51,6 +51,8 @@ static void mustReject(const auto& thunk) {
 }
 
 int main() {
+    assert(kRegisteredOutputPathKeys.size() == 7u);
+    assert(kRegisteredDiagnosticReplaySelectorKeys.size() == 5u);
     const std::string environmentA = canonicalRuntimeEnvironment({
         {"NUMI_MATTER_MODE", "coupon"}, {"NM_FEM_CGLS", "64"},
         {"PATH", "/ignored"}});
@@ -97,6 +99,17 @@ int main() {
         {"NM_FEM_COUPLED_CAPTURE_PATH", ""}});
     mustReject([&] { (void)validateCouponOutputPathMapTransition(
         emptySource, relocatedPaths, true, true); });
+    const RuntimePathMap noOutputPaths = couponRuntimePathMap({});
+    const RuntimePathMap replayOutputPaths = couponRuntimePathMap({
+        {"NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH", "/resume/regional"}});
+    mustReject([&] { (void)validateCouponOutputPathMapTransition(
+        noOutputPaths, replayOutputPaths, true, true); });
+    assert(validateCouponOutputPathMapTransition(
+        noOutputPaths, replayOutputPaths, true, true, true));
+    assert(validateCouponOutputPathMapTransition(
+        replayOutputPaths, noOutputPaths, true, true, true));
+    mustReject([&] { (void)validateCouponOutputPathMapTransition(
+        noOutputPaths, replayOutputPaths, false, true, true); });
     DiagnosticRunnerProof sourceProof{
         "/source/case", std::string(64u, '1'), std::string(64u, '4'),
         std::string(64u, '2'), std::string(64u, '3'), sourcePaths};
@@ -107,6 +120,81 @@ int main() {
     mustReject([&] {
         validateDiagnosticRunnerProof(sourceProof, "/source/case", relocatedPaths);
     });
+    DiagnosticRunnerProof currentNoPathProof{
+        "/resume/case", std::string(64u, '5'), std::string(64u, '6'),
+        std::string(64u, '7'), std::string(64u, '8'), noOutputPaths};
+    validateDiagnosticRunnerProof(currentNoPathProof, "/resume/case",
+                                  noOutputPaths);
+    const bool currentRunnerPresent =
+        couponOutputPathMapHasAnySetValue(currentNoPathProof.outputPaths);
+    const bool diagnosticReplayEnabled = true;
+    const bool currentRunnerValidated =
+        currentRunnerPresent || diagnosticReplayEnabled;
+    assert(!currentRunnerPresent && currentRunnerValidated);
+    assert(couponValidatedRunnerDigest(currentRunnerValidated,
+        currentNoPathProof.environmentRecordSha256) ==
+        currentNoPathProof.environmentRecordSha256);
+    assert(couponValidatedRunnerDigest(currentRunnerValidated,
+        currentNoPathProof.nonOutputSettingsSha256) ==
+        currentNoPathProof.nonOutputSettingsSha256);
+    assert(couponValidatedRunnerDigest(currentRunnerValidated,
+        currentNoPathProof.predictionSha256) ==
+        currentNoPathProof.predictionSha256);
+    assert(couponValidatedRunnerDigest(currentRunnerValidated,
+        currentNoPathProof.contractSha256) ==
+        currentNoPathProof.contractSha256);
+    assert(couponCurrentRunnerProofMode(currentRunnerValidated, true,
+        currentRunnerPresent) == "source_bound_diagnostic_replay_contract");
+    assert(couponValidatedRunnerDigest(false,
+        currentNoPathProof.environmentRecordSha256) == "none");
+    assert(couponCurrentRunnerProofMode(false, false, false) == "not_validated");
+    assert(couponSourceRunnerProofMode(true, true, false) ==
+        "checkpoint_metadata_bound");
+    assert(couponSourceRunnerProofMode(true, false, true) ==
+        "source_run_reconstructed_for_diagnostic_replay");
+    mustReject([&] { (void)couponValidatedRunnerDigest(true, "bad-digest"); });
+    const std::vector<std::pair<std::string, std::string>> replaySource{
+        {"NM_FEM_BASE_CGLS_CAPTURE_NEWTON", "12"},
+        {"NM_FEM_BASE_CGLS_CAPTURE_PATH", "/source/cgls"},
+        {"NM_FEM_BASE_CGLS_STATE_CAPTURE", "0"},
+        {"NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH", "/source/regional"},
+        {"NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR", "20:0:12:1:4:0"},
+        {"NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", "20"},
+        {"NM_FEM_TRUE_RESIDUAL_ROOT", "19"},
+        {"NM_FEM_BASE_CGLS_ITERATIONS", "64"},
+    };
+    const std::vector<std::pair<std::string, std::string>> replayCurrent{
+        {"NM_FEM_BASE_CGLS_CAPTURE_NEWTON", "15"},
+        {"NM_FEM_BASE_CGLS_CAPTURE_PATH", "/resume/cgls"},
+        {"NM_FEM_BASE_CGLS_STATE_CAPTURE", "1"},
+        {"NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH", "/resume/regional"},
+        {"NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR", "21:0:15:1:7:1"},
+        {"NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", "21"},
+        {"NM_FEM_TRUE_RESIDUAL_ROOT", "19"},
+        {"NM_FEM_BASE_CGLS_ITERATIONS", "64"},
+    };
+    assert(couponDiagnosticReplaySettingsMatch(replaySource, replayCurrent));
+    assert(canonicalCouponRuntimeSettings(replaySource) !=
+           canonicalCouponRuntimeSettings(replayCurrent));
+    assert(canonicalRuntimeEnvironment(replaySource) !=
+           canonicalRuntimeEnvironment(replayCurrent));
+    // Ordinary resume retains the exact runtime-settings digest check; only
+    // explicit diagnostic replay may ignore these registered observer keys.
+    assert(canonicalCouponRuntimeSettings(replaySource) !=
+           canonicalCouponRuntimeSettings(replayCurrent));
+    Request ordinaryResume;
+    ordinaryResume.checkpointProvided = true;
+    ordinaryResume.metadataProvided = true;
+    ordinaryResume.environmentCount = 2u;
+    validateRequest(ordinaryResume);
+    Request replayWithoutCheckpoint;
+    replayWithoutCheckpoint.diagnosticReplayRequested = true;
+    mustReject([&] { validateRequest(replayWithoutCheckpoint); });
+    auto changedSolverSetting = replayCurrent;
+    changedSolverSetting.back().second = "128";
+    assert(!couponDiagnosticReplaySettingsMatch(replaySource, changedSolverSetting));
+    validateDiagnosticReplaySelectors(replayCurrent, 19u, 2u);
+    mustReject([&] { validateDiagnosticReplaySelectors(replayCurrent, 21u, 2u); });
     auto wrongPathOrder = sourcePaths;
     std::swap(wrongPathOrder[0], wrongPathOrder[1]);
     mustReject([&] { (void)canonicalCouponOutputPathMap(wrongPathOrder); });

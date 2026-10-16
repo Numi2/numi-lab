@@ -1,0 +1,14 @@
+{
+  "frozen_sha256": "ab9acddb786f7db0d896453bc1e43a15b3f3d4aa2ce1d7984913f623ea5cf6b0",
+  "selected_files": 814,
+  "support_files": 1034,
+  "all_transferred_and_verified": true,
+  "verified_at_utc": "2026-10-16T06:21:05.394121+00:00",
+  "expected": {
+    "matter/CMakeLists.txt": "47564b029c911a1949caf10f60551550df292c2968df25082118fb4f66b18569",
+    "matter/src/metal/contact.metalinc": "a102749ef13ac17276f2e3b014f362ccfa7967327340bbf4677be4b6e2cdb048",
+    "matter/tools/cardboard_full_contact_armijo_check.mm": "b2e70293dc5f1c26ae12d43929217427d76319e575a27900af271ce91883a096",
+    "matter/tools/cardboard_contact_geometry_check.metal": "29fb8764e3b521a7d4234e15da249acbf15b5790e29a139bd2e2b1878054057f",
+    "matter/tools/cardboard_contact_geometry_check.mm": "31f1942625ee8d37cee6b5bd304c71026f33fd1e57280c8a2ce231cb9473f987"
+  }
+}

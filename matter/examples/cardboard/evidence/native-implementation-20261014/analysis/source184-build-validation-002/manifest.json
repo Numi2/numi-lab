@@ -1,0 +1,26 @@
+{
+  "schema": "numi.cardboard.source184-build-validation-manifest.v1",
+  "files": {
+    "ctest.json": {
+      "bytes": 489,
+      "sha256": "3196126abb8f10f06b59f6a710f2bf45c9b536e08b45d3f69851591844107f21"
+    },
+    "ctest.log": {
+      "bytes": 1063,
+      "sha256": "e05edc3711cf887a6ffb2e68a4da7e4ff3701d5fcee9587c2356e3c125c4f7a0"
+    },
+    "environment-tests.json": {
+      "bytes": 394,
+      "sha256": "d507bcd986d1e189d656a9f85b96e213562a63c3cc39f1d6fde92111cca06c9a"
+    },
+    "environment-tests.log": {
+      "bytes": 111,
+      "sha256": "cfdaab72a9c11d6ac95bec52efa0eb7da81a5d4e871dcf3a6f9e5b079873a4ce"
+    },
+    "report.json": {
+      "bytes": 2327,
+      "sha256": "9d4f0ab7678931615d048bdecc97a95b594a2594416f5d62c79e4d84a0903093"
+    }
+  },
+  "report_sha256": "9d4f0ab7678931615d048bdecc97a95b594a2594416f5d62c79e4d84a0903093"
+}

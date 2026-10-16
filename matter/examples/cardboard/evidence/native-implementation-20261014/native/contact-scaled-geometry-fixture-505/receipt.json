@@ -1,0 +1,19 @@
+{
+  "name": "native505-contact-fixture",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-002/numi-matter-cardboard-full-contact-armijo-check",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188-buildfix002/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+    "--compensated-material-arithmetic"
+  ],
+  "source_build_sha256": "34746e379a39086ec9305c51abb922377bf52ff3c5107d244997b4c713056a0e",
+  "started_at_utc": "2026-10-16T06:23:14.987814+00:00",
+  "timeout_s": 300,
+  "gpu": true,
+  "exit_code": 1,
+  "timed_out": false,
+  "wall_seconds": 11.882082625,
+  "finished_at_utc": "2026-10-16T06:23:26.870136+00:00",
+  "stdout_sha256": "2a87fd1d421c9e907f6e01e4ec9ff396518f7699e56b1299536c0aaa165bfc70",
+  "stderr_sha256": "f5697a5907b606bae141589e3a5c51a6c8b0992bf5b18af54a6d0a909fa5eb1a",
+  "physical_qualification": false
+}

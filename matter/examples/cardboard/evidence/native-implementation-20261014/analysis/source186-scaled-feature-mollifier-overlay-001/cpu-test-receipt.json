@@ -1,0 +1,47 @@
+{
+  "baseline_function_sha256": "9cc90af6fdc37921396b77e0eadab914fa119553da49c945617b070881041e32",
+  "production_function_sha256": "6683bcf1e1e53342f79cc5fe17fee70b313a41cb8e5b5291a2a5546d77ee3f85",
+  "results": [
+    {
+      "binary_sha256": "1bae6c6fdeaf9725a209aa63b2b86a4e075478885c562a24602a99aba4fcc4e3",
+      "command": [
+        "clang++",
+        "-std=c++17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-I",
+        "/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/source186-mollifier-znd7036c",
+        "/Users/home/cardboard-implementation-20261014/analysis/source186-scaled-feature-mollifier-overlay-001/tests/test_driver.cpp",
+        "-o",
+        "/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/source186-mollifier-znd7036c/candidate_scale_fd"
+      ],
+      "name": "candidate_scale_fd",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "PASS extracted production function: scales=0.1x,1x,10x max_value_error=2.70684283e-08 max_scaled_analytic_gradient_error=4.60538299e-06 max_scaled_FD_gradient_error=0.00151096886\n"
+    },
+    {
+      "binary_sha256": "cc813f5db902614cffebd405cc1902e82c358adf18c367c2d531a30e2afd2ac5",
+      "command": [
+        "clang++",
+        "-std=c++17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-I",
+        "/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/source186-mollifier-znd7036c",
+        "/Users/home/cardboard-implementation-20261014/analysis/source186-scaled-feature-mollifier-overlay-001/tests/test_legacy_scale_failure.cpp",
+        "-o",
+        "/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/source186-mollifier-znd7036c/baseline_unit_dependence"
+      ],
+      "name": "baseline_unit_dependence",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "EXPECTED BASELINE SCALE FAILURE: orthogonal .5mm=0, 5mm=1\n"
+    }
+  ],
+  "schema": "numi.cardboard.source186_mollifier_cpu_test.v1"
+}

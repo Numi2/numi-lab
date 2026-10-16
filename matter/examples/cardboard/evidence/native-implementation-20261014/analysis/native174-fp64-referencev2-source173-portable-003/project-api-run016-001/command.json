@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-referencev2-source173-portable-003/validate_strict_project_api.py",
+    "--source-reference",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/matter/tools/cardboard_bilinear_fp64_reference.py",
+    "--portable-tools",
+    "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-referencev2-source173-portable-003/validation/matter/tools",
+    "--run016",
+    "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/run-016-source173-correct-direction-eps8-26",
+    "--output",
+    "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-referencev2-source173-portable-003/project-api-run016-001"
+  ],
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "exit_code": 0,
+  "invocation_output": "See report.json; source emitted two expected eager-np.where warnings."
+}

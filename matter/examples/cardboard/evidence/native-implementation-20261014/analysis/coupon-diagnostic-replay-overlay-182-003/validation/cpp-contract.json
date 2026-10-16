@@ -1,0 +1,19 @@
+{
+  "schema": "numi.cardboard.coupon-diagnostic-replay-validation.v1",
+  "command": [
+    "clang++",
+    "-std=c++20",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-I",
+    "/Users/home/cardboard-implementation-20261014/analysis/coupon-diagnostic-replay-overlay-182-003/candidate/matter/tools",
+    "/Users/home/cardboard-implementation-20261014/analysis/coupon-diagnostic-replay-overlay-182-003/tests/coupon_resume_contract_test.cpp",
+    "-o",
+    "/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/coupon-contract-182-_zut25ri/coupon_resume_contract_test"
+  ],
+  "compile_exit": 0,
+  "compile_output": "",
+  "run_exit": 0,
+  "run_output": "coupon diagnostic replay contract checks passed\n"
+}

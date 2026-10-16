@@ -1,0 +1,22 @@
+{
+  "schema": "numi.cardboard.source182-003-snapshot-verification.v1",
+  "source181_frozen_sha256": "f3ac253b7924dc4cb6ba1d5d9580ceea42150b5e49c6eee569e36b0e204fef7a",
+  "source182_frozen_sha256": "c2e6e23be57d3245c490c7f10f4abee55271a4fe051db6a5ef313de2de798394",
+  "source181_configure_support_sha256": "92f14756f574746304b7ff1c1dae03b997492dc00ad80894a70dcf5c05c99f17",
+  "source182_configure_support_sha256": "92f14756f574746304b7ff1c1dae03b997492dc00ad80894a70dcf5c05c99f17",
+  "selected_file_count": 805,
+  "configure_support_file_count": 1034,
+  "selected_file_hashes_verified": true,
+  "configure_support_hashes_verified": true,
+  "selected_changed_files": [
+    "matter/tools/cardboard_coupon_resume.hpp",
+    "matter/tools/cardboard_coupon_resume_check.cpp",
+    "matter/tools/cardboard_probe.mm"
+  ],
+  "only_expected_source_delta": true,
+  "candidate_hashes": {
+    "matter/tools/cardboard_coupon_resume.hpp": "c9b4a29736367e4afb524c8cbcf6ae304b87b779fdf10a81c519cd1184b436a9",
+    "matter/tools/cardboard_probe.mm": "4cf213c4a673b34fca924b03769cd9ea19f1cd9b084ecedaf58a0d351b4a4624",
+    "matter/tools/cardboard_coupon_resume_check.cpp": "51c08f828d8df1f2380dc95369b1d5d2e3e450ee9a8a4fcf055bfa6a7a3f7aef"
+  }
+}

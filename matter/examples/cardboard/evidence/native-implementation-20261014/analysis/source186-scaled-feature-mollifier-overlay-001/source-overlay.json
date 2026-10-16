@@ -1,0 +1,53 @@
+{
+  "base_parent_revision": "a5ccffa52ffe368b49c877094a5081b7ee246ebf",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-portable-paper-reference-185",
+  "base_snapshot_manifest_sha256": "4f6d4569ea271ecf604b5e3c1b99299e8fcc9ebefcefcd2e3b171a232ace9cb6",
+  "changed_files": {
+    "matter/src/metal/contact.metalinc": {
+      "base_sha256": "cd5aaee17244b52e0b6eebb81cf2fcaff4fbbfb47fe43726fc5bbacec2e9527a",
+      "candidate_relative_path": "candidate/matter/src/metal/contact.metalinc",
+      "candidate_sha256": "7ef8d2de96620c6949022605e91d4f853113f4fc21d50f82204b18f4b0093f54"
+    }
+  },
+  "overlay_id": "source186-scaled-feature-mollifier-001",
+  "patch": {
+    "path": "overlay.patch",
+    "sha256": "67bdc24eacc69ffe9a0bcf5f7dab8f7deb0d85ac8553d9ffba72d79e07054ce3"
+  },
+  "schema": "numi.cardboard.source_overlay.v1",
+  "scope": "One-function candidate only; CPU extracted-source tests and Metal compile only. No source snapshot edits, no metallib link, no GPU run.",
+  "validation": {
+    "baseline_test_driver": {
+      "path": "tests/test_legacy_scale_failure.cpp",
+      "sha256": "57a41c6cff1e882b584f46d2d8f98afb72bdfc3f0ce46e116fe0dbad801ad6cd"
+    },
+    "cpu_test_receipt": {
+      "path": "cpu-test-receipt.json",
+      "sha256": "16d80804482d25104c342b9e8da66a90be947e49cc41a9aab3c3c343e6a553f1"
+    },
+    "metal_compile_receipt": {
+      "path": "metal-compile-receipt.json",
+      "sha256": "9cb5b65b9b53c8dde502163b71cda089a4ab3cd7821b65dba3731933f5963ed1"
+    },
+    "metal_compile_runner": {
+      "path": "compile_metal_only.py",
+      "sha256": "1d3b8e44f29f64ba0bf64c09b23feb4bfad779ec6f4956f64bd37d570e7103ff"
+    },
+    "metal_kernel_case_source": {
+      "path": "tests/mollifier_cases.metal",
+      "sha256": "26df6b66a34a671bdf9da666f33f30b96b93a067697385fb40d10e1eb2ba67a2"
+    },
+    "patch_generator": {
+      "path": "replace_mollifier.py",
+      "sha256": "7b66293ffc4f1df752787d910ddc962b3df89695d825e834ab57646d72bc57c7"
+    },
+    "runner": {
+      "path": "run_cpu_tests.py",
+      "sha256": "c4b32194413a73606cc4d17f642928b5c002083bd75f4469b81a8f325420970d"
+    },
+    "test_driver": {
+      "path": "tests/test_driver.cpp",
+      "sha256": "d512b86d9977cd126a0d7752a7dab6a9e1f61ff0174caa7226de8f6c3986674d"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.validation-attempt.v1",
+  "attempt": "static-contract-check-001",
+  "result": "VALIDATOR_ASSERTION_REJECTED_CANDIDATE",
+  "scope": "The overlay validator required unescaped JSON key text in an Objective-C++ source file whose string literals spell the quotes as backslash-escaped characters.",
+  "candidate_or_test_failure": false,
+  "correction": "The source check now searches for the stable key names in source text; the C++ contract test independently exercises the proof-mode and digest helpers.",
+  "superseded_by": "validation/validation-result.json"
+}

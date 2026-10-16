@@ -1,0 +1,6 @@
+{
+  "failure": "git apply source186 returned no space and truncated contact.metalinc; apply_patch CMake failed without modifying CMake",
+  "recovery": "restored contact from independently sealed source187002 exact hash",
+  "restored_sha256": "1f4cc69e8229f386b2bfb4d3034b68448cb749e4c88a11fbd20b4dc98eef2832",
+  "failed_integration_not_built": true
+}

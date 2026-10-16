@@ -1,0 +1,20 @@
+{
+  "parent_frozen_sha256": "4f6d4569ea271ecf604b5e3c1b99299e8fcc9ebefcefcd2e3b171a232ace9cb6",
+  "changed": [
+    "matter/CMakeLists.txt",
+    "matter/src/metal/contact.metalinc",
+    "matter/tools/cardboard_full_contact_armijo_check.mm"
+  ],
+  "added": [
+    "matter/tools/cardboard_contact_geometry_check.metal",
+    "matter/tools/cardboard_contact_geometry_check.mm"
+  ],
+  "expected": {
+    "matter/CMakeLists.txt": "47564b029c911a1949caf10f60551550df292c2968df25082118fb4f66b18569",
+    "matter/src/metal/contact.metalinc": "a102749ef13ac17276f2e3b014f362ccfa7967327340bbf4677be4b6e2cdb048",
+    "matter/tools/cardboard_full_contact_armijo_check.mm": "b2e70293dc5f1c26ae12d43929217427d76319e575a27900af271ce91883a096",
+    "matter/tools/cardboard_contact_geometry_check.metal": "29fb8764e3b521a7d4234e15da249acbf15b5790e29a139bd2e2b1878054057f",
+    "matter/tools/cardboard_contact_geometry_check.mm": "31f1942625ee8d37cee6b5bd304c71026f33fd1e57280c8a2ce231cb9473f987"
+  },
+  "scope": "Scale-normalized triangle/segment nearest geometry and dimensionless IPC mollifier; analytical production-helper native checker; two unused checker annotations only. Exact native500 cancellation issue remains separate."
+}

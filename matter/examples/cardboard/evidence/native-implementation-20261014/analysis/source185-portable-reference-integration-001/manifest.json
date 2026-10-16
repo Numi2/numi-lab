@@ -1,0 +1,8 @@
+{
+  "files_sha256": {
+    "cmake-integration.patch": "e9208b2082ea2c223b2031667e06098a323444a38a6a58b19b61cd5a6e9818b2",
+    "report.json": "cd4343a6f31dcf3ae1a59074c9b006ec648d4285bcf7a44731951b44d68c46a2",
+    "test.stderr": "dc818a4c014a4f16494bc606d96b94d8b27316bff11ca0179d982ba642da9199",
+    "test.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

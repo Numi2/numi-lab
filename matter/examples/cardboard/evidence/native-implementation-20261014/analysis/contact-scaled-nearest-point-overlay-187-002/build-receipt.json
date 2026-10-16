@@ -1,0 +1,71 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "clang++",
+        "-std=c++20",
+        "-fobjc-arc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-scaled-nearest-point-overlay-187-002/geometry_replay.mm",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-scaled-nearest-point-overlay-187-002/geometry-replay"
+      ],
+      "returncode": 0,
+      "seconds": 0.23399695754051208
+    },
+    {
+      "argv": [
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metal",
+        "-std=metal4.0",
+        "-O3",
+        "-fno-fast-math",
+        "-MMD",
+        "-MF",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-scaled-nearest-point-overlay-187-002/metal-dependencies.d",
+        "-I",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-portable-paper-reference-185/matter/src",
+        "-I",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-portable-paper-reference-185/matter/include",
+        "-I",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-portable-paper-reference-185/include",
+        "-c",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-scaled-nearest-point-overlay-187-002/geometry_replay.metal",
+        "-o",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-scaled-nearest-point-overlay-187-002/geometry-replay.air"
+      ],
+      "returncode": 0,
+      "seconds": 2.0747514171525836
+    },
+    {
+      "argv": [
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metallib",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-scaled-nearest-point-overlay-187-002/geometry-replay.air",
+        "-o",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-scaled-nearest-point-overlay-187-002/geometry-replay.metallib"
+      ],
+      "returncode": 0,
+      "seconds": 0.48707712441682816
+    }
+  ],
+  "source185_frozen_sha256": "4f6d4569ea271ecf604b5e3c1b99299e8fcc9ebefcefcd2e3b171a232ace9cb6",
+  "candidate_functions_sha256": "fffc5ba904e8e594404127f40b82328fe4813c1432818cd90729ad53ee98849e",
+  "host_sha256": "a33f96e086194a686e6a2381887565264fe045525345e176c39b8c8d6b8e18ee",
+  "kernel_sha256": "431b59711e8ce4860196d8f28e85250fca82e76d1fe55ddfa4a37544bf767a68",
+  "metallib_sha256": "ad1c9f749c1ab320c3234639ebc1ddecdbc5348626eb9ca16fa4c243716a97fc",
+  "air_sha256": "357bb6fb47cd4bf10433461fd421bf59f019a2b8f2cf4b276a8b63faee8c65aa",
+  "dependency_file_sha256": "7cf539a133707ec2493d54ca871e953a6bf59cb9c232a3c44f5ac875a13644d8",
+  "gpu_dispatch": false,
+  "finished_at_utc": "2026-10-16T06:07:43.422253+00:00"
+}

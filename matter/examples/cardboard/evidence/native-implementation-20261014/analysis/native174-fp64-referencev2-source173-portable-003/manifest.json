@@ -1,0 +1,199 @@
+{
+  "api_change": {
+    "behavior": "runs source173 projection/refinement plus bounded strict continuation; returns existing (state, iterations, scaled_residual) tuple only after both gates pass, otherwise raises with row diagnostics",
+    "custom_maxiter": "non-80 requests rejected; helper legacy API remains separate",
+    "public": "Reference.project",
+    "seed_iteration_ceiling": 80,
+    "strict_dynamic_correction": 2e-11,
+    "strict_scaled_residual": 2e-12
+  },
+  "base_source": {
+    "equation_reference": "matter/tools/cardboard_bilinear_fp64_reference.py",
+    "equation_sha256": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995",
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173"
+  },
+  "classification": "Portable CPU compensated-binary64 reference update; exact source173 API replay and MP fixture regression only; no native or physical qualification.",
+  "files": [
+    {
+      "bytes": 2438,
+      "path": "README.md",
+      "sha256": "a1b62fa00d519d38053b169880de8bcec630648862271083cc64beb0640cfa31"
+    },
+    {
+      "bytes": 9244,
+      "path": "portable-integration-003.patch",
+      "sha256": "2093d0c05bba83cd0c24fce02dad59161286c10fd51f7dfa63ecc5e494e90400"
+    },
+    {
+      "bytes": 38212,
+      "path": "portable-integration.patch",
+      "sha256": "b91f22c0716d8a3111e599b8ecc9d08f7f21b2780f315d2f432da7ca7da8ea3e"
+    },
+    {
+      "bytes": 1103,
+      "path": "project-api-run016-001/command.json",
+      "sha256": "bc94e43886ba033163c1e75939de5376a9ebcb1a12877ce254cdf109b9bcb977"
+    },
+    {
+      "bytes": 1822,
+      "path": "project-api-run016-001/fixture-mp-comparison.json",
+      "sha256": "d8b05c33469f2cf600120b7a4492040ab1258d5e69f2c1b2a6dd4ad350aca1e2"
+    },
+    {
+      "bytes": 2720,
+      "path": "project-api-run016-001/report.json",
+      "sha256": "c7555d28f2b7bf56be24e822b1cc4c33d03aa7dad92a46a9fc17bb962ad19b64"
+    },
+    {
+      "bytes": 9448,
+      "path": "r-ready/matter/tools/cardboard_compensated_fp64_base.py",
+      "sha256": "b135c6ff0091f0833c8dad89239abdde209fc6e0eb91babeb72313b29a88bb6c"
+    },
+    {
+      "bytes": 3972,
+      "path": "r-ready/matter/tools/cardboard_compensated_fp64_fixture.py",
+      "sha256": "a395f157399823a9fe58ba47fb47f073e01147a81a935acac0c1413aa7eea0a3"
+    },
+    {
+      "bytes": 7687,
+      "path": "r-ready/matter/tools/cardboard_compensated_fp64_reference.py",
+      "sha256": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c"
+    },
+    {
+      "bytes": 5157,
+      "path": "r-ready/matter/tools/cardboard_dd_fp64.py",
+      "sha256": "8edfd60beb2c38d181a08023d9f97bea0fec80b0f6fa04f8690c7dfe234330c2"
+    },
+    {
+      "bytes": 6334,
+      "path": "r-ready/matter/tools/test_cardboard_compensated_fp64_reference.py",
+      "sha256": "7e004e0614290938a1973621be20fc5278392ab58aa02d9f411ae69ba95cde3d"
+    },
+    {
+      "bytes": 4872,
+      "path": "validate_strict_project_api.py",
+      "sha256": "44c7ee874cf6217608f95f62aff521e9e2d799fcb3ce87160a04ec7c2f6b2c07"
+    },
+    {
+      "bytes": 17620,
+      "path": "validation/matter/tools/cardboard_bilinear_fp64_reference.py",
+      "sha256": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995"
+    },
+    {
+      "bytes": 9448,
+      "path": "validation/matter/tools/cardboard_compensated_fp64_base.py",
+      "sha256": "b135c6ff0091f0833c8dad89239abdde209fc6e0eb91babeb72313b29a88bb6c"
+    },
+    {
+      "bytes": 3972,
+      "path": "validation/matter/tools/cardboard_compensated_fp64_fixture.py",
+      "sha256": "a395f157399823a9fe58ba47fb47f073e01147a81a935acac0c1413aa7eea0a3"
+    },
+    {
+      "bytes": 7687,
+      "path": "validation/matter/tools/cardboard_compensated_fp64_reference.py",
+      "sha256": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c"
+    },
+    {
+      "bytes": 5157,
+      "path": "validation/matter/tools/cardboard_dd_fp64.py",
+      "sha256": "8edfd60beb2c38d181a08023d9f97bea0fec80b0f6fa04f8690c7dfe234330c2"
+    },
+    {
+      "bytes": 6334,
+      "path": "validation/matter/tools/test_cardboard_compensated_fp64_reference.py",
+      "sha256": "7e004e0614290938a1973621be20fc5278392ab58aa02d9f411ae69ba95cde3d"
+    },
+    {
+      "bytes": 1258,
+      "path": "validation-attempts/003-retained-attempts.md",
+      "sha256": "bf0de2e15a3e18d53f3d4d50671469a6a5032fff96d3b76011fec0bc98636bc2"
+    },
+    {
+      "bytes": 1380,
+      "path": "validation-attempts/cpu-tests-final.log",
+      "sha256": "82146952fcba5d7e6a6bbd3d9be40d56e4ba87896cdeb42ffd7eb51344c4adef"
+    },
+    {
+      "bytes": 349,
+      "path": "validation-attempts/initial-fixture-import-failure.txt",
+      "sha256": "27f72f33de216433c2fc4373461adbf0838db2699c25f10f9966738dcb014b76"
+    },
+    {
+      "bytes": 0,
+      "path": "validation-attempts/patch-apply-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 179,
+      "path": "validation-attempts/patch-apply-receipt.json",
+      "sha256": "817115c5a20e879ac5c547c98910dc9d5b7b4f25262c9bb12b27dcfa09511eb4"
+    },
+    {
+      "bytes": 0,
+      "path": "validation-attempts/py_compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "fixture_comparison": {
+    "derivative_gate": 1e-06,
+    "direction": "H=identity 3x3",
+    "mixed_diagonal_tangent_vs_mp_ift_relative_l2": 2.725856418218199e-16,
+    "mp_archive_sha256": "107e942cc2e131eed8f8db7759f8deb3e86fcdc42d8da249996daf51d6ed11ad",
+    "state_vs_mp_relative_l2": 2.4433211493445563e-12,
+    "tet": 750
+  },
+  "limits": [
+    "No Metal/native, assembled operator, calibration, coupon, whole physical qualification.",
+    "MP fixture regression is a CPU-only reference check and covers one mixed tangent direction.",
+    "run018 remains authoritative for the original 16/15552 misses; focused run019 does not revise it.",
+    "No measured absolute noise floor is claimed."
+  ],
+  "patches": {
+    "all_five_integrated_files_byte_equal_to_r_ready": true,
+    "apply_check_exit_code": 0,
+    "full_portable_source173_patch": "portable-integration.patch",
+    "incremental_from_002": "portable-integration-003.patch"
+  },
+  "permanent_tests": {
+    "command": "/Users/home/.pyenv/versions/3.10.12/bin/python3 -m unittest discover -s validation/matter/tools -p test_cardboard_compensated_fp64_reference.py -v",
+    "exit_code": 0,
+    "failed": 0,
+    "passed": 5,
+    "source173_eager_np_where_warnings_retained": true,
+    "tests_run": 5
+  },
+  "previous_seals": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-referencev2-source173-portable-001/portable-reference-seal-001/manifest.json",
+      "preserved_unchanged": true,
+      "sha256": "45bb0a98695b7e7d9aad6787d9cb3c80f2320f928d5d9f45f90517764421c369"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-referencev2-source173-portable-002/manifest.json",
+      "preserved_unchanged": true,
+      "sha256": "368d45e08d2ddfd69f90d541ef2cfb175e88ec4119c47598088d47fcebfbd7a4"
+    }
+  ],
+  "retained_unresolved_results": {
+    "run018_original_misses": 16,
+    "run018_path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-referencev2-source173-portable-001/run-018-source173-nine-basis-eps8-26",
+    "run018_row_directions": 15552,
+    "run019_passed_adjacent_cases": 15,
+    "run019_path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-referencev2-source173-portable-001/run-019-unresolved16-quarter-grid",
+    "run019_unresolved": "F[2,0], tet172 only isolated grid passes; not resolved; no absolute noise floor"
+  },
+  "schema": "numi.cardboard.compensated-fp64-portable-reference-seal.v3",
+  "strict_api_run016": {
+    "all_1728_centers_and_576_endpoints_strict_pass": true,
+    "bitwise_equal_to_run016_states_iterations_residual_correction": true,
+    "center_archive_sha256": "320004cabcb3bf327fdd8c87ad1f82b42e0531d7e311e75fef207daf0dc5346a",
+    "endpoint_archive_sha256": "44fdd524f6af2c7e848ad3e2c77eb73a74e91de61b53d3b953de077fc8bc064c",
+    "execution_seconds": 1.123962,
+    "max_dynamic_correction": 3.8829937654268817e-13,
+    "max_scaled_residual": 1.9086701356769944e-12,
+    "no_native_or_physical_claim": true,
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-referencev2-source173-portable-003/project-api-run016-001",
+    "source_run_manifest_sha256": "944d32a16cf50b47e86952e3c65b610c2f36794982d8484d07a41ed7f59295cd"
+  }
+}

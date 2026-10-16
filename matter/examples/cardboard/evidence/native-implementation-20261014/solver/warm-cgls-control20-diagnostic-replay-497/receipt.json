@@ -1,0 +1,46 @@
+{
+  "schema": "numi.cardboard.native-run-receipt.v2",
+  "execution_started": true,
+  "source_inputs_unchanged": true,
+  "changed_inputs": [],
+  "exit_code": 2,
+  "timed_out": false,
+  "termination_errors": [],
+  "wall_seconds": 353.1309587927535,
+  "finished_at_utc": "2026-10-16T05:43:27.342277+00:00",
+  "run_mode": "diagnostic",
+  "diagnostic_capture_validation": {
+    "status": "validated",
+    "pending_captures": [],
+    "files": [
+      {
+        "key": "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+        "path": "diagnostics/capture-base-cgls-capture/capture",
+        "bytes": 494048,
+        "sha256": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646"
+      },
+      {
+        "key": "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+        "path": "diagnostics/capture-base-cgls-capture/capture.state.bin",
+        "bytes": 4327464,
+        "sha256": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1"
+      },
+      {
+        "key": "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+        "path": "diagnostics/capture-base-cgls-capture/capture.state.json",
+        "bytes": 8657,
+        "sha256": "b03e1bf2ee33162b2cca750ac14127d1e4a1b2e6df68c1fe71b081b0b251975c"
+      },
+      {
+        "key": "NM_FEM_OPERATOR_FD_CAPTURE_PATH",
+        "path": "diagnostics/capture-operator-fd-capture/capture",
+        "bytes": 38795294,
+        "sha256": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3"
+      }
+    ],
+    "total_bytes": 43625463,
+    "file_count": 4,
+    "aggregate_cap_bytes": 134217728,
+    "per_file_cap_bytes": 67108864
+  }
+}

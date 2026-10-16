@@ -1,0 +1,3 @@
+# Initial portable test attempt retained
+
+The first local test source (SHA-256 recorded in the final manifest) had two test-harness defects, not implementation changes: the q-flow Jacobian check indexed rows 6..11 instead of the authored stress rows 0..5, and the FB residual test required bitwise equality to an independently evaluated mpmath result even when the binary64 result differed by one rounding unit (absolute difference 9e-33). The corrected tests compare the intended q-flow block and use a tight absolute bound for the rounded FB value. The original test file is preserved as `test_referencev2_source173.initial-failure.py`; the successful tests are in `test_referencev2_source173.py`.

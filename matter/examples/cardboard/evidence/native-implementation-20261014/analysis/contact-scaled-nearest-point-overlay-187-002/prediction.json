@@ -1,0 +1,11 @@
+{
+  "schema": "numi.cardboard.scaled-nearest-point-overlay.v1",
+  "base_source185_frozen_sha256": "4f6d4569ea271ecf604b5e3c1b99299e8fcc9ebefcefcd2e3b171a232ace9cb6",
+  "base_contact_sha256": "cd5aaee17244b52e0b6eebb81cf2fcaff4fbbfb47fe43726fc5bbacec2e9527a",
+  "candidate_sha256": "1f4cc69e8229f386b2bfb4d3034b68448cb749e4c88a11fbd20b4dc98eef2832",
+  "functions_sha256": "fffc5ba904e8e594404127f40b82328fe4813c1432818cd90729ad53ee98849e",
+  "gpu_dispatch": false,
+  "scope": "Candidate dimensionless closest-feature queries. No production integration, energy/CCD/physical qualification yet.",
+  "kernel_sha256": "431b59711e8ce4860196d8f28e85250fca82e76d1fe55ddfa4a37544bf767a68",
+  "retained_compile_failure": "187-001: Metal reserves identifier vertex; renamed local array vertices, no formula change."
+}

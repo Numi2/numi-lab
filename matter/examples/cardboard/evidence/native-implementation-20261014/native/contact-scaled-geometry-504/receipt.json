@@ -1,0 +1,19 @@
+{
+  "name": "native504-geometry",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source188-002/numi-matter-cardboard-contact-geometry-check",
+    "--output",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-scaled-geometry-504/output.bin"
+  ],
+  "source_build_sha256": "34746e379a39086ec9305c51abb922377bf52ff3c5107d244997b4c713056a0e",
+  "started_at_utc": "2026-10-16T06:23:14.542245+00:00",
+  "timeout_s": 60,
+  "gpu": true,
+  "exit_code": 0,
+  "timed_out": false,
+  "wall_seconds": 0.42747124999999997,
+  "finished_at_utc": "2026-10-16T06:23:14.969965+00:00",
+  "stdout_sha256": "48b88cb9937ac25814dbd19df194ebc9403c1ec15d08031290df5cc12e48d8e9",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "physical_qualification": false
+}

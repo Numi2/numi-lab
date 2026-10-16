@@ -1,0 +1,650 @@
+{
+  "cached_operator_replay_binding": {
+    "capture_identity": {
+      "device_program_fingerprint": "430c1fc2739f9879",
+      "dt_seconds": 4.99999987e-05,
+      "environment_count": 2,
+      "newton_iteration": 63,
+      "node_count": 882,
+      "operator_fd_execution_fingerprint": "430c1fc2739f9879",
+      "operator_fd_world_fingerprint": "48d3b8b313356bd9",
+      "root": 20,
+      "tetrahedron_count": 1920,
+      "unknown_count": 3528,
+      "world_fingerprint": "48d3b8b313356bd9"
+    },
+    "prior_report": "/Users/home/cardboard-implementation-20261014/analysis/native497-cached-cgls-audit-001/report-v2.json",
+    "prior_report_sha256": "97631b4778273f29efaf7aebcb9f7fd789956057f5dd4231d187934fae883b4a",
+    "scope": "selected environment 0; captured FP32 tangent cache, reconstructed with offline FP64 sparse arithmetic",
+    "source_binding": {
+      "cached_operator_module_sha256": "4a7e9c0cbf09eee0ad1f8f5b2b09314a2c0789a908aaab530b56cfff6a1c82ff",
+      "cgls_binary_sha256": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646",
+      "frozen_source_manifest_sha256": "c2e6e23be57d3245c490c7f10f4abee55271a4fe051db6a5ef313de2de798394",
+      "operator_fd_capture_sha256": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-admission-encoder-182-003",
+      "state_manifest_sha256": "b03e1bf2ee33162b2cca750ac14127d1e4a1b2e6df68c1fe71b081b0b251975c",
+      "state_payload_sha256": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1",
+      "state_reader_sha256": "ee400288607bf220502fd4670923972f7b79cce2d810f247d6889ed4665f4b48"
+    }
+  },
+  "cached_operator_residual_analysis": {
+    "CGLS_total_delta": {
+      "A_delta_l2": 2.080846900995997e-07,
+      "M_delta_l2": 3.818268564329028e-11,
+      "M_over_dt2K_norm": 0.00018350109848340698,
+      "dt2K_delta_l2": 2.0807878513459108e-07
+    },
+    "conditioning_context_from_prior_audit": {
+      "condition_estimate_status": "no condition estimate or direct solve for this exact 497 matrix is reported in the sealed replay; do not infer conditioning from residual cancellation alone",
+      "source_report_keys": [
+        "capture_identity",
+        "cgls_binary_header",
+        "interpretation",
+        "native_trace",
+        "per_environment_operator_replay",
+        "run",
+        "schema",
+        "source_binding",
+        "state_reader_validation",
+        "state_to_operator_capture_join",
+        "verdict"
+      ]
+    },
+    "env0_units": "native-operator action and residual are impulse-like units as described by prior audit; offline norms inherit exact capture convention",
+    "final_total_candidate_X": {
+      "A_X_l2": 1.8848655347193697e-05,
+      "M_X_l2": 2.2734016118029946e-06,
+      "b_minus_AX_l2_fp64": 2.6548842652915708e-08,
+      "dt2K_X_l2": 1.9293523153993592e-05,
+      "residual_over_b": 0.00140870913384171,
+      "residual_over_b_plus_AX": 0.0007043090661033968,
+      "residual_over_term_norm_sum": 0.0012309980649174445,
+      "term_norm_sum_over_A_action": 1.1442155617221577
+    },
+    "initial_guess_x0": {
+      "A_x0_l2": 1.8866875007956084e-05,
+      "M_x0_l2": 2.2734008581212126e-06,
+      "b_l2": 1.8846220284320863e-05,
+      "b_minus_Ax0_l2_fp64": 2.095578359180791e-07,
+      "dt2K_x0_l2": 1.931122634334218e-05,
+      "residual_over_b": 0.011119356176284376,
+      "residual_over_b_plus_Ax0": 0.005556633161346299,
+      "residual_over_term_norm_sum": 0.009708661352458823,
+      "term_norm_sum_over_A_action": 1.1440488789140355
+    },
+    "native_residual_comparison": {
+      "FP64_reconstructed_b_minus_AX_l2": 2.6548842652915708e-08,
+      "captured_B_vs_FP64_b_minus_Ax0_relative_error": 0.011562152286197981,
+      "captured_Q_vs_FP64_AX_relative_error": 8.946005869031803e-05,
+      "fresh_native_linear_residual_scalar": 2.64973288e-08,
+      "fresh_native_scalar_minus_FP64_residual": -5.1513852915706553e-11,
+      "fresh_native_scalar_relative_error_vs_FP64": 0.0019403426955053756,
+      "native_R_over_FP64_residual": 0.9826334119305903,
+      "native_captured_recurrence_R_l2": 2.6087779838842947e-08,
+      "vector_difference_l2": 4.896457748462034e-09,
+      "vector_difference_over_base_r0": 0.023365662882566557,
+      "vector_difference_over_final_FP64_residual": 0.18443206027756107,
+      "vector_difference_over_rhs_b": 0.0002598111278862451
+    }
+  },
+  "conditioning_arithmetic_interpretation": {
+    "distinguishers": [
+      "Observed cancellation is established by the M and dt^2 K action norms and b\u2212Ax residual ratios; it does not, alone, establish ill-conditioning.",
+      "This package contains no same-capture condition estimate or direct solve, so it does not isolate ill-conditioning from finite-precision or recurrence error.",
+      "A small residual vector discrepancy relative to b but larger relative to the target residual can reflect arithmetic cancellation, conditioning, recurrence drift, or these combined; this comparison does not isolate a unique cause."
+    ],
+    "finding": "The captured x0\u2192X action is dominated by stiffness; the residual is formed by subtracting two actions/RHS of much larger norm. The native recurrence residual vector differs from offline FP64 replay by about 2.34% of the initial residual norm and 18.44% of the final FP64 residual, although the scalar freshly recomputed residual is within about 0.194% of the FP64 norm.",
+    "smallest_next_diagnostic": "On the retained exact CGLS capture, independently evaluate b\u2212Ax0 and b\u2212AX in three arithmetic paths using the same captured FP32 cache: (1) native stored FP32 operator action/vector residual already captured, (2) FP64 sparse replay already available, and (3) compensated or higher-precision CPU replay of the identical FP32 coefficients. Compare each residual vector and backward error against ||b||, ||A||\u00b7||x||+||b||, and the target residual; pair with a documented condition estimate and forward error to an independent FP64 direct solve. This separates action/subtraction rounding from sensitivity without changing physics or tolerances. A future native capture should include the exact FP32 b, x0, total X, Q=A\u00b7X, fresh b\u2212A\u00b7X and CGLS recurrence R from one command-buffer generation; 497 currently has enough for the offline replay but not a multi-precision native comparison."
+  },
+  "execution": "CPU-only retained-artifact audit; no native run, GPU dispatch, source edit, or tolerance change",
+  "limits": [
+    "No full-cycle success: all three resumed segments terminate with failure at control step 20 and accept zero controls in the segment.",
+    "The held-reference observation is not evidence of a completed bent coupon trajectory.",
+    "497's regional CGLS observer data is a selected FEM-only block; it excludes rigid/contact/cohesive rows and does not qualify the full coupled solve.",
+    "Offline replay uses the captured FP32 tangent cache and source-defined operator reconstruction; it does not reevaluate material response or execute native FP64 physics.",
+    "No claim of general solver accuracy, conditioning proof, performance, or physical cardboard qualification is made."
+  ],
+  "log_trace_parity": {
+    "normalized_line_count": {
+      "482": 4166,
+      "497": 4166,
+      "498": 4166
+    },
+    "normalized_stream_definition": {
+      "drop_exact_prefixes": [
+        "cardboard_step_timing=",
+        "fem_base_cgls_capture=",
+        "fem_base_cgls_state_capture=",
+        "fem_operator_fd_enabled=",
+        "fem_operator_fd_iteration=",
+        "fem_regional_rap_capture_skipped=",
+        "fem_residual_armijo_trace_enabled=",
+        "fem_residual_armijo_iteration="
+      ],
+      "reason": "timing is nondeterministic; observer-only capture lines are excluded, while ordinary diagnostics and all production records remain"
+    },
+    "normalized_stream_sha256": {
+      "482": "3121ddcc2a8b03d9bf359a6c0d44d9e4f96aefcaf173831b12de543678ded026",
+      "497": "3121ddcc2a8b03d9bf359a6c0d44d9e4f96aefcaf173831b12de543678ded026",
+      "498": "3121ddcc2a8b03d9bf359a6c0d44d9e4f96aefcaf173831b12de543678ded026"
+    },
+    "normalized_streams_byte_identical": true,
+    "observer_trace_counts_497": {
+      "additional_capture_marker_lines": 6,
+      "fem_operator_fd_iteration": 1,
+      "fem_residual_armijo_iteration": 112
+    },
+    "retained_true_residual_and_CGLS_records_exact": true,
+    "trace_counts": {
+      "482": {
+        "fem_base_cgls_direction": 64,
+        "fem_true_residual_cycle": 4096
+      },
+      "497": {
+        "fem_base_cgls_direction": 64,
+        "fem_true_residual_cycle": 4096
+      },
+      "498": {
+        "fem_base_cgls_direction": 64,
+        "fem_true_residual_cycle": 4096
+      }
+    },
+    "trace_hashes": {
+      "482": {
+        "fem_base_cgls_direction": {
+          "count": 64,
+          "sha256": "4f494f719b1251d7b4cd748bcb72941bd01bac74bb0b0d00f5c4a887d80130b1"
+        },
+        "fem_true_residual_cycle": {
+          "count": 4096,
+          "sha256": "ea53aae2c5649c3197ab006614bc91f191715b2eb4cbd8cf09d8be19bf7c77b5"
+        }
+      },
+      "497": {
+        "fem_base_cgls_direction": {
+          "count": 64,
+          "sha256": "4f494f719b1251d7b4cd748bcb72941bd01bac74bb0b0d00f5c4a887d80130b1"
+        },
+        "fem_true_residual_cycle": {
+          "count": 4096,
+          "sha256": "ea53aae2c5649c3197ab006614bc91f191715b2eb4cbd8cf09d8be19bf7c77b5"
+        }
+      },
+      "498": {
+        "fem_base_cgls_direction": {
+          "count": 64,
+          "sha256": "4f494f719b1251d7b4cd748bcb72941bd01bac74bb0b0d00f5c4a887d80130b1"
+        },
+        "fem_true_residual_cycle": {
+          "count": 4096,
+          "sha256": "ea53aae2c5649c3197ab006614bc91f191715b2eb4cbd8cf09d8be19bf7c77b5"
+        }
+      }
+    }
+  },
+  "output_comparison": {
+    "coupon_segment_metadata_differences_497_498": [
+      "$.current_registered_output_paths.NM_FEM_BASE_CGLS_CAPTURE_PATH.set",
+      "$.current_registered_output_paths.NM_FEM_BASE_CGLS_CAPTURE_PATH.value",
+      "$.current_registered_output_paths.NM_FEM_OPERATOR_FD_CAPTURE_PATH.set",
+      "$.current_registered_output_paths.NM_FEM_OPERATOR_FD_CAPTURE_PATH.value",
+      "$.current_runner_contract_sha256",
+      "$.current_runner_environment_record_sha256",
+      "$.current_runner_non_output_settings_sha256",
+      "$.current_runner_prediction_sha256",
+      "$.registered_output_path_map_relocated"
+    ],
+    "csv_hashes": {
+      "482": "72b0a4a3d021ec4d10acfa4dd699ad1ffed386a4b090e14d7a31633ec0ad8d8e",
+      "497": "72b0a4a3d021ec4d10acfa4dd699ad1ffed386a4b090e14d7a31633ec0ad8d8e",
+      "498": "72b0a4a3d021ec4d10acfa4dd699ad1ffed386a4b090e14d7a31633ec0ad8d8e"
+    },
+    "differing_paths_vs_482": {
+      "497": [
+        "coupon-resume-segment.json"
+      ],
+      "498": [
+        "coupon-resume-segment.json"
+      ]
+    },
+    "exactly_equal_paths_count_vs_482": {
+      "482": 38,
+      "497": 37,
+      "498": 37
+    },
+    "output_files": {
+      "482": {
+        "accepted_step_000021_held_reference.obj": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+        "compiled.nmatterpack": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+        "coupon-resume-segment.json": "c3d3f06baa90207665928cf2f33236df10b20231420dc17837d44e8857eb49e1",
+        "initial.obj": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+        "manifest.json": "315102605605164ed388056567251a92b4bdb4d5820f154d4923d4bf4cadf327",
+        "material_state_000021_bent.json": "4d2e0635802a5b3969dc512279d9d9bb8105ce6c09c2cc17f2435a3b1c66b8a7",
+        "mesh.json": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+        "observations.csv": "72b0a4a3d021ec4d10acfa4dd699ad1ffed386a4b090e14d7a31633ec0ad8d8e",
+        "rejected-conditioning-000021/AP.bin": "219b3e9287227b25167c4ab95ab6c4d020e265cd45da81c374c6759e7e5f9d2d",
+        "rejected-conditioning-000021/P.bin": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+        "rejected-conditioning-000021/candidate_nodes.bin": "e49162194aafeb96e8e510cc695f9a7a68aa991eeba9e166de4d65776cc29ffc",
+        "rejected-conditioning-000021/effective_P.bin": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+        "rejected-conditioning-000021/factor_valid.bin": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+        "rejected-conditioning-000021/linearization_F_high.bin": "a3bfa284150af5680761c9c61c62f9e0b957169e53a8d494c4930d14dc576519",
+        "rejected-conditioning-000021/linearization_F_low.bin": "131d6985cd4694ec0e43df38f1eeab6c18d5d030ec9435b478a03a449e371222",
+        "rejected-conditioning-000021/linearization_accepted_material_history.bin": "9224199b2c1302c03ae0a0512e9dbc08cba45889c02f1b29f6d3dc681894b320",
+        "rejected-conditioning-000021/linearization_scheduler_exponents.bin": "0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537",
+        "rejected-conditioning-000021/manifest.json": "eb16d0e1ef9148922ef2c1f47623e1414a1ee7145520cfb60fb0744efd1c8557",
+        "rejected-conditioning-000021/node_block_inverse.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "rejected-conditioning-000021/pivoted_RAP.bin": "39db94b8aa9c59ca377826726f5ecbfb79a12236170656d94d3394e8bfe8158b",
+        "rejected-conditioning-000021/pivots.bin": "dafeb7db7b33d8d845b83a7998899c6723d9653f0c5a8ef4b68f5302d8a10a1d",
+        "rejected-conditioning-000021/restart_Aq.bin": "b20c27988e12dd2e8651f1ff1e5910cb8e37d58b97ab66dcd324fb1144ad9f24",
+        "rejected-conditioning-000021/restart_Aq_by_environment.bin": "2e4a38bf6a137e84c0ab8794e3ee35435d4da654ef287ce80fce1790753bd7b2",
+        "rejected-conditioning-000021/restart_attempt_counts_by_environment.bin": "35be322d094f9d154a8aba4733b8497f180353bd7ae7b0a15f90b586b549f28b",
+        "rejected-conditioning-000021/restart_factor_valid_by_environment.bin": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+        "rejected-conditioning-000021/restart_generations_by_environment.bin": "253c7631fa3b61d83450fad34c0e2bd4124165800d886634792b5cf4577e0262",
+        "rejected-conditioning-000021/restart_mode_scales_by_environment.bin": "a092692dabe65971105ca06905f480f59c25aa7ae8d3e49187d265341d4b48d7",
+        "rejected-conditioning-000021/restart_mode_valid_by_environment.bin": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+        "rejected-conditioning-000021/restart_pivoted_RAP.bin": "4e7cff83366da900cb294db056ada7eb7bcceff91722a3133d89f8e50fdf173b",
+        "rejected-conditioning-000021/restart_pivoted_RAP_by_environment.bin": "5fddb0ca74ed063282e98faede8c7be1271e0fd05d6c4e3e1734e42006ef7cd6",
+        "rejected-conditioning-000021/restart_pivots.bin": "8f4b3b96b8c48d79a3666e9f96ec1150529d7daa3adf656ac4cb0f3fddc31b4e",
+        "rejected-conditioning-000021/restart_pivots_by_environment.bin": "c29f4a6348dbc267b93475d95fe9c560d9ca2970d9a2a70d8381e87a2604a7b2",
+        "rejected-conditioning-000021/restart_q.bin": "897041aa836c3fe7981bbb3c3f1d795af36f347a07b83b9d38c23fcf9e7dfeed",
+        "rejected-conditioning-000021/restart_q_by_environment.bin": "acae9b4f0e025a7eae6304f3ca3d86aed3c6df6a1f9069304fdb4cd9192b9c23",
+        "rejected-conditioning-000021/restart_raw_norm_squared_by_environment.bin": "d2c2b946dbf4ce575076301e559bb107dd7487ef7a68a3557d6f98db25103e73",
+        "rejected-conditioning-000021/restart_target_scales_by_environment.bin": "4731d914e686c9203667cb0d2d6202da76a2b67a48883c0ab814d5344d0fbd4b",
+        "rejected_step_diagnostic_000021_bent.obj": "608aa649a2be0be7681d1a82c7ccb6b4ebea986687c03f190256a595962a8ccf",
+        "result.json": "d4518269b0b19ccee04c34ad1c4c711ffc7dbcf8f8180a92461f75e157c06aa3"
+      },
+      "497": {
+        "accepted_step_000021_held_reference.obj": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+        "compiled.nmatterpack": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+        "coupon-resume-segment.json": "328b4de2ec76ee6c2104197f8977c4e3900b25b5d618e15b7da75cc58ec921d8",
+        "initial.obj": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+        "manifest.json": "315102605605164ed388056567251a92b4bdb4d5820f154d4923d4bf4cadf327",
+        "material_state_000021_bent.json": "4d2e0635802a5b3969dc512279d9d9bb8105ce6c09c2cc17f2435a3b1c66b8a7",
+        "mesh.json": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+        "observations.csv": "72b0a4a3d021ec4d10acfa4dd699ad1ffed386a4b090e14d7a31633ec0ad8d8e",
+        "rejected-conditioning-000021/AP.bin": "219b3e9287227b25167c4ab95ab6c4d020e265cd45da81c374c6759e7e5f9d2d",
+        "rejected-conditioning-000021/P.bin": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+        "rejected-conditioning-000021/candidate_nodes.bin": "e49162194aafeb96e8e510cc695f9a7a68aa991eeba9e166de4d65776cc29ffc",
+        "rejected-conditioning-000021/effective_P.bin": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+        "rejected-conditioning-000021/factor_valid.bin": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+        "rejected-conditioning-000021/linearization_F_high.bin": "a3bfa284150af5680761c9c61c62f9e0b957169e53a8d494c4930d14dc576519",
+        "rejected-conditioning-000021/linearization_F_low.bin": "131d6985cd4694ec0e43df38f1eeab6c18d5d030ec9435b478a03a449e371222",
+        "rejected-conditioning-000021/linearization_accepted_material_history.bin": "9224199b2c1302c03ae0a0512e9dbc08cba45889c02f1b29f6d3dc681894b320",
+        "rejected-conditioning-000021/linearization_scheduler_exponents.bin": "0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537",
+        "rejected-conditioning-000021/manifest.json": "eb16d0e1ef9148922ef2c1f47623e1414a1ee7145520cfb60fb0744efd1c8557",
+        "rejected-conditioning-000021/node_block_inverse.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "rejected-conditioning-000021/pivoted_RAP.bin": "39db94b8aa9c59ca377826726f5ecbfb79a12236170656d94d3394e8bfe8158b",
+        "rejected-conditioning-000021/pivots.bin": "dafeb7db7b33d8d845b83a7998899c6723d9653f0c5a8ef4b68f5302d8a10a1d",
+        "rejected-conditioning-000021/restart_Aq.bin": "b20c27988e12dd2e8651f1ff1e5910cb8e37d58b97ab66dcd324fb1144ad9f24",
+        "rejected-conditioning-000021/restart_Aq_by_environment.bin": "2e4a38bf6a137e84c0ab8794e3ee35435d4da654ef287ce80fce1790753bd7b2",
+        "rejected-conditioning-000021/restart_attempt_counts_by_environment.bin": "35be322d094f9d154a8aba4733b8497f180353bd7ae7b0a15f90b586b549f28b",
+        "rejected-conditioning-000021/restart_factor_valid_by_environment.bin": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+        "rejected-conditioning-000021/restart_generations_by_environment.bin": "253c7631fa3b61d83450fad34c0e2bd4124165800d886634792b5cf4577e0262",
+        "rejected-conditioning-000021/restart_mode_scales_by_environment.bin": "a092692dabe65971105ca06905f480f59c25aa7ae8d3e49187d265341d4b48d7",
+        "rejected-conditioning-000021/restart_mode_valid_by_environment.bin": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+        "rejected-conditioning-000021/restart_pivoted_RAP.bin": "4e7cff83366da900cb294db056ada7eb7bcceff91722a3133d89f8e50fdf173b",
+        "rejected-conditioning-000021/restart_pivoted_RAP_by_environment.bin": "5fddb0ca74ed063282e98faede8c7be1271e0fd05d6c4e3e1734e42006ef7cd6",
+        "rejected-conditioning-000021/restart_pivots.bin": "8f4b3b96b8c48d79a3666e9f96ec1150529d7daa3adf656ac4cb0f3fddc31b4e",
+        "rejected-conditioning-000021/restart_pivots_by_environment.bin": "c29f4a6348dbc267b93475d95fe9c560d9ca2970d9a2a70d8381e87a2604a7b2",
+        "rejected-conditioning-000021/restart_q.bin": "897041aa836c3fe7981bbb3c3f1d795af36f347a07b83b9d38c23fcf9e7dfeed",
+        "rejected-conditioning-000021/restart_q_by_environment.bin": "acae9b4f0e025a7eae6304f3ca3d86aed3c6df6a1f9069304fdb4cd9192b9c23",
+        "rejected-conditioning-000021/restart_raw_norm_squared_by_environment.bin": "d2c2b946dbf4ce575076301e559bb107dd7487ef7a68a3557d6f98db25103e73",
+        "rejected-conditioning-000021/restart_target_scales_by_environment.bin": "4731d914e686c9203667cb0d2d6202da76a2b67a48883c0ab814d5344d0fbd4b",
+        "rejected_step_diagnostic_000021_bent.obj": "608aa649a2be0be7681d1a82c7ccb6b4ebea986687c03f190256a595962a8ccf",
+        "result.json": "d4518269b0b19ccee04c34ad1c4c711ffc7dbcf8f8180a92461f75e157c06aa3"
+      },
+      "498": {
+        "accepted_step_000021_held_reference.obj": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+        "compiled.nmatterpack": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+        "coupon-resume-segment.json": "d099d186bc2e58be474881d783572ffc59c9d662c2ca2cba09a9e9752627e553",
+        "initial.obj": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+        "manifest.json": "315102605605164ed388056567251a92b4bdb4d5820f154d4923d4bf4cadf327",
+        "material_state_000021_bent.json": "4d2e0635802a5b3969dc512279d9d9bb8105ce6c09c2cc17f2435a3b1c66b8a7",
+        "mesh.json": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+        "observations.csv": "72b0a4a3d021ec4d10acfa4dd699ad1ffed386a4b090e14d7a31633ec0ad8d8e",
+        "rejected-conditioning-000021/AP.bin": "219b3e9287227b25167c4ab95ab6c4d020e265cd45da81c374c6759e7e5f9d2d",
+        "rejected-conditioning-000021/P.bin": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+        "rejected-conditioning-000021/candidate_nodes.bin": "e49162194aafeb96e8e510cc695f9a7a68aa991eeba9e166de4d65776cc29ffc",
+        "rejected-conditioning-000021/effective_P.bin": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+        "rejected-conditioning-000021/factor_valid.bin": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+        "rejected-conditioning-000021/linearization_F_high.bin": "a3bfa284150af5680761c9c61c62f9e0b957169e53a8d494c4930d14dc576519",
+        "rejected-conditioning-000021/linearization_F_low.bin": "131d6985cd4694ec0e43df38f1eeab6c18d5d030ec9435b478a03a449e371222",
+        "rejected-conditioning-000021/linearization_accepted_material_history.bin": "9224199b2c1302c03ae0a0512e9dbc08cba45889c02f1b29f6d3dc681894b320",
+        "rejected-conditioning-000021/linearization_scheduler_exponents.bin": "0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537",
+        "rejected-conditioning-000021/manifest.json": "eb16d0e1ef9148922ef2c1f47623e1414a1ee7145520cfb60fb0744efd1c8557",
+        "rejected-conditioning-000021/node_block_inverse.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "rejected-conditioning-000021/pivoted_RAP.bin": "39db94b8aa9c59ca377826726f5ecbfb79a12236170656d94d3394e8bfe8158b",
+        "rejected-conditioning-000021/pivots.bin": "dafeb7db7b33d8d845b83a7998899c6723d9653f0c5a8ef4b68f5302d8a10a1d",
+        "rejected-conditioning-000021/restart_Aq.bin": "b20c27988e12dd2e8651f1ff1e5910cb8e37d58b97ab66dcd324fb1144ad9f24",
+        "rejected-conditioning-000021/restart_Aq_by_environment.bin": "2e4a38bf6a137e84c0ab8794e3ee35435d4da654ef287ce80fce1790753bd7b2",
+        "rejected-conditioning-000021/restart_attempt_counts_by_environment.bin": "35be322d094f9d154a8aba4733b8497f180353bd7ae7b0a15f90b586b549f28b",
+        "rejected-conditioning-000021/restart_factor_valid_by_environment.bin": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+        "rejected-conditioning-000021/restart_generations_by_environment.bin": "253c7631fa3b61d83450fad34c0e2bd4124165800d886634792b5cf4577e0262",
+        "rejected-conditioning-000021/restart_mode_scales_by_environment.bin": "a092692dabe65971105ca06905f480f59c25aa7ae8d3e49187d265341d4b48d7",
+        "rejected-conditioning-000021/restart_mode_valid_by_environment.bin": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+        "rejected-conditioning-000021/restart_pivoted_RAP.bin": "4e7cff83366da900cb294db056ada7eb7bcceff91722a3133d89f8e50fdf173b",
+        "rejected-conditioning-000021/restart_pivoted_RAP_by_environment.bin": "5fddb0ca74ed063282e98faede8c7be1271e0fd05d6c4e3e1734e42006ef7cd6",
+        "rejected-conditioning-000021/restart_pivots.bin": "8f4b3b96b8c48d79a3666e9f96ec1150529d7daa3adf656ac4cb0f3fddc31b4e",
+        "rejected-conditioning-000021/restart_pivots_by_environment.bin": "c29f4a6348dbc267b93475d95fe9c560d9ca2970d9a2a70d8381e87a2604a7b2",
+        "rejected-conditioning-000021/restart_q.bin": "897041aa836c3fe7981bbb3c3f1d795af36f347a07b83b9d38c23fcf9e7dfeed",
+        "rejected-conditioning-000021/restart_q_by_environment.bin": "acae9b4f0e025a7eae6304f3ca3d86aed3c6df6a1f9069304fdb4cd9192b9c23",
+        "rejected-conditioning-000021/restart_raw_norm_squared_by_environment.bin": "d2c2b946dbf4ce575076301e559bb107dd7487ef7a68a3557d6f98db25103e73",
+        "rejected-conditioning-000021/restart_target_scales_by_environment.bin": "4731d914e686c9203667cb0d2d6202da76a2b67a48883c0ab814d5344d0fbd4b",
+        "rejected_step_diagnostic_000021_bent.obj": "608aa649a2be0be7681d1a82c7ccb6b4ebea986687c03f190256a595962a8ccf",
+        "result.json": "d4518269b0b19ccee04c34ad1c4c711ffc7dbcf8f8180a92461f75e157c06aa3"
+      }
+    },
+    "output_path_count_each": 38,
+    "production_physical_file_count": 35,
+    "production_physical_files_byte_identical_all_three": true,
+    "stdout_hashes": {
+      "482": "91b301e5469d1c009eb9f64925cd169eb22dc62c889ce9dd7bcc24dbb4c801d2",
+      "497": "91b301e5469d1c009eb9f64925cd169eb22dc62c889ce9dd7bcc24dbb4c801d2",
+      "498": "91b301e5469d1c009eb9f64925cd169eb22dc62c889ce9dd7bcc24dbb4c801d2"
+    }
+  },
+  "protocol_and_scope": {
+    "482_source_map_differs_from_497_498": true,
+    "482_source_revision_caveat": "482 uses source173; 497/498 use source182. Byte-identical outputs/logs are direct observed parity, not a controlled attribution of any source change.",
+    "482_to_497_source_changed_paths": [
+      "matter/CMakeLists.txt",
+      "matter/src/runtime.mm",
+      "matter/tools/cardboard_coupon_resume.hpp",
+      "matter/tools/cardboard_coupon_resume_check.cpp",
+      "matter/tools/cardboard_probe.mm",
+      "matter/tools/cardboard_solver_environment.py",
+      "matter/tools/test_cardboard_probe_argument_admission.py",
+      "matter/tools/test_cardboard_solver_environment.py"
+    ],
+    "497_498_effective_environment_delta": {
+      "NM_FEM_BASE_CGLS_CAPTURE_NEWTON": [
+        {
+          "set": true,
+          "value": "63"
+        },
+        {
+          "set": false,
+          "value": null
+        }
+      ],
+      "NM_FEM_BASE_CGLS_CAPTURE_PATH": [
+        {
+          "set": true,
+          "value": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture"
+        },
+        {
+          "set": false,
+          "value": null
+        }
+      ],
+      "NM_FEM_BASE_CGLS_STATE_CAPTURE": [
+        {
+          "set": true,
+          "value": "1"
+        },
+        {
+          "set": false,
+          "value": null
+        }
+      ],
+      "NM_FEM_OPERATOR_FD_CAPTURE_PATH": [
+        {
+          "set": true,
+          "value": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-operator-fd-capture/capture"
+        },
+        {
+          "set": false,
+          "value": null
+        }
+      ],
+      "NM_FEM_OPERATOR_FD_SELECTOR": [
+        {
+          "set": true,
+          "value": "20:63"
+        },
+        {
+          "set": false,
+          "value": null
+        }
+      ],
+      "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": [
+        {
+          "set": true,
+          "value": "20"
+        },
+        {
+          "set": false,
+          "value": null
+        }
+      ]
+    },
+    "497_498_physical_argv_same_after_output_path": true,
+    "497_498_same_frozen_source": true,
+    "497_receipt_bound_diagnostic_files": [
+      {
+        "bytes": 494048,
+        "key": "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+        "path": "diagnostics/capture-base-cgls-capture/capture",
+        "sha256": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646"
+      },
+      {
+        "bytes": 4327464,
+        "key": "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+        "path": "diagnostics/capture-base-cgls-capture/capture.state.bin",
+        "sha256": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1"
+      },
+      {
+        "bytes": 8657,
+        "key": "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+        "path": "diagnostics/capture-base-cgls-capture/capture.state.json",
+        "sha256": "b03e1bf2ee33162b2cca750ac14127d1e4a1b2e6df68c1fe71b081b0b251975c"
+      },
+      {
+        "bytes": 38795294,
+        "key": "NM_FEM_OPERATOR_FD_CAPTURE_PATH",
+        "path": "diagnostics/capture-operator-fd-capture/capture",
+        "sha256": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3"
+      }
+    ],
+    "newly_recorded_unset_incidence_sort_contract": {
+      "482": null,
+      "497": {
+        "set": false,
+        "value": null
+      },
+      "498": {
+        "set": false,
+        "value": null
+      }
+    },
+    "normalized_command_delta_482_to_497": {
+      "added_source182_resume_contract_tokens": [
+        "--coupon-resume-diagnostic-replay",
+        "--glue-material",
+        "<GLUE-MATERIAL_PATH>"
+      ],
+      "interpretation": "Explicit glue-material binding and diagnostic-resume flag are recorded protocol differences; no outcome is attributed to them because exact output/history parity is observational.",
+      "removed_tokens": []
+    },
+    "normalized_solver_environment_equal_after_observer_controls_removed": true,
+    "registered_read_only_capture_paths": {
+      "NM_FEM_BASE_CGLS_CAPTURE_PATH": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture",
+      "NM_FEM_OPERATOR_FD_CAPTURE_PATH": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-operator-fd-capture/capture"
+    },
+    "source_versions": {
+      "482": {
+        "frozen_source_json_sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+        "local_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173",
+        "remote_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173",
+        "source_file_count": 804,
+        "source_sha256_map_sha256": "f89f677e95941fa71d62a0b4b5859108391da05610027779e862b0820e125a20"
+      },
+      "497": {
+        "frozen_source_json_sha256": "c2e6e23be57d3245c490c7f10f4abee55271a4fe051db6a5ef313de2de798394",
+        "local_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-admission-encoder-182-003",
+        "remote_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-admission-encoder-182-003",
+        "source_file_count": 805,
+        "source_sha256_map_sha256": "05b959763f8bb08852a44df491eaea4543e37476e102e79fe6a19842a664d9c4"
+      },
+      "498": {
+        "frozen_source_json_sha256": "c2e6e23be57d3245c490c7f10f4abee55271a4fe051db6a5ef313de2de798394",
+        "local_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-admission-encoder-182-003",
+        "remote_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-admission-encoder-182-003",
+        "source_file_count": 805,
+        "source_sha256_map_sha256": "05b959763f8bb08852a44df491eaea4543e37476e102e79fe6a19842a664d9c4"
+      }
+    }
+  },
+  "receipt_summary": {
+    "482": {
+      "exit_code": 2,
+      "source_inputs_unchanged": true,
+      "timed_out": false,
+      "wall_seconds": 351.6722314171493
+    },
+    "497": {
+      "exit_code": 2,
+      "source_inputs_unchanged": true,
+      "timed_out": false,
+      "wall_seconds": 353.1309587927535
+    },
+    "498": {
+      "exit_code": 2,
+      "source_inputs_unchanged": true,
+      "timed_out": false,
+      "wall_seconds": 351.97502908296883
+    }
+  },
+  "run_artifact_bindings": {
+    "482": {
+      "diagnostic-captures.json": {
+        "bytes": 239,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-capture-off-482/diagnostic-captures.json",
+        "sha256": "e60590b160155b110f2a1b1ca7567586a999117862f1ee3a058e5f0288b48880"
+      },
+      "native-environment.json": {
+        "bytes": 7883,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-capture-off-482/native-environment.json",
+        "sha256": "33dc02f6ac20a548c781be64b004e24b75f33ebefb0bfc58f441931fc80a00b9"
+      },
+      "prediction.json": {
+        "bytes": 117354,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-capture-off-482/prediction.json",
+        "sha256": "636608127ccaac9fbc6bd66801a389ad8e7c8cf00ab1407f0c6f23cca0ec175e"
+      },
+      "receipt.json": {
+        "bytes": 457,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-capture-off-482/receipt.json",
+        "sha256": "fc6bfdf5dc6079839f9702e86e41cad89b3ed13267590cc815641cfec3df478a"
+      },
+      "stderr.log": {
+        "bytes": 4358151,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-capture-off-482/stderr.log",
+        "sha256": "a212d9f1caf39021de313b7b42f71e79e514a96b88bb6de33d298934a84a19c9"
+      },
+      "stdout.log": {
+        "bytes": 371,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-capture-off-482/stdout.log",
+        "sha256": "91b301e5469d1c009eb9f64925cd169eb22dc62c889ce9dd7bcc24dbb4c801d2"
+      }
+    },
+    "497": {
+      "diagnostic-captures.json": {
+        "bytes": 1284,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostic-captures.json",
+        "sha256": "4e8f7ebb0284b90515e59fffa8f58784c8d9464eefd78966ac7d30b113f283d0"
+      },
+      "native-environment.json": {
+        "bytes": 8712,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/native-environment.json",
+        "sha256": "163393847f5f9d7053191d80b742a93332f01bca4657d2727b9b50742c6054dd"
+      },
+      "prediction.json": {
+        "bytes": 120097,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/prediction.json",
+        "sha256": "ef393185594d6e4b01de162c7b253c44678dcc91ed47e8bee0162eda4eed8a45"
+      },
+      "receipt.json": {
+        "bytes": 1560,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/receipt.json",
+        "sha256": "263bc8e740e06173b89aac743108c791b5c942fb8168e392ced0a842cf2f6294"
+      },
+      "stderr.log": {
+        "bytes": 4687748,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/stderr.log",
+        "sha256": "5fa88ac463656bb5565705de2995c12525c60cc6eb271440175ca694c2b67305"
+      },
+      "stdout.log": {
+        "bytes": 371,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/stdout.log",
+        "sha256": "91b301e5469d1c009eb9f64925cd169eb22dc62c889ce9dd7bcc24dbb4c801d2"
+      }
+    },
+    "498": {
+      "diagnostic-captures.json": {
+        "bytes": 239,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/diagnostic-captures.json",
+        "sha256": "91148da71edac2ca5f84559b3e282822dc059501e2f855de520cc079b4f181e8"
+      },
+      "native-environment.json": {
+        "bytes": 8028,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/native-environment.json",
+        "sha256": "f4bc4a81a8e7b5eef687389b6394a3b41dd091457794971e3143baca9177c208"
+      },
+      "prediction.json": {
+        "bytes": 118852,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/prediction.json",
+        "sha256": "7411357081dc861e2eabf6e7dd0b8568d48ae0d82862e072301e8f75cb225fa8"
+      },
+      "receipt.json": {
+        "bytes": 458,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/receipt.json",
+        "sha256": "c239c7da3b647c4cca1d4fa9857482c29bb8061f0388910ab322bc20389dadc1"
+      },
+      "stderr.log": {
+        "bytes": 4358151,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/stderr.log",
+        "sha256": "7240cad8359bd716df751cd3e2cc846772c6518e979ff007adcf90473bcc6117"
+      },
+      "stdout.log": {
+        "bytes": 371,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-off-498/stdout.log",
+        "sha256": "91b301e5469d1c009eb9f64925cd169eb22dc62c889ce9dd7bcc24dbb4c801d2"
+      }
+    }
+  },
+  "schema": "numi.cardboard.native497_498_482_comparison.v1",
+  "segment_outcome": {
+    "accepted_steps": 0,
+    "observations": [
+      {
+        "arm": "bent",
+        "completed_microsteps": "0",
+        "environment": "0",
+        "failing_index": "4294967295",
+        "fgmres_iterations": "79",
+        "object_index": "0",
+        "status_code": "10",
+        "step": "20",
+        "target_angle_deg": "0.328125",
+        "time_s": "0.0010499999734747689"
+      },
+      {
+        "arm": "held_reference",
+        "completed_microsteps": "1",
+        "environment": "1",
+        "failing_index": "4294967295",
+        "fgmres_iterations": "4",
+        "object_index": "4294967295",
+        "status_code": "0",
+        "step": "20",
+        "target_angle_deg": "0",
+        "time_s": "0.0010499999734747689"
+      }
+    ],
+    "physical_qualification": false,
+    "segment_status": "resumed_diagnostic_segment_failed",
+    "trajectory_complete": false
+  },
+  "verdict": "PASS_DIAGNOSTIC_ON_OFF_PHYSICAL_HISTORY_PARITY; 482_OBSERVATIONAL_PARITY_ONLY_ACROSS_SOURCE_REVISION"
+}

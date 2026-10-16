@@ -59,7 +59,7 @@ constexpr double kInitialClearance = 30.0e-6;
 constexpr double kSupportClearance = 20.0e-6;
 constexpr double kToolSpeed = 0.2;
 constexpr double kActivationGap = 25.0e-6;
-constexpr double kFreeBodyMortarGap = 5.0e-6;
+[[maybe_unused]] constexpr double kFreeBodyMortarGap = 5.0e-6;
 constexpr double kActivationTolerance = 100.0e-6;
 unsigned checks = 0u;
 std::uint64_t nativeFEMTransactionsExecuted = 0u;
@@ -4239,7 +4239,7 @@ struct SparseFreeBodyRun {
 void requireAcceptedStateUnchanged(const RuntimeStateSnapshot& before,
                                    const RuntimeStateSnapshot& after,
                                    const char* reason);
-void requireFullSnapshotRestoreParity(const RuntimeStateSnapshot& before,
+[[maybe_unused]] void requireFullSnapshotRestoreParity(const RuntimeStateSnapshot& before,
                                       const RuntimeStateSnapshot& after,
                                       const char* reason);
 
@@ -5111,7 +5111,7 @@ void requireAcceptedStateUnchanged(const RuntimeStateSnapshot& before,
                               "rigid states", reason);
 }
 
-void requireFullSnapshotRestoreParity(const RuntimeStateSnapshot& before,
+[[maybe_unused]] void requireFullSnapshotRestoreParity(const RuntimeStateSnapshot& before,
                                       const RuntimeStateSnapshot& after,
                                       const char* reason) {
     require(before.available && after.available,

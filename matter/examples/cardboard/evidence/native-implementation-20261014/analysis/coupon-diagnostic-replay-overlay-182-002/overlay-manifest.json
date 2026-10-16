@@ -1,0 +1,107 @@
+{
+  "schema": "numi.cardboard.source-overlay.v1",
+  "overlay_id": "coupon-diagnostic-replay-overlay-182-002",
+  "status": "SEALED_ISOLATED_OVERLAY",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-admission-encoder-181",
+  "base_revision": "a5ccffa52ffe368b49c877094a5081b7ee246ebf",
+  "base_frozen_source_sha256": "f3ac253b7924dc4cb6ba1d5d9580ceea42150b5e49c6eee569e36b0e204fef7a",
+  "base_source_file_sha256": {
+    "cardboard_coupon_resume.hpp": "bdb41b93688e924b950aebc68aea19e5cc0988f618430b3e0e38634d37e1d282",
+    "cardboard_probe.mm": "961d562a3961a1a4ab64cedaab0324674d81cabd8df8d6c8f870b2f35efdd3c1"
+  },
+  "validation_host": "macmini",
+  "base_source_build_json_sha256": "d5ed1e058065435d7faeb48897681306907e61a7b9f765f3c131c38261e1c5be",
+  "base_compile_commands_sha256": "050008734269639ebd1b27163f4b4d5e7e099d56de42c73ad89abb25163a34af",
+  "changed_source_files": [
+    "matter/tools/cardboard_coupon_resume.hpp",
+    "matter/tools/cardboard_probe.mm"
+  ],
+  "supersedes_overlay": "coupon-diagnostic-replay-overlay-182-001",
+  "supersedes_overlay_manifest_sha256": "0579bd614876513bae6407cc2bf026533a806fab91256ccdd44eb6c38c97631e",
+  "supersedes_overlay_seal_sha256": "0579bd614876513bae6407cc2bf026533a806fab91256ccdd44eb6c38c97631e",
+  "correction": "Publish validated current runner proof digests even when output paths are absent; report explicit source/current proof modes.",
+  "native_gpu_run": "NOT_RUN",
+  "physical_or_full_trajectory_qualification": "NOT_CLAIMED",
+  "inventory": [
+    {
+      "path": "README.md",
+      "bytes": 2111,
+      "sha256": "9adac2e56dd2a1871c72d9e7f074c4bb0c9f8d71e436e0b0397cf81fab67a22b"
+    },
+    {
+      "path": "__pycache__/validate_overlay.cpython-310.pyc",
+      "bytes": 8424,
+      "sha256": "b480129990da2f2601a6f5ef26df9f8fc2d7c2f809b5df6bbb4e8957b40f36ff"
+    },
+    {
+      "path": "candidate/matter/tools/cardboard_coupon_resume.hpp",
+      "bytes": 47472,
+      "sha256": "03cd6fe5124face4540ae484be06e5f7c4efdd46a579f89ec8e990de3e2db84a"
+    },
+    {
+      "path": "candidate/matter/tools/cardboard_probe.mm",
+      "bytes": 812591,
+      "sha256": "4cf213c4a673b34fca924b03769cd9ea19f1cd9b084ecedaf58a0d351b4a4624"
+    },
+    {
+      "path": "overlay.patch",
+      "bytes": 30331,
+      "sha256": "c291856a8c52d5887b1f36def014716161a067497565e77c58bcfcf9a9b0cd99"
+    },
+    {
+      "path": "seal_overlay.py",
+      "bytes": 3702,
+      "sha256": "cbd2d118f62f4a8432e396a41f8430b368e9d9633193d5dbcfe2b280ad8c55aa"
+    },
+    {
+      "path": "snapshots/source181-frozen-source.json",
+      "bytes": 96265,
+      "sha256": "f3ac253b7924dc4cb6ba1d5d9580ceea42150b5e49c6eee569e36b0e204fef7a"
+    },
+    {
+      "path": "tests/coupon_resume_contract_test.cpp",
+      "bytes": 21422,
+      "sha256": "62b036bb84d4987aaeaed5bebf0b159835aba6bcfeb64e7f6f748d164218ff4b"
+    },
+    {
+      "path": "validate_overlay.py",
+      "bytes": 10356,
+      "sha256": "bbb76e533da71c39472c34212ac4d7689b21d267acc6ff2a925214448e06f5e7"
+    },
+    {
+      "path": "validation/attempts/static-contract-check-001.json",
+      "bytes": 589,
+      "sha256": "8af77bcc3f2d8477e6f51b02c040f10f9126edc916339b9af716f4b00e91a153"
+    },
+    {
+      "path": "validation/candidate-hashes.json",
+      "bytes": 196,
+      "sha256": "e158e72203451ab04353511af3d624991de8fa84880e3d58c05746f2e7d492cf"
+    },
+    {
+      "path": "validation/cpp-contract.json",
+      "bytes": 698,
+      "sha256": "e4f0762877f30edcad2e36b472ec5f2e2571805bacebb649a5a79b09aa9f6edd"
+    },
+    {
+      "path": "validation/host-bindings.json",
+      "bytes": 899,
+      "sha256": "c74a9916d9814ff7045e39e8dea5f29d2b0ea2213a9d19add323737327684c3f"
+    },
+    {
+      "path": "validation/objcxx-syntax.json",
+      "bytes": 3706,
+      "sha256": "9ef7e8c98085fa1701b8280846c66a8c14d52aeaf66a1bba905975a06bf9e6b1"
+    },
+    {
+      "path": "validation/run_remote_objcxx_syntax.py",
+      "bytes": 4815,
+      "sha256": "81ea9f4c3847b45fbad01668662c4b754ee9076859f372dba707e5ed2ec16857"
+    },
+    {
+      "path": "validation/validation-result.json",
+      "bytes": 2477,
+      "sha256": "e28f1b841d24903d562a5955d0d40fbb8ccf1e02253be3ac110f941b96c9059d"
+    }
+  ]
+}

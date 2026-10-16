@@ -1,0 +1,588 @@
+--- a/matter/tools/cardboard_coupon_resume.hpp
++++ b/matter/tools/cardboard_coupon_resume.hpp
+@@ -34,6 +34,18 @@
+     "NM_FEM_STATUS5_CAPTURE_PATH",
+ };
+ 
++// These selectors only request bounded, read-only diagnostics.  They remain
++// strict in ordinary resume mode; the explicit diagnostic-replay mode may
++// change only these five selectors in addition to the seven path bindings.
++inline constexpr std::array<std::string_view, 5u>
++    kRegisteredDiagnosticReplaySelectorKeys{
++        "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
++        "NM_FEM_BASE_CGLS_STATE_CAPTURE",
++        "NM_FEM_OPERATOR_FD_SELECTOR",
++        "NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR",
++        "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT",
++    };
++
+ struct RuntimePathBinding {
+     std::string key;
+     bool present = false;
+@@ -46,6 +58,13 @@
+     return std::find(kRegisteredOutputPathKeys.begin(),
+                      kRegisteredOutputPathKeys.end(), name) !=
+         kRegisteredOutputPathKeys.end();
++}
++
++inline bool isRegisteredDiagnosticReplaySelectorKey(
++    const std::string_view name) {
++    return std::find(kRegisteredDiagnosticReplaySelectorKeys.begin(),
++                     kRegisteredDiagnosticReplaySelectorKeys.end(), name) !=
++        kRegisteredDiagnosticReplaySelectorKeys.end();
+ }
+ 
+ inline bool isLowerSha256(const std::string_view value) {
+@@ -204,6 +223,170 @@
+     return output.str();
+ }
+ 
++inline std::string canonicalCouponDiagnosticReplaySettings(
++    std::vector<std::pair<std::string, std::string>> variables) {
++    variables.erase(std::remove_if(variables.begin(), variables.end(),
++        [](const auto& variable) {
++            return isRegisteredDiagnosticReplaySelectorKey(variable.first) ||
++                isRegisteredOutputPathKey(variable.first);
++        }), variables.end());
++    std::sort(variables.begin(), variables.end(),
++        [](const auto& left, const auto& right) {
++            return left.first < right.first;
++        });
++    std::ostringstream output;
++    output << "numi.cardboard.diagnostic-replay-settings.v1\n";
++    std::string previous;
++    for (const auto& [name, value] : variables) {
++        if (name.empty() || name == previous ||
++            name.find('\n') != std::string::npos ||
++            name.find('=') != std::string::npos ||
++            value.find('\n') != std::string::npos ||
++            value.find('\r') != std::string::npos ||
++            value.find('\0') != std::string::npos)
++            throw std::invalid_argument(
++                "diagnostic replay settings contain an invalid or duplicate binding");
++        previous = name;
++        output << name.size() << ':' << name << value.size() << ':' << value << '\n';
++    }
++    return output.str();
++}
++
++inline bool couponDiagnosticReplaySettingsMatch(
++    const std::vector<std::pair<std::string, std::string>>& source,
++    const std::vector<std::pair<std::string, std::string>>& current) {
++    return canonicalCouponDiagnosticReplaySettings(source) ==
++        canonicalCouponDiagnosticReplaySettings(current);
++}
++
++inline bool couponSourceBoundEnvironmentMatches(
++    std::vector<std::pair<std::string, std::string>> contract,
++    std::vector<std::pair<std::string, std::string>> actual) {
++    const auto orderedUnique = [](auto& values) {
++        std::sort(values.begin(), values.end(),
++            [](const auto& left, const auto& right) {
++                return left.first < right.first;
++            });
++        return std::adjacent_find(values.begin(), values.end(),
++            [](const auto& left, const auto& right) {
++                return left.first == right.first;
++            }) == values.end();
++    };
++    return orderedUnique(contract) && orderedUnique(actual) &&
++        contract == actual;
++}
++
++inline std::optional<std::uint32_t> parseDecimalUint32(
++    const std::string_view text) {
++    if (text.empty()) return std::nullopt;
++    for (const char c : text)
++        if (c < '0' || c > '9') return std::nullopt;
++    std::uint32_t value = 0u;
++    const auto [end, error] = std::from_chars(
++        text.data(), text.data() + text.size(), value, 10);
++    if (error != std::errc{} || end != text.data() + text.size())
++        return std::nullopt;
++    return value;
++}
++
++inline std::optional<std::uint32_t> parseCanonicalUint32(
++    const std::string_view text) {
++    const auto value = parseDecimalUint32(text);
++    if (!value || std::to_string(*value) != text) return std::nullopt;
++    return value;
++}
++
++inline void validateDiagnosticReplaySelectors(
++    const std::vector<std::pair<std::string, std::string>>& settings,
++    const std::uint32_t acceptedControl,
++    const std::uint32_t environmentCount) {
++    std::map<std::string, std::string> values;
++    for (const auto& [key, value] : settings) {
++        if (!values.emplace(key, value).second)
++            throw std::invalid_argument(
++                "diagnostic replay selector settings contain duplicate keys");
++    }
++    const auto find = [&](const std::string_view key) -> const std::string* {
++        const auto it = values.find(std::string(key));
++        return it == values.end() ? nullptr : &it->second;
++    };
++    const auto requirePair = [&](const std::string_view pathKey,
++                                 const std::string_view selectorKey) {
++        if ((find(pathKey) == nullptr) != (find(selectorKey) == nullptr))
++            throw std::invalid_argument(
++                "diagnostic capture path and selector must be present together");
++    };
++    requirePair("NM_FEM_BASE_CGLS_CAPTURE_PATH",
++                "NM_FEM_BASE_CGLS_CAPTURE_NEWTON");
++    requirePair("NM_FEM_OPERATOR_FD_CAPTURE_PATH",
++                "NM_FEM_OPERATOR_FD_SELECTOR");
++    requirePair("NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH",
++                "NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR");
++
++    if (const std::string* state = find("NM_FEM_BASE_CGLS_STATE_CAPTURE")) {
++        if (*state != "0" && *state != "1")
++            throw std::invalid_argument(
++                "CGLS state-capture selector must be exactly 0 or 1");
++        if (*state == "1" && find("NM_FEM_BASE_CGLS_CAPTURE_PATH") == nullptr)
++            throw std::invalid_argument(
++                "CGLS state capture requires its paired path and Newton selector");
++    }
++    if (const std::string* newton = find("NM_FEM_BASE_CGLS_CAPTURE_NEWTON")) {
++        const auto parsed = parseCanonicalUint32(*newton);
++        if (!parsed || *parsed > 256u)
++            throw std::invalid_argument(
++                "CGLS capture Newton selector must be canonical uint32 in [0,256]");
++    }
++    const auto requireFutureRoot = [&](const std::string_view key,
++                                       const std::string_view raw) {
++        const auto root = parseDecimalUint32(raw);
++        if (!root || *root <= acceptedControl)
++            throw std::invalid_argument(
++                std::string(key) +
++                " must select a canonical control strictly after the accepted checkpoint");
++    };
++    if (const std::string* selector = find("NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT"))
++        requireFutureRoot("NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", *selector);
++    if (const std::string* selector = find("NM_FEM_OPERATOR_FD_SELECTOR")) {
++        const std::size_t separator = selector->find(':');
++        if (separator == std::string::npos ||
++            selector->find(':', separator + 1u) != std::string::npos)
++            throw std::invalid_argument(
++                "operator-FD selector must have exactly root:iteration fields");
++        requireFutureRoot("NM_FEM_OPERATOR_FD_SELECTOR",
++                          std::string_view(*selector).substr(0u, separator));
++        if (!parseDecimalUint32(
++                std::string_view(*selector).substr(separator + 1u)))
++            throw std::invalid_argument(
++                "operator-FD iteration selector must be canonical uint32");
++    }
++    if (const std::string* selector =
++            find("NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR")) {
++        std::array<std::uint32_t, 6u> fields{};
++        std::size_t begin = 0u;
++        for (std::size_t index = 0u; index < fields.size(); ++index) {
++            const std::size_t separator = selector->find(':', begin);
++            const std::size_t end = separator == std::string::npos
++                ? selector->size() : separator;
++            if ((index + 1u < fields.size()) ==
++                    (separator == std::string::npos))
++                throw std::invalid_argument(
++                    "regional consumer selector must contain exactly six fields");
++            const auto field = parseDecimalUint32(
++                std::string_view(*selector).substr(begin, end - begin));
++            if (!field)
++                throw std::invalid_argument(
++                    "regional consumer selector fields must be canonical uint32");
++            fields[index] = *field;
++            begin = end + 1u;
++        }
++        if (fields[0] <= acceptedControl || fields[3] == 0u ||
++            environmentCount == 0u || fields[5] >= environmentCount)
++            throw std::invalid_argument(
++                "regional consumer selector must target a future control, positive restart, and valid environment");
++    }
++}
++
+ inline RuntimePathMap couponRuntimePathMap(
+     const std::vector<std::pair<std::string, std::string>>& variables) {
+     std::map<std::string, std::string> present;
+@@ -316,7 +499,8 @@
+ 
+ inline bool validateCouponOutputPathMapTransition(
+     const RuntimePathMap& source, const RuntimePathMap& current,
+-    const bool sourceRunnerValidated, const bool currentRunnerValidated) {
++    const bool sourceRunnerValidated, const bool currentRunnerValidated,
++    const bool allowDiagnosticPathPresenceChange = false) {
+     const std::string sourceCanonical = canonicalCouponOutputPathMap(source);
+     const std::string currentCanonical = canonicalCouponOutputPathMap(current);
+     if (sourceCanonical == currentCanonical) return false;
+@@ -324,11 +508,18 @@
+     for (std::size_t i = 0u; i < source.size(); ++i) {
+         if (source[i] == current[i]) continue;
+         changed = true;
+-        if (!source[i].present || !current[i].present ||
+-            source[i].value.empty() || current[i].value.empty() ||
+-            source[i].value.front() != '/' || current[i].value.front() != '/')
+-            throw std::invalid_argument(
+-                "only nonempty absolute registered output paths may be relocated");
++        const auto isAbsoluteNonempty = [](const RuntimePathBinding& binding) {
++            return binding.present && !binding.value.empty() &&
++                binding.value.front() == '/';
++        };
++        const bool bothPresent = source[i].present && current[i].present;
++        const bool permittedPresenceChange = allowDiagnosticPathPresenceChange &&
++            source[i].present != current[i].present;
++        if ((!bothPresent && !permittedPresenceChange) ||
++            (source[i].present && !isAbsoluteNonempty(source[i])) ||
++            (current[i].present && !isAbsoluteNonempty(current[i])))
++            throw std::invalid_argument(
++                "registered output paths must be nonempty absolute paths; presence changes require explicit diagnostic replay");
+     }
+     if (changed && (!sourceRunnerValidated || !currentRunnerValidated))
+         throw std::invalid_argument(
+@@ -343,7 +534,36 @@
+     std::string predictionSha256;
+     std::string contractSha256;
+     RuntimePathMap outputPaths;
++    std::vector<std::pair<std::string, std::string>> effectiveNativeSettings;
+ };
++
++inline std::string couponValidatedRunnerDigest(
++    const bool proofValidated, const std::string& digest) {
++    if (!proofValidated) return "none";
++    if (!isLowerSha256(digest))
++        throw std::invalid_argument(
++            "validated coupon runner proof has an invalid digest");
++    return digest;
++}
++
++inline std::string couponSourceRunnerProofMode(
++    const bool proofValidated, const bool metadataBound,
++    const bool diagnosticReplay) {
++    if (!proofValidated) return "not_validated";
++    if (metadataBound) return "checkpoint_metadata_bound";
++    if (diagnosticReplay)
++        return "source_run_reconstructed_for_diagnostic_replay";
++    throw std::invalid_argument("coupon source proof has no binding mode");
++}
++
++inline std::string couponCurrentRunnerProofMode(
++    const bool proofValidated, const bool diagnosticReplay,
++    const bool hasOutputPaths) {
++    if (!proofValidated) return "not_validated";
++    if (diagnosticReplay) return "source_bound_diagnostic_replay_contract";
++    if (hasOutputPaths) return "source_bound_output_path_contract";
++    throw std::invalid_argument("coupon current proof has no binding mode");
++}
+ 
+ inline void validateDiagnosticRunnerProof(
+     const DiagnosticRunnerProof& proof,
+@@ -374,6 +594,7 @@
+     std::uint32_t saveControlIndex = 0u;
+     bool checkpointProvided = false;
+     bool metadataProvided = false;
++    bool diagnosticReplayRequested = false;
+     bool shipping = false;
+     bool pin = false;
+     bool blank = false;
+@@ -391,6 +612,10 @@
+             "coupon resume requires both checkpoint and metadata paths");
+     const bool requested = request.saveControlRequested ||
+         request.checkpointProvided;
++    if (request.diagnosticReplayRequested &&
++        (!request.checkpointProvided || request.saveControlRequested))
++        throw std::invalid_argument(
++            "diagnostic replay mode requires an accepted checkpoint resume");
+     if (requested && (request.shipping || request.pin || request.blank ||
+         request.assembly || request.fixtureJoint || request.crease ||
+         request.compileOnly || request.environmentCount != 2u))
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -150,6 +150,7 @@
+     std::optional<std::uint32_t> couponCheckpointAfterControl;
+     std::filesystem::path couponResumeCheckpoint;
+     std::filesystem::path couponResumeMetadata;
++    bool couponResumeDiagnosticReplay = false;
+     std::array<double, 13> linerProjectionScales{};
+     std::array<double, 13> mediumProjectionScales{};
+     std::array<double, 3> shippingInsideM{0.300, 0.200, 0.200};
+@@ -1277,6 +1278,7 @@
+         << "  --line-search-steps N  nonlinear/contact trial steps [1, 32] (default 8)\n"
+         << "  --coupon-checkpoint-after-control N  save an accepted two-environment checkpoint after zero-based control N and stop with a prefix-only result\n"
+         << "  --coupon-resume-checkpoint FILE --coupon-resume-metadata FILE  resume a diagnostic segment at the next control index\n"
++        << "  --coupon-resume-diagnostic-replay  explicitly permit only source-bound read-only diagnostic selector changes during resume\n"
+         << "  --accurate-paper-projection  opt-in strict Hill state projection; requires compensated arithmetic (pair with --scaled-paper-residuals in the comparison study)\n"
+         << "  --compensated-implicit-projection  opt in to compensated residual evaluation for retained-matrix generic implicit damage overlays\n"
+         << "  --compensated-source-paper-projection  opt in to generic compensated projection for the 15-state source bilinear/C1 liner+medium pair; also requires --compensated-paper-arithmetic\n"
+@@ -1462,6 +1464,10 @@
+                 arguments.couponResumeCheckpoint = value;
+             else
+                 arguments.couponResumeMetadata = value;
++            continue;
++        }
++        if (option == "--coupon-resume-diagnostic-replay") {
++            arguments.couponResumeDiagnosticReplay = true;
+             continue;
+         }
+         if (option == "--without-self-contact") { arguments.disableSelfContact = true; continue; }
+@@ -2058,6 +2064,8 @@
+         arguments.couponCheckpointAfterControl.value_or(0u);
+     couponResumeRequest.checkpointProvided = hasResumeCheckpoint;
+     couponResumeRequest.metadataProvided = hasResumeMetadata;
++    couponResumeRequest.diagnosticReplayRequested =
++        arguments.couponResumeDiagnosticReplay;
+     couponResumeRequest.shipping = arguments.shippingBox;
+     couponResumeRequest.pin = arguments.pinAdhesion;
+     couponResumeRequest.blank = arguments.boxBlank;
+@@ -12511,7 +12519,8 @@
+     return shippingJsonStringField(dictionary, key, label);
+ }
+ 
+-constexpr std::array<std::string_view, 49u> kSource161DiagnosticEnvironmentKeys{
++constexpr std::array<std::string_view, 51u> kSource161DiagnosticEnvironmentKeys{
++    "NM_CONTACT_NODE_INCIDENCE_SORT",
+     "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
+     "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
+     "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+@@ -12519,6 +12528,7 @@
+     "NM_FEM_BASE_CGLS_PRIMARY_AFTER",
+     "NM_FEM_BASE_CGLS_RIGHT_SCALE",
+     "NM_FEM_BASE_CGLS_STATE_CAPTURE",
++    "NM_FEM_BASE_CGLS_WARM_START_REFINE",
+     "NM_FEM_CACHE_PROJECTION_REUSE",
+     "NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT",
+     "NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT",
+@@ -12653,8 +12663,9 @@
+             ? contract[@"capture_prefixes"] : nil;
+     require([keysValue isKindOfClass:[NSArray class]] && effective != nil &&
+                 prefixes != nil &&
+-                [(NSArray*)keysValue count] ==
+-                    kSource161DiagnosticEnvironmentKeys.size(),
++                ([(NSArray*)keysValue count] == 49u ||
++                 [(NSArray*)keysValue count] == 50u ||
++                 [(NSArray*)keysValue count] == 51u),
+             "source-bound diagnostic contract registry or maps are missing");
+     NSArray* const keys = (NSArray*)keysValue;
+     require(effective.count == keys.count,
+@@ -12667,6 +12678,9 @@
+     }
+     NSMutableDictionary* expectedOverrides = [NSMutableDictionary dictionary];
+     RuntimePathMap contractPaths;
++    std::vector<std::pair<std::string, std::string>> contractNativeSettings;
++    const bool contractHasWarmStartKey = keys.count >= 50u;
++    const bool contractHasIncidenceSortKey = keys.count == 51u;
+     std::ostringstream runnerNonOutputSettings;
+     runnerNonOutputSettings << "numi.cardboard.source161-runner-non-output-settings.v1\n";
+     for (NSUInteger keyIndex = 0u; keyIndex < keys.count; ++keyIndex) {
+@@ -12678,8 +12692,22 @@
+         const std::string key(keyUTF8);
+         require(previousKey.empty() || previousKey < key,
+                 "source-bound diagnostic key registry is not sorted and unique");
+-        require(key == kSource161DiagnosticEnvironmentKeys[keyIndex],
+-                "source-bound diagnostic key registry differs from source161");
++        std::size_t expectedIndex = 0u;
++        for (const std::string_view expectedKey :
++                kSource161DiagnosticEnvironmentKeys) {
++            if (expectedKey == "NM_FEM_BASE_CGLS_WARM_START_REFINE" &&
++                !contractHasWarmStartKey)
++                continue;
++            if (expectedKey == "NM_CONTACT_NODE_INCIDENCE_SORT" &&
++                !contractHasIncidenceSortKey)
++                continue;
++            if (expectedIndex == keyIndex) {
++                require(key == expectedKey,
++                        "source-bound diagnostic key registry differs from the exact 49/50/51-key source contract");
++                break;
++            }
++            ++expectedIndex;
++        }
+         previousKey = key;
+         NSDictionary* const state =
+             [effective[keyValue] isKindOfClass:[NSDictionary class]]
+@@ -12700,6 +12728,7 @@
+                     "source-bound diagnostic value is not UTF-8");
+             text = valueUTF8;
+             expectedOverrides[keyValue] = value;
++            contractNativeSettings.emplace_back(key, text);
+             const auto actualValue = actual.find(key);
+             if (compareActualEnvironment && isRegisteredOutputPathKey(key))
+                 require(actualValue != actual.end() && actualValue->second == text,
+@@ -12732,6 +12761,15 @@
+                     contractPaths.begin(), contractPaths.end(),
+                     [](const RuntimePathBinding& binding) { return binding.present; })),
+             "source-bound diagnostic path map differs from the effective environment");
++    if (compareActualEnvironment) {
++        std::sort(contractNativeSettings.begin(), contractNativeSettings.end());
++        std::vector<std::pair<std::string, std::string>> actualSettings;
++        actualSettings.reserve(actual.size());
++        for (const auto& binding : actual) actualSettings.push_back(binding);
++        require(couponSourceBoundEnvironmentMatches(
++                    contractNativeSettings, actualSettings),
++                "current native environment differs from every source-bound diagnostic contract binding");
++    }
+     for (const RuntimePathBinding& binding : contractPaths) {
+         NSString* const key = [NSString stringWithUTF8String:binding.key.c_str()];
+         id prefixValue = prefixes[key];
+@@ -12768,7 +12806,8 @@
+     return {caseText,
+         hexDigest(sha256(environmentBytes.data(), environmentBytes.size())),
+         hexDigest(sha256(runnerNonOutputSettings.str())), predictionSha,
+-        contractSha, std::move(contractPaths)};
++        contractSha, std::move(contractPaths),
++        std::move(contractNativeSettings)};
+ }
+ 
+ void writeCouponTextAtomically(const std::filesystem::path& path,
+@@ -12969,7 +13008,10 @@
+     std::string currentRunnerNonOutputSettingsSha256 = "none";
+     std::string currentRunnerPredictionSha256 = "none";
+     std::string currentRunnerContractSha256 = "none";
++    std::string sourceRunnerProofMode = "not_validated";
++    std::string currentRunnerProofMode = "not_validated";
+     bool outputPathMapRelocated = false;
++    bool diagnosticReplayEnabled = false;
+ };
+ 
+ void verifyCouponPrefix(const std::filesystem::path& prefixPath,
+@@ -13067,9 +13109,12 @@
+     validateRuntimeFingerprints(metadata, runtime.sourcePhysicsFingerprint(),
+                                 runtime.deviceProgramFingerprint());
+     const auto runtimeVariables = couponRuntimeEnvironmentVariables();
+-    require(metadata.runtimeEnvironmentSha256 ==
+-                couponRuntimeSettingsSha256(runtimeVariables),
+-            "coupon checkpoint non-path NM_/NUMI_MATTER_ settings differ");
++    const bool diagnosticReplay = arguments.couponResumeDiagnosticReplay;
++    const std::string currentRuntimeSettingsSha256 =
++        couponRuntimeSettingsSha256(runtimeVariables);
++    if (!diagnosticReplay)
++        require(metadata.runtimeEnvironmentSha256 == currentRuntimeSettingsSha256,
++                "coupon checkpoint non-path NM_/NUMI_MATTER_ settings differ");
+     const RuntimePathMap sourceOutputPaths = parseCouponOutputPathMap(
+         couponHexDecode(metadata.runtimeOutputPathMapHex));
+     const RuntimePathMap currentOutputPaths =
+@@ -13081,34 +13126,44 @@
+             "coupon checkpoint registered output-path map digest is invalid");
+     const bool sourceRunnerPresent =
+         metadata.sourceRunnerPredictionSha256 != "none";
+-    if (sourceRunnerPresent) {
++    const bool sourceRunnerValidated = sourceRunnerPresent || diagnosticReplay;
++    DiagnosticRunnerProof sourceProof;
++    if (sourceRunnerValidated) {
++        const std::filesystem::path sourceRunnerDirectory = sourceRunnerPresent
++            ? std::filesystem::path(metadata.sourceRunnerCaseDirectory)
++            : sourceRun.parent_path();
+         const auto sourceRunnerCase = std::filesystem::weakly_canonical(
+-            metadata.sourceRunnerCaseDirectory);
++            sourceRunnerDirectory);
+         require(sourceRunnerCase == sourceRun.parent_path() &&
+-                    sourceRunnerCase.string() ==
+-                        metadata.sourceRunnerCaseDirectory,
++                    sourceRunnerCase.string() == sourceRunnerDirectory.string(),
+                 "coupon source runner case differs from the accepted source run");
+-        const auto sourceProof = couponValidateSourceBoundDiagnosticRunner(
++        sourceProof = couponValidateSourceBoundDiagnosticRunner(
+             sourceRunnerCase, {}, sourceOutputPaths, false);
+         validateDiagnosticRunnerProof(sourceProof,
+-            metadata.sourceRunnerCaseDirectory, sourceOutputPaths);
+-        require(sourceProof.environmentRecordSha256 ==
+-                    metadata.sourceRunnerEnvironmentRecordSha256 &&
++            sourceRunnerCase.string(), sourceOutputPaths);
++        if (sourceRunnerPresent)
++            require(sourceProof.environmentRecordSha256 ==
++                        metadata.sourceRunnerEnvironmentRecordSha256 &&
+                     sourceProof.nonOutputSettingsSha256 ==
+-                    metadata.sourceRunnerNonOutputSettingsSha256 &&
++                        metadata.sourceRunnerNonOutputSettingsSha256 &&
+                     sourceProof.predictionSha256 ==
+-                    metadata.sourceRunnerPredictionSha256 &&
++                        metadata.sourceRunnerPredictionSha256 &&
+                     sourceProof.contractSha256 ==
+-                    metadata.sourceRunnerContractSha256,
+-                "coupon source runner receipt no longer matches checkpoint metadata");
++                        metadata.sourceRunnerContractSha256,
++                    "coupon source runner receipt no longer matches checkpoint metadata");
++        require(couponRuntimeSettingsSha256(
++                    sourceProof.effectiveNativeSettings) ==
++                    metadata.runtimeEnvironmentSha256,
++                "source-bound runner contract does not reproduce the checkpoint runtime settings");
+     } else {
+         require(!couponOutputPathMapHasAnySetValue(sourceOutputPaths),
+                 "coupon source output paths have no bound source-runner receipt");
+     }
+     const bool currentRunnerPresent =
+         couponOutputPathMapHasAnySetValue(currentOutputPaths);
++    const bool currentRunnerValidated = currentRunnerPresent || diagnosticReplay;
+     DiagnosticRunnerProof currentProof;
+-    if (currentRunnerPresent) {
++    if (currentRunnerValidated) {
+         currentProof = couponValidateSourceBoundDiagnosticRunner(
+             std::filesystem::weakly_canonical(currentOutputDirectory.parent_path()),
+             runtimeVariables, currentOutputPaths);
+@@ -13116,14 +13171,28 @@
+             std::filesystem::weakly_canonical(
+                 currentOutputDirectory.parent_path()).string(),
+             currentOutputPaths);
+-        if (sourceRunnerPresent)
++        require(couponRuntimeSettingsSha256(
++                    currentProof.effectiveNativeSettings) ==
++                    currentRuntimeSettingsSha256,
++                "current source-bound runner contract does not reproduce the native runtime settings");
++        if (sourceRunnerPresent && !diagnosticReplay)
+             require(currentProof.nonOutputSettingsSha256 ==
+                         metadata.sourceRunnerNonOutputSettingsSha256,
+                     "coupon source/resume runner non-output overrides differ");
+     }
++    if (diagnosticReplay) {
++        validateDiagnosticReplaySelectors(
++            currentProof.effectiveNativeSettings,
++            metadata.acceptedControlIndex, metadata.environmentCount);
++        require(sourceRunnerValidated && currentRunnerValidated &&
++                    couponDiagnosticReplaySettingsMatch(
++                        sourceProof.effectiveNativeSettings,
++                        currentProof.effectiveNativeSettings),
++                "diagnostic replay may change only the five registered observer selectors and seven output paths");
++    }
+     const bool outputPathMapRelocated = validateCouponOutputPathMapTransition(
+-        sourceOutputPaths, currentOutputPaths, sourceRunnerPresent,
+-        currentRunnerPresent);
++        sourceOutputPaths, currentOutputPaths, sourceRunnerValidated,
++        currentRunnerValidated, diagnosticReplay);
+     require(metadata.sourcePhysicsFingerprint == compiled.world.physicsFingerprint &&
+                 metadata.environmentCount == arguments.environmentCount &&
+                 metadata.nodeCount == compiled.world.dispatch.femNodeCount &&
+@@ -13171,11 +13240,19 @@
+     return {std::move(snapshot), std::move(metadata),
+             arguments.couponResumeCheckpoint, sourceOutputPaths,
+             currentOutputPaths,
+-            currentRunnerPresent ? currentProof.environmentRecordSha256 : "none",
+-            currentRunnerPresent ? currentProof.nonOutputSettingsSha256 : "none",
+-            currentRunnerPresent ? currentProof.predictionSha256 : "none",
+-            currentRunnerPresent ? currentProof.contractSha256 : "none",
+-            outputPathMapRelocated};
++            couponValidatedRunnerDigest(currentRunnerValidated,
++                                        currentProof.environmentRecordSha256),
++            couponValidatedRunnerDigest(currentRunnerValidated,
++                                        currentProof.nonOutputSettingsSha256),
++            couponValidatedRunnerDigest(currentRunnerValidated,
++                                        currentProof.predictionSha256),
++            couponValidatedRunnerDigest(currentRunnerValidated,
++                                        currentProof.contractSha256),
++            couponSourceRunnerProofMode(sourceRunnerValidated,
++                                        sourceRunnerPresent, diagnosticReplay),
++            couponCurrentRunnerProofMode(currentRunnerValidated,
++                                         diagnosticReplay, currentRunnerPresent),
++            outputPathMapRelocated, diagnosticReplay};
+ }
+ 
+ void writeCouponResumeSegmentReport(
+@@ -13208,6 +13285,12 @@
+         << "\"numi.cardboard.registered-diagnostic-output-path-map.v1\",\n"
+         << "  \"registered_output_path_map_relocated\": "
+         << (resume.outputPathMapRelocated ? "true" : "false") << ",\n"
++        << "  \"diagnostic_replay_mode\": "
++        << (resume.diagnosticReplayEnabled ? "true" : "false") << ",\n"
++        << "  \"source_runner_proof_mode\": \""
++        << jsonEscape(resume.sourceRunnerProofMode) << "\",\n"
++        << "  \"current_runner_proof_mode\": \""
++        << jsonEscape(resume.currentRunnerProofMode) << "\",\n"
+         << "  \"source_registered_output_paths\": {";
+     auto writePathMap = [&](const numi::cardboard::coupon_resume::RuntimePathMap& pathMap) {
+         for (std::size_t index = 0u; index < pathMap.size(); ++index) {

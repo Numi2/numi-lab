@@ -1,0 +1,3 @@
+{"attempt":1,"result":"rejected_before_report","error":"prior002 report SHA assertion used the prior manifest SHA; corrected to bind report-v4 and manifest separately","native_or_source_mutation":false}
+{"attempt":2,"result":"rejected_before_report","error":"CGLS xyz mask count was compared with free nodes rather than 3*free_nodes; corrected to compare against 2538 free xyz DOFs","native_or_source_mutation":false}
+{"attempt":3,"result":"successful_report_v1","report":"report.json","note":"Exploratory successful result; retained, then v2 added complete native-run input bindings without changing computed numeric results."}

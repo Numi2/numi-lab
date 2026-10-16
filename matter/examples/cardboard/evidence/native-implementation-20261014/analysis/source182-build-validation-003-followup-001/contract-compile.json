@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "clang++",
+    "-std=c++20",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-I",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/coupon-diagnostic-replay-overlay-182-003/candidate/matter/tools",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/coupon-diagnostic-replay-overlay-182-003/tests/coupon_resume_contract_test.cpp",
+    "-o",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source182-build-validation-003-followup-001/coupon_resume_contract_test"
+  ],
+  "returncode": 0,
+  "wall_seconds": 0.5147394994273782,
+  "output": "",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

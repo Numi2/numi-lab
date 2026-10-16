@@ -1,0 +1,24 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 583,
+      "sha256": "0eaaaccad2090dfa6bb5122e33af0d66de0a8f170a0c664b14387cb371fb187b"
+    },
+    "curve.json": {
+      "bytes": 9148,
+      "sha256": "0334ceee7cf0de3bc964f821aee8b8dc8df0c1f12a948445c9cadd1e8f18979c"
+    },
+    "replay_lu.py": {
+      "bytes": 15993,
+      "sha256": "73ae6e768987b6b9ed1e2f4d7b45cbb17374434d66b1d4138eebce6c918afc2b"
+    },
+    "report.json": {
+      "bytes": 20677,
+      "sha256": "3c5b484cecbae433634d672514618de18695c3e5f8145ba1ee093376a90d08e6"
+    }
+  },
+  "host": "macmini",
+  "package": "native497-lu-nonlinear-correction-001",
+  "schema": "numi.cardboard.analysis-package.v1",
+  "scope": "CPU-only read-only replay"
+}

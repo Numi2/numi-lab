@@ -1,0 +1,206 @@
+{
+  "authoritative_report": "report-v2.json",
+  "bound_inputs": [
+    {
+      "bytes": 120097,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/prediction.json",
+      "role": "case_prediction",
+      "sha256": "ef393185594d6e4b01de162c7b253c44678dcc91ed47e8bee0162eda4eed8a45"
+    },
+    {
+      "bytes": 1560,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/receipt.json",
+      "role": "case_receipt",
+      "sha256": "263bc8e740e06173b89aac743108c791b5c942fb8168e392ced0a842cf2f6294"
+    },
+    {
+      "bytes": 4687748,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/stderr.log",
+      "role": "case_stderr",
+      "sha256": "5fa88ac463656bb5565705de2995c12525c60cc6eb271440175ca694c2b67305"
+    },
+    {
+      "bytes": 8657,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.json",
+      "role": "state_manifest",
+      "sha256": "b03e1bf2ee33162b2cca750ac14127d1e4a1b2e6df68c1fe71b081b0b251975c"
+    },
+    {
+      "bytes": 4327464,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.bin",
+      "role": "state_payload",
+      "sha256": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1"
+    },
+    {
+      "bytes": 494048,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture",
+      "role": "cgls_binary",
+      "sha256": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646"
+    },
+    {
+      "bytes": 38795294,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-operator-fd-capture/capture",
+      "role": "operator_fd_capture",
+      "sha256": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3"
+    },
+    {
+      "bytes": 96314,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-admission-encoder-182-003/frozen-source.json",
+      "role": "frozen_source_manifest",
+      "sha256": "c2e6e23be57d3245c490c7f10f4abee55271a4fe051db6a5ef313de2de798394"
+    },
+    {
+      "bytes": 49990,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-admission-encoder-182-003/matter/tools/cardboard_cached_operator_audit.py",
+      "role": "cached_operator_module",
+      "sha256": "4a7e9c0cbf09eee0ad1f8f5b2b09314a2c0789a908aaab530b56cfff6a1c82ff"
+    },
+    {
+      "bytes": 16068,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/base-cgls-state-reader-abi-repair-148-001/tools/read_state_capture.py",
+      "role": "state_reader",
+      "sha256": "ee400288607bf220502fd4670923972f7b79cce2d810f247d6889ed4665f4b48"
+    }
+  ],
+  "limits": [
+    "FP64 sparse arithmetic is applied to the captured FP32 tangent cache and geometry; it is not an independent material or constitutive reference.",
+    "Only the admitted FEM-only mechanical block is reconstructed; the full coupled contact, cohesive, and rigid operator is outside scope.",
+    "Environment 1 is unselected; its zero CGLS payload is private scratch and no direction or residual reduction is inferred."
+  ],
+  "package_files": [
+    {
+      "bytes": 2332,
+      "path": "README.md",
+      "sha256": "159065f6729cc8c594dfe74deaed7eb3fac741ff4185d5b40735582d9c6ed0d7"
+    },
+    {
+      "bytes": 42127,
+      "path": "audit_native497.py",
+      "sha256": "011a18cbcb9a2d0525d8d575786949c8bc8cf3f9057a54c426ae8cf4cde6df4b"
+    },
+    {
+      "bytes": 9280,
+      "path": "manifest-v1-path-label-error.json",
+      "sha256": "14bdb91409fbd5d034b5eb15b684595909ed5fec9b5764f689e6628c0548fde7"
+    },
+    {
+      "bytes": 299820,
+      "path": "report-v2.json",
+      "sha256": "97631b4778273f29efaf7aebcb9f7fd789956057f5dd4231d187934fae883b4a"
+    },
+    {
+      "bytes": 23474,
+      "path": "report.json",
+      "sha256": "ded3517594e1587cb0fe192c9eb6b48e96fe6072fbc37aaf9356329f8f52f4de"
+    },
+    {
+      "bytes": 6734,
+      "path": "test_audit_native497.py",
+      "sha256": "68a1c1e7ff1f1db2d8a1b7efffcb29117b3d8dd3acb51a28b11411c06c1bc3ed"
+    }
+  ],
+  "prediction_declared_inputs": {
+    "all_declared_prediction_inputs_verified": true,
+    "declared_count": 829,
+    "explicit_local_path_aliases": [
+      {
+        "key": "external/coupon-checkpoint-prefix.json",
+        "local": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control19-checkpoint-480/output/coupon-checkpoint-prefix.json",
+        "remote": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control19-checkpoint-480/output/coupon-checkpoint-prefix.json",
+        "rule": "remote_solver_checkpoint_to_local_macmini_qualified_case"
+      },
+      {
+        "key": "external/coupon-checkpoint-saved.txt",
+        "local": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control19-checkpoint-480/output/coupon-checkpoint-saved.txt",
+        "remote": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control19-checkpoint-480/output/coupon-checkpoint-saved.txt",
+        "rule": "remote_solver_checkpoint_to_local_macmini_qualified_case"
+      },
+      {
+        "key": "external/coupon-control-000019.nmcb",
+        "local": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control19-checkpoint-480/output/checkpoints/coupon-control-000019.nmcb",
+        "remote": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control19-checkpoint-480/output/checkpoints/coupon-control-000019.nmcb",
+        "rule": "remote_solver_checkpoint_to_local_macmini_qualified_case"
+      },
+      {
+        "key": "external/coupon-control-000019.prefix",
+        "local": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control19-checkpoint-480/output/checkpoints/coupon-control-000019.prefix",
+        "remote": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control19-checkpoint-480/output/checkpoints/coupon-control-000019.prefix",
+        "rule": "remote_solver_checkpoint_to_local_macmini_qualified_case"
+      },
+      {
+        "key": "external/coupon-control-000019.resume",
+        "local": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control19-checkpoint-480/output/checkpoints/coupon-control-000019.resume",
+        "remote": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control19-checkpoint-480/output/checkpoints/coupon-control-000019.resume",
+        "rule": "remote_solver_checkpoint_to_local_macmini_qualified_case"
+      },
+      {
+        "key": "external/diagnostic-captures.json",
+        "local": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control19-checkpoint-480/diagnostic-captures.json",
+        "remote": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control19-checkpoint-480/diagnostic-captures.json",
+        "rule": "remote_solver_checkpoint_to_local_macmini_qualified_case"
+      },
+      {
+        "key": "external/manifest.json",
+        "local": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control19-checkpoint-480/output/manifest.json",
+        "remote": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control19-checkpoint-480/output/manifest.json",
+        "rule": "remote_solver_checkpoint_to_local_macmini_qualified_case"
+      },
+      {
+        "key": "external/native-environment.json",
+        "local": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control19-checkpoint-480/native-environment.json",
+        "remote": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control19-checkpoint-480/native-environment.json",
+        "rule": "remote_solver_checkpoint_to_local_macmini_qualified_case"
+      },
+      {
+        "key": "external/observations.csv",
+        "local": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control19-checkpoint-480/output/observations.csv",
+        "remote": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control19-checkpoint-480/output/observations.csv",
+        "rule": "remote_solver_checkpoint_to_local_macmini_qualified_case"
+      },
+      {
+        "key": "external/prediction.json",
+        "local": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control19-checkpoint-480/prediction.json",
+        "remote": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control19-checkpoint-480/prediction.json",
+        "rule": "remote_solver_checkpoint_to_local_macmini_qualified_case"
+      },
+      {
+        "key": "external/receipt.json",
+        "local": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control19-checkpoint-480/receipt.json",
+        "remote": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control19-checkpoint-480/receipt.json",
+        "rule": "remote_solver_checkpoint_to_local_macmini_qualified_case"
+      },
+      {
+        "key": "external/result.json",
+        "local": "/Users/home/cardboard-implementation-20261014/solver/macmini-warm-cgls-control19-checkpoint-480/output/result.json",
+        "remote": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control19-checkpoint-480/output/result.json",
+        "rule": "remote_solver_checkpoint_to_local_macmini_qualified_case"
+      }
+    ],
+    "per_input_paths_and_hashes_in": "report-v2.json:run.verified_prediction_inputs.verified_inputs",
+    "verified_count": 829
+  },
+  "schema": "numi.cardboard.native497_cached_cgls_operator_audit.seal.v1",
+  "scope": "CPU-only cached FP32 operator reconstruction for one captured Newton state; no constitutive reevaluation, GPU execution, or physical qualification",
+  "superseded_manifest": {
+    "path": "manifest-v1-path-label-error.json",
+    "reason": "initial bound-input entries stored role labels where file paths were required"
+  },
+  "superseded_report": {
+    "declared_inputs": 829,
+    "path": "report.json",
+    "reason": "initial local mirror resolver did not map 12 files to the host-qualified local checkpoint directory",
+    "verified_inputs": 817
+  },
+  "validation": {
+    "commands": [
+      "python3 -m py_compile audit_native497.py test_audit_native497.py",
+      "python3 -m unittest -v test_audit_native497.py",
+      "python3 audit_native497.py --output report-v2.json (generated to a new temporary path; output was not overwritten)"
+    ],
+    "native_receipt_exit_code": 2,
+    "native_run_reused": "native497 capture; this audit did not launch GPU",
+    "native_timed_out": false,
+    "test_result": "PASS",
+    "unit_test_count": 7
+  }
+}

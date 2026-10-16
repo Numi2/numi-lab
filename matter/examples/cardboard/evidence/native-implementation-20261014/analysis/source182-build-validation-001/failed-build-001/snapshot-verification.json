@@ -1,0 +1,20 @@
+{
+  "schema": "numi.cardboard.source182-snapshot-verification.v1",
+  "source181_frozen_sha256": "f3ac253b7924dc4cb6ba1d5d9580ceea42150b5e49c6eee569e36b0e204fef7a",
+  "source182_frozen_sha256": "3011f977712bc47d594ea7d0a90f7af39e9dd9c8df90da8cdb496d0d0cf105fb",
+  "source181_configure_support_sha256": "92f14756f574746304b7ff1c1dae03b997492dc00ad80894a70dcf5c05c99f17",
+  "source182_configure_support_sha256": "92f14756f574746304b7ff1c1dae03b997492dc00ad80894a70dcf5c05c99f17",
+  "selected_file_count": 805,
+  "configure_support_file_count": 1034,
+  "selected_file_hashes_verified": true,
+  "configure_support_hashes_verified": true,
+  "selected_changed_files": [
+    "matter/tools/cardboard_coupon_resume.hpp",
+    "matter/tools/cardboard_probe.mm"
+  ],
+  "only_expected_source_delta": true,
+  "candidate_hashes": {
+    "matter/tools/cardboard_coupon_resume.hpp": "03cd6fe5124face4540ae484be06e5f7c4efdd46a579f89ec8e990de3e2db84a",
+    "matter/tools/cardboard_probe.mm": "4cf213c4a673b34fca924b03769cd9ea19f1cd9b084ecedaf58a0d351b4a4624"
+  }
+}

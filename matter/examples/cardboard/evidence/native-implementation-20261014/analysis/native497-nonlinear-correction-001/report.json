@@ -1,0 +1,528 @@
+{
+  "bindings": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173/include/metalrobo/compensated_geometry_gpu.h": "1bf85c7e7b8b2102c5e0e6f3fbba88e2b30530e6b5fbb33375fb581d5261d84e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173/include/metalrobo/compensated_translation_gpu.h": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173/matter/include/numi/matter/fem_compensated_deformation.h": "47d61e2f85bfbea5aac370211e56251ff67f0c7a28d577c276fd285b88225f33",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173/matter/src/metal/fem.metalinc": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-portable-paper-reference-185/matter/tools/cardboard_bilinear_fp64_reference.py": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-portable-paper-reference-185/matter/tools/cardboard_compensated_fp64_base.py": "b135c6ff0091f0833c8dad89239abdde209fc6e0eb91babeb72313b29a88bb6c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-portable-paper-reference-185/matter/tools/cardboard_compensated_fp64_reference.py": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-portable-paper-reference-185/matter/tools/cardboard_dd_fp64.py": "8edfd60beb2c38d181a08023d9f97bea0fec80b0f6fa04f8690c7dfe234330c2",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.bin": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.json": "b03e1bf2ee33162b2cca750ac14127d1e4a1b2e6df68c1fe71b081b0b251975c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-operator-fd-capture/capture": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/output/compiled.nmatterpack": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/output/manifest.json": "315102605605164ed388056567251a92b4bdb4d5820f154d4923d4bf4cadf327",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/manifest.json": "eb16d0e1ef9148922ef2c1f47623e1414a1ee7145520cfb60fb0744efd1c8557",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/stderr.log": "5fa88ac463656bb5565705de2995c12525c60cc6eb271440175ca694c2b67305"
+  },
+  "center_projection_and_native_stress_comparison": {
+    "captured_center_F_vs_node_geometry_max_abs": 3.9818025876492413e-08,
+    "max_dynamic_correction": 2.810463845425636e-13,
+    "max_iterations": 10,
+    "max_scaled_residual": 1.954412311200781e-12,
+    "native_center_stress_global_frobenius_relative": 2.392810481163661e-08,
+    "native_center_stress_max_abs_error_pa": 0.1247607278637588,
+    "paper_tets": 1728,
+    "strict_failures": [],
+    "strict_pass_count": 1728
+  },
+  "curve": [
+    {
+      "alpha": 0,
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9390164468881665,
+          "yield_min": 9.25592935629993e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9607166336631368,
+          "yield_min": 3.4727776210274897e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "failed_tets": [],
+      "free_residual_l2_Ns": 1.8846220284320863e-05,
+      "internal_delta_l2_Ns": 0.0,
+      "internal_only_residual_l2_Ns": 1.8846220284320863e-05,
+      "mass_delta_l2_Ns": 0.0,
+      "mass_only_residual_l2_Ns": 1.8846220284320863e-05,
+      "max_dynamic_correction": 2.810463845425636e-13,
+      "max_local_iterations": 10,
+      "max_scaled_residual": 1.954412311200781e-12,
+      "strict_all_paper_projection_pass": true,
+      "strict_fail_count": 0
+    },
+    {
+      "alpha": 0.0078125,
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9393387463908976,
+          "yield_min": 9.151568391985165e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9604498297008541,
+          "yield_min": 3.432809592140984e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "failed_tets": [],
+      "free_residual_l2_Ns": 1.881526860079407e-05,
+      "internal_delta_l2_Ns": 3.1167305291274125e-07,
+      "internal_only_residual_l2_Ns": 1.8812851687892045e-05,
+      "mass_delta_l2_Ns": 1.776094775208146e-08,
+      "mass_only_residual_l2_Ns": 1.8848671989900767e-05,
+      "max_dynamic_correction": 2.7184036186227936e-12,
+      "max_local_iterations": 13,
+      "max_scaled_residual": 1.901260356689047e-12,
+      "strict_all_paper_projection_pass": true,
+      "strict_fail_count": 0
+    },
+    {
+      "alpha": 0.015625,
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9381070735929999,
+          "yield_min": 9.048317650695026e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9600332163944986,
+          "yield_min": 3.388400671155978e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "failed_tets": [],
+      "free_residual_l2_Ns": 1.9009354948070136e-05,
+      "internal_delta_l2_Ns": 8.115380095910746e-07,
+      "internal_only_residual_l2_Ns": 1.900461494879243e-05,
+      "mass_delta_l2_Ns": 3.5521904119341656e-08,
+      "mass_only_residual_l2_Ns": 1.8851140108027562e-05,
+      "max_dynamic_correction": 2.4206846921410382e-12,
+      "max_local_iterations": 10,
+      "max_scaled_residual": 1.9899075644214353e-12,
+      "strict_all_paper_projection_pass": true,
+      "strict_fail_count": 0
+    },
+    {
+      "alpha": 0.03125,
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9314212214496367,
+          "yield_min": 8.849587729287123e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9587985230316345,
+          "yield_min": 3.306244167333716e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "failed_tets": [],
+      "free_residual_l2_Ns": 2.0124594339047628e-05,
+      "internal_delta_l2_Ns": 2.788388052234937e-06,
+      "internal_only_residual_l2_Ns": 2.0115704927101148e-05,
+      "mass_delta_l2_Ns": 7.104379651080568e-08,
+      "mass_only_residual_l2_Ns": 1.8856125568826293e-05,
+      "max_dynamic_correction": 8.574920170307894e-13,
+      "max_local_iterations": 10,
+      "max_scaled_residual": 1.989504350842401e-12,
+      "strict_all_paper_projection_pass": true,
+      "strict_fail_count": 0
+    },
+    {
+      "alpha": 0.0625,
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9355665118230024,
+          "yield_min": 8.479883462086946e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9548785985959898,
+          "yield_min": 3.1530333899354446e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "failed_tets": [],
+      "free_residual_l2_Ns": 2.605519725162812e-05,
+      "internal_delta_l2_Ns": 1.090962969826066e-05,
+      "internal_only_residual_l2_Ns": 2.604101615380972e-05,
+      "mass_delta_l2_Ns": 1.4208760099412456e-07,
+      "mass_only_residual_l2_Ns": 1.8866293179404926e-05,
+      "max_dynamic_correction": 5.015600321712802e-12,
+      "max_local_iterations": 11,
+      "max_scaled_residual": 1.9890498662765995e-12,
+      "strict_all_paper_projection_pass": true,
+      "strict_fail_count": 0
+    },
+    {
+      "alpha": 0.125,
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9476235216873498,
+          "yield_min": 7.822631431508853e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9428678811960792,
+          "yield_min": 2.8888003100746573e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "failed_tets": [],
+      "free_residual_l2_Ns": 5.620101264728895e-05,
+      "internal_delta_l2_Ns": 4.3819764716964965e-05,
+      "internal_only_residual_l2_Ns": 5.618388232955289e-05,
+      "mass_delta_l2_Ns": 2.8417520536785965e-07,
+      "mass_only_residual_l2_Ns": 1.8887413680648565e-05,
+      "max_dynamic_correction": 5.88019114261216e-12,
+      "max_local_iterations": 16,
+      "max_scaled_residual": 1.977006902172976e-12,
+      "strict_all_paper_projection_pass": true,
+      "strict_fail_count": 0
+    },
+    {
+      "alpha": 0.25,
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9606479465560606,
+          "yield_min": 6.774580896262705e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9168654006616404,
+          "yield_min": 2.4713564528155985e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "failed_tets": [],
+      "free_residual_l2_Ns": 0.0001866796084097293,
+      "internal_delta_l2_Ns": 0.00017560075912399927,
+      "internal_only_residual_l2_Ns": 0.00018665419050059855,
+      "mass_delta_l2_Ns": 5.683504012939773e-07,
+      "mass_only_residual_l2_Ns": 1.893278329166776e-05,
+      "max_dynamic_correction": 1.0593000704523857e-12,
+      "max_local_iterations": 11,
+      "max_scaled_residual": 1.9917767670419538e-12,
+      "strict_all_paper_projection_pass": true,
+      "strict_fail_count": 0
+    },
+    {
+      "alpha": 0.5,
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9565510523373881,
+          "yield_min": 5.295763827461997e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.936798649233953,
+          "yield_min": 1.7719159473017498e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "failed_tets": [],
+      "free_residual_l2_Ns": 0.0007062773728639039,
+      "internal_delta_l2_Ns": 0.0006954734234773651,
+      "internal_only_residual_l2_Ns": 0.0007062155302541549,
+      "mass_delta_l2_Ns": 1.1367007994510638e-06,
+      "mass_only_residual_l2_Ns": 1.903592896880531e-05,
+      "max_dynamic_correction": 1.1412839352816375e-12,
+      "max_local_iterations": 11,
+      "max_scaled_residual": 1.9643865477632688e-12,
+      "strict_all_paper_projection_pass": true,
+      "strict_fail_count": 0
+    },
+    {
+      "alpha": 1,
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.957047815271585,
+          "yield_min": 2.948752353404416e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9239968040515569,
+          "yield_min": 4.8405723873656825e-14,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "failed_tets": [],
+      "free_residual_l2_Ns": 0.002645673257250042,
+      "internal_delta_l2_Ns": 0.0026347065982400696,
+      "internal_only_residual_l2_Ns": 0.002645487622416182,
+      "mass_delta_l2_Ns": 2.273401624828375e-06,
+      "mass_only_residual_l2_Ns": 1.929086161486216e-05,
+      "max_dynamic_correction": 4.792981288384531e-12,
+      "max_local_iterations": 14,
+      "max_scaled_residual": 1.9955769771331774e-12,
+      "strict_all_paper_projection_pass": true,
+      "strict_fail_count": 0
+    }
+  ],
+  "elapsed_seconds": 61.40763521194458,
+  "environment": 0,
+  "evidence_class": "CPU-only strict-reference replay of one captured CGLS candidate; no native rerun or qualification",
+  "identity": {
+    "E": 2,
+    "N": 882,
+    "T": 1920,
+    "cgls_header": [
+      1397507907,
+      3,
+      2,
+      882,
+      3528,
+      64,
+      13,
+      0
+    ],
+    "cgls_sha256": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646",
+    "cgls_x_fixed_max_abs_m_s": 0.0,
+    "cgls_x_free_norm_m_s": 4.836317037642793,
+    "dt_fp32": 4.999999873689376e-05,
+    "errors": [
+      0,
+      16
+    ],
+    "execution_fingerprint": "430c1fc2739f9879",
+    "fixed_count": 36,
+    "free_node_count": 846,
+    "selected": [
+      1,
+      0
+    ],
+    "state_payload_sha256": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1",
+    "world_fingerprint": "48d3b8b313356bd9"
+  },
+  "input_integrity": {
+    "captured_center_residual_l2_Ns": 1.8846220284320863e-05,
+    "center_geometry_reconstruction_max_abs_F": 3.9818025876492413e-08,
+    "history_word_mismatch_count_fd_json_vs_sidecar": 0,
+    "node_word_mismatch_count_fd_json_vs_sidecar": 0,
+    "trial_geometry": "FP32 candidate velocity and accepted reference-displacement update from exact captured words; double contraction of realized words. Alpha-zero anchored to captured F high+low and geometry-derived delta. Not a native trial capture."
+  },
+  "interpretation": {
+    "constitutive_delta": "dt*(f_internal_trial-f_internal_center) from strict independent projection and source element-force/gather equations",
+    "limits": [
+      "No GPU/native/physical step was run.",
+      "Trial material states are strict CPU reference projections; no native material-state trial capture exists for the CGLS direction.",
+      "Any strict projection failure makes the full residual at that alpha inconclusive; failed rows remain listed.",
+      "FP64 trial geometry/material evaluation is not bitwise Metal emulation and cannot certify native Armijo.",
+      "One control20/Newton63 diagnostic linearization; not full coupon qualification."
+    ],
+    "mass_delta": "-M*(v_trial-v_center) on free rows",
+    "residual": "captured native center residual plus independently recomputed mass and constitutive deltas; alpha-independent loads cancel"
+  },
+  "native_armijo_newton63": [
+    {
+      "accepted": true,
+      "base_health": "healthy_at_armijo_entry",
+      "base_l2": 1.88462218e-05,
+      "base_residual_interpretation": "complete_assembled_free_dof_residual",
+      "certified_noop": false,
+      "environment_line_search_alpha": 0.0078125,
+      "last_trial_status_role": "unused_tail_after_selected_accept",
+      "line_search_raw": [
+        0.0078125,
+        0.98716563,
+        8,
+        63
+      ],
+      "minimum_J": 0.98716563,
+      "pretrial_status": {
+        "code": 0,
+        "completed_microsteps": 0,
+        "contact_count": 0,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ],
+        "environment": 0,
+        "event_count": 0,
+        "failing_index": 4294967295,
+        "fgmres_iterations": 79,
+        "object_index": 4294967295
+      },
+      "selected_alpha": 0.0078125,
+      "solver_status": {
+        "code": 0,
+        "completed_microsteps": 0,
+        "contact_count": 0,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ],
+        "environment": 0,
+        "event_count": 0,
+        "failing_index": 4294967295,
+        "fgmres_iterations": 79,
+        "object_index": 4294967295
+      },
+      "solver_status_code": 0,
+      "trial_alpha": 0.0078125,
+      "trial_l2": 1.88108443e-05,
+      "trial_outcome": "selected_trial_accepted",
+      "trial_status": {
+        "code": 10,
+        "completed_microsteps": 0,
+        "contact_count": 0,
+        "diagnostics": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "environment": 0,
+        "event_count": 0,
+        "failing_index": 0,
+        "fgmres_iterations": 0,
+        "object_index": 0
+      }
+    },
+    {
+      "accepted": true,
+      "base_health": "healthy_at_armijo_entry",
+      "base_l2": 3.39000223e-08,
+      "base_residual_interpretation": "complete_assembled_free_dof_residual",
+      "certified_noop": true,
+      "environment_line_search_alpha": 1,
+      "last_trial_status_role": "no_private_trial_certified_noop",
+      "line_search_raw": [
+        1,
+        1,
+        1,
+        63
+      ],
+      "minimum_J": 1,
+      "pretrial_status": {
+        "code": 0,
+        "completed_microsteps": 0,
+        "contact_count": 0,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ],
+        "environment": 1,
+        "event_count": 0,
+        "failing_index": 4294967295,
+        "fgmres_iterations": 4,
+        "object_index": 4294967295
+      },
+      "selected_alpha": 1,
+      "solver_status": {
+        "code": 0,
+        "completed_microsteps": 0,
+        "contact_count": 0,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ],
+        "environment": 1,
+        "event_count": 0,
+        "failing_index": 4294967295,
+        "fgmres_iterations": 4,
+        "object_index": 4294967295
+      },
+      "solver_status_code": 0,
+      "trial_alpha": 0,
+      "trial_l2": 3.39000223e-08,
+      "trial_outcome": "certified_noop",
+      "trial_status": {
+        "code": 10,
+        "completed_microsteps": 0,
+        "contact_count": 0,
+        "diagnostics": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "environment": 0,
+        "event_count": 0,
+        "failing_index": 0,
+        "fgmres_iterations": 0,
+        "object_index": 0
+      }
+    }
+  ],
+  "newton_iteration": 63,
+  "reference": {
+    "base_sha256": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995",
+    "dd_helper_sha256": "8edfd60beb2c38d181a08023d9f97bea0fec80b0f6fa04f8690c7dfe234330c2",
+    "dynamic_correction_gate": 2e-11,
+    "implementation": "source-portable-paper-reference-185 compensated FP64 strict API",
+    "iteration_ceiling": 80,
+    "scaled_residual_gate": 2e-12,
+    "strict_api_sha256": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c"
+  },
+  "root": 20,
+  "schema": "numi.cardboard.native497-warm-cgls-nonlinear-residual-cpu-audit.v1",
+  "source_case": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497"
+}

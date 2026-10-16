@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source182-build-validation-003-followup-001/coupon_resume_contract_test"
+  ],
+  "returncode": 0,
+  "wall_seconds": 0.2854088330641389,
+  "output": "coupon diagnostic replay contract checks passed\n",
+  "output_sha256": "2463b89ed870dd5b93298edd5dd79cb2614220c14273ecc2650c5b9699699bdc"
+}

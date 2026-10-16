@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/ctest",
+    "--test-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source182-003",
+    "-R",
+    "^matter\\.(compiler\\.cardboard_(shipping_snapshot|coupon_resume)|cli\\.cardboard_argument_admission)$",
+    "--output-on-failure",
+    "-j",
+    "1"
+  ],
+  "cwd": null,
+  "returncode": 0,
+  "wall_seconds": 1.1095989579334855,
+  "output": "Test project /Users/n/cardboard-implementation-20261014-host-macmini/build-source182-003\n    Start 56: matter.compiler.cardboard_shipping_snapshot\n1/3 Test #56: matter.compiler.cardboard_shipping_snapshot ...   Passed    0.40 sec\n    Start 57: matter.compiler.cardboard_coupon_resume\n2/3 Test #57: matter.compiler.cardboard_coupon_resume .......   Passed    0.25 sec\n    Start 84: matter.cli.cardboard_argument_admission\n3/3 Test #84: matter.cli.cardboard_argument_admission .......   Passed    0.41 sec\n\n100% tests passed out of 3\n\nLabel Time Summary:\ncardboard    =   1.06 sec*proc (3 tests)\ncli          =   0.41 sec*proc (1 test)\ncpu          =   1.06 sec*proc (3 tests)\nmatter       =   1.06 sec*proc (3 tests)\nshipping     =   0.65 sec*proc (2 tests)\n\nTotal Test time (real) =   1.06 sec\n",
+  "output_sha256": "4f475276326596baa50832455a7814e3864861e3106e03cdf39e1c0a2fa0b28d"
+}

@@ -1,0 +1,8 @@
+{
+  "exit_code": 1,
+  "timed_out": false,
+  "wall_seconds": 0.269715958,
+  "finished_at_utc": "2026-10-16T06:28:12.634072+00:00",
+  "wrapper_sha256": "aa59c46f9d43794a3d3f6328916396afa35d96e56d4bee0f6df4de832bc65812",
+  "all_six_qualification_axes_complete": false
+}

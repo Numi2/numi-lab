@@ -1,0 +1,11 @@
+# Native 497 cached-operator CGLS audit
+
+This CPU-only audit reconstructs the captured environment-0 FEM operator from the native FP32 tangent cache, geometry, masses, constraints, and captured vectors. It does not rerun constitutive updates, launch Metal, or establish a full-contact or physical qualification.
+
+`report-v2.json` is the authoritative report. It binds and verifies all 829 prediction inputs. Twelve checkpoint files use one explicit local mirror alias: the remote path under `solver/warm-cgls-control19-checkpoint-480/` is mirrored locally under `solver/macmini-warm-cgls-control19-checkpoint-480/`. Every aliased file is still SHA-256 checked against the prediction. `report.json` is retained as the earlier incomplete path-resolution attempt (817/829 inputs); it is superseded by v2 and is not an admitted complete report. `manifest-v1-path-label-error.json` preserves an initial package-manifest attempt whose bound-input labels were not paths; the final `manifest.json` corrects those labels and directly verifies every bound file.
+
+The selected environment (environment 0) used 846 free nodes / 2,538 mechanical rows and 1,920 valid tangent-cache entries. From the captured FP32 cache, the offline FP64 sparse reconstruction gives `||b-Ax0||=2.0956e-7` and `||b-AX||=2.6549e-8` for the total CGLS candidate `X=x0+Sy`; the native trace reports `2.6497e-8`. The captured final residual differs from the FP64 reconstruction by 18.44% relative to that small residual, while the captured `Q` action differs by 8.95e-5 relative. These are comparisons against the reconstructed cached operator, not an independent constitutive reference. The observed subtraction is cancellation-sensitive; it does not by itself establish a condition number.
+
+Environment 1 has selected word zero. Its v3 arrays are private, unselected scratch, so their zeros are not interpreted as an installed candidate or a residual-reduction result. The report separately records its captured Newton-center RHS and reconstructed baseline residual.
+
+Run the audit with the source-bound defaults from `/Users/home/cardboard-implementation-20261014/analysis/native497-cached-cgls-audit-001/audit_native497.py`. The test suite covers v3 layout/alignment, truncation, warm residual identities, and the explicit checkpoint mirror rule. No GPU was used.

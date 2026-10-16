@@ -1,0 +1,54 @@
+{
+  "command": "/Users/home/.pyenv/versions/3.10.12/bin/python3 /Users/home/cardboard-implementation-20261014/analysis/native174-tet172-mp-iftfd-006/audit_tet172.py",
+  "files_sha256": {
+    "README.md": "be3b2f604dbb7cefe222b08dcf16875281ae545f05a7ce93a3671f6d9b7ebf60",
+    "audit_tet172.py": "98ccb77ac70f06cafb962cb7344ad7810d64d39dbbbee2007f010cbefd18a229",
+    "report.json": "fefb002c811ca2e093b82edf46b93e03f1849d9ba7436eb336dae0c146827489"
+  },
+  "input_bindings": {
+    "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-derivative-qualification-002/run-016-source173-correct-direction-eps8-26/projection-center.npz": "320004cabcb3bf327fdd8c87ad1f82b42e0531d7e311e75fef207daf0dc5346a",
+    "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-referencev2-source173-portable-001/run-019-unresolved16-quarter-grid/adjudication.json": "c3a9b5d8288a33fb847bbbbbf24c6bc2fecda5e1bae2e590c54c3b1e7ef03c65",
+    "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-referencev2-source173-portable-001/run-019-unresolved16-quarter-grid/dense-grid-records.jsonl": "43a77e35c360bdaa1c719f54f61266df478d48f0631c0b129159306f1993c131",
+    "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-referencev2-source173-portable-001/run-019-unresolved16-quarter-grid/manifest.json": "680069568385ede73028db7de2f060222958f3cbb87e1c4a44bab0d0aa1c20bd",
+    "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-referencev2-source173-portable-003/manifest.json": "5a8f851350cf21ea55fa51c589ec21dff6094dd3707a60048618e332a6b23c0a",
+    "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-referencev2-source173-portable-003/r-ready/matter/tools/cardboard_compensated_fp64_base.py": "b135c6ff0091f0833c8dad89239abdde209fc6e0eb91babeb72313b29a88bb6c",
+    "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-referencev2-source173-portable-003/r-ready/matter/tools/cardboard_compensated_fp64_reference.py": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "/Users/home/cardboard-implementation-20261014/analysis/native174-fp64-referencev2-source173-portable-003/r-ready/matter/tools/cardboard_dd_fp64.py": "8edfd60beb2c38d181a08023d9f97bea0fec80b0f6fa04f8690c7dfe234330c2",
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-bilinear-layer-replay-002/arrays.npz": "4361b6aa9f0d269a9733b0bd8f508dbc1204624451611816512dad02c303d27c",
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-005/run-002/mixed_reference_arrays.npz": "107e942cc2e131eed8f8db7759f8deb3e86fcdc42d8da249996daf51d6ed11ad",
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-005/run_mp_fallback.py": "6ed75e8be951b84186d0a138a2ad18177b3945ff1b2d773e6ff57789ad2178c1",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/matter/tools/cardboard_bilinear_fp64_reference.py": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995"
+  },
+  "runtime": {
+    "implementation": "CPython",
+    "mpmath": "1.3.0",
+    "native_or_gpu_execution": false,
+    "numpy": "2.2.5",
+    "python": "3.10.12 (main, May 15 2025, 18:07:36) [Clang 17.0.0 (clang-1700.0.13.3)]"
+  },
+  "schema": "numi.cardboard.tet172-mp-ift-fd-audit.package.v1",
+  "strict_gates": {
+    "centered_derivative_relative_l2_max": 1e-06,
+    "dynamic_correction_max": 2e-11,
+    "scaled_residual_max": 2e-12
+  },
+  "summary": {
+    "center_iteration_count": 12,
+    "center_mp_digits": [
+      70,
+      90,
+      110
+    ],
+    "center_strict_gates_pass": true,
+    "compensated_binary64_centered_secant_pass_powers": [
+      30.75,
+      31.75
+    ],
+    "mp90_centered_secant_passes": 7,
+    "native_execution": false,
+    "same_center_branch_for_mp_endpoints": true,
+    "scope": "single row 172 / tet 172 / F[2,0] only; no full derivative qualification",
+    "strict_fp64_endpoint_pairs": 14,
+    "strict_mp90_endpoint_pairs": 14
+  }
+}

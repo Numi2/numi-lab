@@ -1,0 +1,34 @@
+{
+  "bindings": {
+    "capture_sha256": "4361b6aa9f0d269a9733b0bd8f508dbc1204624451611816512dad02c303d27c",
+    "mp_arrays_sha256": "107e942cc2e131eed8f8db7759f8deb3e86fcdc42d8da249996daf51d6ed11ad",
+    "portable_package_seal_manifest_sha256": "45bb0a98695b7e7d9aad6787d9cb3c80f2320f928d5d9f45f90517764421c369",
+    "run018_arrays_sha256": "626ad3fe6d6bd147b3b18e8d8a688d63a430a43af33c2aeb9ca4f103a8811808",
+    "run018_report_sha256": "d62f5929828eb82199f65ff0b623d5745b9fc644f929f8d03e55a8828ec3af24",
+    "source173_sha256": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995"
+  },
+  "classification": "CPU-only selected post-hoc diagnostic; no native or physical claim",
+  "files": {
+    "README.md": {
+      "bytes": 1322,
+      "sha256": "41a0900cda8ea010787ac3a5f971e7e3b0cd98fa040ab4f6720d303760865402"
+    },
+    "adjudication.json": {
+      "bytes": 2689,
+      "sha256": "c3a9b5d8288a33fb847bbbbbf24c6bc2fecda5e1bae2e590c54c3b1e7ef03c65"
+    },
+    "dense-grid-records.jsonl": {
+      "bytes": 1008128,
+      "sha256": "43a77e35c360bdaa1c719f54f61266df478d48f0631c0b129159306f1993c131"
+    },
+    "progress.jsonl": {
+      "bytes": 10240,
+      "sha256": "8d3e5f9daf2b8438933605e43348f91c670280885ff197fcedc5fd82cc4540b4"
+    },
+    "report.json": {
+      "bytes": 15308,
+      "sha256": "d94ad30f9cd5f017cdfcbe4699f6e1855b83c1657655b053e14152cc8400cdf4"
+    }
+  },
+  "schema": "numi.cardboard.bilinear15.dense-grid-followup-manifest.v1"
+}

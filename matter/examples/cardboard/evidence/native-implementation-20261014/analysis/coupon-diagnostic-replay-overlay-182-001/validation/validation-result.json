@@ -1,0 +1,47 @@
+{
+  "schema": "numi.cardboard.coupon-diagnostic-replay-overlay-validation.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-admission-encoder-181",
+  "base_frozen_source_sha256": "f3ac253b7924dc4cb6ba1d5d9580ceea42150b5e49c6eee569e36b0e204fef7a",
+  "base_source_build_json_sha256": "d5ed1e058065435d7faeb48897681306907e61a7b9f765f3c131c38261e1c5be",
+  "base_compile_commands_sha256": "050008734269639ebd1b27163f4b4d5e7e099d56de42c73ad89abb25163a34af",
+  "base_file_sha256": {
+    "cardboard_coupon_resume.hpp": "bdb41b93688e924b950aebc68aea19e5cc0988f618430b3e0e38634d37e1d282",
+    "cardboard_probe.mm": "961d562a3961a1a4ab64cedaab0324674d81cabd8df8d6c8f870b2f35efdd3c1"
+  },
+  "candidate_file_sha256": {
+    "cardboard_coupon_resume.hpp": "781f4b4d8f31e266878b4bbb21457678f88ec23040c0ac8184fb020deba0db88",
+    "cardboard_probe.mm": "d86eab01e5e3181ccd042d737a9697d917bd01693f5395a2e31a5c5a4257ab60"
+  },
+  "patch_sha256": "7de78cc0e5a9dd917ca8441f82f5a57d2f9a3b5ccd2731467946cbb1c96ba939",
+  "contract_test_sha256": "e38d22f42779297ff28fa231c8009753029f779e3824ab97a0e7eeca5c62d168",
+  "validation_script_sha256": "94f04b5e1acee40aea219781ecbdfae9f1b26cc44486e810dd84c85a58752379",
+  "host_bindings_sha256": "774466a959e3e1f1f4634fdf5c7db7b28deaea5c54708a99ff3ce389c9bccd1f",
+  "objcxx_syntax_log_sha256": "62f232b9d0294e63256b499ed0b8f3328254c29a69378d56f19b0dfb4d7e83f5",
+  "objcxx_syntax_targets": [
+    "default",
+    "box-native"
+  ],
+  "contract_test": {
+    "schema": "numi.cardboard.coupon-diagnostic-replay-validation.v1",
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I",
+      "/Users/home/cardboard-implementation-20261014/analysis/coupon-diagnostic-replay-overlay-182-001/candidate/matter/tools",
+      "/Users/home/cardboard-implementation-20261014/analysis/coupon-diagnostic-replay-overlay-182-001/tests/coupon_resume_contract_test.cpp",
+      "-o",
+      "/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/coupon-contract-182-og3llpc7/coupon_resume_contract_test"
+    ],
+    "compile_exit": 0,
+    "compile_output": "",
+    "run_exit": 0,
+    "run_output": "coupon diagnostic replay contract checks passed\n"
+  },
+  "source_registry_count": 51,
+  "source_registry_consistency": "PASS",
+  "patch_application": "PASS",
+  "native_resume_replay": "NOT_RUN"
+}

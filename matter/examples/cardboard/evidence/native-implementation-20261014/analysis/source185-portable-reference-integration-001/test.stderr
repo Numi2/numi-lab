@@ -1,0 +1,14 @@
+test_explicit_loader_rejects_missing_source (test_cardboard_compensated_fp64_reference.CompensatedReferencePortableTests) ... ok
+test_legacy_reference_project_path (test_cardboard_compensated_fp64_reference.CompensatedReferencePortableTests) ... /Users/home/numi-cardboard-20261006/matter/tools/cardboard_bilinear_fp64_reference.py:40: RuntimeWarning: divide by zero encountered in divide
+  r[...,12]=np.where(np.real(den)>1e-14,(p[...,26]**2-2*dl*y)/den,root-dl-y)
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_bilinear_fp64_reference.py:40: RuntimeWarning: invalid value encountered in divide
+  r[...,12]=np.where(np.real(den)>1e-14,(p[...,26]**2-2*dl*y)/den,root-dl-y)
+ok
+test_legacy_residual_and_jacobian_entrypoints_retain_mixed_rows (test_cardboard_compensated_fp64_reference.CompensatedReferencePortableTests) ... ok
+test_mixed_fb_scatter_in_both_retained_implementations (test_cardboard_compensated_fp64_reference.CompensatedReferencePortableTests) ... ok
+test_v2_projection_and_tangent_match_independent_mp_fixture (test_cardboard_compensated_fp64_reference.CompensatedReferencePortableTests) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.761s
+
+OK

@@ -1,0 +1,6 @@
+# 003 retained validation attempts
+
+- The first direct run from `r-ready/matter/tools` failed its fixture/source admission because the checkout equation file is intentionally not copied into the additive payload. This is expected outside a repository tree; the supported test command was rerun from `validation/matter/tools`, which carries the hash-bound source sibling.
+- The first strict `Reference.project` implementation called `base.project_centers(ref, ...)` directly. That helper calls `ref.project` for its seed, causing recursive re-entry. The test was interrupted after the repeated stack showed `project_centers -> project_resilient -> Reference.project -> project_with_metrics -> project_centers`. The final 003 implementation uses a private seed adapter that delegates only the initial safeguarded seed to `v1.project`; all residual/Jacobian operations remain v2.
+- One subsequent test admission failed because the sibling fixture changed when MP provenance comments/data were added, but the pinned expected fixture SHA had not yet been refreshed. The fixture was rehashed, the test pin updated, and the final 5/5 run passed.
+- The inherited 002 `initial-fixture-import-failure.txt` and all other 002 validation attempts are retained unchanged.
