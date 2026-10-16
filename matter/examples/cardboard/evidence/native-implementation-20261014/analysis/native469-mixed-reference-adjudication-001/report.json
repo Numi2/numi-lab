@@ -1,0 +1,18 @@
+{
+  "schema": "numi.cardboard.invalid-reference-input-adjudication.v1",
+  "assessed_at_utc": "2026-10-16T02:57:06.029873+00:00",
+  "affected_inputs": {
+    "mp_fallback": "native469-mp-fallback-004/run-006",
+    "derived_assembly": "/Users/home/cardboard-implementation-20261014/analysis/native469-mixed-reference-assembly-002",
+    "derived_file_sha256": {
+      "report.json": "854de79aa9723ef21ea3cbf3ffeac8ce2e668411ac84cf82b7b1fa63c582b07a",
+      "arrays.npz": "fbc3df11c7aa7e6ec6e5b48f6e647db981ee33b8f66960ef5830fbb4f3d19dc1",
+      "manifest.json": "1422b19e96ed14cd36979e7774e3c23f17e6540981963970b423834f57f44ed3",
+      "analyze.py": "d35ceea9afaa8696dcfddc927b62fa3f1c3783fd92f6655bc2e7fa7492badbd9"
+    }
+  },
+  "verdict": "INVALID_REFERENCE_INPUT; no production discrepancy inference permitted",
+  "cause": "MP fallback004 binds medium parameters to liner tet1317; successful-row mixed tangent construction also under review. Independent material identity and unchanged successful-row comparisons are required before replaying new package.",
+  "native_sources_edited": false,
+  "qualification": false
+}

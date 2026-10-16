@@ -1,0 +1,13 @@
+.E.........
+======================================================================
+ERROR: test_diagnostic_capture_prefix_is_case_local_fresh_and_bounded (__main__.EffectiveEnvironmentTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173/matter/tools/test_cardboard_solver_environment.py", line 120, in test_diagnostic_capture_prefix_is_case_local_fresh_and_bounded
+    linked.hardlink_to(prefix.parent / "capture.consumer.bin")
+AttributeError: 'PosixPath' object has no attribute 'hardlink_to'
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.466s
+
+FAILED (errors=1)

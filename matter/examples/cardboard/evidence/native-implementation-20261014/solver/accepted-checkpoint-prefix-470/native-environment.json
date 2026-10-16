@@ -1,0 +1,268 @@
+{
+  "contract": {
+    "capture_prefixes": {
+      "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH": "/Users/home/cardboard-implementation-20261014/solver/accepted-checkpoint-prefix-470/diagnostics/capture-regional-consumer-capture/capture"
+    },
+    "case_directory": "/Users/home/cardboard-implementation-20261014/solver/accepted-checkpoint-prefix-470",
+    "effective": {
+      "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR": {
+        "set": true,
+        "value": "all:all"
+      },
+      "NM_FEM_BASE_CGLS_CAPTURE_NEWTON": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_BASE_CGLS_CAPTURE_PATH": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_BASE_CGLS_ITERATIONS": {
+        "set": true,
+        "value": "64"
+      },
+      "NM_FEM_BASE_CGLS_PRIMARY_AFTER": {
+        "set": true,
+        "value": "48"
+      },
+      "NM_FEM_BASE_CGLS_RIGHT_SCALE": {
+        "set": true,
+        "value": "block3"
+      },
+      "NM_FEM_BASE_CGLS_STATE_CAPTURE": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_CACHE_PROJECTION_REUSE": {
+        "set": true,
+        "value": "1"
+      },
+      "NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_CONTACT_TRACE_ITERATION": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_CONTACT_TRACE_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_COUPLED_CAPTURE_PATH": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_COUPLED_CAPTURE_SELECTOR": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_COUPLED_TRIAL_CAPTURE_PATH": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_COUPLED_TRIAL_CAPTURE_SELECTOR": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_COUPLED_TRIAL_SUMMARY_PATH": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_COUPLED_TRIAL_SUMMARY_SELECTOR": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_COUPLED_TRIAL_VTCCD_AUDIT_SELECTOR": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_FULL_CONTACT_REUSE_COHESIVE_SCRATCH": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_FULL_CONTACT_REUSE_SELF_SURFACE_SCRATCH": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_FULL_CONTACT_TILED_COHESIVE": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_FULL_CONTACT_TILED_COHESIVE_PAGE_FACES": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_GRAPH_PARALLEL_LU_SEARCH": {
+        "set": true,
+        "value": "1"
+      },
+      "NM_FEM_NEWTON_TRACE_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_OPERATOR_FD_CAPTURE_PATH": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_OPERATOR_FD_EPSILON_SCALE": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_OPERATOR_FD_SELECTOR": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_REGIONAL_ACCEPTED_CORRECTION_RECYCLE": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH": {
+        "set": true,
+        "value": "/Users/home/cardboard-implementation-20261014/solver/accepted-checkpoint-prefix-470/diagnostics/capture-regional-consumer-capture/capture"
+      },
+      "NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR": {
+        "set": true,
+        "value": "20:0:63:1:0:0"
+      },
+      "NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION": {
+        "set": true,
+        "value": "1"
+      },
+      "NM_FEM_REGIONAL_RAP_CAPTURE_ONLY": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_RESIDUAL_ARMIJO_ROOT": {
+        "set": true,
+        "value": "all"
+      },
+      "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_STATUS5_CAPTURE_PATH": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_STATUS5_CAPTURE_ROOT": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_TRUE_RESIDUAL_CERTIFY": {
+        "set": true,
+        "value": "1"
+      },
+      "NM_FEM_TRUE_RESIDUAL_NEWTON_SELECTOR": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_TRUE_RESIDUAL_RESTART": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_TRUE_RESIDUAL_ROOT": {
+        "set": true,
+        "value": "all"
+      },
+      "NUMI_CARDBOARD_STEP_TIMING": {
+        "set": true,
+        "value": "1"
+      },
+      "NUMI_MATTER_GPU_TIMING_DENSE45": {
+        "set": false,
+        "value": null
+      }
+    },
+    "keys": [
+      "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
+      "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
+      "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+      "NM_FEM_BASE_CGLS_ITERATIONS",
+      "NM_FEM_BASE_CGLS_PRIMARY_AFTER",
+      "NM_FEM_BASE_CGLS_RIGHT_SCALE",
+      "NM_FEM_BASE_CGLS_STATE_CAPTURE",
+      "NM_FEM_CACHE_PROJECTION_REUSE",
+      "NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT",
+      "NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT",
+      "NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT",
+      "NM_FEM_CONTACT_TRACE_ITERATION",
+      "NM_FEM_CONTACT_TRACE_ROOT",
+      "NM_FEM_COUPLED_CAPTURE_PATH",
+      "NM_FEM_COUPLED_CAPTURE_SELECTOR",
+      "NM_FEM_COUPLED_TRIAL_CAPTURE_PATH",
+      "NM_FEM_COUPLED_TRIAL_CAPTURE_SELECTOR",
+      "NM_FEM_COUPLED_TRIAL_SUMMARY_PATH",
+      "NM_FEM_COUPLED_TRIAL_SUMMARY_SELECTOR",
+      "NM_FEM_COUPLED_TRIAL_VTCCD_AUDIT_SELECTOR",
+      "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT",
+      "NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD",
+      "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT",
+      "NM_FEM_FULL_CONTACT_REUSE_COHESIVE_SCRATCH",
+      "NM_FEM_FULL_CONTACT_REUSE_SELF_SURFACE_SCRATCH",
+      "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY",
+      "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY",
+      "NM_FEM_FULL_CONTACT_TILED_COHESIVE",
+      "NM_FEM_FULL_CONTACT_TILED_COHESIVE_PAGE_FACES",
+      "NM_FEM_GRAPH_PARALLEL_LU_SEARCH",
+      "NM_FEM_NEWTON_TRACE_ROOT",
+      "NM_FEM_OPERATOR_FD_CAPTURE_PATH",
+      "NM_FEM_OPERATOR_FD_EPSILON_SCALE",
+      "NM_FEM_OPERATOR_FD_SELECTOR",
+      "NM_FEM_REGIONAL_ACCEPTED_CORRECTION_RECYCLE",
+      "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH",
+      "NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR",
+      "NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION",
+      "NM_FEM_REGIONAL_RAP_CAPTURE_ONLY",
+      "NM_FEM_RESIDUAL_ARMIJO_ROOT",
+      "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT",
+      "NM_FEM_STATUS5_CAPTURE_PATH",
+      "NM_FEM_STATUS5_CAPTURE_ROOT",
+      "NM_FEM_TRUE_RESIDUAL_CERTIFY",
+      "NM_FEM_TRUE_RESIDUAL_NEWTON_SELECTOR",
+      "NM_FEM_TRUE_RESIDUAL_RESTART",
+      "NM_FEM_TRUE_RESIDUAL_ROOT",
+      "NUMI_CARDBOARD_STEP_TIMING",
+      "NUMI_MATTER_GPU_TIMING_DENSE45"
+    ],
+    "schema": "numi.cardboard.effective-native-diagnostic-controls.v1",
+    "sha256": "ab8bcf27cf828c1d294a89eb48263049ae7784509509a03f78b86c95c4168bb8"
+  },
+  "contract_sha256": "ab8bcf27cf828c1d294a89eb48263049ae7784509509a03f78b86c95c4168bb8",
+  "launch": {
+    "native_controls_scrubbed": true,
+    "removed_inherited_key_names": []
+  },
+  "mode": "diagnostic",
+  "prediction_sha256": "316187fbe0f64db884f950d838ac0f653468e0da94b071499100f013e9e1893b",
+  "producer": "source-bound-diagnostic-runner",
+  "schema": "numi.cardboard.native-diagnostic-environment-run.v1"
+}

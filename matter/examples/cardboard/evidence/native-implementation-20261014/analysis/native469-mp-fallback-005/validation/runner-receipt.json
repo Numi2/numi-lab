@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-005/run_mp_fallback.py",
+    "--output",
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-005/run-002"
+  ],
+  "output_report": "run-002/report.json",
+  "output_report_sha256": "029c3b5efa8ee3459c5016283ddf0bf09f1204a9359722847bc77bd23ffbb960",
+  "output_arrays": "run-002/mixed_reference_arrays.npz",
+  "output_arrays_sha256": "107e942cc2e131eed8f8db7759f8deb3e86fcdc42d8da249996daf51d6ed11ad",
+  "runner_completed": true,
+  "elapsed_seconds_from_output_report": 60.534960985183716,
+  "final_status": "17/17 MP fallback rows passed unchanged strict MP gates; all native/physical qualification axes remain false"
+}

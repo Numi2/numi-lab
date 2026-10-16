@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "ctest",
+    "--test-dir",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169",
+    "-L",
+    "cpu",
+    "-R",
+    "^matter\\.analysis\\.",
+    "--output-on-failure",
+    "-j",
+    "1"
+  ],
+  "cwd": "/Users/home",
+  "elapsed_seconds": 2.509800910949707,
+  "exit_code": 0,
+  "stderr_file": "cpu-ctest.stderr.log",
+  "stdout_file": "cpu-ctest.stdout.log"
+}

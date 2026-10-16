@@ -1,0 +1,33 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+        "-m",
+        "py_compile",
+        "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-005/run_mp_fallback.py",
+        "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-005/test_mp_fallback.py"
+      ],
+      "cwd": "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-005",
+      "elapsed_seconds": 0.025869131088256836,
+      "exit_code": 0,
+      "stderr": "command-01.stderr.log",
+      "stdout": "command-01.stdout.log"
+    },
+    {
+      "argv": [
+        "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-005/test_mp_fallback.py"
+      ],
+      "cwd": "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-005",
+      "elapsed_seconds": 0.08667492866516113,
+      "exit_code": 0,
+      "stderr": "command-02.stderr.log",
+      "stdout": "command-02.stdout.log"
+    }
+  ],
+  "python": "3.10.12 (main, May 15 2025, 18:07:36) [Clang 17.0.0 (clang-1700.0.13.3)]"
+}

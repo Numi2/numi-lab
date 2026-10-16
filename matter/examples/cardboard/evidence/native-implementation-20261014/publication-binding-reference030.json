@@ -1,0 +1,100 @@
+{
+  "schema": "numi.cardboard.reference030-publication-binding.v1",
+  "prior_binding_sha256": "2eaec51662d8a00f8d57476c29bceb61db71a84ac34cd4bd53d464cb9ea512fc",
+  "prior_pathspec_sha256": "2a3f1391a727810fd77b90ccc0c7ff37d3e4cf327186d44d31a55fbe5ff7e06b",
+  "historical_prefix": {
+    "records": 1524,
+    "path": "summary-reference029.json",
+    "sha256": "aaf1660cb3c68c02de4b81cd4e480d54a20e3674d7176c65ab5aad74ac2187c7"
+  },
+  "prior_pathspec_entries": 8376,
+  "new_case_records": 43,
+  "cases": [
+    "solver/accepted-checkpoint-prefix-470",
+    "solver/source169-default-off-parity-472",
+    "analysis/source169-warm-start-integration-001",
+    "analysis/source169-build-cpu-validation-001",
+    "analysis/warm-start-native-kernel-check-002",
+    "analysis/shipping-checkpoint-physical-arena-overlay-171-001",
+    "analysis/base-cgls-warm-finite-breakdown-overlay-172-001",
+    "analysis/base-cgls-warm-finite-breakdown-overlay-172-002",
+    "analysis/hierarchical-sparse-private-contact-scan-overlay-170-001",
+    "analysis/native-sparse-private-scan-check-170-001",
+    "analysis/source175-sparse-private-scan-integration-001",
+    "analysis/native469-material-replay-174-001",
+    "analysis/native469-mp-fallback-004",
+    "analysis/native469-mp-fallback-005",
+    "analysis/native469-mixed-reference-assembly-001",
+    "analysis/native469-mixed-reference-assembly-002",
+    "analysis/native469-mixed-reference-assembly-003",
+    "analysis/native469-mixed-reference-adjudication-001",
+    "analysis/native469-mixed-reference-assembly-adjudication-002",
+    "analysis/native470-accepted-checkpoint-prefix-command-001",
+    "analysis/native470-accepted-checkpoint-prefix-command-002",
+    "analysis/native470-accepted-checkpoint-prefix-command-002/executions",
+    "analysis/native470-accepted-prefix-adjudication-001",
+    "analysis/native470-checkpoint-write-failure-001",
+    "analysis/native471-checkpoint-resume-command-001",
+    "analysis/native472-source169-default-off-command-001",
+    "analysis/native472-source169-default-off-command-002",
+    "analysis/native472-source169-default-off-command-003",
+    "analysis/native472-source169-default-off-command-003/executions",
+    "analysis/native472-default-off-production-parity-001",
+    "analysis/native473-474-warm-checkpoint-smoke-001",
+    "analysis/source173-integration-preflight-refusal-001",
+    "analysis/source173-checkpoint-warm-integration-001",
+    "analysis/source173-build-cpu-validation-001",
+    "analysis/source173-warm-kernel-check-001",
+    "analysis/source173-repository-integration-001",
+    "analysis/source173-macmini-host-build-and-check-001",
+    "analysis/publication029-staged-source-check-001",
+    "analysis/publication029-payload-preflight-001",
+    "analysis/publication029-independent-byte-audit-001",
+    "analysis/publication029-commit-and-push-001",
+    "analysis/publication029-duplicate-staging-retirement-001",
+    "analysis/closed-published-output-compaction-030"
+  ],
+  "copied_files": 2278,
+  "raw_files": 2202,
+  "gzip_files": 76,
+  "summary_sha256": "9a5906110ade11be67fd64313ff106d15f7ceb8b61a63e1be254960fc1bbaeb8",
+  "six_axis_verdicts": {
+    "solver_correctness": {
+      "status": "partial_component_evidence; complete_nonlinear_solve_unqualified",
+      "evidence": "Source173 adds default-off warm CGLS refinement and finite-breakdown decline, with264actualMetalhelperchecks and29focusedCPUcases. Native472 preserves the entire default-off failed468attempt. CorrectedMP005 restores per-grade parameter identity; selected center cached-column/element/nodal errors5.722942e-4/5.363624e-5/8.507027e-6meet relative gates. Four strictFP64center roots and branch/noise gates remain open. InvalidMP004 and derivedassemblyanalyses are retained. Actual fullwarm-enabled nonlinearcycle remains unqualified."
+    },
+    "numerical_convergence": {
+      "status": "unqualified",
+      "evidence": "Native472 rejects control20 after20acceptedbentcontrols exactly as468. No complete loading/withdrawal/release history, timestep triplet or mesh series passes. Native470 fails checkpointserialization after20acceptedcontrols; source173 fixes physicalarena record counts. Newhost476/477results are excluded while active/unexecuted; checkpointresume alone cannot qualify an uninterrupted cycle."
+    },
+    "component_calibration": {
+      "status": "partial_source_data_only",
+      "evidence": "Published-data package remains grade-bound. Exact kraft/NSSC progressive failure and local starch strength/GIc/GIIc remain unidentified."
+    },
+    "analogue_validation": {
+      "status": "unqualified_for_requested_full_sequence",
+      "evidence": "Grade, fixture, conditioning and rate transfer limits remain; no new validation series passed."
+    },
+    "physical_assembly_in_simulation": {
+      "status": "unqualified",
+      "evidence": "Sealed170parallel sparse scan and175integration overlays pass CPU/compilechecks. ShippingN528444/T1477728still exceeds runtime8192/32768scope; oneenvsparsepairarena36189188bytes fits36MiB but no caplift or16GiBprocesspeak qualification follows. No physicallyscored/folded/bonded/released shippingcheckpoint."
+    },
+    "crush_impact_prediction": {
+      "status": "unexecuted",
+      "evidence": "No qualified compression first peak, capacity-derived masses, gravity crush or 100mm drop; exact bare-box impact validation unavailable."
+    }
+  },
+  "source173_frozen_sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+  "source173_original_host_build_sha256": "0306631506b565f12a77cd44fb3acaabb012cb0dbeefe1e0eb82a9befd43b9a2",
+  "excluded_directory_parts": [
+    "__pycache__",
+    "archives",
+    "base",
+    "build",
+    "executions",
+    "restore-check"
+  ],
+  "exclusion_scope": "Duplicated full base/build trees remain external. Narrow candidate code, patches, exact manifests and closed receipts are included. Active native476/newhost477, active compaction031 and future native170/174 host executions excluded. No claim of a Git copy for every external binary or scratch file.",
+  "physical_validation": false,
+  "new_host476477_results_excluded": true
+}

@@ -1,0 +1,23 @@
+{
+  "schema": "numi.cardboard.warm-start-integrated-source.v1",
+  "source": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169",
+  "base_frozen_sha256": "c54920e78d1487f1eb85194b750f6f5d7a21d389e8099728496888b2aa8ef16b",
+  "base_files_verified": 1836,
+  "selected_source_count": 804,
+  "frozen_source_sha256": "f5054091c27a7e1add41630aae1b45ee6ecc3e6d4112ee85c931cc4c70f44ea4",
+  "component_manifest_sha256": "804ce6bda0849792130d69996446ec18bf1ec7ed17af7e8509aba0e590072f52",
+  "applied_patch_sha256": "9a2abf35db908aa19b1fb2a4d017079eac2c730b0df03cdc9f2964f008aa04b6",
+  "changed_or_added": {
+    "matter/CMakeLists.txt": "e1d9fef5b4e2e61c1caa8557749dc889a0581d2173aa211990ebdecb35adda26",
+    "matter/src/metal/base_cgls.metalinc": "ef8ab8763a675d34c6ab9bd3323fe9b8a8426ce3d77397cb782243ed1979483f",
+    "matter/src/metal/base_cgls_runtime.metalinc": "db006182e00df7a74eb823264202450d1e7dbd4735f31651fe263bd231fded12",
+    "matter/src/runtime.mm": "c76e753b5e7b454e996c977307604ccd8864cf2e5ae27fe8a6bfeb1deb99ceb0",
+    "matter/tools/cardboard_base_cgls_warm_start_check.metal": "171cedc019e61d4b8fb05a011bf10819945503ee51594183ce2936ec2385c1b5",
+    "matter/tools/cardboard_base_cgls_warm_start_check.mm": "242144390f685ad8af843fa064126620ab81bb8ec726981fe384302f010bd466",
+    "matter/tools/cardboard_solver_environment.py": "4538956f04ed2e4925f449e79f066485dc2c3669e40e20c20307a28bb7355aac",
+    "matter/tools/test_cardboard_solver_environment.py": "6c45fb80d97602f5f4710ef8cfd805a9a4e872eed905af4b5d48d76d196e6f17"
+  },
+  "registered_native_controls": 50,
+  "gpu_execution": false,
+  "qualification": "Experimental conditioning candidate; physical operator and nonlinear gates unchanged. Candidate must start from0; old checkpoint environment digest cannot change."
+}

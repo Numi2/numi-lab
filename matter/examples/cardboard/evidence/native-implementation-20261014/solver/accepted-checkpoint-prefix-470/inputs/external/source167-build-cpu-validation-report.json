@@ -1,0 +1,82 @@
+{
+  "schema": "numi.cardboard.source167-native-build-cpu-validation.v1",
+  "source": "/Users/home/cardboard-implementation-20261014/snapshots/source-diagnostic-and-resume-167-final",
+  "source_build_sha256": "c5117e347334fa2edfbe9b1e21ea8812383f89477aa02b79aa76173a30a4cf24",
+  "selected_sources_verified": 800,
+  "build_artifacts_verified": 7,
+  "checks": [
+    {
+      "command": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-167-final/numi-matter-cardboard-coupon-resume-check"
+      ],
+      "executable_sha256": "5fdd29fd881d09a0f413577d9f41cc64aa458865d51d2edb2873904fbfd777b2",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-167-final/numi-matter-cardboard-inside-clearance-check"
+      ],
+      "executable_sha256": "462b63f7f1ed7cc327e619a10a2561324f37218de37f7cac76394eb314143231",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-167-final/numi-matter-cardboard-shipping-clearance-memory-check"
+      ],
+      "executable_sha256": "b36f8ff9af3ab9fc9237e5f6a4a2a3d344a30ea3ea750a76284cedeecc96ffc6",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-167-final/numi-matter-cardboard-regional-consumer-capture-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-diagnostic-and-resume-167-final/matter/src/runtime.mm"
+      ],
+      "executable_sha256": "1c83cd18aa30d8e573d253fc1df56d982790761711bb07f09279130dfcfdb4d4",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/usr/bin/clang++",
+        "-DNUMI_CARDBOARD_BOX_NATIVE_DRIVER=1",
+        "-DNUMI_CARDBOARD_MATERIAL_DIR=\"/Users/home/cardboard-implementation-20261014/snapshots/source-diagnostic-and-resume-167-final/matter/materials\"",
+        "-DNUMI_CARDBOARD_METALLIB=\"/Users/home/numi-cardboard-20261006/build-cardboard-provenance-157/shaders/NumiMatter.metallib\"",
+        "-I/Users/home/cardboard-implementation-20261014/snapshots/source-diagnostic-and-resume-167-final/matter/../include",
+        "-I/Users/home/cardboard-implementation-20261014/snapshots/source-diagnostic-and-resume-167-final/matter/include",
+        "-F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks",
+        "-x",
+        "objective-c++",
+        "-O3",
+        "-DNDEBUG",
+        "-std=c++23",
+        "-arch",
+        "arm64",
+        "-fPIE",
+        "-fobjc-arc",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-diagnostic-and-resume-167-final/matter/tools/cardboard_probe.mm",
+        "-fsyntax-only"
+      ],
+      "returncode": 0,
+      "compile_commands_sha256": "2789b25029e0e81b6ac938f0aed53763de29b733dd110f5c6013bfb2990ed53a"
+    }
+  ],
+  "source159_metadata_erratum": {
+    "package": "source159-inside-surface-role-map-overlay-003",
+    "reported_base_frozen_sha256": "a365fdf346743d45cd4a7e1c4796e718555709485627784b31d4d0833ba68876",
+    "actual_source157_frozen_sha256": "2976540a244ba9af686e8033783a3d18da1ac48b030a949b2109fe81108f7cc0",
+    "handling": "Package preserved. Root independently verified every787selected and1034support base file before applying the pinned patch; this metadata error is not used as source admission."
+  },
+  "preparation_attempts": {
+    "first": "Integration001 built successfully but captured unrequested patch .orig and Python cache artifacts; it is retained and excluded from native use.",
+    "second": "Integration002 explicitly rejected generated backup artifacts. Raw failed tree, patch logs and failure.json retained.",
+    "third": "Integration003 uses atomic git apply and disables import bytecode; exact expected source-membership equality passes. Its consumer CPU checker invocation lacked the required runtime source argument and aborted; no GPU use.",
+    "fourth": "Integration004 preserves the same intended physical code and corrects the consumer CMake test argument. All prior preparation/build/test artifacts remain retained."
+  },
+  "native_gpu_execution_performed": false,
+  "limitations": [
+    "CPU contracts and box-native syntax do not qualify actual Runtime restore or history parity.",
+    "Shipping allocation, complete physical assembly and crush/drop remain unexecuted."
+  ]
+}

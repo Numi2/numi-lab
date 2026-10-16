@@ -1,0 +1,11 @@
+{
+  "schema": "numi.cardboard.source173.integration-manifest.v1",
+  "files_sha256": {
+    "base-cgls-warm-finite-breakdown-overlay-172-001.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "base-cgls-warm-finite-breakdown-overlay-172-001.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "prepare.py": "84986e9005996d978cc6c41a059a32766d0f03de7a17eb90c141aa28bb166828",
+    "report.json": "6520995f7ae538d4d03bd9ebb6ffc111f92ff6c7290ea2b239bf25289a138890",
+    "shipping-checkpoint-physical-arena-overlay-171-001.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shipping-checkpoint-physical-arena-overlay-171-001.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

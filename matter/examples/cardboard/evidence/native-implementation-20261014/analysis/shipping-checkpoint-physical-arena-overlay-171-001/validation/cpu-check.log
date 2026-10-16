@@ -1,0 +1,12 @@
+Candidate CPU regression
+========================
+
+Corrected command (the temporary executable was removed after the run):
+
+/usr/bin/c++ -I/Users/home/cardboard-implementation-20261014/analysis/shipping-checkpoint-physical-arena-overlay-171-001/candidate/matter/include -I/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include -I/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/include -I/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/tools -O3 -DNDEBUG -std=c++2b -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -UNDEBUG -o /Users/home/cardboard-implementation-20261014/analysis/shipping-checkpoint-physical-arena-overlay-171-001/candidate-check /Users/home/cardboard-implementation-20261014/analysis/shipping-checkpoint-physical-arena-overlay-171-001/candidate/matter/tools/cardboard_shipping_snapshot_check.cpp
+/Users/home/cardboard-implementation-20261014/analysis/shipping-checkpoint-physical-arena-overlay-171-001/candidate-check
+
+Result:
+shipping snapshot/provenance checks passed: 6
+
+An earlier compile attempt omitted the frozen source `matter/tools` include directory and failed to find `cardboard_shipping_driver.hpp`. That was a command include-path error; the corrected command passed.

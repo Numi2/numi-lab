@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.native472-package-manifest.v1",
+  "files_sha256": {
+    "inputs/baseline468-receipt.json": "146cc970e01bb25b5dbeea1300f3632bd3f4804776f60efb0bd7bd3575002567",
+    "inputs/baseline469-prediction.json": "46c190c84814378cb5b5d0919129e3cebdeffe497af2c92747cfbce2c71982ad",
+    "inputs/liner-material.nmatter": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a",
+    "inputs/medium-material.nmatter": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+    "inputs/source169-cpu-manifest.json": "75a84e24dc81219ab8f8f275a329d14cece6d4c826f7cde3790c25d2cf0bc27c",
+    "inputs/source169-cpu-verification.json": "97f3bdfb2990ae400d355928a75c4a9da85213bd3e8ebcf5f6c4227ba335a46a",
+    "inputs/warm-kernel-receipt.json": "4bfa2a10f0ae76f905be0916449e7b93a85cae7e4842a698a944a29b5e4d9d19",
+    "native-472-command.json": "42d23638bde626ace491e3da6cb0e675a0456e0ddfe7eaf5cde4971f61409eea",
+    "prepare.py": "e47b2925a1dae2d7433136f2a368f3ee17462bc0f74d6a37eb8d3f9fc67d8aa9",
+    "runner.py": "29513869f4930fa14b257ca693e72b14c6cc2b02f696d586feabce654541df2d"
+  }
+}

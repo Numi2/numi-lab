@@ -1,0 +1,12 @@
+test_case_inventory_and_abi_footprint_are_explicit (cardboard-implementation-20261014.analysis.native-sparse-private-scan-check-170-001.validation.test_runner.RunnerContractTests) ... ok
+test_default_dispatch_is_preflight_only (cardboard-implementation-20261014.analysis.native-sparse-private-scan-check-170-001.validation.test_runner.RunnerContractTests) ... ok
+test_exact_stopped_lldb_exception_is_preserved (cardboard-implementation-20261014.analysis.native-sparse-private-scan-check-170-001.validation.test_runner.RunnerContractTests) ... ok
+test_explicit_execute_is_the_only_native_dispatch_branch (cardboard-implementation-20261014.analysis.native-sparse-private-scan-check-170-001.validation.test_runner.RunnerContractTests) ... ok
+test_reserve_writer_materializes_and_hashes_bytes (cardboard-implementation-20261014.analysis.native-sparse-private-scan-check-170-001.validation.test_runner.RunnerContractTests) ... ok
+test_stopped_exception_does_not_match_changed_identity (cardboard-implementation-20261014.analysis.native-sparse-private-scan-check-170-001.validation.test_runner.RunnerContractTests) ... ok
+test_unrelated_process_is_ignored_and_active_checker_blocks (cardboard-implementation-20261014.analysis.native-sparse-private-scan-check-170-001.validation.test_runner.RunnerContractTests) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.005s
+
+OK

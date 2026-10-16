@@ -4598,6 +4598,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_build_base_cauchy_direction",
             "nm_fgmres_select_base_cgls_primary_policy",
             "nm_fgmres_prepare_base_cgls_layout",
+            "nm_fgmres_base_cgls_seed_residual",
+            "nm_fgmres_base_cgls_add_initial_solution",
             "nm_fgmres_base_cgls_initialize_state",
             "nm_fgmres_base_cgls_initialize_vectors",
             "nm_fgmres_base_cgls_measure_initial",
@@ -4607,6 +4609,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_base_cgls_form_beta",
             "nm_fgmres_base_cgls_update_p",
             "nm_fgmres_base_cgls_finalize",
+            "nm_fgmres_base_cgls_validate_warm_breakdown_rows",
+            "nm_fgmres_base_cgls_mark_warm_breakdown_decline",
             "nm_fgmres_base_cgls_validate_right_scale",
             "nm_fgmres_base_cgls_apply_right_scale",
             "nm_fgmres_install_base_cgls_direction",
@@ -12433,6 +12437,28 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     "base CGLS primary policy requires CGLS and the selected control-step all-Newton selector";
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
+            }
+            bool femBaseCGLSWarmStartRefine = false;
+            if (const char* warmStart = std::getenv(
+                    "NM_FEM_BASE_CGLS_WARM_START_REFINE")) {
+                if (std::strcmp(warmStart, "1") != 0 ||
+                    !femBaseCGLSPrimaryPolicyRequested ||
+                    !femBaseCauchyFallbackSelectedRoot ||
+                    !femBaseCauchyFallbackAllNewtonIterations ||
+                    femBaseCGLSIterations == 0u ||
+                    !femBaseCGLSRightScaleEnabled) {
+                    std::fprintf(stderr,
+                        "fem_base_cgls_warm_start_refine_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"requires_primary_cgls_all_newton_exact_block3_and_value_1\",\"physical_operator_changed\":false}\n",
+                        request.controlStep);
+                    diagnostics.message =
+                        "CGLS warm-start refinement requires the selected all-Newton primary CGLS block3 experiment";
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
+                femBaseCGLSWarmStartRefine = true;
+                std::fprintf(stderr,
+                    "fem_base_cgls_warm_start_refine_enabled={\"schema\":1,\"root\":%u,\"initial_guess\":\"current_fgmres_solution\",\"fresh_residual\":\"b_minus_Ax0\",\"acceptance\":\"strict_recomputed_true_linear_residual_reduction\",\"fallback\":\"preserve_x0_and_original_certificate\",\"physical_operator_changed\":false}\n",
+                    femBaseCauchyFallbackRoot);
             }
             const auto emitFEMNewtonTraceSkip = [&](std::uint32_t root,
                                                      const char* reason) {
@@ -23728,6 +23754,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
 
             const auto encodeBaseCauchyDirectionTrace = [&](
                 bool primaryPolicy = false) -> bool {
+                const bool warmStartRefinementThisNewton =
+                    femBaseCGLSWarmStartRefine && primaryPolicy &&
+                    baseCGLSPrimaryPolicySelectedNewton;
                 const NSUInteger traceBytes = environments * sizeof(nm_float4);
                 const NSUInteger primarySelectionOffset = traceBytes;
                 const NSUInteger bytes = traceBytes + (primaryPolicy
@@ -23760,6 +23789,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 // Header uint32[8]: magic CGLS, version, E, N, U, cap, segmentCount,0.
                 // Version 1 has twelve aligned segments. Version 2 adds the
                 // selected Newton's fresh three-row-per-node inverse blocks.
+                // Version 3 means B/R are the fresh residual b-A*x0 and X is
+                // the total candidate x0+S*y after the strict comparison.
                 id<MTLBuffer> cglsSnapshot = nil;
                 NSUInteger cglsSnapshotBytes = 0u;
                 const bool captureCGLS = femBaseCGLSIterations != 0u &&
@@ -23804,7 +23835,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                     std::memset(cglsSnapshot.contents, 0, cglsSnapshotBytes);
                     const std::array<std::uint32_t, 8> header = {
-                        0x534c4743u, femBaseCGLSRightScaleEnabled ? 2u : 1u,
+                        0x534c4743u, warmStartRefinementThisNewton ? 3u :
+                            (femBaseCGLSRightScaleEnabled ? 2u : 1u),
                         static_cast<std::uint32_t>(environments),
                         state.dispatch.femNodeCount, unknowns,
                         femBaseCGLSIterations,
@@ -23823,6 +23855,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const auto capturedCGLSIterations = femBaseCGLSIterations;
                 const auto capturedCGLSRightScale = femBaseCGLSRightScaleEnabled;
                 const auto capturedPrimaryPolicy = primaryPolicy;
+                const auto capturedWarmStartRefinement =
+                    warmStartRefinementThisNewton;
                 const auto capturedPrimarySelectionOffset = primarySelectionOffset;
                 const auto capturedPrimaryStartNewton =
                     femBaseCGLSPrimaryStartNewton;
@@ -23867,6 +23901,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                              << ",\"right_scale\":"
                              << (capturedCGLSRightScale ? "\"block3\"" : "null")
                              << ",\"original_newton_certificate_applies_to_direction\":false";
+                        if (capturedWarmStartRefinement) {
+                            line << ",\"warm_start_refinement\":true"
+                                 << ",\"initial_guess\":\"current_fgmres_solution\""
+                                 << ",\"candidate_represents\":\"x0_plus_Sy\""
+                                 << ",\"acceptance\":\"strict_recomputed_true_linear_residual_reduction\"";
+                        }
                         if (capturedPrimaryPolicy) {
                             line << ",\"selection_policy\":\"base_cgls_primary_policy\",\"start_newton_inclusive\":"
                                  << capturedPrimaryStartNewton;
@@ -23891,6 +23931,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         } else {
                             line << ",\"original_newton_converged\":"
                                  << (values[e].w > 0.5f ? "true" : "false");
+                        }
+                        if (capturedWarmStartRefinement) {
+                            line << ",\"refinement_installed\":"
+                                 << (values[e].w == 2.0f ? "true" : "false");
+                            if (values[e].w == 3.0f)
+                                line << ",\"refinement_decline_reason\":\"finite_bad_denominator_breakdown\",\"linear_residual_is_baseline\":true";
                         }
                         line << '}';
                     }
@@ -24000,6 +24046,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 };
                 if (femBaseCGLSIterations != 0u) {
+                    const bool warmStartRefinementThisNewton =
+                        femBaseCGLSWarmStartRefine &&
+                        baseCGLSPrimaryPolicySelectedNewton;
                     const std::uint32_t cglsUnknowns = state.fgmresLayout.unknownCount;
                     const std::uint32_t cglsEnvironments = state.dispatch.environmentCount;
                     const auto rows = [&]() {
@@ -24091,6 +24140,43 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                          offset:0u atIndex:4u];
                             [encoder setBuffer:state.femBaseCGLSErrors
                                          offset:0u atIndex:5u];
+                        }); barrier();
+                    }
+                    if (warmStartRefinementThisNewton) {
+                        // Measure the exact current Newton operator on x0,
+                        // then form the residual in private CGLS B scratch.
+                        // The production solution and FGMRES certificate stay
+                        // unchanged until install has compared fresh residuals.
+                        dispatchThreads("nm_fgmres_clear_true_operator",
+                            cglsUnknowns, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.femBaseCGLSQ
+                                         offset:0u atIndex:1u];
+                        }); barrier();
+                        action(4u, state.femSolution, state.femBaseCGLSQ);
+                        dispatchThreads(
+                            "nm_fgmres_base_cgls_seed_residual",
+                            cglsUnknowns, [&] {
+                            [encoder setBytes:&cglsUnknowns
+                                       length:sizeof(cglsUnknowns) atIndex:0u];
+                            [encoder setBytes:&cglsEnvironments
+                                       length:sizeof(cglsEnvironments) atIndex:1u];
+                            [encoder setBuffer:state.femBaseCGLSMask
+                                         offset:0u atIndex:2u];
+                            [encoder setBuffer:state.femBaseCGLSEnvironment
+                                         offset:0u atIndex:3u];
+                            [encoder setBuffer:state.femBaseCGLSSelected
+                                         offset:0u atIndex:4u];
+                            [encoder setBuffer:state.femBaseCauchyRightHandSide
+                                         offset:0u atIndex:5u];
+                            [encoder setBuffer:state.femSolution
+                                         offset:0u atIndex:6u];
+                            [encoder setBuffer:state.femBaseCGLSQ
+                                         offset:0u atIndex:7u];
+                            [encoder setBuffer:state.femBaseCGLSB
+                                         offset:0u atIndex:8u];
+                            [encoder setBuffer:state.femBaseCGLSErrors
+                                         offset:0u atIndex:9u];
                         }); barrier();
                     }
                     dispatchThreads("nm_fgmres_clear_true_operator", cglsUnknowns, [&] {
@@ -24207,9 +24293,85 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:1u];
                         [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:2u];
                     }); barrier();
+                    if (warmStartRefinementThisNewton) {
+                        // finalize maps nonzero error bits to InvalidInput. Only
+                        // an exact BadDenominator with finite private CGLS state
+                        // may decline this optional refinement and preserve x0.
+                        dispatchThreads(
+                            "nm_fgmres_base_cgls_validate_warm_breakdown_rows",
+                            cglsUnknowns, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:1u];
+                            [encoder setBuffer:state.femCandidate offset:0u atIndex:2u];
+                            [encoder setBuffer:state.femSolution offset:0u atIndex:3u];
+                            [encoder setBuffer:state.femBaseCauchyRightHandSide offset:0u atIndex:4u];
+                            [encoder setBuffer:state.femBaseCGLSB offset:0u atIndex:5u];
+                            [encoder setBuffer:state.femBaseCGLSMask offset:0u atIndex:6u];
+                            [encoder setBuffer:state.femBaseCGLSEnvironment offset:0u atIndex:7u];
+                            [encoder setBuffer:state.femBaseCGLSSelected offset:0u atIndex:8u];
+                            [encoder setBuffer:state.femBaseCGLSX offset:0u atIndex:9u];
+                            [encoder setBuffer:state.femBaseCGLSR offset:0u atIndex:10u];
+                            [encoder setBuffer:state.femBaseCGLSS offset:0u atIndex:11u];
+                            [encoder setBuffer:state.femBaseCGLSP offset:0u atIndex:12u];
+                            [encoder setBuffer:state.femBaseCGLSQ offset:0u atIndex:13u];
+                            [encoder setBuffer:state.femBaseCGLSRightScaleRows != nil
+                                ? state.femBaseCGLSRightScaleRows : state.dummy
+                                         offset:0u atIndex:14u];
+                            [encoder setBuffer:state.femBaseCGLSRightScalePhysical != nil
+                                ? state.femBaseCGLSRightScalePhysical : state.dummy
+                                         offset:0u atIndex:15u];
+                            [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:16u];
+                            [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:17u];
+                            const std::uint32_t useRightScale =
+                                femBaseCGLSRightScaleEnabled ? 1u : 0u;
+                            [encoder setBytes:&useRightScale
+                                       length:sizeof(useRightScale) atIndex:18u];
+                        }); barrier();
+                        dispatchThreads(
+                            "nm_fgmres_base_cgls_mark_warm_breakdown_decline",
+                            environments, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:1u];
+                            [encoder setBuffer:state.femBaseCGLSScalars offset:0u atIndex:2u];
+                            [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:3u];
+                            [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:4u];
+                            [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
+                            [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                        }); barrier();
+                    }
                     if (femBaseCGLSRightScaleEnabled)
                         applyRightScale(state.femBaseCGLSX,
                             state.femBaseCGLSX, 0u);
+                    if (warmStartRefinementThisNewton) {
+                        dispatchThreads(
+                            "nm_fgmres_base_cgls_add_initial_solution",
+                            cglsUnknowns, [&] {
+                            [encoder setBytes:&cglsUnknowns
+                                       length:sizeof(cglsUnknowns) atIndex:0u];
+                            [encoder setBytes:&cglsEnvironments
+                                       length:sizeof(cglsEnvironments) atIndex:1u];
+                            [encoder setBuffer:state.femBaseCGLSMask
+                                         offset:0u atIndex:2u];
+                            [encoder setBuffer:state.femBaseCGLSEnvironment
+                                         offset:0u atIndex:3u];
+                            [encoder setBuffer:state.femBaseCGLSSelected
+                                         offset:0u atIndex:4u];
+                            [encoder setBuffer:state.femSolution
+                                         offset:0u atIndex:5u];
+                            [encoder setBuffer:state.femBaseCGLSX
+                                         offset:0u atIndex:6u];
+                            [encoder setBuffer:state.femBaseCGLSErrors
+                                         offset:0u atIndex:7u];
+                            [encoder setBuffer:state.femArmijoMetrics
+                                         offset:0u atIndex:8u];
+                        }); barrier();
+                        dispatchThreads("nm_fgmres_clear_true_operator",
+                            cglsUnknowns, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.femBaseCGLSQ
+                                         offset:0u atIndex:1u];
+                        }); barrier();
+                    }
                     action(4u, state.femBaseCGLSX, state.femBaseCGLSQ);
                     dispatchThreads("nm_fgmres_install_base_cgls_direction", environments, [&] {
                         setDispatch();
@@ -24228,6 +24390,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.statuses offset:0u atIndex:13u];
                         [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:14u];
                         [encoder setBytes:&nonlinearIteration length:sizeof(nonlinearIteration) atIndex:15u];
+                        [encoder setBuffer:state.femBaseCGLSB
+                                     offset:0u atIndex:16u];
+                        const std::uint32_t requireResidualImprovement =
+                            warmStartRefinementThisNewton ? 1u : 0u;
+                        [encoder setBytes:&requireResidualImprovement
+                                   length:sizeof(requireResidualImprovement)
+                                  atIndex:17u];
                     }); barrier();
                     return;
                 }

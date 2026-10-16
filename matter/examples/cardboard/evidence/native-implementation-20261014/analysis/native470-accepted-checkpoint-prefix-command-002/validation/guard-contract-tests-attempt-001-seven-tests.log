@@ -1,0 +1,12 @@
+test_ctest_exact_report_and_manifest_pass (__main__.GuardContractTests.test_ctest_exact_report_and_manifest_pass) ... ok
+test_ctest_incomplete_inventory_is_rejected (__main__.GuardContractTests.test_ctest_incomplete_inventory_is_rejected) ... ok
+test_ctest_missing_pass_count_is_rejected (__main__.GuardContractTests.test_ctest_missing_pass_count_is_rejected) ... ok
+test_ctest_wrong_source_binding_is_rejected (__main__.GuardContractTests.test_ctest_wrong_source_binding_is_rejected) ... ok
+test_exception_cleanup_signals_only_verified_native_group_and_reaps_wrapper (__main__.GuardContractTests.test_exception_cleanup_signals_only_verified_native_group_and_reaps_wrapper) ... ok
+test_exception_cleanup_without_verified_native_group_does_not_signal_group (__main__.GuardContractTests.test_exception_cleanup_without_verified_native_group_does_not_signal_group) ... ok
+test_reserve_allocator_materializes_exact_128_mib (__main__.GuardContractTests.test_reserve_allocator_materializes_exact_128_mib) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.283s
+
+OK

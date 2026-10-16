@@ -1,0 +1,52 @@
+In file included from /Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/tools/cardboard_full_contact_armijo_check.mm:5:
+In file included from /Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/tools/cardboard_tooling.hpp:10:
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/matter.hpp:29:76: error: defaulted comparison operators are a C++20 extension [-Werror,-Wc++20-extensions]
+   29 |     friend constexpr bool operator==(const Dimension&, const Dimension&) = default;
+      |                                                                            ^
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/matter.hpp:957:10: error: no template named 'span' in namespace 'std'
+  957 |     std::span<const ConstitutiveProgram> programs
+      |     ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/matter.hpp:1001:10: error: no template named 'span' in namespace 'std'
+ 1001 |     std::span<const NMHumanSupportContactGPU> humanSupportContacts{};
+      |     ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/matter.hpp:1002:10: error: no template named 'span' in namespace 'std'
+ 1002 |     std::span<const NMHumanSupportPointQueryGPU> humanSupportPointQueries{};
+      |     ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/matter.hpp:1006:10: error: no template named 'span' in namespace 'std'
+ 1006 |     std::span<const NMHumanJointEqualityGPU> humanJointEqualities{};
+      |     ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/matter.hpp:1011:10: error: no template named 'span' in namespace 'std'
+ 1011 |     std::span<const NMHumanJointLimitGPU> humanJointLimits{};
+      |     ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/matter.hpp:1024:10: error: no template named 'span' in namespace 'std'
+ 1024 |     std::span<const nm_float4> humanSupportInitialHistories{};
+      |     ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/matter.hpp:2132:14: error: no template named 'span' in namespace 'std'
+ 2132 |         std::span<const std::uint32_t> firstRodEdges,
+      |         ~~~~~^
+In file included from /Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/tools/cardboard_full_contact_armijo_check.mm:14:
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/full_contact_armijo_admission.hpp:15:16: error: no template named 'span' in namespace 'std'
+   15 |     const std::span<const NMCohesiveFaceGPU> faces
+      |           ~~~~~^
+/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/tools/cardboard_full_contact_armijo_check.mm:813:9: error: designated initializers are a C++20 extension [-Werror,-Wc++20-designator]
+  813 |         .name = "synthetic_full_contact_armijo_interface_fixture_only",
+      |         ^
+/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/tools/cardboard_full_contact_armijo_check.mm:5519:26: error: no member named 'span' in namespace 'std'
+ 5519 |                     std::span<const NMCohesiveFaceGPU>(&dormantMixed, 1u)),
+      |                          ^~~~
+/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/tools/cardboard_full_contact_armijo_check.mm:5519:31: error: expected expression
+ 5519 |                     std::span<const NMCohesiveFaceGPU>(&dormantMixed, 1u)),
+      |                               ^
+/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/tools/cardboard_full_contact_armijo_check.mm:5524:22: error: no member named 'span' in namespace 'std'
+ 5524 |                 std::span<const NMCohesiveFaceGPU>(&activeMixed, 1u)),
+      |                      ^~~~
+/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/tools/cardboard_full_contact_armijo_check.mm:5524:27: error: expected expression
+ 5524 |                 std::span<const NMCohesiveFaceGPU>(&activeMixed, 1u)),
+      |                           ^
+/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/tools/cardboard_full_contact_armijo_check.mm:5530:22: error: no member named 'span' in namespace 'std'
+ 5530 |                 std::span<const NMCohesiveFaceGPU>(&unsupportedDormant, 1u)),
+      |                      ^~~~
+/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/tools/cardboard_full_contact_armijo_check.mm:5530:27: error: expected expression
+ 5530 |                 std::span<const NMCohesiveFaceGPU>(&unsupportedDormant, 1u)),
+      |                           ^
+16 errors generated.

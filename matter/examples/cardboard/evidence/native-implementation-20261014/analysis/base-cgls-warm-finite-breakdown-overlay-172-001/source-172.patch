@@ -1,0 +1,548 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -4609,6 +4609,8 @@
+             "nm_fgmres_base_cgls_form_beta",
+             "nm_fgmres_base_cgls_update_p",
+             "nm_fgmres_base_cgls_finalize",
++            "nm_fgmres_base_cgls_validate_warm_breakdown_rows",
++            "nm_fgmres_base_cgls_mark_warm_breakdown_decline",
+             "nm_fgmres_base_cgls_validate_right_scale",
+             "nm_fgmres_base_cgls_apply_right_scale",
+             "nm_fgmres_install_base_cgls_direction",
+@@ -23932,7 +23934,9 @@
+                         }
+                         if (capturedWarmStartRefinement) {
+                             line << ",\"refinement_installed\":"
+-                                 << (values[e].w > 1.5f ? "true" : "false");
++                                 << (values[e].w == 2.0f ? "true" : "false");
++                            if (values[e].w == 3.0f)
++                                line << ",\"refinement_decline_reason\":\"finite_bad_denominator_breakdown\",\"linear_residual_is_baseline\":true";
+                         }
+                         line << '}';
+                     }
+@@ -24289,6 +24293,52 @@
+                         [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:1u];
+                         [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:2u];
+                     }); barrier();
++                    if (warmStartRefinementThisNewton) {
++                        // finalize maps nonzero error bits to InvalidInput. Only
++                        // an exact BadDenominator with finite private CGLS state
++                        // may decline this optional refinement and preserve x0.
++                        dispatchThreads(
++                            "nm_fgmres_base_cgls_validate_warm_breakdown_rows",
++                            cglsUnknowns, [&] {
++                            setDispatch();
++                            [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:1u];
++                            [encoder setBuffer:state.femCandidate offset:0u atIndex:2u];
++                            [encoder setBuffer:state.femSolution offset:0u atIndex:3u];
++                            [encoder setBuffer:state.femBaseCauchyRightHandSide offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femBaseCGLSB offset:0u atIndex:5u];
++                            [encoder setBuffer:state.femBaseCGLSMask offset:0u atIndex:6u];
++                            [encoder setBuffer:state.femBaseCGLSEnvironment offset:0u atIndex:7u];
++                            [encoder setBuffer:state.femBaseCGLSSelected offset:0u atIndex:8u];
++                            [encoder setBuffer:state.femBaseCGLSX offset:0u atIndex:9u];
++                            [encoder setBuffer:state.femBaseCGLSR offset:0u atIndex:10u];
++                            [encoder setBuffer:state.femBaseCGLSS offset:0u atIndex:11u];
++                            [encoder setBuffer:state.femBaseCGLSP offset:0u atIndex:12u];
++                            [encoder setBuffer:state.femBaseCGLSQ offset:0u atIndex:13u];
++                            [encoder setBuffer:state.femBaseCGLSRightScaleRows != nil
++                                ? state.femBaseCGLSRightScaleRows : state.dummy
++                                         offset:0u atIndex:14u];
++                            [encoder setBuffer:state.femBaseCGLSRightScalePhysical != nil
++                                ? state.femBaseCGLSRightScalePhysical : state.dummy
++                                         offset:0u atIndex:15u];
++                            [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:16u];
++                            [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:17u];
++                            const std::uint32_t useRightScale =
++                                femBaseCGLSRightScaleEnabled ? 1u : 0u;
++                            [encoder setBytes:&useRightScale
++                                       length:sizeof(useRightScale) atIndex:18u];
++                        }); barrier();
++                        dispatchThreads(
++                            "nm_fgmres_base_cgls_mark_warm_breakdown_decline",
++                            environments, [&] {
++                            setDispatch();
++                            [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:1u];
++                            [encoder setBuffer:state.femBaseCGLSScalars offset:0u atIndex:2u];
++                            [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:3u];
++                            [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:4u];
++                            [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
++                            [encoder setBuffer:state.statuses offset:0u atIndex:6u];
++                        }); barrier();
++                    }
+                     if (femBaseCGLSRightScaleEnabled)
+                         applyRightScale(state.femBaseCGLSX,
+                             state.femBaseCGLSX, 0u);
+@@ -24312,6 +24362,8 @@
+                                          offset:0u atIndex:6u];
+                             [encoder setBuffer:state.femBaseCGLSErrors
+                                          offset:0u atIndex:7u];
++                            [encoder setBuffer:state.femArmijoMetrics
++                                         offset:0u atIndex:8u];
+                         }); barrier();
+                         dispatchThreads("nm_fgmres_clear_true_operator",
+                             cglsUnknowns, [&] {
+--- a/matter/src/metal/base_cgls_runtime.metalinc
++++ b/matter/src/metal/base_cgls_runtime.metalinc
+@@ -61,6 +61,159 @@
+     mask[global] = value;
+ }
+ 
++// A denominator-only CGLS breakdown is a normal decline of the opt-in warm
++// refinement only when every private row and scalar is still finite. The row
++// scan is parallel; invalid data adds a distinct error bit so the final
++// one-thread-per-environment classifier cannot mark the decline safe.
++kernel void nm_fgmres_base_cgls_validate_warm_breakdown_rows(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device float4* metrics [[buffer(1)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(2)]],
++    device const float4* initialSolution [[buffer(3)]],
++    device const float4* baseRHS [[buffer(4)]],
++    device const float4* baselineResidual [[buffer(5)]],
++    device const float4* rowMask [[buffer(6)]],
++    device const uint* rowEnvironment [[buffer(7)]],
++    device const uint* selected [[buffer(8)]],
++    device const float4* x [[buffer(9)]],
++    device const float4* r [[buffer(10)]],
++    device const float4* s [[buffer(11)]],
++    device const float4* p [[buffer(12)]],
++    device const float4* q [[buffer(13)]],
++    device const float4* rightScaleRows [[buffer(14)]],
++    device const float4* rightScalePhysical [[buffer(15)]],
++    device const uint4* control [[buffer(16)]],
++    device atomic_uint* errors [[buffer(17)]],
++    constant uint& useRightScale [[buffer(18)]],
++    uint index [[thread_position_in_grid]]) {
++    const uint environments = dispatch.environmentCount;
++    const uint nodes = dispatch.femNodeCount;
++    const uint mechanicalRows = environments * nodes;
++    const uint unknownCount = 2u * mechanicalRows;
++    if (index >= unknownCount || environments == 0u || nodes == 0u) return;
++    const bool fieldRow = index >= mechanicalRows;
++    const uint local = fieldRow ? index - mechanicalRows : index;
++    const uint environment = local / nodes;
++    if (environment >= environments || metrics[environment].w != 3.0f ||
++        selected[environment] != 1u || control[environment].x != 5u ||
++        control[environment].w != 1u ||
++        atomic_load_explicit(errors + environment, memory_order_relaxed) !=
++            kBaseCGLSErrorBadDenominator) return;
++    if (useRightScale > 1u) {
++        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadShape);
++        return;
++    }
++    if (rowEnvironment[index] != environment) {
++        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadShape);
++        return;
++    }
++    const float4 mask = rowMask[index];
++    const float4 rhs = baseRHS[index];
++    const float4 residual = baselineResidual[index];
++    const float4 xi = x[index], ri = r[index], si = s[index];
++    const float4 pi = p[index], qi = q[index];
++    const float4 physical = useRightScale == 1u
++        ? rightScalePhysical[index] : float4(0.0f);
++    const bool finiteRows = baseCGLSFinite4(mask) && baseCGLSFinite4(rhs) &&
++        baseCGLSFinite4(residual) && baseCGLSFinite4(xi) &&
++        baseCGLSFinite4(ri) && baseCGLSFinite4(si) &&
++        baseCGLSFinite4(pi) && baseCGLSFinite4(qi) &&
++        (useRightScale == 0u || baseCGLSFinite4(physical)) &&
++        mask.w == 0.0f && rhs.w == 0.0f && residual.w == 0.0f &&
++        xi.w == 0.0f && ri.w == 0.0f && si.w == 0.0f &&
++        pi.w == 0.0f && qi.w == 0.0f &&
++        (useRightScale == 0u || physical.w == 0.0f);
++    if (!finiteRows) {
++        baseCGLSMarkError(errors, environment, kBaseCGLSErrorNonfinite);
++        return;
++    }
++    uint rowError = 0u;
++    if (!baseCGLSMaskComponent(mask.x) || !baseCGLSMaskComponent(mask.y) ||
++        !baseCGLSMaskComponent(mask.z)) rowError |= kBaseCGLSErrorBadMask;
++    if (fieldRow) {
++        if (!baseCGLSZero4(mask) || !baseCGLSZero4(rhs) ||
++            !baseCGLSZero4(residual) || !baseCGLSZero4(xi) ||
++            !baseCGLSZero4(ri) || !baseCGLSZero4(si) ||
++            !baseCGLSZero4(pi) || !baseCGLSZero4(qi) ||
++            (useRightScale == 1u && !baseCGLSZero4(physical)))
++            rowError |= kBaseCGLSErrorNonzeroConstrainedRow;
++    } else {
++        const NMFEMNodeStateGPU node = candidate[index];
++        const bool finiteNode = baseCGLSFinite4(node.positionAndMass) &&
++            baseCGLSFinite4(node.velocityAndInverseMass) &&
++            baseCGLSFinite4(node.restAndFixed) &&
++            baseCGLSFinite4(node.deltaVelocity) &&
++            baseCGLSFinite4(node.referenceDisplacementAndMode);
++        if (!finiteNode) rowError |= kBaseCGLSErrorNonfinite;
++        const float tag = node.restAndFixed.w;
++        const bool free = tag == 0.0f;
++        if (!isfinite(tag) ||
++            (tag != 0.0f && tag != 1.0f && tag != 3.0f) ||
++            (free && (!isfinite(node.positionAndMass.w) ||
++                      node.positionAndMass.w <= 0.0f)))
++            rowError |= kBaseCGLSErrorUnsupportedConstraint;
++        const float3 expectedMask = free
++            ? float3(1.0f) : float3(0.0f);
++        if (any(mask.xyz != expectedMask))
++            rowError |= kBaseCGLSErrorBadMask;
++        if (!free && (any(rhs.xyz != float3(0.0f)) ||
++                      any(residual.xyz != float3(0.0f)) ||
++                      any(xi.xyz != float3(0.0f)) ||
++                      any(ri.xyz != float3(0.0f)) ||
++                      any(si.xyz != float3(0.0f)) ||
++                      any(pi.xyz != float3(0.0f)) ||
++                      any(qi.xyz != float3(0.0f)) ||
++                      (useRightScale == 1u &&
++                       any(physical.xyz != float3(0.0f)))))
++            rowError |= kBaseCGLSErrorNonzeroConstrainedRow;
++        if (useRightScale == 1u) {
++            const uint block = index * 3u;
++            const float4 row0 = rightScaleRows[block];
++            const float4 row1 = rightScaleRows[block + 1u];
++            const float4 row2 = rightScaleRows[block + 2u];
++            if (!baseCGLSFinite4(row0) || !baseCGLSFinite4(row1) ||
++                !baseCGLSFinite4(row2)) rowError |= kBaseCGLSErrorNonfinite;
++            if (free) {
++                if (row0.w != 1.0f || row1.w != 0.0f || row2.w != 0.0f)
++                    rowError |= kBaseCGLSErrorInvalidRightScale;
++            } else if (any(row0 != float4(0.0f)) ||
++                       any(row1 != float4(0.0f)) ||
++                       any(row2 != float4(0.0f))) {
++                rowError |= kBaseCGLSErrorInvalidRightScale;
++            }
++        }
++    }
++    if (rowError != 0u) baseCGLSMarkError(errors, environment, rowError);
++}
++
++// The finalizer converts any CGLS error to status 5. This exact signature is
++// the only one which can decline the optional warm solve: status 5, selected,
++// exact BadDenominator only, original certificate still present, and all scans
++// above successful. Errors or status changes never authorize this path.
++kernel void nm_fgmres_base_cgls_mark_warm_breakdown_decline(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device float4* metrics [[buffer(1)]],
++    device const float4* scalars [[buffer(2)]],
++    device const uint4* control [[buffer(3)]],
++    device const atomic_uint* errors [[buffer(4)]],
++    device const NMFGMRESStateGPU* states [[buffer(5)]],
++    device const NMMatterStatusGPU* statuses [[buffer(6)]],
++    uint environment [[thread_position_in_grid]]) {
++    if (environment >= dispatch.environmentCount ||
++        metrics[environment].w != 3.0f) return;
++    const uint4 c = control[environment];
++    const float4 scalar = scalars[environment];
++    if (c.x == 5u && c.w == 1u && c.y <= c.z &&
++        (c.z == 32u || c.z == 64u) &&
++        atomic_load_explicit(errors + environment, memory_order_relaxed) ==
++            kBaseCGLSErrorBadDenominator && baseCGLSFinite4(scalar) &&
++        isfinite(metrics[environment].x) && metrics[environment].x > 0.0f &&
++        states[environment].diagnostics.z > 0.5f &&
++        environmentHealthy(statuses, environment)) {
++        metrics[environment].w = 5.0f;
++    }
++}
++
+ // Installing x is separate from its construction: the old linear certificate
+ // certifies delta only. No CGLS status is a production convergence certificate.
+ kernel void nm_fgmres_install_base_cgls_direction(
+@@ -86,6 +239,65 @@
+     uint environment [[thread_position_in_grid]]) {
+     if (environment >= dispatch.environmentCount) return;
+     float4 metric = metrics[environment];
++    const bool refinementMode = requireResidualImprovement == 1u;
++    if (metric.w == 5.0f) {
++        const uint4 breakdownControl = control[environment];
++        const uint breakdownErrors = atomic_load_explicit(
++            errors + environment, memory_order_relaxed);
++        bool finiteDecline = refinementMode &&
++            breakdownControl.x == 5u && breakdownControl.w == 1u &&
++            breakdownControl.y <= breakdownControl.z &&
++            breakdownErrors == kBaseCGLSErrorBadDenominator &&
++            environmentHealthy(statuses, environment) &&
++            states[environment].diagnostics.z > 0.5f;
++        const uint base = environment * dispatch.femNodeCount;
++        const uint fieldBase = dispatch.environmentCount * dispatch.femNodeCount;
++        float initialResidual2 = 0.0f, initialCorrection = 0.0f;
++        for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
++            const uint global = base + node;
++            const uint field = fieldBase + global;
++            const float4 initial = solution[global];
++            const float4 b = baseRHS[global];
++            const float4 a = ax[global];
++            const float4 residual = baselineResidual[global];
++            const float4 partial = x[global];
++            finiteDecline = finiteDecline && all(isfinite(initial)) &&
++                all(isfinite(b)) && all(isfinite(a)) &&
++                all(isfinite(residual)) && all(isfinite(partial)) &&
++                initial.w == 0.0f && b.w == 0.0f && a.w == 0.0f &&
++                residual.w == 0.0f && partial.w == 0.0f &&
++                all(isfinite(baseRHS[field])) &&
++                all(isfinite(baselineResidual[field])) &&
++                all(isfinite(x[field])) && all(isfinite(ax[field])) &&
++                all(baseRHS[field] == float4(0.0f)) &&
++                all(baselineResidual[field] == float4(0.0f)) &&
++                all(x[field] == float4(0.0f)) &&
++                all(ax[field] == float4(0.0f));
++            const NMFEMNodeStateGPU n = candidate[global];
++            const bool free = !femStaticConstraint(n.restAndFixed.w) &&
++                isfinite(n.positionAndMass.w) && n.positionAndMass.w > 0.0f;
++            if (free) {
++                fgmresCompensatedAdd(initialResidual2, initialCorrection,
++                    dot(residual.xyz, residual.xyz));
++            } else {
++                finiteDecline = finiteDecline && all(initial == float4(0.0f)) &&
++                    all(b == float4(0.0f)) && all(residual == float4(0.0f)) &&
++                    all(partial == float4(0.0f));
++            }
++        }
++        finiteDecline = finiteDecline && isfinite(initialResidual2) &&
++            initialResidual2 >= 0.0f;
++        if (finiteDecline) {
++            trace[environment] = float4(0.0f, sqrt(initialResidual2), 0.0f, 3.0f);
++            metric.w = 0.0f;
++            metrics[environment] = metric;
++            return;
++        }
++        // A later nonfinite operator action or a new error bit invalidates the
++        // pre-action classification. Restore the ordinary fail-closed path.
++        metric.w = 3.0f;
++        metrics[environment] = metric;
++    }
+     if (metric.w != 3.0f) {
+         trace[environment] = float4(0.0f);
+         return;
+@@ -101,7 +313,6 @@
+     float xn = 0.0f, xc = 0.0f, rn = 0.0f, rc = 0.0f;
+     float descent = 0.0f, dc = 0.0f;
+     float baselineResidual2 = 0.0f, brc = 0.0f;
+-    const bool refinementMode = requireResidualImprovement == 1u;
+     for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+         const uint global = base + node;
+         const uint field = fieldBase + global;
+--- a/matter/src/metal/base_cgls.metalinc
++++ b/matter/src/metal/base_cgls.metalinc
+@@ -171,6 +171,7 @@
+     device const float4* initialSolution [[buffer(5)]],
+     device float4* candidateSolution [[buffer(6)]],
+     device atomic_uint* errors [[buffer(7)]],
++    device const float4* metrics [[buffer(8)]],
+     uint index [[thread_position_in_grid]]) {
+     if (index >= unknownCount) return;
+     if (!baseCGLSVectorLayoutValid(unknownCount, environmentCount)) {
+@@ -191,6 +192,9 @@
+         candidateSolution[index] = float4(0.0f);
+         return;
+     }
++    // Preserve the unfinished private correction on the exact warm-only
++    // finite-breakdown decline; x0 remains the production solution.
++    if (metrics[environment].w == 5.0f) return;
+     const uint selectedValue = selected[environment];
+     if (selectedValue > 1u) {
+         baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadSelection);
+--- a/matter/tools/cardboard_base_cgls_warm_start_check.mm
++++ b/matter/tools/cardboard_base_cgls_warm_start_check.mm
+@@ -8,6 +8,7 @@
+ #include <cstring>
+ #include <functional>
+ #include <iostream>
++#include <limits>
+ #include <stdexcept>
+ #include <string>
+ #include <vector>
+@@ -37,7 +38,7 @@
+ }
+ int main(){@autoreleasepool{try{
+     id<MTLDevice>d=MTLCreateSystemDefaultDevice();require(d!=nil,"no Metal device");id<MTLCommandQueue>q=[d newCommandQueue];require(q!=nil,"no Metal queue");NSError*err=nil;NSString*path=[NSString stringWithUTF8String:NUMI_WARM_START_METALLIB];id<MTLLibrary>lib=[d newLibraryWithURL:[NSURL fileURLWithPath:path] error:&err];require(lib!=nil,std::string("load library: ")+((err.localizedDescription.UTF8String ? err.localizedDescription.UTF8String : "unknown")));
+-    auto pseed=pipeline(d,lib,"nm_fgmres_base_cgls_seed_residual"),padd=pipeline(d,lib,"nm_fgmres_base_cgls_add_initial_solution"),pinstall=pipeline(d,lib,"nm_fgmres_install_base_cgls_direction"),pclear=pipeline(d,lib,"nm_warm_check_clear"),papply=pipeline(d,lib,"nm_warm_check_apply_A");
++    auto pseed=pipeline(d,lib,"nm_fgmres_base_cgls_seed_residual"),padd=pipeline(d,lib,"nm_fgmres_base_cgls_add_initial_solution"),pvalidateRows=pipeline(d,lib,"nm_fgmres_base_cgls_validate_warm_breakdown_rows"),pmarkBreakdown=pipeline(d,lib,"nm_fgmres_base_cgls_mark_warm_breakdown_decline"),pinstall=pipeline(d,lib,"nm_fgmres_install_base_cgls_direction"),pclear=pipeline(d,lib,"nm_warm_check_clear"),papply=pipeline(d,lib,"nm_warm_check_apply_A");
+     const std::vector<float>A{4,1,0,.2f,0,0,.1f,3,1,0,0,0,0,.2f,2.5f,1,0,0,0,0,.1f,4,1,0,1,0,0,.1f,3,1,0,0,1,0,.2f,2};
+     const std::vector<U>freeNodes{0,2};std::vector<U>cols;std::vector<float>vals;std::vector<U>rowOff{0};for(U r=0;r<6;++r){for(U c=0;c<6;++c)if(A[r*6+c]!=0){cols.push_back(c);vals.push_back(A[r*6+c]);}rowOff.push_back(U(cols.size()));}
+     std::vector<F4>rhs(UCount,F4{0,0,0,0}),mask(UCount,F4{0,0,0,0}),x0(UCount,F4{0,0,0,0});rhs[0]=F4{1,-2,.5f,0};rhs[2]=F4{3,-1,2.5f,0};mask[0]=mask[2]=F4{1,1,1,0};x0[0]=F4{.2f,-.1f,.05f,0};x0[2]=F4{-.1f,.15f,.04f,0};
+@@ -51,7 +52,9 @@
+     run(d,q,pseed,UCount,[&](id<MTLComputeCommandEncoder>e){bytes(e,UCount,0);bytes(e,E,1);bind(e,maskB,2);bind(e,envB,3);bind(e,selectedB,4);bind(e,rhsB,5);bind(e,x0B,6);bind(e,ax0B,7);bind(e,residualB,8);bind(e,errorsB,9);});
+     const auto*seed=static_cast<const F4*>(residualB.contents);require(static_cast<const U*>(errorsB.contents)[0]==0,"seed kernel raised error");for(U node:{0u,2u})for(U k=0;k<3;++k)require(std::abs(component(seed[node],k)-(component(rhs[node],k)-component(static_cast<const F4*>(ax0B.contents)[node],k)))<2e-6f,"seed residual differs from b-A*x0");for(U i=1;i<UCount;++i)if(i!=2)require(seed[i].x==0&&seed[i].y==0&&seed[i].z==0&&seed[i].w==0,"constrained/field seed row is nonzero");
+     std::vector<float>xTrue(6);solve6(A,rhs,xTrue);std::vector<F4>correction(UCount,F4{0,0,0,0});for(U k=0;k<3;++k){component(correction[0],k)=xTrue[k]-component(x0[0],k);component(correction[2],k)=xTrue[k+3]-component(x0[2],k);}auto candidateB=makeBuffer(d,correction,"correction candidate");
+-    run(d,q,padd,UCount,[&](id<MTLComputeCommandEncoder>e){bytes(e,UCount,0);bytes(e,E,1);bind(e,maskB,2);bind(e,envB,3);bind(e,selectedB,4);bind(e,x0B,5);bind(e,candidateB,6);bind(e,errorsB,7);});require(static_cast<const U*>(errorsB.contents)[0]==0,"add x0 kernel raised error");const auto*total=static_cast<const F4*>(candidateB.contents);for(U k=0;k<3;++k){require(std::abs(component(total[0],k)-xTrue[k])<2e-6f,"x0+correction node0");require(std::abs(component(total[2],k)-xTrue[k+3])<2e-6f,"x0+correction node2");}require(total[1].x==0&&total[3].x==0,"fixed/field candidate rows not zero");
++    std::vector<F4> neutralMetrics{{0,0,0,0}};
++    auto neutralMetricsB=makeBuffer(d,neutralMetrics,"neutral add-initial metrics");
++    run(d,q,padd,UCount,[&](id<MTLComputeCommandEncoder>e){bytes(e,UCount,0);bytes(e,E,1);bind(e,maskB,2);bind(e,envB,3);bind(e,selectedB,4);bind(e,x0B,5);bind(e,candidateB,6);bind(e,errorsB,7);bind(e,neutralMetricsB,8);});require(static_cast<const U*>(errorsB.contents)[0]==0,"add x0 kernel raised error");const auto*total=static_cast<const F4*>(candidateB.contents);for(U k=0;k<3;++k){require(std::abs(component(total[0],k)-xTrue[k])<2e-6f,"x0+correction node0");require(std::abs(component(total[2],k)-xTrue[k+3])<2e-6f,"x0+correction node2");}require(total[1].x==0&&total[3].x==0,"fixed/field candidate rows not zero");
+     auto axB=makeBuffer(d,std::vector<F4>(UCount),"candidate A action");run(d,q,pclear,UCount,[&](id<MTLComputeCommandEncoder>e){bytes(e,UCount,0);bind(e,axB,1);});run(d,q,papply,UCount,[&](id<MTLComputeCommandEncoder>e){bytes(e,N,0);bytes(e,U(2),1);bytes(e,U(6),2);bind(e,offB,3);bind(e,colB,4);bind(e,valB,5);bind(e,freeB,6);bind(e,candidateB,7);bind(e,axB,8);bind(e,controlB,9);});
+     std::vector<F4>metrics0{{0,0,0,3}},lines0{{.25f,2,3,4}},traces0(1,F4{});std::vector<float>envLines0{.5f};std::vector<NMFGMRESStateGPU>states0(1);states0[0].diagnostics={0,0,1,0};std::vector<NMMatterStatusGPU>statuses0(1),trial0(1);std::vector<U4>cgls0{{kExhausted,64,64,1}};auto metricsB=makeBuffer(d,metrics0,"metrics"),lineB=makeBuffer(d,lines0,"line search"),envLineB=makeBuffer(d,envLines0,"environment line"),traceB=makeBuffer(d,traces0,"trace"),statesB=makeBuffer(d,states0,"FGMRES states"),statusB=makeBuffer(d,statuses0,"status"),trialB=makeBuffer(d,trial0,"trial status"),cglsB=makeBuffer(d,cgls0,"CGLS control"),solutionB=makeBuffer(d,x0,"production solution");
+     U iter=48,requireImprovement=1;install(d,q,pinstall,dispatchB,layoutB,metricsB,nodesB,rhsB,candidateB,axB,cglsB,errorsB,solutionB,lineB,envLineB,traceB,statesB,statusB,trialB,iter,residualB,requireImprovement);const auto*installed=static_cast<const F4*>(solutionB.contents);require(static_cast<const NMMatterStatusGPU*>(statusB.contents)[0].code==0,"strict improved candidate status");require(static_cast<const NMFGMRESStateGPU*>(statesB.contents)[0].diagnostics.z==0,"strict improved candidate did not clear old certificate");require(std::abs(installed[0].x-total[0].x)<1e-6f&&std::abs(installed[2].z-total[2].z)<1e-6f,"strict lower-residual candidate not installed");require(static_cast<const F4*>(traceB.contents)[0].w==2.0f,"warm trace does not mark installed candidate");
+@@ -106,5 +109,177 @@
+     std::memcpy(solutionB.contents,x0.data(),UCount*sizeof(F4));std::memcpy(candidateB.contents,x0.data(),UCount*sizeof(F4));std::memcpy(axB.contents,ax0B.contents,UCount*sizeof(F4));std::memcpy(statesB.contents,states0.data(),sizeof(NMFGMRESStateGPU));std::memcpy(statusB.contents,statuses0.data(),sizeof(NMMatterStatusGPU));std::memcpy(metricsB.contents,metrics0.data(),sizeof(F4));std::memcpy(lineB.contents,lines0.data(),sizeof(F4));std::memcpy(envLineB.contents,envLines0.data(),sizeof(float));std::memcpy(trialB.contents,trial0.data(),sizeof(NMMatterStatusGPU));std::memcpy(traceB.contents,traces0.data(),sizeof(F4));std::memcpy(errorsB.contents,errors0.data(),sizeof(U));requireImprovement=1;install(d,q,pinstall,dispatchB,layoutB,metricsB,nodesB,rhsB,candidateB,axB,cglsB,errorsB,solutionB,lineB,envLineB,traceB,statesB,statusB,trialB,iter,residualB,requireImprovement);require(std::memcmp(solutionB.contents,x0.data(),UCount*sizeof(F4))==0,"equal-residual refinement changed x0");require(static_cast<const NMFGMRESStateGPU*>(statesB.contents)[0].diagnostics.z==1.0f,"declined refinement cleared original certificate");require(static_cast<const F4*>(metricsB.contents)[0].w==0.0f,"declined refinement left CGLS policy marker armed");require(std::memcmp(lineB.contents,lines0.data(),sizeof(F4))==0&&std::memcmp(envLineB.contents,envLines0.data(),sizeof(float))==0,"declined refinement changed Armijo state");require(static_cast<const F4*>(traceB.contents)[0].w==1.0f,"warm trace does not mark decline");
+     // Legacy mode remains an alternative direction and does not acquire the new residual gate.
+     std::vector<F4>twice(UCount,F4{0,0,0,0}),twiceAx(UCount,F4{0,0,0,0});for(U n:{0u,2u})for(U k=0;k<3;++k){component(twice[n],k)=2.0f*xTrue[(n==0?0u:3u)+k];component(twiceAx[n],k)=2.0f*component(rhs[n],k);}std::memcpy(solutionB.contents,x0.data(),UCount*sizeof(F4));std::memcpy(candidateB.contents,twice.data(),UCount*sizeof(F4));std::memcpy(axB.contents,twiceAx.data(),UCount*sizeof(F4));std::memcpy(statesB.contents,states0.data(),sizeof(NMFGMRESStateGPU));std::memcpy(statusB.contents,statuses0.data(),sizeof(NMMatterStatusGPU));std::memcpy(metricsB.contents,metrics0.data(),sizeof(F4));std::memcpy(errorsB.contents,errors0.data(),sizeof(U));requireImprovement=0;install(d,q,pinstall,dispatchB,layoutB,metricsB,nodesB,rhsB,candidateB,axB,cglsB,errorsB,solutionB,lineB,envLineB,traceB,statesB,statusB,trialB,iter,residualB,requireImprovement);require(std::memcmp(solutionB.contents,twice.data(),UCount*sizeof(F4))==0,"default legacy installer behavior changed");
++    // A denominator-only breakdown may decline an explicitly enabled warm
++    // refinement only after every relevant input and CGLS scratch row is finite.
++    std::vector<F4> breakdownMetrics{{.5f,0,0,3}}, finiteScalars{{1,1,1,1}};
++    std::vector<U4> breakdownControl{{5u,3u,64u,1u}};
++    std::vector<U> breakdownErrors{32u};
++    std::vector<F4> breakdownScaleRows(E*N*3u,F4{0,0,0,0});
++    for(U n : {0u,2u}) {
++        breakdownScaleRows[n*3u+0u]=F4{1,0,0,1};
++        breakdownScaleRows[n*3u+1u]=F4{0,1,0,0};
++        breakdownScaleRows[n*3u+2u]=F4{0,0,1,0};
++    }
++    std::vector<F4> breakdownScalePhysical(UCount,F4{0,0,0,0});
++    std::vector<F4> breakdownCorrection=correction;
++    auto breakdownMetricsB=makeBuffer(d,breakdownMetrics,"finite breakdown metrics");
++    auto breakdownScalarsB=makeBuffer(d,finiteScalars,"finite breakdown scalars");
++    auto breakdownControlB=makeBuffer(d,breakdownControl,"finite breakdown control");
++    auto breakdownErrorsB=makeBuffer(d,breakdownErrors,"finite breakdown errors");
++    auto breakdownScaleRowsB=makeBuffer(d,breakdownScaleRows,"finite breakdown scale rows");
++    auto breakdownScalePhysicalB=makeBuffer(d,breakdownScalePhysical,"finite breakdown scale vector");
++    auto breakdownXB=makeBuffer(d,breakdownCorrection,"finite breakdown x");
++    auto breakdownRB=makeBuffer(d,rhs,"finite breakdown r");
++    auto breakdownSB=makeBuffer(d,rhs,"finite breakdown s");
++    auto breakdownPB=makeBuffer(d,rhs,"finite breakdown p");
++    auto breakdownQB=makeBuffer(d,rhs,"finite breakdown q");
++    auto breakdownCandidateB=makeBuffer(d,breakdownCorrection,"finite breakdown candidate");
++    auto breakdownSolutionB=makeBuffer(d,x0,"finite breakdown solution x0");
++    auto breakdownAxB=makeBuffer(d,std::vector<F4>(UCount,F4{0,0,0,0}),"finite breakdown action");
++    std::vector<NMFGMRESStateGPU> breakdownState(1); breakdownState[0].diagnostics={0,0,1,0};
++    std::vector<NMMatterStatusGPU> breakdownStatus(1), breakdownTrial(1);
++    auto breakdownStateB=makeBuffer(d,breakdownState,"finite breakdown FGMRES state");
++    auto breakdownStatusB=makeBuffer(d,breakdownStatus,"finite breakdown status");
++    auto breakdownTrialB=makeBuffer(d,breakdownTrial,"finite breakdown trial status");
++    auto breakdownLineB=makeBuffer(d,lines0,"finite breakdown line search");
++    auto breakdownEnvLineB=makeBuffer(d,envLines0,"finite breakdown environment line");
++    auto breakdownTraceB=makeBuffer(d,std::vector<F4>(1,F4{0,0,0,0}),"finite breakdown trace");
++    // With scaling disabled, allocator-owned scale scratch may not exist. The
++    // validator must not inspect dummy/nonfinite storage on that branch.
++    std::vector<F4> unusedNonfiniteScaleRows(E*N*3u,F4{0,0,0,0});
++    std::vector<F4> unusedNonfiniteScalePhysical(UCount,F4{0,0,0,0});
++    unusedNonfiniteScaleRows[0].x=std::numeric_limits<float>::quiet_NaN();
++    unusedNonfiniteScalePhysical[0].x=std::numeric_limits<float>::infinity();
++    auto unusedNonfiniteScaleRowsB=makeBuffer(d,unusedNonfiniteScaleRows,
++        "unused nonfinite scale rows");
++    auto unusedNonfiniteScalePhysicalB=makeBuffer(d,unusedNonfiniteScalePhysical,
++        "unused nonfinite scale physical");
++    run(d,q,pvalidateRows,UCount,[&](id<MTLComputeCommandEncoder>e){
++        bind(e,dispatchB,0); bind(e,breakdownMetricsB,1); bind(e,nodesB,2);
++        bind(e,breakdownSolutionB,3); bind(e,rhsB,4); bind(e,residualB,5);
++        bind(e,maskB,6); bind(e,envB,7); bind(e,selectedB,8);
++        bind(e,breakdownXB,9); bind(e,breakdownRB,10); bind(e,breakdownSB,11);
++        bind(e,breakdownPB,12); bind(e,breakdownQB,13);
++        bind(e,unusedNonfiniteScaleRowsB,14);
++        bind(e,unusedNonfiniteScalePhysicalB,15);
++        bind(e,breakdownControlB,16); bind(e,breakdownErrorsB,17);
++        bytes(e,U(0),18);
++    });
++    require(static_cast<const U*>(breakdownErrorsB.contents)[0]==32u,
++        "disabled right-scale scratch incorrectly invalidated finite breakdown");
++    // Restore a clean exact signature and validate the enabled finite block3.
++    std::memcpy(breakdownMetricsB.contents,breakdownMetrics.data(),sizeof(F4));
++    std::memcpy(breakdownErrorsB.contents,breakdownErrors.data(),sizeof(U));
++    run(d,q,pvalidateRows,UCount,[&](id<MTLComputeCommandEncoder>e){
++        bind(e,dispatchB,0); bind(e,breakdownMetricsB,1); bind(e,nodesB,2);
++        bind(e,breakdownSolutionB,3); bind(e,rhsB,4); bind(e,residualB,5);
++        bind(e,maskB,6); bind(e,envB,7); bind(e,selectedB,8);
++        bind(e,breakdownXB,9); bind(e,breakdownRB,10); bind(e,breakdownSB,11);
++        bind(e,breakdownPB,12); bind(e,breakdownQB,13);
++        bind(e,breakdownScaleRowsB,14); bind(e,breakdownScalePhysicalB,15);
++        bind(e,breakdownControlB,16); bind(e,breakdownErrorsB,17);
++        bytes(e,U(1),18);
++    });
++    run(d,q,pmarkBreakdown,E,[&](id<MTLComputeCommandEncoder>e){
++        bind(e,dispatchB,0); bind(e,breakdownMetricsB,1); bind(e,breakdownScalarsB,2);
++        bind(e,breakdownControlB,3); bind(e,breakdownErrorsB,4);
++        bind(e,breakdownStateB,5); bind(e,breakdownStatusB,6);
++    });
++    require(static_cast<const F4*>(breakdownMetricsB.contents)[0].w==5.0f &&
++        static_cast<const U*>(breakdownErrorsB.contents)[0]==32u,
++        "finite exact BadDenominator did not arm warm decline");
++    run(d,q,padd,UCount,[&](id<MTLComputeCommandEncoder>e){
++        bytes(e,UCount,0); bytes(e,E,1); bind(e,maskB,2); bind(e,envB,3);
++        bind(e,selectedB,4); bind(e,breakdownSolutionB,5);
++        bind(e,breakdownCandidateB,6); bind(e,breakdownErrorsB,7);
++        bind(e,breakdownMetricsB,8);
++    });
++    require(std::memcmp(breakdownCandidateB.contents,breakdownCorrection.data(),
++        UCount*sizeof(F4))==0,"finite breakdown changed private candidate during x0 add");
++    U warmMode=1;
++    install(d,q,pinstall,dispatchB,layoutB,breakdownMetricsB,nodesB,rhsB,
++        breakdownCandidateB,breakdownAxB,breakdownControlB,breakdownErrorsB,
++        breakdownSolutionB,breakdownLineB,breakdownEnvLineB,breakdownTraceB,
++        breakdownStateB,breakdownStatusB,breakdownTrialB,iter,residualB,warmMode);
++    require(static_cast<const NMMatterStatusGPU*>(breakdownStatusB.contents)[0].code==0,
++        "finite warm BadDenominator decline failed production status");
++    require(static_cast<const NMFGMRESStateGPU*>(breakdownStateB.contents)[0].diagnostics.z==1.0f,
++        "finite warm BadDenominator decline cleared original certificate");
++    require(std::memcmp(breakdownSolutionB.contents,x0.data(),UCount*sizeof(F4))==0,
++        "finite warm BadDenominator decline changed x0");
++    require(std::memcmp(breakdownLineB.contents,lines0.data(),sizeof(F4))==0 &&
++        std::memcmp(breakdownEnvLineB.contents,envLines0.data(),sizeof(float))==0,
++        "finite warm BadDenominator decline changed Armijo state");
++    require(static_cast<const F4*>(breakdownMetricsB.contents)[0].w==0.0f &&
++        static_cast<const F4*>(breakdownTraceB.contents)[0].w==3.0f,
++        "finite warm BadDenominator decline marker/trace mismatch");
++
++    // Nonfinite scratch invalidates the exact error signature; no decline marker
++    // may be set and the normal installer must remain fail-closed.
++    std::vector<F4> nonfiniteP=rhs; nonfiniteP[0].x=std::numeric_limits<float>::infinity();
++    auto nonfinitePB=makeBuffer(d,nonfiniteP,"nonfinite breakdown p");
++    std::memcpy(breakdownMetricsB.contents,breakdownMetrics.data(),sizeof(F4));
++    std::memcpy(breakdownErrorsB.contents,breakdownErrors.data(),sizeof(U));
++    std::memcpy(breakdownControlB.contents,breakdownControl.data(),sizeof(U4));
++    run(d,q,pvalidateRows,UCount,[&](id<MTLComputeCommandEncoder>e){
++        bind(e,dispatchB,0); bind(e,breakdownMetricsB,1); bind(e,nodesB,2);
++        bind(e,breakdownSolutionB,3); bind(e,rhsB,4); bind(e,residualB,5);
++        bind(e,maskB,6); bind(e,envB,7); bind(e,selectedB,8);
++        bind(e,breakdownXB,9); bind(e,breakdownRB,10); bind(e,breakdownSB,11);
++        bind(e,nonfinitePB,12); bind(e,breakdownQB,13);
++        bind(e,breakdownScaleRowsB,14); bind(e,breakdownScalePhysicalB,15);
++        bind(e,breakdownControlB,16); bind(e,breakdownErrorsB,17);
++        bytes(e,U(1),18);
++    });
++    run(d,q,pmarkBreakdown,E,[&](id<MTLComputeCommandEncoder>e){
++        bind(e,dispatchB,0); bind(e,breakdownMetricsB,1); bind(e,breakdownScalarsB,2);
++        bind(e,breakdownControlB,3); bind(e,breakdownErrorsB,4);
++        bind(e,breakdownStateB,5); bind(e,breakdownStatusB,6);
++    });
++    require(static_cast<const F4*>(breakdownMetricsB.contents)[0].w==3.0f &&
++        static_cast<const U*>(breakdownErrorsB.contents)[0]==36u,
++        "nonfinite CGLS scratch was classified as a safe decline");
++    std::memcpy(breakdownMetricsB.contents,breakdownMetrics.data(),sizeof(F4));
++    std::memcpy(breakdownErrorsB.contents,breakdownErrors.data(),sizeof(U));
++    run(d,q,pvalidateRows,UCount,[&](id<MTLComputeCommandEncoder>e){
++        bind(e,dispatchB,0); bind(e,breakdownMetricsB,1); bind(e,nodesB,2);
++        bind(e,breakdownSolutionB,3); bind(e,rhsB,4); bind(e,residualB,5);
++        bind(e,maskB,6); bind(e,envB,7); bind(e,selectedB,8);
++        bind(e,breakdownXB,9); bind(e,breakdownRB,10); bind(e,breakdownSB,11);
++        bind(e,breakdownPB,12); bind(e,breakdownQB,13);
++        bind(e,breakdownScaleRowsB,14); bind(e,breakdownScalePhysicalB,15);
++        bind(e,breakdownControlB,16); bind(e,breakdownErrorsB,17);
++        bytes(e,U(2),18);
++    });
++    require(static_cast<const U*>(breakdownErrorsB.contents)[0]==33u,
++        "malformed right-scale selector was not a fail-closed mixed error");
++    std::memcpy(breakdownErrorsB.contents,breakdownErrors.data(),sizeof(U));
++    *static_cast<U*>(breakdownErrorsB.contents)=36u;
++    std::memcpy(breakdownMetricsB.contents,breakdownMetrics.data(),sizeof(F4));
++    install(d,q,pinstall,dispatchB,layoutB,breakdownMetricsB,nodesB,rhsB,
++        breakdownCandidateB,breakdownAxB,breakdownControlB,breakdownErrorsB,
++        breakdownSolutionB,breakdownLineB,breakdownEnvLineB,breakdownTraceB,
++        breakdownStateB,breakdownStatusB,breakdownTrialB,iter,residualB,warmMode);
++    require(static_cast<const NMMatterStatusGPU*>(breakdownStatusB.contents)[0].code!=0,
++        "nonfinite/mixed-error warm breakdown was declined as safe");
++
++    // The legacy alternative-direction policy still rejects a CGLS breakdown.
++    std::memcpy(breakdownMetricsB.contents,breakdownMetrics.data(),sizeof(F4));
++    std::memcpy(breakdownErrorsB.contents,breakdownErrors.data(),sizeof(U));
++    std::memcpy(breakdownControlB.contents,breakdownControl.data(),sizeof(U4));
++    std::memcpy(breakdownStatusB.contents,breakdownStatus.data(),sizeof(NMMatterStatusGPU));
++    std::memcpy(breakdownStateB.contents,breakdownState.data(),sizeof(NMFGMRESStateGPU));
++    std::memcpy(breakdownSolutionB.contents,x0.data(),UCount*sizeof(F4));
++    U legacyMode=0;
++    install(d,q,pinstall,dispatchB,layoutB,breakdownMetricsB,nodesB,rhsB,
++        breakdownCandidateB,breakdownAxB,breakdownControlB,breakdownErrorsB,
++        breakdownSolutionB,breakdownLineB,breakdownEnvLineB,breakdownTraceB,
++        breakdownStateB,breakdownStatusB,breakdownTrialB,iter,residualB,legacyMode);
++    require(static_cast<const NMMatterStatusGPU*>(breakdownStatusB.contents)[0].code!=0,
++        "legacy CGLS breakdown was incorrectly declined");
++    require(std::memcmp(breakdownSolutionB.contents,x0.data(),UCount*sizeof(F4))==0 &&
++        static_cast<const NMFGMRESStateGPU*>(breakdownStateB.contents)[0].diagnostics.z==1.0f,
++        "legacy CGLS breakdown changed x0 or its certificate");
++
+     std::cout<<"warm-start Metal kernel checker complete; checks="<<checks<<"; metal_kernel_checks_executed=1; physical_transactions=0\n";return 0;
+ }catch(const std::exception&e){std::cerr<<"warm-start checker error: "<<e.what()<<"\n";return 1;}}}

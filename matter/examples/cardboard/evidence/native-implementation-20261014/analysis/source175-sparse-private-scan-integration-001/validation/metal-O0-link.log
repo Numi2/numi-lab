@@ -1,0 +1,5 @@
+argv=["xcrun", "-sdk", "macosx", "metallib", "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/NumiMatter-O0.air", "-o", "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/NumiMatter-O0.metallib"]
+exit_code=0
+--- stdout ---
+
+--- stderr ---

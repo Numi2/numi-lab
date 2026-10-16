@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "ctest",
+    "--test-dir",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-173",
+    "-R",
+    "^matter\\.compiler\\.cardboard_(shipping_snapshot|coupon_resume)$",
+    "--output-on-failure",
+    "-j",
+    "1"
+  ],
+  "cwd": "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173",
+  "exit_code": 0,
+  "elapsed_seconds": 0.7049137909780256,
+  "stdout_sha256": "9de158da6d576b5deb22d71bc573e31e0fe4ac8bc6b1c6e4a7a63f573a571842",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

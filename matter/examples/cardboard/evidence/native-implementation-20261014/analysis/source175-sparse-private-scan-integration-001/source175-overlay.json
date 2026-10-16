@@ -1,0 +1,433 @@
+{
+  "candidate_root": "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/candidate",
+  "evidence_inventory": [
+    {
+      "mode": 420,
+      "path": "README.md",
+      "sha256": "f36764385dffec9863871efef29ea972a843048a5653f176fbb25cca9b732214",
+      "size_bytes": 3846
+    },
+    {
+      "mode": 420,
+      "path": "candidate/matter/CMakeLists.txt",
+      "sha256": "50657e9481343e7ddb487d0fa973d53045f0fcfb805cb9d098d3e6c646df6470",
+      "size_bytes": 116965
+    },
+    {
+      "mode": 420,
+      "path": "candidate/matter/include/numi/matter/sparse_private_contact_admission.hpp",
+      "sha256": "4cf5d32e78cf45bed72406c99df85b050c8d0548e3e043fbd9a1d810e7eb9ef1",
+      "size_bytes": 9937
+    },
+    {
+      "mode": 420,
+      "path": "candidate/matter/src/metal/contact.metalinc",
+      "sha256": "b1dc8d0e6843d5aed3a8c6d28449dae8c4d3a60488e644195e9fed5ed121d346",
+      "size_bytes": 423974
+    },
+    {
+      "mode": 420,
+      "path": "candidate/matter/src/runtime.mm",
+      "sha256": "836b146cc4e95e9096f094f33e7bfd7248bc816821541238321deca7ad7ff61a",
+      "size_bytes": 1927712
+    },
+    {
+      "mode": 420,
+      "path": "candidate/matter/tools/cardboard_full_contact_armijo_check.mm",
+      "sha256": "1dec970ac51c831d142ddff7ea92c33106ab194ba723dc8d14df4c97da91d113",
+      "size_bytes": 329253
+    },
+    {
+      "mode": 420,
+      "path": "candidate/matter/tools/cardboard_shipping_memory_check.cpp",
+      "sha256": "fe2990ba583efcf50061cef213649788c5eb866439e327ff94d607080706e2f3",
+      "size_bytes": 46071
+    },
+    {
+      "mode": 420,
+      "path": "candidate/matter/tools/cardboard_sparse_private_contact_admission_check.cpp",
+      "sha256": "7ab78bc027f6e7cac94c795931eb106953cffc8e7b85dbaf6adab5e0a0394732",
+      "size_bytes": 3141
+    },
+    {
+      "mode": 420,
+      "path": "candidate/matter/tools/cardboard_sparse_private_contact_scan_native_check.mm",
+      "sha256": "bf18e81d70b3ca120d0afa479af0bcb5c4c1b435c1dbd55b8df6db820a7b8b5d",
+      "size_bytes": 25932
+    },
+    {
+      "mode": 420,
+      "path": "runtime-3way-merge.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "mode": 420,
+      "path": "runtime-3way-merge.stdout",
+      "sha256": "836b146cc4e95e9096f094f33e7bfd7248bc816821541238321deca7ad7ff61a",
+      "size_bytes": 1927712
+    },
+    {
+      "mode": 420,
+      "path": "seal.py",
+      "sha256": "524e57bccfb918ade610c5012025328ba175cfe6682f1ea09251df611ae3358a",
+      "size_bytes": 7621
+    },
+    {
+      "mode": 420,
+      "path": "shipping-admission-audit-001/README.md",
+      "sha256": "8ea2431c748f3f498edcd12ee2ce8cb58061c53b74eb1e8e763127dd69556b24",
+      "size_bytes": 4670
+    },
+    {
+      "mode": 420,
+      "path": "shipping-admission-audit-001/report.json",
+      "sha256": "bd1aa2912149ee499050d416f05af6a95dcd59ba4da1f2ba11acbe36589816b5",
+      "size_bytes": 8259
+    },
+    {
+      "mode": 420,
+      "path": "source175-integration.patch",
+      "sha256": "5c28690d844ebb162c13f2fe0333e70d9e9699bcb02661ee2f7ed917de537110",
+      "size_bytes": 53475
+    },
+    {
+      "mode": 420,
+      "path": "three-way-proof.json",
+      "sha256": "76e0279f0bf67e31a49be3f3975588c1d2436a5701a3a6ec9db878f22a001ff0",
+      "size_bytes": 7378
+    },
+    {
+      "mode": 420,
+      "path": "validation/NumiMatter-O0.air",
+      "sha256": "bf61e5ad1afce82c383d7c00a163f6ec290d16f4cc08da2934af4d6d06872f54",
+      "size_bytes": 2360512
+    },
+    {
+      "mode": 420,
+      "path": "validation/NumiMatter-O0.metallib",
+      "sha256": "621f74b618311965453450e7935ccc2c22d7c2cda547533546aac33477107c20",
+      "size_bytes": 9833168
+    },
+    {
+      "mode": 420,
+      "path": "validation/NumiMatter-O3.air",
+      "sha256": "6bc6e9b5bd553bd67180db2e269bc8dd53e38d56df93efbd20ee08de66d9bbbc",
+      "size_bytes": 1621360
+    },
+    {
+      "mode": 420,
+      "path": "validation/NumiMatter-O3.metallib",
+      "sha256": "a29f3cde763b4fc5461654f42ac233d541d9c506cf08d9e2b2d71156a72048a3",
+      "size_bytes": 7029968
+    },
+    {
+      "mode": 420,
+      "path": "validation/cpu-validation.json",
+      "sha256": "e9a1d00c74d1f03534c5c2c7ac6b0bd592a8d3ae04f3f1157a7c56c065efe3f3",
+      "size_bytes": 9309
+    },
+    {
+      "mode": 420,
+      "path": "validation/full_contact_tool_objc_syntax.log",
+      "sha256": "2e245817e72fcb1b47b6c41d6277375fa175ee3a7bc5829f324ac12682bb2d28",
+      "size_bytes": 1417
+    },
+    {
+      "mode": 420,
+      "path": "validation/integration-verification.json",
+      "sha256": "797bef48e70aec80bfe8797ace4e3b334b3024d1bc0aca4093b8397fed13a316",
+      "size_bytes": 3854
+    },
+    {
+      "mode": 420,
+      "path": "validation/matter_kernels.metal",
+      "sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168",
+      "size_bytes": 561
+    },
+    {
+      "mode": 420,
+      "path": "validation/metal-O0-compile.log",
+      "sha256": "f518e9c02f74c6ad754b942ce5b096c3eb55805c113ee2388bbba3209f8ce04e",
+      "size_bytes": 3324
+    },
+    {
+      "mode": 420,
+      "path": "validation/metal-O0-link.log",
+      "sha256": "c0110ead0f1220a0799293c116a7fde403444ba281a95ef969950c25d42b3d65",
+      "size_bytes": 365
+    },
+    {
+      "mode": 420,
+      "path": "validation/metal-O3-compile.log",
+      "sha256": "0e2b27c8fcac693b4b543cf8c0199ac9268036afecbf5626839e68cc60d7506d",
+      "size_bytes": 3324
+    },
+    {
+      "mode": 420,
+      "path": "validation/metal-O3-link.log",
+      "sha256": "ee42ad2a55ec29c958b2a00551a1606d3d7b6534c7ac77054615e81c2c90047d",
+      "size_bytes": 365
+    },
+    {
+      "mode": 420,
+      "path": "validation/metal-validation.json",
+      "sha256": "10ad015b077587155f5ba0c39a33dfd4ab5b690ebc0efff12ea9e3bff2d416dd",
+      "size_bytes": 4245
+    },
+    {
+      "mode": 493,
+      "path": "validation/run_cpu_validation.py",
+      "sha256": "e03d7f5a443a55fa392ecbebb6f8e3fede83d20c323461dcee53cba250c3781c",
+      "size_bytes": 3338
+    },
+    {
+      "mode": 420,
+      "path": "validation/run_shipping_size_probe.py",
+      "sha256": "ae862c2e65b65e05f6cfd99a8e2cd08492554d136e9d33e841ef823a6be39777",
+      "size_bytes": 2595
+    },
+    {
+      "mode": 420,
+      "path": "validation/runtime_objc_syntax.log",
+      "sha256": "766e5b5ca48cb24512e073f4d6a9f58737a3e263f3677ff7ae080aa8d9c2dc26",
+      "size_bytes": 1330
+    },
+    {
+      "mode": 493,
+      "path": "validation/shipping-arena-size-probe",
+      "sha256": "a7f5bf83a40401753720fe380716230b65b1261ffb81c485077c663281b72e2d",
+      "size_bytes": 33448
+    },
+    {
+      "mode": 420,
+      "path": "validation/shipping_admission_audit.py",
+      "sha256": "83c3c91de0cd6d41eef6e17e06281c3ba3c82e8eece9ccb5462cfa23ca641355",
+      "size_bytes": 12501
+    },
+    {
+      "mode": 420,
+      "path": "validation/shipping_arena_size_probe.cpp",
+      "sha256": "726ccf9dad8b6ad9e776a8fed7cc3ed8f95a65481b9dba5d20589f4bf40c51b7",
+      "size_bytes": 965
+    },
+    {
+      "mode": 420,
+      "path": "validation/shipping_arena_size_probe_compile.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "mode": 420,
+      "path": "validation/shipping_arena_size_probe_compile.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "mode": 420,
+      "path": "validation/shipping_arena_size_probe_run.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "mode": 420,
+      "path": "validation/shipping_arena_size_probe_run.stdout",
+      "sha256": "ca6569ca032d660f685a533e74e78b66e8a07b1ac4aa0ac4cfc566fe67dd9d2c",
+      "size_bytes": 277
+    },
+    {
+      "mode": 420,
+      "path": "validation/shipping_arena_size_probe_validation.json",
+      "sha256": "863ae118d085ace3ae2ceefa5f036e5203820058d8f8d43e83bb2c2c02f90c47",
+      "size_bytes": 1458
+    },
+    {
+      "mode": 420,
+      "path": "validation/shipping_memory_tool_syntax.log",
+      "sha256": "91aff9b0a4088d417c558ae518bd5ffaee5d69a4c821aabceffceed7281e5161",
+      "size_bytes": 1162
+    },
+    {
+      "mode": 493,
+      "path": "validation/sparse-admission-check",
+      "sha256": "d19250a5dcb1566bcbdd0899043120686e344e79f19f49d056ffb22b44ddb513",
+      "size_bytes": 40632
+    },
+    {
+      "mode": 493,
+      "path": "validation/sparse-scan-checker",
+      "sha256": "b28cf5ef12bf13935f12302ecf29786d6d79a0d9cf83508b14148f5bf647181d",
+      "size_bytes": 192368
+    },
+    {
+      "mode": 420,
+      "path": "validation/sparse_admission_compile.log",
+      "sha256": "2966ff1981b6d962360abb5099576aa5efc44094226cf39d57022d485262b5a3",
+      "size_bytes": 814
+    },
+    {
+      "mode": 420,
+      "path": "validation/sparse_admission_execute.log",
+      "sha256": "bd9f25b26073a50373e63e1422e07636ae2f69a4453e683d64f6d710b9e67125",
+      "size_bytes": 322
+    },
+    {
+      "mode": 420,
+      "path": "validation/sparse_native_checker_compile.log",
+      "sha256": "4f3f111bcfdde7e4a665945d1982ee061c248f18edcf0252fc1e902bbc5b4eed",
+      "size_bytes": 1061
+    },
+    {
+      "mode": 420,
+      "path": "validation/sparse_native_checker_cpu_only.log",
+      "sha256": "e6167f0539eb3522e9407223bf93e56aec46bea532ddd943c21bff88e34b4e85",
+      "size_bytes": 327
+    },
+    {
+      "mode": 493,
+      "path": "validation/verify_integration.py",
+      "sha256": "d952bdd11afa139d120acd302921367d4f73603e378793609bfd3a0ec1520a5d",
+      "size_bytes": 4981
+    },
+    {
+      "mode": 420,
+      "path": "verify_seal.py",
+      "sha256": "a3fd2757df620dac803c9631f8976d2ba882597a90be09bc5ec3db0464d9881d",
+      "size_bytes": 2840
+    }
+  ],
+  "gpu_dispatch": false,
+  "integration": {
+    "changed_source_count": 8,
+    "changed_sources": [
+      {
+        "base173_sha256": "e1d9fef5b4e2e61c1caa8557749dc889a0581d2173aa211990ebdecb35adda26",
+        "path": "matter/CMakeLists.txt",
+        "source170_candidate_sha256": "50657e9481343e7ddb487d0fa973d53045f0fcfb805cb9d098d3e6c646df6470",
+        "source170_runtime_replaced_by_three_way_merge": false,
+        "source175_candidate_sha256": "50657e9481343e7ddb487d0fa973d53045f0fcfb805cb9d098d3e6c646df6470"
+      },
+      {
+        "base173_sha256": "859c763ca42e8b6867f0ec77bcb5661ae143cd79ad2df87dde083b51ba138371",
+        "path": "matter/include/numi/matter/sparse_private_contact_admission.hpp",
+        "source170_candidate_sha256": "4cf5d32e78cf45bed72406c99df85b050c8d0548e3e043fbd9a1d810e7eb9ef1",
+        "source170_runtime_replaced_by_three_way_merge": false,
+        "source175_candidate_sha256": "4cf5d32e78cf45bed72406c99df85b050c8d0548e3e043fbd9a1d810e7eb9ef1"
+      },
+      {
+        "base173_sha256": "cd5aaee17244b52e0b6eebb81cf2fcaff4fbbfb47fe43726fc5bbacec2e9527a",
+        "path": "matter/src/metal/contact.metalinc",
+        "source170_candidate_sha256": "b1dc8d0e6843d5aed3a8c6d28449dae8c4d3a60488e644195e9fed5ed121d346",
+        "source170_runtime_replaced_by_three_way_merge": false,
+        "source175_candidate_sha256": "b1dc8d0e6843d5aed3a8c6d28449dae8c4d3a60488e644195e9fed5ed121d346"
+      },
+      {
+        "base173_sha256": "bfa82d0aa26f055c984619770ff08369e59ce4202dd6f8203516d8df658db392",
+        "path": "matter/src/runtime.mm",
+        "source170_candidate_sha256": "27fc31beb644b01b5d97c1942dd3c59dcbfb369b87b9750b916d91f5f7c30acd",
+        "source170_runtime_replaced_by_three_way_merge": true,
+        "source175_candidate_sha256": "836b146cc4e95e9096f094f33e7bfd7248bc816821541238321deca7ad7ff61a"
+      },
+      {
+        "base173_sha256": "95e52efd34aeffab1d220b4fa8840b885001dbc156d4a1d8f793210e3c40d0f3",
+        "path": "matter/tools/cardboard_full_contact_armijo_check.mm",
+        "source170_candidate_sha256": "1dec970ac51c831d142ddff7ea92c33106ab194ba723dc8d14df4c97da91d113",
+        "source170_runtime_replaced_by_three_way_merge": false,
+        "source175_candidate_sha256": "1dec970ac51c831d142ddff7ea92c33106ab194ba723dc8d14df4c97da91d113"
+      },
+      {
+        "base173_sha256": "4cce5796fd2f22787def0e9de2aa6d566bfbf4b8ee1bbd8e80f408593f65acd3",
+        "path": "matter/tools/cardboard_shipping_memory_check.cpp",
+        "source170_candidate_sha256": "fe2990ba583efcf50061cef213649788c5eb866439e327ff94d607080706e2f3",
+        "source170_runtime_replaced_by_three_way_merge": false,
+        "source175_candidate_sha256": "fe2990ba583efcf50061cef213649788c5eb866439e327ff94d607080706e2f3"
+      },
+      {
+        "base173_sha256": null,
+        "path": "matter/tools/cardboard_sparse_private_contact_admission_check.cpp",
+        "source170_candidate_sha256": "7ab78bc027f6e7cac94c795931eb106953cffc8e7b85dbaf6adab5e0a0394732",
+        "source170_runtime_replaced_by_three_way_merge": false,
+        "source175_candidate_sha256": "7ab78bc027f6e7cac94c795931eb106953cffc8e7b85dbaf6adab5e0a0394732"
+      },
+      {
+        "base173_sha256": null,
+        "path": "matter/tools/cardboard_sparse_private_contact_scan_native_check.mm",
+        "source170_candidate_sha256": "bf18e81d70b3ca120d0afa479af0bcb5c4c1b435c1dbd55b8df6db820a7b8b5d",
+        "source170_runtime_replaced_by_three_way_merge": false,
+        "source175_candidate_sha256": "bf18e81d70b3ca120d0afa479af0bcb5c4c1b435c1dbd55b8df6db820a7b8b5d"
+      }
+    ],
+    "merge_summary": {
+      "other_source170_files_copied_exactly": 7,
+      "overlapping_runtime_file_count": 1,
+      "source169_to170_hunks": 8,
+      "source169_to173_hunks": 4
+    },
+    "patch_path": "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/source175-integration.patch",
+    "patch_reconstructs_exact_candidate": true,
+    "patch_sha256": "5c28690d844ebb162c13f2fe0333e70d9e9699bcb02661ee2f7ed917de537110",
+    "proof_path": "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/three-way-proof.json",
+    "proof_sha256": "76e0279f0bf67e31a49be3f3975588c1d2436a5701a3a6ec9db878f22a001ff0",
+    "runtime_three_way_merge_candidate_sha256": "836b146cc4e95e9096f094f33e7bfd7248bc816821541238321deca7ad7ff61a",
+    "runtime_three_way_merge_conflict_markers": 0,
+    "runtime_three_way_merge_exit_code": 0
+  },
+  "limits": [
+    "No full CMake source build or native Metal dispatch was performed in this overlay task.",
+    "The sparse native checker was compiled and only its --cpu-only route was run; native differential remains pending parent GPU queue.",
+    "Metal O0/O3 compile and metallib linking succeeded; two inherited fgmres.metalinc initialization warnings remain.",
+    "No shipping admission, 16 GiB peak, performance, or physical qualification is claimed."
+  ],
+  "manifest_does_not_self_hash": true,
+  "overlay_id": "source175-sparse-private-scan-integration-001",
+  "overlay_only": true,
+  "parents": {
+    "common_base_169": {
+      "file_count": 804,
+      "manifest_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/frozen-source.json",
+      "manifest_sha256": "f5054091c27a7e1add41630aae1b45ee6ecc3e6d4112ee85c931cc4c70f44ea4",
+      "snapshot_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169"
+    },
+    "source170_sparse_overlay": {
+      "manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/source-overlay.json",
+      "manifest_sha256": "55c7aa0d6b35c2bf4912b572e569899ee31c5ddceb56b48bf276118ffbc62e66",
+      "overlay_root": "/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001",
+      "patch_path": "/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/source-overlay.patch",
+      "patch_sha256": "be6644bf143a32ed9cfcc6d776c455345f7d8631d96dbdd7735df6613a7a2e0e"
+    },
+    "source173_integration_base": {
+      "file_count": 804,
+      "manifest_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/frozen-source.json",
+      "manifest_sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+      "snapshot_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173"
+    }
+  },
+  "physical_transactions": 0,
+  "schema": "numi.cardboard.source175-integration-overlay.v1",
+  "source_snapshots_modified": false,
+  "validation": {
+    "cpu_all_passed": true,
+    "cpu_checks": 7,
+    "cpu_gpu_dispatch": false,
+    "cpu_report_path": "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/cpu-validation.json",
+    "cpu_report_sha256": "e9a1d00c74d1f03534c5c2c7ac6b0bd592a8d3ae04f3f1157a7c56c065efe3f3",
+    "integration_verification_path": "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/integration-verification.json",
+    "integration_verification_sha256": "797bef48e70aec80bfe8797ace4e3b334b3024d1bc0aca4093b8397fed13a316",
+    "metal_all_passed": true,
+    "metal_compile_link_steps": 4,
+    "metal_optimization_levels": [
+      "O0",
+      "O3"
+    ],
+    "metal_report_path": "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/metal-validation.json",
+    "metal_report_sha256": "10ad015b077587155f5ba0c39a33dfd4ab5b690ebc0efff12ea9e3bff2d416dd",
+    "objc_syntax_logs": [
+      "validation/runtime_objc_syntax.log",
+      "validation/full_contact_tool_objc_syntax.log",
+      "validation/shipping_memory_tool_syntax.log"
+    ],
+    "shipping_admission_report_path": "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/shipping-admission-audit-001/report.json",
+    "shipping_admission_report_sha256": "bd1aa2912149ee499050d416f05af6a95dcd59ba4da1f2ba11acbe36589816b5",
+    "shipping_first_scope_gate": "fem_node_cap_8192"
+  }
+}

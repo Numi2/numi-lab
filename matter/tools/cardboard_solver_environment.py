@@ -22,7 +22,7 @@ QUALIFIED_PRODUCERS = frozenset({"source-bound-native-runner", "resolution-study
 DIAGNOSTIC_PRODUCER = "source-bound-diagnostic-runner"
 _KEY_RE = re.compile(r"^[A-Z][A-Z0-9_]*$")
 
-# Extracted from the combined source160-002 runtime and source157 probe
+# Extracted from the combined source169 runtime and source167 probe
 # environment read sites. The helper itself is included in study/source
 # bindings; tests compare this registry to the candidate source so a new
 # control cannot disappear.
@@ -34,6 +34,7 @@ NATIVE_ENV_KEYS = tuple(sorted({
     "NM_FEM_BASE_CGLS_PRIMARY_AFTER",
     "NM_FEM_BASE_CGLS_RIGHT_SCALE",
     "NM_FEM_BASE_CGLS_STATE_CAPTURE",
+    "NM_FEM_BASE_CGLS_WARM_START_REFINE",
     "NM_FEM_CACHE_PROJECTION_REUSE",
     "NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT",
     "NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT",

@@ -1,0 +1,73 @@
+{
+  "files": {
+    "NumiMatter-O3.metallib": {
+      "bytes": 7010399,
+      "sha256": "4fcf68c0a2fffa4b2ae053829f239b983f41b166ea6d53da685216a4ad0ed269"
+    },
+    "README.md": {
+      "bytes": 2721,
+      "sha256": "31cba85d9a4bcdcf33f6cc73a6286ba67f6f43311a593dc62660aad805ad2c0b"
+    },
+    "inputs/case_inventory.py": {
+      "bytes": 2873,
+      "sha256": "9372d6e71508760da00a9813314879ff5941d721a15a9c8afe2a22cfe5a13d17"
+    },
+    "inputs/gpu-case-inventory.json": {
+      "bytes": 12455,
+      "sha256": "89e92e3558393ba9b85befc7282f726a7490d857e18ca92d33f830562dbc0417"
+    },
+    "native-170-command.json": {
+      "bytes": 3178,
+      "sha256": "0b98da39458e57665988d2350900d9b0a2bfb694d119cfa76f87593fcfad92b2"
+    },
+    "runner.py": {
+      "bytes": 15037,
+      "sha256": "d2841ad630088cf0b8cacc0ed0c9c678f0b8911b488c647cb3ec03c726628a2d"
+    },
+    "seal.py": {
+      "bytes": 1155,
+      "sha256": "9ba3b1b1356cfa17f167968227bed8622ff82f14d7bf62209c243abd5ebaac49"
+    },
+    "source/cardboard_sparse_private_contact_scan_native_check.mm": {
+      "bytes": 25932,
+      "sha256": "bf18e81d70b3ca120d0afa479af0bcb5c4c1b435c1dbd55b8df6db820a7b8b5d"
+    },
+    "validation/abi-sizes": {
+      "bytes": 38744,
+      "sha256": "9afe8d9ea581c00381b665adf09d5ae1b67e38962cf60f82c8e7b90df08a8b6d"
+    },
+    "validation/abi-sizes.txt": {
+      "bytes": 599,
+      "sha256": "7e351a6fb36de34d5802eae81471e3f85f323c32d902388674b2d562ccde296d"
+    },
+    "validation/abi_sizes.cpp": {
+      "bytes": 2308,
+      "sha256": "30e57fa6412b23d70254bb11d99ea883c03f4702882a7976fb7a31670dfb0c14"
+    },
+    "validation/checker-compile.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "validation/checker-cpu-only.log": {
+      "bytes": 129,
+      "sha256": "1865defe20bb7d08dcae2884b081d1aedb60501660d997c3c3ba85a801e3e470"
+    },
+    "validation/compile-commands.json": {
+      "bytes": 1809,
+      "sha256": "10679ad9089876a0487be90a470543c3c44adbb8e8dc262036226470596b6b97"
+    },
+    "validation/runner-tests.log": {
+      "bytes": 1410,
+      "sha256": "bacfeafcd91c6553e85de56e4295ddf330e88549a37a724978bfa99a04830246"
+    },
+    "validation/sparse-scan-checker": {
+      "bytes": 192368,
+      "sha256": "b28cf5ef12bf13935f12302ecf29786d6d79a0d9cf83508b14148f5bf647181d"
+    },
+    "validation/test_runner.py": {
+      "bytes": 4057,
+      "sha256": "20ddcb3329408afd08717ff267838b985fe867592c83e1db1cee926769247b6f"
+    }
+  },
+  "schema": "numi.cardboard.native-sparse-scan-package.v1"
+}

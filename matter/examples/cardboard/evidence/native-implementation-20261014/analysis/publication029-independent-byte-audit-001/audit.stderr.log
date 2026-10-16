@@ -1,0 +1,10 @@
+streamed 500/1350 distinct staged blobs
+streamed 1000/1350 distinct staged blobs
+Traceback (most recent call last):
+  File "/Users/home/cardboard-implementation-20261014/analysis/publication029-independent-byte-audit-001/audit.py", line 378, in <module>
+    main()
+  File "/Users/home/cardboard-implementation-20261014/analysis/publication029-independent-byte-audit-001/audit.py", line 297, in main
+    require(summary.get('physical_validation') is False, 'summary physical_validation is not false')
+  File "/Users/home/cardboard-implementation-20261014/analysis/publication029-independent-byte-audit-001/audit.py", line 44, in require
+    raise RuntimeError(message)
+RuntimeError: summary physical_validation is not false

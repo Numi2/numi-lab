@@ -1,0 +1,33 @@
+{
+  "dispatched": false,
+  "reason": "Root owns serialized GPU/native schedule",
+  "argv": [
+    "/tmp/source469-material-replay-check",
+    "--native-469",
+    "--capture-sha256",
+    "cf42bdb145317b24a044e8e7561a99dc987df44761b841a08d7f3b28e6cd96d2",
+    "--package-sha256",
+    "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+    "--manifest-sha256",
+    "142fa1f08cf14ea4eb0e77039174a2c25030e14c0d38d6c9874a06e561bd3f6f",
+    "--receipt-sha256",
+    "35b856b4d94bcc3acfb5e611847ecc166860a228efc81e841decec019ea7e17f",
+    "--mp-reference-sha256",
+    "029c3b5efa8ee3459c5016283ddf0bf09f1204a9359722847bc77bd23ffbb960",
+    "--mp-arrays-sha256",
+    "107e942cc2e131eed8f8db7759f8deb3e86fcdc42d8da249996daf51d6ed11ad",
+    "--mp-package-manifest-sha256",
+    "f176666da43b50a441c038cbd88b5c9c804df32fa8ea9d46483a086ab5616c19",
+    "--reference-export-sha256",
+    "d60d48e42f29608dfd9a0a1c04bc771fb544460966f9f9008628732a9d23dc49",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/diagnostics/final-newton",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/output/compiled.nmatterpack",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/output/manifest.json",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/receipt.json",
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-005/run-002/report.json",
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-005/run-002/mixed_reference_arrays.npz",
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-005/manifest.json",
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-material-replay-174-001/validation/selected-reference-rows-rerun-003.jsonl",
+    "/Users/home/cardboard-implementation-20261014/native/native-source469-material-replay-174-root-run"
+  ]
+}

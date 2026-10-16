@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "ctest",
+    "--test-dir",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169",
+    "-R",
+    "^matter\\.analysis\\.cardboard_(resolution_study|convergence)$",
+    "--output-on-failure",
+    "-j",
+    "1"
+  ],
+  "cwd": "/Users/home",
+  "elapsed_seconds": 1.043694019317627,
+  "exit_code": 0,
+  "stderr_file": "solver-python-ctest.stderr.log",
+  "stdout_file": "solver-python-ctest.stdout.log"
+}

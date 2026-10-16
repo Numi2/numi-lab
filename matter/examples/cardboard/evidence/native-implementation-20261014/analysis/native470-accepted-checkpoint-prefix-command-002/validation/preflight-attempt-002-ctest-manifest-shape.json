@@ -1,0 +1,9 @@
+{
+  "attempt": "002",
+  "correction": "The final validator verifies the exact four inventory entries against source files and verifies that report.json is bound by the manifest; the report itself is checked for exact tests, integer passed count, and source/build bindings.",
+  "failure": "The source167 CTest registration manifest is a four-file hash/byte inventory, not a duplicate report schema.",
+  "incorrect_assumption": "The first v2 validator expected schema/source-build/test fields inside the inventory manifest.",
+  "native_launched": false,
+  "result": "failed_before_native_launch",
+  "schema": "numi.cardboard.native470-preflight-correction-record.v1"
+}

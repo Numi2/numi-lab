@@ -1,0 +1,297 @@
+--- a/matter/tools/cardboard_shipping_snapshot.hpp
++++ b/matter/tools/cardboard_shipping_snapshot.hpp
+@@ -6,6 +6,7 @@
+ 
+ #include "numi/matter/matter.hpp"
+ 
++#include <algorithm>
+ #include <array>
+ #include <cmath>
+ #include <cstdint>
+@@ -149,6 +150,39 @@
+         throw std::runtime_error(std::string("shipping checkpoint is incomplete: ") + label);
+ }
+ 
++// Runtime buffers preserve a typed sentinel even when the logical arena is
++// empty, and pad sub-16-byte payloads to the Metal binding minimum. Snapshot()
++// reads the full physical allocation for exactArena-backed fields, while
++// Runtime::restore requires byte-exact arena size. This helper mirrors
++// runtime.mm checkedBytes() rather than accepting arbitrary extra records.
++template<class T>
++std::size_t shippingSnapshotExpectedPhysicalRecordCount(
++    const std::size_t logicalCount,
++    const char* label) {
++    static_assert(std::is_trivially_copyable_v<T>);
++    constexpr std::size_t elementSize = sizeof(T);
++    if (logicalCount > std::numeric_limits<std::size_t>::max() / elementSize)
++        throw std::length_error(
++            std::string("shipping snapshot physical byte count overflow: ") + label);
++    const std::size_t logicalBytes = logicalCount * elementSize;
++    const std::size_t physicalBytes =
++        std::max({logicalBytes, elementSize, std::size_t{16u}});
++    if (physicalBytes % elementSize != 0u)
++        throw std::length_error(
++            std::string("shipping snapshot sentinel is not record-aligned: ") + label);
++    return physicalBytes / elementSize;
++}
++
++template<class T>
++void requireShippingSnapshotPhysicalSize(
++    const std::vector<T>& values,
++    const std::size_t logicalCount,
++    const char* label) {
++    requireShippingSnapshotSize(
++        values, shippingSnapshotExpectedPhysicalRecordCount<T>(logicalCount, label),
++        label);
++}
++
+ // Runtime::restore is the final device-side layout authority, but a shipping
+ // checkpoint should never be published as accepted when that later restore
+ // will reject it for missing arenas. Validate the state that carries physical
+@@ -177,36 +211,42 @@
+                            const char* label) {
+         requireShippingSnapshotSize(values, expected, label);
+     };
++    const auto exactPhysical = [&](const auto& values,
++                                   const std::size_t logicalCount,
++                                   const char* label) {
++        using Value = typename std::decay_t<decltype(values)>::value_type;
++        requireShippingSnapshotPhysicalSize<Value>(values, logicalCount, label);
++    };
+     exact(state.statuses, environmentCount, "environment status arena");
+-    exact(state.solverCertificates,
++    exactPhysical(state.solverCertificates,
+         perEnvironment(world.objects.size()), "solver certificate arena");
+-    exact(state.femNodes, perEnvironment(world.fem.nodes.size()), "FEM node state");
+-    exact(state.femFields, perEnvironment(world.fem.fields.size()), "FEM field state");
+-    exact(state.femMaterialState,
++    exactPhysical(state.femNodes, perEnvironment(world.fem.nodes.size()), "FEM node state");
++    exactPhysical(state.femFields, perEnvironment(world.fem.fields.size()), "FEM field state");
++    exactPhysical(state.femMaterialState,
+         perEnvironment(shippingSnapshotProduct(
+             world.fem.tetrahedra.size(),
+             static_cast<std::size_t>(dispatch.materialStateStride),
+             "FEM material state")),
+         "FEM material history");
+-    exact(state.femTopologyNodes,
++    exactPhysical(state.femTopologyNodes,
+         perEnvironment(world.fem.topologyNodes.size()), "FEM topology node history");
+-    exact(state.femTopologyTetrahedra,
++    exactPhysical(state.femTopologyTetrahedra,
+         perEnvironment(world.fem.tetrahedra.size()), "FEM topology tetrahedron history");
+-    exact(state.cohesiveFaces,
++    exactPhysical(state.cohesiveFaces,
+         perEnvironment(world.fem.cohesiveFaces.size()), "cohesive interface history");
+-    exact(state.punctureChannels,
++    exactPhysical(state.punctureChannels,
+         perEnvironment(world.fem.punctureChannels.size()), "puncture channel history");
+-    exact(state.topologyStates,
++    exactPhysical(state.topologyStates,
+         perEnvironment(world.objects.size()), "topology generation history");
+-    exact(state.particles,
++    exactPhysical(state.particles,
+         perEnvironment(world.mpm.particles.size()), "particle state");
+-    exact(state.particleMaterialState,
++    exactPhysical(state.particleMaterialState,
+         perEnvironment(shippingSnapshotProduct(
+             world.mpm.particles.size(),
+             static_cast<std::size_t>(dispatch.materialStateStride),
+             "particle material state")),
+         "particle material history");
+-    exact(state.environmentParameters,
++    exactPhysical(state.environmentParameters,
+         perEnvironment(world.parameters.size()), "environment parameter state");
+     exact(state.vascularState,
+         perEnvironment(world.vascular.layout.ranges.z), "vascular state");
+@@ -217,19 +257,19 @@
+         perEnvironment(world.contact.rigidProxies.size()), "rigid proxy state");
+     exact(state.rigidGeneralizedCandidate,
+         perEnvironment(dispatch.rigidGeneralizedCapacity), "rigid generalized state");
+-    exact(state.reactions,
++    exactPhysical(state.reactions,
+         perEnvironment(world.contact.rigidProxies.size()), "rigid reaction state");
+     exact(state.contactHistories,
+         perEnvironment(world.contact.pairs.size()), "rigid contact history");
+     exact(state.deformableContactHistories,
+         perEnvironment(dispatch.deformableContactCapacity), "deformable contact history");
+-    exact(state.adaptive,
++    exactPhysical(state.adaptive,
+         perEnvironment(world.adaptive.size()), "adaptive object state");
+-    exact(state.schedulers,
++    exactPhysical(state.schedulers,
+         perEnvironment(world.schedulers.size()), "scheduler state");
+-    exact(state.learnedWeights,
++    exactPhysical(state.learnedWeights,
+         world.learnedWeights.size(), "learned material state");
+-    exact(state.identification,
++    exactPhysical(state.identification,
+         world.identification.size(), "identification state");
+     exact(state.mpmActiveNodeIndices,
+         perEnvironment(dispatch.mpmActiveNodeCapacity), "MPM active-node index state");
+@@ -240,7 +280,7 @@
+     if (captureDiagnostics) {
+         exact(state.contactSamples,
+             perEnvironment(world.contact.pairs.size()), "contact diagnostic sample state");
+-        exact(state.deformableContactFailures,
++        exactPhysical(state.deformableContactFailures,
+             environmentCount, "deformable contact failure diagnostics");
+     } else if (!state.contactSamples.empty() ||
+                !state.deformableContactFailures.empty()) {
+--- a/matter/tools/cardboard_shipping_snapshot_check.cpp
++++ b/matter/tools/cardboard_shipping_snapshot_check.cpp
+@@ -62,37 +62,73 @@
+     return world;
+ }
+ 
++template<class T>
++std::size_t physicalRecords(const std::size_t logical) {
++    return shipping_snapshot_detail::
++        shippingSnapshotExpectedPhysicalRecordCount<T>(logical, "test fixture");
++}
++
+ RuntimeStateSnapshot completeShippingState(
+     const numi::matter::CompiledWorld& world) {
+     RuntimeStateSnapshot state = acceptedState();
++    const auto envCount = world.dispatch.environmentCount;
++    const auto perEnvironment = [&](const std::size_t count) {
++        return shipping_snapshot_detail::shippingSnapshotExpectedCount(
++            envCount, count, "test fixture");
++    };
+     state.materialStateStride = world.dispatch.materialStateStride;
+-    state.femNodes.resize(4u);
+-    state.femFields.resize(1u);
+-    state.femMaterialState.resize(2u);
+-    state.femTopologyNodes.resize(4u);
+-    state.femTopologyTetrahedra.resize(1u);
+-    state.cohesiveFaces.resize(1u);
+-    state.topologyStates.resize(1u);
+-    state.solverCertificates.resize(1u);
+-    state.particles.clear();
+-    state.particleMaterialState.clear();
+-    state.environmentParameters.resize(2u);
++    state.femNodes.resize(physicalRecords<NMFEMNodeStateGPU>(
++        perEnvironment(world.fem.nodes.size())));
++    state.femFields.resize(physicalRecords<NMFEMFieldStateGPU>(
++        perEnvironment(world.fem.fields.size())));
++    state.femMaterialState.resize(physicalRecords<float>(perEnvironment(
++        shipping_snapshot_detail::shippingSnapshotProduct(
++            world.fem.tetrahedra.size(), world.dispatch.materialStateStride,
++            "test FEM material history"))));
++    state.femTopologyNodes.resize(physicalRecords<NMFEMTopologyNodeGPU>(
++        perEnvironment(world.fem.topologyNodes.size())));
++    state.femTopologyTetrahedra.resize(physicalRecords<NMTetrahedronGPU>(
++        perEnvironment(world.fem.tetrahedra.size())));
++    state.cohesiveFaces.resize(physicalRecords<NMCohesiveFaceGPU>(
++        perEnvironment(world.fem.cohesiveFaces.size())));
++    state.punctureChannels.resize(physicalRecords<NMPunctureChannelGPU>(
++        perEnvironment(world.fem.punctureChannels.size())));
++    state.topologyStates.resize(physicalRecords<NMFEMTopologyStateGPU>(
++        perEnvironment(world.objects.size())));
++    state.solverCertificates.resize(physicalRecords<NMSolverCertificateGPU>(
++        perEnvironment(world.objects.size())));
++    state.particles.resize(physicalRecords<NMParticleStateGPU>(
++        perEnvironment(world.mpm.particles.size())));
++    state.particleMaterialState.resize(physicalRecords<float>(perEnvironment(
++        shipping_snapshot_detail::shippingSnapshotProduct(
++            world.mpm.particles.size(), world.dispatch.materialStateStride,
++            "test particle material history"))));
++    state.environmentParameters.resize(physicalRecords<float>(
++        perEnvironment(world.parameters.size())));
+     state.vascularState.clear();
+     state.vascularClock.clear();
+-    state.rigidStates.resize(1u);
+-    state.rigidGeneralizedCandidate.resize(6u);
+-    state.reactions.resize(1u);
+-    state.contactHistories.resize(1u);
+-    state.deformableContactHistories.resize(3u);
+-    state.adaptive.resize(1u);
+-    state.schedulers.resize(1u);
+-    state.learnedWeights.resize(1u);
+-    state.identification.resize(1u);
+-    state.mpmActiveNodeIndices.resize(2u);
+-    state.mpmNodeToActive.resize(3u);
+-    state.mpmActiveNodeCounts.resize(1u);
+-    state.contactSamples.resize(1u);
+-    state.deformableContactFailures.resize(1u);
++    state.rigidStates.resize(perEnvironment(world.contact.rigidProxies.size()));
++    state.rigidGeneralizedCandidate.resize(
++        perEnvironment(world.dispatch.rigidGeneralizedCapacity));
++    state.reactions.resize(physicalRecords<NMRigidReactionGPU>(
++        perEnvironment(world.contact.rigidProxies.size())));
++    state.contactHistories.resize(perEnvironment(world.contact.pairs.size()));
++    state.deformableContactHistories.resize(
++        perEnvironment(world.dispatch.deformableContactCapacity));
++    state.adaptive.resize(physicalRecords<NMAdaptiveStateGPU>(
++        perEnvironment(world.adaptive.size())));
++    state.schedulers.resize(physicalRecords<NMSchedulerStateGPU>(
++        perEnvironment(world.schedulers.size())));
++    state.learnedWeights.resize(physicalRecords<float>(world.learnedWeights.size()));
++    state.identification.resize(physicalRecords<NMIdentificationDistributionGPU>(
++        world.identification.size()));
++    state.mpmActiveNodeIndices.resize(
++        perEnvironment(world.dispatch.mpmActiveNodeCapacity));
++    state.mpmNodeToActive.resize(perEnvironment(world.dispatch.gridNodeCount));
++    state.mpmActiveNodeCounts.resize(envCount);
++    state.contactSamples.resize(perEnvironment(world.contact.pairs.size()));
++    state.deformableContactFailures.resize(
++        physicalRecords<NMDeformableContactFailureGPU>(envCount));
+     return state;
+ }
+ 
+@@ -196,6 +232,45 @@
+           "incomplete material-history checkpoint was published as accepted");
+ }
+ 
++void testPhysicalSentinelsMatchRuntimeExactArenaContract() {
++    check(physicalRecords<NMCohesiveFaceGPU>(0u) == 1u,
++          "zero cohesive arena must retain one typed runtime sentinel");
++    check(physicalRecords<float>(0u) == 4u &&
++          physicalRecords<float>(1u) == 4u &&
++          physicalRecords<float>(4u) == 4u,
++          "small float arenas must match checkedBytes 16-byte padding");
++    check(physicalRecords<NMPunctureChannelGPU>(0u) == 1u,
++          "zero puncture arena must retain one typed runtime sentinel");
++
++    const auto path = std::filesystem::temp_directory_path() /
++        "numi-cardboard-shipping-snapshot-physical-sentinels.nmcb";
++    std::filesystem::remove(path);
++    auto world = shippingLayoutFixture();
++    world.dispatch.cohesiveFaceCount = 0u;
++    world.fem.cohesiveFaces.clear();
++    world.dispatch.punctureChannelCount = 0u;
++    world.fem.punctureChannels.clear();
++    world.fem.fields.clear();
++    world.mpm.particles.clear();
++    world.parameters.clear();
++    world.adaptive.clear();
++    world.schedulers.clear();
++    world.learnedWeights.clear();
++    world.identification.clear();
++    auto state = completeShippingState(world);
++    writeShippingAcceptedSnapshot(path, state, world, 1u, true);
++    check(std::filesystem::exists(path),
++          "typed sentinel snapshot was rejected before Runtime::restore");
++    std::filesystem::remove(path);
++
++    state.cohesiveFaces.pop_back();
++    bool rejected = false;
++    try { writeShippingAcceptedSnapshot(path, state, world, 1u, true); }
++    catch (const std::runtime_error&) { rejected = true; }
++    check(rejected && !std::filesystem::exists(path),
++          "checkpoint admitted a missing exact physical cohesive arena");
++}
++
+ void testHmaInputRequiresExplicitUncertaintyAndCitation() {
+     std::istringstream valid(
+         "schema=numi.cardboard.shipping-hma-mixed-mode-bilinear.v1\n"
+@@ -246,8 +321,9 @@
+         testTruncatedAndHugeCountsRejectBeforeAllocation();
+         testFingerprintRejectedBeforeMalformedVectors();
+         testIncompleteShippingCheckpointRejectedBeforePublication();
++        testPhysicalSentinelsMatchRuntimeExactArenaContract();
+         testHmaInputRequiresExplicitUncertaintyAndCitation();
+-        std::cout << "shipping snapshot/provenance checks passed: 5\n";
++        std::cout << "shipping snapshot/provenance checks passed: 6\n";
+         return 0;
+     } catch (const std::exception& error) {
+         std::cerr << "shipping snapshot checks failed: " << error.what() << '\n';

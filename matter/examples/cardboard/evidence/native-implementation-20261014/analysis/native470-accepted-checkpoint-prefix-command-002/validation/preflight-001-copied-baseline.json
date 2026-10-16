@@ -1,0 +1,18 @@
+{
+  "active_probe_processes": 0,
+  "available_bytes_at_preflight": 3089690624,
+  "checkpoint_restore_parity_established": false,
+  "command_sha256": "e1d9739c6236a0fe1a65b488a0e015ce62b9e3e5054ca58b111ed68d629a6a7d",
+  "executed_native": false,
+  "frozen_source_sha256": "64a3c2554ced82d754b5513ef01ea056f56aa9d9974ab9ba9386d2dc6b0ff410",
+  "full_protocol_complete": false,
+  "minimum_launch_available_bytes": 2147483648,
+  "physical_arguments_equal_469": true,
+  "preflight_at_utc": "2026-10-16T02:28:59.669126+00:00",
+  "schema": "numi.cardboard.native470-preflight.v1",
+  "source_build_sha256": "c5117e347334fa2edfbe9b1e21ea8812383f89477aa02b79aa76173a30a4cf24",
+  "status": "pass_no_launch",
+  "verified_build_artifacts": 7,
+  "verified_external_inputs": 12,
+  "verified_source_files": 800
+}

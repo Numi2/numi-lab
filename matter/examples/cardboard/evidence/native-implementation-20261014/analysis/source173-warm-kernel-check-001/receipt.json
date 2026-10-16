@@ -1,0 +1,23 @@
+{
+  "schema": "numi.cardboard.source173.warm-kernel-check.v1",
+  "argv": [
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-173/numi-matter-cardboard-warm-start-check"
+  ],
+  "frozen_source_sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+  "source_build_sha256": "0306631506b565f12a77cd44fb3acaabb012cb0dbeefe1e0eb82a9befd43b9a2",
+  "cpu_manifest_sha256": "50d69d976294b19b3dd21d25adc7627ef607361846b9486792828c2b2ac72cf9",
+  "previous472_receipt_sha256": "41fc2e2f361faab2c0a09a0e698872d4570cfa52132bbd83770b06f818d8a6f6",
+  "started_at_utc": "2026-10-16T03:34:59.493558+00:00",
+  "wall_seconds": 0.43575191602576524,
+  "returncode": 0,
+  "timed_out": false,
+  "checks_reported": 264,
+  "gpu_execution": true,
+  "physical_transactions": 0,
+  "stopped_debugger_targets_preserved": [
+    "77441 76106 T    /Users/home/numi-cardboard-20261006/build-cardboard-world/matter/numi-matter-cardboard-paper-material-check"
+  ],
+  "removed_parent_environment_keys": [],
+  "production_material_operator_or_full_cgls_recurrence_exercised": false,
+  "full_solver_or_physical_qualification": false
+}

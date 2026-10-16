@@ -1,0 +1,39 @@
+{
+  "CPU_only_checker_argv": [
+    "/Users/home/cardboard-implementation-20261014/analysis/native-sparse-private-scan-check-170-001/validation/sparse-scan-checker",
+    "--cpu-only"
+  ],
+  "argv": [
+    "/usr/bin/clang++",
+    "-std=c++17",
+    "-x",
+    "objective-c++",
+    "-fobjc-arc",
+    "-fblocks",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-I",
+    "/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/include",
+    "-I",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include",
+    "-I",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/include",
+    "-DNUMI_MATTER_METALLIB=\"/Users/home/cardboard-implementation-20261014/analysis/native-sparse-private-scan-check-170-001/NumiMatter-O3.metallib\"",
+    "/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/tools/cardboard_sparse_private_contact_scan_native_check.mm",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "-o",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-sparse-private-scan-check-170-001/validation/sparse-scan-checker"
+  ],
+  "checker_source": "source/cardboard_sparse_private_contact_scan_native_check.mm",
+  "checker_source_sha256": "bf18e81d70b3ca120d0afa479af0bcb5c4c1b435c1dbd55b8df6db820a7b8b5d",
+  "compile_mode": "Objective-C++ C++17, warnings as errors; no GPU dispatch",
+  "compiler": "/usr/bin/clang++",
+  "metallib": "NumiMatter-O3.metallib",
+  "metallib_sha256": "4fcf68c0a2fffa4b2ae053829f239b983f41b166ea6d53da685216a4ad0ed269",
+  "schema": "numi.cardboard.sparse-scan-checker-compile-commands.v1"
+}

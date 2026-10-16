@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "base_sha256": "e1d9fef5b4e2e61c1caa8557749dc889a0581d2173aa211990ebdecb35adda26",
+  "patched_sha256": "4a4314f0b587ddbcd457eed360d0237f25de6cb77927c265764ab7933fbdc7b1",
+  "patch_sha256": "6ca8cd52ac965457528716d4dbc924def19740ec0e58203338b4570d28f7e865",
+  "stdout": "patching file '/tmp/source469-cmake-check/CMakeLists.txt'\n",
+  "stderr": ""
+}

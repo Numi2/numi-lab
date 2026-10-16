@@ -1,0 +1,9 @@
+# Native 470 accepted-checkpoint prefix command
+
+This package prepares, but does not launch, the source-bound native diagnostic run. The guard is preflight-only unless invoked with `--execute`.
+
+The command copies the source469 physical arguments exactly. It changes the executable and metallib to the final source167 build, redirects output to the fresh case-local directory, and adds `--coupon-checkpoint-after-control 19`. It preserves the eleven source469 baseline environment controls, with source469 result/manifest and source166002 audit records plus the source157 liner/medium files and source167 build-validation report bound as explicit inputs; it removes the old operator finite-difference selector/path, and requests the regional-consumer capture at `20:0:63:1:0:0`. Since control20 is after the checkpoint, the source-bound diagnostic runner can record an empty future capture as pending only when control19 produced a valid successful accepted-prefix checkpoint with both environments accepted. This is not a completed history, restore-parity result, or physical qualification.
+
+The guard verifies all frozen-source and successful source-build hashes, every listed executable/Metal artifact, copied and original evidence and source157 material inputs, exact command paths, fresh output case, absence of another native probe, and a 2 GiB prelaunch free-space threshold. It allocates a 128 MiB reserve only in explicit execute mode and signals only an observed native child process group if free space falls below 512 MiB. It removes inherited solver/timing controls before invoking the source-bound runner and records only removed key names, never ambient values.
+
+The source-build is currently successful and bound to this exact snapshot. The guard rechecks every source/artifact hash at invocation; any subsequent source/build change requires a newly bound package. No native470 launch has occurred.

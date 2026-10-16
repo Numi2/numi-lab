@@ -1,0 +1,4304 @@
+{
+  "bindings": {
+    "geometry_reader_sha256": "45f8fa26edb1222c61faaf6a2cfb05afb14476b4949b00e1700a34168802d939",
+    "input_files": {
+      "arrays.npz": "db2b54b24a81c9ac0a6b3bd7d5412ef802be831eb1247e798688079e541801e1",
+      "report.json": "2e0642b2a2277cccd6e1ed6d97a5c201fca6fb1fa28cefbd3c6f6927addf3864"
+    },
+    "native_files": {
+      "final-newton": "cf42bdb145317b24a044e8e7561a99dc987df44761b841a08d7f3b28e6cd96d2",
+      "prediction.json": "46c190c84814378cb5b5d0919129e3cebdeffe497af2c92747cfbce2c71982ad",
+      "receipt.json": "35b856b4d94bcc3acfb5e611847ecc166860a228efc81e841decec019ea7e17f",
+      "stderr.log": "036e1a7371c78dcd459718f081170aea445c4234a34884cbd4ebc31fefcfb3bb"
+    },
+    "reference_sha256": "abb2f33b00fd2fbac0097c35814833dbe957313a8a0cc65da3a70c030e8f1a0e",
+    "source_file_count": 787,
+    "source_hash_map_sha256": "ee89da136cec1f15fd50fa2a360e597eda75ad00b019d8f886a0668754983227",
+    "source_metadata_sha256": "2976540a244ba9af686e8033783a3d18da1ac48b030a949b2109fe81108f7cc0",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157"
+  },
+  "classification": "optional MP-only reference completion for exact source166003 FP64-failed rows; not FP64 qualification, native projection, native tangent qualification, or physical validation",
+  "elapsed_seconds": 61.01651382446289,
+  "finished_utc": "2026-10-16T02:36:49Z",
+  "input_regression_manifest_sha256": "b32b6658c582df91ee21584543b7b48fbfe1969fef2909695280ffa078536498",
+  "limits": [
+    "MP roots are a separate high-precision reference result; original FP64 failure records remain unchanged.",
+    "The output arrays mix source166003 FP64-success rows with explicit MP IFT rows for FP64 failures; this is not an all-FP64 tangent assembly.",
+    "Native cached tangent comparisons are available only at the captured center state; side-state comparisons are independent CPU IFT comparisons, not native data.",
+    "No finite-difference noise-floor or assembled element/global action claim is made by finite local arrays alone.",
+    "All qualification axes remain false."
+  ],
+  "method": {
+    "equations": "authored unsimplified 15-state Hill/tensile-hardening return map with Fischer-Burmeister residual; mpmath arbitrary precision",
+    "line_search": "strict decrease of original scaled residual, 112 halvings maximum",
+    "native_projected_state_used_as_seed": false,
+    "precision_dps": [
+      70,
+      90,
+      110
+    ],
+    "seed": "accepted history plus exact captured-F elastic trial stress",
+    "tangent": "implicit function theorem differentiated at MP root with mpmath; compared against corrected FP64 IFT at the same rounded MP root"
+  },
+  "mixed_reference_arrays_sha256": "d6718a8c60737e8bbc68e0509eff7ea25b953216ac87e3affc5efaaed19bca00",
+  "mixed_reference_finiteness": [
+    {
+      "finite_stress_rows": 1920,
+      "finite_tangent_rows": 1920,
+      "material_stress_all_1920_finite": true,
+      "material_tangent_all_1920_finite": true,
+      "remaining_nonfinite_stress_rows": [],
+      "remaining_nonfinite_tangent_rows": [],
+      "state": "center",
+      "used_mp_rows": 4
+    },
+    {
+      "finite_stress_rows": 1920,
+      "finite_tangent_rows": 1920,
+      "material_stress_all_1920_finite": true,
+      "material_tangent_all_1920_finite": true,
+      "remaining_nonfinite_stress_rows": [],
+      "remaining_nonfinite_tangent_rows": [],
+      "state": "s1",
+      "used_mp_rows": 6
+    },
+    {
+      "finite_stress_rows": 1920,
+      "finite_tangent_rows": 1920,
+      "material_stress_all_1920_finite": true,
+      "material_tangent_all_1920_finite": true,
+      "remaining_nonfinite_stress_rows": [],
+      "remaining_nonfinite_tangent_rows": [],
+      "state": "s2",
+      "used_mp_rows": 3
+    },
+    {
+      "finite_stress_rows": 1920,
+      "finite_tangent_rows": 1920,
+      "material_stress_all_1920_finite": true,
+      "material_tangent_all_1920_finite": true,
+      "remaining_nonfinite_stress_rows": [],
+      "remaining_nonfinite_tangent_rows": [],
+      "state": "s3",
+      "used_mp_rows": 3
+    },
+    {
+      "finite_stress_rows": 1920,
+      "finite_tangent_rows": 1920,
+      "material_stress_all_1920_finite": true,
+      "material_tangent_all_1920_finite": true,
+      "remaining_nonfinite_stress_rows": [],
+      "remaining_nonfinite_tangent_rows": [],
+      "state": "s4",
+      "used_mp_rows": 1
+    }
+  ],
+  "mp_results": [
+    {
+      "fallback_status": "mp_gates_pass",
+      "fp64_stress_at_rounded_mp_root_vs_mp_stress": {
+        "absolute_l2": 3.260074483584961e-07,
+        "max_abs_component": 3.204768290743232e-07,
+        "reference_l2": 97574.80947996509,
+        "relative_l2": 3.341102586784295e-12
+      },
+      "interpretation": "MP-only fallback reference for a row that failed the original source166003 FP64 projection. This does not turn the FP64 row into a pass or qualify native assembly.",
+      "mp110_final_dynamic_correction": "8.53325248480563609129930662056531175e-18",
+      "mp110_final_scaled_residual": "8.6140160294890396402560691518138975e-14",
+      "mp_branch_values": {
+        "fb_denominator": "0.00000391772511369587654925863001837535248",
+        "lambda_increment": "0.00000195883703150297532879863309768518138",
+        "yield_residual": "0.000000000025525340655937815937391682366830082"
+      },
+      "mp_ift_90_vs_110_same_equations": {
+        "absolute_l2": 0.0,
+        "max_abs_component": 0.0,
+        "reference_l2": 5247102345.96543,
+        "relative_l2": 0.0
+      },
+      "mp_ift_vs_fp64_ift_at_same_rounded_mp_root": {
+        "absolute_l2": 7.082816635366287e-06,
+        "max_abs_component": 5.489026079885662e-06,
+        "reference_l2": 5247102345.965428,
+        "relative_l2": 1.3498529604272663e-15
+      },
+      "mp_root_float64_rounding_max_dynamic_scaled_component": "7.6849571066718272813911096581856e-17",
+      "mp_root_relative_spread_70_90_110": {
+        "70_vs_110": "1.3087018360963060891907701821528e-71",
+        "70_vs_90": "1.3087018360963060891793933293833e-71",
+        "90_vs_110": "1.1376852769442045114762328065266e-91"
+      },
+      "mp_root_stability_gate_1e-12": true,
+      "native_center_stress_vs_mp_stress": {
+        "absolute_l2": 0.0018301164305188648,
+        "max_abs_component": 0.001072313796612434,
+        "reference_l2": 97574.80947996509,
+        "relative_l2": 1.875603386030326e-08
+      },
+      "native_center_tangent_vs_mp_ift": {
+        "absolute_l2": 250.0758422916187,
+        "max_abs_component": 246.32811164855957,
+        "reference_l2": 5247102345.96543,
+        "relative_l2": 4.7659798838096895e-08
+      },
+      "original_fp64_failure": "tight diagnostic residual descent stalled at residual 2.1170815008669719e-12, correction 2.6687769273946615e-16",
+      "paper_row": 750,
+      "precision_results": {
+        "110": {
+          "dynamic_scaled_correction": "8.53325248480563609129930662056531175e-18",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.8775657890957792835456729134",
+              "iteration": 0,
+              "scaled_residual": "144532.7796686750703202790221"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.4018669350546065034610372132",
+              "iteration": 1,
+              "scaled_residual": "12.45965917957132999161841968"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0004066783805481048346048083343",
+              "iteration": 2,
+              "scaled_residual": "8.210933768118251974521716699"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000008248487627282144426468396537",
+              "iteration": 3,
+              "scaled_residual": "0.01203979893674422516116358995"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000001358645004071425323357327696",
+              "iteration": 4,
+              "scaled_residual": "0.001470617620025308192466241597"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "4.72583895299267843978281064e-9",
+              "iteration": 5,
+              "scaled_residual": "0.00004782199539008072381831527122"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "5.754705179547381984103057131e-12",
+              "iteration": 6,
+              "scaled_residual": "0.00000005809188203595796038106964961"
+            },
+            {
+              "dynamic_scaled_correction": "8.533252484805636091299306621e-18",
+              "iteration": 7,
+              "scaled_residual": "8.614016029489039640256069152e-14"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.6140160294890396402560691518138975e-14",
+          "strict_gates_pass": true
+        },
+        "70": {
+          "dynamic_scaled_correction": "8.53325248480563609129930662056531175e-18",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.8775657890957792835456729134",
+              "iteration": 0,
+              "scaled_residual": "144532.7796686750703202790221"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.4018669350546065034610372132",
+              "iteration": 1,
+              "scaled_residual": "12.45965917957132999161841968"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0004066783805481048346048083343",
+              "iteration": 2,
+              "scaled_residual": "8.210933768118251974521716699"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000008248487627282144426468396537",
+              "iteration": 3,
+              "scaled_residual": "0.01203979893674422516116358995"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000001358645004071425323357327696",
+              "iteration": 4,
+              "scaled_residual": "0.001470617620025308192466241597"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "4.72583895299267843978281064e-9",
+              "iteration": 5,
+              "scaled_residual": "0.00004782199539008072381831527122"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "5.754705179547381984103057131e-12",
+              "iteration": 6,
+              "scaled_residual": "0.00000005809188203595796038106964961"
+            },
+            {
+              "dynamic_scaled_correction": "8.533252484805636091299306621e-18",
+              "iteration": 7,
+              "scaled_residual": "8.614016029489039640256069152e-14"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.6140160294890396402560691518138975e-14",
+          "strict_gates_pass": true
+        },
+        "90": {
+          "dynamic_scaled_correction": "8.53325248480563609129930662056531175e-18",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.8775657890957792835456729134",
+              "iteration": 0,
+              "scaled_residual": "144532.7796686750703202790221"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.4018669350546065034610372132",
+              "iteration": 1,
+              "scaled_residual": "12.45965917957132999161841968"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0004066783805481048346048083343",
+              "iteration": 2,
+              "scaled_residual": "8.210933768118251974521716699"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000008248487627282144426468396537",
+              "iteration": 3,
+              "scaled_residual": "0.01203979893674422516116358995"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000001358645004071425323357327696",
+              "iteration": 4,
+              "scaled_residual": "0.001470617620025308192466241597"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "4.72583895299267843978281064e-9",
+              "iteration": 5,
+              "scaled_residual": "0.00004782199539008072381831527122"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "5.754705179547381984103057131e-12",
+              "iteration": 6,
+              "scaled_residual": "0.00000005809188203595796038106964961"
+            },
+            {
+              "dynamic_scaled_correction": "8.533252484805636091299306621e-18",
+              "iteration": 7,
+              "scaled_residual": "8.614016029489039640256069152e-14"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.6140160294890396402560691518138975e-14",
+          "strict_gates_pass": true
+        }
+      },
+      "state": "center",
+      "state_index": 0,
+      "tet": 750
+    },
+    {
+      "fallback_status": "mp_gates_pass",
+      "fp64_stress_at_rounded_mp_root_vs_mp_stress": {
+        "absolute_l2": 1.621113099347802e-07,
+        "max_abs_component": 1.6007106751203537e-07,
+        "reference_l2": 448970.58873288566,
+        "relative_l2": 3.6107333977555504e-13
+      },
+      "interpretation": "MP-only fallback reference for a row that failed the original source166003 FP64 projection. This does not turn the FP64 row into a pass or qualify native assembly.",
+      "mp110_final_dynamic_correction": "2.83793125837155018234136552198535613e-17",
+      "mp110_final_scaled_residual": "2.85173809746213381041831483107190795e-13",
+      "mp_branch_values": {
+        "fb_denominator": "0.0000130271135365724203901391844456498589",
+        "lambda_increment": "0.00000651354909199394446081074201030856979",
+        "yield_residual": "7.67627800704377153954346426806640357e-12"
+      },
+      "mp_ift_90_vs_110_same_equations": {
+        "absolute_l2": 0.0,
+        "max_abs_component": 0.0,
+        "reference_l2": 5226811973.081337,
+        "relative_l2": 0.0
+      },
+      "mp_ift_vs_fp64_ift_at_same_rounded_mp_root": {
+        "absolute_l2": 1.2682932748495388e-06,
+        "max_abs_component": 8.940696716308594e-07,
+        "reference_l2": 5226811973.081337,
+        "relative_l2": 2.426514061308098e-16
+      },
+      "mp_root_float64_rounding_max_dynamic_scaled_component": "8.1743116328197999376998265792443e-17",
+      "mp_root_relative_spread_70_90_110": {
+        "70_vs_110": "1.4985041249164231425172441201885e-71",
+        "70_vs_90": "1.4985041249164231425583379225988e-71",
+        "90_vs_110": "4.1093802410307911569507894665759e-91"
+      },
+      "mp_root_stability_gate_1e-12": true,
+      "native_center_stress_vs_mp_stress": {
+        "absolute_l2": 0.014117191547986421,
+        "max_abs_component": 0.013722663337830454,
+        "reference_l2": 448970.58873288566,
+        "relative_l2": 3.144346623646081e-08
+      },
+      "native_center_tangent_vs_mp_ift": {
+        "absolute_l2": 78.170844889394,
+        "max_abs_component": 64.27978420257568,
+        "reference_l2": 5226811973.081337,
+        "relative_l2": 1.495574076358257e-08
+      },
+      "original_fp64_failure": "tight diagnostic residual descent stalled at residual 2.245319354213528e-12, correction 4.6730737239205767e-16",
+      "paper_row": 1475,
+      "precision_results": {
+        "110": {
+          "dynamic_scaled_correction": "2.83793125837155018234136552198535613e-17",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9598420986141474275088686748",
+              "iteration": 0,
+              "scaled_residual": "480450.238511590370098783164"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.7111986429977387381905359341",
+              "iteration": 1,
+              "scaled_residual": "35.33504383340965795809396563"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.001124439076816531190001044936",
+              "iteration": 2,
+              "scaled_residual": "22.63023817931433920473932384"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000002850304790003421719854125155",
+              "iteration": 3,
+              "scaled_residual": "0.04001710374572114717631527741"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000004535993668420178757177922367",
+              "iteration": 4,
+              "scaled_residual": "0.004887269433965272822594279615"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000001576908968303632616302994483",
+              "iteration": 5,
+              "scaled_residual": "0.0001588440388309862701135194248"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "1.91809731993042769982564469e-11",
+              "iteration": 6,
+              "scaled_residual": "0.0000001927434772046819630745265079"
+            },
+            {
+              "dynamic_scaled_correction": "2.837931258371550182341365522e-17",
+              "iteration": 7,
+              "scaled_residual": "2.851738097462133810418314831e-13"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "2.85173809746213381041831483107190795e-13",
+          "strict_gates_pass": true
+        },
+        "70": {
+          "dynamic_scaled_correction": "2.83793125837155018234136552198535613e-17",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9598420986141474275088686748",
+              "iteration": 0,
+              "scaled_residual": "480450.238511590370098783164"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.7111986429977387381905359341",
+              "iteration": 1,
+              "scaled_residual": "35.33504383340965795809396563"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.001124439076816531190001044936",
+              "iteration": 2,
+              "scaled_residual": "22.63023817931433920473932384"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000002850304790003421719854125155",
+              "iteration": 3,
+              "scaled_residual": "0.04001710374572114717631527741"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000004535993668420178757177922367",
+              "iteration": 4,
+              "scaled_residual": "0.004887269433965272822594279615"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000001576908968303632616302994483",
+              "iteration": 5,
+              "scaled_residual": "0.0001588440388309862701135194248"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "1.91809731993042769982564469e-11",
+              "iteration": 6,
+              "scaled_residual": "0.0000001927434772046819630745265079"
+            },
+            {
+              "dynamic_scaled_correction": "2.837931258371550182341365522e-17",
+              "iteration": 7,
+              "scaled_residual": "2.851738097462133810418314831e-13"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "2.85173809746213381041831483107190795e-13",
+          "strict_gates_pass": true
+        },
+        "90": {
+          "dynamic_scaled_correction": "2.83793125837155018234136552198535613e-17",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9598420986141474275088686748",
+              "iteration": 0,
+              "scaled_residual": "480450.238511590370098783164"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.7111986429977387381905359341",
+              "iteration": 1,
+              "scaled_residual": "35.33504383340965795809396563"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.001124439076816531190001044936",
+              "iteration": 2,
+              "scaled_residual": "22.63023817931433920473932384"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000002850304790003421719854125155",
+              "iteration": 3,
+              "scaled_residual": "0.04001710374572114717631527741"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000004535993668420178757177922367",
+              "iteration": 4,
+              "scaled_residual": "0.004887269433965272822594279615"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000001576908968303632616302994483",
+              "iteration": 5,
+              "scaled_residual": "0.0001588440388309862701135194248"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "1.91809731993042769982564469e-11",
+              "iteration": 6,
+              "scaled_residual": "0.0000001927434772046819630745265079"
+            },
+            {
+              "dynamic_scaled_correction": "2.837931258371550182341365522e-17",
+              "iteration": 7,
+              "scaled_residual": "2.851738097462133810418314831e-13"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "2.85173809746213381041831483107190795e-13",
+          "strict_gates_pass": true
+        }
+      },
+      "state": "center",
+      "state_index": 0,
+      "tet": 1571
+    },
+    {
+      "fallback_status": "mp_gates_pass",
+      "fp64_stress_at_rounded_mp_root_vs_mp_stress": {
+        "absolute_l2": 2.990618226340517e-07,
+        "max_abs_component": 2.392480382695794e-07,
+        "reference_l2": 100816.10706769995,
+        "relative_l2": 2.9664091515974324e-12
+      },
+      "interpretation": "MP-only fallback reference for a row that failed the original source166003 FP64 projection. This does not turn the FP64 row into a pass or qualify native assembly.",
+      "mp110_final_dynamic_correction": "8.06276869666834465590338741638744768e-28",
+      "mp110_final_scaled_residual": "8.14118294718932590736211095263400771e-24",
+      "mp_branch_values": {
+        "fb_denominator": "0.000183528173972270512381640948860983768",
+        "lambda_increment": "0.0000917640864412597898583684340067668795",
+        "yield_residual": "5.44875466332451633364577645239254433e-13"
+      },
+      "mp_ift_90_vs_110_same_equations": {
+        "absolute_l2": 0.0,
+        "max_abs_component": 0.0,
+        "reference_l2": 4885521244.96148,
+        "relative_l2": 0.0
+      },
+      "mp_ift_vs_fp64_ift_at_same_rounded_mp_root": {
+        "absolute_l2": 2.2292574366999187e-06,
+        "max_abs_component": 1.1175870895385742e-06,
+        "reference_l2": 4885521244.961478,
+        "relative_l2": 4.562987908401771e-16
+      },
+      "mp_root_float64_rounding_max_dynamic_scaled_component": "6.4356255381347751474173961869191e-17",
+      "mp_root_relative_spread_70_90_110": {
+        "70_vs_110": "1.7058225911457393252998458955932e-71",
+        "70_vs_90": "1.7058225911457393253098885039958e-71",
+        "90_vs_110": "3.3128508324660262339060725381899e-91"
+      },
+      "mp_root_stability_gate_1e-12": true,
+      "native_center_stress_vs_mp_stress": {
+        "absolute_l2": 0.004318924057960845,
+        "max_abs_component": 0.003832415459328331,
+        "reference_l2": 100816.10706769995,
+        "relative_l2": 4.283962338538429e-08
+      },
+      "native_center_tangent_vs_mp_ift": {
+        "absolute_l2": 78.64795816492118,
+        "max_abs_component": 59.39491057395935,
+        "reference_l2": 4885521244.96148,
+        "relative_l2": 1.609817135603128e-08
+      },
+      "original_fp64_failure": "tight diagnostic residual descent stalled at residual 2.0005045016376851e-12, correction 4.2513274265942777e-16",
+      "paper_row": 1503,
+      "precision_results": {
+        "110": {
+          "dynamic_scaled_correction": "8.06276869666834465590338741638744768e-28",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "20.55349852962699385864509266",
+              "iteration": 0,
+              "scaled_residual": "6770613.931518996380339033529"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "38.99370686725277932067962531",
+              "iteration": 1,
+              "scaled_residual": "206.572158440163328139315251"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.009582990421293796448284965472",
+              "iteration": 2,
+              "scaled_residual": "197.2873774550808943540444077"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0001930751017267847946749124021",
+              "iteration": 3,
+              "scaled_residual": "0.5614911430984415848214351695"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000006328776121671413749067474261",
+              "iteration": 4,
+              "scaled_residual": "0.06849612257652177460724102659"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000002189646406091084269372966287",
+              "iteration": 5,
+              "scaled_residual": "0.00221627563513035488530276511"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.637822721365559371467347538e-10",
+              "iteration": 6,
+              "scaled_residual": "0.000002663484530229545313420762666"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.828175183865656050146974451e-16",
+              "iteration": 7,
+              "scaled_residual": "3.865406003616342671660506707e-12"
+            },
+            {
+              "dynamic_scaled_correction": "8.062768696668344655903387416e-28",
+              "iteration": 8,
+              "scaled_residual": "8.141182947189325907362110953e-24"
+            }
+          ],
+          "iterations": 8,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.14118294718932590736211095263400771e-24",
+          "strict_gates_pass": true
+        },
+        "70": {
+          "dynamic_scaled_correction": "8.06276869666834465590338741638744768e-28",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "20.55349852962699385864509266",
+              "iteration": 0,
+              "scaled_residual": "6770613.931518996380339033529"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "38.99370686725277932067962531",
+              "iteration": 1,
+              "scaled_residual": "206.572158440163328139315251"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.009582990421293796448284965472",
+              "iteration": 2,
+              "scaled_residual": "197.2873774550808943540444077"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0001930751017267847946749124021",
+              "iteration": 3,
+              "scaled_residual": "0.5614911430984415848214351695"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000006328776121671413749067474261",
+              "iteration": 4,
+              "scaled_residual": "0.06849612257652177460724102659"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000002189646406091084269372966287",
+              "iteration": 5,
+              "scaled_residual": "0.00221627563513035488530276511"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.637822721365559371467347538e-10",
+              "iteration": 6,
+              "scaled_residual": "0.000002663484530229545313420762666"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.828175183865656050146974451e-16",
+              "iteration": 7,
+              "scaled_residual": "3.865406003616342671660506707e-12"
+            },
+            {
+              "dynamic_scaled_correction": "8.062768696668344655903387416e-28",
+              "iteration": 8,
+              "scaled_residual": "8.141182947189325907362110953e-24"
+            }
+          ],
+          "iterations": 8,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.14118294718932590736211095263400771e-24",
+          "strict_gates_pass": true
+        },
+        "90": {
+          "dynamic_scaled_correction": "8.06276869666834465590338741638744768e-28",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "20.55349852962699385864509266",
+              "iteration": 0,
+              "scaled_residual": "6770613.931518996380339033529"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "38.99370686725277932067962531",
+              "iteration": 1,
+              "scaled_residual": "206.572158440163328139315251"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.009582990421293796448284965472",
+              "iteration": 2,
+              "scaled_residual": "197.2873774550808943540444077"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0001930751017267847946749124021",
+              "iteration": 3,
+              "scaled_residual": "0.5614911430984415848214351695"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000006328776121671413749067474261",
+              "iteration": 4,
+              "scaled_residual": "0.06849612257652177460724102659"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000002189646406091084269372966287",
+              "iteration": 5,
+              "scaled_residual": "0.00221627563513035488530276511"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.637822721365559371467347538e-10",
+              "iteration": 6,
+              "scaled_residual": "0.000002663484530229545313420762666"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.828175183865656050146974451e-16",
+              "iteration": 7,
+              "scaled_residual": "3.865406003616342671660506707e-12"
+            },
+            {
+              "dynamic_scaled_correction": "8.062768696668344655903387416e-28",
+              "iteration": 8,
+              "scaled_residual": "8.141182947189325907362110953e-24"
+            }
+          ],
+          "iterations": 8,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.14118294718932590736211095263400771e-24",
+          "strict_gates_pass": true
+        }
+      },
+      "state": "center",
+      "state_index": 0,
+      "tet": 1599
+    },
+    {
+      "fallback_status": "mp_gates_pass",
+      "fp64_stress_at_rounded_mp_root_vs_mp_stress": {
+        "absolute_l2": 2.2192188249033466e-07,
+        "max_abs_component": 2.1693267626687884e-07,
+        "reference_l2": 100462.11206987636,
+        "relative_l2": 2.2090107197425536e-12
+      },
+      "interpretation": "MP-only fallback reference for a row that failed the original source166003 FP64 projection. This does not turn the FP64 row into a pass or qualify native assembly.",
+      "mp110_final_dynamic_correction": "8.19202830339710333783148165980448046e-27",
+      "mp110_final_scaled_residual": "8.21206906901304671238850568676538017e-23",
+      "mp_branch_values": {
+        "fb_denominator": "0.00000592785336190480021645053983784573794",
+        "lambda_increment": "0.00000296390981134347985942972249203374416",
+        "yield_residual": "0.0000000000168696089202487914413923546182877253"
+      },
+      "mp_ift_90_vs_110_same_equations": {
+        "absolute_l2": 0.0,
+        "max_abs_component": 0.0,
+        "reference_l2": 5242335413.068189,
+        "relative_l2": 0.0
+      },
+      "mp_ift_vs_fp64_ift_at_same_rounded_mp_root": {
+        "absolute_l2": 2.0803831224942903e-06,
+        "max_abs_component": 1.9073486328125e-06,
+        "reference_l2": 5242335413.068187,
+        "relative_l2": 3.9684281118454845e-16
+      },
+      "mp_root_float64_rounding_max_dynamic_scaled_component": "7.5043115251682930917753113272911e-17",
+      "mp_root_relative_spread_70_90_110": {
+        "70_vs_110": "8.4348903136542160610436698917596e-72",
+        "70_vs_90": "8.4348903136542160610930392632964e-72",
+        "90_vs_110": "1.1058352015886746225521330036482e-91"
+      },
+      "mp_root_stability_gate_1e-12": true,
+      "native_center_stress_vs_mp_stress": {
+        "absolute_l2": 0.002179894774909762,
+        "max_abs_component": 0.0015573013151879422,
+        "reference_l2": 100462.11206987636,
+        "relative_l2": 2.1698675550376023e-08
+      },
+      "native_center_tangent_vs_mp_ift": {
+        "absolute_l2": 264.2064461209696,
+        "max_abs_component": 255.34360313415527,
+        "reference_l2": 5242335413.068189,
+        "relative_l2": 5.0398615369468916e-08
+      },
+      "original_fp64_failure": "tight diagnostic residual descent stalled at residual 2.1414906047840083e-12, correction 2.1368802007088503e-16",
+      "paper_row": 1584,
+      "precision_results": {
+        "110": {
+          "dynamic_scaled_correction": "8.19202830339710333783148165980448046e-27",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9160382997996882271703666633",
+              "iteration": 0,
+              "scaled_residual": "218748.7676221668888315304463"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.4322471389909231187503741089",
+              "iteration": 1,
+              "scaled_residual": "0.4412990421618611035737612478"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000572265291758446406120809462",
+              "iteration": 2,
+              "scaled_residual": "0.02507591143005052013472736121"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000002958689071529728162665777954",
+              "iteration": 3,
+              "scaled_residual": "0.003275709187974529028909865561"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000001460605731393227938873753274",
+              "iteration": 4,
+              "scaled_residual": "0.0001471429839953004132967477429"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.607624936292316520100426862e-11",
+              "iteration": 5,
+              "scaled_residual": "0.0000003616494663599098400600343601"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.200956207565944727987239761e-16",
+              "iteration": 6,
+              "scaled_residual": "2.20634056992391747835536163e-12"
+            },
+            {
+              "dynamic_scaled_correction": "8.19202830339710333783148166e-27",
+              "iteration": 7,
+              "scaled_residual": "8.212069069013046712388505687e-23"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.21206906901304671238850568676538017e-23",
+          "strict_gates_pass": true
+        },
+        "70": {
+          "dynamic_scaled_correction": "8.19202830339710333783148165980448046e-27",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9160382997996882271703666633",
+              "iteration": 0,
+              "scaled_residual": "218748.7676221668888315304463"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.4322471389909231187503741089",
+              "iteration": 1,
+              "scaled_residual": "0.4412990421618611035737612478"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000572265291758446406120809462",
+              "iteration": 2,
+              "scaled_residual": "0.02507591143005052013472736121"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000002958689071529728162665777954",
+              "iteration": 3,
+              "scaled_residual": "0.003275709187974529028909865561"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000001460605731393227938873753274",
+              "iteration": 4,
+              "scaled_residual": "0.0001471429839953004132967477429"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.607624936292316520100426862e-11",
+              "iteration": 5,
+              "scaled_residual": "0.0000003616494663599098400600343601"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.200956207565944727987239761e-16",
+              "iteration": 6,
+              "scaled_residual": "2.20634056992391747835536163e-12"
+            },
+            {
+              "dynamic_scaled_correction": "8.19202830339710333783148166e-27",
+              "iteration": 7,
+              "scaled_residual": "8.212069069013046712388505687e-23"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.21206906901304671238850568676538017e-23",
+          "strict_gates_pass": true
+        },
+        "90": {
+          "dynamic_scaled_correction": "8.19202830339710333783148165980448046e-27",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9160382997996882271703666633",
+              "iteration": 0,
+              "scaled_residual": "218748.7676221668888315304463"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.4322471389909231187503741089",
+              "iteration": 1,
+              "scaled_residual": "0.4412990421618611035737612478"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000572265291758446406120809462",
+              "iteration": 2,
+              "scaled_residual": "0.02507591143005052013472736121"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000002958689071529728162665777954",
+              "iteration": 3,
+              "scaled_residual": "0.003275709187974529028909865561"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000001460605731393227938873753274",
+              "iteration": 4,
+              "scaled_residual": "0.0001471429839953004132967477429"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.607624936292316520100426862e-11",
+              "iteration": 5,
+              "scaled_residual": "0.0000003616494663599098400600343601"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.200956207565944727987239761e-16",
+              "iteration": 6,
+              "scaled_residual": "2.20634056992391747835536163e-12"
+            },
+            {
+              "dynamic_scaled_correction": "8.19202830339710333783148166e-27",
+              "iteration": 7,
+              "scaled_residual": "8.212069069013046712388505687e-23"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.21206906901304671238850568676538017e-23",
+          "strict_gates_pass": true
+        }
+      },
+      "state": "center",
+      "state_index": 0,
+      "tet": 1680
+    },
+    {
+      "fallback_status": "mp_gates_pass",
+      "fp64_stress_at_rounded_mp_root_vs_mp_stress": {
+        "absolute_l2": 2.0853264963219252e-07,
+        "max_abs_component": 1.579901436343789e-07,
+        "reference_l2": 190362.6142015607,
+        "relative_l2": 1.0954496002633842e-12
+      },
+      "interpretation": "MP-only fallback reference for a row that failed the original source166003 FP64 projection. This does not turn the FP64 row into a pass or qualify native assembly.",
+      "mp110_final_dynamic_correction": "3.71719785233266573759138144109846759e-17",
+      "mp110_final_scaled_residual": "3.62353943423784034273112100707776364e-13",
+      "mp_branch_values": {
+        "fb_denominator": "0.0000152638332309315925239368702259261543",
+        "lambda_increment": "0.00000763191006404410761519749001325830898",
+        "yield_residual": "6.55140357094959975589799111256376801e-12"
+      },
+      "mp_ift_90_vs_110_same_equations": {
+        "absolute_l2": 0.0,
+        "max_abs_component": 0.0,
+        "reference_l2": 5219615023.327776,
+        "relative_l2": 0.0
+      },
+      "mp_ift_vs_fp64_ift_at_same_rounded_mp_root": {
+        "absolute_l2": 3.7010817279835966e-06,
+        "max_abs_component": 2.384185791015625e-06,
+        "reference_l2": 5219615023.327775,
+        "relative_l2": 7.0907178239056515e-16
+      },
+      "mp_root_float64_rounding_max_dynamic_scaled_component": "8.2214514726860236962132045828929e-17",
+      "mp_root_relative_spread_70_90_110": {
+        "70_vs_110": "5.5039838493733841937446812433343e-71",
+        "70_vs_90": "5.5039838493733841937552731994898e-71",
+        "90_vs_110": "4.1445006517848655040059043354995e-91"
+      },
+      "mp_root_stability_gate_1e-12": true,
+      "native_center_stress_vs_mp_stress": null,
+      "native_center_tangent_vs_mp_ift": null,
+      "original_fp64_failure": "tight diagnostic residual descent stalled at residual 2.0830636403134694e-12, correction 5.6338236007137403e-16",
+      "paper_row": 633,
+      "precision_results": {
+        "110": {
+          "dynamic_scaled_correction": "3.71719785233266573759138144109846759e-17",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "149186.4187610552533306705485",
+              "iteration": 0,
+              "scaled_residual": "563046.7767663597289456348848"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "27.67545776959058583809882357",
+              "iteration": 1,
+              "scaled_residual": "143.2094622835018093499996703"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.006629187005103781535676558465",
+              "iteration": 2,
+              "scaled_residual": "128.2312298560404266170554738"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00008407759262815477704230382509",
+              "iteration": 3,
+              "scaled_residual": "0.04728930150495164204016852429"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000005534892561147238550601221799",
+              "iteration": 4,
+              "scaled_residual": "0.005789230094600101213747073142"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000001943635366572964808159603281",
+              "iteration": 5,
+              "scaled_residual": "0.0001899372860427971960519142051"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.412573839129523273790162021e-11",
+              "iteration": 6,
+              "scaled_residual": "0.0000002351793939786812831731328361"
+            },
+            {
+              "dynamic_scaled_correction": "3.717197852332665737591381441e-17",
+              "iteration": 7,
+              "scaled_residual": "3.623539434237840342731121007e-13"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "3.62353943423784034273112100707776364e-13",
+          "strict_gates_pass": true
+        },
+        "70": {
+          "dynamic_scaled_correction": "3.71719785233266573759138144109846759e-17",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "149186.4187610552533306705485",
+              "iteration": 0,
+              "scaled_residual": "563046.7767663597289456348848"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "27.67545776959058583809882357",
+              "iteration": 1,
+              "scaled_residual": "143.2094622835018093499996703"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.006629187005103781535676558465",
+              "iteration": 2,
+              "scaled_residual": "128.2312298560404266170554738"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00008407759262815477704230382509",
+              "iteration": 3,
+              "scaled_residual": "0.04728930150495164204016852429"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000005534892561147238550601221799",
+              "iteration": 4,
+              "scaled_residual": "0.005789230094600101213747073142"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000001943635366572964808159603281",
+              "iteration": 5,
+              "scaled_residual": "0.0001899372860427971960519142051"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.412573839129523273790162021e-11",
+              "iteration": 6,
+              "scaled_residual": "0.0000002351793939786812831731328361"
+            },
+            {
+              "dynamic_scaled_correction": "3.717197852332665737591381441e-17",
+              "iteration": 7,
+              "scaled_residual": "3.623539434237840342731121007e-13"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "3.62353943423784034273112100707776364e-13",
+          "strict_gates_pass": true
+        },
+        "90": {
+          "dynamic_scaled_correction": "3.71719785233266573759138144109846759e-17",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "149186.4187610552533306705485",
+              "iteration": 0,
+              "scaled_residual": "563046.7767663597289456348848"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "27.67545776959058583809882357",
+              "iteration": 1,
+              "scaled_residual": "143.2094622835018093499996703"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.006629187005103781535676558465",
+              "iteration": 2,
+              "scaled_residual": "128.2312298560404266170554738"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00008407759262815477704230382509",
+              "iteration": 3,
+              "scaled_residual": "0.04728930150495164204016852429"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000005534892561147238550601221799",
+              "iteration": 4,
+              "scaled_residual": "0.005789230094600101213747073142"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000001943635366572964808159603281",
+              "iteration": 5,
+              "scaled_residual": "0.0001899372860427971960519142051"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.412573839129523273790162021e-11",
+              "iteration": 6,
+              "scaled_residual": "0.0000002351793939786812831731328361"
+            },
+            {
+              "dynamic_scaled_correction": "3.717197852332665737591381441e-17",
+              "iteration": 7,
+              "scaled_residual": "3.623539434237840342731121007e-13"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "3.62353943423784034273112100707776364e-13",
+          "strict_gates_pass": true
+        }
+      },
+      "state": "s1",
+      "state_index": 1,
+      "tet": 633
+    },
+    {
+      "fallback_status": "mp_gates_pass",
+      "fp64_stress_at_rounded_mp_root_vs_mp_stress": {
+        "absolute_l2": 1.1496316015974695e-07,
+        "max_abs_component": 1.1367956176400185e-07,
+        "reference_l2": 169329.1412438043,
+        "relative_l2": 6.789331081188213e-13
+      },
+      "interpretation": "MP-only fallback reference for a row that failed the original source166003 FP64 projection. This does not turn the FP64 row into a pass or qualify native assembly.",
+      "mp110_final_dynamic_correction": "8.4500191395324049659455141221340284e-28",
+      "mp110_final_scaled_residual": "8.40457778953639401353182671391272084e-24",
+      "mp_branch_values": {
+        "fb_denominator": "0.000225955404429106000218365753073202188",
+        "lambda_increment": "0.000112977701771987798232770809105169692",
+        "yield_residual": "4.42565201876411647202541924821107278e-13"
+      },
+      "mp_ift_90_vs_110_same_equations": {
+        "absolute_l2": 0.0,
+        "max_abs_component": 0.0,
+        "reference_l2": 4811705939.259201,
+        "relative_l2": 0.0
+      },
+      "mp_ift_vs_fp64_ift_at_same_rounded_mp_root": {
+        "absolute_l2": 7.074572809784047e-07,
+        "max_abs_component": 4.76837158203125e-07,
+        "reference_l2": 4811705939.259201,
+        "relative_l2": 1.4702836996047251e-16
+      },
+      "mp_root_float64_rounding_max_dynamic_scaled_component": "6.2524725731273396188713937206725e-17",
+      "mp_root_relative_spread_70_90_110": {
+        "70_vs_110": "3.6880396221364728178365319987595e-71",
+        "70_vs_90": "3.6880396221364728177924934904435e-71",
+        "90_vs_110": "4.4038508316046184691713896087623e-91"
+      },
+      "mp_root_stability_gate_1e-12": true,
+      "native_center_stress_vs_mp_stress": null,
+      "native_center_tangent_vs_mp_ift": null,
+      "original_fp64_failure": "tight diagnostic residual descent stalled at residual 2.5234886476179697e-12, correction 2.510665566318695e-16",
+      "paper_row": 652,
+      "precision_results": {
+        "110": {
+          "dynamic_scaled_correction": "8.4500191395324049659455141221340284e-28",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "4.559745948595596804200639691",
+              "iteration": 0,
+              "scaled_residual": "8332973.099200687881996005655"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "10.30052871848155768484932811",
+              "iteration": 1,
+              "scaled_residual": "148.6840717190143331232125381"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.7364689061872456001350199789",
+              "iteration": 2,
+              "scaled_residual": "132.1157220527475627998284197"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0001659759163746134027584032535",
+              "iteration": 3,
+              "scaled_residual": "0.6849581712211714399151216682"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000007826053586107664113787418108",
+              "iteration": 4,
+              "scaled_residual": "0.08333824072937187686639733301"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000002677183760342715023963278439",
+              "iteration": 5,
+              "scaled_residual": "0.002669066747918153518955792507"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.154915845670238252142229655e-10",
+              "iteration": 6,
+              "scaled_residual": "0.00000313795848486087560019674952"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "4.381381633613003343668373005e-16",
+              "iteration": 7,
+              "scaled_residual": "4.357820042467773213040668557e-12"
+            },
+            {
+              "dynamic_scaled_correction": "8.450019139532404965945514122e-28",
+              "iteration": 8,
+              "scaled_residual": "8.404577789536394013531826714e-24"
+            }
+          ],
+          "iterations": 8,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.40457778953639401353182671391272084e-24",
+          "strict_gates_pass": true
+        },
+        "70": {
+          "dynamic_scaled_correction": "8.4500191395324049659455141221340284e-28",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "4.559745948595596804200639691",
+              "iteration": 0,
+              "scaled_residual": "8332973.099200687881996005655"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "10.30052871848155768484932811",
+              "iteration": 1,
+              "scaled_residual": "148.6840717190143331232125381"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.7364689061872456001350199789",
+              "iteration": 2,
+              "scaled_residual": "132.1157220527475627998284197"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0001659759163746134027584032535",
+              "iteration": 3,
+              "scaled_residual": "0.6849581712211714399151216682"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000007826053586107664113787418108",
+              "iteration": 4,
+              "scaled_residual": "0.08333824072937187686639733301"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000002677183760342715023963278439",
+              "iteration": 5,
+              "scaled_residual": "0.002669066747918153518955792507"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.154915845670238252142229655e-10",
+              "iteration": 6,
+              "scaled_residual": "0.00000313795848486087560019674952"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "4.381381633613003343668373005e-16",
+              "iteration": 7,
+              "scaled_residual": "4.357820042467773213040668557e-12"
+            },
+            {
+              "dynamic_scaled_correction": "8.450019139532404965945514122e-28",
+              "iteration": 8,
+              "scaled_residual": "8.404577789536394013531826714e-24"
+            }
+          ],
+          "iterations": 8,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.40457778953639401353182671391272084e-24",
+          "strict_gates_pass": true
+        },
+        "90": {
+          "dynamic_scaled_correction": "8.4500191395324049659455141221340284e-28",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "4.559745948595596804200639691",
+              "iteration": 0,
+              "scaled_residual": "8332973.099200687881996005655"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "10.30052871848155768484932811",
+              "iteration": 1,
+              "scaled_residual": "148.6840717190143331232125381"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.7364689061872456001350199789",
+              "iteration": 2,
+              "scaled_residual": "132.1157220527475627998284197"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0001659759163746134027584032535",
+              "iteration": 3,
+              "scaled_residual": "0.6849581712211714399151216682"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000007826053586107664113787418108",
+              "iteration": 4,
+              "scaled_residual": "0.08333824072937187686639733301"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000002677183760342715023963278439",
+              "iteration": 5,
+              "scaled_residual": "0.002669066747918153518955792507"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.154915845670238252142229655e-10",
+              "iteration": 6,
+              "scaled_residual": "0.00000313795848486087560019674952"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "4.381381633613003343668373005e-16",
+              "iteration": 7,
+              "scaled_residual": "4.357820042467773213040668557e-12"
+            },
+            {
+              "dynamic_scaled_correction": "8.450019139532404965945514122e-28",
+              "iteration": 8,
+              "scaled_residual": "8.404577789536394013531826714e-24"
+            }
+          ],
+          "iterations": 8,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.40457778953639401353182671391272084e-24",
+          "strict_gates_pass": true
+        }
+      },
+      "state": "s1",
+      "state_index": 1,
+      "tet": 652
+    },
+    {
+      "fallback_status": "mp_gates_pass",
+      "fp64_stress_at_rounded_mp_root_vs_mp_stress": {
+        "absolute_l2": 1.1251117112154502e-07,
+        "max_abs_component": 1.018925104290247e-07,
+        "reference_l2": 218709.3810373046,
+        "relative_l2": 5.144323055002122e-13
+      },
+      "interpretation": "MP-only fallback reference for a row that failed the original source166003 FP64 projection. This does not turn the FP64 row into a pass or qualify native assembly.",
+      "mp110_final_dynamic_correction": "5.14266203957754977775015544875918255e-18",
+      "mp110_final_scaled_residual": "3.7545626919991251041656923982268405e-14",
+      "mp_branch_values": {
+        "fb_denominator": "0.00000165139489354091516301208167286184429",
+        "lambda_increment": "0.000000825636887463332034271774935114753726",
+        "yield_residual": "0.000000000060559305248265888266338764085573348"
+      },
+      "mp_ift_90_vs_110_same_equations": {
+        "absolute_l2": 0.0,
+        "max_abs_component": 0.0,
+        "reference_l2": 5253711719.181673,
+        "relative_l2": 0.0
+      },
+      "mp_ift_vs_fp64_ift_at_same_rounded_mp_root": {
+        "absolute_l2": 3.265544173059431e-05,
+        "max_abs_component": 3.078579902648926e-05,
+        "reference_l2": 5253711719.181674,
+        "relative_l2": 6.215689683041986e-15
+      },
+      "mp_root_float64_rounding_max_dynamic_scaled_component": "9.5288076013208773432254254768582e-17",
+      "mp_root_relative_spread_70_90_110": {
+        "70_vs_110": "1.5750308146519842352313963022579e-71",
+        "70_vs_90": "1.5750308146519842352254833130684e-71",
+        "90_vs_110": "2.2233019612114337604183703273033e-91"
+      },
+      "mp_root_stability_gate_1e-12": true,
+      "native_center_stress_vs_mp_stress": null,
+      "native_center_tangent_vs_mp_ift": null,
+      "original_fp64_failure": "tight diagnostic residual descent stalled at residual 2.4834751549442385e-12, correction 4.0596125385127072e-16",
+      "paper_row": 681,
+      "precision_results": {
+        "110": {
+          "dynamic_scaled_correction": "5.14266203957754977775015544875918255e-18",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.7523232748104211472056463814",
+              "iteration": 0,
+              "scaled_residual": "60832.69066602753445251402184"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9136518841945518188255996973",
+              "iteration": 1,
+              "scaled_residual": "16.45001688164169718172199824"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0004885078350707596704721705893",
+              "iteration": 2,
+              "scaled_residual": "7.151204310852075548034404801"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000000785999373866059912946754582",
+              "iteration": 3,
+              "scaled_residual": "0.005092119786259203953211279074"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000007951045822747546908662514778",
+              "iteration": 4,
+              "scaled_residual": "0.0006226236496475450440461063958"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.777221079715062474385052125e-9",
+              "iteration": 5,
+              "scaled_residual": "0.00002032583705748426029006404108"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.410373307370194325720359698e-12",
+              "iteration": 6,
+              "scaled_residual": "0.0000000248985815204378482832287648"
+            },
+            {
+              "dynamic_scaled_correction": "5.142662039577549777750155449e-18",
+              "iteration": 7,
+              "scaled_residual": "3.754562691999125104165692398e-14"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "3.7545626919991251041656923982268405e-14",
+          "strict_gates_pass": true
+        },
+        "70": {
+          "dynamic_scaled_correction": "5.14266203957754977775015544875918255e-18",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.7523232748104211472056463814",
+              "iteration": 0,
+              "scaled_residual": "60832.69066602753445251402184"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9136518841945518188255996973",
+              "iteration": 1,
+              "scaled_residual": "16.45001688164169718172199824"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0004885078350707596704721705893",
+              "iteration": 2,
+              "scaled_residual": "7.151204310852075548034404801"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000000785999373866059912946754582",
+              "iteration": 3,
+              "scaled_residual": "0.005092119786259203953211279074"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000007951045822747546908662514778",
+              "iteration": 4,
+              "scaled_residual": "0.0006226236496475450440461063958"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.777221079715062474385052125e-9",
+              "iteration": 5,
+              "scaled_residual": "0.00002032583705748426029006404108"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.410373307370194325720359698e-12",
+              "iteration": 6,
+              "scaled_residual": "0.0000000248985815204378482832287648"
+            },
+            {
+              "dynamic_scaled_correction": "5.142662039577549777750155449e-18",
+              "iteration": 7,
+              "scaled_residual": "3.754562691999125104165692398e-14"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "3.7545626919991251041656923982268405e-14",
+          "strict_gates_pass": true
+        },
+        "90": {
+          "dynamic_scaled_correction": "5.14266203957754977775015544875918255e-18",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.7523232748104211472056463814",
+              "iteration": 0,
+              "scaled_residual": "60832.69066602753445251402184"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9136518841945518188255996973",
+              "iteration": 1,
+              "scaled_residual": "16.45001688164169718172199824"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0004885078350707596704721705893",
+              "iteration": 2,
+              "scaled_residual": "7.151204310852075548034404801"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000000785999373866059912946754582",
+              "iteration": 3,
+              "scaled_residual": "0.005092119786259203953211279074"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000007951045822747546908662514778",
+              "iteration": 4,
+              "scaled_residual": "0.0006226236496475450440461063958"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.777221079715062474385052125e-9",
+              "iteration": 5,
+              "scaled_residual": "0.00002032583705748426029006404108"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.410373307370194325720359698e-12",
+              "iteration": 6,
+              "scaled_residual": "0.0000000248985815204378482832287648"
+            },
+            {
+              "dynamic_scaled_correction": "5.142662039577549777750155449e-18",
+              "iteration": 7,
+              "scaled_residual": "3.754562691999125104165692398e-14"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "3.7545626919991251041656923982268405e-14",
+          "strict_gates_pass": true
+        }
+      },
+      "state": "s1",
+      "state_index": 1,
+      "tet": 681
+    },
+    {
+      "fallback_status": "mp_gates_pass",
+      "fp64_stress_at_rounded_mp_root_vs_mp_stress": {
+        "absolute_l2": 5.383228122481791e-08,
+        "max_abs_component": 5.309993866831064e-08,
+        "reference_l2": 1808450.6507061326,
+        "relative_l2": 2.976707227471118e-14
+      },
+      "interpretation": "MP-only fallback reference for a row that failed the original source166003 FP64 projection. This does not turn the FP64 row into a pass or qualify native assembly.",
+      "mp110_final_dynamic_correction": "6.11616557185195532232209292220115569e-20",
+      "mp110_final_scaled_residual": "5.86851082942916142041504394746730411e-16",
+      "mp_branch_values": {
+        "fb_denominator": "0.000000362386519198861479878051286985147435",
+        "lambda_increment": "0.000000180916889607134806304099205484627446",
+        "yield_residual": "0.000000000276369992266591080779292200844196588"
+      },
+      "mp_ift_90_vs_110_same_equations": {
+        "absolute_l2": 0.0,
+        "max_abs_component": 0.0,
+        "reference_l2": 5266369721.928031,
+        "relative_l2": 0.0
+      },
+      "mp_ift_vs_fp64_ift_at_same_rounded_mp_root": {
+        "absolute_l2": 2.219773480205915e-06,
+        "max_abs_component": 1.9073486328125e-06,
+        "reference_l2": 5266369721.928029,
+        "relative_l2": 4.2149974221582966e-16
+      },
+      "mp_root_float64_rounding_max_dynamic_scaled_component": "9.981041554786147973270486117586e-17",
+      "mp_root_relative_spread_70_90_110": {
+        "70_vs_110": "1.2622390611523185513717496316627e-71",
+        "70_vs_90": "1.262239061152318551374335275274e-71",
+        "90_vs_110": "1.6741319780688117972353315893013e-91"
+      },
+      "mp_root_stability_gate_1e-12": true,
+      "native_center_stress_vs_mp_stress": null,
+      "native_center_tangent_vs_mp_ift": null,
+      "original_fp64_failure": "tight diagnostic residual descent stalled at residual 2.423296511551721e-12, correction 2.5671687371888874e-16",
+      "paper_row": 1221,
+      "precision_results": {
+        "110": {
+          "dynamic_scaled_correction": "6.11616557185195532232209292220115569e-20",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.3980633978329350260945186187",
+              "iteration": 0,
+              "scaled_residual": "12917.18773653152892593190445"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.06149748919102992982013530506",
+              "iteration": 1,
+              "scaled_residual": "63.02362547021833425164340955"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0002166575040692902624162284203",
+              "iteration": 2,
+              "scaled_residual": "0.01467968738042800750503464558"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000006512787418675801422652675268",
+              "iteration": 3,
+              "scaled_residual": "0.0008560760797984475419421228356"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "9.50201878440623552426472877e-9",
+              "iteration": 4,
+              "scaled_residual": "0.00009588438775003515409040880542"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.390387396131992289914455618e-10",
+              "iteration": 5,
+              "scaled_residual": "0.000002296510259325979842142432721"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "1.517535549153052627853366118e-13",
+              "iteration": 6,
+              "scaled_residual": "1.456088929932276462278845414e-9"
+            },
+            {
+              "dynamic_scaled_correction": "6.116165571851955322322092922e-20",
+              "iteration": 7,
+              "scaled_residual": "5.868510829429161420415043947e-16"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "5.86851082942916142041504394746730411e-16",
+          "strict_gates_pass": true
+        },
+        "70": {
+          "dynamic_scaled_correction": "6.11616557185195532232209292220115569e-20",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.3980633978329350260945186187",
+              "iteration": 0,
+              "scaled_residual": "12917.18773653152892593190445"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.06149748919102992982013530506",
+              "iteration": 1,
+              "scaled_residual": "63.02362547021833425164340955"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0002166575040692902624162284203",
+              "iteration": 2,
+              "scaled_residual": "0.01467968738042800750503464558"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000006512787418675801422652675268",
+              "iteration": 3,
+              "scaled_residual": "0.0008560760797984475419421228356"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "9.50201878440623552426472877e-9",
+              "iteration": 4,
+              "scaled_residual": "0.00009588438775003515409040880542"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.390387396131992289914455618e-10",
+              "iteration": 5,
+              "scaled_residual": "0.000002296510259325979842142432721"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "1.517535549153052627853366118e-13",
+              "iteration": 6,
+              "scaled_residual": "1.456088929932276462278845414e-9"
+            },
+            {
+              "dynamic_scaled_correction": "6.116165571851955322322092922e-20",
+              "iteration": 7,
+              "scaled_residual": "5.868510829429161420415043947e-16"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "5.86851082942916142041504394746730411e-16",
+          "strict_gates_pass": true
+        },
+        "90": {
+          "dynamic_scaled_correction": "6.11616557185195532232209292220115569e-20",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.3980633978329350260945186187",
+              "iteration": 0,
+              "scaled_residual": "12917.18773653152892593190445"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.06149748919102992982013530506",
+              "iteration": 1,
+              "scaled_residual": "63.02362547021833425164340955"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0002166575040692902624162284203",
+              "iteration": 2,
+              "scaled_residual": "0.01467968738042800750503464558"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000006512787418675801422652675268",
+              "iteration": 3,
+              "scaled_residual": "0.0008560760797984475419421228356"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "9.50201878440623552426472877e-9",
+              "iteration": 4,
+              "scaled_residual": "0.00009588438775003515409040880542"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.390387396131992289914455618e-10",
+              "iteration": 5,
+              "scaled_residual": "0.000002296510259325979842142432721"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "1.517535549153052627853366118e-13",
+              "iteration": 6,
+              "scaled_residual": "1.456088929932276462278845414e-9"
+            },
+            {
+              "dynamic_scaled_correction": "6.116165571851955322322092922e-20",
+              "iteration": 7,
+              "scaled_residual": "5.868510829429161420415043947e-16"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "5.86851082942916142041504394746730411e-16",
+          "strict_gates_pass": true
+        }
+      },
+      "state": "s1",
+      "state_index": 1,
+      "tet": 1317
+    },
+    {
+      "fallback_status": "mp_gates_pass",
+      "fp64_stress_at_rounded_mp_root_vs_mp_stress": {
+        "absolute_l2": 2.2781408392588186e-07,
+        "max_abs_component": 2.2473977878689766e-07,
+        "reference_l2": 203014.23108096034,
+        "relative_l2": 1.1221581990231588e-12
+      },
+      "interpretation": "MP-only fallback reference for a row that failed the original source166003 FP64 projection. This does not turn the FP64 row into a pass or qualify native assembly.",
+      "mp110_final_dynamic_correction": "3.71710650646354919584561659148876563e-17",
+      "mp110_final_scaled_residual": "3.73224405945476432947455154115666804e-13",
+      "mp_branch_values": {
+        "fb_denominator": "0.0000179512653336807188009746563718476857",
+        "lambda_increment": "0.00000897562709621767645053008440238263409",
+        "yield_residual": "5.57060402172965996996189383599858282e-12"
+      },
+      "mp_ift_90_vs_110_same_equations": {
+        "absolute_l2": 0.0,
+        "max_abs_component": 0.0,
+        "reference_l2": 5213526729.198613,
+        "relative_l2": 0.0
+      },
+      "mp_ift_vs_fp64_ift_at_same_rounded_mp_root": {
+        "absolute_l2": 1.7379381047897696e-06,
+        "max_abs_component": 9.5367431640625e-07,
+        "reference_l2": 5213526729.198611,
+        "relative_l2": 3.3335172044987556e-16
+      },
+      "mp_root_float64_rounding_max_dynamic_scaled_component": "7.9099943739159103116567371733359e-17",
+      "mp_root_relative_spread_70_90_110": {
+        "70_vs_110": "1.6210227453300427699762522120958e-71",
+        "70_vs_90": "1.6210227453300427699786074649643e-71",
+        "90_vs_110": "2.117690235077567888717087776548e-91"
+      },
+      "mp_root_stability_gate_1e-12": true,
+      "native_center_stress_vs_mp_stress": null,
+      "native_center_tangent_vs_mp_ift": null,
+      "original_fp64_failure": "tight diagnostic residual descent stalled at residual 2.0834030986597121e-12, correction 2.7739313275837777e-16",
+      "paper_row": 1472,
+      "precision_results": {
+        "110": {
+          "dynamic_scaled_correction": "3.71710650646354919584561659148876563e-17",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9705819038427739471226237445",
+              "iteration": 0,
+              "scaled_residual": "662351.489698263622496899893"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.7742115880547237094967757527",
+              "iteration": 1,
+              "scaled_residual": "21.80628648399893810812669384"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0009145213580524448082530697744",
+              "iteration": 2,
+              "scaled_residual": "18.37878365490927070419287364"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000003783198761798940069012207761",
+              "iteration": 3,
+              "scaled_residual": "0.05484618872785794704170763038"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000006215064220513830540950885677",
+              "iteration": 4,
+              "scaled_residual": "0.00668809435910297018003009121"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000002146841250882781751238429689",
+              "iteration": 5,
+              "scaled_residual": "0.0002160767147730996205315564442"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.577907028186120825732150082e-11",
+              "iteration": 6,
+              "scaled_residual": "0.00000025884127671858175624217349"
+            },
+            {
+              "dynamic_scaled_correction": "3.717106506463549195845616591e-17",
+              "iteration": 7,
+              "scaled_residual": "3.732244059454764329474551541e-13"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "3.73224405945476432947455154115666804e-13",
+          "strict_gates_pass": true
+        },
+        "70": {
+          "dynamic_scaled_correction": "3.71710650646354919584561659148876563e-17",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9705819038427739471226237445",
+              "iteration": 0,
+              "scaled_residual": "662351.489698263622496899893"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.7742115880547237094967757527",
+              "iteration": 1,
+              "scaled_residual": "21.80628648399893810812669384"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0009145213580524448082530697744",
+              "iteration": 2,
+              "scaled_residual": "18.37878365490927070419287364"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000003783198761798940069012207761",
+              "iteration": 3,
+              "scaled_residual": "0.05484618872785794704170763038"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000006215064220513830540950885677",
+              "iteration": 4,
+              "scaled_residual": "0.00668809435910297018003009121"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000002146841250882781751238429689",
+              "iteration": 5,
+              "scaled_residual": "0.0002160767147730996205315564442"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.577907028186120825732150082e-11",
+              "iteration": 6,
+              "scaled_residual": "0.00000025884127671858175624217349"
+            },
+            {
+              "dynamic_scaled_correction": "3.717106506463549195845616591e-17",
+              "iteration": 7,
+              "scaled_residual": "3.732244059454764329474551541e-13"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "3.73224405945476432947455154115666804e-13",
+          "strict_gates_pass": true
+        },
+        "90": {
+          "dynamic_scaled_correction": "3.71710650646354919584561659148876563e-17",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9705819038427739471226237445",
+              "iteration": 0,
+              "scaled_residual": "662351.489698263622496899893"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.7742115880547237094967757527",
+              "iteration": 1,
+              "scaled_residual": "21.80628648399893810812669384"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0009145213580524448082530697744",
+              "iteration": 2,
+              "scaled_residual": "18.37878365490927070419287364"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000003783198761798940069012207761",
+              "iteration": 3,
+              "scaled_residual": "0.05484618872785794704170763038"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000006215064220513830540950885677",
+              "iteration": 4,
+              "scaled_residual": "0.00668809435910297018003009121"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000002146841250882781751238429689",
+              "iteration": 5,
+              "scaled_residual": "0.0002160767147730996205315564442"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.577907028186120825732150082e-11",
+              "iteration": 6,
+              "scaled_residual": "0.00000025884127671858175624217349"
+            },
+            {
+              "dynamic_scaled_correction": "3.717106506463549195845616591e-17",
+              "iteration": 7,
+              "scaled_residual": "3.732244059454764329474551541e-13"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "3.73224405945476432947455154115666804e-13",
+          "strict_gates_pass": true
+        }
+      },
+      "state": "s1",
+      "state_index": 1,
+      "tet": 1568
+    },
+    {
+      "fallback_status": "mp_gates_pass",
+      "fp64_stress_at_rounded_mp_root_vs_mp_stress": {
+        "absolute_l2": 1.5376296746359996e-07,
+        "max_abs_component": 1.5192199498414993e-07,
+        "reference_l2": 184402.14952399532,
+        "relative_l2": 8.338458519085298e-13
+      },
+      "interpretation": "MP-only fallback reference for a row that failed the original source166003 FP64 projection. This does not turn the FP64 row into a pass or qualify native assembly.",
+      "mp110_final_dynamic_correction": "8.08249182935489812480695639373803854e-28",
+      "mp110_final_scaled_residual": "8.11544877290914202226613144087958417e-24",
+      "mp_branch_values": {
+        "fb_denominator": "0.000225852723421275226053159289708645718",
+        "lambda_increment": "0.000112926361267871204626609262864726759",
+        "yield_residual": "4.42766408399969976217157454392700364e-13"
+      },
+      "mp_ift_90_vs_110_same_equations": {
+        "absolute_l2": 0.0,
+        "max_abs_component": 0.0,
+        "reference_l2": 4811790525.859536,
+        "relative_l2": 0.0
+      },
+      "mp_ift_vs_fp64_ift_at_same_rounded_mp_root": {
+        "absolute_l2": 1.7841668119118138e-06,
+        "max_abs_component": 1.5795230865478516e-06,
+        "reference_l2": 4811790525.859536,
+        "relative_l2": 3.7079062405633416e-16
+      },
+      "mp_root_float64_rounding_max_dynamic_scaled_component": "6.8282967712119207498592634644052e-17",
+      "mp_root_relative_spread_70_90_110": {
+        "70_vs_110": "3.1390514455526982617285760884328e-71",
+        "70_vs_90": "3.1390514455526982617808726251607e-71",
+        "90_vs_110": "5.2296536727948594545280679099209e-91"
+      },
+      "mp_root_stability_gate_1e-12": true,
+      "native_center_stress_vs_mp_stress": null,
+      "native_center_tangent_vs_mp_ift": null,
+      "original_fp64_failure": "tight diagnostic residual descent stalled at residual 2.3151078347558471e-12, correction 3.2651005442214055e-16",
+      "paper_row": 1515,
+      "precision_results": {
+        "110": {
+          "dynamic_scaled_correction": "8.08249182935489812480695639373803854e-28",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "4.537330680776728725321270095",
+              "iteration": 0,
+              "scaled_residual": "8326285.057481014067087252502"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "11.81674996851658491162213724",
+              "iteration": 1,
+              "scaled_residual": "144.0086783379762612719051091"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.6020384348443580144791583814",
+              "iteration": 2,
+              "scaled_residual": "118.779071871167568969140798"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0001402486295857594267963793203",
+              "iteration": 3,
+              "scaled_residual": "0.6834140027383689548270444528"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000007728974464806040285766536796",
+              "iteration": 4,
+              "scaled_residual": "0.08310721598337607628013058478"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000002639339645054100364548698516",
+              "iteration": 5,
+              "scaled_residual": "0.002656328861666601462065084154"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.096918739140877734627770604e-10",
+              "iteration": 6,
+              "scaled_residual": "0.000003109555212174233339017119779"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "4.263847186499181488842193951e-16",
+              "iteration": 7,
+              "scaled_residual": "4.281233331038196685446130708e-12"
+            },
+            {
+              "dynamic_scaled_correction": "8.082491829354898124806956394e-28",
+              "iteration": 8,
+              "scaled_residual": "8.115448772909142022266131441e-24"
+            }
+          ],
+          "iterations": 8,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.11544877290914202226613144087958417e-24",
+          "strict_gates_pass": true
+        },
+        "70": {
+          "dynamic_scaled_correction": "8.08249182935489812480695639373803854e-28",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "4.537330680776728725321270095",
+              "iteration": 0,
+              "scaled_residual": "8326285.057481014067087252502"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "11.81674996851658491162213724",
+              "iteration": 1,
+              "scaled_residual": "144.0086783379762612719051091"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.6020384348443580144791583814",
+              "iteration": 2,
+              "scaled_residual": "118.779071871167568969140798"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0001402486295857594267963793203",
+              "iteration": 3,
+              "scaled_residual": "0.6834140027383689548270444528"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000007728974464806040285766536796",
+              "iteration": 4,
+              "scaled_residual": "0.08310721598337607628013058478"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000002639339645054100364548698516",
+              "iteration": 5,
+              "scaled_residual": "0.002656328861666601462065084154"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.096918739140877734627770604e-10",
+              "iteration": 6,
+              "scaled_residual": "0.000003109555212174233339017119779"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "4.263847186499181488842193951e-16",
+              "iteration": 7,
+              "scaled_residual": "4.281233331038196685446130708e-12"
+            },
+            {
+              "dynamic_scaled_correction": "8.082491829354898124806956394e-28",
+              "iteration": 8,
+              "scaled_residual": "8.115448772909142022266131441e-24"
+            }
+          ],
+          "iterations": 8,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.11544877290914202226613144087958417e-24",
+          "strict_gates_pass": true
+        },
+        "90": {
+          "dynamic_scaled_correction": "8.08249182935489812480695639373803854e-28",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "4.537330680776728725321270095",
+              "iteration": 0,
+              "scaled_residual": "8326285.057481014067087252502"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "11.81674996851658491162213724",
+              "iteration": 1,
+              "scaled_residual": "144.0086783379762612719051091"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.6020384348443580144791583814",
+              "iteration": 2,
+              "scaled_residual": "118.779071871167568969140798"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0001402486295857594267963793203",
+              "iteration": 3,
+              "scaled_residual": "0.6834140027383689548270444528"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000007728974464806040285766536796",
+              "iteration": 4,
+              "scaled_residual": "0.08310721598337607628013058478"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000002639339645054100364548698516",
+              "iteration": 5,
+              "scaled_residual": "0.002656328861666601462065084154"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.096918739140877734627770604e-10",
+              "iteration": 6,
+              "scaled_residual": "0.000003109555212174233339017119779"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "4.263847186499181488842193951e-16",
+              "iteration": 7,
+              "scaled_residual": "4.281233331038196685446130708e-12"
+            },
+            {
+              "dynamic_scaled_correction": "8.082491829354898124806956394e-28",
+              "iteration": 8,
+              "scaled_residual": "8.115448772909142022266131441e-24"
+            }
+          ],
+          "iterations": 8,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.11544877290914202226613144087958417e-24",
+          "strict_gates_pass": true
+        }
+      },
+      "state": "s1",
+      "state_index": 1,
+      "tet": 1611
+    },
+    {
+      "fallback_status": "mp_gates_pass",
+      "fp64_stress_at_rounded_mp_root_vs_mp_stress": {
+        "absolute_l2": 5.025352098353502e-08,
+        "max_abs_component": 4.583853296935558e-08,
+        "reference_l2": 72448.69189669841,
+        "relative_l2": 6.936429032450916e-13
+      },
+      "interpretation": "MP-only fallback reference for a row that failed the original source166003 FP64 projection. This does not turn the FP64 row into a pass or qualify native assembly.",
+      "mp110_final_dynamic_correction": "8.84817765441248517372132361264134871e-28",
+      "mp110_final_scaled_residual": "8.9336230421504794986005258989016116e-24",
+      "mp_branch_values": {
+        "fb_denominator": "0.000175783108077809414844079990775173001",
+        "lambda_increment": "0.000087891553470021835084291066422187627",
+        "yield_residual": "5.68882872337748482284246766143813824e-13"
+      },
+      "mp_ift_90_vs_110_same_equations": {
+        "absolute_l2": 0.0,
+        "max_abs_component": 0.0,
+        "reference_l2": 4898928936.295608,
+        "relative_l2": 0.0
+      },
+      "mp_ift_vs_fp64_ift_at_same_rounded_mp_root": {
+        "absolute_l2": 9.359293416289496e-07,
+        "max_abs_component": 4.76837158203125e-07,
+        "reference_l2": 4898928936.295608,
+        "relative_l2": 1.9104774815057135e-16
+      },
+      "mp_root_float64_rounding_max_dynamic_scaled_component": "7.720767482939108498216276253048e-17",
+      "mp_root_relative_spread_70_90_110": {
+        "70_vs_110": "2.2940647528537865483865086864721e-71",
+        "70_vs_90": "2.2940647528537865483780965351982e-71",
+        "90_vs_110": "1.553240755516565089694393257653e-91"
+      },
+      "mp_root_stability_gate_1e-12": true,
+      "native_center_stress_vs_mp_stress": null,
+      "native_center_tangent_vs_mp_ift": null,
+      "original_fp64_failure": "tight diagnostic residual descent stalled at residual 2.266391232768629e-12, correction 7.1357168118862275e-16",
+      "paper_row": 640,
+      "precision_results": {
+        "110": {
+          "dynamic_scaled_correction": "8.84817765441248517372132361264134871e-28",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "20.53485958510223058091324273",
+              "iteration": 0,
+              "scaled_residual": "6486238.091357771062239255507"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "15.2668573532545173021902981",
+              "iteration": 1,
+              "scaled_residual": "480.1208873466861489682296008"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.02274966707332762325132023427",
+              "iteration": 2,
+              "scaled_residual": "474.3977578427939209685840667"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000941224111045075131922381073",
+              "iteration": 3,
+              "scaled_residual": "0.5416458238633353780838600512"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000006114204252383822175099554377",
+              "iteration": 4,
+              "scaled_residual": "0.06620848771408468537029507302"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000002133345470099381135834125325",
+              "iteration": 5,
+              "scaled_residual": "0.002159232398534912909827097168"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.614062467842158815098003711e-10",
+              "iteration": 6,
+              "scaled_residual": "0.000002639313962921184552287621527"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.924899906624429597781796664e-16",
+              "iteration": 7,
+              "scaled_residual": "3.962802015692640485127658099e-12"
+            },
+            {
+              "dynamic_scaled_correction": "8.848177654412485173721323613e-28",
+              "iteration": 8,
+              "scaled_residual": "8.933623042150479498600525899e-24"
+            }
+          ],
+          "iterations": 8,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.9336230421504794986005258989016116e-24",
+          "strict_gates_pass": true
+        },
+        "70": {
+          "dynamic_scaled_correction": "8.84817765441248517372132361264134871e-28",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "20.53485958510223058091324273",
+              "iteration": 0,
+              "scaled_residual": "6486238.091357771062239255507"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "15.2668573532545173021902981",
+              "iteration": 1,
+              "scaled_residual": "480.1208873466861489682296008"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.02274966707332762325132023427",
+              "iteration": 2,
+              "scaled_residual": "474.3977578427939209685840667"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000941224111045075131922381073",
+              "iteration": 3,
+              "scaled_residual": "0.5416458238633353780838600512"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000006114204252383822175099554377",
+              "iteration": 4,
+              "scaled_residual": "0.06620848771408468537029507302"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000002133345470099381135834125325",
+              "iteration": 5,
+              "scaled_residual": "0.002159232398534912909827097168"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.614062467842158815098003711e-10",
+              "iteration": 6,
+              "scaled_residual": "0.000002639313962921184552287621527"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.924899906624429597781796664e-16",
+              "iteration": 7,
+              "scaled_residual": "3.962802015692640485127658099e-12"
+            },
+            {
+              "dynamic_scaled_correction": "8.848177654412485173721323613e-28",
+              "iteration": 8,
+              "scaled_residual": "8.933623042150479498600525899e-24"
+            }
+          ],
+          "iterations": 8,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.9336230421504794986005258989016116e-24",
+          "strict_gates_pass": true
+        },
+        "90": {
+          "dynamic_scaled_correction": "8.84817765441248517372132361264134871e-28",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "20.53485958510223058091324273",
+              "iteration": 0,
+              "scaled_residual": "6486238.091357771062239255507"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "15.2668573532545173021902981",
+              "iteration": 1,
+              "scaled_residual": "480.1208873466861489682296008"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.02274966707332762325132023427",
+              "iteration": 2,
+              "scaled_residual": "474.3977578427939209685840667"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000941224111045075131922381073",
+              "iteration": 3,
+              "scaled_residual": "0.5416458238633353780838600512"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000006114204252383822175099554377",
+              "iteration": 4,
+              "scaled_residual": "0.06620848771408468537029507302"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000002133345470099381135834125325",
+              "iteration": 5,
+              "scaled_residual": "0.002159232398534912909827097168"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.614062467842158815098003711e-10",
+              "iteration": 6,
+              "scaled_residual": "0.000002639313962921184552287621527"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.924899906624429597781796664e-16",
+              "iteration": 7,
+              "scaled_residual": "3.962802015692640485127658099e-12"
+            },
+            {
+              "dynamic_scaled_correction": "8.848177654412485173721323613e-28",
+              "iteration": 8,
+              "scaled_residual": "8.933623042150479498600525899e-24"
+            }
+          ],
+          "iterations": 8,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.9336230421504794986005258989016116e-24",
+          "strict_gates_pass": true
+        }
+      },
+      "state": "s2",
+      "state_index": 2,
+      "tet": 640
+    },
+    {
+      "fallback_status": "mp_gates_pass",
+      "fp64_stress_at_rounded_mp_root_vs_mp_stress": {
+        "absolute_l2": 3.761376321101389e-07,
+        "max_abs_component": 3.6991696106269956e-07,
+        "reference_l2": 76981.93497679966,
+        "relative_l2": 4.886050632833494e-12
+      },
+      "interpretation": "MP-only fallback reference for a row that failed the original source166003 FP64 projection. This does not turn the FP64 row into a pass or qualify native assembly.",
+      "mp110_final_dynamic_correction": "7.70958966807109621310357480859585599e-18",
+      "mp110_final_scaled_residual": "7.77946668157141745551531109337024842e-14",
+      "mp_branch_values": {
+        "fb_denominator": "0.00000825594925635914810099015568067995072",
+        "lambda_increment": "0.00000412796251567052250850470122348073722",
+        "yield_residual": "0.0000000000121125051618086495909081314804815269"
+      },
+      "mp_ift_90_vs_110_same_equations": {
+        "absolute_l2": 0.0,
+        "max_abs_component": 0.0,
+        "reference_l2": 5236776109.657682,
+        "relative_l2": 0.0
+      },
+      "mp_ift_vs_fp64_ift_at_same_rounded_mp_root": {
+        "absolute_l2": 1.6816761378474212e-06,
+        "max_abs_component": 1.430511474609375e-06,
+        "reference_l2": 5236776109.657682,
+        "relative_l2": 3.2112813353736234e-16
+      },
+      "mp_root_float64_rounding_max_dynamic_scaled_component": "8.4681045106408817502528409770324e-17",
+      "mp_root_relative_spread_70_90_110": {
+        "70_vs_110": "1.4877186077408299456883951502268e-71",
+        "70_vs_90": "1.4877186077408299456919106156446e-71",
+        "90_vs_110": "2.3668749634652207390806986942008e-91"
+      },
+      "mp_root_stability_gate_1e-12": true,
+      "native_center_stress_vs_mp_stress": null,
+      "native_center_tangent_vs_mp_ift": null,
+      "original_fp64_failure": "tight diagnostic residual descent stalled at residual 2.4230125612276933e-12, correction 2.5243598526943692e-16",
+      "paper_row": 680,
+      "precision_results": {
+        "110": {
+          "dynamic_scaled_correction": "7.70958966807109621310357480859585599e-18",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9378582420176381812591163665",
+              "iteration": 0,
+              "scaled_residual": "304633.6783855449151647923263"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "1.833150425267084414138162173",
+              "iteration": 1,
+              "scaled_residual": "3.453848170284402946325151225"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0003055148671095303976498798506",
+              "iteration": 2,
+              "scaled_residual": "1.017832391432750468795823491"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000164413648902428032423993125",
+              "iteration": 3,
+              "scaled_residual": "0.02325131307242714931191601092"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000002574816592198563337625027805",
+              "iteration": 4,
+              "scaled_residual": "0.002766454343031886012466096333"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "8.061081163296710951362055323e-9",
+              "iteration": 5,
+              "scaled_residual": "0.00008150188164620644783200198424"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "7.942159129091905918123951856e-12",
+              "iteration": 6,
+              "scaled_residual": "0.00000008014159629516301998839255076"
+            },
+            {
+              "dynamic_scaled_correction": "7.709589668071096213103574809e-18",
+              "iteration": 7,
+              "scaled_residual": "7.779466681571417455515311093e-14"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "7.77946668157141745551531109337024842e-14",
+          "strict_gates_pass": true
+        },
+        "70": {
+          "dynamic_scaled_correction": "7.70958966807109621310357480859585599e-18",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9378582420176381812591163665",
+              "iteration": 0,
+              "scaled_residual": "304633.6783855449151647923263"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "1.833150425267084414138162173",
+              "iteration": 1,
+              "scaled_residual": "3.453848170284402946325151225"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0003055148671095303976498798506",
+              "iteration": 2,
+              "scaled_residual": "1.017832391432750468795823491"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000164413648902428032423993125",
+              "iteration": 3,
+              "scaled_residual": "0.02325131307242714931191601092"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000002574816592198563337625027805",
+              "iteration": 4,
+              "scaled_residual": "0.002766454343031886012466096333"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "8.061081163296710951362055323e-9",
+              "iteration": 5,
+              "scaled_residual": "0.00008150188164620644783200198424"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "7.942159129091905918123951856e-12",
+              "iteration": 6,
+              "scaled_residual": "0.00000008014159629516301998839255076"
+            },
+            {
+              "dynamic_scaled_correction": "7.709589668071096213103574809e-18",
+              "iteration": 7,
+              "scaled_residual": "7.779466681571417455515311093e-14"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "7.77946668157141745551531109337024842e-14",
+          "strict_gates_pass": true
+        },
+        "90": {
+          "dynamic_scaled_correction": "7.70958966807109621310357480859585599e-18",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9378582420176381812591163665",
+              "iteration": 0,
+              "scaled_residual": "304633.6783855449151647923263"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "1.833150425267084414138162173",
+              "iteration": 1,
+              "scaled_residual": "3.453848170284402946325151225"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0003055148671095303976498798506",
+              "iteration": 2,
+              "scaled_residual": "1.017832391432750468795823491"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000164413648902428032423993125",
+              "iteration": 3,
+              "scaled_residual": "0.02325131307242714931191601092"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000002574816592198563337625027805",
+              "iteration": 4,
+              "scaled_residual": "0.002766454343031886012466096333"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "8.061081163296710951362055323e-9",
+              "iteration": 5,
+              "scaled_residual": "0.00008150188164620644783200198424"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "7.942159129091905918123951856e-12",
+              "iteration": 6,
+              "scaled_residual": "0.00000008014159629516301998839255076"
+            },
+            {
+              "dynamic_scaled_correction": "7.709589668071096213103574809e-18",
+              "iteration": 7,
+              "scaled_residual": "7.779466681571417455515311093e-14"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "7.77946668157141745551531109337024842e-14",
+          "strict_gates_pass": true
+        }
+      },
+      "state": "s2",
+      "state_index": 2,
+      "tet": 680
+    },
+    {
+      "fallback_status": "mp_gates_pass",
+      "fp64_stress_at_rounded_mp_root_vs_mp_stress": {
+        "absolute_l2": 1.3056727921258828e-08,
+        "max_abs_component": 1.1292286217212677e-08,
+        "reference_l2": 141873.02689458392,
+        "relative_l2": 9.203108023458457e-14
+      },
+      "interpretation": "MP-only fallback reference for a row that failed the original source166003 FP64 projection. This does not turn the FP64 row into a pass or qualify native assembly.",
+      "mp110_final_dynamic_correction": "4.49865716036986172025414010120704423e-18",
+      "mp110_final_scaled_residual": "4.51805641998015768278675904482441331e-14",
+      "mp_branch_values": {
+        "fb_denominator": "0.000038309078766233043342774834645699609",
+        "lambda_increment": "0.0000191545367727711651248978793989451319",
+        "yield_residual": "2.61034309751827954784506327921217947e-12"
+      },
+      "mp_ift_90_vs_110_same_equations": {
+        "absolute_l2": 0.0,
+        "max_abs_component": 0.0,
+        "reference_l2": 5168008460.192763,
+        "relative_l2": 0.0
+      },
+      "mp_ift_vs_fp64_ift_at_same_rounded_mp_root": {
+        "absolute_l2": 7.096228576179769e-07,
+        "max_abs_component": 4.76837158203125e-07,
+        "reference_l2": 5168008460.192763,
+        "relative_l2": 1.3731069967937096e-16
+      },
+      "mp_root_float64_rounding_max_dynamic_scaled_component": "8.7405401563767903522689730541075e-17",
+      "mp_root_relative_spread_70_90_110": {
+        "70_vs_110": "1.2466756400358396906223083163174e-71",
+        "70_vs_90": "1.2466756400358396906414213583687e-71",
+        "90_vs_110": "3.2118290234918231718130712726084e-91"
+      },
+      "mp_root_stability_gate_1e-12": true,
+      "native_center_stress_vs_mp_stress": null,
+      "native_center_tangent_vs_mp_ift": null,
+      "original_fp64_failure": "tight diagnostic residual descent stalled at residual 2.1328465250681791e-12, correction 4.2418553661344692e-16",
+      "paper_row": 1655,
+      "precision_results": {
+        "110": {
+          "dynamic_scaled_correction": "4.49865716036986172025414010120704423e-18",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9859782670316494357361542214",
+              "iteration": 0,
+              "scaled_residual": "1413270.327949936230234473869"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.691407092055042548449030041",
+              "iteration": 1,
+              "scaled_residual": "7.915591978582868779324740387"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0001280719962571163533257513528",
+              "iteration": 2,
+              "scaled_residual": "1.411744934367280751490757895"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000006446617432545845162761830672",
+              "iteration": 3,
+              "scaled_residual": "0.08814744268895794099461160863"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000000924806710182801665897021738",
+              "iteration": 4,
+              "scaled_residual": "0.009748649420766284666512981268"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000002235350922888736026383080527",
+              "iteration": 5,
+              "scaled_residual": "0.000224762308932469503438912626"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "1.309959487670446338139860558e-11",
+              "iteration": 6,
+              "scaled_residual": "0.000000131560924233926082830535673"
+            },
+            {
+              "dynamic_scaled_correction": "4.498657160369861720254140101e-18",
+              "iteration": 7,
+              "scaled_residual": "4.518056419980157682786759045e-14"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "4.51805641998015768278675904482441331e-14",
+          "strict_gates_pass": true
+        },
+        "70": {
+          "dynamic_scaled_correction": "4.49865716036986172025414010120704423e-18",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9859782670316494357361542214",
+              "iteration": 0,
+              "scaled_residual": "1413270.327949936230234473869"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.691407092055042548449030041",
+              "iteration": 1,
+              "scaled_residual": "7.915591978582868779324740387"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0001280719962571163533257513528",
+              "iteration": 2,
+              "scaled_residual": "1.411744934367280751490757895"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000006446617432545845162761830672",
+              "iteration": 3,
+              "scaled_residual": "0.08814744268895794099461160863"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000000924806710182801665897021738",
+              "iteration": 4,
+              "scaled_residual": "0.009748649420766284666512981268"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000002235350922888736026383080527",
+              "iteration": 5,
+              "scaled_residual": "0.000224762308932469503438912626"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "1.309959487670446338139860558e-11",
+              "iteration": 6,
+              "scaled_residual": "0.000000131560924233926082830535673"
+            },
+            {
+              "dynamic_scaled_correction": "4.498657160369861720254140101e-18",
+              "iteration": 7,
+              "scaled_residual": "4.518056419980157682786759045e-14"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "4.51805641998015768278675904482441331e-14",
+          "strict_gates_pass": true
+        },
+        "90": {
+          "dynamic_scaled_correction": "4.49865716036986172025414010120704423e-18",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9859782670316494357361542214",
+              "iteration": 0,
+              "scaled_residual": "1413270.327949936230234473869"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.691407092055042548449030041",
+              "iteration": 1,
+              "scaled_residual": "7.915591978582868779324740387"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0001280719962571163533257513528",
+              "iteration": 2,
+              "scaled_residual": "1.411744934367280751490757895"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000006446617432545845162761830672",
+              "iteration": 3,
+              "scaled_residual": "0.08814744268895794099461160863"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000000924806710182801665897021738",
+              "iteration": 4,
+              "scaled_residual": "0.009748649420766284666512981268"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000002235350922888736026383080527",
+              "iteration": 5,
+              "scaled_residual": "0.000224762308932469503438912626"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "1.309959487670446338139860558e-11",
+              "iteration": 6,
+              "scaled_residual": "0.000000131560924233926082830535673"
+            },
+            {
+              "dynamic_scaled_correction": "4.498657160369861720254140101e-18",
+              "iteration": 7,
+              "scaled_residual": "4.518056419980157682786759045e-14"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "4.51805641998015768278675904482441331e-14",
+          "strict_gates_pass": true
+        }
+      },
+      "state": "s2",
+      "state_index": 2,
+      "tet": 1751
+    },
+    {
+      "fallback_status": "mp_gates_pass",
+      "fp64_stress_at_rounded_mp_root_vs_mp_stress": {
+        "absolute_l2": 9.149999030695882e-08,
+        "max_abs_component": 7.462585926987231e-08,
+        "reference_l2": 291281.2839323038,
+        "relative_l2": 3.141293153878853e-13
+      },
+      "interpretation": "MP-only fallback reference for a row that failed the original source166003 FP64 projection. This does not turn the FP64 row into a pass or qualify native assembly.",
+      "mp110_final_dynamic_correction": "1.37949073818248640896663287990927768e-27",
+      "mp110_final_scaled_residual": "8.32776628529826771180552716308033286e-24",
+      "mp_branch_values": {
+        "fb_denominator": "0.000194799335439851399601224002227506493",
+        "lambda_increment": "0.0000973996672065769294582364827252285233",
+        "yield_residual": "5.1334877034237510200021045804903442e-13"
+      },
+      "mp_ift_90_vs_110_same_equations": {
+        "absolute_l2": 0.0,
+        "max_abs_component": 0.0,
+        "reference_l2": 4865857479.327757,
+        "relative_l2": 0.0
+      },
+      "mp_ift_vs_fp64_ift_at_same_rounded_mp_root": {
+        "absolute_l2": 7.672085829507183e-07,
+        "max_abs_component": 4.76837158203125e-07,
+        "reference_l2": 4865857479.327757,
+        "relative_l2": 1.5767181554538914e-16
+      },
+      "mp_root_float64_rounding_max_dynamic_scaled_component": "9.6176464804542680098642114126906e-17",
+      "mp_root_relative_spread_70_90_110": {
+        "70_vs_110": "1.1470421946767811942343639896706e-70",
+        "70_vs_90": "1.1470421946767811942208809361256e-70",
+        "90_vs_110": "1.3483053545050388204999933122439e-90"
+      },
+      "mp_root_stability_gate_1e-12": true,
+      "native_center_stress_vs_mp_stress": null,
+      "native_center_tangent_vs_mp_ift": null,
+      "original_fp64_failure": "tight diagnostic residual descent stalled at residual 2.0368835955516506e-12, correction 1.303832867343884e-15",
+      "paper_row": 644,
+      "precision_results": {
+        "110": {
+          "dynamic_scaled_correction": "1.37949073818248640896663287990927768e-27",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "23.10395266845080897385493782",
+              "iteration": 0,
+              "scaled_residual": "7188146.500832114006512978792"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "6.631737512071126421364754144",
+              "iteration": 1,
+              "scaled_residual": "189.5291725410732573698341564"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.01508720155533488898910938966",
+              "iteration": 2,
+              "scaled_residual": "186.533279652037052496810393"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0003143782767765421839419758326",
+              "iteration": 3,
+              "scaled_residual": "0.5948230129131846360589662971"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00001120913788530909630858884401",
+              "iteration": 4,
+              "scaled_residual": "0.07252236236595116578985346685"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000003869433472318108406178959899",
+              "iteration": 5,
+              "scaled_residual": "0.002341521837769896651795879892"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "4.639946670500963769948833175e-10",
+              "iteration": 6,
+              "scaled_residual": "0.000002801070094883101029706971159"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "6.671880442904893976372630736e-16",
+              "iteration": 7,
+              "scaled_residual": "4.027708158838682402793250758e-12"
+            },
+            {
+              "dynamic_scaled_correction": "1.37949073818248640896663288e-27",
+              "iteration": 8,
+              "scaled_residual": "8.327766285298267711805527163e-24"
+            }
+          ],
+          "iterations": 8,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.32776628529826771180552716308033286e-24",
+          "strict_gates_pass": true
+        },
+        "70": {
+          "dynamic_scaled_correction": "1.37949073818248640896663287990927768e-27",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "23.10395266845080897385493782",
+              "iteration": 0,
+              "scaled_residual": "7188146.500832114006512978792"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "6.631737512071126421364754144",
+              "iteration": 1,
+              "scaled_residual": "189.5291725410732573698341564"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.01508720155533488898910938966",
+              "iteration": 2,
+              "scaled_residual": "186.533279652037052496810393"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0003143782767765421839419758326",
+              "iteration": 3,
+              "scaled_residual": "0.5948230129131846360589662971"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00001120913788530909630858884401",
+              "iteration": 4,
+              "scaled_residual": "0.07252236236595116578985346685"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000003869433472318108406178959899",
+              "iteration": 5,
+              "scaled_residual": "0.002341521837769896651795879892"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "4.639946670500963769948833175e-10",
+              "iteration": 6,
+              "scaled_residual": "0.000002801070094883101029706971159"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "6.671880442904893976372630736e-16",
+              "iteration": 7,
+              "scaled_residual": "4.027708158838682402793250758e-12"
+            },
+            {
+              "dynamic_scaled_correction": "1.37949073818248640896663288e-27",
+              "iteration": 8,
+              "scaled_residual": "8.327766285298267711805527163e-24"
+            }
+          ],
+          "iterations": 8,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.32776628529826771180552716308033286e-24",
+          "strict_gates_pass": true
+        },
+        "90": {
+          "dynamic_scaled_correction": "1.37949073818248640896663287990927768e-27",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "23.10395266845080897385493782",
+              "iteration": 0,
+              "scaled_residual": "7188146.500832114006512978792"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "6.631737512071126421364754144",
+              "iteration": 1,
+              "scaled_residual": "189.5291725410732573698341564"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.01508720155533488898910938966",
+              "iteration": 2,
+              "scaled_residual": "186.533279652037052496810393"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0003143782767765421839419758326",
+              "iteration": 3,
+              "scaled_residual": "0.5948230129131846360589662971"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00001120913788530909630858884401",
+              "iteration": 4,
+              "scaled_residual": "0.07252236236595116578985346685"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000003869433472318108406178959899",
+              "iteration": 5,
+              "scaled_residual": "0.002341521837769896651795879892"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "4.639946670500963769948833175e-10",
+              "iteration": 6,
+              "scaled_residual": "0.000002801070094883101029706971159"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "6.671880442904893976372630736e-16",
+              "iteration": 7,
+              "scaled_residual": "4.027708158838682402793250758e-12"
+            },
+            {
+              "dynamic_scaled_correction": "1.37949073818248640896663288e-27",
+              "iteration": 8,
+              "scaled_residual": "8.327766285298267711805527163e-24"
+            }
+          ],
+          "iterations": 8,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "8.32776628529826771180552716308033286e-24",
+          "strict_gates_pass": true
+        }
+      },
+      "state": "s3",
+      "state_index": 3,
+      "tet": 644
+    },
+    {
+      "fallback_status": "mp_gates_pass",
+      "fp64_stress_at_rounded_mp_root_vs_mp_stress": {
+        "absolute_l2": 1.7500755962095286e-07,
+        "max_abs_component": 1.7490697246103082e-07,
+        "reference_l2": 318288.0124900513,
+        "relative_l2": 5.498402476795229e-13
+      },
+      "interpretation": "MP-only fallback reference for a row that failed the original source166003 FP64 projection. This does not turn the FP64 row into a pass or qualify native assembly.",
+      "mp110_final_dynamic_correction": "1.25997288109270987169201124076201768e-19",
+      "mp110_final_scaled_residual": "1.26595080492117396051324683439108932e-15",
+      "mp_branch_values": {
+        "fb_denominator": "0.0000393159248003686782471644852006237132",
+        "lambda_increment": "0.0000196579598566854962898216731259746703",
+        "yield_residual": "2.54349877953622032341563916065931358e-12"
+      },
+      "mp_ift_90_vs_110_same_equations": {
+        "absolute_l2": 0.0,
+        "max_abs_component": 0.0,
+        "reference_l2": 5165163561.069922,
+        "relative_l2": 0.0
+      },
+      "mp_ift_vs_fp64_ift_at_same_rounded_mp_root": {
+        "absolute_l2": 1.2678090160588184e-06,
+        "max_abs_component": 9.5367431640625e-07,
+        "reference_l2": 5165163561.0699215,
+        "relative_l2": 2.454537985233138e-16
+      },
+      "mp_root_float64_rounding_max_dynamic_scaled_component": "9.1836658242124743675560373509425e-17",
+      "mp_root_relative_spread_70_90_110": {
+        "70_vs_110": "3.3194547823118444747692007176084e-71",
+        "70_vs_90": "3.3194547823118444748022713945205e-71",
+        "90_vs_110": "6.4799083490324058909207484087848e-91"
+      },
+      "mp_root_stability_gate_1e-12": true,
+      "native_center_stress_vs_mp_stress": null,
+      "native_center_tangent_vs_mp_ift": null,
+      "original_fp64_failure": "tight diagnostic residual descent stalled at residual 2.440878582602245e-12, correction 1.0579689223675829e-15",
+      "paper_row": 789,
+      "precision_results": {
+        "110": {
+          "dynamic_scaled_correction": "1.25997288109270987169201124076201768e-19",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9863368325611314563462104642",
+              "iteration": 0,
+              "scaled_residual": "1450798.691201602544775756846"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "1.369064534556636869568185892",
+              "iteration": 1,
+              "scaled_residual": "1.786533445564648073901313044"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00003356855783318391209463926445",
+              "iteration": 2,
+              "scaled_residual": "0.6384440836068000004511061727"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000005105172834010978080940754725",
+              "iteration": 3,
+              "scaled_residual": "0.06568523657177692124274070431"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000006043086117657466582825105764",
+              "iteration": 4,
+              "scaled_residual": "0.006262099737066218948951578529"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "9.321266397811240841977012226e-9",
+              "iteration": 5,
+              "scaled_residual": "0.00009369954096134381021186761057"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.220429426867030424060735345e-12",
+              "iteration": 6,
+              "scaled_residual": "0.00000002230964476627591688596981584"
+            },
+            {
+              "dynamic_scaled_correction": "1.259972881092709871692011241e-19",
+              "iteration": 7,
+              "scaled_residual": "1.265950804921173960513246834e-15"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "1.26595080492117396051324683439108932e-15",
+          "strict_gates_pass": true
+        },
+        "70": {
+          "dynamic_scaled_correction": "1.25997288109270987169201124076201768e-19",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9863368325611314563462104642",
+              "iteration": 0,
+              "scaled_residual": "1450798.691201602544775756846"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "1.369064534556636869568185892",
+              "iteration": 1,
+              "scaled_residual": "1.786533445564648073901313044"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00003356855783318391209463926445",
+              "iteration": 2,
+              "scaled_residual": "0.6384440836068000004511061727"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000005105172834010978080940754725",
+              "iteration": 3,
+              "scaled_residual": "0.06568523657177692124274070431"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000006043086117657466582825105764",
+              "iteration": 4,
+              "scaled_residual": "0.006262099737066218948951578529"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "9.321266397811240841977012226e-9",
+              "iteration": 5,
+              "scaled_residual": "0.00009369954096134381021186761057"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.220429426867030424060735345e-12",
+              "iteration": 6,
+              "scaled_residual": "0.00000002230964476627591688596981584"
+            },
+            {
+              "dynamic_scaled_correction": "1.259972881092709871692011241e-19",
+              "iteration": 7,
+              "scaled_residual": "1.265950804921173960513246834e-15"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "1.26595080492117396051324683439108932e-15",
+          "strict_gates_pass": true
+        },
+        "90": {
+          "dynamic_scaled_correction": "1.25997288109270987169201124076201768e-19",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.9863368325611314563462104642",
+              "iteration": 0,
+              "scaled_residual": "1450798.691201602544775756846"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "1.369064534556636869568185892",
+              "iteration": 1,
+              "scaled_residual": "1.786533445564648073901313044"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00003356855783318391209463926445",
+              "iteration": 2,
+              "scaled_residual": "0.6384440836068000004511061727"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000005105172834010978080940754725",
+              "iteration": 3,
+              "scaled_residual": "0.06568523657177692124274070431"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.0000006043086117657466582825105764",
+              "iteration": 4,
+              "scaled_residual": "0.006262099737066218948951578529"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "9.321266397811240841977012226e-9",
+              "iteration": 5,
+              "scaled_residual": "0.00009369954096134381021186761057"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.220429426867030424060735345e-12",
+              "iteration": 6,
+              "scaled_residual": "0.00000002230964476627591688596981584"
+            },
+            {
+              "dynamic_scaled_correction": "1.259972881092709871692011241e-19",
+              "iteration": 7,
+              "scaled_residual": "1.265950804921173960513246834e-15"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "1.26595080492117396051324683439108932e-15",
+          "strict_gates_pass": true
+        }
+      },
+      "state": "s3",
+      "state_index": 3,
+      "tet": 789
+    },
+    {
+      "fallback_status": "mp_gates_pass",
+      "fp64_stress_at_rounded_mp_root_vs_mp_stress": {
+        "absolute_l2": 3.796472534318e-07,
+        "max_abs_component": 3.734603524208069e-07,
+        "reference_l2": 298278.2587064104,
+        "relative_l2": 1.2727955938802752e-12
+      },
+      "interpretation": "MP-only fallback reference for a row that failed the original source166003 FP64 projection. This does not turn the FP64 row into a pass or qualify native assembly.",
+      "mp110_final_dynamic_correction": "6.44512965016515383513188721354335946e-18",
+      "mp110_final_scaled_residual": "6.48442410458235476969973721512144372e-14",
+      "mp_branch_values": {
+        "fb_denominator": "0.00000241639747495962697331560981062141013",
+        "lambda_increment": "0.00000120815735214586996127879766801050044",
+        "yield_residual": "0.0000000000413853307013133267160599153547590767"
+      },
+      "mp_ift_90_vs_110_same_equations": {
+        "absolute_l2": 0.0,
+        "max_abs_component": 0.0,
+        "reference_l2": 5251662912.055715,
+        "relative_l2": 0.0
+      },
+      "mp_ift_vs_fp64_ift_at_same_rounded_mp_root": {
+        "absolute_l2": 1.3430744460539795e-06,
+        "max_abs_component": 9.5367431640625e-07,
+        "reference_l2": 5251662912.055716,
+        "relative_l2": 2.557426987499175e-16
+      },
+      "mp_root_float64_rounding_max_dynamic_scaled_component": "9.7311870433607542606177957383486e-17",
+      "mp_root_relative_spread_70_90_110": {
+        "70_vs_110": "2.2945193115381945939373744896412e-71",
+        "70_vs_90": "2.2945193115381945939407808121948e-71",
+        "90_vs_110": "1.1695996073500469386325566089118e-91"
+      },
+      "mp_root_stability_gate_1e-12": true,
+      "native_center_stress_vs_mp_stress": null,
+      "native_center_tangent_vs_mp_ift": null,
+      "original_fp64_failure": "tight diagnostic residual descent stalled at residual 2.1962330074076887e-12, correction 2.1780544685017286e-16",
+      "paper_row": 1545,
+      "precision_results": {
+        "110": {
+          "dynamic_scaled_correction": "6.44512965016515383513188721354335946e-18",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.8158173818966050572209455715",
+              "iteration": 0,
+              "scaled_residual": "89154.04621816682585435036849"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.2115271792575163677475103578",
+              "iteration": 1,
+              "scaled_residual": "2.125587016027398291065142149"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000004582392434839118689674179612",
+              "iteration": 2,
+              "scaled_residual": "0.007583251041058740014118375111"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000008621149998357278547297912157",
+              "iteration": 3,
+              "scaled_residual": "0.0009316902901006680101936738973"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.073858045011821533296140333e-9",
+              "iteration": 4,
+              "scaled_residual": "0.00003100525355032520424336565478"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.934279976819268951750686346e-12",
+              "iteration": 5,
+              "scaled_residual": "0.00000003958279334414527587914666731"
+            },
+            {
+              "dynamic_scaled_correction": "6.445129650165153835131887214e-18",
+              "iteration": 6,
+              "scaled_residual": "6.484424104582354769699737215e-14"
+            }
+          ],
+          "iterations": 6,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "6.48442410458235476969973721512144372e-14",
+          "strict_gates_pass": true
+        },
+        "70": {
+          "dynamic_scaled_correction": "6.44512965016515383513188721354335946e-18",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.8158173818966050572209455715",
+              "iteration": 0,
+              "scaled_residual": "89154.04621816682585435036849"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.2115271792575163677475103578",
+              "iteration": 1,
+              "scaled_residual": "2.125587016027398291065142149"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000004582392434839118689674179612",
+              "iteration": 2,
+              "scaled_residual": "0.007583251041058740014118375111"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000008621149998357278547297912157",
+              "iteration": 3,
+              "scaled_residual": "0.0009316902901006680101936738973"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.073858045011821533296140333e-9",
+              "iteration": 4,
+              "scaled_residual": "0.00003100525355032520424336565478"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.934279976819268951750686346e-12",
+              "iteration": 5,
+              "scaled_residual": "0.00000003958279334414527587914666731"
+            },
+            {
+              "dynamic_scaled_correction": "6.445129650165153835131887214e-18",
+              "iteration": 6,
+              "scaled_residual": "6.484424104582354769699737215e-14"
+            }
+          ],
+          "iterations": 6,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "6.48442410458235476969973721512144372e-14",
+          "strict_gates_pass": true
+        },
+        "90": {
+          "dynamic_scaled_correction": "6.44512965016515383513188721354335946e-18",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.8158173818966050572209455715",
+              "iteration": 0,
+              "scaled_residual": "89154.04621816682585435036849"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.2115271792575163677475103578",
+              "iteration": 1,
+              "scaled_residual": "2.125587016027398291065142149"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.000004582392434839118689674179612",
+              "iteration": 2,
+              "scaled_residual": "0.007583251041058740014118375111"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000008621149998357278547297912157",
+              "iteration": 3,
+              "scaled_residual": "0.0009316902901006680101936738973"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.073858045011821533296140333e-9",
+              "iteration": 4,
+              "scaled_residual": "0.00003100525355032520424336565478"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.934279976819268951750686346e-12",
+              "iteration": 5,
+              "scaled_residual": "0.00000003958279334414527587914666731"
+            },
+            {
+              "dynamic_scaled_correction": "6.445129650165153835131887214e-18",
+              "iteration": 6,
+              "scaled_residual": "6.484424104582354769699737215e-14"
+            }
+          ],
+          "iterations": 6,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "6.48442410458235476969973721512144372e-14",
+          "strict_gates_pass": true
+        }
+      },
+      "state": "s3",
+      "state_index": 3,
+      "tet": 1641
+    },
+    {
+      "fallback_status": "mp_gates_pass",
+      "fp64_stress_at_rounded_mp_root_vs_mp_stress": {
+        "absolute_l2": 2.319166693872049e-07,
+        "max_abs_component": 1.801236066967249e-07,
+        "reference_l2": 325305.75208400586,
+        "relative_l2": 7.129190550781147e-13
+      },
+      "interpretation": "MP-only fallback reference for a row that failed the original source166003 FP64 projection. This does not turn the FP64 row into a pass or qualify native assembly.",
+      "mp110_final_dynamic_correction": "1.25096095126791212875092374851079035e-25",
+      "mp110_final_scaled_residual": "1.24938491905382299730128995172918877e-21",
+      "mp_branch_values": {
+        "fb_denominator": "0.000000706308290911357390435746574853041357",
+        "lambda_increment": "0.000000353012507416397341428097781524104176",
+        "yield_residual": "0.000000000141638039281353727306259949725352817"
+      },
+      "mp_ift_90_vs_110_same_equations": {
+        "absolute_l2": 0.0,
+        "max_abs_component": 0.0,
+        "reference_l2": 5258535531.735618,
+        "relative_l2": 0.0
+      },
+      "mp_ift_vs_fp64_ift_at_same_rounded_mp_root": {
+        "absolute_l2": 1.9673332453194415e-06,
+        "max_abs_component": 1.2833625078201294e-06,
+        "reference_l2": 5258535531.735618,
+        "relative_l2": 3.7412188877425137e-16
+      },
+      "mp_root_float64_rounding_max_dynamic_scaled_component": "8.1789919745402291832634451040814e-17",
+      "mp_root_relative_spread_70_90_110": {
+        "70_vs_110": "1.6107387279820614567340586835523e-71",
+        "70_vs_90": "1.6107387279820614567199388081936e-71",
+        "90_vs_110": "1.4119875358662833003289486126115e-91"
+      },
+      "mp_root_stability_gate_1e-12": true,
+      "native_center_stress_vs_mp_stress": null,
+      "native_center_tangent_vs_mp_ift": null,
+      "original_fp64_failure": "tight diagnostic residual descent stalled at residual 2.2660084074322172e-12, correction 2.5648111994421208e-16",
+      "paper_row": 1457,
+      "precision_results": {
+        "110": {
+          "dynamic_scaled_correction": "1.25096095126791212875092374851079035e-25",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.5655076890820329068968376315",
+              "iteration": 0,
+              "scaled_residual": "26026.72386757501712822693635"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.1763418378683267167838054081",
+              "iteration": 1,
+              "scaled_residual": "4.847527467555690876505749955"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00004358607540343839275545933447",
+              "iteration": 2,
+              "scaled_residual": "0.004128528759824120691770130551"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000004816188951150854921170556833",
+              "iteration": 3,
+              "scaled_residual": "0.0005502363099473004251324672955"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.200520084461419734112812305e-9",
+              "iteration": 4,
+              "scaled_residual": "0.00003225573419587974561255780387"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "1.44945924715760639534513394e-11",
+              "iteration": 5,
+              "scaled_residual": "0.0000001447692524973431083859693434"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.973162148377931534764219689e-16",
+              "iteration": 6,
+              "scaled_residual": "2.96941639101201113123474887e-12"
+            },
+            {
+              "dynamic_scaled_correction": "1.250960951267912128750923749e-25",
+              "iteration": 7,
+              "scaled_residual": "1.249384919053822997301289952e-21"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "1.24938491905382299730128995172918877e-21",
+          "strict_gates_pass": true
+        },
+        "70": {
+          "dynamic_scaled_correction": "1.25096095126791212875092374851079035e-25",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.5655076890820329068968376315",
+              "iteration": 0,
+              "scaled_residual": "26026.72386757501712822693635"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.1763418378683267167838054081",
+              "iteration": 1,
+              "scaled_residual": "4.847527467555690876505749955"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00004358607540343839275545933447",
+              "iteration": 2,
+              "scaled_residual": "0.004128528759824120691770130551"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000004816188951150854921170556833",
+              "iteration": 3,
+              "scaled_residual": "0.0005502363099473004251324672955"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.200520084461419734112812305e-9",
+              "iteration": 4,
+              "scaled_residual": "0.00003225573419587974561255780387"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "1.44945924715760639534513394e-11",
+              "iteration": 5,
+              "scaled_residual": "0.0000001447692524973431083859693434"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.973162148377931534764219689e-16",
+              "iteration": 6,
+              "scaled_residual": "2.96941639101201113123474887e-12"
+            },
+            {
+              "dynamic_scaled_correction": "1.250960951267912128750923749e-25",
+              "iteration": 7,
+              "scaled_residual": "1.249384919053822997301289952e-21"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "1.24938491905382299730128995172918877e-21",
+          "strict_gates_pass": true
+        },
+        "90": {
+          "dynamic_scaled_correction": "1.25096095126791212875092374851079035e-25",
+          "iteration_history": [
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.5655076890820329068968376315",
+              "iteration": 0,
+              "scaled_residual": "26026.72386757501712822693635"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.1763418378683267167838054081",
+              "iteration": 1,
+              "scaled_residual": "4.847527467555690876505749955"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00004358607540343839275545933447",
+              "iteration": 2,
+              "scaled_residual": "0.004128528759824120691770130551"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "0.00000004816188951150854921170556833",
+              "iteration": 3,
+              "scaled_residual": "0.0005502363099473004251324672955"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "3.200520084461419734112812305e-9",
+              "iteration": 4,
+              "scaled_residual": "0.00003225573419587974561255780387"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "1.44945924715760639534513394e-11",
+              "iteration": 5,
+              "scaled_residual": "0.0000001447692524973431083859693434"
+            },
+            {
+              "accepted_alpha": "1.0",
+              "backtracks": 0,
+              "dynamic_scaled_correction": "2.973162148377931534764219689e-16",
+              "iteration": 6,
+              "scaled_residual": "2.96941639101201113123474887e-12"
+            },
+            {
+              "dynamic_scaled_correction": "1.250960951267912128750923749e-25",
+              "iteration": 7,
+              "scaled_residual": "1.249384919053822997301289952e-21"
+            }
+          ],
+          "iterations": 7,
+          "reason": "both unchanged strict gates met",
+          "scaled_residual": "1.24938491905382299730128995172918877e-21",
+          "strict_gates_pass": true
+        }
+      },
+      "state": "s4",
+      "state_index": 4,
+      "tet": 1553
+    }
+  ],
+  "original_fp64_failures_preserved": [
+    {
+      "reason": "tight diagnostic residual descent stalled at residual 2.1170815008669719e-12, correction 2.6687769273946615e-16",
+      "state": "center",
+      "tet": 750
+    },
+    {
+      "reason": "tight diagnostic residual descent stalled at residual 2.245319354213528e-12, correction 4.6730737239205767e-16",
+      "state": "center",
+      "tet": 1571
+    },
+    {
+      "reason": "tight diagnostic residual descent stalled at residual 2.0005045016376851e-12, correction 4.2513274265942777e-16",
+      "state": "center",
+      "tet": 1599
+    },
+    {
+      "reason": "tight diagnostic residual descent stalled at residual 2.1414906047840083e-12, correction 2.1368802007088503e-16",
+      "state": "center",
+      "tet": 1680
+    },
+    {
+      "reason": "tight diagnostic residual descent stalled at residual 2.0830636403134694e-12, correction 5.6338236007137403e-16",
+      "state": "s1",
+      "tet": 633
+    },
+    {
+      "reason": "tight diagnostic residual descent stalled at residual 2.5234886476179697e-12, correction 2.510665566318695e-16",
+      "state": "s1",
+      "tet": 652
+    },
+    {
+      "reason": "tight diagnostic residual descent stalled at residual 2.4834751549442385e-12, correction 4.0596125385127072e-16",
+      "state": "s1",
+      "tet": 681
+    },
+    {
+      "reason": "tight diagnostic residual descent stalled at residual 2.423296511551721e-12, correction 2.5671687371888874e-16",
+      "state": "s1",
+      "tet": 1317
+    },
+    {
+      "reason": "tight diagnostic residual descent stalled at residual 2.0834030986597121e-12, correction 2.7739313275837777e-16",
+      "state": "s1",
+      "tet": 1568
+    },
+    {
+      "reason": "tight diagnostic residual descent stalled at residual 2.3151078347558471e-12, correction 3.2651005442214055e-16",
+      "state": "s1",
+      "tet": 1611
+    },
+    {
+      "reason": "tight diagnostic residual descent stalled at residual 2.266391232768629e-12, correction 7.1357168118862275e-16",
+      "state": "s2",
+      "tet": 640
+    },
+    {
+      "reason": "tight diagnostic residual descent stalled at residual 2.4230125612276933e-12, correction 2.5243598526943692e-16",
+      "state": "s2",
+      "tet": 680
+    },
+    {
+      "reason": "tight diagnostic residual descent stalled at residual 2.1328465250681791e-12, correction 4.2418553661344692e-16",
+      "state": "s2",
+      "tet": 1751
+    },
+    {
+      "reason": "tight diagnostic residual descent stalled at residual 2.0368835955516506e-12, correction 1.303832867343884e-15",
+      "state": "s3",
+      "tet": 644
+    },
+    {
+      "reason": "tight diagnostic residual descent stalled at residual 2.440878582602245e-12, correction 1.0579689223675829e-15",
+      "state": "s3",
+      "tet": 789
+    },
+    {
+      "reason": "tight diagnostic residual descent stalled at residual 2.1962330074076887e-12, correction 2.1780544685017286e-16",
+      "state": "s3",
+      "tet": 1641
+    },
+    {
+      "reason": "tight diagnostic residual descent stalled at residual 2.2660084074322172e-12, correction 2.5648111994421208e-16",
+      "state": "s4",
+      "tet": 1553
+    }
+  ],
+  "qualification_axes": {
+    "all_states_fp64_projection": false,
+    "complete_native_tangent": false,
+    "finite_mixed_precision_reference_tangent_rows": true,
+    "full_assembled_action": false,
+    "native_projection": false,
+    "physical_or_calibration_qualification": false
+  },
+  "schema": "numi.cardboard.native469-explicit-mp-fallback.v1",
+  "source166003_manifest_sha256": "23d77dc36a39e15c4275ba4784816d33e56d1929714c9eabc28d3029ab32c611",
+  "source166003_reference_fix_sha256": "abb2f33b00fd2fbac0097c35814833dbe957313a8a0cc65da3a70c030e8f1a0e",
+  "strict_gates": {
+    "dynamic_scaled_correction_max": "2e-11",
+    "mp_precision_root_spread_max": "1e-12",
+    "scaled_residual_max": "2e-12",
+    "unchanged_from_native469-reader": true
+  }
+}

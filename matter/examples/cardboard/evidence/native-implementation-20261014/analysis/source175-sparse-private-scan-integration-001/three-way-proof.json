@@ -1,0 +1,180 @@
+{
+  "changed_files": [
+    {
+      "base173_present": true,
+      "base173_sha256": "e1d9fef5b4e2e61c1caa8557749dc889a0581d2173aa211990ebdecb35adda26",
+      "candidate_sha256": "50657e9481343e7ddb487d0fa973d53045f0fcfb805cb9d098d3e6c646df6470",
+      "path": "matter/CMakeLists.txt",
+      "runtime_merge": false,
+      "source170_candidate_sha256": "50657e9481343e7ddb487d0fa973d53045f0fcfb805cb9d098d3e6c646df6470"
+    },
+    {
+      "base173_present": true,
+      "base173_sha256": "859c763ca42e8b6867f0ec77bcb5661ae143cd79ad2df87dde083b51ba138371",
+      "candidate_sha256": "4cf5d32e78cf45bed72406c99df85b050c8d0548e3e043fbd9a1d810e7eb9ef1",
+      "path": "matter/include/numi/matter/sparse_private_contact_admission.hpp",
+      "runtime_merge": false,
+      "source170_candidate_sha256": "4cf5d32e78cf45bed72406c99df85b050c8d0548e3e043fbd9a1d810e7eb9ef1"
+    },
+    {
+      "base173_present": true,
+      "base173_sha256": "cd5aaee17244b52e0b6eebb81cf2fcaff4fbbfb47fe43726fc5bbacec2e9527a",
+      "candidate_sha256": "b1dc8d0e6843d5aed3a8c6d28449dae8c4d3a60488e644195e9fed5ed121d346",
+      "path": "matter/src/metal/contact.metalinc",
+      "runtime_merge": false,
+      "source170_candidate_sha256": "b1dc8d0e6843d5aed3a8c6d28449dae8c4d3a60488e644195e9fed5ed121d346"
+    },
+    {
+      "base173_present": true,
+      "base173_sha256": "bfa82d0aa26f055c984619770ff08369e59ce4202dd6f8203516d8df658db392",
+      "candidate_sha256": "836b146cc4e95e9096f094f33e7bfd7248bc816821541238321deca7ad7ff61a",
+      "path": "matter/src/runtime.mm",
+      "runtime_merge": true,
+      "source170_candidate_sha256": "27fc31beb644b01b5d97c1942dd3c59dcbfb369b87b9750b916d91f5f7c30acd"
+    },
+    {
+      "base173_present": true,
+      "base173_sha256": "95e52efd34aeffab1d220b4fa8840b885001dbc156d4a1d8f793210e3c40d0f3",
+      "candidate_sha256": "1dec970ac51c831d142ddff7ea92c33106ab194ba723dc8d14df4c97da91d113",
+      "path": "matter/tools/cardboard_full_contact_armijo_check.mm",
+      "runtime_merge": false,
+      "source170_candidate_sha256": "1dec970ac51c831d142ddff7ea92c33106ab194ba723dc8d14df4c97da91d113"
+    },
+    {
+      "base173_present": true,
+      "base173_sha256": "4cce5796fd2f22787def0e9de2aa6d566bfbf4b8ee1bbd8e80f408593f65acd3",
+      "candidate_sha256": "fe2990ba583efcf50061cef213649788c5eb866439e327ff94d607080706e2f3",
+      "path": "matter/tools/cardboard_shipping_memory_check.cpp",
+      "runtime_merge": false,
+      "source170_candidate_sha256": "fe2990ba583efcf50061cef213649788c5eb866439e327ff94d607080706e2f3"
+    },
+    {
+      "base173_present": false,
+      "base173_sha256": null,
+      "candidate_sha256": "7ab78bc027f6e7cac94c795931eb106953cffc8e7b85dbaf6adab5e0a0394732",
+      "path": "matter/tools/cardboard_sparse_private_contact_admission_check.cpp",
+      "runtime_merge": false,
+      "source170_candidate_sha256": "7ab78bc027f6e7cac94c795931eb106953cffc8e7b85dbaf6adab5e0a0394732"
+    },
+    {
+      "base173_present": false,
+      "base173_sha256": null,
+      "candidate_sha256": "bf18e81d70b3ca120d0afa479af0bcb5c4c1b435c1dbd55b8df6db820a7b8b5d",
+      "path": "matter/tools/cardboard_sparse_private_contact_scan_native_check.mm",
+      "runtime_merge": false,
+      "source170_candidate_sha256": "bf18e81d70b3ca120d0afa479af0bcb5c4c1b435c1dbd55b8df6db820a7b8b5d"
+    }
+  ],
+  "gpu_dispatch": false,
+  "integration_notes": [
+    "Source173 frozen manifest reverified all 804 files before merge.",
+    "Source169 frozen manifest reverified all 804 files before merge.",
+    "Only runtime.mm is changed by both source173 and source170. Its independent base-coordinate hunks do not overlap and git merge-file completed without conflicts.",
+    "The other seven source170 paths are unchanged from source169 in source173; they are copied from source170 byte-for-byte.",
+    "No source173 warm/checkpoint file was replaced. This package is a narrow patch over source173, not a snapshot."
+  ],
+  "runtime_three_way_merge": {
+    "command": [
+      "git",
+      "merge-file",
+      "--stdout",
+      "-L",
+      "source173",
+      "-L",
+      "source169",
+      "-L",
+      "source170",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/matter/src/runtime.mm",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/src/runtime.mm",
+      "/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/src/runtime.mm"
+    ],
+    "conflict_markers": 0,
+    "exit_code": 0,
+    "line_hunks_on_base169_coordinates": {
+      "169_to_170": [
+        {
+          "base_end_line_exclusive": 2729,
+          "base_start_line": 2729,
+          "change_type": "insert",
+          "target_line_count": 2
+        },
+        {
+          "base_end_line_exclusive": 4777,
+          "base_start_line": 4777,
+          "change_type": "insert",
+          "target_line_count": 3
+        },
+        {
+          "base_end_line_exclusive": 6790,
+          "base_start_line": 6790,
+          "change_type": "insert",
+          "target_line_count": 17
+        },
+        {
+          "base_end_line_exclusive": 10957,
+          "base_start_line": 10957,
+          "change_type": "insert",
+          "target_line_count": 7
+        },
+        {
+          "base_end_line_exclusive": 25390,
+          "base_start_line": 25390,
+          "change_type": "insert",
+          "target_line_count": 4
+        },
+        {
+          "base_end_line_exclusive": 25392,
+          "base_start_line": 25391,
+          "change_type": "replace",
+          "target_line_count": 13
+        },
+        {
+          "base_end_line_exclusive": 25399,
+          "base_start_line": 25396,
+          "change_type": "replace",
+          "target_line_count": 4
+        },
+        {
+          "base_end_line_exclusive": 25403,
+          "base_start_line": 25403,
+          "change_type": "insert",
+          "target_line_count": 17
+        }
+      ],
+      "169_to_173": [
+        {
+          "base_end_line_exclusive": 4612,
+          "base_start_line": 4612,
+          "change_type": "insert",
+          "target_line_count": 2
+        },
+        {
+          "base_end_line_exclusive": 23936,
+          "base_start_line": 23935,
+          "change_type": "replace",
+          "target_line_count": 3
+        },
+        {
+          "base_end_line_exclusive": 24292,
+          "base_start_line": 24292,
+          "change_type": "insert",
+          "target_line_count": 46
+        },
+        {
+          "base_end_line_exclusive": 24315,
+          "base_start_line": 24315,
+          "change_type": "insert",
+          "target_line_count": 2
+        }
+      ]
+    },
+    "runtime_candidate_sha256": "836b146cc4e95e9096f094f33e7bfd7248bc816821541238321deca7ad7ff61a"
+  },
+  "schema": "numi.cardboard.source175-three-way-integration-proof.v1",
+  "source169_frozen_source_sha256": "f5054091c27a7e1add41630aae1b45ee6ecc3e6d4112ee85c931cc4c70f44ea4",
+  "source170_changed_path_count": 8,
+  "source170_overlay_manifest_sha256": "55c7aa0d6b35c2bf4912b572e569899ee31c5ddceb56b48bf276118ffbc62e66",
+  "source170_overlay_patch_sha256": "be6644bf143a32ed9cfcc6d776c455345f7d8631d96dbdd7735df6613a7a2e0e",
+  "source173_frozen_source_sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+  "source175_changed_path_count": 8
+}

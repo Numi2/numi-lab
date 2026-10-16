@@ -1,0 +1,95 @@
+{
+  "gpu_dispatch": false,
+  "physical_transactions": 0,
+  "results": [
+    {
+      "argv": [
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metal",
+        "-std=metal4.0",
+        "-O0",
+        "-fno-fast-math",
+        "-I",
+        "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/candidate/matter/include",
+        "-I",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/matter/include",
+        "-I",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/include",
+        "-I",
+        "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/candidate/matter/src",
+        "-I",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/matter/src",
+        "-c",
+        "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/matter_kernels.metal",
+        "-o",
+        "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/NumiMatter-O0.air"
+      ],
+      "exit_code": 0,
+      "name": "metal_O0_compile",
+      "stderr_sha256": "30ba37235bca0c0c98cd74843f2369be847004043075d9d0f1634d25b277e76f",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metallib",
+        "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/NumiMatter-O0.air",
+        "-o",
+        "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/NumiMatter-O0.metallib"
+      ],
+      "exit_code": 0,
+      "name": "metal_O0_link",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metal",
+        "-std=metal4.0",
+        "-O3",
+        "-fno-fast-math",
+        "-I",
+        "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/candidate/matter/include",
+        "-I",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/matter/include",
+        "-I",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/include",
+        "-I",
+        "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/candidate/matter/src",
+        "-I",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/matter/src",
+        "-c",
+        "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/matter_kernels.metal",
+        "-o",
+        "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/NumiMatter-O3.air"
+      ],
+      "exit_code": 0,
+      "name": "metal_O3_compile",
+      "stderr_sha256": "30ba37235bca0c0c98cd74843f2369be847004043075d9d0f1634d25b277e76f",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metallib",
+        "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/NumiMatter-O3.air",
+        "-o",
+        "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/NumiMatter-O3.metallib"
+      ],
+      "exit_code": 0,
+      "name": "metal_O3_link",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "schema": "numi.cardboard.source175-metal-compile-validation.v1"
+}

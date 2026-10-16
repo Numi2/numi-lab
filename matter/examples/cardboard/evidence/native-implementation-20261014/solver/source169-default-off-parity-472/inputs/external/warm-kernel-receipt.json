@@ -1,0 +1,30 @@
+{
+  "schema": "numi.cardboard.native-warm-start-kernel-check.v2",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169",
+  "frozen_source_sha256": "f5054091c27a7e1add41630aae1b45ee6ecc3e6d4112ee85c931cc4c70f44ea4",
+  "cpu_validation_manifest_sha256": "75a84e24dc81219ab8f8f275a329d14cece6d4c826f7cde3790c25d2cf0bc27c",
+  "argv": [
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169/numi-matter-cardboard-warm-start-check"
+  ],
+  "executable_sha256": "7923eed1f55d18bb4c02a76826fb4d0dc1145bde1a1bae47b8670ca86849968f",
+  "metallib_sha256": "d96a80106f3624b07260f88865270e05726946d9e85225ba1f8b6c2c2e0c81f0",
+  "source_files_verified": 804,
+  "started_at_utc": "2026-10-16T03:00:49.132518+00:00",
+  "wall_seconds": 0.38621045800391585,
+  "returncode": 0,
+  "timed_out": false,
+  "gpu_execution": true,
+  "physical_transactions": 0,
+  "removed_parent_environment_keys": [],
+  "preexisting_stopped_debugger_targets_preserved": [
+    {
+      "pid": 77441,
+      "state": "T",
+      "command": "/Users/home/numi-cardboard-20261006/build-cardboard-world/matter/numi-matter-cardboard-paper-material-check",
+      "parent_pid": 76106,
+      "parent_command": "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb"
+    }
+  ],
+  "full_solver_or_physical_qualification": false,
+  "prior_failed_checker": "/Users/home/cardboard-implementation-20261014/analysis/warm-start-native-kernel-check-001"
+}

@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "-B",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/matter/tools/test_cardboard_solver_environment.py"
+  ],
+  "cwd": "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173",
+  "exit_code": 0,
+  "elapsed_seconds": 0.6405610000365414,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "48dd934a42985b7591151f8d544c3afc4f183f334cd7254fafe3539a990e2fa3"
+}

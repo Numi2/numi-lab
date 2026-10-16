@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.ctest-registration-validation.v1",
+  "source_build_sha256": "c5117e347334fa2edfbe9b1e21ea8812383f89477aa02b79aa76173a30a4cf24",
+  "source167_validation_report_sha256": "6ec0089012dcdcc8a9f29245d0a14c49e36697bc091aa9ce4bc1a8ba96ca4ad9",
+  "registration_overlay_sha256": "a7305190ba1dff2421bd508f34c67ae89a1ed12d4c63fc8f9e0b0325f8476393",
+  "tests": [
+    "coupon_resume",
+    "inside_clearance",
+    "shipping_clearance_memory",
+    "regional_consumer_capture"
+  ],
+  "passed": 4,
+  "scope": "CPU helper registration and explicit runtime source argument; no GPU execution or physical qualification."
+}

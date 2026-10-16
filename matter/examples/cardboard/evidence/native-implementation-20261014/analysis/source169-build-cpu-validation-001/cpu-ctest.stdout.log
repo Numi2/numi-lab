@@ -1,0 +1,44 @@
+Test project /Users/home/numi-cardboard-20261006/build-cardboard-provenance-169
+      Start  8: matter.analysis.fgmres_true_residual_contract
+ 1/14 Test  #8: matter.analysis.fgmres_true_residual_contract ..........   Passed    0.04 sec
+      Start 19: matter.analysis.cardboard_capsule_side_derivative
+ 2/14 Test #19: matter.analysis.cardboard_capsule_side_derivative ......   Passed    0.05 sec
+      Start 20: matter.analysis.cardboard_deformable_derivative
+ 3/14 Test #20: matter.analysis.cardboard_deformable_derivative ........   Passed    0.06 sec
+      Start 21: matter.analysis.cardboard_retained_capture_audit
+ 4/14 Test #21: matter.analysis.cardboard_retained_capture_audit .......   Passed    0.23 sec
+      Start 22: matter.analysis.cardboard_stage_resolution
+ 5/14 Test #22: matter.analysis.cardboard_stage_resolution .............   Passed    0.38 sec
+      Start 23: matter.analysis.cardboard_regional_conditioning
+ 6/14 Test #23: matter.analysis.cardboard_regional_conditioning ........   Passed    0.08 sec
+      Start 24: matter.analysis.cardboard_cached_operator_audit
+ 7/14 Test #24: matter.analysis.cardboard_cached_operator_audit ........   Passed    0.29 sec
+      Start 25: matter.analysis.cardboard_bilinear_capture_layers
+ 8/14 Test #25: matter.analysis.cardboard_bilinear_capture_layers ......   Passed    0.23 sec
+      Start 26: matter.analysis.cardboard_reference_fb_jacobian
+ 9/14 Test #26: matter.analysis.cardboard_reference_fb_jacobian ........   Passed    0.11 sec
+      Start 27: matter.analysis.cardboard_offline_conditioning_study
+10/14 Test #27: matter.analysis.cardboard_offline_conditioning_study ...   Passed    0.30 sec
+      Start 28: matter.analysis.cardboard_diagnostic_history
+11/14 Test #28: matter.analysis.cardboard_diagnostic_history ...........   Passed    0.24 sec
+      Start 29: matter.analysis.cardboard_solver_pair
+12/14 Test #29: matter.analysis.cardboard_solver_pair ..................   Passed    0.11 sec
+      Start 30: matter.analysis.cardboard_solver_assembly
+13/14 Test #30: matter.analysis.cardboard_solver_assembly ..............   Passed    0.12 sec
+      Start 31: matter.analysis.cardboard_full_contact_history
+14/14 Test #31: matter.analysis.cardboard_full_contact_history .........   Passed    0.25 sec
+
+100% tests passed, 0 tests failed out of 14
+
+Label Time Summary:
+analysis         =   2.41 sec*proc (12 tests)
+cardboard        =   2.45 sec*proc (13 tests)
+contact          =   0.05 sec*proc (1 test)
+contract         =   0.04 sec*proc (1 test)
+cpu              =   2.49 sec*proc (14 tests)
+derivative       =   0.05 sec*proc (1 test)
+fgmres           =   0.04 sec*proc (1 test)
+matter           =   2.49 sec*proc (14 tests)
+true-residual    =   0.04 sec*proc (1 test)
+
+Total Test time (real) =   2.50 sec

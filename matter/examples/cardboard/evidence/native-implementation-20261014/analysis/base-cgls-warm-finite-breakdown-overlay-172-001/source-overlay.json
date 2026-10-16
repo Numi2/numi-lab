@@ -1,0 +1,83 @@
+{
+  "base_frozen_source_sha256": "f5054091c27a7e1add41630aae1b45ee6ecc3e6d4112ee85c931cc4c70f44ea4",
+  "base_parent_revision": "a5ccffa52ffe368b49c877094a5081b7ee246ebf",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169",
+  "candidate_delta_exactly_matches_changed_files": true,
+  "candidate_file_inventory": [
+    "matter/src/metal/base_cgls.metalinc",
+    "matter/src/metal/base_cgls_runtime.metalinc",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_base_cgls_warm_start_check.metal",
+    "matter/tools/cardboard_base_cgls_warm_start_check.mm"
+  ],
+  "changed_files": {
+    "matter/src/metal/base_cgls.metalinc": {
+      "base_sha256": "ef8ab8763a675d34c6ab9bd3323fe9b8a8426ce3d77397cb782243ed1979483f",
+      "candidate_sha256": "1166f3ebb485116b519cb0f1977cae0183e877330ce666f520a05a5f5d3c2234",
+      "size_bytes": 38727
+    },
+    "matter/src/metal/base_cgls_runtime.metalinc": {
+      "base_sha256": "db006182e00df7a74eb823264202450d1e7dbd4735f31651fe263bd231fded12",
+      "candidate_sha256": "1b9d6541fcd01bea803a70f878ba1bda462d05cfabefa0d1ebe3038c9aab66d9",
+      "size_bytes": 19447
+    },
+    "matter/src/runtime.mm": {
+      "base_sha256": "c76e753b5e7b454e996c977307604ccd8864cf2e5ae27fe8a6bfeb1deb99ceb0",
+      "candidate_sha256": "bfa82d0aa26f055c984619770ff08369e59ce4202dd6f8203516d8df658db392",
+      "size_bytes": 1923673
+    },
+    "matter/tools/cardboard_base_cgls_warm_start_check.mm": {
+      "base_sha256": "242144390f685ad8af843fa064126620ab81bb8ec726981fe384302f010bd466",
+      "candidate_sha256": "05cf7b9d0acedc520ffdcb1c09e1449b0ed0470f6f6150d588da4687cb953581",
+      "size_bytes": 33124
+    }
+  },
+  "compile_receipts": {
+    "metal_checker_translation_unit": {
+      "air_sha256": "645ee2d41fae70a7ae869676195d615097ced6a6318b3d73458720d316b38967",
+      "command": "xcrun metal -c -I <compile172>/main/matter/src/metal -I <source169>/matter/include -I <source169>/include -I <source169>/matter/src -MMD -MF <metal-rerun>/CardboardWarmStartCheck.d <candidate>/matter/tools/cardboard_base_cgls_warm_start_check.metal -o <metal-rerun>/CardboardWarmStartCheck.air",
+      "depfile_sha256": "cbf629b8e0bb72a81e20f2bdbd98d138dde2fb6268267b38a8a3baba29918b22",
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metal_production_translation_unit": {
+      "air_sha256": "8bdbda99a974a5b08b3b9f196620a0e2b6b6134a51963a988fda69886ad90ebc",
+      "command": "xcrun metal -c -I <compile172>/main/matter/src -I <source169>/matter/include -I <source169>/include -I <source169>/matter/src -MMD -MF <metal-rerun>/NumiMatter.d <compile172>/main/matter/src/matter_kernels.metal -o <metal-rerun>/NumiMatter.air",
+      "depfile_sha256": "90e50b602b004ed5af798edff89ccd8b42667172060c4aa616ddb59d3f28551d",
+      "exit_code": 0,
+      "stderr_sha256": "1c5b2c4af69b684e113323e6352ab02302074bd7493384531e2e61bcf30dd47d",
+      "warnings": "Two existing maybe-uninitialized diagnostics in source169 fgmres.metalinc: sharedValid and refinementValid; no errors."
+    },
+    "objcxx_checker": {
+      "command": "xcrun clang++ -std=c++20 -fobjc-arc -fmodules -fsyntax-only -DNUMI_WARM_START_METALLIB=\"not-used-during-syntax.metallib\" -I <source169>/matter/include <candidate>/matter/tools/cardboard_base_cgls_warm_start_check.mm",
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "objcxx_runtime": {
+      "command": "xcrun clang++ -std=c++20 -fobjc-arc -fmodules -fsyntax-only -DNUMI_MATTER_DEFAULT_METALLIB=\"not-used-during-syntax.metallib\" -I <source169>/matter/include -I <source169>/include -I <source169>/matter/src <candidate>/matter/src/runtime.mm",
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "execution": {
+    "full_coupon_qualification": false,
+    "gpu_launched": false,
+    "matter_step_or_physical_transactions": false,
+    "native_checker_executed": false
+  },
+  "known_limits": [
+    "The Metal checker translation unit was compiled but not run.",
+    "No metallib was linked by this package.",
+    "No native solver trajectory or checkpoint result is qualified."
+  ],
+  "overlay_id": "base-cgls-warm-finite-breakdown-overlay-172-001",
+  "patch": {
+    "path": "source-172.patch",
+    "sha256": "e11089cc392d746044cb3a72a24109f820583fc857db43c564e7b1894d970a48",
+    "size_bytes": 39510
+  },
+  "schema": "numi.cardboard.source_overlay.v1",
+  "scope": "Default-off warm-start CGLS refinement may decline only a finite, selected, healthy exact BadDenominator breakdown when the original FGMRES certificate remains true. All other errors remain fail-closed."
+}

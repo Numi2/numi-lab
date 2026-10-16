@@ -1,0 +1,14 @@
+{
+  "files_sha256": {
+    "command-00.receipt.json": "b02b0171b82e5d6ff94cfc2edcc422eff5e360d5e5374a0ce001bc6d3411c6f7",
+    "command-00.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "command-00.stdout.log": "9c8c99e1716646d2a93d7242a009f89a6e3662429d5ba7519a68627539945224",
+    "command-01.receipt.json": "aeb61b0a9906a89d5d06b1e792d008dc793b4056a9cdab8a6bd1039364a95c74",
+    "command-01.stderr.log": "6e20ffcef6e29e680366f18bbecb288546cbb5114144a327e80e8cea385bc960",
+    "command-01.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "command-02.receipt.json": "daa81711d78344d862ed618a85c4e0a020b3f521c1c5f45d675f7775c02731f7",
+    "command-02.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "command-02.stdout.log": "09fc7d3f1d3795b7f948f4aac10040a847623fbfdb1a14c399a30e2bc80e7f14",
+    "report.json": "79e762a2a18ef3c056ebdbb7145c09711be2c83445ae196132366e9de4ca525e"
+  }
+}

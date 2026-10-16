@@ -1,0 +1,26 @@
+{
+  "schema": "numi.cardboard.mixed-assembly-files.v1",
+  "files": {
+    "analyze.py": {
+      "sha256": "e4062c93e11d7279fb9be5996ceca94bf0b7cc5c2187db8a258e35e91009fc00",
+      "bytes": 8840
+    },
+    "arrays.npz": {
+      "sha256": "fa2227362580765e386b12913941b11ca4788d07fa943e03119445484a4980bd",
+      "bytes": 516025
+    },
+    "report.json": {
+      "sha256": "a7450a497cbd55e430648a7ec9f0b5a1b6e7a319a810b8b2f6928466f170d741",
+      "bytes": 136906
+    }
+  },
+  "input_files": {
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-005/manifest.json": "f176666da43b50a441c038cbd88b5c9c804df32fa8ea9d46483a086ab5616c19",
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-005/run-002/mixed_reference_arrays.npz": "107e942cc2e131eed8f8db7759f8deb3e86fcdc42d8da249996daf51d6ed11ad",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-003/validation/regression469-001/arrays.npz": "db2b54b24a81c9ac0a6b3bd7d5412ef802be831eb1247e798688079e541801e1",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/diagnostics/final-newton": "cf42bdb145317b24a044e8e7561a99dc987df44761b841a08d7f3b28e6cd96d2",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-003/candidate/matter/tools/cardboard_bilinear_capture_layers.py": "45f8fa26edb1222c61faaf6a2cfb05afb14476b4949b00e1700a34168802d939",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-003/candidate/matter/tools/cardboard_bilinear_fp64_reference.py": "abb2f33b00fd2fbac0097c35814833dbe957313a8a0cc65da3a70c030e8f1a0e",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157/matter/tools/cardboard_cached_operator_audit.py": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38"
+  }
+}

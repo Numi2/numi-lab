@@ -1,0 +1,8 @@
+{
+  "schema": "numi.cardboard.preparation-failure.v1",
+  "failure": "ModuleNotFoundError: No module named cardboard_cached_operator_audit",
+  "cause": "source166003 candidate directory is a partial overlay, not a complete source tree",
+  "gpu_execution": false,
+  "report_created": false,
+  "raw_tool_transcript_available_in_chat": true
+}

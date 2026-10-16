@@ -1,0 +1,40 @@
+// Neutral 3D shape regularizer for the live bilateral plantar-aponeurosis
+// transaction. It deliberately does not own axial collagen stiffness: five
+// tension-only routed bands carry that force once with the Natali-type law,
+// exact BodyParts3D entheses, metatarsal-head pulleys, and articulated J^T.
+// Keeping this matrix several orders softer prevents a compression-bearing
+// isotropic FEM surrogate from duplicating the directional windlass force.
+// It is a numerical transverse matrix, not a subject-specific material claim.
+material human_plantar_fascia_reduced {
+    parameter density : kg/m^3 = 1000 in [900, 1150];
+    parameter shear : kPa = 50 in [10, 250] log identifiable;
+    parameter bulk : MPa = 1 in [0.2, 5] log identifiable;
+    parameter numerical_viscosity : Pa*s = 5 in [0.1, 100] log;
+
+    model generic;
+    energy = 0.5 * shear * (I1() - 3 - 2 * log(J()))
+        + 0.5 * bulk * pow(log(J()), 2);
+    dissipation = 0.5 * numerical_viscosity * (
+        pow(Fdot(0, 0), 2) + pow(Fdot(1, 1), 2) +
+        pow(Fdot(2, 2), 2) +
+        0.5 * pow(Fdot(0, 1) + Fdot(1, 0), 2) +
+        0.5 * pow(Fdot(0, 2) + Fdot(2, 0), 2) +
+        0.5 * pow(Fdot(1, 2) + Fdot(2, 1), 2)
+    );
+    valid = J() - 0.35;
+    supports fem;
+
+    interface {
+        static_friction = 0.30;
+        dynamic_friction = 0.20;
+        restitution = 0.0;
+        adhesion = 0.0;
+    }
+
+    limits {
+        minimum_J = 0.35;
+        maximum_J = 2.5;
+        maximum_stress = 5e6;
+        maximum_energy_density = 1e6;
+    }
+}

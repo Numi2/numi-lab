@@ -1,0 +1,21 @@
+{
+  "all_center_valid_reference_C_preserved": true,
+  "audit_scope_note": "This audit checked the package payload listed in the pre-final manifest. The final manifest then added and hash-bound this audit receipt; neither the final manifest nor this self-receipt is counted as its own checked payload.",
+  "checked_utc": "2026-10-16T03:05:45+00:00",
+  "external_input_errors": [],
+  "external_inputs_checked": 15,
+  "final_tangent_arrays_all_finite": true,
+  "included_file_errors": [],
+  "pre_audit_payload_files_checked": 23,
+  "result": "PASS_HASH_AND_OUTPUT_STRUCTURE",
+  "run002_arrays_sha256": "107e942cc2e131eed8f8db7759f8deb3e86fcdc42d8da249996daf51d6ed11ad",
+  "run002_mp_gate_passes": 17,
+  "run002_report_sha256": "029c3b5efa8ee3459c5016283ddf0bf09f1204a9359722847bc77bd23ffbb960",
+  "run002_rows": 17,
+  "s1_tet1317_correct_liner_error_rel_l2": 5.450039860986336e-09,
+  "s1_tet1317_wrong_medium_error_rel_l2": 0.0700538649611574,
+  "schema": "numi.cardboard.native469-mp-fallback-package-audit.v1",
+  "source_file_errors": [],
+  "source_files_checked": 787,
+  "source_hash_map_sha256": "ee89da136cec1f15fd50fa2a360e597eda75ad00b019d8f886a0668754983227"
+}

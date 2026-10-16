@@ -1,0 +1,34 @@
+{
+  "execution": {
+    "build": false,
+    "gpu": false,
+    "native": false
+  },
+  "parent_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/base-cgls-warm-finite-breakdown-overlay-172-001/source-overlay.json",
+  "parent_manifest_sha256": "e21c032769e4118242c82352fa0307e2f8cc97c8998b7de1a429469293e388b1",
+  "parent_patch_path": "/Users/home/cardboard-implementation-20261014/analysis/base-cgls-warm-finite-breakdown-overlay-172-001/source-172.patch",
+  "parent_patch_sha256": "e11089cc392d746044cb3a72a24109f820583fc857db43c564e7b1894d970a48",
+  "patch_dry_run": {
+    "command": "patch --dry-run -p1 -d /Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169 < /Users/home/cardboard-implementation-20261014/analysis/base-cgls-warm-finite-breakdown-overlay-172-001/source-172.patch",
+    "exit_code": 0,
+    "matched_files": [
+      "matter/src/runtime.mm",
+      "matter/src/metal/base_cgls_runtime.metalinc",
+      "matter/src/metal/base_cgls.metalinc",
+      "matter/tools/cardboard_base_cgls_warm_start_check.mm"
+    ],
+    "source_modified": false,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "d48eea4ab1ad47db4dadffc4e9444afca768a823b9bd7e115cd0b3c05e3055cc"
+  },
+  "purpose": "Record an additional read-only patch applicability check after the source172 canonical manifest had already been integrated into source173. No source or candidate file changed.",
+  "schema": "numi.cardboard.source_overlay_supplement.v1",
+  "source173_integration_binding": {
+    "candidate_source_file_hashes_unchanged": true,
+    "recorded_parent_manifest_sha256": "e21c032769e4118242c82352fa0307e2f8cc97c8998b7de1a429469293e388b1",
+    "recorded_patch_sha256": "e11089cc392d746044cb3a72a24109f820583fc857db43c564e7b1894d970a48",
+    "report_path": "/Users/home/cardboard-implementation-20261014/analysis/source173-checkpoint-warm-integration-001/report.json",
+    "report_sha256": "6520995f7ae538d4d03bd9ebb6ffc111f92ff6c7290ea2b239bf25289a138890"
+  },
+  "supplement_id": "base-cgls-warm-finite-breakdown-overlay-172-002"
+}

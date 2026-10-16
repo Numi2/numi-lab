@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.native472-parity-manifest.v1",
+  "inputs": {
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-terminal-capture-and-production-parity-001/analyze.py": "91f93de00e67e6209473bf15f8d25f5758b474e357ea54d85ff8a20c3a091d65",
+    "/Users/home/cardboard-implementation-20261014/analysis/native472-source169-default-off-command-003/package-manifest.json": "64795f3b50f73918d3489c5f5daef79c78ccf77e6fe56389fe067e863cbf558d",
+    "/Users/home/cardboard-implementation-20261014/analysis/native472-source169-default-off-command-003/executions/receipt.json": "cde059eb05b9bf29decfe9c949d95c5da04ce2d36403ea851c607e78d83e4a84",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-dt-half-cycle-468/receipt.json": "146cc970e01bb25b5dbeea1300f3632bd3f4804776f60efb0bd7bd3575002567",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-dt-half-cycle-468/output/result.json": "a0f9a523adf715e2c19cea5b5f4ce09f07d78d6d2e0ac43cf5ba5f0e2df79625",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-dt-half-cycle-468/stderr.log": "f2c2f8745e9786f1f5ae7a62b8dc5076670c2bbbb1634fb4c1120d8b3b6683a2",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-dt-half-cycle-468/output/observations.csv": "4d3a0aca4ef6cdc1f0a48a78b4ed611f8f4672e8359ccd4ceb0a8cf50c1dbb34"
+  },
+  "files": {
+    "report.json": "af589ff0d0df5869ae232a253f801d35b72bf907aff730c6022d5c838e00fb06",
+    "analyze.py": "70089f97095fedf0f5023d46ad99ffc39f76bd458b4c79428ee7fe93c58c761a"
+  }
+}

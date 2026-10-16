@@ -1,0 +1,72 @@
+In file included from /Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/src/runtime.mm:5:
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/matter.hpp:29:76: warning: defaulted comparison operators are a C++20 extension [-Wc++20-extensions]
+   29 |     friend constexpr bool operator==(const Dimension&, const Dimension&) = default;
+      |                                                                            ^
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/matter.hpp:957:10: error: no template named 'span' in namespace 'std'
+  957 |     std::span<const ConstitutiveProgram> programs
+      |     ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/matter.hpp:1001:10: error: no template named 'span' in namespace 'std'
+ 1001 |     std::span<const NMHumanSupportContactGPU> humanSupportContacts{};
+      |     ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/matter.hpp:1002:10: error: no template named 'span' in namespace 'std'
+ 1002 |     std::span<const NMHumanSupportPointQueryGPU> humanSupportPointQueries{};
+      |     ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/matter.hpp:1006:10: error: no template named 'span' in namespace 'std'
+ 1006 |     std::span<const NMHumanJointEqualityGPU> humanJointEqualities{};
+      |     ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/matter.hpp:1011:10: error: no template named 'span' in namespace 'std'
+ 1011 |     std::span<const NMHumanJointLimitGPU> humanJointLimits{};
+      |     ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/matter.hpp:1024:10: error: no template named 'span' in namespace 'std'
+ 1024 |     std::span<const nm_float4> humanSupportInitialHistories{};
+      |     ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/matter.hpp:2132:14: error: no template named 'span' in namespace 'std'
+ 2132 |         std::span<const std::uint32_t> firstRodEdges,
+      |         ~~~~~^
+In file included from /Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/src/runtime.mm:6:
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/detail.hpp:93:37: error: no template named 'bit_cast' in namespace 'std'; did you mean '__bit_cast'?
+   93 |     const std::uint32_t bits = std::bit_cast<std::uint32_t>(friction);
+      |                                ~~~~~^~~~~~~~
+      |                                     __bit_cast
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__bit/bit_cast.h:25:59: note: '__bit_cast' declared here
+   25 | [[__nodiscard__]] _LIBCPP_HIDE_FROM_ABI constexpr _ToType __bit_cast(const _FromType& __from) noexcept {
+      |                                                           ^
+In file included from /Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/src/runtime.mm:6:
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/detail.hpp:142:16: error: no template named 'span' in namespace 'std'
+  142 |     const std::span<const nm_float4> histories,
+      |           ~~~~~^
+In file included from /Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/src/runtime.mm:7:
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/regional_restart_augmentation_admission.hpp:17:16: error: no template named 'span' in namespace 'std'
+   17 |     const std::span<const NMContinuumObjectGPU> objects,
+      |           ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/regional_restart_augmentation_admission.hpp:18:16: error: no template named 'span' in namespace 'std'
+   18 |     const std::span<const NMFEMFieldStateGPU> fields,
+      |           ~~~~~^
+In file included from /Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/src/runtime.mm:10:
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/full_contact_armijo_admission.hpp:15:16: error: no template named 'span' in namespace 'std'
+   15 |     const std::span<const NMCohesiveFaceGPU> faces
+      |           ~~~~~^
+In file included from /Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/src/runtime.mm:12:
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/src/regional_graph_schwarz.hpp:106:16: error: no template named 'span' in namespace 'std'
+  106 |     const std::span<const std::array<std::uint32_t, 4>> tetrahedra,
+      |           ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/src/regional_graph_schwarz.hpp:110:16: error: no template named 'span' in namespace 'std'
+  110 |     const std::span<const std::uint8_t> freeMask,
+      |           ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/src/regional_graph_schwarz.hpp:347:16: error: no template named 'span' in namespace 'std'
+  347 |     const std::span<const std::array<std::uint32_t, 4>> tetrahedra,
+      |           ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/src/regional_graph_schwarz.hpp:348:16: error: no template named 'span' in namespace 'std'
+  348 |     const std::span<const std::uint8_t> freeMask,
+      |           ~~~~~^
+/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/src/runtime.mm:609:16: error: no template named 'span' in namespace 'std'
+  609 |     const std::span<const nm_float4> histories,
+      |           ~~~~~^
+/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/src/runtime.mm:610:16: error: no template named 'span' in namespace 'std'
+  610 |     const std::span<const NMHumanSupportContactGPU> contacts,
+      |           ~~~~~^
+/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/src/runtime.mm:1550:20: error: no template named 'span' in namespace 'std'
+ 1550 |         const std::span<const T> values,
+      |               ~~~~~^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+1 warning and 20 errors generated.

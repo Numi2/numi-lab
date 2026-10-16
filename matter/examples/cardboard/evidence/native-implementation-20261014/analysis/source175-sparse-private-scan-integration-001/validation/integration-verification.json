@@ -1,0 +1,71 @@
+{
+  "changed_files": [
+    {
+      "integrated_candidate_sha256": "50657e9481343e7ddb487d0fa973d53045f0fcfb805cb9d098d3e6c646df6470",
+      "parent173_sha256": "e1d9fef5b4e2e61c1caa8557749dc889a0581d2173aa211990ebdecb35adda26",
+      "path": "matter/CMakeLists.txt",
+      "runtime_three_way": false,
+      "source170_candidate_sha256": "50657e9481343e7ddb487d0fa973d53045f0fcfb805cb9d098d3e6c646df6470"
+    },
+    {
+      "integrated_candidate_sha256": "4cf5d32e78cf45bed72406c99df85b050c8d0548e3e043fbd9a1d810e7eb9ef1",
+      "parent173_sha256": "859c763ca42e8b6867f0ec77bcb5661ae143cd79ad2df87dde083b51ba138371",
+      "path": "matter/include/numi/matter/sparse_private_contact_admission.hpp",
+      "runtime_three_way": false,
+      "source170_candidate_sha256": "4cf5d32e78cf45bed72406c99df85b050c8d0548e3e043fbd9a1d810e7eb9ef1"
+    },
+    {
+      "integrated_candidate_sha256": "b1dc8d0e6843d5aed3a8c6d28449dae8c4d3a60488e644195e9fed5ed121d346",
+      "parent173_sha256": "cd5aaee17244b52e0b6eebb81cf2fcaff4fbbfb47fe43726fc5bbacec2e9527a",
+      "path": "matter/src/metal/contact.metalinc",
+      "runtime_three_way": false,
+      "source170_candidate_sha256": "b1dc8d0e6843d5aed3a8c6d28449dae8c4d3a60488e644195e9fed5ed121d346"
+    },
+    {
+      "integrated_candidate_sha256": "836b146cc4e95e9096f094f33e7bfd7248bc816821541238321deca7ad7ff61a",
+      "parent173_sha256": "bfa82d0aa26f055c984619770ff08369e59ce4202dd6f8203516d8df658db392",
+      "path": "matter/src/runtime.mm",
+      "runtime_three_way": true,
+      "source170_candidate_sha256": "27fc31beb644b01b5d97c1942dd3c59dcbfb369b87b9750b916d91f5f7c30acd"
+    },
+    {
+      "integrated_candidate_sha256": "1dec970ac51c831d142ddff7ea92c33106ab194ba723dc8d14df4c97da91d113",
+      "parent173_sha256": "95e52efd34aeffab1d220b4fa8840b885001dbc156d4a1d8f793210e3c40d0f3",
+      "path": "matter/tools/cardboard_full_contact_armijo_check.mm",
+      "runtime_three_way": false,
+      "source170_candidate_sha256": "1dec970ac51c831d142ddff7ea92c33106ab194ba723dc8d14df4c97da91d113"
+    },
+    {
+      "integrated_candidate_sha256": "fe2990ba583efcf50061cef213649788c5eb866439e327ff94d607080706e2f3",
+      "parent173_sha256": "4cce5796fd2f22787def0e9de2aa6d566bfbf4b8ee1bbd8e80f408593f65acd3",
+      "path": "matter/tools/cardboard_shipping_memory_check.cpp",
+      "runtime_three_way": false,
+      "source170_candidate_sha256": "fe2990ba583efcf50061cef213649788c5eb866439e327ff94d607080706e2f3"
+    },
+    {
+      "integrated_candidate_sha256": "7ab78bc027f6e7cac94c795931eb106953cffc8e7b85dbaf6adab5e0a0394732",
+      "parent173_sha256": null,
+      "path": "matter/tools/cardboard_sparse_private_contact_admission_check.cpp",
+      "runtime_three_way": false,
+      "source170_candidate_sha256": "7ab78bc027f6e7cac94c795931eb106953cffc8e7b85dbaf6adab5e0a0394732"
+    },
+    {
+      "integrated_candidate_sha256": "bf18e81d70b3ca120d0afa479af0bcb5c4c1b435c1dbd55b8df6db820a7b8b5d",
+      "parent173_sha256": null,
+      "path": "matter/tools/cardboard_sparse_private_contact_scan_native_check.mm",
+      "runtime_three_way": false,
+      "source170_candidate_sha256": "bf18e81d70b3ca120d0afa479af0bcb5c4c1b435c1dbd55b8df6db820a7b8b5d"
+    }
+  ],
+  "gpu_dispatch": false,
+  "patch_apply_exit_code": 0,
+  "runtime_conflict_markers": 0,
+  "runtime_merge_exit_code": 0,
+  "schema": "numi.cardboard.source175-integration-verification.v1",
+  "source169_files_verified": 804,
+  "source169_frozen_sha256": "f5054091c27a7e1add41630aae1b45ee6ecc3e6d4112ee85c931cc4c70f44ea4",
+  "source170_manifest_sha256": "55c7aa0d6b35c2bf4912b572e569899ee31c5ddceb56b48bf276118ffbc62e66",
+  "source170_patch_sha256": "be6644bf143a32ed9cfcc6d776c455345f7d8631d96dbdd7735df6613a7a2e0e",
+  "source173_files_verified": 804,
+  "source173_frozen_sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3"
+}

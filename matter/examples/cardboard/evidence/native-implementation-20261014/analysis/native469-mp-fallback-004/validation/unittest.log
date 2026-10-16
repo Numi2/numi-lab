@@ -1,0 +1,11 @@
+test_branch_mismatches_and_unqualified_axes_remain_visible (cardboard-implementation-20261014.analysis.native469-mp-fallback-004.test_mp_fallback.ExplicitMPFallbackTests) ... ok
+test_mp_ift_and_fp64_ift_match_at_same_rounded_mp_root (cardboard-implementation-20261014.analysis.native469-mp-fallback-004.test_mp_fallback.ExplicitMPFallbackTests) ... ok
+test_native_side_stress_discrepancy_at_captured_state_is_not_hidden (cardboard-implementation-20261014.analysis.native469-mp-fallback-004.test_mp_fallback.ExplicitMPFallbackTests) ... ok
+test_only_original_fp64_failed_rows_are_given_mp_fallbacks (cardboard-implementation-20261014.analysis.native469-mp-fallback-004.test_mp_fallback.ExplicitMPFallbackTests) ... ok
+test_output_hash_and_all_five_mixed_state_tensors_are_finite (cardboard-implementation-20261014.analysis.native469-mp-fallback-004.test_mp_fallback.ExplicitMPFallbackTests) ... ok
+test_strict_residual_correction_and_precision_stability_gates_are_unchanged (cardboard-implementation-20261014.analysis.native469-mp-fallback-004.test_mp_fallback.ExplicitMPFallbackTests) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.031s
+
+OK

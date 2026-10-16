@@ -692,6 +692,41 @@ if(APPLE)
         STATIC
         $<TARGET_OBJECTS:numi_matter_runtime_objects>
     )
+    set(NUMI_CARDBOARD_WARM_CHECK_AIR "${NUMI_MATTER_SHADER_DIR}/CardboardWarmStartCheck.air")
+    set(NUMI_CARDBOARD_WARM_CHECK_METALLIB "${NUMI_MATTER_SHADER_DIR}/CardboardWarmStartCheck.metallib")
+    add_custom_command(
+        OUTPUT "${NUMI_CARDBOARD_WARM_CHECK_METALLIB}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${NUMI_MATTER_SHADER_DIR}"
+        COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/src"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/src/metal"
+            -c "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_base_cgls_warm_start_check.metal"
+            -o "${NUMI_CARDBOARD_WARM_CHECK_AIR}"
+        COMMAND xcrun -sdk macosx metallib "${NUMI_CARDBOARD_WARM_CHECK_AIR}"
+            -o "${NUMI_CARDBOARD_WARM_CHECK_METALLIB}"
+        DEPENDS tools/cardboard_base_cgls_warm_start_check.metal
+            src/metal/common.metalinc src/metal/fem.metalinc
+            src/metal/base_cgls.metalinc src/metal/base_cgls_runtime.metalinc
+            src/metal/fgmres.metalinc include/numi/matter/shared.h
+        VERBATIM)
+    add_custom_target(numi_cardboard_warm_start_check_shaders
+        DEPENDS "${NUMI_CARDBOARD_WARM_CHECK_METALLIB}")
+    add_executable(numi-matter-cardboard-warm-start-check
+        tools/cardboard_base_cgls_warm_start_check.mm)
+    add_dependencies(numi-matter-cardboard-warm-start-check numi_cardboard_warm_start_check_shaders)
+    target_include_directories(numi-matter-cardboard-warm-start-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_link_libraries(numi-matter-cardboard-warm-start-check PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_definitions(numi-matter-cardboard-warm-start-check PRIVATE
+        NUMI_WARM_START_METALLIB="${NUMI_CARDBOARD_WARM_CHECK_METALLIB}")
+    target_compile_options(numi-matter-cardboard-warm-start-check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.cardboard_warm_start_kernel_contract
+            COMMAND numi-matter-cardboard-warm-start-check)
+        set_tests_properties(matter.metal.cardboard_warm_start_kernel_contract PROPERTIES
+            LABELS "matter;cardboard;solver;metal;synthetic" TIMEOUT 60 RUN_SERIAL TRUE)
+    endif()
     add_executable(numi-matter-fem-static-surface-map-native-check tools/fem_static_surface_map_native_check.mm)
     add_dependencies(numi-matter-fem-static-surface-map-native-check numi_matter_shaders)
     target_link_libraries(numi-matter-fem-static-surface-map-native-check PRIVATE

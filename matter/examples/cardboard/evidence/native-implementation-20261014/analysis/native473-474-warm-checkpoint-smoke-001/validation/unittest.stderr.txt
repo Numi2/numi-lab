@@ -1,0 +1,13 @@
+test_bounded_file_reader_rejects_symlink_and_hardlink_aliases (test_runner_contract.RunnerContractTests) ... ok
+test_external_input_collisions_are_detected_before_hash_mapping (test_runner_contract.RunnerContractTests) ... ok
+test_intended_command_contract_and_warm_flag_are_required (test_runner_contract.RunnerContractTests) ... ok
+test_prefix_reader_checks_manifest_members_and_exact_observation_prefix (test_runner_contract.RunnerContractTests) ... ok
+test_prefix_reader_rejects_parent_escape_even_with_valid_hash (test_runner_contract.RunnerContractTests) ... ok
+test_protocol_manifest_rejects_shortened_or_rebound_run (test_runner_contract.RunnerContractTests) ... ok
+test_resume_cannot_create_a_second_checkpoint_and_must_match_physics (test_runner_contract.RunnerContractTests) ... ok
+test_resume_verifier_requires_all_59_controls_and_exact_restored_identity (test_runner_contract.RunnerContractTests) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.007s
+
+OK

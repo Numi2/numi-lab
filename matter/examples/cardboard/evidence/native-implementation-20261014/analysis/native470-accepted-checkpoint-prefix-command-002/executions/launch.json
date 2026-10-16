@@ -1,0 +1,25 @@
+{
+  "abort_floor_bytes": 536870912,
+  "available_after_reserve": 2279510016,
+  "available_before_reserve": 2413744128,
+  "checkpoint_control_index": 19,
+  "command_sha256": "1f5c4d7992a844aa4fb79dfcf422fc7563bee5e80c4a8f833321e46bf61583d9",
+  "diagnostic_only": true,
+  "emergency_reserve": {
+    "allocated_bytes": 134217728,
+    "file_size_bytes": 134217728,
+    "fsynced": true,
+    "requested_bytes": 134217728,
+    "sha256": "ed9c5bdc693f7b1cbfd4fafadf80624bd3ba0d5ea4ac943d75036a6665d6898a",
+    "st_blocks": 262144
+  },
+  "emergency_reserve_bytes": 134217728,
+  "frozen_source_sha256": "64a3c2554ced82d754b5513ef01ea056f56aa9d9974ab9ba9386d2dc6b0ff410",
+  "minimum_launch_available_bytes": 2147483648,
+  "package_manifest_sha256": "f7ebdb1bb9d3ca103fb0190370037f69260f787cdbb5a661ad28c1460e713b29",
+  "parent_NM_FEM_values_recorded": false,
+  "parent_environment_removed_keys": [],
+  "schema": "numi.cardboard.native470-capacity-launch.v2",
+  "source_build_sha256": "c5117e347334fa2edfbe9b1e21ea8812383f89477aa02b79aa76173a30a4cf24",
+  "started_at_utc": "2026-10-16T02:38:04.852016+00:00"
+}

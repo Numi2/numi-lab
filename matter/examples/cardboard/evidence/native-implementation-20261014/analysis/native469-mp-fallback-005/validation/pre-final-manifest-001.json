@@ -1,0 +1,97 @@
+{
+  "base": {
+    "source166003_geometry_reader_sha256": "45f8fa26edb1222c61faaf6a2cfb05afb14476b4949b00e1700a34168802d939",
+    "source166003_reference_sha256": "abb2f33b00fd2fbac0097c35814833dbe957313a8a0cc65da3a70c030e8f1a0e",
+    "source_file_count_verified_by_runner": 787,
+    "source_frozen_metadata_sha256": "2976540a244ba9af686e8033783a3d18da1ac48b030a949b2109fe81108f7cc0",
+    "source_hash_map_sha256": "ee89da136cec1f15fd50fa2a360e597eda75ad00b019d8f886a0668754983227",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157"
+  },
+  "classification": "CPU-only high-precision reference fallback; no native or physical qualification",
+  "created_utc": "2026-10-16T03:03:00+00:00",
+  "excluded_generated_files": [
+    "__pycache__/**"
+  ],
+  "external_inputs_sha256": {
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-003/candidate/matter/tools/cardboard_bilinear_capture_layers.py": "45f8fa26edb1222c61faaf6a2cfb05afb14476b4949b00e1700a34168802d939",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-003/candidate/matter/tools/cardboard_bilinear_fp64_reference.py": "abb2f33b00fd2fbac0097c35814833dbe957313a8a0cc65da3a70c030e8f1a0e",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-003/manifest.json": "23d77dc36a39e15c4275ba4784816d33e56d1929714c9eabc28d3029ab32c611",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-003/validation/regression469-001/arrays.npz": "db2b54b24a81c9ac0a6b3bd7d5412ef802be831eb1247e798688079e541801e1",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear-capture-layer-audit-source166-003/validation/regression469-001/report.json": "2e0642b2a2277cccd6e1ed6d97a5c201fca6fb1fa28cefbd3c6f6927addf3864",
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-004/manifest.json": "b86428af898acaf8cea469ac2c5af634459f696afbcc04c4e7857bbfc49da7f7",
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-004/run-006/mixed_reference_arrays.npz": "74b4dce61312d6165ede932f8b7343269c0c54a3eca1252351af40d9e8a902d1",
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-004/run-006/report.json": "3ac6293bd76f4953544f6298a5e375da21f92f0feb32025c4a2d0b3e52306c84",
+    "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-004/run_mp_fallback.py": "92061de25f55805b6fb1bee9c8c9221860742714ded7a5afa755d10c701577ba",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157/frozen-source.json": "2976540a244ba9af686e8033783a3d18da1ac48b030a949b2109fe81108f7cc0",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157/matter/tools/cardboard_cached_operator_audit.py": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/diagnostics/final-newton": "cf42bdb145317b24a044e8e7561a99dc987df44761b841a08d7f3b28e6cd96d2",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/prediction.json": "46c190c84814378cb5b5d0919129e3cebdeffe497af2c92747cfbce2c71982ad",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/receipt.json": "35b856b4d94bcc3acfb5e611847ecc166860a228efc81e841decec019ea7e17f",
+    "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469/stderr.log": "036e1a7371c78dcd459718f081170aea445c4234a34884cbd4ebc31fefcfb3bb"
+  },
+  "included_files_sha256": {
+    "README.md": "e134faa0efc6b17508b56701f9ee3a0f9e0cf3d9bcd4f3e0ca91dd61d33eb5b8",
+    "run-001/mixed_reference_arrays.npz": "107e942cc2e131eed8f8db7759f8deb3e86fcdc42d8da249996daf51d6ed11ad",
+    "run-001/report.json": "b093762b1f03964f8fdfca42b1c969cc2c8502aaf2b91550690cd8d97a797be0",
+    "run_mp_fallback.py": "8b99f724a4f0fe4708a3b8754e56a48f21d1332613c9476c3fd6657e970e1c8d",
+    "test_mp_fallback.py": "ebde19b1f2b3374cde820f425f6aab56fd1771ec9d9eeac5bc48aae2bd401f44",
+    "validation/command-01.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "validation/command-01.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "validation/command-02.stderr.log": "f0e4b33a571c4aedced8ae399fcee130716c5cdb40d0cfb635d89f1e4ca0b3b7",
+    "validation/command-02.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "validation/py_compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "validation/receipts.json": "f9d3db6f34c150c18280aef290a9f4f09718d94184541a456f6c5bfd5e8c3439",
+    "validation/retained-test-attempts.md": "3418c430b582b3e56d289a729408945781d2c8c4bb8f31d8f9319b5589e26b8f",
+    "validation/runner-receipt.json": "558ab0b3083b473cb4b71464719ea5b0093b3896e589f2bcb489bd67d697bb4c",
+    "validation/unittest.log": "84925340ae3285fa75efe86df3d815dda3f5dae79f925c4b7655211dbde38021"
+  },
+  "native469_inputs": {
+    "final-newton": "cf42bdb145317b24a044e8e7561a99dc987df44761b841a08d7f3b28e6cd96d2",
+    "prediction.json": "46c190c84814378cb5b5d0919129e3cebdeffe497af2c92747cfbce2c71982ad",
+    "receipt.json": "35b856b4d94bcc3acfb5e611847ecc166860a228efc81e841decec019ea7e17f",
+    "stderr.log": "036e1a7371c78dcd459718f081170aea445c4234a34884cbd4ebc31fefcfb3bb"
+  },
+  "package": "analysis/native469-mp-fallback-005",
+  "qualification_axes": {
+    "all_states_fp64_projection": false,
+    "complete_native_tangent": false,
+    "finite_mixed_precision_reference_tangent_rows": true,
+    "full_assembled_action": false,
+    "native_projection": false,
+    "physical_or_calibration_qualification": false
+  },
+  "runner": {
+    "argv": [
+      "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+      "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-005/run_mp_fallback.py",
+      "--output",
+      "/Users/home/cardboard-implementation-20261014/analysis/native469-mp-fallback-005/run-001"
+    ],
+    "elapsed_seconds": 65.39701104164124,
+    "mp_gate_passes": 17,
+    "mp_rows": 17,
+    "output_arrays_bytes": 5159472,
+    "output_arrays_sha256": "107e942cc2e131eed8f8db7759f8deb3e86fcdc42d8da249996daf51d6ed11ad",
+    "output_report_sha256": "b093762b1f03964f8fdfca42b1c969cc2c8502aaf2b91550690cd8d97a797be0",
+    "qualified_python": "/Users/home/.pyenv/versions/3.10.12/bin/python3"
+  },
+  "schema": "numi.cardboard.native469-mp-fallback-package.v1",
+  "source166003_regression_inputs": {
+    "arrays.npz": "db2b54b24a81c9ac0a6b3bd7d5412ef802be831eb1247e798688079e541801e1",
+    "report.json": "2e0642b2a2277cccd6e1ed6d97a5c201fca6fb1fa28cefbd3c6f6927addf3864"
+  },
+  "superseded_004": {
+    "cause": "The 004 script selected the medium parameter block [28:56] for every paper row, including liner tets.",
+    "run006_arrays_sha256": "74b4dce61312d6165ede932f8b7343269c0c54a3eca1252351af40d9e8a902d1",
+    "run006_report_sha256": "3ac6293bd76f4953544f6298a5e375da21f92f0feb32025c4a2d0b3e52306c84",
+    "script_sha256": "92061de25f55805b6fb1bee9c8c9221860742714ded7a5afa755d10c701577ba",
+    "status": "invalid_material_binding_for_liner_rows"
+  },
+  "validation": {
+    "commands_receipt": "validation/receipts.json",
+    "initial_test_key_mismatch_retained": "validation/retained-test-attempts.md",
+    "py_compile_exit_code": 0,
+    "unit_tests_passed": 8,
+    "unit_tests_total": 8
+  }
+}

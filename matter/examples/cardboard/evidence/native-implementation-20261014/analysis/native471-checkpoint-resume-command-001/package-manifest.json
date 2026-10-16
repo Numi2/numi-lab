@@ -1,0 +1,24 @@
+{
+  "files_sha256": {
+    "README.md": "dae060e11ba10274ad5e2e14ebe24bf198d6a7d60734d3eeaa371190a6661960",
+    "inputs/source157-liner-material.nmatter": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a",
+    "inputs/source157-medium-material.nmatter": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+    "inputs/source166002-independent-report.json": "fff3f7bcbca9040e918de874584553c3114074f72e9bca4078e81168d28b3386",
+    "inputs/source166002-manifest.json": "978ed3d360db9678caff6e9b0c2ef398a1aa006688f045b0f82e8b6b5924a005",
+    "inputs/source167-build-cpu-validation-manifest.json": "1f421540c2b2ad3f8c98fc1a9de0edd9711eadb7c04aa04ba679417f97a2f686",
+    "inputs/source167-build-cpu-validation-report.json": "6ec0089012dcdcc8a9f29245d0a14c49e36697bc091aa9ce4bc1a8ba96ca4ad9",
+    "inputs/source167-ctest-registration-manifest.json": "b60fc6a5c55c7b9d81026979dd8a9791b42f060238ae1391e3f0ed4b572f732d",
+    "inputs/source167-ctest-registration-report.json": "77ecaa10f92fb5c9f62a7aa5be1ae313b5afaf5dd603bb41a36c971e300e56a1",
+    "inputs/source469-output-manifest.json": "142fa1f08cf14ea4eb0e77039174a2c25030e14c0d38d6c9874a06e561bd3f6f",
+    "inputs/source469-prediction.json": "46c190c84814378cb5b5d0919129e3cebdeffe497af2c92747cfbce2c71982ad",
+    "inputs/source469-receipt.json": "35b856b4d94bcc3acfb5e611847ecc166860a228efc81e841decec019ea7e17f",
+    "inputs/source469-result.json": "a0f9a523adf715e2c19cea5b5f4ce09f07d78d6d2e0ac43cf5ba5f0e2df79625",
+    "native-471-command.json": "0e3f7e27943d79e1cb9bcb923a2abf293dcb88d327e2225302a4e4a2b0355947",
+    "prepare_resume.py": "40322edf32fd1d2488ce40b4240dd31b75dfb02e6b63302e07296ed63d0d387f",
+    "tests/test_resume_contract.py": "100b8a6e4eed876d9aab559ce0d68682c2149a93b7653d3e6a5adb8a7fd6cf1b",
+    "validation/contract-tests.log": "50d20b4eb71c3cef16020535a14a95d8002309e6fb1cbe101b674dd7a1a355a0",
+    "validation/python-syntax.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "validation/static-preflight.json": "c6a923c4243f9f496b55c7ce191523607c25076f510ba23fa625dabdce6612c3"
+  },
+  "schema": "numi.cardboard.native471-resume-command-package.v1"
+}

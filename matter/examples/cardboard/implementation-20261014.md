@@ -1,32 +1,34 @@
 # Cardboard implementation and evidence ledger
 
+Source173 adds opt-in warm-start CGLS refinement, guarded finite-breakdown decline and exact physical-arena checkpoint validation. Its native helper passes 264 checks; native472 preserves the complete default-off failed attempt. Corrected per-grade high-precision references remove a reference-tool error while retaining four strict FP64 center projection failures. Complete coupon, checkpoint restore, numerical resolution, calibration and shipping assembly/crush gates remain open. See [the source173 milestone](solver-milestone-source173.md).
+
 Source167 adds strict accepted coupon checkpoints, sealed diagnostic environments and captures at the actual regional preconditioner consumer. Source168 repairs independent FP64 Fischer–Burmeister differentiation and carries a portable 90-digit regression witness. Six targeted CPU CTest registrations pass. Native468/469 retain identical complete failed production histories; four strict-floor center projection misses remain after the reference repair. Experimental warm-start CGLS and the active native470 checkpoint prefix remain outside physical qualification. See [the source167/168 milestone](solver-milestone-source167.md).
 
 Source157 corrects the reported right-grip release mode without changing the generated targets or solver. Four complete CPU schedules and ten checks of the compiled production reader pass; its source-bound native build is admitted. Native468 is a separate half-timestep experiment and remains excluded from this closed milestone while running. See [the source157 milestone](solver-milestone-source157.md).
 
 Source154 adds tested opt-in all-control solver routing and a128-Newton driver ceiling. Native466 preserves the complete prior failed attempt; isolated regional observer464 also preserves production history while retaining a selection-metadata defect. No complete coupon or shipping qualification follows. See [the source154 milestone](solver-milestone-source154.md).
 
-## Current milestone: source142 bounded native CGLS
+## Historical milestone: source142 bounded native CGLS
 
 The [source142 report](solver-cgls-source142.md) records the repaired native CGLS helper, closely agreeing selected operator actions and a 73.68% nonlinear residual decrease at control 1/Newton 48. Capture-on/off runs preserve the complete attempted history, but both fail and roll back the control. Independent FP64 intervals resolve every captured paper direction at the 1e-6 gate; the native FP32 derivative comparison remains noise-inconclusive. The negative captured stiffness work is dominated by compressive geometric stiffness. No complete coupon, resolution study, calibrated corrugated failure, released shipping assembly or crush/drop result is qualified. Earlier reports retain their original scope.
 
-## Current milestone: source139 cache admission and attempted-history parity
+## Historical milestone: source139 cache admission and attempted-history parity
 
 The [source139 report](solver-cache-parity-source139.md) records the cache admission repair and exact parity across the entire attempted coupon history. Repeated raw Cauchy fallback still exhausts64 Newton iterations and rolls back. Independent FP64 perturbations resolve finite-step curvature and meet the assembled1% gate over a range, while the all-row material derivative gate remains open. Native residual replays of CPU CGLS proposals are separate from integrated solver qualification. No completed coupon, resolution study, calibrated corrugated failure, released shipping assembly or crush/drop result is qualified. Earlier reports retain their original revision scope.
 
-## Current milestone: source135 exact-state descent experiment
+## Historical milestone: source135 exact-state descent experiment
 
 The [source135 report](solver-milestone-source135.md) records a native residual-descent repair at control1/Newton48, followed by a later Newton53 rejection and complete control rollback. Independent GPU transpose/forward checks and fallback-disabled history parity pass. The captured matrix has condition number4.59e7; complete independent finite endpoint secants agree closely with native while remaining far from the center tangent. Source137 builds69 selected targets and passes74 CPU tests, but repeated fallback and cache optimization remain experimental. No complete coupon, resolution series, calibrated corrugated failure, released shipping assembly or crush/drop result is qualified. Earlier milestones retain their original scope.
 
-## Current milestone: source123
+## Historical milestone: source123
 
 The [source123 report](solver-milestone-source123.md) records the two-stage local merit repair: native407 clears retained tet858 in14 updates, native408 retains tet674 in5, and native410 returns valid results for3,072 diagnostic samples. Selected independent tangent and endpoint comparisons pass while smaller-step failures remain. Native405/406 locate a separate CCD budget failure with physical-history parity. Full coupon409, mesh/time convergence, calibrated damage, shipping assembly and crush/drop qualification remain separate and open.
 
-## Current milestone: source121
+## Historical milestone: source121
 
 The [source121 report](solver-milestone-source121.md) records the scaled material merit repair, exact674 point regression, complete rejected-contact trial captures, and the new native858 material failure. Source119 passes70 build targets and74 CPU checks; source121 freshly builds three diagnostic targets. The full coupon still rejects control zero. The previous858 CPU replay used the old merit rule and is retained with an erratum. No full resolution study, calibrated corrugated damage, released shipping assembly, capacity or crush/drop prediction is qualified. Earlier milestone headings below preserve their original revision scope.
 
-## Current milestone: source104
+## Historical milestone: source104
 
 The diagnostic-only source104 changes pass68 build targets,73 CPU tests and
 native362 physical-history parity against source103. Exact failed-state
@@ -36,7 +38,7 @@ mesh/time, calibrated damage, shipping assembly and crush/drop gates remain
 open. See [the source104 report](solver-milestone-source104.md), including its
 explicit evidence-retention erratum. Earlier entries retain their source scope.
 
-## Current milestone: source103
+## Historical milestone: source103
 
 The integrated source103 contact and restart repairs build68 targets and pass
 73 CPU checks. Native353 passes16/16 mortar geometry cases, and combined-contact

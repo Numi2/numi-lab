@@ -64,6 +64,184 @@ inline void baseCGLSCompensatedAdd(
     sum = next;
 }
 
+// Replace the private CGLS right-hand side with the fresh residual of the
+// retained Newton solution. The production solution itself is read-only here
+// and remains available as x0 until the final strict residual comparison.
+kernel void nm_fgmres_base_cgls_seed_residual(
+    constant uint& unknownCount [[buffer(0)]],
+    constant uint& environmentCount [[buffer(1)]],
+    device const float4* rowMask [[buffer(2)]],
+    device const uint* rowEnvironment [[buffer(3)]],
+    device const uint* selected [[buffer(4)]],
+    device const float4* baseRHS [[buffer(5)]],
+    device const float4* initialSolution [[buffer(6)]],
+    device const float4* initialAction [[buffer(7)]],
+    device float4* residualRHS [[buffer(8)]],
+    device atomic_uint* errors [[buffer(9)]],
+    uint index [[thread_position_in_grid]]) {
+    if (index >= unknownCount) return;
+    if (!baseCGLSVectorLayoutValid(unknownCount, environmentCount)) {
+        if (environmentCount > 0u)
+            baseCGLSMarkError(errors, 0u, kBaseCGLSErrorBadShape);
+        residualRHS[index] = float4(0.0f);
+        return;
+    }
+
+    const uint mechanicalRows = unknownCount / 2u;
+    const uint nodeCount = mechanicalRows / environmentCount;
+    const bool fieldRow = index >= mechanicalRows;
+    const uint local = fieldRow ? index - mechanicalRows : index;
+    const uint environment = local / nodeCount;
+    if (environment >= environmentCount ||
+        rowEnvironment[index] != environment) {
+        baseCGLSMarkError(errors, environment < environmentCount ? environment : 0u,
+            kBaseCGLSErrorBadShape);
+        residualRHS[index] = float4(0.0f);
+        return;
+    }
+    const uint selectedValue = selected[environment];
+    if (selectedValue > 1u) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadSelection);
+        residualRHS[index] = float4(0.0f);
+        return;
+    }
+    const float4 mask = rowMask[index];
+    const float4 b = baseRHS[index];
+    const float4 x0 = initialSolution[index];
+    const float4 ax0 = initialAction[index];
+    bool valid = selectedValue <= 1u && baseCGLSFinite4(mask) &&
+        baseCGLSFinite4(b) && baseCGLSFinite4(x0) &&
+        baseCGLSFinite4(ax0) && mask.w == 0.0f && b.w == 0.0f &&
+        x0.w == 0.0f && ax0.w == 0.0f;
+    if (!valid) {
+        baseCGLSMarkError(errors, environment,
+            kBaseCGLSErrorNonfinite | kBaseCGLSErrorBadMask);
+        residualRHS[index] = float4(0.0f);
+        return;
+    }
+    if (fieldRow) {
+        if (!baseCGLSZero4(mask) || !baseCGLSZero4(b) ||
+            !baseCGLSZero4(x0) || !baseCGLSZero4(ax0)) {
+            baseCGLSMarkError(errors, environment,
+                kBaseCGLSErrorNonzeroConstrainedRow);
+        }
+        residualRHS[index] = float4(0.0f);
+        return;
+    }
+    if (selectedValue == 0u) {
+        if (!baseCGLSZero4(mask) || !baseCGLSZero4(b) ||
+            !baseCGLSZero4(x0) || !baseCGLSZero4(ax0)) {
+            baseCGLSMarkError(errors, environment,
+                kBaseCGLSErrorNonzeroConstrainedRow);
+        }
+        residualRHS[index] = float4(0.0f);
+        return;
+    }
+    if (!baseCGLSMaskComponent(mask.x) ||
+        !baseCGLSMaskComponent(mask.y) ||
+        !baseCGLSMaskComponent(mask.z)) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadMask);
+        residualRHS[index] = float4(0.0f);
+        return;
+    }
+    if (any((mask.xyz == float3(0.0f)) &
+            ((b.xyz != float3(0.0f)) | (x0.xyz != float3(0.0f))))) {
+        baseCGLSMarkError(errors, environment,
+            kBaseCGLSErrorNonzeroConstrainedRow);
+        residualRHS[index] = float4(0.0f);
+        return;
+    }
+    const float3 residual = (b.xyz - ax0.xyz) * mask.xyz;
+    if (!all(isfinite(residual))) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorNonfinite);
+        residualRHS[index] = float4(0.0f);
+        return;
+    }
+    residualRHS[index] = float4(residual, 0.0f);
+}
+
+// Convert the converged correction y into the total candidate x0+S*y in
+// private CGLS scratch. This never writes the production solution buffer.
+kernel void nm_fgmres_base_cgls_add_initial_solution(
+    constant uint& unknownCount [[buffer(0)]],
+    constant uint& environmentCount [[buffer(1)]],
+    device const float4* rowMask [[buffer(2)]],
+    device const uint* rowEnvironment [[buffer(3)]],
+    device const uint* selected [[buffer(4)]],
+    device const float4* initialSolution [[buffer(5)]],
+    device float4* candidateSolution [[buffer(6)]],
+    device atomic_uint* errors [[buffer(7)]],
+    device const float4* metrics [[buffer(8)]],
+    uint index [[thread_position_in_grid]]) {
+    if (index >= unknownCount) return;
+    if (!baseCGLSVectorLayoutValid(unknownCount, environmentCount)) {
+        if (environmentCount > 0u)
+            baseCGLSMarkError(errors, 0u, kBaseCGLSErrorBadShape);
+        candidateSolution[index] = float4(0.0f);
+        return;
+    }
+    const uint mechanicalRows = unknownCount / 2u;
+    const uint nodeCount = mechanicalRows / environmentCount;
+    const bool fieldRow = index >= mechanicalRows;
+    const uint local = fieldRow ? index - mechanicalRows : index;
+    const uint environment = local / nodeCount;
+    if (environment >= environmentCount ||
+        rowEnvironment[index] != environment) {
+        baseCGLSMarkError(errors, environment < environmentCount ? environment : 0u,
+            kBaseCGLSErrorBadShape);
+        candidateSolution[index] = float4(0.0f);
+        return;
+    }
+    // Preserve the unfinished private correction on the exact warm-only
+    // finite-breakdown decline; x0 remains the production solution.
+    if (metrics[environment].w == 5.0f) return;
+    const uint selectedValue = selected[environment];
+    if (selectedValue > 1u) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadSelection);
+        candidateSolution[index] = float4(0.0f);
+        return;
+    }
+    const float4 mask = rowMask[index];
+    const float4 initial = initialSolution[index];
+    const float4 correction = candidateSolution[index];
+    bool valid = selectedValue <= 1u && baseCGLSFinite4(mask) &&
+        baseCGLSFinite4(initial) && baseCGLSFinite4(correction) &&
+        mask.w == 0.0f && initial.w == 0.0f && correction.w == 0.0f;
+    if (!valid) {
+        baseCGLSMarkError(errors, environment,
+            kBaseCGLSErrorNonfinite | kBaseCGLSErrorBadMask);
+        candidateSolution[index] = float4(0.0f);
+        return;
+    }
+    if (fieldRow || selectedValue == 0u) {
+        if (!baseCGLSZero4(mask) || !baseCGLSZero4(initial) ||
+            !baseCGLSZero4(correction)) {
+            baseCGLSMarkError(errors, environment,
+                kBaseCGLSErrorNonzeroConstrainedRow);
+        }
+        candidateSolution[index] = float4(0.0f);
+        return;
+    }
+    if (!baseCGLSMaskComponent(mask.x) ||
+        !baseCGLSMaskComponent(mask.y) ||
+        !baseCGLSMaskComponent(mask.z) ||
+        any((mask.xyz == float3(0.0f)) &
+            ((initial.xyz != float3(0.0f)) |
+             (correction.xyz != float3(0.0f))))) {
+        baseCGLSMarkError(errors, environment,
+            kBaseCGLSErrorNonzeroConstrainedRow | kBaseCGLSErrorBadMask);
+        candidateSolution[index] = float4(0.0f);
+        return;
+    }
+    const float3 total = initial.xyz + correction.xyz;
+    if (!all(isfinite(total))) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorNonfinite);
+        candidateSolution[index] = float4(0.0f);
+        return;
+    }
+    candidateSolution[index] = float4(total * mask.xyz, 0.0f);
+}
+
 // Per-environment state layout:
 //   scalars = (gamma, alpha, beta, ||b||^2)
 //   control = (status, completed_iterations, iteration_cap, selected)

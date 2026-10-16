@@ -1,0 +1,103 @@
+{
+  "all_staged_blob_bytes_match_worktree": true,
+  "append_only_summary": {
+    "appended_cases": 44,
+    "current_records": 1524,
+    "current_summary_sha256_matches_binding": true,
+    "historical_prefix_exact": true,
+    "new_case_list_exact": true,
+    "prior_records": 1480
+  },
+  "binding_sha256": "2eaec51662d8a00f8d57476c29bceb61db71a84ac34cd4bd53d464cb9ea512fc",
+  "documentation_caveat_checks": {
+    "implementation_explicitly_unqualified": true,
+    "milestone_lists_six_open_axes": true,
+    "milestone_no_incomplete_prefix_qualification": true,
+    "progress_reports_468_469_failure": true
+  },
+  "documentation_overclaim_review": "latest summaries state component evidence separately and leave complete nonlinear convergence, exact-grade calibration, analogue validation, shipping assembly, and impact open; no physical qualification claimed",
+  "git_cat_file_blob_bytes_sum_with_duplicates": 176838556,
+  "git_cat_file_unique_blob_count": 1350,
+  "head": "a5ccffa52ffe368b49c877094a5081b7ee246ebf",
+  "native470": {
+    "binding_exclusion_flag": true,
+    "excluded_from_new_case_list_and_staged_paths": true
+  },
+  "open_axes": {
+    "analogue_validation": "unqualified_for_requested_full_sequence",
+    "component_calibration": "partial_source_data_only",
+    "crush_impact_prediction": "unexecuted",
+    "numerical_convergence": "unqualified",
+    "physical_assembly_in_simulation": "unqualified",
+    "solver_correctness": "partial_component_evidence; complete_nonlinear_solve_unqualified"
+  },
+  "pathspec": {
+    "current_entries": 8376,
+    "current_sha256": "2a3f1391a727810fd77b90ccc0c7ff37d3e4cf327186d44d31a55fbe5ff7e06b",
+    "new_suffix_all_staged": true,
+    "new_suffix_entries": 2810,
+    "prior_bytes_preserved_as_prefix": true,
+    "prior_entries": 5566,
+    "prior_sha256": "2014e68375cec1a720edc04feca77f64d2a8d5bc18c5be1949ca1802dba84662"
+  },
+  "payloads": {
+    "all_copy_paths_are_staged": true,
+    "all_external_originals_verified": true,
+    "all_staged_restore_bytes_verified": true,
+    "audit_jsonl": "/Users/home/cardboard-implementation-20261014/analysis/publication029-independent-byte-audit-001/payload-audit.jsonl",
+    "gzip_count": 58,
+    "raw_count": 2750,
+    "record_count": 2808,
+    "unique_published_copy_count": 2808
+  },
+  "physical_validation": false,
+  "prior_binding_sha256": "d720819e837db8e503b8cc06c3f9664709d10089ccf05da24f97fbfb0bf02f0d",
+  "prior_pathspec_sha256": "2014e68375cec1a720edc04feca77f64d2a8d5bc18c5be1949ca1802dba84662",
+  "prior_summary_sha256": "d025f2ce80dda69efb980ed24a21001cc8e2c6ac41a68299768bb25c26182196",
+  "published_warm_start_failure": {
+    "executed_package": "159-002",
+    "failure": "declined refinement cleared original certificate",
+    "physical_transactions": 0,
+    "receipt_sha256": "dd9b6d70e7694c9d125303b5dc6bf2e56cc5306013b9585d0c71775db1512998",
+    "returncode": 1
+  },
+  "read_only": true,
+  "reviewed_document_hashes": [
+    {
+      "bytes": 42921,
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/implementation-20261014.md",
+      "sha256": "8bf067be8662dbe2e36f6cba916d9422b3632fd50e5850d03eab82422c541c8f"
+    },
+    {
+      "bytes": 96925,
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/solver-progress-20261014.md",
+      "sha256": "5dbf21616cfadc6d45f3184ae94a722826e73d5c278d719a9f20a71bf2e9eae1"
+    },
+    {
+      "bytes": 3988,
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/solver-milestone-source167.md",
+      "sha256": "bdf952ea6024771c5124c5ab6ebc74c98558ac28dc7a2e633a6b6f637f43fe8e"
+    }
+  ],
+  "schema": "numi.cardboard.publication029_independent_byte_audit.v1",
+  "source168": {
+    "all_snapshot_and_repo_files_match_declared_hashes": true,
+    "frozen_source_sha256": "c54920e78d1487f1eb85194b750f6f5d7a21d389e8099728496888b2aa8ef16b",
+    "mismatch_count": 0,
+    "source_file_count": 802
+  },
+  "stage_pathlist_expected_sha256": "afbf36e4dd40647b30ff583f5bd9f22433ba05d355e3b254e5a6d6e27a62482d",
+  "staged_blob_mismatch_count": 0,
+  "staged_mode_mismatch_count": 0,
+  "staged_path_count": 2841,
+  "staged_pathlist_matches_git_index_delta": true,
+  "staged_pathlist_sha256": "afbf36e4dd40647b30ff583f5bd9f22433ba05d355e3b254e5a6d6e27a62482d",
+  "staged_source_check_report_input_sha256": "bc1439851f505cff8d83b6b825bde7d808a761d6a4d7ca7ba008317ae432b96b",
+  "summary_sha256": "aaf1660cb3c68c02de4b81cd4e480d54a20e3674d7176c65ab5aad74ac2187c7",
+  "untracked_areas_preserved_unstaged": true,
+  "untracked_paths": [
+    "matter/examples/cardboard/evidence/native-implementation-20261014/solver/regional-bending-captured-cycle-057/analysis-057/replay-build-037/CMakeFiles/4.0.1/CompilerIdOBJCXX/CMakeOBJCXXCompilerId.mm",
+    "matter/tools/evidence/cohesive-scratch-alias/source-audit.json"
+  ],
+  "verdict": "pass"
+}

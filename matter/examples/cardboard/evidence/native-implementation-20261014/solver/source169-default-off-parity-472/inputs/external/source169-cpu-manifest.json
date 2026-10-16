@@ -1,0 +1,104 @@
+{
+  "build_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169",
+  "files": [
+    {
+      "bytes": 2233,
+      "path": "README.md",
+      "sha256": "385abd69f87fa5fd782ddc92b617d88545e5780bbedfdc1394e2eb8e7990f759"
+    },
+    {
+      "bytes": 7784,
+      "path": "audit.py",
+      "sha256": "4b560a883073903797cd3aebe80f041efda0166ed059a529df04326df5280618"
+    },
+    {
+      "bytes": 394,
+      "path": "cpu-ctest-receipt.json",
+      "sha256": "f2b9d6c0c086d65c159e6a3b25d8a459783b2982880e8ede69f89c0ab73d4aec"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-ctest.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2782,
+      "path": "cpu-ctest.stdout.log",
+      "sha256": "65a6217f2b6768fcf9b38f449dc21685274eff9ebc1aba7900d9e4a7da8d6e5f"
+    },
+    {
+      "bytes": 413,
+      "path": "solver-environment-receipt.json",
+      "sha256": "30e76e533eae89acc2a9a0dd90b0a40d37de6c2f9b8caae72027c13c78a532b2"
+    },
+    {
+      "bytes": 110,
+      "path": "solver-environment.stderr.log",
+      "sha256": "7a201f79f0ef05c21002b23a7fdcd4dda8eb51d95216221cda7598e5699eb883"
+    },
+    {
+      "bytes": 0,
+      "path": "solver-environment.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 434,
+      "path": "solver-python-ctest-receipt.json",
+      "sha256": "0f454ea3b4067a199d692e88d2fefccc5fccd0605de43c5a6807fb79f9a58427"
+    },
+    {
+      "bytes": 0,
+      "path": "solver-python-ctest.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 618,
+      "path": "solver-python-ctest.stdout.log",
+      "sha256": "6eeaf036fd9f8daa652a73c2e1c12b013c43602f260d7bf68b03a50a185eff89"
+    },
+    {
+      "bytes": 5498,
+      "path": "verification.json",
+      "sha256": "97f3bdfb2990ae400d355928a75c4a9da85213bd3e8ebcf5f6c4227ba335a46a"
+    }
+  ],
+  "inputs": {
+    "cmake_cache": {
+      "bytes": 17833,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169/CMakeCache.txt",
+      "sha256": "af232cd781ad2de913250b74c1488a4f81b421f79b71e417e398eca3ffbe8491"
+    },
+    "compile_commands": {
+      "bytes": 114107,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169/compile_commands.json",
+      "sha256": "640f688c3407827f7b7cc2fbec959120f28738be3b08a7d436a8e9eb68d933bb"
+    },
+    "frozen_source_manifest": {
+      "bytes": 96031,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/frozen-source.json",
+      "sha256": "f5054091c27a7e1add41630aae1b45ee6ecc3e6d4112ee85c931cc4c70f44ea4"
+    },
+    "generated_ctest_file": {
+      "bytes": 84168,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169/CTestTestfile.cmake",
+      "sha256": "0733689d34c601e88894a139e29ce08063f4e2a650430f09dccf23715d69c363"
+    },
+    "source_build_record": {
+      "bytes": 98193,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169/source-build.json",
+      "sha256": "beb85bd883347557b813ea8742aced644dcd683755baab27b42e2e162d6c11c1"
+    },
+    "source_cmake": {
+      "bytes": 114790,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/CMakeLists.txt",
+      "sha256": "e1d9fef5b4e2e61c1caa8557749dc889a0581d2173aa211990ebdecb35adda26"
+    }
+  },
+  "limitations": [
+    "Metal warm-start checker compiled and hash-verified, not GPU executed.",
+    "CPU validation does not qualify native solver trajectories or feature-off parity."
+  ],
+  "package_path": "/Users/home/cardboard-implementation-20261014/analysis/source169-build-cpu-validation-001",
+  "schema": "numi.cardboard.source169.cpu-validation-package.v1",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169"
+}

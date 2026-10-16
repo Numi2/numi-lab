@@ -1,0 +1,8 @@
+{
+  "files_sha256": {
+    "receipt.json": "8c7cbc9709573303247d8f3c2a24a9d04dc6473cbccbfb6158ce0e01771e96d8",
+    "run.py": "c1de57b0046fe28c1edae76f3582618a784ff42774598706f0a750f2349d59e0",
+    "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout.log": "09fc7d3f1d3795b7f948f4aac10040a847623fbfdb1a14c399a30e2bc80e7f14"
+  }
+}

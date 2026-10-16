@@ -1,0 +1,197 @@
+{
+  "decision": {
+    "first_blocker": "full-contact residual Armijo scope rejects at node cap 8192; target has 528444 nodes",
+    "shipping_16_gib_admission": "not established; this source-bound audit does not raise any limit or forecast a complete target peak",
+    "sparse_pair_scan": "one-environment pair-domain scratch fits 36 MiB, but does not remove node/tet/deformable/cohesive scope gates"
+  },
+  "deformable_contact_scratch_model": {
+    "aliased_result": "fits arithmetic budget, but alias identity and all source/topology constraints require runtime proof",
+    "capacity_at_existing_max": 131072,
+    "contact_capacity_arrays_bytes": 62914560,
+    "dispatch_and_small_counts_bytes": 32,
+    "existing_budget_bytes": 134217728,
+    "leaf_count_bit_ceil": 2097152,
+    "node_incidence_ranges_bytes": 8455104,
+    "primitive_count_assumption": 1054876,
+    "private_total_if_surface_aliased": 71369696,
+    "private_total_if_surface_not_aliased": 289977504,
+    "source_lines": [
+      6843,
+      6882
+    ],
+    "surface_arrays_unaliased_bytes": 218607808,
+    "unaliased_result": "rejects budget"
+  },
+  "evidence_class": "source-bound admission and byte arithmetic; no world construction or physical qualification",
+  "extrapolated_known_static_lower_bound": {
+    "formula_bytes": "N*80 + T*96 + (2*N)*528, E=1",
+    "interpretation": "only the same three categories as the prior native preflight lower bound, scaled arithmetically; excludes many runtime/device/host/checkpoint/contact/compiler arenas and is not a peak forecast",
+    "limit_bytes": 17179869184,
+    "old_preflight_mesh": {
+      "nodes": 453378,
+      "tetrahedra": 1477728
+    },
+    "preflight_fgmres_bytes_per_unknown": 528,
+    "target_bytes": 742174272,
+    "within_16_gib": true
+  },
+  "first_explicit_full_contact_armijo_gate": {
+    "call_chain": [
+      {
+        "function": "femFullContactResidualArmijoScope",
+        "lines": [
+          11141,
+          11146
+        ]
+      },
+      {
+        "function": "femCapsuleBoxResidualArmijoScope",
+        "lines": [
+          10885,
+          10920
+        ]
+      }
+    ],
+    "condition": "femNodeCount > 8192",
+    "kind": "runtime scope cap",
+    "limit": 8192,
+    "observed_target_nodes": 528444,
+    "reason": "fem_node_cap_8192",
+    "result": "rejects",
+    "source": "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/candidate/matter/src/runtime.mm",
+    "source_lines": [
+      10915,
+      10920
+    ]
+  },
+  "gpu_dispatch": false,
+  "known_target_array_bytes": {
+    "accepted_plus_candidate_cohesive_face_arrays_if_both_materialized": 200321280,
+    "accepted_plus_candidate_node_state_arrays_if_both_materialized": 84551040,
+    "accepted_plus_candidate_tetrahedron_arrays_if_both_materialized": 283723776,
+    "dense_one_sample_per_pair_array": 1013690880,
+    "one_cohesive_face_state_array": 100160640,
+    "one_contact_pair_topology_array": 101369088,
+    "one_fem_node_state_array": 42275520,
+    "one_tetrahedron_array": 141861888,
+    "sparse_sample_capacity_array": 10485760
+  },
+  "next_scale_gates_after_node_cap": [
+    {
+      "condition": "tetrahedronCount > 32768",
+      "limit": 32768,
+      "result": "rejects",
+      "source_lines": [
+        10921,
+        10924
+      ],
+      "target": 1477728
+    },
+    {
+      "condition": "deformable scratch supportedCounts requires femNodeCount <= 16384 and tetrahedronCount <= 32768",
+      "limits": {
+        "nodes": 16384,
+        "tetrahedra": 32768
+      },
+      "result": "rejects",
+      "source_lines": [
+        6857,
+        6862
+      ],
+      "target": {
+        "nodes": 528444,
+        "tetrahedra": 1477728
+      }
+    },
+    {
+      "condition": "deformableContactCapacity <= 131072",
+      "limit": 131072,
+      "result": "conditional on compiled dispatch capacity; scope rejects zero or greater than limit",
+      "source_lines": [
+        11161,
+        11181
+      ]
+    },
+    {
+      "condition": "full-contact cohesive arena: either tiled face force page <= 8 MiB or untiled cohesiveFaceCount <= 4096",
+      "result": "tiled page arithmetic fits; non-tiled branch rejects",
+      "source_lines": [
+        11147,
+        11160
+      ],
+      "target_faces": 260835,
+      "tile_page_bytes": 8388576,
+      "tile_page_capacity_faces_at_96_bytes_each": 87381,
+      "tile_page_count": 3
+    }
+  ],
+  "physical_transactions": 0,
+  "prior_native_memory_observation": {
+    "mesh": {
+      "cohesive_faces": 0,
+      "nodes": 453378,
+      "tetrahedra": 1477728
+    },
+    "metal_current_allocated_bytes": 10504568832,
+    "metal_recommended_max_working_set_bytes": 19069665280,
+    "qualification_allowed": false,
+    "runtime_resident_bytes": 10467551760,
+    "scope_warning": "prior observation is for 453378 nodes and zero cohesive faces, not the 528444-node cohesive target",
+    "within_componentwise_16_gib": true
+  },
+  "schema": "numi.cardboard.source175-shipping-admission-audit.v1",
+  "sources": {
+    "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/candidate/matter/include/numi/matter/sparse_private_contact_admission.hpp": "4cf5d32e78cf45bed72406c99df85b050c8d0548e3e043fbd9a1d810e7eb9ef1",
+    "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/candidate/matter/src/runtime.mm": "836b146cc4e95e9096f094f33e7bfd7248bc816821541238321deca7ad7ff61a",
+    "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/run_shipping_size_probe.py": "ae862c2e65b65e05f6cfd99a8e2cd08492554d136e9d33e841ef823a6be39777",
+    "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/shipping-arena-size-probe": "a7f5bf83a40401753720fe380716230b65b1261ffb81c485077c663281b72e2d",
+    "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/shipping_admission_audit.py": "83c3c91de0cd6d41eef6e17e06281c3ba3c82e8eece9ccb5462cfa23ca641355",
+    "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/shipping_arena_size_probe.cpp": "726ccf9dad8b6ad9e776a8fed7cc3ed8f95a65481b9dba5d20589f4bf40c51b7",
+    "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/shipping_arena_size_probe_validation.json": "863ae118d085ace3ae2ceefa5f036e5203820058d8f8d43e83bb2c2c02f90c47",
+    "/Users/home/cardboard-implementation-20261014/native/shipping-memory-preflight-032/output/shipping-memory-native-preflight.json": "b479fff2030ffce483136c7e16408ccd2791ae6b4679ea557cfa61ea185696f0",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/matter/include/numi/matter/shared.h": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+  },
+  "sparse_private_contact_arena": {
+    "block_offset_bytes": 98996,
+    "blocks_per_environment": 24749,
+    "budget_bytes": 37748736,
+    "candidate_count_bytes": 16,
+    "candidate_id_bytes": 262144,
+    "fits_one_environment": true,
+    "margin_bytes": 1559548,
+    "pair_slot_bytes": 25342272,
+    "sample_bytes": 10485760,
+    "total_bytes": 36189188
+  },
+  "sparse_private_contact_two_environment_counterfactual": {
+    "block_offset_bytes": 197992,
+    "candidate_count_bytes": 16,
+    "candidate_id_bytes": 524288,
+    "fits_two_environments": false,
+    "margin_bytes": -34629624,
+    "pair_slot_bytes": 50684544,
+    "sample_bytes": 20971520,
+    "total_bytes": 72378360
+  },
+  "struct_sizes_bytes": {
+    "NMCohesiveFaceGPU": 384,
+    "NMCohesiveFaceVectorGPU": 96,
+    "NMContactPairGPU": 16,
+    "NMContactSampleGPU": 160,
+    "NMContinuumSurfacePrimitiveGPU": 64,
+    "NMDeformableContactCandidateGPU": 16,
+    "NMDeformableContactGPU": 432,
+    "NMFEMNodeStateGPU": 80,
+    "NMIncidenceRangeGPU": 16,
+    "NMIndirectDispatchGPU": 16,
+    "NMTetrahedronGPU": 96
+  },
+  "topology": {
+    "cohesive_faces": 260835,
+    "contact_pairs": 6335568,
+    "environments": 1,
+    "nodes": 528444,
+    "surface_faces_used_as_primitive_count_assumption": 1054876,
+    "tetrahedra": 1477728
+  }
+}

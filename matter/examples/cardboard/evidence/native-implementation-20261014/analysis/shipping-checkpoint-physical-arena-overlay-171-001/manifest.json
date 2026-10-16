@@ -1,0 +1,76 @@
+{
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169",
+  "files": {
+    "base_header": {
+      "bytes": 22558,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/tools/cardboard_shipping_snapshot.hpp",
+      "sha256": "987eade18437c57a5e5ea364065ab7926c8911281d0b966034a44279b4f48475"
+    },
+    "base_runtime": {
+      "bytes": 1919696,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/src/runtime.mm",
+      "sha256": "c76e753b5e7b454e996c977307604ccd8864cf2e5ae27fe8a6bfeb1deb99ceb0"
+    },
+    "base_test": {
+      "bytes": 10392,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/tools/cardboard_shipping_snapshot_check.cpp",
+      "sha256": "0d577e97a4fcacdd9d3693ab4b978616bb5f4da52db523128d993fd118abf0a1"
+    },
+    "candidate_header": {
+      "bytes": 24545,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/shipping-checkpoint-physical-arena-overlay-171-001/candidate/matter/tools/cardboard_shipping_snapshot.hpp",
+      "sha256": "e1fa29f7f2d7d2c43623880db1934bf3bfae1690e432f8dfca54bcb1b29e71e6"
+    },
+    "candidate_test": {
+      "bytes": 14754,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/shipping-checkpoint-physical-arena-overlay-171-001/candidate/matter/tools/cardboard_shipping_snapshot_check.cpp",
+      "sha256": "8446a6ad4d003ce1434826d7f70b6c52c1706c3f1d3965575a2a71bc6255f155"
+    },
+    "compile_commands": {
+      "bytes": 114107,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169/compile_commands.json",
+      "sha256": "640f688c3407827f7b7cc2fbec959120f28738be3b08a7d436a8e9eb68d933bb"
+    },
+    "cpu_check_log": {
+      "bytes": 1337,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/shipping-checkpoint-physical-arena-overlay-171-001/validation/cpu-check.log",
+      "sha256": "4a0cec721bc1bfc44d2d6c6aee41c6fddb14fd3d84b0b48d313c28efcaf91a89"
+    },
+    "matter_header": {
+      "bytes": 108241,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/matter.hpp",
+      "sha256": "798e124cdf0b97370a7e1412526693b0f2469985df2b5e985ad3a8acbe00808a"
+    },
+    "patch": {
+      "bytes": 14556,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/shipping-checkpoint-physical-arena-overlay-171-001/overlay.patch",
+      "sha256": "7145aea2965145284dc65d76771bdc096b78f0484854c768d24f87a51f01759b"
+    },
+    "patch_apply_log": {
+      "bytes": 314,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/shipping-checkpoint-physical-arena-overlay-171-001/validation/patch-apply.log",
+      "sha256": "f715445606c28d965e08250701fdaff6db1b614beef73da45624cf18d6f19f8a"
+    },
+    "readme": {
+      "bytes": 1482,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/shipping-checkpoint-physical-arena-overlay-171-001/README.md",
+      "sha256": "0075946441230e8290ba22e9e93a1a64d04c1da50d1e1b62ea477ade182574d2"
+    },
+    "shared_header": {
+      "bytes": 58294,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/shared.h",
+      "sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+    }
+  },
+  "overlay": "source171-candidate-only",
+  "schema": "numi.cardboard.shipping_checkpoint_physical_arena_overlay.v1",
+  "scope_note": "Physical arena sizes are computed by checkedBytes: max(logicalCount*sizeof(T), sizeof(T), 16), with overflow/alignment checks. Only fields whose snapshot reads full buffer and restore uses exactArena use physical counts. Logical bounded/readCount fields remain exact logical counts.",
+  "validation": {
+    "focused_cpu_test": "PASS: shipping snapshot/provenance checks passed: 6",
+    "full_build": "NOT_RUN",
+    "gpu": "NOT_RUN",
+    "native_checkpoint_470": "FAILED before overlay; retained as separate evidence",
+    "patch_dry_run": "PASS for two files against source169",
+    "whitespace_check": "PASS for two base/candidate pairs"
+  }
+}

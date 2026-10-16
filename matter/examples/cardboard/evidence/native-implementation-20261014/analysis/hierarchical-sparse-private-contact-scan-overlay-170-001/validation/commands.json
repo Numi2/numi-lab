@@ -1,0 +1,71 @@
+{
+  "schema": "numi.cardboard.overlay.validation-commands.v1",
+  "base": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169",
+  "candidate": "/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate",
+  "commands": [
+    {
+      "name": "checker_cpu_contract_compile",
+      "argv": ["/usr/bin/clang++", "-std=c++17", "-x", "objective-c++", "-fobjc-arc", "-fblocks", "-Wall", "-Wextra", "-Wpedantic", "-Werror", "-I", "candidate/matter/include", "-I", "base/matter/include", "-I", "base/include", "-DNUMI_MATTER_METALLIB=\"/tmp/NumiMatter.metallib\"", "candidate/matter/tools/cardboard_sparse_private_contact_scan_native_check.mm", "-framework", "Foundation", "-framework", "Metal", "-o", "validation/sparse-scan-cpu-check-002"],
+      "result": "exit 0"
+    },
+    {
+      "name": "checker_cpu_contract_execution",
+      "argv": ["validation/sparse-scan-cpu-check-002", "--cpu-only"],
+      "result": "pass; metal_kernels_executed=0"
+    },
+    {
+      "name": "runtime_host_syntax",
+      "argv": ["/usr/bin/clang++", "-std=c++20", "-x", "objective-c++", "-fobjc-arc", "-fblocks", "-Wall", "-Wextra", "-Wpedantic", "-fsyntax-only", "-I", "candidate/matter/include", "-I", "base/matter/include", "-I", "base/include", "-I", "base/matter/tools", "-I", "base/matter/src", "-DNUMI_MATTER_DEFAULT_METALLIB=\"/tmp/NumiMatter.metallib\"", "candidate/matter/src/runtime.mm"],
+      "result": "exit 0"
+    },
+    {
+      "name": "full_contact_tool_host_syntax",
+      "argv": ["/usr/bin/clang++", "-std=c++20", "-x", "objective-c++", "-fobjc-arc", "-fblocks", "-Wall", "-Wextra", "-Wpedantic", "-Werror", "-Wno-unused-function", "-Wno-unused-const-variable", "-fsyntax-only", "-I", "candidate/matter/include", "-I", "base/matter/include", "-I", "base/include", "-I", "base/matter/tools", "-I", "base/matter/src", "-DNUMI_MATTER_METALLIB=\"/tmp/NumiMatter.metallib\"", "candidate/matter/tools/cardboard_full_contact_armijo_check.mm"],
+      "result": "exit 0"
+    },
+    {
+      "name": "shipping_memory_tool_host_syntax",
+      "argv": ["/usr/bin/clang++", "-std=c++20", "-Wall", "-Wextra", "-Wpedantic", "-Werror", "-fsyntax-only", "-I", "candidate/matter/include", "-I", "base/matter/include", "-I", "base/include", "-I", "base/matter/tools", "candidate/matter/tools/cardboard_shipping_memory_check.cpp"],
+      "result": "exit 0"
+    },
+    {
+      "name": "admission_cpu_test_compile",
+      "argv": ["/usr/bin/clang++", "-std=c++20", "-Wall", "-Wextra", "-Wpedantic", "-Werror", "-I", "candidate/matter/include", "-I", "base/matter/include", "-I", "base/include", "candidate/matter/tools/cardboard_sparse_private_contact_admission_check.cpp", "-o", "validation/sparse-admission-check-002"],
+      "result": "exit 0"
+    },
+    {
+      "name": "admission_cpu_test_execution",
+      "argv": ["validation/sparse-admission-check-002"],
+      "result": "pass; 5 checks; shipping pair-domain arithmetic only"
+    },
+    {
+      "name": "metal_O0_compile_and_link",
+      "argv": ["xcrun", "-sdk", "macosx", "metal", "-std=metal4.0", "-O0", "-fno-fast-math", "-I", "candidate/matter/include", "-I", "base/matter/include", "-I", "base/include", "-I", "candidate/matter/src", "-I", "base/matter/src", "-c", "validation/matter_kernels.metal", "-o", "validation/NumiMatter-O0.air", "then", "xcrun", "-sdk", "macosx", "metallib", "validation/NumiMatter-O0.air", "-o", "validation/NumiMatter-O0.metallib"],
+      "result": "compile and link passed; compiler emitted two warnings in frozen fgmres.metalinc"
+    },
+    {
+      "name": "metal_O3_compile_and_link_with_dependency_proof",
+      "argv": ["xcrun", "-sdk", "macosx", "metal", "-std=metal4.0", "-O3", "-fno-fast-math", "-I", "candidate/matter/include", "-I", "base/matter/include", "-I", "base/include", "-I", "candidate/matter/src", "-I", "base/matter/src", "-MMD", "-MF", "validation/metal-inputs.d", "-MT", "NumiMatter", "-c", "validation/matter_kernels.metal", "-o", "validation/NumiMatter-O3-deps.air", "then", "xcrun", "-sdk", "macosx", "metallib", "validation/NumiMatter-O3-deps.air", "-o", "validation/NumiMatter-O3-deps.metallib"],
+      "result": "compile and link passed; dependency file names the candidate contact.metalinc"
+    },
+    {
+      "name": "patch_dry_run_and_reconstruction",
+      "argv": ["patch", "--dry-run", "-p1", "-d", "validation/patch-check-002", "then", "patch", "-p1", "-d", "validation/patch-check-002"],
+      "result": "exact reconstruction of all eight candidate source files"
+    }
+  ],
+  "failed_command_records": [
+    {
+      "name": "first_runtime_and_tool_syntax_attempts",
+      "argv": ["/usr/bin/clang++", "-std=c++17", "..."],
+      "result": "failed because project uses C++20 (std::span, std::bit_cast, defaulted comparisons); preserved logs runtime-syntax-002.log and full-contact-tool-syntax-002.log"
+    },
+    {
+      "name": "first_shipping_memory_syntax_attempts",
+      "argv": ["/usr/bin/clang++", "-std=c++17", "..."],
+      "result": "failed due C++20 mode and then missing base matter/tools include path; preserved logs shipping-memory-tool-syntax-003.log; corrected command passed as shipping-memory-tool-syntax-004.log"
+    }
+  ],
+  "native_checker_dispatch": false,
+  "physical_transactions": 0
+}

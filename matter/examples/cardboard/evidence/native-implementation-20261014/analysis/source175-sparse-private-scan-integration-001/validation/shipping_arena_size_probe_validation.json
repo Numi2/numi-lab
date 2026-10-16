@@ -1,0 +1,36 @@
+{
+  "compile_argv": [
+    "/usr/bin/clang++",
+    "-std=c++20",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-I",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/matter/include",
+    "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/shipping_arena_size_probe.cpp",
+    "-o",
+    "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/shipping-arena-size-probe"
+  ],
+  "compile_exit_code": 0,
+  "compile_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "gpu_dispatch": false,
+  "probe_binary_sha256": "a7f5bf83a40401753720fe380716230b65b1261ffb81c485077c663281b72e2d",
+  "probe_source_sha256": "726ccf9dad8b6ad9e776a8fed7cc3ed8f95a65481b9dba5d20589f4bf40c51b7",
+  "run_exit_code": 0,
+  "run_stdout_sha256": "ca6569ca032d660f685a533e74e78b66e8a07b1ac4aa0ac4cfc566fe67dd9d2c",
+  "schema": "numi.cardboard.source175-size-probe-validation.v1",
+  "sizeof_bytes": {
+    "NMCohesiveFaceGPU": 384,
+    "NMCohesiveFaceVectorGPU": 96,
+    "NMContactPairGPU": 16,
+    "NMContactSampleGPU": 160,
+    "NMContinuumSurfacePrimitiveGPU": 64,
+    "NMDeformableContactCandidateGPU": 16,
+    "NMDeformableContactGPU": 432,
+    "NMFEMNodeStateGPU": 80,
+    "NMIncidenceRangeGPU": 16,
+    "NMIndirectDispatchGPU": 16,
+    "NMTetrahedronGPU": 96
+  }
+}

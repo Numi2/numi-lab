@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.verified-duplicate-retirement.v1",
+  "commit": "22b927a002b8006a7bf5026e5bf3873a382259dd",
+  "remote_commit_verified": true,
+  "duplicate_files_removed": 2808,
+  "sole_inputs_removed": false,
+  "retained_external_originals": true,
+  "retained_repository_and_remote_git_copies": true,
+  "allocated_bytes_in_removed_duplicate_files": 140935168,
+  "available_before_bytes": 2301374464,
+  "available_after_bytes": 2443661312,
+  "measured_available_difference_bytes": 142286848,
+  "active_native_outputs_touched": false,
+  "finished_at_utc": "2026-10-16T02:58:31.058570+00:00"
+}

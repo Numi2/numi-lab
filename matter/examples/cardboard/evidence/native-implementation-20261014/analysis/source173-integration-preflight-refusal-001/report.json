@@ -1,0 +1,7 @@
+{
+  "stage": "pre-copy/pre-patch source173 input inventory validation",
+  "exception": "AssertionError at line47 set(names) == expected",
+  "gpu_execution": false,
+  "source173_created": false,
+  "reason": "Source172 candidate additionally retains one byte-identical checker .metal include; the changed-file delta is still exactly four files. Revised preflight must verify and separately inventory that unchanged file."
+}

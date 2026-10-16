@@ -1,0 +1,15 @@
+Test project /Users/home/numi-cardboard-20261006/build-cardboard-provenance-173
+    Start 56: matter.compiler.cardboard_shipping_snapshot
+1/2 Test #56: matter.compiler.cardboard_shipping_snapshot ...   Passed    0.44 sec
+    Start 57: matter.compiler.cardboard_coupon_resume
+2/2 Test #57: matter.compiler.cardboard_coupon_resume .......   Passed    0.24 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Label Time Summary:
+cardboard    =   0.68 sec*proc (2 tests)
+cpu          =   0.68 sec*proc (2 tests)
+matter       =   0.68 sec*proc (2 tests)
+shipping     =   0.68 sec*proc (2 tests)
+
+Total Test time (real) =   0.68 sec

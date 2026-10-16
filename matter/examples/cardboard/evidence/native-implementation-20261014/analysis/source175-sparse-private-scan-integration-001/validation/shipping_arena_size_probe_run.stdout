@@ -1,0 +1,11 @@
+NMFEMNodeStateGPU=80
+NMTetrahedronGPU=96
+NMCohesiveFaceGPU=384
+NMCohesiveFaceVectorGPU=96
+NMContactPairGPU=16
+NMContactSampleGPU=160
+NMContinuumSurfacePrimitiveGPU=64
+NMDeformableContactCandidateGPU=16
+NMDeformableContactGPU=432
+NMIncidenceRangeGPU=16
+NMIndirectDispatchGPU=16

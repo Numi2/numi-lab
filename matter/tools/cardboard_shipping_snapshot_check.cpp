@@ -62,37 +62,73 @@ numi::matter::CompiledWorld shippingLayoutFixture() {
     return world;
 }
 
+template<class T>
+std::size_t physicalRecords(const std::size_t logical) {
+    return shipping_snapshot_detail::
+        shippingSnapshotExpectedPhysicalRecordCount<T>(logical, "test fixture");
+}
+
 RuntimeStateSnapshot completeShippingState(
     const numi::matter::CompiledWorld& world) {
     RuntimeStateSnapshot state = acceptedState();
+    const auto envCount = world.dispatch.environmentCount;
+    const auto perEnvironment = [&](const std::size_t count) {
+        return shipping_snapshot_detail::shippingSnapshotExpectedCount(
+            envCount, count, "test fixture");
+    };
     state.materialStateStride = world.dispatch.materialStateStride;
-    state.femNodes.resize(4u);
-    state.femFields.resize(1u);
-    state.femMaterialState.resize(2u);
-    state.femTopologyNodes.resize(4u);
-    state.femTopologyTetrahedra.resize(1u);
-    state.cohesiveFaces.resize(1u);
-    state.topologyStates.resize(1u);
-    state.solverCertificates.resize(1u);
-    state.particles.clear();
-    state.particleMaterialState.clear();
-    state.environmentParameters.resize(2u);
+    state.femNodes.resize(physicalRecords<NMFEMNodeStateGPU>(
+        perEnvironment(world.fem.nodes.size())));
+    state.femFields.resize(physicalRecords<NMFEMFieldStateGPU>(
+        perEnvironment(world.fem.fields.size())));
+    state.femMaterialState.resize(physicalRecords<float>(perEnvironment(
+        shipping_snapshot_detail::shippingSnapshotProduct(
+            world.fem.tetrahedra.size(), world.dispatch.materialStateStride,
+            "test FEM material history"))));
+    state.femTopologyNodes.resize(physicalRecords<NMFEMTopologyNodeGPU>(
+        perEnvironment(world.fem.topologyNodes.size())));
+    state.femTopologyTetrahedra.resize(physicalRecords<NMTetrahedronGPU>(
+        perEnvironment(world.fem.tetrahedra.size())));
+    state.cohesiveFaces.resize(physicalRecords<NMCohesiveFaceGPU>(
+        perEnvironment(world.fem.cohesiveFaces.size())));
+    state.punctureChannels.resize(physicalRecords<NMPunctureChannelGPU>(
+        perEnvironment(world.fem.punctureChannels.size())));
+    state.topologyStates.resize(physicalRecords<NMFEMTopologyStateGPU>(
+        perEnvironment(world.objects.size())));
+    state.solverCertificates.resize(physicalRecords<NMSolverCertificateGPU>(
+        perEnvironment(world.objects.size())));
+    state.particles.resize(physicalRecords<NMParticleStateGPU>(
+        perEnvironment(world.mpm.particles.size())));
+    state.particleMaterialState.resize(physicalRecords<float>(perEnvironment(
+        shipping_snapshot_detail::shippingSnapshotProduct(
+            world.mpm.particles.size(), world.dispatch.materialStateStride,
+            "test particle material history"))));
+    state.environmentParameters.resize(physicalRecords<float>(
+        perEnvironment(world.parameters.size())));
     state.vascularState.clear();
     state.vascularClock.clear();
-    state.rigidStates.resize(1u);
-    state.rigidGeneralizedCandidate.resize(6u);
-    state.reactions.resize(1u);
-    state.contactHistories.resize(1u);
-    state.deformableContactHistories.resize(3u);
-    state.adaptive.resize(1u);
-    state.schedulers.resize(1u);
-    state.learnedWeights.resize(1u);
-    state.identification.resize(1u);
-    state.mpmActiveNodeIndices.resize(2u);
-    state.mpmNodeToActive.resize(3u);
-    state.mpmActiveNodeCounts.resize(1u);
-    state.contactSamples.resize(1u);
-    state.deformableContactFailures.resize(1u);
+    state.rigidStates.resize(perEnvironment(world.contact.rigidProxies.size()));
+    state.rigidGeneralizedCandidate.resize(
+        perEnvironment(world.dispatch.rigidGeneralizedCapacity));
+    state.reactions.resize(physicalRecords<NMRigidReactionGPU>(
+        perEnvironment(world.contact.rigidProxies.size())));
+    state.contactHistories.resize(perEnvironment(world.contact.pairs.size()));
+    state.deformableContactHistories.resize(
+        perEnvironment(world.dispatch.deformableContactCapacity));
+    state.adaptive.resize(physicalRecords<NMAdaptiveStateGPU>(
+        perEnvironment(world.adaptive.size())));
+    state.schedulers.resize(physicalRecords<NMSchedulerStateGPU>(
+        perEnvironment(world.schedulers.size())));
+    state.learnedWeights.resize(physicalRecords<float>(world.learnedWeights.size()));
+    state.identification.resize(physicalRecords<NMIdentificationDistributionGPU>(
+        world.identification.size()));
+    state.mpmActiveNodeIndices.resize(
+        perEnvironment(world.dispatch.mpmActiveNodeCapacity));
+    state.mpmNodeToActive.resize(perEnvironment(world.dispatch.gridNodeCount));
+    state.mpmActiveNodeCounts.resize(envCount);
+    state.contactSamples.resize(perEnvironment(world.contact.pairs.size()));
+    state.deformableContactFailures.resize(
+        physicalRecords<NMDeformableContactFailureGPU>(envCount));
     return state;
 }
 
@@ -196,6 +232,45 @@ void testIncompleteShippingCheckpointRejectedBeforePublication() {
           "incomplete material-history checkpoint was published as accepted");
 }
 
+void testPhysicalSentinelsMatchRuntimeExactArenaContract() {
+    check(physicalRecords<NMCohesiveFaceGPU>(0u) == 1u,
+          "zero cohesive arena must retain one typed runtime sentinel");
+    check(physicalRecords<float>(0u) == 4u &&
+          physicalRecords<float>(1u) == 4u &&
+          physicalRecords<float>(4u) == 4u,
+          "small float arenas must match checkedBytes 16-byte padding");
+    check(physicalRecords<NMPunctureChannelGPU>(0u) == 1u,
+          "zero puncture arena must retain one typed runtime sentinel");
+
+    const auto path = std::filesystem::temp_directory_path() /
+        "numi-cardboard-shipping-snapshot-physical-sentinels.nmcb";
+    std::filesystem::remove(path);
+    auto world = shippingLayoutFixture();
+    world.dispatch.cohesiveFaceCount = 0u;
+    world.fem.cohesiveFaces.clear();
+    world.dispatch.punctureChannelCount = 0u;
+    world.fem.punctureChannels.clear();
+    world.fem.fields.clear();
+    world.mpm.particles.clear();
+    world.parameters.clear();
+    world.adaptive.clear();
+    world.schedulers.clear();
+    world.learnedWeights.clear();
+    world.identification.clear();
+    auto state = completeShippingState(world);
+    writeShippingAcceptedSnapshot(path, state, world, 1u, true);
+    check(std::filesystem::exists(path),
+          "typed sentinel snapshot was rejected before Runtime::restore");
+    std::filesystem::remove(path);
+
+    state.cohesiveFaces.pop_back();
+    bool rejected = false;
+    try { writeShippingAcceptedSnapshot(path, state, world, 1u, true); }
+    catch (const std::runtime_error&) { rejected = true; }
+    check(rejected && !std::filesystem::exists(path),
+          "checkpoint admitted a missing exact physical cohesive arena");
+}
+
 void testHmaInputRequiresExplicitUncertaintyAndCitation() {
     std::istringstream valid(
         "schema=numi.cardboard.shipping-hma-mixed-mode-bilinear.v1\n"
@@ -246,8 +321,9 @@ int main() {
         testTruncatedAndHugeCountsRejectBeforeAllocation();
         testFingerprintRejectedBeforeMalformedVectors();
         testIncompleteShippingCheckpointRejectedBeforePublication();
+        testPhysicalSentinelsMatchRuntimeExactArenaContract();
         testHmaInputRequiresExplicitUncertaintyAndCitation();
-        std::cout << "shipping snapshot/provenance checks passed: 5\n";
+        std::cout << "shipping snapshot/provenance checks passed: 6\n";
         return 0;
     } catch (const std::exception& error) {
         std::cerr << "shipping snapshot checks failed: " << error.what() << '\n';

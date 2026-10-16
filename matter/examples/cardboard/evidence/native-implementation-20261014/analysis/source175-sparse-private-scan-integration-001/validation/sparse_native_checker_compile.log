@@ -1,0 +1,5 @@
+argv=["/usr/bin/clang++", "-std=c++17", "-x", "objective-c++", "-fobjc-arc", "-fblocks", "-Wall", "-Wextra", "-Wpedantic", "-Werror", "-I", "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/candidate/matter/include", "-I", "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/matter/include", "-I", "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/include", "-DNUMI_MATTER_METALLIB=\"/Users/home/cardboard-implementation-20261014/analysis/native-sparse-private-scan-check-170-001/NumiMatter-O3.metallib\"", "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/candidate/matter/tools/cardboard_sparse_private_contact_scan_native_check.mm", "-framework", "Foundation", "-framework", "Metal", "-o", "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/sparse-scan-checker"]
+exit_code=0
+--- stdout ---
+
+--- stderr ---

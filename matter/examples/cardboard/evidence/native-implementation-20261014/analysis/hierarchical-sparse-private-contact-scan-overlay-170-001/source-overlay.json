@@ -1,0 +1,247 @@
+{
+  "base_frozen_source_json_sha256": "f5054091c27a7e1add41630aae1b45ee6ecc3e6d4112ee85c931cc4c70f44ea4",
+  "base_parent_revision": "a5ccffa52ffe368b49c877094a5081b7ee246ebf",
+  "base_scope": "Default-off warm-start CGLS refinement candidate plus native kernel checker. No native trajectory or feature-off parity qualification.",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169",
+  "candidate_symlinks": [],
+  "changed_files": [
+    {
+      "base_present": true,
+      "base_sha256": "e1d9fef5b4e2e61c1caa8557749dc889a0581d2173aa211990ebdecb35adda26",
+      "candidate_sha256": "50657e9481343e7ddb487d0fa973d53045f0fcfb805cb9d098d3e6c646df6470",
+      "path": "matter/CMakeLists.txt"
+    },
+    {
+      "base_present": true,
+      "base_sha256": "859c763ca42e8b6867f0ec77bcb5661ae143cd79ad2df87dde083b51ba138371",
+      "candidate_sha256": "4cf5d32e78cf45bed72406c99df85b050c8d0548e3e043fbd9a1d810e7eb9ef1",
+      "path": "matter/include/numi/matter/sparse_private_contact_admission.hpp"
+    },
+    {
+      "base_present": true,
+      "base_sha256": "cd5aaee17244b52e0b6eebb81cf2fcaff4fbbfb47fe43726fc5bbacec2e9527a",
+      "candidate_sha256": "b1dc8d0e6843d5aed3a8c6d28449dae8c4d3a60488e644195e9fed5ed121d346",
+      "path": "matter/src/metal/contact.metalinc"
+    },
+    {
+      "base_present": true,
+      "base_sha256": "c76e753b5e7b454e996c977307604ccd8864cf2e5ae27fe8a6bfeb1deb99ceb0",
+      "candidate_sha256": "27fc31beb644b01b5d97c1942dd3c59dcbfb369b87b9750b916d91f5f7c30acd",
+      "path": "matter/src/runtime.mm"
+    },
+    {
+      "base_present": true,
+      "base_sha256": "95e52efd34aeffab1d220b4fa8840b885001dbc156d4a1d8f793210e3c40d0f3",
+      "candidate_sha256": "1dec970ac51c831d142ddff7ea92c33106ab194ba723dc8d14df4c97da91d113",
+      "path": "matter/tools/cardboard_full_contact_armijo_check.mm"
+    },
+    {
+      "base_present": true,
+      "base_sha256": "4cce5796fd2f22787def0e9de2aa6d566bfbf4b8ee1bbd8e80f408593f65acd3",
+      "candidate_sha256": "fe2990ba583efcf50061cef213649788c5eb866439e327ff94d607080706e2f3",
+      "path": "matter/tools/cardboard_shipping_memory_check.cpp"
+    },
+    {
+      "base_present": false,
+      "base_sha256": null,
+      "candidate_sha256": "7ab78bc027f6e7cac94c795931eb106953cffc8e7b85dbaf6adab5e0a0394732",
+      "path": "matter/tools/cardboard_sparse_private_contact_admission_check.cpp"
+    },
+    {
+      "base_present": false,
+      "base_sha256": null,
+      "candidate_sha256": "bf18e81d70b3ca120d0afa479af0bcb5c4c1b435c1dbd55b8df6db820a7b8b5d",
+      "path": "matter/tools/cardboard_sparse_private_contact_scan_native_check.mm"
+    }
+  ],
+  "hard_caps_changed": false,
+  "native_gpu_dispatched": false,
+  "overlay": "hierarchical-sparse-private-contact-scan-overlay-170-001",
+  "patch": {
+    "bytes": 53475,
+    "path": "source-overlay.patch",
+    "sha256": "be6644bf143a32ed9cfcc6d776c455345f7d8631d96dbdd7735df6613a7a2e0e"
+  },
+  "physical_operator_or_acceptance_changed": false,
+  "readme": {
+    "path": "README.md",
+    "sha256": "91713341529c042edc9602a20c1d3946490fa8cc5dee3f9ea3408a0e889ac9ef"
+  },
+  "schema": "numi.cardboard.source-overlay.v1",
+  "validation_artifacts": [
+    {
+      "bytes": 2323424,
+      "path": "validation/NumiMatter-O0.air",
+      "sha256": "fa5d9faab0a2a919f62634ca6b6f080fabd92b0e8beb2843a8382b0654082dd2"
+    },
+    {
+      "bytes": 9812127,
+      "path": "validation/NumiMatter-O0.metallib",
+      "sha256": "133678c6960bb132b679da0b6e899cf248f0330a4c6de42608d6b82ead927097"
+    },
+    {
+      "bytes": 1614464,
+      "path": "validation/NumiMatter-O3-deps.air",
+      "sha256": "4adc3f92975a903629fe5e4684bf9a37010fac0fc54485d530a425b680592ad5"
+    },
+    {
+      "bytes": 7010399,
+      "path": "validation/NumiMatter-O3-deps.metallib",
+      "sha256": "4fcf68c0a2fffa4b2ae053829f239b983f41b166ea6d53da685216a4ad0ed269"
+    },
+    {
+      "bytes": 1614464,
+      "path": "validation/NumiMatter-O3.air",
+      "sha256": "4adc3f92975a903629fe5e4684bf9a37010fac0fc54485d530a425b680592ad5"
+    },
+    {
+      "bytes": 7010399,
+      "path": "validation/NumiMatter-O3.metallib",
+      "sha256": "4fcf68c0a2fffa4b2ae053829f239b983f41b166ea6d53da685216a4ad0ed269"
+    },
+    {
+      "bytes": 135,
+      "path": "validation/admission-cpu-test-002.log",
+      "sha256": "dfc5491488fdcd2f198ca1dada5702735bc927e28f74c5aca4abf3c8f2f0499b"
+    },
+    {
+      "bytes": 135,
+      "path": "validation/admission-cpu-test.log",
+      "sha256": "dfc5491488fdcd2f198ca1dada5702735bc927e28f74c5aca4abf3c8f2f0499b"
+    },
+    {
+      "bytes": 0,
+      "path": "validation/admission-syntax-003.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "validation/checker-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 5308,
+      "path": "validation/commands.json",
+      "sha256": "855d237cc574179a26c440481d6ab15b6cc69a3cb5210d3ccc72273d55367123"
+    },
+    {
+      "bytes": 5601,
+      "path": "validation/full-contact-tool-syntax-002.log",
+      "sha256": "769b8d753068b9b545f6910af10c726fbe4cade6e8e37280c5a06b8913431e3c"
+    },
+    {
+      "bytes": 0,
+      "path": "validation/full-contact-tool-syntax-003.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "validation/full-contact-tool-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 396,
+      "path": "validation/matter-kernels-input-sha256.txt",
+      "sha256": "ffcdf254628144a4cc2846aef818f7d76718178986376e3407d28708ece4d5db"
+    },
+    {
+      "bytes": 561,
+      "path": "validation/matter_kernels.metal",
+      "sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168"
+    },
+    {
+      "bytes": 2281,
+      "path": "validation/metal-O0.log",
+      "sha256": "5afeea0e9d32f27782d133296046fb2413100fe47cae66db23ade55f655f6ade"
+    },
+    {
+      "bytes": 4562,
+      "path": "validation/metal-O3.log",
+      "sha256": "e1c24b707cfb4c45611d3072bc3f3d663293ca062463d1ade153217edb45722f"
+    },
+    {
+      "bytes": 5515,
+      "path": "validation/metal-inputs.d",
+      "sha256": "d875f45220f652032e8fc40f816208aa1314cceaa95e17943af20e2e0341ec7a"
+    },
+    {
+      "bytes": 504,
+      "path": "validation/patch-apply.log",
+      "sha256": "6ad65a86ea0bba08138100f5415ecb17c3bd5a73f8e3272dea4e011a001bb937"
+    },
+    {
+      "bytes": 504,
+      "path": "validation/patch-dry-run.log",
+      "sha256": "6ad65a86ea0bba08138100f5415ecb17c3bd5a73f8e3272dea4e011a001bb937"
+    },
+    {
+      "bytes": 7346,
+      "path": "validation/runtime-syntax-002.log",
+      "sha256": "cff62c16bff32e0e2f77069b01718a6445e4a610e7c080d624ed10461bb960f5"
+    },
+    {
+      "bytes": 0,
+      "path": "validation/runtime-syntax-003.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "validation/runtime-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 354,
+      "path": "validation/shipping-memory-tool-syntax-002.log",
+      "sha256": "b282c7b4c2d32e970b6c0163492ab85633692fe8d84f382cb9dd81f4769688fe"
+    },
+    {
+      "bytes": 354,
+      "path": "validation/shipping-memory-tool-syntax-003.log",
+      "sha256": "b282c7b4c2d32e970b6c0163492ab85633692fe8d84f382cb9dd81f4769688fe"
+    },
+    {
+      "bytes": 0,
+      "path": "validation/shipping-memory-tool-syntax-004.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "validation/shipping-memory-tool-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 40632,
+      "path": "validation/sparse-admission-check-002",
+      "sha256": "203f4631e41b812e61b7b3e933cd4c630ba34f99a7b270454321c5a586c72fcd"
+    },
+    {
+      "bytes": 192376,
+      "path": "validation/sparse-scan-cpu-check",
+      "sha256": "09f105589b85f5db83da6d6a74c0fae1262168174f794bb66924350d41f2d320"
+    },
+    {
+      "bytes": 192376,
+      "path": "validation/sparse-scan-cpu-check-002",
+      "sha256": "dc8d64b1cacc908941d5f8957c30e8c73d74792ee3cc2044f6096109f29ac1de"
+    },
+    {
+      "bytes": 129,
+      "path": "validation/sparse-scan-cpu-contracts-002.log",
+      "sha256": "1865defe20bb7d08dcae2884b081d1aedb60501660d997c3c3ba85a801e3e470"
+    },
+    {
+      "bytes": 122,
+      "path": "validation/sparse-scan-cpu-contracts.log",
+      "sha256": "4e508b180b833b7f2cd54fc965963e7feaa66c5ef848441c323b711a8d2994ba"
+    }
+  ],
+  "validation_summary": {
+    "admission_arithmetic": "pass: 5 checks; one-env shipping pair-domain scratch 36189188 bytes including 98996 offset bytes; two-env rejected by unchanged 36 MiB cap",
+    "cpu_contracts": "pass: selected counts 127/128/129, overflow, and prefailed partial-map preservation; metal_kernels_executed=0",
+    "full_source_build": "not run in this isolated overlay",
+    "host_syntax": "pass for runtime.mm, full-contact tool, shipping-memory tool, admission tool, and native checker under C++20; initial failed C++17/missing-include attempts preserved and scoped",
+    "metal": "O0 and O3 full translation-unit compile plus metallib link pass; O3 dependency file resolves candidate matter/src/metal/contact.metalinc; O0 emits two unrelated frozen fgmres.metalinc warnings",
+    "native_kernel_differential": "not executed; parent owns GPU queue",
+    "patch_reconstruction": "pass: dry run/apply to exact source169 modified-file subset reproduces all eight candidate source files byte-for-byte"
+  }
+}

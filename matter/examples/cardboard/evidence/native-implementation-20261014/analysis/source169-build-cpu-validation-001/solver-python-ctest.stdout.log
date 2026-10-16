@@ -1,0 +1,15 @@
+Test project /Users/home/numi-cardboard-20261006/build-cardboard-provenance-169
+    Start 14: matter.analysis.cardboard_resolution_study
+1/2 Test #14: matter.analysis.cardboard_resolution_study ...   Passed    0.40 sec
+    Start 15: matter.analysis.cardboard_convergence
+2/2 Test #15: matter.analysis.cardboard_convergence ........   Passed    0.63 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Label Time Summary:
+analysis     =   1.03 sec*proc (2 tests)
+cardboard    =   1.03 sec*proc (2 tests)
+matter       =   1.03 sec*proc (2 tests)
+synthetic    =   0.40 sec*proc (1 test)
+
+Total Test time (real) =   1.04 sec

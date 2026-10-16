@@ -1,0 +1,53 @@
+{
+  "checkpoint_restore_parity_established": false,
+  "command_sha256": "1f5c4d7992a844aa4fb79dfcf422fc7563bee5e80c4a8f833321e46bf61583d9",
+  "ctest_contract": {
+    "expected_passed": 4,
+    "expected_tests": [
+      "coupon_resume",
+      "inside_clearance",
+      "shipping_clearance_memory",
+      "regional_consumer_capture"
+    ],
+    "manifest_files": [
+      "CTestTestfile.cmake",
+      "LastTest.log",
+      "report.json",
+      "seal.py"
+    ],
+    "schema": "numi.cardboard.ctest-registration-validation.v1",
+    "source167_validation_report_sha256": "6ec0089012dcdcc8a9f29245d0a14c49e36697bc091aa9ce4bc1a8ba96ca4ad9",
+    "source_build_sha256": "c5117e347334fa2edfbe9b1e21ea8812383f89477aa02b79aa76173a30a4cf24"
+  },
+  "executed_native": false,
+  "frozen_source_sha256": "64a3c2554ced82d754b5513ef01ea056f56aa9d9974ab9ba9386d2dc6b0ff410",
+  "full_protocol_complete": false,
+  "guard_contract_tests_passed": 9,
+  "physical_arguments_equal_469": true,
+  "positive_physical_qualification_allowed": false,
+  "preflight_checks": {
+    "active_probe_processes": [],
+    "available_bytes": 2416852992,
+    "ctest_registration_passed": 4,
+    "ctest_registration_tests": [
+      "coupon_resume",
+      "inside_clearance",
+      "shipping_clearance_memory",
+      "regional_consumer_capture"
+    ],
+    "frozen_source_sha256": "64a3c2554ced82d754b5513ef01ea056f56aa9d9974ab9ba9386d2dc6b0ff410",
+    "source_build_sha256": "c5117e347334fa2edfbe9b1e21ea8812383f89477aa02b79aa76173a30a4cf24",
+    "verified_build_artifacts": 7,
+    "verified_inputs": 12,
+    "verified_source_files": 800
+  },
+  "preflight_passed": true,
+  "preflight_python": "3.10.12 (main, May 15 2025, 18:07:36) [Clang 17.0.0 (clang-1700.0.13.3)]",
+  "schema": "numi.cardboard.native470-preflight.v2",
+  "source_build_sha256": "c5117e347334fa2edfbe9b1e21ea8812383f89477aa02b79aa76173a30a4cf24",
+  "status": "pass_no_launch",
+  "verified_build_artifacts_expected": 7,
+  "verified_inputs_expected": 12,
+  "verified_package_files": 26,
+  "verified_source_files_expected": 800
+}

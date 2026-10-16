@@ -1,0 +1,5 @@
+argv=["/usr/bin/clang++", "-std=c++20", "-Wall", "-Wextra", "-Wpedantic", "-Werror", "-I", "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/candidate/matter/include", "-I", "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/matter/include", "-I", "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/include", "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/candidate/matter/tools/cardboard_sparse_private_contact_admission_check.cpp", "-o", "/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/sparse-admission-check"]
+exit_code=0
+--- stdout ---
+
+--- stderr ---

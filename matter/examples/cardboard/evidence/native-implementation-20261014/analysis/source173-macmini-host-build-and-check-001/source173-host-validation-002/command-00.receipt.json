@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/ctest",
+    "--test-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source173-001",
+    "-R",
+    "^matter\\.compiler\\.cardboard_(shipping_snapshot|coupon_resume)$",
+    "--output-on-failure",
+    "-j",
+    "1"
+  ],
+  "returncode": 0,
+  "wall_seconds": 0.01119650062173605,
+  "gpu_kernel_execution": false,
+  "physical_transactions": 0,
+  "stdout_sha256": "9c8c99e1716646d2a93d7242a009f89a6e3662429d5ba7519a68627539945224",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

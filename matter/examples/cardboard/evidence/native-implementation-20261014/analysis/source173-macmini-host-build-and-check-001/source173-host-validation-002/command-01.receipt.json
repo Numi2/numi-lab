@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.13/bin/python3.13",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173/matter/tools/test_cardboard_solver_environment.py"
+  ],
+  "returncode": 0,
+  "wall_seconds": 0.4203784167766571,
+  "gpu_kernel_execution": false,
+  "physical_transactions": 0,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "6e20ffcef6e29e680366f18bbecb288546cbb5114144a327e80e8cea385bc960"
+}

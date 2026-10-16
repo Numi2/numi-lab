@@ -1,0 +1,22 @@
+{
+  "schema": "numi.cardboard.source173-repository-integration.v1",
+  "parent_commit": "22b927a002b8006a7bf5026e5bf3873a382259dd",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173",
+  "frozen_source_sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+  "source_files_verified": 804,
+  "changed_files": {
+    "matter/CMakeLists.txt": "e1d9fef5b4e2e61c1caa8557749dc889a0581d2173aa211990ebdecb35adda26",
+    "matter/src/metal/base_cgls.metalinc": "1166f3ebb485116b519cb0f1977cae0183e877330ce666f520a05a5f5d3c2234",
+    "matter/src/metal/base_cgls_runtime.metalinc": "1b9d6541fcd01bea803a70f878ba1bda462d05cfabefa0d1ebe3038c9aab66d9",
+    "matter/src/runtime.mm": "bfa82d0aa26f055c984619770ff08369e59ce4202dd6f8203516d8df658db392",
+    "matter/tools/cardboard_base_cgls_warm_start_check.metal": "171cedc019e61d4b8fb05a011bf10819945503ee51594183ce2936ec2385c1b5",
+    "matter/tools/cardboard_base_cgls_warm_start_check.mm": "05cf7b9d0acedc520ffdcb1c09e1449b0ed0470f6f6150d588da4687cb953581",
+    "matter/tools/cardboard_shipping_snapshot.hpp": "e1fa29f7f2d7d2c43623880db1934bf3bfae1690e432f8dfca54bcb1b29e71e6",
+    "matter/tools/cardboard_shipping_snapshot_check.cpp": "8446a6ad4d003ce1434826d7f70b6c52c1706c3f1d3965575a2a71bc6255f155",
+    "matter/tools/cardboard_solver_environment.py": "4538956f04ed2e4925f449e79f066485dc2c3669e40e20c20307a28bb7355aac",
+    "matter/tools/test_cardboard_solver_environment.py": "6c45fb80d97602f5f4710ef8cfd805a9a4e872eed905af4b5d48d76d196e6f17"
+  },
+  "physical_operator_changed": false,
+  "warm_refinement_default": "disabled",
+  "tests": "Exact source173 snapshot:29CPU,264actualMetalhelperchecks; source169defaultoffcompletefailedattemptparity passed; full warm-enabled nonlinearcycle pending."
+}

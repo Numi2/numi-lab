@@ -1,0 +1,22 @@
+[
+  "/usr/bin/clang++",
+  "-DNUMI_CARDBOARD_BASE_SNAPSHOT_SHA256=\"769a5e34c1d919293cb263fd27fbd041a482d22016c2818eec41d44e47935752\"",
+  "-DNUMI_CARDBOARD_PAPER_METALLIB=\"/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169/shaders/cardboard_bilinear15_capture_diagnostic.metallib\"",
+  "-I/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include",
+  "-F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks",
+  "-x",
+  "objective-c++",
+  "-O3",
+  "-DNDEBUG",
+  "-std=c++23",
+  "-arch",
+  "arm64",
+  "-fPIE",
+  "-fobjc-arc",
+  "-Wall",
+  "-Wextra",
+  "-Wpedantic",
+  "-Werror",
+  "/Users/home/cardboard-implementation-20261014/analysis/native469-material-replay-174-001/candidate/matter/tools/cardboard_source469_material_replay_check.mm",
+  "-fsyntax-only"
+]

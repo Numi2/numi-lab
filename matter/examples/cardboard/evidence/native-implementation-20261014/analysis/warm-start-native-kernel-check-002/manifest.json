@@ -1,0 +1,18 @@
+{
+  "receipt.json": {
+    "bytes": 1467,
+    "sha256": "4bfa2a10f0ae76f905be0916449e7b93a85cae7e4842a698a944a29b5e4d9d19"
+  },
+  "run.py": {
+    "bytes": 4311,
+    "sha256": "69259c18077e54dada5d79593b82eb9df0d41c5d6e1c9993e3886dbd171555ed"
+  },
+  "stderr.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stdout.log": {
+    "bytes": 110,
+    "sha256": "49d0037c5b0decb56ac344cf9dcb8a5ae14cb93cc1f204c74fc1a83122d182d5"
+  }
+}

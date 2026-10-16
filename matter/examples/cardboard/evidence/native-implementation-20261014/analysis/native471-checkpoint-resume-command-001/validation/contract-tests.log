@@ -1,0 +1,8 @@
+test_exact_resume_flags_and_physics_argv (test_resume_contract.ResumeContractTests) ... ok
+test_prefix_validator_accepts_only_exact_accepted_boundary (test_resume_contract.ResumeContractTests) ... ok
+test_properties_reject_duplicate_and_malformed (test_resume_contract.ResumeContractTests) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.004s
+
+OK

@@ -1,0 +1,11 @@
+# Source173 warm CGLS checkpoint/resume smoke
+
+This package prepares two source-bound diagnostic runs against immutable source173. Case 473 runs control 0 with warm-start refinement enabled from startup and writes the accepted native checkpoint. Case 474 restores that checkpoint and continues controls 1–59 under the original 60-control protocol. It does not shorten the resumed schedule or establish uninterrupted trajectory parity.
+
+Preparation and verification are CPU-only. `prepare.py --static-audit` checks the frozen 804-file source, successful build and CPU receipts, environment registry, and package hashes. `prepare.py --prepare 473` or `--prepare 474` validates launch prerequisites and prints a wrapper argument vector; it never launches the probe. The 474 preparation also verifies the accepted 473 checkpoint/prefix and binds all resume inputs. A separate source173 warm-kernel checker receipt is a hard prerequisite. That isolated checker does not exercise the production material operator or the complete CGLS recurrence.
+
+The wrapper preserves the six protocol phases: 24 loading, 6 hold, 12 unloading, 6 relaxation, 6 release, and 6 post-release relaxation controls. Both cases use identical physical/material arguments and the same non-path runtime overrides. No operator-FD or regional-consumer capture is requested. Source173 disallows saving another checkpoint while resuming, so 474 runs the full remaining schedule to its natural end.
+
+This is a diagnostic checkpoint/resume smoke only. Passing it would establish that the source-bound run accepted and restored a checkpoint and that the resumed segment reached its scheduled end. It would not establish full fresh-versus-resumed trajectory parity, solver convergence beyond the recorded controls, calibration, or physical qualification. The package contains no native run receipt and does not launch GPU work.
+
+Run `python3 -B build_spec.py` only to regenerate the deterministic spec from the already-copied package inputs and bound source/build receipts. After the required checker receipt exists, inspect `python3 -B prepare.py --prepare 473`; launch only under the root task's one-worker and storage controls. Verify 473 with `--verify-473-prefix` before preparing 474. Verify 474 with `--verify-474-result` after its full resumed segment terminates.

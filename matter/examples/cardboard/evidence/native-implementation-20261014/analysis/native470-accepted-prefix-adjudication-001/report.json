@@ -1,0 +1,15 @@
+{
+  "cases": {
+    "baseline": "/Users/home/cardboard-implementation-20261014/solver/final-newton-fd-capture-469",
+    "target": "/Users/home/cardboard-implementation-20261014/solver/accepted-checkpoint-prefix-470"
+  },
+  "error": "470 receipt is not a clean terminal diagnostic prefix run",
+  "limits": {
+    "checkpoint_restore_parity_established": false,
+    "full_protocol_complete": false,
+    "full_trajectory_claim": false,
+    "physical_validation": false
+  },
+  "schema": "numi.cardboard.native470-accepted-prefix-adjudication.v1",
+  "verdict": "FAIL_CLOSED"
+}

@@ -1,0 +1,11 @@
+{
+  "finished_utc": "2026-10-16T03:24:09.118067+00:00",
+  "original_duplicate_files_removed": 19,
+  "logical_bytes": 90956077,
+  "allocated_bytes": 90992640,
+  "before_available_bytes": 2044203008,
+  "after_available_bytes": 2135822336,
+  "raw_source_inputs_removed": 0,
+  "source_snapshots_or_native_binaries_removed": 0,
+  "all_repository_archives_match_committed_HEAD_and_restore": true
+}

@@ -1,0 +1,21 @@
+{
+  "file_count": 14,
+  "files_sha256": {
+    "README.md": "5e7a1b97ea22242b739298bccb39d54500b22ac4d35c7a00f8eb23e76bfaa8bc",
+    "build_spec.py": "6a04cef00e38f92199eae1f711f2e93ac3acc479161063de7a35dc899d5a2d3e",
+    "inputs/source173-cpu-manifest.json": "50d69d976294b19b3dd21d25adc7627ef607361846b9486792828c2b2ac72cf9",
+    "inputs/source173-cpu-report.json": "1f6a763b790f6f5822a573b14265f96c25d227da80ec4ef82b8098f2c8295b0d",
+    "inputs/source173-frozen-source.json": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+    "inputs/source173-integration-report.json": "6520995f7ae538d4d03bd9ebb6ffc111f92ff6c7290ea2b239bf25289a138890",
+    "prepare.py": "5413e3f70bae14ee5cc99b78e354323da0fa1969199598e9a58dc6aeb6991c07",
+    "run-spec.json": "050ccdbf65995712a13dd420898f392793833b90c026ff842c00461974c999e2",
+    "seal_package.py": "8cbed09851613d1d49605efa1fa6e4a65926376ab86019b1c354ff2136a931d0",
+    "tests/test_runner_contract.py": "e1ad8c90a010fb37462c8e3a5a5ced8fc31b1e1a42a5f821f446c6dcd1fbe67e",
+    "validation/cpu-validation-receipt.json": "8d5be928cd7f94163c5db8e04a4e4e04e3fb930aaebe3b0b30362d11f63b7a48",
+    "validation/run_cpu_validation.py": "c5edf40a72f85ef87614e7b276c5695b13d87f7c4ccb9b2a14df11ae41644232",
+    "validation/unittest.stderr.txt": "d44dbabae9ce5144ca733cce763f4f3b4e683a356e93ee3a8ec00f49d643ecf2",
+    "validation/unittest.stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "note": "The manifest inventories every package file except itself and generated Python bytecode caches.",
+  "schema": "numi.cardboard.native473-474-package.v1"
+}

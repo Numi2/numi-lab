@@ -1,0 +1,11 @@
+{
+  "status": "static_preflight_passed_dynamic_checkpoint_not_inspected",
+  "validation": {
+    "argv_matches_source470_physical_settings": true,
+    "artifacts": 7,
+    "case_fresh": true,
+    "source_build_sha256": "c5117e347334fa2edfbe9b1e21ea8812383f89477aa02b79aa76173a30a4cf24",
+    "source_files": 800,
+    "static_inputs": 13
+  }
+}

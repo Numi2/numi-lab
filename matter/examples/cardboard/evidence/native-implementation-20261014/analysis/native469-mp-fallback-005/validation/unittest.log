@@ -1,0 +1,13 @@
+test_all_five_mixed_state_tensors_are_finite_and_shaped (cardboard-implementation-20261014.analysis.native469-mp-fallback-005.test_mp_fallback.ExplicitMPFallbackTests) ... ok
+test_all_original_fp64_failures_are_preserved_and_material_bound (cardboard-implementation-20261014.analysis.native469-mp-fallback-005.test_mp_fallback.ExplicitMPFallbackTests) ... ok
+test_mp_ift_fp64_ift_and_native_center_tangent_comparisons (cardboard-implementation-20261014.analysis.native469-mp-fallback-005.test_mp_fallback.ExplicitMPFallbackTests) ... ok
+test_parameter_words_follow_each_captured_tet_material_offset (cardboard-implementation-20261014.analysis.native469-mp-fallback-005.test_mp_fallback.ExplicitMPFallbackTests) ... ok
+test_s1_tet1317_old_medium_parameter_error_is_retracted (cardboard-implementation-20261014.analysis.native469-mp-fallback-005.test_mp_fallback.ExplicitMPFallbackTests) ... ok
+test_successful_rows_retain_correct_source166_material_tangents (cardboard-implementation-20261014.analysis.native469-mp-fallback-005.test_mp_fallback.ExplicitMPFallbackTests) ... ok
+test_unchanged_mp_residual_correction_and_precision_gates (cardboard-implementation-20261014.analysis.native469-mp-fallback-005.test_mp_fallback.ExplicitMPFallbackTests) ... ok
+test_unqualified_native_branch_and_assembly_axes_remain_visible (cardboard-implementation-20261014.analysis.native469-mp-fallback-005.test_mp_fallback.ExplicitMPFallbackTests) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.029s
+
+OK

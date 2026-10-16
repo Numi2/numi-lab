@@ -1,0 +1,19 @@
+{
+  "after_temporary_file_removed_available_bytes": 3965362176,
+  "allocator": "sequential os.urandom chunks; flush; fsync; fstat st_blocks*512",
+  "before_available_bytes": 3965374464,
+  "os_posix_fallocate_available": false,
+  "pass": true,
+  "platform": "macOS-26.6-arm64-arm-64bit",
+  "python_version": "3.10.12 (main, May 15 2025, 18:07:36) [Clang 17.0.0 (clang-1700.0.13.3)]",
+  "result": {
+    "allocated_bytes": 134217728,
+    "file_size_bytes": 134217728,
+    "fsynced": true,
+    "requested_bytes": 134217728,
+    "sha256": "b3670ced1f16c61d5525411d3d60ee5d548062e245018ae3b68636815cceeebc",
+    "st_blocks": 262144
+  },
+  "schema": "numi.cardboard.native470-reserve-allocation-test.v1",
+  "temporary_file_removed": true
+}

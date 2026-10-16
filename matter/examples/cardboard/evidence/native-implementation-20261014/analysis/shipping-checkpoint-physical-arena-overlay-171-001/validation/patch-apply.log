@@ -1,0 +1,10 @@
+Command:
+cd <source169> && patch --dry-run -p1 -i <overlay>/overlay.patch
+
+Result: pass; both candidate files applied cleanly.
+
+Whitespace checks:
+git diff --no-index --check <base-header> <candidate-header>
+git diff --no-index --check <base-test> <candidate-test>
+
+Result: both returned zero with no diagnostics.

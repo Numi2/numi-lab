@@ -1,0 +1,42 @@
+{
+  "argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "/Users/home/cardboard-implementation-20261014/analysis/native473-474-warm-checkpoint-smoke-001/tests",
+    "-v"
+  ],
+  "command_contract": {
+    "checkpoint_creation_and_resume_combined": false,
+    "prefix_control": 0,
+    "resume_runs_remaining_schedule": true,
+    "resume_start_control": 1,
+    "same_physical_argv": true,
+    "warm_start_enabled_both": true
+  },
+  "elapsed_seconds": 0.055993080139160156,
+  "gpu_execution": false,
+  "native_probe_executed": false,
+  "physical_transactions": 0,
+  "python_version": "3.10.12",
+  "qualification": "CPU verifier/contract checks only; no checkpoint or trajectory execution",
+  "returncode": 0,
+  "schema": "numi.cardboard.native473-474.cpu-validation.v1",
+  "source_static_audit": {
+    "build_artifacts_verified": 7,
+    "cpu_report_files_verified": 14,
+    "cpu_test_cases_reported": 29,
+    "environment_keys_set": 12,
+    "gpu_execution_by_preflight": false,
+    "source_files_verified": 804,
+    "source_registry_keys": 50
+  },
+  "stderr_sha256": "d44dbabae9ce5144ca733cce763f4f3b4e683a356e93ee3a8ec00f49d643ecf2",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "test_count": 8,
+  "warm_kernel_checker_receipt_present_at_validation": false,
+  "working_directory": "/Users/home/cardboard-implementation-20261014/analysis/native473-474-warm-checkpoint-smoke-001"
+}

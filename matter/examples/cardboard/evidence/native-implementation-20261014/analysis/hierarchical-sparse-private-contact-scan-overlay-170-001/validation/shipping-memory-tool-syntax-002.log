@@ -1,0 +1,4 @@
+/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/tools/cardboard_shipping_memory_check.cpp:1:10: fatal error: 'cardboard_shipping_memory.hpp' file not found
+    1 | #include "cardboard_shipping_memory.hpp"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.

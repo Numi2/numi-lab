@@ -1,0 +1,7 @@
+argv=["/Users/home/cardboard-implementation-20261014/analysis/source175-sparse-private-scan-integration-001/validation/sparse-scan-checker", "--cpu-only"]
+exit_code=0
+--- stdout ---
+cpu_contracts=pass selected_count=127/128/129 prefailed_partial_preserved=true
+sparse_scan_cpu_checks=3 metal_kernels_executed=0
+
+--- stderr ---

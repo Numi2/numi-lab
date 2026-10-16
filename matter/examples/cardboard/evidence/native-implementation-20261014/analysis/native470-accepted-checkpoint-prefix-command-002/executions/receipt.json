@@ -1,0 +1,18 @@
+{
+  "available_after_run": 2568163328,
+  "case_receipt_path": "/Users/home/cardboard-implementation-20261014/solver/accepted-checkpoint-prefix-470/receipt.json",
+  "checkpoint_restore_parity_established": false,
+  "diagnostic_only": true,
+  "errors": [],
+  "exception_child_reaped": null,
+  "exception_cleanup": null,
+  "execution_started": true,
+  "finished_at_utc": "2026-10-16T02:59:32.700380+00:00",
+  "full_protocol_complete": false,
+  "minimum_observed_available_bytes": 1829679104,
+  "schema": "numi.cardboard.native470-capacity-guard-receipt.v2",
+  "signalled_native_child_process_groups": [],
+  "space_abort": false,
+  "wall_seconds": 1287.757180124987,
+  "wrapper_exit_code": 3
+}

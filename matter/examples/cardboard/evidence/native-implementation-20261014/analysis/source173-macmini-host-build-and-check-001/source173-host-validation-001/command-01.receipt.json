@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/Applications/Xcode-26.6.0.app/Contents/Developer/usr/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173/matter/tools/test_cardboard_solver_environment.py"
+  ],
+  "returncode": 1,
+  "wall_seconds": 0.537867416,
+  "gpu_kernel_execution": false,
+  "physical_transactions": 0,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "ba7ca989a6d8f76f596ed0728d3ef4f409b00ff6afea24345d867ffe8eed86c3"
+}

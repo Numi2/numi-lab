@@ -6,6 +6,7 @@
 
 #include "numi/matter/matter.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstdint>
@@ -149,6 +150,39 @@ void requireShippingSnapshotSize(
         throw std::runtime_error(std::string("shipping checkpoint is incomplete: ") + label);
 }
 
+// Runtime buffers preserve a typed sentinel even when the logical arena is
+// empty, and pad sub-16-byte payloads to the Metal binding minimum. Snapshot()
+// reads the full physical allocation for exactArena-backed fields, while
+// Runtime::restore requires byte-exact arena size. This helper mirrors
+// runtime.mm checkedBytes() rather than accepting arbitrary extra records.
+template<class T>
+std::size_t shippingSnapshotExpectedPhysicalRecordCount(
+    const std::size_t logicalCount,
+    const char* label) {
+    static_assert(std::is_trivially_copyable_v<T>);
+    constexpr std::size_t elementSize = sizeof(T);
+    if (logicalCount > std::numeric_limits<std::size_t>::max() / elementSize)
+        throw std::length_error(
+            std::string("shipping snapshot physical byte count overflow: ") + label);
+    const std::size_t logicalBytes = logicalCount * elementSize;
+    const std::size_t physicalBytes =
+        std::max({logicalBytes, elementSize, std::size_t{16u}});
+    if (physicalBytes % elementSize != 0u)
+        throw std::length_error(
+            std::string("shipping snapshot sentinel is not record-aligned: ") + label);
+    return physicalBytes / elementSize;
+}
+
+template<class T>
+void requireShippingSnapshotPhysicalSize(
+    const std::vector<T>& values,
+    const std::size_t logicalCount,
+    const char* label) {
+    requireShippingSnapshotSize(
+        values, shippingSnapshotExpectedPhysicalRecordCount<T>(logicalCount, label),
+        label);
+}
+
 // Runtime::restore is the final device-side layout authority, but a shipping
 // checkpoint should never be published as accepted when that later restore
 // will reject it for missing arenas. Validate the state that carries physical
@@ -177,36 +211,42 @@ inline void validateShippingCheckpointShape(
                            const char* label) {
         requireShippingSnapshotSize(values, expected, label);
     };
+    const auto exactPhysical = [&](const auto& values,
+                                   const std::size_t logicalCount,
+                                   const char* label) {
+        using Value = typename std::decay_t<decltype(values)>::value_type;
+        requireShippingSnapshotPhysicalSize<Value>(values, logicalCount, label);
+    };
     exact(state.statuses, environmentCount, "environment status arena");
-    exact(state.solverCertificates,
+    exactPhysical(state.solverCertificates,
         perEnvironment(world.objects.size()), "solver certificate arena");
-    exact(state.femNodes, perEnvironment(world.fem.nodes.size()), "FEM node state");
-    exact(state.femFields, perEnvironment(world.fem.fields.size()), "FEM field state");
-    exact(state.femMaterialState,
+    exactPhysical(state.femNodes, perEnvironment(world.fem.nodes.size()), "FEM node state");
+    exactPhysical(state.femFields, perEnvironment(world.fem.fields.size()), "FEM field state");
+    exactPhysical(state.femMaterialState,
         perEnvironment(shippingSnapshotProduct(
             world.fem.tetrahedra.size(),
             static_cast<std::size_t>(dispatch.materialStateStride),
             "FEM material state")),
         "FEM material history");
-    exact(state.femTopologyNodes,
+    exactPhysical(state.femTopologyNodes,
         perEnvironment(world.fem.topologyNodes.size()), "FEM topology node history");
-    exact(state.femTopologyTetrahedra,
+    exactPhysical(state.femTopologyTetrahedra,
         perEnvironment(world.fem.tetrahedra.size()), "FEM topology tetrahedron history");
-    exact(state.cohesiveFaces,
+    exactPhysical(state.cohesiveFaces,
         perEnvironment(world.fem.cohesiveFaces.size()), "cohesive interface history");
-    exact(state.punctureChannels,
+    exactPhysical(state.punctureChannels,
         perEnvironment(world.fem.punctureChannels.size()), "puncture channel history");
-    exact(state.topologyStates,
+    exactPhysical(state.topologyStates,
         perEnvironment(world.objects.size()), "topology generation history");
-    exact(state.particles,
+    exactPhysical(state.particles,
         perEnvironment(world.mpm.particles.size()), "particle state");
-    exact(state.particleMaterialState,
+    exactPhysical(state.particleMaterialState,
         perEnvironment(shippingSnapshotProduct(
             world.mpm.particles.size(),
             static_cast<std::size_t>(dispatch.materialStateStride),
             "particle material state")),
         "particle material history");
-    exact(state.environmentParameters,
+    exactPhysical(state.environmentParameters,
         perEnvironment(world.parameters.size()), "environment parameter state");
     exact(state.vascularState,
         perEnvironment(world.vascular.layout.ranges.z), "vascular state");
@@ -217,19 +257,19 @@ inline void validateShippingCheckpointShape(
         perEnvironment(world.contact.rigidProxies.size()), "rigid proxy state");
     exact(state.rigidGeneralizedCandidate,
         perEnvironment(dispatch.rigidGeneralizedCapacity), "rigid generalized state");
-    exact(state.reactions,
+    exactPhysical(state.reactions,
         perEnvironment(world.contact.rigidProxies.size()), "rigid reaction state");
     exact(state.contactHistories,
         perEnvironment(world.contact.pairs.size()), "rigid contact history");
     exact(state.deformableContactHistories,
         perEnvironment(dispatch.deformableContactCapacity), "deformable contact history");
-    exact(state.adaptive,
+    exactPhysical(state.adaptive,
         perEnvironment(world.adaptive.size()), "adaptive object state");
-    exact(state.schedulers,
+    exactPhysical(state.schedulers,
         perEnvironment(world.schedulers.size()), "scheduler state");
-    exact(state.learnedWeights,
+    exactPhysical(state.learnedWeights,
         world.learnedWeights.size(), "learned material state");
-    exact(state.identification,
+    exactPhysical(state.identification,
         world.identification.size(), "identification state");
     exact(state.mpmActiveNodeIndices,
         perEnvironment(dispatch.mpmActiveNodeCapacity), "MPM active-node index state");
@@ -240,7 +280,7 @@ inline void validateShippingCheckpointShape(
     if (captureDiagnostics) {
         exact(state.contactSamples,
             perEnvironment(world.contact.pairs.size()), "contact diagnostic sample state");
-        exact(state.deformableContactFailures,
+        exactPhysical(state.deformableContactFailures,
             environmentCount, "deformable contact failure diagnostics");
     } else if (!state.contactSamples.empty() ||
                !state.deformableContactFailures.empty()) {

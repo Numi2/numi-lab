@@ -1,0 +1,3 @@
+# Retained harness attempt
+
+The first 005 unit-test invocation ran 7 tests: six passed and one errored because the test requested the JSON key `successful_row_material_checks` while the report emitted `successful_row_material_binding_checks`. This was a test-key mismatch, not a numerical or source failure. The test was corrected to the emitted schema, then the final 8-test suite passed. No MP run or numerical output was changed as part of that correction. The first invocation's output was displayed in the task transcript but was not captured into a raw log file; this note does not claim a raw log artifact.

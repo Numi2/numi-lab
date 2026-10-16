@@ -1,0 +1,133 @@
+{
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-reference-jacobian-168",
+  "build_artifacts_verified": [
+    {
+      "bytes": 3152120,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169/numi-matter-cardboard-probe",
+      "sha256": "ec7ef572935e182fd657da591e8e73d7b72e5c35e44d271aa8bd876af9606c87"
+    },
+    {
+      "bytes": 133752,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169/numi-matter-cardboard-warm-start-check",
+      "sha256": "7923eed1f55d18bb4c02a76826fb4d0dc1145bde1a1bae47b8670ca86849968f"
+    },
+    {
+      "bytes": 1956711,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169/shaders/CardboardWarmStartCheck.metallib",
+      "sha256": "d96a80106f3624b07260f88865270e05726946d9e85225ba1f8b6c2c2e0c81f0"
+    },
+    {
+      "bytes": 6988879,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169/shaders/NumiMatter.metallib",
+      "sha256": "84d3c83f49a35377847355b90ba3267412eae2976df8af1140f18a53b903519c"
+    },
+    {
+      "bytes": 80076,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729"
+    }
+  ],
+  "build_metadata_verified": [
+    {
+      "bytes": 17833,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169/CMakeCache.txt",
+      "sha256": "af232cd781ad2de913250b74c1488a4f81b421f79b71e417e398eca3ffbe8491"
+    },
+    {
+      "bytes": 114107,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169/compile_commands.json",
+      "sha256": "640f688c3407827f7b7cc2fbec959120f28738be3b08a7d436a8e9eb68d933bb"
+    }
+  ],
+  "build_record": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169/source-build.json",
+  "build_record_sha256": "beb85bd883347557b813ea8742aced644dcd683755baab27b42e2e162d6c11c1",
+  "build_record_success": true,
+  "build_record_targets": [
+    "numi-matter-cardboard-probe",
+    "numi-matter-cardboard-warm-start-check"
+  ],
+  "cmake_registration": {
+    "executed": false,
+    "generated_ctest_file_sha256": "0733689d34c601e88894a139e29ce08063f4e2a650430f09dccf23715d69c363",
+    "labels": [
+      "cardboard",
+      "matter",
+      "metal",
+      "solver",
+      "synthetic"
+    ],
+    "run_serial": true,
+    "source_cmake_sha256": "e1d9fef5b4e2e61c1caa8557749dc889a0581d2173aa211990ebdecb35adda26",
+    "target": "numi-matter-cardboard-warm-start-check",
+    "test": "matter.metal.cardboard_warm_start_kernel_contract",
+    "timeout_seconds": 60
+  },
+  "cpu_validation": {
+    "ctest_analysis_cases_passed": 14,
+    "ctest_solver_python_cases_passed": 2,
+    "metal_tests_executed": 0,
+    "receipts": [
+      {
+        "argv": [
+          "ctest",
+          "--test-dir",
+          "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169",
+          "-L",
+          "cpu",
+          "-R",
+          "^matter\\.analysis\\.",
+          "--output-on-failure",
+          "-j",
+          "1"
+        ],
+        "elapsed_seconds": 2.509800910949707,
+        "exit_code": 0,
+        "receipt": "cpu-ctest-receipt.json",
+        "sha256": "f2b9d6c0c086d65c159e6a3b25d8a459783b2982880e8ede69f89c0ab73d4aec"
+      },
+      {
+        "argv": [
+          "ctest",
+          "--test-dir",
+          "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-169",
+          "-R",
+          "^matter\\.analysis\\.cardboard_(resolution_study|convergence)$",
+          "--output-on-failure",
+          "-j",
+          "1"
+        ],
+        "elapsed_seconds": 1.043694019317627,
+        "exit_code": 0,
+        "receipt": "solver-python-ctest-receipt.json",
+        "sha256": "0f454ea3b4067a199d692e88d2fefccc5fccd0605de43c5a6807fb79f9a58427"
+      },
+      {
+        "argv": [
+          "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+          "-m",
+          "unittest",
+          "test_cardboard_solver_environment"
+        ],
+        "elapsed_seconds": 0.6981329917907715,
+        "exit_code": 0,
+        "receipt": "solver-environment-receipt.json",
+        "sha256": "30e76e533eae89acc2a9a0dd90b0a40d37de6c2f9b8caae72027c13c78a532b2"
+      }
+    ],
+    "solver_environment_unittest_cases_passed": 11,
+    "total_test_cases_as_reported": 27
+  },
+  "frozen_source_count": 804,
+  "frozen_source_hash_failures": 0,
+  "limitations": [
+    "The warm-start kernel checker and its metallib were built and hash-verified, but the Metal test executable was not run.",
+    "The build record excludes compiler system headers and OS/driver; it records a successful build of the probe and checker targets.",
+    "No native Matter trajectory, feature-off parity, or solver qualification is established by these CPU tests.",
+    "The existing source168/root working tree was not edited; validation used the immutable source169 snapshot and its isolated build directory."
+  ],
+  "parent_revision": "a5ccffa52ffe368b49c877094a5081b7ee246ebf",
+  "schema": "numi.cardboard.source169.cpu-validation.v1",
+  "scope": "Default-off warm-start CGLS refinement candidate plus native kernel checker. No native trajectory or feature-off parity qualification.",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169",
+  "source_snapshot_sha256": "f5054091c27a7e1add41630aae1b45ee6ecc3e6d4112ee85c931cc4c70f44ea4"
+}

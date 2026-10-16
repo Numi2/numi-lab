@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "-m",
+    "unittest",
+    "test_cardboard_solver_environment"
+  ],
+  "cwd": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/tools",
+  "elapsed_seconds": 0.6981329917907715,
+  "exit_code": 0,
+  "stderr_file": "solver-environment.stderr.log",
+  "stdout_file": "solver-environment.stdout.log"
+}

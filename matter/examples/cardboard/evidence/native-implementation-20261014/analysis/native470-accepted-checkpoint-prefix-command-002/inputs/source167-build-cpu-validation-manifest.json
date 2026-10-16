@@ -1,0 +1,17 @@
+{
+  "schema": "numi.cardboard.analysis-files.v1",
+  "files_sha256": {
+    "box-native-syntax.stderr.log": "90e7aff2194ad4af9ad36152f7c53fe29d6f8ce659b61219ed946bdcdb8a1fdd",
+    "box-native-syntax.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "coupon-resume.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "coupon-resume.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inside-clearance.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inside-clearance.stdout.log": "1f7e3c449e897bd4e62bed7006c16b553c4f59ae931f21bea713adb1b7bc186b",
+    "regional-consumer-capture.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "regional-consumer-capture.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "report.json": "6ec0089012dcdcc8a9f29245d0a14c49e36697bc091aa9ce4bc1a8ba96ca4ad9",
+    "shipping-clearance-memory.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shipping-clearance-memory.stdout.log": "a96e6835cbfaab58d4519f8e672b54e7d30bc99879662b7d0eb9240402591f2e",
+    "verify.py": "9bc17abde1f0626d6ba419a9262d9ce52a4589891ef22e9eaa5137f3ebbd3605"
+  }
+}
