@@ -88,8 +88,26 @@ def rotation_from_xyzw(quaternion: Any) -> np.ndarray:
     ], dtype=np.float64)
 
 
+
+def captured_material_frame(tet: dict, frame_active: bool) -> np.ndarray:
+    """Prefer observed FP32 coefficients; legacy quaternion recovery is approximate."""
+    if "material_frame_rows_float32" not in tet:
+        return (rotation_from_xyzw(captured_f32_array(
+            tet["material_frame_quaternion_xyzw"], (4,), "material frame quaternion"))
+            if frame_active else np.eye(3, dtype=np.float64))
+    rows = captured_f32_array(tet["material_frame_rows_float32"], (3, 3),
+                              "native material frame")
+    if not frame_active:
+        if not np.array_equal(rows, np.eye(3)):
+            raise ValueError("inactive native material frame must be identity")
+    elif (np.max(np.abs(rows.T @ rows - np.eye(3))) > 2.0e-6 or
+          np.linalg.det(rows) <= 0.0):
+        raise ValueError("native material frame is not a proper FP32 rotation")
+    return rows
+
 def local_tet_stiffness(inverse_rest: Any, volume: float, tangent_local: Any,
-                        frame_rotation: Any, frame_active: bool) -> np.ndarray:
+                        frame_rotation: Any, frame_active: bool,
+                        *, frame_rows: Any = None) -> np.ndarray:
     """Return K_e=-d(f_internal)/d(v) in xyz-by-node ordering.
 
     The cache maps row-major local direction components to row-major local
@@ -102,8 +120,11 @@ def local_tet_stiffness(inverse_rest: Any, volume: float, tangent_local: Any,
         raise ValueError("tetrahedron volume must be positive and finite")
     # Unframed tets use the source's canonical zero quaternion, so do not
     # normalize or interpret it when the object frame flag is clear.
-    rot = (rotation_from_xyzw(frame_rotation) if frame_active
-           else np.eye(3, dtype=np.float64))
+    rot = (captured_material_frame(
+        {"material_frame_rows_float32": frame_rows}, frame_active)
+        if frame_rows is not None else
+        (rotation_from_xyzw(frame_rotation) if frame_active
+         else np.eye(3, dtype=np.float64)))
     stiffness = np.zeros((12, 12), dtype=np.float64)
 
     for column in range(12):
@@ -589,7 +610,13 @@ def validate_and_assemble(header: dict, nodes: list[dict], tets: list[dict],
         quaternion = captured_f32_array(
             tet["material_frame_quaternion_xyzw"], (4,),
             f"tet {tet_id} quaternion")
-        k_local = local_tet_stiffness(inv, volume, tangent, quaternion, frame_active)
+        if (header.get("material_frame_encoding") ==
+                "native_float32_rows_no_renormalization" and
+                "material_frame_rows_float32" not in tet):
+            raise ValueError(f"tet {tet_id} omits its declared native frame rows")
+        k_local = local_tet_stiffness(
+            inv, volume, tangent, quaternion, frame_active,
+            frame_rows=tet.get("material_frame_rows_float32"))
         total_local_entries += k_local.size
         local_dofs = np.array([dof_map[int(node), axis]
                                for node in conn for axis in range(3)], dtype=np.int64)
@@ -831,6 +858,12 @@ def run(args: argparse.Namespace) -> dict:
             captured_f32_array(t["material_frame_quaternion_xyzw"], (4,),
                                "tet frame quaternion")
             for t in selected_tets], dtype=np.float64),
+        "material_frame_rows": np.asarray([
+            captured_material_frame(t, bool(int(float(
+                t["center"]["dt_seconds_bulk_modulus_kind_frame_active"][3]))))
+            for t in selected_tets], dtype=np.float64),
+        "material_frame_rows_directly_captured": np.asarray([
+            "material_frame_rows_float32" in t for t in selected_tets], dtype=np.uint8),
         "material_frame_active": np.asarray([
             int(float(t["center"]["dt_seconds_bulk_modulus_kind_frame_active"][3]))
             for t in selected_tets], dtype=np.uint8),

@@ -166,7 +166,7 @@ def audit(case,output,environment=0,epsilon_powers=range(8,27,2)):
     if old.shape!=(len(paper),15): raise ValueError('accepted paper history shape differs')
     gi=specs[2]['parameter_offset'];mu=np.full(len(glue),pt[gi+1]);lam=np.full(len(glue),pt[gi+2])
     inverse=np.stack([f32(t['inverse_rest_rows_per_m']) for t in tets]);volume=f32([t['rest_volume_m3'] for t in tets])
-    rotation=np.stack([geometry.rotation_from_xyzw(f32(t['material_frame_quaternion_xyzw'])) if t['center']['dt_seconds_bulk_modulus_kind_frame_active'][3]==1 else np.eye(3) for t in tets])
+    rotation=np.stack([geometry.captured_material_frame(t, t['center']['dt_seconds_bulk_modulus_kind_frame_active'][3]==1) for t in tets])
     ids=np.array([t['nodes'] for t in tets],int);dt=float(f32(header['dt_seconds']))
     centerF=np.stack([pair(t['center'],'F_local') for t in tets]);direction=np.stack([f32(t['center']['F_direction_local_per_s']) for t in tets])
     cached=np.stack([f32(t['cached_algorithmic_tangent_local']['matrix_row_major_local_dP_dF_Pa_per_dimensionless_F']).reshape(9,9) for t in tets])

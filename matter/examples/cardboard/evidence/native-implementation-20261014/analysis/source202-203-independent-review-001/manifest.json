@@ -1,0 +1,129 @@
+{
+  "artifacts": {
+    "README.md": {
+      "bytes": 583,
+      "sha256": "6b2e85096e0224b9a2d92c711087d523e1152aee356899dcf59d5de1fd6890ba"
+    },
+    "report.json": {
+      "bytes": 11313,
+      "sha256": "a882552616cbcb91a29e9247065d6111d5d4df123b031533d268eff01dab16d2"
+    }
+  },
+  "bound_inputs": {
+    "source201_frozen": {
+      "bytes": 100469,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-regional-rap-tail-preserve-201/frozen-source.json",
+      "sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789"
+    },
+    "source202_cpu_log": {
+      "bytes": 127,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source202-exact-frame-capture-buildfix-002/cpu-suite.stderr",
+      "sha256": "f2c9ff619eada63271ea767035d7ddca6d0922212e942de59a3daebc773ee6bf"
+    },
+    "source202_frozen": {
+      "bytes": 101324,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-exact-frame-capture-202-buildfix-002/frozen-source.json",
+      "sha256": "182e48c41490c2872ee6f9557d1c15d6a1068c403f4b420697597e2cd73b83ef"
+    },
+    "source202_overlay": {
+      "bytes": 1733,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source202-exact-frame-capture-001/source-overlay.json",
+      "sha256": "9d834fd2f7e22043936f5a19748ce619fb8768f47e4ef6c2187bd8a7b109ea44"
+    },
+    "source202_package": {
+      "bytes": 98713,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source202-exact-frame-capture-buildfix-002/package-manifest.json",
+      "sha256": "762ffd6db3bb0152d706288a5b76dd6e4fb8531f25eea5c3c1684e056fec2e14"
+    },
+    "source202_preflight": {
+      "bytes": 895,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source202-exact-frame-capture-buildfix-002/preflight-report.json",
+      "sha256": "96d846175403c6fe9a28d7e6cfdeb7e9bf5233619404ecf3315be9c29b79a006"
+    },
+    "source203_build_receipt": {
+      "bytes": 184,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source203-repeated-damped-fallback-001/build-receipt.json",
+      "sha256": "b55b846d9873140433ad16569e115c62fd715b6efd45bce9f97ff7221a9f4831"
+    },
+    "source203_cpu_log": {
+      "bytes": 127,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source203-repeated-damped-fallback-001/cpu-suite.stderr",
+      "sha256": "a0838526eb04d0d2f8a13782d899469603efa9bae4c224d3bc2ea9ca8a2f152f"
+    },
+    "source203_frozen": {
+      "bytes": 102304,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-repeated-damped-fallback-203/frozen-source.json",
+      "sha256": "ec7af9ddb1fc7e424afdaaf270125ec4870bc34c1a807b732fbdf4aa2bdf64bd"
+    },
+    "source203_overlay": {
+      "bytes": 674,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source203-repeated-damped-fallback-001/source-overlay.json",
+      "sha256": "f73f537e154ceff50d8c8fd8750d84c2979f298c5baaa6d0ac9e6d6af4996776"
+    },
+    "source203_package": {
+      "bytes": 98638,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source203-repeated-damped-fallback-001/package-manifest.json",
+      "sha256": "a7eba21f99d3e51cffd373e802b2bea0a12d6e888b1164d786f693ec459ec306"
+    },
+    "source203_preflight": {
+      "bytes": 890,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source203-repeated-damped-fallback-001/preflight-report.json",
+      "sha256": "1c493b0bea6001cd2cd9880ba787002ca62bd9f13eff3095e3780aac4b041f5c"
+    }
+  },
+  "created_at_utc": "2026-10-16T09:34:19.679012+00:00",
+  "package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source202-203-independent-review-001",
+  "schema": "numi.cardboard.independent-review-seal.v1",
+  "source_deltas": {
+    "201_to_202": {
+      "count": 6,
+      "hashes": {
+        "matter/src/metal/fem.metalinc": {
+          "after": "ceb13c0a910ed5e85f6b5dfce8293f46e97c9a810470325eec1531ac1b7bd2be",
+          "before": "bbd6abd764f723e6f0b266b80a3c99e100384e68e5ca5ae7cdd29cad36fb6a43"
+        },
+        "matter/src/runtime.mm": {
+          "after": "5fb39f305b11c03010415eb5454015d3af13ada9a597f220436fc30b396ef230",
+          "before": "739f0471eafec2391a2a80b49d6b7034be25d1ea0d8c65557145a8f328d6bbcb"
+        },
+        "matter/tools/cardboard_bilinear_capture_layers.py": {
+          "after": "2b543fec3214b5961ab3891abc1d1efcbaafc1d9476f4abb600f1fa060b8d65c",
+          "before": "45f8fa26edb1222c61faaf6a2cfb05afb14476b4949b00e1700a34168802d939"
+        },
+        "matter/tools/cardboard_cached_operator_audit.py": {
+          "after": "939ab667f6be3a2cee678523899d4919710f763f5a058b1918783ebe2b61507e",
+          "before": "4a7e9c0cbf09eee0ad1f8f5b2b09314a2c0789a908aaab530b56cfff6a1c82ff"
+        },
+        "matter/tools/cardboard_full_contact_armijo_check.mm": {
+          "after": "1db145ef8679a79dc2eafc74fd416f7a5ee67c7b343e46b7f8a150980b19a233",
+          "before": "d96f4d6717ac40f47e71150666382ed5557c9c1e83b23b32a1c94877dbdb8db6"
+        },
+        "matter/tools/test_cardboard_cached_operator_audit.py": {
+          "after": "df56a5dd5536e0c858776ce0a7a3813dcf7a377ef947f9e4072b9da1e9c24e16",
+          "before": "9aa1e9b07833bc74ee299d5bddf2d38bd62519705d63524efaefeb3a01dda9be"
+        }
+      },
+      "paths": [
+        "matter/src/metal/fem.metalinc",
+        "matter/src/runtime.mm",
+        "matter/tools/cardboard_bilinear_capture_layers.py",
+        "matter/tools/cardboard_cached_operator_audit.py",
+        "matter/tools/cardboard_full_contact_armijo_check.mm",
+        "matter/tools/test_cardboard_cached_operator_audit.py"
+      ]
+    },
+    "202_to_203": {
+      "count": 1,
+      "hashes": {
+        "matter/src/runtime.mm": {
+          "after": "e8f2de632ee0006ca8bbc1a828f182332102c56b3684fea2a29548c50a864580",
+          "before": "5fb39f305b11c03010415eb5454015d3af13ada9a597f220436fc30b396ef230"
+        }
+      },
+      "paths": [
+        "matter/src/runtime.mm"
+      ]
+    }
+  },
+  "verdict": "PASS_SOURCE_REVIEW_WITH_REPRODUCIBILITY_FOLLOWUP"
+}

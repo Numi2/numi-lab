@@ -1,0 +1,52 @@
+{
+  "cgls_recurrence_source_binding": {
+    "base_cgls_metalinc_sha256_source198": "54fc273e8e8e12a9472f2fe2defec45709c7f36d24b6886b862e477aa54260a2",
+    "base_cgls_metalinc_sha256_source201": "54fc273e8e8e12a9472f2fe2defec45709c7f36d24b6886b862e477aa54260a2",
+    "common_metalinc_sha256_source198": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380",
+    "common_metalinc_sha256_source201": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380",
+    "interpretation": "Only the CGLS helper recurrence evidence is carried forward from source198 because those two recurrence source files are byte-identical.",
+    "source198_frozen_sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc"
+  },
+  "helper_production_cgls_identical": true,
+  "kernel_helper": {
+    "O0": {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native-damped-cgls-helper-replay-190-004/build/O0/damped_cgls_helper_replay",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native-damped-cgls-helper-replay-190-004/build/O0/damped_cgls_fixture.metallib"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-16T07:41:59.433166+00:00",
+      "physical_transactions": 0,
+      "receipt_sha256": "415edadc286f5abb6aeab796427eb6883098dc135a528a93b5eee15dd17cf826",
+      "started_at_utc": "2026-10-16T07:41:58.940614+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "27e65269af7f3c16345468b3734b070081693f48c6bd1e0a5313c18529012baf",
+      "timed_out": false,
+      "timeout_s": 120,
+      "wall_seconds": 0.4924621669999999
+    },
+    "O3": {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native-damped-cgls-helper-replay-190-004/build/O3/damped_cgls_helper_replay",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native-damped-cgls-helper-replay-190-004/build/O3/damped_cgls_fixture.metallib"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-16T07:41:58.940151+00:00",
+      "physical_transactions": 0,
+      "receipt_sha256": "e14efccb53b904d7843afa90019e86cc0a8eab3e1eaa629b767c9dfbd6b3ab48",
+      "started_at_utc": "2026-10-16T07:41:58.343676+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "27e65269af7f3c16345468b3734b070081693f48c6bd1e0a5313c18529012baf",
+      "timed_out": false,
+      "timeout_s": 120,
+      "wall_seconds": 0.596384458
+    }
+  },
+  "not_carried_forward": "The source198 527 generic full-contact fixture is intentionally omitted; strict199 positive/negative controls 528/529 are separately bound in strict199-audit-binding.json.",
+  "schema": "numi.cardboard.native535-host-validation-binding.v1",
+  "source_build_record": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-coupon535-001/source-build.json",
+  "source_build_sha256": "5a77272cb34ec98f3d7e9d2ab113c13ac8fa3000ec98690688fd12798db41673",
+  "source_count": 817,
+  "source_frozen_sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-regional-rap-tail-preserve-201"
+}

@@ -1,0 +1,15 @@
+{
+  "extracted_file_sha256": "77383bb6a308a5395fd5a2843c4f0c00d75675c089bdfa4622836156199c58cc",
+  "extraction_method": "exact byte-range extraction of two production kernel definitions; no source edits",
+  "kernels": {
+    "nm_fgmres_prepare_base_cgls_layout": {
+      "byte_end": 3075,
+      "byte_start": 1614,
+      "line_end": 63,
+      "line_start": 33,
+      "sha256": "d41506e82444dcd687cc46bcb24717087f7897264a1d39836e3f91fc7fbb0e67"
+    }
+  },
+  "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-repeated-damped-fallback-203/matter/src/metal/base_cgls_runtime.metalinc",
+  "source_sha256": "1b9d6541fcd01bea803a70f878ba1bda462d05cfabefa0d1ebe3038c9aab66d9"
+}

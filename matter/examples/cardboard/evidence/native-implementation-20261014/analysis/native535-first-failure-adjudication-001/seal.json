@@ -1,0 +1,8 @@
+{
+  "manifest_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native535-first-failure-adjudication-001/manifest.json",
+  "manifest_sha256": "53889aeafa7fbbce25c817acd52fcb6701de03a717ff2f47ed710dfa2c26583e",
+  "report_sha256": "dbcc74a21aaac00a26dcc7c54311345f4c9d5bf9a96b6321beedf46b409f17c7",
+  "audit_sha256": "2a12a743abbcdb9d07926e47e288c736a55f549fe397e71cccb56fa190984e13",
+  "README_sha256": "1d45685f2476b81c63c673da41ebff4fe2fe74c130b902ca0a3e7f1479555f88",
+  "audit_attempts_sha256": "707b1057e48ea67bc2b33973be3bf1c1e48ab882aec1a8ba5bd07ab2755f7f05"
+}

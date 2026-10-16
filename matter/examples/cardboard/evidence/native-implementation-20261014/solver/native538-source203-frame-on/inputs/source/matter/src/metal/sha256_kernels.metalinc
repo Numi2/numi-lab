@@ -1,0 +1,67 @@
+#pragma once
+
+#include "sha256.metalinc"
+
+kernel void nm_sha256_context_initialize(
+    device NMSHA256ContextGPU* contexts [[buffer(0)]],
+    constant NMSHA256DispatchGPU& pass [[buffer(1)]],
+    uint index [[thread_position_in_grid]]
+) {
+    if (index >= pass.contextCount) return;
+    NMSHA256ContextGPU context = {};
+    if (pass.reserved0 != 0u || pass.reserved1 != 0u ||
+        pass.reserved2 != 0u) {
+        context.status = NM_SHA256_CONTEXT_INVALID;
+        contexts[index] = context;
+        return;
+    }
+    numi_matter_metal::sha256::initialize(context);
+    contexts[index] = context;
+}
+
+kernel void nm_sha256_context_update(
+    device const uchar* sourceBytes [[buffer(0)]],
+    device NMSHA256ContextGPU* contexts [[buffer(1)]],
+    device const NMSHA256SpanGPU* spans [[buffer(2)]],
+    constant NMSHA256UpdateGPU& pass [[buffer(3)]],
+    uint index [[thread_position_in_grid]]
+) {
+    if (index >= pass.contextCount) return;
+    NMSHA256ContextGPU context = contexts[index];
+    if (pass.reserved0 != 0u) {
+        context.status = NM_SHA256_CONTEXT_INVALID;
+        contexts[index] = context;
+        return;
+    }
+    const NMSHA256SpanGPU span = spans[index];
+    if (span.sourceOffsetBytes > pass.sourceCapacityBytes ||
+        span.byteCount > pass.sourceCapacityBytes - span.sourceOffsetBytes) {
+        context.status = NM_SHA256_CONTEXT_INVALID;
+        contexts[index] = context;
+        return;
+    }
+    (void)numi_matter_metal::sha256::updateDeviceBytes(
+        context, sourceBytes + span.sourceOffsetBytes, span.byteCount);
+    contexts[index] = context;
+}
+
+kernel void nm_sha256_context_finalize(
+    device NMSHA256ContextGPU* contexts [[buffer(0)]],
+    device NMSHA256DigestGPU* digests [[buffer(1)]],
+    constant NMSHA256DispatchGPU& pass [[buffer(2)]],
+    uint index [[thread_position_in_grid]]
+) {
+    if (index >= pass.contextCount) return;
+    NMSHA256ContextGPU context = contexts[index];
+    NMSHA256DigestGPU digest = {};
+    if (pass.reserved0 != 0u || pass.reserved1 != 0u ||
+        pass.reserved2 != 0u) {
+        context.status = NM_SHA256_CONTEXT_INVALID;
+        contexts[index] = context;
+        digests[index] = digest;
+        return;
+    }
+    (void)numi_matter_metal::sha256::finalize(context, digest);
+    contexts[index] = context;
+    digests[index] = digest;
+}

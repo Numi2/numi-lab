@@ -3732,7 +3732,7 @@ kernel void nm_fem_operator_fd_initialize(
 // private and diagnostic-only; runtime.mm serializes them as JSONL after the
 // selected command buffer finishes. Slot values are raw FP32 observations.
 constant uint kFEMOperatorFDNodeCaptureSlots = 37u;
-constant uint kFEMOperatorFDTetCaptureSlots = 251u;
+constant uint kFEMOperatorFDTetCaptureSlots = 254u;
 constant uint kFEMOperatorFDCachedTangentSlots = 22u;
 constant uint kFEMOperatorFDParameterValuesPerSlot = 4u;
 constant uint kFEMOperatorFDTetCenterOffset = 7u;
@@ -3981,6 +3981,11 @@ kernel void nm_fem_operator_fd_capture_tetrahedra(
         (objects[objectIndex].flags & NM_OBJECT_MIXED_FEM) != 0u ||
         objects[objectIndex].representation != NM_REPRESENTATION_FEM) return;
     const NMContinuumObjectGPU object = objects[objectIndex];
+    // Record the exact FP32 coefficients consumed by both F*R and P*R^T.
+    // Re-normalizing the authored quaternion in FP64 changes these rows.
+    if (stage == 0u) fdCaptureWriteMatrix(capture, record + 251u,
+        (object.flags & NM_OBJECT_FEM_MATERIAL_FRAME) != 0u
+            ? femMaterialFrame(tetrahedron) : float3x3(1.0f));
     const NMSchedulerStateGPU scheduler =
         schedulers[environment * dispatch.objectCount + objectIndex];
     const uint nodeBase = environment * dispatch.femNodeCount;

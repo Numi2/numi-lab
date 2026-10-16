@@ -1,0 +1,119 @@
+{
+  "files": [
+    {
+      "path": "build/O0/host-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O0/metal-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O0/metallib-exported-function-names.txt",
+      "sha256": "2e9f33c76fc3769b65f8de83a7249a997074f8d00300c584b1cc9e9f225e170e",
+      "size": 419781
+    },
+    {
+      "path": "build/O0/metallib-link.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O0/reinit_fixture.air",
+      "sha256": "6d17dd83c41510bdf25032d98469bd23d567741bc814e7f508349eb5335a3aa1",
+      "size": 780304
+    },
+    {
+      "path": "build/O0/reinit_fixture.metallib",
+      "sha256": "ad8057df060cf405d55749f3b03161fa155dd2394e6b628563c81363d9b0e3c8",
+      "size": 3297943
+    },
+    {
+      "path": "build/O0/reinit_replay",
+      "sha256": "91fc4742d5bdc8735bbd78f2e1e61839fed760b087468921af314c9c9a64ff2b",
+      "size": 180960
+    },
+    {
+      "path": "build/O3/host-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O3/metal-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O3/metallib-exported-function-names.txt",
+      "sha256": "4de2e90c5e19db6d92eda439f3b1e2d16c6aecda1f5a5a9e86bb92e97fec53ea",
+      "size": 318950
+    },
+    {
+      "path": "build/O3/metallib-link.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O3/reinit_fixture.air",
+      "sha256": "81eb59d5aaab2d2cda6db2ffa5d828d3c7aaa77d57ef064b8d35c0108a9461a4",
+      "size": 406560
+    },
+    {
+      "path": "build/O3/reinit_fixture.metallib",
+      "sha256": "3d99261002464c3a69e0467f700e856ae0b19a2e1873b991654889be77f0ca9d",
+      "size": 1936279
+    },
+    {
+      "path": "build/O3/reinit_replay",
+      "sha256": "bec24d80561570fa8120d315228fc1d611a83f04260a931dd4caef6766307c3a",
+      "size": 92064
+    },
+    {
+      "path": "build/command.json",
+      "sha256": "e57c4bf044481e1c4dc0cd03adcd246ce8146f847ed56d3579dfee58275ec98e",
+      "size": 599
+    },
+    {
+      "path": "build/validation.json",
+      "sha256": "0fdb626454407739009932b7a5fbaf705cc1668e5b5938218f109f99dc1bfb5a",
+      "size": 214431
+    },
+    {
+      "path": "source/compile_validate.py",
+      "sha256": "4844ca5183a9c089115a2ac076cf8c6f0f4412af88f0bfbb2e7ab96c74e78e30",
+      "size": 11130
+    },
+    {
+      "path": "source/compile_validate.template.py",
+      "sha256": "a0d77e9fb21a2712604bd68d04d968ec4d1140b14111f3b5a35a6ad347210e99",
+      "size": 10634
+    },
+    {
+      "path": "source/production_layout_extract.json",
+      "sha256": "80de99d4ab405487f2a305809c61c28c781c8686a79a599811a7551cd333a676",
+      "size": 708
+    },
+    {
+      "path": "source/production_layout_extract.metalinc",
+      "sha256": "77383bb6a308a5395fd5a2843c4f0c00d75675c089bdfa4622836156199c58cc",
+      "size": 1525
+    },
+    {
+      "path": "source/reinit_fixture.metal",
+      "sha256": "d2588afb388884a3a1090ddbf8bdbcbe439d76acf4120246a8d2ee598fd03424",
+      "size": 1546
+    },
+    {
+      "path": "source/reinit_replay.mm",
+      "sha256": "237dba26537f7ae2c5ea520eab3b793390d3c4d2a57308ec23fb2cddd44e13e3",
+      "size": 33841
+    }
+  ],
+  "gpu_dispatch_performed": false,
+  "schema": "numi.cardboard.native531-armijo-cgls-fallback-helper-package.v1",
+  "source_build_manifest_sha256": "36dd1792858ad6a255e2feb40221fa9884d1f5c31569847999d630f6d8c7c8c5",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-repeated-damped-fallback-203",
+  "source_snapshot_manifest_sha256": "ec7af9ddb1fc7e424afdaaf270125ec4870bc34c1a807b732fbdf4aa2bdf64bd"
+}

@@ -1,0 +1,21 @@
+{
+  "all_six_axes_qualified": false,
+  "at_utc": "2026-10-16T09:23:11.897350+00:00",
+  "build": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source203-fallback-001",
+  "build_artifacts": 3,
+  "build_sha256": "36dd1792858ad6a255e2feb40221fa9884d1f5c31569847999d630f6d8c7c8c5",
+  "cpu_argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "test_cardboard_cached_operator_audit",
+    "test_cardboard_solver_environment"
+  ],
+  "cpu_exit": 0,
+  "frozen_sha256": "ec7af9ddb1fc7e424afdaaf270125ec4870bc34c1a807b732fbdf4aa2bdf64bd",
+  "native_runtime_test": false,
+  "schema": "numi.cardboard.exact-frame-source-preflight.v1",
+  "selected_source_files": 817,
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-repeated-damped-fallback-203"
+}

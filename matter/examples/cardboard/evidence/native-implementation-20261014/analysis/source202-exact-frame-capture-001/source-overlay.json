@@ -1,0 +1,32 @@
+{
+  "base": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-regional-rap-tail-preserve-201",
+  "changed_sources": {
+    "matter/src/metal/fem.metalinc": {
+      "after": "ceb13c0a910ed5e85f6b5dfce8293f46e97c9a810470325eec1531ac1b7bd2be",
+      "before": "bbd6abd764f723e6f0b266b80a3c99e100384e68e5ca5ae7cdd29cad36fb6a43"
+    },
+    "matter/src/runtime.mm": {
+      "after": "5fb39f305b11c03010415eb5454015d3af13ada9a597f220436fc30b396ef230",
+      "before": "739f0471eafec2391a2a80b49d6b7034be25d1ea0d8c65557145a8f328d6bbcb"
+    },
+    "matter/tools/cardboard_bilinear_capture_layers.py": {
+      "after": "2b543fec3214b5961ab3891abc1d1efcbaafc1d9476f4abb600f1fa060b8d65c",
+      "before": "45f8fa26edb1222c61faaf6a2cfb05afb14476b4949b00e1700a34168802d939"
+    },
+    "matter/tools/cardboard_cached_operator_audit.py": {
+      "after": "45e62440b53b841097177367f8c920aaf372206dbfa410a666c5ed4daddaf72c",
+      "before": "4a7e9c0cbf09eee0ad1f8f5b2b09314a2c0789a908aaab530b56cfff6a1c82ff"
+    },
+    "matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "after": "1db145ef8679a79dc2eafc74fd416f7a5ee67c7b343e46b7f8a150980b19a233",
+      "before": "d96f4d6717ac40f47e71150666382ed5557c9c1e83b23b32a1c94877dbdb8db6"
+    },
+    "matter/tools/test_cardboard_cached_operator_audit.py": {
+      "after": "a07e5baf008df0769d21b3ced0396aac1113c200881cd30c21d272b23207494a",
+      "before": "9aa1e9b07833bc74ee299d5bddf2d38bd62519705d63524efaefeb3a01dda9be"
+    }
+  },
+  "frozen_sha256": "47195314ffb387404e2595419a86f757725163bded60450ec759bcbc855f65f1",
+  "physical_operator_changed": false,
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-exact-frame-capture-202"
+}

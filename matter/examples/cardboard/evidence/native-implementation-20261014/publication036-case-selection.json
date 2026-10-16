@@ -1,0 +1,29 @@
+{
+  "schema": "numi.cardboard.publication036-case-selection.v1",
+  "cases": [
+    "analysis/source202-203-independent-review-001",
+    "analysis/source202-exact-frame-capture-001",
+    "analysis/source202-exact-frame-capture-buildfix-002",
+    "analysis/source203-repeated-damped-fallback-001",
+    "analysis/source203-publication-binding-001",
+    "analysis/publication036-candidate-001",
+    "analysis/native531-armijo-cgls-fallback-helper-002",
+    "analysis/native535-first-failure-adjudication-001",
+    "analysis/native535-source201-full-coupon-command-001",
+    "solver/fresh-source201-damped-cgls-complete-coupon-535",
+    "analysis/native537-actual-armijo-fallback-command-001",
+    "native/armijo-cgls-fallback-537",
+    "analysis/native538-frame-and-prefix-verification-001",
+    "analysis/native538-source203-frame-observer-pair-command-001",
+    "solver/native538-source203-frame-off",
+    "solver/native538-source203-frame-on"
+  ],
+  "compressed_payload_budget_bytes": 200000000,
+  "excluded": [
+    "analysis/native539-source203-cauchy-all-fallback-command-001 (active at cutoff; outcome not included)",
+    "solver/fresh-source203-cauchy-all-fallback-coupon-539 (active at cutoff; outcome not included)",
+    "analysis/source204-* (follow-up work not closed at cutoff)",
+    "analysis/source205-* (follow-up work not closed at cutoff)",
+    "other active native runs and mutable work products"
+  ]
+}

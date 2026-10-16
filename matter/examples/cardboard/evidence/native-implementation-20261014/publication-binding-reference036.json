@@ -1,0 +1,85 @@
+{
+  "schema": "numi.cardboard.reference036-publication-binding.v1",
+  "parent": "9660fd612f94d69b85906145a309594b93ca165f",
+  "prior_binding_sha256": "007d3efa8e750ac1e851235848fa89eb5bc0fbe268e990b605f12f245a282da6",
+  "historical_prefix": {
+    "path": "summary-reference035.json",
+    "records": 1863,
+    "sha256": "af24934ca100aa7bf9e92e0ad6690856ff990c018ace454a044256e4c91fc352"
+  },
+  "new_case_records": 16,
+  "cases": [
+    "analysis/source202-203-independent-review-001",
+    "analysis/source202-exact-frame-capture-001",
+    "analysis/source202-exact-frame-capture-buildfix-002",
+    "analysis/source203-repeated-damped-fallback-001",
+    "analysis/source203-publication-binding-001",
+    "analysis/publication036-candidate-001",
+    "analysis/native531-armijo-cgls-fallback-helper-002",
+    "analysis/native535-first-failure-adjudication-001",
+    "analysis/native535-source201-full-coupon-command-001",
+    "solver/fresh-source201-damped-cgls-complete-coupon-535",
+    "analysis/native537-actual-armijo-fallback-command-001",
+    "native/armijo-cgls-fallback-537",
+    "analysis/native538-frame-and-prefix-verification-001",
+    "analysis/native538-source203-frame-observer-pair-command-001",
+    "solver/native538-source203-frame-off",
+    "solver/native538-source203-frame-on"
+  ],
+  "case_selection_sha256": "60e7e1e7aac20bd4bc3e8af8100eaa6881ef0c58002bd13821a64abeaefa5f59",
+  "copied_files": 2693,
+  "raw_files": 2635,
+  "gzip_files": 58,
+  "original_payload_bytes": 261360136,
+  "stored_payload_bytes": 96122939,
+  "summary_sha256": "b16415655a44a86f83d4f81d06c260a5c95ab2f79281f4e3923ed726cbc6614c",
+  "source203": {
+    "frozen_source_sha256": "ec7af9ddb1fc7e424afdaaf270125ec4870bc34c1a807b732fbdf4aa2bdf64bd",
+    "selected_source_files": 817,
+    "source201_frozen_sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789",
+    "source202_frozen_sha256": "182e48c41490c2872ee6f9557d1c15d6a1068c403f4b420697597e2cd73b83ef",
+    "source203_source_overlay_sha256": "f73f537e154ceff50d8c8fd8750d84c2979f298c5baaa6d0ac9e6d6af4996776",
+    "source203_package_manifest_sha256": "a7eba21f99d3e51cffd373e802b2bea0a12d6e888b1164d786f693ec459ec306",
+    "source_copy_receipt_sha256": "a6416819b9ee97fdb89843fa0fc7af236ebf79dc9af7b73f8db7b6a30eb07522",
+    "changed_sources": {
+      "matter/src/metal/fem.metalinc": "ceb13c0a910ed5e85f6b5dfce8293f46e97c9a810470325eec1531ac1b7bd2be",
+      "matter/src/runtime.mm": "e8f2de632ee0006ca8bbc1a828f182332102c56b3684fea2a29548c50a864580",
+      "matter/tools/cardboard_bilinear_capture_layers.py": "2b543fec3214b5961ab3891abc1d1efcbaafc1d9476f4abb600f1fa060b8d65c",
+      "matter/tools/cardboard_cached_operator_audit.py": "939ab667f6be3a2cee678523899d4919710f763f5a058b1918783ebe2b61507e",
+      "matter/tools/test_cardboard_cached_operator_audit.py": "df56a5dd5536e0c858776ce0a7a3813dcf7a377ef947f9e4072b9da1e9c24e16"
+    },
+    "composed_checkout_matches_all_frozen_files": true,
+    "preserved_source199_strict_checker_sha256": "1db145ef8679a79dc2eafc74fd416f7a5ee67c7b343e46b7f8a150980b19a233",
+    "source199_strict_checker_retained": true,
+    "source203_full_coupon_539": "active at cutoff and excluded; no outcome recorded"
+  },
+  "bounded_results": {
+    "source202_203_review_sha256": "a882552616cbcb91a29e9247065d6111d5d4df123b031533d268eff01dab16d2",
+    "source535_failure_report_sha256": "dbcc74a21aaac00a26dcc7c54311345f4c9d5bf9a96b6321beedf46b409f17c7",
+    "source535_exit_code": 2,
+    "source535_first_failure": "control17/Newton34, nonlinear Armijo exhaustion after24 trials; full coupon failed",
+    "source537_receipt_sha256": "51f900b46f84747a0ffb686098c69d228187f1bb4e4e1158351126caf88731f6",
+    "source537_physical_transactions": 0,
+    "source538_report_sha256": "15f1010585c89965dd1632ad3655aef198799c9d38c2d68bc8d22f8e767fd963",
+    "source538_verdict": "PASS_EXACT_FRAMES_AND_ONE_CONTROL_OBSERVER_PARITY",
+    "source538_limits": "one-control observer parity and frame reconstruction; not full trajectory or native derivative floor"
+  },
+  "qualification": {
+    "all_six_axes_open": true,
+    "full_coupon": false,
+    "full_protocol_qualification": false,
+    "physical_assembly": false,
+    "crush_impact_prediction": false
+  },
+  "excluded_active": [
+    "analysis/native539-source203-cauchy-all-fallback-command-001",
+    "solver/fresh-source203-cauchy-all-fallback-coupon-539"
+  ],
+  "excluded_followups": [
+    "analysis/source204-*",
+    "analysis/source205-*",
+    "other active native runs and mutable work products"
+  ],
+  "verified_historical_overlaps": [],
+  "restore_policy": "Compressed payloads are deterministic gzip files; restore each listed path by gunzip, restore the recorded mode, and verify byte count plus SHA-256."
+}

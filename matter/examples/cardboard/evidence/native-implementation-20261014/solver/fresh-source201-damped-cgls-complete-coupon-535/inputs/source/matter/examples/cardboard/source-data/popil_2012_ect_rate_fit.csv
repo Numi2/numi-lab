@@ -1,0 +1,5 @@
+source_id,series_id,speed_mm_min,ect_kN_m,observation_class,source_equation,source_location,notes,source_reported_mean_error_kN_m
+popil_2012,rate_fit_prediction,0.2,6.085289,published_equation_evaluation,ECT=0.239*ln(v)+6.47,Eq 4 printed p.2567,Derived from reported regression; not a raw observation,0.01
+popil_2012,rate_fit_prediction,1,6.470000,published_equation_evaluation,ECT=0.239*ln(v)+6.47,Eq 4 printed p.2567,Derived from reported regression; not a raw observation,0.01
+popil_2012,rate_fit_prediction,10,7.020289,published_equation_evaluation,ECT=0.239*ln(v)+6.47,Eq 4 printed p.2567,Derived from reported regression; not a raw observation,0.01
+popil_2012,rate_fit_prediction,12.5,7.073612,published_equation_evaluation,ECT=0.239*ln(v)+6.47,Eq 4 printed p.2567,Derived from reported regression; not a raw observation; differs from Table 2 commercial 7.9 and must not be merged across series,0.01

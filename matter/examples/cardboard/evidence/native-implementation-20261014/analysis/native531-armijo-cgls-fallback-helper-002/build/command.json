@@ -1,0 +1,10 @@
+{
+  "O0": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-armijo-cgls-fallback-helper-002/build/O0/reinit_replay",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-armijo-cgls-fallback-helper-002/build/O0/reinit_fixture.metallib"
+  ],
+  "O3": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-armijo-cgls-fallback-helper-002/build/O3/reinit_replay",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-armijo-cgls-fallback-helper-002/build/O3/reinit_fixture.metallib"
+  ]
+}

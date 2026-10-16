@@ -1,0 +1,45 @@
+// Research-grade pectoralis-major fascia law derived from the mean human
+// uniaxial GOH fit reported by Kreutz et al., J Mech Behav Biomed Mater 2026,
+// DOI 10.1016/j.jmbbm.2025.107283. The source cohort was female surgical and
+// cadaver tissue. It does not establish subject-specific, biaxial, rate, or
+// clinical behavior. The first reference axis is the payload's medial-lateral
+// source direction; compression is matrix-only through the tension clamp.
+material human_pectoralis_fascia_goh_uniaxial {
+    parameter density : kg/m^3 = 1000 in [900, 1150];
+    parameter c10 : kPa = 0.92 in [0.05, 10] log identifiable;
+    parameter k1 : kPa = 10.0 in [0.5, 100] log identifiable;
+    parameter k2 : one = 2.36 in [0.25, 12] identifiable;
+    // Numerical near-incompressibility assumption; not supplied by the
+    // uniaxial paper and therefore deliberately separate from the fit.
+    parameter bulk : kPa = 500 in [100, 3000] log identifiable;
+
+    model generic;
+    energy = c10 * (I1() - 3 - 2 * log(J()))
+        + 0.5 * bulk * pow(log(J()), 2)
+        + k1 / (2 * k2) * (
+            exp(k2 * pow(0.5 * (
+                pow(F(0, 0), 2) + pow(F(1, 0), 2) + pow(F(2, 0), 2) - 1
+                + sqrt(pow(
+                    pow(F(0, 0), 2) + pow(F(1, 0), 2) +
+                    pow(F(2, 0), 2) - 1,
+                    2
+                ) + 1e-8)
+            ), 2)) - 1
+        );
+    valid = J() - 0.35;
+    supports fem;
+
+    interface {
+        static_friction = 0.30;
+        dynamic_friction = 0.20;
+        restitution = 0.0;
+        adhesion = 0.0;
+    }
+
+    limits {
+        minimum_J = 0.35;
+        maximum_J = 2.5;
+        maximum_stress = 2e6;
+        maximum_energy_density = 2e6;
+    }
+}

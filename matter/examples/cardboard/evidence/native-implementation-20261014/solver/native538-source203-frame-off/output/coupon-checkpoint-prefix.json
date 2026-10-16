@@ -1,0 +1,13 @@
+{
+  "schema": "numi.cardboard.coupon-checkpoint-prefix.v1",
+  "status": "accepted_checkpoint_prefix_saved",
+  "accepted_control_index": 0,
+  "next_control_index": 1,
+  "checkpoint_file": "checkpoints/coupon-control-000000.nmcb",
+  "checkpoint_sha256": "f17df1360cde6bfad7d7200b90f9a6e9571d245e276c19e473b8a2faf7652367",
+  "metadata_file": "checkpoints/coupon-control-000000.resume",
+  "metadata_sha256": "8d8f3ac99cf9a0f284f6afd8963b18aacddd25ff53e4f80ca0e86b6fa86eea72",
+  "full_protocol_complete": false,
+  "trajectory_parity_established": false,
+  "physical_validation": false
+}

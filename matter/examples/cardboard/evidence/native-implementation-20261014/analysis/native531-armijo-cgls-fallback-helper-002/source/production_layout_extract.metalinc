@@ -1,0 +1,33 @@
+namespace numi_matter_metal {
+kernel void nm_fgmres_prepare_base_cgls_layout(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(1)]],
+    device const float4* metrics [[buffer(2)]],
+    device float4* mask [[buffer(3)]],
+    device uint* rowEnvironment [[buffer(4)]],
+    device uint* selected [[buffer(5)]],
+    device const float4* baseRHS [[buffer(6)]],
+    device float4* preparedRHS [[buffer(7)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= layout.unknownCount) return;
+    const uint count = dispatch.environmentCount * dispatch.femNodeCount;
+    if (count == 0u) return;
+    const uint localGlobal = global % count;
+    const uint environment = localGlobal / dispatch.femNodeCount;
+    rowEnvironment[global] = environment;
+    const bool active = metrics[environment].w == 3.0f;
+    preparedRHS[global] = active ? baseRHS[global] : float4(0.0f);
+    float4 value = float4(0.0f);
+    if (global < count) {
+        const NMFEMNodeStateGPU node = candidate[global];
+        const bool free = !femStaticConstraint(node.restAndFixed.w) &&
+            isfinite(node.positionAndMass.w) && node.positionAndMass.w > 0.0f;
+        if (active && free) value = float4(1.0f, 1.0f, 1.0f, 0.0f);
+        if (global % dispatch.femNodeCount == 0u)
+            selected[environment] = metrics[environment].w == 3.0f ? 1u : 0u;
+    }
+    mask[global] = value;
+}
+
+} // namespace numi_matter_metal

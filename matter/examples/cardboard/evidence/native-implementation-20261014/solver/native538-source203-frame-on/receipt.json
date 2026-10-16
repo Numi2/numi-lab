@@ -1,0 +1,28 @@
+{
+  "schema": "numi.cardboard.native-run-receipt.v2",
+  "execution_started": true,
+  "source_inputs_unchanged": true,
+  "changed_inputs": [],
+  "exit_code": 0,
+  "timed_out": false,
+  "termination_errors": [],
+  "wall_seconds": 64.13885637465864,
+  "finished_at_utc": "2026-10-16T09:31:55.461684+00:00",
+  "run_mode": "diagnostic",
+  "diagnostic_capture_validation": {
+    "status": "validated",
+    "pending_captures": [],
+    "files": [
+      {
+        "key": "NM_FEM_OPERATOR_FD_CAPTURE_PATH",
+        "path": "diagnostics/capture-operator-fd-capture/capture",
+        "bytes": 34850007,
+        "sha256": "7075b2e0e2293953be8987714896b4a89653d2c47c0b40e3826913b34d5f5752"
+      }
+    ],
+    "total_bytes": 34850007,
+    "file_count": 1,
+    "aggregate_cap_bytes": 134217728,
+    "per_file_cap_bytes": 67108864
+  }
+}

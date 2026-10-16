@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-exact-frame-capture-202-buildfix-002/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-exact-frame-capture-202-buildfix-002",
+    "--build-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source202-frame-002",
+    "--jobs",
+    "4",
+    "--target",
+    "numi-matter-cardboard-probe"
+  ],
+  "started_at_utc": "2026-10-16T09:16:28.473340+00:00",
+  "gpu_run": false
+}

@@ -1,0 +1,21 @@
+{
+  "schema": "numi.cardboard.native535.audit-attempts.v1",
+  "preserved_attempts": [
+    {
+      "attempt": 1,
+      "status": "failed_audit_script",
+      "failure": "The initial audit parser assumed frozen-source.json had a source_count field; actual schema carries source_sha256 mapping. No source/result data was modified. Corrected assertion to count mapping entries."
+    },
+    {
+      "attempt": 2,
+      "status": "failed_audit_script",
+      "failure": "The case receipt schema uses source_inputs_unchanged; the execution wrapper receipt uses source_and_artifacts_unchanged. Corrected report field to bind the case receipt key while retaining wrapper-level assertion."
+    },
+    {
+      "attempt": 3,
+      "status": "passed",
+      "command": "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3 -B /Users/n/cardboard-implementation-20261014-host-macmini/analysis/native535-first-failure-adjudication-001/audit.py",
+      "result": "All source, build, output, status, lineage and first-failure checks passed."
+    }
+  ]
+}

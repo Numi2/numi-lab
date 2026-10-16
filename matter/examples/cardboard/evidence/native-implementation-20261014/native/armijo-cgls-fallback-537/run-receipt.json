@@ -1,0 +1,36 @@
+{
+  "at_utc": "2026-10-16T09:30:31.065542+00:00",
+  "results": {
+    "O0": {
+      "at_utc": "2026-10-16T09:30:30.661869+00:00",
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-armijo-cgls-fallback-helper-002/build/O0/reinit_replay",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-armijo-cgls-fallback-helper-002/build/O0/reinit_fixture.metallib"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "errors": [],
+      "wall_s": 0.5592629164457321,
+      "stdout_sha256": "e6628e0f6de873e57c5e54b1db1860ec1f53a0d4461f3dbeaa57dc5e120f7cfa",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "O3": {
+      "at_utc": "2026-10-16T09:30:31.030989+00:00",
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-armijo-cgls-fallback-helper-002/build/O3/reinit_replay",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-armijo-cgls-fallback-helper-002/build/O3/reinit_fixture.metallib"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "errors": [],
+      "wall_s": 0.3686453327536583,
+      "stdout_sha256": "e6628e0f6de873e57c5e54b1db1860ec1f53a0d4461f3dbeaa57dc5e120f7cfa",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "stdout_bitwise_equal": true,
+  "source_helper_build_unchanged": true,
+  "full_fem_transactions": 0,
+  "full_coupon_qualification": false,
+  "scope": "Actual Armijo fallback eligibility, runtime layout/initializers and CGLS recurrence, synthetic A/Atranspose"
+}

@@ -227,6 +227,44 @@ class AssemblyAdmissionTests(unittest.TestCase):
                                       .astype(np.float64))
         self.assertLess(metadata["action_parity"]["relative_l2_error"], 5e-8)
 
+    def test_native_frame_rows_are_not_renormalized_or_rebuilt_from_quaternion(self):
+        # Native531's actual medium frame differs from FP64 quaternion reconstruction.
+        rows = np.asarray([[0.9819966554641724, 0.0, -0.18889839947223663],
+                           [0.0, 1.0, 0.0],
+                           [0.18889839947223663, 0.0, 0.9819966554641724]],
+                          dtype=np.float32).astype(np.float64)
+        quat = [0.0, -0.09487719088792801, 0.0, 0.9954890012741089]
+        header, nodes, tets, integrity = synthetic_capture()
+        tet = tets[0]
+        tet["material_frame_quaternion_xyzw"] = quat
+        tet["material_frame_rows_float32"] = rows.tolist()
+        tet["center"]["dt_seconds_bulk_modulus_kind_frame_active"][3] = 1.0
+        header["material_frame_encoding"] = "native_float32_rows_no_renormalization"
+        np.testing.assert_array_equal(audit.captured_material_frame(tet, True), rows)
+        self.assertGreater(np.max(np.abs(audit.rotation_from_xyzw(quat) - rows)), 1e-9)
+        args = (np.asarray(tet["inverse_rest_rows_per_m"], dtype=np.float32).astype(float),
+                float(np.float32(tet["rest_volume_m3"])),
+                np.asarray(tet["cached_algorithmic_tangent_local"][
+                    "matrix_row_major_local_dP_dF_Pa_per_dimensionless_F"],
+                    dtype=np.float32).astype(float).reshape(9, 9),
+                quat, True)
+        exact = audit.local_tet_stiffness(*args, frame_rows=rows)[3:, 3:]
+        mass, stiffness, operator, direction, metadata = audit.validate_and_assemble(
+            header, nodes, tets, integrity, 0)
+        dt = float(np.float32(header["dt_seconds_by_environment"][0]))
+        np.testing.assert_array_equal(stiffness.toarray(), dt * dt * exact)
+        self.assertGreater(np.max(np.abs(exact -
+            audit.local_tet_stiffness(*args)[3:, 3:])), 1e-10)
+
+    def test_declared_native_frame_requires_valid_captured_rows(self):
+        header, nodes, tets, integrity = synthetic_capture()
+        header["material_frame_encoding"] = "native_float32_rows_no_renormalization"
+        with self.assertRaisesRegex(ValueError, "omits its declared native frame"):
+            audit.validate_and_assemble(header, nodes, tets, integrity, 0)
+        tets[0]["material_frame_rows_float32"] = (2.0 * np.eye(3)).tolist()
+        with self.assertRaisesRegex(ValueError, "native material frame"):
+            audit.validate_and_assemble(header, nodes, tets, integrity, 0)
+
     def test_synthetic_one_tet_action_parity_and_fixed_elimination(self):
         header, nodes, tets, integrity = synthetic_capture()
         mass, stiffness, operator, direction, metadata = audit.validate_and_assemble(
@@ -375,6 +413,7 @@ class AssemblyAdmissionTests(unittest.TestCase):
             case.mkdir()
             source_hashes = {}
             registry_text = "\n".join(env.NATIVE_ENV_KEYS) + "\n"
+            registry_text += '\ngetenv("NM_CONTACT_NODE_INCIDENCE_SORT")\n' 
             for relative in audit.REQUIRED_BOUND_SOURCES:
                 path = snapshot / relative
                 path.parent.mkdir(parents=True, exist_ok=True)

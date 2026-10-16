@@ -502,3 +502,7 @@ Source198 implements exact shared contact trials, bounded damped corrections and
 ## Source201 regional RAP tail preservation
 
 [Source201 and its O0/O3 E2 kernel check](solver-milestone-source201.md) preserve a completed environment's same-Newton augmented RAP state across restart tails and fix the E2 restart dispatch extent. Native534 passes synthetic checks at both Metal optimization levels with zero physical transactions. Earlier source198-bound native531/532 replays, the 530 accepted-prefix checkpoint, and independent FP64 refinements are retained separately. The full source201 coupon was active at the publication cut and is excluded; all six qualification axes remain open.
+
+## Source203 repeated damped fallback scheduling
+
+[Source202 frame capture and source203 repeated fallback scheduling](solver-milestone-source203.md) add bounded diagnostic and native helper evidence. The O0/O3 fallback helper passes with zero FEM transactions; one-control observer off/on output parity is exact. The source201 full-protocol run 535 fails at control17/Newton34 after its primary Armijo search exhausts. Source203 full-coupon run 539 was active at the publication cutoff and is excluded without an outcome. The topology export gap, complete coupon, and all six qualification axes remain open.

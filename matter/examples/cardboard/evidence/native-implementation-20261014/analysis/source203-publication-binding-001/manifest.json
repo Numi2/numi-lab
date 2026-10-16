@@ -1,0 +1,53 @@
+{
+  "schema": "numi.cardboard.source203-publication-binding.v1",
+  "source201": {
+    "snapshot_sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789",
+    "source_count": 817
+  },
+  "source202": {
+    "snapshot_sha256": "182e48c41490c2872ee6f9557d1c15d6a1068c403f4b420697597e2cd73b83ef",
+    "snapshot_source_count": 817,
+    "build_success": true
+  },
+  "source203": {
+    "snapshot_sha256": "ec7af9ddb1fc7e424afdaaf270125ec4870bc34c1a807b732fbdf4aa2bdf64bd",
+    "snapshot_source_count": 817,
+    "build_success": true
+  },
+  "records": {
+    "source201_frozen_source.json": {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-regional-rap-tail-preserve-201/frozen-source.json",
+      "bytes": 100469,
+      "sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789"
+    },
+    "source202_frozen_source.json": {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-exact-frame-capture-202-buildfix-002/frozen-source.json",
+      "bytes": 101324,
+      "sha256": "182e48c41490c2872ee6f9557d1c15d6a1068c403f4b420697597e2cd73b83ef"
+    },
+    "source203_frozen_source.json": {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-repeated-damped-fallback-203/frozen-source.json",
+      "bytes": 102304,
+      "sha256": "ec7af9ddb1fc7e424afdaaf270125ec4870bc34c1a807b732fbdf4aa2bdf64bd"
+    },
+    "source202_build_record.json": {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source202-frame-002/source-build.json",
+      "bytes": 99634,
+      "sha256": "af7483cd8ace4e7b279909b9d86d9be9fc9a5021706e0b7a442b0ae20c9059fc"
+    },
+    "source203_build_record.json": {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source203-fallback-001/source-build.json",
+      "bytes": 99628,
+      "sha256": "36dd1792858ad6a255e2feb40221fa9884d1f5c31569847999d630f6d8c7c8c5"
+    },
+    "source_copy_receipt.json": {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/publication036-candidate-001/source-copy-receipt.json",
+      "bytes": 1696,
+      "sha256": "a6416819b9ee97fdb89843fa0fc7af236ebf79dc9af7b73f8db7b6a30eb07522"
+    }
+  },
+  "limitations": [
+    "The source203 snapshot is based on source201/source198 ancestry; publication retains the source199 strict checker already in the parent checkout.",
+    "This is source/build provenance, not full coupon, convergence, or physical qualification evidence."
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "build_artifacts": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-coupon535-001/numi-matter-cardboard-probe": {
+      "bytes": 3218520,
+      "sha256": "fbb293e820d4cb487fe201c095b81fafe4f0ac13f371d4e9ca1b968f6028bd19"
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-coupon535-001/shaders/NumiMatter.metallib": {
+      "bytes": 7048171,
+      "sha256": "db4c1dd3a96a633b7b850022744bbdb22386af265b9e8770d07155ace7404739"
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-coupon535-001/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    }
+  },
+  "build_record_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-coupon535-001/source-build.json",
+  "build_record_sha256": "5a77272cb34ec98f3d7e9d2ab113c13ac8fa3000ec98690688fd12798db41673",
+  "build_success": true,
+  "build_targets": [
+    "numi-matter-cardboard-probe"
+  ],
+  "delta_from_source198": [
+    {
+      "path": "matter/CMakeLists.txt",
+      "source198_sha256": "47564b029c911a1949caf10f60551550df292c2968df25082118fb4f66b18569",
+      "source201_sha256": "834628140bfcd3a9c8a0f4aa2aa4c4ae7ff1c18d1c5bf34790fe13fe1fdf8f22"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "source198_sha256": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8",
+      "source201_sha256": "238a2c5b7cda924d4d28ac716a38dd0c63641eb261464a4620cb5f239b593b69"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "source198_sha256": "cb711f469ed3d97400b1ac449ea386667d2973e45409a7e292e083b59e287f68",
+      "source201_sha256": "739f0471eafec2391a2a80b49d6b7034be25d1ea0d8c65557145a8f328d6bbcb"
+    },
+    {
+      "path": "matter/tools/cardboard_regional_rap_tail_preserve_native_check.mm",
+      "source198_sha256": null,
+      "source201_sha256": "af3cd88959007c2b2838ecfe5117818c4557f7b855246b413f461118b4ef327c"
+    }
+  ],
+  "frozen_source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-regional-rap-tail-preserve-201/frozen-source.json",
+  "frozen_source_sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789",
+  "limitation": "Compiler system headers and Metal driver are not archived; native534 is a synthetic E2 RAP-tail helper, not a FEM solve.",
+  "schema": "numi.cardboard.native535.source201-build-binding.v1",
+  "source198_parent": {
+    "build_record_sha256": "8f6c95304c23b6c7149ec6b270d54eafdf4507ea26f3420e39e523c09dd500ad",
+    "frozen_sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc",
+    "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001"
+  },
+  "source_count": 817,
+  "unchanged_cgls_sources": {
+    "matter/src/metal/base_cgls.metalinc": "54fc273e8e8e12a9472f2fe2defec45709c7f36d24b6886b862e477aa54260a2",
+    "matter/src/metal/common.metalinc": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380"
+  }
+}

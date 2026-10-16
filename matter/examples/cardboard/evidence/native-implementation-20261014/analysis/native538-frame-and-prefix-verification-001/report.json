@@ -1,0 +1,92 @@
+{
+  "at_utc": "2026-10-16T09:32:57.568408+00:00",
+  "binding": {
+    "off": {
+      "observations": "51cb841c832b799eea677644ac4866eb5b87845bb44f5af10b4f620db9cd14df",
+      "receipt": "063c703a9dde4761ae27e670fdc28fcc5e4f18466e3dd47e67c2f23b7258a7de"
+    },
+    "on": {
+      "observations": "51cb841c832b799eea677644ac4866eb5b87845bb44f5af10b4f620db9cd14df",
+      "receipt": "c31e551c6379be791f57ae566765c9954c8d9861ac5efa77f6c1bcd61f5b36df"
+    }
+  },
+  "capture": {
+    "bytes": 34850007,
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/native538-source203-frame-on/diagnostics/capture-operator-fd-capture/capture",
+    "sha256": "7075b2e0e2293953be8987714896b4a89653d2c47c0b40e3826913b34d5f5752"
+  },
+  "command_manifest_sha256": "c39aefe4d26da8da1b537d65a6112efa3b80f25f7ecef550a1b1026f15e653b4",
+  "compensated_paper_reconstruction": [
+    {
+      "environment": 0,
+      "max_absolute_F_error": 9.992007221626409e-16,
+      "paper_rows": 1728,
+      "state": "center"
+    },
+    {
+      "environment": 0,
+      "max_absolute_F_error": 7.216449660063518e-15,
+      "paper_rows": 1728,
+      "state": "epsilon_pair_0_plus"
+    },
+    {
+      "environment": 0,
+      "max_absolute_F_error": 7.327471962526033e-15,
+      "paper_rows": 1728,
+      "state": "epsilon_pair_0_minus"
+    },
+    {
+      "environment": 0,
+      "max_absolute_F_error": 8.104628079763643e-15,
+      "paper_rows": 1728,
+      "state": "epsilon_pair_1_plus"
+    },
+    {
+      "environment": 0,
+      "max_absolute_F_error": 7.105427357601002e-15,
+      "paper_rows": 1728,
+      "state": "epsilon_pair_1_minus"
+    },
+    {
+      "environment": 1,
+      "max_absolute_F_error": 0.0,
+      "paper_rows": 1728,
+      "state": "center"
+    },
+    {
+      "environment": 1,
+      "max_absolute_F_error": 0.0,
+      "paper_rows": 1728,
+      "state": "epsilon_pair_0_plus"
+    },
+    {
+      "environment": 1,
+      "max_absolute_F_error": 0.0,
+      "paper_rows": 1728,
+      "state": "epsilon_pair_0_minus"
+    },
+    {
+      "environment": 1,
+      "max_absolute_F_error": 0.0,
+      "paper_rows": 1728,
+      "state": "epsilon_pair_1_plus"
+    },
+    {
+      "environment": 1,
+      "max_absolute_F_error": 0.0,
+      "paper_rows": 1728,
+      "state": "epsilon_pair_1_minus"
+    }
+  ],
+  "frame_rows_count": 3840,
+  "limits": "One control per case; no full nonlinear trajectory, numerical convergence, damage/calibration or assembly qualification; this is not a measured native FP32 derivative noise floor.",
+  "production_files_equal": {
+    "accepted_step_000001_bent.obj": "e232da37a2b177fa42864620ba0f97189a3709a26fbc8f9e5e37b503c2f2bf39",
+    "accepted_step_000001_held_reference.obj": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+    "checkpoints/coupon-control-000000.nmcb": "f17df1360cde6bfad7d7200b90f9a6e9571d245e276c19e473b8a2faf7652367",
+    "initial.obj": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+    "observations.csv": "51cb841c832b799eea677644ac4866eb5b87845bb44f5af10b4f620db9cd14df"
+  },
+  "schema": "numi.cardboard.native-exact-frame-and-observer-prefix.v1",
+  "verdict": "PASS_EXACT_FRAMES_AND_ONE_CONTROL_OBSERVER_PARITY"
+}

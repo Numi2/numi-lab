@@ -1,0 +1,14 @@
+{
+  "exit": 0,
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "test_cardboard_cached_operator_audit"
+  ],
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-exact-frame-capture-202-buildfix-002",
+  "frozen_sha256": "182e48c41490c2872ee6f9557d1c15d6a1068c403f4b420697597e2cd73b83ef",
+  "prior_failed_test_log_sha256": "069ab22a155c81ff6fc0f53caf8fceceabae6f066a09f82e2ca5dadac3a6b40e",
+  "native_execution": false
+}

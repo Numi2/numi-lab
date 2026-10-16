@@ -1,0 +1,100 @@
+{
+  "audit_manifest_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native528529-independent-strict-fault-audit-001/manifest.json",
+  "audit_manifest_sha256": "1d324b707f339c7776d3f23d372e32878ba3cea145ee1caf408af204d341a77c",
+  "audit_report_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native528529-independent-strict-fault-audit-001/report.json",
+  "audit_report_sha256": "5dfbe4f81605dc97df642eb6cbd00f20b6697afcac6e07d3c84c539f28d28918",
+  "cases": [
+    {
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "files": {
+        "aliased/fixture-activation.log": "e8697d03a7da317df0e028fbe4fc2d808a25edd2051bf42f110ae17aa0c4b88c",
+        "aliased/fixture-initialization.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "aliased/fixture-loaded.log": "ae2618c56adc043213c6c166561ab2108b33e22bdad1782756d9b603be418aff",
+        "aliased/fixture-rejected.log": "9dac869a725f20f64c689f8a4c0841171cc836788d2903fb8452c14d526247ef",
+        "aliased/transaction-000000-after.bin": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318",
+        "aliased/transaction-000000-before.bin": "d09862484e299a6b74530d6898607d5c6df4b391f53ffc28663dc243a464f6b7",
+        "aliased/transaction-000000.json": "c60cd123bfc05e9f8869e490992316c71ee6cc9132c55ca7887d474635b18693",
+        "aliased/transaction-000001-after.bin": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be",
+        "aliased/transaction-000001-before.bin": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318",
+        "aliased/transaction-000001.json": "6beca37ded734ccec002a41e61cc6776093b8dde7db6ba5198b1abd8b114de03",
+        "aliased/transaction-000002-after.bin": "9a82b5e533c69eb52ea0ce438fd9f59693491d8c60693f84c4950cc9031ba2ba",
+        "aliased/transaction-000002-before.bin": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be",
+        "aliased/transaction-000002.json": "742cf2416e2e377976b496c5dd8a04f00e757b3e46a2a0e9121c28dfbc08cda5",
+        "baseline/fixture-activation.log": "e8697d03a7da317df0e028fbe4fc2d808a25edd2051bf42f110ae17aa0c4b88c",
+        "baseline/fixture-initialization.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "baseline/fixture-loaded.log": "ae2618c56adc043213c6c166561ab2108b33e22bdad1782756d9b603be418aff",
+        "baseline/fixture-rejected.log": "9dac869a725f20f64c689f8a4c0841171cc836788d2903fb8452c14d526247ef",
+        "baseline/transaction-000000-after.bin": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318",
+        "baseline/transaction-000000-before.bin": "d09862484e299a6b74530d6898607d5c6df4b391f53ffc28663dc243a464f6b7",
+        "baseline/transaction-000000.json": "c60cd123bfc05e9f8869e490992316c71ee6cc9132c55ca7887d474635b18693",
+        "baseline/transaction-000001-after.bin": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be",
+        "baseline/transaction-000001-before.bin": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318",
+        "baseline/transaction-000001.json": "6beca37ded734ccec002a41e61cc6776093b8dde7db6ba5198b1abd8b114de03",
+        "baseline/transaction-000002-after.bin": "9a82b5e533c69eb52ea0ce438fd9f59693491d8c60693f84c4950cc9031ba2ba",
+        "baseline/transaction-000002-before.bin": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be",
+        "baseline/transaction-000002.json": "742cf2416e2e377976b496c5dd8a04f00e757b3e46a2a0e9121c28dfbc08cda5"
+      },
+      "name": "strict199-regional-528",
+      "rejected_status": {
+        "code": 1,
+        "completed_microsteps": 1,
+        "contact_count": 0,
+        "diagnostics": [
+          -3,
+          -3,
+          -3,
+          -3
+        ],
+        "environment": 0,
+        "event_count": 0,
+        "failing_index": 0,
+        "fgmres_iterations": 34,
+        "object_index": 4294967295
+      }
+    },
+    {
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "files": {
+        "baseline/fixture-activation.log": "1331fe9a4748ec3a25343299441d65708d2b6a65c3bb047ab0409f72878e0b8b",
+        "baseline/fixture-initialization.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "baseline/fixture-loaded.log": "f9163ba19fb49cba35e58421d1de896f4b948ba6b7e9ff430b989845b86206dd",
+        "baseline/fixture-rejected.log": "8fcc602700c283cd0cd7368b5c1fef6b6324fa124415b5f6e1f4d8e5d5fb4765",
+        "baseline/transaction-000000-after.bin": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02",
+        "baseline/transaction-000000-before.bin": "75d968932c9b7dc8701f4dadcbd40fc1d267e4cc6809b87399eb333a98de41c8",
+        "baseline/transaction-000000.json": "47e05fb5ed400d93359d151f3ee14745bc748c65349778589e0d63f66392b368",
+        "baseline/transaction-000001-after.bin": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00",
+        "baseline/transaction-000001-before.bin": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02",
+        "baseline/transaction-000001.json": "196ab24eb79b3898252bccf6d0a9f69c2738f1fbc8b9f5b559b6fc8f25b8f987",
+        "baseline/transaction-000002-after.bin": "50bc223f7f598ba219df6ffef83a91e04fc98378faecaf0c8810d7d7541ef39f",
+        "baseline/transaction-000002-before.bin": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00",
+        "baseline/transaction-000002.json": "99651bccb2f572960b0629a4374cd6b08d8900d89616c4b90f8af7cf4881c054"
+      },
+      "name": "strict199-scalar-negative-529",
+      "rejected_status": {
+        "code": 10,
+        "completed_microsteps": 0,
+        "contact_count": 0,
+        "diagnostics": [
+          1.50609182e-07,
+          1.50609182e-07,
+          1.1920929e-07,
+          24
+        ],
+        "environment": 0,
+        "event_count": 0,
+        "failing_index": 18,
+        "fgmres_iterations": 256,
+        "object_index": 0
+      }
+    }
+  ],
+  "command_package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native528529-strict-postcommit-fault-command-001",
+  "command_spec_sha256": "39807de487e9805dc72672c65ebc8d8088210b941e8a937440bd10ca005653a2",
+  "negative_control_rejected_for_intended_reason": true,
+  "package_manifest_sha256": "226d7d69880d63d18f1b4c224a7a5a81876be7257795994d645d04e8e33455b0",
+  "schema": "numi.cardboard.native535.strict199-controls.v1",
+  "scope": "Strict postCommit injected-fault positive/negative controls only; no coupon qualification.",
+  "verdict": "PASS"
+}

@@ -1,0 +1,3 @@
+source_id,board_grade,specimen_dimensions_mm,condition,observable,value,unit,source_location,observation_class,split_role,admission_note
+aduke_venter_coetzee_2024,250KL_150SC_250KL,C-flute 400x100,23 C 50 percent RH 24h,creased_to_uncreased_stiffness_ratio,0.37,dimensionless,printed p.15 text reports 63 percent stiffness reduction,reported_rounded_ratio,analogue_holdout,Admit ratio only; physical four-point setup has 10 replicates, but raw numeric points are not tabulated
+aduke_venter_coetzee_2024,250KL_150SC_250KL,C-flute 400x100,23 C 50 percent RH 24h,uncreased_CD_bending_stiffness,6.88,N_per_m,Table 5,printed_but_not_admitted_units_conflict,exclude_absolute_target,Table 5 says N/m while printed Eq 1 dimensions are N*m; retain as printed; do not normalize silently

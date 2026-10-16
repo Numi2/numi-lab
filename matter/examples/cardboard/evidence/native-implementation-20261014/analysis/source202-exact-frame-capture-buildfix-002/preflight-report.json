@@ -1,0 +1,21 @@
+{
+  "all_six_axes_qualified": false,
+  "at_utc": "2026-10-16T09:23:11.349156+00:00",
+  "build": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source202-frame-002",
+  "build_artifacts": 3,
+  "build_sha256": "af7483cd8ace4e7b279909b9d86d9be9fc9a5021706e0b7a442b0ae20c9059fc",
+  "cpu_argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "test_cardboard_cached_operator_audit",
+    "test_cardboard_solver_environment"
+  ],
+  "cpu_exit": 0,
+  "frozen_sha256": "182e48c41490c2872ee6f9557d1c15d6a1068c403f4b420697597e2cd73b83ef",
+  "native_runtime_test": false,
+  "schema": "numi.cardboard.exact-frame-source-preflight.v1",
+  "selected_source_files": 817,
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-exact-frame-capture-202-buildfix-002"
+}

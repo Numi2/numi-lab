@@ -1,0 +1,87 @@
+...EFF.........
+======================================================================
+ERROR: test_diagnostic_prediction_requires_valid_contract_and_capture_inventory (test_cardboard_cached_operator_audit.AssemblyAdmissionTests.test_diagnostic_prediction_requires_valid_contract_and_capture_inventory)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-exact-frame-capture-202/matter/tools/cardboard_cached_operator_audit.py", line 283, in bind_inputs
+    solver_environment.validate_source_registry(diagnostic_snapshot)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-exact-frame-capture-202/matter/tools/cardboard_solver_environment.py", line 129, in validate_source_registry
+    raise ValueError(f"source native environment registry mismatch; unlisted={missing}, stale={extra}")
+ValueError: source native environment registry mismatch; unlisted=[], stale=['NM_CONTACT_NODE_INCIDENCE_SORT']
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-exact-frame-capture-202/matter/tools/test_cardboard_cached_operator_audit.py", line 472, in test_diagnostic_prediction_requires_valid_contract_and_capture_inventory
+    binding = audit.bind_inputs(capture, prediction, receipt, stderr, 0)
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-exact-frame-capture-202/matter/tools/cardboard_cached_operator_audit.py", line 285, in bind_inputs
+    raise ValueError(f"invalid diagnostic environment binding: {error}") from error
+ValueError: invalid diagnostic environment binding: source native environment registry mismatch; unlisted=[], stale=['NM_CONTACT_NODE_INCIDENCE_SORT']
+
+======================================================================
+FAIL: test_native_frame_rows_are_not_renormalized_or_rebuilt_from_quaternion (test_cardboard_cached_operator_audit.AssemblyAdmissionTests.test_native_frame_rows_are_not_renormalized_or_rebuilt_from_quaternion)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-exact-frame-capture-202/matter/tools/test_cardboard_cached_operator_audit.py", line 253, in test_native_frame_rows_are_not_renormalized_or_rebuilt_from_quaternion
+    np.testing.assert_array_equal(stiffness.toarray(), dt * dt * exact)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/lib/python3.13/site-packages/numpy/_utils/__init__.py", line 86, in wrapper
+    return fun(*args, **kwargs)
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/lib/python3.13/site-packages/numpy/testing/_private/utils.py", line 1057, in assert_array_equal
+    assert_array_compare(operator.__eq__, actual, desired, err_msg=err_msg,
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         verbose=verbose, header='Arrays are not equal',
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         strict=strict)
+                         ^^^^^^^^^^^^^^
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/lib/python3.13/site-packages/numpy/testing/_private/utils.py", line 921, in assert_array_compare
+    raise AssertionError(msg)
+AssertionError: 
+Arrays are not equal
+
+Mismatched elements: 15 / 81 (18.5%)
+Max absolute difference among violations: 2.77181315e-08
+Max relative difference among violations: 2.98023225e-08
+ ACTUAL: array([[ 0.111601,  0.      ,  0.      ,  0.      ,  0.      ,  0.      ,
+        -0.038645,  0.      ,  0.      ],
+       [ 0.      ,  0.424101,  0.      ,  0.      ,  0.      ,  0.      ,...
+ DESIRED: array([[ 0.111601, -0.      , -0.      , -0.      , -0.      , -0.      ,
+        -0.038645, -0.      , -0.      ],
+       [-0.      ,  0.424101, -0.      , -0.      , -0.      , -0.      ,...
+
+======================================================================
+FAIL: test_operator_assembly_uses_canonical_native_f32_operands (test_cardboard_cached_operator_audit.AssemblyAdmissionTests.test_operator_assembly_uses_canonical_native_f32_operands)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-exact-frame-capture-202/matter/tools/test_cardboard_cached_operator_audit.py", line 223, in test_operator_assembly_uses_canonical_native_f32_operands
+    np.testing.assert_array_equal(operator.toarray(), expected)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/lib/python3.13/site-packages/numpy/_utils/__init__.py", line 86, in wrapper
+    return fun(*args, **kwargs)
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/lib/python3.13/site-packages/numpy/testing/_private/utils.py", line 1057, in assert_array_equal
+    assert_array_compare(operator.__eq__, actual, desired, err_msg=err_msg,
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         verbose=verbose, header='Arrays are not equal',
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         strict=strict)
+                         ^^^^^^^^^^^^^^
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/lib/python3.13/site-packages/numpy/testing/_private/utils.py", line 921, in assert_array_compare
+    raise AssertionError(msg)
+AssertionError: 
+Arrays are not equal
+
+Mismatched elements: 81 / 81 (100%)
+Max absolute difference among violations: 4.84983899e-11
+Max relative difference among violations: 3.10624976e-05
+ ACTUAL: array([[ 2.799977e+00, -2.303833e-05, -2.293026e-05, -7.791186e-04,
+        -7.750724e-04, -7.710262e-04, -1.314282e-03, -1.307450e-03,
+        -1.300617e-03],...
+ DESIRED: array([[ 2.799977e+00, -2.303832e-05, -2.293025e-05, -7.791186e-04,
+        -7.750724e-04, -7.710262e-04, -1.314282e-03, -1.307450e-03,
+        -1.300617e-03],...
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.020s
+
+FAILED (failures=2, errors=1)

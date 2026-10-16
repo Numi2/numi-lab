@@ -538,7 +538,7 @@ const char kImageAnchor = 0;
 // The rich capture is a bounded binary arena on GPU; JSONL is produced only
 // after the selected command buffer completes.
 constexpr std::size_t kFEMOperatorFDNodeCaptureSlots = 37u;
-constexpr std::size_t kFEMOperatorFDTetCaptureSlots = 251u;
+constexpr std::size_t kFEMOperatorFDTetCaptureSlots = 254u;
 constexpr std::size_t kFEMOperatorFDCachedTangentSlots = 22u;
 constexpr std::size_t kFEMOperatorFDTetCenterOffset = 7u;
 constexpr std::size_t kFEMOperatorFDTetSideOffset = 71u;
@@ -12314,14 +12314,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const unsigned long iteration = separator == nullptr ||
                     allNewtonIterations ? 0ul :
                     std::strtoul(separator + 1, &iterationEnd, 10);
-                // The damped pilot selects one numeric Newton iteration per
-                // control. Its all-control form repeats every capability gate;
-                // it is neither the all-Newton primary policy nor permission
-                // to reuse an earlier direction certificate.
+                // A damped fallback may be selected at every Newton iteration.
+                // It is armed only after that iteration's healthy primary
+                // Armijo search exhausts. Each attempt rebuilds the base RHS
+                // and initializes private CGLS from zero; no earlier direction
+                // or original Newton certificate is reused.
                 const char* dampingPilotText = std::getenv(
                     "NM_FEM_BASE_CGLS_DAMPING_KG");
-                const bool dampedNumericControlScope =
-                    !allNewtonIterations &&
+                const bool dampedFallbackControlScope =
                     femBaseCGLSIterations != 0u &&
                     !femBaseCGLSPrimaryPolicyRequested &&
                     dampingPilotText != nullptr &&
@@ -12338,16 +12338,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     rejectBaseCauchy(
                         "selector_must_be_control_step_colon_all_or_newton_0_to_256_or_exact_all_colon_all");
                 } else if (everyControlStep &&
-                           !dampedNumericControlScope &&
+                           !dampedFallbackControlScope &&
                            (!allNewtonIterations ||
                             femBaseCGLSIterations == 0u ||
                             !femBaseCGLSPrimaryPolicyRequested)) {
                     // All-control scope supports the bounded all-Newton
-                    // primary policy or this single-Newton damped fallback.
+                    // primary policy or a freshly gated damped fallback.
                     // The later damping admission rejects primary, right-scale
                     // and warm-start combinations before physical execution.
                     rejectBaseCauchy(
-                        "all_control_steps_requires_cgls_primary_all_newton_or_damped_numeric_newton");
+                        "all_control_steps_requires_cgls_primary_all_newton_or_bounded_damped_fallback");
                 } else {
                     femBaseCauchyFallbackRoot =
                         static_cast<std::uint32_t>(root);
@@ -12477,15 +12477,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 if (std::strcmp(damping, "1e-3") != 0 ||
                     femBaseCGLSIterations == 0u ||
                     !femBaseCauchyFallbackRequested ||
-                    femBaseCauchyFallbackAllNewtonIterations ||
                     femBaseCGLSPrimaryPolicyRequested ||
                     femBaseCGLSRightScaleEnabled ||
                     femBaseCGLSWarmStartRefine) {
                     std::fprintf(stderr,
-                        "fem_base_cgls_damping_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"requires_exact_1e-3_kg_numeric_single_newton_fallback_with_32_or_64_iterations_no_primary_no_right_scale_no_warm_start\",\"physical_operator_changed\":false}\n",
+                        "fem_base_cgls_damping_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"requires_exact_1e-3_kg_healthy_exhausted_armijo_fallback_with_32_or_64_iterations_no_primary_no_right_scale_no_warm_start\",\"physical_operator_changed\":false}\n",
                         request.controlStep);
                     diagnostics.message =
-                        "damped CGLS requires the bounded numeric single-Newton fallback and exact pilot damping";
+                        "damped CGLS requires the bounded healthy exhausted-Armijo fallback and exact pilot damping";
                     ownership->preDynamicsOpen = false;
                     return diagnostics;
                 }
@@ -12494,10 +12493,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 femBaseCGLSDampingSquared =
                     femBaseCGLSDampingKg * femBaseCGLSDampingKg;
                 if (femBaseCauchyFallbackSelectedRoot) {
+                    const std::string selectedNewton =
+                        femBaseCauchyFallbackAllNewtonIterations
+                            ? "null" : std::to_string(femBaseCauchyFallbackIteration);
                     std::fprintf(stderr,
-                        "fem_base_cgls_damped_enabled={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"direction_kind\":\"full_zero_damped_CGLS\",\"regularization_kg\":%.9g,\"objective\":\"||A*x-b||_2^2+mu_kg^2*||x||_2^2\",\"iteration_budget\":%u,\"right_scale\":null,\"warm_start\":false,\"original_newton_certificate_applies_to_direction\":false,\"final_physical_operator_and_acceptance_unchanged\":true}\n",
+                        "fem_base_cgls_damped_enabled={\"schema\":2,\"root\":%u,\"selected_newton_iteration\":%s,\"selection\":\"healthy_exhausted_primary_armijo\",\"direction_kind\":\"full_zero_damped_CGLS\",\"regularization_kg\":%.9g,\"objective\":\"||A*x-b||_2^2+mu_kg^2*||x||_2^2\",\"iteration_budget\":%u,\"right_scale\":null,\"warm_start\":false,\"original_newton_certificate_applies_to_direction\":false,\"final_physical_operator_and_acceptance_unchanged\":true}\n",
                         femBaseCauchyFallbackRoot,
-                        femBaseCauchyFallbackIteration,
+                        selectedNewton.c_str(),
                         static_cast<double>(femBaseCGLSDampingKg),
                         femBaseCGLSIterations);
                 }
@@ -13654,6 +13656,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     << capturedTetrahedronCount
                                     << ",\"center_residual_source\":\"pre_fgmres_private_copy\""
                                     << ",\"F_local_word_encoding\":\"high_float32_plus_low_float32_for_compensated_material_input; zero_low_for_other_materials\""
+                                    << ",\"material_frame_encoding\":\"native_float32_rows_no_renormalization\""
                                     << ",\"epsilon_values\":[";
                                 capturedAppendTraceFloat(header, capturedEpsilon0);
                                 header << ',';
@@ -13950,6 +13953,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                         appendMatrix(line, record + 3u);
                                         line << ",\"material_frame_quaternion_xyzw\":";
                                         appendVec4(line, record[6u]);
+                                        line << ",\"material_frame_rows_float32\":";
+                                        appendMatrix(line, record + 251u);
                                         line << ",\"center\":{\"F_world\":";
                                         appendMatrix(line, center);
                                         line << ",\"F_local\":"; appendMatrix(line, center + 3u);

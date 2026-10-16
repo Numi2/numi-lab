@@ -1,0 +1,14 @@
+{
+  "acceptance_tolerances_changed": false,
+  "base": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-exact-frame-capture-202-buildfix-002",
+  "changed_sources": {
+    "matter/src/runtime.mm": {
+      "after": "e8f2de632ee0006ca8bbc1a828f182332102c56b3684fea2a29548c50a864580",
+      "before": "5fb39f305b11c03010415eb5454015d3af13ada9a597f220436fc30b396ef230"
+    }
+  },
+  "frozen_sha256": "ec7af9ddb1fc7e424afdaaf270125ec4870bc34c1a807b732fbdf4aa2bdf64bd",
+  "native_test_pending": true,
+  "physical_operator_changed": false,
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-repeated-damped-fallback-203"
+}

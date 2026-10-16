@@ -1,0 +1,12 @@
+{
+  "exit": 1,
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "test_cardboard_cached_operator_audit"
+  ],
+  "classification": "new frame fixture used noncanonical volume; legacy path was unintentionally recast to FP32; preexisting synthetic environment omitted contact getenv spelling",
+  "preserved_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-exact-frame-capture-202"
+}

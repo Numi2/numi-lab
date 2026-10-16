@@ -1,0 +1,36 @@
+{
+  "schema": "numi.cardboard.native535-first-failure-adjudication-manifest.v1",
+  "created_at_utc": "2026-10-16T09:38:48.389462+00:00",
+  "audit_command": "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3 -B /Users/n/cardboard-implementation-20261014-host-macmini/analysis/native535-first-failure-adjudication-001/audit.py",
+  "audit_result": "PASS_SOURCE_BOUND_FIRST_FAILURE_CLASSIFICATION; FULL_COUPON_FAILED",
+  "files_sha256": {
+    "README.md": "1d45685f2476b81c63c673da41ebff4fe2fe74c130b902ca0a3e7f1479555f88",
+    "audit.py": "2a12a743abbcdb9d07926e47e288c736a55f549fe397e71cccb56fa190984e13",
+    "audit-attempts.json": "707b1057e48ea67bc2b33973be3bf1c1e48ab882aec1a8ba5bd07ab2755f7f05",
+    "compare-prefixes-vs521.json": "4f4ad2768ae59738afe298c54f99567b93acf5c96b94a43199ce81732d7d1cc3",
+    "report.json": "dbcc74a21aaac00a26dcc7c54311345f4c9d5bf9a96b6321beedf46b409f17c7"
+  },
+  "inputs_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native535-source201-full-coupon-command-001/execution-535/launch.json": "d45667518c7420f2b64e0fa9e698be173118f919e5e60a74bd31dc4a152e5acd",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native535-source201-full-coupon-command-001/execution-535/receipt.json": "aa0fd59c85697d35e50ee234d54e8c34f9e04803be9c8831dd39f14ac3efda18",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native535-source201-full-coupon-command-001/execution-535/wrapper.log": "dda89c4d6d61311ac0e026715ac3dafb55e42b50322f17383c31d92d0d55f89d",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source201-damped-cgls-complete-coupon-535/receipt.json": "24a0f7f3f3dd86de0f831008e2ec2f254759ea7f2a55e51214276d19c83fb459",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source201-damped-cgls-complete-coupon-535/native-environment.json": "07591badeb16a624bfa8fff1466ef3745aa4470642b0ca848d4921d11f519974",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source201-damped-cgls-complete-coupon-535/stdout.log": "d60fe73e0e26df566acd0b661254ee8baad40886b752ee24d9c210aeaa1af39b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source201-damped-cgls-complete-coupon-535/stderr.log": "6d01d5bd607271dea7ce9cb34470455bd9283bf0d2f5fd2a35391111767d6d7d",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source201-damped-cgls-complete-coupon-535/output/result.json": "e5af00ef5ce1ec4a050105875fbd76f82338443613a3676a0de0385d0fe16c6b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source201-damped-cgls-complete-coupon-535/output/observations.csv": "23a6b0d0e945c8384e2a14f6b6adfeb8823fb8bb85cb12c0bde37cd19e43ce09",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source201-damped-cgls-complete-coupon-535/output/manifest.json": "9e0c01c9e1cee20d6161c77bcdba9edfa015c87f7442b42bd8e9bda30bf91796",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source201-damped-cgls-complete-coupon-535/output/rejected-conditioning-000018/manifest.json": "be46395c14ad701d83166c40da338e0925b2977fcabbd218556fda589adb9063",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source201-damped-cgls-complete-coupon-535/output/rejected-conditioning-000018/candidate_nodes.bin": "db75dfcc037c193bb43ab0b3ffc2ffa90b3ed7f88f2b188fbe5d3da1b4a03994",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source201-damped-cgls-complete-coupon-535/output/rejected-conditioning-000018/factor_valid.bin": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-regional-rap-tail-preserve-201/frozen-source.json": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-coupon535-001/source-build.json": "5a77272cb34ec98f3d7e9d2ab113c13ac8fa3000ec98690688fd12798db41673",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native535-source201-full-coupon-command-001/command-spec.json": "099c45b43fc78d1add1b5eb53b662fd389ef8e946d5af2f0c6c42177d14f4afa",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native535-source201-full-coupon-command-001/package-manifest.json": "e99f4c0a5404a8ff4eca8894b8faf95d7de5f1c4caca7e68f29863fc62617408",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native535-source201-full-coupon-command-001/runner.py": "8a3e6bb634ccd0e5e3728095317fab18d37181de9198c7446e852acdecabb2d5",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native535-source201-full-coupon-command-001/compare_prefixes.py": "9133dc57a544ca67d3f9834aecae03fc9d0204a851d9f68aa4b6e3e4b38e8276",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native535-first-failure-adjudication-001/compare-prefixes-vs521.json": "4f4ad2768ae59738afe298c54f99567b93acf5c96b94a43199ce81732d7d1cc3",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-regional-rap-tail-preserve-201/matter/src/metal/fem.metalinc": "bbd6abd764f723e6f0b266b80a3c99e100384e68e5ca5ae7cdd29cad36fb6a43"
+  }
+}
