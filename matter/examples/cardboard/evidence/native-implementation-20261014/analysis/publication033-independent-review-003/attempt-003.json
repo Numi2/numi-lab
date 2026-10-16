@@ -1,0 +1,9 @@
+{
+  "failure": "Verifier expected the stated 9.63568425e-8 regional residual in the pre-attempt certificate; raw transaction shows 9.08823736e-8 before and 9.63568425e-8 after the injected rejection. Correct check must bind the post-attempt certificate. No publication data or checkout files were modified.",
+  "finished_at_utc": "2026-10-16T08:10:10.241501+00:00",
+  "observed_after_residual": 9.63568425e-08,
+  "observed_before_residual": 9.08823736e-08,
+  "schema": "numi.cardboard.publication033-independent-review-attempt.v1",
+  "script_sha256": "412721c6491fc2d67a424ee08a8d64e1c3a2087db9654661274c09c762c43ebc",
+  "status": "failed_verifier_preflight"
+}

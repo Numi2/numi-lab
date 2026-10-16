@@ -1,0 +1,47 @@
+{
+  "file_count": 9,
+  "files": {
+    "README.md": {
+      "sha256": "74b8d5daab2f0a9b57f278e91c3976aa81ec11a85adb085498afd2e6591a0bdd",
+      "size_bytes": 1389
+    },
+    "build.log": {
+      "sha256": "3d57fddc08256054004e5f9039b02824c241a500276207d9597f194cd4a7fb4e",
+      "size_bytes": 4439
+    },
+    "buildfix.patch": {
+      "sha256": "0525718f7717aca16d55d0bd90167360a6ed47b4113d165a0828a0546d6d58e3",
+      "size_bytes": 707
+    },
+    "buildfix002-validation.json": {
+      "sha256": "eb2a874e41c5a5a9d8cad45f88ef19ca90d7366ff587556ed0cd90dafd1d3e3e",
+      "size_bytes": 1325
+    },
+    "configure.log": {
+      "sha256": "91a7dba452cd7255783681b286d17ff946ec50f9b52f8ff4e65523291e79ba7b",
+      "size_bytes": 666
+    },
+    "correction-report.json": {
+      "sha256": "f9308139501aed633135db5f432d4c92b8c66bdbc15359948fc3d15b542857e3",
+      "size_bytes": 1187
+    },
+    "ctest.log": {
+      "sha256": "1b911758407bab13eeb2058a39e689efd10116a5a41ad9150e7f6e55b0d61aab",
+      "size_bytes": 780
+    },
+    "source-build.json": {
+      "sha256": "4fc31c0d13dbee479bf2d809812c154776b8890d537a9d3a875bb2f382294616",
+      "size_bytes": 102505
+    },
+    "source-map.json": {
+      "sha256": "183cc74a29bfb90fe8d050e9096000c5a430601f2eb31d899f3b323f0a383ad4",
+      "size_bytes": 101166
+    }
+  },
+  "package": "source199-postcommit-fault-signature-buildfix-002",
+  "parent_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-001",
+  "schema": "numi.cardboard.evidence-package.v1",
+  "source_build_sha256": "4fc31c0d13dbee479bf2d809812c154776b8890d537a9d3a875bb2f382294616",
+  "source_map_entries": 816,
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-buildfix-002"
+}

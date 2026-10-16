@@ -1,0 +1,7 @@
+{
+  "failure": "Verifier expected 'caps, not convergence'; the staged evidence index wording is 'iteration caps without convergence'. Native523 remains scoped to cap-limited private helpers with zero physical transactions.",
+  "finished_at_utc": "2026-10-16T08:12:12.616841+00:00",
+  "schema": "numi.cardboard.publication033-doc-review-attempt.v1",
+  "script_sha256": "b339c18491d67ecd9a5e15fca992eb8d63c60098d94e0e5f0344b95c23eb2f25",
+  "status": "failed_verifier_assertion"
+}

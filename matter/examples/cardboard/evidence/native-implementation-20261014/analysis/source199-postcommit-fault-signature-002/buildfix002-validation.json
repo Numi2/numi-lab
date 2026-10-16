@@ -1,0 +1,25 @@
+{
+  "buildfix002_target_build": "PASS",
+  "buildfix004_duplicate_snapshot": {
+    "entry_count": 816,
+    "not used for this build": true,
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-buildfix-004"
+  },
+  "cpu_tests": "2/2 PASS",
+  "gpu_or_native_transactions": false,
+  "only_changed_source_path": "matter/tools/cardboard_full_contact_armijo_check.mm",
+  "parent_map_all_files_match": true,
+  "parent_map_entries": 816,
+  "preserved_buildfix003_bad_map_attempt": {
+    "defect": "extra tools/... key alongside the canonical matter/tools/... entry",
+    "entry_count": 817,
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-buildfix-003"
+  },
+  "schema": "numi.cardboard.source-correction-validation.v1",
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-buildfix-002",
+  "source199_failed_build_log_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source199-postcommit-fault-signature-001/build.log",
+  "source199_failed_build_log_sha256": "abc0a6dd6d33e1a50d809edee93750339c52f65590a8c3cd024eb77354b5b9aa",
+  "source199_unchanged": true,
+  "source_map_all_files_match": true,
+  "source_map_entries": 816
+}

@@ -1,0 +1,94 @@
+{
+  "schema": "numi.cardboard.reference034-publication-binding.v1",
+  "parent": "c610f03357c2e578a691defd63784b34d785a27b",
+  "prior_binding_sha256": "9bb5b95064ef1dceba094d6368755f7fdb1620fe1970a46202ab40dbef1f93d1",
+  "historical_prefix": {
+    "records": 1814,
+    "path": "summary-reference033.json",
+    "sha256": "bd20ddc8711092ab3e8086257b216c85419d852531d81882c591d09b9ea2d5d3"
+  },
+  "new_case_records": 29,
+  "cases": [
+    "analysis/native521-accepted-prefix-parity-001-20261016T082142Z",
+    "analysis/native521-fresh-damped-coupon-command-002",
+    "analysis/native528529-independent-strict-fault-audit-001",
+    "analysis/native528529-strict-postcommit-fault-command-001",
+    "analysis/publication033-commit-and-push-001",
+    "analysis/publication033-independent-byte-audit-001",
+    "analysis/publication033-independent-byte-audit-002",
+    "analysis/publication033-independent-review-001",
+    "analysis/publication033-independent-review-002",
+    "analysis/publication033-independent-review-003",
+    "analysis/publication033-independent-review-004",
+    "analysis/publication033-independent-review-005",
+    "analysis/publication033-independent-review-006",
+    "analysis/publication033-milestone-doc-review-001",
+    "analysis/publication033-milestone-doc-review-002",
+    "analysis/publication033-milestone-doc-review-003",
+    "analysis/publication033-milestone-doc-review-004",
+    "analysis/publication033-payload-preflight-002",
+    "analysis/publication033-root-audit-name-collision-001",
+    "analysis/publication034-case-inventory-001",
+    "analysis/publication034-payload-preflight-001",
+    "analysis/source199-host-artifacts-001",
+    "analysis/source199-postcommit-fault-signature-001",
+    "analysis/source199-postcommit-fault-signature-002",
+    "analysis/source199-postcommit-fault-signature-003",
+    "analysis/source199-postcommit-fault-signature-004",
+    "native/strict199-regional-528",
+    "native/strict199-scalar-negative-529",
+    "solver/fresh-damped-cgls-complete-coupon-521"
+  ],
+  "case_selection_sha256": "4ef270a8b59cd146c6d3b602b50b6240ab675af10653a13787f3496ea177bcd9",
+  "copied_files": 341,
+  "raw_files": 308,
+  "gzip_files": 33,
+  "original_payload_bytes": 127120222,
+  "stored_payload_bytes": 18550741,
+  "summary_sha256": "43caf119ea501d4487e170f35b3eae1687a0cc447c443aafc9501013b40ea626",
+  "six_axis_verdicts": {
+    "solver_correctness": {
+      "status": "partial_component_evidence; complete_nonlinear_solve_unqualified",
+      "evidence": "Source199 strengthens the synthetic contact checker to require the exact prescribed-motion postCommit fault. Native528 passes and preserves26 raw files identical to526. Negative529 exits1 for the specific signature assertion because its scalar solve rejects earlier at Newton18/status10; all13 baseline outputs match527. Physical runtime/Metal bytes remain source198. Transaction rollback and fault specificity are bounded component evidence only."
+    },
+    "numerical_convergence": {
+      "status": "unqualified",
+      "evidence": "Fresh native521 fails after17 accepted controls at zero-based17/Newton34: nonlinear residual1.63952734e-6 to1.63964694e-6, unchanged tolerance5e-7, smallest alpha1.19209290e-7. Its fresh linear residual is1.19334089e-7 with healthy status. All18 numeric-Newton3 damped records have zero candidates; no installed damping is evidenced at Newton34. Independent prefix audit finds34 accepted OBJ files and34 observation rows byte-identical to480. Exact failing correction and full accepted checkpoint were not captured. Active530 checkpoint experiment is excluded. No complete60-control coupon or mesh/time triplet is qualified."
+    },
+    "component_calibration": {
+      "status": "partial_source_data_only",
+      "evidence": "Published-data package remains grade-bound. Exact kraft/NSSC progressive failure and local starch strength/GIc/GIIc remain unidentified."
+    },
+    "analogue_validation": {
+      "status": "unqualified_for_requested_full_sequence",
+      "evidence": "Grade, fixture, conditioning and rate transfer limits remain; no new validation series passed."
+    },
+    "physical_assembly_in_simulation": {
+      "status": "unqualified",
+      "evidence": "The explicit-flute shipping topology remains528444nodes,1477728tetrahedra and260835cohesive faces. Source198 removes double counting of the single private arena and charges the optional sorted-incidence workspace, but the bounded node/tet/contact arenas still reject the shipping world and no measured whole-process16GiB peak is qualified. No physically scored, folded, bonded, fixture-free300x200x200mm checkpoint exists."
+    },
+    "crush_impact_prediction": {
+      "status": "unexecuted",
+      "evidence": "No qualified compression first peak, capacity-derived masses, gravity crush or 100mm drop; exact bare-box impact validation unavailable."
+    }
+  },
+  "source199_frozen_sha256": "183cc74a29bfb90fe8d050e9096000c5a430601f2eb31d899f3b323f0a383ad4",
+  "source199_host_build_sha256": "4fc31c0d13dbee479bf2d809812c154776b8890d537a9d3a875bb2f382294616",
+  "selected_source_files": 816,
+  "changed_source_files": [
+    "matter/tools/cardboard_full_contact_armijo_check.mm"
+  ],
+  "excluded_directory_parts": [
+    "CMakeFiles",
+    "__pycache__",
+    "archives",
+    "base",
+    "build",
+    "inputs",
+    "restore-check",
+    "restore-test"
+  ],
+  "verified_historical_overlaps": [],
+  "exclusion_scope": "Explicit closed-case list only; active530, reinitialization helper and source201 excluded. No research input or native output deleted. Failed builds and negative controls retained.",
+  "physical_validation": false
+}

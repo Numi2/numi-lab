@@ -1,0 +1,117 @@
+{
+  "schema": "numi.cardboard.source199-host-artifacts.v1",
+  "records": [
+    {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-001/frozen-source.json",
+      "bundle_path": "snapshots/source-contact-damped-memory-199-001/frozen-source.json",
+      "bytes": 100456,
+      "sha256": "4d080b60ab82e36d82407ecc9cf94176fa4812f7fe2c2098307a88026054878e"
+    },
+    {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-001/matter/tools/cardboard_full_contact_armijo_check.mm",
+      "bundle_path": "snapshots/source-contact-damped-memory-199-001/matter/tools/cardboard_full_contact_armijo_check.mm",
+      "bytes": 331964,
+      "sha256": "6df53f4f27d4bd6a3b5a63137ff5b93976dd3c82bc6488fa0284facaa1745fbb"
+    },
+    {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-buildfix-002/frozen-source.json",
+      "bundle_path": "snapshots/source-contact-damped-memory-199-buildfix-002/frozen-source.json",
+      "bytes": 101166,
+      "sha256": "183cc74a29bfb90fe8d050e9096000c5a430601f2eb31d899f3b323f0a383ad4"
+    },
+    {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-buildfix-002/matter/tools/cardboard_full_contact_armijo_check.mm",
+      "bundle_path": "snapshots/source-contact-damped-memory-199-buildfix-002/matter/tools/cardboard_full_contact_armijo_check.mm",
+      "bytes": 331965,
+      "sha256": "1db145ef8679a79dc2eafc74fd416f7a5ee67c7b343e46b7f8a150980b19a233"
+    },
+    {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-buildfix-003/frozen-source.json",
+      "bundle_path": "snapshots/source-contact-damped-memory-199-buildfix-003/frozen-source.json",
+      "bytes": 101532,
+      "sha256": "7fdb9c9f9b1e4b567e0c3a4d066dbc8cf3a28ad9ee85ee8c5617ceaa71887f31"
+    },
+    {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-buildfix-003/matter/tools/cardboard_full_contact_armijo_check.mm",
+      "bundle_path": "snapshots/source-contact-damped-memory-199-buildfix-003/matter/tools/cardboard_full_contact_armijo_check.mm",
+      "bytes": 331965,
+      "sha256": "1db145ef8679a79dc2eafc74fd416f7a5ee67c7b343e46b7f8a150980b19a233"
+    },
+    {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source199-postcommit-fault-signature-002/source-build.json",
+      "bundle_path": "source-build.json",
+      "bytes": 102505,
+      "sha256": "4fc31c0d13dbee479bf2d809812c154776b8890d537a9d3a875bb2f382294616"
+    },
+    {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source199-postcommit-fault-signature-002/build.log",
+      "bundle_path": "artifacts/build_log/build.log",
+      "bytes": 4439,
+      "sha256": "3d57fddc08256054004e5f9039b02824c241a500276207d9597f194cd4a7fb4e"
+    },
+    {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source199-postcommit-fault-signature-002/buildfix.patch",
+      "bundle_path": "artifacts/buildfix_patch/buildfix.patch",
+      "bytes": 707,
+      "sha256": "0525718f7717aca16d55d0bd90167360a6ed47b4113d165a0828a0546d6d58e3"
+    },
+    {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source199-buildfix-002/numi-matter-cardboard-full-contact-armijo-check",
+      "bundle_path": "artifacts/checker/numi-matter-cardboard-full-contact-armijo-check",
+      "bytes": 2249648,
+      "sha256": "24b507a0e51ee500ab1723435a033d32ecd7313de5b818e7543ee1e7fd297291"
+    },
+    {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source199-buildfix-002/CMakeCache.txt",
+      "bundle_path": "artifacts/cmake_cache/CMakeCache.txt",
+      "bytes": 19037,
+      "sha256": "79e12f5aa849846f862ba1db02f4dd0671f28176a969f2b92b4adfacca512bbe"
+    },
+    {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source199-buildfix-002/compile_commands.json",
+      "bundle_path": "artifacts/compile_commands/compile_commands.json",
+      "bytes": 129364,
+      "sha256": "ba7af9190c304019c19bc3993319a7dcab80f2eb65b908b11b6e1f969782edbb"
+    },
+    {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source199-postcommit-fault-signature-002/configure.log",
+      "bundle_path": "artifacts/configure_log/configure.log",
+      "bytes": 666,
+      "sha256": "91a7dba452cd7255783681b286d17ff946ec50f9b52f8ff4e65523291e79ba7b"
+    },
+    {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source199-postcommit-fault-signature-002/correction-report.json",
+      "bundle_path": "artifacts/correction_report/correction-report.json",
+      "bytes": 1187,
+      "sha256": "f9308139501aed633135db5f432d4c92b8c66bdbc15359948fc3d15b542857e3"
+    },
+    {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source199-postcommit-fault-signature-002/ctest.log",
+      "bundle_path": "artifacts/cpu_ctest_log/ctest.log",
+      "bytes": 780,
+      "sha256": "1b911758407bab13eeb2058a39e689efd10116a5a41ad9150e7f6e55b0d61aab"
+    },
+    {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source199-buildfix-002/shaders/NumiMatter.metallib",
+      "bundle_path": "artifacts/matter_metallib/NumiMatter.metallib",
+      "bytes": 7033424,
+      "sha256": "edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f"
+    },
+    {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source199-buildfix-002/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "bundle_path": "artifacts/physical_state_digest_metallib/NumiMatterPhysicalStateDigest.metallib",
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    {
+      "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source199-postcommit-fault-signature-002/source-map.json",
+      "bundle_path": "artifacts/source_map_copy/source-map.json",
+      "bytes": 101166,
+      "sha256": "183cc74a29bfb90fe8d050e9096000c5a430601f2eb31d899f3b323f0a383ad4"
+    }
+  ],
+  "canonical_frozen_sha256": "183cc74a29bfb90fe8d050e9096000c5a430601f2eb31d899f3b323f0a383ad4",
+  "canonical_build_sha256": "4fc31c0d13dbee479bf2d809812c154776b8890d537a9d3a875bb2f382294616",
+  "qualification": "Source-bound strict regression checker only. Failed snapshot001 and rejected map003 retained; only canonical snapshot002 admitted.",
+  "at_utc": "2026-10-16T08:25:14.799952+00:00"
+}

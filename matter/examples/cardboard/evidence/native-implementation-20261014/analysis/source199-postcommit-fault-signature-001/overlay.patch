@@ -1,0 +1,124 @@
+--- a/matter/tools/cardboard_full_contact_armijo_check.mm
++++ b/matter/tools/cardboard_full_contact_armijo_check.mm
+@@ -385,6 +385,69 @@
+ void require(const bool condition, const std::string& message) {
+     ++checks;
+     if (!condition) throw std::runtime_error(message);
++}
++
++static_assert(NM_STATUS_INVALID_DISPATCH == 1u,
++    "post-commit motion-type fault depends on NM_STATUS_INVALID_DISPATCH=1");
++static_assert(NM_STATUS_NONLINEAR_SOLVER_FAILURE == 10u,
++    "the earlier nonlinear rejection remains a distinct negative control");
++
++// contact.metalinc:nm_contact_validate_prescribed_motion records this exact
++// signature when the prescribed kinematic capsule arrives as dynamic:
++// recordFailure(INVALID_DISPATCH, NM_INVALID_INDEX, proxyIndex, float4(-3)).
++bool isExpectedPostCommitMotionTypeFault(
++        const NMMatterStatusGPU& status,
++        const std::uint32_t environment,
++        const std::uint32_t proxyIndex) {
++    return status.code == NM_STATUS_INVALID_DISPATCH &&
++        status.environment == environment &&
++        status.objectIndex == NM_INVALID_INDEX &&
++        status.failingIndex == proxyIndex &&
++        status.diagnostics.x == -3.0f &&
++        status.diagnostics.y == -3.0f &&
++        status.diagnostics.z == -3.0f &&
++        status.diagnostics.w == -3.0f;
++}
++
++void verifyPostCommitFaultSignaturePolicy() {
++    NMMatterStatusGPU expected{};
++    expected.code = NM_STATUS_INVALID_DISPATCH;
++    expected.environment = 0u;
++    expected.objectIndex = NM_INVALID_INDEX;
++    expected.failingIndex = 0u;
++    expected.diagnostics = {-3.0f, -3.0f, -3.0f, -3.0f};
++    require(isExpectedPostCommitMotionTypeFault(expected, 0u, 0u),
++        "exact prescribed-motion postCommit fault signature was rejected");
++
++    NMMatterStatusGPU earlierNonlinear{};
++    earlierNonlinear.code = NM_STATUS_NONLINEAR_SOLVER_FAILURE;
++    earlierNonlinear.environment = 0u;
++    earlierNonlinear.objectIndex = 0u;
++    earlierNonlinear.failingIndex = 331u;
++    earlierNonlinear.diagnostics = {1.17e-7f, 1.39e-7f, 7.8e-3f, 8.0f};
++    require(!isExpectedPostCommitMotionTypeFault(
++                earlierNonlinear, 0u, 0u),
++        "earlier Newton status-10 rejection falsely matched postCommit fault");
++
++    NMMatterStatusGPU wrongProxy = expected;
++    wrongProxy.failingIndex = 1u;
++    require(!isExpectedPostCommitMotionTypeFault(wrongProxy, 0u, 0u),
++        "wrong prescribed proxy index matched postCommit fault");
++    NMMatterStatusGPU wrongDiagnostics = expected;
++    wrongDiagnostics.diagnostics.z = 0.0f;
++    require(!isExpectedPostCommitMotionTypeFault(
++                wrongDiagnostics, 0u, 0u),
++        "wrong source diagnostic tuple matched postCommit fault");
++    NMMatterStatusGPU wrongEnvironment = expected;
++    wrongEnvironment.environment = 1u;
++    require(!isExpectedPostCommitMotionTypeFault(
++                wrongEnvironment, 0u, 0u),
++        "wrong environment matched postCommit fault");
++    std::cout << "PASS exact postCommit motion-type fault policy"
++              << " code=NM_STATUS_INVALID_DISPATCH(1)"
++              << " proxy=0 diagnostics=(-3,-3,-3,-3)"
++              << " status10_negative_control=true
++";
+ }
+ 
+ struct BarrierReference {
+@@ -3392,6 +3455,16 @@
+                     std::string::npos,
+             "legacy control unexpectedly allocated the tiled cohesive arena");
+     }
++    const NMRigidProxyGPU& postCommitFaultProxy =
++        run->world.contact.rigidProxies.at(0u);
++    require(postCommitFaultProxy.shapeKind == NM_RIGID_CAPSULE &&
++            postCommitFaultProxy.bodyIndex == kPunchBody &&
++            (postCommitFaultProxy.flags &
++                NM_RIGID_PRESCRIBED_TRANSLATION) != 0u,
++            "postCommit fault fixture does not target prescribed punch proxy zero");
++    require(run->bodies.at(kPunchBody).flagsAndIndices[0] ==
++                MR_MOTION_KINEMATIC,
++            "preDynamics punch body is not the expected kinematic baseline");
+     const RuntimeStateSnapshot initial = run->snapshot();
+     require(initial.cohesiveFaces.size() == cohesivePatchTileCount &&
+             std::all_of(initial.cohesiveFaces.begin(),
+@@ -3588,8 +3661,24 @@
+             rejectedTrace.find("fem_residual_armijo_iteration=") !=
+                 std::string::npos,
+             "rejected full-contact trial did not execute the selected native Armijo path");
+-    require(rejected.snapshot.statuses[0].code != NM_STATUS_SUCCESS,
+-            "postCommit motion-type fault unexpectedly accepted");
++    require(rejected.snapshot.statuses.size() == 1u,
++            "postCommit motion-type fault did not return one environment status");
++    {
++        const NMMatterStatusGPU& status = rejected.snapshot.statuses[0];
++        std::ostringstream detail;
++        detail << "postCommit fault signature mismatch: expected source path "
++               << "nm_contact_validate_prescribed_motion / "
++               << "NM_STATUS_INVALID_DISPATCH(1) / object=NM_INVALID_INDEX / "
++               << "proxy=0 / diagnostics=(-3,-3,-3,-3), got code="
++               << status.code << " environment=" << status.environment
++               << " object=" << status.objectIndex
++               << " failing_index=" << status.failingIndex
++               << " diagnostics=(" << status.diagnostics.x << ','
++               << status.diagnostics.y << ',' << status.diagnostics.z << ','
++               << status.diagnostics.w << ')';
++        require(isExpectedPostCommitMotionTypeFault(status, 0u, 0u),
++                detail.str());
++    }
+     require(rejected.snapshot.solverCertificates.size() == 1u &&
+             rejected.snapshot.solverCertificates[0].validity.w <= 0.5f,
+             "rejected full-contact transaction retained its accepted-certificate bit");
+@@ -6137,6 +6226,7 @@
+                     (compiled.objects[0].flags & NM_OBJECT_DISABLE_DEFORMABLE_CONTACT) == 0u,
+                 "compiled source did not enable self-contact and deformable contact");
+             if (cpuOnly) {
++                verifyPostCommitFaultSignaturePolicy();
+                 MeshAndWorld geometrySource = makeWorld(
+                     bulk, false, true, kActivationGap);
+                 verifyPartialMortarSource(geometrySource);

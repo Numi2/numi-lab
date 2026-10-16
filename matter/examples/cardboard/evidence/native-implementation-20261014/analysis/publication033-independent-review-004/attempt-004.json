@@ -1,0 +1,7 @@
+{
+  "failure": "Verifier attempted to decode bytes as individual integers when comparing git path lists; corrected by splitting NUL-delimited outputs. No publication data or checkout files were modified.",
+  "finished_at_utc": "2026-10-16T08:10:21.753705+00:00",
+  "schema": "numi.cardboard.publication033-independent-review-attempt.v1",
+  "script_sha256": "a0baf036d77b1cea490693cba43430f1455b286a20824d4423bd98c253152d21",
+  "status": "failed_verifier_preflight"
+}

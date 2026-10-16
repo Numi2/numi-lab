@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.publication033-commit-push.v1",
+  "parent": "877cd6e69657c9a7b4e5032bcd475705bcc06c85",
+  "audit_sha256": "6ca435c63eab940af0c403379cd6583c41d9fd28a55585f06005b424219c9821",
+  "independent_agent_audit_sha256": "5286bf87b574673abc371f619b775938678ffeda4e5bb4740491a5a64a452acd",
+  "staged_paths": 1632,
+  "staged_pathlist_sha256": "f0f2b8f63c61927df10bdd13947e074393bb9c43759fd12ae1e271ca489980bc",
+  "source_hashes_verified": 816,
+  "all_staged_blob_bytes_match": true,
+  "utc": "2026-10-16T08:11:30.159269+00:00",
+  "commit": "c610f03357c2e578a691defd63784b34d785a27b",
+  "remote_main": "c610f03357c2e578a691defd63784b34d785a27b",
+  "remote_verified": true,
+  "finished_at_utc": "2026-10-16T08:11:55.889661+00:00",
+  "qualification": "Regional synthetic contact fixture reaches intended postCommit fault and rolls back; damped production-kernel checks pass for positive damping. All six full-protocol axes remain open. Active521 excluded."
+}

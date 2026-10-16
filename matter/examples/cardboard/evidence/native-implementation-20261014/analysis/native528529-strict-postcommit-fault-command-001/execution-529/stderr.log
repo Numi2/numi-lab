@@ -1,0 +1,1 @@
+FAIL full-contact residual Armijo fixture: postCommit fault signature mismatch: expected source path nm_contact_validate_prescribed_motion / NM_STATUS_INVALID_DISPATCH(1) / object=NM_INVALID_INDEX / proxy=0 / diagnostics=(-3,-3,-3,-3), got code=10 environment=0 object=0 failing_index=18 diagnostics=(1.50609e-07,1.50609e-07,1.19209e-07,24)

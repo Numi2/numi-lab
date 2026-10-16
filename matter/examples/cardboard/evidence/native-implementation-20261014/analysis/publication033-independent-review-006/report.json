@@ -1,0 +1,52 @@
+{
+  "active_native521_outputs_included": false,
+  "binding_sha256": "9bb5b95064ef1dceba094d6368755f7fdb1620fe1970a46202ab40dbef1f93d1",
+  "build_artifacts_verified": 11,
+  "checkout_diff_matches_staged_paths": true,
+  "compressed_payloads": 166,
+  "cpu_receipts_exit0": {
+    "cpu-checks": 0,
+    "damped-cgls-oracle": 0,
+    "solver-environment": 0
+  },
+  "decompressed_original_bytes": 668254149,
+  "finished_at_utc": "2026-10-16T08:10:46.639406+00:00",
+  "head": "877cd6e69657c9a7b4e5032bcd475705bcc06c85",
+  "historical_native521_preflight_cases_included": [
+    "analysis/native521-fresh-damped-coupon-command-001",
+    "analysis/native521-fresh-damped-coupon-command-002-integrity-before-001",
+    "analysis/native521-fresh-damped-coupon-command-002-integrity-correction-001",
+    "analysis/native521-question-label-correction-001"
+  ],
+  "historical_records_byte_identical": 1669,
+  "native523": {
+    "O0_O3_equal": true,
+    "damped": "iteration cap 32/64, not convergence",
+    "physical_transactions_each": 0,
+    "undamped": "breakdown at iteration 6, error bit 32"
+  },
+  "native526_527": {
+    "526": {
+      "code": 1,
+      "failing_index": 0
+    },
+    "527": {
+      "code": 10,
+      "failing_index": 18
+    }
+  },
+  "new_case_records": 145,
+  "payloads_verified": 1615,
+  "physical_validation": false,
+  "raw_payloads": 1449,
+  "schema": "numi.cardboard.publication033-independent-review.v1",
+  "six_axes_open": true,
+  "source198_changed_checkout_files": 12,
+  "source198_files_verified": 816,
+  "source198_frozen_sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc",
+  "staged_pathlist_sha256": "f0f2b8f63c61927df10bdd13947e074393bb9c43759fd12ae1e271ca489980bc",
+  "staged_paths": 1632,
+  "stored_payload_bytes": 123637754,
+  "summary_sha256": "bd20ddc8711092ab3e8086257b216c85419d852531d81882c591d09b9ea2d5d3",
+  "verdict": "PASS"
+}

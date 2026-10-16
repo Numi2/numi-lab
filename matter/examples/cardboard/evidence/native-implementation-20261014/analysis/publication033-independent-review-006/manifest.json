@@ -1,0 +1,21 @@
+{
+  "inputs": {
+    "binding_sha256": "9bb5b95064ef1dceba094d6368755f7fdb1620fe1970a46202ab40dbef1f93d1",
+    "case_selection_sha256": "851a2ee35ebf1e2e0dff0410c84beec870a7a63010b1be0c066c99eb7e1bd273",
+    "source198_build_sha256": "8f6c95304c23b6c7149ec6b270d54eafdf4507ea26f3420e39e523c09dd500ad",
+    "source198_frozen_sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc",
+    "staged_pathlist_sha256": "f0f2b8f63c61927df10bdd13947e074393bb9c43759fd12ae1e271ca489980bc",
+    "summary_sha256": "bd20ddc8711092ab3e8086257b216c85419d852531d81882c591d09b9ea2d5d3"
+  },
+  "outputs": {
+    "audit.py": {
+      "bytes": 15395,
+      "sha256": "934def6409296c462ba5c30916b80700e20f5019a5de35922dd2f12c161726c7"
+    },
+    "report.json": {
+      "bytes": 1879,
+      "sha256": "5286bf87b574673abc371f619b775938678ffeda4e5bb4740491a5a64a452acd"
+    }
+  },
+  "schema": "numi.cardboard.publication033-independent-review.manifest.v1"
+}

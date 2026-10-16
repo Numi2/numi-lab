@@ -1,0 +1,63 @@
+[  0%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[  0%] Generating shaders/NumiMatter.metallib
+[ 22%] Generating shaders/NumiMatterPhysicalStateDigest.metallib
+[ 22%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[ 22%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+In file included from /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-001/matter/src/matter_kernels.metal:4:
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-001/matter/src/metal/fgmres.metalinc:3174:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-001/matter/src/metal/fgmres.metalinc:3183:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-001/matter/src/metal/fgmres.metalinc:3174:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-001/matter/src/metal/fgmres.metalinc:3164:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-001/matter/src/metal/fgmres.metalinc:3620:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-001/matter/src/metal/fgmres.metalinc:3637:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-001/matter/src/metal/fgmres.metalinc:3620:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-001/matter/src/metal/fgmres.metalinc:3500:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+[ 33%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[ 33%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[ 33%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[ 44%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[ 44%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+2 warnings generated.
+[ 55%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[ 55%] Built target numi_matter_shaders
+[ 66%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+[ 66%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[ 66%] Building CXX object CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[ 66%] Built target numi_matter_compiler_objects
+[ 77%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[ 88%] Linking CXX static library libnumi_matter_compiler.a
+[ 88%] Built target numi_matter_compiler
+[ 88%] Built target numi_matter_runtime_objects
+[ 88%] Linking CXX static library libnumi_matter_runtime.a
+[ 88%] Built target numi_matter_runtime
+[ 88%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-full-contact-armijo-check.dir/tools/cardboard_full_contact_armijo_check.mm.o
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-001/matter/tools/cardboard_full_contact_armijo_check.mm:449:18: error: missing terminating '"' character [-Werror,-Winvalid-pp-token]
+  449 |               << " status10_negative_control=true
+      |                  ^
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-001/matter/tools/cardboard_full_contact_armijo_check.mm:449:18: error: expected expression
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-001/matter/tools/cardboard_full_contact_armijo_check.mm:450:1: error: missing terminating '"' character [-Werror,-Winvalid-pp-token]
+  450 | ";
+      | ^
+3 errors generated.
+make[3]: *** [CMakeFiles/numi-matter-cardboard-full-contact-armijo-check.dir/tools/cardboard_full_contact_armijo_check.mm.o] Error 1
+make[2]: *** [CMakeFiles/numi-matter-cardboard-full-contact-armijo-check.dir/all] Error 2
+make[1]: *** [CMakeFiles/numi-matter-cardboard-full-contact-armijo-check.dir/rule] Error 2
+make: *** [numi-matter-cardboard-full-contact-armijo-check] Error 2

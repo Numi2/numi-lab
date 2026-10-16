@@ -1,0 +1,5 @@
+{
+  "exit_code": 1,
+  "reason": "Root audit requested the same001 output directory already owned by the independent agent. It stopped at the initial no-overwrite assertion. No source or evidence bytes changed.",
+  "utc": "2026-10-16T08:07:53.437584+00:00"
+}

@@ -1,0 +1,42 @@
+{
+  "schema": "numi.cardboard.reference034-case-selection.v1",
+  "cases": [
+    "analysis/native521-accepted-prefix-parity-001-20261016T082142Z",
+    "analysis/native521-fresh-damped-coupon-command-002",
+    "analysis/native528529-independent-strict-fault-audit-001",
+    "analysis/native528529-strict-postcommit-fault-command-001",
+    "analysis/publication033-commit-and-push-001",
+    "analysis/publication033-independent-byte-audit-001",
+    "analysis/publication033-independent-byte-audit-002",
+    "analysis/publication033-independent-review-001",
+    "analysis/publication033-independent-review-002",
+    "analysis/publication033-independent-review-003",
+    "analysis/publication033-independent-review-004",
+    "analysis/publication033-independent-review-005",
+    "analysis/publication033-independent-review-006",
+    "analysis/publication033-milestone-doc-review-001",
+    "analysis/publication033-milestone-doc-review-002",
+    "analysis/publication033-milestone-doc-review-003",
+    "analysis/publication033-milestone-doc-review-004",
+    "analysis/publication033-payload-preflight-002",
+    "analysis/publication033-root-audit-name-collision-001",
+    "analysis/publication034-case-inventory-001",
+    "analysis/publication034-payload-preflight-001",
+    "analysis/source199-host-artifacts-001",
+    "analysis/source199-postcommit-fault-signature-001",
+    "analysis/source199-postcommit-fault-signature-002",
+    "analysis/source199-postcommit-fault-signature-003",
+    "analysis/source199-postcommit-fault-signature-004",
+    "native/strict199-regional-528",
+    "native/strict199-scalar-negative-529",
+    "solver/fresh-damped-cgls-complete-coupon-521"
+  ],
+  "excluded_active_cases": [
+    "analysis/native530-accepted-prefix-checkpoint-command-001",
+    "solver/accepted-prefix-checkpoint-530",
+    "analysis/native523-reinitialization-extension-*",
+    "analysis/source201-*"
+  ],
+  "qualification": "Closed strict-checker, terminal native521 and completed publication033 audits only. Active GPU/agent work excluded.",
+  "utc": "2026-10-16T08:25:46.463068+00:00"
+}

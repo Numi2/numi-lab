@@ -1,0 +1,7 @@
+{
+  "failure": "Verifier required the exact phrase 'without convergence' in the source198 milestone, but the document instead says the damped tests hit 32/64 iteration caps and are private-kernel checks with zero physical transactions. The evidence index explicitly labels these as not convergence. This is a verifier wording mismatch, not a document false-pass claim.",
+  "finished_at_utc": "2026-10-16T08:11:37.635423+00:00",
+  "schema": "numi.cardboard.publication033-doc-review-attempt.v1",
+  "script_sha256": "251676e602904d447420db328380766a2341ad9e38dcb207ba6abc561d45352c",
+  "status": "failed_verifier_assertion"
+}

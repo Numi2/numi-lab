@@ -1,0 +1,7 @@
+{
+  "failure": "Verifier-only path assumption pointed to matter/examples/cardboard/materials; retained source is at matter/materials. No publication data or checkout files were modified by the verifier.",
+  "finished_at_utc": "2026-10-16T08:09:31.444614+00:00",
+  "schema": "numi.cardboard.publication033-independent-review-attempt.v1",
+  "script_sha256": "a9df8565098488a9de0e9b30a298fb89d9952024205b029448f380c6d303ea1c",
+  "status": "failed_verifier_preflight"
+}

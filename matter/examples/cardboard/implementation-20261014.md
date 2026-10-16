@@ -492,3 +492,8 @@ encoder cleanup pass their bounded checks. The full coupon and downstream
 qualification gates remain open. See [the source181 milestone](solver-milestone-source181.md).
 
 Source198 implements exact shared contact trials, bounded damped corrections and corrected memory accounting. The regional contact fixture reaches the intended late fault and rolls back; full coupon convergence and downstream qualification remain open. See [the source198 milestone](solver-milestone-source198.md).
+
+
+## Strict fault regression and fresh coupon failure
+
+[Source199 and native521/528/529](solver-milestone-source199.md) retain the exact fault signature, negative control and failed full coupon. All six qualification axes remain open.

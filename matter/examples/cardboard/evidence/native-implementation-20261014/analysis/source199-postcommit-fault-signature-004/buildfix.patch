@@ -1,0 +1,12 @@
+--- /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-001/matter/tools/cardboard_full_contact_armijo_check.mm	2026-10-16 10:01:48
++++ /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-buildfix-004/matter/tools/cardboard_full_contact_armijo_check.mm	2026-10-16 10:07:13
+@@ -446,8 +446,7 @@
+     std::cout << "PASS exact postCommit motion-type fault policy"
+               << " code=NM_STATUS_INVALID_DISPATCH(1)"
+               << " proxy=0 diagnostics=(-3,-3,-3,-3)"
+-              << " status10_negative_control=true
+-";
++              << " status10_negative_control=true\n";
+ }
+ 
+ struct BarrierReference {

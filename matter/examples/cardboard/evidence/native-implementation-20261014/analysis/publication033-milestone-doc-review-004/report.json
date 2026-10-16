@@ -1,0 +1,29 @@
+{
+  "documents": {
+    "matter/examples/cardboard/implementation-20261014.md": {
+      "bytes": 44131,
+      "sha256": "9776f2c7137acdd0fd07e315c8ed68b63aa6f5745a0461c1b72952a206640f68"
+    },
+    "matter/examples/cardboard/solver-milestone-source198.md": {
+      "bytes": 5747,
+      "sha256": "d6745c239bc5e4bb116bb26dc79ee9bd48f6ffb9acf7febd22bdcf8ba3cdad59"
+    }
+  },
+  "evidence_index_sha256": "f95f31463fafec8eec9aa87dd323012dd92a6b769aeff3e39e5383294a532e4f",
+  "finished_at_utc": "2026-10-16T08:12:17.065101+00:00",
+  "physical_or_complete_coupon_qualification_claimed": false,
+  "schema": "numi.cardboard.publication033-milestone-doc-review.v1",
+  "scope_checks": {
+    "implementation_ledger_retains_open_status": true,
+    "index_523_says_caps_not_convergence": true,
+    "milestone_excludes_active521": true,
+    "milestone_limits_fixture": true,
+    "milestone_links_binding": true,
+    "milestone_preserves_525_527_masking": true,
+    "milestone_says_523_hits_caps": true,
+    "milestone_says_523_private_only": true,
+    "milestone_says_all_six_open": true
+  },
+  "verdict": "PASS_WITH_WORDING_NOTE",
+  "wording_note": "The milestone accurately says positive damping paths complete 32/64 iteration caps and are private checks with zero physical transactions. The evidence index says the damped paths reach iteration caps without convergence; the milestone does not literally repeat that phrase, but it does not claim convergence."
+}

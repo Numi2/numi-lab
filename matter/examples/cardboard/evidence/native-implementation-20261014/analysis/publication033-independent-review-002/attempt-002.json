@@ -1,0 +1,8 @@
+{
+  "failure": "Verifier-only solver-environment receipt hash transcription contained one incorrect character; actual receipt hash was checked against publication evidence index. No publication data or checkout files were modified by the verifier.",
+  "finished_at_utc": "2026-10-16T08:09:51.726092+00:00",
+  "observed_receipt_sha256": "e702bec103e4730f92e36acb8a48f8ef5d0d8b7efc6f484097a395cc13fc0112",
+  "schema": "numi.cardboard.publication033-independent-review-attempt.v1",
+  "script_sha256": "be4357577154d7ff9f84231afb5f538053d021db073f9b8691ca8ba7040e282e",
+  "status": "failed_verifier_preflight"
+}

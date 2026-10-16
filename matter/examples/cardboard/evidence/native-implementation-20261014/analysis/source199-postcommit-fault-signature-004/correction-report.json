@@ -1,0 +1,18 @@
+{
+  "candidate_checker_sha256": "1db145ef8679a79dc2eafc74fd416f7a5ee67c7b343e46b7f8a150980b19a233",
+  "candidate_frozen_source_file_sha256": "13e2221e77bd7ee5c2cdcaf714399245d72173a94b8e8553d7daabac4d6741de",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-buildfix-004",
+  "changed_file": "matter/tools/cardboard_full_contact_armijo_check.mm",
+  "parent_checker_sha256": "6df53f4f27d4bd6a3b5a63137ff5b93976dd3c82bc6488fa0284facaa1745fbb",
+  "parent_frozen_source_file_sha256": "4d080b60ab82e36d82407ecc9cf94176fa4812f7fe2c2098307a88026054878e",
+  "parent_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-001",
+  "patch_sha256": "025e9a74b5ea5132a1340e2c348fb8520ebe55c0f56bfb97e5cf7dc2d20b186d",
+  "physical_operator_or_acceptance_changes": false,
+  "preserved_prior_buildfix_packages": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source199-postcommit-fault-signature-002",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source199-postcommit-fault-signature-003"
+  ],
+  "preserved_source199_failed_build_log": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source199-postcommit-fault-signature-001/build.log",
+  "preserved_source199_failed_build_log_sha256": "abc0a6dd6d33e1a50d809edee93750339c52f65590a8c3cd024eb77354b5b9aa",
+  "schema": "numi.cardboard.source-correction.v1"
+}

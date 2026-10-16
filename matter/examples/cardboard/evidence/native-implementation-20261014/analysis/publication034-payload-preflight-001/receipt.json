@@ -1,0 +1,7 @@
+{
+  "exit_code": 1,
+  "exception": "KeyError: 'success'",
+  "line": 24,
+  "reason": "Canonical source199 custom build metadata has no success field; validate its exact schema, frozen source and hash-bound native/compiler logs instead. No payload or summary mutation occurred before rejection.",
+  "at_utc": "2026-10-16T08:27:39.989737+00:00"
+}

@@ -1,0 +1,19 @@
+{
+  "inputs": {
+    "binding_sha256": "9bb5b95064ef1dceba094d6368755f7fdb1620fe1970a46202ab40dbef1f93d1",
+    "evidence_index_sha256": "f95f31463fafec8eec9aa87dd323012dd92a6b769aeff3e39e5383294a532e4f",
+    "independent_review_manifest_sha256": "80d433f5978cd25a2f5d0e5bc58d7077b7e19b6b3cd0bfcff1a593259fddadc6",
+    "summary_sha256": "bd20ddc8711092ab3e8086257b216c85419d852531d81882c591d09b9ea2d5d3"
+  },
+  "outputs": {
+    "audit.py": {
+      "bytes": 3218,
+      "sha256": "3687cf55dcdd432f1b73730147452f7d54435da1d879f779cab261e5603aa2cb"
+    },
+    "report.json": {
+      "bytes": 1449,
+      "sha256": "9acfa310fd8029f44a6301964d6f0b71b944296f8cc574c6f0c6267c4b5a3048"
+    }
+  },
+  "schema": "numi.cardboard.publication033-milestone-doc-review.manifest.v1"
+}

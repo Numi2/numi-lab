@@ -1,0 +1,7 @@
+{
+  "failure": "Verifier looked for evidence-index.json at the publication root, while the staged copy is under analysis/publication033-milestone-draft-004; the published summary record gives the exact binding. No publication bytes were changed.",
+  "finished_at_utc": "2026-10-16T08:11:59.108004+00:00",
+  "schema": "numi.cardboard.publication033-doc-review-attempt.v1",
+  "script_sha256": "478582d62ad174aba9368a3bf603cc7d3dbb469df0e22094377affa3e0935748",
+  "status": "failed_verifier_input_path"
+}

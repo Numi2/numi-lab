@@ -1,0 +1,108 @@
+{
+  "schema": "numi.cardboard.source199-strict-fault-command.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-buildfix-002",
+  "build_directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source199-buildfix-002",
+  "source_frozen_sha256": "183cc74a29bfb90fe8d050e9096000c5a430601f2eb31d899f3b323f0a383ad4",
+  "files_sha256": {
+    "numi-matter-cardboard-full-contact-armijo-check": "24b507a0e51ee500ab1723435a033d32ecd7313de5b818e7543ee1e7fd297291",
+    "shaders/NumiMatter.metallib": "edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f",
+    "CMakeCache.txt": "79e12f5aa849846f862ba1db02f4dd0671f28176a969f2b92b4adfacca512bbe",
+    "compile_commands.json": "ba7af9190c304019c19bc3993319a7dcab80f2eb65b908b11b6e1f969782edbb"
+  },
+  "material_relative_path": "matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+  "material_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+  "cases": {
+    "528": [
+      "--compensated-material-arithmetic",
+      "--diagnostic-state-output",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/native/strict199-regional-528",
+      "--self-surface-scratch-alias-parity",
+      "--extended-budget",
+      "--regional-contact-preconditioner"
+    ],
+    "529": [
+      "--compensated-material-arithmetic",
+      "--diagnostic-state-output",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/native/strict199-scalar-negative-529",
+      "--self-surface-scratch-alias-parity",
+      "--extended-budget"
+    ]
+  },
+  "timeout_s": 600,
+  "qualification": "Strengthened checker must identify the exact intended postCommit fault.528 regional should pass with source198-identical physical outputs;529 scalar should exit1 specifically because earlier status10 cannot satisfy the injected status1/-3 assertion. Neither case is a coupon, material or shipping qualification.",
+  "case_outputs": {
+    "528": "/Users/n/cardboard-implementation-20261014-host-macmini/native/strict199-regional-528",
+    "529": "/Users/n/cardboard-implementation-20261014-host-macmini/native/strict199-scalar-negative-529"
+  },
+  "environment": {
+    "528": {
+      "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": "2"
+    },
+    "529": {
+      "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": "2"
+    }
+  },
+  "build_provenance_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source199-postcommit-fault-signature-002/source-build.json",
+  "build_provenance_sha256": "4fc31c0d13dbee479bf2d809812c154776b8890d537a9d3a875bb2f382294616",
+  "build_artifact_bindings": {
+    "build_log": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source199-postcommit-fault-signature-002/build.log",
+      "sha256": "3d57fddc08256054004e5f9039b02824c241a500276207d9597f194cd4a7fb4e",
+      "size_bytes": 4439
+    },
+    "buildfix_patch": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source199-postcommit-fault-signature-002/buildfix.patch",
+      "sha256": "0525718f7717aca16d55d0bd90167360a6ed47b4113d165a0828a0546d6d58e3",
+      "size_bytes": 707
+    },
+    "checker": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source199-buildfix-002/numi-matter-cardboard-full-contact-armijo-check",
+      "sha256": "24b507a0e51ee500ab1723435a033d32ecd7313de5b818e7543ee1e7fd297291",
+      "size_bytes": 2249648
+    },
+    "cmake_cache": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source199-buildfix-002/CMakeCache.txt",
+      "sha256": "79e12f5aa849846f862ba1db02f4dd0671f28176a969f2b92b4adfacca512bbe",
+      "size_bytes": 19037
+    },
+    "compile_commands": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source199-buildfix-002/compile_commands.json",
+      "sha256": "ba7af9190c304019c19bc3993319a7dcab80f2eb65b908b11b6e1f969782edbb",
+      "size_bytes": 129364
+    },
+    "configure_log": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source199-postcommit-fault-signature-002/configure.log",
+      "sha256": "91a7dba452cd7255783681b286d17ff946ec50f9b52f8ff4e65523291e79ba7b",
+      "size_bytes": 666
+    },
+    "correction_report": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source199-postcommit-fault-signature-002/correction-report.json",
+      "sha256": "f9308139501aed633135db5f432d4c92b8c66bdbc15359948fc3d15b542857e3",
+      "size_bytes": 1187
+    },
+    "cpu_ctest_log": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source199-postcommit-fault-signature-002/ctest.log",
+      "sha256": "1b911758407bab13eeb2058a39e689efd10116a5a41ad9150e7f6e55b0d61aab",
+      "size_bytes": 780
+    },
+    "matter_metallib": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source199-buildfix-002/shaders/NumiMatter.metallib",
+      "sha256": "edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f",
+      "size_bytes": 7033424
+    },
+    "physical_state_digest_metallib": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source199-buildfix-002/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+      "size_bytes": 80076
+    },
+    "source_map_copy": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source199-postcommit-fault-signature-002/source-map.json",
+      "sha256": "183cc74a29bfb90fe8d050e9096000c5a430601f2eb31d899f3b323f0a383ad4",
+      "size_bytes": 101166
+    }
+  },
+  "expected_native_exit_codes": {
+    "528": 0,
+    "529": 1
+  }
+}

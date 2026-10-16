@@ -1,0 +1,14 @@
+{
+  "candidate_checker_sha256": "6df53f4f27d4bd6a3b5a63137ff5b93976dd3c82bc6488fa0284facaa1745fbb",
+  "candidate_frozen_source_sha256": "4d080b60ab82e36d82407ecc9cf94176fa4812f7fe2c2098307a88026054878e",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-199-001",
+  "changed_files": [
+    "matter/tools/cardboard_full_contact_armijo_check.mm"
+  ],
+  "parent_frozen_source_sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc",
+  "parent_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001",
+  "patch_sha256": "d942d111436998532c79eafcc2d7eb3d9870429e2e3616bfd13cacc1d8f1505b",
+  "schema": "numi.cardboard.source199-postcommit-fault-signature.v1",
+  "scope": "Checker-only assertion and CPU signature-policy controls; no runtime, Metal, acceptance, or physical operator change.",
+  "source_file_count": 816
+}

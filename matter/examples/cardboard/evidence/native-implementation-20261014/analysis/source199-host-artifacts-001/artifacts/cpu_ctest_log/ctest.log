@@ -1,0 +1,18 @@
+Test project /Users/n/cardboard-implementation-20261014-host-macmini/build-source199-buildfix-002
+    Start 81: matter.compiler.cardboard_full_contact_armijo
+1/2 Test #81: matter.compiler.cardboard_full_contact_armijo ........   Passed    0.40 sec
+    Start 82: matter.compiler.cardboard_compensated_full_contact
+2/2 Test #82: matter.compiler.cardboard_compensated_full_contact ...   Passed    0.02 sec
+
+100% tests passed out of 2
+
+Label Time Summary:
+arithmetic    =   0.02 sec*proc (1 test)
+armijo        =   0.40 sec*proc (1 test)
+cardboard     =   0.42 sec*proc (2 tests)
+contact       =   0.42 sec*proc (2 tests)
+cpu           =   0.02 sec*proc (1 test)
+matter        =   0.42 sec*proc (2 tests)
+synthetic     =   0.42 sec*proc (2 tests)
+
+Total Test time (real) =   0.43 sec

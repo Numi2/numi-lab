@@ -1,0 +1,1122 @@
+{
+  "accepted_prefix": {
+    "accepted_control_count": 17,
+    "controls": [
+      0,
+      16
+    ],
+    "exact_obj_files": 34,
+    "exact_observation_rows": 34,
+    "held_reference_alone_not_acceptance": true,
+    "initial_mesh_compiled_pack_exact": true,
+    "objects": [
+      {
+        "bytes": 61996,
+        "exact": true,
+        "name": "accepted_step_000001_bent.obj",
+        "sha256": "e232da37a2b177fa42864620ba0f97189a3709a26fbc8f9e5e37b503c2f2bf39"
+      },
+      {
+        "bytes": 56470,
+        "exact": true,
+        "name": "accepted_step_000001_held_reference.obj",
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      {
+        "bytes": 61998,
+        "exact": true,
+        "name": "accepted_step_000002_bent.obj",
+        "sha256": "1c17716b9d8fbc6ca0e15313b2348690dfb8e371674446c8f34f98fadb3b5496"
+      },
+      {
+        "bytes": 56470,
+        "exact": true,
+        "name": "accepted_step_000002_held_reference.obj",
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      {
+        "bytes": 61982,
+        "exact": true,
+        "name": "accepted_step_000003_bent.obj",
+        "sha256": "0dc570d1a25e91c993cf209b5f704a21937e5844f8a0970fea6bfafe8dad388a"
+      },
+      {
+        "bytes": 56470,
+        "exact": true,
+        "name": "accepted_step_000003_held_reference.obj",
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      {
+        "bytes": 61955,
+        "exact": true,
+        "name": "accepted_step_000004_bent.obj",
+        "sha256": "fe5d9dcefcf3936b481988877f452dee75188fc7184a7318ba134f1d32d55c0f"
+      },
+      {
+        "bytes": 56470,
+        "exact": true,
+        "name": "accepted_step_000004_held_reference.obj",
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      {
+        "bytes": 61965,
+        "exact": true,
+        "name": "accepted_step_000005_bent.obj",
+        "sha256": "2898562d05576cd0aeccc84c92362d41d1563bfce34832fc6af44817327ce47f"
+      },
+      {
+        "bytes": 56470,
+        "exact": true,
+        "name": "accepted_step_000005_held_reference.obj",
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      {
+        "bytes": 61974,
+        "exact": true,
+        "name": "accepted_step_000006_bent.obj",
+        "sha256": "969fa1f6d1080d003c656f384ffe1df2d8eb8c3762ac2a7293241b2c59e543a2"
+      },
+      {
+        "bytes": 56470,
+        "exact": true,
+        "name": "accepted_step_000006_held_reference.obj",
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      {
+        "bytes": 61974,
+        "exact": true,
+        "name": "accepted_step_000007_bent.obj",
+        "sha256": "68f6b05732e77e27e718c5c01bc4479ef0581062df4c32d4af640aaa8f61a0ee"
+      },
+      {
+        "bytes": 56470,
+        "exact": true,
+        "name": "accepted_step_000007_held_reference.obj",
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      {
+        "bytes": 61962,
+        "exact": true,
+        "name": "accepted_step_000008_bent.obj",
+        "sha256": "e36086a870ac461ae2432137edb10b2dbf60c959d5445c8faaf1638c5aea3eb7"
+      },
+      {
+        "bytes": 56470,
+        "exact": true,
+        "name": "accepted_step_000008_held_reference.obj",
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      {
+        "bytes": 61982,
+        "exact": true,
+        "name": "accepted_step_000009_bent.obj",
+        "sha256": "ca60969e299674ab150d554350c0f2d5e97a278b8d87b7f289c1625f87d1d1ff"
+      },
+      {
+        "bytes": 56470,
+        "exact": true,
+        "name": "accepted_step_000009_held_reference.obj",
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      {
+        "bytes": 61994,
+        "exact": true,
+        "name": "accepted_step_000010_bent.obj",
+        "sha256": "4c1db9491564f8e8aee2422f5227b6767b8599c23452d35a383311596442d090"
+      },
+      {
+        "bytes": 56470,
+        "exact": true,
+        "name": "accepted_step_000010_held_reference.obj",
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      {
+        "bytes": 61966,
+        "exact": true,
+        "name": "accepted_step_000011_bent.obj",
+        "sha256": "38f93570f3083bdb1fad4c864e349047c7ccf9a34b375bc0956275b0c031bdb1"
+      },
+      {
+        "bytes": 56470,
+        "exact": true,
+        "name": "accepted_step_000011_held_reference.obj",
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      {
+        "bytes": 61967,
+        "exact": true,
+        "name": "accepted_step_000012_bent.obj",
+        "sha256": "3f6797967553569e2e12ea7189671377b9d66db3e9f1fc8545b8412e95a88a3c"
+      },
+      {
+        "bytes": 56470,
+        "exact": true,
+        "name": "accepted_step_000012_held_reference.obj",
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      {
+        "bytes": 61991,
+        "exact": true,
+        "name": "accepted_step_000013_bent.obj",
+        "sha256": "43dee8438268192986bc6db1625276f186856741a1937e4d5c432c07d2a148a1"
+      },
+      {
+        "bytes": 56470,
+        "exact": true,
+        "name": "accepted_step_000013_held_reference.obj",
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      {
+        "bytes": 61972,
+        "exact": true,
+        "name": "accepted_step_000014_bent.obj",
+        "sha256": "e701eb08bd111f78674bde8e57ca7922bbae410d37992bb4f72b376f4979ec2b"
+      },
+      {
+        "bytes": 56470,
+        "exact": true,
+        "name": "accepted_step_000014_held_reference.obj",
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      {
+        "bytes": 62006,
+        "exact": true,
+        "name": "accepted_step_000015_bent.obj",
+        "sha256": "5d24b501cda29f32967f2a800d1b623115255521988d50b756ea991e26d709ea"
+      },
+      {
+        "bytes": 56470,
+        "exact": true,
+        "name": "accepted_step_000015_held_reference.obj",
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      {
+        "bytes": 61975,
+        "exact": true,
+        "name": "accepted_step_000016_bent.obj",
+        "sha256": "72b578c47b729248259b6ff55d8ed8b50c5c2313212cce688031f8b3bd12c28e"
+      },
+      {
+        "bytes": 56470,
+        "exact": true,
+        "name": "accepted_step_000016_held_reference.obj",
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      {
+        "bytes": 61988,
+        "exact": true,
+        "name": "accepted_step_000017_bent.obj",
+        "sha256": "3b3353529728108195b575555f5add2d26fd2f753ab1d1d554d9bf1bb8cf763d"
+      },
+      {
+        "bytes": 56470,
+        "exact": true,
+        "name": "accepted_step_000017_held_reference.obj",
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      }
+    ]
+  },
+  "classification": "accepted-prefix parity only; 521 terminally failed control17; no full-cycle qualification",
+  "created_at_utc": "2026-10-16T08:21:42.768432+00:00",
+  "damped_candidate_audit": {
+    "all_b_dot_Ax_zero": true,
+    "all_candidate_norms_zero": true,
+    "all_linear_residuals_zero": true,
+    "effective_controls": {
+      "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR": {
+        "set": true,
+        "value": "all:3"
+      },
+      "NM_FEM_BASE_CGLS_CAPTURE_NEWTON": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_BASE_CGLS_CAPTURE_PATH": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_BASE_CGLS_DAMPING_KG": {
+        "set": true,
+        "value": "1e-3"
+      },
+      "NM_FEM_BASE_CGLS_ITERATIONS": {
+        "set": true,
+        "value": "64"
+      },
+      "NM_FEM_BASE_CGLS_PRIMARY_AFTER": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_BASE_CGLS_RIGHT_SCALE": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_BASE_CGLS_STATE_CAPTURE": {
+        "set": false,
+        "value": null
+      },
+      "NM_FEM_BASE_CGLS_WARM_START_REFINE": {
+        "set": false,
+        "value": null
+      }
+    },
+    "event_count": 18,
+    "kind": "full_zero_damped_CGLS",
+    "newton_iteration": 3,
+    "no_event_at_failed_newton34": true,
+    "nonzero_or_installed_candidate_observed": false,
+    "roots": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "stderr_bytes": 77610861,
+    "stderr_sha256": "aaa2a01ebce3715bde784841ec1619c009faa835119a6915b9ab115a3f3a3321"
+  },
+  "first_divergence": {
+    "480_control17_rows": [
+      "17,0.00089999997726408765,0,bent,0.28125,0,4294967295,4294967295,1,64,0.99015718698501587,0,0,0,0.99015724117134762,1.005609126705566,3.914145965850141e-05,-0.10636380687355995,-0.093925814377143979,-0.43247011757921427,-0.039292667778038012,-0.10636380687355995,-0.093925814377143979,-0.43247011757921427,0,0,0,-0.039292667778038012,0,loading,3.914145965850141e-05,0.038310270597738935,5.6754201363351652e-08,0.1077146902680397,1.3764569928298442e-07,0,0,0,1,1,1,0.28124188334809885,36,0.0027529142006138228,0.00052266123479628593",
+      "17,0.00089999997726408765,1,held_reference,0,0,4294967295,4294967295,1,4,1,0,0,0,1,1,0,-0.00034503398092056159,-7.1054273576010019e-15,5.8862637160927989e-05,3.8063805862425422e-07,-0.00034503398092056159,-7.1054273576010019e-15,5.8862637160927989e-05,0,0,0,3.8063805862425422e-07,0,loading,0,0,0,1.1370992069714703e-05,3.3900025897537489e-08,0,0,0,1,1,1,-4.6091072262071513e-14,36,0.00067800056567725319,9.1728919672763766e-05"
+    ],
+    "521_bent_row": {
+      "arm": "bent",
+      "certificate_correction": "0",
+      "certificate_pressure": "0",
+      "certificate_raw_accepted_flag": "0",
+      "certificate_residual": "0",
+      "certificate_volume": "0",
+      "completed_microsteps": "0",
+      "contact_moment_y_Nm": "",
+      "contact_reaction_x_N": "",
+      "contact_reaction_y_N": "",
+      "contact_reaction_z_N": "",
+      "current_fixed_nodes": "36",
+      "environment": "0",
+      "failing_index": "34",
+      "fgmres_iterations": "64",
+      "free_force_imbalance_l2_N": "0",
+      "free_force_imbalance_max_N": "0",
+      "kinetic_energy_J": "5.5501393514787825e-08",
+      "max_J": "1.0053804523422631",
+      "max_free_displacement_m": "3.7225885852423646e-05",
+      "max_free_speed_m_s": "0.036905705424327757",
+      "max_material_state_change": "0.1028042808175087",
+      "max_node_displacement_m": "3.7225885852423646e-05",
+      "measured_right_grip_angle_deg": "0.26560172194369047",
+      "mechanical_constraint_moment_y_Nm": "",
+      "mechanical_constraint_reaction_x_N": "",
+      "mechanical_constraint_reaction_y_N": "",
+      "mechanical_constraint_reaction_z_N": "",
+      "min_J": "0.99066263889492856",
+      "object_index": "0",
+      "phase": "loading",
+      "reaction_moment_y_Nm": "",
+      "reaction_x_N": "",
+      "reaction_y_N": "",
+      "reaction_z_N": "",
+      "right_grip_constrained": "1",
+      "status_code": "10",
+      "status_diagnostic_w": "24",
+      "status_diagnostic_x": "1.6395273405578337e-06",
+      "status_diagnostic_y": "1.6396469391111168e-06",
+      "status_diagnostic_z": "1.1920928955078125e-07",
+      "step": "17",
+      "step_accepted": "0",
+      "target_angle_deg": "0.28125",
+      "time_s": "0.00089999997726408765"
+    },
+    "521_held_reference_row": {
+      "arm": "held_reference",
+      "certificate_correction": "0",
+      "certificate_pressure": "0",
+      "certificate_raw_accepted_flag": "1",
+      "certificate_residual": "3.3900025897537489e-08",
+      "certificate_volume": "0",
+      "completed_microsteps": "1",
+      "contact_moment_y_Nm": "0",
+      "contact_reaction_x_N": "0",
+      "contact_reaction_y_N": "0",
+      "contact_reaction_z_N": "0",
+      "current_fixed_nodes": "36",
+      "environment": "1",
+      "failing_index": "4294967295",
+      "fgmres_iterations": "4",
+      "free_force_imbalance_l2_N": "0.00067800056567725319",
+      "free_force_imbalance_max_N": "9.1728919672763766e-05",
+      "kinetic_energy_J": "0",
+      "max_J": "1",
+      "max_free_displacement_m": "0",
+      "max_free_speed_m_s": "0",
+      "max_material_state_change": "1.1370992069714703e-05",
+      "max_node_displacement_m": "0",
+      "measured_right_grip_angle_deg": "-4.6091072262071513e-14",
+      "mechanical_constraint_moment_y_Nm": "3.8063805862425422e-07",
+      "mechanical_constraint_reaction_x_N": "-0.00034503398092056159",
+      "mechanical_constraint_reaction_y_N": "-7.1054273576010019e-15",
+      "mechanical_constraint_reaction_z_N": "5.8862637160927989e-05",
+      "min_J": "1",
+      "object_index": "4294967295",
+      "phase": "loading",
+      "reaction_moment_y_Nm": "3.8063805862425422e-07",
+      "reaction_x_N": "-0.00034503398092056159",
+      "reaction_y_N": "-7.1054273576010019e-15",
+      "reaction_z_N": "5.8862637160927989e-05",
+      "right_grip_constrained": "1",
+      "status_code": "0",
+      "status_diagnostic_w": "0",
+      "status_diagnostic_x": "1",
+      "status_diagnostic_y": "0",
+      "status_diagnostic_z": "0",
+      "step": "17",
+      "step_accepted": "1",
+      "target_angle_deg": "0",
+      "time_s": "0.00089999997726408765"
+    },
+    "base_residual": 1.6395273405578337e-06,
+    "control": 17,
+    "failed_geometry_excluded": true,
+    "failing_index": 34,
+    "failure": "Matter rejected step 17; status, diagnostic state OBJ, and CSV observations were retained; rejected geometry is not an accepted animation frame",
+    "last_alpha": 1.1920928955078125e-07,
+    "line_search_steps": 24,
+    "status_code": 10,
+    "trial_residual": 1.6396469391111168e-06
+  },
+  "limitations": [
+    "Only controls 0..16 are copied as accepted prefix.",
+    "521 rejected control17; the held-reference status-0 row is not a global acceptance.",
+    "No nonzero damped candidate or installed direction is evidenced; direction records are zero at Newton3 and absent at failed Newton34.",
+    "Rejected capture has candidate nodes and constitutive inputs but no exact Newton correction/FGMRES solution vector.",
+    "No whole-trajectory or physical qualification is established."
+  ],
+  "newton34_history": {
+    "cycle_events": 64,
+    "cycle_range": [
+      0,
+      63
+    ],
+    "final_operator_status": 0,
+    "final_solver_status": 0,
+    "interpretation": "True linear residual reached 1.19334089e-7 with solver/operator status 0, but the nonlinear trial residual increased and line search exhausted.",
+    "observation_fgmres_iterations": "64",
+    "plateau_cycles4_63": true,
+    "rhs_l2": 1.63952757e-06,
+    "samples": [
+      {
+        "arnoldi": 1.33543188e-06,
+        "cycle": 0,
+        "true_l2": 1.33544268e-06,
+        "true_max_abs": 4.30135117e-07
+      },
+      {
+        "arnoldi": 1.30416743e-06,
+        "cycle": 1,
+        "true_l2": 1.30451156e-06,
+        "true_max_abs": 4.00800445e-07
+      },
+      {
+        "arnoldi": 6.9573349e-07,
+        "cycle": 2,
+        "true_l2": 7.38167444e-07,
+        "true_max_abs": 2.47410441e-07
+      },
+      {
+        "arnoldi": 3.42082807e-08,
+        "cycle": 3,
+        "true_l2": 1.19334089e-07,
+        "true_max_abs": 4.1055614e-08
+      },
+      {
+        "arnoldi": 1.19334089e-07,
+        "cycle": 63,
+        "true_l2": 1.19334089e-07,
+        "true_max_abs": 4.1055614e-08
+      }
+    ]
+  },
+  "reference480": {
+    "build_sha256": "96396de7fa14197a6759583d8b7bb053c412e08f1051b947502c1cc38b185229",
+    "checkpoint_control": 19,
+    "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control19-checkpoint-480",
+    "frozen_sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+    "next_control": 20,
+    "receipt": {
+      "changed_inputs": [],
+      "diagnostic_capture_validation": {
+        "files": [],
+        "status": "no_capture_paths_requested",
+        "total_bytes": 0
+      },
+      "execution_started": true,
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-16T04:58:51.613798+00:00",
+      "run_mode": "diagnostic",
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "source_inputs_unchanged": true,
+      "termination_errors": [],
+      "timed_out": false,
+      "wall_seconds": 1215.9762309165671
+    },
+    "result": {
+      "accepted_steps": 20,
+      "authored_region_map_sha256": "8513c9e0e7f3f784ed3de52b609ac26837197d4ba3d0bf5d33a067136afafec4",
+      "compiled_world_fingerprint": 5247741070077684697,
+      "damage_overlay_mapping_sha256": "",
+      "failure": "",
+      "frame_map_sha256": "94e426a5d9d06445e3f44d1046f8b49bdae23a5752691f9776118222f4d7b740",
+      "material_map_sha256": "a695cb1bf6c22547013c15007998b171fc7639433c438380a15972cf36483f7b",
+      "nodes": 882,
+      "physical_validation": false,
+      "schema": "numi.cardboard.probe-result.v1",
+      "status": "accepted_checkpoint_prefix_saved",
+      "tetrahedra": 1920
+    }
+  },
+  "rejected_fem_capture": {
+    "candidate_nodes_and_F_history_available": true,
+    "exact_newton_correction_available": false,
+    "explicit_delta_or_fgmres_solution_vector_available": false,
+    "files": [
+      "AP.bin",
+      "P.bin",
+      "candidate_nodes.bin",
+      "effective_P.bin",
+      "factor_valid.bin",
+      "linearization_F_high.bin",
+      "linearization_F_low.bin",
+      "linearization_accepted_material_history.bin",
+      "linearization_scheduler_exponents.bin",
+      "manifest.json",
+      "node_block_inverse.bin",
+      "pivoted_RAP.bin",
+      "pivots.bin",
+      "restart_Aq.bin",
+      "restart_Aq_by_environment.bin",
+      "restart_attempt_counts_by_environment.bin",
+      "restart_factor_valid_by_environment.bin",
+      "restart_generations_by_environment.bin",
+      "restart_mode_scales_by_environment.bin",
+      "restart_mode_valid_by_environment.bin",
+      "restart_pivoted_RAP.bin",
+      "restart_pivoted_RAP_by_environment.bin",
+      "restart_pivots.bin",
+      "restart_pivots_by_environment.bin",
+      "restart_q.bin",
+      "restart_q_by_environment.bin",
+      "restart_raw_norm_squared_by_environment.bin",
+      "restart_target_scales_by_environment.bin"
+    ],
+    "manifest": {
+      "accepted_physical_state": false,
+      "byte_order": "native_little_endian",
+      "control_step": 17,
+      "device_program_fingerprint": "868239797717881359",
+      "environment_count": 2,
+      "exported_base_modes_compacted": true,
+      "fem_node_count": 882,
+      "files": [
+        {
+          "bytes": 141120,
+          "count": 1764,
+          "name": "candidate_nodes.bin",
+          "sha256": "db75dfcc037c193bb43ab0b3ffc2ffa90b3ed7f88f2b188fbe5d3da1b4a03994",
+          "stride_bytes": 80
+        },
+        {
+          "bytes": 230400,
+          "count": 57600,
+          "name": "linearization_accepted_material_history.bin",
+          "sha256": "add94d454227570f20f25d3520daefc72834981218a00b58cdc30f170dad50ff",
+          "stride_bytes": 4
+        },
+        {
+          "bytes": 15360,
+          "count": 3840,
+          "name": "linearization_scheduler_exponents.bin",
+          "sha256": "0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537",
+          "stride_bytes": 4
+        },
+        {
+          "bytes": 184320,
+          "count": 11520,
+          "name": "linearization_F_high.bin",
+          "sha256": "9a33428635909002c30bb3d15554fccf5879b1016fa4d22eaba4d696750a8682",
+          "stride_bytes": 16
+        },
+        {
+          "bytes": 184320,
+          "count": 11520,
+          "name": "linearization_F_low.bin",
+          "sha256": "6b1e7c99663cd6a95d11c4514a657e241d4f214e5c54157b3b79d8a3298f751a",
+          "stride_bytes": 16
+        },
+        {
+          "bytes": 366912,
+          "count": 22932,
+          "name": "P.bin",
+          "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+          "stride_bytes": 16
+        },
+        {
+          "bytes": 733824,
+          "count": 45864,
+          "name": "effective_P.bin",
+          "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+          "stride_bytes": 16
+        },
+        {
+          "bytes": 733824,
+          "count": 45864,
+          "name": "AP.bin",
+          "sha256": "026ff4c589323ea16dd6e2f0828fdf7ee2ec87a4f2a3b3f3a6463442e83264e1",
+          "stride_bytes": 16
+        },
+        {
+          "bytes": 5408,
+          "count": 1352,
+          "name": "pivoted_RAP.bin",
+          "sha256": "3275cb36689d6c93c49a075dbc779efffabb02a54c3b7bd8fd733e891f72ff9d",
+          "stride_bytes": 4
+        },
+        {
+          "bytes": 208,
+          "count": 52,
+          "name": "pivots.bin",
+          "sha256": "b15351752746ad304892b36595184c9b83246883ef1d0628cdfda0983a499369",
+          "stride_bytes": 4
+        },
+        {
+          "bytes": 8,
+          "count": 2,
+          "name": "factor_valid.bin",
+          "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+          "stride_bytes": 4
+        },
+        {
+          "bytes": 0,
+          "count": 0,
+          "name": "node_block_inverse.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stride_bytes": 16
+        },
+        {
+          "bytes": 14112,
+          "count": 882,
+          "name": "restart_q.bin",
+          "sha256": "0f97790543329f8249a5b0ede1f5847b264bf4a2d08f661a948bd69bd96836e7",
+          "stride_bytes": 16
+        },
+        {
+          "bytes": 14112,
+          "count": 882,
+          "name": "restart_Aq.bin",
+          "sha256": "0f97790543329f8249a5b0ede1f5847b264bf4a2d08f661a948bd69bd96836e7",
+          "stride_bytes": 16
+        },
+        {
+          "bytes": 2916,
+          "count": 729,
+          "name": "restart_pivoted_RAP.bin",
+          "sha256": "3dae92d06f364fa6ea8e434c89a3d9d40cb995af8e46e50fff5ff91bd28fe112",
+          "stride_bytes": 4
+        },
+        {
+          "bytes": 108,
+          "count": 27,
+          "name": "restart_pivots.bin",
+          "sha256": "77133f431d5e12dd850002c0d3d4e0fecbe3a7a699d604dc8c5eae9976e1d260",
+          "stride_bytes": 4
+        },
+        {
+          "bytes": 32,
+          "count": 2,
+          "name": "restart_generations_by_environment.bin",
+          "sha256": "af9613760f72635fbdb44a5a0a63c39f12af30f950a6ee5c971be188e89c4051",
+          "stride_bytes": 16
+        },
+        {
+          "bytes": 8,
+          "count": 2,
+          "name": "restart_attempt_counts_by_environment.bin",
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "stride_bytes": 4
+        },
+        {
+          "bytes": 8,
+          "count": 2,
+          "name": "restart_target_scales_by_environment.bin",
+          "sha256": "7b48be53bbaa59d559548e450bb60062ee8fbcc9f1df7cd1bed86508a438612f",
+          "stride_bytes": 4
+        },
+        {
+          "bytes": 8,
+          "count": 2,
+          "name": "restart_raw_norm_squared_by_environment.bin",
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "stride_bytes": 4
+        },
+        {
+          "bytes": 8,
+          "count": 2,
+          "name": "restart_mode_scales_by_environment.bin",
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "stride_bytes": 4
+        },
+        {
+          "bytes": 8,
+          "count": 2,
+          "name": "restart_mode_valid_by_environment.bin",
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "stride_bytes": 4
+        },
+        {
+          "bytes": 8,
+          "count": 2,
+          "name": "restart_factor_valid_by_environment.bin",
+          "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+          "stride_bytes": 4
+        },
+        {
+          "bytes": 28224,
+          "count": 1764,
+          "name": "restart_q_by_environment.bin",
+          "sha256": "58addadd982be00456b092d551a587a0a25373b1465956ed31bafb61416471f3",
+          "stride_bytes": 16
+        },
+        {
+          "bytes": 28224,
+          "count": 1764,
+          "name": "restart_Aq_by_environment.bin",
+          "sha256": "58addadd982be00456b092d551a587a0a25373b1465956ed31bafb61416471f3",
+          "stride_bytes": 16
+        },
+        {
+          "bytes": 5832,
+          "count": 1458,
+          "name": "restart_pivoted_RAP_by_environment.bin",
+          "sha256": "d1575943c8a4713d0cdfc917aff7903805fab6350d7fcdc2000ccd7839ccd134",
+          "stride_bytes": 4
+        },
+        {
+          "bytes": 216,
+          "count": 54,
+          "name": "restart_pivots_by_environment.bin",
+          "sha256": "a5645e7a3fa0866cde8842c4dab96567507c3d1a3c028b816bc63f6966367b70",
+          "stride_bytes": 4
+        }
+      ],
+      "layout": "P mode-node; effective_P/AP environment-mode-node; RAP pivoted LU environment-row-column; block_inverse environment-node-row",
+      "linearization_constitutive_inputs": {
+        "F_layout": "environment_tetrahedron_row_float4_high_plus_low_in_material_frame",
+        "available": true,
+        "exact_newton_correction_available": false,
+        "history_kind": "accepted_history_at_AP_linearization_not_current_projected_state",
+        "material_state_stride": 15,
+        "perturbed_projected_states_available": false,
+        "scheduler_layout": "environment_tetrahedron_uint32_rate_exponent",
+        "tetrahedra_per_environment": 1920
+      },
+      "mode_count": 26,
+      "regional_basis_storage_mode_stride": 27,
+      "regional_diagnostics_available": true,
+      "regional_diagnostics_message": "captured",
+      "regional_readback_bytes": 2658752,
+      "restart_augmentation": {
+        "accepted_physical_state": false,
+        "attempt_count": 0,
+        "augmented_mode_count": 27,
+        "augmented_mode_stride": 27,
+        "base_mode_count": 26,
+        "control_step": 4294967295,
+        "diagnostic_environment_count": 2,
+        "diagnostics_available": true,
+        "diagnostics_message": "captured per environment; no restart augmentation attempts in this Newton iteration",
+        "environment_layout": "metadata E; q/Aq E*N float4; augmented RAP E*K*K; pivots E*K; row-major; UINT32_MAX generation denotes no attempt",
+        "factor_valid": 1,
+        "mode_scale": 0,
+        "mode_scale_f32_bits": 0,
+        "mode_valid": 0,
+        "newton_iteration": 4294967295,
+        "nodes_per_environment": 882,
+        "physics_substep": 4294967295,
+        "raw_norm_squared": 0,
+        "raw_norm_squared_f32_bits": 0,
+        "restart_cycle": 4294967295,
+        "target_scale": 4.17058743e-07,
+        "target_scale_f32_bits": 887089182,
+        "temporary_metal_readback_bytes": 6160
+      },
+      "schema": "numi.cardboard.regional-conditioning.v1",
+      "source_physics_fingerprint": "5247741070077684697"
+    }
+  },
+  "resume497_498": {
+    "checkpoint19_files": {
+      "coupon-control-000019.nmcb": {
+        "497_input_sha256": "ed702750af41fa9db76f2d0a480b571da116a6aca7b68f9e1dde9d0bfdd5065a",
+        "498_input_sha256": "ed702750af41fa9db76f2d0a480b571da116a6aca7b68f9e1dde9d0bfdd5065a",
+        "bytes": 2302494,
+        "sha256": "ed702750af41fa9db76f2d0a480b571da116a6aca7b68f9e1dde9d0bfdd5065a"
+      },
+      "coupon-control-000019.prefix": {
+        "497_input_sha256": "000e817323a9caa851d4b332f9971219de2eb474f8436cd05743fba85d201b76",
+        "498_input_sha256": "000e817323a9caa851d4b332f9971219de2eb474f8436cd05743fba85d201b76",
+        "bytes": 5311,
+        "sha256": "000e817323a9caa851d4b332f9971219de2eb474f8436cd05743fba85d201b76"
+      },
+      "coupon-control-000019.resume": {
+        "497_input_sha256": "afa9be324e62ad42ba94f6d41546d553f42053476bbecd9ba34529585cfe23d1",
+        "498_input_sha256": "afa9be324e62ad42ba94f6d41546d553f42053476bbecd9ba34529585cfe23d1",
+        "bytes": 2130,
+        "sha256": "afa9be324e62ad42ba94f6d41546d553f42053476bbecd9ba34529585cfe23d1"
+      }
+    },
+    "metadata_note": "Saved 497/498 build metadata names source-admission-encoder-182-003; exact hashes are bound rather than relabeling as source188.",
+    "runs": {
+      "497": {
+        "build_sha256": "5f88957ec2d7173f86b03499e79b2d20950e98a0e93fdc5bdd08536c1d9ffe25",
+        "frozen_sha256": "c2e6e23be57d3245c490c7f10f4abee55271a4fe051db6a5ef313de2de798394",
+        "receipt": {
+          "changed_inputs": [],
+          "diagnostic_capture_validation": {
+            "aggregate_cap_bytes": 134217728,
+            "file_count": 4,
+            "files": [
+              {
+                "bytes": 494048,
+                "key": "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+                "path": "diagnostics/capture-base-cgls-capture/capture",
+                "sha256": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646"
+              },
+              {
+                "bytes": 4327464,
+                "key": "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+                "path": "diagnostics/capture-base-cgls-capture/capture.state.bin",
+                "sha256": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1"
+              },
+              {
+                "bytes": 8657,
+                "key": "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+                "path": "diagnostics/capture-base-cgls-capture/capture.state.json",
+                "sha256": "b03e1bf2ee33162b2cca750ac14127d1e4a1b2e6df68c1fe71b081b0b251975c"
+              },
+              {
+                "bytes": 38795294,
+                "key": "NM_FEM_OPERATOR_FD_CAPTURE_PATH",
+                "path": "diagnostics/capture-operator-fd-capture/capture",
+                "sha256": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3"
+              }
+            ],
+            "pending_captures": [],
+            "per_file_cap_bytes": 67108864,
+            "status": "validated",
+            "total_bytes": 43625463
+          },
+          "execution_started": true,
+          "exit_code": 2,
+          "finished_at_utc": "2026-10-16T05:43:27.342277+00:00",
+          "run_mode": "diagnostic",
+          "schema": "numi.cardboard.native-run-receipt.v2",
+          "source_inputs_unchanged": true,
+          "termination_errors": [],
+          "timed_out": false,
+          "wall_seconds": 353.1309587927535
+        },
+        "resume": {
+          "accepted_prefix_reconstructed_from_obj_or_json": false,
+          "accepted_state_restored_from_native_snapshot": true,
+          "checkpoint_file": "coupon-control-000019.nmcb",
+          "checkpoint_sha256": "ed702750af41fa9db76f2d0a480b571da116a6aca7b68f9e1dde9d0bfdd5065a",
+          "current_registered_output_paths": {
+            "NM_FEM_BASE_CGLS_CAPTURE_PATH": {
+              "set": true,
+              "value": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture"
+            },
+            "NM_FEM_COUPLED_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_COUPLED_TRIAL_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_COUPLED_TRIAL_SUMMARY_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_OPERATOR_FD_CAPTURE_PATH": {
+              "set": true,
+              "value": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-operator-fd-capture/capture"
+            },
+            "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_STATUS5_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            }
+          },
+          "current_runner_contract_sha256": "c2dc380553694062e2c4ce856011aa2d8d8f5732b169b7d46c4f6e57405a9492",
+          "current_runner_environment_record_sha256": "163393847f5f9d7053191d80b742a93332f01bca4657d2727b9b50742c6054dd",
+          "current_runner_non_output_settings_sha256": "abf7b6c7863b694dd11d49e93d9b7dc04ae3774354e46622b25f6f7cefcede05",
+          "current_runner_prediction_sha256": "ef393185594d6e4b01de162c7b253c44678dcc91ed47e8bee0162eda4eed8a45",
+          "current_runner_proof_mode": "source_bound_diagnostic_replay_contract",
+          "diagnostic_replay_mode": true,
+          "evidence_class": "diagnostic_resumed_segment",
+          "full_protocol_complete": false,
+          "output_paths_were_created_by_probe": false,
+          "physical_validation": false,
+          "protocol_manifest_sha256": "315102605605164ed388056567251a92b4bdb4d5820f154d4923d4bf4cadf327",
+          "registered_output_path_map_relocated": true,
+          "registered_output_path_map_schema": "numi.cardboard.registered-diagnostic-output-path-map.v1",
+          "runtime_settings_sha256": "8b58d0d047a32b4e97704403262aac146f8c8bdbca1b1e25b64685a9c73d2e0c",
+          "schema": "numi.cardboard.coupon-resume-segment.v1",
+          "segment_accepted_controls": 0,
+          "segment_start_control_index": 20,
+          "source_prefix_accepted_control_count": 20,
+          "source_registered_output_paths": {
+            "NM_FEM_BASE_CGLS_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_COUPLED_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_COUPLED_TRIAL_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_COUPLED_TRIAL_SUMMARY_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_OPERATOR_FD_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_STATUS5_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            }
+          },
+          "source_run_directory": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control19-checkpoint-480/output",
+          "source_run_id": "2609263608e424e22720b30164cb3753bcc75dae1eb2af1d72fb4f40fa0e0d6d",
+          "source_runner_case_directory": "none",
+          "source_runner_contract_sha256": "none",
+          "source_runner_environment_record_sha256": "none",
+          "source_runner_non_output_settings_sha256": "none",
+          "source_runner_prediction_sha256": "none",
+          "source_runner_proof_mode": "source_run_reconstructed_for_diagnostic_replay",
+          "status": "resumed_diagnostic_segment_failed",
+          "trajectory_parity_established": false
+        },
+        "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-admission-encoder-182-003"
+      },
+      "498": {
+        "build_sha256": "5f88957ec2d7173f86b03499e79b2d20950e98a0e93fdc5bdd08536c1d9ffe25",
+        "frozen_sha256": "c2e6e23be57d3245c490c7f10f4abee55271a4fe051db6a5ef313de2de798394",
+        "receipt": {
+          "changed_inputs": [],
+          "diagnostic_capture_validation": {
+            "files": [],
+            "status": "no_capture_paths_requested",
+            "total_bytes": 0
+          },
+          "execution_started": true,
+          "exit_code": 2,
+          "finished_at_utc": "2026-10-16T05:50:05.992332+00:00",
+          "run_mode": "diagnostic",
+          "schema": "numi.cardboard.native-run-receipt.v2",
+          "source_inputs_unchanged": true,
+          "termination_errors": [],
+          "timed_out": false,
+          "wall_seconds": 351.97502908296883
+        },
+        "resume": {
+          "accepted_prefix_reconstructed_from_obj_or_json": false,
+          "accepted_state_restored_from_native_snapshot": true,
+          "checkpoint_file": "coupon-control-000019.nmcb",
+          "checkpoint_sha256": "ed702750af41fa9db76f2d0a480b571da116a6aca7b68f9e1dde9d0bfdd5065a",
+          "current_registered_output_paths": {
+            "NM_FEM_BASE_CGLS_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_COUPLED_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_COUPLED_TRIAL_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_COUPLED_TRIAL_SUMMARY_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_OPERATOR_FD_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_STATUS5_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            }
+          },
+          "current_runner_contract_sha256": "e46d25dd1cc46e4626711ca7c1b261ddac23bd2d3a21e8b120d920160312e2d3",
+          "current_runner_environment_record_sha256": "f4bc4a81a8e7b5eef687389b6394a3b41dd091457794971e3143baca9177c208",
+          "current_runner_non_output_settings_sha256": "95f3916f5f9b3681d6e1dfe9773c6297f185fcec2b9401285b1d47d2cfe943ea",
+          "current_runner_prediction_sha256": "7411357081dc861e2eabf6e7dd0b8568d48ae0d82862e072301e8f75cb225fa8",
+          "current_runner_proof_mode": "source_bound_diagnostic_replay_contract",
+          "diagnostic_replay_mode": true,
+          "evidence_class": "diagnostic_resumed_segment",
+          "full_protocol_complete": false,
+          "output_paths_were_created_by_probe": false,
+          "physical_validation": false,
+          "protocol_manifest_sha256": "315102605605164ed388056567251a92b4bdb4d5820f154d4923d4bf4cadf327",
+          "registered_output_path_map_relocated": false,
+          "registered_output_path_map_schema": "numi.cardboard.registered-diagnostic-output-path-map.v1",
+          "runtime_settings_sha256": "8b58d0d047a32b4e97704403262aac146f8c8bdbca1b1e25b64685a9c73d2e0c",
+          "schema": "numi.cardboard.coupon-resume-segment.v1",
+          "segment_accepted_controls": 0,
+          "segment_start_control_index": 20,
+          "source_prefix_accepted_control_count": 20,
+          "source_registered_output_paths": {
+            "NM_FEM_BASE_CGLS_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_COUPLED_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_COUPLED_TRIAL_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_COUPLED_TRIAL_SUMMARY_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_OPERATOR_FD_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            },
+            "NM_FEM_STATUS5_CAPTURE_PATH": {
+              "set": false,
+              "value": null
+            }
+          },
+          "source_run_directory": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control19-checkpoint-480/output",
+          "source_run_id": "2609263608e424e22720b30164cb3753bcc75dae1eb2af1d72fb4f40fa0e0d6d",
+          "source_runner_case_directory": "none",
+          "source_runner_contract_sha256": "none",
+          "source_runner_environment_record_sha256": "none",
+          "source_runner_non_output_settings_sha256": "none",
+          "source_runner_prediction_sha256": "none",
+          "source_runner_proof_mode": "source_run_reconstructed_for_diagnostic_replay",
+          "status": "resumed_diagnostic_segment_failed",
+          "trajectory_parity_established": false
+        },
+        "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-admission-encoder-182-003"
+      }
+    }
+  },
+  "run521": {
+    "build_sha256_expected": "8f6c95304c23b6c7149ec6b270d54eafdf4507ea26f3420e39e523c09dd500ad",
+    "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-damped-cgls-complete-coupon-521",
+    "frozen_sha256_expected": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc",
+    "receipt": {
+      "changed_inputs": [],
+      "diagnostic_capture_validation": {
+        "files": [],
+        "status": "no_capture_paths_requested",
+        "total_bytes": 0
+      },
+      "execution_started": true,
+      "exit_code": 2,
+      "finished_at_utc": "2026-10-16T08:15:39.666789+00:00",
+      "run_mode": "diagnostic",
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "source_inputs_unchanged": true,
+      "termination_errors": [],
+      "timed_out": false,
+      "wall_seconds": 1063.4548380412161
+    },
+    "result": {
+      "accepted_steps": 17,
+      "authored_region_map_sha256": "8513c9e0e7f3f784ed3de52b609ac26837197d4ba3d0bf5d33a067136afafec4",
+      "compiled_world_fingerprint": 5247741070077684697,
+      "damage_overlay_mapping_sha256": "",
+      "failure": "Matter rejected step 17; status, diagnostic state OBJ, and CSV observations were retained; rejected geometry is not an accepted animation frame",
+      "frame_map_sha256": "94e426a5d9d06445e3f44d1046f8b49bdae23a5752691f9776118222f4d7b740",
+      "material_map_sha256": "a695cb1bf6c22547013c15007998b171fc7639433c438380a15972cf36483f7b",
+      "nodes": 882,
+      "physical_validation": false,
+      "schema": "numi.cardboard.probe-result.v1",
+      "status": "failed",
+      "tetrahedra": 1920
+    },
+    "source198": {
+      "command_spec": {
+        "bytes": 5407,
+        "sha256": "796b422271e2e120da8d3a358796013b42daf01a32557676ed2488affbd4ef64"
+      },
+      "compiled_pack": {
+        "bytes": 1984768,
+        "sha256": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1"
+      },
+      "environment": {
+        "bytes": 8148,
+        "sha256": "1c65c4c5b572db41c80123183ee3a73633d2324753a8624a379d8a3f432ad87e"
+      },
+      "frozen_source": {
+        "bytes": 99608,
+        "sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc"
+      },
+      "output_manifest": {
+        "bytes": 11809,
+        "sha256": "1eb17e823eea389ce40d72acc859f0bcd8e34313a0a5e207b8b02075a6918bbe"
+      },
+      "prediction": {
+        "bytes": 116768,
+        "sha256": "063c98a6ebfe38fa9d44c9a51cb91f076199d6d84ad8ffa9e1d416d2810280d1"
+      },
+      "source_build": {
+        "bytes": 101653,
+        "sha256": "8f6c95304c23b6c7149ec6b270d54eafdf4507ea26f3420e39e523c09dd500ad"
+      }
+    },
+    "world_fingerprint": 5247741070077684697
+  },
+  "schema": "numi.cardboard.native521-accepted-prefix-parity.v1"
+}

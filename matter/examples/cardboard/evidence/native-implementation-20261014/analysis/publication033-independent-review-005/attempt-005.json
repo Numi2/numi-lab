@@ -1,0 +1,7 @@
+{
+  "failure": "Verifier built the path split delimiter as literal backslash-zero rather than NUL, so the git working-tree comparison failed despite publication paths being correct. No publication data or checkout files were modified.",
+  "finished_at_utc": "2026-10-16T08:10:40.061142+00:00",
+  "schema": "numi.cardboard.publication033-independent-review-attempt.v1",
+  "script_sha256": "93ea2f3424e8c6da077fb9b5c5586401d14c3d2c9c82344b4195f85da3c34e88",
+  "status": "failed_verifier_preflight"
+}

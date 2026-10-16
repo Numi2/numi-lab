@@ -1,0 +1,7 @@
+{
+  "schema": "numi.cardboard.audit-package.v1",
+  "files_sha256": {
+    "report.json": "5dfbe4f81605dc97df642eb6cbd00f20b6697afcac6e07d3c84c539f28d28918",
+    "verify.py": "9d2adc2db905288bf83b69bae3f5171f9459fb3c9b1e2775e79e09bd689745ff"
+  }
+}
