@@ -1,0 +1,578 @@
+[
+  {
+    "newton_iteration": 0,
+    "rhs_l2": 0.00123110309,
+    "final_cycle_true_residual_l2": 0.000129327498,
+    "final_cycle_arnoldi_estimate": 0.000129327498,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 1,
+    "rhs_l2": 0.000127140782,
+    "final_cycle_true_residual_l2": 1.10207666e-05,
+    "final_cycle_arnoldi_estimate": 1.10207666e-05,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 2,
+    "rhs_l2": 3.12753291e-05,
+    "final_cycle_true_residual_l2": 1.80768291e-06,
+    "final_cycle_arnoldi_estimate": 1.80768291e-06,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 3,
+    "rhs_l2": 2.7346261e-05,
+    "final_cycle_true_residual_l2": 6.72914894e-07,
+    "final_cycle_arnoldi_estimate": 6.72914894e-07,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 4,
+    "rhs_l2": 2.73457426e-05,
+    "final_cycle_true_residual_l2": 3.73276038e-07,
+    "final_cycle_arnoldi_estimate": 3.73276038e-07,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 5,
+    "rhs_l2": 2.06007517e-05,
+    "final_cycle_true_residual_l2": 2.27427151e-07,
+    "final_cycle_arnoldi_estimate": 2.27427151e-07,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 6,
+    "rhs_l2": 1.84357468e-05,
+    "final_cycle_true_residual_l2": 2.78136469e-07,
+    "final_cycle_arnoldi_estimate": 2.78136469e-07,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 7,
+    "rhs_l2": 1.7231785e-05,
+    "final_cycle_true_residual_l2": 1.87409853e-07,
+    "final_cycle_arnoldi_estimate": 1.87409853e-07,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 8,
+    "rhs_l2": 1.52096227e-05,
+    "final_cycle_true_residual_l2": 2.26289941e-07,
+    "final_cycle_arnoldi_estimate": 2.26289941e-07,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 9,
+    "rhs_l2": 1.19902415e-05,
+    "final_cycle_true_residual_l2": 1.74464134e-07,
+    "final_cycle_arnoldi_estimate": 1.74464134e-07,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 10,
+    "rhs_l2": 1.06200432e-05,
+    "final_cycle_true_residual_l2": 1.29166423e-07,
+    "final_cycle_arnoldi_estimate": 1.29166423e-07,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 11,
+    "rhs_l2": 1.03635357e-05,
+    "final_cycle_true_residual_l2": 1.54339531e-07,
+    "final_cycle_arnoldi_estimate": 1.54339531e-07,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 12,
+    "rhs_l2": 8.50597553e-06,
+    "final_cycle_true_residual_l2": 1.02565714e-07,
+    "final_cycle_arnoldi_estimate": 1.02565714e-07,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 13,
+    "rhs_l2": 8.50123615e-06,
+    "final_cycle_true_residual_l2": 1.10112659e-07,
+    "final_cycle_arnoldi_estimate": 1.10112659e-07,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 14,
+    "rhs_l2": 7.63202206e-06,
+    "final_cycle_true_residual_l2": 9.09195919e-08,
+    "final_cycle_arnoldi_estimate": 9.09195919e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 15,
+    "rhs_l2": 7.6050037e-06,
+    "final_cycle_true_residual_l2": 1.16848099e-07,
+    "final_cycle_arnoldi_estimate": 1.16848099e-07,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 16,
+    "rhs_l2": 6.63142464e-06,
+    "final_cycle_true_residual_l2": 7.45861541e-08,
+    "final_cycle_arnoldi_estimate": 7.45861541e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 17,
+    "rhs_l2": 6.5303102e-06,
+    "final_cycle_true_residual_l2": 9.10593911e-08,
+    "final_cycle_arnoldi_estimate": 9.10593911e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 18,
+    "rhs_l2": 6.52303061e-06,
+    "final_cycle_true_residual_l2": 9.02542467e-08,
+    "final_cycle_arnoldi_estimate": 9.02542467e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 19,
+    "rhs_l2": 6.10460711e-06,
+    "final_cycle_true_residual_l2": 8.94005439e-08,
+    "final_cycle_arnoldi_estimate": 8.94005439e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 20,
+    "rhs_l2": 6.08153687e-06,
+    "final_cycle_true_residual_l2": 7.1397551e-08,
+    "final_cycle_arnoldi_estimate": 7.1397551e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 21,
+    "rhs_l2": 6.07928223e-06,
+    "final_cycle_true_residual_l2": 8.94138807e-08,
+    "final_cycle_arnoldi_estimate": 8.94138807e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 22,
+    "rhs_l2": 6.04097022e-06,
+    "final_cycle_true_residual_l2": 7.29226741e-08,
+    "final_cycle_arnoldi_estimate": 7.29226741e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 23,
+    "rhs_l2": 6.03684066e-06,
+    "final_cycle_true_residual_l2": 6.69571705e-08,
+    "final_cycle_arnoldi_estimate": 6.69571705e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 24,
+    "rhs_l2": 6.00431304e-06,
+    "final_cycle_true_residual_l2": 7.56110268e-08,
+    "final_cycle_arnoldi_estimate": 7.56110268e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 25,
+    "rhs_l2": 6.00226758e-06,
+    "final_cycle_true_residual_l2": 7.27775245e-08,
+    "final_cycle_arnoldi_estimate": 7.27775245e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 26,
+    "rhs_l2": 6.00166368e-06,
+    "final_cycle_true_residual_l2": 9.02288946e-08,
+    "final_cycle_arnoldi_estimate": 9.02288946e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 27,
+    "rhs_l2": 5.98616725e-06,
+    "final_cycle_true_residual_l2": 8.07238507e-08,
+    "final_cycle_arnoldi_estimate": 8.07238507e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 28,
+    "rhs_l2": 5.96797008e-06,
+    "final_cycle_true_residual_l2": 7.52139542e-08,
+    "final_cycle_arnoldi_estimate": 7.52139542e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 29,
+    "rhs_l2": 5.75711829e-06,
+    "final_cycle_true_residual_l2": 8.76892443e-08,
+    "final_cycle_arnoldi_estimate": 8.76892443e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 30,
+    "rhs_l2": 5.75687591e-06,
+    "final_cycle_true_residual_l2": 8.9158938e-08,
+    "final_cycle_arnoldi_estimate": 8.9158938e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 31,
+    "rhs_l2": 5.75646209e-06,
+    "final_cycle_true_residual_l2": 7.47416138e-08,
+    "final_cycle_arnoldi_estimate": 7.47416138e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 32,
+    "rhs_l2": 5.75597323e-06,
+    "final_cycle_true_residual_l2": 7.47625108e-08,
+    "final_cycle_arnoldi_estimate": 7.47625108e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 33,
+    "rhs_l2": 5.75543572e-06,
+    "final_cycle_true_residual_l2": 8.43055545e-08,
+    "final_cycle_arnoldi_estimate": 8.43055545e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 34,
+    "rhs_l2": 5.75541753e-06,
+    "final_cycle_true_residual_l2": 8.8305157e-08,
+    "final_cycle_arnoldi_estimate": 8.8305157e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 35,
+    "rhs_l2": 5.75493141e-06,
+    "final_cycle_true_residual_l2": 8.92509604e-08,
+    "final_cycle_arnoldi_estimate": 8.92509604e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 36,
+    "rhs_l2": 1.71697604e-06,
+    "final_cycle_true_residual_l2": 2.05887485e-08,
+    "final_cycle_arnoldi_estimate": 2.05887485e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 37,
+    "rhs_l2": 1.7104677e-06,
+    "final_cycle_true_residual_l2": 2.0874614e-08,
+    "final_cycle_arnoldi_estimate": 2.0874614e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 38,
+    "rhs_l2": 1.7103963e-06,
+    "final_cycle_true_residual_l2": 2.66935896e-08,
+    "final_cycle_arnoldi_estimate": 2.66935896e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 39,
+    "rhs_l2": 1.71031206e-06,
+    "final_cycle_true_residual_l2": 2.5716238e-08,
+    "final_cycle_arnoldi_estimate": 2.5716238e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 40,
+    "rhs_l2": 1.70949647e-06,
+    "final_cycle_true_residual_l2": 2.00262331e-08,
+    "final_cycle_arnoldi_estimate": 2.00262331e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 41,
+    "rhs_l2": 1.70698115e-06,
+    "final_cycle_true_residual_l2": 2.36016025e-08,
+    "final_cycle_arnoldi_estimate": 2.36016025e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 42,
+    "rhs_l2": 1.68217105e-06,
+    "final_cycle_true_residual_l2": 2.10748361e-08,
+    "final_cycle_arnoldi_estimate": 2.10748361e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 43,
+    "rhs_l2": 1.67917256e-06,
+    "final_cycle_true_residual_l2": 1.98603303e-08,
+    "final_cycle_arnoldi_estimate": 1.98603303e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 44,
+    "rhs_l2": 1.679089e-06,
+    "final_cycle_true_residual_l2": 2.32962218e-08,
+    "final_cycle_arnoldi_estimate": 2.32962218e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 45,
+    "rhs_l2": 1.67903181e-06,
+    "final_cycle_true_residual_l2": 2.41791493e-08,
+    "final_cycle_arnoldi_estimate": 2.41791493e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 46,
+    "rhs_l2": 1.27943895e-06,
+    "final_cycle_true_residual_l2": 1.99451318e-08,
+    "final_cycle_arnoldi_estimate": 1.99451318e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 47,
+    "rhs_l2": 1.2754299e-06,
+    "final_cycle_true_residual_l2": 1.90790903e-08,
+    "final_cycle_arnoldi_estimate": 1.90790903e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 48,
+    "rhs_l2": 1.27222972e-06,
+    "final_cycle_true_residual_l2": 1.7089647e-08,
+    "final_cycle_arnoldi_estimate": 1.7089647e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 49,
+    "rhs_l2": 1.27199019e-06,
+    "final_cycle_true_residual_l2": 1.90547098e-08,
+    "final_cycle_arnoldi_estimate": 1.90547098e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 50,
+    "rhs_l2": 1.27192391e-06,
+    "final_cycle_true_residual_l2": 1.94372554e-08,
+    "final_cycle_arnoldi_estimate": 1.94372554e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 51,
+    "rhs_l2": 1.27183182e-06,
+    "final_cycle_true_residual_l2": 1.96373904e-08,
+    "final_cycle_arnoldi_estimate": 1.96373904e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 52,
+    "rhs_l2": 1.27182784e-06,
+    "final_cycle_true_residual_l2": 1.97478336e-08,
+    "final_cycle_arnoldi_estimate": 1.97478336e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 53,
+    "rhs_l2": 1.27179578e-06,
+    "final_cycle_true_residual_l2": 1.68887819e-08,
+    "final_cycle_arnoldi_estimate": 1.68887819e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 54,
+    "rhs_l2": 1.11642646e-06,
+    "final_cycle_true_residual_l2": 1.66498122e-08,
+    "final_cycle_arnoldi_estimate": 1.66498122e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 55,
+    "rhs_l2": 1.11433644e-06,
+    "final_cycle_true_residual_l2": 1.72334786e-08,
+    "final_cycle_arnoldi_estimate": 1.72334786e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 56,
+    "rhs_l2": 1.11431495e-06,
+    "final_cycle_true_residual_l2": 7.16669888e-08,
+    "final_cycle_arnoldi_estimate": 2.17255867e-08,
+    "final_cycle_accepted": false,
+    "final_cycle_columns": 16,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 57,
+    "rhs_l2": 1.11428562e-06,
+    "final_cycle_true_residual_l2": 1.28208422e-08,
+    "final_cycle_arnoldi_estimate": 1.28208422e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 58,
+    "rhs_l2": 1.11426311e-06,
+    "final_cycle_true_residual_l2": 1.59072435e-08,
+    "final_cycle_arnoldi_estimate": 1.59072435e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 59,
+    "rhs_l2": 1.02226898e-06,
+    "final_cycle_true_residual_l2": 1.56110023e-08,
+    "final_cycle_arnoldi_estimate": 1.56110023e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 60,
+    "rhs_l2": 1.0204086e-06,
+    "final_cycle_true_residual_l2": 1.47879327e-08,
+    "final_cycle_arnoldi_estimate": 1.47879327e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 61,
+    "rhs_l2": 1.01996579e-06,
+    "final_cycle_true_residual_l2": 1.59000511e-08,
+    "final_cycle_arnoldi_estimate": 1.59000511e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 62,
+    "rhs_l2": 1.01970932e-06,
+    "final_cycle_true_residual_l2": 1.40817118e-08,
+    "final_cycle_arnoldi_estimate": 1.40817118e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  },
+  {
+    "newton_iteration": 63,
+    "rhs_l2": 1.0196768e-06,
+    "final_cycle_true_residual_l2": 1.21510757e-08,
+    "final_cycle_arnoldi_estimate": 1.21510757e-08,
+    "final_cycle_accepted": true,
+    "final_cycle_columns": 0,
+    "all_cycles_solver_and_operator_healthy": true
+  }
+]

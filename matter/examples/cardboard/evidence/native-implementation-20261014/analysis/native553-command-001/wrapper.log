@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003/matter/tools/cardboard_source_bound_run.py", line 154, in <module>
+    if relative in bindings: raise ValueError('duplicate external input basename')
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: duplicate external input basename

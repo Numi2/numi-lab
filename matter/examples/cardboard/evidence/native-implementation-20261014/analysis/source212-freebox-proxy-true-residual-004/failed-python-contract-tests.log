@@ -1,0 +1,1 @@
+Source212-004 contract run: 12 passed, 1 failed. The remaining failure was another token expectation that retained spaces while the helper source was whitespace-compacted. No production compile or GPU run occurred.

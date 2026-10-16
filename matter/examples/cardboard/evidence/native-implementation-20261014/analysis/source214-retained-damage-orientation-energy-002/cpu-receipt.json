@@ -1,0 +1,41 @@
+{
+  "base_source_check_file_sha256": "5d54910aebb1beb78e0d5108b1fbd57ec3398939a7bb4299e96dedc1dcb44d6f",
+  "compiled_source_matches_canonical210_check": true,
+  "compiled_source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-strict-periodic-freebox-210-buildfix-003/matter/tools/cardboard_retained_matrix_damage_check.cpp",
+  "compiled_source_sha256": "5d54910aebb1beb78e0d5108b1fbd57ec3398939a7bb4299e96dedc1dcb44d6f",
+  "compiler": "Apple clang via /usr/bin/c++ (C++23, arm64, -Wall -Wextra -Wpedantic -Werror)",
+  "executable_sha256": "1fed94e394add343decedb20827436f42b63b69e34c335243a0268a9b906c077",
+  "exit_code": 0,
+  "library_sha256": "19e0401311c6998b0c4c91997e4ff109a51891f9b2bdaed8610b9cfbcfa71e36",
+  "limitations": [
+    "synthetic material parameters only; this is a numerical implementation regression, not calibration",
+    "one tetra shape and one rigid rotation plus one reversed winding; not a mesh/objectivity qualification",
+    "no geometric crack-open/debond-area result is supplied by this test"
+  ],
+  "metrics": {
+    "2x_refinement_relative_difference": "0.0030146161401040095",
+    "axis_aligned_240step_GcA_ratio": "0.99546309119343468",
+    "reversed_winding_240step_work_J": "1.1198959775926141e-07",
+    "reversed_winding_GcA_J": "1.1250000000000001e-07",
+    "reversed_winding_GcA_ratio": "0.99546309119343468",
+    "rotated_240step_work_J": "1.1198959775926141e-07",
+    "rotated_GcA_J": "1.1250000000000001e-07",
+    "rotated_GcA_ratio": "0.99546309119343468",
+    "synthetic_only_status": "measured_cpu_synthetic_candidate_not_calibration"
+  },
+  "object_sha256": "fb4ba446686ff51c1a3734a5b03a1e97582e7da1f006c6395b3ab04e3da72cc2",
+  "run_scope": "one targeted CPU executable; no native GPU/physical FEM transactions",
+  "source_file_sha256": "b0f9713af7320c80d1c43d4acf9b3ee66ebcb1d885ba5bb0239a60d9b63280b8",
+  "status": "PASS",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_sha256": "fbe4ecf0038c664ccb9d00a400c4dd0c29317da1b980a5403b5475dab894d6a2",
+  "support_file_hashes_match210_and_buildfix003": {
+    "matter/include/numi/matter/detail.hpp": true,
+    "matter/include/numi/matter/matter.hpp": true,
+    "matter/materials/hajali2009_liner_hill_ideal.nmatter": true,
+    "matter/tools/cardboard_damage_builder.hpp": true,
+    "matter/tools/cardboard_fracture_regularization.hpp": true,
+    "matter/tools/cardboard_retained_damage_fp64_oracle.hpp": true,
+    "matter/tools/cardboard_retained_matrix_damage.hpp": true
+  }
+}

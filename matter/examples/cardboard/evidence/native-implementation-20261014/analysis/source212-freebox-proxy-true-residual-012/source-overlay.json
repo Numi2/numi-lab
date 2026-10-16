@@ -1,0 +1,37 @@
+{
+  "base_frozen_source_sha256": "5f7d27b1c56784559b444434c90e96668dd5e04caabf87688590420c7fc954fd",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source207-buildfix-002",
+  "candidate_frozen_source_sha256": "499468e952b33f98419490c9c9987f742f79791d8822285919189205eae85555",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-free-box-capsule-true-residual-212-012",
+  "changed_files": {
+    "matter/include/numi/matter/detail/free_box_true_residual_proxy_admission.hpp": {
+      "after_sha256": "657c6f9aac9e27f1254d32e60f3248688281ad82b753bb67bbe8165177e1715d",
+      "before_sha256": null
+    },
+    "matter/src/runtime.mm": {
+      "after_sha256": "f96f151cccaaa9798ff08efb81b65e4b7fcecbc4b87dcbbbef628d19e6e2a89b",
+      "before_sha256": "586f979a13a5628a8c82e925a50d7337ba4a9e91faf9d6e6df2f5dd3d856848e"
+    },
+    "matter/tools/cardboard_free_box_true_residual_proxy_admission_check.cpp": {
+      "after_sha256": "9bf8be6dee07e2563195a7ab0074b682386223b98c30755722b4c68534300f16",
+      "before_sha256": null
+    },
+    "matter/tools/test_true_residual_certification_contract.py": {
+      "after_sha256": "a6f5a38430568acedf29fed0686948a86bd390f0f2b78b7da58e987fa395ad67",
+      "before_sha256": "f40b5c45490d06705b59d504a8cc77d677fa610c7e43ea18d79f7b65fb850402"
+    }
+  },
+  "gpu_dispatch": false,
+  "native_execution": false,
+  "package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source212-freebox-proxy-true-residual-012",
+  "patch_sha256": "1dccb56886d015dbc0b20b198693982cac70020d7de0122e206d89c35a61d7f9",
+  "schema": "numi.cardboard.source-overlay.v1",
+  "scope": "True-residual operator admission for one static FEM object and exactly one non-articulated dynamic free BOX. Existing single-BOX path remains valid without capsule endpoint state. Optional prescribed capsules are allowed; when present they require current/prescribed endpoint inputs and authored FEM-pair coverage. Requires authored BOX pairs always. E1/N4096/T32768/C4096 and all physical operators, thresholds, and acceptance behavior remain unchanged.",
+  "source_files_count_after": 821,
+  "source_files_count_before": 819,
+  "validation": {
+    "C++ proxy admission helper": "20 checks, O0/O3 output byte-identical; physical_transactions=0",
+    "python_contracts": "13/13 pass",
+    "source-bound build": "011 build artifacts are NOT source-bound to 012; rebuild 012 before native use"
+  }
+}

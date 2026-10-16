@@ -1,0 +1,39 @@
+{
+  "base_frozen_source_sha256": "5f7d27b1c56784559b444434c90e96668dd5e04caabf87688590420c7fc954fd",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source207-buildfix-002",
+  "candidate_frozen_source_sha256": "70976d03d6b096d6d40cf44b853d7f2118b44f74aa4a23c72a0c6b5a0b5225fa",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-true-residual-8192-213-001",
+  "changed_files": {
+    "matter/CMakeLists.txt": {
+      "after_sha256": "34bb2a39fe2daf2881d1b163bdbfd6974f2195f9543525b495d88d89dcdd5579",
+      "before_sha256": "315d8532ec1f2fc729783bcaed27c376cbdf48a240e6906c593c17091508b220"
+    },
+    "matter/include/numi/matter/detail/true_residual_arena_plan.hpp": {
+      "after_sha256": "23390d78713cff5fbe67d999970d0949a28884dd2b2d940702831653b0031aa3",
+      "before_sha256": null
+    },
+    "matter/src/runtime.mm": {
+      "after_sha256": "c278ada83550899e772d48367bc0a928ef5aa5f84abd51d588acc1dbcf3aee53",
+      "before_sha256": "586f979a13a5628a8c82e925a50d7337ba4a9e91faf9d6e6df2f5dd3d856848e"
+    },
+    "matter/tools/fgmres_true_residual_native_check.mm": {
+      "after_sha256": "0fb26ea053b31dfb22e85d67b8895a5a16e63465d924017a60e8c2796713857e",
+      "before_sha256": "b854f1a83d3851e99f5648478e208e7236751d1728a51286bcecfa8d5466b589"
+    },
+    "matter/tools/test_true_residual_certification_contract.py": {
+      "after_sha256": "d95e217b3db18c5ed0880e85364ff6cd6688f44484d46ffc58cf3388dbf0eb66",
+      "before_sha256": "f40b5c45490d06705b59d504a8cc77d677fa610c7e43ea18d79f7b65fb850402"
+    },
+    "matter/tools/true_residual_arena_plan_check.cpp": {
+      "after_sha256": "58c045338d31bec08e5b085598aaa2394b47047e8239d2c43bf723bededad61c",
+      "before_sha256": null
+    }
+  },
+  "gpu_dispatch": false,
+  "native_execution": false,
+  "package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source213-true-residual-arena-001",
+  "patch_sha256": "3a31a924fab79dba9c254d05356c9098d17f92636d527c538e009c0e008d51e5",
+  "schema": "numi.cardboard.source-overlay.v1",
+  "source_file_count_after": 821,
+  "source_file_count_before": 819
+}

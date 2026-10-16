@@ -1,0 +1,6 @@
+{
+  "parent_script_sha256": "fe56233a93aad539023ea625e3806582ceb1bce0d33d06780827381697a1ce1f",
+  "new_script_sha256": "d16e46ffecf60228a3e6e8739068ce6f48ecef44d7997b077e07895404f5dfca",
+  "source_change": "Only native source-runner proof validation. All physics inputs byteidentical210; no checkpoint edits. Validate full production history parity before interpreting diagnostic.",
+  "native551_and552_failures_preserved": true
+}

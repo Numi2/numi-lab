@@ -1,0 +1,9 @@
+source_id,component,basis_weight_g_m2,axis,loading,stress_MPa,strain,source_location,observation_class,calibration_scope,notes
+haj_ali_2009,liner,205,MD,tension,38.2,0.008,Table 1,published_tensile_yield_anchor,allow_only_yield_anchor,Test-derived input reported by source; not a raw curve point series
+haj_ali_2009,liner,205,CD,tension,18.4,0.009,Table 1,published_tensile_yield_anchor,allow_only_yield_anchor,Test-derived input reported by source; not a raw curve point series
+haj_ali_2009,medium_NSSC,126,MD,tension,15.7,0.0035,Table 1,published_tensile_yield_anchor,allow_only_yield_anchor,Test-derived input reported by source; not a raw curve point series
+haj_ali_2009,medium_NSSC,126,CD,tension,8.06,0.0050,Table 1,published_tensile_yield_anchor,allow_only_yield_anchor,Test-derived input reported by source; not a raw curve point series
+haj_ali_2009,liner,205,MD,compression,22.92,0.0048,Table 1 / Table 3,published_model_input_60pct_assumption,source_assumption_only,Source says compression values assumed as 60 percent of corresponding tensile values; not a measured compression curve
+haj_ali_2009,liner,205,CD,compression,11.02,0.0053,Table 1 / Table 3,published_model_input_60pct_assumption,source_assumption_only,Source says compression values assumed as 60 percent of corresponding tensile values; not a measured compression curve
+haj_ali_2009,medium_NSSC,126,MD,compression,9.391,0.0021,Table 3,published_model_input_60pct_assumption,source_assumption_only,Table 3 Hill input differs from 0.6 times rounded Table 1 stress (9.42 MPa); preserve printed 9.391 MPa
+haj_ali_2009,medium_NSSC,126,CD,compression,4.836,0.0030,Table 3,published_model_input_60pct_assumption,source_assumption_only,Table 3 Hill input; source stress 4.836 MPa differs from rounded Table 1 product 4.836 MPa only at precision

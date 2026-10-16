@@ -1,0 +1,13 @@
+{
+  "parent": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native549_integrated_contact_baseline_001.py",
+  "parent_sha256": "da4c19b56e8354b53f09d46107adf48dcc5de0a0f6166e6a22697add6f9d5d2c",
+  "script": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native550_contact_newton64_001.py",
+  "script_sha256": "faba6c55346fa3c86a05c3e9219dd413ac8471893ea7044f7f3177490378bd8e",
+  "only_numerical_delta": {
+    "newton_iterations": [
+      16,
+      64
+    ]
+  },
+  "physical_operator_and_tolerances_unchanged": true
+}

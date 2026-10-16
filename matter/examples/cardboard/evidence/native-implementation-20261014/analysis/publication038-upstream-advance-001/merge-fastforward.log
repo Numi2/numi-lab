@@ -1,0 +1,7 @@
+Updating 990ea597..68e19b65
+Fast-forward
+ apps/NumiHumanRestingSourceAllocation.hpp          | 31 ++++++++++++++++++++++
+ apps/NumiHumanRestingVisual.hpp                    | 15 ++++++++---
+ .../test_resting_referenced_source_attachments.cpp | 22 +++++++++++++++
+ 3 files changed, 65 insertions(+), 3 deletions(-)
+ create mode 100644 tools/test_resting_referenced_source_attachments.cpp

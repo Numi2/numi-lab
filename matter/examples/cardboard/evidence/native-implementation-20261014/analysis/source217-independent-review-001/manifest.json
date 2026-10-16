@@ -1,0 +1,26 @@
+{
+  "entries": [
+    {
+      "bytes": 3453,
+      "path": "report.json",
+      "sha256": "676dc59fcba3e207f129057f849b8ea5fa6cea9758e2d18e99a0b68c3330a580"
+    },
+    {
+      "bytes": 1038,
+      "path": "review.md",
+      "sha256": "e42e3b95e0ac9dddc59ef998d6e0521a5f5d40375adce3b476ed806e17462cc3"
+    },
+    {
+      "bytes": 130,
+      "path": "test.stderr",
+      "sha256": "359fdb36a915a05e384b1704085db53cf470398bc7dfe41ca37f6b4512a00607"
+    },
+    {
+      "bytes": 0,
+      "path": "test.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "schema": "numi.cardboard.independent-review-manifest.v1",
+  "source_frozen_sha256": null
+}

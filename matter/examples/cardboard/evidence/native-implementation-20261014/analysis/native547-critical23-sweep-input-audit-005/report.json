@@ -1,0 +1,269 @@
+{
+  "accepted_history_fp32_word_changes": 0,
+  "all_direction_words_match_H_and_H_over_dt": true,
+  "all_pairs_have_both_signs_for_every_power": true,
+  "all_perturbations_only_change_selected_F_and_Fdot_component": true,
+  "all_valid_reference_outputs_finite": true,
+  "builder_sha256": "7654967ad7b8f9e145e97b228075e8372b1e72fede8597e91c5b5c1a63516f3a",
+  "captured_arbitrary_direction_words_replaced_with_declared_unit_basis_H_and_H_over_dt": true,
+  "center_F_Fdot_dt_temperature_source_words_preserved": true,
+  "center_input_sha256": "78c5a4d3ffb2336d76019ac5501c42003535f62df89462eb4173b0cd5802d8eb",
+  "center_repeat_exact_fp32_word_parity": true,
+  "endpoint_count_F_delta_rounded_unchanged": 0,
+  "endpoint_count_rate_word_rounded_unchanged": 80,
+  "endpoint_count_with_rate_word_change": 1346,
+  "fine_reference_sha256": "280b7ce27cbea90ea6a033cf9d3ca93585654ab3174b168bbd81e907e092ce63",
+  "input_package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-002",
+  "input_sha256": "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e",
+  "interpretation": "This is input semantics/admission only. Signs of multiplier/yield are smoothed-state indicators, not proof of a discrete constitutive branch transition. Fdot is perturbed by the declared velocity-gradient relation; local Haj-Ali material equations are rate-independent, so FD of constitutive stress must use realized dF only. Native residual/material gate and FP64 derivative gate remain separate.",
+  "max_abs_difference_dt_dFdot_vs_dF": 4.3159341768864157e-11,
+  "max_abs_realized_dF_minus_ideal_epsilon": 1.3322676295501878e-15,
+  "max_relative_difference_dt_dFdot_vs_dF_where_dF_nonzero": 1.0,
+  "minimum_nonzero_realized_abs_dF": 9.094947017729282e-13,
+  "pair_count": 23,
+  "pair_selection_sha256": "36dfab1b02c443ef9ee77df2cada5e7eafa9abe3450c1d33208016357ceeb452",
+  "pair_summaries": [
+    {
+      "basis_column": 0,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 0,
+      "material": 1,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 740
+    },
+    {
+      "basis_column": 0,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 64,
+      "material": 1,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 853
+    },
+    {
+      "basis_column": 0,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 128,
+      "material": 1,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 1639
+    },
+    {
+      "basis_column": 2,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 192,
+      "material": 0,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 82
+    },
+    {
+      "basis_column": 2,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 256,
+      "material": 0,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 222
+    },
+    {
+      "basis_column": 2,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 320,
+      "material": 0,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 223
+    },
+    {
+      "basis_column": 2,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 384,
+      "material": 1,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 740
+    },
+    {
+      "basis_column": 2,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 448,
+      "material": 0,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 1040
+    },
+    {
+      "basis_column": 2,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 512,
+      "material": 0,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 1183
+    },
+    {
+      "basis_column": 4,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 576,
+      "material": 1,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 852
+    },
+    {
+      "basis_column": 4,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 640,
+      "material": 1,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 853
+    },
+    {
+      "basis_column": 4,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 704,
+      "material": 1,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 1744
+    },
+    {
+      "basis_column": 5,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 768,
+      "material": 0,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 222
+    },
+    {
+      "basis_column": 6,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 832,
+      "material": 0,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 82
+    },
+    {
+      "basis_column": 6,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 896,
+      "material": 0,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 222
+    },
+    {
+      "basis_column": 6,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 960,
+      "material": 0,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 223
+    },
+    {
+      "basis_column": 6,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 1024,
+      "material": 1,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 740
+    },
+    {
+      "basis_column": 6,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 1088,
+      "material": 1,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 853
+    },
+    {
+      "basis_column": 6,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 1152,
+      "material": 0,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 1183
+    },
+    {
+      "basis_column": 6,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 1216,
+      "material": 1,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 1639
+    },
+    {
+      "basis_column": 7,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 1280,
+      "material": 0,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 222
+    },
+    {
+      "basis_column": 8,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 1344,
+      "material": 0,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 222
+    },
+    {
+      "basis_column": 8,
+      "center_and_repeat_words_identical": true,
+      "endpoints": 62,
+      "first_index": 1408,
+      "material": 1,
+      "rows": 64,
+      "strict_valid": 64,
+      "tet": 740
+    }
+  ],
+  "powers_inclusive": [
+    10,
+    40
+  ],
+  "reference_sha256": "2893d2b988feae51fe6ecbe3a7a71ecb7a19d1f9b011a3957b52df54c4bd96e0",
+  "rows": 1472,
+  "rows_per_pair": 64,
+  "schema": "numi.cardboard.native547-critical23-sweep-input-audit.v2",
+  "source_reference_module_sha256": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f",
+  "strict_reference_invalid_rows": [],
+  "strict_reference_valid_rows": 1472,
+  "structural_binding_errors": []
+}

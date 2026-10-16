@@ -1,0 +1,63 @@
+{
+  "findings": [
+    {
+      "detail": "The new per-interface gate uses accepted fully-failed cohesive quadrature reference area (D exactly 1), validates fraction=area/activated-reference-area and cross-run activation-area agreement at 1e-6 relative, then applies the 0.02 absolute fraction-difference limit. It counts closed failed faces as constitutively debonded while keeping geometric opening separate.",
+      "status": "no_concrete_false_pass_found"
+    },
+    {
+      "detail": "The stage capacity triplet requires each adjacent pair damage/debond gate. Enabled paper damage remains inconclusive because the per-tet damage index is not mesh-objective crack area; geometric crack/open-debond area remains separately unavailable. Matching force alone cannot pass.",
+      "status": "qualification_remains_blocked_for_enabled_paper_damage_area"
+    },
+    {
+      "detail": "A role is not_enabled only when both histories report not_enabled; mixed enablement or incompatible reference area is inconclusive/fails closed.",
+      "status": "disabled_mechanism_handling"
+    },
+    {
+      "detail": "Tests cover a below-limit 1.9 percentage-point constitutive-debond difference, an above-limit 2.1-point difference, force-match with enabled-but-unmeasured paper damage, legacy face-maximum status, and mismatched activated area.",
+      "status": "test_coverage"
+    }
+  ],
+  "frozen_source_sha256": null,
+  "limitations": [
+    "This is a source/analyzer review and Python unit test only; it is not native or physical qualification.",
+    "The accepted constitutive capacity-loss area is not geometric open area."
+  ],
+  "patch_sha256": "275e52e824fa05477212c35ab33cf257113c11d315386c66040fc1cd23750252",
+  "reviewed_changed_files": [
+    {
+      "base_sha256": "177741de6e0e43981d1340ae05b45a26bd599a0bb4b624b14b72f9e58c3d91ea",
+      "bytes": 115616,
+      "changed": true,
+      "path": "matter/tools/cardboard_stage_resolution_study.py",
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    {
+      "base_sha256": "d54a8563acd1f0a732bbac1cb01a4ab08911474e0d28f38d1b45085eaeca085d",
+      "bytes": 9839,
+      "changed": true,
+      "path": "matter/tools/cardboard_stage_resolution_study.md",
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    {
+      "base_sha256": "e2ff71b72ac8dd0bbb070a3bae1bc7dd6639cd3add60ff83622988015ccf94c2",
+      "bytes": 39245,
+      "changed": true,
+      "path": "matter/tools/test_cardboard_stage_resolution_study.py",
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    }
+  ],
+  "schema": "numi.cardboard.source217-independent-review.v1",
+  "source217_report_sha256": "7a5ceda3ab2250b692f362e0c2e5c6b01d86010ee231c3b7b5d9e181402d86bd",
+  "source_file_count": 819,
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-capacity-damage-debond-gates-217-001",
+  "test": {
+    "argv": [
+      "/Applications/Xcode-26.6.0.app/Contents/Developer/usr/bin/python3",
+      "-B",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-capacity-damage-debond-gates-217-001/matter/tools/test_cardboard_stage_resolution_study.py"
+    ],
+    "exit_code": 0,
+    "stderr_sha256": "359fdb36a915a05e384b1704085db53cf470398bc7dfe41ca37f6b4512a00607",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

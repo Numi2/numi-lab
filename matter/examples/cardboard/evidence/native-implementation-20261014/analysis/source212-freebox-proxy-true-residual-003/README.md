@@ -1,0 +1,3 @@
+# Source 212 proxy composition overlay 003
+
+Direct overlay on immutable source207-buildfix-002. Source212-002 is preserved as a failed test-path attempt; no native build or GPU ran there. This revision changes only true-residual admission for one free dynamic BOX plus prescribed capsules, adds the pure proxy topology admission helper/check, and corrects the source-contract test path. Physics, operator, Armijo, residual criteria, and caps are unchanged.\n

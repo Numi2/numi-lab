@@ -1,0 +1,283 @@
+#!/usr/bin/env python3
+"""Source and arithmetic contracts for opt-in true-residual FGMRES mode.
+
+These tests bind control flow and admission behavior; they do not claim GPU or
+physical qualification. Run with:
+  python3 matter/tools/test_true_residual_certification_contract.py
+"""
+from pathlib import Path
+import math
+import unittest
+
+
+HERE = Path(__file__).resolve().parent
+MATTER = HERE.parents[0]
+RUNTIME = (MATTER / "src/runtime.mm").read_text()
+FGMRES = (MATTER / "src/metal/fgmres.metalinc").read_text()
+NATIVE_CHECK = (HERE / "fgmres_true_residual_native_check.mm").read_text()
+
+
+def section(source: str, start: str, end: str) -> str:
+    a = source.index(start)
+    b = source.index(end, a + len(start))
+    return source[a:b]
+
+
+def adjudicate_true_residual(
+    *, arnoldi_estimate: float, true_norm: float, initial_norm: float,
+    forcing: float, relative_tolerance: float, absolute_tolerance: float,
+    nonlinear_scale: float, defer_completion: bool, replace_residual: bool,
+) -> tuple[bool, bool]:
+    """Return (completion_latched, restart_residual_replaced)."""
+    values = (arnoldi_estimate, true_norm, initial_norm, forcing,
+              relative_tolerance, absolute_tolerance, nonlinear_scale)
+    if not all(math.isfinite(x) and x >= 0.0 for x in values):
+        raise ValueError("nonfinite/negative input is outside this contract")
+    threshold = max(absolute_tolerance,
+                    relative_tolerance * max(nonlinear_scale, 1.0))
+    target = min(0.5, max(relative_tolerance, forcing)) * initial_norm
+    accepted = true_norm == 0.0 or true_norm <= target or true_norm <= threshold
+    # With the new option, the Arnoldi estimate cannot latch completion before
+    # the accumulated correction receives its fresh residual evaluation.
+    if defer_completion:
+        completion = accepted if replace_residual else False
+    else:
+        completion = (arnoldi_estimate <= target or
+                      arnoldi_estimate <= threshold)
+    return completion, bool(replace_residual)
+
+
+class TrueResidualCertificationContract(unittest.TestCase):
+    def test_explicit_opt_in_is_separate_from_observer_selectors(self):
+        self.assertIn('"NM_FEM_TRUE_RESIDUAL_CERTIFY"', RUNTIME)
+        self.assertIn('std::strcmp(certification, "1") == 0', RUNTIME)
+        self.assertIn('std::strcmp(certification, "0") != 0', RUNTIME)
+        assign = section(RUNTIME, "femTrueResidualEnabled = femTrueResidualCertificationRequested ||",
+                         "dispatchThreads(\"nm_vascular_begin_working_set\"")
+        self.assertIn("femTrueResidualCertificationRequested", assign)
+        self.assertIn("femTrueResidualRootSelected", assign)
+        # Selector-based readback remains an observer and is disabled when the
+        # independent certification option is the only opt-in.
+        trace = section(RUNTIME, "const auto encodeFEMTrueResidualTrace =",
+                        "const auto encodeFEMNewtonTrace =")
+        self.assertRegex(trace, r"!femTrueResidualEnabled\s*\|\|\s*!femTrueResidualRootSelected")
+
+    def test_capability_failure_is_fail_closed(self):
+        caps = section(RUNTIME, "const auto femTrueResidualCapabilityFailure =",
+                       "const auto femResidualArmijoScope =")
+        for guard in (
+            "microtick != 0u", "state.enableVascularDense45",
+            "cohesiveFaceCount > 4096u", "tetrahedronCount > 32768u",
+            "femNewtonTraceScope(", "femTrueResidualElementOperator == nil",
+            "femTrueResidualRightHandSide == nil",
+            "femTrueResidualMetrics == nil", "femTrueResidualStatuses == nil",
+            "femAlgorithmicTangentCache == nil",
+        ):
+            self.assertIn(guard, caps)
+        cert = section(RUNTIME, "if (femTrueResidualCertificationRequested) {",
+                       "const auto emitFEMNewtonTraceSkip =")
+        self.assertIn("femTrueResidualCapabilityFailure()", cert)
+        self.assertIn("ownership->preDynamicsOpen = false", cert)
+        self.assertIn("return diagnostics", cert)
+
+    def test_cycle_cap_rejects_certification_not_silent_skips(self):
+        check = section(RUNTIME, "if (femTrueResidualEnabled && restartCycleCount > 64u)",
+                        "const bool femCoupledCaptureNewtonSelected =")
+        self.assertIn("if (femTrueResidualCertificationRequested)", check)
+        self.assertIn("restart_cycle_cap_64", check)
+        self.assertIn("return diagnostics", check)
+        self.assertIn("femTrueResidualEnabled = false", check)
+        self.assertIn("femTrueResidualRestartEnabled = false", check)
+        self.assertIn("columnsThisCycle = std::min(", RUNTIME)
+        self.assertIn("linearIterationBudget - iterationOffset", RUNTIME)
+
+    def test_same_operator_action_precedes_true_residual_decision(self):
+        cycle = section(RUNTIME, "for (std::uint32_t restartCycle = 0u;",
+                        "// Capture an explicit same-generation J*delta")
+        order = [
+            cycle.index('"nm_fgmres_finalize_cycle"'),
+            cycle.index('"nm_fgmres_accumulate"'),
+            cycle.index('"nm_fgmres_clear_true_operator"'),
+            cycle.rindex('"nm_fem_apply_operator_elements"'),
+            cycle.rindex('"nm_fgmres_gather_nodes"'),
+            cycle.index('"nm_fgmres_measure_true_residual"'),
+        ]
+        self.assertEqual(order, sorted(order))
+        self.assertIn("useCache =\n                        state.mixedSolverValue.executionBudgets.w == 1u", cycle)
+        self.assertIn("state.femAlgorithmicTangentCache", cycle)
+        self.assertIn("state.femAlgorithmicTangentCacheValid", cycle)
+        self.assertIn('"nm_fem_cohesive_face_operator"', cycle)
+        self.assertIn('"nm_fgmres_add_cohesive_operator"', cycle)
+        self.assertIn("bindPrimalContactArguments(12u)", cycle)
+        self.assertLess(cycle.rindex('"nm_fgmres_apply_free_rigid"'),
+                        cycle.index('"nm_fgmres_measure_true_residual"'))
+        self.assertLess(cycle.rindex('"nm_fgmres_apply_primal_rigid_contacts"'),
+                        cycle.index('"nm_fgmres_measure_true_residual"'))
+        self.assertIn("allowConvergedTrueResidualOperator = 1u", cycle)
+        self.assertIn("[encoder memoryBarrierWithScope:MTLBarrierScopeBuffers]", cycle)
+        # The admitted free-BOX path uses the same candidate, contact argument
+        # buffer, point Jacobians, and six-row operator arena as production.
+
+    def test_true_residual_controls_latch_and_preserves_unmodified_thresholds(self):
+        finalize = section(FGMRES, "kernel void nm_fgmres_finalize_cycle(",
+                          "kernel void nm_fgmres_restart_residual_nodes(")
+        self.assertIn("deferCompletionToTrueResidual", finalize)
+        self.assertIn("used > 0u", finalize)
+        self.assertRegex(finalize,
+                         r"state\.diagnostics\.z = \(deferCompletionToTrueResidual != 0u && used > 0u\)\s*\? 0\.0f")
+        measure = section(FGMRES, "kernel void nm_fgmres_measure_true_residual(",
+                          "// Add the six-node native cohesive-face directional force")
+        self.assertIn("const float target = clamp(", measure)
+        self.assertIn("solver.residualTolerances.x", measure)
+        self.assertIn("state.diagnostics.z = trueNorm == 0.0f || trueNorm <= target ||", measure)
+        self.assertIn("trueNorm <= nonlinearThreshold", measure)
+        self.assertIn("productionStatuses[environment] = diagnosticStatuses[environment]", measure)
+        self.assertIn("dispatch.rigidGeneralizedCapacity != 6u", measure)
+        self.assertIn("layout.unknownCount != expectedUnknownCount", measure)
+        self.assertIn("fgmresRigidIndex(dispatch, environment, dof)", measure)
+        self.assertIn("rigidResidual.x * rigidResidual.x", measure)
+        self.assertIn("residual[row] = float4(value, 0.0f, 0.0f, 0.0f)", measure)
+
+    def test_false_arnoldi_convergence_is_rejected_and_true_restart_is_used(self):
+        estimate = 9.7661823e-6
+        true_norm = 2.15781765e-4
+        initial = 7.67543679e-4
+        forcing = 0.015625
+        target = forcing * initial
+        self.assertLess(estimate, target)
+        self.assertGreater(true_norm, target)
+        complete, replaced = adjudicate_true_residual(
+            arnoldi_estimate=estimate, true_norm=true_norm,
+            initial_norm=initial, forcing=forcing,
+            relative_tolerance=1e-7, absolute_tolerance=1e-7,
+            nonlinear_scale=0.0,
+            defer_completion=True, replace_residual=True)
+        self.assertFalse(complete)
+        self.assertTrue(replaced)
+        # The same observation-only mode does not alter existing FGMRES latch.
+        observed_complete, observed_replaced = adjudicate_true_residual(
+            arnoldi_estimate=estimate, true_norm=true_norm,
+            initial_norm=initial, forcing=forcing,
+            relative_tolerance=1e-7, absolute_tolerance=1e-7,
+            nonlinear_scale=0.0,
+            defer_completion=False, replace_residual=False)
+        self.assertTrue(observed_complete)
+        self.assertFalse(observed_replaced)
+
+    def test_true_absolute_gate_and_unresolved_finite_floor(self):
+        complete, _ = adjudicate_true_residual(
+            arnoldi_estimate=1e-9, true_norm=8e-8, initial_norm=1e-3,
+            forcing=1e-2, relative_tolerance=1e-7,
+            absolute_tolerance=1e-7, defer_completion=True,
+            nonlinear_scale=0.0,
+            replace_residual=True)
+        self.assertTrue(complete)
+        complete, _ = adjudicate_true_residual(
+            arnoldi_estimate=1e-9, true_norm=1.19929e-5,
+            initial_norm=7.67544e-4, forcing=0.015625,
+            relative_tolerance=1e-7, absolute_tolerance=1e-7,
+            nonlinear_scale=100.0,
+            defer_completion=True, replace_residual=True)
+        self.assertFalse(complete)
+
+    def test_nonfinite_residual_is_not_certified(self):
+        with self.assertRaises(ValueError):
+            adjudicate_true_residual(
+                arnoldi_estimate=0.0, true_norm=float("inf"),
+                initial_norm=1.0, forcing=0.1, relative_tolerance=1e-7,
+                absolute_tolerance=1e-7, nonlinear_scale=1.0,
+                defer_completion=True, replace_residual=True)
+
+    def test_unhealthy_diagnostic_status_has_single_lane_writer(self):
+        measure = section(FGMRES, "kernel void nm_fgmres_measure_true_residual(",
+                          "// Add the six-node native cohesive-face directional force")
+        early = section(measure, "if (!environmentHealthy(diagnosticStatuses, environment)) {",
+                        "const uint totalNodes")
+        self.assertRegex(early,
+                         r"if \(lane == 0u && propagateFailure != 0u &&")
+        self.assertEqual(early.count("productionStatuses[environment] ="), 1)
+
+    def test_native_kernel_fixture_covers_state_machine_and_failure_rollback(self):
+        for kernel in (
+            "nm_fgmres_finalize_cycle",
+            "nm_fgmres_accumulate",
+            "nm_fgmres_accumulate_fields",
+            "nm_fgmres_measure_true_residual",
+        ):
+            self.assertIn(f"numi_matter_metal::{kernel}", NATIVE_CHECK)
+        self.assertIn("production accumulation did not form the authored correction",
+                      NATIVE_CHECK)
+        self.assertIn("false Arnoldi convergence", NATIVE_CHECK)
+        self.assertIn("same-operator true residual did not replace", NATIVE_CHECK)
+        self.assertIn("nonfinite action did not propagate", NATIVE_CHECK)
+        self.assertIn("partially replaced the restart residual", NATIVE_CHECK)
+        self.assertIn("overwrote an existing production failure", NATIVE_CHECK)
+        self.assertIn("full_FEM_operator_qualification=false", NATIVE_CHECK)
+
+
+    def test_free_box_true_residual_proxy_scope_keeps_bounds_and_composition_exact(self):
+        runtime = RUNTIME
+        scope = section(runtime, "const auto femNewtonTraceScope =",
+                        "const auto femTrueResidualCapabilityFailure =")
+        for token in ("state.dispatch.environmentCount != 1u",
+                      "state.dispatch.rigidGeneralizedCapacity != 6u",
+                      "state.dispatch.rigidQCapacity != 0u",
+                      "state.requiresCoupledCandidate",
+                      "NM_MATTER_CONTACT",
+                      "state.dispatch.femNodeCount > 4096u",
+                      "state.fgmresLayout.supportContactCount != 0u",
+                      "state.fgmresLayout.vascularUnknownCount != 0u",
+                      "state.dispatch.fieldBoundaryCount != 0u",
+                      "state.fgmresLayout.unknownCount != expectedUnknownCount",
+                      "validateFreeBoxCapsuleProxyScope(proxyScope)"):
+            self.assertIn(token, scope if token in scope else runtime)
+        capability = section(runtime, "const auto femTrueResidualCapabilityFailure =",
+                             "const auto femResidualArmijoScope =")
+        self.assertIn("femNewtonTraceScope(\n                    state.dispatch.rigidGeneralizedCapacity == 6u)",
+                      capability)
+        helper = (MATTER / "include" / "numi" / "matter" / "detail" /
+                  "free_box_true_residual_proxy_admission.hpp").read_text()
+        for token in ("in.proxyCount<2u||in.proxyCount>16u",
+                      "p.flags!=NM_RIGID_PRESCRIBED_TRANSLATION",
+                      "p.shapeKind!=NM_RIGID_BOX",
+                      "p.flags!=NM_RIGID_DYNAMIC",
+                      "p.generalizedFreeBodyIndex!=0u",
+                      "boxes!=1u||freeBoxes!=1u",
+                      "p.objectIndex!=0u",
+                      "p.continuumNode>=in.femNodeCount",
+                      "p.rigidProxy>=in.proxyCount",
+                      "!capsulePair||!freeBoxPair"):
+            self.assertIn(token, "".join(helper.split()))
+        self.assertIn("NM_RIGID_CAPSULE", helper)
+        self.assertNotIn("NM_RIGID_ARTICULATED", helper)
+
+    def test_proxy_admission_checker_has_supported_and_fail_closed_cases(self):
+        checker = (HERE / "cardboard_free_box_true_residual_proxy_admission_check.cpp").read_text()
+        for token in ("valid capsule plus one free box must admit",
+                      "box-only pairs must reject", "capsule-only pairs must reject",
+                      "dynamic capsule must reject", "articulated BOX must reject",
+                      "adaptive capsule must reject", "second BOX must reject",
+                      "sphere proxy must reject",
+                      "proxy count above full-contact bound must reject"):
+            self.assertIn(token, checker)
+
+    def test_native_box_fixture_uses_both_contact_blocks_and_tail_controls(self):
+        coupled = (HERE / "cardboard_coupled_free_box_operator_check.mm").read_text()
+        for required in (
+            "nm_fgmres_measure_true_residual",
+            "fixture.nativeAction(center, mixedDirection)",
+            "active BOX contact did not apply the rigid-side direction to FEM rows",
+            "active BOX contact did not apply the FEM-side direction to rigid rows",
+            "rigidGeneralizedCapacity == 6u",
+            "layout.unknownCount = 2u * dispatch.environmentCount * dispatch.femNodeCount + 6u",
+            "omittedTailNorm2",
+            "wrongSignNorm2",
+            "six scalar BOX rows",
+            "restart_tail_replaced=true",
+            "zero full-layout residual did not meet the unchanged gate",
+            "physical_transactions=0",
+        ):
+            self.assertIn(required, coupled)
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

@@ -37,7 +37,8 @@ def fake_box_run(root: Path, name: str, *, nx: int = 8, dt: float = 0.1,
                  score_depth: float = 0.25,
                  liner_hash: str = "liner-a", failed: bool = False,
                  old_step_schema: bool = False, force_scale: float = 1.0,
-                 fully_failed_fraction: float = 0.25) -> Path:
+                 fully_failed_fraction: float = 0.25,
+                 paper_damage_enabled: bool = True) -> Path:
     path = root / name
     path.mkdir()
     materials = {}
@@ -185,7 +186,7 @@ def fake_box_run(root: Path, name: str, *, nx: int = 8, dt: float = 0.1,
                    "hma_fully_failed_status", "hma_fully_failed_cohesive_area_m2",
                    "hma_fully_failed_cohesive_area_fraction", "hma_fully_failed_faces"]
     hist = [{"native_step": native_step_count - 1, "simulation_time_s": native_step_count * dt, "dt_s": dt, "stage": "final_accepted_state",
-             "accepted": 1, "paper_status": "available_model_area_weighted_damage_index",
+             "accepted": 1, "paper_status": ("available_model_area_weighted_damage_index" if paper_damage_enabled else "not_enabled"),
              "paper_area_weighted_damage_fraction": 0.1, "paper_reference_plane_area_m2": 0.5,
              "starch_status": "available_area_weighted_cohesive_degradation_index",
              "starch_area_weighted_cohesive_damage_fraction": 0.2, "starch_active_reference_area_m2": 0.1,
@@ -365,6 +366,64 @@ class CardboardStageResolutionStudyTests(unittest.TestCase):
                          "incompatible_activated_reference_area")
         self.assertIsNone(damage["fully_failed_cohesive_capacity_area"]["starch"]["absolute_difference"])
 
+    def test_closed_failed_area_counts_as_constitutive_debond_and_enforces_two_points(self) -> None:
+        left = fake_box_run(self.root, "left", fully_failed_fraction=0.2)
+        right = fake_box_run(self.root, "right", nx=16, fully_failed_fraction=0.219)
+        report = study.compare_runs(left, right, "mesh_nx", "all")
+        gate = report["metrics"]["damage_and_debond"]["constitutive_debond_fraction_gate"]
+        self.assertEqual(gate["status"], "pass")
+        self.assertTrue(gate["closed_failed_interfaces_count_as_debonded"])
+        self.assertTrue(gate["geometric_open_area_is_a_separate_observable"])
+        farther = fake_box_run(self.root, "farther", nx=16, fully_failed_fraction=0.221)
+        failed = study.compare_runs(left, farther, "mesh_nx", "all")
+        self.assertEqual(failed["metrics"]["damage_and_debond"]["constitutive_debond_fraction_gate"]["status"], "fail")
+
+    def test_capacity_rejects_force_match_with_unmeasured_enabled_paper_damage(self) -> None:
+        cases = [
+            fake_box_run(self.root, "mesh-coarse", nx=8, force_scale=1.03),
+            fake_box_run(self.root, "middle", nx=16, dt=0.15, force_scale=1.01),
+            fake_box_run(self.root, "mesh-fine", nx=32, force_scale=1.0),
+            fake_box_run(self.root, "time-coarse", nx=16, dt=0.3, force_scale=1.03),
+            fake_box_run(self.root, "time-fine", nx=16, dt=0.075, force_scale=1.0),
+        ]
+        a, b, c, d, e = cases
+        target = self.root / "blocked-paper" / "capacity.properties"
+        report = study.create_capacity_qualification(b, a, b, c, d, b, e, target)
+        self.assertEqual(report["status"], "not_qualified")
+        self.assertFalse(target.exists())
+        self.assertTrue(report["mesh_study"]["finest_pair_within_tolerance"])
+        self.assertTrue(any("paper_damage_fraction_inconclusive" in reason
+                            for reason in report["mesh_study"]["reasons"]))
+
+    def test_capacity_rejects_excessive_debond_difference_even_with_force_match(self) -> None:
+        a = fake_box_run(self.root, "coarse", nx=8, force_scale=1.03,
+                         fully_failed_fraction=0.1, paper_damage_enabled=False)
+        b = fake_box_run(self.root, "middle", nx=16, force_scale=1.01,
+                         fully_failed_fraction=0.15, paper_damage_enabled=False)
+        c = fake_box_run(self.root, "fine", nx=32, force_scale=1.0,
+                         fully_failed_fraction=0.2, paper_damage_enabled=False)
+        _, gate = study._capacity_triplet_report(a, b, c, "mesh_nx")
+        self.assertFalse(gate["qualified"])
+        self.assertTrue(gate["finest_pair_within_tolerance"])
+        self.assertTrue(any("irreversible_debond_fraction_fail" in reason
+                            for reason in gate["reasons"]))
+
+    def test_capacity_does_not_admit_legacy_face_maximum_or_mismatched_reference_areas(self) -> None:
+        a = fake_box_run(self.root, "left", paper_damage_enabled=False)
+        b = fake_box_run(self.root, "right", nx=16, paper_damage_enabled=False)
+        file = b / "shipping-history-observables.csv"
+        fields, rows = study._rows(file)
+        rows[0]["starch_fully_failed_status"] = "available_zero_tensile_shear_capacity_fraction_not_geometric_open_area"
+        write_csv(file, fields, rows)
+        report = study.compare_runs(a, b, "mesh_nx", "compression")
+        self.assertEqual(study._capacity_history_gates(report)["irreversible_debond_fraction"]["status"], "inconclusive")
+        rows[0]["starch_fully_failed_status"] = "available_quadrature_zero_tensile_shear_capacity_fraction_not_geometric_open_area"
+        rows[0]["starch_active_reference_area_m2"] = "0.09"
+        rows[0]["starch_fully_failed_cohesive_area_m2"] = "0.0225"
+        write_csv(file, fields, rows)
+        report = study.compare_runs(a, b, "mesh_nx", "compression")
+        self.assertEqual(study._capacity_history_gates(report)["irreversible_debond_fraction"]["status"], "inconclusive")
+
     def test_material_change_outside_declared_axis_rejects_pair(self) -> None:
         left = fake_box_run(self.root, "left")
         right = fake_box_run(self.root, "right", nx=16, liner_hash="different-liner")
@@ -396,14 +455,14 @@ class CardboardStageResolutionStudyTests(unittest.TestCase):
         self.assertFalse(report["convergence_claim"])
 
     def test_capacity_evidence_requires_complete_mesh_and_time_triplets(self) -> None:
-        mesh_coarse = fake_box_run(self.root, "mesh-coarse", nx=8, force_scale=1.03)
+        mesh_coarse = fake_box_run(self.root, "mesh-coarse", nx=8, force_scale=1.03, paper_damage_enabled=False)
         reference = fake_box_run(self.root, "shared-middle", nx=16, dt=0.15,
-                                 force_scale=1.01)
-        mesh_fine = fake_box_run(self.root, "mesh-fine", nx=32, force_scale=1.0)
+                                 force_scale=1.01, paper_damage_enabled=False)
+        mesh_fine = fake_box_run(self.root, "mesh-fine", nx=32, force_scale=1.0, paper_damage_enabled=False)
         time_coarse = fake_box_run(self.root, "time-coarse", nx=16, dt=0.3,
-                                   force_scale=1.03)
+                                   force_scale=1.03, paper_damage_enabled=False)
         time_fine = fake_box_run(self.root, "time-fine", nx=16, dt=0.075,
-                                 force_scale=1.0)
+                                 force_scale=1.0, paper_damage_enabled=False)
         evidence_path = self.root / "capacity" / "capacity.properties"
         report = study.create_capacity_qualification(
             reference, mesh_coarse, reference, mesh_fine,

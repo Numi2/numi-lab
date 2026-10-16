@@ -1155,6 +1155,60 @@ def _history_metrics(run: StageRun) -> dict[str, Any]:
     return result
 
 
+
+def _capacity_loss_debond_gate(history_a: dict[str, Any], history_b: dict[str, Any],
+                                differences: dict[str, Any]) -> dict[str, Any]:
+    """Irreversible failed reference area includes closed, contact-bearing faces."""
+    roles: dict[str, Any] = {}
+    available_status = "available_zero_tensile_shear_capacity_not_geometric_open_area"
+    for role in ("starch", "hma"):
+        left = (history_a.get("fully_failed_cohesive_capacity_area") or {}).get(role, {})
+        right = (history_b.get("fully_failed_cohesive_capacity_area") or {}).get(role, {})
+        if left.get("status") == right.get("status") == "not_enabled":
+            roles[role] = {"status": "not_enabled"}
+            continue
+        item = differences.get(role, {})
+        difference = item.get("absolute_difference")
+        if left.get("status") != available_status or right.get("status") != available_status or \
+                item.get("status") != "available" or \
+                not isinstance(difference, (float, int)) or not math.isfinite(difference):
+            roles[role] = {"status": "inconclusive_missing_or_incompatible_accepted_reference_area"}
+            continue
+        roles[role] = {
+            "status": "pass" if 0.0 <= difference <= 0.02 else "fail",
+            "absolute_fraction_difference": difference,
+            "absolute_fraction_limit": 0.02,
+        }
+    states = [item["status"] for item in roles.values()]
+    status = ("fail" if "fail" in states else
+              "inconclusive" if any(value not in ("pass", "not_enabled") for value in states) else
+              "pass" if "pass" in states else "not_enabled")
+    return {
+        "status": status, "per_interface": roles,
+        "definition": "reference quadrature area with accepted irreversible damage D exactly 1, divided by matching activated reference interface area",
+        "threshold": "D == 1; no tensile or shear capacity remains",
+        "quadrature": "three equal reference-area weights per mixed-mode face",
+        "closed_failed_interfaces_count_as_debonded": True,
+        "geometric_open_area_is_a_separate_observable": True,
+    }
+
+
+def _capacity_history_gates(report: dict[str, Any]) -> dict[str, Any]:
+    damage = report.get("metrics", {}).get("damage_and_debond", {})
+    left, right = damage.get("left", {}), damage.get("right", {})
+    # The existing paper index normalizes by a mesh-dependent sum of all tet
+    # cut-plane areas. It is not an objective crack-area fraction. A force-only
+    # match must not let an enabled but unmeasured localization field qualify.
+    paper = {
+        "status": ("not_enabled" if left.get("paper_status") == right.get("paper_status") == "not_enabled"
+                   else "inconclusive_missing_mesh_objective_paper_damage_fraction"),
+        "absolute_fraction_limit": 0.02,
+        "constitutive_damage_index_substituted_for_area": False,
+    }
+    debond = damage.get("constitutive_debond_fraction_gate") or {"status": "inconclusive"}
+    return {"paper_damage_fraction": paper, "irreversible_debond_fraction": debond}
+
+
 def _impact_histories(run: StageRun) -> tuple[dict[str, list[dict[str, float]]], dict[str, Any]]:
     path = run.path / "shipping-impact-dynamics.csv"
     if not path.is_file():
@@ -1404,6 +1458,8 @@ def compare_runs(left_dir: Path, right_dir: Path, axis: str, scope: str = "all")
             "available_zero_tensile_shear_capacity_not_geometric_open_area"):
         report["missing_observables"].append(
             "accepted fully failed cohesive capacity reference area fraction")
+    metrics["damage_and_debond"]["constitutive_debond_fraction_gate"] = _capacity_loss_debond_gate(
+        history_a, history_b, metrics["damage_and_debond"]["fully_failed_cohesive_capacity_area"])
     report["metrics"] = metrics
     report["status"] = "descriptive_metrics_available_with_unresolved_observables"
     report["claim_boundary"] = "Numerical comparison of admitted native exports only; no physical qualification or material calibration."
@@ -1676,6 +1732,15 @@ def _capacity_triplet_report(coarse: Path, middle: Path, fine: Path,
                     reasons.append(f"adjacent_pair_{pair_index}_incomplete_stroke_curve")
         coarse_metrics = pairs[0].get("metrics", {}).get("compression_force_work", {})
         finest_metrics = pairs[-1].get("metrics", {}).get("compression_force_work", {})
+    history_gates = []
+    for pair_index, pair in enumerate(pairs):
+        gates = _capacity_history_gates(pair)
+        history_gates.append(gates)
+        for name, gate in gates.items():
+            if gate.get("status") not in ("pass", "not_enabled"):
+                reasons.append(f"adjacent_pair_{pair_index}_{name}_{gate.get('status', 'inconclusive')}")
+    if len(history_gates) != 2:
+        reasons.append("missing_two_adjacent_damage_and_debond_comparisons")
     metric_names = (
         "relative_peak_force_difference",
         "normalized_force_curve_rms",
@@ -1703,6 +1768,8 @@ def _capacity_triplet_report(coarse: Path, middle: Path, fine: Path,
         "level_count": len(cases),
         "all_cases_complete": not any(reason.startswith("level_") for reason in reasons),
         "finest_pair_within_tolerance": threshold_pass,
+        "accepted_damage_and_debond_gates": history_gates,
+        "capacity_requires_damage_and_debond_observables": True,
         "adjacent_pair_differences_decrease": adjacent_differences_decrease,
         "coarse_middle_peak_difference": coarse_values[0] if math.isfinite(coarse_values[0]) else None,
         "coarse_middle_curve_rms": coarse_values[1] if math.isfinite(coarse_values[1]) else None,

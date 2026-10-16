@@ -1,0 +1,36 @@
+{
+  "schema": "numi.cardboard.source222-composition-build.v1",
+  "build_exit_code": 0,
+  "capacity_tests_exit_code": 0,
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-capacity-gates-checkpoint-proof-222-001",
+  "source_frozen_sha256": "698a3b1106e6997aa251a8090894adcb8b2850085b70a83f681ccd6fd6f383b6",
+  "source_build_sha256": "be8655b5cb7f20919029077bd65908ad7574f67abfcbd89d77fac898f8aa171b",
+  "changed": [
+    "matter/tools/cardboard_probe.mm",
+    "matter/tools/cardboard_stage_resolution_study.md",
+    "matter/tools/cardboard_stage_resolution_study.py",
+    "matter/tools/test_cardboard_stage_resolution_study.py"
+  ],
+  "layers": [
+    {
+      "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-capacity-damage-debond-gates-217-001",
+      "frozen_sha256": "baa52c11437d63844a5837657eb16d821a910aa9a60c8dd83c646488296b7c52",
+      "changed": [
+        "matter/tools/cardboard_stage_resolution_study.py",
+        "matter/tools/test_cardboard_stage_resolution_study.py",
+        "matter/tools/cardboard_stage_resolution_study.md"
+      ]
+    },
+    {
+      "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003",
+      "frozen_sha256": "fb885540a2f096ee70df5a03701a8d2710832c6df402e8e097ff95c736e7c1a5",
+      "changed": [
+        "matter/tools/cardboard_probe.mm"
+      ]
+    }
+  ],
+  "all_inputs_unchanged": true,
+  "physical_operator_or_material_law_changed": false,
+  "gpu_execution": false,
+  "at_utc": "2026-10-16T11:22:24.951748+00:00"
+}

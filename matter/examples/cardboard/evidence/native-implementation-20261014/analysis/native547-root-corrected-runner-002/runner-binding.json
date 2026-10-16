@@ -1,0 +1,33 @@
+{
+  "parent_script": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native547_power_sweep_001.py",
+  "parent_sha256": "586939453d639b660ddd12016cd279a95d3888fe72db11b31739d0659a305733",
+  "new_script": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native547_power_sweep_002.py",
+  "new_sha256": "f5f2c00850b984d44e40f941409902c2fc64d059b91d97244276f33584e4d43c",
+  "changes": [
+    {
+      "old": "native547-critical23-sweep-input-001",
+      "new": "native547-critical23-sweep-input-002"
+    },
+    {
+      "old": "86af711670124c5549303d030fa46e41726ffc6a4dac6ce2947003765a3d0bf8",
+      "new": "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e"
+    },
+    {
+      "old": "eae426a286114a46b51b9a4f46b07f9a5f5cb3e77203e94bc0ba8f28cea407f9",
+      "new": "2893d2b988feae51fe6ecbe3a7a71ecb7a19d1f9b011a3957b52df54c4bd96e0"
+    },
+    {
+      "old": "69728a578a2afe252ecca7a2bedb936cb9e4ad715ddcca662620f6e2fc9fb57d",
+      "new": "36dfab1b02c443ef9ee77df2cada5e7eafa9abe3450c1d33208016357ceeb452"
+    },
+    {
+      "old": "assert json.loads((p/'admission-receipt.json').read_text())['exit_code']==0",
+      "new": "assert sha(p/'admission-v2.stdout')=='9810c22bc4d6062df760e2847b1214cec0b6e3b8b5f53689c2c297e1381a07af'\naudit=q/'analysis/native547-critical23-sweep-input-audit-008/report.json'\nassert sha(audit)=='43d1cd7456c087efac12eb3a0af232953af417627904c55c6474466890d1437a'\nad=json.loads(audit.read_text());v2=[r for r in ad['results'] if r['label']=='corrected_547_v2'][0]\nassert v2['zero_endpoint_dF']==0 and v2['wrong_or_zero_sign_endpoint_dF']==0 and v2['accepted_state_word_change_rows']==0 and v2['reference_center_mismatch_rows']==0 and v2['max_full_F_target_error']<2e-15\nbindings[str(audit)]=sha(audit)"
+    },
+    {
+      "old": "'all_541_failures_preserved':True",
+      "new": "'all_541_failures_preserved':True,'corrected_input_package':str(p),'superseded541_FD_endpoints_invalid_from_mutating_builder':True,'superseded547_001_not_run':True"
+    }
+  ],
+  "no_equation_or_shader_changes": true
+}

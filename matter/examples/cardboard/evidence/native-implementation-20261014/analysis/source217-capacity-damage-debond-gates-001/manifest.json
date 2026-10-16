@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.evidence-files.v1",
+  "files": {
+    "report.json": "7a5ceda3ab2250b692f362e0c2e5c6b01d86010ee231c3b7b5d9e181402d86bd",
+    "tests.stderr": "22fa3df5d8edaf7eca159a1ef323be8dfb0db9f55744a9d14a94e890b59a7512",
+    "source-overlay.patch": "275e52e824fa05477212c35ab33cf257113c11d315386c66040fc1cd23750252",
+    "tests.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

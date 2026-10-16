@@ -154,3 +154,22 @@ python3 matter/tools/test_cardboard_stage_resolution_study.py
 
 These fixtures validate the analyzer's gates only; they are not native
 mechanics evidence.
+
+## Irreversible debond fraction and capacity admission
+
+A fully failed cohesive quadrature point has permanently lost tensile and shear
+capacity. Its reference area counts as constitutively debonded even if subsequent
+closure brings the faces back into compressive contact. The 0.02 absolute fraction
+gate uses the three equal reference quadrature weights, accepted D exactly 1, and
+the same activated reference-area denominator on each mesh. It reports starch
+and HMA separately. Geometric opening remains a separate unavailable observable.
+Legacy maximum-face-damage exports and incompatible activation coverage are not
+admitted.
+
+Capacity qualification now requires accepted paper-damage and irreversible-debond
+comparisons as well as decreasing force, curve and work differences. A force-only
+match cannot qualify Fpeak while an enabled paper localization field remains
+unmeasured. The current per-tet area-weighted damage index is retained but is not
+substituted for a mesh-objective fractured-area fraction. Its missing observable
+keeps the damage-enabled capacity gate inconclusive. Explicitly disabled mechanisms
+may be not applicable; that does not qualify a damage-enabled cardboard model.

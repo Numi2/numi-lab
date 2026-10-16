@@ -1,0 +1,10 @@
+{
+  "audit_method": "Independent Python structural and FP32-word audit; no native/GPU execution.",
+  "builder_sha256": "7654967ad7b8f9e145e97b228075e8372b1e72fede8597e91c5b5c1a63516f3a",
+  "input_sha256": "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e",
+  "pair_selection_sha256": "36dfab1b02c443ef9ee77df2cada5e7eafa9abe3450c1d33208016357ceeb452",
+  "reference_sha256": "2893d2b988feae51fe6ecbe3a7a71ecb7a19d1f9b011a3957b52df54c4bd96e0",
+  "report_sha256": "37f6207e8ea2750c4d5a7ad789c49e8552c7c5b8bd5404aaaac85d1cbb0c09ac",
+  "schema": "numi.cardboard.native547-critical23-sweep-input-audit-manifest.v1",
+  "verdict": "PASS_INPUT_BINDING"
+}

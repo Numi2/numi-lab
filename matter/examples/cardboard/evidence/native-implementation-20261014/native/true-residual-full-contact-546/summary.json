@@ -1,0 +1,30 @@
+[
+  {
+    "schema": "numi.cardboard.native546-receipt.v1",
+    "case": "operator",
+    "exit_code": 0,
+    "timed_out": false,
+    "error": null,
+    "wall_seconds": 0.555036334,
+    "at_utc": "2026-10-16T11:00:23.328070+00:00",
+    "source_and_artifacts_unchanged": true,
+    "stdout_sha256": "3a4bca2a74b564a2b7e4cd537db7341d071af95f681a66708de34bf10e989608",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "physical_transactions": "derive from complete retained native stdout; never assume on exit alone",
+    "full_solver_qualified": false
+  },
+  {
+    "schema": "numi.cardboard.native546-receipt.v1",
+    "case": "contact",
+    "exit_code": 1,
+    "timed_out": false,
+    "error": null,
+    "wall_seconds": 0.32413662500000007,
+    "at_utc": "2026-10-16T11:00:23.733813+00:00",
+    "source_and_artifacts_unchanged": true,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "1cf7ea38fa6129cda3e179a2c14795f84c9e501973986d77c2d0985b31dc6255",
+    "physical_transactions": "derive from complete retained native stdout; never assume on exit alone",
+    "full_solver_qualified": false
+  }
+]

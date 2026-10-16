@@ -1,0 +1,50 @@
+{
+  "schema": "numi.cardboard.preserved-orchestration-failure-index.v1",
+  "failures": [
+    {
+      "attempt": "source221 preparation001",
+      "phase": "before writing modified TU or frozen map",
+      "observed_error": "AssertionError: [] at array-declaration matcher; actual declaration used52u",
+      "retained": "prepare_source221_checkpoint_proof_001.py and unsealed source221-001 tree",
+      "record_type": "orchestration-observed failure reconstructed in this index; not a native measurement"
+    },
+    {
+      "attempt": "source221 build002",
+      "phase": "C++ compilation",
+      "observed_error": "couponRuntimePathMap was unqualified in main; fixed with full namespace in003",
+      "original_log": "build-source221-checkpoint-proof-002/provenance-command-1.log"
+    },
+    {
+      "attempt": "source221 build script003",
+      "phase": "prelaunch existing-analysis-directory check",
+      "observed_error": "FileExistsError analysis/source221-checkpoint-proof-build-002; no compiler or GPU dispatch",
+      "retained": "build_source221_checkpoint_proof_003.py",
+      "record_type": "orchestration-observed failure reconstructed in this index; not a native measurement"
+    },
+    {
+      "attempt": "native551",
+      "phase": "argument admission",
+      "observed_error": "periodic coupon checkpoint capture cannot be combined with one-shot checkpoint or resume",
+      "physical_steps": 0
+    },
+    {
+      "attempt": "native552",
+      "phase": "runner-record admission",
+      "observed_error": "coupon path relocation requires source-bound diagnostic runner records",
+      "physical_steps": 0
+    },
+    {
+      "attempt": "native553",
+      "phase": "source-bound wrapper input admission",
+      "observed_error": "duplicate external input basename",
+      "physical_steps": 0
+    },
+    {
+      "attempt": "native554",
+      "phase": "manifest admission",
+      "observed_error": "coupon source/current protocol manifest differs from checkpoint binding; material paths differed despite same file hashes",
+      "physical_steps": 0
+    }
+  ],
+  "historical_artifacts_not_modified": true
+}

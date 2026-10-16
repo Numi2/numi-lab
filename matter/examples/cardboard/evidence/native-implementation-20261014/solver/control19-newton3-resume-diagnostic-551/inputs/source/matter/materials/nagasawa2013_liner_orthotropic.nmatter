@@ -1,0 +1,77 @@
+// Source-bound liner stiffness from Table 3, p.105 of Nagasawa, Komiyama &
+// Mitsomwang, "Finite Element Analysis of Corrugated Board on Rotary Creasing
+// Process", J. Adv. Mech. Des. Syst. Manuf. 7 (2013), 103-114,
+// DOI: 10.1299/jamdsm.7.103. The source engineering constants are
+// E_M=5020 MPa, E_T=20 MPa, E_C=1884 MPa,
+// nu_MT=0.20, nu_TC=0.01, nu_CM=0.20,
+// G_MT=20 MPa, G_TC=20 MPa, G_CM=1175 MPa.
+// Material axes are x=M (machine), y=C (cross-machine), z=T (thickness).
+// The displayed paper table lists nu subscripts but does not separately define
+// their order. This asset uses the conventional axial-first interpretation,
+// nu_ij=-epsilon_j/epsilon_i under uniaxial stress along i. Reciprocal nu
+// values follow the symmetric compliance (nu_ij/E_i=nu_ji/E_j); nu is not
+// made symmetric.
+// The normal stiffnesses below are the inverse of that compliance in the
+// order (M,C,T): S_MC=-nu_CM/E_C, S_MT=-nu_MT/E_M, S_CT=-nu_TC/E_T.
+// The energy uses an objective St. Venant-Kirchhoff strain energy on Green-
+// Lagrange strain. This is a chosen finite-rotation/small-to-moderate-strain
+// continuation of the paper's orthotropic-elastic model, not a quoted paper
+// strain measure, failure law, or validated large-strain cardboard model.
+// Section 2.1 (printed p.104) reports 210 g/m^2 liner and Fig. 1 gives
+// 0.25 mm thickness;
+// density=840 kg/m^3 is their mass/volume ratio. All coefficients are fixed.
+// Table 1's liner breaking true strains are 1.4% MD and 4.8% CD. This elastic
+// law does not implement failure, yield, fracture or crease damage. `valid`
+// and `limits` below are solver-admission guards, not strength or high-strain
+// physical-validity criteria.
+material nagasawa2013_liner_orthotropic {
+    parameter density : kg/m^3 = 840;
+
+    // Inverse symmetric compliance, units MPa. Fixed and independently
+    // checked against the Table 3 E/nu values by cardboard_material_check.
+    parameter c_MM : MPa = 5631.361902469636;
+    parameter c_CC : MPa = 2133.2013442202774;
+    parameter c_TT : MPa = 20.235082794002643;
+    parameter c_MC : MPa = 1141.2498407766138;
+    parameter c_MT : MPa = 15.899639365909275;
+    parameter c_CT : MPa = 22.241375865132348;
+    parameter g_MT : MPa = 20;
+    parameter g_CT : MPa = 20;
+    parameter g_CM : MPa = 1175;
+
+    model generic;
+    energy =
+        0.5 * c_MM * pow(0.5 * (
+            pow(F(0,0),2) + pow(F(1,0),2) + pow(F(2,0),2) - 1), 2)
+      + 0.5 * c_CC * pow(0.5 * (
+            pow(F(0,1),2) + pow(F(1,1),2) + pow(F(2,1),2) - 1), 2)
+      + 0.5 * c_TT * pow(0.5 * (
+            pow(F(0,2),2) + pow(F(1,2),2) + pow(F(2,2),2) - 1), 2)
+      + c_MC * 0.5 * (pow(F(0,0),2) + pow(F(1,0),2) + pow(F(2,0),2) - 1)
+          * 0.5 * (pow(F(0,1),2) + pow(F(1,1),2) + pow(F(2,1),2) - 1)
+      + c_MT * 0.5 * (pow(F(0,0),2) + pow(F(1,0),2) + pow(F(2,0),2) - 1)
+          * 0.5 * (pow(F(0,2),2) + pow(F(1,2),2) + pow(F(2,2),2) - 1)
+      + c_CT * 0.5 * (pow(F(0,1),2) + pow(F(1,1),2) + pow(F(2,1),2) - 1)
+          * 0.5 * (pow(F(0,2),2) + pow(F(1,2),2) + pow(F(2,2),2) - 1)
+      + 0.5 * g_MT * pow(F(0,0)*F(0,2) + F(1,0)*F(1,2) + F(2,0)*F(2,2), 2)
+      + 0.5 * g_CT * pow(F(0,1)*F(0,2) + F(1,1)*F(1,2) + F(2,1)*F(2,2), 2)
+      + 0.5 * g_CM * pow(F(0,0)*F(0,1) + F(1,0)*F(1,1) + F(2,0)*F(2,1), 2);
+    valid = J() - 0.20;
+    supports fem;
+
+    // Shared frictionless numerical control for regional FEM ownership;
+    // the cited paper does not identify liner/medium interface coefficients.
+    interface {
+        static_friction = 0.0;
+        dynamic_friction = 0.0;
+        restitution = 0.0;
+        adhesion = 0.0;
+    }
+
+    limits {
+        minimum_J = 0.20;
+        maximum_J = 2.5;
+        maximum_stress = 1e9;
+        maximum_energy_density = 1e9;
+    }
+}

@@ -1,0 +1,32 @@
+{
+  "external_bindings": {
+    "frozen_source_manifest_sha256": "d5bd011d6f5740b1ea457c2418d5b7faf5e95d21e9172a34500b802437fa8a0f",
+    "full_contact_binary_sha256": "c3a48e97b1b97cd9808ff8b56c2c2e1d2d1d917c85d19d952005ed95ca831873",
+    "material_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "metallib_sha256": "cc246100c97b6bb43c4fa0e2b547f3e3a920fbdced0c507ac4b5f00873bddadb",
+    "operator_binary_sha256": "2851513ca57f44f8fef7f07e9afc8ab4768ac48fce6f2d6b6878f32f383cc6e8",
+    "source_build_json_sha256": "7f5c2b1cb933c58f28ce2c5db477945803f5cc86748c8828028223406b5db33d"
+  },
+  "files": {
+    "README.md": "8fe5e160ec12385478e84ff8cbd3887556db949164b72a76da84e2a54b8d29ef",
+    "build.log": "7fe71f7b6f73e3e5abcdfcf0c4f1ad2e537da91c168b5c05beac23fc92983791",
+    "contract.log": "c20e04d1da50d2f2531dc7eb4ef3c110091e62945d6d06b2982695caca062631",
+    "native-command-proposal.json": "9731791a00730bad234a75d699b26b8a14008dc00ca88c2bbe9037c9ac1479ae",
+    "proxy-O0": "322822b1ab19b8f9f7a6d5c874fe4b965e9e16860ce191e79846dcc793cfd345",
+    "proxy-O0.log": "81cb99981ac6e4bfc0dca03f1de81d613b5358dbdb239fa4d78b0361335ee093",
+    "proxy-O3": "ca398d2761cbf572e6ed9479ac1e8914aec93ca59043a90adc65cd687b0f0002",
+    "proxy-O3.log": "81cb99981ac6e4bfc0dca03f1de81d613b5358dbdb239fa4d78b0361335ee093",
+    "source-overlay.json": "129b28b1ca0c76a877ca22cbd358416278e298467198632f58959000fc219db2",
+    "source-overlay.patch": "ec9539a1d828e73ba05431cfc5e60cc7eb0d1e49cad9cefbaa07a15c6c1d405e"
+  },
+  "package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source212-freebox-proxy-true-residual-011",
+  "patch_sha256": "ec9539a1d828e73ba05431cfc5e60cc7eb0d1e49cad9cefbaa07a15c6c1d405e",
+  "schema": "numi.cardboard.source212-command-package-manifest.v1",
+  "source_sha256": "d5bd011d6f5740b1ea457c2418d5b7faf5e95d21e9172a34500b802437fa8a0f",
+  "validation": {
+    "native_gpu_executed": false,
+    "native_proxy_helper_O0_O3": "bit-identical; 16 checks; physical_transactions=0",
+    "python_contracts": "13/13 pass",
+    "source_bound_build": "success; 4 targets"
+  }
+}

@@ -1,0 +1,224 @@
+[  0%] Generating shaders/NumiNeuron.metallib
+[  0%] Generating shaders/NumiMatter.metallib
+[  0%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[  0%] Generating shaders/MetalRobo.metallib
+[  0%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+In file included from /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001/matter/src/matter_kernels.metal:4:
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001/matter/src/metal/fgmres.metalinc:3290:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001/matter/src/metal/fgmres.metalinc:3299:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001/matter/src/metal/fgmres.metalinc:3290:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001/matter/src/metal/fgmres.metalinc:3280:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001/matter/src/metal/fgmres.metalinc:3736:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001/matter/src/metal/fgmres.metalinc:3753:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001/matter/src/metal/fgmres.metalinc:3736:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001/matter/src/metal/fgmres.metalinc:3616:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001/src/metal/NumiHumanStand.metal:2524:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns = (equalityColumnsEnd + nv) * nv;
+               ^
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001/src/metal/NumiHumanStand.metal:2638:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns =
+               ^
+[  0%] Built target metalrobo_neuron_culture_shaders
+[  0%] Generating shaders/MetalRoboHyperPolicy.metallib
+[  0%] Built target metalrobo_hyper_policy_shaders
+[  0%] Generating generated/VisualKernelHashes.h
+[  0%] Built target metalrobo_visual_kernel_hashes
+[  0%] Generating shaders/NumiMatterPhysicalStateDigest.metallib
+[  0%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+2 warnings generated.
+[  5%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[  5%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+In file included from /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001/src/metal/MujocoMuscleReferenceCompensated.metal:4:
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+2 warnings generated.
+[  5%] Built target numi_matter_shaders
+[  5%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[  5%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[ 10%] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+[ 10%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[ 10%] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[ 10%] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[ 10%] Built target numi_matter_compiler_objects
+[ 10%] Building CXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[ 10%] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[ 10%] Linking CXX static library libnumi_matter_compiler.a
+[ 10%] Built target numi_matter_compiler
+[ 10%] Built target metalrobo_shaders
+[ 10%] Built target numi_matter_runtime_objects
+[ 10%] Linking CXX static library libnumi_matter_runtime.a
+[ 10%] Building CXX object CMakeFiles/metalrobo.dir/src/core/Model.cpp.o
+[ 10%] Building CXX object CMakeFiles/metalrobo.dir/src/core/FrankaEngine.cpp.o
+[ 10%] Building CXX object CMakeFiles/metalrobo.dir/src/core/Franka.cpp.o
+[ 10%] Built target numi_matter_runtime
+[ 10%] Building CXX object CMakeFiles/metalrobo.dir/src/core/FrankaHand.cpp.o
+[ 15%] Building CXX object CMakeFiles/metalrobo.dir/src/core/CpuDynamics.cpp.o
+[ 15%] Building CXX object CMakeFiles/metalrobo.dir/src/core/FrankaWorld.cpp.o
+[ 15%] Building CXX object CMakeFiles/metalrobo.dir/src/core/EngineModel.cpp.o
+[ 15%] Building CXX object CMakeFiles/metalrobo.dir/src/core/EngineModelComposer.cpp.o
+[ 15%] Building CXX object CMakeFiles/metalrobo.dir/src/core/RunProgram.cpp.o
+[ 15%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ParallelABASchedule.cpp.o
+[ 15%] Building CXX object CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedProgram.cpp.o
+[ 15%] Building CXX object CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedContactProgram.cpp.o
+[ 21%] Building CXX object CMakeFiles/metalrobo.dir/src/core/WorldCompiler.cpp.o
+[ 21%] Building CXX object CMakeFiles/metalrobo.dir/src/core/WorldPack.cpp.o
+[ 21%] Building CXX object CMakeFiles/metalrobo.dir/src/core/MatterSnapshotArchive.cpp.o
+[ 21%] Building CXX object CMakeFiles/metalrobo.dir/src/core/EpisodeTwinCompiler.cpp.o
+[ 21%] Building CXX object CMakeFiles/metalrobo.dir/src/core/R2S2R.cpp.o
+[ 21%] Building CXX object CMakeFiles/metalrobo.dir/src/core/VisualPlatform.cpp.o
+[ 21%] Building CXX object CMakeFiles/metalrobo.dir/src/core/VisualPresentation.cpp.o
+[ 26%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NeuronCulture.cpp.o
+[ 26%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NeuronCultureArtifacts.cpp.o
+[ 26%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NeuronCultureProtocol.cpp.o
+[ 26%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NeuronCultureEmbodiment.cpp.o
+[ 26%] Building CXX object CMakeFiles/metalrobo.dir/src/core/Tactile.cpp.o
+[ 26%] Building CXX object CMakeFiles/metalrobo.dir/src/core/TactileDebug.cpp.o
+[ 26%] Building CXX object CMakeFiles/metalrobo.dir/src/core/RobotDescriptionCooker.cpp.o
+[ 26%] Building CXX object CMakeFiles/metalrobo.dir/src/core/GeometryCooker.cpp.o
+[ 31%] Building CXX object CMakeFiles/metalrobo.dir/src/core/OpenSimFunction.cpp.o
+[ 31%] Building CXX object CMakeFiles/metalrobo.dir/src/core/OpenSimSpatialTransform.cpp.o
+[ 31%] Building CXX object CMakeFiles/metalrobo.dir/src/core/OpenSimMobileRoot.cpp.o
+[ 31%] Building CXX object CMakeFiles/metalrobo.dir/src/core/G1.cpp.o
+[ 31%] Building CXX object CMakeFiles/metalrobo.dir/src/core/LocomotionWorld.cpp.o
+[ 31%] Building CXX object CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o
+[ 31%] Building CXX object CMakeFiles/metalrobo.dir/src/core/PolicyProgram.cpp.o
+[ 36%] Building CXX object CMakeFiles/metalrobo.dir/src/core/HyperPolicyProgram.cpp.o
+[ 36%] Building CXX object CMakeFiles/metalrobo.dir/src/core/HyperPolicyPacks.cpp.o
+[ 36%] Building CXX object CMakeFiles/metalrobo.dir/src/core/LearningPacks.cpp.o
+[ 36%] Building CXX object CMakeFiles/metalrobo.dir/src/core/MotionCompiler.cpp.o
+[ 36%] Building CXX object CMakeFiles/metalrobo.dir/src/core/SurgicalPSM.cpp.o
+[ 36%] Building CXX object CMakeFiles/metalrobo.dir/src/core/EmbodiedTactile.cpp.o
+[ 36%] Building CXX object CMakeFiles/metalrobo.dir/src/core/Wave.cpp.o
+[ 42%] Building CXX object CMakeFiles/metalrobo.dir/src/core/SurgicalAssets.cpp.o
+[ 42%] Building CXX object CMakeFiles/metalrobo.dir/src/core/SurgicalVisual.cpp.o
+[ 42%] Building CXX object CMakeFiles/metalrobo.dir/src/core/SurgicalWorld.cpp.o
+[ 42%] Building CXX object CMakeFiles/metalrobo.dir/src/core/SurgicalKnot.cpp.o
+[ 42%] Building CXX object CMakeFiles/metalrobo.dir/src/core/SurgicalThreadTargeting.cpp.o
+[ 42%] Building CXX object CMakeFiles/metalrobo.dir/src/core/HeterogeneousWorld.cpp.o
+[ 42%] Building CXX object CMakeFiles/metalrobo.dir/src/core/DiscreteElasticRod.cpp.o
+[ 47%] Building CXX object CMakeFiles/metalrobo.dir/src/core/Collision.cpp.o
+[ 47%] Building CXX object CMakeFiles/metalrobo.dir/src/core/FreeBodyDynamics.cpp.o
+[ 47%] Building CXX object CMakeFiles/metalrobo.dir/src/core/Multicopter.cpp.o
+[ 47%] Building CXX object CMakeFiles/metalrobo.dir/src/core/PX4X500.cpp.o
+[ 47%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedDynamics.cpp.o
+[ 47%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanSupport.cpp.o
+[ 47%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedActuation.cpp.o
+[ 47%] Building CXX object CMakeFiles/metalrobo.dir/src/core/MillardMuscleReference.cpp.o
+[ 52%] Building CXX object CMakeFiles/metalrobo.dir/src/core/MujocoMuscleReference.cpp.o
+[ 52%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanJointEquality.cpp.o
+[ 52%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanMuscleEquilibrium.cpp.o
+[ 52%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanInitialState.cpp.o
+[ 52%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanRuntimeIdentity.cpp.o
+[ 52%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanSourceConstraints.cpp.o
+[ 52%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumanXExactTransaction.cpp.o
+[ 57%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerEvidenceWriter.cpp.o
+[ 57%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerSnapshot.cpp.o
+[ 57%] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorProgram.cpp.o
+[ 57%] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorTrial.cpp.o
+[ 57%] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorAcceptedStateRoot.cpp.o
+[ 57%] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorNativeAudit.cpp.o
+[ 57%] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorStateComponents.cpp.o
+[ 63%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanTensionNetwork.cpp.o
+[ 63%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanTendon.cpp.o
+[ 63%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanCartilage.cpp.o
+[ 63%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueMass.cpp.o
+[ 63%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueBinding.cpp.o
+[ 63%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanKnee.cpp.o
+[ 63%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanKneeContact.cpp.o
+[ 68%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o
+[ 68%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKneeNumanX.cpp.o
+[ 68%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumiHumanLoadedKneeBinding.mm.o
+[ 68%] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanContinuumMap.cpp.o
+[ 68%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedJointLimits.cpp.o
+[ 68%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedContact.cpp.o
+[ 68%] Building CXX object CMakeFiles/metalrobo.dir/src/core/CoupledArticulatedRigidContact.cpp.o
+[ 68%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidCollision.cpp.o
+[ 73%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidWorld.cpp.o
+[ 73%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedMixedConstraints.cpp.o
+[ 73%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedCollision.cpp.o
+[ 73%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedWorld.cpp.o
+[ 73%] Building CXX object CMakeFiles/metalrobo.dir/src/core/MultiArticulatedWorld.cpp.o
+[ 73%] Building CXX object CMakeFiles/metalrobo.dir/src/core/MultiArticulatedContact.cpp.o
+[ 73%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ConstraintIR.cpp.o
+[ 78%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ReferenceConicSolver.cpp.o
+[ 78%] Building CXX object CMakeFiles/metalrobo.dir/src/core/QualityContactSolver.cpp.o
+[ 78%] Building CXX object CMakeFiles/metalrobo.dir/src/core/ConstraintSolver.cpp.o
+[ 78%] Building CXX object CMakeFiles/metalrobo.dir/src/core/RigidBodyWorld.cpp.o
+[ 78%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/apple/CaptureManifestJSON.mm.o
+[ 78%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/apple/HardwareOutcomeJSON.mm.o
+[ 78%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/apple/EnvironmentCooker.mm.o
+[ 84%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/apple/VisualAssetCooker.mm.o
+[ 84%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o
+[ 84%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanIO.mm.o
+[ 84%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHumanBehaviorTelemetry.mm.o
+[ 84%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumanXBridgeV1.mm.o
+[ 84%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumanXRuntimeV1.mm.o
+[ 84%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalNumanXCoupledHuman.mm.o
+[ 84%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanMatter.mm.o
+[ 89%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumiHumanTendonMetal.mm.o
+[ 89%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumiHumanExtensorHoodMetal.mm.o
+[ 89%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedABA.mm.o
+[ 89%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedABA.mm.o
+[ 89%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalDiscreteElasticRod.mm.o
+[ 89%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedInverseMass.mm.o
+[ 89%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedInverseMass.mm.o
+[ 94%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedConstraints.mm.o
+[ 94%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedContact.mm.o
+[ 94%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalQualityContactSolver.mm.o
+[ 94%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalUnifiedQualitySolver.mm.o
+[ 94%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o
+[ 94%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHyperPolicy.mm.o
+[ 94%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalWorldFamily.mm.o
+[100%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o
+[100%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalRunInspector.mm.o
+[100%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalTactile.mm.o
+[100%] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalNeuronCulture.mm.o
+[100%] Building CXX object CMakeFiles/metalrobo.dir/src/c_api.cpp.o
+[100%] Linking CXX shared library lib/libmetalrobo.dylib
+[100%] Built target metalrobo
+[100%] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-full-contact-armijo-check.dir/tools/cardboard_full_contact_armijo_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-full-contact-armijo-check
+[100%] Built target numi-matter-cardboard-full-contact-armijo-check
+[  0%] Built target metalrobo_neuron_culture_shaders
+[  0%] Built target metalrobo_shaders
+[  0%] Built target numi_matter_shaders
+[  0%] Built target metalrobo_hyper_policy_shaders
+[  0%] Built target metalrobo_visual_kernel_hashes
+[  5%] Built target numi_matter_compiler_objects
+[  5%] Built target numi_matter_compiler
+[ 10%] Built target numi_matter_runtime_objects
+[ 10%] Built target numi_matter_runtime
+[100%] Built target metalrobo
+[100%] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-probe
+[100%] Built target numi-matter-cardboard-probe

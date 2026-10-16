@@ -1,0 +1,62 @@
+{
+  "schema": "numi.cardboard.reference038-additive-errata.v1",
+  "at_utc": "2026-10-16T11:21:07.135848+00:00",
+  "original_publication": "990ea59792d57c9989281c96377434e403cd8c2e",
+  "historical_bytes_preserved": true,
+  "errata": [
+    {
+      "scope": "native541 finite-difference endpoint generation and all derived centered derivative counts",
+      "status": "INVALID_INPUTS",
+      "cause": "np.asarray returned aliased FP32 views; constructing a perturbation mutated the reused center. Some supposed minus perturbations were zero or had the wrong sign.",
+      "affected_claims": "All old 46-pair FD signal/error/branch-comparison counts are withdrawn. They must not be reused as derivative evidence.",
+      "retained_valid_scope": "The independent3456center native batch is separate. New547 corrected-input center comparisons replace the23critical-direction summary; no old FD pass is retained."
+    },
+    {
+      "scope": "native547 input package001",
+      "status": "INVALID_NOT_EXECUTED",
+      "cause": "The same alias defect was detected before native launch; original package retained. Only corrected input002 reached Metal."
+    },
+    {
+      "scope": "native545 full60-control coupon",
+      "status": "FAILED_AT_CONTROL19",
+      "accepted_controls": [
+        0,
+        18
+      ],
+      "accepted_control_count_both_environments": 19,
+      "failure_residual": 1.0195885806751903e-06,
+      "unchanged_residual_limit": 5e-07,
+      "complete_protocol_qualified": false,
+      "counting_rule": "Count only rows with accepted certificates in both environments;40 CSV rows include the failed control19 attempt."
+    },
+    {
+      "scope": "reference037 metadata-correction receipt",
+      "status": "RETAINED_RECEIPT_FIELD_ERROR",
+      "cause": "binding_summary_sha256_matches compared SHA(binding file) to SHA(summary file). The correct condition is binding.summary_sha256 equals SHA(summary file), verified independently before037 publication."
+    }
+  ],
+  "new547_scope": {
+    "rows": 1472,
+    "centers": 23,
+    "exact_center_repeats": 23,
+    "correctly_signed_nonzero_endpoints": 1426,
+    "zero_physical_transactions": true,
+    "center_stress_max_relative_error": 3.345e-08,
+    "center_tangent_max_relative_error": 0.00029614,
+    "center_tangents_at_or_below_1e3_limit": 23,
+    "endpoint_tangent_over_limit_count": 1,
+    "endpoint_tangent_max_relative_error": 0.00118,
+    "strict_FP64_adjacent_FD_windows": 23,
+    "native_adjacent_FD_windows": 17,
+    "joint_adjacent_FD_windows": 13,
+    "all_direction_or_global_solver_qualification": false
+  },
+  "references": {
+    "analysis/native547-critical23-sweep-input-audit-008/report.json": "43d1cd7456c087efac12eb3a0af232953af417627904c55c6474466890d1437a",
+    "analysis/native547-critical23-adjudication-001/report.json": "d8e0e7c282bf486dbaa55e3ee9900afd5b74e8856e4787e9116affb8d2c3f5bf",
+    "analysis/native545-first-failure-adjudication-001/report.json": "6d92021b50237bdd00f86c772e6b544df74e6ccdf50b67b46512b687aa5415f6",
+    "analysis/source217-capacity-damage-debond-gates-001/report.json": "7a5ceda3ab2250b692f362e0c2e5c6b01d86010ee231c3b7b5d9e181402d86bd",
+    "analysis/source221-runner-proof-cpu-tests-001/report.json": "d461ff46ee62701c387db8b397d3350ccbfb165858afbabce72408f244e9013c"
+  },
+  "all_six_full_sequence_axes_remain_open": true
+}

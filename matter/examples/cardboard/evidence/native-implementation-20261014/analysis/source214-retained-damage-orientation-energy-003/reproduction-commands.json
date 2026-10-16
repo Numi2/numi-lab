@@ -1,0 +1,97 @@
+{
+  "artifacts": {
+    "cmake_cache_sha256": "132c485b802129bb55f6497050db033e03f50afa0be74d9a6c3805bf148b2098",
+    "compile_commands_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source214-retained-damage-003/compile_commands.json",
+    "compile_commands_sha256": "375c1e7ca7b1a1bdd42e9dca451798de9d39b3871b0f16c3349476552ba13f88",
+    "executable_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source214-retained-damage-003/numi-matter-cardboard-retained-matrix-damage-check",
+    "executable_sha256": "7e48ebca354f30044864f038fdc6704b846d77a3a4396bac8741fa1857a00338",
+    "object_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source214-retained-damage-003/CMakeFiles/numi-matter-cardboard-retained-matrix-damage-check.dir/tools/cardboard_retained_matrix_damage_check.cpp.o",
+    "object_sha256": "5605313d5c67bbea868f9c949aeaa68c98feefe04185fbce76f71ca5013e0366",
+    "static_library_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source214-retained-damage-003/libnumi_matter_compiler.a",
+    "static_library_sha256": "05d0faa0336befcecbfd62a64454b2bb537883db75bf568dfb8bd8f91ae11463"
+  },
+  "build": {
+    "argv": [
+      "/opt/homebrew/bin/cmake",
+      "--build",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source214-retained-damage-003",
+      "--target",
+      "numi-matter-cardboard-retained-matrix-damage-check",
+      "--clean-first",
+      "--parallel",
+      "2"
+    ],
+    "compile_commands_entry": {
+      "command": "/usr/bin/c++  -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-retained-damage-orientation-energy-214-003/matter/../include -I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-retained-damage-orientation-energy-214-003/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -isysroot /Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fPIE -Wall -Wextra -Wpedantic -Werror -o CMakeFiles/numi-matter-cardboard-retained-matrix-damage-check.dir/tools/cardboard_retained_matrix_damage_check.cpp.o -c /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-retained-damage-orientation-energy-214-003/matter/tools/cardboard_retained_matrix_damage_check.cpp",
+      "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source214-retained-damage-003",
+      "file": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-retained-damage-orientation-energy-214-003/matter/tools/cardboard_retained_matrix_damage_check.cpp",
+      "output": "CMakeFiles/numi-matter-cardboard-retained-matrix-damage-check.dir/tools/cardboard_retained_matrix_damage_check.cpp.o"
+    },
+    "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini",
+    "exit_code": 0,
+    "link_command": "/usr/bin/c++ -O3 -DNDEBUG -arch arm64 -isysroot /Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names \"CMakeFiles/numi-matter-cardboard-retained-matrix-damage-check.dir/tools/cardboard_retained_matrix_damage_check.cpp.o\" -o numi-matter-cardboard-retained-matrix-damage-check  libnumi_matter_compiler.a",
+    "link_command_file": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source214-retained-damage-003/CMakeFiles/numi-matter-cardboard-retained-matrix-damage-check.dir/link.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "f3a603fad3963644926b04e228e80d7e20a20a04a3bf38312826b5777c695384"
+  },
+  "built_at_utc": "2026-10-16T10:53:49.767410+00:00",
+  "configure": {
+    "argv": [
+      "/opt/homebrew/bin/cmake",
+      "-S",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-retained-damage-orientation-energy-214-003/matter",
+      "-B",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source214-retained-damage-003",
+      "-G",
+      "Unix Makefiles",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DCMAKE_CXX_COMPILER=/usr/bin/c++",
+      "-DCMAKE_OSX_SYSROOT=/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+      "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+    ],
+    "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini",
+    "exit_code": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "7a69ec47642ecade2ec09e8ca7594929635df22acd05f2a52e761f75d3d55ac8"
+  },
+  "lineage": {
+    "actual_parent_frozen_source_sha256": "477fe6943fb1c28e782af9ce0c1c383c013146ab12f422bc55523a6834597931",
+    "actual_parent_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-strict-periodic-freebox-210-buildfix-003",
+    "actual_parent_tu_sha256": "5d54910aebb1beb78e0d5108b1fbd57ec3398939a7bb4299e96dedc1dcb44d6f",
+    "candidate_frozen_source_sha256": "97fc81a8da7ef81fbe919d30a0165cc02054e60454601d1a4c67c846f16222f2",
+    "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-retained-damage-orientation-energy-214-003",
+    "candidate_tu_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-retained-damage-orientation-energy-214-003/matter/tools/cardboard_retained_matrix_damage_check.cpp",
+    "candidate_tu_sha256": "b0f9713af7320c80d1c43d4acf9b3ee66ebcb1d885ba5bb0239a60d9b63280b8",
+    "canonical210_base_tu_sha256": "5d54910aebb1beb78e0d5108b1fbd57ec3398939a7bb4299e96dedc1dcb44d6f",
+    "conceptual_base": "source-composed-strict-periodic-freebox-210",
+    "overlay_patch_sha256": "15144107a928e7d9bdf61dfff96978c40e4673f7caf0e8c8e066c344440d7d8d",
+    "source214_002_manifest_sha256": "9a6f3a1bf54e22cfb80e0a7fa66ead41169f8de9e88415beeb3163ecab7e3dcb"
+  },
+  "schema": "numi.cardboard.source214-reproduction-commands.v1",
+  "scope": {
+    "calibration_claimed": false,
+    "native_gpu": false,
+    "physical_fem_transactions": 0
+  },
+  "test": {
+    "argv": [
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source214-retained-damage-003/numi-matter-cardboard-retained-matrix-damage-check"
+    ],
+    "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source214-retained-damage-003",
+    "exit_code": 0,
+    "stderr_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source214-retained-damage-orientation-energy-003/test.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source214-retained-damage-orientation-energy-003/test.stdout",
+    "stdout_sha256": "fbe4ecf0038c664ccb9d00a400c4dd0c29317da1b980a5403b5475dab894d6a2"
+  },
+  "toolchain": {
+    "architecture": "arm64",
+    "build_type": "Release",
+    "cmake_binary": "/opt/homebrew/bin/cmake",
+    "cmake_version": "cmake version 4.4.1",
+    "compiler_binary": "/usr/bin/c++",
+    "compiler_version": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode-26.6.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+    "generator": "Unix Makefiles",
+    "parallel_jobs": 2
+  }
+}

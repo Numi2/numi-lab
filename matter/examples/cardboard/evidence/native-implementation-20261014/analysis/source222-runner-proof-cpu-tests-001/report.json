@@ -1,0 +1,164 @@
+{
+  "actual_source_runner_prediction_sha256": "71f568bba27f8b444c12cd4af564b08c4ca1a236c5ccd6d961bc0b9474b3f2b3",
+  "actual_source_runner_record_sha256": "f3717eb565e303d4f8bb0f579c0e7287cd803b2f357b37658a1410e079ece49d",
+  "all_pass": true,
+  "at_utc": "2026-10-16T11:22:36.612756+00:00",
+  "cases": [
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source222-gates-proof-001/numi-matter-cardboard-probe",
+        "--verify-coupon-source-runner",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source222-runner-proof-cpu-tests-001/valid-53-current"
+      ],
+      "exit_code": 0,
+      "expected_accept": true,
+      "name": "valid-53-current",
+      "pass": true,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "02f28926035262809b2f968c2be1377dcc3977f05d595ed921dd6f092f53ce2f"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source222-gates-proof-001/numi-matter-cardboard-probe",
+        "--verify-coupon-source-runner",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source222-runner-proof-cpu-tests-001/valid-52-legacy"
+      ],
+      "exit_code": 0,
+      "expected_accept": true,
+      "name": "valid-52-legacy",
+      "pass": true,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "76e447d3ca2efe768a5a726e69a36eb9c7fcdf45b999ca4dfa3a27cadb8e51bd"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source222-gates-proof-001/numi-matter-cardboard-probe",
+        "--verify-coupon-source-runner",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source222-runner-proof-cpu-tests-001/valid-51-legacy"
+      ],
+      "exit_code": 0,
+      "expected_accept": true,
+      "name": "valid-51-legacy",
+      "pass": true,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "299b19946eb4611f60faf8662fddc3c2f2a216241cca0968f268fd18423bf60d"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source222-gates-proof-001/numi-matter-cardboard-probe",
+        "--verify-coupon-source-runner",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source222-runner-proof-cpu-tests-001/valid-50-legacy"
+      ],
+      "exit_code": 0,
+      "expected_accept": true,
+      "name": "valid-50-legacy",
+      "pass": true,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "3c559c217e98be145258bfdc9997ac73354377f02e0ecf76c085f0aa33fbf9f1"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source222-gates-proof-001/numi-matter-cardboard-probe",
+        "--verify-coupon-source-runner",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source222-runner-proof-cpu-tests-001/valid-49-legacy"
+      ],
+      "exit_code": 0,
+      "expected_accept": true,
+      "name": "valid-49-legacy",
+      "pass": true,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "87243496542f2973e10c9b41c5ffef17b80de5ef1715f5ed0cff53fa3f436cb1"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source222-gates-proof-001/numi-matter-cardboard-probe",
+        "--verify-coupon-source-runner",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source222-runner-proof-cpu-tests-001/reject-signed-but-unregistered-key"
+      ],
+      "exit_code": 1,
+      "expected_accept": false,
+      "name": "reject-signed-but-unregistered-key",
+      "pass": true,
+      "stderr_sha256": "b972399f5056fa96334e0f5bb04c2b8fb4ff82870936f450cf77506d9d7891b2",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source222-gates-proof-001/numi-matter-cardboard-probe",
+        "--verify-coupon-source-runner",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source222-runner-proof-cpu-tests-001/reject-nonboolean-set"
+      ],
+      "exit_code": 1,
+      "expected_accept": false,
+      "name": "reject-nonboolean-set",
+      "pass": true,
+      "stderr_sha256": "290ff1c2328146acc0bb7c2ec7ba1f72283fa270ea061f1c4de7bf6c67b965bd",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source222-gates-proof-001/numi-matter-cardboard-probe",
+        "--verify-coupon-source-runner",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source222-runner-proof-cpu-tests-001/reject-not-scrubbed"
+      ],
+      "exit_code": 1,
+      "expected_accept": false,
+      "name": "reject-not-scrubbed",
+      "pass": true,
+      "stderr_sha256": "43904d14e8225884f641976a0d3e1474553ee49585f9ee0ac599ff5dc03732cb",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source222-gates-proof-001/numi-matter-cardboard-probe",
+        "--verify-coupon-source-runner",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source222-runner-proof-cpu-tests-001/reject-mixed-record-schema"
+      ],
+      "exit_code": 1,
+      "expected_accept": false,
+      "name": "reject-mixed-record-schema",
+      "pass": true,
+      "stderr_sha256": "21619c9620b069f8c298c6edee5a0c415b8eea594d2135d2d9241b14cc872702",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source222-gates-proof-001/numi-matter-cardboard-probe",
+        "--verify-coupon-source-runner",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source222-runner-proof-cpu-tests-001/reject-qualification-with-output"
+      ],
+      "exit_code": 1,
+      "expected_accept": false,
+      "name": "reject-qualification-with-output",
+      "pass": true,
+      "stderr_sha256": "51ed1fe60e453ac4fd75205af7500cca6fa5404644ab9458d0a4d367b9154819",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source222-gates-proof-001/numi-matter-cardboard-probe",
+        "--verify-coupon-source-runner",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source222-runner-proof-cpu-tests-001/reject-wrong-contract-sha"
+      ],
+      "exit_code": 1,
+      "expected_accept": false,
+      "name": "reject-wrong-contract-sha",
+      "pass": true,
+      "stderr_sha256": "6cdb8c38ccea146b44548e8a10b675e8f5e67fb1c756f60076128627b2d30fc8",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "exit_code": 0,
+      "expected_accept": true,
+      "name": "actual-retained545",
+      "pass": true
+    }
+  ],
+  "existing_resume_check_exit_code": 0,
+  "frozen_sha256": "698a3b1106e6997aa251a8090894adcb8b2850085b70a83f681ccd6fd6f383b6",
+  "gpu_execution": false,
+  "historical_files_unchanged": true,
+  "native_runtime_created": false,
+  "schema": "numi.cardboard.source222-runner-proof-cpu-tests.v1",
+  "source_build_sha256": "be8655b5cb7f20919029077bd65908ad7574f67abfcbd89d77fac898f8aa171b"
+}

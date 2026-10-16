@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-audit-008/audit.py"
+  ],
+  "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-audit-008",
+  "execution": "CPU-only read/compare; no native GPU dispatch",
+  "interpreter": "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3"
+}

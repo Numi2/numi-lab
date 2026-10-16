@@ -1,0 +1,32 @@
+{
+  "base_frozen_source_sha256": "5f7d27b1c56784559b444434c90e96668dd5e04caabf87688590420c7fc954fd",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source207-buildfix-002",
+  "candidate_frozen_source_sha256": "93652583195ac864315ca22e71449d8762498b3155cef000edaa27f495a4d3a8",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-free-box-capsule-true-residual-212-009",
+  "changed_files": {
+    "matter/include/numi/matter/detail/free_box_true_residual_proxy_admission.hpp": {
+      "after_sha256": "29c564b7f15c6fcb771eb73c7a695e337f13b4da5e26800a1f98e8db12f4e21c",
+      "before_sha256": null
+    },
+    "matter/src/runtime.mm": {
+      "after_sha256": "f96f151cccaaa9798ff08efb81b65e4b7fcecbc4b87dcbbbef628d19e6e2a89b",
+      "before_sha256": "586f979a13a5628a8c82e925a50d7337ba4a9e91faf9d6e6df2f5dd3d856848e"
+    },
+    "matter/tools/cardboard_free_box_true_residual_proxy_admission_check.cpp": {
+      "after_sha256": "874451ba3d7f12fdf391d0e8bf4e065ac328628fa289274c3e17fa86b0475aec",
+      "before_sha256": null
+    },
+    "matter/tools/test_true_residual_certification_contract.py": {
+      "after_sha256": "60435d6244fbbb33ce927deef120f3267120a674f9c4ea136b41e7e9a11a5e31",
+      "before_sha256": "f40b5c45490d06705b59d504a8cc77d677fa610c7e43ea18d79f7b65fb850402"
+    }
+  },
+  "gpu_dispatch": false,
+  "native_execution": false,
+  "package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source212-freebox-proxy-true-residual-009",
+  "patch_sha256": "0b48872ffecd338bf0510cb803cb52883f14f93063f077b8d7464f19845b3072",
+  "prior_review_note": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source212-freebox-proxy-true-residual-008/review-gap-note.txt",
+  "schema": "numi.cardboard.source-overlay.v1",
+  "scope": "One static FEM object, exactly one non-articulated free dynamic BOX and one-or-more endpoint-prescribed capsules for true-residual certification. Other proxy shapes/free bodies remain rejected; E1/N4096/T32768/C4096, operator, criteria, and physics are unchanged.",
+  "source_file_count": 821
+}

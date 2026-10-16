@@ -1,0 +1,1 @@
+coupon path relocation requires source-bound diagnostic runner records

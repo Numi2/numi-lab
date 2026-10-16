@@ -1,0 +1,4 @@
+#define MR_SOURCE_PAIRED_GEOMETRY 1
+#define MR_HOOD_SOLVE_KERNEL_NAME mr_numi_human_solve_extensor_hood_compensated
+#define MR_HOOD_ASSEMBLE_KERNEL_NAME mr_numi_human_assemble_extensor_hood_correction_compensated
+#include "NumiHumanExtensorHood.metal"

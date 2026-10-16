@@ -1,0 +1,30 @@
+{
+  "artifact": "native547-critical23-sweep-input-audit-008",
+  "external_bindings_sha256": "2aceff7509dec3fb79e4a4bf60b8d408feacebdd815b6ba76599d493ba06bf04",
+  "files": {
+    "README.md": {
+      "bytes": 1152,
+      "sha256": "012e7b650502e30ed4fc47d6da2830f25b16b71cc972d1b5d0a465d3b261084d"
+    },
+    "audit-command.json": {
+      "bytes": 445,
+      "sha256": "054c377d46791dcc17fad1f70b287b5e4c0f66d7dff138f46218e2207ed30a2a"
+    },
+    "audit.py": {
+      "bytes": 9192,
+      "sha256": "bb5ee75de4979c9b631eaae58109262b45d3a008f5b487db54444b9a267cf90c"
+    },
+    "external-bindings.json": {
+      "bytes": 3580,
+      "sha256": "2aceff7509dec3fb79e4a4bf60b8d408feacebdd815b6ba76599d493ba06bf04"
+    },
+    "report.json": {
+      "bytes": 18134,
+      "sha256": "43d1cd7456c087efac12eb3a0af232953af417627904c55c6474466890d1437a"
+    }
+  },
+  "host": "macmini",
+  "input_admission_stdout_sha256": "9810c22bc4d6062df760e2847b1214cec0b6e3b8b5f53689c2c297e1381a07af",
+  "interpretation": "Corrected endpoint input semantics and CPU admission only; not native material qualification.",
+  "schema": "numi.cardboard.artifact-manifest.v1"
+}

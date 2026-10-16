@@ -1,0 +1,82 @@
+[ 12%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[ 12%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+[ 12%] Generating shaders/NumiMatter.metallib
+[ 12%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+In file included from /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-true-residual-8192-213-001/matter/src/matter_kernels.metal:4:
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-true-residual-8192-213-001/matter/src/metal/fgmres.metalinc:3290:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-true-residual-8192-213-001/matter/src/metal/fgmres.metalinc:3299:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-true-residual-8192-213-001/matter/src/metal/fgmres.metalinc:3290:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-true-residual-8192-213-001/matter/src/metal/fgmres.metalinc:3280:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-true-residual-8192-213-001/matter/src/metal/fgmres.metalinc:3736:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-true-residual-8192-213-001/matter/src/metal/fgmres.metalinc:3753:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-true-residual-8192-213-001/matter/src/metal/fgmres.metalinc:3736:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-true-residual-8192-213-001/matter/src/metal/fgmres.metalinc:3616:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+[ 25%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[ 25%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[ 37%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[ 50%] Generating shaders/NumiMatterPhysicalStateDigest.metallib
+[ 50%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+2 warnings generated.
+[ 50%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[ 50%] Built target numi_matter_shaders
+[ 62%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[ 75%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+[ 75%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[ 75%] Building CXX object CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[ 75%] Built target numi_matter_compiler_objects
+[ 87%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[ 87%] Linking CXX static library libnumi_matter_compiler.a
+[ 87%] Built target numi_matter_compiler
+[ 87%] Built target numi_matter_runtime_objects
+[ 87%] Linking CXX static library libnumi_matter_runtime.a
+[ 87%] Built target numi_matter_runtime
+[100%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-true-residual-8192-213-001/matter/tools/cardboard_probe.mm:733:13: warning: unused function 'writeShippingNominalCurveArtifact' [-Wunused-function]
+  733 | std::string writeShippingNominalCurveArtifact(
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.
+[100%] Linking CXX executable numi-matter-cardboard-probe
+[100%] Built target numi-matter-cardboard-probe
+[100%] Building CXX object CMakeFiles/numi-matter-true-residual-arena-plan-check.dir/tools/true_residual_arena_plan_check.cpp.o
+[100%] Linking CXX executable numi-matter-true-residual-arena-plan-check
+[100%] Built target numi-matter-true-residual-arena-plan-check
+[ 16%] Built target numi_matter_shaders
+[ 83%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[100%] Building OBJCXX object CMakeFiles/numi-matter-fgmres-true-residual-native-check.dir/tools/fgmres_true_residual_native_check.mm.o
+[100%] Linking CXX executable numi-matter-fgmres-true-residual-native-check
+[100%] Built target numi-matter-fgmres-true-residual-native-check
+[ 12%] Built target numi_matter_shaders
+[ 62%] Built target numi_matter_compiler_objects
+[ 62%] Built target numi_matter_compiler
+[ 87%] Built target numi_matter_runtime_objects
+[ 87%] Built target numi_matter_runtime
+[ 87%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-coupled-free-box-operator-check.dir/tools/cardboard_coupled_free_box_operator_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-coupled-free-box-operator-check
+[100%] Built target numi-matter-cardboard-coupled-free-box-operator-check
+[ 12%] Built target numi_matter_shaders
+[ 62%] Built target numi_matter_compiler_objects
+[ 62%] Built target numi_matter_compiler
+[ 87%] Built target numi_matter_runtime_objects
+[ 87%] Built target numi_matter_runtime
+[ 87%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-full-contact-armijo-check.dir/tools/cardboard_full_contact_armijo_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-full-contact-armijo-check
+[100%] Built target numi-matter-cardboard-full-contact-armijo-check

@@ -1,0 +1,29 @@
+{
+  "schema": "numi.cardboard.native545.readiness.v1",
+  "admit_full60_run": true,
+  "question": "Fresh full60 coupon under strict inner forcing and unchanged outer tolerance, with periodic accepted-state observations.",
+  "references": [
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source210-combined-build-001/receipt.json",
+      "sha256": "266faf3c79f1c579fba2cbb22b863b90b5a66d7d41a41597cf1b0bb036f41fcf"
+    },
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/combined-freebox-strict-inner-543/summary.json",
+      "sha256": "d58f9002a1dfffc70da4c73f5ab33dc2102082c645244cfb3c26ac77c3dae798"
+    },
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native544-periodic-observer-parity-002/report.json",
+      "sha256": "99e448cb3b60959f9bdac715707a4ad295ec042282398c299b54c57ea3cd8735"
+    },
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source209-strict-inner-forcing-owner-review-001/report.json",
+      "sha256": "e6bdda0a2748a4bb27e30f1503314f66c59c30b4e34cc9e67f764f58b0514937"
+    }
+  ],
+  "source_frozen_sha256": "477fe6943fb1c28e782af9ce0c1c383c013146ab12f422bc55523a6834597931",
+  "source_build_sha256": "75f9a256c4413c0a32e877f2dfcc168633c7662b391690dd4b83dbd4819f8e93",
+  "native_operator_helpers_qualified_only_as_fixtures": true,
+  "observer_parity_controls": 7,
+  "full60_result_assumed": false,
+  "at_utc": "2026-10-16T10:31:15.022901+00:00"
+}

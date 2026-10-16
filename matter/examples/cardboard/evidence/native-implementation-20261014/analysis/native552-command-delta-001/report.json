@@ -1,0 +1,6 @@
+{
+  "parent_script_sha256": "a8924d34827b8d3ca4cf8605f54a28911d0d47b8a87cb9741e9faca7f0eb1cab",
+  "new_script_sha256": "fe56233a93aad539023ea625e3806582ceb1bce0d33d06780827381697a1ce1f",
+  "required_change": "Remove periodic snapshot observation on resume; CLI prohibits their combination. Source545 accepted checkpoint and physics unchanged.",
+  "native551_failure_preserved": true
+}

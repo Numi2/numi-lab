@@ -1,0 +1,40 @@
+# Retained Haj-Ali matrix damage overlay
+
+`cardboard_retained_matrix_damage.hpp` builds an explicit per-tetrahedron overlay on the existing `hajali2009_liner_hill_ideal` or `hajali2009_medium_hill_ideal` material. It clones the source Hill program and its density, adds six component plastic-history variables, four plane-normal and four plane-shear fracture histories, and three plastic-compression hardening histories. It does not replace the regional density or material frame.
+
+The callable API is `numi::cardboard::retained_damage::buildElementProgram(ElementRequest)` for one tetrahedron and `buildMeshProgramPool(std::vector<ElementRequest>)` for a mesh. Each request must carry the source material program and hash, its exact authored density, reference tetrahedron vertices, four material-frame crack planes, and a complete `ExplicitDamageSet`. That set requires separate hashes/evidence bindings for hardening, fracture, rate, and compression hardening. No damage, strength, fracture-energy, rate, or compression value is defaulted. Missing or incomplete bindings, a non-Haj-Ali source, altered density, invalid plane, or negative crack-band softening width is rejected.
+
+`MeshProgramPool` returns `overlayPrograms`, `overlayDensitiesKgPerM3`, `overlayMaterialIndices`, and per-element `elementMappings`. The mappings retain source and set hashes, all component parameters and evidence bindings, exact tetra volume and plane cuts, per-plane `V/A`, per-mode onset strain and softening width, and exact pool index. Pooling uses exact native-program equality after a 64-bit signature bucket; geometric lengths are never quantized. A consumer appends the returned programs and remaps only the intended substrate tetrahedra. Glue entries and `materialFrames` stay in their original mesh order.
+
+For a pure normal opening mode, the crack-band onset uses the selected-plane stiffness contraction (E_c=(n\otimes n):C:(n\otimes n)), the onset strain is \(e_0=\sigma/E_c\), and the exponential softening strain is \(w=G_c/(\sigma l)-e_0/2\), with \(l=V/A\). The stored-energy multiplier for an irreversible excess-strain state \(z\) is
+
+\[
+s(z)=\frac{e_0}{e_0+z}\exp(-z/w).
+\]
+
+The secant factor makes the pure-mode traction decay as \(\sigma\exp(-z/w)\) during monotone opening. The \(e_0/2\) term reserves the pre-peak elastic triangle inside the specified total crack-band energy. For shear, the generalized strength and opening conversion include the factor of two from tensor shear strain to displacement jump. The builder rejects any element/mode for which \(w\leq0\); in that case the requested fracture energy is smaller than the pre-peak elastic energy associated with the chosen element length and onset strength.
+
+The four normal/shear survivals multiply. The CPU check exercises one pure normal mode and one mixed normal/shear path; the latter stays under an explicit additive budget for that fixture. This is a path-specific energy screen, not a calibrated mixed-mode interaction law. Simultaneous multi-plane failure, rate-dependent failure envelopes, and non-proportional mixed-mode paths still need experimental bounds. The source provides no matched corrugated Kraft/NSSC rate, fracture-energy, shear-strength, or crush-densification dataset. These inputs remain explicit analogue/feasible-set parameters.
+
+The three compression histories track accumulated source plastic compression past explicit onset strains and add the supplied axis hardening moduli to the retained Hill yield threshold. They do not add a separate “crush energy” force. In the latest source-current synthetic cycle, candidate total work is `5.6469567030e-3 J`, recoverable endpoint energy is `1.0915032356e-3 J`, and total net irreversible work is positive at `4.5554534675e-3 J`. The no-added-densification control has `5.6235942590e-3 J` work, `1.0602192999e-3 J` endpoint energy, and `4.5633749591e-3 J` net irreversible work. Thus candidate-minus-control is `-7.9214916380e-6 J`; this difference alone is not a passivity failure and does not establish a positive densification work increment. The source Hill-only baseline has positive net work `3.5879485112e-3 J`, so candidate-minus-source-Hill is `+9.6750495633e-4 J`, which combines hardening and altered plastic flow rather than isolating crush dissipation. The retained Hill threshold rises from `23.5585 MPa` initially to `43.3293 MPa` at peak compression and `59.2613 MPa` at the end; plastic multiplier and hardening histories are checked for monotonicity. Fracture history remains below `2.7e-8` on this path. This is a material-point bookkeeping screen, not a physical densification validation.
+
+The check is a CPU material-point integration of the compiled constitutive program, not a finite-element box run or physical cardboard qualification. It uses explicitly synthetic test bindings. Direct build and run:
+
+```sh
+c++ -std=c++2b -arch arm64 -Iinclude -Imatter/include -Imatter/tools \
+  -Wall -Wextra -Wpedantic -Werror \
+  matter/tools/cardboard_retained_matrix_damage_check.cpp \
+  build-cardboard-world/matter/libnumi_matter_compiler.a \
+  -framework Foundation -o /tmp/cardboard-retained-damage-check-current
+/tmp/cardboard-retained-damage-check-current matter/materials
+```
+
+The latest source-current run rebuilt `numi_matter_compiler` before compiling the check. Its default central-difference tangent errors were `4.64e-7` (fracture/rate), `3.27e-5` (compression/densification), `4.97e-10` (plastic/Hill hardening), and `3.38e-5` (mixed mode). The tighter independent reprojection gate used a `2e-12` local residual target and two perturbation sizes: compression errors were `5.1487e-7` and `5.9092e-7`; mixed-mode errors were `7.5886e-7` and `7.1903e-9`. These selected smooth-path checks pass the `1e-6` gate. The full sweep contains step-size sensitivity and a rejected `h=1e-4`, `2e-14` compression probe that did not converge; it remains a diagnostic, not a passing derivative datum.
+
+For the 1 MPa synthetic pure-mode path, the selected-plane budget is `Gc*A = 1.1250e-7 J`; the finite-opening closed-cycle damage work is `1.1136773704e-7 J` (`0.98994 Gc*A`) at 60 steps and `0.99147`/`0.99154 Gc*A` at 120/240 steps. Its exponential tail and recoverable endpoint energy are nonzero, so this finite path does not exhaust the softening budget. A 2x tetrahedron-size check changed damage work per cut area by `0.3015%`. A separate full-softening diagnostic uses a synthetic 2 MPa strength, reaches `27.44` softening widths, and remains below the source Hill plastic branch. It dissipates `0.99591` and `0.99546 Gc*A` at 120 and 240 steps, with a `0.0450%` work difference between those resolutions. That is a numerical material-point closure check for the exact fixture; it is not a physical calibration. The mixed normal/shear path dissipates `1.05793e-7 J` against an additive active-plane budget of `1.265625e-7 J` (`0.83589`); this is only an upper-budget screen, not a mixed-mode qualification.
+
+The tensile plastic cycle showed positive net work (`1.7684295475e-5 J`) with peak accumulated multiplier `0.00312168` and MD hardening history `0.00308713`; the source Hill-only comparison is `1.7909990131e-5 J`. The rate contrast changed the selected excess-strain state from `0.00354430` at `dt=0.0005 s` to `0.00356900` at `dt=0.004 s` for `tau=0.004 s`; this is a rate-sensitivity check, not a rate fit.
+
+An opt-in Metal instrument, `numi-matter-cardboard-retained-matrix-damage-metal-check`, calls the production GPU projection/stress/algorithmic-tangent path for both retained source matrices plus a synthetic overlay. Build the target without running it to compile the kernel and Objective-C++ host; root owns GPU execution. The runner accepts the liner material, medium material, and source-data CSV paths. It does not step a finite-element world or qualify physical cardboard.
+
+The source-equivalent Robertsson own-grade path and the earlier selected-plane builder remain separate tools and are not used to replace the retained Haj-Ali matrix or density here.

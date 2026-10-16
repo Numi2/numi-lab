@@ -1,0 +1,1 @@
+Preseal review found a source-to-dispatch identity gap: source212-008 checked the vector lengths inside the pure helper but did not first bind them to dispatch.rigidProxyCount and dispatch.contactPairCount. No native/GPU execution occurred. Source212-009 adds these equality guards and a positive 16-proxy boundary test.

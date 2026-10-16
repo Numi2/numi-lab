@@ -1,0 +1,33 @@
+{
+  "audit_sha256": "7e4759349b1a1fe04e4535fc6900d0514315d04ff9e09c5e0314b2ba4a7350bc",
+  "base_frozen_source_sha256": null,
+  "base_map_note": "Canonical 210 directory contains no frozen-source.json. Exact hashes of the modified translation unit and four relevant retained-damage/stage-resolution sources are recorded in base_relevant_source_sha256; the translation unit, seven direct implementation/input support files, and retained matrix compiler source are byte-compared with buildfix003 as recorded in cpu-receipt.json.",
+  "base_relevant_source_sha256": {
+    "matter/tools/cardboard_fracture_regularization.hpp": "d88d5bb677b37a3ee38fd5d0fed1c72d7178718ec768d97c2df61b4bf1393bfb",
+    "matter/tools/cardboard_retained_matrix_damage.hpp": "2542d465c280070837e95acd80ef9fe6bb6444bd3897ed61f1e0998427d83d74",
+    "matter/tools/cardboard_retained_matrix_damage_check.cpp": "5d54910aebb1beb78e0d5108b1fbd57ec3398939a7bb4299e96dedc1dcb44d6f",
+    "matter/tools/cardboard_stage_resolution_study.py": "177741de6e0e43981d1340ae05b45a26bd599a0bb4b624b14b72f9e58c3d91ea"
+  },
+  "base_source": "source-composed-strict-periodic-freebox-210",
+  "changed_files": [
+    {
+      "base_sha256": "5d54910aebb1beb78e0d5108b1fbd57ec3398939a7bb4299e96dedc1dcb44d6f",
+      "overlay_sha256": "b0f9713af7320c80d1c43d4acf9b3ee66ebcb1d885ba5bb0239a60d9b63280b8",
+      "path": "matter/tools/cardboard_retained_matrix_damage_check.cpp"
+    }
+  ],
+  "cpu_receipt_sha256": "defa885c6d65d4e5319023a8f12b467bb513e53a09f51fd4f40e967f880ed9d1",
+  "native_gpu": false,
+  "overlay_id": "source214-retained-damage-orientation-energy-002",
+  "patch_sha256": "15144107a928e7d9bdf61dfff96978c40e4673f7caf0e8c8e066c344440d7d8d",
+  "readme_sha256": "f496ac058c5eacf0b3f9e550cbca389d49a9bb9710c3183339ea9d26a5b1e487",
+  "scope": "synthetic CPU test only: full-softening crack-band work closure under rigid geometry rotation with unchanged material-frame channels, and reversed tetra vertex winding; no law, parameter, or gate changes",
+  "supersedes": "source214-retained-damage-orientation-energy-001; 001 rotated reference-frame normals and therefore changed the anisotropic material channel; its first CPU run failed closed during energy-interval admission.",
+  "test_artifacts": {
+    "executable_sha256": "1fed94e394add343decedb20827436f42b63b69e34c335243a0268a9b906c077",
+    "object_sha256": "fb4ba446686ff51c1a3734a5b03a1e97582e7da1f006c6395b3ab04e3da72cc2",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "fbe4ecf0038c664ccb9d00a400c4dd0c29317da1b980a5403b5475dab894d6a2"
+  },
+  "test_status": "PASS"
+}

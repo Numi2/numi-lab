@@ -1,0 +1,1 @@
+Source212-005 CPU helper compile succeeded. The helper intentionally reports a second BOX as free_box_count after scanning all proxies; the test incorrectly expected unsupported_proxy. No native/GPU run occurred.

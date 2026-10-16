@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native541-generic-package-batch-instrument-001/generic-batch",
+    "--cpu-admission",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/compiled.nmatterpack",
+    "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-001/input.json",
+    "86af711670124c5549303d030fa46e41726ffc6a4dac6ce2947003765a3d0bf8",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-001/cpu-admission-output",
+    "c9a538bd6357136130fc3d971c7d2f1e61fc52bdef2a0737ba00790bd34d8ec2"
+  ],
+  "exit_code": 0,
+  "gpu_execution": false,
+  "at_utc": "2026-10-16T10:43:55.768253+00:00"
+}

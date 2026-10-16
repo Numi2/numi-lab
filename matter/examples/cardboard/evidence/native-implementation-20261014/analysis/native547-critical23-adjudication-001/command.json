@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-adjudication-001/analysis.py"
+  ],
+  "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-adjudication-001",
+  "execution": "CPU-only postprocessing; native run was already closed with zero physical transactions"
+}

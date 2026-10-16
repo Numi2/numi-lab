@@ -1,0 +1,11 @@
+# Source 214 retained-matrix orientation/energy regression
+
+This CPU-only overlay adds one bounded regression to the retained-matrix synthetic damage check. The existing code already derives each crack-band mode length from the selected tetrahedral cut as reference volume divided by actual cut area. Existing tests covered analytic geometry rotation and vertex winding, plus an axis-aligned Gc*A dissipated-work closure and a 2x refinement check. The actual rotated damage-history fixture previously checked only positive work.
+
+The added test integrates the same 240-step full-softening history after a proper quarter-turn of the reference tetrahedron, with the crack-plane descriptors expressed in the element material frame and transformed by the same rotation. This leaves the local material channels and loading path unchanged. It also repeats the history with reversed tetra vertex winding. Both paths must satisfy the existing 2% Gc*A closure and match the original integrated work within 2%. No material law, parameter, or threshold changed.
+
+The targeted C++ check passed. The work ratio was 0.99546309119343468 for the axis-aligned, rotated, and reversed-winding fixtures; the 2x refinement difference remained 0.0030146161401040095. These are synthetic CPU implementation checks, not grade calibration or physical qualification.
+
+The first 214 attempt is retained at ../source214-retained-damage-orientation-energy-001. It rotated reference-frame normals, thereby changing the orthotropic material channel; the existing positive-softening-interval admission guard rejected that fixture. The corrected 214-002 uses an element-material normal and an explicit proper rotation.
+
+The stage-resolution exporter intentionally keeps geometric crack-open and geometric debond area fractions null. It separately exports model damage indices and, when available, the quadrature-based fraction of cohesive reference area whose accepted quadrature damage is exactly one. That latter capacity-loss metric is not an open-area measure. The resolution-study consumer still requires explicit paper damage/debond area-fraction results before applying its 2% area gates. This overlay does not change those semantics.

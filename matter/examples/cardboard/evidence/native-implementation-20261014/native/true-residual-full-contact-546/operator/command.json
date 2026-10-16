@@ -1,0 +1,23 @@
+{
+  "schema": "numi.cardboard.native546-command.v1",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source212-freebox-proxy-true-residual-012/numi-matter-cardboard-coupled-free-box-operator-check"
+  ],
+  "environment": {
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "HOME": "/Users/n",
+    "NUMI_MATTER_METALLIB": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source212-freebox-proxy-true-residual-012/shaders/NumiMatter.metallib",
+    "NM_FEM_TRUE_RESIDUAL_CERTIFY": "1",
+    "NM_FEM_TRUE_RESIDUAL_ROOT": "all"
+  },
+  "timeout_s": 60,
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-free-box-capsule-true-residual-212-012",
+  "source_frozen_sha256": "499468e952b33f98419490c9c9987f742f79791d8822285919189205eae85555",
+  "source_build_json": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source212-freebox-proxy-true-residual-012/source-build.json",
+  "source_build_sha256": "618fadbef6aced34e0e1f99fcdcb36ae0bc81597890c58417768f3bb914d7892",
+  "material_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+  "all_source_and_artifacts_verified": true,
+  "question": "Can the bounded free-BOX/prescribed-capsule full-contact trial and final certificate coexist with same-operator true-residual certification?",
+  "prediction": "No trajectory or gate pass is assumed. Keep dense/sparse parity, actual tested alpha, rejected-state rollback and true residual failures visible.",
+  "qualification_limit": "Native small fixture; no coupon resolution, source-grade calibration, shipping assembly or crush/impact qualification."
+}

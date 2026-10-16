@@ -1,0 +1,23 @@
+{
+  "schema": "numi.cardboard.source217.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-capacity-damage-debond-gates-217-001",
+  "frozen_sha256": "baa52c11437d63844a5837657eb16d821a910aa9a60c8dd83c646488296b7c52",
+  "source_count": 819,
+  "changed": [
+    "matter/tools/cardboard_stage_resolution_study.md",
+    "matter/tools/cardboard_stage_resolution_study.py",
+    "matter/tools/test_cardboard_stage_resolution_study.py"
+  ],
+  "patch_sha256": "275e52e824fa05477212c35ab33cf257113c11d315386c66040fc1cd23750252",
+  "test_argv": [
+    "/Applications/Xcode-26.6.0.app/Contents/Developer/usr/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-capacity-damage-debond-gates-217-001/matter/tools/test_cardboard_stage_resolution_study.py"
+  ],
+  "test_exit_code": 0,
+  "test_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "test_stderr_sha256": "22fa3df5d8edaf7eca159a1ef323be8dfb0db9f55744a9d14a94e890b59a7512",
+  "gpu_execution": false,
+  "physical_transactions": 0,
+  "at_utc": "2026-10-16T11:05:41.511150+00:00"
+}

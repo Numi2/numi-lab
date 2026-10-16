@@ -1,0 +1,11 @@
+{
+  "schema": "numi.cardboard.source221-overlay.v1",
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003",
+  "frozen_sha256": "fb885540a2f096ee70df5a03701a8d2710832c6df402e8e097ff95c736e7c1a5",
+  "patch_sha256": "28da957902d97aaee3fb2524d999f3905dfc9bb6ea709b984ce7f3f9be4cd95d",
+  "changed": [
+    "matter/tools/cardboard_probe.mm"
+  ],
+  "gpu_execution": false,
+  "at_utc": "2026-10-16T11:17:18.308370+00:00"
+}

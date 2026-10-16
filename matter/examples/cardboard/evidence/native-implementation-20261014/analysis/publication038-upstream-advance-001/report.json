@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.publication038-upstream-advance.v1",
+  "previous_parent": "990ea59792d57c9989281c96377434e403cd8c2e",
+  "new_parent": "68e19b6509731d6d6700dd508b249fb68d7cd7c2",
+  "upstream_changed": [
+    "apps/NumiHumanRestingSourceAllocation.hpp",
+    "apps/NumiHumanRestingVisual.hpp",
+    "tools/test_resting_referenced_source_attachments.cpp"
+  ],
+  "overlap_with_819_cardboard_frozen_sources": [],
+  "own_changes_preserved": true,
+  "compatibility_tests_pending": true,
+  "at_utc": "2026-10-16T11:31:28.274567+00:00"
+}

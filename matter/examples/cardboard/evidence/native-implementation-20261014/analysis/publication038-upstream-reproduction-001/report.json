@@ -1,0 +1,80 @@
+{
+  "schema": "numi.cardboard.publication038-upstream-reproduction.v1",
+  "parent_before": "990ea59792d57c9989281c96377434e403cd8c2e",
+  "parent_after": "68e19b6509731d6d6700dd508b249fb68d7cd7c2",
+  "reason": "Initial publish guard observed origin/main advance before staging; fetch log and old candidate/audit preserved. No failed commit or push occurred. The checkout fast-forwarded while preserving the intended unstaged candidate.",
+  "source222_819_cardboard_files_unchanged": true,
+  "compatibility_source223_frozen_sha256": "600d52fe8dcccb4cd2d5c449261d2ed68bcaf312eac82ab1582a14a45ee67a80",
+  "source223_build_sha256": "438c44eebadeec84bb6a90f41caff3303c5d225a548fbcbf5ce871632eb365a9",
+  "compatibility_case": "analysis/source223-upstream-compatibility-001",
+  "compatibility_all_pass": true,
+  "no_new_gpu_execution": true,
+  "copies": {
+    "commands/archive_publication038_001.py": {
+      "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/archive_publication038_001.py",
+      "sha256": "537d0222b3cb2ac9eb3e054270f5b332a4213426a5225d2c03ba589779b4ca2d",
+      "bytes": 10387
+    },
+    "commands/audit_publication038_001.py": {
+      "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/audit_publication038_001.py",
+      "sha256": "5f1cf0e0febeb06892237cba474ec9fe3579347ca213673b13e344e3de093197",
+      "bytes": 4620
+    },
+    "commands/publish_publication038_001.py": {
+      "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/publish_publication038_001.py",
+      "sha256": "926cf0b3f966455006f8591873272007ca21b753c32d42ad99146e508d2ae415",
+      "bytes": 3085
+    },
+    "commands/build_source223_upstream_compatibility_001.py": {
+      "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build_source223_upstream_compatibility_001.py",
+      "sha256": "eba0e44078d10308a0c52ebf2578a2b890b5ff3cea3a047f16f66d7f48023fd6",
+      "bytes": 3558
+    },
+    "snapshot/frozen-source.json": {
+      "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source222-upstream-compatibility-223-001/frozen-source.json",
+      "sha256": "600d52fe8dcccb4cd2d5c449261d2ed68bcaf312eac82ab1582a14a45ee67a80",
+      "bytes": 108203
+    },
+    "build/source-build.json": {
+      "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source223-upstream-compatibility-001/source-build.json",
+      "sha256": "438c44eebadeec84bb6a90f41caff3303c5d225a548fbcbf5ce871632eb365a9",
+      "bytes": 100299
+    },
+    "build/numi-matter-cardboard-coupon-resume-check": {
+      "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source223-upstream-compatibility-001/numi-matter-cardboard-coupon-resume-check",
+      "sha256": "2b8eafd2805337890d0c866e41dc3deb033e36b2abbae9f76cc5aa18aa4f93c4",
+      "bytes": 223448
+    },
+    "build/numi-matter-cardboard-probe": {
+      "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source223-upstream-compatibility-001/numi-matter-cardboard-probe",
+      "sha256": "cfd42867342808d9c65b83a76a30532bf760b598381e566d3c47ae3b406f4a9a",
+      "bytes": 3241448
+    },
+    "build/shaders/NumiMatter.metallib": {
+      "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source223-upstream-compatibility-001/shaders/NumiMatter.metallib",
+      "sha256": "02fbde247e241ce40958795ceaf0259aee6a6fb57c09374b0a7d31e088cb3e2b",
+      "bytes": 7050507
+    },
+    "build/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source223-upstream-compatibility-001/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+      "bytes": 80076
+    },
+    "snapshot/apps/NumiHumanRestingSourceAllocation.hpp": {
+      "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source222-upstream-compatibility-223-001/apps/NumiHumanRestingSourceAllocation.hpp",
+      "sha256": "b2e759745d6ff1badb63a1d7baa61f13970314a2407be3e2f3cc12c25889673c",
+      "bytes": 3426
+    },
+    "snapshot/apps/NumiHumanRestingVisual.hpp": {
+      "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source222-upstream-compatibility-223-001/apps/NumiHumanRestingVisual.hpp",
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a",
+      "bytes": 191345
+    },
+    "snapshot/tools/test_resting_referenced_source_attachments.cpp": {
+      "original_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source222-upstream-compatibility-223-001/tools/test_resting_referenced_source_attachments.cpp",
+      "sha256": "bca20c795dab8be0aec3b3783a8555f130c5a69554976ab4b715d74c406f693e",
+      "bytes": 1280
+    }
+  },
+  "at_utc": "2026-10-16T11:38:17.628222+00:00"
+}

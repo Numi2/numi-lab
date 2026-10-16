@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-free-box-capsule-true-residual-212-012/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-free-box-capsule-true-residual-212-012",
+    "--build-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source212-freebox-proxy-true-residual-012",
+    "--jobs",
+    "4",
+    "--target",
+    "numi-matter-cardboard-probe",
+    "--target",
+    "numi-matter-cardboard-coupled-free-box-operator-check",
+    "--target",
+    "numi-matter-fgmres-true-residual-native-check",
+    "--target",
+    "numi-matter-cardboard-full-contact-armijo-check"
+  ],
+  "native_gpu": false,
+  "source_frozen_sha256": "499468e952b33f98419490c9c9987f742f79791d8822285919189205eae85555"
+}

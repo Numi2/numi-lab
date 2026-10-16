@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003",
+    "--build-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source221-checkpoint-proof-003",
+    "--jobs",
+    "4",
+    "--target",
+    "numi-matter-cardboard-probe",
+    "--target",
+    "numi-matter-cardboard-coupon-resume-check"
+  ],
+  "source_frozen_sha256": "fb885540a2f096ee70df5a03701a8d2710832c6df402e8e097ff95c736e7c1a5",
+  "gpu_execution": false
+}

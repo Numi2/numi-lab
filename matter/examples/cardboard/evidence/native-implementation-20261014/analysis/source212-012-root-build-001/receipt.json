@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.source212012-root-build.v1",
+  "started_at_utc": "2026-10-16T10:42:41.630050+00:00",
+  "finished_at_utc": "2026-10-16T10:43:11.865806+00:00",
+  "exit_code": 0,
+  "build_log_sha256": "2720d36d634404bb14415f51486e6a139fa626184dd2d922931c362a9a4d7d54",
+  "source_build_sha256": "618fadbef6aced34e0e1f99fcdcb36ae0bc81597890c58417768f3bb914d7892",
+  "gpu_execution": false
+}

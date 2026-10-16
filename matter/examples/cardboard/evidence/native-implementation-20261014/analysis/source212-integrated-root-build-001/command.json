@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-free-box-capsule-true-residual-212-012/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-free-box-capsule-true-residual-212-012",
+    "--build-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source212-integrated-001",
+    "--cmake-source-relative",
+    ".",
+    "--jobs",
+    "4",
+    "--target",
+    "numi-matter-cardboard-full-contact-armijo-check",
+    "--target",
+    "numi-matter-cardboard-probe"
+  ],
+  "frozen_sha256": "499468e952b33f98419490c9c9987f742f79791d8822285919189205eae85555",
+  "previous546_launch_failed_without_physical_transactions": "standalone Matter target refused sparse-free-body; requires integrated MetalWorld build"
+}

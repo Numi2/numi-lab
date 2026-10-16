@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.native547-command.v1",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native541-generic-package-batch-instrument-001/generic-batch",
+    "--native",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/compiled.nmatterpack",
+    "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-002/input.json",
+    "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/critical23-power-sweep-547/output",
+    "c9a538bd6357136130fc3d971c7d2f1e61fc52bdef2a0737ba00790bd34d8ec2"
+  ],
+  "bindings": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native541-generic-package-batch-instrument-001/generic-batch": "7764e4c20c2393d5ebfc3f100f29e851b9090e1999418aad86cbcaf69fb7e3c5",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/compiled.nmatterpack": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-002/input.json": "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-002/stable-fp64-reference.jsonl": "2893d2b988feae51fe6ecbe3a7a71ecb7a19d1f9b011a3957b52df54c4bd96e0",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-002/pair-selection.json": "36dfab1b02c443ef9ee77df2cada5e7eafa9abe3450c1d33208016357ceeb452",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-audit-008/report.json": "43d1cd7456c087efac12eb3a0af232953af417627904c55c6474466890d1437a"
+  },
+  "source_capture_sha256": "c9a538bd6357136130fc3d971c7d2f1e61fc52bdef2a0737ba00790bd34d8ec2",
+  "power_range": [
+    10,
+    40
+  ],
+  "expected_rows": 1472,
+  "question": "Does the exact production material package admit a resolved finite-difference range at any adjacent representable powers, with unchanged accepted history and projection budget?",
+  "prediction": "A broad sweep may expose a truncation-to-noise window, but no resolved derivative gate is assumed. FP32 under-resolution remains inconclusive.",
+  "all_541_failures_preserved": true,
+  "corrected_input_package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-002",
+  "superseded541_FD_endpoints_invalid_from_mutating_builder": true,
+  "superseded547_001_not_run": true
+}

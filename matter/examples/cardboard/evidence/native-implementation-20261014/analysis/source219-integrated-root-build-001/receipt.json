@@ -1,0 +1,10 @@
+{
+  "schema": "numi.cardboard.source219-integrated-build.v1",
+  "exit_code": 0,
+  "all_selected_and_configure_support_inputs_unchanged": true,
+  "log_sha256": "cd6755b91d748508c3eae7049a358e0b30a546765b64938dd6fc6b504bf496f8",
+  "source_frozen_sha256": "8874cc2b52e6d2a0125b2cb91ee31566b1d81d0dd10481d1ac85a5cae30e39f3",
+  "at_utc": "2026-10-16T11:04:20.401878+00:00",
+  "build_source_sha256": "d248bac88f755345f1d7f7bd724b6a0a06bd3dfd4a9ef7a4c3414bf47bc1ae76",
+  "gpu_execution": false
+}

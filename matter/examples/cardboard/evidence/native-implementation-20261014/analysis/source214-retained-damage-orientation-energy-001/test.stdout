@@ -1,0 +1,6 @@
+near_complete_damage_survival=5.1328665921132723e-10
+near_complete_damage_observed_energy_ratio=5.1328700128924439e-10
+near_complete_damage_old_fp32_survival=0
+near_complete_damage_stable_fp32_survival=5.1328663541738706e-10
+fp64_native_capture_oracle_selfcheck_residual=9.7255482611529817e-12
+fp64_native_capture_oracle_tangent_selfcheck=0

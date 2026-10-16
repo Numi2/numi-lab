@@ -1,0 +1,56 @@
+{
+  "schema": "numi.cardboard.source223-upstream-compatibility.v1",
+  "upstream_commit": "68e19b6509731d6d6700dd508b249fb68d7cd7c2",
+  "source222_cardboard_bytes_unchanged": true,
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source222-upstream-compatibility-223-001",
+  "frozen_sha256": "600d52fe8dcccb4cd2d5c449261d2ed68bcaf312eac82ab1582a14a45ee67a80",
+  "build_exit_code": 0,
+  "source_build_sha256": "438c44eebadeec84bb6a90f41caff3303c5d225a548fbcbf5ce871632eb365a9",
+  "tests": [
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source222-upstream-compatibility-223-001/matter/tools/test_cardboard_stage_resolution_study.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "483bf51fe507b4db251656988d746cba3a95471085dd851f3cca7b7a04bb3ac2"
+    },
+    {
+      "argv": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-O2",
+        "-I",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source222-upstream-compatibility-223-001/apps",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source222-upstream-compatibility-223-001/tools/test_resting_referenced_source_attachments.cpp",
+        "-o",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source223-upstream-compatibility-001/upstream-referenced-attachments-check"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source223-upstream-compatibility-001/upstream-referenced-attachments-check"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "a6d8a462b0802276e600d8bd8ab2e24bb25c088a57944f32a82a08fc3e4fb93f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source223-upstream-compatibility-001/numi-matter-cardboard-coupon-resume-check"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "all_pass": true,
+  "gpu_execution": false,
+  "physical_transactions": 0,
+  "at_utc": "2026-10-16T11:32:19.563770+00:00"
+}

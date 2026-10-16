@@ -1,0 +1,186 @@
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -12550,7 +12550,7 @@
+     return shippingJsonStringField(dictionary, key, label);
+ }
+ 
+-constexpr std::array<std::string_view, 52u> kSource161DiagnosticEnvironmentKeys{
++constexpr std::array<std::string_view, 53u> kSource161DiagnosticEnvironmentKeys{
+     "NM_CONTACT_NODE_INCIDENCE_SORT",
+     "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
+     "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
+@@ -12597,6 +12597,7 @@
+     "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT",
+     "NM_FEM_STATUS5_CAPTURE_PATH",
+     "NM_FEM_STATUS5_CAPTURE_ROOT",
++    "NM_FEM_STRICT_INNER_FORCING",
+     "NM_FEM_TRUE_RESIDUAL_CERTIFY",
+     "NM_FEM_TRUE_RESIDUAL_NEWTON_SELECTOR",
+     "NM_FEM_TRUE_RESIDUAL_RESTART",
+@@ -12610,7 +12611,8 @@
+     const std::filesystem::path& requestedCaseDirectory,
+     const std::vector<std::pair<std::string, std::string>>& actualVariables,
+     const numi::cardboard::coupon_resume::RuntimePathMap& expectedPaths,
+-    const bool compareActualEnvironment = true) {
++    const bool compareActualEnvironment = true,
++    const bool allowQualificationSource = false) {
+     using namespace numi::cardboard::coupon_resume;
+     namespace fs = std::filesystem;
+     std::error_code error;
+@@ -12630,16 +12632,29 @@
+         predictionBytes, predictionPath.string());
+     NSDictionary* const record = couponParseRunnerJson(
+         environmentBytes, environmentPath.string());
+-    require(couponRunnerString(prediction, @"schema", "prediction.schema") ==
+-                "numi.cardboard.native-diagnostic-prediction.v1" &&
+-            couponRunnerString(prediction, @"run_mode", "prediction.run_mode") ==
+-                "diagnostic" &&
+-            couponRunnerString(record, @"schema", "environment.schema") ==
+-                "numi.cardboard.native-diagnostic-environment-run.v1" &&
+-            couponRunnerString(record, @"producer", "environment.producer") ==
+-                "source-bound-diagnostic-runner" &&
+-            couponRunnerString(record, @"mode", "environment.mode") == "diagnostic",
+-            "coupon path relocation requires source-bound diagnostic runner records");
++    const bool diagnosticRunner =
++        couponRunnerString(prediction, @"schema", "prediction.schema") ==
++            "numi.cardboard.native-diagnostic-prediction.v1" &&
++        couponRunnerString(prediction, @"run_mode", "prediction.run_mode") == "diagnostic" &&
++        couponRunnerString(record, @"schema", "environment.schema") ==
++            "numi.cardboard.native-diagnostic-environment-run.v1" &&
++        couponRunnerString(record, @"producer", "environment.producer") ==
++            "source-bound-diagnostic-runner" &&
++        couponRunnerString(record, @"mode", "environment.mode") == "diagnostic";
++    // A qualification run has no output-prefix map. It can supply accepted
++    // history to a diagnostic replay only after the same exact contract checks.
++    const bool qualificationSource = allowQualificationSource &&
++        !compareActualEnvironment &&
++        !couponOutputPathMapHasAnySetValue(expectedPaths) &&
++        couponRunnerString(prediction, @"schema", "prediction.schema") ==
++            "numi.cardboard.native-prediction.v1" &&
++        couponRunnerString(prediction, @"run_mode", "prediction.run_mode") == "qualification" &&
++        couponRunnerString(record, @"schema", "environment.schema") ==
++            "numi.cardboard.native-environment-run.v1" &&
++        couponRunnerString(record, @"producer", "environment.producer") ==
++            "source-bound-native-runner" && record[@"mode"] == nil;
++    require(diagnosticRunner || qualificationSource,
++            "coupon replay requires an exact source-bound diagnostic record or an output-free qualification source");
+     NSDictionary* const launch =
+         [record[@"launch"] isKindOfClass:[NSDictionary class]]
+             ? record[@"launch"] : nil;
+@@ -12663,43 +12678,43 @@
+             "source-bound runner prediction and environment contracts differ");
+     NSDictionary* const contract = predictionContract;
+     require(couponRunnerString(contract, @"schema", "contract.schema") ==
+-                "numi.cardboard.effective-native-diagnostic-controls.v1" &&
+-            couponRunnerString(contract, @"case_directory", "contract.case_directory") ==
+-                caseText,
+-            "source-bound diagnostic contract is bound to another case directory");
++                (qualificationSource
++                    ? "numi.cardboard.effective-native-controls.v1"
++                    : "numi.cardboard.effective-native-diagnostic-controls.v1") &&
++                (qualificationSource || couponRunnerString(contract,
++                    @"case_directory", "contract.case_directory") == caseText),
++            "source-bound contract schema or case directory is invalid");
+     const std::string contractSha = couponRunnerString(
+         contract, @"sha256", "contract.sha256");
+-    NSDictionary* const digestPayload = @{
+-        @"schema": contract[@"schema"],
+-        @"keys": contract[@"keys"],
+-        @"effective": contract[@"effective"],
+-        @"case_directory": contract[@"case_directory"],
+-        @"capture_prefixes": contract[@"capture_prefixes"]};
+-    require(contract.count == 6u &&
++    NSMutableDictionary* digestPayload = [@{
++        @"schema": contract[@"schema"], @"keys": contract[@"keys"],
++        @"effective": contract[@"effective"]} mutableCopy];
++    if (!qualificationSource) {
++        require([contract[@"capture_prefixes"] isKindOfClass:[NSDictionary class]],
++                "diagnostic source contract has no capture-prefix map");
++        digestPayload[@"case_directory"] = contract[@"case_directory"];
++        digestPayload[@"capture_prefixes"] = contract[@"capture_prefixes"];
++    }
++    require(contract.count == (qualificationSource ? 4u : 6u) &&
+                 isLowerSha256(contractSha) &&
+-                hexDigest(sha256(couponCanonicalDiagnosticJson(digestPayload))) ==
+-                    contractSha &&
++                hexDigest(sha256(couponCanonicalDiagnosticJson(digestPayload))) == contractSha &&
+                 couponRunnerString(prediction,
+                     @"effective_native_environment_contract_sha256",
+                     "prediction.contract_sha256") == contractSha &&
+                 couponRunnerString(record, @"contract_sha256",
+                     "environment.contract_sha256") == contractSha,
+-            "source-bound diagnostic contract digest is invalid");
+-
++            "source-bound contract digest is invalid");
+     id keysValue = contract[@"keys"];
+     NSDictionary* const effective =
+         [contract[@"effective"] isKindOfClass:[NSDictionary class]]
+             ? contract[@"effective"] : nil;
+-    NSDictionary* const prefixes =
+-        [contract[@"capture_prefixes"] isKindOfClass:[NSDictionary class]]
+-            ? contract[@"capture_prefixes"] : nil;
++    NSDictionary* const prefixes = qualificationSource ? @{} :
++        ([contract[@"capture_prefixes"] isKindOfClass:[NSDictionary class]]
++            ? contract[@"capture_prefixes"] : nil);
+     require([keysValue isKindOfClass:[NSArray class]] && effective != nil &&
+-                prefixes != nil &&
+-                ([(NSArray*)keysValue count] == 49u ||
+-                 [(NSArray*)keysValue count] == 50u ||
+-                 [(NSArray*)keysValue count] == 51u ||
+-                 [(NSArray*)keysValue count] == 52u),
+-            "source-bound diagnostic contract registry or maps are missing");
++                prefixes != nil && [(NSArray*)keysValue count] >= 49u &&
++                [(NSArray*)keysValue count] <= 53u,
++            "source-bound contract registry or maps are missing");
+     NSArray* const keys = (NSArray*)keysValue;
+     require(effective.count == keys.count,
+             "source-bound diagnostic effective map differs from its key registry");
+@@ -12715,6 +12730,7 @@
+     const bool contractHasWarmStartKey = keys.count >= 50u;
+     const bool contractHasIncidenceSortKey = keys.count >= 51u;
+     const bool contractHasDampingKey = keys.count >= 52u;
++    const bool contractHasStrictInnerKey = keys.count >= 53u;
+     std::ostringstream runnerNonOutputSettings;
+     runnerNonOutputSettings << "numi.cardboard.source161-runner-non-output-settings.v1\n";
+     for (NSUInteger keyIndex = 0u; keyIndex < keys.count; ++keyIndex) {
+@@ -12738,9 +12754,12 @@
+             if (expectedKey == "NM_FEM_BASE_CGLS_DAMPING_KG" &&
+                 !contractHasDampingKey)
+                 continue;
++            if (expectedKey == "NM_FEM_STRICT_INNER_FORCING" &&
++                !contractHasStrictInnerKey)
++                continue;
+             if (expectedIndex == keyIndex) {
+                 require(key == expectedKey,
+-                        "source-bound diagnostic key registry differs from the exact 49/50/51/52-key source contract");
++                        "source-bound diagnostic key registry differs from the exact 49/50/51/52/53-key source contract");
+                 break;
+             }
+             ++expectedIndex;
+@@ -13225,7 +13244,7 @@
+                     sourceRunnerCase.string() == sourceRunnerDirectory.string(),
+                 "coupon source runner case differs from the accepted source run");
+         sourceProof = couponValidateSourceBoundDiagnosticRunner(
+-            sourceRunnerCase, {}, sourceOutputPaths, false);
++            sourceRunnerCase, {}, sourceOutputPaths, false, true);
+         validateDiagnosticRunnerProof(sourceProof,
+             sourceRunnerCase.string(), sourceOutputPaths);
+         if (sourceRunnerPresent)
+@@ -14246,6 +14265,17 @@
+     @autoreleasepool {
+         Arguments arguments;
+         try {
++            if (argc == 3 && std::string_view(argv[1]) ==
++                    "--verify-coupon-source-runner") {
++                const auto paths = couponRuntimePathMap({});
++                const auto proof = couponValidateSourceBoundDiagnosticRunner(
++                    std::filesystem::path(argv[2]), {}, paths, false, true);
++                std::cout << "{\"schema\":\"numi.cardboard.coupon-source-runner-proof-check.v1\","
++                          << "\"accepted\":true,\"native_runtime_created\":false,"
++                          << "\"prediction_sha256\":\"" << proof.predictionSha256
++                          << "\",\"contract_sha256\":\"" << proof.contractSha256 << "\"}\n";
++                return 0;
++            }
+             arguments = parseArguments(argc, argv);
+             if (arguments.help) {
+                 printUsage();

@@ -1,0 +1,25 @@
+{
+  "schema": "numi.cardboard.native548-command.v1",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source219-integrated-001/matter/numi-matter-cardboard-full-contact-armijo-check",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+    "--sparse-free-body-parity",
+    "--diagnostic-state-output",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated-true-residual-full-contact-548/accepted-state-output"
+  ],
+  "environment": {
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "HOME": "/Users/n",
+    "NUMI_MATTER_METALLIB": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source219-integrated-001/matter/shaders/NumiMatter.metallib",
+    "NM_FEM_TRUE_RESIDUAL_CERTIFY": "1",
+    "NM_FEM_TRUE_RESIDUAL_ROOT": "all"
+  },
+  "source_frozen_sha256": "8874cc2b52e6d2a0125b2cb91ee31566b1d81d0dd10481d1ac85a5cae30e39f3",
+  "source_build_sha256": "d248bac88f755345f1d7f7bd724b6a0a06bd3dfd4a9ef7a4c3414bf47bc1ae76",
+  "configure_support_manifest_sha256": "92f14756f574746304b7ff1c1dae03b997492dc00ad80894a70dcf5c05c99f17",
+  "all_inputs_verified": true,
+  "predecessor546_refused_standalone_before_physics": true,
+  "timeout_s": 900,
+  "question": "Do integrated native free-BOX/capsule contact trials, dense/sparse parity, true residual and transactional rollback all pass?",
+  "prediction": "No pass assumed; retain all accepted and rejected histories; small fixture only."
+}

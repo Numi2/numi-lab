@@ -1,0 +1,4 @@
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-stable-green-strain-reference-017-001/reference/cardboard_bilinear_fp64_reference.py:42: RuntimeWarning: divide by zero encountered in divide
+  r[...,12]=np.where(np.real(den)>1e-14,(p[...,26]**2-2*dl*y)/den,root-dl-y)
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-stable-green-strain-reference-017-001/reference/cardboard_bilinear_fp64_reference.py:42: RuntimeWarning: invalid value encountered in divide
+  r[...,12]=np.where(np.real(den)>1e-14,(p[...,26]**2-2*dl*y)/den,root-dl-y)

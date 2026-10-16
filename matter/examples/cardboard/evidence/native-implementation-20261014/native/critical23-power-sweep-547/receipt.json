@@ -1,0 +1,13 @@
+{
+  "schema": "numi.cardboard.native547-receipt.v1",
+  "exit_code": 0,
+  "timed_out": false,
+  "error": null,
+  "wall_seconds": 0.38970112500000004,
+  "physical_transactions": 0,
+  "bindings_unchanged": true,
+  "stdout_sha256": "2db719e7ac0a454b049a898bcf0898cd14534c5ea510a01fa0a55a75693b5428",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "at_utc": "2026-10-16T11:04:39.440854+00:00",
+  "qualification": "Material replay only; all derivative gates require separate adjudication."
+}

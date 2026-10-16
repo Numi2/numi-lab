@@ -1,0 +1,1 @@
+Source212-009 contract run: 12 passed, 1 failed. The new dispatch/vector count comparison was line-wrapped in C++, while the test expected a single uninterrupted token. No C++ helper or native build was run.

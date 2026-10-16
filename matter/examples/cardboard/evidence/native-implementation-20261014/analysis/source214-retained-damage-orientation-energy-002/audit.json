@@ -1,0 +1,25 @@
+{
+  "implementation_findings": {
+    "crack_band_length": "builder obtains actual selected-plane cut geometry; modeLengthM = referenceVolumeM3 / referenceAreaM2",
+    "fully_failed_cohesive_capacity_area": "when available, stage analyzer sums activated reference face area times the fraction of its three equal quadrature points whose accepted damage is exactly 1; denominator is activated reference area",
+    "geometric_open_area": "geometric_crack_area_fraction and geometric_debond_area_fraction remain null; stage output and comparison explicitly keep these missing rather than aliasing model damage or capacity loss",
+    "resolution_gates": "resolution-study consumer requires explicit paper_damage_area_fraction and debond_area_fraction when corresponding feature flags are enabled; both differences use existing 0.02 threshold. Stage-study capacity-loss comparison remains descriptive and separate from geometric open area.",
+    "stage_history_damage": "paper and cohesive damage indices are area-weighted model-history indices, with active reference area exported separately"
+  },
+  "not_changed": [
+    "damage law",
+    "fracture energy inputs",
+    "characteristic-length formula",
+    "stage area semantics",
+    "resolution thresholds",
+    "GPU/native execution"
+  ],
+  "orientation_energy_test_gap": "existing retained-matrix test had Gc*A closure and 2x refinement for an axis-aligned pure-mode history; its rotated-plane history required positive work only. New test checks actual 240-step full-softening work under a rigidly rotated reference tetra with unchanged material-frame channels, and reversed vertex winding, using the existing 2% Gc*A and same-work gates.",
+  "source_binding": {
+    "matter/tools/cardboard_fracture_regularization.hpp": "d88d5bb677b37a3ee38fd5d0fed1c72d7178718ec768d97c2df61b4bf1393bfb",
+    "matter/tools/cardboard_resolution_study.py": "bf5d248c2d96e7975eba8d7e8f6dd285be779f3e61ab3dfc7299f92afb2545c8",
+    "matter/tools/cardboard_retained_matrix_damage.hpp": "2542d465c280070837e95acd80ef9fe6bb6444bd3897ed61f1e0998427d83d74",
+    "matter/tools/cardboard_retained_matrix_damage_check.cpp": "5d54910aebb1beb78e0d5108b1fbd57ec3398939a7bb4299e96dedc1dcb44d6f",
+    "matter/tools/cardboard_stage_resolution_study.py": "177741de6e0e43981d1340ae05b45a26bd599a0bb4b624b14b72f9e58c3d91ea"
+  }
+}

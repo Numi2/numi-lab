@@ -1,0 +1,9 @@
+{
+  "rows": 1472,
+  "pairs": 23,
+  "strict_valid": 1472,
+  "invalid": [],
+  "input_sha256": "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e",
+  "reference_sha256": "2893d2b988feae51fe6ecbe3a7a71ecb7a19d1f9b011a3957b52df54c4bd96e0",
+  "selection_sha256": "36dfab1b02c443ef9ee77df2cada5e7eafa9abe3450c1d33208016357ceeb452"
+}

@@ -1,0 +1,13 @@
+{
+  "parent": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native548_integrated_contact_001.py",
+  "parent_sha256": "08a872a7693fa43a2055830ddeed513aee1652ac0ce54e2f0d0f792b9a13b818",
+  "script": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native549_integrated_contact_baseline_001.py",
+  "script_sha256": "da4c19b56e8354b53f09d46107adf48dcc5de0a0f6166e6a22697add6f9d5d2c",
+  "source_and_argv_identical_except_output_directory": true,
+  "environment_delta": {
+    "removed": [
+      "NM_FEM_TRUE_RESIDUAL_CERTIFY",
+      "NM_FEM_TRUE_RESIDUAL_ROOT"
+    ]
+  }
+}

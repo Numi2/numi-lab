@@ -1,0 +1,243 @@
+{
+  "schema": "numi.cardboard.publication038-reproduction.v1",
+  "copied_files": {
+    "commands/prepare_source217_gates_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/prepare_source217_gates_001.py",
+      "sha256": "a5bdbd7707488e1cd54bdf6c99c9a7684b82b539a269d1f9fac8ba8d9b2d4a75",
+      "bytes": 14324
+    },
+    "commands/prepare_source221_checkpoint_proof_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/prepare_source221_checkpoint_proof_001.py",
+      "sha256": "d70185ea94b90b47a4dd5e9dc3581a564991ee9fddef23eacd787ae7687613e3",
+      "bytes": 8857
+    },
+    "commands/prepare_source221_checkpoint_proof_002.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/prepare_source221_checkpoint_proof_002.py",
+      "sha256": "ad617c2a5f32d59e2703ac80a226acc8208de5fdcfe5f1b7e8543919b9bf800a",
+      "bytes": 8858
+    },
+    "commands/prepare_source221_checkpoint_proof_003.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/prepare_source221_checkpoint_proof_003.py",
+      "sha256": "4927d9ca60c9b5b169d959395609da044741d7cb0e9a4f463b63d060dfd30253",
+      "bytes": 8890
+    },
+    "commands/build_source221_checkpoint_proof_002.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build_source221_checkpoint_proof_002.py",
+      "sha256": "1b47770a91af33c03c1a59b5669c63f98175dde2490998f066dc116c79119097",
+      "bytes": 1666
+    },
+    "commands/build_source221_checkpoint_proof_003.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build_source221_checkpoint_proof_003.py",
+      "sha256": "e7384cae99e38a21b356e77360f6d9ee31e01f3317ba5f5047e8fe13b864d6c6",
+      "bytes": 1713
+    },
+    "commands/build_source221_checkpoint_proof_004.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build_source221_checkpoint_proof_004.py",
+      "sha256": "806799d1b3f8d3932d56533cfec3cc59ae287138abe8cac0f726dd17cbc53dba",
+      "bytes": 1713
+    },
+    "commands/test_source221_runner_proof_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/test_source221_runner_proof_001.py",
+      "sha256": "07ab41b9bc303787a1bcb52a9aa55a7325e7efcca595d89acd375ccb0d6dc313",
+      "bytes": 5126
+    },
+    "commands/compose_build_source222_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/compose_build_source222_001.py",
+      "sha256": "41bdc5a8b57d14ea9c14333452e0f9a168e8c84e1c84c3f50ef46377120b1d79",
+      "bytes": 3969
+    },
+    "commands/test_source222_runner_proof_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/test_source222_runner_proof_001.py",
+      "sha256": "11c93666aaedbb36dd28fb07d6c14a6264620a9445701cfa5a1323e0fcb2054f",
+      "bytes": 5122
+    },
+    "commands/run_source210_002.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_source210_002.py",
+      "sha256": "18c40356bdbd9d8f28d97c9f1583aaf06dcff948ce137398d6e78709ee495075",
+      "bytes": 6690
+    },
+    "commands/run_native546_coupled_contact_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native546_coupled_contact_001.py",
+      "sha256": "de8d4d5efaf34fc37df1b73427279df20cb05f9b0b2b71f60187a322f3cfb28e",
+      "bytes": 4166
+    },
+    "commands/run_native547_power_sweep_002.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native547_power_sweep_002.py",
+      "sha256": "f5f2c00850b984d44e40f941409902c2fc64d059b91d97244276f33584e4d43c",
+      "bytes": 3716
+    },
+    "commands/run_native548_integrated_contact_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native548_integrated_contact_001.py",
+      "sha256": "08a872a7693fa43a2055830ddeed513aee1652ac0ce54e2f0d0f792b9a13b818",
+      "bytes": 3427
+    },
+    "commands/run_native549_integrated_contact_baseline_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native549_integrated_contact_baseline_001.py",
+      "sha256": "da4c19b56e8354b53f09d46107adf48dcc5de0a0f6166e6a22697add6f9d5d2c",
+      "bytes": 3368
+    },
+    "commands/run_native550_contact_newton64_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native550_contact_newton64_001.py",
+      "sha256": "faba6c55346fa3c86a05c3e9219dd413ac8471893ea7044f7f3177490378bd8e",
+      "bytes": 3400
+    },
+    "commands/run_native551_control19_capture_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native551_control19_capture_001.py",
+      "sha256": "a8924d34827b8d3ca4cf8605f54a28911d0d47b8a87cb9741e9faca7f0eb1cab",
+      "bytes": 4779
+    },
+    "commands/run_native552_control19_capture_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native552_control19_capture_001.py",
+      "sha256": "fe56233a93aad539023ea625e3806582ceb1bce0d33d06780827381697a1ce1f",
+      "bytes": 4837
+    },
+    "commands/run_native553_control19_capture_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native553_control19_capture_001.py",
+      "sha256": "d16e46ffecf60228a3e6e8739068ce6f48ecef44d7997b077e07895404f5dfca",
+      "bytes": 5177
+    },
+    "commands/run_native554_control19_capture_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native554_control19_capture_001.py",
+      "sha256": "df3c1cfbc8c55b1bc3d8976b6571ff961f091930333db995a6ca97973103e1a9",
+      "bytes": 5111
+    },
+    "commands/run_native555_control19_capture_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native555_control19_capture_001.py",
+      "sha256": "55095e370f3d6d4e6313e8a4ef2ce73de61c6df5674e4e7ebcc3cafafe698c76",
+      "bytes": 5019
+    },
+    "commands/adjudicate_native545_failure_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/adjudicate_native545_failure_001.py",
+      "sha256": "558ce3ff98597a9fdb5abcc12c63c8c22b82e96fffc5aace7db16d649465e503",
+      "bytes": 3997
+    },
+    "frozen-maps/source-capacity-damage-debond-gates-217-001.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-capacity-damage-debond-gates-217-001/frozen-source.json",
+      "sha256": "baa52c11437d63844a5837657eb16d821a910aa9a60c8dd83c646488296b7c52",
+      "bytes": 106563
+    },
+    "frozen-maps/source-integrated-configure-support-219-001.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001/frozen-source.json",
+      "sha256": "8874cc2b52e6d2a0125b2cb91ee31566b1d81d0dd10481d1ac85a5cae30e39f3",
+      "bytes": 106582
+    },
+    "frozen-maps/source-qualification-checkpoint-proof-221-002.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-002/frozen-source.json",
+      "sha256": "136e4f68b3350113c74cb82b2f30eec82bfef589a5b59002ca44d9fe633f10a6",
+      "bytes": 106439
+    },
+    "frozen-maps/source-qualification-checkpoint-proof-221-003.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003/frozen-source.json",
+      "sha256": "fb885540a2f096ee70df5a03701a8d2710832c6df402e8e097ff95c736e7c1a5",
+      "bytes": 106439
+    },
+    "frozen-maps/source-capacity-gates-checkpoint-proof-222-001.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-capacity-gates-checkpoint-proof-222-001/frozen-source.json",
+      "sha256": "698a3b1106e6997aa251a8090894adcb8b2850085b70a83f681ccd6fd6f383b6",
+      "bytes": 107220
+    },
+    "builds/build-source221-checkpoint-proof-002/source-build.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source221-checkpoint-proof-002/source-build.json",
+      "sha256": "52ba6aed642822e3657a32c724f3282911c2dfc30fc0567e6b314fdabd551352",
+      "bytes": 99224
+    },
+    "builds/build-source221-checkpoint-proof-002/provenance-command-1.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source221-checkpoint-proof-002/provenance-command-1.log",
+      "sha256": "69a994aa951f7cf561368bafff73fe9f6f0f7b8ed74867f016fe02f831115d90",
+      "bytes": 5389
+    },
+    "builds/build-source221-checkpoint-proof-002/provenance-command-0.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source221-checkpoint-proof-002/provenance-command-0.log",
+      "sha256": "5c55a15d6ebfae1985853aa6f2222c4224bf8a7eb88fad62338e51b714d56819",
+      "bytes": 674
+    },
+    "builds/build-source221-checkpoint-proof-003/source-build.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source221-checkpoint-proof-003/source-build.json",
+      "sha256": "66652297bd3af8707e9999724dec12fc8994ad88ee17904bd10f0e79f4a1d677",
+      "bytes": 100272
+    },
+    "builds/build-source221-checkpoint-proof-003/provenance-command-1.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source221-checkpoint-proof-003/provenance-command-1.log",
+      "sha256": "2c8550a34542844f461841a60f8f59b911eef05e4bd161fd45604e8326c7e9d3",
+      "bytes": 4982
+    },
+    "builds/build-source221-checkpoint-proof-003/provenance-command-0.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source221-checkpoint-proof-003/provenance-command-0.log",
+      "sha256": "5ce1934df4ea7ebc1ae4b0bc3138cfc5a324d63a0f8698f0c14aa97763c40769",
+      "bytes": 674
+    },
+    "builds/build-source221-checkpoint-proof-003/numi-matter-cardboard-coupon-resume-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source221-checkpoint-proof-003/numi-matter-cardboard-coupon-resume-check",
+      "sha256": "2b8eafd2805337890d0c866e41dc3deb033e36b2abbae9f76cc5aa18aa4f93c4",
+      "bytes": 223448
+    },
+    "builds/build-source221-checkpoint-proof-003/numi-matter-cardboard-probe": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source221-checkpoint-proof-003/numi-matter-cardboard-probe",
+      "sha256": "8b8666d804a50a55fd016cb1a6faf7f2b5d014a843b4a4d3cfda75469034c30d",
+      "bytes": 3241448
+    },
+    "builds/build-source221-checkpoint-proof-003/shaders/NumiMatter.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source221-checkpoint-proof-003/shaders/NumiMatter.metallib",
+      "sha256": "02fbde247e241ce40958795ceaf0259aee6a6fb57c09374b0a7d31e088cb3e2b",
+      "bytes": 7050507
+    },
+    "builds/build-source221-checkpoint-proof-003/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source221-checkpoint-proof-003/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+      "bytes": 80076
+    },
+    "builds/build-source222-gates-proof-001/source-build.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source222-gates-proof-001/source-build.json",
+      "sha256": "be8655b5cb7f20919029077bd65908ad7574f67abfcbd89d77fac898f8aa171b",
+      "bytes": 100240
+    },
+    "builds/build-source222-gates-proof-001/provenance-command-1.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source222-gates-proof-001/provenance-command-1.log",
+      "sha256": "63214d851e58ff3c7c8ea0968956809f2fb533374775855f115ad8262332f099",
+      "bytes": 4992
+    },
+    "builds/build-source222-gates-proof-001/provenance-command-0.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source222-gates-proof-001/provenance-command-0.log",
+      "sha256": "2694177c07de66719497bc1896b080f3b5662e099a0afdd86a0bb44a94a98c41",
+      "bytes": 669
+    },
+    "builds/build-source222-gates-proof-001/numi-matter-cardboard-coupon-resume-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source222-gates-proof-001/numi-matter-cardboard-coupon-resume-check",
+      "sha256": "2b8eafd2805337890d0c866e41dc3deb033e36b2abbae9f76cc5aa18aa4f93c4",
+      "bytes": 223448
+    },
+    "builds/build-source222-gates-proof-001/numi-matter-cardboard-probe": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source222-gates-proof-001/numi-matter-cardboard-probe",
+      "sha256": "ca1b61a86b997ba45b58ebc930c253ce42b1ec9a9a1a1b755eb768d5f064552f",
+      "bytes": 3241448
+    },
+    "builds/build-source222-gates-proof-001/shaders/NumiMatter.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source222-gates-proof-001/shaders/NumiMatter.metallib",
+      "sha256": "02fbde247e241ce40958795ceaf0259aee6a6fb57c09374b0a7d31e088cb3e2b",
+      "bytes": 7050507
+    },
+    "builds/build-source222-gates-proof-001/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source222-gates-proof-001/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+      "bytes": 80076
+    },
+    "builds/build-source219-integrated-001/source-build.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source219-integrated-001/source-build.json",
+      "sha256": "d248bac88f755345f1d7f7bd724b6a0a06bd3dfd4a9ef7a4c3414bf47bc1ae76",
+      "bytes": 101319
+    },
+    "builds/build-source219-integrated-001/provenance-command-1.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source219-integrated-001/provenance-command-1.log",
+      "sha256": "4777680397bcd84f8775769f9d6f5df187eea8f16e847b196608ff30af68b66b",
+      "bytes": 18492
+    },
+    "builds/build-source219-integrated-001/provenance-command-0.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source219-integrated-001/provenance-command-0.log",
+      "sha256": "4975c23c59238eba5c332ff7b30500731475405305bebbb593adac964ce129b7",
+      "bytes": 1335
+    }
+  },
+  "active555_excluded": true,
+  "at_utc": "2026-10-16T11:26:23.382987+00:00",
+  "canonical_source_frozen_sha256": "698a3b1106e6997aa251a8090894adcb8b2850085b70a83f681ccd6fd6f383b6"
+}

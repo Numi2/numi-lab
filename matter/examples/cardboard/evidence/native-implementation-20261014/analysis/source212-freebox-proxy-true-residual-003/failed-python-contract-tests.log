@@ -1,0 +1,1 @@
+Source212-003 contract run: 12 passed, 1 failed. Failure was a test expectation containing spaces while comparing whitespace-compacted helper source. No production compile or GPU run occurred.

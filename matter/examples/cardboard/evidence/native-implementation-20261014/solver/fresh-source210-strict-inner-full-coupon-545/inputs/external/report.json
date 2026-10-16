@@ -1,0 +1,44 @@
+{
+  "base_frozen_source_sha256": "c77675e7aedc7f14c93c8bd7ea9e0a1e18bf162a68cf7e4022c43c34c6d141f2",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-cohesive-quadrature-area-205",
+  "build_receipt": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source209-strict-inner-002/source-build.json",
+  "build_receipt_sha256": "3865a89a1b5c35986a01c34010b3c09d037087c115699bdb971caa33123538a8",
+  "buildfix_delta_from_209": [
+    "matter/tools/test_cardboard_solver_environment.py"
+  ],
+  "candidate_frozen_source_sha256": "2c222738e0b19e76dc039904fc60b650bed3c54ab410133f5597357640111e78",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-inner-forcing-209-buildfix-002",
+  "changed_from_205": [
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_solver_environment.py",
+    "matter/tools/fgmres_true_residual_native_check.mm"
+  ],
+  "cpu_suite_receipt_sha256": "0a7037e03a0f90573fc5a1649e8e63f05c4305ac96f51767becb13142529c8c7",
+  "final_buildfix_manifest": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source209-strict-inner-forcing-buildfix-002/manifest.json",
+  "final_buildfix_manifest_sha256": "26434edad36776f95ee5d676b565af0360f4cf26e92558b7eb5dd2dc0dd18071",
+  "findings": {
+    "blocking": [],
+    "budget_exhaustion_risk": "The pre-existing finite final-cycle best-correction path remains. If the restart budget is exhausted above the strict forcing target, the candidate can still reach unchanged nonlinear Armijo/final physical gates. Thus this option changes inner stopping/latching, not a hard rule that rejects all under-forcing corrections.",
+    "completion_rule": "The mode uses residual-replacement bit 1 plus strict bit 2. For an active RHS whose initial norm exceeds max(regularization, outer residual tolerance scaled by max(nonlinear norm, 1)), it completes only for exact zero true residual or the unchanged Eisenstat-Walker target. The legacy absolute nonlinear threshold shortcut remains for an initially outer-acceptable RHS; exact zero always completes.",
+    "default_and_admission": "NM_FEM_STRICT_INNER_FORCING is absent/off by default, accepts only canonical 0 or 1, and value 1 fails closed unless NM_FEM_TRUE_RESIDUAL_CERTIFY=1 is enabled.",
+    "outer_acceptance": "No physical operator, Armijo predicate, nonlinear residual threshold, or final assembled KKT/physical certificate was changed. Strict forcing can cause more Krylov work but does not itself certify an outer step.",
+    "restart_semantics": "FGMRES initialize sets initialNorm from the current RHS at restart cycle 0 and carries diagnostics.y into later restart cycles. finalize_cycle defers its completion latch under true-residual mode when work was used. The true-residual measurement therefore controls each active restart; initialize's nonlinearConverged shortcut is explicitly restricted to restartCycle==0, so a strict incomplete RHS does not relatch completion on later restarts.",
+    "validation_scope": "23 CPU environment/contract tests pass. Native540 exercises actual production finalize/accumulate/true-residual measurement kernels in a synthetic A=I fixture (154 checks; zero physical transactions). No full FEM coupon, contact solve, or physical qualification was run."
+  },
+  "native540_receipt": "/Users/n/cardboard-implementation-20261014-host-macmini/native/strict-inner-forcing-helper-540/receipt.json",
+  "native540_receipt_sha256": "ff5678ab9b6b97843a582da9c0fe910e6e7a1fcc35dacaaf3b6d14277c8d3c30",
+  "native540_stdout_sha256": "98c33a147ad63c3c5acbda03746dda4b36c4dc0a8b8c6166a37fe9893c8d4052",
+  "parent_209_frozen_sha256": "2b822da7c48d0d2eb11e409d7039dfb18c8f1bff2c6d3ad5348fb3a772fd234b",
+  "parent_209_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-inner-forcing-209",
+  "parent_overlay_manifest": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source209-strict-inner-forcing-001/source-overlay.json",
+  "parent_overlay_manifest_sha256": "a4b6283283ca3b467dfa839b8e69462ac925e3544e012c939f5bf4dcbc0a5971",
+  "reviewed_at_utc": "2026-10-16T10:14:01.505554+00:00",
+  "reviewed_source_files": {
+    "matter/src/metal/fgmres.metalinc": "2a82785f8356d3e99d8d423f9f0f0a74b67f58edcf933df3330f83d8be04f79d",
+    "matter/src/runtime.mm": "167f86b713b98ae58a0d2e9622a454c409748822f64f64785190b62dd0cbbc0c",
+    "matter/tools/cardboard_solver_environment.py": "b7020413e093d290e9254d46814755ddbe7fad3f7c9098ce3f51a40622544473",
+    "matter/tools/fgmres_true_residual_native_check.mm": "facb829802f990eb07695d8c734428ad89656b6dfc9886b4a6721e7a7d443a95"
+  },
+  "schema": "numi.cardboard.source209-owner-review.v1"
+}

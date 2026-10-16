@@ -1,0 +1,289 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -9,6 +9,7 @@
+ #include "numi/matter/sparse_private_contact_admission.hpp"
+ #include "numi/matter/full_contact_armijo_admission.hpp"
+ #include "numi/matter/detail/full_contact_armijo_scratch_budget.hpp"
++#include "numi/matter/detail/free_box_true_residual_proxy_admission.hpp"
+ #include "numi/matter/regional_galerkin_bending_basis.hpp"
+ #include "regional_graph_schwarz.hpp"
+ #include "fem_reference_geometry.hpp"
+@@ -10669,35 +10670,36 @@
+                              NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS |
+                              NM_OBJECT_MUTABLE_TOPOLOGY)) != 0u)
+                         return "free_box_true_residual_requires_static_fem_object";
+-                    if (state.dispatch.rigidProxyCount != 1u ||
+-                        state.rigidProxyLayout.size() != 1u ||
+-                        state.dispatch.contactPairCount == 0u ||
+-                        state.contactPairLayout.size() !=
+-                            state.dispatch.contactPairCount)
+-                        return "free_box_true_residual_requires_one_proxy_and_fem_box_pairs";
+-                    const NMRigidProxyGPU& proxy = state.rigidProxyLayout[0];
+-                    if (proxy.shapeKind != NM_RIGID_BOX ||
+-                        proxy.flags != NM_RIGID_DYNAMIC ||
+-                        proxy.generalizedFreeBodyIndex != 0u ||
+-                        proxy.adaptiveObjectIndex != NM_INVALID_INDEX ||
+-                        proxy.bodyIndex == NM_INVALID_INDEX ||
+-                        proxy.bodyIndex >= bridge.currentBodyCount ||
+-                        proxy.sceneBodyIndex == NM_INVALID_INDEX ||
+-                        proxy.sceneBodyIndex >= bridge.sceneBodyCount ||
+-                        !state.requiresSceneBodies ||
+-                        bridge.currentBodyCount == 0u ||
+-                        bridge.currentBodyStride < bridge.currentBodyCount ||
+-                        bridge.sceneBodyCount == 0u ||
+-                        bridge.sceneStride < bridge.sceneBodyCount ||
+-                        state.primalContactArguments == nil ||
+-                        state.coupledGeneralizedCandidate == nil ||
+-                        state.coupledPointJacobians == nil)
+-                        return "free_box_true_residual_requires_one_nonarticulated_dynamic_box";
+-                    for (const NMContactPairGPU& pair : state.contactPairLayout) {
+-                        if (pair.objectIndex != 0u || pair.rigidProxy != 0u ||
+-                            pair.continuumNode >= state.dispatch.femNodeCount)
+-                            return "free_box_true_residual_pair_outside_fem_box_scope";
+-                    }
++                    if (state.dispatch.rigidProxyCount !=
++                            state.rigidProxyLayout.size() ||
++                        state.dispatch.contactPairCount !=
++                            state.contactPairLayout.size())
++                        return "free_box_capsule_true_residual_layout_count_mismatch";
++                    detail::FreeBoxCapsuleProxyScopeInput proxyScope;
++                    proxyScope.proxies = state.rigidProxyLayout.data();
++                    proxyScope.proxyCount = state.rigidProxyLayout.size();
++                    proxyScope.pairs = state.contactPairLayout.data();
++                    proxyScope.pairCount = state.contactPairLayout.size();
++                    proxyScope.femNodeCount = state.dispatch.femNodeCount;
++                    proxyScope.currentBodyCount = bridge.currentBodyCount;
++                    proxyScope.currentBodyStride = bridge.currentBodyStride;
++                    proxyScope.sceneBodyCount = bridge.sceneBodyCount;
++                    proxyScope.sceneBodyStride = bridge.sceneStride;
++                    proxyScope.requiresCurrentBodies = state.requiresCurrentBodies;
++                    proxyScope.hasPrescribedTranslation = state.hasPrescribedTranslation;
++                    proxyScope.hasPrescribedPrevious = state.prescribedRigidPrevious != nil;
++                    proxyScope.hasPrescribedEndpoints = state.prescribedRigidEndpoints != nil;
++                    proxyScope.requiresSceneBodies = state.requiresSceneBodies;
++                    proxyScope.hasPrimalContactArguments =
++                        state.primalContactArguments != nil;
++                    proxyScope.hasCoupledGeneralizedCandidate =
++                        state.coupledGeneralizedCandidate != nil;
++                    proxyScope.hasCoupledPointJacobians =
++                        state.coupledPointJacobians != nil;
++                    if (const char* reason =
++                            detail::freeBoxCapsuleProxyScopeFailureReason(
++                                detail::validateFreeBoxCapsuleProxyScope(proxyScope)))
++                        return reason;
+                 }
+                 return nullptr;
+             };
+--- a/matter/include/numi/matter/detail/free_box_true_residual_proxy_admission.hpp
++++ b/matter/include/numi/matter/detail/free_box_true_residual_proxy_admission.hpp
+@@ -0,0 +1,86 @@
++#pragma once
++#include "numi/matter/shared.h"
++#include <cstddef>
++#include <cstdint>
++namespace numi::matter::detail {
++enum class FreeBoxCapsuleProxyScopeFailure : std::uint32_t {
++ none=0u, proxy_count, contact_state, current_body_state, scene_body_state,
++ unsupported_proxy, free_box_count, contact_pair_map, contact_pair_coverage
++};
++struct FreeBoxCapsuleProxyScopeInput {
++ const NMRigidProxyGPU* proxies=nullptr; std::size_t proxyCount=0u;
++ const NMContactPairGPU* pairs=nullptr; std::size_t pairCount=0u;
++ std::uint32_t femNodeCount=0u, currentBodyCount=0u, currentBodyStride=0u;
++ std::uint32_t sceneBodyCount=0u, sceneBodyStride=0u;
++ bool requiresCurrentBodies=false, hasPrescribedTranslation=false;
++ bool hasPrescribedPrevious=false, hasPrescribedEndpoints=false;
++ bool requiresSceneBodies=false, hasPrimalContactArguments=false;
++ bool hasCoupledGeneralizedCandidate=false, hasCoupledPointJacobians=false;
++};
++inline FreeBoxCapsuleProxyScopeFailure validateFreeBoxCapsuleProxyScope(
++ const FreeBoxCapsuleProxyScopeInput& in) noexcept {
++ if(in.proxyCount<2u || in.proxyCount>16u || !in.proxies ||
++    in.pairCount==0u || !in.pairs || in.femNodeCount==0u)
++  return FreeBoxCapsuleProxyScopeFailure::proxy_count;
++ if(!in.hasPrimalContactArguments || !in.hasCoupledGeneralizedCandidate ||
++    !in.hasCoupledPointJacobians)
++  return FreeBoxCapsuleProxyScopeFailure::contact_state;
++ if(!in.requiresCurrentBodies || !in.hasPrescribedTranslation ||
++    !in.hasPrescribedPrevious || !in.hasPrescribedEndpoints ||
++    in.currentBodyCount==0u || in.currentBodyStride<in.currentBodyCount)
++  return FreeBoxCapsuleProxyScopeFailure::current_body_state;
++ std::size_t capsules=0u, boxes=0u, freeBoxes=0u, freeProxy=in.proxyCount;
++ for(std::size_t i=0u;i<in.proxyCount;++i) {
++  const NMRigidProxyGPU& p=in.proxies[i];
++  if(p.adaptiveObjectIndex!=NM_INVALID_INDEX)
++   return FreeBoxCapsuleProxyScopeFailure::unsupported_proxy;
++  if(p.shapeKind==NM_RIGID_CAPSULE) {
++   if(p.flags!=NM_RIGID_PRESCRIBED_TRANSLATION ||
++      p.generalizedFreeBodyIndex!=NM_INVALID_INDEX ||
++      p.bodyIndex==NM_INVALID_INDEX || p.bodyIndex>=in.currentBodyCount)
++    return FreeBoxCapsuleProxyScopeFailure::unsupported_proxy;
++   ++capsules; continue;
++  }
++  if(p.shapeKind!=NM_RIGID_BOX || p.flags!=NM_RIGID_DYNAMIC ||
++     p.generalizedFreeBodyIndex!=0u || p.reserved2!=0u ||
++     p.bodyIndex==NM_INVALID_INDEX || p.bodyIndex>=in.currentBodyCount ||
++     p.sceneBodyIndex==NM_INVALID_INDEX || p.sceneBodyIndex>=in.sceneBodyCount)
++   return FreeBoxCapsuleProxyScopeFailure::unsupported_proxy;
++  ++boxes; ++freeBoxes; freeProxy=i;
++ }
++ if(capsules==0u || boxes!=1u || freeBoxes!=1u)
++  return FreeBoxCapsuleProxyScopeFailure::free_box_count;
++ if(!in.requiresSceneBodies || in.sceneBodyCount==0u ||
++    in.sceneBodyStride<in.sceneBodyCount)
++  return FreeBoxCapsuleProxyScopeFailure::scene_body_state;
++ bool capsulePair=false, freeBoxPair=false;
++ for(std::size_t i=0u;i<in.pairCount;++i) {
++  const NMContactPairGPU& p=in.pairs[i];
++  if(p.objectIndex!=0u || p.continuumNode>=in.femNodeCount ||
++     p.rigidProxy>=in.proxyCount)
++   return FreeBoxCapsuleProxyScopeFailure::contact_pair_map;
++  const NMRigidProxyGPU& proxy=in.proxies[p.rigidProxy];
++  capsulePair=capsulePair || proxy.shapeKind==NM_RIGID_CAPSULE;
++  freeBoxPair=freeBoxPair ||
++      (std::size_t(p.rigidProxy)==freeProxy && proxy.shapeKind==NM_RIGID_BOX);
++ }
++ if(!capsulePair || !freeBoxPair)
++  return FreeBoxCapsuleProxyScopeFailure::contact_pair_coverage;
++ return FreeBoxCapsuleProxyScopeFailure::none;
++}
++inline const char* freeBoxCapsuleProxyScopeFailureReason(
++ FreeBoxCapsuleProxyScopeFailure f) noexcept {
++ switch(f) {
++  case FreeBoxCapsuleProxyScopeFailure::none:return nullptr;
++  case FreeBoxCapsuleProxyScopeFailure::proxy_count:return "requires_two_to_sixteen_capsule_box_proxies_and_authored_pairs";
++  case FreeBoxCapsuleProxyScopeFailure::contact_state:return "free_box_capsule_true_residual_contact_operator_unavailable";
++  case FreeBoxCapsuleProxyScopeFailure::current_body_state:return "free_box_capsule_true_residual_prescribed_body_state_unavailable";
++  case FreeBoxCapsuleProxyScopeFailure::scene_body_state:return "free_box_capsule_true_residual_scene_body_state_unavailable";
++  case FreeBoxCapsuleProxyScopeFailure::unsupported_proxy:return "requires_one_nonarticulated_free_box_and_prescribed_capsules_only";
++  case FreeBoxCapsuleProxyScopeFailure::free_box_count:return "requires_exactly_one_free_box_and_at_least_one_prescribed_capsule";
++  case FreeBoxCapsuleProxyScopeFailure::contact_pair_map:return "free_box_capsule_true_residual_pair_outside_fem_proxy_map";
++  case FreeBoxCapsuleProxyScopeFailure::contact_pair_coverage:return "requires_authored_contact_pairs_for_capsule_and_free_box";
++ }
++ return "free_box_capsule_true_residual_unknown_proxy_scope_failure";
++}
++} // namespace numi::matter::detail
+--- a/matter/tools/cardboard_free_box_true_residual_proxy_admission_check.cpp
++++ b/matter/tools/cardboard_free_box_true_residual_proxy_admission_check.cpp
+@@ -0,0 +1,39 @@
++#include "numi/matter/detail/free_box_true_residual_proxy_admission.hpp"
++#include <iostream>
++#include <stdexcept>
++#include <vector>
++namespace {
++using namespace numi::matter::detail;
++unsigned checks=0;
++void require(bool ok,const char* why){++checks;if(!ok)throw std::runtime_error(why);}
++NMRigidProxyGPU capsule(unsigned body){NMRigidProxyGPU p{};p.shapeKind=NM_RIGID_CAPSULE;p.bodyIndex=body;p.sceneBodyIndex=NM_INVALID_INDEX;p.flags=NM_RIGID_PRESCRIBED_TRANSLATION;p.adaptiveObjectIndex=NM_INVALID_INDEX;p.generalizedFreeBodyIndex=NM_INVALID_INDEX;return p;}
++NMRigidProxyGPU box(unsigned body,unsigned scene){NMRigidProxyGPU p{};p.shapeKind=NM_RIGID_BOX;p.bodyIndex=body;p.sceneBodyIndex=scene;p.flags=NM_RIGID_DYNAMIC;p.adaptiveObjectIndex=NM_INVALID_INDEX;p.generalizedFreeBodyIndex=0;return p;}
++NMContactPairGPU pair(unsigned node,unsigned proxy){NMContactPairGPU p{};p.continuumNode=node;p.rigidProxy=proxy;p.objectIndex=0;return p;}
++FreeBoxCapsuleProxyScopeInput make(const std::vector<NMRigidProxyGPU>& ps,const std::vector<NMContactPairGPU>& cs){
++ FreeBoxCapsuleProxyScopeInput x;x.proxies=ps.data();x.proxyCount=ps.size();x.pairs=cs.data();x.pairCount=cs.size();x.femNodeCount=8;x.currentBodyCount=3;x.currentBodyStride=3;x.sceneBodyCount=1;x.sceneBodyStride=1;x.requiresCurrentBodies=true;x.hasPrescribedTranslation=true;x.hasPrescribedPrevious=true;x.hasPrescribedEndpoints=true;x.requiresSceneBodies=true;x.hasPrimalContactArguments=true;x.hasCoupledGeneralizedCandidate=true;x.hasCoupledPointJacobians=true;return x;
++}
++void expect(FreeBoxCapsuleProxyScopeInput x,FreeBoxCapsuleProxyScopeFailure f,const char* m){require(validateFreeBoxCapsuleProxyScope(x)==f,m);}
++}
++int main(){try{
++ std::vector<NMRigidProxyGPU> ps{capsule(0),capsule(1),box(2,0)};
++ std::vector<NMContactPairGPU> cs{pair(0,0),pair(3,1),pair(7,2)};
++ expect(make(ps,cs),FreeBoxCapsuleProxyScopeFailure::none,"valid capsule plus one free box must admit");
++ expect(make(ps,{pair(7,2)}),FreeBoxCapsuleProxyScopeFailure::contact_pair_coverage,"box-only pairs must reject");
++ expect(make(ps,{pair(0,0),pair(3,1)}),FreeBoxCapsuleProxyScopeFailure::contact_pair_coverage,"capsule-only pairs must reject");
++ auto bad=cs;bad[0].objectIndex=1;expect(make(ps,bad),FreeBoxCapsuleProxyScopeFailure::contact_pair_map,"foreign object pair must reject");
++ bad=cs;bad[0].continuumNode=8;expect(make(ps,bad),FreeBoxCapsuleProxyScopeFailure::contact_pair_map,"out-of-range FEM node must reject");
++ bad=cs;bad[0].rigidProxy=3;expect(make(ps,bad),FreeBoxCapsuleProxyScopeFailure::contact_pair_map,"out-of-range proxy must reject");
++ auto x=make(ps,cs);x.requiresSceneBodies=false;expect(x,FreeBoxCapsuleProxyScopeFailure::scene_body_state,"missing free body scene state must reject");
++ x=make(ps,cs);x.hasCoupledPointJacobians=false;expect(x,FreeBoxCapsuleProxyScopeFailure::contact_state,"missing point Jacobians must reject");
++ x=make(ps,cs);x.hasPrescribedEndpoints=false;expect(x,FreeBoxCapsuleProxyScopeFailure::current_body_state,"missing capsule endpoints must reject");
++ auto pbad=ps;pbad[0].flags=NM_RIGID_DYNAMIC;expect(make(pbad,cs),FreeBoxCapsuleProxyScopeFailure::unsupported_proxy,"dynamic capsule must reject");
++ pbad=ps;pbad[2].flags=NM_RIGID_DYNAMIC|NM_RIGID_ARTICULATED;expect(make(pbad,cs),FreeBoxCapsuleProxyScopeFailure::unsupported_proxy,"articulated BOX must reject");
++ pbad=ps;pbad[1].adaptiveObjectIndex=0;expect(make(pbad,cs),FreeBoxCapsuleProxyScopeFailure::unsupported_proxy,"adaptive capsule must reject");
++ pbad=ps;pbad[1]=box(1,0);bad=cs;bad[1]=pair(3,1);expect(make(pbad,bad),FreeBoxCapsuleProxyScopeFailure::free_box_count,"second BOX must reject");
++ pbad=ps;pbad[0].shapeKind=NM_RIGID_SPHERE;expect(make(pbad,cs),FreeBoxCapsuleProxyScopeFailure::unsupported_proxy,"sphere proxy must reject");
++ std::vector<NMRigidProxyGPU> maxSupported(16,capsule(0));maxSupported.back()=box(2,0);
++ expect(make(maxSupported,{pair(0,0),pair(7,15)}),FreeBoxCapsuleProxyScopeFailure::none,"existing 16-proxy bound must admit");
++ std::vector<NMRigidProxyGPU> many(17,capsule(0));many.back()=box(2,0);
++ expect(make(many,{pair(0,0),pair(7,16)}),FreeBoxCapsuleProxyScopeFailure::proxy_count,"proxy count above full-contact bound must reject");
++ std::cout<<"free_box_capsule_true_residual_proxy_checks="<<checks<<" physical_transactions=0\n";return 0;
++ }catch(const std::exception&e){std::cerr<<e.what()<<"\n";return 1;}}
+--- a/matter/tools/test_true_residual_certification_contract.py
++++ b/matter/tools/test_true_residual_certification_contract.py
+@@ -215,32 +215,53 @@
+         self.assertIn("full_FEM_operator_qualification=false", NATIVE_CHECK)
+ 
+ 
+-    def test_free_box_true_residual_admission_is_exact_and_separate(self):
+-        scope = section(RUNTIME, "const auto femNewtonTraceScope =",
+-                       "const auto femTrueResidualCapabilityFailure =")
+-        for guard in (
+-            "state.dispatch.environmentCount != 1u",
+-            "state.dispatch.rigidGeneralizedCapacity != 6u",
+-            "state.dispatch.rigidQCapacity != 0u",
+-            "state.requiresCoupledCandidate",
+-            "NM_RIGID_BOX",
+-            "proxy.flags != NM_RIGID_DYNAMIC",
+-            "proxy.generalizedFreeBodyIndex != 0u",
+-            "NM_MATTER_CONTACT",
+-            "state.dispatch.mpmActiveNodeCapacity != 0u",
+-            "state.fgmresLayout.supportContactCount != 0u",
+-            "state.fgmresLayout.vascularUnknownCount != 0u",
+-            "state.dispatch.fieldBoundaryCount != 0u",
+-            "state.fgmresLayout.unknownCount != expectedUnknownCount",
+-        ):
+-            self.assertIn(guard, scope)
+-        capability = section(
+-            RUNTIME, "const auto femTrueResidualCapabilityFailure =",
+-            "const auto femResidualArmijoScope =")
+-        self.assertIn(
+-            "femNewtonTraceScope(\n                    state.dispatch.rigidGeneralizedCapacity == 6u)",
+-            capability)
+-        self.assertIn("femNewtonTraceScope(false)", RUNTIME)
++    def test_free_box_true_residual_proxy_scope_keeps_bounds_and_composition_exact(self):
++        runtime = RUNTIME
++        scope = section(runtime, "const auto femNewtonTraceScope =",
++                        "const auto femTrueResidualCapabilityFailure =")
++        for token in ("state.dispatch.environmentCount != 1u",
++                      "state.dispatch.rigidGeneralizedCapacity != 6u",
++                      "state.dispatch.rigidQCapacity != 0u",
++                      "state.requiresCoupledCandidate",
++                      "NM_MATTER_CONTACT",
++                      "state.dispatch.femNodeCount > 4096u",
++                      "state.fgmresLayout.supportContactCount != 0u",
++                      "state.fgmresLayout.vascularUnknownCount != 0u",
++                      "state.dispatch.fieldBoundaryCount != 0u",
++                      "state.fgmresLayout.unknownCount != expectedUnknownCount",
++                      "state.dispatch.rigidProxyCount != state.rigidProxyLayout.size()",
++                      "state.dispatch.contactPairCount != state.contactPairLayout.size()",
++                      "validateFreeBoxCapsuleProxyScope(proxyScope)"):
++            self.assertIn(token, scope if token in scope else runtime)
++        capability = section(runtime, "const auto femTrueResidualCapabilityFailure =",
++                             "const auto femResidualArmijoScope =")
++        self.assertIn("femNewtonTraceScope(\n                    state.dispatch.rigidGeneralizedCapacity == 6u)",
++                      capability)
++        helper = (MATTER / "include" / "numi" / "matter" / "detail" /
++                  "free_box_true_residual_proxy_admission.hpp").read_text()
++        for token in ("in.proxyCount<2u||in.proxyCount>16u",
++                      "p.flags!=NM_RIGID_PRESCRIBED_TRANSLATION",
++                      "p.shapeKind!=NM_RIGID_BOX",
++                      "p.flags!=NM_RIGID_DYNAMIC",
++                      "p.generalizedFreeBodyIndex!=0u",
++                      "boxes!=1u||freeBoxes!=1u",
++                      "p.objectIndex!=0u",
++                      "p.continuumNode>=in.femNodeCount",
++                      "p.rigidProxy>=in.proxyCount",
++                      "!capsulePair||!freeBoxPair"):
++            self.assertIn(token, "".join(helper.split()))
++        self.assertIn("NM_RIGID_CAPSULE", helper)
++        self.assertNotIn("NM_RIGID_ARTICULATED", helper)
++
++    def test_proxy_admission_checker_has_supported_and_fail_closed_cases(self):
++        checker = (HERE / "cardboard_free_box_true_residual_proxy_admission_check.cpp").read_text()
++        for token in ("valid capsule plus one free box must admit",
++                      "box-only pairs must reject", "capsule-only pairs must reject",
++                      "dynamic capsule must reject", "articulated BOX must reject",
++                      "adaptive capsule must reject", "second BOX must reject",
++                      "sphere proxy must reject",
++                      "proxy count above full-contact bound must reject"):
++            self.assertIn(token, checker)
+ 
+     def test_native_box_fixture_uses_both_contact_blocks_and_tail_controls(self):
+         coupled = (HERE / "cardboard_coupled_free_box_operator_check.mm").read_text()

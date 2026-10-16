@@ -1,0 +1,17 @@
+{
+  "candidate_declared_file_count": 819,
+  "candidate_frozen_source_sha256": "97fc81a8da7ef81fbe919d30a0165cc02054e60454601d1a4c67c846f16222f2",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-retained-damage-orientation-energy-214-003",
+  "candidate_tu_sha256": "b0f9713af7320c80d1c43d4acf9b3ee66ebcb1d885ba5bb0239a60d9b63280b8",
+  "canonical210_tu_sha256": "5d54910aebb1beb78e0d5108b1fbd57ec3398939a7bb4299e96dedc1dcb44d6f",
+  "changed_paths": [
+    "matter/tools/cardboard_retained_matrix_damage_check.cpp"
+  ],
+  "copied_worker_lock_excluded_from_child_only": true,
+  "parent_declared_file_count": 819,
+  "parent_frozen_source_sha256": "477fe6943fb1c28e782af9ce0c1c383c013146ab12f422bc55523a6834597931",
+  "parent_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-strict-periodic-freebox-210-buildfix-003",
+  "parent_tu_sha256": "5d54910aebb1beb78e0d5108b1fbd57ec3398939a7bb4299e96dedc1dcb44d6f",
+  "parent_unchanged": true,
+  "schema": "numi.cardboard.source214-source-integrity.v1"
+}

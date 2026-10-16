@@ -1,0 +1,4 @@
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-free-box-capsule-true-residual-212-010/matter/tools/test_true_residual_certification_contract.py", line 232
+    "state.dispatch.rigidProxyCount !=",\n                      "state.rigidProxyLayout.size()",
+                                                                                               ^
+SyntaxError: unexpected character after line continuation character

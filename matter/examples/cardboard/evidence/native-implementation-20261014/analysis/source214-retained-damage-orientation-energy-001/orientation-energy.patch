@@ -1,0 +1,81 @@
+--- a/matter/tools/cardboard_retained_matrix_damage_check.cpp
++++ b/matter/tools/cardboard_retained_matrix_damage_check.cpp
+@@ -430,6 +430,10 @@
+         {{1,1,1},FractureNormalFrame::Reference,0.0,{},1.0e-12}}};
+     result.explicitSet = syntheticSet();
+     return result;
++}
++
++FractureVec3 quarterTurnZ(const FractureVec3& value) {
++    return {-value.y, value.x, value.z};
+ }
+ 
+ void checkComposition(const std::filesystem::path& materials) {
+@@ -922,6 +926,54 @@
+             std::abs(fullOpeningRatio240-1.0)<=0.02&&
+             std::abs(fullOpeningWork240/fullOpeningWork120-1.0)<=0.02,
+             "full-softening pure-mode cycle missed the Gc*A or 120/240-step 2% gates");
++
++    // Exercise the V/A mapping through the constitutive history and integrated
++    // work, not only through a geometry-only helper. Rotation and winding
++    // must preserve the actual Gc*A dissipation budget.
++    auto rotatedEnergyInput=completeInput;
++    for (auto& vertex:rotatedEnergyInput.referenceVerticesM)
++        vertex=quarterTurnZ(vertex);
++    for (auto& plane:rotatedEnergyInput.selectedMaterialPlanes)
++        plane.normal=quarterTurnZ(plane.normal);
++    const auto rotatedEnergyBuilt=buildElementProgram(rotatedEnergyInput);
++    const auto rotatedEnergyCompile=numi::matter::detail::compileConstitutive(
++        rotatedEnergyBuilt.program,NM_EXPRESSION_STACK_CAPACITY);
++    require(rotatedEnergyCompile.succeeded(),
++            "rotated crack-band energy fixture did not compile");
++    const auto rotatedEnergy=tensionHistory(rotatedEnergyCompile.program,
++        rotatedEnergyBuilt.densityKgPerM3,rotatedEnergyBuilt.mapping.planeGeometry,
++        fullOpeningStretch,true,0.0,240u);
++    const double rotatedEnergyWork=rotatedEnergy.externalWorkJ-rotatedEnergy.finalEnergyJ;
++    const double rotatedGcArea=rotatedEnergyInput.explicitSet.fractureModes[0].fractureEnergyJPerM2*
++        rotatedEnergyBuilt.mapping.planeGeometry[0].referenceAreaM2;
++    const double rotatedEnergyRatio=rotatedEnergyWork/rotatedGcArea;
++    require(rotatedEnergyBuilt.mapping.planeGeometry[0].referenceAreaM2>0.0&&
++            rotatedEnergyBuilt.mapping.modeLengthM[0]>0.0&&
++            std::abs(rotatedEnergyBuilt.mapping.modeLengthM[0]/
++                     completeBuilt.mapping.modeLengthM[0]-1.0)<=1.0e-12&&
++            std::abs(rotatedEnergyRatio-1.0)<=0.02&&
++            std::abs(rotatedEnergyWork/fullOpeningWork240-1.0)<=0.02,
++            "rotated crack-plane damage work missed the invariant Gc*A 2% gate");
++
++    auto reversedEnergyInput=completeInput;
++    std::swap(reversedEnergyInput.referenceVerticesM[1],
++              reversedEnergyInput.referenceVerticesM[2]);
++    const auto reversedEnergyBuilt=buildElementProgram(reversedEnergyInput);
++    const auto reversedEnergyCompile=numi::matter::detail::compileConstitutive(
++        reversedEnergyBuilt.program,NM_EXPRESSION_STACK_CAPACITY);
++    require(reversedEnergyCompile.succeeded(),
++            "reversed-winding crack-band energy fixture did not compile");
++    const auto reversedEnergy=tensionHistory(reversedEnergyCompile.program,
++        reversedEnergyBuilt.densityKgPerM3,reversedEnergyBuilt.mapping.planeGeometry,
++        fullOpeningStretch,true,0.0,240u);
++    const double reversedEnergyWork=reversedEnergy.externalWorkJ-reversedEnergy.finalEnergyJ;
++    const double reversedGcArea=reversedEnergyInput.explicitSet.fractureModes[0].fractureEnergyJPerM2*
++        reversedEnergyBuilt.mapping.planeGeometry[0].referenceAreaM2;
++    const double reversedEnergyRatio=reversedEnergyWork/reversedGcArea;
++    require(std::abs(reversedEnergyRatio-1.0)<=0.02&&
++            std::abs(reversedEnergyWork/fullOpeningWork240-1.0)<=0.02,
++            "reversed-winding crack-plane damage work missed the invariant Gc*A 2% gate");
++
+     require(std::isfinite(damageIncrement)&&damageIncrement>0.0,
+             "damaging closed-cycle did not produce positive integrated dissipation above control");
+     require(std::isfinite(expectedGcArea)&&expectedGcArea>0.0,
+@@ -1371,6 +1423,12 @@
+              <<"full_softening_damage_work_ratio_240_steps="<<fullOpeningRatio240<<'\n'
+              <<"full_softening_damage_work_j_120_steps="<<fullOpeningWork120<<'\n'
+              <<"full_softening_damage_work_j_240_steps="<<fullOpeningWork240<<'\n'
++             <<"rotated_full_softening_damage_work_j="<<rotatedEnergyWork<<'\n'
++             <<"rotated_full_softening_gc_area_j="<<rotatedGcArea<<'\n'
++             <<"rotated_full_softening_gc_area_ratio="<<rotatedEnergyRatio<<'\n'
++             <<"reversed_winding_full_softening_damage_work_j="<<reversedEnergyWork<<'\n'
++             <<"reversed_winding_full_softening_gc_area_j="<<reversedGcArea<<'\n'
++             <<"reversed_winding_full_softening_gc_area_ratio="<<reversedEnergyRatio<<'\n'
+              <<"full_softening_maximum_hill_multiplier="<<
+                 fullOpening240.stateAtMaximum[fullOpeningMultiplier]<<'\n'
+              <<"full_softening_work_convergence_relative_difference="<<

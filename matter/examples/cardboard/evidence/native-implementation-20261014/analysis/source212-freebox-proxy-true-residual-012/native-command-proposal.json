@@ -1,0 +1,13 @@
+{
+  "blocked_reason": "No source-bound build exists for 012. The retained 011 build is bound to different proxy-admission bytes and must not be used to execute 012.",
+  "build_success": false,
+  "constraints": {
+    "gpu_execution_by_this_agent": false,
+    "operator_and_tolerances_unchanged": true
+  },
+  "execution_ready": false,
+  "schema": "numi.cardboard.native-command-proposal.v1",
+  "source_file_count": 821,
+  "source_sha256": "499468e952b33f98419490c9c9987f742f79791d8822285919189205eae85555",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-free-box-capsule-true-residual-212-012"
+}

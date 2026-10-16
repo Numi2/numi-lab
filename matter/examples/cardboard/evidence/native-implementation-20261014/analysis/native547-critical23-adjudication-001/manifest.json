@@ -1,0 +1,45 @@
+{
+  "artifact": "native547-critical23-adjudication-001",
+  "external_bindings_sha256": "921b8f6d0774a8e391746e95a88f0b420bbb7e20ed0a1cb107bc76b739afe2ce",
+  "files": {
+    "README.md": {
+      "bytes": 2417,
+      "sha256": "8d86068adba7980d6691058fd8be9971f0af968e4226518ed38b21b1b4a84585"
+    },
+    "analysis.py": {
+      "bytes": 18629,
+      "sha256": "e4c485d30c2be8d6ccfa4108c74f43db912c4d745af49894ddfbf6bf9eb8aa61"
+    },
+    "command.json": {
+      "bytes": 466,
+      "sha256": "7cb71d34dfb9c51bfef3064388f4280ca4f97c4936196cb957005610178516a6"
+    },
+    "external-bindings.json": {
+      "bytes": 3701,
+      "sha256": "921b8f6d0774a8e391746e95a88f0b420bbb7e20ed0a1cb107bc76b739afe2ce"
+    },
+    "fd-rows.jsonl": {
+      "bytes": 676119,
+      "sha256": "5f69689cc3faa7cf90a61cce30dd98cf347899658bb1436fbdd1a3228b7c559d"
+    },
+    "report.json": {
+      "bytes": 849095,
+      "sha256": "d8e0e7c282bf486dbaa55e3ee9900afd5b74e8856e4787e9116affb8d2c3f5bf"
+    },
+    "state-rows.jsonl": {
+      "bytes": 327160,
+      "sha256": "d378f54dd767a6bc3b058b21ee7e36fe29f1e5a40586c80d5e78b184d42ca970"
+    },
+    "stress-rows.jsonl": {
+      "bytes": 558809,
+      "sha256": "37d567e7b7ab98a28b9f4ea189954d4f91695f21d213b3c12f785344b52b44b7"
+    },
+    "tangent-rows.jsonl": {
+      "bytes": 528998,
+      "sha256": "b8d7ebc03e3871cb11f253453d7ba8af4859e7cbeaa9d33ef5f307f05df0eb43"
+    }
+  },
+  "host": "macmini",
+  "schema": "numi.cardboard.artifact-manifest.v1",
+  "verdict": "bounded native/material point diagnostic; one perturbed endpoint tangent exceeds 1e-3; no full-material or coupon qualification"
+}

@@ -1,0 +1,8 @@
+{
+  "exit_code": 2,
+  "source_unchanged": true,
+  "log_sha256": "ecada3498b852687f3211b2fa6b20f667728e77faa7d9ed40ea04f9e081f3537",
+  "build_source_sha256": "52ba6aed642822e3657a32c724f3282911c2dfc30fc0567e6b314fdabd551352",
+  "at_utc": "2026-10-16T11:16:56.421015+00:00",
+  "gpu_execution": false
+}

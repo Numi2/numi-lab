@@ -1,0 +1,66 @@
+{
+  "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native541-generic-package-batch-instrument-001/generic-batch": {
+    "bytes": 819296,
+    "sha256": "7764e4c20c2393d5ebfc3f100f29e851b9090e1999418aad86cbcaf69fb7e3c5"
+  },
+  "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-002/input.json": {
+    "bytes": 1701351,
+    "sha256": "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e"
+  },
+  "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-002/pair-selection.json": {
+    "bytes": 13487,
+    "sha256": "36dfab1b02c443ef9ee77df2cada5e7eafa9abe3450c1d33208016357ceeb452"
+  },
+  "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-002/stable-fp64-reference.jsonl": {
+    "bytes": 4371542,
+    "sha256": "2893d2b988feae51fe6ecbe3a7a71ecb7a19d1f9b011a3957b52df54c4bd96e0"
+  },
+  "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-audit-008/manifest.json": {
+    "bytes": 1143,
+    "sha256": "677a2bf1a71f0fb47973536c616b3e8045b8f564c1c024d93b21a963de227ac1"
+  },
+  "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-root-corrected-runner-002/../native547-root-corrected-runner-002/runner-binding.json": {
+    "bytes": 2062,
+    "sha256": "8bf7f4afa814b1fa768710defa137081de0ebfa5108193e94627eee056354c70"
+  },
+  "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-root-corrected-runner-002/runner-binding.json": {
+    "bytes": 2062,
+    "sha256": "8bf7f4afa814b1fa768710defa137081de0ebfa5108193e94627eee056354c70"
+  },
+  "/Users/n/cardboard-implementation-20261014-host-macmini/native/critical23-power-sweep-547/command.json": {
+    "bytes": 2795,
+    "sha256": "bd7d560955317965831d3455c21a858d2b8d01842b04e4968b02b346aaba5375"
+  },
+  "/Users/n/cardboard-implementation-20261014-host-macmini/native/critical23-power-sweep-547/output/input-binding.json": {
+    "bytes": 348,
+    "sha256": "e8aa538c2e5ee6d5685fda0faed3101f848696876953c952e06efbb37bf3f3ac"
+  },
+  "/Users/n/cardboard-implementation-20261014-host-macmini/native/critical23-power-sweep-547/output/paper-points-exact_package_budget32.jsonl": {
+    "bytes": 3233763,
+    "sha256": "6dc09488a887484c6d61eb0633da6c7abda0e88f7c1d8961061e3ff041c96f6e"
+  },
+  "/Users/n/cardboard-implementation-20261014-host-macmini/native/critical23-power-sweep-547/receipt.json": {
+    "bytes": 528,
+    "sha256": "9628e8b3d22a2c83fadae97d6e8558fa3bc0f270413e8bf3f8b71b38eca59e2e"
+  },
+  "/Users/n/cardboard-implementation-20261014-host-macmini/native/critical23-power-sweep-547/stderr.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/Users/n/cardboard-implementation-20261014-host-macmini/native/critical23-power-sweep-547/stdout.log": {
+    "bytes": 120,
+    "sha256": "2db719e7ac0a454b049a898bcf0898cd14534c5ea510a01fa0a55a75693b5428"
+  },
+  "/Users/n/cardboard-implementation-20261014-host-macmini/run_native547_power_sweep_002.py": {
+    "bytes": 3716,
+    "sha256": "f5f2c00850b984d44e40f941409902c2fc64d059b91d97244276f33584e4d43c"
+  },
+  "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-cohesive-quadrature-area-205/frozen-source.json": {
+    "bytes": 103589,
+    "sha256": "c77675e7aedc7f14c93c8bd7ea9e0a1e18bf162a68cf7e4022c43c34c6d141f2"
+  },
+  "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/compiled.nmatterpack": {
+    "bytes": 1984768,
+    "sha256": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1"
+  }
+}

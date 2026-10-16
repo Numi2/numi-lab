@@ -1,0 +1,38 @@
+{
+  "schema": "numi.cardboard.source213-arena-build-manifest.v1",
+  "files": {
+    "README.md": {
+      "bytes": 736,
+      "sha256": "0f24dd1b7425f96de802518c2b8c6c8b44a48c4f141fd300ce1fafc1d3f870b4"
+    },
+    "arena-ctest.log": {
+      "bytes": 543,
+      "sha256": "d13311a18b17106206d5e402f998e9f0a269df5c2702d57a4b80acb3a6e806a8"
+    },
+    "arena-plan.log": {
+      "bytes": 92,
+      "sha256": "33bb60b6f16667894bfa646f8a8a415c9d5c51a946461760d044f65704ef0f2e"
+    },
+    "build-command.json": {
+      "bytes": 950,
+      "sha256": "aa447c85162e8ff44f2eeb11a6dce66d8bfec8fffb1090ac6feb24d766d07b2c"
+    },
+    "cmake-command-0.log": {
+      "bytes": 672,
+      "sha256": "fa12cfe81ed4f9098412babd269cb0e1dc3879de5cceefd81a3eb22b400aac82"
+    },
+    "cmake-command-1.log": {
+      "bytes": 6306,
+      "sha256": "bfb2f139ee85c58ab2c80fc3dc374d6bbd9ef104bb9c2f4500114f9d6587ff8a"
+    },
+    "contract-tests.log": {
+      "bytes": 2261,
+      "sha256": "c964e26139a264addb3aae98a31a5b76d13c2016945f546ec05e969fb4999a77"
+    },
+    "report.json": {
+      "bytes": 4627,
+      "sha256": "b1f0c551c6280bc1b8a16cc703b93077f04bde71f3c72c5b0467d2b2a94f082e"
+    }
+  },
+  "report_sha256": "b1f0c551c6280bc1b8a16cc703b93077f04bde71f3c72c5b0467d2b2a94f082e"
+}

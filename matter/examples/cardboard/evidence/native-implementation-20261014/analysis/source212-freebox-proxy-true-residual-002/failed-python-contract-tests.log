@@ -1,0 +1,3 @@
+Attempt on source212-002 candidate, 2026-10-16:
+Ran python3 -B matter/tools/test_true_residual_certification_contract.py.
+Result: 12 passed, 1 error. The new contract test constructed the helper path relative to matter/tools instead of matter/include, raising FileNotFoundError. This is a test-path defect only; no production/native build ran.

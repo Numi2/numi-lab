@@ -1,0 +1,63 @@
+{
+  "schema": "numi.cardboard.native547-sweep-builder-binding.v1",
+  "at_utc": "2026-10-16T10:40:23.122155+00:00",
+  "parent_script": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native541-critical23-input-002/build_input.py",
+  "parent_script_sha256": "ea969206c6588da75e5c74ee91b5b318cc4c483d5013d5ff081d8d33ac46dc4d",
+  "script": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-001/build_input.py",
+  "script_sha256": "bfc2e7dec8d4bdce01d16aa914957ad2496f6ae44bf6bef15665599303c2c9a3",
+  "changes": [
+    [
+      "PK=Q/\"analysis/native541-critical23-input-002\";",
+      "PK=Q/\"analysis/native547-critical23-sweep-input-001\";"
+    ],
+    [
+      "powers=sorted((bp,adjacent));pairs.append(",
+      "powers=list(range(10,41));pairs.append("
+    ],
+    [
+      "\"numi.cardboard.native541-critical23-pair-selection.v1\"",
+      "\"numi.cardboard.native547-critical23-power-sweep.v1\""
+    ],
+    [
+      "\"center, exact duplicate center, then plus/minus endpoints at two adjacent qualifying powers\"",
+      "\"center, exact duplicate center, then plus/minus endpoints for every binary power10 through40; broad sweep is not preselected by native outcomes\""
+    ]
+  ],
+  "physics_changed": false,
+  "all_old_541_results_preserved": true,
+  "gpu_execution": false,
+  "target_gate": "FP64 smooth derivative1e-6; native material1e-3; unresolved FP32 signals stay inconclusive",
+  "power_sweep": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40
+  ]
+}
