@@ -1,0 +1,60 @@
+{
+  "A_source_manifest_sha256": "ae360ba383bcaba3d85e1660bec8c318def1526508b633cb78791aedb30bf166",
+  "A_source_operator_npz_sha256": "21fbc8e662273fc82dc52ff2ec0a0a4efd7d2e7cfec14584770f66f1f30d2e5c",
+  "b_norm": 1.8846220284320863e-05,
+  "b_sha256": "dc5ce5c84ae95c76cdd3614d89f0d2473955d61e34a422ca21850ef486d36653",
+  "b_source": "operator.vectors.npz:native_rhs_free_impulse_Ns",
+  "candidates": [
+    {
+      "iterations": 5000,
+      "lambda": 0.0,
+      "reported_r1norm": 4.245294865562026e-06,
+      "status": 7,
+      "step_file": "lsqr_lambda_0_full_step.npy",
+      "step_norm_m_s": 0.032622929050346576,
+      "step_sha256": "959214302a800a25a8118c52578d82e45155bc5c3f5c2183e64a04df52e8b3f1",
+      "true_residual_l2": 4.245294865562062e-06,
+      "true_residual_relative_to_b": 0.22525974978091182
+    },
+    {
+      "iterations": 5000,
+      "lambda": 1e-05,
+      "reported_r1norm": 4.2500589178623584e-06,
+      "status": 7,
+      "step_file": "lsqr_lambda_1e-05_full_step.npy",
+      "step_norm_m_s": 0.03179697445432574,
+      "step_sha256": "90110b61a9ec075e6cf42abde394d928cf9dbadc33f1bc36ed8815c755ba4bd2",
+      "true_residual_l2": 4.245602963327336e-06,
+      "true_residual_relative_to_b": 0.22527609776796842
+    },
+    {
+      "iterations": 4992,
+      "lambda": 0.0001,
+      "reported_r1norm": 4.4576582337042945e-06,
+      "status": 2,
+      "step_file": "lsqr_lambda_0.0001_full_step.npy",
+      "step_norm_m_s": 0.014422893702236962,
+      "step_sha256": "b0905e8c1e74682908b531cd18d6011f031c13e2af49d6c38a8d80cc8e60625c",
+      "true_residual_l2": 4.456887717551083e-06,
+      "true_residual_relative_to_b": 0.23648708602111565
+    },
+    {
+      "iterations": 772,
+      "lambda": 0.001,
+      "reported_r1norm": 6.014372101951553e-06,
+      "status": 2,
+      "step_file": "lsqr_lambda_0.001_full_step.npy",
+      "step_norm_m_s": 0.0028521667700036066,
+      "step_sha256": "c7959a252fd238efc5e6290e78a7118270c774eed03e863860d746d665576d4a",
+      "true_residual_l2": 6.01434537646886e-06,
+      "true_residual_relative_to_b": 0.3191274051631723
+    }
+  ],
+  "limits": [
+    "A is a binary64 reconstruction of the captured FP32 tangent-cache operator for one environment/Newton state.",
+    "The LSQR termination status is retained; a regularized direction is not certified by the original Newton solve.",
+    "No native or nonlinear replay has been performed."
+  ],
+  "problem": "min ||A x - b_full||^2 + lambda^2 ||x||^2, initialized from zero; x is the complete total step and is passed to the material replay without adding x0.",
+  "schema": "numi.cardboard.native497.full_damped_step_candidates.v1"
+}

@@ -1,0 +1,23 @@
+{
+  "gpu_executed": false,
+  "commands": [
+    {
+      "label": "compile",
+      "exit_code": 0,
+      "wall_s": 3.2780257910490036
+    },
+    {
+      "label": "link",
+      "exit_code": 0,
+      "wall_s": 0.08981083333492279
+    },
+    {
+      "label": "cpu-admission",
+      "exit_code": 0
+    }
+  ],
+  "candidate_manifest_sha256": "85b6b54fc573e11a1f632d08eb88c97cadd80be3320e3a72a432767e2e2abddc",
+  "compiler_archive_sha256": "65703d9d857ec15d2d1e8ae93cac605ef5f46964b5a1d836f1af1b0eaf916047",
+  "checker_sha256": "658c3965a6e8d4e599d53036c43a79474de5bd0d6b2e1fdd0e33cba5f070729b",
+  "all_passed": true
+}

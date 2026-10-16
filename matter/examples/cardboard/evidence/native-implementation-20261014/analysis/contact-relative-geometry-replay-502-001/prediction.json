@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.relative-contact-geometry-replay-prediction.v1",
+  "base_energy_replay_output_sha256": "cb1f014b70d5bd21e08f385e4fbea2c6d857328b2fd4a9c0506d64cb18ff0237",
+  "source176_closure_sha256": "8427a7f247282ac8488061975174830b9ccfaaba4918dff626a2b9673b03ca41",
+  "case_manifest_sha256": "dc62eb0462fbf4af9f495363c63bb5ef692213643da0f318602eba3b91c08370",
+  "kernel_sha256": "75c293859746e081116388896fb8f28ca8fbb5b82fa027b3765ccc719c6a239e",
+  "host_source_sha256": "e71d8d54cb06c04d24fe81e78fe5eedaae1a252efa0bebdfac3c300d98f2e7a9",
+  "purpose": "Evaluate nearest-point geometry in query-relative coordinates; unchanged IPC energy law. Compare with exact same captured positions and independent FP64/MP metric. Diagnostic only; no production/contact/CCD qualification."
+}

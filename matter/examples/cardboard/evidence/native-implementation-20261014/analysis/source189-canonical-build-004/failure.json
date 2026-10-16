@@ -1,0 +1,6 @@
+{
+  "status": "PREFLIGHT_SCRIPT_ASSERTION_FAILED",
+  "before_build": true,
+  "before_native": true,
+  "reason": "All three candidate edited paths retain old map entries; first repair script expected only the first mismatch. Candidate source bytes match the three supplied final hashes; refresh all three frozen map entries from base."
+}

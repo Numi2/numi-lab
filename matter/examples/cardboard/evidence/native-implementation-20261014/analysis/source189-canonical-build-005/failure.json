@@ -1,0 +1,6 @@
+{
+  "status": "PREFLIGHT_SCRIPT_ASSERTION_FAILURE",
+  "before_build": true,
+  "before_native": true,
+  "reason": "Script mistakenly compared full-contact checker source with geometry-checker source hash; source189003 itself passes all 814 source and 1034 support hashes."
+}

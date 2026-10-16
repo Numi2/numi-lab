@@ -1,0 +1,86 @@
+{
+  "source_build_sha256": "e48aa63fd7d234344942149caf1d2aad4fc7ca4efb4f80322f1c539f4c0eb445",
+  "source_frozen_sha256": "d5bf1eb738d25e29cba80f3c9c936963b0d1e8b533652384f60705008b946b82",
+  "cpu_validation": {
+    "name": "cpu-validation",
+    "argv": [
+      "/opt/homebrew/bin/ctest",
+      "--test-dir",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source195-001",
+      "-R",
+      "^matter.compiler.cardboard_(shipping_memory|full_contact_scratch_budget|coupon_resume|full_contact_armijo|compensated_full_contact)$|^matter.cli.cardboard_argument_admission$|^matter.analysis.cardboard_compensated_fp64_reference$",
+      "--output-on-failure",
+      "-j",
+      "1"
+    ],
+    "source_build_sha256": "e48aa63fd7d234344942149caf1d2aad4fc7ca4efb4f80322f1c539f4c0eb445",
+    "started_at_utc": "2026-10-16T07:26:31.241288+00:00",
+    "timeout_s": 180,
+    "gpu": false,
+    "exit_code": 0,
+    "timed_out": false,
+    "wall_seconds": 1.9435517080128193,
+    "finished_at_utc": "2026-10-16T07:26:33.185089+00:00",
+    "stdout_sha256": "563dcb603eea727f6b8a887db71990365428f9fedd9f1d7f5842feb3f8d9f7be",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "physical_qualification": false
+  },
+  "environment_validation": {
+    "name": "solver-environment",
+    "argv": [
+      "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+      "-B",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001/matter/tools/test_cardboard_solver_environment.py"
+    ],
+    "source_build_sha256": "e48aa63fd7d234344942149caf1d2aad4fc7ca4efb4f80322f1c539f4c0eb445",
+    "started_at_utc": "2026-10-16T07:26:33.185727+00:00",
+    "timeout_s": 120,
+    "gpu": false,
+    "exit_code": 0,
+    "timed_out": false,
+    "wall_seconds": 0.4918613750487566,
+    "finished_at_utc": "2026-10-16T07:26:33.677709+00:00",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "9886cc29022295b60624ef17c924259662db2106ee11f7a56743a0d7500d4402",
+    "physical_qualification": false
+  },
+  "oracle_validation": {
+    "name": "damped-cgls-oracle",
+    "argv": [
+      "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+      "-B",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001/matter/tools/verify_damped_cgls_oracle.py"
+    ],
+    "source_build_sha256": "e48aa63fd7d234344942149caf1d2aad4fc7ca4efb4f80322f1c539f4c0eb445",
+    "started_at_utc": "2026-10-16T07:26:33.678641+00:00",
+    "timeout_s": 60,
+    "gpu": false,
+    "exit_code": 0,
+    "timed_out": false,
+    "wall_seconds": 0.048559208400547504,
+    "finished_at_utc": "2026-10-16T07:26:33.727373+00:00",
+    "stdout_sha256": "a1888d70485750c41b8e490181e21f375c780569371b06a43db062e40ee88378",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "physical_qualification": false
+  },
+  "geometry_validation": {
+    "name": "native516-geometry",
+    "argv": [
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source195-001/numi-matter-cardboard-contact-geometry-check",
+      "--output",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated195-geometry-516/output.bin"
+    ],
+    "source_build_sha256": "e48aa63fd7d234344942149caf1d2aad4fc7ca4efb4f80322f1c539f4c0eb445",
+    "started_at_utc": "2026-10-16T07:26:33.750442+00:00",
+    "timeout_s": 60,
+    "gpu": true,
+    "exit_code": 0,
+    "timed_out": false,
+    "wall_seconds": 0.3136993329972029,
+    "finished_at_utc": "2026-10-16T07:26:34.064293+00:00",
+    "stdout_sha256": "48b88cb9937ac25814dbd19df194ebc9403c1ec15d08031290df5cc12e48d8e9",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "physical_qualification": false
+  },
+  "contact_fixture_status": "failed global residual descent at root2 Newton9, preserved native517/520; this contact-free coupon cannot qualify that path"
+}

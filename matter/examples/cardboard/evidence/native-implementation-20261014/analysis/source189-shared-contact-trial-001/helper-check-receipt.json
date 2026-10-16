@@ -1,0 +1,59 @@
+{
+  "case_manifest_sha256": "dc62eb0462fbf4af9f495363c63bb5ef692213643da0f318602eba3b91c08370",
+  "compile_argv": [
+    "clang++",
+    "-std=c++17",
+    "-O2",
+    "-fno-fast-math",
+    "-ffp-contract=off",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source189-shared-contact-trial-001/fem_trial_helper_native500_check.cpp",
+    "-o",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source189-shared-contact-trial-001/fem_trial_helper_native500_check"
+  ],
+  "endpoint_components_checked": 96,
+  "helper_sha256": "c65d9ca83f98be7449cf60ac6afb409501d04e5ce3cfcb4796f447f478eab656",
+  "input_sha256": {
+    "accepted-nodes.bin": "928da924ab7b58bfad074124a460aa807687c6466c6d8e2295a8af349503f39d",
+    "alphas.bin": "ae4c873080e3027604a3d81ec76c7fd26db9f464f3a769b7a0642a2af0aa1e95",
+    "candidate-nodes.bin": "cf79a4e8b241e221a321f52124b5c691a2dbfc5e2833e3ca6a165eeafac4a146",
+    "correction.bin": "04dacef2468fa1216b86444d21bb0ab9a4145086c5cc8acd55b0681401b3cf08",
+    "manifest.json": "dc62eb0462fbf4af9f495363c63bb5ef692213643da0f318602eba3b91c08370",
+    "timestep.bin": "0f2f3591427956b004ca17393783192e0f81858c06bb5496aa2cea004f1ee863"
+  },
+  "native500_output_sha256": "cb1f014b70d5bd21e08f385e4fbea2c6d857328b2fd4a9c0506d64cb18ff0237",
+  "run_argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source189-shared-contact-trial-001/fem_trial_helper_native500_check",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-armijo-energy-replay-499-001/case-496-inputs-v3/accepted-nodes.bin",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-armijo-energy-replay-499-001/case-496-inputs-v3/candidate-nodes.bin",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-armijo-energy-replay-499-001/case-496-inputs-v3/correction.bin",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-armijo-energy-replay-499-001/case-496-inputs-v3/alphas.bin",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-armijo-energy-replay-499-001/case-496-inputs-v3/timestep.bin",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-barrier-energy-replay-500/output.bin"
+  ],
+  "schema": "source189.extracted_fem_trial_helper_check.v1",
+  "source_contract": {
+    "armijo_trials": true,
+    "compensated_vt": true,
+    "contact_limiter": true,
+    "endpoint_sweep": true,
+    "fem_apply": true,
+    "runtime17": true,
+    "runtime18": true,
+    "runtime19": true
+  },
+  "source_hashes": {
+    "contact": "e5f97bac59c32f1e3170d34df84c9fa5410fdefdf6ec739903fbb9bef0ba301c",
+    "fem": "bbd6abd764f723e6f0b266b80a3c99e100384e68e5ca5ae7cdd29cad36fb6a43",
+    "runtime": "9ed2a0011bbecb138ac1bcb9089a07899a34b5d39b43e1cfce3b2e42565f4e01"
+  },
+  "stdout": "extracted_helper_native500_endpoint_components_within_1ulp=96/96 exact=93 max_ulp=1\nineligible_fixed_zero_alpha_reference_displacement_controls=pass\n",
+  "support_nodes": [
+    10,
+    27,
+    28,
+    31
+  ]
+}

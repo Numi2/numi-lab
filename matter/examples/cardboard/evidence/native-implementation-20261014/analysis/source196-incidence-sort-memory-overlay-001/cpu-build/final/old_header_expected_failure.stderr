@@ -1,0 +1,59 @@
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/attempts/baseline-old-header/cardboard_shipping_memory_check.cpp:225:25: error: use of undeclared identifier 'parseShippingDeformableNodeIncidenceSort'
+  225 |     const auto absent = parseShippingDeformableNodeIncidenceSort(nullptr);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/attempts/baseline-old-header/cardboard_shipping_memory_check.cpp:226:26: error: use of undeclared identifier 'parseShippingDeformableNodeIncidenceSort'
+  226 |     const auto enabled = parseShippingDeformableNodeIncidenceSort("1");
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/attempts/baseline-old-header/cardboard_shipping_memory_check.cpp:231:17: error: use of undeclared identifier 'parseShippingDeformableNodeIncidenceSort'
+  231 |         require(parseShippingDeformableNodeIncidenceSort(malformed).error != nullptr,
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/attempts/baseline-old-header/cardboard_shipping_memory_check.cpp:235:13: error: use of undeclared identifier 'shippingDeformableNodeIncidenceSortWorkspaceBytes'
+  235 |     require(shippingDeformableNodeIncidenceSortWorkspaceBytes(1u, 1u, 1u) == 96u &&
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/attempts/baseline-old-header/cardboard_shipping_memory_check.cpp:236:17: error: use of undeclared identifier 'shippingDeformableNodeIncidenceSortWorkspaceBytes'
+  236 |                 shippingDeformableNodeIncidenceSortWorkspaceBytes(1u, 1u, 2u) == 192u,
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/attempts/baseline-old-header/cardboard_shipping_memory_check.cpp:238:13: error: use of undeclared identifier 'shippingDeformableNodeIncidenceSortWorkspaceBytes'
+  238 |     require(shippingDeformableNodeIncidenceSortWorkspaceBytes(131072u, 64u, 1u) ==
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/attempts/baseline-old-header/cardboard_shipping_memory_check.cpp:240:13: error: use of undeclared identifier 'shippingDeformableNodeIncidenceSortWorkspaceBytes'
+  240 |             shippingDeformableNodeIncidenceSortWorkspaceBytes(131072u, 64u, 2u) ==
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/attempts/baseline-old-header/cardboard_shipping_memory_check.cpp:244:15: error: use of undeclared identifier 'shippingDeformableNodeIncidenceSortWorkspaceBytes'
+  244 |         (void)shippingDeformableNodeIncidenceSortWorkspaceBytes(0u, 1u, 1u);
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/attempts/baseline-old-header/cardboard_shipping_memory_check.cpp:247:15: error: use of undeclared identifier 'shippingDeformableNodeIncidenceSortWorkspaceBytes'
+  247 |         (void)shippingDeformableNodeIncidenceSortWorkspaceBytes(1u, 1u, 0u);
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/attempts/baseline-old-header/cardboard_shipping_memory_check.cpp:250:15: error: use of undeclared identifier 'shippingDeformableNodeIncidenceSortWorkspaceBytes'
+  250 |         (void)shippingDeformableNodeIncidenceSortWorkspaceBytes(357913942u, 1u, 1u);
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/attempts/baseline-old-header/cardboard_shipping_memory_check.cpp:253:15: error: use of undeclared identifier 'shippingDeformableNodeIncidenceSortWorkspaceBytes'
+  253 |         (void)shippingDeformableNodeIncidenceSortWorkspaceBytes(131072u, 1u, 4096u);
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/attempts/baseline-old-header/cardboard_shipping_memory_check.cpp:256:15: error: use of undeclared identifier 'shippingDeformableNodeIncidenceSortWorkspaceBytes'
+  256 |         (void)shippingDeformableNodeIncidenceSortWorkspaceBytes(
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/attempts/baseline-old-header/cardboard_shipping_memory_check.cpp:260:15: error: use of undeclared identifier 'shippingDeformableNodeIncidenceSortWorkspaceBytes'
+  260 |         (void)shippingDeformableNodeIncidenceSortWorkspaceBytes(
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/attempts/baseline-old-header/cardboard_shipping_memory_check.cpp:270:17: error: no member named 'deformableNodeIncidenceSortEnabled' in 'numi::cardboard::ShippingMemoryBudgetInput'
+  270 |     sortedInput.deformableNodeIncidenceSortEnabled = true;
+      |     ~~~~~~~~~~~ ^
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/attempts/baseline-old-header/cardboard_shipping_memory_check.cpp:272:28: error: no member named 'deformableNodeIncidenceSortBytes' in 'numi::cardboard::ShippingMemoryBudget'
+  272 |     require(unsortedBudget.deformableNodeIncidenceSortBytes == 0u &&
+      |             ~~~~~~~~~~~~~~ ^
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/attempts/baseline-old-header/cardboard_shipping_memory_check.cpp:273:30: error: no member named 'deformableNodeIncidenceSortBytes' in 'numi::cardboard::ShippingMemoryBudget'
+  273 |                 sortedBudget.deformableNodeIncidenceSortBytes == 12582912u &&
+      |                 ~~~~~~~~~~~~ ^
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/attempts/baseline-old-header/cardboard_shipping_memory_check.cpp:282:34: error: no member named 'deformableNodeIncidenceSortBytes' in 'numi::cardboard::ShippingMemoryBudget'
+  282 |     require(twoEnvironmentBudget.deformableNodeIncidenceSortBytes ==
+      |             ~~~~~~~~~~~~~~~~~~~~ ^
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/attempts/baseline-old-header/cardboard_shipping_memory_check.cpp:293:5: error: use of undeclared identifier 'configureShippingDeformableNodeIncidenceSort'
+  293 |     configureShippingDeformableNodeIncidenceSort(prebuildOptions, "1");
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/attempts/baseline-old-header/cardboard_shipping_memory_check.cpp:296:29: error: no member named 'deformableNodeIncidenceSortEnabled' in 'numi::cardboard::ShippingPrebuildArenaOptions'
+  296 |     require(prebuildOptions.deformableNodeIncidenceSortEnabled &&
+      |             ~~~~~~~~~~~~~~~ ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.

@@ -3434,6 +3434,36 @@ kernel void nm_fem_apply_operator_elements(
     elementOperator[global] = value;
 }
 
+// Build the exact node state produced by FEM line-search application.
+// Contact trial energies use this same FP32 operation order so the tested
+// endpoint is the one the accepted solution path will publish. Eligibility
+// (representation and object schedule) remains owned by each caller.
+inline NMFEMNodeStateGPU femTrialNodeAtAlpha(
+    const NMFEMNodeStateGPU acceptedState,
+    NMFEMNodeStateGPU next,
+    const float3 correction,
+    const float alpha,
+    const float dt,
+    const bool updateEligible
+) {
+    if (!updateEligible || next.restAndFixed.w > 0.5f || !(alpha > 0.0f))
+        return next;
+    next.velocityAndInverseMass.xyz += alpha * correction;
+    next.deltaVelocity.xyz = next.velocityAndInverseMass.xyz -
+        acceptedState.velocityAndInverseMass.xyz;
+    if (next.referenceDisplacementAndMode.w == 1.0f) {
+        next.referenceDisplacementAndMode.xyz =
+            acceptedState.referenceDisplacementAndMode.xyz +
+            dt * next.velocityAndInverseMass.xyz;
+        next.positionAndMass.xyz = next.restAndFixed.xyz +
+            next.referenceDisplacementAndMode.xyz;
+    } else {
+        next.positionAndMass.xyz = acceptedState.positionAndMass.xyz +
+            dt * next.velocityAndInverseMass.xyz;
+    }
+    return next;
+}
+
 kernel void nm_fem_apply_solution(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -3469,21 +3499,9 @@ kernel void nm_fem_apply_solution(
                 0.0f, 1.0f
             );
             if (next.restAndFixed.w <= 0.5f && alpha > 0.0f) {
-                next.velocityAndInverseMass.xyz +=
-                    alpha * solution[global].xyz;
-                next.deltaVelocity.xyz = next.velocityAndInverseMass.xyz -
-                    accepted[global].velocityAndInverseMass.xyz;
                 const float dt = objectTimestep(dispatch, scheduler);
-                if (next.referenceDisplacementAndMode.w == 1.0f) {
-                    next.referenceDisplacementAndMode.xyz =
-                        accepted[global].referenceDisplacementAndMode.xyz +
-                        dt * next.velocityAndInverseMass.xyz;
-                    next.positionAndMass.xyz = next.restAndFixed.xyz +
-                        next.referenceDisplacementAndMode.xyz;
-                } else {
-                    next.positionAndMass.xyz = accepted[global].positionAndMass.xyz +
-                        dt * next.velocityAndInverseMass.xyz;
-                }
+                next = femTrialNodeAtAlpha(accepted[global], next,
+                    solution[global].xyz, alpha, dt, true);
             }
             if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
                 object.materialIndex < dispatch.mixedMaterialCount) {
@@ -4500,21 +4518,9 @@ kernel void nm_fem_armijo_prepare_candidate(
             objectDue(object, scheduler, adaptiveState, microstep) &&
             next.restAndFixed.w <= 0.5f && metrics[environment].z > 0.0f) {
             const float alpha = metrics[environment].z;
-            next.velocityAndInverseMass.xyz += alpha * correction[global].xyz;
-            next.deltaVelocity.xyz = next.velocityAndInverseMass.xyz -
-                accepted[global].velocityAndInverseMass.xyz;
             const float dt = objectTimestep(dispatch, scheduler);
-            if (next.referenceDisplacementAndMode.w == 1.0f) {
-                next.referenceDisplacementAndMode.xyz =
-                    accepted[global].referenceDisplacementAndMode.xyz +
-                    dt * next.velocityAndInverseMass.xyz;
-                next.positionAndMass.xyz = next.restAndFixed.xyz +
-                    next.referenceDisplacementAndMode.xyz;
-            } else {
-                next.positionAndMass.xyz =
-                    accepted[global].positionAndMass.xyz +
-                    dt * next.velocityAndInverseMass.xyz;
-            }
+            next = femTrialNodeAtAlpha(accepted[global], next,
+                correction[global].xyz, alpha, dt, true);
         }
     }
     trialCandidate[global] = next;

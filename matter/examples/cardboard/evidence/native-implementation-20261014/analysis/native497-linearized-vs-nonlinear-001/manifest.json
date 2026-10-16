@@ -1,0 +1,16 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 850,
+      "sha256": "320d284dbc6bc597b8ef2ca96ef60d397014828d3366836e6349efc022895649"
+    },
+    "report.json": {
+      "bytes": 9878,
+      "sha256": "99019a4c30d6aa4a5692e3e464c8fb805d457c3a1bc370b2c93fad1363c6c1d5"
+    }
+  },
+  "host": "macmini",
+  "package": "native497-linearized-vs-nonlinear-001",
+  "schema": "numi.cardboard.analysis-package.v1",
+  "scope": "CPU-only read-only linear/nonlinear diagnostic"
+}

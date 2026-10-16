@@ -1,0 +1,19 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 383,
+      "sha256": "99fcc006d24044331efcb17bd60dff7683d38bb47659e529832b10b7a1daee99"
+    },
+    "original-report.json.gz": {
+      "bytes": 17112,
+      "sha256": "6bf86fc7da837df944c70e5879ec7963679ebe4db17c563ed929b8796abe14fe"
+    },
+    "warning-summary.json": {
+      "bytes": 2877,
+      "sha256": "f0bbca7e80d6cb23dd5dac586128440ae3cb6ffbbfc7169b7cea96430d463a2c"
+    }
+  },
+  "package": "native497-full-damped-screen-warning-aggregation-001",
+  "schema": "numi.cardboard.analysis-package.v1",
+  "scope": "postprocessing-only lossless report compression and warning count aggregation"
+}

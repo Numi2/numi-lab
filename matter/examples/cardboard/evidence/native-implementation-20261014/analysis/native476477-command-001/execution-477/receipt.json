@@ -1,0 +1,17 @@
+{
+  "schema": "numi.cardboard.macmini-native476477-guard.v1",
+  "host_tag": "macmini",
+  "phase": "477",
+  "execution_started": true,
+  "wrapper_exit_code": 2,
+  "space_abort": false,
+  "timed_out": false,
+  "errors": [],
+  "cleanup": null,
+  "minimum_available_bytes": 112545894400,
+  "available_after_run": 112680083456,
+  "wall_seconds": 1521.159642749466,
+  "finished_at_utc": "2026-10-16T04:27:27.528498+00:00",
+  "full_protocol_qualification": false,
+  "uninterrupted_trajectory_parity": false
+}

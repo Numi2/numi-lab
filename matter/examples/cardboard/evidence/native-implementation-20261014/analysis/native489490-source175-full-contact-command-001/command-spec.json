@@ -1,0 +1,21 @@
+{
+  "schema": "numi.cardboard.source175-native-full-contact-command.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175-buildfix-003",
+  "build_directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003",
+  "source_frozen_sha256": "6e4f8dad1377af79b1dc2ddeeb0f07e6a273598d291cb030e6222e8aebb5a007",
+  "files_sha256": {
+    "numi-matter-cardboard-full-contact-armijo-check": "a5d55207fedd3de294a3febfba54a398a7f20b79a787ac11c5ae4023f922d2a1",
+    "shaders/NumiMatter.metallib": "59a7df8c8fd4d336fbcb9e28b7fe3942d86063a4a1fbafe36963e41a0c007cc9",
+    "source-build.json": "75c24e646fccb250fe0f8bd7d812491d5aac3892f99e863578982780f1194a25"
+  },
+  "material_relative_path": "matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+  "material_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+  "cases": {
+    "489": [],
+    "490": [
+      "--compensated-material-arithmetic"
+    ]
+  },
+  "timeout_s": 300,
+  "qualification": "Actual bounded native full-contact Armijo differential checker only. Does not qualify shipping mesh admission, full16GiB peak, full folding, convergence or physical calibration."
+}

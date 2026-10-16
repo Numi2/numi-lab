@@ -1,0 +1,3488 @@
+{
+  "526_regional_galerkin_vector_counts": {
+    "fem_regional_galerkin_basis_p": 504,
+    "fem_regional_galerkin_effective_basis_p": 504,
+    "fem_regional_galerkin_factor_valid": 1,
+    "fem_regional_galerkin_linearization_nodes": 36,
+    "fem_regional_galerkin_node_block_inverse": 108,
+    "fem_regional_galerkin_operator_ap": 504,
+    "fem_regional_galerkin_pivoted_rap": 196,
+    "fem_regional_galerkin_pivots": 14
+  },
+  "bindings_match_both_command_specs": true,
+  "build_directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source198-001",
+  "build_hashes": {
+    "CMakeCache.txt": "6d990ba3f1b11fe53085a37401035bb7322af50318931da26e5b301ab3bbd4a4",
+    "compile_commands.json": "39d55c453c2244de3da229830e3875f787d8bacfc7188bf0faa698dc58a5e2e2",
+    "numi-matter-cardboard-full-contact-armijo-check": "c067e5ea69b5fb748a878be24151f2f27b2de7b73701dd20df61a57a37e0bda6",
+    "shaders/NumiMatter.metallib": "edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f",
+    "source-build.json": "8f6c95304c23b6c7149ec6b270d54eafdf4507ea26f3420e39e523c09dd500ad"
+  },
+  "common_command_binding": {
+    "differing_common_fields": [],
+    "identical_fields": [
+      "source_snapshot",
+      "build_directory",
+      "source_frozen_sha256",
+      "files_sha256",
+      "material_relative_path",
+      "material_sha256",
+      "timeout_s"
+    ],
+    "option_arrays": {
+      "526": [
+        "--compensated-material-arithmetic",
+        "--diagnostic-state-output",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated198-contact-regional-526",
+        "--self-surface-scratch-alias-parity",
+        "--extended-budget",
+        "--regional-contact-preconditioner"
+      ],
+      "527": [
+        "--compensated-material-arithmetic",
+        "--diagnostic-state-output",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated198-contact-restart16-527",
+        "--self-surface-scratch-alias-parity",
+        "--extended-budget"
+      ]
+    },
+    "trace_environment_values_equal": true
+  },
+  "compiled_preconditioner_selection": {
+    "526": {
+      "line": "selected_fem_preconditioner=regional_galerkin_contact selector=4",
+      "stdout_sha256": "8da911409ad24dc563cf403727fafe9396be2f18e1430dd062add5fb65dacd4f"
+    },
+    "527": {
+      "line": "selected_fem_preconditioner=scalar_diagonal selector=0",
+      "stdout_sha256": "34e040e6dd338e7140928b99300b30d0739553eff3546d99d904f6196060107a"
+    }
+  },
+  "cross_run_accepted_state_hashes": {
+    "transaction_0_after": {
+      "different": [
+        "cohesiveFaces",
+        "contactHistories",
+        "deformableContactHistories",
+        "femNodes"
+      ],
+      "field_count": 18,
+      "identical": [
+        "environmentParameters",
+        "femFields",
+        "femMaterialState",
+        "femTopologyNodes",
+        "femTopologyTetrahedra",
+        "humanSupportConsequences",
+        "humanSupportHistories",
+        "particleMaterialState",
+        "particles",
+        "punctureChannels",
+        "rigidStates",
+        "topologyStates",
+        "vascularClock",
+        "vascularState"
+      ]
+    },
+    "transaction_0_before": {
+      "different": [],
+      "field_count": 18,
+      "identical": [
+        "cohesiveFaces",
+        "contactHistories",
+        "deformableContactHistories",
+        "environmentParameters",
+        "femFields",
+        "femMaterialState",
+        "femNodes",
+        "femTopologyNodes",
+        "femTopologyTetrahedra",
+        "humanSupportConsequences",
+        "humanSupportHistories",
+        "particleMaterialState",
+        "particles",
+        "punctureChannels",
+        "rigidStates",
+        "topologyStates",
+        "vascularClock",
+        "vascularState"
+      ]
+    },
+    "transaction_1_after": {
+      "different": [
+        "cohesiveFaces",
+        "contactHistories",
+        "deformableContactHistories",
+        "femNodes"
+      ],
+      "field_count": 18,
+      "identical": [
+        "environmentParameters",
+        "femFields",
+        "femMaterialState",
+        "femTopologyNodes",
+        "femTopologyTetrahedra",
+        "humanSupportConsequences",
+        "humanSupportHistories",
+        "particleMaterialState",
+        "particles",
+        "punctureChannels",
+        "rigidStates",
+        "topologyStates",
+        "vascularClock",
+        "vascularState"
+      ]
+    },
+    "transaction_1_before": {
+      "different": [
+        "cohesiveFaces",
+        "contactHistories",
+        "deformableContactHistories",
+        "femNodes"
+      ],
+      "field_count": 18,
+      "identical": [
+        "environmentParameters",
+        "femFields",
+        "femMaterialState",
+        "femTopologyNodes",
+        "femTopologyTetrahedra",
+        "humanSupportConsequences",
+        "humanSupportHistories",
+        "particleMaterialState",
+        "particles",
+        "punctureChannels",
+        "rigidStates",
+        "topologyStates",
+        "vascularClock",
+        "vascularState"
+      ]
+    },
+    "transaction_2_after": {
+      "different": [
+        "cohesiveFaces",
+        "contactHistories",
+        "deformableContactHistories",
+        "femNodes"
+      ],
+      "field_count": 18,
+      "identical": [
+        "environmentParameters",
+        "femFields",
+        "femMaterialState",
+        "femTopologyNodes",
+        "femTopologyTetrahedra",
+        "humanSupportConsequences",
+        "humanSupportHistories",
+        "particleMaterialState",
+        "particles",
+        "punctureChannels",
+        "rigidStates",
+        "topologyStates",
+        "vascularClock",
+        "vascularState"
+      ]
+    },
+    "transaction_2_before": {
+      "different": [
+        "cohesiveFaces",
+        "contactHistories",
+        "deformableContactHistories",
+        "femNodes"
+      ],
+      "field_count": 18,
+      "identical": [
+        "environmentParameters",
+        "femFields",
+        "femMaterialState",
+        "femTopologyNodes",
+        "femTopologyTetrahedra",
+        "humanSupportConsequences",
+        "humanSupportHistories",
+        "particleMaterialState",
+        "particles",
+        "punctureChannels",
+        "rigidStates",
+        "topologyStates",
+        "vascularClock",
+        "vascularState"
+      ]
+    }
+  },
+  "material_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+  "material_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+  "runs": {
+    "526": {
+      "actual_file_count": 26,
+      "all_receipt_hashes_match": true,
+      "armijo_trace": [
+        {
+          "base_l2": 0.00029570554,
+          "certified_noop": false,
+          "fgmres_iterations": 2,
+          "newton_iteration": 0,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0.194048524,
+          "trial_l2": 0.000166632046,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 0.000166632046,
+          "certified_noop": false,
+          "fgmres_iterations": 5,
+          "newton_iteration": 1,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 1,
+          "trial_l2": 4.10137945e-05,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 4.10137945e-05,
+          "certified_noop": false,
+          "fgmres_iterations": 6,
+          "newton_iteration": 2,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 1,
+          "trial_l2": 9.02289958e-06,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 9.02289958e-06,
+          "certified_noop": false,
+          "fgmres_iterations": 34,
+          "newton_iteration": 3,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 1,
+          "trial_l2": 7.69931546e-07,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 7.69931546e-07,
+          "certified_noop": false,
+          "fgmres_iterations": 34,
+          "newton_iteration": 4,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 1,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 5,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 6,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 7,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 8,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 9,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 10,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 11,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 12,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 13,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 14,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 15,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 16,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 17,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 18,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 19,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 20,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 21,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 22,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 23,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 24,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 25,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 26,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 27,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 28,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 29,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 30,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 31,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        }
+      ],
+      "baseline_aliased_byte_equal": true,
+      "baseline_aliased_files": {
+        "baseline/fixture-activation.log": true,
+        "baseline/fixture-initialization.log": true,
+        "baseline/fixture-loaded.log": true,
+        "baseline/fixture-rejected.log": true,
+        "baseline/transaction-000000-after.bin": true,
+        "baseline/transaction-000000-before.bin": true,
+        "baseline/transaction-000000.json": true,
+        "baseline/transaction-000001-after.bin": true,
+        "baseline/transaction-000001-before.bin": true,
+        "baseline/transaction-000001.json": true,
+        "baseline/transaction-000002-after.bin": true,
+        "baseline/transaction-000002-before.bin": true,
+        "baseline/transaction-000002.json": true
+      },
+      "command_spec": {
+        "build_directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source198-001",
+        "case_outputs": {
+          "526": "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated198-contact-regional-526"
+        },
+        "cases": {
+          "526": [
+            "--compensated-material-arithmetic",
+            "--diagnostic-state-output",
+            "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated198-contact-regional-526",
+            "--self-surface-scratch-alias-parity",
+            "--extended-budget",
+            "--regional-contact-preconditioner"
+          ]
+        },
+        "environment": {
+          "526": {
+            "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": "2"
+          }
+        },
+        "files_sha256": {
+          "CMakeCache.txt": "6d990ba3f1b11fe53085a37401035bb7322af50318931da26e5b301ab3bbd4a4",
+          "compile_commands.json": "39d55c453c2244de3da229830e3875f787d8bacfc7188bf0faa698dc58a5e2e2",
+          "numi-matter-cardboard-full-contact-armijo-check": "c067e5ea69b5fb748a878be24151f2f27b2de7b73701dd20df61a57a37e0bda6",
+          "shaders/NumiMatter.metallib": "edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f",
+          "source-build.json": "8f6c95304c23b6c7149ec6b270d54eafdf4507ea26f3420e39e523c09dd500ad"
+        },
+        "material_relative_path": "matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+        "material_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+        "qualification": "Same physical source198 synthetic fixture as527 and same restart16/FGMRES256/Newton32/line_search24/tolerance1e-7; existing regional contact preconditioner changes conditioning only. Explicitly inspect whether the intended postCommit negative control is reached or again masked by earlier residual failure. Rollback of actual failure and fault-specific coverage are separate verdicts.",
+        "schema": "numi.cardboard.source198-contact-regional-command.v1",
+        "source_frozen_sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc",
+        "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001",
+        "timeout_s": 600
+      },
+      "command_spec_sha256": "02dd3e65cc83ee9ef2e9c319a074455c281599a7a147a631171da8d2b36f8149",
+      "package_manifest_sha256": "2e4faab4c30e2c8d436bf07c35d51fcba2c6917257eb75e2e59a42c4fd2aa4e1",
+      "receipt": {
+        "exit_code": 0,
+        "shipping_or_physical_validation": false,
+        "space_abort": false,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "8da911409ad24dc563cf403727fafe9396be2f18e1430dd062add5fb65dacd4f",
+        "timed_out": false,
+        "wall_seconds": 24.538004375
+      },
+      "receipt_file_count": 26,
+      "receipt_files": {
+        "aliased/fixture-activation.log": {
+          "actual_bytes": 59453,
+          "actual_sha256": "e8697d03a7da317df0e028fbe4fc2d808a25edd2051bf42f110ae17aa0c4b88c",
+          "expected_bytes": 59453,
+          "expected_sha256": "e8697d03a7da317df0e028fbe4fc2d808a25edd2051bf42f110ae17aa0c4b88c",
+          "matches": true
+        },
+        "aliased/fixture-initialization.log": {
+          "actual_bytes": 0,
+          "actual_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "expected_bytes": 0,
+          "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "matches": true
+        },
+        "aliased/fixture-loaded.log": {
+          "actual_bytes": 59501,
+          "actual_sha256": "ae2618c56adc043213c6c166561ab2108b33e22bdad1782756d9b603be418aff",
+          "expected_bytes": 59501,
+          "expected_sha256": "ae2618c56adc043213c6c166561ab2108b33e22bdad1782756d9b603be418aff",
+          "matches": true
+        },
+        "aliased/fixture-rejected.log": {
+          "actual_bytes": 59494,
+          "actual_sha256": "9dac869a725f20f64c689f8a4c0841171cc836788d2903fb8452c14d526247ef",
+          "expected_bytes": 59494,
+          "expected_sha256": "9dac869a725f20f64c689f8a4c0841171cc836788d2903fb8452c14d526247ef",
+          "matches": true
+        },
+        "aliased/transaction-000000-after.bin": {
+          "actual_bytes": 933947,
+          "actual_sha256": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318",
+          "expected_bytes": 933947,
+          "expected_sha256": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318",
+          "matches": true
+        },
+        "aliased/transaction-000000-before.bin": {
+          "actual_bytes": 933947,
+          "actual_sha256": "d09862484e299a6b74530d6898607d5c6df4b391f53ffc28663dc243a464f6b7",
+          "expected_bytes": 933947,
+          "expected_sha256": "d09862484e299a6b74530d6898607d5c6df4b391f53ffc28663dc243a464f6b7",
+          "matches": true
+        },
+        "aliased/transaction-000000.json": {
+          "actual_bytes": 6587,
+          "actual_sha256": "c60cd123bfc05e9f8869e490992316c71ee6cc9132c55ca7887d474635b18693",
+          "expected_bytes": 6587,
+          "expected_sha256": "c60cd123bfc05e9f8869e490992316c71ee6cc9132c55ca7887d474635b18693",
+          "matches": true
+        },
+        "aliased/transaction-000001-after.bin": {
+          "actual_bytes": 933947,
+          "actual_sha256": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be",
+          "expected_bytes": 933947,
+          "expected_sha256": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be",
+          "matches": true
+        },
+        "aliased/transaction-000001-before.bin": {
+          "actual_bytes": 933947,
+          "actual_sha256": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318",
+          "expected_bytes": 933947,
+          "expected_sha256": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318",
+          "matches": true
+        },
+        "aliased/transaction-000001.json": {
+          "actual_bytes": 6687,
+          "actual_sha256": "6beca37ded734ccec002a41e61cc6776093b8dde7db6ba5198b1abd8b114de03",
+          "expected_bytes": 6687,
+          "expected_sha256": "6beca37ded734ccec002a41e61cc6776093b8dde7db6ba5198b1abd8b114de03",
+          "matches": true
+        },
+        "aliased/transaction-000002-after.bin": {
+          "actual_bytes": 933947,
+          "actual_sha256": "9a82b5e533c69eb52ea0ce438fd9f59693491d8c60693f84c4950cc9031ba2ba",
+          "expected_bytes": 933947,
+          "expected_sha256": "9a82b5e533c69eb52ea0ce438fd9f59693491d8c60693f84c4950cc9031ba2ba",
+          "matches": true
+        },
+        "aliased/transaction-000002-before.bin": {
+          "actual_bytes": 933947,
+          "actual_sha256": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be",
+          "expected_bytes": 933947,
+          "expected_sha256": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be",
+          "matches": true
+        },
+        "aliased/transaction-000002.json": {
+          "actual_bytes": 6664,
+          "actual_sha256": "742cf2416e2e377976b496c5dd8a04f00e757b3e46a2a0e9121c28dfbc08cda5",
+          "expected_bytes": 6664,
+          "expected_sha256": "742cf2416e2e377976b496c5dd8a04f00e757b3e46a2a0e9121c28dfbc08cda5",
+          "matches": true
+        },
+        "baseline/fixture-activation.log": {
+          "actual_bytes": 59453,
+          "actual_sha256": "e8697d03a7da317df0e028fbe4fc2d808a25edd2051bf42f110ae17aa0c4b88c",
+          "expected_bytes": 59453,
+          "expected_sha256": "e8697d03a7da317df0e028fbe4fc2d808a25edd2051bf42f110ae17aa0c4b88c",
+          "matches": true
+        },
+        "baseline/fixture-initialization.log": {
+          "actual_bytes": 0,
+          "actual_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "expected_bytes": 0,
+          "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "matches": true
+        },
+        "baseline/fixture-loaded.log": {
+          "actual_bytes": 59501,
+          "actual_sha256": "ae2618c56adc043213c6c166561ab2108b33e22bdad1782756d9b603be418aff",
+          "expected_bytes": 59501,
+          "expected_sha256": "ae2618c56adc043213c6c166561ab2108b33e22bdad1782756d9b603be418aff",
+          "matches": true
+        },
+        "baseline/fixture-rejected.log": {
+          "actual_bytes": 59494,
+          "actual_sha256": "9dac869a725f20f64c689f8a4c0841171cc836788d2903fb8452c14d526247ef",
+          "expected_bytes": 59494,
+          "expected_sha256": "9dac869a725f20f64c689f8a4c0841171cc836788d2903fb8452c14d526247ef",
+          "matches": true
+        },
+        "baseline/transaction-000000-after.bin": {
+          "actual_bytes": 933947,
+          "actual_sha256": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318",
+          "expected_bytes": 933947,
+          "expected_sha256": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318",
+          "matches": true
+        },
+        "baseline/transaction-000000-before.bin": {
+          "actual_bytes": 933947,
+          "actual_sha256": "d09862484e299a6b74530d6898607d5c6df4b391f53ffc28663dc243a464f6b7",
+          "expected_bytes": 933947,
+          "expected_sha256": "d09862484e299a6b74530d6898607d5c6df4b391f53ffc28663dc243a464f6b7",
+          "matches": true
+        },
+        "baseline/transaction-000000.json": {
+          "actual_bytes": 6587,
+          "actual_sha256": "c60cd123bfc05e9f8869e490992316c71ee6cc9132c55ca7887d474635b18693",
+          "expected_bytes": 6587,
+          "expected_sha256": "c60cd123bfc05e9f8869e490992316c71ee6cc9132c55ca7887d474635b18693",
+          "matches": true
+        },
+        "baseline/transaction-000001-after.bin": {
+          "actual_bytes": 933947,
+          "actual_sha256": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be",
+          "expected_bytes": 933947,
+          "expected_sha256": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be",
+          "matches": true
+        },
+        "baseline/transaction-000001-before.bin": {
+          "actual_bytes": 933947,
+          "actual_sha256": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318",
+          "expected_bytes": 933947,
+          "expected_sha256": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318",
+          "matches": true
+        },
+        "baseline/transaction-000001.json": {
+          "actual_bytes": 6687,
+          "actual_sha256": "6beca37ded734ccec002a41e61cc6776093b8dde7db6ba5198b1abd8b114de03",
+          "expected_bytes": 6687,
+          "expected_sha256": "6beca37ded734ccec002a41e61cc6776093b8dde7db6ba5198b1abd8b114de03",
+          "matches": true
+        },
+        "baseline/transaction-000002-after.bin": {
+          "actual_bytes": 933947,
+          "actual_sha256": "9a82b5e533c69eb52ea0ce438fd9f59693491d8c60693f84c4950cc9031ba2ba",
+          "expected_bytes": 933947,
+          "expected_sha256": "9a82b5e533c69eb52ea0ce438fd9f59693491d8c60693f84c4950cc9031ba2ba",
+          "matches": true
+        },
+        "baseline/transaction-000002-before.bin": {
+          "actual_bytes": 933947,
+          "actual_sha256": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be",
+          "expected_bytes": 933947,
+          "expected_sha256": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be",
+          "matches": true
+        },
+        "baseline/transaction-000002.json": {
+          "actual_bytes": 6664,
+          "actual_sha256": "742cf2416e2e377976b496c5dd8a04f00e757b3e46a2a0e9121c28dfbc08cda5",
+          "expected_bytes": 6664,
+          "expected_sha256": "742cf2416e2e377976b496c5dd8a04f00e757b3e46a2a0e9121c28dfbc08cda5",
+          "matches": true
+        }
+      },
+      "receipt_inventory_exact": true,
+      "receipt_sha256": "6d6bbc7fb6d18b22a4d77ada73ff73ddb8c2af1797c93522e4d15ab3b91369c2",
+      "rejected_log_sha256": "9dac869a725f20f64c689f8a4c0841171cc836788d2903fb8452c14d526247ef",
+      "snapshot_layout_by_attempt": {
+        "0": {
+          "after": {
+            "bytes": 933947,
+            "diagnostic_suffix_bytes": 29734,
+            "diagnostic_suffix_marker_offset": 904213,
+            "raw_sha256": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318"
+          },
+          "before": {
+            "bytes": 933947,
+            "diagnostic_suffix_bytes": 29734,
+            "diagnostic_suffix_marker_offset": 904213,
+            "raw_sha256": "d09862484e299a6b74530d6898607d5c6df4b391f53ffc28663dc243a464f6b7"
+          }
+        },
+        "1": {
+          "after": {
+            "bytes": 933947,
+            "diagnostic_suffix_bytes": 29734,
+            "diagnostic_suffix_marker_offset": 904213,
+            "raw_sha256": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be"
+          },
+          "before": {
+            "bytes": 933947,
+            "diagnostic_suffix_bytes": 29734,
+            "diagnostic_suffix_marker_offset": 904213,
+            "raw_sha256": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318"
+          }
+        },
+        "2": {
+          "after": {
+            "bytes": 933947,
+            "diagnostic_suffix_bytes": 29734,
+            "diagnostic_suffix_marker_offset": 904213,
+            "raw_sha256": "9a82b5e533c69eb52ea0ce438fd9f59693491d8c60693f84c4950cc9031ba2ba"
+          },
+          "before": {
+            "bytes": 933947,
+            "diagnostic_suffix_bytes": 29734,
+            "diagnostic_suffix_marker_offset": 904213,
+            "raw_sha256": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be"
+          }
+        }
+      },
+      "trace_summary": {
+        "certified_noop_records": 27,
+        "first_nonzero_pretrial_newton": null,
+        "first_nonzero_solver_status_code": null,
+        "first_nonzero_solver_status_newton": null,
+        "healthy_pretrial_records": 32,
+        "last_record": {
+          "base_l2": 9.63568425e-08,
+          "certified_noop": true,
+          "fgmres_iterations": 34,
+          "newton_iteration": 31,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0,
+          "trial_l2": 9.63568425e-08,
+          "trial_outcome": "certified_noop"
+        },
+        "nonzero_pretrial_records": 0,
+        "record_count": 32,
+        "selected_trial_accepted_records": 5
+      },
+      "transactions": [
+        {
+          "accepted": true,
+          "after_certificate_validity": [
+            0.999649942,
+            0,
+            0,
+            1
+          ],
+          "after_counts": {
+            "adaptive": 1,
+            "cohesiveFaces": 1,
+            "contactHistories": 72,
+            "contactSamples": 72,
+            "deformableContactFailures": 1,
+            "deformableContactHistories": 18336,
+            "environmentParameters": 10,
+            "femFields": 36,
+            "femMaterialState": 4,
+            "femNodes": 36,
+            "femTopologyNodes": 36,
+            "femTopologyTetrahedra": 48,
+            "fem_regional_galerkin_basis_p": 504,
+            "fem_regional_galerkin_effective_basis_p": 504,
+            "fem_regional_galerkin_factor_valid": 1,
+            "fem_regional_galerkin_linearization_nodes": 36,
+            "fem_regional_galerkin_node_block_inverse": 108,
+            "fem_regional_galerkin_operator_ap": 504,
+            "fem_regional_galerkin_pivoted_rap": 196,
+            "fem_regional_galerkin_pivots": 14,
+            "humanSupportConsequences": 0,
+            "humanSupportHistories": 0,
+            "identification": 1,
+            "learnedWeights": 4,
+            "mpmActiveNodeCounts": 1,
+            "mpmActiveNodeIndices": 0,
+            "mpmNodeToActive": 0,
+            "particleMaterialState": 4,
+            "particles": 1,
+            "punctureChannels": 1,
+            "reactions": 2,
+            "rigidGeneralizedCandidate": 0,
+            "rigidStates": 2,
+            "schedulers": 1,
+            "solverCertificates": 1,
+            "statuses": 1,
+            "sutureProxyEdges": 0,
+            "topologyStates": 1,
+            "vascularClock": 0,
+            "vascularState": 0
+          },
+          "after_cursor": [
+            1,
+            0
+          ],
+          "after_snapshot_sha256": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318",
+          "after_status": {
+            "code": 0,
+            "completed_microsteps": 1,
+            "contact_count": 1,
+            "diagnostics": [
+              0.999649942,
+              0,
+              0,
+              0.233945712
+            ],
+            "environment": 0,
+            "event_count": 0,
+            "failing_index": 4294967295,
+            "fgmres_iterations": 16,
+            "object_index": 4294967295
+          },
+          "attempt_index": 0,
+          "before_certificate_validity": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "before_counts": {
+            "adaptive": 1,
+            "cohesiveFaces": 1,
+            "contactHistories": 72,
+            "contactSamples": 72,
+            "deformableContactFailures": 1,
+            "deformableContactHistories": 18336,
+            "environmentParameters": 10,
+            "femFields": 36,
+            "femMaterialState": 4,
+            "femNodes": 36,
+            "femTopologyNodes": 36,
+            "femTopologyTetrahedra": 48,
+            "fem_regional_galerkin_basis_p": 504,
+            "fem_regional_galerkin_effective_basis_p": 504,
+            "fem_regional_galerkin_factor_valid": 1,
+            "fem_regional_galerkin_linearization_nodes": 36,
+            "fem_regional_galerkin_node_block_inverse": 108,
+            "fem_regional_galerkin_operator_ap": 504,
+            "fem_regional_galerkin_pivoted_rap": 196,
+            "fem_regional_galerkin_pivots": 14,
+            "humanSupportConsequences": 0,
+            "humanSupportHistories": 0,
+            "identification": 1,
+            "learnedWeights": 4,
+            "mpmActiveNodeCounts": 1,
+            "mpmActiveNodeIndices": 0,
+            "mpmNodeToActive": 0,
+            "particleMaterialState": 4,
+            "particles": 1,
+            "punctureChannels": 1,
+            "reactions": 2,
+            "rigidGeneralizedCandidate": 0,
+            "rigidStates": 2,
+            "schedulers": 1,
+            "solverCertificates": 1,
+            "statuses": 1,
+            "sutureProxyEdges": 0,
+            "topologyStates": 1,
+            "vascularClock": 0,
+            "vascularState": 0
+          },
+          "before_cursor": [
+            0,
+            0
+          ],
+          "before_snapshot_sha256": "d09862484e299a6b74530d6898607d5c6df4b391f53ffc28663dc243a464f6b7",
+          "before_status": {
+            "code": 0,
+            "completed_microsteps": 0,
+            "contact_count": 0,
+            "diagnostics": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "environment": 0,
+            "event_count": 0,
+            "failing_index": 0,
+            "fgmres_iterations": 0,
+            "object_index": 0
+          },
+          "changed_accepted_state_vectors": [
+            "cohesiveFaces",
+            "contactHistories",
+            "deformableContactHistories",
+            "femNodes",
+            "rigidStates"
+          ],
+          "completion_stage": "snapshot_after_completion",
+          "requested_control_step": 1,
+          "snapshot_bytes": 933947,
+          "unchanged_accepted_state_vectors": [
+            "environmentParameters",
+            "femFields",
+            "femMaterialState",
+            "femTopologyNodes",
+            "femTopologyTetrahedra",
+            "humanSupportConsequences",
+            "humanSupportHistories",
+            "particleMaterialState",
+            "particles",
+            "punctureChannels",
+            "topologyStates",
+            "vascularClock",
+            "vascularState"
+          ]
+        },
+        {
+          "accepted": true,
+          "after_certificate_validity": [
+            0.995665014,
+            0,
+            0,
+            1
+          ],
+          "after_counts": {
+            "adaptive": 1,
+            "cohesiveFaces": 1,
+            "contactHistories": 72,
+            "contactSamples": 72,
+            "deformableContactFailures": 1,
+            "deformableContactHistories": 18336,
+            "environmentParameters": 10,
+            "femFields": 36,
+            "femMaterialState": 4,
+            "femNodes": 36,
+            "femTopologyNodes": 36,
+            "femTopologyTetrahedra": 48,
+            "fem_regional_galerkin_basis_p": 504,
+            "fem_regional_galerkin_effective_basis_p": 504,
+            "fem_regional_galerkin_factor_valid": 1,
+            "fem_regional_galerkin_linearization_nodes": 36,
+            "fem_regional_galerkin_node_block_inverse": 108,
+            "fem_regional_galerkin_operator_ap": 504,
+            "fem_regional_galerkin_pivoted_rap": 196,
+            "fem_regional_galerkin_pivots": 14,
+            "humanSupportConsequences": 0,
+            "humanSupportHistories": 0,
+            "identification": 1,
+            "learnedWeights": 4,
+            "mpmActiveNodeCounts": 1,
+            "mpmActiveNodeIndices": 0,
+            "mpmNodeToActive": 0,
+            "particleMaterialState": 4,
+            "particles": 1,
+            "punctureChannels": 1,
+            "reactions": 2,
+            "rigidGeneralizedCandidate": 0,
+            "rigidStates": 2,
+            "schedulers": 1,
+            "solverCertificates": 1,
+            "statuses": 1,
+            "sutureProxyEdges": 0,
+            "topologyStates": 1,
+            "vascularClock": 0,
+            "vascularState": 0
+          },
+          "after_cursor": [
+            2,
+            0
+          ],
+          "after_snapshot_sha256": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be",
+          "after_status": {
+            "code": 0,
+            "completed_microsteps": 1,
+            "contact_count": 1,
+            "diagnostics": [
+              0.995665014,
+              0,
+              0,
+              0.0593557544
+            ],
+            "environment": 0,
+            "event_count": 0,
+            "failing_index": 4294967295,
+            "fgmres_iterations": 32,
+            "object_index": 4294967295
+          },
+          "attempt_index": 1,
+          "before_certificate_validity": [
+            0.999649942,
+            0,
+            0,
+            1
+          ],
+          "before_counts": {
+            "adaptive": 1,
+            "cohesiveFaces": 1,
+            "contactHistories": 72,
+            "contactSamples": 72,
+            "deformableContactFailures": 1,
+            "deformableContactHistories": 18336,
+            "environmentParameters": 10,
+            "femFields": 36,
+            "femMaterialState": 4,
+            "femNodes": 36,
+            "femTopologyNodes": 36,
+            "femTopologyTetrahedra": 48,
+            "fem_regional_galerkin_basis_p": 504,
+            "fem_regional_galerkin_effective_basis_p": 504,
+            "fem_regional_galerkin_factor_valid": 1,
+            "fem_regional_galerkin_linearization_nodes": 36,
+            "fem_regional_galerkin_node_block_inverse": 108,
+            "fem_regional_galerkin_operator_ap": 504,
+            "fem_regional_galerkin_pivoted_rap": 196,
+            "fem_regional_galerkin_pivots": 14,
+            "humanSupportConsequences": 0,
+            "humanSupportHistories": 0,
+            "identification": 1,
+            "learnedWeights": 4,
+            "mpmActiveNodeCounts": 1,
+            "mpmActiveNodeIndices": 0,
+            "mpmNodeToActive": 0,
+            "particleMaterialState": 4,
+            "particles": 1,
+            "punctureChannels": 1,
+            "reactions": 2,
+            "rigidGeneralizedCandidate": 0,
+            "rigidStates": 2,
+            "schedulers": 1,
+            "solverCertificates": 1,
+            "statuses": 1,
+            "sutureProxyEdges": 0,
+            "topologyStates": 1,
+            "vascularClock": 0,
+            "vascularState": 0
+          },
+          "before_cursor": [
+            1,
+            0
+          ],
+          "before_snapshot_sha256": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318",
+          "before_status": {
+            "code": 0,
+            "completed_microsteps": 1,
+            "contact_count": 1,
+            "diagnostics": [
+              0.999649942,
+              0,
+              0,
+              0.233945712
+            ],
+            "environment": 0,
+            "event_count": 0,
+            "failing_index": 4294967295,
+            "fgmres_iterations": 16,
+            "object_index": 4294967295
+          },
+          "changed_accepted_state_vectors": [
+            "cohesiveFaces",
+            "contactHistories",
+            "deformableContactHistories",
+            "femNodes",
+            "rigidStates"
+          ],
+          "completion_stage": "snapshot_after_completion",
+          "requested_control_step": 2,
+          "snapshot_bytes": 933947,
+          "unchanged_accepted_state_vectors": [
+            "environmentParameters",
+            "femFields",
+            "femMaterialState",
+            "femTopologyNodes",
+            "femTopologyTetrahedra",
+            "humanSupportConsequences",
+            "humanSupportHistories",
+            "particleMaterialState",
+            "particles",
+            "punctureChannels",
+            "topologyStates",
+            "vascularClock",
+            "vascularState"
+          ]
+        },
+        {
+          "accepted": false,
+          "after_certificate_validity": [
+            0.989579797,
+            0,
+            0,
+            0
+          ],
+          "after_counts": {
+            "adaptive": 1,
+            "cohesiveFaces": 1,
+            "contactHistories": 72,
+            "contactSamples": 72,
+            "deformableContactFailures": 1,
+            "deformableContactHistories": 18336,
+            "environmentParameters": 10,
+            "femFields": 36,
+            "femMaterialState": 4,
+            "femNodes": 36,
+            "femTopologyNodes": 36,
+            "femTopologyTetrahedra": 48,
+            "fem_regional_galerkin_basis_p": 504,
+            "fem_regional_galerkin_effective_basis_p": 504,
+            "fem_regional_galerkin_factor_valid": 1,
+            "fem_regional_galerkin_linearization_nodes": 36,
+            "fem_regional_galerkin_node_block_inverse": 108,
+            "fem_regional_galerkin_operator_ap": 504,
+            "fem_regional_galerkin_pivoted_rap": 196,
+            "fem_regional_galerkin_pivots": 14,
+            "humanSupportConsequences": 0,
+            "humanSupportHistories": 0,
+            "identification": 1,
+            "learnedWeights": 4,
+            "mpmActiveNodeCounts": 1,
+            "mpmActiveNodeIndices": 0,
+            "mpmNodeToActive": 0,
+            "particleMaterialState": 4,
+            "particles": 1,
+            "punctureChannels": 1,
+            "reactions": 2,
+            "rigidGeneralizedCandidate": 0,
+            "rigidStates": 2,
+            "schedulers": 1,
+            "solverCertificates": 1,
+            "statuses": 1,
+            "sutureProxyEdges": 0,
+            "topologyStates": 1,
+            "vascularClock": 0,
+            "vascularState": 0
+          },
+          "after_cursor": [
+            2,
+            0
+          ],
+          "after_snapshot_sha256": "9a82b5e533c69eb52ea0ce438fd9f59693491d8c60693f84c4950cc9031ba2ba",
+          "after_status": {
+            "code": 1,
+            "completed_microsteps": 1,
+            "contact_count": 0,
+            "diagnostics": [
+              -3,
+              -3,
+              -3,
+              -3
+            ],
+            "environment": 0,
+            "event_count": 0,
+            "failing_index": 0,
+            "fgmres_iterations": 34,
+            "object_index": 4294967295
+          },
+          "attempt_index": 2,
+          "before_certificate_validity": [
+            0.995665014,
+            0,
+            0,
+            1
+          ],
+          "before_counts": {
+            "adaptive": 1,
+            "cohesiveFaces": 1,
+            "contactHistories": 72,
+            "contactSamples": 72,
+            "deformableContactFailures": 1,
+            "deformableContactHistories": 18336,
+            "environmentParameters": 10,
+            "femFields": 36,
+            "femMaterialState": 4,
+            "femNodes": 36,
+            "femTopologyNodes": 36,
+            "femTopologyTetrahedra": 48,
+            "fem_regional_galerkin_basis_p": 504,
+            "fem_regional_galerkin_effective_basis_p": 504,
+            "fem_regional_galerkin_factor_valid": 1,
+            "fem_regional_galerkin_linearization_nodes": 36,
+            "fem_regional_galerkin_node_block_inverse": 108,
+            "fem_regional_galerkin_operator_ap": 504,
+            "fem_regional_galerkin_pivoted_rap": 196,
+            "fem_regional_galerkin_pivots": 14,
+            "humanSupportConsequences": 0,
+            "humanSupportHistories": 0,
+            "identification": 1,
+            "learnedWeights": 4,
+            "mpmActiveNodeCounts": 1,
+            "mpmActiveNodeIndices": 0,
+            "mpmNodeToActive": 0,
+            "particleMaterialState": 4,
+            "particles": 1,
+            "punctureChannels": 1,
+            "reactions": 2,
+            "rigidGeneralizedCandidate": 0,
+            "rigidStates": 2,
+            "schedulers": 1,
+            "solverCertificates": 1,
+            "statuses": 1,
+            "sutureProxyEdges": 0,
+            "topologyStates": 1,
+            "vascularClock": 0,
+            "vascularState": 0
+          },
+          "before_cursor": [
+            2,
+            0
+          ],
+          "before_snapshot_sha256": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be",
+          "before_status": {
+            "code": 0,
+            "completed_microsteps": 1,
+            "contact_count": 1,
+            "diagnostics": [
+              0.995665014,
+              0,
+              0,
+              0.0593557544
+            ],
+            "environment": 0,
+            "event_count": 0,
+            "failing_index": 4294967295,
+            "fgmres_iterations": 32,
+            "object_index": 4294967295
+          },
+          "changed_accepted_state_vectors": [],
+          "completion_stage": "snapshot_after_completion",
+          "requested_control_step": 3,
+          "snapshot_bytes": 933947,
+          "unchanged_accepted_state_vectors": [
+            "cohesiveFaces",
+            "contactHistories",
+            "deformableContactHistories",
+            "environmentParameters",
+            "femFields",
+            "femMaterialState",
+            "femNodes",
+            "femTopologyNodes",
+            "femTopologyTetrahedra",
+            "humanSupportConsequences",
+            "humanSupportHistories",
+            "particleMaterialState",
+            "particles",
+            "punctureChannels",
+            "rigidStates",
+            "topologyStates",
+            "vascularClock",
+            "vascularState"
+          ]
+        }
+      ]
+    },
+    "527": {
+      "actual_file_count": 26,
+      "all_receipt_hashes_match": true,
+      "armijo_trace": [
+        {
+          "base_l2": 0.000295143516,
+          "certified_noop": false,
+          "fgmres_iterations": 6,
+          "newton_iteration": 0,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0.177503765,
+          "trial_l2": 0.000170244384,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 0.000170244384,
+          "certified_noop": false,
+          "fgmres_iterations": 25,
+          "newton_iteration": 1,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 1,
+          "trial_l2": 2.88173615e-05,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 2.88173615e-05,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 2,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 1,
+          "trial_l2": 1.35132423e-05,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 1.35132423e-05,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 3,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 1,
+          "trial_l2": 1.41443923e-06,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 1.41443923e-06,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 4,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 1,
+          "trial_l2": 3.07903321e-07,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 3.07903321e-07,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 5,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 1,
+          "trial_l2": 2.04765513e-07,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 2.04765513e-07,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 6,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 1,
+          "trial_l2": 1.73407884e-07,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 1.73407884e-07,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 7,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 1,
+          "trial_l2": 1.57697755e-07,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 1.57697755e-07,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 8,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 1,
+          "trial_l2": 1.52470719e-07,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 1.52470719e-07,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 9,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0.5,
+          "trial_l2": 1.50995788e-07,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 1.50995788e-07,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 10,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0.125,
+          "trial_l2": 1.50679696e-07,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 1.50679696e-07,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 11,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0.03125,
+          "trial_l2": 1.50619428e-07,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 1.50619428e-07,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 12,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0.00390625,
+          "trial_l2": 1.50614042e-07,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 1.50614042e-07,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 13,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0.001953125,
+          "trial_l2": 1.50611413e-07,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 1.50611413e-07,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 14,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0.0009765625,
+          "trial_l2": 1.50610077e-07,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 1.50610077e-07,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 15,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 3.05175781e-05,
+          "trial_l2": 1.50609551e-07,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 1.50609551e-07,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 16,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0.000244140625,
+          "trial_l2": 1.50609452e-07,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 1.50609452e-07,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 17,
+          "pretrial_status_code": 0,
+          "solver_status_code": 0,
+          "trial_alpha": 0.000244140625,
+          "trial_l2": 1.50609182e-07,
+          "trial_outcome": "selected_trial_accepted"
+        },
+        {
+          "base_l2": 1.50609182e-07,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 18,
+          "pretrial_status_code": 0,
+          "solver_status_code": 10,
+          "trial_alpha": 1.1920929e-07,
+          "trial_l2": 1.50609182e-07,
+          "trial_outcome": "no_trial_accepted_status_clear"
+        },
+        {
+          "base_l2": 0.000112005378,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 19,
+          "pretrial_status_code": 10,
+          "solver_status_code": 10,
+          "trial_alpha": 0,
+          "trial_l2": 1.50609182e-07,
+          "trial_outcome": "blocked_by_pretrial_solver_status"
+        },
+        {
+          "base_l2": 0.000112005378,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 20,
+          "pretrial_status_code": 10,
+          "solver_status_code": 10,
+          "trial_alpha": 0,
+          "trial_l2": 1.50609182e-07,
+          "trial_outcome": "blocked_by_pretrial_solver_status"
+        },
+        {
+          "base_l2": 0.000112005378,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 21,
+          "pretrial_status_code": 10,
+          "solver_status_code": 10,
+          "trial_alpha": 0,
+          "trial_l2": 1.50609182e-07,
+          "trial_outcome": "blocked_by_pretrial_solver_status"
+        },
+        {
+          "base_l2": 0.000112005378,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 22,
+          "pretrial_status_code": 10,
+          "solver_status_code": 10,
+          "trial_alpha": 0,
+          "trial_l2": 1.50609182e-07,
+          "trial_outcome": "blocked_by_pretrial_solver_status"
+        },
+        {
+          "base_l2": 0.000112005378,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 23,
+          "pretrial_status_code": 10,
+          "solver_status_code": 10,
+          "trial_alpha": 0,
+          "trial_l2": 1.50609182e-07,
+          "trial_outcome": "blocked_by_pretrial_solver_status"
+        },
+        {
+          "base_l2": 0.000112005378,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 24,
+          "pretrial_status_code": 10,
+          "solver_status_code": 10,
+          "trial_alpha": 0,
+          "trial_l2": 1.50609182e-07,
+          "trial_outcome": "blocked_by_pretrial_solver_status"
+        },
+        {
+          "base_l2": 0.000112005378,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 25,
+          "pretrial_status_code": 10,
+          "solver_status_code": 10,
+          "trial_alpha": 0,
+          "trial_l2": 1.50609182e-07,
+          "trial_outcome": "blocked_by_pretrial_solver_status"
+        },
+        {
+          "base_l2": 0.000112005378,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 26,
+          "pretrial_status_code": 10,
+          "solver_status_code": 10,
+          "trial_alpha": 0,
+          "trial_l2": 1.50609182e-07,
+          "trial_outcome": "blocked_by_pretrial_solver_status"
+        },
+        {
+          "base_l2": 0.000112005378,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 27,
+          "pretrial_status_code": 10,
+          "solver_status_code": 10,
+          "trial_alpha": 0,
+          "trial_l2": 1.50609182e-07,
+          "trial_outcome": "blocked_by_pretrial_solver_status"
+        },
+        {
+          "base_l2": 0.000112005378,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 28,
+          "pretrial_status_code": 10,
+          "solver_status_code": 10,
+          "trial_alpha": 0,
+          "trial_l2": 1.50609182e-07,
+          "trial_outcome": "blocked_by_pretrial_solver_status"
+        },
+        {
+          "base_l2": 0.000112005378,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 29,
+          "pretrial_status_code": 10,
+          "solver_status_code": 10,
+          "trial_alpha": 0,
+          "trial_l2": 1.50609182e-07,
+          "trial_outcome": "blocked_by_pretrial_solver_status"
+        },
+        {
+          "base_l2": 0.000112005378,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 30,
+          "pretrial_status_code": 10,
+          "solver_status_code": 10,
+          "trial_alpha": 0,
+          "trial_l2": 1.50609182e-07,
+          "trial_outcome": "blocked_by_pretrial_solver_status"
+        },
+        {
+          "base_l2": 0.000112005378,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 31,
+          "pretrial_status_code": 10,
+          "solver_status_code": 10,
+          "trial_alpha": 0,
+          "trial_l2": 1.50609182e-07,
+          "trial_outcome": "blocked_by_pretrial_solver_status"
+        }
+      ],
+      "baseline_aliased_byte_equal": true,
+      "baseline_aliased_files": {
+        "baseline/fixture-activation.log": true,
+        "baseline/fixture-initialization.log": true,
+        "baseline/fixture-loaded.log": true,
+        "baseline/fixture-rejected.log": true,
+        "baseline/transaction-000000-after.bin": true,
+        "baseline/transaction-000000-before.bin": true,
+        "baseline/transaction-000000.json": true,
+        "baseline/transaction-000001-after.bin": true,
+        "baseline/transaction-000001-before.bin": true,
+        "baseline/transaction-000001.json": true,
+        "baseline/transaction-000002-after.bin": true,
+        "baseline/transaction-000002-before.bin": true,
+        "baseline/transaction-000002.json": true
+      },
+      "command_spec": {
+        "build_directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source198-001",
+        "case_outputs": {
+          "527": "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated198-contact-restart16-527"
+        },
+        "cases": {
+          "527": [
+            "--compensated-material-arithmetic",
+            "--diagnostic-state-output",
+            "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated198-contact-restart16-527",
+            "--self-surface-scratch-alias-parity",
+            "--extended-budget"
+          ]
+        },
+        "environment": {
+          "527": {
+            "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": "2"
+          }
+        },
+        "files_sha256": {
+          "CMakeCache.txt": "6d990ba3f1b11fe53085a37401035bb7322af50318931da26e5b301ab3bbd4a4",
+          "compile_commands.json": "39d55c453c2244de3da229830e3875f787d8bacfc7188bf0faa698dc58a5e2e2",
+          "numi-matter-cardboard-full-contact-armijo-check": "c067e5ea69b5fb748a878be24151f2f27b2de7b73701dd20df61a57a37e0bda6",
+          "shaders/NumiMatter.metallib": "edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f",
+          "source-build.json": "8f6c95304c23b6c7149ec6b270d54eafdf4507ea26f3420e39e523c09dd500ad"
+        },
+        "material_relative_path": "matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+        "material_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+        "qualification": "Repeat native525 exactly on integrated source198. Source198 only adds the exact damped-selector admission guard and incidence-sort memory accounting relative195; all four Metal libraries are byte-identical. Numerical settings remain restart16/FGMRES256/Newton32/line_search24, physical tolerance1e-7 unchanged. Verify actual full-contact acceptance, applied alpha, and baseline/alias history plus rollback.",
+        "schema": "numi.cardboard.source198-contact-restart16-command.v1",
+        "source_frozen_sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc",
+        "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001",
+        "timeout_s": 600
+      },
+      "command_spec_sha256": "5cbdf965e6b546878e9415a3ac112ad009c4b8b4ca1373bf7e0bae70590b3566",
+      "package_manifest_sha256": "094cad5b4a810613369f6189521d5deea2056123b972dcdf142c9fd70cc90a8b",
+      "receipt": {
+        "exit_code": 0,
+        "shipping_or_physical_validation": false,
+        "space_abort": false,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "34e040e6dd338e7140928b99300b30d0739553eff3546d99d904f6196060107a",
+        "timed_out": false,
+        "wall_seconds": 52.586398917
+      },
+      "receipt_file_count": 26,
+      "receipt_files": {
+        "aliased/fixture-activation.log": {
+          "actual_bytes": 59517,
+          "actual_sha256": "1331fe9a4748ec3a25343299441d65708d2b6a65c3bb047ab0409f72878e0b8b",
+          "expected_bytes": 59517,
+          "expected_sha256": "1331fe9a4748ec3a25343299441d65708d2b6a65c3bb047ab0409f72878e0b8b",
+          "matches": true
+        },
+        "aliased/fixture-initialization.log": {
+          "actual_bytes": 0,
+          "actual_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "expected_bytes": 0,
+          "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "matches": true
+        },
+        "aliased/fixture-loaded.log": {
+          "actual_bytes": 59789,
+          "actual_sha256": "f9163ba19fb49cba35e58421d1de896f4b948ba6b7e9ff430b989845b86206dd",
+          "expected_bytes": 59789,
+          "expected_sha256": "f9163ba19fb49cba35e58421d1de896f4b948ba6b7e9ff430b989845b86206dd",
+          "matches": true
+        },
+        "aliased/fixture-rejected.log": {
+          "actual_bytes": 61129,
+          "actual_sha256": "8fcc602700c283cd0cd7368b5c1fef6b6324fa124415b5f6e1f4d8e5d5fb4765",
+          "expected_bytes": 61129,
+          "expected_sha256": "8fcc602700c283cd0cd7368b5c1fef6b6324fa124415b5f6e1f4d8e5d5fb4765",
+          "matches": true
+        },
+        "aliased/transaction-000000-after.bin": {
+          "actual_bytes": 904335,
+          "actual_sha256": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02",
+          "expected_bytes": 904335,
+          "expected_sha256": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02",
+          "matches": true
+        },
+        "aliased/transaction-000000-before.bin": {
+          "actual_bytes": 904335,
+          "actual_sha256": "75d968932c9b7dc8701f4dadcbd40fc1d267e4cc6809b87399eb333a98de41c8",
+          "expected_bytes": 904335,
+          "expected_sha256": "75d968932c9b7dc8701f4dadcbd40fc1d267e4cc6809b87399eb333a98de41c8",
+          "matches": true
+        },
+        "aliased/transaction-000000.json": {
+          "actual_bytes": 6565,
+          "actual_sha256": "47e05fb5ed400d93359d151f3ee14745bc748c65349778589e0d63f66392b368",
+          "expected_bytes": 6565,
+          "expected_sha256": "47e05fb5ed400d93359d151f3ee14745bc748c65349778589e0d63f66392b368",
+          "matches": true
+        },
+        "aliased/transaction-000001-after.bin": {
+          "actual_bytes": 904335,
+          "actual_sha256": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00",
+          "expected_bytes": 904335,
+          "expected_sha256": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00",
+          "matches": true
+        },
+        "aliased/transaction-000001-before.bin": {
+          "actual_bytes": 904335,
+          "actual_sha256": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02",
+          "expected_bytes": 904335,
+          "expected_sha256": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02",
+          "matches": true
+        },
+        "aliased/transaction-000001.json": {
+          "actual_bytes": 6668,
+          "actual_sha256": "196ab24eb79b3898252bccf6d0a9f69c2738f1fbc8b9f5b559b6fc8f25b8f987",
+          "expected_bytes": 6668,
+          "expected_sha256": "196ab24eb79b3898252bccf6d0a9f69c2738f1fbc8b9f5b559b6fc8f25b8f987",
+          "matches": true
+        },
+        "aliased/transaction-000002-after.bin": {
+          "actual_bytes": 904335,
+          "actual_sha256": "50bc223f7f598ba219df6ffef83a91e04fc98378faecaf0c8810d7d7541ef39f",
+          "expected_bytes": 904335,
+          "expected_sha256": "50bc223f7f598ba219df6ffef83a91e04fc98378faecaf0c8810d7d7541ef39f",
+          "matches": true
+        },
+        "aliased/transaction-000002-before.bin": {
+          "actual_bytes": 904335,
+          "actual_sha256": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00",
+          "expected_bytes": 904335,
+          "expected_sha256": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00",
+          "matches": true
+        },
+        "aliased/transaction-000002.json": {
+          "actual_bytes": 6672,
+          "actual_sha256": "99651bccb2f572960b0629a4374cd6b08d8900d89616c4b90f8af7cf4881c054",
+          "expected_bytes": 6672,
+          "expected_sha256": "99651bccb2f572960b0629a4374cd6b08d8900d89616c4b90f8af7cf4881c054",
+          "matches": true
+        },
+        "baseline/fixture-activation.log": {
+          "actual_bytes": 59517,
+          "actual_sha256": "1331fe9a4748ec3a25343299441d65708d2b6a65c3bb047ab0409f72878e0b8b",
+          "expected_bytes": 59517,
+          "expected_sha256": "1331fe9a4748ec3a25343299441d65708d2b6a65c3bb047ab0409f72878e0b8b",
+          "matches": true
+        },
+        "baseline/fixture-initialization.log": {
+          "actual_bytes": 0,
+          "actual_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "expected_bytes": 0,
+          "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "matches": true
+        },
+        "baseline/fixture-loaded.log": {
+          "actual_bytes": 59789,
+          "actual_sha256": "f9163ba19fb49cba35e58421d1de896f4b948ba6b7e9ff430b989845b86206dd",
+          "expected_bytes": 59789,
+          "expected_sha256": "f9163ba19fb49cba35e58421d1de896f4b948ba6b7e9ff430b989845b86206dd",
+          "matches": true
+        },
+        "baseline/fixture-rejected.log": {
+          "actual_bytes": 61129,
+          "actual_sha256": "8fcc602700c283cd0cd7368b5c1fef6b6324fa124415b5f6e1f4d8e5d5fb4765",
+          "expected_bytes": 61129,
+          "expected_sha256": "8fcc602700c283cd0cd7368b5c1fef6b6324fa124415b5f6e1f4d8e5d5fb4765",
+          "matches": true
+        },
+        "baseline/transaction-000000-after.bin": {
+          "actual_bytes": 904335,
+          "actual_sha256": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02",
+          "expected_bytes": 904335,
+          "expected_sha256": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02",
+          "matches": true
+        },
+        "baseline/transaction-000000-before.bin": {
+          "actual_bytes": 904335,
+          "actual_sha256": "75d968932c9b7dc8701f4dadcbd40fc1d267e4cc6809b87399eb333a98de41c8",
+          "expected_bytes": 904335,
+          "expected_sha256": "75d968932c9b7dc8701f4dadcbd40fc1d267e4cc6809b87399eb333a98de41c8",
+          "matches": true
+        },
+        "baseline/transaction-000000.json": {
+          "actual_bytes": 6565,
+          "actual_sha256": "47e05fb5ed400d93359d151f3ee14745bc748c65349778589e0d63f66392b368",
+          "expected_bytes": 6565,
+          "expected_sha256": "47e05fb5ed400d93359d151f3ee14745bc748c65349778589e0d63f66392b368",
+          "matches": true
+        },
+        "baseline/transaction-000001-after.bin": {
+          "actual_bytes": 904335,
+          "actual_sha256": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00",
+          "expected_bytes": 904335,
+          "expected_sha256": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00",
+          "matches": true
+        },
+        "baseline/transaction-000001-before.bin": {
+          "actual_bytes": 904335,
+          "actual_sha256": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02",
+          "expected_bytes": 904335,
+          "expected_sha256": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02",
+          "matches": true
+        },
+        "baseline/transaction-000001.json": {
+          "actual_bytes": 6668,
+          "actual_sha256": "196ab24eb79b3898252bccf6d0a9f69c2738f1fbc8b9f5b559b6fc8f25b8f987",
+          "expected_bytes": 6668,
+          "expected_sha256": "196ab24eb79b3898252bccf6d0a9f69c2738f1fbc8b9f5b559b6fc8f25b8f987",
+          "matches": true
+        },
+        "baseline/transaction-000002-after.bin": {
+          "actual_bytes": 904335,
+          "actual_sha256": "50bc223f7f598ba219df6ffef83a91e04fc98378faecaf0c8810d7d7541ef39f",
+          "expected_bytes": 904335,
+          "expected_sha256": "50bc223f7f598ba219df6ffef83a91e04fc98378faecaf0c8810d7d7541ef39f",
+          "matches": true
+        },
+        "baseline/transaction-000002-before.bin": {
+          "actual_bytes": 904335,
+          "actual_sha256": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00",
+          "expected_bytes": 904335,
+          "expected_sha256": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00",
+          "matches": true
+        },
+        "baseline/transaction-000002.json": {
+          "actual_bytes": 6672,
+          "actual_sha256": "99651bccb2f572960b0629a4374cd6b08d8900d89616c4b90f8af7cf4881c054",
+          "expected_bytes": 6672,
+          "expected_sha256": "99651bccb2f572960b0629a4374cd6b08d8900d89616c4b90f8af7cf4881c054",
+          "matches": true
+        }
+      },
+      "receipt_inventory_exact": true,
+      "receipt_sha256": "2622ff96b49a759e80d6d0b14384804ec25cde5ca41ce6c6d3219178ab7e0efb",
+      "rejected_log_sha256": "8fcc602700c283cd0cd7368b5c1fef6b6324fa124415b5f6e1f4d8e5d5fb4765",
+      "snapshot_layout_by_attempt": {
+        "0": {
+          "after": {
+            "bytes": 904335,
+            "diagnostic_suffix_bytes": 122,
+            "diagnostic_suffix_marker_offset": 904213,
+            "raw_sha256": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02"
+          },
+          "before": {
+            "bytes": 904335,
+            "diagnostic_suffix_bytes": 122,
+            "diagnostic_suffix_marker_offset": 904213,
+            "raw_sha256": "75d968932c9b7dc8701f4dadcbd40fc1d267e4cc6809b87399eb333a98de41c8"
+          }
+        },
+        "1": {
+          "after": {
+            "bytes": 904335,
+            "diagnostic_suffix_bytes": 122,
+            "diagnostic_suffix_marker_offset": 904213,
+            "raw_sha256": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00"
+          },
+          "before": {
+            "bytes": 904335,
+            "diagnostic_suffix_bytes": 122,
+            "diagnostic_suffix_marker_offset": 904213,
+            "raw_sha256": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02"
+          }
+        },
+        "2": {
+          "after": {
+            "bytes": 904335,
+            "diagnostic_suffix_bytes": 122,
+            "diagnostic_suffix_marker_offset": 904213,
+            "raw_sha256": "50bc223f7f598ba219df6ffef83a91e04fc98378faecaf0c8810d7d7541ef39f"
+          },
+          "before": {
+            "bytes": 904335,
+            "diagnostic_suffix_bytes": 122,
+            "diagnostic_suffix_marker_offset": 904213,
+            "raw_sha256": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00"
+          }
+        }
+      },
+      "trace_summary": {
+        "certified_noop_records": 0,
+        "first_nonzero_pretrial_newton": 19,
+        "first_nonzero_solver_status_code": 10,
+        "first_nonzero_solver_status_newton": 18,
+        "healthy_pretrial_records": 19,
+        "last_record": {
+          "base_l2": 0.000112005378,
+          "certified_noop": false,
+          "fgmres_iterations": 256,
+          "newton_iteration": 31,
+          "pretrial_status_code": 10,
+          "solver_status_code": 10,
+          "trial_alpha": 0,
+          "trial_l2": 1.50609182e-07,
+          "trial_outcome": "blocked_by_pretrial_solver_status"
+        },
+        "nonzero_pretrial_records": 13,
+        "record_count": 32,
+        "selected_trial_accepted_records": 18
+      },
+      "transactions": [
+        {
+          "accepted": true,
+          "after_certificate_validity": [
+            0.999626338,
+            0,
+            0,
+            1
+          ],
+          "after_counts": {
+            "adaptive": 1,
+            "cohesiveFaces": 1,
+            "contactHistories": 72,
+            "contactSamples": 72,
+            "deformableContactFailures": 1,
+            "deformableContactHistories": 18336,
+            "environmentParameters": 10,
+            "femFields": 36,
+            "femMaterialState": 4,
+            "femNodes": 36,
+            "femTopologyNodes": 36,
+            "femTopologyTetrahedra": 48,
+            "fem_regional_galerkin_basis_p": 0,
+            "fem_regional_galerkin_effective_basis_p": 0,
+            "fem_regional_galerkin_factor_valid": 0,
+            "fem_regional_galerkin_linearization_nodes": 0,
+            "fem_regional_galerkin_node_block_inverse": 0,
+            "fem_regional_galerkin_operator_ap": 0,
+            "fem_regional_galerkin_pivoted_rap": 0,
+            "fem_regional_galerkin_pivots": 0,
+            "humanSupportConsequences": 0,
+            "humanSupportHistories": 0,
+            "identification": 1,
+            "learnedWeights": 4,
+            "mpmActiveNodeCounts": 1,
+            "mpmActiveNodeIndices": 0,
+            "mpmNodeToActive": 0,
+            "particleMaterialState": 4,
+            "particles": 1,
+            "punctureChannels": 1,
+            "reactions": 2,
+            "rigidGeneralizedCandidate": 0,
+            "rigidStates": 2,
+            "schedulers": 1,
+            "solverCertificates": 1,
+            "statuses": 1,
+            "sutureProxyEdges": 0,
+            "topologyStates": 1,
+            "vascularClock": 0,
+            "vascularState": 0
+          },
+          "after_cursor": [
+            1,
+            0
+          ],
+          "after_snapshot_sha256": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02",
+          "after_status": {
+            "code": 0,
+            "completed_microsteps": 1,
+            "contact_count": 1,
+            "diagnostics": [
+              0.999626338,
+              0,
+              0,
+              0.233547673
+            ],
+            "environment": 0,
+            "event_count": 0,
+            "failing_index": 4294967295,
+            "fgmres_iterations": 128,
+            "object_index": 4294967295
+          },
+          "attempt_index": 0,
+          "before_certificate_validity": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "before_counts": {
+            "adaptive": 1,
+            "cohesiveFaces": 1,
+            "contactHistories": 72,
+            "contactSamples": 72,
+            "deformableContactFailures": 1,
+            "deformableContactHistories": 18336,
+            "environmentParameters": 10,
+            "femFields": 36,
+            "femMaterialState": 4,
+            "femNodes": 36,
+            "femTopologyNodes": 36,
+            "femTopologyTetrahedra": 48,
+            "fem_regional_galerkin_basis_p": 0,
+            "fem_regional_galerkin_effective_basis_p": 0,
+            "fem_regional_galerkin_factor_valid": 0,
+            "fem_regional_galerkin_linearization_nodes": 0,
+            "fem_regional_galerkin_node_block_inverse": 0,
+            "fem_regional_galerkin_operator_ap": 0,
+            "fem_regional_galerkin_pivoted_rap": 0,
+            "fem_regional_galerkin_pivots": 0,
+            "humanSupportConsequences": 0,
+            "humanSupportHistories": 0,
+            "identification": 1,
+            "learnedWeights": 4,
+            "mpmActiveNodeCounts": 1,
+            "mpmActiveNodeIndices": 0,
+            "mpmNodeToActive": 0,
+            "particleMaterialState": 4,
+            "particles": 1,
+            "punctureChannels": 1,
+            "reactions": 2,
+            "rigidGeneralizedCandidate": 0,
+            "rigidStates": 2,
+            "schedulers": 1,
+            "solverCertificates": 1,
+            "statuses": 1,
+            "sutureProxyEdges": 0,
+            "topologyStates": 1,
+            "vascularClock": 0,
+            "vascularState": 0
+          },
+          "before_cursor": [
+            0,
+            0
+          ],
+          "before_snapshot_sha256": "75d968932c9b7dc8701f4dadcbd40fc1d267e4cc6809b87399eb333a98de41c8",
+          "before_status": {
+            "code": 0,
+            "completed_microsteps": 0,
+            "contact_count": 0,
+            "diagnostics": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "environment": 0,
+            "event_count": 0,
+            "failing_index": 0,
+            "fgmres_iterations": 0,
+            "object_index": 0
+          },
+          "changed_accepted_state_vectors": [
+            "cohesiveFaces",
+            "contactHistories",
+            "deformableContactHistories",
+            "femNodes",
+            "rigidStates"
+          ],
+          "completion_stage": "snapshot_after_completion",
+          "requested_control_step": 1,
+          "snapshot_bytes": 904335,
+          "unchanged_accepted_state_vectors": [
+            "environmentParameters",
+            "femFields",
+            "femMaterialState",
+            "femTopologyNodes",
+            "femTopologyTetrahedra",
+            "humanSupportConsequences",
+            "humanSupportHistories",
+            "particleMaterialState",
+            "particles",
+            "punctureChannels",
+            "topologyStates",
+            "vascularClock",
+            "vascularState"
+          ]
+        },
+        {
+          "accepted": true,
+          "after_certificate_validity": [
+            0.995664597,
+            0,
+            0,
+            1
+          ],
+          "after_counts": {
+            "adaptive": 1,
+            "cohesiveFaces": 1,
+            "contactHistories": 72,
+            "contactSamples": 72,
+            "deformableContactFailures": 1,
+            "deformableContactHistories": 18336,
+            "environmentParameters": 10,
+            "femFields": 36,
+            "femMaterialState": 4,
+            "femNodes": 36,
+            "femTopologyNodes": 36,
+            "femTopologyTetrahedra": 48,
+            "fem_regional_galerkin_basis_p": 0,
+            "fem_regional_galerkin_effective_basis_p": 0,
+            "fem_regional_galerkin_factor_valid": 0,
+            "fem_regional_galerkin_linearization_nodes": 0,
+            "fem_regional_galerkin_node_block_inverse": 0,
+            "fem_regional_galerkin_operator_ap": 0,
+            "fem_regional_galerkin_pivoted_rap": 0,
+            "fem_regional_galerkin_pivots": 0,
+            "humanSupportConsequences": 0,
+            "humanSupportHistories": 0,
+            "identification": 1,
+            "learnedWeights": 4,
+            "mpmActiveNodeCounts": 1,
+            "mpmActiveNodeIndices": 0,
+            "mpmNodeToActive": 0,
+            "particleMaterialState": 4,
+            "particles": 1,
+            "punctureChannels": 1,
+            "reactions": 2,
+            "rigidGeneralizedCandidate": 0,
+            "rigidStates": 2,
+            "schedulers": 1,
+            "solverCertificates": 1,
+            "statuses": 1,
+            "sutureProxyEdges": 0,
+            "topologyStates": 1,
+            "vascularClock": 0,
+            "vascularState": 0
+          },
+          "after_cursor": [
+            2,
+            0
+          ],
+          "after_snapshot_sha256": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00",
+          "after_status": {
+            "code": 0,
+            "completed_microsteps": 1,
+            "contact_count": 1,
+            "diagnostics": [
+              0.995664597,
+              0,
+              0,
+              0.0597466044
+            ],
+            "environment": 0,
+            "event_count": 0,
+            "failing_index": 4294967295,
+            "fgmres_iterations": 256,
+            "object_index": 4294967295
+          },
+          "attempt_index": 1,
+          "before_certificate_validity": [
+            0.999626338,
+            0,
+            0,
+            1
+          ],
+          "before_counts": {
+            "adaptive": 1,
+            "cohesiveFaces": 1,
+            "contactHistories": 72,
+            "contactSamples": 72,
+            "deformableContactFailures": 1,
+            "deformableContactHistories": 18336,
+            "environmentParameters": 10,
+            "femFields": 36,
+            "femMaterialState": 4,
+            "femNodes": 36,
+            "femTopologyNodes": 36,
+            "femTopologyTetrahedra": 48,
+            "fem_regional_galerkin_basis_p": 0,
+            "fem_regional_galerkin_effective_basis_p": 0,
+            "fem_regional_galerkin_factor_valid": 0,
+            "fem_regional_galerkin_linearization_nodes": 0,
+            "fem_regional_galerkin_node_block_inverse": 0,
+            "fem_regional_galerkin_operator_ap": 0,
+            "fem_regional_galerkin_pivoted_rap": 0,
+            "fem_regional_galerkin_pivots": 0,
+            "humanSupportConsequences": 0,
+            "humanSupportHistories": 0,
+            "identification": 1,
+            "learnedWeights": 4,
+            "mpmActiveNodeCounts": 1,
+            "mpmActiveNodeIndices": 0,
+            "mpmNodeToActive": 0,
+            "particleMaterialState": 4,
+            "particles": 1,
+            "punctureChannels": 1,
+            "reactions": 2,
+            "rigidGeneralizedCandidate": 0,
+            "rigidStates": 2,
+            "schedulers": 1,
+            "solverCertificates": 1,
+            "statuses": 1,
+            "sutureProxyEdges": 0,
+            "topologyStates": 1,
+            "vascularClock": 0,
+            "vascularState": 0
+          },
+          "before_cursor": [
+            1,
+            0
+          ],
+          "before_snapshot_sha256": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02",
+          "before_status": {
+            "code": 0,
+            "completed_microsteps": 1,
+            "contact_count": 1,
+            "diagnostics": [
+              0.999626338,
+              0,
+              0,
+              0.233547673
+            ],
+            "environment": 0,
+            "event_count": 0,
+            "failing_index": 4294967295,
+            "fgmres_iterations": 128,
+            "object_index": 4294967295
+          },
+          "changed_accepted_state_vectors": [
+            "cohesiveFaces",
+            "contactHistories",
+            "deformableContactHistories",
+            "femNodes",
+            "rigidStates"
+          ],
+          "completion_stage": "snapshot_after_completion",
+          "requested_control_step": 2,
+          "snapshot_bytes": 904335,
+          "unchanged_accepted_state_vectors": [
+            "environmentParameters",
+            "femFields",
+            "femMaterialState",
+            "femTopologyNodes",
+            "femTopologyTetrahedra",
+            "humanSupportConsequences",
+            "humanSupportHistories",
+            "particleMaterialState",
+            "particles",
+            "punctureChannels",
+            "topologyStates",
+            "vascularClock",
+            "vascularState"
+          ]
+        },
+        {
+          "accepted": false,
+          "after_certificate_validity": [
+            0.989577293,
+            0,
+            0,
+            0
+          ],
+          "after_counts": {
+            "adaptive": 1,
+            "cohesiveFaces": 1,
+            "contactHistories": 72,
+            "contactSamples": 72,
+            "deformableContactFailures": 1,
+            "deformableContactHistories": 18336,
+            "environmentParameters": 10,
+            "femFields": 36,
+            "femMaterialState": 4,
+            "femNodes": 36,
+            "femTopologyNodes": 36,
+            "femTopologyTetrahedra": 48,
+            "fem_regional_galerkin_basis_p": 0,
+            "fem_regional_galerkin_effective_basis_p": 0,
+            "fem_regional_galerkin_factor_valid": 0,
+            "fem_regional_galerkin_linearization_nodes": 0,
+            "fem_regional_galerkin_node_block_inverse": 0,
+            "fem_regional_galerkin_operator_ap": 0,
+            "fem_regional_galerkin_pivoted_rap": 0,
+            "fem_regional_galerkin_pivots": 0,
+            "humanSupportConsequences": 0,
+            "humanSupportHistories": 0,
+            "identification": 1,
+            "learnedWeights": 4,
+            "mpmActiveNodeCounts": 1,
+            "mpmActiveNodeIndices": 0,
+            "mpmNodeToActive": 0,
+            "particleMaterialState": 4,
+            "particles": 1,
+            "punctureChannels": 1,
+            "reactions": 2,
+            "rigidGeneralizedCandidate": 0,
+            "rigidStates": 2,
+            "schedulers": 1,
+            "solverCertificates": 1,
+            "statuses": 1,
+            "sutureProxyEdges": 0,
+            "topologyStates": 1,
+            "vascularClock": 0,
+            "vascularState": 0
+          },
+          "after_cursor": [
+            2,
+            0
+          ],
+          "after_snapshot_sha256": "50bc223f7f598ba219df6ffef83a91e04fc98378faecaf0c8810d7d7541ef39f",
+          "after_status": {
+            "code": 10,
+            "completed_microsteps": 0,
+            "contact_count": 0,
+            "diagnostics": [
+              1.50609182e-07,
+              1.50609182e-07,
+              1.1920929e-07,
+              24
+            ],
+            "environment": 0,
+            "event_count": 0,
+            "failing_index": 18,
+            "fgmres_iterations": 256,
+            "object_index": 0
+          },
+          "attempt_index": 2,
+          "before_certificate_validity": [
+            0.995664597,
+            0,
+            0,
+            1
+          ],
+          "before_counts": {
+            "adaptive": 1,
+            "cohesiveFaces": 1,
+            "contactHistories": 72,
+            "contactSamples": 72,
+            "deformableContactFailures": 1,
+            "deformableContactHistories": 18336,
+            "environmentParameters": 10,
+            "femFields": 36,
+            "femMaterialState": 4,
+            "femNodes": 36,
+            "femTopologyNodes": 36,
+            "femTopologyTetrahedra": 48,
+            "fem_regional_galerkin_basis_p": 0,
+            "fem_regional_galerkin_effective_basis_p": 0,
+            "fem_regional_galerkin_factor_valid": 0,
+            "fem_regional_galerkin_linearization_nodes": 0,
+            "fem_regional_galerkin_node_block_inverse": 0,
+            "fem_regional_galerkin_operator_ap": 0,
+            "fem_regional_galerkin_pivoted_rap": 0,
+            "fem_regional_galerkin_pivots": 0,
+            "humanSupportConsequences": 0,
+            "humanSupportHistories": 0,
+            "identification": 1,
+            "learnedWeights": 4,
+            "mpmActiveNodeCounts": 1,
+            "mpmActiveNodeIndices": 0,
+            "mpmNodeToActive": 0,
+            "particleMaterialState": 4,
+            "particles": 1,
+            "punctureChannels": 1,
+            "reactions": 2,
+            "rigidGeneralizedCandidate": 0,
+            "rigidStates": 2,
+            "schedulers": 1,
+            "solverCertificates": 1,
+            "statuses": 1,
+            "sutureProxyEdges": 0,
+            "topologyStates": 1,
+            "vascularClock": 0,
+            "vascularState": 0
+          },
+          "before_cursor": [
+            2,
+            0
+          ],
+          "before_snapshot_sha256": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00",
+          "before_status": {
+            "code": 0,
+            "completed_microsteps": 1,
+            "contact_count": 1,
+            "diagnostics": [
+              0.995664597,
+              0,
+              0,
+              0.0597466044
+            ],
+            "environment": 0,
+            "event_count": 0,
+            "failing_index": 4294967295,
+            "fgmres_iterations": 256,
+            "object_index": 4294967295
+          },
+          "changed_accepted_state_vectors": [],
+          "completion_stage": "snapshot_after_completion",
+          "requested_control_step": 3,
+          "snapshot_bytes": 904335,
+          "unchanged_accepted_state_vectors": [
+            "cohesiveFaces",
+            "contactHistories",
+            "deformableContactHistories",
+            "environmentParameters",
+            "femFields",
+            "femMaterialState",
+            "femNodes",
+            "femTopologyNodes",
+            "femTopologyTetrahedra",
+            "humanSupportConsequences",
+            "humanSupportHistories",
+            "particleMaterialState",
+            "particles",
+            "punctureChannels",
+            "rigidStates",
+            "topologyStates",
+            "vascularClock",
+            "vascularState"
+          ]
+        }
+      ]
+    }
+  },
+  "schema": "numi.cardboard.native526_527_transaction_audit.v1",
+  "source_evidence": {
+    "fixture_injected_postcommit_mutation": [
+      {
+        "line": 1897,
+        "text": "            endpoint[kAnvilBody].orientation.y = 1.0e-3f;"
+      },
+      {
+        "line": 1898,
+        "text": "            endpoint[kAnvilBody].orientation.w ="
+      },
+      {
+        "line": 1899,
+        "text": "                std::sqrt(1.0f - endpoint[kAnvilBody].orientation.y *"
+      },
+      {
+        "line": 1900,
+        "text": "                    endpoint[kAnvilBody].orientation.y);"
+      },
+      {
+        "line": 1901,
+        "text": "        }"
+      },
+      {
+        "line": 1902,
+        "text": "        auto postEndpoint = endpoint;"
+      },
+      {
+        "line": 1903,
+        "text": "        if (rejectPostCommit)"
+      },
+      {
+        "line": 1904,
+        "text": "            postEndpoint[kPunchBody].flagsAndIndices[0] = MR_MOTION_DYNAMIC;"
+      },
+      {
+        "line": 1905,
+        "text": "        id<MTLBuffer> endpointBuffer = makeBuffer(device, endpoint);"
+      },
+      {
+        "line": 1906,
+        "text": "        id<MTLBuffer> postBuffer = rejectPostCommit"
+      },
+      {
+        "line": 1907,
+        "text": "            ? makeBuffer(device, postEndpoint) : endpointBuffer;"
+      },
+      {
+        "line": 1908,
+        "text": "        if (kinematicTargets != nullptr)"
+      }
+    ],
+    "fixture_pre_and_post_encode": [
+      {
+        "line": 1932,
+        "text": "        id<MTLCommandBuffer> command = [queue commandBuffer];"
+      },
+      {
+        "line": 1933,
+        "text": "        require(command != nil, \"Metal command buffer unavailable\");"
+      },
+      {
+        "line": 1934,
+        "text": "        EncodeRequest request;"
+      },
+      {
+        "line": 1935,
+        "text": "        request.commandBuffer = (__bridge void*)command;"
+      },
+      {
+        "line": 1936,
+        "text": "        request.environmentStatuses = (__bridge void*)statuses;"
+      },
+      {
+        "line": 1937,
+        "text": "        request.rigid.currentBodies = (__bridge void*)endpointBuffer;"
+      },
+      {
+        "line": 1938,
+        "text": "        request.rigid.currentBodyCount = 2u;"
+      },
+      {
+        "line": 1939,
+        "text": "        request.rigid.currentBodyStride = 2u;"
+      },
+      {
+        "line": 1940,
+        "text": "        if (world.dispatch.rigidGeneralizedCapacity == 6u) {"
+      },
+      {
+        "line": 1941,
+        "text": "            request.rigid.sceneBodies = (__bridge void*)endpointBuffer;"
+      },
+      {
+        "line": 1942,
+        "text": "            request.rigid.sceneBodyCount = 2u;"
+      },
+      {
+        "line": 1943,
+        "text": "            request.rigid.sceneStride = 2u;"
+      },
+      {
+        "line": 1944,
+        "text": "        }"
+      },
+      {
+        "line": 1945,
+        "text": "        if (commandActivation) {"
+      },
+      {
+        "line": 1946,
+        "text": "            request.cohesiveActivationCommands = (__bridge void*)activationBuffer;"
+      },
+      {
+        "line": 1947,
+        "text": "            request.cohesiveActivationCommandCount ="
+      },
+      {
+        "line": 1948,
+        "text": "                static_cast<std::uint32_t>(activationCommands.size());"
+      },
+      {
+        "line": 1949,
+        "text": "            request.cohesiveActivationCommandStride ="
+      },
+      {
+        "line": 1950,
+        "text": "                sizeof(NMCohesiveActivationCommandGPU);"
+      },
+      {
+        "line": 1951,
+        "text": "        }"
+      },
+      {
+        "line": 1952,
+        "text": "        request.controlStep = controlStep;"
+      },
+      {
+        "line": 1953,
+        "text": "        request.physicsSubsteps = 1u;"
+      },
+      {
+        "line": 1954,
+        "text": "        request.timestepSeconds = runtime.timestepSeconds();"
+      },
+      {
+        "line": 1955,
+        "text": "        request.runAdaptiveTransfer = false;"
+      },
+      {
+        "line": 1956,
+        "text": "        if (kinematicTargets != nullptr) {"
+      },
+      {
+        "line": 1957,
+        "text": "            request.femKinematicTargets = (__bridge void*)kinematicTargetBuffer;"
+      },
+      {
+        "line": 1958,
+        "text": "            request.femKinematicTargetCount ="
+      },
+      {
+        "line": 1959,
+        "text": "                static_cast<std::uint32_t>(kinematicTargets->size());"
+      },
+      {
+        "line": 1960,
+        "text": "        }"
+      },
+      {
+        "line": 1961,
+        "text": "        request.phase = EncodePhase::preDynamics;"
+      },
+      {
+        "line": 1962,
+        "text": "        stage = \"encode_pre_dynamics\";"
+      },
+      {
+        "line": 1963,
+        "text": "        auto encoded = runtime.encode(request);"
+      },
+      {
+        "line": 1964,
+        "text": "        require(encoded.encoded, \"preDynamics encode failed: \" + encoded.message);"
+      },
+      {
+        "line": 1965,
+        "text": "        request.phase = EncodePhase::postCommit;"
+      },
+      {
+        "line": 1966,
+        "text": "        request.cohesiveActivationCommands = nullptr;"
+      },
+      {
+        "line": 1967,
+        "text": "        request.cohesiveActivationCommandCount = 0u;"
+      },
+      {
+        "line": 1968,
+        "text": "        request.cohesiveActivationCommandStride = 0u;"
+      },
+      {
+        "line": 1969,
+        "text": "        request.rigid.currentBodies = (__bridge void*)postBuffer;"
+      },
+      {
+        "line": 1970,
+        "text": "        stage = \"encode_post_commit\";"
+      },
+      {
+        "line": 1971,
+        "text": "        encoded = runtime.encode(request);"
+      },
+      {
+        "line": 1972,
+        "text": "        require(encoded.encoded, \"postCommit encode failed: \" + encoded.message);"
+      },
+      {
+        "line": 1973,
+        "text": "        stage = \"command_completion\";"
+      },
+      {
+        "line": 1974,
+        "text": "        [command commit];"
+      }
+    ],
+    "fixture_preconditioner_selection": [
+      {
+        "line": 800,
+        "text": "    source.materials = {bulk};"
+      },
+      {
+        "line": 801,
+        "text": "    source.mixedSolver.newtonIterations = authoredNewtonIterations != 0u"
+      },
+      {
+        "line": 802,
+        "text": "        ? authoredNewtonIterations : (extendedBudget ? 32u : 16u);"
+      },
+      {
+        "line": 803,
+        "text": "    source.mixedSolver.fgmresIterations = extendedBudget ? 256u : 64u;"
+      },
+      {
+        "line": 804,
+        "text": "    source.mixedSolver.fgmresRestart = extendedBudget ? 16u :"
+      },
+      {
+        "line": 805,
+        "text": "        source.mixedSolver.fgmresRestart;"
+      },
+      {
+        "line": 806,
+        "text": "    source.mixedSolver.lineSearchSteps = extendedBudget ? 24u :"
+      },
+      {
+        "line": 807,
+        "text": "        source.mixedSolver.lineSearchSteps;"
+      },
+      {
+        "line": 808,
+        "text": "    source.mixedSolver.relativeResidual = 1.0e-7;"
+      },
+      {
+        "line": 809,
+        "text": "    if (regionalContactPreconditioner)"
+      },
+      {
+        "line": 810,
+        "text": "        source.mixedSolver.femPreconditioner ="
+      },
+      {
+        "line": 811,
+        "text": "            FEMPreconditionerMode::regionalGalerkinContact;"
+      },
+      {
+        "line": 812,
+        "text": "    source.cohesiveMaterials = {{"
+      },
+      {
+        "line": 813,
+        "text": "        .name = \"synthetic_full_contact_armijo_interface_fixture_only\","
+      },
+      {
+        "line": 814,
+        "text": "        .normalPenaltyPaPerM = 1.0e9,"
+      },
+      {
+        "line": 815,
+        "text": "        .shearPenaltyPaPerM = 8.0e8,"
+      },
+      {
+        "line": 816,
+        "text": "        .compressionPenaltyPaPerM = 2.0e9,"
+      },
+      {
+        "line": 817,
+        "text": "        .normalStrengthPa = 1.0e6,"
+      },
+      {
+        "line": 818,
+        "text": "        .shearStrengthPa = 8.0e5,"
+      },
+      {
+        "line": 1324,
+        "text": "    // two source meshes; activation later latches only the local interface"
+      },
+      {
+        "line": 1325,
+        "text": "    // reference from an accepted endpoint and never rewrites bulk rest data."
+      },
+      {
+        "line": 1326,
+        "text": "    pad.femReferenceDisplacementGradient = true;"
+      },
+      {
+        "line": 1327,
+        "text": "    pad.femReferenceNodes = pad.femNodes;"
+      },
+      {
+        "line": 1328,
+        "text": "    pad.femMaterialIndices.assign(pad.tetrahedra.size(), 0u);"
+      },
+      {
+        "line": 1329,
+        "text": "    if (regionalContactPreconditioner)"
+      },
+      {
+        "line": 1330,
+        "text": "        // The source has one authored bulk material region. Reuse its compact"
+      },
+      {
+        "line": 1331,
+        "text": "        // all-zero tetrahedron map as the preconditioner region labeling."
+      },
+      {
+        "line": 1332,
+        "text": "        pad.femPreconditionerRegionIds = pad.femMaterialIndices;"
+      },
+      {
+        "line": 1333,
+        "text": "    std::ostringstream referenceSource;"
+      },
+      {
+        "line": 1334,
+        "text": "    referenceSource << \"synthetic.full-contact.reference.v1\\n\" << std::hexfloat;"
+      },
+      {
+        "line": 1335,
+        "text": "    for (const auto& point : pad.femReferenceNodes)"
+      }
+    ],
+    "fixture_punch_prescribed_motion_flag": [
+      {
+        "line": 1376,
+        "text": "                spec.initialClearance - highestFEMNodeZ >="
+      },
+      {
+        "line": 1377,
+        "text": "                    kInitialClearance - 1.0e-12,"
+      },
+      {
+        "line": 1378,
+        "text": "            \"synthetic full-contact punch does not preserve its declared clearance above all FEM nodes\");"
+      },
+      {
+        "line": 1379,
+        "text": "    result.tooling = makeCreaseTooling(spec);"
+      },
+      {
+        "line": 1380,
+        "text": "    result.tooling.punch.prescribedEndPoseTranslation = true;"
+      },
+      {
+        "line": 1381,
+        "text": "    result.tooling.support.bodyIndex = kAnvilBody;"
+      },
+      {
+        "line": 1382,
+        "text": "    source.rigidProxies = {result.tooling.punch, result.tooling.support};"
+      },
+      {
+        "line": 1383,
+        "text": "    if (highSparsePairDomain) {"
+      }
+    ],
+    "fixture_third_negative_transaction": [
+      {
+        "line": 3567,
+        "text": "    const RuntimeStateSnapshot beforeFailure = loaded.snapshot;"
+      },
+      {
+        "line": 3568,
+        "text": "    std::string rejectedTrace;"
+      },
+      {
+        "line": 3569,
+        "text": "    StepResult rejected;"
+      },
+      {
+        "line": 3570,
+        "text": "    {"
+      },
+      {
+        "line": 3571,
+        "text": "        StderrCapture stderrCapture;"
+      },
+      {
+        "line": 3572,
+        "text": "        tiledParityCurrentStage = \"rejected_step\";"
+      },
+      {
+        "line": 3573,
+        "text": "        try {"
+      },
+      {
+        "line": 3574,
+        "text": "            rejected = run->step(exerciseClosureAndNonuniformShear ? 4u : 3u,"
+      },
+      {
+        "line": 3575,
+        "text": "                                 true, false);"
+      },
+      {
+        "line": 3576,
+        "text": "        } catch (...) {"
+      },
+      {
+        "line": 3577,
+        "text": "            rejectedTrace = stderrCapture.finish();"
+      }
+    ],
+    "preconditioner_mode_semantics": [
+      {
+        "line": 370,
+        "text": "enum class FEMPreconditionerMode : std::uint32_t {"
+      },
+      {
+        "line": 371,
+        "text": "    scalarDiagonal = 0u,"
+      },
+      {
+        "line": 372,
+        "text": "    regionalTangentDiagonal = 1u,"
+      },
+      {
+        "line": 373,
+        "text": "    // Source-bound two-level FEM right preconditioner. Its regional basis is"
+      },
+      {
+        "line": 374,
+        "text": "    // formed from authored per-tetrahedron region IDs and the coarse operator"
+      },
+      {
+        "line": 375,
+        "text": "    // is the exact P^T A P action of the production matrix-free operator."
+      },
+      {
+        "line": 376,
+        "text": "    regionalGalerkin = 2u,"
+      },
+      {
+        "line": 377,
+        "text": "    // Exact regional coarse correction, enriched by independent quadratic/"
+      },
+      {
+        "line": 378,
+        "text": "    // cubic bending trial fields up to 32 modes, with a full 3x3 nodal tangent"
+      },
+      {
+        "line": 379,
+        "text": "    // block as its fine correction. Conditioning only; the physical operator"
+      },
+      {
+        "line": 380,
+        "text": "    // and convergence/certificate policy are unchanged."
+      },
+      {
+        "line": 381,
+        "text": "    regionalGalerkinBlockJacobi = 3u,"
+      },
+      {
+        "line": 382,
+        "text": "    // Selector 3's bounded two-level FEM preconditioner for one immutable"
+      },
+      {
+        "line": 383,
+        "text": "    // explicit FEM object with kinematic rigid contact and immutable cohesive"
+      },
+      {
+        "line": 384,
+        "text": "    // faces. The coarse AP action includes the production bulk, contact, and"
+      },
+      {
+        "line": 385,
+        "text": "    // cohesive operators. Dynamic generalized rigid rows remain unsupported."
+      },
+      {
+        "line": 386,
+        "text": "    regionalGalerkinContact = 4u,"
+      },
+      {
+        "line": 387,
+        "text": "    // Source-bound graph-Schwarz patches (bounded to 256 free nodes per patch)"
+      },
+      {
+        "line": 388,
+        "text": "    // supplement the exact regional RAP coarse correction. Conditioning only;"
+      },
+      {
+        "line": 389,
+        "text": "    // it does not change the physical operator or acceptance certificate."
+      }
+    ],
+    "prescribed_motion_validation_guard": [
+      {
+        "line": 5967,
+        "text": "kernel void nm_contact_validate_prescribed_motion("
+      },
+      {
+        "line": 5968,
+        "text": "    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],"
+      },
+      {
+        "line": 5969,
+        "text": "    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],"
+      },
+      {
+        "line": 5970,
+        "text": "    device const NMRigidProxyGPU* proxies [[buffer(2)]],"
+      },
+      {
+        "line": 5971,
+        "text": "    device const MRBodyStateGPU* bodies [[buffer(3)]],"
+      },
+      {
+        "line": 5972,
+        "text": "    device const NMRigidStateGPU* previous [[buffer(4)]],"
+      },
+      {
+        "line": 5973,
+        "text": "    device const NMRigidStateGPU* endpoint [[buffer(5)]],"
+      },
+      {
+        "line": 5974,
+        "text": "    device NMMatterStatusGPU* statuses [[buffer(6)]],"
+      },
+      {
+        "line": 5975,
+        "text": "    uint global [[thread_position_in_grid]]"
+      },
+      {
+        "line": 5976,
+        "text": ") {"
+      },
+      {
+        "line": 5977,
+        "text": "    if (global >= dispatch.environmentCount * dispatch.rigidProxyCount || dispatch.rigidProxyCount == 0u) return;"
+      },
+      {
+        "line": 5978,
+        "text": "    const uint environment = global / dispatch.rigidProxyCount;"
+      },
+      {
+        "line": 5979,
+        "text": "    const uint index = global - environment * dispatch.rigidProxyCount;"
+      },
+      {
+        "line": 5980,
+        "text": "    const NMRigidProxyGPU proxy = proxies[index];"
+      },
+      {
+        "line": 5981,
+        "text": "    if ((proxy.flags & NM_RIGID_PRESCRIBED_TRANSLATION) == 0u || !environmentHealthy(statuses, environment)) return;"
+      },
+      {
+        "line": 5982,
+        "text": "    if (proxy.bodyIndex >= bridge.currentBodyCount || bridge.currentBodyStride < bridge.currentBodyCount) {"
+      },
+      {
+        "line": 5983,
+        "text": "        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH, NM_INVALID_INDEX, index, float4(0.0f)); return;"
+      },
+      {
+        "line": 5984,
+        "text": "    }"
+      },
+      {
+        "line": 5985,
+        "text": "    const MRBodyStateGPU body = bodies[environment * bridge.currentBodyStride + proxy.bodyIndex];"
+      },
+      {
+        "line": 5986,
+        "text": "    const bool translatedCapsule = proxy.shapeKind == NM_RIGID_CAPSULE;"
+      },
+      {
+        "line": 5987,
+        "text": "    const bool translatedBox = proxy.shapeKind == NM_RIGID_BOX;"
+      },
+      {
+        "line": 5988,
+        "text": "    if ((!translatedCapsule && !translatedBox) ||"
+      },
+      {
+        "line": 5989,
+        "text": "        body.flagsAndIndices[0] != MR_MOTION_KINEMATIC ||"
+      },
+      {
+        "line": 5990,
+        "text": "        any(body.angularVelocity.xyz != float3(0.0f)) ||"
+      },
+      {
+        "line": 5991,
+        "text": "        body.linearVelocityAndInverseMass.w != 0.0f ||"
+      },
+      {
+        "line": 5992,
+        "text": "        any(body.inverseInertiaWorldRow0.xyz != float3(0.0f)) ||"
+      },
+      {
+        "line": 5993,
+        "text": "        any(body.inverseInertiaWorldRow1.xyz != float3(0.0f)) ||"
+      },
+      {
+        "line": 5994,
+        "text": "        any(body.inverseInertiaWorldRow2.xyz != float3(0.0f)) ||"
+      },
+      {
+        "line": 5995,
+        "text": "        !finite3(body.linearVelocityAndInverseMass.xyz)) {"
+      },
+      {
+        "line": 5996,
+        "text": "        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH, NM_INVALID_INDEX, index, float4(-3.0f)); return;"
+      },
+      {
+        "line": 5997,
+        "text": "    }"
+      },
+      {
+        "line": 5998,
+        "text": "    const NMRigidStateGPU old = previous[global], next = endpoint[global];"
+      },
+      {
+        "line": 5999,
+        "text": "    // Episode reset initializes the complete previous record to zero. The"
+      }
+    ],
+    "runtime_has_prescribed_translation_binding": [
+      {
+        "line": 5447,
+        "text": "            std::span<const NMFieldBoundaryGPU>(world.fem.fieldBoundaries),"
+      },
+      {
+        "line": 5448,
+        "text": "            valid, candidate->residentBytes);"
+      },
+      {
+        "line": 5449,
+        "text": "        candidate->hasPrescribedTranslation = std::ranges::any_of(world.contact.rigidProxies,"
+      },
+      {
+        "line": 5450,
+        "text": "            [](const NMRigidProxyGPU& proxy) { return (proxy.flags & NM_RIGID_PRESCRIBED_TRANSLATION) != 0u; });"
+      },
+      {
+        "line": 5451,
+        "text": "        // Worlds without prescribed motion need only typed binding sentinels,"
+      },
+      {
+        "line": 5452,
+        "text": "        // not two additional proxy-state arenas per environment."
+      },
+      {
+        "line": 5453,
+        "text": "        const std::vector<NMRigidStateGPU> prescribedPoseDefaults("
+      },
+      {
+        "line": 5454,
+        "text": "            candidate->hasPrescribedTranslation ? world.contact.rigidProxies.size() : 0u);"
+      },
+      {
+        "line": 5455,
+        "text": "        candidate->prescribedRigidEndpoints = uploads.repeated("
+      }
+    ],
+    "runtime_postcommit_validation": [
+      {
+        "line": 9514,
+        "text": "                [encoder setBuffer:currentBodies offset:0u atIndex:3u];"
+      },
+      {
+        "line": 9515,
+        "text": "                [encoder setBuffer:state.rigidStates offset:0u atIndex:4u];"
+      },
+      {
+        "line": 9516,
+        "text": "                [encoder setBuffer:rodNodes offset:0u atIndex:5u];"
+      },
+      {
+        "line": 9517,
+        "text": "                [encoder setBuffer:rodInverseMasses offset:0u atIndex:6u];"
+      },
+      {
+        "line": 9518,
+        "text": "            });"
+      },
+      {
+        "line": 9519,
+        "text": "            if (stationaryBoxEndpointGateRequested)"
+      },
+      {
+        "line": 9520,
+        "text": "                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];"
+      },
+      {
+        "line": 9521,
+        "text": ""
+      },
+      {
+        "line": 9522,
+        "text": "            if (state.hasPrescribedTranslation) {"
+      },
+      {
+        "line": 9523,
+        "text": "                dispatchThreads(\"nm_contact_validate_prescribed_motion\", proxyTotal, [&] {"
+      },
+      {
+        "line": 9524,
+        "text": "                    setDispatch();"
+      },
+      {
+        "line": 9525,
+        "text": "                    [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];"
+      },
+      {
+        "line": 9526,
+        "text": "                    [encoder setBuffer:state.rigidProxies offset:0u atIndex:2u];"
+      },
+      {
+        "line": 9527,
+        "text": "                    [encoder setBuffer:currentBodies offset:0u atIndex:3u];"
+      },
+      {
+        "line": 9528,
+        "text": "                    [encoder setBuffer:state.prescribedRigidPrevious offset:0u atIndex:4u];"
+      },
+      {
+        "line": 9529,
+        "text": "                    [encoder setBuffer:state.rigidStates offset:0u atIndex:5u];"
+      },
+      {
+        "line": 9530,
+        "text": "                    [encoder setBuffer:state.statuses offset:0u atIndex:6u];"
+      },
+      {
+        "line": 9531,
+        "text": "                });"
+      },
+      {
+        "line": 9532,
+        "text": "            }"
+      }
+    ],
+    "runtime_precommit_validation": [
+      {
+        "line": 4537,
+        "text": "            \"nm_mixed_rollback\","
+      },
+      {
+        "line": 4538,
+        "text": "            \"nm_learned_stage_weights\","
+      },
+      {
+        "line": 4539,
+        "text": "            \"nm_learned_checkpoint\","
+      },
+      {
+        "line": 4540,
+        "text": "            \"nm_learned_commit\","
+      },
+      {
+        "line": 4541,
+        "text": "            \"nm_learned_rollback\","
+      },
+      {
+        "line": 4542,
+        "text": "            \"nm_project_rigid_states\","
+      },
+      {
+        "line": 4543,
+        "text": "            \"nm_contact_initialize_prescribed_fem_candidate\","
+      },
+      {
+        "line": 4544,
+        "text": "            \"nm_contact_capture_prescribed_endpoint\","
+      },
+      {
+        "line": 4545,
+        "text": "            \"nm_contact_validate_fem_rigid_armijo_path\","
+      },
+      {
+        "line": 4546,
+        "text": "            \"nm_contact_validate_prescribed_motion\","
+      },
+      {
+        "line": 4547,
+        "text": "            \"nm_contact_validate_stationary_box_endpoint\","
+      },
+      {
+        "line": 4548,
+        "text": "            \"nm_contact_rollback_prescribed_motion\","
+      },
+      {
+        "line": 4549,
+        "text": "            \"nm_contact_rollback_stationary_box_projection\","
+      },
+      {
+        "line": 4550,
+        "text": "            \"nm_project_primal_free_rigid_candidate\","
+      },
+      {
+        "line": 4551,
+        "text": "            \"nm_mask_primal_rigid_candidate\","
+      },
+      {
+        "line": 4552,
+        "text": "            \"nm_publish_primal_free_rigid_candidate\","
+      },
+      {
+        "line": 4553,
+        "text": "            \"nm_publish_adaptive_rigid_ownership\","
+      }
+    ],
+    "status_enum": [
+      {
+        "line": 138,
+        "text": "};"
+      },
+      {
+        "line": 139,
+        "text": ""
+      },
+      {
+        "line": 140,
+        "text": "enum NMStatusCode : nm_u32 {"
+      },
+      {
+        "line": 141,
+        "text": "    NM_STATUS_SUCCESS = 0u,"
+      },
+      {
+        "line": 142,
+        "text": "    NM_STATUS_INVALID_DISPATCH = 1u,"
+      },
+      {
+        "line": 143,
+        "text": "    NM_STATUS_CAPACITY_OVERFLOW = 2u,"
+      },
+      {
+        "line": 144,
+        "text": "    NM_STATUS_NONFINITE_INPUT = 3u,"
+      },
+      {
+        "line": 145,
+        "text": "    NM_STATUS_NONFINITE_RESULT = 4u,"
+      },
+      {
+        "line": 146,
+        "text": "    NM_STATUS_INVALID_DEFORMATION = 5u,"
+      },
+      {
+        "line": 147,
+        "text": "    NM_STATUS_CONTACT_FAILURE = 6u,"
+      },
+      {
+        "line": 148,
+        "text": "    NM_STATUS_LINEAR_SOLVER_FAILURE = 7u,"
+      },
+      {
+        "line": 149,
+        "text": "    NM_STATUS_UNSUPPORTED = 8u,"
+      },
+      {
+        "line": 150,
+        "text": "    NM_STATUS_RIGID_WORLD_FAILURE = 9u,"
+      },
+      {
+        "line": 151,
+        "text": "    NM_STATUS_NONLINEAR_SOLVER_FAILURE = 10u,"
+      },
+      {
+        "line": 152,
+        "text": "    NM_STATUS_MULTIPHYSICS_FAILURE = 11u,"
+      },
+      {
+        "line": 153,
+        "text": "    NM_STATUS_TOPOLOGY_FAILURE = 12u,"
+      },
+      {
+        "line": 154,
+        "text": "    NM_STATUS_LEARNED_MATERIAL_FAILURE = 13u,"
+      }
+    ]
+  },
+  "source_hashes": {
+    "compiler": "474e717759ded2ecf81a0590dd7f5cb51da8a1041eacddff33c971ccb96152df",
+    "contact_kernel": "1f6f91a70c3c738f50c4d4fc86e429a2fc841028a81094700355b5e5d33ee538",
+    "fixture": "d96f4d6717ac40f47e71150666382ed5557c9c1e83b23b32a1c94877dbdb8db6",
+    "frozen_source": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc",
+    "runtime": "cb711f469ed3d97400b1ac449ea386667d2973e45409a7e292e083b59e287f68",
+    "solver_mode_header": "798e124cdf0b97370a7e1412526693b0f2469985df2b5e985ad3a8acbe00808a",
+    "status_enum": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+  },
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001",
+  "verdicts": {
+    "526_postcommit_fault_reached": "YES, supported by status and source path. The preDynamics Armijo trace has 32 records, all with solver_status_code 0; five select trial corrections and 27 are certified no-ops (the no-ops are not corrections). The resulting transaction snapshot then reports INVALID_DISPATCH (code1), failing index0, diagnostics [-3,-3,-3,-3]. The fixture changes punch motion from kinematic to dynamic only in postEndpoint; the source postCommit call passes that endpoint to prescribed-motion validation, which rejects non-kinematic prescribed motion.",
+    "527_postcommit_fault_reached": "NO. At Newton18 the pretrial status is healthy, but the line search produces solver status NONLINEAR_SOLVER_FAILURE (code10), failing index18, with no tested trial accepted. Newton19 onward is blocked by that pretrial error. The postCommit prescribed-motion validator skips unhealthy environments, so the injected motion-type fault is masked by the earlier preDynamics Newton failure.",
+    "alias_scratch": "All baseline/aliased outputs compare byte-for-byte within each run. The 526 raw snapshots include the appended regional linearization/basis/AP/RAP/factor/pivot/node-block vectors; JSON binds their array counts and mode count 14.",
+    "conditioning_vs_operator": "Source198 selects FEMPreconditionerMode::regionalGalerkinContact (selector 4) and adds region labels only for that option. The source declares this a conditioning/preconditioner mode; material, fixture, timestep, physical acceptance threshold, and operator-source are shared. Native iterations and accepted-state hashes differ, as expected for a changed preconditioner. This audit has no matched same-state operator-action capture, so exact assembled-operator equality was not directly measured.",
+    "rollback": "Both runs reject control3 without advancing the cursor or mutating accepted-state-vector hashes. 526 rollback follows the injected postCommit INVALID_DISPATCH. In 527, Newton18 fails during line search and later records are blocked; postCommit validation skips the unhealthy environment, and that earlier preDynamics failure is the rollback cause. Certificate validity is cleared.",
+    "scope": "Synthetic native contact fixture only; both receipts mark physical validation false."
+  }
+}

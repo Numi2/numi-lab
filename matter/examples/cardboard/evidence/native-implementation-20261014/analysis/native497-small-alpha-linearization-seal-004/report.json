@@ -1,0 +1,539 @@
+{
+  "alpha_grid": [
+    0.0,
+    0.0009765625,
+    0.001953125,
+    0.00390625,
+    0.0078125
+  ],
+  "candidates": {
+    "exact-lu": "independent total direction, tested as accepted base + alpha*x_LU",
+    "original-fgmres": "captured correction, tested as accepted base + alpha*delta_FGMRES; candidates are not added together",
+    "warm-cgls": "CGLS total X=x0+S*y, tested as accepted base + alpha*X"
+  },
+  "curves": {
+    "exact-lu": [
+      {
+        "R_Ns": 1.8846220284320863e-05,
+        "alpha": 0.0,
+        "branches": {
+          "0": {
+            "lambda_positive": 1152,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9390164468881665,
+            "yield_min": 9.25592935629993e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          },
+          "1": {
+            "lambda_positive": 576,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9607166336631368,
+            "yield_min": 3.4727776210274897e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          }
+        },
+        "max_dynamic_correction": 2.810463845425636e-13,
+        "max_scaled_residual": 1.954412311200781e-12,
+        "relative_change_from_alpha0": 0.0,
+        "strict_fail_count": 0,
+        "strict_pass": true
+      },
+      {
+        "R_Ns": 1.883016102720598e-05,
+        "alpha": 0.0009765625,
+        "branches": {
+          "0": {
+            "lambda_positive": 1152,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9391418748285313,
+            "yield_min": 9.243716903029053e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          },
+          "1": {
+            "lambda_positive": 576,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.96067432895151,
+            "yield_min": 3.468336728928989e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          }
+        },
+        "max_dynamic_correction": 1.1398514273569252e-11,
+        "max_scaled_residual": 1.95624509530762e-12,
+        "relative_change_from_alpha0": -0.0008521208429386196,
+        "strict_fail_count": 0,
+        "strict_pass": true
+      },
+      {
+        "R_Ns": 1.8817775080782223e-05,
+        "alpha": 0.001953125,
+        "branches": {
+          "0": {
+            "lambda_positive": 1152,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9392431449134057,
+            "yield_min": 9.228173780684301e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          },
+          "1": {
+            "lambda_positive": 576,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9606662018301295,
+            "yield_min": 3.4638958368304884e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          }
+        },
+        "max_dynamic_correction": 6.747648297291898e-12,
+        "max_scaled_residual": 1.995761302318756e-12,
+        "relative_change_from_alpha0": -0.001509332009787978,
+        "strict_fail_count": 0,
+        "strict_pass": true
+      },
+      {
+        "R_Ns": 1.880229815198578e-05,
+        "alpha": 0.00390625,
+        "branches": {
+          "0": {
+            "lambda_positive": 1152,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9393728718278896,
+            "yield_min": 9.205969320191798e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          },
+          "1": {
+            "lambda_positive": 576,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9605909193762711,
+            "yield_min": 3.452793606584237e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          }
+        },
+        "max_dynamic_correction": 1.639778397834353e-11,
+        "max_scaled_residual": 1.9967845740811034e-12,
+        "relative_change_from_alpha0": -0.0023305539080228366,
+        "strict_fail_count": 0,
+        "strict_pass": true
+      },
+      {
+        "R_Ns": 1.881511544113178e-05,
+        "alpha": 0.0078125,
+        "branches": {
+          "0": {
+            "lambda_positive": 1152,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9393393598861974,
+            "yield_min": 9.15045816896054e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          },
+          "1": {
+            "lambda_positive": 576,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9604346625581933,
+            "yield_min": 3.4305891460917337e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          }
+        },
+        "max_dynamic_correction": 2.6810068651509764e-12,
+        "max_scaled_residual": 1.979864149601578e-12,
+        "relative_change_from_alpha0": -0.0016504552488416646,
+        "strict_fail_count": 0,
+        "strict_pass": true
+      }
+    ],
+    "original-fgmres": [
+      {
+        "R_Ns": 1.8846220284320863e-05,
+        "alpha": 0.0,
+        "branches": {
+          "0": {
+            "lambda_positive": 1152,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9390164468881665,
+            "yield_min": 9.25592935629993e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          },
+          "1": {
+            "lambda_positive": 576,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9607166336631368,
+            "yield_min": 3.4727776210274897e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          }
+        },
+        "max_dynamic_correction": 2.810463845425636e-13,
+        "max_scaled_residual": 1.954412311200781e-12,
+        "relative_change_from_alpha0": 0.0,
+        "strict_fail_count": 0,
+        "strict_pass": true
+      },
+      {
+        "R_Ns": 1.8830242810329942e-05,
+        "alpha": 0.0009765625,
+        "branches": {
+          "0": {
+            "lambda_positive": 1152,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9391420147493487,
+            "yield_min": 9.243716903029053e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          },
+          "1": {
+            "lambda_positive": 576,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9606799616862001,
+            "yield_min": 3.468336728928989e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          }
+        },
+        "max_dynamic_correction": 1.1219947951256127e-11,
+        "max_scaled_residual": 1.9539397609606903e-12,
+        "relative_change_from_alpha0": -0.0008477813455366467,
+        "strict_fail_count": 0,
+        "strict_pass": true
+      },
+      {
+        "R_Ns": 1.881803739100176e-05,
+        "alpha": 0.001953125,
+        "branches": {
+          "0": {
+            "lambda_positive": 1152,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9392433739536737,
+            "yield_min": 9.230394226733551e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          },
+          "1": {
+            "lambda_positive": 576,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9606675037503384,
+            "yield_min": 3.461675390781238e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          }
+        },
+        "max_dynamic_correction": 6.738151474115277e-12,
+        "max_scaled_residual": 1.9607669509166827e-12,
+        "relative_change_from_alpha0": -0.001495413557409786,
+        "strict_fail_count": 0,
+        "strict_pass": true
+      },
+      {
+        "R_Ns": 1.8801882294950124e-05,
+        "alpha": 0.00390625,
+        "branches": {
+          "0": {
+            "lambda_positive": 1152,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9393730584624064,
+            "yield_min": 9.203748874142548e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          },
+          "1": {
+            "lambda_positive": 576,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.960604873918127,
+            "yield_min": 3.4505731605349865e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          }
+        },
+        "max_dynamic_correction": 1.6334702661108724e-11,
+        "max_scaled_residual": 1.9808222867676303e-12,
+        "relative_change_from_alpha0": -0.0023526197137589966,
+        "strict_fail_count": 0,
+        "strict_pass": true
+      },
+      {
+        "R_Ns": 1.881514888462078e-05,
+        "alpha": 0.0078125,
+        "branches": {
+          "0": {
+            "lambda_positive": 1152,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9393387938894687,
+            "yield_min": 9.15267861500979e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          },
+          "1": {
+            "lambda_positive": 576,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9604496642605829,
+            "yield_min": 3.4305891460917337e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          }
+        },
+        "max_dynamic_correction": 2.7186305459747574e-12,
+        "max_scaled_residual": 1.9559273192167847e-12,
+        "relative_change_from_alpha0": -0.0016486807026199202,
+        "strict_fail_count": 0,
+        "strict_pass": true
+      }
+    ],
+    "warm-cgls": [
+      {
+        "R_Ns": 1.8846220284320863e-05,
+        "alpha": 0.0,
+        "branches": {
+          "0": {
+            "lambda_positive": 1152,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9390164468881665,
+            "yield_min": 9.25592935629993e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          },
+          "1": {
+            "lambda_positive": 576,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9607166336631368,
+            "yield_min": 3.4727776210274897e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          }
+        },
+        "max_dynamic_correction": 2.810463845425636e-13,
+        "max_scaled_residual": 1.954412311200781e-12,
+        "relative_change_from_alpha0": 0.0,
+        "strict_fail_count": 0,
+        "strict_pass": true
+      },
+      {
+        "R_Ns": 1.8830272671387477e-05,
+        "alpha": 0.0009765625,
+        "branches": {
+          "0": {
+            "lambda_positive": 1152,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9391420294551392,
+            "yield_min": 9.243716903029053e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          },
+          "1": {
+            "lambda_positive": 576,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9606799610194089,
+            "yield_min": 3.468336728928989e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          }
+        },
+        "max_dynamic_correction": 1.1221200950405908e-11,
+        "max_scaled_residual": 1.976236280156742e-12,
+        "relative_change_from_alpha0": -0.0008461968868449521,
+        "strict_fail_count": 0,
+        "strict_pass": true
+      },
+      {
+        "R_Ns": 1.881807704625562e-05,
+        "alpha": 0.001953125,
+        "branches": {
+          "0": {
+            "lambda_positive": 1152,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9392434116518129,
+            "yield_min": 9.230394226733551e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          },
+          "1": {
+            "lambda_positive": 576,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9606674379997318,
+            "yield_min": 3.461675390781238e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          }
+        },
+        "max_dynamic_correction": 6.738151474115277e-12,
+        "max_scaled_residual": 1.926245465726749e-12,
+        "relative_change_from_alpha0": -0.0014933094085001208,
+        "strict_fail_count": 0,
+        "strict_pass": true
+      },
+      {
+        "R_Ns": 1.8802237713550616e-05,
+        "alpha": 0.00390625,
+        "branches": {
+          "0": {
+            "lambda_positive": 1152,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9393731010231646,
+            "yield_min": 9.203748874142548e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          },
+          "1": {
+            "lambda_positive": 576,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9606031937266823,
+            "yield_min": 3.452793606584237e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          }
+        },
+        "max_dynamic_correction": 1.6334890307572705e-11,
+        "max_scaled_residual": 1.9911477326435026e-12,
+        "relative_change_from_alpha0": -0.0023337608340935345,
+        "strict_fail_count": 0,
+        "strict_pass": true
+      },
+      {
+        "R_Ns": 1.881526860079407e-05,
+        "alpha": 0.0078125,
+        "branches": {
+          "0": {
+            "lambda_positive": 1152,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9393387463908976,
+            "yield_min": 9.151568391985165e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          },
+          "1": {
+            "lambda_positive": 576,
+            "lambda_sign_flips": 0,
+            "yield_max": 0.9604498297008541,
+            "yield_min": 3.432809592140984e-13,
+            "yield_negative": 0,
+            "yield_sign_flips": 0
+          }
+        },
+        "max_dynamic_correction": 2.7184036186227936e-12,
+        "max_scaled_residual": 1.901260356689047e-12,
+        "relative_change_from_alpha0": -0.001642328438267393,
+        "strict_fail_count": 0,
+        "strict_pass": true
+      }
+    ]
+  },
+  "evidence_class": "CPU strict-reference replay plus captured warm-CGLS action reconstruction; no native trial or full-coupon qualification",
+  "identity": {
+    "E": 2,
+    "N": 882,
+    "Newton": 63,
+    "control": 20,
+    "dt_fp32": 4.99999987e-05,
+    "environment": 0,
+    "execution_fingerprint": "430c1fc2739f9879",
+    "free_nodes": 846,
+    "world_fingerprint": "48d3b8b313356bd9"
+  },
+  "input_bindings": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native497-nonlinear-correction-001/manifest.json": "91517eeeaa5366ea9d444d7650fc8835a75ccbe7dd92e4021c912fdd96267a19",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native497-small-alpha-directions-001/exact-lu/manifest.json": "081af5e5e9c3abf4320b039fa6ba3495a27c0feacabf91cacb3b5f2a53ff9d9f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native497-small-alpha-directions-001/original-fgmres/manifest.json": "0e37246119954e5612892ba1263ea74ed6c86a015e0ee2880471efabc090a065",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native497-small-alpha-directions-001/warm-cgls/manifest.json": "a07cbb35794ddaa0483ed019cc07d653118ff8f543d32f71a7bf03c62d591656",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native497-two-level-preconditioner-001/exact_lu_solution_free_xyz.npy": "cc92ba1ace846d1ca27a8de480d90a11d3368ac13f718e513f67bffacd42a111",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173/matter/src/metal/base_cgls.metalinc": "1166f3ebb485116b519cb0f1977cae0183e877330ce666f520a05a5f5d3c2234",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173/matter/src/runtime.mm": "bfa82d0aa26f055c984619770ff08369e59ce4202dd6f8203516d8df658db392",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-portable-paper-reference-185/matter/tools/cardboard_bilinear_fp64_reference.py": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-portable-paper-reference-185/matter/tools/cardboard_compensated_fp64_reference.py": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.bin": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.json": "b03e1bf2ee33162b2cca750ac14127d1e4a1b2e6df68c1fe71b081b0b251975c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-operator-fd-capture/capture": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/output/compiled.nmatterpack": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/output/manifest.json": "315102605605164ed388056567251a92b4bdb4d5820f154d4923d4bf4cadf327",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/manifest.json": "eb16d0e1ef9148922ef2c1f47623e1414a1ee7145520cfb60fb0744efd1c8557",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/stderr.log": "5fa88ac463656bb5565705de2995c12525c60cc6eb271440175ca694c2b67305"
+  },
+  "input_bindings_file": "input-bindings.json",
+  "input_bindings_sha256": "1e9d820be8da876b0c69aa8af555984df6ca8ce16550087888d7fe450529b5ef",
+  "limits": [
+    "CPU strict compensated-FP64 material and force curves are not native Metal trial evaluations.",
+    "Native alpha=1/128 comparison is bounded and does not qualify a whole trajectory.",
+    "One control20/Newton63 state does not explain all later failures.",
+    "No calibrated-material, mesh-convergence, or physical-box qualification."
+  ],
+  "linearized_manifest_sha256": "f74ed058ced9f24a608c2a650ebc4ca3f0f59e21f7c644f02df2a470457c10d0",
+  "linearized_report_sha256": "eab6e2d0504382bd7c13da6b99bfd49d3ce07858945a3eabe30214851f3939ac",
+  "native_trial": {
+    "base_R_Ns": 1.88462218e-05,
+    "selected_alpha": 0.0078125,
+    "trial_R_Ns": 1.88108443e-05
+  },
+  "schema": "numi.cardboard.native497-small-alpha-linearization-seal.v1",
+  "upstream_manifests": {
+    "exact-lu": "081af5e5e9c3abf4320b039fa6ba3495a27c0feacabf91cacb3b5f2a53ff9d9f",
+    "original-fgmres": "0e37246119954e5612892ba1263ea74ed6c86a015e0ee2880471efabc090a065",
+    "warm-cgls": "a07cbb35794ddaa0483ed019cc07d653118ff8f543d32f71a7bf03c62d591656"
+  },
+  "warm_linear_action": {
+    "B": "fresh residual b-A*x0",
+    "R": "post-CGLS residual",
+    "X": "total x0+S*y",
+    "construction": "captured FD production_A_delta_v_impulse_Ns gives A*x0; captured FP32 B/R gives B-R; host norms use binary64",
+    "grid": {
+      "0.0": {
+        "R_linearized_Ns": 1.8846220284320863e-05,
+        "R_warm_CPU_Ns": 1.8846220284320863e-05,
+        "nonlinear_minus_linear_Ns": 0.0
+      },
+      "0.0009765625": {
+        "R_linearized_Ns": 1.882781312278136e-05,
+        "R_warm_CPU_Ns": 1.8830272671387477e-05,
+        "nonlinear_minus_linear_Ns": 2.4595486061162217e-09
+      },
+      "0.001953125": {
+        "R_linearized_Ns": 1.880940596127613e-05,
+        "R_warm_CPU_Ns": 1.881807704625562e-05,
+        "nonlinear_minus_linear_Ns": 8.67108497949127e-09
+      },
+      "0.00390625": {
+        "R_linearized_Ns": 1.877259163836889e-05,
+        "R_warm_CPU_Ns": 1.8802237713550616e-05,
+        "nonlinear_minus_linear_Ns": 2.9646075181725897e-08
+      },
+      "0.0078125": {
+        "R_linearized_Ns": 1.8698962992970142e-05,
+        "R_warm_CPU_Ns": 1.881526860079407e-05,
+        "nonlinear_minus_linear_Ns": 1.1630560782392902e-07
+      }
+    },
+    "identity": "A*(X-x0)=B-R; A*X=A*x0+(B-R), selected free mechanical rows",
+    "norms": {
+      "AX_Ns": 1.884895134738631e-05,
+      "Ax0_Ns": 1.886740065560459e-05,
+      "B_Ns": 2.0964327342218526e-07,
+      "B_minus_R_Ns": 2.080050906164091e-07,
+      "R0_Ns": 1.8846220284320863e-05,
+      "R0_dot_AX": 3.5523115162097216e-10,
+      "R_after_CGLS_Ns": 2.6087779838842947e-08
+    },
+    "not_claimed": "No independent A-action reconstruction is claimed for exact-LU or original-FGMRES.",
+    "prediction": "R_linear(alpha)=||R0-alpha*A*X||2",
+    "segments": [
+      "X",
+      "R",
+      "S",
+      "P",
+      "Q",
+      "B",
+      "mask",
+      "environment",
+      "scalars",
+      "control",
+      "errors",
+      "selected",
+      "right-scale rows"
+    ]
+  }
+}

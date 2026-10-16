@@ -20,8 +20,9 @@ class EffectiveEnvironmentTests(unittest.TestCase):
     def test_registry_matches_checkout_and_detects_unregistered_control(self):
         env.validate_source_registry(SOURCE_ROOT)
         self.assertEqual(env.source_key_registry(SOURCE_ROOT), env.NATIVE_ENV_KEYS)
-        self.assertEqual(len(env.NATIVE_ENV_KEYS), 51)
+        self.assertEqual(len(env.NATIVE_ENV_KEYS), 52)
         self.assertIn("NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR", env.NATIVE_ENV_KEYS)
+        self.assertIn("NM_FEM_BASE_CGLS_DAMPING_KG", env.NATIVE_ENV_KEYS)
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             for relative in ("matter/src/runtime.mm", "matter/tools/cardboard_probe.mm"):
@@ -80,6 +81,21 @@ class EffectiveEnvironmentTests(unittest.TestCase):
         historical["sha256"] = env._contract_digest(historical)
         with self.assertRaisesRegex(ValueError, "registry differs"):
             env.validate_contract(historical)
+
+    def test_damped_cgls_is_a_physical_source_bound_setting(self):
+        absent = env.make_contract()
+        pilot = env.make_contract({"NM_FEM_BASE_CGLS_DAMPING_KG": "1e-3"})
+        changed = env.make_contract({"NM_FEM_BASE_CGLS_DAMPING_KG": "1e-4"})
+        self.assertNotEqual(absent["sha256"], pilot["sha256"])
+        self.assertNotEqual(pilot["sha256"], changed["sha256"])
+        self.assertEqual(
+            pilot["effective"]["NM_FEM_BASE_CGLS_DAMPING_KG"],
+            {"set": True, "value": "1e-3"},
+        )
+        parent = {"PATH": "/bin", "NM_FEM_BASE_CGLS_DAMPING_KG": "1e-4"}
+        child, removed = env.child_environment(parent, pilot)
+        self.assertEqual(child["NM_FEM_BASE_CGLS_DAMPING_KG"], "1e-3")
+        self.assertEqual(removed, ["NM_FEM_BASE_CGLS_DAMPING_KG"])
 
     def test_absent_empty_and_explicit_values_are_distinct(self):
         absent = env.make_contract()

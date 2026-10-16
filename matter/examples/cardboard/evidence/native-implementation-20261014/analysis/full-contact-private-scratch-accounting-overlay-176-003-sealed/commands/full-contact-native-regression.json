@@ -1,0 +1,104 @@
+{
+  "schema": "numi.matter.full_contact_native_regression_plan.v1",
+  "status": "prepared_not_executed",
+  "execution_gate": "prepared_only; root integrates 176-002 into a fresh source snapshot and produces a fresh build/metallib before execution; do not use source175 binaries as validation of this overlay",
+  "scope": {
+    "kind": "existing_full_contact_armijo_checker",
+    "synthetic_fixture": true,
+    "physical_assembly_qualified": false,
+    "shipping_mesh_qualified": false,
+    "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175-buildfix-003",
+    "source_manifest_sha256": "6e4f8dad1377af79b1dc2ddeeb0f07e6a273598d291cb030e6222e8aebb5a007",
+    "source_build_metadata": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/source-build.json",
+    "source_build_metadata_sha256": "75c24e646fccb250fe0f8bd7d812491d5aac3892f99e863578982780f1194a25",
+    "full_physics_or_shipping_qualification": false,
+    "no_gpu_execution_by_overlay_author": true
+  },
+  "input": {
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175-buildfix-003/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+    "sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348"
+  },
+  "executable": {
+    "path": "<fresh-overlay-build>/numi-matter-cardboard-full-contact-armijo-check",
+    "sha256": null,
+    "status": "must be populated from fresh build metadata"
+  },
+  "metallib": {
+    "path": "<fresh-overlay-build>/shaders/NumiMatter.metallib",
+    "sha256": null,
+    "status": "must be populated from fresh build metadata"
+  },
+  "checker_source": {
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175-buildfix-003/matter/tools/cardboard_full_contact_armijo_check.mm",
+    "sha256": "4b72a478224f0d6fb9adb6e630ef00cdf2e466267448dc1e5b3f3bbf7bcf5f94"
+  },
+  "existing_cpu_tests": [
+    {
+      "ctest_name": "matter.compiler.cardboard_full_contact_armijo",
+      "argv": [
+        "numi-matter-cardboard-full-contact-armijo-check",
+        "materials/nagasawa2013_medium_orthotropic.nmatter",
+        "--cpu-only"
+      ],
+      "qualification_scope": "CPU-side checker contract only"
+    },
+    {
+      "ctest_name": "matter.compiler.cardboard_compensated_full_contact",
+      "argv": [
+        "numi-matter-cardboard-full-contact-armijo-check",
+        "materials/nagasawa2013_medium_orthotropic.nmatter",
+        "--cpu-only",
+        "--compensated-material-arithmetic"
+      ],
+      "qualification_scope": "CPU-side compensated-arithmetic checker contract only"
+    }
+  ],
+  "overlay_candidate": "/Users/home/cardboard-implementation-20261014/analysis/full-contact-private-scratch-accounting-overlay-176-002/candidate",
+  "native_build_requirement": {
+    "status": "not_built",
+    "reason": "the scratch estimator is a runtime change; the existing source175 executable and metallib predate it",
+    "required_target": "numi-matter-cardboard-full-contact-armijo-check",
+    "required_metallib": "NumiMatter.metallib",
+    "fresh_build_metadata_must_bind_overlay": true
+  },
+  "runner_guard": {
+    "owner": "root",
+    "max_concurrent_native_gpu_workers": 1,
+    "launch_requires_root_confirmation": true,
+    "minimum_free_bytes_before_launch": 2147483648,
+    "abort_if_free_below_bytes": 536870912,
+    "retained_reserve_bytes": 134217728,
+    "fresh_build_and_metallib_hashes_required": true,
+    "no_execution_from_overlay_author": true
+  },
+  "native_variants": [
+    {
+      "name": "default_native",
+      "argv": [
+        "<fresh-overlay-build>/numi-matter-cardboard-full-contact-armijo-check",
+        "<fresh-source-snapshot>/matter/materials/nagasawa2013_medium_orthotropic.nmatter"
+      ],
+      "note": "Existing checker default selects its native Metal path when --cpu-only is absent.",
+      "execution_status": "prepared_not_executed",
+      "precondition": "verify source manifest, executable and metallib hashes from fresh overlay build metadata; root owns serialized GPU dispatch",
+      "environment_contract": "Run with the root runner\u2019s sanitized environment; do not inherit NM_CONTACT_* or NM_FEM_* selectors unless the separate protocol explicitly requires them."
+    },
+    {
+      "name": "compensated_native",
+      "argv": [
+        "<fresh-overlay-build>/numi-matter-cardboard-full-contact-armijo-check",
+        "<fresh-source-snapshot>/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+        "--compensated-material-arithmetic"
+      ],
+      "note": "Checker parser supports the arithmetic flag; it does not enable --accurate-paper or alter tolerances.",
+      "execution_status": "prepared_not_executed",
+      "precondition": "verify source manifest, executable and metallib hashes from fresh overlay build metadata; root owns serialized GPU dispatch",
+      "environment_contract": "Same sanitized environment and physical/material inputs as default_native; only --compensated-material-arithmetic differs."
+    }
+  ],
+  "checks_not_covered": [
+    "The 17-check CPU target covers modeled allocation arithmetic only; it performs zero physics transactions.",
+    "The existing native checker fixture is synthetic and does not qualify the shipping topology, full physical assembly, or a measured whole-process 16 GiB peak.",
+    "A successful old source175 scan run is not a build or native execution of overlay 176-002."
+  ]
+}

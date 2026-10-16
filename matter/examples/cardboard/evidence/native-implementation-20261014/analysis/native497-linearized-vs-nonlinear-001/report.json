@@ -1,0 +1,263 @@
+{
+  "bindings": {
+    "cgls_capture": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646",
+    "cgls_kernels": "1166f3ebb485116b519cb0f1977cae0183e877330ce666f520a05a5f5d3c2234",
+    "cgls_runtime_writer": "bfa82d0aa26f055c984619770ff08369e59ce4202dd6f8203516d8df658db392",
+    "cgls_state_bin": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1",
+    "cgls_state_json": "b03e1bf2ee33162b2cca750ac14127d1e4a1b2e6df68c1fe71b081b0b251975c",
+    "exact_lu_vector": "cc92ba1ace846d1ca27a8de480d90a11d3368ac13f718e513f67bffacd42a111",
+    "fd_capture": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3",
+    "fgmres_curve": "7e18a3b48d71ee54a1181663188e600185b6e74f0f9eb6510e786070e2efd342",
+    "full_curve": "04abdcf22ba62f21a8fc2d65cc4a0ef58d41bbe73cce915a93dbdd424d119ffd",
+    "native_stderr": "5fa88ac463656bb5565705de2995c12525c60cc6eb271440175ca694c2b67305",
+    "warm_curve": "25ccb32117c706841da6616650cf029e882649d8efabe63854530ede31b1b931"
+  },
+  "evidence_class": "CPU-only reconstruction from exact captured state and CGLS v3 payload; no native replay or qualification",
+  "identity": {
+    "CGLS_header": [
+      1397507907,
+      3,
+      2,
+      882,
+      3528,
+      64,
+      13,
+      0
+    ],
+    "R0_minus_Ax0_norm_Ns": 2.0963150241994387e-07,
+    "R0_norm_Ns": 1.8846220284320863e-05,
+    "alpha0_CPU_replay_minus_native_base_Ns": -1.5156791362898499e-12,
+    "dot_R0_Ax_warm": 3.5523115162097216e-10,
+    "dt_seconds_fp32": 4.99999987e-05,
+    "environment": 0,
+    "errors": [
+      0,
+      16
+    ],
+    "execution_fingerprint": "430c1fc2739f9879",
+    "free_nodes": 846,
+    "newton_iteration": 63,
+    "nodes": 882,
+    "root": 20,
+    "selected": [
+      1,
+      0
+    ],
+    "world_fingerprint": "48d3b8b313356bd9",
+    "||A*x0||_free_Ns": 1.886740065560459e-05,
+    "||A*x_warm_total||_free_Ns": 1.884895134738631e-05,
+    "||B-R||_free_Ns": 2.080050906164091e-07,
+    "||B||_free_Ns": 2.0964327342218526e-07,
+    "||R_after_CGLS||_free_Ns": 2.6087779838842947e-08,
+    "||x0||_free_m_s": 4.836315978382837,
+    "||x_warm_total-x0||_free_m_s": 5.8461529254856474e-05,
+    "||x_warm_total||_free_m_s": 4.836317037642793
+  },
+  "linear_action_interpretation": {
+    "curve_semantics": "CPU strict-reference nonlinear residual is recomputed from captured R0 plus mass and constitutive internal-force increments; loads cancel. Linearized prediction is ||R0-alpha*A*X||.",
+    "limits": [
+      "The CGLS action is captured Metal data but the alpha trial curve is strict CPU reference material/force reconstruction, not native trial execution.",
+      "State join is source-bound to root20/Newton63. This does not qualify later control history or whole coupon.",
+      "No exact LU nonlinear curve is in this report; see the separate LU replay package."
+    ],
+    "source_semantics": "CGLS v3 capture stores total X=x0+S*y; B is the fresh residual b-A*x0 used to seed CGLS; R is the post-CGLS residual. Therefore A*(S*y)=B-R. The FD node capture separately contains production A*x0.",
+    "total_action": "A*X = captured production A*x0 + (captured B - captured R), on the selected free mechanical rows."
+  },
+  "native_armijo": {
+    "base_R_Ns": 1.88462218e-05,
+    "selected_alpha": 0.0078125,
+    "status": "accepted native trial at this Newton only",
+    "trial_R_Ns": 1.88108443e-05
+  },
+  "residual_curve": {
+    "0": {
+      "linearized_free_residual_l2_Ns": 1.8846220284320863e-05,
+      "nonlinear_minus_linear_Ns": 0.0,
+      "nonlinear_reduction_from_base_Ns": 0.0,
+      "strict_cpu_nonlinear_free_residual_l2_Ns": 1.8846220284320863e-05
+    },
+    "0.0009765625": {
+      "linearized_free_residual_l2_Ns": 1.882781312278136e-05,
+      "nonlinear_minus_linear_Ns": 2.4595486061162217e-09,
+      "nonlinear_reduction_from_base_Ns": 1.5947612933385892e-08,
+      "strict_cpu_nonlinear_free_residual_l2_Ns": 1.8830272671387477e-05
+    },
+    "0.001953125": {
+      "linearized_free_residual_l2_Ns": 1.880940596127613e-05,
+      "nonlinear_minus_linear_Ns": 8.67108497949127e-09,
+      "nonlinear_reduction_from_base_Ns": 2.8143238065242004e-08,
+      "strict_cpu_nonlinear_free_residual_l2_Ns": 1.881807704625562e-05
+    },
+    "0.00390625": {
+      "linearized_free_residual_l2_Ns": 1.877259163836889e-05,
+      "nonlinear_minus_linear_Ns": 2.9646075181725897e-08,
+      "nonlinear_reduction_from_base_Ns": 4.3982570770246876e-08,
+      "strict_cpu_nonlinear_free_residual_l2_Ns": 1.8802237713550616e-05
+    },
+    "0.0078125": {
+      "linearized_free_residual_l2_Ns": 1.8698962992970142e-05,
+      "nonlinear_minus_linear_Ns": 1.1630560782392902e-07,
+      "nonlinear_reduction_from_base_Ns": 3.0951683526792196e-08,
+      "strict_cpu_nonlinear_free_residual_l2_Ns": 1.881526860079407e-05
+    },
+    "0.015625": {
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9381070735929999,
+          "yield_min": 9.048317650695026e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9600332163944986,
+          "yield_min": 3.388400671155978e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "nonlinear_reduction_from_base_Ns": -1.6313466374927288e-07,
+      "strict_cpu_nonlinear_free_residual_l2_Ns": 1.9009354948070136e-05
+    },
+    "0.03125": {
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9314212214496367,
+          "yield_min": 8.849587729287123e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9587985230316345,
+          "yield_min": 3.306244167333716e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "nonlinear_reduction_from_base_Ns": -1.2783740547267649e-06,
+      "strict_cpu_nonlinear_free_residual_l2_Ns": 2.0124594339047628e-05
+    },
+    "0.0625": {
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9355665118230024,
+          "yield_min": 8.479883462086946e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9548785985959898,
+          "yield_min": 3.1530333899354446e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "nonlinear_reduction_from_base_Ns": -7.208976967307258e-06,
+      "strict_cpu_nonlinear_free_residual_l2_Ns": 2.605519725162812e-05
+    },
+    "0.125": {
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9476235216873498,
+          "yield_min": 7.822631431508853e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9428678811960792,
+          "yield_min": 2.8888003100746573e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "nonlinear_reduction_from_base_Ns": -3.735479236296809e-05,
+      "strict_cpu_nonlinear_free_residual_l2_Ns": 5.620101264728895e-05
+    },
+    "0.25": {
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9606479465560606,
+          "yield_min": 6.774580896262705e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9168654006616404,
+          "yield_min": 2.4713564528155985e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "nonlinear_reduction_from_base_Ns": -0.00016783338812540843,
+      "strict_cpu_nonlinear_free_residual_l2_Ns": 0.0001866796084097293
+    },
+    "0.5": {
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9565510523373881,
+          "yield_min": 5.295763827461997e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.936798649233953,
+          "yield_min": 1.7719159473017498e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "nonlinear_reduction_from_base_Ns": -0.000687431152579583,
+      "strict_cpu_nonlinear_free_residual_l2_Ns": 0.0007062773728639039
+    },
+    "1": {
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.957047815271585,
+          "yield_min": 2.948752353404416e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9239968040515569,
+          "yield_min": 4.8405723873656825e-14,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "nonlinear_reduction_from_base_Ns": -0.002626827036965721,
+      "strict_cpu_nonlinear_free_residual_l2_Ns": 0.002645673257250042
+    }
+  },
+  "schema": "numi.cardboard.native497-linearized-vs-nonlinear.v1",
+  "source_contract_ranges": {
+    "base_cgls.metalinc": "seed residual and total candidate semantics",
+    "runtime.mm": "23790-23850; CGLS v3 segment order and capture header"
+  }
+}

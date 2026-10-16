@@ -1,0 +1,46 @@
+{
+  "created_utc": "2026-10-16T03:59:45.341471+00:00",
+  "files": [
+    {
+      "bytes": 2156,
+      "path": "README.md",
+      "sha256": "3df0a78ad8718af688b64c44398fc545e37b1de1f05ef1a89f2db5fadabc36df"
+    },
+    {
+      "bytes": 1723,
+      "path": "source-overlay.json",
+      "sha256": "4dc8cd0c27ae99030e2d9981f4d9744cd920bdd00c40c875a3ade2cab6c27d30"
+    },
+    {
+      "bytes": 6273,
+      "path": "tests/test_guarded_source469_v4.py",
+      "sha256": "c44e5366df76da521a1fc95e7ae97a0471e2313bf0a15fc61410e00022fab05d"
+    },
+    {
+      "bytes": 1705,
+      "path": "validation/report-schemas.json",
+      "sha256": "9adc447717245a5307bf40cad7d984ca84d9d4ecb46738fcc777bb87db684c32"
+    },
+    {
+      "bytes": 15075,
+      "path": "validation/run_guarded_source469_v4.py",
+      "sha256": "5752efa81a54a2b4ff25c3e4709e722f5fb861452fae43b60d64824824a2aac4"
+    },
+    {
+      "bytes": 301,
+      "path": "validation/v4-tests.command.json",
+      "sha256": "78e405da168b9bba679a536584cc34ff93025fb005c0b27ed4269403204a4260"
+    },
+    {
+      "bytes": 1106,
+      "path": "validation/v4-tests.stdout.log",
+      "sha256": "c06dc71a43f95f29289de49b741361afb585e6efb9fafc0b07b0b755f0b0bc57"
+    }
+  ],
+  "manifest_self_excluded": true,
+  "native_execution_by_agent": false,
+  "package_root": "/Users/home/cardboard-implementation-20261014/analysis/native469-material-replay-174-host-macmini-002",
+  "schema": "numi.cardboard.native469.guarded-runner-v4.package-manifest.v1",
+  "total_bytes": 28339,
+  "total_files": 7
+}

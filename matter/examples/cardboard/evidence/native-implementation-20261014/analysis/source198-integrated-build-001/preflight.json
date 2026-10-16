@@ -1,0 +1,9 @@
+{
+  "verified_at_utc": "2026-10-16T07:41:45.720928+00:00",
+  "selected_files": 816,
+  "support_files": 1034,
+  "frozen_sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc",
+  "source_set_exact": true,
+  "source196_manifest_sha256": "a874d979b901ba421722bc3aebc19508e29571036ad8768497a14b21a9b312ff",
+  "runtime_identical_to197": true
+}

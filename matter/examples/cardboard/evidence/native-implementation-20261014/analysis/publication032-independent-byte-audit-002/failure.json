@@ -1,0 +1,4 @@
+{
+  "verdict": "AUDIT_SCRIPT_FAILED",
+  "reason": "Git untracked inventory excluded 33 intentionally archived ignored build/Metal metadata paths. Payload byte checks had passed; revise inventory to include ignored files before force-adding exact pathlist."
+}

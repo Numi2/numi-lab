@@ -1,0 +1,20 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 580,
+      "sha256": "fa89b5896d6388d67d5213b7ea3c7276f47870002734e7908629c98f7f1b7c4a"
+    },
+    "curve.json": {
+      "bytes": 5085,
+      "sha256": "25ccb32117c706841da6616650cf029e882649d8efabe63854530ede31b1b931"
+    },
+    "report.json": {
+      "bytes": 15972,
+      "sha256": "751d46360062e646f8691cd7129fdcc780fb1ff18807b9812d974154e5731339"
+    }
+  },
+  "host": "macmini",
+  "package": "native497-small-alpha-directions-001-warm-cgls",
+  "schema": "numi.cardboard.analysis-package.v1",
+  "scope": "CPU-only read-only replay"
+}

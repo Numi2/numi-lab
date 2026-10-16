@@ -1,0 +1,56 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 884,
+      "sha256": "5ffb925435315367e4ecb9ef4cc87723fee71f74129e7628e76fb25f9e3406d4"
+    },
+    "exact-lu-curve.json": {
+      "bytes": 5083,
+      "sha256": "1c0e722cd20c21810c6daebada5942225054a372dcfcd706fb8544ffea2ea21b"
+    },
+    "input-bindings.json": {
+      "bytes": 3604,
+      "sha256": "1e9d820be8da876b0c69aa8af555984df6ca8ce16550087888d7fe450529b5ef"
+    },
+    "inputs/exact-lu-manifest.json": {
+      "bytes": 586,
+      "sha256": "081af5e5e9c3abf4320b039fa6ba3495a27c0feacabf91cacb3b5f2a53ff9d9f"
+    },
+    "inputs/linearized-manifest.json": {
+      "bytes": 473,
+      "sha256": "f74ed058ced9f24a608c2a650ebc4ca3f0f59e21f7c644f02df2a470457c10d0"
+    },
+    "inputs/linearized-report.json": {
+      "bytes": 24889,
+      "sha256": "eab6e2d0504382bd7c13da6b99bfd49d3ce07858945a3eabe30214851f3939ac"
+    },
+    "inputs/original-fgmres-manifest.json": {
+      "bytes": 593,
+      "sha256": "0e37246119954e5612892ba1263ea74ed6c86a015e0ee2880471efabc090a065"
+    },
+    "inputs/warm-cgls-manifest.json": {
+      "bytes": 587,
+      "sha256": "a07cbb35794ddaa0483ed019cc07d653118ff8f543d32f71a7bf03c62d591656"
+    },
+    "original-fgmres-curve.json": {
+      "bytes": 5092,
+      "sha256": "7e18a3b48d71ee54a1181663188e600185b6e74f0f9eb6510e786070e2efd342"
+    },
+    "report.json": {
+      "bytes": 20805,
+      "sha256": "72c1e4cc71f0aa40339fb673ff1d2f35690a0e4a7b332f234c1ff4544f2c20ee"
+    },
+    "verify.py": {
+      "bytes": 512,
+      "sha256": "19fc5ff9cdb731c3ab5774d7780f3f098f7c2015ce69d2cfada64d4274b962e7"
+    },
+    "warm-cgls-curve.json": {
+      "bytes": 5085,
+      "sha256": "25ccb32117c706841da6616650cf029e882649d8efabe63854530ede31b1b931"
+    }
+  },
+  "host": "macmini",
+  "package": "native497-small-alpha-linearization-seal-004",
+  "schema": "numi.cardboard.analysis-package.v1",
+  "scope": "CPU nonlinear curves and captured warm-CGLS linear action"
+}

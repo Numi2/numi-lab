@@ -1,0 +1,15 @@
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source193-shipping-scale-audit-001/audit.cpp:9:2: error: unknown type name 'FullContactArmijoScratchBytes'; did you mean 'numi::matter::detail::FullContactArmijoScratchBytes'?
+    9 |  FullContactArmijoScratchBytes scratchAlias{}, scratchCopy{};
+      |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |  numi::matter::detail::FullContactArmijoScratchBytes
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-193-001/matter/include/numi/matter/detail/full_contact_armijo_scratch_budget.hpp:16:8: note: 'numi::matter::detail::FullContactArmijoScratchBytes' declared here
+   16 | struct FullContactArmijoScratchBytes {
+      |        ^
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source193-shipping-scale-audit-001/audit.cpp:57:41: error: use of undeclared identifier 'SparsePrivateContactAdmissionError'; did you mean 'numi::matter::detail::SparsePrivateContactAdmissionError'?
+   57 |  <<",\"sparse_error\":"<<(sparse.error==SparsePrivateContactAdmissionError::none?0:(unsigned)sparse.error)
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                         numi::matter::detail::SparsePrivateContactAdmissionError
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-193-001/matter/include/numi/matter/sparse_private_contact_admission.hpp:21:12: note: 'numi::matter::detail::SparsePrivateContactAdmissionError' declared here
+   21 | enum class SparsePrivateContactAdmissionError : std::uint8_t {
+      |            ^
+2 errors generated.

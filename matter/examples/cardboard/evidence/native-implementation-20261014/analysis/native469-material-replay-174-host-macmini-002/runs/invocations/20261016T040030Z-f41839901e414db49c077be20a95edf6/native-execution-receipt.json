@@ -1,0 +1,13 @@
+{
+  "execution_started": true,
+  "exit_code": 0,
+  "gpu_execution": true,
+  "lease_released_after_receipt": true,
+  "limit_reason": null,
+  "material_qualification": false,
+  "output_exists": true,
+  "output_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-002/runs/invocations/20261016T040030Z-f41839901e414db49c077be20a95edf6/native-output",
+  "run_id": "20261016T040030Z-f41839901e414db49c077be20a95edf6",
+  "schema": "numi.cardboard.native469.guarded-run.v4-execution",
+  "wall_seconds": 62.65222716704011
+}

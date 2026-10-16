@@ -486,6 +486,8 @@ kernel void nm_fgmres_base_cgls_form_alpha(
     device float4* scalars [[buffer(5)]],
     device uint4* control [[buffer(6)]],
     device atomic_uint* errors [[buffer(7)]],
+    device const float4* p [[buffer(8)]],
+    constant float& dampingSquared [[buffer(9)]],
     uint lane [[thread_index_in_simdgroup]],
     uint environment [[threadgroup_position_in_grid]]) {
     if (environment >= environmentCount) return;
@@ -500,7 +502,8 @@ kernel void nm_fgmres_base_cgls_form_alpha(
     const uint mechanicalRows = unknownCount / 2u;
     const uint nodeCount = mechanicalRows / environmentCount;
     float qNorm2 = 0.0f, correction = 0.0f;
-    uint errorBits = 0u;
+    uint errorBits = (!isfinite(dampingSquared) || dampingSquared < 0.0f)
+        ? kBaseCGLSErrorNonfinite : 0u;
     for (uint local = lane; local < 2u * nodeCount; local += 32u) {
         const uint index = local < nodeCount
             ? environment * nodeCount + local
@@ -522,6 +525,20 @@ kernel void nm_fgmres_base_cgls_form_alpha(
             errorBits |= kBaseCGLSErrorNonzeroConstrainedRow;
         const float3 active = value.xyz * mask.xyz;
         baseCGLSCompensatedAdd(qNorm2, correction, dot(active, active));
+        if (dampingSquared > 0.0f) {
+            const float4 pi = p[index];
+            if (!baseCGLSFinite4(pi)) {
+                errorBits |= kBaseCGLSErrorNonfinite;
+                continue;
+            }
+            const float3 activeP = pi.xyz * mask.xyz;
+            if (!all(isfinite(activeP))) {
+                errorBits |= kBaseCGLSErrorNonfinite;
+                continue;
+            }
+            baseCGLSCompensatedAdd(qNorm2, correction,
+                dampingSquared * dot(activeP, activeP));
+        }
     }
     qNorm2 = simd_sum(qNorm2);
     errorBits = simd_or(errorBits);
@@ -631,10 +648,12 @@ kernel void nm_fgmres_base_cgls_form_beta(
     constant uint& environmentCount [[buffer(1)]],
     device const float4* rowMask [[buffer(2)]],
     device const uint* rowEnvironment [[buffer(3)]],
-    device const float4* s [[buffer(4)]],
+    device float4* s [[buffer(4)]],
     device float4* scalars [[buffer(5)]],
     device uint4* control [[buffer(6)]],
     device atomic_uint* errors [[buffer(7)]],
+    device const float4* x [[buffer(8)]],
+    constant float& dampingSquared [[buffer(9)]],
     uint lane [[thread_index_in_simdgroup]],
     uint environment [[threadgroup_position_in_grid]]) {
     if (environment >= environmentCount) return;
@@ -649,7 +668,8 @@ kernel void nm_fgmres_base_cgls_form_beta(
     const uint mechanicalRows = unknownCount / 2u;
     const uint nodeCount = mechanicalRows / environmentCount;
     float nextGamma = 0.0f, correction = 0.0f;
-    uint errorBits = 0u;
+    uint errorBits = (!isfinite(dampingSquared) || dampingSquared < 0.0f)
+        ? kBaseCGLSErrorNonfinite : 0u;
     for (uint local = lane; local < 2u * nodeCount; local += 32u) {
         const uint index = local < nodeCount
             ? environment * nodeCount + local
@@ -669,7 +689,26 @@ kernel void nm_fgmres_base_cgls_form_beta(
         if (any((mask.xyz == float3(0.0f)) &
                 (value.xyz != float3(0.0f))))
             errorBits |= kBaseCGLSErrorNonzeroConstrainedRow;
-        const float3 active = value.xyz * mask.xyz;
+        float4 gradient = value;
+        if (dampingSquared > 0.0f) {
+            const float4 xi = x[index];
+            if (!baseCGLSFinite4(xi)) {
+                errorBits |= kBaseCGLSErrorNonfinite;
+                continue;
+            }
+            if (any((mask.xyz == float3(0.0f)) &
+                    (xi.xyz != float3(0.0f)))) {
+                errorBits |= kBaseCGLSErrorNonzeroConstrainedRow;
+                continue;
+            }
+            gradient = float4(value.xyz - dampingSquared * xi.xyz, 0.0f);
+            if (!baseCGLSFinite4(gradient)) {
+                errorBits |= kBaseCGLSErrorNonfinite;
+                continue;
+            }
+            s[index] = gradient;
+        }
+        const float3 active = gradient.xyz * mask.xyz;
         baseCGLSCompensatedAdd(nextGamma, correction, dot(active, active));
     }
     nextGamma = simd_sum(nextGamma);

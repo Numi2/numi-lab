@@ -1,0 +1,7 @@
+{
+  "stage": "before_native_execution",
+  "change": "Question prose label source195 corrected to198; all source/artifact/config/argv bindings were already198.",
+  "prior_manifest_sha256": "2bcc223bbbd53e84d5bf47c558021e4efab784a18b43f6b7cbf6e8212bc92a00",
+  "new_manifest_sha256": "c5a0ee81858543a8436ca214894bcb7c926144e8884c1560d2ce713faf0b9471",
+  "physical_transactions": 0
+}

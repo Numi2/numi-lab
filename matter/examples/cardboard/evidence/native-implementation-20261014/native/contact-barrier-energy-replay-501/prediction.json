@@ -1,0 +1,18 @@
+{
+  "schema": "numi.cardboard.native501-readonly-launch.v1",
+  "started_at_utc": "2026-10-16T06:02:44.248432+00:00",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-armijo-energy-replay-499-001/contact_barrier_trial_replay_ccd",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-armijo-energy-replay-499-001/contact_barrier_trial_replay_ccd.metallib",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-armijo-energy-replay-499-001/case-496-inputs-v4",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-barrier-energy-replay-501/output.bin"
+  ],
+  "workers": [],
+  "source_closure_sha256": "474e1bff85417d65ca282e5e825d4332c52fec3c80d5f7d4fc4b794d922edced",
+  "inputs_manifest_sha256": "b6c2e1872afe5f6e6685a57525fe91e604b20bf6ab5aa0fcb1acd546e80dea0f",
+  "host_sha256": "43104b2b91ec185312f253b5b09084e6f6cb894a95e521f66268979c4d7e8266",
+  "metallib_sha256": "59f3e742b7d4d13529d620d94c045f266db6494996674a070af836921d45d2c8",
+  "runner_sha256": "46fa16e7fb39c18c7052b4a1e3f0381cef08d45a6c58fda63b1a782516905303",
+  "physical_transactions": 0,
+  "ccd_qualification": false
+}

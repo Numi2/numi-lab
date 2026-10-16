@@ -1,0 +1,199 @@
+{
+  "artifacts": {
+    "README-source189-native-replay.md": {
+      "byte_count": 2377,
+      "sha256": "e0d2d0cf3d08f5275b0330ae98545615cf6d439c264bfb47876675c61b942878"
+    },
+    "cmake-build.stderr": {
+      "byte_count": 2455,
+      "sha256": "ecbf24a1a4b749deeea9a2eadcb7a224c8e64ad278397b61850659596e02efe6"
+    },
+    "cmake-build.stdout": {
+      "byte_count": 2224,
+      "sha256": "5bd535b38e5e6e2d1f0a18edbad0b3952af32ba532e96ecddf7dedc98fd427b4"
+    },
+    "cmake-configure.stderr": {
+      "byte_count": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cmake-configure.stdout": {
+      "byte_count": 657,
+      "sha256": "5afc581a1b403d9e9f1e3c983c3b3937b2394ff42f4fe3f650d1207d782295fb"
+    },
+    "contact_barrier_trial_replay_source189.air": {
+      "byte_count": 1636960,
+      "sha256": "9cfbb01b3759bf1fdf3b6f029dbfc1f75738a9fc46925add7753e20687a7e7da"
+    },
+    "contact_barrier_trial_replay_source189.d": {
+      "byte_count": 6601,
+      "sha256": "291a37ed7b1163273926492982455f1dad3275f70f3c4c7d217c70cc9d473fb6"
+    },
+    "contact_barrier_trial_replay_source189.metal": {
+      "byte_count": 7861,
+      "sha256": "196cf0ac1dc284b9f4cda3e797b449dda2622f04576ad7bc463af94d2ef037b0"
+    },
+    "contact_barrier_trial_replay_source189.metallib": {
+      "byte_count": 7070812,
+      "sha256": "136bd6c922b42670852e3a6e9fbc07b2758feb702767c2704dd6bd00839ad209"
+    },
+    "contact_barrier_trial_replay_source189.mm": {
+      "byte_count": 7017,
+      "sha256": "c509507bd1dc2443f86fa22ce0b499572a564c1e37c092050379cbe466866c25"
+    },
+    "contact_barrier_trial_replay_source189_host": {
+      "byte_count": 58216,
+      "sha256": "23f392404f9a58a221c3a505a944c21c72ec93cb960155ddfe90c885d932031c"
+    },
+    "extracted_femTrialNodeAtAlpha.inc": {
+      "byte_count": 973,
+      "sha256": "d236b86f154bcbda9e2b0b3dfc728758c8a628234ac4a9a1ac6502fd63279d10"
+    },
+    "fem_trial_helper_native500_check": {
+      "byte_count": 38448,
+      "sha256": "f9a8c007a583e4615eed70a094493ca7b8173b97a550841e665e19a65f9d0d2d"
+    },
+    "fem_trial_helper_native500_check.cpp": {
+      "byte_count": 5045,
+      "sha256": "336b65a8b398ee3495ca6c6b18c174530b355539f4091ba4b872cc83a333098c"
+    },
+    "helper-check-receipt.json": {
+      "byte_count": 3115,
+      "sha256": "c5e89b18f52de87b3a82d06f84b8b70245b5814a17f4d4ee6d3291d137f3ba3b"
+    },
+    "host-compile.stderr": {
+      "byte_count": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "host-compile.stdout": {
+      "byte_count": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metal-compile.stderr": {
+      "byte_count": 2625,
+      "sha256": "68291fce17593d0350fe88b32c04ac90e6ff1cb565b9d38cd80357e4c7d643da"
+    },
+    "metal-compile.stdout": {
+      "byte_count": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metallib.stderr": {
+      "byte_count": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metallib.stdout": {
+      "byte_count": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "run_source189_helper_replay.py": {
+      "byte_count": 5398,
+      "sha256": "51a20fcd7b9dc26184bf573044ce09bc7438c2945fa5988d1d30a2aa1042a847"
+    },
+    "source189-three-file-overlay.patch": {
+      "byte_count": 29522,
+      "sha256": "ba81d518c1e14bd4b4381939b27cadc7dded28df4ae937798d7f4bc29b32017a"
+    },
+    "source_contract_receipt.json": {
+      "byte_count": 475,
+      "sha256": "f51c1f41ca7548e61e0441352dd6fe13f585d19f7e5f9c3dc64cffb339c38b40"
+    }
+  },
+  "canonical_refreshed_source": {
+    "frozen_source_json_sha256": "96361bba5c82368d6476711a550eb9ea16fca08d8235514dcd90eb21673750c0",
+    "map_entries": 814,
+    "mismatched_map_entries": [],
+    "note": "Root-owned refreshed source189-003; use this source root for runner preflight. Its selected map verified 814/814 against disk.",
+    "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix003"
+  },
+  "cpu_checks": {
+    "description": "Extracted production femTrialNodeAtAlpha helper: 96 endpoint float components compared to retained native500 endpoints; all within one ULP, 93 bit-identical. CPU extraction check only; custom Metal helper remains unexecuted.",
+    "fem_trial_helper": "helper-check-receipt.json"
+  },
+  "input": {
+    "contact_slots": [
+      7,
+      100,
+      155
+    ],
+    "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-armijo-energy-replay-499-001/case-496-inputs-v4",
+    "file_inventory": {
+      "accepted-nodes.bin": {
+        "byte_count": 2880,
+        "sha256": "928da924ab7b58bfad074124a460aa807687c6466c6d8e2295a8af349503f39d"
+      },
+      "alphas.bin": {
+        "byte_count": 96,
+        "sha256": "ae4c873080e3027604a3d81ec76c7fd26db9f464f3a769b7a0642a2af0aa1e95"
+      },
+      "candidate-nodes.bin": {
+        "byte_count": 2880,
+        "sha256": "cf79a4e8b241e221a321f52124b5c691a2dbfc5e2833e3ca6a165eeafac4a146"
+      },
+      "collision-thickness.bin": {
+        "byte_count": 12,
+        "sha256": "76b2b5d8bf4de3531dc314bb24c34a14ae2097faafa376bef7d952e5e03f474f"
+      },
+      "contacts.bin": {
+        "byte_count": 1296,
+        "sha256": "0db686ce367abd925176f497df442500cee46cd6c8e0ae6ba537427af4c7246b"
+      },
+      "correction.bin": {
+        "byte_count": 576,
+        "sha256": "04dacef2468fa1216b86444d21bb0ab9a4145086c5cc8acd55b0681401b3cf08"
+      },
+      "timestep.bin": {
+        "byte_count": 4,
+        "sha256": "0f2f3591427956b004ca17393783192e0f81858c06bb5496aa2cea004f1ee863"
+      }
+    },
+    "manifest_sha256": "b6c2e1872afe5f6e6685a57525fe91e604b20bf6ab5aa0fcb1acd546e80dea0f",
+    "node_count": 36,
+    "schema": "numi.cardboard.contact_barrier_native_replay_inputs.v2",
+    "trials_per_contact": 8
+  },
+  "package_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source189-shared-contact-trial-002",
+  "prepared_native_replay": {
+    "host": "contact_barrier_trial_replay_source189_host",
+    "metallib": "contact_barrier_trial_replay_source189.metallib",
+    "output_bytes": 8064,
+    "output_contract": "3 contacts x 8 alpha trials x 21 float4 records; physical_transactions=0",
+    "output_shape_float4": [
+      24,
+      21
+    ],
+    "runner": "run_source189_helper_replay.py",
+    "runner_status": "prepared_only_not_invoked"
+  },
+  "purpose": "Prepared hash-bound replay of exact production contact barrier energy, FEM trial-node update and full-endpoint CCD helper for retained native500 inputs. Package preparation did not dispatch GPU work.",
+  "schema": "numi.cardboard.source189_helper_replay.package.v1",
+  "source_base": {
+    "frozen_source_json_sha256": "1f61fd7893eb3a10dfcf1ee0e748f1320b23171d67d37668b319b170a5c20185",
+    "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188-buildfix002"
+  },
+  "source_overlay": {
+    "actual_changed_files": {
+      "matter/src/metal/contact.metalinc": {
+        "base_sha256": "a102749ef13ac17276f2e3b014f362ccfa7967327340bbf4677be4b6e2cdb048",
+        "source189_002_sha256": "deb984d07de73477c294446eaacaae4e8a8bf374d895056018b9d8047d491cec"
+      },
+      "matter/src/metal/fem.metalinc": {
+        "base_sha256": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170",
+        "source189_002_sha256": "bbd6abd764f723e6f0b266b80a3c99e100384e68e5ca5ae7cdd29cad36fb6a43"
+      },
+      "matter/src/runtime.mm": {
+        "base_sha256": "60bd26def9d1fde3cee4060a21b7d983e8fa817accf3f0dbd5c8bee8e194a2f6",
+        "source189_002_sha256": "9ed2a0011bbecb138ac1bcb9089a07899a34b5d39b43e1cfce3b2e42565f4e01"
+      }
+    },
+    "frozen_source_json_sha256": "1f61fd7893eb3a10dfcf1ee0e748f1320b23171d67d37668b319b170a5c20185",
+    "map_entries": 814,
+    "mismatched_map_entries": [
+      "matter/src/metal/contact.metalinc",
+      "matter/src/metal/fem.metalinc",
+      "matter/src/runtime.mm"
+    ],
+    "patch_file": "source189-three-file-overlay.patch",
+    "patch_sha256": "ba81d518c1e14bd4b4381939b27cadc7dded28df4ae937798d7f4bc29b32017a",
+    "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix002",
+    "stale_frozen_map": true
+  }
+}

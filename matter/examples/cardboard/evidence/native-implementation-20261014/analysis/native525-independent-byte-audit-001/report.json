@@ -1,0 +1,243 @@
+{
+  "build_file_checks": {
+    "CMakeCache.txt": {
+      "actual_sha256": "6e67a71b8b73c6daca36cbc21ac82bf3d3e7fa62c9edf49fcd0bf40af8d07ecf",
+      "expected_sha256": "6e67a71b8b73c6daca36cbc21ac82bf3d3e7fa62c9edf49fcd0bf40af8d07ecf",
+      "matches": true
+    },
+    "compile_commands.json": {
+      "actual_sha256": "ef9724dfb2621fd02989ef60468761c9324d6caa7e8f712d4f866f863c0e0be5",
+      "expected_sha256": "ef9724dfb2621fd02989ef60468761c9324d6caa7e8f712d4f866f863c0e0be5",
+      "matches": true
+    },
+    "numi-matter-cardboard-full-contact-armijo-check": {
+      "actual_sha256": "9062ef04dd22c93d36a56226a997527074761e3c751184f33c83b337ab626972",
+      "expected_sha256": "9062ef04dd22c93d36a56226a997527074761e3c751184f33c83b337ab626972",
+      "matches": true
+    },
+    "shaders/NumiMatter.metallib": {
+      "actual_sha256": "edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f",
+      "expected_sha256": "edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f",
+      "matches": true
+    },
+    "source-build.json": {
+      "actual_sha256": "e48aa63fd7d234344942149caf1d2aad4fc7ca4efb4f80322f1c539f4c0eb445",
+      "expected_sha256": "e48aa63fd7d234344942149caf1d2aad4fc7ca4efb4f80322f1c539f4c0eb445",
+      "matches": true
+    }
+  },
+  "checker_evidence": {
+    "required_stdout_lines": [
+      "authored_extended_budget=fgmres256,restart16,line_search24 relative_residual_unchanged=1e-7",
+      "authored_line_search_budget=pass accepted=1,8,32 rejected=0,33",
+      "selected_trial=pass accepted_alpha_matches_applied_alpha=true private_to_next_production_base_relative_error=0",
+      "full_contact_rejection_rollback=pass certificate_cleared=true cursor_and_all_histories_unchanged=true",
+      "PASS full-contact self-surface scratch alias parity checks=5976 native_fem_transactions_executed=6 physical_validation=false synthetic_law=true"
+    ],
+    "rollback_pass_lines": 2,
+    "selected_trial_pass_lines": 2
+  },
+  "inputs": {
+    "command_spec": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native525-contact-restart16-command-001/command-spec.json",
+      "sha256": "1ef9dc486969912280086a0f669e50ef156d8a7a80430beae96a59252e47b04e"
+    },
+    "receipt": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native525-contact-restart16-command-001/execution-525/receipt.json",
+      "sha256": "88b81b5ad524a6998f65591d8b93a2c69515316701a9bfff841c43b4e6b4b32b"
+    },
+    "source_frozen": {
+      "matches_command_spec": true,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001/frozen-source.json",
+      "sha256": "d5bf1eb738d25e29cba80f3c9c936963b0d1e8b533652384f60705008b946b82"
+    },
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "34e040e6dd338e7140928b99300b30d0739553eff3546d99d904f6196060107a"
+  },
+  "interpretation": "This byte audit independently confirms the source/build/material bindings and exact equality of baseline versus scratch-alias runs across all 13 files per run, including all six before/after snapshots. The checker accepts controls 1 and 2; control 3 is rejected before a private Armijo trial because its pretrial solver status is code 10 (failing index 18, FGMRES iteration count 256), and the accepted state rolls back byte-for-byte at the accepted-vector hash level with control step remaining 2. The larger restart/FGMRES budget therefore resolves the earlier short-budget stagnation for the first two steps of this bounded fixture, but does not make the third step pass. This is a synthetic alias/transaction regression, not full coupon or physical qualification.",
+  "material_check": {
+    "actual_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "expected_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "matches": true,
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001/matter/materials/nagasawa2013_medium_orthotropic.nmatter"
+  },
+  "run": {
+    "argv": [
+      "--compensated-material-arithmetic",
+      "--diagnostic-state-output",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated195-contact-restart16-525",
+      "--self-surface-scratch-alias-parity",
+      "--extended-budget"
+    ],
+    "configuration_note": "Existing extended-budget experiment: same source195 physical fixture, materials, tool path, dt, residual tolerance1e-7 and acceptance certificates. Restart16 (within user ceiling), FGMRES256, line_search24, Newton32. Tests whether64-iteration/restart4 linear stagnation explains native520. No full-box/contact calibration/convergence qualification.",
+    "environment": {
+      "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": "2"
+    },
+    "exit_code": 0,
+    "shipping_or_physical_validation": false,
+    "space_abort": false,
+    "timed_out": false,
+    "wall_seconds": 52.583310292
+  },
+  "schema": "numi.cardboard.native525-independent-byte-audit.v1",
+  "snapshot_byte_audit": {
+    "alias_snapshot_files": 13,
+    "all_pairs_identical": true,
+    "all_receipt_entries_match": true,
+    "baseline_inventory": {
+      "fixture-activation.log": {
+        "bytes": 59517,
+        "sha256": "1331fe9a4748ec3a25343299441d65708d2b6a65c3bb047ab0409f72878e0b8b"
+      },
+      "fixture-initialization.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "fixture-loaded.log": {
+        "bytes": 59789,
+        "sha256": "f9163ba19fb49cba35e58421d1de896f4b948ba6b7e9ff430b989845b86206dd"
+      },
+      "fixture-rejected.log": {
+        "bytes": 61129,
+        "sha256": "8fcc602700c283cd0cd7368b5c1fef6b6324fa124415b5f6e1f4d8e5d5fb4765"
+      },
+      "transaction-000000-after.bin": {
+        "bytes": 904335,
+        "sha256": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02"
+      },
+      "transaction-000000-before.bin": {
+        "bytes": 904335,
+        "sha256": "75d968932c9b7dc8701f4dadcbd40fc1d267e4cc6809b87399eb333a98de41c8"
+      },
+      "transaction-000000.json": {
+        "bytes": 6565,
+        "sha256": "47e05fb5ed400d93359d151f3ee14745bc748c65349778589e0d63f66392b368"
+      },
+      "transaction-000001-after.bin": {
+        "bytes": 904335,
+        "sha256": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00"
+      },
+      "transaction-000001-before.bin": {
+        "bytes": 904335,
+        "sha256": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02"
+      },
+      "transaction-000001.json": {
+        "bytes": 6668,
+        "sha256": "196ab24eb79b3898252bccf6d0a9f69c2738f1fbc8b9f5b559b6fc8f25b8f987"
+      },
+      "transaction-000002-after.bin": {
+        "bytes": 904335,
+        "sha256": "50bc223f7f598ba219df6ffef83a91e04fc98378faecaf0c8810d7d7541ef39f"
+      },
+      "transaction-000002-before.bin": {
+        "bytes": 904335,
+        "sha256": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00"
+      },
+      "transaction-000002.json": {
+        "bytes": 6672,
+        "sha256": "99651bccb2f572960b0629a4374cd6b08d8900d89616c4b90f8af7cf4881c054"
+      }
+    },
+    "baseline_snapshot_files": 13,
+    "paired_files": 13,
+    "receipt_file_entries": 26,
+    "transaction_summaries": [
+      {
+        "accepted": true,
+        "accepted_vector_hashes_equal": false,
+        "after_control_step": 1,
+        "after_fgmres_iterations": [
+          128
+        ],
+        "after_solver_diagnostics": [
+          [
+            0.999626338,
+            0,
+            0,
+            0.233547673
+          ]
+        ],
+        "after_status_codes": [
+          0
+        ],
+        "before_control_step": 0,
+        "before_fgmres_iterations": [
+          0
+        ],
+        "before_status_codes": [
+          0
+        ],
+        "completion_stage": "snapshot_after_completion",
+        "index": 0,
+        "rejection_outcome": [],
+        "requested_control_step": 1,
+        "rollback_valid": null,
+        "transaction_json_baseline_alias_equal": true
+      },
+      {
+        "accepted": true,
+        "accepted_vector_hashes_equal": false,
+        "after_control_step": 2,
+        "after_fgmres_iterations": [
+          256
+        ],
+        "after_solver_diagnostics": [
+          [
+            0.995664597,
+            0,
+            0,
+            0.0597466044
+          ]
+        ],
+        "after_status_codes": [
+          0
+        ],
+        "before_control_step": 1,
+        "before_fgmres_iterations": [
+          128
+        ],
+        "before_status_codes": [
+          0
+        ],
+        "completion_stage": "snapshot_after_completion",
+        "index": 1,
+        "rejection_outcome": [],
+        "requested_control_step": 2,
+        "rollback_valid": null,
+        "transaction_json_baseline_alias_equal": true
+      },
+      {
+        "accepted": false,
+        "accepted_vector_hashes_equal": true,
+        "after_control_step": 2,
+        "after_fgmres_iterations": [
+          256
+        ],
+        "after_solver_diagnostics": [
+          [
+            1.50609182e-07,
+            1.50609182e-07,
+            1.1920929e-07,
+            24
+          ]
+        ],
+        "after_status_codes": [
+          10
+        ],
+        "before_control_step": 2,
+        "before_fgmres_iterations": [
+          256
+        ],
+        "before_status_codes": [
+          0
+        ],
+        "completion_stage": "snapshot_after_completion",
+        "index": 2,
+        "rejection_outcome": [],
+        "requested_control_step": 3,
+        "rollback_valid": true,
+        "transaction_json_baseline_alias_equal": true
+      }
+    ]
+  }
+}

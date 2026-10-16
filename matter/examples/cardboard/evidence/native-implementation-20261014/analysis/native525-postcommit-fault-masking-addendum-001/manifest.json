@@ -1,0 +1,47 @@
+{
+  "id": "native525-postcommit-fault-masking-addendum-001",
+  "inputs": {
+    "alias_rejected_log": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated195-contact-restart16-525/aliased/fixture-rejected.log",
+      "sha256": "8fcc602700c283cd0cd7368b5c1fef6b6324fa124415b5f6e1f4d8e5d5fb4765"
+    },
+    "audit_manifest": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native525-independent-byte-audit-001/manifest.json",
+      "sha256": "4f50dff747b2bccaad77d6e62a5f29f94656cadec00af367f6e90409aa22de55"
+    },
+    "audit_report": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native525-independent-byte-audit-001/report.json",
+      "sha256": "7b501044ae0788a16c4b47788868908a8aa5ee3c16ba83059a5a279c480a734c"
+    },
+    "baseline_rejected_log": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated195-contact-restart16-525/baseline/fixture-rejected.log",
+      "sha256": "8fcc602700c283cd0cd7368b5c1fef6b6324fa124415b5f6e1f4d8e5d5fb4765"
+    },
+    "command_spec": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native525-contact-restart16-command-001/command-spec.json",
+      "sha256": "1ef9dc486969912280086a0f669e50ef156d8a7a80430beae96a59252e47b04e"
+    },
+    "frozen_source": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001/frozen-source.json",
+      "sha256": "d5bf1eb738d25e29cba80f3c9c936963b0d1e8b533652384f60705008b946b82"
+    },
+    "receipt": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native525-contact-restart16-command-001/execution-525/receipt.json",
+      "sha256": "88b81b5ad524a6998f65591d8b93a2c69515316701a9bfff841c43b4e6b4b32b"
+    },
+    "source": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001/matter/tools/cardboard_full_contact_armijo_check.mm",
+      "sha256": "d96f4d6717ac40f47e71150666382ed5557c9c1e83b23b32a1c94877dbdb8db6"
+    }
+  },
+  "outputs": {
+    "README.md": "91359a70518d0da4e5756132b874027950a92a2048a73bc7340e8128a401e041",
+    "report.json": "f9ef5e196da6281b4b7c85d81f2564a1ec1cc0ba8d224523f84ecfd828c0065f"
+  },
+  "schema": "numi.cardboard.audit-package.v1",
+  "scope": {
+    "native_replay": false,
+    "postcommit_fault_qualified": false,
+    "source_changes": false
+  }
+}

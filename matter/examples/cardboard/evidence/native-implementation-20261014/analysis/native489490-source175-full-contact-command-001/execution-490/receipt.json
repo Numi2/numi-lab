@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.native489490-receipt.v1",
+  "phase": "490",
+  "exit_code": 1,
+  "timed_out": false,
+  "space_abort": false,
+  "errors": [],
+  "wall_seconds": 3.1151607502251863,
+  "minimum_available_bytes": 111362506752,
+  "finished_at_utc": "2026-10-16T05:20:30.053841+00:00",
+  "scrubbed_parent_key_names": [],
+  "stdout_sha256": "2a87fd1d421c9e907f6e01e4ec9ff396518f7699e56b1299536c0aaa165bfc70",
+  "stderr_sha256": "a8c87fabb22d89080cf9092b2cf0e0ce12f94a421a6e80ca4a54610a11dec9a6",
+  "shipping_or_physical_validation": false
+}

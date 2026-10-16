@@ -490,3 +490,5 @@ Source181 records accepted checkpoint19 and exact observed replay of the failed
 control20. CPU argument admission, contact environment binding and rejected
 encoder cleanup pass their bounded checks. The full coupon and downstream
 qualification gates remain open. See [the source181 milestone](solver-milestone-source181.md).
+
+Source198 implements exact shared contact trials, bounded damped corrections and corrected memory accounting. The regional contact fixture reaches the intended late fault and rolls back; full coupon convergence and downstream qualification remain open. See [the source198 milestone](solver-milestone-source198.md).

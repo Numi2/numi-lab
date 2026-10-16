@@ -1,0 +1,546 @@
+--- a/matter/src/metal/base_cgls.metalinc
++++ b/matter/src/metal/base_cgls.metalinc
+@@ -486,6 +486,8 @@
+     device float4* scalars [[buffer(5)]],
+     device uint4* control [[buffer(6)]],
+     device atomic_uint* errors [[buffer(7)]],
++    device const float4* p [[buffer(8)]],
++    constant float& dampingSquared [[buffer(9)]],
+     uint lane [[thread_index_in_simdgroup]],
+     uint environment [[threadgroup_position_in_grid]]) {
+     if (environment >= environmentCount) return;
+@@ -500,7 +502,8 @@
+     const uint mechanicalRows = unknownCount / 2u;
+     const uint nodeCount = mechanicalRows / environmentCount;
+     float qNorm2 = 0.0f, correction = 0.0f;
+-    uint errorBits = 0u;
++    uint errorBits = (!isfinite(dampingSquared) || dampingSquared < 0.0f)
++        ? kBaseCGLSErrorNonfinite : 0u;
+     for (uint local = lane; local < 2u * nodeCount; local += 32u) {
+         const uint index = local < nodeCount
+             ? environment * nodeCount + local
+@@ -522,6 +525,20 @@
+             errorBits |= kBaseCGLSErrorNonzeroConstrainedRow;
+         const float3 active = value.xyz * mask.xyz;
+         baseCGLSCompensatedAdd(qNorm2, correction, dot(active, active));
++        if (dampingSquared > 0.0f) {
++            const float4 pi = p[index];
++            if (!baseCGLSFinite4(pi)) {
++                errorBits |= kBaseCGLSErrorNonfinite;
++                continue;
++            }
++            const float3 activeP = pi.xyz * mask.xyz;
++            if (!all(isfinite(activeP))) {
++                errorBits |= kBaseCGLSErrorNonfinite;
++                continue;
++            }
++            baseCGLSCompensatedAdd(qNorm2, correction,
++                dampingSquared * dot(activeP, activeP));
++        }
+     }
+     qNorm2 = simd_sum(qNorm2);
+     errorBits = simd_or(errorBits);
+@@ -631,10 +648,12 @@
+     constant uint& environmentCount [[buffer(1)]],
+     device const float4* rowMask [[buffer(2)]],
+     device const uint* rowEnvironment [[buffer(3)]],
+-    device const float4* s [[buffer(4)]],
++    device float4* s [[buffer(4)]],
+     device float4* scalars [[buffer(5)]],
+     device uint4* control [[buffer(6)]],
+     device atomic_uint* errors [[buffer(7)]],
++    device const float4* x [[buffer(8)]],
++    constant float& dampingSquared [[buffer(9)]],
+     uint lane [[thread_index_in_simdgroup]],
+     uint environment [[threadgroup_position_in_grid]]) {
+     if (environment >= environmentCount) return;
+@@ -649,7 +668,8 @@
+     const uint mechanicalRows = unknownCount / 2u;
+     const uint nodeCount = mechanicalRows / environmentCount;
+     float nextGamma = 0.0f, correction = 0.0f;
+-    uint errorBits = 0u;
++    uint errorBits = (!isfinite(dampingSquared) || dampingSquared < 0.0f)
++        ? kBaseCGLSErrorNonfinite : 0u;
+     for (uint local = lane; local < 2u * nodeCount; local += 32u) {
+         const uint index = local < nodeCount
+             ? environment * nodeCount + local
+@@ -669,7 +689,26 @@
+         if (any((mask.xyz == float3(0.0f)) &
+                 (value.xyz != float3(0.0f))))
+             errorBits |= kBaseCGLSErrorNonzeroConstrainedRow;
+-        const float3 active = value.xyz * mask.xyz;
++        float4 gradient = value;
++        if (dampingSquared > 0.0f) {
++            const float4 xi = x[index];
++            if (!baseCGLSFinite4(xi)) {
++                errorBits |= kBaseCGLSErrorNonfinite;
++                continue;
++            }
++            if (any((mask.xyz == float3(0.0f)) &
++                    (xi.xyz != float3(0.0f)))) {
++                errorBits |= kBaseCGLSErrorNonzeroConstrainedRow;
++                continue;
++            }
++            gradient = float4(value.xyz - dampingSquared * xi.xyz, 0.0f);
++            if (!baseCGLSFinite4(gradient)) {
++                errorBits |= kBaseCGLSErrorNonfinite;
++                continue;
++            }
++            s[index] = gradient;
++        }
++        const float3 active = gradient.xyz * mask.xyz;
+         baseCGLSCompensatedAdd(nextGamma, correction, dot(active, active));
+     }
+     nextGamma = simd_sum(nextGamma);
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -12277,6 +12277,9 @@
+                     return diagnostics;
+                 }
+             }
++            bool femBaseCGLSDamped = false;
++            float femBaseCGLSDampingKg = 0.0f;
++            float femBaseCGLSDampingSquared = 0.0f;
+             if (femBaseCauchyFallbackRequested) {
+                 const auto rejectBaseCauchy = [&](const char* reason) {
+                     femBaseCauchyFallbackConfigValid = false;
+@@ -12452,6 +12455,36 @@
+                 std::fprintf(stderr,
+                     "fem_base_cgls_warm_start_refine_enabled={\"schema\":1,\"root\":%u,\"initial_guess\":\"current_fgmres_solution\",\"fresh_residual\":\"b_minus_Ax0\",\"acceptance\":\"strict_recomputed_true_linear_residual_reduction\",\"fallback\":\"preserve_x0_and_original_certificate\",\"physical_operator_changed\":false}\n",
+                     femBaseCauchyFallbackRoot);
++            }
++            if (const char* damping = std::getenv(
++                    "NM_FEM_BASE_CGLS_DAMPING_KG")) {
++                if (std::strcmp(damping, "1e-3") != 0 ||
++                    femBaseCGLSIterations == 0u ||
++                    !femBaseCauchyFallbackRequested ||
++                    femBaseCauchyFallbackAllNewtonIterations ||
++                    femBaseCGLSPrimaryPolicyRequested ||
++                    femBaseCGLSRightScaleEnabled ||
++                    femBaseCGLSWarmStartRefine) {
++                    std::fprintf(stderr,
++                        "fem_base_cgls_damping_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"requires_exact_1e-3_kg_numeric_single_newton_fallback_with_32_or_64_iterations_no_primary_no_right_scale_no_warm_start\",\"physical_operator_changed\":false}\n",
++                        request.controlStep);
++                    diagnostics.message =
++                        "damped CGLS requires the bounded numeric single-Newton fallback and exact pilot damping";
++                    ownership->preDynamicsOpen = false;
++                    return diagnostics;
++                }
++                femBaseCGLSDamped = true;
++                femBaseCGLSDampingKg = 1.0e-3f;
++                femBaseCGLSDampingSquared =
++                    femBaseCGLSDampingKg * femBaseCGLSDampingKg;
++                if (femBaseCauchyFallbackSelectedRoot) {
++                    std::fprintf(stderr,
++                        "fem_base_cgls_damped_enabled={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"direction_kind\":\"full_zero_damped_CGLS\",\"regularization_kg\":%.9g,\"objective\":\"||A*x-b||_2^2+mu_kg^2*||x||_2^2\",\"iteration_budget\":%u,\"right_scale\":null,\"warm_start\":false,\"original_newton_certificate_applies_to_direction\":false,\"final_physical_operator_and_acceptance_unchanged\":true}\n",
++                        femBaseCauchyFallbackRoot,
++                        femBaseCauchyFallbackIteration,
++                        static_cast<double>(femBaseCGLSDampingKg),
++                        femBaseCGLSIterations);
++                }
+             }
+             const auto emitFEMNewtonTraceSkip = [&](std::uint32_t root,
+                                                      const char* reason) {
+@@ -23784,6 +23817,8 @@
+                 // selected Newton's fresh three-row-per-node inverse blocks.
+                 // Version 3 means B/R are the fresh residual b-A*x0 and X is
+                 // the total candidate x0+S*y after the strict comparison.
++                // Version 4 is a full-zero damped CGLS candidate; header[7]
++                // contains the raw float32 bits of mu in kilograms.
+                 id<MTLBuffer> cglsSnapshot = nil;
+                 NSUInteger cglsSnapshotBytes = 0u;
+                 const bool captureCGLS = femBaseCGLSIterations != 0u &&
+@@ -23827,13 +23862,20 @@
+                         return false;
+                     }
+                     std::memset(cglsSnapshot.contents, 0, cglsSnapshotBytes);
++                    std::uint32_t dampingBits = 0u;
++                    if (femBaseCGLSDamped)
++                        std::memcpy(&dampingBits, &femBaseCGLSDampingKg,
++                            sizeof(dampingBits));
++                    const std::uint32_t cglsCaptureVersion =
++                        femBaseCGLSDamped ? 4u :
++                        (warmStartRefinementThisNewton ? 3u :
++                            (femBaseCGLSRightScaleEnabled ? 2u : 1u));
+                     const std::array<std::uint32_t, 8> header = {
+-                        0x534c4743u, warmStartRefinementThisNewton ? 3u :
+-                            (femBaseCGLSRightScaleEnabled ? 2u : 1u),
++                        0x534c4743u, cglsCaptureVersion,
+                         static_cast<std::uint32_t>(environments),
+                         state.dispatch.femNodeCount, unknowns,
+                         femBaseCGLSIterations,
+-                        static_cast<std::uint32_t>(segmentCount), 0u};
++                        static_cast<std::uint32_t>(segmentCount), dampingBits};
+                     std::memcpy(cglsSnapshot.contents, header.data(), sizeof(header));
+                     for (std::size_t i = 0u; i < segmentCount; ++i)
+                         [copy copyFromBuffer:sourceBuffers[i] sourceOffset:0u
+@@ -23847,6 +23889,8 @@
+                 const auto formatFloat = appendTraceFloat;
+                 const auto capturedCGLSIterations = femBaseCGLSIterations;
+                 const auto capturedCGLSRightScale = femBaseCGLSRightScaleEnabled;
++                const auto capturedCGLSDamped = femBaseCGLSDamped;
++                const auto capturedCGLSDampingKg = femBaseCGLSDampingKg;
+                 const auto capturedPrimaryPolicy = primaryPolicy;
+                 const auto capturedWarmStartRefinement =
+                     warmStartRefinementThisNewton;
+@@ -23886,14 +23930,24 @@
+                         line << "fem_base_cgls_direction={\"schema\":1,\"root\":"
+                              << capturedRoot << ",\"newton_iteration\":" << capturedIteration
+                              << ",\"direction_kind\":\""
+-                             << (capturedCGLSRightScale
+-                                 ? "right_preconditioned_truncated_unregularized_CGLS"
+-                                 : "truncated_unregularized_CGLS")
++                             << (capturedCGLSDamped
++                                 ? "full_zero_damped_CGLS"
++                                 : (capturedCGLSRightScale
++                                     ? "right_preconditioned_truncated_unregularized_CGLS"
++                                     : "truncated_unregularized_CGLS"))
+                              << "\",\"iteration_budget\":"
+                              << capturedCGLSIterations
+                              << ",\"right_scale\":"
+-                             << (capturedCGLSRightScale ? "\"block3\"" : "null")
+-                             << ",\"original_newton_certificate_applies_to_direction\":false";
++                             << (capturedCGLSRightScale ? "\"block3\"" : "null");
++                        if (capturedCGLSDamped) {
++                            line << ",\"regularization_kg\":"
++                                 << std::setprecision(
++                                     std::numeric_limits<float>::max_digits10)
++                                 << capturedCGLSDampingKg
++                                 << ",\"objective\":\"||A*x-b||_2^2+mu_kg^2*||x||_2^2\""
++                                 << ",\"initial_guess\":\"zero_full_total_step\"";
++                        }
++                        line << ",\"original_newton_certificate_applies_to_direction\":false";
+                         if (capturedWarmStartRefinement) {
+                             line << ",\"warm_start_refinement\":true"
+                                  << ",\"initial_guess\":\"current_fgmres_solution\""
+@@ -24245,6 +24299,10 @@
+                             [encoder setBuffer:state.femBaseCGLSScalars offset:0u atIndex:5u];
+                             [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:6u];
+                             [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:7u];
++                            [encoder setBuffer:state.femBaseCGLSP offset:0u atIndex:8u];
++                            [encoder setBytes:&femBaseCGLSDampingSquared
++                                       length:sizeof(femBaseCGLSDampingSquared)
++                                      atIndex:9u];
+                         }); barrier();
+                         dispatchThreads("nm_fgmres_base_cgls_update_xr", cglsUnknowns, [&] {
+                             rows();
+@@ -24271,6 +24329,10 @@
+                             [encoder setBuffer:state.femBaseCGLSScalars offset:0u atIndex:5u];
+                             [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:6u];
+                             [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:7u];
++                            [encoder setBuffer:state.femBaseCGLSX offset:0u atIndex:8u];
++                            [encoder setBytes:&femBaseCGLSDampingSquared
++                                       length:sizeof(femBaseCGLSDampingSquared)
++                                      atIndex:9u];
+                         }); barrier();
+                         dispatchThreads("nm_fgmres_base_cgls_update_p", cglsUnknowns, [&] {
+                             rows();
+--- a/matter/tools/cardboard_coupon_resume_check.cpp
++++ b/matter/tools/cardboard_coupon_resume_check.cpp
+@@ -161,6 +161,7 @@
+         {"NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR", "20:0:12:1:4:0"},
+         {"NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", "20"},
+         {"NM_FEM_TRUE_RESIDUAL_ROOT", "19"},
++        {"NM_FEM_BASE_CGLS_DAMPING_KG", "1e-3"},
+         {"NM_FEM_BASE_CGLS_ITERATIONS", "64"},
+     };
+     const std::vector<std::pair<std::string, std::string>> replayCurrent{
+@@ -171,6 +172,7 @@
+         {"NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR", "21:0:15:1:7:1"},
+         {"NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", "21"},
+         {"NM_FEM_TRUE_RESIDUAL_ROOT", "19"},
++        {"NM_FEM_BASE_CGLS_DAMPING_KG", "1e-3"},
+         {"NM_FEM_BASE_CGLS_ITERATIONS", "64"},
+     };
+     assert(couponDiagnosticReplaySettingsMatch(replaySource, replayCurrent));
+@@ -193,6 +195,10 @@
+     auto changedSolverSetting = replayCurrent;
+     changedSolverSetting.back().second = "128";
+     assert(!couponDiagnosticReplaySettingsMatch(replaySource, changedSolverSetting));
++    auto changedDamping = replayCurrent;
++    changedDamping[7].second = "1e-4";
++    assert(changedDamping[7].first == "NM_FEM_BASE_CGLS_DAMPING_KG");
++    assert(!couponDiagnosticReplaySettingsMatch(replaySource, changedDamping));
+     validateDiagnosticReplaySelectors(replayCurrent, 19u, 2u);
+     mustReject([&] { validateDiagnosticReplaySelectors(replayCurrent, 21u, 2u); });
+     auto wrongPathOrder = sourcePaths;
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -12519,11 +12519,12 @@
+     return shippingJsonStringField(dictionary, key, label);
+ }
+ 
+-constexpr std::array<std::string_view, 51u> kSource161DiagnosticEnvironmentKeys{
++constexpr std::array<std::string_view, 52u> kSource161DiagnosticEnvironmentKeys{
+     "NM_CONTACT_NODE_INCIDENCE_SORT",
+     "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
+     "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
+     "NM_FEM_BASE_CGLS_CAPTURE_PATH",
++    "NM_FEM_BASE_CGLS_DAMPING_KG",
+     "NM_FEM_BASE_CGLS_ITERATIONS",
+     "NM_FEM_BASE_CGLS_PRIMARY_AFTER",
+     "NM_FEM_BASE_CGLS_RIGHT_SCALE",
+@@ -12665,7 +12666,8 @@
+                 prefixes != nil &&
+                 ([(NSArray*)keysValue count] == 49u ||
+                  [(NSArray*)keysValue count] == 50u ||
+-                 [(NSArray*)keysValue count] == 51u),
++                 [(NSArray*)keysValue count] == 51u ||
++                 [(NSArray*)keysValue count] == 52u),
+             "source-bound diagnostic contract registry or maps are missing");
+     NSArray* const keys = (NSArray*)keysValue;
+     require(effective.count == keys.count,
+@@ -12680,7 +12682,8 @@
+     RuntimePathMap contractPaths;
+     std::vector<std::pair<std::string, std::string>> contractNativeSettings;
+     const bool contractHasWarmStartKey = keys.count >= 50u;
+-    const bool contractHasIncidenceSortKey = keys.count == 51u;
++    const bool contractHasIncidenceSortKey = keys.count >= 51u;
++    const bool contractHasDampingKey = keys.count >= 52u;
+     std::ostringstream runnerNonOutputSettings;
+     runnerNonOutputSettings << "numi.cardboard.source161-runner-non-output-settings.v1\n";
+     for (NSUInteger keyIndex = 0u; keyIndex < keys.count; ++keyIndex) {
+@@ -12701,9 +12704,12 @@
+             if (expectedKey == "NM_CONTACT_NODE_INCIDENCE_SORT" &&
+                 !contractHasIncidenceSortKey)
+                 continue;
++            if (expectedKey == "NM_FEM_BASE_CGLS_DAMPING_KG" &&
++                !contractHasDampingKey)
++                continue;
+             if (expectedIndex == keyIndex) {
+                 require(key == expectedKey,
+-                        "source-bound diagnostic key registry differs from the exact 49/50/51-key source contract");
++                        "source-bound diagnostic key registry differs from the exact 49/50/51/52-key source contract");
+                 break;
+             }
+             ++expectedIndex;
+--- a/matter/tools/cardboard_solver_environment.py
++++ b/matter/tools/cardboard_solver_environment.py
+@@ -31,6 +31,7 @@
+     "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
+     "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
+     "NM_FEM_BASE_CGLS_CAPTURE_PATH",
++    "NM_FEM_BASE_CGLS_DAMPING_KG",
+     "NM_FEM_BASE_CGLS_ITERATIONS",
+     "NM_FEM_BASE_CGLS_PRIMARY_AFTER",
+     "NM_FEM_BASE_CGLS_RIGHT_SCALE",
+--- a/matter/tools/test_cardboard_solver_environment.py
++++ b/matter/tools/test_cardboard_solver_environment.py
+@@ -20,8 +20,9 @@
+     def test_registry_matches_checkout_and_detects_unregistered_control(self):
+         env.validate_source_registry(SOURCE_ROOT)
+         self.assertEqual(env.source_key_registry(SOURCE_ROOT), env.NATIVE_ENV_KEYS)
+-        self.assertEqual(len(env.NATIVE_ENV_KEYS), 51)
++        self.assertEqual(len(env.NATIVE_ENV_KEYS), 52)
+         self.assertIn("NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR", env.NATIVE_ENV_KEYS)
++        self.assertIn("NM_FEM_BASE_CGLS_DAMPING_KG", env.NATIVE_ENV_KEYS)
+         with tempfile.TemporaryDirectory() as temporary:
+             root = Path(temporary)
+             for relative in ("matter/src/runtime.mm", "matter/tools/cardboard_probe.mm"):
+@@ -80,6 +81,21 @@
+         historical["sha256"] = env._contract_digest(historical)
+         with self.assertRaisesRegex(ValueError, "registry differs"):
+             env.validate_contract(historical)
++
++    def test_damped_cgls_is_a_physical_source_bound_setting(self):
++        absent = env.make_contract()
++        pilot = env.make_contract({"NM_FEM_BASE_CGLS_DAMPING_KG": "1e-3"})
++        changed = env.make_contract({"NM_FEM_BASE_CGLS_DAMPING_KG": "1e-4"})
++        self.assertNotEqual(absent["sha256"], pilot["sha256"])
++        self.assertNotEqual(pilot["sha256"], changed["sha256"])
++        self.assertEqual(
++            pilot["effective"]["NM_FEM_BASE_CGLS_DAMPING_KG"],
++            {"set": True, "value": "1e-3"},
++        )
++        parent = {"PATH": "/bin", "NM_FEM_BASE_CGLS_DAMPING_KG": "1e-4"}
++        child, removed = env.child_environment(parent, pilot)
++        self.assertEqual(child["NM_FEM_BASE_CGLS_DAMPING_KG"], "1e-3")
++        self.assertEqual(removed, ["NM_FEM_BASE_CGLS_DAMPING_KG"])
+ 
+     def test_absent_empty_and_explicit_values_are_distinct(self):
+         absent = env.make_contract()
+--- a/matter/tools/verify_damped_cgls_oracle.py
++++ b/matter/tools/verify_damped_cgls_oracle.py
+@@ -0,0 +1,182 @@
++#!/usr/bin/env python3
++"""Independent 2x2 spectral oracle for the full-zero damped CGLS recurrence.
++
++This is a CPU contract test, not a Metal/native execution or physics qualification.
++"""
++from __future__ import annotations
++
++import json
++import math
++from pathlib import Path
++
++
++def dot(a, b):
++    return math.fsum(x * y for x, y in zip(a, b))
++
++
++def matvec(a, x):
++    return [math.fsum(a[i][j] * x[j] for j in range(2)) for i in range(2)]
++
++
++def transpose_matvec(a, x):
++    return [math.fsum(a[i][j] * x[i] for i in range(2)) for j in range(2)]
++
++
++def add(a, b):
++    return [a[i] + b[i] for i in range(2)]
++
++
++def sub(a, b):
++    return [a[i] - b[i] for i in range(2)]
++
++
++def scale(a, value):
++    return [value * x for x in a]
++
++
++def norm(a):
++    return math.sqrt(dot(a, a))
++
++
++def cgls_full_zero(a, b, mu, iterations):
++    """Solve min ||Ax-b||^2 + mu^2||x||^2, starting from x=0."""
++    x = [0.0, 0.0]
++    r = list(b)
++    s = transpose_matvec(a, r)
++    gamma = dot(s, s)
++    p = list(s)
++    for _ in range(iterations):
++        q = matvec(a, p)
++        denominator = dot(q, q) + mu * mu * dot(p, p)
++        if not math.isfinite(denominator) or denominator <= 0.0:
++            return x, r, "breakdown"
++        alpha = gamma / denominator
++        x = add(x, scale(p, alpha))
++        r = sub(r, scale(q, alpha))
++        s = sub(transpose_matvec(a, r), scale(x, mu * mu))
++        next_gamma = dot(s, s)
++        beta = next_gamma / gamma
++        p = add(s, scale(p, beta))
++        gamma = next_gamma
++    return x, r, "iteration_cap"
++
++
++def legacy_cgls_unregularized(a, b, iterations):
++    """Separate old recurrence used to check the mu=0 branch."""
++    x = [0.0, 0.0]
++    r = list(b)
++    s = transpose_matvec(a, r)
++    gamma = dot(s, s)
++    p = list(s)
++    for _ in range(iterations):
++        q = matvec(a, p)
++        denominator = dot(q, q)
++        if not math.isfinite(denominator) or denominator <= 0.0:
++            return x, r, "breakdown"
++        alpha = gamma / denominator
++        x = add(x, scale(p, alpha))
++        r = sub(r, scale(q, alpha))
++        s = transpose_matvec(a, r)
++        next_gamma = dot(s, s)
++        beta = next_gamma / gamma
++        p = add(s, scale(p, beta))
++        gamma = next_gamma
++    return x, r, "iteration_cap"
++
++
++def spectral_tikhonov_2x2(a, b, mu):
++    """Independent right-singular-vector expansion from eig(A^T A)."""
++    c00 = math.fsum(a[i][0] * a[i][0] for i in range(2))
++    c01 = math.fsum(a[i][0] * a[i][1] for i in range(2))
++    c11 = math.fsum(a[i][1] * a[i][1] for i in range(2))
++    radius = math.hypot(c00 - c11, 2.0 * c01)
++    eigenvalues = [(c00 + c11 + radius) / 2.0,
++                   (c00 + c11 - radius) / 2.0]
++    if abs(c01) > 1e-30:
++        v0 = [c01, eigenvalues[0] - c00]
++        length = norm(v0)
++        v0 = scale(v0, 1.0 / length)
++    elif c00 >= c11:
++        v0 = [1.0, 0.0]
++    else:
++        v0 = [0.0, 1.0]
++    vectors = [v0, [-v0[1], v0[0]]]
++    result = [0.0, 0.0]
++    for sigma2, v in zip(eigenvalues, vectors):
++        av = matvec(a, v)
++        coefficient = dot(av, b) / (sigma2 + mu * mu)
++        result = add(result, scale(v, coefficient))
++    return result
++
++
++def assert_close(a, b, tol):
++    error = norm(sub(a, b))
++    if error > tol:
++        raise AssertionError(f"vector error {error} exceeds {tol}: {a} vs {b}")
++    return error
++
++
++def main():
++    # Nonsymmetric, full-rank A exercises A and A^T orientation distinctly.
++    a = [[2.0, -0.75], [0.5, 3.0]]
++    b = [1.25, -2.0]
++    results = []
++
++    for mu in (0.0, 1.0e-3, 2.0e-2):
++        cgls, residual, status = cgls_full_zero(a, b, mu, 2)
++        spectral = spectral_tikhonov_2x2(a, b, mu)
++        error = assert_close(cgls, spectral, 2.0e-12)
++        # A separate legacy implementation must be exactly the same arithmetic
++        # path for mu=0, not just a numerically similar result.
++        if mu == 0.0:
++            legacy, legacy_r, legacy_status = legacy_cgls_unregularized(a, b, 2)
++            if cgls != legacy or residual != legacy_r or status != legacy_status:
++                raise AssertionError("mu=0 recurrence differs from legacy recurrence")
++        objective_residual = sub(matvec(a, cgls), b)
++        objective = dot(objective_residual, objective_residual) + mu * mu * dot(cgls, cgls)
++        results.append({
++            "mu": mu, "candidate": cgls, "spectral_candidate": spectral,
++            "candidate_vs_spectral_l2": error,
++            "physical_residual_l2": norm(objective_residual),
++            "regularized_objective": objective, "status": status,
++        })
++
++    capped, capped_r, capped_status = cgls_full_zero(a, b, 1.0e-3, 1)
++    full, _, _ = cgls_full_zero(a, b, 1.0e-3, 2)
++    if capped_status != "iteration_cap" or not norm(capped_r) > norm(sub(matvec(a, full), b)):
++        raise AssertionError("iteration-limited full-total direction was misclassified")
++    if norm(capped) <= 0.0:
++        raise AssertionError("CGLS candidate must be the total correction from zero")
++
++    # Bind the implementation terms so this oracle cannot silently outlive the
++    # Metal recurrence it is intended to check.
++    metal = Path(__file__).resolve().parents[1] / "src/metal/base_cgls.metalinc"
++    runtime = Path(__file__).resolve().parents[1] / "src/runtime.mm"
++    m = metal.read_text()
++    r = runtime.read_text()
++    required_metal = (
++        "dampingSquared * dot(activeP, activeP)",
++        "value.xyz - dampingSquared * xi.xyz",
++    )
++    for token in required_metal:
++        if token not in m:
++            raise AssertionError(f"Metal recurrence binding is missing {token!r}")
++    if "atIndex:8u" not in r or "atIndex:9u" not in r:
++        raise AssertionError("runtime does not bind the added CGLS kernel arguments")
++    if "NM_FEM_BASE_CGLS_DAMPING_KG" not in r:
++        raise AssertionError("runtime lacks the source-bound damping selector")
++
++    print(json.dumps({
++        "schema": "numi.cardboard.damped-cgls-svd-oracle.v1",
++        "passed": True,
++        "scope": "CPU recurrence plus independent 2x2 spectral Tikhonov oracle",
++        "native_metal_executed": False,
++        "full_step_starts_from_zero": True,
++        "iteration_cap_case_status": capped_status,
++        "iteration_cap_candidate_norm": norm(capped),
++        "cases": results,
++    }, sort_keys=True, indent=2))
++
++
++if __name__ == "__main__":
++    main()

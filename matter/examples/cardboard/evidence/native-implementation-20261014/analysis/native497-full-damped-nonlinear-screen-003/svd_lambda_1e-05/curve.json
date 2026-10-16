@@ -1,0 +1,130 @@
+[
+  {
+    "alpha": 0.0,
+    "branch_transitions": {
+      "0": {
+        "lambda_positive": 1152,
+        "lambda_sign_flips": 0,
+        "yield_max": 0.9390164468881665,
+        "yield_min": 9.25592935629993e-13,
+        "yield_negative": 0,
+        "yield_sign_flips": 0
+      },
+      "1": {
+        "lambda_positive": 576,
+        "lambda_sign_flips": 0,
+        "yield_max": 0.9607166336631368,
+        "yield_min": 3.4727776210274897e-13,
+        "yield_negative": 0,
+        "yield_sign_flips": 0
+      }
+    },
+    "failed_tets": [],
+    "free_residual_l2_Ns": 1.8846220284320863e-05,
+    "internal_delta_l2_Ns": 0.0,
+    "internal_only_residual_l2_Ns": 1.8846220284320863e-05,
+    "mass_delta_l2_Ns": 0.0,
+    "mass_only_residual_l2_Ns": 1.8846220284320863e-05,
+    "max_dynamic_correction": 2.810463845425636e-13,
+    "max_local_iterations": 10,
+    "max_scaled_residual": 1.954412311200781e-12,
+    "strict_all_paper_projection_pass": true,
+    "strict_fail_count": 0
+  },
+  {
+    "alpha": 0.25,
+    "branch_transitions": {
+      "0": {
+        "lambda_positive": 1152,
+        "lambda_sign_flips": 0,
+        "yield_max": 0.9384053323734771,
+        "yield_min": 9.265921363521556e-13,
+        "yield_negative": 0,
+        "yield_sign_flips": 0
+      },
+      "1": {
+        "lambda_positive": 576,
+        "lambda_sign_flips": 0,
+        "yield_max": 0.9403081833458451,
+        "yield_min": 3.47499806707674e-13,
+        "yield_negative": 0,
+        "yield_sign_flips": 0
+      }
+    },
+    "failed_tets": [],
+    "free_residual_l2_Ns": 1.4984722537242896e-05,
+    "internal_delta_l2_Ns": 5.391890284676459e-06,
+    "internal_only_residual_l2_Ns": 1.4985576466885296e-05,
+    "mass_delta_l2_Ns": 1.411821203524847e-08,
+    "mass_only_residual_l2_Ns": 1.8845276906840902e-05,
+    "max_dynamic_correction": 2.8569674024061854e-12,
+    "max_local_iterations": 9,
+    "max_scaled_residual": 1.9721268483865105e-12,
+    "strict_all_paper_projection_pass": true,
+    "strict_fail_count": 0
+  },
+  {
+    "alpha": 0.5,
+    "branch_transitions": {
+      "0": {
+        "lambda_positive": 1152,
+        "lambda_sign_flips": 0,
+        "yield_max": 0.937736205249778,
+        "yield_min": 9.274803147718558e-13,
+        "yield_negative": 0,
+        "yield_sign_flips": 0
+      },
+      "1": {
+        "lambda_positive": 576,
+        "lambda_sign_flips": 0,
+        "yield_max": 0.9391331789128777,
+        "yield_min": 3.47499806707674e-13,
+        "yield_negative": 0,
+        "yield_sign_flips": 0
+      }
+    },
+    "failed_tets": [],
+    "free_residual_l2_Ns": 1.2764257921085199e-05,
+    "internal_delta_l2_Ns": 1.1189071219226055e-05,
+    "internal_only_residual_l2_Ns": 1.2765446576082551e-05,
+    "mass_delta_l2_Ns": 2.823642266786557e-08,
+    "mass_only_residual_l2_Ns": 1.8844344053844193e-05,
+    "max_dynamic_correction": 2.788649834754087e-13,
+    "max_local_iterations": 11,
+    "max_scaled_residual": 1.9081650271687604e-12,
+    "strict_all_paper_projection_pass": true,
+    "strict_fail_count": 0
+  },
+  {
+    "alpha": 1.0,
+    "branch_transitions": {
+      "0": {
+        "lambda_positive": 1152,
+        "lambda_sign_flips": 0,
+        "yield_max": 0.9362313795867774,
+        "yield_min": 9.293676939137185e-13,
+        "yield_negative": 0,
+        "yield_sign_flips": 0
+      },
+      "1": {
+        "lambda_positive": 576,
+        "lambda_sign_flips": 0,
+        "yield_max": 0.9645793545610959,
+        "yield_min": 3.4727776210274897e-13,
+        "yield_negative": 0,
+        "yield_sign_flips": 0
+      }
+    },
+    "failed_tets": [],
+    "free_residual_l2_Ns": 1.7427755029140972e-05,
+    "internal_delta_l2_Ns": 2.32737126431431e-05,
+    "internal_only_residual_l2_Ns": 1.7426955128168785e-05,
+    "mass_delta_l2_Ns": 5.647284379541361e-08,
+    "mass_only_residual_l2_Ns": 1.884250995438694e-05,
+    "max_dynamic_correction": 6.469486143174234e-12,
+    "max_local_iterations": 13,
+    "max_scaled_residual": 1.917232936100111e-12,
+    "strict_all_paper_projection_pass": true,
+    "strict_fail_count": 0
+  }
+]

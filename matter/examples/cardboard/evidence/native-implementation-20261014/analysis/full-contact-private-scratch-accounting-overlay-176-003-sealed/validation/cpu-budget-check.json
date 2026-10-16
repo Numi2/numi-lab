@@ -1,0 +1,22 @@
+{
+  "compile_argv": [
+    "clang++",
+    "-std=c++20",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-I/Users/home/cardboard-implementation-20261014/analysis/full-contact-private-scratch-accounting-overlay-176-002/candidate/matter/include",
+    "-I/Users/home/cardboard-implementation-20261014/analysis/full-contact-private-scratch-accounting-overlay-176-002/base/matter/include",
+    "/Users/home/cardboard-implementation-20261014/analysis/full-contact-private-scratch-accounting-overlay-176-002/candidate/matter/tools/cardboard_full_contact_armijo_scratch_budget_check.cpp",
+    "-o",
+    "/tmp/full_contact_armijo_scratch_budget_check_176_002"
+  ],
+  "compile_exit": 0,
+  "compile_output": "",
+  "run_argv": [
+    "/tmp/full_contact_armijo_scratch_budget_check_176_002"
+  ],
+  "run_exit": 0,
+  "run_output": "full_contact_armijo_scratch_checks=17 status_bytes=48 E1_max_capacity_bytes=69206096 E2_boundary_fit_bytes=134217680 E2_first_over_bytes=134218736 E2_hard_capacity_bytes=138412112 shipping_E1_alias_bytes=77661184 shipping_E1_unalias_bytes=296269008 shipping_E2_alias_bytes=155322304 cap_bytes=134217728 physical_transactions=0\n"
+}

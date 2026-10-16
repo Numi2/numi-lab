@@ -1,0 +1,36 @@
+{
+  "correction": "The prior review's inherited duplicate-writer finding is retracted. Its audit counted every occurrence of selected[environment] and misclassified the line-98 read guard as a second write. The only assignment is line 59, nested inside the global < count mechanical-block guard.",
+  "cpu_test": {
+    "file": "test_selected_writer_layout.py",
+    "returncode": 0,
+    "scope": "Supported-layout model and exact-source structural assertion for E=1,2,4; N=1,3,7; field rows, fixed first-node behavior, inactive environments, and invalid-shape CPU contract.",
+    "sha256": "2409976b0a178bbc6a414dfd6253e519e057a3db1a7a5508893cfb35102b5720",
+    "stderr_sha256": "5691612a416db015dc4a89d5aba1e5c4c8654621b737c508ed532292cd7d7d0f",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": 6
+  },
+  "interpretation": "Frozen source193 already has exactly one selected[] writer per environment for a supported 2*E*N layout. No source194 code patch is warranted. The CPU test is a structural/model regression check; it does not prove native Metal execution.",
+  "line_evidence": {
+    "field_block_begins_at": "global >= environmentCount*femNodeCount",
+    "line98_is": "selected[environment] != 1u read in warm-breakdown validation; no assignment",
+    "mechanical_block_guard_line": 53,
+    "single_assignment_line": 59
+  },
+  "schema": "numi.cardboard.source190-review-correction.v1",
+  "source_identity": {
+    "actual_sha256_by_snapshot": {
+      "188": "1b9d6541fcd01bea803a70f878ba1bda462d05cfabefa0d1ebe3038c9aab66d9",
+      "190": "1b9d6541fcd01bea803a70f878ba1bda462d05cfabefa0d1ebe3038c9aab66d9",
+      "193": "1b9d6541fcd01bea803a70f878ba1bda462d05cfabefa0d1ebe3038c9aab66d9"
+    },
+    "all_three_equal": true,
+    "source188_frozen_sha256": "1f61fd7893eb3a10dfcf1ee0e748f1320b23171d67d37668b319b170a5c20185",
+    "source190_frozen_sha256": "1189d65c3d7f29d326155eee687979c8dd5fc1c79360a333bd569a08ad30dde7",
+    "source193_frozen_entry": "1b9d6541fcd01bea803a70f878ba1bda462d05cfabefa0d1ebe3038c9aab66d9",
+    "source193_frozen_sha256": "3af1c0026640a3d9454b653f99804a94fbcfd835a385a1f70567c864af0bdcf3"
+  },
+  "status": "CORRECTED_REVIEW_PASS_NO_SOURCE_CHANGE",
+  "superseded_review_manifest_sha256": "28565c4b70c223c8486994ffd100df58b3872c767a0db9a11c86cf52ae0f8a61",
+  "superseded_review_report_sha256": "ddc59b2023b32b05629a07ecaae9bb5d989d9d260c86613e3c1ec1b4293f492b",
+  "supersedes": "analysis/source190-independent-review-001"
+}

@@ -1,0 +1,156 @@
+{
+  "base": {
+    "base_file_sha256": {
+      "matter/CMakeLists.txt": "5be26a0011d248bf822ce54ad8d6f64f7698e7e59a108489b809b9288b229a1e",
+      "matter/include/numi/matter/shared.h": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+      "matter/include/numi/matter/sparse_private_contact_admission.hpp": "4cf5d32e78cf45bed72406c99df85b050c8d0548e3e043fbd9a1d810e7eb9ef1",
+      "matter/src/compiler_impl.cpp": "474e717759ded2ecf81a0590dd7f5cb51da8a1041eacddff33c971ccb96152df",
+      "matter/src/metal/contact.metalinc": "b1dc8d0e6843d5aed3a8c6d28449dae8c4d3a60488e644195e9fed5ed121d346",
+      "matter/src/runtime.mm": "836b146cc4e95e9096f094f33e7bfd7248bc816821541238321deca7ad7ff61a"
+    },
+    "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175-buildfix-003",
+    "source_build_metadata": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/source-build.json",
+    "source_build_metadata_sha256": "75c24e646fccb250fe0f8bd7d812491d5aac3892f99e863578982780f1194a25",
+    "source_manifest_sha256": "6e4f8dad1377af79b1dc2ddeeb0f07e6a273598d291cb030e6222e8aebb5a007"
+  },
+  "candidate_file_sha256": {
+    "matter/CMakeLists.txt": "7c72ea2df116621464d4228a63ac003908aa88a9b733e0bd12462bb163534a5b",
+    "matter/include/numi/matter/detail/full_contact_armijo_scratch_budget.hpp": "b36e8e8f2a5fc414f479c631eb0f0bd7554a0492379b5b7acd23e85019f045da",
+    "matter/include/numi/matter/shared.h": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+    "matter/src/runtime.mm": "c176eebe46192dc1838096b45487965cc4676cc01c16b3fae435650015a441d2",
+    "matter/tools/cardboard_full_contact_armijo_scratch_budget_check.cpp": "41dcbfdd49c2f7861004239333031b120dc39a3e20aed4a158aba5eea7c14508"
+  },
+  "files": [
+    {
+      "bytes": 6139,
+      "path": "README.md",
+      "sha256": "4936d78b01fa38ddeb6c50be344d4051ba676dbdb4b2f20e67fdbfb9dc795317"
+    },
+    {
+      "bytes": 117073,
+      "path": "base/matter/CMakeLists.txt",
+      "sha256": "5be26a0011d248bf822ce54ad8d6f64f7698e7e59a108489b809b9288b229a1e"
+    },
+    {
+      "bytes": 58294,
+      "path": "base/matter/include/numi/matter/shared.h",
+      "sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+    },
+    {
+      "bytes": 1927712,
+      "path": "base/matter/src/runtime.mm",
+      "sha256": "836b146cc4e95e9096f094f33e7bfd7248bc816821541238321deca7ad7ff61a"
+    },
+    {
+      "bytes": 117900,
+      "path": "candidate/matter/CMakeLists.txt",
+      "sha256": "7c72ea2df116621464d4228a63ac003908aa88a9b733e0bd12462bb163534a5b"
+    },
+    {
+      "bytes": 6679,
+      "path": "candidate/matter/include/numi/matter/detail/full_contact_armijo_scratch_budget.hpp",
+      "sha256": "b36e8e8f2a5fc414f479c631eb0f0bd7554a0492379b5b7acd23e85019f045da"
+    },
+    {
+      "bytes": 58294,
+      "path": "candidate/matter/include/numi/matter/shared.h",
+      "sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+    },
+    {
+      "bytes": 1927233,
+      "path": "candidate/matter/src/runtime.mm",
+      "sha256": "c176eebe46192dc1838096b45487965cc4676cc01c16b3fae435650015a441d2"
+    },
+    {
+      "bytes": 8907,
+      "path": "candidate/matter/tools/cardboard_full_contact_armijo_scratch_budget_check.cpp",
+      "sha256": "41dcbfdd49c2f7861004239333031b120dc39a3e20aed4a158aba5eea7c14508"
+    },
+    {
+      "bytes": 5514,
+      "path": "commands/full-contact-native-regression.json",
+      "sha256": "b7656f511d711b052940375c3dce6de8bca6e074af21b61b69a03cc855431287"
+    },
+    {
+      "bytes": 1794,
+      "path": "commands/remote_runtime_syntax_check.py",
+      "sha256": "849aae67e034f2b84a5ac0960e9567187cc570afa9c2a1a36ae01652db441b0d"
+    },
+    {
+      "bytes": 1304,
+      "path": "commands/run_cpu_budget_check.py",
+      "sha256": "17e9c3fd23eb73abf539382b9052bf0836e6e7835c06a0105f0ac0f7d4da9855"
+    },
+    {
+      "bytes": 1273,
+      "path": "manifest-correction.json",
+      "sha256": "c3eab0b33636a18298a2066c119997b0e4129735547cc9953dfcaf3a725e8d3d"
+    },
+    {
+      "bytes": 20412,
+      "path": "overlay.patch",
+      "sha256": "a987a2c7eba81b585a6936f078e85b0ab5cadabe64cefb0fd170d6e4bd74f6a3"
+    },
+    {
+      "bytes": 6110,
+      "path": "source-cap-audit.json",
+      "sha256": "611331e05a7be81c5e06c31e818408e9f4e3a6e1efc02dd084bbfc6acd71e575"
+    },
+    {
+      "bytes": 1164,
+      "path": "validation/cpu-budget-check.json",
+      "sha256": "d62557ccb31c9a82b1f18c0943174b8ff369f675a24e01de6b55970721ccae13"
+    },
+    {
+      "bytes": 463,
+      "path": "validation/patch-apply.json",
+      "sha256": "187beb0c8204236cc02edbc61a379b623e6946081d14a49474f00416d1077c56"
+    },
+    {
+      "bytes": 1170,
+      "path": "validation/runtime-syntax-O0.json",
+      "sha256": "d593c974cb29f0b42f043fe2551d12d8445782a92dbda24535b17c861b99e739"
+    },
+    {
+      "bytes": 1170,
+      "path": "validation/runtime-syntax-O3.json",
+      "sha256": "c2b59ee5c7606fefdfaaaf26172f6049393f2cb99d13e693e7734e101259d8ea"
+    },
+    {
+      "bytes": 26446,
+      "path": "validation/source-line-evidence.txt",
+      "sha256": "2849c814ed2e9242710175f8d32a1c9f29a5a006df99f4e8db5854324a5b7c61"
+    }
+  ],
+  "inventory_excludes_self": true,
+  "overlay": "full-contact-private-scratch-accounting-overlay-176-003",
+  "schema": "numi.matter.full_contact_private_scratch_overlay.v1",
+  "scope": {
+    "change": "Replace the undercounting private full-contact Armijo arena estimate with a named checked 64-bit inventory including one 48-byte candidate status per slot; add CPU contracts.",
+    "component_estimate_is_whole_runtime_peak": false,
+    "native_full_build_performed": false,
+    "native_gpu_run_performed": false,
+    "physical_or_shipping_qualification": false,
+    "unchanged_cap_bytes": 134217728
+  },
+  "status": "sealed_corrected_manifest_only_no_code_changes",
+  "supersedes_manifest_sha256": "b9508c567c8c9b6d2ad2275c26cf31d9fe6379449f542b8a85a6f4b6b00080a0",
+  "validation": [
+    {
+      "exit_code": 0,
+      "path": "validation/cpu-budget-check.json"
+    },
+    {
+      "exit_code": 0,
+      "path": "validation/runtime-syntax-O0.json"
+    },
+    {
+      "exit_code": 0,
+      "path": "validation/runtime-syntax-O3.json"
+    },
+    {
+      "exit_code": 0,
+      "path": "validation/patch-apply.json"
+    }
+  ]
+}

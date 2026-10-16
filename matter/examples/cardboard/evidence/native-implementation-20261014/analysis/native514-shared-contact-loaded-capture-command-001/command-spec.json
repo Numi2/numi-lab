@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.source189-contact-loaded-capture-command.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix003",
+  "build_directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003",
+  "source_frozen_sha256": "96361bba5c82368d6476711a550eb9ea16fca08d8235514dcd90eb21673750c0",
+  "files_sha256": {
+    "numi-matter-cardboard-full-contact-armijo-check": "1fd8be874b7302c5235b50396917338bf858582436c533809360e8c3b624e213",
+    "shaders/NumiMatter.metallib": "7a44dcb40e4e6f25c25b471e8f3655aa4846bed0fdb8f70d28e80753ca0fbd4f",
+    "CMakeCache.txt": "dd4acf23f647dd68425db4be2fa9af5b044ab2665e63e3da714dae0eb07235f5",
+    "compile_commands.json": "2495a061b4504e9510f72414ff38ab5738a79fa1a3596fe484f1ae07a98f39a8",
+    "source-build.json": "21050d87f55819b1e2e04d528328ab7a435c2afcef4e7718c5a7fea5f87f1c87"
+  },
+  "material_relative_path": "matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+  "material_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+  "cases": {
+    "514": [
+      "--compensated-material-arithmetic",
+      "--diagnostic-state-output",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/native/shared-contact-activation-capture-514",
+      "--self-surface-scratch-alias-parity"
+    ]
+  },
+  "timeout_s": 300,
+  "qualification": "Capture actual first per-feature barrier rejection after shared-endpoint repair. Diagnostic failure evidence only.",
+  "case_outputs": {
+    "514": "/Users/n/cardboard-implementation-20261014-host-macmini/native/shared-contact-activation-capture-514"
+  },
+  "environment": {
+    "514": {
+      "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT": "0"
+    }
+  }
+}

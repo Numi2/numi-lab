@@ -1,0 +1,23 @@
+{
+  "kind": "CPU source-bound planning inventory; no native allocations or physical transactions",
+  "source_frozen_sha256": "96361bba5c82368d6476711a550eb9ea16fca08d8235514dcd90eb21673750c0",
+  "source_files_verified": 814,
+  "argv": [
+    "/usr/bin/clang++",
+    "-std=c++20",
+    "-O2",
+    "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix003/matter/tools",
+    "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix003/matter/include",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/shipping-memory-capacity-inventory-001/inventory.cpp",
+    "-o",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/shipping-memory-capacity-inventory-001/inventory"
+  ],
+  "files": {
+    "compile.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inventory": "ce5028d1e10e082d6ba7c51875dd5708c182d807d26cc754aa83e0fa46f71d9c",
+    "inventory.cpp": "83ef55e6eae3c649ca96707022a06c8c1fd841c6aef0ce16278e98974e638e9c",
+    "report.json": "6288ffac69d37ba777770d500b9ac4627415cd48d231e89d52322fa3215e27ee",
+    "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

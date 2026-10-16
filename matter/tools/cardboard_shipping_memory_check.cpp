@@ -196,7 +196,128 @@ void checkTiledCohesivePreflight() {
                   "conflicting cohesive alias and tiling were admitted");
 }
 
+void checkSelectedRequiredRigidArenaIsOneAllocation() {
+    ShippingMemoryBudgetInput input;
+    input.nodeCount = 24u;
+    input.tetrahedronCount = 6u;
+    input.cohesiveFaceCount = 1u;
+    input.contactPairCount = 48u;
+    input.activeContactCapacity = 48u;
+    input.deformableContactCapacity = 64u;
+    input.rigidProxyCount = 2u;
+    input.fullContactArmijoRequired = true;
+    input.deformableSelfContactEnabled = true;
+    const auto required = estimateShippingMemoryBudget(input);
+    input.rigidContactArmijoEnabled = true;
+    const auto selected = estimateShippingMemoryBudget(input);
+    require(required.requiredResidualDescentArenaAdmitted &&
+                selected.requiredResidualDescentArenaAdmitted &&
+                selected.rigidContactArmijoBytes ==
+                    required.requiredRigidContactArmijoBytes &&
+                selected.estimatedMetalPeakBytes ==
+                    required.estimatedMetalPeakBytes &&
+                selected.estimatedPeakDomainBytes ==
+                    required.estimatedPeakDomainBytes,
+            "selecting an already-required rigid trial arena counted a second allocation");
+}
+
+void checkDeformableIncidenceSortMemoryAccounting() {
+    const auto absent = parseShippingDeformableNodeIncidenceSort(nullptr);
+    const auto enabled = parseShippingDeformableNodeIncidenceSort("1");
+    require(!absent.requested && !absent.enabled && absent.error == nullptr &&
+                enabled.requested && enabled.enabled && enabled.error == nullptr,
+            "incidence-sort selector default or exact enable value is wrong");
+    for (const char* malformed : {"", "0", "true", " 1", "1 "}) {
+        require(parseShippingDeformableNodeIncidenceSort(malformed).error != nullptr,
+                "malformed incidence-sort selector was admitted");
+    }
+
+    require(shippingDeformableNodeIncidenceSortWorkspaceBytes(1u, 1u, 1u) == 96u &&
+                shippingDeformableNodeIncidenceSortWorkspaceBytes(1u, 1u, 2u) == 192u,
+            "small incidence-sort workspace did not use padded corners per environment");
+    require(shippingDeformableNodeIncidenceSortWorkspaceBytes(131072u, 64u, 1u) ==
+                12582912u &&
+            shippingDeformableNodeIncidenceSortWorkspaceBytes(131072u, 64u, 2u) ==
+                25165824u,
+            "shipping candidate sort workspace differs from runtime key/payload arena");
+    expectFailure([] {
+        (void)shippingDeformableNodeIncidenceSortWorkspaceBytes(0u, 1u, 1u);
+    }, "zero sort capacity was admitted");
+    expectFailure([] {
+        (void)shippingDeformableNodeIncidenceSortWorkspaceBytes(1u, 1u, 0u);
+    }, "zero sort environment count was admitted");
+    expectFailure([] {
+        (void)shippingDeformableNodeIncidenceSortWorkspaceBytes(357913942u, 1u, 1u);
+    }, "logical sort domain above 2^31 was admitted");
+    expectFailure([] {
+        (void)shippingDeformableNodeIncidenceSortWorkspaceBytes(131072u, 1u, 4096u);
+    }, "environment-expanded sort dispatch above uint32 was admitted");
+    expectFailure([] {
+        (void)shippingDeformableNodeIncidenceSortWorkspaceBytes(
+            std::numeric_limits<std::uint64_t>::max(), 1u, 1u);
+    }, "unrepresentable sort payload identity was admitted");
+    expectFailure([] {
+        (void)shippingDeformableNodeIncidenceSortWorkspaceBytes(
+            1u, std::numeric_limits<std::uint32_t>::max() / 2u + 1u, 2u);
+    }, "environment-expanded node dispatch above uint32 was admitted");
+
+    ShippingMemoryBudgetInput base;
+    base.nodeCount = 64u;
+    base.tetrahedronCount = 32u;
+    base.deformableContactCapacity = 131072u;
+    const auto unsortedBudget = estimateShippingMemoryBudget(base);
+    auto sortedInput = base;
+    sortedInput.deformableNodeIncidenceSortEnabled = true;
+    const auto sortedBudget = estimateShippingMemoryBudget(sortedInput);
+    require(unsortedBudget.deformableNodeIncidenceSortBytes == 0u &&
+                sortedBudget.deformableNodeIncidenceSortBytes == 12582912u &&
+                sortedBudget.persistentContactBytes -
+                    unsortedBudget.persistentContactBytes == 12582912u,
+            "optional incidence-sort workspace was not charged conditionally and exactly");
+
+    auto twoEnvironments = sortedInput;
+    twoEnvironments.environmentCount = 2u;
+    const auto twoEnvironmentBudget =
+        estimateShippingMemoryBudget(twoEnvironments);
+    require(twoEnvironmentBudget.deformableNodeIncidenceSortBytes ==
+                25165824u &&
+            twoEnvironmentBudget.persistentContactBytes -
+                2u * unsortedBudget.persistentContactBytes == 25165824u,
+            "E=2 sort workspace or per-environment persistent contact accounting is wrong");
+
+    ShippingPrebuildMemoryScreen screen;
+    screen.nominalNodeCount = 64u;
+    screen.nominalTetrahedronCount = 32u;
+    ShippingPrebuildArenaOptions prebuildOptions;
+    prebuildOptions.deformableContactCapacity = 131072u;
+    configureShippingDeformableNodeIncidenceSort(prebuildOptions, "1");
+    const auto prebuildBudget =
+        estimateShippingPrebuildMemoryBudget(screen, prebuildOptions);
+    require(prebuildOptions.deformableNodeIncidenceSortEnabled &&
+                prebuildBudget.deformableNodeIncidenceSortBytes == 12582912u,
+            "prebuild option did not carry the enabled sort workspace into its budget");
+    ShippingPrebuildArenaOptions defaultCapacityPrebuild;
+    configureShippingDeformableNodeIncidenceSort(defaultCapacityPrebuild, "1");
+    const auto defaultCapacityBudget =
+        estimateShippingPrebuildMemoryBudget(screen, defaultCapacityPrebuild);
+    require(defaultCapacityBudget.deformableNodeIncidenceSortBytes == 24576u,
+            "prebuild sort estimate did not use the runtime eight-slots-per-tet default");
+    ShippingPrebuildArenaOptions malformedPrebuild;
+    configureShippingDeformableNodeIncidenceSort(malformedPrebuild, "true");
+    const auto rejectedPrebuild =
+        estimateShippingPrebuildMemoryBudget(screen, malformedPrebuild);
+    require(!malformedPrebuild.deformableNodeIncidenceSortEnabled &&
+                !rejectedPrebuild.withinLimit &&
+                !rejectedPrebuild.requiredResidualDescentArenaAdmitted &&
+                rejectedPrebuild.runtimeConfigurationFailure.find(
+                    "NM_CONTACT_NODE_INCIDENCE_SORT") != std::string::npos &&
+                rejectedPrebuild.deformableNodeIncidenceSortBytes == 0u,
+            "invalid prebuild selector was charged as enabled or did not fail closed");
+}
+
 void run() {
+    checkDeformableIncidenceSortMemoryAccounting();
+    checkSelectedRequiredRigidArenaIsOneAllocation();
     checkTiledCohesivePreflight();
     checkRuntimeEnvironmentAdmission();
     const auto single = estimateShippingStaticMemoryLowerBound(1000u, 2000u, 1u);

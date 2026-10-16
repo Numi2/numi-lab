@@ -1,0 +1,56 @@
+{
+  "cases": [
+    {
+      "candidate": [
+        0.3529411764705882,
+        -0.7254901960784313
+      ],
+      "candidate_vs_spectral_l2": 5.551115123125783e-17,
+      "mu": 0.0,
+      "physical_residual_l2": 2.220446049250313e-16,
+      "regularized_objective": 4.930380657631324e-32,
+      "spectral_candidate": [
+        0.35294117647058826,
+        -0.7254901960784313
+      ],
+      "status": "iteration_cap"
+    },
+    {
+      "candidate": [
+        0.3529410934256251,
+        -0.7254901202101834
+      ],
+      "candidate_vs_spectral_l2": 1.1102230246251565e-16,
+      "mu": 0.001,
+      "physical_residual_l2": 2.9043354555939663e-07,
+      "regularized_objective": 6.509034143027066e-07,
+      "spectral_candidate": [
+        0.3529410934256251,
+        -0.7254901202101836
+      ],
+      "status": "iteration_cap"
+    },
+    {
+      "candidate": [
+        0.3529079616036137,
+        -0.7254598500454883
+      ],
+      "candidate_vs_spectral_l2": 1.2412670766236366e-16,
+      "mu": 0.02,
+      "physical_residual_l2": 0.00011616646591368776,
+      "regularized_objective": 0.00026034790400429896,
+      "spectral_candidate": [
+        0.35290796160361376,
+        -0.7254598500454882
+      ],
+      "status": "iteration_cap"
+    }
+  ],
+  "full_step_starts_from_zero": true,
+  "iteration_cap_candidate_norm": 0.7611399396028802,
+  "iteration_cap_case_status": "iteration_cap",
+  "native_metal_executed": false,
+  "passed": true,
+  "schema": "numi.cardboard.damped-cgls-svd-oracle.v1",
+  "scope": "CPU recurrence plus independent 2x2 spectral Tikhonov oracle"
+}

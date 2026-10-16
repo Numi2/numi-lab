@@ -12277,6 +12277,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return diagnostics;
                 }
             }
+            bool femBaseCGLSDamped = false;
+            float femBaseCGLSDampingKg = 0.0f;
+            float femBaseCGLSDampingSquared = 0.0f;
             if (femBaseCauchyFallbackRequested) {
                 const auto rejectBaseCauchy = [&](const char* reason) {
                     femBaseCauchyFallbackConfigValid = false;
@@ -12309,6 +12312,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const unsigned long iteration = separator == nullptr ||
                     allNewtonIterations ? 0ul :
                     std::strtoul(separator + 1, &iterationEnd, 10);
+                // The damped pilot selects one numeric Newton iteration per
+                // control. Its all-control form repeats every capability gate;
+                // it is neither the all-Newton primary policy nor permission
+                // to reuse an earlier direction certificate.
+                const char* dampingPilotText = std::getenv(
+                    "NM_FEM_BASE_CGLS_DAMPING_KG");
+                const bool dampedNumericControlScope =
+                    !allNewtonIterations &&
+                    femBaseCGLSIterations != 0u &&
+                    !femBaseCGLSPrimaryPolicyRequested &&
+                    dampingPilotText != nullptr &&
+                    std::strcmp(dampingPilotText, "1e-3") == 0;
                 if (separator == nullptr ||
                     (!everyControlStep && rootEnd != separator) ||
                     (!allNewtonIterations && iterationEnd != end) ||
@@ -12321,14 +12336,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     rejectBaseCauchy(
                         "selector_must_be_control_step_colon_all_or_newton_0_to_256_or_exact_all_colon_all");
                 } else if (everyControlStep &&
+                           !dampedNumericControlScope &&
                            (!allNewtonIterations ||
                             femBaseCGLSIterations == 0u ||
                             !femBaseCGLSPrimaryPolicyRequested)) {
-                    // All-control scope is admitted only for the existing
-                    // bounded CGLS primary policy. Every selected control still
-                    // passes the complete original capability/certificate gate.
+                    // All-control scope supports the bounded all-Newton
+                    // primary policy or this single-Newton damped fallback.
+                    // The later damping admission rejects primary, right-scale
+                    // and warm-start combinations before physical execution.
                     rejectBaseCauchy(
-                        "all_control_steps_requires_cgls_primary_policy_and_all_newton_suffix");
+                        "all_control_steps_requires_cgls_primary_all_newton_or_damped_numeric_newton");
                 } else {
                     femBaseCauchyFallbackRoot =
                         static_cast<std::uint32_t>(root);
@@ -12452,6 +12469,36 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 std::fprintf(stderr,
                     "fem_base_cgls_warm_start_refine_enabled={\"schema\":1,\"root\":%u,\"initial_guess\":\"current_fgmres_solution\",\"fresh_residual\":\"b_minus_Ax0\",\"acceptance\":\"strict_recomputed_true_linear_residual_reduction\",\"fallback\":\"preserve_x0_and_original_certificate\",\"physical_operator_changed\":false}\n",
                     femBaseCauchyFallbackRoot);
+            }
+            if (const char* damping = std::getenv(
+                    "NM_FEM_BASE_CGLS_DAMPING_KG")) {
+                if (std::strcmp(damping, "1e-3") != 0 ||
+                    femBaseCGLSIterations == 0u ||
+                    !femBaseCauchyFallbackRequested ||
+                    femBaseCauchyFallbackAllNewtonIterations ||
+                    femBaseCGLSPrimaryPolicyRequested ||
+                    femBaseCGLSRightScaleEnabled ||
+                    femBaseCGLSWarmStartRefine) {
+                    std::fprintf(stderr,
+                        "fem_base_cgls_damping_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"requires_exact_1e-3_kg_numeric_single_newton_fallback_with_32_or_64_iterations_no_primary_no_right_scale_no_warm_start\",\"physical_operator_changed\":false}\n",
+                        request.controlStep);
+                    diagnostics.message =
+                        "damped CGLS requires the bounded numeric single-Newton fallback and exact pilot damping";
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
+                femBaseCGLSDamped = true;
+                femBaseCGLSDampingKg = 1.0e-3f;
+                femBaseCGLSDampingSquared =
+                    femBaseCGLSDampingKg * femBaseCGLSDampingKg;
+                if (femBaseCauchyFallbackSelectedRoot) {
+                    std::fprintf(stderr,
+                        "fem_base_cgls_damped_enabled={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"direction_kind\":\"full_zero_damped_CGLS\",\"regularization_kg\":%.9g,\"objective\":\"||A*x-b||_2^2+mu_kg^2*||x||_2^2\",\"iteration_budget\":%u,\"right_scale\":null,\"warm_start\":false,\"original_newton_certificate_applies_to_direction\":false,\"final_physical_operator_and_acceptance_unchanged\":true}\n",
+                        femBaseCauchyFallbackRoot,
+                        femBaseCauchyFallbackIteration,
+                        static_cast<double>(femBaseCGLSDampingKg),
+                        femBaseCGLSIterations);
+                }
             }
             const auto emitFEMNewtonTraceSkip = [&](std::uint32_t root,
                                                      const char* reason) {
@@ -23784,6 +23831,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 // selected Newton's fresh three-row-per-node inverse blocks.
                 // Version 3 means B/R are the fresh residual b-A*x0 and X is
                 // the total candidate x0+S*y after the strict comparison.
+                // Version 4 is a full-zero damped CGLS candidate; header[7]
+                // contains the raw float32 bits of mu in kilograms.
                 id<MTLBuffer> cglsSnapshot = nil;
                 NSUInteger cglsSnapshotBytes = 0u;
                 const bool captureCGLS = femBaseCGLSIterations != 0u &&
@@ -23827,13 +23876,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         return false;
                     }
                     std::memset(cglsSnapshot.contents, 0, cglsSnapshotBytes);
+                    std::uint32_t dampingBits = 0u;
+                    if (femBaseCGLSDamped)
+                        std::memcpy(&dampingBits, &femBaseCGLSDampingKg,
+                            sizeof(dampingBits));
+                    const std::uint32_t cglsCaptureVersion =
+                        femBaseCGLSDamped ? 4u :
+                        (warmStartRefinementThisNewton ? 3u :
+                            (femBaseCGLSRightScaleEnabled ? 2u : 1u));
                     const std::array<std::uint32_t, 8> header = {
-                        0x534c4743u, warmStartRefinementThisNewton ? 3u :
-                            (femBaseCGLSRightScaleEnabled ? 2u : 1u),
+                        0x534c4743u, cglsCaptureVersion,
                         static_cast<std::uint32_t>(environments),
                         state.dispatch.femNodeCount, unknowns,
                         femBaseCGLSIterations,
-                        static_cast<std::uint32_t>(segmentCount), 0u};
+                        static_cast<std::uint32_t>(segmentCount), dampingBits};
                     std::memcpy(cglsSnapshot.contents, header.data(), sizeof(header));
                     for (std::size_t i = 0u; i < segmentCount; ++i)
                         [copy copyFromBuffer:sourceBuffers[i] sourceOffset:0u
@@ -23847,6 +23903,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const auto formatFloat = appendTraceFloat;
                 const auto capturedCGLSIterations = femBaseCGLSIterations;
                 const auto capturedCGLSRightScale = femBaseCGLSRightScaleEnabled;
+                const auto capturedCGLSDamped = femBaseCGLSDamped;
+                const auto capturedCGLSDampingKg = femBaseCGLSDampingKg;
                 const auto capturedPrimaryPolicy = primaryPolicy;
                 const auto capturedWarmStartRefinement =
                     warmStartRefinementThisNewton;
@@ -23886,14 +23944,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         line << "fem_base_cgls_direction={\"schema\":1,\"root\":"
                              << capturedRoot << ",\"newton_iteration\":" << capturedIteration
                              << ",\"direction_kind\":\""
-                             << (capturedCGLSRightScale
-                                 ? "right_preconditioned_truncated_unregularized_CGLS"
-                                 : "truncated_unregularized_CGLS")
+                             << (capturedCGLSDamped
+                                 ? "full_zero_damped_CGLS"
+                                 : (capturedCGLSRightScale
+                                     ? "right_preconditioned_truncated_unregularized_CGLS"
+                                     : "truncated_unregularized_CGLS"))
                              << "\",\"iteration_budget\":"
                              << capturedCGLSIterations
                              << ",\"right_scale\":"
-                             << (capturedCGLSRightScale ? "\"block3\"" : "null")
-                             << ",\"original_newton_certificate_applies_to_direction\":false";
+                             << (capturedCGLSRightScale ? "\"block3\"" : "null");
+                        if (capturedCGLSDamped) {
+                            line << ",\"regularization_kg\":"
+                                 << std::setprecision(
+                                     std::numeric_limits<float>::max_digits10)
+                                 << capturedCGLSDampingKg
+                                 << ",\"objective\":\"||A*x-b||_2^2+mu_kg^2*||x||_2^2\""
+                                 << ",\"initial_guess\":\"zero_full_total_step\"";
+                        }
+                        line << ",\"original_newton_certificate_applies_to_direction\":false";
                         if (capturedWarmStartRefinement) {
                             line << ",\"warm_start_refinement\":true"
                                  << ",\"initial_guess\":\"current_fgmres_solution\""
@@ -24245,6 +24313,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBuffer:state.femBaseCGLSScalars offset:0u atIndex:5u];
                             [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:6u];
                             [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:7u];
+                            [encoder setBuffer:state.femBaseCGLSP offset:0u atIndex:8u];
+                            [encoder setBytes:&femBaseCGLSDampingSquared
+                                       length:sizeof(femBaseCGLSDampingSquared)
+                                      atIndex:9u];
                         }); barrier();
                         dispatchThreads("nm_fgmres_base_cgls_update_xr", cglsUnknowns, [&] {
                             rows();
@@ -24271,6 +24343,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBuffer:state.femBaseCGLSScalars offset:0u atIndex:5u];
                             [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:6u];
                             [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:7u];
+                            [encoder setBuffer:state.femBaseCGLSX offset:0u atIndex:8u];
+                            [encoder setBytes:&femBaseCGLSDampingSquared
+                                       length:sizeof(femBaseCGLSDampingSquared)
+                                      atIndex:9u];
                         }); barrier();
                         dispatchThreads("nm_fgmres_base_cgls_update_p", cglsUnknowns, [&] {
                             rows();
@@ -24793,6 +24869,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                 }
             }
+            const std::uint32_t fullResidualContactFeasibilityOnly =
+                femFullContactResidualArmijoEnabled ? 1u : 0u;
             dispatchGroups32(
                 "nm_contact_limit_deformable_line_search",
                 environments,
@@ -24819,6 +24897,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             ? deformableLimitTraceRecords
                             : state.deformableContactFailures)
                                offset:0u atIndex:16u];
+                    [encoder setBytes:&micro length:sizeof(micro)
+                              atIndex:17u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:18u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:19u];
+                    [encoder setBytes:&fullResidualContactFeasibilityOnly
+                               length:sizeof(fullResidualContactFeasibilityOnly)
+                              atIndex:20u];
                 });
             if (femDeformableContactCaptureSelected &&
                 deformableLimitTraceRecords != nil &&

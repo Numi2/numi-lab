@@ -1,0 +1,5 @@
+In file included from /Users/n/cardboard-implementation-20261014-host-macmini/analysis/source192-memory-single-private-arena-001/regression-old-header.cpp:2:
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix003/matter/tools/cardboard_box_assembly_controller.hpp:11:10: fatal error: 'metalrobo/engine_types.h' file not found
+   11 | #include "metalrobo/engine_types.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.

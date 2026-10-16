@@ -1,0 +1,110 @@
+{
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "7ff0946dfcfd0abec9a38feb16ce9bd10398e22b361d89903fda92ac8acedf1e",
+      "size": 2134
+    },
+    {
+      "path": "compile.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "compile.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "overlay.patch",
+      "sha256": "fbac634262905625f0a4dc111305c16b05656d379fd720b21ca7d9524b72ad9d",
+      "size": 4908
+    },
+    {
+      "path": "patch-dry-run.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "patch-dry-run.stdout",
+      "sha256": "0cfce37201338b36efb3a3b86c38477458c46e17178b861b7a84b9cfee5b89ea",
+      "size": 165
+    },
+    {
+      "path": "policy_contract",
+      "sha256": "e74abb90728e6bb610b1da7e1b3f99d52957647660a5225e34688166ffe2310e",
+      "size": 38528
+    },
+    {
+      "path": "policy_contract.cpp",
+      "sha256": "aa423d05dd02b1c1c68aad2d0b056d678cc8df0a0f610b70dfabe78d168757f7",
+      "size": 977
+    },
+    {
+      "path": "source-contract-report.json",
+      "sha256": "2f2a1eb19888a048678fbceaeaf0b1d53a633e3a68e45b8a4a1e0bb8d1792df2",
+      "size": 590
+    },
+    {
+      "path": "source-contract.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "source-contract.stdout",
+      "sha256": "2f2a1eb19888a048678fbceaeaf0b1d53a633e3a68e45b8a4a1e0bb8d1792df2",
+      "size": 590
+    },
+    {
+      "path": "source-overlay.json",
+      "sha256": "031e5ca85d6441971fa0bc4590ffb9afd619363a1cd687ef8986c9f1c58db93e",
+      "size": 3598
+    },
+    {
+      "path": "source_contract_audit.py",
+      "sha256": "b2558caea70b61defb9915684e86000db3905441fab915b9c232a3fab3152b23",
+      "size": 1643
+    },
+    {
+      "path": "test.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "test.stdout",
+      "sha256": "300482af6564ee0242472b7918e54528237a1a0de24250945a433adf85a6fc58",
+      "size": 48
+    },
+    {
+      "path": "candidate/matter/include/numi/matter/deformable_contact_trial_policy.h",
+      "sha256": "f1dafb01e5c1df7891d1e0cc5d8833b19f10ea5912ff21562e2122c8b2933fbd",
+      "size": 770
+    },
+    {
+      "path": "candidate/matter/src/runtime.mm",
+      "sha256": "ec28985b644c43d2ccfaf8b77ef1da03db3b1db7797112a57b1e2cb504dfdfb6",
+      "size": 1923864
+    },
+    {
+      "path": "candidate/matter/src/metal/contact.metalinc",
+      "sha256": "1f6f91a70c3c738f50c4d4fc86e429a2fc841028a81094700355b5e5d33ee538",
+      "size": 439790
+    },
+    {
+      "path": "failed-attempt-001/source_contract_audit.py",
+      "sha256": "b2558caea70b61defb9915684e86000db3905441fab915b9c232a3fab3152b23",
+      "size": 1643
+    },
+    {
+      "path": "failed-attempt-001/stderr.txt",
+      "sha256": "00934cd92e6fc2c988808519492255b44612e2e20366f549328159bf2a8c9238",
+      "size": 1178
+    },
+    {
+      "path": "failed-attempt-001/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    }
+  ],
+  "schema": "numi.cardboard.source191-002.package-receipt.v1"
+}

@@ -1,0 +1,442 @@
+{
+  "schema": "numi.cardboard.source198-host-artifacts.v1",
+  "snapshots": [
+    "source-shared-contact-trial-189-buildfix003",
+    "source-damped-full-zero-cgls-190-001",
+    "source-memory-single-private-arena-192-001",
+    "source-contact-damped-cgls-memory-193-001",
+    "source-contact-damped-cgls-memory-195-001",
+    "source-damped-control-selector-197-001",
+    "source-contact-damped-memory-198-001"
+  ],
+  "missing_requested_snapshots_or_builds": [],
+  "builds": [
+    "build-source189-003",
+    "build-source190-001",
+    "build-source190-002",
+    "build-source193-001",
+    "build-source193-002",
+    "build-source195-001",
+    "build-source197-001",
+    "build-source198-001"
+  ],
+  "artifact_bindings": [
+    {
+      "build": "build-source189-003",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/numi-matter-cardboard-contact-geometry-check",
+      "sha256": "cc299103b3979cbda1dc3a1a00e968ace3d022f07b0b35a7b5b9d66e8a2157bf",
+      "bytes": 53328,
+      "bundle_path": "artifact-blobs/cc299103b3979cbda1dc3a1a00e968ace3d022f07b0b35a7b5b9d66e8a2157bf"
+    },
+    {
+      "build": "build-source189-003",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/numi-matter-cardboard-coupon-resume-check",
+      "sha256": "a7b47d845686b56b5c83cbb1a2a80ce3817c65a19a95936c94480f8266edcb2e",
+      "bytes": 206024,
+      "bundle_path": "artifact-blobs/a7b47d845686b56b5c83cbb1a2a80ce3817c65a19a95936c94480f8266edcb2e"
+    },
+    {
+      "build": "build-source189-003",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/numi-matter-cardboard-full-contact-armijo-check",
+      "sha256": "1fd8be874b7302c5235b50396917338bf858582436c533809360e8c3b624e213",
+      "bytes": 2249424,
+      "bundle_path": "artifact-blobs/1fd8be874b7302c5235b50396917338bf858582436c533809360e8c3b624e213"
+    },
+    {
+      "build": "build-source189-003",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/numi-matter-cardboard-full-contact-scratch-budget-check",
+      "sha256": "78a82c52e3ffaf74bd46581cdd4d136a971fb11205624fa6f8fb7204c95bdc00",
+      "bytes": 36584,
+      "bundle_path": "artifact-blobs/78a82c52e3ffaf74bd46581cdd4d136a971fb11205624fa6f8fb7204c95bdc00"
+    },
+    {
+      "build": "build-source189-003",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/numi-matter-cardboard-probe",
+      "sha256": "acd6d4fb860e2bcac12fd991b8f1dc869e14594c72d750fcbee3f75679b8ac64",
+      "bytes": 3217816,
+      "bundle_path": "artifact-blobs/acd6d4fb860e2bcac12fd991b8f1dc869e14594c72d750fcbee3f75679b8ac64"
+    },
+    {
+      "build": "build-source189-003",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/numi-matter-cardboard-shipping-memory-check",
+      "sha256": "7fef813482c6f49b854e388ddd138e95e4a5793f95ffdaa814082b5567150924",
+      "bytes": 161464,
+      "bundle_path": "artifact-blobs/7fef813482c6f49b854e388ddd138e95e4a5793f95ffdaa814082b5567150924"
+    },
+    {
+      "build": "build-source189-003",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/shaders/NumiMatter.metallib",
+      "sha256": "7a44dcb40e4e6f25c25b471e8f3655aa4846bed0fdb8f70d28e80753ca0fbd4f",
+      "bytes": 7031968,
+      "bundle_path": "artifact-blobs/7a44dcb40e4e6f25c25b471e8f3655aa4846bed0fdb8f70d28e80753ca0fbd4f"
+    },
+    {
+      "build": "build-source189-003",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+      "bytes": 80076,
+      "bundle_path": "artifact-blobs/3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    {
+      "build": "build-source189-003",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/shaders/cardboard_contact_geometry_check.metallib",
+      "sha256": "a98edcf60852875b580edcee1f166dd9a2e551f7b685f913ba2176676b90df53",
+      "bytes": 7043114,
+      "bundle_path": "artifact-blobs/a98edcf60852875b580edcee1f166dd9a2e551f7b685f913ba2176676b90df53"
+    },
+    {
+      "build": "build-source190-002",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source190-002/numi-matter-cardboard-coupon-resume-check",
+      "sha256": "2a53eaa3947c3b21c57b46e9e2c844c0ca7f5cbea147b3939191ec2a42836f57",
+      "bytes": 206200,
+      "bundle_path": "artifact-blobs/2a53eaa3947c3b21c57b46e9e2c844c0ca7f5cbea147b3939191ec2a42836f57"
+    },
+    {
+      "build": "build-source190-002",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source190-002/numi-matter-cardboard-probe",
+      "sha256": "d961785416abda9b2b0f23d26068af676423b41ff92a22783a23622e54f9532c",
+      "bytes": 3217816,
+      "bundle_path": "artifact-blobs/d961785416abda9b2b0f23d26068af676423b41ff92a22783a23622e54f9532c"
+    },
+    {
+      "build": "build-source190-002",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source190-002/numi-matter-cardboard-warm-start-check",
+      "sha256": "fbbb8a412f4d4768679007533454f6fe6ea9a613e173b53e10768b346e9d6825",
+      "bytes": 161816,
+      "bundle_path": "artifact-blobs/fbbb8a412f4d4768679007533454f6fe6ea9a613e173b53e10768b346e9d6825"
+    },
+    {
+      "build": "build-source190-002",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source190-002/shaders/CardboardWarmStartCheck.metallib",
+      "sha256": "50e1a3ddfd5b348498a1f865cca21b69cfefdc4b3b158e20f372af71703bd5c7",
+      "bytes": 1977512,
+      "bundle_path": "artifact-blobs/50e1a3ddfd5b348498a1f865cca21b69cfefdc4b3b158e20f372af71703bd5c7"
+    },
+    {
+      "build": "build-source190-002",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source190-002/shaders/NumiMatter.metallib",
+      "sha256": "327fa7710d27e6c172d60e99ecaa500e532c77c78821ccd87120d9034f987977",
+      "bytes": 7020896,
+      "bundle_path": "artifact-blobs/327fa7710d27e6c172d60e99ecaa500e532c77c78821ccd87120d9034f987977"
+    },
+    {
+      "build": "build-source190-002",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source190-002/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+      "bytes": 80076,
+      "bundle_path": "artifact-blobs/3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    {
+      "build": "build-source193-002",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source193-002/numi-matter-cardboard-contact-geometry-check",
+      "sha256": "a5893fdfa397f81d26c334a3b75a47491b33eb9247e1404668fc6ed109da110b",
+      "bytes": 53328,
+      "bundle_path": "artifact-blobs/a5893fdfa397f81d26c334a3b75a47491b33eb9247e1404668fc6ed109da110b"
+    },
+    {
+      "build": "build-source193-002",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source193-002/numi-matter-cardboard-coupon-resume-check",
+      "sha256": "2a53eaa3947c3b21c57b46e9e2c844c0ca7f5cbea147b3939191ec2a42836f57",
+      "bytes": 206200,
+      "bundle_path": "artifact-blobs/2a53eaa3947c3b21c57b46e9e2c844c0ca7f5cbea147b3939191ec2a42836f57"
+    },
+    {
+      "build": "build-source193-002",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source193-002/numi-matter-cardboard-full-contact-armijo-check",
+      "sha256": "7d2d8d3f9d7d3f770d15323fb22e560c9771eb03939b6a5a8d7a147de16b6369",
+      "bytes": 2249424,
+      "bundle_path": "artifact-blobs/7d2d8d3f9d7d3f770d15323fb22e560c9771eb03939b6a5a8d7a147de16b6369"
+    },
+    {
+      "build": "build-source193-002",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source193-002/numi-matter-cardboard-full-contact-scratch-budget-check",
+      "sha256": "78a82c52e3ffaf74bd46581cdd4d136a971fb11205624fa6f8fb7204c95bdc00",
+      "bytes": 36584,
+      "bundle_path": "artifact-blobs/78a82c52e3ffaf74bd46581cdd4d136a971fb11205624fa6f8fb7204c95bdc00"
+    },
+    {
+      "build": "build-source193-002",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source193-002/numi-matter-cardboard-probe",
+      "sha256": "ff72f532dc016d4f5ee17730052bf34221b9d571b36469a1543ace914c8db3f3",
+      "bytes": 3217816,
+      "bundle_path": "artifact-blobs/ff72f532dc016d4f5ee17730052bf34221b9d571b36469a1543ace914c8db3f3"
+    },
+    {
+      "build": "build-source193-002",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source193-002/numi-matter-cardboard-shipping-memory-check",
+      "sha256": "495768ce25ec9e18fc9181c76df80be0b1b127ee6a546e24585fd854daaf0fd7",
+      "bytes": 161464,
+      "bundle_path": "artifact-blobs/495768ce25ec9e18fc9181c76df80be0b1b127ee6a546e24585fd854daaf0fd7"
+    },
+    {
+      "build": "build-source193-002",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source193-002/numi-matter-cardboard-warm-start-check",
+      "sha256": "95a50f11c3c18bdba24800518b4fd001f4a7904c6aa3a9dbcdd60770c9e94bdb",
+      "bytes": 161816,
+      "bundle_path": "artifact-blobs/95a50f11c3c18bdba24800518b4fd001f4a7904c6aa3a9dbcdd60770c9e94bdb"
+    },
+    {
+      "build": "build-source193-002",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source193-002/shaders/CardboardWarmStartCheck.metallib",
+      "sha256": "9744652639529b8e240ee79dc4dca61537da7f4497606b762a22ec5bafa7cde2",
+      "bytes": 1978104,
+      "bundle_path": "artifact-blobs/9744652639529b8e240ee79dc4dca61537da7f4497606b762a22ec5bafa7cde2"
+    },
+    {
+      "build": "build-source193-002",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source193-002/shaders/NumiMatter.metallib",
+      "sha256": "edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f",
+      "bytes": 7033424,
+      "bundle_path": "artifact-blobs/edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f"
+    },
+    {
+      "build": "build-source193-002",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source193-002/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+      "bytes": 80076,
+      "bundle_path": "artifact-blobs/3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    {
+      "build": "build-source193-002",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source193-002/shaders/cardboard_contact_geometry_check.metallib",
+      "sha256": "1978a983a3b1cbd41ac07bc1f0fd60e1f6141ff92840886f4b49b9a726953685",
+      "bytes": 7044570,
+      "bundle_path": "artifact-blobs/1978a983a3b1cbd41ac07bc1f0fd60e1f6141ff92840886f4b49b9a726953685"
+    },
+    {
+      "build": "build-source195-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source195-001/numi-matter-cardboard-contact-geometry-check",
+      "sha256": "56285e90e6547491d894903a7fca2065b5c0768f4e1ba4809a559ea002ac7584",
+      "bytes": 53328,
+      "bundle_path": "artifact-blobs/56285e90e6547491d894903a7fca2065b5c0768f4e1ba4809a559ea002ac7584"
+    },
+    {
+      "build": "build-source195-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source195-001/numi-matter-cardboard-coupon-resume-check",
+      "sha256": "2a53eaa3947c3b21c57b46e9e2c844c0ca7f5cbea147b3939191ec2a42836f57",
+      "bytes": 206200,
+      "bundle_path": "artifact-blobs/2a53eaa3947c3b21c57b46e9e2c844c0ca7f5cbea147b3939191ec2a42836f57"
+    },
+    {
+      "build": "build-source195-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source195-001/numi-matter-cardboard-full-contact-armijo-check",
+      "sha256": "9062ef04dd22c93d36a56226a997527074761e3c751184f33c83b337ab626972",
+      "bytes": 2249424,
+      "bundle_path": "artifact-blobs/9062ef04dd22c93d36a56226a997527074761e3c751184f33c83b337ab626972"
+    },
+    {
+      "build": "build-source195-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source195-001/numi-matter-cardboard-full-contact-scratch-budget-check",
+      "sha256": "78a82c52e3ffaf74bd46581cdd4d136a971fb11205624fa6f8fb7204c95bdc00",
+      "bytes": 36584,
+      "bundle_path": "artifact-blobs/78a82c52e3ffaf74bd46581cdd4d136a971fb11205624fa6f8fb7204c95bdc00"
+    },
+    {
+      "build": "build-source195-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source195-001/numi-matter-cardboard-probe",
+      "sha256": "59c12e54679d478220b1d6ec970010fb2674465af755848a24012df56d9259ca",
+      "bytes": 3217816,
+      "bundle_path": "artifact-blobs/59c12e54679d478220b1d6ec970010fb2674465af755848a24012df56d9259ca"
+    },
+    {
+      "build": "build-source195-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source195-001/numi-matter-cardboard-shipping-memory-check",
+      "sha256": "495768ce25ec9e18fc9181c76df80be0b1b127ee6a546e24585fd854daaf0fd7",
+      "bytes": 161464,
+      "bundle_path": "artifact-blobs/495768ce25ec9e18fc9181c76df80be0b1b127ee6a546e24585fd854daaf0fd7"
+    },
+    {
+      "build": "build-source195-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source195-001/numi-matter-cardboard-warm-start-check",
+      "sha256": "d4898ff55d73bf52bcc4fe2d7826ed01b6e6eaf0fd09cbc01f236932be244b70",
+      "bytes": 161816,
+      "bundle_path": "artifact-blobs/d4898ff55d73bf52bcc4fe2d7826ed01b6e6eaf0fd09cbc01f236932be244b70"
+    },
+    {
+      "build": "build-source195-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source195-001/shaders/CardboardWarmStartCheck.metallib",
+      "sha256": "9744652639529b8e240ee79dc4dca61537da7f4497606b762a22ec5bafa7cde2",
+      "bytes": 1978104,
+      "bundle_path": "artifact-blobs/9744652639529b8e240ee79dc4dca61537da7f4497606b762a22ec5bafa7cde2"
+    },
+    {
+      "build": "build-source195-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source195-001/shaders/NumiMatter.metallib",
+      "sha256": "edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f",
+      "bytes": 7033424,
+      "bundle_path": "artifact-blobs/edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f"
+    },
+    {
+      "build": "build-source195-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source195-001/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+      "bytes": 80076,
+      "bundle_path": "artifact-blobs/3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    {
+      "build": "build-source195-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source195-001/shaders/cardboard_contact_geometry_check.metallib",
+      "sha256": "1978a983a3b1cbd41ac07bc1f0fd60e1f6141ff92840886f4b49b9a726953685",
+      "bytes": 7044570,
+      "bundle_path": "artifact-blobs/1978a983a3b1cbd41ac07bc1f0fd60e1f6141ff92840886f4b49b9a726953685"
+    },
+    {
+      "build": "build-source197-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source197-001/numi-matter-cardboard-contact-geometry-check",
+      "sha256": "466086b4f1a3b734eef2657257427bdd8cdbd7cbbd7b281ceaf51765e484d1bc",
+      "bytes": 53328,
+      "bundle_path": "artifact-blobs/466086b4f1a3b734eef2657257427bdd8cdbd7cbbd7b281ceaf51765e484d1bc"
+    },
+    {
+      "build": "build-source197-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source197-001/numi-matter-cardboard-coupon-resume-check",
+      "sha256": "2a53eaa3947c3b21c57b46e9e2c844c0ca7f5cbea147b3939191ec2a42836f57",
+      "bytes": 206200,
+      "bundle_path": "artifact-blobs/2a53eaa3947c3b21c57b46e9e2c844c0ca7f5cbea147b3939191ec2a42836f57"
+    },
+    {
+      "build": "build-source197-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source197-001/numi-matter-cardboard-full-contact-armijo-check",
+      "sha256": "fd2aa78759cdd346b26f30fa10dd911336d49578270e4cd4e26b734e0a8ece29",
+      "bytes": 2249424,
+      "bundle_path": "artifact-blobs/fd2aa78759cdd346b26f30fa10dd911336d49578270e4cd4e26b734e0a8ece29"
+    },
+    {
+      "build": "build-source197-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source197-001/numi-matter-cardboard-full-contact-scratch-budget-check",
+      "sha256": "78a82c52e3ffaf74bd46581cdd4d136a971fb11205624fa6f8fb7204c95bdc00",
+      "bytes": 36584,
+      "bundle_path": "artifact-blobs/78a82c52e3ffaf74bd46581cdd4d136a971fb11205624fa6f8fb7204c95bdc00"
+    },
+    {
+      "build": "build-source197-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source197-001/numi-matter-cardboard-probe",
+      "sha256": "df52cf1902b55f298795463bf76e5560c05618e2b3e70c2078b26421d3d425e8",
+      "bytes": 3217816,
+      "bundle_path": "artifact-blobs/df52cf1902b55f298795463bf76e5560c05618e2b3e70c2078b26421d3d425e8"
+    },
+    {
+      "build": "build-source197-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source197-001/numi-matter-cardboard-shipping-memory-check",
+      "sha256": "495768ce25ec9e18fc9181c76df80be0b1b127ee6a546e24585fd854daaf0fd7",
+      "bytes": 161464,
+      "bundle_path": "artifact-blobs/495768ce25ec9e18fc9181c76df80be0b1b127ee6a546e24585fd854daaf0fd7"
+    },
+    {
+      "build": "build-source197-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source197-001/numi-matter-cardboard-warm-start-check",
+      "sha256": "d485a9279a769107f79c4e2c42cfd0c426ec32b033803ddc4b0cffdd9a698788",
+      "bytes": 161816,
+      "bundle_path": "artifact-blobs/d485a9279a769107f79c4e2c42cfd0c426ec32b033803ddc4b0cffdd9a698788"
+    },
+    {
+      "build": "build-source197-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source197-001/shaders/CardboardWarmStartCheck.metallib",
+      "sha256": "9744652639529b8e240ee79dc4dca61537da7f4497606b762a22ec5bafa7cde2",
+      "bytes": 1978104,
+      "bundle_path": "artifact-blobs/9744652639529b8e240ee79dc4dca61537da7f4497606b762a22ec5bafa7cde2"
+    },
+    {
+      "build": "build-source197-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source197-001/shaders/NumiMatter.metallib",
+      "sha256": "edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f",
+      "bytes": 7033424,
+      "bundle_path": "artifact-blobs/edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f"
+    },
+    {
+      "build": "build-source197-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source197-001/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+      "bytes": 80076,
+      "bundle_path": "artifact-blobs/3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    {
+      "build": "build-source197-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source197-001/shaders/cardboard_contact_geometry_check.metallib",
+      "sha256": "1978a983a3b1cbd41ac07bc1f0fd60e1f6141ff92840886f4b49b9a726953685",
+      "bytes": 7044570,
+      "bundle_path": "artifact-blobs/1978a983a3b1cbd41ac07bc1f0fd60e1f6141ff92840886f4b49b9a726953685"
+    },
+    {
+      "build": "build-source198-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source198-001/numi-matter-cardboard-contact-geometry-check",
+      "sha256": "fbe3f8f4075869d641dda373cbed88e40c1b3ade9cc4f88e07a0ed03beb15ea6",
+      "bytes": 53328,
+      "bundle_path": "artifact-blobs/fbe3f8f4075869d641dda373cbed88e40c1b3ade9cc4f88e07a0ed03beb15ea6"
+    },
+    {
+      "build": "build-source198-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source198-001/numi-matter-cardboard-coupon-resume-check",
+      "sha256": "2a53eaa3947c3b21c57b46e9e2c844c0ca7f5cbea147b3939191ec2a42836f57",
+      "bytes": 206200,
+      "bundle_path": "artifact-blobs/2a53eaa3947c3b21c57b46e9e2c844c0ca7f5cbea147b3939191ec2a42836f57"
+    },
+    {
+      "build": "build-source198-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source198-001/numi-matter-cardboard-full-contact-armijo-check",
+      "sha256": "c067e5ea69b5fb748a878be24151f2f27b2de7b73701dd20df61a57a37e0bda6",
+      "bytes": 2249424,
+      "bundle_path": "artifact-blobs/c067e5ea69b5fb748a878be24151f2f27b2de7b73701dd20df61a57a37e0bda6"
+    },
+    {
+      "build": "build-source198-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source198-001/numi-matter-cardboard-full-contact-scratch-budget-check",
+      "sha256": "78a82c52e3ffaf74bd46581cdd4d136a971fb11205624fa6f8fb7204c95bdc00",
+      "bytes": 36584,
+      "bundle_path": "artifact-blobs/78a82c52e3ffaf74bd46581cdd4d136a971fb11205624fa6f8fb7204c95bdc00"
+    },
+    {
+      "build": "build-source198-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source198-001/numi-matter-cardboard-probe",
+      "sha256": "bab8ef562f510fdcbe5751dd80c4db41ce0ff1fc00c23e071efc8f2c91f88956",
+      "bytes": 3218520,
+      "bundle_path": "artifact-blobs/bab8ef562f510fdcbe5751dd80c4db41ce0ff1fc00c23e071efc8f2c91f88956"
+    },
+    {
+      "build": "build-source198-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source198-001/numi-matter-cardboard-shipping-memory-check",
+      "sha256": "a71a3d0207f6f0e93e063ae41eb2a96d01a5db974670a98038b9f0736642e9cf",
+      "bytes": 178696,
+      "bundle_path": "artifact-blobs/a71a3d0207f6f0e93e063ae41eb2a96d01a5db974670a98038b9f0736642e9cf"
+    },
+    {
+      "build": "build-source198-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source198-001/numi-matter-cardboard-warm-start-check",
+      "sha256": "456bf3ec8c95eb624062bdd689f7d4a0220273650995825fedeb7ae5305c9078",
+      "bytes": 161816,
+      "bundle_path": "artifact-blobs/456bf3ec8c95eb624062bdd689f7d4a0220273650995825fedeb7ae5305c9078"
+    },
+    {
+      "build": "build-source198-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source198-001/shaders/CardboardWarmStartCheck.metallib",
+      "sha256": "9744652639529b8e240ee79dc4dca61537da7f4497606b762a22ec5bafa7cde2",
+      "bytes": 1978104,
+      "bundle_path": "artifact-blobs/9744652639529b8e240ee79dc4dca61537da7f4497606b762a22ec5bafa7cde2"
+    },
+    {
+      "build": "build-source198-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source198-001/shaders/NumiMatter.metallib",
+      "sha256": "edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f",
+      "bytes": 7033424,
+      "bundle_path": "artifact-blobs/edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f"
+    },
+    {
+      "build": "build-source198-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source198-001/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+      "bytes": 80076,
+      "bundle_path": "artifact-blobs/3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    {
+      "build": "build-source198-001",
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source198-001/shaders/cardboard_contact_geometry_check.metallib",
+      "sha256": "1978a983a3b1cbd41ac07bc1f0fd60e1f6141ff92840886f4b49b9a726953685",
+      "bytes": 7044570,
+      "bundle_path": "artifact-blobs/1978a983a3b1cbd41ac07bc1f0fd60e1f6141ff92840886f4b49b9a726953685"
+    }
+  ],
+  "unique_artifacts": 35,
+  "artifact_bytes": 71790536,
+  "finished_at_utc": "2026-10-16T07:52:58.679373+00:00",
+  "qualification": "Source and build preservation only; no full physical qualification."
+}

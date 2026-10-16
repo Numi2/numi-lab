@@ -1,0 +1,223 @@
+{
+  "source_build_sha256": "8f6c95304c23b6c7149ec6b270d54eafdf4507ea26f3420e39e523c09dd500ad",
+  "source_frozen_sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc",
+  "cpu_validation": {
+    "cpu-checks": {
+      "name": "cpu-validation",
+      "argv": [
+        "/opt/homebrew/bin/ctest",
+        "--test-dir",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source198-001",
+        "-R",
+        "^matter.compiler.cardboard_(shipping_memory|full_contact_scratch_budget|coupon_resume|full_contact_armijo|compensated_full_contact)$|^matter.cli.cardboard_argument_admission$|^matter.analysis.cardboard_compensated_fp64_reference$",
+        "--output-on-failure",
+        "-j",
+        "1"
+      ],
+      "source_build_sha256": "8f6c95304c23b6c7149ec6b270d54eafdf4507ea26f3420e39e523c09dd500ad",
+      "started_at_utc": "2026-10-16T07:42:49.637998+00:00",
+      "timeout_s": 180,
+      "gpu": false,
+      "exit_code": 0,
+      "timed_out": false,
+      "wall_seconds": 2.0732041662558913,
+      "finished_at_utc": "2026-10-16T07:42:51.711471+00:00",
+      "stdout_sha256": "24a4bdf335384747e4723fc673eb04182b8e643bb486d6934a02da2f6bbbe0b1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical_qualification": false
+    },
+    "solver-environment": {
+      "name": "solver-environment",
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001/matter/tools/test_cardboard_solver_environment.py"
+      ],
+      "source_build_sha256": "8f6c95304c23b6c7149ec6b270d54eafdf4507ea26f3420e39e523c09dd500ad",
+      "started_at_utc": "2026-10-16T07:42:51.712007+00:00",
+      "timeout_s": 120,
+      "gpu": false,
+      "exit_code": 0,
+      "timed_out": false,
+      "wall_seconds": 0.5558828748762608,
+      "finished_at_utc": "2026-10-16T07:42:52.268013+00:00",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "ec7cc175c039890e19435e971762cabad8db325d3b833d22d7e51a9d9b445ceb",
+      "physical_qualification": false
+    },
+    "damped-cgls-oracle": {
+      "name": "damped-cgls-oracle",
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001/matter/tools/verify_damped_cgls_oracle.py"
+      ],
+      "source_build_sha256": "8f6c95304c23b6c7149ec6b270d54eafdf4507ea26f3420e39e523c09dd500ad",
+      "started_at_utc": "2026-10-16T07:42:52.269751+00:00",
+      "timeout_s": 60,
+      "gpu": false,
+      "exit_code": 0,
+      "timed_out": false,
+      "wall_seconds": 0.05045158416032791,
+      "finished_at_utc": "2026-10-16T07:42:52.320487+00:00",
+      "stdout_sha256": "a1888d70485750c41b8e490181e21f375c780569371b06a43db062e40ee88378",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical_qualification": false
+    }
+  },
+  "full_contact_fixture": {
+    "schema": "numi.cardboard.native527-receipt.v1",
+    "phase": "527",
+    "exit_code": 0,
+    "timed_out": false,
+    "space_abort": false,
+    "errors": [],
+    "wall_seconds": 52.586398917,
+    "minimum_available_bytes": 102890151936,
+    "finished_at_utc": "2026-10-16T07:44:12.333173+00:00",
+    "scrubbed_parent_key_names": [],
+    "stdout_sha256": "34e040e6dd338e7140928b99300b30d0739553eff3546d99d904f6196060107a",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shipping_or_physical_validation": false,
+    "case_files": {
+      "aliased/fixture-activation.log": {
+        "bytes": 59517,
+        "sha256": "1331fe9a4748ec3a25343299441d65708d2b6a65c3bb047ab0409f72878e0b8b"
+      },
+      "aliased/fixture-initialization.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "aliased/fixture-loaded.log": {
+        "bytes": 59789,
+        "sha256": "f9163ba19fb49cba35e58421d1de896f4b948ba6b7e9ff430b989845b86206dd"
+      },
+      "aliased/fixture-rejected.log": {
+        "bytes": 61129,
+        "sha256": "8fcc602700c283cd0cd7368b5c1fef6b6324fa124415b5f6e1f4d8e5d5fb4765"
+      },
+      "aliased/transaction-000000-after.bin": {
+        "bytes": 904335,
+        "sha256": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02"
+      },
+      "aliased/transaction-000000-before.bin": {
+        "bytes": 904335,
+        "sha256": "75d968932c9b7dc8701f4dadcbd40fc1d267e4cc6809b87399eb333a98de41c8"
+      },
+      "aliased/transaction-000000.json": {
+        "bytes": 6565,
+        "sha256": "47e05fb5ed400d93359d151f3ee14745bc748c65349778589e0d63f66392b368"
+      },
+      "aliased/transaction-000001-after.bin": {
+        "bytes": 904335,
+        "sha256": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00"
+      },
+      "aliased/transaction-000001-before.bin": {
+        "bytes": 904335,
+        "sha256": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02"
+      },
+      "aliased/transaction-000001.json": {
+        "bytes": 6668,
+        "sha256": "196ab24eb79b3898252bccf6d0a9f69c2738f1fbc8b9f5b559b6fc8f25b8f987"
+      },
+      "aliased/transaction-000002-after.bin": {
+        "bytes": 904335,
+        "sha256": "50bc223f7f598ba219df6ffef83a91e04fc98378faecaf0c8810d7d7541ef39f"
+      },
+      "aliased/transaction-000002-before.bin": {
+        "bytes": 904335,
+        "sha256": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00"
+      },
+      "aliased/transaction-000002.json": {
+        "bytes": 6672,
+        "sha256": "99651bccb2f572960b0629a4374cd6b08d8900d89616c4b90f8af7cf4881c054"
+      },
+      "baseline/fixture-activation.log": {
+        "bytes": 59517,
+        "sha256": "1331fe9a4748ec3a25343299441d65708d2b6a65c3bb047ab0409f72878e0b8b"
+      },
+      "baseline/fixture-initialization.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "baseline/fixture-loaded.log": {
+        "bytes": 59789,
+        "sha256": "f9163ba19fb49cba35e58421d1de896f4b948ba6b7e9ff430b989845b86206dd"
+      },
+      "baseline/fixture-rejected.log": {
+        "bytes": 61129,
+        "sha256": "8fcc602700c283cd0cd7368b5c1fef6b6324fa124415b5f6e1f4d8e5d5fb4765"
+      },
+      "baseline/transaction-000000-after.bin": {
+        "bytes": 904335,
+        "sha256": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02"
+      },
+      "baseline/transaction-000000-before.bin": {
+        "bytes": 904335,
+        "sha256": "75d968932c9b7dc8701f4dadcbd40fc1d267e4cc6809b87399eb333a98de41c8"
+      },
+      "baseline/transaction-000000.json": {
+        "bytes": 6565,
+        "sha256": "47e05fb5ed400d93359d151f3ee14745bc748c65349778589e0d63f66392b368"
+      },
+      "baseline/transaction-000001-after.bin": {
+        "bytes": 904335,
+        "sha256": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00"
+      },
+      "baseline/transaction-000001-before.bin": {
+        "bytes": 904335,
+        "sha256": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02"
+      },
+      "baseline/transaction-000001.json": {
+        "bytes": 6668,
+        "sha256": "196ab24eb79b3898252bccf6d0a9f69c2738f1fbc8b9f5b559b6fc8f25b8f987"
+      },
+      "baseline/transaction-000002-after.bin": {
+        "bytes": 904335,
+        "sha256": "50bc223f7f598ba219df6ffef83a91e04fc98378faecaf0c8810d7d7541ef39f"
+      },
+      "baseline/transaction-000002-before.bin": {
+        "bytes": 904335,
+        "sha256": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00"
+      },
+      "baseline/transaction-000002.json": {
+        "bytes": 6672,
+        "sha256": "99651bccb2f572960b0629a4374cd6b08d8900d89616c4b90f8af7cf4881c054"
+      }
+    }
+  },
+  "kernel_helper": {
+    "O3": {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native-damped-cgls-helper-replay-190-004/build/O3/damped_cgls_helper_replay",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native-damped-cgls-helper-replay-190-004/build/O3/damped_cgls_fixture.metallib"
+      ],
+      "started_at_utc": "2026-10-16T07:41:58.343676+00:00",
+      "timeout_s": 120,
+      "exit_code": 0,
+      "timed_out": false,
+      "wall_seconds": 0.596384458,
+      "finished_at_utc": "2026-10-16T07:41:58.940151+00:00",
+      "stdout_sha256": "27e65269af7f3c16345468b3734b070081693f48c6bd1e0a5313c18529012baf",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical_transactions": 0
+    },
+    "O0": {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native-damped-cgls-helper-replay-190-004/build/O0/damped_cgls_helper_replay",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native-damped-cgls-helper-replay-190-004/build/O0/damped_cgls_fixture.metallib"
+      ],
+      "started_at_utc": "2026-10-16T07:41:58.940614+00:00",
+      "timeout_s": 120,
+      "exit_code": 0,
+      "timed_out": false,
+      "wall_seconds": 0.4924621669999999,
+      "finished_at_utc": "2026-10-16T07:41:59.433166+00:00",
+      "stdout_sha256": "27e65269af7f3c16345468b3734b070081693f48c6bd1e0a5313c18529012baf",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical_transactions": 0
+    }
+  },
+  "helper_production_cgls_identical": true,
+  "six_qualification_axes_complete": false
+}

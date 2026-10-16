@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native488-tail-reuse-helper-command-001/inputs/tail-reuse-check",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native488-tail-reuse-helper-command-001/inputs/base.metallib",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native488-tail-reuse-helper-command-001/inputs/overlay.metallib",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/true-residual-tail-reuse-176-003-488"
+  ],
+  "started_at_utc": "2026-10-16T05:14:52.362366+00:00",
+  "source_package_manifest_sha256": "4fc5c7f4db29cbefe39a4940031811953d596942517d64758405a28c8c2df7e7",
+  "available_bytes": 111500689408,
+  "host": "Mac.domain_not_set.invalid"
+}

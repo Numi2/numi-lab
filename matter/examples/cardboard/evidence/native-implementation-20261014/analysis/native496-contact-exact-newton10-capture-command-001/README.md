@@ -1,0 +1,1 @@
+Read-only exact FEM candidate/correction and contact record capture at actual failing loaded control2/Newton10. Raw histories compared with494off. Existing limits may truncate contact rows; do not infer missing rows. No solver qualification.

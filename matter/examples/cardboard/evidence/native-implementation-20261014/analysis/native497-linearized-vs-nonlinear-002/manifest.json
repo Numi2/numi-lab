@@ -1,0 +1,16 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 820,
+      "sha256": "30dab1a3a271f26763621ae8efc42cbd000bc0895adf41f4821fe858efdf456d"
+    },
+    "report.json": {
+      "bytes": 24889,
+      "sha256": "eab6e2d0504382bd7c13da6b99bfd49d3ce07858945a3eabe30214851f3939ac"
+    }
+  },
+  "host": "macmini",
+  "package": "native497-linearized-vs-nonlinear-002",
+  "schema": "numi.cardboard.analysis-package.v1",
+  "scope": "CPU-only strict-reference action/curve adjudication"
+}

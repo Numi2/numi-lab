@@ -1,0 +1,9 @@
+{
+  "at_utc": "2026-10-16T07:36:59.993157+00:00",
+  "source_build_sha256": "e48aa63fd7d234344942149caf1d2aad4fc7ca4efb4f80322f1c539f4c0eb445",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source195-001/numi-matter-cardboard-warm-start-check"
+  ],
+  "physical_transactions": 0,
+  "scope": "Native private warm-start kernel contract only; no physical solve."
+}

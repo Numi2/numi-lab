@@ -1,0 +1,213 @@
+{
+  "schema": "numi.cardboard.native520_525_budget_effect_audit.v1",
+  "verdict": "budget_group_changed; loaded control accepted under extended group; following control rejected",
+  "source_snapshot_sha256": "d5bf1eb738d25e29cba80f3c9c936963b0d1e8b533652384f60705008b946b82",
+  "source_file": {
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001/matter/tools/cardboard_full_contact_armijo_check.mm",
+    "sha256": "d96f4d6717ac40f47e71150666382ed5557c9c1e83b23b32a1c94877dbdb8db6"
+  },
+  "source_spans": {
+    "budget_assignment": [
+      "801:    source.mixedSolver.newtonIterations = authoredNewtonIterations != 0u",
+      "802:        ? authoredNewtonIterations : (extendedBudget ? 32u : 16u);",
+      "803:    source.mixedSolver.fgmresIterations = extendedBudget ? 256u : 64u;",
+      "804:    source.mixedSolver.fgmresRestart = extendedBudget ? 16u :",
+      "805:        source.mixedSolver.fgmresRestart;",
+      "806:    source.mixedSolver.lineSearchSteps = extendedBudget ? 24u :",
+      "807:        source.mixedSolver.lineSearchSteps;",
+      "808:    source.mixedSolver.relativeResidual = 1.0e-7;",
+      "809:    if (regionalContactPreconditioner)",
+      "810:        source.mixedSolver.femPreconditioner =",
+      "811:            FEMPreconditionerMode::regionalGalerkinContact;"
+    ],
+    "cli_switches": [
+      "5907:                else if (option == \"--regional-contact-preconditioner\")",
+      "5908:                    regionalContactPreconditioner = true;",
+      "5909:                else if (option == \"--extended-budget\") extendedBudget = true;",
+      "5910:                else if (option == \"--accurate-paper\") accuratePaper = true;",
+      "5911:                else if (option == \"--compensated-material-arithmetic\")",
+      "5912:                    compensatedMaterialArithmetic = true;"
+    ],
+    "budget_output": [
+      "6063:            if (extendedBudget) std::cout <<",
+      "6064:                \"authored_extended_budget=fgmres256,restart16,line_search24 relative_residual_unchanged=1e-7\\n\";",
+      "6065:            std::cout << \"authored_newton_iterations=\" <<",
+      "6066:                (authoredNewtonIterations != 0u ? authoredNewtonIterations :",
+      "6067:                    (extendedBudget ? 32u : 16u)) <<",
+      "6068:                \" accurate_paper=\" << (accuratePaper ? \"true\" : \"false\")",
+      "6069:                << \" compensated_material_arithmetic=\"",
+      "6070:                << (compensatedMaterialArithmetic ? \"true\" : \"false\") << '\\n';"
+    ]
+  },
+  "build_identity": {
+    "numi-matter-cardboard-full-contact-armijo-check": "9062ef04dd22c93d36a56226a997527074761e3c751184f33c83b337ab626972",
+    "shaders/NumiMatter.metallib": "edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f",
+    "CMakeCache.txt": "6e67a71b8b73c6daca36cbc21ac82bf3d3e7fa62c9edf49fcd0bf40af8d07ecf",
+    "compile_commands.json": "ef9724dfb2621fd02989ef60468761c9324d6caa7e8f712d4f866f863c0e0be5",
+    "source-build.json": "e48aa63fd7d234344942149caf1d2aad4fc7ca4efb4f80322f1c539f4c0eb445"
+  },
+  "material_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+  "native520": {
+    "command_spec_sha256": "06f1df849c79ab7622c1e2fe199382ebbc6fa74df60c80273a59a00f03e6ab68",
+    "capture_json_sha256": "c6c553e4d1ec67ff909af388148c00d082c1b8a8a2a5a45b733ec90ca4b435e5",
+    "capture": {
+      "root": 2,
+      "newton_iteration": 9,
+      "control_step": 2,
+      "mixed_solver": {
+        "newton_budget": 16,
+        "restart": 10,
+        "fgmres_budget": 64,
+        "line_search_steps": 8,
+        "preconditioner_selector": 0,
+        "rigid_articulated_nv": 0
+      }
+    },
+    "observed_failure": "root2 Newton9, FGMRES64, status code10; source-bound capture retained in the 520 package"
+  },
+  "native525": {
+    "command_spec_sha256": "1ef9dc486969912280086a0f669e50ef156d8a7a80430beae96a59252e47b04e",
+    "receipt_sha256": "88b81b5ad524a6998f65591d8b93a2c69515316701a9bfff841c43b4e6b4b32b",
+    "receipt": {
+      "exit_code": 0,
+      "timed_out": false,
+      "wall_seconds": 52.583310292,
+      "shipping_or_physical_validation": false
+    },
+    "output_sha256": "34e040e6dd338e7140928b99300b30d0739553eff3546d99d904f6196060107a",
+    "extended_budgets": {
+      "newton_budget": 32,
+      "fgmres_budget": 256,
+      "restart": 16,
+      "line_search_steps": 24,
+      "relative_residual": 1e-07
+    },
+    "preconditioner": "scalar_diagonal (selector 0); regional contact preconditioner was not selected",
+    "loaded_control_trace": {
+      "record_count": 32,
+      "accepted_nonnoop_records": 25,
+      "first_base_l2": 0.000180907795,
+      "last_nonnoop_trial_l2": 9.98805945e-08,
+      "residual_gate": 1e-07,
+      "first_certified_noop_iteration": 25,
+      "last_iteration": 31
+    },
+    "next_control_trace": {
+      "record_count": 32,
+      "last_accepted_iteration": 17,
+      "first_unaccepted_iteration": 18,
+      "first_unaccepted_outcome": "no_trial_accepted_status_clear",
+      "next_pretrial_status_code": 10,
+      "next_pretrial_failing_index": 18,
+      "next_pretrial_fgmres_iterations": 256,
+      "next_pretrial_diagnostics": [
+        1.50609182e-07,
+        1.50609182e-07,
+        1.1920929e-07,
+        24
+      ]
+    },
+    "transactions": [
+      {
+        "attempt_index": 0,
+        "requested_control_step": 1,
+        "accepted": true,
+        "after_present": true,
+        "before_control_step": 0,
+        "after_control_step": 1,
+        "after_statuses": [
+          {
+            "code": 0,
+            "environment": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps": 1,
+            "fgmres_iterations": 128,
+            "contact_count": 1,
+            "event_count": 0,
+            "diagnostics": [
+              0.999626338,
+              0,
+              0,
+              0.233547673
+            ]
+          }
+        ]
+      },
+      {
+        "attempt_index": 1,
+        "requested_control_step": 2,
+        "accepted": true,
+        "after_present": true,
+        "before_control_step": 1,
+        "after_control_step": 2,
+        "after_statuses": [
+          {
+            "code": 0,
+            "environment": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps": 1,
+            "fgmres_iterations": 256,
+            "contact_count": 1,
+            "event_count": 0,
+            "diagnostics": [
+              0.995664597,
+              0,
+              0,
+              0.0597466044
+            ]
+          }
+        ]
+      },
+      {
+        "attempt_index": 2,
+        "requested_control_step": 3,
+        "accepted": false,
+        "after_present": true,
+        "before_control_step": 2,
+        "after_control_step": 2,
+        "after_statuses": [
+          {
+            "code": 10,
+            "environment": 0,
+            "object_index": 0,
+            "failing_index": 18,
+            "completed_microsteps": 0,
+            "fgmres_iterations": 256,
+            "contact_count": 0,
+            "event_count": 0,
+            "diagnostics": [
+              1.50609182e-07,
+              1.50609182e-07,
+              1.1920929e-07,
+              24
+            ]
+          }
+        ]
+      }
+    ],
+    "baseline_alias_byte_parity": {
+      "fixture-activation.log": "1331fe9a4748ec3a25343299441d65708d2b6a65c3bb047ab0409f72878e0b8b",
+      "fixture-initialization.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fixture-loaded.log": "f9163ba19fb49cba35e58421d1de896f4b948ba6b7e9ff430b989845b86206dd",
+      "fixture-rejected.log": "8fcc602700c283cd0cd7368b5c1fef6b6324fa124415b5f6e1f4d8e5d5fb4765",
+      "transaction-000000-before.bin": "75d968932c9b7dc8701f4dadcbd40fc1d267e4cc6809b87399eb333a98de41c8",
+      "transaction-000000-after.bin": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02",
+      "transaction-000001-before.bin": "117e3daea72321dc9efb1239468b3ebcb36836d2e57db4387ae8660dcaa70c02",
+      "transaction-000001-after.bin": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00",
+      "transaction-000002-before.bin": "fa28701bdf5ad62bd82ba368a00cb89a5aa3ab035a95371b84c3ba10c9a6bd00",
+      "transaction-000002-after.bin": "50bc223f7f598ba219df6ffef83a91e04fc98378faecaf0c8810d7d7541ef39f",
+      "transaction-000000.json": "47e05fb5ed400d93359d151f3ee14745bc748c65349778589e0d63f66392b368",
+      "transaction-000001.json": "196ab24eb79b3898252bccf6d0a9f69c2738f1fbc8b9f5b559b6fc8f25b8f987",
+      "transaction-000002.json": "99651bccb2f572960b0629a4374cd6b08d8900d89616c4b90f8af7cf4881c054"
+    },
+    "physical_validation": false
+  },
+  "comparison_limits": [
+    "The --extended-budget variant changes Newton32, FGMRES256, restart16, and line-search24 together; baseline capture is Newton16, FGMRES64, restart10, line-search8. This does not isolate restart as the cause.",
+    "525 does not use --regional-contact-preconditioner; it tests the scalar-diagonal preconditioner with changed work budgets.",
+    "The loaded phase reaches the unchanged 1e-7 gate and accepts a control step, but the next control fails line search at Newton18 and is status-blocked at Newton19.",
+    "This is the small synthetic full-contact fixture. It does not qualify a full shipping trajectory, material calibration, physical contact law, or completed simulation."
+  ]
+}

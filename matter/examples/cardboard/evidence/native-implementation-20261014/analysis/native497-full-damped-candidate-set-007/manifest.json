@@ -1,0 +1,81 @@
+{
+  "b_sha256": "dc5ce5c84ae95c76cdd3614d89f0d2473955d61e34a422ca21850ef486d36653",
+  "candidate_semantics": {
+    "lsqr_lambda_0": "full total step from zero; status=7 at iteration cap 5000; not converged",
+    "positive_lambda": "full total Tikhonov steps, no inherited Newton certificate",
+    "svd_lambda_0": "dense full total step from zero; exact solve of captured cache matrix up to reported binary64 residual"
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "role": "scope and candidate semantics",
+      "sha256": "7a5c94607bd4dfbc8eb74226f00216876594b0a1a8b920bf9d024ad50dbb1909"
+    },
+    {
+      "path": "full_step_svd_report.json",
+      "role": "source report copy",
+      "sha256": "21cc2a24838c7d7345e6f66cf722a7ff66de9eefc87eba5a84c949fe438a5add"
+    },
+    {
+      "path": "iteration_limited_lsqr_lambda_0.0001_full_step.npy",
+      "role": "full-total-step LSQR candidate; convergence status retained in report",
+      "sha256": "b0905e8c1e74682908b531cd18d6011f031c13e2af49d6c38a8d80cc8e60625c"
+    },
+    {
+      "path": "iteration_limited_lsqr_lambda_0.001_full_step.npy",
+      "role": "full-total-step LSQR candidate; convergence status retained in report",
+      "sha256": "c7959a252fd238efc5e6290e78a7118270c774eed03e863860d746d665576d4a"
+    },
+    {
+      "path": "iteration_limited_lsqr_lambda_0_full_step.npy",
+      "role": "full-total-step LSQR candidate; convergence status retained in report",
+      "sha256": "959214302a800a25a8118c52578d82e45155bc5c3f5c2183e64a04df52e8b3f1"
+    },
+    {
+      "path": "iteration_limited_lsqr_lambda_1e-05_full_step.npy",
+      "role": "full-total-step LSQR candidate; convergence status retained in report",
+      "sha256": "90110b61a9ec075e6cf42abde394d928cf9dbadc33f1bc36ed8815c755ba4bd2"
+    },
+    {
+      "path": "iteration_limited_lsqr_report.json",
+      "role": "source report copy",
+      "sha256": "36e527d588377810685ca47d4aa3bf8e199fa03e49229049298c3a44f97d8de4"
+    },
+    {
+      "path": "svd_lambda_0.0001_full_step.npy",
+      "role": "full-total-step dense SVD candidate",
+      "sha256": "7ad95583ad2f1d60c68688d73f8c167012b2d0c0b30c0bb8ee3586e138a595df"
+    },
+    {
+      "path": "svd_lambda_0.001_full_step.npy",
+      "role": "full-total-step dense SVD candidate",
+      "sha256": "533aaa128012a232981c516ab36a4e56371c45c53e52712f3f6962c29d023702"
+    },
+    {
+      "path": "svd_lambda_0_full_step.npy",
+      "role": "full-total-step dense SVD candidate",
+      "sha256": "d0c643f7954ef66607a3a13e3f641e726f8c7f8a4ee02a8b56b8a761253bf7ce"
+    },
+    {
+      "path": "svd_lambda_1e-05_full_step.npy",
+      "role": "full-total-step dense SVD candidate",
+      "sha256": "99db1d0f29cf579e84128f1e8540efa5971f1c4fe9e9a58b90a56c2b89514819"
+    },
+    {
+      "path": "svd_lambda_1e-06_full_step.npy",
+      "role": "full-total-step dense SVD candidate",
+      "sha256": "9d22c4683b00aab9f68bad99d9620dfcf290d479e838cd9eaba72afbcfdf9c3f"
+    }
+  ],
+  "operator_sha256": "21fbc8e662273fc82dc52ff2ec0a0a4efd7d2e7cfec14584770f66f1f30d2e5c",
+  "operator_source_manifest_sha256": "ae360ba383bcaba3d85e1660bec8c318def1526508b633cb78791aedb30bf166",
+  "schema": "numi.cardboard.native497.full_damped_candidate_set.v1",
+  "source_directories": {
+    "dense_svd": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native497-full-damped-svd-006",
+    "iteration_limited_lsqr": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native497-full-damped-step-004"
+  },
+  "source_report_sha256": {
+    "dense_svd": "21cc2a24838c7d7345e6f66cf722a7ff66de9eefc87eba5a84c949fe438a5add",
+    "iteration_limited_lsqr": "36e527d588377810685ca47d4aa3bf8e199fa03e49229049298c3a44f97d8de4"
+  }
+}

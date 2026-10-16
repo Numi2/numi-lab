@@ -1,0 +1,1 @@
+{"schema":"numi.matter.true_residual_tail_reuse_native_checker.v1","production_kernels":true,"direct_default_off_full_passes":6,"measurement_direct_threadgroups_x":2,"measurement_lanes":32,"environment_count":2,"cohesive_face_count":0,"native_checks":20,"physical_transactions":0,"full_solver_qualification":false}

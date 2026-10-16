@@ -1,0 +1,6 @@
+{
+  "argv": ["/opt/homebrew/bin/python3.13", "-m", "unittest", "discover", "-s", "/Users/home/cardboard-implementation-20261014/analysis/native469-material-replay-174-host-macmini-002/tests", "-v"],
+  "cwd": "/Users/home",
+  "environment": {"PYTHONDONTWRITEBYTECODE": "1"},
+  "gpu_execution": false
+}

@@ -1,0 +1,29 @@
+In file included from /Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-relative-geometry-replay-502-001/contact_barrier_trial_replay.metal:1:
+In file included from /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-full-contact-private-scratch-176-003/matter/src/matter_kernels.metal:4:
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-full-contact-private-scratch-176-003/matter/src/metal/fgmres.metalinc:3174:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-full-contact-private-scratch-176-003/matter/src/metal/fgmres.metalinc:3183:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-full-contact-private-scratch-176-003/matter/src/metal/fgmres.metalinc:3174:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-full-contact-private-scratch-176-003/matter/src/metal/fgmres.metalinc:3164:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-full-contact-private-scratch-176-003/matter/src/metal/fgmres.metalinc:3620:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-full-contact-private-scratch-176-003/matter/src/metal/fgmres.metalinc:3637:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-full-contact-private-scratch-176-003/matter/src/metal/fgmres.metalinc:3620:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-full-contact-private-scratch-176-003/matter/src/metal/fgmres.metalinc:3500:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+2 warnings generated.

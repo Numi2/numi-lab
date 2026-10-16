@@ -1,0 +1,23 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 415,
+      "sha256": "717997a7b72be097cc72ea790c2f92ac941395da3cb55dd1b142de9a7c06404b"
+    },
+    "curve.json": {
+      "bytes": 4039,
+      "sha256": "b020ea7077f31c42c4c79328d03d001cd408909fdccad85b4d01811f4d7f746d"
+    },
+    "manifest.json": {
+      "bytes": 575,
+      "sha256": "7d25e280d4c0ea1f7c48f7b806420bbd71492ba313f535dd90661f62cb530c41"
+    },
+    "report.json": {
+      "bytes": 12559,
+      "sha256": "f37080e67b58bffe72d40189ed57b99ecb6ab039fb97eec8d4ecccc1598cf7a5"
+    }
+  },
+  "package": "svd_lambda_1e-05",
+  "schema": "numi.cardboard.analysis-package.v1",
+  "scope": "CPU-only external direction replay"
+}

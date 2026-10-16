@@ -1,0 +1,18 @@
+{
+  "base_checkout_head": "877cd6e69657c9a7b4e5032bcd475705bcc06c85",
+  "checkout_modified": false,
+  "files": {
+    "evidence-index.json": {
+      "bytes": 10111,
+      "sha256": "d90c50d463d895fdb7c394b3905b4bb8b9bd9d3b6e190d5ad23a41d9ebb40c99"
+    },
+    "publication033-milestone.md": {
+      "bytes": 6677,
+      "sha256": "9c90e5b58ea68a9cbdd74212ae54e7caa066c7f3b284dbb4a71dc06e7b994467"
+    }
+  },
+  "gpu_run": false,
+  "schema": "numi.cardboard.publication033.milestone.draft.manifest.v1",
+  "source198_build_sha256": "8f6c95304c23b6c7149ec6b270d54eafdf4507ea26f3420e39e523c09dd500ad",
+  "source198_frozen_sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc"
+}

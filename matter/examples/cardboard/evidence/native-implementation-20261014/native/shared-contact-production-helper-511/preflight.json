@@ -1,0 +1,45 @@
+{
+  "compiled_source_dependency_files_rebound": 39,
+  "host_sha256": "23f392404f9a58a221c3a505a944c21c72ec93cb960155ddfe90c885d932031c",
+  "input_files": {
+    "accepted-nodes.bin": {
+      "byte_count": 2880,
+      "sha256": "928da924ab7b58bfad074124a460aa807687c6466c6d8e2295a8af349503f39d"
+    },
+    "alphas.bin": {
+      "byte_count": 96,
+      "sha256": "ae4c873080e3027604a3d81ec76c7fd26db9f464f3a769b7a0642a2af0aa1e95"
+    },
+    "candidate-nodes.bin": {
+      "byte_count": 2880,
+      "sha256": "cf79a4e8b241e221a321f52124b5c691a2dbfc5e2833e3ca6a165eeafac4a146"
+    },
+    "collision-thickness.bin": {
+      "byte_count": 12,
+      "sha256": "76b2b5d8bf4de3531dc314bb24c34a14ae2097faafa376bef7d952e5e03f474f"
+    },
+    "contacts.bin": {
+      "byte_count": 1296,
+      "sha256": "0db686ce367abd925176f497df442500cee46cd6c8e0ae6ba537427af4c7246b"
+    },
+    "correction.bin": {
+      "byte_count": 576,
+      "sha256": "04dacef2468fa1216b86444d21bb0ab9a4145086c5cc8acd55b0681401b3cf08"
+    },
+    "timestep.bin": {
+      "byte_count": 4,
+      "sha256": "0f2f3591427956b004ca17393783192e0f81858c06bb5496aa2cea004f1ee863"
+    }
+  },
+  "input_manifest_sha256": "b6c2e1872afe5f6e6685a57525fe91e604b20bf6ab5aa0fcb1acd546e80dea0f",
+  "metal_depfile_sha256": "291a37ed7b1163273926492982455f1dad3275f70f3c4c7d217c70cc9d473fb6",
+  "metallib_sha256": "136bd6c922b42670852e3a6e9fbc07b2758feb702767c2704dd6bd00839ad209",
+  "physical_transactions": 0,
+  "source_hashes": {
+    "matter/src/metal/contact.metalinc": "deb984d07de73477c294446eaacaae4e8a8bf374d895056018b9d8047d491cec",
+    "matter/src/metal/fem.metalinc": "bbd6abd764f723e6f0b266b80a3c99e100384e68e5ca5ae7cdd29cad36fb6a43",
+    "matter/src/runtime.mm": "9ed2a0011bbecb138ac1bcb9089a07899a34b5d39b43e1cfce3b2e42565f4e01"
+  },
+  "source_map_entries": 814,
+  "source_root": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix003"
+}

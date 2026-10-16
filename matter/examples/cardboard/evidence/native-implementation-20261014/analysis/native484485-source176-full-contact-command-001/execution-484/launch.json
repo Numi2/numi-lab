@@ -1,0 +1,19 @@
+{
+  "schema": "numi.cardboard.native484485-preflight.v1",
+  "phase": "484",
+  "source_files_verified": 808,
+  "bound_build_files": {
+    "numi-matter-cardboard-full-contact-armijo-check": "4d3649a0fce8e7daf4afaad6c4273c378e183160bc40e01141d82e69980a0140",
+    "shaders/NumiMatter.metallib": "59a7df8c8fd4d336fbcb9e28b7fe3942d86063a4a1fbafe36963e41a0c007cc9",
+    "CMakeCache.txt": "6bd1bf62d4d9ef3ff0a34d3c3ccac893713dfa093a02f88691b95b6f15d8fd96",
+    "compile_commands.json": "691478b529ddadc7db525c9cd873e09cf5879b5cc9cc2cf106a644583274785d",
+    "Testing/Temporary/LastTest.log": "b3722123e4a87a94c6e11a04da130dbf3072589418dc0618f6ef9fc65f6e25ef"
+  },
+  "native_argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-full-contact-private-scratch-176-003/numi-matter-cardboard-full-contact-armijo-check",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-full-contact-private-scratch-176-003/matter/materials/nagasawa2013_medium_orthotropic.nmatter"
+  ],
+  "available_bytes": 111516958720,
+  "execute_requested": true,
+  "started_at_utc": "2026-10-16T05:08:12.285808+00:00"
+}

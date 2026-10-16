@@ -1,0 +1,25 @@
+{
+  "schema": "numi.cardboard.macmini-native476477-guard.v1",
+  "host_tag": "macmini",
+  "phase": "476",
+  "execution_started": true,
+  "wrapper_exit_code": 0,
+  "space_abort": false,
+  "timed_out": false,
+  "errors": [],
+  "cleanup": null,
+  "minimum_available_bytes": 113690238976,
+  "available_after_run": 113816752128,
+  "wall_seconds": 299.4018837083131,
+  "finished_at_utc": "2026-10-16T03:50:12.530264+00:00",
+  "full_protocol_qualification": false,
+  "uninterrupted_trajectory_parity": false,
+  "accepted_prefix_verified": {
+    "checkpoint_sha256": "2d5e3c11c17debeb875d6f338a9195a7b07cae1e645185bfde5c0bcf2859bf1f",
+    "checkpoint_bytes": 2302494,
+    "metadata_sha256": "b20d693ac843184aee1a121576b290be7c8e79bf59bb2932ff0fc79bfaa306cb",
+    "prefix_sha256": "0b0748c6e5642a3811be3c8817f787e2191daf86c96de80af40a60baecf46264",
+    "prefix_files_verified": 7,
+    "complete_protocol": false
+  }
+}

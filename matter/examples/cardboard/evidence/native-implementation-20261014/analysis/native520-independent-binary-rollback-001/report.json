@@ -1,0 +1,653 @@
+{
+  "schema": "numi.cardboard.independent-binary-rollback.v1",
+  "at_utc": "2026-10-16T07:30:54.787628+00:00",
+  "scope": "Python decodes original raw payload independently of native readSnapshotPayload and native JSON hash generation. CPU sizeof helper supplies source ABI strides only. Complete byte-consumption, counts and original metadata hashes checked. Failed root2 Newton9 remains failed.",
+  "snapshot_header_sha256": "e1fa29f7f2d7d2c43623880db1934bf3bfae1690e432f8dfca54bcb1b29e71e6",
+  "fixture_serializer_sha256": "d96f4d6717ac40f47e71150666382ed5557c9c1e83b23b32a1c94877dbdb8db6",
+  "before": {
+    "file_sha256": "54da63768a1feb988d5416367bc49b3031e57b9779d7a5491caf8b1c8f80c828",
+    "file_bytes": 904335,
+    "message": "",
+    "scalars": {
+      "sourcePhysicsFingerprint": 1556125036819000090,
+      "deviceProgramFingerprint": 4803498419175002426,
+      "controlStep": 1,
+      "physicsSubstep": 0,
+      "identificationGeneration": 0,
+      "identificationCheckpoint": 0,
+      "identificationAdvanced": 0,
+      "sutureProxyBindingRevision": 0,
+      "coupledTimestepMultiplier": 1,
+      "coupledTimestepDivisor": 1,
+      "fgmresIterationBudgetOverride": 0,
+      "newtonIterationBudgetOverride": 0,
+      "allocationGeneration": 1,
+      "learnedWeightRevision": 0,
+      "materialStateStride": 0,
+      "available": 1,
+      "femRegionalGalerkinDiagnosticsAvailable": 0,
+      "femRegionalGalerkinModeCount": 0
+    },
+    "vectors": {
+      "sutureProxyEdges": {
+        "count": 0,
+        "stride": 4,
+        "offset": 81,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "particles": {
+        "count": 1,
+        "stride": 160,
+        "offset": 89,
+        "bytes": 160,
+        "sha256": "b393978842a0fa3d3e1470196f098f473f9678e72463cb65ec4ab5581856c2e4"
+      },
+      "femNodes": {
+        "count": 36,
+        "stride": 80,
+        "offset": 257,
+        "bytes": 2880,
+        "sha256": "2f999d98948ebead306d51f6f5a224daac4a60945c6e37d62f988de38ccdd0b2"
+      },
+      "femFields": {
+        "count": 36,
+        "stride": 32,
+        "offset": 3145,
+        "bytes": 1152,
+        "sha256": "bf0ea3c1a87e944dfdf376d42b34154b052d3c5d6f8c969f9a1c72af83df3144"
+      },
+      "vascularState": {
+        "count": 0,
+        "stride": 16,
+        "offset": 4305,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "vascularClock": {
+        "count": 0,
+        "stride": 16,
+        "offset": 4313,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "femTopologyNodes": {
+        "count": 36,
+        "stride": 16,
+        "offset": 4321,
+        "bytes": 576,
+        "sha256": "9648d4e9006170db48313ecb0aae4e8ba02b678082c85ce56e298664f84a422e"
+      },
+      "femTopologyTetrahedra": {
+        "count": 48,
+        "stride": 96,
+        "offset": 4905,
+        "bytes": 4608,
+        "sha256": "f09bcf758d77196a2645c97b151ca9da4c6c728ab18be17d94d9f0de61e45f0b"
+      },
+      "cohesiveFaces": {
+        "count": 1,
+        "stride": 384,
+        "offset": 9521,
+        "bytes": 384,
+        "sha256": "afa4b8b0560b7b88f30a056d70ed477f017759f294c0a260dfb74773bac4a2e9"
+      },
+      "punctureChannels": {
+        "count": 1,
+        "stride": 48,
+        "offset": 9913,
+        "bytes": 48,
+        "sha256": "17b0761f87b081d5cf10757ccc89f12be355c70e2e29df288b65b30710dcbcd1"
+      },
+      "topologyStates": {
+        "count": 1,
+        "stride": 48,
+        "offset": 9969,
+        "bytes": 48,
+        "sha256": "5bceb64c4ff9fa16452243ca46be80b4f7327e965683f1d49c42971652c6c86a"
+      },
+      "statuses": {
+        "count": 1,
+        "stride": 48,
+        "offset": 10025,
+        "bytes": 48,
+        "sha256": "a9c1befbd4d9d6da89ac255dabc515ed0e86d0a1155bff67b772f89fae56cfd0"
+      },
+      "solverCertificates": {
+        "count": 1,
+        "stride": 64,
+        "offset": 10081,
+        "bytes": 64,
+        "sha256": "573ecf515f5091262a8401f79dad660b8a628ecbc12568bedf1c073a24ebc8ad"
+      },
+      "mpmActiveNodeIndices": {
+        "count": 0,
+        "stride": 4,
+        "offset": 10153,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "mpmNodeToActive": {
+        "count": 0,
+        "stride": 4,
+        "offset": 10161,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "mpmActiveNodeCounts": {
+        "count": 1,
+        "stride": 4,
+        "offset": 10169,
+        "bytes": 4,
+        "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119"
+      },
+      "rigidGeneralizedCandidate": {
+        "count": 0,
+        "stride": 4,
+        "offset": 10181,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "learnedWeights": {
+        "count": 4,
+        "stride": 4,
+        "offset": 10189,
+        "bytes": 16,
+        "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb"
+      },
+      "adaptive": {
+        "count": 1,
+        "stride": 160,
+        "offset": 10213,
+        "bytes": 160,
+        "sha256": "9ea42478540a700a94131eff8356cc45fad966198d96582dbb5e63669c02ee20"
+      },
+      "schedulers": {
+        "count": 1,
+        "stride": 80,
+        "offset": 10381,
+        "bytes": 80,
+        "sha256": "2ce755aa528df744ab5b14874c829e13f0a782b87c857b773d96e001b199c06e"
+      },
+      "reactions": {
+        "count": 2,
+        "stride": 32,
+        "offset": 10469,
+        "bytes": 64,
+        "sha256": "9a60b3f2ff7af2fc47c41bb130ea0b2268cf36f35bf619423b97ae169a267b78"
+      },
+      "rigidStates": {
+        "count": 2,
+        "stride": 144,
+        "offset": 10541,
+        "bytes": 288,
+        "sha256": "56d119022485b6bdbfc824778bf3ba4926604383fbdab5070cd30f0f2a56e812"
+      },
+      "contactSamples": {
+        "count": 72,
+        "stride": 160,
+        "offset": 10837,
+        "bytes": 11520,
+        "sha256": "f27a95f8fadb2cbfb231cf4833f0cdb796ddfb8e3b46dc08de5967f98df40d10"
+      },
+      "deformableContactFailures": {
+        "count": 1,
+        "stride": 384,
+        "offset": 22365,
+        "bytes": 384,
+        "sha256": "a1a4f5721c1c4610af7f71078f3a68c330536d679803b0e0507ee8dc10c5dfca"
+      },
+      "contactHistories": {
+        "count": 72,
+        "stride": 16,
+        "offset": 22757,
+        "bytes": 1152,
+        "sha256": "6c943d1c3036d207609564d6314666da0f61205c366e9eec37b7f5d9cb6709e2"
+      },
+      "humanSupportHistories": {
+        "count": 0,
+        "stride": 16,
+        "offset": 23917,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "humanSupportConsequences": {
+        "count": 0,
+        "stride": 64,
+        "offset": 23925,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "deformableContactHistories": {
+        "count": 18336,
+        "stride": 48,
+        "offset": 23933,
+        "bytes": 880128,
+        "sha256": "4608d8c52a5fd884daeb5b38f995146fc0480476da55c5bcd7718c55e516dca5"
+      },
+      "particleMaterialState": {
+        "count": 4,
+        "stride": 4,
+        "offset": 904069,
+        "bytes": 16,
+        "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb"
+      },
+      "femMaterialState": {
+        "count": 4,
+        "stride": 4,
+        "offset": 904093,
+        "bytes": 16,
+        "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb"
+      },
+      "identification": {
+        "count": 1,
+        "stride": 48,
+        "offset": 904117,
+        "bytes": 48,
+        "sha256": "17b0761f87b081d5cf10757ccc89f12be355c70e2e29df288b65b30710dcbcd1"
+      },
+      "environmentParameters": {
+        "count": 10,
+        "stride": 4,
+        "offset": 904173,
+        "bytes": 40,
+        "sha256": "28cb94cd8df4208a31759257ae0569bc313e319f29dfd3fe31cb0d577284859b"
+      },
+      "femRegionalGalerkinLinearizationNodes": {
+        "count": 0,
+        "stride": 80,
+        "offset": 904279,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "femRegionalGalerkinBasisP": {
+        "count": 0,
+        "stride": 16,
+        "offset": 904287,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "femRegionalGalerkinEffectiveBasisP": {
+        "count": 0,
+        "stride": 16,
+        "offset": 904295,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "femRegionalGalerkinOperatorAP": {
+        "count": 0,
+        "stride": 16,
+        "offset": 904303,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "femRegionalGalerkinPivotedRAP": {
+        "count": 0,
+        "stride": 4,
+        "offset": 904311,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "femRegionalGalerkinPivots": {
+        "count": 0,
+        "stride": 4,
+        "offset": 904319,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "femRegionalGalerkinFactorValid": {
+        "count": 0,
+        "stride": 4,
+        "offset": 904327,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "femRegionalGalerkinNodeBlockInverse": {
+        "count": 0,
+        "stride": 16,
+        "offset": 904335,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "regionalMessage": "regional Galerkin selector is not active"
+  },
+  "after": {
+    "file_sha256": "d52843d2d0dcda0109bdfd46bf809b8431d579c8e0c80339694c6ca3f44d7c99",
+    "file_bytes": 904335,
+    "message": "",
+    "scalars": {
+      "sourcePhysicsFingerprint": 1556125036819000090,
+      "deviceProgramFingerprint": 4803498419175002426,
+      "controlStep": 1,
+      "physicsSubstep": 0,
+      "identificationGeneration": 0,
+      "identificationCheckpoint": 0,
+      "identificationAdvanced": 0,
+      "sutureProxyBindingRevision": 0,
+      "coupledTimestepMultiplier": 1,
+      "coupledTimestepDivisor": 1,
+      "fgmresIterationBudgetOverride": 0,
+      "newtonIterationBudgetOverride": 0,
+      "allocationGeneration": 1,
+      "learnedWeightRevision": 0,
+      "materialStateStride": 0,
+      "available": 1,
+      "femRegionalGalerkinDiagnosticsAvailable": 0,
+      "femRegionalGalerkinModeCount": 0
+    },
+    "vectors": {
+      "sutureProxyEdges": {
+        "count": 0,
+        "stride": 4,
+        "offset": 81,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "particles": {
+        "count": 1,
+        "stride": 160,
+        "offset": 89,
+        "bytes": 160,
+        "sha256": "b393978842a0fa3d3e1470196f098f473f9678e72463cb65ec4ab5581856c2e4"
+      },
+      "femNodes": {
+        "count": 36,
+        "stride": 80,
+        "offset": 257,
+        "bytes": 2880,
+        "sha256": "2f999d98948ebead306d51f6f5a224daac4a60945c6e37d62f988de38ccdd0b2"
+      },
+      "femFields": {
+        "count": 36,
+        "stride": 32,
+        "offset": 3145,
+        "bytes": 1152,
+        "sha256": "bf0ea3c1a87e944dfdf376d42b34154b052d3c5d6f8c969f9a1c72af83df3144"
+      },
+      "vascularState": {
+        "count": 0,
+        "stride": 16,
+        "offset": 4305,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "vascularClock": {
+        "count": 0,
+        "stride": 16,
+        "offset": 4313,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "femTopologyNodes": {
+        "count": 36,
+        "stride": 16,
+        "offset": 4321,
+        "bytes": 576,
+        "sha256": "9648d4e9006170db48313ecb0aae4e8ba02b678082c85ce56e298664f84a422e"
+      },
+      "femTopologyTetrahedra": {
+        "count": 48,
+        "stride": 96,
+        "offset": 4905,
+        "bytes": 4608,
+        "sha256": "f09bcf758d77196a2645c97b151ca9da4c6c728ab18be17d94d9f0de61e45f0b"
+      },
+      "cohesiveFaces": {
+        "count": 1,
+        "stride": 384,
+        "offset": 9521,
+        "bytes": 384,
+        "sha256": "afa4b8b0560b7b88f30a056d70ed477f017759f294c0a260dfb74773bac4a2e9"
+      },
+      "punctureChannels": {
+        "count": 1,
+        "stride": 48,
+        "offset": 9913,
+        "bytes": 48,
+        "sha256": "17b0761f87b081d5cf10757ccc89f12be355c70e2e29df288b65b30710dcbcd1"
+      },
+      "topologyStates": {
+        "count": 1,
+        "stride": 48,
+        "offset": 9969,
+        "bytes": 48,
+        "sha256": "5bceb64c4ff9fa16452243ca46be80b4f7327e965683f1d49c42971652c6c86a"
+      },
+      "statuses": {
+        "count": 1,
+        "stride": 48,
+        "offset": 10025,
+        "bytes": 48,
+        "sha256": "65aa221583a7940ec578ebe178cecbfb1a48ea6ad83ac135dcee9f24f92f1926"
+      },
+      "solverCertificates": {
+        "count": 1,
+        "stride": 64,
+        "offset": 10081,
+        "bytes": 64,
+        "sha256": "b03a89054c2e139758ef899f2dcfa1d6d06681eefb9130ac77068c120877b59a"
+      },
+      "mpmActiveNodeIndices": {
+        "count": 0,
+        "stride": 4,
+        "offset": 10153,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "mpmNodeToActive": {
+        "count": 0,
+        "stride": 4,
+        "offset": 10161,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "mpmActiveNodeCounts": {
+        "count": 1,
+        "stride": 4,
+        "offset": 10169,
+        "bytes": 4,
+        "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119"
+      },
+      "rigidGeneralizedCandidate": {
+        "count": 0,
+        "stride": 4,
+        "offset": 10181,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "learnedWeights": {
+        "count": 4,
+        "stride": 4,
+        "offset": 10189,
+        "bytes": 16,
+        "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb"
+      },
+      "adaptive": {
+        "count": 1,
+        "stride": 160,
+        "offset": 10213,
+        "bytes": 160,
+        "sha256": "9ea42478540a700a94131eff8356cc45fad966198d96582dbb5e63669c02ee20"
+      },
+      "schedulers": {
+        "count": 1,
+        "stride": 80,
+        "offset": 10381,
+        "bytes": 80,
+        "sha256": "2ce755aa528df744ab5b14874c829e13f0a782b87c857b773d96e001b199c06e"
+      },
+      "reactions": {
+        "count": 2,
+        "stride": 32,
+        "offset": 10469,
+        "bytes": 64,
+        "sha256": "83dcd2598cfd8f4b55e9788c8c8dccfc76cf0ed1a542ba15a7d327c70a613758"
+      },
+      "rigidStates": {
+        "count": 2,
+        "stride": 144,
+        "offset": 10541,
+        "bytes": 288,
+        "sha256": "56d119022485b6bdbfc824778bf3ba4926604383fbdab5070cd30f0f2a56e812"
+      },
+      "contactSamples": {
+        "count": 72,
+        "stride": 160,
+        "offset": 10837,
+        "bytes": 11520,
+        "sha256": "c14c16b8580cb9f7e5711f2ac87da3445ee2fff0303c673831a913247b49127f"
+      },
+      "deformableContactFailures": {
+        "count": 1,
+        "stride": 384,
+        "offset": 22365,
+        "bytes": 384,
+        "sha256": "a1a4f5721c1c4610af7f71078f3a68c330536d679803b0e0507ee8dc10c5dfca"
+      },
+      "contactHistories": {
+        "count": 72,
+        "stride": 16,
+        "offset": 22757,
+        "bytes": 1152,
+        "sha256": "6c943d1c3036d207609564d6314666da0f61205c366e9eec37b7f5d9cb6709e2"
+      },
+      "humanSupportHistories": {
+        "count": 0,
+        "stride": 16,
+        "offset": 23917,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "humanSupportConsequences": {
+        "count": 0,
+        "stride": 64,
+        "offset": 23925,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "deformableContactHistories": {
+        "count": 18336,
+        "stride": 48,
+        "offset": 23933,
+        "bytes": 880128,
+        "sha256": "4608d8c52a5fd884daeb5b38f995146fc0480476da55c5bcd7718c55e516dca5"
+      },
+      "particleMaterialState": {
+        "count": 4,
+        "stride": 4,
+        "offset": 904069,
+        "bytes": 16,
+        "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb"
+      },
+      "femMaterialState": {
+        "count": 4,
+        "stride": 4,
+        "offset": 904093,
+        "bytes": 16,
+        "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb"
+      },
+      "identification": {
+        "count": 1,
+        "stride": 48,
+        "offset": 904117,
+        "bytes": 48,
+        "sha256": "17b0761f87b081d5cf10757ccc89f12be355c70e2e29df288b65b30710dcbcd1"
+      },
+      "environmentParameters": {
+        "count": 10,
+        "stride": 4,
+        "offset": 904173,
+        "bytes": 40,
+        "sha256": "28cb94cd8df4208a31759257ae0569bc313e319f29dfd3fe31cb0d577284859b"
+      },
+      "femRegionalGalerkinLinearizationNodes": {
+        "count": 0,
+        "stride": 80,
+        "offset": 904279,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "femRegionalGalerkinBasisP": {
+        "count": 0,
+        "stride": 16,
+        "offset": 904287,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "femRegionalGalerkinEffectiveBasisP": {
+        "count": 0,
+        "stride": 16,
+        "offset": 904295,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "femRegionalGalerkinOperatorAP": {
+        "count": 0,
+        "stride": 16,
+        "offset": 904303,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "femRegionalGalerkinPivotedRAP": {
+        "count": 0,
+        "stride": 4,
+        "offset": 904311,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "femRegionalGalerkinPivots": {
+        "count": 0,
+        "stride": 4,
+        "offset": 904319,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "femRegionalGalerkinFactorValid": {
+        "count": 0,
+        "stride": 4,
+        "offset": 904327,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "femRegionalGalerkinNodeBlockInverse": {
+        "count": 0,
+        "stride": 16,
+        "offset": 904335,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "regionalMessage": "regional Galerkin selector is not active"
+  },
+  "accepted_history_vectors_equal": [
+    "particles",
+    "femNodes",
+    "femFields",
+    "vascularState",
+    "vascularClock",
+    "femTopologyNodes",
+    "femTopologyTetrahedra",
+    "cohesiveFaces",
+    "punctureChannels",
+    "topologyStates",
+    "rigidStates",
+    "contactHistories",
+    "humanSupportHistories",
+    "humanSupportConsequences",
+    "deformableContactHistories",
+    "particleMaterialState",
+    "femMaterialState",
+    "environmentParameters"
+  ],
+  "all_scalars_equal": true,
+  "all_vectors_changed": [
+    "statuses",
+    "solverCertificates",
+    "reactions",
+    "contactSamples"
+  ],
+  "accepted": false,
+  "certificate_invalid_after": true,
+  "physical_steps_qualified": 0
+}

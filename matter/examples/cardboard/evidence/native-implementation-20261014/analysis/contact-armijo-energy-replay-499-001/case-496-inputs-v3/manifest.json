@@ -1,0 +1,279 @@
+{
+  "accepted_nodes_sha256": "928da924ab7b58bfad074124a460aa807687c6466c6d8e2295a8af349503f39d",
+  "dt_seconds": 9.99999975e-05,
+  "files": {
+    "accepted-nodes.bin": {
+      "byte_count": 2880,
+      "sha256": "928da924ab7b58bfad074124a460aa807687c6466c6d8e2295a8af349503f39d"
+    },
+    "alphas.bin": {
+      "byte_count": 96,
+      "sha256": "ae4c873080e3027604a3d81ec76c7fd26db9f464f3a769b7a0642a2af0aa1e95"
+    },
+    "candidate-nodes.bin": {
+      "byte_count": 2880,
+      "sha256": "cf79a4e8b241e221a321f52124b5c691a2dbfc5e2833e3ca6a165eeafac4a146"
+    },
+    "contacts.bin": {
+      "byte_count": 1296,
+      "sha256": "0db686ce367abd925176f497df442500cee46cd6c8e0ae6ba537427af4c7246b"
+    },
+    "correction.bin": {
+      "byte_count": 576,
+      "sha256": "04dacef2468fa1216b86444d21bb0ab9a4145086c5cc8acd55b0681401b3cf08"
+    },
+    "timestep.bin": {
+      "byte_count": 4,
+      "sha256": "0f2f3591427956b004ca17393783192e0f81858c06bb5496aa2cea004f1ee863"
+    }
+  },
+  "node_count": 36,
+  "records": [
+    {
+      "active_slot": 0,
+      "contact_slot": 7,
+      "dt_seconds": 9.99999975e-05,
+      "feature_end_alpha_1": [
+        [
+          1.45772674e-07,
+          -0.00199989253,
+          0.00099312386
+        ],
+        [
+          -0.00200032373,
+          -0.00200026855,
+          0.00100466388
+        ],
+        [
+          -2.96064002e-07,
+          -0.00200023991,
+          0.00100176537
+        ],
+        [
+          -3.18905307e-07,
+          -1.30841471e-07,
+          0.000998381642
+        ]
+      ],
+      "feature_start": [
+        [
+          1.45784384e-07,
+          -0.00199989253,
+          0.00099312386
+        ],
+        [
+          -0.00200032373,
+          -0.00200026855,
+          0.00100466388
+        ],
+        [
+          -2.96094896e-07,
+          -0.00200023991,
+          0.00100176537
+        ],
+        [
+          -3.18938362e-07,
+          -1.30859988e-07,
+          0.000998381642
+        ]
+      ],
+      "identity": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "lane_bound_before": 1.0,
+      "native_armijo_status_code": 6,
+      "native_current_energy_j": 5.85593629e-10,
+      "native_current_separation_m": 8.65223137e-06,
+      "native_directional_derivative_j_per_alpha": -4.44752183e-15,
+      "native_failure_index": 7,
+      "nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "source": [
+        23,
+        99,
+        7,
+        1
+      ],
+      "time_scales": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "active_slot": 58,
+      "contact_slot": 100,
+      "dt_seconds": 9.99999975e-05,
+      "feature_end_alpha_1": [
+        [
+          1.45772674e-07,
+          -0.00199989253,
+          0.00099312386
+        ],
+        [
+          -0.00200032373,
+          -0.00200026855,
+          0.00100466388
+        ],
+        [
+          -2.96064002e-07,
+          -0.00200023991,
+          0.00100176537
+        ],
+        [
+          -3.18905307e-07,
+          -1.30841471e-07,
+          0.000998381642
+        ]
+      ],
+      "feature_start": [
+        [
+          1.45784384e-07,
+          -0.00199989253,
+          0.00099312386
+        ],
+        [
+          -0.00200032373,
+          -0.00200026855,
+          0.00100466388
+        ],
+        [
+          -2.96094896e-07,
+          -0.00200023991,
+          0.00100176537
+        ],
+        [
+          -3.18938362e-07,
+          -1.30859988e-07,
+          0.000998381642
+        ]
+      ],
+      "identity": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "lane_bound_before": 0.5,
+      "native_armijo_status_code": 6,
+      "native_current_energy_j": 5.85593629e-10,
+      "native_current_separation_m": 8.65223137e-06,
+      "native_directional_derivative_j_per_alpha": -4.44752183e-15,
+      "native_failure_index": 7,
+      "nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "source": [
+        43,
+        99,
+        100,
+        1
+      ],
+      "time_scales": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "active_slot": 89,
+      "contact_slot": 155,
+      "dt_seconds": 9.99999975e-05,
+      "feature_end_alpha_1": [
+        [
+          1.45772674e-07,
+          -0.00199989253,
+          0.00099312386
+        ],
+        [
+          -0.00200032373,
+          -0.00200026855,
+          0.00100466388
+        ],
+        [
+          -2.96064002e-07,
+          -0.00200023991,
+          0.00100176537
+        ],
+        [
+          -3.18905307e-07,
+          -1.30841471e-07,
+          0.000998381642
+        ]
+      ],
+      "feature_start": [
+        [
+          1.45784384e-07,
+          -0.00199989253,
+          0.00099312386
+        ],
+        [
+          -0.00200032373,
+          -0.00200026855,
+          0.00100466388
+        ],
+        [
+          -2.96094896e-07,
+          -0.00200023991,
+          0.00100176537
+        ],
+        [
+          -3.18938362e-07,
+          -1.30859988e-07,
+          0.000998381642
+        ]
+      ],
+      "identity": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "lane_bound_before": 1.0,
+      "native_armijo_status_code": 6,
+      "native_current_energy_j": 5.85593629e-10,
+      "native_current_separation_m": 8.65223137e-06,
+      "native_directional_derivative_j_per_alpha": -4.44752183e-15,
+      "native_failure_index": 7,
+      "nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "source": [
+        40,
+        99,
+        155,
+        1
+      ],
+      "time_scales": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  ],
+  "schema": "numi.cardboard.contact_barrier_native_replay_inputs.v1",
+  "scope": "Read-only replay input for production deformableBarrierEnergyAt. Tool reconstructs contact-limiter trial positions and the FEM applied-position path; it does not run a Matter transaction.",
+  "slots": [
+    7,
+    100,
+    155
+  ],
+  "source_capture_log_sha256": "cf04f74337c789d6f4e7e5ef10eac521c50ff0b281f97cf9c2df05f1973d2728",
+  "trials_per_contact": 8
+}

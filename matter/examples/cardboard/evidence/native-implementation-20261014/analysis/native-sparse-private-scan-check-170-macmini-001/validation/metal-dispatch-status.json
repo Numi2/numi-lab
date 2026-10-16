@@ -1,0 +1,6 @@
+{
+  "schema": "numi.cardboard.sparse-scan-host-dispatch-status.v1",
+  "checker_metal_dispatch_occurred_during_package_preparation": false,
+  "explicit_execute_invoked": false,
+  "native_gpu_result": "not_run; root owns future dispatch"
+}

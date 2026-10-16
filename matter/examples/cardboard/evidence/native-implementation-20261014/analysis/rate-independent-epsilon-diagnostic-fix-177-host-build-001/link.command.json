@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/usr/bin/c++",
+    "-O3",
+    "-DNDEBUG",
+    "-arch",
+    "arm64",
+    "-isysroot",
+    "/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+    "-Wl,-search_paths_first",
+    "-Wl,-headerpad_max_install_names",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/rate-independent-epsilon-diagnostic-fix-177-host-build-001/checker.o",
+    "-o",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/rate-independent-epsilon-diagnostic-fix-177-host-build-001/checker",
+    "libnumi_matter_compiler.a",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal"
+  ],
+  "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source173-001"
+}

@@ -1,0 +1,48 @@
+{
+  "schema": "numi.cardboard.native-sparse-private-scan-command.v1",
+  "package": "native-sparse-private-scan-175-buildfix003-command-001",
+  "host": "macmini",
+  "buildfix_scope": "Source175 buildfix003; compiler/test-target include paths and checker [[maybe_unused]] annotations only; no runtime or Metal kernel changes in buildfix003.",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175-buildfix-003",
+  "source_frozen_manifest_sha256": "6e4f8dad1377af79b1dc2ddeeb0f07e6a273598d291cb030e6222e8aebb5a007",
+  "source_file_count": 806,
+  "source_build_metadata": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/source-build.json",
+  "source_build_metadata_sha256": "75c24e646fccb250fe0f8bd7d812491d5aac3892f99e863578982780f1194a25",
+  "target": "numi-matter-cardboard-sparse-private-scan-native-check",
+  "checker_source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175-buildfix-003/matter/tools/cardboard_sparse_private_contact_scan_native_check.mm",
+  "checker_source_sha256": "bf18e81d70b3ca120d0afa479af0bcb5c4c1b435c1dbd55b8df6db820a7b8b5d",
+  "checker_executable": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/numi-matter-cardboard-sparse-private-scan-native-check",
+  "checker_executable_sha256": "e5a2ee1edfa6d2395b6d1c512bfc34f94e270fd27aeb6a0276994ce264ffff70",
+  "metallib": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/shaders/NumiMatter.metallib",
+  "metallib_sha256": "59a7df8c8fd4d336fbcb9e28b7fe3942d86063a4a1fbafe36963e41a0c007cc9",
+  "related_full_contact_armijo_checker": {
+    "target": "numi-matter-cardboard-full-contact-armijo-check",
+    "executable": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/numi-matter-cardboard-full-contact-armijo-check",
+    "executable_sha256": "a5d55207fedd3de294a3febfba54a398a7f20b79a787ac11c5ae4023f922d2a1",
+    "source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175-buildfix-003/matter/tools/cardboard_full_contact_armijo_check.mm",
+    "source_sha256": "4b72a478224f0d6fb9adb6e630ef00cdf2e466267448dc1e5b3f3bbf7bcf5f94",
+    "dispatch_status": "not selected by this package; requires an explicit material input and physical checker mode"
+  },
+  "native_argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/numi-matter-cardboard-sparse-private-scan-native-check"
+  ],
+  "native_case_count": 49,
+  "environment_pair_slots": 6366845,
+  "largest_case": {
+    "pair_domain": 6335568,
+    "candidate_capacity": 65536,
+    "selected_pairs": 65316,
+    "environment_count": 1
+  },
+  "guard": {
+    "default_mode": "preflight only",
+    "explicit_dispatch_flag": "--execute",
+    "minimum_free_bytes": 2147483648,
+    "emergency_reserve_bytes": 134217728,
+    "abort_floor_bytes": 536870912,
+    "timeout_seconds": 900,
+    "active_matter_processes_block_launch": true,
+    "receipt_namespace": "/Users/n/cardboard-implementation-20261014-host-macmini/native/sparse-private-scan-175-buildfix003-command-001"
+  },
+  "evidence_boundary": "This is a direct native kernel differential checker for the hierarchical sparse private-contact scan. It is not a full-contact coupon run, physical assembly qualification, shipping admission, or performance result. The separate full-contact Armijo checker requires a material input and explicitly chosen protocol."
+}

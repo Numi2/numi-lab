@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native-damped-cgls-helper-replay-190-004/build/O3/damped_cgls_helper_replay",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native-damped-cgls-helper-replay-190-004/build/O3/damped_cgls_fixture.metallib"
+  ],
+  "started_at_utc": "2026-10-16T07:41:58.343676+00:00",
+  "timeout_s": 120,
+  "exit_code": 0,
+  "timed_out": false,
+  "wall_seconds": 0.596384458,
+  "finished_at_utc": "2026-10-16T07:41:58.940151+00:00",
+  "stdout_sha256": "27e65269af7f3c16345468b3734b070081693f48c6bd1e0a5313c18529012baf",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "physical_transactions": 0
+}

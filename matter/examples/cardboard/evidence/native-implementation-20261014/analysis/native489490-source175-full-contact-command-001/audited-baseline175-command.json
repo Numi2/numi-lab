@@ -1,0 +1,61 @@
+{
+  "schema": "numi.cardboard.source175-full-contact-baseline-command.v1",
+  "purpose": "Matched nominal and compensated reruns of the bounded full-contact checker, using the source175 build with compile-only buildfix-003.",
+  "execution_status": "SPECIFIED_NOT_RUN_BY_THIS_AUDIT",
+  "source": {
+    "integrated_source175_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175",
+    "integrated_frozen_source_sha256": "6e0f7c2fb307bf82cf80813b9d6854e333d70adf5054fca978c11b2cfee21012",
+    "integrated_source_files": 806,
+    "build_source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175-buildfix-003",
+    "build_source_frozen_manifest_sha256": "6e4f8dad1377af79b1dc2ddeeb0f07e6a273598d291cb030e6222e8aebb5a007",
+    "build_source_files": 806,
+    "buildfix_003_patch_sha256": "f9aee00a3c607e7544ec1a9b1c32b5b1cdd2840e8976e6f75bfe878d8fb820f1",
+    "buildfix_scope": [
+      "Target-local include directories for sparse checker compilation.",
+      "Two [[maybe_unused]] checker declarations to satisfy -Werror."
+    ],
+    "buildfix_changes_production_runtime_or_metal": false,
+    "source_build_json": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/source-build.json",
+    "source_build_json_sha256": "75c24e646fccb250fe0f8bd7d812491d5aac3892f99e863578982780f1194a25"
+  },
+  "inputs": {
+    "material": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+    "material_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "native_binary": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/numi-matter-cardboard-full-contact-armijo-check",
+    "native_binary_sha256": "a5d55207fedd3de294a3febfba54a398a7f20b79a787ac11c5ae4023f922d2a1",
+    "metallib": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/shaders/NumiMatter.metallib",
+    "metallib_sha256": "59a7df8c8fd4d336fbcb9e28b7fe3942d86063a4a1fbafe36963e41a0c007cc9"
+  },
+  "cases": [
+    {
+      "name": "source175-nominal",
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/numi-matter-cardboard-full-contact-armijo-check",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175/matter/materials/nagasawa2013_medium_orthotropic.nmatter"
+      ]
+    },
+    {
+      "name": "source175-compensated",
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/numi-matter-cardboard-full-contact-armijo-check",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+        "--compensated-material-arithmetic"
+      ]
+    }
+  ],
+  "launch_contract": {
+    "working_directory": "/Users/n",
+    "scrub_environment_prefixes": ["NM_", "NUMI_CARDBOARD_", "NUMI_MATTER_"],
+    "path": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "timeout_seconds": 300,
+    "resource_and_gpu_execution": "Root-owned serialized native launch only; this file is a specification, not a launch request.",
+    "fresh_output_case_directories_required": true,
+    "baseline_comparison_fields": [
+      "exit/timeout/space status",
+      "full Newton residual-Armijo trace and selected/applied alpha",
+      "first actual status and its diagnostics",
+      "terminal contact certificate and contact-sample summary"
+    ]
+  },
+  "caveat": "The build output is source175 plus compile-only buildfix-003, not the earlier failed source175 build attempts. The shared NumiMatter metallib hash matches source176. This audit did not run these commands and records no source175 behavioral result."
+}

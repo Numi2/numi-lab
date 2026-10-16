@@ -1,0 +1,15 @@
+{
+  "at_utc": "2026-10-16T07:25:28.749115+00:00",
+  "stage": "before_native_dispatch",
+  "reason": "Scanned source set differs from frozen declared set: patch backup runtime.mm.orig was undeclared. No native516/517 was launched.",
+  "build_success": true,
+  "source_build_sha256": "626e0ce05d141c310df6f97c789f363da7752fb2db97d111eba8bed035702fd6",
+  "frozen_sha256": "3af1c0026640a3d9454b653f99804a94fbcfd835a385a1f70567c864af0bdcf3",
+  "extra": {
+    "matter/src/runtime.mm.orig": "441425a7eb68f8d0a4ee7f39734888bbd061d76391439a1d5729f89ed3bafb6a"
+  },
+  "missing": {},
+  "changed": {},
+  "source_snapshot_preserved": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-193-001",
+  "physical_transactions": 0
+}

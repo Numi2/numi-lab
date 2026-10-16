@@ -1,0 +1,152 @@
+{
+  "cpu_oracle_sha256": "9e4aab3f990250f2c1989b9cf70872138fb3761086a5dd3fbb83cf3336a1712d",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "1054d41dfb7c91b9daa84dd1eb9b7ab6fecd24cada110e6271f0fbfaf3d31737",
+      "size": 3377
+    },
+    {
+      "path": "build/O0/damped_cgls_fixture.air",
+      "sha256": "6ffd1893cd9bd24805c56dc61a61d71516d1ef66686b600a943bef924aa40f57",
+      "size": 777488
+    },
+    {
+      "path": "build/O0/damped_cgls_fixture.metallib",
+      "sha256": "121598119f0b1903768a8588893c8de8f7f71024baeb9acd0edcc88847085aa9",
+      "size": 3288828
+    },
+    {
+      "path": "build/O0/damped_cgls_helper_replay",
+      "sha256": "d9e58477a526943195e40b11a539bf68845bbf689d91bf3788cfd50244978beb",
+      "size": 155064
+    },
+    {
+      "path": "build/O0/host-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O0/metal-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O0/metallib-link.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O3/damped_cgls_fixture.air",
+      "sha256": "848e10af4e64856b30f05c732a501f63b9e9d3c48ef0e46598781dff6ca346d8",
+      "size": 403648
+    },
+    {
+      "path": "build/O3/damped_cgls_fixture.metallib",
+      "sha256": "3133699e30c26dac10fd57e1b945147853208dbf0a99d41cbec2d6bf28f3365f",
+      "size": 1927244
+    },
+    {
+      "path": "build/O3/damped_cgls_helper_replay",
+      "sha256": "51a706634a4187951db6f651ca2636f7cfc2c093dfcf59c6637eab1bd545aa13",
+      "size": 75336
+    },
+    {
+      "path": "build/O3/host-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O3/metal-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O3/metallib-link.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/cpu-oracle.json",
+      "sha256": "3d34e71dfb8fb772b1b02bc51a16503729254de18ff69172613a59713f1c9d57",
+      "size": 1123
+    },
+    {
+      "path": "build/damped_cgls_fixture.air",
+      "sha256": "848e10af4e64856b30f05c732a501f63b9e9d3c48ef0e46598781dff6ca346d8",
+      "size": 403648
+    },
+    {
+      "path": "build/damped_cgls_fixture.metallib",
+      "sha256": "3133699e30c26dac10fd57e1b945147853208dbf0a99d41cbec2d6bf28f3365f",
+      "size": 1927244
+    },
+    {
+      "path": "build/damped_cgls_helper_replay",
+      "sha256": "51a706634a4187951db6f651ca2636f7cfc2c093dfcf59c6637eab1bd545aa13",
+      "size": 75336
+    },
+    {
+      "path": "build/host-compile-o3.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/metal-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/metallib-link.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/validation.json",
+      "sha256": "42408cba891f1df687b7bc1fdd8749fdd9b84602307678c7edad55875e638fc5",
+      "size": 209671
+    },
+    {
+      "path": "source/compile_and_verify.py",
+      "sha256": "c2af1d67b32b64344100c0d23ee79509d8c02433c283f0d218eda90e1aaf82ee",
+      "size": 4647
+    },
+    {
+      "path": "source/cpu_oracle.py",
+      "sha256": "9e4aab3f990250f2c1989b9cf70872138fb3761086a5dd3fbb83cf3336a1712d",
+      "size": 2157
+    },
+    {
+      "path": "source/damped_cgls_fixture.metal",
+      "sha256": "8dddcca4e8173267b24e5fc42d3f77c74fad939c0f73b13f73a2e56179c1291a",
+      "size": 1122
+    },
+    {
+      "path": "source/damped_cgls_helper_replay.mm",
+      "sha256": "32d4fb5085895d2be8f7fbfbf210db6b0518d1a650b2c3dc1cfb519f9b662327",
+      "size": 17507
+    },
+    {
+      "path": "source/seal_package.py",
+      "sha256": "019f8b65b2946cca56ba1b568a15baa3e00943730fcb2dabd89a66e5abb0ea83",
+      "size": 2637
+    }
+  ],
+  "fixture_metal_sha256": "8dddcca4e8173267b24e5fc42d3f77c74fad939c0f73b13f73a2e56179c1291a",
+  "helper_executable_invoked": false,
+  "host_checker_sha256": "32d4fb5085895d2be8f7fbfbf210db6b0518d1a650b2c3dc1cfb519f9b662327",
+  "native_gpu_executed": false,
+  "package_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native-damped-cgls-helper-replay-190-002",
+  "production_cgls_source": {
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-damped-full-zero-cgls-190-001/matter/src/metal/base_cgls.metalinc",
+    "sha256": "54fc273e8e8e12a9472f2fe2defec45709c7f36d24b6886b862e477aa54260a2"
+  },
+  "result": "PASS_COMPILE_ONLY",
+  "schema": "numi.cardboard.damped-cgls-helper-replay-package.v1",
+  "scope": "Compile-only helper replay preparation; no native checker execution or GPU dispatch.",
+  "source_build_manifest": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source190-002/source-build.json",
+  "source_build_manifest_sha256": "54e65bb00fd5050a4613eae5438345efe9ef5297e687ba98f3bfd44eddf2e0bf",
+  "source_frozen_manifest_sha256": "1189d65c3d7f29d326155eee687979c8dd5fc1c79360a333bd569a08ad30dde7",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-damped-full-zero-cgls-190-001",
+  "validation_report_sha256": "42408cba891f1df687b7bc1fdd8749fdd9b84602307678c7edad55875e638fc5"
+}

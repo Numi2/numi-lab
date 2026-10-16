@@ -1,0 +1,19 @@
+{
+  "schema": "numi.cardboard.native488-tail-reuse-helper-receipt.v1",
+  "exit_code": 0,
+  "errors": [],
+  "timed_out": false,
+  "space_abort": false,
+  "wall_seconds": 28.900905000045896,
+  "minimum_available_bytes": 111364554752,
+  "finished_at_utc": "2026-10-16T05:15:21.266339+00:00",
+  "stdout_sha256": "1279e35825c520dcf4ede3812ea68da388cd7c73f292f95718681a7dbe1fb36b",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "case_files": {
+    "native-checks.json": {
+      "bytes": 315,
+      "sha256": "2828d4234baa4148706642d52dc20fa92486b5b5632e249bf8401146a51c3f40"
+    }
+  },
+  "physical_qualification": false
+}

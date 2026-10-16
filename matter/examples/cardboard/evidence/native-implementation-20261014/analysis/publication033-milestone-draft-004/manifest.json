@@ -1,0 +1,24 @@
+{
+  "base_checkout_head": "877cd6e69657c9a7b4e5032bcd475705bcc06c85",
+  "draft_revision": 4,
+  "files": {
+    "evidence-index.json": {
+      "bytes": 15098,
+      "sha256": "f95f31463fafec8eec9aa87dd323012dd92a6b769aeff3e39e5383294a532e4f"
+    },
+    "publication033-milestone.md": {
+      "bytes": 6800,
+      "sha256": "8fbf1353450bc530ad49f84d02a30305255f1d73acdb393c7c8fd173b6f6e435"
+    },
+    "verification.json": {
+      "bytes": 485,
+      "sha256": "2408f5e791125736c2457412713415571fd25c1a014bcb288bd1072977b6608b"
+    }
+  },
+  "gpu_run": false,
+  "schema": "numi.cardboard.publication033.milestone.draft.manifest.v4",
+  "source198_build_sha256": "8f6c95304c23b6c7149ec6b270d54eafdf4507ea26f3420e39e523c09dd500ad",
+  "source198_frozen_sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc",
+  "task_modified_checkout": false,
+  "verification_sha256": "2408f5e791125736c2457412713415571fd25c1a014bcb288bd1072977b6608b"
+}

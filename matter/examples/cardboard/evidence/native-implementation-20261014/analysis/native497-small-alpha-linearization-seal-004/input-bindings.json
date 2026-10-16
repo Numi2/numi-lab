@@ -1,0 +1,19 @@
+{
+  "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native497-nonlinear-correction-001/manifest.json": "91517eeeaa5366ea9d444d7650fc8835a75ccbe7dd92e4021c912fdd96267a19",
+  "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native497-small-alpha-directions-001/exact-lu/manifest.json": "081af5e5e9c3abf4320b039fa6ba3495a27c0feacabf91cacb3b5f2a53ff9d9f",
+  "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native497-small-alpha-directions-001/original-fgmres/manifest.json": "0e37246119954e5612892ba1263ea74ed6c86a015e0ee2880471efabc090a065",
+  "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native497-small-alpha-directions-001/warm-cgls/manifest.json": "a07cbb35794ddaa0483ed019cc07d653118ff8f543d32f71a7bf03c62d591656",
+  "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native497-two-level-preconditioner-001/exact_lu_solution_free_xyz.npy": "cc92ba1ace846d1ca27a8de480d90a11d3368ac13f718e513f67bffacd42a111",
+  "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173/matter/src/metal/base_cgls.metalinc": "1166f3ebb485116b519cb0f1977cae0183e877330ce666f520a05a5f5d3c2234",
+  "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173/matter/src/runtime.mm": "bfa82d0aa26f055c984619770ff08369e59ce4202dd6f8203516d8df658db392",
+  "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-portable-paper-reference-185/matter/tools/cardboard_bilinear_fp64_reference.py": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995",
+  "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-portable-paper-reference-185/matter/tools/cardboard_compensated_fp64_reference.py": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+  "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646",
+  "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.bin": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1",
+  "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.json": "b03e1bf2ee33162b2cca750ac14127d1e4a1b2e6df68c1fe71b081b0b251975c",
+  "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-operator-fd-capture/capture": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3",
+  "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/output/compiled.nmatterpack": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+  "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/output/manifest.json": "315102605605164ed388056567251a92b4bdb4d5820f154d4923d4bf4cadf327",
+  "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/manifest.json": "eb16d0e1ef9148922ef2c1f47623e1414a1ee7145520cfb60fb0744efd1c8557",
+  "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/stderr.log": "5fa88ac463656bb5565705de2995c12525c60cc6eb271440175ca694c2b67305"
+}

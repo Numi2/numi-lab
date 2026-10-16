@@ -1,0 +1,7 @@
+{
+  "at_utc": "2026-10-16T07:26:21.871929+00:00",
+  "stage": "package_preflight_before_output_folder_and_native",
+  "reason": "Root runner assumed files mapping, but sealed package uses list of path/sha256/size records. AttributeError before GPU.",
+  "physical_transactions": 0,
+  "runner_sha256": "e0e260bf74af5426ba3a32a875c5f540f174d35699be06dded549dd08d382628"
+}

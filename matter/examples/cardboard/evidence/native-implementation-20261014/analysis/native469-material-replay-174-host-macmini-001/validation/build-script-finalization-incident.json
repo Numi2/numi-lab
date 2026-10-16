@@ -1,0 +1,9 @@
+{
+  "build_script": "build_host174.py",
+  "failure": "FileNotFoundError while hashing patch/source173-binding-rebase.patch after all four run() subprocess calls returned successfully",
+  "native_or_gpu_execution": false,
+  "original_patch_path_sha256": "6e3ef4b7d3fb89cd09cfb93bef45355ab61f1edf5b2730f008824e51cc779aa0",
+  "prior_build_script_exit_code": 1,
+  "reason": "patch existed at package root but not at the path expected by build_host174.py; copied byte-identical patch into the declared patch/ directory before finalizing",
+  "schema": "numi.cardboard.native469-host-build-finalization-incident.v1"
+}

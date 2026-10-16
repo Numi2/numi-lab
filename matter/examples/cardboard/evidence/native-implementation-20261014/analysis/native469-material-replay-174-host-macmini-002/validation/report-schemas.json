@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.native469.guarded-run.v4-report-schemas",
+  "reports": {
+    "invocation.json": ["schema", "run_id", "mode", "created_unix_ns"],
+    "preflight-summary.json": ["schema", "status", "gpu_execution", "launch_allowed", "launch_block_reason", "active_workers", "source173_lock_busy", "run_id", "run_namespace", "input_hashes", "disk_free_bytes", "required_disk_floor_bytes", "required_memory_limit_bytes", "memory_limit_semantics", "cpu_admission", "native_argv_template"],
+    "preflight-failure.json": ["schema", "run_id", "gpu_execution", "error"],
+    "cpu-admission-receipt.json": ["schema", "exit_code", "wall_seconds", "gpu_execution", "admission"],
+    "native-execution-command.json": ["argv", "source_sha256", "build_sha256", "executable_sha256", "input_hashes", "disk_free_before_bytes", "memory_limit_bytes", "disk_floor_bytes", "log_limit_bytes", "timeout_seconds", "run_id", "lease_acquired", "workers_before_lease", "workers_after_lease"],
+    "native-execution-refusal.json": ["schema", "execution_started", "run_id", "gpu_execution", "reason", "input_hashes", "disk_free_bytes"],
+    "native-execution-receipt.json": ["schema", "execution_started", "run_id", "exit_code", "limit_reason", "wall_seconds", "output_path", "output_exists", "gpu_execution", "material_qualification", "lease_released_after_receipt"]
+  },
+  "per_run_files": ["cpu-admission-command.json", "cpu-admission.stdout.log", "cpu-admission.stderr.log", "cpu-admission-receipt.json", "preflight-summary.json", "native-execution-command.json", "native.stdout.log", "native.stderr.log", "native-execution-refusal.json", "native-execution-receipt.json"],
+  "native_dispatch_by_this_agent": false
+}

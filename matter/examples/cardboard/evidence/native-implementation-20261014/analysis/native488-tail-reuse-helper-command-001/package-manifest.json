@@ -1,0 +1,13 @@
+{
+  "files_sha256": {
+    "README.md": "cec123b72bdc88c83b254068d794ae0e1b2a1bef7bc5f2c3ee846dbf89483df1",
+    "capacity-helper.py": "8e4a395c27d0dda8f43351760da7d5b6d0c42dbad0d16680777383d94364cc03",
+    "command-spec.json": "c2dd7f74e6c197c3dc4c1d150d0bee8cb1e9f1617ce75f28b5dbb4fd328a8e49",
+    "inputs/base.metallib": "fcb8d1b2a1bf0cbe4207f6a319d33cd4af9bd18120822f93f36c39de17d7442c",
+    "inputs/overlay.metallib": "ee2cc0ba398cd443c8a1c93a72b946ff20b6c0186660fbf00cfbdb9026b20c65",
+    "inputs/tail-reuse-check": "37376aef87d6e305717c3cc622f286d1333c45985b40233402806a7bdb8eb3dd",
+    "runner.py": "dc13b55c73a821f445170c9122e40cce767f168b6d6996d7798b47ea15da740e",
+    "source-build-receipt.json": "64da64873ca7af1397284c8e61a6fc6ec14ade05bcc83a7fdc4210727bdf2c3a",
+    "source-overlay-manifest.json": "7847f2e362cd23b6732d907bf3cf4b1fdc9cbcac1c7bec81d0e1c7020cfe0639"
+  }
+}

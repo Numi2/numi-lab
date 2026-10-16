@@ -1,0 +1,13 @@
+{
+  "selected": 814,
+  "support": 1034,
+  "frozen_sha256": "96361bba5c82368d6476711a550eb9ea16fca08d8235514dcd90eb21673750c0",
+  "base_frozen_sha256": "1f61fd7893eb3a10dfcf1ee0e748f1320b23171d67d37668b319b170a5c20185",
+  "changed": {
+    "matter/src/runtime.mm": "9ed2a0011bbecb138ac1bcb9089a07899a34b5d39b43e1cfce3b2e42565f4e01",
+    "matter/src/metal/fem.metalinc": "bbd6abd764f723e6f0b266b80a3c99e100384e68e5ca5ae7cdd29cad36fb6a43",
+    "matter/src/metal/contact.metalinc": "deb984d07de73477c294446eaacaae4e8a8bf374d895056018b9d8047d491cec"
+  },
+  "verified_at_utc": "2026-10-16T07:01:59.161872+00:00",
+  "stale_candidate_manifest_rejected": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source189-canonical-build-003"
+}

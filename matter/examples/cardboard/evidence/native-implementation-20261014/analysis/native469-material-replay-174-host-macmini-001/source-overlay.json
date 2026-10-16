@@ -1,0 +1,86 @@
+{
+  "base": {
+    "build_directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source173-001",
+    "compiler_archive_sha256": "65703d9d857ec15d2d1e8ae93cac605ef5f46964b5a1d836f1af1b0eaf916047",
+    "frozen_source_sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+    "source_build_sha256": "96396de7fa14197a6759583d8b7bb053c412e08f1051b947502c1cc38b185229",
+    "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173"
+  },
+  "build_validation": {
+    "attempt_history": "validation/build-attempt-history.json",
+    "finalizer": "validation/finalize_host174.py",
+    "finalizer_sha256": "cf338ddac8b52e237285c4d182870b09e2c3391b8f3fc3793ab6e9d6a122d1d5",
+    "gpu_execution": false,
+    "native_replay_executed": false,
+    "original_build_script": "validation/build_host174.py",
+    "original_build_script_sha256": "1208337f394265b39eb2b0c89aebe490d816eecf07b1b9d4f1646b5a48858538",
+    "receipt": "validation/host-build.json",
+    "receipt_sha256": "d74524261a1d7dcfa3b07ce4f9f281c6210a7b398780b3b9a379b2a16adc0258",
+    "script_finalizer_sha256": "cf338ddac8b52e237285c4d182870b09e2c3391b8f3fc3793ab6e9d6a122d1d5",
+    "status": "build steps passed; receipt finalized after packaging-path error"
+  },
+  "built_artifacts": {
+    "air_sha256": "5e6ab9c4122b2be8b272dd7aa8b1b040efb09cc2d8f7a9aeb877c065406bcf85",
+    "executable_sha256": "5dc0b921b41527b973b498d682f84b010b6f41f8acf4c11b1eec4a7305eef3b2",
+    "metallib_sha256": "3996691d7674278d3cfffd4d6444b2412948824b78a28437af2da3c322a4fecd",
+    "object_sha256": "dce7df1d06053d788ceca9e59a96d1d6c931333aa3d3dbf47a455b235d3f7e3f"
+  },
+  "guard": {
+    "active_process_markers": [
+      "numi-matter-",
+      "sparse-scan-checker",
+      "source469-material-replay-check"
+    ],
+    "default_mode": "CPU input/hash admission only, no native dispatch",
+    "disk_floor_bytes": 2147483648,
+    "explicit_execution_flag": "--execute",
+    "first_preflight_supersession": "validation/preflight-v1-supersession.json",
+    "output_path": "runs/native469-source173-material-replay/output",
+    "preflight_result": "validation/preflight-v3-summary.json",
+    "preflight_result_sha256": "afc10c7c82f03241e614f2b1784d7f92f32572df2e5db4655128f36406302a3b",
+    "sampled_process_group_rss_limit_bytes": 17179869184,
+    "script": "validation/run_guarded_source469_v3.py",
+    "script_sha256": "071c4a188fbf8ffb3aad0fcc649a18a1f70c55c37750ad42bbe8702b8a53d19a",
+    "shared_source_lock": "snapshots/source-checkpoint-warm-breakdown-173/build-cardboard-native-worker/worker.lock",
+    "superseded_v1_note": "v1 did not report active-worker/lock availability; see preflight-v1-supersession.json",
+    "superseded_v1_script": "validation/run_guarded_source469.py",
+    "superseded_v2_script": "validation/run_guarded_source469_v2.py",
+    "timeout_default_seconds": 7200,
+    "timeout_max_seconds": 14400,
+    "v2_summary_note": "The v2 process-aware preflight result was printed but not saved as the outer summary; its CPU-admission stdout is retained. v3 persists the complete summary."
+  },
+  "host": "macmini",
+  "inputs": {
+    "hash_audit": "validation/remote-input-hash-audit.json",
+    "hash_audit_sha256": "87a7284e71b47d009daac7f29112ec744ed021f9a729ee49bf83baca4004984f",
+    "input_count": 8,
+    "last_preflight_disk_free_bytes": 113815646208,
+    "last_preflight_gpu_execution": false,
+    "last_preflight_launch_allowed": true,
+    "preflight_cpu_admission_status": "pass"
+  },
+  "overlay": {
+    "binding_patch_sha256": "6e3ef4b7d3fb89cd09cfb93bef45355ab61f1edf5b2730f008824e51cc779aa0",
+    "changed_semantics": [
+      "rename legacy main symbol to source173_capture_diagnostic_legacy_main",
+      "report source_snapshot as source-checkpoint-warm-breakdown-173"
+    ],
+    "helper_source_sha256": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81",
+    "kind": "diagnostic checker host rebinding only",
+    "production_physics_changed": false,
+    "shader_source_sha256": "23f6f758cda7ccc0e0651e45a298644e6b71a3c25cd5ef2f7c9cbe4ceca40628",
+    "source_material_equivalence_report": "validation/source-material-include-equivalence.json",
+    "wrapper_original_sha256": "f4c81f0217e1a528b982cba1293a7868e7d5c3f43bce97d586a1675494350f7c",
+    "wrapper_source173_bound_sha256": "69dc60e47321ccca5ab09e5133d9f08620aca13a0bf15395e349e411329a0475"
+  },
+  "package_id": "native469-material-replay-174-host-macmini-001",
+  "qualification": {
+    "diagnostic_scope": "captured constitutive states and selected material references only",
+    "full_coupon_qualification": false,
+    "material_qualification": false,
+    "mesh_convergence_qualification": false,
+    "physical_transactions": 0
+  },
+  "remote_package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001",
+  "schema": "numi.cardboard.native469-host-macmini-overlay.v1"
+}

@@ -1,0 +1,11 @@
+{
+  "at_utc": "2026-10-16T07:38:47.657748+00:00",
+  "selected_files": 816,
+  "frozen_sha256": "b6687f8b250a2e0a1a0522697b75d251112240d6f26b473bfefc423f8fa382c2",
+  "parent": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001",
+  "changed_files": [
+    "matter/src/runtime.mm"
+  ],
+  "unexecuted_command_package_rejected": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native521-fresh-damped-coupon-command-001",
+  "reason": "all:3 rejected by parent source195 before physical execution; command never dispatched."
+}

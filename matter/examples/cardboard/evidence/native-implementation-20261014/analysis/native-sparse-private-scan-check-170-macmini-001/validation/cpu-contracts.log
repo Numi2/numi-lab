@@ -1,0 +1,2 @@
+cpu_contracts=pass selected_count=127/128/129 prefailed_partial_preserved=true
+sparse_scan_cpu_checks=3 metal_kernels_executed=0

@@ -1,0 +1,84 @@
+{
+  "exact_lu_candidate_sha256": "cc92ba1ace846d1ca27a8de480d90a11d3368ac13f718e513f67bffacd42a111",
+  "full_damped_candidates": [
+    {
+      "candidate_file": "lambda_0_full_step.npy",
+      "candidate_sha256": "277b7878d8006a74a31717e4a597c49ad1e023cbec9fac470e48f944a86bd6b9",
+      "distance_to_exact_lu_l2": 5.963327652291761e-11,
+      "distance_to_original_center_correction_l2": 0.007129543897758656,
+      "distance_to_warm_cgls_total_l2": 0.007129886301667273,
+      "equation": "min ||A x-b||^2+lambda^2||x||^2 from zero; x is full total step",
+      "lambda": 0.0,
+      "residual_l2": 6.018264210020096e-16,
+      "residual_relative_to_b": 3.1933534253693287e-11,
+      "solver": "dense binary64 SVD Tikhonov minimizer",
+      "step_norm_m_s": 4.830333688710374
+    },
+    {
+      "candidate_file": "lambda_1e-06_full_step.npy",
+      "candidate_sha256": "bc4f1c1f91325016b090b274caa0b791f2cccb385ce35e2f4d74d5a87288a361",
+      "distance_to_exact_lu_l2": 3.161485277301909,
+      "distance_to_original_center_correction_l2": 3.167620622975227,
+      "distance_to_warm_cgls_total_l2": 3.1676211948117468,
+      "equation": "min ||A x-b||^2+lambda^2||x||^2 from zero; x is full total step",
+      "lambda": 1e-06,
+      "residual_l2": 2.2778379667609485e-06,
+      "residual_relative_to_b": 0.12086444562340166,
+      "solver": "dense binary64 SVD Tikhonov minimizer",
+      "step_norm_m_s": 1.7204774861712782
+    },
+    {
+      "candidate_file": "lambda_1e-05_full_step.npy",
+      "candidate_sha256": "f4bc96bb19f0e6753e4dc798d1542d0673c4bee7af637f987cd14169d6c5e602",
+      "distance_to_exact_lu_l2": 4.798558065738365,
+      "distance_to_original_center_correction_l2": 4.804541178892882,
+      "distance_to_warm_cgls_total_l2": 4.804542224503762,
+      "equation": "min ||A x-b||^2+lambda^2||x||^2 from zero; x is full total step",
+      "lambda": 1e-05,
+      "residual_l2": 3.8272976869299245e-06,
+      "residual_relative_to_b": 0.2030803858381115,
+      "solver": "dense binary64 SVD Tikhonov minimizer",
+      "step_norm_m_s": 0.11401702826461327
+    },
+    {
+      "candidate_file": "lambda_0.0001_full_step.npy",
+      "candidate_sha256": "8719ad11ab46e04a88e34315dfaea76ef821448ceff209df674f2709bbfb9c86",
+      "distance_to_exact_lu_l2": 4.829900931731812,
+      "distance_to_original_center_correction_l2": 4.835883211183615,
+      "distance_to_warm_cgls_total_l2": 4.835884270022658,
+      "equation": "min ||A x-b||^2+lambda^2||x||^2 from zero; x is full total step",
+      "lambda": 0.0001,
+      "residual_l2": 4.456643174831297e-06,
+      "residual_relative_to_b": 0.2364741103307068,
+      "solver": "dense binary64 SVD Tikhonov minimizer",
+      "step_norm_m_s": 0.014429160247580048
+    },
+    {
+      "candidate_file": "lambda_0.001_full_step.npy",
+      "candidate_sha256": "25f9d33229bb9ab3d1e8ae49b2305ca651fcb4397bb16750803f0009f97ad1d4",
+      "distance_to_exact_lu_l2": 4.830325358109779,
+      "distance_to_original_center_correction_l2": 4.836307648041894,
+      "distance_to_warm_cgls_total_l2": 4.836308708249171,
+      "equation": "min ||A x-b||^2+lambda^2||x||^2 from zero; x is full total step",
+      "lambda": 0.001,
+      "residual_l2": 6.014340357884569e-06,
+      "residual_relative_to_b": 0.3191271388718834,
+      "solver": "dense binary64 SVD Tikhonov minimizer",
+      "step_norm_m_s": 0.002852176115607953
+    }
+  ],
+  "limits": [
+    "One captured free-XYZ cached operator only; binary64 SVD of captured FP32 tangent cache, not a fresh constitutive reference.",
+    "No native dispatch or acceptance certificate is claimed.",
+    "Damping changes the proposed full correction; physical nonlinear reference must test each candidate."
+  ],
+  "method": "dense FP64 SVD of same captured FP32-cache A, x=V diag(s/(s^2+lambda^2)) U^T b; lambda=0 is the unregularized SVD solve",
+  "operator_sha256": "21fbc8e662273fc82dc52ff2ec0a0a4efd7d2e7cfec14584770f66f1f30d2e5c",
+  "operator_source_manifest_sha256": "ae360ba383bcaba3d85e1660bec8c318def1526508b633cb78791aedb30bf166",
+  "rhs_norm": 1.8846220284320863e-05,
+  "rhs_sha256": "dc5ce5c84ae95c76cdd3614d89f0d2473955d61e34a422ca21850ef486d36653",
+  "rhs_source": "operator.vectors.npz:native_rhs_free_impulse_Ns",
+  "schema": "numi.cardboard.native497.full_damped_svd_candidates.v1",
+  "singular_max": 0.27696484381885744,
+  "singular_min": 3.0986994359760897e-07
+}

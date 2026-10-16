@@ -1,0 +1,32 @@
+Test project /Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003
+    Start 27: matter.analysis.cardboard_compensated_fp64_reference
+1/7 Test #27: matter.analysis.cardboard_compensated_fp64_reference ....   Passed    0.40 sec
+    Start 55: matter.compiler.cardboard_shipping_memory
+2/7 Test #55: matter.compiler.cardboard_shipping_memory ...............   Passed    0.41 sec
+    Start 58: matter.compiler.cardboard_coupon_resume
+3/7 Test #58: matter.compiler.cardboard_coupon_resume .................   Passed    0.26 sec
+    Start 80: matter.compiler.cardboard_full_contact_scratch_budget
+4/7 Test #80: matter.compiler.cardboard_full_contact_scratch_budget ...   Passed    0.26 sec
+    Start 81: matter.compiler.cardboard_full_contact_armijo
+5/7 Test #81: matter.compiler.cardboard_full_contact_armijo ...........   Passed    0.30 sec
+    Start 82: matter.compiler.cardboard_compensated_full_contact
+6/7 Test #82: matter.compiler.cardboard_compensated_full_contact ......   Passed    0.03 sec
+    Start 86: matter.cli.cardboard_argument_admission
+7/7 Test #86: matter.cli.cardboard_argument_admission .................   Passed    0.38 sec
+
+100% tests passed out of 7
+
+Label Time Summary:
+analysis      =   0.40 sec*proc (1 test)
+arithmetic    =   0.03 sec*proc (1 test)
+armijo        =   0.30 sec*proc (1 test)
+cardboard     =   2.03 sec*proc (7 tests)
+cli           =   0.38 sec*proc (1 test)
+contact       =   0.58 sec*proc (3 tests)
+cpu           =   1.73 sec*proc (6 tests)
+matter        =   2.03 sec*proc (7 tests)
+memory        =   0.26 sec*proc (1 test)
+shipping      =   0.67 sec*proc (2 tests)
+synthetic     =   0.33 sec*proc (2 tests)
+
+Total Test time (real) =   2.03 sec

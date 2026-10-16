@@ -1,0 +1,59 @@
+{
+  "base_frozen_source_sha256": "96361bba5c82368d6476711a550eb9ea16fca08d8235514dcd90eb21673750c0",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix003",
+  "changed_source_files": {
+    "matter/include/numi/matter/deformable_contact_trial_policy.h": {
+      "base_sha256": null,
+      "candidate_sha256": "f1dafb01e5c1df7891d1e0cc5d8833b19f10ea5912ff21562e2122c8b2933fbd"
+    },
+    "matter/src/metal/contact.metalinc": {
+      "base_sha256": "deb984d07de73477c294446eaacaae4e8a8bf374d895056018b9d8047d491cec",
+      "candidate_sha256": "1f6f91a70c3c738f50c4d4fc86e429a2fc841028a81094700355b5e5d33ee538"
+    },
+    "matter/src/runtime.mm": {
+      "base_sha256": "9ed2a0011bbecb138ac1bcb9089a07899a34b5d39b43e1cfce3b2e42565f4e01",
+      "candidate_sha256": "ec28985b644c43d2ccfaf8b77ef1da03db3b1db7797112a57b1e2cb504dfdfb6"
+    }
+  },
+  "no_gpu_dispatch": true,
+  "no_physical_transactions": true,
+  "patch_dry_run": {
+    "exit": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "0cfce37201338b36efb3a3b86c38477458c46e17178b861b7a84b9cfee5b89ea"
+  },
+  "patch_sha256": "fbac634262905625f0a4dc111305c16b05656d379fd720b21ca7d9524b72ad9d",
+  "policy": "Opt-in only when host has admitted full-contact residual Armijo for this control. The checked support mask must equal FEM-only exactly; MPM, mixed, empty, and unknown-bit supports keep legacy local energy Armijo. Exact per-alpha CCD and finite barrier checks remain. Global residual Armijo and final certification are unchanged.",
+  "schema": "numi.cardboard.source191-fem-feasibility-only-overlay.v2",
+  "source_contract_audit": {
+    "passed": true,
+    "report": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source191-fem-feasibility-only-overlay-002/source-contract-report.json",
+    "report_sha256": "2f2a1eb19888a048678fbceaeaf0b1d53a633e3a68e45b8a4a1e0bb8d1792df2",
+    "script": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source191-fem-feasibility-only-overlay-002/source_contract_audit.py",
+    "sha256": "b2558caea70b61defb9915684e86000db3905441fab915b9c232a3fab3152b23"
+  },
+  "test": {
+    "binary_sha256": "e74abb90728e6bb610b1da7e1b3f99d52957647660a5225e34688166ffe2310e",
+    "compile_command": [
+      "/usr/bin/clang++",
+      "-std=c++17",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source191-fem-feasibility-only-overlay-002/candidate/matter/include",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source191-fem-feasibility-only-overlay-002/policy_contract.cpp",
+      "-o",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source191-fem-feasibility-only-overlay-002/policy_contract"
+    ],
+    "compile_exit": 0,
+    "compile_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run_exit": 0,
+    "sha256": "aa423d05dd02b1c1c68aad2d0b056d678cc8df0a0f610b70dfabe78d168757f7",
+    "source": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source191-fem-feasibility-only-overlay-002/policy_contract.cpp",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout": "shared production policy helper: 7 cases passed",
+    "stdout_sha256": "300482af6564ee0242472b7918e54528237a1a0de24250945a433adf85a6fc58"
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "base_frozen_source_sha256": "1f61fd7893eb3a10dfcf1ee0e748f1320b23171d67d37668b319b170a5c20185",
+  "base_snapshot": "snapshots/source-scaled-contact-geometry-188-buildfix002",
+  "candidate_frozen_source_sha256": "1189d65c3d7f29d326155eee687979c8dd5fc1c79360a333bd569a08ad30dde7",
+  "candidate_snapshot": "snapshots/source-damped-full-zero-cgls-190-001",
+  "file_count": 23,
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "b2e92399e0c6a95d78abdbe887e44cbbb1c517ac495a86fe23fdb953cb32a66c",
+      "size": 1707
+    },
+    {
+      "path": "candidate/matter/src/metal/base_cgls.metalinc",
+      "sha256": "54fc273e8e8e12a9472f2fe2defec45709c7f36d24b6886b862e477aa54260a2",
+      "size": 40315
+    },
+    {
+      "path": "candidate/matter/src/runtime.mm",
+      "sha256": "b4ee77cd8ccf8611d01d13ed7d54f5122ed50e90a4520326354733af37c25499",
+      "size": 1927367
+    },
+    {
+      "path": "candidate/matter/tools/cardboard_calibration_case_binding.py",
+      "sha256": "03adc449fd4d5c8d7f44ade757f02f2a1f432d88b1ff008d833dbc533ce4a2e5",
+      "size": 13280
+    },
+    {
+      "path": "candidate/matter/tools/cardboard_coupon_resume_check.cpp",
+      "sha256": "c9bf6f0a71b4a4302b4d77f9bfe30fbf6f508a22d70258bd6ca6df1876739ece",
+      "size": 17765
+    },
+    {
+      "path": "candidate/matter/tools/cardboard_probe.mm",
+      "sha256": "96ee21f30e0958040a539c050b0a1c59483eebe8dc2f04c2b9a783a1bb7e333c",
+      "size": 812872
+    },
+    {
+      "path": "candidate/matter/tools/cardboard_solver_environment.py",
+      "sha256": "e3ef5898174dc2081542d952f0c94ea3f0798510508e2a5672e42d877148d0f7",
+      "size": 37991
+    },
+    {
+      "path": "candidate/matter/tools/cardboard_source_bound_run.py",
+      "sha256": "6ccd93a467860df58d8552b6f14c7d1ea77be2a896c06a77bfd9ad25392ceb9e",
+      "size": 15887
+    },
+    {
+      "path": "candidate/matter/tools/cardboard_source_bound_run_support.py",
+      "sha256": "5ce3ec12e48d88ba8a76b7e498d29b7dd991f0c930de43e17bb5cb96d379685e",
+      "size": 3279
+    },
+    {
+      "path": "candidate/matter/tools/test_cardboard_solver_environment.py",
+      "sha256": "b709c0e80249af0f162a16b99436a52ed8e3ee64e1bdf39202eedc6510e0cbc0",
+      "size": 17695
+    },
+    {
+      "path": "candidate/matter/tools/verify_damped_cgls_oracle.py",
+      "sha256": "b6cfdec19318f42a46c0691e0a084698e296de65628a340f401e49bce3080264",
+      "size": 6274
+    },
+    {
+      "path": "source190.patch",
+      "sha256": "01dcf795ede034072071436245f7ceb24a21628a234aec012d8edc347c2651cf",
+      "size": 26326
+    },
+    {
+      "path": "validation/coupon-resume-ctest.log",
+      "sha256": "a95d1251ca7f81a68ac2a1220002fc655b5c4a8fa6102be37f4f065c2be88196",
+      "size": 468
+    },
+    {
+      "path": "validation/damped-cgls-oracle.json",
+      "sha256": "a1888d70485750c41b8e490181e21f375c780569371b06a43db062e40ee88378",
+      "size": 1574
+    },
+    {
+      "path": "validation/damped-cgls-oracle.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "validation/environment-tests.log",
+      "sha256": "502b5f4e77948351c17a352faaa7b7629bd55882db922a71c0013b205969bcb1",
+      "size": 2520
+    },
+    {
+      "path": "validation/failed-path-command-output-190-001.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "validation/first-build-attempt-001.json",
+      "sha256": "42f3830e8b9b27b2e4fe832ba3a4a1d6eb0b4d0fe5a4d17b874452b100670bcd",
+      "size": 976
+    },
+    {
+      "path": "validation/kernel-caller-audit.txt",
+      "sha256": "45cb0e35816753b058494fc794d5e22d9c8a999a20079688133a1f123762c9d8",
+      "size": 729
+    },
+    {
+      "path": "validation/patch-dry-run.log",
+      "sha256": "a0da8ffcee37df7bcc42921ed8fa89cd858f6ad3b8d999059d122db04c986dae",
+      "size": 386
+    },
+    {
+      "path": "validation/source-build-failed-path-190-001.json",
+      "sha256": "e51810bc35af1b474c9d72ac7b9fc7d06f083c666571f47ec817a6d684be8048",
+      "size": 98366
+    },
+    {
+      "path": "validation/source-build-success-190-002.json",
+      "sha256": "54e65bb00fd5050a4613eae5438345efe9ef5297e687ba98f3bfd44eddf2e0bf",
+      "size": 100016
+    },
+    {
+      "path": "validation-report.json",
+      "sha256": "5b5dd974c6674549a9149df18bca213d1368004c6c81181a051bc7ab063f849b",
+      "size": 6630
+    }
+  ],
+  "package": "native-damped-cgls-overlay-190-001",
+  "patch": "source190.patch",
+  "patch_sha256": "01dcf795ede034072071436245f7ceb24a21628a234aec012d8edc347c2651cf",
+  "qualification": "compiled and CPU-contract validated; native GPU execution and full coupon qualification not performed",
+  "schema": "numi.cardboard.experimental-overlay-package.v1"
+}

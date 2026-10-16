@@ -1,0 +1,2730 @@
+{
+  "bindings": {
+    "host_sha256": "23f392404f9a58a221c3a505a944c21c72ec93cb960155ddfe90c885d932031c",
+    "input_manifest_sha256": "b6c2e1872afe5f6e6685a57525fe91e604b20bf6ab5aa0fcb1acd546e80dea0f",
+    "metallib_sha256": "136bd6c922b42670852e3a6e9fbc07b2758feb702767c2704dd6bd00839ad209",
+    "native_output_sha256": "8e8da15cb1ebb41c07189b247d8b35cd1b1fe3d9be92f2a4293d8cbc64e5e54f",
+    "native_receipt_sha256": "f396b610ff381b90ff874ea60d5573b1c776719f7820d44a3901c46c20437f7d",
+    "native_transactions": 0,
+    "source_hashes": {
+      "common": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380",
+      "contact": "deb984d07de73477c294446eaacaae4e8a8bf374d895056018b9d8047d491cec",
+      "fem": "bbd6abd764f723e6f0b266b80a3c99e100384e68e5ca5ae7cdd29cad36fb6a43",
+      "runtime": "9ed2a0011bbecb138ac1bcb9089a07899a34b5d39b43e1cfce3b2e42565f4e01"
+    },
+    "source_map_entries": 814,
+    "source_map_verified": true,
+    "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix003"
+  },
+  "method": {
+    "barrier": "source common.metalinc ipcBarrierEnergy equation and contact.metalinc feature mollifier in Decimal arithmetic",
+    "decimal_precision": 90,
+    "endpoint_words": "decoded exact FP32 output words, exactly representable as binary64 then Decimal.from_float",
+    "feature": "point against triangle, Ericson Voronoi-region closest point, degeneracy fallback to nearest edge",
+    "path_method": "uniform time sampling, diagnostic only; production source189 CCD certificate remains the only full-sweep certificate",
+    "path_sample_count_per_sample_and_endpoint": 2049
+  },
+  "records": [
+    {
+      "active_slot": 0,
+      "alpha": 1.0,
+      "contact_index": 0,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 7,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819128158991965736737916086348580322761850367556125391932037942764421843638609578389028",
+            "0.000180871841008034263262083913651419677238149632443874608067962057235578156361390421610972039"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85635401135995798700510558914279224277167588711155502604179791937675068820543267054497324E-10",
+          "mollifier": "1",
+          "separation": "0.00000865219877612694394516135826201858972336471707636032739956207876870070960280585295338884476"
+        },
+        "applied_trial_delta_energy_j": "2.243834152123046133762799302E-15",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011520816774053963316547071764450491361212357215549971266075729073203455818041905851",
+            "0.000180988479183225946036683452928235549508638787642784450028733924270926796544181958094148812"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85635928735339273318587227524388336560259636308355679711814830779355574718728559651739460E-10",
+          "mollifier": "1",
+          "separation": "0.00000865219836192305844183190689830756770488040458010694987329686012634043227513100953715326519"
+        },
+        "contact_trial_delta_energy_j": "2.771433495597664210431409411E-15",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347800971251807690390094375",
+          "contact_trial": "-0.000001347801385455693193719545738",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 5,
+          "contact_trial": 5,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652198776126909e-06,
+          "samples": 2049,
+          "t": 1.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652198361923109e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 1.0,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856356510847149e-10,
+        "applied_trial_separation_m": 8.652198630443309e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856356510847149e-10,
+        "contact_trial_separation_m": 8.652198630443309e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 0
+    },
+    {
+      "active_slot": 0,
+      "alpha": 0.5,
+      "contact_index": 0,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 7,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906921959616137015124211331137296654565103667269435530274589832848493143341462834",
+            "0.000180872093078040383862984875788668862703345434896332730564469725410167151506856658537166422"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85634043162841900342634861132595149030385278843910401772643478370696424387193315651045782E-10",
+          "mollifier": "1",
+          "separation": "0.00000865219984223582570060615152913191563923781737783151342830066019214855383813200085943387488"
+        },
+        "applied_trial_delta_energy_j": "8.858609982246882580650176175E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011520189821110147978165656866629950604188445714479457591740791034408227643945408562",
+            "0.000180988479810178889852021834343133370049395811554285520542408259208965591772356054591437712"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85634543974924274929234394259094110917010468630952933179525450655204379432128723378747891E-10",
+          "mollifier": "1",
+          "separation": "0.00000865219944906129063715744803563007635914779675501144421052963971677505698885386457673767490"
+        },
+        "contact_trial_delta_energy_j": "1.386673080599274857598144116E-15",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347799905142925934945301108",
+          "contact_trial": "-0.000001347800298317460998394004601",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 8,
+          "contact_trial": 1,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652199842235858e-06,
+          "samples": 2049,
+          "t": 1.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652199449061294e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.5,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856344853505391e-10,
+        "applied_trial_separation_m": 8.65219953993801e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856344853505391e-10,
+        "contact_trial_separation_m": 8.65219953993801e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 1
+    },
+    {
+      "active_slot": 0,
+      "alpha": 0.25,
+      "contact_index": 0,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 7,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906606599582042054450540287056370378848363003019633976736372184130558154450327307",
+            "0.000180872093393400417957945549459712943629621151636996980366023263627815869441845549672693316"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633349834631728131952424259856928847281624343227462770388512063194547985127906700762339E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220038655012472679594884903724695165493500689563469834720676298946653917509048807003235"
+        },
+        "applied_trial_delta_energy_j": "1.925327880524775756281448793E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519871052227927248707569823080675076133454292828943265457854010397979262564186954",
+            "0.000180988480128947772072751292430176919324923866545707171056734542145989602020737435813045941"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633850646624231504785224516120960854865894041362496201596542334261215090879651277908559E-10",
+          "mollifier": "1",
+          "separation": "0.00000865219999337535727169168323179906691415037976388032873174097879646061246877817227432051836"
+        },
+        "contact_trial_delta_energy_j": "6.933447805558504084284011433E-16",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347799360828626908755503788",
+          "contact_trial": "-0.000001347799754003394363859769405",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 7,
+          "contact_trial": 11,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.65220038655014e-06,
+          "samples": 2049,
+          "t": 1.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652199993375354e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.25,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856329865494558e-10,
+        "applied_trial_separation_m": 8.652200449432712e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856344853505391e-10,
+        "contact_trial_separation_m": 8.65219953993801e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 2
+    },
+    {
+      "active_slot": 0,
+      "alpha": 0.125,
+      "contact_index": 0,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 7,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906450490349350994536544647958149135467684791155850092522440555833607492627103370",
+            "0.000180872093549509650649005463455352041850864532315208844149907477559444166392507372896630255"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633003164304725484649523637424714737829214650201264309909254315341042918944631955948194E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220065871231618785681887709719021309584482787042606822766276254925022982226904155598457"
+        },
+        "applied_trial_delta_energy_j": "-1.541375389501697272724775529E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519714808219349109260995249490003451771187609107008816277064690708050676065539011",
+            "0.000180988480285191780650890739004750509996548228812390892991183722935309291949323934460988685"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633503976084872175846415849228359920267261405298782001682140643090272266439852005198949E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220026553756397206864045112001071032671005290726469864871069696615015642419628943971880"
+        },
+        "contact_trial_delta_energy_j": "3.466742411965214696197342507E-16",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347799088666435447694633760",
+          "contact_trial": "-0.000001347799481841187663482812186",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 0,
+          "contact_trial": 9,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200537702763e-06,
+          "samples": 2049,
+          "t": 0.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200265537656e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.125,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856329865494558e-10,
+        "applied_trial_separation_m": 8.652200449432712e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856329865494558e-10,
+        "contact_trial_separation_m": 8.652200449432712e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 3
+    },
+    {
+      "active_slot": 0,
+      "alpha": 0.0625,
+      "contact_index": 0,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 7,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906368587507593775831923837625225561772360107824475331120738813148458510151585144",
+            "0.000180872093631412492406224168076162374774438227639892175524668879261186851541489848414856393"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85632830290193954051551418345616116560344794965049733726360734138536106645435258682194263E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220079443149014823833233425128428322443634690021700197180742890906270995536488073203606"
+        },
+        "applied_trial_delta_energy_j": "-3.270116497216028253777693615E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519632837576970777404725657995578589072627505745207635316526952198579895246682369",
+            "0.000180988480367162423029222595274342004421410927372494254792364683473047801420104753317630676"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633331101868419680430534339378973034051207179012597875560191586192401961009936181200095E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220040125674536315538564709014729824064444892140168047919790165600951677603076485532092"
+        },
+        "contact_trial_delta_energy_j": "1.738000247440260537382244013E-16",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347798952947261487313120302",
+          "contact_trial": "-0.000001347799346122006272396066990",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 3,
+          "contact_trial": 6,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200537702763e-06,
+          "samples": 2049,
+          "t": 0.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200401256681e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.0625,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856329865494558e-10,
+        "applied_trial_separation_m": 8.652200449432712e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856329865494558e-10,
+        "contact_trial_separation_m": 8.652200449432712e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 4
+    },
+    {
+      "active_slot": 0,
+      "alpha": 0.03125,
+      "contact_index": 0,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 7,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906332153167796839845894243508933916787133589757423642628456509203542210018325463",
+            "0.000180872093667846832203160154105756491066083212866410242576357371543490796457789981674537460"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85632743390191652501704454486994066785264364293014302159388150028090357618751040881805304E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220086265453511041412838404485120969007698926962582575768868494393769873905878775487260"
+        },
+        "applied_trial_delta_energy_j": "-4.139116520231526723416279836E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519596370162920606751014636298729602811412106107352907311377632637239311867783138",
+            "0.000180988480403629837079393248985363701270397188587893892647092688622367362760688132216862316"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633244201812777363500453875133969937645408867558335075207131451784075597205157089748068E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220046947979423112121015153751721610398045227447439003951198619208384900019205132578431"
+        },
+        "contact_trial_delta_energy_j": "8.689996910170912365776015631E-17",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347798884724216525137324253",
+          "contact_trial": "-0.000001347799277898957404430242485",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 4,
+          "contact_trial": 5,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200537702763e-06,
+          "samples": 2049,
+          "t": 0.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200469479852e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.03125,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856329865494558e-10,
+        "applied_trial_separation_m": 8.652200449432712e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856329865494558e-10,
+        "contact_trial_separation_m": 8.652200449432712e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 5
+    },
+    {
+      "active_slot": 0,
+      "alpha": 0.015625,
+      "contact_index": 0,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 7,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906312366297013085659675983779097698876658190276525302126734087175120857406361857",
+            "0.000180872093687633702986914340324016220902301123341809723474697873265912824879142593638143073"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85632699940262600933063843400300433559935616062852178307656023765580710881870436083527307E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220089676600345892290487374489018154043983154590961785654674275445043159690035980155171"
+        },
+        "applied_trial_delta_energy_j": "-4.573615810747213129527146772E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519575228917316802353719257968134263665604958694871550996348982220141430166448951",
+            "0.000180988480424771082683197646280742031865736334395041305128449003651017779858569833551048614"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633200751862696346644110254121681666080195618297395576380539379467897446313877712092821E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220050359126010399910214646549288732706203161121056719902462301181301281993290569623372"
+        },
+        "contact_trial_delta_energy_j": "4.345001902069226731413914402E-17",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347798850612748176628547763",
+          "contact_trial": "-0.000001347799243787491531552350490",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 5,
+          "contact_trial": 4,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200537702763e-06,
+          "samples": 2049,
+          "t": 0.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200503591174e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.015625,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856329865494558e-10,
+        "applied_trial_separation_m": 8.652200449432712e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856329865494558e-10,
+        "contact_trial_separation_m": 8.652200449432712e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 6
+    },
+    {
+      "active_slot": 0,
+      "alpha": 0.0078125,
+      "contact_index": 0,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 7,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906299606704042140238908992775929556662534466460215982906871093836785351299792197",
+            "0.000180872093700393295957859761091007224070443337465533539784017093128906163214648700207802845"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85632677753215452303679642650489565178729917974000165457418899279675825691369055177239327E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220091418450794629406303626391522632430419104042572376201546926230426644821149517623667"
+        },
+        "applied_trial_delta_energy_j": "-4.795486282233506971534644881E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519563879214683705418769590909560950285996807940607584144567040185444894063566439",
+            "0.000180988480436120785316294581230409090439049714003192059392415855432959814555105936433561188"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633177640332810029999635295299262190792923915750365370120997995344239809707363046470271E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220052173554313943633425088422065450678752300769333524833388943585689906512855721410030"
+        },
+        "contact_trial_delta_energy_j": "2.033848913437562283918032160E-17",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347798833194243689257389600",
+          "contact_trial": "-0.000001347799225643208496115118386",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 15,
+          "contact_trial": 3,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200537702763e-06,
+          "samples": 2049,
+          "t": 0.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200521735495e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.0078125,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.8563182081528e-10,
+        "applied_trial_separation_m": 8.652201358927414e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856329865494558e-10,
+        "contact_trial_separation_m": 8.652200449432712e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 7
+    },
+    {
+      "active_slot": 58,
+      "alpha": 0.5,
+      "contact_index": 1,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 100,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906921959616137015124211331137296654565103667269435530274589832848493143341462834",
+            "0.000180872093078040383862984875788668862703345434896332730564469725410167151506856658537166422"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85634043162841900342634861132595149030385278843910401772643478370696424387193315651045782E-10",
+          "mollifier": "1",
+          "separation": "0.00000865219984223582570060615152913191563923781737783151342830066019214855383813200085943387488"
+        },
+        "applied_trial_delta_energy_j": "8.858609982246882580650176175E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011520189821110147978165656866629950604188445714479457591740791034408227643945408562",
+            "0.000180988479810178889852021834343133370049395811554285520542408259208965591772356054591437712"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85634543974924274929234394259094110917010468630952933179525450655204379432128723378747891E-10",
+          "mollifier": "1",
+          "separation": "0.00000865219944906129063715744803563007635914779675501144421052963971677505698885386457673767490"
+        },
+        "contact_trial_delta_energy_j": "1.386673080599274857598144116E-15",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347799905142925934945301108",
+          "contact_trial": "-0.000001347800298317460998394004601",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 8,
+          "contact_trial": 1,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652199842235858e-06,
+          "samples": 2049,
+          "t": 1.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652199449061294e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.5,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856344853505391e-10,
+        "applied_trial_separation_m": 8.65219953993801e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856344853505391e-10,
+        "contact_trial_separation_m": 8.65219953993801e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 0
+    },
+    {
+      "active_slot": 58,
+      "alpha": 0.25,
+      "contact_index": 1,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 100,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906606599582042054450540287056370378848363003019633976736372184130558154450327307",
+            "0.000180872093393400417957945549459712943629621151636996980366023263627815869441845549672693316"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633349834631728131952424259856928847281624343227462770388512063194547985127906700762339E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220038655012472679594884903724695165493500689563469834720676298946653917509048807003235"
+        },
+        "applied_trial_delta_energy_j": "1.925327880524775756281448793E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519871052227927248707569823080675076133454292828943265457854010397979262564186954",
+            "0.000180988480128947772072751292430176919324923866545707171056734542145989602020737435813045941"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633850646624231504785224516120960854865894041362496201596542334261215090879651277908559E-10",
+          "mollifier": "1",
+          "separation": "0.00000865219999337535727169168323179906691415037976388032873174097879646061246877817227432051836"
+        },
+        "contact_trial_delta_energy_j": "6.933447805558504084284011433E-16",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347799360828626908755503788",
+          "contact_trial": "-0.000001347799754003394363859769405",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 7,
+          "contact_trial": 11,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.65220038655014e-06,
+          "samples": 2049,
+          "t": 1.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652199993375354e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.25,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856329865494558e-10,
+        "applied_trial_separation_m": 8.652200449432712e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856344853505391e-10,
+        "contact_trial_separation_m": 8.65219953993801e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 1
+    },
+    {
+      "active_slot": 58,
+      "alpha": 0.125,
+      "contact_index": 1,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 100,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906450490349350994536544647958149135467684791155850092522440555833607492627103370",
+            "0.000180872093549509650649005463455352041850864532315208844149907477559444166392507372896630255"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633003164304725484649523637424714737829214650201264309909254315341042918944631955948194E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220065871231618785681887709719021309584482787042606822766276254925022982226904155598457"
+        },
+        "applied_trial_delta_energy_j": "-1.541375389501697272724775529E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519714808219349109260995249490003451771187609107008816277064690708050676065539011",
+            "0.000180988480285191780650890739004750509996548228812390892991183722935309291949323934460988685"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633503976084872175846415849228359920267261405298782001682140643090272266439852005198949E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220026553756397206864045112001071032671005290726469864871069696615015642419628943971880"
+        },
+        "contact_trial_delta_energy_j": "3.466742411965214696197342507E-16",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347799088666435447694633760",
+          "contact_trial": "-0.000001347799481841187663482812186",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 0,
+          "contact_trial": 9,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200537702763e-06,
+          "samples": 2049,
+          "t": 0.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200265537656e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.125,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856329865494558e-10,
+        "applied_trial_separation_m": 8.652200449432712e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856329865494558e-10,
+        "contact_trial_separation_m": 8.652200449432712e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 2
+    },
+    {
+      "active_slot": 58,
+      "alpha": 0.0625,
+      "contact_index": 1,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 100,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906368587507593775831923837625225561772360107824475331120738813148458510151585144",
+            "0.000180872093631412492406224168076162374774438227639892175524668879261186851541489848414856393"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85632830290193954051551418345616116560344794965049733726360734138536106645435258682194263E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220079443149014823833233425128428322443634690021700197180742890906270995536488073203606"
+        },
+        "applied_trial_delta_energy_j": "-3.270116497216028253777693615E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519632837576970777404725657995578589072627505745207635316526952198579895246682369",
+            "0.000180988480367162423029222595274342004421410927372494254792364683473047801420104753317630676"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633331101868419680430534339378973034051207179012597875560191586192401961009936181200095E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220040125674536315538564709014729824064444892140168047919790165600951677603076485532092"
+        },
+        "contact_trial_delta_energy_j": "1.738000247440260537382244013E-16",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347798952947261487313120302",
+          "contact_trial": "-0.000001347799346122006272396066990",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 3,
+          "contact_trial": 6,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200537702763e-06,
+          "samples": 2049,
+          "t": 0.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200401256681e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.0625,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856329865494558e-10,
+        "applied_trial_separation_m": 8.652200449432712e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856329865494558e-10,
+        "contact_trial_separation_m": 8.652200449432712e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 3
+    },
+    {
+      "active_slot": 58,
+      "alpha": 0.03125,
+      "contact_index": 1,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 100,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906332153167796839845894243508933916787133589757423642628456509203542210018325463",
+            "0.000180872093667846832203160154105756491066083212866410242576357371543490796457789981674537460"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85632743390191652501704454486994066785264364293014302159388150028090357618751040881805304E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220086265453511041412838404485120969007698926962582575768868494393769873905878775487260"
+        },
+        "applied_trial_delta_energy_j": "-4.139116520231526723416279836E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519596370162920606751014636298729602811412106107352907311377632637239311867783138",
+            "0.000180988480403629837079393248985363701270397188587893892647092688622367362760688132216862316"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633244201812777363500453875133969937645408867558335075207131451784075597205157089748068E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220046947979423112121015153751721610398045227447439003951198619208384900019205132578431"
+        },
+        "contact_trial_delta_energy_j": "8.689996910170912365776015631E-17",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347798884724216525137324253",
+          "contact_trial": "-0.000001347799277898957404430242485",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 4,
+          "contact_trial": 5,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200537702763e-06,
+          "samples": 2049,
+          "t": 0.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200469479852e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.03125,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856329865494558e-10,
+        "applied_trial_separation_m": 8.652200449432712e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856329865494558e-10,
+        "contact_trial_separation_m": 8.652200449432712e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 4
+    },
+    {
+      "active_slot": 58,
+      "alpha": 0.015625,
+      "contact_index": 1,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 100,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906312366297013085659675983779097698876658190276525302126734087175120857406361857",
+            "0.000180872093687633702986914340324016220902301123341809723474697873265912824879142593638143073"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85632699940262600933063843400300433559935616062852178307656023765580710881870436083527307E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220089676600345892290487374489018154043983154590961785654674275445043159690035980155171"
+        },
+        "applied_trial_delta_energy_j": "-4.573615810747213129527146772E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519575228917316802353719257968134263665604958694871550996348982220141430166448951",
+            "0.000180988480424771082683197646280742031865736334395041305128449003651017779858569833551048614"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633200751862696346644110254121681666080195618297395576380539379467897446313877712092821E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220050359126010399910214646549288732706203161121056719902462301181301281993290569623372"
+        },
+        "contact_trial_delta_energy_j": "4.345001902069226731413914402E-17",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347798850612748176628547763",
+          "contact_trial": "-0.000001347799243787491531552350490",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 5,
+          "contact_trial": 4,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200537702763e-06,
+          "samples": 2049,
+          "t": 0.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200503591174e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.015625,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856329865494558e-10,
+        "applied_trial_separation_m": 8.652200449432712e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856329865494558e-10,
+        "contact_trial_separation_m": 8.652200449432712e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 5
+    },
+    {
+      "active_slot": 58,
+      "alpha": 0.0078125,
+      "contact_index": 1,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 100,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906299606704042140238908992775929556662534466460215982906871093836785351299792197",
+            "0.000180872093700393295957859761091007224070443337465533539784017093128906163214648700207802845"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85632677753215452303679642650489565178729917974000165457418899279675825691369055177239327E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220091418450794629406303626391522632430419104042572376201546926230426644821149517623667"
+        },
+        "applied_trial_delta_energy_j": "-4.795486282233506971534644881E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519563879214683705418769590909560950285996807940607584144567040185444894063566439",
+            "0.000180988480436120785316294581230409090439049714003192059392415855432959814555105936433561188"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633177640332810029999635295299262190792923915750365370120997995344239809707363046470271E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220052173554313943633425088422065450678752300769333524833388943585689906512855721410030"
+        },
+        "contact_trial_delta_energy_j": "2.033848913437562283918032160E-17",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347798833194243689257389600",
+          "contact_trial": "-0.000001347799225643208496115118386",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 15,
+          "contact_trial": 3,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200537702763e-06,
+          "samples": 2049,
+          "t": 0.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200521735495e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.0078125,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.8563182081528e-10,
+        "applied_trial_separation_m": 8.652201358927414e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856329865494558e-10,
+        "contact_trial_separation_m": 8.652200449432712e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 6
+    },
+    {
+      "active_slot": 58,
+      "alpha": 0.00390625,
+      "contact_index": 1,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 100,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519558001495589828701254025916070065838740130213102856155898344760872377023385252",
+            "0.000180988480441998504410171298745974083929934161259869786897143844101655239127622976614747589"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633168395721365738870629386663467545621154222850862960428367997326175180911449356994167E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220052899325608352582450260196088914178312272424487370011737716907322695282382435788404"
+        },
+        "applied_trial_delta_energy_j": "1.109387769008449383327168581E-17",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519558082642700550258929411202212572090891953579473756123038812932463382141154326",
+            "0.000180988480441917357299449741070588797787427909108046420526243876961187067536617858845673924"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633167471257296793272843864799000189134981373874844288373382152856848450837996778782599E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220052971902967800048789378676592802799829288891901839411037102372824022555993391901991"
+        },
+        "contact_trial_delta_energy_j": "1.016941362113889604774982134E-17",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347799218385495552025628134",
+          "contact_trial": "-0.000001347799217659721957550964743",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 3,
+          "contact_trial": 3,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200528993228e-06,
+          "samples": 2049,
+          "t": 1.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200529719001e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.00390625,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856329865494558e-10,
+        "applied_trial_separation_m": 8.652200449432712e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856329865494558e-10,
+        "contact_trial_separation_m": 8.652200449432712e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 7
+    },
+    {
+      "active_slot": 89,
+      "alpha": 1.0,
+      "contact_index": 2,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 155,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819128158991965736737916086348580322761850367556125391932037942764421843638609578389028",
+            "0.000180871841008034263262083913651419677238149632443874608067962057235578156361390421610972039"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85635401135995798700510558914279224277167588711155502604179791937675068820543267054497324E-10",
+          "mollifier": "1",
+          "separation": "0.00000865219877612694394516135826201858972336471707636032739956207876870070960280585295338884476"
+        },
+        "applied_trial_delta_energy_j": "2.243834152123046133762799302E-15",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011520816774053963316547071764450491361212357215549971266075729073203455818041905851",
+            "0.000180988479183225946036683452928235549508638787642784450028733924270926796544181958094148812"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85635928735339273318587227524388336560259636308355679711814830779355574718728559651739460E-10",
+          "mollifier": "1",
+          "separation": "0.00000865219836192305844183190689830756770488040458010694987329686012634043227513100953715326519"
+        },
+        "contact_trial_delta_energy_j": "2.771433495597664210431409411E-15",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347800971251807690390094375",
+          "contact_trial": "-0.000001347801385455693193719545738",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 5,
+          "contact_trial": 5,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652198776126909e-06,
+          "samples": 2049,
+          "t": 1.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652198361923109e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 1.0,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856356510847149e-10,
+        "applied_trial_separation_m": 8.652198630443309e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856356510847149e-10,
+        "contact_trial_separation_m": 8.652198630443309e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 0
+    },
+    {
+      "active_slot": 89,
+      "alpha": 0.5,
+      "contact_index": 2,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 155,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906921959616137015124211331137296654565103667269435530274589832848493143341462834",
+            "0.000180872093078040383862984875788668862703345434896332730564469725410167151506856658537166422"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85634043162841900342634861132595149030385278843910401772643478370696424387193315651045782E-10",
+          "mollifier": "1",
+          "separation": "0.00000865219984223582570060615152913191563923781737783151342830066019214855383813200085943387488"
+        },
+        "applied_trial_delta_energy_j": "8.858609982246882580650176175E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011520189821110147978165656866629950604188445714479457591740791034408227643945408562",
+            "0.000180988479810178889852021834343133370049395811554285520542408259208965591772356054591437712"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85634543974924274929234394259094110917010468630952933179525450655204379432128723378747891E-10",
+          "mollifier": "1",
+          "separation": "0.00000865219944906129063715744803563007635914779675501144421052963971677505698885386457673767490"
+        },
+        "contact_trial_delta_energy_j": "1.386673080599274857598144116E-15",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347799905142925934945301108",
+          "contact_trial": "-0.000001347800298317460998394004601",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 8,
+          "contact_trial": 1,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652199842235858e-06,
+          "samples": 2049,
+          "t": 1.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652199449061294e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.5,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856344853505391e-10,
+        "applied_trial_separation_m": 8.65219953993801e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856344853505391e-10,
+        "contact_trial_separation_m": 8.65219953993801e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 1
+    },
+    {
+      "active_slot": 89,
+      "alpha": 0.25,
+      "contact_index": 2,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 155,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906606599582042054450540287056370378848363003019633976736372184130558154450327307",
+            "0.000180872093393400417957945549459712943629621151636996980366023263627815869441845549672693316"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633349834631728131952424259856928847281624343227462770388512063194547985127906700762339E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220038655012472679594884903724695165493500689563469834720676298946653917509048807003235"
+        },
+        "applied_trial_delta_energy_j": "1.925327880524775756281448793E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519871052227927248707569823080675076133454292828943265457854010397979262564186954",
+            "0.000180988480128947772072751292430176919324923866545707171056734542145989602020737435813045941"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633850646624231504785224516120960854865894041362496201596542334261215090879651277908559E-10",
+          "mollifier": "1",
+          "separation": "0.00000865219999337535727169168323179906691415037976388032873174097879646061246877817227432051836"
+        },
+        "contact_trial_delta_energy_j": "6.933447805558504084284011433E-16",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347799360828626908755503788",
+          "contact_trial": "-0.000001347799754003394363859769405",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 7,
+          "contact_trial": 11,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.65220038655014e-06,
+          "samples": 2049,
+          "t": 1.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652199993375354e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.25,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856329865494558e-10,
+        "applied_trial_separation_m": 8.652200449432712e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856344853505391e-10,
+        "contact_trial_separation_m": 8.65219953993801e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 2
+    },
+    {
+      "active_slot": 89,
+      "alpha": 0.125,
+      "contact_index": 2,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 155,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906450490349350994536544647958149135467684791155850092522440555833607492627103370",
+            "0.000180872093549509650649005463455352041850864532315208844149907477559444166392507372896630255"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633003164304725484649523637424714737829214650201264309909254315341042918944631955948194E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220065871231618785681887709719021309584482787042606822766276254925022982226904155598457"
+        },
+        "applied_trial_delta_energy_j": "-1.541375389501697272724775529E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519714808219349109260995249490003451771187609107008816277064690708050676065539011",
+            "0.000180988480285191780650890739004750509996548228812390892991183722935309291949323934460988685"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633503976084872175846415849228359920267261405298782001682140643090272266439852005198949E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220026553756397206864045112001071032671005290726469864871069696615015642419628943971880"
+        },
+        "contact_trial_delta_energy_j": "3.466742411965214696197342507E-16",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347799088666435447694633760",
+          "contact_trial": "-0.000001347799481841187663482812186",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 0,
+          "contact_trial": 9,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200537702763e-06,
+          "samples": 2049,
+          "t": 0.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200265537656e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.125,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856329865494558e-10,
+        "applied_trial_separation_m": 8.652200449432712e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856329865494558e-10,
+        "contact_trial_separation_m": 8.652200449432712e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 3
+    },
+    {
+      "active_slot": 89,
+      "alpha": 0.0625,
+      "contact_index": 2,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 155,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906368587507593775831923837625225561772360107824475331120738813148458510151585144",
+            "0.000180872093631412492406224168076162374774438227639892175524668879261186851541489848414856393"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85632830290193954051551418345616116560344794965049733726360734138536106645435258682194263E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220079443149014823833233425128428322443634690021700197180742890906270995536488073203606"
+        },
+        "applied_trial_delta_energy_j": "-3.270116497216028253777693615E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519632837576970777404725657995578589072627505745207635316526952198579895246682369",
+            "0.000180988480367162423029222595274342004421410927372494254792364683473047801420104753317630676"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633331101868419680430534339378973034051207179012597875560191586192401961009936181200095E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220040125674536315538564709014729824064444892140168047919790165600951677603076485532092"
+        },
+        "contact_trial_delta_energy_j": "1.738000247440260537382244013E-16",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347798952947261487313120302",
+          "contact_trial": "-0.000001347799346122006272396066990",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 3,
+          "contact_trial": 6,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200537702763e-06,
+          "samples": 2049,
+          "t": 0.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200401256681e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.0625,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856329865494558e-10,
+        "applied_trial_separation_m": 8.652200449432712e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856329865494558e-10,
+        "contact_trial_separation_m": 8.652200449432712e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 4
+    },
+    {
+      "active_slot": 89,
+      "alpha": 0.03125,
+      "contact_index": 2,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 155,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906332153167796839845894243508933916787133589757423642628456509203542210018325463",
+            "0.000180872093667846832203160154105756491066083212866410242576357371543490796457789981674537460"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85632743390191652501704454486994066785264364293014302159388150028090357618751040881805304E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220086265453511041412838404485120969007698926962582575768868494393769873905878775487260"
+        },
+        "applied_trial_delta_energy_j": "-4.139116520231526723416279836E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519596370162920606751014636298729602811412106107352907311377632637239311867783138",
+            "0.000180988480403629837079393248985363701270397188587893892647092688622367362760688132216862316"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633244201812777363500453875133969937645408867558335075207131451784075597205157089748068E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220046947979423112121015153751721610398045227447439003951198619208384900019205132578431"
+        },
+        "contact_trial_delta_energy_j": "8.689996910170912365776015631E-17",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347798884724216525137324253",
+          "contact_trial": "-0.000001347799277898957404430242485",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 4,
+          "contact_trial": 5,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200537702763e-06,
+          "samples": 2049,
+          "t": 0.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200469479852e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.03125,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856329865494558e-10,
+        "applied_trial_separation_m": 8.652200449432712e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856329865494558e-10,
+        "contact_trial_separation_m": 8.652200449432712e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 5
+    },
+    {
+      "active_slot": 89,
+      "alpha": 0.015625,
+      "contact_index": 2,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 155,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906312366297013085659675983779097698876658190276525302126734087175120857406361857",
+            "0.000180872093687633702986914340324016220902301123341809723474697873265912824879142593638143073"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85632699940262600933063843400300433559935616062852178307656023765580710881870436083527307E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220089676600345892290487374489018154043983154590961785654674275445043159690035980155171"
+        },
+        "applied_trial_delta_energy_j": "-4.573615810747213129527146772E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519575228917316802353719257968134263665604958694871550996348982220141430166448951",
+            "0.000180988480424771082683197646280742031865736334395041305128449003651017779858569833551048614"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633200751862696346644110254121681666080195618297395576380539379467897446313877712092821E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220050359126010399910214646549288732706203161121056719902462301181301281993290569623372"
+        },
+        "contact_trial_delta_energy_j": "4.345001902069226731413914402E-17",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347798850612748176628547763",
+          "contact_trial": "-0.000001347799243787491531552350490",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 5,
+          "contact_trial": 4,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200537702763e-06,
+          "samples": 2049,
+          "t": 0.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200503591174e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.015625,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.856329865494558e-10,
+        "applied_trial_separation_m": 8.652200449432712e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856329865494558e-10,
+        "contact_trial_separation_m": 8.652200449432712e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 6
+    },
+    {
+      "active_slot": 89,
+      "alpha": 0.0078125,
+      "contact_index": 2,
+      "contact_nodes": [
+        10,
+        27,
+        28,
+        31
+      ],
+      "contact_slot": 155,
+      "independent_exact_endpoint_geometry": {
+        "applied_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819127906299606704042140238908992775929556662534466460215982906871093836785351299792197",
+            "0.000180872093700393295957859761091007224070443337465533539784017093128906163214648700207802845"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85632677753215452303679642650489565178729917974000165457418899279675825691369055177239327E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220091418450794629406303626391522632430419104042572376201546926230426644821149517623667"
+        },
+        "applied_trial_delta_energy_j": "-4.795486282233506971534644881E-16",
+        "contact_trial": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519563879214683705418769590909560950285996807940607584144567040185444894063566439",
+            "0.000180988480436120785316294581230409090439049714003192059392415855432959814555105936433561188"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633177640332810029999635295299262190792923915750365370120997995344239809707363046470271E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220052173554313943633425088422065450678752300769333524833388943585689906512855721410030"
+        },
+        "contact_trial_delta_energy_j": "2.033848913437562283918032160E-17",
+        "current": {
+          "barrier_active": true,
+          "barycentric": [
+            "0",
+            "0.999819011519555425519239330692081559033655897263273000688071203492462078746807708097376542",
+            "0.000180988480444574480760669307918440966344102736726999311928796507537921253192291902623458165"
+          ],
+          "branch": "edge_bc",
+          "energy": "5.85633157301843675654376796114977658760668813144348955729310724140634619928503162878909611E-10",
+          "mollifier": "1",
+          "separation": "0.00000865220053770278174683946727481313432452212324477157827236440301872145629968854135923947840"
+        },
+        "endpoint_clearance_m": {
+          "applied_trial": "-0.000001347798833194243689257389600",
+          "contact_trial": "-0.000001347799225643208496115118386",
+          "current": "-0.000001347799209675969888711985362"
+        },
+        "production_vs_high_precision_energy_ulp": {
+          "applied_trial": 15,
+          "contact_trial": 3,
+          "current": 3
+        }
+      },
+      "independent_swept_distance_sampling": {
+        "applied_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200537702763e-06,
+          "samples": 2049,
+          "t": 0.0
+        },
+        "contact_trial": {
+          "method": "uniform time samples of binary64 point-triangle distance; diagnostic, not CCD certificate",
+          "min_separation_m": 8.652200521735495e-06,
+          "samples": 2049,
+          "t": 1.0
+        }
+      },
+      "parameters": {
+        "input_collision_thickness_m": 3.815314730815089e-09,
+        "stiffness": "3200386334720",
+        "thickness_m": "0.00000999999974737875163555145263671875"
+      },
+      "production": {
+        "alpha_record": 0.0078125,
+        "applied_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "applied_trial_energy_j": 5.8563182081528e-10,
+        "applied_trial_separation_m": 8.652201358927414e-06,
+        "armijo_rhs_j": 5.856329865494558e-10,
+        "contact_ccd": {
+          "certified": 1.0,
+          "hit": 0.0,
+          "retries": 0.0,
+          "separation_at_return_m": 8.652231372252572e-06,
+          "tested_fraction": 1.0,
+          "toi": 0.0
+        },
+        "contact_trial_energy_j": 5.856329865494558e-10,
+        "contact_trial_separation_m": 8.652200449432712e-06,
+        "current_energy_j": 5.856329865494558e-10,
+        "current_separation_m": 8.652200449432712e-06,
+        "current_valid": 1.0,
+        "derivative_inputs_valid": 1.0,
+        "directional_derivative_j_per_alpha": -4.4475218253787856e-15,
+        "trial_valid_bits": 3.0
+      },
+      "sample_index": 7
+    }
+  ],
+  "schema": "numi.cardboard.native511_production_helper_audit.v1",
+  "scope": "Independent Decimal 90-digit closest-point/barrier evaluation on exact emitted FP32 endpoint words, plus sampled binary64 path-distance diagnostics. Production CCD bits are recorded directly. Sampling is not a substitute CCD certificate.",
+  "summary": {
+    "all_endpoint_highprecision_separations_exceed_contact_thickness": false,
+    "negative_highprecision_applied_energy_changes": 15,
+    "positive_highprecision_applied_energy_changes": 9,
+    "production_ccd_all_applied_trial_certified_full_no_hit": true,
+    "production_ccd_all_contact_trial_certified_full_no_hit": true,
+    "production_highprecision_endpoint_energy_max_abs_difference_j": 8.569379354725329e-16,
+    "sample_count": 24,
+    "sampled_path_min_clearance_m": -1.3478009712518427e-06,
+    "zero_highprecision_applied_energy_changes": 0
+  }
+}

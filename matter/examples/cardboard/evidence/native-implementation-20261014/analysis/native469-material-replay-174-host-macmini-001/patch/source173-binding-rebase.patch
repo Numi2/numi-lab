@@ -1,0 +1,19 @@
+--- a/source174-exact.mm
++++ b/source173-bound.mm
+@@ -1,6 +1,6 @@
+ #include <map>
+ #include <optional>
+-#define main source169_capture_diagnostic_legacy_main
++#define main source173_capture_diagnostic_legacy_main
+ #include "cardboard_bilinear15_capture_diagnostic_check.mm"
+ #undef main
+ 
+@@ -738,7 +738,7 @@
+         }
+     }
+     std::ofstream file(path);need(file.good(),"cannot write native replay manifest");
+-    file<<"{\"schema\":\"numi.cardboard.native469-material-replay.v1\",\"source_snapshot\":\"source-warm-cgls-refinement-169\","
++    file<<"{\"schema\":\"numi.cardboard.native469-material-replay.v1\",\"source_snapshot\":\"source-checkpoint-warm-breakdown-173\","
+         <<"\"checker_base_snapshot_sha256\":\""<<kBaseSnapshotSHA<<"\","
+         <<"\"capture_sha256\":\""<<captureSHA<<"\",\"compiled_package_sha256\":\""<<packageSHA
+         <<"\",\"run_manifest_sha256\":\""<<runManifestSHA<<"\",\"receipt_sha256\":\""<<receiptSHA

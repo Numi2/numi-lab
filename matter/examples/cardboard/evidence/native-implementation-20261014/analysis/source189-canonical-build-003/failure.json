@@ -1,0 +1,20 @@
+{
+  "status": "SOURCE_PREFLIGHT_REJECTED",
+  "before_build": true,
+  "before_native": true,
+  "reason": "Stale candidate source manifest after final CCD edit",
+  "mismatches": {
+    "matter/src/metal/contact.metalinc": {
+      "frozen": "a102749ef13ac17276f2e3b014f362ccfa7967327340bbf4677be4b6e2cdb048",
+      "actual": "deb984d07de73477c294446eaacaae4e8a8bf374d895056018b9d8047d491cec"
+    },
+    "matter/src/metal/fem.metalinc": {
+      "frozen": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170",
+      "actual": "bbd6abd764f723e6f0b266b80a3c99e100384e68e5ca5ae7cdd29cad36fb6a43"
+    },
+    "matter/src/runtime.mm": {
+      "frozen": "60bd26def9d1fde3cee4060a21b7d983e8fa817accf3f0dbd5c8bee8e194a2f6",
+      "actual": "9ed2a0011bbecb138ac1bcb9089a07899a34b5d39b43e1cfce3b2e42565f4e01"
+    }
+  }
+}

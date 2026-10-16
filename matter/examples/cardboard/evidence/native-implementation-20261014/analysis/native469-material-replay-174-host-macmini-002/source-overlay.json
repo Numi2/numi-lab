@@ -1,0 +1,27 @@
+{
+  "changes": [
+    "unique O_EXCL run namespace and per-run CPU/native outputs/receipts",
+    "single source worker flock acquired once and held across execution; no self-probe",
+    "worker process checks before and after lease",
+    "file-backed child stdout/stderr with per-file namespace",
+    "bounded native stdout+stderr log size"
+  ],
+  "limitations": [
+    "CPU unit tests use a fake child; no live source173 CPU admission was rerun",
+    "preflight launch_allowed is observational only; execute repeats guards under exclusive flock",
+    "native result remains unqualified until parent dispatches and independently reviews its receipt"
+  ],
+  "native_execution_by_agent": false,
+  "overlay_id": "native469-material-replay-174-host-macmini-v4",
+  "parent_manifest_sha256": "6b30054438247b0df76b164be2725686c5096154d90b7b78183e41318e1ca762",
+  "parent_package": "/Users/home/cardboard-implementation-20261014/analysis/native469-material-replay-174-host-macmini-001",
+  "remote_package_target": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-002",
+  "runner_path": "validation/run_guarded_source469_v4.py",
+  "runner_sha256": "5752efa81a54a2b4ff25c3e4709e722f5fb861452fae43b60d64824824a2aac4",
+  "schema": "numi.cardboard.native469.guarded-runner-v4.source-overlay.v1",
+  "supersedes": "v3 runner only; v3 package and receipts remain untouched",
+  "test_path": "tests/test_guarded_source469_v4.py",
+  "test_result": "PASS 6/6 CPU-only unit tests",
+  "test_sha256": "c44e5366df76da521a1fc95e7ae97a0471e2313bf0a15fc61410e00022fab05d",
+  "unchanged_bindings": "all eight v3 INPUTS and all eight EXPECTED source/build/checker hashes match byte-for-byte"
+}

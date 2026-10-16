@@ -1,0 +1,109 @@
+{
+  "equivalent_all_3": true,
+  "files": [
+    {
+      "path": "matter/tools/cardboard_bilinear15_capture_diagnostic.metal",
+      "source173": "23f6f758cda7ccc0e0651e45a298644e6b71a3c25cd5ef2f7c9cbe4ceca40628",
+      "source169": "23f6f758cda7ccc0e0651e45a298644e6b71a3c25cd5ef2f7c9cbe4ceca40628",
+      "source157": "23f6f758cda7ccc0e0651e45a298644e6b71a3c25cd5ef2f7c9cbe4ceca40628",
+      "equal_169": true,
+      "equal_157": true
+    },
+    {
+      "path": "matter/src/metal/common.metalinc",
+      "source173": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380",
+      "source169": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380",
+      "source157": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380",
+      "equal_169": true,
+      "equal_157": true
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "source173": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8",
+      "source169": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8",
+      "source157": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8",
+      "equal_169": true,
+      "equal_157": true
+    },
+    {
+      "path": "matter/include/numi/matter/paper_compensated_bytecode.h",
+      "source173": "f578310307a4698692fc57117340794ac4ce2d3813cdfcf705da6a018a5976aa",
+      "source169": "f578310307a4698692fc57117340794ac4ce2d3813cdfcf705da6a018a5976aa",
+      "source157": "f578310307a4698692fc57117340794ac4ce2d3813cdfcf705da6a018a5976aa",
+      "equal_169": true,
+      "equal_157": true
+    },
+    {
+      "path": "matter/include/numi/matter/fem_compensated_deformation.h",
+      "source173": "47d61e2f85bfbea5aac370211e56251ff67f0c7a28d577c276fd285b88225f33",
+      "source169": "47d61e2f85bfbea5aac370211e56251ff67f0c7a28d577c276fd285b88225f33",
+      "source157": "47d61e2f85bfbea5aac370211e56251ff67f0c7a28d577c276fd285b88225f33",
+      "equal_169": true,
+      "equal_157": true
+    },
+    {
+      "path": "matter/include/numi/matter/hill_scalar_initializer.h",
+      "source173": "aa47b464d4d9157df57a7f223b1ac77122249d8a0c00f45e9a03723f2a58bd49",
+      "source169": "aa47b464d4d9157df57a7f223b1ac77122249d8a0c00f45e9a03723f2a58bd49",
+      "source157": "aa47b464d4d9157df57a7f223b1ac77122249d8a0c00f45e9a03723f2a58bd49",
+      "equal_169": true,
+      "equal_157": true
+    },
+    {
+      "path": "matter/include/numi/matter/shared.h",
+      "source173": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+      "source169": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+      "source157": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+      "equal_169": true,
+      "equal_157": true
+    },
+    {
+      "path": "matter/include/numi/matter/fiber_exp_linear.h",
+      "source173": "26ca19f47c8ece392409fe233708cc87d96b31eb010359cb987b1eed38dee49c",
+      "source169": "26ca19f47c8ece392409fe233708cc87d96b31eb010359cb987b1eed38dee49c",
+      "source157": "26ca19f47c8ece392409fe233708cc87d96b31eb010359cb987b1eed38dee49c",
+      "equal_169": true,
+      "equal_157": true
+    },
+    {
+      "path": "include/metalrobo/compensated_geometry_gpu.h",
+      "source173": "1bf85c7e7b8b2102c5e0e6f3fbba88e2b30530e6b5fbb33375fb581d5261d84e",
+      "source169": "1bf85c7e7b8b2102c5e0e6f3fbba88e2b30530e6b5fbb33375fb581d5261d84e",
+      "source157": "1bf85c7e7b8b2102c5e0e6f3fbba88e2b30530e6b5fbb33375fb581d5261d84e",
+      "equal_169": true,
+      "equal_157": true
+    },
+    {
+      "path": "include/metalrobo/compensated_translation_gpu.h",
+      "source173": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097",
+      "source169": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097",
+      "source157": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097",
+      "equal_169": true,
+      "equal_157": true
+    },
+    {
+      "path": "include/metalrobo/engine_types.h",
+      "source173": "2eacf034dcce6b4cafb56b1db90a24e3bbc1a8d75b324722daed34a95d21dcb2",
+      "source169": "2eacf034dcce6b4cafb56b1db90a24e3bbc1a8d75b324722daed34a95d21dcb2",
+      "source157": "2eacf034dcce6b4cafb56b1db90a24e3bbc1a8d75b324722daed34a95d21dcb2",
+      "equal_169": true,
+      "equal_157": true
+    },
+    {
+      "path": "include/metalrobo/rod_gpu_shared.h",
+      "source173": "0e8a2fc59a2969ca2493aaa0ee9d6e51cac723a22a63cb2e6d03b00807fd373d",
+      "source169": "0e8a2fc59a2969ca2493aaa0ee9d6e51cac723a22a63cb2e6d03b00807fd373d",
+      "source157": "0e8a2fc59a2969ca2493aaa0ee9d6e51cac723a22a63cb2e6d03b00807fd373d",
+      "equal_169": true,
+      "equal_157": true
+    },
+    {
+      "path": "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm",
+      "source173": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81",
+      "source169": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81",
+      "source157": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81",
+      "equal_169": true,
+      "equal_157": true
+    }
+  ]
+}

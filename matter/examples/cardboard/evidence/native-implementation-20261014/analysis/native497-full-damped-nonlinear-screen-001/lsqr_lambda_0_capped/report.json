@@ -1,0 +1,247 @@
+{
+  "bindings": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173/include/metalrobo/compensated_geometry_gpu.h": "1bf85c7e7b8b2102c5e0e6f3fbba88e2b30530e6b5fbb33375fb581d5261d84e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173/include/metalrobo/compensated_translation_gpu.h": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173/matter/include/numi/matter/fem_compensated_deformation.h": "47d61e2f85bfbea5aac370211e56251ff67f0c7a28d577c276fd285b88225f33",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173/matter/src/metal/fem.metalinc": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-portable-paper-reference-185/matter/tools/cardboard_bilinear_fp64_reference.py": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-portable-paper-reference-185/matter/tools/cardboard_compensated_fp64_base.py": "b135c6ff0091f0833c8dad89239abdde209fc6e0eb91babeb72313b29a88bb6c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-portable-paper-reference-185/matter/tools/cardboard_compensated_fp64_reference.py": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-portable-paper-reference-185/matter/tools/cardboard_dd_fp64.py": "8edfd60beb2c38d181a08023d9f97bea0fec80b0f6fa04f8690c7dfe234330c2",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.bin": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.json": "b03e1bf2ee33162b2cca750ac14127d1e4a1b2e6df68c1fe71b081b0b251975c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-operator-fd-capture/capture": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/output/compiled.nmatterpack": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/output/manifest.json": "315102605605164ed388056567251a92b4bdb4d5820f154d4923d4bf4cadf327",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/output/rejected-conditioning-000021/manifest.json": "eb16d0e1ef9148922ef2c1f47623e1414a1ee7145520cfb60fb0744efd1c8557",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/stderr.log": "5fa88ac463656bb5565705de2995c12525c60cc6eb271440175ca694c2b67305"
+  },
+  "candidate_direction": {
+    "embedded_trial_dtype": "float32",
+    "file": "iteration_limited_lsqr_lambda_0_full_step.npy",
+    "free_node_count": 846,
+    "free_node_order": "ascending native node IDs selected by captured candidate-node tag/mass predicate; lambda-zero SVD vs exact-LU norm difference is checked in source report",
+    "free_xyz_count": 2538,
+    "input_candidate_set_manifest_sha256": "f6b1d1dd4d8c1abc45a4d6f6bd7c542ef432d1ab35b4da131b940f8cb7fbfabe",
+    "name": "lsqr_lambda_0_capped",
+    "native_trial_step": "The external candidate is cast to FP32 before the same captured production displacement/velocity update; no CGLS certificate or native nonlinear acceptance is inherited.",
+    "semantics": "incomplete iteration-limited LSQR total x from zero, lambda=0; status 7 at cap 5000",
+    "sha256": "959214302a800a25a8118c52578d82e45155bc5c3f5c2183e64a04df52e8b3f1",
+    "stored_dtype": "float64",
+    "vector_float32_l2_m_s": 0.03262292966246605,
+    "vector_l2_m_s": 0.032622929050346576
+  },
+  "center_projection_and_native_stress_comparison": {
+    "captured_center_F_vs_node_geometry_max_abs": 3.9818025876492413e-08,
+    "max_dynamic_correction": 2.810463845425636e-13,
+    "max_iterations": 10,
+    "max_scaled_residual": 1.954412311200781e-12,
+    "native_center_stress_global_frobenius_relative": 2.392810481163661e-08,
+    "native_center_stress_max_abs_error_pa": 0.1247607278637588,
+    "paper_tets": 1728,
+    "strict_failures": [],
+    "strict_pass_count": 1728
+  },
+  "curve": [
+    {
+      "alpha": 0.0,
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9390164468881665,
+          "yield_min": 9.25592935629993e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9607166336631368,
+          "yield_min": 3.4727776210274897e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "failed_tets": [],
+      "free_residual_l2_Ns": 1.8846220284320863e-05,
+      "internal_delta_l2_Ns": 0.0,
+      "internal_only_residual_l2_Ns": 1.8846220284320863e-05,
+      "mass_delta_l2_Ns": 0.0,
+      "mass_only_residual_l2_Ns": 1.8846220284320863e-05,
+      "max_dynamic_correction": 2.810463845425636e-13,
+      "max_local_iterations": 10,
+      "max_scaled_residual": 1.954412311200781e-12,
+      "strict_all_paper_projection_pass": true,
+      "strict_fail_count": 0
+    },
+    {
+      "alpha": 0.25,
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9408225586856809,
+          "yield_min": 9.273692924693933e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.940307429913234,
+          "yield_min": 3.4794389591752406e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "failed_tets": [],
+      "free_residual_l2_Ns": 1.4860299283998358e-05,
+      "internal_delta_l2_Ns": 4.96983216344033e-06,
+      "internal_only_residual_l2_Ns": 1.4861140847741204e-05,
+      "mass_delta_l2_Ns": 4.46746078725531e-09,
+      "mass_only_residual_l2_Ns": 1.884534793011672e-05,
+      "max_dynamic_correction": 1.500570964190566e-13,
+      "max_local_iterations": 10,
+      "max_scaled_residual": 1.9587890407437696e-12,
+      "strict_all_paper_projection_pass": true,
+      "strict_fail_count": 0
+    },
+    {
+      "alpha": 0.5,
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9345190864995307,
+          "yield_min": 9.29256671611256e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9372963049125651,
+          "yield_min": 3.4861002973229915e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "failed_tets": [],
+      "free_residual_l2_Ns": 1.1888125912933512e-05,
+      "internal_delta_l2_Ns": 1.0041895344466742e-05,
+      "internal_only_residual_l2_Ns": 1.1889571521453948e-05,
+      "mass_delta_l2_Ns": 8.93491132912339e-09,
+      "mass_only_residual_l2_Ns": 1.884447659020782e-05,
+      "max_dynamic_correction": 1.8123070559632786e-12,
+      "max_local_iterations": 11,
+      "max_scaled_residual": 1.981567782410231e-12,
+      "strict_all_paper_projection_pass": true,
+      "strict_fail_count": 0
+    },
+    {
+      "alpha": 1.0,
+      "branch_transitions": {
+        "0": {
+          "lambda_positive": 1152,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9325968570674031,
+          "yield_min": 9.32698362987594e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        },
+        "1": {
+          "lambda_positive": 576,
+          "lambda_sign_flips": 0,
+          "yield_max": 0.9531197817304022,
+          "yield_min": 3.497202527569243e-13,
+          "yield_negative": 0,
+          "yield_sign_flips": 0
+        }
+      },
+      "failed_tets": [],
+      "free_residual_l2_Ns": 1.2669464903551046e-05,
+      "internal_delta_l2_Ns": 1.9798286277223284e-05,
+      "internal_only_residual_l2_Ns": 1.2669706259009373e-05,
+      "mass_delta_l2_Ns": 1.786982257423722e-08,
+      "mass_only_residual_l2_Ns": 1.8842736977385114e-05,
+      "max_dynamic_correction": 2.550301040129069e-12,
+      "max_local_iterations": 10,
+      "max_scaled_residual": 1.970028763999453e-12,
+      "strict_all_paper_projection_pass": true,
+      "strict_fail_count": 0
+    }
+  ],
+  "elapsed_seconds": 30.77979302406311,
+  "environment": 0,
+  "evidence_class": "CPU-only strict-reference nonlinear direction screen; no native dispatch or qualification",
+  "identity": {
+    "E": 2,
+    "N": 882,
+    "T": 1920,
+    "cgls_header": [
+      1397507907,
+      3,
+      2,
+      882,
+      3528,
+      64,
+      13,
+      0
+    ],
+    "cgls_sha256": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646",
+    "cgls_x_fixed_max_abs_m_s": 0.0,
+    "cgls_x_free_norm_m_s": 0.032622929000336205,
+    "dt_fp32": 4.999999873689376e-05,
+    "errors": [
+      0,
+      16
+    ],
+    "execution_fingerprint": "430c1fc2739f9879",
+    "fixed_count": 36,
+    "free_node_count": 846,
+    "selected": [
+      1,
+      0
+    ],
+    "state_payload_sha256": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1",
+    "world_fingerprint": "48d3b8b313356bd9"
+  },
+  "input_integrity": {
+    "captured_center_residual_l2_Ns": 1.8846220284320863e-05,
+    "center_geometry_reconstruction_max_abs_F": 3.9818025876492413e-08,
+    "history_word_mismatch_count_fd_json_vs_sidecar": 0,
+    "node_word_mismatch_count_fd_json_vs_sidecar": 0,
+    "trial_geometry": "FP32 candidate velocity and accepted reference-displacement update from exact captured words; double contraction of realized words. Alpha-zero anchored to captured F high+low and geometry-derived delta. Not a native trial capture."
+  },
+  "interpretation": {
+    "constitutive_delta": "dt*(f_internal_trial-f_internal_center) from strict independent projection and source element-force/gather equations",
+    "limits": [
+      "No GPU/native/physical step was run.",
+      "Trial material states are strict CPU reference projections; no native material-state trial capture exists for the CGLS direction.",
+      "Any strict projection failure makes the full residual at that alpha inconclusive; failed rows remain listed.",
+      "FP64 trial geometry/material evaluation is not bitwise Metal emulation and cannot certify native Armijo.",
+      "One control20/Newton63 diagnostic linearization; not full coupon qualification.",
+      "Direction candidates were generated from the captured FP32-cache operator; this replay evaluates nonlinear material response independently in strict compensated FP64 and is not a native acceptance result."
+    ],
+    "mass_delta": "-M*(v_trial-v_center) on free rows",
+    "residual": "captured native center residual plus independently recomputed mass and constitutive deltas; alpha-independent loads cancel"
+  },
+  "native_armijo_newton63": {
+    "not_applicable": "This value reports the original captured Newton direction and is not a trial result for the external candidate."
+  },
+  "newton_iteration": 63,
+  "reference": {
+    "base_sha256": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995",
+    "dd_helper_sha256": "8edfd60beb2c38d181a08023d9f97bea0fec80b0f6fa04f8690c7dfe234330c2",
+    "dynamic_correction_gate": 2e-11,
+    "implementation": "source-portable-paper-reference-185 compensated FP64 strict API",
+    "iteration_ceiling": 80,
+    "scaled_residual_gate": 2e-12,
+    "strict_api_sha256": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c"
+  },
+  "root": 20,
+  "schema": "numi.cardboard.native497-warm-cgls-nonlinear-residual-cpu-audit.v1",
+  "source_case": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497"
+}

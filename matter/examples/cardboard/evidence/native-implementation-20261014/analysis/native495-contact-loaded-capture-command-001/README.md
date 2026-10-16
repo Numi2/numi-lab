@@ -1,0 +1,1 @@
+Retain actual failing loaded control2 deformable-contact geometry and full trace; accepted activation control1 and rejection unchanged. Existing494 no-contact-trace case is the raw-state comparison. No contact qualification.

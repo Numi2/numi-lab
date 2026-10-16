@@ -1,0 +1,79 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 397,
+      "sha256": "dc6bb676eed5027ba9551e86c8b2b2bf1f82b0c90271952b1e33796b31a1f08d"
+    },
+    "lsqr_lambda_0_capped/README.md": {
+      "bytes": 432,
+      "sha256": "6c993381f0a8e4f9807fd0f0a04703d1145e445c687560610c692f1939dd2523"
+    },
+    "lsqr_lambda_0_capped/curve.json": {
+      "bytes": 4038,
+      "sha256": "37c2f6ae2decdc63d899f7184bb23e52607c62bd10120b8f6fe3ef04314d1a8f"
+    },
+    "lsqr_lambda_0_capped/report.json": {
+      "bytes": 12597,
+      "sha256": "0cd6b588bfad3b46364cdf594a413a7947ee41d5f62634c35714ebbb9e0bc905"
+    },
+    "report.json": {
+      "bytes": 13535,
+      "sha256": "074b67aea87bd8e11a2db011c73a138232c2d7a5788b4e6109d920bfe2ce7285"
+    },
+    "run_screen.py": {
+      "bytes": 10701,
+      "sha256": "1ac0e39cccdf71c032ee1bb6af508b2071ef59cc9372effc044eade7f8c888a6"
+    },
+    "svd_lambda_1e-03/README.md": {
+      "bytes": 415,
+      "sha256": "d90766990c67c5d2da1b3e5d06b6d178f357ab76816fe415006b0debb61a09f3"
+    },
+    "svd_lambda_1e-03/curve.json": {
+      "bytes": 4043,
+      "sha256": "a03f794bf02898cc9c344eaed0d4d61f914adb7810c964fe00e8cb235996a74a"
+    },
+    "svd_lambda_1e-03/report.json": {
+      "bytes": 12566,
+      "sha256": "2c79303d053efb9e323f913545ef130083f06fc6f401b0a7a7ee289563156978"
+    },
+    "svd_lambda_1e-04/README.md": {
+      "bytes": 415,
+      "sha256": "a754c50d102ebb714b8448ccfb124e8ffd5b5df630b7e633b83b7b1bb44c7be1"
+    },
+    "svd_lambda_1e-04/curve.json": {
+      "bytes": 4036,
+      "sha256": "7e8d3038aaf7b0d468281d2ba10482e973075ff155538cb8672142ec2c8f556c"
+    },
+    "svd_lambda_1e-04/report.json": {
+      "bytes": 12558,
+      "sha256": "39f5e6b9be86b0faf534da6ff81770c5fcf237b37be05ef87dd37fe59f307421"
+    },
+    "svd_lambda_1e-05/README.md": {
+      "bytes": 415,
+      "sha256": "717997a7b72be097cc72ea790c2f92ac941395da3cb55dd1b142de9a7c06404b"
+    },
+    "svd_lambda_1e-05/curve.json": {
+      "bytes": 4039,
+      "sha256": "b020ea7077f31c42c4c79328d03d001cd408909fdccad85b4d01811f4d7f746d"
+    },
+    "svd_lambda_1e-05/report.json": {
+      "bytes": 12559,
+      "sha256": "f37080e67b58bffe72d40189ed57b99ecb6ab039fb97eec8d4ecccc1598cf7a5"
+    },
+    "svd_lambda_1e-06/README.md": {
+      "bytes": 415,
+      "sha256": "4a8520f6fbb9528d9eefee5178bd467c165b6429156509c6696d75e15cdada1e"
+    },
+    "svd_lambda_1e-06/curve.json": {
+      "bytes": 4034,
+      "sha256": "f07022366d8c0e743c76a5cf1cc43131c41ac7a9fb2f31cf8c6c055aaab2aee4"
+    },
+    "svd_lambda_1e-06/report.json": {
+      "bytes": 12552,
+      "sha256": "5b24ef17dea5a36b93b14da6cbdf223a75421d3793c01841f23f563a85c0910f"
+    }
+  },
+  "package": "native497-full-damped-nonlinear-screen-003",
+  "schema": "numi.cardboard.analysis-package.v1",
+  "scope": "CPU-only strict-reference direction screen"
+}

@@ -1,0 +1,49 @@
+{
+  "schema": "numi.cardboard.native-sparse-scan-command.v1",
+  "name": "native-sparse-private-scan-check-170-001",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169",
+  "source_overlay": "/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001",
+  "source_overlay_json_sha256": "55c7aa0d6b35c2bf4912b572e569899ee31c5ddceb56b48bf276118ffbc62e66",
+  "source_overlay_patch_sha256": "be6644bf143a32ed9cfcc6d776c455345f7d8631d96dbdd7735df6613a7a2e0e",
+  "source_checker_sha256": "bf18e81d70b3ca120d0afa479af0bcb5c4c1b435c1dbd55b8df6db820a7b8b5d",
+  "source_metallib_sha256": "4fcf68c0a2fffa4b2ae053829f239b983f41b166ea6d53da685216a4ad0ed269",
+  "checker_binary_sha256": "b28cf5ef12bf13935f12302ecf29786d6d79a0d9cf83508b14148f5bf647181d",
+  "native_argv": ["/Users/home/cardboard-implementation-20261014/analysis/native-sparse-private-scan-check-170-001/validation/sparse-scan-checker"],
+  "native_gpu_case_count": 49,
+  "total_environment_pair_slots": 6366845,
+  "maximum_single_case": {
+    "pair_domain": 6335568,
+    "candidate_capacity": 65536,
+    "blocks": 24749,
+    "checker_one_run_buffer_bytes": 25703664,
+    "three_cpu_output_vector_copies_estimate_bytes": 76813404,
+    "runtime_candidate_sample_bytes_not_allocated_by_checker": 10485760
+  },
+  "guard": {
+    "mode": "preflight by default; --execute explicitly dispatches Metal",
+    "minimum_available_bytes": 2147483648,
+    "emergency_reserve_bytes": 134217728,
+    "abort_floor_bytes": 536870912,
+    "timeout_seconds": 900,
+    "preserved_stopped_process": {
+      "pid": 77441,
+      "ppid": 76106,
+      "state": "T",
+      "command": "/Users/home/numi-cardboard-20261006/build-cardboard-world/matter/numi-matter-cardboard-paper-material-check",
+      "parent_comm_basename": "lldb"
+    }
+  },
+  "compile_argv": [
+    "/usr/bin/clang++", "-std=c++17", "-x", "objective-c++", "-fobjc-arc", "-fblocks",
+    "-Wall", "-Wextra", "-Wpedantic", "-Werror",
+    "-I", "/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/include",
+    "-I", "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include",
+    "-I", "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/include",
+    "-DNUMI_MATTER_METALLIB=\"/Users/home/cardboard-implementation-20261014/analysis/native-sparse-private-scan-check-170-001/NumiMatter-O3.metallib\"",
+    "/Users/home/cardboard-implementation-20261014/analysis/hierarchical-sparse-private-contact-scan-overlay-170-001/candidate/matter/tools/cardboard_sparse_private_contact_scan_native_check.mm",
+    "-framework", "Foundation", "-framework", "Metal",
+    "-o", "/Users/home/cardboard-implementation-20261014/analysis/native-sparse-private-scan-check-170-001/validation/sparse-scan-checker"
+  ],
+  "execution": "explicit --execute only; default is preflight and never dispatches Metal",
+  "qualification": "CPU contracts and compile checks only; native differential/performance/production qualification is pending."
+}

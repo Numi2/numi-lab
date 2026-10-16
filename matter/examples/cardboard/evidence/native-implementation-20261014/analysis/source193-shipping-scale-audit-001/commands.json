@@ -1,0 +1,64 @@
+{
+  "schema": "numi.cardboard.source193_shipping_scale_commands.v1",
+  "working_directory": "/Users/n/cardboard-implementation-20261014-host-macmini",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-193-001",
+  "commands": [
+    {
+      "name": "source193_inventory_compile",
+      "argv": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-O2",
+        "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-193-001/matter/tools",
+        "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-193-001/matter/include",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source193-shipping-scale-audit-001/inventory193.cpp",
+        "-o",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source193-shipping-scale-audit-001/inventory193"
+      ]
+    },
+    {
+      "name": "source193_inventory_run",
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source193-shipping-scale-audit-001/inventory193"
+      ]
+    },
+    {
+      "name": "arena_audit_compile",
+      "argv": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-O2",
+        "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-193-001/matter/tools",
+        "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-193-001/matter/include",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source193-shipping-scale-audit-001/audit.cpp",
+        "-o",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source193-shipping-scale-audit-001/audit"
+      ]
+    },
+    {
+      "name": "sort_and_persistent_components_compile",
+      "argv": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-O2",
+        "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-193-001/matter/tools",
+        "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-193-001/matter/include",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source193-shipping-scale-audit-001/audit_components.cpp",
+        "-o",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source193-shipping-scale-audit-001/audit_components"
+      ]
+    },
+    {
+      "name": "exact_sparse_admission_compile",
+      "argv": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-O2",
+        "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-193-001/matter/include",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source193-shipping-scale-audit-001/exact_sparse.cpp",
+        "-o",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source193-shipping-scale-audit-001/exact_sparse"
+      ]
+    }
+  ]
+}

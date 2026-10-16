@@ -1,0 +1,22 @@
+{
+  "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source173-001",
+  "argv": [
+    "/usr/bin/c++",
+    "-O3",
+    "-DNDEBUG",
+    "-arch",
+    "arm64",
+    "-isysroot",
+    "/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+    "-Wl,-search_paths_first",
+    "-Wl,-headerpad_max_install_names",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/build/cardboard_source469_material_replay_check.mm.o",
+    "-o",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/tools/numi-matter-cardboard-source469-material-replay-check",
+    "libnumi_matter_compiler.a",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal"
+  ]
+}

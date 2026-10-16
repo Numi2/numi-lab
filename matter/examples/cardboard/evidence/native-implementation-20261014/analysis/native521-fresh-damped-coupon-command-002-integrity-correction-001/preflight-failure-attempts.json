@@ -1,0 +1,27 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "outcome": "rejected before launch",
+      "package_manifest_sha256": "503d9fa4b305106a385a2cd61e517cd881ad15b17511eb5fe26c3b390dd0d3c6",
+      "runner_sha256": "e87268add2080c48b52810ae8b41ffcad1ebe5736f226c8bbe1bdde02efb743f",
+      "stderr": "Traceback (most recent call last):\n  File \"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native521-fresh-damped-coupon-command-002/runner.py\", line 21, in <module>\n    expected_damped_mu=struct.unpack('<f',struct.pack('<f',1.0e-3))[0]\n                       ^^^^^^\nNameError: name 'struct' is not defined. Did you forget to import 'struct'?\n"
+    },
+    {
+      "attempt": 2,
+      "outcome": "rejected before launch; receipt hash absent from original host binding",
+      "package_manifest_sha256": "b32db309a079d6fcd278396eb84326300911b0403babbb1f1e90f64a54616f55",
+      "runner_sha256": "90b335dfea99b4290210adf3140812ec2aaef29f6a70cc62aab93a1565ff80e5",
+      "stderr": "Traceback (most recent call last):\n  File \"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native521-fresh-damped-coupon-command-002/runner.py\", line 28, in <module>\n    assert sha(receipt)==expected['receipt_sha256'],(opt,'receipt hash mismatch')\n                         ~~~~~~~~^^^^^^^^^^^^^^^^^^\nKeyError: 'receipt_sha256'\n"
+    },
+    {
+      "attempt": 3,
+      "outcome": "rejected before launch; serialized float32 tuple expectation mismatch",
+      "package_manifest_sha256": "838118cb2f3341db803ed756a87abcd75968a6697bbe51b19a3d229f57981698",
+      "runner_sha256": "90b335dfea99b4290210adf3140812ec2aaef29f6a70cc62aab93a1565ff80e5",
+      "stderr": "Traceback (most recent call last):\n  File \"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native521-fresh-damped-coupon-command-002/runner.py\", line 37, in <module>\n    assert len(report['cases'])==8 and actual_tuples==expected_tuples,(opt,actual_tuples)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: ('O3', {(1, 0.001000000047, 32), (1, 0.0, 32), (1, 0.001000000047, 64), (2, 0.001000000047, 32), (1, 0.0, 64), (2, 0.001000000047, 64), (2, 0.0, 64), (2, 0.0, 32)})\n"
+    }
+  ],
+  "preserved_at_utc": "2026-10-16T07:55:59.904069+00:00",
+  "schema": "numi.cardboard.native521-preflight-failures.v1"
+}

@@ -1,0 +1,19 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 1630,
+      "sha256": "c20423dd0749b0f2cc84f69338e1acf9a3480d6eee87a58dbb34dc4f6d0e99c4"
+    },
+    "report.json": {
+      "bytes": 11250,
+      "sha256": "de21215e93e624b77eb098ef67008abecc6688e5bbd2790483f2eca898a2564c"
+    },
+    "seal_addendum.py": {
+      "bytes": 11201,
+      "sha256": "5472cb16a7712d285bf39d29e637808e74dcdd07855608f6eb8dc2796ca44c40"
+    }
+  },
+  "package": "native497-analytic-warm-cgls-action-004",
+  "schema": "numi.cardboard.analysis-package.v1",
+  "scope": "source-bound interpretation correction plus exact CGLS residual/action identity audit"
+}

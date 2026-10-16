@@ -1,0 +1,7 @@
+{
+  "files_sha256": {
+    "capacity-helper.py": "8e4a395c27d0dda8f43351760da7d5b6d0c42dbad0d16680777383d94364cc03",
+    "command-spec.json": "5cbdf965e6b546878e9415a3ac112ad009c4b8b4ca1373bf7e0bae70590b3566",
+    "runner.py": "b7abfa351f8c2107fc6d2df18d80cb5abc46380f107d0b56075985e79de67c80"
+  }
+}

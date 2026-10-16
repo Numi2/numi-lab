@@ -1,0 +1,226 @@
+{
+  "base": {
+    "frozen_source_sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+    "source173_build_record": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-173/source-build.json",
+    "source173_build_record_sha256": "0306631506b565f12a77cd44fb3acaabb012cb0dbeefe1e0eb82a9befd43b9a2",
+    "source173_metallib": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-173/shaders/NumiMatter.metallib",
+    "source173_metallib_sha256": "fcb8d1b2a1bf0cbe4207f6a319d33cd4af9bd18120822f93f36c39de17d7442c",
+    "source176_002_package_manifest": "/Users/home/cardboard-implementation-20261014/analysis/true-residual-tail-reuse-source176-002/manifest.json",
+    "source176_002_package_manifest_sha256": "425f3b83c45df65cbe389a4456ee611bfd82b6f052373303298ce45f2d7fb8b1",
+    "source176_002_patch_sha256": "78743862fab2a213496fc0285c7698b41b6f08c25e7e1cb92e92545fc6f02f41",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173"
+  },
+  "change_scope": [
+    "restore nil-to-dummy fallback for the C=0 cohesive buffer at the new tail dispatch",
+    "correct explanatory stop-rule comment to match the implemented OR predicate",
+    "add a standalone production-kernel native checker; checker is compiled but not executed"
+  ],
+  "changed_source_sha256": {
+    "source/matter/include/numi/matter/shared.h": "aead8d08410771b16504d7d8d73bd61a480ddfcb4b406ee499a78023a69e0e5f",
+    "source/matter/src/runtime.mm": "6c0882f038a3689d4aaa1795341caf88cf5421a9d5fddddffc78ad2602e73e21"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 4523,
+      "sha256": "33c923ca36ed2f8546b8d1cbe57b01299d01c5113dbfae2a9d322e719cc54e83"
+    },
+    "native/true_residual_tail_reuse_check-attempt-001": {
+      "bytes": 132448,
+      "sha256": "49f8b3888f073e77d35fc3a477e0060214856562c0b128bcd10b52aaca49a83d"
+    },
+    "native/true_residual_tail_reuse_check-attempt-002": {
+      "bytes": 132648,
+      "sha256": "cc55e04c75f5705e67ff4860e7d8ba44c5f3e9d2ad9ac2ccddcec2307d542455"
+    },
+    "native/true_residual_tail_reuse_check-attempt-003": {
+      "bytes": 132648,
+      "sha256": "37376aef87d6e305717c3cc622f286d1333c45985b40233402806a7bdb8eb3dd"
+    },
+    "native/true_residual_tail_reuse_check.mm": {
+      "bytes": 46217,
+      "sha256": "651e2662f9687e7b127ea7d5748b5a89ec4b4389c35d5ef9c8d381200c2906a2"
+    },
+    "source/matter/include/numi/matter/shared.h": {
+      "bytes": 58571,
+      "sha256": "aead8d08410771b16504d7d8d73bd61a480ddfcb4b406ee499a78023a69e0e5f"
+    },
+    "source/matter/src/runtime.mm": {
+      "bytes": 1945729,
+      "sha256": "6c0882f038a3689d4aaa1795341caf88cf5421a9d5fddddffc78ad2602e73e21"
+    },
+    "source176-003.patch": {
+      "bytes": 1208,
+      "sha256": "f842e1a838606d694fd6f56379418f9118c65cdb4d2d5afb4f6f83d707da5243"
+    },
+    "tests/test_supplement_contract.py": {
+      "bytes": 2721,
+      "sha256": "dc9f20fb9e82504ce25127b0e169e8df7c7814a24cd6357ddd345ebbd051f378"
+    },
+    "validation/attempt-history.md": {
+      "bytes": 1418,
+      "sha256": "48fb66967458414af275b445b78c8fa2240d1c35c8c2c9a8788d4cfc8725410f"
+    },
+    "validation/build_native_helper.py": {
+      "bytes": 6590,
+      "sha256": "1fc067f5fd6633ae9e875c96ff2058917ccf9a79c752de44dae014200869bd50"
+    },
+    "validation/checker-syntax-attempt-002.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "validation/checker-syntax-attempt-002.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "validation/checker-syntax-final.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "validation/checker-syntax-final.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "validation/metal-compile.stderr": {
+      "bytes": 2167,
+      "sha256": "a2a54d7a62706536a29c3840c62bdf19c56425eb96cf945ff58a5226a62faaa3"
+    },
+    "validation/metal-compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "validation/metallib-link.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "validation/metallib-link.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "validation/native-helper-build-attempt-001.json": {
+      "bytes": 4888,
+      "sha256": "a15350a8410b7569acf53b25515628478f07196fff6dd822cf3634474ac88e7f"
+    },
+    "validation/native-helper-build-attempt-002.json": {
+      "bytes": 4945,
+      "sha256": "fd8c92e24dcf6b4c34b9bbf9ff46fee9cde427afd34ae038d7f9a827a57e8f4c"
+    },
+    "validation/native-helper-build-attempt-003.json": {
+      "bytes": 4945,
+      "sha256": "64da64873ca7af1397284c8e61a6fc6ec14ade05bcc83a7fdc4210727bdf2c3a"
+    },
+    "validation/native-helper-build-receipt.json": {
+      "bytes": 4888,
+      "sha256": "a15350a8410b7569acf53b25515628478f07196fff6dd822cf3634474ac88e7f"
+    },
+    "validation/native-helper-link.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "validation/native-helper-link.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "validation/patch-dry-run-correct.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "validation/patch-dry-run-correct.stdout": {
+      "bytes": 90,
+      "sha256": "ad094441fd44913521e4550f912ce9957ee75e1655cb44e79208f54d313d1c9d"
+    },
+    "validation/patch-dry-run.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "validation/patch-dry-run.stdout": {
+      "bytes": 222,
+      "sha256": "7fcfe7ff078d44aa553093a2f2eeb1861c4ea1f4f37c7ce8b45f1af65beaa904"
+    },
+    "validation/source-contract-tests.txt": {
+      "bytes": 98,
+      "sha256": "006ba2e6e18954ad086677bc060e3290380048985a443818578f6ef51ed1b21b"
+    },
+    "validation/source176-003-NumiMatter-attempt-001.metallib": {
+      "bytes": 7023889,
+      "sha256": "ee2cc0ba398cd443c8a1c93a72b946ff20b6c0186660fbf00cfbdb9026b20c65"
+    },
+    "validation/source176-003-NumiMatter-attempt-002.metallib": {
+      "bytes": 7023889,
+      "sha256": "ee2cc0ba398cd443c8a1c93a72b946ff20b6c0186660fbf00cfbdb9026b20c65"
+    },
+    "validation/source176-003-NumiMatter-attempt-003.metallib": {
+      "bytes": 7023889,
+      "sha256": "ee2cc0ba398cd443c8a1c93a72b946ff20b6c0186660fbf00cfbdb9026b20c65"
+    }
+  },
+  "historical_attempts": "validation/attempt-history.md",
+  "limitations": [
+    "synthetic E=2 dispatch fixture only; one inactive tetrahedron per environment",
+    "cohesiveFaceCount is zero; positive cohesive incidence is outside the optimization admission",
+    "no active FEM action, physical solver trajectory, convergence, or performance claim",
+    "zero-threadgroup indirect dispatch behavior and native output parity remain unverified until the checker is run",
+    "the capture/default-off test exercises allowTailReuse=0 at the kernel boundary, not the runtime capture router"
+  ],
+  "package": "/Users/home/cardboard-implementation-20261014/analysis/true-residual-tail-reuse-source176-003",
+  "schema": "numi.matter.true_residual_tail_reuse_source176_003.v1",
+  "supplemental_patch_sha256": "f842e1a838606d694fd6f56379418f9118c65cdb4d2d5afb4f6f83d707da5243",
+  "validation": {
+    "checker_executed": false,
+    "compile_and_link_receipt": "validation/native-helper-build-attempt-003.json",
+    "compile_and_link_receipt_sha256": "64da64873ca7af1397284c8e61a6fc6ec14ade05bcc83a7fdc4210727bdf2c3a",
+    "gpu_dispatch_performed": false,
+    "metal_compiler_warnings": "two existing warnings in unchanged source173 declarations sharedValid and refinementValid; raw stderr is retained",
+    "native_executable_sha256": "37376aef87d6e305717c3cc622f286d1333c45985b40233402806a7bdb8eb3dd",
+    "objc_syntax_only": {
+      "command": [
+        "clang++",
+        "-std=c++23",
+        "-arch",
+        "arm64",
+        "-fobjc-arc",
+        "-fmodules",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-I/Users/home/cardboard-implementation-20261014/analysis/true-residual-tail-reuse-source176-003/source/matter/include",
+        "-I/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/matter/include",
+        "-I/Users/home/cardboard-implementation-20261014/snapshots/source-checkpoint-warm-breakdown-173/include",
+        "-fsyntax-only",
+        "/Users/home/cardboard-implementation-20261014/analysis/true-residual-tail-reuse-source176-003/native/true_residual_tail_reuse_check.mm"
+      ],
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "overlay_metallib_sha256": "ee2cc0ba398cd443c8a1c93a72b946ff20b6c0186660fbf00cfbdb9026b20c65",
+    "patch_dry_run_against_source176_002": {
+      "command": [
+        "patch",
+        "--dry-run",
+        "-p1",
+        "-d",
+        "/Users/home/cardboard-implementation-20261014/analysis/true-residual-tail-reuse-source176-002/source",
+        "<",
+        "/Users/home/cardboard-implementation-20261014/analysis/true-residual-tail-reuse-source176-003/source176-003.patch"
+      ],
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "ad094441fd44913521e4550f912ce9957ee75e1655cb44e79208f54d313d1c9d"
+    },
+    "supplemental_source_contract": {
+      "command": [
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "/Users/home/cardboard-implementation-20261014/analysis/true-residual-tail-reuse-source176-003/tests/test_supplement_contract.py"
+      ],
+      "exit_code": 0,
+      "output_sha256": "006ba2e6e18954ad086677bc060e3290380048985a443818578f6ef51ed1b21b",
+      "result": "4 passed"
+    }
+  }
+}

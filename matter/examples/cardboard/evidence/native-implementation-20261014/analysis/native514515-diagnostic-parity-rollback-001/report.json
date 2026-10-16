@@ -1,0 +1,73 @@
+{
+  "schema": "numi.cardboard.diagnostic_parity_rollback.v1",
+  "recorded_at_utc": "2026-10-16T07:10:30.213204+00:00",
+  "diagnostic_cases": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/shared-contact-activation-capture-514/baseline",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/shared-contact-actual-rejection-515/baseline"
+  ],
+  "raw_transaction_snapshots_byte_identical": [
+    {
+      "file": "transaction-000000-after.bin",
+      "sha256": "48cd8d6e2516b19779aeee30559126f120b5133be801be48df4b257f32528dcc",
+      "bytes": 904335
+    },
+    {
+      "file": "transaction-000000-before.bin",
+      "sha256": "35cda893c1620f6e29223f89c00685302cdfd468f424416d406bded5bd15234c",
+      "bytes": 904335
+    },
+    {
+      "file": "transaction-000001-after.bin",
+      "sha256": "8a5084e44cea43ce972d104030b3918925add43da1895dc769e1ef14cef0cef2",
+      "bytes": 904335
+    },
+    {
+      "file": "transaction-000001-before.bin",
+      "sha256": "48cd8d6e2516b19779aeee30559126f120b5133be801be48df4b257f32528dcc",
+      "bytes": 904335
+    }
+  ],
+  "case_metadata_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/shared-contact-activation-capture-514/baseline/transaction-000001.json": "07a07a3dee7ee5c0f319369d89437ac639a0478d7a20af667e392549dfa63c4f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/shared-contact-actual-rejection-515/baseline/transaction-000001.json": "07a07a3dee7ee5c0f319369d89437ac639a0478d7a20af667e392549dfa63c4f"
+  },
+  "accepted_vector_recorded_hashes_unchanged": [
+    "particles",
+    "femNodes",
+    "femFields",
+    "vascularState",
+    "vascularClock",
+    "femTopologyNodes",
+    "femTopologyTetrahedra",
+    "cohesiveFaces",
+    "punctureChannels",
+    "topologyStates",
+    "rigidStates",
+    "contactHistories",
+    "humanSupportHistories",
+    "humanSupportConsequences",
+    "deformableContactHistories",
+    "particleMaterialState",
+    "femMaterialState",
+    "environmentParameters"
+  ],
+  "cursor_unchanged": true,
+  "accepted_certificate_cleared": true,
+  "failure_status": {
+    "code": 6,
+    "environment": 0,
+    "object_index": 0,
+    "failing_index": 19,
+    "completed_microsteps": 0,
+    "fgmres_iterations": 64,
+    "contact_count": 0,
+    "event_count": 0,
+    "diagnostics": [
+      5.08721787e-10,
+      -5.83188825e-14,
+      1,
+      0
+    ]
+  },
+  "limitation": "Accepted-vector rollback uses native diagnostic serializer hashes; raw cross-run snapshots were independently byte compared. Trace/capture observer parity only, not full contact qualification."
+}

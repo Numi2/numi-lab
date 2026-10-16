@@ -1,0 +1,11 @@
+{
+  "source_base": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix003",
+  "base_frozen_sha256": "96361bba5c82368d6476711a550eb9ea16fca08d8235514dcd90eb21673750c0",
+  "frozen_sha256": "3eb56bdce0ab3072e2a4d7ef7ce5bd765d67ca3bcdb5456993a99a1eb253d117",
+  "changed": {
+    "matter/tools/cardboard_shipping_memory.hpp": "c08c895a29cd7af39ddda3fcd3d3700984efbf8c933114d68322cfd099e926df",
+    "matter/tools/cardboard_shipping_memory_check.cpp": "1a8e3e9f32cfce0616a326b27a346fb34d1812f3dbded1976bb5b7889c014bdd"
+  },
+  "source_files_verified": 814,
+  "reason": "Selected and required arena fields refer to one runtime buffer; max once matches allocation identity."
+}

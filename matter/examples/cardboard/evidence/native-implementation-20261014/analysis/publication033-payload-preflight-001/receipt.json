@@ -1,0 +1,12 @@
+{
+  "schema": "numi.cardboard.publication033.archive-rejection.v1",
+  "exit_code": 1,
+  "exception": "AssertionError",
+  "target": "native/sparse-private-scan-175-buildfix003-command-001/executions/attempt-0001/receipt.json",
+  "reason": "Existing child-case payload is already indexed by the historical summary; parent-case enumeration overlapped it. No existing file was overwritten.",
+  "summary_unchanged": true,
+  "partial_new_payloads_preserved": true,
+  "source_unchanged": true,
+  "tool_session_id": 16195,
+  "at_utc": "2026-10-16T08:06:08.139117+00:00"
+}

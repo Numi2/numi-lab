@@ -1,0 +1,41 @@
+--- a/matter/tools/cardboard_source469_material_replay_check.mm
++++ b/matter/tools/cardboard_source469_material_replay_check.mm
+@@ -601,7 +601,7 @@
+     for(std::size_t i=0u;i<baseSamples.size();++i){const auto& s=baseSamples[i];if(s.column==-1)
+         bases.emplace(std::pair{s.row.tet,static_cast<std::uint32_t>(s.stateIndex)},i);}
+     std::ofstream file(path);need(file.good(),"cannot write epsilon finite-difference comparisons");
+-    file<<"{\"record\":\"header\",\"schema\":\"numi.cardboard.native469-epsilon-fd-comparison.v1\","
++    file<<"{\"record\":\"header\",\"schema\":\"numi.cardboard.native469-epsilon-fd-comparison.v2\","
+         <<"\"reference_export_sha256\":\""<<referenceSHA<<"\",\"pairs\":"<<pairs.size()
+         <<",\"epsilon_unit\":\"dimensionless interpolation parameter; endpoint kinematics follow captured dt*H\","
+         <<"\"repeatability_is_noise_floor\":false,\"interpretation\":\"realized split-float F and rate endpoints, one-sided and centered P differences versus independent tangent; retain branch and invalid-endpoint status\"}\n";
+@@ -623,11 +623,12 @@
+             plusObserved[j]=double(p[8u+j])-double(b[8u+j]);
+             minusObserved[j]=double(m[8u+j])-double(b[8u+j]);
+         }
+-        const double dt=double(plus.row.input[45]);
+-        for(std::size_t j=0u;j<9u;++j){
+-            deltaEffPlus[j]=0.5*(plus.realizedFDelta[j]+dt*plus.realizedRateDelta[j]);
+-            deltaEffMinus[j]=0.5*(minus.realizedFDelta[j]+dt*minus.realizedRateDelta[j]);
+-        }
++        // These source-bound laws are rate independent (checked at package
++        // admission). Contract the independent dP/dF with actual deltaF only.
++        // The realized rate perturbation is reported separately; averaging it
++        // into deltaF invents a different direction when rate rounds in FP32.
++        deltaEffPlus=plus.realizedFDelta;
++        deltaEffMinus=minus.realizedFDelta;
+         auto apply=[&](const std::array<double,81>& C,const std::array<double,9>& dx,std::array<double,9>& dy){
+             for(std::size_t r=0u;r<9u;++r){dy[r]=0.0;for(std::size_t c=0u;c<9u;++c)dy[r]+=C[9u*r+c]*dx[c];}
+         };
+@@ -784,6 +785,11 @@
+          "source469 origin is not the retained completed failed physical run");
+     CompiledWorld world;std::string packageError;
+     need(readPackage(packagePath,world,nullptr,&packageError),"exact469 compiled package rejected: "+packageError);
++    need(std::none_of(world.instructions.begin(),world.instructions.end(),
++                      [](const NMExpressionInstructionGPU& instruction) {
++                          return instruction.opcode==NM_EXPR_RATE;
++                      }),
++         "source469 epsilon reference requires rate-independent compiled laws");
+     const auto capture=readSource469(capturePath,world,manifest,captureSHA,packageSHA);
+     const auto selection=readMPSelection(mpPath,arraysPath,mpSHA,arraysSHA,captureSHA);
+     NSDictionary* mpManifest=readJSONDocument(mpManifestPath);

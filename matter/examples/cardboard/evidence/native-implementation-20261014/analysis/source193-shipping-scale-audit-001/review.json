@@ -1,0 +1,128 @@
+{
+  "schema": "numi.cardboard.source193_shipping_scale_audit.v1",
+  "scope": "CPU/source-only admission audit; no production edits and no GPU dispatch.",
+  "source": {
+    "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-193-001",
+    "frozen_sha256": "3af1c0026640a3d9454b653f99804a94fbcfd835a385a1f70567c864af0bdcf3",
+    "selected_files": 816,
+    "runtime_sha256": "ceb32cfa44fa0f8917c1ea2766a8625b7c1b51caa409d73a84fb9274f19e1b0b",
+    "contact_metalinc_sha256": "1f6f91a70c3c738f50c4d4fc86e429a2fc841028a81094700355b5e5d33ee538"
+  },
+  "topology": {
+    "nodes": 528444,
+    "tetrahedra": 1477728,
+    "exterior_faces": 1054876,
+    "cohesive_faces": 260835,
+    "contact_nodes": 527964,
+    "rigid_proxies": 12,
+    "rigid_bodies": 9,
+    "source": "cardboard_shipping_allocation_preflight.cpp:265-277 exact assertions"
+  },
+  "prebuild_inventory": {
+    "source_recompiled": true,
+    "all_eight_rows_preserved": true,
+    "selected_row": {
+      "deformable_capacity": 131072,
+      "sparse_rigid": 1,
+      "estimated_peak_bytes": 14660971798,
+      "estimated_metal_bytes": 9185798550,
+      "admitted": false
+    },
+    "meaning": "Planning estimate only, not observed memory. The estimate is below 16 GiB numerically but admission is false due runtime count caps. Precompile compact-surface planning uses 4*T as upper bound; it omits the opt-in node-corner sort workspace, so it is not an exact runtime peak."
+  },
+  "current_limits": {
+    "allocation_full_contact": {
+      "environment_max": 4,
+      "tetrahedra_max": 32768,
+      "fem_nodes_max": 16384,
+      "contact_capacity_max": 131072,
+      "private_scratch_bytes_max": 134217728
+    },
+    "full_residual_armijo_scope": {
+      "fem_nodes_max": 8192,
+      "tetrahedra_max": 32768,
+      "contact_capacity_max": 131072,
+      "environment_max": 4,
+      "mpm_allowed": false,
+      "one_explicit_fem_object": true
+    },
+    "actual_over_caps": {
+      "node_cap_ratio": 64.51,
+      "tet_cap_ratio": 45.1,
+      "allocation_node_cap_ratio": 32.25
+    },
+    "classification": "Node/tet and contact-count limits are admitted-scope/resource limits, not uint32 limits for this mesh."
+  },
+  "checked_indices": {
+    "compact_surface_primitives": 1054876,
+    "bvh_leaves": 2097152,
+    "bvh_float4_bounds": 8388608,
+    "legacy_all_face_primitives": 5910912,
+    "legacy_bvh_leaves": 8388608,
+    "legacy_four_leaf_bound_count": 33554432,
+    "sparse_exact_pair_domain": 6335568,
+    "all_these_fit_uint32": true,
+    "corners_for_capacity_131072": 786432,
+    "padded_sort_capacity": 1048576
+  },
+  "arenas": {
+    "persistent_contact_e1_capacity131072": {
+      "surface_bytes": 218607808,
+      "slot_bytes": 81788928,
+      "auxiliary_bytes": 8455136,
+      "total_bytes": 308851872
+    },
+    "full_contact_private_e1_capacity131072": {
+      "alias_bytes": 77661184,
+      "no_alias_bytes": 296269008,
+      "limit_bytes": 134217728,
+      "alias_fits": true,
+      "no_alias_fits": false,
+      "bytes_saved_by_alias": 218607824
+    },
+    "incidence_sort_e1_capacity131072": {
+      "bytes": 12582912,
+      "bitonic_dispatches": 210,
+      "rough_element_visits": 220200960,
+      "note": "Sort replaces the legacy per-node scan across active contacts for incidence construction. This is not timing evidence."
+    },
+    "sparse_rigid_e1": {
+      "candidate_capacity": 65536,
+      "pair_domain": 6335568,
+      "bytes": 36090192,
+      "limit_bytes": 37748736,
+      "remaining_bytes": 1658544,
+      "admitted_by_helper": true,
+      "pair_slots": 25342272,
+      "candidate_ids": 262144,
+      "samples": 10485760,
+      "caveat": "Actual sparse broadphase occupancy is unknown."
+    },
+    "cohesive_pages_e1": {
+      "face_count": 260835,
+      "page_capacity": 87381,
+      "page_count": 3,
+      "page_bytes": 8388576,
+      "page_limit_bytes": 8388608
+    }
+  },
+  "conclusions": {
+    "surface_alias": "Deduplicates private surface primitives/BVH/radix-sort arrays against production buffers. Memory reduction only; does not remove N*K work.",
+    "node_incidence_sort": "The opt-in stable corner sort replaces O(nodeCount*activeCount) legacy count/scatter loops. It costs 12,582,912 bytes and 210 dispatches at capacity 131072.",
+    "overflow": "Deformable candidate count detects total>capacity and records NM_STATUS_CAPACITY_OVERFLOW; scatter checks environmentHealthy. Sparse candidate scan also records capacity overflow. No silent truncation found; adequacy of the capacities is unproved.",
+    "estimator_gap": "Runtime residentBytes includes sorted corner buffers (runtime.mm:6006-6044). The shipping estimate's persistent-contact formula does not include them; its precompile surface-face count is deliberately 4*T (shipping_memory.hpp:1284-1287). Opposing estimate effects mean the 14.66GB planning value is not an exact runtime peak.",
+    "native": "Source193 build receipt passed. Parent reports native validation refused before output-case creation because undeclared runtime.mm.orig changed scanned count 816->817. No native dispatch or shipping transaction."
+  },
+  "next_slice": [
+    "Add an exact compiled-layout preflight for this mesh that counts actual exterior faces, every buffer, alias, sort workspace, tile pages, sparse pair IDs, and resident bytes while keeping all caps and overflow behavior.",
+    "If that exact preflight admits, allow only an explicit shipping-specific topology scope, preserving all uint32/size_t/per-buffer checks and the 131072 candidate cap until native broadphase proves occupancy suffices.",
+    "If candidate occupancy exceeds the cap, add stable tiled candidate processing with complete history ownership and deterministic reduction; do not truncate or blanket-raise the cap."
+  ],
+  "audit_artifacts": {
+    "raw_arena_report": "report.json sha256 8c31c488ed05752f0e0c1ba80800a8fd9fd575d2b5b2936a6c57f8f18955cd1f",
+    "source193_inventory": "inventory193.report.json sha256 6288ffac69d37ba777770d500b9ac4627415cd48d231e89d52322fa3215e27ee",
+    "exact_sparse": "exact_sparse.report.json sha256 c06a79243d1aacc1791799e643378f26c4f889e7d5cfb7c3593f77122b77c698",
+    "arena_components": "audit_components.report.json sha256 7aad201c80a2a47829b6661eac67658025467995640b36bb24988e860234956a",
+    "initial_failed_compile": "attempts/attempt001 retains the namespace qualification compile error; corrected programs compile and run."
+  }
+}

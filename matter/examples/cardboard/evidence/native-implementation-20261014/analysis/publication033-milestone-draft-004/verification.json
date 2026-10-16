@@ -1,0 +1,14 @@
+{
+  "all_sha256_fields_are_64_hex": true,
+  "checkout_or_source_edited_by_this_task": false,
+  "delta_manifest_mismatches": [],
+  "explicit_hash_references_checked": 53,
+  "explicit_hash_references_match": true,
+  "gpu_dispatched": false,
+  "hash_reference_failures": [],
+  "invalid_sha256_fields": [],
+  "native521_touched": false,
+  "schema": "numi.cardboard.publication033.draft-verification.v2",
+  "source_delta_files_checked": 12,
+  "source_delta_matches_frozen_manifest": true
+}

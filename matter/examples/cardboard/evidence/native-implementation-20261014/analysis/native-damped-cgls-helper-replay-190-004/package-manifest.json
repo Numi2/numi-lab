@@ -1,0 +1,150 @@
+{
+  "cpu_oracle_sha256": "9e4aab3f990250f2c1989b9cf70872138fb3761086a5dd3fbb83cf3336a1712d",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "6012b28707b7481c12133dd9224c712a9893367b5d0f259e519b5916d3584c70",
+      "size": 3402
+    },
+    {
+      "path": "build/O0/damped_cgls_fixture.air",
+      "sha256": "4c8bcd0e798389b27d8113106666c5841d126123d769a139bbb1c11683e71741",
+      "size": 777488
+    },
+    {
+      "path": "build/O0/damped_cgls_fixture.metallib",
+      "sha256": "121598119f0b1903768a8588893c8de8f7f71024baeb9acd0edcc88847085aa9",
+      "size": 3288828
+    },
+    {
+      "path": "build/O0/damped_cgls_helper_replay",
+      "sha256": "fd0e7fda246f2ae01a7421018580643552d122027eb47fdf4e8f811f56b29386",
+      "size": 155240
+    },
+    {
+      "path": "build/O0/host-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O0/metal-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O0/metallib-exported-function-names.txt",
+      "sha256": "0cb6767bd9ac51309121c8797044eb20dd8d825e1a24ab9c4b722bc985842405",
+      "size": 417553
+    },
+    {
+      "path": "build/O0/metallib-link.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O3/damped_cgls_fixture.air",
+      "sha256": "d77fb7ecce26f4a685d6f1333c21dfc3a2211d62ab57bdaa328526932da42185",
+      "size": 403648
+    },
+    {
+      "path": "build/O3/damped_cgls_fixture.metallib",
+      "sha256": "3133699e30c26dac10fd57e1b945147853208dbf0a99d41cbec2d6bf28f3365f",
+      "size": 1927244
+    },
+    {
+      "path": "build/O3/damped_cgls_helper_replay",
+      "sha256": "b28c4263bac08208ac1709512b8b77e6336d04a1babae4b384a6b1830cc47648",
+      "size": 75336
+    },
+    {
+      "path": "build/O3/host-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O3/metal-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O3/metallib-exported-function-names.txt",
+      "sha256": "1c9510d3c779390393acd99f35218f3aaaeb9fc6db29a3bce9bef871e5dd638c",
+      "size": 316549
+    },
+    {
+      "path": "build/O3/metallib-link.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/cpu-oracle.json",
+      "sha256": "3d34e71dfb8fb772b1b02bc51a16503729254de18ff69172613a59713f1c9d57",
+      "size": 1123
+    },
+    {
+      "path": "build/validation.json",
+      "sha256": "12345de5cadd6ecbb376d8f7b570548fcb81c4c23717f275c0265bb989c317fe",
+      "size": 212540
+    },
+    {
+      "path": "source/compile_and_verify.py",
+      "sha256": "a0086bdd465f51a24b87dc9426b659060ae7cc8d172770a118dc72a197b6b975",
+      "size": 6775
+    },
+    {
+      "path": "source/cpu_oracle.py",
+      "sha256": "9e4aab3f990250f2c1989b9cf70872138fb3761086a5dd3fbb83cf3336a1712d",
+      "size": 2157
+    },
+    {
+      "path": "source/damped_cgls_fixture.metal",
+      "sha256": "8dddcca4e8173267b24e5fc42d3f77c74fad939c0f73b13f73a2e56179c1291a",
+      "size": 1122
+    },
+    {
+      "path": "source/damped_cgls_helper_replay.mm",
+      "sha256": "2a9789d642e028e226d3f5de85458d038aec7d2271dde0698cb45e95af8b313f",
+      "size": 19829
+    },
+    {
+      "path": "source/seal_package.py",
+      "sha256": "f5bcedad0ebff5fa27422b154ebc173ebf5dae36b7692e718755c666dbc9794f",
+      "size": 3370
+    }
+  ],
+  "fixture_metal_sha256": "8dddcca4e8173267b24e5fc42d3f77c74fad939c0f73b13f73a2e56179c1291a",
+  "helper_executable_invoked": false,
+  "host_checker_sha256": "2a9789d642e028e226d3f5de85458d038aec7d2271dde0698cb45e95af8b313f",
+  "native_case_contract": {
+    "cases": 8,
+    "damping_kg": [
+      0.0,
+      0.001
+    ],
+    "iteration_caps": [
+      32,
+      64
+    ],
+    "native_execution": false,
+    "operator_scales": [
+      1.0,
+      2.0
+    ]
+  },
+  "native_gpu_executed": false,
+  "package_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native-damped-cgls-helper-replay-190-004",
+  "production_cgls_source": {
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-damped-full-zero-cgls-190-001/matter/src/metal/base_cgls.metalinc",
+    "sha256": "54fc273e8e8e12a9472f2fe2defec45709c7f36d24b6886b862e477aa54260a2"
+  },
+  "result": "PASS_COMPILE_ONLY",
+  "revision_reason": "The 003 harness incorrectly subtracted b from an rBuffer that already stores b-Ax, and only ran six of up to 32 iterations. 004 computes vector mismatch against an independently formed b-Ax, gates it by a scale-aware FP32 bound, and exercises caps 32 and 64 at two scales and two damping values. This revision is compile-only; native replay is not claimed.",
+  "schema": "numi.cardboard.damped-cgls-helper-replay-package.v3",
+  "scope": "Revision 004 compile-only correction of residual reporting and requested-cap coverage after native 519 exposed a harness residual-metric bug; no native checker execution or GPU dispatch.",
+  "source_build_manifest": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source190-002/source-build.json",
+  "source_build_manifest_sha256": "54e65bb00fd5050a4613eae5438345efe9ef5297e687ba98f3bfd44eddf2e0bf",
+  "source_frozen_manifest_sha256": "1189d65c3d7f29d326155eee687979c8dd5fc1c79360a333bd569a08ad30dde7",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-damped-full-zero-cgls-190-001",
+  "supersedes_package_manifest_sha256": "a9cdf8da25d76086bad0c3d856c2b2fc7adb654fdf353c2d5ad991f438111e09",
+  "validation_report_sha256": "12345de5cadd6ecbb376d8f7b570548fcb81c4c23717f275c0265bb989c317fe"
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "numi.cardboard.source198-contact-regional-command.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001",
+  "build_directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source198-001",
+  "source_frozen_sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc",
+  "files_sha256": {
+    "numi-matter-cardboard-full-contact-armijo-check": "c067e5ea69b5fb748a878be24151f2f27b2de7b73701dd20df61a57a37e0bda6",
+    "shaders/NumiMatter.metallib": "edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f",
+    "CMakeCache.txt": "6d990ba3f1b11fe53085a37401035bb7322af50318931da26e5b301ab3bbd4a4",
+    "compile_commands.json": "39d55c453c2244de3da229830e3875f787d8bacfc7188bf0faa698dc58a5e2e2",
+    "source-build.json": "8f6c95304c23b6c7149ec6b270d54eafdf4507ea26f3420e39e523c09dd500ad"
+  },
+  "material_relative_path": "matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+  "material_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+  "cases": {
+    "526": [
+      "--compensated-material-arithmetic",
+      "--diagnostic-state-output",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated198-contact-regional-526",
+      "--self-surface-scratch-alias-parity",
+      "--extended-budget",
+      "--regional-contact-preconditioner"
+    ]
+  },
+  "timeout_s": 600,
+  "qualification": "Same physical source198 synthetic fixture as527 and same restart16/FGMRES256/Newton32/line_search24/tolerance1e-7; existing regional contact preconditioner changes conditioning only. Explicitly inspect whether the intended postCommit negative control is reached or again masked by earlier residual failure. Rollback of actual failure and fault-specific coverage are separate verdicts.",
+  "case_outputs": {
+    "526": "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated198-contact-regional-526"
+  },
+  "environment": {
+    "526": {
+      "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": "2"
+    }
+  }
+}

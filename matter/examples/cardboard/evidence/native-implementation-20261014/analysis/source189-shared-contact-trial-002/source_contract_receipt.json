@@ -1,0 +1,11 @@
+{
+  "final_applied_candidate_sweep_precedes_narrowphase": true,
+  "limiter_exact_trial_ccd_before_energy": true,
+  "shortened_fraction_rejected": true,
+  "source_hashes": {
+    "contact": "deb984d07de73477c294446eaacaae4e8a8bf374d895056018b9d8047d491cec",
+    "fem": "bbd6abd764f723e6f0b266b80a3c99e100384e68e5ca5ae7cdd29cad36fb6a43",
+    "runtime": "9ed2a0011bbecb138ac1bcb9089a07899a34b5d39b43e1cfce3b2e42565f4e01"
+  },
+  "weakened_fraction_negative_control": "detected"
+}

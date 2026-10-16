@@ -1,0 +1,27 @@
+{
+  "schema": "numi.cardboard.native500-readonly-launch.v1",
+  "started_at_utc": "2026-10-16T05:58:42.404925+00:00",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-armijo-energy-replay-499-001/contact_barrier_trial_replay",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-armijo-energy-replay-499-001/contact_barrier_trial_replay.metallib",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-armijo-energy-replay-499-001/case-496-inputs-v3",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-barrier-energy-replay-500/output.bin"
+  ],
+  "workers": [],
+  "source_closure_sha256": "8427a7f247282ac8488061975174830b9ccfaaba4918dff626a2b9673b03ca41",
+  "inputs_manifest_sha256": "dc62eb0462fbf4af9f495363c63bb5ef692213643da0f318602eba3b91c08370",
+  "host_sha256": "97c0b4953a9e8b60058f62227a8febe0d9bc2cc843c1bf63a948b93377b5b4f4",
+  "metallib_sha256": "5e91e698eaa76a28dee887e884f29df7bf412e3f3241bd1d6a489d72d44a9f9e",
+  "physical_transactions": 0,
+  "ccd_qualification": false,
+  "returncode": 0,
+  "wall_seconds": 0.5000248746946454,
+  "outputs_sha256": {
+    "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout.log": "d6b8355d3e7d20e2eea45fcc112702cfbeaf4540555f278e1b660e810110a96b",
+    "prediction.json": "4452677fd6d739fad10aa94aabb91bdeec661750590686ac30373facf7c5fa14",
+    "output.bin": "cb1f014b70d5bd21e08f385e4fbea2c6d857328b2fd4a9c0506d64cb18ff0237"
+  },
+  "finished_at_utc": "2026-10-16T05:58:42.908242+00:00",
+  "qualification": "Read-only production contact barrier energy/position replay only; no transaction, CCD or physical qualification."
+}

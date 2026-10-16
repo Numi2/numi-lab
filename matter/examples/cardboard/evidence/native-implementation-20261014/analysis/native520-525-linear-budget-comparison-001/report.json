@@ -1,0 +1,215 @@
+{
+  "bindings": {
+    "device_program_fingerprint": "42a9745cba13913a",
+    "material_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "native520_capture_json_sha256": "c6c553e4d1ec67ff909af388148c00d082c1b8a8a2a5a45b733ec90ca4b435e5",
+    "native520_capture_payload_sha256": "a3392e9c316ce6b8cbada103c8538bb5edc5747832181ddf4224ec65043e75c5",
+    "native520_command_spec_sha256": "06f1df849c79ab7622c1e2fe199382ebbc6fa74df60c80273a59a00f03e6ab68",
+    "native520_receipt_sha256": "e585914165d8ca415c4fafae0cd91252fd936b78888fe0422074aa763a2773a3",
+    "native525_byte_audit_manifest_sha256": "4f50dff747b2bccaad77d6e62a5f29f94656cadec00af367f6e90409aa22de55",
+    "native525_byte_audit_report_sha256": "7b501044ae0788a16c4b47788868908a8aa5ee3c16ba83059a5a279c480a734c",
+    "native525_command_spec_sha256": "1ef9dc486969912280086a0f669e50ef156d8a7a80430beae96a59252e47b04e",
+    "source_frozen_manifest_actual_sha256": "d5bf1eb738d25e29cba80f3c9c936963b0d1e8b533652384f60705008b946b82",
+    "source_frozen_sha256": "d5bf1eb738d25e29cba80f3c9c936963b0d1e8b533652384f60705008b946b82",
+    "source_physics_fingerprint": "26b8bd394cf5a78c"
+  },
+  "conclusion": "At the captured source195 root2 Newton9 state, the original 64-iteration/restart10 FGMRES correction leaves a fresh matrix-free residual ratio 0.999982264; its post-FGMRES residual workspace agrees with independently formed b-J\u03b4 to 3.0402e-11 L2 and 1.3748e-11 max component. This is a stagnated linear solve with an internally consistent fresh action/residual, not evidence of a material/contact derivative defect. The 525 extended-budget alias fixture accepts two controls at 128 and 256 FGMRES iterations, with exact baseline/alias byte parity, but its third step is blocked by pretrial status 10 after 256 iterations and rolls back. These runs use the same source/build/material, but are not a matched replay of the exact Newton9 state: the 525 checker is a bounded transaction fixture with different tracing/output paths and only diagnostic environment root2. Thus increased budget/restart can overcome the earlier low-budget behavior on the first two transactions, while full-contact convergence and universal tangent correctness remain unqualified.",
+  "native520": {
+    "capture_kind": "raw_transaction_candidate_not_checkpoint",
+    "capture_point": "after_fgmres_measure_and_human_direction_map_before_armijo_trial",
+    "cgls_damping_requested": false,
+    "command_environment": {
+      "NM_FEM_COUPLED_CAPTURE_PATH": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native520-integrated-contact-rejection-command-001/capture",
+      "NM_FEM_COUPLED_CAPTURE_SELECTOR": "2:9",
+      "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT": "2",
+      "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": "2"
+    },
+    "control_step": 2,
+    "dt_seconds": 9.99999975e-05,
+    "linear_action": {
+      "correction_l2": 4.545980408143225e-05,
+      "fgmres_state_f32_words": [
+        6.94966331593605e-07,
+        6.949787803023355e-07,
+        0.0,
+        4.0,
+        0.00018116355931852013,
+        6.949787803023355e-07,
+        1.351572063867934e-05,
+        0.0
+      ],
+      "fgmres_state_interpretation": "NMFGMRESStateGPU diagnostics = [current residual, initial residual, convergence flag, last-cycle Arnoldi columns]; nonlinear = [first Newton residual,current Newton residual,last correction ratio, nonlinear-converged flag]. Both convergence flags are zero; last cycle has four columns.",
+      "fresh_residual_l2": 6.949663865627188e-07,
+      "fresh_residual_over_rhs": 0.9999822641180659,
+      "jdelta_l2": 2.7105073354155526e-09,
+      "max_abs_fresh_residual": 2.0257432981063417e-07,
+      "max_abs_post_workspace_minus_fresh": 1.3747558647025926e-11,
+      "post_fgmres_workspace_l2": 6.949663373803251e-07,
+      "post_workspace_minus_fresh_l2": 3.040200832846092e-11,
+      "raw_arrays": {
+        "center_production_jdelta_action": {
+          "byte_count": 1152,
+          "sha256": "6c77772ebc8913e67935a7e33d98f5fe01c6fcab495c0a799dd826ae8f96acd4"
+        },
+        "fem_rhs_after_fgmres": {
+          "byte_count": 1152,
+          "sha256": "b17021a8daf5e84da762c3bc46dc845fb3dcab53daa95fdfff0d6dde96b8c6df"
+        },
+        "fem_solution_correction": {
+          "byte_count": 1152,
+          "sha256": "0237f9d33133841a324b4c9cdb57bf7c383c1c9584dd858efd753cde1bbfe210"
+        },
+        "fgmres_state": {
+          "byte_count": 32,
+          "sha256": "fb5cbe4df3fee39237d0b7022cb9dc0b710417b2756ef1227877b20178692d78"
+        },
+        "full_rhs_before_fgmres": {
+          "byte_count": 1152,
+          "sha256": "70c6a984d7fbcc23ff5bc6b25dd9e07fbfa40b92534a35abbe495d111c3f81ee"
+        }
+      },
+      "rhs_l2": 6.949787126231126e-07
+    },
+    "mixed_solver": {
+      "fgmres_budget": 64,
+      "line_search_steps": 8,
+      "newton_budget": 16,
+      "preconditioner_selector": 0,
+      "restart": 10,
+      "rigid_articulated_nv": 0
+    },
+    "newton_iteration": 9,
+    "receipt": {
+      "exit_code": 1,
+      "shipping_or_physical_validation": false,
+      "space_abort": false,
+      "timed_out": false
+    },
+    "root": 2
+  },
+  "native525": {
+    "accepted_controls": [
+      {
+        "control_step": 1,
+        "fgmres_iterations": 128
+      },
+      {
+        "control_step": 2,
+        "fgmres_iterations": 256
+      }
+    ],
+    "byte_audit_report_sha256": "7b501044ae0788a16c4b47788868908a8aa5ee3c16ba83059a5a279c480a734c",
+    "command_argv": [
+      "--compensated-material-arithmetic",
+      "--diagnostic-state-output",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated195-contact-restart16-525",
+      "--self-surface-scratch-alias-parity",
+      "--extended-budget"
+    ],
+    "environment": {
+      "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": "2"
+    },
+    "run": {
+      "argv": [
+        "--compensated-material-arithmetic",
+        "--diagnostic-state-output",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated195-contact-restart16-525",
+        "--self-surface-scratch-alias-parity",
+        "--extended-budget"
+      ],
+      "configuration_note": "Existing extended-budget experiment: same source195 physical fixture, materials, tool path, dt, residual tolerance1e-7 and acceptance certificates. Restart16 (within user ceiling), FGMRES256, line_search24, Newton32. Tests whether64-iteration/restart4 linear stagnation explains native520. No full-box/contact calibration/convergence qualification.",
+      "environment": {
+        "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": "2"
+      },
+      "exit_code": 0,
+      "shipping_or_physical_validation": false,
+      "space_abort": false,
+      "timed_out": false,
+      "wall_seconds": 52.583310292
+    },
+    "third_transaction": {
+      "accepted": false,
+      "accepted_vector_hashes_equal": true,
+      "after_control_step": 2,
+      "after_fgmres_iterations": [
+        256
+      ],
+      "after_solver_diagnostics": [
+        [
+          1.50609182e-07,
+          1.50609182e-07,
+          1.1920929e-07,
+          24
+        ]
+      ],
+      "after_status_codes": [
+        10
+      ],
+      "before_control_step": 2,
+      "before_fgmres_iterations": [
+        256
+      ],
+      "before_status_codes": [
+        0
+      ],
+      "completion_stage": "snapshot_after_completion",
+      "index": 2,
+      "rejection_outcome": [],
+      "requested_control_step": 3,
+      "rollback_valid": true,
+      "transaction_json_baseline_alias_equal": true
+    }
+  },
+  "same_build_validation": {
+    "all_build_artifact_hashes_match_disk": true,
+    "all_build_sha_maps_same": true,
+    "build_artifacts": {
+      "CMakeCache.txt": {
+        "actual": "6e67a71b8b73c6daca36cbc21ac82bf3d3e7fa62c9edf49fcd0bf40af8d07ecf",
+        "expected": "6e67a71b8b73c6daca36cbc21ac82bf3d3e7fa62c9edf49fcd0bf40af8d07ecf",
+        "match": true
+      },
+      "compile_commands.json": {
+        "actual": "ef9724dfb2621fd02989ef60468761c9324d6caa7e8f712d4f866f863c0e0be5",
+        "expected": "ef9724dfb2621fd02989ef60468761c9324d6caa7e8f712d4f866f863c0e0be5",
+        "match": true
+      },
+      "numi-matter-cardboard-full-contact-armijo-check": {
+        "actual": "9062ef04dd22c93d36a56226a997527074761e3c751184f33c83b337ab626972",
+        "expected": "9062ef04dd22c93d36a56226a997527074761e3c751184f33c83b337ab626972",
+        "match": true
+      },
+      "shaders/NumiMatter.metallib": {
+        "actual": "edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f",
+        "expected": "edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f",
+        "match": true
+      },
+      "source-build.json": {
+        "actual": "e48aa63fd7d234344942149caf1d2aad4fc7ca4efb4f80322f1c539f4c0eb445",
+        "expected": "e48aa63fd7d234344942149caf1d2aad4fc7ca4efb4f80322f1c539f4c0eb445",
+        "match": true
+      }
+    },
+    "frozen_source_sha_same": true,
+    "material_sha_same": true,
+    "solver_budget_changed": {
+      "native520": {
+        "fgmres_budget": 64,
+        "line_search_steps": 8,
+        "newton_budget": 16,
+        "preconditioner_selector": 0,
+        "restart": 10,
+        "rigid_articulated_nv": 0
+      },
+      "native525_declared": {
+        "fgmres": 256,
+        "line_search": 24,
+        "newton": 32,
+        "residual_threshold": 1e-07,
+        "restart": 16
+      }
+    },
+    "source_snapshot_path_same": true
+  },
+  "schema": "numi.cardboard.native520-525-budget-diagnosis.v1"
+}

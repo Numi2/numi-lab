@@ -1,0 +1,41 @@
+{
+  "at_utc": "2026-10-16T07:31:52.528496+00:00",
+  "scope": "Same source195 fixture; capture and selected limiter/residual root2 trace enabled only in520. Native raw snapshot observer and default root0 fixture trace remain common. Independently compare all four raw snapshots and both metadata files.",
+  "source_build_sha256": "e48aa63fd7d234344942149caf1d2aad4fc7ca4efb4f80322f1c539f4c0eb445",
+  "files": {
+    "transaction-000000-after.bin": {
+      "bytes": 904335,
+      "diagnostic_on_sha256": "54da63768a1feb988d5416367bc49b3031e57b9779d7a5491caf8b1c8f80c828",
+      "diagnostic_off_sha256": "54da63768a1feb988d5416367bc49b3031e57b9779d7a5491caf8b1c8f80c828"
+    },
+    "transaction-000000-before.bin": {
+      "bytes": 904335,
+      "diagnostic_on_sha256": "121430ab2ee5cf7f341f70eb9d2130e8f632e1521d2bb00b3f8fc477175fc9c4",
+      "diagnostic_off_sha256": "121430ab2ee5cf7f341f70eb9d2130e8f632e1521d2bb00b3f8fc477175fc9c4"
+    },
+    "transaction-000000.json": {
+      "bytes": 6564,
+      "diagnostic_on_sha256": "8df241840570c274f1af9060a7e6dbf1ef845bc902a3190893023f9b1d3d9560",
+      "diagnostic_off_sha256": "8df241840570c274f1af9060a7e6dbf1ef845bc902a3190893023f9b1d3d9560"
+    },
+    "transaction-000001-after.bin": {
+      "bytes": 904335,
+      "diagnostic_on_sha256": "d52843d2d0dcda0109bdfd46bf809b8431d579c8e0c80339694c6ca3f44d7c99",
+      "diagnostic_off_sha256": "d52843d2d0dcda0109bdfd46bf809b8431d579c8e0c80339694c6ca3f44d7c99"
+    },
+    "transaction-000001-before.bin": {
+      "bytes": 904335,
+      "diagnostic_on_sha256": "54da63768a1feb988d5416367bc49b3031e57b9779d7a5491caf8b1c8f80c828",
+      "diagnostic_off_sha256": "54da63768a1feb988d5416367bc49b3031e57b9779d7a5491caf8b1c8f80c828"
+    },
+    "transaction-000001.json": {
+      "bytes": 6663,
+      "diagnostic_on_sha256": "f7bf940c7748e9ba1c08d1cb8facfa0cc4a8513e67b9e2a2bb357532e6557abb",
+      "diagnostic_off_sha256": "f7bf940c7748e9ba1c08d1cb8facfa0cc4a8513e67b9e2a2bb357532e6557abb"
+    }
+  },
+  "all_transaction_files_byte_identical": true,
+  "both_runs_failed_same_loaded_step": true,
+  "independent_binary_rollback_report_sha256": "0788e20d5fcf7b2152b043cefaee5d6a9a1fdc2e4ec42a9a6a3b4dff2506ca60",
+  "physical_history_qualification": false
+}

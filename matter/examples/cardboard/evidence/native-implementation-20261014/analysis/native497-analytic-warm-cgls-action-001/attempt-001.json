@@ -1,0 +1,8 @@
+{
+  "attempt": "001",
+  "cause": "first script version incorrectly tried to read old accepted history for glue tets; strict return map only applies to paper rows",
+  "correction": "subsequent script stores accepted 15-state history only for material indices 0 and 1; this failure generated no action metrics or qualification",
+  "failure": "ValueError: ragged old-state array while assembling all 1920 tets; elastic glue has no 15-state paper history",
+  "schema": "numi.cardboard.audit-attempt.v1",
+  "status": "failed_before_report"
+}

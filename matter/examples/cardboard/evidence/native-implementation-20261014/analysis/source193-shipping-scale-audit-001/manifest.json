@@ -1,0 +1,139 @@
+{
+  "artifacts": {
+    "arena_components_report_sha256": "7aad201c80a2a47829b6661eac67658025467995640b36bb24988e860234956a",
+    "exact_sparse_report_sha256": "c06a79243d1aacc1791799e643378f26c4f889e7d5cfb7c3593f77122b77c698",
+    "prebuild_inventory_sha256": "6288ffac69d37ba777770d500b9ac4627415cd48d231e89d52322fa3215e27ee",
+    "raw_arena_report_sha256": "8c31c488ed05752f0e0c1ba80800a8fd9fd575d2b5b2936a6c57f8f18955cd1f"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 2640,
+      "sha256": "5f3f7973df08c9dc4a021d9d8e28a2a274430f75e0ddd8db9c8ff904af12e84e"
+    },
+    "attempts/attempt001/audit.cpp": {
+      "bytes": 3801,
+      "sha256": "bcb98f8ed37db2c69219a58b9b6a577b2efc11491bc692f24e1aa98c9b8039ce"
+    },
+    "attempts/attempt001/compile.stderr": {
+      "bytes": 1673,
+      "sha256": "4858097e8acbe0fad1259d1ce340e7b397f18d0b52fde0c84978b2fd2d970b8e"
+    },
+    "attempts/attempt001/compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "audit": {
+      "bytes": 62376,
+      "sha256": "6d0b1fa103600b227d5745649f4b27b086bba1ba261591989e2456c2582b9e6e"
+    },
+    "audit.cpp": {
+      "bytes": 3977,
+      "sha256": "52223853a857c95682ec5ce250d49d6c1a7687a51e3187566b5fc13bfc342422"
+    },
+    "audit_components": {
+      "bytes": 36144,
+      "sha256": "98f53954834fd5ba2376816f2cd0bd746ac287fe879a1e6c82ffce768c0d59cb"
+    },
+    "audit_components.cpp": {
+      "bytes": 1438,
+      "sha256": "fe809251966cf5736362d3339caac8b2e865a1e95dceddcbe9c101f27d01b214"
+    },
+    "audit_components.report.json": {
+      "bytes": 416,
+      "sha256": "7aad201c80a2a47829b6661eac67658025467995640b36bb24988e860234956a"
+    },
+    "audit_components.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "commands.json": {
+      "bytes": 3099,
+      "sha256": "5e7b919d1ba2f21b96494930749a595536d1128516cf2a44c2d1996803e00ca0"
+    },
+    "compile.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "exact_sparse": {
+      "bytes": 36176,
+      "sha256": "f9194f6b9f7bab7d960e50a043c85104fd31d4d257d98d1ace862e80f6f8c284"
+    },
+    "exact_sparse.cpp": {
+      "bytes": 921,
+      "sha256": "c562cc5714899e6b92c8714231b30d86d78ce18bb5bcf868faf12cd488243e9b"
+    },
+    "exact_sparse.report.json": {
+      "bytes": 247,
+      "sha256": "c06a79243d1aacc1791799e643378f26c4f889e7d5cfb7c3593f77122b77c698"
+    },
+    "exact_sparse.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "inventory193": {
+      "bytes": 64880,
+      "sha256": "a19713b6e84a94d3c18f91c422dc0f73e518969abfe5368a3799723638118cea"
+    },
+    "inventory193.compile.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "inventory193.compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "inventory193.cpp": {
+      "bytes": 1829,
+      "sha256": "83ef55e6eae3c649ca96707022a06c8c1fd841c6aef0ce16278e98974e638e9c"
+    },
+    "inventory193.report.json": {
+      "bytes": 3166,
+      "sha256": "6288ffac69d37ba777770d500b9ac4627415cd48d231e89d52322fa3215e27ee"
+    },
+    "inventory193.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "report.json": {
+      "bytes": 1024,
+      "sha256": "8c31c488ed05752f0e0c1ba80800a8fd9fd575d2b5b2936a6c57f8f18955cd1f"
+    },
+    "review.json": {
+      "bytes": 6452,
+      "sha256": "825cce3a1b6e524a37e0b2f0bf9f2676e804a030af57874d90559eda2df4061a"
+    },
+    "run.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "run.stdout": {
+      "bytes": 1024,
+      "sha256": "8c31c488ed05752f0e0c1ba80800a8fd9fd575d2b5b2936a6c57f8f18955cd1f"
+    }
+  },
+  "native_validation": "Not run: parent-reported source193 validation refused before output-case creation because an undeclared runtime.mm.orig changed scanned source count from 816 to 817; no GPU dispatch.",
+  "schema": "numi.cardboard.source193_shipping_scale_audit_manifest.v1",
+  "scope": "Independent CPU/source audit package; no production edits or GPU dispatch.",
+  "source_bindings": {
+    "cardboard_cohesive_tiled_pages_check.cpp": "34fc33e8c080f9a01f1b46f9f3bcf0fd86198effd8fdfd31ca7bb47db4b1cdd3",
+    "cardboard_contact_node_incidence_sort_check.cpp": "e5a9e7c5218d93ecff90b8469717fbd441c70ac50395bbf521500a18612928f2",
+    "cardboard_shipping_allocation_preflight.cpp": "f2c5483f59fd9aa335669634312f2c129bbbfcf4b22d43f9bb09122444626ba6",
+    "contact.metalinc": "1f6f91a70c3c738f50c4d4fc86e429a2fc841028a81094700355b5e5d33ee538",
+    "full_contact_armijo_scratch_budget.hpp": "b36e8e8f2a5fc414f479c631eb0f0bd7554a0492379b5b7acd23e85019f045da",
+    "runtime.mm": "ceb32cfa44fa0f8917c1ea2766a8625b7c1b51caa409d73a84fb9274f19e1b0b",
+    "shipping_memory.hpp": "c08c895a29cd7af39ddda3fcd3d3700984efbf8c933114d68322cfd099e926df",
+    "source193_build_log": "f9fc941441fe6d16b465ad015afcfc8c9a3f1b4948fc3e1c6de59ac6d87001cb",
+    "source193_build_preflight": "3388d077e501306b69fff550212286b475042fcfc637df726be9abd5e576aa46",
+    "source193_build_receipt": "5abeec18def341b6dc07a7f839de68727912ee9e746fbcfcee27229e79a11701",
+    "sparse_private_contact_admission.hpp": "859c763ca42e8b6867f0ec77bcb5661ae143cd79ad2df87dde083b51ba138371"
+  },
+  "source_snapshot": {
+    "frozen_sha256": "3af1c0026640a3d9454b653f99804a94fbcfd835a385a1f70567c864af0bdcf3",
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-193-001",
+    "selected_files": 816
+  }
+}

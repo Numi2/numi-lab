@@ -1,0 +1,130 @@
+[
+  {
+    "alpha": 0.0,
+    "branch_transitions": {
+      "0": {
+        "lambda_positive": 1152,
+        "lambda_sign_flips": 0,
+        "yield_max": 0.9390164468881665,
+        "yield_min": 9.25592935629993e-13,
+        "yield_negative": 0,
+        "yield_sign_flips": 0
+      },
+      "1": {
+        "lambda_positive": 576,
+        "lambda_sign_flips": 0,
+        "yield_max": 0.9607166336631368,
+        "yield_min": 3.4727776210274897e-13,
+        "yield_negative": 0,
+        "yield_sign_flips": 0
+      }
+    },
+    "failed_tets": [],
+    "free_residual_l2_Ns": 1.8846220284320863e-05,
+    "internal_delta_l2_Ns": 0.0,
+    "internal_only_residual_l2_Ns": 1.8846220284320863e-05,
+    "mass_delta_l2_Ns": 0.0,
+    "mass_only_residual_l2_Ns": 1.8846220284320863e-05,
+    "max_dynamic_correction": 2.810463845425636e-13,
+    "max_local_iterations": 10,
+    "max_scaled_residual": 1.954412311200781e-12,
+    "strict_all_paper_projection_pass": true,
+    "strict_fail_count": 0
+  },
+  {
+    "alpha": 0.25,
+    "branch_transitions": {
+      "0": {
+        "lambda_positive": 1152,
+        "lambda_sign_flips": 0,
+        "yield_max": 0.9398365319766853,
+        "yield_min": 9.257039579324555e-13,
+        "yield_negative": 0,
+        "yield_sign_flips": 0
+      },
+      "1": {
+        "lambda_positive": 576,
+        "lambda_sign_flips": 0,
+        "yield_max": 0.9611516676389487,
+        "yield_min": 3.4772185131259903e-13,
+        "yield_negative": 0,
+        "yield_sign_flips": 0
+      }
+    },
+    "failed_tets": [],
+    "free_residual_l2_Ns": 1.4988429481279904e-05,
+    "internal_delta_l2_Ns": 4.20357011423281e-06,
+    "internal_only_residual_l2_Ns": 1.4988662219121112e-05,
+    "mass_delta_l2_Ns": 4.0721935461728554e-10,
+    "mass_only_residual_l2_Ns": 1.8845994557310422e-05,
+    "max_dynamic_correction": 2.517019931937437e-13,
+    "max_local_iterations": 12,
+    "max_scaled_residual": 1.9811740091534563e-12,
+    "strict_all_paper_projection_pass": true,
+    "strict_fail_count": 0
+  },
+  {
+    "alpha": 0.5,
+    "branch_transitions": {
+      "0": {
+        "lambda_positive": 1152,
+        "lambda_sign_flips": 0,
+        "yield_max": 0.9414318215571192,
+        "yield_min": 9.259260025373806e-13,
+        "yield_negative": 0,
+        "yield_sign_flips": 0
+      },
+      "1": {
+        "lambda_positive": 576,
+        "lambda_sign_flips": 0,
+        "yield_max": 0.9596715831315974,
+        "yield_min": 3.4772185131259903e-13,
+        "yield_negative": 0,
+        "yield_sign_flips": 0
+      }
+    },
+    "failed_tets": [],
+    "free_residual_l2_Ns": 1.14446556072785e-05,
+    "internal_delta_l2_Ns": 8.352495172772452e-06,
+    "internal_only_residual_l2_Ns": 1.1445132722483983e-05,
+    "mass_delta_l2_Ns": 8.144434960078541e-10,
+    "mass_only_residual_l2_Ns": 1.884576883417323e-05,
+    "max_dynamic_correction": 1.8105691962706656e-11,
+    "max_local_iterations": 13,
+    "max_scaled_residual": 1.986859122418405e-12,
+    "strict_all_paper_projection_pass": true,
+    "strict_fail_count": 0
+  },
+  {
+    "alpha": 1.0,
+    "branch_transitions": {
+      "0": {
+        "lambda_positive": 1152,
+        "lambda_sign_flips": 0,
+        "yield_max": 0.9441991738388149,
+        "yield_min": 9.262590694447681e-13,
+        "yield_negative": 0,
+        "yield_sign_flips": 0
+      },
+      "1": {
+        "lambda_positive": 576,
+        "lambda_sign_flips": 0,
+        "yield_max": 0.9518068625765239,
+        "yield_min": 3.4794389591752406e-13,
+        "yield_negative": 0,
+        "yield_sign_flips": 0
+      }
+    },
+    "failed_tets": [],
+    "free_residual_l2_Ns": 7.026711150706505e-06,
+    "internal_delta_l2_Ns": 1.6123307173776176e-05,
+    "internal_only_residual_l2_Ns": 7.027427972424363e-06,
+    "mass_delta_l2_Ns": 1.6288760830476473e-09,
+    "mass_only_residual_l2_Ns": 1.8845317416085217e-05,
+    "max_dynamic_correction": 5.576471830056532e-12,
+    "max_local_iterations": 13,
+    "max_scaled_residual": 1.9633888431924424e-12,
+    "strict_all_paper_projection_pass": true,
+    "strict_fail_count": 0
+  }
+]

@@ -1,0 +1,49 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metal",
+        "-std=metal4.0",
+        "-O3",
+        "-fno-fast-math",
+        "-MMD",
+        "-MF",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-relative-geometry-replay-502-001/metal-dependencies.d",
+        "-I",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-full-contact-private-scratch-176-003/matter/src",
+        "-I",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-full-contact-private-scratch-176-003/matter/include",
+        "-I",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-full-contact-private-scratch-176-003/include",
+        "-c",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-relative-geometry-replay-502-001/contact_barrier_trial_replay.metal",
+        "-o",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-relative-geometry-replay-502-001/replay.air"
+      ],
+      "returncode": 0,
+      "seconds": 2.102056374773383
+    },
+    {
+      "argv": [
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metallib",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-relative-geometry-replay-502-001/replay.air",
+        "-o",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-relative-geometry-replay-502-001/replay.metallib"
+      ],
+      "returncode": 0,
+      "seconds": 0.4909103326499462
+    }
+  ],
+  "kernel_sha256": "75c293859746e081116388896fb8f28ca8fbb5b82fa027b3765ccc719c6a239e",
+  "metallib_sha256": "c2a73db08c893bb775315fc6552eee64282cf6b02b87dad5cb34029678fd1c5f",
+  "air_sha256": "3195505d72993e5c6f807327231d8fff2bb49edd94feeee661e3931be422aedb",
+  "dependencies_sha256": "641eaa0719fc87163e80403b915253f274d1f94867e7a778f17e3491ff512de9",
+  "finished_at_utc": "2026-10-16T06:01:04.090662+00:00",
+  "gpu_dispatch": false
+}

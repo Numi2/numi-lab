@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source189-shared-contact-trial-002/contact_barrier_trial_replay_source189_host",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source189-shared-contact-trial-002/contact_barrier_trial_replay_source189.metallib",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-armijo-energy-replay-499-001/case-496-inputs-v4",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/shared-contact-production-helper-511/output.bin"
+  ],
+  "exit_code": 0,
+  "expected_output_bytes": 8064,
+  "output_bytes": 8064,
+  "output_exists": true,
+  "output_sha256": "8e8da15cb1ebb41c07189b247d8b35cd1b1fe3d9be92f2a4293d8cbc64e5e54f",
+  "physical_transactions": 0,
+  "wall_seconds": 1.51426100730896
+}

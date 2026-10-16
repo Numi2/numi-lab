@@ -1,0 +1,34 @@
+{
+  "build_exit": 0,
+  "ctest_exit": 0,
+  "commands": [
+    [
+      "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+      "-B",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-memory-single-private-arena-192-001/matter/tools/cardboard_source_bound_build.py",
+      "--source-snapshot",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-memory-single-private-arena-192-001",
+      "--build-dir",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source192-001",
+      "--jobs",
+      "4",
+      "--target",
+      "numi-matter-cardboard-shipping-memory-check"
+    ],
+    [
+      "/opt/homebrew/bin/ctest",
+      "--test-dir",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source192-001",
+      "-R",
+      "^matter.compiler.cardboard_shipping_memory$",
+      "--output-on-failure"
+    ]
+  ],
+  "files": {
+    "ctest.log": "b0f40a03ce61ae12f5b1fe3fe60cd7e71a5f6f6f2e83fcdddf2b8beac4c9f7ea",
+    "preflight.json": "02036b5806cb04b8321785b9b80924b804f24daba308f7d543039f1e43126bf8",
+    "build.log": "237fc00c7195b1246584faf34727153f914d984ebfb9e9f3a2e3723487779170"
+  },
+  "GPU_dispatch": false,
+  "finished_utc": "2026-10-16T07:11:22.317596+00:00"
+}

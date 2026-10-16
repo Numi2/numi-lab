@@ -1,0 +1,11 @@
+test_field_half_zero_mask_and_no_selected_writers (__main__.SelectedWriterLayoutTests) ... ok
+test_fixed_first_node_does_not_gate_or_duplicate_selection (__main__.SelectedWriterLayoutTests) ... ok
+test_inactive_environment_has_one_zero_value_writer (__main__.SelectedWriterLayoutTests) ... ok
+test_invalid_shapes_are_rejected_by_cpu_contract (__main__.SelectedWriterLayoutTests) ... ok
+test_one_mechanical_writer_per_environment (__main__.SelectedWriterLayoutTests) ... ok
+test_source_hash_and_mechanical_guard (__main__.SelectedWriterLayoutTests) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.000s
+
+OK

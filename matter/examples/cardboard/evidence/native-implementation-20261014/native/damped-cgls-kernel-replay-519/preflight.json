@@ -1,0 +1,11 @@
+{
+  "at_utc": "2026-10-16T07:35:05.250962+00:00",
+  "package_manifest_sha256": "a9cdf8da25d76086bad0c3d856c2b2fc7adb654fdf353c2d5ad991f438111e09",
+  "package_files": 28,
+  "source_build_sha256": "54e65bb00fd5050a4613eae5438345efe9ef5297e687ba98f3bfd44eddf2e0bf",
+  "source_files_verified": 815,
+  "actual_production_cgls_source_equals_integrated195": true,
+  "physical_transactions": 0,
+  "scope": "Only actual production damped CGLS recurrence through independent fixture A/AT; no physical solve or acceptance certificate.",
+  "gpu_workers": []
+}

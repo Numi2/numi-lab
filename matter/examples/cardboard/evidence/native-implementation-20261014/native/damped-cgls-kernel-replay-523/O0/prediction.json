@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native-damped-cgls-helper-replay-190-004/build/O0/damped_cgls_helper_replay",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native-damped-cgls-helper-replay-190-004/build/O0/damped_cgls_fixture.metallib"
+  ],
+  "started_at_utc": "2026-10-16T07:41:58.940614+00:00",
+  "timeout_s": 120
+}

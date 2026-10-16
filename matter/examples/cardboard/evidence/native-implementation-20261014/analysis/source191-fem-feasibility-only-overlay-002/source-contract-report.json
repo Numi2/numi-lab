@@ -1,0 +1,16 @@
+{
+  "checks": {
+    "FEM_and_MPM_support_bits_are_recorded_after_validation": true,
+    "exact_FEM_only_mask_fails_closed": true,
+    "final_mixed_certificate_remains": true,
+    "finite_barrier_still_required": true,
+    "full_sweep_requires_exact_requested_fraction": true,
+    "global_private_trial_path_remains": true,
+    "global_residual_measure_remains": true,
+    "host_binds_new_buffer20": true,
+    "host_flag_is_existing_full_contact_admission": true,
+    "kernel_reads_buffer20": true
+  },
+  "passed": true,
+  "schema": "numi.cardboard.source191-002.source-contract-audit.v1"
+}

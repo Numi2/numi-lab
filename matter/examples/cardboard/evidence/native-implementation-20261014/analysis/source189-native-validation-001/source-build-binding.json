@@ -1,0 +1,17 @@
+{
+  "source_build_sha256": "21050d87f55819b1e2e04d528328ab7a435c2afcef4e7718c5a7fea5f87f1c87",
+  "frozen_sha256": "96361bba5c82368d6476711a550eb9ea16fca08d8235514dcd90eb21673750c0",
+  "artifacts": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/numi-matter-cardboard-contact-geometry-check": "cc299103b3979cbda1dc3a1a00e968ace3d022f07b0b35a7b5b9d66e8a2157bf",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/numi-matter-cardboard-coupon-resume-check": "a7b47d845686b56b5c83cbb1a2a80ce3817c65a19a95936c94480f8266edcb2e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/numi-matter-cardboard-full-contact-armijo-check": "1fd8be874b7302c5235b50396917338bf858582436c533809360e8c3b624e213",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/numi-matter-cardboard-full-contact-scratch-budget-check": "78a82c52e3ffaf74bd46581cdd4d136a971fb11205624fa6f8fb7204c95bdc00",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/numi-matter-cardboard-probe": "acd6d4fb860e2bcac12fd991b8f1dc869e14594c72d750fcbee3f75679b8ac64",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/numi-matter-cardboard-shipping-memory-check": "7fef813482c6f49b854e388ddd138e95e4a5793f95ffdaa814082b5567150924",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/shaders/NumiMatter.metallib": "7a44dcb40e4e6f25c25b471e8f3655aa4846bed0fdb8f70d28e80753ca0fbd4f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/shaders/cardboard_contact_geometry_check.metallib": "a98edcf60852875b580edcee1f166dd9a2e551f7b685f913ba2176676b90df53"
+  },
+  "source_files": 814,
+  "support_files": 1034
+}

@@ -1,0 +1,29 @@
+{
+  "files": {
+    "helper_source": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/candidate/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm",
+      "sha256": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81"
+    },
+    "shader_source": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/candidate/matter/tools/cardboard_bilinear15_capture_diagnostic.metal",
+      "sha256": "23f6f758cda7ccc0e0651e45a298644e6b71a3c25cd5ef2f7c9cbe4ceca40628"
+    },
+    "source173_binding_patch": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/patch/source173-binding-rebase.patch",
+      "sha256": "6e3ef4b7d3fb89cd09cfb93bef45355ab61f1edf5b2730f008824e51cc779aa0"
+    },
+    "source173_bound_wrapper": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/candidate/matter/tools/cardboard_source469_material_replay_check.mm",
+      "sha256": "69dc60e47321ccca5ab09e5133d9f08620aca13a0bf15395e349e411329a0475"
+    },
+    "source174_exact_wrapper": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/candidate/matter/tools/cardboard_source469_material_replay_check_source174_exact.mm",
+      "sha256": "f4c81f0217e1a528b982cba1293a7868e7d5c3f43bce97d586a1675494350f7c"
+    }
+  },
+  "original_transfer_audit_note": "remote-input-hash-audit.json records the initial exact-source174 transfer before the two-line source173 rebase. Its wrapper hash is historical; this file separately binds current normal wrapper and preserved exact source174 copy.",
+  "remote_package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001",
+  "schema": "numi.cardboard.native469-source173-host-binding-audit.v1",
+  "source173_base_frozen_sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+  "status": "PASS"
+}

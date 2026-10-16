@@ -1,0 +1,42 @@
+{
+  "base_frozen_source_sha256": "96361bba5c82368d6476711a550eb9ea16fca08d8235514dcd90eb21673750c0",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix003",
+  "changed_source_files": {
+    "matter/include/numi/matter/deformable_contact_trial_policy.h": {
+      "base_sha256": null,
+      "candidate_sha256": "73ac3be7e5245220b6976a456016813fda7460841475ba6450ce943951989e84"
+    },
+    "matter/src/metal/contact.metalinc": {
+      "base_sha256": "deb984d07de73477c294446eaacaae4e8a8bf374d895056018b9d8047d491cec",
+      "candidate_sha256": "1f6f91a70c3c738f50c4d4fc86e429a2fc841028a81094700355b5e5d33ee538"
+    },
+    "matter/src/runtime.mm": {
+      "base_sha256": "9ed2a0011bbecb138ac1bcb9089a07899a34b5d39b43e1cfce3b2e42565f4e01",
+      "candidate_sha256": "ec28985b644c43d2ccfaf8b77ef1da03db3b1db7797112a57b1e2cb504dfdfb6"
+    }
+  },
+  "no_gpu_dispatch": true,
+  "no_physical_transactions": true,
+  "patch_sha256": "1dde5d9b57c5a58d7e25684153ba5ab1456b15964474f77184c297de5345b63b",
+  "policy": "Opt-in only when host has admitted full-contact residual Armijo for this control. Only contacts whose validated active support is FEM-only use CCD/finite feasibility in the prepass; MPM and mixed supports retain per-feature energy Armijo. The full residual Armijo trial rebuilds private contacts, validates the exact FEM trial endpoint sweep, measures the full coupled residual, and final production certification rebuilds the actual state.",
+  "schema": "numi.cardboard.source191-fem-feasibility-only-overlay.v1",
+  "test": {
+    "compile_command": [
+      "/usr/bin/clang++",
+      "-std=c++17",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source191-fem-feasibility-only-overlay-001/candidate/matter/include",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source191-fem-feasibility-only-overlay-001/policy_contract.cpp",
+      "-o",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source191-fem-feasibility-only-overlay-001/policy_contract"
+    ],
+    "compile_exit": 0,
+    "run_exit": 0,
+    "sha256": "9ccc36c321e7bdb14d51772f15c04a90d7f6784970a46661f5a6d4f97097b560",
+    "source": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source191-fem-feasibility-only-overlay-001/policy_contract.cpp",
+    "stdout": "shared production policy helper: 6 cases passed"
+  }
+}

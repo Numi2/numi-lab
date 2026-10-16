@@ -1,0 +1,15 @@
+{
+  "actual_file_sha256": "41dcbfdd49c2f7861004239333031b120dc39a3e20aed4a158aba5eea7c14508",
+  "affected_field": "candidate_file_sha256.matter/tools/cardboard_full_contact_armijo_scratch_budget_check.cpp",
+  "code_or_validation_bytes_changed": false,
+  "correct_value": "41dcbfdd49c2f7861004239333031b120dc39a3e20aed4a158aba5eea7c14508",
+  "correction_type": "manifest_only_hash_map_typo",
+  "file_inventory_sha256": "41dcbfdd49c2f7861004239333031b120dc39a3e20aed4a158aba5eea7c14508",
+  "note": "The source patch and CPU checker bytes were correct. The 176-002 manifest inventory bound the checker bytes correctly, but its duplicate candidate_file_sha256 summary map contained a mistyped value. This new version preserves every 176-002 file byte and corrects only manifest metadata plus this correction record.",
+  "patch_sha256": "a987a2c7eba81b585a6936f078e85b0ab5cadabe64cefb0fd170d6e4bd74f6a3",
+  "prior_value": "41dcbfdd49c2f7861004239330301b120dc39a3e20aed4a158aba5eea7c14508",
+  "schema": "numi.matter.overlay_manifest_correction.v1",
+  "source_or_build_used_from_176_002": false,
+  "superseded_manifest_sha256": "b9508c567c8c9b6d2ad2275c26cf31d9fe6379449f542b8a85a6f4b6b00080a0",
+  "supersedes_overlay": "full-contact-private-scratch-accounting-overlay-176-002"
+}

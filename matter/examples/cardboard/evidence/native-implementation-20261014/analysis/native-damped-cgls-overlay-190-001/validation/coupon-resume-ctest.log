@@ -1,0 +1,13 @@
+Test project /Users/n/cardboard-implementation-20261014-host-macmini/build-source190-002
+    Start 58: matter.compiler.cardboard_coupon_resume
+1/1 Test #58: matter.compiler.cardboard_coupon_resume ...   Passed    0.00 sec
+
+100% tests passed out of 1
+
+Label Time Summary:
+cardboard    =   0.00 sec*proc (1 test)
+cpu          =   0.00 sec*proc (1 test)
+matter       =   0.00 sec*proc (1 test)
+shipping     =   0.00 sec*proc (1 test)
+
+Total Test time (real) =   0.00 sec

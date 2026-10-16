@@ -1,0 +1,23 @@
+{
+  "schema": "numi.cardboard.native515-preflight.v1",
+  "phase": "515",
+  "source_files_verified": 814,
+  "bound_build_files": {
+    "numi-matter-cardboard-full-contact-armijo-check": "1fd8be874b7302c5235b50396917338bf858582436c533809360e8c3b624e213",
+    "shaders/NumiMatter.metallib": "7a44dcb40e4e6f25c25b471e8f3655aa4846bed0fdb8f70d28e80753ca0fbd4f",
+    "CMakeCache.txt": "dd4acf23f647dd68425db4be2fa9af5b044ab2665e63e3da714dae0eb07235f5",
+    "compile_commands.json": "2495a061b4504e9510f72414ff38ab5738a79fa1a3596fe484f1ae07a98f39a8",
+    "source-build.json": "21050d87f55819b1e2e04d528328ab7a435c2afcef4e7718c5a7fea5f87f1c87"
+  },
+  "native_argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/numi-matter-cardboard-full-contact-armijo-check",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix003/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+    "--compensated-material-arithmetic",
+    "--diagnostic-state-output",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/shared-contact-actual-rejection-515",
+    "--self-surface-scratch-alias-parity"
+  ],
+  "available_bytes": 104728895488,
+  "execute_requested": true,
+  "started_at_utc": "2026-10-16T07:05:53.130183+00:00"
+}

@@ -1,0 +1,83 @@
+{
+  "schema": "numi.cardboard.native520_525_budget_effect_audit_manifest.v1",
+  "package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native520-525-budget-effect-audit-001",
+  "report_sha256": "e4d53d7f22d35c2e871d923210eb4b24e3ae5353bf61dc5ee619fb5835c37449",
+  "source_snapshot_sha256": "d5bf1eb738d25e29cba80f3c9c936963b0d1e8b533652384f60705008b946b82",
+  "internal_files": {
+    "audit.py": {
+      "bytes": 8636,
+      "sha256": "75a5f686b9e52d78903910124f7f27251ad6cd86b9be24dcd3d9f2e1bf90d6b7"
+    },
+    "report.json": {
+      "bytes": 9537,
+      "sha256": "e4d53d7f22d35c2e871d923210eb4b24e3ae5353bf61dc5ee619fb5835c37449"
+    },
+    "README.md": {
+      "bytes": 1303,
+      "sha256": "c23fa5fb77199e43210eb5e381970b5a5d33a9c6b6fc50d9e9bdab0d28c300ca"
+    }
+  },
+  "evidence_files": {
+    "P195": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001/matter/tools/cardboard_full_contact_armijo_check.mm",
+      "bytes": 327588,
+      "sha256": "d96f4d6717ac40f47e71150666382ed5557c9c1e83b23b32a1c94877dbdb8db6"
+    },
+    "material": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+      "bytes": 3495,
+      "sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348"
+    },
+    "command520": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native520-integrated-contact-rejection-command-001/command-spec.json",
+      "bytes": 2079,
+      "sha256": "06f1df849c79ab7622c1e2fe199382ebbc6fa74df60c80273a59a00f03e6ab68"
+    },
+    "capture520": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native520-integrated-contact-rejection-command-001/capture.coupled.json",
+      "bytes": 43547,
+      "sha256": "c6c553e4d1ec67ff909af388148c00d082c1b8a8a2a5a45b733ec90ca4b435e5"
+    },
+    "command525": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native525-contact-restart16-command-001/command-spec.json",
+      "bytes": 2017,
+      "sha256": "1ef9dc486969912280086a0f669e50ef156d8a7a80430beae96a59252e47b04e"
+    },
+    "receipt525": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native525-contact-restart16-command-001/execution-525/receipt.json",
+      "bytes": 4602,
+      "sha256": "88b81b5ad524a6998f65591d8b93a2c69515316701a9bfff841c43b4e6b4b32b"
+    },
+    "stdout525": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native525-contact-restart16-command-001/execution-525/stdout.log",
+      "bytes": 2036,
+      "sha256": "34e040e6dd338e7140928b99300b30d0739553eff3546d99d904f6196060107a"
+    },
+    "loaded525": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated195-contact-restart16-525/baseline/fixture-loaded.log",
+      "bytes": 59789,
+      "sha256": "f9163ba19fb49cba35e58421d1de896f4b948ba6b7e9ff430b989845b86206dd"
+    },
+    "rejected525": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated195-contact-restart16-525/baseline/fixture-rejected.log",
+      "bytes": 61129,
+      "sha256": "8fcc602700c283cd0cd7368b5c1fef6b6324fa124415b5f6e1f4d8e5d5fb4765"
+    },
+    "tx0": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated195-contact-restart16-525/baseline/transaction-000000.json",
+      "bytes": 6565,
+      "sha256": "47e05fb5ed400d93359d151f3ee14745bc748c65349778589e0d63f66392b368"
+    },
+    "tx1": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated195-contact-restart16-525/baseline/transaction-000001.json",
+      "bytes": 6668,
+      "sha256": "196ab24eb79b3898252bccf6d0a9f69c2738f1fbc8b9f5b559b6fc8f25b8f987"
+    },
+    "tx2": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/integrated195-contact-restart16-525/baseline/transaction-000002.json",
+      "bytes": 6672,
+      "sha256": "99651bccb2f572960b0629a4374cd6b08d8900d89616c4b90f8af7cf4881c054"
+    }
+  },
+  "scope": "read-only source and native receipt interpretation; no source edits, builds, or native runs"
+}

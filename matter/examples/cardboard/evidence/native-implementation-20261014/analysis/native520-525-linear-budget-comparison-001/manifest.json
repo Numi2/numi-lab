@@ -1,0 +1,44 @@
+{
+  "id": "native520-525-linear-budget-comparison-001",
+  "inputs": {
+    "native520_capture_json": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native520-integrated-contact-rejection-command-001/capture.coupled.json",
+      "sha256": "c6c553e4d1ec67ff909af388148c00d082c1b8a8a2a5a45b733ec90ca4b435e5"
+    },
+    "native520_capture_payload": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native520-integrated-contact-rejection-command-001/capture.coupled.bin",
+      "sha256": "a3392e9c316ce6b8cbada103c8538bb5edc5747832181ddf4224ec65043e75c5"
+    },
+    "native520_command_spec": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native520-integrated-contact-rejection-command-001/command-spec.json",
+      "sha256": "06f1df849c79ab7622c1e2fe199382ebbc6fa74df60c80273a59a00f03e6ab68"
+    },
+    "native520_receipt": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native520-integrated-contact-rejection-command-001/execution-520/receipt.json",
+      "sha256": "e585914165d8ca415c4fafae0cd91252fd936b78888fe0422074aa763a2773a3"
+    },
+    "native525_byte_audit_manifest": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native525-independent-byte-audit-001/manifest.json",
+      "sha256": "4f50dff747b2bccaad77d6e62a5f29f94656cadec00af367f6e90409aa22de55"
+    },
+    "native525_byte_audit_report": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native525-independent-byte-audit-001/report.json",
+      "sha256": "7b501044ae0788a16c4b47788868908a8aa5ee3c16ba83059a5a279c480a734c"
+    },
+    "native525_command_spec": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native525-contact-restart16-command-001/command-spec.json",
+      "sha256": "1ef9dc486969912280086a0f669e50ef156d8a7a80430beae96a59252e47b04e"
+    }
+  },
+  "outputs": {
+    "README.md": "d9bdd2dc0f5cfde4c2e1c7202b9f1e281c5290c1c3bf97d0d7fbc02fe1f7af82",
+    "report.json": "5ed5807419ff054230c1438665437a74a1505e69cf72658906b166b8c9fd14c9"
+  },
+  "schema": "numi.cardboard.audit-package.v1",
+  "scope": {
+    "cpu_only": true,
+    "full_coupon_qualification": false,
+    "native_replay": false,
+    "tangent_qualification": false
+  }
+}

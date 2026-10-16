@@ -1,0 +1,24 @@
+{
+  "name": "cpu-validation",
+  "argv": [
+    "/opt/homebrew/bin/ctest",
+    "--test-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003",
+    "-R",
+    "^matter.compiler.cardboard_(shipping_memory|full_contact_scratch_budget|coupon_resume|full_contact_armijo|compensated_full_contact)$|^matter.cli.cardboard_argument_admission$|^matter.analysis.cardboard_compensated_fp64_reference$",
+    "--output-on-failure",
+    "-j",
+    "1"
+  ],
+  "source_build_sha256": "21050d87f55819b1e2e04d528328ab7a435c2afcef4e7718c5a7fea5f87f1c87",
+  "started_at_utc": "2026-10-16T07:02:58.547660+00:00",
+  "timeout_s": 180,
+  "gpu": false,
+  "exit_code": 0,
+  "timed_out": false,
+  "wall_seconds": 2.0432115830481052,
+  "finished_at_utc": "2026-10-16T07:03:00.591145+00:00",
+  "stdout_sha256": "9ef58c98656963fdc23d7ade4f73db096499f880a81fb3bbaa0b42269089e6d7",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "physical_qualification": false
+}

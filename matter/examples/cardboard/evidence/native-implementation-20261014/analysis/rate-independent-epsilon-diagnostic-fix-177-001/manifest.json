@@ -1,0 +1,13 @@
+{
+  "schema": "numi.cardboard.rate-independent-epsilon-fix.v1",
+  "parent_source_sha256": "f4c81f0217e1a528b982cba1293a7868e7d5c3f43bce97d586a1675494350f7c",
+  "source173_frozen_sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+  "gpu_executed": false,
+  "files_sha256": {
+    "patch.diff": "b3b21b6ae308a081dd9972c5ae87511792ac23581dbd7eed085e6762142816ee",
+    "README.md": "9e52472aba832fd800d0047da2d535e8a89cf4dcc3cbb42bae8fea678d42be9a",
+    "analyze_native174_epsilon.py": "91018090f9b3ce34950b6a575e2211a64dddf38e8cd3dad1c37d3610f103a4ca",
+    "candidate/matter/tools/cardboard_source469_material_replay_check.mm": "5eaed312a604561997bf104a078794ad4752d230fb99db89daf6a96452f9d9ab",
+    "candidate/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81"
+  }
+}

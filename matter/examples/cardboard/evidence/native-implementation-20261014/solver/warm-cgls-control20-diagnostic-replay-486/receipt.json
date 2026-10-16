@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.native-run-receipt.v2",
+  "execution_started": true,
+  "source_inputs_unchanged": true,
+  "changed_inputs": [],
+  "exit_code": 1,
+  "timed_out": false,
+  "termination_errors": [],
+  "wall_seconds": 0.11809979099780321,
+  "finished_at_utc": "2026-10-16T05:36:19.746204+00:00",
+  "run_mode": "diagnostic",
+  "diagnostic_capture_validation": {
+    "status": "failed",
+    "reason": "missing diagnostic capture has no successful accepted checkpoint boundary"
+  }
+}

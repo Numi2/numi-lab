@@ -1,0 +1,18 @@
+{
+  "compile": [
+    "/usr/bin/xcrun",
+    "clang++",
+    "-std=c++20",
+    "-O2",
+    "-I",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001/matter/include",
+    "-I",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001/include",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native520-independent-binary-rollback-001/sizeof_snapshot_records.cpp",
+    "-o",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native520-independent-binary-rollback-001/sizeof_snapshot_records"
+  ],
+  "abi_run": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native520-independent-binary-rollback-001/sizeof_snapshot_records"
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "numi.cardboard.native495-receipt.v1",
+  "phase": "495",
+  "exit_code": 1,
+  "timed_out": false,
+  "space_abort": false,
+  "errors": [],
+  "wall_seconds": 2.6085630003362894,
+  "minimum_available_bytes": 111351513088,
+  "finished_at_utc": "2026-10-16T05:25:45.050259+00:00",
+  "scrubbed_parent_key_names": [],
+  "stdout_sha256": "3a7e197891c74e020bb1b3fd44086cdb619ccaf0546992c56c6dad23f06cf4fc",
+  "stderr_sha256": "2ead39b438f4ef4e4bc19dd4f63912c13f822f309f2cb22541c473938bed7555",
+  "shipping_or_physical_validation": false,
+  "case_files": {
+    "baseline/fixture-activation.log": {
+      "bytes": 30032,
+      "sha256": "3a30cb326e5027fcc367e55e69dd10f8e298436a5996e96cc5923fa9538b79b2"
+    },
+    "baseline/fixture-initialization.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "baseline/fixture-loaded.log": {
+      "bytes": 3020387,
+      "sha256": "97644aec4465f974c5ab6338d95452003c194a482265c0c54b040ae580b4edd7"
+    },
+    "baseline/transaction-000000-after.bin": {
+      "bytes": 904335,
+      "sha256": "30560f975abcdb25b1139fc8e4aa19d78df3f36bdd725bd3f3bf7c30ad1379b6"
+    },
+    "baseline/transaction-000000-before.bin": {
+      "bytes": 904335,
+      "sha256": "74585799ab99da9cd9c73a3c981814b85b25ac05f5711be97af963ead3e43bb9"
+    },
+    "baseline/transaction-000000.json": {
+      "bytes": 6564,
+      "sha256": "a56f3bc43f1f0f7e0513b70b044847dbeb9f3f9193c44db9dc27c46304f05b60"
+    },
+    "baseline/transaction-000001-after.bin": {
+      "bytes": 904335,
+      "sha256": "76ad6cdc089fec59e7e30e753f0bfa14bde49f1a3c8d011bdd67ea08528dfb1d"
+    },
+    "baseline/transaction-000001-before.bin": {
+      "bytes": 904335,
+      "sha256": "30560f975abcdb25b1139fc8e4aa19d78df3f36bdd725bd3f3bf7c30ad1379b6"
+    },
+    "baseline/transaction-000001.json": {
+      "bytes": 6655,
+      "sha256": "e334e98712b51161ba80f1691ec9bb87892c42757488acf7f57f8fd0b8db5a3f"
+    }
+  }
+}

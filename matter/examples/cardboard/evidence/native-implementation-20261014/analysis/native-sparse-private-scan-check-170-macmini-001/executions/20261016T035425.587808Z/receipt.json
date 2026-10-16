@@ -1,0 +1,33 @@
+{
+  "exit_code": 0,
+  "finished_at_utc": "2026-10-16T03:54:27.171193+00:00",
+  "gpu_case_count": 49,
+  "preflight": {
+    "abort_floor_bytes": 536870912,
+    "active_workers": [],
+    "available_bytes": 113836769280,
+    "checker_binary_sha256": "0d2b41949d3c4101bb1b549052e460c5e6cd173424de057c748d0b5bf8556fdd",
+    "gpu_dispatch_occurred": false,
+    "launch_allowed": true,
+    "metallib_sha256": "4fcf68c0a2fffa4b2ae053829f239b983f41b166ea6d53da685216a4ad0ed269",
+    "minimum_available_bytes": 2147483648,
+    "native_gpu_case_count": 49,
+    "reserve_bytes": 134217728,
+    "schema": "numi.cardboard.sparse-scan-macmini-preflight.v1",
+    "single_worker_lock_present": false,
+    "source173_build_sha256": "96396de7fa14197a6759583d8b7bb053c412e08f1051b947502c1cc38b185229",
+    "source173_snapshot_sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+    "total_environment_pair_slots": 6366845
+  },
+  "reserve": {
+    "allocated_bytes": 134217728,
+    "bytes": 134217728,
+    "fsynced": true,
+    "sha256": "6cb1222a30f974d4145bae05853285c90e4a42207902e0efa22f6da4245b480e"
+  },
+  "schema": "numi.cardboard.sparse-scan-macmini-execution.v1",
+  "space_abort": false,
+  "started_at_utc": "2026-10-16T03:54:25.587927+00:00",
+  "termination_error": null,
+  "timed_out": false
+}

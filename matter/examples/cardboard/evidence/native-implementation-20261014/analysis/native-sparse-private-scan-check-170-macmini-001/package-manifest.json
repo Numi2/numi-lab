@@ -1,0 +1,101 @@
+{
+  "created_at_utc": "2026-10-16T03:49:23.770554+00:00",
+  "files": {
+    "NumiMatter-O3.metallib": {
+      "bytes": 7010399,
+      "sha256": "4fcf68c0a2fffa4b2ae053829f239b983f41b166ea6d53da685216a4ad0ed269"
+    },
+    "README.md": {
+      "bytes": 1547,
+      "sha256": "15c3cbb2411d60b645c191dc26eb0beba0e0be511b0fa909d0684986618a58ba"
+    },
+    "compile-command.json": {
+      "bytes": 1660,
+      "sha256": "5804c71bab75c992ccae39a77ca5dcb36b75a5fdbc00c7c51a98128a921d96b5"
+    },
+    "host-bindings.json": {
+      "bytes": 4156,
+      "sha256": "e924e45b62b8afaf7e585d0f1351f513344f66ffff8815e3e7f7ddfce6a849a5"
+    },
+    "inputs/case_inventory.py": {
+      "bytes": 2873,
+      "sha256": "9372d6e71508760da00a9813314879ff5941d721a15a9c8afe2a22cfe5a13d17"
+    },
+    "inputs/gpu-case-inventory.json": {
+      "bytes": 12455,
+      "sha256": "89e92e3558393ba9b85befc7282f726a7490d857e18ca92d33f830562dbc0417"
+    },
+    "lineage/native-170-command.json": {
+      "bytes": 3178,
+      "sha256": "0b98da39458e57665988d2350900d9b0a2bfb694d119cfa76f87593fcfad92b2"
+    },
+    "lineage/native-170-package-manifest.json": {
+      "bytes": 2568,
+      "sha256": "3d6ced2b553e6f9d20ace2891f31945a2c0731770607ef4400078114220f8dbb"
+    },
+    "lineage/source-overlay.json": {
+      "bytes": 9824,
+      "sha256": "55c7aa0d6b35c2bf4912b572e569899ee31c5ddceb56b48bf276118ffbc62e66"
+    },
+    "lineage/source-overlay.patch": {
+      "bytes": 53475,
+      "sha256": "be6644bf143a32ed9cfcc6d776c455345f7d8631d96dbdd7735df6613a7a2e0e"
+    },
+    "runner.py": {
+      "bytes": 13440,
+      "sha256": "ab79cf265ebe47efd1c17d977d88dd510fe71ff6df155b1828067df0af26166e"
+    },
+    "seal.py": {
+      "bytes": 1396,
+      "sha256": "9d3e1a3d20f28c8d9dfd44559563750dcad42fadc5cc9088432984bb201326dd"
+    },
+    "source/cardboard_sparse_private_contact_scan_native_check.mm": {
+      "bytes": 25932,
+      "sha256": "bf18e81d70b3ca120d0afa479af0bcb5c4c1b435c1dbd55b8df6db820a7b8b5d"
+    },
+    "validation/case-inventory-check.json": {
+      "bytes": 421,
+      "sha256": "82557ff38f7b29603ac782ff9c4827420f65648a2c84c95221fc0d10e26d3635"
+    },
+    "validation/checker-compile.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "validation/cpu-contracts.log": {
+      "bytes": 129,
+      "sha256": "1865defe20bb7d08dcae2884b081d1aedb60501660d997c3c3ba85a801e3e470"
+    },
+    "validation/host-checker-compile.json": {
+      "bytes": 704,
+      "sha256": "80e41570cc3202be985c2b3ec0800d5a6fe8c6f98caab55e19ad6562959001c7"
+    },
+    "validation/metal-dispatch-status.json": {
+      "bytes": 238,
+      "sha256": "d8a2fc115bfc5fd23a9ee58a075023bb0be032bb2faa2200ffafc2b09835ef2d"
+    },
+    "validation/runner-tests.log": {
+      "bytes": 466,
+      "sha256": "3bfa565bc5e22fcca08d7c1cd697122b48c72c707a1f027cea32686d72659bfb"
+    },
+    "validation/shared-header-abi-match.json": {
+      "bytes": 724,
+      "sha256": "da50ceefa8edbbca368d0d284cc255dbd2d5b6aeb0a35f862d4818341ba19672"
+    },
+    "validation/sparse-scan-checker": {
+      "bytes": 192368,
+      "sha256": "0d2b41949d3c4101bb1b549052e460c5e6cd173424de057c748d0b5bf8556fdd"
+    },
+    "validation/test_runner.py": {
+      "bytes": 1427,
+      "sha256": "7a96d92d1936ad734cef07bd35d04eaff757ec899705a320996fc7a84b11fc99"
+    }
+  },
+  "fresh_checker_binary_sha256": "0d2b41949d3c4101bb1b549052e460c5e6cd173424de057c748d0b5bf8556fdd",
+  "gpu_dispatch_occurred_during_package_preparation": false,
+  "host": "macmini",
+  "native_gpu_case_count": 49,
+  "schema": "numi.cardboard.sparse-scan-macmini-package.v1",
+  "source170_checker_sha256": "bf18e81d70b3ca120d0afa479af0bcb5c4c1b435c1dbd55b8df6db820a7b8b5d",
+  "source170_o3_metallib_sha256": "4fcf68c0a2fffa4b2ae053829f239b983f41b166ea6d53da685216a4ad0ed269",
+  "total_environment_pair_slots": 6366845
+}

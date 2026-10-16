@@ -1,0 +1,164 @@
+{
+  "cpu_oracle_sha256": "9e4aab3f990250f2c1989b9cf70872138fb3761086a5dd3fbb83cf3336a1712d",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "9aa59a3d18de5ab8c649afe82eab95ad883a5f37df6dd4815abf1ede556164a1",
+      "size": 4011
+    },
+    {
+      "path": "build/O0/damped_cgls_fixture.air",
+      "sha256": "8a87c1f8d08b79e9639aa1bbf2e2960aa16066167b53391314f5d0c4877b17d3",
+      "size": 777488
+    },
+    {
+      "path": "build/O0/damped_cgls_fixture.metallib",
+      "sha256": "121598119f0b1903768a8588893c8de8f7f71024baeb9acd0edcc88847085aa9",
+      "size": 3288828
+    },
+    {
+      "path": "build/O0/damped_cgls_helper_replay",
+      "sha256": "1506b0c0eb2b0db9c22fb1243e8cbd81aae981fbc4e395dd8ba3b42304355932",
+      "size": 155064
+    },
+    {
+      "path": "build/O0/host-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O0/metal-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O0/metallib-exported-function-names.txt",
+      "sha256": "0cb6767bd9ac51309121c8797044eb20dd8d825e1a24ab9c4b722bc985842405",
+      "size": 417553
+    },
+    {
+      "path": "build/O0/metallib-link.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O3/damped_cgls_fixture.air",
+      "sha256": "cc32e0e27a61c0bbae425e5a9f9ade930256112d57f871a9d1f090ba50219b7d",
+      "size": 403648
+    },
+    {
+      "path": "build/O3/damped_cgls_fixture.metallib",
+      "sha256": "3133699e30c26dac10fd57e1b945147853208dbf0a99d41cbec2d6bf28f3365f",
+      "size": 1927244
+    },
+    {
+      "path": "build/O3/damped_cgls_helper_replay",
+      "sha256": "76836fe351c77660244cfc662a491ed3bec33b30686026704e0838ccaed15165",
+      "size": 75336
+    },
+    {
+      "path": "build/O3/host-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O3/metal-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/O3/metallib-exported-function-names.txt",
+      "sha256": "1c9510d3c779390393acd99f35218f3aaaeb9fc6db29a3bce9bef871e5dd638c",
+      "size": 316549
+    },
+    {
+      "path": "build/O3/metallib-link.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/cpu-oracle.json",
+      "sha256": "3d34e71dfb8fb772b1b02bc51a16503729254de18ff69172613a59713f1c9d57",
+      "size": 1123
+    },
+    {
+      "path": "build/damped_cgls_fixture.air",
+      "sha256": "848e10af4e64856b30f05c732a501f63b9e9d3c48ef0e46598781dff6ca346d8",
+      "size": 403648
+    },
+    {
+      "path": "build/damped_cgls_fixture.metallib",
+      "sha256": "3133699e30c26dac10fd57e1b945147853208dbf0a99d41cbec2d6bf28f3365f",
+      "size": 1927244
+    },
+    {
+      "path": "build/damped_cgls_helper_replay",
+      "sha256": "51a706634a4187951db6f651ca2636f7cfc2c093dfcf59c6637eab1bd545aa13",
+      "size": 75336
+    },
+    {
+      "path": "build/host-compile-o3.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/metal-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/metallib-link.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "build/validation.json",
+      "sha256": "6d92723ee917322ec251fea1923b819e2c2b8ff83bc0eec3078c27db85907f6e",
+      "size": 212331
+    },
+    {
+      "path": "source/compile_and_verify.py",
+      "sha256": "72f20636bfd76aefaeca3d0050e83ccacbc35d7e69ba038408938806b4a68b3e",
+      "size": 5698
+    },
+    {
+      "path": "source/cpu_oracle.py",
+      "sha256": "9e4aab3f990250f2c1989b9cf70872138fb3761086a5dd3fbb83cf3336a1712d",
+      "size": 2157
+    },
+    {
+      "path": "source/damped_cgls_fixture.metal",
+      "sha256": "8dddcca4e8173267b24e5fc42d3f77c74fad939c0f73b13f73a2e56179c1291a",
+      "size": 1122
+    },
+    {
+      "path": "source/damped_cgls_helper_replay.mm",
+      "sha256": "0c7b166270613ca2342a3f07588eda3fab8420ea0bcf14254000ce23d952d80d",
+      "size": 17811
+    },
+    {
+      "path": "source/seal_package.py",
+      "sha256": "4c9114fa1dc39e03a77dfb8fbc48bee87380b1cbc744aa37805b0aac21f127eb",
+      "size": 3021
+    }
+  ],
+  "fixture_metal_sha256": "8dddcca4e8173267b24e5fc42d3f77c74fad939c0f73b13f73a2e56179c1291a",
+  "helper_executable_invoked": false,
+  "host_checker_sha256": "0c7b166270613ca2342a3f07588eda3fab8420ea0bcf14254000ce23d952d80d",
+  "native_gpu_executed": false,
+  "package_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native-damped-cgls-helper-replay-190-003",
+  "production_cgls_source": {
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-damped-full-zero-cgls-190-001/matter/src/metal/base_cgls.metalinc",
+    "sha256": "54fc273e8e8e12a9472f2fe2defec45709c7f36d24b6886b862e477aa54260a2"
+  },
+  "result": "PASS_COMPILE_ONLY",
+  "revision_reason": "The 002 harness requested unqualified CGLS names; source metallib exports numi_matter_metal::qualified names. 003 changes only those host lookup strings and verifies exports statically.",
+  "schema": "numi.cardboard.damped-cgls-helper-replay-package.v2",
+  "scope": "Revision 003 compile-only correction of Metal function lookup names after native 518 failed before kernels; no native checker execution or GPU dispatch.",
+  "source_build_manifest": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source190-002/source-build.json",
+  "source_build_manifest_sha256": "54e65bb00fd5050a4613eae5438345efe9ef5297e687ba98f3bfd44eddf2e0bf",
+  "source_frozen_manifest_sha256": "1189d65c3d7f29d326155eee687979c8dd5fc1c79360a333bd569a08ad30dde7",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-damped-full-zero-cgls-190-001",
+  "supersedes_package_manifest_sha256": "f363916f0edb0c9fd8b9ac319e15427426ceeec9efcc05bb31a464dde9412b53",
+  "validation_report_sha256": "6d92723ee917322ec251fea1923b819e2c2b8ff83bc0eec3078c27db85907f6e"
+}

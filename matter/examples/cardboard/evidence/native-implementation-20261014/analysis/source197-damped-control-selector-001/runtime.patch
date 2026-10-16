@@ -1,0 +1,42 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -12312,6 +12312,18 @@
+                 const unsigned long iteration = separator == nullptr ||
+                     allNewtonIterations ? 0ul :
+                     std::strtoul(separator + 1, &iterationEnd, 10);
++                // The damped pilot selects one numeric Newton iteration per
++                // control. Its all-control form repeats every capability gate;
++                // it is neither the all-Newton primary policy nor permission
++                // to reuse an earlier direction certificate.
++                const char* dampingPilotText = std::getenv(
++                    "NM_FEM_BASE_CGLS_DAMPING_KG");
++                const bool dampedNumericControlScope =
++                    !allNewtonIterations &&
++                    femBaseCGLSIterations != 0u &&
++                    !femBaseCGLSPrimaryPolicyRequested &&
++                    dampingPilotText != nullptr &&
++                    std::strcmp(dampingPilotText, "1e-3") == 0;
+                 if (separator == nullptr ||
+                     (!everyControlStep && rootEnd != separator) ||
+                     (!allNewtonIterations && iterationEnd != end) ||
+@@ -12324,14 +12336,16 @@
+                     rejectBaseCauchy(
+                         "selector_must_be_control_step_colon_all_or_newton_0_to_256_or_exact_all_colon_all");
+                 } else if (everyControlStep &&
++                           !dampedNumericControlScope &&
+                            (!allNewtonIterations ||
+                             femBaseCGLSIterations == 0u ||
+                             !femBaseCGLSPrimaryPolicyRequested)) {
+-                    // All-control scope is admitted only for the existing
+-                    // bounded CGLS primary policy. Every selected control still
+-                    // passes the complete original capability/certificate gate.
++                    // All-control scope supports the bounded all-Newton
++                    // primary policy or this single-Newton damped fallback.
++                    // The later damping admission rejects primary, right-scale
++                    // and warm-start combinations before physical execution.
+                     rejectBaseCauchy(
+-                        "all_control_steps_requires_cgls_primary_policy_and_all_newton_suffix");
++                        "all_control_steps_requires_cgls_primary_all_newton_or_damped_numeric_newton");
+                 } else {
+                     femBaseCauchyFallbackRoot =
+                         static_cast<std::uint32_t>(root);

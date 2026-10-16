@@ -1,0 +1,6 @@
+{
+  "schema": "numi.cardboard.native488-tail-reuse-helper-command.v1",
+  "timeout_s": 300,
+  "case_output": "/Users/n/cardboard-implementation-20261014-host-macmini/native/true-residual-tail-reuse-176-003-488",
+  "qualification": "Production Metal dispatch/reuse guard helper on synthetic inactive tetrahedra only; no active FEM, full runtime capture-router, nonlinear convergence or performance qualification."
+}

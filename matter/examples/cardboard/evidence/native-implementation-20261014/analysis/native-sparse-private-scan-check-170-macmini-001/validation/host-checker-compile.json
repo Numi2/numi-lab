@@ -1,0 +1,15 @@
+{
+  "checker_sha256": "0d2b41949d3c4101bb1b549052e460c5e6cd173424de057c748d0b5bf8556fdd",
+  "compiler": "/usr/bin/clang++",
+  "compiler_version": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+  "exit_code": 0,
+  "machine": "arm64",
+  "metallib_sha256": "4fcf68c0a2fffa4b2ae053829f239b983f41b166ea6d53da685216a4ad0ed269",
+  "native_dispatch_occurred": false,
+  "platform": "macOS-26.6-arm64-arm-64bit",
+  "remote_header_sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+  "schema": "numi.cardboard.sparse-scan-macmini-host-compile-result.v1",
+  "source_sha256": "bf18e81d70b3ca120d0afa479af0bcb5c4c1b435c1dbd55b8df6db820a7b8b5d",
+  "stderr_bytes": 0,
+  "stdout_bytes": 0
+}

@@ -1,0 +1,102 @@
+{
+  "schema": "numi.matter.full_contact_capacity_audit.v1",
+  "source": {
+    "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175-buildfix-003",
+    "source_manifest_sha256": "6e4f8dad1377af79b1dc2ddeeb0f07e6a273598d291cb030e6222e8aebb5a007",
+    "build_metadata": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/source-build.json",
+    "build_metadata_sha256": "75c24e646fccb250fe0f8bd7d812491d5aac3892f99e863578982780f1194a25",
+    "reviewed_file_hashes": {
+      "matter/src/runtime.mm": "836b146cc4e95e9096f094f33e7bfd7248bc816821541238321deca7ad7ff61a",
+      "matter/src/metal/contact.metalinc": "b1dc8d0e6843d5aed3a8c6d28449dae8c4d3a60488e644195e9fed5ed121d346",
+      "matter/src/compiler_impl.cpp": "474e717759ded2ecf81a0590dd7f5cb51da8a1041eacddff33c971ccb96152df",
+      "matter/include/numi/matter/shared.h": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+      "matter/include/numi/matter/sparse_private_contact_admission.hpp": "4cf5d32e78cf45bed72406c99df85b050c8d0548e3e043fbd9a1d810e7eb9ef1"
+    }
+  },
+  "current_scope": {
+    "full_contact_path_node_limit_effective": 4096,
+    "later_nested_node_limit_that_does_not_widen_scope": 8192,
+    "tetrahedron_limit": 32768,
+    "environment_limit": 4,
+    "deformable_contact_capacity_limit": 131072,
+    "private_armijo_scratch_budget_bytes": 134217728,
+    "true_residual_cohesive_face_limit": 4096,
+    "armijo_tiled_cohesive_page_limit_bytes": 8388608,
+    "physical_and_shipping_qualification": false
+  },
+  "source_evidence": {
+    "effective_node_gate": "runtime.mm:10641-10651 via femCapsuleBoxResidualArmijoScope at 11141-11146; direct full-contact check at 10918-10920 allows 8192 but is reached only after the nested 4096 check",
+    "tet_and_capacity_gates": "runtime.mm:6857-6862, 10921-10924, 11179-11181",
+    "true_residual_gates": "runtime.mm:6389-6403 and 10678-10700",
+    "compiler_default_capacity": "compiler_impl.cpp:3557-3576 uses authored deformableContacts when nonzero; otherwise 8*tetrahedra per FEM object or 8*particles per MPM object, capped at uint32",
+    "primitive_and_bvh_index_checks": "runtime.mm:5906-5945 checks primitive, environment, host-size and BVH uint32 extents; contact.metalinc:3020-3029 and 3085-3095 use flattened uint domains",
+    "overflow_is_fail_closed": "contact.metalinc:3032-3065 accumulates candidate count, clamps only the reported count/offset, and records NM_STATUS_CAPACITY_OVERFLOW; scatter at 3084-3095 is status gated, so no truncated list is accepted",
+    "legacy_incidence_work": "contact.metalinc:4991-5017 and 5046-5075 iterate each node across every active contact and six local nodes in count and scatter",
+    "sorted_incidence_work_and_guards": "runtime.mm:3508-3571 requires exact opt-in value 1, checks uint payload, logical/padded bitonic domain, flattened dispatch and host byte extents; runtime allocations 6008-6035",
+    "cohesive_tiling": "runtime.mm:11147-11160 permits requested page arena only when page bytes<=8 MiB; non-tiled mode caps faces at 4096; true residual has independent 4096 face limit at 10682-10685"
+  },
+  "shipping_count_model": {
+    "environments": 1,
+    "nodes": 528444,
+    "tetrahedra": 1477728,
+    "surface_faces": 1054876,
+    "grid_nodes_assumed_for_component_model": 0,
+    "default_contact_capacity": 11821824,
+    "explicit_test_capacity": 131072,
+    "primitive_record_bytes": 64,
+    "contact_record_bytes": 432,
+    "contact_history_record_bytes": 48,
+    "candidate_record_bytes": 16,
+    "status_record_bytes": 48,
+    "incidence_range_bytes": 16,
+    "per_slot_production_bytes": 624,
+    "per_slot_private_armijo_bytes": 528,
+    "default_capacity_production_slot_bytes": 7376818176,
+    "default_capacity_private_slot_bytes_arithmetic_only": 6241923072,
+    "explicit_capacity_production_slot_bytes": 81788928,
+    "explicit_capacity_private_slot_bytes": 69206016,
+    "explicit_capacity_private_armijo_alias_total_E1_bytes": 77661184,
+    "explicit_capacity_private_armijo_alias_total_E2_bytes": 155322304,
+    "explicit_capacity_private_armijo_unaliased_total_E1_bytes": 296269008,
+    "sorted_corner_logical_records_per_environment": 786432,
+    "sorted_corner_padded_records_per_environment": 1048576,
+    "sorted_corner_workspace_bytes_per_environment": 12582912,
+    "static_surface_bvh_leaf_count": 2097152,
+    "static_surface_bvh_bounds_bytes_per_environment": 134217728,
+    "static_surface_sort_arrays_bytes_per_environment": 16878016,
+    "shipping_admitted": false,
+    "whole_runtime_peak_measured": false
+  },
+  "first_blockers": [
+    {
+      "order": 1,
+      "blocker": "fem_node_count exceeds nested 4096 scope",
+      "shipping_count": 528444,
+      "source_line": "runtime.mm:10649-10651"
+    },
+    {
+      "order": 2,
+      "blocker": "tetrahedron count exceeds 32768 scope",
+      "shipping_count": 1477728,
+      "source_line": "runtime.mm:10921-10924 and 11141-11146"
+    },
+    {
+      "order": 3,
+      "blocker": "default contact capacity exceeds 131072 runtime scope",
+      "shipping_count": 11821824,
+      "source_line": "compiler_impl.cpp:3557-3576 and runtime.mm:11179-11181"
+    },
+    {
+      "order": 4,
+      "blocker": "true-residual/cohesive path has independent 4096 cohesive-face limit",
+      "shipping_count": 260835,
+      "source_line": "runtime.mm:10682-10685"
+    }
+  ],
+  "interpretation_limits": [
+    "The 4096 node and 32768 tetrahedron constants are current admission/scratch scope limits; this audit does not establish a corresponding Metal uint or shared-memory necessity.",
+    "The explicit C=131072 mode is a bounded fail-closed experiment only. It is valid only if actual candidate count is <=C; overflow causes transaction failure, not successful shipping admission.",
+    "Stable incidence sorting reduces the legacy O(N*C*6) count/scatter work but does not remove N/T/C or true-residual gates.",
+    "Component byte arithmetic omits solver/preconditioner and other runtime arenas and allocator behavior; it is not a 16 GiB peak proof."
+  ]
+}

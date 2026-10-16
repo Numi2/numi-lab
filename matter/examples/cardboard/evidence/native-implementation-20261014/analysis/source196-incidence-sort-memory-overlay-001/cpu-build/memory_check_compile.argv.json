@@ -1,0 +1,19 @@
+{
+  "cwd": null,
+  "argv": [
+    "/usr/bin/c++",
+    "-I/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/candidate/matter/tools",
+    "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001/matter/tools",
+    "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001/matter/include",
+    "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001/include",
+    "-O2",
+    "-std=c++23",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/candidate/matter/tools/cardboard_shipping_memory_check.cpp",
+    "-o",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/cpu-build/cardboard_shipping_memory_check"
+  ]
+}

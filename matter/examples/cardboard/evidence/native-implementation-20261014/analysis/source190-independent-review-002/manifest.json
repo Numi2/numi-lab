@@ -1,0 +1,29 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 949,
+      "sha256": "3a0eadbe183519e40b87c2377807392012653f6f590d7bcf0675a18a4c922223"
+    },
+    "cpu-test.stderr.log": {
+      "bytes": 653,
+      "sha256": "5691612a416db015dc4a89d5aba1e5c4c8654621b737c508ed532292cd7d7d0f"
+    },
+    "cpu-test.stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "report.json": {
+      "bytes": 2506,
+      "sha256": "ff95dda3fe3886a258cd6a60bc87c69b0b7e2d7e98d1b70ce655de878f79ab92"
+    },
+    "test_selected_writer_layout.py": {
+      "bytes": 3854,
+      "sha256": "2409976b0a178bbc6a414dfd6253e519e057a3db1a7a5508893cfb35102b5720"
+    }
+  },
+  "schema": "numi.cardboard.source190-review-correction-manifest.v1",
+  "source190_review001_manifest_sha256": "28565c4b70c223c8486994ffd100df58b3872c767a0db9a11c86cf52ae0f8a61",
+  "source193_frozen_sha256": "3af1c0026640a3d9454b653f99804a94fbcfd835a385a1f70567c864af0bdcf3",
+  "source193_selected_layout_sha256": "1b9d6541fcd01bea803a70f878ba1bda462d05cfabefa0d1ebe3038c9aab66d9",
+  "status": "CORRECTED_REVIEW_PASS_NO_SOURCE_CHANGE"
+}

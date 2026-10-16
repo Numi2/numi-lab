@@ -1,0 +1,23 @@
+[
+  "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+  "-B",
+  "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix003/matter/tools/cardboard_source_bound_build.py",
+  "--source-snapshot",
+  "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix003",
+  "--build-dir",
+  "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003",
+  "--jobs",
+  "4",
+  "--target",
+  "numi-matter-cardboard-probe",
+  "--target",
+  "numi-matter-cardboard-shipping-memory-check",
+  "--target",
+  "numi-matter-cardboard-full-contact-scratch-budget-check",
+  "--target",
+  "numi-matter-cardboard-coupon-resume-check",
+  "--target",
+  "numi-matter-cardboard-full-contact-armijo-check",
+  "--target",
+  "numi-matter-cardboard-contact-geometry-check"
+]

@@ -1,0 +1,29 @@
+{
+  "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source173-001",
+  "argv": [
+    "/usr/bin/clang++",
+    "-DNUMI_CARDBOARD_BASE_SNAPSHOT_SHA256=\"6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3\"",
+    "-DNUMI_CARDBOARD_PAPER_METALLIB=\"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/shaders/cardboard_bilinear15_capture_diagnostic.metallib\"",
+    "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173/matter/include",
+    "-F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks",
+    "-x",
+    "objective-c++",
+    "-O3",
+    "-DNDEBUG",
+    "-std=c++23",
+    "-arch",
+    "arm64",
+    "-isysroot",
+    "/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+    "-fPIE",
+    "-fobjc-arc",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-o",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/build/cardboard_source469_material_replay_check.mm.o",
+    "-c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/candidate/matter/tools/cardboard_source469_material_replay_check.mm"
+  ]
+}

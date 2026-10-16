@@ -1,0 +1,347 @@
+{
+  "base_frozen_source_sha256": "d5bf1eb738d25e29cba80f3c9c936963b0d1e8b533652384f60705008b946b82",
+  "base_snapshot": "snapshots/source-contact-damped-cgls-memory-195-001",
+  "changed_source_hashes": {
+    "matter/tools/cardboard_probe.mm": "c3e14bc267883e53fa67797a9661796e8e221202e6d5c3c4ac846f6862163385",
+    "matter/tools/cardboard_shipping_memory.hpp": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c",
+    "matter/tools/cardboard_shipping_memory_check.cpp": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+  },
+  "files": [
+    {
+      "bytes": 2758,
+      "path": "README.md",
+      "sha256": "177130f405d3517c7c8f5b591154972c694d67bf9fee5a5bb595d05d6dbf3c84"
+    },
+    {
+      "bytes": 53670,
+      "path": "attempts/baseline-old-header/cardboard_shipping_memory_check.cpp",
+      "sha256": "2e8619a31744402d871123a8826d3d43a35e8c4aca8d3542be5f4b6cc6dfeb10"
+    },
+    {
+      "bytes": 813679,
+      "path": "attempts/patch-replay/matter/tools/cardboard_probe.mm",
+      "sha256": "c3e14bc267883e53fa67797a9661796e8e221202e6d5c3c4ac846f6862163385"
+    },
+    {
+      "bytes": 72802,
+      "path": "attempts/patch-replay/matter/tools/cardboard_shipping_memory.hpp",
+      "sha256": "db79c61d4dc8b3fc51e9d977b360c7519244c6622ca58cec893cafc96a121399"
+    },
+    {
+      "bytes": 53277,
+      "path": "attempts/patch-replay/matter/tools/cardboard_shipping_memory_check.cpp",
+      "sha256": "06676548bc62698bdb764668f976b280368412a5cdfa1837e2d455cae8a2d487"
+    },
+    {
+      "bytes": 813679,
+      "path": "candidate/matter/tools/cardboard_probe.mm",
+      "sha256": "c3e14bc267883e53fa67797a9661796e8e221202e6d5c3c4ac846f6862163385"
+    },
+    {
+      "bytes": 31330,
+      "path": "candidate/matter/tools/cardboard_shipping_allocation_preflight.cpp",
+      "sha256": "f2c5483f59fd9aa335669634312f2c129bbbfcf4b22d43f9bb09122444626ba6"
+    },
+    {
+      "bytes": 73105,
+      "path": "candidate/matter/tools/cardboard_shipping_memory.hpp",
+      "sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+    },
+    {
+      "bytes": 53549,
+      "path": "candidate/matter/tools/cardboard_shipping_memory_check.cpp",
+      "sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+    },
+    {
+      "bytes": 982,
+      "path": "cpu-build/allocation_preflight_compile.argv.json",
+      "sha256": "572e6f42486b21a7774e6da0f14ca1e29cde73119090617ef71c23853fffe42c"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-build/allocation_preflight_compile.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-build/allocation_preflight_compile.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2041872,
+      "path": "cpu-build/cardboard_probe.o",
+      "sha256": "954e3b35c1fe315b32bda8844c302c973ddb20b5e97b254c7d856b081b25cc56"
+    },
+    {
+      "bytes": 240424,
+      "path": "cpu-build/cardboard_shipping_allocation_preflight.o",
+      "sha256": "3b00893101565b7c7b22ffc1341583fba405dd71cd3f7e730bdf4b4aa30655e3"
+    },
+    {
+      "bytes": 163728,
+      "path": "cpu-build/cardboard_shipping_memory_check",
+      "sha256": "89e6a6cdca2d97f002eacc6e4041081ae1d64e1ab4cf72d5574dddb2e85cae9d"
+    },
+    {
+      "bytes": 1049,
+      "path": "cpu-build/final/allocation_preflight_compile.argv.json",
+      "sha256": "ce0811bec08e5e69ee8704e771533b255b1db1a5728edb27ca884e3d8c58532d"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-build/final/allocation_preflight_compile.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-build/final/allocation_preflight_compile.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2042000,
+      "path": "cpu-build/final/cardboard_probe.o",
+      "sha256": "2eac993b8bdcf9f019a0c66137b0247902896125c55b89f341212c6d2f205fcc"
+    },
+    {
+      "bytes": 240560,
+      "path": "cpu-build/final/cardboard_shipping_allocation_preflight.o",
+      "sha256": "918c826f2ba4e357a6d2f76c8b756603b6989544047c8993d3c64d7654240165"
+    },
+    {
+      "bytes": 163728,
+      "path": "cpu-build/final/cardboard_shipping_memory_check",
+      "sha256": "9f3d9d1cdedc867f596bb47bb2d197cfa665cfb69ea8134d2d23a8e8034dfde0"
+    },
+    {
+      "bytes": 1021,
+      "path": "cpu-build/final/memory_check_compile.argv.json",
+      "sha256": "8411b74d00c2b1a1c802d1b9cb3393067d62597e053bf1d74b8faa85a0f4c6fd"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-build/final/memory_check_compile.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-build/final/memory_check_compile.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 198,
+      "path": "cpu-build/final/memory_check_run.argv.json",
+      "sha256": "79fa3f2cad4b8aca88b624173ca49fd57927c719f60fed4215943a4cb84cefe7"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-build/final/memory_check_run.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 40,
+      "path": "cpu-build/final/memory_check_run.stdout",
+      "sha256": "7997af31757b9f4a26560db9d48a54a7c2f0e382f48ff25600a16df91a0402eb"
+    },
+    {
+      "bytes": 877,
+      "path": "cpu-build/final/old_header_expected_failure.argv.json",
+      "sha256": "6eb76839012b49112e5d5d4c27bfcaa652075bbaeee949edb0da6a6eb3ffd5b6"
+    },
+    {
+      "bytes": 8025,
+      "path": "cpu-build/final/old_header_expected_failure.stderr",
+      "sha256": "88e85631db9077e3956fdef5bbe6992fc81b24be801f1badae02ecafa9d75099"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-build/final/old_header_expected_failure.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1479,
+      "path": "cpu-build/final/probe_compile.argv.json",
+      "sha256": "9090a87ef658e3188bc01b2f68951e4a9764a36cfdbf545e9f443d260c2e7d33"
+    },
+    {
+      "bytes": 370,
+      "path": "cpu-build/final/probe_compile.stderr",
+      "sha256": "4a32940e80dd27a5fb5e079e1ca5c831c79cf9aba59695d05d5daceaa97fe6e4"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-build/final/probe_compile.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 956,
+      "path": "cpu-build/memory_check.compile.argv.json",
+      "sha256": "675a50a26505236e81d30c339b6b888ee1a3ef8f379192a6bfa3889f244c95f7"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-build/memory_check.compile.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-build/memory_check.compile.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-build/memory_check.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 40,
+      "path": "cpu-build/memory_check.stdout",
+      "sha256": "7997af31757b9f4a26560db9d48a54a7c2f0e382f48ff25600a16df91a0402eb"
+    },
+    {
+      "bytes": 1015,
+      "path": "cpu-build/memory_check_compile.argv.json",
+      "sha256": "096a5b4c9f3dd83c95b8017fddd7c23fd45b26e99ea161d83851596d6057dddb"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-build/memory_check_compile.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-build/memory_check_compile.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 192,
+      "path": "cpu-build/memory_check_run.argv.json",
+      "sha256": "37db04d586d61c2211250b1cb67996ecd0a3808db666fb1a725d95dd423d936f"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-build/memory_check_run.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 40,
+      "path": "cpu-build/memory_check_run.stdout",
+      "sha256": "7997af31757b9f4a26560db9d48a54a7c2f0e382f48ff25600a16df91a0402eb"
+    },
+    {
+      "bytes": 814,
+      "path": "cpu-build/old_header.compile.argv.json",
+      "sha256": "7d0c89859db96571d89c42ab8b28d92b5393e76f762e7237778cdf9f05737b6b"
+    },
+    {
+      "bytes": 7986,
+      "path": "cpu-build/old_header.compile.stderr",
+      "sha256": "78f55cb871e2b885678208e8a2254f82224a9c75f2bd6ca0aa58415a38c4d717"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-build/old_header.compile.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 814,
+      "path": "cpu-build/old_header_expected_failure.argv.json",
+      "sha256": "7d0c89859db96571d89c42ab8b28d92b5393e76f762e7237778cdf9f05737b6b"
+    },
+    {
+      "bytes": 7986,
+      "path": "cpu-build/old_header_expected_failure.stderr",
+      "sha256": "78f55cb871e2b885678208e8a2254f82224a9c75f2bd6ca0aa58415a38c4d717"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-build/old_header_expected_failure.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1473,
+      "path": "cpu-build/probe.compile.argv.json",
+      "sha256": "e31625b569b7b3e2f4db6da3a7f8a869533ef0d27febd349dc70123c609a5803"
+    },
+    {
+      "bytes": 370,
+      "path": "cpu-build/probe.compile.stderr",
+      "sha256": "4a32940e80dd27a5fb5e079e1ca5c831c79cf9aba59695d05d5daceaa97fe6e4"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-build/probe.compile.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1473,
+      "path": "cpu-build/probe_compile.argv.json",
+      "sha256": "e31625b569b7b3e2f4db6da3a7f8a869533ef0d27febd349dc70123c609a5803"
+    },
+    {
+      "bytes": 370,
+      "path": "cpu-build/probe_compile.stderr",
+      "sha256": "4a32940e80dd27a5fb5e079e1ca5c831c79cf9aba59695d05d5daceaa97fe6e4"
+    },
+    {
+      "bytes": 0,
+      "path": "cpu-build/probe_compile.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 15571,
+      "path": "overlay.patch",
+      "sha256": "3b52bd693f3ef628d97dbf86861d748c0403fd2f314dc7b7f77d387d123b95f2"
+    },
+    {
+      "bytes": 813679,
+      "path": "patch-replay-final/matter/tools/cardboard_probe.mm",
+      "sha256": "c3e14bc267883e53fa67797a9661796e8e221202e6d5c3c4ac846f6862163385"
+    },
+    {
+      "bytes": 73105,
+      "path": "patch-replay-final/matter/tools/cardboard_shipping_memory.hpp",
+      "sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+    },
+    {
+      "bytes": 53549,
+      "path": "patch-replay-final/matter/tools/cardboard_shipping_memory_check.cpp",
+      "sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+    },
+    {
+      "bytes": 0,
+      "path": "patch-replay-final.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 172,
+      "path": "patch-replay-final.stdout",
+      "sha256": "e939b8ba471b028e02ebcd265e843a32da5133f872b00fdf13e8caa25a4ccba4"
+    },
+    {
+      "bytes": 0,
+      "path": "patch-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 172,
+      "path": "patch-replay.stdout",
+      "sha256": "e939b8ba471b028e02ebcd265e843a32da5133f872b00fdf13e8caa25a4ccba4"
+    },
+    {
+      "bytes": 2787,
+      "path": "report.json",
+      "sha256": "2999e28bc98bb7eddfba3728ba3fac7df87d5d3e23bded8ea923ecc0334522e7"
+    }
+  ],
+  "host": "macmini",
+  "inventory_excludes": [
+    "manifest.json (self-reference)"
+  ],
+  "overlay_id": "source196-incidence-sort-memory-overlay-001",
+  "patch_sha256": "3b52bd693f3ef628d97dbf86861d748c0403fd2f314dc7b7f77d387d123b95f2",
+  "runtime_source_hashes": {
+    "matter/src/metal/contact.metalinc": "1f6f91a70c3c738f50c4d4fc86e429a2fc841028a81094700355b5e5d33ee538",
+    "matter/src/runtime.mm": "ceb32cfa44fa0f8917c1ea2766a8625b7c1b51caa409d73a84fb9274f19e1b0b"
+  },
+  "schema": "numi.cardboard.source_overlay_manifest.v1"
+}

@@ -1,0 +1,600 @@
+{
+  "cases": [
+    {
+      "capacity_per_environment": 1,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "all_fit_1",
+      "pairs_per_environment": 1,
+      "selected_per_environment": [
+        1
+      ]
+    },
+    {
+      "capacity_per_environment": 1,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "none_1",
+      "pairs_per_environment": 1,
+      "selected_per_environment": [
+        0
+      ]
+    },
+    {
+      "capacity_per_environment": 1,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "block_tail_1",
+      "pairs_per_environment": 1,
+      "selected_per_environment": [
+        0
+      ]
+    },
+    {
+      "capacity_per_environment": 15,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "all_overflow_31",
+      "pairs_per_environment": 31,
+      "selected_per_environment": [
+        31
+      ]
+    },
+    {
+      "capacity_per_environment": 15,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "none_31",
+      "pairs_per_environment": 31,
+      "selected_per_environment": [
+        0
+      ]
+    },
+    {
+      "capacity_per_environment": 31,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "block_tail_31",
+      "pairs_per_environment": 31,
+      "selected_per_environment": [
+        0
+      ]
+    },
+    {
+      "capacity_per_environment": 16,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "all_overflow_32",
+      "pairs_per_environment": 32,
+      "selected_per_environment": [
+        32
+      ]
+    },
+    {
+      "capacity_per_environment": 16,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "none_32",
+      "pairs_per_environment": 32,
+      "selected_per_environment": [
+        0
+      ]
+    },
+    {
+      "capacity_per_environment": 32,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "block_tail_32",
+      "pairs_per_environment": 32,
+      "selected_per_environment": [
+        0
+      ]
+    },
+    {
+      "capacity_per_environment": 16,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "all_overflow_33",
+      "pairs_per_environment": 33,
+      "selected_per_environment": [
+        33
+      ]
+    },
+    {
+      "capacity_per_environment": 16,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "none_33",
+      "pairs_per_environment": 33,
+      "selected_per_environment": [
+        0
+      ]
+    },
+    {
+      "capacity_per_environment": 33,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "block_tail_33",
+      "pairs_per_environment": 33,
+      "selected_per_environment": [
+        0
+      ]
+    },
+    {
+      "capacity_per_environment": 127,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "all_overflow_255",
+      "pairs_per_environment": 255,
+      "selected_per_environment": [
+        255
+      ]
+    },
+    {
+      "capacity_per_environment": 127,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "none_255",
+      "pairs_per_environment": 255,
+      "selected_per_environment": [
+        0
+      ]
+    },
+    {
+      "capacity_per_environment": 255,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "block_tail_255",
+      "pairs_per_environment": 255,
+      "selected_per_environment": [
+        7
+      ]
+    },
+    {
+      "capacity_per_environment": 128,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "all_overflow_256",
+      "pairs_per_environment": 256,
+      "selected_per_environment": [
+        256
+      ]
+    },
+    {
+      "capacity_per_environment": 128,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "none_256",
+      "pairs_per_environment": 256,
+      "selected_per_environment": [
+        0
+      ]
+    },
+    {
+      "capacity_per_environment": 256,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "block_tail_256",
+      "pairs_per_environment": 256,
+      "selected_per_environment": [
+        8
+      ]
+    },
+    {
+      "capacity_per_environment": 128,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "all_overflow_257",
+      "pairs_per_environment": 257,
+      "selected_per_environment": [
+        257
+      ]
+    },
+    {
+      "capacity_per_environment": 128,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "none_257",
+      "pairs_per_environment": 257,
+      "selected_per_environment": [
+        0
+      ]
+    },
+    {
+      "capacity_per_environment": 257,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "block_tail_257",
+      "pairs_per_environment": 257,
+      "selected_per_environment": [
+        8
+      ]
+    },
+    {
+      "capacity_per_environment": 255,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "all_overflow_511",
+      "pairs_per_environment": 511,
+      "selected_per_environment": [
+        511
+      ]
+    },
+    {
+      "capacity_per_environment": 255,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "none_511",
+      "pairs_per_environment": 511,
+      "selected_per_environment": [
+        0
+      ]
+    },
+    {
+      "capacity_per_environment": 511,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "block_tail_511",
+      "pairs_per_environment": 511,
+      "selected_per_environment": [
+        15
+      ]
+    },
+    {
+      "capacity_per_environment": 256,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "all_overflow_512",
+      "pairs_per_environment": 512,
+      "selected_per_environment": [
+        512
+      ]
+    },
+    {
+      "capacity_per_environment": 256,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "none_512",
+      "pairs_per_environment": 512,
+      "selected_per_environment": [
+        0
+      ]
+    },
+    {
+      "capacity_per_environment": 512,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "block_tail_512",
+      "pairs_per_environment": 512,
+      "selected_per_environment": [
+        16
+      ]
+    },
+    {
+      "capacity_per_environment": 256,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "all_overflow_513",
+      "pairs_per_environment": 513,
+      "selected_per_environment": [
+        513
+      ]
+    },
+    {
+      "capacity_per_environment": 256,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "none_513",
+      "pairs_per_environment": 513,
+      "selected_per_environment": [
+        0
+      ]
+    },
+    {
+      "capacity_per_environment": 513,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "block_tail_513",
+      "pairs_per_environment": 513,
+      "selected_per_environment": [
+        16
+      ]
+    },
+    {
+      "capacity_per_environment": 383,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "all_overflow_767",
+      "pairs_per_environment": 767,
+      "selected_per_environment": [
+        767
+      ]
+    },
+    {
+      "capacity_per_environment": 383,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "none_767",
+      "pairs_per_environment": 767,
+      "selected_per_environment": [
+        0
+      ]
+    },
+    {
+      "capacity_per_environment": 767,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "block_tail_767",
+      "pairs_per_environment": 767,
+      "selected_per_environment": [
+        23
+      ]
+    },
+    {
+      "capacity_per_environment": 384,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "all_overflow_768",
+      "pairs_per_environment": 768,
+      "selected_per_environment": [
+        768
+      ]
+    },
+    {
+      "capacity_per_environment": 384,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "none_768",
+      "pairs_per_environment": 768,
+      "selected_per_environment": [
+        0
+      ]
+    },
+    {
+      "capacity_per_environment": 768,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "block_tail_768",
+      "pairs_per_environment": 768,
+      "selected_per_environment": [
+        24
+      ]
+    },
+    {
+      "capacity_per_environment": 384,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "all_overflow_769",
+      "pairs_per_environment": 769,
+      "selected_per_environment": [
+        769
+      ]
+    },
+    {
+      "capacity_per_environment": 384,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "none_769",
+      "pairs_per_environment": 769,
+      "selected_per_environment": [
+        0
+      ]
+    },
+    {
+      "capacity_per_environment": 769,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "block_tail_769",
+      "pairs_per_environment": 769,
+      "selected_per_environment": [
+        24
+      ]
+    },
+    {
+      "capacity_per_environment": 512,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "all_overflow_1025",
+      "pairs_per_environment": 1025,
+      "selected_per_environment": [
+        1025
+      ]
+    },
+    {
+      "capacity_per_environment": 512,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "none_1025",
+      "pairs_per_environment": 1025,
+      "selected_per_environment": [
+        0
+      ]
+    },
+    {
+      "capacity_per_environment": 1025,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "block_tail_1025",
+      "pairs_per_environment": 1025,
+      "selected_per_environment": [
+        32
+      ]
+    },
+    {
+      "capacity_per_environment": 128,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "capacity_minus_one",
+      "pairs_per_environment": 257,
+      "selected_per_environment": [
+        127
+      ]
+    },
+    {
+      "capacity_per_environment": 128,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "capacity_exact",
+      "pairs_per_environment": 257,
+      "selected_per_environment": [
+        128
+      ]
+    },
+    {
+      "capacity_per_environment": 128,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "capacity_plus_one",
+      "pairs_per_environment": 257,
+      "selected_per_environment": [
+        129
+      ]
+    },
+    {
+      "capacity_per_environment": 2048,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "alternating_multi_block",
+      "pairs_per_environment": 4097,
+      "selected_per_environment": [
+        2049
+      ]
+    },
+    {
+      "capacity_per_environment": 8193,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "deterministic_random",
+      "pairs_per_environment": 8193,
+      "selected_per_environment": [
+        772
+      ]
+    },
+    {
+      "capacity_per_environment": 64,
+      "environments": 2,
+      "health": [
+        "healthy",
+        "prefailed_partial_flags"
+      ],
+      "name": "two_environment_healthy_overflow_and_prefailed_partial",
+      "pairs_per_environment": 513,
+      "selected_per_environment": [
+        513,
+        3
+      ]
+    },
+    {
+      "capacity_per_environment": 65536,
+      "environments": 1,
+      "health": [
+        "healthy"
+      ],
+      "name": "shipping_pair_domain_no_overflow",
+      "pairs_per_environment": 6335568,
+      "selected_per_environment": [
+        65316
+      ],
+      "selection": "pair ids 0,97,194,... < 6,335,568"
+    }
+  ],
+  "native_case_count": 49,
+  "note": "Inventory derived from the checker case constructors. No GPU execution is represented by this file.",
+  "schema": "numi.cardboard.sparse-private-scan-gpu-case-inventory.v1",
+  "source_checker": "source/cardboard_sparse_private_contact_scan_native_check.mm",
+  "total_environment_pair_slots": 6366845
+}

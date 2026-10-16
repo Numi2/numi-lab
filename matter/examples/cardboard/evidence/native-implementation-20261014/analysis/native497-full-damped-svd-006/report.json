@@ -1,0 +1,74 @@
+{
+  "candidates": [
+    {
+      "candidate_file": "lambda_0_full_step.npy",
+      "candidate_sha256": "d0c643f7954ef66607a3a13e3f641e726f8c7f8a4ee02a8b56b8a761253bf7ce",
+      "distance_to_exact_lu_l2": 5.963448490978598e-11,
+      "equation": "min ||A x-b||^2+lambda^2||x||^2 from zero; full total step x",
+      "lambda": 0.0,
+      "residual_l2": 6.01268854747912e-16,
+      "residual_relative_to_b": 3.190394920981256e-11,
+      "step_norm_m_s": 4.830333688710372
+    },
+    {
+      "candidate_file": "lambda_1e-06_full_step.npy",
+      "candidate_sha256": "9d22c4683b00aab9f68bad99d9620dfcf290d479e838cd9eaba72afbcfdf9c3f",
+      "distance_to_exact_lu_l2": 3.1614852773019093,
+      "equation": "min ||A x-b||^2+lambda^2||x||^2 from zero; full total step x",
+      "lambda": 1e-06,
+      "residual_l2": 2.2778379667603475e-06,
+      "residual_relative_to_b": 0.12086444562336977,
+      "step_norm_m_s": 1.7204774861712775
+    },
+    {
+      "candidate_file": "lambda_1e-05_full_step.npy",
+      "candidate_sha256": "99db1d0f29cf579e84128f1e8540efa5971f1c4fe9e9a58b90a56c2b89514819",
+      "distance_to_exact_lu_l2": 4.798558065738365,
+      "equation": "min ||A x-b||^2+lambda^2||x||^2 from zero; full total step x",
+      "lambda": 1e-05,
+      "residual_l2": 3.8272976869299245e-06,
+      "residual_relative_to_b": 0.2030803858381115,
+      "step_norm_m_s": 0.1140170282646133
+    },
+    {
+      "candidate_file": "lambda_0.0001_full_step.npy",
+      "candidate_sha256": "7ad95583ad2f1d60c68688d73f8c167012b2d0c0b30c0bb8ee3586e138a595df",
+      "distance_to_exact_lu_l2": 4.829900931731812,
+      "equation": "min ||A x-b||^2+lambda^2||x||^2 from zero; full total step x",
+      "lambda": 0.0001,
+      "residual_l2": 4.456643174831295e-06,
+      "residual_relative_to_b": 0.23647411033070673,
+      "step_norm_m_s": 0.014429160247580048
+    },
+    {
+      "candidate_file": "lambda_0.001_full_step.npy",
+      "candidate_sha256": "533aaa128012a232981c516ab36a4e56371c45c53e52712f3f6962c29d023702",
+      "distance_to_exact_lu_l2": 4.83032535810978,
+      "equation": "min ||A x-b||^2+lambda^2||x||^2 from zero; full total step x",
+      "lambda": 0.001,
+      "residual_l2": 6.014340357884569e-06,
+      "residual_relative_to_b": 0.3191271388718834,
+      "step_norm_m_s": 0.002852176115607953
+    }
+  ],
+  "exact_lu_file_sha256": "cc92ba1ace846d1ca27a8de480d90a11d3368ac13f718e513f67bffacd42a111",
+  "limits": [
+    "One captured mechanical free-XYZ operator only; no contact/generalized rows.",
+    "A is a binary64 reconstruction of a captured FP32 tangent cache, not a new constitutive reference.",
+    "No native dispatch, acceptance certificate, or nonlinear curve."
+  ],
+  "method": "dense binary64 SVD of same captured FP32-cache A; explicit einsum vector contractions under NumPy floating-error traps",
+  "operator_sha256": "21fbc8e662273fc82dc52ff2ec0a0a4efd7d2e7cfec14584770f66f1f30d2e5c",
+  "operator_source_manifest_sha256": "ae360ba383bcaba3d85e1660bec8c318def1526508b633cb78791aedb30bf166",
+  "rhs_norm": 1.8846220284320863e-05,
+  "rhs_sha256": "dc5ce5c84ae95c76cdd3614d89f0d2473955d61e34a422ca21850ef486d36653",
+  "schema": "numi.cardboard.native497.full_damped_svd_candidates.v2",
+  "singular_max": 0.27696484381885744,
+  "singular_min": 3.0986994359760897e-07,
+  "verification": {
+    "all_dense_and_candidate_values_finite": true,
+    "blas-warning-attempt": "Earlier sibling 005 attempt emitted RuntimeWarnings around matmul despite finite outputs and is retained separately; this fresh verification reran the decomposition and candidate outputs with warnings-as-errors.",
+    "runtime_warning_policy": "RuntimeWarning promoted to error; NumPy seterr(all=raise)",
+    "vector_products": "numpy.einsum optimize=False; scalar norms math.fsum"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "gpu_execution": null,
+  "limitation": "This first wrapper version validated bytes and CPU admission but omitted active-worker and source-lock availability. It is retained, not a launch authorization. run_guarded_source469_v2.py adds those checks.",
+  "original_status": "pass",
+  "schema": "numi.cardboard.native469-preflight-supersession.v1"
+}

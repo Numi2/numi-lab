@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source191-fem-feasibility-only-overlay-002/source_contract_audit.py", line 6, in <module>
+    policy=(root/"matter/include/numi/matter/deformable_contact_trial_policy.h").read_text()
+  File "/Applications/Xcode-26.6.0.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1256, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/Applications/Xcode-26.6.0.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1242, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/Applications/Xcode-26.6.0.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1110, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix003/matter/include/numi/matter/deformable_contact_trial_policy.h'

@@ -1,0 +1,40 @@
+{
+  "source_test_function_extracted_verbatim": true,
+  "test_source_sha256": "3b39eeb22c8b404bfab367c59891bf82300ff231436202920cb03d1294a42892",
+  "cases": [
+    {
+      "label": "old",
+      "argv": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-O2",
+        "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix003/matter/tools",
+        "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix003/matter/include",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source192-memory-regression-old-header-002/regression.cpp",
+        "-o",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source192-memory-regression-old-header-002/old"
+      ],
+      "exit": 1,
+      "header_sha256": "f2f1c451cc33764e9b7095d48242e5c441b0fe4931e41490cbbc31a0c99f294f",
+      "stderr": "selecting an already-required rigid trial arena counted a second allocation\n"
+    },
+    {
+      "label": "new",
+      "argv": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-O2",
+        "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-memory-single-private-arena-192-001/matter/tools",
+        "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-memory-single-private-arena-192-001/matter/include",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source192-memory-regression-old-header-002/regression.cpp",
+        "-o",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source192-memory-regression-old-header-002/new"
+      ],
+      "exit": 0,
+      "header_sha256": "c08c895a29cd7af39ddda3fcd3d3700984efbf8c933114d68322cfd099e926df",
+      "stderr": ""
+    }
+  ],
+  "old_fails_new_passes": true,
+  "GPU_dispatch": false
+}

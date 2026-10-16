@@ -1,0 +1,52 @@
+{
+  "base": {
+    "base_file_sha256": {
+      "matter/tools/cardboard_probe.mm": "96ee21f30e0958040a539c050b0a1c59483eebe8dc2f04c2b9a783a1bb7e333c",
+      "matter/tools/cardboard_shipping_memory.hpp": "c08c895a29cd7af39ddda3fcd3d3700984efbf8c933114d68322cfd099e926df",
+      "matter/tools/cardboard_shipping_memory_check.cpp": "1a8e3e9f32cfce0616a326b27a346fb34d1812f3dbded1976bb5b7889c014bdd"
+    },
+    "frozen_source_sha256": "d5bf1eb738d25e29cba80f3c9c936963b0d1e8b533652384f60705008b946b82",
+    "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001"
+  },
+  "changed_files": {
+    "matter/tools/cardboard_probe.mm": "c3e14bc267883e53fa67797a9661796e8e221202e6d5c3c4ac846f6862163385",
+    "matter/tools/cardboard_shipping_memory.hpp": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c",
+    "matter/tools/cardboard_shipping_memory_check.cpp": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+  },
+  "overlay_id": "source196-incidence-sort-memory-overlay-001",
+  "patch_sha256": "3b52bd693f3ef628d97dbf86861d748c0403fd2f314dc7b7f77d387d123b95f2",
+  "runtime_binding": {
+    "limits_changed": false,
+    "memory_accounting": "conditional; added to persistentContactBytes and therefore base/contact and total envelopes",
+    "runtime_source": "matter/src/runtime.mm:3506-3570,5887-6045",
+    "selector": "NM_CONTACT_NODE_INCIDENCE_SORT",
+    "setup_formula": "sortWorkspaceBytes = E * bit_ceil(6*C) * (sizeof(uint64_t)+sizeof(uint32_t))",
+    "source195_behavior": "unchanged; exactly '1' enables and all other set values reject during world creation"
+  },
+  "schema": "numi.cardboard.source196.incidence_sort_memory_overlay_report.v1",
+  "scope_limits": [
+    "No Metal compiler or native GPU run was part of this overlay validation.",
+    "No topology or runtime admission cap was raised.",
+    "The selected incidence-sort path remains shipping-unqualified."
+  ],
+  "tests": {
+    "allocation_preflight_compile": "pass",
+    "memory_budget": {
+      "coverage": [
+        "absent/default and exact enable selector",
+        "malformed selector rejection",
+        "E=1/E=2 workspace arithmetic",
+        "zero and uint32/bitonic/host-size overflow rejection",
+        "optional charge and persistent-contact delta",
+        "prebuild explicit capacity and 8-per-tet default",
+        "invalid prebuild selector fails closed"
+      ],
+      "receipt_directory": "cpu-build/final",
+      "result": "pass",
+      "stdout": "shipping memory preflight checks passed"
+    },
+    "old_header_expected_failure": "pass_as_expected",
+    "patch_replay": "pass_all_three_patched_files_byte_identical",
+    "shipping_probe_objcxx_compile": "pass_with_preexisting_unused_function_warning"
+  }
+}

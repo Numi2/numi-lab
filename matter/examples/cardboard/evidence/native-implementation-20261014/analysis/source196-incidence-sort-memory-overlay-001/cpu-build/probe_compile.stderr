@@ -1,0 +1,4 @@
+/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source196-incidence-sort-memory-overlay-001/candidate/matter/tools/cardboard_probe.mm:732:13: warning: unused function 'writeShippingNominalCurveArtifact' [-Wunused-function]
+  732 | std::string writeShippingNominalCurveArtifact(
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.

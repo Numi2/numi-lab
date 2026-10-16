@@ -1,0 +1,10 @@
+{
+  "byte_identity": "verified SHA-256 equality",
+  "checker_compile_uses": "source173 shared.h",
+  "native_dispatch_occurred": false,
+  "schema": "numi.cardboard.sparse-scan-shared-header-equivalence.v1",
+  "source169_header_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-warm-cgls-refinement-169/matter/include/numi/matter/shared.h",
+  "source169_header_sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+  "source173_header_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173/matter/include/numi/matter/shared.h",
+  "source173_header_sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+}

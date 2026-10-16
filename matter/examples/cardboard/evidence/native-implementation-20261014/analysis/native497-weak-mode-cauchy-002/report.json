@@ -1,0 +1,188 @@
+{
+  "damped_least_squares_directions": [
+    {
+      "distance_to_exact_delta": 0.007122383226427452,
+      "iterations": 5000,
+      "lambda": 0.0,
+      "linear_residual_l2": 8.313048508792452e-09,
+      "linear_residual_relative_to_center": 0.03966947106692504,
+      "norm_delta_m_s": 0.0001858929664389836,
+      "status": 7,
+      "total_candidate_norm_m_s": 4.8363135485980795,
+      "warm_direction_cosine": 0.13423816648570144
+    },
+    {
+      "distance_to_exact_delta": 0.007122383226592701,
+      "iterations": 5000,
+      "lambda": 1e-08,
+      "linear_residual_l2": 8.313048508792474e-09,
+      "linear_residual_relative_to_center": 0.039669471066925144,
+      "norm_delta_m_s": 0.0001858929619504066,
+      "status": 7,
+      "total_candidate_norm_m_s": 4.836313548598164,
+      "warm_direction_cosine": 0.1342381697759752
+    },
+    {
+      "distance_to_exact_delta": 0.007122383242951202,
+      "iterations": 5000,
+      "lambda": 1e-07,
+      "linear_residual_l2": 8.31304850884306e-09,
+      "linear_residual_relative_to_center": 0.03966947106716654,
+      "norm_delta_m_s": 0.00018589251758302933,
+      "status": 7,
+      "total_candidate_norm_m_s": 4.836313548606215,
+      "warm_direction_cosine": 0.13423849551260597
+    },
+    {
+      "distance_to_exact_delta": 0.007122384878452455,
+      "iterations": 5000,
+      "lambda": 1e-06,
+      "linear_residual_l2": 8.313049010394673e-09,
+      "linear_residual_relative_to_center": 0.03966947346054692,
+      "norm_delta_m_s": 0.0001858480954106494,
+      "status": 7,
+      "total_candidate_norm_m_s": 4.83631354941161,
+      "warm_direction_cosine": 0.13427106615992176
+    },
+    {
+      "distance_to_exact_delta": 0.00712254499523969,
+      "iterations": 5000,
+      "lambda": 1e-05,
+      "linear_residual_l2": 8.31777884578366e-09,
+      "linear_residual_relative_to_center": 0.039692044009475666,
+      "norm_delta_m_s": 0.0001815470159294786,
+      "status": 7,
+      "total_candidate_norm_m_s": 4.836313627474189,
+      "warm_direction_cosine": 0.13749813479891418
+    },
+    {
+      "distance_to_exact_delta": 0.0071272893067000345,
+      "iterations": 5000,
+      "lambda": 0.0001,
+      "linear_residual_l2": 1.1474085995484495e-08,
+      "linear_residual_relative_to_center": 0.05475379121580512,
+      "norm_delta_m_s": 8.07599818970611e-05,
+      "status": 7,
+      "total_candidate_norm_m_s": 4.836315452997823,
+      "warm_direction_cosine": 0.29841365412994786
+    },
+    {
+      "distance_to_exact_delta": 0.007129438033391216,
+      "iterations": 2332,
+      "lambda": 0.001,
+      "linear_residual_l2": 2.436756742949393e-08,
+      "linear_residual_relative_to_center": 0.11628086977878939,
+      "norm_delta_m_s": 1.7924048750474672e-05,
+      "status": 2,
+      "total_candidate_norm_m_s": 4.836315968222938,
+      "warm_direction_cosine": 0.4008563907917426
+    }
+  ],
+  "helper_sha256": "4a7e9c0cbf09eee0ad1f8f5b2b09314a2c0789a908aaab530b56cfff6a1c82ff",
+  "input_hashes": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-admission-encoder-182-003/matter/tools/cardboard_cached_operator_audit.py": "4a7e9c0cbf09eee0ad1f8f5b2b09314a2c0789a908aaab530b56cfff6a1c82ff",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.bin": "10ef4ce317fc99f86f338e84ecc92b3e1a465afc55853b2e73720ef66614fbd1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-base-cgls-capture/capture.state.json": "b03e1bf2ee33162b2cca750ac14127d1e4a1b2e6df68c1fe71b081b0b251975c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/warm-cgls-control20-diagnostic-replay-497/diagnostics/capture-operator-fd-capture/capture": "0666362ab1b94a1307f4f07d66f51a43355d4b32bbfb5246e0993323ae9359d3"
+  },
+  "limits": [
+    "A is assembled from the captured FP32 tangent cache; it is not a constitutive FP64 reference.",
+    "Singular spectrum and regularized directions apply only to the captured free-XYZ linear block.",
+    "The regularization changes only the proposed search direction, not A or solver acceptance; nonlinear usefulness must be tested with the strict physical residual reference.",
+    "No native GPU dispatch, full coupon qualification, or acceptance/tolerance change."
+  ],
+  "operator": {
+    "condition_1_estimate": 3134067.625085508,
+    "condition_1_method": "onenormest(A) * onenormest(inv(A)) with sparse LU solve/transpose solve",
+    "dense_svd": "scipy.linalg.gesdd on 2538x2538 binary64 materialized captured A",
+    "largest_singular_value": 0.27696484381885744,
+    "nnz": 71046,
+    "relative_skew_norm": 0.0004870525615645034,
+    "shape": [
+      2538,
+      2538
+    ],
+    "smallest_six_singular_values": [
+      3.0986994359760897e-07,
+      5.9490742276313e-07,
+      7.290064049849707e-07,
+      8.679522489402888e-07,
+      1.0805153305159326e-06,
+      1.1858807700060013e-06
+    ]
+  },
+  "schema": "numi.cardboard.native497_weak_mode_cauchy_cpu.v2",
+  "solution_vectors": {
+    "LU_residual_l2": 1.0763081767874891e-19,
+    "captured_CGLS_absolute_error_to_LU": 0.0071298862532800525,
+    "captured_CGLS_relative_error_to_LU": 0.001476064949691309,
+    "captured_CGLS_total_norm": 4.836317037642795,
+    "captured_CGLS_update_norm": 5.846152925485648e-05,
+    "center_correction_norm": 4.836315978382833,
+    "center_residual_l2": 2.095578359178973e-07,
+    "exact_LU_total_norm": 4.830333688752066,
+    "original_center_correction_absolute_error_to_LU": 0.0071295438493758495,
+    "original_center_correction_relative_error_to_LU": 0.0014759940635111263,
+    "warm_residual_l2": 2.6548842652823725e-08
+  },
+  "source_snapshot_manifest_sha256": "c2e6e23be57d3245c490c7f10f4abee55271a4fe051db6a5ef313de2de798394",
+  "verdict": "CPU-only analysis of one captured cached FP32 operator reconstructed in binary64; regularized candidates are proposed directions, not native trials or nonlinear qualification.",
+  "weakest_right_singular_vector": {
+    "region_weighted_energy": [
+      0.6245795657940015,
+      0.3432162264963213,
+      0.03220420770968038
+    ],
+    "top_nodes": [
+      {
+        "magnitude": 0.09287471254165289,
+        "node": 266
+      },
+      {
+        "magnitude": 0.09207136360738792,
+        "node": 560
+      },
+      {
+        "magnitude": 0.09186201066173465,
+        "node": 854
+      },
+      {
+        "magnitude": 0.09104901448157438,
+        "node": 267
+      },
+      {
+        "magnitude": 0.09058104974029234,
+        "node": 855
+      },
+      {
+        "magnitude": 0.09049175488822418,
+        "node": 561
+      },
+      {
+        "magnitude": 0.09002635860696238,
+        "node": 140
+      },
+      {
+        "magnitude": 0.08897786838824641,
+        "node": 141
+      },
+      {
+        "magnitude": 0.08877278324404361,
+        "node": 434
+      },
+      {
+        "magnitude": 0.08838905059225605,
+        "node": 728
+      },
+      {
+        "magnitude": 0.08810191444446863,
+        "node": 435
+      },
+      {
+        "magnitude": 0.08787331250365996,
+        "node": 729
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "files_sha256": {
+    "README.md": "8c317311ed9b983910885f1397e81477ea909588b0ebcdbaa4a855f6f6b341c2",
+    "audited-baseline175-command.json": "91f1b107715a9a20ceeee86eee84a4b7639acaa671c9a8fbe5f0de9cdce88f5c",
+    "capacity-helper.py": "8e4a395c27d0dda8f43351760da7d5b6d0c42dbad0d16680777383d94364cc03",
+    "command-spec.json": "60f99db9a74bfd7e9fb1bd0c3ceacceaef326443cf7ad55f044e4f3e5be83158",
+    "runner.py": "1d89d09d72bb3a95ffd7d48413e99ff0c79af8b1b69635f11c09cd4757d49e96"
+  },
+  "gpu_executed": false
+}

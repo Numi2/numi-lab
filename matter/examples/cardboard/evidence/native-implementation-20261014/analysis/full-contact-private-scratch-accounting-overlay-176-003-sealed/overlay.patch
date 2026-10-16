@@ -1,0 +1,408 @@
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -855,6 +855,19 @@
+         PRIVATE NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+     target_compile_options(numi-matter-cardboard-sparse-private-scan-native-check
+         PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
++    add_executable(numi-matter-cardboard-full-contact-scratch-budget-check
++        tools/cardboard_full_contact_armijo_scratch_budget_check.cpp)
++    target_include_directories(numi-matter-cardboard-full-contact-scratch-budget-check
++        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include"
++                "${CMAKE_CURRENT_SOURCE_DIR}/../include")
++    target_compile_options(numi-matter-cardboard-full-contact-scratch-budget-check
++        PRIVATE -Wall -Wextra -Wpedantic -Werror)
++    if(BUILD_TESTING)
++        add_test(NAME matter.compiler.cardboard_full_contact_scratch_budget
++            COMMAND numi-matter-cardboard-full-contact-scratch-budget-check)
++        set_tests_properties(matter.compiler.cardboard_full_contact_scratch_budget
++            PROPERTIES TIMEOUT 10 LABELS "matter;cardboard;contact;memory;cpu")
++    endif()
+     if(BUILD_TESTING)
+         add_test(NAME matter.compiler.cardboard_sparse_private_scan_cpu_contract
+             COMMAND numi-matter-cardboard-sparse-private-scan-native-check --cpu-only)
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -8,6 +8,7 @@
+ #include "numi/matter/regional_consumer_capture.hpp"
+ #include "numi/matter/sparse_private_contact_admission.hpp"
+ #include "numi/matter/full_contact_armijo_admission.hpp"
++#include "numi/matter/detail/full_contact_armijo_scratch_budget.hpp"
+ #include "numi/matter/regional_galerkin_bending_basis.hpp"
+ #include "regional_graph_schwarz.hpp"
+ #include "fem_reference_geometry.hpp"
+@@ -6842,7 +6843,7 @@
+             }
+             if (std::getenv("NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT") != nullptr) {
+                 constexpr std::uint64_t maximumDeformableArmijoBytes =
+-                    128ull * 1024ull * 1024ull;
++                    detail::kFullContactArmijoScratchBudgetBytes;
+                 const std::uint64_t primitiveCount =
+                     continuumSurfacePrimitiveCount(world.dispatch);
+                 const std::uint64_t leafCount =
+@@ -6860,24 +6861,14 @@
+                     capacity <= 131072u &&
+                     primitiveCount <= std::numeric_limits<std::uint32_t>::max() &&
+                     leafCount <= std::numeric_limits<std::uint32_t>::max() / 4u;
+-                std::uint64_t estimatedBytes = 0u;
+-                if (supportedCounts) {
+-                    estimatedBytes = static_cast<std::uint64_t>(environments) * (
+-                        (candidate->femArmijoAliasesProductionSurfaceScratch
+-                            ? 0ull
+-                            : primitiveCount *
+-                                sizeof(NMContinuumSurfacePrimitiveGPU) +
+-                              4ull * leafCount * sizeof(nm_float4) +
+-                              4ull * primitiveCount * sizeof(std::uint32_t)) +
+-                        capacity * (sizeof(NMDeformableContactCandidateGPU) +
+-                            sizeof(NMDeformableContactGPU) +
+-                            2u * sizeof(std::uint32_t) +
+-                            6u * sizeof(std::uint32_t)) +
+-                        nodeCount * sizeof(NMIncidenceRangeGPU) +
+-                        4u * sizeof(std::uint32_t) +
+-                        sizeof(NMIndirectDispatchGPU));
+-                }
+-                if (supportedCounts && estimatedBytes <=
++                detail::FullContactArmijoScratchBytes scratchBytes;
++                const bool scratchBytesValid = supportedCounts &&
++                    detail::estimateFullContactArmijoScratchBytes(
++                        environments, primitiveCount, leafCount, capacity,
++                        nodeCount,
++                        candidate->femArmijoAliasesProductionSurfaceScratch,
++                        scratchBytes);
++                if (scratchBytesValid && scratchBytes.total <=
+                         maximumDeformableArmijoBytes) {
+                     candidate->femArmijoDeformableContactScratchEnabled = true;
+                     if (candidate->femArmijoAliasesProductionSurfaceScratch) {
+--- /dev/null
++++ b/matter/include/numi/matter/detail/full_contact_armijo_scratch_budget.hpp
+@@ -0,0 +1,163 @@
++#pragma once
++
++#include "numi/matter/shared.h"
++
++#include <algorithm>
++#include <cstddef>
++#include <cstdint>
++#include <limits>
++
++namespace numi::matter::detail {
++
++// Byte inventory for the additional private full-contact Armijo arena. Every
++// field is one actual privateScratch allocation (or zero when the surface
++// arrays alias production storage). Empty typed allocations retain the same
++// complete-pointee sentinel as runtime::checkedBytes().
++struct FullContactArmijoScratchBytes {
++    std::uint64_t surfacePrimitives = 0u;
++    std::uint64_t surfaceBVHBounds = 0u;
++    std::uint64_t surfaceSortArrays = 0u;
++    std::uint64_t surfaceActiveCounts = 0u;
++    std::uint64_t deformableCandidates = 0u;
++    std::uint64_t candidateCounts = 0u;
++    std::uint64_t candidateStatuses = 0u;
++    std::uint64_t deformableContacts = 0u;
++    std::uint64_t deformableActiveIndices = 0u;
++    std::uint64_t deformableActiveCounts = 0u;
++    std::uint64_t nodeIncidence = 0u;
++    std::uint64_t nodeRanges = 0u;
++    std::uint64_t activeOffsets = 0u;
++    std::uint64_t globalActiveIndices = 0u;
++    std::uint64_t activeDispatch = 0u;
++    std::uint64_t total = 0u;
++};
++
++namespace full_contact_armijo_scratch_detail {
++
++inline bool checkedMultiply(const std::uint64_t a, const std::uint64_t b,
++                            std::uint64_t& out) noexcept {
++    if (a != 0u && b > std::numeric_limits<std::uint64_t>::max() / a)
++        return false;
++    out = a * b;
++    return true;
++}
++
++inline bool checkedAdd(const std::uint64_t a, const std::uint64_t b,
++                       std::uint64_t& out) noexcept {
++    if (b > std::numeric_limits<std::uint64_t>::max() - a) return false;
++    out = a + b;
++    return true;
++}
++
++inline bool typedAllocationBytes(const std::uint64_t count,
++                                 const std::size_t elementSize,
++                                 std::uint64_t& out) noexcept {
++    if (elementSize == 0u || count >
++        std::numeric_limits<std::size_t>::max() / elementSize)
++        return false;
++    const std::size_t logical = static_cast<std::size_t>(count) * elementSize;
++    const std::size_t bytes = std::max({logical, elementSize, std::size_t{16u}});
++    if (bytes > std::numeric_limits<std::uint64_t>::max()) return false;
++    out = static_cast<std::uint64_t>(bytes);
++    return true;
++}
++
++inline bool addTyped(std::uint64_t count, std::size_t elementSize,
++                     std::uint64_t& component,
++                     std::uint64_t& total) noexcept {
++    if (!typedAllocationBytes(count, elementSize, component)) return false;
++    std::uint64_t next = 0u;
++    if (!checkedAdd(total, component, next)) return false;
++    total = next;
++    return true;
++}
++
++inline bool addRepeatedTyped(std::uint64_t count, std::size_t elementSize,
++                             std::uint64_t repetitions,
++                             std::uint64_t& component,
++                             std::uint64_t& total) noexcept {
++    std::uint64_t one = 0u;
++    if (!typedAllocationBytes(count, elementSize, one) ||
++        !checkedMultiply(one, repetitions, component))
++        return false;
++    std::uint64_t next = 0u;
++    if (!checkedAdd(total, component, next)) return false;
++    total = next;
++    return true;
++}
++
++} // namespace full_contact_armijo_scratch_detail
++
++// Reconcile the estimator against the exact privateScratch call inventory in
++// runtime.mm. Counts are total elements passed to each single allocation, so
++// the environment multiplier is included before applying checkedBytes' typed
++// sentinel rule. The one indirect-dispatch record is shared across envs.
++inline bool estimateFullContactArmijoScratchBytes(
++    const std::uint64_t environments,
++    const std::uint64_t surfacePrimitiveCount,
++    const std::uint64_t surfaceBVHLeafCount,
++    const std::uint64_t deformableCapacity,
++    const std::uint64_t nodeCount,
++    const bool aliasesProductionSurfaceScratch,
++    FullContactArmijoScratchBytes& out
++) noexcept {
++    using namespace full_contact_armijo_scratch_detail;
++    out = {};
++    if (environments == 0u) return false;
++
++    std::uint64_t envPrimitives = 0u;
++    std::uint64_t envCapacity = 0u;
++    std::uint64_t envNodes = 0u;
++    std::uint64_t envLeaves = 0u;
++    std::uint64_t envSixCapacity = 0u;
++    if (!checkedMultiply(environments, surfacePrimitiveCount, envPrimitives) ||
++        !checkedMultiply(environments, deformableCapacity, envCapacity) ||
++        !checkedMultiply(environments, nodeCount, envNodes) ||
++        !checkedMultiply(environments, surfaceBVHLeafCount, envLeaves) ||
++        !checkedMultiply(envCapacity, 6u, envSixCapacity))
++        return false;
++
++    if (!aliasesProductionSurfaceScratch) {
++        std::uint64_t bvhCount = 0u;
++        if (!checkedMultiply(envLeaves, 4u, bvhCount) ||
++            !addTyped(envPrimitives, sizeof(NMContinuumSurfacePrimitiveGPU),
++                      out.surfacePrimitives, out.total) ||
++            !addTyped(bvhCount, sizeof(nm_float4), out.surfaceBVHBounds,
++                      out.total) ||
++            !addRepeatedTyped(envPrimitives, sizeof(std::uint32_t), 4u,
++                              out.surfaceSortArrays, out.total) ||
++            !addTyped(environments, sizeof(std::uint32_t),
++                      out.surfaceActiveCounts, out.total))
++            return false;
++    }
++
++    if (!addTyped(envCapacity, sizeof(NMDeformableContactCandidateGPU),
++                  out.deformableCandidates, out.total) ||
++        !addTyped(environments, sizeof(std::uint32_t), out.candidateCounts,
++                  out.total) ||
++        !addTyped(envCapacity, sizeof(NMMatterStatusGPU),
++                  out.candidateStatuses, out.total) ||
++        !addTyped(envCapacity, sizeof(NMDeformableContactGPU),
++                  out.deformableContacts, out.total) ||
++        !addTyped(envCapacity, sizeof(std::uint32_t),
++                  out.deformableActiveIndices, out.total) ||
++        !addTyped(environments, sizeof(std::uint32_t),
++                  out.deformableActiveCounts, out.total) ||
++        !addTyped(envSixCapacity, sizeof(std::uint32_t), out.nodeIncidence,
++                  out.total) ||
++        !addTyped(envNodes, sizeof(NMIncidenceRangeGPU), out.nodeRanges,
++                  out.total) ||
++        !addTyped(environments, sizeof(std::uint32_t), out.activeOffsets,
++                  out.total) ||
++        !addTyped(envCapacity, sizeof(std::uint32_t), out.globalActiveIndices,
++                  out.total) ||
++        !addTyped(1u, sizeof(NMIndirectDispatchGPU), out.activeDispatch,
++                  out.total))
++        return false;
++    return true;
++}
++
++inline constexpr std::uint64_t kFullContactArmijoScratchBudgetBytes =
++    128ull * 1024ull * 1024ull;
++
++} // namespace numi::matter::detail
+--- /dev/null
++++ b/matter/tools/cardboard_full_contact_armijo_scratch_budget_check.cpp
+@@ -0,0 +1,165 @@
++#include "numi/matter/detail/full_contact_armijo_scratch_budget.hpp"
++
++#include <cstdint>
++#include <iostream>
++#include <limits>
++#include <stdexcept>
++
++namespace {
++unsigned checks = 0u;
++
++void require(bool condition, const char* message) {
++    ++checks;
++    if (!condition) throw std::runtime_error(message);
++}
++
++std::uint64_t sum(const numi::matter::detail::FullContactArmijoScratchBytes& b) {
++    return b.surfacePrimitives + b.surfaceBVHBounds + b.surfaceSortArrays +
++        b.surfaceActiveCounts + b.deformableCandidates + b.candidateCounts +
++        b.candidateStatuses + b.deformableContacts + b.deformableActiveIndices +
++        b.deformableActiveCounts + b.nodeIncidence + b.nodeRanges +
++        b.activeOffsets + b.globalActiveIndices + b.activeDispatch;
++}
++}
++
++int main() {
++    using namespace numi::matter::detail;
++    try {
++        static_assert(sizeof(NMDeformableContactCandidateGPU) == 16u);
++        static_assert(sizeof(NMDeformableContactGPU) == 432u);
++        static_assert(sizeof(NMMatterStatusGPU) == 48u);
++        static_assert(sizeof(NMIncidenceRangeGPU) == 16u);
++        static_assert(sizeof(NMIndirectDispatchGPU) == 16u);
++
++        FullContactArmijoScratchBytes fixture;
++        require(estimateFullContactArmijoScratchBytes(
++                    1u, 17u, 32u, 7u, 9u, false, fixture),
++                "finite fixture estimate must succeed");
++        require(fixture.surfacePrimitives == 17u * 64u &&
++                fixture.surfaceBVHBounds == 4u * 32u * 16u &&
++                fixture.surfaceSortArrays == 4u * 17u * 4u &&
++                fixture.surfaceActiveCounts == 16u,
++                "surface allocations must match exact runtime counts");
++        require(fixture.deformableCandidates == 7u * 16u &&
++                fixture.candidateCounts == 16u &&
++                fixture.candidateStatuses == 7u * 48u &&
++                fixture.deformableContacts == 7u * 432u &&
++                fixture.deformableActiveIndices == 7u * 4u &&
++                fixture.deformableActiveCounts == 16u &&
++                fixture.nodeIncidence == 7u * 6u * 4u &&
++                fixture.nodeRanges == 9u * 16u &&
++                fixture.activeOffsets == 16u &&
++                fixture.globalActiveIndices == 7u * 4u &&
++                fixture.activeDispatch == 16u,
++                "deformable allocation inventory must include the 48-byte status slot");
++        require(fixture.total == sum(fixture),
++                "reported total must equal the named actual allocation inventory");
++
++        FullContactArmijoScratchBytes empty;
++        require(estimateFullContactArmijoScratchBytes(
++                    1u, 0u, 0u, 0u, 0u, false, empty),
++                "zero logical counts still have typed sentinel allocations");
++        require(empty.surfacePrimitives == sizeof(NMContinuumSurfacePrimitiveGPU) &&
++                empty.surfaceBVHBounds == sizeof(nm_float4) &&
++                empty.surfaceSortArrays == 4u * 16u &&
++                empty.surfaceActiveCounts == 16u &&
++                empty.candidateCounts == 16u &&
++                empty.candidateStatuses == sizeof(NMMatterStatusGPU) &&
++                empty.deformableContacts == sizeof(NMDeformableContactGPU) &&
++                empty.deformableActiveIndices == 16u &&
++                empty.deformableActiveCounts == 16u &&
++                empty.nodeIncidence == 16u && empty.nodeRanges == 16u &&
++                empty.activeOffsets == 16u &&
++                empty.globalActiveIndices == 16u &&
++                empty.activeDispatch == 16u && empty.total == sum(empty),
++                "zero-count buffers must reconcile to checkedBytes sentinels");
++
++        FullContactArmijoScratchBytes aliasOne;
++        require(estimateFullContactArmijoScratchBytes(
++                    1u, 0u, 0u, 131072u, 0u, true, aliasOne),
++                "one-environment max-capacity plan must be representable");
++        require(aliasOne.candidateStatuses == 131072ull * 48u &&
++                aliasOne.surfacePrimitives == 0u &&
++                aliasOne.surfaceBVHBounds == 0u &&
++                aliasOne.surfaceSortArrays == 0u &&
++                aliasOne.surfaceActiveCounts == 0u &&
++                aliasOne.total == 131072ull * 528u + 3u * 16u + 16u + 16u &&
++                aliasOne.total <= kFullContactArmijoScratchBudgetBytes,
++                "E=1 boundary must include exact statuses and fit unchanged cap");
++
++        FullContactArmijoScratchBytes aliasTwoFit;
++        FullContactArmijoScratchBytes aliasTwoOver;
++        require(estimateFullContactArmijoScratchBytes(
++                    2u, 0u, 0u, 127100u, 0u, true, aliasTwoFit) &&
++                aliasTwoFit.total == 2ull * 127100u * 528u +
++                    3u * 16u + 16u + 16u &&
++                aliasTwoFit.total <= kFullContactArmijoScratchBudgetBytes,
++                "E=2 exact final fitting boundary must include one shared dispatch");
++        require(estimateFullContactArmijoScratchBytes(
++                    2u, 0u, 0u, 127101u, 0u, true, aliasTwoOver) &&
++                aliasTwoOver.total == 134218736u &&
++                aliasTwoOver.total > kFullContactArmijoScratchBudgetBytes,
++                "E=2 next capacity must exceed unchanged 128 MiB cap");
++        const std::uint64_t aliasTwoFirstOverBytes = aliasTwoOver.total;
++        FullContactArmijoScratchBytes aliasTwoHardMax;
++        require(estimateFullContactArmijoScratchBytes(
++                    2u, 0u, 0u, 131072u, 0u, true, aliasTwoOver) &&
++                aliasTwoOver.candidateStatuses == 2ull * 131072u * 48u &&
++                aliasTwoOver.total > kFullContactArmijoScratchBudgetBytes,
++                "E=2 admitted hard capacity must fail total arena cap without wrap");
++        require(estimateFullContactArmijoScratchBytes(
++                    2u, 0u, 0u, 131072u, 0u, true, aliasTwoHardMax),
++                "E=2 hard-cap plan must be computable for exact report");
++
++        FullContactArmijoScratchBytes overflow;
++        require(!estimateFullContactArmijoScratchBytes(
++                    2u, std::numeric_limits<std::uint64_t>::max(), 1u,
++                    1u, 1u, false, overflow),
++                "environment multiplication overflow must fail closed");
++        require(!estimateFullContactArmijoScratchBytes(
++                    0u, 1u, 1u, 1u, 1u, false, overflow),
++                "zero environment domain must fail closed");
++
++        FullContactArmijoScratchBytes shippingOneAliased;
++        FullContactArmijoScratchBytes shippingOneUnaliased;
++        FullContactArmijoScratchBytes shippingTwoAliased;
++        constexpr std::uint64_t shippingPrimitives = 1054876u;
++        constexpr std::uint64_t shippingLeaves = 2097152u;
++        constexpr std::uint64_t shippingNodes = 528444u;
++        require(estimateFullContactArmijoScratchBytes(
++                    1u, shippingPrimitives, shippingLeaves, 131072u,
++                    shippingNodes, true, shippingOneAliased) &&
++                shippingOneAliased.total == 77661184u &&
++                shippingOneAliased.total <= kFullContactArmijoScratchBudgetBytes,
++                "shipping-count E1 aliased-surface scratch must reconcile within cap");
++        require(estimateFullContactArmijoScratchBytes(
++                    1u, shippingPrimitives, shippingLeaves, 131072u,
++                    shippingNodes, false, shippingOneUnaliased) &&
++                shippingOneUnaliased.total == 296269008u &&
++                shippingOneUnaliased.total > kFullContactArmijoScratchBudgetBytes,
++                "shipping-count E1 unaliased BVH must fail the existing scratch cap");
++        require(estimateFullContactArmijoScratchBytes(
++                    2u, shippingPrimitives, shippingLeaves, 131072u,
++                    shippingNodes, true, shippingTwoAliased) &&
++                shippingTwoAliased.total == 155322304u &&
++                shippingTwoAliased.total > kFullContactArmijoScratchBudgetBytes,
++                "shipping-count E2 aliased scratch must fail the unchanged cap");
++
++        std::cout << "full_contact_armijo_scratch_checks=" << checks
++                  << " status_bytes=" << sizeof(NMMatterStatusGPU)
++                  << " E1_max_capacity_bytes=" << aliasOne.total
++                  << " E2_boundary_fit_bytes=" << aliasTwoFit.total
++                  << " E2_first_over_bytes=" << aliasTwoFirstOverBytes
++                  << " E2_hard_capacity_bytes=" << aliasTwoHardMax.total
++                  << " shipping_E1_alias_bytes=" << shippingOneAliased.total
++                  << " shipping_E1_unalias_bytes=" << shippingOneUnaliased.total
++                  << " shipping_E2_alias_bytes=" << shippingTwoAliased.total
++                  << " cap_bytes=" << kFullContactArmijoScratchBudgetBytes
++                  << " physical_transactions=0\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "full-contact scratch accounting check failed: "
++                  << error.what() << '\n';
++        return 1;
++    }
++}

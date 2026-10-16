@@ -1,0 +1,205 @@
+{
+  "dependencies": [
+    {
+      "byte_count": 6421,
+      "relative_path": "include/metalrobo/compensated_geometry_gpu.h",
+      "sha256": "1bf85c7e7b8b2102c5e0e6f3fbba88e2b30530e6b5fbb33375fb581d5261d84e"
+    },
+    {
+      "byte_count": 7828,
+      "relative_path": "include/metalrobo/compensated_translation_gpu.h",
+      "sha256": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097"
+    },
+    {
+      "byte_count": 10182,
+      "relative_path": "include/metalrobo/constraint_ir_shared.h",
+      "sha256": "1abad282fa1e88b809da2271c8e98bc0fcde6adc6629b61a7f8f7d7633c5403f"
+    },
+    {
+      "byte_count": 63651,
+      "relative_path": "include/metalrobo/engine_types.h",
+      "sha256": "2eacf034dcce6b4cafb56b1db90a24e3bbc1a8d75b324722daed34a95d21dcb2"
+    },
+    {
+      "byte_count": 3809,
+      "relative_path": "include/metalrobo/gpu_types.h",
+      "sha256": "55777caa42851b167780255c76e02c40e2285ee43cc6dda77063d8639f6728d8"
+    },
+    {
+      "byte_count": 16282,
+      "relative_path": "include/metalrobo/numi_human_stand_gpu.h",
+      "sha256": "f48905aa6736af0460fc2cb15a447161f36ad68ab9eb2dd03e0fe94aaee043a1"
+    },
+    {
+      "byte_count": 2594,
+      "relative_path": "include/metalrobo/numi_human_tendon_gpu.h",
+      "sha256": "1ab91d0618a17981e598d1b16774efc94c05b53d3800d00da67437fa93318058"
+    },
+    {
+      "byte_count": 2419,
+      "relative_path": "include/metalrobo/numi_human_timed_root_force.h",
+      "sha256": "7588072673196c9e9005d91cb23be106941a7b271e9cc1f8681a5fa1548163ef"
+    },
+    {
+      "byte_count": 9612,
+      "relative_path": "include/metalrobo/rod_gpu_shared.h",
+      "sha256": "0e8a2fc59a2969ca2493aaa0ee9d6e51cac723a22a63cb2e6d03b00807fd373d"
+    },
+    {
+      "byte_count": 12505,
+      "relative_path": "matter/include/numi/matter/accepted_state_apply_gpu.h",
+      "sha256": "4f369f557838368895c6a62375866863b0681bc230085c263babf9aa58a50ba7"
+    },
+    {
+      "byte_count": 5313,
+      "relative_path": "matter/include/numi/matter/accepted_state_proof_gpu.h",
+      "sha256": "d0b17b52cbdd54c5116a3e400435e60a833c92b5b6e309d1fbc74f3062e1c24e"
+    },
+    {
+      "byte_count": 1702,
+      "relative_path": "matter/include/numi/matter/fem_compensated_deformation.h",
+      "sha256": "47d61e2f85bfbea5aac370211e56251ff67f0c7a28d577c276fd285b88225f33"
+    },
+    {
+      "byte_count": 3404,
+      "relative_path": "matter/include/numi/matter/fiber_exp_linear.h",
+      "sha256": "26ca19f47c8ece392409fe233708cc87d96b31eb010359cb987b1eed38dee49c"
+    },
+    {
+      "byte_count": 1318,
+      "relative_path": "matter/include/numi/matter/fixed_convex_contact_step.h",
+      "sha256": "52b888b21082fae2570d69c270e70d365e95ff8bebebdc922c8a7f224745805c"
+    },
+    {
+      "byte_count": 13511,
+      "relative_path": "matter/include/numi/matter/hill_scalar_initializer.h",
+      "sha256": "aa47b464d4d9157df57a7f223b1ac77122249d8a0c00f45e9a03723f2a58bd49"
+    },
+    {
+      "byte_count": 1084,
+      "relative_path": "matter/include/numi/matter/human_equality_gpu.h",
+      "sha256": "7bf03f512c0fbdf9be0382a8bd655fb8f0d90b1703ddaf74302e60a38656f519"
+    },
+    {
+      "byte_count": 899,
+      "relative_path": "matter/include/numi/matter/human_limits_gpu.h",
+      "sha256": "adff1dd6bb8e7d67767bca38e959b03880376ec973f0d8a556564e4a87921dd9"
+    },
+    {
+      "byte_count": 643,
+      "relative_path": "matter/include/numi/matter/human_support_precision_gpu.h",
+      "sha256": "d84b419be157c7feba0fe9eb9bfe2379262e38bc5fa4f2bd4641a6b0d8b671a1"
+    },
+    {
+      "byte_count": 37885,
+      "relative_path": "matter/include/numi/matter/mortar_shared_edge_guard.h",
+      "sha256": "b4953028b1e3ffd8fba0100b34cc3aad28f7eac812fb1cfd711aaf7cf7b5bbaa"
+    },
+    {
+      "byte_count": 13827,
+      "relative_path": "matter/include/numi/matter/numi_human_shared.h",
+      "sha256": "84734933d8d5c3eb50c2af074912fa70eacfaa5dd9bd8f9f4d17886a607e8376"
+    },
+    {
+      "byte_count": 14539,
+      "relative_path": "matter/include/numi/matter/paper_compensated_bytecode.h",
+      "sha256": "f578310307a4698692fc57117340794ac4ce2d3813cdfcf705da6a018a5976aa"
+    },
+    {
+      "byte_count": 58294,
+      "relative_path": "matter/include/numi/matter/shared.h",
+      "sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+    },
+    {
+      "byte_count": 561,
+      "relative_path": "matter/src/matter_kernels.metal",
+      "sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168"
+    },
+    {
+      "byte_count": 57229,
+      "relative_path": "matter/src/metal/accepted_state_proof.metalinc",
+      "sha256": "1782bb5ea45d2dc67d7e50a92d403c1508942989edfd9dce7d4a6f08ea459987"
+    },
+    {
+      "byte_count": 26326,
+      "relative_path": "matter/src/metal/adaptive.metalinc",
+      "sha256": "48575bba875c8e7b6eba0138d542ac521acce8261a544a01390997d3eef0a332"
+    },
+    {
+      "byte_count": 38727,
+      "relative_path": "matter/src/metal/base_cgls.metalinc",
+      "sha256": "1166f3ebb485116b519cb0f1977cae0183e877330ce666f520a05a5f5d3c2234"
+    },
+    {
+      "byte_count": 19447,
+      "relative_path": "matter/src/metal/base_cgls_runtime.metalinc",
+      "sha256": "1b9d6541fcd01bea803a70f878ba1bda462d05cfabefa0d1ebe3038c9aab66d9"
+    },
+    {
+      "byte_count": 102970,
+      "relative_path": "matter/src/metal/common.metalinc",
+      "sha256": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380"
+    },
+    {
+      "byte_count": 423974,
+      "relative_path": "matter/src/metal/contact.metalinc",
+      "sha256": "b1dc8d0e6843d5aed3a8c6d28449dae8c4d3a60488e644195e9fed5ed121d346"
+    },
+    {
+      "byte_count": 251991,
+      "relative_path": "matter/src/metal/fem.metalinc",
+      "sha256": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170"
+    },
+    {
+      "byte_count": 401689,
+      "relative_path": "matter/src/metal/fgmres.metalinc",
+      "sha256": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8"
+    },
+    {
+      "byte_count": 14923,
+      "relative_path": "matter/src/metal/human_equality.metalinc",
+      "sha256": "7d258cd6479fd54655d17dc16668713209ae418e62d73d44e1992c7e34b0c927"
+    },
+    {
+      "byte_count": 7795,
+      "relative_path": "matter/src/metal/human_limits.metalinc",
+      "sha256": "cb63fbad03fe852e532acbdf984f5147d5897595c21b68572de430793a15a87e"
+    },
+    {
+      "byte_count": 37743,
+      "relative_path": "matter/src/metal/identification_scheduler.metalinc",
+      "sha256": "94f3056e9b22b59b1dc90c2d05d0e0112e7dd22553871be39b16666853f972a7"
+    },
+    {
+      "byte_count": 46773,
+      "relative_path": "matter/src/metal/mixed_fem.metalinc",
+      "sha256": "9f3fba45290c92cc782393c420520b25c7d630fa080b9e2aff1d9f52a33d1681"
+    },
+    {
+      "byte_count": 45856,
+      "relative_path": "matter/src/metal/mpm.metalinc",
+      "sha256": "eb0198a7b62252ef102fd94fbc908beb9e95da6d74bffb21ea68101013710643"
+    },
+    {
+      "byte_count": 86748,
+      "relative_path": "matter/src/metal/numi_human.metalinc",
+      "sha256": "f211dc328beced30cb199af32b294ad9f21da9eaf1ca2d3ccbe441eb3806fda4"
+    },
+    {
+      "byte_count": 156284,
+      "relative_path": "matter/src/metal/topology_mutation.metalinc",
+      "sha256": "77b99f7395dc77bea95945996ec3d963c5ecb4c79ea0325a11b43de8a6b9c726"
+    },
+    {
+      "byte_count": 96838,
+      "relative_path": "matter/src/metal/vascular.metalinc",
+      "sha256": "407ded09d29938ab2556ca3f5b9c38ba3a610b00993484a0051b2e124d772d09"
+    }
+  ],
+  "external_dependencies": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/contact-armijo-energy-replay-499-001/contact_barrier_trial_replay_ccd.metal",
+    "/private/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.XhhgAx/Metal.xctoolchain/usr/metal/32023/lib/clang/32023.883/include/metal/module.modulemap"
+  ],
+  "schema": "numi.cardboard.source176_metal_dependency_hashes.v1",
+  "source_root": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-full-contact-private-scratch-176-003"
+}

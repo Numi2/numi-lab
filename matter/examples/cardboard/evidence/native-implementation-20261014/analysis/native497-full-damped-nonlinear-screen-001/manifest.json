@@ -1,0 +1,19 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 404,
+      "sha256": "4f1ced987b48a1d5786eb87e39d0da4cf9d0aeabb1104bec64d009166b0968ce"
+    },
+    "manifest.json": {
+      "bytes": 576,
+      "sha256": "3a5ac508483ee1134fad158dfdf00057bff865a06adf7d6e8a371dfdbef2c5d7"
+    },
+    "report.json": {
+      "bytes": 10854,
+      "sha256": "4fafdd57ed27cc529c6093e72e87d64e8e55af8184faeef5c00f0fbcc6224d44"
+    }
+  },
+  "package": "native497-full-damped-nonlinear-screen-001",
+  "schema": "numi.cardboard.analysis-package.v1",
+  "scope": "CPU-only nonlinear direction screening"
+}

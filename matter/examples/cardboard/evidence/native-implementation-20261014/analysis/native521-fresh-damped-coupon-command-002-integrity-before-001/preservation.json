@@ -1,0 +1,24 @@
+{
+  "schema": "numi.cardboard.native521-integrity-preservation.v1",
+  "preserved_at_utc": "2026-10-16T07:52:22.833668+00:00",
+  "original_package_manifest_sha256": "c5a0ee81858543a8436ca214894bcb7c926144e8884c1560d2ce713faf0b9471",
+  "preservation_files": {
+    "runner.py": {
+      "sha256": "e7e07cecf3c0f02bcd1fa5808902983f61a70ad1738f5f32fc59577722df42a8",
+      "bytes": 5542
+    },
+    "package-manifest.json": {
+      "sha256": "c5a0ee81858543a8436ca214894bcb7c926144e8884c1560d2ce713faf0b9471",
+      "bytes": 403
+    },
+    "command-spec.json": {
+      "sha256": "796b422271e2e120da8d3a358796013b42daf01a32557676ed2488affbd4ef64",
+      "bytes": 5407
+    },
+    "host-validation-binding.json": {
+      "sha256": "389c38f84d539adc7d1418dde17610b75bb2af7709aa6248e83a48ec6b661d1a",
+      "bytes": 9803
+    }
+  },
+  "scope": "Pre-edit copies only; no source/build/configuration/native execution changes."
+}

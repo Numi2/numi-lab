@@ -1,0 +1,19 @@
+{
+  "schema": "numi.cardboard.publication032-independent-byte-audit.v1",
+  "verdict": "PASS",
+  "historical_records_unchanged": 1607,
+  "new_cases": 62,
+  "payloads_verified": 604,
+  "original_payload_bytes": 175421818,
+  "source_files_verified": 814,
+  "summary_sha256": "5bb2a527a80528c8bbcd621f9fbb6bc6dad06be4a3e90888a70ccbbc98386ff7",
+  "binding_sha256": "f78daddd601b549f9371a9f42cf7ba935c04dc3e9c8691acce1365213e3604db",
+  "staged_pathlist_sha256": "649b7e04715f4405049e16c50b88cc2bb95c651fb1a5e6f1afd6cf93a9ffa838",
+  "staged_paths": 625,
+  "source188_frozen_sha256": "1f61fd7893eb3a10dfcf1ee0e748f1320b23171d67d37668b319b170a5c20185",
+  "build_artifacts_verified": 9,
+  "native_geometry_exit_code": 0,
+  "loaded_contact_exit_code": 1,
+  "full_protocol_qualification": false,
+  "finished_at_utc": "2026-10-16T06:41:53.166108+00:00"
+}

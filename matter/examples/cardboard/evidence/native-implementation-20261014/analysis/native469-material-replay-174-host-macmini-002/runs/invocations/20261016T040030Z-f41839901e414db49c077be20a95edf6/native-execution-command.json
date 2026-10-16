@@ -1,0 +1,85 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/tools/numi-matter-cardboard-source469-material-replay-check",
+    "--native-469",
+    "--capture-sha256",
+    "cf42bdb145317b24a044e8e7561a99dc987df44761b841a08d7f3b28e6cd96d2",
+    "--package-sha256",
+    "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+    "--manifest-sha256",
+    "142fa1f08cf14ea4eb0e77039174a2c25030e14c0d38d6c9874a06e561bd3f6f",
+    "--receipt-sha256",
+    "35b856b4d94bcc3acfb5e611847ecc166860a228efc81e841decec019ea7e17f",
+    "--mp-reference-sha256",
+    "029c3b5efa8ee3459c5016283ddf0bf09f1204a9359722847bc77bd23ffbb960",
+    "--mp-arrays-sha256",
+    "107e942cc2e131eed8f8db7759f8deb3e86fcdc42d8da249996daf51d6ed11ad",
+    "--mp-package-manifest-sha256",
+    "f176666da43b50a441c038cbd88b5c9c804df32fa8ea9d46483a086ab5616c19",
+    "--reference-export-sha256",
+    "d60d48e42f29608dfd9a0a1c04bc771fb544460966f9f9008628732a9d23dc49",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/inputs/capture/final-newton",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/inputs/origin/compiled.nmatterpack",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/inputs/origin/run-manifest.json",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/inputs/origin/run-receipt.json",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/inputs/mp/report.json",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/inputs/mp/mixed_reference_arrays.npz",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/inputs/mp/package-manifest.json",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/inputs/references/selected-reference-rows.jsonl",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-002/runs/invocations/20261016T040030Z-f41839901e414db49c077be20a95edf6/native-output"
+  ],
+  "build_sha256": "96396de7fa14197a6759583d8b7bb053c412e08f1051b947502c1cc38b185229",
+  "disk_floor_bytes": 2147483648,
+  "disk_free_before_bytes": 113702875136,
+  "executable_sha256": "5dc0b921b41527b973b498d682f84b010b6f41f8acf4c11b1eec4a7305eef3b2",
+  "input_hashes": [
+    {
+      "name": "capture",
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/inputs/capture/final-newton",
+      "sha256": "cf42bdb145317b24a044e8e7561a99dc987df44761b841a08d7f3b28e6cd96d2"
+    },
+    {
+      "name": "compiled_package",
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/inputs/origin/compiled.nmatterpack",
+      "sha256": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1"
+    },
+    {
+      "name": "run_manifest",
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/inputs/origin/run-manifest.json",
+      "sha256": "142fa1f08cf14ea4eb0e77039174a2c25030e14c0d38d6c9874a06e561bd3f6f"
+    },
+    {
+      "name": "run_receipt",
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/inputs/origin/run-receipt.json",
+      "sha256": "35b856b4d94bcc3acfb5e611847ecc166860a228efc81e841decec019ea7e17f"
+    },
+    {
+      "name": "mp_report",
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/inputs/mp/report.json",
+      "sha256": "029c3b5efa8ee3459c5016283ddf0bf09f1204a9359722847bc77bd23ffbb960"
+    },
+    {
+      "name": "mp_arrays",
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/inputs/mp/mixed_reference_arrays.npz",
+      "sha256": "107e942cc2e131eed8f8db7759f8deb3e86fcdc42d8da249996daf51d6ed11ad"
+    },
+    {
+      "name": "mp_manifest",
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/inputs/mp/package-manifest.json",
+      "sha256": "f176666da43b50a441c038cbd88b5c9c804df32fa8ea9d46483a086ab5616c19"
+    },
+    {
+      "name": "selected_references",
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/inputs/references/selected-reference-rows.jsonl",
+      "sha256": "d60d48e42f29608dfd9a0a1c04bc771fb544460966f9f9008628732a9d23dc49"
+    }
+  ],
+  "lease_acquired": true,
+  "log_limit_bytes": 268435456,
+  "memory_limit_bytes": 17179869184,
+  "run_id": "20261016T040030Z-f41839901e414db49c077be20a95edf6",
+  "source_sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+  "timeout_seconds": 7200,
+  "workers_after_lease": [],
+  "workers_before_lease": []
+}

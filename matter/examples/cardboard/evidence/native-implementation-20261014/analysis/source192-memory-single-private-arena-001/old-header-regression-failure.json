@@ -1,0 +1,4 @@
+{
+  "stage": "external_cpu_regression_compile",
+  "reason": "Full checker source requires additional metalrobo include; no execution occurred. Replaced with extracted test function and header-only driver in separate002 attempt."
+}

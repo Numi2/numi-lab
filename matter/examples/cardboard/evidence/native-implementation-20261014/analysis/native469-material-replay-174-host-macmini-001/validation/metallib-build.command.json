@@ -1,0 +1,12 @@
+{
+  "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173/matter",
+  "argv": [
+    "/usr/bin/xcrun",
+    "-sdk",
+    "macosx",
+    "metallib",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/shaders/cardboard_bilinear15_capture_diagnostic.air",
+    "-o",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001/shaders/cardboard_bilinear15_capture_diagnostic.metallib"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "all_capture_center_and_side_rows": 9600,
+  "capture_sha256": "cf42bdb145317b24a044e8e7561a99dc987df44761b841a08d7f3b28e6cd96d2",
+  "captured_columns_and_sides": 1000,
+  "center_all_nine_basis_rows": 17280,
+  "env0_centers": 1920,
+  "epsilon_cases": 5940,
+  "independent_reference_rows": 100,
+  "package_sha256": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+  "paper_centers": 1728,
+  "physical_gpu_execution": false,
+  "record": "source469_cpu_admission",
+  "repeatability_cases": 34,
+  "selected_reference_roots": 17,
+  "starch_centers": 192,
+  "status": "pass",
+  "world_fingerprint": "48d3b8b313356bd9"
+}

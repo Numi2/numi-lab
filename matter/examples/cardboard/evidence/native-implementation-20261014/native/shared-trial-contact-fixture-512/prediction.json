@@ -1,0 +1,12 @@
+{
+  "name": "native512-contact-fixture",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source189-003/numi-matter-cardboard-full-contact-armijo-check",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix003/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+    "--compensated-material-arithmetic"
+  ],
+  "source_build_sha256": "21050d87f55819b1e2e04d528328ab7a435c2afcef4e7718c5a7fea5f87f1c87",
+  "started_at_utc": "2026-10-16T07:03:01.036940+00:00",
+  "timeout_s": 300,
+  "gpu": true
+}

@@ -1,0 +1,55 @@
+{
+  "bindings": {
+    "alias_rejected_log_sha256": "8fcc602700c283cd0cd7368b5c1fef6b6324fa124415b5f6e1f4d8e5d5fb4765",
+    "baseline_rejected_log_sha256": "8fcc602700c283cd0cd7368b5c1fef6b6324fa124415b5f6e1f4d8e5d5fb4765",
+    "command_spec_sha256": "1ef9dc486969912280086a0f669e50ef156d8a7a80430beae96a59252e47b04e",
+    "prior_byte_audit_manifest_sha256": "4f50dff747b2bccaad77d6e62a5f29f94656cadec00af367f6e90409aa22de55",
+    "prior_byte_audit_report_sha256": "7b501044ae0788a16c4b47788868908a8aa5ee3c16ba83059a5a279c480a734c",
+    "receipt_sha256": "88b81b5ad524a6998f65591d8b93a2c69515316701a9bfff841c43b4e6b4b32b",
+    "source_frozen_sha256": "d5bf1eb738d25e29cba80f3c9c936963b0d1e8b533652384f60705008b946b82",
+    "source_line_map": "Source lines are one-based from the exact frozen source file.",
+    "source_tool_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001/matter/tools/cardboard_full_contact_armijo_check.mm",
+    "source_tool_sha256": "d96f4d6717ac40f47e71150666382ed5557c9c1e83b23b32a1c94877dbdb8db6"
+  },
+  "interpretation": "The third transaction is intended to inject a postCommit motion-type fault. The raw Armijo trace instead shows Newton iteration 18 exhausting its line search with status 10/failing index 18 (trial_outcome no_trial_accepted_status_clear); iteration 19 and later are blocked by that pretrial solver status. The transaction rolls back correctly for this actual earlier solver failure. Because this failure masks the intended postCommit fault, these snapshots do not qualify the postCommit-specific negative control. The previous byte audit remains valid for baseline/alias byte parity, accepted steps 1\u20132, and rollback; its postCommit-fault coverage must be treated as inconclusive.",
+  "raw_trace_adjudication": {
+    "accepted_cursor_before_after": [
+      2,
+      2
+    ],
+    "accepted_state_vector_hashes_equal": true,
+    "baseline_and_alias_trace_byte_identical": true,
+    "first_nonzero_pretrial_status": {
+      "base_health": "healthy_at_armijo_entry",
+      "base_l2": 1.50609182e-07,
+      "failing_index": 18,
+      "fgmres_iterations": 256,
+      "line_search_raw": [
+        0,
+        0.989577293,
+        0,
+        18
+      ],
+      "newton_iteration": 18,
+      "solver_status_code": 10,
+      "trial_outcome": "no_trial_accepted_status_clear"
+    },
+    "iteration_19_and_later_outcome": "blocked_by_pretrial_solver_status",
+    "records_per_phase": 32,
+    "rollback_confirmed_for_actual_failure": true,
+    "transaction_after_status_code": [
+      10
+    ]
+  },
+  "schema": "numi.cardboard.native525-postcommit-negative-control-addendum.v1",
+  "scope": "Source and raw trace audit only; no source changes or native replay.",
+  "source_anchors": {
+    "negative_control_assertion": "3586-3595: checks an Armijo trace exists, then only asserts non-success/status certificate clearing; it does not assert the postCommit-specific failure code",
+    "post_commit_fault_mutation": "1902-1907: rejectPostCommit changes postEndpoint motion type and binds postBuffer",
+    "post_commit_uses_modified_endpoint": "1969-1972: binds postBuffer and encodes postCommit",
+    "pre_dynamics_then_post_commit": "1961-1965: encode preDynamics before switching request phase to postCommit",
+    "pre_dynamics_uses_original_endpoint": "1937: request.rigid.currentBodies = endpointBuffer",
+    "step_signature": "1864-1869: step(controlStep, rejectPostCommit, ...)",
+    "third_negative_control_call": "3574-3575: run->step(3, true, false) for the ordinary fixture"
+  }
+}

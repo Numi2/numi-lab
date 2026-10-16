@@ -1,0 +1,16 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 1209,
+      "sha256": "5f685ae1cfffad1455a6ab570b27a650594a2ecc731355d2f2432078ea222073"
+    },
+    "report.json": {
+      "bytes": 6110,
+      "sha256": "ddc59b2023b32b05629a07ecaae9bb5d989d9d260c86613e3c1ec1b4293f492b"
+    }
+  },
+  "integrity_pass": true,
+  "schema": "numi.cardboard.source190-independent-review-manifest.v1",
+  "source190_frozen_sha256": "1189d65c3d7f29d326155eee687979c8dd5fc1c79360a333bd569a08ad30dde7",
+  "source190_package_manifest_sha256": "3f3c5e803e5da056372390e3779be2d1d43d3fd62932a1bb195f738392e0e375"
+}

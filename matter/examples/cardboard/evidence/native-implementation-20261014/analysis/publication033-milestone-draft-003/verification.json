@@ -1,0 +1,9 @@
+{
+  "checkout_or_source_edited_by_this_task": false,
+  "direct_reference_checks": [],
+  "gpu_dispatched": false,
+  "native521_touched": false,
+  "schema": "numi.cardboard.publication033.draft-verification.v1",
+  "source_delta_and_frozen_manifest_match": true,
+  "source_delta_files_checked": 12
+}

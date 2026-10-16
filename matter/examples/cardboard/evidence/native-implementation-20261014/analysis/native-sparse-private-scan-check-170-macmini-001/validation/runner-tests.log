@@ -1,0 +1,9 @@
+test_guard_constants_are_exact (__main__.GuardTests.test_guard_constants_are_exact) ... ok
+test_lock_is_not_silently_ignored (__main__.GuardTests.test_lock_is_not_silently_ignored) ... ok
+test_reserve_allocator_checks_actual_write (__main__.GuardTests.test_reserve_allocator_checks_actual_write) ... ok
+test_worker_names (__main__.GuardTests.test_worker_names) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.001s
+
+OK

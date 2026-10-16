@@ -1,0 +1,208 @@
+{
+  "implementation_evidence": {
+    "damped_cgls_source190_validation": {
+      "path": "analysis/native-damped-cgls-overlay-190-001/validation-report.json",
+      "sha256": "5b5dd974c6674549a9149df18bca213d1368004c6c81181a051bc7ab063f849b"
+    },
+    "damped_selector": {
+      "path": "analysis/source197-damped-control-selector-001/preflight.json",
+      "receipt_sha256": "401c2681e5a299546a94711d94e77a1a049e1adbd3cc51db852ace372664d5aa",
+      "sha256": "a2c67cd8f767db3b088f6930b9e9a122e1e93f6da75a9ebda3608b5ca912b282"
+    },
+    "fem_only_feasibility_policy": {
+      "overlay_sha256": "031e5ca85d6441971fa0bc4590ffb9afd619363a1cd687ef8986c9f1c58db93e",
+      "path": "analysis/source191-fem-feasibility-only-overlay-002"
+    },
+    "memory_incidence_sort": {
+      "manifest_sha256": "a874d979b901ba421722bc3aebc19508e29571036ad8768497a14b21a9b312ff",
+      "path": "analysis/source196-incidence-sort-memory-overlay-001/report.json",
+      "sha256": "2999e28bc98bb7eddfba3728ba3fac7df87d5d3e23bded8ea923ecc0334522e7"
+    },
+    "memory_single_arena": {
+      "path": "analysis/source192-memory-single-private-arena-001/receipt.json",
+      "sha256": "0485f69c037a4ed383eef6f562a655a3d0cc6a3da107604a36b2bd6ec9411af6"
+    }
+  },
+  "limitations": {
+    "all_six_axes_complete": false,
+    "complete_coupon": false,
+    "full_coupon_qualified": false,
+    "native521_included": false,
+    "physical_validation": false,
+    "shipping_assembly_qualified": false
+  },
+  "native_cases": [
+    {
+      "case": "518",
+      "path": "native/damped-cgls-kernel-replay-518",
+      "result": "O0/O3 setup failed before dispatch: missing nm_fgmres_base_cgls_initialize_state",
+      "stderr_sha256": "9ea059b0b75143abb30f4da0bd1c5d054e64cba0ed0c4cb265cb20e40c572935"
+    },
+    {
+      "case": "519",
+      "path": "native/damped-cgls-kernel-replay-519",
+      "result": "O0/O3 private helper pass; same stdout; zero physical transactions",
+      "stdout_sha256": "659c30e9ee9c8629fa1ef59f69c304d6980ac10f91788da4a9dc1f18513ddf5f"
+    },
+    {
+      "case": "520",
+      "command_spec": "analysis/native520-integrated-contact-rejection-command-001/command-spec.json",
+      "command_spec_sha256": "06f1df849c79ab7622c1e2fe199382ebbc6fa74df60c80273a00f03e6ab68",
+      "path": "native/integrated195-contact-rejection-520",
+      "result": "loaded contact fails status10 at Newton9; rollback"
+    },
+    {
+      "case": "521",
+      "excluded": true,
+      "reason": "Active case explicitly excluded; no outcome included."
+    },
+    {
+      "case": "522",
+      "parity_report": "analysis/native520522-diagnostic-parity-001/report.json",
+      "path": "native/integrated195-contact-observers-off-522",
+      "result": "observer-on 520 and observer-off 522 transaction artifacts byte-identical",
+      "sha256": "11b76553321c3fa30784c936f969b1ecb43a4cbc700353f9a036a64ad527d450"
+    },
+    {
+      "case": "523",
+      "path": "native/damped-cgls-kernel-replay-523",
+      "result": "O0/O3 helper checks pass; undamped expected breakdown; damped paths reach 32/64 caps, not convergence",
+      "stdout_sha256": "27e65269af7f3c16345468b3734b070081693f48c6bd1e0a5313c18529012baf"
+    },
+    {
+      "case": "524",
+      "path": "native/integrated195-warm-start-contract-524",
+      "receipt_sha256": "396d690c61cf38fe1c04b123096041eafefb8c8938c91f419509629474cb30e6",
+      "result": "264 private warm-start kernel checks pass, zero physical transactions"
+    },
+    {
+      "case": "525",
+      "command_spec_sha256": "1ef9dc486969912280086a0f669e50ef156d8a7a80430beae96a59252e47b04e",
+      "path": "native/integrated195-contact-restart16-525",
+      "postcommit_addendum_sha256": "f9ef5e196da6281b4b7c85d81f2564a1ec1cc0ba8d224523f84ecfd828c0065f",
+      "receipt_sha256": "88b81b5ad524a6998f65591d8b93a2c69515316701a9bfff841c43b4e6b4b32b",
+      "result": "two controls accepted; third fails at Newton18/status10 before injected postCommit fault; rollback"
+    },
+    {
+      "case": "526",
+      "command_spec_sha256": "02dd3e65cc83ee9ef2e9c319a074455c281599a7a147a631171da8d2b36f8149",
+      "outputs_byte_identical_between_arms": true,
+      "path": "native/integrated198-contact-regional-526",
+      "receipt_sha256": "6d6bbc7fb6d18b22a4d77ada73ff73ddb8c2af1797c93522e4d15ab3b91369c2",
+      "result": "two controls accepted; third reaches expected injected postCommit status1 after residual 9.63568425e-8 and rolls back; arms byte-identical",
+      "stdout_sha256": "8da911409ad24dc563cf403727fafe9396be2f18e1430dd062add5fb65dacd4f"
+    },
+    {
+      "case": "527",
+      "command_spec_sha256": "5cbdf965e6b546878e9415a3ac112ad009c4b8b4ca1373bf7e0bae70590b3566",
+      "filewise_equal_to_525": true,
+      "path": "native/integrated198-contact-restart16-527",
+      "receipt_sha256": "2622ff96b49a759e80d6d0b14384804ec25cde5ca41ce6c6d3219178ab7e0efb",
+      "result": "all 13 output files per arm equal 525; same Newton18/status10 failure masks injected postCommit fault",
+      "stdout_sha256": "34e040e6dd338e7140928b99300b30d0739553eff3546d99d904f6196060107a"
+    }
+  ],
+  "proposed_archive_cases": [
+    "source198-build-and-cpu-validation",
+    "damped-cgls-helper-history-518-519-523",
+    "shipping-memory-and-selector-guards",
+    "contact-observer-and-baseline-failure-520-522",
+    "warm-start-kernel-contract-524",
+    "scalar-contact-budget-and-masked-fault-525",
+    "regional-contact-feasibility-526",
+    "source198-scalar-repeat-527"
+  ],
+  "publication_base": {
+    "checkout": "/Users/n/cardboard-implementation-20261014-host-macmini/checkout-publication032",
+    "head": "877cd6e69657c9a7b4e5032bcd475705bcc06c85",
+    "ledger": "checkout-publication032/matter/examples/cardboard/implementation-20261014.md",
+    "ledger_sha256": "cc7ea2733c346717f7efb9f0dd76ddf1b56b55086fa7ddf26c7e2f4c16f7d724",
+    "solver_ledger": "checkout-publication032/matter/tools/cardboard_solver_implementation_milestone.md",
+    "solver_ledger_sha256": "34c39c7cec51b34537a99c02659d869fe5039645de8f0260d1bc41e55bd945f6"
+  },
+  "publication_checkout_delta": {
+    "files": [
+      [
+        "matter/src/runtime.mm",
+        "cb711f469ed3d97400b1ac449ea386667d2973e45409a7e292e083b59e287f68"
+      ],
+      [
+        "matter/src/metal/base_cgls.metalinc",
+        "54fc273e8e8e12a9472f2fe2defec45709c7f36d24b6886b862e477aa54260a2"
+      ],
+      [
+        "matter/src/metal/contact.metalinc",
+        "1f6f91a70c3c738f50c4d4fc86e429a2fc841028a81094700355b5e5d33ee538"
+      ],
+      [
+        "matter/src/metal/fem.metalinc",
+        "bbd6abd764f723e6f0b266b80a3c99e100384e68e5ca5ae7cdd29cad36fb6a43"
+      ],
+      [
+        "matter/tools/cardboard_coupon_resume_check.cpp",
+        "c9bf6f0a71b4a4302b4d77f9bfe30fbf6f508a22d70258bd6ca6df1876739ece"
+      ],
+      [
+        "matter/tools/cardboard_probe.mm",
+        "c3e14bc267883e53fa67797a9661796e8e221202e6d5c3c4ac846f6862163385"
+      ],
+      [
+        "matter/tools/cardboard_shipping_memory.hpp",
+        "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+      ],
+      [
+        "matter/tools/cardboard_shipping_memory_check.cpp",
+        "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+      ],
+      [
+        "matter/tools/cardboard_solver_environment.py",
+        "e3ef5898174dc2081542d952f0c94ea3f0798510508e2a5672e42d877148d0f7"
+      ],
+      [
+        "matter/tools/test_cardboard_solver_environment.py",
+        "b709c0e80249af0f162a16b99436a52ed8e3ee64e1bdf39202eedc6510e0cbc0"
+      ],
+      [
+        "matter/include/numi/matter/deformable_contact_trial_policy.h",
+        "f1dafb01e5c1df7891d1e0cc5d8833b19f10ea5912ff21562e2122c8b2933fbd"
+      ],
+      [
+        "matter/tools/verify_damped_cgls_oracle.py",
+        "b6cfdec19318f42a46c0691e0a084698e296de65628a340f401e49bce3080264"
+      ]
+    ],
+    "note": "Parent reports checkout was clean at HEAD before these 12 source198 files were intentionally copied. Their current bytes were independently matched to frozen-source.json; this task changed none."
+  },
+  "qualification_axes": {
+    "analogue_validation": "open",
+    "component_calibration": "open",
+    "crush_impact_prediction": "open",
+    "numerical_convergence": "open",
+    "physical_assembly_in_simulation": "open",
+    "solver_correctness": "open"
+  },
+  "schema": "numi.cardboard.publication033.draft-evidence-index.v1",
+  "source198": {
+    "base_snapshot": "snapshots/source-shared-contact-trial-189-buildfix003",
+    "cpu_ctest_receipt_sha256": "40fc8b5d1f02e01265b6f1dc413d8f57f080d2d31b0e61175e6ee4b036013e38",
+    "cpu_ctest_stdout_sha256": "24a4bdf335384747e4723fc673eb04182b8e643bb486d6934a02da2f6bbbe0b1",
+    "cpu_validation": "analysis/source198-cpu-validation-001",
+    "damped_oracle_receipt_sha256": "4fad561e50213823c93af0f5ac97e0cf1850a7280e97e4392dd8a9f2997d545b",
+    "damped_oracle_stdout_sha256": "a1888d70485750c41b8e490181e21f375c780569371b06a43db062e40ee88378",
+    "environment_receipt_sha256": "e702bec103e4730f92e36ac0c2b48f8ef5d0d8b7efc6f484097a395cc13fc0112",
+    "finished_sha256": "f26c95bde644c5683bdede6d85ad33e6ce080185c778d8a63b9156b8876d91fb",
+    "frozen_source_sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc",
+    "full_contact_executable_sha256": "c067e5ea69b5fb748a878be24151f2f27b2de7b73701dd20df61a57a37e0bda6",
+    "integrated_build_receipt": "analysis/source198-integrated-build-001/receipt.json",
+    "integrated_build_receipt_sha256": "dd84f580f0d3bc04b818708b5e3d52fa3fd20ecf2f6f91b11f20e04c673c89df",
+    "material_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "numi_matter_metallib_sha256": "edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f",
+    "parent_revision": "a5ccffa52ffe368b49c877094a5081b7ee246ebf",
+    "publication_checkout_paths_matching_source198": 12,
+    "snapshot": "snapshots/source-contact-damped-memory-198-001",
+    "source_build": "build-source198-001/source-build.json",
+    "source_build_sha256": "8f6c95304c23b6c7149ec6b270d54eafdf4507ea26f3420e39e523c09dd500ad",
+    "source_file_count": 816,
+    "support_file_count": 1034
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "id": "native525-independent-byte-audit-001",
+  "inputs": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native525-contact-restart16-command-001/command-spec.json": "1ef9dc486969912280086a0f669e50ef156d8a7a80430beae96a59252e47b04e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native525-contact-restart16-command-001/execution-525/receipt.json": "88b81b5ad524a6998f65591d8b93a2c69515316701a9bfff841c43b4e6b4b32b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native525-contact-restart16-command-001/execution-525/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native525-contact-restart16-command-001/execution-525/stdout.log": "34e040e6dd338e7140928b99300b30d0739553eff3546d99d904f6196060107a",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source195-001/CMakeCache.txt": "6e67a71b8b73c6daca36cbc21ac82bf3d3e7fa62c9edf49fcd0bf40af8d07ecf",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source195-001/compile_commands.json": "ef9724dfb2621fd02989ef60468761c9324d6caa7e8f712d4f866f863c0e0be5",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source195-001/numi-matter-cardboard-full-contact-armijo-check": "9062ef04dd22c93d36a56226a997527074761e3c751184f33c83b337ab626972",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source195-001/shaders/NumiMatter.metallib": "edd02f04b12713e735a8a7d364b696893f74f5693e2a7fef3566bbe8da11c21f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source195-001/source-build.json": "e48aa63fd7d234344942149caf1d2aad4fc7ca4efb4f80322f1c539f4c0eb445",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001/frozen-source.json": "d5bf1eb738d25e29cba80f3c9c936963b0d1e8b533652384f60705008b946b82",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-cgls-memory-195-001/matter/materials/nagasawa2013_medium_orthotropic.nmatter": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348"
+  },
+  "outputs": {
+    "README.md": "99d2ad0aefee6e4741d437a68c9b62b84c42a8181be094471129c39d2336fedf",
+    "audit_snapshots.py": "a3fb3e51cc488efd4d069620801ac970a6c8a7b9762edb994fe4723594edff5e",
+    "report.json": "7b501044ae0788a16c4b47788868908a8aa5ee3c16ba83059a5a279c480a734c"
+  },
+  "result": {
+    "accepted_controls": 2,
+    "assertions": 5976,
+    "baseline_alias_pairs_identical": 13,
+    "native_transactions": 6,
+    "receipt_entries_verified": 26,
+    "rejected_and_rolled_back": 1
+  },
+  "schema": "numi.cardboard.audit-package.v1"
+}

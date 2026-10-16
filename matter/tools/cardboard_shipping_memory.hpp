@@ -85,6 +85,9 @@ struct ShippingMemoryBudgetInput {
     std::uint64_t contactPairCount = 0u;
     std::uint64_t activeContactCapacity = 0u;
     std::uint64_t deformableContactCapacity = 0u;
+    // Runtime allocates the padded six-corners-per-candidate key/payload sort
+    // buffers only when NM_CONTACT_NODE_INCIDENCE_SORT=1 is selected.
+    bool deformableNodeIncidenceSortEnabled = false;
     std::uint64_t gridNodeCount = 0u;
     // When the immutable FEM surface map is enabled, `surfaceFaceCount` is
     // the compiled exterior-face count. Zero is valid only for an empty FEM
@@ -145,6 +148,7 @@ struct ShippingMemoryBudget {
     std::uint64_t persistentContactSlotBytes = 0u;
     std::uint64_t persistentContactAuxiliaryBytes = 0u;
     std::uint64_t persistentContactBytes = 0u;
+    std::uint64_t deformableNodeIncidenceSortBytes = 0u;
     std::uint64_t rigidContactRuntimeBytes = 0u;
     std::uint64_t measuredBaseAndContactEnvelopeBytes = 0u;
     std::uint64_t cohesiveRuntimeBytes = 0u;
@@ -259,12 +263,87 @@ inline std::uint64_t shippingMemoryCheckedMultiply3(
         shippingMemoryCheckedMultiply(first, second), third);
 }
 
+inline std::uint64_t shippingDeformableNodeIncidenceSortWorkspaceBytes(
+    const std::uint64_t contactCapacity,
+    const std::uint64_t totalNodeCount,
+    const std::uint64_t environmentCount) {
+    if (contactCapacity == 0u || totalNodeCount == 0u ||
+        environmentCount == 0u)
+        throw std::invalid_argument(
+            "sorted deformable incidence requires nonzero contact, node, and environment counts");
+    if (contactCapacity > std::numeric_limits<std::uint32_t>::max() ||
+        environmentCount > std::numeric_limits<std::uint32_t>::max() ||
+        totalNodeCount >
+            std::numeric_limits<std::uint32_t>::max() / environmentCount ||
+        contactCapacity >
+            (std::numeric_limits<std::uint32_t>::max() - 5ull) / 8ull)
+        throw std::overflow_error(
+            "sorted deformable incidence exceeds uint32 payload identities");
+    const std::uint64_t logicalCorners =
+        shippingMemoryCheckedMultiply(contactCapacity, 6u);
+    if (logicalCorners > std::numeric_limits<std::uint32_t>::max() ||
+        logicalCorners > (std::uint64_t{1u} << 31u))
+        throw std::overflow_error(
+            "sorted deformable corner record count exceeds the checked bitonic sort domain");
+    const std::uint64_t paddedCorners = std::bit_ceil(logicalCorners);
+    if (paddedCorners == 0u ||
+        paddedCorners > std::numeric_limits<std::uint32_t>::max() ||
+        paddedCorners >
+            std::numeric_limits<std::uint32_t>::max() / environmentCount)
+        throw std::overflow_error(
+            "sorted deformable corner workspace exceeds the uint32 Metal dispatch domain");
+    const std::uint64_t totalCorners =
+        shippingMemoryCheckedMultiply(paddedCorners, environmentCount);
+    if (totalCorners >
+            std::numeric_limits<std::size_t>::max() / sizeof(std::uint64_t) ||
+        totalCorners >
+            std::numeric_limits<std::size_t>::max() / sizeof(std::uint32_t))
+        throw std::overflow_error(
+            "sorted deformable corner workspace exceeds host allocation sizing");
+    return shippingMemoryCheckedMultiply(
+        totalCorners, sizeof(std::uint64_t) + sizeof(std::uint32_t));
+}
+
 struct ShippingSparsePrivateContactOptions {
     bool requested = false;
     bool parity = false;
     std::uint32_t capacity = 0u;
     const char* error = nullptr;
 };
+
+struct ShippingDeformableNodeIncidenceSortOptions {
+    bool requested = false;
+    bool enabled = false;
+    const char* error = nullptr;
+};
+
+inline ShippingDeformableNodeIncidenceSortOptions
+parseShippingDeformableNodeIncidenceSort(const char* selectorText) noexcept {
+    ShippingDeformableNodeIncidenceSortOptions result;
+    result.requested = selectorText != nullptr;
+    if (!result.requested) return result;
+    if (std::strcmp(selectorText, "1") != 0) {
+        result.error =
+            "NM_CONTACT_NODE_INCIDENCE_SORT must be exactly 1 when set";
+        return result;
+    }
+    result.enabled = true;
+    return result;
+}
+
+template<class Options>
+inline void configureShippingDeformableNodeIncidenceSort(
+    Options& options, const char* selectorText) {
+    options.deformableNodeIncidenceSortEnabled = false;
+    const auto parsed =
+        parseShippingDeformableNodeIncidenceSort(selectorText);
+    if (parsed.error != nullptr) {
+        if (options.runtimeConfigurationFailure.empty())
+            options.runtimeConfigurationFailure = parsed.error;
+        return;
+    }
+    options.deformableNodeIncidenceSortEnabled = parsed.enabled;
+}
 
 struct ShippingFullContactSelectorOptions {
     bool requested = false;
@@ -701,10 +780,21 @@ inline ShippingMemoryBudget estimateShippingMemoryBudget(
             static_cast<long double>(referenceFloor)));
 
     const std::uint64_t environments = input.environmentCount;
-    const std::uint64_t persistentContact = shippingPersistentContactBytes(
+    const std::uint64_t persistentContactBase = shippingPersistentContactBytes(
         input.nodeCount, input.tetrahedronCount, input.gridNodeCount,
         input.deformableContactCapacity, environments, &result,
         input.compactImmutableSurfaceMap, input.surfaceFaceCount);
+    result.deformableNodeIncidenceSortBytes =
+        input.deformableNodeIncidenceSortEnabled
+            ? shippingDeformableNodeIncidenceSortWorkspaceBytes(
+                  input.deformableContactCapacity,
+                  shippingMemoryCheckedAdd(
+                      input.nodeCount, input.gridNodeCount),
+                  environments)
+            : 0u;
+    result.persistentContactBytes = shippingMemoryCheckedAdd(
+        persistentContactBase, result.deformableNodeIncidenceSortBytes);
+    const std::uint64_t persistentContact = result.persistentContactBytes;
     result.rigidContactRuntimeBytes = shippingRigidContactRuntimeBytes(input);
     // Case032 predates the separate final-candidate constrained-node contact
     // force channel. Account for its exact new private allocation separately
@@ -973,7 +1063,9 @@ inline ShippingMemoryBudget estimateShippingMemoryBudget(
     result.estimatedMetalPeakBytes = result.measuredBaseAndContactEnvelopeBytes;
     for (const std::uint64_t category : {
              result.cohesiveRuntimeBytes, result.regionalGalerkinBytes,
-             result.rigidContactArmijoBytes,
+             // Selected and required rigid trials refer to one private arena.
+             // Count it once whether the selector is already enabled or the
+             // protocol only requires that it will be enabled.
              std::max(result.fullContactArmijoBytes,
                       result.requiredFullContactArmijoBytes),
              std::max(result.rigidContactArmijoBytes,
@@ -1149,6 +1241,7 @@ struct ShippingPrebuildArenaOptions {
     // tetrahedron. A positive value is an explicit allocation cap only; the
     // runtime retains overflow rejection/rollback semantics.
     std::uint64_t deformableContactCapacity = 0u;
+    bool deformableNodeIncidenceSortEnabled = false;
     std::uint64_t cohesiveFaceUpperBound = 0u;
     std::uint64_t rigidProxyCount = 0u;
     std::uint64_t rigidBodyCount = 0u;
@@ -1244,6 +1337,8 @@ inline ShippingMemoryBudget estimateShippingPrebuildMemoryBudget(
     input.deformableContactCapacity = options.deformableContactCapacity == 0u
         ? shippingMemoryCheckedMultiply(input.tetrahedronCount, 8u)
         : options.deformableContactCapacity;
+    input.deformableNodeIncidenceSortEnabled =
+        options.deformableNodeIncidenceSortEnabled;
     input.rigidGeneralizedCapacity = options.rigidGeneralizedCapacity;
     input.materialStateStride = 32u;
     input.compactPreconditionerRegionCount = 3u;

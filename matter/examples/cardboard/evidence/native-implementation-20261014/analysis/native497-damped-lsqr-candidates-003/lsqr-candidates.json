@@ -1,0 +1,73 @@
+{
+  "A_sha256": "21fbc8e662273fc82dc52ff2ec0a0a4efd7d2e7cfec14584770f66f1f30d2e5c",
+  "base_rhs_sha256": "dc5ce5c84ae95c76cdd3614d89f0d2473955d61e34a422ca21850ef486d36653",
+  "candidates": [
+    {
+      "delta_file": "lsqr_lambda_0_delta.npy",
+      "delta_norm_m_s": 0.00018572394768480563,
+      "delta_sha256": "a6a14d1665b3b38e581a6eaae52abe979efcb4c06bf39416ac9fa8c291065993",
+      "direction_cosine_with_cgls_delta": 0.13435720531598422,
+      "iterations": 5000,
+      "lambda": 0.0,
+      "lsqr_r1norm": 8.316921519307389e-09,
+      "relative_to_center": 0.0004413044840734876,
+      "residual_l2": 8.316921519307516e-09,
+      "status": 7,
+      "total_file": "lsqr_lambda_0_total.npy",
+      "total_norm_m_s": 4.836313555473368,
+      "total_sha256": "a23005e83d7073b4ed2e83b548312d0322a8151bcc932188772d226908fb064b"
+    },
+    {
+      "delta_file": "lsqr_lambda_1e-05_delta.npy",
+      "delta_norm_m_s": 0.00018139306796914555,
+      "delta_sha256": "df293e4ed0596ac9333eb0d97a6cdf401508e2c8e73d8e0b6cbaf6210bb96ee1",
+      "direction_cosine_with_cgls_delta": 0.13761176183793236,
+      "iterations": 5000,
+      "lambda": 1e-05,
+      "lsqr_r1norm": 8.377186167821309e-09,
+      "relative_to_center": 0.0004415542836905375,
+      "residual_l2": 8.321629297917377e-09,
+      "status": 7,
+      "total_file": "lsqr_lambda_1e-05_total.npy",
+      "total_norm_m_s": 4.8363136339049575,
+      "total_sha256": "37d572b6a46e34802696bc8be7fdd04d824214df71ad4d143c443a76c7d33df4"
+    },
+    {
+      "delta_file": "lsqr_lambda_0.0001_delta.npy",
+      "delta_norm_m_s": 8.075952847517363e-05,
+      "delta_sha256": "242998c4663f6a2daf15309c5e370c5ef9fd899103c60255597b61888a2377ec",
+      "direction_cosine_with_cgls_delta": 0.298415311979714,
+      "iterations": 5000,
+      "lambda": 0.0001,
+      "lsqr_r1norm": 1.1481842919332e-08,
+      "relative_to_center": 0.0006088289961822202,
+      "residual_l2": 1.1474125377532068e-08,
+      "status": 7,
+      "total_file": "lsqr_lambda_0.0001_total.npy",
+      "total_norm_m_s": 4.836315453164365,
+      "total_sha256": "d8f57cb3018dc2023965d55dcd934b77e4c0a7b22dc0b57612d3956d3338a795"
+    },
+    {
+      "delta_file": "lsqr_lambda_0.001_delta.npy",
+      "delta_norm_m_s": 1.792401541734773e-05,
+      "delta_sha256": "7ba673da2d9bd6c2498eeebb8c6ac940875c7eeee413f0ba1c6cbb87f9fc983e",
+      "direction_cosine_with_cgls_delta": 0.40084315284518907,
+      "iterations": 798,
+      "lambda": 0.001,
+      "lsqr_r1norm": 2.4367758217733302e-08,
+      "relative_to_center": 0.0012929698777667715,
+      "residual_l2": 2.4367595137383996e-08,
+      "status": 2,
+      "total_file": "lsqr_lambda_0.001_total.npy",
+      "total_norm_m_s": 4.836315968246868,
+      "total_sha256": "3a6c5cdd6babde6527759765c336edda4037747115040f4ce8871dc2f134a92c"
+    }
+  ],
+  "center_correction_sha256": "79722240e27c2b314b7d1bc3467cc7b10f8cf2db83753f8c449cff3cd8ed0da3",
+  "limits": [
+    "Candidates solve regularized corrections p for A p approximately b-A x0; total candidate is x0+p.",
+    "A is the same captured FP32 tangent cache reconstructed in binary64.",
+    "LSQR status/iteration limit is retained; nonlinear physical-reference results are not included."
+  ],
+  "schema": "numi.cardboard.native497.damped_lsqr_candidates.v1"
+}

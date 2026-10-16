@@ -1,0 +1,373 @@
+{
+  "file_count": 60,
+  "files": [
+    {
+      "bytes": 3152,
+      "executable": false,
+      "path": "README.md",
+      "sha256": "fefe3129acdf69f06aa2ce6661200aef1cf94eb021c5ae4868cb2bd421833ca6"
+    },
+    {
+      "bytes": 515240,
+      "executable": false,
+      "path": "build/cardboard_source469_material_replay_check.mm.o",
+      "sha256": "dce7df1d06053d788ceca9e59a96d1d6c931333aa3d3dbf47a455b235d3f7e3f"
+    },
+    {
+      "bytes": 24146,
+      "executable": false,
+      "path": "candidate/matter/tools/cardboard_bilinear15_capture_diagnostic.metal",
+      "sha256": "23f6f758cda7ccc0e0651e45a298644e6b71a3c25cd5ef2f7c9cbe4ceca40628"
+    },
+    {
+      "bytes": 73589,
+      "executable": false,
+      "path": "candidate/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm",
+      "sha256": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81"
+    },
+    {
+      "bytes": 68608,
+      "executable": false,
+      "path": "candidate/matter/tools/cardboard_source469_material_replay_check.mm",
+      "sha256": "69dc60e47321ccca5ab09e5133d9f08620aca13a0bf15395e349e411329a0475"
+    },
+    {
+      "bytes": 68603,
+      "executable": false,
+      "path": "candidate/matter/tools/cardboard_source469_material_replay_check_source174_exact.mm",
+      "sha256": "f4c81f0217e1a528b982cba1293a7868e7d5c3f43bce97d586a1675494350f7c"
+    },
+    {
+      "bytes": 8412,
+      "executable": false,
+      "path": "candidate/matter/tools/export_native469_reference_rows.py",
+      "sha256": "2f69050f6c18477a7ae09c78bda8a79ae057f4c327f89ee66ed3adadcd145a78"
+    },
+    {
+      "bytes": 68608,
+      "executable": false,
+      "path": "cardboard_source469_material_replay_check.mm",
+      "sha256": "69dc60e47321ccca5ab09e5133d9f08620aca13a0bf15395e349e411329a0475"
+    },
+    {
+      "bytes": 38798350,
+      "executable": false,
+      "path": "inputs/capture/final-newton",
+      "sha256": "cf42bdb145317b24a044e8e7561a99dc987df44761b841a08d7f3b28e6cd96d2"
+    },
+    {
+      "bytes": 5159472,
+      "executable": false,
+      "path": "inputs/mp/mixed_reference_arrays.npz",
+      "sha256": "107e942cc2e131eed8f8db7759f8deb3e86fcdc42d8da249996daf51d6ed11ad"
+    },
+    {
+      "bytes": 29839,
+      "executable": false,
+      "path": "inputs/mp/package-manifest.json",
+      "sha256": "f176666da43b50a441c038cbd88b5c9c804df32fa8ea9d46483a086ab5616c19"
+    },
+    {
+      "bytes": 244221,
+      "executable": false,
+      "path": "inputs/mp/report.json",
+      "sha256": "029c3b5efa8ee3459c5016283ddf0bf09f1204a9359722847bc77bd23ffbb960"
+    },
+    {
+      "bytes": 1984768,
+      "executable": false,
+      "path": "inputs/origin/compiled.nmatterpack",
+      "sha256": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1"
+    },
+    {
+      "bytes": 11764,
+      "executable": false,
+      "path": "inputs/origin/run-manifest.json",
+      "sha256": "142fa1f08cf14ea4eb0e77039174a2c25030e14c0d38d6c9874a06e561bd3f6f"
+    },
+    {
+      "bytes": 306,
+      "executable": false,
+      "path": "inputs/origin/run-receipt.json",
+      "sha256": "35b856b4d94bcc3acfb5e611847ecc166860a228efc81e841decec019ea7e17f"
+    },
+    {
+      "bytes": 221124,
+      "executable": false,
+      "path": "inputs/references/selected-reference-rows.jsonl",
+      "sha256": "d60d48e42f29608dfd9a0a1c04bc771fb544460966f9f9008628732a9d23dc49"
+    },
+    {
+      "bytes": 948,
+      "executable": false,
+      "path": "patch/source173-binding-rebase.patch",
+      "sha256": "6e3ef4b7d3fb89cd09cfb93bef45355ab61f1edf5b2730f008824e51cc779aa0"
+    },
+    {
+      "bytes": 204768,
+      "executable": false,
+      "path": "shaders/cardboard_bilinear15_capture_diagnostic.air",
+      "sha256": "5e6ab9c4122b2be8b272dd7aa8b1b040efb09cc2d8f7a9aeb877c065406bcf85"
+    },
+    {
+      "bytes": 938974,
+      "executable": false,
+      "path": "shaders/cardboard_bilinear15_capture_diagnostic.metallib",
+      "sha256": "3996691d7674278d3cfffd4d6444b2412948824b78a28437af2da3c322a4fecd"
+    },
+    {
+      "bytes": 4973,
+      "executable": false,
+      "path": "source-overlay.json",
+      "sha256": "24326ccd2692b8f336a9073dfd977a094d7a0b7a24d0f68062cab7994b057703"
+    },
+    {
+      "bytes": 948,
+      "executable": false,
+      "path": "source173-binding-rebase.patch",
+      "sha256": "6e3ef4b7d3fb89cd09cfb93bef45355ab61f1edf5b2730f008824e51cc779aa0"
+    },
+    {
+      "bytes": 24146,
+      "executable": false,
+      "path": "tools/cardboard_bilinear15_capture_diagnostic.metal",
+      "sha256": "23f6f758cda7ccc0e0651e45a298644e6b71a3c25cd5ef2f7c9cbe4ceca40628"
+    },
+    {
+      "bytes": 940184,
+      "executable": true,
+      "path": "tools/numi-matter-cardboard-source469-material-replay-check",
+      "sha256": "5dc0b921b41527b973b498d682f84b010b6f41f8acf4c11b1eec4a7305eef3b2"
+    },
+    {
+      "bytes": 1209,
+      "executable": false,
+      "path": "validation/build-attempt-history.json",
+      "sha256": "19d025afbc91102d128e1d040c869fa5c782dda8458b12d640611d1710c66170"
+    },
+    {
+      "bytes": 611,
+      "executable": false,
+      "path": "validation/build-script-finalization-incident.json",
+      "sha256": "120e835a5e15189687af051cbf54bf44704a1913d09ad0903c970a485f60b93c"
+    },
+    {
+      "bytes": 6872,
+      "executable": false,
+      "path": "validation/build_host174.py",
+      "sha256": "1208337f394265b39eb2b0c89aebe490d816eecf07b1b9d4f1646b5a48858538"
+    },
+    {
+      "bytes": 5684,
+      "executable": false,
+      "path": "validation/finalize_host174.py",
+      "sha256": "cf338ddac8b52e237285c4d182870b09e2c3391b8f3fc3793ab6e9d6a122d1d5"
+    },
+    {
+      "bytes": 2583,
+      "executable": false,
+      "path": "validation/guarded-cpu-admission-v2.command.json",
+      "sha256": "0ba06eaa63b3f11e07fe85135ba5882fc48900ccbc828b8b94f1d3c990ab7d26"
+    },
+    {
+      "bytes": 0,
+      "executable": false,
+      "path": "validation/guarded-cpu-admission-v2.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 571,
+      "executable": false,
+      "path": "validation/guarded-cpu-admission-v2.stdout.log",
+      "sha256": "a46b8ecae7b9726d8eb4548cb91ff7287e20aa31b8ea305177dd9e877955ebf8"
+    },
+    {
+      "bytes": 2583,
+      "executable": false,
+      "path": "validation/guarded-cpu-admission-v3.command.json",
+      "sha256": "0ba06eaa63b3f11e07fe85135ba5882fc48900ccbc828b8b94f1d3c990ab7d26"
+    },
+    {
+      "bytes": 0,
+      "executable": false,
+      "path": "validation/guarded-cpu-admission-v3.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 571,
+      "executable": false,
+      "path": "validation/guarded-cpu-admission-v3.stdout.log",
+      "sha256": "a46b8ecae7b9726d8eb4548cb91ff7287e20aa31b8ea305177dd9e877955ebf8"
+    },
+    {
+      "bytes": 2583,
+      "executable": false,
+      "path": "validation/guarded-cpu-admission.command.json",
+      "sha256": "0ba06eaa63b3f11e07fe85135ba5882fc48900ccbc828b8b94f1d3c990ab7d26"
+    },
+    {
+      "bytes": 0,
+      "executable": false,
+      "path": "validation/guarded-cpu-admission.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 571,
+      "executable": false,
+      "path": "validation/guarded-cpu-admission.stdout.log",
+      "sha256": "a46b8ecae7b9726d8eb4548cb91ff7287e20aa31b8ea305177dd9e877955ebf8"
+    },
+    {
+      "bytes": 2186,
+      "executable": false,
+      "path": "validation/host-binding-audit.json",
+      "sha256": "0c346371ded31bd8b89ceec2a0fc30895e5c06fcc42e260262693a37a856c54d"
+    },
+    {
+      "bytes": 3449,
+      "executable": false,
+      "path": "validation/host-build.json",
+      "sha256": "d74524261a1d7dcfa3b07ce4f9f281c6210a7b398780b3b9a379b2a16adc0258"
+    },
+    {
+      "bytes": 838,
+      "executable": false,
+      "path": "validation/link.command.json",
+      "sha256": "9a08079607935f3c3c29963e2808a516519b1ed055bc2e310b2e26d426c1cf32"
+    },
+    {
+      "bytes": 0,
+      "executable": false,
+      "path": "validation/link.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "executable": false,
+      "path": "validation/link.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 881,
+      "executable": false,
+      "path": "validation/metal-air-build.command.json",
+      "sha256": "d3eb70823c8b3eec2929481db5f99862fa4097213cd899e3a2bff3eaf0362d78"
+    },
+    {
+      "bytes": 0,
+      "executable": false,
+      "path": "validation/metal-air-build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "executable": false,
+      "path": "validation/metal-air-build.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 562,
+      "executable": false,
+      "path": "validation/metallib-build.command.json",
+      "sha256": "528741ae220f775b7fcd6da123b5ff2d42868e0e270b9f4fec639cb5f3ca7f03"
+    },
+    {
+      "bytes": 0,
+      "executable": false,
+      "path": "validation/metallib-build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "executable": false,
+      "path": "validation/metallib-build.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1420,
+      "executable": false,
+      "path": "validation/objcxx-build.command.json",
+      "sha256": "d99faee7b262eaf787657dec952244abcf685b63ed5f9f65d97965b4b297ca54"
+    },
+    {
+      "bytes": 0,
+      "executable": false,
+      "path": "validation/objcxx-build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "executable": false,
+      "path": "validation/objcxx-build.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 350,
+      "executable": false,
+      "path": "validation/preflight-v1-supersession.json",
+      "sha256": "896f2b2d89cf7bf9aadfdb3ea86a6d75791e7077e4b7231a9ecc518e7fca8365"
+    },
+    {
+      "bytes": 636,
+      "executable": false,
+      "path": "validation/preflight-v2-summary.json",
+      "sha256": "7aecee9438af87c16c7d99d7a4cd81090bdfdf743acef288d44c98a1be021523"
+    },
+    {
+      "bytes": 5904,
+      "executable": false,
+      "path": "validation/preflight-v3-summary.json",
+      "sha256": "afc10c7c82f03241e614f2b1784d7f92f32572df2e5db4655128f36406302a3b"
+    },
+    {
+      "bytes": 4038,
+      "executable": false,
+      "path": "validation/remote-input-hash-audit.json",
+      "sha256": "87a7284e71b47d009daac7f29112ec744ed021f9a729ee49bf83baca4004984f"
+    },
+    {
+      "bytes": 8881,
+      "executable": true,
+      "path": "validation/run_guarded_source469.py",
+      "sha256": "d13b8ae338ddd32566e6227302cfdede2475eaa8dd597d89b54ea74bf7d199b3"
+    },
+    {
+      "bytes": 9824,
+      "executable": true,
+      "path": "validation/run_guarded_source469_v2.py",
+      "sha256": "1ef67c5eaff4ee3b5890ed6f6938ba29d9c2d4847506178066ba0f79075b78c9"
+    },
+    {
+      "bytes": 10065,
+      "executable": true,
+      "path": "validation/run_guarded_source469_v3.py",
+      "sha256": "071c4a188fbf8ffb3aad0fcc649a18a1f70c55c37750ad42bbe8702b8a53d19a"
+    },
+    {
+      "bytes": 1910,
+      "executable": true,
+      "path": "validation/seal_host174_manifest.py",
+      "sha256": "76e5889b1109a4a32446d54280d527e7db48a6198d7741199124f677e24e5a0f"
+    },
+    {
+      "bytes": 2075,
+      "executable": true,
+      "path": "validation/seal_host174_manifest_v2.py",
+      "sha256": "831747900a03974908aaad7176949811c9c1d34f7069111b82465db4b2bff6df"
+    },
+    {
+      "bytes": 5064,
+      "executable": false,
+      "path": "validation/source-material-include-equivalence.json",
+      "sha256": "f4a4b7510abd3e2c8095d1b18bfe19713fbc2f64555dd49a55b12c5cc3a44d28"
+    }
+  ],
+  "manifest_self_excluded": true,
+  "native_output_exists": false,
+  "package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native469-material-replay-174-host-macmini-001",
+  "preflight_result_sha256": "afc10c7c82f03241e614f2b1784d7f92f32572df2e5db4655128f36406302a3b",
+  "schema": "numi.cardboard.native469-host-macmini-package.v1",
+  "source_overlay_sha256": "24326ccd2692b8f336a9073dfd977a094d7a0b7a24d0f68062cab7994b057703",
+  "status": "host_build_and_cpu_admission_pass_native_replay_not_executed",
+  "total_bytes": 49477064
+}

@@ -161,6 +161,7 @@ int main() {
         {"NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR", "20:0:12:1:4:0"},
         {"NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", "20"},
         {"NM_FEM_TRUE_RESIDUAL_ROOT", "19"},
+        {"NM_FEM_BASE_CGLS_DAMPING_KG", "1e-3"},
         {"NM_FEM_BASE_CGLS_ITERATIONS", "64"},
     };
     const std::vector<std::pair<std::string, std::string>> replayCurrent{
@@ -171,6 +172,7 @@ int main() {
         {"NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR", "21:0:15:1:7:1"},
         {"NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", "21"},
         {"NM_FEM_TRUE_RESIDUAL_ROOT", "19"},
+        {"NM_FEM_BASE_CGLS_DAMPING_KG", "1e-3"},
         {"NM_FEM_BASE_CGLS_ITERATIONS", "64"},
     };
     assert(couponDiagnosticReplaySettingsMatch(replaySource, replayCurrent));
@@ -193,6 +195,10 @@ int main() {
     auto changedSolverSetting = replayCurrent;
     changedSolverSetting.back().second = "128";
     assert(!couponDiagnosticReplaySettingsMatch(replaySource, changedSolverSetting));
+    auto changedDamping = replayCurrent;
+    changedDamping[7].second = "1e-4";
+    assert(changedDamping[7].first == "NM_FEM_BASE_CGLS_DAMPING_KG");
+    assert(!couponDiagnosticReplaySettingsMatch(replaySource, changedDamping));
     validateDiagnosticReplaySelectors(replayCurrent, 19u, 2u);
     mustReject([&] { validateDiagnosticReplaySelectors(replayCurrent, 21u, 2u); });
     auto wrongPathOrder = sourcePaths;

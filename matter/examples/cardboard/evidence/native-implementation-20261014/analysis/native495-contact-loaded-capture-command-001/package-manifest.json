@@ -1,0 +1,9 @@
+{
+  "files_sha256": {
+    "README.md": "ad79018a0d9f24aa8f9d3221bbf98f57a58f1e860371d564518de0c861088a87",
+    "capacity-helper.py": "8e4a395c27d0dda8f43351760da7d5b6d0c42dbad0d16680777383d94364cc03",
+    "command-spec.json": "1b40d5c8fd201ffb1494a3096963feb7e578a321d91bdf698034a1b25f34e967",
+    "runner.py": "c34364722bd9c74571dffbf61903228d120be22c851fb22a3f860fb468e4d8a9"
+  },
+  "gpu_executed": false
+}

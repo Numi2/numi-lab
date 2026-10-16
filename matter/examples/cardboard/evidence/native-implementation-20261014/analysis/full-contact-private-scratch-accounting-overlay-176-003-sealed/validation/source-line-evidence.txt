@@ -1,0 +1,429 @@
+  3504	            }
+  3505	            candidate->femRegionalGraphParallelSearch = 1u;
+  3506	        }
+  3507	        const char* sortedNodeIncidence = std::getenv(
+  3508	            "NM_CONTACT_NODE_INCIDENCE_SORT");
+  3509	        if (sortedNodeIncidence != nullptr &&
+  3510	            std::strcmp(sortedNodeIncidence, "1") != 0) {
+  3511	            diagnostics.message =
+  3512	                "NM_CONTACT_NODE_INCIDENCE_SORT must be exactly 1 when set";
+  3513	            return diagnostics;
+  3514	        }
+  3515	        candidate->deformableContactNodeIncidenceSortEnabled =
+  3516	            sortedNodeIncidence != nullptr;
+  3517	        std::uint64_t sortedCornerLogicalCount = 0u;
+  3518	        std::uint64_t sortedCornerPaddedCapacity = 0u;
+  3519	        std::uint64_t sortedCornerTotalCount = 0u;
+  3520	        if (candidate->deformableContactNodeIncidenceSortEnabled) {
+  3521	            const std::uint64_t contactCapacity =
+  3522	                world.dispatch.deformableContactCapacity;
+  3523	            const std::uint64_t environments =
+  3524	                world.dispatch.environmentCount;
+  3525	            const std::uint64_t nodeCount =
+  3526	                static_cast<std::uint64_t>(world.dispatch.gridNodeCount) +
+  3527	                world.dispatch.femNodeCount;
+  3528	            if (contactCapacity == 0u || environments == 0u ||
+  3529	                nodeCount == 0u ||
+  3530	                nodeCount > std::numeric_limits<std::uint32_t>::max() /
+  3531	                    environments ||
+  3532	                contactCapacity >
+  3533	                    (std::numeric_limits<std::uint32_t>::max() - 5ull) / 8ull) {
+  3534	                diagnostics.message =
+  3535	                    "sorted deformable incidence requires nonzero contact, node, environment counts and uint32-safe payload identities";
+  3536	                return diagnostics;
+  3537	            }
+  3538	            sortedCornerLogicalCount = 6ull * contactCapacity;
+  3539	            if (sortedCornerLogicalCount >
+  3540	                    std::numeric_limits<std::uint32_t>::max() ||
+  3541	                sortedCornerLogicalCount >
+  3542	                    (std::uint64_t{1} << 31u)) {
+  3543	                diagnostics.message =
+  3544	                    "sorted deformable corner record count exceeds the checked bitonic sort domain";
+  3545	                return diagnostics;
+  3546	            }
+  3547	            sortedCornerPaddedCapacity = std::bit_ceil(
+  3548	                sortedCornerLogicalCount);
+  3549	            if (sortedCornerPaddedCapacity == 0u ||
+  3550	                sortedCornerPaddedCapacity >
+  3551	                    std::numeric_limits<std::uint32_t>::max() ||
+  3552	                sortedCornerPaddedCapacity >
+  3553	                    std::numeric_limits<std::uint32_t>::max() / environments) {
+  3554	                diagnostics.message =
+  3555	                    "sorted deformable corner workspace exceeds the uint32 Metal dispatch domain";
+  3556	                return diagnostics;
+  3557	            }
+  3558	            sortedCornerTotalCount =
+  3559	                sortedCornerPaddedCapacity * environments;
+  3560	            if (sortedCornerTotalCount >
+  3561	                    std::numeric_limits<std::size_t>::max() /
+  3562	                        sizeof(std::uint64_t) ||
+  3563	                sortedCornerTotalCount >
+  3564	                    std::numeric_limits<std::size_t>::max() /
+  3565	                        sizeof(std::uint32_t)) {
+  3566	                diagnostics.message =
+  3567	                    "sorted deformable corner workspace exceeds host allocation sizing";
+  3568	                return diagnostics;
+  3569	            }
+  3570	            candidate->deformableContactNodeCornerSortPaddedCapacity =
+  3571	                static_cast<std::uint32_t>(sortedCornerPaddedCapacity);
+  3572	        }
+  3573	        const char* forceCompletedTangentCacheRebuild = std::getenv(
+  3574	            "NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD");
+  3575	        if (forceCompletedTangentCacheRebuild != nullptr &&
+  5870	                world.dispatch.deformableContactCapacity);
+  5871	        candidate->deformableContactHistoriesAccepted = uploads.repeated(
+  5872	            std::span<const NMDeformableContactHistoryGPU>(
+  5873	                initialDeformableContactHistories),
+  5874	            environments, valid, candidate->residentBytes);
+  5875	        const std::vector<NMDeformableContactFailureGPU> initialContactFailures(1u);
+  5876	        candidate->deformableContactFailures = uploads.repeated(
+  5877	            std::span<const NMDeformableContactFailureGPU>(initialContactFailures),
+  5878	            candidate->captureDiagnostics ? environments : 1u,
+  5879	            valid, candidate->residentBytes);
+  5880	        std::string uploadError;
+  5881	        if (!valid || !uploads.finish(uploadError)) {
+  5882	            diagnostics.message = valid
+  5883	                ? "failed to upload immutable matter state: " + uploadError
+  5884	                : "matter buffer size or allocation overflow";
+  5885	            return diagnostics;
+  5886	        }
+  5887	
+  5888	        const auto multiplied = [&](const std::size_t perEnvironment) {
+  5889	            return environments * perEnvironment;
+  5890	        };
+  5891	        if (candidate->deformableContactNodeIncidenceSortEnabled) {
+  5892	            const std::uint64_t keyBytes =
+  5893	                sortedCornerTotalCount * sizeof(std::uint64_t);
+  5894	            const std::uint64_t payloadBytes =
+  5895	                sortedCornerTotalCount * sizeof(std::uint32_t);
+  5896	            if (keyBytes > candidate->device.maxBufferLength ||
+  5897	                payloadBytes > candidate->device.maxBufferLength ||
+  5898	                keyBytes > std::numeric_limits<std::size_t>::max() -
+  5899	                    payloadBytes) {
+  5900	                diagnostics.message =
+  5901	                    "sorted deformable corner workspace exceeds Metal buffer or host byte limits";
+  5902	                return diagnostics;
+  5903	            }
+  5904	        }
+  5905	        const std::uint64_t surfacePrimitiveCount =
+  5906	            continuumSurfacePrimitiveCount(world.dispatch);
+  5907	        if (surfacePrimitiveCount > std::numeric_limits<std::uint32_t>::max() ||
+  5908	            (surfacePrimitiveCount != 0u &&
+  5909	             world.dispatch.environmentCount >
+  5910	                std::numeric_limits<std::uint32_t>::max() /
+  5911	                    surfacePrimitiveCount) ||
+  5912	            surfacePrimitiveCount > std::numeric_limits<std::size_t>::max() ||
+  5913	            (surfacePrimitiveCount != 0u && environments >
+  5914	                std::numeric_limits<std::size_t>::max() /
+  5915	                    static_cast<std::size_t>(surfacePrimitiveCount))) {
+  5916	            diagnostics.message =
+  5917	                "contact surface primitive domain exceeds checked runtime indexing";
+  5918	            return diagnostics;
+  5919	        }
+  5920	        const std::size_t perEnvironmentSurfacePrimitiveCount =
+  5921	            static_cast<std::size_t>(surfacePrimitiveCount);
+  5922	        const std::size_t surfacePrimitiveTotal =
+  5923	            multiplied(perEnvironmentSurfacePrimitiveCount);
+  5924	        candidate->continuumSurfacePrimitives =
+  5925	            privateScratch<NMContinuumSurfacePrimitiveGPU>(
+  5926	                candidate->device,
+  5927	                surfacePrimitiveTotal,
+  5928	                valid,
+  5929	                candidate->residentBytes);
+  5930	        const std::uint64_t surfaceBVHLeafCount = surfacePrimitiveCount == 0u ||
+  5931	            world.dispatch.deformableContactCapacity == 0u
+  5932	            ? 0u : std::bit_ceil(surfacePrimitiveCount);
+  5933	        // Four float4 records per padded leaf, including both bounds of every
+  5934	        // implicit heap node. Prove all device element indices before upload.
+  5935	        if (surfaceBVHLeafCount > std::numeric_limits<std::uint32_t>::max() / 4ull ||
+  5936	            (surfaceBVHLeafCount != 0u && environments >
+  5937	                std::numeric_limits<std::uint32_t>::max() / (4ull * surfaceBVHLeafCount))) {
+  5938	            diagnostics.message = "surface contact hierarchy exceeds Metal element address space";
+  5939	            return diagnostics;
+  5940	        }
+  5941	        candidate->femSurfaceBVHLeafCount = static_cast<std::uint32_t>(surfaceBVHLeafCount);
+  5942	        candidate->femSurfaceBVHBounds = privateScratch<nm_float4>(
+  5943	            candidate->device, environments * 4ull * surfaceBVHLeafCount,
+  5944	            valid, candidate->residentBytes);
+  5945	        candidate->femSurfaceSortKeysA = privateScratch<std::uint32_t>(
+  5946	            candidate->device, surfacePrimitiveTotal,
+  5947	            valid, candidate->residentBytes);
+  5948	        candidate->femSurfaceSortKeysB = privateScratch<std::uint32_t>(
+  5949	            candidate->device, surfacePrimitiveTotal,
+  5950	            valid, candidate->residentBytes);
+  5951	        candidate->femSurfaceSortIndicesA = privateScratch<std::uint32_t>(
+  5952	            candidate->device, surfacePrimitiveTotal,
+  5953	            valid, candidate->residentBytes);
+  5954	        candidate->femSurfaceSortIndicesB = privateScratch<std::uint32_t>(
+  5955	            candidate->device, surfacePrimitiveTotal,
+  5956	            valid, candidate->residentBytes);
+  5957	        candidate->femSurfaceActiveCounts = privateScratch<std::uint32_t>(
+  5958	            candidate->device, environments,
+  5959	            valid, candidate->residentBytes);
+  5960	        candidate->deformableContactCandidates =
+  5961	            privateScratch<NMDeformableContactCandidateGPU>(
+  5962	                candidate->device,
+  5963	                multiplied(world.dispatch.deformableContactCapacity),
+  5964	                valid,
+  5965	                candidate->residentBytes);
+  5966	        candidate->deformableContactCandidateCounts =
+  5967	            privateScratch<std::uint32_t>(
+  5968	                candidate->device, environments,
+  5969	                valid, candidate->residentBytes);
+  5970	        candidate->deformableContacts = privateScratch<NMDeformableContactGPU>(
+  5971	            candidate->device,
+  5972	            multiplied(world.dispatch.deformableContactCapacity),
+  5973	            valid,
+  5974	            candidate->residentBytes);
+  5975	        candidate->deformableContactHistoriesCandidate =
+  5976	            privateScratch<NMDeformableContactHistoryGPU>(
+  5977	                candidate->device,
+  5978	                multiplied(world.dispatch.deformableContactCapacity),
+  5979	                valid,
+  5980	                candidate->residentBytes);
+  5981	        candidate->deformableContactHistoriesCheckpoint =
+  5982	            privateScratch<NMDeformableContactHistoryGPU>(
+  5983	                candidate->device,
+  5984	                multiplied(world.dispatch.deformableContactCapacity),
+  5985	                valid,
+  5986	                candidate->residentBytes);
+  5987	        candidate->deformableContactActiveIndices =
+  5988	            privateScratch<std::uint32_t>(
+  5989	                candidate->device,
+  5990	                multiplied(world.dispatch.deformableContactCapacity),
+  5991	                valid,
+  5992	                candidate->residentBytes);
+  5993	        candidate->deformableContactActiveCounts =
+  5994	            privateScratch<std::uint32_t>(
+  5995	                candidate->device, environments,
+  5996	                valid, candidate->residentBytes);
+  5997	        candidate->deformableContactNodeIncidence =
+  5998	            privateScratch<std::uint32_t>(
+  5999	                candidate->device,
+  6000	                6u * multiplied(world.dispatch.deformableContactCapacity),
+  6001	                valid,
+  6002	                candidate->residentBytes);
+  6003	        candidate->deformableContactNodeRanges =
+  6004	            privateScratch<NMIncidenceRangeGPU>(
+  6005	                candidate->device,
+  6006	                multiplied(world.dispatch.gridNodeCount +
+  6007	                           world.dispatch.femNodeCount),
+  6008	                valid,
+  6009	                candidate->residentBytes);
+  6010	        if (candidate->deformableContactNodeIncidenceSortEnabled) {
+  6011	            const std::uint64_t sortWorkspaceBytes =
+  6012	                sortedCornerTotalCount *
+  6013	                (sizeof(std::uint64_t) + sizeof(std::uint32_t));
+  6014	            if (sortWorkspaceBytes >
+  6015	                std::numeric_limits<std::size_t>::max() -
+  6016	                    candidate->residentBytes) {
+  6017	                diagnostics.message =
+  6018	                    "sorted deformable corner workspace overflows runtime resident-byte accounting";
+  6019	                return diagnostics;
+  6020	            }
+  6021	            candidate->deformableContactNodeCornerSortKeys =
+  6022	                privateScratch<std::uint64_t>(
+  6023	                    candidate->device,
+  6024	                    static_cast<std::size_t>(sortedCornerTotalCount),
+  6025	                    valid,
+  6026	                    candidate->residentBytes);
+  6027	            candidate->deformableContactNodeCornerSortPayloads =
+  6028	                privateScratch<std::uint32_t>(
+  6029	                    candidate->device,
+  6030	                    static_cast<std::size_t>(sortedCornerTotalCount),
+  6031	                    valid,
+  6032	                    candidate->residentBytes);
+  6033	            if (!valid ||
+  6034	                candidate->deformableContactNodeCornerSortKeys == nil ||
+  6035	                candidate->deformableContactNodeCornerSortPayloads == nil) {
+  6036	                diagnostics.message =
+  6037	                    "failed to allocate the checked sorted deformable incidence workspace";
+  6038	                return diagnostics;
+  6039	            }
+  6040	            std::fprintf(stderr,
+  6041	                "contact_node_incidence_builder={\"schema\":1,\"mode\":\"stable_corner_sort\",\"environments\":%u,\"capacity\":%u,\"logical_corners_per_environment\":%llu,\"padded_corners_per_environment\":%u,\"sort_workspace_bytes\":%llu}\n",
+  6042	                world.dispatch.environmentCount,
+  6043	                world.dispatch.deformableContactCapacity,
+  6044	                static_cast<unsigned long long>(sortedCornerLogicalCount),
+  6045	                candidate->deformableContactNodeCornerSortPaddedCapacity,
+  6046	                static_cast<unsigned long long>(
+  6047	                    sortedCornerTotalCount *
+  6048	                    (sizeof(std::uint64_t) + sizeof(std::uint32_t))));
+  6049	        }
+  6050	        candidate->deformableContactActiveOffsets =
+  6051	            privateScratch<std::uint32_t>(
+  6052	                candidate->device,
+  6053	                environments,
+  6054	                valid,
+  6055	                candidate->residentBytes);
+  6056	        candidate->deformableContactGlobalActiveIndices =
+  6057	            privateScratch<std::uint32_t>(
+  6058	                candidate->device,
+  6059	                multiplied(world.dispatch.deformableContactCapacity),
+  6060	                valid,
+  6061	                candidate->residentBytes);
+  6062	        candidate->deformableContactActiveDispatch =
+  6063	            privateScratch<NMIndirectDispatchGPU>(
+  6064	                candidate->device,
+  6065	                1u,
+  6066	                valid,
+  6067	                candidate->residentBytes);
+  6068	        candidate->mpmNodeGenerations = privateScratch<std::uint32_t>(
+  6069	            candidate->device, multiplied(world.dispatch.gridNodeCount),
+  6070	            valid, candidate->residentBytes);
+  6388	        // cohesive operator used by the Arnoldi path.
+  6389	        if (world.dispatch.environmentCount <= 4u &&
+  6390	            world.dispatch.femNodeCount <= 4096u &&
+  6391	            world.dispatch.tetrahedronCount <= 32768u &&
+  6392	            world.dispatch.cohesiveFaceCount <= 4096u) {
+  6393	            candidate->femTrueResidualCohesiveOperator =
+  6394	                privateScratch<NMCohesiveFaceVectorGPU>(candidate->device,
+  6395	                    multiplied(world.dispatch.cohesiveFaceCount),
+  6396	                    valid, candidate->residentBytes);
+  6397	            candidate->femTrueResidualElementOperator =
+  6398	                privateScratch<NMFEMElementVectorGPU>(candidate->device,
+  6399	                    multiplied(world.dispatch.tetrahedronCount),
+  6400	                    valid, candidate->residentBytes);
+  6401	            candidate->femTrueResidualOperatorValue =
+  6402	                privateScratch<nm_float4>(candidate->device,
+  6403	                    mixedUnknownTotal, valid, candidate->residentBytes);
+  6404	        }
+  6405	        candidate->femConstraintReactions = privateScratch<nm_float4>(
+  6406	            candidate->device, multiplied(world.dispatch.femNodeCount),
+  6512	            candidate->dispatch.femNodeCount >= 1u &&
+  6513	            candidate->dispatch.femNodeCount <= 4096u &&
+  6514	            candidate->dispatch.tetrahedronCount <= 32768u &&
+  6515	            candidate->fgmresLayout.unknownCount == 2u *
+  6516	                candidate->dispatch.environmentCount * candidate->dispatch.femNodeCount;
+  6517	        candidate->femBaseCGLSRightScaleScratchEnabled =
+  6518	            std::getenv("NM_FEM_BASE_CGLS_RIGHT_SCALE") != nullptr &&
+  6519	            candidate->femBaseCGLSScratchEnabled;
+  6520	        candidate->femResidualArmijoScratchEnabled =
+  6521	            std::getenv("NM_FEM_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+  6522	            std::getenv("NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+  6523	            std::getenv("NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+  6524	            std::getenv("NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+  6525	            std::getenv("NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+  6526	            candidate->femBaseCauchyScratchEnabled ||
+  6527	            candidate->femOperatorFDScratchEnabled;
+  6528	        if (candidate->femResidualArmijoScratchEnabled) {
+  6529	            candidate->femArmijoCandidate = privateScratch<NMFEMNodeStateGPU>(
+  6530	                candidate->device, multiplied(world.dispatch.femNodeCount),
+  6842	            }
+  6843	            if (std::getenv("NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT") != nullptr) {
+  6844	                constexpr std::uint64_t maximumDeformableArmijoBytes =
+  6845	                    128ull * 1024ull * 1024ull;
+  6846	                const std::uint64_t primitiveCount =
+  6847	                    continuumSurfacePrimitiveCount(world.dispatch);
+  6848	                const std::uint64_t leafCount =
+  6849	                    primitiveCount == 0u ||
+  6850	                    world.dispatch.deformableContactCapacity == 0u
+  6851	                        ? 0u : std::bit_ceil(primitiveCount);
+  6852	                const std::uint64_t nodeCount =
+  6853	                    static_cast<std::uint64_t>(world.dispatch.gridNodeCount) +
+  6854	                    world.dispatch.femNodeCount;
+  6855	                const std::uint64_t capacity =
+  6856	                    world.dispatch.deformableContactCapacity;
+  6857	                const bool supportedCounts = environments <= 4u &&
+  6858	                    world.dispatch.tetrahedronCount <= 32768u &&
+  6859	                    world.dispatch.femNodeCount <= 16384u &&
+  6860	                    capacity <= 131072u &&
+  6861	                    primitiveCount <= std::numeric_limits<std::uint32_t>::max() &&
+  6862	                    leafCount <= std::numeric_limits<std::uint32_t>::max() / 4u;
+  6863	                std::uint64_t estimatedBytes = 0u;
+  6864	                if (supportedCounts) {
+  6865	                    estimatedBytes = static_cast<std::uint64_t>(environments) * (
+  6866	                        (candidate->femArmijoAliasesProductionSurfaceScratch
+  6867	                            ? 0ull
+  6868	                            : primitiveCount *
+  6869	                                sizeof(NMContinuumSurfacePrimitiveGPU) +
+  6870	                              4ull * leafCount * sizeof(nm_float4) +
+  6871	                              4ull * primitiveCount * sizeof(std::uint32_t)) +
+  6872	                        capacity * (sizeof(NMDeformableContactCandidateGPU) +
+  6873	                            sizeof(NMDeformableContactGPU) +
+  6874	                            2u * sizeof(std::uint32_t) +
+  6875	                            6u * sizeof(std::uint32_t)) +
+  6876	                        nodeCount * sizeof(NMIncidenceRangeGPU) +
+  6877	                        4u * sizeof(std::uint32_t) +
+  6878	                        sizeof(NMIndirectDispatchGPU));
+  6879	                }
+  6880	                if (supportedCounts && estimatedBytes <=
+  6881	                        maximumDeformableArmijoBytes) {
+  6882	                    candidate->femArmijoDeformableContactScratchEnabled = true;
+ 10634	            // Newton solve in nonlinear.y. Interpret it as a complete assembled
+ 10635	            // residual only when the pretrial solver status is healthy. This
+ 10636	            // trace does not copy a partial FEM residual or label an Arnoldi
+ 10637	            // estimate as b-Ax.
+ 10638	            bool femNewtonTraceNoticeLogged = false;
+ 10639	            bool femNewtonTraceSelectorErrorLogged = false;
+ 10640	            bool femNewtonTraceCapturedAny = false;
+ 10641	            const auto femNewtonTraceScope = [&]() -> const char* {
+ 10642	                if (request.physicsSubsteps != 1u ||
+ 10643	                    request.physicsSubstep != 0u)
+ 10644	                    return "requires_one_physics_substep_at_index_zero";
+ 10645	                if (state.dispatch.maximumRateExponent != 0u)
+ 10646	                    return "requires_maximum_rate_exponent_zero";
+ 10647	                if (state.dispatch.environmentCount > 4u)
+ 10648	                    return "environment_cap_4";
+ 11154	                        : (state.femArmijoCohesiveFaces != nil &&
+ 11155	                           state.femArmijoCohesiveFaceForces != nil &&
+ 11156	                           state.dispatch.cohesiveFaceCount <= 4096u);
+ 11157	                if (!cohesivePageArenaAvailable ||
+ 11158	                    !state.femArmijoMixedCohesiveSupported ||
+ 11159	                    state.dispatch.cohesiveFaceCount == 0u)
+ 11160	                    return "requires_checked_mixed_cohesive_trial_arena";
+ 11161	                if (!state.femArmijoDeformableContactScratchEnabled ||
+ 11162	                    state.femArmijoSurfacePrimitives == nil ||
+ 11163	                    state.femArmijoSurfaceBVHBounds == nil ||
+ 11164	                    state.femArmijoSurfaceSortKeysA == nil ||
+ 11165	                    state.femArmijoSurfaceSortKeysB == nil ||
+ 11166	                    state.femArmijoSurfaceSortIndicesA == nil ||
+ 11167	                    state.femArmijoSurfaceSortIndicesB == nil ||
+ 11168	                    state.femArmijoSurfaceActiveCounts == nil ||
+ 11169	                    state.femArmijoDeformableCandidates == nil ||
+ 11170	                    state.femArmijoDeformableCandidateCounts == nil ||
+ 11171	                    state.femArmijoDeformableContacts == nil ||
+ 11172	                    state.femArmijoDeformableActiveIndices == nil ||
+ 11173	                    state.femArmijoDeformableActiveCounts == nil ||
+ 11174	                    state.femArmijoDeformableNodeIncidence == nil ||
+ 11175	                    state.femArmijoDeformableNodeRanges == nil ||
+ 11176	                    state.femArmijoDeformableActiveOffsets == nil ||
+ 11177	                    state.femArmijoDeformableGlobalActiveIndices == nil ||
+ 11178	                    state.femArmijoDeformableActiveDispatch == nil ||
+ 11179	                    state.dispatch.deformableContactCapacity == 0u ||
+ 11180	                    state.dispatch.deformableContactCapacity > 131072u)
+ 11181	                    return "bounded_private_deformable_contact_arena_unavailable";
+ 11182	                return nullptr;
+ 11183	            };
+ 11184	            bool femResidualArmijoEnabled = false;
+  3550	        static_cast<nm_u32>(world.fem.topologyNodes.size());
+  3551	    dispatch.punctureChannelCount =
+  3552	        static_cast<nm_u32>(world.fem.punctureChannels.size());
+  3553	    dispatch.femCapacityCount =
+  3554	        static_cast<nm_u32>(world.fem.capacities.size());
+  3555	    dispatch.surfaceFaceCount =
+  3556	        static_cast<nm_u32>(world.fem.surfaceFaces.size());
+  3557	    std::uint64_t deformableContactCapacity = 0u;
+  3558	    for (const ObjectSource& object : source.objects) {
+  3559	        if (object.femCapacity.deformableContacts != 0u) {
+  3560	            deformableContactCapacity +=
+  3561	                object.femCapacity.deformableContacts;
+  3562	        } else if (object.representation == Representation::fem) {
+  3563	            // A closed tetrahedral surface has O(elements) boundary faces;
+  3564	            // reserve a linear active manifold by default rather than the
+  3565	            // quadratic broadphase cross product.
+  3566	            deformableContactCapacity += 8u * object.tetrahedra.size();
+  3567	        } else if (object.representation == Representation::mpm) {
+  3568	            // Compact active-grid points form the MPM contact surface. Their
+  3569	            // active manifold remains linear in material-point count even
+  3570	            // though the background grid is fixed capacity.
+  3571	            deformableContactCapacity += 8u * object.particles.size();
+  3572	        }
+  3573	    }
+  3574	    dispatch.deformableContactCapacity = static_cast<nm_u32>(
+  3575	        std::min<std::uint64_t>(
+  3576	            deformableContactCapacity,
+  3577	            std::numeric_limits<std::uint32_t>::max()));
+  3578	    std::uint64_t topologyTetCapacity = 0u;
+  3579	    for (const NMFEMCapacityGPU capacity : world.fem.capacities) {
+  3580	        topologyTetCapacity += capacity.topology.y;

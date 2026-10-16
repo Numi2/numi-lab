@@ -1,0 +1,26 @@
+{
+  "base": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shared-contact-trial-189-buildfix003",
+  "base_frozen_sha256": "96361bba5c82368d6476711a550eb9ea16fca08d8235514dcd90eb21673750c0",
+  "frozen_sha256": "3af1c0026640a3d9454b653f99804a94fbcfd835a385a1f70567c864af0bdcf3",
+  "selected_files": 816,
+  "support_files": 1034,
+  "changed": {
+    "matter/include/numi/matter/deformable_contact_trial_policy.h": "f1dafb01e5c1df7891d1e0cc5d8833b19f10ea5912ff21562e2122c8b2933fbd",
+    "matter/src/metal/base_cgls.metalinc": "54fc273e8e8e12a9472f2fe2defec45709c7f36d24b6886b862e477aa54260a2",
+    "matter/src/metal/contact.metalinc": "1f6f91a70c3c738f50c4d4fc86e429a2fc841028a81094700355b5e5d33ee538",
+    "matter/src/runtime.mm": "ceb32cfa44fa0f8917c1ea2766a8625b7c1b51caa409d73a84fb9274f19e1b0b",
+    "matter/tools/cardboard_coupon_resume_check.cpp": "c9bf6f0a71b4a4302b4d77f9bfe30fbf6f508a22d70258bd6ca6df1876739ece",
+    "matter/tools/cardboard_probe.mm": "96ee21f30e0958040a539c050b0a1c59483eebe8dc2f04c2b9a783a1bb7e333c",
+    "matter/tools/cardboard_shipping_memory.hpp": "c08c895a29cd7af39ddda3fcd3d3700984efbf8c933114d68322cfd099e926df",
+    "matter/tools/cardboard_shipping_memory_check.cpp": "1a8e3e9f32cfce0616a326b27a346fb34d1812f3dbded1976bb5b7889c014bdd",
+    "matter/tools/cardboard_solver_environment.py": "e3ef5898174dc2081542d952f0c94ea3f0798510508e2a5672e42d877148d0f7",
+    "matter/tools/test_cardboard_solver_environment.py": "b709c0e80249af0f162a16b99436a52ed8e3ee64e1bdf39202eedc6510e0cbc0",
+    "matter/tools/verify_damped_cgls_oracle.py": "b6cfdec19318f42a46c0691e0a084698e296de65628a340f401e49bce3080264"
+  },
+  "overlays": {
+    "190_patch_sha256": "01dcf795ede034072071436245f7ceb24a21628a234aec012d8edc347c2651cf",
+    "191_patch_sha256": "fbac634262905625f0a4dc111305c16b05656d379fd720b21ca7d9524b72ad9d",
+    "192_frozen_sha256": "3eb56bdce0ab3072e2a4d7ef7ce5bd765d67ca3bcdb5456993a99a1eb253d117"
+  },
+  "verified_at_utc": "2026-10-16T07:16:54.278757+00:00"
+}

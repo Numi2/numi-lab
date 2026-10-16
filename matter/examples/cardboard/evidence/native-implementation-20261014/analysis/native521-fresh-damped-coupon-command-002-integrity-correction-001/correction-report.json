@@ -1,0 +1,40 @@
+{
+  "before_evidence_directory": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native521-fresh-damped-coupon-command-002-integrity-before-001",
+  "command_spec_unchanged": true,
+  "configuration_unchanged": true,
+  "corrected_binding_sha256": "05b07bd71977e016c42b803c71c65b9e82acb25b988d8d1aa1ca7ad07551bfb8",
+  "corrected_package_manifest_sha256": "f128a385b6fa357960ff06bf0011f58ebb60bf076c046d5e61551a6321a317b7",
+  "corrected_runner_sha256": "4b243e8bb35c73e41560947fce1a65fa096d4bf0938fdd93ec0e94c1ae8a5a6c",
+  "created_at_utc": "2026-10-16T07:55:27.002725+00:00",
+  "evidence_changes": [
+    "Added exact O0/O3 receipt_sha256 entries to host-validation-binding.json; existing stdout hashes unchanged.",
+    "Runner now validates helper receipt/stdout against binding, byte-compares O0/O3 output, requires helper_production_cgls_identical, checks exact eight scale/mu/cap tuples and expected clean/breakdown outcomes.",
+    "Runner checks all 26 native527 fixture files against recorded path, size, and SHA-256."
+  ],
+  "original_command_spec_sha256": "796b422271e2e120da8d3a358796013b42daf01a32557676ed2488affbd4ef64",
+  "original_manifest_sha256": "c5a0ee81858543a8436ca214894bcb7c926144e8884c1560d2ce713faf0b9471",
+  "original_runner_sha256": "e7e07cecf3c0f02bcd1fa5808902983f61a70ad1738f5f32fc59577722df42a8",
+  "preflight": {
+    "available_bytes": 102962049024,
+    "build_artifacts_verified": 11,
+    "case": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-damped-cgls-complete-coupon-521",
+    "execute_requested": false,
+    "gpu_workers": [],
+    "helper_replay": {
+      "O0": {
+        "receipt_sha256": "415edadc286f5abb6aeab796427eb6883098dc135a528a93b5eee15dd17cf826",
+        "stdout_sha256": "27e65269af7f3c16345468b3734b070081693f48c6bd1e0a5313c18529012baf"
+      },
+      "O3": {
+        "receipt_sha256": "e14efccb53b904d7843afa90019e86cc0a8eab3e1eaa629b767c9dfbd6b3ab48",
+        "stdout_sha256": "27e65269af7f3c16345468b3734b070081693f48c6bd1e0a5313c18529012baf"
+      }
+    },
+    "native527_files_verified": 26,
+    "native_argv_sha256": "f91dc137572238f2059f858206a36ec6edc050fb16d2330827c0de24ecf387d9",
+    "source_files_verified": 816
+  },
+  "preserved_failed_preflight_attempts": "preflight-failure-attempts.json",
+  "qualification": "Preflight only. No native coupon was launched; full coupon qualification remains false.",
+  "schema": "numi.cardboard.native521-integrity-correction.v1"
+}

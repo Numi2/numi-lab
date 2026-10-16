@@ -1,0 +1,26 @@
+{
+  "attempt": "source190-001",
+  "builder_receipt_sha256": "e51810bc35af1b474c9d72ac7b9fc7d06f083c666571f47ec817a6d684be8048",
+  "builder_receipt_success": false,
+  "cause": "noninteractive SSH PATH omitted /opt/homebrew/bin; source-bound builder could not resolve cmake",
+  "command": [
+    "python3.13",
+    "snapshots/source-damped-full-zero-cgls-190-001/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "snapshots/source-damped-full-zero-cgls-190-001",
+    "--build-dir",
+    "build-source190-001",
+    "--target",
+    "numi-matter-cardboard-probe",
+    "--target",
+    "numi-matter-cardboard-coupon-resume-check",
+    "--target",
+    "numi-matter-cardboard-warm-start-check",
+    "--jobs",
+    "6"
+  ],
+  "no_compilation_claim": true,
+  "outcome": "failed_before_cmake_configuration",
+  "provenance_command_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "schema": "numi.cardboard.source-build-attempt.v1"
+}

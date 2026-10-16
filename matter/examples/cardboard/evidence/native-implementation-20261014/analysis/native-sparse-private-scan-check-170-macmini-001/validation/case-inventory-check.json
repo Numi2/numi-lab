@@ -1,0 +1,10 @@
+{
+  "actual_case_rows": 49,
+  "inventory_sha256": "89e92e3558393ba9b85befc7282f726a7490d857e18ca92d33f830562dbc0417",
+  "largest_pair_domain": 6335568,
+  "native_case_count": 49,
+  "native_dispatch_occurred": false,
+  "schema": "numi.cardboard.sparse-scan-case-inventory-check.v1",
+  "source_checker_sha256": "bf18e81d70b3ca120d0afa479af0bcb5c4c1b435c1dbd55b8df6db820a7b8b5d",
+  "total_environment_pair_slots": 6366845
+}

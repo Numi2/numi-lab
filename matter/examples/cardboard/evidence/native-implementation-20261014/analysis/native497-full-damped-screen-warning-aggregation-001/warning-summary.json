@@ -1,0 +1,98 @@
+{
+  "aggregates": [
+    {
+      "candidate": "lsqr_lambda_0_capped",
+      "category": "RuntimeWarning",
+      "count": 2168,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "candidate": "lsqr_lambda_0_capped",
+      "category": "RuntimeWarning",
+      "count": 2023,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "candidate": "svd_lambda_1e-03",
+      "category": "RuntimeWarning",
+      "count": 2153,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "candidate": "svd_lambda_1e-03",
+      "category": "RuntimeWarning",
+      "count": 2009,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "candidate": "svd_lambda_1e-04",
+      "category": "RuntimeWarning",
+      "count": 2183,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "candidate": "svd_lambda_1e-04",
+      "category": "RuntimeWarning",
+      "count": 2037,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "candidate": "svd_lambda_1e-05",
+      "category": "RuntimeWarning",
+      "count": 2168,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "candidate": "svd_lambda_1e-05",
+      "category": "RuntimeWarning",
+      "count": 2023,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "candidate": "svd_lambda_1e-06",
+      "category": "RuntimeWarning",
+      "count": 2126,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "candidate": "svd_lambda_1e-06",
+      "category": "RuntimeWarning",
+      "count": 1984,
+      "message": "invalid value encountered in divide"
+    }
+  ],
+  "curve_projection_counts": [
+    {
+      "all_points_strict_pass": true,
+      "candidate": "svd_lambda_1e-06",
+      "points": 4
+    },
+    {
+      "all_points_strict_pass": true,
+      "candidate": "svd_lambda_1e-05",
+      "points": 4
+    },
+    {
+      "all_points_strict_pass": true,
+      "candidate": "svd_lambda_1e-04",
+      "points": 4
+    },
+    {
+      "all_points_strict_pass": true,
+      "candidate": "svd_lambda_1e-03",
+      "points": 4
+    },
+    {
+      "all_points_strict_pass": true,
+      "candidate": "lsqr_lambda_0_capped",
+      "points": 4
+    }
+  ],
+  "processing": "postprocessing only; no reference arithmetic rerun or curve change",
+  "schema": "numi.cardboard.reference-warning-aggregation.v1",
+  "source_manifest_sha256": "8f79cde6bf5a56a6530e28461ce98e1f8b109196d763783f40f41aead0cc7aa3",
+  "source_report_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native497-full-damped-nonlinear-screen-002/report.json",
+  "source_report_sha256": "2ecfa6efaa90d39084c0b7608b31a32e8666c8a99824421554ed3a93c1b0fd54",
+  "source_runner_sha256": "2c88e56f053a8d79c04f32c39feba2ed148bc1f84a115732407715367314c603",
+  "source_warning_record_count": 20874
+}

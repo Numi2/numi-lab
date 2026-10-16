@@ -1,0 +1,28 @@
+{
+  "label": "O3",
+  "argv": [
+    "/usr/bin/clang++",
+    "-O3",
+    "-DNDEBUG",
+    "-DNUMI_MATTER_DEFAULT_METALLIB=\"/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/shaders/NumiMatter.metallib\"",
+    "-I/Users/n/cardboard-implementation-20261014-host-macmini/analysis/full-contact-private-scratch-accounting-overlay-176-002/candidate/matter/include",
+    "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175-buildfix-003/matter/include",
+    "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175-buildfix-003/matter/src",
+    "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175-buildfix-003/include",
+    "-x",
+    "objective-c++",
+    "-std=c++23",
+    "-arch",
+    "arm64",
+    "-fPIC",
+    "-fobjc-arc",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-fsyntax-only",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/full-contact-private-scratch-accounting-overlay-176-002/candidate/matter/src/runtime.mm"
+  ],
+  "exit_code": 0,
+  "output": ""
+}

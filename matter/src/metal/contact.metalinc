@@ -1,5 +1,6 @@
 #include "numi/matter/human_support_precision_gpu.h"
 #include "numi/matter/mortar_shared_edge_guard.h"
+#include "numi/matter/deformable_contact_trial_policy.h"
 
 namespace numi_matter_metal {
 
@@ -594,6 +595,161 @@ inline void closestPointsOnSegments(
     thread float3& secondPoint
 );
 
+inline MRCompensatedScalar contactCompensatedSubtract(
+    const MRCompensatedScalar a, const MRCompensatedScalar b
+) {
+    return mrCompensatedAdd(a, mrCompensatedNegate(b));
+}
+
+inline int contactCompensatedSign(const MRCompensatedScalar value) {
+    if (value.high < 0.0f) return -1;
+    if (value.high > 0.0f) return 1;
+    if (value.low < 0.0f) return -1;
+    if (value.low > 0.0f) return 1;
+    return 0;
+}
+
+inline MRCompensatedPositionGPU contactCompensatedVectorDifference(
+    const float3 a, const float3 b
+) {
+    return mrCompensatedVectorAdd(
+        mrCompensatedVector(float4(a, 0.0f)),
+        mrCompensatedVectorNegate(
+            mrCompensatedVector(float4(b, 0.0f))));
+}
+
+inline bool contactCompensatedVertexTriangleSeparation(
+    const float3 point, const float3 a, const float3 b, const float3 c,
+    thread float& separation
+) {
+    const auto p = mrCompensatedVector(float4(point, 0.0f));
+    const auto aPair = mrCompensatedVector(float4(a, 0.0f));
+    const auto bPair = mrCompensatedVector(float4(b, 0.0f));
+    const auto cPair = mrCompensatedVector(float4(c, 0.0f));
+    const auto ab = mrCompensatedVectorAdd(bPair,
+        mrCompensatedVectorNegate(aPair));
+    const auto ac = mrCompensatedVectorAdd(cPair,
+        mrCompensatedVectorNegate(aPair));
+    const auto ap = mrCompensatedVectorAdd(p,
+        mrCompensatedVectorNegate(aPair));
+    const auto d1 = mrCompensatedVectorDot(ab, ap);
+    const auto d2 = mrCompensatedVectorDot(ac, ap);
+    MRCompensatedPositionGPU closest = aPair;
+    bool usedFallback = false;
+
+    if (contactCompensatedSign(d1) <= 0 &&
+        contactCompensatedSign(d2) <= 0) {
+        closest = aPair;
+    } else {
+        const auto bp = mrCompensatedVectorAdd(p,
+            mrCompensatedVectorNegate(bPair));
+        const auto d3 = mrCompensatedVectorDot(ab, bp);
+        const auto d4 = mrCompensatedVectorDot(ac, bp);
+        if (contactCompensatedSign(d3) >= 0 &&
+            contactCompensatedSign(contactCompensatedSubtract(d4, d3)) <= 0) {
+            closest = bPair;
+        } else {
+            const auto vc = contactCompensatedSubtract(
+                mrCompensatedMultiply(d1, d4),
+                mrCompensatedMultiply(d3, d2));
+            if (contactCompensatedSign(vc) <= 0 &&
+                contactCompensatedSign(d1) >= 0 &&
+                contactCompensatedSign(d3) <= 0) {
+                const auto denominator = contactCompensatedSubtract(d1, d3);
+                if (contactCompensatedSign(denominator) <= 0) {
+                    usedFallback = true;
+                } else {
+                    const auto v = mrCompensatedDivide(d1, denominator);
+                    closest = mrCompensatedVectorAdd(aPair,
+                        mrCompensatedVectorScale(ab, v));
+                }
+            } else {
+                const auto cp = mrCompensatedVectorAdd(p,
+                    mrCompensatedVectorNegate(cPair));
+                const auto d5 = mrCompensatedVectorDot(ab, cp);
+                const auto d6 = mrCompensatedVectorDot(ac, cp);
+                if (contactCompensatedSign(d6) >= 0 &&
+                    contactCompensatedSign(
+                        contactCompensatedSubtract(d5, d6)) <= 0) {
+                    closest = cPair;
+                } else {
+                    const auto vb = contactCompensatedSubtract(
+                        mrCompensatedMultiply(d5, d2),
+                        mrCompensatedMultiply(d1, d6));
+                    if (contactCompensatedSign(vb) <= 0 &&
+                        contactCompensatedSign(d2) >= 0 &&
+                        contactCompensatedSign(d6) <= 0) {
+                        const auto denominator =
+                            contactCompensatedSubtract(d2, d6);
+                        if (contactCompensatedSign(denominator) <= 0) {
+                            usedFallback = true;
+                        } else {
+                            const auto w = mrCompensatedDivide(d2, denominator);
+                            closest = mrCompensatedVectorAdd(aPair,
+                                mrCompensatedVectorScale(ac, w));
+                        }
+                    } else {
+                        const auto va = contactCompensatedSubtract(
+                            mrCompensatedMultiply(d3, d6),
+                            mrCompensatedMultiply(d5, d4));
+                        const auto d4d3 =
+                            contactCompensatedSubtract(d4, d3);
+                        const auto d5d6 =
+                            contactCompensatedSubtract(d5, d6);
+                        if (contactCompensatedSign(va) <= 0 &&
+                            contactCompensatedSign(d4d3) >= 0 &&
+                            contactCompensatedSign(d5d6) >= 0) {
+                            const auto denominator =
+                                mrCompensatedAdd(d4d3, d5d6);
+                            if (contactCompensatedSign(denominator) <= 0) {
+                                usedFallback = true;
+                            } else {
+                                const auto w = mrCompensatedDivide(
+                                    d4d3, denominator);
+                                const auto cb = mrCompensatedVectorAdd(
+                                    cPair, mrCompensatedVectorNegate(bPair));
+                                closest = mrCompensatedVectorAdd(bPair,
+                                    mrCompensatedVectorScale(cb, w));
+                            }
+                        } else {
+                            const auto denominator = mrCompensatedAdd(
+                                mrCompensatedAdd(va, vb), vc);
+                            if (contactCompensatedSign(denominator) <= 0) {
+                                usedFallback = true;
+                            } else {
+                                const auto v = mrCompensatedDivide(vb, denominator);
+                                const auto w = mrCompensatedDivide(vc, denominator);
+                                closest = mrCompensatedVectorAdd(
+                                    mrCompensatedVectorAdd(aPair,
+                                        mrCompensatedVectorScale(ab, v)),
+                                    mrCompensatedVectorScale(ac, w));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (usedFallback) {
+        float3 barycentric;
+        const float3 fallback = closestPointOnTriangle(
+            point, a, b, c, barycentric);
+        closest = mrCompensatedVector(float4(fallback, 0.0f));
+    }
+    const auto delta = mrCompensatedVectorAdd(p,
+        mrCompensatedVectorNegate(closest));
+    const auto squared = mrCompensatedVectorDot(delta, delta);
+    if (contactCompensatedSign(squared) < 0 ||
+        !isfinite(squared.high) || !isfinite(squared.low)) {
+        separation = NAN;
+        return false;
+    }
+    const auto distance = mrCompensatedSqrt(squared);
+    separation = distance.high + distance.low;
+    return isfinite(distance.high) && isfinite(distance.low) &&
+        isfinite(separation) && separation >= 0.0f;
+}
+
 inline bool deformableBarrierEnergyAt(
     const NMDeformableContactGPU contact,
     thread const float3* position,
@@ -605,11 +761,12 @@ inline bool deformableBarrierEnergyAt(
         separation = length(position[0] - position[1]);
     } else if (contact.identity.z ==
                NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
-        float3 barycentric;
-        const float3 closest = closestPointOnTriangle(
-            position[0], position[1], position[2], position[3],
-            barycentric);
-        separation = length(position[0] - closest);
+        if (!contactCompensatedVertexTriangleSeparation(
+                position[0], position[1], position[2], position[3],
+                separation)) {
+            energy = INFINITY;
+            return false;
+        }
         float3 firstGradient, secondGradient;
         featureMollifier = ipcFeatureMollifierDifferential(
             position[2] - position[1],
@@ -3723,6 +3880,67 @@ inline bool pointPointCCD(
 // infeasible. Re-run the same production CCD on a bounded shorter ray. Only a
 // newly certified sweep may set a positive update fraction; an exhausted
 // conservative-advancement prefix is never promoted to a certificate.
+// As certifyDeformableNewtonSweep, but the full fraction endpoint is supplied
+// directly so alpha=1 reaches the exact FP32 node state FEM will apply.
+// Shortened retries retain the existing linear chord and conservative solver.
+inline bool certifyDeformableNewtonSweepToEndpoint(
+    const uint kind,
+    thread const float3* start,
+    thread const float3* fullEndpoint,
+    const float thickness,
+    thread float& toi,
+    thread float3& normal,
+    thread float3& point,
+    thread float& separation,
+    thread bool& certified,
+    thread float& testedFraction,
+    thread uint& retries
+) {
+    float3 direction[4];
+    for (uint i = 0u; i < 4u; ++i)
+        direction[i] = fullEndpoint[i] - start[i];
+    certified = false;
+    testedFraction = 1.0f;
+    retries = 0u;
+    toi = 0.0f;
+    separation = INFINITY;
+    for (uint i = 0u; i < 4u; ++i)
+        if (!finite3(start[i]) || !finite3(fullEndpoint[i]) ||
+            !finite3(direction[i])) return false;
+    if (!(thickness >= 0.0f) || !isfinite(thickness)) return false;
+    for (uint attempt = 0u; attempt <= 16u; ++attempt) {
+        float3 finish[4];
+        for (uint i = 0u; i < 4u; ++i)
+            finish[i] = testedFraction == 1.0f
+                ? fullEndpoint[i]
+                : start[i] + testedFraction * direction[i];
+        float localTOI = 0.0f;
+        bool hit = false;
+        if (kind == NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
+            float3 barycentric;
+            hit = vertexTriangleCCD(start[0], finish[0],
+                start[1], finish[1], start[2], finish[2],
+                start[3], finish[3], thickness, localTOI, normal,
+                barycentric, point, separation, certified);
+        } else if (kind == NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+            float2 parameters;
+            hit = edgeEdgeCCD(start[0], finish[0],
+                start[1], finish[1], start[2], finish[2],
+                start[3], finish[3], thickness, localTOI, normal,
+                parameters, point, separation, certified);
+        } else if (kind == NM_DEFORMABLE_CONTACT_POINT_POINT) {
+            hit = pointPointCCD(start[0], finish[0], start[1], finish[1],
+                thickness, localTOI, normal, point, separation, certified);
+        } else return false;
+        toi = testedFraction * localTOI;
+        retries = attempt;
+        if (certified && isfinite(toi)) return hit;
+        certified = false;
+        if (attempt < 16u) testedFraction *= 0.5f;
+    }
+    return false;
+}
+
 inline bool certifyDeformableNewtonSweep(
     const uint kind,
     thread const float3* start,
@@ -8011,6 +8229,10 @@ kernel void nm_contact_limit_deformable_line_search(
     constant NMMixedSolverGPU& solver [[buffer(14)]],
     constant uint& traceSlotsPerEnvironment [[buffer(15)]],
     device NMDeformableContactLimitTraceGPU* traceRecords [[buffer(16)]],
+    constant NMMicrostepGPU& microstep [[buffer(17)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(18)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(19)]],
+    constant uint& fullResidualArmijoEnabled [[buffer(20)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
@@ -8070,7 +8292,18 @@ kernel void nm_contact_limit_deformable_line_search(
             float3(0.0f), float3(0.0f),
             float3(0.0f), float3(0.0f)
         };
+        float3 analyticDisplacement[6] = {
+            float3(0.0f), float3(0.0f),
+            float3(0.0f), float3(0.0f),
+            float3(0.0f), float3(0.0f)
+        };
+        float3 endpoint[6] = {
+            float3(0.0f), float3(0.0f),
+            float3(0.0f), float3(0.0f),
+            float3(0.0f), float3(0.0f)
+        };
         bool geometryValid = true;
+        unsigned int supportMask = 0u;
         for (uint local = 0u; local < 6u; ++local) {
             const uint node = deformableContactNode(contact, local);
             if (node == NM_INVALID_INDEX) continue;
@@ -8103,11 +8336,15 @@ kernel void nm_contact_limit_deformable_line_search(
                     geometryValid = false;
                     continue;
                 }
+                supportMask = numi_matter_contact_policy::addSupport(
+                    supportMask, 2u);
                 position[local] =
                     gridNodes[gridGlobal].positionAndMass.xyz +
                     dt * gridNodes[gridGlobal].candidateVelocity.xyz;
                 displacement[local] = dt * correction[fgmresMPMIndex(
                     dispatch, environment, activeSlot)].xyz;
+                analyticDisplacement[local] = displacement[local];
+                endpoint[local] = position[local] + displacement[local];
                 weightedPosition += contactWeight * position[local];
                 weightedDirection +=
                     contactWeight * displacement[local];
@@ -8129,11 +8366,24 @@ kernel void nm_contact_limit_deformable_line_search(
                 geometryValid = false;
                 continue;
             }
-            const float dt = objectTimestep(
-                dispatch,
-                schedulers[environment * dispatch.objectCount + objectIndex]);
+            supportMask = numi_matter_contact_policy::addSupport(
+                supportMask, 1u);
+            const NMSchedulerStateGPU scheduler =
+                schedulers[environment * dispatch.objectCount + objectIndex];
+            const NMAdaptiveStateGPU adaptiveState =
+                adaptive[environment * dispatch.objectCount + objectIndex];
+            const float dt = objectTimestep(dispatch, scheduler);
+            const bool updateEligible = objectDue(
+                objects[objectIndex], scheduler, adaptiveState, microstep);
             position[local] = candidate[nodeGlobal].positionAndMass.xyz;
-            displacement[local] = dt * correction[nodeGlobal].xyz;
+            analyticDisplacement[local] =
+                (updateEligible && candidate[nodeGlobal].restAndFixed.w <= 0.5f)
+                    ? dt * correction[nodeGlobal].xyz : float3(0.0f);
+            const NMFEMNodeStateGPU applied = femTrialNodeAtAlpha(
+                accepted[nodeGlobal], candidate[nodeGlobal],
+                correction[nodeGlobal].xyz, 1.0f, dt, updateEligible);
+            endpoint[local] = applied.positionAndMass.xyz;
+            displacement[local] = endpoint[local] - position[local];
             weightedPosition += contactWeight * position[local];
             weightedDirection +=
                 contactWeight * displacement[local];
@@ -8146,8 +8396,12 @@ kernel void nm_contact_limit_deformable_line_search(
             }
             continue;
         }
+        const bool femFeasibilityOnly =
+            numi_matter_contact_policy::useFEMFeasibilityOnly(
+                fullResidualArmijoEnabled, supportMask);
 
         float3 featurePosition[4];
+        float3 featureEndpoint[4];
         float3 featureDirection[4];
         if ((contact.identity.w & NM_CONTACT_MAPPED_FEATURE) != 0u) {
             for (uint feature = 0u; feature < 4u; ++feature) {
@@ -8166,15 +8420,19 @@ kernel void nm_contact_limit_deformable_line_search(
                     barycentric.x * position[base] +
                     barycentric.y * position[base + 1u] +
                     barycentric.z * position[base + 2u];
+                featureEndpoint[feature] =
+                    barycentric.x * endpoint[base] +
+                    barycentric.y * endpoint[base + 1u] +
+                    barycentric.z * endpoint[base + 2u];
                 featureDirection[feature] =
-                    barycentric.x * displacement[base] +
-                    barycentric.y * displacement[base + 1u] +
-                    barycentric.z * displacement[base + 2u];
+                    featureEndpoint[feature] - featurePosition[feature];
             }
         } else {
             for (uint feature = 0u; feature < 4u; ++feature) {
                 featurePosition[feature] = position[feature];
-                featureDirection[feature] = displacement[feature];
+                featureEndpoint[feature] = endpoint[feature];
+                featureDirection[feature] =
+                    featureEndpoint[feature] - featurePosition[feature];
             }
         }
         if (!geometryValid) {
@@ -8193,8 +8451,7 @@ kernel void nm_contact_limit_deformable_line_search(
                 traceRecord.featureStart[feature] =
                     float4(featurePosition[feature], 1.0f);
                 traceRecord.featureEnd[feature] = float4(
-                    featurePosition[feature] + featureDirection[feature],
-                    1.0f);
+                    featureEndpoint[feature], 1.0f);
             }
         }
 
@@ -8221,8 +8478,8 @@ kernel void nm_contact_limit_deformable_line_search(
         bool certified = false;
         float ccdTestedFraction = 1.0f;
         uint ccdShortenedRetries = 0u;
-        const bool hit = certifyDeformableNewtonSweep(
-            contact.identity.z, featurePosition, featureDirection,
+        const bool hit = certifyDeformableNewtonSweepToEndpoint(
+            contact.identity.z, featurePosition, featureEndpoint,
             collisionThickness, toi, ccdNormal, ccdPoint,
             ccdSeparation, certified, ccdTestedFraction,
             ccdShortenedRetries);
@@ -8346,7 +8603,7 @@ kernel void nm_contact_limit_deformable_line_search(
                     contact.mollifier.y *
                         deformableMollifierGradient(contact, local);
                 impulseDotDisplacement += dot(
-                    barrierImpulse, displacement[local]);
+                    barrierImpulse, analyticDisplacement[local]);
             }
             const float directionalDerivative =
                 -impulseDotDisplacement / max(dt, 1.0e-20f);
@@ -8370,18 +8627,134 @@ kernel void nm_contact_limit_deformable_line_search(
                     NM_MIXED_LINE_SEARCH_MAX_STEPS);
                 for (uint trial = 0u; trial < lineSearchSteps; ++trial) {
                     const float alpha = startAlpha * exp2(-float(trial));
+                    float3 trialNodePosition[6];
+                    for (uint local = 0u; local < 6u; ++local) {
+                        const uint supportNode =
+                            deformableContactNode(contact, local);
+                        if (supportNode == NM_INVALID_INDEX) {
+                            trialNodePosition[local] = float3(0.0f);
+                            continue;
+                        }
+                        if (supportNode < dispatch.gridNodeCount) {
+                            trialNodePosition[local] = position[local] +
+                                alpha * displacement[local];
+                            continue;
+                        }
+                        const uint femNode = supportNode - dispatch.gridNodeCount;
+                        if (femNode >= dispatch.femNodeCount) {
+                            trialNodePosition[local] = float3(NAN);
+                            continue;
+                        }
+                        const uint globalNode = nodeBase + femNode;
+                        const uint trialObject =
+                            femNodeRanges[globalNode].objectIndex;
+                        if (trialObject >= dispatch.objectCount ||
+                            objects[trialObject].representation !=
+                                NM_REPRESENTATION_FEM) {
+                            trialNodePosition[local] = float3(NAN);
+                            continue;
+                        }
+                        const NMSchedulerStateGPU trialScheduler =
+                            schedulers[environment * dispatch.objectCount +
+                                       trialObject];
+                        const NMAdaptiveStateGPU trialAdaptive =
+                            adaptive[environment * dispatch.objectCount +
+                                     trialObject];
+                        const float trialDt = objectTimestep(
+                            dispatch, trialScheduler);
+                        const bool trialEligible = objectDue(
+                            objects[trialObject], trialScheduler,
+                            trialAdaptive, microstep);
+                        const NMFEMNodeStateGPU applied =
+                            femTrialNodeAtAlpha(accepted[globalNode],
+                                candidate[globalNode], correction[globalNode].xyz,
+                                alpha, trialDt, trialEligible);
+                        trialNodePosition[local] =
+                            applied.positionAndMass.xyz;
+                    }
+                    float3 trialWeightedDirection = float3(0.0f);
+                    for (uint local = 0u; local < 6u; ++local) {
+                        if (deformableContactNode(contact, local) ==
+                            NM_INVALID_INDEX) continue;
+                        trialWeightedDirection +=
+                            deformableContactWeight(contact, local) *
+                            (trialNodePosition[local] - position[local]);
+                    }
                     float3 trialPosition[4];
-                    for (uint local = 0u; local < 4u; ++local)
-                        trialPosition[local] =
-                            featurePosition[local] +
-                            alpha * featureDirection[local];
+                    if ((contact.identity.w & NM_CONTACT_MAPPED_FEATURE) != 0u) {
+                        for (uint feature = 0u; feature < 4u; ++feature) {
+                            const uint base =
+                                contact.featureSideByVertex[feature] == 0u
+                                    ? 0u : 3u;
+                            const float3 barycentric = float3(
+                                contact.featureBarycentricX[feature],
+                                contact.featureBarycentricY[feature],
+                                contact.featureBarycentricZ[feature]);
+                            trialPosition[feature] =
+                                barycentric.x * trialNodePosition[base] +
+                                barycentric.y * trialNodePosition[base + 1u] +
+                                barycentric.z * trialNodePosition[base + 2u];
+                        }
+                    } else {
+                        for (uint feature = 0u; feature < 4u; ++feature)
+                            trialPosition[feature] = trialNodePosition[feature];
+                    }
+                    float trialTOI = 1.0f;
+                    float3 trialNormal = float3(0.0f);
+                    float3 trialPoint = float3(0.0f);
+                    float trialCCDSeparation = INFINITY;
+                    bool trialCertified = false;
+                    float trialTestedFraction = 1.0f;
+                    uint trialShortenedRetries = 0u;
+                    const bool trialHit =
+                        certifyDeformableNewtonSweepToEndpoint(
+                            contact.identity.z, featurePosition, trialPosition,
+                            collisionThickness, trialTOI, trialNormal,
+                            trialPoint, trialCCDSeparation, trialCertified,
+                            trialTestedFraction, trialShortenedRetries);
+                    // This is a certificate for this exact rounded alpha
+                    // endpoint. A shortened chord is not a certificate for
+                    // the requested trial and must not be promoted.
+                    if (!trialCertified || trialTestedFraction != 1.0f ||
+                        !isfinite(trialTOI)) continue;
+                    if (trialHit) {
+                        float trialCoordinateScale = coordinateScale;
+                        for (uint feature = 0u; feature < 4u; ++feature)
+                            trialCoordinateScale = max(
+                                trialCoordinateScale,
+                                maximumAbsoluteCoordinate(
+                                    trialPosition[feature]));
+                        const float initialTouchRoundoff =
+                            ccdDistanceRoundoff(
+                                collisionThickness, trialCoordinateScale);
+                        const bool initialTouch =
+                            trialTOI <= 8.0f * kEpsilon &&
+                            trialCCDSeparation <= collisionThickness +
+                                initialTouchRoundoff;
+                        const float directionalRoundoff =
+                            16.0f * kEpsilon * max(
+                                length(trialWeightedDirection),
+                                collisionThickness);
+                        const bool initialTouchNonclosing = initialTouch &&
+                            dot(contact.normalAndTOI.xyz,
+                                trialWeightedDirection) >=
+                                    -directionalRoundoff;
+                        if (!initialTouchNonclosing) continue;
+                    }
                     float trialEnergy;
                     float trialSeparation;
                     const bool finiteTrial = deformableBarrierEnergyAt(
                         contact, trialPosition, trialEnergy, trialSeparation);
                     const float armijoRight = currentEnergy +
                         1.0e-4f * alpha * directionalDerivative;
-                    if (finiteTrial && trialEnergy <= armijoRight) {
+                    // In the opted-in FEM/full-residual path, this pass
+                    // only establishes exact-endpoint finiteness and full CCD
+                    // feasibility. The private full-contact trial below
+                    // rechecks its own exact swept endpoint and owns the
+                    // coupled residual acceptance decision. MPM and mixed
+                    // FEM/MPM contacts retain per-feature energy Armijo.
+                    if (finiteTrial &&
+                        (femFeasibilityOnly || trialEnergy <= armijoRight)) {
                         armijoAlpha = alpha;
                         break;
                     }

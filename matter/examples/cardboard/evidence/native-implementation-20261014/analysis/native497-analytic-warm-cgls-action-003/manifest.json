@@ -1,0 +1,23 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 456,
+      "sha256": "35b292a9a9148114d983aff38224648b556718c352c87bb5f3462ffeb8632faa"
+    },
+    "arrays.npz": {
+      "bytes": 810313,
+      "sha256": "8505e8be2aa1881d61806af1fe8768ba78307f5340761d75fff94be2760def7f"
+    },
+    "audit.py": {
+      "bytes": 21412,
+      "sha256": "dd7e6c773ccab9fc407b8fb39f4c2ba44faec542674297b2f6594b78b9fc605d"
+    },
+    "report.json": {
+      "bytes": 16765,
+      "sha256": "b6ab00d8d2eb62625fbc65878306f474213d1dd3ccd8ab5dec7d534258e91f1f"
+    }
+  },
+  "package": "native497-analytic-warm-cgls-action-003",
+  "schema": "numi.cardboard.analysis-package.v1",
+  "scope": "CPU-only independent analytic directional-action reconstruction"
+}

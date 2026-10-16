@@ -1,0 +1,19 @@
+{
+  "name": "damped-cgls-oracle",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-damped-memory-198-001/matter/tools/verify_damped_cgls_oracle.py"
+  ],
+  "source_build_sha256": "8f6c95304c23b6c7149ec6b270d54eafdf4507ea26f3420e39e523c09dd500ad",
+  "started_at_utc": "2026-10-16T07:42:52.269751+00:00",
+  "timeout_s": 60,
+  "gpu": false,
+  "exit_code": 0,
+  "timed_out": false,
+  "wall_seconds": 0.05045158416032791,
+  "finished_at_utc": "2026-10-16T07:42:52.320487+00:00",
+  "stdout_sha256": "a1888d70485750c41b8e490181e21f375c780569371b06a43db062e40ee88378",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "physical_qualification": false
+}

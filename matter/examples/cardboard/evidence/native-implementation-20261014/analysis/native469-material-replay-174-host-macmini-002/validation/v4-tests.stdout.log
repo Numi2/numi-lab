@@ -1,0 +1,11 @@
+test_competing_lock_blocks_before_child_launch (test_guarded_source469_v4.GuardedRunnerV4Tests.test_competing_lock_blocks_before_child_launch) ... ok
+test_cpu_admission_receipts_use_per_invocation_namespace (test_guarded_source469_v4.GuardedRunnerV4Tests.test_cpu_admission_receipts_use_per_invocation_namespace) ... ok
+test_large_child_output_is_file_backed_without_pipe_deadlock (test_guarded_source469_v4.GuardedRunnerV4Tests.test_large_child_output_is_file_backed_without_pipe_deadlock) ... ok
+test_own_lease_is_not_reprobed_as_competing_lock (test_guarded_source469_v4.GuardedRunnerV4Tests.test_own_lease_is_not_reprobed_as_competing_lock) ... ok
+test_repeated_native_execute_uses_fresh_receipt_and_output_paths (test_guarded_source469_v4.GuardedRunnerV4Tests.test_repeated_native_execute_uses_fresh_receipt_and_output_paths) ... ok
+test_repeated_preflight_and_execute_get_fresh_namespaces (test_guarded_source469_v4.GuardedRunnerV4Tests.test_repeated_preflight_and_execute_get_fresh_namespaces) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 1.338s
+
+OK

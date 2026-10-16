@@ -1,0 +1,4 @@
+{
+  "stage": "last_requested_target",
+  "reason": "Root runner requested non-existent numi-matter-cardboard-base-cgls-warm-start-check; correct CMake name is numi-matter-cardboard-warm-start-check. Earlier six targets compiled, but build receipt remains failed and no native dispatched from it."
+}

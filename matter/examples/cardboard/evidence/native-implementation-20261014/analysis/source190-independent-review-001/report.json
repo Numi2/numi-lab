@@ -1,0 +1,96 @@
+{
+  "base_frozen_source_sha256": "1f61fd7893eb3a10dfcf1ee0e748f1320b23171d67d37668b319b170a5c20185",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-scaled-contact-geometry-188-buildfix002",
+  "build_and_cpu_claims": {
+    "compiled": true,
+    "coupon_resume_ctest": "1/1 passed, CPU-labeled",
+    "cpu_environment_contract_tests": "13 passed",
+    "cpu_tikhonov_oracle": "passed; nonsymmetric 2x2 recurrence versus independent spectral solution; mu=0 path exactly matches separate legacy recurrence",
+    "full_coupon_solve_qualified": false,
+    "native_gpu_execution": false,
+    "physical_acceptance_or_true_residual_rules_changed": false
+  },
+  "build_artifacts": {
+    "numi-matter-cardboard-coupon-resume-check": "2a53eaa3947c3b21c57b46e9e2c844c0ca7f5cbea147b3939191ec2a42836f57",
+    "numi-matter-cardboard-probe": "d961785416abda9b2b0f23d26068af676423b41ff92a22783a23622e54f9532c",
+    "numi-matter-cardboard-warm-start-check": "fbbb8a412f4d4768679007533454f6fe6ea9a613e173b53e10768b346e9d6825",
+    "shaders/CardboardWarmStartCheck.metallib": "50e1a3ddfd5b348498a1f865cca21b69cfefdc4b3b158e20f372af71703bd5c7",
+    "shaders/NumiMatter.metallib": "327fa7710d27e6c172d60e99ecaa500e532c77c78821ccd87120d9034f987977",
+    "shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+  },
+  "candidate_frozen_source_sha256": "1189d65c3d7f29d326155eee687979c8dd5fc1c79360a333bd569a08ad30dde7",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-damped-full-zero-cgls-190-001",
+  "cgls_review": {
+    "admission": "Exact NM_FEM_BASE_CGLS_DAMPING_KG=1e-3 only; numeric single-Newton fallback, 32 or 64 iterations; no primary-policy, right-scale, or warm-start mode.",
+    "claim_limit": "Old FGMRES certificate does not certify the damped direction; there is no native GPU run or full-coupon qualification.",
+    "installation": "Requires the original healthy FGMRES certificate as a prerequisite, then evaluates the unchanged physical operator on the candidate, verifies finite/constrained data and strict b dot A x > 0 descent, clears the stale certificate, and routes the direction through existing nonlinear Armijo/acceptance/rollback.",
+    "recurrence": "Damped CGLS uses denominator ||A p||^2 + mu^2 ||p||^2 and gradient A^T r - mu^2 x; zero damping retains the separate legacy recurrence."
+  },
+  "changed_paths_match": true,
+  "frozen_map_hash_failures": {
+    "base": {},
+    "candidate": {}
+  },
+  "inherited_duplicate_writer": {
+    "base_sha256": "1b9d6541fcd01bea803a70f878ba1bda462d05cfabefa0d1ebe3038c9aab66d9",
+    "bounded_fix": "Require global < count on the selected[] store itself (or an equivalent mechanical-block-only predicate); leave masks, environment indices, RHS preparation, and selected value unchanged.",
+    "candidate_sha256": "1b9d6541fcd01bea803a70f878ba1bda462d05cfabefa0d1ebe3038c9aab66d9",
+    "finding": "The selected[] store sits within the global < count mechanical-row guard, but global spans the full 2*E*N vector. For each environment, both the mechanical half and its field half contain one thread satisfying the node-modulo predicate, and both write selected[environment] without atomics. The equal values do not remove the concurrent data race.",
+    "path": "matter/src/metal/base_cgls_runtime.metalinc",
+    "regression_scope": "Inherited unchanged from source188 into source190; not introduced by the damped-CGLS changes.",
+    "source_lines": [
+      59,
+      98
+    ],
+    "unchanged": true
+  },
+  "integrity_pass": true,
+  "package_manifest_json_sha256": "3f3c5e803e5da056372390e3779be2d1d43d3fd62932a1bb195f738392e0e375",
+  "package_manifest_sha256_file_value": "3f3c5e803e5da056372390e3779be2d1d43d3fd62932a1bb195f738392e0e375",
+  "package_validation_file_failures": {},
+  "runtime_review_line_hits": {
+    "baseCGLSDampingKg": [],
+    "damped CGLS requires": [
+      12472
+    ],
+    "nm_fgmres_install_base_cgls_direction": [
+      4617,
+      24431
+    ],
+    "nm_fgmres_prepare_base_cgls_layout": [
+      4601,
+      24110
+    ]
+  },
+  "schema": "numi.cardboard.source190-independent-review.v1",
+  "source190_limits": [
+    "This is a bounded pilot selector accepting only the exact setting NM_FEM_BASE_CGLS_DAMPING_KG=1e-3, with a single-Newton fallback, 32 or 64 CGLS iteration budget, no right scaling, and no warm start or primary-policy mode.",
+    "Damped CGLS produces a direction for the regularized objective; the prior Newton certificate does not certify that direction. Existing physical operator, true-residual checks, nonlinear Armijo acceptance, and rollback remain unchanged.",
+    "The independent oracle is a CPU 2x2 mathematical contract, not a Metal differential test or physics qualification."
+  ],
+  "source190_package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native-damped-cgls-overlay-190-001",
+  "source190_patch_sha256": "01dcf795ede034072071436245f7ceb24a21628a234aec012d8edc347c2651cf",
+  "source_map_counts": {
+    "base": 814,
+    "candidate": 815
+  },
+  "source_map_differences": [
+    "matter/src/metal/base_cgls.metalinc",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_coupon_resume_check.cpp",
+    "matter/tools/cardboard_probe.mm",
+    "matter/tools/cardboard_solver_environment.py",
+    "matter/tools/test_cardboard_solver_environment.py",
+    "matter/tools/verify_damped_cgls_oracle.py"
+  ],
+  "validation_report_changed_sources": [
+    "matter/src/metal/base_cgls.metalinc",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_coupon_resume_check.cpp",
+    "matter/tools/cardboard_probe.mm",
+    "matter/tools/cardboard_solver_environment.py",
+    "matter/tools/test_cardboard_solver_environment.py",
+    "matter/tools/verify_damped_cgls_oracle.py"
+  ],
+  "verdict": "Static/source and CPU-build review only. The bounded CGLS path preserves the physical operator and existing nonlinear transaction gates. Repair the inherited duplicate selected[] writer before native use. No physical solver result is established."
+}

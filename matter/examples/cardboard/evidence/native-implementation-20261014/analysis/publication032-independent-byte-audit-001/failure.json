@@ -1,0 +1,4 @@
+{
+  "verdict": "AUDIT_SCRIPT_FAILED",
+  "reason": "Build metadata keys are relative to build directory; initial audit incorrectly resolved them relative to SSH cwd. No qualification result or commit occurred."
+}

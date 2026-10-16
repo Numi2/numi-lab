@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "patch",
+    "-p1",
+    "--batch",
+    "--forward",
+    "-i",
+    "overlay.patch"
+  ],
+  "exit_code": 0,
+  "output": "patching file 'matter/CMakeLists.txt'\npatching file 'matter/src/runtime.mm'\npatching file 'matter/include/numi/matter/detail/full_contact_armijo_scratch_budget.hpp'\npatching file 'matter/tools/cardboard_full_contact_armijo_scratch_budget_check.cpp'\n",
+  "candidate_outputs_exact": true,
+  "shared_header_unchanged": true
+}

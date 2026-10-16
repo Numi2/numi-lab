@@ -1,0 +1,6 @@
+Direct caller audit (source snapshot 190)
+
+Registered pipeline names: nm_fgmres_base_cgls_form_alpha and nm_fgmres_base_cgls_form_beta.
+All source references to these exact pipeline names are in matter/src/runtime.mm: registry at lines 4607/4610, and encoding at lines 24296/24326. The changed Metal definitions are in matter/src/metal/base_cgls.metalinc. No other tool encodes these two pipelines.
+
+The warm-start checker target `numi-matter-cardboard-warm-start-check` was compiled successfully. `cardboard_base_cgls_warm_start_check.mm/.metal` uses its own warm-start pipelines and has no direct caller of the two changed form_alpha/form_beta pipelines. This is compile-only evidence; the warm-start checker was not executed.

@@ -1,0 +1,13 @@
+{
+  "files_sha256": {
+    "command-spec.json": "796b422271e2e120da8d3a358796013b42daf01a32557676ed2488affbd4ef64",
+    "correction-report.json": "e685e66d595b27a338d7f7a934a8821183f3b204582355b4e2e0f3e4a6717159",
+    "host-validation-binding.json": "05b07bd71977e016c42b803c71c65b9e82acb25b988d8d1aa1ca7ad07551bfb8",
+    "package-manifest.json": "f128a385b6fa357960ff06bf0011f58ebb60bf076c046d5e61551a6321a317b7",
+    "preflight-failure-attempts.json": "72bb6e01461beee108741b11fde049a19645b077adaaa3e4ff747bbe092f77b9",
+    "preflight.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "preflight.stdout.json": "65cbefe7c8da7919affd9a07b170436f7f99f5c54ea87b975a8fcb975be32601",
+    "runner.py": "4b243e8bb35c73e41560947fce1a65fa096d4bf0938fdd93ec0e94c1ae8a5a6c"
+  },
+  "schema": "numi.cardboard.native521-integrity-correction-manifest.v1"
+}

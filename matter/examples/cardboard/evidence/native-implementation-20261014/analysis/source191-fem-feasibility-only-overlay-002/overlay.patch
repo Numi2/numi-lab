@@ -1,0 +1,111 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -24793,6 +24793,8 @@
+                     }
+                 }
+             }
++            const std::uint32_t fullResidualContactFeasibilityOnly =
++                femFullContactResidualArmijoEnabled ? 1u : 0u;
+             dispatchGroups32(
+                 "nm_contact_limit_deformable_line_search",
+                 environments,
+@@ -24823,6 +24825,9 @@
+                               atIndex:17u];
+                     [encoder setBuffer:state.adaptive offset:0u atIndex:18u];
+                     [encoder setBuffer:state.femAccepted offset:0u atIndex:19u];
++                    [encoder setBytes:&fullResidualContactFeasibilityOnly
++                               length:sizeof(fullResidualContactFeasibilityOnly)
++                              atIndex:20u];
+                 });
+             if (femDeformableContactCaptureSelected &&
+                 deformableLimitTraceRecords != nil &&
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -1,5 +1,6 @@
+ #include "numi/matter/human_support_precision_gpu.h"
+ #include "numi/matter/mortar_shared_edge_guard.h"
++#include "numi/matter/deformable_contact_trial_policy.h"
+ 
+ namespace numi_matter_metal {
+ 
+@@ -8231,6 +8232,7 @@
+     constant NMMicrostepGPU& microstep [[buffer(17)]],
+     device const NMAdaptiveStateGPU* adaptive [[buffer(18)]],
+     device const NMFEMNodeStateGPU* accepted [[buffer(19)]],
++    constant uint& fullResidualArmijoEnabled [[buffer(20)]],
+     uint lane [[thread_index_in_threadgroup]],
+     uint environment [[threadgroup_position_in_grid]]
+ ) {
+@@ -8301,6 +8303,7 @@
+             float3(0.0f), float3(0.0f)
+         };
+         bool geometryValid = true;
++        unsigned int supportMask = 0u;
+         for (uint local = 0u; local < 6u; ++local) {
+             const uint node = deformableContactNode(contact, local);
+             if (node == NM_INVALID_INDEX) continue;
+@@ -8333,6 +8336,8 @@
+                     geometryValid = false;
+                     continue;
+                 }
++                supportMask = numi_matter_contact_policy::addSupport(
++                    supportMask, 2u);
+                 position[local] =
+                     gridNodes[gridGlobal].positionAndMass.xyz +
+                     dt * gridNodes[gridGlobal].candidateVelocity.xyz;
+@@ -8361,6 +8366,8 @@
+                 geometryValid = false;
+                 continue;
+             }
++            supportMask = numi_matter_contact_policy::addSupport(
++                supportMask, 1u);
+             const NMSchedulerStateGPU scheduler =
+                 schedulers[environment * dispatch.objectCount + objectIndex];
+             const NMAdaptiveStateGPU adaptiveState =
+@@ -8389,6 +8396,9 @@
+             }
+             continue;
+         }
++        const bool femFeasibilityOnly =
++            numi_matter_contact_policy::useFEMFeasibilityOnly(
++                fullResidualArmijoEnabled, supportMask);
+ 
+         float3 featurePosition[4];
+         float3 featureEndpoint[4];
+@@ -8737,7 +8747,14 @@
+                         contact, trialPosition, trialEnergy, trialSeparation);
+                     const float armijoRight = currentEnergy +
+                         1.0e-4f * alpha * directionalDerivative;
+-                    if (finiteTrial && trialEnergy <= armijoRight) {
++                    // In the opted-in FEM/full-residual path, this pass
++                    // only establishes exact-endpoint finiteness and full CCD
++                    // feasibility. The private full-contact trial below
++                    // rechecks its own exact swept endpoint and owns the
++                    // coupled residual acceptance decision. MPM and mixed
++                    // FEM/MPM contacts retain per-feature energy Armijo.
++                    if (finiteTrial &&
++                        (femFeasibilityOnly || trialEnergy <= armijoRight)) {
+                         armijoAlpha = alpha;
+                         break;
+                     }
+--- /dev/null
++++ b/matter/include/numi/matter/deformable_contact_trial_policy.h
+@@ -0,0 +1,18 @@
++#ifndef NUMI_MATTER_DEFORMABLE_CONTACT_TRIAL_POLICY_H
++#define NUMI_MATTER_DEFORMABLE_CONTACT_TRIAL_POLICY_H
++
++// Shared host/Metal policy classification for one deformable-contact support.
++// The global flag is set only when exact full-contact residual Armijo is active.
++namespace numi_matter_contact_policy {
++static inline unsigned int addSupport(unsigned int mask,
++                                      unsigned int representationBit) {
++    return mask | representationBit;
++}
++static inline bool useFEMFeasibilityOnly(unsigned int fullResidualArmijo,
++                                         unsigned int supportMask) {
++    const unsigned int femBit = 1u;
++    return fullResidualArmijo != 0u && supportMask == femBit;
++}
++} // namespace numi_matter_contact_policy
++
++#endif

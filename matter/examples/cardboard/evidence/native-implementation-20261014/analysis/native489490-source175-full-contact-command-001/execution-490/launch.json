@@ -1,0 +1,18 @@
+{
+  "schema": "numi.cardboard.native489490-preflight.v1",
+  "phase": "490",
+  "source_files_verified": 806,
+  "bound_build_files": {
+    "numi-matter-cardboard-full-contact-armijo-check": "a5d55207fedd3de294a3febfba54a398a7f20b79a787ac11c5ae4023f922d2a1",
+    "shaders/NumiMatter.metallib": "59a7df8c8fd4d336fbcb9e28b7fe3942d86063a4a1fbafe36963e41a0c007cc9",
+    "source-build.json": "75c24e646fccb250fe0f8bd7d812491d5aac3892f99e863578982780f1194a25"
+  },
+  "native_argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/numi-matter-cardboard-full-contact-armijo-check",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175-buildfix-003/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+    "--compensated-material-arithmetic"
+  ],
+  "available_bytes": 111496814592,
+  "execute_requested": true,
+  "started_at_utc": "2026-10-16T05:20:26.938312+00:00"
+}

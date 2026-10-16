@@ -1,0 +1,121 @@
+{
+  "schema": "numi.cardboard.native526-receipt.v1",
+  "phase": "526",
+  "exit_code": 0,
+  "timed_out": false,
+  "space_abort": false,
+  "errors": [],
+  "wall_seconds": 24.538004375,
+  "minimum_available_bytes": 102875025408,
+  "finished_at_utc": "2026-10-16T07:48:06.394514+00:00",
+  "scrubbed_parent_key_names": [],
+  "stdout_sha256": "8da911409ad24dc563cf403727fafe9396be2f18e1430dd062add5fb65dacd4f",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "shipping_or_physical_validation": false,
+  "case_files": {
+    "aliased/fixture-activation.log": {
+      "bytes": 59453,
+      "sha256": "e8697d03a7da317df0e028fbe4fc2d808a25edd2051bf42f110ae17aa0c4b88c"
+    },
+    "aliased/fixture-initialization.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "aliased/fixture-loaded.log": {
+      "bytes": 59501,
+      "sha256": "ae2618c56adc043213c6c166561ab2108b33e22bdad1782756d9b603be418aff"
+    },
+    "aliased/fixture-rejected.log": {
+      "bytes": 59494,
+      "sha256": "9dac869a725f20f64c689f8a4c0841171cc836788d2903fb8452c14d526247ef"
+    },
+    "aliased/transaction-000000-after.bin": {
+      "bytes": 933947,
+      "sha256": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318"
+    },
+    "aliased/transaction-000000-before.bin": {
+      "bytes": 933947,
+      "sha256": "d09862484e299a6b74530d6898607d5c6df4b391f53ffc28663dc243a464f6b7"
+    },
+    "aliased/transaction-000000.json": {
+      "bytes": 6587,
+      "sha256": "c60cd123bfc05e9f8869e490992316c71ee6cc9132c55ca7887d474635b18693"
+    },
+    "aliased/transaction-000001-after.bin": {
+      "bytes": 933947,
+      "sha256": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be"
+    },
+    "aliased/transaction-000001-before.bin": {
+      "bytes": 933947,
+      "sha256": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318"
+    },
+    "aliased/transaction-000001.json": {
+      "bytes": 6687,
+      "sha256": "6beca37ded734ccec002a41e61cc6776093b8dde7db6ba5198b1abd8b114de03"
+    },
+    "aliased/transaction-000002-after.bin": {
+      "bytes": 933947,
+      "sha256": "9a82b5e533c69eb52ea0ce438fd9f59693491d8c60693f84c4950cc9031ba2ba"
+    },
+    "aliased/transaction-000002-before.bin": {
+      "bytes": 933947,
+      "sha256": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be"
+    },
+    "aliased/transaction-000002.json": {
+      "bytes": 6664,
+      "sha256": "742cf2416e2e377976b496c5dd8a04f00e757b3e46a2a0e9121c28dfbc08cda5"
+    },
+    "baseline/fixture-activation.log": {
+      "bytes": 59453,
+      "sha256": "e8697d03a7da317df0e028fbe4fc2d808a25edd2051bf42f110ae17aa0c4b88c"
+    },
+    "baseline/fixture-initialization.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "baseline/fixture-loaded.log": {
+      "bytes": 59501,
+      "sha256": "ae2618c56adc043213c6c166561ab2108b33e22bdad1782756d9b603be418aff"
+    },
+    "baseline/fixture-rejected.log": {
+      "bytes": 59494,
+      "sha256": "9dac869a725f20f64c689f8a4c0841171cc836788d2903fb8452c14d526247ef"
+    },
+    "baseline/transaction-000000-after.bin": {
+      "bytes": 933947,
+      "sha256": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318"
+    },
+    "baseline/transaction-000000-before.bin": {
+      "bytes": 933947,
+      "sha256": "d09862484e299a6b74530d6898607d5c6df4b391f53ffc28663dc243a464f6b7"
+    },
+    "baseline/transaction-000000.json": {
+      "bytes": 6587,
+      "sha256": "c60cd123bfc05e9f8869e490992316c71ee6cc9132c55ca7887d474635b18693"
+    },
+    "baseline/transaction-000001-after.bin": {
+      "bytes": 933947,
+      "sha256": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be"
+    },
+    "baseline/transaction-000001-before.bin": {
+      "bytes": 933947,
+      "sha256": "8da19bd35d5bfbfec7871e7f3719d4832d26a7c0e65683980d4c24971f06a318"
+    },
+    "baseline/transaction-000001.json": {
+      "bytes": 6687,
+      "sha256": "6beca37ded734ccec002a41e61cc6776093b8dde7db6ba5198b1abd8b114de03"
+    },
+    "baseline/transaction-000002-after.bin": {
+      "bytes": 933947,
+      "sha256": "9a82b5e533c69eb52ea0ce438fd9f59693491d8c60693f84c4950cc9031ba2ba"
+    },
+    "baseline/transaction-000002-before.bin": {
+      "bytes": 933947,
+      "sha256": "40a59f3acf94f85acd1d3fdc3ac8f28770d463cf8eb86fcc2f8a601c05c113be"
+    },
+    "baseline/transaction-000002.json": {
+      "bytes": 6664,
+      "sha256": "742cf2416e2e377976b496c5dd8a04f00e757b3e46a2a0e9121c28dfbc08cda5"
+    }
+  }
+}

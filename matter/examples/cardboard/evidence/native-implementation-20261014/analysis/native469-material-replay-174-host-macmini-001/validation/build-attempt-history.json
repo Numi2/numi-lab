@@ -1,0 +1,26 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "cause": "exact source174 file had been copied to the normal host-bound path before the rebase file was recopied",
+      "exit_code": 1,
+      "failure": "host source hash mismatch at candidate/matter/tools/cardboard_source469_material_replay_check.mm",
+      "native_or_gpu_execution": false,
+      "raw_tool_output_persisted": false,
+      "remedy": "restored the source173-bound wrapper at the normal path and preserved exact source174 wrapper at an explicitly named sibling file",
+      "stage": "host source audit"
+    },
+    {
+      "attempt": 2,
+      "cause": "patch existed at package root, not under the declared patch directory",
+      "exit_code": 1,
+      "failure": "FileNotFoundError for patch/source173-binding-rebase.patch after all build subprocesses",
+      "native_or_gpu_execution": false,
+      "raw_tool_output_persisted": false,
+      "remedy": "copied the same-hash patch to patch/ and finalized existing outputs with finalize_host174.py; no rebuild/overwrite",
+      "stage": "build finalization"
+    }
+  ],
+  "final_build_record": "validation/host-build.json",
+  "schema": "numi.cardboard.native469-host-build-attempt-history.v1"
+}

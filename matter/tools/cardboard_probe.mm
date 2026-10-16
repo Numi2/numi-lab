@@ -5155,6 +5155,11 @@ numi::cardboard::ShippingMemoryBudgetInput shippingMemoryBudgetInput(
         if (input.runtimeConfigurationFailure.empty())
             input.runtimeConfigurationFailure = message;
     };
+    const auto incidenceSort = parseShippingDeformableNodeIncidenceSort(
+        std::getenv("NM_CONTACT_NODE_INCIDENCE_SORT"));
+    input.deformableNodeIncidenceSortEnabled = incidenceSort.enabled;
+    if (incidenceSort.error != nullptr)
+        recordConfigurationError(incidenceSort.error);
     if (fullContactOptions.error != nullptr)
         recordConfigurationError(fullContactOptions.error);
     if (surfaceAlias != nullptr) {
@@ -5280,6 +5285,8 @@ numi::cardboard::ShippingMemoryBudget shippingPrebuildMemoryBudget(
             std::getenv("NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT") == nullptr &&
             std::getenv("NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT") == nullptr,
         std::getenv("NM_FEM_FULL_CONTACT_REUSE_COHESIVE_SCRATCH") != nullptr);
+    configureShippingDeformableNodeIncidenceSort(
+        options, std::getenv("NM_CONTACT_NODE_INCIDENCE_SORT"));
     auto budget = estimateShippingPrebuildMemoryBudget(screen, options);
     if (arguments.femPreconditioner ==
             FEMPreconditionerMode::regionalGalerkin ||
@@ -5542,6 +5549,8 @@ void writeShippingResidualDescentAdmission(
            << budgetInput.cohesiveTrialPageCapacity
            << ", \"self_contact_enabled\": "
            << (budgetInput.deformableSelfContactEnabled ? "true" : "false")
+           << ", \"node_incidence_sort_enabled\": "
+           << (budgetInput.deformableNodeIncidenceSortEnabled ? "true" : "false")
            << "},\n"
            << "  \"runtime_configuration_failure\": \""
            << jsonEscape(budgetInput.runtimeConfigurationFailure) << "\",\n"
@@ -5713,6 +5722,8 @@ void writeShippingPrebuildMemoryScreen(
            << budget.persistentContactSlotBytes
            << ", \"persistent_contact_auxiliary\": "
            << budget.persistentContactAuxiliaryBytes
+           << ", \"deformable_node_incidence_sort_workspace\": "
+           << budget.deformableNodeIncidenceSortBytes
            << ", \"rigid_contact_runtime\": "
            << budget.rigidContactRuntimeBytes
            << ", \"constraint_contact_force_readback\": "
@@ -5810,6 +5821,8 @@ void writeShippingMemoryReport(
                << budget->persistentContactSlotBytes << ",\n"
                << "    \"persistent_contact_auxiliary_bytes\": "
                << budget->persistentContactAuxiliaryBytes << ",\n"
+               << "    \"deformable_node_incidence_sort_workspace_bytes\": "
+               << budget->deformableNodeIncidenceSortBytes << ",\n"
                << "    \"rigid_contact_runtime_bytes\": "
                << budget->rigidContactRuntimeBytes << ",\n"
                << "    \"cohesive_runtime_bytes\": "
@@ -12519,11 +12532,12 @@ std::string couponRunnerString(NSDictionary* dictionary, NSString* key,
     return shippingJsonStringField(dictionary, key, label);
 }
 
-constexpr std::array<std::string_view, 51u> kSource161DiagnosticEnvironmentKeys{
+constexpr std::array<std::string_view, 52u> kSource161DiagnosticEnvironmentKeys{
     "NM_CONTACT_NODE_INCIDENCE_SORT",
     "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
     "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
     "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+    "NM_FEM_BASE_CGLS_DAMPING_KG",
     "NM_FEM_BASE_CGLS_ITERATIONS",
     "NM_FEM_BASE_CGLS_PRIMARY_AFTER",
     "NM_FEM_BASE_CGLS_RIGHT_SCALE",
@@ -12665,7 +12679,8 @@ couponValidateSourceBoundDiagnosticRunner(
                 prefixes != nil &&
                 ([(NSArray*)keysValue count] == 49u ||
                  [(NSArray*)keysValue count] == 50u ||
-                 [(NSArray*)keysValue count] == 51u),
+                 [(NSArray*)keysValue count] == 51u ||
+                 [(NSArray*)keysValue count] == 52u),
             "source-bound diagnostic contract registry or maps are missing");
     NSArray* const keys = (NSArray*)keysValue;
     require(effective.count == keys.count,
@@ -12680,7 +12695,8 @@ couponValidateSourceBoundDiagnosticRunner(
     RuntimePathMap contractPaths;
     std::vector<std::pair<std::string, std::string>> contractNativeSettings;
     const bool contractHasWarmStartKey = keys.count >= 50u;
-    const bool contractHasIncidenceSortKey = keys.count == 51u;
+    const bool contractHasIncidenceSortKey = keys.count >= 51u;
+    const bool contractHasDampingKey = keys.count >= 52u;
     std::ostringstream runnerNonOutputSettings;
     runnerNonOutputSettings << "numi.cardboard.source161-runner-non-output-settings.v1\n";
     for (NSUInteger keyIndex = 0u; keyIndex < keys.count; ++keyIndex) {
@@ -12701,9 +12717,12 @@ couponValidateSourceBoundDiagnosticRunner(
             if (expectedKey == "NM_CONTACT_NODE_INCIDENCE_SORT" &&
                 !contractHasIncidenceSortKey)
                 continue;
+            if (expectedKey == "NM_FEM_BASE_CGLS_DAMPING_KG" &&
+                !contractHasDampingKey)
+                continue;
             if (expectedIndex == keyIndex) {
                 require(key == expectedKey,
-                        "source-bound diagnostic key registry differs from the exact 49/50/51-key source contract");
+                        "source-bound diagnostic key registry differs from the exact 49/50/51/52-key source contract");
                 break;
             }
             ++expectedIndex;

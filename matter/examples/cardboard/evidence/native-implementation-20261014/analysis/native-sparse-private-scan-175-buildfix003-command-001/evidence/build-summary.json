@@ -1,0 +1,218 @@
+{
+  "base_source173": {
+    "frozen_manifest_sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+    "remote_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173",
+    "source_files_verified": 804
+  },
+  "build": {
+    "attempts": [
+      {
+        "build_exit_code": 2,
+        "configure_exit_code": 0,
+        "failure": "required full-contact checker -Werror on unused kFreeBodyMortarGap and requireFullSnapshotRestoreParity",
+        "source": "175 integration snapshot"
+      },
+      {
+        "build_exit_code": 2,
+        "configure_exit_code": 0,
+        "failure": "sparse admission checker could not resolve numi/matter/sparse_private_contact_admission.hpp",
+        "source": "175 + buildfix-001"
+      },
+      {
+        "build_exit_code": 2,
+        "configure_exit_code": 0,
+        "failure": "sparse native checker could not resolve numi/matter/shared.h",
+        "source": "175 + buildfix-002"
+      },
+      {
+        "build_exit_code": 0,
+        "built_targets": [
+          "numi-matter-cardboard-probe",
+          "numi-matter-cardboard-warm-start-check",
+          "numi-matter-cardboard-shipping-snapshot-check",
+          "numi-matter-cardboard-coupon-resume-check",
+          "numi-matter-cardboard-full-contact-armijo-check",
+          "numi-matter-cardboard-sparse-private-admission-check",
+          "numi-matter-cardboard-sparse-private-scan-native-check"
+        ],
+        "configure_exit_code": 0,
+        "source": "175 + buildfix-003"
+      }
+    ],
+    "report": {
+      "artifacts": {
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/CMakeCache.txt": {
+          "sha256": "660ba5cb9c3c033a72c83f8533f19765a01c001e6a24a3daa0e7589c06915370",
+          "size_bytes": 18793
+        },
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/compile_commands.json": {
+          "sha256": "83220b1fda3e8c11e6ae3a0caa14ea7c292948ac3d36dfb4e098fd5680c1bcd3",
+          "size_bytes": 128855
+        },
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/libnumi_matter_compiler.a": {
+          "sha256": "8dfa965ea4d7c005d5add228dcc679bba88f977c23c4d45e75e4d14dbcac1153",
+          "size_bytes": 874056
+        },
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/libnumi_matter_runtime.a": {
+          "sha256": "b1e626674e579d6faf149b6d2a4446cbfed464115830642711fbaee0ce672f27",
+          "size_bytes": 1994896
+        },
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/numi-matter-cardboard-coupon-resume-check": {
+          "sha256": "f3da60391ccd493d89dd92ae5dba803031f9fa2b0c5c81635cc1f3db36b34b4f",
+          "size_bytes": 165208
+        },
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/numi-matter-cardboard-full-contact-armijo-check": {
+          "sha256": "a5d55207fedd3de294a3febfba54a398a7f20b79a787ac11c5ae4023f922d2a1",
+          "size_bytes": 2249648
+        },
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/numi-matter-cardboard-probe": {
+          "sha256": "dcc630261ad3fd6c06fe9c55dba3462433d677af30a778741e56c1cdc59f6b52",
+          "size_bytes": 3171608
+        },
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/numi-matter-cardboard-shipping-snapshot-check": {
+          "sha256": "f67f720ae5f8017987a8fff87c17b6e4fceeb14994bf229e45ec50c3a53d1080",
+          "size_bytes": 191248
+        },
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/numi-matter-cardboard-sparse-private-admission-check": {
+          "sha256": "bb7550609d03195fbb5ed9f8cf1e5ed6de1f3cc9b7bd1f6cd7eafcb0259c162b",
+          "size_bytes": 36456
+        },
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/numi-matter-cardboard-sparse-private-scan-native-check": {
+          "sha256": "e5a2ee1edfa6d2395b6d1c512bfc34f94e270fd27aeb6a0276994ce264ffff70",
+          "size_bytes": 92536
+        },
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/numi-matter-cardboard-warm-start-check": {
+          "sha256": "c75b2630440ddb63e7b38c82fc532270af21892c75467ec05cb0b3b123633c2a",
+          "size_bytes": 161816
+        },
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/shaders/CardboardWarmStartCheck.metallib": {
+          "sha256": "66e3c8739bfd49930295e5e0d160a71108a01b56071f47a9b2b8e7fdaa36a4c6",
+          "size_bytes": 1976280
+        },
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/shaders/NumiMatter.metallib": {
+          "sha256": "59a7df8c8fd4d336fbcb9e28b7fe3942d86063a4a1fbafe36963e41a0c007cc9",
+          "size_bytes": 7029968
+        },
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003/shaders/NumiMatterPhysicalStateDigest.metallib": {
+          "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+          "size_bytes": 80076
+        }
+      },
+      "build_argv": [
+        "/opt/homebrew/bin/cmake",
+        "--build",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003",
+        "--target",
+        "numi-matter-cardboard-probe",
+        "numi-matter-cardboard-warm-start-check",
+        "numi-matter-cardboard-shipping-snapshot-check",
+        "numi-matter-cardboard-coupon-resume-check",
+        "numi-matter-cardboard-full-contact-armijo-check",
+        "numi-matter-cardboard-sparse-private-admission-check",
+        "numi-matter-cardboard-sparse-private-scan-native-check",
+        "-j",
+        "2"
+      ],
+      "build_dir": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003",
+      "build_exit_code": 0,
+      "cmake": "/opt/homebrew/bin/cmake",
+      "configure_argv": [
+        "/opt/homebrew/bin/cmake",
+        "-S",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175-buildfix-003/matter",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+        "-DPython3_EXECUTABLE=/opt/homebrew/Cellar/python@3.13/3.13.14_1/bin/python3.13"
+      ],
+      "configure_exit_code": 0,
+      "cpu_ctest_exit_code": 0,
+      "cpu_ctest_passed": 4,
+      "cpu_ctest_regex": "^matter\\.compiler\\.cardboard_(sparse_private_admission|sparse_private_scan_cpu_contract|full_contact_armijo|compensated_full_contact)$",
+      "cpu_test_names": [
+        "matter.compiler.cardboard_sparse_private_admission",
+        "matter.compiler.cardboard_sparse_private_scan_cpu_contract",
+        "matter.compiler.cardboard_full_contact_armijo",
+        "matter.compiler.cardboard_compensated_full_contact"
+      ],
+      "gpu_kernel_execution": false,
+      "host_tag": "macmini",
+      "limits": [
+        "Buildfix 003 adds only target-local include directories for the two sparse checker targets and [[maybe_unused]] markers for two checker-only declarations.",
+        "CPU-only tests passed; sparse native checker was not dispatched on Metal.",
+        "No full coupon, shipping admission, performance, or physical qualification is claimed."
+      ],
+      "native_dispatch_performed": false,
+      "parent_manifest_sha256": "6d7e76fdb07702b0b0727fc6610ae979c4e0e161ad92f6888036b1dfef3b53b3",
+      "parent_source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-checkpoint-warm-breakdown-173",
+      "physical_transactions": 0,
+      "platform": "macOS-26.6-arm64-arm-64bit",
+      "python": "3.9.6",
+      "schema": "numi.cardboard.source-build.v1",
+      "source_files_verified": 806,
+      "source_manifest_sha256": "6e4f8dad1377af79b1dc2ddeeb0f07e6a273598d291cb030e6222e8aebb5a007",
+      "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175-buildfix-003",
+      "success": true,
+      "targets": [
+        "numi-matter-cardboard-probe",
+        "numi-matter-cardboard-warm-start-check",
+        "numi-matter-cardboard-shipping-snapshot-check",
+        "numi-matter-cardboard-coupon-resume-check",
+        "numi-matter-cardboard-full-contact-armijo-check",
+        "numi-matter-cardboard-sparse-private-admission-check",
+        "numi-matter-cardboard-sparse-private-scan-native-check"
+      ],
+      "warnings": [
+        "two inherited Metal fgmres.metalinc maybe-uninitialized warnings",
+        "one inherited cardboard_probe.mm unused-function warning"
+      ]
+    },
+    "source_build_json_sha256": "75c24e646fccb250fe0f8bd7d812491d5aac3892f99e863578982780f1194a25"
+  },
+  "compile_hygiene_snapshot": {
+    "changed_paths": [
+      "matter/CMakeLists.txt",
+      "matter/tools/cardboard_full_contact_armijo_check.mm"
+    ],
+    "changes": [
+      "Add matter/include to both sparse checker targets so numi/matter headers resolve.",
+      "Mark two unused full-contact checker declarations [[maybe_unused]] to satisfy -Werror."
+    ],
+    "frozen_manifest_sha256": "6e4f8dad1377af79b1dc2ddeeb0f07e6a273598d291cb030e6222e8aebb5a007",
+    "lineage_sha256": "d2a3ad84bc387d43a056d2db1509fd0068b42fde67483e5a722f3d2131d3f639",
+    "patch_sha256": "f9aee00a3c607e7544ec1a9b1c32b5b1cdd2840e8976e6f75bfe878d8fb820f1",
+    "production_runtime_or_metal_changes": false,
+    "remote_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175-buildfix-003",
+    "source_file_count": 806
+  },
+  "cpu_tests": {
+    "failed": 0,
+    "gpu_dispatch": false,
+    "names": [
+      "matter.compiler.cardboard_sparse_private_admission",
+      "matter.compiler.cardboard_sparse_private_scan_cpu_contract",
+      "matter.compiler.cardboard_full_contact_armijo",
+      "matter.compiler.cardboard_compensated_full_contact"
+    ],
+    "passed": 4
+  },
+  "gpu_dispatch": false,
+  "integrated_source175": {
+    "frozen_manifest_sha256": "6e0f7c2fb307bf82cf80813b9d6854e333d70adf5054fca978c11b2cfee21012",
+    "integration_patch_sha256": "5c28690d844ebb162c13f2fe0333e70d9e9699bcb02661ee2f7ed917de537110",
+    "lineage_sha256": "8c432e4062ae46caef9c3a13f5b8e92720499b611a8f4661f4222c64695166e6",
+    "remote_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-sparse-private-scan-175",
+    "runtime_sha256": "836b146cc4e95e9096f094f33e7bfd7248bc816821541238321deca7ad7ff61a",
+    "source_file_count": 806
+  },
+  "limitations": [
+    "This is a compile plus CPU-only contract-check result, not the queued native differential.",
+    "No physical FEM transaction, shipping-sized admission, GPU performance, or box-assembly qualification is claimed.",
+    "Source175 buildfix-003 is distinct from the exact eight-file source175 integration overlay; all failed intermediate build attempts are retained."
+  ],
+  "physical_transactions": 0,
+  "remote_build_dir": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source175-buildfix-003",
+  "schema": "numi.cardboard.source175-macmini-build-adjudication.v1",
+  "status": "PASS_WITH_SEPARATE_COMPILE_HYGIENE_REVISION"
+}

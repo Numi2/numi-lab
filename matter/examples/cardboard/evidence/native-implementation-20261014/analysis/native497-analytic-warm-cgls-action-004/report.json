@@ -1,0 +1,226 @@
+{
+  "capture_to_source_binding": {
+    "cgls_capture_sha256": "d2cebe5b9e0215f2a328a92efc74db707862034bc785eccb3f8a41a9992e5646",
+    "kernel_seed_residual_binding_lines": [
+      70
+    ],
+    "kernel_sha256": "1166f3ebb485116b519cb0f1977cae0183e877330ce666f520a05a5f5d3c2234",
+    "operator_manifest_sha256": "ae360ba383bcaba3d85e1660bec8c318def1526508b633cb78791aedb30bf166",
+    "prior_arrays_sha256": "8505e8be2aa1881d61806af1fe8768ba78307f5340761d75fff94be2760def7f",
+    "prior_report_sha256": "b6ab00d8d2eb62625fbc65878306f474213d1dd3ccd8ab5dec7d534258e91f1f",
+    "runtime_final_total_action_lines": [
+      24368
+    ],
+    "runtime_seed_residual_binding_lines": [
+      4602,
+      24151
+    ],
+    "runtime_sha256": "60bd26def9d1fde3cee4060a21b7d983e8fa817accf3f0dbd5c8bee8e194a2f6",
+    "runtime_snapshot_encoder_call_lines": [
+      24443,
+      24459
+    ],
+    "runtime_snapshot_source_order_lines": [
+      23795
+    ]
+  },
+  "corrected_capture_semantics": {
+    "Ax_segment": "Fresh production cached-operator action A*X: runtime applies physical X then dispatches the mode-4 action to the buffer at snapshot segment Ax before taking the selected snapshot.",
+    "b_segment": "Fresh residual RHS b-A*x0 written by seed_residual for warm-start refinement.",
+    "prior_report_fields_corrected": [
+      "input_layer.initial_FGMRES_correction_source incorrectly named delta_velocity_m_s; actual source is correction_delta_v_m_s.",
+      "captured_q_workspace_vs_CSR_A_times_X_not_comparable incorrectly called the captured Ax segment a last-Ap workspace; it is the final A*X action.",
+      "arrays key CGLS_last_q_Ap_workspace is a legacy mislabel for the captured Ax segment."
+    ],
+    "r_segment": "CGLS recurrence residual before final total-candidate action check.",
+    "x0_segment": "Current Newton FGMRES femSolution, read from operator-FD node field correction_delta_v_m_s; it is not cumulative node delta_velocity_m_s.",
+    "x_segment": "Version-3 CGLS snapshot X is the total candidate x0+S*y after strict residual comparison; it matches the report warm_total_direction_free_xyz exactly after widening captured FP32 words."
+  },
+  "evidence_class": "CPU-only source-bound interpretation and arithmetic audit; no native rerun",
+  "exact_state_and_action_metrics": {
+    "captured_B_l2_Ns": 2.0964327342218526e-07,
+    "captured_R_l2_Ns": 2.6087779838842947e-08,
+    "captured_native_A_times_X_l2_Ns": 1.8848711872723502e-05,
+    "captured_native_A_times_X_vs_fp64_csr_Ax0_plus_B_minus_R": {
+      "global_absolute_difference_l2": 3.767387222978261e-09,
+      "global_actual_l2": 1.8848711872723502e-05,
+      "global_expected_l2": 1.8848426124674083e-05,
+      "global_relative_l2": 0.00019987807990219685,
+      "max_row_absolute_l2": 1.9651504781272784e-09,
+      "max_row_expected_l2": 7.544999002829506e-06,
+      "max_row_relative_l2_nonzero_expected": 0.009322464497590447,
+      "rows": 846,
+      "worst_row": 371
+    },
+    "captured_native_A_times_X_vs_same_generation_fp64_csr_A_times_X": {
+      "global_absolute_difference_l2": 1.686201812662224e-09,
+      "global_actual_l2": 1.8848711872723502e-05,
+      "global_expected_l2": 1.8848655347193897e-05,
+      "global_relative_l2": 8.946005864090767e-05,
+      "max_row_absolute_l2": 5.281024128729117e-10,
+      "max_row_expected_l2": 7.545157415733033e-06,
+      "max_row_relative_l2_nonzero_expected": 0.0018957781232820101,
+      "rows": 846,
+      "worst_row": 522
+    },
+    "fp64_csr_A_times_total_minus_x0_vs_captured_B_minus_R": {
+      "global_absolute_difference_l2": 3.6250930110405116e-09,
+      "global_actual_l2": 2.0808469009959968e-07,
+      "global_expected_l2": 2.080050906164091e-07,
+      "global_relative_l2": 0.017427905251250306,
+      "max_row_absolute_l2": 1.9645486319215767e-09,
+      "max_row_expected_l2": 5.534057540196201e-08,
+      "max_row_relative_l2_nonzero_expected": 5.371543212480699,
+      "rows": 846,
+      "worst_row": 490
+    },
+    "fp64_csr_A_times_total_vs_fp64_csr_Ax0_plus_B_minus_R": {
+      "global_absolute_difference_l2": 3.625093014350956e-09,
+      "global_actual_l2": 1.8848426124674083e-05,
+      "global_expected_l2": 1.8848655347193897e-05,
+      "global_relative_l2": 0.00019232634623406403,
+      "max_row_absolute_l2": 1.9645486304178367e-09,
+      "max_row_expected_l2": 7.545157415733033e-06,
+      "max_row_relative_l2_nonzero_expected": 0.00913802976979733,
+      "rows": 846,
+      "worst_row": 371
+    },
+    "limitations": "The capture does not retain the native A*x0 vector before seed_residual. Therefore this residual/action gap cannot be separated into native FP32 action error on x0 versus recurrence/update/reduction drift. Comparisons use a same-generation CSR reconstructed from captured FP32 operator coefficients widened to FP64; they are not an independent exact physical operator.",
+    "x0_current_fgmres_l2_m_s": 4.836315978382837,
+    "x_total_l2_m_s": 4.836317037642793,
+    "x_total_minus_x0_l2_m_s": 5.8461529254856474e-05
+  },
+  "limits": [
+    "Selected environment 0 at one captured Newton linearization only; no full-cycle or full-coupon qualification.",
+    "No native GPU replay was run.",
+    "No zero-direction absolute noise floor is inferred.",
+    "The native recurrence/action identity is only bounded by available captures; native A*x0 was not separately retained.",
+    "Strict reference versus cached FP32 tangent is descriptive and below aggregate 1e-3, but this is not a global calibration or all-direction proof."
+  ],
+  "retained_material_tet_nodal_findings": {
+    "cached_tangent_tet_action_vs_dt2_stiffness_csr": {
+      "actual_global_l2": 1.9293523153994626e-05,
+      "component_relative_zero_expected_count": 0,
+      "difference_global_l2": 2.2962793474704107e-17,
+      "expected_global_l2": 1.9293523153993734e-05,
+      "finite_rows": 846,
+      "global_relative_l2": 1.190181455788226e-12,
+      "max_component_absolute_error": 9.440182197149177e-18,
+      "max_component_relative_error_nonzero_expected": 4.1723639751425023e-10,
+      "max_row_absolute_l2": 9.440636485361825e-18,
+      "max_row_expected_l2": 7.610372516825879e-06,
+      "max_row_relative_l2_nonzero_expected": 2.5171665351849358e-11,
+      "nonfinite_rows": 0,
+      "rows": 846,
+      "worst_row_index_nonzero_expected": 304,
+      "zero_expected_norm_rows": 0
+    },
+    "first_layer_interpretation": "No material center stress mismatch is indicated. The largest resolved difference in this independent smooth action chain is the strict FP64 analytic tangent versus captured widened FP32 cached tangent/operator (global assembled action relative 2.9851e-5; max row relative 4.0331e-4). Mass reconstruction is exact against its captured CSR; cached tet/frame/scatter agrees with stiffness CSR at 1.19e-12. No native action was replayed.",
+    "mass_action_vs_mass_csr": {
+      "actual_global_l2": 2.2734016118029946e-06,
+      "component_relative_zero_expected_count": 0,
+      "difference_global_l2": 0.0,
+      "expected_global_l2": 2.2734016118029946e-06,
+      "finite_rows": 846,
+      "global_relative_l2": 0.0,
+      "max_component_absolute_error": 0.0,
+      "max_component_relative_error_nonzero_expected": 0.0,
+      "max_row_absolute_l2": 0.0,
+      "max_row_expected_l2": 7.473488065326848e-07,
+      "max_row_relative_l2_nonzero_expected": 0.0,
+      "nonfinite_rows": 0,
+      "rows": 846,
+      "worst_row_index_nonzero_expected": 0,
+      "zero_expected_norm_rows": 0
+    },
+    "paper_center_stress_vs_native_capture": {
+      "actual_global_l2": 56698074.07785092,
+      "component_relative_zero_expected_count": 0,
+      "difference_global_l2": 1.3566774587566865,
+      "expected_global_l2": 56698074.06129854,
+      "finite_rows": 1728,
+      "global_relative_l2": 2.392810481163661e-08,
+      "max_component_absolute_error": 0.1247607278637588,
+      "max_component_relative_error_nonzero_expected": 7.189524733330895e-08,
+      "max_row_absolute_l2": 0.124773002281901,
+      "max_row_expected_l2": 2718286.2271027863,
+      "max_row_relative_l2_nonzero_expected": 5.8014080972250667e-08,
+      "nonfinite_rows": 0,
+      "rows": 1728,
+      "worst_row_index_nonzero_expected": 973,
+      "zero_expected_norm_rows": 0
+    },
+    "paper_center_strict_projection": {
+      "correction_gate": 2e-11,
+      "failed": [],
+      "max_dynamic_correction": 2.810463845425636e-13,
+      "max_iterations": 10,
+      "max_scaled_residual": 1.954412311200781e-12,
+      "paper_tets": 1728,
+      "passed": 1728,
+      "residual_gate": 2e-12
+    },
+    "strict_full_tet_frame_nodal_action_vs_same_generation_cached_csr_Ax": {
+      "actual_global_l2": 1.8848703216018267e-05,
+      "component_relative_zero_expected_count": 0,
+      "difference_global_l2": 5.6265525070579e-10,
+      "expected_global_l2": 1.8848655347193897e-05,
+      "finite_rows": 846,
+      "global_relative_l2": 2.9851214335539093e-05,
+      "max_component_absolute_error": 2.564448731819082e-10,
+      "max_component_relative_error_nonzero_expected": 0.012343010217945987,
+      "max_row_absolute_l2": 2.7158384924544703e-10,
+      "max_row_expected_l2": 7.545157415733033e-06,
+      "max_row_relative_l2_nonzero_expected": 0.0004033126290930114,
+      "nonfinite_rows": 0,
+      "rows": 846,
+      "worst_row_index_nonzero_expected": 773,
+      "zero_expected_norm_rows": 0
+    },
+    "strict_material_directional_tangent_vs_captured_fp32_cached_matrix": {
+      "actual_global_l2": 317722799962.6588,
+      "component_relative_zero_expected_count": 0,
+      "difference_global_l2": 449387.0217750951,
+      "expected_global_l2": 317722799182.52765,
+      "finite_rows": 1728,
+      "global_relative_l2": 1.4143996682999384e-06,
+      "max_component_absolute_error": 169834.3095727563,
+      "max_component_relative_error_nonzero_expected": 0.02373734198001295,
+      "max_row_absolute_l2": 170221.81106042344,
+      "max_row_expected_l2": 31965473117.206474,
+      "max_row_relative_l2_nonzero_expected": 5.843285658407601e-05,
+      "nonfinite_rows": 0,
+      "rows": 1728,
+      "worst_row_index_nonzero_expected": 1492,
+      "zero_expected_norm_rows": 0
+    },
+    "strict_tangent_tet_action_vs_dt2_stiffness_csr": {
+      "actual_global_l2": 1.929357462196025e-05,
+      "component_relative_zero_expected_count": 0,
+      "difference_global_l2": 5.626552518179971e-10,
+      "expected_global_l2": 1.9293523153993734e-05,
+      "finite_rows": 846,
+      "global_relative_l2": 2.916290857440043e-05,
+      "max_component_absolute_error": 2.5644487310567523e-10,
+      "max_component_relative_error_nonzero_expected": 0.004056881112775995,
+      "max_row_absolute_l2": 2.715838492152908e-10,
+      "max_row_expected_l2": 7.610372516825879e-06,
+      "max_row_relative_l2_nonzero_expected": 0.00040510849296457866,
+      "nonfinite_rows": 0,
+      "rows": 846,
+      "worst_row_index_nonzero_expected": 479,
+      "zero_expected_norm_rows": 0
+    }
+  },
+  "schema": "numi.cardboard.native497-cgls-action-capture-erratum.v1",
+  "source_case": {
+    "environment": 0,
+    "execution_fingerprint": "430c1fc2739f9879",
+    "free_dof_count": 2538,
+    "newton_iteration": 63,
+    "node_count": 882,
+    "root": 20,
+    "tet_count": 1920,
+    "world_fingerprint": "48d3b8b313356bd9"
+  }
+}
